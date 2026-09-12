@@ -1,0 +1,152 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { supabaseServer } from "@/lib/supabase/server";
+
+/**
+ * Config Studio actions (FABLE-01 §10). Every action is a thin call to an
+ * existing database RPC acting AS THE SIGNED-IN USER: authority, lifecycle
+ * rules and audit rows are decided and written by the database (doc 05,
+ * INV-16/18/23/25). Nothing here checks a display role, and nothing here
+ * invents policy — transfer consent/authorization policy is OD-9.
+ *
+ * Results return to the page as a calm status line (`?hasil=…`) anchored to
+ * the section that was used.
+ */
+
+type Outcome = { ok: boolean; detail?: string };
+
+function back(section: string, outcome: Outcome): never {
+  const q = new URLSearchParams({ bagian: section, hasil: outcome.ok ? "ok" : "gagal" });
+  if (outcome.detail) q.set("detail", outcome.detail.slice(0, 300));
+  redirect(`/konfigurasi?${q.toString()}#${section}`);
+}
+
+function str(fd: FormData, key: string): string {
+  return String(fd.get(key) ?? "").trim();
+}
+
+function uuidOrNull(v: string): string | null {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) ? v : null;
+}
+
+export async function rolloverAction(fd: FormData): Promise<void> {
+  const institution = uuidOrNull(str(fd, "institution"));
+  const fromPeriod = uuidOrNull(str(fd, "from_period"));
+  const toPeriod = uuidOrNull(str(fd, "to_period"));
+  const mapping: Array<{ from_node: string; to_node: string }> = [];
+  for (const [k, v] of fd.entries()) {
+    const m = /^map\[([0-9a-f-]{36})\]$/i.exec(k);
+    const to = uuidOrNull(String(v));
+    if (m && to) mapping.push({ from_node: m[1], to_node: to });
+  }
+  if (!institution || !fromPeriod || !toPeriod || fromPeriod === toPeriod || mapping.length === 0) {
+    back("rollover", { ok: false, detail: "lengkapi tahun ajaran asal, tujuan, dan minimal satu pemetaan kelas" });
+  }
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.rpc("period_rollover", {
+    p_institution: institution,
+    p_from_period: fromPeriod,
+    p_to_period: toPeriod,
+    p_mapping: mapping,
+  });
+  back("rollover", error ? { ok: false, detail: error.message } : { ok: true, detail: `${data ?? 0} keanggotaan dipindahkan` });
+}
+
+export async function transferRequestAction(fd: FormData): Promise<void> {
+  const fromEnrollment = uuidOrNull(str(fd, "from_enrollment"));
+  const toInstitution = uuidOrNull(str(fd, "to_institution"));
+  const toPeriod = uuidOrNull(str(fd, "to_period"));
+  const toProgramme = uuidOrNull(str(fd, "to_programme"));
+  const reason = str(fd, "reason");
+  if (!fromEnrollment || !toInstitution || !toPeriod) {
+    back("transfers", { ok: false, detail: "pendaftaran asal, kode sekolah tujuan dan kode tahun ajaran tujuan wajib diisi" });
+  }
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("transfer_request", {
+    p_from_enrollment: fromEnrollment,
+    p_to_institution: toInstitution,
+    p_to_period: toPeriod,
+    p_to_programme: toProgramme,
+    p_reason: reason || null,
+    p_consent: {},
+  });
+  back("transfers", error ? { ok: false, detail: error.message } : { ok: true });
+}
+
+export async function transferAuthorizeAction(fd: FormData): Promise<void> {
+  const id = uuidOrNull(str(fd, "transfer"));
+  if (!id) back("transfers", { ok: false });
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("transfer_authorize", { p_transfer: id, p_consent: {} });
+  back("transfers", error ? { ok: false, detail: error.message } : { ok: true });
+}
+
+export async function transferExecuteAction(fd: FormData): Promise<void> {
+  const id = uuidOrNull(str(fd, "transfer"));
+  if (!id) back("transfers", { ok: false });
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("transfer_execute", { p_transfer: id });
+  back("transfers", error ? { ok: false, detail: error.message } : { ok: true });
+}
+
+export async function transferRejectAction(fd: FormData): Promise<void> {
+  const id = uuidOrNull(str(fd, "transfer"));
+  if (!id) back("transfers", { ok: false });
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("transfer_reject", { p_transfer: id, p_reason: str(fd, "reason") || null });
+  back("transfers", error ? { ok: false, detail: error.message } : { ok: true });
+}
+
+const GRANTABLE = new Set(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"]);
+
+export async function grantRoleAction(fd: FormData): Promise<void> {
+  const person = uuidOrNull(str(fd, "person"));
+  const role = str(fd, "role");
+  const scope = uuidOrNull(str(fd, "scope"));
+  const until = str(fd, "valid_until");
+  if (!person || !GRANTABLE.has(role) || !/^\d{4}-\d{2}-\d{2}$/.test(until)) {
+    back("roles", { ok: false, detail: "pilih orang, peran, dan tanggal berlaku" });
+  }
+  if (role !== "SYSTEM_ADMIN" && !scope) back("roles", { ok: false, detail: "peran sekolah memerlukan lingkup" });
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("grant_role", {
+    p_person: person,
+    p_role: role,
+    p_scope_node: role === "SYSTEM_ADMIN" ? null : scope,
+    p_valid_until: `${until}T23:59:59+07:00`,
+  });
+  back("roles", error ? { ok: false, detail: error.message } : { ok: true });
+}
+
+export async function revokeRoleAction(fd: FormData): Promise<void> {
+  const id = uuidOrNull(str(fd, "assignment"));
+  if (!id) back("roles", { ok: false });
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("revoke_role", { p_assignment: id });
+  back("roles", error ? { ok: false, detail: error.message } : { ok: true });
+}
+
+export async function setFlagAction(fd: FormData): Promise<void> {
+  const institution = uuidOrNull(str(fd, "institution"));
+  const key = str(fd, "key");
+  const enabled = str(fd, "enabled") === "on";
+  if (!institution || !/^[a-z][a-z0-9_.]{1,80}$/.test(key)) back("flags", { ok: false, detail: "kunci fitur: huruf kecil, angka, titik, garis bawah" });
+  const supabase = await supabaseServer();
+  const { error } = await supabase
+    .from("feature_flags")
+    .upsert({ key, institution_id: institution, enabled, updated_at: new Date().toISOString() }, { onConflict: "key,institution_id" });
+  back("flags", error ? { ok: false, detail: error.message } : { ok: true });
+}
+
+export async function setPlatformConfigAction(fd: FormData): Promise<void> {
+  const key = str(fd, "key");
+  if (!["maintenance_mode", "registration_lock"].includes(key)) back("flags", { ok: false });
+  const value = str(fd, "value") === "on";
+  const supabase = await supabaseServer();
+  const { error, count } = await supabase
+    .from("platform_config")
+    .update({ value, updated_at: new Date().toISOString() }, { count: "exact" })
+    .eq("key", key);
+  back("flags", error ? { ok: false, detail: error.message } : count ? { ok: true } : { ok: false, detail: "tidak ada perubahan" });
+}
