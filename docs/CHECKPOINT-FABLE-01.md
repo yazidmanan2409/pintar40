@@ -131,8 +131,16 @@ that carry a manifest justification) run exactly `selftest/manifest.json`
 - **GitHub push:** cleared. The checkpoint archive was restored and the
   12-commit history pushed to `yazidmanan2409/pintar40`; `main` tracks
   `origin/main`.
-- **CI execution:** cleared. Run #1 executed on `b929c12` and was red on
-  CI-01 (harness defect, fixed forward). R04 still needs a green run.
+- **CI execution:** cleared. Run #1 (`b929c12`) was red on CI-01 (harness
+  defect, fixed forward); run #2 (`da41bd3`) is green on all six jobs with
+  the strict selftest at 29/29, 0 skipped — R04 included.
+- **Deliberately broken PR:** cleared. PR #1 from
+  `verify/fable01-broken-pr` (`1008592`) added one permissive
+  `using (true)` policy on `public.persons`; CI run 34683448686 went red on
+  the upgrade-path db contract with `policies_using_true: 1`, and the PR
+  was closed unmerged. `main` never carried the defect. The remote branch
+  still needs deleting by hand — the build session's proxy refuses ref
+  deletion. Details in `docs/audit/FABLE-01-mini-audit.md`.
 - **Network to Supabase from the session:** egress denies `*.supabase.co`;
   no Docker for a local stack. DB-layer verification continues through the
   management channel.
@@ -154,5 +162,7 @@ top of `46db15d`:
 - `b929c12` mini audit: audit_log service_role grants revoked
   (migration 13), selftest search_path pinned, fail-loud app URL, audit
   record, ADR findings 6–8, this checkpoint
-- (this commit) CI-01: the db runner's privilege assumptions on schema
+- `da41bd3` CI-01: the db runner's privilege assumptions on schema
   `selftest` stated in `selftest/db/fable01.sql`
+- (this commit) verification evidence for CI run #2 and the deliberately
+  broken PR #1 (documentation only — the defect was never on `main`)

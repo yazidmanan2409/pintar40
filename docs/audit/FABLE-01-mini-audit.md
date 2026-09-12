@@ -120,16 +120,65 @@ what makes the explicit EXECUTE grant load-bearing rather than decorative.
   404 on `/api/dev/*`, public copy clean). R02/R03 require network to the
   project; R04 requires a CI run.
 - Advisor output and live structural counts recorded above, 2026-09-12.
+- CI run 34682990218 (run #2, `da41bd3`): all six jobs green and the strict
+  selftest executed for the first time — **29/29, 0 failed, 0 skipped**,
+  facilities `db, app, network, ci`. That run supplies the missing
+  evidence for R02, R03 and R04. Caveat: the upgrade-path job applied zero
+  pending migrations (`Local database is up to date`), because `da41bd3`
+  adds no migration; that dimension is first exercised by PR #1 below.
+
+## Deliberately broken PR verification (doc 16 §5)
+
+Purpose: prove the pull-request pipeline rejects a known prohibited schema
+change **before** merge, not only after it lands.
+
+- Branch `verify/fable01-broken-pr`, commit `1008592`, from `main` at
+  `da41bd3`. PR #1, closed without merging (`merged: false`).
+- One deliberate defect, nothing else: added
+  `supabase/migrations/20990102000000_fable01_broken_pr_check.sql` with
+  `create policy fable01_broken_pr_check on public.persons for select to
+  authenticated using (true)`. No existing migration and no production
+  implementation altered; the diff against `main` is that one added file
+  (1 file, +29).
+- CI run 34683448686 (run #3, event `pull_request`) → **failure**.
+  Failing check: `migrations · previous schema → HEAD (upgrade path)`,
+  step *"The db contract holds on the upgraded database"*, exit 1 on
+  `! grep -E '\| f \|' upgraded.txt`.
+
+Evidence that the permissive policy is the cause, not an unrelated error:
+
+- `F01-T13 | f` with `policies_using_true: 1` — the lint counter that
+  exists for exactly this defect — alongside `tables_without_rls: 0`,
+  `migrations_applied: 14` (13 + the PR's migration) and every other
+  counter `0`.
+- The invariants the policy actually breaks went red with it: `F01-T02`
+  (`beta rows visible=1`, INV-13), `F01-T03` (`persons=9`, was 1, doc 05
+  student scope), `F01-T07` (`foreign=2`, was 0, educator scope), `F01-T10`
+  (`beta saw learner before transfer`, INV-25).
+- The other 16 rows stayed `t` (T01, T04–T06, T08, T09, T11, T12, T13b,
+  T14–T19, DONE); the migration applied cleanly; `install · lint ·
+  typecheck · build` and `migrations · clean database + seed` both passed.
+- The static contract independently named the file: `F01-S02 FAIL …
+  20990102000000_fable01_broken_pr_check.sql contains a permissive policy
+  clause: using (true)`. `F01-S01` stayed green for it (canonical name,
+  terminal verification block), so the permissive policy is the sole cause.
+
+`main` never carried the defect and remained at `da41bd3` throughout.
+The remote branch could not be deleted from the build session — the agent
+proxy refuses ref deletion (`Write access to this GitHub API path is not
+permitted through this proxy`) — so `verify/fable01-broken-pr` is still
+present on the remote and must be deleted by hand.
 
 ## Gate status
 
 The FABLE-01 gate is **not closed**. Open items, all external to the
 repository:
 
-1. R04 has no green evidence yet. The push gate is cleared — `main`
-   (`b929c12`) is on `yazidmanan2409/pintar40` and CI Run #1 executed, red
-   on CI-01 above; the fix is this commit. The first deliberately broken PR
-   has not been opened.
+1. ~~CI / R04 / deliberately broken PR.~~ **Closed.** `main` is on
+   `yazidmanan2409/pintar40`, CI run #2 is green with R04 passing, and the
+   deliberately broken PR (#1) went red on the defect and was closed
+   unmerged — see the two sections above. Residue: the remote branch
+   `verify/fable01-broken-pr` still needs deleting by hand.
 2. Network to the Supabase project from the build session → R02/R03 not
    executed as real HTTP calls (their DB-layer counterparts T02/T03/T06/T14
    are green).
