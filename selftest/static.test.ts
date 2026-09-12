@@ -197,6 +197,175 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    id: "F03-S01",
+    run: async ({ repoRoot }) => {
+      // INV-26: one engine. The database side is asserted by each migration's
+      // verification block (exactly one assemble_session, one session_paper,
+      // one grade_response, one evaluate_session, one finalize_session). This
+      // is the code side, and it is the one the prompt asks for by name: "a
+      // second implementation of assembly, the sanitizer, scoring or the
+      // safety gate fails the build".
+      //
+      // It is expressed as a call-site rule rather than a similarity check,
+      // because "looks like a second scorer" is not decidable and "calls the
+      // engine's RPCs from outside the engine" is. Every route reaches the
+      // cycle through src/lib/assessment-engine/; a file that names one of
+      // those RPCs anywhere else has begun to be a second engine.
+      const c = new Checks();
+      const ENGINE_RPCS = [
+        "assemble_session", "session_paper", "sanitized_item", "record_answer",
+        "grade_response", "evaluate_session", "finalize_session", "start_learning_session",
+        "open_assistance", "assistance_state", "reading_map", "session_review",
+      ];
+      const ENGINE_DIR = join("src", "lib", "assessment-engine");
+      const src = join(repoRoot, "src");
+      if (!c.expect(existsSync(src), "src/ missing")) return c.verdict("");
+      let scanned = 0, engineFiles = 0;
+      for (const f of walk(src).filter((x) => /\.(ts|tsx)$/.test(x))) {
+        const rel = relative(repoRoot, f);
+        const text = readFileSync(f, "utf8");
+        if (rel.startsWith(ENGINE_DIR)) { engineFiles++; continue; }
+        scanned++;
+        for (const rpc of ENGINE_RPCS) {
+          c.expect(
+            !new RegExp(`["'\`]${rpc}["'\`]`).test(text),
+            `${rel} calls the engine RPC "${rpc}" directly; every route goes through src/lib/assessment-engine/ (INV-26)`,
+          );
+        }
+        // and nothing outside the engine re-implements the sanitizer's own job
+        c.expect(
+          !/ANSWER_KEY_FIELDS\s*=/.test(text) && !/LEARNER_ITEM_KEYS\s*=/.test(text),
+          `${rel} declares its own learner-item key list; the allow-list lives in the engine (INV-26)`,
+        );
+      }
+      c.expect(engineFiles > 0, "src/lib/assessment-engine/ is empty: there is no engine to be the only one");
+      // the engine holds no privilege of its own
+      for (const f of walk(join(repoRoot, ENGINE_DIR)).filter((x) => /\.ts$/.test(x))) {
+        const text = readFileSync(f, "utf8");
+        // an import, not the words: the module's own header explains why it
+        // does not import this, and a prose mention is not a dependency
+        c.expect(
+          !/from\s+["']@\/lib\/supabase\/service["']/.test(text),
+          `${relative(repoRoot, f)} imports the service-role client; the engine takes the caller's client`,
+        );
+      }
+      c.note(`${scanned} file(s) outside the engine, ${engineFiles} inside`);
+      return c.verdict("exactly one module calls the engine's RPCs, and it holds no privilege of its own");
+    },
+  },
+  {
+    id: "F03-S02",
+    run: async ({ repoRoot }) => {
+      // INV-01 as a contract test: the authoring shape and the learner shape
+      // are diffed, and every authoring field must be either allow-listed or
+      // absent. The authoring field list is read from the migration that
+      // creates the tables, not written out here — so a column added to
+      // `items` or `item_options` later is picked up by this test without
+      // anyone remembering to update it (doc 12's "new authoring fields
+      // default to excluded", checked rather than hoped for).
+      const c = new Checks();
+      const mig = join(repoRoot, "supabase", "migrations");
+      if (!c.expect(existsSync(mig), "supabase/migrations missing")) return c.verdict("");
+      const files = readdirSync(mig).sort();
+      const hierarchy = files.find((f) => f.endsWith("_content_hierarchy.sql"));
+      if (!c.expect(Boolean(hierarchy), "the content hierarchy migration is missing")) return c.verdict("");
+      const sql = readFileSync(join(mig, hierarchy as string), "utf8");
+
+      const columnsOf = (table: string): string[] => {
+        const m = new RegExp(`create table public\\.${table} \\(([\\s\\S]*?)\\n\\);`).exec(sql);
+        if (!m) return [];
+        return m[1]
+          .split("\n")
+          .map((l) => l.trim())
+          .filter((l) => /^[a-z_]+\s+/.test(l) && !/^(constraint|unique|check|primary|foreign)\b/.test(l))
+          .map((l) => l.split(/\s+/)[0]);
+      };
+      const authoring = [...columnsOf("items"), ...columnsOf("item_options")];
+      c.expect(authoring.length > 5, `only ${authoring.length} authoring column(s) parsed; the diff would be vacuous`);
+
+      // the allow-list, as the delivery migration writes it
+      const delivery = files.find((f) => f.endsWith("_learning_cycle_delivery.sql"));
+      if (!c.expect(Boolean(delivery), "the delivery migration is missing")) return c.verdict("");
+      const deliverySql = readFileSync(join(mig, delivery as string), "utf8");
+      const allowed = new Set(
+        [...deliverySql.matchAll(/'\[([^\]]*)\]'::jsonb/g)]
+          .flatMap((m) => m[1].split(",").map((x) => x.trim().replace(/^"|"$/g, "")))
+          .filter(Boolean),
+      );
+      c.expect(allowed.size > 0, "no sanitizer allow-list was found in the delivery migration");
+
+      const LEAKY = ["is_correct", "rationale", "misconception_code", "petunjuk", "arah_berpikir",
+                     "predicted_difficulty", "empirical_difficulty", "empirical_discrimination",
+                     "objective_ids", "label", "parallel_group", "bank_type"];
+      for (const col of authoring) {
+        if (LEAKY.includes(col)) {
+          c.expect(!allowed.has(col), `the sanitizer allow-list names the authoring field "${col}" (INV-01)`);
+        }
+      }
+      // the TypeScript mirror agrees with the SQL, so neither can drift alone
+      const types = readFileSync(join(repoRoot, "src", "lib", "assessment-engine", "types.ts"), "utf8");
+      for (const key of allowed) {
+        c.expect(types.includes(`"${key}"`), `the engine's learner type does not carry the allow-listed key "${key}"`);
+      }
+      for (const col of LEAKY) {
+        c.expect(
+          !new RegExp(`^\\s*${col}[?]?:`, "m").test(types),
+          `the engine's learner type declares the authoring field "${col}" (INV-01)`,
+        );
+      }
+      c.note(`${authoring.length} authoring column(s) against ${allowed.size} allow-listed key(s)`);
+      return c.verdict("no authoring field is allow-listed, and the SQL allow-list and the TypeScript type agree");
+    },
+  },
+  {
+    id: "F03-S03",
+    run: async ({ repoRoot }) => {
+      // INV-31: the Learner Assistance Intelligence Context is the sanitized
+      // shape, and building one from an authoring row is refused. Behavioural,
+      // because a type check proves nothing at run time: the real module is
+      // imported and fed an authoring row.
+      const c = new Checks();
+      const gateway = join(repoRoot, "src", "ai-gateway", "contexts.ts");
+      if (!c.expect(existsSync(gateway), "src/ai-gateway/contexts.ts missing")) return c.verdict("");
+
+      const mod = await import("../src/ai-gateway/contexts");
+      const item = {
+        item_type: "MCQ_SINGLE",
+        stem: "Manakah yang bernilai sama dengan 1/2?",
+        stimulus: null,
+        opsi: [{ posisi: 1, teks: "2/4" }, { posisi: 2, teks: "1/4" }],
+      };
+      const ctx = mod.buildLearnerAssistanceContext(item as never, "SD", 1);
+      c.expect(ctx.kind === "LEARNER_ASSISTANCE", "the context does not declare its kind");
+      c.expect(ctx.stage === "SD", `stage mapped to ${ctx.stage} instead of SD`);
+      c.expect(
+        JSON.stringify(ctx.item) === JSON.stringify(item),
+        "the context's item is not the sanitized item it was given",
+      );
+
+      // an authoring row must be refused, not quietly narrowed
+      for (const field of ["is_correct", "rationale", "misconception_code", "petunjuk", "arah_berpikir"]) {
+        let refused = false;
+        try {
+          mod.buildLearnerAssistanceContext({ ...item, [field]: "x" } as never, "SD", 1);
+        } catch {
+          refused = true;
+        }
+        c.expect(refused, `the assistance context accepted an item carrying "${field}" (INV-31)`);
+      }
+
+      // and the boundary is still contracts only: no provider anywhere in it
+      for (const f of walk(join(repoRoot, "src", "ai-gateway")).filter((x) => /\.(ts|tsx)$/.test(x))) {
+        const text = readFileSync(f, "utf8");
+        c.expect(
+          !/\b(openai|anthropic|gemini|vertex|bedrock|api[_-]?key|fetch\()/i.test(text),
+          `${relative(repoRoot, f)} names a provider or makes a call; the boundary is contracts only (INV-32)`,
+        );
+      }
+      return c.verdict("the assistance context equals the sanitized item and refuses an authoring row; no provider in the boundary");
+    },
+  },
+  {
     id: "F01-S05",
     run: async ({ repoRoot }) => {
       const c = new Checks();

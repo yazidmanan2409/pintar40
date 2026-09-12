@@ -10,7 +10,8 @@
  * that flag: there every facility is present, so a skip is a failure.
  *
  * Runners:
- *   db     selftest/db/fable01.sql + fable02.sql via psql against $SUPABASE_DB_URL
+ *   db     selftest/db/fable0N.sql, one file per phase, applied in order via
+ *          psql against $SUPABASE_DB_URL
  *   static selftest/static.test.ts (repository + production build)
  *   app    selftest/app.test.ts (production-mode `next start`, plus the
  *          Supabase project's HTTP surface when reachable)
@@ -64,10 +65,15 @@ function hasPsql(): boolean {
 }
 
 // ---------------------------------------------------------------- db runner
-/** One SQL file per phase, applied in order; fable02 assumes fable01's schema. */
+/**
+ * One SQL file per phase, applied in order. Every file after the first assumes
+ * fable01's role-switch helpers, and each asserts that dependency itself rather
+ * than trusting this list.
+ */
 const DB_RUNNERS = [
   { file: "fable01.sql", fn: "selftest.run_fable01()", done: "F01-DONE" },
   { file: "fable02.sql", fn: "selftest.run_fable02()", done: "F02-DONE" },
+  { file: "fable03.sql", fn: "selftest.run_fable03()", done: "F03-DONE" },
 ] as const;
 
 async function runDb(dbUrl: string): Promise<Outcome[]> {
@@ -290,7 +296,7 @@ async function main() {
   const problems: string[] = [];
   const reported = new Map<string, Outcome>();
   for (const o of outcomes) {
-    if (o.id === "F01-DONE") {
+    if (o.id.endsWith("-DONE")) {
       problems.push(o.detail);
       continue;
     }

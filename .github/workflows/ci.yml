@@ -127,7 +127,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read]
+        case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -145,6 +145,9 @@ jobs:
             static-raw-evidence-read)
               mkdir -p src/analytics
               printf -- "export const q = \"select mastery from assessment_results\";\n" > src/analytics/red_case.ts ;;
+            static-duplicate-engine)
+              mkdir -p src/app/api/rogue
+              printf -- "export async function GET() {\n  const { data } = await db.rpc(\"evaluate_session\", { p_session: \"x\" });\n  return Response.json(data);\n}\n" > src/app/api/rogue/route.ts ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -169,6 +172,22 @@ jobs:
           [ "$code" -ne 0 ] || { echo "::error::the INV-20 lint stayed green with an analytics path reading a raw evidence table"; exit 1; }
           grep -E '^F02-S01 +FAIL' red.txt
           grep -F 'assessment_results' red.txt
+      # INV-26 is the rule the phase prompt names outright: "a second
+      # implementation of assembly, the sanitizer, scoring or the safety gate
+      # fails the build". A rule nobody has watched fail is a rule nobody
+      # knows works, so this plants a route that scores a session without
+      # going through the engine and requires F03-S01 to catch it by name.
+      - name: The INV-26 check must catch a second engine
+        if: matrix.case == 'static-duplicate-engine'
+        run: |
+          set +e
+          npx tsx selftest/run.ts --accept-justified-skips --only=F03-S01 | tee red.txt
+          code=${PIPESTATUS[0]}
+          set -e
+          [ "$code" -ne 0 ] || { echo "::error::the INV-26 check stayed green with a second scorer present"; exit 1; }
+          grep -E '^F03-S01 +FAIL' red.txt
+          grep -F 'evaluate_session' red.txt
+
       - name: Start stack with the defective migration applied
         if: matrix.case == 'db-table-without-rls'
         id: stack

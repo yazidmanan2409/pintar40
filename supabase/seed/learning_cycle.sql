@@ -1,29 +1,40 @@
--- FABLE-03 learning-cycle content fixture — SYNTHETIC tenant only.
+-- FABLE-03 learning-cycle content fixture — its own SYNTHETIC tenant.
 --
--- §"Depends on": this phase builds the learner product "for one seeded course
--- before any Studio/authoring UI exists", in a synthetic tenant whose evidence
--- is SYNTHETIC. Real content waits on OD-3, so nothing here cites a real book:
--- the Source is named as a fixture, carries no ISBN and says so in its note. A
--- page citation that pointed at a real edition nobody confirmed would be
--- exactly the invented citation doc 11 forbids.
+-- §"Depends on": this phase is built end to end against one seeded course in a
+-- synthetic tenant, whose evidence is SYNTHETIC. Real content waits on OD-3, so
+-- nothing here cites a real book: the Source is named as a fixture, carries no
+-- ISBN, and says so in its note. A page citation pointing at a real edition
+-- nobody confirmed would be the invented citation doc 11 forbids.
+--
+-- WHY A THIRD INSTITUTION RATHER THAN ALPHA. FABLE-01's suite exercises period
+-- rollover and transfer, and both are institution-wide by design: the rollover
+-- closes every 2026/27 membership in the tenant it runs against, and the
+-- transfer can end an enrolment outright. That is those features working. But
+-- a learning assignment scoped to a class in that tenant then reaches nobody,
+-- and every FABLE-03 test fails on NO_ACTIVE_MEMBERSHIP for a reason that has
+-- nothing to do with the learning cycle.
+--
+-- Three attempts to repair the shared personas from inside the suite each
+-- surfaced a different consequence of the same root cause — first the closed
+-- membership, then a second enrolment in the other tenant, then the rollover
+-- reaching the replacement learners too. So the cause is fixed instead: this
+-- phase seeds its own institution, its own period, its own class, its own
+-- staff and its own two learners, which no other suite touches (doc 12, "each
+-- test seeds and tears down its own tenant/data"). One learner arrives by
+-- email and one by classroom card, because §8 requires both to share the same
+-- Person and the same downstream session model.
 --
 -- Runs after supabase/seed/synthetic.sql and under the same INV-21 guards:
 -- refuses on a production environment and requires declared synthetic intent.
--- It attaches to the newest synth-alpha institution that seed created.
---
--- Freezing and publishing need capabilities, so the fixture adopts the
--- synthetic Head of Department's identity through the same JWT claim
--- PostgREST sets, rather than being handed an escape hatch in the trigger.
--- The content path is the real one; only the actor is seeded.
 
 select set_config('app.seed_intent', 'synthetic', true);
 
 do $$
 declare
   v_env text;
-  inst uuid; period uuid; cls uuid; coh uuid;
+  inst uuid; period uuid; cls uuid; coh uuid; fac uuid; dept uuid; prog uuid;
   p_hod uuid; p_admin uuid; p_guru uuid;
-  u_hod uuid; u_admin uuid;
+  u_guru uuid := gen_random_uuid(); u_hod uuid := gen_random_uuid(); u_admin uuid := gen_random_uuid();
   src uuid; srcv uuid; course uuid; modul uuid; l1 uuid; l2 uuid; tag text;
   o11 uuid; o12 uuid; o21 uuid; o22 uuid;
   rel uuid; def_pre uuid; def_post uuid; la uuid;
@@ -36,12 +47,54 @@ begin
     raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
   end if;
 
-  select id into inst from public.institutions
-   where slug like 'synth-alpha-%' order by created_at desc limit 1;
-  if inst is null then raise exception 'synthetic alpha institution not found; run synthetic.sql first'; end if;
-  if not (select is_synthetic from public.institutions where id = inst) then
-    raise exception 'refusing to seed fixture content into a non-synthetic tenant';
-  end if;
+  insert into public.institutions (name, slug, is_synthetic)
+  values ('Sekolah Sintetis Siklus', 'synth-siklus-' || to_char(clock_timestamp(),'YYYYMMDDHH24MISSMS'), true)
+  returning id into inst;
+
+  insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+  values (inst, 'TA 2026/2027', '2026-07-13', '2027-06-26') returning id into period;
+  insert into public.org_nodes (institution_id, parent_id, kind, name)
+  values (inst, inst, 'FACULTY', 'Sekolah Dasar') returning id into fac;
+  insert into public.org_nodes (institution_id, parent_id, kind, name)
+  values (inst, fac, 'DEPARTMENT', 'Matematika') returning id into dept;
+  insert into public.org_nodes (institution_id, parent_id, kind, name)
+  values (inst, dept, 'PROGRAMME', 'SD Reguler') returning id into prog;
+  insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+  values (inst, prog, 'COHORT', 'Kelas 5 Siklus', period) returning id into coh;
+  insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+  values (inst, coh, 'CLASS', '5S', period) returning id into cls;
+  insert into public.classes (node_id, subject, status) values (cls, 'Matematika', 'ACTIVE');
+
+  -- staff of this tenant: an author, a reviewer who may freeze, and an admin
+  -- who may publish. The fixture walks the real lifecycle, so it needs real
+  -- capability holders rather than an exemption.
+  insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+                          raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+                          confirmation_token, recovery_token, email_change_token_new, email_change)
+  values
+   (u_guru,  '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
+    'siklus-guru@synthetic.pintar.test',  extensions.crypt('Sintetis-SiklusGuru-11!',  extensions.gen_salt('bf')), now(),
+    '{"provider":"email","providers":["email"]}', '{"display_name":"Guru Siklus (sintetis)"}', now(), now(), '', '', '', ''),
+   (u_hod,   '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
+    'siklus-kaprodi@synthetic.pintar.test', extensions.crypt('Sintetis-SiklusKaprodi-22!', extensions.gen_salt('bf')), now(),
+    '{"provider":"email","providers":["email"]}', '{"display_name":"Kaprodi Siklus (sintetis)"}', now(), now(), '', '', '', ''),
+   (u_admin, '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
+    'siklus-admin@synthetic.pintar.test', extensions.crypt('Sintetis-SiklusAdmin-33!', extensions.gen_salt('bf')), now(),
+    '{"provider":"email","providers":["email"]}', '{"display_name":"Admin Siklus (sintetis)"}', now(), now(), '', '', '', '');
+  insert into auth.identities (id, user_id, provider_id, identity_data, provider,
+                               last_sign_in_at, created_at, updated_at)
+  select gen_random_uuid(), u.id, u.id::text,
+         jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
+         'email', now(), now(), now()
+    from auth.users u where u.id in (u_guru, u_hod, u_admin);
+
+  select person_id into p_guru  from public.accounts where auth_user_id = u_guru;
+  select person_id into p_hod   from public.accounts where auth_user_id = u_hod;
+  select person_id into p_admin from public.accounts where auth_user_id = u_admin;
+  insert into public.role_assignments (person_id, role, scope_node_id, valid_until) values
+    (p_guru,  'EDUCATOR',           cls,  now() + interval '10 years'),
+    (p_hod,   'HEAD_OF_DEPARTMENT', dept, now() + interval '10 years'),
+    (p_admin, 'INSTITUTION_ADMIN',  inst, now() + interval '10 years');
 
   -- Misconception codes are a global primary key and append-only, so a fixture
   -- that reran would either collide or point one tenant's options at another
@@ -50,16 +103,6 @@ begin
   -- the option that references it.
   tag := right((select slug from public.institutions where id = inst), 14);
 
-  select id into period from public.academic_periods where institution_id = inst order by starts_on limit 1;
-  select id into coh from public.org_nodes where institution_id = inst and kind='COHORT' order by created_at limit 1;
-  select id into cls from public.org_nodes where institution_id = inst and kind='CLASS'  order by created_at limit 1;
-
-  select a.person_id, u.id into p_hod, u_hod from public.accounts a
-    join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-hod@synthetic.pintar.test';
-  select a.person_id, u.id into p_admin, u_admin from public.accounts a
-    join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-admin@synthetic.pintar.test';
-  select a.person_id into p_guru from public.accounts a
-    join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-guru@synthetic.pintar.test';
 
   -- ---------------------------------------------------------------- source
   insert into public.sources (institution_id, title, publisher, isbn, note)
@@ -161,10 +204,10 @@ begin
   if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
     raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
   end if;
-  select id into inst from public.institutions where slug like 'synth-alpha-%' order by created_at desc limit 1;
+  select id into inst from public.institutions where slug like 'synth-siklus-%' order by created_at desc limit 1;
   tag := right((select slug from public.institutions where id = inst), 14);
   select a.person_id into p_guru from public.accounts a join auth.users u on u.id=a.auth_user_id
-   where u.email='alpha-guru@synthetic.pintar.test';
+   where u.email='siklus-guru@synthetic.pintar.test';
   select id into course from public.courses where institution_id = inst and title = 'Pecahan' order by created_at desc limit 1;
   select id into modul from public.modules where course_id = course and ordinal = 1;
   select id into l1 from public.lessons where module_id = modul and ordinal = 1;
@@ -375,17 +418,17 @@ begin
   if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
     raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
   end if;
-  select id into inst from public.institutions where slug like 'synth-alpha-%' order by created_at desc limit 1;
+  select id into inst from public.institutions where slug like 'synth-siklus-%' order by created_at desc limit 1;
   select id into course from public.courses where institution_id = inst and title = 'Pecahan' order by created_at desc limit 1;
   select id into modul from public.modules where course_id = course and ordinal = 1;
   select id into period from public.academic_periods where institution_id = inst order by starts_on limit 1;
   select id into cls from public.org_nodes where institution_id = inst and kind='CLASS' order by created_at limit 1;
   select a.person_id into p_guru from public.accounts a join auth.users u on u.id=a.auth_user_id
-   where u.email='alpha-guru@synthetic.pintar.test';
+   where u.email='siklus-guru@synthetic.pintar.test';
   select a.person_id, u.id into p_hod, u_hod from public.accounts a join auth.users u on u.id=a.auth_user_id
-   where u.email='alpha-hod@synthetic.pintar.test';
+   where u.email='siklus-kaprodi@synthetic.pintar.test';
   select a.person_id, u.id into p_admin, u_admin from public.accounts a join auth.users u on u.id=a.auth_user_id
-   where u.email='alpha-admin@synthetic.pintar.test';
+   where u.email='siklus-admin@synthetic.pintar.test';
 
   -- ------------------------------------------------------ definitions
   insert into public.assessment_definitions (institution_id, module_id, title, mode, bank_type,
@@ -480,4 +523,77 @@ begin
   perform set_config('request.jwt.claim.sub', '', true);
 
   raise notice 'fixture: release % published, pre=% post=%, learning assignment %', rel, aa_pre, aa_post, la;
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- Learners of this phase's own.
+--
+-- The fixture deliberately does NOT reuse alpha-siswa-1 and the 7001 card.
+-- FABLE-01's suite exercises period rollover and transfer against those two,
+-- and correctly moves them: the rollover closes their 2026/27 membership in
+-- 5A and opens a 2027/28 one in 6B, and the transfer can end their Alpha
+-- enrolment altogether. Nothing is wrong with that — but a learning assignment
+-- scoped to 5A then reaches nobody, and every FABLE-03 test would fail on
+-- NO_ACTIVE_MEMBERSHIP for a reason that has nothing to do with FABLE-03.
+--
+-- Three attempts to repair the shared personas from inside the suite each
+-- surfaced a different consequence of the same root cause, so the cause is
+-- fixed instead: this phase provisions two learners of its own, in the
+-- fixture's own class, which no other suite touches (doc 12, "each test seeds
+-- its own data; no shared global fixture mutated across tests"). One arrives
+-- by email and one by classroom card, because §8 requires both to share the
+-- same Person and downstream session model.
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  inst uuid; period uuid; cls uuid; coh uuid; prog uuid;
+  u_mail uuid := gen_random_uuid(); u_card uuid := gen_random_uuid();
+  p_mail uuid; p_card uuid; e_mail uuid; e_card uuid;
+  pepper text := 'synthetic-card-pepper-fable01-32plus';   -- same constant the selftest env uses
+  pw_mail text := 'Sintetis-SiklusEmail-84!';
+  card text := '7002'; pin text := '1357'; pw_card text;
+begin
+  if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
+    raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
+  end if;
+  select id into inst from public.institutions where slug like 'synth-siklus-%' order by created_at desc limit 1;
+  select id into period from public.academic_periods where institution_id = inst order by starts_on limit 1;
+  select id into cls  from public.org_nodes where institution_id = inst and kind='CLASS'  order by created_at limit 1;
+  select id into coh  from public.org_nodes where institution_id = inst and kind='COHORT' order by created_at limit 1;
+  select id into prog from public.org_nodes where institution_id = inst and kind='PROGRAMME' order by created_at limit 1;
+
+  pw_card := encode(extensions.digest(pepper || '|' || card || '|' || pin, 'sha256'), 'hex');
+
+  insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+                          raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+                          confirmation_token, recovery_token, email_change_token_new, email_change)
+  values
+   (u_mail, '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
+    'siklus-email@synthetic.pintar.test', extensions.crypt(pw_mail, extensions.gen_salt('bf')), now(),
+    '{"provider":"email","providers":["email"]}', '{"display_name":"Siswa Siklus Email (sintetis)"}',
+    now(), now(), '', '', '', ''),
+   (u_card, '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
+    'card-7002@cards.synthetic.pintar.test', extensions.crypt(pw_card, extensions.gen_salt('bf')), now(),
+    '{"provider":"email","providers":["email"],"account_kind":"CLASSROOM_CARD","card_number":"7002"}',
+    '{"display_name":"Siswa Siklus Kartu (sintetis)"}', now(), now(), '', '', '', '');
+
+  insert into auth.identities (id, user_id, provider_id, identity_data, provider,
+                               last_sign_in_at, created_at, updated_at)
+  select gen_random_uuid(), u.id, u.id::text,
+         jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
+         'email', now(), now(), now()
+    from auth.users u where u.id in (u_mail, u_card);
+
+  select person_id into p_mail from public.accounts where auth_user_id = u_mail;
+  select person_id into p_card from public.accounts where auth_user_id = u_card;
+
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  values (p_mail, inst, period, prog, 'ACTIVE') returning id into e_mail;
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  values (p_card, inst, period, prog, 'ACTIVE') returning id into e_card;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id) values
+    (e_mail, coh, period), (e_mail, cls, period),
+    (e_card, coh, period), (e_card, cls, period);
+
+  raise notice 'fixture: cycle learners siklus-email and card-% placed in the fixture class', card;
 end $$;

@@ -1,7 +1,7 @@
 {
   "contract": "pintar-selftest",
-  "version": 2,
-  "phase": "FABLE-01",
+  "version": 3,
+  "phase": "FABLE-03",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
     "db": "selftest/db/fable01.sql — psql against $SUPABASE_DB_URL (CI local stack); the same file runs on the management channel; one row per id",
@@ -15,62 +15,417 @@
     "ci": "GITHUB_ACTIONS=true; upstream job results in SELFTEST_CI_UPSTREAM"
   },
   "tests": [
-    {"id": "F01-T01", "runner": "db", "proves": "persona harness seeded in two synthetic institutions", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T02", "runner": "db", "proves": "INV-13 tenant isolation (institution admin sees zero foreign rows)", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T03", "runner": "db", "proves": "INV-13/doc 05 learner sees only self", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T04", "runner": "db", "proves": "INV-16 anti-escalation; INV-18 grant/revoke audited; assignment immutable", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T05", "runner": "db", "proves": "Lesson 11 fail-closed primitives", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T06", "runner": "db", "proves": "INV-19 DEAN read-only, no capability", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T07", "runner": "db", "proves": "doc 05 educator scope over own class only", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T08", "runner": "db", "proves": "INV-23 period rollover closes+recreates memberships; history answerable; audited", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T09", "runner": "db", "proves": "INV-23 identity records append-only; persons has no institution/class column", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T10", "runner": "db", "proves": "INV-25 transfer lifecycle; portable vs institution-scoped visibility; history intact", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T11", "runner": "db", "proves": "INV-18 audit append-only for student, sysadmin and owner", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T12", "runner": "db", "proves": "INV-21 seed guard (no intent; production)", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T13", "runner": "db", "proves": "INV-14/15/36 schema lint all zero", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T13b", "runner": "db", "proves": "INV-37 lint RPC refused to non-SYSTEM_ADMIN", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T14", "runner": "db", "proves": "INV-15 no anon/authenticated storage or table path", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T15", "runner": "db", "proves": "doc 02 hierarchy chain, jalur integrity, no delete", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T16", "runner": "db", "proves": "doc 02 classroom-card account shares the Person model", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T17", "runner": "db", "proves": "doc 05 own-profile update only", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T18", "runner": "db", "proves": "doc 16 §8 flags institution-scoped; platform config SYSTEM_ADMIN only", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F01-T19", "runner": "db", "proves": "INV-18 audit rows carry the running build SHA via the x-pintar-build request header; malformed values rejected", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"},
-    {"id": "F02-T01", "runner": "db", "proves": "INV-22 content rows are created at INGESTED only; a skipped transition is refused; the listed path is permitted", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T02", "runner": "db", "proves": "doc 04 \u00a71 APPROVED requires a reviewer who is not the author, and stamps reviewed_at", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T03", "runner": "db", "proves": "INV-04/INV-22/INV-32 no reversal or unlisted jump out of FROZEN/PUBLISHED; FROZEN -> PUBLISHED only for a CAN_PUBLISH person", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T04", "runner": "db", "proves": "INV-33 content authorship is stamped at insert and immutable thereafter", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T05", "runner": "db", "proves": "INV-04 (ADR-0004) the freeze hash is deterministic, blind to empirical/provenance/status metadata, and changes on a taught edit or a lesson reorder", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T06", "runner": "db", "proves": "INV-04 (ADR-0004 \u00a72) the hash addresses content, not rows: identical content under new uuids, timestamps and insertion order hashes identically", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T07", "runner": "db", "proves": "INV-04 freezing a release computes and stamps content_sha256, then seals taught columns, lesson media, inserts and deletes while metadata still moves", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T08", "runner": "db", "proves": "INV-32 publishing needs a human CAN_PUBLISH holder: refused with no person, for EDUCATOR and for HEAD_OF_DEPARTMENT; accepted for INSTITUTION_ADMIN", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T09", "runner": "db", "proves": "doc 04 \u00a71 sealing needs a human CAN_FREEZE_RELEASE holder and is a different authority from publishing: refused with no person and for EDUCATOR, accepted for HEAD_OF_DEPARTMENT, which still cannot publish", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T10", "runner": "db", "proves": "INV-01 institution_id is immutable on content and releases: a caller legitimately privileged in two institutions cannot carry a record across, with or without a seal in the same statement (regression for the checkpoint probe-2d defect)", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T11", "runner": "db", "proves": "INV-12 three-tier bank isolation: a PRACTICE definition draws only PRACTICE, TEST draws PRACTICE and TEST, EXAM draws all three; EXAM never leaks down, and a parallel group cannot mix tiers or institutions", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T12", "runner": "db", "proves": "INV-33 a session derives person/institution/period from its enrolment and evidence_class from the tenant, and neither can be rewritten afterwards; operational state (status, deadline, timestamps) still moves", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T13", "runner": "db", "proves": "INV-33 / doc 04 \u00a75 a presented item is write-once and tenant-bound; the session status graph refuses reversals, unlisted jumps and reasonless termination", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T14", "runner": "db", "proves": "INV-28 a receipt is anchored to the immutable delivery record; an identical replay is acknowledged as one row, a replay carrying a different answer is refused rather than overwriting, and a new client_seq appends", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T15", "runner": "db", "proves": "INV-29 scoring provenance is required and derived from the session; results are immutable; a recomputation is a new linked row and the lineage cannot fork or cross sessions", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-C01", "runner": "db", "proves": "INV-28 under real concurrency: two connections contesting one receipt are arbitrated by the unique index, not by a prior read \u2014 the holder records, a simultaneous writer with a different answer is refused, and exactly one row with one digest survives", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); two concurrent connections are required, so it cannot be expressed inside a single plpgsql runner"},
-    {"id": "F02-T16", "runner": "db", "proves": "INV-11 telemetry lives in its own schema that no view or function in public references; telemetry and integrity events are append-only; a hesitation event carries the assessment definition's configured window rather than a constant; an integrity signal carries no verdict column", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T17", "runner": "db", "proves": "INV-20 non-official evidence never appears in official_sessions/responses/results, an OFFICIAL session does, and the analytics role holds no grant on any raw evidence table", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T18", "runner": "db", "proves": "INV-01 / doc 04 \u00a79 lesson prose is publicly readable only under a PUBLISHED release; anon holds exactly one grant, on that view; item-bearing and cohort aggregates are service-role only", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T19", "runner": "db", "proves": "INV-35 the coaching validator flags doctrine breaches in learner-readable text while sparing legitimate subject language; an ERROR finding makes Publish Readiness BLOCKED and the FROZEN -> PUBLISHED transition refuses it; clean text publishes", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T20", "runner": "db", "proves": "INV-27 / doc 04 \u00a74 assigning requires CAN_ASSIGN_LEARNING and is stamped; a release move on an ACTIVE assignment is recorded and audited before it applies; CLOSED is terminal and changes no running session", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T21", "runner": "db", "proves": "INV-32 / doc 09 the raw import payload is immutable provenance; Easy Upload proposes a mapping with open questions rather than guessing; nothing materialises from an unconfirmed mapping; the producer is metadata and no schema object is named after one", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T22", "runner": "db", "proves": "INV-02/INV-03 a hint that names the answer or narrows it to two options is refused at the database; an option with an empty rationale is refused; legitimate coaching text saves", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T23", "runner": "db", "proves": "INV-24 a post-test excludes every item presented in that learner's pre-test AND every parallel sibling of one, and the drawable set honours the exclusion", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F02-T24", "runner": "db", "proves": "INV-13 / doc 02 no seeded item carries an empirical value and no empirical column defaults to one; the cohort misconception view is tenant-scoped and exposes no learner identity", "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"},
-    {"id": "F01-S01", "runner": "static", "proves": "doc 16 §2 one migrations directory; canonical ordered names; every migration ends in a verification block"},
-    {"id": "F01-S02", "runner": "static", "proves": "INV-36 no USING/WITH CHECK (true) text in any migration or seed"},
-    {"id": "F01-S03", "runner": "static", "proves": "INV-37 client bundle and import graph carry no service-role or pepper reference"},
-    {"id": "F01-S04", "runner": "static", "proves": "doc 12 HLE renders every key for every persona; no internal word or 'PINTAR 4.0' on a user-facing route file"},
-    {"id": "F01-S05", "runner": "static", "proves": "doc 13 ADR-0001 exists with every required section and the traceability block"},
-    {"id": "F02-S01", "runner": "static", "proves": "INV-20 no analytics, psychometric, reporting or certification code path reads a raw evidence table; evidence is consumed through official_* only"},
-    {"id": "F01-R01", "runner": "app", "proves": "INV-21/§4 unauthenticated /konfigurasi redirected and /api/* refused; /api/dev/* 404 in the production build; public copy clean"},
-    {"id": "F01-R02", "runner": "app", "proves": "INV-19/INV-13 DEAN and STUDENT get a clean refusal on /konfigurasi; INSTITUTION_ADMIN renders own institution only", "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"},
-    {"id": "F01-R03", "runner": "app", "proves": "INV-15 anonymous and real-student HTTP fetch/list/create/overwrite of storage objects refused outside the server route", "skip_justification": "needs network to the Supabase project (same gate as F01-R02)"},
-    {"id": "F01-R04", "runner": "app", "proves": "doc 16 §2 CI ran the migrations against a clean database and the previous schema (upgrade path) and went red on a deliberately broken build", "skip_justification": "evidence exists only inside a CI run; the workflow forwards its job results to the runner"},
-    {"id": "F01-R05", "runner": "app", "proves": "FABLE-01 \u00a72 sign-out invalidates the session on the server (the refresh token is revoked, not merely the cookie cleared) and the previously authenticated browser is refused at the protected route; other sessions are unaffected", "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint \u00a76)"},
-    {"id": "F01-R06", "runner": "app", "proves": "FABLE-01 \u00a72 classroom-card auth: the configured CARD_PEPPER meets the production contract (>= 32 chars) and the production TypeScript derivation in src/lib/card.ts authenticates the seeded card 7001 / PIN 2468 through real GoTrue, proving it agrees with the SQL derivation in supabase/seed/synthetic.sql", "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable \u2014 runs in CI against the local stack (checkpoint \u00a76)"}
+    {
+      "id": "F01-T01",
+      "runner": "db",
+      "proves": "persona harness seeded in two synthetic institutions",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T02",
+      "runner": "db",
+      "proves": "INV-13 tenant isolation (institution admin sees zero foreign rows)",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T03",
+      "runner": "db",
+      "proves": "INV-13/doc 05 learner sees only self",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T04",
+      "runner": "db",
+      "proves": "INV-16 anti-escalation; INV-18 grant/revoke audited; assignment immutable",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T05",
+      "runner": "db",
+      "proves": "Lesson 11 fail-closed primitives",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T06",
+      "runner": "db",
+      "proves": "INV-19 DEAN read-only, no capability",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T07",
+      "runner": "db",
+      "proves": "doc 05 educator scope over own class only",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T08",
+      "runner": "db",
+      "proves": "INV-23 period rollover closes+recreates memberships; history answerable; audited",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T09",
+      "runner": "db",
+      "proves": "INV-23 identity records append-only; persons has no institution/class column",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T10",
+      "runner": "db",
+      "proves": "INV-25 transfer lifecycle; portable vs institution-scoped visibility; history intact",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T11",
+      "runner": "db",
+      "proves": "INV-18 audit append-only for student, sysadmin and owner",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T12",
+      "runner": "db",
+      "proves": "INV-21 seed guard (no intent; production)",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T13",
+      "runner": "db",
+      "proves": "INV-14/15/36 schema lint all zero",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T13b",
+      "runner": "db",
+      "proves": "INV-37 lint RPC refused to non-SYSTEM_ADMIN",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T14",
+      "runner": "db",
+      "proves": "INV-15 no anon/authenticated storage or table path",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T15",
+      "runner": "db",
+      "proves": "doc 02 hierarchy chain, jalur integrity, no delete",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T16",
+      "runner": "db",
+      "proves": "doc 02 classroom-card account shares the Person model",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T17",
+      "runner": "db",
+      "proves": "doc 05 own-profile update only",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T18",
+      "runner": "db",
+      "proves": "doc 16 §8 flags institution-scoped; platform config SYSTEM_ADMIN only",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T19",
+      "runner": "db",
+      "proves": "INV-18 audit rows carry the running build SHA via the x-pintar-build request header; malformed values rejected",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F02-T01",
+      "runner": "db",
+      "proves": "INV-22 content rows are created at INGESTED only; a skipped transition is refused; the listed path is permitted",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T02",
+      "runner": "db",
+      "proves": "doc 04 §1 APPROVED requires a reviewer who is not the author, and stamps reviewed_at",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T03",
+      "runner": "db",
+      "proves": "INV-04/INV-22/INV-32 no reversal or unlisted jump out of FROZEN/PUBLISHED; FROZEN -> PUBLISHED only for a CAN_PUBLISH person",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T04",
+      "runner": "db",
+      "proves": "INV-33 content authorship is stamped at insert and immutable thereafter",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T05",
+      "runner": "db",
+      "proves": "INV-04 (ADR-0004) the freeze hash is deterministic, blind to empirical/provenance/status metadata, and changes on a taught edit or a lesson reorder",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T06",
+      "runner": "db",
+      "proves": "INV-04 (ADR-0004 §2) the hash addresses content, not rows: identical content under new uuids, timestamps and insertion order hashes identically",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T07",
+      "runner": "db",
+      "proves": "INV-04 freezing a release computes and stamps content_sha256, then seals taught columns, lesson media, inserts and deletes while metadata still moves",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T08",
+      "runner": "db",
+      "proves": "INV-32 publishing needs a human CAN_PUBLISH holder: refused with no person, for EDUCATOR and for HEAD_OF_DEPARTMENT; accepted for INSTITUTION_ADMIN",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T09",
+      "runner": "db",
+      "proves": "doc 04 §1 sealing needs a human CAN_FREEZE_RELEASE holder and is a different authority from publishing: refused with no person and for EDUCATOR, accepted for HEAD_OF_DEPARTMENT, which still cannot publish",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T10",
+      "runner": "db",
+      "proves": "INV-01 institution_id is immutable on content and releases: a caller legitimately privileged in two institutions cannot carry a record across, with or without a seal in the same statement (regression for the checkpoint probe-2d defect)",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T11",
+      "runner": "db",
+      "proves": "INV-12 three-tier bank isolation: a PRACTICE definition draws only PRACTICE, TEST draws PRACTICE and TEST, EXAM draws all three; EXAM never leaks down, and a parallel group cannot mix tiers or institutions",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T12",
+      "runner": "db",
+      "proves": "INV-33 a session derives person/institution/period from its enrolment and evidence_class from the tenant, and neither can be rewritten afterwards; operational state (status, deadline, timestamps) still moves",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T13",
+      "runner": "db",
+      "proves": "INV-33 / doc 04 §5 a presented item is write-once and tenant-bound; the session status graph refuses reversals, unlisted jumps and reasonless termination",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T14",
+      "runner": "db",
+      "proves": "INV-28 a receipt is anchored to the immutable delivery record; an identical replay is acknowledged as one row, a replay carrying a different answer is refused rather than overwriting, and a new client_seq appends",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T15",
+      "runner": "db",
+      "proves": "INV-29 scoring provenance is required and derived from the session; results are immutable; a recomputation is a new linked row and the lineage cannot fork or cross sessions",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-C01",
+      "runner": "db",
+      "proves": "INV-28 under real concurrency: two connections contesting one receipt are arbitrated by the unique index, not by a prior read — the holder records, a simultaneous writer with a different answer is refused, and exactly one row with one digest survives",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); two concurrent connections are required, so it cannot be expressed inside a single plpgsql runner"
+    },
+    {
+      "id": "F02-T16",
+      "runner": "db",
+      "proves": "INV-11 telemetry lives in its own schema that no view or function in public references; telemetry and integrity events are append-only; a hesitation event carries the assessment definition's configured window rather than a constant; an integrity signal carries no verdict column",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T17",
+      "runner": "db",
+      "proves": "INV-20 non-official evidence never appears in official_sessions/responses/results, an OFFICIAL session does, and the analytics role holds no grant on any raw evidence table",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T18",
+      "runner": "db",
+      "proves": "INV-01 / doc 04 §9 lesson prose is publicly readable only under a PUBLISHED release; anon holds exactly one grant, on that view; item-bearing and cohort aggregates are service-role only",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T19",
+      "runner": "db",
+      "proves": "INV-35 the coaching validator flags doctrine breaches in learner-readable text while sparing legitimate subject language; an ERROR finding makes Publish Readiness BLOCKED and the FROZEN -> PUBLISHED transition refuses it; clean text publishes",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T20",
+      "runner": "db",
+      "proves": "INV-27 / doc 04 §4 assigning requires CAN_ASSIGN_LEARNING and is stamped; a release move on an ACTIVE assignment is recorded and audited before it applies; CLOSED is terminal and changes no running session",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T21",
+      "runner": "db",
+      "proves": "INV-32 / doc 09 the raw import payload is immutable provenance; Easy Upload proposes a mapping with open questions rather than guessing; nothing materialises from an unconfirmed mapping; the producer is metadata and no schema object is named after one",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T22",
+      "runner": "db",
+      "proves": "INV-02/INV-03 a hint that names the answer or narrows it to two options is refused at the database; an option with an empty rationale is refused; legitimate coaching text saves",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T23",
+      "runner": "db",
+      "proves": "INV-24 a post-test excludes every item presented in that learner's pre-test AND every parallel sibling of one, and the drawable set honours the exclusion",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F02-T24",
+      "runner": "db",
+      "proves": "INV-13 / doc 02 no seeded item carries an empirical value and no empirical column defaults to one; the cohort misconception view is tenant-scoped and exposes no learner identity",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
+    },
+    {
+      "id": "F01-S01",
+      "runner": "static",
+      "proves": "doc 16 §2 one migrations directory; canonical ordered names; every migration ends in a verification block"
+    },
+    {
+      "id": "F01-S02",
+      "runner": "static",
+      "proves": "INV-36 no USING/WITH CHECK (true) text in any migration or seed"
+    },
+    {
+      "id": "F01-S03",
+      "runner": "static",
+      "proves": "INV-37 client bundle and import graph carry no service-role or pepper reference"
+    },
+    {
+      "id": "F01-S04",
+      "runner": "static",
+      "proves": "doc 12 HLE renders every key for every persona; no internal word or 'PINTAR 4.0' on a user-facing route file"
+    },
+    {
+      "id": "F01-S05",
+      "runner": "static",
+      "proves": "doc 13 ADR-0001 exists with every required section and the traceability block"
+    },
+    {
+      "id": "F02-S01",
+      "runner": "static",
+      "proves": "INV-20 no analytics, psychometric, reporting or certification code path reads a raw evidence table; evidence is consumed through official_* only"
+    },
+    {
+      "id": "F01-R01",
+      "runner": "app",
+      "proves": "INV-21/§4 unauthenticated /konfigurasi redirected and /api/* refused; /api/dev/* 404 in the production build; public copy clean"
+    },
+    {
+      "id": "F01-R02",
+      "runner": "app",
+      "proves": "INV-19/INV-13 DEAN and STUDENT get a clean refusal on /konfigurasi; INSTITUTION_ADMIN renders own institution only",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "F01-R03",
+      "runner": "app",
+      "proves": "INV-15 anonymous and real-student HTTP fetch/list/create/overwrite of storage objects refused outside the server route",
+      "skip_justification": "needs network to the Supabase project (same gate as F01-R02)"
+    },
+    {
+      "id": "F01-R04",
+      "runner": "app",
+      "proves": "doc 16 §2 CI ran the migrations against a clean database and the previous schema (upgrade path) and went red on a deliberately broken build",
+      "skip_justification": "evidence exists only inside a CI run; the workflow forwards its job results to the runner"
+    },
+    {
+      "id": "F01-R05",
+      "runner": "app",
+      "proves": "FABLE-01 §2 sign-out invalidates the session on the server (the refresh token is revoked, not merely the cookie cleared) and the previously authenticated browser is refused at the protected route; other sessions are unaffected",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "F01-R06",
+      "runner": "app",
+      "proves": "FABLE-01 §2 classroom-card auth: the configured CARD_PEPPER meets the production contract (>= 32 chars) and the production TypeScript derivation in src/lib/card.ts authenticates the seeded card 7001 / PIN 2468 through real GoTrue, proving it agrees with the SQL derivation in supabase/seed/synthetic.sql",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "F03-T01",
+      "runner": "db",
+      "proves": "FABLE-03 §1-§7 / INV-33 — the whole cycle end to end for an email learner and a classroom-card learner, in a synthetic tenant, with full provenance"
+    },
+    {
+      "id": "F03-T02",
+      "runner": "db",
+      "proves": "INV-24 — the post-test shares no item and no parallel sibling with this learner's pre-test, across the whole bank"
+    },
+    {
+      "id": "F03-T03",
+      "runner": "db",
+      "proves": "INV-01 — the delivered payload carries only allow-listed keys, and a learner reads zero rows of the question bank"
+    },
+    {
+      "id": "F03-T04",
+      "runner": "db",
+      "proves": "INV-27 / INV-17 — a closing assignment window does not stop a started session but starts nothing new; an ended enrolment refuses the next scored action"
+    },
+    {
+      "id": "F03-T05",
+      "runner": "db",
+      "proves": "INV-28 — an identical replay is acknowledged into one row, a different answer on the same receipt is refused, a new sequence appends, and a returning client reads its state back from the server"
+    },
+    {
+      "id": "F03-T06",
+      "runner": "db",
+      "proves": "FABLE-03 §3 — reading progress never regresses, whichever order positions arrive in"
+    },
+    {
+      "id": "F03-T07",
+      "runner": "db",
+      "proves": "INV-10 — a safety-critical item answered wrong fails the attempt even when the score clears the pass mark"
+    },
+    {
+      "id": "F03-T08",
+      "runner": "db",
+      "proves": "INV-11 — the hesitation window holds to the second, and identical answers score identically with and without assistance"
+    },
+    {
+      "id": "F03-T09",
+      "runner": "db",
+      "proves": "Learning Safety Doctrine / INV-02 — no served or authored learner string carries a forbidden word or narrows to the answer, across every delivered item type"
+    },
+    {
+      "id": "F03-T10",
+      "runner": "db",
+      "proves": "INV-08 / INV-09 — a second learner is refused on both paths, the stored score equals a fresh recomputation, and a duplicate finalize observes one root result"
+    },
+    {
+      "id": "F03-S01",
+      "runner": "static",
+      "proves": "INV-26 — exactly one module calls the engine's RPCs, and it holds no privilege of its own"
+    },
+    {
+      "id": "F03-S02",
+      "runner": "static",
+      "proves": "INV-01 — the authoring shape diffed against the sanitizer allow-list, with the SQL and the TypeScript type required to agree"
+    },
+    {
+      "id": "F03-S03",
+      "runner": "static",
+      "proves": "INV-31 / INV-32 — the assistance context equals the sanitized item, refuses an authoring row, and names no provider"
+    },
+    {
+      "id": "F03-R01",
+      "runner": "app",
+      "proves": "FABLE-03 §8 — a learner signs in and reaches the cycle over HTTP; an anonymous request never does",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
+    },
+    {
+      "id": "F03-R02",
+      "runner": "app",
+      "proves": "FABLE-03 §9 — no lifecycle enum, evidence class, engine version or release hash appears on any learner route",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
+    }
   ]
 }

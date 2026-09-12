@@ -1,5 +1,5 @@
 /**
- * App runner — F01-R01…R04. Black-box HTTP against the production-mode app
+ * App runner — F01-R01…R06 and F03-R01…R02. Black-box HTTP against the production-mode app
  * (`next start`) and, where the network facility exists, against the
  * Supabase project's REST/Auth/Storage endpoints with real persona JWTs —
  * never a superuser connection (FABLE-01 §6). R01 needs no network. R04 is
@@ -15,7 +15,15 @@ const PERSONA = {
   dean: { email: "alpha-dean@synthetic.pintar.test", password: "Sintetis-AlphaDean-33!" },
   alphaAdmin: { email: "alpha-admin@synthetic.pintar.test", password: "Sintetis-AlphaAdmin-27!" },
   alphaStudent: { email: "alpha-siswa-1@synthetic.pintar.test", password: "Sintetis-AlphaSiswa1-76!" },
+  // FABLE-03's own learner (supabase/seed/learning_cycle.sql). Deliberately
+  // not alphaStudent: FABLE-01's rollover and transfer tests move that persona
+  // out of the fixture's class, which would make these tests fail for a reason
+  // that has nothing to do with the learning cycle.
+  cycleLearner: { email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" },
 } as const;
+
+/** Every learner route FABLE-03 adds, for the copy inventory (§9). */
+const LEARNER_ROUTES = ["/belajar"] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };
 
@@ -317,6 +325,97 @@ export const appTests: SelfTest[] = [
 
       c.note(`pepper ${pepper.length} chars; domain ${host}`);
       return c.verdict("configured pepper meets the production contract; the production derivation authenticates the seeded card through real GoTrue");
+    },
+  },
+  {
+    id: "F03-R01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // §8: onboarding reaches the cycle. Over real HTTP, with a real session
+      // cookie, through the same middleware a browser meets — an anonymous
+      // request is sent to sign in and never sees a learner surface.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+
+      const anon = await get(`${base}/belajar`);
+      const loc = anon.headers.get("location") ?? "";
+      c.expect(
+        [302, 303, 307, 308].includes(anon.status) && /\/masuk(\?|$)/.test(loc),
+        `anonymous /belajar → ${anon.status} ${loc || "(no redirect)"}; expected a redirect to sign in`,
+      );
+      c.expect(/lanjut=%2Fbelajar|lanjut=\/belajar/.test(loc), `the redirect lost where the learner was going: ${loc}`);
+
+      const learner = await signIn(ctx, PERSONA.cycleLearner);
+      const mine = await get(`${base}/belajar`, { headers: { cookie: learner.cookie } });
+      c.expect(mine.status === 200, `signed-in /belajar → ${mine.status}`);
+      const html = await mine.text();
+      const text = visibleText(html);
+      noInternalWords(c, html, "/belajar");
+
+      // the seeded course reaches the learner, and the link into the cycle works
+      c.expect(text.includes("Pecahan"), "the assigned course does not appear on the learner's own page");
+      const href = /\/belajar\/([0-9a-f-]{36})/.exec(html)?.[0];
+      if (c.expect(Boolean(href), "no link into a cycle was rendered")) {
+        const cycle = await get(`${base}${href}`, { headers: { cookie: learner.cookie } });
+        c.expect(cycle.status === 200, `signed-in ${href} → ${cycle.status}`);
+        noInternalWords(c, await cycle.text(), href!);
+      }
+
+      // a learner surface is never reachable without the session
+      const stolen = await get(`${base}${href ?? "/belajar"}`);
+      c.expect(
+        [302, 303, 307, 308].includes(stolen.status),
+        `anonymous ${href} → ${stolen.status}; expected a redirect`,
+      );
+      return c.verdict("an anonymous request is sent to sign in and keeps its destination; a signed-in learner reaches their assigned cycle");
+    },
+  },
+  {
+    id: "F03-R02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // §9, the calm surface, checked as a route inventory rather than by
+      // reading screens: every learner route is fetched as a real learner and
+      // scanned for the words that must never reach one — lifecycle enums,
+      // evidence classes, engine and scoring-policy versions, release hashes.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const learner = await signIn(ctx, PERSONA.cycleLearner);
+      const headers = { cookie: learner.cookie };
+
+      const routes: string[] = [...LEARNER_ROUTES];
+      const index = await get(`${base}/belajar`, { headers });
+      const indexHtml = await index.text();
+      const tugas = /\/belajar\/([0-9a-f-]{36})/.exec(indexHtml)?.[1];
+      if (c.expect(Boolean(tugas), "no assignment was rendered, so there is nothing to inventory")) {
+        routes.push(`/belajar/${tugas}`, `/belajar/${tugas}/pemetaan`, `/belajar/${tugas}/peta`,
+                    `/belajar/${tugas}/penguasaan`, `/belajar/${tugas}/hasil`);
+        const cycle = await get(`${base}/belajar/${tugas}`, { headers });
+        const lesson = /\/belajar\/[0-9a-f-]{36}\/pelajaran\/[0-9a-f-]{36}/.exec(await cycle.text())?.[0];
+        if (lesson) routes.push(lesson);
+      }
+
+      let scanned = 0;
+      for (const route of routes) {
+        const r = await get(`${base}${route}`, { headers, redirect: "follow" });
+        // 404 is a legitimate answer for a step the learner has not reached
+        if (r.status === 404) continue;
+        c.expect(r.status === 200, `${route} → ${r.status}`);
+        const body = await r.text();
+        scanned++;
+        noInternalWords(c, body, route);
+        const visible = visibleText(body);
+        // the engine and scoring-policy versions are real strings with a real
+        // shape; neither belongs in front of a learner
+        c.expect(!/pintar-engine\//.test(visible), `${route} shows the engine version`);
+        c.expect(!/pintar-scoring\//.test(visible), `${route} shows the scoring policy version`);
+        c.expect(!/\b[0-9a-f]{64}\b/.test(visible), `${route} shows what looks like a release hash`);
+        c.expect(!/\b(PRE_TEST|POST_TEST|IN_PROGRESS|FINALIZED|SUBMITTED|CREATED|EXPIRED|TERMINATED)\b/.test(visible),
+          `${route} shows a lifecycle enum`);
+      }
+      c.expect(scanned >= 3, `only ${scanned} learner route(s) rendered; the inventory would be thin`);
+      c.note(`${scanned} learner route(s) scanned`);
+      return c.verdict("no learner route shows a lifecycle enum, an evidence class, a version string or a release hash");
     },
   },
 ];

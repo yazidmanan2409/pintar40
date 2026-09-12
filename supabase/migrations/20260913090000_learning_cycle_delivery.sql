@@ -331,8 +331,10 @@ begin
   v_seed := v_s.shuffle_seed;
 
   -- `on commit drop` is not enough: two sessions assembled in one transaction
-  -- would collide on the name before either commit happens.
-  drop table if exists pool;
+  -- would collide on the name before either commit happens. Checked through
+  -- the catalog rather than `drop table if exists`, which emits a NOTICE on
+  -- every ordinary first call and would train a reader to ignore them.
+  if to_regclass('pg_temp.pool') is not null then execute 'drop table pool'; end if;
   create temporary table pool on commit drop as
     select c.item_id, i.item_type, i.parallel_group, i.is_safety_critical,
            public.difficulty_band(i.predicted_difficulty) as band,

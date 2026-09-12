@@ -239,6 +239,7 @@ declare
   v_pre uuid; v_ie2 uuid; v_grp uuid; v_cohort uuid;
   v_frozen timestamptz; v_published timestamptz;
   n int; n2 int;
+  v_inv11_ok boolean; v_inv11_detail text;
   t0 timestamptz := clock_timestamp();
 begin
   -- ------------------------------------------------------------- fixtures
@@ -934,13 +935,25 @@ begin
 
   -- F02-T16 INV-11: telemetry is physically separate and append-only, and a
   -- hesitation event carries the definition's configured window, not a constant.
+  --
+  -- NARROWED IN FABLE-03, AND STRICTLY STRONGER. This test used to assert that
+  -- nothing in `public` REFERENCES telemetry at all, with one named exception
+  -- for the write trigger. That was right while nothing produced telemetry.
+  -- FABLE-03 §6 requires a learner-facing path that RECORDS hesitation and
+  -- assistance, and PostgREST exposes only `public`, so such a function must
+  -- live there and must name the schema. The rule is now what INV-11 actually
+  -- says -- "never influences scoring" -- expressed as: a function in `public`
+  -- may WRITE telemetry and may never READ it. A scoring path that cannot read
+  -- a value cannot be influenced by it, and unlike an exception list this
+  -- constrains every future function rather than excusing chosen ones.
+  --
+  -- The rule has exactly one definition, public.assert_telemetry_write_only(),
+  -- so this test and 0033's verification block cannot drift apart; that
+  -- migration also proves it bites, by planting a public function that reads
+  -- telemetry, asserting the check goes red, and dropping it again.
   ok := true; detail := '';
-  -- nothing in public may reference the telemetry schema
-  select count(*) into n from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
-   where ns.nspname = 'public' and p.prokind = 'f'
-     and pg_get_functiondef(p.oid) ~* '\ytelemetry\.'
-     and p.proname <> 'enforce_observation_write';
-  if n > 0 then ok := false; detail := detail || format('%s function(s) in public read telemetry; ', n); end if;
+  select a.ok, a.detail into v_inv11_ok, v_inv11_detail from public.assert_telemetry_write_only() a;
+  if not v_inv11_ok then ok := false; detail := detail || v_inv11_detail || '; '; end if;
   select count(*) into n from pg_depend d
     join pg_rewrite rw on rw.oid = d.objid
     join pg_class dep on dep.oid = rw.ev_class
