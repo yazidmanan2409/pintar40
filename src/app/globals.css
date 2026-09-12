@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+/*
+  PINTAR design tokens — the whole visual language, versioned (doc 15 "Design
+  language"; doc 16 §9). Quiet, warm, intelligent. A screen may use only what
+  is defined here: one type family, one primary, restrained pastel accents,
+  calm semantic status. No decorative gradients, no alarms.
+
+  --pintar-primary is PROVISIONAL: the established PINTAR primary identity
+  colour must be copied from the brand assets before the first real
+  institution sees a screen (recorded in ADR-0001 as an open item). Every
+  other value is a neutral chosen to sit under any warm primary.
+*/
+:root {
+  --pintar-tokens-version: 1;
+
+  --surface-0: #FBFAF7;   /* page ground: warm off-white */
+  --surface-1: #FFFFFF;   /* cards */
+  --surface-2: #F3F1EC;   /* quiet wells */
+  --ink-1: #1F2A33;       /* primary text */
+  --ink-2: #4E5A64;       /* secondary text */
+  --ink-3: #8A949C;       /* hints, meta */
+  --line-1: #E6E2DA;      /* hairlines */
+
+  --pintar-primary: #2F6F8F;        /* PROVISIONAL — see note above */
+  --pintar-primary-ink: #FFFFFF;
+  --pintar-primary-soft: #E3EEF3;   /* pastel companion */
+
+  --status-ok: #2E7D5B;      --status-ok-soft: #E4F2EA;
+  --status-attention: #9A6B00; --status-attention-soft: #F7EED8;
+  --status-blocked: #8C3B3B; --status-blocked-soft: #F6E4E4;
+  --status-info: #3D5A80;    --status-info-soft: #E7EDF5;
+
+  --radius-1: 8px;
+  --radius-2: 14px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  --measure: 64ch;
+}
+
+@theme inline {
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-ink-1: var(--ink-1);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line-1: var(--line-1);
+  --color-primary: var(--pintar-primary);
+  --color-primary-ink: var(--pintar-primary-ink);
+  --color-primary-soft: var(--pintar-primary-soft);
+  --color-ok: var(--status-ok);
+  --color-ok-soft: var(--status-ok-soft);
+  --color-attention: var(--status-attention);
+  --color-attention-soft: var(--status-attention-soft);
+  --color-blocked: var(--status-blocked);
+  --color-blocked-soft: var(--status-blocked-soft);
+  --color-info: var(--status-info);
+  --color-info-soft: var(--status-info-soft);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius-1: var(--radius-1);
+  --radius-2: var(--radius-2);
+}
+
+html { color-scheme: light; }
+body {
+  background: var(--surface-0);
+  color: var(--ink-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+a { color: var(--pintar-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+*:focus-visible { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
