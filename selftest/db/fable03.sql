@@ -136,14 +136,24 @@ create or replace function selftest.answer_paper(p_session uuid, p_correct boole
                                                  p_wrong_safety boolean default false)
 returns integer language plpgsql security definer set search_path = public, pg_temp as $$
 declare r record; v_pos integer; v_positions integer[]; n integer := 0; v_want boolean;
+        v_safety_missed boolean := false;
 begin
   for r in select p.id as pid, p.item_id, i.item_type, i.is_safety_critical
              from public.presented_items p join public.items i on i.id = p.item_id
             where p.session_id = p_session order by p.position
   loop
-    -- p_wrong_safety flips exactly the safety-critical answers, so a paper can
-    -- be built that would pass on score alone and must still fail the gate.
-    v_want := case when p_wrong_safety and r.is_safety_critical then false else p_correct end;
+    -- p_wrong_safety flips exactly ONE safety-critical answer, not all of
+    -- them. INV-10's claim is that *a* safety-critical item answered wrong
+    -- fails the attempt, and flipping all of them makes the scenario depend on
+    -- how many the draw happened to produce: a five-item paper with three
+    -- safety-critical items scores 0.4 and falls below the pass mark on its
+    -- own, so the gate would no longer be what refused. One wrong answer out
+    -- of five always leaves 0.8, above any mark this fixture sets.
+    v_want := p_correct;
+    if p_wrong_safety and r.is_safety_critical and not v_safety_missed then
+      v_want := false;
+      v_safety_missed := true;
+    end if;
     if r.item_type = 'MCQ_MULTI' then
       select array_agg(d.display_position order by d.display_position) into v_positions
         from public.option_display_order(p_session, r.item_id) d
@@ -512,7 +522,7 @@ begin
     ok := false; detail := detail || 'the attempt passed despite the gate; ';
   end if;
   test_id := 'F03-T07'; invariant := 'INV-10';
-  if ok then detail := format('score %s clears the %s mark and the attempt still fails: %s safety-critical item(s) answered wrong',
+  if ok then detail := format('score %s clears the %s mark and the attempt still fails: one of the paper''s %s safety-critical item(s) answered wrong',
     v_out ->> 'penguasaan', v_out ->> 'ambang', n); end if;
   return next;
 
