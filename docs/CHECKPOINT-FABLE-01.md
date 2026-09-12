@@ -71,6 +71,13 @@ that carry a manifest justification) run exactly `selftest/manifest.json`
   justifications; the strict run is RED until CI executes them.
 - Defects found by the new runners and fixed forward: `/api/dev/*` was 401
   (proxy) instead of 404; ADR lacked "Affected components".
+- **CI-01 (found by CI Run #1, fixed forward):** the db runner assumed
+  `authenticated`/`anon` could re-enter schema `selftest`, which a clean
+  database does not grant, so it could switch role once and never back —
+  `permission denied for schema selftest` at F01-T03. Green on the live
+  project only because that database already carried the grant as ambient
+  state. `selftest/db/fable01.sql` now states the privileges it needs; see
+  `docs/audit/FABLE-01-mini-audit.md` § CI-discovered defects.
 - `npm run lint`, `npm run typecheck`, `npm run build`: pass (9 routes).
 
 ## 4. FABLE-01 requirement status
@@ -121,12 +128,11 @@ that carry a manifest justification) run exactly `selftest/manifest.json`
 
 ## 6. Unresolved external integration gates
 
-- **GitHub push:** unchanged — the git proxy refuses:
-  *"yazidmanan2409/pintar40 is not in this session's authorized repository
-  set… add the repository to the session's sources."* Resolution is on the
-  session/app side. No files are relayed manually; the archive exists only
-  so the next session can restore the exact history.
-- **CI execution:** depends on push.
+- **GitHub push:** cleared. The checkpoint archive was restored and the
+  12-commit history pushed to `yazidmanan2409/pintar40`; `main` tracks
+  `origin/main`.
+- **CI execution:** cleared. Run #1 executed on `b929c12` and was red on
+  CI-01 (harness defect, fixed forward). R04 still needs a green run.
 - **Network to Supabase from the session:** egress denies `*.supabase.co`;
   no Docker for a local stack. DB-layer verification continues through the
   management channel.
@@ -145,6 +151,8 @@ top of `46db15d`:
 - `2da0345` Config Studio: rollover, transfers, roles, audit reader, flags
 - `982569f` audit rows carry the build SHA per request (migration 12, T19)
 - `9bcf77c` 24h auth inactivity timeout in config.toml
-- (this commit) mini audit: audit_log service_role grants revoked
+- `b929c12` mini audit: audit_log service_role grants revoked
   (migration 13), selftest search_path pinned, fail-loud app URL, audit
   record, ADR findings 6–8, this checkpoint
+- (this commit) CI-01: the db runner's privilege assumptions on schema
+  `selftest` stated in `selftest/db/fable01.sql`

@@ -59,10 +59,61 @@ in `tenant_scoped_reads`), policy self-read stop-patch-loop (fixed in
 `read_helpers_by_value`), `/api/dev/*` 401-instead-of-404 (fixed in
 `src/proxy.ts`), ADR missing "Affected components" (fixed).
 
+## CI-discovered defects (numbered CI-nn)
+
+Found by a CI run rather than by the audit above.
+
+**CI-01 — the selftest harness assumed privileges a clean database does not
+grant.** Run #1, the first CI this repository has ever had, failed in
+`red case · db-table-without-rls`:
+
+    ERROR:  permission denied for schema selftest
+    QUERY:  SELECT selftest.as_user('alpha-siswa-1@synthetic.pintar.test')
+    CONTEXT:  PL/pgSQL function selftest.run_fable01() line 54 at PERFORM
+
+Body line 54 is the F01-T03 `as_user` call — the first one made *after*
+`as_user` has already put the session in role `authenticated`. The
+role-switch helpers are SECURITY INVOKER and live in schema `selftest`, so
+re-entering the schema needs USAGE and calling the helper needs EXECUTE;
+`selftest/db/fable01.sql` granted neither. The harness could switch role
+once and then could never switch back — the function that restores the
+owner role was itself unreachable from the role it had switched to. It dies
+at the second of 40 role-switch call sites, so no test past F01-T02 ran.
+
+Why "DB runner: 21/21 green" below did not catch it: that run was made
+against the long-lived project database, where the grant was already
+present as ambient state. `create schema if not exists` and `create or
+replace function` never reset privileges, so a database that once had the
+grant keeps it forever, while every CI job starts from a genuinely clean
+one. The class of defect is the harness depending on state it does not
+itself create; the fix is to state the dependency in the file.
+
+Not caused by the `search_path` pin in finding 2 — a `SET` clause does not
+affect privilege checks, and every call site is schema-qualified. The
+defect has been latent since the harness landed in `5732324`.
+
+Fixed forward in `selftest/db/fable01.sql`: `grant usage on schema selftest
+to authenticated, anon`, `grant execute` on the three role-switch helpers
+only, and `revoke all on function selftest.run_fable01() from public` so
+that opening the schema does not leave the entrypoint reachable by client
+roles. Nothing outside the harness changed: no migration, RLS policy,
+production privilege, audit protection or lint rule. Every lint counter is
+scoped to `schemaname='public'` or `storage`, so schema `selftest` is
+outside all of them and T13 is unaffected.
+
+Verified on PostgreSQL 16 against a genuinely clean database: the failure
+reproduces byte-for-byte without the grants; with them the runner switches
+owner → authenticated → authenticated → anon → authenticated → owner;
+re-applying the file is a no-op; and the cycle still holds after
+`revoke execute on all functions in schema selftest from public`, which is
+what makes the explicit EXECUTE grant load-bearing rather than decorative.
+
 ## Evidence
 
 - DB runner: 21/21 green on the live project after migration 13
-  (F01-T01…T19, T13b, DONE), run via the management channel.
+  (F01-T01…T19, T13b, DONE), run via the management channel. Read with
+  CI-01 in mind: that database is long-lived and already carried the
+  `selftest` grants, so the run could not have exposed CI-01.
 - Static runner: S01–S05 green; red-ability proven by an injected
   `USING (true)` migration (S01/S02 red).
 - App runner: R01 green against the production build (anonymous refusal,
@@ -75,9 +126,10 @@ in `tenant_scoped_reads`), policy self-read stop-patch-loop (fixed in
 The FABLE-01 gate is **not closed**. Open items, all external to the
 repository:
 
-1. GitHub push (`yazidmanan2409/pintar40` not in the session's authorized
-   sources) → CI has never executed → R04 has no evidence; the first
-   deliberately broken PR has not been opened.
+1. R04 has no green evidence yet. The push gate is cleared — `main`
+   (`b929c12`) is on `yazidmanan2409/pintar40` and CI Run #1 executed, red
+   on CI-01 above; the fix is this commit. The first deliberately broken PR
+   has not been opened.
 2. Network to the Supabase project from the build session → R02/R03 not
    executed as real HTTP calls (their DB-layer counterparts T02/T03/T06/T14
    are green).

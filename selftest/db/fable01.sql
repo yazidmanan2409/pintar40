@@ -36,6 +36,19 @@ begin
   perform set_config('request.jwt.claim.sub', '', true);
 end $$;
 
+-- Privileges the harness needs on its own schema (CI-01). The helpers above
+-- switch the session role (`set local role authenticated` / `anon`), so every
+-- later `selftest.*` call in run_fable01() is made as that role, not as the
+-- owner. Re-entering the schema therefore needs USAGE, and calling the helper
+-- needs EXECUTE -- neither of which a clean database grants. Stated here so the
+-- harness is self-contained instead of depending on privileges left behind in a
+-- long-lived local stack. Scoped to the three role-switch helpers; the
+-- run_fable01() entrypoint is closed to client roles at the end of this file.
+-- Idempotent: re-running this file re-issues the same grants.
+grant usage on schema selftest to authenticated, anon;
+grant execute on function selftest.as_user(text), selftest.as_anon(), selftest.as_owner()
+  to authenticated, anon;
+
 create or replace function selftest.run_fable01()
 returns table (test_id text, invariant text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
@@ -355,3 +368,10 @@ begin
   perform selftest.as_owner();
   test_id := 'F01-DONE'; invariant := '-'; ok := true; detail := format('elapsed %s ms', round(extract(epoch from clock_timestamp() - t0) * 1000)); return next;
 end $$;
+
+-- USAGE above opens the schema to the client roles, so close the entrypoint
+-- behind it: run_fable01() is entered only over the owner connection (psql via
+-- $SUPABASE_DB_URL -- npm run selftest:db and both CI db jobs). create or
+-- replace resets the ACL to the PUBLIC default on first creation, so this runs
+-- after it, every time.
+revoke all on function selftest.run_fable01() from public;
