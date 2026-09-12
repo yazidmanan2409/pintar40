@@ -55,8 +55,18 @@ begin
   -- immutable provenance, so the same trigger-disable applies. Sessions exist
   -- only for probe courses, so this removes nothing a real run would keep.
   alter table public.presented_items disable trigger presented_items_immutable;
+  alter table public.responses disable trigger responses_write;
+  alter table public.assessment_results disable trigger assessment_results_write;
   alter table public.assessment_sessions disable trigger assessment_sessions_provenance;
   alter table public.assessment_sessions disable trigger assessment_sessions_status;
+  delete from public.assessment_results ar using public.assessment_sessions s,
+                                            public.plp_releases r, public.courses c
+   where ar.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
+     and c.title like p_prefix || '%';
+  delete from public.responses rs using public.assessment_sessions s,
+                                       public.plp_releases r, public.courses c
+   where rs.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
+     and c.title like p_prefix || '%';
   delete from public.presented_items pi using public.assessment_sessions s,
                                             public.plp_releases r, public.courses c
    where pi.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
@@ -64,6 +74,8 @@ begin
   delete from public.assessment_sessions s using public.plp_releases r, public.courses c
    where s.plp_release_id = r.id and r.course_id = c.id and c.title like p_prefix || '%';
   alter table public.presented_items enable trigger presented_items_immutable;
+  alter table public.responses enable trigger responses_write;
+  alter table public.assessment_results enable trigger assessment_results_write;
   alter table public.assessment_sessions enable trigger assessment_sessions_provenance;
   alter table public.assessment_sessions enable trigger assessment_sessions_status;
 
@@ -102,6 +114,70 @@ begin
 end $$;
 revoke all on function selftest.purge_probe_content(text) from public;
 
+-- ---------------------------------------------------------------------------
+-- INV-28 concurrency fixture. A single connection cannot prove that the unique
+-- index -- rather than a preceding SELECT -- arbitrates a race: both shapes
+-- pass. selftest/run.ts therefore drives two real psql connections through
+-- these three helpers, and the assertion lives here where the rest of the
+-- contract does.
+-- ---------------------------------------------------------------------------
+create or replace function selftest.concurrency_fixture() returns uuid
+language plpgsql set search_path = public, pg_temp as $$
+declare v_inst uuid; v_guru uuid; v_hod uuid; v_enr uuid;
+        c uuid; m uuid; l uuid; i uuid; r uuid; d uuid; s uuid; pi uuid;
+begin
+  perform selftest.purge_probe_content('selftest conc');
+  select a.person_id into v_guru from public.accounts a join auth.users u on u.id=a.auth_user_id
+   where u.email='alpha-guru@synthetic.pintar.test';
+  select a.person_id into v_hod from public.accounts a join auth.users u on u.id=a.auth_user_id
+   where u.email='alpha-hod@synthetic.pintar.test';
+  select ra.institution_id into v_inst from public.role_assignments ra
+   where ra.person_id=v_hod and ra.revoked_at is null limit 1;
+  select e.id into v_enr from public.enrollments e join public.accounts a on a.person_id=e.person_id
+    join auth.users u on u.id=a.auth_user_id
+   where u.email='alpha-siswa-1@synthetic.pintar.test' and e.institution_id=v_inst limit 1;
+
+  insert into public.courses (institution_id,subject,stage,grade_label,title,author_person_id)
+    values (v_inst,'Selftest','SD','V','selftest conc probe',v_guru) returning id into c;
+  insert into public.modules (course_id,institution_id,ordinal,title,author_person_id)
+    values (c,v_inst,1,'M',v_guru) returning id into m;
+  insert into public.lessons (module_id,institution_id,ordinal,title,author_person_id)
+    values (m,v_inst,1,'L',v_guru) returning id into l;
+  insert into public.items (lesson_id,institution_id,item_type,bank_type,stem,author_person_id)
+    values (l,v_inst,'MCQ_SINGLE','PRACTICE','soal',v_guru) returning id into i;
+  insert into public.plp_releases (institution_id,course_id,version_label,author_person_id)
+    values (v_inst,c,'1.0.0',v_guru) returning id into r;
+  insert into public.assessment_definitions (institution_id,course_id,title,mode,bank_type,item_count,author_person_id)
+    values (v_inst,c,'D','QUICK','PRACTICE',5,v_guru) returning id into d;
+  s := public.open_assessment_session(v_enr, d, r, 'ONLINE', 'QUICK', 'engine-0', 'policy-0');
+  update public.assessment_sessions set status='IN_PROGRESS' where id=s;
+  insert into public.presented_items (session_id,item_id,position) values (s,i,1) returning id into pi;
+  return pi;
+end $$;
+revoke all on function selftest.concurrency_fixture() from public;
+
+-- Given the receipt both connections raced for, decide whether the database
+-- arbitrated correctly: exactly one row, and it holds the payload of whichever
+-- connection won -- never a blend, never two rows, never an overwrite.
+create or replace function selftest.concurrency_verdict(p_presented uuid, p_expect_rows int)
+returns table (ok boolean, detail text)
+language plpgsql set search_path = public, pg_temp as $$
+declare n int; digests text;
+begin
+  select count(*), string_agg(distinct r.value_digest, ',') into n, digests
+    from public.responses r where r.presented_item_id = p_presented and r.client_seq = 1;
+  ok := (n = p_expect_rows);
+  detail := format('%s row(s) on the contested receipt, %s distinct digest(s)', n,
+                   coalesce(array_length(string_to_array(digests, ','), 1), 0));
+  return next;
+end $$;
+revoke all on function selftest.concurrency_verdict(uuid, int) from public;
+
+create or replace function selftest.concurrency_teardown() returns void
+language plpgsql set search_path = public, pg_temp as $$
+begin perform selftest.purge_probe_content('selftest conc'); end $$;
+revoke all on function selftest.concurrency_teardown() from public;
+
 create or replace function selftest.run_fable02()
 returns table (test_id text, invariant text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
@@ -114,6 +190,7 @@ declare
   v_def_p uuid; v_def_t uuid; v_def_e uuid; v_group uuid;
   v_bcourse uuid; v_bmod uuid; v_bles uuid;
   v_enr uuid; v_sess uuid; v_rel2 uuid; v_pi uuid; v_class public.evidence_class; v_seed bigint;
+  v_r1 uuid; v_r2 uuid; v_out text; v_res1 uuid; v_res2 uuid; v_res3 uuid;
   v_frozen timestamptz; v_published timestamptz;
   n int;
   t0 timestamptz := clock_timestamp();
@@ -686,6 +763,127 @@ begin
   exception when others then null; end;
   test_id := 'F02-T13'; invariant := 'INV-33 / doc 04 §5';
   if ok then detail := 'a delivery record is write-once and tenant-bound; the session graph refuses reversals, jumps and reasonless termination'; end if;
+  return next;
+
+  -- F02-T14 INV-28: a receipt is anchored to the delivery record, a replay is
+  -- acknowledged, a conflicting replay is refused, and a new sequence appends.
+  ok := true; detail := '';
+  -- a fresh session: F02-T13 drove the previous one to FINALIZED, and a
+  -- finalized session correctly accepts no further evidence
+  v_sess := public.open_assessment_session(v_enr, v_def_p, v_rel2, 'ONLINE', 'QUICK',
+                                           'engine-0', 'policy-0');
+  update public.assessment_sessions set status = 'IN_PROGRESS' where id = v_sess;
+  insert into public.presented_items (session_id, item_id, position)
+    values (v_sess, v_ip, 1) returning id into v_pi;
+
+  select response_id, outcome into v_r1, v_out from public.submit_response(v_pi, 1, '{"pilihan":"A"}'::jsonb);
+  if v_out <> 'RECORDED' then ok := false; detail := detail || format('first submission returned %s; ', v_out); end if;
+
+  -- the same receipt with the same answer: acknowledged, not duplicated
+  select response_id, outcome into v_r2, v_out from public.submit_response(v_pi, 1, '{"pilihan":"A"}'::jsonb);
+  if v_out <> 'ACKNOWLEDGED' then ok := false; detail := detail || format('replay returned %s; ', v_out); end if;
+  if v_r2 is distinct from v_r1 then ok := false; detail := detail || 'a replay created a second row; '; end if;
+  select count(*) into n from public.responses where presented_item_id = v_pi and client_seq = 1;
+  if n <> 1 then ok := false; detail := detail || format('%s rows share one receipt; ', n); end if;
+
+  -- transport metadata differing must not make a replay look new
+  select response_id, outcome into v_r2, v_out from public.submit_response(
+    v_pi, 1, '{"pilihan":"A"}'::jsonb, now(), 'LATE_SYNC', true);
+  if v_out <> 'ACKNOWLEDGED' or v_r2 is distinct from v_r1 then
+    ok := false; detail := detail || 'transport metadata changed the identity of a replay; ';
+  end if;
+
+  -- the same receipt with a different answer: refused, and the first survives
+  begin
+    perform public.submit_response(v_pi, 1, '{"pilihan":"B"}'::jsonb);
+    ok := false; detail := detail || 'a conflicting replay was accepted; ';
+  exception when others then null; end;
+  select count(*) into n from public.responses
+   where presented_item_id = v_pi and client_seq = 1 and value_digest = public.content_digest('{"pilihan": "A"}');
+  if n <> 1 then ok := false; detail := detail || 'the original answer did not survive the conflict; '; end if;
+
+  -- a new sequence is a new answer, appended
+  select response_id, outcome into v_r2, v_out from public.submit_response(v_pi, 2, '{"pilihan":"B"}'::jsonb);
+  if v_out <> 'RECORDED' or v_r2 = v_r1 then ok := false; detail := detail || 'a new client_seq did not append; '; end if;
+  select count(*) into n from public.responses where presented_item_id = v_pi;
+  if n <> 2 then ok := false; detail := detail || format('expected 2 responses, found %s; ', n); end if;
+
+  -- evidence is never rewritten in place
+  begin
+    update public.responses set value = '{"pilihan":"C"}'::jsonb where id = v_r1;
+    ok := false; detail := detail || 'a response was rewritten; ';
+  exception when others then null; end;
+  -- and session/institution came from the delivery record, not the caller
+  select count(*) into n from public.responses r join public.presented_items p on p.id = r.presented_item_id
+   where r.id = v_r1 and r.session_id = p.session_id and r.institution_id = p.institution_id;
+  if n <> 1 then ok := false; detail := detail || 'the response was not anchored to its delivery record; '; end if;
+  test_id := 'F02-T14'; invariant := 'INV-28';
+  if ok then detail := 'receipt anchored to the delivery record; replay acknowledged as one row; conflicting replay refused; new sequence appends; no rewrite'; end if;
+  return next;
+
+  -- F02-T15 INV-29: scoring provenance is required and immutable; a
+  -- recomputation is a new linked row, and the lineage is a line.
+  ok := true; detail := '';
+  begin
+    insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
+                                           engine_version, scoring_policy_version)
+      values (v_sess, v_inst, v_guru, 'SYNTHETIC', 'engine-1', null);
+    ok := false; detail := detail || 'a result was written without a scoring policy version; ';
+  exception when others then null; end;
+
+  insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
+                                         engine_version, scoring_policy_version, mastery)
+    values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-1', 'policy-1', 0.7500)
+    returning id into v_res1;
+  -- provenance is derived from the session, not accepted
+  select count(*) into n from public.assessment_results r join public.assessment_sessions s on s.id = r.session_id
+   where r.id = v_res1 and r.institution_id = s.institution_id and r.person_id = s.person_id
+     and r.evidence_class = s.evidence_class;
+  if n <> 1 then ok := false; detail := detail || 'result provenance was not derived from the session; '; end if;
+
+  begin
+    update public.assessment_results set mastery = 0.9900 where id = v_res1;
+    ok := false; detail := detail || 'a result was rewritten; ';
+  exception when others then null; end;
+
+  -- a second root for the same session is refused
+  begin
+    insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
+                                           engine_version, scoring_policy_version)
+      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-1', 'policy-1');
+    ok := false; detail := detail || 'a session grew a second root result; ';
+  exception when others then null; end;
+
+  -- a recomputation is a new row carrying its own provenance
+  insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
+                                         engine_version, scoring_policy_version, mastery,
+                                         supersedes_result_id, recomputation_reason)
+    values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-2', 'policy-2', 0.8000, v_res1, 'policy revision')
+    returning id into v_res2;
+  -- the lineage cannot fork: a second successor for the same predecessor
+  begin
+    insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
+                                           engine_version, scoring_policy_version,
+                                           supersedes_result_id, recomputation_reason)
+      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-3', 'policy-3', v_res1, 'fork attempt');
+    ok := false; detail := detail || 'the lineage forked; ';
+  exception when others then null; end;
+  -- nor supersede across sessions
+  begin
+    insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
+                                           engine_version, scoring_policy_version,
+                                           supersedes_result_id, recomputation_reason)
+      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-3', 'policy-3', v_res1, 'x');
+    ok := false; detail := detail || 'a cross-lineage supersession was accepted; ';
+  exception when others then null; end;
+  -- the chain is walkable and unambiguous
+  select count(*) into n from public.assessment_results where session_id = v_sess;
+  if n <> 2 then ok := false; detail := detail || format('lineage has %s rows, expected 2; ', n); end if;
+  select count(*) into n from public.assessment_results
+   where session_id = v_sess and supersedes_result_id is null;
+  if n <> 1 then ok := false; detail := detail || 'the lineage does not have exactly one root; '; end if;
+  test_id := 'F02-T15'; invariant := 'INV-29';
+  if ok then detail := 'scoring provenance required and derived; results immutable; recomputation is a new linked row; lineage cannot fork or cross sessions'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');

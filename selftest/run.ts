@@ -70,7 +70,7 @@ const DB_RUNNERS = [
   { file: "fable02.sql", fn: "selftest.run_fable02()", done: "F02-DONE" },
 ] as const;
 
-function runDb(dbUrl: string): Outcome[] {
+async function runDb(dbUrl: string): Promise<Outcome[]> {
   const allFailed = (why: string): Outcome[] =>
     manifest.tests.filter((t) => t.runner === "db").map((t) => ({ id: t.id, runner: "db", status: "FAIL", detail: why }));
 
@@ -97,7 +97,80 @@ function runDb(dbUrl: string): Outcome[] {
     const done = rows.find((x) => x.id === r.done);
     if (!done?.ok) out.push({ id: r.done, runner: "db", status: "FAIL", detail: `${r.file} did not reach its end` });
   }
+  out.push(await runDbConcurrency(dbUrl));
   return out;
+}
+
+/**
+ * F02-C01 — INV-28 under real concurrency.
+ *
+ * A single connection cannot prove this: `ON CONFLICT DO NOTHING` then re-read,
+ * and `SELECT` then `INSERT`, behave identically when nothing else is running.
+ * The property only has meaning when two callers hold the same receipt at once,
+ * so this drives two real psql connections. Connection A takes the receipt and
+ * holds its transaction open; B arrives mid-flight with a DIFFERENT answer.
+ * Correct behaviour is that the unique index arbitrates: A wins, B is refused
+ * as a conflict rather than overwriting, and exactly one row with one digest
+ * survives. A shape that read before it wrote would let both observe "nothing
+ * there" and produce two rows or a silent overwrite.
+ */
+async function runDbConcurrency(dbUrl: string): Promise<Outcome> {
+  const id = "F02-C01";
+  const psql = (sql: string) =>
+    spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+  const fail = (detail: string): Outcome => {
+    psql("select selftest.concurrency_teardown()");
+    return { id, runner: "db", status: "FAIL", detail };
+  };
+
+  const fixture = psql("select selftest.concurrency_fixture()");
+  if (fixture.status !== 0) return fail(`fixture failed: ${fixture.stderr.trim().split("\n").pop()}`);
+  const receipt = fixture.stdout.trim();
+
+  const race = (sql: string) =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-At", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8");
+      p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d));
+      p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+
+  const holder = race(
+    `begin; select outcome from public.submit_response('${receipt}'::uuid,1,'{"pilihan":"A"}'::jsonb);` +
+      ` select pg_sleep(1); commit;`,
+  );
+  await new Promise((r) => setTimeout(r, 300));
+  const [a, b] = await Promise.all([
+    holder,
+    race(`select outcome from public.submit_response('${receipt}'::uuid,1,'{"pilihan":"B"}'::jsonb);`),
+  ]);
+
+  const verdict = psql(`select ok::text || '|' || detail from selftest.concurrency_verdict('${receipt}'::uuid, 1)`);
+  const surviving = psql(
+    `select value::text from public.responses where presented_item_id='${receipt}'::uuid and client_seq=1`,
+  ).stdout.trim();
+  psql("select selftest.concurrency_teardown()");
+
+  const problems: string[] = [];
+  if (!a.out.includes("RECORDED")) problems.push(`the holder did not record the receipt (${a.out.slice(0, 80)})`);
+  if (b.code === 0) problems.push("the conflicting writer was not refused");
+  if (!b.out.includes("already carries a different answer")) {
+    problems.push(`the conflicting writer failed for the wrong reason (${b.out.slice(0, 80)})`);
+  }
+  if (!verdict.stdout.trim().startsWith("true|")) problems.push(`row check: ${verdict.stdout.trim()}`);
+  if (!surviving.includes('"A"')) problems.push(`the winner's answer did not survive (${surviving})`);
+
+  return problems.length
+    ? { id, runner: "db", status: "FAIL", detail: problems.join("; ") }
+    : {
+        id,
+        runner: "db",
+        status: "PASS",
+        detail: `two connections contested one receipt: holder RECORDED, concurrent conflicting writer refused, ${verdict.stdout.trim().split("|")[1]}`,
+      };
 }
 
 // ---------------------------------------------------------------- app process
@@ -176,7 +249,7 @@ async function main() {
   // db
   if (facilities.has("db")) {
     log(`\n[db] ${DB_RUNNERS.map((r) => "selftest/db/" + r.file).join(", ")}`);
-    outcomes.push(...runDb(dbUrl!));
+    outcomes.push(...(await runDb(dbUrl!)));
   } else {
     for (const t of manifest.tests.filter((t) => t.runner === "db" && (!only || only.includes(t.id)))) {
       outcomes.push({ id: t.id, runner: "db", status: "SKIP", detail: "facility missing: db" });
