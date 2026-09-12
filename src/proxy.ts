@@ -36,7 +36,10 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.has(path) || path.startsWith("/_next") || path === "/favicon.ico";
+  // /api/dev/* is decided by its own handler: a plain 404 outside development
+  // (FABLE-01 §11) — a 401 here would reveal that the namespace exists.
+  const isDevNamespace = path === "/api/dev" || path.startsWith("/api/dev/");
+  const isPublic = PUBLIC_PATHS.has(path) || isDevNamespace || path.startsWith("/_next") || path === "/favicon.ico";
 
   if (!user && !isPublic) {
     if (path.startsWith("/api/")) {

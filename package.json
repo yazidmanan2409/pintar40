@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "selftest": "tsx selftest/run.ts",
+    "selftest:local": "tsx selftest/run.ts --accept-justified-skips",
+    "selftest:db": "psql -v ON_ERROR_STOP=1 -q -1 -f selftest/db/fable01.sql \"$SUPABASE_DB_URL\" && psql -v ON_ERROR_STOP=1 -c 'select test_id, ok, detail from selftest.run_fable01()' \"$SUPABASE_DB_URL\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

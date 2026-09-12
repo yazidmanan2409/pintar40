@@ -68,6 +68,13 @@ entirely in the database.
    visible to the helper's snapshot). Root cause: policies must not re-read
    their own row. Corrected in `read_helpers_by_value`; the by-id helpers
    were dropped. This is the pattern for all future policy helpers.
+4. **Selftest F01-R01 (first run of the app runner):** `/api/dev/*`
+   answered 401 in the production build because the route proxy refused
+   anonymous `/api/*` before the dev handler's 404 — revealing that the
+   namespace exists. Fixed in `src/proxy.ts`: the dev namespace is passed
+   through and its handler alone decides (404 outside development).
+5. **Selftest F01-S05 (first run of the static runner):** this ADR lacked
+   the doc 13 "Affected components" section. Added.
 
 ## Traces to
 - Requirement: docs/rebuild/02 §Organisation, §Identity; 04 §3–3c; 05; 16 §1–5
@@ -75,10 +82,22 @@ entirely in the database.
 - Implementation: supabase/migrations/2026091200{4158…10155}_*.sql;
   src/lib/{env,auth,hle,card}.ts; src/lib/supabase/*; src/proxy.ts;
   src/app/{page,masuk,konfigurasi,api/assets,api/dev}
-- Test: selftest/db/fable01.sql (F01-T01…T18), selftest/manifest.json
+- Test: selftest/manifest.json — db F01-T01…T18 (selftest/db/fable01.sql), static F01-S01…S05 (selftest/static.test.ts), app F01-R01…R04 (selftest/app.test.ts)
 - Audit evidence: advisor output 2026-09-12; three consecutive green runs;
   mutation check (USING(true) → T02/T03/T07/T13 red)
 - Patent/innovation register entry: none supplied
+
+## Affected components
+- `supabase/migrations/*` (the eleven foundation migrations) and
+  `supabase/seed/synthetic.sql` (persona harness).
+- `src/lib/env.ts` (environment contract), `src/lib/auth.ts` (authority
+  calls into the database primitives), `src/lib/hle.ts` (Human Language
+  Engine), `src/lib/card.ts` (classroom-card secret derivation),
+  `src/lib/supabase/{client,server,service}.ts`, `src/proxy.ts` (route
+  protection).
+- `src/app/{page,masuk,auth/callback,keluar,konfigurasi}` and
+  `src/app/api/{assets,dev}`.
+- `selftest/` (contract manifest and the db, static and app runners).
 
 ## Affected database objects
 Tables: platform_environment, audit_log, institutions, academic_periods,
@@ -101,5 +120,5 @@ synthetic intent.
   (management channel assigns them); repo filenames were aligned to match.
 
 ## Tests proving the decision
-F01-T01…T18 (db runner). Static and REST runners are planned in
-selftest/manifest.json and blocked on the external gate (see checkpoint).
+F01-T01…T18 (db runner), F01-S01…S05 (static runner), F01-R01…R04 (app
+runner; R02–R04 execute only where network/CI facilities exist — see checkpoint).
