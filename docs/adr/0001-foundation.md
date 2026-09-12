@@ -75,16 +75,31 @@ entirely in the database.
    through and its handler alone decides (404 outside development).
 5. **Selftest F01-S05 (first run of the static runner):** this ADR lacked
    the doc 13 "Affected components" section. Added.
+6. **Mini audit:** `service_role` held UPDATE/DELETE/TRUNCATE on `audit_log`
+   through Supabase's default privileges. The trigger already refused them
+   (T11), but an immutable table carries two locks: revoked in
+   `audit_log_no_service_writes`; the lint now counts `service_role`.
+7. **Mini audit:** the throwaway `selftest.*` helpers had a mutable
+   `search_path`; pinned. The magic-link origin fell back to an empty
+   string; `appUrl()` now fails loud (env contract).
+8. **Build SHA provenance (§8):** over PostgREST each request is its own
+   transaction, so `audit_write` reads the SHA from the `x-pintar-build`
+   request header (PostgREST `request.headers`) when `app.build_sha` is not
+   set, shape-validated. A direct API caller could stamp a different SHA on
+   the rows *its own request* produces; the value is provenance, never
+   authority. Recorded as an accepted limitation; T19 proves capture and
+   rejection of malformed values.
 
 ## Traces to
 - Requirement: docs/rebuild/02 §Organisation, §Identity; 04 §3–3c; 05; 16 §1–5
 - Architecture: INV-13/14/15/16/17/18/21/23/25/36/37
-- Implementation: supabase/migrations/2026091200{4158…10155}_*.sql;
+- Implementation: supabase/migrations/20260912{004158…051935}_*.sql (13);
   src/lib/{env,auth,hle,card}.ts; src/lib/supabase/*; src/proxy.ts;
   src/app/{page,masuk,konfigurasi,api/assets,api/dev}
-- Test: selftest/manifest.json — db F01-T01…T18 (selftest/db/fable01.sql), static F01-S01…S05 (selftest/static.test.ts), app F01-R01…R04 (selftest/app.test.ts)
-- Audit evidence: advisor output 2026-09-12; three consecutive green runs;
-  mutation check (USING(true) → T02/T03/T07/T13 red)
+- Test: selftest/manifest.json — db F01-T01…T19 (selftest/db/fable01.sql), static F01-S01…S05 (selftest/static.test.ts), app F01-R01…R04 (selftest/app.test.ts)
+- Audit evidence: docs/audit/FABLE-01-mini-audit.md; advisor output
+  2026-09-12; green db runs on the live project; mutation checks
+  (USING(true) → T02/T03/T07/T13 red; injected migration → S01/S02 red)
 - Patent/innovation register entry: none supplied
 
 ## Affected components
@@ -104,7 +119,8 @@ Tables: platform_environment, audit_log, institutions, academic_periods,
 org_nodes, classes, persons, accounts, enrollments, memberships,
 role_assignments, record_class_registry, portable_visibility, transfers,
 feature_flags, platform_config; view my_profile; functions as listed in
-the Decision; storage bucket `assets`.
+the Decision plus `audit_write` (header-sourced build SHA) and
+`platform_schema_lint`; storage bucket `assets`.
 
 ## Security implications
 Stated throughout; no client role can read or write outside RLS; no
@@ -120,5 +136,5 @@ synthetic intent.
   (management channel assigns them); repo filenames were aligned to match.
 
 ## Tests proving the decision
-F01-T01…T18 (db runner), F01-S01…S05 (static runner), F01-R01…R04 (app
+F01-T01…T19 (db runner), F01-S01…S05 (static runner), F01-R01…R04 (app
 runner; R02–R04 execute only where network/CI facilities exist — see checkpoint).

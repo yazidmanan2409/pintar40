@@ -16,6 +16,13 @@ export function publicSupabaseAnonKey(): string {
   return v;
 }
 
+/** Public origin used for auth redirects. Fails loud rather than emitting a relative magic link. */
+export function appUrl(): string {
+  const v = process.env.NEXT_PUBLIC_APP_URL;
+  if (!v) throw new Error("NEXT_PUBLIC_APP_URL is not set");
+  return v.replace(/\/$/, "");
+}
+
 /** Server-only. Absent in the browser bundle by construction. */
 export function serviceRoleKey(): string {
   const v = process.env.SUPABASE_SERVICE_ROLE_KEY;

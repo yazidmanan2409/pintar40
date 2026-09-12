@@ -1,140 +1,150 @@
-# CHECKPOINT — FABLE-01 (Foundation), paused 2026-09-12 ~01:20 Asia/Jakarta
+# CHECKPOINT — FABLE-01 (Foundation), updated 2026-09-12 ~12:30 Asia/Jakarta
 
 **Phase state: IN PROGRESS. Not complete. Phase gate not reached.**
 Governing architecture: PINTAR 4.0 Architecture Baseline (frozen). Phase
 prompt: `FABLE-01-FOUNDATION-PROMPT.md` (synchronized). Governing
 principle: calm on the surface, rigorous underneath.
 
+Second session (resumed from the 01:20 checkpoint via
+`pintar40-fable01-checkpoint.tgz`; the restored history was verified
+against the live database before any work). Everything in §5 of the
+previous checkpoint that could be completed without the external gates has
+been completed. What remains is listed in §6 and is external to the
+repository.
+
 ## 1. Where things live
 
 | Thing | Location |
 |---|---|
-| Local repository (linear `main`, all work committed) | cloud workspace `/home/claude/pintar40` — see §7 for the commit list |
-| GitHub remote | `github.com/yazidmanan2409/pintar40` — **unreachable from this session** (external gate, §6) |
-| Supabase project | `pintar`, ref `sknixmwkynzmrgbxzrvb`, org ZAYD, region ap-southeast-1, free tier ($0/month), Postgres 17 |
-| Supabase URL | `https://sknixmwkynzmrgbxzrvb.supabase.co` (anon key in `.env.local`, gitignored; obtainable again via the Supabase tools) |
+| Local repository (linear `main`, all work committed) | cloud workspace `/home/claude/pintar40`; archived as `pintar40-fable01-checkpoint.tgz` (includes `.git`; excludes node_modules/.next/.env.local) |
+| GitHub remote | `github.com/yazidmanan2409/pintar40` — **still unreachable from the session** (external gate, §6); `origin` configured; nothing pushed yet |
+| Supabase project | `pintar`, ref `sknixmwkynzmrgbxzrvb`, org ZAYD, ap-southeast-1, free tier, Postgres 17 |
+| Supabase URL | `https://sknixmwkynzmrgbxzrvb.supabase.co` (anon key via the Supabase tools; `.env.local` is gitignored) |
 | Architecture package | PINTAR project docs `01`–`16`, `FABLE-00`–`06`, freeze record |
+| Mini-audit record | `docs/audit/FABLE-01-mini-audit.md` |
 
-## 2. Migrations applied to the Supabase project (all verified, in this order)
+## 2. Migrations applied to the Supabase project (13, verified, in this order)
 
 | Version | Name | Content |
 |---|---|---|
-| 20260912004158 | foundation_base | pgcrypto; closed-by-default grants + default privileges; `platform_environment`; roles enum; `role_rank`, `role_capabilities`; append-only `audit_log` + `audit_write` |
-| 20260912004244 | organisation | `institutions`, `academic_periods` (append-only), `org_nodes` with `jalur` + chain/period triggers + cascade on move, `classes` lifecycle |
-| 20260912004321 | identity_enrollment | `persons` (no institution/class column), `accounts`, `enrollments` + `memberships` (dated, append-only, audited), `members_of_node_at` |
-| 20260912004431 | authorization | `role_assignments` + anti-escalation guard; `current_person_id`, `is_system_admin`, `has_scope`, `can_on_node`, `is_member_of_institution`, `person_visible_to_me` (fail-closed); `grant_role`/`revoke_role`; `my_profile`; `on_auth_user_created`; RLS policies for all tables |
-| 20260912004527 | transfer_rollover | `record_class_registry`, `portable_visibility`, `transfers` lifecycle + RPCs (`transfer_request/authorize/execute/reject`), `period_rollover` |
-| 20260912004550 | storage_config | private `assets` bucket (zero client policies), `feature_flags` + `flag_enabled`, `platform_config` |
-| 20260912004654 | function_privileges | **advisor finding fix:** revoke EXECUTE from PUBLIC on all functions; default privileges; explicit `authenticated` RPC allow-list; `search_path` pinned on every function; effective-privilege verification |
-| 20260912004845 | schema_lint | `platform_schema_lint()` RPC (SYSTEM_ADMIN only) |
-| 20260912010009 | tenant_scoped_reads | **selftest finding fix:** enrollment/membership reads scoped by owning institution (was leaking a transferred learner's new enrollment to the sending institution) |
-| 20260912010100 | read_helpers | SECURITY DEFINER helpers to remove policy recursion (superseded by next) |
-| 20260912010155 | read_helpers_by_value | **root-cause fix (stop-patch-loop):** helpers take row values, never re-read the row; by-id helpers dropped |
+| 20260912004158 | foundation_base | pgcrypto; closed-by-default grants; `platform_environment`; roles; `audit_log` + `audit_write` |
+| 20260912004244 | organisation | institutions, academic_periods, `org_nodes` + `jalur`, classes |
+| 20260912004321 | identity_enrollment | persons, accounts, enrollments, memberships, `members_of_node_at` |
+| 20260912004431 | authorization | role_assignments + guard; primitives; `grant_role`/`revoke_role`; `my_profile`; RLS |
+| 20260912004527 | transfer_rollover | record classes, portable visibility, transfers + RPCs, `period_rollover` |
+| 20260912004550 | storage_config | private `assets` bucket, feature_flags, platform_config |
+| 20260912004654 | function_privileges | EXECUTE revoked from PUBLIC; RPC allow-list; `search_path` pinned |
+| 20260912004845 | schema_lint | `platform_schema_lint()` |
+| 20260912010009 | tenant_scoped_reads | enrollment/membership reads scoped by institution |
+| 20260912010100 | read_helpers | superseded by next |
+| 20260912010155 | read_helpers_by_value | policy helpers take row values (stop-patch-loop root cause) |
+| **20260912050956** | **build_sha_from_request** | `audit_write` reads `x-pintar-build` from PostgREST `request.headers` when `app.build_sha` is unset; shape-validated; probe in verification block |
+| **20260912051935** | **audit_log_no_service_writes** | mini-audit fix: `service_role` UPDATE/DELETE/TRUNCATE revoked on `audit_log`; lint counts `service_role` |
 
-Repo files `supabase/migrations/<version>_<name>.sql` match these versions
-exactly. **Rule for resuming:** apply new migrations through the same channel
-(management tools `apply_migration`), then rename the repo file to the
-version the database recorded — never edit an applied migration.
+Repo files `supabase/migrations/<version>_<name>.sql` match exactly.
+**Rule:** apply new migrations through `apply_migration`, then name the
+repo file by the version the database recorded — never edit an applied
+migration (CI's upgrade-path job now enforces byte-identity of applied
+migrations).
 
-Also applied (non-migration, throwaway): schema `selftest` with
-`as_user/as_anon/as_owner/run_fable01` + `grant usage on schema selftest to
-anon, authenticated; grant execute on all functions in schema selftest to
-anon, authenticated`. Drop this schema before any production use.
-
-Synthetic seed applied once (`supabase/seed/synthetic.sql`): institutions
-`synth-alpha-20260912004….`, `synth-beta-…`; nine personas (passwords in the
-seed file; card 7001 / PIN 2468; pepper `synthetic-card-pepper`).
+Also present (non-migration, throwaway): schema `selftest` (helpers now
+with pinned `search_path`; grants to anon/authenticated for impersonation).
+**Drop before any production use.** Synthetic seed applied once; the seed
+file is unchanged.
 
 ## 3. Selftest status
 
-- **DB runner (`selftest/db/fable01.sql`, F01-T01…T18 + T13b = 20 rows):
-  GREEN, three consecutive runs (0 failures each) on the live project via
-  role impersonation (`set local role authenticated` + `request.jwt.claims`,
-  the same mechanism PostgREST uses).**
-- **Red-ability proven:** a temporary `USING (true)` policy on `persons`
-  (rolled back) turned T02, T03, T07, T13 red.
-- Two genuine defects were found by the suite and fixed forward (migrations
-  010009 → 010155); recorded in ADR-0001 §Findings.
-- Supabase security advisor: 0 `anon` findings, 0 mutable `search_path`;
-  14 remaining = intended authenticated RPC allow-list (accepted, ADR-0001).
-- `npm run lint`, `npx tsc --noEmit`, `npm run build`: all pass (11 routes,
-  proxy active).
-- **Not yet written:** `selftest/static.test.ts` (F01-S01…S05) and
-  `selftest/app.test.ts` (F01-R01…R04); `npm run selftest` script; CI
-  workflow. See §5.
+`npm run selftest` (strict) and `npm run selftest:local` (accepts skips
+that carry a manifest justification) run exactly `selftest/manifest.json`
+(v2, 29 ids) through three runners:
+
+- **db** (`selftest/db/fable01.sql`, F01-T01…T19 + T13b = 21 rows):
+  **GREEN on the live project** after migration 13, via role impersonation
+  on the management channel. New this session: **T19** (build SHA stamped
+  from the request header; malformed header rejected).
+- **static** (`selftest/static.test.ts`, S01–S05): **GREEN**. Red-ability
+  proven: an injected `USING (true)` migration turns S01/S02 red.
+- **app** (`selftest/app.test.ts`): **R01 GREEN** against the production
+  build (anonymous `/konfigurasi` → redirect, `/api/assets/*` → 401,
+  `/api/dev/*` → 404, public copy clean). **R02/R03 not executed** (network
+  gate); **R04 not executed** (CI gate). All three carry manifest
+  justifications; the strict run is RED until CI executes them.
+- Defects found by the new runners and fixed forward: `/api/dev/*` was 401
+  (proxy) instead of 404; ADR lacked "Affected components".
+- `npm run lint`, `npm run typecheck`, `npm run build`: pass (9 routes).
 
 ## 4. FABLE-01 requirement status
 
 | § | Requirement | Status | Notes |
 |---|---|---|---|
-| 1 | New Next.js/TS/Tailwind project | COMPLETE | Next 16.3.5, App Router, `src/` |
-| 1 | New Supabase project, `.env.example` placeholders | COMPLETE | ref above; `.env.example` committed, `.env.local` ignored |
-| 1 | One GitHub trunk from commit one; PR flow | IN PROGRESS / BLOCKED | linear `main` exists locally; push blocked (§6) |
-| 1 | Lockfile; `npm ci` works | COMPLETE | `package-lock.json` committed |
-| 1 | CI: lint, typecheck, selftest, schema-lint, clean + upgrade-path migrations; broken-PR check | NOT STARTED | `supabase/config.toml` prepared (seed path set); `.github/workflows/ci.yml` not written |
-| 1 | One linear migration history; no manual production SQL | COMPLETE | 11 migrations, each with verification block |
-| 1 | Selftest manifest | IN PROGRESS | `selftest/manifest.json` written; only the db runner exists |
-| 1 | `docs/adr/` with ADR-0001 | COMPLETE | `docs/adr/0001-foundation.md` |
-| 1 | Design tokens | COMPLETE (one open item) | `src/app/globals.css`; `--pintar-primary` PROVISIONAL until copied from brand assets |
-| 1 | Feature-flag mechanism | COMPLETE | `feature_flags`, `flag_enabled` |
-| 2 | Person / Account / photo path; classroom-card account type | COMPLETE | card secret derivation `src/lib/card.ts`; seed uses same |
-| 2 | Auth: magic link + card PIN; 24h idle | IN PROGRESS | `/masuk` + actions + `/auth/callback` + `/keluar` written and build; **not exercised end-to-end** (network gate); 24h idle expiry not yet configured (Supabase auth setting) |
-| 2 | Synthetic tenants, non-prod seed guard, persona harness skeleton | COMPLETE | seed applied; T12 proves guard |
-| 3 | Hierarchy with `jalur`, Academic Periods, Enrollment, Membership lifecycles, rollover | COMPLETE | T08/T09/T15 |
-| 3a | Transfer domain (lifecycle, record classes, execution, policy hooks → OD-9) | COMPLETE (policy config pending OD-9) | T10 |
-| 4 | Role Assignments, capabilities, fail-closed primitive pair, anti-escalation, `CAN_QUICK_ASSESSMENT` rename | COMPLETE | T04/T05/T06/T07 |
-| 5 | Tenant isolation | COMPLETE | T02/T03; cross-tenant leak found & fixed |
-| 6 | RLS baseline, `ALTER DEFAULT PRIVILEGES`, `search_path`, black-box tests | COMPLETE (db layer) | REST-level black-box execution pending gate |
-| 7 | Private bucket, server-only signed upload/read routes, two-lock assertion | COMPLETE (code) / IN PROGRESS (verification) | routes written; anon HTTP fetch test pending gate |
-| 8 | Append-only audit trail, action coverage, commit SHA | COMPLETE | T11; `PINTAR_BUILD_SHA` stamped via `app.build_sha` setting (server wiring of the setting per request NOT yet done) |
-| 9 | Human Language Engine skeleton + copy inventory test | IN PROGRESS | `src/lib/hle.ts` with runtime guard; static test not written |
-| 10 | Config Studio shell with System & Configuration wired; placeholders; reserved boundaries | IN PROGRESS | `/konfigurasi` renders institutions, health (lint), environment; refusal for lower roles; rollover/transfer/RBAC admin actions **not yet surfaced in UI**; `integrations/`, `care/`, `ai-gateway/` module boundaries **not yet reserved** |
-| 11 | Dev-only tooling 404 outside development | COMPLETE (code) | `/api/dev/[[...tool]]`; production-build check pending REST runner |
-| — | Acceptance checklist as selftest contract | IN PROGRESS | db items green; static/REST/CI items planned |
-| — | Mini audit (doc 16 §5) | NOT STARTED | advisor pass done; formal dangerous-pattern search not run |
+| 1 | Next.js/TS/Tailwind project | COMPLETE | |
+| 1 | Supabase project, `.env.example` | COMPLETE | |
+| 1 | One GitHub trunk from commit one; PR flow | **BLOCKED (external)** | linear `main`, 12 commits, unpushed |
+| 1 | Lockfile; `npm ci` | COMPLETE | |
+| 1 | CI: lint, typecheck, selftest, schema-lint, clean + upgrade-path migrations, broken-PR check | **WRITTEN, NOT EXECUTED** | `.github/workflows/ci.yml` + `.github/actions/local-stack`; red-case matrix runs on every CI run; first real broken PR pending push |
+| 1 | One linear migration history | COMPLETE | 13 migrations |
+| 1 | Selftest manifest + `npm run selftest` | COMPLETE (code) | strict exit rules per doc 16 §4 |
+| 1 | `docs/adr/` with ADR-0001 | COMPLETE | 8 findings recorded |
+| 1 | Design tokens | COMPLETE (one open item) | `--pintar-primary` PROVISIONAL |
+| 1 | Feature flags | COMPLETE | now surfaced in Config Studio |
+| 2 | Person / Account / photo path; card account | COMPLETE | |
+| 2 | Auth: magic link + card PIN; 24h idle | IN PROGRESS | code built, not exercised end-to-end (network gate); `[auth.sessions] inactivity_timeout = "24h"` in `config.toml`; hosted setting is Pro-plan/Dashboard (gate) |
+| 2 | Synthetic tenants, seed guard, persona harness | COMPLETE | |
+| 3 | Hierarchy, periods, enrollment/membership, rollover | COMPLETE | rollover now in Config Studio |
+| 3a | Transfer domain | COMPLETE (policy OD-9) | request/authorize/execute/reject in Config Studio; destination references entered as codes (tenant isolation) — the exchange mechanism is an OD-9 item |
+| 4 | Roles, capabilities, primitives, anti-escalation | COMPLETE | grant/revoke in Config Studio |
+| 5 | Tenant isolation | COMPLETE | |
+| 6 | RLS baseline; black-box tests | COMPLETE (db) / REST pending | R02/R03 written |
+| 7 | Private bucket; server-only routes; two-lock assertion | COMPLETE (code) / R03 pending | |
+| 8 | Append-only audit; action coverage; commit SHA | **COMPLETE** | T19; service_role grants revoked |
+| 9 | HLE skeleton + copy inventory test | **COMPLETE** | S04; staff strings added |
+| 10 | Config Studio shell; placeholders; reserved boundaries | **COMPLETE** | rollover/transfers/roles/audit/flags wired; `src/{integrations,care,ai-gateway}` README stubs |
+| 11 | Dev-only tooling 404 | **COMPLETE** | R01 proves it in the production build |
+| — | Acceptance checklist as selftest contract | COMPLETE (code) / partially executed | see §3 |
+| — | Mini audit (doc 16 §5) | LAYERS 1–2 DONE; LAYER 3 PENDING | `docs/audit/FABLE-01-mini-audit.md`; 3 findings fixed forward |
 
 ## 5. Next actions when resuming (in order)
 
-1. Write `selftest/static.test.ts` (S01–S05) and `selftest/app.test.ts`
-   (R01 offline-capable; R02–R03 need network), plus `scripts/run-selftest.*`
-   and `npm run selftest` / `selftest:local`.
-2. Write `.github/workflows/ci.yml`: `npm ci` → lint → tsc → build →
-   `supabase start` → `supabase db reset` (migrations + synthetic seed) →
-   psql `selftest/db/fable01.sql` → node tests → upgrade-path job
-   (merge-base migrations, then HEAD migrations) → broken-PR check.
-3. Reserve module boundaries (`src/integrations/`, `src/care/`,
-   `src/ai-gateway/` with README stubs only).
-4. Config Studio: surface period rollover, transfer request/authorize,
-   role grant/revoke (calling the existing RPCs), audit reader.
-5. Wire `app.build_sha` per request (`set_config` via RPC or connection
-   option) so audit rows carry the commit SHA.
-6. Configure auth idle expiry (24h) in the Supabase auth settings.
-7. Mini audit per doc 16 §5, then the phase-gate report — **only after the
-   external gate (§6) is cleared and the REST/CI runners have executed.**
+1. **When the GitHub gate clears:** `git push -u origin main` (no rewrite);
+   watch the first CI run (five jobs); fix anything CI finds *forward*.
+2. Open one deliberately broken PR (e.g. a migration with `using (true)`),
+   confirm red, close it; record the run URL in the mini-audit record.
+3. **When network to the project exists** (or in CI): confirm R02/R03 green
+   as real HTTP calls; exercise magic-link and card sign-in end to end.
+4. Hosted Auth settings pass (Dashboard): inactivity timeout 24h (plan
+   permitting), leaked-password protection; record what was set.
+5. Layer-3 independent/adversarial audit by a separate session/reviewer
+   with no shared context, against `docs/audit/FABLE-01-mini-audit.md`.
+6. Drop schema `selftest` from the hosted project before any production
+   use (CI recreates it on the local stack every run).
+7. Only after 1–5: phase-gate report; then FABLE-02.
 
-## 6. Unresolved external integration gate
+## 6. Unresolved external integration gates
 
-- **GitHub push:** `git push -u origin main` fails with the git proxy's own
-  message: *"yazidmanan2409/pintar40 is not in this session's authorized
-  repository set, so the proxy will not inject a credential for it. To fix,
-  add the repository to the session's sources."* The repo was attached
-  through a read-only GitHub App integration (Claude Design Import), which
-  does not add it to the session's **sources**. Resolution is on the
-  session/app side (add the repository as a source with push access); no
-  files are to be transferred manually. Until then the linear `main` lives
-  in the cloud workspace and in the checkpoint archive
-  `pintar40-fable01-checkpoint.tgz` (includes `.git`; excludes
-  node_modules/.next/.env.local). `origin` is already configured.
+- **GitHub push:** unchanged — the git proxy refuses:
+  *"yazidmanan2409/pintar40 is not in this session's authorized repository
+  set… add the repository to the session's sources."* Resolution is on the
+  session/app side. No files are relayed manually; the archive exists only
+  so the next session can restore the exact history.
 - **CI execution:** depends on push.
-- **Network to Supabase from this container:** the organization egress
-  policy denies `*.supabase.co`; Docker is unavailable, so no local stack.
-  DB-layer verification was done through the management channel; REST/app
-  runners cannot execute here.
+- **Network to Supabase from the session:** egress denies `*.supabase.co`;
+  no Docker for a local stack. DB-layer verification continues through the
+  management channel.
+- **Hosted Auth settings:** Pro-plan features / Dashboard only.
 
-FABLE-01 cannot be declared complete while this gate is open.
+FABLE-01 cannot be declared complete while these are open.
 
 ## 7. Git
 
-Linear history on `main` (see `git log --oneline`). Working tree clean at
-checkpoint. `.env.local` is ignored and contains only the anon key and the
-synthetic pepper.
+Linear `main`, working tree clean at checkpoint. Commits this session, on
+top of `46db15d`:
+
+- `b5041fb` selftest contract: static + app runners, manifest v2
+- `912f5b6` CI workflow: clean + upgrade-path migrations, red cases, strict selftest
+- `2c24898` reserved module boundaries
+- `2da0345` Config Studio: rollover, transfers, roles, audit reader, flags
+- `982569f` audit rows carry the build SHA per request (migration 12, T19)
+- `9bcf77c` 24h auth inactivity timeout in config.toml
+- (this commit) mini audit: audit_log service_role grants revoked
+  (migration 13), selftest search_path pinned, fail-loud app URL, audit
+  record, ADR findings 6–8, this checkpoint

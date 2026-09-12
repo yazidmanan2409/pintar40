@@ -3,13 +3,14 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { deriveCardSecret } from "@/lib/card";
+import { appUrl } from "@/lib/env";
 
 export async function sendMagicLink(formData: FormData): Promise<{ ok: boolean }> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const next = String(formData.get("lanjut") ?? "/");
   if (!email) return { ok: false };
   const supabase = await supabaseServer();
-  const origin = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const origin = appUrl();
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: `${origin}/auth/callback?lanjut=${encodeURIComponent(next)}` },

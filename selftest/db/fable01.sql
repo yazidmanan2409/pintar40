@@ -8,7 +8,7 @@
 create schema if not exists selftest;
 
 create or replace function selftest.as_user(p_email text) returns void
-language plpgsql as $$
+language plpgsql set search_path = public, pg_temp as $$
 declare v_uid uuid;
 begin
   reset role;
@@ -20,7 +20,7 @@ begin
 end $$;
 
 create or replace function selftest.as_anon() returns void
-language plpgsql as $$
+language plpgsql set search_path = public, pg_temp as $$
 begin
   reset role;
   perform set_config('request.jwt.claims', '{"role":"anon"}', true);
@@ -29,7 +29,7 @@ begin
 end $$;
 
 create or replace function selftest.as_owner() returns void
-language plpgsql as $$
+language plpgsql set search_path = public, pg_temp as $$
 begin
   reset role;
   perform set_config('request.jwt.claims', '', true);
@@ -38,7 +38,7 @@ end $$;
 
 create or replace function selftest.run_fable01()
 returns table (test_id text, invariant text, ok boolean, detail text)
-language plpgsql as $$
+language plpgsql set search_path = public, pg_temp as $$
 declare
   alpha uuid; beta uuid; alpha_p1 uuid; alpha_p2 uuid; beta_p1 uuid;
   a_dept uuid; a_prog uuid; a_coh5 uuid; a_cls5a uuid; a_coh6 uuid; a_cls6b uuid; b_prog uuid; b_cls uuid;
