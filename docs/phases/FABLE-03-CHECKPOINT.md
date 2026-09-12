@@ -142,3 +142,53 @@ openly, to call the same single assertion. ADR-0005 §4.
   03, and **doc 16** (the verification contract cited by `selftest/run.ts`) is
   absent from the repository. Neither is invented here; both remain open
   documentation gaps.
+
+## Closeout
+
+**Integration.** `claude/quirky-meitner-a04smj` was fast-forwarded into `main`
+under the repository's linear-trunk workflow (doc 01, Lessons 4 and 12). No
+merge commit was created and `git log --merges` is still empty, so every
+FABLE-03 commit is preserved in place. Canonical `main` is
+`30b2d113a3ba1b5ed6185f1f52ef9383686a0eb2`, carrying 34 migrations.
+
+**Verification.** CI run 27 on `main`
+(https://github.com/yazidmanan2409/pintar40/actions/runs/34723321671), event
+`push`, all eight jobs green: `check`, `migrations-clean`,
+`migrations-upgrade-path`, the four `red-case` legs and `selftest`. The
+selftest summary reads `72 passed, 0 failed, 0 skipped, 0 contract problem(s)`
+— no acceptance id is skipped in strict CI, and the upgrade-path job replayed a
+real base rather than short-circuiting.
+
+**Hosted development synchronization.** Migrations 0030–0034 were applied to
+the hosted development project through the management channel, in canonical
+order, each one's recorded text verified byte-for-byte against its repository
+file after apply:
+
+| Migration | Recorded md5 |
+|---|---|
+| `learning_cycle_delivery` | `38d39cb47742834b21ff7d20de029063` |
+| `learning_cycle_scoring` | `c4c119fbe365abf8a401738f72f62649` |
+| `mcq_quality_severity_cast` | `c94290160d43d09d1c15f7877ecc4b8d` |
+| `lesson_progress_and_assistance` | `ff2fc2051cc19652eedb8fc39c8e2994` |
+| `cycle_state` | `33b1ea1e65a211c2cb14b0c3b0a39809` |
+
+The hosted history now holds 34 migrations whose names and order hash
+identically to the repository's migration directory
+(`8fba36ea9a4781950d7b0a6c8356aaa5`). Correspondence was then checked against
+the schema itself rather than against the history alone: a clean local replay
+of all 34 migrations and the hosted database produce the same object inventory
+in every category — 57 tables (with their RLS flags), 9 views, 566 columns, 117
+enum labels, 130 functions (with `SECURITY DEFINER`, volatility and pinned
+`search_path`), 106 policies (with roles, `USING` and `WITH CHECK`), 78
+triggers, and every `anon`/`authenticated` table and function grant — 1239
+lines, digest `4af4ccbe95175602a8236f7127ab8cd5` on both sides.
+
+Thirteen of the twenty-nine FABLE-01/02 migrations still carry recorded text
+that differs from their repository file, from the path by which they were first
+applied. They are left exactly as they are: an applied migration is never
+edited, and the inventory above is the demonstration that the divergence is in
+the recorded text and not in the schema it produced.
+
+FABLE-04 is not started. The roadmap's §4 decision — that no `OFFICIAL`
+evidence is possible while every institution is synthetic — is still open, and
+nothing here anticipates it.
