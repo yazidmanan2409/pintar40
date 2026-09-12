@@ -236,6 +236,7 @@ declare
   v_hes uuid; v_sig uuid; v_real uuid; v_real_enr uuid; v_osess uuid; v_ap uuid;
   v_rel3 uuid; v_status text; v_blockers text[]; v_find uuid;
   v_la uuid; v_aa uuid; v_rel4 uuid; v_batch uuid; v_map jsonb; v_node uuid;
+  v_pre uuid; v_ie2 uuid; v_grp uuid; v_cohort uuid;
   v_frozen timestamptz; v_published timestamptz;
   n int; n2 int;
   t0 timestamptz := clock_timestamp();
@@ -1348,6 +1349,117 @@ begin
   if n <> 1 then ok := false; detail := detail || 'the producer identifier was not kept as metadata; '; end if;
   test_id := 'F02-T21'; invariant := 'INV-32 / doc 09';
   if ok then detail := 'the raw payload is immutable provenance; Easy Upload proposes and asks rather than guessing; nothing materialises unconfirmed; the producer is metadata, not a schema object'; end if;
+  return next;
+
+  -- F02-T22 INV-02/INV-03: the doctrine constraints refuse bad content at the
+  -- database, not in a form validator.
+  ok := true; detail := '';
+  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+    values (v_inst, 'Matematika', 'SD', 'V', 'selftest doctrine probe', v_guru) returning id into v_course2;
+  insert into public.modules (course_id, institution_id, ordinal, title, author_person_id)
+    values (v_course2, v_inst, 1, 'M', v_guru) returning id into v_mod2;
+  insert into public.lessons (module_id, institution_id, ordinal, title, author_person_id)
+    values (v_mod2, v_inst, 1, 'L', v_guru) returning id into v_les2;
+  begin
+    insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, petunjuk, author_person_id)
+      values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'Berapa 1/2 + 1/4?', 'Kunci: A', v_guru);
+    ok := false; detail := detail || 'a hint naming the answer was saved; ';
+  exception when others then null; end;
+  begin
+    insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, arah_berpikir, author_person_id)
+      values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'Berapa 1/2 + 1/4?', 'Pilih antara A atau C', v_guru);
+    ok := false; detail := detail || 'a hint narrowing to two options was saved; ';
+  exception when others then null; end;
+  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, petunjuk, author_person_id)
+    values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'Berapa 1/2 + 1/4?',
+            'Samakan penyebutnya lebih dulu', v_guru) returning id into v_it;
+  begin
+    insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale)
+      values (v_it, v_inst, 'A', '3/4', true, '   ');
+    ok := false; detail := detail || 'an option with an empty rationale was saved; ';
+  exception when others then null; end;
+  insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale)
+    values (v_it, v_inst, 'A', '3/4', true, 'penyebut disamakan menjadi 4');
+  test_id := 'F02-T22'; invariant := 'INV-02/INV-03';
+  if ok then detail := 'a hint that names or narrows the answer is refused; an option without a rationale is refused; legitimate coaching saves'; end if;
+  return next;
+
+  -- F02-T23 INV-24: a post-test excludes every pre-test item AND every sibling.
+  ok := true; detail := '';
+  v_grp := gen_random_uuid();
+  update public.items set parallel_group = v_grp where id = v_it;
+  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, parallel_group, author_person_id)
+    values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'Berapa 1/4 + 1/2?', v_grp, v_guru)
+    returning id into v_ie2;
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course2, '1.0.0', v_guru) returning id into v_rel3;
+  insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type,
+                                             item_count, author_person_id)
+    values (v_inst, v_course2, 'Pra', 'PRE_TEST', 'PRACTICE', 5, v_guru) returning id into v_def_p;
+  select n.id into v_node from public.org_nodes n
+   where n.institution_id = v_inst and n.kind = 'CLASS' limit 1;
+  insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
+                                           academic_period_id)
+    values (v_inst, v_rel3, v_course2, v_node,
+            (select academic_period_id from public.enrollments where id = v_enr))
+    returning id into v_la;
+
+  v_pre := public.open_assessment_session(v_enr, v_def_p, v_rel3, 'ONLINE', 'PRE_TEST', 'e', 'p',
+                                          null, null, null, v_la);
+  update public.assessment_sessions set status = 'IN_PROGRESS' where id = v_pre;
+  insert into public.presented_items (session_id, item_id, position) values (v_pre, v_it, 1);
+
+  select count(*) into n from public.excluded_items_for_post_test(
+    (select person_id from public.enrollments where id = v_enr), v_la);
+  if n <> 2 then
+    ok := false; detail := detail || format('the exclusion returned %s item(s), expected the item and its sibling; ', n);
+  end if;
+  select count(*) into n from public.excluded_items_for_post_test(
+    (select person_id from public.enrollments where id = v_enr), v_la) x where x.item_id = v_ie2;
+  if n <> 1 then ok := false; detail := detail || 'the parallel sibling was not excluded; '; end if;
+  -- and the drawable set honours it
+  select count(*) into n from public.drawable_items_for_definition(
+    v_def_p, (select person_id from public.enrollments where id = v_enr), null, v_la)
+   where item_id in (v_it, v_ie2);
+  if n <> 0 then ok := false; detail := detail || 'an excluded item was still drawable; '; end if;
+  test_id := 'F02-T23'; invariant := 'INV-24';
+  if ok then detail := 'a post-test excludes every pre-test item and every parallel sibling of one; the drawable set honours the exclusion'; end if;
+  return next;
+
+  -- F02-T24 INV-13 and the predicted/empirical rule.
+  ok := true; detail := '';
+  -- the seed never writes an empirical value, and no column defaults to one.
+  -- Scoped to seeded content: F02-T05 and F02-T07 deliberately write an
+  -- empirical value on their own probe item, to prove that doing so does not
+  -- move the content hash. Counting those here would make this test contradict
+  -- the one that earns them.
+  select count(*) into n from public.items i
+    join public.lessons l on l.id = i.lesson_id
+    join public.modules m on m.id = l.module_id
+    join public.courses c on c.id = m.course_id
+   where c.title not like 'selftest %'
+     and (i.empirical_difficulty is not null or i.empirical_discrimination is not null
+       or i.empirical_evidence_count is not null);
+  if n > 0 then ok := false; detail := detail || format('%s seeded item(s) carry an empirical value; ', n); end if;
+  select count(*) into n from information_schema.columns
+   where table_schema='public' and table_name='items'
+     and column_name like 'empirical%' and column_default is not null;
+  if n > 0 then ok := false; detail := detail || 'an empirical column carries a default; '; end if;
+  -- INV-13: the cohort view is scoped per institution, so two tenants never
+  -- see each other's rows even when the same misconception code exists
+  select count(*) into n from public.service_cohort_misconceptions
+   where institution_id not in (select id from public.institutions where is_synthetic);
+  if n > 0 then ok := false; detail := detail || 'the cohort view leaked a non-synthetic institution; '; end if;
+  select count(*) into n from pg_attribute
+   where attrelid = 'public.service_cohort_misconceptions'::regclass
+     and attname in ('person_id','enrollment_id') and attnum > 0;
+  if n > 0 then ok := false; detail := detail || 'the cohort view exposes a learner identity; '; end if;
+  if not exists (select 1 from pg_attribute where attrelid = 'public.service_cohort_misconceptions'::regclass
+                  and attname = 'institution_id' and attnum > 0) then
+    ok := false; detail := detail || 'the cohort view is not tenant-scoped; ';
+  end if;
+  test_id := 'F02-T24'; invariant := 'INV-13 / doc 02';
+  if ok then detail := 'no seeded item carries an empirical value and no empirical column defaults to one; the cohort view is tenant-scoped and carries no learner identity'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');
