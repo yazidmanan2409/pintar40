@@ -1,0 +1,40 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseService } from "@/lib/supabase/service";
+
+/**
+ * Signed-upload route (FABLE-01 §7; INV-15). The ONLY write path to the
+ * private bucket. The caller's authority is checked through the database
+ * primitives (never by UI state); the service-role client then issues a
+ * short-lived signed upload URL for exactly one path. No client ever holds a
+ * bucket write policy.
+ *
+ * Phase 1 paths: `profile/<person_id>/<file>` (own photo, any signed-in
+ * person). Content paths arrive with Phase 2 (`CAN_DRAFT`/`CAN_REVIEW`).
+ */
+export async function POST(request: NextRequest) {
+  const supabase = await supabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+
+  const body = (await request.json().catch(() => null)) as { path?: string; nodeId?: string } | null;
+  const path = body?.path ?? "";
+  if (!/^[a-z0-9/_.-]{3,200}$/i.test(path) || path.includes("..")) {
+    return NextResponse.json({ error: "invalid_path" }, { status: 400 });
+  }
+
+  const { data: personId } = await supabase.rpc("current_person_id");
+  let allowed = false;
+  if (path.startsWith(`profile/${personId}/`)) {
+    allowed = true;
+  } else if (path.startsWith("content/") && body?.nodeId) {
+    const { data } = await supabase.rpc("can_on_node", { p_capability: "CAN_DRAFT", p_node: body.nodeId });
+    allowed = data === true;
+  }
+  if (!allowed) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
+  const service = supabaseService();
+  const { data, error } = await service.storage.from("assets").createSignedUploadUrl(path);
+  if (error || !data) return NextResponse.json({ error: "signing_failed" }, { status: 500 });
+  return NextResponse.json({ path: data.path, token: data.token });
+}
