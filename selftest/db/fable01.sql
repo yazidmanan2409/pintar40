@@ -328,6 +328,30 @@ begin
   perform selftest.as_owner();
   test_id := 'F01-T18'; invariant := 'doc 16 §8 flags'; if ok then detail := 'institution-scoped flags only; platform config SYSTEM_ADMIN only'; end if; return next;
 
+  -- F01-T19 INV-18 build SHA stamped from the request header (app server → PostgREST → audit_write)
+  ok := true; detail := '';
+  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  perform set_config('app.build_sha', '', true);
+  perform set_config('request.headers', '{"x-pintar-build":"f01c0ffee"}', true);
+  begin
+    insert into public.feature_flags (key, institution_id, enabled) values ('pilot.build_sha_probe', alpha, true)
+      on conflict (key, institution_id) do update set enabled = not public.feature_flags.enabled;
+  exception when others then ok := false; detail := detail || 'flag write failed: ' || sqlerrm || '; '; end;
+  perform set_config('request.headers', '', true);
+  perform selftest.as_owner();
+  select build_sha into txt from public.audit_log where target_table = 'feature_flags' order by id desc limit 1;
+  if txt is distinct from 'f01c0ffee' then ok := false; detail := detail || format('latest flag audit row build_sha=%s; ', coalesce(txt,'null')); end if;
+  perform set_config('request.headers', '{"x-pintar-build":"not a sha"}', true);
+  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  begin
+    update public.feature_flags set enabled = not enabled where key = 'pilot.build_sha_probe' and institution_id = alpha;
+  exception when others then ok := false; detail := detail || 'second flag write failed; '; end;
+  perform set_config('request.headers', '', true);
+  perform selftest.as_owner();
+  select build_sha into txt from public.audit_log where target_table = 'feature_flags' order by id desc limit 1;
+  if txt is not null then ok := false; detail := detail || format('malformed header stored as %s; ', txt); end if;
+  test_id := 'F01-T19'; invariant := 'INV-18 build_sha'; if ok then detail := 'header SHA stamped; malformed header rejected'; end if; return next;
+
   perform selftest.as_owner();
   test_id := 'F01-DONE'; invariant := '-'; ok := true; detail := format('elapsed %s ms', round(extract(epoch from clock_timestamp() - t0) * 1000)); return next;
 end $$;

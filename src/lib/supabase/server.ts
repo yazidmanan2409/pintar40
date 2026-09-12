@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { publicSupabaseAnonKey, publicSupabaseUrl } from "@/lib/env";
+import { buildSha, publicSupabaseAnonKey, publicSupabaseUrl } from "@/lib/env";
 
 /**
  * Per-request Supabase client acting AS THE SIGNED-IN USER (anon key + the
@@ -10,6 +10,7 @@ import { publicSupabaseAnonKey, publicSupabaseUrl } from "@/lib/env";
 export async function supabaseServer() {
   const cookieStore = await cookies();
   return createServerClient(publicSupabaseUrl(), publicSupabaseAnonKey(), {
+    global: { headers: buildHeaders() },
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -23,4 +24,10 @@ export async function supabaseServer() {
       },
     },
   });
+}
+
+/** Provenance header for audit rows; absent when no build SHA is configured. */
+export function buildHeaders(): Record<string, string> {
+  const sha = buildSha();
+  return sha && /^[0-9a-f]{7,40}$/.test(sha) ? { "x-pintar-build": sha } : {};
 }

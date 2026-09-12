@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { publicSupabaseUrl, serviceRoleKey } from "@/lib/env";
+import { buildHeaders } from "@/lib/supabase/server";
 
 /**
  * Privileged client (service_role). Server-only by the "server-only" import
@@ -12,5 +13,6 @@ import { publicSupabaseUrl, serviceRoleKey } from "@/lib/env";
 export function supabaseService() {
   return createClient(publicSupabaseUrl(), serviceRoleKey(), {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: buildHeaders() },
   });
 }
