@@ -13,8 +13,8 @@
 -- role-switch helpers. selftest/run.ts applies them in that order and the
 -- assertion below states the dependency rather than leaving it implicit.
 -- Most assertions run as the owner -- they are about triggers, which fire for
--- every role -- but the publish gate (INV-32) is *about* who the caller is, so
--- those steps switch to a real persona. Never applied as a migration.
+-- every role -- but the freeze and publish gates are *about* who the caller
+-- is, so those steps switch to a real persona. Never applied as a migration.
 
 create schema if not exists selftest;
 
@@ -168,7 +168,10 @@ begin
   -- F02-T03 nothing reverses out of a sealed state, and PUBLISHED is a human
   -- CAN_PUBLISH act (INV-32) even on the course row itself.
   ok := true; detail := '';
+  -- sealing needs CAN_FREEZE_RELEASE, which the owner connection does not have
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
   update public.courses set status = 'FROZEN' where id = v_course;
+  perform selftest.as_owner();
   begin
     update public.courses set status = 'APPROVED' where id = v_course;
     ok := false; detail := detail || 'reversal FROZEN->APPROVED accepted; ';
@@ -313,7 +316,9 @@ begin
   update public.plp_releases set status = 'VALIDATED'  where id = v_release;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
   update public.plp_releases set status = 'FROZEN'     where id = v_release;
+  perform selftest.as_owner();
   select content_sha256, frozen_at into v_sha, v_frozen from public.plp_releases where id = v_release;
   if v_sha is distinct from h1 then
     ok := false; detail := detail || 'the stored freeze hash differs from the computed one; ';
@@ -394,6 +399,49 @@ begin
   end if;
   test_id := 'F02-T08'; invariant := 'INV-32';
   if ok then detail := 'refused with no person, for EDUCATOR and for HEAD_OF_DEPARTMENT; accepted for INSTITUTION_ADMIN; published_at stamped, hash untouched'; end if;
+  return next;
+
+  -- F02-T09 sealing is a human CAN_FREEZE_RELEASE act, and it is a DIFFERENT
+  -- authority from publishing: HEAD_OF_DEPARTMENT can seal but not publish.
+  -- A second release on the same course, driven to APPROVED as the owner --
+  -- APPROVED carries no capability gate -- then frozen by each caller in turn.
+  ok := true; detail := '';
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course, '2.0.0', v_guru) returning id into v_release;
+  update public.plp_releases set status = 'STRUCTURED' where id = v_release;
+  update public.plp_releases set status = 'VALIDATED'  where id = v_release;
+  update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
+
+  begin
+    update public.plp_releases set status = 'FROZEN' where id = v_release;
+    ok := false; detail := detail || 'the owner connection, which has no person, sealed content; ';
+  exception when others then null; end;
+
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  begin
+    update public.plp_releases set status = 'FROZEN' where id = v_release;
+    get diagnostics n = row_count;
+    if n > 0 then ok := false; detail := detail || 'an EDUCATOR sealed content without CAN_FREEZE_RELEASE; '; end if;
+    if n = 0 then ok := false; detail := detail || 'the EDUCATOR could not see the release at all; '; end if;
+  exception when others then null; end;
+
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  update public.plp_releases set status = 'FROZEN' where id = v_release;
+  get diagnostics n = row_count;
+  if n <> 1 then ok := false; detail := detail || 'the CAN_FREEZE_RELEASE holder could not seal; '; end if;
+  -- the same caller holds CAN_FREEZE_RELEASE but not CAN_PUBLISH
+  begin
+    update public.plp_releases set status = 'PUBLISHED' where id = v_release;
+    get diagnostics n = row_count;
+    if n > 0 then ok := false; detail := detail || 'the sealing role also published; '; end if;
+  exception when others then null; end;
+  perform selftest.as_owner();
+  select content_sha256, frozen_at into v_sha2, v_frozen from public.plp_releases where id = v_release;
+  if v_sha2 is distinct from h1 then ok := false; detail := detail || 'the second release sealed a different hash; '; end if;
+  if v_frozen is null then ok := false; detail := detail || 'frozen_at was not stamped by the authorised seal; '; end if;
+  test_id := 'F02-T09'; invariant := 'doc 04 §1 / INV-04';
+  if ok then detail := 'sealing refused with no person and for EDUCATOR; accepted for HEAD_OF_DEPARTMENT, which still cannot publish'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');
