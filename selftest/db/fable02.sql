@@ -77,6 +77,10 @@ begin
   alter table telemetry.hesitation_events enable trigger hesitation_events_write;
   alter table telemetry.assistance_events enable trigger assistance_events_write;
   alter table public.integrity_signals enable trigger integrity_signals_write;
+  delete from public.evidence_class_overrides eo using public.assessment_sessions s,
+                                                    public.plp_releases r, public.courses c
+   where eo.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
+     and c.title like p_prefix || '%';
   delete from public.assessment_results ar using public.assessment_sessions s,
                                             public.plp_releases r, public.courses c
    where ar.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
@@ -97,6 +101,18 @@ begin
   alter table public.assessment_sessions enable trigger assessment_sessions_provenance;
   alter table public.assessment_sessions enable trigger assessment_sessions_status;
 
+  delete from public.learning_assignment_release_moves mv using public.learning_assignments la,
+                                                              public.courses c
+   where mv.learning_assignment_id = la.id and la.course_id = c.id
+     and c.title like p_prefix || '%';
+  delete from public.assessment_assignments aa using public.assessment_definitions ad,
+                                                    public.courses c
+   where aa.assessment_definition_id = ad.id and ad.course_id = c.id
+     and c.title like p_prefix || '%';
+  delete from public.learning_assignments la using public.courses c
+   where la.course_id = c.id and c.title like p_prefix || '%';
+  delete from public.ingest_batches ib
+   where ib.raw_payload::text like '%' || p_prefix || '%';
   delete from public.coaching_findings f using public.courses c
    where f.course_id = c.id and c.title like p_prefix || '%';
   delete from public.mcq_quality_findings f using public.courses c
@@ -219,8 +235,9 @@ declare
   v_r1 uuid; v_r2 uuid; v_out text; v_res1 uuid; v_res2 uuid; v_res3 uuid;
   v_hes uuid; v_sig uuid; v_real uuid; v_real_enr uuid; v_osess uuid; v_ap uuid;
   v_rel3 uuid; v_status text; v_blockers text[]; v_find uuid;
+  v_la uuid; v_aa uuid; v_rel4 uuid; v_batch uuid; v_map jsonb; v_node uuid;
   v_frozen timestamptz; v_published timestamptz;
-  n int;
+  n int; n2 int;
   t0 timestamptz := clock_timestamp();
 begin
   -- ------------------------------------------------------------- fixtures
@@ -1009,6 +1026,36 @@ begin
     v_osess := public.open_assessment_session(v_real_enr, v_def_p, v_rel2, 'ONLINE', 'QUICK', 'e', 'p');
     select count(*) into n from public.official_sessions where id = v_osess;
     if n <> 1 then ok := false; detail := detail || 'an OFFICIAL session did not appear in official_sessions; '; end if;
+
+    -- a real reclassification, walked rather than assumed. 0025 called
+    -- audit_write with the wrong argument shape and nothing noticed, because
+    -- no test had ever filed an override -- and on a synthetic tenant none
+    -- ever could, since SYNTHETIC is already the floor and an override may
+    -- only weaken. It is reachable only here, on genuinely official evidence.
+    perform selftest.as_user('sysadmin@synthetic.pintar.test');
+    perform public.grant_role(v_guru, 'INSTITUTION_ADMIN', v_real, now() + interval '1 year');
+    perform selftest.as_owner();
+    perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+    insert into public.evidence_class_overrides (session_id, institution_id, from_class, to_class,
+                                                 reason, decided_by_person_id)
+      values (v_osess, v_real, 'OFFICIAL', 'PREVIEW', 'diturunkan setelah insiden', v_guru);
+    perform selftest.as_owner();
+    if public.effective_evidence_class(v_osess) <> 'PREVIEW' then
+      ok := false; detail := detail || 'a weakening override did not take effect; ';
+    end if;
+    select count(*) into n from public.audit_log
+     where action = 'EVIDENCE_RECLASSIFIED' and target_id = v_osess::text;
+    if n < 1 then ok := false; detail := detail || 'the reclassification was not audited; '; end if;
+    select count(*) into n from public.official_sessions where id = v_osess;
+    if n <> 0 then ok := false; detail := detail || 'a downgraded session stayed in official_sessions; '; end if;
+    perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+    begin
+      insert into public.evidence_class_overrides (session_id, institution_id, from_class, to_class,
+                                                   reason, decided_by_person_id)
+        values (v_osess, v_real, 'PREVIEW', 'OFFICIAL', 'promosi', v_guru);
+      ok := false; detail := detail || 'an override promoted evidence back to OFFICIAL; ';
+    exception when others then null; end;
+    perform selftest.as_owner();
     -- and an override may only weaken it
     begin
       insert into public.evidence_class_overrides (session_id, institution_id, from_class, to_class, reason,
@@ -1167,6 +1214,140 @@ begin
   if n <> 1 then ok := false; detail := detail || 'a READY course could not be published; '; end if;
   test_id := 'F02-T19'; invariant := 'INV-35';
   if ok then detail := 'the validator coaches and spares legitimate subject language; an ERROR blocks readiness and publication; clean text publishes'; end if;
+  return next;
+
+  -- F02-T20 §10/INV-27: assignment is not publication, CLOSED stops new
+  -- sessions only, and a release move on an ACTIVE assignment is audited.
+  ok := true; detail := '';
+  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+    values (v_inst, 'Matematika', 'SD', 'V', 'selftest assignment probe', v_guru) returning id into v_course2;
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course2, '1.0.0', v_guru) returning id into v_rel3;
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course2, '2.0.0', v_guru) returning id into v_rel4;
+  insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type,
+                                             item_count, author_person_id)
+    values (v_inst, v_course2, 'Ujian kelas', 'POST_TEST', 'PRACTICE', 5, v_guru) returning id into v_def_p;
+  select n.id into v_node from public.org_nodes n
+   where n.institution_id = v_inst and n.kind = 'CLASS' limit 1;
+
+  insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
+                                           academic_period_id)
+    values (v_inst, v_rel3, v_course2, v_node,
+            (select academic_period_id from public.enrollments where id = v_enr))
+    returning id into v_la;
+  -- an EDUCATOR holds CAN_ASSIGN_LEARNING; a plain reviewer does not
+  perform selftest.as_user('alpha-dean@synthetic.pintar.test');
+  begin
+    update public.learning_assignments set status = 'ACTIVE' where id = v_la;
+    get diagnostics n = row_count;
+    if n > 0 then ok := false; detail := detail || 'a DEAN activated an assignment; '; end if;
+  exception when others then null; end;
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  update public.learning_assignments set status = 'ACTIVE' where id = v_la;
+  get diagnostics n = row_count;
+  perform selftest.as_owner();
+  if n <> 1 then ok := false; detail := detail || 'an EDUCATOR could not activate an assignment; '; end if;
+  select count(*) into n from public.learning_assignments
+   where id = v_la and assigned_by_person_id is not null and assigned_at is not null;
+  if n <> 1 then ok := false; detail := detail || 'the assigning act was not stamped; '; end if;
+
+  -- the release cannot be swapped behind the record
+  begin
+    update public.learning_assignments set plp_release_id = v_rel4 where id = v_la;
+    ok := false; detail := detail || 'a release was swapped without a recorded move; ';
+  exception when others then null; end;
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  perform public.move_learning_assignment_release(v_la, v_rel4, 'koreksi materi');
+  perform selftest.as_owner();
+  select count(*) into n from public.learning_assignments where id = v_la and plp_release_id = v_rel4;
+  if n <> 1 then ok := false; detail := detail || 'the release move did not take effect; '; end if;
+  select count(*) into n from public.learning_assignment_release_moves
+   where learning_assignment_id = v_la and from_release_id = v_rel3 and to_release_id = v_rel4
+     and btrim(reason) <> '' and moved_by_person_id is not null;
+  if n <> 1 then ok := false; detail := detail || 'the release move was not recorded in full; '; end if;
+  select count(*) into n from public.audit_log
+   where action = 'LEARNING_RELEASE_MOVED' and target_id = v_la::text;
+  if n < 1 then ok := false; detail := detail || 'the release move was not audited; '; end if;
+
+  -- INV-27: closing an assessment assignment touches no session
+  insert into public.assessment_assignments (institution_id, assessment_definition_id, node_id,
+                                             academic_period_id)
+    values (v_inst, v_def_p, v_node, (select academic_period_id from public.enrollments where id = v_enr))
+    returning id into v_aa;
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  update public.assessment_assignments set status = 'SCHEDULED' where id = v_aa;
+  update public.assessment_assignments set status = 'OPEN' where id = v_aa;
+  perform selftest.as_owner();
+  select count(*) into n from public.assessment_sessions where status = 'IN_PROGRESS';
+  v_find := null;
+  update public.assessment_assignments set status = 'CLOSED' where id = v_aa;
+  select count(*) into n2 from public.assessment_sessions where status = 'IN_PROGRESS';
+  if n <> n2 then ok := false; detail := detail || 'closing an assignment changed a running session (INV-27); '; end if;
+  begin
+    update public.assessment_assignments set status = 'OPEN' where id = v_aa;
+    ok := false; detail := detail || 'a CLOSED assignment reopened; ';
+  exception when others then null; end;
+  test_id := 'F02-T20'; invariant := 'INV-27 / doc 04 §4';
+  if ok then detail := 'assigning needs CAN_ASSIGN_LEARNING and is stamped; a release move is recorded and audited before it applies; CLOSED is terminal and touches no running session'; end if;
+  return next;
+
+  -- F02-T21 §11: provenance lands before rows, and Easy Upload never guesses.
+  ok := true; detail := '';
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  insert into public.ingest_batches (institution_id, source_kind, raw_payload, producer_identifier)
+    values (v_inst, 'EASY_UPLOAD',
+            jsonb_build_object('label','selftest ingest probe','files', jsonb_build_array(
+              jsonb_build_object('path','pelajaran.md'),
+              jsonb_build_object('path','diagram.png'),
+              jsonb_build_object('path','narasi.mp3'),
+              jsonb_build_object('path','entah.xyz'))),
+            'contoh-produsen-v1')
+    returning id into v_batch;
+  perform selftest.as_owner();
+
+  begin
+    update public.ingest_batches set raw_payload = '{}'::jsonb where id = v_batch;
+    ok := false; detail := detail || 'the raw import payload was rewritten; ';
+  exception when others then null; end;
+
+  v_map := public.propose_easy_upload_mapping(v_batch);
+  if (v_map -> 'open_questions') = '[]'::jsonb then
+    ok := false; detail := detail || 'Easy Upload asked nothing about an unrecognised file; ';
+  end if;
+  if (v_map ->> 'confidence')::numeric >= 1 then
+    ok := false; detail := detail || 'Easy Upload reported full confidence with open questions; ';
+  end if;
+  select count(*) into n from public.ingest_batches where id = v_batch and status = 'MAPPING_PROPOSED';
+  if n <> 1 then ok := false; detail := detail || 'the batch did not move to MAPPING_PROPOSED; '; end if;
+
+  -- nothing is materialised from an unconfirmed mapping
+  begin
+    update public.ingest_batches set status = 'MATERIALISED' where id = v_batch;
+    ok := false; detail := detail || 'an unconfirmed mapping was materialised; ';
+  exception when others then null; end;
+  begin
+    perform public.ingest_structured_package(v_batch);
+    ok := false; detail := detail || 'a structured import ran before confirmation; ';
+  exception when others then null; end;
+
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  update public.ingest_batches set status = 'CONFIRMED' where id = v_batch;
+  perform selftest.as_owner();
+  select count(*) into n from public.ingest_batches
+   where id = v_batch and confirmed_by_person_id is not null and confirmed_at is not null;
+  if n <> 1 then ok := false; detail := detail || 'confirmation did not record who confirmed; '; end if;
+
+  -- INV-32: the producer is metadata, and no schema object is named after one
+  select count(*) into n from information_schema.columns
+   where table_schema in ('public','telemetry')
+     and column_name ~* '(openai|anthropic|claude|gemini|gpt|llama|mistral|cohere)';
+  if n > 0 then ok := false; detail := detail || 'a provider-named column exists; '; end if;
+  select count(*) into n from public.ingest_batches
+   where id = v_batch and producer_identifier = 'contoh-produsen-v1';
+  if n <> 1 then ok := false; detail := detail || 'the producer identifier was not kept as metadata; '; end if;
+  test_id := 'F02-T21'; invariant := 'INV-32 / doc 09';
+  if ok then detail := 'the raw payload is immutable provenance; Easy Upload proposes and asks rather than guessing; nothing materialises unconfirmed; the producer is metadata, not a schema object'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');
