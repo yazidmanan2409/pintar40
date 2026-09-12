@@ -1,6 +1,10 @@
 # CHECKPOINT — FABLE-01 (Foundation), updated 2026-09-12 ~12:30 Asia/Jakarta
 
-**Phase state: IN PROGRESS. Not complete. Phase gate not reached.**
+**Phase state: PASS — FROZEN at `570c77d`, CI run #7 green, selftest 31/31,
+0 failed, 0 skipped.** Reopened only if a later phase exposes a genuine defect.
+FABLE-02 is now in progress on top of it; its own state lives in
+`docs/phases/FABLE-02-PROMPT.md` and the migration series from
+`20260912112712` onward.
 Governing architecture: PINTAR 4.0 Architecture Baseline (frozen). Phase
 prompt: `FABLE-01-FOUNDATION-PROMPT.md` (synchronized). Governing
 principle: calm on the surface, rigorous underneath.
@@ -56,7 +60,7 @@ file is unchanged.
 
 `npm run selftest` (strict) and `npm run selftest:local` (accepts skips
 that carry a manifest justification) run exactly `selftest/manifest.json`
-(v2, 30 ids) through three runners:
+(v2, 35 ids — 31 FABLE-01 plus F02-T01..T04) through three runners:
 
 - **db** (`selftest/db/fable01.sql`, F01-T01…T19 + T13b = 21 rows):
   **GREEN on the live project** after migration 13, via role impersonation
@@ -189,7 +193,20 @@ top of `46db15d`:
   `selftest` stated in `selftest/db/fable01.sql`
 - `2ea6437` verification evidence for CI run #2 and the deliberately
   broken PR #1 (documentation only — the defect was never on `main`)
-- (this commit) auth correction pass: hosted `selftest` schema dropped
+- `881269e` auth correction pass: hosted `selftest` schema dropped
   (SEC-01), F01-R05 sign-out/session-invalidation coverage (SI-02),
   password-auth documentation corrected (HA-03), bounded-session
   limitation and production gate recorded (HA-01)
+- `5bbd3c6` HA-02 reclassified as a plan/platform limitation
+- `570c77d` CARD-01: synthetic card pepper fixed and card auth proved
+  end to end (F01-R06). **FABLE-01 freeze point.**
+
+FABLE-02 from here:
+
+- `15fbb75` migration 1 — content hierarchy, item-type registry, doctrine
+  constraints (+ a follow-up closing the default PUBLIC execute grant)
+- `b728d26` migration 2 — assessment definitions, releases, allow-list
+  state machine
+- `e9ad92a` migration 2 repaired in place; its behavioural proof moved to
+  `selftest/db/fable02.sql` (ADR-0003)
+- (this commit) ADR-0003 and this checkpoint
