@@ -9,6 +9,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  # A phase is not done until this workflow is green on a pushed commit, and
+  # until now it could only run on main or on a pull request — so work on a
+  # branch had no way to be verified without opening one first. Additive: the
+  # two triggers above are unchanged.
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
