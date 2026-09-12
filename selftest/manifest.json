@@ -1,0 +1,40 @@
+{
+  "contract": "pintar-selftest",
+  "version": 1,
+  "phase": "FABLE-01",
+  "runners": {
+    "db": "selftest/db/fable01.sql — executed by psql against the local stack (CI) or the management channel; returns one row per id",
+    "static": "selftest/static.test.ts — NOT YET WRITTEN (see CHECKPOINT)",
+    "rest": "selftest/app.test.ts — NOT YET WRITTEN; requires network reachability to the Supabase project (external gate)"
+  },
+  "tests": [
+    {"id":"F01-T01","runner":"db","proves":"persona harness seeded in two synthetic institutions"},
+    {"id":"F01-T02","runner":"db","proves":"INV-13 tenant isolation (institution admin sees zero foreign rows)"},
+    {"id":"F01-T03","runner":"db","proves":"INV-13/doc 05 learner sees only self"},
+    {"id":"F01-T04","runner":"db","proves":"INV-16 anti-escalation; INV-18 grant/revoke audited; assignment immutable"},
+    {"id":"F01-T05","runner":"db","proves":"Lesson 11 fail-closed primitives"},
+    {"id":"F01-T06","runner":"db","proves":"INV-19 DEAN read-only, no capability"},
+    {"id":"F01-T07","runner":"db","proves":"doc 05 educator scope over own class only"},
+    {"id":"F01-T08","runner":"db","proves":"INV-23 period rollover closes+recreates memberships; history answerable; audited"},
+    {"id":"F01-T09","runner":"db","proves":"INV-23 identity records append-only; persons has no institution/class column"},
+    {"id":"F01-T10","runner":"db","proves":"INV-25 transfer lifecycle; portable vs institution-scoped visibility; history intact"},
+    {"id":"F01-T11","runner":"db","proves":"INV-18 audit append-only for student, sysadmin and owner"},
+    {"id":"F01-T12","runner":"db","proves":"INV-21 seed guard (no intent; production)"},
+    {"id":"F01-T13","runner":"db","proves":"INV-14/15/36 schema lint all zero"},
+    {"id":"F01-T13b","runner":"db","proves":"INV-37 lint RPC refused to non-SYSTEM_ADMIN"},
+    {"id":"F01-T14","runner":"db","proves":"INV-15 no anon/authenticated storage or table path"},
+    {"id":"F01-T15","runner":"db","proves":"doc 02 hierarchy chain, jalur integrity, no delete"},
+    {"id":"F01-T16","runner":"db","proves":"doc 02 classroom-card account shares the Person model"},
+    {"id":"F01-T17","runner":"db","proves":"doc 05 own-profile update only"},
+    {"id":"F01-T18","runner":"db","proves":"doc 16 §8 flags institution-scoped; platform config SYSTEM_ADMIN only"},
+    {"id":"F01-S01","runner":"static","proves":"one migrations directory; every migration has a verification block","status":"planned"},
+    {"id":"F01-S02","runner":"static","proves":"no USING(true) policy text in migrations","status":"planned"},
+    {"id":"F01-S03","runner":"static","proves":"INV-37 client bundle contains no service-role or pepper reference","status":"planned"},
+    {"id":"F01-S04","runner":"static","proves":"HLE renders every key for every persona without internal words; no 'PINTAR 4.0' in src/app","status":"planned"},
+    {"id":"F01-S05","runner":"static","proves":"ADR-0001 exists with required sections","status":"planned"},
+    {"id":"F01-R01","runner":"rest","proves":"unauthenticated /konfigurasi and /api/* refused; /api/dev/* 404 in production build","status":"planned"},
+    {"id":"F01-R02","runner":"rest","proves":"DEAN gets a clean refusal on /konfigurasi; INSTITUTION_ADMIN renders it","status":"planned (network gate)"},
+    {"id":"F01-R03","runner":"rest","proves":"INV-15 anonymous HTTP fetch of a known object path refused; authenticated overwrite outside the server route refused","status":"planned (network gate)"},
+    {"id":"F01-R04","runner":"rest","proves":"CI red on a deliberately broken PR; clean-install and upgrade-path migration runs","status":"planned (CI gate)"}
+  ]
+}
