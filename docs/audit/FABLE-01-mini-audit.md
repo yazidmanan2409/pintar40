@@ -41,9 +41,21 @@ session with no shared context; see "Gate status").
   `period_rollover`, `platform_schema_lint`). Each enforces its own
   authorization and fails closed (T04–T07, T13b). **Accepted** (ADR-0001
   finding 1; count was 14 before the by-value read helpers and the lint RPC).
-- `auth_leaked_password_protection`: disabled. No PINTAR user chooses a
-  password (magic link; classroom-card secrets are server-derived), so this
-  does not gate Phase 1. Noted for the Auth settings pass (external gate).
+- `auth_leaked_password_protection`: **disabled — and the earlier
+  justification for dismissing it is withdrawn (HA-03).** That justification
+  read "no PINTAR user chooses a password (magic link; classroom-card
+  secrets are server-derived)". The hosted project contradicts its premise:
+  all nine `auth.users` rows carry a bcrypt `encrypted_password` seeded by
+  `supabase/seed/synthetic.sql`, every one is `provider: email`, and the
+  acceptance suite signs in with `signInWithPassword`. Stated precisely:
+  - **synthetic FABLE personas** use server-created password credentials
+    today, for automated verification;
+  - **the mechanism for real learners and staff** (magic link, card, or
+    password) remains a product and authentication-policy decision, open;
+  - therefore leaked-password protection **cannot be dismissed on the
+    grounds that nobody uses a password**. It must be enabled in the hosted
+    Auth settings. Still an external gate (Dashboard toggle), but no longer
+    an argued-away one.
 
 ## Findings this audit (all fixed forward)
 
@@ -120,6 +132,11 @@ what makes the explicit EXECUTE grant load-bearing rather than decorative.
   404 on `/api/dev/*`, public copy clean). R02/R03 require network to the
   project; R04 requires a CI run.
 - Advisor output and live structural counts recorded above, 2026-09-12.
+- Sign-out / session invalidation: **F01-R05** (new) drives real GoTrue —
+  sign in, protected route answers, `POST /keluar`, then the refresh token
+  is refused (server-side invalidation, not merely a cleared cookie), the
+  previously authenticated browser is redirected to `/masuk`, and an
+  unrelated session is untouched.
 - CI run 34682990218 (run #2, `da41bd3`): all six jobs green and the strict
   selftest executed for the first time — **29/29, 0 failed, 0 skipped**,
   facilities `db, app, network, ci`. That run supplies the missing
@@ -169,6 +186,41 @@ proxy refuses ref deletion (`Write access to this GitHub API path is not
 permitted through this proxy`) — so `verify/fable01-broken-pr` is still
 present on the remote and must be deleted by hand.
 
+## Hosted Auth audit and correction pass
+
+Audited against the live project `sknixmwkynzmrgbxzrvb` (org on the **Free**
+plan) through the management channel; the build session's egress policy
+denies `*.supabase.co` and `api.supabase.com`, so the hosted Auth settings
+page itself could not be read and no HTTP sign-in against the hosted project
+was possible (`users_ever_signed_in = 0` there, confirming none ever has).
+
+| # | Finding | Class | Disposition |
+|---|---|---|---|
+| SEC-01 | `selftest` schema live on the hosted project, `USAGE` to `anon`/`authenticated`, 4 helpers executable, `as_owner()` does `reset role`, `authenticator` ∈ `service_role` | hosted configuration defect | **Closed** — `drop schema selftest cascade` |
+| HA-01 | 24h inactivity control unavailable (Pro+ feature; Free plan) | plan/platform limitation | **Open, gated** — ADR-0001 finding 9 |
+| HA-02 | Leaked-password protection disabled | hosted configuration defect | **Open** — Dashboard toggle |
+| HA-03 | "No user chooses a password" justification is false | documentation gap | **Closed** — corrected above and in ADR-0001 finding 10 |
+| SI-01 | Real sign-in never executed against the hosted project | test gap, blocked by egress policy | **Open** — needs an operator with network access |
+| SI-02 | No sign-out / session-invalidation coverage | documentation/test gap | **Closed** — F01-R05 |
+| OPS-01 | Free-plan projects auto-pause after ~7 days idle | plan/platform limitation | Noted |
+
+SEC-01 removal evidence (read-only checks before and after): no production
+function, view or recorded migration referenced `selftest`; the schema held
+4 functions and **0 relations**, so no data was dropped. After the drop:
+schema absent, 0 helper functions anywhere in the database, every lint
+counter still `0` (`tables_without_rls`, `policies_using_true`,
+`functions_executable_by_anon`, `anon_table_grants`, `public_buckets`,
+`audit_log_write_grants`, `secdef_without_search_path`, `malformed_jalur`),
+13 migrations recorded with unchanged versions and names, and application
+data identical (9 persons, 9 auth users, 2 institutions, 17 role
+assignments, 18 enrollments, 145 audit rows). Application schemas are now
+`graphql_public, public`.
+
+No production migration was added for the drop: `selftest` is a validation
+artifact created outside the production chain by `selftest/db/fable01.sql`,
+and a migration whose sole purpose is removing it would put that artifact
+into the chain permanently.
+
 ## Gate status
 
 The FABLE-01 gate is **not closed**. Open items, all external to the
@@ -183,6 +235,18 @@ repository:
    executed as real HTTP calls (their DB-layer counterparts T02/T03/T06/T14
    are green).
 3. Independent/adversarial audit (layer 3) not yet performed.
-4. Hosted Auth settings: 24h inactivity timeout (Pro-plan setting; encoded
-   in `supabase/config.toml`), leaked-password protection.
-5. Drop schema `selftest` before any production use.
+4. Hosted Auth settings. **24h inactivity (HA-01): unavailable on the Free
+   plan** — Supabase gates session-lifetime controls to Pro and up, and the
+   `config.toml` entry configures only a local stack. Before real-user
+   production launch PINTAR must have an approved bounded-session and
+   inactivity control, via the appropriate plan or an architecture-approved
+   compensating control; the requirement is not waived (ADR-0001 finding 9).
+   **Leaked-password protection (HA-02): still disabled**, and no longer
+   dismissible (HA-03).
+5. Real sign-in against the **hosted** project (SI-01) never executed —
+   `auth.sessions` and `auth.refresh_tokens` are empty there and the build
+   session cannot reach `*.supabase.co`. The path is covered against a real
+   local Supabase stack in CI (R01–R03, R05); hosted remains unproven.
+6. Schema `selftest` is dropped from the hosted development project. The
+   standing rule is unchanged: it must never be present on a project in
+   production use, and it self-installs on demand for a test run.

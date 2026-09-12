@@ -56,7 +56,7 @@ file is unchanged.
 
 `npm run selftest` (strict) and `npm run selftest:local` (accepts skips
 that carry a manifest justification) run exactly `selftest/manifest.json`
-(v2, 29 ids) through three runners:
+(v2, 30 ids) through three runners:
 
 - **db** (`selftest/db/fable01.sql`, F01-T01…T19 + T13b = 21 rows):
   **GREEN on the live project** after migration 13, via role impersonation
@@ -64,7 +64,10 @@ that carry a manifest justification) run exactly `selftest/manifest.json`
   from the request header; malformed header rejected).
 - **static** (`selftest/static.test.ts`, S01–S05): **GREEN**. Red-ability
   proven: an injected `USING (true)` migration turns S01/S02 red.
-- **app** (`selftest/app.test.ts`): **R01 GREEN** against the production
+- **app** (`selftest/app.test.ts`): **R05 is new this pass** — sign-out and
+  session invalidation against real GoTrue (refresh token refused after
+  `POST /keluar`, previously authenticated browser redirected, unrelated
+  session untouched). **R01 GREEN** against the production
   build (anonymous `/konfigurasi` → redirect, `/api/assets/*` → 401,
   `/api/dev/*` → 404, public copy clean). **R02/R03 not executed** (network
   gate); **R04 not executed** (CI gate). All three carry manifest
@@ -144,7 +147,18 @@ that carry a manifest justification) run exactly `selftest/manifest.json`
 - **Network to Supabase from the session:** egress denies `*.supabase.co`;
   no Docker for a local stack. DB-layer verification continues through the
   management channel.
-- **Hosted Auth settings:** Pro-plan features / Dashboard only.
+- **Hosted Auth settings:** the project's org is on the **Free** plan.
+  Inactivity/session-lifetime controls are Pro+, so the FABLE-01 §2 24h
+  idle expiry is **not enforced and must not be claimed as satisfied**
+  (ADR-0001 finding 9); `supabase/config.toml` configures only the local
+  stack. Leaked-password protection is still disabled and the old "nobody
+  uses a password" justification is withdrawn (ADR-0001 finding 10).
+- **Real sign-in against the hosted project:** never executed — the build
+  session's egress policy denies `*.supabase.co`, and `auth.sessions` there
+  is empty. Covered against a real local stack in CI instead.
+- **Hosted `selftest` schema:** removed (`drop schema selftest cascade`) —
+  it had `USAGE` for `anon`/`authenticated` on the hosted project. Details
+  in `docs/audit/FABLE-01-mini-audit.md`.
 
 FABLE-01 cannot be declared complete while these are open.
 
@@ -164,5 +178,9 @@ top of `46db15d`:
   record, ADR findings 6–8, this checkpoint
 - `da41bd3` CI-01: the db runner's privilege assumptions on schema
   `selftest` stated in `selftest/db/fable01.sql`
-- (this commit) verification evidence for CI run #2 and the deliberately
+- `2ea6437` verification evidence for CI run #2 and the deliberately
   broken PR #1 (documentation only — the defect was never on `main`)
+- (this commit) auth correction pass: hosted `selftest` schema dropped
+  (SEC-01), F01-R05 sign-out/session-invalidation coverage (SI-02),
+  password-auth documentation corrected (HA-03), bounded-session
+  limitation and production gate recorded (HA-01)

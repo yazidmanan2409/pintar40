@@ -90,6 +90,61 @@ entirely in the database.
    authority. Recorded as an accepted limitation; T19 proves capture and
    rejection of malformed values.
 
+9. **Hosted Auth, bounded sessions (HA-01) — accepted limitation, not a
+   satisfied requirement.** FABLE-01 §2 was written as "idle auth sessions
+   expire after 24h". That is **not currently enforced** and must not be
+   claimed as satisfied. Three separate reasons, each independently
+   sufficient:
+   - The Supabase development project `sknixmwkynzmrgbxzrvb` belongs to an
+     organisation on the **Free** plan. Supabase gates session-lifetime
+     controls — inactivity timeout, time-box, single-session-per-user — to
+     **Pro plans and up**. The control is unavailable, not merely unset.
+   - `[auth.sessions] inactivity_timeout = "24h"` in `supabase/config.toml`
+     configures a **local** `supabase start` stack. It is not evidence of
+     hosted enforcement and must never be cited as such.
+   - Even on a plan that offers it, Supabase's semantics are **not a hard
+     kill at exactly 24 hours**: sessions are evaluated at token refresh and
+     are cleaned up progressively for up to 24 hours *after* crossing the
+     threshold. A requirement phrased as an exact expiry cannot be met by
+     this mechanism alone.
+
+   **Production gate (not waived, not weakened):** before any real-user
+   production launch PINTAR must have an approved bounded-session and
+   inactivity control — either the Supabase plan that provides it natively,
+   or a compensating control approved at architecture level (for example a
+   short `jwt_expiry` with a server-side session register consulted on
+   refresh, or application-enforced idle expiry backed by an auditable
+   server-side check). Until one of those exists and is verified against the
+   hosted project, §2 remains **open**, and the shortfall is a plan/platform
+   limitation rather than an implementation defect.
+
+10. **Hosted Auth, password credentials (HA-03) — earlier justification
+    withdrawn.** The mini audit dismissed disabled leaked-password
+    protection on the grounds that "no PINTAR user chooses a password". The
+    hosted project contradicts the premise: all nine `auth.users` rows carry
+    a bcrypt `encrypted_password` seeded by `supabase/seed/synthetic.sql`,
+    every one is `provider: email`, and the acceptance suite authenticates
+    with `signInWithPassword`. Password credentials are in use on this
+    project today. The authentication mechanism for **real** learners and
+    staff remains a product and authentication-policy decision and is not
+    settled by this ADR; what is settled is that the previous justification
+    is void and leaked-password protection must be enabled rather than
+    argued away.
+
+11. **Hosted test artifact (SEC-01) — removed.** The throwaway `selftest`
+    schema was found live on the hosted project with `USAGE` granted to
+    `anon` and `authenticated` (Supabase grants these on schemas created by
+    `postgres`) and all four helpers executable by `authenticated`. Because
+    `selftest.as_owner()` is SECURITY INVOKER and begins with `reset role`,
+    and `authenticator` is a member of `service_role`, every precondition
+    for an RLS-bypass escalation was present; only reachability (PostgREST
+    exposes `public, graphql_public` by default) stood in the way. Dropped
+    with `drop schema selftest cascade` over the management channel — not as
+    a migration, since the schema is a validation artifact created outside
+    the production migration chain and dropping it must not become part of
+    that chain. This also explains, with evidence, why the harness reported
+    21/21 on the hosted project while a clean CI database failed (CI-01).
+
 ## Traces to
 - Requirement: docs/rebuild/02 §Organisation, §Identity; 04 §3–3c; 05; 16 §1–5
 - Architecture: INV-13/14/15/16/17/18/21/23/25/36/37

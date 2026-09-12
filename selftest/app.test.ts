@@ -16,7 +16,7 @@ const PERSONA = {
   alphaStudent: { email: "alpha-siswa-1@synthetic.pintar.test", password: "Sintetis-AlphaSiswa1-76!" },
 } as const;
 
-type Session = { cookie: string; accessToken: string };
+type Session = { cookie: string; accessToken: string; refreshToken: string };
 
 /**
  * Signs in through the same @supabase/ssr client the app uses, capturing the
@@ -33,7 +33,26 @@ async function signIn(ctx: Context, persona: { email: string; password: string }
   });
   const { data, error } = await client.auth.signInWithPassword(persona);
   if (error || !data.session) throw new Error(`sign-in failed for ${persona.email}: ${error?.message ?? "no session"}`);
-  return { cookie: [...jar].map(([n, v]) => `${n}=${v}`).join("; "), accessToken: data.session.access_token };
+  return {
+    cookie: [...jar].map(([n, v]) => `${n}=${v}`).join("; "),
+    accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+  };
+}
+
+/**
+ * Trades a refresh token with GoTrue. A refresh token is the server-side
+ * handle on a session: it is stored in `auth.refresh_tokens` and dies with
+ * the session row, so a rejected refresh proves the session was invalidated
+ * on the server — unlike a cleared cookie, which proves only that the
+ * browser forgot it.
+ */
+async function refresh(ctx: Context, refreshToken: string): Promise<Response> {
+  return fetch(`${ctx.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+    method: "POST",
+    headers: { apikey: ctx.supabaseAnonKey!, "content-type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
 }
 
 async function get(url: string, init: RequestInit = {}) {
@@ -183,6 +202,52 @@ export const appTests: SelfTest[] = [
         c.expect(up[job] === "success", `upstream CI job "${job}" result: ${up[job] ?? "missing"}`);
       }
       return c.verdict("clean-install and upgrade-path migration jobs green; deliberately broken build went red");
+    },
+  },
+  {
+    id: "F01-R05",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const healthCard = t("config.card.health", "staff");
+
+      // Control: an unrelated live session, so a later refusal is attributable
+      // to the sign-out and not to a broken endpoint or bad credentials.
+      // A different persona, because signOut() is global for the user it signs out.
+      const control = await signIn(ctx, PERSONA.alphaStudent);
+      const controlRefresh = await refresh(ctx, control.refreshToken);
+      c.expect(controlRefresh.ok, `control refresh failed (${controlRefresh.status}); the rest of this test would prove nothing`);
+
+      // 1. signed in, the protected route answers
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const before = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      const beforeHtml = visibleText(await before.text());
+      c.expect(before.status === 200, `signed-in /konfigurasi → ${before.status}, expected 200`);
+      c.expect(beforeHtml.includes(healthCard), "signed-in /konfigurasi did not render the Config Studio");
+
+      // 2. sign out through the route the UI posts to
+      const out = await get(`${base}/keluar`, { method: "POST", headers: { cookie: admin.cookie } });
+      c.expect([302, 303, 307, 308].includes(out.status), `POST /keluar → ${out.status}, expected a redirect`);
+      const cleared = out.headers.getSetCookie().filter((sc) => /^sb-/.test(sc));
+      c.expect(cleared.length > 0, "sign-out set no auth cookie headers, so the browser was never told to forget the session");
+
+      // 3. server-side invalidation: the session handle is dead, not merely forgotten
+      const after = await refresh(ctx, admin.refreshToken);
+      c.expect(!after.ok, `the signed-out refresh token still bought a session (${after.status}) — sign-out did not invalidate it server-side`);
+
+      // 4. the previously authenticated browser cannot reach the protected route
+      const replay = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      const loc = replay.headers.get("location") ?? "";
+      const refused = [302, 303, 307, 308].includes(replay.status) && /\/masuk(\?|$)/.test(loc);
+      c.expect(refused, `replaying the pre-sign-out cookie → ${replay.status} ${loc || "(no redirect)"}; expected a redirect to /masuk`);
+
+      // the control session is untouched: sign-out was scoped to the user who signed out
+      const controlStill = await get(`${base}/konfigurasi`, { headers: { cookie: control.cookie } });
+      c.expect(controlStill.status === 200, `an unrelated session was collaterally signed out (${controlStill.status})`);
+
+      c.note(`${cleared.length} auth cookie(s) cleared`);
+      return c.verdict("sign-out revokes the session server-side; the previously authenticated browser is refused; other sessions survive");
     },
   },
 ];
