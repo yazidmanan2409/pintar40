@@ -126,6 +126,16 @@ openly, to call the same single assertion. ADR-0005 §4.
   institution is synthetic — is untouched by this phase, which wants `SYNTHETIC`.
   It still blocks FABLE-04's positive certificate tests and must be settled
   before that phase starts.
+- **FABLE-02's item aggregates read one answer shape.**
+  `service_item_statistics` and `service_distractor_uptake` match a chosen
+  option with `value ->> 'pilihan'`, which is a string for `MCQ_SINGLE` and a
+  JSON array for `MCQ_MULTI` — so a multi-select response matches no option and
+  is counted as incorrect. The scoring path is unaffected (`grade_response`
+  handles both shapes, and `F03-T01` scores a paper containing both), and these
+  views are `service_role`-only and consumed by Phase 6, which owns them. Not
+  fixed here: it is outside the subsystem this phase changed, and widening a
+  phase on the way past is the scope creep doc 12 warns about. **Recorded for
+  FABLE-06.**
 - **`docs/rebuild/03` defines INV-01…INV-22**; FABLE-01 and FABLE-02 enforce and
   cite INV-23…INV-37, and FABLE-03 adds INV-24, 26, 27, 28, 31 to that set. The
   numbers are named in the synchronized phase prompts but have no entry in doc
