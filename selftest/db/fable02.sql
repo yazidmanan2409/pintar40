@@ -97,6 +97,14 @@ begin
   alter table public.assessment_sessions enable trigger assessment_sessions_provenance;
   alter table public.assessment_sessions enable trigger assessment_sessions_status;
 
+  delete from public.coaching_findings f using public.courses c
+   where f.course_id = c.id and c.title like p_prefix || '%';
+  delete from public.mcq_quality_findings f using public.courses c
+   where f.course_id = c.id and c.title like p_prefix || '%';
+  delete from public.question_health qh using public.items i, public.lessons l,
+                                           public.modules m, public.courses c
+   where qh.item_id = i.id and i.lesson_id = l.id and l.module_id = m.id and m.course_id = c.id
+     and c.title like p_prefix || '%';
   delete from public.plp_releases r using public.courses c
    where r.course_id = c.id and c.title like p_prefix || '%';
   delete from public.assessment_definitions a using public.courses c
@@ -210,6 +218,7 @@ declare
   v_enr uuid; v_sess uuid; v_rel2 uuid; v_pi uuid; v_class public.evidence_class; v_seed bigint;
   v_r1 uuid; v_r2 uuid; v_out text; v_res1 uuid; v_res2 uuid; v_res3 uuid;
   v_hes uuid; v_sig uuid; v_real uuid; v_real_enr uuid; v_osess uuid; v_ap uuid;
+  v_rel3 uuid; v_status text; v_blockers text[]; v_find uuid;
   v_frozen timestamptz; v_published timestamptz;
   n int;
   t0 timestamptz := clock_timestamp();
@@ -1015,6 +1024,149 @@ begin
   end;
   test_id := 'F02-T17'; invariant := 'INV-20';
   if ok then detail := 'non-official evidence never reaches official_*; an OFFICIAL session does; the analytics role holds no grant on a raw evidence table'; end if;
+  return next;
+
+  -- F02-T18 §8: the only public surface is published lesson prose, and the
+  -- item-bearing aggregates are service-role only.
+  ok := true; detail := '';
+  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+    values (v_inst, 'Matematika', 'SD', 'V', 'selftest view probe', v_guru) returning id into v_course2;
+  insert into public.modules (course_id, institution_id, ordinal, title, author_person_id)
+    values (v_course2, v_inst, 1, 'M', v_guru) returning id into v_mod2;
+  insert into public.lessons (module_id, institution_id, ordinal, title, body_markdown, author_person_id)
+    values (v_mod2, v_inst, 1, 'Pelajaran terbuka', '# isi', v_guru) returning id into v_les2;
+  -- no published release yet, so nothing is public
+  select count(*) into n from public.published_lessons where id = v_les2;
+  if n <> 0 then ok := false; detail := detail || 'an unpublished lesson was publicly visible; '; end if;
+
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course2, '1.0.0', v_guru) returning id into v_rel3;
+  update public.plp_releases set status = 'STRUCTURED' where id = v_rel3;
+  update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
+  update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  update public.plp_releases set status = 'FROZEN' where id = v_rel3;
+  perform selftest.as_owner();
+  -- FROZEN is sealed but not yet available
+  select count(*) into n from public.published_lessons where id = v_les2;
+  if n <> 0 then ok := false; detail := detail || 'a FROZEN release made a lesson public; '; end if;
+  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  update public.plp_releases set status = 'PUBLISHED' where id = v_rel3;
+  perform selftest.as_owner();
+  select count(*) into n from public.published_lessons where id = v_les2;
+  if n <> 1 then ok := false; detail := detail || 'a PUBLISHED release did not make the lesson public; '; end if;
+
+  -- anon reads that view and nothing else
+  perform selftest.as_anon();
+  begin
+    select count(*) into n from public.published_lessons where id = v_les2;
+    if n <> 1 then ok := false; detail := detail || 'anon could not read published lesson prose; '; end if;
+  exception when others then ok := false; detail := detail || 'anon was refused the published view; '; end;
+  begin
+    select count(*) into n from public.items;
+    if n > 0 then ok := false; detail := detail || 'anon read item content; '; end if;
+  exception when others then null; end;
+  perform selftest.as_owner();
+  select count(*) into n from information_schema.role_table_grants
+   where table_schema = 'public' and grantee = 'anon' and table_name <> 'published_lessons';
+  if n > 0 then ok := false; detail := detail || format('anon holds %s grant(s) beyond the view; ', n); end if;
+
+  -- item-bearing aggregates are service-role only
+  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  begin
+    select count(*) into n from public.service_item_statistics;
+    ok := false; detail := detail || 'an INSTITUTION_ADMIN read the item statistics view; ';
+  exception when others then null; end;
+  perform selftest.as_owner();
+  test_id := 'F02-T18'; invariant := 'INV-01 / doc 04 §9';
+  if ok then detail := 'lesson prose is public only under a PUBLISHED release; anon holds one grant; item-bearing aggregates are service-role only'; end if;
+  return next;
+
+  -- F02-T19 §9/INV-35: the validator coaches, and readiness gates publication.
+  -- Two courses on purpose: freezing a release seals its course, so the
+  -- blocked path and the ready path cannot be the same rows.
+  ok := true; detail := '';
+  if exists (select 1 from public.validate_learner_text('Pilih salah satu cara berikut')) then
+    ok := false; detail := detail || 'the validator flagged legitimate Indonesian; ';
+  end if;
+  if not exists (select 1 from public.validate_learner_text('Jawabanmu salah dan kamu gagal')) then
+    ok := false; detail := detail || 'the validator missed a judgement word; ';
+  end if;
+
+  -- course A: learner-facing text that breaks doctrine
+  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+    values (v_inst, 'Matematika', 'SD', 'V', 'selftest readiness blocked probe', v_guru) returning id into v_course2;
+  insert into public.modules (course_id, institution_id, ordinal, title, author_person_id)
+    values (v_course2, v_inst, 1, 'M', v_guru) returning id into v_mod2;
+  insert into public.lessons (module_id, institution_id, ordinal, title, author_person_id)
+    values (v_mod2, v_inst, 1, 'L', v_guru) returning id into v_les2;
+  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, arah_berpikir, author_person_id)
+    values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'Berapa 1/2 + 1/4?',
+            'Kalau hasilnya salah, ulangi', v_guru) returning id into v_it;
+  n := public.validate_course_content(v_course2);
+  select count(*) into n from public.coaching_findings
+   where course_id = v_course2 and severity = 'ERROR' and target_field = 'arah_berpikir';
+  if n < 1 then ok := false; detail := detail || 'the validator did not flag the scaffold text; '; end if;
+  select count(*) into n from public.coaching_findings
+   where course_id = v_course2 and (btrim(mengapa_penting) = '' or btrim(cara_memperbaiki) = '');
+  if n > 0 then ok := false; detail := detail || 'a finding carried no concrete fix; '; end if;
+
+  select status, blockers into v_status, v_blockers from public.publish_readiness(v_course2);
+  if v_status <> 'BLOCKED' then
+    ok := false; detail := detail || format('readiness was %s with an ERROR finding; ', v_status);
+  end if;
+  if array_length(v_blockers, 1) is null then
+    ok := false; detail := detail || 'readiness reported no blocker; ';
+  end if;
+
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course2, '1.0.0', v_guru) returning id into v_rel3;
+  update public.plp_releases set status = 'STRUCTURED' where id = v_rel3;
+  update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
+  update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  update public.plp_releases set status = 'FROZEN' where id = v_rel3;
+  perform selftest.as_owner();
+  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  begin
+    update public.plp_releases set status = 'PUBLISHED' where id = v_rel3;
+    ok := false; detail := detail || 'a BLOCKED course was published; ';
+  exception when others then null; end;
+  perform selftest.as_owner();
+
+  -- course B: the same shape with coaching text that holds up
+  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+    values (v_inst, 'Matematika', 'SD', 'V', 'selftest readiness ready probe', v_guru) returning id into v_course2;
+  insert into public.modules (course_id, institution_id, ordinal, title, author_person_id)
+    values (v_course2, v_inst, 1, 'M', v_guru) returning id into v_mod2;
+  insert into public.lessons (module_id, institution_id, ordinal, title, author_person_id)
+    values (v_mod2, v_inst, 1, 'L', v_guru) returning id into v_les2;
+  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, arah_berpikir, author_person_id)
+    values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'Berapa 1/2 + 1/4?',
+            'Samakan penyebutnya lebih dulu', v_guru) returning id into v_it;
+  n := public.validate_course_content(v_course2);
+  select status into v_status from public.publish_readiness(v_course2);
+  if v_status <> 'READY' then
+    ok := false; detail := detail || format('clean coaching text still read %s; ', v_status);
+  end if;
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course2, '1.0.0', v_guru) returning id into v_rel3;
+  update public.plp_releases set status = 'STRUCTURED' where id = v_rel3;
+  update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
+  update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  update public.plp_releases set status = 'FROZEN' where id = v_rel3;
+  perform selftest.as_owner();
+  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  update public.plp_releases set status = 'PUBLISHED' where id = v_rel3;
+  get diagnostics n = row_count;
+  perform selftest.as_owner();
+  if n <> 1 then ok := false; detail := detail || 'a READY course could not be published; '; end if;
+  test_id := 'F02-T19'; invariant := 'INV-35';
+  if ok then detail := 'the validator coaches and spares legitimate subject language; an ERROR blocks readiness and publication; clean text publishes'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');
