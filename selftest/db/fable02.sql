@@ -94,6 +94,9 @@ declare
   v_course uuid; v_module uuid; v_lesson uuid; v_lesson2 uuid; v_obj uuid; v_item uuid;
   v_release uuid; v_sha text; v_sha2 text; h1 text; h3 text;
   v_beta uuid; v_hop uuid;
+  v_course2 uuid; v_mod2 uuid; v_les2 uuid; v_ip uuid; v_it uuid; v_ie uuid;
+  v_def_p uuid; v_def_t uuid; v_def_e uuid; v_group uuid;
+  v_bcourse uuid; v_bmod uuid; v_bles uuid;
   v_frozen timestamptz; v_published timestamptz;
   n int;
   t0 timestamptz := clock_timestamp();
@@ -504,6 +507,67 @@ begin
   perform selftest.as_owner();
   test_id := 'F02-T10'; invariant := 'INV-01 (tenant isolation)';
   if ok then detail := 'institution_id is immutable on content and releases; a caller privileged in two institutions cannot carry a record across, with or without a seal in the same statement'; end if;
+  return next;
+
+  -- F02-T11 three-tier bank isolation: EXAM never leaks down (INV-12).
+  ok := true; detail := '';
+  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+    values (v_inst, 'Matematika', 'SD', 'VI', 'selftest bank probe', v_guru) returning id into v_course2;
+  insert into public.modules (course_id, institution_id, ordinal, title, author_person_id)
+    values (v_course2, v_inst, 1, 'Bank', v_guru) returning id into v_mod2;
+  insert into public.lessons (module_id, institution_id, ordinal, title, author_person_id)
+    values (v_mod2, v_inst, 1, 'Bank', v_guru) returning id into v_les2;
+  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, author_person_id)
+    values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'soal latihan', v_guru) returning id into v_ip;
+  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, author_person_id)
+    values (v_les2, v_inst, 'MCQ_SINGLE', 'TEST', 'soal ulangan', v_guru) returning id into v_it;
+  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, author_person_id)
+    values (v_les2, v_inst, 'MCQ_SINGLE', 'EXAM', 'soal ujian', v_guru) returning id into v_ie;
+  insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type, item_count, author_person_id)
+    values (v_inst, v_course2, 'Latihan', 'QUICK', 'PRACTICE', 5, v_guru) returning id into v_def_p;
+  insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type, item_count, author_person_id)
+    values (v_inst, v_course2, 'Ulangan', 'POST_TEST', 'TEST', 5, v_guru) returning id into v_def_t;
+  insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type, item_count, author_person_id)
+    values (v_inst, v_course2, 'Ujian', 'STANDALONE', 'EXAM', 5, v_guru) returning id into v_def_e;
+
+  -- a PRACTICE definition reaches only PRACTICE
+  select count(*) into n from public.eligible_items_for_definition(v_def_p);
+  if n <> 1 then ok := false; detail := detail || format('PRACTICE definition drew %s item(s), expected 1; ', n); end if;
+  if exists (select 1 from public.eligible_items_for_definition(v_def_p) where bank_type <> 'PRACTICE') then
+    ok := false; detail := detail || 'a PRACTICE definition reached a higher tier; ';
+  end if;
+  -- a TEST definition reaches PRACTICE and TEST, never EXAM
+  select count(*) into n from public.eligible_items_for_definition(v_def_t);
+  if n <> 2 then ok := false; detail := detail || format('TEST definition drew %s item(s), expected 2; ', n); end if;
+  if exists (select 1 from public.eligible_items_for_definition(v_def_t) where bank_type = 'EXAM') then
+    ok := false; detail := detail || 'a TEST definition reached an EXAM item; ';
+  end if;
+  -- an EXAM definition reaches all three
+  select count(*) into n from public.eligible_items_for_definition(v_def_e);
+  if n <> 3 then ok := false; detail := detail || format('EXAM definition drew %s item(s), expected 3; ', n); end if;
+
+  -- a parallel group is drawn as a unit, so it may not mix tiers: otherwise
+  -- drawing the PRACTICE sibling would hand over the EXAM one
+  v_group := gen_random_uuid();
+  update public.items set parallel_group = v_group where id = v_ip;
+  begin
+    update public.items set parallel_group = v_group where id = v_ie;
+    ok := false; detail := detail || 'a parallel group mixed PRACTICE and EXAM tiers; ';
+  exception when others then null; end;
+  -- nor institutions
+  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+    values (v_beta, 'Matematika', 'SD', 'VI', 'selftest bank probe beta', v_guru) returning id into v_bcourse;
+  insert into public.modules (course_id, institution_id, ordinal, title, author_person_id)
+    values (v_bcourse, v_beta, 1, 'Bank', v_guru) returning id into v_bmod;
+  insert into public.lessons (module_id, institution_id, ordinal, title, author_person_id)
+    values (v_bmod, v_beta, 1, 'Bank', v_guru) returning id into v_bles;
+  begin
+    insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, parallel_group, author_person_id)
+      values (v_bles, v_beta, 'MCQ_SINGLE', 'PRACTICE', 'soal beta', v_group, v_guru);
+    ok := false; detail := detail || 'a parallel group spanned two institutions; ';
+  exception when others then null; end;
+  test_id := 'F02-T11'; invariant := 'INV-12';
+  if ok then detail := 'PRACTICE draws 1, TEST draws 2, EXAM draws 3; EXAM never leaks down; a parallel group cannot mix tiers or institutions'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');
