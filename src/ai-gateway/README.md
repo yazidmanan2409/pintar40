@@ -1,11 +1,23 @@
-# `ai-gateway/` — AI Provider Gateway (reserved; contracts only)
+# `ai-gateway/` — AI Provider Gateway (contracts and provenance only)
 
-Reserved in FABLE-01 §10. Empty by design: **no provider integration exists
-in this phase, and no provider concept enters the domain model** (doc 16 §5
-lists "provider concepts in the domain model" as an audit-fail pattern).
+Reserved in FABLE-01 §10; **opened, narrowly, in FABLE-03 §6**. It is no
+longer empty — but it still holds no provider integration, no routing, no
+model name, no key and no call. Doc 09 keeps multi-provider routing out of
+V1, and doc 16 §5 lists "provider concepts in the domain model" as an
+audit-fail pattern, so nothing here names one (INV-32).
 
-When a later phase opens this boundary it holds only the *contracts*
-(request/response shapes, redaction rules, cost and audit hooks) that every
-AI-assisted feature must go through. Domain and UI code never call a model
-provider directly, and privileged data (answer keys, evidence, integrity
-material) never enters a learner-assistance context (doc 16 §5).
+What is here: `contexts.ts`, the **Learner Assistance Intelligence Context**
+(INV-31). Its input is the sanitized learner item shape and nothing else —
+enforced by the type, by re-running the engine's `sanitize()` (which throws
+on any answer-key field), and by rebuilding the context field by field from
+an allow-list rather than passing an object through. Answer keys,
+rationale-to-correct mappings and misconception codes cannot reach it.
+
+The assistance a learner actually receives in FABLE-03 is authored text
+served by `open_assistance()` and re-checked against INV-02 in the database.
+This boundary exists so that when a model is one day asked to phrase a hint,
+what it is given is already decided, already narrow, and already testable.
+
+Domain and UI code never call a model provider directly. Privileged data
+(answer keys, raw evidence, integrity material) never enters a learner
+context.

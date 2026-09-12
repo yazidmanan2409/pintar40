@@ -23,7 +23,10 @@ export default async function Entry() {
       )}
 
       <div className="mt-8 grid gap-3">
-        <Link href="/masuk" className="rounded-[var(--radius-2)] border border-line-1 bg-surface-1 px-5 py-4 text-lg hover:bg-surface-2">
+        {/* The learner route, not the sign-in form: the proxy sends an
+            anonymous visitor to /masuk and back again, so the QR-code arrival
+            in FABLE-03's cycle lands on the learning surface either way. */}
+        <Link href="/belajar" className="rounded-[var(--radius-2)] border border-line-1 bg-surface-1 px-5 py-4 text-lg hover:bg-surface-2">
           {t("entry.learner", "public")}
         </Link>
         <Link href="/masuk?peran=guru" className="rounded-[var(--radius-2)] border border-line-1 bg-surface-1 px-5 py-4 text-lg hover:bg-surface-2">

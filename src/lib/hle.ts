@@ -88,7 +88,88 @@ export type HleEvent =
   | "entry.title"
   | "entry.learner"
   | "entry.educator"
-  | "entry.staff";
+  | "entry.staff"
+  // FABLE-03 — the Dr. Gladys learning cycle. Learner-facing copy only; no
+  // lifecycle enum, evidence class, engine version or release hash appears in
+  // any of it (§9), and the guard below refuses one if it ever does.
+  | "cycle.title"
+  | "cycle.none"
+  | "cycle.step.pretest"
+  | "cycle.step.map"
+  | "cycle.step.lesson"
+  | "cycle.step.posttest"
+  | "cycle.step.result"
+  | "cycle.open"
+  | "cycle.continue"
+  | "cycle.locked_until_pretest"
+  | "pretest.title"
+  | "pretest.intro"
+  | "pretest.progress"
+  | "pretest.next"
+  | "pretest.back"
+  | "pretest.finish"
+  | "pretest.done"
+  | "map.title"
+  | "map.intro"
+  | "map.tier.PERLU_SEGERA"
+  | "map.tier.WAJIB"
+  | "map.tier.DISARANKAN"
+  | "map.tier.KUAT"
+  | "map.page"
+  | "map.to_lesson"
+  | "lesson.title"
+  | "lesson.page_of"
+  | "lesson.prev"
+  | "lesson.next"
+  | "lesson.transcript"
+  | "lesson.speed"
+  | "lesson.example.reveal"
+  | "lesson.example.done"
+  | "lesson.pdf"
+  | "lesson.saved"
+  | "posttest.title"
+  | "posttest.intro"
+  | "posttest.elapsed"
+  | "posttest.pause"
+  | "posttest.resume"
+  | "posttest.flag"
+  | "posttest.flagged"
+  | "posttest.navigator"
+  | "posttest.answered"
+  | "posttest.unanswered"
+  | "posttest.confirm"
+  | "posttest.confirmed"
+  | "posttest.submit"
+  | "posttest.submit_confirm"
+  | "assist.SD"
+  | "assist.SMP"
+  | "assist.SMA"
+  | "assist.UNIVERSITAS"
+  | "assist.more"
+  | "assist.close"
+  | "assist.level.ARAH"
+  | "assist.level.PETUNJUK"
+  | "assist.level.CONTOH"
+  | "assist.none"
+  | "hasil.title"
+  | "hasil.mastery"
+  | "hasil.safety.ok"
+  | "hasil.safety.missed"
+  | "hasil.domain"
+  | "hasil.review"
+  | "hasil.review.open"
+  | "hasil.answer_yours"
+  | "hasil.answer_right"
+  | "hasil.answer_notyet"
+  | "hasil.delta.LENGKAP"
+  | "hasil.delta.BARU_PEMETAAN"
+  | "hasil.delta.BARU_PENGUASAAN"
+  | "hasil.delta.BELUM_ADA"
+  | "hasil.certificate"
+  | "hasil.certificate_soon"
+  | "sync.offline"
+  | "sync.pending"
+  | "sync.done";
 
 type Table = Record<HleEvent, Partial<Record<Persona, string>> & { default: string }>;
 
@@ -173,6 +254,95 @@ const table: Table = {
   "entry.learner": { default: "Saya mau belajar" },
   "entry.educator": { default: "Saya mengajar" },
   "entry.staff": { default: "Saya mengelola sekolah" },
+
+  // ---------------------------------------------------------------- FABLE-03
+  "cycle.title": { default: "Perjalanan belajarmu" },
+  "cycle.none": { default: "Belum ada materi yang ditugaskan untukmu." },
+  "cycle.step.pretest": { default: "Pemetaan Awal" },
+  "cycle.step.map": { default: "Peta Bacaan Personal" },
+  "cycle.step.lesson": { default: "Pelajaran" },
+  "cycle.step.posttest": { default: "Uji Penguasaan" },
+  "cycle.step.result": { default: "Hasil" },
+  "cycle.open": { default: "Mulai" },
+  "cycle.continue": { default: "Lanjutkan" },
+  "cycle.locked_until_pretest": { default: "Terbuka setelah Pemetaan Awal selesai." },
+
+  "pretest.title": { default: "Pemetaan Awal" },
+  "pretest.intro": {
+    default: "Ini bukan ujian. Jawabanmu dipakai untuk menyusun peta bacaan yang pas untukmu.",
+  },
+  "pretest.progress": { default: "Pertanyaan" },
+  "pretest.next": { default: "Berikutnya" },
+  "pretest.back": { default: "Kembali" },
+  "pretest.finish": { default: "Selesaikan pemetaan" },
+  "pretest.done": { default: "Pemetaan selesai. Peta bacaanmu sudah siap." },
+
+  "map.title": { default: "Peta Bacaan Personal" },
+  "map.intro": { default: "Mulailah dari kartu paling atas. Urutannya sudah disusun untukmu." },
+  "map.tier.PERLU_SEGERA": { default: "Baca ini lebih dulu" },
+  "map.tier.WAJIB": { default: "Perlu dibaca" },
+  "map.tier.DISARANKAN": { default: "Sebaiknya dibaca" },
+  "map.tier.KUAT": { default: "Sudah kamu kuasai" },
+  "map.page": { default: "Bagian bacaan" },
+  "map.to_lesson": { default: "Buka pelajarannya" },
+
+  "lesson.title": { default: "Pelajaran" },
+  "lesson.page_of": { default: "Halaman" },
+  "lesson.prev": { default: "Halaman sebelumnya" },
+  "lesson.next": { default: "Halaman berikutnya" },
+  "lesson.transcript": { default: "Teks lengkap" },
+  "lesson.speed": { default: "Kecepatan" },
+  "lesson.example.reveal": { default: "Tampilkan langkah berikutnya" },
+  "lesson.example.done": { default: "Semua langkah sudah tampil." },
+  "lesson.pdf": { default: "Buka ringkasan" },
+  "lesson.saved": { default: "Posisi bacaanmu tersimpan." },
+
+  "posttest.title": { default: "Uji Penguasaan" },
+  "posttest.intro": { default: "Kerjakan dengan tenang. Kamu bisa menandai soal dan kembali lagi." },
+  "posttest.elapsed": { default: "Waktu berjalan" },
+  "posttest.pause": { default: "Simpan & Jeda" },
+  "posttest.resume": { default: "Lanjutkan mengerjakan" },
+  "posttest.flag": { default: "Tandai" },
+  "posttest.flagged": { default: "Ditandai" },
+  "posttest.navigator": { default: "Daftar soal" },
+  "posttest.answered": { default: "Sudah dijawab" },
+  "posttest.unanswered": { default: "Belum dijawab" },
+  "posttest.confirm": { default: "Kunci jawaban ini" },
+  "posttest.confirmed": { default: "Tersimpan" },
+  "posttest.submit": { default: "Kumpulkan" },
+  "posttest.submit_confirm": { default: "Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah." },
+
+  "assist.SD": { default: "🤔 Perlu contoh?" },
+  "assist.SMP": { default: "💡 Perlu petunjuk?" },
+  "assist.SMA": { default: "🧭 Perlu arah?" },
+  "assist.UNIVERSITAS": { default: "🧭 Perlu arah berpikir?" },
+  "assist.more": { default: "Masih perlu bantuan lagi?" },
+  "assist.close": { default: "Sudah cukup, terima kasih" },
+  "assist.level.ARAH": { default: "Arah berpikir" },
+  "assist.level.PETUNJUK": { default: "Langkah pertama" },
+  "assist.level.CONTOH": { default: "Contoh yang mirip" },
+  "assist.none": { default: "Untuk soal ini belum ada bantuan tambahan." },
+
+  "hasil.title": { default: "Hasil" },
+  "hasil.mastery": { default: "Penguasaan" },
+  "hasil.safety.ok": { default: "Semua butir penting sudah kamu jawab dengan tepat." },
+  "hasil.safety.missed": { default: "Ada butir penting yang belum tepat. Mari kita lihat bersama." },
+  "hasil.domain": { default: "Per bagian" },
+  "hasil.review": { default: "Tinjau kembali" },
+  "hasil.review.open": { default: "Buka pembahasan" },
+  "hasil.answer_yours": { default: "Jawabanmu" },
+  "hasil.answer_right": { default: "Sudah tepat" },
+  "hasil.answer_notyet": { default: "Belum tepat" },
+  "hasil.delta.LENGKAP": { default: "Perubahan dari Pemetaan Awal" },
+  "hasil.delta.BARU_PEMETAAN": { default: "Uji Penguasaan belum dikerjakan, jadi belum ada perbandingan." },
+  "hasil.delta.BARU_PENGUASAAN": { default: "Pemetaan Awal belum dikerjakan, jadi belum ada perbandingan." },
+  "hasil.delta.BELUM_ADA": { default: "Belum ada yang bisa dibandingkan." },
+  "hasil.certificate": { default: "Ambil sertifikatmu" },
+  "hasil.certificate_soon": { default: "Sertifikat akan tersedia di tahap berikutnya." },
+
+  "sync.offline": { default: "Sedang luring. Jawabanmu disimpan dan dikirim saat tersambung lagi." },
+  "sync.pending": { default: "Mengirim jawaban yang tertunda…" },
+  "sync.done": { default: "Semua jawaban sudah tersimpan di server." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */
