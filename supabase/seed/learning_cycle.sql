@@ -142,6 +142,20 @@ declare
   inst uuid; course uuid; l1 uuid; l2 uuid; modul uuid;
   o11 uuid; o12 uuid; o21 uuid; o22 uuid;
   spec jsonb; entry jsonb; opt jsonb; it uuid; grp uuid; tag text; p_guru uuid;
+  -- §6's three-level assistance reads arah_berpikir and petunjuk. Written per
+  -- objective rather than per item: the direction of thinking for "menyamakan
+  -- penyebut" is the same whichever instance is on the paper. None names an
+  -- option or narrows to one, so hint_reveals_answer_shape() passes them at
+  -- write time and again at serve time.
+  hints jsonb := jsonb_build_object(
+    '11.arah',     'Bayangkan gambarnya: bagian yang sama besar bisa ditulis dengan angka yang berbeda.',
+    '11.petunjuk', 'Kalikan pembilang dan penyebut dengan angka yang sama, lalu bandingkan gambarnya.',
+    '12.arah',     'Cari satu angka yang bisa membagi pembilang dan penyebut sekaligus.',
+    '12.petunjuk', 'Mulai dari pembagi terkecil, lalu periksa apakah keduanya masih bisa dibagi lagi.',
+    '21.arah',     'Perhatikan penyebutnya lebih dulu, jangan pembilangnya.',
+    '21.petunjuk', 'Cari satu angka yang habis dibagi oleh kedua penyebut itu.',
+    '22.arah',     'Ubah dulu menjadi pecahan berpenyebut sama, baru kerjakan pembilangnya.',
+    '22.petunjuk', 'Setelah penyebutnya sama, jumlahkan pembilangnya saja dan biarkan penyebutnya.');
   groups jsonb := '{}'::jsonb;
 begin
   if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
@@ -312,11 +326,13 @@ begin
       grp := (groups ->> (entry ->> 'grup'))::uuid;
     end if;
     insert into public.items (lesson_id, institution_id, item_type, bank_type, stem,
+                              petunjuk, arah_berpikir,
                               objective_ids, is_safety_critical, parallel_group,
                               predicted_difficulty, source_version_id, page_citation,
                               author_person_id)
     values (case entry ->> 'l' when '1' then l1 else l2 end, inst,
             (entry ->> 'tipe')::public.item_type, 'TEST', entry ->> 'stem',
+            hints ->> (entry ->> 'obj' || '.petunjuk'), hints ->> (entry ->> 'obj' || '.arah'),
             array[case entry ->> 'obj' when '11' then o11 when '12' then o12
                                        when '21' then o21 else o22 end],
             (entry ->> 'aman')::boolean, grp, (entry ->> 'd')::numeric,
