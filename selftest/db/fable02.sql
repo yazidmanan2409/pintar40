@@ -51,6 +51,22 @@ begin
     execute format('alter table public.%1$I disable trigger %1$s_taught_immutable', t);
   end loop;
 
+  -- evidence first: presented items are write-once and sessions carry
+  -- immutable provenance, so the same trigger-disable applies. Sessions exist
+  -- only for probe courses, so this removes nothing a real run would keep.
+  alter table public.presented_items disable trigger presented_items_immutable;
+  alter table public.assessment_sessions disable trigger assessment_sessions_provenance;
+  alter table public.assessment_sessions disable trigger assessment_sessions_status;
+  delete from public.presented_items pi using public.assessment_sessions s,
+                                            public.plp_releases r, public.courses c
+   where pi.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
+     and c.title like p_prefix || '%';
+  delete from public.assessment_sessions s using public.plp_releases r, public.courses c
+   where s.plp_release_id = r.id and r.course_id = c.id and c.title like p_prefix || '%';
+  alter table public.presented_items enable trigger presented_items_immutable;
+  alter table public.assessment_sessions enable trigger assessment_sessions_provenance;
+  alter table public.assessment_sessions enable trigger assessment_sessions_status;
+
   delete from public.plp_releases r using public.courses c
    where r.course_id = c.id and c.title like p_prefix || '%';
   delete from public.assessment_definitions a using public.courses c
@@ -97,6 +113,7 @@ declare
   v_course2 uuid; v_mod2 uuid; v_les2 uuid; v_ip uuid; v_it uuid; v_ie uuid;
   v_def_p uuid; v_def_t uuid; v_def_e uuid; v_group uuid;
   v_bcourse uuid; v_bmod uuid; v_bles uuid;
+  v_enr uuid; v_sess uuid; v_rel2 uuid; v_pi uuid; v_class public.evidence_class; v_seed bigint;
   v_frozen timestamptz; v_published timestamptz;
   n int;
   t0 timestamptz := clock_timestamp();
@@ -568,6 +585,107 @@ begin
   exception when others then null; end;
   test_id := 'F02-T11'; invariant := 'INV-12';
   if ok then detail := 'PRACTICE draws 1, TEST draws 2, EXAM draws 3; EXAM never leaks down; a parallel group cannot mix tiers or institutions'; end if;
+  return next;
+
+  -- F02-T12 a session derives its provenance and cannot have it rewritten
+  -- (INV-33); evidence_class is derived, never asserted.
+  ok := true; detail := '';
+  select e.id into v_enr from public.enrollments e
+    join public.accounts a on a.person_id = e.person_id
+    join auth.users u on u.id = a.auth_user_id
+   where u.email = 'alpha-siswa-1@synthetic.pintar.test' and e.institution_id = v_inst limit 1;
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course2, '1.0.0', v_guru) returning id into v_rel2;
+
+  v_sess := public.open_assessment_session(v_enr, v_def_p, v_rel2, 'ONLINE', 'QUICK',
+                                           'engine-0', 'policy-0');
+  select evidence_class, shuffle_seed into v_class, v_seed
+    from public.assessment_sessions where id = v_sess;
+  -- the seeded tenant is synthetic, so it can never produce OFFICIAL evidence
+  if v_class <> 'SYNTHETIC' then
+    ok := false; detail := detail || format('evidence_class was %s on a synthetic tenant; ', v_class);
+  end if;
+  select count(*) into n from public.assessment_sessions s
+    join public.enrollments e on e.id = s.enrollment_id
+   where s.id = v_sess and s.person_id = e.person_id
+     and s.institution_id = e.institution_id and s.academic_period_id = e.academic_period_id;
+  if n <> 1 then ok := false; detail := detail || 'provenance was not derived from the enrolment; '; end if;
+
+  -- provenance is unrewritable, including evidence_class itself
+  begin
+    update public.assessment_sessions set evidence_class = 'OFFICIAL' where id = v_sess;
+    ok := false; detail := detail || 'evidence_class was rewritten to OFFICIAL; ';
+  exception when others then null; end;
+  begin
+    update public.assessment_sessions set enrollment_id = v_enr, person_id = v_guru where id = v_sess;
+    ok := false; detail := detail || 'person_id was rewritten; ';
+  exception when others then null; end;
+  begin
+    update public.assessment_sessions set engine_version = 'engine-9' where id = v_sess;
+    ok := false; detail := detail || 'engine_version was rewritten; ';
+  exception when others then null; end;
+  begin
+    update public.assessment_sessions set institution_id = v_beta where id = v_sess;
+    ok := false; detail := detail || 'a session changed institution; ';
+  exception when others then null; end;
+
+  -- but operational state still moves, or Phase 3 could not run a session
+  update public.assessment_sessions set status = 'IN_PROGRESS' where id = v_sess;
+  update public.assessment_sessions set authoritative_deadline = now() + interval '1 hour' where id = v_sess;
+  get diagnostics n = row_count;
+  if n <> 1 then ok := false; detail := detail || 'the authoritative deadline could not be extended; '; end if;
+  select count(*) into n from public.assessment_sessions where id = v_sess and started_at is not null;
+  if n <> 1 then ok := false; detail := detail || 'started_at was not stamped; '; end if;
+  test_id := 'F02-T12'; invariant := 'INV-33';
+  if ok then detail := 'provenance derived from the enrolment and immutable; evidence_class derived as SYNTHETIC; operational state still moves'; end if;
+  return next;
+
+  -- F02-T13 a delivery record is written once; the session lifecycle is an
+  -- allow-list and fails closed.
+  ok := true; detail := '';
+  insert into public.presented_items (session_id, item_id, position)
+    values (v_sess, v_ip, 1) returning id into v_pi;
+  select count(*) into n from public.presented_items
+   where id = v_pi and institution_id = v_inst;
+  if n <> 1 then ok := false; detail := detail || 'the delivery record did not inherit the session institution; '; end if;
+  begin
+    update public.presented_items set position = 2 where id = v_pi;
+    ok := false; detail := detail || 'a presented item was edited; ';
+  exception when others then null; end;
+  begin
+    delete from public.presented_items where id = v_pi;
+    ok := false; detail := detail || 'a presented item was deleted; ';
+  exception when others then null; end;
+  begin
+    insert into public.presented_items (session_id, item_id, position)
+      values (v_sess, (select i.id from public.items i where i.institution_id = v_beta limit 1), 2);
+    ok := false; detail := detail || 'an item from another institution was presented; ';
+  exception when others then null; end;
+
+  -- lifecycle: unlisted jumps refused, terminal states are terminal
+  begin
+    update public.assessment_sessions set status = 'CREATED' where id = v_sess;
+    ok := false; detail := detail || 'a session reversed to CREATED; ';
+  exception when others then null; end;
+  begin
+    update public.assessment_sessions set status = 'FINALIZED' where id = v_sess;
+    ok := false; detail := detail || 'IN_PROGRESS jumped straight to FINALIZED; ';
+  exception when others then null; end;
+  begin
+    update public.assessment_sessions set status = 'TERMINATED' where id = v_sess;
+    ok := false; detail := detail || 'TERMINATED accepted without a reason; ';
+  exception when others then null; end;
+  update public.assessment_sessions set status = 'SUBMITTED' where id = v_sess;
+  update public.assessment_sessions set status = 'FINALIZED' where id = v_sess;
+  select count(*) into n from public.assessment_sessions
+   where id = v_sess and status = 'FINALIZED' and finalized_at is not null;
+  if n <> 1 then ok := false; detail := detail || 'the legal path to FINALIZED was refused; '; end if;
+  begin
+    update public.assessment_sessions set status = 'IN_PROGRESS' where id = v_sess;
+    ok := false; detail := detail || 'a FINALIZED session was reopened; ';
+  exception when others then null; end;
+  test_id := 'F02-T13'; invariant := 'INV-33 / doc 04 §5';
+  if ok then detail := 'a delivery record is write-once and tenant-bound; the session graph refuses reversals, jumps and reasonless termination'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');
