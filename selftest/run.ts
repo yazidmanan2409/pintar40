@@ -167,12 +167,15 @@ async function main() {
   // static + app
   const port = Number(process.env.SELFTEST_APP_PORT ?? 3999);
   let app: { child: ChildProcess; url: string } | null = null;
-  try {
-    log("\n[app] starting production-mode app");
-    app = await startApp(port);
-  } catch (e) {
-    log(`  ${(e as Error).message}`);
-    facilities.delete("app");
+  const needsApp = !only || appTests.some((t) => only.includes(t.id) && (t.requires ?? []).includes("app"));
+  if (needsApp) {
+    try {
+      log("\n[app] starting production-mode app");
+      app = await startApp(port);
+    } catch (e) {
+      log(`  ${(e as Error).message}`);
+      facilities.delete("app");
+    }
   }
   const ctx: Context = {
     repoRoot,

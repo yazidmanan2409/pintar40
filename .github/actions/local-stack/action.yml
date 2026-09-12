@@ -1,0 +1,45 @@
+name: Local Supabase stack
+description: >
+  Starts the local Supabase stack (pinned CLI from package-lock via npx),
+  applies every migration in the given directory to a clean database and runs
+  the synthetic seed. Exposes the stack's URL, keys and DB URL as outputs.
+inputs:
+  working-directory:
+    description: Directory containing supabase/config.toml to start from
+    required: false
+    default: .
+outputs:
+  api-url:
+    value: ${{ steps.status.outputs.api-url }}
+  anon-key:
+    value: ${{ steps.status.outputs.anon-key }}
+  service-role-key:
+    value: ${{ steps.status.outputs.service-role-key }}
+  db-url:
+    value: ${{ steps.status.outputs.db-url }}
+runs:
+  using: composite
+  steps:
+    - name: Start stack
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        npx --no-install supabase --version
+        npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+    - name: Reset database (clean install of every migration + synthetic seed)
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npx --no-install supabase db reset --local
+    - name: Read stack credentials
+      id: status
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        npx --no-install supabase status -o env > "$RUNNER_TEMP/stack.env"
+        val() { grep -E "^$1=" "$RUNNER_TEMP/stack.env" | head -1 | cut -d= -f2- | tr -d '"'; }
+        api="$(val API_URL)"; anon="$(val ANON_KEY)"; svc="$(val SERVICE_ROLE_KEY)"; db="$(val DB_URL)"
+        [ -n "$anon" ] || anon="$(val PUBLISHABLE_KEY)"
+        [ -n "$svc" ]  || svc="$(val SECRET_KEY)"
+        for v in api anon svc db; do [ -n "${!v}" ] || { echo "::error::supabase status did not yield $v"; cat "$RUNNER_TEMP/stack.env" | sed 's/=.*/=…/'; exit 1; }; done
+        echo "::add-mask::$svc"
+        { echo "api-url=$api"; echo "anon-key=$anon"; echo "service-role-key=$svc"; echo "db-url=$db"; } >> "$GITHUB_OUTPUT"

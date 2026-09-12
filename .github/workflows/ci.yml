@@ -1,0 +1,200 @@
+# PINTAR CI — the automated layer of the verification contract (doc 16 §1–5;
+# FABLE-01 §1). Every job runs from `npm ci` on a clean checkout. The
+# `selftest` job runs the whole manifest strictly (no skips) against the
+# local Supabase stack and receives the results of the migration and red-case
+# jobs as evidence for F01-R04.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  check:
+    name: install · lint · typecheck · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Production build (placeholder public env; nothing secret)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3999
+          PINTAR_BUILD_SHA: ${{ github.sha }}
+        run: npm run build
+
+  migrations-clean:
+    name: migrations · clean database + seed
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Apply every migration to a clean database, then the synthetic seed
+        id: stack
+        uses: ./.github/actions/local-stack
+      - name: Recorded migration history equals the repository's (one linear series)
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          psql -At -c "select version from supabase_migrations.schema_migrations order by version" "$DB_URL" > applied.txt
+          ls supabase/migrations | sed -E 's/^([0-9]{14})_.*/\1/' | sort > repo.txt
+          diff -u repo.txt applied.txt
+
+  migrations-upgrade-path:
+    name: migrations · previous schema → HEAD (upgrade path)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Resolve the previous released schema
+        id: base
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            echo "has-base=false" >> "$GITHUB_OUTPUT"; echo "no previous commit reachable — first push"; exit 0
+          fi
+          if ! git ls-tree -d "$BASE_SHA" supabase/migrations | grep -q .; then
+            echo "has-base=false" >> "$GITHUB_OUTPUT"; echo "previous commit $BASE_SHA has no migrations directory"; exit 0
+          fi
+          echo "has-base=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          git worktree add --detach base "$BASE_SHA"
+          echo "previous schema: $BASE_SHA ($(ls base/supabase/migrations | wc -l) migrations)"
+      - name: Forward-only — every previously applied migration is byte-identical in HEAD
+        if: steps.base.outputs.has-base == 'true'
+        run: |
+          status=0
+          for f in base/supabase/migrations/*.sql; do
+            n=$(basename "$f")
+            if [ ! -f "supabase/migrations/$n" ]; then echo "::error::applied migration $n removed from HEAD"; status=1; continue; fi
+            cmp -s "$f" "supabase/migrations/$n" || { echo "::error::applied migration $n was edited in HEAD"; status=1; }
+          done
+          exit $status
+      - name: Start the previous schema with representative (synthetic) data
+        if: steps.base.outputs.has-base == 'true'
+        id: stack
+        uses: ./.github/actions/local-stack
+        with:
+          working-directory: base
+      - name: Apply HEAD's pending migrations on top of the running previous schema
+        if: steps.base.outputs.has-base == 'true'
+        run: npx --no-install supabase migration up --local
+      - name: The db contract holds on the upgraded database
+        if: steps.base.outputs.has-base == 'true'
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          psql -v ON_ERROR_STOP=1 -q -1 -f selftest/db/fable01.sql "$DB_URL"
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select test_id, ok, detail from selftest.run_fable01()" "$DB_URL" | tee upgraded.txt
+          ! grep -E '\| f \|' upgraded.txt
+
+  red-case:
+    name: red case · ${{ matrix.case }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        case: [static-permissive-policy, db-table-without-rls]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Inject the deliberate defect
+        run: |
+          case "${{ matrix.case }}" in
+            static-permissive-policy)
+              printf -- "create policy red_case on public.persons for select to anon using (true);\n" > supabase/migrations/20990101000000_red_case.sql ;;
+            db-table-without-rls)
+              printf -- "create table public.red_case_no_rls (id int primary key);\ndo \$\$ begin if false then raise exception 'n/a'; end if; end \$\$;\n" > supabase/migrations/20990101000000_red_case.sql ;;
+          esac
+      - name: Static contract must go red for the right reason
+        if: matrix.case == 'static-permissive-policy'
+        run: |
+          set +e
+          npx tsx selftest/run.ts --accept-justified-skips --only=F01-S01,F01-S02 | tee red.txt
+          code=${PIPESTATUS[0]}
+          set -e
+          [ "$code" -ne 0 ] || { echo "::error::contract stayed green with a permissive policy present"; exit 1; }
+          grep -E '^F01-S02 +FAIL' red.txt
+      - name: Start stack with the defective migration applied
+        if: matrix.case == 'db-table-without-rls'
+        id: stack
+        uses: ./.github/actions/local-stack
+      - name: DB contract must go red on F01-T13 (schema lint)
+        if: matrix.case == 'db-table-without-rls'
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          psql -v ON_ERROR_STOP=1 -q -1 -f selftest/db/fable01.sql "$DB_URL"
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select test_id, ok, detail from selftest.run_fable01()" "$DB_URL" | tee red.txt
+          grep -E '^F01-T13 \| f \|' red.txt
+
+  selftest:
+    name: selftest contract (strict, local stack)
+    needs: [check, migrations-clean, migrations-upgrade-path, red-case]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - id: stack
+        uses: ./.github/actions/local-stack
+      - name: Build against the local stack and run the whole manifest
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.stack.outputs.api-url }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.stack.outputs.anon-key }}
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3999
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.stack.outputs.service-role-key }}
+          SUPABASE_DB_URL: ${{ steps.stack.outputs.db-url }}
+          CARD_PEPPER: synthetic-card-pepper
+          CARD_EMAIL_DOMAIN: cards.synthetic.pintar.test
+          PINTAR_BUILD_SHA: ${{ github.sha }}
+          SELFTEST_APP_PORT: 3999
+          SELFTEST_CI_UPSTREAM: >-
+            {"check":"${{ needs.check.result }}",
+             "migrations-clean":"${{ needs.migrations-clean.result }}",
+             "migrations-upgrade-path":"${{ needs.migrations-upgrade-path.result }}",
+             "red-case":"${{ needs.red-case.result }}"}
+        run: |
+          npm run build
+          npm run selftest
