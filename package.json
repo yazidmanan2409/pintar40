@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "selftest": "tsx selftest/run.ts",
     "selftest:local": "tsx selftest/run.ts --accept-justified-skips",
-    "selftest:db": "psql -v ON_ERROR_STOP=1 -q -1 -f selftest/db/fable01.sql \"$SUPABASE_DB_URL\" && psql -v ON_ERROR_STOP=1 -c 'select test_id, ok, detail from selftest.run_fable01()' \"$SUPABASE_DB_URL\""
+    "selftest:db": "psql -v ON_ERROR_STOP=1 -q -1 -f selftest/db/fable01.sql \"$SUPABASE_DB_URL\" && psql -v ON_ERROR_STOP=1 -q -1 -f selftest/db/fable02.sql \"$SUPABASE_DB_URL\" && psql -v ON_ERROR_STOP=1 -c 'select * from selftest.run_fable01() union all select * from selftest.run_fable02()' \"$SUPABASE_DB_URL\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

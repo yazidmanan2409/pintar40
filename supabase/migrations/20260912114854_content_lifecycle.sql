@@ -13,6 +13,17 @@
 -- Standing habit, learned twice in this phase: `create function` grants
 -- EXECUTE to PUBLIC, and PUBLIC includes anon. Every new function here is
 -- revoked explicitly at the point of creation.
+--
+-- REPAIRED IN PLACE (see the commit that carries this line). The first version
+-- of this file ended with a behavioural probe that inserted a course and drove
+-- it through the state machine. It passed against the seeded development
+-- project and failed every clean-database replay, because `supabase db reset`
+-- applies migrations BEFORE the seed and public.institutions is seed-only. A
+-- migration must replay against an empty database, so its verification block
+-- is structural or pure-function only — the convention every FABLE-01
+-- migration already followed. The behavioural proof now lives in
+-- selftest/db/fable02.sql (F02-T01..T04), which runs after the seed.
+-- No schema object, trigger, policy, grant or state-machine rule changed.
 
 create type public.assessment_mode as enum ('PRE_TEST','POST_TEST','QUICK','STANDALONE');
 
@@ -180,7 +191,7 @@ create policy content_status_transitions_select on public.content_status_transit
   for select to authenticated using (public.current_person_id() is not null);
 
 do $$
-declare n int; bad text; v_inst uuid; v_course uuid; v_a uuid; v_b uuid;
+declare n int; bad text;
 begin
   select count(*) into n from pg_tables
    where schemaname='public' and not rowsecurity
@@ -225,55 +236,4 @@ begin
                       where c.relname = t and g.tgname = t || '_status_guard' and not g.tgisinternal);
   if bad is not null then raise exception 'status guard missing on: %', bad; end if;
 
-  -- behavioural proof against a real row, removed before the block ends.
-  -- Order by id: the seeded persons share a created_at, so ordering by it is
-  -- not deterministic and can return the same row twice.
-  select id into v_inst from public.institutions order by id limit 1;
-  if v_inst is null then raise exception 'no institution to verify against'; end if;
-  select id into v_a from public.persons order by id limit 1;
-  select id into v_b from public.persons order by id desc limit 1;
-  if v_a is null or v_b is null or v_a = v_b then
-    raise exception 'need two distinct persons to verify reviewer separation'; end if;
-
-  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
-    values (v_inst, 'Verifikasi', 'SMA', 'X', 'guard probe', v_a) returning id into v_course;
-
-  begin
-    update public.courses set status = 'VALIDATED' where id = v_course;
-    raise exception 'GUARD_GAP: allowed INGESTED -> VALIDATED (a skip)';
-  exception when others then
-    if sqlerrm like 'GUARD_GAP%' then raise; end if;
-  end;
-
-  update public.courses set status = 'STRUCTURED' where id = v_course;
-  update public.courses set status = 'VALIDATED'  where id = v_course;
-  update public.courses set status = 'IN_REVIEW'  where id = v_course;
-
-  begin
-    update public.courses set status = 'APPROVED', reviewed_by_person_id = v_a where id = v_course;
-    raise exception 'GUARD_GAP: allowed the author to approve their own content';
-  exception when others then
-    if sqlerrm like 'GUARD_GAP%' then raise; end if;
-  end;
-
-  update public.courses set status = 'APPROVED', reviewed_by_person_id = v_b where id = v_course;
-  select count(*) into n from public.courses where id = v_course and reviewed_at is not null;
-  if n <> 1 then raise exception 'APPROVED did not stamp reviewed_at'; end if;
-
-  update public.courses set status = 'FROZEN' where id = v_course;
-  begin
-    update public.courses set status = 'APPROVED' where id = v_course;
-    raise exception 'GUARD_GAP: allowed a reversal out of FROZEN';
-  exception when others then
-    if sqlerrm like 'GUARD_GAP%' then raise; end if;
-  end;
-
-  begin
-    update public.courses set author_person_id = v_b where id = v_course;
-    raise exception 'GUARD_GAP: allowed author_person_id to be rewritten';
-  exception when others then
-    if sqlerrm like 'GUARD_GAP%' then raise; end if;
-  end;
-
-  delete from public.courses where id = v_course;
 end $$;

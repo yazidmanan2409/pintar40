@@ -10,7 +10,7 @@
  * that flag: there every facility is present, so a skip is a failure.
  *
  * Runners:
- *   db     selftest/db/fable01.sql via psql against $SUPABASE_DB_URL
+ *   db     selftest/db/fable01.sql + fable02.sql via psql against $SUPABASE_DB_URL
  *   static selftest/static.test.ts (repository + production build)
  *   app    selftest/app.test.ts (production-mode `next start`, plus the
  *          Supabase project's HTTP surface when reachable)
@@ -64,20 +64,39 @@ function hasPsql(): boolean {
 }
 
 // ---------------------------------------------------------------- db runner
+/** One SQL file per phase, applied in order; fable02 assumes fable01's schema. */
+const DB_RUNNERS = [
+  { file: "fable01.sql", fn: "selftest.run_fable01()", done: "F01-DONE" },
+  { file: "fable02.sql", fn: "selftest.run_fable02()", done: "F02-DONE" },
+] as const;
+
 function runDb(dbUrl: string): Outcome[] {
-  const define = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-1", "-f", join(repoRoot, "selftest", "db", "fable01.sql"), dbUrl], { encoding: "utf8" });
-  if (define.status !== 0) {
-    return manifest.tests.filter((t) => t.runner === "db").map((t) => ({ id: t.id, runner: "db", status: "FAIL", detail: `runner definition failed: ${define.stderr.trim().split("\n").pop()}` }));
+  const allFailed = (why: string): Outcome[] =>
+    manifest.tests.filter((t) => t.runner === "db").map((t) => ({ id: t.id, runner: "db", status: "FAIL", detail: why }));
+
+  for (const r of DB_RUNNERS) {
+    const define = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-1", "-f", join(repoRoot, "selftest", "db", r.file), dbUrl], { encoding: "utf8" });
+    if (define.status !== 0) {
+      return allFailed(`${r.file} definition failed: ${define.stderr.trim().split("\n").pop()}`);
+    }
   }
-  const q = "select coalesce(json_agg(json_build_object('id', r.test_id, 'ok', r.ok, 'detail', r.detail)), '[]'::json) from selftest.run_fable01() r";
+
+  const union = DB_RUNNERS.map((r) => `select * from ${r.fn}`).join(" union all ");
+  const q = `select coalesce(json_agg(json_build_object('id', r.test_id, 'ok', r.ok, 'detail', r.detail)), '[]'::json) from (${union}) r`;
   const run = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", q, dbUrl], { encoding: "utf8" });
   if (run.status !== 0) {
-    return manifest.tests.filter((t) => t.runner === "db").map((t) => ({ id: t.id, runner: "db", status: "FAIL", detail: `runner aborted: ${run.stderr.trim().split("\n").pop()}` }));
+    return allFailed(`runner aborted: ${run.stderr.trim().split("\n").pop()}`);
   }
+
   const rows = JSON.parse(run.stdout.trim()) as Array<{ id: string; ok: boolean; detail: string }>;
-  const done = rows.find((r) => r.id === "F01-DONE");
-  const out: Outcome[] = rows.filter((r) => r.id !== "F01-DONE").map((r) => ({ id: r.id, runner: "db", status: r.ok ? "PASS" : "FAIL", detail: r.detail }));
-  if (!done?.ok) out.push({ id: "F01-DONE", runner: "db", status: "FAIL", detail: "db runner did not reach its end" });
+  const sentinels = DB_RUNNERS.map((r) => r.done as string);
+  const out: Outcome[] = rows
+    .filter((r) => !sentinels.includes(r.id))
+    .map((r) => ({ id: r.id, runner: "db", status: r.ok ? "PASS" : "FAIL", detail: r.detail }));
+  for (const r of DB_RUNNERS) {
+    const done = rows.find((x) => x.id === r.done);
+    if (!done?.ok) out.push({ id: r.done, runner: "db", status: "FAIL", detail: `${r.file} did not reach its end` });
+  }
   return out;
 }
 
@@ -156,7 +175,7 @@ async function main() {
 
   // db
   if (facilities.has("db")) {
-    log("\n[db] selftest/db/fable01.sql");
+    log(`\n[db] ${DB_RUNNERS.map((r) => "selftest/db/" + r.file).join(", ")}`);
     outcomes.push(...runDb(dbUrl!));
   } else {
     for (const t of manifest.tests.filter((t) => t.runner === "db" && (!only || only.includes(t.id)))) {
