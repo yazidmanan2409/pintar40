@@ -98,7 +98,7 @@ that carry a manifest justification) run exactly `selftest/manifest.json`
 | 1 | Design tokens | COMPLETE (one open item) | `--pintar-primary` PROVISIONAL |
 | 1 | Feature flags | COMPLETE | now surfaced in Config Studio |
 | 2 | Person / Account / photo path; card account | COMPLETE | |
-| 2 | Auth: magic link + card PIN; 24h idle | IN PROGRESS | code built, not exercised end-to-end (network gate); `[auth.sessions] inactivity_timeout = "24h"` in `config.toml`; hosted setting is Pro-plan/Dashboard (gate) |
+| 2 | Auth: magic link + card PIN; 24h idle | IN PROGRESS | code built, not exercised end-to-end against hosted (network gate); `[auth.sessions] inactivity_timeout = "24h"` in `config.toml` configures the local stack only; the hosted controls (24h idle HA-01, leaked-password protection HA-02) are Pro+ and unavailable on this Free project — open gates, not settings left unset |
 | 2 | Synthetic tenants, seed guard, persona harness | COMPLETE | |
 | 3 | Hierarchy, periods, enrollment/membership, rollover | COMPLETE | rollover now in Config Studio |
 | 3a | Transfer domain | COMPLETE (policy OD-9) | request/authorize/execute/reject in Config Studio; destination references entered as codes (tenant isolation) — the exchange mechanism is an OD-9 item |
@@ -121,8 +121,13 @@ that carry a manifest justification) run exactly `selftest/manifest.json`
    confirm red, close it; record the run URL in the mini-audit record.
 3. **When network to the project exists** (or in CI): confirm R02/R03 green
    as real HTTP calls; exercise magic-link and card sign-in end to end.
-4. Hosted Auth settings pass (Dashboard): inactivity timeout 24h (plan
-   permitting), leaked-password protection; record what was set.
+4. Hosted Auth settings pass. Both items are **Pro+ features not available
+   on the current Free project**: the 24h inactivity timeout (HA-01) and
+   leaked-password protection (HA-02). Neither is a toggle waiting to be
+   flipped, so this step is a plan/architecture decision first — obtain the
+   plan that carries them, or get an equivalent control approved at
+   architecture level — and a settings pass second. Record what was
+   decided and what was actually set.
 5. Layer-3 independent/adversarial audit by a separate session/reviewer
    with no shared context, against `docs/audit/FABLE-01-mini-audit.md`.
 6. Drop schema `selftest` from the hosted project before any production
@@ -151,8 +156,12 @@ that carry a manifest justification) run exactly `selftest/manifest.json`
   Inactivity/session-lifetime controls are Pro+, so the FABLE-01 §2 24h
   idle expiry is **not enforced and must not be claimed as satisfied**
   (ADR-0001 finding 9); `supabase/config.toml` configures only the local
-  stack. Leaked-password protection is still disabled and the old "nobody
-  uses a password" justification is withdrawn (ADR-0001 finding 10).
+  stack. Leaked-password protection is **unavailable on the Free plan**
+  (Pro+ only; Dashboard-verified by the product owner), so it too is a
+  plan/platform limitation rather than a toggle left off — and the old
+  "nobody uses a password" justification is withdrawn, so the requirement
+  stands (ADR-0001 findings 10 and 12). Both remain open production gates;
+  no substitute control has been introduced for either.
 - **Real sign-in against the hosted project:** never executed — the build
   session's egress policy denies `*.supabase.co`, and `auth.sessions` there
   is empty. Covered against a real local stack in CI instead.

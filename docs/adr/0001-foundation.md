@@ -128,8 +128,9 @@ entirely in the database.
     project today. The authentication mechanism for **real** learners and
     staff remains a product and authentication-policy decision and is not
     settled by this ADR; what is settled is that the previous justification
-    is void and leaked-password protection must be enabled rather than
-    argued away.
+    is void: leaked-password protection must be carried as a real
+    requirement rather than argued away. Whether it can be *enabled* is a
+    separate question, answered in finding 12.
 
 11. **Hosted test artifact (SEC-01) — removed.** The throwaway `selftest`
     schema was found live on the hosted project with `USAGE` granted to
@@ -144,6 +145,34 @@ entirely in the database.
     the production migration chain and dropping it must not become part of
     that chain. This also explains, with evidence, why the harness reported
     21/21 on the hosted project while a clean CI database failed (CI-01).
+
+12. **Hosted Auth, leaked-password protection (HA-02) — plan/platform
+    limitation, open as a production gate.** The security advisor reports
+    `auth_leaked_password_protection` disabled on
+    `sknixmwkynzmrgbxzrvb`. The product owner verified directly in the
+    Supabase Dashboard that the control is offered on **Pro and up** and is
+    not available to this project, whose organisation is on **Free**.
+
+    It is therefore classified as a **plan/platform limitation**, not a
+    hosted configuration defect, and it must **not** be described as an
+    available Free-tier toggle — an earlier revision of the mini audit said
+    exactly that and was wrong. Nothing is misconfigured; the feature is
+    absent at this tier.
+
+    This does not weaken the requirement. Finding 10 withdrew the argument
+    that nobody uses a password, and that withdrawal stands: password
+    credentials are in use on this project today. Combining the two, the
+    requirement is real and currently unmeetable, which is a gate rather
+    than a defect.
+
+    **Production gate (not waived, no substitute):** before any real-user
+    production launch, leaked-password protection — or an
+    architecture-approved equivalent control — must be **available and
+    enabled** for the project serving real users. No compensating or
+    substitute control has been introduced in its place merely to obtain a
+    green status, and none should be, because a weaker check reported as
+    equivalent would be worse than an openly recorded gap. HA-02 stays
+    **open** as a production-readiness gate.
 
 ## Traces to
 - Requirement: docs/rebuild/02 §Organisation, §Identity; 04 §3–3c; 05; 16 §1–5

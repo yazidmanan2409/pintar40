@@ -53,9 +53,17 @@ session with no shared context; see "Gate status").
   - **the mechanism for real learners and staff** (magic link, card, or
     password) remains a product and authentication-policy decision, open;
   - therefore leaked-password protection **cannot be dismissed on the
-    grounds that nobody uses a password**. It must be enabled in the hosted
-    Auth settings. Still an external gate (Dashboard toggle), but no longer
-    an argued-away one.
+    grounds that nobody uses a password**.
+
+  It is nonetheless **not enableable on this project**: the product owner
+  verified in the Supabase Dashboard that the control is offered on **Pro
+  and up**, and this project's organisation is on **Free**. So it is
+  reported as disabled because it is *unavailable*, not because a switch
+  was left off — it is a plan/platform limitation (HA-02), not a hosted
+  configuration defect and not a Free-tier toggle. The requirement is
+  neither satisfied nor waived, and no substitute control has been
+  introduced to manufacture a green status; it stays open as a
+  production-readiness gate (ADR-0001 finding 12).
 
 ## Findings this audit (all fixed forward)
 
@@ -198,7 +206,7 @@ was possible (`users_ever_signed_in = 0` there, confirming none ever has).
 |---|---|---|---|
 | SEC-01 | `selftest` schema live on the hosted project, `USAGE` to `anon`/`authenticated`, 4 helpers executable, `as_owner()` does `reset role`, `authenticator` ∈ `service_role` | hosted configuration defect | **Closed** — `drop schema selftest cascade` |
 | HA-01 | 24h inactivity control unavailable (Pro+ feature; Free plan) | plan/platform limitation | **Open, gated** — ADR-0001 finding 9 |
-| HA-02 | Leaked-password protection disabled | hosted configuration defect | **Open** — Dashboard toggle |
+| HA-02 | Leaked-password protection unavailable (Pro+ feature; Free plan — Dashboard-verified by the product owner) | plan/platform limitation | **Open, gated** — ADR-0001 finding 12 |
 | HA-03 | "No user chooses a password" justification is false | documentation gap | **Closed** — corrected above and in ADR-0001 finding 10 |
 | SI-01 | Real sign-in never executed against the hosted project | test gap, blocked by egress policy | **Open** — needs an operator with network access |
 | SI-02 | No sign-out / session-invalidation coverage | documentation/test gap | **Closed** — F01-R05 |
@@ -241,8 +249,14 @@ repository:
    production launch PINTAR must have an approved bounded-session and
    inactivity control, via the appropriate plan or an architecture-approved
    compensating control; the requirement is not waived (ADR-0001 finding 9).
-   **Leaked-password protection (HA-02): still disabled**, and no longer
-   dismissible (HA-03).
+   **Leaked-password protection (HA-02): unavailable on the Free plan** —
+   the product owner verified in the Dashboard that it is offered on Pro and
+   up, so it is disabled because the plan does not carry it, not because a
+   toggle was missed. It is also no longer dismissible on the old grounds
+   (HA-03). Before real-user production launch PINTAR must have
+   leaked-password protection, or an architecture-approved equivalent
+   control, **available and enabled**; no substitute has been introduced to
+   obtain a green status (ADR-0001 finding 12).
 5. Real sign-in against the **hosted** project (SI-01) never executed —
    `auth.sessions` and `auth.refresh_tokens` are empty there and the build
    session cannot reach `*.supabase.co`. The path is covered against a real
