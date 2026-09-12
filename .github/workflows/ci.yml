@@ -186,7 +186,7 @@ jobs:
           NEXT_PUBLIC_APP_URL: http://127.0.0.1:3999
           SUPABASE_SERVICE_ROLE_KEY: ${{ steps.stack.outputs.service-role-key }}
           SUPABASE_DB_URL: ${{ steps.stack.outputs.db-url }}
-          CARD_PEPPER: synthetic-card-pepper
+          CARD_PEPPER: synthetic-card-pepper-fable01-32plus
           CARD_EMAIL_DOMAIN: cards.synthetic.pintar.test
           PINTAR_BUILD_SHA: ${{ github.sha }}
           SELFTEST_APP_PORT: 3999

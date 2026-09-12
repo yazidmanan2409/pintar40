@@ -22,7 +22,7 @@ select set_config('app.seed_intent', 'synthetic', true);
 do $$
 declare
   v_env text;
-  pepper text := 'synthetic-card-pepper';  -- must equal CARD_PEPPER used by the selftest env
+  pepper text := 'synthetic-card-pepper-fable01-32plus';  -- must equal CARD_PEPPER used by the selftest env
   -- institutions
   alpha uuid; beta uuid;
   -- periods

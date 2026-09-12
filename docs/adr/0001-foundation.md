@@ -174,6 +174,17 @@ entirely in the database.
     equivalent would be worse than an openly recorded gap. HA-02 stays
     **open** as a production-readiness gate.
 
+13. **Classroom-card pepper (CARD-01) — fixed, with one forward note.** The
+    synthetic pepper was 21 characters while `src/lib/env.ts` requires >= 32
+    outside development and the selftest app runs under
+    `NODE_ENV=production`, so every card sign-in threw in the production-mode
+    build. Nothing caught it because nothing exercised the path. Lengthened in
+    `supabase/seed/synthetic.sql` and `.github/workflows/ci.yml` (they must
+    match — the seed derives the card password from it), and proved by
+    F01-R06. **Forward note, not designed here:** `CARD_PEPPER` is an input to
+    every stored card secret, so changing it once real learners hold cards
+    requires a controlled credential migration/rotation, not an edit.
+
 ## Traces to
 - Requirement: docs/rebuild/02 §Organisation, §Identity; 04 §3–3c; 05; 16 §1–5
 - Architecture: INV-13/14/15/16/17/18/21/23/25/36/37

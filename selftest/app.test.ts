@@ -5,6 +5,7 @@
  * never a superuser connection (FABLE-01 §6). R01 needs no network. R04 is
  * evidence forwarded from the CI workflow's own jobs.
  */
+import { spawnSync } from "node:child_process";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
 import { INTERNAL_WORDS, t } from "../src/lib/hle";
@@ -53,6 +54,29 @@ async function refresh(ctx: Context, refreshToken: string): Promise<Response> {
     headers: { apikey: ctx.supabaseAnonKey!, "content-type": "application/json" },
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
+}
+
+/**
+ * Runs the production derivation — `src/lib/card.ts`, the exact module the
+ * card sign-in server action calls — and returns its output. It is loaded in
+ * a child process because the module is marked `server-only`, which throws
+ * outside a React server condition; the child sets that condition so nothing
+ * about the shared runner has to change. Deriving here rather than
+ * reimplementing the formula is the point: a second implementation in the
+ * test would agree with itself and prove nothing.
+ */
+function productionDerivation(card: string, pin: string): string {
+  const script =
+    'import("file://" + process.cwd() + "/src/lib/card.ts").then((m) => {' +
+    "  const f = m.deriveCardSecret ?? m.default?.deriveCardSecret;" +
+    `  process.stdout.write(f(${JSON.stringify(card)}, ${JSON.stringify(pin)}));` +
+    "})";
+  const r = spawnSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "-e", script], {
+    encoding: "utf8",
+    env: process.env,
+  });
+  if (r.status !== 0) throw new Error(`production derivation failed: ${(r.stderr || "").trim().split("\n").pop()}`);
+  return r.stdout.trim();
 }
 
 async function get(url: string, init: RequestInit = {}) {
@@ -248,6 +272,51 @@ export const appTests: SelfTest[] = [
 
       c.note(`${cleared.length} auth cookie(s) cleared`);
       return c.verdict("sign-out revokes the session server-side; the previously authenticated browser is refused; other sessions survive");
+    },
+  },
+  {
+    id: "F01-R06",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+
+      // 1. the configured pepper satisfies the production contract. src/lib/env.ts
+      //    rejects anything under 32 characters outside development, and the
+      //    selftest app runs under NODE_ENV=production — so a short pepper makes
+      //    every card sign-in throw rather than fail closed.
+      const pepper = process.env.CARD_PEPPER ?? "";
+      c.expect(
+        pepper.length >= 32,
+        `CARD_PEPPER is ${pepper.length} characters; src/lib/env.ts requires >= 32 outside development`,
+      );
+
+      // 2. the production TypeScript derivation runs and returns a well-formed secret.
+      let secret = "";
+      try {
+        secret = productionDerivation("7001", "2468");
+      } catch (e) {
+        c.expect(false, (e as Error).message);
+      }
+      c.expect(/^[0-9a-f]{64}$/.test(secret), `production derivation returned ${JSON.stringify(secret.slice(0, 16))}…`);
+
+      // 3. that secret authenticates the seeded card identity through real GoTrue.
+      //    The stored hash was produced by the SQL formula in supabase/seed/synthetic.sql,
+      //    so a successful sign-in *is* the proof that the two derivations agree — no
+      //    separate comparison is needed, and none would be trustworthy.
+      const host = process.env.CARD_EMAIL_DOMAIN ?? "cards.pintar.internal";
+      let signedIn = false;
+      if (secret) {
+        try {
+          await signIn(ctx, { email: `card-7001@${host}`, password: secret });
+          signedIn = true;
+        } catch (e) {
+          c.expect(false, `card 7001 / PIN 2468 did not authenticate: ${(e as Error).message}`);
+        }
+      }
+      c.expect(signedIn, "no session established for the seeded classroom card");
+
+      c.note(`pepper ${pepper.length} chars; domain ${host}`);
+      return c.verdict("configured pepper meets the production contract; the production derivation authenticates the seeded card through real GoTrue");
     },
   },
 ];
