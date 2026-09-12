@@ -93,6 +93,7 @@ declare
   v_inst uuid; v_guru uuid; v_hod uuid; v_admin uuid;
   v_course uuid; v_module uuid; v_lesson uuid; v_lesson2 uuid; v_obj uuid; v_item uuid;
   v_release uuid; v_sha text; v_sha2 text; h1 text; h3 text;
+  v_beta uuid; v_hop uuid;
   v_frozen timestamptz; v_published timestamptz;
   n int;
   t0 timestamptz := clock_timestamp();
@@ -442,6 +443,67 @@ begin
   if v_frozen is null then ok := false; detail := detail || 'frozen_at was not stamped by the authorised seal; '; end if;
   test_id := 'F02-T09'; invariant := 'doc 04 §1 / INV-04';
   if ok then detail := 'sealing refused with no person and for EDUCATOR; accepted for HEAD_OF_DEPARTMENT, which still cannot publish'; end if;
+  return next;
+
+  -- F02-T10 a content record never changes tenant. Regression for the defect
+  -- the FABLE-02 checkpoint found (probe 2d): a person holding CAN_DRAFT in
+  -- one institution and CAN_FREEZE_RELEASE in another could carry a release
+  -- across in a single statement and seal it there. RLS admitted it -- USING
+  -- sees the old row, WITH CHECK the new one, and CAN_DRAFT held on both sides
+  -- -- and the status trigger then read the capability from the institution
+  -- the same statement was writing. Fixed in 20260912130904 by making
+  -- institution_id immutable and by deriving the capability from OLD.
+  ok := true; detail := '';
+  select ra.institution_id into v_beta from public.role_assignments ra
+    join public.accounts a on a.person_id = ra.person_id
+    join auth.users u on u.id = a.auth_user_id
+   where u.email = 'beta-admin@synthetic.pintar.test' and ra.revoked_at is null limit 1;
+
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+    values (v_inst, v_course, '3.0.0', v_guru) returning id into v_release;
+  update public.plp_releases set status = 'STRUCTURED' where id = v_release;
+  update public.plp_releases set status = 'VALIDATED'  where id = v_release;
+  update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
+
+  -- the EDUCATOR of institution A is legitimately made HEAD_OF_DEPARTMENT in
+  -- institution B, through grant_role: a direct insert is refused by the
+  -- INV-16 anti-escalation guard, which is correct and not what is under test.
+  perform selftest.as_user('sysadmin@synthetic.pintar.test');
+  v_hop := public.grant_role(v_guru, 'HEAD_OF_DEPARTMENT',
+             (select id from public.org_nodes where institution_id = v_beta and kind = 'DEPARTMENT' limit 1),
+             now() + interval '1 year');
+  perform selftest.as_owner();
+
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  begin
+    update public.plp_releases set institution_id = v_beta, status = 'FROZEN' where id = v_release;
+    get diagnostics n = row_count;
+    if n > 0 then ok := false; detail := detail || 'a release was carried into another institution and sealed there; '; end if;
+  exception when others then null; end;
+  begin
+    update public.plp_releases set institution_id = v_beta where id = v_release;
+    get diagnostics n = row_count;
+    if n > 0 then ok := false; detail := detail || 'a release changed institution; '; end if;
+  exception when others then null; end;
+  begin
+    update public.courses set institution_id = v_beta where id = v_course;
+    get diagnostics n = row_count;
+    if n > 0 then ok := false; detail := detail || 'a course changed institution; '; end if;
+  exception when others then null; end;
+  perform selftest.as_owner();
+
+  select count(*) into n from public.plp_releases
+   where id = v_release and institution_id = v_inst and status = 'APPROVED';
+  if n <> 1 then ok := false; detail := detail || 'the release did not survive intact in its own institution; '; end if;
+  select count(*) into n from public.courses where id = v_course and institution_id = v_inst;
+  if n <> 1 then ok := false; detail := detail || 'the course did not stay in its own institution; '; end if;
+
+  perform selftest.as_user('sysadmin@synthetic.pintar.test');
+  perform public.revoke_role(v_hop);
+  perform selftest.as_owner();
+  test_id := 'F02-T10'; invariant := 'INV-01 (tenant isolation)';
+  if ok then detail := 'institution_id is immutable on content and releases; a caller privileged in two institutions cannot carry a record across, with or without a seal in the same statement'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');
