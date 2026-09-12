@@ -87,7 +87,16 @@ jobs:
         env:
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
         run: |
+          # A manual run has no `before`, so without this the whole job would
+          # skip every step and report success over nothing. Fall back to the
+          # merge base with the default branch, which is what a pull request
+          # from this branch would compare against anyway.
           if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+            BASE_SHA="$(git merge-base HEAD refs/remotes/origin/main 2>/dev/null || true)"
+            echo "no event base; using the merge base with main: ${BASE_SHA:-none}"
+          fi
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
             echo "has-base=false" >> "$GITHUB_OUTPUT"; echo "no previous commit reachable — first push"; exit 0
           fi
           if ! git ls-tree -d "$BASE_SHA" supabase/migrations | grep -q .; then
