@@ -166,6 +166,37 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    id: "F02-S01",
+    run: async ({ repoRoot }) => {
+      // INV-20: analytics, psychometrics, reporting and certification read
+      // evidence through official_* and nowhere else. The database side is a
+      // privilege (the analytics role holds no grant on a raw table); this is
+      // the code side, because a server route running as service_role would
+      // bypass that privilege entirely and nothing in the schema could stop it.
+      const c = new Checks();
+      const RAW = /\b(assessment_sessions|presented_items|responses|assessment_results)\b/;
+      const CONSUMER = /(analytic|psychometric|report|certificat|question-health|questionhealth)/i;
+      const roots = ["src", "supabase/functions"].map((d) => join(repoRoot, d)).filter(existsSync);
+      const files = roots
+        .flatMap((r) => walk(r))
+        .filter((f) => /\.(ts|tsx|sql)$/.test(f))
+        .filter((f) => CONSUMER.test(relative(repoRoot, f)));
+      for (const f of files) {
+        const code = f.endsWith(".sql") ? sqlCode(readFileSync(f, "utf8")) : readFileSync(f, "utf8");
+        // official_responses contains "responses"; strip the official views
+        // first so the check is about RAW reads, not about the word.
+        const stripped = code.replace(/\bofficial_(sessions|responses|results)\b/g, "OFFICIAL_VIEW");
+        const m = RAW.exec(stripped);
+        c.expect(
+          !m,
+          `${relative(repoRoot, f)} is an evidence consumer and reads the raw table ${m?.[0]}; use official_* (INV-20)`,
+        );
+      }
+      c.note(`${files.length} evidence-consumer file(s) scanned`);
+      return c.verdict("no analytics, psychometric, reporting or certification path reads a raw evidence table");
+    },
+  },
+  {
     id: "F01-S05",
     run: async ({ repoRoot }) => {
       const c = new Checks();

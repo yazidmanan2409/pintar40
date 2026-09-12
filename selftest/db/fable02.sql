@@ -59,6 +59,24 @@ begin
   alter table public.assessment_results disable trigger assessment_results_write;
   alter table public.assessment_sessions disable trigger assessment_sessions_provenance;
   alter table public.assessment_sessions disable trigger assessment_sessions_status;
+  alter table telemetry.hesitation_events disable trigger hesitation_events_write;
+  alter table telemetry.assistance_events disable trigger assistance_events_write;
+  alter table public.integrity_signals disable trigger integrity_signals_write;
+  delete from telemetry.hesitation_events he using public.assessment_sessions s,
+                                                public.plp_releases r, public.courses c
+   where he.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
+     and c.title like p_prefix || '%';
+  delete from telemetry.assistance_events ae using public.assessment_sessions s,
+                                                public.plp_releases r, public.courses c
+   where ae.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
+     and c.title like p_prefix || '%';
+  delete from public.integrity_signals isg using public.assessment_sessions s,
+                                              public.plp_releases r, public.courses c
+   where isg.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
+     and c.title like p_prefix || '%';
+  alter table telemetry.hesitation_events enable trigger hesitation_events_write;
+  alter table telemetry.assistance_events enable trigger assistance_events_write;
+  alter table public.integrity_signals enable trigger integrity_signals_write;
   delete from public.assessment_results ar using public.assessment_sessions s,
                                             public.plp_releases r, public.courses c
    where ar.session_id = s.id and s.plp_release_id = r.id and r.course_id = c.id
@@ -191,6 +209,7 @@ declare
   v_bcourse uuid; v_bmod uuid; v_bles uuid;
   v_enr uuid; v_sess uuid; v_rel2 uuid; v_pi uuid; v_class public.evidence_class; v_seed bigint;
   v_r1 uuid; v_r2 uuid; v_out text; v_res1 uuid; v_res2 uuid; v_res3 uuid;
+  v_hes uuid; v_sig uuid; v_real uuid; v_real_enr uuid; v_osess uuid; v_ap uuid;
   v_frozen timestamptz; v_published timestamptz;
   n int;
   t0 timestamptz := clock_timestamp();
@@ -884,6 +903,118 @@ begin
   if n <> 1 then ok := false; detail := detail || 'the lineage does not have exactly one root; '; end if;
   test_id := 'F02-T15'; invariant := 'INV-29';
   if ok then detail := 'scoring provenance required and derived; results immutable; recomputation is a new linked row; lineage cannot fork or cross sessions'; end if;
+  return next;
+
+  -- F02-T16 INV-11: telemetry is physically separate and append-only, and a
+  -- hesitation event carries the definition's configured window, not a constant.
+  ok := true; detail := '';
+  -- nothing in public may reference the telemetry schema
+  select count(*) into n from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+   where ns.nspname = 'public' and p.prokind = 'f'
+     and pg_get_functiondef(p.oid) ~* '\ytelemetry\.'
+     and p.proname <> 'enforce_observation_write';
+  if n > 0 then ok := false; detail := detail || format('%s function(s) in public read telemetry; ', n); end if;
+  select count(*) into n from pg_depend d
+    join pg_rewrite rw on rw.oid = d.objid
+    join pg_class dep on dep.oid = rw.ev_class
+    join pg_class ref on ref.oid = d.refobjid
+    join pg_namespace rns on rns.oid = ref.relnamespace
+    join pg_namespace dns on dns.oid = dep.relnamespace
+   where rns.nspname = 'telemetry' and dns.nspname = 'public';
+  if n > 0 then ok := false; detail := detail || format('%s view(s) in public read telemetry; ', n); end if;
+
+  -- the definition configures no window yet, so there is no such event
+  begin
+    insert into telemetry.hesitation_events (session_id, presented_item_id, institution_id,
+                                             window_seconds, dwell_seconds)
+      values (v_sess, v_pi, v_inst, 30, 12.5);
+    ok := false; detail := detail || 'a hesitation event was recorded with no configured window; ';
+  exception when others then null; end;
+
+  update public.assessment_definitions set hesitation_window_seconds = 45 where id = v_def_p;
+  -- the caller's 999 must be ignored in favour of the definition's 45
+  insert into telemetry.hesitation_events (session_id, presented_item_id, institution_id,
+                                           window_seconds, dwell_seconds)
+    values (v_sess, v_pi, v_inst, 999, 12.5) returning id into v_hes;
+  select count(*) into n from telemetry.hesitation_events where id = v_hes and window_seconds = 45;
+  if n <> 1 then ok := false; detail := detail || 'the hesitation window did not come from the definition; '; end if;
+  begin
+    update telemetry.hesitation_events set dwell_seconds = 1 where id = v_hes;
+    ok := false; detail := detail || 'a telemetry event was rewritten; ';
+  exception when others then null; end;
+
+  -- an integrity signal is an observation, and carries no verdict column
+  insert into public.integrity_signals (session_id, institution_id, category, observation)
+    values (v_sess, v_inst, 'VISIBILITY_CHANGE', '{"hidden_ms":4200}'::jsonb) returning id into v_sig;
+  select count(*) into n from information_schema.columns
+   where table_schema='public' and table_name='integrity_signals'
+     and column_name ~* '(verdict|cheat|guilt|suspicio|penalt|violation|flagged|confirmed)';
+  if n > 0 then ok := false; detail := detail || 'integrity_signals grew a verdict column; '; end if;
+  begin
+    update public.integrity_signals set category = 'NAVIGATION' where id = v_sig;
+    ok := false; detail := detail || 'an integrity signal was rewritten; ';
+  exception when others then null; end;
+
+  -- no client role reaches telemetry
+  select count(*) into n from information_schema.role_table_grants
+   where table_schema='telemetry' and grantee in ('anon','authenticated');
+  if n > 0 then ok := false; detail := detail || 'a client role can read telemetry; '; end if;
+  test_id := 'F02-T16'; invariant := 'INV-11';
+  if ok then detail := 'telemetry is a separate schema no public view or function reads; events are append-only; the hesitation window comes from the definition; signals carry no verdict'; end if;
+  return next;
+
+  -- F02-T17 INV-20: official_* is the only evidence read path, non-official
+  -- evidence never appears in it, and a reclassification may only weaken.
+  ok := true; detail := '';
+  -- the seeded tenant is synthetic, so none of its evidence is ever official
+  select count(*) into n from public.official_sessions where id = v_sess;
+  if n <> 0 then ok := false; detail := detail || 'a SYNTHETIC session appeared in official_sessions; '; end if;
+  select count(*) into n from public.official_responses where session_id = v_sess;
+  if n <> 0 then ok := false; detail := detail || 'a SYNTHETIC session''s responses appeared in official_responses; '; end if;
+  select count(*) into n from public.official_results where session_id = v_sess;
+  if n <> 0 then ok := false; detail := detail || 'a SYNTHETIC session''s results appeared in official_results; '; end if;
+
+  -- the analytics role reads the three views and nothing else
+  select count(*) into n from information_schema.role_table_grants
+   where grantee = 'analytics'
+     and table_name not in ('official_sessions','official_responses','official_results');
+  if n > 0 then ok := false; detail := detail || format('the analytics role holds %s grant(s) on raw tables; ', n); end if;
+
+  -- the positive case needs a NON-synthetic tenant, and institutions are
+  -- never deleted. It therefore runs inside a subtransaction that is rolled
+  -- back deliberately: plpgsql variables survive the rollback, the rows do not.
+  begin
+    insert into public.institutions (name, slug, is_synthetic)
+      values ('Selftest Nyata', 'selftest-nyata-' || gen_random_uuid()::text, false) returning id into v_real;
+    insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+      values (v_real, 'TA', '2026-07-13', '2027-06-26') returning id into v_ap;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+      values (v_guru, v_real, v_ap, 'ACTIVE') returning id into v_real_enr;
+    insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+      values (v_real, 'M', 'SD', 'V', 'selftest official probe', v_guru) returning id into v_course2;
+    insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+      values (v_real, v_course2, '1.0.0', v_guru) returning id into v_rel2;
+    insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type,
+                                               item_count, author_person_id)
+      values (v_real, v_course2, 'D', 'QUICK', 'PRACTICE', 5, v_guru) returning id into v_def_p;
+    v_osess := public.open_assessment_session(v_real_enr, v_def_p, v_rel2, 'ONLINE', 'QUICK', 'e', 'p');
+    select count(*) into n from public.official_sessions where id = v_osess;
+    if n <> 1 then ok := false; detail := detail || 'an OFFICIAL session did not appear in official_sessions; '; end if;
+    -- and an override may only weaken it
+    begin
+      insert into public.evidence_class_overrides (session_id, institution_id, from_class, to_class, reason,
+                                                   decided_by_person_id)
+        values (v_osess, v_real, 'OFFICIAL', 'OFFICIAL', 'no-op', v_guru);
+      ok := false; detail := detail || 'a no-op override was accepted; ';
+    exception when others then null; end;
+    raise exception 'selftest rollback marker';
+  exception when others then
+    if sqlerrm <> 'selftest rollback marker' then
+      ok := false; detail := detail || 'official-view probe aborted: ' || left(sqlerrm, 80) || '; ';
+    end if;
+  end;
+  test_id := 'F02-T17'; invariant := 'INV-20';
+  if ok then detail := 'non-official evidence never reaches official_*; an OFFICIAL session does; the analytics role holds no grant on a raw evidence table'; end if;
   return next;
 
   perform selftest.purge_probe_content('selftest ');

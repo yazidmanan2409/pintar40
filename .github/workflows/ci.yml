@@ -127,7 +127,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        case: [static-permissive-policy, db-table-without-rls]
+        case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -142,6 +142,9 @@ jobs:
               printf -- "create policy red_case on public.persons for select to anon using (true);\n" > supabase/migrations/20990101000000_red_case.sql ;;
             db-table-without-rls)
               printf -- "create table public.red_case_no_rls (id int primary key);\ndo \$\$ begin if false then raise exception 'n/a'; end if; end \$\$;\n" > supabase/migrations/20990101000000_red_case.sql ;;
+            static-raw-evidence-read)
+              mkdir -p src/analytics
+              printf -- "export const q = \"select mastery from assessment_results\";\n" > src/analytics/red_case.ts ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -152,6 +155,20 @@ jobs:
           set -e
           [ "$code" -ne 0 ] || { echo "::error::contract stayed green with a permissive policy present"; exit 1; }
           grep -E '^F01-S02 +FAIL' red.txt
+      # INV-20's lint scans evidence-consumer paths, and there are none yet, so
+      # on HEAD it passes over zero files. That makes it worthless unless it is
+      # shown to be capable of failing: this case plants an analytics module
+      # that reads a raw evidence table and requires the lint to catch it.
+      - name: The INV-20 lint must catch a planted raw-evidence read
+        if: matrix.case == 'static-raw-evidence-read'
+        run: |
+          set +e
+          npx tsx selftest/run.ts --accept-justified-skips --only=F02-S01 | tee red.txt
+          code=${PIPESTATUS[0]}
+          set -e
+          [ "$code" -ne 0 ] || { echo "::error::the INV-20 lint stayed green with an analytics path reading a raw evidence table"; exit 1; }
+          grep -E '^F02-S01 +FAIL' red.txt
+          grep -F 'assessment_results' red.txt
       - name: Start stack with the defective migration applied
         if: matrix.case == 'db-table-without-rls'
         id: stack
