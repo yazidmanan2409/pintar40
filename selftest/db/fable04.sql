@@ -973,6 +973,88 @@ begin
   return next;
 
   -- =========================================================================
+  -- F04-T17 ADR-0011 / INV-04: the ad-hoc exemption, on all three verbs,
+  -- against a course that is really sealed.
+  --
+  -- This exists because 0046's own probe is conditional on a sealed course and
+  -- migrations run BEFORE seeds, so on a from-empty replay it proves nothing —
+  -- and the one environment that did run it (CI's upgrade path, on seeded
+  -- data) failed on the verb 0046 forgot. Fixtures always exist here.
+  -- =========================================================================
+  ok := true; detail := '';
+  perform selftest.as_owner();
+  -- aliased co/rl: `c` and `r` are record variables in this function
+  v_course := (select co.id from public.courses co
+                 join public.plp_releases rl on rl.course_id = co.id
+                where co.institution_id = f.inst
+                  and rl.status in ('FROZEN','PUBLISHED','SUPERSEDED') limit 1);
+  if v_course is null then
+    ok := false; detail := 'no sealed course in the bootstrap tenant; this test would prove nothing; ';
+  elsif not public.content_is_sealed(v_course) then
+    ok := false; detail := 'the probe course is not sealed; this test would prove nothing; ';
+  else
+    -- a release-bound definition is still refused
+    begin
+      insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type,
+        item_count, difficulty_mix, safety_critical_minimum, passing_rules, shuffle_policy,
+        allows_pause, offline_tolerant, late_sync_grace_seconds, attempt_limit, status)
+      values (f.inst, v_course, 'probe taught ' || gen_random_uuid()::text, 'TEST', 'TEST', 3,
+              jsonb_build_object('MUDAH', 3), 0, jsonb_build_object('mastery_min', 0.6),
+              'ITEMS_AND_OPTIONS', false, false, 0, 1, 'INGESTED');
+      ok := false; detail := detail || 'a release-bound definition was created under a sealed course; ';
+    exception when others then
+      if sqlerrm !~ 'frozen course' then
+        ok := false; detail := detail || format('refused, but not as taught content: %s; ', left(sqlerrm, 60));
+      end if;
+    end;
+
+    -- an ad-hoc one is permitted, and moves no sealed hash
+    insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type,
+      item_count, difficulty_mix, safety_critical_minimum, passing_rules, shuffle_policy,
+      allows_pause, offline_tolerant, late_sync_grace_seconds, attempt_limit, status, is_ad_hoc)
+    values (f.inst, v_course, 'probe ad-hoc ' || gen_random_uuid()::text, 'QUICK', 'TEST', 3,
+            jsonb_build_object('MUDAH', 3), 0, jsonb_build_object('mastery_min', 0.6),
+            'ITEMS_AND_OPTIONS', false, false, 0, 1, 'INGESTED', true)
+    returning id into v_def2;
+    select count(*) into n from public.plp_releases rl
+     where rl.content_sha256 is not null
+       and rl.content_sha256 <> public.course_content_sha256(rl.course_id);
+    if n <> 0 then ok := false; detail := detail || format('creating an ad-hoc definition moved %s sealed hash(es); ', n); end if;
+
+    -- it may be edited as an ad-hoc instrument ...
+    begin
+      update public.assessment_definitions set item_count = 4 where id = v_def2;
+    exception when others then
+      ok := false; detail := detail || format('an ad-hoc definition could not be edited: %s; ', left(sqlerrm, 60));
+    end;
+    -- ... but never promoted into the release
+    begin
+      update public.assessment_definitions set is_ad_hoc = false where id = v_def2;
+      ok := false; detail := detail || 'an ad-hoc definition was promoted into a release; ';
+    exception when others then
+      if sqlerrm !~ 'never becomes part of a release' then
+        ok := false; detail := detail || format('the promotion was refused for the wrong reason: %s; ', left(sqlerrm, 60));
+      end if;
+    end;
+    -- and it can be removed again. This is the verb 0046 forgot.
+    begin
+      delete from public.assessment_definitions where id = v_def2;
+    exception when others then
+      ok := false; detail := detail || format('an ad-hoc definition could not be removed: %s; ', left(sqlerrm, 60));
+    end;
+    select count(*) into n from public.assessment_definitions where id = v_def2;
+    if n <> 0 then ok := false; detail := detail || 'the ad-hoc definition survived its delete; '; end if;
+    select count(*) into n from public.plp_releases rl
+     where rl.content_sha256 is not null
+       and rl.content_sha256 <> public.course_content_sha256(rl.course_id);
+    if n <> 0 then ok := false; detail := detail || format('removing an ad-hoc definition moved %s sealed hash(es); ', n); end if;
+  end if;
+  test_id := 'F04-T17'; invariant := 'INV-04 / ADR-0011';
+  if ok then detail := 'under a sealed course a release-bound definition is refused and an ad-hoc one is created, edited and removed, '
+    || 'moving no sealed release hash and never becoming part of a release'; end if;
+  return next;
+
+  -- =========================================================================
   -- F04-T14 the standing gates still hold with the whole phase present
   -- =========================================================================
   ok := true; detail := '';

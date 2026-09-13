@@ -508,6 +508,11 @@
       "proves": "INV-20 / doc 16 §4 — the eligibility-probe set: a PUBLIC_DEMO-channel session opened on the OFFICIAL tenant in a certifying mode reaches no official view, contributes to no psychometric or Question Health figure, and is refused certificate eligibility for its evidence class"
     },
     {
+      "id": "F04-T17",
+      "runner": "db",
+      "proves": "INV-04 / ADR-0011 — under a genuinely sealed course a release-bound definition is refused while an ad-hoc one is created, edited and removed, moving no sealed release hash and never becoming part of a release. Exists because 0046's own probe is conditional on a sealed course and migrations run before seeds, so on a from-empty replay it proves nothing"
+    },
+    {
       "id": "F04-S01",
       "runner": "static",
       "proves": "INV-38 — exactly one verification route shape in the app, carrying no internal designation and no identity field"

@@ -1,5 +1,35 @@
 -- 0046 — FABLE-04 §5 meets INV-04, and the collision is real.
 --
+-- AMENDED BEFORE IT REACHED ANY CANONICAL ENVIRONMENT. The first version of
+-- this file exempted ad-hoc definitions from taught-content immutability on
+-- INSERT and UPDATE and forgot DELETE, so the probe in its own verification
+-- block -- which creates an ad-hoc definition under a sealed course and then
+-- removes it -- raised "taught content cannot be deleted once frozen (INV-04)".
+--
+-- Nothing local caught it, and the reason is worth more than the defect. The
+-- probe is wrapped in `if v_course is not null`, where `v_course` is a course
+-- carrying a sealed release. **Migrations run before seeds**, so on a
+-- from-empty replay there is no sealed content, the block is skipped, and the
+-- migration passes over nothing. The clean-database job, the local replay and
+-- the whole selftest all did exactly that. CI's upgrade-path job -- 0038
+-- onwards applied to a database that already held seeded, sealed content -- ran
+-- the probe for the first time and failed on it immediately.
+--
+-- So this file as first written could not be applied to any database holding
+-- sealed content, which is every real one. A follow-up migration could not have
+-- repaired it, because this one would never have committed for the follow-up to
+-- run after. It is therefore corrected here, in place, while it has been
+-- applied to no canonical environment: not to `main`, not to hosted
+-- development, not to any deployment. The forward-only rule protects
+-- environments that have already applied a migration; there are none.
+--
+-- The conditional-probe lesson is not repaired by this file and cannot be: a
+-- migration cannot seal a course, because when it runs there is no institution,
+-- no author and no content. The behavioural proof lives where fixtures always
+-- exist -- **F04-T17** creates, edits and removes an ad-hoc definition under the
+-- seeded bootstrap tenant's sealed course on every suite run, and was checked
+-- to go red against a schema with the DELETE branch removed.
+--
 -- WHAT THE SUITE FOUND. `launch_quick_assessment` was refused with "taught
 -- content cannot be added under a frozen course (INV-04)". That is not a bug in
 -- the trigger and not a bug in Quick Assessment: `assessment_definitions` is in
@@ -265,6 +295,16 @@ begin
   -- ADDED IN 0046. An ad-hoc assessment is not taught content: it is outside
   -- the release payload, so creating one changes no sealed hash. It may never
   -- become release-bound, and every other row is governed exactly as before.
+  --
+  -- The exemption is a statement about the ROW, so it covers all three verbs.
+  -- The first version of this file covered INSERT and UPDATE and forgot DELETE,
+  -- which meant an ad-hoc quick assessment launched over a sealed course -- the
+  -- only kind that matters -- could be created and then never removed, and this
+  -- migration's own probe could not apply to any database holding sealed
+  -- content. See the header for how that was found and why it is repaired here
+  -- rather than forward. UPDATE and DELETE read OLD, never the row being
+  -- written, so a taught definition cannot be relabelled ad-hoc and then
+  -- removed: that UPDATE is refused further down, exactly as it always was.
   if tg_table_name = 'assessment_definitions' then
     if tg_op = 'INSERT' and coalesce((v_row ->> 'is_ad_hoc')::boolean, false) then
       return new;
@@ -274,6 +314,9 @@ begin
         raise exception 'an ad-hoc assessment never becomes part of a release (INV-04)';
       end if;
       return new;
+    end if;
+    if tg_op = 'DELETE' and coalesce((to_jsonb(old) ->> 'is_ad_hoc')::boolean, false) then
+      return old;
     end if;
   end if;
 
