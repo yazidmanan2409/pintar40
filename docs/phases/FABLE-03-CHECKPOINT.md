@@ -307,6 +307,66 @@ inside `drawable_items_for_definition` and `assemble_session`, both
 That is the argument for deriving the set from a property rather than listing
 it, made by the exercise itself.
 
+### Round 3 (2026-09-13) — two more of the same class, reproduced then repaired
+
+Claude 1 reconciled everything in 0036 live, credited the `excluded_items_for_post_test`
+find as one its own method would not have reached, and then worked the same seam
+and found two more. It stated plainly that it had read definitions and grants but
+**not executed them**, and asked for reproduction against seeded data first. That
+is the right order and it was followed.
+
+**Reproduced.** Against the learning-cycle fixture, with learner B's pre-test
+`SUBMITTED`:
+
+| Attack | Result before 0037 |
+|---|---|
+| learner A → `session_enforce_deadline(B's session)` | returned `SUBMITTED` — a **status oracle** on another learner's attempt |
+| learner A → `session_enforce_deadline('0000…0001')` | `unknown session …` — an **existence oracle**, distinguishable from a permission error |
+| learner A → `finalize_session(B's session)` | **succeeded**: an `assessment_results` row written, B's session moved to `FINALIZED` |
+| `alpha-siswa-1` (a **different institution**) → both | **both succeeded** — the review flagged the oracle as cross-tenant; the *write* is too (INV-13) |
+
+**Stated at its real size.** `enforce_result_write` derives `person_id`,
+`institution_id` and `evidence_class` from the session, not the caller, so the
+row is attributed to its rightful owner and the score is that learner's own work
+correctly computed — **INV-08 holds for the data** and this is not grade
+tampering. What is wrong is that a stranger picks the moment, can close an
+attempt still legitimately open to its owner's deadline, and never appears as the
+actor.
+
+**Why three sound gates all passed it.** 0036's registry answers *which*
+functions are exposed, not whether they are guarded. `assert_engine_takes_no_identity`
+checks signatures, and `p_session uuid` is a resource id — exactly as that
+assertion's own detail line says of itself. `F03-T10` exercised
+`finish_my_session`, the guarded wrapper, and never the function underneath it.
+Each correct in its own scope, with the defect class living in the space between
+them. Same shape as round 2's leak: a function written to be called from inside
+the engine, granted to clients because everything else in its migration was.
+
+**Fixed in 0037, and the fix is the assertion, not the revoke.** Both are revoked
+from client roles and removed from `client_rpc_registry` (neither is a client
+RPC). Then the property the registry cannot express is asserted:
+`assert_learner_rpcs_are_guarded()` walks the call graph from every LEARNER row
+and requires it to reach `current_person_id()` or `session_is_mine()` within six
+calls. A depth-0 text scan was rejected as useless — it reports thirteen false
+positives, because `pause_session`/`resume_session` are guarded through
+`may_continue_session`, `sanitized_item` through `session_paper`, and
+`may_read_lesson_media` through `my_learning_assignments()`. The walk run against
+the pre-fix schema named **exactly those two and nothing else**, independently of
+the review.
+
+Three probes, since the defect being repaired was a gap no assertion covered: a
+registered LEARNER RPC that forgets the check (must fail, **by name**), one
+guarded two calls deep (must **pass**, or the gate is noise), and a re-grant of
+`finalize_session` (must be caught by the unregistered-RPC half). `F03-T10` now
+attempts both calls as a second learner behaviourally, and both counters are in
+the lint.
+
+Round-3 §5 also closed: `overloaded_client_rpcs` guards the registry's
+name-only key without re-keying it on argument strings that go stale on any
+signature change (the failure `open_assessment_session` already hit in 0029),
+and `assessment_results.session_id` being `NOT NULL` — which the whole INV-29
+reading rests on — is now asserted rather than relied upon.
+
 **Not closed, and why.** Four need a decision that is not an implementer's to
 make, and are listed for the architect rather than quietly resolved: the §4
 OFFICIAL-evidence wall; OD-9's evidence-portability clause (§5.3 — this phase

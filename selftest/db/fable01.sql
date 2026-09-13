@@ -288,6 +288,10 @@ begin
      -- the amended INV-20 raw-evidence grant boundary
      and (j->>'unclassified_client_rpcs')::int = 0
      and (j->>'evidence_consumer_boundary_ok')::boolean
+     -- added in 0037: a LEARNER RPC that never reaches an ownership check, and
+     -- a client-executable name carrying two signatures
+     and (j->>'learner_rpcs_guarded_ok')::boolean
+     and (j->>'overloaded_client_rpcs')::int = 0
      and (j->>'functions_executable_by_anon')::int = 0 and (j->>'anon_table_grants')::int = 0 and (j->>'public_buckets')::int = 0
      and (j->>'client_storage_policies')::int = 0 and (j->>'persons_institution_columns')::int = 0
      and (j->>'audit_log_client_write_grants')::int = 0 and (j->>'malformed_jalur')::int = 0;

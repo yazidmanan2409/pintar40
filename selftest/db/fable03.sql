@@ -234,7 +234,7 @@ declare
   v_pi uuid; v_pi2 uuid; v_item uuid; v_pos int; v_enr uuid;
   pre_items uuid[]; post_items uuid[]; v_txt text; v_state record;
   v_lesson uuid; v_scoreA numeric; v_scoreB numeric;
-  v_inv08 text; v_inv08_ok boolean;
+  v_inv08 text; v_inv08_ok boolean; v_guard text; v_guard_ok boolean;
   t0 timestamptz := clock_timestamp();
 begin
   perform selftest.as_owner();
@@ -685,6 +685,22 @@ begin
     ok := false; detail := detail || 'a second learner read the first learner''s paper; ';
   exception when others then null;
   end;
+  -- ... nor reach the engine's unguarded internals directly. Until 0037 both of
+  -- these were granted to `authenticated` and neither compared anything to
+  -- current_person_id(), so a learner passing a classmate's session id could
+  -- read its status and then FINALIZE it -- reproduced against this fixture
+  -- before it was repaired. F03-T10 previously exercised finish_my_session,
+  -- the guarded wrapper, and never the function underneath it.
+  begin
+    perform public.session_enforce_deadline(s);
+    ok := false; detail := detail || 'a second learner evaluated the deadline on another learner''s session; ';
+  exception when others then null;
+  end;
+  begin
+    perform public.finalize_session(s);
+    ok := false; detail := detail || 'a second learner FINALIZED another learner''s session; ';
+  exception when others then null;
+  end;
 
   -- the stored result equals an independent recomputation from raw evidence
   perform selftest.as_owner();
@@ -716,9 +732,16 @@ begin
   if not v_inv08_ok then
     ok := false; detail := detail || v_inv08 || '; ';
   end if;
+  -- and every LEARNER entry point reaches an ownership check somewhere in its
+  -- call graph (0037). The signature tripwire above cannot see this: p_session
+  -- is a resource id, which is exactly how the two above passed every gate.
+  select a.ok, a.detail into v_guard_ok, v_guard from public.assert_learner_rpcs_are_guarded() a;
+  if not v_guard_ok then
+    ok := false; detail := detail || v_guard || '; ';
+  end if;
   test_id := 'F03-T10'; invariant := 'INV-08 / INV-09';
-  if ok then detail := format('a second learner is refused on both the write and the read path; the stored score %s equals a fresh recomputation; a duplicate finalize observes one root result; %s',
-    v_scoreA, v_inv08); end if;
+  if ok then detail := format('a second learner is refused on the write path, the read path and the engine''s internals (deadline, finalize); the stored score %s equals a fresh recomputation; a duplicate finalize observes one root result; %s; %s',
+    v_scoreA, v_inv08, v_guard); end if;
   return next;
 
   perform selftest.as_owner();
