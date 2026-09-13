@@ -1,0 +1,102 @@
+# Engineering lessons that outlive the phase that found them
+
+Rules earned by a defect, kept because the defect will recur otherwise. Each one
+names what was believed, what was true, and what caught it. They are written as
+rules rather than as stories because a rule survives being skimmed.
+
+This file is build commentary, not architecture. The controlling contracts are
+the frozen documents in `docs/rebuild/` (ADR-0019); nothing here amends them.
+
+---
+
+## L1 — A grant is an exposure decision, not migration boilerplate
+
+No `grant execute` to `anon` or `authenticated` without a `client_rpc_registry`
+row in the same statement carrying a deliberate `rpc_exposure` class. A grant
+written without deciding what it exposes is a decision taken by accident.
+
+*From FABLE-04, 0047.*
+
+## L2 — `alter default privileges` is not the guarantee anyone assumes
+
+`alter default privileges … revoke all on functions from anon, authenticated`
+was set in 0001 and has been read ever since as "new functions are closed by
+default". **It is not.** `EXECUTE` is granted to `PUBLIC` by default, the
+default-privileges lines do not revoke from `PUBLIC`, and
+`has_function_privilege('anon', …)` is satisfied through `PUBLIC`. What has
+actually been holding the line is the explicit
+`revoke all on function … from public, anon, authenticated;` in every migration
+— a convention, doing the work of a mechanism.
+
+**So: every new function is revoked explicitly, from `public` as well as from the
+client roles, in the migration that creates it.** A terminal assertion counting
+anon-executable functions in that migration is cheaper than finding out later.
+
+Found in Task 2, 0066: six new functions became anon-executable and
+`functions_executable_by_anon` went 0 → 6. The counter found it; reading did not.
+
+## L3 — `audit_log.at` is transaction time, so no audit property may be a time window
+
+`audit_log.at` defaults to `now()`, which is **transaction start**. Every row
+written in one transaction carries an identical timestamp — including rows
+written before and after something else that happened in that same transaction.
+
+Any property of the form *"was X true when this row was written?"*, reconstructed
+by comparing `at` against another table's timestamps, is therefore **unsound**:
+it classifies rows written before an event as during it, and rows written during
+an event as after it, and no choice of `<` versus `<=` repairs that.
+
+**So: express audit properties on columns, or structurally on the writer.** Where
+a property really is about ordering, it needs a clock that advances within a
+transaction (`clock_timestamp()`) or a sequence, and neither is what `at` is.
+
+Found in Task 2, 0067, defining the dual-identity property. **This is not
+specific to evaluation.** Anything that later reconstructs a sequence of events
+from the audit log — FABLE-06's intelligence layer most obviously — inherits it.
+
+## L4 — Assert on syntax a compiler would see, never on text a comment could contain
+
+A verification block that greps `pg_get_functiondef()` is reading **comments as
+well as code**. Four guards in two days fired on their own explanatory prose:
+
+- 0064's `r.status = 'PUBLISHED'` check matched its own `ORDER BY` tie-breaker;
+- 0067's expiry trap matched the comment explaining the expiry trap;
+- 0067's summary-injection check matched the multi-line `INSERT`'s column list;
+- 0067's forgeable-header check matched an unrelated `request.headers` read
+  several lines away.
+
+**So: match a qualified column read (`s.expires_at`), a syntactic shape
+(`p_summary ||`), or a single line (`(?n)`) — never a bare word, and never two
+words in proximity across lines.** And pair every negative assertion with a
+positive one, so the check cannot be satisfied by deleting the thing it guards
+instead of correcting it.
+
+## L5 — Assert a security property from the predicate, never from the intent
+
+`SYSTEM_ADMIN` was described, in a design document and in the product's own
+language, as a role bounded to its tenant like any other. The predicate says
+otherwise: `is_system_admin()` never reads `scope_node_id`, `has_scope()` returns
+true for it before loading the node's `jalur`, nine functions short-circuit on it
+including `is_member_of_institution()`, and eight policies across six tables grant
+on it directly. The role is *defined* as the absence of tenant bounds.
+
+**So: before relying on a boundary, read the function that defines it.** A
+boundary described in prose — including prose in this repository — is a claim,
+not a control.
+
+Found in Task 2 while implementing ADR B, whose Super Admin section was amended
+rather than corrected in place, because an ADR that edits away its own error
+teaches nothing. Same failure class as Task 1's **F1**: a property asserted, not
+tested.
+
+## L6 — A probe that can skip itself proves nothing
+
+Migrations run **before** seeds, so a conditional probe in a verification block
+is vacuous on a from-empty replay. Build the data the probe needs in a
+rolled-back subtransaction (ADR-0014), and measure what is already there rather
+than assuming it — 0065's probe named a purpose outright, passed from empty, and
+failed on the upgrade path where the seeded D1 tenant already held it.
+
+The same rule applies to any check: an assertion nobody has watched fail proves
+nothing. Every `baseline-parity` assertion was taken red deliberately before it
+was trusted (ADR-0019).

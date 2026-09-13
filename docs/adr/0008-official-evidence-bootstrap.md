@@ -4,7 +4,49 @@
 **Phase:** FABLE-04
 **Status:** Accepted — decision taken by Yazid, 2026-09-13 (Option 1)
 **Supersedes:** nothing. **Superseded by:** nothing.
-**Amends:** nothing.
+**Amends:** nothing. **Amended by:** ADR-0020 (2026-09-13) — see §0.
+
+---
+
+## 0. Amendment, 2026-09-13 (ADR-0020)
+
+**D1's count rule has changed. The rest of D1 has not.**
+
+Was: *one* clearly named non-synthetic institution outside production, enforced
+by `unique ((true)) where is_official_bootstrap`.
+
+Now: **every institution authorized for non-production OFFICIAL evidence
+declares a bounded purpose; at most one per purpose; all are refused in
+production.** The purpose is
+`institutions.official_evidence_purpose`, an enum with exactly two values today
+(`D1_ENGINEERING_BOOTSTRAP`, `HUMAN_EVALUATION`), tied to
+`is_official_bootstrap` by a CHECK in both directions, and occupied at most once
+each by `unique (official_evidence_purpose) where … is not null`. A third
+purpose costs a migration and an ADR — it cannot be added as a row.
+
+**Why.** ADR-0020 needs a second such tenant: a rich Human Evaluation
+institution where the genuine OFFICIAL → eligibility → certificate journey is
+reachable, because a synthetic tenant caps every session at SYNTHETIC. Simply
+permitting two would have turned `is_official_bootstrap` into a boolean escape
+hatch that makes any non-production institution OFFICIAL with nothing recording
+why. Declaring a purpose keeps the count rule as tight as it was, per reason
+rather than overall.
+
+**What did not change.** `is_official_bootstrap` is still the boolean both
+existing predicates read — no predicate was rewritten. Production refusal is
+unchanged and now doubled: the flag and the purpose are each refused there
+independently. `derive_evidence_class` is still cap-only and now probed for a
+third forbidden input: it reads neither the flag, nor `tenant_kind`, nor the
+purpose. The tenant described below is unchanged in substance; it now declares
+`D1_ENGINEERING_BOOTSTRAP` as its reason.
+
+**One thing to know when reading §3 below.** The partial unique index it
+describes — the mechanism that *was* this ADR's count rule — is **dropped** by
+migration 0065, in the same migration that creates the per-purpose index.
+Leaving it would have made the amended rule unreachable while appearing to work.
+
+*(ADR-0020 and the Task 2 prompt both cite "ADR-0009's D1 decision". D1 is this
+ADR, 0008; ADR-0009 is D2, certificates are `INSTITUTION_SCOPED`.)*
 
 ---
 
