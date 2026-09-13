@@ -100,3 +100,25 @@ failed on the upgrade path where the seeded D1 tenant already held it.
 The same rule applies to any check: an assertion nobody has watched fail proves
 nothing. Every `baseline-parity` assertion was taken red deliberately before it
 was trusted (ADR-0019).
+
+## L7 — An ADR amends prose; find where the old rule was actually enforced
+
+When a decision changes a rule, the amendment is **incomplete until every
+mechanical enforcement of the old rule is located.** Prose is cheap to amend.
+The index, constraint or trigger is where the rule really lived.
+
+D1's *"one bootstrap tenant"* was not only a sentence in ADR-0008. Migration 0043
+enforced it as `unique ((true)) where is_official_bootstrap` — **that index was
+the rule.** An amendment that changed the prose and the assertion but left the
+index would have produced a per-purpose rule that could never be reached: the
+second purpose would have been refused by the old index, and the refusal would
+have looked exactly like the new rule working correctly. 0065 drops it in the
+same migration that creates the replacement, and asserts it is gone.
+
+**So: before amending a rule, grep for it as a mechanism** — indexes,
+constraints, triggers, guards, assertions, lint counters — and replace or remove
+each one in the same change. A control that silently does nothing is worse than
+no control, because it is believed.
+
+*Distinct from L5: L5 is about believing a boundary you never read; L7 is about
+changing a boundary you did read, in only one of the places it exists.*
