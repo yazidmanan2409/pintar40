@@ -17,8 +17,8 @@ deleted — §6.1 in particular is withdrawn rather than defended.
 | | |
 |---|---|
 | Branch | `claude/quirky-meitner-a04smj` |
-| Commits | `e81b41f` (the phase) and `403b216` (the 0046 repair, §4.2) |
-| `main` | fast-forwarded to `403b216`; no merge commit, no rewritten history |
+| Commits | `e81b41f` (the phase), `403b216` (the 0046 repair, §4.2), `edcc938` (the review fix, §4.3–§4.4) |
+| `main` | fast-forwarded to `edcc938`; no merge commit, no rewritten history |
 | Canonical `main` before this phase | `7f4b643` (37 migrations) |
 | Migrations after this phase | **51** (0038–0051 added; nothing applied to a canonical environment was edited) |
 | Selftest manifest | `pintar-selftest` v4, FABLE-04, **94 ids** |
@@ -46,30 +46,24 @@ local-only flag; the CI job runs `npm run selftest` with no skips permitted.
 
 ### 1.2 CI
 
-CI run **34736339101** on commit `403b216`, branch `claude/quirky-meitner-a04smj`, **all ten jobs green**:
-
-| Job | Result |
-|---|---|
-| `install · lint · typecheck · build` | success |
-| `migrations · clean database + seed` | success |
-| `migrations · previous schema → HEAD (upgrade path)` | success |
-| `red case · static-permissive-policy` | success |
-| `red case · static-raw-evidence-read` | success |
-| `red case · static-duplicate-engine` | success |
-| `red case · db-table-without-rls` | success |
-| `red case · static-second-verification-route` | success *(new)* |
-| `red case · db-fable04-gates` | success *(new — four planted defects, one stack)* |
-| `selftest contract (strict, local stack)` | success |
+CI run **34739066547** on commit `edcc938`, branch `claude/quirky-meitner-a04smj`,
+**all ten jobs green**: `check`, `migrations-clean`, `migrations-upgrade-path`,
+the six red cases (including both added this phase), and the strict selftest.
 
 The strict selftest job's own summary line, with **no skips permitted**:
 
 ```
-93 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN
+94 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN
 ```
 
-The first run of this phase (**34735898362**, commit `e81b41f`) was **RED** on one job —
-`migrations · previous schema → HEAD` — and that failure is §4.2 below. Every other
-job, including all six red cases, was green on that run too.
+That 94 includes **F04-S05**, which drives the exported route handler against a
+genuine certificate and against a tampered stored payload — the test that closes
+the blocking review finding, running strictly rather than as evidence-by-argument.
+
+Two earlier runs of this phase are part of the record. **34736339101** on
+`403b216` was green on all ten jobs at `93 passed`. **34735898362** on `e81b41f` was **RED** on
+`migrations · previous schema → HEAD`, and that failure is §4.2 below; every
+other job on it, including all six red cases, was green.
 
 ### 1.3 Hosted development
 
@@ -135,6 +129,23 @@ from the path by which they were first applied. **No FABLE-04 function is among
 them**, and FUNCNORM matching on all 157 is the proof that nothing executable
 differs.
 
+**0051 synchronized (2026-09-14, after the review).** 51 migrations on hosted.
+Parity for `verification_is_cryptographic`: `42d94a3198b95ff3cb79e0da0905f11f`,
+byte-identical to the repository file. The widened digest against a from-empty
+replay of all 51: **2007 objects, every category identical except FUNC**, and
+FUNCNORM identical (158/158). Spot-checking nineteen function bodies by name
+confirms the FUNC divergence is still **exactly the six FABLE-01 guards**
+(`enrollments_guard`, `memberships_guard`, `role_assignments_guard`, and the
+three transfer functions) whose recorded migration text on hosted is
+comment-stripped — and that **every FABLE-04 function is byte-identical**,
+including `certificate_verification_material`, `assert_public_surface`,
+`verify_certificate` and `platform_schema_lint`.
+
+Measured on hosted after the sync: `functions_executable_by_anon` **0**,
+`anon_public_surface` **2**, `anon_reachable_http_paths` **2**,
+`assert_public_surface()` **true**, and both certificate read policies now read
+`(person_id = current_person_id())`.
+
 **§13 regression properties, re-measured on hosted after the sync:**
 
 ```
@@ -144,7 +155,7 @@ anon_table_grants             0    anon_public_surface             2
 undeclared_anon_functions     0    unclassified_client_rpcs        0
 public_buckets                0    client_storage_policies         0
 audit_log_client_write_grants 0    evidence_class_overrides        0
-non_synthetic_institutions    0    functions_executable_by_anon    1   ← §6.1
+non_synthetic_institutions    0    functions_executable_by_anon    0   ← was 1; 0051
 excluded_items_for_post_test / finalize_session / session_enforce_deadline
   executable by a client role                                      0
 
