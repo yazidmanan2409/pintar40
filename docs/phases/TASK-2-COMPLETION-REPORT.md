@@ -291,9 +291,132 @@ Visible in the manifest, not only here.
 
 ## 10. Hosted
 
-See §11 of this report's addendum after the hosted sync. **Hosted receives the
-migrations, not the Human Evaluation seed** — the school, its personas and its
-evaluator are seed data and exist only where the seed is installed.
+Applied to the hosted development project `sknixmwkynzmrgbxzrvb` after local
+GREEN and after CI run 65 returned **all 14 jobs success** on `879f0c2`.
+**Hosted received the migrations and not the Human Evaluation seed** — the
+school, its five personas and its evaluator are seed data and exist only where
+the seed is installed. That is measured below, not asserted.
+
+**Migrations applied: 70.** All six Task 2 migrations recorded byte-identically.
+`md5(array_to_string(statements,''))` on hosted equals `md5` of the repository
+file with its trailing newline stripped, for every one:
+
+| Migration | Repository md5 | Hosted digest | |
+|---|---|---|---|
+| `official_evidence_purpose` | `f08bfeadb11965a08e88aa7447c34d8f` | `f08bfeadb11965a08e88aa7447c34d8f` | ✓ |
+| `evaluation_registry` | `0b5ed2f1ce59058c3feb341575333be6` | `0b5ed2f1ce59058c3feb341575333be6` | ✓ |
+| `dual_identity_audit` | `bb75eb1e364d505777925c72aef84bee` | `bb75eb1e364d505777925c72aef84bee` | ✓ |
+| `evaluation_hub` | `115a041eed9b9afb734bf7e5c8463dda` | `115a041eed9b9afb734bf7e5c8463dda` | ✓ |
+| `evaluation_expiry_is_real` | `040b46d11e2c01e33875bce92dc35175` | `040b46d11e2c01e33875bce92dc35175` | ✓ |
+| `persona_session_is_the_token` | `0208cad771e2ab90a05373a7ad43f58a` | `0208cad771e2ab90a05373a7ad43f58a` | ✓ |
+
+Each carries its own ADR-0014 terminal verification block, so every one of those
+six probes — including 0070's four behavioural legs — executed on hosted and
+passed there, not only locally.
+
+**Widened digest (`docs/audit/schema-inventory.sql`), hosted against a clean
+70-migration replay.** Same object count, and twelve of the thirteen categories
+identical:
+
+| Category | n | Local | Hosted | |
+|---|---|---|---|---|
+| COLUMN | 697 | `54730d24224ba2ce83d3871764816cc7` | same | ✓ |
+| CONSTRAINT | 404 | `baf2f8a4f6cd3dcb29485a4d79536150` | same | ✓ |
+| ENUM | 140 | `2a59801167f40049a4af1946071cb6d9` | same | ✓ |
+| FGRANT | 92 | `fd4128f60d2eb97ba923f75d4f432f4c` | same | ✓ |
+| **FUNC** | 195 | `52e3d807f4a36287a7af605033076f08` | `9dc8c38bc7a2969bdd087aa8ee2adfed` | **differs** |
+| **FUNCNORM** | 195 | `566f472b890a1d69c015a72d5945f54a` | same | ✓ |
+| GRANT | 114 | `3b424eb8d87b3faacc3bcff96e2b9c4b` | same | ✓ |
+| INDEX | 145 | `550a9a2417d41e1bbd0a83226d24d32e` | same | ✓ |
+| POLICY | 113 | `0519ea51dfd5781be8d8ef5b07945c98` | same | ✓ |
+| TABLE | 69 | `7761d7d5641287287e388ca6ecaf75ce` | same | ✓ |
+| TRIGGER | 97 | `9e353e474006ef70207c4fbe0f3e1f11` | same | ✓ |
+| VIEW | 10 | `5b85f966c774b982fd006e229d7b5dab` | same | ✓ |
+| ZZ_TOTAL | **2271** | `3ed5d14bd427cd053457d88f41517e4e` | `1b26a7a71b101a80418033021c0e9cf6` | FUNC only |
+
+**FUNCNORM matches exactly, so the divergence is cosmetic.** It was then bounded
+by name rather than inferred: every hosted function whose `prosrc` md5 is absent
+from the local set was enumerated, and the answer is exactly the six known
+FABLE-01 divergences and no others —
+
+`enrollments_guard()`, `memberships_guard()`, `role_assignments_guard()`,
+`transfer_authorize(uuid, jsonb)`, `transfer_execute(uuid)`,
+`transfer_request(uuid, uuid, uuid, uuid, text, jsonb)`.
+
+The recorded text of the thirteen divergent FABLE-01/02 migrations is
+comment-stripped; these six are that, and nothing in Task 2 touched them. **The
+divergence bound is unchanged by Task 2: still six functions, still comment-only.**
+
+**Counters.** `platform_schema_lint()` on hosted. Every security counter sits at
+the same value as the local schema at this commit:
+
+| Counter | Local | Hosted |
+|---|---|---|
+| `tables_without_rls` | 0 | **0** |
+| `policies_using_true` | 0 | **0** |
+| `secdef_without_search_path` | 0 | **0** |
+| `functions_without_search_path` | 0 | **0** |
+| `functions_executable_by_anon` | 0 | **0** |
+| `anon_table_grants` | 0 | **0** |
+| `anon_public_view_write_grants` | 0 | **0** |
+| `anon_public_surface` | 2 | **2** |
+| `anon_reachable_http_paths` | 2 | **2** |
+| `undeclared_anon_functions` | 0 | **0** |
+| `overloaded_client_rpcs` | 0 | **0** |
+| `unclassified_client_rpcs` | 0 | **0** |
+| `audit_log_client_write_grants` | 0 | **0** |
+| `public_buckets` / `client_storage_policies` | 0 / 0 | **0 / 0** |
+| `migrations_applied` | 70 | **70** |
+
+`functions_executable_by_anon = 0` is the L2 regression, and it is closed on
+hosted as well as locally — the explicit revokes in 0066 survived the hosted
+apply.
+
+**Assertions.** All five boolean gates true on hosted:
+`official_bootstrap_ok`, `canonical_tenants_ok`, `public_surface_ok`,
+`evidence_consumer_boundary_ok`, `mode_policy_complete_ok`,
+`integrity_never_scores_ok`, `learner_rpcs_guarded_ok`, and both new ones —
+`evaluation_boundary_ok: true`, `evaluation_audit_complete_ok: true`.
+
+`assert_evaluation_boundary()` on hosted reads, verbatim:
+
+> `environment=development; 0 persona(s) none of which carries a password, 0 live evaluator(s), 0 live session(s); every session expires at its own token's instant, and assume_persona is reachable only by the server that minted it`
+
+**The schema is present; the seed data is not.** Stated explicitly, and measured:
+
+| | Hosted |
+|---|---|
+| `evaluation_personas` | **0** |
+| `evaluation_evaluators_live` | **0** |
+| `evaluation_sessions_live` | **0** |
+| `official_purpose_human_evaluation` | **0** |
+| `official_bootstrap_tenants` | 0 |
+| `non_synthetic_institutions` | 1 |
+
+**Hosted contains the Human Evaluation schema but no Human Evaluation seed
+data.** There is no demonstration school, no persona account, no evaluator and
+no evaluation session on hosted. The three evaluation tables exist with RLS on
+and no policy; the four functions exist; the `HUMAN_EVALUATION` purpose slot
+exists and is **free**. Installing the seed is Stream 4's business (§11), in the
+environment named there — not here.
+
+**Structural shape of the facility on hosted**, measured rather than assumed:
+
+| | |
+|---|---|
+| `assume_persona` overloads | **1** (the three-argument form only) |
+| `service_role` may execute it | **true** |
+| `authenticated` / `anon` may execute it | **false / false** |
+| rows in `client_rpc_registry` for `assume_persona` | **0** — not a client entry point |
+| registry rows for the client half | `evaluation_hub:PLATFORM`, `evaluation_state:PLATFORM`, `exit_persona:PLATFORM` |
+| `official_evidence_purpose` enum labels | **2**, exactly |
+| D1's old `institutions_single_official_bootstrap` index | **0** — dropped by 0065, as ADR-0008 §0 records |
+| `institutions_one_per_official_purpose` | **1** — the replacement rule, present |
+
+**Not done on hosted, deliberately:** the seed, per the closure brief; and no
+application traffic — the hosted project is reachable from this build only
+through the migration API, so nothing here exercises GoTrue, persona sign-in or
+the certificate route. `SUPABASE_DB_URL` was never pointed at hosted.
 
 ---
 
@@ -335,6 +458,13 @@ opened by a person.
   and 5 evaluating for the first time (2 digest changes, 2 baseline changes, ADR
   present);
 - `npm run lint`, `npx tsc --noEmit`.
+
+**Verified myself, on hosted** (§10) — the six migrations applied and recorded
+byte-identically, their six terminal probes executing there; the widened digest
+matching on twelve of thirteen categories with the FUNC divergence bounded by
+name to the same six FABLE-01 functions; every security counter equal to local;
+both new assertions true; and the absence of Human Evaluation seed data measured
+rather than assumed.
 
 **Could not verify myself:**
 
