@@ -26,19 +26,30 @@
 -- the ordinary surface, with the ordinary key, and the eligibility it rests on
 -- is real.
 --
--- PERSONA CREDENTIALS. Derived, never chosen and never written down: the same
--- discipline as the classroom-card PIN (FABLE-01 §2). The derivation below must
--- match `derivePersonaSecret()` in `src/lib/evaluation.ts` exactly, which is why
--- the pepper literal here mirrors the one the local/CI environment sets. Nothing
--- in this file is a password anyone could use without the pepper, and the pepper
--- is not a persona's -- it is an input to every one of them.
+-- PERSONA CREDENTIALS: THERE ARE NONE, AND THAT IS THE POINT (0070).
+--
+-- An earlier version of this seed derived a password per persona from a pepper,
+-- on the classroom-card model. That was wrong in a way the card discipline is
+-- not. A derived password is still a password: anyone holding the pepper -- or
+-- any evaluator who ever observed one -- can authenticate as a persona
+-- INDEPENDENTLY, outside any evaluation session. There is then no expiry to
+-- cross, no `ended_at`, and no dual-identity stamp at all, because `audit_write`
+-- finds no live session to key on: the action records as GENUINE. That is worse
+-- than the expiry hole it was meant to sit behind.
+--
+-- So persona accounts are created with NO password. They cannot be signed into
+-- by anyone; a session for them is minted only inside the assume flow, by the
+-- server, with the service role. `assert_evaluation_boundary` measures this
+-- against `auth.users` rather than trusting this comment.
+--
+-- The evaluator DOES have a password -- they are a real person who signs in
+-- normally, and they are the only one who does.
 
 select set_config('app.seed_intent', 'synthetic', true);
 
 do $$
 declare
   v_env text; inst uuid; period uuid; fac uuid; dept uuid; prog uuid; coh uuid; cls uuid;
-  pepper text := 'evaluation-persona-pepper-fable05-32plus';  -- must equal EVALUATION_PERSONA_PEPPER
   u_siswa uuid := gen_random_uuid(); u_guru uuid := gen_random_uuid();
   u_hod uuid := gen_random_uuid(); u_dekan uuid := gen_random_uuid();
   u_admin uuid := gen_random_uuid(); u_eval uuid := gen_random_uuid();
@@ -96,28 +107,23 @@ begin
   values
    (u_siswa, '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
     'peraga-siswa@evaluasi.pintar.test',
-    extensions.crypt(encode(extensions.digest(pepper || '|persona|peraga-siswa@evaluasi.pintar.test', 'sha256'), 'hex'),
-                     extensions.gen_salt('bf')), now(),
+    null, now(),
     '{"provider":"email","providers":["email"]}', '{"display_name":"Aisyah (peraga)"}', now(), now(), '', '', '', ''),
    (u_guru,  '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
     'peraga-guru@evaluasi.pintar.test',
-    extensions.crypt(encode(extensions.digest(pepper || '|persona|peraga-guru@evaluasi.pintar.test', 'sha256'), 'hex'),
-                     extensions.gen_salt('bf')), now(),
+    null, now(),
     '{"provider":"email","providers":["email"]}', '{"display_name":"Pak Rahmat (peraga)"}', now(), now(), '', '', '', ''),
    (u_hod,   '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
     'peraga-kaprodi@evaluasi.pintar.test',
-    extensions.crypt(encode(extensions.digest(pepper || '|persona|peraga-kaprodi@evaluasi.pintar.test', 'sha256'), 'hex'),
-                     extensions.gen_salt('bf')), now(),
+    null, now(),
     '{"provider":"email","providers":["email"]}', '{"display_name":"Bu Sari (peraga)"}', now(), now(), '', '', '', ''),
    (u_dekan, '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
     'peraga-kepala@evaluasi.pintar.test',
-    extensions.crypt(encode(extensions.digest(pepper || '|persona|peraga-kepala@evaluasi.pintar.test', 'sha256'), 'hex'),
-                     extensions.gen_salt('bf')), now(),
+    null, now(),
     '{"provider":"email","providers":["email"]}', '{"display_name":"Pak Hendra (peraga)"}', now(), now(), '', '', '', ''),
    (u_admin, '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
     'peraga-admin@evaluasi.pintar.test',
-    extensions.crypt(encode(extensions.digest(pepper || '|persona|peraga-admin@evaluasi.pintar.test', 'sha256'), 'hex'),
-                     extensions.gen_salt('bf')), now(),
+    null, now(),
     '{"provider":"email","providers":["email"]}', '{"display_name":"Bu Ratna (peraga)"}', now(), now(), '', '', '', ''),
    (u_eval,  '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
     'penilai@evaluasi.pintar.test',
