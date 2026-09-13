@@ -316,7 +316,7 @@ declare
   s uuid; s2 uuid; v_def uuid; v_assign uuid; v_open uuid; v_open_assign uuid;
   v_priv_c uuid; v_priv_mod uuid; v_tag text; v_refused boolean; v_msg text;
   v_hash_before text; v_hash_after text; v_sha_before text; st record;
-  own record; v_admin uuid; v_hod uuid;
+  own record; v_admin uuid; v_hod uuid; s3 uuid; can2 record; v_dist2 uuid;
   t0 timestamptz := clock_timestamp();
 begin
   perform selftest.as_owner();
@@ -843,7 +843,7 @@ begin
   exception when others then
     perform selftest.as_owner();
     v_msg := sqlerrm;
-    v_refused := sqlerrm ~ 'not currently published for this school';
+    v_refused := sqlerrm ~ 'cannot use right now';
   end;
   if not v_refused and v_msg <> '' then
     ok := false; detail := detail || format('the unpublished start was refused for the wrong reason: %s; ', v_msg);
@@ -871,7 +871,7 @@ begin
     ok := false; detail := detail || 'a learner sat a quick assessment against a FROZEN but unpublished release; ';
   exception when others then
     perform selftest.as_owner();
-    v_refused := sqlerrm ~ 'not currently published for this school';
+    v_refused := sqlerrm ~ 'cannot use right now';
   end;
   if not v_refused then
     ok := false; detail := detail || 'the frozen-but-unpublished start was refused for the wrong reason; ';
@@ -921,10 +921,10 @@ begin
   end if;
 
   -- (d) SUPERSEDED: published once, then replaced. Still sealed, so the binding
-  --     would pin -- and still refused, deliberately. Superseding is how a
-  --     CORRECTION propagates (ADR-0016), and a quick assessment that quietly
-  --     kept drawing from replaced content is the failure that model exists to
-  --     prevent. A fresh assignment, because the attempt above is spent.
+  --     still pins -- and ADMITTED (0064). 0063 refused this and overshot F1:
+  --     release status gates new sessions nowhere else in this system, and
+  --     correction here is an explicit audited move, never an automatic cutoff
+  --     (ADR-0016). A fresh assignment, because the attempt above is spent.
   if s2 is not null then
     perform selftest.as_user('qac-own-admin@synthetic.pintar.test');
     update public.plp_releases set status = 'SUPERSEDED' where id = own.rel;
@@ -938,23 +938,123 @@ begin
     perform selftest.as_user('qac-guru-b@synthetic.pintar.test');
     select * into v_row from public.launch_quick_assessment(v_node_b, own.modul, 3, 30);
     perform selftest.as_owner();
-    v_refused := false;
+    s3 := null;
     perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
     begin
-      perform public.start_learning_session(v_row.assessment_assignment_id);
+      s3 := public.start_learning_session(v_row.assessment_assignment_id);
       perform selftest.as_owner();
-      ok := false; detail := detail || 'a learner sat a quick assessment against a SUPERSEDED release; ';
     exception when others then
       perform selftest.as_owner();
-      v_refused := sqlerrm ~ 'not currently published for this school';
+      ok := false;
+      detail := detail || format('a SUPERSEDED release refused a learner: %s; ', sqlerrm);
     end;
-    if not v_refused then
-      ok := false; detail := detail || 'the superseded start was refused for the wrong reason; ';
+    if s3 is not null then
+      if (select ss.plp_release_id from public.assessment_sessions ss where ss.id = s3) is distinct from own.rel then
+        ok := false; detail := detail || 'the session does not cite the superseded release it drew from; ';
+      end if;
+      -- admitted, and still pinned: F1 is not back
+      perform selftest.as_user('qac-own-guru@synthetic.pintar.test');
+      begin
+        update public.items set stem = 'diubah setelah superseded'
+         where id = (select pi.item_id from public.presented_items pi where pi.session_id = s3 limit 1);
+        get diagnostics n = row_count;
+        perform selftest.as_owner();
+        if n > 0 then
+          ok := false; detail := detail || 'a presented item was edited after a superseded-release session; admitting SUPERSEDED reopened F1; ';
+        end if;
+      exception when others then perform selftest.as_owner(); end;
     end if;
   end if;
 
   test_id := 'QAC-T11'; invariant := 'ADR-0018 / doc 07 session binding / doc 08 publication';
-  if ok then detail := format('one own-content course in four states: INGESTED and FROZEN each refuse the learner by name and leave no session row; the same assignment over the same pool runs to a %s-answer scored attempt once the release is PUBLISHED, whose presented items are then sealed against edits; and SUPERSEDED -- sealed, but replaced -- refuses again', n2); end if;
+  if ok then detail := format('one own-content course in four states: INGESTED and FROZEN each refuse the learner by name and leave no session row; PUBLISHED runs the same assignment over the same pool to a %s-answer scored attempt whose presented items are then sealed against edits; and SUPERSEDED -- sealed, and still published-in-the-past -- admits a further session that is pinned just as hard', n2); end if;
+  return next;
+
+  -- =========================================================================
+  -- QAC-T12  SUPERSESSION IS NOT WITHDRAWAL (0064)
+  --
+  --          The pair Claude 1's addendum asked for, side by side on the same
+  --          canonical content, because each half only means something next to
+  --          the other: superseding the RELEASE does not stop use, withdrawing
+  --          the DISTRIBUTION does. That is the platform's audited lever, and
+  --          0063 had duplicated it in an automatic, unaudited form.
+  --
+  --          Its own canonical package, so superseding it cannot disturb the
+  --          shared fixture the rest of this suite and FABLE-05 depend on.
+  -- =========================================================================
+  ok := true; detail := '';
+  select * into can2 from selftest.canonical_package('QAC Supersede ' || v_tag);
+  perform selftest.as_user('kanonik-admin@pintar.test');
+  v_dist2 := public.grant_release_distribution(can2.rel, v_b, 'task 1 supersession probe');
+  perform selftest.as_owner();
+
+  -- the owner withdraws the RELEASE: an audited act, and it sets SUPERSEDED
+  perform selftest.as_user('kanonik-admin@pintar.test');
+  perform public.withdraw_release(can2.rel, 'task 1 supersession probe');
+  perform selftest.as_owner();
+  if (select r.status::text from public.plp_releases r where r.id = can2.rel) <> 'SUPERSEDED' then
+    ok := false; detail := detail || 'the release did not reach SUPERSEDED; the pair proves nothing; ';
+  end if;
+  if not public.release_is_distributed_to(can2.rel, v_b) then
+    ok := false; detail := detail || 'the grant lapsed on its own; the two levers are not separable here; ';
+  end if;
+
+  -- half one: the grant is still ACTIVE, so the school may still use it
+  perform selftest.as_user('qac-guru-b@synthetic.pintar.test');
+  select * into v_row from public.launch_quick_assessment(v_node_b, can2.modul, 3, 30);
+  perform selftest.as_owner();
+  s3 := null;
+  perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
+  begin
+    s3 := public.start_learning_session(v_row.assessment_assignment_id);
+    perform selftest.as_owner();
+  exception when others then
+    perform selftest.as_owner();
+    ok := false;
+    detail := detail || format('a superseded release with a live grant refused the learner: %s; ', sqlerrm);
+  end;
+  if s3 is null then
+    ok := false; detail := detail || 'no session opened over the superseded release; ';
+  elsif (select ss.plp_release_id from public.assessment_sessions ss where ss.id = s3) is distinct from can2.rel then
+    ok := false; detail := detail || 'the session does not cite the superseded canonical release; ';
+  end if;
+
+  -- half two: withdraw the DISTRIBUTION, and the same content stops
+  perform selftest.as_user('kanonik-admin@pintar.test');
+  perform public.withdraw_release_distribution(v_dist2, 'task 1 supersession probe');
+  perform selftest.as_owner();
+  v_refused := false;
+  perform selftest.as_user('qac-guru-b@synthetic.pintar.test');
+  begin
+    perform public.launch_quick_assessment(v_node_b, can2.modul, 3, 30);
+    perform selftest.as_owner();
+    ok := false; detail := detail || 'a new quick assessment was launched after the grant was withdrawn; ';
+  exception when others then
+    perform selftest.as_owner();
+    v_refused := sqlerrm ~ 'another institution \(INV-13\)';
+  end;
+  if not v_refused then
+    ok := false; detail := detail || 'the post-withdrawal launch was refused for the wrong reason; ';
+  end if;
+  -- and the assignment made while the grant was live starts nothing new either
+  v_refused := false;
+  perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
+  begin
+    perform public.start_learning_session(v_row.assessment_assignment_id);
+    perform selftest.as_owner();
+    ok := false; detail := detail || 'a new session started against a withdrawn grant; ';
+  exception when others then perform selftest.as_owner(); v_refused := true; end;
+  if not v_refused then
+    ok := false; detail := detail || 'the withdrawn-grant session was not refused; ';
+  end if;
+  -- the completed attempt from half one is untouched, as always
+  if s3 is not null then
+    select count(*) into n from public.assessment_sessions where id = s3;
+    if n <> 1 then ok := false; detail := detail || 'the completed session vanished; '; end if;
+  end if;
+
+  test_id := 'QAC-T12'; invariant := 'ADR-0018 as amended by 0064 / ADR-0015 §5.2 / ADR-0016';
+  if ok then detail := 'on one canonical package: superseding the release leaves the school using it, because release status gates new sessions nowhere in this system and correction here is an explicit audited move; withdrawing the distribution stops both a new launch and a new session on the assignment already made, and touches no completed attempt'; end if;
   return next;
 
   -- =========================================================================

@@ -11,7 +11,7 @@ Switching) is not started and must not begin until this gate is closed.
 | | |
 |---|---|
 | Branch commit | `820bf7f` on `claude/quirky-meitner-a04smj`, `main` fast-forwarded to it |
-| Migrations | **63** (0061, 0062, 0063 added; nothing before 0060 touched) |
+| Migrations | **64** (0061–0064 added; nothing before 0060 touched) |
 | CI | run **34747284030** on `3f8e310` — all twelve jobs green, including the new `red case · db-task1-gates` leg |
 | Selftest (verbatim) | `124 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
 | Clean replay | 63 migrations from an empty database, all three terminal blocks included |
@@ -214,14 +214,44 @@ block builds the INGESTED case in a rolled-back subtransaction. A third CI plant
 removes the `PUBLISHED` clause from the live function text and requires QAC-T11
 to go red naming it.
 
-*One consequence, probed rather than assumed.* `PUBLISHED` is stricter than
-"sealed": a release that was published and has since been superseded is still
-sealed and is now refused too. I probed that case rather than reasoning about it
-— a distributed canonical release superseded while its grant stayed ACTIVE does
-refuse the next learner — and kept the behaviour, because superseding is how a
-**correction** propagates (ADR-0016). A quick assessment quietly drawing from
-replaced content is worse than a refusal telling the teacher to use the current
-chapter. It is state (d) of QAC-T11 so it cannot become incidental.
+**F1b — my repair for F1 overshot it. Also mine.** Raised by Claude 1's addendum,
+and correct.
+
+0063 required the cited release to be `PUBLISHED`, which also refused a release
+that had been published and later `SUPERSEDED`. I probed that consequence and
+then *kept* it, arguing that superseding is how a correction propagates. The
+probe was right; the conclusion was not. Two facts I did not check say so, and I
+measured both before accepting the correction:
+
+- **Release status gates new sessions nowhere else in this system.** A learner
+  can start a new *learning-cycle* session against a `SUPERSEDED` release today —
+  including one withdrawn outright. 0063 made the ad-hoc path stricter than the
+  learning-cycle path for identical content.
+- **Correction here is never automatic.** ADR-0016 — my own — kept
+  `NOT_STARTED_ONLY`, an audit row per move, and "the refusal of any automatic
+  move". 0063 produced that move's effect automatically and silently, triggered
+  by something the *content owner* did elsewhere.
+
+And the operational cost was real: a consuming school can neither publish
+canonical content nor grant itself a successor, so a canonical supersede would
+have silently stopped Quick Assessment for every school holding the old grant.
+
+*Repair:* **0064** narrows the rule to `status in ('PUBLISHED','SUPERSEDED')` —
+"sealed, and was published", which is exactly what F1 needed and nothing more.
+`FROZEN` stays refused: it is the one sealed status that never was published.
+
+*Regression:* QAC-T11 state (d) is inverted — SUPERSEDED now admits, and the
+items it presents are still proven immutable, so F1 does not return. **QAC-T12**
+adds the pair on canonical content: superseding the release leaves the school
+using it; withdrawing the distribution stops it. 0064's terminal block proves the
+two refusals that remain (INGESTED and FROZEN). The CI plant is re-aimed at the
+new clause.
+
+*The shape of this mistake.* It is the same one as F1 one level up: a product
+intuition, held confidently, substituted for a property of the system I had not
+checked. F1 was a claim I never tested; F1b was a decision I tested the
+*consequence* of but not the *premise*. Probing my own fix was right and found
+it; what I did with the finding was not.
 
 *Repair:* `r.status = 'PUBLISHED'` on the whole predicate, so the rule is stated
 once and covers both arms. It narrows; nothing in the canonical path changes.
@@ -364,10 +394,18 @@ mask or rescue another.
   here presumes either answer, and this ADR must not be cited as precedent.
 - **OD-4, institution-to-institution content sharing** — remains LATER.
 - **A quick assessment over a school's own *unpublished* course cannot be
-  taken** — the learner is refused in plain language, and the teacher is told to
-  publish the chapter first. This sentence appeared in the first version of this
-  report as a verified fact. **It was not true when written**, and it was not
-  tested: see **F1** in §4. It is true now, and QAC-T11 is what makes it so.
+  taken** — the learner is refused in plain language. This sentence appeared in
+  the first version of this report as a verified fact. **It was not true when
+  written**, and it was not tested: see **F1** in §4. It is true now, and
+  QAC-T11 is what makes it so.
+- **`withdraw_release` sets a release to `SUPERSEDED`, the same status a
+  correction produces**, so "replaced" and "withdrawn" are indistinguishable by
+  status, and neither stops a new session in either path. Measured, not assumed.
+  Left as it is: whether a withdrawn *release* should stop new sessions is a
+  platform-wide question for the learning-cycle path too, and belongs in one
+  decision with its own ADR — not bolted onto quick assessments. QAC-T12 pins
+  today's behaviour so that decision changes a test rather than discovering a
+  surprise.
 - **`distributed_lesson_preview` remains staff-only** — learners never preview a
   canonical lesson body. Deliberately unchanged; see M2.
 - **The Studio Quick Assessment surface has no automated HTTP exercise beyond

@@ -527,7 +527,7 @@ jobs:
           red QAC-T08 'was not refused at the boundary' /tmp/t1-2.sql
 
           # 3. the release resolution without its PUBLISHED clause -- the F1
-          #    defect Claude 1's second reading found and 0063 repaired. The
+          #    defect Claude 1's second reading found, 0063 repaired and 0064 narrowed. The
           #    clause is removed from the LIVE function text rather than the
           #    file, so what is proven is that this exact clause is what stops
           #    a learner sitting an assessment against an unsealed release.
@@ -537,8 +537,8 @@ jobs:
           declare orig text; src text;
           begin
             orig := pg_get_functiondef('public.start_learning_session(uuid)'::regprocedure);
-            src := replace(orig, E'\n       and r.status = ''PUBLISHED''', '');
-            if src = orig then raise exception 'the plant did not remove the PUBLISHED clause'; end if;
+            src := replace(orig, E'\n       and r.status in (''PUBLISHED'', ''SUPERSEDED'')', '');
+            if src = orig then raise exception 'the plant did not remove the sealed-and-published clause'; end if;
             execute src;
           end $d$;
           select test_id, case when ok then 't' else 'f' end, detail from selftest.run_quick_canonical() where test_id = 'QAC-T11';

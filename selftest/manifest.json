@@ -1,7 +1,7 @@
 {
   "contract": "pintar-selftest",
-  "version": 7,
-  "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063)",
+  "version": 8,
+  "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
     "db": "selftest/db/fable01..05.sql and fable05t1_quick_canonical.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id",
@@ -758,7 +758,13 @@
     {
       "id": "QAC-T11",
       "runner": "db",
-      "proves": "ADR-0018 as amended by 0063 / doc 07 session binding / doc 08 publication: one own-content course in four states — INGESTED and FROZEN each refuse the learner by name and leave no session row, PUBLISHED runs to a scored attempt whose presented items are then sealed against edits, and SUPERSEDED (sealed but replaced) refuses again",
+      "proves": "ADR-0018 as amended by 0063 and 0064 / doc 07 session binding / doc 08 publication: one own-content course in four states — INGESTED and FROZEN each refuse the learner by name and leave no session row, PUBLISHED runs to a scored attempt whose presented items are then sealed against edits, and SUPERSEDED (sealed, and published in the past) admits a further session that is pinned just as hard",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T12",
+      "runner": "db",
+      "proves": "ADR-0018 as amended by 0064 / ADR-0015 §5.2 / ADR-0016: supersession is not withdrawal — superseding a canonical release leaves a school with a live grant still using it, because release status gates new sessions nowhere in this system and correction is an explicit audited move; withdrawing the distribution stops both a new launch and a new session on the assignment already made, and touches no completed attempt",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
     }
   ]

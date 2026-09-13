@@ -272,19 +272,17 @@ is stated once and holds for both:
 **Publication, not merely sealing, is the gate.** A `FROZEN` release is sealed
 and is still refused, because doc 08 puts publication upstream of use.
 
-**And `PUBLISHED` is stricter than sealed in the other direction too**, which is
-a deliberate consequence rather than an accident: a release that was published
-and has since been `SUPERSEDED` is still sealed, and is now refused as well.
-That was measured, not assumed — a distributed canonical release superseded while
-its grant stayed ACTIVE does refuse the next learner. It is kept because
-superseding is how a **correction** propagates (ADR-0016): a quick assessment
-that quietly kept drawing from content its owner had replaced is precisely the
-failure that model exists to prevent, and the remedy for the school is the
-ordinary one — be granted, or publish, the release that replaced it.
+**A first draft of this amendment went further and was wrong.** 0063 required
+`PUBLISHED` alone, which also refused a release that had been published and later
+`SUPERSEDED`. I argued that superseding is how a correction propagates, so
+drawing from replaced content should stop. Claude 1's addendum objected, and
+0064 is the correction — see **Amendment — 0064** below. The rule this ADR now
+carries is `status in ('PUBLISHED','SUPERSEDED')`: **sealed, and was published**.
 
 QAC-T11 exercises one own-content course in four states — INGESTED, FROZEN,
 PUBLISHED, SUPERSEDED — with the same pool, so the only variable is the release's
-status.
+status; QAC-T12 puts supersession and withdrawal side by side on canonical
+content.
 
 Nothing in the canonical path this ADR was written for changes; the amendment
 **narrows**. No new capability, no new object, no policy change, no enum change.
@@ -303,6 +301,70 @@ Nothing in the canonical path this ADR was written for changes; the amendment
   client write policy and no client grants), and after this amendment the
   session path does not rely on it at all. Left as it is; recorded so the
   structural argument is not mistaken for a schema guarantee.
+
+## Amendment — 0064: supersession is not withdrawal
+
+**Status:** Accepted · **Date:** 2026-09-13 · **Raised by:** Claude 1's addendum
+to the second reading · **Corrects the amendment above, which overshot F1.**
+
+F1 needed the cited release to be **sealed** (otherwise the session's
+`plp_release_id` pins nothing) and to have been **published** (doc 08: publication
+is upstream of use). That pair is exactly `PUBLISHED | SUPERSEDED` — the two
+content statuses that are both sealed and were published. `FROZEN` is the one
+sealed status that never was, and stays refused.
+
+0063 required `PUBLISHED` alone. **The extra strictness was mine, not the
+baseline's**, and two facts I did not check say it was wrong — both measured
+before accepting the correction:
+
+1. **Release status gates new sessions nowhere else.**
+   `enforce_session_provenance` checks ownership and distribution, never status.
+   A learner can start a new *learning-cycle* session against a `SUPERSEDED`
+   release today — including one withdrawn by `withdraw_release`. 0063 made the
+   ad-hoc path stricter than the learning-cycle path for the same content.
+2. **Correction here is never automatic.** ADR-0016 kept `NOT_STARTED_ONLY`, an
+   audit row per move, and "the refusal of any automatic move": moving a school
+   onto a corrected release is an explicit, audited act. 0063 produced that
+   move's effect automatically and silently, triggered by something the content
+   owner did elsewhere. Doc 08 is consistent: an in-progress session "stays bound
+   to the release it was created under, even if that release is superseded".
+
+The operational cost was real too: a consuming school can neither publish
+canonical content nor grant itself a successor, so a canonical supersede would
+have silently stopped Quick Assessment for every school holding the old grant.
+
+**The audited lever for "stop using this" already exists** —
+`withdraw_release_distribution`, enforced through `release_is_distributed_to`,
+with an audit row. 0063 duplicated it in an automatic, unaudited form. QAC-T12
+pins the pair: superseding the release leaves the school using it; withdrawing
+the distribution stops it.
+
+### A citation that did not check out, recorded because the conclusion still holds
+
+The addendum cited doc 08 for "no automatic re-pointing of not-started learners
+either — every reassignment is an explicit, auditable act", plus *Not started* and
+*Active* rows of a policy table. **That text is not in this repository's doc 08.**
+What doc 08 does say is narrower — "There is no migration of in-flight or
+historical evidence to a newer release", and that an in-progress session stays
+bound to a superseded release — and it also says "A learner starting a *new*
+session after Release N+1 is published gets N+1's content", which if anything
+leans the other way.
+
+The conclusion is still right, for the two reasons above, both of which are
+properties of this build that I verified rather than quotations. The
+`NOT_STARTED_ONLY` / audited-move / no-automatic-move rule is real — it is
+**ADR-0016's**, not doc 08's. Recorded so the record does not carry a quotation
+nobody can find.
+
+### Left as it is, and named
+
+`withdraw_release` also sets `SUPERSEDED`, so that status means both "replaced by
+a successor" and "withdrawn by its owner", and this predicate admits both. That
+is not a looseness introduced here — the learning-cycle path admits a new session
+against a withdrawn release today, which was measured. Whether a withdrawn
+*release* should stop new sessions is a platform-wide question for both paths,
+decided once, with its own ADR. QAC-T12 pins the behaviour as it stands so a
+later decision changes a test rather than discovering a surprise.
 
 ## Layer-3 concerns
 
