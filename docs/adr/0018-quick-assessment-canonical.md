@@ -259,10 +259,12 @@ presented item was then updated successfully after the fact.
 'PUBLISHED'`, applied to the whole predicate rather than to one arm, so the rule
 is stated once and holds for both:
 
-- **own content** — doc 08's "publication is not assignment: publishing a
-  release makes it available within the institution" is the baseline's own
-  reason for putting publication upstream of use, and PUBLISHED implies sealed,
-  which is what the binding needs;
+- **own content** — publication is what puts a release in use: the repository's
+  own `content_status_transitions` records the `FROZEN → PUBLISHED` edge as
+  "made available to the institution". (Migration 0063 attributes this to a doc
+  08 clause that is not in the repository's copy of that document; see the
+  version-divergence note under Amendment — 0064.) PUBLISHED also implies
+  sealed, which is what the binding needs;
 - **canonical content** — `grant_release_distribution` already refuses to
   distribute anything that is not PUBLISHED, so the authorized path was never
   exposed. Stating the rule here anyway means this path no longer depends on a
@@ -339,22 +341,39 @@ with an audit row. 0063 duplicated it in an automatic, unaudited form. QAC-T12
 pins the pair: superseding the release leaves the school using it; withdrawing
 the distribution stops it.
 
-### A citation that did not check out, recorded because the conclusion still holds
+### A version divergence, not a bad citation — and it cuts both ways
 
-The addendum cited doc 08 for "no automatic re-pointing of not-started learners
-either — every reassignment is an explicit, auditable act", plus *Not started* and
-*Active* rows of a policy table. **That text is not in this repository's doc 08.**
-What doc 08 does say is narrower — "There is no migration of in-flight or
-historical evidence to a newer release", and that an in-progress session stays
-bound to a superseded release — and it also says "A learner starting a *new*
-session after Release N+1 is published gets N+1's content", which if anything
-leans the other way.
+An earlier draft of this section said the policy Claude 1 quoted "is not in this
+repository's doc 08" and implied the citation did not check out. **That was
+wrong, and it is corrected here rather than left standing.**
 
-The conclusion is still right, for the two reasons above, both of which are
-properties of this build that I verified rather than quotations. The
-`NOT_STARTED_ONLY` / audited-move / no-automatic-move rule is real — it is
-**ADR-0016's**, not doc 08's. Recorded so the record does not carry a quotation
-nobody can find.
+The repository's copy of doc 08 **predates the 2026-09-12 baseline amendment**.
+The evidence is mechanical and internal to this repository: of the sixteen
+`docs/rebuild/` baseline documents, exactly **one** — doc 03 — carries a
+`*Baseline amendment (2026-09-12)*` marker. Doc 08 carries none, has no
+"release-correction / active-learner policy" section, and still contains the
+`N+1` sentence that amendment replaced. So the two readings were of consecutive
+versions of the same rule: the amending text and the text it superseded. Neither
+party invented anything, and the loose one-liner I relied on is the older.
+
+**The same gap caught me, on the clause I leaned on hardest.** "Publication is
+not assignment — publishing a release makes it available within the institution"
+is quoted as doc 08's in migration 0063, in migration 0064, and above in this
+ADR. It appears **nowhere in this repository's `docs/`**. I adopted it from
+review and attributed it to a document I never checked — the symmetric error to
+the one I was flagging, made in the same breath.
+
+**Migration 0063 cannot be corrected**: it is applied to `main` and to hosted,
+and migrations are forward-only. This paragraph is the correction of record for
+it. 0064 had reached no canonical environment and carries the accurate
+attribution.
+
+**The rule itself does not depend on the contested clause.** Refusing `FROZEN`
+rests on text that *is* in this repository and is machine-readable:
+`content_status_transitions` records the `FROZEN → PUBLISHED` edge with the note
+**"made available to the institution"**. Publication is what makes a release
+available; a sealed-but-never-published release therefore must not be citable.
+That is the ground the rule stands on here.
 
 ### Left as it is, and named
 

@@ -6,12 +6,23 @@
 --
 -- WHAT F1 ACTUALLY NEEDED. The session's `plp_release_id` is the frozen answer
 -- to "what did this learner see" only if the release it names is SEALED --
--- otherwise its items can still be edited in place. Plus doc 08's "publication
--- is not assignment: publishing a release makes it available within the
--- institution", which keeps a sealed-but-never-published release out. That pair
--- is exactly `PUBLISHED | SUPERSEDED`: the two content statuses that are both
--- sealed AND were published. `FROZEN` is the one sealed status that never was,
--- and stays refused.
+-- otherwise its items can still be edited in place. Plus publication: this
+-- repository's own `content_status_transitions` records the FROZEN -> PUBLISHED
+-- edge as "made available to the institution", so a sealed release that was
+-- never published must not be citable. That pair is exactly
+-- `PUBLISHED | SUPERSEDED`: the two content statuses that are both sealed AND
+-- were published. `FROZEN` is the one sealed status that never was, and stays
+-- refused.
+--
+-- A NOTE ON WHERE THAT RULE IS QUOTED FROM. 0063 attributed it to a doc 08
+-- clause -- "publication is not assignment" -- that does not appear in this
+-- repository's copy of doc 08. That copy predates the 2026-09-12 baseline
+-- amendment: of sixteen baseline documents here, exactly one (doc 03) carries
+-- the amendment marker. The clause is real in the amended document; it was
+-- adopted from review and attributed without being checked against what this
+-- repository actually holds. 0063 is applied and forward-only, so the
+-- correction of record lives in ADR-0018. This migration grounds the same rule
+-- in text that IS here and is machine-readable.
 --
 -- WHAT 0063 ADDED ON TOP, AND WHY IT WAS WRONG. Requiring `PUBLISHED` alone also
 -- refused a release that had been published and later superseded. I argued that
@@ -165,9 +176,8 @@ end $function$;
 --
 -- The behavioural half proves the two REFUSALS this predicate keeps, in a
 -- rolled-back subtransaction: an INGESTED release (F1's case -- unsealed, so the
--- binding would pin nothing) and a FROZEN one (sealed, but never published --
--- doc 08's "publication is not assignment"). Both are reachable from an empty
--- database.
+-- binding would pin nothing) and a FROZEN one (sealed, but never published).
+-- Both are reachable from an empty database.
 --
 -- The ADMISSION -- that a SUPERSEDED release now opens a session, and that the
 -- items it presents are still immutable -- is asserted structurally here and
@@ -294,8 +304,9 @@ begin
       raise exception 'F1 reappeared: a learner sat a quick assessment against an unsealed release';
     end if;
 
-    -- (2) FROZEN: sealed, but never published. Refused, because doc 08 puts
-    --     publication upstream of use -- the half of the rule 0064 keeps.
+    -- (2) FROZEN: sealed, but never published. Refused, because the transition
+    --     table calls FROZEN -> PUBLISHED "made available to the institution"
+    --     -- the half of the rule 0064 keeps.
     perform set_config('request.jwt.claims', json_build_object('sub', v_uid::text)::text, true);
     perform set_config('request.jwt.claim.sub', v_uid::text, true);
     foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop

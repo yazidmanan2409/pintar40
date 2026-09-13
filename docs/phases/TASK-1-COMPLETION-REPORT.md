@@ -387,6 +387,49 @@ mask or rescue another.
 
 ---
 
+## 8.1 A supply gap that is now load-bearing — and my own citation inside it
+
+Found while checking a review citation, and worth more than the round it cost.
+
+**The repository's baseline documents are in a mixed state.** Of the sixteen
+`docs/rebuild/` documents, exactly **one** — doc 03 — carries a
+`*Baseline amendment (2026-09-12)*` marker. Doc 08 carries none, has no
+"release-correction / active-learner policy" section, and still contains the
+`N+1` sentence that amendment replaced. So the repository holds a
+**pre-amendment** doc 08 while holding an amended doc 03.
+
+That produced a disagreement that looked like invention on one side. Claude 1
+quoted the amended doc 08; I looked it up in the repository, did not find it, and
+recorded that the citation did not check out. Both readings were honest and of
+consecutive versions of the same rule. The ADR now says so; the earlier wording
+is corrected rather than left standing, because a permanent record calling a
+correct citation false would make a future reader discount a real clause.
+
+**The same gap caught me, harder.** The clause I leaned on for refusing `FROZEN`
+— "publication is not assignment: publishing a release makes it available within
+the institution" — is attributed to doc 08 in migration **0063**, in migration
+0064 and in ADR-0018. It appears **nowhere in this repository's `docs/`**. I
+adopted it from review and attributed it to a document I never opened, *while*
+flagging the same failure in someone else. 0063 is applied to `main` and to
+hosted and is forward-only, so it cannot be amended; ADR-0018 carries the
+correction of record, and 0064 re-grounds the rule in text that is actually here:
+`content_status_transitions` records the `FROZEN → PUBLISHED` edge as **"made
+available to the institution"**. The rule is unchanged; only its citation was
+wrong.
+
+**What this costs, in general.** A missing document fails loudly and a truncated
+one is visibly short — both announce themselves. A *stale* document announces
+nothing: it reads as complete and is quoted in good faith. Until the repository
+copies are reconciled with the Project copies, any baseline quotation from either
+side is unverifiable by the other, and a disagreement about frozen text should be
+treated as a suspected version divergence first.
+
+**What I cannot do about it.** I have no access to the Project copies, so I can
+neither ship the amended doc 08 nor perform the sixteen-document reconciliation.
+That needs the amended documents supplied into the repository. Two earlier items
+in this class are now closed — doc 16 is present (190 lines) and doc 03 reaches
+INV-38 — which is why doc 08 is the one left standing.
+
 ## 9. What remains open
 
 - **Arbitrary mixed-owner composition** — canonical and institution-owned items
@@ -398,6 +441,10 @@ mask or rescue another.
   the first version of this report as a verified fact. **It was not true when
   written**, and it was not tested: see **F1** in §4. It is true now, and
   QAC-T11 is what makes it so.
+- **The repository's doc 08 predates the 2026-09-12 baseline amendment**, and
+  fifteen of sixteen baseline documents carry no amendment marker at all. Until
+  they are reconciled against the Project copies, baseline quotations are not
+  mutually verifiable. See §8.1; I cannot close this myself.
 - **`withdraw_release` sets a release to `SUPERSEDED`, the same status a
   correction produces**, so "replaced" and "withdrawn" are indistinguishable by
   status, and neither stops a new session in either path. Measured, not assumed.
