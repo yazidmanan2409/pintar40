@@ -57,6 +57,23 @@
 -- and nothing in the canonical path Task 1 was written for changes. A school
 -- that has not published the chapter is refused in plain language -- which is
 -- what the completion report claimed, and is now true.
+--
+-- ONE CONSEQUENCE, MEASURED AND KEPT DELIBERATELY. `PUBLISHED` is stricter than
+-- "sealed": a release that was published and has since been SUPERSEDED is still
+-- sealed, and is now refused too. That was probed rather than reasoned about --
+-- a distributed canonical release superseded while its grant stayed ACTIVE does
+-- refuse the next learner -- and it is kept, because superseding is how a
+-- CORRECTION propagates (ADR-0016). Letting a quick assessment quietly keep
+-- drawing from content its owner has replaced is a worse outcome than a refusal
+-- that tells the teacher to use the current chapter. The remedy for the school
+-- is the ordinary one: be granted, or publish, the release that replaced it.
+-- Pinned by QAC-T11's fourth state so it cannot become incidental.
+--
+-- AMENDED IN PLACE, ONCE, BEFORE REACHING ANY CANONICAL ENVIRONMENT. The first
+-- draft's refusal said "has not been published", which is untrue of a
+-- superseded release -- it was published, and then replaced. The wording now
+-- covers both cases. Same rule, accurate sentence; recorded here rather than
+-- corrected silently, exactly as 0054 was.
 
 create or replace function public.start_learning_session(p_assessment_assignment uuid)
 returns uuid
@@ -141,7 +158,7 @@ begin
      limit 1;
     if v_release is null then
       raise exception
-        'this quick assessment is over material that has not been published for this school; publish the chapter first, or check that it is still shared with you';
+        'this quick assessment is over material that is not currently published for this school; publish the chapter, or ask for the current version to be shared with you';
     end if;
   end if;
 
@@ -291,7 +308,7 @@ begin
       perform public.start_learning_session(v_row.assessment_assignment_id);
     exception when others then
       v_msg := sqlerrm;
-      v_refused := sqlerrm ~ 'has not been published for this school';
+      v_refused := sqlerrm ~ 'not currently published for this school';
     end;
     if not v_refused then
       raise exception 'a learner sat a quick assessment against an unpublished release (%)',

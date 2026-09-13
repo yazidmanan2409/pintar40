@@ -207,13 +207,23 @@ wrote both the code and its tests; the suite exercised only canonical content,
 where `grant_release_distribution` happens to guarantee PUBLISHED, so the
 own-content arm had no coverage at all.
 
-*Regression:* **QAC-T11** walks one own-content course through three states —
-`INGESTED`, `FROZEN`, `PUBLISHED` — with the same assignment over the same pool,
-so the release's status is the only variable. The first two refuse the learner by
-name and leave no session row; the third runs to a scored attempt whose presented
-items are then sealed against edits. 0063's terminal block builds the same case
-in a rolled-back subtransaction. A third CI plant removes the `PUBLISHED` clause
-from the live function text and requires QAC-T11 to go red naming it.
+*Regression:* **QAC-T11** walks one own-content course through four states —
+`INGESTED`, `FROZEN`, `PUBLISHED`, `SUPERSEDED` — with the same pool, so the
+release's status is the only variable. INGESTED and FROZEN refuse the learner by
+name and leave no session row; PUBLISHED runs to a scored attempt whose presented
+items are then sealed against edits; SUPERSEDED refuses again. 0063's terminal
+block builds the INGESTED case in a rolled-back subtransaction. A third CI plant
+removes the `PUBLISHED` clause from the live function text and requires QAC-T11
+to go red naming it.
+
+*One consequence, probed rather than assumed.* `PUBLISHED` is stricter than
+"sealed": a release that was published and has since been superseded is still
+sealed and is now refused too. I probed that case rather than reasoning about it
+— a distributed canonical release superseded while its grant stayed ACTIVE does
+refuse the next learner — and kept the behaviour, because superseding is how a
+**correction** propagates (ADR-0016). A quick assessment quietly drawing from
+replaced content is worse than a refusal telling the teacher to use the current
+chapter. It is state (d) of QAC-T11 so it cannot become incidental.
 
 *Repair:* `r.status = 'PUBLISHED'` on the whole predicate, so the rule is stated
 once and covers both arms. It narrows; nothing in the canonical path changes.

@@ -270,10 +270,21 @@ is stated once and holds for both:
   other than that RPC cannot make an unsealed release citable.
 
 **Publication, not merely sealing, is the gate.** A `FROZEN` release is sealed
-and is still refused, because doc 08 puts publication upstream of use. QAC-T11
-exercises one own-content course in three states — INGESTED, FROZEN, PUBLISHED —
-with the same assignment over the same pool, so the only variable is the
-release's status.
+and is still refused, because doc 08 puts publication upstream of use.
+
+**And `PUBLISHED` is stricter than sealed in the other direction too**, which is
+a deliberate consequence rather than an accident: a release that was published
+and has since been `SUPERSEDED` is still sealed, and is now refused as well.
+That was measured, not assumed — a distributed canonical release superseded while
+its grant stayed ACTIVE does refuse the next learner. It is kept because
+superseding is how a **correction** propagates (ADR-0016): a quick assessment
+that quietly kept drawing from content its owner had replaced is precisely the
+failure that model exists to prevent, and the remedy for the school is the
+ordinary one — be granted, or publish, the release that replaced it.
+
+QAC-T11 exercises one own-content course in four states — INGESTED, FROZEN,
+PUBLISHED, SUPERSEDED — with the same pool, so the only variable is the release's
+status.
 
 Nothing in the canonical path this ADR was written for changes; the amendment
 **narrows**. No new capability, no new object, no policy change, no enum change.

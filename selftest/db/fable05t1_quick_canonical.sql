@@ -843,7 +843,7 @@ begin
   exception when others then
     perform selftest.as_owner();
     v_msg := sqlerrm;
-    v_refused := sqlerrm ~ 'has not been published for this school';
+    v_refused := sqlerrm ~ 'not currently published for this school';
   end;
   if not v_refused and v_msg <> '' then
     ok := false; detail := detail || format('the unpublished start was refused for the wrong reason: %s; ', v_msg);
@@ -871,7 +871,7 @@ begin
     ok := false; detail := detail || 'a learner sat a quick assessment against a FROZEN but unpublished release; ';
   exception when others then
     perform selftest.as_owner();
-    v_refused := sqlerrm ~ 'has not been published for this school';
+    v_refused := sqlerrm ~ 'not currently published for this school';
   end;
   if not v_refused then
     ok := false; detail := detail || 'the frozen-but-unpublished start was refused for the wrong reason; ';
@@ -920,8 +920,41 @@ begin
     exception when others then perform selftest.as_owner(); end;
   end if;
 
+  -- (d) SUPERSEDED: published once, then replaced. Still sealed, so the binding
+  --     would pin -- and still refused, deliberately. Superseding is how a
+  --     CORRECTION propagates (ADR-0016), and a quick assessment that quietly
+  --     kept drawing from replaced content is the failure that model exists to
+  --     prevent. A fresh assignment, because the attempt above is spent.
+  if s2 is not null then
+    perform selftest.as_user('qac-own-admin@synthetic.pintar.test');
+    update public.plp_releases set status = 'SUPERSEDED' where id = own.rel;
+    perform selftest.as_owner();
+    if (select r.status::text from public.plp_releases r where r.id = own.rel) <> 'SUPERSEDED' then
+      ok := false; detail := detail || 'the release did not supersede; state (d) proves nothing; ';
+    end if;
+    if not public.content_is_sealed(own.course) then
+      ok := false; detail := detail || 'a superseded course is not sealed; state (d) is testing the wrong thing; ';
+    end if;
+    perform selftest.as_user('qac-guru-b@synthetic.pintar.test');
+    select * into v_row from public.launch_quick_assessment(v_node_b, own.modul, 3, 30);
+    perform selftest.as_owner();
+    v_refused := false;
+    perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
+    begin
+      perform public.start_learning_session(v_row.assessment_assignment_id);
+      perform selftest.as_owner();
+      ok := false; detail := detail || 'a learner sat a quick assessment against a SUPERSEDED release; ';
+    exception when others then
+      perform selftest.as_owner();
+      v_refused := sqlerrm ~ 'not currently published for this school';
+    end;
+    if not v_refused then
+      ok := false; detail := detail || 'the superseded start was refused for the wrong reason; ';
+    end if;
+  end if;
+
   test_id := 'QAC-T11'; invariant := 'ADR-0018 / doc 07 session binding / doc 08 publication';
-  if ok then detail := format('one own-content course in three states: an INGESTED release and a FROZEN one each refuse the learner by name and leave no session row, and the same assignment over the same pool runs to a %s-answer scored attempt once the release is PUBLISHED -- whose presented items are then sealed against edits', n2); end if;
+  if ok then detail := format('one own-content course in four states: INGESTED and FROZEN each refuse the learner by name and leave no session row; the same assignment over the same pool runs to a %s-answer scored attempt once the release is PUBLISHED, whose presented items are then sealed against edits; and SUPERSEDED -- sealed, but replaced -- refuses again', n2); end if;
   return next;
 
   -- =========================================================================
