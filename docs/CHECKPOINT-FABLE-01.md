@@ -3,7 +3,7 @@
 **Phase state: PASS — FROZEN at `570c77d`, CI run #7 green, selftest 31/31,
 0 failed, 0 skipped.** Reopened only if a later phase exposes a genuine defect.
 FABLE-02 is now in progress on top of it; its own state lives in
-`docs/phases/FABLE-02-PROMPT.md` and the migration series from
+`fable-prompts/FABLE-02-PLP-CONTENT-MODEL-PROMPT.md` and the migration series from
 `20260912112712` onward.
 Governing architecture: PINTAR 4.0 Architecture Baseline (frozen). Phase
 prompt: `FABLE-01-FOUNDATION-PROMPT.md` (synchronized). Governing

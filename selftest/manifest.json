@@ -770,7 +770,7 @@
     {
       "id": "DOC-P01",
       "runner": "static",
-      "proves": "baseline integrity by content, not by marker: every document listed in docs/rebuild/BASELINE-MANIFEST.json is byte-identical to the frozen baseline, every file under docs/rebuild/ is governed by the manifest, and each document's own amendment marker agrees with its manifest entry. Retires DOC-S01, which counted markers — doc 03 carried the right marker while still stale, and three of eighteen documents carry none"
+      "proves": "baseline integrity by content, not by marker: every document listed in docs/rebuild/BASELINE-MANIFEST.json is byte-identical to the frozen baseline, every file in a governed directory is listed by the manifest, each document's own amendment marker agrees with its manifest entry, and no ungoverned second copy of a governed document exists anywhere in the repository. Retires DOC-S01, which counted markers — doc 03 carried the right marker while still stale, and three of eighteen documents carry none"
     }
   ]
 }

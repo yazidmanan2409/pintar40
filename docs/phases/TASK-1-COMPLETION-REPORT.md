@@ -469,11 +469,39 @@ introduced into documents it was told to treat as frozen. Those notes were
 extracted into `docs/implementation-notes/` before the sync rather than deleted
 with it; they are real work, they were simply in the wrong file.
 
+### 8.1.4b The repair reproduced the defect, and that is how assertion 6 exists
+
+Syncing the baseline in **created the exact problem the sync was fixing**. The
+seven FABLE prompts landed under `fable-prompts/`, and `docs/phases/` already
+held copies of all seven — **two of them pre-amendment**, still titled
+`PINTAR 3.0` where the governed copy says `PINTAR 4.0`, and one an exact copy
+under a different filename. Two copies of each document, no way to tell which
+was current, and assertions 1–5 could not see any of it because only one copy
+of each pair was governed.
+
+I found this by listing `docs/phases/` for an unrelated reason, which is not a
+method. So the check is now mechanical: **assertion 6** matches an ungoverned
+file to a governed one by basename *or* by first `#` heading. Neither rule alone
+was enough — the two stale copies had kept the filename and changed the title,
+and the exact copy had kept the title and changed the filename. Together they
+named all seven. The seven duplicates are removed and the one prose reference to
+the renamed file now cites the governed path.
+
+**What assertion 6 still cannot see**, stated here rather than discovered later:
+a copy that changes both its name and its title. It catches a duplicate that
+still looks like what it is, not one disguised.
+
+Assertion 2 was widened in the same pass, for the same reason: it swept only
+`docs/rebuild/`, so a stray or deleted file under `fable-prompts/` was
+ungoverned. Its directory list is now derived from the manifest's own paths, so
+governing a new directory brings the protection with it rather than requiring
+someone to remember a constant.
+
 ### 8.1.5 What is closed, and what is not
 
 **Closed.** The 25 baseline files are now in the repository byte-identical to the
 manifest, and `scripts/baseline-parity.mjs` runs as its own CI job on every push
-and pull request. Baseline quotations are now mutually verifiable; a
+and pull request, with all six assertions watched to fail before being trusted. Baseline quotations are now mutually verifiable; a
 disagreement about frozen text is now answerable by digest rather than by
 assertion.
 

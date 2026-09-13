@@ -16,27 +16,45 @@
  * of them is the sync manifest itself. Content integrity is not the better
  * option; it is the only one that works.
  *
- * FIVE ASSERTIONS.
+ * SIX ASSERTIONS.
  *   1. every listed path exists and its sha256 matches      — stale content, silent edits
- *   2. every file under docs/rebuild/ is listed             — additions and renames without governance
+ *   2. every file in a governed directory is listed         — additions and renames without governance
  *   3. each document's own marker equals its manifest baseline — two records that must agree
  *   4. a changed digest requires a changed baseline         — editing a frozen document silently
  *   5. a changed baseline requires an ADR in the same diff  — amendments are recorded where amendments live
+ *   6. no ungoverned second copy of a governed document     — the defect itself, one level up
  *
- * Assertion 2 is the one usually omitted and the one that matters most:
- * without it, deleting a document is invisible.
+ * Assertion 2 is the one usually omitted and the one that makes a DELETION
+ * visible. Its governed directories are derived from the manifest rather than
+ * hard-coded, so a manifest that starts governing a new directory gets the
+ * protection without anyone remembering to widen a constant.
+ *
+ * Assertion 6 exists because syncing the baseline in created exactly the defect
+ * the rest of this script is about: seven FABLE prompts landed under
+ * `fable-prompts/` while `docs/phases/` already held copies of the same
+ * documents, two of them pre-amendment. Two copies, no way to see which is
+ * current — the original failure, reproduced by the repair. It matches an
+ * ungoverned file to a governed one by BASENAME or by first `# ` heading,
+ * because the two stale copies had kept the name while changing the title and
+ * one exact copy had kept the title while changing the name. A copy that
+ * changes BOTH is still invisible to this, and that limit is real: assertion 6
+ * catches a duplicate that still looks like what it is, not one disguised.
  *
  * 4 and 5 need git history. Run with --no-git to skip them (the selftest does,
  * so the same logic is checked locally without a second implementation).
  */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
+import { join, basename, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 
 const ROOT = process.cwd();
 const MANIFEST = "docs/rebuild/BASELINE-MANIFEST.json";
-const DIR = "docs/rebuild";
+// Directories that assertion 6 will not walk. .git and node_modules for the
+// obvious reason; docs/implementation-notes/ because it exists precisely to
+// hold commentary ABOUT governed documents and would otherwise be read as a
+// duplicate of them.
+const SKIP_WALK = new Set([".git", "node_modules", ".next", "dist", "coverage"]);
 // The manifest cannot list its own digest. Named here rather than pattern-matched
 // so the exception is one line a reader can see.
 const NOT_A_BASELINE_DOCUMENT = new Set([MANIFEST]);
@@ -62,12 +80,18 @@ for (const d of docs) {
   }
 }
 
-// --- 2. every file under docs/rebuild/ is listed ----------------------------
+// --- 2. every file in a governed directory is listed ------------------------
 const listed = new Set(docs.map((d) => d.path));
-for (const f of readdirSync(join(ROOT, DIR))) {
-  const p = `${DIR}/${f}`;
-  if (NOT_A_BASELINE_DOCUMENT.has(p)) continue;
-  if (!listed.has(p)) fail(`2: present under ${DIR}/ but absent from the manifest: ${p}`);
+// Derived, not hard-coded: whatever directories the manifest governs are the
+// directories that get swept. `docs/rebuild` and `fable-prompts` today.
+const governedDirs = [...new Set(docs.map((d) => dirname(d.path)))].sort();
+for (const dir of governedDirs) {
+  if (!existsSync(join(ROOT, dir))) { fail(`2: governed directory is missing: ${dir}/`); continue; }
+  for (const f of readdirSync(join(ROOT, dir))) {
+    const p = `${dir}/${f}`;
+    if (NOT_A_BASELINE_DOCUMENT.has(p)) continue;
+    if (!listed.has(p)) fail(`2: present under ${dir}/ but absent from the manifest: ${p}`);
+  }
 }
 
 // --- 3. the document's own marker equals its manifest baseline --------------
@@ -80,6 +104,41 @@ for (const d of docs) {
     fail(`3: the document's marker and its manifest baseline disagree: ${d.path}\n     document ${inDoc ?? "(none)"}\n     manifest ${d.baseline ?? "(none)"}`);
   }
 }
+
+// --- 6. no ungoverned second copy of a governed document --------------------
+const firstHeading = (file) => {
+  for (const line of readFileSync(file, "utf8").split("\n")) {
+    if (line.startsWith("# ")) return line.trim();
+    if (line.trim() !== "") return null;
+  }
+  return null;
+};
+const byName = new Map();
+const byTitle = new Map();
+for (const d of docs) {
+  const p = join(ROOT, d.path);
+  if (!existsSync(p)) continue;
+  byName.set(basename(d.path), d.path);
+  const t = firstHeading(p);
+  if (t) byTitle.set(t, d.path);
+}
+const walk = (dir) => {
+  for (const f of readdirSync(join(ROOT, dir === "" ? "." : dir))) {
+    if (SKIP_WALK.has(f)) continue;
+    const rel = dir === "" ? f : `${dir}/${f}`;
+    const abs = join(ROOT, rel);
+    if (statSync(abs).isDirectory()) { walk(rel); continue; }
+    if (!f.endsWith(".md")) continue;
+    if (listed.has(rel) || NOT_A_BASELINE_DOCUMENT.has(rel)) continue;
+    const hit = byName.get(f) ?? byTitle.get(firstHeading(abs) ?? "\u0000");
+    if (hit) {
+      fail(`6: ${rel} is an ungoverned second copy of the governed document ${hit}. ` +
+        `One copy of a baseline document, in the directory the manifest governs — ` +
+        `two copies is the defect this whole script exists to end.`);
+    }
+  }
+};
+walk("");
 
 // --- 4 and 5: history ------------------------------------------------------
 if (useGit) {

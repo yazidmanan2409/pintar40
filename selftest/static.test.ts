@@ -1022,9 +1022,9 @@ export const staticTests: SelfTest[] = [
       // documents carry no marker at all -- one of them the sync manifest
       // itself. Content integrity is the only property that actually holds.
       //
-      // Assertions 1-3 run here (no git needed); CI's `baseline-parity` job
-      // runs the same script with 4 and 5, which need history. One
-      // implementation, two callers.
+      // Assertions 1, 2, 3 and 6 run here (no git needed); CI's
+      // `baseline-parity` job runs the same script with 4 and 5, which need
+      // history. One implementation, two callers.
       const c = new Checks();
       const script = join(repoRoot, "scripts", "baseline-parity.mjs");
       c.expect(existsSync(script), "scripts/baseline-parity.mjs is missing");
@@ -1045,7 +1045,7 @@ export const staticTests: SelfTest[] = [
       const n = /(\d+) document\(s\) byte-identical/.exec(out);
       c.note(n ? `${n[1]} baseline documents byte-identical to the frozen set` : out.trim().slice(0, 160));
       return c.verdict(
-        "every frozen baseline document is byte-identical to BASELINE-MANIFEST.json, every file under docs/rebuild/ is governed by it, and each document's own amendment marker agrees with its manifest entry",
+        "every frozen baseline document is byte-identical to BASELINE-MANIFEST.json, every file in a governed directory is listed by it, each document's own amendment marker agrees with its manifest entry, and no ungoverned second copy of a governed document exists anywhere in the repository",
       );
     },
   },

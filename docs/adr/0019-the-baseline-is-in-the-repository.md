@@ -60,24 +60,50 @@ Two results are worth naming because they settle a design question:
 
 `docs/rebuild/BASELINE-MANIFEST.json` lists every baseline document with its
 `path`, `sha256`, `bytes` and `baseline` identity. `scripts/baseline-parity.mjs`
-enforces five assertions; CI runs all five in the `baseline-parity` job, and the
-selftest runs the first three as `DOC-P01`.
+enforces six assertions; CI runs all six in the `baseline-parity` job, and the
+selftest runs the four that need no git history as `DOC-P01`.
 
 1. every listed path exists and its sha256 matches;
-2. every file under `docs/rebuild/` appears in the manifest — **the one usually
-   omitted, and the one that makes a deletion visible**;
+2. every file in a **governed directory** appears in the manifest — **the one
+   usually omitted, and the one that makes a deletion visible**. The governed
+   directories are derived from the manifest's own paths rather than hard-coded,
+   so a manifest that starts governing a new directory gets the protection
+   without anyone remembering to widen a constant;
 3. each document's own marker equals its manifest `baseline` — two independent
    records that must agree, with `null` declared explicitly so a document that
    legitimately carries no marker is a recorded exception rather than a silent
    one;
 4. a changed digest requires a changed `baseline` — editing a frozen document
    silently becomes impossible;
-5. a changed `baseline` requires an ADR in the same change (doc 13).
+5. a changed `baseline` requires an ADR in the same change (doc 13);
+6. no ungoverned second copy of a governed document exists anywhere in the
+   repository.
 
 Together: a baseline document can change only as a **recognisable amendment** —
 new bytes, new baseline identity, a matching marker, and an ADR in the same
 commit. That is the smallest rule that stops the manifest being a self-updating
 checksum list.
+
+### 1a. Assertion 6, added because the repair reproduced the defect
+
+Syncing the baseline in created the exact problem the rest of this script
+exists to end. The seven FABLE prompts landed under `fable-prompts/` while
+`docs/phases/` already held copies of the same seven documents — **two of them
+pre-amendment**, still carrying the old `PINTAR 3.0` title. Two copies, no way
+to tell which is current, and assertions 1–5 could not see it because only one
+copy was governed.
+
+Assertion 6 matches an ungoverned file to a governed one by **basename or by
+first `#` heading**. Both rules are needed and neither is sufficient: the two
+stale copies kept the filename while changing the title, and one exact copy
+(`docs/phases/FABLE-02-PROMPT.md`) kept the title while changing the filename.
+Together they caught all seven; the seven ungoverned copies were removed, and
+the one prose reference to the renamed file now points at the governed path.
+
+**Its limit, stated rather than discovered later:** a copy that changes *both*
+name and title is invisible to assertion 6. It catches a duplicate that still
+looks like what it is, not one disguised. `docs/implementation-notes/` is
+excluded by design — it exists to hold commentary *about* governed documents.
 
 ### 2. Marker-counting is retired, on evidence
 
@@ -134,6 +160,8 @@ the committed manifest, and the branch was deleted afterwards:
 | E | added an unlisted file under `docs/rebuild/` | **2** — named the stray file |
 | F | document marker `2027-01-01` vs manifest `2027-01-02` | **3** — both values printed |
 | G | deleted a governed document | **1** — "missing from the repository" |
+| H | added an unlisted file under `fable-prompts/` | **2** — the widened sweep reaches the second governed directory |
+| I | the seven duplicated prompts, as actually found | **6** — all seven named, by basename and by title |
 
 B is the one worth noting: it is the shape a well-meaning sync takes — files
 updated, digests recalculated, identity left alone — and without assertion 4 the
@@ -148,7 +176,9 @@ refuses is not a rule, it is an obstacle.
 - A disagreement about baseline text between two parties is now resolvable by
   digest instead of by argument.
 - The seven FABLE prompt files and the freeze record are in the repository for
-  the first time, and governed.
+  the first time, and governed. Their seven ungoverned duplicates under
+  `docs/phases/` are removed; `docs/CHECKPOINT-FABLE-01.md` now cites the
+  governed path.
 - `DOC-S01` is retired; `DOC-P01` and `baseline-parity` replace it.
 - The 2026-09-12 amendment is unchanged by any of this. It arrived intact and is
   now pinned; this ADR governs how the **next** one arrives.
