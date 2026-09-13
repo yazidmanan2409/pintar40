@@ -3,6 +3,13 @@
 *Assessment engine completion, resilience, Quick Assessment, certificates and
 public verification. Written to the §16 contract of the builder task prompt.*
 
+**Revised 2026-09-14 after Claude 1's review.** One blocking finding was
+accepted and fixed (§4.3); one was answered against doc 05 and a real over-grant
+narrowed (§4.4); two findings were Claude 1's own spec defects, confirmed as
+such; one diagnosis was promoted to a rule (ADR-0014). Sections that were wrong
+before the review are corrected in place with the original reasoning kept, not
+deleted — §6.1 in particular is withdrawn rather than defended.
+
 ---
 
 ## 1. State
@@ -13,11 +20,11 @@ public verification. Written to the §16 contract of the builder task prompt.*
 | Commits | `e81b41f` (the phase) and `403b216` (the 0046 repair, §4.2) |
 | `main` | fast-forwarded to `403b216`; no merge commit, no rewritten history |
 | Canonical `main` before this phase | `7f4b643` (37 migrations) |
-| Migrations after this phase | **50** (0038–0050 added; nothing edited, nothing removed) |
-| Selftest manifest | `pintar-selftest` v4, FABLE-04, **93 ids** |
-| Strict selftest, clean replay (local) | `86 passed, 0 failed, 0 skipped, 7 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
+| Migrations after this phase | **51** (0038–0051 added; nothing applied to a canonical environment was edited) |
+| Selftest manifest | `pintar-selftest` v4, FABLE-04, **94 ids** |
+| Strict selftest, clean replay (local) | `86 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` — identical on the upgrade-path database |
 | Strict selftest, CI (no skips permitted) | `93 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN` |
-| Widened object digest | 2003 objects; clean replay and the upgrade path identical, and hosted identical in every category but the six pre-existing FABLE-01 comment divergences (§1.3) |
+| Widened object digest | 2007 objects; clean replay and the upgrade path identical, and hosted identical in every category but the six pre-existing FABLE-01 comment divergences (§1.3) |
 | CI | *see §1.2* |
 | Hosted development | *see §1.3* |
 
@@ -27,11 +34,12 @@ Run against a database built from an empty cluster: 50 migrations applied in
 order, then the three seeds (`synthetic`, `learning_cycle`, `official_bootstrap`).
 
 ```
-86 passed, 0 failed, 0 skipped, 7 justified skips accepted (local only), 0 contract problem(s) → GREEN
+86 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN
 ```
 
-The seven justified skips are the network- and CI-facility tests
-(`F01-R02…R06`, `F03-R01…R02`) — this session's egress policy denies
+The eight justified skips are the network- and CI-facility tests
+(`F01-R02…R06`, `F03-R01…R02`) plus `F04-S05`, which drives the real route
+handler and therefore needs the Supabase stack as well as the database — this session's egress policy denies
 `*.supabase.co` and Docker is unavailable, so they are skipped **locally only**
 and run strictly in CI, which has both. `--accept-justified-skips` is a
 local-only flag; the CI job runs `npm run selftest` with no skips permitted.
@@ -325,6 +333,103 @@ the manifest id that runs it unconditionally.
 
 ---
 
+## 4.3 The blocking finding from review, and the reasoning error behind it
+
+**Claude 1, finding 1.** `verify_certificate` read `pass` and `predikat` out of
+`canonical_payload` and `validity` out of `certificates.status`, and **never
+touched `signature`**. INV-05's guarantee did not hold on the one path a printed
+QR code points at: alter the stored payload and the public page said `BERLAKU`.
+The tamper matrix passed throughout because it exercised a different, internal
+verifier — two verification paths of unequal strength, the shape INV-38 and
+INV-26 exist to prevent.
+
+**§7.1 of this report disclosed the gap and gave the wrong reason for it.** It
+said closing it needed a fourth database principal. It did not. F01-S03
+restricts `@/lib/supabase/service` to `src/app/api/**` — **it does not forbid it
+there**, and `/api/assets/read-url` has worked that way since FABLE-01. I had
+considered an API route and rejected it as "a second anonymous surface INV-38
+exists to prevent", which inverts the invariant: before the change there were
+two implementations of validity, after it there is one, and the number of
+verifier-facing URLs is unchanged at one. I turned a test-scoping question into
+an architectural constraint. Disclosure is not a fix, and a well-written
+disclosure of a wrong conclusion is still a wrong conclusion.
+
+**What 0051 and ADR-0013 do.**
+
+```
+QR token → /verifikasi/[token]  (page: renders, holds no database client)
+             → /api/verifikasi/[token]  (endpoint: service client, holds the key)
+                 → verify_certificate                  → the five D3b fields
+                 → certificate_verification_material   → payload, signature, key_version
+                 → decideValidity(…, verifySignature)  ← crypto.timingSafeEqual
+             ← { pass, predikat, institution, date, validity }
+```
+
+- `certificate_verification_material` has **no client grant**; the payload
+  carries `result.score` and the identity snapshot hash.
+- `decideValidity` is pure and **can only downgrade**: a failed signature makes
+  validity `TIDAK SAH`; a good signature never un-revokes.
+- **`verify_certificate` lost its anon grant.** Leaving it would move the defect
+  from the page to the RPC. `functions_executable_by_anon` → **0**, so §13 is
+  met in full and §6.1's deviation is withdrawn.
+- No database principal was added. F01-S03 is untouched. `service_role` already
+  held EXECUTE on the internal functions — verified on the live project before
+  building, not assumed.
+
+**Coverage, on the path a stranger uses.**
+
+| id | what it drives |
+|---|---|
+| **F04-S05** (new) | the exported route handler itself: genuine → `BERLAKU`; **tampered stored payload** (trigger disabled to write it, simulating the exact compromise) → `TIDAK SAH`; five fields in both cases; unknown, malformed and unissued indistinguishable |
+| **F04-S04** (extended) | the same `decideValidity` the route calls, over a real sealed certificate — locally runnable, so the closure is not CI-only evidence |
+| **F04-S01** (extended) | exactly one verifier-facing route and one endpoint; the endpoint recomputes and holds the privileged client; the page holds neither |
+| **F04-T10 / F04-T12** | `anon` executes nothing; neither verification function is reachable by any client role |
+
+## 4.4 Claude 1's other findings, answered
+
+**Finding 6 — the certificate read policy was a real over-grant.** Doc 05
+§Certificates, row *Read own certificate*: STUDENT ✅ own-only, **EDUCATOR ❌,
+HoD ❌, DEAN ❌, INST_ADMIN ❌, SYS_ADMIN ❌**, SERVICE ✅. There is no
+institution-wide certificate read cell in the matrix. 0043's policy was
+`person_id = current_person_id() OR can_in_institution('CAN_ASSIGN_LEARNING', …)`,
+which let every educator with that capability read any learner's certificate
+**and identity snapshot** in their institution. **Narrowed** to own-only in
+0051, for both tables. F04-T12 now walks it as an educator and as an institution
+admin rather than reading the policy text. Revocation is unaffected —
+INST_ADMIN's ✅ is on the *Revoke* row, and `revoke_certificate` is SECURITY
+DEFINER gated on `CAN_PUBLISH`, never needing table SELECT.
+
+**Finding 3 — confirmed, and the missing half added.** Hash invariance was
+proven behaviourally (0046's terminal block recomputes every sealed release
+hash; F04-T01 repeats it). On promotion: an ad-hoc definition can never become
+release-bound — the UPDATE branch refuses `is_ad_hoc` true → false. The
+*converse* was untested, and is the direction that would launder a taught
+definition into a deletable row. **F04-T17 now asserts it**: under a sealed
+course a taught definition can be neither relabelled ad-hoc nor deleted. Both
+directions are locked once the course is sealed; before sealing both are
+ordinary authoring.
+
+**Finding 4 — promoted to a rule.** **ADR-0014**: *a migration's verification
+block must construct the data it probes, inside a subtransaction it rolls back;
+it must never assume a seeded row exists.* Where a block genuinely cannot build
+its fixture, it asserts structurally and names the selftest id that carries the
+behaviour. This build has two conditional blocks (0046, 0049) and both are now
+named against F04-T17 and F04-T04.
+
+**Findings 2 and 3's origin — accepted, no action.** The §9/§13 contradiction
+and the §5/INV-04 impossibility are defects in the phase brief, and Claude 1
+says so. Worth noting for the record that the §9/§13 resolution I defended in
+ADR-0012 has now been **superseded anyway**: the right answer needed neither
+line bent.
+
+**Finding 5 — the line they asked for.** **No certificate has ever been issued
+outside CI and the local stack.** Hosted carries the schema; the D1 bootstrap
+tenant is a seed and seeds are not applied there, so `non_synthetic_institutions`
+on hosted is 0 and its certificate path has never run. "Certificate core
+complete" must not be read as "certificates have been issued on hosted".
+
+---
+
 ## 5. Architectural decisions, and which of them are *readings*
 
 | ADR | Decision | Fact or reading? |
@@ -335,24 +440,28 @@ the manifest id that runs it unconditionally.
 | **0009** | D2: certificates are `INSTITUTION_SCOPED` | **Fact** — decided by Yazid, Option A. The *reasoning* (a certificate is an institutional attestation; the learner keeps the document, and the public route is what makes that enough) is argued in the ADR |
 | **0010** | D3a opaque token; D3b the closed five-field payload with **no name** | **Fact** — decided by Yazid. D3b is the frozen baseline read literally: doc 02's Verification Record and doc 05's "only", with no exception clause anywhere |
 | **0011** | An ad-hoc instrument is not taught content, so a Quick Assessment can exist over a PUBLISHED course | **READING — FLAGGED FOR THE LAYER-3 AUDITOR.** Neither document mentions the other, and as written INV-04 and §5 are mutually exclusive: before this, a Quick Assessment could never be launched for any PUBLISHED course. The distinction drawn here is defensible and it is still a distinction *this builder drew* |
-| **0012** | The verification route reads through an `anon`-executable projection function | **READING — FLAGGED FOR THE LAYER-3 AUDITOR.** §9 and §13 of the task prompt cannot both hold literally. §9 was followed because it governs this surface and pre-authorises the mechanism; the cost is stated in §7 below rather than engineered away |
+| **0012** | ~~The verification route reads through an `anon`-executable projection function~~ **SUPERSEDED by ADR-0013** | was a reading; the question is now moot — §9 and §13 of the task prompt cannot both hold literally. §9 was followed because it governs this surface and pre-authorises the mechanism; the cost is stated in §7 below rather than engineered away |
 
 ---
 
 ## 6. Anything narrowed, substituted or argued rather than tested
 
-1. **`functions_executable_by_anon` is 1, not 0.** §13's row for that counter is
-   **not met**. It was not narrowed to make it read zero — that is the move §9
-   itself names as dishonest. `F01-T13` is now **exact rather than relaxed**: it
-   asserts `= 1`, plus `undeclared_anon_functions = 0`,
-   `anon_public_surface = 2` and `public_surface_ok`. A *second* anon grant
-   still fails FABLE-01's lint test. In the manifest, not only in prose.
+1. ~~**`functions_executable_by_anon` is 1, not 0.**~~ **WITHDRAWN at review.**
+   0051 revokes the anon grant on `verify_certificate` entirely, because a
+   projection that reports validity without checking a signature must not be an
+   independent public answer (§4.3). The counter returns to **0** and §13's
+   regression table is met in full. `F01-T13` asserts `= 0` again, plus
+   `undeclared_anon_functions = 0`, `anon_public_surface = 2` and
+   `anon_reachable_http_paths = 2`. The original text is left struck through
+   rather than deleted: it was a real deviation for two commits, and the reason
+   it stopped being one is that the design that required it was wrong.
 2. **`anon_public_surface` moved 1 → 2 by counting more of reality.** It counted
    anon's table grants; it now counts anon-reachable tables **and**
    anon-executable functions. The direction matters: it counts more, never less.
-3. **The public route does not recompute the HMAC.** Open, §7. A SHA-256 payload
-   digest that would have made it *look* verified was considered and **rejected**
-   as a substitute control.
+3. ~~**The public route does not recompute the HMAC.**~~ **CLOSED at review**,
+   §4.3. Rejecting the SHA-256 digest that would have made it *look* verified
+   was right; concluding that the real fix needed a new database principal was
+   not. It needed an API route.
 4. **`assert_evidence_consumer_boundary()` still holds VACUOUSLY.** No analytics
    consumer role exists. The assertion says so in its own detail string rather
    than presenting a green as proof. Unchanged from FABLE-03 and restated here
@@ -373,11 +482,8 @@ the manifest id that runs it unconditionally.
 
 ### 7.1 FABLE-04 gaps
 
-- **The public verification route reports validity from `status` without
-  recomputing the signature.** Boundary audit §4. The remedy is a fourth
-  database principal (a `certificate_verifier` role whose JWT the server mints)
-  — a decision about the authentication architecture, not a patch. Recorded,
-  not improvised.
+- ~~The public verification route reports validity from `status`.~~ **Closed by
+  0051** — §4.3, ADR-0013, boundary audit §4.
 - **No Quick Assessment UI, no PUBLIC_DEMO UI.** Both are FOUNDATION NOW by the
   prompt's own instruction; `PUBLIC_DEMO` explicitly has "no public UI in this
   phase".

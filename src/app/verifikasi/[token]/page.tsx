@@ -1,17 +1,22 @@
-import { supabaseAnon } from "@/lib/supabase/anon";
+import { appUrl } from "@/lib/env";
+import { TAMPERED, type VerificationResponse } from "@/lib/certificates/verification";
 import { t } from "@/lib/hle";
 
 /**
  * THE public certificate verification route (INV-38). Exactly one exists. A
  * QR-friendly short path may only ever be a permanent redirect to this one.
  *
- * WHO READS. The anonymous principal, fixed: the anon key with no session
- * cookie, so a signed-in visitor and a stranger get the identical answer and
- * neither this page nor the service role is involved in producing it. `anon`
- * holds no table grant and can execute exactly one function — this projection
- * — declared in `public_surface_registry` and asserted both ways by
- * `assert_public_surface()`. Migration 0048 records why that grant exists and
- * what it cost.
+ * THIS PAGE RENDERS; IT DOES NOT DECIDE. The verification itself — recomputing
+ * the HMAC over the stored canonical payload with a timing-safe compare — runs
+ * at `/api/verifikasi/[token]`, which is the one place that holds the signing
+ * key and the one place F01-S03 permits the service-role client. This page
+ * fetches that endpoint and displays what it returns. There is exactly one
+ * implementation of "is this certificate valid", and the page is not it.
+ *
+ * `anon` executes no database function and holds SELECT on one view. Both the
+ * route and its endpoint are declared in `public_surface_registry`, counted by
+ * the lint and asserted by `assert_public_surface()` and F04-S01. Migration
+ * 0051 and ADR-0013 record why this replaced the anon-executable projection.
  *
  * WHAT IT SHOWS, AND WHAT IT CANNOT. doc 02's Verification Record enumerates
  * the public-safe read and doc 05's matrix cell says "only": pass, predikat,
@@ -25,24 +30,27 @@ import { t } from "@/lib/hle";
  */
 export const dynamic = "force-dynamic";
 
-type Verification = {
-  pass: boolean | null;
-  predikat: string | null;
-  institution: string | null;
-  date: string | null;
-  validity: string | null;
-};
-
 export default async function VerifikasiPage({
   params,
 }: {
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  const supabase = supabaseAnon();
-  const { data, error } = await supabase.rpc("verify_certificate", { p_token: token });
-  const row: Verification | null =
-    !error && Array.isArray(data) && data.length > 0 ? (data[0] as Verification) : null;
+  // Server-side fetch of this app's own verification endpoint. `no-store`
+  // because a revocation must take effect on the next load, not on the next
+  // cache expiry — a cached BERLAKU for a revoked certificate is the same
+  // defect this route was repaired to remove.
+  let row: VerificationResponse | null = null;
+  try {
+    const res = await fetch(`${appUrl()}/api/verifikasi/${encodeURIComponent(token)}`, {
+      cache: "no-store",
+    });
+    if (res.ok) row = (await res.json()) as VerificationResponse;
+  } catch {
+    // an unreachable endpoint renders "not found" rather than a valid-looking
+    // page: this surface never reports validity it did not obtain
+    row = null;
+  }
 
   return (
     <main className="mx-auto max-w-xl px-6 py-16">
@@ -66,6 +74,12 @@ export default async function VerifikasiPage({
           <dd>{row.date}</dd>
         </dl>
       )}
+
+      {row !== null && row.validity === TAMPERED ? (
+        <p className="mt-6 rounded-lg bg-[--pintar-surface-muted] p-4">
+          {t("verifikasi.tidak_sah")}
+        </p>
+      ) : null}
 
       <p className="mt-10 text-sm opacity-70">{t("verifikasi.catatan")}</p>
     </main>

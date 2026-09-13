@@ -27,6 +27,24 @@ type ManifestTest = { id: string; runner: "db" | "static" | "app"; proves: strin
 type Manifest = { contract: string; version: number; phase: string; tests: ManifestTest[] };
 type Outcome = { id: string; runner: string; status: "PASS" | "FAIL" | "SKIP"; detail: string };
 
+/**
+ * Next.js server modules — anything importing `server-only`, which is every
+ * module that may touch a secret — resolve to a throwing stub unless the
+ * `react-server` export condition is on. A static test that drives a real route
+ * handler therefore cannot import it at all under plain Node, which is how
+ * F04-S05 first failed. Re-exec once with the condition rather than asking
+ * every entry point (npm script, CI red case, a developer's `npx tsx`) to
+ * remember the flag. `PINTAR_SELFTEST_RSC` makes the re-exec idempotent.
+ */
+if (!process.env.PINTAR_SELFTEST_RSC) {
+  const r = spawnSync(
+    process.execPath,
+    [...process.execArgv, "--conditions=react-server", __filename, ...process.argv.slice(2)],
+    { stdio: "inherit", env: { ...process.env, PINTAR_SELFTEST_RSC: "1" } },
+  );
+  process.exit(r.status ?? 1);
+}
+
 const repoRoot = resolve(__dirname, "..");
 const NEXT_BIN = join(repoRoot, "node_modules", "next", "dist", "bin", "next");
 const args = new Set(process.argv.slice(2));

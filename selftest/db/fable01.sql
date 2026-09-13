@@ -292,16 +292,18 @@ begin
      -- a client-executable name carrying two signatures
      and (j->>'learner_rpcs_guarded_ok')::boolean
      and (j->>'overloaded_client_rpcs')::int = 0
-     -- CHANGED IN FABLE-04. This asserted functions_executable_by_anon = 0 and
-     -- that is no longer true: §9 of the FABLE-04 task puts the public
-     -- verification projection behind an anon EXECUTE grant, and migration
-     -- 0048 records the decision and what it cost. The assertion is not
-     -- relaxed to ">= 0"; it is made exact. One anon-executable function, zero
-     -- unclassified ones, two declared anon-reachable objects, and the
-     -- both-ways set equality green. A second anon grant still fails here.
-     and (j->>'functions_executable_by_anon')::int = 1
+     -- CHANGED TWICE IN FABLE-04, and back. 0048 granted the public
+     -- verification projection to anon and this line asserted exactly 1;
+     -- 0051 revoked it, because a projection that reports validity without
+     -- checking a signature must not be an independent public answer. So the
+     -- FABLE-01 property holds again unchanged: anon executes NOTHING. Two
+     -- declared anon-reachable surfaces remain (the published view and the
+     -- verification route), and both spellings of the route's HTTP path are
+     -- counted separately so the pair is never folded away.
+     and (j->>'functions_executable_by_anon')::int = 0
      and (j->>'undeclared_anon_functions')::int = 0
      and (j->>'anon_public_surface')::int = 2
+     and (j->>'anon_reachable_http_paths')::int = 2
      and (j->>'public_surface_ok')::boolean
      and (j->>'anon_table_grants')::int = 0 and (j->>'public_buckets')::int = 0
      and (j->>'client_storage_policies')::int = 0 and (j->>'persons_institution_columns')::int = 0

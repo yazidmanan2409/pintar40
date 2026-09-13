@@ -293,7 +293,7 @@ declare
   v_tok text; v_cert uuid; e record; v record; v_row record;
   v_before text; v_after text; v_pos int; v_inst uuid; v_sess uuid;
   bad text; v_def2 uuid; v_course uuid; v_status text; v_blockers text[];
-  v_demo uuid; v_enr uuid;
+  v_demo uuid; v_enr uuid; v_taught uuid;
   t0 timestamptz := clock_timestamp();
 begin
   perform selftest.as_owner();
@@ -646,30 +646,36 @@ begin
   if v_tok ~ '^[0-9]+$' then ok := false; detail := detail || 'the token is a sequence; '; end if;
   select aa2.ok, aa2.detail into v_ok, v_detail from public.assert_public_surface() aa2;
   if not v_ok then ok := false; detail := detail || v_detail || '; '; end if;
-  -- §9 wants the anonymous principal exercised, not a privilege query about
-  -- it. anon reaches the one declared projection and nothing beyond it.
+  -- CHANGED IN 0051. The projection used to be anon-executable and this test
+  -- asserted that anon could call it. It reported validity from the row status
+  -- without ever checking a signature, so it was a second verification path of
+  -- lesser strength -- Claude 1's finding 1. anon now executes NOTHING, and the
+  -- anonymous principal is exercised to prove the refusal rather than the call.
   begin
     perform selftest.as_anon();
-    select count(*) into n from public.verify_certificate(v_tok);
+    perform public.verify_certificate(v_tok);
     perform selftest.as_owner();
-    if n <> 1 then ok := false; detail := detail || 'anon could not verify an issued certificate; '; end if;
-  exception when others then
-    ok := false; detail := detail || format('anon was refused the public projection: %s; ', sqlerrm);
-  end;
+    ok := false; detail := detail || 'anon can still execute the projection; it reports validity without checking a signature; ';
+  exception when others then null; end;
   perform selftest.as_owner();
   begin
     perform selftest.as_anon();
-    perform public.certificate_eligibility(s);
+    perform public.certificate_verification_material(v_tok);
     perform selftest.as_owner();
-    ok := false; detail := detail || 'anon reached an engine function beyond the public projection; ';
+    ok := false; detail := detail || 'anon reached the signed payload and the signature; ';
   exception when others then null; end;
   perform selftest.as_owner();
   select count(*) into n from pg_proc p2 join pg_namespace ns2 on ns2.oid = p2.pronamespace
-   where ns2.nspname = 'public' and has_function_privilege('anon', p2.oid, 'EXECUTE')
-     and p2.proname <> 'verify_certificate';
+   where ns2.nspname = 'public' and has_function_privilege('anon', p2.oid, 'EXECUTE');
   if n <> 0 then
-    ok := false; detail := detail || format('%s function(s) beyond the declared projection are anon-executable; ', n);
+    ok := false; detail := detail || format('%s function(s) are anon-executable; after 0051 the answer is none; ', n);
   end if;
+  -- the projection and the material agree about which tokens resolve at all,
+  -- so the endpoint can never get five fields it cannot verify
+  select count(*) into n from public.certificate_verification_material(v_tok);
+  if n <> 1 then ok := false; detail := detail || 'an issued certificate yielded no verification material; '; end if;
+  select count(*) into n from public.certificate_verification_material(repeat('q', 43));
+  if n <> 0 then ok := false; detail := detail || 'an unknown token yielded verification material; '; end if;
   select * into v from public.verify_certificate(v_tok);
   if v.institution is null or v.validity <> 'BERLAKU' then
     ok := false; detail := detail || 'the public projection did not resolve an issued certificate; ';
@@ -687,7 +693,7 @@ begin
   if n <> 1 then ok := false; detail := detail || 'revocation removed the row; '; end if;
   test_id := 'F04-T10'; invariant := 'D3a / D3b / INV-38';
   if ok then detail := 'the token is opaque and derivable from nothing; the public payload is exactly the five enumerated fields and reads no identity column; '
-    || 'an unknown token yields no row; revocation changes the answer and keeps the row; the anonymous principal reaches verify_certificate and nothing else'; end if;
+    || 'an unknown token yields no row; revocation changes the answer and keeps the row; the anonymous principal executes nothing at all and cannot reach the signed payload'; end if;
   return next;
 
   -- =========================================================================
@@ -766,13 +772,40 @@ begin
       ok := false; detail := detail || format('%s is executable by %s; ', bad, v_detail);
     end if;
   end loop;
-  -- and the one exposed projection is exposed to anon ONLY -- a signed-in
-  -- learner reaching it would be a second, unclassified path to the same data
-  if has_function_privilege('authenticated', 'public.verify_certificate(text)'::regprocedure, 'EXECUTE') then
-    ok := false; detail := detail || 'verify_certificate is executable by authenticated as well as anon; ';
-  end if;
+  -- 0051: the projection and the material are internal, like the rest
+  foreach bad in array array['verify_certificate','certificate_verification_material'] loop
+    select string_agg(rr.rolname, ', ') into v_detail from pg_proc p
+      join pg_namespace ns on ns.oid=p.pronamespace, unnest(array['anon','authenticated']) rr(rolname)
+     where ns.nspname='public' and p.proname = bad
+       and has_function_privilege(rr.rolname, p.oid, 'EXECUTE');
+    if v_detail is not null then
+      ok := false; detail := detail || format('%s is executable by %s; ', bad, v_detail);
+    end if;
+  end loop;
+
+  -- doc 05 §Certificates, row "Read own certificate": STUDENT own-only,
+  -- EDUCATOR/HoD/DEAN/INST_ADMIN/SYS_ADMIN all no, SERVICE yes. Before 0051 the
+  -- policy also admitted every CAN_ASSIGN_LEARNING holder in the institution,
+  -- which is not a cell the matrix contains. Walked as staff, not read off the
+  -- policy text.
+  perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+  select count(*) into n from public.certificates where id = v_cert;
+  if n <> 0 then ok := false; detail := detail || 'an educator in the institution read a learner''s certificate (doc 05); '; end if;
+  select count(*) into n from public.certificate_identity_snapshots
+   where id = (select snapshot_id from public.certificates c2 where c2.id = v_cert);
+  if n <> 0 then ok := false; detail := detail || 'an educator read a learner''s identity snapshot (doc 05); '; end if;
+  perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+  select count(*) into n from public.certificates where id = v_cert;
+  if n <> 0 then ok := false; detail := detail || 'an institution admin read a learner''s certificate (doc 05); '; end if;
+  perform selftest.as_owner();
+  -- ... and the holder still reads their own
+  perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+  select count(*) into n from public.certificates where id = v_cert;
+  if n <> 1 then ok := false; detail := detail || 'the holder cannot read their own certificate (doc 05); '; end if;
+  perform selftest.as_owner();
   test_id := 'F04-T12'; invariant := 'INV-13 / §7';
-  if ok then detail := 'learners from two other tenants are refused on the read and the revoke; the three internal certificate functions are executable by no client role, and the public projection by anon only'; end if;
+  if ok then detail := 'learners from two other tenants are refused on the read and the revoke; every certificate function is internal, including the projection and the verification material; '
+    || 'and doc 05 is honoured on the table itself -- the holder reads their own certificate and snapshot, an educator and an institution admin read neither'; end if;
   return next;
 
   -- =========================================================================
@@ -1036,7 +1069,38 @@ begin
         ok := false; detail := detail || format('the promotion was refused for the wrong reason: %s; ', left(sqlerrm, 60));
       end if;
     end;
-    -- and it can be removed again. This is the verb 0046 forgot.
+    -- a TAUGHT definition under the same sealed course cannot be relabelled
+    -- ad-hoc, which is what would otherwise launder it into a deletable row.
+    -- Claude 1's finding 3 asked for this direction to be confirmed.
+    select d2.id into v_taught from public.assessment_definitions d2
+     where d2.course_id = v_course and not d2.is_ad_hoc limit 1;
+    if v_taught is null then
+      select d3.id into v_taught from public.assessment_definitions d3
+        join public.modules m3 on m3.id = d3.module_id
+       where m3.course_id = v_course and not d3.is_ad_hoc limit 1;
+    end if;
+    if v_taught is null then
+      ok := false; detail := detail || 'no taught definition under the sealed course; the promotion probe would prove nothing; ';
+    else
+      begin
+        update public.assessment_definitions set is_ad_hoc = true where id = v_taught;
+        ok := false; detail := detail || 'a taught definition was relabelled ad-hoc under a sealed course; ';
+      exception when others then
+        if sqlerrm !~ 'immutable once the course is frozen' then
+          ok := false; detail := detail || format('refused, but not as taught content: %s; ', left(sqlerrm, 60));
+        end if;
+      end;
+      begin
+        delete from public.assessment_definitions where id = v_taught;
+        ok := false; detail := detail || 'a taught definition was deleted under a sealed course; ';
+      exception when others then
+        if sqlerrm !~ 'cannot be deleted once frozen' then
+          ok := false; detail := detail || format('the taught delete was refused for the wrong reason: %s; ', left(sqlerrm, 60));
+        end if;
+      end;
+    end if;
+
+    -- and the ad-hoc one can be removed again. This is the verb 0046 forgot.
     begin
       delete from public.assessment_definitions where id = v_def2;
     exception when others then
@@ -1051,7 +1115,7 @@ begin
   end if;
   test_id := 'F04-T17'; invariant := 'INV-04 / ADR-0011';
   if ok then detail := 'under a sealed course a release-bound definition is refused and an ad-hoc one is created, edited and removed, '
-    || 'moving no sealed release hash and never becoming part of a release'; end if;
+    || 'moving no sealed release hash; neither direction crosses -- an ad-hoc definition never becomes release-bound and a taught one is neither relabelled ad-hoc nor deleted'; end if;
   return next;
 
   -- =========================================================================

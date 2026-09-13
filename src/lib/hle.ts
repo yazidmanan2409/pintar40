@@ -22,6 +22,7 @@ export type HleEvent =
   | "verifikasi.tanggal"
   | "verifikasi.catatan"
   | "verifikasi.tidak_ditemukan"
+  | "verifikasi.tidak_sah"
   | "sertifikat.judul"
   | "sertifikat.nomor"
   | "sertifikat.unduh"
@@ -200,6 +201,7 @@ const table: Table = {
   "verifikasi.tanggal": { default: "Tanggal terbit" },
   "verifikasi.catatan": { default: "Halaman ini memastikan sertifikat yang Anda pegang benar diterbitkan. Nama pemegang tertera pada sertifikatnya." },
   "verifikasi.tidak_ditemukan": { default: "Sertifikat dengan tautan ini tidak ditemukan." },
+  "verifikasi.tidak_sah": { default: "Data sertifikat ini tidak cocok dengan catatan penerbitnya." },
   "sertifikat.judul": { default: "Sertifikat" },
   "sertifikat.nomor": { default: "Nomor sertifikat" },
   "sertifikat.unduh": { default: "Tautan verifikasi" },

@@ -531,6 +531,12 @@
       "id": "F04-S04",
       "runner": "static",
       "proves": "INV-05 end to end — a canonical payload BUILT IN SQL, signed in Node with the keyring crypto and stored in Postgres verifies when a separate process reads it back; a changed stored byte and a wrong key both fail. Closes the gap the first-certificate-issuance boundary audit found: before it, SQL-built payloads were never signed by the real crypto and the db suite sealed with a placeholder signature"
+    },
+    {
+      "id": "F04-S05",
+      "runner": "static",
+      "proves": "INV-05 on the path a stranger uses — the exported route handler of /api/verifikasi/[token], driven directly: a genuine certificate reads BERLAKU, a tampered STORED payload reads TIDAK SAH, the response is exactly the five D3b fields in both cases, and unknown, malformed and prepared-but-unissued tokens are indistinguishable. Closes Claude 1's finding 1: before 0051 the public route reported validity from certificates.status and never touched signature",
+      "skip_justification": "drives the real route handler, which reaches PostgREST: needs the Supabase stack as well as the database. CI has both and runs it strictly; locally the egress policy denies *.supabase.co and Docker is unavailable"
     }
   ]
 }

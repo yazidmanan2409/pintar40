@@ -2,6 +2,7 @@
 
 **Date:** 2026-09-14 · **Phase:** FABLE-04 · **Boundary:** doc 16 §6, "first certificate issuance"
 **Layer:** 1 (builder verification) and 2 (automated verification). **Layer 3 has not been performed and is not claimed.**
+**Revised 2026-09-14** after Claude 1's review. §4 was recorded as an open gap with a justification that did not hold; it is now closed, and the faulty reasoning is kept rather than deleted.
 
 Doc 16 §6 requires a boundary audit at every critical boundary, and names the
 first certificate issuance as one. This is that audit. It covers the full doc
@@ -92,55 +93,66 @@ that a wrong key fails, so the pass is not vacuously true.
 
 ---
 
-## 4. Finding 2 — OPEN. The public route reports validity without recomputing the signature
+## 4. Finding 2 — CLOSED at review. The public route now recomputes the signature
 
-**What it is.** `verify_certificate` derives `validity` from
-`certificates.status` (`BERLAKU` / `DICABUT` / `DIGANTIKAN`). It does **not**
-recompute the HMAC over the stored canonical payload. INV-05 and §7 say
-verification recomputes and compares timing-safely, and at the public route
-that does not happen.
+**What was found, and by whom.** `verify_certificate` derived `validity` from
+`certificates.status` and never touched `signature`. INV-05's guarantee did not
+hold on the one path a printed QR code points at. **This audit recorded it as
+open with the wrong justification**, and Claude 1's review rejected that
+justification and was right to.
 
-**Why it is not simply fixed.** The recompute needs three things at once:
-the key, the stored payload, and an anonymous caller.
+**What the wrong justification was.** This section said closing it needed a
+fourth database principal. It did not. F01-S03 restricts
+`@/lib/supabase/service` to `src/app/api/**` — it does not forbid it there, and
+`/api/assets/read-url` has worked that way since FABLE-01. The privileged read
+belonged in an API route from the start. The reason it was not put there was a
+misreading of INV-38 as counting HTTP paths rather than verifier-facing URLs,
+which turned a test-scoping question into an architectural constraint. Recorded
+here because a boundary audit that reasons its way to the wrong conclusion is
+itself a finding.
 
-- The key cannot be in the database — that is the design decision the whole
-  signing split rests on, and it is not being reopened for this.
-- The stored payload cannot be exposed to `anon` — it carries `result.score`
-  and the identity snapshot hash, and D3b's whole point is that the public
-  response is five non-identifying fields.
-- The page cannot use the service client — F01-S03, and ADR-0012 §2 records
-  why a second API endpoint is worse rather than better.
+**What was done.** Migration 0051 and ADR-0013:
 
-**What is NOT being done about it.** A SHA-256 payload digest recomputed inside
-`verify_certificate` was considered and rejected. It would make the public
-route *look* like it verifies, it would go green, and it would not be INV-05 —
-it would be a second, weaker integrity mechanism standing in for the one the
-invariant names. That is the substitute control the standing constraints
-forbid, and an openly recorded gap is worth more than it.
+- `GET /api/verifikasi/[token]` is the authoritative verification. It holds the
+  service client, reads `certificate_verification_material` (payload, signature,
+  key version — no client grant at all), recomputes the HMAC with
+  `crypto.timingSafeEqual`, and returns D3b's five fields with `validity`
+  downgraded to `TIDAK SAH` when the signature fails.
+- `decideValidity` can only downgrade: no input turns an invalid certificate
+  into a valid one, and a valid signature never un-revokes.
+- **`verify_certificate` lost its anon grant.** A projection that reports
+  `BERLAKU` without checking a signature must not be independently callable, or
+  the defect moves from the page to the RPC. `anon` executes nothing again.
+- The page holds no database client; `F04-S01` asserts that, and asserts exactly
+  one verifier-facing route and exactly one endpoint.
+- **F04-S05** drives the exported route handler itself: a genuine certificate
+  reads `BERLAKU`; a **tampered stored payload**, written with the immutability
+  trigger disabled precisely to simulate the compromise the signature exists to
+  detect, reads `TIDAK SAH`; the response is the five fields in both cases; and
+  unknown, malformed and prepared-but-unissued tokens are indistinguishable.
+- **F04-S04** exercises the same decision locally over real sealed rows, so the
+  closure is not CI-only evidence.
 
-**The named remedy, for whoever closes it.** A fourth database principal: a
-`certificate_verifier` role whose JWT the Next.js server mints with the
-project's JWT secret, holding EXECUTE on one function that returns
-`(canonical_payload, signature, key_version)` and nothing else. The page then
-recomputes with `verifyWithKey` and renders `validity` from the result. That is
-real work — a new secret, JWT minting, a new principal in the RLS model — and
-it is a decision about the authentication architecture, not a patch. It is
-recorded here and in the completion report rather than improvised at the end of
-a phase.
-
-**What holds in the meantime.** The stored payload is immutable by trigger
-(F04-T09 asserts payload, row and snapshot are each immutable); the signature
-is verifiable end to end by F04-S04; revocation changes the public answer and
-keeps the row; and the signature's primary purpose — letting a verifier check a
-certificate **document** that has left the system — is unaffected, because the
-document carries the signature and the crypto that checks it is proven correct.
-
----
+**The threat model, stated now rather than implied.** `canonical_payload` is
+refused UPDATE by `certificates_write` for every role including the table owner,
+so tampering requires disabling a trigger — superuser, or a restore from a
+doctored backup. Before 0051 that bought a forged `BERLAKU` on the public page.
+After it, it buys nothing: the signature no longer matches and the public page
+says the certificate does not match its issuer's record. The signing key is not
+in the database, so a database-level compromise cannot forge a new signature
+either.
 
 ## 5. What this audit is not
 
 It is Layer 1 and Layer 2 of doc 16 §5. **Layer 3 — an independent adversarial
 audit by a reviewer with no shared context with the builder — has not been
-performed, and nothing here should be read as if it had.** Both findings above
-were found by the builder, which is the weakest kind of finding: the classes of
-defect a builder is blind to are by definition not in this document.
+performed, and nothing here should be read as if it had.**
+
+The revision above is the argument for that in miniature. Finding 1 was found by
+the builder and closed by the builder. Finding 2 was found by the builder and
+**mis-reasoned** by the builder, who recorded a design preference as an
+architectural constraint and would have shipped the phase with a public
+verification route that performed no verification. It took a reviewer to say so.
+Claude 1 is not independent in doc 16 §5's sense either — they wrote the roadmap
+this is measured against — so the case for a genuinely independent pass over the
+certificate boundary is stronger after this review, not weaker.

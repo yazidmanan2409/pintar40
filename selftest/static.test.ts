@@ -438,15 +438,64 @@ export const staticTests: SelfTest[] = [
       };
       walk(join(repoRoot, "src", "app"));
       const verification = routes.filter((r) => /verif/i.test(r));
+      // INV-38 counts VERIFIER-FACING URLs. A page is one; the API endpoint
+      // behind it is the same surface at a second spelling — it returns the
+      // identical five fields for the identical token and is declared against
+      // its route in public_surface_registry. Both are asserted at exactly one,
+      // so a second page AND a second endpoint each fail. This is a narrowing
+      // of what the check counts, made deliberately and stated here: before
+      // 0051 it counted any route file matching /verif/i, which would have
+      // reported the endpoint as an INV-38 violation.
+      const apiVerification = verification.filter((r) => /[\\/]api[\\/]/.test(r));
+      const pageVerification = verification.filter((r) => !/[\\/]api[\\/]/.test(r));
       c.expect(
-        verification.length === 1,
-        `INV-38 requires exactly one verification route shape; found ${verification.length}: ${verification
+        pageVerification.length === 1,
+        `INV-38 requires exactly one verifier-facing verification route; found ${pageVerification.length}: ${pageVerification
           .map((r) => r.replace(repoRoot, ""))
           .join(", ")}`,
       );
+      c.expect(
+        apiVerification.length === 1,
+        `exactly one verification endpoint may exist; found ${apiVerification.length}: ${apiVerification
+          .map((r) => r.replace(repoRoot, ""))
+          .join(", ")}`,
+      );
+      // the endpoint is where verification happens, and it is the only place
+      if (apiVerification.length === 1) {
+        const api = readFileSync(apiVerification[0], "utf8");
+        c.expect(
+          /verifySignature|verifyWithKey/.test(api),
+          "the verification endpoint never recomputes the signature (INV-05)",
+        );
+        c.expect(
+          /certificate_verification_material/.test(api),
+          "the verification endpoint never reads the stored signature",
+        );
+        c.expect(
+          /decideValidity/.test(api),
+          "the verification endpoint decides validity inline instead of through the shared decision F04-S04 exercises",
+        );
+        c.expect(
+          /@\/lib\/supabase\/service/.test(api),
+          "the verification endpoint does not hold the privileged client it needs to read the payload",
+        );
+      }
+      // the page renders; it must not reach the database itself, or there would
+      // be two answers to "is this valid" again
+      if (pageVerification.length === 1) {
+        const page = readFileSync(pageVerification[0], "utf8");
+        c.expect(
+          !/@\/lib\/supabase\//.test(page),
+          "the verification page holds a database client; verification belongs to its endpoint alone",
+        );
+        c.expect(
+          /api\/verifikasi/.test(page),
+          "the verification page does not read the endpoint that verifies",
+        );
+      }
       // and no internal designation on it
-      if (verification.length === 1) {
-        const src = readFileSync(verification[0], "utf8");
+      if (pageVerification.length === 1) {
+        const src = readFileSync(pageVerification[0], "utf8");
         for (const word of ["PINTAR 4.0", "SYNTHETIC", "OFFICIAL", "PREVIEW", "evidence_class", "engine_version", "scoring_policy"]) {
           c.expect(!src.includes(word), `the verification route names the internal term "${word}"`);
         }
@@ -456,7 +505,9 @@ export const staticTests: SelfTest[] = [
         );
       }
       return c.verdict(
-        `exactly one verification route shape, carrying no internal designation and no identity field (${routes.length} route file(s) scanned)`,
+        `exactly one verifier-facing verification route and exactly one endpoint behind it; the endpoint recomputes ` +
+          `the signature and holds the privileged client, the page holds neither; no internal designation and no ` +
+          `identity field (${routes.length} route file(s) scanned)`,
       );
     },
   },
@@ -600,6 +651,54 @@ export const staticTests: SelfTest[] = [
           !verifyWithKey(tampered, KEY, stored.signature),
           "a tampered stored payload still verified (INV-05)",
         );
+
+        // ... and the DECISION the public route relies on, over those same
+        // stored rows. `decideValidity` is what the route calls; F04-S01
+        // asserts it calls exactly this, and F04-S05 drives the whole handler
+        // in CI. This is the locally-runnable half of the same path.
+        const { decideValidity, TAMPERED } = await import("../src/lib/certificates/verification");
+        const verify = (p: Record<string, unknown>, _v: number, sig: string) => verifyWithKey(p, KEY, sig);
+        const projected = {
+          pass: true,
+          predikat: "Sangat Baik",
+          institution: "Bootstrap",
+          date: "2026-09-14",
+          validity: "BERLAKU",
+        };
+        const genuine = decideValidity(
+          projected,
+          { canonical_payload: stored.canonical_payload, signature: stored.signature, key_version: 1 },
+          verify,
+        );
+        c.expect(genuine.validity === "BERLAKU", `a genuine certificate decided "${genuine.validity}"`);
+        const forged = decideValidity(
+          projected,
+          { canonical_payload: tampered, signature: stored.signature, key_version: 1 },
+          verify,
+        );
+        c.expect(
+          forged.validity === TAMPERED,
+          `a tampered stored payload decided "${forged.validity}" (INV-05)`,
+        );
+        // a missing signature or key version is never a pass
+        for (const broken of [
+          { canonical_payload: stored.canonical_payload, signature: null, key_version: 1 },
+          { canonical_payload: stored.canonical_payload, signature: stored.signature, key_version: null },
+        ]) {
+          c.expect(
+            decideValidity(projected, broken, verify).validity === TAMPERED,
+            "an unsigned certificate decided anything other than invalid",
+          );
+        }
+        // and the decision can only downgrade: a revoked certificate stays revoked
+        c.expect(
+          decideValidity(
+            { ...projected, validity: "DICABUT" },
+            { canonical_payload: stored.canonical_payload, signature: stored.signature, key_version: 1 },
+            verify,
+          ).validity === "DICABUT",
+          "a valid signature upgraded a revoked certificate",
+        );
         // a wrong key fails too, so the pass above is not a vacuous true
         c.expect(
           !verifyWithKey(stored.canonical_payload, KEY.replace("v1", "v9"), stored.signature),
@@ -616,7 +715,129 @@ export const staticTests: SelfTest[] = [
       }
       return c.verdict(
         "a canonical payload built in SQL, signed in Node with the real keyring crypto and stored in Postgres " +
-          "verifies when a separate process reads it back, fails when a stored byte changes, and fails under another key",
+          "verifies when a separate process reads it back, fails when a stored byte changes, and fails under another " +
+          "key; the decision the public route relies on reads BERLAKU for it, TIDAK SAH for a tampered or unsigned " +
+          "one, and never upgrades a revoked certificate",
+      );
+    },
+  },
+  {
+    id: "F04-S05",
+    requires: ["db", "network"],
+    run: async () => {
+      const c = new Checks();
+      // THE PATH A STRANGER ACTUALLY USES. F04-S04 proves the crypto round-trips
+      // through Postgres; it does not prove the PUBLIC route uses it. Until 0051
+      // the public route did not: it reported `validity` from
+      // `certificates.status` and never touched `signature`, so altering the
+      // stored payload left the page saying BERLAKU. This test drives the real
+      // route handler — the same exported GET the HTTP request reaches — against
+      // a real certificate, then against a tampered one.
+      const KEY = "selftest-certificate-key-v1-at-least-32-chars";
+      const dbUrl = process.env.SUPABASE_DB_URL!;
+      const psql = (sql: string): string => {
+        const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql failed: ${(r.stderr || "").slice(0, 300)}`);
+        return r.stdout.trim();
+      };
+
+      const previousKey = process.env.CERT_SECRET_KEY_V1;
+      process.env.CERT_SECRET_KEY_V1 = KEY;
+      let certificateId = "";
+      try {
+        const { signWithKey } = await import("../src/lib/certificates/sign");
+        const { GET } = await import("../src/app/api/verifikasi/[token]/route");
+        const { TAMPERED } = await import("../src/lib/certificates/verification");
+
+        const prepared = JSON.parse(
+          psql("select row_to_json(t) from (select * from selftest.issue_material()) t"),
+        ) as { certificate_id: string; canonical_payload: Record<string, unknown>; key_version: number };
+        certificateId = prepared.certificate_id;
+        const signature = signWithKey(prepared.canonical_payload, KEY);
+        psql(`select public.certificate_seal('${certificateId}'::uuid, 1::smallint, '${signature}')`);
+        const token = psql(
+          `select verification_token from public.certificates where id = '${certificateId}'::uuid`,
+        );
+
+        const call = async (t: string) => {
+          const res = await GET(new Request(`http://127.0.0.1/api/verifikasi/${t}`), {
+            params: Promise.resolve({ token: t }),
+          });
+          return { status: res.status, body: (await res.json()) as Record<string, unknown> };
+        };
+
+        // 1. the genuine certificate verifies through the public path
+        const good = await call(token);
+        c.expect(good.status === 200, `the public path returned ${good.status} for a genuine certificate`);
+        c.expect(good.body.validity === "BERLAKU", `a genuine certificate reported "${good.body.validity}"`);
+
+        // 2. D3b: the response is EXACTLY the five fields, asserted by set
+        //    equality on the real response rather than on the SQL signature
+        c.expect(
+          JSON.stringify(Object.keys(good.body).sort()) ===
+            JSON.stringify(["date", "institution", "pass", "predikat", "validity"]),
+          `the public response is not the five enumerated fields: ${Object.keys(good.body).join(", ")}`,
+        );
+
+        // 3. THE FINDING. Tamper with a protected field in the STORED payload
+        //    and the public path must refuse it. The immutability trigger is
+        //    disabled for the write, which is the point: this simulates exactly
+        //    the compromise the signature exists to detect.
+        psql(
+          `alter table public.certificates disable trigger certificates_write;
+           update public.certificates
+              set canonical_payload = jsonb_set(canonical_payload, '{result,passed}', 'true'::jsonb)
+                                      || jsonb_build_object('certificate_number', 'PINTAR/FORGED/2026/99999')
+            where id = '${certificateId}'::uuid;
+           alter table public.certificates enable trigger certificates_write;`,
+        );
+        const tampered = await call(token);
+        c.expect(
+          tampered.body.validity === TAMPERED,
+          `a tampered stored payload reported "${tampered.body.validity}" through the public path (INV-05)`,
+        );
+        c.expect(
+          JSON.stringify(Object.keys(tampered.body).sort()) ===
+            JSON.stringify(["date", "institution", "pass", "predikat", "validity"]),
+          "the refusal response leaks a field the success response does not",
+        );
+
+        // 4. no existence oracle: unknown, malformed and unissued are identical
+        const unknown = await call("z".repeat(43));
+        const malformed = await call("short");
+        c.expect(unknown.status === 404, `an unknown token returned ${unknown.status}`);
+        c.expect(
+          malformed.status === unknown.status &&
+            JSON.stringify(malformed.body) === JSON.stringify(unknown.body),
+          "a malformed token is distinguishable from an unknown one",
+        );
+        psql("select selftest.purge_certificates()");
+        const prepared2 = JSON.parse(
+          psql("select row_to_json(t) from (select * from selftest.issue_material()) t"),
+        ) as { certificate_id: string };
+        certificateId = prepared2.certificate_id;
+        const unissuedToken = psql(
+          `select verification_token from public.certificates where id = '${certificateId}'::uuid`,
+        );
+        const unissued = await call(unissuedToken);
+        c.expect(
+          unissued.status === unknown.status &&
+            JSON.stringify(unissued.body) === JSON.stringify(unknown.body),
+          "a prepared-but-unissued certificate is distinguishable from an unknown token",
+        );
+      } finally {
+        if (previousKey === undefined) delete process.env.CERT_SECRET_KEY_V1;
+        else process.env.CERT_SECRET_KEY_V1 = previousKey;
+        try {
+          psql("select selftest.purge_certificates()");
+        } catch {
+          /* run_fable04 purges again */
+        }
+      }
+      return c.verdict(
+        "the public verification path recomputes the HMAC: a genuine certificate reads BERLAKU, a tampered stored " +
+          "payload reads TIDAK SAH, the response is exactly the five D3b fields in both cases, and unknown, " +
+          "malformed and unissued tokens are indistinguishable",
       );
     },
   },
