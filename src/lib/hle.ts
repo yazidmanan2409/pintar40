@@ -186,6 +186,92 @@ export type HleEvent =
   | "hasil.certificate_soon"
   | "sync.offline"
   | "sync.pending"
+  | "studio.title"
+  | "studio.refused"
+  | "studio.nav.beranda"
+  | "studio.nav.unggah"
+  | "studio.nav.tinjau"
+  | "studio.nav.kanonik"
+  | "studio.nav.definisi"
+  | "studio.nav.integritas"
+  | "studio.nav.sertifikat"
+  | "studio.nav.bank"
+  | "studio.bucket.ACTION_REQUIRED"
+  | "studio.bucket.AWAITING_MY_REVIEW"
+  | "studio.bucket.BLOCKED"
+  | "studio.bucket.QUESTION_HEALTH"
+  | "studio.bucket.DISTRIBUTED_CANONICAL"
+  | "studio.state.READY"
+  | "studio.state.ACTION_REQUIRED"
+  | "studio.state.BLOCKED"
+  | "studio.state.explain.READY"
+  | "studio.state.explain.ACTION_REQUIRED"
+  | "studio.state.explain.BLOCKED"
+  | "studio.paket.judul"
+  | "studio.paket.alasan"
+  | "studio.paket.pratinjau"
+  | "studio.paket.setujui"
+  | "studio.paket.kunci"
+  | "studio.paket.kunci_peringatan"
+  | "studio.paket.terbitkan"
+  | "studio.paket.tarik"
+  | "studio.paket.tugaskan"
+  | "studio.paket.terbit_bukan_tugas"
+  | "studio.paket.revisi"
+  | "studio.paket.revisi_penjelasan"
+  | "studio.paket.kosong"
+  | "studio.temuan.lokasi"
+  | "studio.temuan.masalah"
+  | "studio.temuan.mengapa"
+  | "studio.temuan.cara"
+  | "studio.temuan.akui"
+  | "studio.temuan.kosong"
+  | "studio.unggah.judul"
+  | "studio.unggah.mudah"
+  | "studio.unggah.mudah_penjelasan"
+  | "studio.unggah.terstruktur"
+  | "studio.unggah.terstruktur_penjelasan"
+  | "studio.unggah.buat_paket"
+  | "studio.unggah.buat_penilaian"
+  | "studio.unggah.buat_video"
+  | "studio.unggah.pertanyaan"
+  | "studio.unggah.konfirmasi"
+  | "studio.unggah.media_catatan"
+  | "studio.tinjau.judul"
+  | "studio.tinjau.kosong"
+  | "studio.tinjau.penulis"
+  | "studio.tinjau.bukan_penulis"
+  | "studio.kanonik.judul"
+  | "studio.kanonik.penjelasan"
+  | "studio.kanonik.kosong"
+  | "studio.kanonik.ditarik"
+  | "studio.kanonik.hanya_baca"
+  | "studio.definisi.judul"
+  | "studio.definisi.batas"
+  | "studio.definisi.simpan"
+  | "studio.definisi.versi_baru"
+  | "studio.definisi.tetap"
+  | "studio.integritas.judul"
+  | "studio.integritas.penjelasan"
+  | "studio.integritas.kosong"
+  | "studio.integritas.NO_CONCERN"
+  | "studio.integritas.DISCUSSED_WITH_LEARNER"
+  | "studio.integritas.REFERRED_TO_INSTITUTION"
+  | "studio.integritas.catat"
+  | "studio.sertifikat.judul"
+  | "studio.sertifikat.tata_letak"
+  | "studio.sertifikat.awalan"
+  | "studio.sertifikat.identitas"
+  | "studio.sertifikat.simpan"
+  | "studio.bank.judul"
+  | "studio.bank.kesehatan"
+  | "studio.bank.belum_cukup"
+  | "studio.bank.prediksi"
+  | "studio.bank.empiris"
+  | "studio.bank.akui_ok"
+  | "studio.bank.tindakan"
+  | "studio.hasil.ok"
+  | "studio.hasil.gagal"
   | "sync.done";
 
 type Table = Record<HleEvent, Partial<Record<Persona, string>> & { default: string }>;
@@ -376,6 +462,92 @@ const table: Table = {
 
   "sync.offline": { default: "Sedang luring. Jawabanmu disimpan dan dikirim saat tersambung lagi." },
   "sync.pending": { default: "Mengirim jawaban yang tertunda…" },
+  "studio.title": { default: "Studio" },
+  "studio.refused": { default: "Halaman ini untuk staf pengelola isi. Akun Anda belum memiliki akses ke Studio." },
+  "studio.nav.beranda": { default: "Beranda" },
+  "studio.nav.unggah": { default: "Buat Paket" },
+  "studio.nav.tinjau": { default: "Antrean Tinjauan" },
+  "studio.nav.kanonik": { default: "Pustaka PINTAR" },
+  "studio.nav.definisi": { default: "Aturan Penilaian" },
+  "studio.nav.integritas": { default: "Tinjauan Integritas" },
+  "studio.nav.sertifikat": { default: "Sertifikat" },
+  "studio.nav.bank": { default: "Bank Soal" },
+  "studio.bucket.ACTION_REQUIRED": { default: "Menunggu tindakan Anda" },
+  "studio.bucket.AWAITING_MY_REVIEW": { default: "Menunggu tinjauan Anda" },
+  "studio.bucket.BLOCKED": { default: "Tertahan" },
+  "studio.bucket.QUESTION_HEALTH": { default: "Sinyal mutu soal" },
+  "studio.bucket.DISTRIBUTED_CANONICAL": { default: "Pustaka PINTAR untuk sekolah Anda" },
+  "studio.state.READY": { default: "Siap" },
+  "studio.state.ACTION_REQUIRED": { default: "Perlu tindakan" },
+  "studio.state.BLOCKED": { default: "Tertahan" },
+  "studio.state.explain.READY": { default: "Paket ini siap diterbitkan." },
+  "studio.state.explain.ACTION_REQUIRED": { default: "Ada yang bisa Anda selesaikan sekarang di Studio." },
+  "studio.state.explain.BLOCKED": { default: "Ada yang harus diperbaiki pada isinya sebelum paket ini bisa lanjut." },
+  "studio.paket.judul": { default: "Paket Pembelajaran" },
+  "studio.paket.alasan": { default: "Yang perlu diselesaikan" },
+  "studio.paket.pratinjau": { default: "Lihat seperti siswa" },
+  "studio.paket.setujui": { default: "Setujui" },
+  "studio.paket.kunci": { default: "Setujui & Kunci" },
+  "studio.paket.kunci_peringatan": { default: "Setelah dikunci, isi paket ini tidak dapat diubah lagi. Perbaikan berikutnya dibuat sebagai salinan baru." },
+  "studio.paket.terbitkan": { default: "Terbitkan" },
+  "studio.paket.tarik": { default: "Tarik dari peredaran" },
+  "studio.paket.tugaskan": { default: "Tugaskan ke kelas" },
+  "studio.paket.terbit_bukan_tugas": { default: "Menerbitkan belum menugaskan. Siswa baru melihatnya setelah Anda menugaskannya ke kelas." },
+  "studio.paket.revisi": { default: "Buat salinan untuk diperbaiki" },
+  "studio.paket.revisi_penjelasan": { default: "Paket asli tetap utuh beserta seluruh catatan pengerjaan siswa. Salinan baru bisa Anda sunting bebas." },
+  "studio.paket.kosong": { default: "Belum ada paket di sini." },
+  "studio.temuan.lokasi": { default: "Lokasi" },
+  "studio.temuan.masalah": { default: "Masalah" },
+  "studio.temuan.mengapa": { default: "Mengapa penting" },
+  "studio.temuan.cara": { default: "Cara memperbaiki" },
+  "studio.temuan.akui": { default: "Sudah saya tinjau" },
+  "studio.temuan.kosong": { default: "Tidak ada catatan mutu yang menunggu." },
+  "studio.unggah.judul": { default: "Buat Paket Pembelajaran" },
+  "studio.unggah.mudah": { default: "Unggah Mudah" },
+  "studio.unggah.mudah_penjelasan": { default: "Unggah folder, ZIP, atau berkas lepas. PINTAR mengenali peran tiap berkas dan menanyakan yang belum pasti." },
+  "studio.unggah.terstruktur": { default: "Paket Terstruktur" },
+  "studio.unggah.terstruktur_penjelasan": { default: "Untuk paket yang sudah dibuat mesin dalam format baku." },
+  "studio.unggah.buat_paket": { default: "Buat Paket Pembelajaran" },
+  "studio.unggah.buat_penilaian": { default: "Buat Penilaian" },
+  "studio.unggah.buat_video": { default: "Buat Video" },
+  "studio.unggah.pertanyaan": { default: "Yang perlu Anda pastikan" },
+  "studio.unggah.konfirmasi": { default: "Konfirmasi" },
+  "studio.unggah.media_catatan": { default: "Berkas media diunggah melalui server PINTAR, bukan langsung dari peramban." },
+  "studio.tinjau.judul": { default: "Antrean Tinjauan" },
+  "studio.tinjau.kosong": { default: "Tidak ada yang menunggu tinjauan Anda." },
+  "studio.tinjau.penulis": { default: "Penyusun" },
+  "studio.tinjau.bukan_penulis": { default: "Anda menyusun bagian ini, jadi orang lain yang meninjaunya." },
+  "studio.kanonik.judul": { default: "Pustaka PINTAR" },
+  "studio.kanonik.penjelasan": { default: "Paket yang disusun PINTAR dan diizinkan untuk sekolah Anda. Bisa ditugaskan, tidak bisa disunting." },
+  "studio.kanonik.kosong": { default: "Belum ada paket PINTAR yang diizinkan untuk sekolah Anda." },
+  "studio.kanonik.ditarik": { default: "Izin untuk paket ini sudah berakhir. Siswa yang sedang mengerjakan tetap bisa menyelesaikannya; pengerjaan baru tidak dibuka lagi." },
+  "studio.kanonik.hanya_baca": { default: "Hanya dapat dibaca dan ditugaskan." },
+  "studio.definisi.judul": { default: "Aturan Penilaian" },
+  "studio.definisi.batas": { default: "Batas yang berlaku" },
+  "studio.definisi.simpan": { default: "Simpan" },
+  "studio.definisi.versi_baru": { default: "Perubahan ini mengubah cara hasil dibaca, jadi tersimpan sebagai aturan baru. Hasil lama tetap dibaca dengan aturan lamanya." },
+  "studio.definisi.tetap": { default: "Nama diperbarui. Cara hasil dibaca tidak berubah." },
+  "studio.integritas.judul": { default: "Tinjauan Integritas" },
+  "studio.integritas.penjelasan": { default: "Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang siswa." },
+  "studio.integritas.kosong": { default: "Tidak ada catatan yang menunggu tinjauan." },
+  "studio.integritas.NO_CONCERN": { default: "Tidak ada yang perlu ditindaklanjuti" },
+  "studio.integritas.DISCUSSED_WITH_LEARNER": { default: "Sudah dibicarakan dengan siswa" },
+  "studio.integritas.REFERRED_TO_INSTITUTION": { default: "Diteruskan ke pihak sekolah" },
+  "studio.integritas.catat": { default: "Catat tinjauan" },
+  "studio.sertifikat.judul": { default: "Tata Letak Sertifikat" },
+  "studio.sertifikat.tata_letak": { default: "Tata letak" },
+  "studio.sertifikat.awalan": { default: "Awalan nomor" },
+  "studio.sertifikat.identitas": { default: "Sertifikat menampilkan nama pemegang saja." },
+  "studio.sertifikat.simpan": { default: "Simpan" },
+  "studio.bank.judul": { default: "Bank Soal" },
+  "studio.bank.kesehatan": { default: "Kesehatan soal" },
+  "studio.bank.belum_cukup": { default: "Belum cukup bukti untuk menilai soal ini." },
+  "studio.bank.prediksi": { default: "Perkiraan penyusun" },
+  "studio.bank.empiris": { default: "Dari pengerjaan siswa" },
+  "studio.bank.akui_ok": { default: "Sudah ditinjau, soal ini wajar" },
+  "studio.bank.tindakan": { default: "Sudah ditinjau, soal ini diperbaiki" },
+  "studio.hasil.ok": { default: "Tersimpan." },
+  "studio.hasil.gagal": { default: "Belum tersimpan." },
   "sync.done": { default: "Semua jawaban sudah tersimpan di server." },
 };
 
@@ -398,10 +570,35 @@ export function t(event: HleEvent, persona: Persona = "learner"): string {
 }
 
 /** For tests: every key, every persona, rendered. */
+/**
+ * Keys that belong to a staff-only surface and are never addressed to a
+ * learner or to the public.
+ *
+ * ADDED IN FABLE-05. Studio is staff-only, and staff Indonesian legitimately
+ * uses words that are forbidden on a learner screen -- "Menunggu tindakan
+ * Anda" is the ordinary way to say a queue is waiting for you, while the same
+ * word on a learner's screen is the system telling a child to wait, which is
+ * what doc 12 calls complexity leaking.
+ *
+ * This is a declaration about AUDIENCE, not an exemption from the rule. `t()`
+ * still throws if one of these keys is ever rendered for a learner or the
+ * public -- which is exactly the protection wanted -- and `renderAll()` simply
+ * does not ask for a rendering that would be a bug to perform. A key not
+ * listed here is still rendered for every persona and still audited.
+ */
+const STAFF_ONLY_PREFIXES = ["studio.", "config."] as const;
+
+export function isStaffOnly(event: HleEvent): boolean {
+  return STAFF_ONLY_PREFIXES.some((p) => event.startsWith(p));
+}
+
 export function renderAll(): Array<{ event: HleEvent; persona: Persona; text: string }> {
   const out: Array<{ event: HleEvent; persona: Persona; text: string }> = [];
   for (const event of Object.keys(table) as HleEvent[]) {
-    for (const persona of ["learner", "educator", "staff", "public"] as Persona[]) {
+    const personas: Persona[] = isStaffOnly(event)
+      ? ["educator", "staff"]
+      : ["learner", "educator", "staff", "public"];
+    for (const persona of personas) {
       out.push({ event, persona, text: t(event, persona) });
     }
   }
