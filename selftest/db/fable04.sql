@@ -573,8 +573,21 @@ begin
   select evidence_class::text into bad from public.assessment_results
    where session_id = s and supersedes_result_id is null;
   if bad <> 'OFFICIAL' then ok := false; detail := detail || format('bootstrap evidence is %s, not OFFICIAL; ', bad); end if;
-  select count(*) into n from public.institutions where not is_synthetic and not is_official_bootstrap;
+  -- WIDENED IN FABLE-05. A PLATFORM_CANONICAL tenant is also non-synthetic and
+  -- is deliberately not the bootstrap (0052, ADR-0015). Excluding it here is not
+  -- a relaxation: the two facts it would otherwise blur are each asserted
+  -- separately below -- a canonical tenant never carries the bootstrap flag, and
+  -- it produces no evidence of any class because it holds no enrolment.
+  select count(*) into n from public.institutions
+   where not is_synthetic and not is_official_bootstrap and tenant_kind <> 'PLATFORM_CANONICAL';
   if n > 0 then ok := false; detail := detail || format('%s non-synthetic tenant(s) outside the bootstrap; ', n); end if;
+  select count(*) into n from public.institutions
+   where tenant_kind = 'PLATFORM_CANONICAL' and is_official_bootstrap;
+  if n > 0 then ok := false; detail := detail || format('%s canonical tenant(s) carry the bootstrap flag; ', n); end if;
+  select count(*) into n from public.assessment_sessions ss
+    join public.institutions i on i.id = ss.institution_id
+   where i.tenant_kind = 'PLATFORM_CANONICAL';
+  if n > 0 then ok := false; detail := detail || format('%s session(s) recorded against a canonical tenant; ', n); end if;
   -- the guard refuses a second official tenant
   begin
     insert into public.institutions (slug, name, is_synthetic) values ('probe-official', 'Probe', false);
@@ -585,7 +598,7 @@ begin
     ok := false; detail := detail || 'evidence-class monotonicity changed; ';
   end if;
   test_id := 'F04-T08'; invariant := 'D1 / INV-20 / INV-21';
-  if ok then detail := 'the bootstrap tenant is the only non-synthetic one, its evidence derives OFFICIAL the ordinary way, a second official tenant is refused, and min(derived, override) is unchanged'; end if;
+  if ok then detail := 'the bootstrap tenant is the only non-synthetic one that is not canonical, its evidence derives OFFICIAL the ordinary way, a second official tenant is refused, the canonical tenant carries no bootstrap flag and no session, and min(derived, override) is unchanged'; end if;
   return next;
 
   -- =========================================================================
