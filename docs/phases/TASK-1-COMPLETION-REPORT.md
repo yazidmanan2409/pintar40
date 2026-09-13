@@ -12,12 +12,12 @@ Switching) is not started and must not begin until this gate is closed.
 |---|---|
 | Branch commit | `820bf7f` on `claude/quirky-meitner-a04smj`, `main` fast-forwarded to it |
 | Migrations | **64** (0061–0064 added; nothing before 0060 touched) |
-| CI | run **34747284030** on `3f8e310` — all twelve jobs green, including the new `red case · db-task1-gates` leg |
-| Selftest (verbatim) | `124 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
-| Clean replay | 63 migrations from an empty database, all three terminal blocks included |
-| Upgrade path | 0061–0063 applied over a seeded 60-migration database |
-| Widened digest | **2177 objects**, `ZZ_TOTAL 6e2bc96dae9ef62fecfdbade76876348` — **identical** on the clean replay and the upgrade path |
-| Hosted | 63 migrations, all three new files byte-identical, 2177 objects, FUNC divergence unchanged (see §1.1) |
+| CI | run **34754367510** on `9219d8b` — all twelve jobs green, including `red case · db-task1-gates` and the new `baseline-parity` job |
+| Selftest (verbatim) | `126 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
+| Clean replay | 64 migrations from an empty database, all four terminal blocks included |
+| Upgrade path | 0061–0064 applied over a seeded 60-migration database |
+| Widened digest | **2177 objects**, `ZZ_TOTAL 636a68106401a362b327a6a59a2fa771` — **identical** on the clean replay and the upgrade path |
+| Hosted | **64** migrations, all four new files byte-identical, 2177 objects, FUNC divergence unchanged (see §1.1) |
 
 Parity hashes (`md5` of the file with the trailing newline stripped, which is
 what the hosted `statements` array hashes to):
@@ -27,13 +27,14 @@ what the hosted `statements` array hashes to):
 | `20260916100000_ad_hoc_eligibility_follows_authorization.sql` | `0371d301af83663edf2f1818cc71edcc` |
 | `20260916110000_quick_assessment_over_canonical.sql` | `8d7d80d621fdca4849112c7f426b031f` |
 | `20260916120000_quick_assessment_cites_a_published_release.sql` | `1bb13cd6ce06c01a06d0962ac9348031` |
+| `20260916130000_supersession_is_not_withdrawal.sql` | `dd0af1d6c49d65d79cea1daf82265b64` |
 
-Both hashes were read back from `supabase_migrations.schema_migrations` on the
-hosted project after applying and matched exactly.
+Every one of these was read back from `supabase_migrations.schema_migrations` on
+the hosted project after applying and matched exactly.
 
 ## 1.1 Hosted, measured rather than assumed
 
-The hosted project carries **63** migrations. All three terminal verification
+The hosted project carries **64** migrations. All four terminal verification
 blocks **ran there** — the behavioural halves build a school, an actor, canonical
 content, a release and a grant inside a rolled-back subtransaction, and hosted
 left **zero** probe rows behind (`institutions` matching `probe%` = 0).
@@ -44,9 +45,9 @@ local replay**, and every category digest is identical except one:
 | Category | n | local | hosted |
 |---|---|---|---|
 | COLUMN / CONSTRAINT / ENUM / FGRANT / GRANT / INDEX / POLICY / TABLE / TRIGGER / VIEW | — | — | **identical** |
-| FUNCNORM | 183 | `bc103ae0…` | `bc103ae0…` **identical** |
-| FUNC | 183 | `77be6c15…` | `379e3630…` **differs** |
-| ZZ_TOTAL | 2177 | `6e2bc96d…` | `0c0211ef…` |
+| FUNCNORM | 183 | `cddb7f27…` | `cddb7f27…` **identical** |
+| FUNC | 183 | `9d1d2e02…` | `fe672974…` **differs** |
+| ZZ_TOTAL | 2177 | `636a6810…` | `3e410415…` |
 
 **FUNC differing while FUNCNORM matches is the cosmetic-divergence signature the
 digest file documents**: comments and whitespace differ, nothing executable
@@ -56,13 +57,14 @@ than assumed to be unchanged:
 - the FUNC digest computed **excluding** the six known-divergent FABLE-01
   functions (`enrollments_guard`, `memberships_guard`, `role_assignments_guard`,
   `transfer_authorize`, `transfer_execute`, `transfer_request`) is **177 objects,
-  `da68375c74f8dc4b4608473c42edc394`, identical on both sides** — so the
-  divergence did not grow;
-- the function 0063 rewrote matches hosted byte for byte:
-  `start_learning_session` `7bfeb919…` on both sides.
+  `da9ad5695e5e4f2325c41ab9155bfc84`, identical on both sides** — so the
+  divergence did not grow, and this was recomputed after 0064 rather than
+  carried forward from the 63-migration measurement;
+- the function 0064 rewrote matches hosted byte for byte:
+  `start_learning_session` `eec713c4…` on both sides.
 
 Hosted counters, read through `platform_schema_lint()` as a system admin: every
-counter in §7 holds, with `migrations_applied` 63. `non_synthetic_institutions`
+counter in §7 holds, with `migrations_applied` 64. `non_synthetic_institutions`
 is 1 and `official_bootstrap_tenants` 0 on hosted, which is the FABLE-05
 recorded state — hosted carries no D1 bootstrap tenant — and is unchanged by
 this task.
