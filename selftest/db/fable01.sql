@@ -284,6 +284,10 @@ begin
   -- drifted unpinned across two phases without this test noticing.
   ok := (j->>'tables_without_rls')::int = 0 and (j->>'policies_using_true')::int = 0 and (j->>'secdef_without_search_path')::int = 0
      and (j->>'functions_without_search_path')::int = 0
+     -- added in 0036: a client-reachable SECDEF RPC with no exposure class, and
+     -- the amended INV-20 raw-evidence grant boundary
+     and (j->>'unclassified_client_rpcs')::int = 0
+     and (j->>'evidence_consumer_boundary_ok')::boolean
      and (j->>'functions_executable_by_anon')::int = 0 and (j->>'anon_table_grants')::int = 0 and (j->>'public_buckets')::int = 0
      and (j->>'client_storage_policies')::int = 0 and (j->>'persons_institution_columns')::int = 0
      and (j->>'audit_log_client_write_grants')::int = 0 and (j->>'malformed_jalur')::int = 0;

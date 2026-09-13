@@ -26,6 +26,16 @@
 -- scope: they differ between a local shim and a hosted project by design.
 
 with raw as (
+-- NOTE ON `relforcerowsecurity`, which this digest reports as 0 on all 55
+-- `public` tables. That is deliberate and load-bearing, not an oversight.
+-- FORCE RLS makes RLS apply to the table OWNER as well. The entire engine runs
+-- inside SECURITY DEFINER functions owned by the schema owner -- that is how a
+-- learner who holds no capability can have a paper assembled for them -- so
+-- forcing RLS on the owner would break assembly, scoring and finalisation.
+-- The protections that must survive the owner are carried by triggers instead,
+-- which fire for every role: `audit_log_immutable` refuses owner writes
+-- (ADR-0001), and the append-only guards on evidence do the same. Do not "fix"
+-- this to 1 without reading those first.
 select 'TABLE|'||c.relnamespace::regnamespace::text||'|'||c.relname||'|'
        ||c.relrowsecurity::text||'|'||c.relforcerowsecurity::text as line
   from pg_class c where c.relkind='r' and c.relnamespace::regnamespace::text in ('public','telemetry')

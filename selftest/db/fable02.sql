@@ -240,6 +240,7 @@ declare
   v_frozen timestamptz; v_published timestamptz;
   n int; n2 int;
   v_inv11_ok boolean; v_inv11_detail text;
+  v_inv20_ok boolean; v_inv20 text;
   t0 timestamptz := clock_timestamp();
 begin
   -- ------------------------------------------------------------- fixtures
@@ -1083,8 +1084,14 @@ begin
       ok := false; detail := detail || 'official-view probe aborted: ' || left(sqlerrm, 80) || '; ';
     end if;
   end;
+  -- INV-20 as AMENDED (baseline 2026-09-12, which reached the repository only
+  -- after FABLE-03): the exclusion must be structural -- a consumer holds no
+  -- direct grant on a raw evidence table. 0036 makes that a callable assertion
+  -- so it stops being satisfied only by the absence of a consumer.
+  select a.ok, a.detail into v_inv20_ok, v_inv20 from public.assert_evidence_consumer_boundary() a;
+  if not v_inv20_ok then ok := false; detail := detail || v_inv20 || '; '; end if;
   test_id := 'F02-T17'; invariant := 'INV-20';
-  if ok then detail := 'non-official evidence never reaches official_*; an OFFICIAL session does; the analytics role holds no grant on a raw evidence table'; end if;
+  if ok then detail := 'non-official evidence never reaches official_*; an OFFICIAL session does; the analytics role holds no grant on a raw evidence table; ' || v_inv20; end if;
   return next;
 
   -- F02-T18 §8: the only public surface is published lesson prose, and the

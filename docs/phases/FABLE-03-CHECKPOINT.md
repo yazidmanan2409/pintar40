@@ -275,6 +275,38 @@ with the path by which they were first applied. The script keeps both digests
 deliberately: `FUNC` differing while `FUNCNORM` matches is cosmetic; `FUNCNORM`
 differing is real and must be explained before anything else proceeds.
 
+### Round 2 (2026-09-13) — the review turned on 0035's own work
+
+Claude 1 re-measured 0035 live (131 functions, 0 unpinned; `seeded_index`
+revoked from both client roles; no regression) and raised six more. It also
+retracted its round-1 correction on doc 03: the gap was real in the file this
+repository held.
+
+| Finding | What was wrong | Closed by |
+|---|---|---|
+| The new assertion hardcoded what 0035 refused to hardcode | `assert_engine_takes_no_identity()` was built on a 27-name array. A FABLE-04 entry point simply is not in it, so the check passes while the twenty-eighth goes unexamined — 0035's own reasoning applied inconsistently inside 0035 | 0036 replaces the array with `client_rpc_registry` and asserts the **property**: every client-executable SECDEF function must carry an exposure class, every row must name a live function, every LEARNER row must take no identity argument |
+| The identity vocabulary was an instance list too | It missed `enrollment`, and `open_assessment_session(p_enrollment, …)` is exactly the shape the assertion exists to catch | Vocabulary widened to `person, institution, enrollment, learner, user, actor, account, evidence_class, mastery, score, grade, mark`, and a second planted probe uses `p_enrollment` |
+| The assertion is a tripwire, not the INV-08 proof | A green result could be read later as "INV-08 is proven" | Said in the assertion's own detail line and in the `F03-T10` manifest entry: ownership is enforced by `session_is_mine` and the definer bodies, which the behavioural half exercises |
+| INV-20 was strengthened and the boundary predates that text | Amended INV-20 requires consumers to hold **no direct grant on raw evidence**. Satisfied vacuously — no consumer exists — while `service_role` holds full grants on all six raw evidence tables | `assert_evidence_consumer_boundary()` + lint counter + `F02-T17`. It reports its own vacuity rather than presenting a green as proof. **The consumer-role decision stays open** — see below |
+| doc 03's truncation reaches further than FABLE-03 | Only this phase's five invariants had been re-checked | `docs/audit/INV-REPASS-AMENDED-DOC-03.md` — all of INV-23…38 plus amended INV-05/20 against a clean 36-migration replay. No contradiction found |
+| `FORCE ROW LEVEL SECURITY` is 0 everywhere, unexplained | An unexplained zero in a security digest invites a future reader to "fix" it | Explained in `docs/audit/schema-inventory.sql`: the engine runs as the schema owner inside definer functions, so forcing RLS on the owner would break assembly; owner-proof protections are carried by triggers |
+
+### And a defect neither review found
+
+Classifying all 54 client-reachable RPCs surfaced one that no name list would
+ever have contained, because it is not a learner entry point:
+**`excluded_items_for_post_test(p_person, p_learning_assignment)` was granted to
+`authenticated`**, is `SECURITY DEFINER`, and has no ownership check in its body.
+Any signed-in learner could pass another learner's person id and read back which
+items that learner was shown in their pre-test. Reproduced against seeded data:
+learner A queried learner B and received **7 rows**. It is called only from
+inside `drawable_items_for_definition` and `assemble_session`, both
+`SECURITY DEFINER` and both server-side, so the grant bought nothing. Revoked in
+0036, with the revocation asserted. INV-13.
+
+That is the argument for deriving the set from a property rather than listing
+it, made by the exercise itself.
+
 **Not closed, and why.** Four need a decision that is not an implementer's to
 make, and are listed for the architect rather than quietly resolved: the §4
 OFFICIAL-evidence wall; OD-9's evidence-portability clause (§5.3 — this phase
@@ -284,7 +316,12 @@ registry (`scoring_policy_version()` returns a bare literal with no registry
 behind it, and doc 16 §5 names unversioned scoring as a dangerous pattern); and
 whether `published_lessons` — a `SECURITY DEFINER` view, no institution
 predicate, every tenant's lesson bodies world-readable once any release
-publishes — is the intended product behaviour. A further finding belongs to
+publishes — is the intended product behaviour; and, added in round 2, **which
+role FABLE-06's analytics runs as**. The amended INV-20 forbids a consumer from
+holding direct grants on raw evidence; `service_role` holds full grants on all
+six tables, so running analytics as `service_role` violates it by construction.
+The shape the text implies is a distinct grant-poor role reading the `official_*`
+views and nothing else. A migration now, a redesign in FABLE-06. A further finding belongs to
 FABLE-05 rather than here: because `content_is_sealed` freezes taught content
 for a course once *any* release is FROZEN or later, **a course can never be
 revised after its first release**, and that is where an author will first hit

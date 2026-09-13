@@ -240,7 +240,7 @@
     {
       "id": "F02-T17",
       "runner": "db",
-      "proves": "INV-20 non-official evidence never appears in official_sessions/responses/results, an OFFICIAL session does, and the analytics role holds no grant on any raw evidence table",
+      "proves": "INV-20 non-official evidence never appears in official_sessions/responses/results, an OFFICIAL session does, and the analytics role holds no grant on any raw evidence table. AMENDED TEXT: the 2026-09-12 baseline strengthened INV-20 to require structural exclusion — consumers hold no direct grant on raw evidence — and this id now re-runs assert_evidence_consumer_boundary(). It currently holds VACUOUSLY: no analytics consumer role exists yet. The consumer role is an open architectural decision; see the FABLE-03 checkpoint.",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -398,7 +398,7 @@
     {
       "id": "F03-T10",
       "runner": "db",
-      "proves": "INV-08 / INV-09 — a second learner is refused on both paths, the stored score equals a fresh recomputation, and a duplicate finalize observes one root result"
+      "proves": "INV-08 / INV-09 — a second learner is refused on both paths, the stored score equals a fresh recomputation, and a duplicate finalize observes one root result. SCOPE: the RPC exposure contract re-run here (assert_engine_takes_no_identity) is a SIGNATURE TRIPWIRE, not the INV-08 proof — it inspects argument names and types and cannot tell a resource id from an identity, so p_session uuid passes and correctly so. INV-08's actual guarantee is the ownership check in session_is_mine and the definer bodies, which the behavioural half of this id exercises. It also asserts every client-executable SECDEF function carries an exposure class, so an unregistered new RPC fails rather than being skipped."
     },
     {
       "id": "F03-S01",
