@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 4,
-  "phase": "FABLE-04",
+  "version": 5,
+  "phase": "FABLE-05",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01.sql — psql against $SUPABASE_DB_URL (CI local stack); the same file runs on the management channel; one row per id",
+    "db": "selftest/db/fable01..05.sql — psql against $SUPABASE_DB_URL (CI local stack); the same file runs on the management channel; one row per id",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -537,6 +537,147 @@
       "runner": "static",
       "proves": "INV-05 on the path a stranger uses — the exported route handler of /api/verifikasi/[token], driven directly: a genuine certificate reads BERLAKU, a tampered STORED payload reads TIDAK SAH, the response is exactly the five D3b fields in both cases, and unknown, malformed and prepared-but-unissued tokens are indistinguishable. Closes Claude 1's finding 1: before 0051 the public route reported validity from certificates.status and never touched signature",
       "skip_justification": "drives the real route handler, which reaches PostgREST: needs the Supabase stack as well as the database. CI has both and runs it strictly; locally the egress policy denies *.supabase.co and Docker is unavailable"
+    },
+    {
+      "id": "F05-T01",
+      "runner": "db",
+      "proves": "tenant_kind is a third fact, independent of is_synthetic and the D1 bootstrap, and invisible to evidence derivation",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T02",
+      "runner": "db",
+      "proves": "a PLATFORM_CANONICAL tenant holds zero enrolments and zero sessions, enforced at the trigger",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T03",
+      "runner": "db",
+      "proves": "without a distribution grant a school cannot even assign canonical content, and no row survives",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T04",
+      "runner": "db",
+      "proves": "granting is a platform act: a consuming school can neither grant itself nor distribute to a third party; the canonical publisher can, once, audited",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T05",
+      "runner": "db",
+      "proves": "a session over canonical content cites the canonical release and definition with the school's institution, enrolment, class and period, and an evidence class derived from the school",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T06",
+      "runner": "db",
+      "proves": "INV-33 negative: every provenance column on assessment_sessions refuses mutation after insert",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T07",
+      "runner": "db",
+      "proves": "withdrawal is INV-27: a new session is refused by the provenance guard while the assignment row stands, and completed evidence is untouched",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T08",
+      "runner": "db",
+      "proves": "School B's release is refused to School C as a row and through the granting function",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T09",
+      "runner": "db",
+      "proves": "school-created content is invisible to another school and to the canonical tenant",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T10",
+      "runner": "db",
+      "proves": "a granted school reads the catalogue, outline and a preview carrying no answer key, and cannot update, insert, delete, withdraw or revise",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T11",
+      "runner": "db",
+      "proves": "DISTRIBUTE is not ASSIGN: a distributed release reaches no learner until the school creates a learning assignment",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T12",
+      "runner": "db",
+      "proves": "a revision copies the whole tree with lineage on every node, no empirical value, remapped objectives and intact rationales, leaving the predecessor's stored hash byte-identical",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T13",
+      "runner": "db",
+      "proves": "a second open revision, a revision of an unsealed course, a cleared lineage pointer and a lineage cycle are each refused; frozen-content immutability is untouched",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T14",
+      "runner": "db",
+      "proves": "release correction across the lineage moves the not-started set and the assignment's course, leaves completed evidence on v1.0, writes one move row, and refuses an automatic move",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T15",
+      "runner": "db",
+      "proves": "regression: an institution can still do everything it could with its own content, and still cannot do what it could not; a DEAN still holds nothing in Studio",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T16",
+      "runner": "db",
+      "proves": "INV-22: the content status guard is attached to six tables, refuses a row created past INGESTED and refuses an unlisted edge, from a table-driven allow-list",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T17",
+      "runner": "db",
+      "proves": "approval needs CAN_REVIEW and records the caller; sealing needs CAN_FREEZE_RELEASE; publishing needs CAN_PUBLISH",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T18",
+      "runner": "db",
+      "proves": "INV-29: platform bounds are enforced from the database, a relabelling edits in place, an interpretation change writes a new version, an ad-hoc instrument is refused",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T19",
+      "runner": "db",
+      "proves": "one calm surface state with plain-language reasons carrying no lifecycle enum or version string; no zero-count card; findings keep the four coaching fields",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T20",
+      "runner": "db",
+      "proves": "review decisions are decisions: an accusatory value is refused, a recorded one is an audit row, and every empirical column is still NULL after the whole flow",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T21",
+      "runner": "db",
+      "proves": "every counter FABLE-05 §11 fixes is unmoved, and the two deliberate movements are separately visible",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-S01",
+      "runner": "static",
+      "proves": "INV-37: the anonymous path and prefix lists did not grow, the proxy matcher is still catch-all, and every Studio route sits behind it"
+    },
+    {
+      "id": "F05-S02",
+      "runner": "static",
+      "proves": "no Studio file holds the service-role client, a platform secret, a client-side storage upload (INV-15), or a fabricated empirical value; no provider concept in schema DDL or Studio code (INV-32)"
+    },
+    {
+      "id": "F05-S03",
+      "runner": "static",
+      "proves": "§12: no learner surface renders a staff-only copy key, and no Studio copy shows a lifecycle enum, version string or evidence class"
     }
   ]
 }

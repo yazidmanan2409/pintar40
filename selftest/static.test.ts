@@ -841,4 +841,123 @@ export const staticTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "F05-S01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      // INV-37: server authorization covers every route added in Phases 3-5.
+      // The proxy is deny-by-default -- its matcher is everything, and anything
+      // not in the public list needs a session -- so the thing worth asserting
+      // is not "is /studio listed" but "did the PUBLIC list grow". A route added
+      // without touching src/proxy.ts is covered; a route added by widening the
+      // public list is the regression this catches.
+      const c = new Checks();
+      const proxy = readFileSync(join(repoRoot, "src", "proxy.ts"), "utf8");
+      const paths = [...proxy.matchAll(/PUBLIC_PATHS = new Set\(\[([^\]]*)\]/g)]
+        .flatMap((m) => [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
+      const prefixes = [...proxy.matchAll(/PUBLIC_PREFIXES = \[([^\]]*)\]/g)]
+        .flatMap((m) => [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
+      const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/auth/callback", "/keluar"];
+      c.expect(
+        JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
+        `the anonymous path list changed: ${JSON.stringify(paths)}`,
+      );
+      c.expect(
+        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/"]),
+        `the anonymous prefix list changed: ${JSON.stringify(prefixes)}`,
+      );
+      c.expect(/matcher: \["\/\(\(\?!/.test(proxy), "the proxy matcher is no longer catch-all");
+
+      // and every Studio route really is behind it
+      const appDir = join(repoRoot, "src", "app");
+      const routes = walk(appDir)
+        .filter((f) => /(page|route)\.tsx?$/.test(f))
+        .map((f) => "/" + relative(appDir, f).replace(/[\\/](page|route)\.tsx?$/, "").replace(/\\/g, "/"))
+        .map((r) => (r === "/" ? "/" : r.replace(/\/\(.*?\)/g, "")));
+      const studio = routes.filter((r) => r.startsWith("/studio"));
+      c.expect(studio.length >= 8, `only ${studio.length} Studio route(s) found`);
+      for (const r of studio) {
+        c.expect(
+          !paths.includes(r) && !prefixes.some((p) => r.startsWith(p)),
+          `${r} is reachable without a session`,
+        );
+      }
+      c.note(`${routes.length} routes, ${studio.length} in Studio, ${paths.length + prefixes.length} anonymous`);
+      return c.verdict("the anonymous surface did not grow and every Studio route sits behind the proxy");
+    },
+  },
+  {
+    id: "F05-S02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      // The Studio-specific half of doc 16 §5's named-pattern sweep: no
+      // privileged client outside the API boundary, no client-side storage
+      // upload (INV-15), no provider concept in the schema or the code
+      // (INV-32), and no fabricated empirical value anywhere.
+      const c = new Checks();
+      const studioDir = join(repoRoot, "src", "app", "studio");
+      c.expect(existsSync(studioDir), "src/app/studio is missing");
+      const files = walk(studioDir).filter((f) => /\.tsx?$/.test(f));
+      c.expect(files.length > 0, "the Studio has no source files");
+      for (const f of files) {
+        const rel = relative(repoRoot, f);
+        const text = readFileSync(f, "utf8");
+        c.expect(!/@\/lib\/supabase\/service/.test(text), `${rel} imports the service-role client`);
+        c.expect(!/SUPABASE_SERVICE_ROLE_KEY|CARD_PEPPER|CERT_SECRET_KEY/.test(code(text)),
+          `${rel} names a platform secret`);
+        c.expect(!/\.storage\s*\.\s*from\([^)]*\)\s*\.\s*upload\(/.test(code(text)),
+          `${rel} calls a client-side storage upload (INV-15)`);
+        c.expect(!/empirical_(difficulty|discrimination|evidence_count)\s*[:=]/.test(code(text)),
+          `${rel} writes an empirical value`);
+      }
+      // INV-32: no provider's concepts in the schema or in Studio code
+      const PROVIDERS = /\b(openai|anthropic|gemini|notebooklm|claude|gpt-?[0-9]|vertex|bedrock)\b/i;
+      const sql = walk(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"));
+      for (const f of sql) {
+        const rel = relative(repoRoot, f);
+        const ddl = sqlCode(readFileSync(f, "utf8"));
+        const m = PROVIDERS.exec(ddl);
+        c.expect(m === null, `${rel} names a provider in schema DDL: ${m?.[0]}`);
+      }
+      for (const f of files) {
+        const m = PROVIDERS.exec(code(readFileSync(f, "utf8")));
+        c.expect(m === null, `${relative(repoRoot, f)} names a provider: ${m?.[0]}`);
+      }
+      c.note(`${files.length} Studio files, ${sql.length} migrations scanned`);
+      return c.verdict("no privileged client, no anonymous upload, no provider concept and no fabricated empirical value in Studio");
+    },
+  },
+  {
+    id: "F05-S03",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      // §12, the calm surface, and the staff-only HLE declaration.
+      //
+      // The declaration that `studio.*` and `config.*` keys are staff-only is
+      // only honest if no learner-facing surface ever renders one. That is the
+      // half renderAll() stops checking, so it is checked here instead.
+      const c = new Checks();
+      const appDir = join(repoRoot, "src", "app");
+      const learnerDirs = ["belajar", "verifikasi", "masuk"].map((d) => join(appDir, d)).filter(existsSync);
+      for (const d of learnerDirs) {
+        for (const f of walk(d).filter((x) => /\.tsx?$/.test(x))) {
+          const text = code(readFileSync(f, "utf8"));
+          const m = /["'`](studio|config)\.[a-zA-Z0-9_.]+["'`]/.exec(text);
+          c.expect(m === null, `${relative(repoRoot, f)} renders a staff-only copy key: ${m?.[0]}`);
+        }
+      }
+      // and no lifecycle enum or version string is rendered as Studio copy
+      const ENUMS = /\b(INGESTED|STRUCTURED|VALIDATED|VALIDATION_FAILED|IN_REVIEW|APPROVED|FROZEN|PUBLISHED|SUPERSEDED)\b/;
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      const studioCopy = [...hle.matchAll(/"studio\.[^"]+":\s*\{[^}]*default:\s*"([^"]*)"/g)].map((m) => m[1]);
+      c.expect(studioCopy.length > 40, `only ${studioCopy.length} Studio copy strings found`);
+      for (const line of studioCopy) {
+        c.expect(!ENUMS.test(line), `Studio copy shows a lifecycle enum: ${line}`);
+        c.expect(!/[0-9]+\.[0-9]+\.[0-9]+/.test(line), `Studio copy shows a version string: ${line}`);
+        c.expect(!/evidence_class|SYNTHETIC|PUBLIC_DEMO/.test(line), `Studio copy shows an evidence class: ${line}`);
+      }
+      c.note(`${studioCopy.length} Studio copy strings, ${learnerDirs.length} learner surfaces scanned`);
+      return c.verdict("no learner surface renders a staff-only key, and no Studio copy shows a lifecycle enum, version string or evidence class");
+    },
+  },
 ];

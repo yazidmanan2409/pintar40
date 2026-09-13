@@ -32,6 +32,13 @@
 -- rather than a demand for a tenth status, and the copy lands at INGESTED. A
 -- new status would have been a state-machine change nobody asked for. ADR-0016.
 --
+-- AMENDED IN PLACE, before this migration reached any canonical environment
+-- (same standing as 0046's amendment): the "already has an open revision" check
+-- originally read the successor COURSE's status, which a course never advances
+-- past APPROVED/FROZEN because publication belongs to the release. That would
+-- have permitted exactly one revision per course, for ever. It now asks
+-- `content_is_sealed`, which is the question it meant.
+--
 -- EMPIRICAL VALUES ARE NOT COPIED. A revised item has no evidence of its own.
 -- Carrying `empirical_difficulty` forward would state a measurement that was
 -- never taken on that item -- the fabricated-empirical-value failure doc 02
@@ -192,9 +199,16 @@ begin
   end if;
 
   -- Two divergent open successors is a state with no correct resolution.
+  --
+  -- "Open" means still editable, which is the same question `content_is_sealed`
+  -- already answers -- NOT "its course row has not reached PUBLISHED". A course
+  -- row never reaches PUBLISHED in this system: publication is a property of a
+  -- RELEASE, and the course stays at APPROVED/FROZEN behind it. Asking the
+  -- course's status would have made the FIRST revision of any course the last
+  -- one it could ever have, permanently, which is not a rule anyone stated.
   select count(*) into n_open from public.courses c
    where c.supersedes_course_id = p_course
-     and c.status not in ('PUBLISHED', 'SUPERSEDED');
+     and not public.content_is_sealed(c.id);
   if n_open > 0 then
     raise exception 'an open revision of this course already exists; finish or abandon it first';
   end if;
