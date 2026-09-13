@@ -50,9 +50,17 @@ begin
     return;
   end if;
 
-  insert into public.institutions (slug, name, is_synthetic, is_official_bootstrap)
+  -- CHANGED BY 0065. D1's "one bootstrap tenant" became "every institution
+  -- authorized for non-production OFFICIAL evidence declares a bounded purpose;
+  -- at most one per purpose; all refused in production" (ADR B §5). This tenant
+  -- must therefore say WHY it is authorized, and the CHECK refuses it if it does
+  -- not. Its purpose is unchanged in substance -- it is the engineering
+  -- bootstrap it always was -- but it is now declared rather than implied.
+  insert into public.institutions (slug, name, is_synthetic, is_official_bootstrap,
+                                   official_evidence_purpose)
   values ('pintar-bootstrap-official',
-          'PINTAR Bootstrap (OFFICIAL evidence — development and CI only)', false, true)
+          'PINTAR Bootstrap (OFFICIAL evidence — development and CI only)', false, true,
+          'D1_ENGINEERING_BOOTSTRAP')
   returning id into inst;
   tag := right('pintar-bootstrap-official', 14);
 
