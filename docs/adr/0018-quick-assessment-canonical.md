@@ -196,10 +196,13 @@ answered, canonical or not. That was a deliberate phase boundary rather than a
 defect, but this ADR's acceptance requires a learner to complete one, so the
 boundary closes in 0062 for **ad-hoc** assignments only, through the existing
 opener, the existing assembler and the existing provenance guard. The release
-the session cites is resolved from the content the definition is bound to: the
-school's own release of that course, or the canonical release it holds an active
-grant for. Where neither exists the learner is refused in plain language, which
-is what the state honestly is.
+the session cites is resolved from the content the definition is bound to: **a
+PUBLISHED release** of that course owned by the school, or a PUBLISHED canonical
+release it holds an active grant for. Where neither exists the learner is refused
+in plain language.
+
+The `PUBLISHED` requirement is the amendment below, not part of the original
+0062: see **Amendment — 0063**.
 
 ## Tenant isolation
 
@@ -228,6 +231,67 @@ policy change. No enum change.**
 INV-12 (bank tier — unchanged, re-asserted), INV-13 (unchanged, re-asserted),
 INV-26 (one engine — no second eligibility path), INV-33 (provenance
 unchanged), INV-04 (untouched — asserted). None is amended.
+
+## Amendment — 0063: an ad-hoc session cites a PUBLISHED release
+
+**Status:** Accepted · **Date:** 2026-09-13 · **Raised by:** Claude 1's second
+reading of Task 1 (F1, gate blocker) · **Reproduced and repaired in migration
+0063 before the gate closed.**
+
+0062's ad-hoc release resolution carried **no status filter**. A school
+authoring its own course holds a release row at `INGESTED` long before it
+publishes anything, and that row satisfied the own-institution arm — so a quick
+assessment over the school's own unfinished chapter opened a session and cited an
+**unsealed** release.
+
+That is a contract violation, not a rough edge. Doc 07 makes the session's
+`plp_release_id` binding the reason "a later content correction never
+retroactively changes a past session's recorded result"; doc 08 makes the same
+binding the reason anyone can "always ask what did this learner see … and get a
+frozen, unambiguous answer". Both guarantees are conditional on the cited release
+being sealed. `enforce_taught_content_immutable` only fires when
+`content_is_sealed(course)` is true, so against an unsealed release **the items
+the learner answered remain editable and the binding pins nothing**. Reproduced
+against a seeded database at 0062: the session opened, and the stem of a
+presented item was then updated successfully after the fact.
+
+**The amendment:** the ad-hoc release resolution requires `r.status =
+'PUBLISHED'`, applied to the whole predicate rather than to one arm, so the rule
+is stated once and holds for both:
+
+- **own content** — doc 08's "publication is not assignment: publishing a
+  release makes it available within the institution" is the baseline's own
+  reason for putting publication upstream of use, and PUBLISHED implies sealed,
+  which is what the binding needs;
+- **canonical content** — `grant_release_distribution` already refuses to
+  distribute anything that is not PUBLISHED, so the authorized path was never
+  exposed. Stating the rule here anyway means this path no longer depends on a
+  check living in another function: a distribution row written by any means
+  other than that RPC cannot make an unsealed release citable.
+
+**Publication, not merely sealing, is the gate.** A `FROZEN` release is sealed
+and is still refused, because doc 08 puts publication upstream of use. QAC-T11
+exercises one own-content course in three states — INGESTED, FROZEN, PUBLISHED —
+with the same assignment over the same pool, so the only variable is the
+release's status.
+
+Nothing in the canonical path this ADR was written for changes; the amendment
+**narrows**. No new capability, no new object, no policy change, no enum change.
+
+### Also recorded from that reading (non-blocking, not amendments)
+
+- **`authorized_canonical_items()` is course-scoped, not release-scoped.** It
+  requires that *some* release of the item's course be distributed. Those are the
+  same set only because copy-forward (ADR-0016) makes a course's item set stable —
+  a correction is a new course, so every release of one course describes the same
+  content. That is an argued equivalence, not an enforced one, and it is now
+  named in the function's own `comment` so a later change to the revision model
+  cannot quietly invalidate it.
+- **The distribution-must-be-PUBLISHED rule lives in a function, not in a table
+  constraint.** No client path can bypass it (`release_distributions` has no
+  client write policy and no client grants), and after this amendment the
+  session path does not rely on it at all. Left as it is; recorded so the
+  structural argument is not mistaken for a schema guarantee.
 
 ## Layer-3 concerns
 

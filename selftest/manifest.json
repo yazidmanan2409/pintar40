@@ -1,7 +1,7 @@
 {
   "contract": "pintar-selftest",
-  "version": 6,
-  "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018)",
+  "version": 7,
+  "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
     "db": "selftest/db/fable01..05.sql and fable05t1_quick_canonical.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id",
@@ -754,6 +754,12 @@
       "id": "QAC-S01",
       "runner": "static",
       "proves": "ADR-0018 §5: the Quick Assessment surface offers authorized canonical chapters through the named accessors and names no tenant kind, distribution status or internal flag in its copy"
+    },
+    {
+      "id": "QAC-T11",
+      "runner": "db",
+      "proves": "ADR-0018 as amended by 0063 / doc 07 session binding / doc 08 publication: one own-content course in three states — an INGESTED release and a FROZEN one each refuse the learner by name and leave no session row, and the same assignment over the same pool runs to a scored attempt once the release is PUBLISHED, whose presented items are then sealed against edits",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
     }
   ]
 }

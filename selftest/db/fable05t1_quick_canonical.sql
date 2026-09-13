@@ -165,6 +165,122 @@ revoke all on function selftest.qac_single_owner_check(uuid) from public;
 grant execute on function selftest.qac_single_owner_check(uuid) to authenticated;
 
 -- ---------------------------------------------------------------------------
+-- A school's OWN publishable package.
+--
+-- Added for QAC-T11 (ADR-0018, amended by 0063). Everything else in this suite
+-- is about canonical content; this is the other half of the release-resolution
+-- rule, and nothing in the repository built a school-owned package that could
+-- actually reach PUBLISHED. It is built through the ordinary lifecycle -- real
+-- actors, real capabilities, the real quality gate -- and stops at a release
+-- sitting at INGESTED, which is the ordinary state of a package being authored.
+-- The test walks it from there.
+--
+-- The title carries a run tag so a re-run builds a fresh package rather than
+-- meeting its own published release from last time and testing nothing.
+--
+-- INVOKER, not DEFINER: it impersonates real actors through selftest.as_user(),
+-- and `set role` is refused inside a security-definer function.
+-- ---------------------------------------------------------------------------
+create or replace function selftest.qac_own_package(p_institution uuid, p_tag text)
+returns table (course uuid, modul uuid, les uuid, rel uuid)
+language plpgsql set search_path = public, pg_temp as $$
+declare
+  v_guru uuid; v_hod uuid; v_course uuid; v_mod uuid; v_les uuid; v_rel uuid;
+  ob1 uuid; spec jsonb; entry jsonb; opt jsonb; it uuid; t text;
+  v_status text; v_blockers text[];
+begin
+  v_guru := selftest.f05_actor('qac-own-guru@synthetic.pintar.test', 'EDUCATOR', p_institution);
+  v_hod  := selftest.f05_actor('qac-own-hod@synthetic.pintar.test', 'HEAD_OF_DEPARTMENT', p_institution);
+
+  insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+  values (p_institution, 'Matematika', 'SD', 'Kelas 5', 'QAC paket sendiri ' || p_tag, v_guru)
+  returning id into v_course;
+  insert into public.modules (course_id, institution_id, ordinal, title, author_person_id)
+  values (v_course, p_institution, 1, 'Modul sendiri', v_guru) returning id into v_mod;
+  insert into public.lessons (module_id, institution_id, ordinal, title, body_markdown,
+                              page_citation, author_person_id)
+  values (v_mod, p_institution, 1, 'Pelajaran sendiri',
+          'Isi pelajaran tentang tangga satuan panjang, cukup untuk dibaca satu kali duduk.',
+          'Bagian 1 · halaman 1-3', v_guru)
+  returning id into v_les;
+  insert into public.learning_objectives (lesson_id, institution_id, code, statement, bloom, is_core)
+  values (v_les, p_institution, 'OB-1', 'Mengubah satuan panjang antar tingkat.', 'APPLY', true)
+  returning id into ob1;
+  insert into public.misconception_taxonomy (code, institution_id, label, description, remediation)
+  values ('MK-OWN-01', p_institution, 'Membalik arah tangga satuan',
+          'Peserta didik membagi ketika seharusnya mengali.',
+          'Gambar tangganya lebih dulu, lalu tentukan arahnya sebelum menghitung.')
+  on conflict do nothing;
+
+  -- the mix a 3-question quick assessment asks for: two MUDAH, one SEDANG
+  spec := jsonb_build_array(
+    jsonb_build_object('d',0.74,'stem','Berapa cm dalam 3 m?','ans','A',
+      'opts',jsonb_build_array('300 cm','30 cm','3.000 cm','0,3 cm')),
+    jsonb_build_object('d',0.76,'stem','Berapa mm dalam 1,5 m?','ans','A',
+      'opts',jsonb_build_array('1.500 mm','150 mm','15 mm','15.000 mm')),
+    jsonb_build_object('d',0.55,'stem','Berapa cm dalam 0,4 km?','ans','B',
+      'opts',jsonb_build_array('4.000 cm','40.000 cm','400 cm','400.000 cm')),
+    jsonb_build_object('d',0.35,'stem','Berapa dm dalam 6,5 m?','ans','C',
+      'opts',jsonb_build_array('6,5 dm','650 dm','65 dm','0,65 dm')));
+  for entry in select * from jsonb_array_elements(spec) loop
+    insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, petunjuk,
+      arah_berpikir, objective_ids, is_safety_critical, predicted_difficulty, page_citation,
+      status, author_person_id)
+    values (v_les, p_institution, 'MCQ_SINGLE', 'TEST', entry ->> 'stem',
+      'Tentukan arah tangganya dulu, lalu hitung tingkatnya satu per satu.',
+      'Perhatikan apakah satuannya menjadi lebih kecil atau lebih besar.',
+      array[ob1], false, (entry ->> 'd')::numeric, 'Bagian 1 · halaman 1-3', 'INGESTED', v_guru)
+    returning id into it;
+    for opt in select * from jsonb_array_elements(entry -> 'opts') loop
+      insert into public.item_options (item_id, institution_id, label, body, is_correct,
+                                       rationale, misconception_code)
+      values (it, p_institution,
+        chr(65 + (select count(*) from public.item_options where item_id = it)::int),
+        opt #>> '{}',
+        chr(65 + (select count(*) from public.item_options where item_id = it)::int) = (entry ->> 'ans'),
+        case when chr(65 + (select count(*) from public.item_options where item_id = it)::int) = (entry ->> 'ans')
+             then 'Arah dan banyaknya tingkat sudah tepat, sehingga hasilnya benar.'
+             else 'Arah tangga atau banyaknya tingkat belum tepat, sehingga hasilnya meleset.' end,
+        case when chr(65 + (select count(*) from public.item_options where item_id = it)::int) = (entry ->> 'ans')
+             then null else 'MK-OWN-01' end);
+    end loop;
+    foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+      update public.items set status = t::public.content_status where id = it;
+    end loop;
+  end loop;
+
+  foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+    update public.lessons set status = t::public.content_status where id = v_les;
+    update public.modules set status = t::public.content_status where id = v_mod;
+    update public.courses set status = t::public.content_status where id = v_course;
+  end loop;
+
+  -- approved by the head of department: CAN_REVIEW, and not the author
+  perform selftest.as_user('qac-own-hod@synthetic.pintar.test');
+  update public.items   set status='APPROVED', reviewed_by_person_id=v_hod where lesson_id=v_les;
+  update public.lessons set status='APPROVED', reviewed_by_person_id=v_hod where id=v_les;
+  update public.modules set status='APPROVED', reviewed_by_person_id=v_hod where id=v_mod;
+  update public.courses set status='APPROVED', reviewed_by_person_id=v_hod where id=v_course;
+  perform selftest.as_owner();
+
+  perform public.validate_course_content(v_course);
+  perform public.run_mcq_quality(v_course);
+  select pr.status, pr.blockers into v_status, v_blockers from public.publish_readiness(v_course) pr;
+  if v_status <> 'READY' then
+    raise exception 'the school-owned fixture is not publishable (%): % -- fix the fixture, never the gate',
+      v_status, array_to_string(v_blockers, '; ');
+  end if;
+
+  -- the release exists and is NOT published: the ordinary mid-authoring state,
+  -- and the exact state 0063 exists to refuse a learner against
+  insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+  values (p_institution, v_course, '1.0.0', v_guru) returning id into v_rel;
+
+  course := v_course; modul := v_mod; les := v_les; rel := v_rel; return next;
+end $$;
+revoke all on function selftest.qac_own_package(uuid, text) from public;
+
+-- ---------------------------------------------------------------------------
 -- Re-runnability. Grants are append-only, so they are WITHDRAWN rather than
 -- deleted; every definition this suite writes by hand carries a run-unique
 -- title, so nothing collides and nothing has to be removed. Sessions are
@@ -200,6 +316,7 @@ declare
   s uuid; s2 uuid; v_def uuid; v_assign uuid; v_open uuid; v_open_assign uuid;
   v_priv_c uuid; v_priv_mod uuid; v_tag text; v_refused boolean; v_msg text;
   v_hash_before text; v_hash_after text; v_sha_before text; st record;
+  own record; v_admin uuid; v_hod uuid;
   t0 timestamptz := clock_timestamp();
 begin
   perform selftest.as_owner();
@@ -676,6 +793,135 @@ begin
   end if;
   test_id := 'QAC-T10'; invariant := 'INV-04 / ADR-0011';
   if ok then detail := 'an ad-hoc quick assessment over a sealed canonical course moves the payload digest by nothing, cannot be relabelled into a release, and the hash basis does not read this task''s additions'; end if;
+  return next;
+
+  -- =========================================================================
+  -- QAC-T11  NEGATIVE 8: an ad-hoc session cites a PUBLISHED release, or it
+  --          does not start (ADR-0018 as amended by 0063)
+  --
+  --          Found by Claude 1's second reading of Task 1, reproduced against
+  --          a seeded database at 0062, and repaired in 0063. Before the
+  --          repair, a school's own course carrying only an unpublished
+  --          release opened a session that cited it -- and because an unsealed
+  --          course is still editable, the very items the learner answered
+  --          could be changed afterwards. The session's plp_release_id is
+  --          supposed to BE the frozen answer to "what did this learner see"
+  --          (doc 07, doc 08); against an unsealed release it pinned nothing.
+  --
+  --          One course, three states, one variable. The launch is identical
+  --          in all three -- same definition, same pool, same assignment --
+  --          so what changes the outcome is the release's status and nothing
+  --          else.
+  -- =========================================================================
+  ok := true; detail := '';
+  v_hod   := selftest.f05_actor('qac-own-hod@synthetic.pintar.test', 'HEAD_OF_DEPARTMENT', v_b);
+  v_admin := selftest.f05_actor('qac-own-admin@synthetic.pintar.test', 'INSTITUTION_ADMIN', v_b);
+  select * into own from selftest.qac_own_package(v_b, v_tag);
+
+  -- (a) release INGESTED, course NOT sealed -- the case that was wrong
+  if public.content_is_sealed(own.course) then
+    ok := false; detail := detail || 'the fixture course is already sealed; state (a) is not the broken case; ';
+  end if;
+  perform selftest.as_user('qac-guru-b@synthetic.pintar.test');
+  select * into v_row from public.launch_quick_assessment(v_node_b, own.modul, 3, 30);
+  perform selftest.as_owner();
+  v_open_assign := v_row.assessment_assignment_id;
+  if v_open_assign is null then
+    ok := false; detail := detail || 'the launch over the school''s own draft chapter failed, so the refusals below prove nothing; ';
+  end if;
+  select count(*) into n from public.drawable_items_for_definition(v_row.assessment_definition_id);
+  if n < 3 then
+    ok := false; detail := detail || format('the own-content paper has %s drawable item(s); a refusal would be about the pool, not the release; ', n);
+  end if;
+
+  v_refused := false; v_msg := '';
+  perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
+  begin
+    s2 := public.start_learning_session(v_open_assign);
+    perform selftest.as_owner();
+    ok := false; detail := detail || 'a learner sat a quick assessment against an INGESTED release; ';
+  exception when others then
+    perform selftest.as_owner();
+    v_msg := sqlerrm;
+    v_refused := sqlerrm ~ 'has not been published for this school';
+  end;
+  if not v_refused and v_msg <> '' then
+    ok := false; detail := detail || format('the unpublished start was refused for the wrong reason: %s; ', v_msg);
+  end if;
+  select count(*) into n from public.assessment_sessions ss where ss.assessment_assignment_id = v_open_assign;
+  if n <> 0 then ok := false; detail := detail || format('the refused start left %s session row(s); ', n); end if;
+
+  -- (b) FROZEN: sealed, but still not published. Publication is the gate, not
+  --     sealing -- doc 08's "publication is not assignment".
+  perform selftest.as_user('qac-own-hod@synthetic.pintar.test');
+  foreach r in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+    update public.plp_releases set status = r::public.content_status where id = own.rel;
+  end loop;
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = own.rel;
+  update public.plp_releases set status = 'FROZEN' where id = own.rel;
+  perform selftest.as_owner();
+  if not public.content_is_sealed(own.course) then
+    ok := false; detail := detail || 'the course did not seal at FROZEN, so state (b) is not what it claims; ';
+  end if;
+  v_refused := false;
+  perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
+  begin
+    s2 := public.start_learning_session(v_open_assign);
+    perform selftest.as_owner();
+    ok := false; detail := detail || 'a learner sat a quick assessment against a FROZEN but unpublished release; ';
+  exception when others then
+    perform selftest.as_owner();
+    v_refused := sqlerrm ~ 'has not been published for this school';
+  end;
+  if not v_refused then
+    ok := false; detail := detail || 'the frozen-but-unpublished start was refused for the wrong reason; ';
+  end if;
+
+  -- (c) PUBLISHED: the same assignment, the same pool, now allowed -- so the
+  --     repair narrowed the rule rather than closing the path
+  perform selftest.as_user('qac-own-admin@synthetic.pintar.test');
+  perform public.publish_release(own.rel);
+  perform selftest.as_owner();
+  -- guarded, like every other start in this test: a suite that aborts on a
+  -- failure reports nothing, and this is the state a planted defect reaches
+  -- with the single attempt already spent
+  s2 := null; n2 := 0;
+  perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
+  begin
+    s2 := public.start_learning_session(v_open_assign);
+    n2 := selftest.answer_paper(s2, true);
+    perform public.finish_my_session(s2);
+    perform selftest.as_owner();
+  exception when others then
+    perform selftest.as_owner();
+    ok := false;
+    detail := detail || format('the published release did not open a scored session: %s; ', sqlerrm);
+  end;
+  if s2 is not null then
+    select ss.plp_release_id as ri, ss.institution_id as si, ss.evidence_class::text as ec
+      into v_d from public.assessment_sessions ss where ss.id = s2;
+    if v_d.ri is distinct from own.rel then
+      ok := false; detail := detail || 'the session does not cite the school''s own published release; ';
+    end if;
+    if v_d.si is distinct from v_b then
+      ok := false; detail := detail || 'the own-content session is not the school''s; ';
+    end if;
+    if n2 = 0 then ok := false; detail := detail || 'the own-content attempt answered nothing; '; end if;
+    -- and the binding now pins: the items the learner saw are sealed against edits
+    perform selftest.as_user('qac-own-guru@synthetic.pintar.test');
+    begin
+      update public.items set stem = 'diubah setelah dikerjakan'
+       where id = (select pi.item_id from public.presented_items pi where pi.session_id = s2 limit 1);
+      get diagnostics n = row_count;
+      perform selftest.as_owner();
+      if n > 0 then
+        ok := false; detail := detail || 'a presented item was edited after the session; the binding pins nothing; ';
+      end if;
+    exception when others then perform selftest.as_owner(); end;
+  end if;
+
+  test_id := 'QAC-T11'; invariant := 'ADR-0018 / doc 07 session binding / doc 08 publication';
+  if ok then detail := format('one own-content course in three states: an INGESTED release and a FROZEN one each refuse the learner by name and leave no session row, and the same assignment over the same pool runs to a %s-answer scored attempt once the release is PUBLISHED -- whose presented items are then sealed against edits', n2); end if;
   return next;
 
   -- =========================================================================

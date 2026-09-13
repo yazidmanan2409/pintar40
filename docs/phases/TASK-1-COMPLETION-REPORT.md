@@ -11,7 +11,7 @@ Switching) is not started and must not begin until this gate is closed.
 | | |
 |---|---|
 | Branch commit | `3f8e310` on `claude/quirky-meitner-a04smj` |
-| Migrations | **62** (0061, 0062 added; nothing before 0060 touched) |
+| Migrations | **63** (0061, 0062, 0063 added; nothing before 0060 touched) |
 | CI | run **34747284030** on `3f8e310` — all twelve jobs green, including the new `red case · db-task1-gates` leg |
 | Selftest (verbatim) | `123 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
 | Clean replay | 62 migrations from an empty database, terminal blocks included |
@@ -176,7 +176,49 @@ for ad-hoc assignments only.
 *Regression:* QAC-T02 runs a learner through to a scored result; 0062's terminal
 block runs the same journey inside a rolled-back subtransaction.
 
-### Mine, found and fixed inside this task
+### Mine, found by a second reading after I called the gate closed
+
+**F1 — an ad-hoc session could cite an UNSEALED release. Gate blocker.**
+Raised by Claude 1 reading the live hosted schema, against a completion report
+they treated as a set of claims rather than evidence. They were right, and the
+claim they falsified was mine.
+
+0062's ad-hoc release resolution carried no status filter. A school authoring
+its own course holds a release row at `INGESTED` long before publishing
+anything, and that row satisfied the own-institution arm — so a quick assessment
+over the school's own unfinished chapter opened a session citing an unsealed
+release. Doc 07 and doc 08 both rest the "frozen, unambiguous answer to what did
+this learner see" guarantee on that binding, and against an unsealed release it
+pins nothing: `enforce_taught_content_immutable` only fires when the course is
+sealed.
+
+I reproduced it before repairing it, and then reproduced the harm: a session
+opened over an unsealed own course, and the **stem of an item the learner had
+just answered was updated successfully afterwards**. The evidence was
+OFFICIAL-eligible and would have reached results, and in FABLE-06 item
+statistics computed over items that can still change.
+
+Two things about how this got past me are worth stating plainly rather than
+softening. First, the third caveat in the first version of this report asserted
+the opposite — "the learner is refused in plain language" — as a verified fact.
+It was a general claim inferred from one special case (a course with no release
+row at all) and **it was never tested**. Second, the path was new in 0062 and I
+wrote both the code and its tests; the suite exercised only canonical content,
+where `grant_release_distribution` happens to guarantee PUBLISHED, so the
+own-content arm had no coverage at all.
+
+*Regression:* **QAC-T11** walks one own-content course through three states —
+`INGESTED`, `FROZEN`, `PUBLISHED` — with the same assignment over the same pool,
+so the release's status is the only variable. The first two refuse the learner by
+name and leave no session row; the third runs to a scored attempt whose presented
+items are then sealed against edits. 0063's terminal block builds the same case
+in a rolled-back subtransaction. A third CI plant removes the `PUBLISHED` clause
+from the live function text and requires QAC-T11 to go red naming it.
+
+*Repair:* `r.status = 'PUBLISHED'` on the whole predicate, so the rule is stated
+once and covers both arms. It narrows; nothing in the canonical path changes.
+
+### Mine, found and fixed while building
 
 **M1 — I dropped a pinned `search_path`.** My `create or replace` of
 `eligible_items_for_definition` was spliced from 0020's *file*, and the *live*
@@ -307,12 +349,11 @@ mask or rescue another.
   in one paper — remains deferred, exactly as ADR-0018 leaves it. Nothing built
   here presumes either answer, and this ADR must not be cited as precedent.
 - **OD-4, institution-to-institution content sharing** — remains LATER.
-- **A quick assessment over a school's own *unreleased* course still cannot be
-  taken.** `assessment_sessions.plp_release_id` is NOT NULL, so a session must
-  cite a release; an unpublished school course has none. The learner is refused
-  in plain language rather than silently. This is a pre-existing consequence of
-  the provenance model, unchanged by this task, and it is now visible where it
-  was previously hidden behind D2's blanket refusal.
+- **A quick assessment over a school's own *unpublished* course cannot be
+  taken** — the learner is refused in plain language, and the teacher is told to
+  publish the chapter first. This sentence appeared in the first version of this
+  report as a verified fact. **It was not true when written**, and it was not
+  tested: see **F1** in §4. It is true now, and QAC-T11 is what makes it so.
 - **`distributed_lesson_preview` remains staff-only** — learners never preview a
   canonical lesson body. Deliberately unchanged; see M2.
 - **The Studio Quick Assessment surface has no automated HTTP exercise beyond
@@ -354,6 +395,14 @@ mask or rescue another.
 - the Studio surface was not opened in a browser by a human; its assertions are
   the anonymous knock (F05-R01), the copy-discipline pattern (QAC-S01), the
   build, and the type checker.
+
+**And one I claimed to have verified and had not.** The first version of this
+report stated that a quick assessment over a school's own unreleased course
+"cannot be taken … the learner is refused in plain language". That was inference
+presented as measurement, and it was false — F1. The lesson is narrower than
+"test more": every other claim in this report is tied to a named test id or a
+digest I can re-run, and that one was tied to nothing. A sentence in a report
+that no test can fail is not a finding, it is an opinion.
 
 **Layer-3 is not performed and is not claimed.** ADR-0018 records the two
 Layer-3 concerns unchanged from the draft: whether the single-owner boundary is
