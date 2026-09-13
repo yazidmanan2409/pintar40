@@ -458,12 +458,20 @@ begin
       (select id from public.lessons where module_id = modul);
     update public.assessment_definitions set status = t::public.content_status where module_id = modul;
   end loop;
+  -- Approve AS the Head of Department. From 0057 an approval is a capability
+  -- act performed by the reviewer of record, not a field two statements can
+  -- fill in on their behalf, so the fixture names its reviewer by acting as one.
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', u_hod, 'role','authenticated')::text, true);
+  perform set_config('request.jwt.claim.sub', u_hod::text, true);
   update public.courses                set status='APPROVED', reviewed_by_person_id=p_hod where id = course;
   update public.modules                set status='APPROVED', reviewed_by_person_id=p_hod where course_id = course;
   update public.lessons                set status='APPROVED', reviewed_by_person_id=p_hod where module_id = modul;
   update public.items                  set status='APPROVED', reviewed_by_person_id=p_hod where lesson_id in
     (select id from public.lessons where module_id = modul);
   update public.assessment_definitions set status='APPROVED', reviewed_by_person_id=p_hod where module_id = modul;
+  perform set_config('request.jwt.claims', '', true);
+  perform set_config('request.jwt.claim.sub', '', true);
 
   -- ------------------------------------------- validator and MCQ quality
   -- Run them for real. A fixture that skipped its own quality gate would tell
@@ -482,12 +490,11 @@ begin
   foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
     update public.plp_releases set status = t::public.content_status where id = rel;
   end loop;
-  update public.plp_releases set status='APPROVED', reviewed_by_person_id=p_hod where id = rel;
-
-  -- freeze as the Head of Department (CAN_FREEZE_RELEASE)
+  -- approve and freeze as the Head of Department (CAN_REVIEW, CAN_FREEZE_RELEASE)
   perform set_config('request.jwt.claims',
     json_build_object('sub', u_hod, 'role','authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', u_hod::text, true);
+  update public.plp_releases set status='APPROVED', reviewed_by_person_id=p_hod where id = rel;
   update public.plp_releases set status='FROZEN' where id = rel;
 
   -- publish as the Institution Admin (CAN_PUBLISH); HoD deliberately cannot

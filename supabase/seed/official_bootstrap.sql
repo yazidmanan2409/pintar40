@@ -201,11 +201,8 @@ begin
              then null
              when (random() < 0.5) then 'MK-UKR-01-' || tag else 'MK-UKR-02-' || tag end);
     end loop;
-    foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW','APPROVED'] loop
-      update public.items set status = t::public.content_status,
-             reviewed_by_person_id = case when t = 'APPROVED' then p_hod else reviewed_by_person_id end,
-             reviewed_at = case when t = 'APPROVED' then now() else reviewed_at end
-       where id = it;
+    foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+      update public.items set status = t::public.content_status where id = it;
     end loop;
   end loop;
 
@@ -214,9 +211,20 @@ begin
     update public.modules set status = t::public.content_status where id = modul;
     update public.courses set status = t::public.content_status where id = course;
   end loop;
+
+  -- Approve AS the Head of Department. From 0057 an approval is a capability
+  -- act performed by the reviewer of record; the authoring above stays the
+  -- educator's, which is why the two are separated here rather than merged.
+  perform set_config('request.jwt.claim.sub', u_hod::text, true);
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', u_hod, 'role','authenticated')::text, true);
+  update public.items   set status='APPROVED', reviewed_by_person_id=p_hod, reviewed_at=now()
+   where lesson_id = les;
   update public.lessons set status='APPROVED', reviewed_by_person_id=p_hod, reviewed_at=now() where id = les;
   update public.modules set status='APPROVED', reviewed_by_person_id=p_hod, reviewed_at=now() where id = modul;
   update public.courses set status='APPROVED', reviewed_by_person_id=p_hod, reviewed_at=now() where id = course;
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '', true);
 
   -- the definition that certifies: POST_TEST, which mode_policy marks certifying
   insert into public.assessment_definitions (institution_id, module_id, title, mode,
@@ -231,8 +239,13 @@ begin
   foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
     update public.assessment_definitions set status = t::public.content_status where id = defn;
   end loop;
+  perform set_config('request.jwt.claim.sub', u_hod::text, true);
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', u_hod, 'role','authenticated')::text, true);
   update public.assessment_definitions set status='APPROVED', reviewed_by_person_id=p_hod, reviewed_at=now()
    where id = defn;
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '', true);
 
   -- the real quality gate, not a bypass
   perform public.validate_course_content(course);
@@ -248,8 +261,10 @@ begin
   foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
     update public.plp_releases set status = t::public.content_status where id = rel;
   end loop;
-  update public.plp_releases set status='APPROVED', reviewed_by_person_id=p_hod, reviewed_at=now() where id = rel;
   perform set_config('request.jwt.claim.sub', (select id::text from auth.users where id = u_hod), true);
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', u_hod, 'role','authenticated')::text, true);
+  update public.plp_releases set status='APPROVED', reviewed_by_person_id=p_hod, reviewed_at=now() where id = rel;
   update public.plp_releases set status='FROZEN' where id = rel;
   perform set_config('request.jwt.claim.sub', (select id::text from auth.users where id = u_admin), true);
   update public.plp_releases set status='PUBLISHED' where id = rel;

@@ -304,11 +304,22 @@ begin
     update public.courses set status = 'APPROVED', reviewed_by_person_id = null where id = v_course;
     ok := false; detail := detail || 'APPROVED accepted without a reviewer; ';
   exception when others then null; end;
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
   update public.courses set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_course;
+  perform selftest.as_owner();
   select count(*) into n from public.courses where id = v_course and reviewed_at is not null;
   if n <> 1 then ok := false; detail := detail || 'reviewed_at not stamped; '; end if;
-  test_id := 'F02-T02'; invariant := 'doc 04 §1';
-  if ok then detail := 'self-approval and reviewer-less approval refused; distinct reviewer stamped'; end if;
+  -- ADDED IN FABLE-05 (0057). The reviewer separation was enforced; the
+  -- CAPABILITY was not. An EDUCATOR holds CAN_DRAFT, passes the content UPDATE
+  -- policy, and could approve a colleague's work by naming the colleague.
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  begin
+    update public.courses set status = 'FROZEN' where id = v_course;
+    ok := false; detail := detail || 'an EDUCATOR sealed content without CAN_FREEZE_RELEASE; ';
+  exception when others then null; end;
+  perform selftest.as_owner();
+  test_id := 'F02-T02'; invariant := 'doc 04 §1 / INV-19';
+  if ok then detail := 'self-approval and reviewer-less approval refused; an approval without CAN_REVIEW is refused and an EDUCATOR cannot seal; distinct reviewer stamped'; end if;
   return next;
 
   -- F02-T03 nothing reverses out of a sealed state, and PUBLISHED is a human
@@ -461,8 +472,8 @@ begin
   update public.plp_releases set status = 'STRUCTURED' where id = v_release;
   update public.plp_releases set status = 'VALIDATED'  where id = v_release;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
-  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
   update public.plp_releases set status = 'FROZEN'     where id = v_release;
   perform selftest.as_owner();
   select content_sha256, frozen_at into v_sha, v_frozen from public.plp_releases where id = v_release;
@@ -549,15 +560,18 @@ begin
 
   -- F02-T09 sealing is a human CAN_FREEZE_RELEASE act, and it is a DIFFERENT
   -- authority from publishing: HEAD_OF_DEPARTMENT can seal but not publish.
-  -- A second release on the same course, driven to APPROVED as the owner --
-  -- APPROVED carries no capability gate -- then frozen by each caller in turn.
+  -- A second release on the same course, driven to APPROVED as the Head of
+  -- Department -- from 0057 APPROVED carries its own CAN_REVIEW gate, and the
+  -- HoD holds it -- then frozen by each caller in turn.
   ok := true; detail := '';
   insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
     values (v_inst, v_course, '2.0.0', v_guru) returning id into v_release;
   update public.plp_releases set status = 'STRUCTURED' where id = v_release;
   update public.plp_releases set status = 'VALIDATED'  where id = v_release;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
+  perform selftest.as_owner();
 
   begin
     update public.plp_releases set status = 'FROZEN' where id = v_release;
@@ -609,7 +623,9 @@ begin
   update public.plp_releases set status = 'STRUCTURED' where id = v_release;
   update public.plp_releases set status = 'VALIDATED'  where id = v_release;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
+  perform selftest.as_user('alpha-hod@synthetic.pintar.test');
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
+  perform selftest.as_owner();
 
   -- the EDUCATOR of institution A is legitimately made HEAD_OF_DEPARTMENT in
   -- institution B, through grant_role: a direct insert is refused by the
@@ -1124,8 +1140,8 @@ begin
   update public.plp_releases set status = 'STRUCTURED' where id = v_rel3;
   update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
-  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
   update public.plp_releases set status = 'FROZEN' where id = v_rel3;
   perform selftest.as_owner();
   -- FROZEN is sealed but not yet available
@@ -1205,8 +1221,8 @@ begin
   update public.plp_releases set status = 'STRUCTURED' where id = v_rel3;
   update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
-  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
   update public.plp_releases set status = 'FROZEN' where id = v_rel3;
   perform selftest.as_owner();
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
@@ -1236,8 +1252,8 @@ begin
   update public.plp_releases set status = 'STRUCTURED' where id = v_rel3;
   update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
-  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
   update public.plp_releases set status = 'FROZEN' where id = v_rel3;
   perform selftest.as_owner();
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
