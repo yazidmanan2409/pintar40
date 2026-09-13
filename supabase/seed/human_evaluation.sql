@@ -380,6 +380,14 @@ begin
   -- --------------------------------------------------- the facility itself
   -- FIVE personas. There is no sixth: 0066 refuses a SYSTEM_ADMIN perspective
   -- outright, so this is a fact about the schema rather than a choice made here.
+  -- Five personas. There is no sixth: 0066 refuses a SYSTEM_ADMIN perspective
+  -- outright, so this is a fact about the schema rather than a choice made here.
+  --
+  -- Their role grants are STANDING, and 0069 explains why they have to be: a
+  -- grant cannot be made at assume time, because `role_assignments_guard`
+  -- refuses an evaluator as grantor (INV-16), and it cannot be narrowed later,
+  -- because grants are immutable. Expiry is therefore carried entirely by the
+  -- persona's access token, which is minted without refresh material.
   insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal) values
     (p_siswa, inst, 'Murid',                  'STUDENT',            1),
     (p_guru,  inst, 'Guru',                   'EDUCATOR',           2),

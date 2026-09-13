@@ -236,13 +236,15 @@ begin
 
   -- === behavioural, in a rolled-back subtransaction ========================
   begin
-    if exists (select 1 from public.institutions where official_evidence_purpose = 'HUMAN_EVALUATION') then
-      raise exception 'HUMAN_EVALUATION is already occupied; this probe cannot run';
+    -- use the evaluation institution if one exists; see 0066's note
+    select i.id into v_inst from public.institutions i
+     where i.official_evidence_purpose = 'HUMAN_EVALUATION';
+    if v_inst is null then
+      insert into public.institutions (name, slug, is_synthetic, is_active,
+                                       is_official_bootstrap, official_evidence_purpose)
+      values ('probe 0068 evaluation', 'probe-0068-evaluation', false, true, true, 'HUMAN_EVALUATION')
+      returning id into v_inst;
     end if;
-    insert into public.institutions (name, slug, is_synthetic, is_active,
-                                     is_official_bootstrap, official_evidence_purpose)
-    values ('probe 0068 evaluation', 'probe-0068-evaluation', false, true, true, 'HUMAN_EVALUATION')
-    returning id into v_inst;
     insert into public.institutions (name, slug, is_synthetic, is_active)
     values ('probe 0068 real school', 'probe-0068-real', true, true) returning id into v_other;
     insert into public.academic_periods (institution_id, name, starts_on, ends_on)
@@ -262,9 +264,9 @@ begin
     values (p_out, v_other, v_period, 'ACTIVE', now() - interval '1 day');
 
     insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal)
-    values (p_a, v_inst, 'Murid', 'STUDENT', 1) returning id into per_a;
+    values (p_a, v_inst, 'probe murid', 'STUDENT', 93) returning id into per_a;
     insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal)
-    values (p_b, v_inst, 'Guru', 'EDUCATOR', 2) returning id into per_b;
+    values (p_b, v_inst, 'probe guru', 'EDUCATOR', 94) returning id into per_b;
     perform set_config('app.seed_intent', 'synthetic', true);
     insert into public.evaluation_evaluators (person_id, note) values (p_ev, 'probe');
     perform set_config('app.seed_intent', '', true);
@@ -290,8 +292,8 @@ begin
     -- (P1) the evaluator sees exactly the personas, in order
     perform set_config('request.jwt.claims', json_build_object('sub', u_ev::text)::text, true);
     perform set_config('request.jwt.claim.sub', u_ev::text, true);
-    select count(*) into n from public.evaluation_hub();
-    if n <> 2 then raise exception 'the hub listed % persona(s), expected 2', n; end if;
+    select count(*) into n from public.evaluation_hub() h where h.ordinal in (93, 94);
+    if n <> 2 then raise exception 'the hub listed % of this probe''s persona(s), expected 2', n; end if;
 
     -- (N3) a person NOT on the allow-list cannot be assumed, including a real
     --      learner's id passed where a persona id belongs
@@ -347,7 +349,7 @@ begin
     --      carry both identities
     select count(*) into n from public.evaluation_state();
     if n <> 1 then raise exception 'the indicator does not see the live session'; end if;
-    if (select s.label from public.evaluation_state() s) <> 'Murid' then
+    if (select s.label from public.evaluation_state() s) <> 'probe murid' then
       raise exception 'the indicator names the wrong persona';
     end if;
     -- written to a variable first. Calling a VOLATILE function inside a WHERE

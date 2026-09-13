@@ -411,13 +411,15 @@ begin
 
   -- === behavioural, in a rolled-back subtransaction ========================
   begin
-    if exists (select 1 from public.institutions where official_evidence_purpose = 'HUMAN_EVALUATION') then
-      raise exception 'HUMAN_EVALUATION is already occupied; this probe cannot run';
+    -- use the evaluation institution if one exists; see 0066's note
+    select i.id into v_eval_inst from public.institutions i
+     where i.official_evidence_purpose = 'HUMAN_EVALUATION';
+    if v_eval_inst is null then
+      insert into public.institutions (name, slug, is_synthetic, is_active,
+                                       is_official_bootstrap, official_evidence_purpose)
+      values ('probe 0067 evaluation', 'probe-0067-evaluation', false, true, true, 'HUMAN_EVALUATION')
+      returning id into v_eval_inst;
     end if;
-    insert into public.institutions (name, slug, is_synthetic, is_active,
-                                     is_official_bootstrap, official_evidence_purpose)
-    values ('probe 0067 evaluation', 'probe-0067-evaluation', false, true, true, 'HUMAN_EVALUATION')
-    returning id into v_eval_inst;
 
     insert into auth.users (id, email) values (v_persona_uid, 'probe0067-persona@local.invalid');
     select a.person_id into v_persona_person from public.accounts a where a.auth_user_id = v_persona_uid;
@@ -425,7 +427,7 @@ begin
     select a.person_id into v_evaluator_person from public.accounts a where a.auth_user_id = v_evaluator_uid;
 
     insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal)
-    values (v_persona_person, v_eval_inst, 'Murid', 'STUDENT', 1) returning id into v_persona;
+    values (v_persona_person, v_eval_inst, 'probe murid', 'STUDENT', 92) returning id into v_persona;
     perform set_config('app.seed_intent', 'synthetic', true);
     insert into public.evaluation_evaluators (person_id, note) values (v_evaluator_person, 'probe');
     perform set_config('app.seed_intent', '', true);

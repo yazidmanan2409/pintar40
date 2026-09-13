@@ -528,17 +528,18 @@ begin
 
   -- === behavioural, in a rolled-back subtransaction ========================
   begin
-    select p into v_free
-      from unnest(enum_range(null::public.official_evidence_purpose)) p
-     where p = 'HUMAN_EVALUATION'
-       and not exists (select 1 from public.institutions i where i.official_evidence_purpose = p);
-    if v_free is null then
-      raise exception 'HUMAN_EVALUATION is already occupied; this probe cannot run';
+    -- USE the evaluation institution if one exists, create it if not. Requiring
+    -- the slot to be FREE made this probe pass from empty and fail on any
+    -- upgrade path where the human-evaluation seed had run -- a probe that
+    -- cannot run where it matters most (ADR-0014, L6).
+    select i.id into v_eval_inst from public.institutions i
+     where i.official_evidence_purpose = 'HUMAN_EVALUATION';
+    if v_eval_inst is null then
+      insert into public.institutions (name, slug, is_synthetic, is_active,
+                                       is_official_bootstrap, official_evidence_purpose)
+      values ('probe 0066 evaluation', 'probe-0066-evaluation', false, true, true, 'HUMAN_EVALUATION')
+      returning id into v_eval_inst;
     end if;
-    insert into public.institutions (name, slug, is_synthetic, is_active,
-                                     is_official_bootstrap, official_evidence_purpose)
-    values ('probe 0066 evaluation', 'probe-0066-evaluation', false, true, true, 'HUMAN_EVALUATION')
-    returning id into v_eval_inst;
     insert into public.institutions (name, slug, is_synthetic, is_active)
     values ('probe 0066 real school', 'probe-0066-real', true, true) returning id into v_other;
     insert into public.academic_periods (institution_id, name, starts_on, ends_on)
@@ -550,7 +551,7 @@ begin
 
     -- (1) a persona in the evaluation institution is accepted
     insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal)
-    values (v_p1, v_eval_inst, 'Murid', 'STUDENT', 1) returning id into v_persona;
+    values (v_p1, v_eval_inst, 'probe murid', 'STUDENT', 91) returning id into v_persona;
 
     -- (2) a persona pointing at a REAL person -- one with an enrolment
     --     elsewhere -- is refused BY NAME. Threat row 2.
@@ -559,7 +560,7 @@ begin
     v_refused := false; v_msg := '';
     begin
       insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal)
-      values (v_real, v_eval_inst, 'Murid Asli', 'STUDENT', 9);
+      values (v_real, v_eval_inst, 'probe murid asli', 'STUDENT', 99);
     exception when others then v_refused := true; v_msg := sqlerrm; end;
     if not v_refused then
       raise exception 'a real person with an enrolment elsewhere was admitted to the allow-list';
@@ -573,7 +574,7 @@ begin
     v_refused := false;
     begin
       insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal)
-      values (v_p2, v_eval_inst, 'Admin Platform', 'SYSTEM_ADMIN', 8);
+      values (v_p2, v_eval_inst, 'probe admin platform', 'SYSTEM_ADMIN', 98);
     exception when others then v_refused := true; end;
     if not v_refused then
       raise exception 'a SYSTEM_ADMIN persona was admitted';
@@ -583,7 +584,7 @@ begin
     v_refused := false;
     begin
       insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal)
-      values (v_p2, v_other, 'Murid Lain', 'STUDENT', 7);
+      values (v_p2, v_other, 'probe murid lain', 'STUDENT', 97);
     exception when others then v_refused := true; end;
     if not v_refused then
       raise exception 'a persona was admitted outside the evaluation institution';
