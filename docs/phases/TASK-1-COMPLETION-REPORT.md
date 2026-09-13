@@ -405,17 +405,23 @@ consecutive versions of the same rule. The ADR now says so; the earlier wording
 is corrected rather than left standing, because a permanent record calling a
 correct citation false would make a future reader discount a real clause.
 
-**The same gap caught me, harder.** The clause I leaned on for refusing `FROZEN`
-— "publication is not assignment: publishing a release makes it available within
-the institution" — is attributed to doc 08 in migration **0063**, in migration
-0064 and in ADR-0018. It appears **nowhere in this repository's `docs/`**. I
-adopted it from review and attributed it to a document I never opened, *while*
-flagging the same failure in someone else. 0063 is applied to `main` and to
-hosted and is forward-only, so it cannot be amended; ADR-0018 carries the
-correction of record, and 0064 re-grounds the rule in text that is actually here:
-`content_status_transitions` records the `FROZEN → PUBLISHED` edge as **"made
-available to the institution"**. The rule is unchanged; only its citation was
-wrong.
+**The same gap reaches the clause I leaned on hardest — and my first account of
+that was wrong too.** "Publication is not assignment: publishing a release makes
+it available within the institution" is attributed to doc 08 in migration
+**0063**, in 0064 and in ADR-0018, and appears **nowhere in this repository's
+`docs/`**. I first recorded that as my own mis-attribution. Claude 1 reports it
+is a *section heading* in the amended doc 08 — same document, same amendment,
+same root cause as the policy table. **I cannot see that copy**, so the record
+now states what I checked and what I was told, and claims neither as the other.
+
+**The error was the method, not the attribution.** I carried a clause from review
+into a migration comment and an ADR without opening any copy of the source.
+0063 is applied to `main` and hosted and is forward-only; ADR-0018 carries the
+correction of record, and 0064 re-grounds the rule in text that is verifiably
+here: `content_status_transitions` records the `FROZEN → PUBLISHED` edge as
+**"made available to the institution"**. A machine-readable in-repository fact
+beats a prose citation and survives any document divergence — that grounding
+stays whichever way the citation resolves.
 
 **What this costs, in general.** A missing document fails loudly and a truncated
 one is visibly short — both announce themselves. A *stale* document announces
@@ -424,11 +430,30 @@ copies are reconciled with the Project copies, any baseline quotation from eithe
 side is unverifiable by the other, and a disagreement about frozen text should be
 treated as a suspected version divergence first.
 
-**What I cannot do about it.** I have no access to the Project copies, so I can
-neither ship the amended doc 08 nor perform the sixteen-document reconciliation.
-That needs the amended documents supplied into the repository. Two earlier items
-in this class are now closed — doc 16 is present (190 lines) and doc 03 reaches
-INV-38 — which is why doc 08 is the one left standing.
+**It is not one document.** Doc 16 is present (190 lines) and doc 03 reaches
+INV-38, so two earlier items in this class are closed. But the marker count says
+one of sixteen, and Claude 1 reports the marker in at least eight Project copies
+(03, 06, 07, 08, 09, 11, 12, 14). I can confirm a ninth divergence from my side,
+and it is the awkward one: **the repository's `REBUILD-READINESS-REPORT.md` is
+itself a different version** — 160 lines, sections 1–10 plus five closing
+sections, with **no §A amendment list and no §B Document Change Matrix**. The
+document proposed as the manifest for the sync is stale here too, so I cannot
+even enumerate what needs syncing.
+
+**What I cannot do.** I have no access to the Project copies. I can neither ship
+the amended documents nor run the reconciliation, and I cannot build the CI
+marker check Claude 1 proposes in its strong form, because the authoritative list
+of which documents *should* carry the amendment marker lives in a document this
+repository does not have. What I have added instead is `DOC-S01`: a static test
+that pins the marker state I measured, so the condition stops being invisible —
+any sync, or any further drift, fails it and forces the record to be updated. It
+encodes only what I checked, never what I was told.
+
+**Handover.** Closing this needs the amended `docs/rebuild/` set and the v2
+readiness report supplied into the repository. Until then, a disagreement about
+baseline text between any two parties here should be treated as a suspected
+version divergence first, and neither party should record the other's citation as
+unfounded on the strength of a copy only one of them can see.
 
 ## 9. What remains open
 

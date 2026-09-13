@@ -15,14 +15,18 @@
 -- refused.
 --
 -- A NOTE ON WHERE THAT RULE IS QUOTED FROM. 0063 attributed it to a doc 08
--- clause -- "publication is not assignment" -- that does not appear in this
+-- clause -- "publication is not assignment" -- that does not appear in THIS
 -- repository's copy of doc 08. That copy predates the 2026-09-12 baseline
 -- amendment: of sixteen baseline documents here, exactly one (doc 03) carries
--- the amendment marker. The clause is real in the amended document; it was
--- adopted from review and attributed without being checked against what this
--- repository actually holds. 0063 is applied and forward-only, so the
--- correction of record lives in ADR-0018. This migration grounds the same rule
--- in text that IS here and is machine-readable.
+-- the amendment marker. Claude 1 reports the clause is a section heading in the
+-- amended copy, and its amendment header lists "publication vs assignment
+-- separated" among that amendment's changes; I cannot see that copy from here,
+-- so I record what I checked and what I was told, and claim neither as the
+-- other. What was wrong was not the attribution but the METHOD: the clause was
+-- carried from review into a migration comment without opening any copy of the
+-- source. 0063 is applied and forward-only, so the correction of record lives
+-- in ADR-0018. This migration grounds the same rule in text that IS here and is
+-- machine-readable, which is stronger than a prose citation either way.
 --
 -- WHAT 0063 ADDED ON TOP, AND WHY IT WAS WRONG. Requiring `PUBLISHED` alone also
 -- refused a release that had been published and later superseded. I argued that

@@ -356,12 +356,21 @@ The evidence is mechanical and internal to this repository: of the sixteen
 versions of the same rule: the amending text and the text it superseded. Neither
 party invented anything, and the loose one-liner I relied on is the older.
 
-**The same gap caught me, on the clause I leaned on hardest.** "Publication is
-not assignment — publishing a release makes it available within the institution"
-is quoted as doc 08's in migration 0063, in migration 0064, and above in this
-ADR. It appears **nowhere in this repository's `docs/`**. I adopted it from
-review and attributed it to a document I never checked — the symmetric error to
-the one I was flagging, made in the same breath.
+**The same gap reaches the clause I leaned on hardest, and my first account of
+it was also wrong.** "Publication is not assignment — publishing a release makes
+it available within the institution" is quoted as doc 08's in migration 0063, in
+0064, and above. It appears **nowhere in this repository's `docs/`** — I checked.
+I first recorded that as *my* mis-attribution. Claude 1 reports it is a **section
+heading** in the amended doc 08, whose amendment header lists "publication vs
+assignment separated" among its changes: the same document, the same amendment,
+the same root cause as the policy table. I cannot see that copy, so the honest
+record is what I checked and what I was told, with neither presented as the
+other.
+
+**What was wrong was the method, not the attribution.** I carried a clause from
+review into a migration comment and an ADR without opening any copy of the
+source. Being right by inheritance is not being right by method, and the next
+clause carried that way may not survive.
 
 **Migration 0063 cannot be corrected**: it is applied to `main` and to hosted,
 and migrations are forward-only. This paragraph is the correction of record for

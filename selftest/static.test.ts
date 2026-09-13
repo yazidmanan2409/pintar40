@@ -1011,4 +1011,54 @@ export const staticTests: SelfTest[] = [
       return c.verdict("the Quick Assessment surface offers authorized canonical chapters through the named accessors and names no tenant kind, distribution status or internal flag in its copy");
     },
   },
+  {
+    id: "DOC-S01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      // The baseline documents in this repository diverge from the Project
+      // copies, and the divergence is SILENT: a stale document reads as
+      // complete and gets quoted in good faith. That cost two review rounds and
+      // two nearly-permanent false records before anyone noticed.
+      //
+      // This pins the one thing measurable from inside the repository: which
+      // baseline documents carry a `Baseline amendment (...)` marker. It
+      // encodes what was checked here, never what was reported from a copy this
+      // side cannot see. When the amended set is shipped, this test fails --
+      // which is the point: the sync becomes visible and the expectation below
+      // has to be updated deliberately rather than drifting again.
+      const c = new Checks();
+      const dir = join(repoRoot, "docs", "rebuild");
+      c.expect(existsSync(dir), "docs/rebuild is missing");
+      const docs = readdirSync(dir).filter((f) => f.endsWith(".md")).sort();
+      c.expect(docs.length >= 16, `only ${docs.length} baseline document(s) found`);
+
+      const MARKER = /Baseline amendment \(\d{4}-\d{2}-\d{2}\)/;
+      const withMarker = docs.filter((f) => MARKER.test(readFileSync(join(dir, f), "utf8")));
+
+      // Measured 2026-09-13: exactly one document carries a marker.
+      const EXPECTED = ["03-PINTAR-INVARIANTS.md"];
+      c.expect(
+        JSON.stringify(withMarker) === JSON.stringify(EXPECTED),
+        `the amended-document set changed: ${JSON.stringify(withMarker)} (expected ${JSON.stringify(EXPECTED)}). ` +
+          "If the amended baseline was just shipped, update EXPECTED and the divergence note in " +
+          "docs/phases/TASK-1-COMPLETION-REPORT.md \u00a78.1. If not, a baseline document drifted.",
+      );
+
+      // and the readiness report here is the pre-v2 one: no Document Change
+      // Matrix, so it cannot serve as the sync manifest from this side
+      const readiness = join(dir, "REBUILD-READINESS-REPORT.md");
+      if (existsSync(readiness)) {
+        const text = readFileSync(readiness, "utf8");
+        c.note(
+          /Document Change Matrix/i.test(text)
+            ? "the readiness report now carries a Document Change Matrix: the v2 report has landed"
+            : "the readiness report carries no Document Change Matrix (pre-v2 copy)",
+        );
+      }
+      c.note(`${docs.length} baseline documents, ${withMarker.length} carrying an amendment marker`);
+      return c.verdict(
+        "the baseline documents in this repository are in the measured amendment state, and any change to it fails here rather than surfacing as a disputed quotation",
+      );
+    },
+  },
 ];
