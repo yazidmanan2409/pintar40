@@ -10,12 +10,14 @@ public verification. Written to the §16 contract of the builder task prompt.*
 | | |
 |---|---|
 | Branch | `claude/quirky-meitner-a04smj` |
-| Commit | `e81b41f` — *FABLE-04: modes, scoring policy, resilience, quick assessment, certificates and public verification* |
+| Commits | `e81b41f` (the phase) and `403b216` (the 0046 repair, §4.2) |
+| `main` | fast-forwarded to `403b216`; no merge commit, no rewritten history |
 | Canonical `main` before this phase | `7f4b643` (37 migrations) |
 | Migrations after this phase | **50** (0038–0050 added; nothing edited, nothing removed) |
-| Selftest manifest | `pintar-selftest` v4, FABLE-04, **92 ids** |
-| Strict selftest, clean replay | `85 passed, 0 failed, 0 skipped, 7 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
-| Widened object digest | `ZZ_TOTAL\|2003\|bfae1eb9f828dc363f4832867059a910` — **identical** between the incrementally-applied database and a from-empty replay of all 50 migrations |
+| Selftest manifest | `pintar-selftest` v4, FABLE-04, **93 ids** |
+| Strict selftest, clean replay (local) | `86 passed, 0 failed, 0 skipped, 7 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
+| Strict selftest, CI (no skips permitted) | `93 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN` |
+| Widened object digest | 2003 objects; clean replay and the upgrade path identical, and hosted identical in every category but the six pre-existing FABLE-01 comment divergences (§1.3) |
 | CI | *see §1.2* |
 | Hosted development | *see §1.3* |
 
@@ -25,7 +27,7 @@ Run against a database built from an empty cluster: 50 migrations applied in
 order, then the three seeds (`synthetic`, `learning_cycle`, `official_bootstrap`).
 
 ```
-85 passed, 0 failed, 0 skipped, 7 justified skips accepted (local only), 0 contract problem(s) → GREEN
+86 passed, 0 failed, 0 skipped, 7 justified skips accepted (local only), 0 contract problem(s) → GREEN
 ```
 
 The seven justified skips are the network- and CI-facility tests
@@ -36,11 +38,123 @@ local-only flag; the CI job runs `npm run selftest` with no skips permitted.
 
 ### 1.2 CI
 
-*CI-RESULTS-PLACEHOLDER*
+CI run **34736339101** on commit `403b216`, branch `claude/quirky-meitner-a04smj`, **all ten jobs green**:
+
+| Job | Result |
+|---|---|
+| `install · lint · typecheck · build` | success |
+| `migrations · clean database + seed` | success |
+| `migrations · previous schema → HEAD (upgrade path)` | success |
+| `red case · static-permissive-policy` | success |
+| `red case · static-raw-evidence-read` | success |
+| `red case · static-duplicate-engine` | success |
+| `red case · db-table-without-rls` | success |
+| `red case · static-second-verification-route` | success *(new)* |
+| `red case · db-fable04-gates` | success *(new — four planted defects, one stack)* |
+| `selftest contract (strict, local stack)` | success |
+
+The strict selftest job's own summary line, with **no skips permitted**:
+
+```
+93 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN
+```
+
+The first run of this phase (**34735898362**, commit `e81b41f`) was **RED** on one job —
+`migrations · previous schema → HEAD` — and that failure is §4.2 below. Every other
+job, including all six red cases, was green on that run too.
 
 ### 1.3 Hosted development
 
-*HOSTED-RESULTS-PLACEHOLDER*
+**Project `sknixmwkynzmrgbxzrvb` (development). Migrations 0038–0050 applied, 50 total.**
+
+**Byte parity, per migration.** `md5(array_to_string(statements,''))` on the
+hosted record against `md5` of the repository file with its trailing newline
+stripped, for all thirteen:
+
+| Migration | Parity |
+|---|---|
+| 0038 assessment_mode_completion | `329d7282c2a06a0e9b32a931882f487a` ✓ |
+| 0039 scoring_policy_registry | `70c6858327fee1fbd3ea49dc59685f7f` ✓ |
+| 0040 mode_policy_quick_assessment_integrity | `359ea27e01daeed40f01dc1921cdc74c` ✓ |
+| 0041 resilience_late_sync_termination | `665434aee18c161ec41b4cacab9eaabf` ✓ |
+| 0042 official_evidence_bootstrap | `976fdb32b652200e1576af9316bd1daf` ✓ |
+| 0043 certificates_core | `e70895c0bbb9cdcc51f3712e5419a1d3` ✓ |
+| 0044 public_verification | `62b98f4b767d5d91136a9a3243760d7c` ✓ |
+| 0045 assertion_failure_path_repair | `bc7dff74ee8bf0194df6a31ad008d307` ✓ |
+| 0046 ad_hoc_assessments | `0062f04c68d3a539d69c8d9c7f1dda77` ✓ |
+| 0047 rpc_exposure_public | `3e3829b88987b6a2254669308f2bd4c2` ✓ |
+| 0048 anon_verification_rpc | `d1d57120c60defde01d1e5f96ce8ce05` ✓ |
+| 0049 quick_assessment_title_collision | `53051ddd26575d61af57547b3d8a3c6d` ✓ |
+| 0050 publish_readiness_names_the_finding | `7e70001590c4f07aa65831e058320449` ✓ |
+
+Thirteen of thirteen identical. The recorded *versions* differ from the file
+names (the hosted project assigns its own timestamps when a migration is
+applied through the management API), which is why parity is measured on the
+statements rather than on the filename.
+
+**Widened object digest, hosted against a from-empty replay of the same 50
+migrations.** 2003 objects on both sides.
+
+| Category | n | Hosted | Clean replay | |
+|---|---|---|---|---|
+| COLUMN | 626 | `db6c4c44…` | `db6c4c44…` | ✓ |
+| CONSTRAINT | 352 | `717a4133…` | `717a4133…` | ✓ |
+| ENUM | 134 | `32a8c496…` | `32a8c496…` | ✓ |
+| FGRANT | 74 | `df632d6d…` | `df632d6d…` | ✓ |
+| **FUNC** | 157 | `619e77c6…` | `a1f4cc8b…` | **differs — see below** |
+| **FUNCNORM** | 157 | `23cf15d4…` | `23cf15d4…` | ✓ |
+| GRANT | 111 | `25fe787d…` | `25fe787d…` | ✓ |
+| INDEX | 127 | `6948d535…` | `6948d535…` | ✓ |
+| POLICY | 110 | `9a037124…` | `9a037124…` | ✓ |
+| TABLE | 63 | `a0593233…` | `a0593233…` | ✓ |
+| TRIGGER | 83 | `4d19c372…` | `4d19c372…` | ✓ |
+| VIEW | 9 | `ec4ae0a4…` | `ec4ae0a4…` | ✓ |
+
+**FUNC differs on exactly six functions, and FUNCNORM — the same 157 bodies
+with comments and whitespace normalised away — is identical.** The six are
+named individually by diffing the per-function body hashes:
+
+```
+enrollments_guard()            memberships_guard()
+role_assignments_guard()       transfer_authorize(uuid, jsonb)
+transfer_execute(uuid)         transfer_request(uuid, uuid, uuid, uuid, text, jsonb)
+```
+
+These are the **same six FABLE-01 functions** the digest tool's own header
+documents as diverging at the 34-migration state, for the same reason: the
+recorded text of thirteen FABLE-01/02 migrations on hosted is comment-stripped
+from the path by which they were first applied. **No FABLE-04 function is among
+them**, and FUNCNORM matching on all 157 is the proof that nothing executable
+differs.
+
+**§13 regression properties, re-measured on hosted after the sync:**
+
+```
+tables_without_rls            0    policies_using_true             0
+secdef_without_search_path    0    functions_without_search_path   0
+anon_table_grants             0    anon_public_surface             2
+undeclared_anon_functions     0    unclassified_client_rpcs        0
+public_buckets                0    client_storage_policies         0
+audit_log_client_write_grants 0    evidence_class_overrides        0
+non_synthetic_institutions    0    functions_executable_by_anon    1   ← §6.1
+excluded_items_for_post_test / finalize_session / session_enforce_deadline
+  executable by a client role                                      0
+
+assert_telemetry_write_only          true    assert_evidence_consumer_boundary  true
+assert_learner_rpcs_are_guarded      true    assert_engine_takes_no_identity    true
+assert_public_surface                true    assert_audit_write_arity           true
+assert_mode_policy_complete          true    assert_integrity_never_scores      true
+assert_official_evidence_bootstrap   true
+```
+
+**What hosted does NOT carry, said plainly.** The D1 bootstrap tenant is a
+**seed**, not a migration, and seeds are not applied to the hosted project —
+`non_synthetic_institutions` there is **0**, and hosted holds no session, no
+result and no certificate. Hosted is therefore synchronized at the **schema**
+level, which is what the digest proves and what §15.7 asks for; the certificate
+path itself is exercised against the local stack and in CI, not on hosted. This
+matches how FABLE-01–03 left it (hosted carries a partial synthetic seed from
+those phases: 2 institutions, 9 persons, 0 sessions).
 
 ---
 
@@ -134,6 +248,7 @@ one closed (§4 below), one open (§6).
 | 8 | The D3b payload assertion "caught" its probe **for the wrong reason** | `prorettype` for a `RETURNS TABLE` function is `record` and carries no attributes, so the field check returned NULL for every function | Read `proargnames`/`proargmodes` with `u.m = 't'` | The probe asserts the detail names **both** reasons, not just that it went red |
 | 9 | `\y` word boundaries do not fire inside `p_person` (underscore is a word character), so the INV-08 assertion passed with a planted forgeable entry point | Regex assumption | boundaries removed | The planted probe that caught it is part of the migration |
 | 10 | Test-only, but worth recording: a type-explicit item pick joined `public.items` **as the impersonated learner**, and the item bank is unreadable by a learner by design — so the pick silently returned NULL and the suite aborted 200 lines later | The fix for an earlier flake introduced a read the learner cannot perform | `selftest.first_presented_of_type()`, SECURITY DEFINER, with the reason in its comment | The helper is the only path; the three call sites use it |
+| 11 | **0046 exempted ad-hoc definitions from taught-content immutability on INSERT and UPDATE and forgot DELETE.** An ad-hoc quick assessment launched over a sealed course — the only kind that matters — could be created and never removed, and 0046's own verification block could not apply to any database holding sealed content | The exemption was written per-verb instead of per-row | The DELETE branch, evaluated on OLD; §4.2 explains why in place rather than forward | **F04-T17**, which exercises all three verbs against the seeded bootstrap tenant's sealed course and was checked to go red against a schema with the branch removed |
 
 ### 3.2 Defects found in FABLE-01–03 (repaired forward, not "cleaned up")
 
@@ -148,7 +263,7 @@ one closed (§4 below), one open (§6).
 
 ---
 
-## 4. The boundary-audit finding that was closed
+## 4.1 The boundary-audit finding that was closed
 
 **The real signing loop was never exercised end to end.** The HMAC was produced
 in one place (the issuance route, network facility required) and verified in
@@ -162,6 +277,51 @@ exactly where a canonicalisation defect lives.
 **F04-S04** now drives the whole loop through separate `psql` processes and
 asserts that a changed stored byte fails and a wrong key fails, so the pass is
 not vacuously true.
+
+---
+
+## 4.2 The finding CI found, and the vacuity behind it
+
+The first CI run of this phase was red on one job: `migrations · previous
+schema → HEAD`, applying 0038–0050 to a database that **already held seeded,
+sealed content**. 0046 failed on its own probe:
+
+```
+taught content cannot be deleted once frozen (INV-04): public.assessment_definitions
+```
+
+**The defect** is §3.1 #11. **The more useful half is why nothing else saw it.**
+0046's probe is wrapped in `if v_course is not null`, where `v_course` is a
+course carrying a sealed release. **Migrations run before seeds**, so on a
+from-empty replay there is no sealed content, the block is skipped, and the
+migration passes over nothing. The clean-database job, the local replay and the
+entire selftest all did exactly that. The first environment that actually ran
+the probe failed on it immediately.
+
+**It was repaired in place, not forward, and that is a deliberate exception
+argued rather than assumed.** As first written, 0046 cannot apply to any
+database holding sealed content — which is every real one — so no follow-up
+migration could have repaired it: there would be nothing for the follow-up to
+run after. It had been applied to no canonical environment at that point: not
+`main`, not hosted development, not any deployment. The forward-only rule
+protects environments that have already applied a migration, and there were
+none. The amendment is recorded in the file's own header so the history is not
+silent about it. **No migration that has reached `main` or hosted has been
+edited.**
+
+**The vacuity itself cannot be repaired inside a migration**, because a
+migration cannot seal a course — when it runs there is no institution, no
+author and no content. The behavioural proof therefore moved to where fixtures
+always exist: **F04-T17**. The same split already applies to 0049, whose
+terminal block asserts structure and whose behaviour is F04-T04's.
+
+**The generalisation, for the Layer-3 auditor.** A conditional probe inside a
+migration reports green when its precondition is absent, and the precondition is
+absent in precisely the environment where migrations are most often tested. This
+build now has two of them (0046, 0049). Neither is wrong, but neither is a test
+either — the test is the selftest id beside it. A future reviewer should treat
+any `if … then <probe> end if` in a migration as documentation until they find
+the manifest id that runs it unconditionally.
 
 ---
 
@@ -251,6 +411,10 @@ not vacuously true.
 
 - All 50 migrations applied to an **empty** cluster in order, then the three
   seeds; full strict selftest green on that database (§1.1).
+- The CI upgrade-path failure **reproduced locally** — 37 migrations plus the
+  base commit's seeds, then 0038–0050 — and then shown clean after the repair.
+  The upgrade-path database and the from-empty replay produce the **identical**
+  widened digest, and the strict suite is green on both.
 - The widened object digest (functions **by body**, every constraint
   definition, every index definition, column defaults, FORCE RLS, policies,
   triggers, table and function grants) compared between the incrementally-built
