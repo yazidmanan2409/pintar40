@@ -28,6 +28,7 @@ export default async function StudioLayout({ children }: { children: React.React
     ["/studio/unggah", s("studio.nav.unggah")],
     ["/studio/tinjau", s("studio.nav.tinjau")],
     ["/studio/kanonik", s("studio.nav.kanonik")],
+    ["/studio/kuis", s("studio.nav.kuis")],
     ["/studio/definisi", s("studio.nav.definisi")],
     ["/studio/bank", s("studio.nav.bank")],
     ["/studio/integritas", s("studio.nav.integritas")],

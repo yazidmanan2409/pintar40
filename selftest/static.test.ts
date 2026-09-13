@@ -965,4 +965,50 @@ export const staticTests: SelfTest[] = [
       return c.verdict("no learner surface renders a staff-only key, and no Studio copy shows a lifecycle enum, version string or evidence class");
     },
   },
+  {
+    id: "QAC-S01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      // ADR-0018 §5: the Quick Assessment affordance offers an authorized
+      // canonical chapter, and its copy never names a tenant kind or a
+      // distribution status AS SUCH. A teacher is told what they may teach,
+      // not which enum value made it so.
+      const c = new Checks();
+      const page = join(repoRoot, "src", "app", "studio", "kuis", "page.tsx");
+      c.expect(existsSync(page), "the Quick Assessment surface is missing");
+      const text = readFileSync(page, "utf8");
+      const actions = readFileSync(join(repoRoot, "src", "app", "studio", "actions.ts"), "utf8");
+
+      // it really offers the canonical source, through the accessors rather
+      // than by reading another tenant's tables directly
+      c.expect(/distributed_releases/.test(text), "the surface offers no canonical chapter at all");
+      c.expect(/distributed_release_outline/.test(text),
+        "the canonical chapters are not read through the named accessor");
+
+      // the launch is one RPC call and re-decides nothing
+      c.expect(/launch_quick_assessment/.test(actions), "no action calls the launcher");
+      c.expect(!/@\/lib\/supabase\/service/.test(text), "the surface holds a privileged client");
+
+      // no internal vocabulary in the copy this page renders
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      const kuisCopy = [...hle.matchAll(/"studio\.(?:kuis|nav\.kuis)[^"]*":\s*\{[^}]*default:\s*"([^"]*)"/g)]
+        .map((m) => m[1]);
+      c.expect(kuisCopy.length >= 10, `only ${kuisCopy.length} Quick Assessment copy strings found`);
+      const INTERNAL = /(PLATFORM_CANONICAL|INSTITUTION\b|tenant|ACTIVE|WITHDRAWN|distribusi|distribution|is_ad_hoc|ad.hoc|release|plp_)/i;
+      for (const line of kuisCopy) {
+        const m = INTERNAL.exec(line);
+        c.expect(m === null, `Quick Assessment copy names an internal concept: "${line}" (${m?.[0]})`);
+      }
+
+      // and the keys the page renders are declared staff-only, like the rest
+      // of Studio
+      const used = [...text.matchAll(/s\("(studio\.[a-zA-Z0-9_.]+)"\)/g)].map((m) => m[1]);
+      c.expect(used.length >= 8, `only ${used.length} copy keys rendered by the surface`);
+      for (const k of used) {
+        c.expect(hle.includes(`"${k}"`), `the surface renders an undeclared copy key: ${k}`);
+      }
+      c.note(`${kuisCopy.length} copy strings, ${used.length} keys rendered`);
+      return c.verdict("the Quick Assessment surface offers authorized canonical chapters through the named accessors and names no tenant kind, distribution status or internal flag in its copy");
+    },
+  },
 ];

@@ -157,7 +157,7 @@ jobs:
       fail-fast: false
       matrix:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
-               static-second-verification-route, db-fable04-gates, db-fable05-gates]
+               static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -185,6 +185,8 @@ jobs:
               echo "the four FABLE-04 gate defects are planted in SQL against the running stack, below" ;;
             db-fable05-gates)
               echo "the five FABLE-05 gate defects are planted in SQL against the running stack, below" ;;
+            db-task1-gates)
+              echo "the two ADR-0018 gate defects are planted in SQL against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -456,6 +458,73 @@ jobs:
           rollback;
           SQL
           red F05-T22 'Blocked package was published' /tmp/f5-5.sql
+
+      # ADR-0018's two red cases. Same discipline as the two legs above: one
+      # stack, each defect planted inside its own transaction and rolled back
+      # before the next, and the suite proven green before anything is planted.
+      # The task names both of these outright -- "plant a relaxation admitting a
+      # second institution's item and require negative 3 or 4 to fail BY NAME;
+      # plant a two-owner paper and require negative 7 to fail by name".
+      - name: Start a clean seeded stack for the ADR-0018 gate defects
+        if: matrix.case == 'db-task1-gates'
+        id: gatesT1
+        uses: ./.github/actions/local-stack
+      - name: Each planted ADR-0018 defect must turn its own gate red
+        if: matrix.case == 'db-task1-gates'
+        env:
+          DB_URL: ${{ steps.gatesT1.outputs.db-url }}
+        run: |
+          set -e
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select test_id, case when ok then 't' else 'f' end, detail from selftest.run_quick_canonical()" "$DB_URL" | tee baseT1.txt
+          grep -E ' \| f \| ' baseT1.txt && { echo "::error::the Task 1 suite is already red before any defect was planted"; exit 1; } || true
+
+          red() {   # red <test id> <expected substring> <sql file>
+            psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
+            grep -E "^$1 \| f \|" "out-$1.txt" || { echo "::error::$1 stayed green with the defect planted"; exit 1; }
+            grep -F "$2" "out-$1.txt" || { echo "::error::$1 went red but not for '$2'"; exit 1; }
+          }
+
+          # 1. eligibility that follows MEMBERSHIP instead of AUTHORIZATION.
+          #    The accessor keeps its caller gate and loses the distribution
+          #    predicate, so any school reaches any other school's items --
+          #    exactly the cross-tenant relaxation negative 3 exists to catch.
+          cat > /tmp/t1-1.sql <<'SQL'
+          begin;
+          create or replace function public.authorized_canonical_items()
+          returns table (consuming_institution_id uuid, item_id uuid, lesson_id uuid, module_id uuid,
+                         course_id uuid, parallel_group uuid, bank_type public.bank_type,
+                         owner_institution_id uuid)
+          language sql stable security definer set search_path = public, pg_temp as $f$
+            select mine.institution_id, i.id, l.id, m.id, c.id, i.parallel_group, i.bank_type, i.institution_id
+              from (select distinct d.institution_id
+                      from public.release_distributions d
+                     where d.status = 'ACTIVE'
+                       and public.is_member_of_institution(d.institution_id)) mine
+              join public.courses c on true
+              join public.modules m on m.course_id = c.id
+              join public.lessons l on l.module_id = m.id
+              join public.items i on i.lesson_id = l.id
+          $f$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_quick_canonical() where test_id = 'QAC-T04';
+          rollback;
+          SQL
+          red QAC-T04 "of School C's item(s)" /tmp/t1-1.sql
+
+          # 2. the single-owner boundary, neutered. ADR-0018 says the boundary
+          #    is asserted rather than merely unimplemented; a guard nobody has
+          #    watched fail is a guard nobody knows is there.
+          cat > /tmp/t1-2.sql <<'SQL'
+          begin;
+          create or replace function public.enforce_ad_hoc_single_owner(p_definition uuid)
+          returns void language plpgsql stable security definer set search_path = public, pg_temp as $f$
+          begin
+            return;
+          end $f$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_quick_canonical() where test_id = 'QAC-T08';
+          rollback;
+          SQL
+          red QAC-T08 'was not refused at the boundary' /tmp/t1-2.sql
 
   selftest:
     name: selftest contract (strict, local stack)

@@ -312,3 +312,27 @@ export async function saveCertificateTemplateAction(fd: FormData): Promise<void>
   });
   back("/studio/sertifikat", "sertifikat", { ok: !error, detail: detailOf(error) });
 }
+
+// ------------------------------------------------------------ quick assessment
+
+/**
+ * One action, one RPC (ADR-0018). Every authority question — may this person
+ * quick-assess this class, is this chapter theirs or authorized to them, does
+ * the paper resolve to one content owner, are there enough drawable questions
+ * — is the database's, asked inside `launch_quick_assessment` as the signed-in
+ * user. Nothing is pre-decided here, and the refusal a teacher reads is the
+ * database's own sentence.
+ */
+export async function launchQuickAssessmentAction(fd: FormData): Promise<void> {
+  const node = uuidOrNull(str(fd, "kelas"));
+  const modul = uuidOrNull(str(fd, "modul"));
+  const items = num(fd, "jumlah");
+  const minutes = num(fd, "menit");
+  if (!node || !modul) back("/studio/kuis", "kuis", { ok: false, detail: "kelas atau bab tidak dikenali" });
+
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("launch_quick_assessment", {
+    p_node: node, p_module: modul, p_item_count: items, p_minutes: minutes,
+  });
+  back("/studio/kuis", "kuis", { ok: !error, detail: detailOf(error) });
+}

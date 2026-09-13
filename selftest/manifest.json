@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 5,
-  "phase": "FABLE-05",
+  "version": 6,
+  "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..05.sql — psql against $SUPABASE_DB_URL (CI local stack); the same file runs on the management channel; one row per id",
+    "db": "selftest/db/fable01..05.sql and fable05t1_quick_canonical.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -689,6 +689,71 @@
       "id": "F05-R01",
       "runner": "app",
       "proves": "INV-37 at the HTTP layer: every Studio route, dynamic segments included, redirects an anonymous visitor to /masuk and leaks no Studio content"
+    },
+    {
+      "id": "QAC-T01",
+      "runner": "db",
+      "proves": "ADR-0018 negative 1: a canonical release not distributed to the school refuses the launch by name, before any definition or assignment exists",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T02",
+      "runner": "db",
+      "proves": "ADR-0018 positive: an educator holding CAN_QUICK_ASSESSMENT launches over an authorized canonical module, items draw, a learner completes it, and the session records the canonical release and item identity with the school's institution, enrolment, class and derived evidence class",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T03",
+      "runner": "db",
+      "proves": "ADR-0018 negative 2 / INV-27: withdrawal refuses a new launch and a new session, does not interrupt an attempt already in flight, retains the assignment and grant rows, and leaves completed evidence untouched",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T04",
+      "runner": "db",
+      "proves": "ADR-0018 negative 3 / INV-01: School B cannot reach School C's supplementary items at the launcher or through the eligibility path — the relaxation is canonical-only",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T05",
+      "runner": "db",
+      "proves": "ADR-0018 negative 4 / INV-13: a grant to School B does not authorize School C, at the launcher and at the accessor, whichever institution id the caller supplies",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T06",
+      "runner": "db",
+      "proves": "ADR-0018 negative 5 / INV-04: six write attempts from the consuming school against canonical content are refused, owner and text unchanged, sealed release hash unmoved",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T07",
+      "runner": "db",
+      "proves": "ADR-0018 negative 6 / INV-26: a non-ad-hoc definition over the same authorized module draws no canonical item while its ad-hoc twin does — the gate is is_ad_hoc and nothing else",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T08",
+      "runner": "db",
+      "proves": "ADR-0018 negative 7: the authorized path cannot build a two-owner ad-hoc paper at all, and a paper forced into that state by hand is refused by name at the boundary and at the launcher",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T09",
+      "runner": "db",
+      "proves": "ADR-0018 property: eligible_items_for_definition returns an IDENTICAL set for every pre-existing non-ad-hoc definition, compared as a set in both directions rather than as absence of error",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-T10",
+      "runner": "db",
+      "proves": "INV-04 / ADR-0011: an ad-hoc quick assessment over a sealed canonical course moves the content payload digest by nothing, cannot be relabelled into a release, and the hash basis does not read this task's additions",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "QAC-S01",
+      "runner": "static",
+      "proves": "ADR-0018 §5: the Quick Assessment surface offers authorized canonical chapters through the named accessors and names no tenant kind, distribution status or internal flag in its copy"
     }
   ]
 }

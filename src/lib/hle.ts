@@ -196,6 +196,21 @@ export type HleEvent =
   | "studio.nav.integritas"
   | "studio.nav.sertifikat"
   | "studio.nav.bank"
+  | "studio.nav.kuis"
+  | "studio.kuis.judul"
+  | "studio.kuis.pengantar"
+  | "studio.kuis.kelas"
+  | "studio.kuis.bab"
+  | "studio.kuis.sumber_sekolah"
+  | "studio.kuis.sumber_pustaka"
+  | "studio.kuis.jumlah"
+  | "studio.kuis.menit"
+  | "studio.kuis.luncurkan"
+  | "studio.kuis.riwayat"
+  | "studio.kuis.kosong"
+  | "studio.kuis.bab_kosong"
+  | "studio.kuis.tidak_tersedia"
+  | "studio.kuis.tanpa_kelas"
   | "studio.bucket.ACTION_REQUIRED"
   | "studio.bucket.AWAITING_MY_REVIEW"
   | "studio.bucket.BLOCKED"
@@ -472,6 +487,21 @@ const table: Table = {
   "studio.nav.integritas": { default: "Tinjauan Integritas" },
   "studio.nav.sertifikat": { default: "Sertifikat" },
   "studio.nav.bank": { default: "Bank Soal" },
+  "studio.nav.kuis": { default: "Kuis Cepat" },
+  "studio.kuis.judul": { default: "Kuis Cepat" },
+  "studio.kuis.pengantar": { default: "Pilih kelas dan bab yang baru Anda ajarkan, lalu luncurkan. Murid bisa mulai mengerjakan dalam waktu satu menit." },
+  "studio.kuis.kelas": { default: "Kelas" },
+  "studio.kuis.bab": { default: "Bab" },
+  "studio.kuis.sumber_sekolah": { default: "Paket sekolah Anda" },
+  "studio.kuis.sumber_pustaka": { default: "Pustaka PINTAR yang bisa Anda ajarkan" },
+  "studio.kuis.jumlah": { default: "Jumlah soal" },
+  "studio.kuis.menit": { default: "Lama pengerjaan (menit)" },
+  "studio.kuis.luncurkan": { default: "Luncurkan kuis" },
+  "studio.kuis.riwayat": { default: "Kuis yang sudah diluncurkan" },
+  "studio.kuis.kosong": { default: "Belum ada kuis cepat di kelas ini." },
+  "studio.kuis.bab_kosong": { default: "Belum ada bab yang bisa dipakai untuk kuis cepat. Buat paket sekolah Anda, atau tunggu bab Pustaka PINTAR dibuka untuk sekolah Anda." },
+  "studio.kuis.tidak_tersedia": { default: "Bahan kuis ini sudah tidak tersedia untuk sekolah Anda, jadi kuis ini tidak bisa dimulai lagi. Pekerjaan murid yang sudah selesai tetap tersimpan." },
+  "studio.kuis.tanpa_kelas": { default: "Akun Anda belum dipasangkan dengan kelas mana pun." },
   "studio.bucket.ACTION_REQUIRED": { default: "Menunggu tindakan Anda" },
   "studio.bucket.AWAITING_MY_REVIEW": { default: "Menunggu tinjauan Anda" },
   "studio.bucket.BLOCKED": { default: "Tertahan" },

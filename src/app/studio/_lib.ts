@@ -22,6 +22,11 @@ export type StudioInstitution = { id: string; name: string; capabilities: string
 const STUDIO_CAPABILITIES = [
   "CAN_DRAFT", "CAN_REVIEW", "CAN_FREEZE_RELEASE", "CAN_PUBLISH",
   "CAN_ASSIGN_LEARNING", "CAN_REVIEW_QUESTION_HEALTH", "CAN_REVIEW_INTEGRITY",
+  // ADDED for ADR-0018: the Quick Assessment affordance asks the database
+  // whether this viewer may launch one, the same way every other Studio
+  // control does. The RPC re-asks it per class node, so this only decides
+  // whether the page is worth showing.
+  "CAN_QUICK_ASSESSMENT",
 ] as const;
 
 /**

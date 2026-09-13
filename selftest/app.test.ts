@@ -438,6 +438,7 @@ export const appTests: SelfTest[] = [
         "/studio/bank",
         "/studio/integritas",
         "/studio/sertifikat",
+        "/studio/kuis",
         "/studio/paket/00000000-0000-0000-0000-000000000000",
         "/studio/kanonik/00000000-0000-0000-0000-000000000000",
         "/studio/pratinjau/00000000-0000-0000-0000-000000000000",

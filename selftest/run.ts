@@ -94,6 +94,7 @@ const DB_RUNNERS = [
   { file: "fable03.sql", fn: "selftest.run_fable03()", done: "F03-DONE" },
   { file: "fable04.sql", fn: "selftest.run_fable04()", done: "F04-DONE" },
   { file: "fable05.sql", fn: "selftest.run_fable05()", done: "F05-DONE" },
+  { file: "fable05t1_quick_canonical.sql", fn: "selftest.run_quick_canonical()", done: "QAC-DONE" },
 ] as const;
 
 async function runDb(dbUrl: string): Promise<Outcome[]> {
