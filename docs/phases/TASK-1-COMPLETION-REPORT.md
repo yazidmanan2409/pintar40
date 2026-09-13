@@ -17,7 +17,7 @@ Switching) is not started and must not begin until this gate is closed.
 | Clean replay | 62 migrations from an empty database, terminal blocks included |
 | Upgrade path | 0061–0062 applied over a seeded 60-migration database |
 | Widened digest | **2177 objects**, `ZZ_TOTAL 4d78f50a9cf9b3c959d55a0d02e3dbfe` — **identical** on the clean replay and the upgrade path |
-| Hosted | 62 migrations, both new files byte-identical, digest matching |
+| Hosted | 62 migrations, both new files byte-identical, 2177 objects, FUNC divergence unchanged (see §1.1) |
 
 Parity hashes (`md5` of the file with the trailing newline stripped, which is
 what the hosted `statements` array hashes to):
@@ -26,6 +26,48 @@ what the hosted `statements` array hashes to):
 |---|---|
 | `20260916100000_ad_hoc_eligibility_follows_authorization.sql` | `0371d301af83663edf2f1818cc71edcc` |
 | `20260916110000_quick_assessment_over_canonical.sql` | `8d7d80d621fdca4849112c7f426b031f` |
+
+Both hashes were read back from `supabase_migrations.schema_migrations` on the
+hosted project after applying and matched exactly.
+
+## 1.1 Hosted, measured rather than assumed
+
+The hosted project carries **62** migrations. Both terminal verification blocks
+**ran there** — the behavioural halves build a school, an actor, canonical
+content, a release and a grant inside a rolled-back subtransaction, and hosted
+left **zero** probe rows behind (`institutions` matching `probe%` = 0).
+
+The widened digest reports **2177 objects on hosted, the same count as a clean
+local replay**, and every category digest is identical except one:
+
+| Category | n | local | hosted |
+|---|---|---|---|
+| COLUMN / CONSTRAINT / ENUM / FGRANT / GRANT / INDEX / POLICY / TABLE / TRIGGER / VIEW | — | — | **identical** |
+| FUNCNORM | 183 | `3f36680d…` | `3f36680d…` **identical** |
+| FUNC | 183 | `62c1e083…` | `dfdb9403…` **differs** |
+| ZZ_TOTAL | 2177 | `4d78f50a…` | `cdccc5f7…` |
+
+**FUNC differing while FUNCNORM matches is the cosmetic-divergence signature the
+digest file documents**: comments and whitespace differ, nothing executable
+does. This is the pre-existing FABLE-01 condition, and it was checked rather
+than assumed to be unchanged:
+
+- the FUNC digest computed **excluding** the six known-divergent FABLE-01
+  functions (`enrollments_guard`, `memberships_guard`, `role_assignments_guard`,
+  `transfer_authorize`, `transfer_execute`, `transfer_request`) is **177 objects,
+  `5cbaba01ed9ed364b62b41701e0c79c6`, identical on both sides** — so the
+  divergence did not grow;
+- all six functions this task touched match hosted **byte for byte**:
+  `authorized_canonical_items` `92cbd358…`, `enforce_ad_hoc_single_owner`
+  `bbbf6145…`, `eligible_items_for_definition` `7cfdcad9…`, `assemble_session`
+  `e035f84b…`, `launch_quick_assessment` `5a5a5b6e…`, `start_learning_session`
+  `bc516dae…`.
+
+Hosted counters, read through `platform_schema_lint()` as a system admin: every
+counter in §7 holds, with `migrations_applied` 62. `non_synthetic_institutions`
+is 1 and `official_bootstrap_tenants` 0 on hosted, which is the FABLE-05
+recorded state — hosted carries no D1 bootstrap tenant — and is unchanged by
+this task.
 
 ---
 
@@ -303,9 +345,12 @@ mask or rescue another.
 - the eight app-layer tests that need the Supabase stack (`F01-R*`, `F04-S05`
   and siblings) are justified local skips; CI runs them strictly and they are
   green there;
-- the hosted project's behaviour is verified by migration parity and the object
-  digest, not by running the suite against it — the db suite mutates business
-  data and must never be pointed at a hosted project;
+- the hosted project's behaviour is verified by migration parity, the object
+  digest, the per-function body comparison and the counters — **not** by running
+  the acceptance suite against it, because the db suite mutates business data
+  and must never be pointed at a hosted project. What *did* execute on hosted is
+  both migrations' own verification blocks, including their end-to-end
+  behavioural halves;
 - the Studio surface was not opened in a browser by a human; its assertions are
   the anonymous knock (F05-R01), the copy-discipline pattern (QAC-S01), the
   build, and the type checker.
