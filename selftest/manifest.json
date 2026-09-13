@@ -684,6 +684,11 @@
       "id": "F05-S03",
       "runner": "static",
       "proves": "§12: no learner surface renders a staff-only copy key, and no Studio copy shows a lifecycle enum, version string or evidence class"
+    },
+    {
+      "id": "F05-R01",
+      "runner": "app",
+      "proves": "INV-37 at the HTTP layer: every Studio route, dynamic segments included, redirects an anonymous visitor to /masuk and leaks no Studio content"
     }
   ]
 }

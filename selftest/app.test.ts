@@ -418,4 +418,41 @@ export const appTests: SelfTest[] = [
       return c.verdict("no learner route shows a lifecycle enum, an evidence class, a version string or a release hash");
     },
   },
+  {
+    id: "F05-R01",
+    requires: ["app"],
+    run: async (ctx) => {
+      // INV-37 at the HTTP layer for the routes this phase added. The proxy is
+      // deny-by-default, but "deny-by-default" is a claim about a matcher until
+      // something actually knocks on the door. Every Studio route is knocked on
+      // anonymously here, including the dynamic ones, which a static route
+      // inventory cannot do.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const routes = [
+        "/studio",
+        "/studio/unggah",
+        "/studio/tinjau",
+        "/studio/kanonik",
+        "/studio/definisi",
+        "/studio/bank",
+        "/studio/integritas",
+        "/studio/sertifikat",
+        "/studio/paket/00000000-0000-0000-0000-000000000000",
+        "/studio/kanonik/00000000-0000-0000-0000-000000000000",
+        "/studio/pratinjau/00000000-0000-0000-0000-000000000000",
+      ];
+      for (const path of routes) {
+        const r = await get(`${base}${path}`);
+        const loc = r.headers.get("location") ?? "";
+        c.expect(
+          [302, 303, 307, 308].includes(r.status) && /\/masuk(\?|$)/.test(loc),
+          `anonymous ${path} → ${r.status} ${loc || "(no redirect)"}; expected a redirect to /masuk`,
+        );
+        c.expect(!/\bstudio\b/i.test(await r.text()), `${path} leaked Studio content to an anonymous visitor`);
+      }
+      c.note(`${routes.length} Studio routes knocked on anonymously`);
+      return c.verdict("every Studio route, dynamic segments included, refuses an anonymous visitor at the server boundary");
+    },
+  },
 ];

@@ -15,8 +15,8 @@ copy-forward
 | | |
 |---|---|
 | Migrations | 60 (0052–0060 added this phase) |
-| Selftest ids | 119 (25 added: F05-T01…T22, F05-S01…S03) |
-| Strict selftest | `111 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
+| Selftest ids | 120 (26 added: F05-T01…T22, F05-S01…S03, F05-R01) |
+| Strict selftest | `112 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
 | Clean replay | 60 migrations from empty + three seeds |
 | Upgrade path | 51-migration base + seeds, then 0052–0060 |
 | Widened digest | **identical** across both — 2172 objects, `ZZ_TOTAL 4c80514ee37a014f7b0958679923889e` |
@@ -85,6 +85,8 @@ database path that re-decides the same question.
 ### Stage 4–5 — acceptance, red-ability, ADRs (0059–0060)
 
 `selftest/db/fable05.sql` (22 ids + F05-DONE, re-runnable), three static tests,
+one app test (F05-R01 knocks on all eleven Studio routes anonymously, dynamic
+segments included — something a static route inventory cannot do),
 the `db-fable05-gates` CI leg with §10.6's five planted defects, ADR-0015/0016/
 0017, doc 08 and the doc 03 implementation notes.
 
@@ -298,7 +300,7 @@ asserts the anonymous path and prefix lists did not grow.
 * 60-migration clean replay from empty plus all three seeds; the 51-migration
   upgrade path with seeded data; the **identical** widened digest across both
   (2172 objects), so no migration is order-dependent.
-* The strict selftest on both databases: `111 passed, 0 failed, 0 skipped`.
+* The strict selftest on both databases: `112 passed, 0 failed, 0 skipped`.
 * The FABLE-05 suite run twice in succession, twice, to prove re-runnability.
 * All five §10.6 planted defects turning the right test red for the *right
   reason* — including two that initially did not, and were fixed rather than
