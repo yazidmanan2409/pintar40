@@ -182,6 +182,13 @@ refuses is not a rule, it is an obstacle.
 - `DOC-S01` is retired; `DOC-P01` and `baseline-parity` replace it.
 - The 2026-09-12 amendment is unchanged by any of this. It arrived intact and is
   now pinned; this ADR governs how the **next** one arrives.
+- **Migration 0064's header describes the pre-sync repository.** It records that
+  "of sixteen baseline documents here, exactly one (doc 03) carries the
+  amendment marker" — accurate when written, and now a statement about a state
+  that no longer exists. Migrations are forward-only and are not edited to keep
+  their prose current; the measurement in this ADR is the correction of record,
+  as ADR-0018 is for 0063's citation. A reader of either migration should read
+  this ADR next.
 
 ## What this ADR does not claim
 
