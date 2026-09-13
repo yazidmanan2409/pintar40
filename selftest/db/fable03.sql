@@ -234,6 +234,7 @@ declare
   v_pi uuid; v_pi2 uuid; v_item uuid; v_pos int; v_enr uuid;
   pre_items uuid[]; post_items uuid[]; v_txt text; v_state record;
   v_lesson uuid; v_scoreA numeric; v_scoreB numeric;
+  v_inv08 text; v_inv08_ok boolean;
   t0 timestamptz := clock_timestamp();
 begin
   perform selftest.as_owner();
@@ -706,19 +707,18 @@ begin
    where session_id = s and supersedes_result_id is null;
   if n <> 1 then ok := false; detail := detail || format('%s root results for one session; ', n); end if;
 
-  -- and there is no argument anywhere in which a score or a person could enter
-  select count(*) into n from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
-   where ns.nspname = 'public'
-     and p.proname in ('finalize_session','finish_my_session','start_learning_session','record_answer')
-     and (pg_get_function_identity_arguments(p.oid) ilike '%person%'
-       or pg_get_function_identity_arguments(p.oid) ilike '%mastery%'
-       or pg_get_function_identity_arguments(p.oid) ilike '%score%');
-  if n > 0 then
-    ok := false; detail := detail || format('%s entry point(s) accept an identity or a score; ', n);
+  -- and there is no argument anywhere in which a score or a person could enter.
+  -- This used to name four functions inline. It now calls the assertion added
+  -- by 0035, which covers all 27 learner entry points and is re-run here on
+  -- every build -- so "there is nothing to forge" is a checked property of the
+  -- signatures rather than a statement that was true when it was written.
+  select a.ok, a.detail into v_inv08_ok, v_inv08 from public.assert_engine_takes_no_identity() a;
+  if not v_inv08_ok then
+    ok := false; detail := detail || v_inv08 || '; ';
   end if;
   test_id := 'F03-T10'; invariant := 'INV-08 / INV-09';
-  if ok then detail := format('a second learner is refused on both the write and the read path; the stored score %s equals a fresh recomputation; a duplicate finalize observes one root result',
-    v_scoreA); end if;
+  if ok then detail := format('a second learner is refused on both the write and the read path; the stored score %s equals a fresh recomputation; a duplicate finalize observes one root result; %s',
+    v_scoreA, v_inv08); end if;
   return next;
 
   perform selftest.as_owner();

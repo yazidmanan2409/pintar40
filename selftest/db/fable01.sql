@@ -279,7 +279,11 @@ begin
   -- F01-T13 INV-15/36/14 schema lint via the SYSTEM_ADMIN RPC
   perform selftest.as_user('sysadmin@synthetic.pintar.test');
   j := public.platform_schema_lint();
+  -- functions_without_search_path is new in 0035. The counter above it sees
+  -- SECURITY DEFINER only, which is how sixteen SECURITY INVOKER functions
+  -- drifted unpinned across two phases without this test noticing.
   ok := (j->>'tables_without_rls')::int = 0 and (j->>'policies_using_true')::int = 0 and (j->>'secdef_without_search_path')::int = 0
+     and (j->>'functions_without_search_path')::int = 0
      and (j->>'functions_executable_by_anon')::int = 0 and (j->>'anon_table_grants')::int = 0 and (j->>'public_buckets')::int = 0
      and (j->>'client_storage_policies')::int = 0 and (j->>'persons_institution_columns')::int = 0
      and (j->>'audit_log_client_write_grants')::int = 0 and (j->>'malformed_jalur')::int = 0;

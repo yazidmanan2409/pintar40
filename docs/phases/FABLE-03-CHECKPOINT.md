@@ -136,12 +136,27 @@ openly, to call the same single assertion. ADR-0005 §4.
   fixed here: it is outside the subsystem this phase changed, and widening a
   phase on the way past is the scope creep doc 12 warns about. **Recorded for
   FABLE-06.**
-- **`docs/rebuild/03` defines INV-01…INV-22**; FABLE-01 and FABLE-02 enforce and
-  cite INV-23…INV-37, and FABLE-03 adds INV-24, 26, 27, 28, 31 to that set. The
-  numbers are named in the synchronized phase prompts but have no entry in doc
-  03, and **doc 16** (the verification contract cited by `selftest/run.ts`) is
-  absent from the repository. Neither is invented here; both remain open
-  documentation gaps.
+- **CLOSED 2026-09-13 — the doc 03 and doc 16 gap was a supply gap, not an
+  architecture gap.** This entry previously read that `docs/rebuild/03` defines
+  only INV-01…INV-22 while FABLE-01…03 cite INV-23…INV-37, and that doc 16 was
+  absent. Both statements were accurate about the copies **in this repository**
+  — the imported doc 03 was the pre-amendment revision, 33 lines, stopping at
+  INV-22, and no doc 16 existed here at all. Neither was accurate about the
+  baseline: doc 03 carries a *baseline amendment dated 2026-09-12* adding
+  INV-23…INV-38 and correcting INV-05 and INV-20, and doc 16 exists. Both were
+  supplied by Claude 1's review and are now imported at
+  `docs/rebuild/03-PINTAR-INVARIANTS.md` (57 lines, INV-01…INV-38 consecutive)
+  and `docs/rebuild/16-PINTAR-ENGINEERING-AND-VERIFICATION-SYSTEM.md`.
+
+  The five invariants this phase implements from the phase prompt — INV-24, 26,
+  27, 28, 31 — were checked against the now-authoritative doc 03 text after
+  import and match what was built. Two consequences follow and are **not**
+  closed here: INV-24's second test clause (*"attempt to configure overlap on a
+  LEARNING_CYCLE definition; assert rejection"*) is unbuilt, and INV-35's own
+  "How tested" column **is** doc 16 §4's adversarial fixtures — so INV-35 has no
+  test until those exist. `F03-S03` covers §4's assistance-context case and
+  `F02-T22` its hint case; the four MCQ banks and the eligibility-probe set are
+  outstanding. Recorded for FABLE-04.
 
 ## Closeout
 
@@ -189,6 +204,88 @@ applied. They are left exactly as they are: an applied migration is never
 edited, and the inventory above is the demonstration that the divergence is in
 the recorded text and not in the schema it produced.
 
+**Schema correspondence is not behavioural evidence.** "Hosted development
+corresponds to canonical `main`" above is a statement about *structure* and
+about nothing else. Hosted carries 2 institutions, 0 courses, 0 assessment
+sessions and 0 results: neither content seed has ever run there, deliberately,
+because fixtures belong in CI rather than in a shared development project.
+Every behavioural claim about the learner cycle therefore rests on CI's local
+stack, not on hosted. The cycle has never run on hosted and this record does not
+claim it has.
+
 FABLE-04 is not started. The roadmap's §4 decision — that no `OFFICIAL`
 evidence is possible while every institution is synthetic — is still open, and
 nothing here anticipates it.
+
+## Review findings closed after the phase (Claude 1, 2026-09-13)
+
+An external review re-measured every checkable claim against the live project.
+All nine inventory categories reconciled, the engine functions are one each,
+telemetry is write-only, `assessment_mode` is unchanged and the §4 wall is
+untouched. Eighteen findings; what was closed here, and what was not.
+
+**Closed in migration 0035 and this document:**
+
+| Finding | What was wrong | Closed by |
+|---|---|---|
+| `function_search_path_mutable` regressed 0 → 16 | Twelve of the sixteen are directly `EXECUTE`-able by `authenticated`, so the closeout's *"reached only from inside definer functions that pin it"* was **not true of those twelve**. Worse, `platform_schema_lint`'s counter is `secdef_without_search_path` — SECURITY DEFINER only — so the gate could not see the regression at all | 0035 pins every function in `public` by catalogue loop, adds the `functions_without_search_path` counter over *all* functions, and `F01-T13` asserts it |
+| `seeded_index` reachable by `authenticated` | ADR-0005 §3's control is that `option_display_order()` is unreachable, which held — but the primitive underneath it did not, so the shuffle rested on `shuffle_seed` being ungrantable elsewhere rather than on the primitive being unreachable | 0035 revokes it from client roles; the verification block asserts both |
+| INV-08's forged-`person_id` clause was argued, not tested | True by construction — the entry points take no person parameter — but a later signature change would have retired it silently | 0035 adds `assert_engine_takes_no_identity()` over 27 entry points, with a planted probe proving it bites; `F03-T10` re-runs it every build |
+| doc 03 / doc 16 "gap" | Accurate about this repository's copies, not about the baseline | Both imported; see Carried forward above |
+| ADR-0005 section list | The closeout and the test report summarised ADR-0005 as two *different* sets of five decisions, neither matching its actual eight sections | Corrected in both; the real list is §1 engine location · §2 mode mapping · §3 display position · §4 INV-11 narrowing · §5 first view as delivery evidence · §6 own tenant · §7 the two repairs · §8 deliberately not built |
+| Hosted correspondence read as behavioural | — | The paragraph above |
+| The drift proof did not hash the objects most likely to have drifted | Nine categories covered function *metadata*, not bodies, and covered no constraint or index at all — and INV-28's idempotency is arbitrated by a unique index | `docs/audit/schema-inventory.sql`, widened and re-run on both sides; **it found something** — see below |
+
+### The widened drift proof, and what it found
+
+The original nine categories were re-run with function bodies (`md5(prosrc)`),
+every constraint definition, every index definition, column defaults,
+`FORCE ROW LEVEL SECURITY` and view/trigger definition hashes added — 1801
+lines against the original 1239. Run on hosted and on a genuinely clean
+34-migration replay:
+
+| Category | Hosted | Clean replay | |
+|---|---|---|---|
+| TABLE (incl. FORCE RLS) | 57 · `8dd451d7…` | 57 · `8dd451d7…` | match |
+| VIEW (incl. definition hash) | 9 · `ec4ae0a4…` | 9 · `ec4ae0a4…` | match |
+| COLUMN (incl. defaults) | 566 · `54d0b086…` | 566 · `54d0b086…` | match |
+| ENUM | 117 · `ac41b7e5…` | 117 · `ac41b7e5…` | match |
+| **CONSTRAINT** | 317 · `65787cf6…` | 317 · `65787cf6…` | **match** |
+| **INDEX** | 115 · `4c334ae5…` | 115 · `4c334ae5…` | **match** |
+| POLICY | 106 · `58bd7a36…` | 106 · `58bd7a36…` | match |
+| TRIGGER (incl. definition hash) | 78 · `e55fba50…` | 78 · `e55fba50…` | match |
+| GRANT / FGRANT | 107 / 69 | 107 / 69 | match |
+| **FUNC (incl. body)** | 130 · `6469d6ba…` | 130 · `d9b7a17a…` | **DIFFERS** |
+| **FUNCNORM** (body, comments and whitespace normalised) | 130 · `d51a0bb0…` | 130 · `d51a0bb0…` | **match** |
+
+So the wider net caught six function bodies that the narrow one could not see:
+`enrollments_guard`, `memberships_guard`, `role_assignments_guard`,
+`transfer_authorize`, `transfer_execute` and `transfer_request` — all six from
+the FABLE-01 migrations whose recorded text diverges. Diffed by hand, the
+difference is comment lines: hosted's `enrollments_guard`, for example, lacks
+the repository's `-- UPDATE: identity columns immutable; only lifecycle
+transitions allowed.` and nothing else. Normalising comments and whitespace away
+makes all six identical, and the whole-schema `FUNCNORM` digest is
+`d51a0bb086ee867ddef889d3f9d75c44` on both sides.
+
+**The conclusion the closeout reached is unchanged — there is no behavioural
+drift — but it was previously an inference and is now a measurement.** The
+thirteen divergent migration texts are comment-stripped, which is consistent
+with the path by which they were first applied. The script keeps both digests
+deliberately: `FUNC` differing while `FUNCNORM` matches is cosmetic; `FUNCNORM`
+differing is real and must be explained before anything else proceeds.
+
+**Not closed, and why.** Four need a decision that is not an implementer's to
+make, and are listed for the architect rather than quietly resolved: the §4
+OFFICIAL-evidence wall; OD-9's evidence-portability clause (§5.3 — this phase
+added five `INSTITUTION_SCOPED` rows and settling it by default is exactly what
+should not happen one phase before certificates); the §5.2 scoring-policy
+registry (`scoring_policy_version()` returns a bare literal with no registry
+behind it, and doc 16 §5 names unversioned scoring as a dangerous pattern); and
+whether `published_lessons` — a `SECURITY DEFINER` view, no institution
+predicate, every tenant's lesson bodies world-readable once any release
+publishes — is the intended product behaviour. A further finding belongs to
+FABLE-05 rather than here: because `content_is_sealed` freezes taught content
+for a course once *any* release is FROZEN or later, **a course can never be
+revised after its first release**, and that is where an author will first hit
+it.

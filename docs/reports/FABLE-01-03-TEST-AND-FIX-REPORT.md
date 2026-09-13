@@ -285,7 +285,7 @@ tree, class, three staff, two learners (one email, one classroom-card `7002`/PIN
 20 items (3 parallel groups, 7 safety-critical), 2 assessment definitions, a
 release frozen + published **through the real gate**, and three assignments.
 
-## C.2 The five architectural decisions (ADR-0005)
+## C.2 ADR-0005's decisions
 
 1. **The engine's implementation lives in SQL; the TypeScript module is the single
    typed façade.** Forced by privilege, not preference: `STUDENT` holds no
@@ -311,7 +311,19 @@ release frozen + published **through the real gate**, and three assignments.
    definition, `public.assert_telemetry_write_only()`, and 0033's verification block
    plants a reader to prove it still bites. F02-T16 was changed to call the same
    assertion — openly, and recorded.
-5. **The fixture seeds its own institution** — see the stop-patch-loop in C.3.
+5. **First view is delivery evidence, and lives in `public`** — the hesitation
+   clock needs to know when the learner first opened *this* item;
+   `presented_items.presented_at` cannot answer it, because the whole paper is
+   written at assembly.
+6. **FABLE-03 seeds its own tenant** — see the stop-patch-loop in C.3.
+7. **The two repairs carried in this phase** (C.3).
+8. **What this phase deliberately did not build** (C.5).
+
+*Corrected 2026-09-13.* An earlier revision of this section, and §4 of the
+closeout report, each summarised ADR-0005 as a different set of *five*
+decisions, and neither set matched the ADR's actual sections. The list above is
+its real section list. An auditor starting from either summary would not have
+found what it said it would.
 
 ## C.3 Issues found during FABLE-03 — 27, all resolved
 

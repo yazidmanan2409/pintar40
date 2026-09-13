@@ -368,7 +368,7 @@
     {
       "id": "F03-T04",
       "runner": "db",
-      "proves": "INV-27 / INV-17 — a closing assignment window does not stop a started session but starts nothing new; an ended enrolment refuses the next scored action"
+      "proves": "INV-27 / INV-17 — a closing assignment window does not stop a started session but starts nothing new; an ended enrolment refuses the next scored action. MAPPING: the prompt's INV-17 case names a scope revocation; a learner holds no role_assignment, deriving authority from enrolment, so an ended enrolment is the learner-side analogue and is what is tested. A staff scope revocation is covered by F01-T04."
     },
     {
       "id": "F03-T05",
@@ -388,7 +388,7 @@
     {
       "id": "F03-T08",
       "runner": "db",
-      "proves": "INV-11 — the hesitation window holds to the second, and identical answers score identically with and without assistance"
+      "proves": "INV-11 — the hesitation window holds to the second, and identical answers score identically with and without assistance. NOT COVERED: the prompt's \"never offline\" clause is argued from the design (the client asks the server when help is due, so an unreachable server offers nothing) and is not exercised by this id."
     },
     {
       "id": "F03-T09",

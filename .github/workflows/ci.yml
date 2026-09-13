@@ -106,6 +106,21 @@ jobs:
           echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           git worktree add --detach base "$BASE_SHA"
           echo "previous schema: $BASE_SHA ($(ls base/supabase/migrations | wc -l) migrations)"
+          # Cost: this job is the most expensive in the workflow because it
+          # stands up a second Supabase stack. When no migration changed since
+          # the base there is nothing for it to upgrade THROUGH, so the stack is
+          # skipped and the byte-identical check below still runs. The job keeps
+          # reporting -- it does not become a silent pass -- and says which it
+          # did. A workflow-level `paths:` filter was considered and rejected:
+          # it would stop the job existing on a doc-only push, which is a
+          # different thing from it running and finding nothing to do.
+          if git diff --quiet "$BASE_SHA" HEAD -- supabase/migrations; then
+            echo "stack-needed=false" >> "$GITHUB_OUTPUT"
+            echo "no migration changed since the base — skipping the upgrade stack"
+          else
+            echo "stack-needed=true" >> "$GITHUB_OUTPUT"
+            echo "migrations changed: $(git diff --name-only "$BASE_SHA" HEAD -- supabase/migrations | wc -l) file(s)"
+          fi
       - name: Forward-only — every previously applied migration is byte-identical in HEAD
         if: steps.base.outputs.has-base == 'true'
         run: |
@@ -117,16 +132,16 @@ jobs:
           done
           exit $status
       - name: Start the previous schema with representative (synthetic) data
-        if: steps.base.outputs.has-base == 'true'
+        if: steps.base.outputs.has-base == 'true' && steps.base.outputs.stack-needed == 'true'
         id: stack
         uses: ./.github/actions/local-stack
         with:
           working-directory: base
       - name: Apply HEAD's pending migrations on top of the running previous schema
-        if: steps.base.outputs.has-base == 'true'
+        if: steps.base.outputs.has-base == 'true' && steps.base.outputs.stack-needed == 'true'
         run: npx --no-install supabase migration up --local
       - name: The db contract holds on the upgraded database
-        if: steps.base.outputs.has-base == 'true'
+        if: steps.base.outputs.has-base == 'true' && steps.base.outputs.stack-needed == 'true'
         env:
           DB_URL: ${{ steps.stack.outputs.db-url }}
         run: |
