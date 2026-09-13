@@ -911,7 +911,12 @@ export const staticTests: SelfTest[] = [
           `${rel} writes an empirical value`);
       }
       // INV-32: no provider's concepts in the schema or in Studio code
-      const PROVIDERS = /\b(openai|anthropic|gemini|notebooklm|claude|gpt-?[0-9]|vertex|bedrock)\b/i;
+      // NO word boundaries. `\bopenai\b` does not match `openai_calls`, because
+      // `_` is a word character -- so a provider-named TABLE, the exact thing
+      // INV-32 forbids, slipped past the first version of this check. The
+      // database's own INV-32 lint has always matched without boundaries; this
+      // now says the same thing.
+      const PROVIDERS = /(openai|anthropic|gemini|notebooklm|claude|gpt-?[0-9]|vertex|bedrock)/i;
       const sql = walk(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"));
       for (const f of sql) {
         const rel = relative(repoRoot, f);
