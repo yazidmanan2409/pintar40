@@ -1,0 +1,159 @@
+{
+  "manifest_version": 1,
+  "generated": "2026-09-13",
+  "source": "claude.ai Project 'Pintar 4.0' \u2014 authoritative amended copies",
+  "generated_by": "Claude 1 / Second Eye",
+  "note": "sha256 is over the exact bytes exported from the Project. Any repository file whose digest differs from its entry is STALE.",
+  "documents": [
+    {
+      "path": "docs/rebuild/00-ARCHITECTURE-BASELINE-FREEZE-RECORD.md",
+      "sha256": "4dc6cb9f01cd494d19ae20a25a841a19b7374d4060a49d464b313343c61b7642",
+      "bytes": 1974,
+      "baseline": null
+    },
+    {
+      "path": "docs/rebuild/01-REBUILD-LESSONS-LEARNED.md",
+      "sha256": "d5ee8348af2c1ae368487ef0af07f86bfb3ba502bab57367ddef48b7b156cce8",
+      "bytes": 19724,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/02-PINTAR-CANONICAL-DOMAIN-MODEL.md",
+      "sha256": "092dbbb930aac9f66d147661061a6f576c83c0e956fd3da6ecc3321afdf7fd9d",
+      "bytes": 26064,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/03-PINTAR-INVARIANTS.md",
+      "sha256": "6331fa5cac7fb827e617a9f6725900b8f8e337c6342378b9412479f53bf30d20",
+      "bytes": 19974,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/04-PINTAR-STATE-MACHINES.md",
+      "sha256": "e1b4847f9c4844739175b9a478acc2f00d9fbcd148adaed943056b45ad1af442",
+      "bytes": 15547,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/05-PINTAR-AUTHORIZATION-MATRIX.md",
+      "sha256": "67f549bd531ff8ed691a3233d1191c05a0727338ba6a2cdfcde2fb4b2ce4310f",
+      "bytes": 11115,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/06-PINTAR-EVIDENCE-AND-TELEMETRY-CONTRACT.md",
+      "sha256": "7af042a9253136c94a75f813ec18b77e648d4d073b83f175ff621dc2d334f47b",
+      "bytes": 12588,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/07-PINTAR-ASSESSMENT-ENGINE-CONTRACT.md",
+      "sha256": "7e3d71f1d2953414e4616dacbb9ce595eda10f66f3e5e3c67ac70201eaaf7f1b",
+      "bytes": 14445,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/08-PINTAR-CONTENT-VERSIONING-CONTRACT.md",
+      "sha256": "3c737fe661f8ac6e5b219b31fb4fd3c2c58309b470d12f4ca0cddc6272b48972",
+      "bytes": 7716,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/09-PINTAR-V1-SCOPE-BOUNDARIES.md",
+      "sha256": "f0148731002594f00733c24d9460d7f23dbab4e6ebf3f027b2553979032b65fc",
+      "bytes": 9059,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/10-PINTAR-REMOVED-AND-REJECTED-FEATURES.md",
+      "sha256": "3a1de754208745989f10e34b99de4b044a58dd7c93601828c9acedb8ce0a2369",
+      "bytes": 9083,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/11-PINTAR-OPEN-DECISIONS.md",
+      "sha256": "2cc777b3279ee26ad5dbba75a25c76a6647d4f6f0c001081e55744817416b004",
+      "bytes": 8175,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/12-PINTAR-FAILURE-MODES.md",
+      "sha256": "d58f4bb76f8c6bbf2e1ca73425a058c4b6597985f13bc6c1f0f2fe799c9377aa",
+      "bytes": 14087,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/13-PINTAR-ARCHITECTURAL-DECISION-LOG-TEMPLATE.md",
+      "sha256": "bc10aeb38e0397a5e44304f4349aab23026943252298b3a720ca937b3db10dfb",
+      "bytes": 4129,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/14-FABLE-PROMPT-CROSSCHECK.md",
+      "sha256": "f6a13c647fda4711a6ba3b6b6f45144ea5a72b69f6c0f89a4753f3a2117f4519",
+      "bytes": 15914,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/15-FABLE-5.1-START-HERE.md",
+      "sha256": "faad02f32aa28c2177ec5ed2328d4c230f0678816715e85c3b2bbc18a8bbc073",
+      "bytes": 13196,
+      "baseline": "2026-09-12"
+    },
+    {
+      "path": "docs/rebuild/16-PINTAR-ENGINEERING-AND-VERIFICATION-SYSTEM.md",
+      "sha256": "4319183b852c1d0f1e0c07f77b52f640c07e4563be1852ed6330f9ac42771149",
+      "bytes": 11309,
+      "baseline": null
+    },
+    {
+      "path": "docs/rebuild/REBUILD-READINESS-REPORT.md",
+      "sha256": "386ba46cc24039e5680571db39347d21c7a6cc666e68f4ae9a6f3d7733806e7b",
+      "bytes": 30080,
+      "baseline": null
+    },
+    {
+      "path": "fable-prompts/FABLE-00-MASTER-OVERVIEW-PROMPT.md",
+      "sha256": "9bf64f2a47e5f8baf657f9f6b01183e3f636b434099a5c3cd8de7024d20e5d4b",
+      "bytes": 21438,
+      "baseline": null
+    },
+    {
+      "path": "fable-prompts/FABLE-01-FOUNDATION-PROMPT.md",
+      "sha256": "e0b66500136d43c3c44d318737ace6d7c3df858b4177368a260ca009cf66f602",
+      "bytes": 18889,
+      "baseline": null
+    },
+    {
+      "path": "fable-prompts/FABLE-02-PLP-CONTENT-MODEL-PROMPT.md",
+      "sha256": "593f0eeaa42bb0f32d9c25a9c593d6558c159c391ddf6fc2cc319358bb4d8fbb",
+      "bytes": 18339,
+      "baseline": null
+    },
+    {
+      "path": "fable-prompts/FABLE-03-LEARNING-EXPERIENCE-PROMPT.md",
+      "sha256": "c37acc61ef026a30d5995520f4769564115f5b75f2f21e246fa43fd8e07be599",
+      "bytes": 11034,
+      "baseline": null
+    },
+    {
+      "path": "fable-prompts/FABLE-04-CERTIFICATES-PROMPT.md",
+      "sha256": "73f596f92b8065a5ffc699f7ab5992ab27d3e1d7875bd28b4757388c65ca0c24",
+      "bytes": 12827,
+      "baseline": null
+    },
+    {
+      "path": "fable-prompts/FABLE-05-STUDIO-PROMPT.md",
+      "sha256": "09a617f1e65807f40f3933bca51418096e08a5ba76b9f9aae8d551be70b099c0",
+      "bytes": 12985,
+      "baseline": null
+    },
+    {
+      "path": "fable-prompts/FABLE-06-INTELLIGENCE-LAUNCH-PROMPT.md",
+      "sha256": "82f75518a22f3d1256419b75346f837ed2bc3cfe4b98ec04f84495ca74eb3569",
+      "bytes": 11017,
+      "baseline": null
+    }
+  ]
+}

@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "selftest": "tsx selftest/run.ts",
     "selftest:local": "tsx selftest/run.ts --accept-justified-skips",
-    "selftest:db": "for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f \"$f\" \"$SUPABASE_DB_URL\" || exit 1; done && psql -v ON_ERROR_STOP=1 -c 'select * from selftest.run_fable01() union all select * from selftest.run_fable02() union all select * from selftest.run_fable03() union all select * from selftest.run_fable04() union all select * from selftest.run_fable05() union all select * from selftest.run_quick_canonical()' \"$SUPABASE_DB_URL\""
+    "selftest:db": "for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f \"$f\" \"$SUPABASE_DB_URL\" || exit 1; done && psql -v ON_ERROR_STOP=1 -c 'select * from selftest.run_fable01() union all select * from selftest.run_fable02() union all select * from selftest.run_fable03() union all select * from selftest.run_fable04() union all select * from selftest.run_fable05() union all select * from selftest.run_quick_canonical()' \"$SUPABASE_DB_URL\"",
+    "baseline:parity": "node scripts/baseline-parity.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

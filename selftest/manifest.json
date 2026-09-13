@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 9,
+  "version": 10,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -768,9 +768,9 @@
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
-      "id": "DOC-S01",
+      "id": "DOC-P01",
       "runner": "static",
-      "proves": "the baseline documents in this repository are in the measured amendment state (exactly one carrying a `Baseline amendment (...)` marker, 2026-09-13); any change fails here, so a sync of the amended set — or further drift — surfaces mechanically instead of as a disputed quotation between two parties reading different copies"
+      "proves": "baseline integrity by content, not by marker: every document listed in docs/rebuild/BASELINE-MANIFEST.json is byte-identical to the frozen baseline, every file under docs/rebuild/ is governed by the manifest, and each document's own amendment marker agrees with its manifest entry. Retires DOC-S01, which counted markers — doc 03 carried the right marker while still stale, and three of eighteen documents carry none"
     }
   ]
 }

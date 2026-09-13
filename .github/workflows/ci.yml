@@ -546,6 +546,23 @@ jobs:
           SQL
           red QAC-T11 'against an INGESTED release' /tmp/t1-3.sql
 
+  baseline-parity:
+    name: baseline · frozen documents are what they say they are
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # fetch-depth 0 because assertions 4 and 5 compare this commit's manifest
+      # against the previous one; a shallow clone silently skips them, which is
+      # the failure mode this whole job exists to end.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Every frozen baseline document matches BASELINE-MANIFEST.json
+        run: node scripts/baseline-parity.mjs
+
   selftest:
     name: selftest contract (strict, local stack)
     needs: [check, migrations-clean, migrations-upgrade-path, red-case]

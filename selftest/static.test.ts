@@ -5,6 +5,7 @@
  * network. Exported as a list; selftest/run.ts executes it.
  */
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { spawnSync } from "node:child_process";
 import { join, relative, basename } from "node:path";
 import { Checks, type SelfTest } from "./lib";
@@ -1012,52 +1013,39 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
-    id: "DOC-S01",
+    id: "DOC-P01",
     requires: [],
     run: async ({ repoRoot }) => {
-      // The baseline documents in this repository diverge from the Project
-      // copies, and the divergence is SILENT: a stale document reads as
-      // complete and gets quoted in good faith. That cost two review rounds and
-      // two nearly-permanent false records before anyone noticed.
+      // Replaces DOC-S01, which counted `Baseline amendment (...)` markers.
+      // The reconciliation measurement retired that idea on evidence: doc 03
+      // carried the correct marker and was still stale, and three of eighteen
+      // documents carry no marker at all -- one of them the sync manifest
+      // itself. Content integrity is the only property that actually holds.
       //
-      // This pins the one thing measurable from inside the repository: which
-      // baseline documents carry a `Baseline amendment (...)` marker. It
-      // encodes what was checked here, never what was reported from a copy this
-      // side cannot see. When the amended set is shipped, this test fails --
-      // which is the point: the sync becomes visible and the expectation below
-      // has to be updated deliberately rather than drifting again.
+      // Assertions 1-3 run here (no git needed); CI's `baseline-parity` job
+      // runs the same script with 4 and 5, which need history. One
+      // implementation, two callers.
       const c = new Checks();
-      const dir = join(repoRoot, "docs", "rebuild");
-      c.expect(existsSync(dir), "docs/rebuild is missing");
-      const docs = readdirSync(dir).filter((f) => f.endsWith(".md")).sort();
-      c.expect(docs.length >= 16, `only ${docs.length} baseline document(s) found`);
-
-      const MARKER = /Baseline amendment \(\d{4}-\d{2}-\d{2}\)/;
-      const withMarker = docs.filter((f) => MARKER.test(readFileSync(join(dir, f), "utf8")));
-
-      // Measured 2026-09-13: exactly one document carries a marker.
-      const EXPECTED = ["03-PINTAR-INVARIANTS.md"];
-      c.expect(
-        JSON.stringify(withMarker) === JSON.stringify(EXPECTED),
-        `the amended-document set changed: ${JSON.stringify(withMarker)} (expected ${JSON.stringify(EXPECTED)}). ` +
-          "If the amended baseline was just shipped, update EXPECTED and the divergence note in " +
-          "docs/phases/TASK-1-COMPLETION-REPORT.md \u00a78.1. If not, a baseline document drifted.",
-      );
-
-      // and the readiness report here is the pre-v2 one: no Document Change
-      // Matrix, so it cannot serve as the sync manifest from this side
-      const readiness = join(dir, "REBUILD-READINESS-REPORT.md");
-      if (existsSync(readiness)) {
-        const text = readFileSync(readiness, "utf8");
-        c.note(
-          /Document Change Matrix/i.test(text)
-            ? "the readiness report now carries a Document Change Matrix: the v2 report has landed"
-            : "the readiness report carries no Document Change Matrix (pre-v2 copy)",
-        );
+      const script = join(repoRoot, "scripts", "baseline-parity.mjs");
+      c.expect(existsSync(script), "scripts/baseline-parity.mjs is missing");
+      c.expect(existsSync(join(repoRoot, "docs", "rebuild", "BASELINE-MANIFEST.json")),
+        "docs/rebuild/BASELINE-MANIFEST.json is missing");
+      let out = "";
+      let ok = true;
+      try {
+        out = execFileSync(process.execPath, [script, "--no-git"], {
+          cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"],
+        });
+      } catch (e) {
+        ok = false;
+        const err = e as { stdout?: string; stderr?: string };
+        out = `${err.stdout ?? ""}${err.stderr ?? ""}`;
       }
-      c.note(`${docs.length} baseline documents, ${withMarker.length} carrying an amendment marker`);
+      c.expect(ok, `baseline-parity failed:\n${out.trim().slice(0, 1200)}`);
+      const n = /(\d+) document\(s\) byte-identical/.exec(out);
+      c.note(n ? `${n[1]} baseline documents byte-identical to the frozen set` : out.trim().slice(0, 160));
       return c.verdict(
-        "the baseline documents in this repository are in the measured amendment state, and any change to it fails here rather than surfacing as a disputed quotation",
+        "every frozen baseline document is byte-identical to BASELINE-MANIFEST.json, every file under docs/rebuild/ is governed by it, and each document's own amendment marker agrees with its manifest entry",
       );
     },
   },

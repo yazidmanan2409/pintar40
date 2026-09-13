@@ -1,169 +1,186 @@
 # 11 — PINTAR Open Decisions
 
+*Baseline amendment (2026-09-12): OD-2 and OD-7 RESOLVED; OD-4 reframed
+(learner Transfer is now a required domain capability distinct from content
+sharing); OD-6 resolved as PARK; OD-5 narrowed (architecture resolved,
+legal durations still open); OD-8 narrowed; OD-9 and OD-10 added. Resolved
+items are kept here as a record with their resolution — they are not
+reopened by silence.*
+
 Unresolved questions found across the project's full history, including
 contradictions between documents. None of these are silently resolved here.
+Only genuine business/legal/product decisions remain open; implementation
+details that can be decided safely during engineering are not listed.
 
 ---
 
-### OD-1 — What accreditation framework should the Institutional Learning
-Intelligence report actually encode?
+### OD-1 — What accreditation framework should the Institutional Learning Intelligence report actually encode? — **OPEN**
 
 **Why it matters:** the old comprehensive handoff references "LAM-PTKes
 2024 alignment" in one place as if settled, but no document explains why
 that specific framework or confirms it's still the target for PINTAR 4.0's
 university-course tenant.
 
-**Latest phase by which it must be resolved:** before FABLE-06 (briefings)
-implementation begins.
+**Latest phase by which it must be resolved:** before the phase that ships
+the Institutional Standard Report's accreditation shape.
 
 **Options:** (a) LAM-PTKes 2024 as before, (b) a different/updated
 framework, (c) a generic competency-report shape with the framework as
 configuration, not hardcoded.
 
-**Recommendation:** (c) — build the report structure generically, bind the
-specific framework via configuration, since accreditation requirements can
-change and PINTAR may serve institutions under different frameworks.
+**Recommendation:** (c) — the Canonical Metric Catalogue and Standard
+Reports (doc 02) already give the generic shape; bind a specific framework
+by configuration later.
 
 **May Fable choose a reasonable default?** NO — **MUST ASK PRODUCT OWNER**
 which framework(s) are actually in scope for the university course tenant.
 
 ---
 
-### OD-2 — Do pre-test and post-test share any items, ever?
+### OD-2 — Do pre-test and post-test share any items, ever? — **RESOLVED (baseline)**
 
-**Why it matters:** doc 07 flags that the blueprint's `repetition_policy`
-governs this, but no source document states whether PINTAR's actual product
-intent allows deliberate shared items for growth-measurement validity, or
-strictly forbids any overlap.
-
-**Latest phase by which it must be resolved:** before FABLE-02 (blueprint
-schema) and FABLE-03 (learning cycle) both lock in their assumptions.
-
-**Options:** (a) zero overlap ever, (b) a controlled overlap subset for
-growth validity, configurable per blueprint.
-
-**Recommendation:** (b), configurable, defaulting to (a) — matches the
-general principle of "assessment blueprints over hardcoded rules" and
-doesn't foreclose a legitimate psychometric technique.
-
-**May Fable choose a reasonable default?** YES, with the default set to (a)
-zero-overlap unless a specific course's blueprint is explicitly configured
-otherwise by a human reviewer.
+**Resolution:** ZERO identical-item overlap and ZERO `parallel_group`
+sibling overlap for the standard Dr. Gladys cycle (INV-24, doc 04 §6, doc
+07). Any future controlled-overlap anchor design is a distinct, explicit
+assessment mode (doc 09, LATER) and never a relaxation of the invariant.
+The earlier "configurable, default zero" recommendation is withdrawn.
 
 ---
 
-### OD-3 — What source books/editions ground the V1 content (SD math, SMA
-math/geography, the university course)?
+### OD-3 — What source books/editions ground the V1 content? — **OPEN**
 
 **Why it matters:** the domain model requires page-precise Source/
 SourceVersion citations; no document names the actual textbook
 editions/ISBNs to author against for a ground-zero content build.
 
 **Latest phase by which it must be resolved:** before any real content
-authoring in FABLE-02/03 (seed content) begins — placeholder/fixture
-content can proceed without this, real content cannot.
-
-**Options:** confirm the same source books used previously, or select new
-ones.
+authoring begins — placeholder/fixture content can proceed without this,
+real content cannot.
 
 **May Fable choose a reasonable default?** NO — **MUST ASK PRODUCT OWNER.**
 Never invent a source citation.
 
 ---
 
-### OD-4 — Is cross-institution content sharing/licensing a real near-term
-need, or purely hypothetical?
+### OD-4 — Cross-institution content sharing/licensing — **REFRAMED; remains LATER**
 
-**Why it matters:** determines whether doc 09's "architectural awareness
-only" treatment (category B) is sufficient, or whether it should actually
-be category A for V1.
+**Resolution of the confusion:** *learner Transfer* (a learner's portable
+record following them from School B to School C) is a **required BUILD NOW
+domain capability** (doc 02, doc 04 §3c, INV-25) and is not the same thing
+as *institution-to-institution content sharing/licensing*, which stays
+LATER (doc 09). The two must never be conflated in schema or UI.
 
-**Latest phase by which it must be resolved:** before FABLE-02 finalizes
-the tenant-scoping shape on `PLPRelease`.
-
-**Recommendation:** keep as category B (aware, not built) unless a specific
-near-term multi-institution customer already exists.
-
-**May Fable choose a reasonable default?** YES — default to category B,
-but flag this back to the product owner once a second real institution is
-onboarded.
+**Still open (product):** whether a specific near-term multi-institution
+content customer exists. **May Fable choose a reasonable default?** YES —
+keep content sharing LATER; flag to the product owner once a second real
+institution wants shared content.
 
 ---
 
-### OD-5 — What is the actual retention policy for raw learner
-responses/telemetry?
+### OD-5 — Retention policy for identifiable learner evidence — **ARCHITECTURE RESOLVED; LEGAL DURATIONS OPEN**
 
-**Why it matters:** doc 06 notes this was never explicitly decided
-(only that *some* PDP-equivalent retention/anonymization job existed in the
-old system) — "how long" and "anonymize vs. delete" were never stated as a
-concrete policy in any document read.
+**Resolved:** the architecture supports institution-configurable retention
+windows within applicable governance/legal requirements; identifiable
+evidence is distinguished from derived/anonymized legitimate aggregate
+analytics; anonymization keeps the evidentiary shape so derived statistical
+history survives (doc 06). Certificates keep their identity snapshot.
 
-**Latest phase by which it must be resolved:** before FABLE-01's audit
-trail / data-lifecycle design locks in a schema that assumes one answer.
+**Open:** the actual durations and the anonymize-vs-delete choice per
+record class under Indonesian PDP law and any institutional policy. **PINTAR
+must not invent legal retention periods.**
 
-**Options:** (a) indefinite retention with anonymization only, (b)
-time-bounded retention (e.g. N years) with anonymization, (c)
-institution-configurable.
+**Latest phase by which it must be resolved:** before the retention job is
+enabled for any real institution (the schema does not need the answer).
 
-**May Fable choose a reasonable default?** NO — **MUST ASK PRODUCT OWNER**,
-this has real legal/compliance weight (PDP = Indonesian data-protection
-law) that shouldn't be guessed.
-
----
-
-### OD-6 — Should the physical/NFC credential card concept be part of V1
-certification, or purely a future idea?
-
-**Why it matters:** extensively designed in the uploaded conversations
-(ID-1 ratio, flip animation, NFC glyph) but never implemented; conflicting
-signal between "this was designed in detail" and "there's no evidence it
-was ever requested as a near-term deliverable."
-
-**Latest phase by which it must be resolved:** before FABLE-04 locks
-certificate scope.
-
-**May Fable choose a reasonable default?** YES — default to category C/D
-per doc 09 (A4 certificate only, no physical card), but this is cheap for
-the product owner to override early if wanted.
+**May Fable choose a reasonable default?** NO — **MUST ASK PRODUCT OWNER /
+legal.**
 
 ---
 
-### OD-7 — Contradiction: "single canonical AI-agnostic PLP format" vs.
-"NotebookLM as *the* Content Factory"
+### OD-6 — Physical/NFC credential card — **RESOLVED: PARK**
 
-**Why it matters:** the core philosophy insists no AI vendor lock-in
-(PLP decouples PINTAR from any specific producer); several uploaded
-documents nonetheless describe NotebookLM specifically and in detail as
-"the initial Content Factory," with vendor-specific parsing concerns
-(Phase 4 "Manual Import Bridge Bottleneck"). These are not strictly
-contradictory (NotebookLM can be *one* producer among interchangeable
-ones) but the documents' emphasis leans harder on NotebookLM-specific
-integration than the philosophy statement implies is appropriate.
-
-**Recommendation:** treat NotebookLM as one example producer only; V1
-ships the vendor-agnostic structured-PLP-payload ingest pipeline (doc 09,
-category A), not a NotebookLM-specific parser (category D).
-
-**May Fable choose a reasonable default?** YES, per the above — but flag to
-product owner that this is a deliberate de-prioritization of a
-NotebookLM-specific integration in favor of the general contract.
+**Resolution:** parked (doc 09, PARK; doc 10). The A4 printable certificate
+is BUILD NOW. Reconsider only by an explicit product-owner decision recorded
+as an ADR.
 
 ---
 
-### OD-8 — Are the newly-added item types (true/false battery, matching,
-image-anchored) confirmed against real source material, or anticipated?
+### OD-7 — "Single canonical AI-agnostic PLP format" vs "NotebookLM as *the* Content Factory" — **RESOLVED (baseline)**
 
-**Why it matters:** the FABLE prompts require supporting these types
-because an old audit found source-book item forms with no PLP equivalent —
-but no document confirms which specific V1 chapters actually need which of
-these types.
+**Resolution:** NotebookLM (and Claude, Gemini, OpenAI or any other tool)
+is an **external producer only**. PINTAR owns the canonical content model
+and vendor-neutral ingestion (Easy Upload and Structured Package Import —
+doc 02); no producer's concepts enter the domain model (INV-32); no
+producer-specific parser is built (doc 09, PARK). AI capabilities are
+reached only through the AI Provider Gateway.
 
-**Latest phase by which it must be resolved:** before FABLE-03 builds
-learner-facing UI for a type with zero real content needing it — building
-UI for a type with no confirmed content is speculative.
+---
 
-**May Fable choose a reasonable default?** YES for building the
-*extensible* type system (do this regardless); NO for which specific extra
-types get real V1 content and UI polish — **ASK PRODUCT OWNER** which
-chapters need which non-MCQ forms once source material is confirmed (ties
-to OD-3).
+### OD-8 — Which non-MCQ item types need real V1 content and UI polish? — **NARROWED; OPEN**
+
+**Resolved:** the item-type registry is extensible and source-reflective
+(doc 02, doc 07) and is built regardless; every type is served by the one
+engine.
+
+**Open:** which specific V1 chapters actually need true/false battery,
+matching, image-anchored or other forms — contingent on OD-3.
+
+**May Fable choose a reasonable default?** YES for the registry; NO for
+which types get real content and polish — **ASK PRODUCT OWNER** once source
+material is confirmed.
+
+---
+
+### OD-9 — Transfer authorization and consent model — **OPEN (business/legal)**
+
+**Why it matters:** the Transfer lifecycle (doc 04 §3c) records both
+institutions and "any consent the policy requires." Who must authorize a
+transfer (sending institution, receiving institution, both), whether and
+when the learner or a guardian must consent, and what applies when the
+sending institution is unresponsive or no longer a PINTAR customer are
+policy/legal questions, not engineering defaults. The architecture supports
+any of these answers.
+
+**Latest phase by which it must be resolved:** before the Transfer workflow
+is exposed to real institutions (the domain model and lifecycle can be
+built first).
+
+**May Fable choose a reasonable default?** NO for the policy — **MUST ASK
+PRODUCT OWNER.** YES for building the lifecycle with policy as
+configuration.
+
+---
+
+### OD-10 — What the Certificate Identity Snapshot presents — **OPEN (product)**
+
+**Why it matters:** the snapshot mechanism is settled (INV-30). Whether the
+printed/verified certificate shows a photo at all, which name form is used,
+and which mutable profile fields (if any) an institution may allow a
+learner to change after issuance are product/policy choices with privacy
+weight.
+
+**Latest phase by which it must be resolved:** before the certificate
+template is finalized for the first real institution.
+
+**May Fable choose a reasonable default?** YES for the mechanism (snapshot
+name + optional photo hash); NO for the presentation policy — **ASK
+PRODUCT OWNER.**
+
+---
+
+### OD-11 — Is the Mini-PINTAR public trial part of the first release? — **OPEN (product scope)**
+
+**Why it matters:** the baseline puts Mini-PINTAR *isolation* (PUBLIC_DEMO
+mode and evidence class, reuse of the renderer/engine/question model/
+content releases) in FOUNDATION NOW (doc 09), because the strategic review
+lists it there. Whether a public-facing Mini-PINTAR experience itself ships
+in the first release — and with which content — is not stated in any
+source document read. The architecture supports either answer; the 100k
+anonymous-session stress scenario (readiness report, G-13) is answered at
+the architecture level regardless.
+
+**Latest phase by which it must be resolved:** before any public surface
+beyond certificate verification is built.
+
+**May Fable choose a reasonable default?** YES — default to FOUNDATION NOW
+only (no public trial UI) until the product owner moves it to BUILD NOW.

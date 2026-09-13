@@ -1,5 +1,12 @@
 # 01 — Rebuild Lessons Learned
 
+*Baseline amendment (2026-09-12): Lesson 5's ground-zero rule now points
+at the one-engine invariant; Lesson 12 gains the "user is not middleware"
+rule and a pointer to doc 16; Lesson 14 (MCQ testwiseness cues) added,
+explicitly marked as carried from the strategic review rather than
+re-verified against 3.0 source in this pass. Historical findings are
+otherwise untouched.*
+
 Post-mortem of the PINTAR 3.0 implementation (verified against
 `pintar-3.0-consolidated/` source, its migrations, and the accumulated
 audit/handoff documents — not just their summaries). Purpose: preserve the
@@ -37,7 +44,8 @@ verification step, that zero policies grant `SELECT`/`INSERT`/`UPDATE` to
 `storage.policies`/`pg_policies` directly, don't infer from the bucket flag.
 
 **Already covered by FABLE?** YES — FABLE-00 non-negotiable #2, FABLE-01 §7
-(black-box anon-fetch test required), FABLE-02's view-grant tests.
+(black-box anon-fetch test required), FABLE-02's view-grant tests. Baseline:
+INV-15, INV-36.
 
 ---
 
@@ -61,6 +69,7 @@ at creation time — never `USING (true)` as a placeholder, ever, even for
 one commit.
 
 **Already covered by FABLE?** YES — FABLE-00 non-negotiable #1, FABLE-01 §6.
+Baseline: INV-36.
 
 ---
 
@@ -86,8 +95,13 @@ designed but not implemented as of the last handoff.
 **Ground-zero design rule:** any cryptographic signing key must ship with a
 version identifier and a keyring lookup from its very first migration —
 rotation capability is not an enhancement, it's part of the key's definition.
+The same lesson, generalized in the baseline: everything the certificate
+attests to — release id and hash, definition version, identity snapshot —
+sits *inside* the signed payload (INV-05); a binding outside the signature
+is a binding that can be swapped.
 
 **Already covered by FABLE?** YES — FABLE-00 non-negotiable #5, FABLE-04 §3.
+FABLE-04 must be re-crosschecked for the INV-05 payload correction (doc 14).
 
 ---
 
@@ -122,7 +136,9 @@ is a general risk, not one specific to this project's history.
 **Ground-zero design rule:** one linear migration history, one trunk, from
 commit one. No parallel "legacy-akar"-style series ever created on purpose.
 If two people need to add migrations concurrently, that's a merge-ordering
-problem to solve with process, not with a second numbered folder.
+problem to solve with process, not with a second numbered folder. Migrations
+are tested against a clean install and the supported upgrade path (doc 16
+§2).
 
 **Already covered by FABLE?** PARTIAL — FABLE-01 assumes a clean linear
 migration history implicitly but never states the "no parallel series, no
@@ -157,7 +173,10 @@ had to be implemented and verified twice.
 **Ground-zero design rule:** a "thin vertical slice to prove the
 architecture" is fine — but it ships with an explicit retirement date/
 condition for whatever it's temporarily standing next to. Never let a
-migration path become a second permanent product.
+migration path become a second permanent product. In the baseline this is
+the one-authoritative-engine invariant (INV-26): learning assessment,
+Quick Assessment, examinations, Mini-PINTAR and future paper evidence are
+*modes* of one engine, never parallel implementations.
 
 **Already covered by FABLE?** PARTIAL — FABLE-00 non-negotiable #13 bans
 building a *second* SD5 line by accident, but doesn't state the general
@@ -190,7 +209,9 @@ is "evidence-based."
 **Ground-zero design rule:** a "not enough data yet" empty state is a
 legitimate, honest UI state. A fabricated-but-plausible-looking full
 dataset behind a banner is not — build the honest empty state instead, and
-never ship a code path whose job is to *pretend* there's data.
+never ship a code path whose job is to *pretend* there's data. The same
+rule applies to psychometrics: empirical fields stay honestly empty until
+legitimately computed (doc 02).
 
 **Already covered by FABLE?** YES — FABLE-06 §1 explicit rule.
 
@@ -235,12 +256,14 @@ not "don't run this against prod at all."
 
 **Ground-zero design rule:** seed scripts refuse to run unless a positive
 "this is not production" signal is present (env flag, explicit project-ref
-allowlist) — not just a one-time permission ritual.
+allowlist) — not just a one-time permission ritual. Synthetic personas live
+in synthetic tenants whose evidence is `SYNTHETIC` by inheritance (doc 06,
+doc 16 §3).
 
 **Already covered by FABLE?** PARTIAL — FABLE-01 §2 says "don't default
 every seed account to the same password" but doesn't require an explicit
 environment guard. **Amend FABLE-01 §2** to add an explicit
-non-production guard on the seed script itself.
+non-production guard on the seed script itself. Baseline: INV-21.
 
 ---
 
@@ -254,7 +277,10 @@ re-verified whether this was fixed.
 **Ground-zero design rule:** certificates, sessions, and any other record
 a learner or institution depends on later persist in Postgres from the
 first migration touching them — never an in-process structure, not even
-temporarily "to get the demo working."
+temporarily "to get the demo working." (A learner's *unacknowledged
+responses* may additionally live in a durable client outbox for replay —
+doc 07 — which is the opposite of in-process state: it exists precisely to
+survive a process dying.)
 
 **Already covered by FABLE?** YES — FABLE-04 §6.
 
@@ -308,7 +334,8 @@ manually layering all of the above in dependency order. Understanding
 
 **Why it happened:** work happened across many AI-assisted sessions, each
 producing its own delivery bundle rather than committing directly to one
-tree with real version control history.
+tree with real version control history — which made the product owner the
+relay between each session's output and the repository/database.
 
 **Consequence:** enormous cognitive overhead for anyone (human or AI)
 joining the project — "is this file current" required provenance research
@@ -316,7 +343,10 @@ before any actual engineering could happen.
 
 **Ground-zero design rule:** one git repository, one trunk, real commits,
 from day one — no parallel delivery-folder patch queue, ever, regardless of
-how the code was authored.
+how the code was authored. **The user is not middleware:** normal
+engineering never requires the product owner to copy SQL between systems,
+patch source files by hand, relay files between an AI session and the
+repository, or apply undocumented production changes (doc 16 §1).
 
 **Already covered by FABLE?** NO. **Amend FABLE-01 §1**: add an explicit
 rule that all work commits directly to the trunk repository; no
@@ -340,3 +370,31 @@ just a permanent flag in a document that keeps getting carried forward.
 canonical line is built) — but the *general process* lesson is captured in
 `11-PINTAR-OPEN-DECISIONS.md`, which forces a resolution path per open
 question rather than an indefinite flag.
+
+---
+
+### Lesson 14 — Apparently valid MCQs can carry exploitable cues (testwiseness)
+
+**Provenance note:** this lesson is carried from the 2026-09 strategic
+review's finding that PINTAR 3.0 demonstrated apparently valid MCQs
+containing systematic cues (correct-option length, grammar, precision,
+distractor plausibility, answer position). It was **not re-verified
+against `pintar-3.0-consolidated/` source or its content banks in this
+amendment pass**; the anti-bias distractor QA already present in the
+rebuild package (doc 09, FABLE-05) is consistent with it.
+
+**Why it matters:** a learner who can infer answers from cues without
+knowing the subject produces evidence that looks like mastery and is not —
+which corrupts diagnosis, Question Health, psychometrics and certificates
+at once.
+
+**Ground-zero design rule:** automated MCQ Quality / Testwiseness checks
+run before publication and feed Publish Readiness (doc 04 §1a, doc 07);
+adversarial regression fixtures (doc 16 §4) are part of the verification
+contract from the start. The checks detect exploitable *patterns*; they
+never force cosmetic uniformity.
+
+**Already covered by FABLE?** PARTIAL — anti-bias distractor QA is in
+FABLE-05; the explicit pattern list, severity grading into Publish
+Readiness and the adversarial fixtures are new. **Re-crosscheck FABLE-05**
+(doc 14).

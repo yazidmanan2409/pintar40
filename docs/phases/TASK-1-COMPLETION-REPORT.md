@@ -390,70 +390,112 @@ mask or rescue another.
 ## 8.1 A supply gap that is now load-bearing — and my own citation inside it
 
 Found while checking a review citation, and worth more than the round it cost.
+The first version of this section reasoned about the divergence from the one
+signal I could see — how many documents carried an amendment marker. That signal
+was wrong, and the measurement below is what replaced it.
 
-**The repository's baseline documents are in a mixed state.** Of the sixteen
-`docs/rebuild/` documents, exactly **one** — doc 03 — carries a
-`*Baseline amendment (2026-09-12)*` marker. Doc 08 carries none, has no
-"release-correction / active-learner policy" section, and still contains the
-`N+1` sentence that amendment replaced. So the repository holds a
-**pre-amendment** doc 08 while holding an amended doc 03.
+### 8.1.1 The measured inventory
 
-That produced a disagreement that looked like invention on one side. Claude 1
-quoted the amended doc 08; I looked it up in the repository, did not find it, and
-recorded that the citation did not check out. Both readings were honest and of
-consecutive versions of the same rule. The ADR now says so; the earlier wording
-is corrected rather than left standing, because a permanent record calling a
-correct citation false would make a future reader discount a real clause.
+Before overwriting anything, I digested the repository's working tree against
+`BASELINE-MANIFEST.json` — the manifest supplied with the reconciliation
+payload. **Overwriting first would have destroyed the only evidence of what
+actually diverged**, and that evidence turned out to contradict my own account.
 
-**The same gap reaches the clause I leaned on hardest — and my first account of
-that was wrong too.** "Publication is not assignment: publishing a release makes
-it available within the institution" is attributed to doc 08 in migration
-**0063**, in 0064 and in ADR-0018, and appears **nowhere in this repository's
-`docs/`**. I first recorded that as my own mis-attribution. Claude 1 reports it
-is a *section heading* in the amended doc 08 — same document, same amendment,
-same root cause as the policy table. **I cannot see that copy**, so the record
-now states what I checked and what I was told, and claims neither as the other.
+First, the payload was checked against its own manifest: **25 of 25 files match**
+the sha256 recorded for them, 0 problems. A manifest that does not describe its
+own payload cannot be used to judge anything else.
+
+Then the repository, file by file:
+
+| classification | count |
+|---|---|
+| IDENTICAL to the baseline | **1** |
+| STALE — present but different bytes | **16** |
+| MISSING FROM REPO | **8** |
+| UNLISTED — in `docs/rebuild/` but not in the manifest | **0** |
+
+The one identical document is doc 16. The eight missing are the freeze record
+(`00-ARCHITECTURE-BASELINE-FREEZE-RECORD.md`) and all seven FABLE prompts, which
+had never been in this repository at all. Everything else — docs 01 through 15
+and `REBUILD-READINESS-REPORT.md` — differed.
+
+### 8.1.2 What the measurement corrected
+
+**My earlier account was inferred, and it understated the problem.** I wrote
+that the repository "holds a pre-amendment doc 08 while holding an amended doc
+03", reasoning from the amendment markers: doc 03 carried the `*Baseline
+amendment (2026-09-12)*` marker and the others did not, so doc 03 looked current.
+
+**Doc 03 carried the correct marker and was still stale.** That single fact
+settles a question this round had open — whether counting markers is a workable
+integrity check — and settles it on evidence rather than preference. A marker is
+a claim a document makes about itself; it can be right while the bytes around it
+are wrong. Marker-counting was retired for a content digest, and `DOC-S01`, the
+static test I had added to pin the marker state, was retired with it. Its
+replacement, `DOC-P01`, compares sha256 against the manifest and additionally
+fails on a file present in `docs/rebuild/` that the manifest does not list — the
+assertion that makes a deletion visible.
+
+**The divergence was not one document, or eight.** It was 24 of 25. A citation
+disagreement between the two copies was not an unlucky edge case; it was the
+expected outcome of quoting almost any baseline document.
+
+### 8.1.3 The citation, resolved
+
+That is what produced a disagreement that looked like invention on one side.
+Claude 1 quoted the amended doc 08; I looked it up in the repository, did not
+find it, and recorded that the citation did not check out. Both readings were
+honest and of consecutive versions of the same rule. The same applies to the
+clause I leaned on hardest — "publication is not assignment" — which I attributed
+to doc 08 in migration **0063**, in 0064 and in ADR-0018, then retracted as my own
+mis-attribution, and which is in fact a section heading in the amended doc 08.
+**Both of my corrections were wrong in the same direction**: each time I treated
+the copy I could see as the only copy.
 
 **The error was the method, not the attribution.** I carried a clause from review
-into a migration comment and an ADR without opening any copy of the source.
-0063 is applied to `main` and hosted and is forward-only; ADR-0018 carries the
+into a migration comment and an ADR without opening any copy of the source. 0063
+is applied to `main` and hosted and is forward-only; ADR-0018 carries the
 correction of record, and 0064 re-grounds the rule in text that is verifiably
 here: `content_status_transitions` records the `FROZEN → PUBLISHED` edge as
 **"made available to the institution"**. A machine-readable in-repository fact
-beats a prose citation and survives any document divergence — that grounding
-stays whichever way the citation resolves.
+beats a prose citation and survives any document divergence.
 
-**What this costs, in general.** A missing document fails loudly and a truncated
-one is visibly short — both announce themselves. A *stale* document announces
-nothing: it reads as complete and is quoted in good faith. Until the repository
-copies are reconciled with the Project copies, any baseline quotation from either
-side is unverifiable by the other, and a disagreement about frozen text should be
-treated as a suspected version divergence first.
+### 8.1.4 This build was a source of the drift
 
-**It is not one document.** Doc 16 is present (190 lines) and doc 03 reaches
-INV-38, so two earlier items in this class are closed. But the marker count says
-one of sixteen, and Claude 1 reports the marker in at least eight Project copies
-(03, 06, 07, 08, 09, 11, 12, 14). I can confirm a ninth divergence from my side,
-and it is the awkward one: **the repository's `REBUILD-READINESS-REPORT.md` is
-itself a different version** — 160 lines, sections 1–10 plus five closing
-sections, with **no §A amendment list and no §B Document Change Matrix**. The
-document proposed as the manifest for the sync is stale here too, so I cannot
-even enumerate what needs syncing.
+Docs 03, 07 and 08 in this repository had implementation notes appended *inside*
+them by earlier phases of this build — notes that do not exist in the frozen
+originals. So part of what the digest classified as STALE is drift this build
+introduced into documents it was told to treat as frozen. Those notes were
+extracted into `docs/implementation-notes/` before the sync rather than deleted
+with it; they are real work, they were simply in the wrong file.
 
-**What I cannot do.** I have no access to the Project copies. I can neither ship
-the amended documents nor run the reconciliation, and I cannot build the CI
-marker check Claude 1 proposes in its strong form, because the authoritative list
-of which documents *should* carry the amendment marker lives in a document this
-repository does not have. What I have added instead is `DOC-S01`: a static test
-that pins the marker state I measured, so the condition stops being invisible —
-any sync, or any further drift, fails it and forces the record to be updated. It
-encodes only what I checked, never what I was told.
+### 8.1.5 What is closed, and what is not
 
-**Handover.** Closing this needs the amended `docs/rebuild/` set and the v2
-readiness report supplied into the repository. Until then, a disagreement about
-baseline text between any two parties here should be treated as a suspected
-version divergence first, and neither party should record the other's citation as
-unfounded on the strength of a copy only one of them can see.
+**Closed.** The 25 baseline files are now in the repository byte-identical to the
+manifest, and `scripts/baseline-parity.mjs` runs as its own CI job on every push
+and pull request. Baseline quotations are now mutually verifiable; a
+disagreement about frozen text is now answerable by digest rather than by
+assertion.
+
+**What this sync was not.** It did not amend the architecture and did not ratify
+an amendment. The documents that landed today *are* the approved **2026-09-12
+amendment**, decided elsewhere and already authoritative; what had failed was its
+**distribution** into the canonical repository. Copying it in is a repair, not a
+decision, and nothing here re-dates or re-approves it.
+
+**The decision that was taken.** `docs/rebuild/` in this repository is now the
+single source of truth for the baseline, with manifest and parity enforcement
+behind it — amendments are made here and flow outward, rather than arriving as
+imports to be reconciled afterwards. That is a new governance decision, it is
+Yazid's, and it is what **ADR-0019** records. The root cause the earlier draft
+called unfixable by CI is fixed by that decision rather than by a check: parity
+can only detect the next divergence, so the rule is that there is one place a
+divergence may originate.
+
+**One limit on what I am claiming.** The sync was a mechanical copy of a supplied
+payload, verified against its own manifest. I did not author the amended content
+and have not verified that it is correct — only that it is intact and that the
+repository now matches it exactly.
 
 ## 9. What remains open
 
@@ -466,10 +508,12 @@ unfounded on the strength of a copy only one of them can see.
   the first version of this report as a verified fact. **It was not true when
   written**, and it was not tested: see **F1** in §4. It is true now, and
   QAC-T11 is what makes it so.
-- **The repository's doc 08 predates the 2026-09-12 baseline amendment**, and
-  fifteen of sixteen baseline documents carry no amendment marker at all. Until
-  they are reconciled against the Project copies, baseline quotations are not
-  mutually verifiable. See §8.1; I cannot close this myself.
+- **The baseline divergence is closed.** It was measured before the overwrite —
+  24 of 25 documents stale or missing, doc 03 stale despite a correct amendment
+  marker — then synchronized, pinned by `BASELINE-MANIFEST.json`, and enforced by
+  the `baseline-parity` CI job. `docs/rebuild/` is now the single source of truth
+  (ADR-0019). See §8.1. What remains is ordinary: the next amendment is authored
+  here, not imported.
 - **`withdraw_release` sets a release to `SUPERSEDED`, the same status a
   correction produces**, so "replaced" and "withdrawn" are indistinguishable by
   status, and neither stops a new session in either path. Measured, not assumed.
