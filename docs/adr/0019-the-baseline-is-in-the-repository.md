@@ -119,6 +119,28 @@ to this repository — new bytes, a new `baseline` identity, a matching marker, 
 an ADR — rather than as an import to be reconciled afterwards. Today's sync was
 the last import.
 
+## Each assertion was watched to fail
+
+An assertion nobody has seen fail proves nothing — this build has now learned
+that three times. Each of the five was exercised on a throwaway branch, against
+the committed manifest, and the branch was deleted afterwards:
+
+| case | change made | result |
+|---|---|---|
+| A | edited a frozen document, manifest untouched | **1** — digest mismatch, both digests printed |
+| B | edited it *and* refreshed its digest, `baseline` unchanged | **4** — "changed content without changing its baseline identity" |
+| C | edited it, refreshed digest, bumped `baseline` and marker, no ADR | **5** — "changed baseline identity without an ADR in the same change" |
+| D | case C **plus** an ADR in the same commit | **passes** — the legitimate amendment shape |
+| E | added an unlisted file under `docs/rebuild/` | **2** — named the stray file |
+| F | document marker `2027-01-01` vs manifest `2027-01-02` | **3** — both values printed |
+| G | deleted a governed document | **1** — "missing from the repository" |
+
+B is the one worth noting: it is the shape a well-meaning sync takes — files
+updated, digests recalculated, identity left alone — and without assertion 4 the
+manifest would have been a self-updating checksum list that always agrees with
+whatever is on disk. D is the other half of the same proof: a rule that only ever
+refuses is not a rule, it is an obstacle.
+
 ## Consequences
 
 - Any amendment is now a deliberate, four-part change, and an accidental one
