@@ -21,8 +21,40 @@ copy-forward
 | Upgrade path | 51-migration base + seeds, then 0052–0060 |
 | Widened digest | **identical** across both — 2172 objects, `ZZ_TOTAL 4c80514ee37a014f7b0958679923889e` |
 
-The CI run, its ten jobs, the hosted parity table and the fast-forward SHA are
-recorded in §9 once the gate is green; nothing below depends on them.
+**Canonical `main`:** `9a8546c`, fast-forwarded from the branch, no merge
+commit, no rewritten history.
+
+**CI:** run [34743370241](https://github.com/yazidmanan2409/pintar40/actions/runs/34743370241)
+on `9a8546c` — **all eleven jobs green**: `check`, `migrations-clean`,
+`migrations-upgrade-path`, the seven-leg `red-case` matrix (including the new
+`db-fable05-gates`), and the strict `selftest` contract.
+
+**Hosted** (`sknixmwkynzmrgbxzrvb`): 60 migrations, synchronized after the gate.
+Every one of the nine new migrations is byte-identical —
+`md5(array_to_string(statements,''))` equals the repository file's md5:
+
+| migration | parity |
+|---|---|
+| 0052 `canonical_tenant_kind` | `a4947353d5a62b308e2a9322d9235da4` |
+| 0053 `release_distributions` | `4c76920fe3ef256949104fe05686c4e8` |
+| 0054 `course_revision_lineage` | `9f62741de3ba2f93811e04f80a77b898` |
+| 0055 `canonical_guard_relaxations` | `9da62653ec6e4d0980d62e6ddc1beaf4` |
+| 0056 `canonical_read_path` | `13f8b208a289fd82afef98e4a6447caf` |
+| 0057 `studio_governance` | `cd4af156a7a50ea0b600c33b78a35b11` |
+| 0058 `studio_surfaces` | `6641879bec6ce595c954f4f521ec7f35` |
+| 0059 `assignments_stay_institution_scoped` | `45f8ab5cc85211a761597182b389a179` |
+| 0060 `delivery_layer_canonical` | `244a903b8de41c9ca054c643e74a4187` |
+
+**Hosted digest vs the local clean replay:** identical object count (**2172**)
+and an identical digest in **every category but FUNC** — TABLE, VIEW, COLUMN,
+ENUM, **FUNCNORM (181/181)**, CONSTRAINT, INDEX, POLICY, TRIGGER, GRANT, FGRANT.
+The FUNC divergence is exactly the six FABLE-01 functions whose recorded hosted
+text was comment-stripped when first applied (`enrollments_guard`,
+`memberships_guard`, `role_assignments_guard`, `transfer_authorize`,
+`transfer_execute`, `transfer_request`), enumerated and confirmed function by
+function. **Every FABLE-05 function body is byte-identical on both sides** —
+all thirty-one of them, checked individually rather than inferred from the
+category digest.
 
 ---
 
@@ -261,6 +293,12 @@ Each is visible in the manifest or in an ADR, not only here.
 | **`canonical_tenants_ok`** | — | **true** | **new** |
 | `migrations_applied` | 51 | 60 | |
 
+Re-measured on the hosted project after synchronization: identical, with
+`non_synthetic_institutions` reading **1** there rather than 2 — hosted carries
+no OFFICIAL bootstrap tenant (`official_bootstrap_tenants` 0), so the canonical
+tenant is its only non-synthetic one. `platform_canonical_tenants` reads 1 on
+both, which is what makes the difference legible rather than alarming.
+
 Studio adds **no** anonymous surface: it is staff-only throughout, and F05-S01
 asserts the anonymous path and prefix lists did not grow.
 
@@ -309,6 +347,11 @@ asserts the anonymous path and prefix lists did not grow.
   Studio, no dummy fallback or TODO, no provider concept in schema DDL, no
   client-side storage upload.
 * Build, lint and typecheck clean.
+* The clean replay run three times independently and the upgrade path twice,
+  every one producing the same 2172-object digest, so no migration is
+  order-dependent and the digest is reproducible rather than lucky.
+* A three-deep lineage chain (R1 → R2 → R3): `course_lineage_chain` returns all
+  three members read from any of them, and R3 carries no empirical value.
 
 **Could not verify locally** — eight justified skips, all requiring network to
 `*.supabase.co` or Docker, both denied by this session's egress policy. CI runs
