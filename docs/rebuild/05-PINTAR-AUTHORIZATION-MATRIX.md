@@ -1,6 +1,7 @@
 # 05 — PINTAR Authorization Matrix
 
-*Baseline amendment (2026-09-12): rows added for enrollment/membership/
+*Baseline amendment (2026-09-13): the evaluation actor / effective actor
+distinction added (ADR-0020). Previously amended (2026-09-12): rows added for enrollment/membership/
 transfer, Learning Assignment, Publish Readiness, Quick Assessment,
 Question Health, MCQ Quality Findings, report templates, integrity signals,
 evidence eligibility, profile/identity snapshot, session termination/
@@ -153,3 +154,35 @@ verification contract (doc 16): authenticate as the denied role, attempt
 the action via direct API/REST call (not through UI), assert refusal. A ✅
 cell needs the positive-path test; a ❌ cell needs the negative-path
 (refusal) test.
+
+---
+
+## Evaluation actor and effective actor
+
+*Added by the 2026-09-13 amendment (ADR-0020, Human Evaluation persona
+switching). Nothing in the matrix above changes.*
+
+An authorized action now has two identities, and they are different questions:
+
+- **the effective actor** — whose authorization was exercised. Every ✅ and ❌
+  in the matrix above is decided about this identity, and about nothing else.
+- **the evaluation actor** — who was actually at the keyboard, when the
+  effective actor is a bounded demonstration identity assumed in Evaluation
+  Mode. **NULL means genuine.**
+
+**The matrix is read with the effective actor, always.** Evaluation Mode changes
+*who you are*, never *what you are allowed to do*: a persona is a real account
+with a real session, so every predicate in this document applies to it unchanged
+and unaware. There is no evaluation clause in any authorization function, and a
+DEAN assumed for a demonstration is refused exactly what the DEAN row refuses —
+that refusal is the demonstration.
+
+**The evaluation actor exists for accountability, not for authorization.** It is
+derived server-side inside the audit writer from the live evaluation session, is
+never supplied by a caller, and appears only in the audit trail. No row of this
+matrix may be decided by it, and no capability may be granted or withheld
+because of it.
+
+**Evaluator status is not in this matrix, deliberately.** It is not a role and
+not a capability: it is a registry granted by platform administration alone, so
+that no institution-scoped grant can reach it.

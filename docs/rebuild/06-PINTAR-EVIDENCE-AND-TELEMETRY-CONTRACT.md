@@ -1,6 +1,7 @@
 # 06 — PINTAR Evidence & Telemetry Contract
 
-*Baseline amendment (2026-09-12): evidence provenance, evidence channel and
+*Baseline amendment (2026-09-13): the two evaluation audit columns added
+(ADR-0020). Previously amended (2026-09-12): evidence provenance, evidence channel and
 evidence class made first-class and structurally enforced (replacing the
 "WHERE clause every aggregate must include" rule); integrity evidence
 category added; replay/late-sync events added; scoring-provenance fields
@@ -153,3 +154,42 @@ described above.
   certificates remain publicly verifiable; identifiable institution-scoped
   records are then anonymized/deleted per the retention policy while
   anonymized aggregates may be kept.
+
+---
+
+## Audit record: the two evaluation columns
+
+*Added by the 2026-09-13 amendment (ADR-0020). The audit record is extended
+additively; no existing column changes meaning, and every ordinary action
+carries NULL in both.*
+
+| column | meaning |
+|---|---|
+| `evaluation_actor_person_id` | who actually performed the action, when it was performed inside Evaluation Mode. **NULL means genuine** — the acting identity acted as themselves. |
+| `evaluation_session_id` | the evaluation session the action was performed under. NULL for every ordinary action. |
+
+Read with the existing `actor_person_id`, the trail answers both questions from
+columns rather than from a JSON search: `actor_person_id` is whose authorization
+was exercised; `evaluation_actor_person_id` is who did it.
+
+**Both are derived server-side by the audit writer**, from a lookup against the
+live evaluation session keyed on the authenticated user. Neither is ever
+supplied by a caller. This is deliberately unlike the build SHA, which the
+contract permits to arrive from a request header because it is *provenance,
+never authority*: the evaluation actor must be impossible to **hide**, and any
+caller-supplied input can be omitted.
+
+**Identity does not go in `summary`.** That field is free-form; putting an
+identity there would overload a field nothing validates with a meaning
+everything must trust.
+
+**The property, not the call sites.** Every audit row written under a live
+evaluation session carries a non-NULL evaluation actor, and every row outside
+one carries NULL. This holds because the audit writer is the only writer into
+the audit record and stamps unconditionally from the session lookup — a
+structural guarantee rather than a per-call-site convention.
+
+**Evidence classification is untouched.** The evaluation actor is not an input
+to evidence derivation, and no demonstration purpose raises or lowers an
+evidence class. Evaluation Mode changes who you are; it never changes what
+evidence means.

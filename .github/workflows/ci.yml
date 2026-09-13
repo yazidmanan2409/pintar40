@@ -157,7 +157,8 @@ jobs:
       fail-fast: false
       matrix:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
-               static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates]
+               static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
+               db-task2-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -187,6 +188,8 @@ jobs:
               echo "the five FABLE-05 gate defects are planted in SQL against the running stack, below" ;;
             db-task1-gates)
               echo "the two ADR-0018 gate defects are planted in SQL against the running stack, below" ;;
+            db-task2-gates)
+              echo "the three ADR-0020 gate defects are planted in SQL against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -545,6 +548,96 @@ jobs:
           rollback;
           SQL
           red QAC-T11 'against an INGESTED release' /tmp/t1-3.sql
+
+      # ADR-0020's three red cases, named outright by Task 2 §9: "plant an
+      # evaluation path that writes an audit row without the evaluation actor
+      # and require the property to name it; plant a persona row pointing at a
+      # real person and require negative 3 to fail by name; plant an
+      # `if evaluator then allow` in an authorization path and require negative
+      # 8 to fail". Same discipline as every leg above: one stack, each defect
+      # inside its own transaction, rolled back before the next, and the suite
+      # proven green before anything is planted.
+      - name: Start a clean seeded stack for the ADR-0020 gate defects
+        if: matrix.case == 'db-task2-gates'
+        id: gatesT2
+        uses: ./.github/actions/local-stack
+      - name: Each planted ADR-0020 defect must turn its own gate red
+        if: matrix.case == 'db-task2-gates'
+        env:
+          DB_URL: ${{ steps.gatesT2.outputs.db-url }}
+        run: |
+          set -e
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select test_id, case when ok then 't' else 'f' end, detail from selftest.run_evaluation()" "$DB_URL" | tee baseT2.txt
+          grep -E ' \| f \| ' baseT2.txt && { echo "::error::the Task 2 suite is already red before any defect was planted"; exit 1; } || true
+
+          red() {   # red <test id> <expected substring> <sql file>
+            psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
+            grep -E "^$1 \| f \|" "out-$1.txt" || { echo "::error::$1 stayed green with the defect planted"; exit 1; }
+            grep -F "$2" "out-$1.txt" || { echo "::error::$1 went red but not for '$2'"; exit 1; }
+          }
+
+          # 1. an evaluation path that writes an audit row with no evaluation
+          #    actor. This is audit laundering made concrete: the persona's
+          #    action becomes indistinguishable from a genuine learner's, which
+          #    is the whole evidential value of the dual-identity trail.
+          cat > /tmp/t2-1.sql <<'SQL'
+          begin;
+          create or replace function public.audit_write(p_action text, p_target_table text, p_target_id text,
+                                                        p_institution_id uuid, p_summary jsonb default '{}'::jsonb)
+          returns bigint language plpgsql security definer set search_path = public, pg_temp as $f$
+          declare v_id bigint; v_person uuid;
+          begin
+            select a.person_id into v_person from public.accounts a where a.auth_user_id = auth.uid();
+            insert into public.audit_log (actor_auth_uid, actor_person_id, action, target_table, target_id,
+                                          institution_id, summary, build_sha,
+                                          evaluation_actor_person_id, evaluation_session_id)
+            values (auth.uid(), v_person, p_action, p_target_table, p_target_id, p_institution_id,
+                    coalesce(p_summary,'{}'::jsonb), null, null, null)
+            returning id into v_id;
+            return v_id;
+          end $f$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_evaluation() where test_id = 'EVAL-P01';
+          rollback;
+          SQL
+          red EVAL-P01 'the action reads as genuine' /tmp/t2-1.sql
+
+          # 2. the allow-list guard neutered, so a persona row may point at a
+          #    real person. An allow-list that admits is not an allow-list, and
+          #    this is the control against targeting an actual learner.
+          cat > /tmp/t2-2.sql <<'SQL'
+          begin;
+          create or replace function public.enforce_evaluation_persona()
+          returns trigger language plpgsql security definer set search_path = public, pg_temp as $f$
+          begin
+            if tg_op = 'DELETE' then return old; end if;
+            return new;
+          end $f$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_evaluation() where test_id = 'EVAL-N03';
+          rollback;
+          SQL
+          red EVAL-N03 'admitted to the allow-list' /tmp/t2-2.sql
+
+          # 3. `if evaluator then allow` inside an authorization path -- the one
+          #    thing ADR-0020 §3.1 forbids outright. Planted into the LIVE
+          #    can_in_institution body rather than the file, so what is proven
+          #    is that an evaluation override there is what makes the DEAN
+          #    persona stop being refused what a DEAN is refused (INV-19).
+          cat > /tmp/t2-3.sql <<'SQL'
+          begin;
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.can_in_institution(text, uuid)'::regprocedure);
+            src := replace(orig, E'begin\n',
+              E'begin\n  if exists (select 1 from public.evaluation_sessions s where s.persona_auth_user_id = auth.uid() and s.ended_at is null) then return true; end if;\n');
+            if src = orig then raise exception 'the plant did not reach can_in_institution body'; end if;
+            execute src;
+          end $d$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_evaluation() where test_id = 'EVAL-N08';
+          rollback;
+          SQL
+          red EVAL-N08 'holds CAN_DRAFT' /tmp/t2-3.sql
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are

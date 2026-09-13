@@ -37,15 +37,15 @@
     },
     {
       "path": "docs/rebuild/05-PINTAR-AUTHORIZATION-MATRIX.md",
-      "sha256": "67f549bd531ff8ed691a3233d1191c05a0727338ba6a2cdfcde2fb4b2ce4310f",
-      "bytes": 11115,
-      "baseline": "2026-09-12"
+      "sha256": "7a5f9aeeca32a01826f3b30e8182a94d0eb13946b06153b6ffae273dc5d5edbc",
+      "bytes": 12787,
+      "baseline": "2026-09-13"
     },
     {
       "path": "docs/rebuild/06-PINTAR-EVIDENCE-AND-TELEMETRY-CONTRACT.md",
-      "sha256": "7af042a9253136c94a75f813ec18b77e648d4d073b83f175ff621dc2d334f47b",
-      "bytes": 12588,
-      "baseline": "2026-09-12"
+      "sha256": "167ed6200664effffa85a168dd984dc59d282115afca93ceba1334ea72a88011",
+      "bytes": 14653,
+      "baseline": "2026-09-13"
     },
     {
       "path": "docs/rebuild/07-PINTAR-ASSESSMENT-ENGINE-CONTRACT.md",

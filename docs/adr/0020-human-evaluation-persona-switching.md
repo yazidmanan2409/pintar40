@@ -323,6 +323,70 @@ no attacker required. Expiry governs whether new actions are *permitted*; it mus
 never govern whether identity is *recorded*. 0067's verification block exercises
 exactly that case.
 
+## Amendment 3 — the expiry closure, and what the database is not doing
+
+Three findings, in order, each correcting the one before.
+
+**(a) 0068 enforced expiry in the wrong place.** At the evaluation surface and
+in the application proxy — an *application* boundary, not an expiry boundary. A
+persona holding an ordinary authenticated session could still call any
+authenticated RPC directly, because its JWT said yes and nothing else was
+consulted.
+
+**(b) The obvious database closure does not exist in this schema**, measured
+lever by lever rather than assumed:
+
+| lever | result |
+|---|---|
+| `role_assignments.valid_until` in the past | closes `is_member_of_institution`, `can_in_institution`, `has_scope` — complete |
+| …but UPDATE of `valid_until` | **refused** — grants are immutable, so the bound must be written at grant time |
+| …and a grant made at assume | **refused by INV-16** — an evaluator holds no `INSTITUTION_ADMIN` scope over the target node |
+| `enrollments.valid_to` on an ACTIVE row | **refused** — a CHECK ties it to ENDED/CANCELLED; it is a closure record |
+| `status = 'ENDED'` | partial — closes assignment lists, leaves membership **true** |
+| `status = 'CANCELLED'` | **unreachable** — ACTIVE → CANCELLED refused by the state machine |
+
+The two ways past INV-16 were to teach `role_assignments_guard` about
+evaluation, or to clear the JWT inside the assume path so the guard takes its
+seed branch — which would hand a client-reachable function the ability to grant
+any role to any person. **Both refused, and the approach abandoned rather than
+the invariant widened.** A frozen invariant refusing a new feature is the
+invariant working.
+
+**(c) The closure is the persona's own access token**, and the first version of
+it had the inequality backwards. Storing `least(token exp, two hours)` protects
+the safe direction — a session outliving its token fails closed — and permits
+the dangerous one: a session shorter than its token leaves the token usable.
+Worse, the two-hour cap rested on the project's JWT TTL, which is a dashboard
+setting invisible to the management API and to CI, so no test could have noticed
+it being raised — and raising it is exactly what a 150-tester pilot prompts.
+
+So: **no cap, no arithmetic**. The evaluation session expires at the token's own
+instant, and the persona session is minted without refresh material, so at that
+instant the JWT is rejected before any PINTAR code runs — for all five personas,
+including the learner, whom no database lever could have bounded.
+
+**What the database is and is not doing, stated precisely.** The database stores
+the expiry it is given; it does not decode the JWT and cannot verify the claim.
+The recorded value is therefore **bound to a value asserted by the trusted server
+under the service-role trust boundary** — not independently derived by the
+database. That is exactly why the assumption path is revoked from
+`authenticated` and granted to `service_role` alone: the assertion is only as
+trustworthy as its caller, so only the caller that minted the token may make it.
+
+**(d) And the leg that defeats the other three: the credential.** A persona with
+any independently usable credential — a password, a link that can be requested
+again — makes token lifetime irrelevant: the holder re-authenticates and acts
+**with no evaluation session in existence**, so there is no expiry to cross, no
+end, and **no dual-identity stamp at all** — the action records as genuine.
+Persona accounts therefore carry no credential; a session for them exists only
+inside the server-mediated assume flow, and the boundary assertion measures that
+against the auth store rather than trusting it.
+
+**Negatives 5 and 6 are one control.** Once assumption moved behind the service
+role a persona cannot reach it, and its evaluator holds a live session until
+they exit — so changing persona requires returning to the Hub. Recorded as one
+control rather than staged as two.
+
 ## Evaluation-mode UX
 
 A persistent, unmissable indicator — `EVALUATION MODE — Viewing as: [persona]`
