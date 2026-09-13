@@ -73,6 +73,49 @@ begin
   return public.audit_write('selftest.evaluation.probe', 'selftest', null, p_inst, '{}'::jsonb);
 end $$;
 
+-- The demonstration journey's own certificate material, for EVAL-S02. The
+-- session is the one the seed built and the suite proved OFFICIAL and ELIGIBLE
+-- (EVAL-P03); `certificate_prepare` is the ordinary internal function, called
+-- exactly as the issuance route calls it. No key is involved here and none may
+-- be: signing happens in Node with the server-held CERT_SECRET_KEY_V1, which is
+-- why this returns a payload rather than a certificate.
+create or replace function selftest.eval_issue_material()
+returns table (certificate_id uuid, canonical_payload jsonb, session_id uuid)
+language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_sess uuid; v_row record;
+begin
+  select s.id into v_sess
+    from public.assessment_sessions s
+    join public.enrollments e on e.id = s.enrollment_id
+    join public.institutions i on i.id = e.institution_id
+   where i.official_evidence_purpose = 'HUMAN_EVALUATION'
+     and s.status = 'FINALIZED'
+   order by s.created_at desc limit 1;
+  if v_sess is null then
+    raise exception 'the demonstration journey has no finalised session to certify';
+  end if;
+  if not (select ce.eligible from public.certificate_eligibility(v_sess) ce) then
+    raise exception 'the demonstration session is not ELIGIBLE: %',
+      (select ce.reason from public.certificate_eligibility(v_sess) ce);
+  end if;
+  -- A certificate left behind by an earlier run is already sealed, and
+  -- `certificate_prepare` is idempotent -- so without this the test would seal
+  -- a certificate that was already sealed and then verify a token it had not
+  -- just produced. Cleared for THIS session only, with the write trigger
+  -- lifted, exactly as fable04's own purge does.
+  alter table public.certificates disable trigger certificates_write;
+  delete from public.certificates c where c.session_id = v_sess;
+  alter table public.certificates enable trigger certificates_write;
+  select * into v_row from public.certificate_prepare(v_sess, 1::smallint);
+  if v_row.certificate_id is null then raise exception 'no certificate was prepared'; end if;
+  certificate_id := v_row.certificate_id;
+  session_id := v_sess;
+  select c.canonical_payload into canonical_payload
+    from public.certificates c where c.id = certificate_id;
+  return next;
+end $$;
+revoke all on function selftest.eval_issue_material() from public;
+
 create or replace function selftest.run_evaluation()
 returns table (test_id text, invariant text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$

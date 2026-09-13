@@ -1122,6 +1122,142 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    id: "EVAL-S02",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      // CERTIFICATE ISSUANCE ON THE DEMONSTRATION JOURNEY, end to end, through
+      // the ordinary server-held key.
+      //
+      // The seed deliberately stops at ELIGIBLE: sealing needs a signature over
+      // the payload computed with CERT_SECRET_KEY_V1, and putting an
+      // application secret into seed machinery to pre-bake a certificate would
+      // be exactly the special-casing the task forbids. So the seed's stopping
+      // point is proved sufficient HERE, by finishing the journey the way the
+      // application finishes it.
+      const c = new Checks();
+      const KEY = "selftest-certificate-key-v1-at-least-32-chars";
+      const dbUrl = process.env.SUPABASE_DB_URL!;
+      const psql = (sql: string): string => {
+        const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql failed: ${(r.stderr || "").slice(0, 300)}`);
+        return r.stdout.trim();
+      };
+
+      // (1) THE ROUTE CHECKS ITS OWN CALLER, and does so with the CALLER'S
+      //     client before the service one is constructed. Asserted on ordering
+      //     in the source, because "it calls session_is_mine" is satisfied by a
+      //     call made after the privileged work has already happened.
+      const routePath = join(repoRoot, "src", "app", "api", "certificates", "issue", "route.ts");
+      c.expect(existsSync(routePath), "the certificate issuance route is missing");
+      if (existsSync(routePath)) {
+        const route = readFileSync(routePath, "utf8");
+        const mineAt = route.indexOf("session_is_mine");
+        const serviceAt = route.indexOf("supabaseService()");
+        c.expect(mineAt > -1, "the issuance route does not check session_is_mine");
+        c.expect(serviceAt > -1 && mineAt > -1 && mineAt < serviceAt,
+          "the issuance route reaches the service client before checking the caller owns the session");
+        c.expect(/supabaseServer\(\)[\s\S]{0,400}session_is_mine/.test(route),
+          "session_is_mine is not asked under the caller's own client");
+        // and during evaluation this is what stops any persona -- the learner
+        // included -- issuing somebody else's certificate
+        c.expect(/mine\s*!==\s*true/.test(route),
+          "the issuance route does not refuse when the caller does not own the session");
+      }
+
+      // (2) NO CERTIFICATE SECRET IN SEED MACHINERY.
+      const seedDir = join(repoRoot, "supabase", "seed");
+      for (const f of readdirSync(seedDir).filter((f) => f.endsWith(".sql"))) {
+        // Comment lines stripped first. The unscoped version matched the human
+        // evaluation seed's own paragraph explaining why no signing secret may
+        // enter seed machinery -- the sixth prose-match in this build, and the
+        // second in a check written to enforce the rule against it (L4).
+        const text = readFileSync(join(seedDir, f), "utf8")
+          .split("\n").filter((l) => !l.trim().startsWith("--")).join("\n");
+        c.expect(!/CERT_SECRET_KEY|certificate_seal|signWithKey/.test(text),
+          `supabase/seed/${f} reaches for a certificate signing secret or seals a certificate`);
+      }
+
+      // (3) THE JOURNEY FINISHES. The demonstration learner's own FINALIZED,
+      //     OFFICIAL, ELIGIBLE session is carried to a sealed certificate with
+      //     the ordinary keyring, and that certificate verifies through the one
+      //     public route a stranger uses.
+      // Driven through the KEYRING rather than over HTTP. The public route
+      // fetches its material through the Supabase API, which needs a running
+      // stack; F04-S05 already drives that transport in CI. What is unproven
+      // until here is that the DEMONSTRATION journey's own evidence reaches a
+      // certificate that verifies with the ordinary server-held key -- and that
+      // is a property of the payload, the key and the projection, not of HTTP.
+      // Proving it this way keeps the test at `requires: ["db"]` rather than
+      // adding a ninth local-only skip to carry a transport already covered.
+      const previousKey = process.env.CERT_SECRET_KEY_V1;
+      process.env.CERT_SECRET_KEY_V1 = KEY;
+      try {
+        const { signWithKey } = await import("../src/lib/certificates/sign");
+        const { verifySignature } = await import("../src/lib/certificates/keyring");
+        const prepared = JSON.parse(
+          psql("select row_to_json(t) from (select * from selftest.eval_issue_material()) t"),
+        ) as { certificate_id: string; canonical_payload: Record<string, unknown>; session_id: string };
+        c.expect(Boolean(prepared.certificate_id),
+          "no certificate was prepared for the demonstration journey");
+
+        // sign with the ordinary keyring, exactly as the issuance route does
+        const signature = signWithKey(prepared.canonical_payload, KEY);
+        psql(`select public.certificate_seal('${prepared.certificate_id}'::uuid, 1::smallint, '${signature}')`);
+
+        // read the SEALED material back out of Postgres and recompute, which is
+        // what the public route does after it fetches
+        const material = JSON.parse(
+          psql(`select row_to_json(t) from (select canonical_payload, signature, key_version
+                  from public.certificates where id = '${prepared.certificate_id}'::uuid) t`),
+        ) as { canonical_payload: Record<string, unknown>; signature: string; key_version: number };
+        c.expect(verifySignature(material.canonical_payload as never, material.key_version, material.signature),
+          "the demonstration certificate does not verify with the ordinary server-held key");
+
+        // and the public projection is unchanged by evaluation: exactly the
+        // five D3b fields, naming nothing about the demonstration facility
+        const projected = JSON.parse(
+          psql(`select row_to_json(t) from (select * from public.verify_certificate(
+                  (select verification_token from public.certificates
+                    where id = '${prepared.certificate_id}'::uuid))) t`),
+        ) as Record<string, unknown>;
+        c.expect(
+          JSON.stringify(Object.keys(projected).sort()) ===
+            JSON.stringify(["date", "institution", "pass", "predikat", "validity"]),
+          `the public projection is not the five enumerated fields: ${Object.keys(projected).join(", ")}`,
+        );
+        c.expect(projected.validity === "BERLAKU",
+          `the demonstration certificate projects "${String(projected.validity)}"`);
+        // INTERNAL designations only. The school's own display name says it is
+        // a demonstration school, and that is correct rather than a leak: a
+        // stranger verifying a demonstration certificate should be able to see
+        // that is what it is. What must never appear is a lifecycle enum, the
+        // evidence purpose, a persona label or an evaluation actor.
+        c.expect(!/HUMAN_EVALUATION|official_evidence_purpose|evaluation_actor|evaluation_session/i
+          .test(JSON.stringify(projected)),
+          "the public certificate projection names an internal evaluation designation");
+
+        // TAMPERING STILL BREAKS IT, so the verification above is not vacuous
+        c.expect(!verifySignature(
+          { ...(material.canonical_payload as Record<string, unknown>), issued_at: "1999-01-01T00:00:00Z" } as never,
+          material.key_version, material.signature),
+          "a tampered demonstration payload still verifies: the check proves nothing");
+
+        c.note(`predikat ${String(projected.predikat)}`);
+      } finally {
+        if (previousKey === undefined) delete process.env.CERT_SECRET_KEY_V1;
+        else process.env.CERT_SECRET_KEY_V1 = previousKey;
+      }
+
+      return c.verdict(
+        "the demonstration learner's genuine OFFICIAL evidence reaches a sealed certificate through the " +
+        "ordinary server-held key, verifies on recomputation and stops verifying when tampered with, and " +
+        "projects exactly the five public fields naming nothing about the facility; the issuance route " +
+        "checks the caller owns the session with the caller's own client BEFORE the service client is " +
+        "reached; and no seed file reaches for a signing secret",
+      );
+    },
+  },
+  {
     id: "DOC-P01",
     requires: [],
     run: async ({ repoRoot }) => {

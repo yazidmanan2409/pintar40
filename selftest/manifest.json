@@ -848,6 +848,11 @@
       "proves": "no authorization root and no RLS policy knows the evaluation facility exists (ADR-0020 §3.1)"
     },
     {
+      "id": "EVAL-S02",
+      "runner": "static",
+      "proves": "certificate issuance on the demonstration journey, end to end: the learner persona's genuine OFFICIAL, ELIGIBLE session reaches a sealed certificate through the ordinary server-held CERT_SECRET_KEY_V1 and verifies through the one public route, still returning exactly the five D3b fields and naming nothing about the evaluation facility. Also pins that the issuance route checks session_is_mine with the CALLER's own client BEFORE the service client is reached -- ordering, not presence -- and that no seed file reaches for a signing secret"
+    },
+    {
       "id": "DOC-P01",
       "runner": "static",
       "proves": "baseline integrity by content, not by marker: every document listed in docs/rebuild/BASELINE-MANIFEST.json is byte-identical to the frozen baseline, every file in a governed directory is listed by the manifest, each document's own amendment marker agrees with its manifest entry, and no ungoverned second copy of a governed document exists anywhere in the repository. Retires DOC-S01, which counted markers — doc 03 carried the right marker while still stale, and three of eighteen documents carry none"
