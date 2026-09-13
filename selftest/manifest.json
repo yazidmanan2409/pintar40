@@ -1,7 +1,7 @@
 {
   "contract": "pintar-selftest",
-  "version": 3,
-  "phase": "FABLE-03",
+  "version": 4,
+  "phase": "FABLE-04",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
     "db": "selftest/db/fable01.sql — psql against $SUPABASE_DB_URL (CI local stack); the same file runs on the management channel; one row per id",
@@ -426,6 +426,106 @@
       "runner": "app",
       "proves": "FABLE-03 §9 — no lifecycle enum, evidence class, engine version or release hash appears on any learner route",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
+    },
+    {
+      "id": "F04-T01",
+      "runner": "db",
+      "proves": "INV-04 / ADR-0006 — adding five assessment_mode labels moves no sealed release's PINTAR-CONTENT-SHA256/1; the enum carries nine"
+    },
+    {
+      "id": "F04-T02",
+      "runner": "db",
+      "proves": "INV-29 — a result resolves to a registry scoring policy and stays on it when a newer one is published; a correction writes a new linked result and leaves the original"
+    },
+    {
+      "id": "F04-T03",
+      "runner": "db",
+      "proves": "INV-26 / INV-12 — every mode carries a policy row derived from pg_enum; the five engine functions have one implementation each; the EXAM tier is reachable only from EXAM and PAPER"
+    },
+    {
+      "id": "F04-T04",
+      "runner": "db",
+      "proves": "doc 07 §5 / INV-12 — an in-scope educator launches a Quick Assessment in one capability-gated call at the TEST tier; a DEAN, an out-of-scope educator and an out-of-bounds size are refused"
+    },
+    {
+      "id": "F04-T05",
+      "runner": "db",
+      "proves": "INV-28 / doc 07 — a reply inside the definition's governed grace is LATE_SYNC and scored; beyond it the work is retained as evidence and excluded from scoring; every receipt survives"
+    },
+    {
+      "id": "F04-T06",
+      "runner": "db",
+      "proves": "doc 04 §5 / INV-17 — a deadline extension is capability-gated, bounded and audited; a termination names one of the four causes and its actor, retains recorded work, and a learner cannot perform one"
+    },
+    {
+      "id": "F04-T07",
+      "runner": "db",
+      "proves": "doc 06 §7 — integrity signals are recorded on the caller's own session; no scoring function or view can read the table; it carries no verdict column; a second learner is refused"
+    },
+    {
+      "id": "F04-T08",
+      "runner": "db",
+      "proves": "D1 / INV-20 / INV-21 — the bootstrap tenant is the only non-synthetic one, its evidence derives OFFICIAL the ordinary way, a second official tenant is refused, and min(derived, override) is unchanged"
+    },
+    {
+      "id": "F04-T09",
+      "runner": "db",
+      "proves": "INV-05 / INV-30 / §8 — one certificate per session; a second prepare observes it; the payload carries all ten protected fields; payload, row and identity snapshot are each immutable"
+    },
+    {
+      "id": "F04-T10",
+      "runner": "db",
+      "proves": "D3a / D3b / INV-38 — the verification token is opaque and derivable from nothing; the public payload is exactly {pass, predikat, institution, date, validity} and reads no identity column; revocation changes the answer and keeps the row"
+    },
+    {
+      "id": "F04-T11",
+      "runner": "db",
+      "proves": "INV-20 — a SYNTHETIC session is refused eligibility for its evidence class, appears in no official view, and cannot be prepared into a certificate"
+    },
+    {
+      "id": "F04-T12",
+      "runner": "db",
+      "proves": "INV-13 / §7 — learners from two other tenants are refused on the certificate read and the revoke; the four internal certificate functions are executable by no client role"
+    },
+    {
+      "id": "F04-T13",
+      "runner": "db",
+      "proves": "D2 / INV-25 — both certificate tables are INSTITUTION_SCOPED, so a transfer carries neither"
+    },
+    {
+      "id": "F04-T14",
+      "runner": "db",
+      "proves": "phase gate — nine standing assertions (telemetry, evidence consumer, ownership reachability, RPC exposure, public surface, audit arity, mode policy, integrity, D1 bootstrap) all report clean with every FABLE-04 object present"
+    },
+    {
+      "id": "F04-T15",
+      "runner": "db",
+      "proves": "INV-35 / doc 16 §4 — the four adversarial MCQ banks (correct option 2-3x longer, ~70% of answers in one position, an implausible distractor, the correct option copying stem wording) each make Publish Readiness report BLOCKED or ACTION_REQUIRED NAMING that pattern and no other, and each clears to READY only after the content itself is repaired; a clean control bank reaches READY unaided"
+    },
+    {
+      "id": "F04-T16",
+      "runner": "db",
+      "proves": "INV-20 / doc 16 §4 — the eligibility-probe set: a PUBLIC_DEMO-channel session opened on the OFFICIAL tenant in a certifying mode reaches no official view, contributes to no psychometric or Question Health figure, and is refused certificate eligibility for its evidence class"
+    },
+    {
+      "id": "F04-S01",
+      "runner": "static",
+      "proves": "INV-38 — exactly one verification route shape in the app, carrying no internal designation and no identity field"
+    },
+    {
+      "id": "F04-S02",
+      "runner": "static",
+      "proves": "INV-05 — a signed canonical payload verifies; tampering with EACH of the ten protected fields breaks verification; key order does not matter; the compare uses crypto.timingSafeEqual and not ==="
+    },
+    {
+      "id": "F04-S03",
+      "runner": "static",
+      "proves": "INV-07 — rotation advances the signing key version, leaves a V1 certificate verifiable, refuses a cross-version signature, and never drops an old key"
+    },
+    {
+      "id": "F04-S04",
+      "runner": "static",
+      "proves": "INV-05 end to end — a canonical payload BUILT IN SQL, signed in Node with the keyring crypto and stored in Postgres verifies when a separate process reads it back; a changed stored byte and a wrong key both fail. Closes the gap the first-certificate-issuance boundary audit found: before it, SQL-built payloads were never signed by the real crypto and the db suite sealed with a placeholder signature"
     }
   ]
 }

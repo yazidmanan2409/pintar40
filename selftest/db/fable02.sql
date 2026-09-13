@@ -191,7 +191,7 @@ begin
     values (v_inst,c,'1.0.0',v_guru) returning id into r;
   insert into public.assessment_definitions (institution_id,course_id,title,mode,bank_type,item_count,author_person_id)
     values (v_inst,c,'D','QUICK','PRACTICE',5,v_guru) returning id into d;
-  s := public.open_assessment_session(v_enr, d, r, 'ONLINE', 'QUICK', 'engine-0', 'policy-0');
+  s := public.open_assessment_session(v_enr, d, r, 'ONLINE', 'QUICK', 'engine-0', public.scoring_policy_version());
   update public.assessment_sessions set status='IN_PROGRESS' where id=s;
   insert into public.presented_items (session_id,item_id,position) values (s,i,1) returning id into pi;
   return pi;
@@ -723,7 +723,7 @@ begin
     values (v_inst, v_course2, '1.0.0', v_guru) returning id into v_rel2;
 
   v_sess := public.open_assessment_session(v_enr, v_def_p, v_rel2, 'ONLINE', 'QUICK',
-                                           'engine-0', 'policy-0');
+                                           'engine-0', public.scoring_policy_version());
   select evidence_class, shuffle_seed into v_class, v_seed
     from public.assessment_sessions where id = v_sess;
   -- the seeded tenant is synthetic, so it can never produce OFFICIAL evidence
@@ -819,7 +819,7 @@ begin
   -- a fresh session: F02-T13 drove the previous one to FINALIZED, and a
   -- finalized session correctly accepts no further evidence
   v_sess := public.open_assessment_session(v_enr, v_def_p, v_rel2, 'ONLINE', 'QUICK',
-                                           'engine-0', 'policy-0');
+                                           'engine-0', public.scoring_policy_version());
   update public.assessment_sessions set status = 'IN_PROGRESS' where id = v_sess;
   insert into public.presented_items (session_id, item_id, position)
     values (v_sess, v_ip, 1) returning id into v_pi;
@@ -881,7 +881,7 @@ begin
 
   insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
                                          engine_version, scoring_policy_version, mastery)
-    values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-1', 'policy-1', 0.7500)
+    values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-1', public.scoring_policy_version(), 0.7500)
     returning id into v_res1;
   -- provenance is derived from the session, not accepted
   select count(*) into n from public.assessment_results r join public.assessment_sessions s on s.id = r.session_id
@@ -898,7 +898,7 @@ begin
   begin
     insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
                                            engine_version, scoring_policy_version)
-      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-1', 'policy-1');
+      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-1', public.scoring_policy_version());
     ok := false; detail := detail || 'a session grew a second root result; ';
   exception when others then null; end;
 
@@ -906,14 +906,14 @@ begin
   insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
                                          engine_version, scoring_policy_version, mastery,
                                          supersedes_result_id, recomputation_reason)
-    values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-2', 'policy-2', 0.8000, v_res1, 'policy revision')
+    values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-2', public.scoring_policy_version(), 0.8000, v_res1, 'policy revision')
     returning id into v_res2;
   -- the lineage cannot fork: a second successor for the same predecessor
   begin
     insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
                                            engine_version, scoring_policy_version,
                                            supersedes_result_id, recomputation_reason)
-      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-3', 'policy-3', v_res1, 'fork attempt');
+      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-3', public.scoring_policy_version(), v_res1, 'fork attempt');
     ok := false; detail := detail || 'the lineage forked; ';
   exception when others then null; end;
   -- nor supersede across sessions
@@ -921,7 +921,7 @@ begin
     insert into public.assessment_results (session_id, institution_id, person_id, evidence_class,
                                            engine_version, scoring_policy_version,
                                            supersedes_result_id, recomputation_reason)
-      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-3', 'policy-3', v_res1, 'x');
+      values (v_sess, v_inst, v_guru, 'OFFICIAL', 'engine-3', public.scoring_policy_version(), v_res1, 'x');
     ok := false; detail := detail || 'a cross-lineage supersession was accepted; ';
   exception when others then null; end;
   -- the chain is walkable and unambiguous
@@ -1024,9 +1024,21 @@ begin
   -- the positive case needs a NON-synthetic tenant, and institutions are
   -- never deleted. It therefore runs inside a subtransaction that is rolled
   -- back deliberately: plpgsql variables survive the rollback, the rows do not.
+  -- FABLE-04 D1 changed what "a non-synthetic tenant" means outside production:
+  -- exactly one may exist, the declared bootstrap tenant, and 0042 refuses a
+  -- second. That guard is asserted here rather than worked around, and the
+  -- positive case then runs on the tenant the decision actually created.
   begin
     insert into public.institutions (name, slug, is_synthetic)
-      values ('Selftest Nyata', 'selftest-nyata-' || gen_random_uuid()::text, false) returning id into v_real;
+      values ('Selftest Nyata', 'selftest-nyata-' || gen_random_uuid()::text, false);
+    ok := false; detail := detail || 'a second non-synthetic institution was accepted outside production; ';
+  exception when others then null; end;
+  select id into v_real from public.institutions where is_official_bootstrap;
+  if v_real is null then
+    ok := false;
+    detail := detail || 'no bootstrap tenant exists to carry the OFFICIAL case; ';
+  end if;
+  begin
     insert into public.academic_periods (institution_id, name, starts_on, ends_on)
       values (v_real, 'TA', '2026-07-13', '2027-06-26') returning id into v_ap;
     insert into public.enrollments (person_id, institution_id, academic_period_id, status)
@@ -1038,7 +1050,7 @@ begin
     insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type,
                                                item_count, author_person_id)
       values (v_real, v_course2, 'D', 'QUICK', 'PRACTICE', 5, v_guru) returning id into v_def_p;
-    v_osess := public.open_assessment_session(v_real_enr, v_def_p, v_rel2, 'ONLINE', 'QUICK', 'e', 'p');
+    v_osess := public.open_assessment_session(v_real_enr, v_def_p, v_rel2, 'ONLINE', 'QUICK', 'e', public.scoring_policy_version());
     select count(*) into n from public.official_sessions where id = v_osess;
     if n <> 1 then ok := false; detail := detail || 'an OFFICIAL session did not appear in official_sessions; '; end if;
 
@@ -1424,7 +1436,7 @@ begin
             (select academic_period_id from public.enrollments where id = v_enr))
     returning id into v_la;
 
-  v_pre := public.open_assessment_session(v_enr, v_def_p, v_rel3, 'ONLINE', 'PRE_TEST', 'e', 'p',
+  v_pre := public.open_assessment_session(v_enr, v_def_p, v_rel3, 'ONLINE', 'PRE_TEST', 'e', public.scoring_policy_version(),
                                           null, null, null, v_la);
   update public.assessment_sessions set status = 'IN_PROGRESS' where id = v_pre;
   insert into public.presented_items (session_id, item_id, position) values (v_pre, v_it, 1);

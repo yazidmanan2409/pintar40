@@ -221,6 +221,20 @@ end $$;
 revoke all on function selftest.pick_position(uuid, uuid, boolean) from public;
 grant execute on function selftest.pick_position(uuid, uuid, boolean) to authenticated;
 
+-- The first delivered item of a given authored type. SECURITY DEFINER because
+-- public.items is unreadable by a learner by design (the item bank is an
+-- assessment secret), and a test that wants "an MCQ_SINGLE specifically"
+-- must not be able to reach it as the learner it is impersonating.
+create or replace function selftest.first_presented_of_type(p_session uuid, p_item_type text)
+returns uuid language sql stable security definer set search_path = public, pg_temp as $$
+  select p.id from public.presented_items p
+    join public.items i on i.id = p.item_id
+   where p.session_id = p_session and i.item_type = p_item_type::public.item_type
+   order by p.position limit 1;
+$$;
+revoke all on function selftest.first_presented_of_type(uuid, text) from public;
+grant execute on function selftest.first_presented_of_type(uuid, text) to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- The suite.
 -- ---------------------------------------------------------------------------
@@ -381,7 +395,9 @@ begin
   ok := true; detail := '';
   perform selftest.as_user('siklus-email@synthetic.pintar.test');
   s_pre := public.start_learning_session(f.aa_pre);
-  select id into v_pi from public.presented_items where session_id = s_pre order by position limit 1;
+  -- an MCQ_SINGLE specifically: this test answers with the scalar {"posisi": n}
+  -- shape, and which type lands first is a property of the seeded draw
+  v_pi := selftest.first_presented_of_type(s_pre, 'MCQ_SINGLE');
 
   perform selftest.as_owner();
   begin
@@ -541,7 +557,7 @@ begin
   v_scoreA := (public.session_outcome(s_post) ->> 'penguasaan')::numeric;
 
   s2_post := public.start_learning_session(f.aa_post);
-  select id into v_pi from public.presented_items where session_id = s2_post order by position limit 1;
+  v_pi := selftest.first_presented_of_type(s2_post, 'MCQ_SINGLE');
   select * into v_state from public.assistance_state(v_pi);
   if v_state.due then
     ok := false; detail := detail || 'assistance was due before any time had passed; ';
@@ -674,7 +690,7 @@ begin
   ok := true; detail := '';
   -- another learner cannot touch this one's delivery record
   perform selftest.as_user('card-7002@cards.synthetic.pintar.test');
-  select id into v_pi2 from public.presented_items where session_id = s order by position limit 1;
+  v_pi2 := selftest.first_presented_of_type(s, 'MCQ_SINGLE');
   begin
     perform public.record_answer(v_pi2, 99, '{"posisi":1}'::jsonb);
     ok := false; detail := detail || 'a second learner answered on the first learner''s paper; ';

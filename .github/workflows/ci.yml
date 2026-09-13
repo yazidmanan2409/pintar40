@@ -156,7 +156,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine]
+        case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
+               static-second-verification-route, db-fable04-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -177,6 +178,11 @@ jobs:
             static-duplicate-engine)
               mkdir -p src/app/api/rogue
               printf -- "export async function GET() {\n  const { data } = await db.rpc(\"evaluate_session\", { p_session: \"x\" });\n  return Response.json(data);\n}\n" > src/app/api/rogue/route.ts ;;
+            static-second-verification-route)
+              mkdir -p "src/app/verifikasi-ulang/[token]"
+              printf -- "export default function P() {\n  return null;\n}\n" > "src/app/verifikasi-ulang/[token]/page.tsx" ;;
+            db-fable04-gates)
+              echo "the four FABLE-04 gate defects are planted in SQL against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -217,6 +223,20 @@ jobs:
           grep -E '^F03-S01 +FAIL' red.txt
           grep -F 'evaluate_session' red.txt
 
+      # INV-38 says one canonical verification URL shape and a redirect at most.
+      # A second page that also verifies is the defect the invariant names, and
+      # a check that has never been watched fail is a check nobody knows works.
+      - name: The INV-38 check must catch a second verification route
+        if: matrix.case == 'static-second-verification-route'
+        run: |
+          set +e
+          npx tsx selftest/run.ts --accept-justified-skips --only=F04-S01 | tee red.txt
+          code=${PIPESTATUS[0]}
+          set -e
+          [ "$code" -ne 0 ] || { echo "::error::INV-38 stayed green with a second verification route present"; exit 1; }
+          grep -E '^F04-S01 +FAIL' red.txt
+          grep -F 'verifikasi-ulang' red.txt
+
       - name: Start stack with the defective migration applied
         if: matrix.case == 'db-table-without-rls'
         id: stack
@@ -229,6 +249,87 @@ jobs:
           psql -v ON_ERROR_STOP=1 -q -1 -f selftest/db/fable01.sql "$DB_URL"
           psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select test_id, ok, detail from selftest.run_fable01()" "$DB_URL" | tee red.txt
           grep -E '^F01-T13 \| f \|' red.txt
+
+      # FABLE-04 §14's four database red cases. They share ONE stack on purpose:
+      # the phase's cost discipline says not to add a full stack bring-up per
+      # red case when an existing job can carry it. Each defect is still planted
+      # and proven individually -- inside its own transaction, which is rolled
+      # back before the next one, so no defect can mask or rescue another.
+      - name: Start a clean seeded stack for the FABLE-04 gate defects
+        if: matrix.case == 'db-fable04-gates'
+        id: gates
+        uses: ./.github/actions/local-stack
+      - name: Each planted FABLE-04 defect must turn its own gate red
+        if: matrix.case == 'db-fable04-gates'
+        env:
+          DB_URL: ${{ steps.gates.outputs.db-url }}
+        run: |
+          set -e
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
+
+          red() {   # red <test id> <expected substring> <sql file>
+            psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
+            grep -E "^$1 \| f \|" "out-$1.txt" || { echo "::error::$1 stayed green with the defect planted"; exit 1; }
+            grep -F "$2" "out-$1.txt" || { echo "::error::$1 went red but not for '$2'"; exit 1; }
+          }
+
+          # 1. a client-executable SECURITY DEFINER RPC with no exposure class
+          cat > /tmp/rc1.sql <<'SQL'
+          begin;
+          create function public.red_case_unregistered(p_x uuid) returns int
+          language sql security definer set search_path = public, pg_temp as $f$ select 1 $f$;
+          revoke all on function public.red_case_unregistered(uuid) from public, anon;
+          grant execute on function public.red_case_unregistered(uuid) to authenticated;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable01() where test_id = 'F01-T13';
+          rollback;
+          SQL
+          red F01-T13 '"unclassified_client_rpcs": 1' /tmp/rc1.sql
+
+          # 2. a LEARNER RPC that never reaches an ownership check
+          cat > /tmp/rc2.sql <<'SQL'
+          begin;
+          create function public.red_case_learner(p_session uuid) returns int
+          language plpgsql security definer set search_path = public, pg_temp as $f$ begin return 1; end $f$;
+          revoke all on function public.red_case_learner(uuid) from public, anon;
+          grant execute on function public.red_case_learner(uuid) to authenticated;
+          insert into public.client_rpc_registry values ('red_case_learner', 'LEARNER', 'planted defect');
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable01() where test_id = 'F01-T13';
+          rollback;
+          SQL
+          red F01-T13 '"learner_rpcs_guarded_ok": false' /tmp/rc2.sql
+
+          # 3. a scoring path reading integrity signals
+          cat > /tmp/rc3.sql <<'SQL'
+          begin;
+          do $d$
+          declare src text; orig text;
+          begin
+            orig := pg_get_functiondef('public.session_outcome(uuid)'::regprocedure);
+            src := regexp_replace(orig, E'\nbegin\n',
+                     E'\nbegin\n  perform 1 from public.integrity_signals where session_id = p_session;\n');
+            if src = orig then raise exception 'the plant did not change session_outcome'; end if;
+            execute src;
+          end $d$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable04() where test_id = 'F04-T07';
+          rollback;
+          SQL
+          red F04-T07 'integrity_signals' /tmp/rc3.sql
+
+          # 4. a certificate payload missing a protected field
+          cat > /tmp/rc4.sql <<'SQL'
+          begin;
+          do $d$
+          declare src text; orig text;
+          begin
+            orig := pg_get_functiondef('public.certificate_prepare(uuid,smallint)'::regprocedure);
+            src := replace(orig, E'    ''plp_release_id'', v_release,\n', '');
+            if src = orig then raise exception 'the plant did not change the payload builder'; end if;
+            execute src;
+          end $d$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable04() where test_id = 'F04-T09';
+          rollback;
+          SQL
+          red F04-T09 'plp_release_id' /tmp/rc4.sql
 
   selftest:
     name: selftest contract (strict, local stack)
@@ -253,6 +354,9 @@ jobs:
           SUPABASE_DB_URL: ${{ steps.stack.outputs.db-url }}
           CARD_PEPPER: synthetic-card-pepper-fable01-32plus
           CARD_EMAIL_DOMAIN: cards.synthetic.pintar.test
+          # Not a secret: a CI-only signing key, exactly as CARD_PEPPER above.
+          # The certificates it signs exist for the length of one job.
+          CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus
           PINTAR_BUILD_SHA: ${{ github.sha }}
           SELFTEST_APP_PORT: 3999
           SELFTEST_CI_UPSTREAM: >-

@@ -5,11 +5,21 @@
  * network. Exported as a list; selftest/run.ts executes it.
  */
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join, relative, basename } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
+
+/**
+ * Source with comments removed. A rule about what a module may READ has to be
+ * tested against code, not prose: sign.ts explains in a comment why it never
+ * touches a signing key, and a raw substring scan would fail it for saying so.
+ */
+function code(text: string): string {
+  return text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+}
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -124,8 +134,23 @@ export const staticTests: SelfTest[] = [
       for (const f of walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f))) {
         const text = readFileSync(f, "utf8");
         const rel = relative(repoRoot, f);
-        if (/process\.env\.SUPABASE_SERVICE_ROLE_KEY|process\.env\.CARD_PEPPER/.test(text)) {
-          c.expect(rel === join("src", "lib", "env.ts"), `${rel} reads a server secret directly; only src/lib/env.ts may`);
+        // Two secret classes, two named readers, and neither may read the
+        // other's. FABLE-01 put the platform secrets behind src/lib/env.ts.
+        // FABLE-04's certificate keys are NOT there on purpose: env.ts is
+        // imported by client components, so it is not a `server-only` module,
+        // and a signing key belongs behind that guard.
+        if (/process\.env\.SUPABASE_SERVICE_ROLE_KEY|process\.env\.CARD_PEPPER/.test(code(text))) {
+          c.expect(rel === join("src", "lib", "env.ts"), `${rel} reads a platform secret directly; only src/lib/env.ts may`);
+        }
+        if (/CERT_SECRET_KEY/.test(code(text))) {
+          c.expect(
+            rel === join("src", "lib", "certificates", "keyring.ts"),
+            `${rel} names a certificate signing key; only src/lib/certificates/keyring.ts may`,
+          );
+          c.expect(
+            /^\s*import\s+["']server-only["']/m.test(text),
+            `${rel} reads a certificate signing key without the server-only guard`,
+          );
         }
         if (/from\s+["']@\/lib\/supabase\/service["']/.test(text)) {
           c.expect(/^src[\\/]app[\\/]api[\\/]/.test(rel), `${rel} imports the service-role client outside src/app/api/`);
@@ -394,6 +419,205 @@ export const staticTests: SelfTest[] = [
       c.expect(/^\*\*Status:\*\* (Proposed|Accepted|Superseded by ADR-\d{4})/m.test(md), "ADR-0001 status line missing or malformed");
       c.expect(!/\bTBD\b|\bTODO\b/.test(md), "ADR-0001 still contains TBD/TODO");
       return c.verdict("ADR-0001 present with every doc 13 section and traceability");
+    },
+  },
+  // ------------------------------------------------------------ FABLE-04
+  {
+    id: "F04-S01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // INV-38: exactly one canonical verification route SHAPE in the app.
+      const routes: string[] = [];
+      const walk = (dir: string) => {
+        for (const e of readdirSync(dir, { withFileTypes: true })) {
+          const p = join(dir, e.name);
+          if (e.isDirectory()) walk(p);
+          else if (/^(page|route)\.tsx?$/.test(e.name)) routes.push(p);
+        }
+      };
+      walk(join(repoRoot, "src", "app"));
+      const verification = routes.filter((r) => /verif/i.test(r));
+      c.expect(
+        verification.length === 1,
+        `INV-38 requires exactly one verification route shape; found ${verification.length}: ${verification
+          .map((r) => r.replace(repoRoot, ""))
+          .join(", ")}`,
+      );
+      // and no internal designation on it
+      if (verification.length === 1) {
+        const src = readFileSync(verification[0], "utf8");
+        for (const word of ["PINTAR 4.0", "SYNTHETIC", "OFFICIAL", "PREVIEW", "evidence_class", "engine_version", "scoring_policy"]) {
+          c.expect(!src.includes(word), `the verification route names the internal term "${word}"`);
+        }
+        c.expect(
+          !/name_as_issued|photo_path|display_name/.test(src),
+          "the verification route reads an identity field; D3b excludes it",
+        );
+      }
+      return c.verdict(
+        `exactly one verification route shape, carrying no internal designation and no identity field (${routes.length} route file(s) scanned)`,
+      );
+    },
+  },
+  {
+    id: "F04-S02",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      const KEY = "selftest-certificate-key-v1-at-least-32-chars";
+      const { signWithKey, verifyWithKey, canonicalBytes } = await import("../src/lib/certificates/sign");
+      const signPayload = (p: Record<string, unknown>) => signWithKey(p, KEY);
+      const verifySignature = (p: Record<string, unknown>, sg: string) => verifyWithKey(p, KEY, sg);
+      const base = {
+        certificate_number: "PINTAR/X/2026/00001",
+        identity_snapshot_hash: "a".repeat(64),
+        result: { score: 0.9, predikat: "Baik", passed: true, safety_gate: true },
+        issued_at: "2026-09-14T00:00:00Z",
+        plp_release_id: "11111111-1111-1111-1111-111111111111",
+        release_content_sha256: "b".repeat(64),
+        assessment_definition_id: "22222222-2222-2222-2222-222222222222",
+        assessment_definition_version: 1,
+        scoring_policy_version: "pintar-scoring/1",
+        key_version: 1,
+      } as Record<string, unknown>;
+      const sig = signPayload(base);
+      c.expect(verifySignature(base, sig), "a freshly signed payload does not verify");
+
+      // INV-05: tampering with EACH protected field must break verification
+      for (const field of Object.keys(base)) {
+        const tampered = { ...base };
+        tampered[field] =
+          field === "result"
+            ? { score: 1, predikat: "Sangat Baik", passed: true, safety_gate: true }
+            : typeof base[field] === "number"
+              ? (base[field] as number) + 1
+              : `${base[field]}-tampered`;
+        c.expect(!verifySignature(tampered, sig), `tampering with "${field}" still verified (INV-05)`);
+      }
+      // key order must not matter; value order must
+      const reordered = Object.fromEntries(Object.entries(base).reverse());
+      c.expect(canonicalBytes(reordered) === canonicalBytes(base), "canonicalisation depends on key order");
+      c.expect(verifySignature(reordered, sig), "a key-reordered payload does not verify");
+
+      // the comparison is timing-safe: assert the function, not only a false
+      const src = readFileSync(new URL("../src/lib/certificates/sign.ts", import.meta.url), "utf8");
+      c.expect(src.includes("timingSafeEqual"), "verification does not use crypto.timingSafeEqual (INV-05)");
+      c.expect(
+        !/\bexpected\s*===\s*signature\b|\bsignature\s*===\s*expected\b/.test(src),
+        "verification compares signatures with ===",
+      );
+      return c.verdict(
+        `a signed payload verifies; tampering with each of the ${Object.keys(base).length} protected fields breaks it; the compare is timing-safe`,
+      );
+    },
+  },
+  {
+    id: "F04-S03",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      // Rotation semantics are exercised over the pure layer with two literal
+      // keys: `keyring.ts` is server-only and resolving a version to a secret is
+      // the one thing this test does not need to do.
+      const { signWithKey, verifyWithKey } = await import("../src/lib/certificates/sign");
+      const V1 = "selftest-certificate-key-v1-at-least-32-chars";
+      const V2 = "selftest-certificate-key-v2-at-least-32-chars";
+      const payload = { certificate_number: "X", key_version: 1 } as Record<string, unknown>;
+      const sigV1 = signWithKey(payload, V1);
+
+      // INV-07: after rotation the V1 certificate still verifies under V1 ...
+      c.expect(verifyWithKey(payload, V1, sigV1), "a V1 certificate stopped verifying after rotation (INV-07)");
+      // ... and is not accepted under V2
+      c.expect(!verifyWithKey(payload, V2, sigV1), "a V1 signature verified under the V2 key");
+
+      // and the keyring keeps every version rather than replacing one
+      const src = readFileSync(new URL("../src/lib/certificates/keyring.ts", import.meta.url), "utf8");
+      c.expect(/availableKeyVersions/.test(src), "the keyring exposes no version list");
+      c.expect(!/delete process\.env|CERT_SECRET_KEY_V1 =/.test(src), "the keyring mutates or drops a key version");
+      c.expect(/versions\[versions\.length - 1\]/.test(src), "the signing key is not the highest available version");
+      return c.verdict("rotation advances the signing key, keeps V1 verifiable, and refuses a cross-version signature");
+    },
+  },
+  {
+    id: "F04-S04",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      // THE LOOP THIS CLOSES. Before it, SQL built canonical payloads and the
+      // TypeScript crypto was exercised only over payloads TypeScript had also
+      // built. The db suite sealed with `repeat('a', 64)` and the real HMAC was
+      // produced exclusively by the issuance route, which needs the network
+      // facility and is skipped locally — so no test anywhere proved that a
+      // payload BUILT IN SQL, SIGNED IN NODE and STORED IN POSTGRES verifies
+      // when a different process reads it back. That is the acceptance item
+      // "issued, then verified after a full process restart", and it was the
+      // finding of the first-certificate-issuance boundary audit.
+      const KEY = "selftest-certificate-key-v1-at-least-32-chars";
+      const { signWithKey, verifyWithKey } = await import("../src/lib/certificates/sign");
+      const dbUrl = process.env.SUPABASE_DB_URL!;
+      // each call is its own psql process: the bytes cross a process boundary
+      // in both directions, which is the point of the test
+      const psql = (sql: string): string => {
+        const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql failed: ${(r.stderr || "").slice(0, 300)}`);
+        return r.stdout.trim();
+      };
+
+      let certificateId = "";
+      try {
+        const prepared = JSON.parse(
+          psql("select row_to_json(t) from (select * from selftest.issue_material()) t"),
+        ) as { certificate_id: string; canonical_payload: Record<string, unknown>; key_version: number };
+        certificateId = prepared.certificate_id;
+        c.expect(prepared.key_version === 1, `the prepared payload names key version ${prepared.key_version}`);
+
+        const signature = signWithKey(prepared.canonical_payload, KEY);
+        psql(`select public.certificate_seal('${certificateId}'::uuid, 1::smallint, '${signature}')`);
+
+        // a FRESH process reads back what Postgres stored, and recomputes
+        const stored = JSON.parse(
+          psql(
+            `select row_to_json(t) from (select canonical_payload, signature, key_version, status
+               from public.certificates where id = '${certificateId}'::uuid) t`,
+          ),
+        ) as {
+          canonical_payload: Record<string, unknown>;
+          signature: string;
+          key_version: number;
+          status: string;
+        };
+        c.expect(stored.status === "ISSUED", `the certificate is ${stored.status}, not ISSUED`);
+        c.expect(stored.signature === signature, "Postgres stored a different signature than the one submitted");
+        c.expect(
+          verifyWithKey(stored.canonical_payload, KEY, stored.signature),
+          "a certificate built in SQL and signed in Node did not verify when read back from Postgres (INV-05)",
+        );
+
+        // and the stored bytes are what is protected: change one of them and it fails
+        const tampered = { ...stored.canonical_payload, certificate_number: "PINTAR/X/2026/99999" };
+        c.expect(
+          !verifyWithKey(tampered, KEY, stored.signature),
+          "a tampered stored payload still verified (INV-05)",
+        );
+        // a wrong key fails too, so the pass above is not a vacuous true
+        c.expect(
+          !verifyWithKey(stored.canonical_payload, KEY.replace("v1", "v9"), stored.signature),
+          "the stored payload verified under a key it was never signed with",
+        );
+      } finally {
+        if (certificateId) {
+          try {
+            psql("select selftest.purge_certificates()");
+          } catch {
+            /* the suite's own purge runs again in run_fable04 */
+          }
+        }
+      }
+      return c.verdict(
+        "a canonical payload built in SQL, signed in Node with the real keyring crypto and stored in Postgres " +
+          "verifies when a separate process reads it back, fails when a stored byte changes, and fails under another key",
+      );
     },
   },
 ];

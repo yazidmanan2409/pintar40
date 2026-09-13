@@ -209,3 +209,40 @@ export async function delta(db: EngineClient, learningAssignmentId: string): Pro
 }
 
 export * from "./types";
+
+// --------------------------------------------------------------- FABLE-04
+/**
+ * The learner's own certificate for their own session. Ownership is enforced
+ * inside the RPC by `session_is_mine`; this module holds no privilege and
+ * passes no identity (INV-08).
+ */
+export async function myCertificate(client: EngineClient, sessionId: string) {
+  const found = rows<{
+    certificate_id: string;
+    certificate_number: string;
+    verification_token: string;
+    status: string;
+    issued_at_iso: string;
+    predikat: string | null;
+    name_as_issued: string;
+  }>(await call(client, "my_certificate", { p_session: sessionId }));
+  return found[0] ?? null;
+}
+
+/**
+ * An integrity signal on the caller's own session (§6). Recorded, never
+ * scoring input: `assert_integrity_never_scores()` asserts that no scoring
+ * function or view can read the table at all.
+ */
+export async function recordIntegritySignal(
+  client: EngineClient,
+  sessionId: string,
+  category: "VISIBILITY_CHANGE" | "NAVIGATION" | "RECONNECT" | "RAPID_OPTION_CHANGE" | "SUBMISSION_ANOMALY",
+  observation: Record<string, unknown> = {},
+) {
+  await call(client, "record_integrity_signal", {
+    p_session: sessionId,
+    p_category: category,
+    p_observation: observation,
+  });
+}

@@ -13,6 +13,12 @@ import { NextResponse, type NextRequest } from "next/server";
  * handlers (INV-21).
  */
 const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/auth/callback", "/keluar"]);
+// INV-38: exactly one public certificate verification surface. It is a prefix
+// rather than a fixed path because the token is in the URL, and it is the ONLY
+// prefix here — a second verification shape would be a second route, which the
+// invariant forbids. `public_surface_registry` declares it and
+// `assert_public_surface()` asserts the declaration matches reality.
+const PUBLIC_PREFIXES = ["/verifikasi/"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -39,7 +45,7 @@ export async function proxy(request: NextRequest) {
   // /api/dev/* is decided by its own handler: a plain 404 outside development
   // (FABLE-01 §11) — a 401 here would reveal that the namespace exists.
   const isDevNamespace = path === "/api/dev" || path.startsWith("/api/dev/");
-  const isPublic = PUBLIC_PATHS.has(path) || isDevNamespace || path.startsWith("/_next") || path === "/favicon.ico";
+  const isPublic = PUBLIC_PATHS.has(path) || PUBLIC_PREFIXES.some((p) => path.startsWith(p)) || isDevNamespace || path.startsWith("/_next") || path === "/favicon.ico";
 
   if (!user && !isPublic) {
     if (path.startsWith("/api/")) {

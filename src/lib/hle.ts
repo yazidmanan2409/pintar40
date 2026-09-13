@@ -12,6 +12,22 @@
 
 export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
+  | "verifikasi.judul"
+  | "verifikasi.status"
+  | "verifikasi.hasil"
+  | "verifikasi.lulus"
+  | "verifikasi.belum_lulus"
+  | "verifikasi.predikat"
+  | "verifikasi.institusi"
+  | "verifikasi.tanggal"
+  | "verifikasi.catatan"
+  | "verifikasi.tidak_ditemukan"
+  | "sertifikat.judul"
+  | "sertifikat.nomor"
+  | "sertifikat.unduh"
+  | "sertifikat.belum_ada"
+  | "sertifikat.sedang_disiapkan"
+
   | "app.name"
   | "auth.title"
   | "auth.email_label"
@@ -174,6 +190,22 @@ export type HleEvent =
 type Table = Record<HleEvent, Partial<Record<Persona, string>> & { default: string }>;
 
 const table: Table = {
+  "verifikasi.judul": { default: "Verifikasi Sertifikat" },
+  "verifikasi.status": { default: "Status" },
+  "verifikasi.hasil": { default: "Hasil" },
+  "verifikasi.lulus": { default: "Memenuhi capaian" },
+  "verifikasi.belum_lulus": { default: "Belum memenuhi capaian" },
+  "verifikasi.predikat": { default: "Predikat" },
+  "verifikasi.institusi": { default: "Diterbitkan oleh" },
+  "verifikasi.tanggal": { default: "Tanggal terbit" },
+  "verifikasi.catatan": { default: "Halaman ini memastikan sertifikat yang Anda pegang benar diterbitkan. Nama pemegang tertera pada sertifikatnya." },
+  "verifikasi.tidak_ditemukan": { default: "Sertifikat dengan tautan ini tidak ditemukan." },
+  "sertifikat.judul": { default: "Sertifikat" },
+  "sertifikat.nomor": { default: "Nomor sertifikat" },
+  "sertifikat.unduh": { default: "Tautan verifikasi" },
+  "sertifikat.belum_ada": { default: "Belum ada sertifikat untuk pengerjaan ini." },
+  "sertifikat.sedang_disiapkan": { default: "Sertifikat sedang disiapkan. Muat ulang halaman ini sebentar lagi." },
+
   "app.name": { default: "PINTAR" },
   "auth.title": { default: "Masuk ke PINTAR", learner: "Ayo mulai belajar" },
   "auth.email_label": { default: "Alamat email" },
