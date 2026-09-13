@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { t } from "@/lib/hle";
+import EvaluationBanner from "./_evaluation-banner";
 
 export const metadata: Metadata = {
   title: t("app.name", "public"),
@@ -11,6 +12,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="id">
       <body className="min-h-dvh bg-surface-0 text-ink-1">
+        {/* Rendered from the evaluation session on every page, so the indicator
+            cannot be lost on refresh or dismissed (ADR-0020). */}
+        <EvaluationBanner />
         <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">{children}</div>
       </body>
     </html>

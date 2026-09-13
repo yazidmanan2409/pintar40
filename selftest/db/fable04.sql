@@ -34,7 +34,7 @@ language sql stable set search_path = public, pg_temp as $$
     join public.learning_assignments la on la.plp_release_id = rl.id
     join public.assessment_assignments aa on aa.learning_assignment_id = la.id
     join public.assessment_definitions d on d.id = aa.assessment_definition_id
-   where i.is_official_bootstrap
+   where i.official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP'
    limit 1
 $$;
 revoke all on function selftest.boot_fixture() from public;
@@ -65,16 +65,17 @@ begin
   alter table public.integrity_signals disable trigger integrity_signals_write;
   delete from public.integrity_signals where session_id in (
     select ss.id from public.assessment_sessions ss
-     join public.institutions i on i.id = ss.institution_id where i.is_official_bootstrap);
+     join public.institutions i on i.id = ss.institution_id
+      where i.official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP');
   alter table public.integrity_signals enable trigger integrity_signals_write;
   -- certificates are never deleted by the product; the harness removes only
   -- its own rows, and only on a fixture tenant, by disabling its own guard
   alter table public.certificates disable trigger certificates_write;
   alter table public.certificate_identity_snapshots disable trigger snapshots_immutable;
   delete from public.certificates where institution_id in
-    (select id from public.institutions where is_official_bootstrap);
+    (select id from public.institutions where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP');
   delete from public.certificate_identity_snapshots where institution_id in
-    (select id from public.institutions where is_official_bootstrap);
+    (select id from public.institutions where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP');
   alter table public.certificates enable trigger certificates_write;
   alter table public.certificate_identity_snapshots enable trigger snapshots_immutable;
 
@@ -88,16 +89,24 @@ begin
   alter table public.presented_item_views disable trigger presented_item_views_write;
   alter table public.assessment_sessions disable trigger assessment_sessions_status;
   delete from public.assessment_results where institution_id in
-    (select id from public.institutions where is_official_bootstrap);
+    (select id from public.institutions where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP');
   delete from public.responses where institution_id in
-    (select id from public.institutions where is_official_bootstrap);
+    (select id from public.institutions where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP');
   delete from public.presented_item_views where session_id in (
     select ss.id from public.assessment_sessions ss
-     join public.institutions i on i.id = ss.institution_id where i.is_official_bootstrap);
+     join public.institutions i on i.id = ss.institution_id
+      where i.official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP');
   delete from public.presented_items where institution_id in
-    (select id from public.institutions where is_official_bootstrap);
+    (select id from public.institutions where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP');
   delete from public.assessment_sessions where institution_id in
-    (select id from public.institutions where is_official_bootstrap);
+    (select id from public.institutions where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP');
+  -- NARROWED FOR ADR-0020. These cleanups used to say `is_official_bootstrap`,
+  -- which meant "the D1 tenant" when D1 was the only one. Since 0065 the flag
+  -- selects EVERY institution authorized for non-production OFFICIAL evidence,
+  -- so this reset silently widened to sweep the Human Evaluation school as well
+  -- -- deleting the demonstration journey Dr Gladys is meant to see, and doing
+  -- it quietly enough that only EVAL-P03 noticed. A purpose is what this fixture
+  -- actually meant; the flag was a proxy that stopped being one.
   alter table public.assessment_results enable trigger assessment_results_write;
   alter table public.responses enable trigger responses_write;
   alter table public.presented_items enable trigger presented_items_immutable;

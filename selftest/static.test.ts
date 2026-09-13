@@ -1013,6 +1013,115 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    id: "EVAL-S01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      // NEGATIVE 7's NAMED TEST (Task 2 §9, gate-blocker addendum §4).
+      //
+      // The expiry control lives in the persona's ACCESS TOKEN, not in the
+      // database: at the token's `exp` the platform rejects the JWT before any
+      // PINTAR code runs, so every authenticated path refuses -- for all five
+      // personas, including the learner, whom no database-side lever could
+      // bound (0069 measured every one of them).
+      //
+      // That makes four properties of THIS FILE load-bearing, and the failure
+      // of any one of them silent: the facility keeps working and the boundary
+      // is simply gone. So they are pinned here, in the source, rather than
+      // trusted.
+      const c = new Checks();
+      const lib = join(repoRoot, "src", "lib", "evaluation.ts");
+      const route = join(repoRoot, "src", "app", "api", "evaluation", "assume", "route.ts");
+      c.expect(existsSync(lib), "src/lib/evaluation.ts is missing");
+      c.expect(existsSync(route), "the persona assumption route is missing");
+      if (!existsSync(lib) || !existsSync(route)) return c.verdict("unreachable");
+      const strip = (text: string) =>
+        text
+          .split("\n")
+          .filter((l) => !l.trim().startsWith("*") && !l.trim().startsWith("//") && !l.trim().startsWith("/*"))
+          .join("\n");
+      const src = strip(readFileSync(lib, "utf8"));
+      // The minting half lives in the API route, because F01-S03 permits the
+      // service-role client only under src/app/api/ and that rule is older than
+      // this feature.
+      const mint = strip(readFileSync(route, "utf8"));
+      const both = `${src}\n${mint}`;
+
+      // (1) THE COUPLING. The expiry passed to the database is read out of the
+      //     token this server just minted -- not chosen, not offset, not capped.
+      //     Matched as syntax rather than as intent (L4).
+      c.expect(/accessTokenExpiry\s*\(/.test(mint),
+        "the persona token's exp is never decoded: the recorded expiry is not the token's");
+      c.expect(/p_token_expires_at:\s*expiresAt\.toISOString\(\)/.test(mint),
+        "assume_persona is not passed the minted token's own expiry");
+      c.expect(!/\bMath\.min\b/.test(both) && !/\bleast\b/.test(both),
+        "the expiry is capped: a session shorter than its token leaves the token usable");
+      c.expect(!/expiresAt\s*=\s*new Date\(Date\.now\(\)/.test(both),
+        "the expiry is computed from the clock rather than read from the token");
+      c.expect(/exp\b/.test(src) && /base64url/.test(src),
+        "accessTokenExpiry does not decode the token's exp claim");
+
+      // (2) NO RENEWAL. No refresh material is persisted, returned or usable.
+      c.expect(/persistSession:\s*false/.test(mint) && /autoRefreshToken:\s*false/.test(mint),
+        "the client that mints a persona session can persist or renew it");
+      c.expect(/refresh_token:\s*""/.test(src),
+        "the persona session cookie does not explicitly withhold refresh material");
+      c.expect(!/refresh_token:\s*[^"]/.test(both.replace(/refresh_token:\s*""/g, "")),
+        "a refresh token is written into the persona session");
+      c.expect(!/\.refresh_token/.test(both),
+        "the minted session's refresh token is read out; it must never leave the mint call");
+      c.expect(!/refreshSession|setSession/.test(both),
+        "a persona session is renewed or re-established outside the assume flow");
+
+      // (3) NO INDEPENDENT CREDENTIAL. Nothing signs a persona in with a secret,
+      //     and nothing derives one. assert_evaluation_boundary measures the
+      //     database side; this is the code side.
+      c.expect(!/signInWithPassword/.test(both),
+        "a persona is signed in with a password: it could be used independently");
+      c.expect(!/pepper|derivePersonaSecret/i.test(both),
+        "a persona credential is derived here; a derived password is still a password");
+      const seed = join(repoRoot, "supabase", "seed", "human_evaluation.sql");
+      if (existsSync(seed)) {
+        const seedLines = readFileSync(seed, "utf8").split("\n");
+        c.expect(!seedLines.some((l) => /crypt\(/.test(l) && /peraga-/.test(l)),
+          "the seed gives a persona account a password");
+        // Comment lines stripped first. The unscoped version of this check
+        // matched the seed's own paragraph explaining why the pepper was
+        // REMOVED -- the same prose-matching defect L4 exists to stop, in the
+        // test written to enforce it.
+        const seedCode = seedLines.filter((l) => !l.trim().startsWith("--")).join("\n");
+        c.expect(!/pepper/i.test(seedCode),
+          "the seed still derives persona credentials from a pepper");
+      }
+
+      // (4) THE BOUNDARY. The cookie carrying the token dies with the token, so
+      //     the session cannot outlive it even if the JWT were still accepted.
+      c.expect(/expires:\s*expiresAt/.test(src),
+        "the persona session cookie outlives the token it carries");
+
+      // and the exit is server-side, not a cookie clear
+      c.expect(/rpc\("exit_persona"\)/.test(src),
+        "exiting a persona does not end the session server-side");
+      const keluar = join(repoRoot, "src", "app", "keluar", "route.ts");
+      c.expect(existsSync(keluar) && /exit_persona/.test(readFileSync(keluar, "utf8")),
+        "signing out does not end a live evaluation session");
+
+      // and no evaluation logic reached an authorization predicate on the app
+      // side either: the Hub asks the database, it never decides
+      const hub = join(repoRoot, "src", "app", "evaluasi", "page.tsx");
+      if (existsSync(hub)) {
+        c.expect(!/displayRole|is_system_admin/.test(readFileSync(hub, "utf8")),
+          "the Hub decides access from a display role instead of asking the database");
+      }
+
+      return c.verdict(
+        "the persona session's recorded expiry is bound to a value asserted by the trusted server under " +
+        "the service-role trust boundary, read from the token it minted; no refresh material is persisted, " +
+        "returned or usable; no persona holds an independently usable credential; and the session cookie " +
+        "expires with the token",
+      );
+    },
+  },
+  {
     id: "DOC-P01",
     requires: [],
     run: async ({ repoRoot }) => {

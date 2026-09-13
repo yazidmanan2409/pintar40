@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 10,
+  "version": 11,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -766,6 +766,86 @@
       "runner": "db",
       "proves": "ADR-0018 as amended by 0064 / ADR-0015 §5.2 / ADR-0016: supersession is not withdrawal — superseding a canonical release leaves a school with a live grant still using it, because release status gates new sessions nowhere in this system and correction is an explicit audited move; withdrawing the distribution stops both a new launch and a new session on the assignment already made, and touches no completed attempt",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "EVAL-S01",
+      "runner": "static",
+      "proves": "negative 7's named test: the persona session's recorded expiry is bound to a value asserted by the trusted server under the service-role trust boundary, read from the token it minted; no refresh material is persisted, returned or usable; no persona holds an independently usable credential; and the session cookie expires with the token. Pinned in source because the failure of any one of these is silent"
+    },
+    {
+      "id": "EVAL-T01",
+      "runner": "db",
+      "proves": "the evaluation school offers exactly five personas from the frozen role model, and no SYSTEM_ADMIN perspective exists to be offered (ADR-0020, amended)"
+    },
+    {
+      "id": "EVAL-N01",
+      "runner": "db",
+      "proves": "a person who is not a live evaluator is refused by name at the hub, not shown an empty list"
+    },
+    {
+      "id": "EVAL-N02",
+      "runner": "db",
+      "proves": "an institution administrator cannot acquire evaluator status by any path: table refusal, no client grant on grant_evaluator, and evaluator status is not a role"
+    },
+    {
+      "id": "EVAL-N03",
+      "runner": "db",
+      "proves": "a real person's id is refused as a persona id, and an allow-list row pointing at a real person is refused by name"
+    },
+    {
+      "id": "EVAL-N04",
+      "runner": "db",
+      "proves": "no persona account carries a credential, and assume_persona is reachable only by the server: no persona session can be created outside the assume flow"
+    },
+    {
+      "id": "EVAL-N05",
+      "runner": "db",
+      "proves": "a persona cannot reach the assumption path at all, so a persona-to-persona transition is impossible by privilege. NEGATIVES 5 AND 6 ARE ONE CONTROL and this is recorded rather than staged as two"
+    },
+    {
+      "id": "EVAL-N06",
+      "runner": "db",
+      "proves": "one effective persona at a time per evaluator: refused by name, and by a unique index under concurrency"
+    },
+    {
+      "id": "EVAL-N07",
+      "runner": "db",
+      "proves": "negative 7, DATABASE HALF ONLY: the recorded expiry is the token's to the instant and a dead token opens nothing. The enforcement is the token itself and is pinned by EVAL-S01 -- this suite authenticates with set_config and bypasses JWT verification by construction, so nothing here can distinguish a live token from a dead one. ARGUED, NOT TESTED, in this layer"
+    },
+    {
+      "id": "EVAL-N08",
+      "runner": "db",
+      "proves": "the assumed DEAN is refused exactly what a DEAN is refused (INV-19) while remaining a member of its own school: the boundary is exercised, not bypassed"
+    },
+    {
+      "id": "EVAL-N09",
+      "runner": "db",
+      "proves": "no persona credential exists to leak: no password on any persona account, no credential-shaped text in any audit or session row"
+    },
+    {
+      "id": "EVAL-N1011",
+      "runner": "db",
+      "proves": "an unapproved official_evidence_purpose cannot be spelled, a second institution cannot occupy an approved one, and all three evaluation tables refuse production by trigger"
+    },
+    {
+      "id": "EVAL-P01",
+      "runner": "db",
+      "proves": "an action taken as a persona carries both identities, and the trail-wide dual-identity property holds"
+    },
+    {
+      "id": "EVAL-P02",
+      "runner": "db",
+      "proves": "exit ends the pairing server-side, the indicator disappears because it reads the session, and the exit event itself carries both identities"
+    },
+    {
+      "id": "EVAL-P03",
+      "runner": "db",
+      "proves": "the evaluation school's evidence is OFFICIAL through the ordinary cap model -- the same expression that proves it for D1 -- and derive_evidence_class reads neither the flag, nor tenant_kind, nor the purpose"
+    },
+    {
+      "id": "EVAL-P04",
+      "runner": "db",
+      "proves": "no authorization root and no RLS policy knows the evaluation facility exists (ADR-0020 §3.1)"
     },
     {
       "id": "DOC-P01",

@@ -1049,7 +1049,10 @@ begin
       values ('Selftest Nyata', 'selftest-nyata-' || gen_random_uuid()::text, false);
     ok := false; detail := detail || 'a second non-synthetic institution was accepted outside production; ';
   exception when others then null; end;
-  select id into v_real from public.institutions where is_official_bootstrap;
+  -- NARROWED FOR ADR-0020: `is_official_bootstrap` now selects two tenants; this
+  -- fixture means D1's.
+  select id into v_real from public.institutions
+   where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP';
   if v_real is null then
     ok := false;
     detail := detail || 'no bootstrap tenant exists to carry the OFFICIAL case; ';

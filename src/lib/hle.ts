@@ -187,6 +187,19 @@ export type HleEvent =
   | "sync.offline"
   | "sync.pending"
   | "studio.title"
+  | "evaluasi.judul"
+  | "evaluasi.intro"
+  | "evaluasi.pilih"
+  | "evaluasi.mulai"
+  | "evaluasi.refused"
+  | "evaluasi.mode"
+  | "evaluasi.sebagai"
+  | "evaluasi.ganti"
+  | "evaluasi.keluar"
+  | "evaluasi.berakhir"
+  | "evaluasi.sesi_habis"
+  | "evaluasi.gagal"
+  | "evaluasi.kembali"
   | "studio.refused"
   | "studio.nav.beranda"
   | "studio.nav.unggah"
@@ -478,6 +491,19 @@ const table: Table = {
   "sync.offline": { default: "Sedang luring. Jawabanmu disimpan dan dikirim saat tersambung lagi." },
   "sync.pending": { default: "Mengirim jawaban yang tertunda…" },
   "studio.title": { default: "Studio" },
+  "evaluasi.judul": { default: "Ruang Peragaan" },
+  "evaluasi.intro": { default: "Lihat PINTAR dari sudut pandang orang yang berbeda di satu sekolah peragaan. Pilih satu sudut pandang untuk mulai." },
+  "evaluasi.pilih": { default: "Pilih sudut pandang" },
+  "evaluasi.mulai": { default: "Lihat sebagai" },
+  "evaluasi.refused": { default: "Ruang peragaan tidak tersedia untuk akun ini." },
+  "evaluasi.mode": { default: "MODE PERAGAAN" },
+  "evaluasi.sebagai": { default: "Sedang melihat sebagai" },
+  "evaluasi.ganti": { default: "Ganti sudut pandang" },
+  "evaluasi.keluar": { default: "Keluar dari peragaan" },
+  "evaluasi.berakhir": { default: "Sesi peragaan berakhir" },
+  "evaluasi.sesi_habis": { default: "Waktu peragaan sudah habis. Kembali ke ruang peragaan untuk mulai lagi." },
+  "evaluasi.gagal": { default: "Sudut pandang itu tidak bisa dibuka sekarang." },
+  "evaluasi.kembali": { default: "Kembali ke ruang peragaan" },
   "studio.refused": { default: "Halaman ini untuk staf pengelola isi. Akun Anda belum memiliki akses ke Studio." },
   "studio.nav.beranda": { default: "Beranda" },
   "studio.nav.unggah": { default: "Buat Paket" },

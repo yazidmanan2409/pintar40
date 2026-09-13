@@ -79,8 +79,20 @@ begin
                   where e.person_id = p_evaluator and e.revoked_at is null) then
     raise exception 'evaluation mode is not available to that account';
   end if;
-  -- one effective persona at a time. The unique index refuses it as well; the
-  -- named refusal is here so the server can say why.
+
+  -- ONE LIVE SESSION PER EVALUATOR, and this single check now closes BOTH
+  -- lifecycle rules -- simultaneous personas AND persona-to-persona switching.
+  --
+  -- 0068 had a second check for the transition, keyed on whether `auth.uid()`
+  -- was itself a live persona. Moving this function behind the service role
+  -- killed it: the caller is now always the server, whose `auth.uid()` is never
+  -- a persona's, so that branch could not fire and the refusal it named was
+  -- dead code. Removed rather than left as reassurance.
+  --
+  -- Nothing is lost. A persona cannot reach this function at all, and its
+  -- evaluator still holds a live session until they exit -- so changing persona
+  -- REQUIRES returning to the Hub and exiting first, which is the rule. One
+  -- control, named once, that actually fires.
   if exists (select 1 from public.evaluation_sessions s
               where s.evaluator_person_id = p_evaluator and s.ended_at is null) then
     raise exception 'that evaluator is already viewing as someone; exit evaluation first';
