@@ -10,14 +10,14 @@ Switching) is not started and must not begin until this gate is closed.
 
 | | |
 |---|---|
-| Branch commit | `3f8e310` on `claude/quirky-meitner-a04smj` |
+| Branch commit | `820bf7f` on `claude/quirky-meitner-a04smj`, `main` fast-forwarded to it |
 | Migrations | **63** (0061, 0062, 0063 added; nothing before 0060 touched) |
 | CI | run **34747284030** on `3f8e310` — all twelve jobs green, including the new `red case · db-task1-gates` leg |
-| Selftest (verbatim) | `123 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
-| Clean replay | 62 migrations from an empty database, terminal blocks included |
-| Upgrade path | 0061–0062 applied over a seeded 60-migration database |
-| Widened digest | **2177 objects**, `ZZ_TOTAL 4d78f50a9cf9b3c959d55a0d02e3dbfe` — **identical** on the clean replay and the upgrade path |
-| Hosted | 62 migrations, both new files byte-identical, 2177 objects, FUNC divergence unchanged (see §1.1) |
+| Selftest (verbatim) | `124 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN` |
+| Clean replay | 63 migrations from an empty database, all three terminal blocks included |
+| Upgrade path | 0061–0063 applied over a seeded 60-migration database |
+| Widened digest | **2177 objects**, `ZZ_TOTAL 6e2bc96dae9ef62fecfdbade76876348` — **identical** on the clean replay and the upgrade path |
+| Hosted | 63 migrations, all three new files byte-identical, 2177 objects, FUNC divergence unchanged (see §1.1) |
 
 Parity hashes (`md5` of the file with the trailing newline stripped, which is
 what the hosted `statements` array hashes to):
@@ -26,14 +26,15 @@ what the hosted `statements` array hashes to):
 |---|---|
 | `20260916100000_ad_hoc_eligibility_follows_authorization.sql` | `0371d301af83663edf2f1818cc71edcc` |
 | `20260916110000_quick_assessment_over_canonical.sql` | `8d7d80d621fdca4849112c7f426b031f` |
+| `20260916120000_quick_assessment_cites_a_published_release.sql` | `1bb13cd6ce06c01a06d0962ac9348031` |
 
 Both hashes were read back from `supabase_migrations.schema_migrations` on the
 hosted project after applying and matched exactly.
 
 ## 1.1 Hosted, measured rather than assumed
 
-The hosted project carries **62** migrations. Both terminal verification blocks
-**ran there** — the behavioural halves build a school, an actor, canonical
+The hosted project carries **63** migrations. All three terminal verification
+blocks **ran there** — the behavioural halves build a school, an actor, canonical
 content, a release and a grant inside a rolled-back subtransaction, and hosted
 left **zero** probe rows behind (`institutions` matching `probe%` = 0).
 
@@ -43,9 +44,9 @@ local replay**, and every category digest is identical except one:
 | Category | n | local | hosted |
 |---|---|---|---|
 | COLUMN / CONSTRAINT / ENUM / FGRANT / GRANT / INDEX / POLICY / TABLE / TRIGGER / VIEW | — | — | **identical** |
-| FUNCNORM | 183 | `3f36680d…` | `3f36680d…` **identical** |
-| FUNC | 183 | `62c1e083…` | `dfdb9403…` **differs** |
-| ZZ_TOTAL | 2177 | `4d78f50a…` | `cdccc5f7…` |
+| FUNCNORM | 183 | `bc103ae0…` | `bc103ae0…` **identical** |
+| FUNC | 183 | `77be6c15…` | `379e3630…` **differs** |
+| ZZ_TOTAL | 2177 | `6e2bc96d…` | `0c0211ef…` |
 
 **FUNC differing while FUNCNORM matches is the cosmetic-divergence signature the
 digest file documents**: comments and whitespace differ, nothing executable
@@ -55,16 +56,13 @@ than assumed to be unchanged:
 - the FUNC digest computed **excluding** the six known-divergent FABLE-01
   functions (`enrollments_guard`, `memberships_guard`, `role_assignments_guard`,
   `transfer_authorize`, `transfer_execute`, `transfer_request`) is **177 objects,
-  `5cbaba01ed9ed364b62b41701e0c79c6`, identical on both sides** — so the
+  `da68375c74f8dc4b4608473c42edc394`, identical on both sides** — so the
   divergence did not grow;
-- all six functions this task touched match hosted **byte for byte**:
-  `authorized_canonical_items` `92cbd358…`, `enforce_ad_hoc_single_owner`
-  `bbbf6145…`, `eligible_items_for_definition` `7cfdcad9…`, `assemble_session`
-  `e035f84b…`, `launch_quick_assessment` `5a5a5b6e…`, `start_learning_session`
-  `bc516dae…`.
+- the function 0063 rewrote matches hosted byte for byte:
+  `start_learning_session` `7bfeb919…` on both sides.
 
 Hosted counters, read through `platform_schema_lint()` as a system admin: every
-counter in §7 holds, with `migrations_applied` 62. `non_synthetic_institutions`
+counter in §7 holds, with `migrations_applied` 63. `non_synthetic_institutions`
 is 1 and `official_bootstrap_tenants` 0 on hosted, which is the FABLE-05
 recorded state — hosted carries no D1 bootstrap tenant — and is unchanged by
 this task.
@@ -304,12 +302,13 @@ that leaks an internal concept without matching the pattern would pass.
 
 ## 7. Counters, before and after
 
-Every counter in `platform_schema_lint()` is **identical** at 60 and at 62
-migrations, with one deliberate movement:
+Every counter in `platform_schema_lint()` is **identical** at 60 and at 63
+migrations, with one deliberate movement — verified on the clean replay and
+re-verified on hosted:
 
-| Counter | 0060 | 0062 |
+| Counter | 0060 | 0063 |
 |---|---|---|
-| `migrations_applied` | 60 | **62** |
+| `migrations_applied` | 60 | **63** |
 | `functions_executable_by_anon` | 0 | 0 |
 | `anon_public_surface` | 2 | 2 |
 | `anon_reachable_http_paths` | 2 | 2 |
@@ -332,20 +331,25 @@ Everything else — `public_buckets`, `malformed_jalur`, `anon_table_grants`,
 `learner_rpcs_guarded_ok`, `mode_policy_complete_ok`,
 `integrity_never_scores_ok`, `public_surface_ok` — unchanged.
 
-No table, no policy, no enum was added. Object count moved 2172 → **2177**: two
-functions, their two normalized forms, and one function grant.
+No table, no policy, no enum was added. Object count moved 2172 → **2177** at
+0062 — two functions, their two normalized forms, and one function grant — and
+0063 added no object at all: it replaces one function body and one comment.
 
 ---
 
 ## 8. Red-ability
 
-Two plants, each verified locally to take its named test red **for the named
-reason**, then wired into CI as `red case · db-task1-gates`:
+Three plants, each verified locally against the clean 63-migration replay to
+take its named test red **for the named reason**, then wired into CI as
+`red case · db-task1-gates`. The third was additionally extracted back out of the
+workflow file and diffed, so what CI writes is byte-identical to what was
+verified:
 
 | Plant | Effect | Required |
 |---|---|---|
 | `authorized_canonical_items()` keeps its caller gate and loses `release_is_distributed_to` | eligibility follows *membership* instead of *authorization*; any school reaches any other school's items | **QAC-T04** red with `an ad-hoc paper at School B drew 1 of School C's item(s)` |
 | `enforce_ad_hoc_single_owner` replaced by a no-op | the boundary is gone | **QAC-T08** red with `a two-owner ad-hoc paper was not refused at the boundary` |
+| the `r.status = 'PUBLISHED'` clause stripped from the live `start_learning_session` text | F1 restored | **QAC-T11** red with `a learner sat a quick assessment against an INGESTED release` |
 
 The leg asserts the suite is green **before** anything is planted, and each
 defect is planted inside its own transaction and rolled back, so no plant can
