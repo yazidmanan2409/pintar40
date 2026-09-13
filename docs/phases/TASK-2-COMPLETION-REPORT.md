@@ -440,6 +440,53 @@ Also carried forward, unchanged from Task 1: the db suites are not idempotent
 across repeated runs on one database, and `/studio/kuis` has still never been
 opened by a person.
 
+### Second-eye gate outcome — recorded after closure
+
+Claude 1's final gate on `c4cd969`, read from the live hosted catalog rather
+than from this report: **PASS — Task 2 closes. No gate-blocking defects.**
+
+Independently re-measured there, not taken from here: `current_person_id` is
+byte-identical to its pre-Task-2 body; `evaluation_personas` carries
+`CHECK (role_perspective <> 'SYSTEM_ADMIN')`; `derive_evidence_class` reads
+neither `official_evidence_purpose` nor `tenant_kind`; the old global D1 index
+is gone and `institutions_one_per_official_purpose` is the only official-purpose
+index; `assume_persona` is unreachable by `authenticated` and `anon` with zero
+registry rows; `audit_write` still arity 5; the purpose enum has exactly two
+values; all ten assertions true; every security counter at target. Twelve
+functions and three tables were added and the anonymous surface did not move.
+
+**The binding condition of that PASS, carried here in full:**
+
+> The Human Pilot Release must not proceed until the retained-token boundary
+> test has executed against real Auth in the Human Evaluation environment —
+> retain the persona token, cross `expires_at`, call a plain learner RPC
+> directly, and require authentication refusal at the instant after the
+> boundary.
+
+The standard was **relocated, not removed**. By the accepted amendments
+(`TASK-2-EXPIRY-GATE-REQUIREMENT.md` §4 and
+`TASK-2-NEGATIVE-7-FINAL-INVARIANT.md` §6) the runtime observation was a
+clearing condition for negative 7 and it has not been met. It does not block the
+build gate because what remains unmeasured is GoTrue/PostgREST rejecting a JWT
+past its `exp` — third-party behaviour beneath PINTAR, executable in no
+environment that currently exists, and blocked by SI-01, open since FABLE-01.
+**It now carries the same weight at the environment gate that it carried here.**
+
+**Priority note.** Three separately deferred proofs now converge on the one
+unnamed environment above: the `HUMAN_EVALUATION` seed, the `CERT_SECRET_KEY_V1`
+issuance path, and negative 7's runtime half. Its priority is set by three
+things, not one.
+
+Claude 1 had no GitHub access from that channel. These remain single-sourced on
+this session's measurement and were not independently confirmed: the SHA and the
+`main` fast-forward; CI run 67 and its fourteen jobs; the selftest line; the
+manifest at v11/151; the widened digest, its 12/13 category match and the
+FUNC/FUNCNORM bound; per-migration byte parity; the three red plants; the
+baseline-parity job; the issuance route's `session_is_mine` ordering; the
+application surface; and the contents of ADR-0020 and the ADR-0008 and doc
+05/06 amendments. Function count (195) and the hosted object state were
+confirmed independently and agree.
+
 ---
 
 ## 12. What I verified myself, and what I could not
