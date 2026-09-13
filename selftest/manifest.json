@@ -665,6 +665,12 @@
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
+      "id": "F05-T22",
+      "runner": "db",
+      "proves": "publishing while Blocked is refused server-side; an ERROR finding cannot be acknowledged away; repairing the content -- never the gate -- reaches READY and the same release publishes",
+      "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
       "id": "F05-S01",
       "runner": "static",
       "proves": "INV-37: the anonymous path and prefix lists did not grow, the proxy matcher is still catch-all, and every Studio route sits behind it"

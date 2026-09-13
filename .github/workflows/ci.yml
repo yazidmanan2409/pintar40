@@ -157,7 +157,7 @@ jobs:
       fail-fast: false
       matrix:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
-               static-second-verification-route, db-fable04-gates]
+               static-second-verification-route, db-fable04-gates, db-fable05-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -183,6 +183,8 @@ jobs:
               printf -- "export default function P() {\n  return null;\n}\n" > "src/app/verifikasi-ulang/[token]/page.tsx" ;;
             db-fable04-gates)
               echo "the four FABLE-04 gate defects are planted in SQL against the running stack, below" ;;
+            db-fable05-gates)
+              echo "the five FABLE-05 gate defects are planted in SQL against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -330,6 +332,130 @@ jobs:
           rollback;
           SQL
           red F04-T09 'plp_release_id' /tmp/rc4.sql
+
+      # FABLE-05 §10.6's five red cases. One stack, same discipline as the
+      # FABLE-04 leg: each defect is planted inside its own transaction and
+      # rolled back before the next, so no defect can mask or rescue another.
+      # A probe that never fails proves nothing.
+      - name: Start a clean seeded stack for the FABLE-05 gate defects
+        if: matrix.case == 'db-fable05-gates'
+        id: gates05
+        uses: ./.github/actions/local-stack
+      - name: Each planted FABLE-05 defect must turn its own gate red
+        if: matrix.case == 'db-fable05-gates'
+        env:
+          DB_URL: ${{ steps.gates05.outputs.db-url }}
+        run: |
+          set -e
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
+          # the suite must be green BEFORE anything is planted, or "it went red"
+          # says nothing about the defect
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable05()" "$DB_URL" | tee base.txt
+          grep -E ' \| f \| ' base.txt && { echo "::error::the FABLE-05 suite is already red before any defect was planted"; exit 1; } || true
+
+          red() {   # red <test id> <expected substring> <sql file>
+            psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
+            grep -E "^$1 \| f \|" "out-$1.txt" || { echo "::error::$1 stayed green with the defect planted"; exit 1; }
+            grep -F "$2" "out-$1.txt" || { echo "::error::$1 went red but not for '$2'"; exit 1; }
+          }
+
+          # 1. a client-executable SECURITY DEFINER RPC with no exposure class.
+          #    FABLE-05 adds eleven of them; the registry rule has to keep biting.
+          cat > /tmp/f5-1.sql <<'SQL'
+          begin;
+          create function public.red_case_studio(p_course uuid) returns int
+          language sql security definer set search_path = public, pg_temp as $f$ select 1 $f$;
+          revoke all on function public.red_case_studio(uuid) from public, anon;
+          grant execute on function public.red_case_studio(uuid) to authenticated;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable05() where test_id = 'F05-T21';
+          rollback;
+          SQL
+          red F05-T21 'unclassified_client_rpcs is 1' /tmp/f5-1.sql
+
+          # 2. a canonical read path that admits a second institution's content:
+          #    drop the PLATFORM_CANONICAL conjunct from the one predicate every
+          #    relaxation reads, and school-to-school sharing becomes expressible.
+          cat > /tmp/f5-2.sql <<'SQL'
+          begin;
+          create or replace function public.release_is_distributed_to(p_release uuid, p_institution uuid)
+          returns boolean language sql stable security definer set search_path = public, pg_temp as $f$
+            select exists (
+              select 1 from public.plp_releases r
+                join public.release_distributions d
+                  on d.plp_release_id = r.id and d.institution_id = p_institution
+               where r.id = p_release and d.status = 'ACTIVE')
+          $f$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable05() where test_id = 'F05-T08';
+          rollback;
+          SQL
+          red F05-T08 'school-to-school distribution row took effect' /tmp/f5-2.sql
+
+          # 3. a revision that copies an empirical value -- the fabricated
+          #    measurement doc 02 forbids by name.
+          cat > /tmp/f5-3.sql <<'SQL'
+          begin;
+          do $d$
+          declare src text; orig text; n int;
+          begin
+            -- the source items carry no empirical value, because nothing has
+            -- computed one -- so the plant must give one to a source item too,
+            -- or "the copy has none" would be true for the wrong reason
+            perform selftest.canonical_package();
+            update public.items i set empirical_difficulty = 0.42, empirical_discrimination = 0.31,
+                   empirical_evidence_count = 128
+              from public.lessons l, public.modules m, public.courses c, public.institutions o
+             where i.lesson_id = l.id and l.module_id = m.id and m.course_id = c.id
+               and c.id = m.course_id and o.id = c.institution_id
+               and o.tenant_kind = 'PLATFORM_CANONICAL' and c.supersedes_course_id is null;
+            get diagnostics n = row_count;
+            if n = 0 then raise exception 'the plant found no canonical item to mark'; end if;
+
+            orig := pg_get_functiondef('public.create_course_revision(uuid)'::regprocedure);
+            src := replace(orig,
+              E'       objective_ids, is_safety_critical, parallel_group, predicted_difficulty,',
+              E'       objective_ids, is_safety_critical, parallel_group, predicted_difficulty, empirical_difficulty,');
+            if src = orig then raise exception 'the plant did not change the column list'; end if;
+            src := replace(src,
+              E'           v_it.is_safety_critical, v_pg, v_it.predicted_difficulty,',
+              E'           v_it.is_safety_critical, v_pg, v_it.predicted_difficulty, v_it.empirical_difficulty,');
+            execute src;
+          end $d$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable05() where test_id = 'F05-T12';
+          rollback;
+          SQL
+          red F05-T12 'inherited an empirical value' /tmp/f5-3.sql
+
+          # 4. a release move that crosses a lineage boundary it should not:
+          #    remove the lineage check and an unrelated canonical package
+          #    becomes a legal "correction".
+          cat > /tmp/f5-4.sql <<'SQL'
+          begin;
+          do $d$
+          declare src text; orig text;
+          begin
+            orig := pg_get_functiondef('public.move_learning_assignment_release(uuid,uuid,text)'::regprocedure);
+            src := replace(orig, 'where c.course_id = v_target.course_id) then', 'where true) then');
+            if src = orig then raise exception 'the plant did not neutralise the lineage check'; end if;
+            execute src;
+          end $d$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable05() where test_id = 'F05-T14';
+          rollback;
+          SQL
+          red F05-T14 'outside the lineage was accepted' /tmp/f5-4.sql
+
+          # 5. publishing while Blocked: remove the readiness gate from the
+          #    trigger and an ERROR finding stops stopping anything.
+          cat > /tmp/f5-5.sql <<'SQL'
+          begin;
+          create or replace function public.enforce_release_publish_readiness() returns trigger
+          language plpgsql security definer set search_path = public, pg_temp as $f$
+          begin
+            return new;
+          end $f$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable05() where test_id = 'F05-T22';
+          rollback;
+          SQL
+          red F05-T22 'Blocked package was published' /tmp/f5-5.sql
 
   selftest:
     name: selftest contract (strict, local stack)

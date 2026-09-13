@@ -65,7 +65,12 @@ revoke all on function selftest.f05_actor(text, public.app_role, uuid) from publ
 -- close and correct labels spread, because run_mcq_quality() looks for exactly
 -- those patterns and a fixture that trips its own gate is not a fixture.
 -- ---------------------------------------------------------------------------
-create or replace function selftest.canonical_package(p_title text default 'Pengukuran Nasional')
+-- The signature gained `p_publish` after the first draft; drop the old arity so
+-- re-applying this file cannot leave two overloads and an ambiguous call.
+drop function if exists selftest.canonical_package(text);
+
+create or replace function selftest.canonical_package(p_title text default 'Pengukuran Nasional',
+                                                     p_publish boolean default true)
 returns table (canon uuid, course uuid, modul uuid, les uuid, defn uuid, rel uuid)
 -- INVOKER, not DEFINER: it impersonates real actors through selftest.as_user(),
 -- and `set role` is refused inside a security-definer function. Same lesson as
@@ -85,8 +90,8 @@ begin
     select m.id into v_mod from public.modules m where m.course_id = v_course order by m.ordinal limit 1;
     select l.id into v_les from public.lessons l where l.module_id = v_mod order by l.ordinal limit 1;
     select d.id into v_defn from public.assessment_definitions d where d.module_id = v_mod limit 1;
-    select r.id into v_rel from public.plp_releases r
-     where r.course_id = v_course and r.status = 'PUBLISHED' order by r.created_at limit 1;
+      select r.id into v_rel from public.plp_releases r
+     where r.course_id = v_course order by r.created_at limit 1;
     canon := v_canon; course := v_course; modul := v_mod; les := v_les; defn := v_defn; rel := v_rel;
     return next; return;
   end if;
@@ -122,7 +127,8 @@ begin
      'Gambar tangganya lebih dulu, lalu tentukan arahnya sebelum menghitung.'),
     ('MK-KAN-02-' || tag, v_canon, 'Melewatkan satu tingkat',
      'Peserta didik menghitung satu tingkat lebih sedikit.',
-     'Hitung tingkatnya satu per satu sambil menunjuk gambarnya.');
+     'Hitung tingkatnya satu per satu sambil menunjuk gambarnya.')
+  on conflict do nothing;
 
   spec := jsonb_build_array(
     jsonb_build_object('d',0.20,'sc',false,'o',ob1,'stem','Berapa cm dalam 3 m?','ans','B',
@@ -183,7 +189,7 @@ begin
     item_count, safety_critical_minimum, difficulty_mix, passing_rules, attempt_limit,
     allows_pause, offline_tolerant, late_sync_grace_seconds, hesitation_window_seconds,
     shuffle_policy, author_person_id)
-  values (v_canon, v_mod, 'Penguasaan Satuan Panjang — Nasional', 'POST_TEST', 'TEST', 6, 1,
+  values (v_canon, v_mod, 'Penguasaan — ' || p_title, 'POST_TEST', 'TEST', 6, 1,
     jsonb_build_object('MUDAH', 2, 'SEDANG', 2, 'SULIT', 2),
     jsonb_build_object('mastery_min', 0.6), 1, false, true, 300, 25, 'ITEMS_AND_OPTIONS', v_guru)
   returning id into v_defn;
@@ -221,13 +227,13 @@ begin
   end loop;
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_admin where id = v_rel;
   update public.plp_releases set status = 'FROZEN' where id = v_rel;
-  perform public.publish_release(v_rel);
+  if p_publish then perform public.publish_release(v_rel); end if;
   perform selftest.as_owner();
 
   canon := v_canon; course := v_course; modul := v_mod; les := v_les; defn := v_defn; rel := v_rel;
   return next;
 end $$;
-revoke all on function selftest.canonical_package(text) from public;
+revoke all on function selftest.canonical_package(text, boolean) from public;
 
 -- A school's own tiny course, for the cross-tenant probes. Never published --
 -- it exists to be invisible to everybody else.
@@ -382,8 +388,9 @@ begin
   alter table public.learning_assignments   enable trigger learning_assignments_status;
   alter table public.assessment_assignments enable trigger assessment_assignments_status;
 
-  -- and the revision courses a previous run created, so the lineage assertions
-  -- count what THIS run built rather than an accumulation
+  -- and the revision courses a previous run created, plus the auxiliary
+  -- packages F05-T14 and F05-T22 build, so the lineage assertions count what
+  -- THIS run built rather than an accumulation
   alter table public.courses              disable trigger courses_taught_immutable;
   alter table public.modules              disable trigger modules_taught_immutable;
   alter table public.lessons              disable trigger lessons_taught_immutable;
@@ -394,34 +401,34 @@ begin
   alter table public.release_distributions disable trigger release_distributions_append_only;
   delete from public.release_distributions d using public.plp_releases r, public.courses c
    where d.plp_release_id = r.id and r.course_id = c.id
-     and c.institution_id = v_canon and c.supersedes_course_id is not null;
+     and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   alter table public.release_distributions enable trigger release_distributions_append_only;
   delete from public.plp_releases r using public.courses c
-   where r.course_id = c.id and c.institution_id = v_canon and c.supersedes_course_id is not null;
+   where r.course_id = c.id and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.assessment_definitions d using public.courses c
-   where c.institution_id = v_canon and c.supersedes_course_id is not null
+   where c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'))
      and (d.course_id = c.id or d.module_id in (select m.id from public.modules m where m.course_id = c.id));
   delete from public.item_options o using public.items i, public.lessons l, public.modules m,
                                          public.courses c
    where o.item_id = i.id and i.lesson_id = l.id and l.module_id = m.id and m.course_id = c.id
-     and c.institution_id = v_canon and c.supersedes_course_id is not null;
+     and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.items i using public.lessons l, public.modules m, public.courses c
    where i.lesson_id = l.id and l.module_id = m.id and m.course_id = c.id
-     and c.institution_id = v_canon and c.supersedes_course_id is not null;
+     and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.learning_objectives lo using public.lessons l, public.modules m, public.courses c
    where lo.lesson_id = l.id and l.module_id = m.id and m.course_id = c.id
-     and c.institution_id = v_canon and c.supersedes_course_id is not null;
+     and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.lessons l using public.modules m, public.courses c
    where l.module_id = m.id and m.course_id = c.id
-     and c.institution_id = v_canon and c.supersedes_course_id is not null;
+     and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.modules m using public.courses c
-   where m.course_id = c.id and c.institution_id = v_canon and c.supersedes_course_id is not null;
+   where m.course_id = c.id and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.mcq_quality_findings f using public.courses c
-   where f.course_id = c.id and c.institution_id = v_canon and c.supersedes_course_id is not null;
+   where f.course_id = c.id and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.coaching_findings f using public.courses c
-   where f.course_id = c.id and c.institution_id = v_canon and c.supersedes_course_id is not null;
+   where f.course_id = c.id and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.courses c
-   where c.institution_id = v_canon and c.supersedes_course_id is not null;
+   where c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   alter table public.assessment_definitions enable trigger assessment_definitions_taught_immutable;
   alter table public.item_options         enable trigger item_options_taught_immutable;
   alter table public.items                enable trigger items_taught_immutable;
@@ -1048,14 +1055,38 @@ begin
   select count(*) into n from public.audit_log
    where action = 'LEARNING_RELEASE_MOVED' and target_id = v_la::text;
   if n < 1 then ok := false; detail := detail || 'the move wrote no audit row; '; end if;
-  -- a release outside the lineage is still refused
-  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  -- A release OUTSIDE the lineage is still refused, even when the school holds
+  -- a perfectly good grant for it -- otherwise "widened to the lineage chain"
+  -- would just mean "unwidened". A second canonical package, distributed to
+  -- the same school, is the case that separates the two.
+  declare p2 record;
   begin
-    perform public.move_learning_assignment_release(v_la, p.rel, 'back');
+    select * into p2 from selftest.canonical_package('Pengukuran Nasional II');
+    perform selftest.as_user('kanonik-admin@pintar.test');
+    perform public.grant_release_distribution(p2.rel, v_a, 'fable05 unrelated package');
     perform selftest.as_owner();
-  exception when others then perform selftest.as_owner(); end;
+    if not public.release_is_distributed_to(p2.rel, v_a) then
+      ok := false; detail := detail || 'the second canonical grant did not take effect; ';
+    end if;
+    perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+    begin
+      perform public.move_learning_assignment_release(v_la, p2.rel, 'lintas garis keturunan');
+      perform selftest.as_owner();
+      ok := false; detail := detail || 'a release outside the lineage was accepted as a correction; ';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm !~ 'lineage' then
+        ok := false; detail := detail || format('the out-of-lineage move was refused for the wrong reason: %s; ', sqlerrm);
+      end if;
+    end;
+    -- and the assignment did not move
+    select l.plp_release_id into v_row from public.learning_assignments l where l.id = v_la;
+    if v_row.plp_release_id <> v_rel2 then
+      ok := false; detail := detail || 'the refused move changed the assignment anyway; ';
+    end if;
+  end;
   test_id := 'F05-T14'; invariant := 'ADR-0015 §5.4 / ADR-0016 / INV-27';
-  if ok then detail := 'a v1.0 -> v1.1 correction across the lineage moved the assignment and its course, left the completed learner''s session and result on v1.0, wrote exactly one move row and an audit line, and refused an automatic move'; end if;
+  if ok then detail := 'a v1.0 -> v1.1 correction across the lineage moved the assignment and its course, left the completed learner''s session and result on v1.0, wrote exactly one move row and an audit line, refused an automatic move, and refused a distributed release from outside the lineage'; end if;
   return next;
 
   -- =========================================================================
@@ -1415,6 +1446,69 @@ begin
   test_id := 'F05-T21'; invariant := 'FABLE-05 §11';
   if ok then detail := format('every fixed counter is unmoved, both anonymous-surface counters are 2, every standing assertion is true, and the two deliberate movements are separately visible (%s non-synthetic tenant(s), %s canonical)',
     v_lint ->> 'non_synthetic_institutions', v_lint ->> 'platform_canonical_tenants'); end if;
+  return next;
+
+  -- =========================================================================
+  -- F05-T22 publishing while Blocked is refused server-side, and the same
+  -- release publishes once the CONTENT is repaired -- never the gate
+  -- =========================================================================
+  ok := true; detail := '';
+  declare p3 record; v_f uuid; v_sev text;
+  begin
+    select * into p3 from selftest.canonical_package('Pengukuran Nasional Uji', false);
+    select r.status::text into v_sev from public.plp_releases r where r.id = p3.rel;
+    if v_sev <> 'FROZEN' then
+      ok := false; detail := detail || format('the unpublished fixture is %s, not sealed; ', v_sev);
+    end if;
+    -- plant an ERROR finding: the package is now Blocked
+    select i.id into v_item from public.items i
+      join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id
+     where m.course_id = p3.course limit 1;
+    insert into public.mcq_quality_findings
+      (institution_id, course_id, item_id, pattern_class, severity, lokasi, masalah,
+       mengapa_penting, cara_memperbaiki)
+    values (p3.canon, p3.course, v_item, 'RED_CASE', 'ERROR', 'lokasi', 'masalah',
+            'mengapa', 'cara') returning id into v_f;
+
+    perform selftest.as_user('kanonik-admin@pintar.test');
+    select ps.surface_state into v_detail from public.studio_package_state(p3.course) ps;
+    if v_detail <> 'BLOCKED' then
+      ok := false; detail := detail || format('an ERROR finding left the surface at %s, not BLOCKED; ', v_detail);
+    end if;
+    begin
+      perform public.publish_release(p3.rel);
+      perform selftest.as_owner();
+      ok := false; detail := detail || 'a Blocked package was published; ';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm !~ 'readiness' then
+        ok := false; detail := detail || format('publication was refused for the wrong reason: %s; ', sqlerrm);
+      end if;
+    end;
+    -- an ERROR is never acknowledged away
+    perform selftest.as_user('kanonik-admin@pintar.test');
+    begin
+      perform public.acknowledge_finding('MCQ_QUALITY', v_f, 'probe');
+      perform selftest.as_owner();
+      ok := false; detail := detail || 'an ERROR finding was acknowledged away; ';
+    exception when others then perform selftest.as_owner(); end;
+
+    -- repair the CONTENT, not the gate
+    delete from public.mcq_quality_findings where id = v_f;
+    perform selftest.as_user('kanonik-admin@pintar.test');
+    select ps.surface_state into v_detail from public.studio_package_state(p3.course) ps;
+    if v_detail <> 'READY' then
+      ok := false; detail := detail || format('the repaired package reads %s, not READY; ', v_detail);
+    end if;
+    perform public.publish_release(p3.rel);
+    perform selftest.as_owner();
+    select r.status::text into v_sev from public.plp_releases r where r.id = p3.rel;
+    if v_sev <> 'PUBLISHED' then
+      ok := false; detail := detail || format('the repaired release is %s, not published; ', v_sev);
+    end if;
+  end;
+  test_id := 'F05-T22'; invariant := 'doc 04 §1a / INV-32';
+  if ok then detail := 'an ERROR finding turns the surface BLOCKED and the server refuses publication; the ERROR cannot be acknowledged away; repairing the content -- not the gate -- reaches READY and the same release publishes'; end if;
   return next;
 
   test_id := 'F05-DONE'; invariant := 'suite';
