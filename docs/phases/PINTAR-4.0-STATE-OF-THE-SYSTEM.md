@@ -319,18 +319,32 @@ strict contract job runs on CI's own clean stack and therefore skips nothing:
 170 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN   # run 72/73, manifest v23
 ```
 
-**Run 74 on `5f8f45d`** is the head carrying 0083 and the G1 repair, and its
-status is stated exactly as it stood when this was written: every individual job
-— including `red case · db-fable06-gates`, which now plants four defects rather
-than three — reported `completed / success` in a snapshot taken while the run
-was still open, and **the run-level conclusion had not settled.** The jobs are
-evidence; the run-level green is not yet in hand, and writing it here before it
-is would be the §1.2 error in a fresh coat.
+**Run 74 on `5f8f45d`** — the head carrying 0083 and the G1 repair, and the last
+commit that changes a migration, a test, the manifest or the workflow —
+**completed with conclusion `success` across all fifteen jobs**, including
+`red case · db-fable06-gates`, which now plants four defects rather than three.
+Its strict contract leg:
 
-The local equivalent of that leg IS measured at this commit: all four db plants
-turn their own gate red for their own named reason on an 80-migration clean
-stack, and the control — the same `red()` call against an unplanted transaction
-— exits 1 with `stayed green with the defect planted`.
+```
+171 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN   # run 74, manifest v24
+F06-N04     PASS    a READY briefing is refused with no template, with a template version but
+                    no template, and with a template but no version -- and accepted when it
+                    carries the catalogue version, the report id, the template id and the
+                    template version together
+```
+
+*(An earlier draft of this paragraph recorded run 74 as still open with its
+run-level conclusion unsettled, because that is what was true when it was
+written. It is kept in the history rather than smoothed away: a CI run is green
+when it says so and not when the jobs beneath it look like it will.)*
+
+`7fd5407`, the repository head, is **documentation only** — the capstone and the
+hosted addendum — and changes nothing run 74 exercised.
+
+The local equivalent of that leg is measured at this commit too: all four db
+plants turn their own gate red for their own named reason on an 80-migration
+clean stack, and the control — the same `red()` call against an unplanted
+transaction — exits 1 with `stayed green with the defect planted`.
 
 ### The FABLE-00 non-negotiables, against the running system
 
