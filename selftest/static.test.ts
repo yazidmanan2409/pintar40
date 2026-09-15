@@ -1258,6 +1258,129 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    // ADR-0021. PostgreSQL grants EXECUTE on every new function to PUBLIC, and
+    // `alter default privileges` cannot revoke from PUBLIC -- so there is no
+    // default-off setting to rely on. Forty-nine migrations have carried an
+    // explicit revoke; the line has held because a human remembered it, and it
+    // has been forgotten three times. This is the prevention half: a syntax
+    // check at authoring time, paired with the privilege counter that already
+    // catches it late.
+    id: "F06-S01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const dir = join(repoRoot, "supabase", "migrations");
+      const all = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
+
+      // THE RULE IS FORWARD-SCOPED, AND THE CUTOFF IS RECORDED RATHER THAN
+      // IMPLIED. Migrations before ADR-0021 are closed by a different and
+      // legitimate mechanism: 20260912004654_function_privileges.sql sweeps
+      // the functions created before it, and the live schema measures
+      // `functions_executable_by_anon = 0`. That runtime fact is a stronger
+      // proof than this syntax check for the history it covers.
+      //
+      // It is not a mechanism available going forward -- a sweep cannot close
+      // a function that shipped reachable in the migrations between -- and
+      // rewriting an applied migration is forbidden. So the check governs
+      // everything authored from ADR-0021 onward, and the cutoff is a constant
+      // here so that moving it is an edit somebody has to make on purpose.
+      const ADR_0021_CUTOFF = "20260918100000";
+      const files = all.filter((f) => f >= ADR_0021_CUTOFF);
+      c.expect(all.length > 0, "no migrations found to check");
+      // Vacuity guard. If the cutoff ever outruns the series -- a renamed
+      // file, a changed convention -- this check would pass over an empty set
+      // and report success having examined nothing.
+      c.expect(
+        files.length >= 2,
+        `ADR-0021's check is examining ${files.length} migration(s): the cutoff ${ADR_0021_CUTOFF} ` +
+          "no longer selects the post-ADR series, so this check is measuring nothing"
+      );
+
+      // Comments stripped FIRST, per L4. A migration header that explains why a
+      // function is revoked would otherwise satisfy the rule by talking about
+      // it -- which is the exact failure L4 names, and two of this project's
+      // guards have already shipped with it.
+      const strip = (t: string) =>
+        t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*--.*$/gm, "");
+
+      const offenders: string[] = [];
+      for (const f of files) {
+        const sql = strip(readFileSync(join(dir, f), "utf8"));
+
+        // Functions created in this migration. Trigger functions and
+        // calculators alike -- PUBLIC can execute anything it is not revoked
+        // from, and "nobody would call it directly" is not a control.
+        // Functions created in this migration, with the offset of the LAST
+        // create. Trigger functions and calculators alike -- PUBLIC can execute
+        // anything it is not revoked from, and "nobody would call it directly"
+        // is not a control.
+        const created = new Map<string, number>();
+        for (const m of sql.matchAll(
+          /create\s+(?:or\s+replace\s+)?function\s+(?:public\.)?([a-z_][a-z0-9_]*)\s*\(/gi
+        )) created.set(m[1].toLowerCase(), m.index ?? 0);
+        if (created.size === 0) continue;
+
+        // ORDER MATTERS, and getting this wrong was a real hole in the first
+        // version of this check. A revoke only closes a function that already
+        // exists: a function created AFTER the revoke ran is still open, and a
+        // name-only match would have passed it. Every rule below therefore
+        // compares offsets, not just names.
+        const revokes: Array<{ at: number; name?: string; pattern?: RegExp }> = [];
+        for (const m of sql.matchAll(
+          /revoke\s+[\s\S]{0,80}?on\s+function\s+(?:public\.)?([a-z_][a-z0-9_]*)\s*\([^)]*\)\s*\n?\s*from\s+([^;]*);/gi
+        )) if (/\bpublic\b/i.test(m[2])) revokes.push({ at: m.index ?? 0, name: m[1].toLowerCase() });
+
+        // A family pattern is legitimate where functions are created together
+        // under a shared prefix: the risk in a family is omitting one NAME, and
+        // a loop cannot omit one. ADR-0021 requires such a migration to assert
+        // the resulting count as well, which its terminal block does.
+        if (/revoke\s+all\s+on\s+function[^;]*from\s+[^;]*public/i.test(sql)) {
+          for (const m of sql.matchAll(/proname\s+like\s+'([a-z_\\%]+)'/gi)) {
+            const lit = m[1].replace(/\\_/g, "_");
+            if (lit.includes("%")) {
+              revokes.push({
+                at: m.index ?? 0,
+                pattern: new RegExp("^" + lit.replace(/%/g, ".*") + "$", "i"),
+              });
+            }
+          }
+        }
+
+        // A function dropped in the same migration never commits, so it was
+        // never exposed -- transactional DDL means no other session can see it.
+        // This is what makes a probe function inside a rolled-back verification
+        // block legitimate, and it is an exemption with no loophole in it: the
+        // drop has to actually be there, after the create.
+        const dropped = new Map<string, number>();
+        for (const m of sql.matchAll(
+          /drop\s+function\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_][a-z0-9_]*)\s*\(/gi
+        )) dropped.set(m[1].toLowerCase(), m.index ?? 0);
+
+        for (const [fn, createdAt] of created) {
+          const droppedAt = dropped.get(fn);
+          if (droppedAt !== undefined && droppedAt > createdAt) continue;
+          const closed = revokes.some(
+            (r) => r.at > createdAt && (r.name === fn || (r.pattern?.test(fn) ?? false))
+          );
+          if (!closed) offenders.push(`${f}: ${fn}`);
+        }
+      }
+
+      c.expect(
+        offenders.length === 0,
+        "ADR-0021: function(s) created without revoking EXECUTE from PUBLIC in the same migration " +
+          "(EXECUTE is granted to PUBLIC by default and `alter default privileges` cannot revoke it):\n  " +
+          offenders.slice(0, 25).join("\n  ")
+      );
+      return c.verdict(
+        `ADR-0021: every function created across the ${files.length} migration(s) authored since the ADR ` +
+          `is revoked from PUBLIC in the migration that creates it, by name or by a family pattern whose ` +
+          `count is asserted; the ${all.length - files.length} earlier migration(s) are covered by the ` +
+          `sweep in function_privileges.sql and by functions_executable_by_anon = 0`
+      );
+    },
+  },
+  {
     id: "DOC-P01",
     requires: [],
     run: async ({ repoRoot }) => {
