@@ -122,3 +122,37 @@ no control, because it is believed.
 
 *Distinct from L5: L5 is about believing a boundary you never read; L7 is about
 changing a boundary you did read, in only one of the places it exists.*
+
+---
+
+## L8 — An illustration in a prompt is not a specification, and the builder cannot tell
+
+Two of the four documents this build works from are written by the reviewer.
+When that prose names a role, a column or a count, **it will be read as
+measured** — because most of it is, and nothing in the sentence distinguishes
+the two.
+
+The FABLE-06 execution prompt §3.3 illustrated execution-time re-authorization
+with *"a template saved by a dean and opened by a lecturer."* A dean cannot save
+an institution report template. `role_capabilities()` returns
+`CAN_MANAGE_REPORT_TEMPLATES` for `INSTITUTION_ADMIN` and `SYSTEM_ADMIN` only,
+and doc 05's authorization matrix says the same thing with four ❌ in the
+STUDENT / EDUCATOR / HoD / DEAN columns. **The frozen baseline and the running
+schema agreed with each other; only the illustration disagreed with both.**
+
+The failure is cheap to catch and expensive to miss in a specific way: the
+builder's instinct on finding prose that contradicts the schema is to record a
+**baseline discrepancy** — and that is the wrong repair, because it writes a
+disagreement into the record between two documents that never disagreed. The
+first move on any conflict is to read the baseline, not to reconcile the prompt
+against the code.
+
+**So, both directions:**
+- Writing a prompt: an illustrative example either uses values you have
+  measured, or says *illustrative* in the sentence itself.
+- Reading one: a role, column, count or capability named in prose is a claim to
+  verify, not a fact to build on — and when it is wrong, check the baseline
+  before concluding the baseline is wrong.
+
+*Distinct from L5 and L7: those are about boundaries in code. L8 is about the
+prose upstream of the code, which carries no compiler and no test.*
