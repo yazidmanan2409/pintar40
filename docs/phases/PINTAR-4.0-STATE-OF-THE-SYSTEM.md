@@ -642,28 +642,34 @@ single most load-bearing piece of missing infrastructure in this build:
 3. The persona-switching behaviours that can only be exercised against real
    GoTrue rather than a local shim.
 
-### The hosted project is nine migrations behind this commit
+### The hosted project — nine migrations behind when this was written, synced since
 
-```
-$ # management channel
-select count(*) as n, max(version) as latest from supabase_migrations.schema_migrations
-n = 70   latest = 20260913140908 (persona_session_is_the_token)
-```
+When this document was drafted the hosted development project carried **70**
+migrations against the repository's **79**. The nine FABLE-06 migrations have
+since been applied through the management channel and verified; the evidence is
+in `docs/phases/FABLE-06-HOSTED-ADDENDUM.md` and the short form is:
 
-The repository carries **79**. The nine FABLE-06 migrations (`metric_catalogue`
-through `briefings`) are **applied locally and on CI's clean stack, and not on
-hosted.** Applying them is the remaining item of the code gate and follows this
-document as its own addendum — the same shape Task 2 used, where the completion
-report and the hosted addendum were separate commits with separate evidence.
+- **nine of nine byte-identical** (`md5(array_to_string(statements,''))` equals
+  the md5 of each repository file with its trailing newline stripped), and each
+  ran its own ADR-0014 terminal verification block on hosted rather than only
+  locally;
+- hosted migration count **79**, matching the repository;
+- the widened schema digest matches on **twelve of thirteen categories with the
+  same 2552 objects**. FUNC differs while FUNCNORM matches, so the divergence is
+  cosmetic — and it was **bounded by name** rather than inferred: bucket
+  bisection narrowed it to four of nineteen buckets and then to exactly the six
+  FABLE-01 functions Task 2's addendum already named. **FABLE-06 did not widen
+  that bound**;
+- every counter equal to the local schema, `functions_without_search_path = 0`
+  included — the regression §1.2 describes is closed on hosted too;
+- all five FABLE-06 assertions executed on the hosted database and returned true.
 
-Hosted's security counters at the 70-migration state, for the comparison the
-addendum will make:
+Hosted carries the **schema and not the fixture data**: 0 report templates, 0
+briefings, 0 question-health rows. That is correct — those are artefacts of a
+suite run, and the suite mutates business data (§7).
 
-```
-functions 195 · tables 67 · tables_without_rls 0 · functions_executable_by_anon 0
-secdef_without_search_path 0 · functions_without_search_path 0
-policies_using_true 0 · anon_public_surface 2
-```
+**This closes the last item of the code gate and closes nothing in the readiness
+gate.** Applying migrations to a development project is not a deployment drill.
 
 ### The ten endpoints that have never executed
 
