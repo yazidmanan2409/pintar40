@@ -240,3 +240,30 @@ reason to check rather than to assume the error is conservative.
 
 *The mechanical form of L8's reading half: L8 says verify a claim in prose; L11
 says what "verify" has to mean for a claim quantified over a set.*
+
+---
+
+## L9a — A state machine cannot be tested without data
+
+Corollary to L9, and it explains why six migrations of careful probing could not
+reach a defect that eighty real sessions found on the first run.
+
+`enforce_question_health` requires a health row to **begin** at
+`INSUFFICIENT_EVIDENCE`. Migration 0076's insert path wrote the derived state
+directly, which is illegal for any item whose evidence already crosses a
+threshold. Every probe passed.
+
+**In a world with no data, the states collapse onto each other.** A probe's item
+has no evidence, so its derived state *is* the starting state, and the guard
+distinguishing them is unreachable. The probe exercised the transitions it
+happened to name; it could not exercise the one the world would have forced.
+
+**So: a verification block over an empty world proves the transitions it writes
+down, and nothing about which transitions reality produces.** A state machine
+needs a fixture with real data before its entry and exit conditions mean
+anything — and the fixture has to be big enough to push items into *different*
+states, because a fixture where everything lands in one state has the same blind
+spot in miniature.
+
+*L9 says a block of refusals never reaches the body. L9a says a block over an
+empty database never reaches the branches data would have forced.*

@@ -33,13 +33,40 @@ end $$;
 -- relying on it -- D1's lone enrolment is the below-threshold case only if it
 -- sits outside this cohort's scope.
 --
--- SIZED FROM A MEASUREMENT, NOT FROM AN ESTIMATE. D1's definition draws 6 of a
--- 12-item bank, so the naive estimate is half the cohort per item. The measured
--- spread at 80 learners was 26 to 60 -- far wider than binomial, so the draw is
--- not uniform and the estimate is not safe to size against. 160 learners puts
--- the observed worst ratio (0.325) at ~52 per item, comfortably over the
--- correctness threshold of 30. The suite asserts the ACTUAL counts, so a run
--- that dips says so rather than quietly mis-measuring.
+-- SIZED FROM A MEASUREMENT, NOT FROM AN ESTIMATE, AND THE MEASUREMENT FOUND A
+-- PRODUCT PROPERTY. D1's definition draws 6 of a 12-item bank, so the naive
+-- estimate is half the cohort per item. The measured spread at 80 learners was
+-- 26 to 60 -- far wider than binomial, which meant the estimate was not safe to
+-- size against and something structural was going on.
+--
+-- IT IS NOT ADAPTIVE SELECTION. `assemble_session` orders the pool by
+-- `seeded_index(seed, 'item', item_id)` -- deterministic pseudo-random per
+-- session -- and then fills in three passes: safety-critical FIRST, then the
+-- difficulty mix, then a top-up. Measured over 160 sessions:
+--
+--     safety-critical  SULIT    102 presentations
+--     safety-critical  SEDANG    98
+--     the other ten items        64 .. 83
+--
+-- The two safety-critical items are drawn far more than the rest because
+-- `safety_critical_minimum = 1` GUARANTEES one per session and the bank holds
+-- only two. Remove those two and the remaining spread is near-binomial around
+-- 76. The over-dispersion is INV-10 working, not a defect and not an adaptive
+-- engine.
+--
+-- THE CONSEQUENCE IS A PRODUCT PROPERTY, recorded in the capstone rather than
+-- only here: per-item evidence accumulates structurally unevenly, so
+-- safety-critical items cross a Question Health threshold sooner than others --
+-- not because they are worse, but because the product guarantees they are
+-- presented. The minimum-sample threshold is therefore doing more work than it
+-- appears to: it is what stops an over-exposed item being judged first, and it
+-- is why the first signals an institution sees will skew safety-critical. That
+-- is exposure, not quality, and an educator surface should never imply
+-- otherwise.
+--
+-- 160 learners puts the least-sampled item at ~63 against a correctness
+-- threshold of 30. The suite asserts the ACTUAL least-sampled count, so a run
+-- whose draw dips reports itself rather than quietly mis-measuring.
 --
 -- Cooling does not apply: `exam_item_is_cooled` only looks at `bank_type =
 -- 'EXAM'` and this bank is TEST. Checked, not assumed.
