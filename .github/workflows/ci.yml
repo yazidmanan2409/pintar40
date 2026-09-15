@@ -782,6 +782,22 @@ jobs:
           SQL
           red F06-N02 'ACCEPTED a call from a dean' /tmp/f06-3.sql
 
+          # 4. the provenance constraint as 0082 wrote it -- catalogue version and
+          #    report id required, template id and template version not. Found by
+          #    the second eye (G1) and repaired by 0083; planted here so the
+          #    repair cannot be quietly dropped by a later migration.
+          cat > /tmp/f06-4.sql <<'SQL'
+          begin;
+          alter table public.briefings drop constraint briefings_ready_carries_provenance;
+          alter table public.briefings
+            add constraint briefings_ready_carries_provenance
+            check (state in ('COLLECTING','GENERATING')
+                   or (catalogue_version is not null and generated_report_id is not null));
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-N04';
+          rollback;
+          SQL
+          red F06-N04 'template_version (G1)' /tmp/f06-4.sql
+
   baseline-parity:
     name: baseline · frozen documents are what they say they are
     runs-on: ubuntu-latest

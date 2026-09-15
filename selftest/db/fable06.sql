@@ -1368,6 +1368,144 @@ begin
     return next;
   end;
 
+  -- =========================================================================
+  -- F06-N04 -- G1's repair, asserted where a gate can re-read it.
+  --
+  -- The second eye found that `briefings_ready_carries_provenance` enforced
+  -- half of what 0082 claimed: the catalogue version and the report id were
+  -- required, the template id and template version were not, and both columns
+  -- are nullable. 0083 widened the predicate to the claim.
+  --
+  -- WHY THIS TEST EXISTS AND NOT JUST 0083's TERMINAL BLOCK. That block ran
+  -- once, on the day it was applied. It cannot be re-run against a hosted
+  -- database and it fails no pull request -- the same gap §7 item 8 found for
+  -- seventeen assertions and for INV-34. A constraint is exactly the kind of
+  -- thing a later migration drops in passing.
+  --
+  -- BOTH HALVES. The structural half reads the live predicate, because that is
+  -- what a gate reads and what a `drop constraint` would silently remove. The
+  -- behavioural half writes a real briefing and requires the refusal, because a
+  -- predicate that names four columns and never fires proves nothing.
+  -- =========================================================================
+  declare
+    v_inst uuid; v_node uuid; v_b uuid; v_rep uuid; v_tmpl uuid;
+    v_def text; v_bad text := ''; n_refused int := 0; v_accepted boolean := false;
+  begin
+    select pg_get_constraintdef(con.oid) into v_def
+      from pg_constraint con join pg_class c on c.oid = con.conrelid
+     where c.relname = 'briefings' and con.conname = 'briefings_ready_carries_provenance';
+    if v_def is null then
+      v_bad := v_bad || 'the provenance constraint is gone entirely; ';
+    else
+      -- named one at a time so the failure says WHICH half went missing
+      if v_def !~ 'catalogue_version'   then v_bad := v_bad || 'the predicate no longer requires catalogue_version; '; end if;
+      if v_def !~ 'generated_report_id' then v_bad := v_bad || 'the predicate no longer requires generated_report_id; '; end if;
+      if v_def !~ 'template_id'         then v_bad := v_bad || 'the predicate no longer requires template_id (G1); '; end if;
+      if v_def !~ 'template_version'    then v_bad := v_bad || 'the predicate no longer requires template_version (G1); '; end if;
+    end if;
+
+    select i.id into v_inst from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
+    begin
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      select n.id into v_node from public.org_nodes n
+       where n.institution_id = v_inst and n.kind in ('CLASS','COHORT') limit 1;
+      insert into public.report_templates (institution_id, standard_report, title_key)
+      values (v_inst, 'class_learning_intelligence', 'laporan.kelas.judul')
+      returning report_templates.id into v_tmpl;
+
+      perform selftest.as_owner();
+      insert into public.generated_reports
+        (institution_id, standard_report, template_id, template_version, catalogue_version,
+         scope_node_id, body)
+      values (v_inst, 'class_learning_intelligence', v_tmpl, 1, public.current_metric_catalogue(),
+              v_node, '{"entries": [], "shown": 0, "omitted": 0}'::jsonb)
+      returning generated_reports.id into v_rep;
+
+      insert into public.briefings (institution_id, scope_node_id)
+      values (v_inst, v_node) returning briefings.id into v_b;
+      -- `where briefings.id`, not `where id`: the runner's OUT parameter is
+      -- called `id` and shadows the column. Fifth time in this build.
+      update public.briefings set state = 'GENERATING' where briefings.id = v_b;
+
+      -- no template at all
+      begin
+        update public.briefings
+           set state = 'READY', catalogue_version = public.current_metric_catalogue(),
+               generated_report_id = v_rep
+         where briefings.id = v_b;
+        v_bad := v_bad || 'a READY briefing was written with no template at all; ';
+      exception when check_violation then n_refused := n_refused + 1;
+                when others then v_bad := v_bad || 'the no-template probe failed for another reason: '
+                                                || left(sqlerrm, 50) || '; ';
+      end;
+
+      -- the version without the id, and the id without the version: a template
+      -- is edited in place, so one half names nothing a later reader can use
+      begin
+        update public.briefings
+           set state = 'READY', catalogue_version = public.current_metric_catalogue(),
+               generated_report_id = v_rep, template_version = 1
+         where briefings.id = v_b;
+        v_bad := v_bad || 'a READY briefing named a template version but no template; ';
+      exception when check_violation then n_refused := n_refused + 1;
+                when others then v_bad := v_bad || 'the version-only probe failed for another reason: '
+                                                || left(sqlerrm, 50) || '; ';
+      end;
+      begin
+        update public.briefings
+           set state = 'READY', catalogue_version = public.current_metric_catalogue(),
+               generated_report_id = v_rep, template_id = v_tmpl
+         where briefings.id = v_b;
+        v_bad := v_bad || 'a READY briefing named a template but no version of it; ';
+      exception when check_violation then n_refused := n_refused + 1;
+                when others then v_bad := v_bad || 'the id-only probe failed for another reason: '
+                                                || left(sqlerrm, 50) || '; ';
+      end;
+
+      -- and the complete artefact is ACCEPTED, so the predicate is a rule and
+      -- not a wall
+      begin
+        update public.briefings
+           set state = 'READY', catalogue_version = public.current_metric_catalogue(),
+               generated_report_id = v_rep, template_id = v_tmpl, template_version = 1
+         where briefings.id = v_b;
+        v_accepted := (select b2.state from public.briefings b2 where b2.id = v_b) = 'READY';
+      exception when others then
+        v_bad := v_bad || 'a briefing carrying complete provenance was REFUSED: ' || left(sqlerrm, 60) || '; ';
+      end;
+
+      perform selftest.as_owner();
+      raise exception 'F06_N04_UNDO';
+    exception when others then
+      if sqlerrm <> 'F06_N04_UNDO' then
+        v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 80) || '; ';
+      end if;
+    end;
+    perform selftest.as_owner();
+
+    id := 'F06-N04'; area := '§3.4 / second-eye G1 -- a briefing names the template version it was made from';
+    if v_bad <> '' then
+      ok := false; detail := v_bad;
+    elsif n_refused <> 3 then
+      ok := false;
+      detail := format('%s of 3 incomplete READY briefings were refused: the provenance predicate does not '
+                    || 'require every column it names', n_refused);
+    elsif not v_accepted then
+      ok := false;
+      detail := 'nothing incomplete was written and nothing complete was either: a constraint that refuses '
+             || 'every briefing satisfies a test made only of refusals';
+    else
+      ok := true;
+      detail := 'a READY briefing is refused with no template, with a template version but no template, and '
+             || 'with a template but no version -- and accepted when it carries the catalogue version, the '
+             || 'report id, the template id and the template version together. The live predicate names all '
+             || 'four. Found by the second eye as G1: 0082 enforced two of the four while its header claimed '
+             || 'all of them, which is a description broader than its predicate in a CONSTRAINT rather than '
+             || 'in a proves string. Every row written here is rolled back';
+    end if;
+    return next;
+  end;
+
   perform selftest.f06_purge();
   perform selftest.purge_certificates();
   id := 'F06-DONE'; area := 'suite'; ok := true; detail := 'FABLE-06 suite complete';

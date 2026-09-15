@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 23,
+  "version": 24,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -951,6 +951,11 @@
       "id": "F06-P09",
       "runner": "db",
       "proves": "one saved report template in the live schema, generated through two real personas: INSTITUTION_ADMIN receives every entry, EDUCATOR receives the same number of entries with the institution-scope and item-scope metrics replaced by an honest statement that carries neither the metric id nor its label. §3.3 -- a saved configuration is a request, not an entitlement -- asserted rather than argued. A deprecated metric added to the same template reads status=deprecated with its note key while the other entries still render. BOUNDED: no exposed surface can deprecate a metric (publish_metric_catalogue copies the flag forward and metric_definitions is immutable), so the definition is inserted here as a migration would -- what is proven is the READING of a deprecated metric, not a deprecation workflow, which does not exist (OQ-5). Every row is rolled back"
+    },
+    {
+      "id": "F06-N04",
+      "runner": "db",
+      "proves": "the live CHECK predicate on public.briefings requires all four provenance columns -- catalogue_version, generated_report_id, template_id and template_version -- and a READY briefing missing the template id, missing the template version, or naming no template at all is refused on UPDATE, while one carrying all four is accepted so the predicate is a rule rather than a wall. Second-eye finding G1: 0082 enforced two of the four while its header claimed §3.4's \"the catalogue version AND the template version it used\" -- a description broader than its predicate, in a CONSTRAINT rather than in a proves string. Repaired by 0083. Structural and behavioural halves both, because a predicate naming four columns that never fires proves nothing. Every row written is rolled back"
     }
   ]
 }
