@@ -201,3 +201,42 @@ no bijection can see.
 
 *Distinct from L5: L5 is believing a boundary you never read. L10 is reading the
 right boundary and asserting the wrong pair.*
+
+---
+
+## L11 — A `limit 1` is a sample; a universal claim needs the aggregate
+
+The FABLE-06 sweep review stated that *"all seven `item_type_registry` rows
+currently carry `["item_type", "stem", "stimulus", "opsi"]`"*, and concluded the
+sanitizer allowlist narrowed nothing. **`NUMERIC` carries three keys.** It
+withholds `opsi`, because a numeric-entry question has no options to show.
+
+The query behind the sentence was `select sanitizer_allowlist from
+item_type_registry limit 1`, run beside a `count(*) = 7`. A sample of one and a
+count of seven, written up as a universal over seven. **The data for the claim
+was never fetched** — this was not a misreading.
+
+It then propagated: the same sentence was copied into migration 0074's header by
+a second reader who had the contradicting measurement on screen and read past it.
+An unverified universal is contagious precisely because it sounds measured.
+
+**So: before writing *all*, *every*, *none*, *identical* or *always* about a set,
+the query must have grouped or counted over that set.** `limit 1` answers "what
+does one look like", never "what do they all look like". The aggregate costs
+nothing:
+
+```sql
+-- not this
+select sanitizer_allowlist from item_type_registry limit 1;
+-- this
+select jsonb_array_length(sanitizer_allowlist) n, count(*)
+  from item_type_registry group by 1;
+```
+
+**And the correction strengthened the finding.** An inert allowlist is a latent
+risk; a live one is a boundary already doing work and sitting in an editable
+row. The error understated its own argument — which is the usual shape, and the
+reason to check rather than to assume the error is conservative.
+
+*The mechanical form of L8's reading half: L8 says verify a claim in prose; L11
+says what "verify" has to mean for a claim quantified over a set.*
