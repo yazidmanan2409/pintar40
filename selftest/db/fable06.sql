@@ -761,6 +761,51 @@ begin
       end if;
     end if;
     return next;
+
+    -- F06-P07 -- THE TWO HUMAN PATHS THIS PHASE MADE REACHABLE, EXECUTED.
+    --
+    -- The happy-path sweep is only worth running if its findings get closed.
+    -- Two of the twelve it names are this phase's own: `review_briefing`, which
+    -- 0082 created and nothing called, and `record_question_health_review`,
+    -- which the sweep classified as outcome (3) -- unreachable, because
+    -- question_health held no rows -- and which 0076 moved to (2). Leaving
+    -- either unexercised would be the 0072 class exactly: shipped, believed,
+    -- never run.
+    declare v_qh uuid; v_state text; v_bstate text;
+    begin
+      perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+      v_bstate := (public.review_briefing(v_b, false)) ->> 'state';
+
+      select qh.item_id into v_qh from public.question_health qh
+       where qh.institution_id = c.inst and qh.state = 'SIGNAL_RAISED' limit 1;
+      if v_qh is not null then
+        -- SIGNAL_RAISED -> UNDER_REVIEW is the human edge; the computation owns
+        -- neither end of it
+        perform public.record_question_health_review(v_qh, 'UNDER_REVIEW',
+          'selftest: a reviewer picks up a raised signal');
+        select qh.state::text into v_state from public.question_health qh where qh.item_id = v_qh;
+      end if;
+      perform selftest.as_owner();
+
+      id := 'F06-P07'; area := 'the human half of both lifecycles, executed';
+      if v_bstate <> 'REVIEWED' then
+        ok := false; detail := format('review_briefing left the briefing at %s', v_bstate);
+      elsif v_qh is null then
+        ok := false;
+        detail := 'no item reached SIGNAL_RAISED, so the reviewer path had nothing to pick up -- which '
+               || 'means F06-P03 did not do what it claims';
+      elsif v_state <> 'UNDER_REVIEW' then
+        ok := false; detail := format('a reviewer picked up a raised signal and it sits at %s', v_state);
+      else
+        ok := true;
+        detail := 'both human paths run: an educator marks a briefing REVIEWED, and a reviewer moves a '
+               || 'raised signal to UNDER_REVIEW -- the edge the computation is forbidden to drive. Both '
+               || 'were named by the happy-path sweep as never having executed, and '
+               || 'record_question_health_review was unreachable until this phase produced the first '
+               || 'question_health row for it to act on';
+      end if;
+      return next;
+    end;
   end;
 
   -- Same ordering on the way out: the cohort's reclassifications reference D1

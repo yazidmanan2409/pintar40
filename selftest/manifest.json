@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 21,
+  "version": 22,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -921,6 +921,11 @@
       "id": "F06-P06",
       "runner": "db",
       "proves": "a briefing reaches READY over the D1 cohort's real OFFICIAL evidence and the ARTEFACT carries the catalogue version and template version it was made from (\u00a73.4). Walks two declared edges, leaving two audit rows in the LIVE DATABASE ordered by identity because both share one transaction timestamp (L3). Re-evaluating pinned to the recorded catalogue answers under it, so the version determines the numbers rather than naming them. 0082's terminal block could not reach this branch -- a synthetic tenant caps at SYNTHETIC and the catalogue refuses a minimum sample of 0 -- and says so rather than faking evidence"
+    },
+    {
+      "id": "F06-P07",
+      "runner": "db",
+      "proves": "the human half of both lifecycles executes in the LIVE DATABASE: an educator marks a briefing REVIEWED, and a reviewer moves a raised question-health signal to UNDER_REVIEW -- the edge the computation is forbidden to drive. Both were named by the happy-path sweep as never having executed; record_question_health_review was outcome (3), unreachable, until this phase produced the first question_health row for it to act on. Closing a sweep finding rather than only recording it"
     }
   ]
 }

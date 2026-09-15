@@ -207,9 +207,25 @@ inert and `advance_briefing` keeps returning "not yet" — but an educator's inb
 accumulates entries that will never resolve, and the product has no way to say
 "this one is not coming".
 
+**TWO FRAMINGS, and recording only the first would narrow the answers.**
+
+*As a lifecycle question:* `COLLECTING` needs an exit, so add a declared edge.
+This is the reading the finding invites, and it is the more expensive one — an
+edge added to a state machine that currently means something precise, to solve
+a problem that may not live there.
+
+*As a surface question:* a stuck briefing is only a problem **because it appears
+in an educator's inbox**. A surface that does not list a briefing which cannot
+advance — or lists it with an honest sentence saying so — resolves the entire
+complaint without touching the lifecycle at all.
+
+The second is probably right and is certainly cheaper. **Recorded both ways
+deliberately**, because a reader who sees only "missing edge" will add one, and
+that is the outcome the restraint here was protecting against.
+
 **What would settle it:** a product decision about whether an unfinished
-briefing is closed, expires, or is simply hidden after a period — and if closed,
-a declared edge for it. It is a lifecycle question, not a defect.
+briefing is closed, expires, or is simply not shown. Only the first of those
+needs a declared edge.
 
 ---
 
@@ -279,3 +295,22 @@ per item that moves. Bounded in steady state by the Q4 guarantee — a rerun ove
 unchanged evidence writes nothing — but **unbounded on first run at institution
 scale**. At D1's twelve items this is nothing. On a real bank it is a number
 worth having before someone finds it.
+
+---
+
+# A rule for the capstone, recorded here so it is not a matter of intent
+
+**Every number in the state-of-the-system document comes from a command run at
+the commit the document describes, and the command is pasted beside the number.**
+Not from a commit message, not from a conversation, not from recollection.
+
+Three count errors landed in this phase between builder and reviewer, all from
+the same habit: *"80 / 81 migrations"* (read off scratch database names — there
+are 79), *"counters unchanged"* (eight counters checked, a ninth not), and *"all
+seven allowlist rows are identical"* (written from a `limit 1` beside a
+`count(*) = 7`). Each was cheap to correct because something else measured it.
+
+The capstone is the one document where a wrong number is **load-bearing rather
+than embarrassing** — it is the artefact a Layer-3 audit reads to decide what was
+verified. A figure there that nobody can reproduce from a pasted command is a
+claim, and this project's whole method is that claims are not evidence.

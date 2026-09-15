@@ -88,8 +88,29 @@ live ledger instead of a second snapshot.
 | 2026-09-15 | `sanitized_item` | **(2) → (1).** Migration 0074 and `F06-P01`: executed to a successful return, asserting the item's real option rationale is absent from the projection |
 | 2026-09-15 | `record_question_health_review` | **(3) → (2).** Migration 0076 creates the first `question_health` rows, so a success path now exists to execute. Not yet exercised |
 
-**Running count: 70 of 82 executed (was 69); 12 never executed (was 13, of which
-one was unreachable and is now merely unexercised).**
+| 2026-09-15 | `mode_policy` | **(2) → (1).** `F06-N02` uses it as the read half of the INV-19 assertion — a dean must read successfully through the session that is refused every write |
+| 2026-09-15 | `review_briefing`, `advance_briefing`, `open_briefing`, `metric_evaluate`, `generate_report`, `current_metric_catalogue`, `recompute_question_health` | **new, and executed.** Every RPC this phase added has an executed success path; `review_briefing` was briefly not, and `F06-P07` closed it |
+| 2026-09-15 | `record_question_health_review` | **(2) → (1).** `F06-P07`: a reviewer moves a raised signal to `UNDER_REVIEW`. It was outcome (3) — unreachable — until this phase produced the first `question_health` row |
+
+**RE-MEASURED at the FABLE-06 close: 76 of 86 registered client RPCs have an
+executed success path; 10 have not.** Method unchanged — `track_functions = all`
+set before the replay, all four seeds, full `selftest:local`. The registry grew
+82 → 86 because this phase added RPCs; all of them execute.
+
+**A premise worth correcting, because it was checked rather than taken.** It was
+suggested that 0075's `search_path` pin made the sixteen calculators
+non-inlinable and therefore countable for the first time, which would have made
+the earlier figure unreliable. **It does not apply here:** the calculators are
+not in `client_rpc_registry` at all (they carry no client grant, deliberately),
+and all 86 registry functions are `SECURITY DEFINER`, which PostgreSQL never
+inlines regardless of `SET` clauses. The earlier figure was sound; the re-measure
+was due because the registry grew and new tests execute new paths, not because
+the old number was wrong.
+
+**The ten that remain** — all pre-FABLE-06, none of them this phase's:
+`dismiss_assistance`, `ingest_structured_package`, `may_read_lesson_media`,
+`my_certificate`, `my_cycle_state`, `pause_session`, `record_integrity_review`,
+`resume_session`, `session_state`, `transfer_reject`.
 
 ## Disposition
 

@@ -296,3 +296,36 @@ into the "refused for some other reason" bucket where it had been passing.
 *L9 says a block of refusals never reaches the body. L9a says an empty world
 never reaches the branches data would force. L12 is the third member: a broken
 probe never reaches the subject at all, and says so in the subject's voice.*
+
+---
+
+## L13 — A probe's safety must not depend on the property it is probing
+
+F06-N02 called eighteen privileged endpoints as a dean with real arguments and
+no rollback. It was safe — because **INV-19 held**. Every endpoint refused, so
+nothing mutated.
+
+Had the invariant been broken, the test would have failed **and destroyed the
+evidence needed to investigate the failure**, in the same run, before anyone read
+the output. *The one scenario the test exists for is the one in which it does
+damage.* A test that is only safe when it passes has no negative result worth
+reading.
+
+So rollback there is not tidiness. **It is what makes the failing case
+legible.** The general form:
+
+> A probe must be safe in the world where the property is FALSE, because that is
+> the only world whose result matters.
+
+Apply it by asking, before writing a probe: *if the thing I am checking is
+broken, what does this probe do?* If the answer is "the same thing, but it
+lands", the probe needs a subtransaction.
+
+**Related, and found the same day:** the db suite is a single query, so a fixture
+escaping its own scope is a **total runner failure**, not a localised one. When
+`f06_withdraw` reclassified sessions outside its cohort, the orphaned row blocked
+a shared purge and **129 tests failed for one test's trespass.** The rule that
+prevents it is short: *a fixture must purge everything it can TOUCH, not
+everything it meant to touch* — and the cheap check is that the purge predicate
+is at least as wide as the write predicate, rather than that it names the right
+node.
