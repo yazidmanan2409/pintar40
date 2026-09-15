@@ -64,6 +64,16 @@ end $$;
 -- is exposure, not quality, and an educator surface should never imply
 -- otherwise.
 --
+-- THE DIRECTION IS PERMANENT. THE MAGNITUDE IS NOT -- DO NOT QUOTE THESE
+-- NUMBERS AS PRODUCTION EXPOSURE. The skew is inversely proportional to how
+-- many safety-critical items the bank holds. D1 has 2 of 12, so the guarantee
+-- forces each into roughly 62% of sessions: a 1.3x over-presentation against
+-- the rest. A real institution bank with 20 safety-critical items in 200
+-- applies the identical policy with a fraction of the distortion. The skew
+-- exists at any bank size and the educator-surface constraint above stands
+-- unchanged; the 1.3x is an artefact of a deliberately thin fixture bank and
+-- characterises nothing outside it.
+--
 -- 160 learners puts the least-sampled item at ~63 against a correctness
 -- threshold of 30. The suite asserts the ACTUAL least-sampled count, so a run
 -- whose draw dips reports itself rather than quietly mis-measuring.
