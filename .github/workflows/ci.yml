@@ -158,7 +158,7 @@ jobs:
       matrix:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
-               db-task2-gates]
+               db-task2-gates, db-fable06-gates, static-fable06-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -190,6 +190,10 @@ jobs:
               echo "the two ADR-0018 gate defects are planted in SQL against the running stack, below" ;;
             db-task2-gates)
               echo "the three ADR-0020 gate defects are planted in SQL against the running stack, below" ;;
+            db-fable06-gates)
+              echo "the three FABLE-06 gate defects are planted in SQL against the running stack, below" ;;
+            static-fable06-gates)
+              echo "the three FABLE-06 static defects are planted as files, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -204,6 +208,40 @@ jobs:
       # on HEAD it passes over zero files. That makes it worthless unless it is
       # shown to be capable of failing: this case plants an analytics module
       # that reads a raw evidence table and requires the lint to catch it.
+      # FABLE-06's three derived mechanisms. Each replaced a hand-maintained list
+      # that was green BECAUSE IT WAS SHORT, so each must be shown capable of
+      # failing -- a derived check that has never rejected anything is the same
+      # unverified guarantee the lists were.
+      - name: The FABLE-06 derived checks must each catch their own defect
+        if: matrix.case == 'static-fable06-gates'
+        run: |
+          set -e
+          # 1. a route the application serves with no output-level coverage.
+          #    The hand-maintained fetch list would never have noticed.
+          mkdir -p src/app/redcase && printf 'export default function R() { return <p>red</p>; }\n' > src/app/redcase/page.tsx
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=F06-S02 | tee r1.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::F06-S02 stayed green with an uncovered route served"; exit 1; }
+          grep -E '^F06-S02 +FAIL' r1.txt
+          grep -F '/redcase' r1.txt
+          rm -rf src/app/redcase
+
+          # 2. an enum interpolated into a JSX text position -- the leak the
+          #    source scan skips by design and the output scan cannot reach on
+          #    an authenticated route.
+          mkdir -p src/app/redcase2 && printf 'export default function R({s}:{s:{status:string}}) { return <p>{s.status}</p>; }\n' > src/app/redcase2/page.tsx
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=F06-S03 | tee r2.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::F06-S03 stayed green with an enum rendered in a text position"; exit 1; }
+          grep -E '^F06-S03 +FAIL' r2.txt
+          grep -F 's.status' r2.txt
+          rm -rf src/app/redcase2
+
+          # 3. a `proves` string that names no artefact -- the manifest's own
+          #    metadata, which is what a gate reads.
+          node -e "const f='selftest/manifest.json';const m=require('./'+f);for(const t of m.tests){if(t.id==='F06-S03'){t.proves='INV checks are correct';}}require('fs').writeFileSync(f,JSON.stringify(m,null,2));"
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=F06-S04 | tee r3.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::F06-S04 stayed green with a proves string naming no artefact"; exit 1; }
+          grep -E '^F06-S04 +FAIL' r3.txt
+          git checkout -- selftest/manifest.json
       - name: The INV-20 lint must catch a planted raw-evidence read
         if: matrix.case == 'static-raw-evidence-read'
         run: |
@@ -638,6 +676,111 @@ jobs:
           rollback;
           SQL
           red EVAL-N08 'holds CAN_DRAFT' /tmp/t2-3.sql
+      # FABLE-06's three DATABASE gates. Each guards a boundary the phase moved:
+      # what a learner may see of a question (F06-P01), whether a refusal also
+      # says the thing exists (F06-N01), and whether INV-19 is read-only in the
+      # API and not only in the UI (F06-N02). All three were green the day they
+      # were written, which says nothing until each has been watched reject its
+      # own defect. Same discipline as every leg above: one stack, each defect
+      # inside its own transaction, rolled back before the next, and the suite
+      # proven green before anything is planted.
+      - name: Start a clean seeded stack for the FABLE-06 gate defects
+        if: matrix.case == 'db-fable06-gates'
+        id: gatesF06
+        uses: ./.github/actions/local-stack
+      - name: Each planted FABLE-06 defect must turn its own gate red
+        if: matrix.case == 'db-fable06-gates'
+        env:
+          DB_URL: ${{ steps.gatesF06.outputs.db-url }}
+        run: |
+          set -e
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06()" "$DB_URL" | tee baseF06.txt
+          grep -E ' \| f \| ' baseF06.txt && { echo "::error::the FABLE-06 suite is already red before any defect was planted"; exit 1; } || true
+
+          red() {   # red <test id> <expected substring> <sql file>
+            psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
+            grep -E "^$1 \| f \|" "out-$1.txt" || { echo "::error::$1 stayed green with the defect planted"; exit 1; }
+            grep -F "$2" "out-$1.txt" || { echo "::error::$1 went red but not for '$2'"; exit 1; }
+          }
+
+          # 1. the learner projection carries the teaching text that explains why
+          #    an option is wrong. This is the leak the assertion is built to
+          #    catch, and it is built to catch it by the SECRET'S OWN TEXT read
+          #    out of the database rather than by a guess at what the key is
+          #    called -- so the plant renames nothing and still has to be found.
+          cat > /tmp/f06-1.sql <<'SQL'
+          begin;
+          create or replace function public.sanitized_item(p_presented_item uuid)
+          returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $f$
+          declare v_session uuid; v jsonb;
+          begin
+            select p.session_id into v_session from public.presented_items p where p.id = p_presented_item;
+            if v_session is null or not public.session_is_mine(v_session) then
+              raise exception 'that item is not part of a session of yours';
+            end if;
+            select sp.muatan into v from public.session_paper(v_session) sp
+             where sp.presented_item_id = p_presented_item;
+            return v || jsonb_build_object('opsi',
+              (select jsonb_agg(jsonb_build_object('body', o.body, 'rationale', o.rationale) order by o.label)
+                 from public.item_options o
+                 join public.presented_items pi on pi.item_id = o.item_id
+                where pi.id = p_presented_item));
+          end $f$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-P01';
+          rollback;
+          SQL
+          red F06-P01 'RATIONALE verbatim' /tmp/f06-1.sql
+
+          # 2. the existence oracle restored: the projection still discloses
+          #    nothing, but the REFUSAL now says whether the item is real. A
+          #    check that only asserted "the call was refused" would pass on
+          #    this, which is why it compares the two refusals to each other.
+          cat > /tmp/f06-2.sql <<'SQL'
+          begin;
+          create or replace function public.sanitized_item(p_presented_item uuid)
+          returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $f$
+          declare v_session uuid; v jsonb;
+          begin
+            select p.session_id into v_session from public.presented_items p where p.id = p_presented_item;
+            if v_session is null then
+              raise exception 'no such presented item';
+            end if;
+            if not public.session_is_mine(v_session) then
+              raise exception 'that item is not part of a session of yours';
+            end if;
+            select sp.muatan into v from public.session_paper(v_session) sp
+             where sp.presented_item_id = p_presented_item;
+            return v;
+          end $f$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-N01';
+          rollback;
+          SQL
+          red F06-N01 'existence is an oracle' /tmp/f06-2.sql
+
+          # 3. INV-19 broken in the API while the UI is untouched: one endpoint
+          #    in the derived dean-denied set stops enforcing its capability and
+          #    starts accepting a dean. Planted by NEUTERING the live check
+          #    rather than by granting the capability -- granting it would take
+          #    the endpoint OUT of the derived set, which is the vacuity this
+          #    gate's floor guard exists for and not the property under test.
+          #    The capability literal stays in the body, so the endpoint is
+          #    still derived into the set and has to fail INSIDE it.
+          cat > /tmp/f06-3.sql <<'SQL'
+          begin;
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.open_briefing(uuid)'::regprocedure);
+            src := replace(orig, 'if not public.can_in_institution(''CAN_ASSIGN_LEARNING'', v_inst)',
+                                 'if false and public.can_in_institution(''CAN_ASSIGN_LEARNING'', v_inst)');
+            if src = orig then raise exception 'the plant did not reach the open_briefing body'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-N02';
+          rollback;
+          SQL
+          red F06-N02 'ACCEPTED a call from a dean' /tmp/f06-3.sql
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are
