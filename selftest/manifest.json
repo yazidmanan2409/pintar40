@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 15,
+  "version": 16,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -891,6 +891,16 @@
       "id": "F06-P05",
       "runner": "db",
       "proves": "the analytics cohort is isolated inside the one tenant that can produce OFFICIAL evidence: it has its own CLASS node and assignment, the bootstrap learner remains outside it with its own class and certificate, and the cohort issues no certificates. D1's single enrolment is the below-threshold case only if that separation holds, so it is asserted rather than assumed"
+    },
+    {
+      "id": "F06-S02",
+      "runner": "static",
+      "proves": "the copy/route inventory (\u00a77) IS the fetch list for the output-level INTERNAL_WORDS scan, and it is derived from src/app rather than written down: every route the application serves must appear in ROUTE_INVENTORY or this fails. F01-S03's source scan matches JSX text nodes and deliberately ignores {...} expressions, so it is structurally blind to {item.state} rendering an enum; only fetched HTML catches that, and only for routes that are fetched. A hand-maintained list would hold for the surfaces this phase adds and lapse silently for the next one"
+    },
+    {
+      "id": "F06-R01",
+      "runner": "app",
+      "proves": "every route in the inventory is fetched unauthenticated and its rendered output scanned for internal words. Unauthenticated on purpose: a stranger's view is the widest audience any page has, so an enum reaching it has reached the worst reader. Scales automatically as routes are added, because F06-S02 fails if a served route is absent from the list"
     }
   ]
 }

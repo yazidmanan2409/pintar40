@@ -12,6 +12,32 @@
 
 export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
+  | "metrik.peserta.label" | "metrik.peserta.arti"
+  | "metrik.pemahaman.label" | "metrik.pemahaman.arti"
+  | "metrik.kenaikan.label" | "metrik.kenaikan.arti"
+  | "metrik.kesiapan.label" | "metrik.kesiapan.arti"
+  | "metrik.topik.label" | "metrik.topik.arti"
+  | "metrik.miskonsepsi.label" | "metrik.miskonsepsi.arti"
+  | "metrik.peserta_institusi.label" | "metrik.peserta_institusi.arti"
+  | "metrik.kenaikan_institusi.label" | "metrik.kenaikan_institusi.arti"
+  | "metrik.gerbang_keselamatan.label" | "metrik.gerbang_keselamatan.arti"
+  | "metrik.perbandingan_kohort.label" | "metrik.perbandingan_kohort.arti"
+  | "metrik.kompetensi.label" | "metrik.kompetensi.arti"
+  | "metrik.kredensial.label" | "metrik.kredensial.arti"
+  | "metrik.item_benar.label" | "metrik.item_benar.arti"
+  | "metrik.pengecoh.label" | "metrik.pengecoh.arti"
+  | "metrik.posisi.label" | "metrik.posisi.arti"
+  | "metrik.hasil_murid.label" | "metrik.hasil_murid.arti"
+  | "kesiapan.belum_post_test" | "kesiapan.butuh_pendampingan"
+  | "kesiapan.perlu_review" | "kesiapan.siap_sertifikasi"
+  | "kesehatan.judul" | "kesehatan.diamati" | "kesehatan.ditandai"
+  | "kesehatan.belum_cukup" | "kesehatan.belum_diperiksa"
+  | "kesehatan.catatan_paparan" | "kesehatan.belum_dikalibrasi"
+  | "laporan.metrik.tidak_dikenal" | "laporan.metrik.bukan_untuk_anda"
+  | "laporan.metrik.diganti" | "laporan.metrik.belum_cukup_data"
+  | "laporan.kelas.judul" | "laporan.institusi.judul"
+  | "laporan.kosong" | "laporan.tak_ada_angka"
+  | "tindakan.ulangi" | "tindakan.fokus" | "tindakan.lanjut" | "tindakan.tunggu"
   | "verifikasi.judul"
   | "verifikasi.status"
   | "verifikasi.hasil"
@@ -305,6 +331,80 @@ export type HleEvent =
 type Table = Record<HleEvent, Partial<Record<Persona, string>> & { default: string }>;
 
 const table: Table = {
+  // FABLE-06 -- the intelligence surfaces. Every label and every STATEMENT a
+  // reader sees passes through here, including the sentences that explain an
+  // omission: a status like `not_permitted` or `below_minimum` is an internal
+  // word and never reaches a screen.
+  "metrik.peserta.label": { default: "Peserta" },
+  "metrik.peserta.arti": { default: "Banyaknya murid yang mengerjakan penilaian di kelas ini." },
+  "metrik.pemahaman.label": { default: "Pemahaman" },
+  "metrik.pemahaman.arti": { default: "Rata-rata penguasaan kelas pada penilaian akhir." },
+  "metrik.kenaikan.label": { default: "Kenaikan" },
+  "metrik.kenaikan.arti": { default: "Selisih penguasaan sebelum dan sesudah pembelajaran, per murid." },
+  "metrik.kesiapan.label": { default: "Sebaran kesiapan" },
+  "metrik.kesiapan.arti": { default: "Banyaknya murid pada tiap tingkat kesiapan." },
+  "metrik.topik.label": { default: "Penguasaan per topik" },
+  "metrik.topik.arti": { default: "Rata-rata penguasaan kelas pada tiap topik." },
+  // "Salah" is an INTERNAL_WORD -- the HLE refused this label's first
+  // draft, which is the guard working on the person who wrote the guard's
+  // newest entries. "Pemahaman keliru" says the same thing without the
+  // verdict-shaped word a learner must never be shown.
+  "metrik.miskonsepsi.label": { default: "Pemahaman keliru yang berulang" },
+  "metrik.miskonsepsi.arti": { default: "Pola jawaban keliru yang muncul pada banyak murid, dengan saran penanganannya." },
+  "metrik.peserta_institusi.label": { default: "Peserta" },
+  "metrik.peserta_institusi.arti": { default: "Banyaknya murid yang mengerjakan penilaian di sekolah ini." },
+  "metrik.kenaikan_institusi.label": { default: "Kenaikan" },
+  "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan murid di sekolah ini." },
+  "metrik.gerbang_keselamatan.label": { default: "Butir wajib" },
+  "metrik.gerbang_keselamatan.arti": { default: "Bagian murid yang menjawab benar seluruh butir wajib." },
+  "metrik.perbandingan_kohort.label": { default: "Perbandingan angkatan" },
+  "metrik.perbandingan_kohort.arti": { default: "Penguasaan rata-rata tiap angkatan di sekolah ini." },
+  "metrik.kompetensi.label": { default: "Capaian kompetensi" },
+  "metrik.kompetensi.arti": { default: "Rata-rata penguasaan pada tiap ranah yang diukur." },
+  "metrik.kredensial.label": { default: "Sertifikat terbit" },
+  "metrik.kredensial.arti": { default: "Banyaknya sertifikat yang berlaku dan dapat diperiksa publik." },
+  "metrik.item_benar.label": { default: "Tingkat jawaban benar" },
+  "metrik.item_benar.arti": { default: "Bagian murid yang menjawab butir ini dengan benar." },
+  "metrik.pengecoh.label": { default: "Pilihan yang dipilih" },
+  "metrik.pengecoh.arti": { default: "Sebaran pilihan yang diambil murid pada butir ini." },
+  "metrik.posisi.label": { default: "Letak dan waktu" },
+  "metrik.posisi.arti": { default: "Posisi butir ini dalam lembar soal dan rata-rata waktu pengerjaannya." },
+  "metrik.hasil_murid.label": { default: "Hasil murid" },
+  "metrik.hasil_murid.arti": { default: "Penguasaan murid ini pada tiap penilaian." },
+
+  "kesiapan.belum_post_test": { default: "Belum mengerjakan penilaian akhir" },
+  "kesiapan.butuh_pendampingan": { default: "Butuh pendampingan ekstra" },
+  "kesiapan.perlu_review": { default: "Perlu review" },
+  "kesiapan.siap_sertifikasi": { default: "Siap sertifikasi" },
+
+  "kesehatan.judul": { default: "Butir yang perlu dilihat" },
+  "kesehatan.diamati": { default: "Sedang diamati" },
+  "kesehatan.ditandai": { default: "Perlu ditinjau guru" },
+  "kesehatan.belum_cukup": { default: "Belum cukup jawaban untuk dinilai" },
+  "kesehatan.belum_diperiksa": { default: "Belum pernah diperiksa" },
+  "kesehatan.belum_dikalibrasi": { default: "Belum ada ambang yang teruji untuk sinyal ini, jadi PINTAR tidak menandainya sendiri." },
+  // The exposure caveat, on the surface rather than only in the capstone. A
+  // teacher who sees safety-critical items flagged first must not read that as
+  // "these are my worst questions": they are simply the ones PINTAR guarantees
+  // to present, so they gather evidence fastest.
+  "kesehatan.catatan_paparan": {
+    default: "Butir wajib selalu disertakan dalam setiap penilaian, jadi jawabannya terkumpul lebih cepat dan butir itu lebih dulu muncul di daftar ini. Urutan ini soal seberapa sering butir ditampilkan, bukan soal mutunya.",
+  },
+
+  "laporan.metrik.tidak_dikenal": { default: "Angka ini tidak lagi tersedia." },
+  "laporan.metrik.bukan_untuk_anda": { default: "Angka ini tidak ditampilkan untuk peran Anda." },
+  "laporan.metrik.diganti": { default: "Angka ini sudah diganti dengan ukuran yang lebih baru." },
+  "laporan.metrik.belum_cukup_data": { default: "Belum cukup data untuk menampilkan angka ini." },
+  "laporan.kelas.judul": { default: "Ringkasan Kelas" },
+  "laporan.institusi.judul": { default: "Ringkasan Sekolah" },
+  "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini." },
+  "laporan.tak_ada_angka": { default: "Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu." },
+
+  "tindakan.ulangi": { default: "Ulangi topik ini bersama-sama sebelum lanjut." },
+  "tindakan.fokus": { default: "Fokuskan waktu tambahan pada murid di dua tingkat kesiapan terbawah." },
+  "tindakan.lanjut": { default: "Tidak perlu diulang — lanjutkan ke materi berikutnya." },
+  "tindakan.tunggu": { default: "Tunggu sampai lebih banyak murid mengerjakan sebelum menyimpulkan." },
+
   "verifikasi.judul": { default: "Verifikasi Sertifikat" },
   "verifikasi.status": { default: "Status" },
   "verifikasi.hasil": { default: "Hasil" },

@@ -25,6 +25,43 @@ const PERSONA = {
 /** Every learner route FABLE-03 adds, for the copy inventory (§9). */
 const LEARNER_ROUTES = ["/belajar"] as const;
 
+/**
+ * THE COPY/ROUTE INVENTORY (§7), and the fetch list for the output-level
+ * INTERNAL_WORDS scan. These are the same list on purpose.
+ *
+ * F06-S02 derives the routes the application actually serves from `src/app` and
+ * fails if any of them is missing here. So this cannot quietly fall behind the
+ * application: adding a page without adding it here is a red test, not an
+ * omission nobody notices.
+ *
+ * WHY AN OUTPUT LIST AT ALL. The source scan (F01-S03) matches JSX text nodes
+ * and deliberately ignores `{...}` expressions -- correct for what it does, and
+ * blind to `{item.state}` rendering an enum. Only fetched HTML can catch that,
+ * and only for routes that are fetched.
+ *
+ * A route that redirects an unauthenticated caller is still covered: the
+ * redirect body is scanned too, and a 3xx with no body trivially carries no
+ * internal word -- which is the honest result for a page a stranger cannot see.
+ */
+const ROUTE_INVENTORY = [
+  "/",
+  "/masuk",
+  "/belajar",
+  "/konfigurasi",
+  "/evaluasi",
+  "/edukator/ringkasan",
+  "/dekan/ringkasan",
+  "/studio",
+  "/studio/bank",
+  "/studio/definisi",
+  "/studio/integritas",
+  "/studio/kanonik",
+  "/studio/kuis",
+  "/studio/sertifikat",
+  "/studio/tinjau",
+  "/studio/unggah",
+] as const;
+
 type Session = { cookie: string; accessToken: string; refreshToken: string };
 
 /**
@@ -454,6 +491,33 @@ export const appTests: SelfTest[] = [
       }
       c.note(`${routes.length} Studio routes knocked on anonymously`);
       return c.verdict("every Studio route, dynamic segments included, refuses an anonymous visitor at the server boundary");
+    },
+  },
+  {
+    // S-1 at the OUTPUT level, over every route the application serves.
+    //
+    // Unauthenticated on purpose: a stranger's view of every page is the widest
+    // audience any of them has, and an internal word that reaches it has
+    // reached the worst possible reader. Authenticated staff views are covered
+    // by the role-specific tests; this is the floor, and it is the one that
+    // scales automatically as routes are added.
+    id: "F06-R01",
+    requires: ["app"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      let scanned = 0;
+      for (const route of ROUTE_INVENTORY) {
+        const res = await get(`${base}${route}`);
+        c.expect(res.status < 500, `GET ${route} → ${res.status}`);
+        const body = await res.text();
+        noInternalWords(c, body, route);
+        scanned += 1;
+      }
+      return c.verdict(
+        `${scanned} served route(s) fetched and scanned for internal words in rendered output; the ` +
+          `inventory is the fetch list, and F06-S02 fails if the application serves a route absent from it`,
+      );
     },
   },
 ];

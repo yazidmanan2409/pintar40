@@ -1258,6 +1258,69 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    // S-1, AND THE REASON IT IS A DERIVED LIST RATHER THAN A WRITTEN ONE.
+    //
+    // Two INTERNAL_WORDS checks already existed and they answer opposite
+    // questions. F01-S03's source scan matches JSX TEXT NODES only and says so:
+    // "enum comparisons in code are not user copy". That is correct about what
+    // it was written to do, and it is structurally blind to the leak that
+    // matters -- `{item.state}` rendering SIGNAL_RAISED never puts the literal
+    // in the source. The output scan in app.test.ts reads rendered HTML and is
+    // the real one -- but it only covers the routes it FETCHES, and that list
+    // was maintained by hand.
+    //
+    // A hand-maintained fetch list is a convention doing a mechanism's job, the
+    // same shape ADR-0021 was written for. It would hold for the surfaces this
+    // phase adds and lapse silently for the next one someone writes, with a
+    // green suite behind it. So: every route the application serves is
+    // enumerated from the route table, and a route that exists without output
+    // coverage is a FAILURE, not an omission.
+    //
+    // This is also §7's copy/route inventory, which is why the two obligations
+    // are one test: the inventory IS the fetch list, so it cannot drift from it.
+    id: "F06-S02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const appDir = join(repoRoot, "src", "app");
+
+      // The route table: every page.tsx under src/app, minus route groups and
+      // private folders, mapped to the path the application serves.
+      const routes: string[] = [];
+      for (const f of walk(appDir)) {
+        if (basename(f) !== "page.tsx") continue;
+        const rel = relative(appDir, f).replace(/\\/g, "/").replace(/\/page\.tsx$/, "");
+        const segs = rel === "page.tsx" ? [] : rel.split("/");
+        if (segs.some((sg) => sg.startsWith("_"))) continue;
+        routes.push("/" + segs.join("/"));
+      }
+      c.expect(routes.length > 0, "no routes found under src/app: the inventory is measuring nothing");
+
+      // The fetch list the output scan actually drives.
+      const appSrc = readFileSync(join(repoRoot, "selftest", "app.test.ts"), "utf8");
+      const covered = new Set<string>();
+      for (const m of appSrc.matchAll(/ROUTE_INVENTORY\s*=\s*\[([\s\S]*?)\]/g)) {
+        for (const q of m[1].matchAll(/"([^"]+)"/g)) covered.add(q[1]);
+      }
+
+      const dynamic = routes.filter((r) => /\[/.test(r));
+      const staticRoutes = routes.filter((r) => !/\[/.test(r));
+      const missing = staticRoutes.filter((r) => !covered.has(r));
+
+      c.expect(
+        missing.length === 0,
+        "route(s) served by the application with no output-level INTERNAL_WORDS coverage — add them to " +
+          "ROUTE_INVENTORY in selftest/app.test.ts so a rendered enum cannot reach a human:\n  " +
+          missing.join("\n  ")
+      );
+      if (dynamic.length) c.note(`${dynamic.length} dynamic route(s) covered by their own tests`);
+      return c.verdict(
+        `copy/route inventory: ${staticRoutes.length} static route(s) served, every one fetched and scanned ` +
+          `for internal words at the output level; the list is derived from src/app rather than written down`
+      );
+    },
+  },
+  {
     // ADR-0021. PostgreSQL grants EXECUTE on every new function to PUBLIC, and
     // `alter default privileges` cannot revoke from PUBLIC -- so there is no
     // default-off setting to rely on. Forty-nine migrations have carried an
