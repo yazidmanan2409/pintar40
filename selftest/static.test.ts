@@ -554,7 +554,7 @@ export const staticTests: SelfTest[] = [
 
       // the comparison is timing-safe: assert the function, not only a false
       const src = readFileSync(new URL("../src/lib/certificates/sign.ts", import.meta.url), "utf8");
-      c.expect(src.includes("timingSafeEqual"), "verification does not use crypto.timingSafeEqual (INV-05)");
+      c.expect(src.includes("timingSafeEqual"), "verification does not use crypto.timingSafeEqual (INV-06)");
       c.expect(
         !/\bexpected\s*===\s*signature\b|\bsignature\s*===\s*expected\b/.test(src),
         "verification compares signatures with ===",
@@ -1325,6 +1325,132 @@ export const staticTests: SelfTest[] = [
       return c.verdict(
         `${scoped.length} static/app test(s), each naming the artefact its predicate inspects, so a ` +
           `gate reading the manifest can see the scope of a claim without reading the test`
+      );
+    },
+  },
+  {
+    // §7 ITEM 8, MADE MECHANICAL: "every checklist item from Phases 1-5 is in
+    // the manifest. If any was verified by hand and never added, add it now
+    // rather than re-verifying by hand. This is the last chance to make the
+    // manifest the whole truth."
+    //
+    // The measurement that produced this test found two of thirty-eight
+    // declared invariants that no manifest `proves` string named: INV-34, which
+    // had no test at all and now has F06-N03, and INV-06, which was tested all
+    // along inside F04-S02 and labelled INV-05 in both the assertion message
+    // and the manifest. A gate reading the manifest would have reported INV-06
+    // unverified and INV-05 verified twice -- the same class of error F06-S04
+    // catches in the other direction.
+    //
+    // THE INVARIANT LIST IS DERIVED FROM DOC 03, not written here. A new
+    // invariant added to the frozen document joins this check the day it is
+    // written, and immediately fails until a test names it.
+    //
+    // BOUNDED, AND THE BOUND IS THE WHOLE POINT: this proves every invariant is
+    // NAMED by a test, not that the test is ADEQUATE. Doc 03's own prescribed
+    // test for INV-06 has two halves -- the comparison function used, and a
+    // behavioural test that near-miss hashes fail identically fast -- and only
+    // the first is implemented. INV-35 and INV-22 are named and carried in the
+    // capstone as inadequately covered. Naming is the floor, not the ceiling.
+    id: "F06-S05",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const doc = join(repoRoot, "docs", "rebuild", "03-PINTAR-INVARIANTS.md");
+      c.expect(existsSync(doc), "docs/rebuild/03-PINTAR-INVARIANTS.md is missing");
+      const declared = [
+        ...new Set((readFileSync(doc, "utf8").match(/INV-\d+/g) ?? [])),
+      ].sort((a, b) => Number(a.slice(4)) - Number(b.slice(4)));
+      c.expect(declared.length > 30, `only ${declared.length} invariant(s) derived from doc 03`);
+
+      const manifest = JSON.parse(
+        readFileSync(join(repoRoot, "selftest", "manifest.json"), "utf8")
+      ) as { tests: Array<{ id: string; proves?: string }> };
+      const named = new Map<string, string[]>();
+      for (const t of manifest.tests) {
+        for (const inv of new Set((t.proves ?? "").match(/INV-\d+/g) ?? [])) {
+          named.set(inv, [...(named.get(inv) ?? []), t.id]);
+        }
+      }
+      const orphans = declared.filter((i) => !named.has(i));
+      c.expect(
+        orphans.length === 0,
+        "invariant(s) declared in doc 03 that no manifest test names. Verified by hand is not " +
+          "verified: a gate reads the manifest:\n  " + orphans.join(", ")
+      );
+      // and the other direction: a manifest test naming an invariant the frozen
+      // document does not declare is a claim about something that is not a rule
+      const invented = [...named.keys()].filter((i) => !declared.includes(i)).sort();
+      c.expect(
+        invented.length === 0,
+        "manifest test(s) claiming invariant(s) doc 03 does not declare: " +
+          invented.map((i) => `${i} (${named.get(i)!.join(", ")})`).join("; ")
+      );
+      const total = declared.reduce((n, i) => n + (named.get(i)?.length ?? 0), 0);
+      return c.verdict(
+        `all ${declared.length} invariants declared in the document docs/rebuild/03-PINTAR-INVARIANTS.md ` +
+          `are named by at least one of the ${total} manifest entries that cite one, and no manifest ` +
+          `entry cites an invariant the document does not declare. BOUNDED: this reads the manifest's ` +
+          `own text and proves NAMING, not adequacy -- INV-06's behavioural half, INV-22 and INV-35 are ` +
+          `named and carried as inadequately covered`
+      );
+    },
+  },
+  {
+    // §7 ITEM 3: "every dev-only tool gated behind NODE_ENV==='development',
+    // verified against a production build." F01-R01 does the verifying, by
+    // fetching four /api/dev/* paths from a real production build and
+    // requiring 404. This is the half F01-R01 cannot have: the paths it fetches
+    // are WRITTEN DOWN, so a dev tool added tomorrow in a new file under the
+    // namespace would be gated by nobody and fetched by nobody.
+    //
+    // THE FILE SET IS DERIVED from src/app/api/dev, and every exported HTTP
+    // handler in each file must carry the gate in its own body -- not merely
+    // somewhere in the file, which is how a second handler added below a gated
+    // one escapes. A namespace with no route files at all fails rather than
+    // passing vacuously.
+    id: "F06-S06",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const devDir = join(repoRoot, "src", "app", "api", "dev");
+      const files: string[] = [];
+      const walk = (dir: string) => {
+        for (const e of readdirSync(dir, { withFileTypes: true })) {
+          const p = join(dir, e.name);
+          if (e.isDirectory()) walk(p);
+          else if (/^route\.tsx?$/.test(e.name)) files.push(p);
+        }
+      };
+      c.expect(existsSync(devDir), "src/app/api/dev does not exist; the dev namespace check has no subject");
+      if (existsSync(devDir)) walk(devDir);
+      c.expect(files.length > 0, "no route file under src/app/api/dev: this check would pass over nothing");
+
+      const GATE = /process\.env\.NODE_ENV\s*!==\s*["']development["']/;
+      const HANDLER = /export\s+(?:async\s+)?function\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b/g;
+      const ungated: string[] = [];
+      let handlers = 0;
+      for (const f of files) {
+        const src = readFileSync(f, "utf8");
+        const cuts = [...src.matchAll(HANDLER)];
+        const rel = f.slice(repoRoot.length + 1);
+        if (cuts.length === 0) ungated.push(`${rel}: a route file exporting no HTTP handler`);
+        cuts.forEach((m, i) => {
+          handlers += 1;
+          const body = src.slice(m.index!, i + 1 < cuts.length ? cuts[i + 1].index! : src.length);
+          if (!GATE.test(body)) ungated.push(`${rel}:${m[1]}`);
+        });
+      }
+      c.expect(
+        ungated.length === 0,
+        "dev-namespace HTTP handler(s) whose own body does not refuse outside NODE_ENV==='development' " +
+          "(INV-21). A tool that exists in production is a tool, not a 404:\n  " + ungated.join("\n  ")
+      );
+      return c.verdict(
+        `${handlers} exported HTTP handler(s) across ${files.length} route file(s) under the source ` +
+          `directory src/app/api/dev, each refusing in its own body outside development. The file set is ` +
+          `derived from the directory, so a new dev tool is covered the day it is added; F01-R01 proves ` +
+          `the same namespace answers 404 in a real production build`
       );
     },
   },

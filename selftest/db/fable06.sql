@@ -397,9 +397,20 @@ returns text language plpgsql security definer set search_path = public, pg_temp
 declare v uuid; v_lab text;
 begin
   if p_type = 'uuid' then
+    -- RESOLVE THE ARGUMENT, AND FALL BACK OUTSIDE THE TENANT RATHER THAN TO
+    -- NULL. Measured: with the dean's own tenant as the only source, twelve of
+    -- these arguments came back NULL -- synth-alpha holds no course, release,
+    -- session or certificate -- and the endpoint refused with "unknown course
+    -- <NULL>" long before it could ask about a capability. That counts as a
+    -- refusal and proves nothing about authorization, which is exactly the
+    -- weakness the verdict has to name. A row from ANOTHER institution resolves
+    -- the lookup and lands the call on the capability check, where the dean is
+    -- refused BY NAME -- without touching a single production function.
     if    p_name ~ 'institution'      then v := p_inst;
     elsif p_name ~ 'course'           then select id into v from public.courses where institution_id=p_inst limit 1;
+                                           if v is null then select id into v from public.courses limit 1; end if;
     elsif p_name ~ 'release'          then select id into v from public.plp_releases where institution_id=p_inst limit 1;
+                                           if v is null then select id into v from public.plp_releases limit 1; end if;
     elsif p_name ~ '(node|scope)'     then
       -- a CLASS or COHORT, not the institution root: several endpoints validate
       -- the node KIND before they authorize, so the root refuses for the wrong
@@ -409,13 +420,28 @@ begin
        order by (kind='CLASS') desc limit 1;
       if v is null then select id into v from public.org_nodes where institution_id=p_inst limit 1; end if;
     elsif p_name ~ 'module'           then select m.id into v from public.modules m join public.courses c on c.id=m.course_id where c.institution_id=p_inst limit 1;
+                                           if v is null then select m.id into v from public.modules m limit 1; end if;
     elsif p_name ~ 'definition'       then select id into v from public.assessment_definitions where institution_id=p_inst limit 1;
+                                           if v is null then select id into v from public.assessment_definitions limit 1; end if;
     elsif p_name ~ 'session'          then select id into v from public.assessment_sessions where institution_id=p_inst limit 1;
+                                           if v is null then select id into v from public.assessment_sessions limit 1; end if;
     elsif p_name ~ 'item'             then select id into v from public.items where institution_id=p_inst limit 1;
+                                           if v is null then select id into v from public.items limit 1; end if;
     elsif p_name ~ 'certificate'      then select id into v from public.certificates where institution_id=p_inst limit 1;
+                                           if v is null then select id into v from public.certificates limit 1; end if;
     elsif p_name ~ 'assignment'       then select id into v from public.learning_assignments where institution_id=p_inst limit 1;
+                                           if v is null then select id into v from public.learning_assignments limit 1; end if;
+    -- these four have no tenant-scoped form: a briefing, a transfer and an
+    -- integrity signal are whatever exists, and where none does the argument
+    -- stays NULL and the endpoint is honestly counted as argued rather than
+    -- asserted.
+    elsif p_name ~ 'briefing'         then select id into v from public.briefings limit 1;
+    elsif p_name ~ 'enrollment'       then select id into v from public.enrollments where status='ACTIVE' limit 1;
+    elsif p_name ~ 'transfer'         then select id into v from public.transfers limit 1;
+    elsif p_name ~ 'signal'           then select id into v from public.integrity_signals limit 1;
     elsif p_name ~ 'person'           then select person_id into v from public.enrollments where institution_id=p_inst limit 1;
     elsif p_name ~ 'period'           then select id into v from public.academic_periods where institution_id=p_inst limit 1;
+                                           if v is null then select id into v from public.academic_periods limit 1; end if;
     end if;
     if v is null then return 'null::uuid'; end if;
     return quote_literal(v::text) || '::uuid';
@@ -897,7 +923,7 @@ begin
         when raise_exception then
           if sqlerrm <> 'F06_N02_UNDO' then
             v_err := sqlerrm;
-            if v_err ~* '(requires|denied|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
+            if v_err ~* '(requires|denied|not authorized|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
               n_refused := n_refused + 1;
             else
               n_other := n_other + 1;
@@ -912,7 +938,7 @@ begin
           -- as one is how the first version of this check passed while never
           -- calling fifteen of the eighteen endpoints.
           v_err := sqlerrm;
-          if v_err ~* '(requires|denied|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
+          if v_err ~* '(requires|denied|not authorized|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
             n_refused := n_refused + 1;
           else
             n_broken := n_broken + 1;
@@ -920,7 +946,7 @@ begin
           end if;
         when others then
           v_err := sqlerrm;
-          if v_err ~* '(requires|denied|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
+          if v_err ~* '(requires|denied|not authorized|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
             n_refused := n_refused + 1;
           else
             n_other := n_other + 1;
@@ -966,8 +992,10 @@ begin
       ok := true;
       detail := format('the dean reads through this session and is refused every one of %s mutating STAFF '
                     || 'endpoint that checks a capability DEAN lacks: %s by an authorization error naming '
-                    || 'the capability, %s refused earlier because they resolve an argument before they '
-                    || 'can know which institution to authorize in. None accepted, none merely absent, and '
+                    || 'the capability, %s refused before reaching a capability check at all -- either '
+                    || 'because no row of the kind the argument names exists for the probe to point at, or '
+                    || 'because the generic value it supplies for a text or enum argument is rejected on '
+                    || 'its own terms first. None accepted, none merely absent, and '
                     || 'no endpoint went uncalled. The set is derived from role_capabilities, '
                     || 'client_rpc_registry and pg_proc.provolatile, so a new privileged RPC joins it the '
                     || 'day it is created. BOUNDED: for these, refusal is proved but not that the refusal '
@@ -975,6 +1003,367 @@ begin
                     || 'detected here -- %s(see RF-2)',
                        n_refused + n_other, n_refused, n_other,
                        case when v_unreached = '' then '' else rtrim(v_unreached, ', ') || ' ' end);
+    end if;
+    return next;
+  end;
+
+
+  -- =========================================================================
+  -- F06-P08 -- EVERY DECLARED STRUCTURAL ASSERTION, RUN WHERE IT MATTERS.
+  --
+  -- WHY THIS EXISTS. Each of this build's `assert_*` functions was written to
+  -- be checked by the terminal block of the migration that created it -- once,
+  -- on the day it was applied, against the database it was applied to. That is
+  -- not a test. It cannot be re-run against a hosted project, it does not fail
+  -- a pull request, and it says nothing about the system as it stands now. The
+  -- §7 instruction is explicit: anything verified by hand and never added goes
+  -- into the manifest rather than being verified by hand again.
+  --
+  -- THE SET IS DERIVED, for the sixth time in this phase. Any function named
+  -- `assert_*` in `public` returning (ok, detail) is run. A new assertion joins
+  -- this test the day it is created, which is the property a written list can
+  -- never have -- and the failure this build has repaired five times.
+  --
+  -- THE FLOOR IS THE VACUITY GUARD, and it is the same one F06-N02 needed: an
+  -- assertion that is DELETED leaves the derived set rather than failing inside
+  -- it, and a test that runs nothing passes. Seventeen were measured here.
+  -- =========================================================================
+  declare
+    a record; v_failed text := ''; n_run int := 0; v_ok boolean; v_detail text;
+  begin
+    perform selftest.as_owner();
+    for a in select p.proname from pg_proc p
+               join pg_namespace ns on ns.oid = p.pronamespace
+              where ns.nspname = 'public' and p.proname like 'assert\_%'
+                and pg_get_function_result(p.oid) = 'TABLE(ok boolean, detail text)'
+              order by p.proname
+    loop
+      n_run := n_run + 1;
+      execute format('select a.ok, a.detail from public.%I() a', a.proname) into v_ok, v_detail;
+      if not coalesce(v_ok, false) then
+        v_failed := v_failed || a.proname || ': ' || left(coalesce(v_detail, '(no detail)'), 90) || '; ';
+      end if;
+    end loop;
+
+    id := 'F06-P08'; area := 'every declared structural assertion, in the running system';
+    if n_run < 17 then
+      ok := false;
+      detail := format('%s assertion function(s) found, fewer than the 17 measured when this check was '
+                    || 'written: an assertion has left the derived set rather than failing inside it',
+                       n_run);
+    elsif v_failed <> '' then
+      ok := false; detail := v_failed;
+    else
+      ok := true;
+      detail := format('%s declared assertion(s) run and all hold in this database, including the four '
+                    || 'this phase added -- metric catalogue, metric closure (INV-34 semantics: no report '
+                    || 'function computes), reports-do-not-compute and question-health-observes-only. The '
+                    || 'set is derived from pg_proc by name and result shape, so a new assertion joins the '
+                    || 'day it is written; the floor of 17 closes the hole where deleting one would leave '
+                    || 'the set instead of failing inside it', n_run);
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-N03 -- INV-34 AT WRITE TIME, which is where doc 03 puts it: "attempt
+  -- to save a template containing a formula or an unknown metric; assert
+  -- rejection".
+  --
+  -- INV-34 had no manifest test at all before this one. The §7 traceability
+  -- measurement found it and INV-06 as the only two of thirty-eight declared
+  -- invariants that no manifest `proves` string named.
+  --
+  -- AND IT FOUND SOMETHING WHILE BEING WRITTEN. The first version expected the
+  -- CHECK constraints to refuse a formula, because 0073 says they do: "the
+  -- CHECK constraints above already refuse punctuation, so a formula cannot be
+  -- stored at all". They never see it. A BEFORE ROW trigger runs before
+  -- constraint evaluation, so `enforce_report_template_metric` refuses a
+  -- formula as an UNKNOWN METRIC and the constraint is never reached. The
+  -- comment was not wrong about the constraint -- it was wrong about which
+  -- wall is standing. So this test proves both: the four writes below are
+  -- refused with the guard in place, and the same two writes are refused again
+  -- with the guard DISABLED, which is the only way to reach the constraints
+  -- and the only way to know they are more than decoration.
+  --
+  -- THE ACCEPTED CASE IS NOT DECORATION EITHER. A table that refused every row
+  -- would pass a test made only of refusals, and would take the whole reporting
+  -- surface down with it. So a legitimate selection is saved in the same block
+  -- and must succeed.
+  --
+  -- WRITES ARE UNDONE. The probe builds its template in the SYNTHETIC alpha
+  -- tenant and rolls its own writes back through a subtransaction -- the
+  -- disabled trigger included -- so a failing run leaves nothing for the next
+  -- one to trip over, the defect OQ-4 came from. PL/pgSQL variables survive
+  -- that rollback; the rows and the DDL do not.
+  -- =========================================================================
+  declare
+    v_inst uuid; v_tpl uuid; v_e text; v_bad text := ''; n_refused int := 0;
+    n_checked int := 0; v_accepted boolean := false; v_probe text;
+  begin
+    select i.id into v_inst from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
+    begin
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      insert into public.report_templates (institution_id, standard_report, title_key)
+      values (v_inst, 'class_learning_intelligence', 'laporan.kelas.judul')
+      -- `returning report_templates.id`, not `returning id`: the runner's own
+      -- OUT parameter is called `id` and shadows the column. Fourth time.
+      returning report_templates.id into v_tpl;
+
+      -- 1. a formula in the metric slot. The catalogue answers first, and what
+      --    it says is the whole invariant: a template does not define.
+      v_probe := 'a formula as the metric';
+      begin
+        insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+        values (v_tpl, 'sum(a)/nullif(count(b),0)', 11, 'hero_stat');
+        v_bad := v_bad || v_probe || ' ACCEPTED; ';
+      exception when others then
+        v_e := sqlerrm;
+        if v_e ~ 'unknown metric id' then n_refused := n_refused + 1;
+        else v_bad := v_bad || v_probe || ' refused for another reason: ' || left(v_e, 60) || '; '; end if;
+      end;
+
+      -- 2. a SQL fragment as the visualization of a real metric
+      v_probe := 'SQL as the visualization';
+      begin
+        insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+        values (v_tpl, 'class.participants', 12, 'select 1 from items');
+        v_bad := v_bad || v_probe || ' ACCEPTED; ';
+      exception when others then
+        v_e := sqlerrm;
+        if v_e ~ 'does not permit visualization' then n_refused := n_refused + 1;
+        else v_bad := v_bad || v_probe || ' refused for another reason: ' || left(v_e, 60) || '; '; end if;
+      end;
+
+      -- 3. a well-shaped metric id the catalogue does not define
+      v_probe := 'a metric the catalogue does not define';
+      begin
+        insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+        values (v_tpl, 'class.invented_by_the_template', 13, 'hero_stat');
+        v_bad := v_bad || v_probe || ' ACCEPTED; ';
+      exception when others then
+        v_e := sqlerrm;
+        if v_e ~ 'unknown metric id' then n_refused := n_refused + 1;
+        else v_bad := v_bad || v_probe || ' refused for another reason: ' || left(v_e, 60) || '; '; end if;
+      end;
+
+      -- 4. a real metric drawn a way the catalogue does not permit. Choosing
+      --    how a number may be read is the same class of authority as choosing
+      --    what it means, which is why this is INV-34 and not a style rule.
+      v_probe := 'a visualization the catalogue does not permit';
+      begin
+        insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+        values (v_tpl, 'class.participants', 14, 'bar');
+        v_bad := v_bad || v_probe || ' ACCEPTED; ';
+      exception when others then
+        v_e := sqlerrm;
+        if v_e ~ 'does not permit visualization' then n_refused := n_refused + 1;
+        else v_bad := v_bad || v_probe || ' refused for another reason: ' || left(v_e, 60) || '; '; end if;
+      end;
+
+      -- 5. and the selection a template IS allowed to make
+      begin
+        insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+        values (v_tpl, 'class.participants', 1, 'hero_stat');
+        v_accepted := true;
+      exception when others then
+        v_bad := v_bad || 'a legitimate selection was REFUSED: ' || left(sqlerrm, 70) || '; ';
+      end;
+
+      -- 6. THE SECOND WALL, reached the only way it can be reached. With the
+      --    catalogue guard disabled, a formula and a SQL fragment must still
+      --    not be storable -- otherwise the constraints 0073 relies on in
+      --    writing are doing nothing in fact.
+      perform selftest.as_owner();
+      execute 'alter table public.report_template_metrics disable trigger report_template_metrics_guard';
+      begin
+        insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+        values (v_tpl, 'sum(a)/nullif(count(b),0)', 21, 'hero_stat');
+        v_bad := v_bad || 'with the catalogue guard disabled a FORMULA reached the table; ';
+      exception when others then
+        v_e := sqlerrm;
+        if v_e ~ 'metric_id_shape' then n_checked := n_checked + 1;
+        else v_bad := v_bad || 'the metric_id constraint refused for another reason: ' || left(v_e, 60) || '; '; end if;
+      end;
+      begin
+        insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+        values (v_tpl, 'class.participants', 22, 'select 1 from items');
+        v_bad := v_bad || 'with the catalogue guard disabled SQL reached the visualization column; ';
+      exception when others then
+        v_e := sqlerrm;
+        if v_e ~ 'visualization_shape' then n_checked := n_checked + 1;
+        else v_bad := v_bad || 'the visualization constraint refused for another reason: ' || left(v_e, 60) || '; '; end if;
+      end;
+      execute 'alter table public.report_template_metrics enable trigger report_template_metrics_guard';
+
+      raise exception 'F06_N03_UNDO';
+    exception when others then
+      if sqlerrm <> 'F06_N03_UNDO' then
+        v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 80) || '; ';
+      end if;
+    end;
+    perform selftest.as_owner();
+
+    id := 'F06-N03'; area := 'INV-34 -- a template selects from the catalogue, it does not define';
+    if v_bad <> '' then
+      ok := false; detail := v_bad;
+    elsif n_refused <> 4 then
+      ok := false;
+      detail := format('%s of 4 forbidden template rows were refused by the catalogue guard', n_refused);
+    elsif n_checked <> 2 then
+      ok := false;
+      detail := format('%s of 2 forbidden rows were refused by a CHECK constraint with the guard '
+                    || 'disabled: the second wall is not standing', n_checked);
+    elsif not v_accepted then
+      ok := false;
+      detail := 'nothing forbidden was saved and nothing permitted was either: a template surface that '
+             || 'refuses everything satisfies a test made only of refusals';
+    else
+      ok := true;
+      detail := 'four forbidden template rows are refused by the catalogue guard -- a formula and an '
+             || 'unknown id both as "unknown metric id", a SQL fragment and a disallowed chart both as '
+             || '"does not permit visualization" -- and a legitimate selection over the same template is '
+             || 'accepted, so the refusals are the rule and not a broken write path. MEASURED WHILE '
+             || 'WRITING THIS: the BEFORE trigger refuses before constraint evaluation, so the CHECK '
+             || 'constraints 0073 describes as the first wall are never reached by these inputs; with the '
+             || 'guard disabled they refuse the same two writes themselves. Every row and the DDL are '
+             || 'rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P09 -- THE SAME SAVED TEMPLATE, READ BY TWO REAL ROLES.
+  --
+  -- §8's addition, in its own words: "a saved template opened by a
+  -- lower-privileged viewer renders that viewer's permitted subset, with an
+  -- honest statement for each omitted metric. Test this with two real roles,
+  -- not one." Two real personas, not two capability sets: boot-admin holds
+  -- INSTITUTION_ADMIN and boot-guru holds EDUCATOR, both in D1, and the
+  -- catalogue's `allowed_audiences` is what separates them.
+  --
+  -- §3.3 IS THE PROPERTY UNDER TEST. A saved configuration is a request, not
+  -- an entitlement. The admin saved a template naming institution-scope and
+  -- item-scope metrics; the educator opening it must not receive them merely
+  -- because they were saved.
+  --
+  -- AND THE STATEMENT MUST NAME NOTHING. `not_permitted` that carried the
+  -- metric id or its label would disclose the shape of what was withheld --
+  -- the same leak 0073 removed from the deprecation branch. Asserted here
+  -- rather than read.
+  --
+  -- THE DEPRECATED CASE, and its bound. A deprecated metric referenced by a
+  -- saved template must be omitted with an honest statement while the report
+  -- still renders. No exposed surface can deprecate a metric --
+  -- `publish_metric_catalogue` copies the flag forward and the definitions are
+  -- immutable -- so the state is produced here the way a future migration
+  -- would produce it, by inserting the definition. What is proven is the
+  -- READING of a deprecated metric, not a deprecation workflow, which does not
+  -- exist (OQ-5).
+  -- =========================================================================
+  declare
+    c2 record; v_t2 uuid; v_admin jsonb; v_guru jsonb; v_dep jsonb;
+    n_admin_denied int; n_guru_denied int; n_named int; v_why text := '';
+    n_entries_admin int; n_entries_guru int; v_depstatus text; v_depstmt text;
+    n_dep_entries int; n_admin_ok int;
+  begin
+    select * into c2 from selftest.f06_cohort();
+    begin
+      perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+      insert into public.report_templates (institution_id, standard_report, title_key, template_version)
+      values (c2.inst, 'class_learning_intelligence', 'laporan.kelas.judul', 2)
+      returning report_templates.id into v_t2;
+      insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization) values
+        (v_t2, 'class.participants', 1, 'hero_stat'),
+        (v_t2, 'institution.participants', 2, 'hero_stat'),
+        (v_t2, 'item.correctness_rate', 3, 'bar');
+
+      v_admin := public.generate_report(v_t2, c2.class_node);
+      perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+      v_guru := public.generate_report(v_t2, c2.class_node);
+
+      -- the deprecated metric, added the only way one can exist
+      perform selftest.as_owner();
+      insert into public.metric_definitions
+        (catalogue_version, metric_id, label_key, meaning_key, scope, minimum_sample,
+         allowed_visualizations, allowed_audiences, calculation_key, deprecated, deprecation_note_key)
+      values (public.current_metric_catalogue(), 'class.retired_probe', 'metrik.peserta.label',
+              'metrik.peserta.arti', 'CLASS', 1, array['hero_stat'],
+              array['EDUCATOR','INSTITUTION_ADMIN']::public.app_role[], 'class_participants',
+              true, 'laporan.metrik.diganti');
+      perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+      insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+      values (v_t2, 'class.retired_probe', 4, 'hero_stat');
+      v_dep := public.generate_report(v_t2, c2.class_node);
+
+      perform selftest.as_owner();
+      raise exception 'F06_P09_UNDO';
+    exception when others then
+      if sqlerrm <> 'F06_P09_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 100);
+      end if;
+    end;
+    perform selftest.as_owner();
+
+    id := 'F06-P09'; area := '§8 / §3.3 -- a saved template is a request, read by two real roles';
+    if v_why <> '' then
+      ok := false; detail := v_why;
+    else
+      select count(*) into n_entries_admin from jsonb_array_elements(v_admin -> 'entries');
+      select count(*) into n_entries_guru  from jsonb_array_elements(v_guru -> 'entries');
+      select count(*) filter (where e ->> 'status' = 'not_permitted'),
+             count(*) filter (where e ->> 'status' = 'ok')
+        into n_admin_denied, n_admin_ok from jsonb_array_elements(v_admin -> 'entries') e;
+      select count(*) filter (where e ->> 'status' = 'not_permitted')
+        into n_guru_denied from jsonb_array_elements(v_guru -> 'entries') e;
+      -- a withheld entry that names what was withheld is not a statement, it
+      -- is a disclosure with an apology attached
+      select count(*) into n_named from jsonb_array_elements(v_guru -> 'entries') e
+       where e ->> 'status' = 'not_permitted' and (e ? 'metric_id' or e ? 'label_key');
+      select count(*) into n_dep_entries from jsonb_array_elements(v_dep -> 'entries') e;
+      select e ->> 'status', e ->> 'statement_key' into v_depstatus, v_depstmt
+        from jsonb_array_elements(v_dep -> 'entries') e where e ->> 'metric_id' = 'class.retired_probe';
+
+      ok := true; detail := '';
+      if n_entries_admin <> 3 or n_entries_guru <> 3 then
+        ok := false;
+        detail := format('the same template rendered %s entries for the admin and %s for the educator: a '
+                      || 'report omits, it does not shorten', n_entries_admin, n_entries_guru);
+      elsif n_admin_denied <> 0 then
+        ok := false;
+        detail := format('the admin who saved the template was refused %s of its own metrics',
+                         n_admin_denied);
+      elsif n_admin_ok = 0 then
+        ok := false;
+        detail := 'no metric computed for the admin either, so "the permitted subset" is untested: this '
+               || 'would pass on a report that showed nobody anything';
+      elsif n_guru_denied <> 2 then
+        ok := false;
+        detail := format('the educator received %s honest statement(s) where 2 were expected: '
+                      || 'institution- and item-scope metrics are outside EDUCATOR''s catalogue audience, '
+                      || 'and a saved template does not grant them', n_guru_denied);
+      elsif n_named > 0 then
+        ok := false;
+        detail := format('%s withheld entr(ies) carry the metric id or its label: the statement discloses '
+                      || 'what it declines to show', n_named);
+      elsif v_depstatus is distinct from 'deprecated' or v_depstmt is null then
+        ok := false;
+        detail := format('a deprecated metric in a saved template read status=%s statement=%s',
+                         coalesce(v_depstatus, '(absent)'), coalesce(v_depstmt, '(none)'));
+      elsif n_dep_entries <> 4 then
+        ok := false;
+        detail := format('the report carrying a deprecated metric rendered %s of 4 entries', n_dep_entries);
+      else
+        detail := format('one saved template, two real personas: INSTITUTION_ADMIN receives all 3 entries '
+                      || 'with %s computed, EDUCATOR receives all 3 with 2 replaced by an honest statement '
+                      || 'that names neither the metric nor its label -- the institution- and item-scope '
+                      || 'metrics the admin saved are outside EDUCATOR''s catalogue audience and the saved '
+                      || 'configuration does not grant them (§3.3). A deprecated metric added to the same '
+                      || 'template reads status=deprecated carrying %s and the other 3 entries still '
+                      || 'render. BOUNDED: no exposed surface can deprecate a metric -- the definition was '
+                      || 'inserted here as a migration would (OQ-5). Every row written is rolled back',
+                         n_admin_ok, v_depstmt);
+      end if;
     end if;
     return next;
   end;

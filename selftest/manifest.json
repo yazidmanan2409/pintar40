@@ -1,12 +1,12 @@
 {
   "contract": "pintar-selftest",
-  "version": 22,
-  "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
-  "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
+  "version": 23,
+  "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
+  "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..05.sql and fable05t1_quick_canonical.sql \u2014 psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id",
-    "static": "selftest/static.test.ts \u2014 repository and production build; no database, no network",
-    "app": "selftest/app.test.ts \u2014 black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
+    "db": "selftest/db/fable01..06.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id",
+    "static": "selftest/static.test.ts — repository and production build; no database, no network",
+    "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
   "facilities": {
     "db": "SUPABASE_DB_URL set and psql available",
@@ -126,7 +126,7 @@
     {
       "id": "F01-T18",
       "runner": "db",
-      "proves": "doc 16 \u00a78 flags institution-scoped; platform config SYSTEM_ADMIN only",
+      "proves": "doc 16 §8 flags institution-scoped; platform config SYSTEM_ADMIN only",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
     },
     {
@@ -144,7 +144,7 @@
     {
       "id": "F02-T02",
       "runner": "db",
-      "proves": "doc 04 \u00a71 APPROVED requires a reviewer who is not the author, and stamps reviewed_at",
+      "proves": "doc 04 §1 APPROVED requires a reviewer who is not the author, and stamps reviewed_at",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -168,7 +168,7 @@
     {
       "id": "F02-T06",
       "runner": "db",
-      "proves": "INV-04 (ADR-0004 \u00a72) the hash addresses content, not rows: identical content under new uuids, timestamps and insertion order hashes identically",
+      "proves": "INV-04 (ADR-0004 §2) the hash addresses content, not rows: identical content under new uuids, timestamps and insertion order hashes identically",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -186,7 +186,7 @@
     {
       "id": "F02-T09",
       "runner": "db",
-      "proves": "doc 04 \u00a71 sealing needs a human CAN_FREEZE_RELEASE holder and is a different authority from publishing: refused with no person and for EDUCATOR, accepted for HEAD_OF_DEPARTMENT, which still cannot publish",
+      "proves": "doc 04 §1 sealing needs a human CAN_FREEZE_RELEASE holder and is a different authority from publishing: refused with no person and for EDUCATOR, accepted for HEAD_OF_DEPARTMENT, which still cannot publish",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -210,7 +210,7 @@
     {
       "id": "F02-T13",
       "runner": "db",
-      "proves": "INV-33 / doc 04 \u00a75 a presented item is write-once and tenant-bound; the session status graph refuses reversals, unlisted jumps and reasonless termination",
+      "proves": "INV-33 / doc 04 §5 a presented item is write-once and tenant-bound; the session status graph refuses reversals, unlisted jumps and reasonless termination",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -228,7 +228,7 @@
     {
       "id": "F02-C01",
       "runner": "db",
-      "proves": "INV-28 under real concurrency: two connections contesting one receipt are arbitrated by the unique index, not by a prior read \u2014 the holder records, a simultaneous writer with a different answer is refused, and exactly one row with one digest survives",
+      "proves": "INV-28 under real concurrency: two connections contesting one receipt are arbitrated by the unique index, not by a prior read — the holder records, a simultaneous writer with a different answer is refused, and exactly one row with one digest survives",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); two concurrent connections are required, so it cannot be expressed inside a single plpgsql runner"
     },
     {
@@ -240,13 +240,13 @@
     {
       "id": "F02-T17",
       "runner": "db",
-      "proves": "INV-20 non-official evidence never appears in official_sessions/responses/results, an OFFICIAL session does, and the analytics role holds no grant on any raw evidence table. AMENDED TEXT: the 2026-09-12 baseline strengthened INV-20 to require structural exclusion \u2014 consumers hold no direct grant on raw evidence \u2014 and this id now re-runs assert_evidence_consumer_boundary(). It currently holds VACUOUSLY: no analytics consumer role exists yet. The consumer role is an open architectural decision; see the FABLE-03 checkpoint.",
+      "proves": "INV-20 non-official evidence never appears in official_sessions/responses/results, an OFFICIAL session does, and the analytics role holds no grant on any raw evidence table. AMENDED TEXT: the 2026-09-12 baseline strengthened INV-20 to require structural exclusion — consumers hold no direct grant on raw evidence — and this id now re-runs assert_evidence_consumer_boundary(). It currently holds VACUOUSLY: no analytics consumer role exists yet. The consumer role is an open architectural decision; see the FABLE-03 checkpoint.",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
       "id": "F02-T18",
       "runner": "db",
-      "proves": "INV-01 / doc 04 \u00a79 lesson prose is publicly readable only under a PUBLISHED release; anon holds exactly one grant, on that view; item-bearing and cohort aggregates are service-role only",
+      "proves": "INV-01 / doc 04 §9 lesson prose is publicly readable only under a PUBLISHED release; anon holds exactly one grant, on that view; item-bearing and cohort aggregates are service-role only",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -258,7 +258,7 @@
     {
       "id": "F02-T20",
       "runner": "db",
-      "proves": "INV-27 / doc 04 \u00a74 assigning requires CAN_ASSIGN_LEARNING and is stamped; a release move on an ACTIVE assignment is recorded and audited before it applies; CLOSED is terminal and changes no running session",
+      "proves": "INV-27 / doc 04 §4 assigning requires CAN_ASSIGN_LEARNING and is stamped; a release move on an ACTIVE assignment is recorded and audited before it applies; CLOSED is terminal and changes no running session",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -288,7 +288,7 @@
     {
       "id": "F01-S01",
       "runner": "static",
-      "proves": "doc 16 \u00a72 one migrations directory; canonical ordered names; every migration ends in a verification block"
+      "proves": "doc 16 §2 one migrations directory; canonical ordered names; every migration ends in a verification block"
     },
     {
       "id": "F01-S02",
@@ -318,13 +318,13 @@
     {
       "id": "F01-R01",
       "runner": "app",
-      "proves": "INV-21/\u00a74 unauthenticated /konfigurasi redirected and /api/* refused; /api/dev/* 404 in the production build; public copy clean"
+      "proves": "INV-21/§4 unauthenticated /konfigurasi redirected and /api/* refused; /api/dev/* 404 in the production build; public copy clean"
     },
     {
       "id": "F01-R02",
       "runner": "app",
       "proves": "INV-19 / INV-13: DEAN and STUDENT get a clean refusal on /konfigurasi and INSTITUTION_ADMIN renders its own institution. Inspects the RENDERED OUTPUT of a real HTTP request under each persona's session",
-      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable \u2014 runs in CI against the local stack (checkpoint \u00a76)"
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
       "id": "F01-R03",
@@ -335,70 +335,70 @@
     {
       "id": "F01-R04",
       "runner": "app",
-      "proves": "doc 16 \u00a72 CI ran the migrations against a clean database and the previous schema (upgrade path) and went red on a deliberately broken build",
+      "proves": "doc 16 §2 CI ran the migrations against a clean database and the previous schema (upgrade path) and went red on a deliberately broken build",
       "skip_justification": "evidence exists only inside a CI run; the workflow forwards its job results to the runner"
     },
     {
       "id": "F01-R05",
       "runner": "app",
-      "proves": "FABLE-01 \u00a72 sign-out invalidates the session on the server (the refresh token is revoked, not merely the cookie cleared) and the previously authenticated browser is refused at the protected route; other sessions are unaffected",
-      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable \u2014 runs in CI against the local stack (checkpoint \u00a76)"
+      "proves": "FABLE-01 §2 sign-out invalidates the session on the server (the refresh token is revoked, not merely the cookie cleared) and the previously authenticated browser is refused at the protected route; other sessions are unaffected",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
       "id": "F01-R06",
       "runner": "app",
-      "proves": "FABLE-01 \u00a72 classroom-card auth: the configured CARD_PEPPER meets the production contract. Inspects the RUNNING PROCESS ENVIRONMENT and the rendered output of a card sign-in over HTTP",
-      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable \u2014 runs in CI against the local stack (checkpoint \u00a76)"
+      "proves": "FABLE-01 §2 classroom-card auth: the configured CARD_PEPPER meets the production contract. Inspects the RUNNING PROCESS ENVIRONMENT and the rendered output of a card sign-in over HTTP",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
       "id": "F03-T01",
       "runner": "db",
-      "proves": "FABLE-03 \u00a71-\u00a77 / INV-33 \u2014 the whole cycle end to end for an email learner and a classroom-card learner, in a synthetic tenant, with full provenance"
+      "proves": "FABLE-03 §1-§7 / INV-33 — the whole cycle end to end for an email learner and a classroom-card learner, in a synthetic tenant, with full provenance"
     },
     {
       "id": "F03-T02",
       "runner": "db",
-      "proves": "INV-24 \u2014 the post-test shares no item and no parallel sibling with this learner's pre-test, across the whole bank"
+      "proves": "INV-24 — the post-test shares no item and no parallel sibling with this learner's pre-test, across the whole bank"
     },
     {
       "id": "F03-T03",
       "runner": "db",
-      "proves": "INV-01 \u2014 the delivered payload carries only allow-listed keys, and a learner reads zero rows of the question bank"
+      "proves": "INV-01 — the delivered payload carries only allow-listed keys, and a learner reads zero rows of the question bank"
     },
     {
       "id": "F03-T04",
       "runner": "db",
-      "proves": "INV-27 / INV-17 \u2014 a closing assignment window does not stop a started session but starts nothing new; an ended enrolment refuses the next scored action. MAPPING: the prompt's INV-17 case names a scope revocation; a learner holds no role_assignment, deriving authority from enrolment, so an ended enrolment is the learner-side analogue and is what is tested. A staff scope revocation is covered by F01-T04."
+      "proves": "INV-27 / INV-17 — a closing assignment window does not stop a started session but starts nothing new; an ended enrolment refuses the next scored action. MAPPING: the prompt's INV-17 case names a scope revocation; a learner holds no role_assignment, deriving authority from enrolment, so an ended enrolment is the learner-side analogue and is what is tested. A staff scope revocation is covered by F01-T04."
     },
     {
       "id": "F03-T05",
       "runner": "db",
-      "proves": "INV-28 \u2014 an identical replay is acknowledged into one row, a different answer on the same receipt is refused, a new sequence appends, and a returning client reads its state back from the server"
+      "proves": "INV-28 — an identical replay is acknowledged into one row, a different answer on the same receipt is refused, a new sequence appends, and a returning client reads its state back from the server"
     },
     {
       "id": "F03-T06",
       "runner": "db",
-      "proves": "FABLE-03 \u00a73 \u2014 reading progress never regresses, whichever order positions arrive in"
+      "proves": "FABLE-03 §3 — reading progress never regresses, whichever order positions arrive in"
     },
     {
       "id": "F03-T07",
       "runner": "db",
-      "proves": "INV-10 \u2014 a safety-critical item answered wrong fails the attempt even when the score clears the pass mark"
+      "proves": "INV-10 — a safety-critical item answered wrong fails the attempt even when the score clears the pass mark"
     },
     {
       "id": "F03-T08",
       "runner": "db",
-      "proves": "INV-11 \u2014 the hesitation window holds to the second, and identical answers score identically with and without assistance. NOT COVERED: the prompt's \"never offline\" clause is argued from the design (the client asks the server when help is due, so an unreachable server offers nothing) and is not exercised by this id."
+      "proves": "INV-11 — the hesitation window holds to the second, and identical answers score identically with and without assistance. NOT COVERED: the prompt's \"never offline\" clause is argued from the design (the client asks the server when help is due, so an unreachable server offers nothing) and is not exercised by this id."
     },
     {
       "id": "F03-T09",
       "runner": "db",
-      "proves": "Learning Safety Doctrine / INV-02 \u2014 no served or authored learner string carries a forbidden word or narrows to the answer, across every delivered item type"
+      "proves": "Learning Safety Doctrine / INV-02 — no served or authored learner string carries a forbidden word or narrows to the answer, across every delivered item type"
     },
     {
       "id": "F03-T10",
       "runner": "db",
-      "proves": "INV-08 / INV-09 \u2014 a second learner is refused on both paths, the stored score equals a fresh recomputation, and a duplicate finalize observes one root result. SCOPE: the RPC exposure contract re-run here (assert_engine_takes_no_identity) is a SIGNATURE TRIPWIRE, not the INV-08 proof \u2014 it inspects argument names and types and cannot tell a resource id from an identity, so p_session uuid passes and correctly so. INV-08's actual guarantee is the ownership check in session_is_mine and the definer bodies, which the behavioural half of this id exercises. It also asserts every client-executable SECDEF function carries an exposure class, so an unregistered new RPC fails rather than being skipped."
+      "proves": "INV-08 / INV-09 — a second learner is refused on both paths, the stored score equals a fresh recomputation, and a duplicate finalize observes one root result. SCOPE: the RPC exposure contract re-run here (assert_engine_takes_no_identity) is a SIGNATURE TRIPWIRE, not the INV-08 proof — it inspects argument names and types and cannot tell a resource id from an identity, so p_session uuid passes and correctly so. INV-08's actual guarantee is the ownership check in session_is_mine and the definer bodies, which the behavioural half of this id exercises. It also asserts every client-executable SECDEF function carries an exposure class, so an unregistered new RPC fails rather than being skipped."
     },
     {
       "id": "F03-S01",
@@ -418,109 +418,109 @@
     {
       "id": "F03-R01",
       "runner": "app",
-      "proves": "FABLE-03 \u00a78: a learner signs in and reaches the cycle over HTTP; an anonymous request never does. Inspects the RENDERED OUTPUT of the learner routes under a real session",
+      "proves": "FABLE-03 §8: a learner signs in and reaches the cycle over HTTP; an anonymous request never does. Inspects the RENDERED OUTPUT of the learner routes under a real session",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
     },
     {
       "id": "F03-R02",
       "runner": "app",
-      "proves": "FABLE-03 \u00a79 \u2014 no lifecycle enum, evidence class, engine version or release hash appears on any learner route",
+      "proves": "FABLE-03 §9 — no lifecycle enum, evidence class, engine version or release hash appears on any learner route",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
     },
     {
       "id": "F04-T01",
       "runner": "db",
-      "proves": "INV-04 / ADR-0006 \u2014 adding five assessment_mode labels moves no sealed release's PINTAR-CONTENT-SHA256/1; the enum carries nine"
+      "proves": "INV-04 / ADR-0006 — adding five assessment_mode labels moves no sealed release's PINTAR-CONTENT-SHA256/1; the enum carries nine"
     },
     {
       "id": "F04-T02",
       "runner": "db",
-      "proves": "INV-29 \u2014 a result resolves to a registry scoring policy and stays on it when a newer one is published; a correction writes a new linked result and leaves the original"
+      "proves": "INV-29 — a result resolves to a registry scoring policy and stays on it when a newer one is published; a correction writes a new linked result and leaves the original"
     },
     {
       "id": "F04-T03",
       "runner": "db",
-      "proves": "INV-26 / INV-12 \u2014 every mode carries a policy row derived from pg_enum; the five engine functions have one implementation each; the EXAM tier is reachable only from EXAM and PAPER"
+      "proves": "INV-26 / INV-12 — every mode carries a policy row derived from pg_enum; the five engine functions have one implementation each; the EXAM tier is reachable only from EXAM and PAPER"
     },
     {
       "id": "F04-T04",
       "runner": "db",
-      "proves": "doc 07 \u00a75 / INV-12 \u2014 an in-scope educator launches a Quick Assessment in one capability-gated call at the TEST tier; a DEAN, an out-of-scope educator and an out-of-bounds size are refused"
+      "proves": "doc 07 §5 / INV-12 — an in-scope educator launches a Quick Assessment in one capability-gated call at the TEST tier; a DEAN, an out-of-scope educator and an out-of-bounds size are refused"
     },
     {
       "id": "F04-T05",
       "runner": "db",
-      "proves": "INV-28 / doc 07 \u2014 a reply inside the definition's governed grace is LATE_SYNC and scored; beyond it the work is retained as evidence and excluded from scoring; every receipt survives"
+      "proves": "INV-28 / doc 07 — a reply inside the definition's governed grace is LATE_SYNC and scored; beyond it the work is retained as evidence and excluded from scoring; every receipt survives"
     },
     {
       "id": "F04-T06",
       "runner": "db",
-      "proves": "doc 04 \u00a75 / INV-17 \u2014 a deadline extension is capability-gated, bounded and audited; a termination names one of the four causes and its actor, retains recorded work, and a learner cannot perform one"
+      "proves": "doc 04 §5 / INV-17 — a deadline extension is capability-gated, bounded and audited; a termination names one of the four causes and its actor, retains recorded work, and a learner cannot perform one"
     },
     {
       "id": "F04-T07",
       "runner": "db",
-      "proves": "doc 06 \u00a77 \u2014 integrity signals are recorded on the caller's own session; no scoring function or view can read the table; it carries no verdict column; a second learner is refused"
+      "proves": "doc 06 §7 — integrity signals are recorded on the caller's own session; no scoring function or view can read the table; it carries no verdict column; a second learner is refused"
     },
     {
       "id": "F04-T08",
       "runner": "db",
-      "proves": "D1 / INV-20 / INV-21 \u2014 the bootstrap tenant is the only non-synthetic one, its evidence derives OFFICIAL the ordinary way, a second official tenant is refused, and min(derived, override) is unchanged"
+      "proves": "D1 / INV-20 / INV-21 — the bootstrap tenant is the only non-synthetic one, its evidence derives OFFICIAL the ordinary way, a second official tenant is refused, and min(derived, override) is unchanged"
     },
     {
       "id": "F04-T09",
       "runner": "db",
-      "proves": "INV-05 / INV-30 / \u00a78 \u2014 one certificate per session; a second prepare observes it; the payload carries all ten protected fields; payload, row and identity snapshot are each immutable"
+      "proves": "INV-05 / INV-30 / §8 — one certificate per session; a second prepare observes it; the payload carries all ten protected fields; payload, row and identity snapshot are each immutable"
     },
     {
       "id": "F04-T10",
       "runner": "db",
-      "proves": "D3a / D3b / INV-38 \u2014 the verification token is opaque and derivable from nothing; the public payload is exactly {pass, predikat, institution, date, validity} and reads no identity column; revocation changes the answer and keeps the row"
+      "proves": "D3a / D3b / INV-38 — the verification token is opaque and derivable from nothing; the public payload is exactly {pass, predikat, institution, date, validity} and reads no identity column; revocation changes the answer and keeps the row"
     },
     {
       "id": "F04-T11",
       "runner": "db",
-      "proves": "INV-20 \u2014 a SYNTHETIC session is refused eligibility for its evidence class, appears in no official view, and cannot be prepared into a certificate"
+      "proves": "INV-20 — a SYNTHETIC session is refused eligibility for its evidence class, appears in no official view, and cannot be prepared into a certificate"
     },
     {
       "id": "F04-T12",
       "runner": "db",
-      "proves": "INV-13 / \u00a77 \u2014 learners from two other tenants are refused on the certificate read and the revoke; the four internal certificate functions are executable by no client role"
+      "proves": "INV-13 / §7 — learners from two other tenants are refused on the certificate read and the revoke; the four internal certificate functions are executable by no client role"
     },
     {
       "id": "F04-T13",
       "runner": "db",
-      "proves": "D2 / INV-25 \u2014 both certificate tables are INSTITUTION_SCOPED, so a transfer carries neither"
+      "proves": "D2 / INV-25 — both certificate tables are INSTITUTION_SCOPED, so a transfer carries neither"
     },
     {
       "id": "F04-T14",
       "runner": "db",
-      "proves": "phase gate \u2014 nine standing assertions (telemetry, evidence consumer, ownership reachability, RPC exposure, public surface, audit arity, mode policy, integrity, D1 bootstrap) all report clean with every FABLE-04 object present"
+      "proves": "phase gate — nine standing assertions (telemetry, evidence consumer, ownership reachability, RPC exposure, public surface, audit arity, mode policy, integrity, D1 bootstrap) all report clean with every FABLE-04 object present"
     },
     {
       "id": "F04-T15",
       "runner": "db",
-      "proves": "INV-35 / doc 16 \u00a74 \u2014 the four adversarial MCQ banks (correct option 2-3x longer, ~70% of answers in one position, an implausible distractor, the correct option copying stem wording) each make Publish Readiness report BLOCKED or ACTION_REQUIRED NAMING that pattern and no other, and each clears to READY only after the content itself is repaired; a clean control bank reaches READY unaided"
+      "proves": "INV-35 / doc 16 §4 — the four adversarial MCQ banks (correct option 2-3x longer, ~70% of answers in one position, an implausible distractor, the correct option copying stem wording) each make Publish Readiness report BLOCKED or ACTION_REQUIRED NAMING that pattern and no other, and each clears to READY only after the content itself is repaired; a clean control bank reaches READY unaided"
     },
     {
       "id": "F04-T16",
       "runner": "db",
-      "proves": "INV-20 / doc 16 \u00a74 \u2014 the eligibility-probe set: a PUBLIC_DEMO-channel session opened on the OFFICIAL tenant in a certifying mode reaches no official view, contributes to no psychometric or Question Health figure, and is refused certificate eligibility for its evidence class"
+      "proves": "INV-20 / doc 16 §4 — the eligibility-probe set: a PUBLIC_DEMO-channel session opened on the OFFICIAL tenant in a certifying mode reaches no official view, contributes to no psychometric or Question Health figure, and is refused certificate eligibility for its evidence class"
     },
     {
       "id": "F04-T17",
       "runner": "db",
-      "proves": "INV-04 / ADR-0011 \u2014 under a genuinely sealed course a release-bound definition is refused while an ad-hoc one is created, edited and removed, moving no sealed release hash and never becoming part of a release. Exists because 0046's own probe is conditional on a sealed course and migrations run before seeds, so on a from-empty replay it proves nothing"
+      "proves": "INV-04 / ADR-0011 — under a genuinely sealed course a release-bound definition is refused while an ad-hoc one is created, edited and removed, moving no sealed release hash and never becoming part of a release. Exists because 0046's own probe is conditional on a sealed course and migrations run before seeds, so on a from-empty replay it proves nothing"
     },
     {
       "id": "F04-S01",
       "runner": "static",
-      "proves": "INV-38 \u2014 exactly one verification route shape in the app, carrying no internal designation and no identity field"
+      "proves": "INV-38 — exactly one verification route shape in the app, carrying no internal designation and no identity field"
     },
     {
       "id": "F04-S02",
       "runner": "static",
-      "proves": "INV-05: a signed canonical payload verifies and tampering with each of the ten protected fields breaks verification. EXECUTES src/lib/certificates/sign.ts against constructed payloads -- a behavioural test of the module, not a reading of it"
+      "proves": "INV-05: a signed canonical payload verifies and tampering with each of the ten protected fields breaks verification. EXECUTES src/lib/certificates/sign.ts against constructed payloads -- a behavioural test of the module, not a reading of it. INV-06: the same test asserts that src/lib/certificates/sign.ts compares with crypto.timingSafeEqual and never with ===. BOUNDED, and this is the half doc 03 asks for that is NOT here: the behavioural claim that near-miss signatures fail identically fast is not measured. Until the §7 traceability sweep this clause was labelled INV-05 in both the assertion message and here, so a gate reading the manifest saw INV-05 twice and INV-06 nowhere"
     },
     {
       "id": "F04-S03",
@@ -530,12 +530,12 @@
     {
       "id": "F04-S04",
       "runner": "static",
-      "proves": "INV-05 end to end \u2014 a canonical payload BUILT IN SQL, signed in Node with the keyring crypto and stored in Postgres verifies when a separate process reads it back; a changed stored byte and a wrong key both fail. Closes the gap the first-certificate-issuance boundary audit found: before it, SQL-built payloads were never signed by the real crypto and the db suite sealed with a placeholder signature"
+      "proves": "INV-05 end to end — a canonical payload BUILT IN SQL, signed in Node with the keyring crypto and stored in Postgres verifies when a separate process reads it back; a changed stored byte and a wrong key both fail. Closes the gap the first-certificate-issuance boundary audit found: before it, SQL-built payloads were never signed by the real crypto and the db suite sealed with a placeholder signature"
     },
     {
       "id": "F04-S05",
       "runner": "static",
-      "proves": "INV-05 on the path a stranger uses \u2014 the exported route handler of /api/verifikasi/[token], driven directly: a genuine certificate reads BERLAKU, a tampered STORED payload reads TIDAK SAH, the response is exactly the five D3b fields in both cases, and unknown, malformed and prepared-but-unissued tokens are indistinguishable. Closes Claude 1's finding 1: before 0051 the public route reported validity from certificates.status and never touched signature",
+      "proves": "INV-05 on the path a stranger uses — the exported route handler of /api/verifikasi/[token], driven directly: a genuine certificate reads BERLAKU, a tampered STORED payload reads TIDAK SAH, the response is exactly the five D3b fields in both cases, and unknown, malformed and prepared-but-unissued tokens are indistinguishable. Closes Claude 1's finding 1: before 0051 the public route reported validity from certificates.status and never touched signature",
       "skip_justification": "drives the real route handler, which reaches PostgREST: needs the Supabase stack as well as the database. CI has both and runs it strictly; locally the egress policy denies *.supabase.co and Docker is unavailable"
     },
     {
@@ -661,7 +661,7 @@
     {
       "id": "F05-T21",
       "runner": "db",
-      "proves": "every counter FABLE-05 \u00a711 fixes is unmoved, and the two deliberate movements are separately visible",
+      "proves": "every counter FABLE-05 §11 fixes is unmoved, and the two deliberate movements are separately visible",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
@@ -683,7 +683,7 @@
     {
       "id": "F05-S03",
       "runner": "static",
-      "proves": "\u00a712: no learner surface renders a staff-only copy key, and no Studio COPY STRING in src/lib/hle.ts contains a lifecycle enum, version string or evidence class. AMENDED 2026-09-15: the original wording read as a property of the Studio SURFACE. What is tested is the copy table -- a page interpolating {x.status} into a text position would pass it, and five such interpolations existed when F06-S03 first ran. The surface property is F06-S03's; this remains true and is narrower than it sounded"
+      "proves": "§12: no learner surface renders a staff-only copy key, and no Studio COPY STRING in src/lib/hle.ts contains a lifecycle enum, version string or evidence class. AMENDED 2026-09-15: the original wording read as a property of the Studio SURFACE. What is tested is the copy table -- a page interpolating {x.status} into a text position would pass it, and five such interpolations existed when F06-S03 first ran. The surface property is F06-S03's; this remains true and is narrower than it sounded"
     },
     {
       "id": "F05-R01",
@@ -711,7 +711,7 @@
     {
       "id": "QAC-T04",
       "runner": "db",
-      "proves": "ADR-0018 negative 3 / INV-01: School B cannot reach School C's supplementary items at the launcher or through the eligibility path \u2014 the relaxation is canonical-only",
+      "proves": "ADR-0018 negative 3 / INV-01: School B cannot reach School C's supplementary items at the launcher or through the eligibility path — the relaxation is canonical-only",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
@@ -729,7 +729,7 @@
     {
       "id": "QAC-T07",
       "runner": "db",
-      "proves": "ADR-0018 negative 6 / INV-26: a non-ad-hoc definition over the same authorized module draws no canonical item while its ad-hoc twin does \u2014 the gate is is_ad_hoc and nothing else",
+      "proves": "ADR-0018 negative 6 / INV-26: a non-ad-hoc definition over the same authorized module draws no canonical item while its ad-hoc twin does — the gate is is_ad_hoc and nothing else",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
@@ -753,18 +753,18 @@
     {
       "id": "QAC-S01",
       "runner": "static",
-      "proves": "ADR-0018 \u00a75: the Quick Assessment surface offers authorized canonical chapters through the named accessors. Inspects the SOURCE of src/app/studio/actions.ts and studio/kuis/page.tsx, and the COPY TABLE in src/lib/hle.ts -- not the rendered page"
+      "proves": "ADR-0018 §5: the Quick Assessment surface offers authorized canonical chapters through the named accessors. Inspects the SOURCE of src/app/studio/actions.ts and studio/kuis/page.tsx, and the COPY TABLE in src/lib/hle.ts -- not the rendered page"
     },
     {
       "id": "QAC-T11",
       "runner": "db",
-      "proves": "ADR-0018 as amended by 0063 and 0064 / doc 07 session binding / doc 08 publication: one own-content course in four states \u2014 INGESTED and FROZEN each refuse the learner by name and leave no session row, PUBLISHED runs to a scored attempt whose presented items are then sealed against edits, and SUPERSEDED (sealed, and published in the past) admits a further session that is pinned just as hard",
+      "proves": "ADR-0018 as amended by 0063 and 0064 / doc 07 session binding / doc 08 publication: one own-content course in four states — INGESTED and FROZEN each refuse the learner by name and leave no session row, PUBLISHED runs to a scored attempt whose presented items are then sealed against edits, and SUPERSEDED (sealed, and published in the past) admits a further session that is pinned just as hard",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
       "id": "QAC-T12",
       "runner": "db",
-      "proves": "ADR-0018 as amended by 0064 / ADR-0015 \u00a75.2 / ADR-0016: supersession is not withdrawal \u2014 superseding a canonical release leaves a school with a live grant still using it, because release status gates new sessions nowhere in this system and correction is an explicit audited move; withdrawing the distribution stops both a new launch and a new session on the assignment already made, and touches no completed attempt",
+      "proves": "ADR-0018 as amended by 0064 / ADR-0015 §5.2 / ADR-0016: supersession is not withdrawal — superseding a canonical release leaves a school with a live grant still using it, because release status gates new sessions nowhere in this system and correction is an explicit audited move; withdrawing the distribution stops both a new launch and a new session on the assignment already made, and touches no completed attempt",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
@@ -845,7 +845,7 @@
     {
       "id": "EVAL-P04",
       "runner": "db",
-      "proves": "no authorization root and no RLS policy knows the evaluation facility exists (ADR-0020 \u00a73.1)"
+      "proves": "no authorization root and no RLS policy knows the evaluation facility exists (ADR-0020 §3.1)"
     },
     {
       "id": "EVAL-S02",
@@ -855,7 +855,7 @@
     {
       "id": "DOC-P01",
       "runner": "static",
-      "proves": "baseline integrity by content, not by marker: every document listed in docs/rebuild/BASELINE-MANIFEST.json is byte-identical to the frozen baseline, every file in a governed directory is listed by the manifest, each document's own amendment marker agrees with its manifest entry, and no ungoverned second copy of a governed document exists anywhere in the repository. Retires DOC-S01, which counted markers \u2014 doc 03 carried the right marker while still stale, and three of eighteen documents carry none"
+      "proves": "baseline integrity by content, not by marker: every document listed in docs/rebuild/BASELINE-MANIFEST.json is byte-identical to the frozen baseline, every file in a governed directory is listed by the manifest, each document's own amendment marker agrees with its manifest entry, and no ungoverned second copy of a governed document exists anywhere in the repository. Retires DOC-S01, which counted markers — doc 03 carried the right marker while still stale, and three of eighteen documents carry none"
     },
     {
       "id": "F06-S01",
@@ -870,7 +870,7 @@
     {
       "id": "F06-N01",
       "runner": "db",
-      "proves": "a presented item belonging to another person and a uuid that does not exist produce the identical refusal from sanitized_item, so existence is not an oracle. The previous body raised 'unknown presented item' before authorizing \u2014 the same check-then-authorize inversion 0073 removed from metric_evaluate"
+      "proves": "a presented item belonging to another person and a uuid that does not exist produce the identical refusal from sanitized_item, so existence is not an oracle. The previous body raised 'unknown presented item' before authorizing — the same check-then-authorize inversion 0073 removed from metric_evaluate"
     },
     {
       "id": "F06-P02",
@@ -895,7 +895,7 @@
     {
       "id": "F06-S02",
       "runner": "static",
-      "proves": "the copy/route inventory (\u00a77) IS the fetch list for the output-level INTERNAL_WORDS scan, and it is derived from src/app rather than written down: every route the application serves must appear in ROUTE_INVENTORY or this fails. F01-S03's source scan matches JSX text nodes and deliberately ignores {...} expressions, so it is structurally blind to {item.state} rendering an enum; only fetched HTML catches that, and only for routes that are fetched. A hand-maintained list would hold for the surfaces this phase adds and lapse silently for the next one"
+      "proves": "the copy/route inventory (§7) IS the fetch list for the output-level INTERNAL_WORDS scan, and it is derived from src/app rather than written down: every route the application serves must appear in ROUTE_INVENTORY or this fails. F01-S03's source scan matches JSX text nodes and deliberately ignores {...} expressions, so it is structurally blind to {item.state} rendering an enum; only fetched HTML catches that, and only for routes that are fetched. A hand-maintained list would hold for the surfaces this phase adds and lapse silently for the next one"
     },
     {
       "id": "F06-R01",
@@ -913,19 +913,44 @@
       "proves": "every static or app test's `proves` string in the MANIFEST FILE names the artefact its predicate inspects -- copy table, rendered output, migration text, source, live schema. L5 applied to the manifest's own metadata rather than to a test body. F05-S03's proves claimed a property of the Studio surface while testing the copy table: the completion report was honest and the machine-readable record was not, which is the inverse of the usual failure and worse, because the manifest is what a gate reads. Prose cannot be validated against a predicate, so this does the cheap half and makes scope comparable by eye. BOUNDED: covers artefact identification across static and app tests only; verb accuracy -- \"inspects\" written for something that executes -- was found by hand on eleven strings and was NOT audited across the 91 db strings"
     },
     {
+      "id": "F06-S05",
+      "runner": "static",
+      "proves": "every invariant declared in the document docs/rebuild/03-PINTAR-INVARIANTS.md is named by at least one `proves` string in the manifest file, and no manifest entry cites an invariant the document does not declare. The invariant list is derived from the frozen document, so a new invariant joins the check the day it is written and fails until a test names it. It found INV-34 (no test at all) and INV-06 (mislabelled INV-05). BOUNDED: this reads the manifest's own text and proves NAMING, not adequacy -- INV-06's behavioural half, INV-22 and INV-35 are named and carried as inadequately covered"
+    },
+    {
+      "id": "F06-S06",
+      "runner": "static",
+      "proves": "every exported HTTP handler in every route file under the source directory src/app/api/dev refuses in its own body outside NODE_ENV==='development' (INV-21). The file set is derived from the directory rather than written down, so a dev tool added in a new file is covered the day it appears -- the half F01-R01 cannot have, because the paths it fetches from the production build are a written list. Fails rather than passing vacuously if the namespace holds no route file"
+    },
+    {
       "id": "F06-N02",
       "runner": "db",
-      "proves": "INV-19 in the API rather than the UI: a dean is refused every mutating STAFF endpoint that checks a capability DEAN lacks, and READS successfully through the same session so the refusals are not simply an absent session. The endpoint set is DERIVED three ways -- role_capabilities for the denied capabilities, client_rpc_registry for client exposure, pg_proc.provolatile for mutation -- so a new privileged RPC joins it the day it is created, with a floor so an endpoint that deletes its own capability check fails rather than leaving the set. Refusal is distinguished from absence: undefined_function and an uncallable probe are failures, not passes. BOUNDED: 8 of 18 refuse with an AUTHORIZATION error; 10 refuse earlier at argument resolution or value validation and are NAMED in the verdict. For those 10 the assertion proves refusal but not authorization, so a capability check weakened rather than removed would not be detected -- see RF-2"
+      "proves": "INV-19 in the API rather than the UI: a dean is refused every mutating STAFF endpoint that checks a capability DEAN lacks, and READS successfully through the same session so the refusals are not simply an absent session. The endpoint set is DERIVED three ways -- role_capabilities for the denied capabilities, client_rpc_registry for client exposure, pg_proc.provolatile for mutation -- so a new privileged RPC joins it the day it is created, with a floor of 18 so an endpoint that deletes its own capability check fails rather than leaving the set. Refusal is distinguished from absence: undefined_function and an uncallable probe are failures, not passes. MEASURED AT THIS COMMIT on a clean seeded stack: 21 endpoints, 17 refusing with an AUTHORIZATION error and 4 refusing earlier, NAMED in the verdict. For those 4 the assertion proves refusal but not authorization, so a capability check weakened rather than removed would not be detected -- see RF-2. The split was 4/17 until the probe stopped passing NULL for arguments its own tenant cannot supply"
     },
     {
       "id": "F06-P06",
       "runner": "db",
-      "proves": "a briefing reaches READY over the D1 cohort's real OFFICIAL evidence and the ARTEFACT carries the catalogue version and template version it was made from (\u00a73.4). Walks two declared edges, leaving two audit rows in the LIVE DATABASE ordered by identity because both share one transaction timestamp (L3). Re-evaluating pinned to the recorded catalogue answers under it, so the version determines the numbers rather than naming them. 0082's terminal block could not reach this branch -- a synthetic tenant caps at SYNTHETIC and the catalogue refuses a minimum sample of 0 -- and says so rather than faking evidence"
+      "proves": "a briefing reaches READY over the D1 cohort's real OFFICIAL evidence and the ARTEFACT carries the catalogue version and template version it was made from (§3.4). Walks two declared edges, leaving two audit rows in the LIVE DATABASE ordered by identity because both share one transaction timestamp (L3). Re-evaluating pinned to the recorded catalogue answers under it, so the version determines the numbers rather than naming them. 0082's terminal block could not reach this branch -- a synthetic tenant caps at SYNTHETIC and the catalogue refuses a minimum sample of 0 -- and says so rather than faking evidence"
     },
     {
       "id": "F06-P07",
       "runner": "db",
       "proves": "the human half of both lifecycles executes in the LIVE DATABASE: an educator marks a briefing REVIEWED, and a reviewer moves a raised question-health signal to UNDER_REVIEW -- the edge the computation is forbidden to drive. Both were named by the happy-path sweep as never having executed; record_question_health_review was outcome (3), unreachable, until this phase produced the first question_health row for it to act on. Closing a sweep finding rather than only recording it"
+    },
+    {
+      "id": "F06-P08",
+      "runner": "db",
+      "proves": "every function named public.assert_*() returning (ok, detail) is EXECUTED against the live schema and must hold -- 17 at this commit, including the four this phase added. Each was previously checked only by the terminal block of the migration that created it, which runs once, on one database, and fails no pull request. The set is derived from pg_proc by name and result shape, so a new assertion joins the day it is written; a floor of 17 closes the hole where DELETING an assertion would shrink the derived set instead of failing inside it"
+    },
+    {
+      "id": "F06-N03",
+      "runner": "db",
+      "proves": "INV-34 at write time in the live schema: a formula as the metric id, a SQL fragment as the visualization, a metric the catalogue does not define and a chart the catalogue does not permit for that metric are each refused on INSERT into report_template_metrics, and a legitimate selection over the same template is accepted so the refusals are the rule rather than a broken write path. INV-34 had no manifest test before this one. MEASURED WHILE WRITING IT: the BEFORE trigger refuses before constraint evaluation, so the CHECK constraints 0073 describes as the first wall are never reached by these inputs -- the test disables the trigger in a rolled-back subtransaction to prove the constraints refuse them too. Every row and the DDL are rolled back"
+    },
+    {
+      "id": "F06-P09",
+      "runner": "db",
+      "proves": "one saved report template in the live schema, generated through two real personas: INSTITUTION_ADMIN receives every entry, EDUCATOR receives the same number of entries with the institution-scope and item-scope metrics replaced by an honest statement that carries neither the metric id nor its label. §3.3 -- a saved configuration is a request, not an entitlement -- asserted rather than argued. A deprecated metric added to the same template reads status=deprecated with its note key while the other entries still render. BOUNDED: no exposed surface can deprecate a metric (publish_metric_catalogue copies the flag forward and metric_definitions is immutable), so the definition is inserted here as a migration would -- what is proven is the READING of a deprecated metric, not a deprecation workflow, which does not exist (OQ-5). Every row is rolled back"
     }
   ]
 }
