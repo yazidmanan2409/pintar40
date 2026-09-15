@@ -147,11 +147,44 @@ question the caller already knew — and it is recorded for its **shape**, not i
 severity, because sixteen instances is a pattern in how these functions are
 written rather than a slip.
 
-**What would settle it:** a pass over the privileged mutating set giving each a
-single refusal message that does not distinguish "does not exist" from "not
-yours", as `sanitized_item` now does — which would also move all ten onto
-authorization and close the hole above, since the refusal would then BE the
-authorization.
+### What would settle it — BOTH PARTS, and the order matters
+
+**A uniform refusal message ALONE makes things worse.** F06-N02 classifies by
+reading the error text. If every refusal says "not available", the test can no
+longer tell an authorization refusal from a resolution failure, and the honest
+count goes from *8 by authorization, 10 by refusal* to **18 indistinguishable**
+— strictly less than it proves today. A reader implementing "one refusal message
+per endpoint" from this ledger alone would make the assertion vacuous while
+believing they had closed a finding. That is L12's shape by a different road: a
+repair that stops the probe from reaching its subject.
+
+**The repair is two changes, and the message is the second one.**
+
+1. **Authorization becomes the first gate.** Then any refusal a dean receives is
+   an authorization refusal *by construction*, and the test's classification
+   survives the message being uniform.
+2. **Then the uniform message**, which at that point costs nothing and closes
+   the existence oracle.
+
+**"Authorize first" is not literally available for most of these, and the
+substitute is two-stage.** An endpoint taking a release id cannot call
+`can_in_institution(cap, inst)` before it knows `inst`, and `inst` comes from
+the release. So:
+
+- **Stage 1, before any resolution:** does the caller hold this capability in
+  **any** institution? If not, refuse with the uniform message. This needs no
+  argument and no lookup, and for a dean — who holds these capabilities nowhere
+  — it is the branch that fires. It is a pre-filter, never the authorization: it
+  cannot grant, only refuse early.
+- **Stage 2, after resolution:** `can_in_institution(cap, resolved_inst)`, with
+  the **same** message on failure.
+
+Stage 1 is what makes a dean's refusal an authorization refusal; stage 2 is what
+keeps it correct for someone who holds the capability somewhere but not here.
+Both refuse identically, so nothing about existence leaks either way.
+
+`sanitized_item` (0074) is the pattern for the message half; `metric_evaluate`
+(0073) is the pattern for the ordering half. This finding needs both.
 
 ---
 
