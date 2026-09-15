@@ -21,6 +21,20 @@ phase between builder and reviewer, all from quoting a number instead of
 re-taking it. A figure nobody can reproduce from a pasted command is a claim, and
 this project's whole method is that claims are not evidence.
 
+**Which numbers a second party confirmed, and which nobody did.** The second-eye
+code-gate review measured the **hosted database at 80 migrations** and nothing
+else: the migration count, the public surface, the seventeen assertions, the
+empirical fields, the declared-edge table, the single evaluator, the sixteen
+calculators, the closure and reports-do-not-compute verdicts, the allowlist
+CHECK, and the authorization-before-existence and per-edge-audit detail strings.
+That reviewer has **no repository, CI or filesystem access**, so everything else
+in this document is single-sourced on my own measurement: CI run 73 and its
+fifteen jobs, the manifest at v24 and its 171 tests, the red-case legs, the
+strict-leg counts, the byte-parity of the ten migration files against their
+applied digests, the FUNC/FUNCNORM bucket bisection, and the contents of this
+document. **The review confirms the database and nothing else**, and that is a
+standing division of labour rather than a gap this phase opened.
+
 **And every load-bearing claim names its falsifier** — the specific assertion
 that goes red if the claim stops being true, and the file it lives in. Where no
 such assertion exists, the claim says so in the same sentence. A claim with a
@@ -108,7 +122,10 @@ dean and requires F06-N02 to report `ACCEPTED a call from a dean`.
 ### 1.5 Count errors, on both sides of the review
 
 - *"80 / 81 migrations"* — written twice, read off scratch-database names. There
-  are **79**.
+  were **79** when that was written and there are **80** now that 0083 has
+  landed, which is the rule restating itself: a number quoted rather than
+  measured is wrong as soon as the thing moves, and the only safe form is the
+  command beside the figure.
 - *"all seven allowlist rows are identical"* — written from a `limit 1` sitting
   beside a `count(*) = 7`. L11.
 - *"the NUMERIC allowlist has four keys"* — it has **three**. Copied from the
@@ -195,6 +212,40 @@ is a real defect and was found only because 80 real sessions drove the machine
 through data rather than through an argument. **L9a — a state machine cannot be
 tested without data.**
 
+### 1.13 A constraint that enforced half of what its header claimed
+
+Found by the **second eye**, not by anything in this build, and it is the only
+item in this section a mechanism here did not catch.
+
+0082's provenance guard read
+
+```sql
+check (state in ('COLLECTING','GENERATING')
+       or (catalogue_version is not null and generated_report_id is not null))
+```
+
+while the same file's header says a briefing "records the catalogue version **and
+the template version** it used". `template_id` and `template_version` are both
+nullable and appear nowhere in the predicate. `advance_briefing` writes all four,
+so **no row in this build was ever wrong** — but what was *enforced* was half of
+what was *claimed*, and the claim is §3.4's, which exists for a reader who comes
+later and cannot ask what the template looked like that day.
+
+**This is §1.6's defect one level over** — a description broader than its
+predicate — sitting in a CONSTRAINT rather than in a `proves` string. F06-S04
+catches that shape in the manifest and nothing was watching for it in the schema.
+
+0083 widens the predicate to the claim rather than narrowing the claim to the
+predicate, and `F06-N04` puts the result where a gate can re-read it: a
+migration's terminal block runs once, and a constraint is exactly the kind of
+thing a later migration drops in passing. It was watched to fail — planting
+0082's original predicate turns F06-N04 red naming `template_id` and
+`template_version` — and that plant is now the fourth in `db-fable06-gates`.
+
+**The honest reading:** thirteen items in this section, twelve found inside the
+project and one found by a second reader looking at the same database. The
+mechanisms are good and they are not sufficient on their own.
+
 ### What the pattern is
 
 Every item above is the same shape: something was believed because nothing had
@@ -219,14 +270,14 @@ build should keep:
 # 2. The system, measured
 
 Each row is a command and its output at this commit. `$CLEAN` is a database built
-by replaying all 79 repository migrations into an empty database and applying the
+by replaying all 80 repository migrations into an empty database and applying the
 four seed files in `supabase/config.toml` order.
 
 ### The build
 
 ```
 $ ls supabase/migrations/*.sql | wc -l
-79
+80
 $ psql "$CLEAN" -Atc "select (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public') || ' functions, ' || (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r') || ' tables, ' || (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='v') || ' views'"
 229 functions, 77 tables, 10 views
 $ psql "$CLEAN" -At -F ' | ' -c "select exposure, count(*) from public.client_rpc_registry group by 1 order by 1"
@@ -239,11 +290,11 @@ PLATFORM | 16
 
 ```
 $ npm run selftest:local        # SUPABASE_DB_URL=$CLEAN
-162 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN
+163 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN
 $ python3 -c "import json;m=json.load(open('selftest/manifest.json'));print('v'+str(m['version']),len(m['tests']),'tests')"
-v23 170 tests
+v24 171 tests
 $ python3 -c "import json,collections;m=json.load(open('selftest/manifest.json'));print(collections.Counter(t['runner'] for t in m['tests']))"
-Counter({'db': 133, 'static': 27, 'app': 10})
+Counter({'db': 134, 'static': 27, 'app': 10})
 $ python3 -c "import yaml;w=yaml.safe_load(open('.github/workflows/ci.yml'));c=w['jobs']['red-case']['strategy']['matrix']['case'];print(len(c),'legs')"
 11 legs
 $ node scripts/baseline-parity.mjs --no-git
@@ -260,23 +311,26 @@ run quoted above.
 
 ### CI, strict, with nothing skipped
 
-Run 72 on `ced3784`, dispatched on this branch. **All fifteen jobs green**,
-including both FABLE-06 red-case legs, and the strict contract job — which runs
-on CI's own clean stack and therefore skips nothing:
+**Confirmed at run level: run 73 on `8bff517`** — the capstone-and-addendum head
+— **success across all fifteen jobs**, as was run 72 on `ced3784` before it. The
+strict contract job runs on CI's own clean stack and therefore skips nothing:
 
 ```
-170 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN
+170 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN   # run 72/73, manifest v23
 ```
 
-| job | result |
-|---|---|
-| `selftest contract (strict, local stack)` | success |
-| `migrations · clean database + seed` | success |
-| `migrations · previous schema → HEAD (upgrade path)` | success |
-| `baseline · frozen documents are what they say they are` | success |
-| `red case · db-fable06-gates` | success |
-| `red case · static-fable06-gates` | success |
-| the other nine red-case legs | success |
+**Run 74 on `5f8f45d`** is the head carrying 0083 and the G1 repair, and its
+status is stated exactly as it stood when this was written: every individual job
+— including `red case · db-fable06-gates`, which now plants four defects rather
+than three — reported `completed / success` in a snapshot taken while the run
+was still open, and **the run-level conclusion had not settled.** The jobs are
+evidence; the run-level green is not yet in hand, and writing it here before it
+is would be the §1.2 error in a fresh coat.
+
+The local equivalent of that leg IS measured at this commit: all four db plants
+turn their own gate red for their own named reason on an 80-migration clean
+stack, and the control — the same `red()` call against an unplanted transaction
+— exits 1 with `stayed green with the defect planted`.
 
 ### The FABLE-00 non-negotiables, against the running system
 
@@ -394,6 +448,7 @@ NOT YET VERIFIED however plausible it is.
 | Dev-only tooling does not exist in a production build | **VERIFIED** | `F01-R01`, `F06-S06` | F01-R01 fetches `/api/dev/*` from a real production build and requires 404; F06-S06 derives the file set from `src/app/api/dev` and requires every exported handler to carry the gate in its own body, so a new dev tool is covered the day it appears. |
 | Retention is disabled and no default duration exists anywhere | **VERIFIED** | `launch-readiness.sql`, and the schema itself | No retention column carries a default. OD-5 stands: no duration is invented. |
 | Transfer is behind policy and its lifecycle holds across two tenants | **VERIFIED for request → authorize → execute; NOT for reject** | `F01-T10`, `F04-T13` | F01-T10 runs the transfer alpha → beta in synthetic tenants and asserts the two refusals that matter (no `REQUESTED → EXECUTED` skip; the requesting side cannot self-authorize). **`transfer_reject` has never executed** — it is one of the ten in §2. |
+| A READY briefing names the catalogue version AND the template version it was made from | **VERIFIED — repaired after the second eye found it enforced by half** | `F06-N04`, and `0083` | The live CHECK must name all four provenance columns and a READY briefing missing any of them must be refused. 0082 enforced `catalogue_version` and `generated_report_id` only, while its own header claimed §3.4's "the catalogue version AND the template version" — see §5, G1. CI leg `db-fable06-gates` plants 0082's original predicate and requires F06-N04 to name `template_version (G1)`. |
 | The manifest is the whole truth: every declared invariant is named by a test | **VERIFIED, and bounded** | `F06-S05` | All 38 invariants in doc 03 are named by at least one of 104 other manifest entries, and no entry cites an invariant the document does not declare. **This proves NAMING, not adequacy** — see §4. |
 
 ### Claims this build does NOT make
@@ -540,6 +595,33 @@ institution-scoped check after resolution, both refusing identically — and onl
 then the uniform message. `metric_evaluate` (0073) is the pattern for the
 ordering; `sanitized_item` (0074) is the pattern for the message.
 
+## Second-eye findings — the code-gate review
+
+### G1 — a briefing's provenance was enforced by half · **CLOSED**
+
+Covered in §1.13. Verified against the hosted catalog before it was acted on
+rather than taken from the review. Repaired by **0083**, asserted by
+**`F06-N04`**, watched to fail, and planted in CI.
+
+### G2 — a constraint name that overstated its predicate · **CLOSED, as a rename**
+
+```sql
+check ((state <> all (array['REVIEWED','ARCHIVED'])) or reviewed_by_person_id is not null
+       or state = 'ARCHIVED')
+```
+
+The third disjunct exempts `ARCHIVED`, so the rule is "REVIEWED names a person"
+and archiving does not have to. **That is the intended behaviour** — `READY →
+ARCHIVED` is a declared edge precisely so a briefing can be put away unread,
+which is what OQ-4 turns on — so the predicate is unchanged. Only the NAME
+claimed more than it delivered, and a reader auditing by name would have been
+misled about which states require a reviewer. Renamed in 0083 to
+`briefings_reviewed_names_its_reviewer`.
+
+### G3 — what hosted parity proves · **WRITTEN, §6**
+
+### G4 — INV-20 holds vacuously · **WRITTEN, §9**
+
 ## Open questions — real questions with product answers, deliberately unresolved
 
 ### OQ-1 — exposure cooling meets the safety-critical minimum · **OPEN** · Load Lab
@@ -645,15 +727,17 @@ single most load-bearing piece of missing infrastructure in this build:
 ### The hosted project — nine migrations behind when this was written, synced since
 
 When this document was drafted the hosted development project carried **70**
-migrations against the repository's **79**. The nine FABLE-06 migrations have
-since been applied through the management channel and verified; the evidence is
+migrations against the repository's **79**. The nine FABLE-06 migrations, and
+**0083** after the second-eye review, have since been applied through the
+management channel and verified; the evidence is
 in `docs/phases/FABLE-06-HOSTED-ADDENDUM.md` and the short form is:
 
-- **nine of nine byte-identical** (`md5(array_to_string(statements,''))` equals
+- **ten of ten byte-identical** (`md5(array_to_string(statements,''))` equals
   the md5 of each repository file with its trailing newline stripped), and each
   ran its own ADR-0014 terminal verification block on hosted rather than only
-  locally;
-- hosted migration count **79**, matching the repository;
+  locally — 0083's included, so the tightened provenance predicate was proven to
+  refuse an incomplete READY briefing **on the hosted database**;
+- hosted migration count **80**, matching the repository;
 - the widened schema digest matches on **twelve of thirteen categories with the
   same 2552 objects**. FUNC differs while FUNCNORM matches, so the divergence is
   cosmetic — and it was **bounded by name** rather than inferred: bucket
@@ -670,6 +754,29 @@ suite run, and the suite mutates business data (§7).
 
 **This closes the last item of the code gate and closes nothing in the readiness
 gate.** Applying migrations to a development project is not a deployment drill.
+
+#### What hosted parity proves, and what it does not — G3
+
+Raised by the second eye and required here in full, because the inference it
+guards against is the natural one to make.
+
+Hosted carries **0 bootstrap tenants** (`assert_official_evidence_bootstrap`
+reads *"0 bootstrap tenant(s) by purpose [none]"*), **0 `question_health` rows**,
+**0 briefings**, **0 report templates**, 0 items with empirical values and no
+evaluation sessions. That is correct — the D1 cohort is a test fixture and
+belongs in the replay, not in a hosted database.
+
+**So hosted parity proves SCHEMA and STRUCTURAL properties. Every BEHAVIOURAL
+claim this phase makes is proven in the local replay only.** The 160-learner
+cohort, the signal firing in both directions, the withdrawal walk and its two
+audit rows, the briefing reaching READY, the seventeen INV-19 endpoints refused
+at authorization, the two-persona report — none of that has run in the hosted
+system, and the seventeen assertions returning true there say nothing about
+whether it would.
+
+A reader who sees *"hosted synchronized, 17 of 17 assertions PASS"* and concludes
+that Question Health has run on hosted would be wrong. Nothing else on this page
+stops them; this paragraph is what does.
 
 ### The ten endpoints that have never executed
 
@@ -691,9 +798,9 @@ twice in a row:
 
 ```
 $ npm run selftest:local        # run 1, clean stack
-162 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN
+163 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN
 $ npm run selftest:local        # run 2, same database
-162 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN
+163 passed, 0 failed, 0 skipped, 8 justified skips accepted (local only), 0 contract problem(s) → GREEN
 ```
 
 A later run on the same database **aborted**:
@@ -778,6 +885,7 @@ together because that is the useful form:
 | behaviour under load | OQ-1, OQ-2 |
 | a suite run leaves the database able to run the suite again | nothing asserts it (§7) |
 | the aggregate "all seventeen launch-readiness checks hold" | `launch-readiness.sql` is a script, not a manifest test; no CI job fails if it regresses (§2) |
+| **that INV-20 as amended is actually constraining anything** | `assert_evidence_consumer_boundary` returns true and says why that is not the same as safe, in its own words: *"no analytics consumer role exists yet, so the amended INV-20 holds but holds **VACUOUSLY** — the consumer role is an open decision"*. The assertion is doing its job; a reader who takes its green without its sentence is not. Raised as **G4** by the second eye. |
 
 ---
 

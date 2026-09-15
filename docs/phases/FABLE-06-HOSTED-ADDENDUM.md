@@ -1,4 +1,4 @@
-# FABLE-06 hosted addendum — migrations 0071–0082 applied and verified
+# FABLE-06 hosted addendum — migrations 0071–0083 applied and verified
 
 Companion to `docs/phases/PINTAR-4.0-STATE-OF-THE-SYSTEM.md`, which was written
 while the hosted development project stood **nine migrations behind** the
@@ -37,7 +37,37 @@ $ for f in supabase/migrations/202609181*.sql; do
 | `health_begins_at_the_beginning` (0078) | `decb3f99c7e580e5f6b8cba41d2a8306` | identical |
 | `briefings` (0082) | `ccce30f8ab21d66c8403d7a5add753df` | identical |
 
-**Nine of nine byte-identical.** The hosted migration count is now **79**, equal
+**Nine of nine byte-identical.**
+
+### Addendum to the addendum — 0083, after the second-eye review
+
+The code-gate review raised **G1**: `briefings_ready_carries_provenance`
+enforced `catalogue_version` and `generated_report_id` and left `template_id`
+and `template_version` — both nullable — out of the predicate, while 0082's
+header claimed all four. `0083_a_briefing_names_its_template` widens the
+predicate and renames the reviewer constraint (**G2**). Applied here after the
+other nine:
+
+| migration | digest | hosted |
+|---|---|---|
+| `a_briefing_names_its_template` (0083) | `2462cf5abef75fb74edac85ad239ae1e` | identical |
+
+Verified on hosted after it applied:
+
+```
+briefings_ready_carries_provenance
+  CHECK (state = ANY (ARRAY['COLLECTING','GENERATING'])
+         OR (catalogue_version IS NOT NULL AND generated_report_id IS NOT NULL
+             AND template_id IS NOT NULL AND template_version IS NOT NULL))
+briefings_reviewed_names_its_reviewer   present
+briefings_reviewed_names_a_person       absent  (renamed, not duplicated)
+```
+
+Its terminal block ran here too, so the tightened predicate was proven to refuse
+a READY briefing with no template — and to accept one carrying all four — **on
+the hosted database**, not only in the replay.
+
+**Ten of ten byte-identical.** The hosted migration count is now **80**, equal
 to `ls supabase/migrations/*.sql | wc -l`.
 
 **And every one of them ran its own terminal verification block on hosted**, not
@@ -58,10 +88,14 @@ The widened digest (`docs/audit/schema-inventory.sql` shape: tables, views,
 columns, enums, function identity + body, normalised function body, constraints,
 indexes, policies, triggers, table grants, function grants) run on both sides.
 
+**Re-taken at the 80-migration state**, after 0083, because 0083 changes a
+constraint and a constraint name and the table taken at 79 would have been stale
+the moment it landed.
+
 | category | n | local | hosted |
 |---|---|---|---|
 | COLUMN | 771 | `1d92fc7f…` | identical |
-| CONSTRAINT | 463 | `75ba062d…` | identical |
+| CONSTRAINT | 463 | `ce4688db…` | identical |
 | ENUM | 151 | `95fd79bc…` | identical |
 | FGRANT | 99 | `05d68c60…` | identical |
 | **FUNC** | **229** | `5acda78e…` | **`648f0c4a…` — differs** |
@@ -72,9 +106,12 @@ indexes, policies, triggers, table grants, function grants) run on both sides.
 | TABLE | 79 | `5bcf9629…` | identical |
 | TRIGGER | 105 | `3be44c32…` | identical |
 | VIEW | 10 | `5b85f966…` | identical |
-| **ZZ_TOTAL** | **2552** | `a8c345d4…` | `1d306f22…` |
+| **ZZ_TOTAL** | **2552** | `7c3c5c9c…` | `c60fae8a…` |
 
-Every count matches — **2552 objects on both sides**.
+Every count matches — **2552 objects on both sides**. The CONSTRAINT digest moved
+from `75ba062d…` at 79 migrations to `ce4688db…` at 80 **on both sides
+identically**, which is 0083 itself showing up in the comparison: the predicate
+and the rename landed the same way in both places.
 
 `FUNC` carries the raw `prosrc`; `FUNCNORM` carries the same text with comments
 and whitespace normalised away. **FUNC differing while FUNCNORM matches means
@@ -123,7 +160,9 @@ anon_public_surface 2 · anon_reachable_http_paths 2
 ```
 
 Before the sync, hosted read **195 functions / 67 tables**. The nine migrations
-added 34 functions and 10 tables, which is the local delta exactly.
+added 34 functions and 10 tables, which is the local delta exactly. 0083 adds
+neither — it is two `alter table` statements and a probe — and the counters were
+re-taken after it and are unchanged.
 
 `functions_without_search_path = 0` is worth naming: that is the counter 0072
 moved to 16 and 0075 repaired, and it is **0 on hosted**, so the regression this
@@ -170,7 +209,7 @@ the binding condition on the Human Pilot Release stands unchanged.
 ## 6. What this addendum does and does not close
 
 **Closes:** the last item of the FABLE-06 code gate. The hosted development
-project is at the same 79 migrations as the repository, byte-identically, with
+project is at the same 80 migrations as the repository, byte-identically, with
 every counter equal and every FABLE-06 assertion true on the hosted database.
 
 **Does not close:** anything in the readiness gate. There is still no staging
