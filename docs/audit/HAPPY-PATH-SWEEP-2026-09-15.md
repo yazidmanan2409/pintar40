@@ -47,7 +47,7 @@ has never completed successfully under any migration, seed or test in this build
 | PLATFORM | `mode_policy` | **(2) reachable, never exercised** | a pure lookup; `assert_mode_policy_complete` asserts the table, never the accessor |
 | STAFF | `ingest_structured_package` | **(2) reachable, never exercised** | `propose_easy_upload_mapping` runs once; the ingest it precedes does not |
 | STAFF | `record_integrity_review` | **(2) reachable, never exercised** | signals are recorded 2×; the human review of one never is |
-| STAFF | `record_question_health_review` | **(3) → (2) in the Question Health migration** | needs a `question_health` row at `SIGNAL_RAISED`. There are **0 rows** today, so no success path exists to execute. The computation creates the first, which makes this reachable |
+| STAFF | `record_question_health_review` | **MOVED (3) → (2), 2026-09-15** | needed a `question_health` row at `SIGNAL_RAISED`; there were **0 rows** and no success path existed to execute. Migration 0076's computation creates the first, so the human review path is now reachable and the entry is an ordinary never-exercised finding rather than an unreachable one. **Still never executed** — reaching (1) needs a suite probe |
 | STAFF | `transfer_reject` | **(2) reachable, never exercised** | `transfer_request`, `transfer_authorize` and `transfer_execute` each run once; the refusal branch never does |
 
 **A correction to the review that prompted this sweep**, recorded because it was
@@ -77,6 +77,19 @@ that, and it is the reason the sweep is worth doing before 0074 rather than afte
   candidate, not claimed as built.
 - **Not a complete picture of the application surface.** It measures database
   functions. A Next.js route that is never requested is invisible here.
+
+## Changes since the measurement
+
+Recorded as they happen rather than recomputed at the end, so the gate sees a
+live ledger instead of a second snapshot.
+
+| date | function | change |
+|---|---|---|
+| 2026-09-15 | `sanitized_item` | **(2) → (1).** Migration 0074 and `F06-P01`: executed to a successful return, asserting the item's real option rationale is absent from the projection |
+| 2026-09-15 | `record_question_health_review` | **(3) → (2).** Migration 0076 creates the first `question_health` rows, so a success path now exists to execute. Not yet exercised |
+
+**Running count: 70 of 82 executed (was 69); 12 never executed (was 13, of which
+one was unreachable and is now merely unexercised).**
 
 ## Disposition
 
