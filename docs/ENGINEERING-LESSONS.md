@@ -156,3 +156,48 @@ against the code.
 
 *Distinct from L5 and L7: those are about boundaries in code. L8 is about the
 prose upstream of the code, which carries no compiler and no test.*
+
+---
+
+## L9 — Coverage by count is not coverage by path
+
+`metric_evaluate` shipped in 0072 with a dispatch that could never have worked:
+it built the calculator's name from `calculation_key` without the `calc_` prefix
+every calculator carries. **No metric could have been computed.** Its terminal
+block had four probes. All four passed.
+
+All four were refusals — `unavailable`, `not_permitted`, and two guards — and
+**guards are placed before the work.** A verification block made of refusal
+probes exercises the prefix of a function N times and its body zero times, and
+it feels thorough in proportion to N. Four probes were evidence of diligence,
+not of coverage.
+
+This project's own culture produced the blind spot. *"Watch at least one new
+assertion fail before trusting it"* is a standing rule and a good one — and a
+refusal is the easiest failure to provoke, so a block drifts toward refusals
+without anyone choosing that. The rule is right. It is not sufficient:
+
+> **Watching an assertion fail proves the assertion works. It does not prove the
+> thing it guards works.**
+
+**So: a verification block must reach at least one successful return, and must
+say which probe does it.** If no probe can — because success needs OFFICIAL
+evidence, a human decision, or a real Auth session — that is a finding to record,
+not a gap to leave silent.
+
+## L10 — A bijection between two names does not bind the third
+
+0072 asserted that the catalogue's `calculation_key` set and the `calc_*`
+function names were in bijection. **That assertion was true, and stayed green
+through the entire defect.** The dispatch built a *third* string from
+`calculation_key`, and nothing compared that string to either set.
+
+The map was proved consistent. Nobody proved the code read the map.
+
+**So: when an assertion proves A and B agree, check that the code actually
+traverses A→B.** An assertion over a mapping is not an assertion that the
+mapping is used, and a name constructed at the call site is a third participant
+no bijection can see.
+
+*Distinct from L5: L5 is believing a boundary you never read. L10 is reading the
+right boundary and asserting the wrong pair.*
