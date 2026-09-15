@@ -12,14 +12,24 @@
 -- flags, rationales and misconception codes are not in the candidate at all.
 -- That is exclusion BY CONSTRUCTION, and it is stronger than any allowlist.
 --
--- THE ALLOWLIST IS THEREFORE NOT LOAD-BEARING TODAY -- AND THAT IS THE RISK.
--- `item_type_registry.sanitizer_allowlist` is DATA. All seven rows currently
--- name the same four keys the builder constructs, so it narrows nothing and
--- nobody would notice if it widened. It is not versioned, no assertion
--- constrains it, and widening it is an `update`: no migration, no ADR, no CI.
--- The day a fifth key enters the candidate builder, that row becomes the only
--- thing between a learner and the answer key, and a security boundary will be
--- sitting in a table anyone with the capability can edit.
+-- THE ALLOWLIST IS LIVE, AND IT IS DATA. `item_type_registry.sanitizer_allowlist`
+-- is a table row. Six of the seven item types name the same four keys the
+-- builder constructs; NUMERIC names THREE -- item_type, stem, stimulus -- and
+-- withholds `opsi`, because a numeric-entry question has no options a learner
+-- should be shown. The allowlist is doing real work today, on one row, quietly.
+--
+-- (An earlier draft of this header said the allowlist "narrows nothing",
+-- carried over from a review that reported all seven rows as identical. It was
+-- wrong, and the measurement contradicting it was already on screen when it was
+-- written. Corrected here rather than quietly: a live boundary sitting in an
+-- editable row is a STRONGER reason for what follows than an inert one, so the
+-- error understated its own case. L8's reading half, by the author of it.)
+--
+-- It is not versioned, no assertion constrains it, and widening it is an
+-- `update`: no migration, no ADR, no CI. The day a fifth key enters the
+-- candidate builder, that row becomes the only thing between a learner and the
+-- answer key, and a security boundary will be sitting in a table anyone with
+-- the capability can edit.
 --
 -- This is §3.4's principle -- a threshold lives in the catalogue, versioned,
 -- never in a component -- applied to a boundary instead of a number. The
@@ -130,11 +140,17 @@ begin
   end if;
 
   ok := array_length(problems, 1) is null;
+  -- Reported, not asserted: how many item types actually NARROW the declared
+  -- set. The mechanism is live -- NUMERIC withholds `opsi` -- and a count of
+  -- zero here would mean the allowlist had quietly become decorative without
+  -- anything having failed.
+  select count(*) into n from public.item_type_registry r
+   where not ('["item_type", "stem", "stimulus", "opsi"]'::jsonb <@ r.sanitizer_allowlist);
   detail := case when ok then format(
       '%s item type(s), every learner projection inside the declared set {item_type, stem, stimulus, opsi} '
-      || 'and constrained by the database rather than by convention; sanitized_item and session_paper both '
-      || 'authorize before they disclose anything, existence included',
-      (select count(*) from public.item_type_registry))
+      || 'and constrained by the database rather than by convention, %s of them narrowing it further; '
+      || 'sanitized_item and session_paper both authorize before they disclose anything, existence included',
+      (select count(*) from public.item_type_registry), n)
     else array_to_string(problems, '; ') end;
   return next;
 end $function$;

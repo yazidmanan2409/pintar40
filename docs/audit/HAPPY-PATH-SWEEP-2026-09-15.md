@@ -50,6 +50,14 @@ has never completed successfully under any migration, seed or test in this build
 | STAFF | `record_question_health_review` | **(3) → (2) in the Question Health migration** | needs a `question_health` row at `SIGNAL_RAISED`. There are **0 rows** today, so no success path exists to execute. The computation creates the first, which makes this reachable |
 | STAFF | `transfer_reject` | **(2) reachable, never exercised** | `transfer_request`, `transfer_authorize` and `transfer_execute` each run once; the refusal branch never does |
 
+**A correction to the review that prompted this sweep**, recorded because it was
+repeated into a migration header before being checked: the review reported all
+seven `item_type_registry` rows as carrying the same four keys, so the sanitizer
+allowlist "narrows nothing". **`NUMERIC` carries three** — `item_type`, `stem`,
+`stimulus` — and withholds `opsi`. The allowlist is live. That strengthens the
+case for constraining it rather than weakening it, so the error understated its
+own argument.
+
 **Twelve are outcome (2)** — reachable in the verification environment and simply
 never exercised. Each is a function that could be as broken as `metric_evaluate`
 was and nothing would say so.
