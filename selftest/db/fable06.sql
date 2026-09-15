@@ -331,6 +331,31 @@ begin
 end $$;
 revoke all on function selftest.f06_withdraw(uuid, int) from public;
 
+-- The derived endpoint set, computed with the harness's own privileges because
+-- `client_rpc_registry` is not dean-readable -- which is itself correct. The
+-- dean session does only the CALLING; deriving the list is not part of the
+-- property under test.
+create or replace function selftest.f06_dean_denied_endpoints()
+returns table (oid_ oid, proname text, args text)
+language sql security definer set search_path = public, pg_temp as $$
+  with denied as (
+    select cap from (
+      select unnest(public.role_capabilities('INSTITUTION_ADMIN')) cap
+      union select unnest(public.role_capabilities('HEAD_OF_DEPARTMENT'))
+      union select unnest(public.role_capabilities('EDUCATOR'))
+      except select unnest(public.role_capabilities('DEAN'))) y)
+  select p.oid, p.proname::text, pg_get_function_identity_arguments(p.oid)
+    from public.client_rpc_registry r
+    join pg_proc p on p.proname = r.function_name
+    join pg_namespace n on n.oid = p.pronamespace and n.nspname = 'public'
+   where r.exposure = 'STAFF' and p.provolatile = 'v'
+     and exists (select 1 from denied d
+                  where regexp_replace(p.prosrc, '--[^\n]*', '', 'g') like '%' || d.cap || '%')
+   order by p.proname
+$$;
+revoke all on function selftest.f06_dean_denied_endpoints() from public;
+grant execute on function selftest.f06_dean_denied_endpoints() to authenticated;
+
 create or replace function selftest.run_fable06()
 returns table(id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
@@ -572,6 +597,143 @@ begin
 
   -- Same ordering on the way out: the cohort's reclassifications reference D1
   -- sessions that purge_certificates is about to remove.
+  -- =========================================================================
+  -- F06-N02 -- INV-19 IN THE API, NOT IN THE UI.
+  --
+  -- A dean surface that renders no button over an endpoint that would accept a
+  -- write is not read-only. Only one of those two is testable without a
+  -- browser, and it is the one that matters.
+  --
+  -- THE ENDPOINT SET IS DERIVED, NOT WRITTEN. An assertion over endpoints
+  -- someone thought of is silent about the one added next month -- the failure
+  -- this build has now repaired four times. The set is computed three ways at
+  -- once: capabilities a DEAN lacks (role_capabilities, not a list), functions
+  -- exposed to clients as STAFF (client_rpc_registry), and functions that
+  -- MUTATE (pg_proc.provolatile = 'v', the planner's own record). A new
+  -- privileged RPC joins the set the day it is created.
+  --
+  -- REFUSAL IS NOT ABSENCE, and this is the vacuity trap specific to this
+  -- assertion. "Did not accept the write" has two causes: the endpoint refused,
+  -- or the endpoint is not there. A mistyped path returns "function does not
+  -- exist" and a naive check reads that as a pass. So: every endpoint must
+  -- EXIST and be EXECUTABLE by the caller, the refusal must be an authorization
+  -- error by its text, and undefined_function is a FAILURE rather than a pass.
+  --
+  -- And the read half, because either alone is not the property: the dean must
+  -- successfully READ through the same session that is refused every write.
+  -- Otherwise a dean with no session at all would pass this test perfectly.
+  -- =========================================================================
+  declare
+    v_dean_inst uuid; v_read jsonb; v_sig text; v_args text; v_err text;
+    n_refused int := 0; n_absent int := 0; n_accepted int := 0; n_other int := 0;
+    n_broken int := 0;
+    v_bad text := ''; f record;
+  begin
+    perform selftest.as_user('alpha-dean@synthetic.pintar.test');
+
+    -- THE READ HALF FIRST. If this fails, every refusal below is meaningless.
+    begin
+      v_read := to_jsonb(public.mode_policy('POST_TEST'));
+    exception when others then v_read := null; end;
+
+    for f in select e.oid_ as oid, e.proname, e.args
+                 from selftest.f06_dean_denied_endpoints() e loop
+      -- the endpoint must be REACHABLE by this caller, or a refusal proves
+      -- nothing about authorization
+      if not has_function_privilege('authenticated', f.oid, 'EXECUTE') then
+        n_absent := n_absent + 1;
+        v_bad := v_bad || f.proname || ' (not executable by a client role); ';
+        continue;
+      end if;
+
+      -- null arguments of the declared types: authorization is supposed to run
+      -- before anything is resolved from an argument, which this build has had
+      -- to repair twice already
+      -- trim BEFORE the strip, not after. string_to_array leaves a leading
+      -- space on every argument but the first, so `^\S+\s+` matched nothing
+      -- and produced `null:: p_finding uuid` -- a syntax error in the TEST,
+      -- which the first version counted as "refused for another reason" and
+      -- passed on. Fifteen of eighteen endpoints were never actually called.
+      select coalesce(string_agg('null::' || regexp_replace(trim(a), '^\S+\s+', ''), ', '), '')
+        into v_args
+        from unnest(string_to_array(f.args, ',')) a
+       where length(trim(a)) > 0;
+      v_sig := format('select public.%I(%s)', f.proname, v_args);
+
+      begin
+        execute v_sig;
+        n_accepted := n_accepted + 1;
+        v_bad := v_bad || f.proname || ' (ACCEPTED a call from a dean); ';
+      exception
+        when undefined_function then
+          n_absent := n_absent + 1;
+          v_bad := v_bad || f.proname || ' (does not exist: absence read as refusal); ';
+        when syntax_error_or_access_rule_violation then
+          -- A SYNTAX ERROR HERE IS THE TEST'S FAULT, NOT A REFUSAL. Counting it
+          -- as one is how the first version of this check passed while never
+          -- calling fifteen of the eighteen endpoints.
+          v_err := sqlerrm;
+          if v_err ~* '(requires|denied|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
+            n_refused := n_refused + 1;
+          else
+            n_broken := n_broken + 1;
+            v_bad := v_bad || f.proname || ' (the probe could not call it: ' || left(v_err, 50) || '); ';
+          end if;
+        when others then
+          v_err := sqlerrm;
+          if v_err ~* '(requires|denied|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
+            n_refused := n_refused + 1;
+          else
+            n_other := n_other + 1;
+          end if;
+      end;
+    end loop;
+    perform selftest.as_owner();
+
+    id := 'F06-N02'; area := 'INV-19 -- read-only in the API, over a derived endpoint set';
+    -- VACUITY GUARD, found by watching this test fail. Planting an endpoint
+    -- that ACCEPTS a dean did not turn it red: removing the capability check
+    -- also removed the function from the derived set, so a function that
+    -- deletes its own authorization escapes the test that would catch it.
+    -- The set can only grow as the product does, so a floor closes it.
+    if n_refused + n_other + n_accepted + n_absent < 18 then
+      ok := false;
+      detail := format('the derived dean-denied set holds %s endpoint(s), fewer than the 18 measured when '
+                    || 'this check was written: an endpoint has stopped checking a capability and left the '
+                    || 'set rather than failing inside it',
+                       n_refused + n_other + n_accepted + n_absent);
+    elsif v_read is null then
+      ok := false;
+      detail := 'the dean could not READ through the session used for the refusals, so every refusal '
+             || 'below is indistinguishable from having no session at all';
+    elsif n_accepted > 0 then
+      ok := false; detail := 'a dean-denied endpoint accepted the call: ' || v_bad;
+    elsif n_absent > 0 then
+      ok := false;
+      detail := 'endpoint(s) whose refusal is ABSENCE rather than authorization -- a test that cannot '
+             || 'tell those apart proves nothing: ' || v_bad;
+    elsif n_broken > 0 then
+      ok := false;
+      detail := 'the probe failed to CALL endpoint(s), so their refusal was never tested: ' || v_bad;
+    elsif n_refused = 0 then
+      ok := false;
+      detail := format('no endpoint produced an authorization refusal (%s other error(s)): the check is '
+                    || 'measuring argument handling, not authorization', n_other);
+    else
+      ok := true;
+      detail := format('the dean reads through this session and is refused every one of %s mutating STAFF '
+                    || 'endpoint that checks a capability DEAN lacks: %s by an authorization error naming '
+                    || 'the capability, %s refused earlier because they resolve an argument before they '
+                    || 'can know which institution to authorize in. None accepted, none merely absent, and '
+                    || 'no endpoint went uncalled. The set is derived from role_capabilities, '
+                    || 'client_rpc_registry and pg_proc.provolatile, so a new privileged RPC joins it the '
+                    || 'day it is created. BOUNDED: for the %s, this proves refusal but not that the '
+                    || 'refusal is authorization -- see RF-2',
+                       n_refused + n_other, n_refused, n_other, n_other);
+    end if;
+    return next;
+  end;
+
   perform selftest.f06_purge();
   perform selftest.purge_certificates();
   id := 'F06-DONE'; area := 'suite'; ok := true; detail := 'FABLE-06 suite complete';

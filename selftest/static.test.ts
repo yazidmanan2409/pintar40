@@ -1280,6 +1280,22 @@ export const staticTests: SelfTest[] = [
     // database and is never ambiguous; source-versus-output-versus-copy-table
     // is where the confusion actually lives, and a rule applied where it does
     // not bite is the box-ticking this was meant to avoid.
+    //
+    // WHAT THIS CHECK DOES NOT COVER, stated because the exemption above is an
+    // unmeasured universal over 91 db strings and would otherwise be read as
+    // more than it is:
+    //
+    //   * It covers ARTEFACT IDENTIFICATION, across static and app tests only.
+    //   * It does NOT cover VERB ACCURACY, anywhere. That dimension is
+    //     orthogonal and lives just as comfortably in a db test: "proves X is
+    //     impossible", backed by a check that a constraint merely EXISTS, is
+    //     the same overclaim wearing a different noun. Verb accuracy was found
+    //     by hand on eleven strings -- F04-S02 and F04-S03 said "inspects" for
+    //     something that EXECUTES -- and the db set was NOT audited for it.
+    //
+    // So this is a bounded pass, not "the manifest's prose has been validated".
+    // Writing that sentence in the capstone would be the next instance of the
+    // thing this check exists to stop.
     id: "F06-S04",
     requires: [],
     run: async ({ repoRoot }) => {

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 19,
+  "version": 20,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -910,7 +910,12 @@
     {
       "id": "F06-S04",
       "runner": "static",
-      "proves": "every static or app test's `proves` string in the MANIFEST FILE names the artefact its predicate inspects -- copy table, rendered output, migration text, source, live schema. L5 applied to the manifest's own metadata rather than to a test body. F05-S03's proves claimed a property of the Studio surface while testing the copy table: the completion report was honest and the machine-readable record was not, which is the inverse of the usual failure and worse, because the manifest is what a gate reads. Prose cannot be validated against a predicate, so this does the cheap half and makes scope comparable by eye"
+      "proves": "every static or app test's `proves` string in the MANIFEST FILE names the artefact its predicate inspects -- copy table, rendered output, migration text, source, live schema. L5 applied to the manifest's own metadata rather than to a test body. F05-S03's proves claimed a property of the Studio surface while testing the copy table: the completion report was honest and the machine-readable record was not, which is the inverse of the usual failure and worse, because the manifest is what a gate reads. Prose cannot be validated against a predicate, so this does the cheap half and makes scope comparable by eye. BOUNDED: covers artefact identification across static and app tests only; verb accuracy -- \"inspects\" written for something that executes -- was found by hand on eleven strings and was NOT audited across the 91 db strings"
+    },
+    {
+      "id": "F06-N02",
+      "runner": "db",
+      "proves": "INV-19 in the API rather than the UI: a dean is refused every mutating STAFF endpoint that checks a capability DEAN lacks, and READS successfully through the same session so the refusals are not simply an absent session. The endpoint set is DERIVED three ways -- role_capabilities for the denied capabilities, client_rpc_registry for client exposure, pg_proc.provolatile for mutation -- so a new privileged RPC joins it the day it is created, with a floor so an endpoint that deletes its own capability check fails rather than leaving the set. Refusal is distinguished from absence: undefined_function and an uncallable probe are failures, not passes. BOUNDED: 2 of 18 refuse with an authorization error; 16 refuse earlier because they resolve an argument before they can know which institution to authorize in -- see RF-2"
     }
   ]
 }

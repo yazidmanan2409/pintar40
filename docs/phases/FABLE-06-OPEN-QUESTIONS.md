@@ -92,6 +92,46 @@ build closes, and it is a property of the system rather than of this phase.
 
 ---
 
+## RF-2 — sixteen privileged endpoints resolve an argument before they authorize
+
+**Found by:** F06-N02, while establishing INV-19 over a derived endpoint set.
+**Not fixed here** — it spans FABLE-02 through FABLE-05 and changing sixteen
+functions' error ordering at the end of a phase is the kind of wide, low-evidence
+edit this project refuses.
+
+**Measured.** Of the 18 mutating STAFF endpoints that check a capability `DEAN`
+lacks, calling each as a dean with null arguments produces:
+
+- **2** an authorization error naming the capability
+  (`recompute_question_health`, and one other)
+- **16** an earlier refusal such as `unknown course <NULL>`, `unknown release
+  <NULL>`, `transfer not found`
+
+**None accepted the call**, which is INV-19's actual claim and it holds. But for
+sixteen of them the test proves *refusal*, not *authorization* — and the
+distinction is the one this phase has now repaired twice: `metric_evaluate`
+checked deprecation before authorizing (0073), `sanitized_item` raised
+`unknown presented item` before authorizing (0074). **This is the same shape,
+sixteen more times.**
+
+**Why it is partly unavoidable, and where it is not.** A function taking a
+release id genuinely cannot call `can_in_institution(cap, inst)` until it has
+resolved `inst` from that release — resolution must come first. What is *not*
+forced is the error being distinguishable: `unknown release <NULL>` tells a
+caller the id does not exist, which is an existence oracle of exactly the kind
+0074 removed. The repair that worked there was one message for both cases.
+
+**Exposure is low** — the ids are unguessable uuids, so the oracle answers a
+question the caller already knew — and it is recorded for its **shape**, not its
+severity, because sixteen instances is a pattern in how these functions are
+written rather than a slip.
+
+**What would settle it:** a pass over the privileged mutating set giving each a
+single refusal message that does not distinguish "does not exist" from "not
+yours", as `sanitized_item` now does.
+
+---
+
 ## OQ-1 — Exposure cooling meets the safety-critical minimum
 
 **Belongs to:** Load Lab (Tim) · **Raised by:** the FABLE-06 draw measurement ·
