@@ -267,3 +267,32 @@ spot in miniature.
 
 *L9 says a block of refusals never reaches the body. L9a says a block over an
 empty database never reaches the branches data would have forced.*
+
+---
+
+## L12 — A probe that fails before reaching its subject reports the subject's behaviour
+
+Three instances in one phase, each caught by a different mechanism and **none
+caught by the suite being green**:
+
+| | the probe | what it reported |
+|---|---|---|
+| 0072 | four refusal probes, all returning at a guard | that `metric_evaluate` worked, while its dispatch could never have run |
+| the draw measurement | a regex using `\b`, which in PostgreSQL ARE is a **backspace** and matches nothing | that four service views contained zero aggregate calls |
+| F06-N02 | a malformed argument list producing a syntax error in the generated SQL | that fifteen endpoints had **refused** a call they never received |
+
+The shape is identical every time: **the probe failed upstream of its subject,
+and its failure was recorded as the subject's answer.** It is invisible because
+failing is what a negative probe is supposed to do — the result looks exactly
+like success at the thing being tested.
+
+**So: a probe's own error is a FAILURE, never an outcome.** Distinguish, in the
+probe, between "the subject refused" and "I could not ask" — different exception
+classes, different counters, and the second one is red. F06-N02 does this: a
+`syntax_error_or_access_rule_violation` that does not name an authorization
+reason increments a `n_broken` counter that fails the test, rather than falling
+into the "refused for some other reason" bucket where it had been passing.
+
+*L9 says a block of refusals never reaches the body. L9a says an empty world
+never reaches the branches data would force. L12 is the third member: a broken
+probe never reaches the subject at all, and says so in the subject's voice.*

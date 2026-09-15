@@ -356,6 +356,63 @@ $$;
 revoke all on function selftest.f06_dean_denied_endpoints() from public;
 grant execute on function selftest.f06_dean_denied_endpoints() to authenticated;
 
+-- A PLAUSIBLE ARGUMENT, RESOLVED BY NAME AND TYPE rather than by a per-function
+-- map. Sixteen of the eighteen dean-denied endpoints refused the null probe at
+-- argument RESOLUTION, before authorization ran -- so the assertion proved
+-- refusal, not authorization, and a capability check WEAKENED rather than
+-- removed would have stayed green. Giving each a resolvable argument makes
+-- authorization the thing that refuses.
+--
+-- Resolved with the harness's privileges: the VALUES only need to exist, and
+-- whether the dean may read them is not the property under test.
+create or replace function selftest.f06_arg_value(p_name text, p_type text, p_inst uuid)
+returns text language plpgsql security definer set search_path = public, pg_temp as $$
+declare v uuid; v_lab text;
+begin
+  if p_type = 'uuid' then
+    if    p_name ~ 'institution'      then v := p_inst;
+    elsif p_name ~ 'course'           then select id into v from public.courses where institution_id=p_inst limit 1;
+    elsif p_name ~ 'release'          then select id into v from public.plp_releases where institution_id=p_inst limit 1;
+    elsif p_name ~ '(node|scope)'     then
+      -- a CLASS or COHORT, not the institution root: several endpoints validate
+      -- the node KIND before they authorize, so the root refuses for the wrong
+      -- reason and the capability check is never reached
+      select id into v from public.org_nodes
+       where institution_id=p_inst and kind in ('CLASS','COHORT')
+       order by (kind='CLASS') desc limit 1;
+      if v is null then select id into v from public.org_nodes where institution_id=p_inst limit 1; end if;
+    elsif p_name ~ 'module'           then select m.id into v from public.modules m join public.courses c on c.id=m.course_id where c.institution_id=p_inst limit 1;
+    elsif p_name ~ 'definition'       then select id into v from public.assessment_definitions where institution_id=p_inst limit 1;
+    elsif p_name ~ 'session'          then select id into v from public.assessment_sessions where institution_id=p_inst limit 1;
+    elsif p_name ~ 'item'             then select id into v from public.items where institution_id=p_inst limit 1;
+    elsif p_name ~ 'certificate'      then select id into v from public.certificates where institution_id=p_inst limit 1;
+    elsif p_name ~ 'assignment'       then select id into v from public.learning_assignments where institution_id=p_inst limit 1;
+    elsif p_name ~ 'person'           then select person_id into v from public.enrollments where institution_id=p_inst limit 1;
+    elsif p_name ~ 'period'           then select id into v from public.academic_periods where institution_id=p_inst limit 1;
+    end if;
+    if v is null then return 'null::uuid'; end if;
+    return quote_literal(v::text) || '::uuid';
+  elsif p_type = 'text' then
+    return quote_literal('selftest');
+  elsif p_type in ('integer','smallint','bigint') then
+    return '1::' || p_type;
+  elsif p_type = 'jsonb' then
+    return quote_literal('{}') || '::jsonb';
+  elsif p_type = 'boolean' then
+    return 'false';
+  elsif p_type like 'timestamp%' then
+    return 'now()';
+  else
+    -- an enum: its first label, so the call is well-formed
+    select e.enumlabel into v_lab from pg_enum e join pg_type t on t.oid=e.enumtypid
+     where t.typname = replace(p_type,'public.','') order by e.enumsortorder limit 1;
+    if v_lab is null then return 'null::' || p_type; end if;
+    return quote_literal(v_lab) || '::' || p_type;
+  end if;
+end $$;
+revoke all on function selftest.f06_arg_value(text, text, uuid) from public;
+grant execute on function selftest.f06_arg_value(text, text, uuid) to authenticated;
+
 create or replace function selftest.run_fable06()
 returns table(id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
@@ -624,11 +681,12 @@ begin
   -- Otherwise a dean with no session at all would pass this test perfectly.
   -- =========================================================================
   declare
-    v_dean_inst uuid; v_read jsonb; v_sig text; v_args text; v_err text;
+    v_read jsonb; v_sig text; v_args text; v_err text;
     n_refused int := 0; n_absent int := 0; n_accepted int := 0; n_other int := 0;
-    n_broken int := 0;
+    n_broken int := 0; v_unreached text := ''; v_dean_inst uuid;
     v_bad text := ''; f record;
   begin
+    select i.id into v_dean_inst from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
     perform selftest.as_user('alpha-dean@synthetic.pintar.test');
 
     -- THE READ HALF FIRST. If this fails, every refusal below is meaningless.
@@ -654,10 +712,15 @@ begin
       -- and produced `null:: p_finding uuid` -- a syntax error in the TEST,
       -- which the first version counted as "refused for another reason" and
       -- passed on. Fifteen of eighteen endpoints were never actually called.
-      select coalesce(string_agg('null::' || regexp_replace(trim(a), '^\S+\s+', ''), ', '), '')
+      select coalesce(string_agg(
+               selftest.f06_arg_value(
+                 split_part(trim(a), ' ', 1),
+                 regexp_replace(trim(a), '^\S+\s+', ''),
+                 v_dean_inst),
+               ', ' order by ord), '')
         into v_args
-        from unnest(string_to_array(f.args, ',')) a
-       where length(trim(a)) > 0;
+        from unnest(string_to_array(f.args, ',')) with ordinality as u(a, ord)
+       where length(trim(u.a)) > 0;
       v_sig := format('select public.%I(%s)', f.proname, v_args);
 
       begin
@@ -685,6 +748,10 @@ begin
             n_refused := n_refused + 1;
           else
             n_other := n_other + 1;
+            -- NAMED, not counted. "eleven refused earlier" is a number nobody
+            -- can act on; the names say which endpoints INV-19 is argued for
+            -- rather than asserted for, which is what the capstone has to state.
+            v_unreached := v_unreached || f.proname || ', ';
           end if;
       end;
     end loop;
@@ -727,9 +794,11 @@ begin
                     || 'can know which institution to authorize in. None accepted, none merely absent, and '
                     || 'no endpoint went uncalled. The set is derived from role_capabilities, '
                     || 'client_rpc_registry and pg_proc.provolatile, so a new privileged RPC joins it the '
-                    || 'day it is created. BOUNDED: for the %s, this proves refusal but not that the '
-                    || 'refusal is authorization -- see RF-2',
-                       n_refused + n_other, n_refused, n_other, n_other);
+                    || 'day it is created. BOUNDED: for these, refusal is proved but not that the refusal '
+                    || 'is AUTHORIZATION, so a capability check weakened rather than removed would not be '
+                    || 'detected here -- %s(see RF-2)',
+                       n_refused + n_other, n_refused, n_other,
+                       case when v_unreached = '' then '' else rtrim(v_unreached, ', ') || ' ' end);
     end if;
     return next;
   end;

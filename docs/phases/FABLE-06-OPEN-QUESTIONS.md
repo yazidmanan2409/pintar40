@@ -99,13 +99,34 @@ build closes, and it is a property of the system rather than of this phase.
 functions' error ordering at the end of a phase is the kind of wide, low-evidence
 edit this project refuses.
 
-**Measured.** Of the 18 mutating STAFF endpoints that check a capability `DEAN`
-lacks, calling each as a dean with null arguments produces:
+**Measured, after giving each endpoint a resolvable argument.** Of the 18
+mutating STAFF endpoints that check a capability `DEAN` lacks:
 
-- **2** an authorization error naming the capability
-  (`recompute_question_health`, and one other)
-- **16** an earlier refusal such as `unknown course <NULL>`, `unknown release
-  <NULL>`, `transfer not found`
+- **8** refuse with an authorization error naming the capability
+- **10** refuse earlier, at argument resolution or value validation:
+  `acknowledge_finding`, `publish_release`, `record_integrity_review`,
+  `record_question_health_review`, `revoke_certificate`, `transfer_authorize`,
+  `transfer_execute`, `transfer_reject`, `transfer_request`, `withdraw_release`
+
+The first measurement said 2 and 16. Passing null arguments meant sixteen
+endpoints refused on the null rather than on the capability; resolving real ids
+from the dean's own tenant moved eight of them onto authorization. The remainder
+need entities the tenant does not hold (no releases, no certificates, no
+transfers) or a specific enum or text value a generic resolver cannot guess.
+
+**THE HOLE THIS LEAVES, stated because the floor guard does not close it.** The
+derived-set floor catches an endpoint whose capability check is *removed*. It
+does not catch one *weakened* — `CAN_MANAGE_X` swapped for a capability DEAN
+holds. Such an endpoint stays in the set, still refuses the probe at resolution,
+and the test stays green while INV-19 is broken. **For the eight that reach
+authorization the assertion would catch it; for the ten named above it would
+not.**
+
+The capstone sentence, which must appear as written:
+
+> **INV-19 is verified by AUTHORIZATION for 8 endpoints and by REFUSAL for 10.
+> For those 10, a weakened capability check would not be detected by this
+> assertion.**
 
 **None accepted the call**, which is INV-19's actual claim and it holds. But for
 sixteen of them the test proves *refusal*, not *authorization* — and the
@@ -128,7 +149,29 @@ written rather than a slip.
 
 **What would settle it:** a pass over the privileged mutating set giving each a
 single refusal message that does not distinguish "does not exist" from "not
-yours", as `sanitized_item` now does.
+yours", as `sanitized_item` now does — which would also move all ten onto
+authorization and close the hole above, since the refusal would then BE the
+authorization.
+
+---
+
+## OQ-3 — Five mutating STAFF endpoints with no direct authorization reference
+
+**Belongs to:** the final release audit · **Observed, not investigated.**
+
+`grant_role`, `run_mcq_quality`, `validate_course_content`,
+`ingest_structured_package` and `propose_easy_upload_mapping` are mutating STAFF
+RPCs whose comment-stripped source references no capability check, no
+`has_scope`, no `can_on_node`, no `is_system_admin` and no `current_person_id`.
+
+**This may be correct.** `grant_role` is guarded by `role_assignments_guard`,
+which enforces INV-16 at the trigger rather than in the function, and delegation
+to a trigger is a legitimate and arguably better pattern. The others were not
+examined.
+
+**Deliberately not resolved here.** Reading five function bodies at the end of a
+phase would produce a confident paragraph and no evidence, which is what this
+ledger exists to prevent. The question is recorded as existing and unexamined.
 
 ---
 
