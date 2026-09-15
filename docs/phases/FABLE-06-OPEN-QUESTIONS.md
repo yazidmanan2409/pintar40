@@ -79,8 +79,10 @@ wearing a helpful face.
 route coverage (F06-S02), enum-column coverage (F06-S03). Each began as a
 hand-maintained list that was green **because it was short**, and each was
 repaired by deriving the list from the thing itself: the migration text, the
-route table, the enum declarations. 71 columns from 32 enum types, covered the
-day a new one is created, is the shape all three now share. A fourth followed
+route table, the enum declarations. 71 columns from 32 enum types when this was
+written and 72 from 33 at the FABLE-06 close — the number moved because 0082
+declared `briefing_state`, and it moved without anyone editing a list, which is
+the whole point — is the shape all three now share. A fourth followed
 immediately — F06-S04 derives its subject from the manifest rather than from a
 list of tests worth checking.
 
@@ -92,44 +94,66 @@ build closes, and it is a property of the system rather than of this phase.
 
 ---
 
-## RF-2 — sixteen privileged endpoints resolve an argument before they authorize
+## RF-2 — privileged endpoints resolve an argument before they authorize
 
 **Found by:** F06-N02, while establishing INV-19 over a derived endpoint set.
-**Not fixed here** — it spans FABLE-02 through FABLE-05 and changing sixteen
+**Not fixed here** — it spans FABLE-02 through FABLE-06 and changing twenty-one
 functions' error ordering at the end of a phase is the kind of wide, low-evidence
-edit this project refuses.
+edit this project refuses. (The finding was filed when sixteen were affected; the
+defect is in all twenty-one, and seventeen of them are now OBSERVABLE, which is a
+different thing from fixed.)
 
-**Measured, after giving each endpoint a resolvable argument.** Of the 18
-mutating STAFF endpoints that check a capability `DEAN` lacks:
+**Measured three times, and the number moved twice — recorded in full because
+the movement is the finding.** Of the mutating STAFF endpoints that check a
+capability `DEAN` lacks:
 
-- **8** refuse with an authorization error naming the capability
-- **10** refuse earlier, at argument resolution or value validation:
-  `acknowledge_finding`, `publish_release`, `record_integrity_review`,
-  `record_question_health_review`, `revoke_certificate`, `transfer_authorize`,
-  `transfer_execute`, `transfer_reject`, `transfer_request`, `withdraw_release`
+| measurement | set | by AUTHORIZATION | by REFUSAL only | what changed |
+|---|---|---|---|---|
+| first | 18 | 2 | 16 | null passed for every argument |
+| second | 18 | 8 | 10 | real ids resolved from the dean's own tenant |
+| third — **at this commit, clean stack** | 21 | **17** | **4** | ids resolved from ANY tenant when the dean's holds none; `not authorized` added to the refusal vocabulary; Briefings added three RPCs |
 
-The first measurement said 2 and 16. Passing null arguments meant sixteen
-endpoints refused on the null rather than on the capability; resolving real ids
-from the dean's own tenant moved eight of them onto authorization. The remainder
-need entities the tenant does not hold (no releases, no certificates, no
-transfers) or a specific enum or text value a generic resolver cannot guess.
+The set grew from 18 to 21 on its own, the day 0082 created three privileged
+RPCs — which is the derived set doing exactly what it was built for.
+
+The third measurement is a **fixture** change, not a product one. No endpoint's
+error ordering was touched. Twelve arguments had been resolving to NULL because
+`synth-alpha` holds no course, release, session or certificate, so those
+endpoints refused with `unknown course <NULL>` long before any capability check
+— a refusal that proves nothing about authorization. A row from another
+institution lands the call on the capability check, where the dean is refused by
+name. **This closes most of RF-2's blast radius without closing RF-2**: the
+ordering defect is still there in all of them; it is simply now observable in
+seventeen.
+
+The four that remain: `acknowledge_finding` (a text `kind` a generic resolver
+cannot guess), `record_integrity_review` and `record_question_health_review` (an
+enum decision value, same reason), and `transfer_authorize` (no transfer row
+exists at the moment the probe runs unless the FABLE-01 suite ran first — so
+this one moves in and out depending on run order, which is itself worth
+knowing).
 
 **THE HOLE THIS LEAVES, stated because the floor guard does not close it.** The
 derived-set floor catches an endpoint whose capability check is *removed*. It
 does not catch one *weakened* — `CAN_MANAGE_X` swapped for a capability DEAN
 holds. Such an endpoint stays in the set, still refuses the probe at resolution,
-and the test stays green while INV-19 is broken. **For the eight that reach
-authorization the assertion would catch it; for the ten named above it would
+and the test stays green while INV-19 is broken. **For the seventeen that reach
+authorization the assertion would catch it; for the four named above it would
 not.**
 
 The capstone sentence, which must appear as written:
 
-> **INV-19 is verified by AUTHORIZATION for 8 endpoints and by REFUSAL for 10.
-> For those 10, a weakened capability check would not be detected by this
+> **INV-19 is verified by AUTHORIZATION for 17 endpoints and by REFUSAL for 4.
+> For those 4, a weakened capability check would not be detected by this
 > assertion.**
 
+*(The earlier draft of this sentence read "8 endpoints and by REFUSAL for 10",
+against a set of 18. It is superseded by the measurement above, and both
+readings are kept here, because a capstone sentence that quietly changes its
+numbers is worse than one that shows its working.)*
+
 **None accepted the call**, which is INV-19's actual claim and it holds. But for
-sixteen of them the test proves *refusal*, not *authorization* — and the
+four of them the test still proves *refusal*, not *authorization* — and the
 distinction is the one this phase has now repaired twice: `metric_evaluate`
 checked deprecation before authorizing (0073), `sanitized_item` raised
 `unknown presented item` before authorizing (0074). **This is the same shape,
@@ -226,6 +250,39 @@ that is the outcome the restraint here was protecting against.
 **What would settle it:** a product decision about whether an unfinished
 briefing is closed, expires, or is simply not shown. Only the first of those
 needs a declared edge.
+
+---
+
+## OQ-5 — a metric can be deprecated in the schema and by no exposed surface
+
+**Belongs to:** the product decision about catalogue lifecycle · **Found by:**
+F06-P09, while building §8's "a deprecated metric referenced by a saved template
+is omitted with an honest statement" case.
+
+`metric_definitions.deprecated` exists, carries a mandatory
+`deprecation_note_key`, and `metric_evaluate` has a branch that returns
+`status: deprecated` with that note. The branch is correct and now tested.
+**Nothing can set the flag.** `publish_metric_catalogue` copies `deprecated`
+forward from the superseded version and takes no argument that would raise it,
+and `metric_definitions` refuses UPDATE by trigger because a published catalogue
+version is immutable. The only path is a migration inserting a definition row
+with `deprecated = true`.
+
+**That may be the right design.** Retiring a metric is a semantic decision about
+what PINTAR measures, which §3.4 places with PINTAR and not with an institution
+— and a migration is exactly how a PINTAR-owned semantic change is supposed to
+land. Recorded because it is not stated anywhere, and because a reader finding
+the flag will reasonably look for the RPC that sets it.
+
+**How F06-P09 handles it, stated so the test is not read as more than it is.**
+The probe inserts the deprecated definition itself, the way a migration would,
+inside a subtransaction that rolls back. What is proven is the READING of a
+deprecated metric by a saved template — not a deprecation workflow, which does
+not exist.
+
+**What would settle it:** a decision on whether `publish_metric_catalogue` grows
+a `deprecations` argument alongside `minimum_sample_overrides`, or whether
+retiring a metric stays a migration.
 
 ---
 
