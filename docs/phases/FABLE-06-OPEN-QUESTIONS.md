@@ -45,14 +45,44 @@ guarantee was the error, and it was made by both reviewer and builder.
   states and still a gap.
 
 **It was live, not latent.** F06-S03's first run found five real
-interpolations: `{i.bank_type}` on the Studio bank page, `{b.mode}` and
-`{d.mode}` three times on the definitions page, and `{g.category}` on the
-integrity page — rendering `PRACTICE`, `PRE_TEST`, `POST_TEST`,
-`VISIBILITY_CHANGE` raw to a staff reader. **None of those values is in
+interpolations. **Four are one kind of defect and the fifth is another**, and
+they should not be read as five of a thing.
+
+*Vocabulary leaks (four).* `{i.bank_type}` on the Studio bank page and
+`{b.mode}` three times on the definitions page rendered `PRACTICE`, `TEST`,
+`EXAM`, `PRE_TEST`, `POST_TEST` to staff. **This is a product-quality defect,
+not a boundary breach** — no learner surface, no evidence, no answer key. An
+author choosing a mode needs to know which mode; they do not need to read the
+identifier.
+
+*An unlabelled behavioural signal beside a person (one).* `{g.category}` on the
+integrity page rendered `VISIBILITY_CHANGE` next to a named learner. **That is
+different in kind.** A bare token beside a person invites the reader to treat it
+as a verdict, and INV-11 exists precisely to prevent that: *PINTAR observes and
+highlights; educators interpret and decide.* The label is not cosmetic there —
+"Berpindah dari layar penilaian" describes what was observed; `VISIBILITY_CHANGE`
+reads like a charge. **The difference between an observation and an accusation
+was one HLE key.** **None of those values is in
 `INTERNAL_WORDS`**, so no word list would ever have caught them; the rule had to
 be about shape and provenance instead. All five are fixed, and the enum-bearing
 column list is derived from the migrations so a new enum column is covered the
 day it is created.
+
+**Why the fallback shows nothing rather than the key.** `enumLabel` returns an
+em dash for an unmapped value. Most translation layers fall back to the key,
+which turns a missing translation into exactly this defect — silently, at the
+moment somebody adds a new enum value, which is the moment nobody is looking. A
+fallback that shows nothing is honest; a fallback that shows the key is the leak
+wearing a helpful face.
+
+**Derive, do not enumerate — three for three.** Revoke coverage (ADR-0021),
+route coverage (F06-S02), enum-column coverage (F06-S03). Each began as a
+hand-maintained list that was green **because it was short**, and each was
+repaired by deriving the list from the thing itself: the migration text, the
+route table, the enum declarations. 71 columns from 32 enum types, covered the
+day a new one is created, is the shape all three now share. A fourth followed
+immediately — F06-S04 derives its subject from the manifest rather than from a
+list of tests worth checking.
 
 **The property worth carrying forward:** the HLE guard operates on the
 product's actual language, not only on enum identifiers — it refused the label

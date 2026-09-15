@@ -1258,6 +1258,61 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    // THE MANIFEST'S OWN METADATA, HELD TO L5.
+    //
+    // FABLE-05's completion report was careful: it marked the staff-only HLE
+    // declaration "reading -- flagged" and pointed at F05-S03 for the rest. The
+    // OVERCLAIM WAS IN THE MANIFEST -- F05-S03's `proves` read "no Studio copy
+    // shows a lifecycle enum", a property of the SURFACE, asserted by a test of
+    // the COPY TABLE. The prose was honest and the machine-readable record was
+    // not, which is the inverse of the usual failure and worse, because the
+    // manifest is what a gate reads.
+    //
+    // A `proves` string is unasserted prose living inside a machine-checked
+    // artefact. Nothing can validate prose against a predicate, so this does
+    // the cheap half: EVERY STATIC OR APP TEST NAMES THE ARTEFACT IT INSPECTS
+    // -- the copy table, rendered output, the migration text, the source, the
+    // live schema. F05-S03's then reads "the copy table contains no lifecycle
+    // enum", which is true and VISIBLY NARROWER than the property anyone wants.
+    // Scope becomes comparable by eye even where the claim cannot be checked.
+    //
+    // Scoped to static and app deliberately. A db test's artefact is the live
+    // database and is never ambiguous; source-versus-output-versus-copy-table
+    // is where the confusion actually lives, and a rule applied where it does
+    // not bite is the box-ticking this was meant to avoid.
+    id: "F06-S04",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const manifest = JSON.parse(
+        readFileSync(join(repoRoot, "selftest", "manifest.json"), "utf8")
+      ) as { tests: Array<{ id: string; runner: string; proves?: string }> };
+
+      const ARTEFACTS = [
+        "copy table", "rendered", "output", "migration", "schema", "audit log", "source",
+        "catalogue", "manifest", "route", "bundle", "html", "file", "prosrc", "registry",
+        "lint", "git", "workflow", "import graph", "build", "keyring", "document",
+        "environment", "executes", "document text",
+      ];
+      const scoped = manifest.tests.filter((t) => t.runner === "static" || t.runner === "app");
+      c.expect(scoped.length > 20, `only ${scoped.length} static/app test(s) to check`);
+
+      const silent = scoped.filter(
+        (t) => !ARTEFACTS.some((a) => (t.proves ?? "").toLowerCase().includes(a))
+      );
+      c.expect(
+        silent.length === 0,
+        "static/app test(s) whose `proves` does not name the artefact it inspects. A claim about a " +
+          "surface, asserted by a test of a copy table, reads true at a gate and is not:\n  " +
+          silent.map((t) => `${t.id}: ${(t.proves ?? "").slice(0, 70)}`).join("\n  ")
+      );
+      return c.verdict(
+        `${scoped.length} static/app test(s), each naming the artefact its predicate inspects, so a ` +
+          `gate reading the manifest can see the scope of a claim without reading the test`
+      );
+    },
+  },
+  {
     // THE COMPLEMENT TO BOTH EXISTING SCANS, and the one that catches the leak
     // they were each built to miss.
     //

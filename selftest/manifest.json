@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 17,
+  "version": 19,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -308,12 +308,12 @@
     {
       "id": "F01-S05",
       "runner": "static",
-      "proves": "doc 13 ADR-0001 exists with every required section and the traceability block"
+      "proves": "the ADR FILE docs/adr/0001-foundation.md carries every required section and the traceability block (doc 13). Inspects the document text, not the behaviour it describes"
     },
     {
       "id": "F02-S01",
       "runner": "static",
-      "proves": "INV-20 no analytics, psychometric, reporting or certification code path reads a raw evidence table; evidence is consumed through official_* only"
+      "proves": "INV-20: no analytics, psychometric, reporting or certification code path reads a raw evidence table. Inspects the SOURCE of every module under src/ for raw-table references, and the LIVE SCHEMA for the grants that would permit one"
     },
     {
       "id": "F01-R01",
@@ -323,7 +323,7 @@
     {
       "id": "F01-R02",
       "runner": "app",
-      "proves": "INV-19/INV-13 DEAN and STUDENT get a clean refusal on /konfigurasi; INSTITUTION_ADMIN renders own institution only",
+      "proves": "INV-19 / INV-13: DEAN and STUDENT get a clean refusal on /konfigurasi and INSTITUTION_ADMIN renders its own institution. Inspects the RENDERED OUTPUT of a real HTTP request under each persona's session",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable \u2014 runs in CI against the local stack (checkpoint \u00a76)"
     },
     {
@@ -347,7 +347,7 @@
     {
       "id": "F01-R06",
       "runner": "app",
-      "proves": "FABLE-01 \u00a72 classroom-card auth: the configured CARD_PEPPER meets the production contract (>= 32 chars) and the production TypeScript derivation in src/lib/card.ts authenticates the seeded card 7001 / PIN 2468 through real GoTrue, proving it agrees with the SQL derivation in supabase/seed/synthetic.sql",
+      "proves": "FABLE-01 \u00a72 classroom-card auth: the configured CARD_PEPPER meets the production contract. Inspects the RUNNING PROCESS ENVIRONMENT and the rendered output of a card sign-in over HTTP",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable \u2014 runs in CI against the local stack (checkpoint \u00a76)"
     },
     {
@@ -403,22 +403,22 @@
     {
       "id": "F03-S01",
       "runner": "static",
-      "proves": "INV-26 \u2014 exactly one module calls the engine's RPCs, and it holds no privilege of its own"
+      "proves": "INV-26: exactly one module calls the engine's RPCs and holds no privilege of its own. Inspects the SOURCE import graph under src/ and the live schema's grants"
     },
     {
       "id": "F03-S02",
       "runner": "static",
-      "proves": "INV-01 \u2014 the authoring shape diffed against the sanitizer allow-list, with the SQL and the TypeScript type required to agree"
+      "proves": "INV-01: the authoring shape diffed against the sanitizer allow-list. Inspects the MIGRATION TEXT under supabase/migrations and the TypeScript type in src/lib/assessment-engine/types.ts -- two declarations of one shape, compared"
     },
     {
       "id": "F03-S03",
       "runner": "static",
-      "proves": "INV-31 / INV-32 \u2014 the assistance context equals the sanitized item, refuses an authoring row, and names no provider"
+      "proves": "INV-31 / INV-32: the assistance context equals the sanitized item, refuses an authoring row and names no protected field. Inspects the SOURCE of src/ai-gateway"
     },
     {
       "id": "F03-R01",
       "runner": "app",
-      "proves": "FABLE-03 \u00a78 \u2014 a learner signs in and reaches the cycle over HTTP; an anonymous request never does",
+      "proves": "FABLE-03 \u00a78: a learner signs in and reaches the cycle over HTTP; an anonymous request never does. Inspects the RENDERED OUTPUT of the learner routes under a real session",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
     },
     {
@@ -520,12 +520,12 @@
     {
       "id": "F04-S02",
       "runner": "static",
-      "proves": "INV-05 \u2014 a signed canonical payload verifies; tampering with EACH of the ten protected fields breaks verification; key order does not matter; the compare uses crypto.timingSafeEqual and not ==="
+      "proves": "INV-05: a signed canonical payload verifies and tampering with each of the ten protected fields breaks verification. EXECUTES src/lib/certificates/sign.ts against constructed payloads -- a behavioural test of the module, not a reading of it"
     },
     {
       "id": "F04-S03",
       "runner": "static",
-      "proves": "INV-07 \u2014 rotation advances the signing key version, leaves a V1 certificate verifiable, refuses a cross-version signature, and never drops an old key"
+      "proves": "INV-07: rotation advances the signing key version, leaves a V1 certificate verifiable and refuses a cross-version signature. EXECUTES src/lib/certificates/keyring.ts"
     },
     {
       "id": "F04-S04",
@@ -753,7 +753,7 @@
     {
       "id": "QAC-S01",
       "runner": "static",
-      "proves": "ADR-0018 \u00a75: the Quick Assessment surface offers authorized canonical chapters through the named accessors and names no tenant kind, distribution status or internal flag in its copy"
+      "proves": "ADR-0018 \u00a75: the Quick Assessment surface offers authorized canonical chapters through the named accessors. Inspects the SOURCE of src/app/studio/actions.ts and studio/kuis/page.tsx, and the COPY TABLE in src/lib/hle.ts -- not the rendered page"
     },
     {
       "id": "QAC-T11",
@@ -906,6 +906,11 @@
       "id": "F06-S03",
       "runner": "static",
       "proves": "no src/app surface interpolates an enum-bearing value into a JSX TEXT POSITION. The enum-bearing column names are derived from every `create type ... as enum` in the migrations and the columns declared with them, so a new enum column is covered the day it is created. Complements both existing scans and catches what each was built to miss: F01-S03 skips {...} expressions by design, and F06-R01's unauthenticated fetch cannot reach a Studio route. Found five live leaks on first run -- bank_type, three renderings of mode, and integrity category -- none of which is an INTERNAL_WORD, so no word list would have caught them"
+    },
+    {
+      "id": "F06-S04",
+      "runner": "static",
+      "proves": "every static or app test's `proves` string in the MANIFEST FILE names the artefact its predicate inspects -- copy table, rendered output, migration text, source, live schema. L5 applied to the manifest's own metadata rather than to a test body. F05-S03's proves claimed a property of the Studio surface while testing the copy table: the completion report was honest and the machine-readable record was not, which is the inverse of the usual failure and worse, because the manifest is what a gate reads. Prose cannot be validated against a predicate, so this does the cheap half and makes scope comparable by eye"
     }
   ]
 }

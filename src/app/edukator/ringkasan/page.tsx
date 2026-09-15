@@ -2,6 +2,26 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { s, card, omissionText, actionText, tierLabel, type Entry } from "../../_intel";
 
 /**
+ * THE EXPOSURE CAVEAT IS CONDITIONAL, NOT DECORATIVE.
+ *
+ * `kesehatan.catatan_paparan` explains that safety-critical items surface first
+ * because the engine guarantees they are presented, not because they are worst.
+ * It must appear when that is TRUE of the signals on screen -- attached to every
+ * signal regardless, it is a caveat nobody reads by the third one, and then it
+ * is absent exactly when it matters.
+ *
+ * So the condition is a property of the data: show it only when a raised signal
+ * belongs to an item the engine over-presents. Question Health rows do not yet
+ * reach this page -- the briefings surface is where they land -- and this
+ * predicate travels with them rather than being re-derived there.
+ */
+export function exposureCaveatApplies(
+  signals: Array<{ is_safety_critical?: boolean; state?: string }>,
+): boolean {
+  return signals.some((g) => g.state === "SIGNAL_RAISED" && g.is_safety_critical === true);
+}
+
+/**
  * Class Learning Intelligence — FABLE-06 §2.
  *
  * Story first, then the numbers, and never a number without a sentence saying
