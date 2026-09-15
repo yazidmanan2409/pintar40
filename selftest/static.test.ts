@@ -1368,6 +1368,13 @@ export const staticTests: SelfTest[] = [
       ) as { tests: Array<{ id: string; proves?: string }> };
       const named = new Map<string, string[]>();
       for (const t of manifest.tests) {
+        // THIS TEST'S OWN ENTRY IS EXCLUDED, and the exclusion is the difference
+        // between a check and a mirror. F06-S05's `proves` names INV-06, INV-22
+        // and INV-35 to state what it does NOT cover -- which, counted, would
+        // make it the citer that satisfies its own requirement for those three.
+        // An invariant nobody tests could then be "covered" by writing its name
+        // into this sentence.
+        if (t.id === "F06-S05") continue;
         for (const inv of new Set((t.proves ?? "").match(/INV-\d+/g) ?? [])) {
           named.set(inv, [...(named.get(inv) ?? []), t.id]);
         }
@@ -1389,7 +1396,8 @@ export const staticTests: SelfTest[] = [
       const total = declared.reduce((n, i) => n + (named.get(i)?.length ?? 0), 0);
       return c.verdict(
         `all ${declared.length} invariants declared in the document docs/rebuild/03-PINTAR-INVARIANTS.md ` +
-          `are named by at least one of the ${total} manifest entries that cite one, and no manifest ` +
+          `are named by at least one of the ${total} OTHER manifest entries that cite one -- this test's ` +
+          `own entry is excluded, so naming an invariant here cannot cover it -- and no manifest ` +
           `entry cites an invariant the document does not declare. BOUNDED: this reads the manifest's ` +
           `own text and proves NAMING, not adequacy -- INV-06's behavioural half, INV-22 and INV-35 are ` +
           `named and carried as inadequately covered`
