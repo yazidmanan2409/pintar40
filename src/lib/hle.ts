@@ -12,6 +12,13 @@
 
 export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
+  | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
+  | "jenis.mode.PRE_TEST" | "jenis.mode.POST_TEST" | "jenis.mode.QUICK"
+  | "jenis.mode.STANDALONE" | "jenis.mode.PRACTICE" | "jenis.mode.TEST"
+  | "jenis.mode.EXAM" | "jenis.mode.PUBLIC_DEMO" | "jenis.mode.PAPER"
+  | "jenis.integritas.VISIBILITY_CHANGE" | "jenis.integritas.NAVIGATION"
+  | "jenis.integritas.RECONNECT" | "jenis.integritas.RAPID_OPTION_CHANGE"
+  | "jenis.integritas.SUBMISSION_ANOMALY"
   | "metrik.peserta.label" | "metrik.peserta.arti"
   | "metrik.pemahaman.label" | "metrik.pemahaman.arti"
   | "metrik.kenaikan.label" | "metrik.kenaikan.arti"
@@ -331,6 +338,28 @@ export type HleEvent =
 type Table = Record<HleEvent, Partial<Record<Persona, string>> & { default: string }>;
 
 const table: Table = {
+  // ENUM LABELS. Found by F06-S03: five surfaces rendered a raw enum into a
+  // text position -- PRACTICE, PRE_TEST, VISIBILITY_CHANGE and friends -- none
+  // of which is in INTERNAL_WORDS, so no word list would ever have caught them.
+  // A staff reader is still a human and §7 admits no exception for them.
+  "jenis.bank.PRACTICE": { default: "Latihan" },
+  "jenis.bank.TEST": { default: "Penilaian" },
+  "jenis.bank.EXAM": { default: "Ujian" },
+  "jenis.mode.PRE_TEST": { default: "Penilaian awal" },
+  "jenis.mode.POST_TEST": { default: "Penilaian akhir" },
+  "jenis.mode.QUICK": { default: "Penilaian cepat" },
+  "jenis.mode.STANDALONE": { default: "Penilaian mandiri" },
+  "jenis.mode.PRACTICE": { default: "Latihan" },
+  "jenis.mode.TEST": { default: "Penilaian" },
+  "jenis.mode.EXAM": { default: "Ujian" },
+  "jenis.mode.PUBLIC_DEMO": { default: "Peragaan publik" },
+  "jenis.mode.PAPER": { default: "Lembar kertas" },
+  "jenis.integritas.VISIBILITY_CHANGE": { default: "Berpindah dari layar penilaian" },
+  "jenis.integritas.NAVIGATION": { default: "Berpindah halaman" },
+  "jenis.integritas.RECONNECT": { default: "Terputus lalu tersambung lagi" },
+  "jenis.integritas.RAPID_OPTION_CHANGE": { default: "Mengubah pilihan sangat cepat" },
+  "jenis.integritas.SUBMISSION_ANOMALY": { default: "Pengiriman jawaban tidak lazim" },
+
   // FABLE-06 -- the intelligence surfaces. Every label and every STATEMENT a
   // reader sees passes through here, including the sentences that explain an
   // omission: a status like `not_permitted` or `below_minimum` is an internal
@@ -759,4 +788,22 @@ export function renderAll(): Array<{ event: HleEvent; persona: Persona; text: st
     }
   }
   return out;
+}
+
+/**
+ * An enum value rendered for a human. Never the identifier itself.
+ *
+ * F06-S03 refuses `{x.mode}` in a text position; this is what goes there
+ * instead. An unmapped value falls back to an em dash rather than to the raw
+ * identifier, because a missing translation must not silently become the leak
+ * the rule exists to prevent.
+ */
+export function enumLabel(kind: "bank" | "mode" | "integritas", value: string | null | undefined): string {
+  if (!value) return "—";
+  const key = `jenis.${kind}.${value}` as HleEvent;
+  try {
+    return t(key, "staff");
+  } catch {
+    return "—";
+  }
 }

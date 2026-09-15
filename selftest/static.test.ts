@@ -1258,6 +1258,82 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    // THE COMPLEMENT TO BOTH EXISTING SCANS, and the one that catches the leak
+    // they were each built to miss.
+    //
+    // F01-S03 scans source and skips `{...}` expressions, saying "enum
+    // comparisons in code are not user copy". That is TRUE of
+    // `if (x.status === 'FROZEN')` and FALSE of `>{x.status}<`. The difference
+    // is POSITION, not syntax: an interpolation in a JSX TEXT NODE is copy.
+    //
+    // F06-R01 scans rendered output, which would catch it -- but only for
+    // routes a stranger can reach. Every Studio route redirects an
+    // unauthenticated caller, so the leak lives exactly where neither scan
+    // looks.
+    //
+    // WHAT IT FOUND ON ITS FIRST RUN: `{i.bank_type}` on the Studio bank page
+    // and `{b.mode}` / `{d.mode}` on the definitions page -- PRACTICE, TEST,
+    // EXAM, PRE_TEST, POST_TEST rendered raw to a staff reader. None of those
+    // values is in INTERNAL_WORDS, so no word list would ever have caught them,
+    // which is why this rule is about SHAPE and about where the enum came from.
+    //
+    // THE ENUM-BEARING COLUMN LIST IS DERIVED FROM THE MIGRATIONS, not written
+    // here: every `create type ... as enum` gives a type, and every column
+    // declared with one gives a name. A new enum column is covered the day it
+    // is created, the same reason the route inventory is derived.
+    id: "F06-S03",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const migDir = join(repoRoot, "supabase", "migrations");
+      const sql = readdirSync(migDir).filter((f) => f.endsWith(".sql")).sort()
+        .map((f) => readFileSync(join(migDir, f), "utf8")).join("\n");
+
+      const enumTypes = new Set<string>();
+      for (const m of sql.matchAll(/create\s+type\s+(?:public\.)?([a-z_][a-z0-9_]*)\s+as\s+enum/gi)) {
+        enumTypes.add(m[1].toLowerCase());
+      }
+      c.expect(enumTypes.size > 5, `only ${enumTypes.size} enum type(s) found in the migrations`);
+
+      const enumColumns = new Set<string>();
+      for (const t of enumTypes) {
+        const re = new RegExp(`^\\s*([a-z_][a-z0-9_]*)\\s+(?:public\\.)?${t}\\b`, "gim");
+        for (const m of sql.matchAll(re)) enumColumns.add(m[1].toLowerCase());
+      }
+      // the column often shares its name with the type (status status, mode mode)
+      for (const t of enumTypes) enumColumns.add(t);
+      c.expect(enumColumns.size > 5, `only ${enumColumns.size} enum-bearing column name(s) derived`);
+
+      const offenders: string[] = [];
+      for (const f of walk(join(repoRoot, "src", "app")).filter((x) => /\.tsx$/.test(x))) {
+        const text = code(readFileSync(f, "utf8"));
+        const rel = relative(repoRoot, f);
+        // interpolation standing alone in a TEXT position: between tags, or
+        // adjacent to literal text rather than inside an attribute.
+        for (const m of text.matchAll(/[>}]\s*\{([^{}]+)\}/g)) {
+          const expr = m[1].trim();
+          // a call is a lookup (t(`hasil.delta.${d.status}`)) and is fine --
+          // the enum is a KEY there, not the rendered string
+          if (/[(`]/.test(expr)) continue;
+          const tail = /\.([a-z_][a-z0-9_]*)\s*$/.exec(expr);
+          if (tail && enumColumns.has(tail[1].toLowerCase())) {
+            offenders.push(`${rel}: {${expr}}`);
+          }
+        }
+      }
+
+      c.expect(
+        offenders.length === 0,
+        "enum-bearing value(s) interpolated into a JSX text position -- a lifecycle or classification " +
+          "enum rendered raw to a human (§7). Render an HLE key instead:\n  " + offenders.join("\n  ")
+      );
+      return c.verdict(
+        `${enumColumns.size} enum-bearing column name(s) derived from ${enumTypes.size} enum type(s) in the ` +
+          `migrations; no src/app surface interpolates one into a text position`
+      );
+    },
+  },
+  {
     // S-1, AND THE REASON IT IS A DERIVED LIST RATHER THAN A WRITTEN ONE.
     //
     // Two INTERNAL_WORDS checks already existed and they answer opposite

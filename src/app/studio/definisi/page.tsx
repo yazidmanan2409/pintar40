@@ -1,3 +1,4 @@
+import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { saveDefinitionAction } from "../actions";
@@ -44,7 +45,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
         <ul className="mt-2 grid gap-1 text-sm text-ink-2">
           {(bounds ?? []).map((b) => (
             <li key={b.mode} className="tabular-nums">
-              {b.mode}: {b.item_count_min}–{b.item_count_max} · {b.late_sync_grace_max}s
+              {enumLabel("mode", b.mode)}: {b.item_count_min}–{b.item_count_max} · {b.late_sync_grace_max}s
               {b.attempt_limit_max ? ` · ${b.attempt_limit_max}×` : ""}
             </li>
           ))}
@@ -69,7 +70,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
           <input className={field} name="judul" placeholder="nama aturan" required />
           <div className="flex flex-wrap gap-2">
             <select className={field} name="mode" defaultValue="QUICK">
-              {(bounds ?? []).map((b) => <option key={b.mode} value={b.mode}>{b.mode}</option>)}
+              {(bounds ?? []).map((b) => <option key={b.mode} value={b.mode}>{enumLabel("mode", b.mode)}</option>)}
             </select>
             <select className={field} name="bank" defaultValue="PRACTICE">
               {["PRACTICE", "TEST", "EXAM"].map((b) => <option key={b} value={b}>{b}</option>)}
@@ -99,7 +100,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
           {(definitions ?? []).map((d) => (
             <li key={d.id} className={card}>
               <p className="font-medium">{d.title}</p>
-              <p className="mt-1 text-sm text-ink-3 tabular-nums">{d.mode} · {d.item_count}</p>
+              <p className="mt-1 text-sm text-ink-3 tabular-nums">{enumLabel("mode", d.mode)} · {d.item_count}</p>
               <form action={saveDefinitionAction} className="mt-2 flex flex-wrap items-end gap-2">
                 <input type="hidden" name="definisi" value={d.id} />
                 <input className={field} name="judul" defaultValue={d.title} />

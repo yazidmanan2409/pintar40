@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 16,
+  "version": 17,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -683,7 +683,7 @@
     {
       "id": "F05-S03",
       "runner": "static",
-      "proves": "\u00a712: no learner surface renders a staff-only copy key, and no Studio copy shows a lifecycle enum, version string or evidence class"
+      "proves": "\u00a712: no learner surface renders a staff-only copy key, and no Studio COPY STRING in src/lib/hle.ts contains a lifecycle enum, version string or evidence class. AMENDED 2026-09-15: the original wording read as a property of the Studio SURFACE. What is tested is the copy table -- a page interpolating {x.status} into a text position would pass it, and five such interpolations existed when F06-S03 first ran. The surface property is F06-S03's; this remains true and is narrower than it sounded"
     },
     {
       "id": "F05-R01",
@@ -901,6 +901,11 @@
       "id": "F06-R01",
       "runner": "app",
       "proves": "every route in the inventory is fetched unauthenticated and its rendered output scanned for internal words. Unauthenticated on purpose: a stranger's view is the widest audience any page has, so an enum reaching it has reached the worst reader. Scales automatically as routes are added, because F06-S02 fails if a served route is absent from the list"
+    },
+    {
+      "id": "F06-S03",
+      "runner": "static",
+      "proves": "no src/app surface interpolates an enum-bearing value into a JSX TEXT POSITION. The enum-bearing column names are derived from every `create type ... as enum` in the migrations and the columns declared with them, so a new enum column is covered the day it is created. Complements both existing scans and catches what each was built to miss: F01-S03 skips {...} expressions by design, and F06-R01's unauthenticated fetch cannot reach a Studio route. Found five live leaks on first run -- bank_type, three renderings of mode, and integrity category -- none of which is an INTERNAL_WORD, so no word list would have caught them"
     }
   ]
 }

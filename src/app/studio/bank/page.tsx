@@ -1,3 +1,4 @@
+import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, card, field, label, outcomeLine, s, short, studioInstitutions } from "../_lib";
 import { recordQuestionHealthReviewAction } from "../actions";
@@ -46,7 +47,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
             return (
               <li key={i.id} className={card}>
                 <p className="font-medium">{i.stem}</p>
-                <p className="mt-1 text-sm text-ink-3">{i.bank_type} · {short(i.id)}</p>
+                <p className="mt-1 text-sm text-ink-3">{enumLabel("bank", i.bank_type)} · {short(i.id)}</p>
                 <p className="mt-2 text-sm text-ink-2 tabular-nums">
                   {s("studio.bank.prediksi")}: {i.predicted_difficulty ?? "—"}
                 </p>

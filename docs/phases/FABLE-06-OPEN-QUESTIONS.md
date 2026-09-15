@@ -1,9 +1,64 @@
-# FABLE-06 — open questions carried out of the phase
+# FABLE-06 — open questions and retroactive findings
+
+Two sections. **Open questions** are real questions with product answers,
+deliberately not resolved under end-of-phase pressure. **Retroactive findings**
+are gaps in closed phases that a mechanism built later exposed — recorded here
+so the capstone carries them rather than Layer-3 discovering them.
 
 Accumulated as they are found, so the capstone folds in a ledger rather than a
 recollection. **Nothing here is a defect report.** Each entry is a real question
 with a product answer, deliberately not resolved under end-of-phase time
 pressure, and each names who it belongs to.
+
+---
+
+# Retroactive findings
+
+## RF-1 — six surfaces shipped with no output-level HLE coverage
+
+**Found by:** F06-S02 (the derived route inventory) and F06-S03 (enum in a text
+position), both built in FABLE-06. **Reaches back into:** FABLE-05 and Task 2,
+both of which closed with a second-eye gate behind them.
+
+**What was missing.** Every route under `/studio/*` plus `/evaluasi` had no
+rendered-output `INTERNAL_WORDS` check — five FABLE-05 surfaces and one from
+Task 2. The source scan (F01-S03) was green throughout, and it is blind to
+`{x.status}` by construction: it matches JSX text nodes and deliberately skips
+`{...}` expressions, with the comment *"enum comparisons in code are not user
+copy."* That statement is correct about what it does. Reading it as a broader
+guarantee was the error, and it was made by both reviewer and builder.
+
+**What the closure documents actually claimed — read, not assumed.**
+
+- **FABLE-05's completion report did not overclaim.** Its row for
+  *"`studio.*` / `config.*` declared staff-only in the HLE"* is marked
+  **reading — flagged**, and points at F05-S03 as asserting "the other half".
+  The report was careful.
+- **The overclaim was in the manifest.** F05-S03's `proves` line read *"no
+  Studio copy shows a lifecycle enum, version string or evidence class"* —
+  which reads as a property of the Studio **surface**. What it tests is the
+  **copy table** in `src/lib/hle.ts`. A page interpolating an enum passes it.
+  **Amended** to say what it tests.
+- **Task 2's completion report claimed nothing** about surface-level HLE
+  enforcement — only *"thirteen HLE strings"*, a count. So for `/evaluasi` the
+  coverage was **absent and unremarked**, which is the more honest of the two
+  states and still a gap.
+
+**It was live, not latent.** F06-S03's first run found five real
+interpolations: `{i.bank_type}` on the Studio bank page, `{b.mode}` and
+`{d.mode}` three times on the definitions page, and `{g.category}` on the
+integrity page — rendering `PRACTICE`, `PRE_TEST`, `POST_TEST`,
+`VISIBILITY_CHANGE` raw to a staff reader. **None of those values is in
+`INTERNAL_WORDS`**, so no word list would ever have caught them; the rule had to
+be about shape and provenance instead. All five are fixed, and the enum-bearing
+column list is derived from the migrations so a new enum column is covered the
+day it is created.
+
+**The property worth carrying forward:** the HLE guard operates on the
+product's actual language, not only on enum identifiers — it refused the label
+*"Salah paham yang berulang"* written during this phase because `Salah` is a
+verdict-shaped word. That protects copy written in the UI/UX stream after this
+build closes, and it is a property of the system rather than of this phase.
 
 ---
 
