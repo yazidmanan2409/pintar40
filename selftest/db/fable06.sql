@@ -125,6 +125,20 @@ begin
 
   delete from public.question_health where institution_id in (
     select institution_id from public.org_nodes where id = v_node);
+
+  -- The cohort's own briefings. `open_briefing` is idempotent by design -- two
+  -- briefings racing to READY would give an educator two accounts of one week
+  -- -- so a second suite run finds run one's READY briefing and advances
+  -- nothing, which failed F06-P06 on the second run and nowhere else.
+  --
+  -- ARCHIVING them is not available: the declared edges reach ARCHIVED only
+  -- from READY and REVIEWED, so a briefing still COLLECTING has no exit at all
+  -- (recorded as OQ-4). The harness therefore removes its own rows with the
+  -- guard disabled, exactly as it does for evidence above -- it owns these
+  -- tables and is never present in production.
+  alter table public.briefings disable trigger briefings_state_guard;
+  delete from public.briefings where scope_node_id = v_node;
+  alter table public.briefings enable trigger briefings_state_guard;
 end $$;
 revoke all on function selftest.f06_purge() from public;
 
@@ -302,12 +316,25 @@ revoke all on function selftest.f06_attempt(text, int, uuid, uuid) from public;
 -- keeps it behind definer functions -- so the session list is resolved by a
 -- definer helper and only the RECLASSIFICATION itself is performed as the
 -- reviewer, which is the act that actually requires the capability.
+-- SCOPED TO THE COHORT'S OWN CLASS. The first version selected every OFFICIAL
+-- session presenting the item -- which includes D1's own demonstration journey,
+-- because the cohort draws from D1's bank. It therefore reclassified the
+-- bootstrap learner's evidence out of OFFICIAL, outside the class f06_purge
+-- cleans, and the leftover override then blocked purge_certificates and aborted
+-- the entire db runner: 129 tests failed for one test's trespass.
+--
+-- This is the failure F06-P05 asserts against, committed by the fixture that
+-- sits beside it. Task 2 hit the same shape when fable04's reset swept every
+-- is_official_bootstrap institution.
 create or replace function selftest.f06_official_for(p_item uuid)
 returns table (session_id uuid) language sql security definer
 set search_path = public, pg_temp as $$
   select distinct p.session_id from public.presented_items p
     join public.official_sessions s on s.id = p.session_id
-   where p.item_id = p_item order by 1
+   where p.item_id = p_item
+     and s.class_node_id = (select n.id from public.org_nodes n
+                             where n.name = 'Kohort Analitik F06')
+   order by 1
 $$;
 revoke all on function selftest.f06_official_for(uuid) from public;
 grant execute on function selftest.f06_official_for(uuid) to authenticated;
@@ -652,6 +679,90 @@ begin
     return next;
   end;
 
+  -- =========================================================================
+  -- F06-P06 -- a briefing reaches READY over REAL OFFICIAL evidence, and
+  -- carries the versions it was made from.
+  --
+  -- 0082's terminal block could not reach this branch and said so: a synthetic
+  -- tenant caps at SYNTHETIC by construction, and the catalogue refuses a
+  -- minimum sample of 0, so `have` is 0 and no lowering of the bar is legal.
+  -- The D1 cohort is the only OFFICIAL evidence in this build, which makes this
+  -- the only place the generation path can run at all.
+  --
+  -- §3.4 MATTERS MORE FOR A BRIEFING THAN FOR A REPORT ON A SCREEN. A briefing
+  -- is read later, by somebody who was not present when it was generated and
+  -- cannot ask what the thresholds were that day. So the assertion is not that
+  -- it rendered -- it is that the ARTEFACT records the catalogue version and
+  -- the template version, and that re-evaluating pinned to that version still
+  -- gives the number it was generated with.
+  -- =========================================================================
+  declare
+    c record; v_b uuid; v_out jsonb; v_tmpl uuid; v_cat text; v_ver int;
+    v_mark bigint; v_trail text; v_rep uuid; n_ts int; v_pinned jsonb;
+  begin
+    select * into c from selftest.f06_cohort();
+    perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+
+    select t.id into v_tmpl from public.report_templates t
+     where t.institution_id = c.inst and t.standard_report = 'class_learning_intelligence' limit 1;
+    if v_tmpl is null then
+      insert into public.report_templates (institution_id, standard_report, title_key)
+      values (c.inst, 'class_learning_intelligence', 'laporan.kelas.judul');
+      select t2.id into v_tmpl from public.report_templates t2
+       where t2.institution_id = c.inst and t2.standard_report = 'class_learning_intelligence' limit 1;
+      insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+      values (v_tmpl, 'class.participants', 1, 'hero_stat'),
+             (v_tmpl, 'class.comprehension', 2, 'hero_stat');
+    end if;
+
+    v_b := public.open_briefing(c.class_node);
+
+    select coalesce(max(al.id), 0) into v_mark from public.audit_log al;
+    v_out := public.advance_briefing(v_b);
+    select b2.catalogue_version, b2.template_version, b2.generated_report_id
+      into v_cat, v_ver, v_rep from public.briefings b2 where b2.id = v_b;
+    select string_agg((al.summary ->> 'from_state') || '->' || (al.summary ->> 'to_state'),
+                      ' then ' order by al.id)
+      into v_trail from public.audit_log al
+     where al.action = 'briefing.transition' and al.target_id = v_b::text and al.id > v_mark;
+    select count(distinct al.at) into n_ts from public.audit_log al
+     where al.action = 'briefing.transition' and al.target_id = v_b::text and al.id > v_mark;
+    perform selftest.as_owner();
+
+    id := 'F06-P06'; area := 'doc 04 §8 / §3.4 -- a briefing is an artefact';
+    if v_out ->> 'state' <> 'READY' then
+      ok := false;
+      detail := format('the briefing did not reach READY over %s learners of OFFICIAL evidence: %s',
+                       c.learners, v_out);
+    elsif v_cat is null or v_ver is null or v_rep is null then
+      ok := false;
+      detail := format('a READY briefing records catalogue=%s template_version=%s report=%s: provenance '
+                    || 'is missing from the artefact somebody will read months later',
+                       coalesce(v_cat,'(null)'), coalesce(v_ver::text,'(null)'), coalesce(v_rep::text,'(null)'));
+    elsif v_trail is distinct from 'COLLECTING->GENERATING then GENERATING->READY' then
+      ok := false; detail := format('the recorded walk reads "%s"', coalesce(v_trail,'(nothing)'));
+    elsif n_ts <> 1 then
+      ok := false;
+      detail := 'the two transitions carry different timestamps; the L3 premise the id ordering rests on is gone';
+    else
+      -- and the recorded version REACHES the numbers: re-evaluating pinned to
+      -- it is what makes provenance more than decoration (0073).
+      v_pinned := public.metric_evaluate('class.participants', c.class_node, c.inst, v_cat);
+      if v_pinned ->> 'catalogue_version' <> v_cat then
+        ok := false; detail := format('re-evaluating pinned to %s reported %s', v_cat, v_pinned ->> 'catalogue_version');
+      else
+        ok := true;
+        detail := format('over %s learners of OFFICIAL evidence the briefing walked COLLECTING -> '
+                      || 'GENERATING -> READY as two declared edges and two audit rows ordered by identity '
+                      || '(they share one transaction timestamp), and the ARTEFACT carries catalogue %s and '
+                      || 'template version %s. Re-evaluating pinned to that catalogue answers under it, so '
+                      || 'the recorded version determines the numbers rather than merely naming them',
+                         c.learners, v_cat, v_ver);
+      end if;
+    end if;
+    return next;
+  end;
+
   -- Same ordering on the way out: the cohort's reclassifications reference D1
   -- sessions that purge_certificates is about to remove.
   -- =========================================================================
@@ -723,11 +834,31 @@ begin
        where length(trim(u.a)) > 0;
       v_sig := format('select public.%I(%s)', f.proname, v_args);
 
+      -- EVERY CALL IS ROLLED BACK. Passing REAL ids made these endpoints do real
+      -- work before refusing -- the suite went from 43s to over five minutes,
+      -- which is the visible half. The invisible half is that an endpoint which
+      -- did NOT refuse would have mutated D1 or the synthetic tenant for real,
+      -- inside a test whose whole claim is that it cannot. A probe that would
+      -- damage the thing it is checking is not a probe.
+      --
+      -- The rollback also removes the cost: the work is still done, but nothing
+      -- is written, so the expensive paths stop persisting anything.
       begin
         execute v_sig;
         n_accepted := n_accepted + 1;
         v_bad := v_bad || f.proname || ' (ACCEPTED a call from a dean); ';
+        raise exception 'F06_N02_UNDO';
       exception
+        when raise_exception then
+          if sqlerrm <> 'F06_N02_UNDO' then
+            v_err := sqlerrm;
+            if v_err ~* '(requires|denied|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
+              n_refused := n_refused + 1;
+            else
+              n_other := n_other + 1;
+              v_unreached := v_unreached || f.proname || ', ';
+            end if;
+          end if;
         when undefined_function then
           n_absent := n_absent + 1;
           v_bad := v_bad || f.proname || ' (does not exist: absence read as refusal); ';

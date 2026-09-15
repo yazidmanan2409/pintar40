@@ -188,6 +188,31 @@ Both refuse identically, so nothing about existence leaks either way.
 
 ---
 
+## OQ-4 — a briefing that never gathers enough evidence has no exit
+
+**Belongs to:** the UI/UX stream or a later phase · **Found by:** running the
+FABLE-06 suite twice on one database.
+
+Doc 04 §8's lifecycle is `COLLECTING → GENERATING → READY → REVIEWED →
+ARCHIVED`, and the declared edges implement exactly that: **ARCHIVED is
+reachable only from READY and REVIEWED.** A briefing that never meets the
+catalogue minimum therefore sits at `COLLECTING` permanently. There is no
+`COLLECTING → ARCHIVED`, and adding one was not done here because the frozen
+lifecycle does not have it and inventing an edge at phase end is how a state
+machine stops meaning anything.
+
+**Why it matters in practice, not in theory.** A class that never finishes its
+post-test leaves a briefing collecting forever. Nothing breaks — the row is
+inert and `advance_briefing` keeps returning "not yet" — but an educator's inbox
+accumulates entries that will never resolve, and the product has no way to say
+"this one is not coming".
+
+**What would settle it:** a product decision about whether an unfinished
+briefing is closed, expires, or is simply hidden after a period — and if closed,
+a declared edge for it. It is a lifecycle question, not a defect.
+
+---
+
 ## OQ-3 — Five mutating STAFF endpoints with no direct authorization reference
 
 **Belongs to:** the final release audit · **Observed, not investigated.**

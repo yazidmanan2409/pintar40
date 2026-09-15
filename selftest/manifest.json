@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 20,
+  "version": 21,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -916,6 +916,11 @@
       "id": "F06-N02",
       "runner": "db",
       "proves": "INV-19 in the API rather than the UI: a dean is refused every mutating STAFF endpoint that checks a capability DEAN lacks, and READS successfully through the same session so the refusals are not simply an absent session. The endpoint set is DERIVED three ways -- role_capabilities for the denied capabilities, client_rpc_registry for client exposure, pg_proc.provolatile for mutation -- so a new privileged RPC joins it the day it is created, with a floor so an endpoint that deletes its own capability check fails rather than leaving the set. Refusal is distinguished from absence: undefined_function and an uncallable probe are failures, not passes. BOUNDED: 8 of 18 refuse with an AUTHORIZATION error; 10 refuse earlier at argument resolution or value validation and are NAMED in the verdict. For those 10 the assertion proves refusal but not authorization, so a capability check weakened rather than removed would not be detected -- see RF-2"
+    },
+    {
+      "id": "F06-P06",
+      "runner": "db",
+      "proves": "a briefing reaches READY over the D1 cohort's real OFFICIAL evidence and the ARTEFACT carries the catalogue version and template version it was made from (\u00a73.4). Walks two declared edges, leaving two audit rows in the LIVE DATABASE ordered by identity because both share one transaction timestamp (L3). Re-evaluating pinned to the recorded catalogue answers under it, so the version determines the numbers rather than naming them. 0082's terminal block could not reach this branch -- a synthetic tenant caps at SYNTHETIC and the catalogue refuses a minimum sample of 0 -- and says so rather than faking evidence"
     }
   ]
 }
