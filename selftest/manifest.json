@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 14,
+  "version": 15,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -876,6 +876,21 @@
       "id": "F06-P02",
       "runner": "db",
       "proves": "every item_type_registry.sanitizer_allowlist is inside the declared safe set {item_type, stem, stimulus, opsi}, enforced by a CHECK rather than by convention, so widening the learner projection requires a migration; no projection is empty; and sanitized_item and session_paper both authorize before disclosing anything, existence included"
+    },
+    {
+      "id": "F06-P03",
+      "runner": "db",
+      "proves": "Question Health over REAL OFFICIAL evidence: 160 learners in the D1 bootstrap tenant drive one item to correctness 1.0 and another to 0.0; both reach SIGNAL_RAISED and no other item does. Asserts the least-sampled item's actual count against the catalogue threshold, so a run whose draw under-samples says so rather than mis-measuring. The migration probes proved the mechanism; this proves the mechanism over evidence, which is where 0076's illegal birth state was found"
+    },
+    {
+      "id": "F06-P04",
+      "runner": "db",
+      "proves": "evidence withdrawn by an integrity reviewer drives the downward pair on real data: 47 sessions reclassified out of OFFICIAL drop an item from 76 responses to 29, and it walks SIGNAL_RAISED -> OBSERVING -> INSUFFICIENT_EVIDENCE as two declared edges and two audit rows ordered by identity. enforce_evidence_override is INSERT-only and refuses promotion, so the OFFICIAL pool only shrinks and a state resting on withdrawn evidence is the failure these edges exist to prevent"
+    },
+    {
+      "id": "F06-P05",
+      "runner": "db",
+      "proves": "the analytics cohort is isolated inside the one tenant that can produce OFFICIAL evidence: it has its own CLASS node and assignment, the bootstrap learner remains outside it with its own class and certificate, and the cohort issues no certificates. D1's single enrolment is the below-threshold case only if that separation holds, so it is asserted rather than assumed"
     }
   ]
 }
