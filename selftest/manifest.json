@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 12,
+  "version": 14,
   "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
   "entry": "npm run selftest (selftest/run.ts) \u2014 runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -857,6 +857,25 @@
       "runner": "static",
       "proves": "baseline integrity by content, not by marker: every document listed in docs/rebuild/BASELINE-MANIFEST.json is byte-identical to the frozen baseline, every file in a governed directory is listed by the manifest, each document's own amendment marker agrees with its manifest entry, and no ungoverned second copy of a governed document exists anywhere in the repository. Retires DOC-S01, which counted markers \u2014 doc 03 carried the right marker while still stale, and three of eighteen documents carry none"
     },
-    "F06-S01"
+    {
+      "id": "F06-S01",
+      "runner": "static",
+      "proves": "ADR-0021: every function created in a migration authored since the ADR is revoked from EXECUTE on PUBLIC in that same migration, by name or by a family pattern whose resulting count is asserted. EXECUTE is granted to PUBLIC by default and `alter default privileges` cannot revoke it, so 49 migrations have carried the revoke by convention and it has been forgotten twice. The check is order-aware (a revoke before the create closes nothing) and exempts a function dropped in the same migration, which never commits"
+    },
+    {
+      "id": "F06-P01",
+      "runner": "db",
+      "proves": "sanitized_item executes to a successful return and the projection contains the stem and options only: the item's real option rationale appears nowhere in the output, no correctness-shaped key is present, no option carries its own label, and every key is inside the declared safe set. Found by the happy-path sweep, which showed this function had never run successfully under any migration, seed or test. Asserts absence of the real secret, not presence of a return"
+    },
+    {
+      "id": "F06-N01",
+      "runner": "db",
+      "proves": "a presented item belonging to another person and a uuid that does not exist produce the identical refusal from sanitized_item, so existence is not an oracle. The previous body raised 'unknown presented item' before authorizing \u2014 the same check-then-authorize inversion 0073 removed from metric_evaluate"
+    },
+    {
+      "id": "F06-P02",
+      "runner": "db",
+      "proves": "every item_type_registry.sanitizer_allowlist is inside the declared safe set {item_type, stem, stimulus, opsi}, enforced by a CHECK rather than by convention, so widening the learner projection requires a migration; no projection is empty; and sanitized_item and session_paper both authorize before disclosing anything, existence included"
+    }
   ]
 }

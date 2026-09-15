@@ -6,7 +6,20 @@ with `track_functions='all'` set **before** the replay so migration terminal
 blocks count.
 
 **Result: 69 of 82 registered client RPCs have executed to a successful return.
-13 have not.**
+13 have not.** Measured at `track_functions = all`, commit `07a08e7`.
+
+**The `track_functions` value is load-bearing and must be stated with the
+number.** The setting has three values, and **`pl` tracks only
+procedural-language functions**. Twelve registry entries are `language sql`,
+three of them authorization-shaped — `authorized_canonical_items`,
+`may_read_lesson_media`, `session_is_mine`. At `pl` all twelve would report zero
+whether or not they ran, and the 13 would be worthless. This sweep ran at
+`all`, confirmed by `show track_functions` in the measuring session.
+
+**Planner inlining — checked, and it does not apply here.** A plain SQL function
+can be inlined into the calling plan and then never counted. Every function in
+`client_rpc_registry` is `SECURITY DEFINER`, and SECURITY DEFINER functions are
+never inlined. The hazard is real in general and absent from this registry.
 
 ## Why this was done
 
@@ -29,12 +42,12 @@ has never completed successfully under any migration, seed or test in this build
 | LEARNER | `my_cycle_state` | **(2) reachable, never exercised** | the cycle is driven end to end; this read of it is not |
 | LEARNER | `pause_session` | **(2) reachable, never exercised** | pause/resume is a whole lifecycle branch with no success path |
 | LEARNER | `resume_session` | **(2) reachable, never exercised** | as above |
-| LEARNER | `sanitized_item` | **(2) reachable, never exercised** | **the learner-facing item projection** — the function that decides what a learner may see of a question |
+| LEARNER | `sanitized_item` | **CLOSED — now (1)** | **the learner-facing item projection.** Migration 0074 and `F06-P01` close it: the probe executes it to a successful return and asserts the item's real rationale text appears nowhere in the output. Read in full first and found correct; the finding was that nothing said so |
 | LEARNER | `session_state` | **(2) reachable, never exercised** | `may_continue_session` runs 98×; this sibling read never returns |
 | PLATFORM | `mode_policy` | **(2) reachable, never exercised** | a pure lookup; `assert_mode_policy_complete` asserts the table, never the accessor |
 | STAFF | `ingest_structured_package` | **(2) reachable, never exercised** | `propose_easy_upload_mapping` runs once; the ingest it precedes does not |
 | STAFF | `record_integrity_review` | **(2) reachable, never exercised** | signals are recorded 2×; the human review of one never is |
-| STAFF | `record_question_health_review` | **(3) → (2) in 0074** | needs a `question_health` row at `SIGNAL_RAISED`. There are **0 rows** today, so no success path exists to execute. 0074's computation creates the first, which makes this reachable |
+| STAFF | `record_question_health_review` | **(3) → (2) in the Question Health migration** | needs a `question_health` row at `SIGNAL_RAISED`. There are **0 rows** today, so no success path exists to execute. The computation creates the first, which makes this reachable |
 | STAFF | `transfer_reject` | **(2) reachable, never exercised** | `transfer_request`, `transfer_authorize` and `transfer_execute` each run once; the refusal branch never does |
 
 **Twelve are outcome (2)** — reachable in the verification environment and simply
