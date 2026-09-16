@@ -31,6 +31,24 @@
   border-bottom: 1px solid var(--line);
   background: var(--surface-1);
 }
+/* ------------------------------------------------------------------- the mark
+   THE SUPPLIED ARTWORK, UNTOUCHED. 766 x 429, fully opaque, two full-bleed
+   bands — pale above, dark below. It carries its own ground, so it reads as a
+   block on any surface; that is the logo, not a mistake to design around, and
+   clear space is what makes a block read as a mark rather than as a stray
+   image.
+
+   HEIGHT ONLY, NEVER WIDTH. The intrinsic ratio supplies the width, so there
+   is no pair of values here that could drift apart and squash the letterforms.
+   UX1-BRAND-01 fails if this rule ever sets both. */
+.pin-merek {
+  height: var(--logo-height);
+  width: auto;
+  display: block;
+  flex: none;
+}
+.pin-merek-standalone { height: var(--logo-height-standalone); }
+
 .pin-wordmark {
   font-size: var(--type-fine); font-weight: var(--weight-strong);
   letter-spacing: var(--tracking-wordmark);
@@ -384,6 +402,10 @@
 @media (max-width: 560px) {
   .pin-top { flex-wrap: wrap; height: auto; padding: 0 var(--space-4); gap: 0 var(--space-4); }
   .pin-top .pin-wordmark { padding: 14px 0; }
+  /* One step down on a phone: the header row here carries only the mark and
+     the language switch, and 36px made the row taller than the tab strip below
+     it without buying any legibility. */
+  .pin-top .pin-merek { height: var(--logo-height-phone); margin-block: 10px; }
   .pin-top .pin-lang { margin-left: auto; }
   .pin-top .pin-sub { display: none; }
   .pin-tabs { order: 10; width: 100%; gap: 0; height: 44px; border-top: 1px solid var(--line); }

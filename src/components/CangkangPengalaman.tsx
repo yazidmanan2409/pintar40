@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { t, type Locale } from "@/lib/hle";
 import PengalihBahasa from "./PengalihBahasa";
+import MerekPintar from "./MerekPintar";
 
 /**
- * The Experience shell: a wordmark, where you are, and the language switch.
+ * The Experience shell: the mark, where you are, and the language switch.
  *
  * TWO KINDS, AND THE DIFFERENCE MATTERS. A signed-in learner gets the tabs,
  * because they have somewhere to go. A stranger holding a verification link
@@ -26,7 +27,7 @@ export default function CangkangPengalaman({
   if (kind === "public") {
     return (
       <header className="pin-top pin-shell pin-noprint">
-        <span className="pin-wordmark">{t("app.name", "public", { locale })}</span>
+        <MerekPintar />
         <span className="pin-sub">{t("verifikasi.situs", "public", { locale })}</span>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
@@ -36,7 +37,7 @@ export default function CangkangPengalaman({
 
   return (
     <header className="pin-top pin-shell pin-noprint">
-      <span className="pin-wordmark">{t("app.name", "learner", { locale })}</span>
+      <MerekPintar />
       <nav className="pin-tabs" aria-label={t("app.name", "learner", { locale })}>
         <Link href="/belajar" aria-current={current === "belajar" ? "page" : undefined}>
           {t("nav.belajar", "learner", { locale })}

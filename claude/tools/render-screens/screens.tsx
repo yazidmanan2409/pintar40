@@ -16,6 +16,7 @@ import { AngkaBerdiri, KartuKetiadaan, BarisKesiapan, BarisLingkup, type Envelop
 import HalamanKomitmen from "@/components/HalamanKomitmen";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import KakiPintar from "@/components/KakiPintar";
+import MerekPintar from "@/components/MerekPintar";
 
 const OUT = process.argv[2];
 if (!OUT || !existsSync(join(OUT, "pintar.css"))) {
@@ -65,7 +66,7 @@ function Shell({ locale, kind = "learner", current }: {
   if (kind === "public") {
     return (
       <header className="pin-top pin-shell pin-noprint">
-        <span className="pin-wordmark">{s("app.name", locale, "public")}</span>
+        <MerekPintar />
         <span className="pin-sub">{s("verifikasi.situs", locale, "public")}</span>
         <span className="pin-spacer" />{lang}
       </header>
@@ -73,7 +74,7 @@ function Shell({ locale, kind = "learner", current }: {
   }
   return (
     <header className="pin-top pin-shell pin-noprint">
-      <span className="pin-wordmark">{s("app.name", locale)}</span>
+      <MerekPintar />
       <nav className="pin-tabs" aria-label="PINTAR">
         <a href="#" aria-current={current === "belajar" ? "page" : undefined}>{s("nav.belajar", locale)}</a>
         <a href="#" aria-current={current === "sertifikat" ? "page" : undefined}>{s("nav.sertifikat", locale)}</a>

@@ -152,6 +152,15 @@
   --leading-tight: 1.15;
   --leading-body: 1.5;
 
+  /* the mark. Heights, never widths: the logo's own proportions supply the
+     rest, so no edit here can squash the artwork. Chosen optically against the
+     56px header rather than picked off the spacing scale — below 32 the lower
+     band's reversed SELALU stops resolving, and above 40 the block starts
+     behaving like a masthead instead of a wordmark. */
+  --logo-height: 36px;
+  --logo-height-phone: 32px;
+  --logo-height-standalone: 44px;
+
   /* the page gutter. Named, because the Experience shell cancels it by name
      to run its header full-bleed — a negative margin that references the same
      token can never drift from the padding it undoes. */

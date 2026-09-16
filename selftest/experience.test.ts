@@ -15,6 +15,7 @@
  *   UX1-S1-QR-01           the printed QR really decodes to the link
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
 import { Checks, type SelfTest } from "./lib";
@@ -804,6 +805,93 @@ export const experienceTests: SelfTest[] = [
           "so they cannot diverge between the two languages; the protocol sits in the href and not in the " +
           "visible text; and no mount that can reach a printed certificate renders it, because a credential " +
           "carries its issuing institution's identity and not its software vendor's",
+      );
+    },
+  },
+  {
+    id: "UX1-BRAND-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const rel = "public/brand/pintar-selalu-logo.png";
+      const file = join(repoRoot, rel);
+      c.expect(existsSync(file), `the supplied logo asset is missing: ${rel}`);
+      if (!existsSync(file)) return c.verdict("the mark");
+
+      // 1. IT IS THE SUPPLIED FILE, BYTE FOR BYTE. Not redrawn, not recoloured,
+      //    not cropped, not re-encoded, not "optimised". A digest is the only
+      //    check that catches a well-meant recompression, which is exactly the
+      //    kind of change that looks like nothing and alters artwork somebody
+      //    else owns.
+      const bytes = readFileSync(file);
+      const SUPPLIED_SHA256 = "0e85e80fb232b299016f3d363102823686a7489e86cb957cfbe0e48128a86463";
+      const sha = createHash("sha256").update(bytes).digest("hex");
+      c.expect(
+        sha === SUPPLIED_SHA256,
+        `the logo asset is not the file Yazid supplied:\n  expected ${SUPPLIED_SHA256}\n  found    ${sha}`,
+      );
+
+      // 2. and its intrinsic geometry, read from the PNG header rather than
+      //    trusted, so a resize is caught even if somebody updates the digest
+      c.expect(bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
+        "the logo asset is not a PNG");
+      const w = bytes.readUInt32BE(16);
+      const h = bytes.readUInt32BE(20);
+      c.expect(w === 766 && h === 429, `the artwork is ${w}x${h}; the supplied file is 766x429`);
+      const ratio = w / h;
+
+      // 3. THE RENDERING CANNOT DISTORT IT. The rule sets a height and never a
+      //    width; the intrinsic ratio supplies the rest. A rule that set both
+      //    could squash the letterforms, and no amount of care in review
+      //    catches a squash of a few per cent.
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const rule = /\.pin-merek\s*\{([^}]*)\}/.exec(css);
+      c.expect(rule !== null, "there is no .pin-merek rule to check");
+      if (rule) {
+        c.expect(/height:\s*var\(--logo-height\)/.test(rule[1]), ".pin-merek does not take its height from a token");
+        c.expect(/width:\s*auto/.test(rule[1]), ".pin-merek does not leave its width to the artwork");
+        // Every width declaration in the rule must be `auto`. A negative
+        // lookahead here reads well and is wrong: `\s*` backtracks to zero and
+        // the guard passes on `width: auto` itself, so the check never fires.
+        const widths = [...rule[1].matchAll(/width:\s*([^;]+)/g)].map((m) => m[1].trim());
+        c.expect(
+          widths.every((v) => v === "auto"),
+          `.pin-merek sets a width (${widths.join(", ")}); the artwork would be distorted`,
+        );
+      }
+      const component = code(readFileSync(join(repoRoot, "src", "components", "MerekPintar.tsx"), "utf8"));
+      c.expect(!/style=\{\{/.test(component), "the mark carries an inline style; sizing belongs in the token rule");
+      c.expect(/alt=\{NAMA\}/.test(component) && /NAMA = "PINTAR SELALU"/.test(component),
+        "the mark does not carry its own name as alternative text");
+      // the intrinsic attributes must match the file, or the reserved box is
+      // the wrong shape and the header shifts as the image lands
+      c.expect(new RegExp(`INTRINSIC_WIDTH = ${w}\\b`).test(component)
+        && new RegExp(`INTRINSIC_HEIGHT = ${h}\\b`).test(component),
+        `the component's intrinsic dimensions do not match the file's ${w}x${h}`);
+
+      // 4. IT IS NOT ON THE CREDENTIAL. The certificate's issuer is the
+      //    INSTITUTION. A software vendor's mark on the same sheet would be a
+      //    second claimant to the provenance of the evidence.
+      const card = readFileSync(
+        join(repoRoot, "src", "components", "sertifikat", "KartuSertifikat.tsx"), "utf8");
+      c.expect(!/MerekPintar|pin-merek|brand\//.test(card),
+        "the credential card renders the PINTAR SELALU mark; the certificate's issuer is the institution");
+      const sheet = /\.pin-sheet\b[^{]*\{([^}]*)\}/.exec(css);
+      c.expect(sheet === null || !/brand\//.test(sheet[1]), "the printed sheet references the brand asset");
+
+      // 5. and every surface that shows it is an application surface
+      const mounts = walk(join(repoRoot, "src"))
+        .filter((f) => /\.tsx$/.test(f))
+        .filter((f) => /<MerekPintar/.test(readFileSync(f, "utf8")))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      c.expect(mounts.length >= 2, `the mark is mounted on only ${mounts.length} surface(s)`);
+
+      c.note(`${w}x${h}, ratio ${ratio.toFixed(4)}, ${bytes.length} bytes, digest verified, ${mounts.length} mount(s)`);
+      return c.verdict(
+        "the mark rendered by the application is the supplied artwork in public/brand/pintar-selalu-logo.png " +
+          "byte for byte -- verified by sha256, so a recompression or a resize fails -- its intrinsic geometry " +
+          "is read from the PNG header rather than trusted, the style rule sets a height and never a width so " +
+          "the letterforms cannot be squashed, and it appears on no surface that prints a credential",
       );
     },
   },

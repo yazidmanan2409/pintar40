@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
 import KakiPintar from "./KakiPintar";
+import MerekPintar from "./MerekPintar";
 
 /**
  * HalamanPenolakan — ONE refusal page, for unauthorized, nonexistent and
@@ -35,7 +36,7 @@ export default function HalamanPenolakan({
   return (
     <div className="pin-col">
       <section className="pin-refusal">
-        <span className="pin-wordmark">{t("app.name", "public", { locale })}</span>
+        <MerekPintar standalone />
         <h1>{s(messageKey)}</h1>
         <p className="pin-intro">{s("tolak.arti")}</p>
         <Link className="pin-btn" href={backHref}>{s(backKey)}</Link>
