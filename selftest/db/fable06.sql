@@ -1886,6 +1886,113 @@ begin
     return next;
   end;
 
+  -- =========================================================================
+  -- Q12-N01 -- A LEARNER CAN FIND A QUICK ASSESSMENT.
+  --
+  -- Execution was authorized and discovery was impossible. my_learning_assignments()
+  -- reaches assessment_assignments only through learning_assignment_id and projects
+  -- PRE_TEST and POST_TEST by name; launch_quick_assessment() creates an assignment
+  -- with a node and no learning assignment; and the table's SELECT policy needs
+  -- CAN_DRAFT or CAN_ASSIGN_LEARNING, which no learner holds. The id existed, was
+  -- startable, and could not be learned.
+  --
+  -- This drives the whole doorway on the seeded stack: an educator launches through
+  -- the real entry point, the learner in that class finds it through the new one and
+  -- through nothing else, a learner of another tenant does not, and the id starts a
+  -- session through the SAME start_learning_session() every other mode uses. Every
+  -- row is rolled back.
+  -- =========================================================================
+  declare
+    v_inst uuid; v_node uuid; v_module uuid; v_assign uuid; v_session uuid;
+    n_old int; n_rls int; n_new int; n_other int; v_bad text := ''; v_mode text;
+  begin
+    ok := true;
+    begin
+      perform selftest.as_owner();
+      select i.id into v_inst from public.institutions i where i.slug = 'pintar-bootstrap-official';
+      select o.id into v_node from public.org_nodes o
+       where o.institution_id = v_inst and o.kind = 'CLASS' order by o.created_at, o.id limit 1;
+      select m.id into v_module from public.modules m
+        join public.courses c on c.id = m.course_id
+       where c.institution_id = v_inst order by m.created_at, m.id limit 1;
+
+      -- the real educator entry point, unchanged
+      perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+      select q.assessment_assignment_id into v_assign
+        from public.launch_quick_assessment(v_node, v_module, 5, 20) q;
+      perform selftest.as_owner();
+      if v_assign is null then
+        ok := false; v_bad := v_bad || 'the educator launched nothing; ';
+      end if;
+
+      -- the learner of that class
+      perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+      select count(*) into n_old from public.my_learning_assignments() m
+       where m.pre_test_assignment = v_assign or m.post_test_assignment = v_assign;
+      select count(*) into n_rls from public.assessment_assignments a where a.id = v_assign;
+      select count(*) into n_new from public.my_open_assessments() o
+       where o.assessment_assignment_id = v_assign;
+      select o.mode::text into v_mode from public.my_open_assessments() o
+       where o.assessment_assignment_id = v_assign;
+      perform selftest.as_owner();
+
+      if n_old <> 0 then
+        ok := false; v_bad := v_bad || 'my_learning_assignments() exposed a node-scoped assignment; ';
+      end if;
+      if n_rls <> 0 then
+        ok := false; v_bad := v_bad || 'the learner read assessment_assignments directly; ';
+      end if;
+      if n_new <> 1 then
+        ok := false; v_bad := v_bad || format('the in-scope learner found %s of 1; ', n_new);
+      end if;
+      if coalesce(v_mode, '') <> 'QUICK' then
+        ok := false; v_bad := v_bad || format('the doorway reported mode %s; ', coalesce(v_mode,'<null>'));
+      end if;
+
+      -- a learner of another tenant
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      select count(*) into n_other from public.my_open_assessments() o
+       where o.assessment_assignment_id = v_assign;
+      perform selftest.as_owner();
+      if n_other <> 0 then
+        ok := false; v_bad := v_bad || 'a learner of another institution discovered it; ';
+      end if;
+
+      -- and the discovered id starts through the existing path
+      perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+      begin
+        select public.start_learning_session(v_assign) into v_session;
+      exception when others then
+        ok := false; v_bad := v_bad || 'the discovered id did not start: ' || left(sqlerrm, 60) || '; ';
+      end;
+      perform selftest.as_owner();
+      if v_session is null and v_bad = '' then
+        ok := false; v_bad := v_bad || 'the discovered id started nothing; ';
+      end if;
+
+      raise exception 'Q12_N01_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'Q12_N01_UNDO' then
+        ok := false; v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 90) || '; ';
+      end if;
+    end;
+
+    id := 'Q12-N01'; area := 'Q-12 -- a learner can discover a permitted node-scoped assessment';
+    if not ok then
+      detail := v_bad;
+    else
+      detail := 'an educator launches a Quick Assessment over a class through launch_quick_assessment; '
+             || 'the learner of that class finds it through my_open_assessments() and through NOTHING else '
+             || '-- my_learning_assignments() does not carry it and the table itself refuses the read under '
+             || 'RLS -- a learner of another institution does not find it, and the discovered id opens a '
+             || 'session through the same start_learning_session() every other mode uses. The doorway '
+             || 'decides nothing: it returns the assignments may_start_assessment() accepts, which is the '
+             || 'predicate start_learning_session() calls. Every row rolled back';
+    end if;
+    return next;
+  end;
+
   perform selftest.f06_purge();
   perform selftest.purge_certificates();
   id := 'F06-DONE'; area := 'suite'; ok := true; detail := 'FABLE-06 suite complete';

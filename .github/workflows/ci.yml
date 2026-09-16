@@ -890,6 +890,24 @@ jobs:
           SQL
           red F06-N06 'accepted a DEAN holding no capability' /tmp/f06-3f.sql
 
+          # 3g. Q-12: the learner doorway must add no authority. It returns what
+          #     may_start_assessment() accepts; stop deferring to that predicate
+          #     and a learner of another tenant sees someone else's class work.
+          cat > /tmp/f06-3g.sql <<'SQL'
+          begin;
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.my_open_assessments()'::regprocedure);
+            src := replace(orig, 'and (select s.ok from public.may_start_assessment(aa.id) s)', '');
+            if src = orig then raise exception 'the plant did not reach my_open_assessments'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'Q12-N01';
+          rollback;
+          SQL
+          red Q12-N01 'a learner of another institution discovered it' /tmp/f06-3g.sql
+
           # 4. the provenance constraint as 0082 wrote it -- catalogue version and
           #    report id required, template id and template version not. Found by
           #    the second eye (G1) and repaired by 0083; planted here so the

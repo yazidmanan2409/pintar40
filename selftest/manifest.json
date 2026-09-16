@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 29,
+  "version": 30,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -971,6 +971,11 @@
       "id": "F06-N06",
       "runner": "db",
       "proves": "L3-F03: the four authoring endpoints authorize before they mutate. run_mcq_quality, validate_course_content, ingest_structured_package and propose_easy_upload_mapping each refuse an actor holding no capability with an error NAMING CAN_DRAFT, and do it before the delete each of them opens with -- a finding row planted first is still there afterwards. An actor that does hold CAN_DRAFT is accepted and clears it, so the guard guards rather than refusing everyone. Found by Layer-3 as L3-F03, where a capability-less DEAN of one institution ran run_mcq_quality against another institution's course and deleted that tenant's unacknowledged quality findings (INV-19 and INV-13); repaired by migration 20260919090000. This test builds its own institution, actors, course and ingest batch and rolls them back, which is what lets it drive the two ingestion endpoints that no seeded row reaches -- the gap F06-N02 carries as bounded for them."
+    },
+    {
+      "id": "Q12-N01",
+      "runner": "db",
+      "proves": "Q-12: a learner can DISCOVER a node-scoped assessment they are already authorized to start. An educator launches a Quick Assessment over a class through launch_quick_assessment; the learner of that class finds it through public.my_open_assessments() and through nothing else -- my_learning_assignments() reaches assessment_assignments only through learning_assignment_id and projects PRE_TEST and POST_TEST by name, and the table's own SELECT policy needs CAN_DRAFT or CAN_ASSIGN_LEARNING, which no learner holds; a learner of another institution does not find it; and the discovered id opens a session through the same start_learning_session() every other mode uses, so execution is unchanged. The doorway adds no authority: it returns the unbound assignments may_start_assessment() accepts, which is the predicate start_learning_session() itself calls, so one rule answers both. Every row is rolled back. Watched to fail: removing the may_start_assessment filter makes a learner of another tenant discover it and turns this red."
     }
   ]
 }
