@@ -775,8 +775,11 @@ jobs:
           #    rather than by granting the capability -- granting it would take
           #    the endpoint OUT of the derived set, which is the vacuity this
           #    gate's floor guard exists for and not the property under test.
-          #    The capability literal stays in the body, so the endpoint is
-          #    still derived into the set and has to fail INSIDE it.
+          #    The capability literal stays in the body, which under the OLD
+          #    prosrc-derived population was the only way this plant could be
+          #    seen at all. It is kept because a neutered check is still a real
+          #    regression -- but after L3-F02 it is NOT evidence that a DELETED
+          #    check is caught; 3b below is.
           cat > /tmp/f06-3.sql <<'SQL'
           begin;
           do $d$
@@ -791,7 +794,80 @@ jobs:
           select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-N02';
           rollback;
           SQL
-          red F06-N02 'ACCEPTED a call from a dean' /tmp/f06-3.sql
+          red F06-N02 'open_briefing (ACCEPTED' /tmp/f06-3.sql
+
+          # 3b. L3-F02: the plant the mechanism above could NOT catch. Layer-3
+          #     DELETED save_certificate_template's capability check outright.
+          #     The old derivation read capability names out of pg_proc.prosrc,
+          #     so the endpoint left the population it was supposed to fail in,
+          #     the floor of 18 against a set of 21 absorbed the loss, and the
+          #     whole 173-entry contract stayed green with a DEAN able to write.
+          #     The population is now declared in client_rpc_registry, which
+          #     `create or replace` does not touch. Plant 3 above is kept, but it
+          #     is NOT evidence for this case: it deliberately leaves the
+          #     capability literal in the body.
+          cat > /tmp/f06-3b.sql <<'SQL'
+          begin;
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.save_certificate_template(uuid,uuid,uuid,text,text)'::regprocedure);
+            src := replace(orig,
+              '  if not public.can_in_institution(''CAN_PUBLISH'', p_institution) then' || chr(10) ||
+              '    raise exception ''the certificate template manager requires CAN_PUBLISH in the owning institution'';' || chr(10) ||
+              '  end if;' || chr(10), '');
+            if src = orig then raise exception 'the plant did not reach the save_certificate_template body'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-N02';
+          rollback;
+          SQL
+          red F06-N02 'ACCEPTED' /tmp/f06-3b.sql
+
+          # 3c. L3-F02, the cardinality trick: three guards deleted at once. The
+          #     old floor of 18 against 21 passed exactly this. Membership, not
+          #     cardinality, is the closure now.
+          cat > /tmp/f06-3c.sql <<'SQL'
+          begin;
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.run_mcq_quality(uuid)'::regprocedure);
+            src := replace(orig,
+              '  if not public.can_in_institution(''CAN_DRAFT'', v_inst) then' || chr(10) ||
+              '    raise exception ''running the MCQ quality pass requires CAN_DRAFT in the owning institution'';' || chr(10) ||
+              '  end if;' || chr(10), '');
+            if src = orig then raise exception 'the plant did not reach run_mcq_quality'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-N02';
+          rollback;
+          SQL
+          red F06-N02 'run_mcq_quality (ACCEPTED' /tmp/f06-3c.sql
+
+          # 3d. L3-F02: a DECLARATION stricter than the implementation. The
+          #     endpoint still refuses a dean, so nothing about INV-19 changes --
+          #     but the actor the declaration excludes is let in, which is the
+          #     registry telling the truth about a contract the code does not keep.
+          cat > /tmp/f06-3d.sql <<'SQL'
+          begin;
+          update public.client_rpc_registry set authorization_requirement = 'CAN_PUBLISH'
+           where function_name = 'run_mcq_quality';
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-N02';
+          rollback;
+          SQL
+          red F06-N02 'declared CAPABILITY CAN_PUBLISH' /tmp/f06-3d.sql
+
+          # 3e. L3-F02: the registry escape. Removing an endpoint's declaration
+          #     row takes it out of the population -- and trips the grant-derived
+          #     closure that has been there since 0060, surfaced by F06-P08.
+          cat > /tmp/f06-3e.sql <<'SQL'
+          begin;
+          delete from public.client_rpc_registry where function_name = 'save_certificate_template';
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'F06-P08';
+          rollback;
+          SQL
+          red F06-P08 'no exposure class' /tmp/f06-3e.sql
 
           # 4. the provenance constraint as 0082 wrote it -- catalogue version and
           #    report id required, template id and template version not. Found by

@@ -263,8 +263,12 @@ begin
   update public.courses set status='APPROVED', reviewed_by_person_id=v_hod where id=v_course;
   perform selftest.as_owner();
 
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   perform public.validate_course_content(v_course);
+  perform selftest.as_owner();
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   perform public.run_mcq_quality(v_course);
+  perform selftest.as_owner();
   select pr.status, pr.blockers into v_status, v_blockers from public.publish_readiness(v_course) pr;
   if v_status <> 'READY' then
     raise exception 'the school-owned fixture is not publishable (%): % -- fix the fixture, never the gate',

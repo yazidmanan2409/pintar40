@@ -108,6 +108,17 @@ F06-N02 calls every mutating STAFF endpoint a dean is denied. To reach the
 authorization check rather than an argument error it passes **real ids**. Each
 call is wrapped in a subtransaction that is rolled back.
 
+> **Corrected after Layer-3 (L3-F02).** As written for FABLE-06 this section
+> described a population derived from capability names inside `pg_proc.prosrc`,
+> covering 21 endpoints with a floor of 18. Layer-3 deleted one capability check
+> and the endpoint left its own test: the derived set fell to 20, the floor
+> absorbed it, and the full contract stayed green with a DEAN able to write.
+> The population is now **declared** in `client_rpc_registry`
+> (`authorization_kind`, `authorization_requirement`; migration 20260919100000)
+> and covers **31** endpoints. There is no floor. The old floor was a reasonable
+> partial guard against an assertion deleting itself; it was never membership
+> completeness, and this document said it was.
+
 That rollback is not a tidiness measure. If any endpoint had *accepted* the call,
 the probe would have performed a real mutation — inside a test whose entire claim
 is that it cannot. **The probe was safe only because the property it was testing
@@ -116,8 +127,10 @@ a probe whose safety depends on the invariant under test proves nothing on the
 day the invariant breaks, which is the only day it matters.
 
 *Falsifier:* the probe now raises and rolls back on the accepting path
-explicitly, and the CI leg `db-fable06-gates` plants an endpoint that accepts a
-dean and requires F06-N02 to report `ACCEPTED a call from a dean`.
+explicitly, and the CI leg `db-fable06-gates` plants five separate defects and
+requires F06-N02 (or F06-P08) to reject each: a neutered check that keeps its
+capability literal, a **deleted** check, three deleted checks at once, a
+declaration stricter than its implementation, and a deleted registry row.
 
 ### 1.5 Count errors, on both sides of the review
 
@@ -258,10 +271,15 @@ build should keep:
    (F06-N02), the declared-assertion set (F06-P08), and the invariant list
    (F06-S05). Each replaced a hand-maintained list that was green **because it
    was short**.
-2. **Give every derived set a floor.** A derived check has a failure mode a
-   written list does not: deleting the thing removes it from the set instead of
-   failing inside it. F06-N02 and F06-P08 both carry a measured floor for
-   exactly that.
+2. **A floor is not membership.** A derived check has a failure mode a written
+   list does not: deleting the thing removes it from the set instead of failing
+   inside it. F06-P08 carries a measured floor for that. F06-N02 carried one too
+   — and Layer-3 showed that a floor of 18 against a population of 21 tolerates
+   three silent deletions, because a floor counts members and cannot identify
+   them (L3-F02). Where the thing being deleted is the thing under test, the
+   expected population has to be **declared somewhere the implementation cannot
+   reach**, and completeness of that declaration enforced separately. F06-N02
+   now derives its population from `client_rpc_registry` and has no floor.
 3. **Watch the assertion fail.** Eleven red-case CI legs now plant a real defect
    and require the named check to reject it for the named reason.
 
@@ -447,7 +465,7 @@ NOT YET VERIFIED however plausible it is.
 | A refusal discloses nothing about whether the thing exists | **VERIFIED** | `F06-N01` | Compares the refusal for a real item owned by someone else against the refusal for a fabricated uuid and fails if they differ. CI plants two distinct refusals and requires `existence is an oracle`. |
 | The learner projection's shape is closed by the database, not by convention | **VERIFIED** | `F06-P02` | `assert_learner_projection_is_closed()` over the declared allowlist; a new item type with an undeclared key fails it. |
 | Only `OFFICIAL` evidence reaches analytics, question health, empirical psychometrics, certificates and reporting | **VERIFIED** | `F02-T17`, `F02-S01`, `F04-T08`, `F04-T11`, `F04-T16`, `F06-P08` | `evidence_class_min(SYNTHETIC, OFFICIAL) = SYNTHETIC` is structural: `derive_evidence_class` caps any synthetic tenant, and `enforce_evidence_override` is INSERT-only and refuses promotion, so the OFFICIAL pool is monotonically shrinking. The INV-20 lint has a CI leg that plants an analytics module reading a raw evidence table. |
-| A dean is read-only **in the API**, not only in the UI | **VERIFIED, and bounded** | `F06-N02` | See §5, RF-2. **INV-19 is verified by AUTHORIZATION for 17 endpoints and by REFUSAL for 4. For those 4, a weakened capability check would not be detected by this assertion.** |
+| A dean is read-only **in the API**, not only in the UI | **VERIFIED, and bounded** | `F06-N02` | Restated after L3-F02. Over the DECLARED 31-endpoint population: 20 refused by an error naming the declared requirement, 11 refused earlier and named in the manifest. The population no longer comes from the function bodies, so deleting a capability check leaves the endpoint in the test. See §5, RF-2 — narrowed, not closed. **Separately, L3-F03 found four of those endpoints unguarded at 481ff93; repaired by migration 20260919090000.** |
 | A report template selects, orders, visualizes, titles and brands — never redefines a metric | **VERIFIED** | `F06-N03` | Four forbidden template rows must be refused and one legitimate row accepted; with the catalogue guard disabled, the CHECK constraints must refuse the two that carry punctuation. |
 | No report function computes; every number comes from a declared calculator | **VERIFIED** | `F06-P08` (`assert_reports_do_not_compute`, `assert_metric_closure`) | Closure is mechanical: a `BEGIN ATOMIC` body records every relation it reads in `pg_depend`, and the assertion watches both vacuity traps — a string-bodied calculator (records nothing) and one level of function indirection (empties the relation set). |
 | No catalogue metric aggregates a person across institutions | **VERIFIED** | `F06-P08` (`assert_metric_catalogue`) | `metric_scope` carries no such label, so the forbidden metric is a **type error at declaration**; the assertion re-measures the enum and fails if a label is added. |
@@ -600,6 +618,13 @@ thing from fixed. The four that remain are `acknowledge_finding`,
 > For those 4, a weakened capability check would not be detected by this
 > assertion.**
 
+> **Superseded by the L3-F02 repair.** Those counts were taken over the old
+> 21-endpoint prosrc-derived population. Over the declared 31-endpoint
+> population the split is **20 by the declared requirement, 11 refused earlier**,
+> and the 11 are named in the manifest. RF-2 is narrowed, not closed: the
+> remaining eleven refuse before authorization because no seeded row lets the
+> probe reach the check, not because the check is absent.
+
 **The repair needs two changes and the order matters.** A uniform refusal message
 *alone* makes the assertion weaker, not stronger: F06-N02 classifies by reading
 the error text, so uniform messages would take the honest count from *17 by
@@ -698,6 +723,8 @@ a round:
 | **L11** | A `limit 1` is a sample; a universal claim needs the aggregate | *"all seven allowlist rows are identical"* |
 | **L12** | A probe that fails before reaching its subject reports the subject's behaviour | `\b` as backspace (§1.8) — and applied twice more since |
 | **L13** | A probe's safety must not depend on the property it is probing | F06-N02's rollback (§1.4) |
+| **L15** | A verification population must not be derived from the implementation it verifies, and a cardinality floor is not membership completeness | L3-F02 (§1.4) |
+| **L16** | A security observation describing a mutating endpoint with no authorization predicate is not eligible to cross a build-complete gate as an open question; it needs evidence-backed closure or an explicit gate-blocking disposition | L3-F03 |
 
 ---
 
@@ -783,7 +810,7 @@ belongs in the replay, not in a hosted database.
 **So hosted parity proves SCHEMA and STRUCTURAL properties. Every BEHAVIOURAL
 claim this phase makes is proven in the local replay only.** The 160-learner
 cohort, the signal firing in both directions, the withdrawal walk and its two
-audit rows, the briefing reaching READY, the seventeen INV-19 endpoints refused
+audit rows, the briefing reaching READY, the INV-19 endpoints refused
 at authorization, the two-persona report — none of that has run in the hosted
 system, and the seventeen assertions returning true there say nothing about
 whether it would.

@@ -861,7 +861,9 @@ begin
   foreach bad in array array['CORRECT_OPTION_LENGTH_IMBALANCE','ANSWER_POSITION_SKEW',
                              'IMPLAUSIBLE_DISTRACTOR','STEM_REVEALS_ANSWER'] loop
     v_course := selftest.adversarial_bank(bad);
+    perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
     perform public.run_mcq_quality(v_course);
+    perform selftest.as_owner();
     select p.status, p.blockers into v_status, v_blockers from public.publish_readiness(v_course) p;
 
     if v_status = 'READY' then
@@ -911,7 +913,9 @@ begin
               join public.modules m on m.id = l.module_id where m.course_id = v_course);
     end if;
 
+    perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
     perform public.run_mcq_quality(v_course);
+    perform selftest.as_owner();
     select p.status, p.blockers into v_status, v_blockers from public.publish_readiness(v_course) p;
     if v_status <> 'READY' then
       ok := false; detail := detail || format('%s did not clear to READY after the repair (%s: %s); ',
@@ -922,7 +926,9 @@ begin
   -- the control: a bank with none of the four patterns must reach READY on its
   -- own, or "READY after repair" would only be proving that READY is reachable
   v_course := selftest.adversarial_bank('CLEAN');
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   perform public.run_mcq_quality(v_course);
+  perform selftest.as_owner();
   select p.status into v_status from public.publish_readiness(v_course) p;
   if v_status <> 'READY' then
     ok := false; detail := detail || format('the clean control bank reported %s; ', v_status);

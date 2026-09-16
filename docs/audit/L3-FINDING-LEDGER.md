@@ -52,9 +52,9 @@ remain on hosted as inert `SYNTHETIC` data; removing them is a large
 ## L3-F02 — the INV-19 regression detector derives its population from the
 ## implementation it is testing
 
-**Status: OPEN. Gate-blocking. Not repaired.**
+**Status: REPAIRED. Verified by five adversarial plants; see §F02 below.**
 
-**Defect.** `F06-N02` computes the set of endpoints that must refuse a DEAN by
+**Defect.** `F06-N02` computed the set of endpoints that must refuse a DEAN by
 asking each candidate function's own body whether it names a capability DEAN
 lacks (`prosrc like '%' || d.cap || '%'`, `selftest/db/fable06.sql:365-382`).
 The population is therefore a function of the artefact under test: deleting a
@@ -95,14 +95,27 @@ violation committed at source.
   450, 599-604, 700, 786 describe F06-N02 as covering "every mutating STAFF
   endpoint a dean is denied". It covers 21 of 31.
 
-**Not repaired during Layer-3.** A design was produced and is held for
-authorization; no code was changed.
+**Repair.** The expected population is now DECLARED, not read off the
+implementation. Migration `20260919100000_staff_rpcs_declare_their_authorization.sql`
+adds `client_rpc_registry.authorization_kind` (a closed enum: CAPABILITY,
+SYSTEM_ADMIN, SCOPE, INSTITUTION_MEMBER, DELEGATED) and
+`authorization_requirement`, backfilled from the live functions for all 31
+mutating STAFF RPCs. Two columns rather than one because the population is not
+all capability-based: putting 'SYSTEM_ADMIN' or 'INSTITUTION_MEMBER' in a column
+named `required_capability` would be a sentinel that no `role_capabilities()`
+array contains, so it could never be validated against the model it claims to
+name. A BEFORE trigger makes registering a mutating STAFF endpoint without a
+declaration impossible; `assert_staff_rpc_authorization_declared()` catches
+later drift. F06-N02 now derives from the registry, `pg_proc.provolatile` and
+the client EXECUTE grant, probes each endpoint as the negative actor its
+declaration implies as well as the DEAN, and **carries no floor** — membership
+is the closure. Population 21 → 31.
 
 ---
 
 ## L3-F03 — a capability-less DEAN performs a cross-tenant destructive write
 
-**Status: OPEN. Gate-blocking. Not repaired.**
+**Status: REPAIRED by migration `20260919090000_staff_authoring_rpcs_check_their_capability.sql`. The original cross-tenant reproduction now refuses and the findings survive.**
 
 **Defect.** Four mutating, client-exposed, `SECURITY DEFINER` STAFF RPCs
 granted to `authenticated` contain no authorization predicate at all:
@@ -137,14 +150,21 @@ for two of these — `validate_course_content` is noted "content validator;
 CAN_DRAFT" and `ingest_structured_package` "authoring ingestion; CAN_DRAFT" —
 and nothing compares the declaration to the implementation.
 
+**Repair.** Each of the four now resolves its owning institution from its
+argument and calls `can_in_institution('CAN_DRAFT', …)` before its first delete,
+insert or update — the primitive `create_course_revision` already used over the
+same table. The contract was derived, not invented: Doc 05 gives DEAN ❌ and
+EDUCATOR ✅ on both the "Ingest" and "Read Publish Readiness + MCQ Quality
+Findings" rows, and the registry note already said "CAN_DRAFT" in prose for two
+of them. Fixture and seed callers now name an authorized actor, as the seeds
+already did for `publish_release`.
+
 **Bounded deliberately.** `ingest_structured_package` and
 `propose_easy_upload_mapping` have no authorization in their bodies, but no
 seed creates an `ingest_batches` row, so they were not driven. They are
 recorded as unguarded code paths, **not** as demonstrated vulnerabilities.
 `generate_report` authorizes only with `is_member_of_institution`; whether that
 is correct for a mutating STAFF RPC was not probed.
-
-**Not repaired during Layer-3.**
 
 ---
 
@@ -157,6 +177,17 @@ is correct for a mutating STAFF RPC was not probed.
 | RF-2 | For 5 of the 21 endpoints F06-N02 reaches, refusal is proved but not that the refusal is *authorization*. |
 | DB-suite repeated-run non-idempotency | `run_fable06()` adds a second CLASS node to `pintar-bootstrap-official`; `selftest/db/fable04.sql:408` then selects its fixture with an unordered `limit 1` and F04-T04 fails on a second pass. CI is unaffected (fresh database, F04 before F06). Bisected on a clean database, each probe rolled back. |
 | INV-05 single-point detector | Of the four manifest entries citing INV-05, only `F04-T09` detects a missing protected field in the real builder; `F04-S02` signs a test-file literal and `F04-S04` signs whatever the builder returns. Functioning, non-blocking. |
-| Pass-verdict rule implemented twice | `session_outcome` and `certificate_eligibility` each derive the verdict from the stored mastery. They disagree when a definition names no pass mark (`NULL` vs `true`). Currently unreachable — `certificate_prepare` refuses on `eligible = false` first. |
+| Pass-verdict rule implemented twice | `session_outcome` and `certificate_eligibility` each derive the verdict from the stored mastery. They disagree when a definition names no pass mark (`NULL` vs `true`). **Unreachable through the current creation path** — `certificate_prepare` refuses on `eligible = false` first — which is not the same as structurally unreachable. Not repaired. |
 | `docs/audit/launch-readiness.sql` | Runs outside CI. |
 | Retained-token expiry | Needs a real Auth stack; not exercised locally. |
+
+---
+
+## Governance lesson recorded with these findings
+
+A security observation describing a **mutating endpoint with no authorization
+predicate** is not eligible to cross a build-complete gate merely as an open
+question. It requires either evidence-backed closure or an explicit
+gate-blocking disposition. L3-F03 was visible to static reading for the whole
+build; what was missing was a disposition, not a measurement. Carried as L16 in
+`docs/ENGINEERING-LESSONS.md`.

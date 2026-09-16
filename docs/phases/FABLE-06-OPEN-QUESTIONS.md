@@ -97,6 +97,14 @@ build closes, and it is a property of the system rather than of this phase.
 ## RF-2 — privileged endpoints resolve an argument before they authorize
 
 **Found by:** F06-N02, while establishing INV-19 over a derived endpoint set.
+
+**Amended after Layer-3 (L3-F02).** RF-2 was framed over a 21-endpoint
+population derived from capability names in `pg_proc.prosrc`. That population
+was itself the defect: deleting a capability check removed the endpoint from
+it. The population is now declared in `client_rpc_registry` and covers 31
+endpoints; the split is 20 proved by the declared requirement and 11 refused
+earlier. RF-2 is narrowed, not closed, and the eleven are named in the
+manifest rather than counted.
 **Not fixed here** — it spans FABLE-02 through FABLE-06 and changing twenty-one
 functions' error ordering at the end of a phase is the kind of wide, low-evidence
 edit this project refuses. (The finding was filed when sixteen were affected; the

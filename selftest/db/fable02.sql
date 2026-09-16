@@ -1203,7 +1203,9 @@ begin
   insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, arah_berpikir, author_person_id)
     values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'Berapa 1/2 + 1/4?',
             'Kalau hasilnya salah, ulangi', v_guru) returning id into v_it;
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   n := public.validate_course_content(v_course2);
+  perform selftest.as_owner();
   select count(*) into n from public.coaching_findings
    where course_id = v_course2 and severity = 'ERROR' and target_field = 'arah_berpikir';
   if n < 1 then ok := false; detail := detail || 'the validator did not flag the scaffold text; '; end if;
@@ -1245,7 +1247,9 @@ begin
   insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, arah_berpikir, author_person_id)
     values (v_les2, v_inst, 'MCQ_SINGLE', 'PRACTICE', 'Berapa 1/2 + 1/4?',
             'Samakan penyebutnya lebih dulu', v_guru) returning id into v_it;
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   n := public.validate_course_content(v_course2);
+  perform selftest.as_owner();
   select status into v_status from public.publish_readiness(v_course2);
   if v_status <> 'READY' then
     ok := false; detail := detail || format('clean coaching text still read %s; ', v_status);
@@ -1363,7 +1367,9 @@ begin
     ok := false; detail := detail || 'the raw import payload was rewritten; ';
   exception when others then null; end;
 
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   v_map := public.propose_easy_upload_mapping(v_batch);
+  perform selftest.as_owner();
   if (v_map -> 'open_questions') = '[]'::jsonb then
     ok := false; detail := detail || 'Easy Upload asked nothing about an unrecognised file; ';
   end if;
@@ -1379,7 +1385,9 @@ begin
     ok := false; detail := detail || 'an unconfirmed mapping was materialised; ';
   exception when others then null; end;
   begin
+    perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
     perform public.ingest_structured_package(v_batch);
+    perform selftest.as_owner();
     ok := false; detail := detail || 'a structured import ran before confirmation; ';
   exception when others then null; end;
 

@@ -19,6 +19,18 @@ begin
   set local role authenticated;
 end $$;
 
+-- 0085 made the validator, the MCQ quality pass and both ingestion entry points
+-- capability-checked. Fixtures that drive them are authoring acts and now name
+-- an actor, exactly as the seeds do. The platform SYSTEM_ADMIN is the honest
+-- choice for a harness that walks several institutions: can_in_institution
+-- treats SYSTEM_ADMIN as unscoped, so one persona covers every fixture tenant
+-- without inventing a role assignment the product would not have.
+create or replace function selftest.as_draft_author() returns void
+language plpgsql set search_path = public, pg_temp as $$
+begin
+  perform selftest.as_user('sysadmin@synthetic.pintar.test');
+end $$;
+
 create or replace function selftest.as_anon() returns void
 language plpgsql set search_path = public, pg_temp as $$
 begin

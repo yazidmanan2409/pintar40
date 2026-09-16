@@ -358,30 +358,88 @@ begin
 end $$;
 revoke all on function selftest.f06_withdraw(uuid, int) from public;
 
--- The derived endpoint set, computed with the harness's own privileges because
--- `client_rpc_registry` is not dean-readable -- which is itself correct. The
--- dean session does only the CALLING; deriving the list is not part of the
--- property under test.
-create or replace function selftest.f06_dean_denied_endpoints()
-returns table (oid_ oid, proname text, args text)
+-- THE EXPECTED POPULATION IS DECLARED, NOT READ OFF THE IMPLEMENTATION.
+--
+-- The version this replaces asked each candidate function's own body whether it
+-- named a capability a DEAN lacks. That made the population a function of the
+-- artefact under test: deleting a capability check also deleted the endpoint
+-- from the set, so the defect this assertion exists to catch was the very edit
+-- that removed the endpoint from the search. Layer-3 deleted one guard from
+-- save_certificate_template and the whole contract stayed green (L3-F02).
+--
+-- The population now comes from three things, none of which a function body can
+-- change: the registry's own `exposure`, the planner's `provolatile`, and the
+-- grant that makes the function reachable by a client at all. What each
+-- endpoint MUST enforce comes from the registry declaration added by 0086.
+-- `create or replace` without the guard leaves every one of those untouched.
+create or replace function selftest.f06_staff_rpc_contracts()
+returns table (oid_ oid, proname text, args text, kind text, requirement text)
 language sql security definer set search_path = public, pg_temp as $$
-  with denied as (
-    select cap from (
-      select unnest(public.role_capabilities('INSTITUTION_ADMIN')) cap
-      union select unnest(public.role_capabilities('HEAD_OF_DEPARTMENT'))
-      union select unnest(public.role_capabilities('EDUCATOR'))
-      except select unnest(public.role_capabilities('DEAN'))) y)
-  select p.oid, p.proname::text, pg_get_function_identity_arguments(p.oid)
+  select p.oid, r.function_name::text, pg_get_function_identity_arguments(p.oid),
+         r.authorization_kind::text, r.authorization_requirement
     from public.client_rpc_registry r
-    join pg_proc p on p.proname = r.function_name
-    join pg_namespace n on n.oid = p.pronamespace and n.nspname = 'public'
-   where r.exposure = 'STAFF' and p.provolatile = 'v'
-     and exists (select 1 from denied d
-                  where regexp_replace(p.prosrc, '--[^\n]*', '', 'g') like '%' || d.cap || '%')
-   order by p.proname
+    join pg_proc p on p.proname = r.function_name and p.pronamespace = 'public'::regnamespace
+   where r.exposure = 'STAFF'
+     and p.provolatile = 'v'
+     and has_function_privilege('authenticated', p.oid, 'EXECUTE')
+   order by r.function_name
 $$;
-revoke all on function selftest.f06_dean_denied_endpoints() from public;
-grant execute on function selftest.f06_dean_denied_endpoints() to authenticated;
+revoke all on function selftest.f06_staff_rpc_contracts() from public;
+grant execute on function selftest.f06_staff_rpc_contracts() to authenticated;
+
+-- THE NEGATIVE ACTOR IS DERIVED FROM THE DECLARATION, not written down beside
+-- the endpoint. For a declared capability it is the role that holds the MOST
+-- capabilities among those that do not hold this one -- so an endpoint whose
+-- declaration is stricter than its implementation is caught: the actor lacks
+-- what is declared but holds what is actually checked, and gets in.
+-- Picking "the highest-ranked role that lacks it" would not do that, because
+-- DEAN outranks HEAD_OF_DEPARTMENT while holding nothing at all.
+create or replace function selftest.f06_negative_actor(p_kind text, p_req text)
+returns text language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_role public.app_role;
+begin
+  if p_kind = 'CAPABILITY' then
+    select e.role into v_role
+      from (select unnest(enum_range(null::public.app_role)) as role) e
+     where not (p_req = any (public.role_capabilities(e.role)))
+     order by cardinality(public.role_capabilities(e.role)) desc, public.role_rank(e.role) desc
+     limit 1;
+  elsif p_kind = 'SYSTEM_ADMIN' then
+    v_role := 'INSTITUTION_ADMIN';                       -- everything except the one thing
+  elsif p_kind = 'SCOPE' then
+    select e.role into v_role
+      from (select unnest(enum_range(null::public.app_role)) as role) e
+     where public.role_rank(e.role) < public.role_rank(p_req::public.app_role)
+     order by public.role_rank(e.role) desc limit 1;
+  elsif p_kind = 'INSTITUTION_MEMBER' then
+    return 'beta-admin@synthetic.pintar.test';           -- a real admin, of the WRONG tenant
+  else
+    v_role := 'DEAN';
+  end if;
+  return case v_role
+    when 'SYSTEM_ADMIN'       then 'sysadmin@synthetic.pintar.test'
+    when 'INSTITUTION_ADMIN'  then 'alpha-admin@synthetic.pintar.test'
+    when 'DEAN'               then 'alpha-dean@synthetic.pintar.test'
+    when 'HEAD_OF_DEPARTMENT' then 'alpha-hod@synthetic.pintar.test'
+    when 'EDUCATOR'           then 'alpha-guru@synthetic.pintar.test'
+    when 'STUDENT'            then 'alpha-siswa-1@synthetic.pintar.test' end;
+end $$;
+revoke all on function selftest.f06_negative_actor(text, text) from public;
+grant execute on function selftest.f06_negative_actor(text, text) to authenticated;
+
+-- What a refusal has to SAY for the declared contract to be proved.
+create or replace function selftest.f06_contract_pattern(p_kind text, p_req text)
+returns text language sql immutable set search_path = public, pg_temp as $$
+  select case p_kind
+    when 'CAPABILITY'         then p_req
+    when 'SYSTEM_ADMIN'       then 'SYSTEM_ADMIN'
+    when 'SCOPE'              then p_req
+    when 'INSTITUTION_MEMBER' then '(another institution|not a member|institution)'
+    when 'DELEGATED'          then '(INV-16|SYSTEM_ADMIN|not authorized|may not|denied)'
+  end
+$$;
+revoke all on function selftest.f06_contract_pattern(text, text) from public;
+grant execute on function selftest.f06_contract_pattern(text, text) to authenticated;
 
 -- A PLAUSIBLE ARGUMENT, RESOLVED BY NAME AND TYPE rather than by a per-function
 -- map. Sixteen of the eighteen dean-denied endpoints refused the null probe at
@@ -423,8 +481,16 @@ begin
                                            if v is null then select m.id into v from public.modules m limit 1; end if;
     elsif p_name ~ 'definition'       then select id into v from public.assessment_definitions where institution_id=p_inst limit 1;
                                            if v is null then select id into v from public.assessment_definitions limit 1; end if;
-    elsif p_name ~ 'session'          then select id into v from public.assessment_sessions where institution_id=p_inst limit 1;
-                                           if v is null then select id into v from public.assessment_sessions limit 1; end if;
+    -- a LIVE session, not a finished one: several endpoints refuse a FINALIZED
+    -- session on its own terms before they ask about a capability, which is a
+    -- refusal that proves nothing about authorization
+    -- a LIVE session first, the caller's own tenant second. Several endpoints
+    -- refuse a FINALIZED session on its own terms before they ask about a
+    -- capability, and that is a refusal which proves nothing; the tenant of the
+    -- session is not what these endpoints check first.
+    elsif p_name ~ 'session'          then select id into v from public.assessment_sessions
+                                            order by (status not in ('FINALIZED','TERMINATED')) desc,
+                                                     (institution_id = p_inst) desc limit 1;
     elsif p_name ~ 'item'             then select id into v from public.items where institution_id=p_inst limit 1;
                                            if v is null then select id into v from public.items limit 1; end if;
     elsif p_name ~ 'certificate'      then select id into v from public.certificates where institution_id=p_inst limit 1;
@@ -437,7 +503,8 @@ begin
     -- asserted.
     elsif p_name ~ 'briefing'         then select id into v from public.briefings limit 1;
     elsif p_name ~ 'enrollment'       then select id into v from public.enrollments where status='ACTIVE' limit 1;
-    elsif p_name ~ 'transfer'         then select id into v from public.transfers limit 1;
+    elsif p_name ~ 'transfer'         then select id into v from public.transfers
+                                            order by (status not in ('EXECUTED','REJECTED')) desc limit 1;
     elsif p_name ~ 'signal'           then select id into v from public.integrity_signals limit 1;
     elsif p_name ~ 'person'           then select person_id into v from public.enrollments where institution_id=p_inst limit 1;
     elsif p_name ~ 'period'           then select id into v from public.academic_periods where institution_id=p_inst limit 1;
@@ -446,6 +513,16 @@ begin
     if v is null then return 'null::uuid'; end if;
     return quote_literal(v::text) || '::uuid';
   elsif p_type = 'text' then
+    -- Text arguments get a value the COLUMN they land in will accept, by
+    -- parameter name, exactly as the uuid branch above resolves by name. This
+    -- is argument plumbing, not the population: a generic 'selftest' made
+    -- save_certificate_template fail its layout CHECK before it ever reached
+    -- the capability check, which is a refusal that proves nothing and, worse,
+    -- hid a deleted guard during the L3-F02 acceptance plant.
+    if    p_name ~ 'layout'  then return quote_literal('CLASSIC');
+    elsif p_name ~ 'prefix'  then return quote_literal('PNT/2026');
+    elsif p_name ~ 'version' then return quote_literal('MC-1');
+    end if;
     return quote_literal('selftest');
   elsif p_type in ('integer','smallint','bigint') then
     return '1::' || p_type;
@@ -463,6 +540,33 @@ begin
     return quote_literal(v_lab) || '::' || p_type;
   end if;
 end $$;
+-- THE WHOLE ARGUMENT LIST, with one rule f06_arg_value cannot express alone:
+-- when a signature offers both a broader and a narrower scope, the narrower one
+-- is left unset. Supplying a course AND a module to save_certificate_template
+-- broke its `num_nonnulls(course_id, module_id) <= 1` CHECK before the call
+-- reached the capability check -- a refusal that proves nothing, and that hid a
+-- deleted guard during the L3-F02 acceptance plant. This is a rule about
+-- signature SHAPE, not a list of endpoints; the population is still derived.
+create or replace function selftest.f06_call_args(p_args text, p_inst uuid)
+returns text language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_has_course boolean;
+begin
+  v_has_course := p_args ~ 'course';
+  return coalesce((
+    select string_agg(
+      case when v_has_course
+            and split_part(trim(a), ' ', 1) ~ 'module'
+            and regexp_replace(trim(a), '^\S+\s+', '') = 'uuid'
+           then 'null::uuid'
+           else selftest.f06_arg_value(split_part(trim(a), ' ', 1),
+                  regexp_replace(trim(a), '^\S+\s+', ''), p_inst) end,
+      ', ' order by ord)
+    from unnest(string_to_array(p_args, ',')) with ordinality as u(a, ord)
+   where length(trim(u.a)) > 0), '');
+end $$;
+revoke all on function selftest.f06_call_args(text, uuid) from public;
+grant execute on function selftest.f06_call_args(text, uuid) to authenticated;
+
 revoke all on function selftest.f06_arg_value(text, text, uuid) from public;
 grant execute on function selftest.f06_arg_value(text, text, uuid) to authenticated;
 
@@ -837,146 +941,142 @@ begin
   -- Same ordering on the way out: the cohort's reclassifications reference D1
   -- sessions that purge_certificates is about to remove.
   -- =========================================================================
-  -- F06-N02 -- INV-19 IN THE API, NOT IN THE UI.
+  -- F06-N02 -- EVERY MUTATING STAFF ENDPOINT ENFORCES THE CONTRACT IT DECLARES.
   --
-  -- A dean surface that renders no button over an endpoint that would accept a
-  -- write is not read-only. Only one of those two is testable without a
-  -- browser, and it is the one that matters.
+  -- INV-19 lives here: a dean surface that renders no button over an endpoint
+  -- that would accept a write is not read-only, and only one of those two is
+  -- testable without a browser. But the population is no longer "endpoints
+  -- whose body mentions a capability DEAN lacks". That phrasing was the defect
+  -- (L3-F02): the edit this assertion hunts -- a deleted capability check -- was
+  -- also the edit that removed the endpoint from the population, and a floor of
+  -- 18 against a set of 21 let the first three deletions through. The floor is
+  -- gone. Membership replaces it.
   --
-  -- THE ENDPOINT SET IS DERIVED, NOT WRITTEN. An assertion over endpoints
-  -- someone thought of is silent about the one added next month -- the failure
-  -- this build has now repaired four times. The set is computed three ways at
-  -- once: capabilities a DEAN lacks (role_capabilities, not a list), functions
-  -- exposed to clients as STAFF (client_rpc_registry), and functions that
-  -- MUTATE (pg_proc.provolatile = 'v', the planner's own record). A new
-  -- privileged RPC joins the set the day it is created.
+  -- The population comes from selftest.f06_staff_rpc_contracts(): registry
+  -- exposure, planner volatility, and the grant that makes an endpoint
+  -- client-reachable. What each must enforce comes from the registry
+  -- declaration (0086). None of those is touched by `create or replace`.
   --
-  -- REFUSAL IS NOT ABSENCE, and this is the vacuity trap specific to this
-  -- assertion. "Did not accept the write" has two causes: the endpoint refused,
-  -- or the endpoint is not there. A mistyped path returns "function does not
-  -- exist" and a naive check reads that as a pass. So: every endpoint must
-  -- EXIST and be EXECUTABLE by the caller, the refusal must be an authorization
-  -- error by its text, and undefined_function is a FAILURE rather than a pass.
+  -- TWO ACTORS PER ENDPOINT.
+  --   1. The DEAN, on every CAPABILITY endpoint. DEAN holds nothing anywhere,
+  --      so INV-19 is the strongest single statement available and it is made
+  --      against the declared population rather than a derived-from-body one.
+  --   2. The negative actor the DECLARATION implies -- for a capability, the
+  --      role holding the most capabilities among those that do not hold this
+  --      one. That is what catches a declaration stricter than its
+  --      implementation: the actor lacks what is declared, holds what is
+  --      actually checked, and gets in.
   --
-  -- And the read half, because either alone is not the property: the dean must
-  -- successfully READ through the same session that is refused every write.
-  -- Otherwise a dean with no session at all would pass this test perfectly.
+  -- REFUSAL IS NOT ABSENCE. Every endpoint must EXIST and be EXECUTABLE by the
+  -- caller; undefined_function is a failure, not a pass. And the read half: the
+  -- dean must READ successfully through the same session, or a dean with no
+  -- session at all would pass this perfectly.
   -- =========================================================================
   declare
-    v_read jsonb; v_sig text; v_args text; v_err text;
-    n_refused int := 0; n_absent int := 0; n_accepted int := 0; n_other int := 0;
-    n_broken int := 0; v_unreached text := ''; v_dean_inst uuid;
-    v_bad text := ''; f record;
+    v_read jsonb; v_sig text; v_args text; v_err text; v_pat text; v_actor text;
+    n_contract int := 0; n_other int := 0; n_accepted int := 0; n_absent int := 0;
+    n_broken int := 0; n_dean int := 0; n_declared int := 0; n_pop int := 0;
+    v_unproved text := ''; v_bad text := ''; v_inst uuid; f record;
+    v_decl_ok boolean; v_decl_detail text;
   begin
-    select i.id into v_dean_inst from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
-    perform selftest.as_user('alpha-dean@synthetic.pintar.test');
+    select i.id into v_inst from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
 
-    -- THE READ HALF FIRST. If this fails, every refusal below is meaningless.
+    -- (a) the declaration itself is complete and resolves against the live model
+    select a.ok, a.detail into v_decl_ok, v_decl_detail
+      from public.assert_staff_rpc_authorization_declared() a;
+
+    -- (b) every declared mutating STAFF endpoint is in the probed population, or
+    --     is not client-callable at all. A silent revoke is the only way out of
+    --     this set, and it takes the endpoint out of a client's reach with it.
+    select count(*) into n_declared
+      from public.client_rpc_registry r
+      join pg_proc p on p.proname = r.function_name and p.pronamespace = 'public'::regnamespace
+     where r.exposure = 'STAFF' and p.provolatile = 'v';
+    select count(*) into n_pop from selftest.f06_staff_rpc_contracts();
+
+    perform selftest.as_user('alpha-dean@synthetic.pintar.test');
     begin
       v_read := to_jsonb(public.mode_policy('POST_TEST'));
     exception when others then v_read := null; end;
+    perform selftest.as_owner();
 
-    for f in select e.oid_ as oid, e.proname, e.args
-                 from selftest.f06_dean_denied_endpoints() e loop
-      -- the endpoint must be REACHABLE by this caller, or a refusal proves
-      -- nothing about authorization
-      if not has_function_privilege('authenticated', f.oid, 'EXECUTE') then
+    for f in select c.oid_ as oid, c.proname, c.args, c.kind, c.requirement
+               from selftest.f06_staff_rpc_contracts() c loop
+      v_pat   := selftest.f06_contract_pattern(f.kind, f.requirement);
+      v_actor := selftest.f06_negative_actor(f.kind, f.requirement);
+
+      v_args := selftest.f06_call_args(f.args, v_inst);
+      v_sig  := format('select public.%I(%s)', f.proname, v_args);
+
+      -- the declared negative actor
+      perform selftest.as_user(v_actor);
+      if not has_function_privilege(session_user, f.oid, 'EXECUTE')
+         and not has_function_privilege('authenticated', f.oid, 'EXECUTE') then
         n_absent := n_absent + 1;
         v_bad := v_bad || f.proname || ' (not executable by a client role); ';
+        perform selftest.as_owner();
         continue;
       end if;
-
-      -- null arguments of the declared types: authorization is supposed to run
-      -- before anything is resolved from an argument, which this build has had
-      -- to repair twice already
-      -- trim BEFORE the strip, not after. string_to_array leaves a leading
-      -- space on every argument but the first, so `^\S+\s+` matched nothing
-      -- and produced `null:: p_finding uuid` -- a syntax error in the TEST,
-      -- which the first version counted as "refused for another reason" and
-      -- passed on. Fifteen of eighteen endpoints were never actually called.
-      select coalesce(string_agg(
-               selftest.f06_arg_value(
-                 split_part(trim(a), ' ', 1),
-                 regexp_replace(trim(a), '^\S+\s+', ''),
-                 v_dean_inst),
-               ', ' order by ord), '')
-        into v_args
-        from unnest(string_to_array(f.args, ',')) with ordinality as u(a, ord)
-       where length(trim(u.a)) > 0;
-      v_sig := format('select public.%I(%s)', f.proname, v_args);
-
-      -- EVERY CALL IS ROLLED BACK. Passing REAL ids made these endpoints do real
-      -- work before refusing -- the suite went from 43s to over five minutes,
-      -- which is the visible half. The invisible half is that an endpoint which
-      -- did NOT refuse would have mutated D1 or the synthetic tenant for real,
-      -- inside a test whose whole claim is that it cannot. A probe that would
-      -- damage the thing it is checking is not a probe.
-      --
-      -- The rollback also removes the cost: the work is still done, but nothing
-      -- is written, so the expensive paths stop persisting anything.
       begin
         execute v_sig;
         n_accepted := n_accepted + 1;
-        v_bad := v_bad || f.proname || ' (ACCEPTED a call from a dean); ';
+        v_bad := v_bad || format('%s (ACCEPTED %s, which does not satisfy the declared %s %s); ',
+                                 f.proname, v_actor, f.kind, coalesce(f.requirement, ''));
         raise exception 'F06_N02_UNDO';
       exception
         when raise_exception then
           if sqlerrm <> 'F06_N02_UNDO' then
             v_err := sqlerrm;
-            if v_err ~* '(requires|denied|not authorized|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
-              n_refused := n_refused + 1;
-            else
-              n_other := n_other + 1;
-              v_unreached := v_unreached || f.proname || ', ';
-            end if;
+            if v_err ~* v_pat then n_contract := n_contract + 1;
+            else n_other := n_other + 1; v_unproved := v_unproved || f.proname || ', '; end if;
           end if;
         when undefined_function then
           n_absent := n_absent + 1;
           v_bad := v_bad || f.proname || ' (does not exist: absence read as refusal); ';
         when syntax_error_or_access_rule_violation then
-          -- A SYNTAX ERROR HERE IS THE TEST'S FAULT, NOT A REFUSAL. Counting it
-          -- as one is how the first version of this check passed while never
-          -- calling fifteen of the eighteen endpoints.
           v_err := sqlerrm;
-          if v_err ~* '(requires|denied|not authorized|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
-            n_refused := n_refused + 1;
+          if v_err ~* v_pat then n_contract := n_contract + 1;
           else
             n_broken := n_broken + 1;
             v_bad := v_bad || f.proname || ' (the probe could not call it: ' || left(v_err, 50) || '); ';
           end if;
         when others then
           v_err := sqlerrm;
-          if v_err ~* '(requires|denied|not authorized|not permitted|lacks|may not|forbidden|CAN_[A-Z_]+)' then
-            n_refused := n_refused + 1;
-          else
-            n_other := n_other + 1;
-            -- NAMED, not counted. "eleven refused earlier" is a number nobody
-            -- can act on; the names say which endpoints INV-19 is argued for
-            -- rather than asserted for, which is what the capstone has to state.
-            v_unreached := v_unreached || f.proname || ', ';
-          end if;
+          if v_err ~* v_pat then n_contract := n_contract + 1;
+          else n_other := n_other + 1; v_unproved := v_unproved || f.proname || ', '; end if;
       end;
+      perform selftest.as_owner();
+
+      -- and the DEAN, on every capability endpoint (INV-19 proper)
+      if f.kind = 'CAPABILITY' and v_actor <> 'alpha-dean@synthetic.pintar.test' then
+        perform selftest.as_user('alpha-dean@synthetic.pintar.test');
+        begin
+          execute v_sig;
+          n_dean := n_dean + 1;
+          v_bad := v_bad || f.proname || ' (ACCEPTED a call from a dean holding no capability); ';
+          raise exception 'F06_N02_UNDO';
+        exception when others then null; end;
+        perform selftest.as_owner();
+      end if;
     end loop;
     perform selftest.as_owner();
 
-    id := 'F06-N02'; area := 'INV-19 -- read-only in the API, over a derived endpoint set';
-    -- VACUITY GUARD, found by watching this test fail. Planting an endpoint
-    -- that ACCEPTS a dean did not turn it red: removing the capability check
-    -- also removed the function from the derived set, so a function that
-    -- deletes its own authorization escapes the test that would catch it.
-    -- The set can only grow as the product does, so a floor closes it.
-    if n_refused + n_other + n_accepted + n_absent < 18 then
+    id := 'F06-N02'; area := 'INV-19 / L3-F02 -- declared authorization contract, enforced';
+    if not coalesce(v_decl_ok, false) then
       ok := false;
-      detail := format('the derived dean-denied set holds %s endpoint(s), fewer than the 18 measured when '
-                    || 'this check was written: an endpoint has stopped checking a capability and left the '
-                    || 'set rather than failing inside it',
-                       n_refused + n_other + n_accepted + n_absent);
+      detail := 'the authorization declaration is not complete or does not resolve: ' || coalesce(v_decl_detail, '');
+    elsif n_pop <> n_declared then
+      ok := false;
+      detail := format('%s of %s declared mutating STAFF endpoint(s) are client-callable; the other %s were '
+                    || 'not probed. An endpoint leaving this population by losing its grant is out of a '
+                    || 'client''s reach, but the difference is reported rather than assumed',
+                       n_pop, n_declared, n_declared - n_pop);
     elsif v_read is null then
       ok := false;
       detail := 'the dean could not READ through the session used for the refusals, so every refusal '
              || 'below is indistinguishable from having no session at all';
-    elsif n_accepted > 0 then
-      ok := false; detail := 'a dean-denied endpoint accepted the call: ' || v_bad;
+    elsif n_accepted > 0 or n_dean > 0 then
+      ok := false; detail := 'an endpoint accepted an actor its declaration refuses: ' || v_bad;
     elsif n_absent > 0 then
       ok := false;
       detail := 'endpoint(s) whose refusal is ABSENCE rather than authorization -- a test that cannot '
@@ -984,25 +1084,23 @@ begin
     elsif n_broken > 0 then
       ok := false;
       detail := 'the probe failed to CALL endpoint(s), so their refusal was never tested: ' || v_bad;
-    elsif n_refused = 0 then
+    elsif n_contract = 0 then
       ok := false;
-      detail := format('no endpoint produced an authorization refusal (%s other error(s)): the check is '
+      detail := format('no endpoint refused by its declared contract (%s other error(s)): the check is '
                     || 'measuring argument handling, not authorization', n_other);
     else
       ok := true;
-      detail := format('the dean reads through this session and is refused every one of %s mutating STAFF '
-                    || 'endpoint that checks a capability DEAN lacks: %s by an authorization error naming '
-                    || 'the capability, %s refused before reaching a capability check at all -- either '
-                    || 'because no row of the kind the argument names exists for the probe to point at, or '
-                    || 'because the generic value it supplies for a text or enum argument is rejected on '
-                    || 'its own terms first. None accepted, none merely absent, and '
-                    || 'no endpoint went uncalled. The set is derived from role_capabilities, '
-                    || 'client_rpc_registry and pg_proc.provolatile, so a new privileged RPC joins it the '
-                    || 'day it is created. BOUNDED: for these, refusal is proved but not that the refusal '
-                    || 'is AUTHORIZATION, so a capability check weakened rather than removed would not be '
-                    || 'detected here -- %s(see RF-2)',
-                       n_refused + n_other, n_refused, n_other,
-                       case when v_unreached = '' then '' else rtrim(v_unreached, ', ') || ' ' end);
+      detail := format('%s client-callable mutating STAFF endpoint(s), every one declaring how it '
+                    || 'authorizes and every one refusing the actor that declaration excludes: %s refused '
+                    || 'by an error naming the declared requirement, %s refused earlier for another '
+                    || 'reason. The DEAN was additionally refused by every CAPABILITY endpoint. The '
+                    || 'population comes from the registry, pg_proc.provolatile and the client grant -- '
+                    || 'never from a function body -- so deleting an endpoint''s own authorization check '
+                    || 'leaves it in this set and fails it here (L3-F02). There is no floor: membership '
+                    || 'is the closure. BOUNDED: for the %s refused earlier, refusal is proved but not '
+                    || 'that it is the declared authorization -- %s(see RF-2)',
+                       n_pop, n_contract, n_other, n_other,
+                       case when v_unproved = '' then '' else rtrim(v_unproved, ', ') || ' ' end);
     end if;
     return next;
   end;

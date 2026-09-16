@@ -292,8 +292,13 @@ begin
 
   -- The real quality gate. A demonstration fixture that could not pass the gate
   -- would demonstrate the wrong thing.
+  -- run as the Head of Department, who holds CAN_DRAFT (0085).
+  perform set_config('request.jwt.claim.sub', u_hod::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', u_hod, 'role','authenticated')::text, true);
   perform public.validate_course_content(course);
   perform public.run_mcq_quality(course);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '', true);
   select status, blockers into v_status, v_blockers from public.publish_readiness(course);
   if v_status <> 'READY' then
     raise exception 'evaluation content is not publishable (%): % — fix the fixture, never the gate',

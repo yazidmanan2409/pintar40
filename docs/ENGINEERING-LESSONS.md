@@ -280,6 +280,7 @@ caught by the suite being green**:
 | 0072 | four refusal probes, all returning at a guard | that `metric_evaluate` worked, while its dispatch could never have run |
 | the draw measurement | a regex using `\b`, which in PostgreSQL ARE is a **backspace** and matches nothing | that four service views contained zero aggregate calls |
 | F06-N02 | a malformed argument list producing a syntax error in the generated SQL | that fifteen endpoints had **refused** a call they never received |
+| F06-N02 | a population derived from the capability names in the bodies it was testing | that deleting a capability check made the endpoint **leave** the test rather than fail it — L3-F02 |
 
 The shape is identical every time: **the probe failed upstream of its subject,
 and its failure was recorded as the subject's answer.** It is invisible because
@@ -311,6 +312,9 @@ the output. *The one scenario the test exists for is the one in which it does
 damage.* A test that is only safe when it passes has no negative result worth
 reading.
 
+(The *population* that test walked was a separate defect, found in Layer-3 and
+recorded as L15 below: it was derived from the bodies it was testing.)
+
 So rollback there is not tidiness. **It is what makes the failing case
 legible.** The general form:
 
@@ -329,3 +333,43 @@ prevents it is short: *a fixture must purge everything it can TOUCH, not
 everything it meant to touch* — and the cheap check is that the purge predicate
 is at least as wide as the write predicate, rather than that it names the right
 node.
+
+---
+
+## L15 — A verification population must not be derived from the implementation it verifies
+
+F06-N02 decided which endpoints must refuse a DEAN by asking each candidate
+function's own body whether it named a capability a DEAN lacks. That made the
+population a function of the artefact under test: the defect it hunted — a
+deleted capability check — was also the edit that removed the endpoint from the
+hunt.
+
+A floor was written as the closure, and a floor is not membership. Eighteen
+against a population of twenty-one tolerated three silent deletions. Layer-3
+deleted one guard from `save_certificate_template`; a DEAN could write, the
+derived set fell from 21 to 20, and the full 173-entry contract stayed green —
+reproduced both as a runtime replacement and as a source edit replayed from
+zero, where the migration's own terminal block did not catch it either because
+it exercised only the happy path.
+
+**The rule.** When the thing being deleted is the thing under test, the expected
+population must be *declared* somewhere the implementation cannot reach, and the
+completeness of that declaration enforced separately. A count is evidence about
+size; only membership is evidence about coverage.
+
+---
+
+## L16 — "No authorization predicate" is not an open question
+
+Four mutating, client-exposed, SECURITY DEFINER STAFF RPCs carried no
+authorization at all. Two of them were reachable: a capability-less DEAN of one
+institution ran `run_mcq_quality` against another institution's course and
+deleted that tenant's unacknowledged quality findings.
+
+The observation was available from static reading the whole time. What was
+missing was a disposition. **A security observation describing a mutating
+endpoint with no authorization predicate is not eligible to cross a
+build-complete gate merely as an open question.** It requires either
+evidence-backed closure or an explicit gate-blocking disposition, recorded as
+such. Anything else is an unowned finding wearing the costume of a known
+limitation.

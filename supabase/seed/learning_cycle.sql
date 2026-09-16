@@ -481,8 +481,17 @@ begin
   -- ------------------------------------------- validator and MCQ quality
   -- Run them for real. A fixture that skipped its own quality gate would tell
   -- the acceptance suite nothing about whether the gate works.
+  -- ...and AS the Head of Department, who holds CAN_DRAFT. From 0085 the
+  -- validator and the MCQ quality pass are authoring acts with a capability
+  -- check of their own, so the fixture names the actor that runs them exactly
+  -- as it already names the reviewer that approves.
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', u_hod, 'role','authenticated')::text, true);
+  perform set_config('request.jwt.claim.sub', u_hod::text, true);
   v_findings := public.validate_course_content(course);
   v_mcq := public.run_mcq_quality(course);
+  perform set_config('request.jwt.claims', '', true);
+  perform set_config('request.jwt.claim.sub', '', true);
   select status, blockers into v_status, v_blockers from public.publish_readiness(course);
   if v_status <> 'READY' then
     raise exception 'fixture content is not publishable (% findings, % mcq): % — fix the fixture, never the gate',
