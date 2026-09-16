@@ -1,41 +1,174 @@
 @import "tailwindcss";
+@import "./experience.css";
 
 /*
   PINTAR design tokens — the whole visual language, versioned (doc 15 "Design
-  language"; doc 16 §9). Quiet, warm, intelligent. A screen may use only what
-  is defined here: one type family, one primary, restrained pastel accents,
-  calm semantic status. No decorative gradients, no alarms.
+  language"; doc 16 §9; UX-0-07 §2–§5). Quiet, warm, intelligent. A screen may
+  use only what is defined here: one type family, one primary, restrained
+  pastel accents, calm semantic status. No decorative gradients, no alarms.
 
-  --pintar-primary is PROVISIONAL: the established PINTAR primary identity
-  colour must be copied from the brand assets before the first real
-  institution sees a screen (recorded in ADR-0001 as an open item). Every
-  other value is a neutral chosen to sit under any warm primary.
+  TOKEN SET v2 (UX-1 Slice 0). What changed, and why:
+
+  - PRIMARY. v1's #2F6F8F was marked PROVISIONAL in ADR-0001. The primary is
+    now #245F55, proposed in UX-1-PRIMARY-COLOUR-PROPOSAL.md and APPROVED by
+    Yazid on 2026-09-16. APPROVED AND IN USE — NOT FROZEN: every value in this
+    file is one line, so a replacement is one edit (Sauron amendment §5).
+
+  - CONTRAST. Three v1 values failed WCAG 2.1 AA and were replaced. The
+    replacements are not opinions; UX1-S0-CONTRAST-01 computes the ratio for
+    every text token against white, ivory and the well, and for every status
+    token against its own soft ground, and fails below 4.5. The lint can
+    therefore never enforce a failing token.
+      ink-3        #8A949C → #5F6A73  (2.79 on white — unreadable meta text)
+      status-ok    #2E7D5B → #2F6E4A  (4.43 on the well, 4.33 on its own soft)
+      attention    #9A6B00 → #8A5F00  (4.49 on ivory, 4.16 on the well)
+
+  - ONE HAIRLINE. v1 carried an opaque #E6E2DA line that only sits correctly on
+    ivory. v2 has exactly one border colour, ink at 12% (24% when a control
+    needs a visible edge), which is correct on all three surfaces. `--line-1`
+    survives below as an ALIAS, not as a second colour — see the note there.
+
+  - TYPE. Self-hosted Plus Jakarta Sans (400/600) for all text and IBM Plex
+    Mono (500) for certificate numbers and tokens (Q-18; the OFL licence for
+    each is committed beside the files in public/fonts/). System stacks are the
+    fallback. Two weights only: 400 and 600.
+
+  NO TENANT VALUE EVER APPEARS IN THIS FILE. An institution's colour, mark or
+  name is data, and data does not live in the design system.
 */
-:root {
-  --pintar-tokens-version: 1;
 
-  --surface-0: #FBFAF7;   /* page ground: warm off-white */
-  --surface-1: #FFFFFF;   /* cards */
-  --surface-2: #F3F1EC;   /* quiet wells */
+/* --------------------------------------------------------------- type faces
+   Self-hosted (Q-18): no request leaves the reader's browser for a font, and
+   no third party learns who opened a certificate. latin + latin-ext cover
+   Indonesian and English; the variable Plus Jakarta Sans file serves both 400
+   and 600 from one download. */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/plus-jakarta-sans-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/plus-jakarta-sans-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-500-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  --pintar-tokens-version: 2;
+
+  /* surfaces and ink ------------------------------------------------------ */
+  --surface-0: #FBFAF7;   /* the canvas: warm off-white, page ground only */
+  --surface-1: #FFFFFF;   /* the product surface: cards, sheets, lists */
+  --surface-2: #F3F1EC;   /* intentional insets: quiet wells */
   --ink-1: #1F2A33;       /* primary text */
   --ink-2: #4E5A64;       /* secondary text */
-  --ink-3: #8A949C;       /* hints, meta */
-  --line-1: #E6E2DA;      /* hairlines */
+  --ink-3: #5F6A73;       /* hints, meta, eyebrows */
 
-  --pintar-primary: #2F6F8F;        /* PROVISIONAL — see note above */
+  /* the one hairline ------------------------------------------------------ */
+  --line: rgba(31, 42, 51, 0.12);
+  --line-strong: rgba(31, 42, 51, 0.24);
+  /* ALIAS, NOT A SECOND COLOUR. Surfaces that UX-1 has not re-set yet still
+     write `border-line-1`; pointing the old name at the one hairline keeps
+     them drawing a correct border instead of silently losing it. It is not a
+     value anybody may choose — it resolves to --line — and it is deleted when
+     the last v1 surface is re-set. */
+  --line-1: var(--line);
+
+  /* primary — APPROVED 2026-09-16, not frozen ----------------------------- */
+  --pintar-primary: #245F55;
   --pintar-primary-ink: #FFFFFF;
-  --pintar-primary-soft: #E3EEF3;   /* pastel companion */
+  --pintar-primary-soft: #E3EFEC;
+  --pintar-primary-hover: #1E5148;
 
-  --status-ok: #2E7D5B;      --status-ok-soft: #E4F2EA;
-  --status-attention: #9A6B00; --status-attention-soft: #F7EED8;
-  --status-blocked: #8C3B3B; --status-blocked-soft: #F6E4E4;
-  --status-info: #3D5A80;    --status-info-soft: #E7EDF5;
+  /* status — each pair passes AA against its own soft ground -------------- */
+  --status-ok: #2F6E4A;        --status-ok-soft: #E4F2EA;
+  --status-attention: #8A5F00; --status-attention-soft: #F7EED8;
+  --status-blocked: #8C3B3B;   --status-blocked-soft: #F6E4E4;
+  --status-info: #3D5A80;      --status-info-soft: #E7EDF5;
 
+  /* shape ----------------------------------------------------------------- */
   --radius-1: 8px;
-  --radius-2: 14px;
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
-  --space-5: 24px; --space-6: 32px; --space-7: 48px;
-  --measure: 64ch;
+  --radius-2: 12px;
+  --radius-pill: 999px;
+
+  /* rhythm: 8-pt on a 4-px scale ------------------------------------------ */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 40px; --space-8: 48px;
+  --space-9: 64px;
+
+  /* type ladder — weights 400 and 600 only -------------------------------- */
+  --type-eyebrow: 12px;   /* 600, uppercase, tracked */
+  --type-fine: 13px;      /* 400/600 — scope line, definition labels */
+  --type-meta: 14px;      /* 400 */
+  --type-body: 16px;      /* 400 */
+  --type-card: 17px;      /* 600 — card title */
+  --type-course: 20px;    /* 600 — course line */
+  --type-subhead: 22px;   /* 600 */
+  --type-section: 24px;   /* 600 */
+  --type-page: 30px;      /* 600 — page title */
+  /* DISPLAY. Three sizes above the ladder, each for one named thing: the
+     verification verdict a stranger reads first, the holder's name on screen,
+     and the holder's name on the printed sheet. Named rather than free, so
+     "large" is still a decision somebody made once. */
+  --type-hero: 36px;
+  --type-name: 40px;
+  --type-name-print: 44px;
+  --type-chip: 12.5px;    /* the mono verification link, a single element */
+  --weight-normal: 400;
+  --weight-strong: 600;
+  --tracking-eyebrow: 0.06em;
+  --tracking-wordmark: 0.14em;
+  --tracking-tight: -0.02em;
+  --leading-tight: 1.15;
+  --leading-body: 1.5;
+
+  /* the page gutter. Named, because the Experience shell cancels it by name
+     to run its header full-bleed — a negative margin that references the same
+     token can never drift from the padding it undoes. */
+  --gutter: 16px;
+
+  /* measure --------------------------------------------------------------- */
+  --measure-read: 760px;    /* the reading column */
+  --measure-narrow: 560px;  /* public verification */
+  --measure-stage: 1120px;  /* the widest a composition goes */
+  --measure: 64ch;          /* prose measure, v1 name retained */
+
+  /* motion: colour and opacity only, 160ms -------------------------------- */
+  --motion-fast: 160ms;
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 @theme inline {
@@ -45,6 +178,8 @@
   --color-ink-1: var(--ink-1);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-line-1: var(--line-1);
   --color-primary: var(--pintar-primary);
   --color-primary-ink: var(--pintar-primary-ink);
@@ -57,7 +192,8 @@
   --color-blocked-soft: var(--status-blocked-soft);
   --color-info: var(--status-info);
   --color-info-soft: var(--status-info-soft);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
   --radius-1: var(--radius-1);
   --radius-2: var(--radius-2);
 }
@@ -67,9 +203,14 @@ body {
   background: var(--surface-0);
   color: var(--ink-1);
   font-family: var(--font-sans);
+  font-size: var(--type-body);
   -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
+  line-height: var(--leading-body);
+  padding-inline: var(--gutter);
 }
+@media (min-width: 640px) { :root { --gutter: 24px; } }
+/* The Experience shell is the page: its header rule runs edge to edge. */
+.pin-shell { margin-inline: calc(var(--gutter) * -1); }
 a { color: var(--pintar-primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
 *:focus-visible { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
