@@ -439,6 +439,41 @@ end $$;
 revoke all on function selftest.f06_negative_actor(text, text) from public;
 grant execute on function selftest.f06_negative_actor(text, text) to authenticated;
 
+-- THE PROBE OWNS ITS SCOPE.
+--
+-- Measured, twice, the hard way. `open_briefing` is called inside one
+-- transaction by the briefing happy-path test AND by this probe. `briefings`
+-- carries UNIQUE (institution_id, scope_node_id, created_at) and `created_at`
+-- defaults to now(), which is CONSTANT within a transaction -- so the second
+-- call on the same node collides. With the authorization check neutralized the
+-- probe reaches that insert and refuses with 23505, an unrelated refusal, and
+-- the retained CI plant goes silent. Which node the probe received was decided
+-- by an unordered `limit 1` across the two CLASS nodes of the argument tenant:
+-- D1's own class and the analytics cohort the happy-path test uses. One choice
+-- fired the plant, the other hid it, and nothing in the test chose between them.
+-- CI run 78 was red and run 79 was green on a documentation-only diff.
+--
+-- Selecting a different existing row would only move the coincidence. The probe
+-- therefore CREATES the scope it acts on, in the caller's own subtransaction,
+-- so it is rolled back with everything else the call touches and no other test
+-- can have reached it first.
+create or replace function selftest.f06_probe_node(p_inst uuid)
+returns uuid language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_cohort record; v_id uuid;
+begin
+  select n.id, n.academic_period_id into v_cohort
+    from public.org_nodes n
+   where n.institution_id = p_inst and n.kind = 'COHORT' and n.academic_period_id is not null
+   order by n.created_at, n.id limit 1;
+  if v_cohort.id is null then return null; end if;
+  insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+  values (p_inst, v_cohort.id, 'CLASS', 'F06-N02 probe scope', v_cohort.academic_period_id)
+  returning org_nodes.id into v_id;
+  return v_id;
+end $$;
+revoke all on function selftest.f06_probe_node(uuid) from public;
+grant execute on function selftest.f06_probe_node(uuid) to authenticated;
+
 -- What a refusal has to SAY for the declared contract to be proved.
 create or replace function selftest.f06_contract_pattern(p_kind text, p_req text)
 returns text language sql immutable set search_path = public, pg_temp as $$
@@ -564,7 +599,7 @@ end $$;
 -- alone is both valid and tenant-consistent wherever the fixture stands. This is
 -- a rule about signature SHAPE, not a list of endpoints; the population is still
 -- derived.
-create or replace function selftest.f06_call_args(p_args text, p_inst uuid)
+create or replace function selftest.f06_call_args(p_args text, p_inst uuid, p_node uuid default null)
 returns text language plpgsql security definer set search_path = public, pg_temp as $$
 declare v_has_course boolean; v_has_inst boolean;
 begin
@@ -576,14 +611,19 @@ begin
             and ((v_has_inst   and split_part(trim(a), ' ', 1) ~ '(course|module)')
               or (v_has_course and split_part(trim(a), ' ', 1) ~ 'module'))
            then 'null::uuid'
+           -- the scope the probe built for itself, never one another test shares
+           when p_node is not null
+            and regexp_replace(trim(a), '^\S+\s+', '') = 'uuid'
+            and split_part(trim(a), ' ', 1) ~ '(node|scope)'
+           then quote_literal(p_node::text) || '::uuid'
            else selftest.f06_arg_value(split_part(trim(a), ' ', 1),
                   regexp_replace(trim(a), '^\S+\s+', ''), p_inst) end,
       ', ' order by ord)
     from unnest(string_to_array(p_args, ',')) with ordinality as u(a, ord)
    where length(trim(u.a)) > 0), '');
 end $$;
-revoke all on function selftest.f06_call_args(text, uuid) from public;
-grant execute on function selftest.f06_call_args(text, uuid) to authenticated;
+revoke all on function selftest.f06_call_args(text, uuid, uuid) from public;
+grant execute on function selftest.f06_call_args(text, uuid, uuid) to authenticated;
 
 revoke all on function selftest.f06_arg_value(text, text, uuid) from public;
 grant execute on function selftest.f06_arg_value(text, text, uuid) to authenticated;
@@ -1030,9 +1070,6 @@ begin
       v_pat   := selftest.f06_contract_pattern(f.kind, f.requirement);
       v_actor := selftest.f06_negative_actor(f.kind, f.requirement);
 
-      v_args := selftest.f06_call_args(f.args, v_inst);
-      v_sig  := format('select public.%I(%s)', f.proname, v_args);
-
       -- the declared negative actor
       perform selftest.as_user(v_actor);
       if not has_function_privilege(session_user, f.oid, 'EXECUTE')
@@ -1043,6 +1080,11 @@ begin
         continue;
       end if;
       begin
+        -- arguments are built INSIDE this subtransaction, because an endpoint
+        -- that takes a scope gets one created here and rolled back with it
+        v_args := selftest.f06_call_args(f.args, v_inst,
+                    case when f.args ~ '(node|scope)' then selftest.f06_probe_node(v_inst) end);
+        v_sig  := format('select public.%I(%s)', f.proname, v_args);
         execute v_sig;
         n_accepted := n_accepted + 1;
         v_bad := v_bad || format('%s (ACCEPTED %s, which does not satisfy the declared %s %s); ',
@@ -1076,6 +1118,9 @@ begin
       if f.kind = 'CAPABILITY' and v_actor <> 'alpha-dean@synthetic.pintar.test' then
         perform selftest.as_user('alpha-dean@synthetic.pintar.test');
         begin
+          v_args := selftest.f06_call_args(f.args, v_inst,
+                      case when f.args ~ '(node|scope)' then selftest.f06_probe_node(v_inst) end);
+          v_sig  := format('select public.%I(%s)', f.proname, v_args);
           execute v_sig;
           n_dean := n_dean + 1;
           v_bad := v_bad || f.proname || ' (ACCEPTED a call from a dean holding no capability); ';

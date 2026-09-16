@@ -359,6 +359,29 @@ size; only membership is evidence about coverage.
 
 ---
 
+## L15b — A probe that shares a fixture shares its collisions
+
+The retained `open_briefing` red-case fired in CI run 78 and stayed silent in
+run 79, with nothing between the two commits but documentation. The probe took
+whichever CLASS node an unordered `limit 1` returned. One of the two was D1's
+own class; the other was the node the briefing happy-path test uses in the same
+transaction. `briefings` carries `UNIQUE (institution_id, scope_node_id,
+created_at)`, `created_at` defaults to `now()`, and **`now()` is constant within
+a transaction** — so the second call on the shared node failed with `23505`
+instead of being accepted, and a deliberately planted defect went unreported.
+
+Two independently harmless things composed into a silent gate: an unordered
+fixture selection, and a uniqueness key that only bites inside one transaction.
+
+**The rule.** Verification builds the data it probes. Selecting a different
+existing row only moves the coincidence; the probe must own the state it acts
+on, created in the same subtransaction that rolls it back, so no other test can
+have reached it first. And a red-case that has ever been observed both red and
+green on the same code is not a flake to be re-run — it is a gate that does not
+yet exist.
+
+---
+
 ## L16 — "No authorization predicate" is not an open question
 
 Four mutating, client-exposed, SECURITY DEFINER STAFF RPCs carried no
