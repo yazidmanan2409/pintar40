@@ -17,6 +17,7 @@ import {
   certificateForSession, myCertificates, institutionNames, replacementFor,
   rendersCredential, rendersVerification, layoutFor,
 } from "@/lib/sertifikat";
+import KakiPintar from "@/components/KakiPintar";
 
 /**
  * The learner's certificate for one learning assignment.
@@ -101,6 +102,8 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
               </Link>
             </div>
           </section>
+
+          <KakiPintar className="pin-noprint" />
         </div>
       </>
     );
@@ -185,6 +188,10 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
         ) : null}
 
         <BarisLingkup scope={{ institution }} locale={locale} />
+
+        {/* pin-noprint: the printed sheet carries the issuing institution's
+            identity, never the software vendor's. */}
+        <KakiPintar className="pin-noprint" />
       </div>
     </>
   );

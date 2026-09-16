@@ -15,6 +15,7 @@ import KartuSertifikat from "@/components/sertifikat/KartuSertifikat";
 import { AngkaBerdiri, KartuKetiadaan, BarisKesiapan, BarisLingkup, type Envelope } from "@/components/bukti";
 import HalamanKomitmen from "@/components/HalamanKomitmen";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
+import KakiPintar from "@/components/KakiPintar";
 
 const OUT = process.argv[2];
 if (!OUT || !existsSync(join(OUT, "pintar.css"))) {
@@ -125,6 +126,7 @@ function List({ locale }: { locale: Locale }) {
             );
           })}
         </div>
+        <KakiPintar className="pin-noprint" />
       </div>
     </>
   );
@@ -164,6 +166,7 @@ function Detail({ locale, state }: {
               <button type="button" className="pin-btn">{s("sertifikat.disiapkan.hasil", locale)}</button>
             </div>
           </section>
+          <KakiPintar className="pin-noprint" />
         </div>
       </>
     );
@@ -204,6 +207,7 @@ function Detail({ locale, state }: {
             <button type="button" className="pin-btn">{s("sertifikat.salin", locale)}</button>
           </div>
         ) : null}
+        <KakiPintar className="pin-noprint" />
       </div>
     </>
   );
@@ -280,6 +284,7 @@ function Verify({ locale, vcase }: { locale: Locale; vcase: keyof typeof VERIFY_
           </dl>
         ) : null}
         <p className="pin-foot">{s("verifikasi.catatan", locale, "public")}</p>
+        <KakiPintar />
       </main>
     </>
   );

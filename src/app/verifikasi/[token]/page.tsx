@@ -3,6 +3,7 @@ import { TAMPERED, type VerificationResponse } from "@/lib/certificates/verifica
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
+import KakiPintar from "@/components/KakiPintar";
 
 /**
  * THE public certificate verification route (INV-38). Exactly one exists. A
@@ -136,6 +137,11 @@ export default async function VerifikasiPage({
         ) : null}
 
         <p className="pin-foot">{s("verifikasi.catatan")}</p>
+
+        {/* Provenance, not a field. The five-field response is untouched: this
+            says who operates the service a stranger just used, and adds
+            nothing to what was verified. */}
+        <KakiPintar />
       </main>
     </>
   );

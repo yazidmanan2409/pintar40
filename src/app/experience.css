@@ -295,6 +295,50 @@
   .pin-col { padding: 0; max-width: none; }
 }
 
+/* --------------------------------------------------------- product provenance
+   The application footer. PROVENANCE, NOT PROMOTION: it says who stands behind
+   PINTAR, in the quietest register the type ladder has, and it is the last
+   thing on the page rather than a band competing with it.
+
+   `pin-noprint` on the element that mounts it — a printed certificate carries
+   its issuing institution's identity, not its software vendor's. */
+.pin-kaki {
+  border-top: 1px solid var(--line);
+  margin-top: var(--space-9);
+  padding-block: var(--space-5) var(--space-6);
+  display: grid;
+  gap: 2px;
+  font-size: var(--type-fine);
+  color: var(--ink-3);
+}
+.pin-kaki .pin-orang { font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-kaki .pin-badan { color: var(--ink-2); }
+/* The two links sit on one line at comfortable widths and stack when the
+   column narrows — a wrapping flex row rather than a fixed pair, so a long
+   domain can never push the page into a horizontal scroll. */
+.pin-kaki .pin-hubungi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--space-3);
+  margin-top: 6px;
+}
+.pin-kaki a {
+  color: var(--ink-3);
+  text-decoration: none;
+  /* The hairline, not its emphatic sibling: at rest these two links are the
+     quietest thing on the page, and hover is where they become obviously
+     clickable. A stronger resting rule pulled the eye to the least important
+     line in the footer. */
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+  transition: color var(--motion-fast), border-color var(--motion-fast);
+}
+.pin-kaki a:hover {
+  color: var(--pintar-primary);
+  border-bottom-color: var(--pintar-primary);
+  text-decoration: none;
+}
+
 /* ------------------------------------------------------------ evidence cards */
 .pin-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
 .pin-metric {
@@ -364,6 +408,7 @@
   .pin-pending { padding: var(--space-5); }
   .pin-printwell { padding: var(--space-3); }
   .pin-grid2 { grid-template-columns: 1fr; }
+  .pin-kaki { margin-top: var(--space-8); }
   .pin-commit, .pin-refusal { padding: var(--space-5); }
   .pin-commit .pin-facts { grid-template-columns: repeat(3, auto); gap: var(--space-3) var(--space-5); }
 }

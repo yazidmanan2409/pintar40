@@ -8,6 +8,7 @@ import * as engine from "@/lib/assessment-engine";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import { BarisLingkup } from "@/components/bukti";
 import { myCertificates, institutionNames, type CertificateRow } from "@/lib/sertifikat";
+import KakiPintar from "@/components/KakiPintar";
 
 /**
  * Sertifikatmu — the learner's certificate list.
@@ -107,6 +108,8 @@ export default async function DaftarSertifikat() {
             })}
           </div>
         )}
+
+        <KakiPintar className="pin-noprint" />
       </div>
     </>
   );

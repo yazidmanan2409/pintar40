@@ -723,4 +723,88 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "UX1-S1-KAKI-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const rel = "src/components/KakiPintar.tsx";
+      const src = readFileSync(join(repoRoot, rel), "utf8");
+      const body = code(src);
+
+      // 1. the four lines Yazid supplied, and nothing invented beside them
+      const SUPPLIED = [
+        "Dr. dr. Gladys DT Tubarad, M.Pd.Ked",
+        "PT ZAYD PINTAR SELALU",
+        "info@pintarselalu.com",
+        "pintarselalu.com",
+      ];
+      for (const line of SUPPLIED) {
+        c.expect(body.includes(line), `the footer does not carry the supplied line: ${line}`);
+      }
+
+      // 2. PROPER NOUNS DO NOT PASS THROUGH THE COPY TABLE. A person's name, a
+      //    company's registered name, an email address and a domain are the
+      //    same string in both languages; two keys that must never diverge are
+      //    a divergence waiting to happen. So they are constants, and the copy
+      //    table must not carry them either.
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      for (const line of SUPPLIED) {
+        c.expect(!hle.includes(line), `the copy table carries the proper noun ${line}; it cannot be translated`);
+      }
+      c.expect(!/\bt\(/.test(body), "the footer routes a proper noun through the copy table");
+
+      // 3. the links: protocol in the href, out of the visible text
+      c.expect(/href=\{`mailto:\$\{SUREL\}`\}/.test(body), "the email is not a mailto link");
+      c.expect(/href=\{`https:\/\/\$\{RANAH\}`\}/.test(body), "the website link carries no scheme");
+      c.expect(
+        !/>\s*https?:\/\//.test(body),
+        "a protocol appears in the footer's visible text; the reader sees the domain, the browser gets the scheme",
+      );
+      c.expect(/rel="noreferrer"/.test(body), "the external link leaks a referrer");
+
+      // 4. NO PROMOTION. The footer says who stands behind PINTAR and stops.
+      for (const [what, pattern] of [
+        ["a copyright line", /©|copyright|\(c\)\s*20/i],
+        ["a legal claim", /all rights reserved|hak cipta/i],
+        ["a social link", /twitter|facebook|instagram|linkedin|x\.com|tiktok|youtube/i],
+      ] as const) {
+        c.expect(!pattern.test(body), `the footer grew ${what}, which Yazid did not supply`);
+      }
+
+      // 5. IT IS NOT ON THE CREDENTIAL. A printed certificate carries its
+      //    ISSUING INSTITUTION's identity; the software vendor's name on the
+      //    same sheet would be a second claimant to the provenance of the
+      //    evidence, which is the one thing a certificate may not be ambiguous
+      //    about. Every mount that can reach a printed page suppresses it, and
+      //    the certificate card itself never renders it at all.
+      const card = readFileSync(
+        join(repoRoot, "src", "components", "sertifikat", "KartuSertifikat.tsx"), "utf8");
+      c.expect(!/KakiPintar/.test(card), "the credential card renders the corporate footer");
+      const detail = readFileSync(
+        join(repoRoot, "src", "app", "belajar", "[tugas]", "sertifikat", "page.tsx"), "utf8");
+      for (const m of code(detail).matchAll(/<KakiPintar([^/>]*)\/>/g)) {
+        c.expect(
+          /pin-noprint/.test(m[1]),
+          `the certificate page mounts the footer without pin-noprint: <KakiPintar${m[1]}/>`,
+        );
+      }
+
+      // 6. and it really is mounted where a page ends
+      const mounts = walk(join(repoRoot, "src"))
+        .filter((f) => /\.tsx$/.test(f))
+        .filter((f) => /<KakiPintar/.test(readFileSync(f, "utf8")))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      c.expect(mounts.length >= 3, `the footer is mounted on only ${mounts.length} surface(s)`);
+
+      c.note(`${SUPPLIED.length} supplied line(s), ${mounts.length} mount(s), none on the printed sheet`);
+      return c.verdict(
+        "the application footer in the source src/components/KakiPintar.tsx carries exactly the four lines " +
+          "Yazid supplied and nothing beside them; the proper nouns are constants rather than copy-table keys, " +
+          "so they cannot diverge between the two languages; the protocol sits in the href and not in the " +
+          "visible text; and no mount that can reach a printed certificate renders it, because a credential " +
+          "carries its issuing institution's identity and not its software vendor's",
+      );
+    },
+  },
 ];

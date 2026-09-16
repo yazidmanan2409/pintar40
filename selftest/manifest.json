@@ -1006,6 +1006,11 @@
       "id": "UX1-S1-QR-01",
       "runner": "static",
       "proves": "The QR symbol the certificate prints is DECODED BACK to the exact verification link by an independent decoder (jsQR), at three lengths and therefore three symbol versions, and an input past capacity is refused rather than silently truncated. The encoder is in the repository rather than fetched from an image service because a code drawn elsewhere means a URL carrying a learner's verification token leaves PINTAR every time a certificate is rendered; a symbol nobody decoded is a decoration, which is why this test exists rather than a snapshot of the drawing"
+    },
+    {
+      "id": "UX1-S1-KAKI-01",
+      "runner": "static",
+      "proves": "The application footer in the SOURCE src/components/KakiPintar.tsx carries exactly the four lines supplied -- the responsible person, the legal entity, the email and the domain -- and nothing beside them: no copyright line, no legal claim, no social link, none of which was supplied. The proper nouns are module constants rather than copy-table keys, and the copy table is asserted not to carry them, because a person's name, a company's registered name, an email address and a domain are the same string in both languages and two keys that must never diverge are a divergence waiting to happen. The protocol sits in the href where a browser needs it and out of the visible text where a reader does not, and the external link carries rel=noreferrer so a stranger arriving from a verification link does not announce where they came from. THE HALF THAT MATTERS MOST: no mount that can reach a printed page renders it -- the credential card never renders it at all, and every mount on the certificate page carries pin-noprint -- because a printed certificate carries its ISSUING INSTITUTION's identity, and the software vendor's name on the same sheet would be a second claimant to the provenance of the evidence"
     }
   ]
 }

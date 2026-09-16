@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
+import KakiPintar from "./KakiPintar";
 
 /**
  * HalamanPenolakan — ONE refusal page, for unauthorized, nonexistent and
@@ -39,6 +40,8 @@ export default function HalamanPenolakan({
         <p className="pin-intro">{s("tolak.arti")}</p>
         <Link className="pin-btn" href={backHref}>{s(backKey)}</Link>
       </section>
+
+      <KakiPintar className="pin-noprint" />
     </div>
   );
 }
