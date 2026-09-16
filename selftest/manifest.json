@@ -971,6 +971,41 @@
       "id": "F06-N06",
       "runner": "db",
       "proves": "L3-F03: the four authoring endpoints authorize before they mutate. run_mcq_quality, validate_course_content, ingest_structured_package and propose_easy_upload_mapping each refuse an actor holding no capability with an error NAMING CAN_DRAFT, and do it before the delete each of them opens with -- a finding row planted first is still there afterwards. An actor that does hold CAN_DRAFT is accepted and clears it, so the guard guards rather than refusing everyone. Found by Layer-3 as L3-F03, where a capability-less DEAN of one institution ran run_mcq_quality against another institution's course and deleted that tenant's unacknowledged quality findings (INV-19 and INV-13); repaired by migration 20260919090000. This test builds its own institution, actors, course and ingest batch and rolls them back, which is what lets it drive the two ingestion endpoints that no seeded row reaches -- the gap F06-N02 carries as bounded for them."
+    },
+    {
+      "id": "UX1-S0-TOKEN-01",
+      "runner": "static",
+      "proves": "THE TOKEN LINT. Every re-set Experience surface in the SOURCE resolves its colours, radii, type sizes and spacing to a token declared in src/app/globals.css -- no raw hex, no rgb(), no Tailwind scale class, no inline pixel. Scope is two declared lists rather than a directory: the surfaces UX-1 has re-set, and the surfaces awaiting their slice with the slice named, and the test fails if any file under src/app or src/components is in neither -- so a surface added later cannot land outside the lint by accident. BOUNDED AND DELIBERATE (Sauron amendment of 2026-09-16 §3): the lint protects the design system, it does not obstruct implementation, so implementation constants -- the A4 sheet's 210:297 geometry, the QR module's square, a computed proportion -- are classified in an allow-list with one line of reason each rather than tokenized, and a stale allow-list entry whose literal has gone fails the test"
+    },
+    {
+      "id": "UX1-S0-CONTRAST-01",
+      "runner": "static",
+      "proves": "WCAG 2.1 contrast COMPUTED from the token source file src/app/globals.css: every text token against white, ivory and the well, every status token against those three and against its own soft ground, and the primary's ink against the primary and its hover. Nothing below 4.5:1. This is the test that makes the token lint safe to enforce -- three v1 values failed AA (ink-3 at 2.79 on white, status-ok at 4.33 on its own soft, attention at 4.16 on the well) and a lint that required their use would have enforced an unreadable screen"
+    },
+    {
+      "id": "UX1-S0-HLE-01",
+      "runner": "static",
+      "proves": "Every key in the copy table src/lib/hle.ts carries BOTH an Indonesian and an English telling, and a persona override exists in both languages or in neither -- a key that speaks to a learner differently in one interface language is a key that says two things. The internal-word guard, which until now ran for a learner and the public only, is exercised over EVERY persona, both languages and every stage telling a learner can receive; the staff-only allow-list (STAFF_ONLY_PREFIXES) is retained as a scoped statement about audience, and F05-S03 asserts the same declaration from the other side"
+    },
+    {
+      "id": "UX1-S0-LANG-01",
+      "runner": "static",
+      "proves": "THE BILINGUAL IDENTITY. The interface language changes rendered text and number formatting and NOTHING ELSE: the learner cycle's read path and the certificate read are driven twice, once per language, through a recording client, and the recorded RPC call sequence and payloads are byte-identical. The structural half stops a later edit from breaking it -- no source file under src/ passes the language into an RPC, a write or a filter, and no migration gives the preference a column. BOUNDED: this drives the application's own call sites through a recording client rather than a hosted session, so it proves what the application ASKS FOR rather than what a live PostgREST receives"
+    },
+    {
+      "id": "UX1-S1-CERT-COLS-01",
+      "runner": "static",
+      "proves": "Q-11, made mechanical against the SOURCE. The direct certificate-list read requests exactly ten columns -- id, session_id, institution_id, certificate_number, verification_token, status, issued_at_iso, revoked_at, revoked_reason, supersedes_certificate_id -- and every .from('certificates').select(...) in src/ uses that one exported list rather than a second one written inline. signature, key_version, canonical_payload and snapshot_id are named nowhere on a learner surface, so there is nothing on this side of the wire to hide. Also asserts V-6a on the source: no learner page reaches for the service-role issuance route"
+    },
+    {
+      "id": "UX1-S1-CERT-ELIGIBLE-01",
+      "runner": "static",
+      "proves": "An ELIGIBLE certificate renders no QR code, no verification link, no copy-link action, no print action, no certificate number and no name-as-issued. Asserted two ways over the SOURCE of src/app/belajar/[tugas]/sertifikat/page.tsx: the binding's own predicates, and the branch order -- the pending state returns before any of the six is built. The binding is applied to my_certificate's result as well as to the list's, because that RPC does not filter by status and returns ELIGIBLE rows. Under the V-6a ruling ELIGIBLE is the default state, not an edge case: certificate_prepare assigns a token and a number to a row verify_certificate refuses, so a link shown here would send a stranger to 'not found' for a certificate the learner was just shown as real"
+    },
+    {
+      "id": "UX1-S1-QR-01",
+      "runner": "static",
+      "proves": "The QR symbol the certificate prints is DECODED BACK to the exact verification link by an independent decoder (jsQR), at three lengths and therefore three symbol versions, and an input past capacity is refused rather than silently truncated. The encoder is in the repository rather than fetched from an image service because a code drawn elsewhere means a URL carrying a learner's verification token leaves PINTAR every time a certificate is rendered; a symbol nobody decoded is a decoration, which is why this test exists rather than a snapshot of the drawing"
     }
   ]
 }

@@ -10,6 +10,7 @@ import { spawnSync } from "node:child_process";
 import { join, relative, basename } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
+import { experienceTests } from "./experience.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -1834,4 +1835,8 @@ export const staticTests: SelfTest[] = [
       );
     },
   },
+  // UX-1 Slice 0 + Slice 1. ADDED, NOT EDITED: the cases live in their own
+  // file so that every line this session wrote is reviewable in one place, and
+  // no case that existed at the frozen baseline is touched by appending them.
+  ...experienceTests,
 ];
