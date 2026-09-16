@@ -44,6 +44,11 @@ declare
 begin
   select environment into v_env from public.platform_environment;
   if v_env = 'production' then raise exception 'seed refused: environment is production (INV-21)'; end if;
+  -- L3-F01: fail-closed. Refuses on any database where the local seed pipeline
+  -- has not set the marker -- which is every hosted (migrations-only) project.
+  if not public.synthetic_fixtures_permitted() then
+    raise exception 'seed refused: synthetic credential fixtures are local-only (L3-F01); platform_environment.local_fixtures_enabled is false';
+  end if;
   if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
     raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
   end if;

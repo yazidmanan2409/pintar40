@@ -167,11 +167,22 @@ assert_official_evidence_bootstrap   true
 ```
 
 **What hosted does NOT carry, said plainly.** The D1 bootstrap tenant is a
-**seed**, not a migration, and seeds are not applied to the hosted project —
+**seed**, not a migration, and the D1 bootstrap and Human Evaluation seeds are not applied to the hosted project —
 `non_synthetic_institutions` there is **0**, and hosted holds no session, no
 result and no certificate. Hosted is therefore synchronized at the **schema**
 level, which is what the digest proves and what §15.7 asks for; the certificate
 path itself is exercised against the local stack and in CI, not on hosted. This
+
+> **L3-F01 correction (2026-09-16).** "Seeds are not applied to the hosted project" is
+> true of the D1 bootstrap and Human Evaluation seeds, and was written believing it true
+> of all of them. It was NOT true of `synthetic.sql`: the persona seed had been applied
+> once to the hosted development project in FABLE-01 (docs/CHECKPOINT-FABLE-01.md) and
+> never dropped, leaving eight credential-bearing Auth identities — including a global
+> SYSTEM_ADMIN with a repository-literal password — resident there. Layer-3 found this;
+> the identities were removed and recurrence closed by migration 0084. See
+> docs/audit/L3-F01-CREDENTIAL-BOUNDARY.md.
+
+This
 matches how FABLE-01–03 left it (hosted carries a partial synthetic seed from
 those phases: 2 institutions, 9 persons, 0 sessions).
 

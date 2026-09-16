@@ -1506,6 +1506,66 @@ begin
     return next;
   end;
 
+  -- =========================================================================
+  -- F06-N05 -- L3-F01 C.1: the synthetic-fixture boundary is FAIL-CLOSED.
+  --
+  -- The FABLE-01 seed guard refused only environment='production', which is a
+  -- denylist that is empty by default: platform_environment.environment is
+  -- 'development' on hosted as well as local, so a hosted development project
+  -- satisfied it and synthetic.sql created real Auth identities there. Migration
+  -- 0084 adds a SEPARATE fail-closed marker (local_fixtures_enabled, default
+  -- false); synthetic_fixtures_permitted() is the predicate every credential
+  -- seed now consults, and the local-only pipeline flips the marker true.
+  --
+  -- This asserts the predicate's whole truth table on the LIVE schema, in a
+  -- rolled-back subtransaction, so a later migration that weakens it to a
+  -- constant or drops the marker is caught. The seeded clean stack has the
+  -- marker true (00_local_fixtures.sql ran), which is the legitimate local state.
+  -- =========================================================================
+  declare
+    v_base boolean; v_marker_false boolean; v_prod boolean; v_after boolean;
+  begin
+    perform selftest.as_owner();
+    -- baseline: a legitimately-seeded local stack permits fixtures
+    select public.synthetic_fixtures_permitted() into v_base;
+    begin
+      -- marker false -> refuse, even on a non-production environment
+      update public.platform_environment set local_fixtures_enabled = false;
+      select public.synthetic_fixtures_permitted() into v_marker_false;
+      -- marker true again but production -> still refuse
+      update public.platform_environment set local_fixtures_enabled = true, environment = 'production';
+      select public.synthetic_fixtures_permitted() into v_prod;
+      raise exception 'F06_N05_UNDO';
+    exception when others then
+      if sqlerrm <> 'F06_N05_UNDO' then raise; end if;
+    end;
+    select public.synthetic_fixtures_permitted() into v_after;
+
+    id := 'F06-N05'; area := 'L3-F01 -- synthetic credential fixtures are fail-closed';
+    if v_base is not true then
+      ok := false;
+      detail := 'a legitimately seeded local stack does not permit fixtures: the enabler pipeline is broken '
+             || '(00_local_fixtures.sql should have set local_fixtures_enabled = true)';
+    elsif v_marker_false is not false then
+      ok := false;
+      detail := 'clearing local_fixtures_enabled did NOT refuse fixtures: the boundary is fail-open again (L3-F01)';
+    elsif v_prod is not false then
+      ok := false;
+      detail := 'production with the local marker set still permitted fixtures: the production denylist is gone';
+    elsif v_after is not true then
+      ok := false;
+      detail := 'the rolled-back probe leaked: the marker did not return to its seeded value';
+    else
+      ok := true;
+      detail := 'synthetic_fixtures_permitted() is TRUE only on a non-production environment whose '
+             || 'local_fixtures_enabled marker is set; clearing the marker refuses (the FABLE-01 '
+             || 'fail-open default is gone) and production refuses regardless. A migrations-only hosted '
+             || 'project keeps the marker false and every credential seed refuses. Probe rolled back with '
+             || 'no residue';
+    end if;
+    return next;
+  end;
+
   perform selftest.f06_purge();
   perform selftest.purge_certificates();
   id := 'F06-DONE'; area := 'suite'; ok := true; detail := 'FABLE-06 suite complete';

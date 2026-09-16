@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 24,
+  "version": 25,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -923,6 +923,11 @@
       "proves": "every exported HTTP handler in every route file under the source directory src/app/api/dev refuses in its own body outside NODE_ENV==='development' (INV-21). The file set is derived from the directory rather than written down, so a dev tool added in a new file is covered the day it appears -- the half F01-R01 cannot have, because the paths it fetches from the production build are a written list. Fails rather than passing vacuously if the namespace holds no route file"
     },
     {
+      "id": "F06-S07",
+      "runner": "static",
+      "proves": "L3-F01 C.1: over the repository seed files and config.toml, synthetic credential-bearing seed execution is proven local-only. Every seed file that inserts into auth.users calls synthetic_fixtures_permitted() before the insert (the file set is derived from the seed directory, not a written list); 00_local_fixtures.sql -- the local-only enabler that flips the fail-closed marker -- runs first in the config.toml sql_paths and creates no identity; and no tracked workflow file applies seeds to a hosted project. The hosted half (no such identity actually present) is the docs/audit/hosted-credential-audit.sql document, which CI cannot run."
+    },
+    {
       "id": "F06-N02",
       "runner": "db",
       "proves": "INV-19 in the API rather than the UI: a dean is refused every mutating STAFF endpoint that checks a capability DEAN lacks, and READS successfully through the same session so the refusals are not simply an absent session. The endpoint set is DERIVED three ways -- role_capabilities for the denied capabilities, client_rpc_registry for client exposure, pg_proc.provolatile for mutation -- so a new privileged RPC joins it the day it is created, with a floor of 18 so an endpoint that deletes its own capability check fails rather than leaving the set. Refusal is distinguished from absence: undefined_function and an uncallable probe are failures, not passes. MEASURED AT THIS COMMIT on a clean seeded stack: 21 endpoints, 17 refusing with an AUTHORIZATION error and 4 refusing earlier, NAMED in the verdict. For those 4 the assertion proves refusal but not authorization, so a capability check weakened rather than removed would not be detected -- see RF-2. The split was 4/17 until the probe stopped passing NULL for arguments its own tenant cannot supply"
@@ -956,6 +961,11 @@
       "id": "F06-N04",
       "runner": "db",
       "proves": "the live CHECK predicate on public.briefings requires all four provenance columns -- catalogue_version, generated_report_id, template_id and template_version -- and a READY briefing missing the template id, missing the template version, or naming no template at all is refused on UPDATE, while one carrying all four is accepted so the predicate is a rule rather than a wall. Second-eye finding G1: 0082 enforced two of the four while its header claimed §3.4's \"the catalogue version AND the template version it used\" -- a description broader than its predicate, in a CONSTRAINT rather than in a proves string. Repaired by 0083. Structural and behavioural halves both, because a predicate naming four columns that never fires proves nothing. Every row written is rolled back"
+    },
+    {
+      "id": "F06-N05",
+      "runner": "db",
+      "proves": "L3-F01: synthetic_fixtures_permitted() -- the predicate every credential-bearing seed now consults -- is FAIL-CLOSED on the live schema. TRUE only on a non-production environment whose platform_environment.local_fixtures_enabled marker is set (flipped true solely by the local config.toml seed pipeline, which hosted never runs); clearing the marker refuses, and production refuses regardless. Replaces the FABLE-01 fail-OPEN guard that refused only environment='production' and so let synthetic.sql place a global SYSTEM_ADMIN with a tracked password on the hosted development project. Truth table asserted in a rolled-back subtransaction; no residue."
     }
   ]
 }

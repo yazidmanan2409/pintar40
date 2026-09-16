@@ -1,0 +1,12 @@
+-- L3-F01 — enable synthetic credential-bearing fixtures for THIS database.
+--
+-- This file runs ONLY through the local seed pipeline (`config.toml [db.seed]`),
+-- which `supabase db reset` / `supabase start` execute against the local stack.
+-- A hosted project never reads config.toml, so it never runs this file: its
+-- platform_environment.local_fixtures_enabled stays false (migration 0084's
+-- default) and synthetic.sql / learning_cycle.sql refuse to create credential
+-- identities there.
+--
+-- It is deliberately the FIRST seed, before any credential seed, so the marker
+-- is present when they check it.
+update public.platform_environment set local_fixtures_enabled = true;

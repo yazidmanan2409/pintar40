@@ -64,6 +64,11 @@ declare
   v_persona_ids uuid[];
 begin
   select environment into v_env from public.platform_environment;
+  -- L3-F01: fail-closed. This seed creates a credential-bearing evaluator
+  -- account; local-only, same marker as every other fixture credential seed.
+  if not public.synthetic_fixtures_permitted() then
+    raise exception 'seed refused: evaluation credential fixtures are local-only (L3-F01); platform_environment.local_fixtures_enabled is false';
+  end if;
   if v_env = 'production' then
     raise exception 'seed refused: the human-evaluation facility is never created in production (ADR-0020, INV-21)';
   end if;

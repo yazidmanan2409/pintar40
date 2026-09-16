@@ -242,6 +242,17 @@ jobs:
           [ "$code" -ne 0 ] || { echo "::error::F06-S04 stayed green with a proves string naming no artefact"; exit 1; }
           grep -E '^F06-S04 +FAIL' r3.txt
           git checkout -- selftest/manifest.json
+
+          # 4. a credential-bearing seed with no fail-closed guard (L3-F01). The
+          #    seed set is derived from the directory, so a rogue seed that
+          #    inserts into auth.users without synthetic_fixtures_permitted()
+          #    must make F06-S07 fail and name the file.
+          printf "insert into auth.users (id, email, encrypted_password) values (gen_random_uuid(), 'rogue@synthetic.pintar.test', 'x');\n" > supabase/seed/zz_rogue_fixture.sql
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=F06-S07 | tee r4.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::F06-S07 stayed green with a guardless credential seed present"; exit 1; }
+          grep -E '^F06-S07 +FAIL' r4.txt
+          grep -F 'zz_rogue_fixture.sql' r4.txt
+          rm -f supabase/seed/zz_rogue_fixture.sql
       - name: The INV-20 lint must catch a planted raw-evidence read
         if: matrix.case == 'static-raw-evidence-read'
         run: |
@@ -797,6 +808,19 @@ jobs:
           rollback;
           SQL
           red F06-N04 'template_version (G1)' /tmp/f06-4.sql
+
+          # 5. the synthetic-fixture boundary forced fail-open (L3-F01). The
+          #    predicate every credential seed consults is redefined to a
+          #    constant true; F06-N05 must catch that clearing the marker no
+          #    longer refuses.
+          cat > /tmp/f06-5.sql <<'SQL'
+          begin;
+          create or replace function public.synthetic_fixtures_permitted() returns boolean
+            language sql stable security definer set search_path=public,pg_temp as $f$ select true $f$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id='F06-N05';
+          rollback;
+          SQL
+          red F06-N05 'fail-open again' /tmp/f06-5.sql
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are

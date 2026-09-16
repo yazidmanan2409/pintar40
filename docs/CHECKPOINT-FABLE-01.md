@@ -56,6 +56,13 @@ with pinned `search_path`; grants to anon/authenticated for impersonation).
 **Drop before any production use.** Synthetic seed applied once; the seed
 file is unchanged.
 
+> **L3-F01 update (2026-09-16).** "Drop before any production use" was the whole
+> compensating control, and it was never executed: the synthetic identities stayed
+> resident on the hosted development project until Layer-3 found them. They are now
+> removed, and migration 0084 replaces "remember to drop" with a fail-closed guard so the
+> credential seeds refuse on any migrations-only (hosted) database. See
+> docs/audit/L3-F01-CREDENTIAL-BOUNDARY.md.
+
 ## 3. Selftest status
 
 `npm run selftest` (strict) and `npm run selftest:local` (accepts skips

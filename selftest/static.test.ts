@@ -1761,4 +1761,77 @@ export const staticTests: SelfTest[] = [
       );
     },
   },
+  {
+    // L3-F01 C.1 -- synthetic credential-bearing seed execution is LOCAL-ONLY.
+    //
+    // The FABLE-01 seed guard was fail-OPEN: it refused only environment=
+    // 'production', and platform_environment.environment is 'development' on
+    // hosted too, so synthetic.sql populated real Auth identities -- a global
+    // SYSTEM_ADMIN with a tracked password -- on the hosted development project.
+    // Repaired by migration 0084 (a fail-closed marker) plus the seed guards.
+    //
+    // Proven mechanically over the repository:
+    //   (1) every seed that inserts a credential-bearing auth.users row calls
+    //       synthetic_fixtures_permitted() BEFORE that insert -- derived from the
+    //       seed directory, so a new credential seed is covered the day it lands;
+    //   (2) the local-only enabler (00_local_fixtures.sql) runs FIRST in the
+    //       config.toml pipeline, before any credential seed, and creates nothing;
+    //   (3) no tracked automation applies seeds to a hosted project.
+    // The hosted half is docs/audit/hosted-credential-audit.sql (C.2), not CI.
+    id: "F06-S07",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const seedDir = join(repoRoot, "supabase", "seed");
+      const seeds = readdirSync(seedDir).filter((f) => f.endsWith(".sql")).sort();
+      c.expect(seeds.length > 0, "no seed files found");
+
+      const CRED = /insert\s+into\s+auth\.users\b/i;
+      const GUARD = /synthetic_fixtures_permitted\s*\(\s*\)/;
+      const unguarded: string[] = [];
+      let credSeeds = 0, credInserts = 0;
+      for (const f of seeds) {
+        const src = readFileSync(join(seedDir, f), "utf8");
+        const inserts = [...src.matchAll(/insert\s+into\s+auth\.users\b/gi)];
+        if (inserts.length === 0) continue;
+        credSeeds += 1;
+        for (const m of inserts) {
+          credInserts += 1;
+          if (!GUARD.test(src.slice(0, m.index!)))
+            unguarded.push(`${f}: an insert into auth.users with no synthetic_fixtures_permitted() guard above it`);
+        }
+      }
+      c.expect(credSeeds > 0, "no seed inserts into auth.users; the credential-seed check has no subject");
+      c.expect(unguarded.length === 0,
+        "credential-bearing seed insert(s) not gated by the fail-closed marker (L3-F01):\n  " + unguarded.join("\n  "));
+
+      const cfg = readFileSync(join(repoRoot, "supabase", "config.toml"), "utf8");
+      const mPaths = /sql_paths\s*=\s*\[([^\]]*)\]/.exec(cfg);
+      c.expect(!!mPaths, "config.toml has no [db.seed] sql_paths");
+      const order = (mPaths ? mPaths[1] : "").split(",").map((x) => x.replace(/["'\s]/g, ""));
+      const enablerIdx = order.findIndex((x) => x.endsWith("00_local_fixtures.sql"));
+      c.expect(enablerIdx === 0, "00_local_fixtures.sql (the local-only enabler) is not the first seed in config.toml");
+      const firstCred = order.findIndex((x) => /synthetic\.sql|learning_cycle\.sql|official_bootstrap\.sql|human_evaluation\.sql/.test(x));
+      c.expect(firstCred === -1 || enablerIdx < firstCred,
+        "a credential seed is ordered before the local-fixtures enabler in config.toml");
+      const enabler = readFileSync(join(seedDir, "00_local_fixtures.sql"), "utf8");
+      c.expect(!CRED.test(enabler) && /local_fixtures_enabled\s*=\s*true/.test(enabler),
+        "00_local_fixtures.sql must only set local_fixtures_enabled = true and create no identity");
+
+      const ghDir = join(repoRoot, ".github");
+      const gh: string[] = [];
+      const walk = (d: string) => { for (const e of readdirSync(d, { withFileTypes: true })) { const q = join(d, e.name); if (e.isDirectory()) walk(q); else gh.push(q); } };
+      if (existsSync(ghDir)) walk(ghDir);
+      const hostedSeed = gh.filter((f) => { const t = readFileSync(f, "utf8"); return /--project-ref|db\s+push|--linked/.test(t) && /seed/i.test(t); });
+      c.expect(hostedSeed.length === 0,
+        "tracked automation appears to apply seeds to a hosted project:\n  " + hostedSeed.map((f)=>f.slice(repoRoot.length+1)).join("\n  "));
+
+      return c.verdict(
+        `${credInserts} credential-bearing insert(s) across ${credSeeds} seed(s), each gated by ` +
+        `synthetic_fixtures_permitted(); the local-only enabler runs first and creates no identity; ` +
+        `no tracked automation seeds a hosted project. Derived from the seed directory. Hosted half: ` +
+        `docs/audit/hosted-credential-audit.sql (L3-F01 C.2), which CI cannot run.`
+      );
+    },
+  },
 ];

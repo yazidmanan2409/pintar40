@@ -37,6 +37,12 @@ declare
   v_status text; v_blockers text[]; n int;
 begin
   select environment into v_env from public.platform_environment;
+  -- L3-F01: fail-closed. This seed creates credential-bearing auth.users
+  -- (including a bootstrap ADMIN). It runs only where the local seed pipeline
+  -- set the marker; a migrations-only hosted project keeps it false and refuses.
+  if not public.synthetic_fixtures_permitted() then
+    raise exception 'seed refused: bootstrap credential fixtures are local-only (L3-F01); platform_environment.local_fixtures_enabled is false';
+  end if;
   if v_env = 'production' then
     raise exception 'seed refused: the OFFICIAL bootstrap tenant is never created in production (D1, INV-21)';
   end if;
