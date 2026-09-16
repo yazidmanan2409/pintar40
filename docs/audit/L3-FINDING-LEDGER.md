@@ -5,6 +5,25 @@ finding, recorded at the moment of discovery with the evidence that produced
 it. Findings are not closed here; closure is recorded by whoever verifies the
 repair.
 
+## Closure status
+
+| finding | status | closed by |
+|---|---|---|
+| **L3-F01** — synthetic credential fixtures reachable on a hosted project | **CLOSED** | Repaired in `481ff93`; hosted remediation verified by the C.2 audit |
+| **L3-F02** — the INV-19 regression detector derived its population from the implementation it tested | **CLOSED** | Repaired in `add47fa`/`dc7f42d`; **independently verified against hosted by the Second Eye** |
+| **L3-F03** — a capability-less DEAN performed a cross-tenant destructive write | **CLOSED** | Repaired in `add47fa`; **independently verified against hosted by the Second Eye** |
+
+**No additional Core Build blocker is currently open.**
+
+**Evidence ceiling, preserved.** The Second Eye's independent verification of
+L3-F02 and L3-F03 was performed **against hosted**. The repository, CI and
+local-replay evidence throughout this ledger — the clean replays, the six
+adversarial plants, the selftest counts, the launch-readiness rows, the parity
+digests — was produced by Bob and **was not independently reproduced by the
+Second Eye**. It is recorded here as Bob's evidence and must not be re-attributed.
+The Second Eye's statement is: *F02 CLOSED, F03 CLOSED, no new core defect
+introduced by the repair.*
+
 Measured at commit `481ff93a065a572956fa0b6dae4cb3fcb5444798` unless an entry
 says otherwise. "Local replay" means a database built from zero: drop, create,
 all 81 migrations, then the five seeds in the order `supabase/config.toml`
@@ -52,7 +71,8 @@ remain on hosted as inert `SYNTHETIC` data; removing them is a large
 ## L3-F02 — the INV-19 regression detector derives its population from the
 ## implementation it is testing
 
-**Status: REPAIRED. Verified by five adversarial plants; see §F02 below.**
+**Status: CLOSED.** Repaired, verified by five adversarial plants, and
+independently verified against hosted by the Second Eye.
 
 **Defect.** `F06-N02` computed the set of endpoints that must refuse a DEAN by
 asking each candidate function's own body whether it names a capability DEAN
@@ -104,18 +124,35 @@ mutating STAFF RPCs. Two columns rather than one because the population is not
 all capability-based: putting 'SYSTEM_ADMIN' or 'INSTITUTION_MEMBER' in a column
 named `required_capability` would be a sentinel that no `role_capabilities()`
 array contains, so it could never be validated against the model it claims to
-name. A BEFORE trigger makes registering a mutating STAFF endpoint without a
-declaration impossible; `assert_staff_rpc_authorization_declared()` catches
-later drift. F06-N02 now derives from the registry, `pg_proc.provolatile` and
-the client EXECUTE grant, probes each endpoint as the negative actor its
-declaration implies as well as the DEAN, and **carries no floor** — membership
-is the closure. Population 21 → 31.
+name. **Neither column is `NOT NULL`, and the record should not say otherwise.**
+Completeness is carried by two mechanisms instead: the BEFORE trigger
+`client_rpc_registry_declares_authorization` REFUSES a mutating STAFF
+registration that leaves `authorization_kind` null, and
+`assert_staff_rpc_authorization_declared()` independently DETECTS an undeclared
+member of the live population — which is what catches a function that becomes
+volatile after it was registered, a case no write-time trigger can see.
+
+**Two populations, of different widths.** The DECLARED population, which the
+assertion covers, is `client_rpc_registry.exposure = 'STAFF'` intersected with
+`pg_proc.provolatile = 'v'` — 31 endpoints, **no grant clause**. F06-N02's
+PROBE population additionally requires the client EXECUTE grant, because an
+endpoint no client can call is not an INV-19 question; where the two differ the
+verdict reports the difference rather than assuming it. Both stand at 31 today.
+The deployed assertion predicate is therefore WIDER than the probe, not
+narrower, and an earlier statement of this record had it the other way round.
+
+F06-N02 probes each endpoint as the negative actor its declaration implies as
+well as the DEAN, and **carries no floor** — membership is the closure.
+Population 21 → 31.
 
 ---
 
 ## L3-F03 — a capability-less DEAN performs a cross-tenant destructive write
 
-**Status: REPAIRED by migration `20260919090000_staff_authoring_rpcs_check_their_capability.sql`. The original cross-tenant reproduction now refuses and the findings survive.**
+**Status: CLOSED.** Repaired by migration
+`20260919090000_staff_authoring_rpcs_check_their_capability.sql`; the original
+cross-tenant reproduction now refuses and the findings survive. Independently
+verified against hosted by the Second Eye.
 
 **Defect.** Four mutating, client-exposed, `SECURITY DEFINER` STAFF RPCs
 granted to `authenticated` contain no authorization predicate at all:

@@ -1,10 +1,76 @@
 # PINTAR 4.0 — state of the system
 
 **Commit:** the FABLE-06 closing commit on `claude/quirky-meitner-a04smj`.
-**Written by:** the builder. **Not reviewed.** Two independent reads follow this
-document and neither has happened yet: a FABLE-06 gate review, and a Layer-3
-audit. **Nothing here is an audit outcome, and no claim in it should be read as
-one.**
+**Written by:** the builder. **Not reviewed** *as written*. Two independent reads
+followed it and both have now happened: the FABLE-06 gate review (G1–G4) and the
+Layer-3 audit (L3-F01 through L3-F03). **Nothing in the body below is an audit
+outcome, and no claim in it should be read as one** — the audit outcomes are the
+section immediately following, and the corrections they forced are marked inline
+where they land.
+
+---
+
+## 0. Core Build closure
+
+> ## PINTAR 4.0 CORE BUILD — COMPLETE
+>
+> **This means exactly one thing:** the frozen Core Build scope has been
+> implemented, and its known gate-blocking defects have been closed.
+>
+> **It does not mean** production ready, human validated, load validated, every
+> deferred question closed, every known limitation removed, or UI/UX finished.
+> Those remain open and are listed as such.
+
+**Layer-3 findings, final status.**
+
+| finding | status | independent verification |
+|---|---|---|
+| **L3-F01** — repository-known synthetic credentials live as privileged Auth identities on the hosted project | **CLOSED** | hosted remediation confirmed by the C.2 audit |
+| **L3-F02** — the INV-19 regression detector derived its expected population from the implementation it was testing | **CLOSED** | **Second Eye, against hosted** |
+| **L3-F03** — a capability-less DEAN performed a cross-tenant destructive write through four unguarded `SECURITY DEFINER` STAFF RPCs | **CLOSED** | **Second Eye, against hosted** |
+
+**No additional Core Build blocker is currently open.** The Second Eye's gate
+statement is: *F02 CLOSED, F03 CLOSED, no new core defect introduced by the
+repair.*
+
+**Evidence ceiling, and it is narrower than the closure.** The Second Eye
+verified L3-F02 and L3-F03 **against the hosted database**. Everything else in
+this document — the clean replays, the adversarial plants, the selftest counts,
+the launch-readiness rows, the parity digests, every CI result — was produced by
+the builder and **was not independently reproduced**. A finding being closed by
+an independent party does not promote the builder's surrounding evidence to
+independent evidence, and this document does not let it.
+
+Full record: `docs/audit/L3-FINDING-LEDGER.md`.
+
+### 0.1 What closure does NOT close
+
+These are **residuals**, not blockers. None is promoted by this closure and none
+is absorbed by it. Each stays open, owned, and visible.
+
+| residual | nature |
+|---|---|
+| **RF-2** | Narrowed, not closed. Eleven of the 31 declared endpoints refuse before F06-N02's probe reaches authorization, so for them refusal is proved but not that it is the declared authorization. Two of the eleven are covered at runtime instead by F06-N06. |
+| **INV-20 vacuity** | Holds, but holds vacuously: no analytics consumer role exists yet. `assert_evidence_consumer_boundary()` says so in its own verdict. |
+| **INV-06 behavioural half** | `timingSafeEqual` is asserted structurally; "near-miss signatures fail identically fast" is not measured. |
+| **Retained-token expiry** | Needs a real Auth stack; not exercised locally. |
+| **DB-suite repeated-run non-idempotency** | `run_fable06()` adds a second CLASS node to the bootstrap institution; `fable04.sql`'s unordered `limit 1` then picks it and F04-T04 fails on a second pass. CI is unaffected (fresh database, F04 before F06). Fresh replay remains the authoritative form. |
+| **Launch-readiness outside CI** | `docs/audit/launch-readiness.sql` is run by hand. |
+| **INV-05 single detector** | Of four manifest entries citing INV-05, only `F04-T09` detects a missing protected field in the real builder. Functioning; not redundant. |
+| **Pass-verdict duplication** | `session_outcome` and `certificate_eligibility` each derive the verdict from stored mastery and disagree when a definition names no pass mark. **Unreachable through the current creation path** — which is not the same as structurally unreachable. |
+| **DELEGATED trigger verification** | The assertion proves the named table exists and carries an enabled trigger; it does not prove that trigger authorizes correctly. |
+| **`generate_report` contract** | Declared truthfully as `INSTITUTION_MEMBER`. Whether that is the right contract for a mutating STAFF RPC was not probed. |
+| **INVOKER-helper registry scope** | The registry closure joins by function name; no registered client-callable name is currently overloaded (86 names → 86 `pg_proc` rows), and the limit is recorded rather than removed. |
+| **Load Lab** | Post-build stream. |
+| **Production readiness** | Post-build stream. |
+| **Other deferred RF/OQ items** | Carried in `docs/phases/FABLE-06-OPEN-QUESTIONS.md`. |
+
+**Governance lesson carried from L3-F03** (L16 in `docs/ENGINEERING-LESSONS.md`):
+a security observation describing a mutating endpoint with **no authorization
+predicate** is not eligible to cross a build-complete gate merely as an open
+question. It needs evidence-backed closure or an explicit gate-blocking
+disposition. That is the distinction this table exists to keep honest — every row
+above is a *bounded limitation*, not an unowned finding.
 
 **The standard this document holds itself to.** Every claim carries one of three
 statuses, and the status is about *evidence*, not about confidence:
