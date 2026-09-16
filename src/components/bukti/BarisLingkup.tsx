@@ -18,6 +18,13 @@ export type Lingkup = {
  * institution did not make, and the confirmed finding Q-7 is precisely that no
  * column carries one yet. When the column arrives, `markUrl` starts arriving
  * with it and this component is already ready for it.
+ *
+ * NOTE THAT THIS IS A DIFFERENT MARK FROM THE ONE IN THE HEADER. The ruling of
+ * 2026-09-17 (claude/UX-1-INSTITUTION-MARK-RULING.md §2.5) keeps application-
+ * shell branding and credential issuer identity apart permanently: an
+ * institution's mark appearing in the shell does not thereby appear on its
+ * certificates, and whatever is in the header decorates no claim about who
+ * issued what.
  */
 export default function BarisLingkup({
   scope,

@@ -73,6 +73,14 @@ Each of these was a fork where the prompt did not dictate the answer. Recorded s
 
 ## 5. Open threads, in priority order
 
+0. **Q-7 now carries a ruling, not just a gap.** `claude/UX-1-INSTITUTION-MARK-RULING.md`
+   (Yazid/Sauron, 2026-09-17) specifies the institution-mark behaviour the Experience owes:
+   an institution replaces the mark in the application shell **and nothing else**, and the
+   credential's issuer identity stays a separate concern permanently. Nothing is implemented
+   — the frozen contract has neither the column nor a public delivery path — and
+   `UX1-BRAND-02` fails the day either appears, so the gap is closed deliberately rather
+   than by whoever adds the obvious column.
+
 1. **A replacement certificate has no learner-side detail read.** Nothing in the frozen schema ever writes a non-null `supersedes_certificate_id` — there is no reissue function at all — and by the definition in `certificates_one_root_per_session` a replacement is the root of no session, so `my_certificate` (per-session, root-only) can never return it. The banner therefore opens the replacement's public verification page. **Belongs with V-6a as Bob's**, not as a UX-1 change. Handoff §4.2, §7.1.
 2. **End-to-end issuance: PENDING Bob's lifecycle step.** ELIGIBLE is the state a learner meets by default today.
 3. **`en-ID` yields English months with Indonesian digit grouping.** Invisible on every Slice 1 surface; visible the first time a report renders a separated number. Handoff §7.2.

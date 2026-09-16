@@ -1016,6 +1016,11 @@
       "id": "UX1-BRAND-01",
       "runner": "static",
       "proves": "The mark the application renders is the SUPPLIED ARTWORK, byte for byte. public/brand/pintar-selalu-logo.png is verified by sha256 against the file Yazid supplied, so a redraw, a recolour, a crop or a well-meant recompression fails -- a digest is the only check that catches the last of those, which looks like nothing and alters artwork somebody else owns. Its intrinsic geometry is read from the PNG header rather than trusted (766x429), so a resize fails even if the digest were updated, and the component's width/height attributes must match it or the reserved box is the wrong shape and the header shifts as the image lands. THE RENDERING CANNOT DISTORT IT: the .pin-merek rule takes its height from a token and leaves width to auto, and the test fails if it ever sets a width, because a squash of a few per cent is not something review catches. AND IT IS NOT ON THE CREDENTIAL: the certificate card references neither the component nor the asset, because a certificate's issuer is the INSTITUTION and a software vendor's mark on the same sheet would be a second claimant to the provenance of the evidence"
+    },
+    {
+      "id": "UX1-BRAND-02",
+      "runner": "static",
+      "proves": "The institution-mark ruling of 2026-09-17 still holds against the tree. THE Q-7 GAP IS MEASURED RATHER THAN REMEMBERED: the 83 frozen migrations carry no institution-mark or theme column and no public storage bucket, so the day somebody closes Q-7 this fails and points them at the delivery-path half of the problem -- a mark on the public verification page is read by an anonymous stranger, and a column alone does not give them a path to it. BOUNDED BRANDING, NOT TENANT THEMING: no per-tenant theming mechanism has entered the Experience layer, which is the boundary the ruling draws -- an institution may replace the mark and nothing else, because the moment a second thing is configurable per tenant the guarantee that every PINTAR screen behaves the same way for every child is gone. No specific institution is named in src/ (UIN is the ruling's example and belongs in the ruling). And the shell identity has exactly one renderer, so the future substitution has exactly one place to happen"
     }
   ]
 }

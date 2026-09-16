@@ -895,4 +895,98 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "UX1-BRAND-02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const ruling = join(repoRoot, "claude", "UX-1-INSTITUTION-MARK-RULING.md");
+      c.expect(existsSync(ruling), "the institution-mark ruling is not recorded");
+
+      // 1. THE Q-7 GAP IS STILL A GAP, measured rather than remembered. The
+      //    ruling permits implementation only if the frozen contract already
+      //    exposes an institution mark safely. It does not, and this is what
+      //    says so out loud the day that changes — so the gap is closed on
+      //    purpose, with the delivery path solved, rather than by whoever adds
+      //    the obvious column.
+      const migrations = walk(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"));
+      c.expect(migrations.length === 83, `${migrations.length} migrations; the frozen baseline has 83`);
+      // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
+      // only a create-table definition, so a planted `alter table … add column
+      // logo_url text` sailed past it — a guard that misses the thing it exists
+      // to catch is worse than none, because it reads green while enforcing
+      // nothing. Watched to fail in both shapes before being trusted.
+      const MARK_NAME = "(?:logo|logo_url|brand|brand_url|mark_url|emblem|crest|wordmark|favicon|theme|theme_json)";
+      const MARK_TYPE = "(?:text|uuid|jsonb|json|varchar|bytea)";
+      const MARK_COLUMN = new RegExp(
+        `(?:^[\\s,]*|add\\s+column\\s+(?:if\\s+not\\s+exists\\s+)?)${MARK_NAME}\\s+${MARK_TYPE}\\b`,
+        "im",
+      );
+      const withColumn = migrations.filter((f) => MARK_COLUMN.test(readFileSync(f, "utf8")))
+        .map((f) => relative(repoRoot, f));
+      c.expect(
+        withColumn.length === 0,
+        "an institution-mark or theme column now exists in the schema. That is Q-7 being closed: re-read " +
+          "claude/UX-1-INSTITUTION-MARK-RULING.md §3 before wiring it up, because a column alone is not " +
+          "sufficient — the public verification page needs a delivery path a stranger can read, and every " +
+          "migration asserts there are no public storage buckets:\n  " + withColumn.join("\n  "),
+      );
+
+      // and the delivery-path half, which is the one likely to be missed
+      const publicBucket = migrations.filter((f) => /insert into storage\.buckets[^;]*\btrue\b/i.test(readFileSync(f, "utf8")))
+        .map((f) => relative(repoRoot, f));
+      c.expect(publicBucket.length === 0, `a public storage bucket appeared: ${publicBucket.join(", ")}`);
+
+      // 2. BOUNDED BRANDING, NOT TENANT THEMING (ruling §2.3). An institution
+      //    may replace the mark. The moment a second thing is configurable per
+      //    tenant, the guarantee that every PINTAR screen behaves the same way
+      //    for every child is gone.
+      const experience = [
+        ...walk(join(repoRoot, "src", "components")).filter((f) => /\.tsx?$/.test(f)),
+        ...walk(join(repoRoot, "src", "app")).filter((f) => /\.(tsx?|css)$/.test(f)),
+      ];
+      const THEMING = /\b(tenantTheme|institutionTheme|themeFor|customTheme|brandingFor|tenant_theme|institution_theme|--tenant-|--institution-)\b/;
+      for (const f of experience) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const m = THEMING.exec(code(readFileSync(f, "utf8")));
+        c.expect(m === null, `${rel} introduces a per-tenant theming mechanism (${m?.[0]}); the ruling permits the mark and nothing else`);
+      }
+
+      // 3. NO INSTITUTION IS NAMED IN src/ AT ALL — and this reads the RAW
+      //    source rather than stripping comments, on purpose. A comment cannot
+      //    key behaviour to an institution, but the rule costs nothing to obey
+      //    (a component can say "an institution") and a strict rule has no
+      //    false negative to argue about later. It caught this session writing
+      //    the ruling's own example into a doc comment.
+      const INSTITUTIONS = /\b(UIN|Universitas Islam Negeri)\b/;
+      for (const f of experience) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        c.expect(!INSTITUTIONS.test(readFileSync(f, "utf8")), `${rel} names a specific institution`);
+      }
+
+      // 4. and the default is still the default: one component renders the
+      //    shell identity, so the future substitution has one place to happen
+      const mark = readFileSync(join(repoRoot, "src", "components", "MerekPintar.tsx"), "utf8");
+      c.expect(/pintar-selalu-logo\.png/.test(mark), "the default mark is no longer the PINTAR SELALU logo");
+      const renderers = experience
+        .filter((f) => /\.tsx$/.test(f))
+        .filter((f) => /brand\/[a-z-]+\.png/.test(code(readFileSync(f, "utf8"))))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      c.expect(
+        renderers.length === 1 && renderers[0] === "src/components/MerekPintar.tsx",
+        `the brand asset is referenced from ${renderers.length} component(s); the shell identity must have ` +
+          `exactly one renderer so an institution mark substitutes in one place: ${renderers.join(", ")}`,
+      );
+
+      c.note(`${migrations.length} migrations swept for a mark column, ${experience.length} Experience file(s) for theming`);
+      return c.verdict(
+        "the institution-mark ruling in claude/UX-1-INSTITUTION-MARK-RULING.md still holds against the tree: " +
+          "the Q-7 source does not exist in the 83 frozen migrations and no public storage bucket has appeared, " +
+          "so the gap cannot be closed without re-reading the delivery-path half; no per-tenant theming " +
+          "mechanism has entered the Experience layer, which is the boundary between bounded branding and " +
+          "tenant theming; no specific institution is named in src/; and the shell identity has exactly one " +
+          "renderer, so the future substitution has exactly one place to happen",
+      );
+    },
+  },
 ];

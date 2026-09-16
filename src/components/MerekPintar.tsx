@@ -23,6 +23,19 @@
  * the correct box before the image loads — a layout shift in a header is the
  * one place a reader always notices.
  *
+ * THE DEFAULT, AND ONE DAY NOT THE ONLY ONE. Per the institution-mark ruling of
+ * 2026-09-17 (claude/UX-1-INSTITUTION-MARK-RULING.md), an institution that has
+ * supplied and configured an approved mark of its own displays THAT mark in
+ * this position instead — the same PINTAR with a different institution at the
+ * door, not a separately themed application. It replaces the mark and nothing
+ * else: not a token, not a
+ * typeface, not a component, not a status colour, and never the certificate's
+ * issuer identity. Nothing is implemented for it here, because the frozen
+ * contract has no institution-mark source and no public path to deliver one
+ * (Q-7, and the ruling's §3 measures both). This component is the one place the
+ * substitution will happen, which is why it is the only thing in the Experience
+ * layer that names the asset.
+ *
  * NOT A LINK, on either shell. The learner already has tabs; the public
  * verification page deliberately offers no way into PINTAR, because somebody
  * who came to check a certificate should not be invited to go wandering.
