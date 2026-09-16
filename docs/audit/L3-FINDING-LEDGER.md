@@ -15,6 +15,12 @@ repair.
 
 **No additional Core Build blocker is currently open.**
 
+**Frozen at** `d95c2011afd379fad3c392422c8c1651af8beb1c` (CI run 80, success):
+83 migrations, manifest v29 / 174 tests, 166 passed / 0 failed / 8 justified
+skips, 17/17 launch-readiness, 25 baseline documents byte-identical, hosted at
+83 migrations with the declaration assertion true and all four F03 guards
+present.
+
 **Evidence ceiling, preserved.** The Second Eye's independent verification of
 L3-F02 and L3-F03 was performed **against hosted**. The repository, CI and
 local-replay evidence throughout this ledger — the clean replays, the six

@@ -43,6 +43,34 @@ independent evidence, and this document does not let it.
 
 Full record: `docs/audit/L3-FINDING-LEDGER.md`.
 
+### 0.0 Frozen Core Build baseline
+
+```
+branch                 claude/quirky-meitner-a04smj
+implementation HEAD    d95c2011afd379fad3c392422c8c1651af8beb1c
+CI                     run 80 — d95c201 — SUCCESS
+migrations             83
+manifest               v29, 174 tests
+selftest (fresh)       166 passed · 0 failed · 8 justified skips (local only)
+launch-readiness       17 / 17 PASS
+baseline-parity        25 documents byte-identical
+hosted                 83 migrations · 31/31 declared · assertion true ·
+                       4/4 F03 guards · 0 F01 fixture identities
+L3-F01 / F02 / F03     CLOSED / CLOSED / CLOSED
+```
+
+`d95c201` is the last commit that changes implementation. This section and the
+declaration above are recorded in a documentation-only commit on top of it,
+which carries its own CI run; no implementation, schema, migration, workflow or
+test logic differs between the two.
+
+**Every adversarial gate, on a database built from zero.** Control green; the
+retained `open_briefing` plant red; the same plant red again with its fixture
+selection forced onto the node that previously hid it; the five L3-F02/F03
+plants each red for their own reason; control green afterwards; no residue.
+Five consecutive runs of the retained plant on controlled state, five reds — the
+nondeterministic branch is gone rather than currently favourable.
+
 ### 0.1 What closure does NOT close
 
 These are **residuals**, not blockers. None is promoted by this closure and none
