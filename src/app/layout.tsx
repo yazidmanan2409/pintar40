@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { t } from "@/lib/hle";
+import { currentLocale } from "@/lib/locale";
 import EvaluationBanner from "./_evaluation-banner";
 
 export const metadata: Metadata = {
@@ -8,14 +9,22 @@ export const metadata: Metadata = {
   description: "Belajar dengan tenang. Bukti yang bisa dipercaya.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+/**
+ * `lang` is read server-side from the interface-language cookie (S0.3), so the
+ * document declares the language it is actually written in on the first paint —
+ * which is what a screen reader announces and what a browser offers to
+ * translate. A client-side correction after hydration would be too late for
+ * both.
+ */
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await currentLocale();
   return (
-    <html lang="id">
+    <html lang={locale}>
       <body className="min-h-dvh bg-surface-0 text-ink-1">
         {/* Rendered from the evaluation session on every page, so the indicator
             cannot be lost on refresh or dismissed (ADR-0020). */}
         <EvaluationBanner />
-        <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">{children}</div>
+        {children}
       </body>
     </html>
   );
