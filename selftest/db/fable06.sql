@@ -542,21 +542,27 @@ begin
 end $$;
 -- THE WHOLE ARGUMENT LIST, with one rule f06_arg_value cannot express alone:
 -- when a signature offers both a broader and a narrower scope, the narrower one
--- is left unset. Supplying a course AND a module to save_certificate_template
--- broke its `num_nonnulls(course_id, module_id) <= 1` CHECK before the call
--- reached the capability check -- a refusal that proves nothing, and that hid a
--- deleted guard during the L3-F02 acceptance plant. This is a rule about
--- signature SHAPE, not a list of endpoints; the population is still derived.
+-- is left unset. Two ways this mattered, both measured, both of them a refusal
+-- that proves nothing AND that hid a deleted guard during the L3-F02 acceptance
+-- plant: supplying a course AND a module to save_certificate_template broke its
+-- `num_nonnulls(course_id, module_id) <= 1` CHECK, and supplying an institution
+-- together with a course from a DIFFERENT institution tripped its INV-13 tenant
+-- check. The second only showed up in CI, where the probe's own tenant happens
+-- to hold no course and the fallback reaches across. Naming the broader scope
+-- alone is both valid and tenant-consistent wherever the fixture stands. This is
+-- a rule about signature SHAPE, not a list of endpoints; the population is still
+-- derived.
 create or replace function selftest.f06_call_args(p_args text, p_inst uuid)
 returns text language plpgsql security definer set search_path = public, pg_temp as $$
-declare v_has_course boolean;
+declare v_has_course boolean; v_has_inst boolean;
 begin
   v_has_course := p_args ~ 'course';
+  v_has_inst   := p_args ~ 'institution';
   return coalesce((
     select string_agg(
-      case when v_has_course
-            and split_part(trim(a), ' ', 1) ~ 'module'
-            and regexp_replace(trim(a), '^\S+\s+', '') = 'uuid'
+      case when regexp_replace(trim(a), '^\S+\s+', '') = 'uuid'
+            and ((v_has_inst   and split_part(trim(a), ' ', 1) ~ '(course|module)')
+              or (v_has_course and split_part(trim(a), ' ', 1) ~ 'module'))
            then 'null::uuid'
            else selftest.f06_arg_value(split_part(trim(a), ' ', 1),
                   regexp_replace(trim(a), '^\S+\s+', ''), p_inst) end,
