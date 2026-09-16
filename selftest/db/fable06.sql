@@ -416,13 +416,25 @@ begin
   else
     v_role := 'DEAN';
   end if;
+  -- The persona is drawn from the tenant the PROBE'S ARGUMENTS come from, and
+  -- that tenant is the one that actually owns content. Measured the hard way:
+  -- with alpha personas and alpha as the argument tenant, a stack where alpha
+  -- holds no course resolved the course from somewhere else, the endpoint
+  -- refused on INV-13 or on a capability the actor lacks THERE, and a planted
+  -- defect went unseen -- green on this machine, green in CI, for two different
+  -- reasons. An actor judged against an object in another tenant is not the
+  -- negative case anyone meant.
+  --
+  -- DEAN is the exception and deliberately so: DEAN holds no capability in any
+  -- institution, so it is the negative actor for every capability wherever it
+  -- stands, and the bootstrap tenant has no dean of its own.
   return case v_role
     when 'SYSTEM_ADMIN'       then 'sysadmin@synthetic.pintar.test'
-    when 'INSTITUTION_ADMIN'  then 'alpha-admin@synthetic.pintar.test'
+    when 'INSTITUTION_ADMIN'  then 'boot-admin@bootstrap.pintar.test'
     when 'DEAN'               then 'alpha-dean@synthetic.pintar.test'
-    when 'HEAD_OF_DEPARTMENT' then 'alpha-hod@synthetic.pintar.test'
-    when 'EDUCATOR'           then 'alpha-guru@synthetic.pintar.test'
-    when 'STUDENT'            then 'alpha-siswa-1@synthetic.pintar.test' end;
+    when 'HEAD_OF_DEPARTMENT' then 'boot-kaprodi@bootstrap.pintar.test'
+    when 'EDUCATOR'           then 'boot-guru@bootstrap.pintar.test'
+    when 'STUDENT'            then 'boot-siswa@bootstrap.pintar.test' end;
 end $$;
 revoke all on function selftest.f06_negative_actor(text, text) from public;
 grant execute on function selftest.f06_negative_actor(text, text) to authenticated;
@@ -985,7 +997,14 @@ begin
     v_unproved text := ''; v_bad text := ''; v_inst uuid; f record;
     v_decl_ok boolean; v_decl_detail text;
   begin
-    select i.id into v_inst from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
+    -- the argument tenant is the one that owns content in every stack this runs
+    -- on, and f06_negative_actor draws its personas from the same place. A probe
+    -- whose object and whose actor live in different institutions measures
+    -- INV-13, not the capability it came to check.
+    select i.id into v_inst from public.institutions i where i.slug = 'pintar-bootstrap-official';
+    if v_inst is null then
+      select i.id into v_inst from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
+    end if;
 
     -- (a) the declaration itself is complete and resolves against the live model
     select a.ok, a.detail into v_decl_ok, v_decl_detail
@@ -1666,6 +1685,158 @@ begin
              || 'fail-open default is gone) and production refuses regardless. A migrations-only hosted '
              || 'project keeps the marker false and every credential seed refuses. Probe rolled back with '
              || 'no residue';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-N06 -- L3-F03: the four authoring RPCs authorize BEFORE they mutate.
+  --
+  -- F06-N02 covers these from the outside, as members of the declared
+  -- population, and for two of them it can only prove refusal rather than the
+  -- declared authorization: no seeded row gives the probe an ingest batch to
+  -- point at. This test builds the fixture it needs and closes that gap
+  -- directly, on all four, with both halves.
+  --
+  -- The claim is not "an exception was raised". It is: an actor without
+  -- CAN_DRAFT is refused BY THE CAPABILITY; the refusal happens BEFORE the
+  -- delete each of these opens with; and an actor holding CAN_DRAFT still gets
+  -- the behaviour it had before the guard existed. Without that last half the
+  -- test would pass equally well if the endpoint refused everyone.
+  --
+  -- Every row is created here and rolled back.
+  --
+  -- `returning` is QUALIFIED throughout. The runner's own OUT parameter is
+  -- named `id`, so a bare `returning id` is ambiguous inside it -- the sixth
+  -- time this exact shadowing has cost a round in this build.
+  -- =========================================================================
+  declare
+    v_inst uuid; v_course uuid; v_batch uuid;
+    v_uid_draft uuid; v_uid_dean uuid; v_p_draft uuid; v_p_dean uuid;
+    v_fn text; v_msg text; v_raised boolean; n int;
+    v_bad text := ''; n_refused int := 0;
+  begin
+    ok := true;
+    begin
+      perform selftest.as_owner();
+      insert into public.institutions (name, slug, is_synthetic, is_active)
+      values ('probe inst F06-N06', 'probe-inst-f06n06', true, true) returning institutions.id into v_inst;
+      insert into auth.users (id, email) values (gen_random_uuid(), 'probe-f06n06-draft@local.invalid')
+      returning users.id into v_uid_draft;
+      insert into auth.users (id, email) values (gen_random_uuid(), 'probe-f06n06-dean@local.invalid')
+      returning users.id into v_uid_dean;
+      select a.person_id into v_p_draft from public.accounts a where a.auth_user_id = v_uid_draft;
+      select a.person_id into v_p_dean  from public.accounts a where a.auth_user_id = v_uid_dean;
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+      values (v_p_draft, 'INSTITUTION_ADMIN', v_inst, now() - interval '1 day', now() + interval '365 days'),
+             (v_p_dean,  'DEAN',              v_inst, now() - interval '1 day', now() + interval '365 days');
+      perform set_config('app.seed_intent', '', true);
+      insert into public.courses (institution_id, subject, stage, grade_label, title)
+      values (v_inst, 'Probe', 'SD', '5', 'Probe course F06-N06') returning courses.id into v_course;
+
+      -- the batch is created UNDER CAN_DRAFT because its own INSERT trigger
+      -- already requires it. That guard stops a stranger MAKING a batch; it
+      -- says nothing about who may materialise one that already exists, which
+      -- is the hole 0085 closed.
+      perform set_config('request.jwt.claims',
+        json_build_object('sub', v_uid_draft, 'role', 'authenticated')::text, true);
+      perform set_config('request.jwt.claim.sub', v_uid_draft::text, true);
+      insert into public.ingest_batches (institution_id, source_kind, raw_payload, status)
+      values (v_inst, 'STRUCTURED_PACKAGE', jsonb_build_object('courses', '[]'::jsonb, 'files', '[]'::jsonb),
+              'RECEIVED')
+      returning ingest_batches.id into v_batch;
+      update public.ingest_batches set status = 'CONFIRMED' where ingest_batches.id = v_batch;
+
+      -- a finding that must survive a refused call
+      insert into public.mcq_quality_findings (institution_id, course_id, item_id, pattern_class,
+        severity, lokasi, masalah, mengapa_penting, cara_memperbaiki)
+      values (v_inst, v_course, null, 'PROBE_F06N06', 'WARNING', 'probe', 'probe', 'probe', 'probe');
+
+      -- ---------------------------------------------------------- NEGATIVE --
+      perform set_config('request.jwt.claims',
+        json_build_object('sub', v_uid_dean, 'role', 'authenticated')::text, true);
+      perform set_config('request.jwt.claim.sub', v_uid_dean::text, true);
+      if public.can_in_institution('CAN_DRAFT', v_inst) then
+        ok := false; v_bad := v_bad || 'the probe DEAN holds CAN_DRAFT, so the negative case is not one; ';
+      end if;
+      foreach v_fn in array array['run_mcq_quality', 'validate_course_content',
+                                  'ingest_structured_package', 'propose_easy_upload_mapping'] loop
+        v_raised := false; v_msg := '';
+        begin
+          if v_fn in ('run_mcq_quality', 'validate_course_content') then
+            execute format('select public.%I($1)', v_fn) using v_course;
+          else
+            execute format('select public.%I($1)', v_fn) using v_batch;
+          end if;
+        exception when others then v_raised := true; v_msg := sqlerrm; end;
+        if not v_raised then
+          ok := false; v_bad := v_bad || v_fn || ' accepted a DEAN holding no capability (INV-19); ';
+        elsif v_msg !~ 'CAN_DRAFT' then
+          ok := false;
+          v_bad := v_bad || format('%s refused a DEAN but not by the capability it declares (%s); ',
+                                   v_fn, left(v_msg, 50));
+        else
+          n_refused := n_refused + 1;
+        end if;
+      end loop;
+
+      -- authorization ran BEFORE the delete each of these opens with
+      select count(*) into n from public.mcq_quality_findings
+       where course_id = v_course and pattern_class = 'PROBE_F06N06';
+      if n <> 1 then
+        ok := false;
+        v_bad := v_bad || format('a refused call still reached the delete: %s probe finding(s) left, expected 1; ', n);
+      end if;
+
+      -- ---------------------------------------------------------- POSITIVE --
+      perform set_config('request.jwt.claims',
+        json_build_object('sub', v_uid_draft, 'role', 'authenticated')::text, true);
+      perform set_config('request.jwt.claim.sub', v_uid_draft::text, true);
+      begin
+        perform public.run_mcq_quality(v_course);
+        perform public.validate_course_content(v_course);
+        perform public.propose_easy_upload_mapping(v_batch);
+        perform public.ingest_structured_package(v_batch);
+      exception when others then
+        ok := false;
+        v_bad := v_bad || 'an actor holding CAN_DRAFT was refused: ' || left(sqlerrm, 70) || '; ';
+      end;
+      select count(*) into n from public.mcq_quality_findings
+       where course_id = v_course and pattern_class = 'PROBE_F06N06';
+      if n <> 0 then
+        ok := false;
+        v_bad := v_bad || 'an authorized MCQ quality pass did not clear the stale probe finding, so the '
+                       || 'guard is refusing everyone rather than guarding; ';
+      end if;
+
+      perform set_config('request.jwt.claims', '', true);
+      perform set_config('request.jwt.claim.sub', '', true);
+      raise exception 'F06_N06_UNDO';
+    exception when others then
+      perform set_config('request.jwt.claims', '', true);
+      perform set_config('request.jwt.claim.sub', '', true);
+      if sqlerrm <> 'F06_N06_UNDO' then
+        ok := false; v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 90) || '; ';
+      end if;
+    end;
+    perform selftest.as_owner();
+
+    select count(*) into n from public.institutions where slug = 'probe-inst-f06n06';
+    if n <> 0 then ok := false; v_bad := v_bad || 'the probe left its institution behind; '; end if;
+
+    id := 'F06-N06'; area := 'INV-19 / INV-13 / L3-F03 -- authoring RPCs authorize before they mutate';
+    if not ok then
+      detail := v_bad;
+    else
+      detail := format('all %s authoring endpoint(s) -- run_mcq_quality, validate_course_content, '
+                    || 'ingest_structured_package and propose_easy_upload_mapping -- refuse an actor '
+                    || 'holding no capability BY NAMING CAN_DRAFT, and do it before the delete each of '
+                    || 'them opens with: the probe finding planted first is still there afterwards. An '
+                    || 'actor that does hold CAN_DRAFT is accepted and clears it, so the guard guards '
+                    || 'rather than refusing everyone. Found as L3-F03, where a capability-less DEAN of '
+                    || 'one institution ran run_mcq_quality against another institution''s course and '
+                    || 'deleted that tenant''s findings. Fixture built here and rolled back', n_refused);
     end if;
     return next;
   end;

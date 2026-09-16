@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 26,
+  "version": 27,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -966,6 +966,11 @@
       "id": "F06-N05",
       "runner": "db",
       "proves": "L3-F01: synthetic_fixtures_permitted() -- the predicate every credential-bearing seed now consults -- is FAIL-CLOSED on the live schema. TRUE only on a non-production environment whose platform_environment.local_fixtures_enabled marker is set (flipped true solely by the local config.toml seed pipeline, which hosted never runs); clearing the marker refuses, and production refuses regardless. Replaces the FABLE-01 fail-OPEN guard that refused only environment='production' and so let synthetic.sql place a global SYSTEM_ADMIN with a tracked password on the hosted development project. Truth table asserted in a rolled-back subtransaction; no residue."
+    },
+    {
+      "id": "F06-N06",
+      "runner": "db",
+      "proves": "L3-F03: the four authoring endpoints authorize before they mutate. run_mcq_quality, validate_course_content, ingest_structured_package and propose_easy_upload_mapping each refuse an actor holding no capability with an error NAMING CAN_DRAFT, and do it before the delete each of them opens with -- a finding row planted first is still there afterwards. An actor that does hold CAN_DRAFT is accepted and clears it, so the guard guards rather than refusing everyone. Found by Layer-3 as L3-F03, where a capability-less DEAN of one institution ran run_mcq_quality against another institution's course and deleted that tenant's unacknowledged quality findings (INV-19 and INV-13); repaired by migration 20260919090000. This test builds its own institution, actors, course and ingest batch and rolls them back, which is what lets it drive the two ingestion endpoints that no seeded row reaches -- the gap F06-N02 carries as bounded for them."
     }
   ]
 }
