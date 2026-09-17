@@ -991,7 +991,29 @@ jobs:
         run: |
           set -e
           for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
-          psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06()" "$DB_URL" | tee baseTour.txt
+
+          # THE CONTROL RUNS INSIDE A TRANSACTION AND IS ROLLED BACK, which the
+          # first version of this job did not do -- and CI caught it.
+          # `run_fable06()` adds a second CLASS node to the bootstrap tenant, and
+          # a bare `psql -c` COMMITS it. `fable04.sql:407` then selects that
+          # tenant's class with an unordered `limit 1`, so plant 8 below --
+          # which is the only plant in this workflow that drives `run_fable04()`
+          # -- was arbitrarily handed either the class `boot-guru` is scoped to
+          # or the one F06 had just created, and on the second it went red for
+          # "the educator was refused" instead of for the title. Red for the
+          # wrong reason is exactly what `red()`'s second grep exists to catch.
+          #
+          # The harness has no reason to persist suite state, so it no longer
+          # does. The unordered `limit 1` is a KNOWN RESIDUAL of the db suite
+          # and is left where it is: it belongs to whoever owns fable04, not to
+          # a terminology change, and fresh replay remains the authoritative
+          # form.
+          cat > /tmp/tour-base.sql <<'SQL'
+          begin;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06();
+          rollback;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -f /tmp/tour-base.sql "$DB_URL" | tee baseTour.txt
           grep -E ' \| f \| ' baseTour.txt && { echo "::error::the suite is already red before any tour defect was planted"; exit 1; } || true
 
           red() {   # red <test id> <expected substring> <sql file>
