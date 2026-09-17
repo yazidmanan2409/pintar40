@@ -115,3 +115,29 @@ accountable and being shown a tour is not one of them.
 `Kuis Cepat — <stamp>` to `Uji Cepat — <stamp>`, per the ruling ID *Uji Cepat* /
 EN *Quick Assessment*. Forward-only: existing definitions keep the title they
 were created with. Frontend copy is **not** touched — see the residual below.
+
+---
+
+## Residuals — what this contract deliberately does not do
+
+| # | Residual | Why it is here | Owner |
+|---|---|---|---|
+| T-1 | **Frontend QUICK copy still diverges.** `src/lib/hle.ts` carries `jenis.mode.QUICK` = *"Penilaian cepat"* / *"Quick assessment"* and `studio.nav.kuis` / `studio.kuis.judul` = *"Kuis Cepat"* / *"Quick quiz"*. The educator surface (`mengajar.*`) already reads *Uji Cepat* / *Quick Assessment* and agrees with the ruling. | Frontend normalisation is Daisy Code's, per the ruling. This task changed the **database-generated** title only. | Daisy Code |
+| T-2 | **Frontend POST_TEST copy diverges from the Mastery ruling.** `jenis.mode.POST_TEST` = *"Penilaian akhir"* / *"Mastery check"*. Everywhere else already reads *Uji Penguasaan* / *Mastery Check* (`cycle.step.posttest`, `posttest.title`, `sertifikat.daftar.selesai`). | Same boundary as T-1. **No backend change was needed**: the only backend-generated mastery instrument title, in `supabase/seed/learning_cycle.sql`, already reads *"Uji Penguasaan — Pecahan"*. | Daisy Code |
+| T-3 | **Historical quick-assessment titles keep the old label.** Definitions created before 0090 read *"Kuis Cepat — …"*; there is no backfill. | A title is part of `UNIQUE (institution_id, title, mode, version)`, sessions cite the definition, and a teacher who launched an instrument saw the words that were on it that day. Rewriting them would edit the record of what happened. | ruled, not deferred |
+| T-4 | **No tour UI exists.** No components, no Help entry point, no anchors. | Explicitly out of scope. | Daisy / Daisy Code |
+| T-5 | **Only two tours are declared.** `learner.first_login` and `educator.first_login`, both at version 1. | A registry row for a tour nobody can be shown would be a claim, not a contract. HOD, dean, institution-admin and system-admin surfaces do not exist yet. | Experience, when those surfaces land |
+| T-6 | **`auto_presentation_limit` is per tour but bounded at three.** A future tour could ask for one or two; none can ask for four. | The ruling is a maximum; the `CHECK` makes it structural. Raising it would need a migration and a new ruling. | — |
+| T-7 | **`my_tour_state` returns one tour per call.** A surface needing several makes several calls. | No batch read was required, and a list-returning variant would have to decide an ordering and a shape nothing has asked for yet. | Bob, if Experience needs it |
+| T-8 | **Nothing records that a tour was replayed.** Deliberate replay is invisible to the backend. | Nothing in the approved behaviour depends on it, and the smallest contract that answers the presentation question does not need it. Adding it would mean deciding whether a replay is telemetry — which it must not become. | open, if a product question arises |
+
+### Unchanged residuals this work did not touch
+
+`INV-20` still holds vacuously; `V-6a` is still a certificate-lifecycle gap;
+integrity-signal emission semantics (`D-1`/`D-2`/`D-3`) remain an open product
+decision; two of three question-health signals remain uncalibrated; and
+`fable04.sql`'s unordered `LIMIT 1` still makes a **repeated** DB-suite run on
+one database non-idempotent — fresh replay remains the authoritative form. That
+last one bit during this work: a verification database that had already run
+`run_fable06()` reported `F04-T04` red before any defect was planted. The plant
+was re-verified on a clean build, where control is green.
