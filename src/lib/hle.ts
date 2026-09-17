@@ -296,10 +296,12 @@ export type HleEvent =
   | "siklus.peta_anda"
   | "siklus.langkah_dari"
   | "siklus.jumlah_soal"
-  | "siklus.perkiraan"
   | "siklus.ditutup"
-  | "siklus.menit"
-  | "siklus.tanpa_batas"
+  | "siklus.soal"
+  | "siklus.lihat_peta"
+  | "siklus.pelajaran_next"
+  | "siklus.pelajaran_prev"
+  | "siklus.delta_arti"
   | "siklus.bisa_lakukan"
   | "siklus.bisa.tandai"
   | "siklus.bisa.jeda"
@@ -880,10 +882,17 @@ const table: Table = {
   "siklus.peta_anda": { default: "Peta bacaan Anda", en: "Your reading map" },
   "siklus.langkah_dari": { default: "Lima langkah.", en: "Five steps." },
   "siklus.jumlah_soal": { default: "Jumlah soal", en: "Questions" },
-  "siklus.perkiraan": { default: "Perkiraan waktu", en: "Estimated time" },
   "siklus.ditutup": { default: "Ditutup", en: "Closes" },
-  "siklus.menit": { default: "menit", en: "minutes" },
-  "siklus.tanpa_batas": { default: "Tanpa batas waktu", en: "No time limit" },
+  "siklus.soal": { default: "soal", en: "questions" },
+  "siklus.lihat_peta": { default: "Lihat peta bacaan", en: "See the reading map" },
+  // A LESSON, not a page. lesson.next / lesson.prev turn the pages INSIDE a
+  // lesson and the player owns them; these two move between lessons.
+  "siklus.pelajaran_next": { default: "Pelajaran berikutnya", en: "Next lesson" },
+  "siklus.pelajaran_prev": { default: "Pelajaran sebelumnya", en: "Previous lesson" },
+  // The caption says what the two numbers ARE, not what they mean: reading a
+  // judgment into a learner's own change is the engine's job, and it does not
+  // make one here.
+  "siklus.delta_arti": { default: "Penguasaan Anda pada Pemetaan Awal dibandingkan dengan Uji Penguasaan. Perbandingan ini muncul hanya ketika keduanya sudah selesai.", en: "Your mastery on the Initial Mapping compared with the Mastery Check. This comparison appears only once both are finished." },
   "siklus.bisa_lakukan": { default: "Yang bisa dilakukan", en: "What you can do" },
   "siklus.bisa.tandai": { default: "Menandai soal dan kembali lagi", en: "Flag a question and come back to it" },
   "siklus.bisa.jeda": { default: "Menyimpan dan menjeda, lalu melanjutkan nanti", en: "Save and pause, then carry on later" },

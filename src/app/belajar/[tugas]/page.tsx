@@ -1,97 +1,128 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { t } from "@/lib/hle";
+import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
+import { posisi, statusKey, lessonRead } from "@/lib/siklus";
+import CangkangPengalaman from "@/components/CangkangPengalaman";
+import KakiPintar from "@/components/KakiPintar";
+import JejakSiklus from "@/components/siklus/JejakSiklus";
+import PetaBacaan from "@/components/siklus/PetaBacaan";
+
+export const dynamic = "force-dynamic";
 
 /**
- * The cycle, as one screen. Each step says what it is and whether it is open
- * yet; nothing here names a status, a mode or a version (§9).
+ * SCREEN B — ONE ASSIGNMENT, AS A POSITION IN A JOURNEY.
+ *
+ * The trail says where the learner is in the five steps. The panel under it
+ * says what the step actually is and offers the one action that continues it.
+ * The reading map below is the personal ordering the engine derived from this
+ * learner's own mapping evidence — it appears once the mapping is finished and
+ * not before, because before that there is nothing to order.
  */
-export default async function Cycle({ params }: { params: Promise<{ tugas: string }> }) {
+export default async function Tugas({ params }: { params: Promise<{ tugas: string }> }) {
   const { tugas } = await params;
+  const locale = await currentLocale();
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
+  const s = (k: HleEvent) => t(k, "learner", { locale });
+
   const mine = (await engine.myAssignments(db)).find((a) => a.learning_assignment_id === tugas);
   if (!mine) notFound();
-  const state = await engine.cycleState(db, tugas);
-  const lessons = await engine.lessons(db, tugas);
 
-  const preDone = state.pre_status === "FINALIZED";
-  const postDone = state.post_status === "FINALIZED";
+  const [state, lessons] = await Promise.all([
+    engine.cycleState(db, tugas),
+    engine.lessons(db, tugas),
+  ]);
+  const p = posisi(state, lessons);
 
-  const steps = [
-    {
-      key: "pretest",
-      label: t("cycle.step.pretest", "learner"),
-      href: `/belajar/${tugas}/pemetaan`,
-      open: true,
-      done: preDone,
-    },
-    {
-      key: "map",
-      label: t("cycle.step.map", "learner"),
-      href: `/belajar/${tugas}/peta`,
-      open: preDone,
-      done: false,
-    },
-    {
-      key: "lesson",
-      label: t("cycle.step.lesson", "learner"),
-      href: lessons.length ? `/belajar/${tugas}/pelajaran/${lessons[0].lesson_id}` : `/belajar/${tugas}`,
-      open: preDone && lessons.length > 0,
-      done: false,
-    },
-    {
-      key: "posttest",
-      label: t("cycle.step.posttest", "learner"),
-      href: `/belajar/${tugas}/penguasaan`,
-      open: preDone,
-      done: postDone,
-    },
-    {
-      key: "result",
-      label: t("cycle.step.result", "learner"),
-      href: `/belajar/${tugas}/hasil`,
-      open: postDone,
-      done: false,
-    },
-  ];
+  // The map is derived from the MAPPING session's evidence, so it exists only
+  // once that session is finalized.
+  const peta =
+    state.pre_session && state.pre_status === "FINALIZED"
+      ? await engine.readingMap(db, state.pre_session)
+      : [];
+
+  // The next unread lesson, which is what "continue" means here. The reading
+  // map set the order; this follows it rather than inventing a second one.
+  const berikutnya = lessons.find((l) => !lessonRead(l));
+
+  const aksi: { href: string; labelKey: HleEvent } | null = (() => {
+    switch (p.langkah) {
+      case "PEMETAAN": return { href: `/belajar/${tugas}/pemetaan`, labelKey: "siklus.mulai" };
+      case "PETA":
+      case "PELAJARAN":
+        return berikutnya
+          ? { href: `/belajar/${tugas}/pelajaran/${berikutnya.lesson_id}`, labelKey: "siklus.lanjutkan" }
+          : null;
+      case "PENGUASAAN": return { href: `/belajar/${tugas}/penguasaan`, labelKey: "siklus.mulai" };
+      case "HASIL": return { href: `/belajar/${tugas}/hasil`, labelKey: "siklus.buka" };
+    }
+  })();
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-12">
-      <p className="text-sm text-ink-3">
-        <Link href="/belajar">{t("cycle.title", "learner")}</Link> · {mine.subject} {mine.grade_label}
-      </p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight">{mine.title}</h1>
+    <>
+      <CangkangPengalaman locale={locale} current="belajar" />
+      <main className="pin-col">
+        <Link className="pin-back" href="/belajar">
+          ← {s("siklus.beranda")}
+        </Link>
+        <div className="pin-head">
+          <p className="pin-eyebrow">
+            {mine.subject} · {mine.grade_label}
+          </p>
+          <h1 className="pin-h1">{mine.title}</h1>
+          <p className="pin-intro">{s("siklus.langkah_dari")}</p>
+        </div>
 
-      <ol className="mt-8 grid gap-3">
-        {steps.map((s, i) => (
-          <li key={s.key}>
-            {s.open ? (
-              <Link
-                href={s.href}
-                className="flex items-center justify-between rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-5 hover:bg-surface-2"
-              >
-                <span>
-                  <span className="text-sm text-ink-3">{i + 1}</span>
-                  <span className="ml-3 text-lg">{s.label}</span>
-                </span>
-                <span className="text-sm text-primary">
-                  {s.done ? t("cycle.continue", "learner") : t("cycle.open", "learner")}
-                </span>
+        <JejakSiklus posisi={p} locale={locale} />
+
+        <section className="pin-lanjut">
+          <p className="pin-eyebrow">{s("siklus.sekarang")}</p>
+          <h2>
+            {s(statusKey(p) as HleEvent)}
+            {p.langkah === "PELAJARAN" && p.pelajaranTotal > 0
+              ? ` — ${format.number(p.pelajaranSelesai, locale)} ${s("siklus.dari")} ${format.number(p.pelajaranTotal, locale)} ${s("siklus.selesai_n")}`
+              : ""}
+          </h2>
+          {peta.length > 0 ? <p className="pin-sub">{s("map.intro")}</p> : null}
+          {aksi ? (
+            <div className="pin-actions">
+              <Link className="pin-btn pin-primary" href={aksi.href}>
+                {s(aksi.labelKey)}
               </Link>
-            ) : (
-              <div className="flex items-center justify-between rounded-[var(--radius-2)] border border-line-1 bg-surface-2 p-5 text-ink-3">
-                <span>
-                  <span className="text-sm">{i + 1}</span>
-                  <span className="ml-3 text-lg">{s.label}</span>
-                </span>
-                <span className="text-sm">{t("cycle.locked_until_pretest", "learner")}</span>
-              </div>
-            )}
-          </li>
-        ))}
-      </ol>
-    </main>
+            </div>
+          ) : null}
+        </section>
+
+        {peta.length > 0 ? (
+          <section className="pin-sec">
+            <h2>{s("siklus.peta_anda")}</h2>
+            <PetaBacaan kartu={peta} locale={locale} />
+          </section>
+        ) : null}
+
+        {lessons.length > 0 ? (
+          <section className="pin-sec">
+            <h2>{s("lesson.title")}</h2>
+            <div className="pin-list">
+              {lessons.map((l) => (
+                <Link className="pin-row" key={l.lesson_id} href={`/belajar/${tugas}/pelajaran/${l.lesson_id}`}>
+                  <span className="pin-eyebrow">{l.modul}</span>
+                  <span className="pin-title">{l.judul}</span>
+                  <span className="pin-rowmeta">
+                    <span className={`pin-pill ${lessonRead(l) ? "pin-ok" : "pin-neutral"}`}>
+                      {s(lessonRead(l) ? "siklus.di.hasil" : "cycle.open")}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <KakiPintar />
+      </main>
+    </>
   );
 }

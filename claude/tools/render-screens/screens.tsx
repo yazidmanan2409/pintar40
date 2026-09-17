@@ -17,6 +17,12 @@ import HalamanKomitmen from "@/components/HalamanKomitmen";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import KakiPintar from "@/components/KakiPintar";
 import MerekPintar from "@/components/MerekPintar";
+import JejakSiklus from "@/components/siklus/JejakSiklus";
+import KartuTugas from "@/components/siklus/KartuTugas";
+import PetaBacaan from "@/components/siklus/PetaBacaan";
+import OrientasiAsesmen from "@/components/siklus/OrientasiAsesmen";
+import { LANGKAH, type Posisi } from "@/lib/siklus";
+import type { AssignmentEntry, ReadingMapCard, Orientation } from "@/lib/assessment-engine/types";
 
 const OUT = process.argv[2];
 if (!OUT || !existsSync(join(OUT, "pintar.css"))) {
@@ -355,6 +361,283 @@ function Foundations({ locale }: { locale: Locale }) {
   );
 }
 
+
+/* ═══════════════════════════════════════════ UX-1 Slice 2 · the learner cycle
+   The seven screens A–G, composed from the SAME components the routes render.
+   The routes themselves are server components that need a database, so the
+   harness supplies the rows the engine would have returned and arranges them
+   exactly as the pages do. Every name, count and date below is invented. */
+
+const POSISI = (indeks: number, selesai = 3, total = 5): Posisi => ({
+  langkah: LANGKAH[indeks], indeks,
+  pelajaranSelesai: selesai, pelajaranTotal: total,
+  selesai: indeks === 4,
+});
+
+const TUGAS = (locale: Locale, key: "mat" | "geo" | "fis", chap: string): AssignmentEntry => ({
+  learning_assignment_id: key, course_id: key, plp_release_id: key,
+  subject: SUBJ[locale as L][key].split(" · ")[0],
+  stage: "SMA", grade_label: SUBJ[locale as L][key].split(" · ")[1],
+  title: CHAP[locale as L][chap],
+  pre_test_assignment: "pre", post_test_assignment: "post",
+});
+
+/** A. the learner's home — one next action, then everything quiet. */
+function Beranda({ locale }: { locale: Locale }) {
+  const l = locale as L;
+  const mat = TUGAS(locale, "mat", "c4");
+  const geo = TUGAS(locale, "geo", "c2");
+  const fis = TUGAS(locale, "fis", "c1");
+  const pMat = POSISI(2), pGeo = POSISI(3, 5, 5), pFis = POSISI(4, 5, 5);
+  const n = (x: number) => format.number(x, locale);
+  return (
+    <>
+      <Shell locale={locale} current="belajar" />
+      <main className="pin-col">
+        <div className="pin-head">
+          <p className="pin-eyebrow">{s("siklus.beranda", locale)}</p>
+          <h1 className="pin-h1">{s("siklus.halo", locale)}, Rani</h1>
+          <p className="pin-intro">{s("siklus.hari_ini", locale)}</p>
+        </div>
+
+        <section className="pin-lanjut">
+          <p className="pin-eyebrow">{s("siklus.lanjutkan", locale)}</p>
+          <p className="pin-where">{COURSE[l].mat}</p>
+          <h2>{s("siklus.di.pelajaran", locale)} — {n(3)} {s("siklus.dari", locale)} {n(5)} {s("siklus.selesai_n", locale)}</h2>
+          <JejakSiklus posisi={pMat} locale={locale} />
+          <div className="pin-actions">
+            <a className="pin-btn pin-primary" href="#">{s("siklus.lanjutkan", locale)}</a>
+            <a className="pin-btn" href="#">{s("siklus.buka", locale)}</a>
+          </div>
+        </section>
+
+        <section className="pin-sec">
+          <h2>{s("siklus.perhatian", locale)}</h2>
+          <div className="pin-perhatian">
+            <span className="pin-what">{CHAP[l].c2}</span>
+            <span className="pin-why">{s("siklus.di.penguasaan", locale)}</span>
+            <div className="pin-actions"><a className="pin-btn" href="#">{s("siklus.mulai", locale)}</a></div>
+          </div>
+        </section>
+
+        <section className="pin-sec">
+          <h2>{s("siklus.milik_anda", locale)}</h2>
+          <KartuTugas tugas={mat} posisi={pMat} locale={locale} aksi={{ href: "#", labelKey: "siklus.lanjutkan" }} />
+          <KartuTugas tugas={geo} posisi={pGeo} locale={locale} aksi={{ href: "#", labelKey: "siklus.mulai" }} />
+          <KartuTugas tugas={fis} posisi={pFis} locale={locale} aksi={{ href: "#", labelKey: "siklus.buka" }} />
+        </section>
+
+        <section className="pin-sec">
+          <h2>{s("siklus.terbuka", locale)}</h2>
+          <div className="pin-tugas">
+            <span className="pin-ttitle">{l === "id" ? "Penilaian cepat · Bab 5: Statistika Dasar" : "Quick assessment · Chapter 5: Basic Statistics"}</span>
+            <div className="pin-tfoot">
+              <span className="pin-tstatus">
+                {n(10)} {s("siklus.soal", locale)} · {l === "id" ? "Kelas 10A" : "Class 10A"} · {s("siklus.ditutup", locale)} {format.date("2026-09-19T16:00:00+07:00", locale)}
+              </span>
+              <a className="pin-btn" href="#">{s("siklus.buka", locale)}</a>
+            </div>
+          </div>
+        </section>
+        <KakiPintar />
+      </main>
+    </>
+  );
+}
+
+const PETA_KARTU: Record<L, ReadingMapCard[]> = {
+  id: [
+    { peringkat: 1, tingkat: "PERLU_SEGERA", kode: "A", pernyataan: "Menyusun persamaan dari soal cerita", modul: "M2", pelajaran: "L3", halaman: "112", alasan: "Pada Pemetaan Awal, dua soal jenis ini belum tepat." },
+    { peringkat: 2, tingkat: "WAJIB", kode: "B", pernyataan: "Metode eliminasi", modul: "M2", pelajaran: "L4", halaman: "118", alasan: "Dipakai pada bagian akhir bab ini." },
+    { peringkat: 3, tingkat: "KUAT", kode: "C", pernyataan: "Metode substitusi", modul: "M2", pelajaran: "L2", halaman: "104", alasan: "Semua soal jenis ini sudah tepat." },
+  ],
+  en: [
+    { peringkat: 1, tingkat: "PERLU_SEGERA", kode: "A", pernyataan: "Building equations from word problems", modul: "M2", pelajaran: "L3", halaman: "112", alasan: "On the Initial Mapping, two questions of this kind were not right yet." },
+    { peringkat: 2, tingkat: "WAJIB", kode: "B", pernyataan: "The elimination method", modul: "M2", pelajaran: "L4", halaman: "118", alasan: "Used in the last part of this chapter." },
+    { peringkat: 3, tingkat: "KUAT", kode: "C", pernyataan: "The substitution method", modul: "M2", pelajaran: "L2", halaman: "104", alasan: "Every question of this kind was right." },
+  ],
+};
+
+/** B. one assignment: the trail, the step, the map. */
+function Tugas({ locale }: { locale: Locale }) {
+  const l = locale as L;
+  const p = POSISI(2);
+  const n = (x: number) => format.number(x, locale);
+  return (
+    <>
+      <Shell locale={locale} current="belajar" />
+      <main className="pin-col">
+        <a className="pin-back" href="#">← {s("siklus.beranda", locale)}</a>
+        <div className="pin-head">
+          <p className="pin-eyebrow">{SUBJ[l].mat}</p>
+          <h1 className="pin-h1">{CHAP[l].c4}</h1>
+          <p className="pin-intro">{s("siklus.langkah_dari", locale)}</p>
+        </div>
+        <JejakSiklus posisi={p} locale={locale} />
+        <section className="pin-lanjut">
+          <p className="pin-eyebrow">{s("siklus.sekarang", locale)}</p>
+          <h2>{s("siklus.di.pelajaran", locale)} — {n(3)} {s("siklus.dari", locale)} {n(5)} {s("siklus.selesai_n", locale)}</h2>
+          <p className="pin-sub">{s("map.intro", locale)}</p>
+          <div className="pin-actions"><a className="pin-btn pin-primary" href="#">{s("siklus.lanjutkan", locale)}</a></div>
+        </section>
+        <section className="pin-sec">
+          <h2>{s("siklus.peta_anda", locale)}</h2>
+          <PetaBacaan kartu={PETA_KARTU[l]} locale={locale} />
+        </section>
+        <KakiPintar />
+      </main>
+    </>
+  );
+}
+
+/** D. orientation — two real facts, and Q-15 on the well. */
+function Mulai({ locale }: { locale: Locale }) {
+  const l = locale as L;
+  const orientasi: Orientation = {
+    mode: "POST_TEST", title: "Uji Penguasaan", item_count: 24, allows_pause: true,
+    hesitation_window_seconds: 45, opens_at: "2026-09-12T00:00:00+07:00",
+    closes_at: "2026-09-19T16:00:00+07:00", attempt_limit: 1, attempts_used: 0,
+  };
+  return (
+    <>
+      <Shell locale={locale} current="belajar" />
+      <main className="pin-col">
+        <a className="pin-back" href="#">← {CHAP[l].c2}</a>
+        <OrientasiAsesmen
+          orientasi={orientasi}
+          locale={locale}
+          eyebrow={`${SUBJ[l].geo} · ${CHAP[l].c2}`}
+          judul={s("posttest.title", locale)}
+          mulai={<button type="button" className="pin-btn pin-primary">{s("cycle.open", locale)} {s("posttest.title", locale)}</button>}
+          kembali={{ href: "#", label: s("siklus.nanti", locale) }}
+        />
+        <KakiPintar />
+      </main>
+    </>
+  );
+}
+
+/** F. the result — four things kept apart. */
+function Hasil({ locale }: { locale: Locale }) {
+  const l = locale as L;
+  const n = (x: number) => format.number(x, locale);
+  const doms: Array<[string, number, number]> = l === "id"
+    ? [["Struktur bumi", 7, 8], ["Tektonik lempeng", 6, 9], ["Bentuk muka bumi", 5, 7]]
+    : [["Earth's structure", 7, 8], ["Plate tectonics", 6, 9], ["Landforms", 5, 7]];
+  const items: Array<[string, string, string, boolean]> = l === "id"
+    ? [["04", "Lapisan bumi yang paling tebal adalah…", "Mantel", true],
+       ["11", "Pergerakan dua lempeng yang saling menjauh menghasilkan…", "Palung laut", false]]
+    : [["04", "The thickest layer of the Earth is…", "The mantle", true],
+       ["11", "Two plates moving apart produce…", "An ocean trench", false]];
+  const why = l === "id"
+    ? ["Tepat. Mantel mengisi sekitar 84% volume bumi.",
+       "Belum tepat. Lempeng yang saling menjauh membentuk punggung tengah samudra; palung terbentuk saat lempeng bertumbukan. Baca lagi kartu “Batas lempeng” di peta bacaan Anda."]
+    : ["Right. The mantle is about 84% of the Earth's volume.",
+       "Not right yet. Plates moving apart form a mid-ocean ridge; a trench forms where plates collide. Read the “Plate boundaries” card in your reading map again."];
+  return (
+    <>
+      <Shell locale={locale} current="belajar" />
+      <main className="pin-col">
+        <a className="pin-back" href="#">← {s("cycle.title", locale)}</a>
+        <div className="pin-head">
+          <p className="pin-eyebrow">{COURSE[l].geo}</p>
+          <h1 className="pin-h1">{s("hasil.title", locale)}</h1>
+        </div>
+        <section className="pin-hasil">
+          <p className="pin-eyebrow">{s("hasil.mastery", locale)}</p>
+          <p className="pin-big2 pin-num">{format.percent(0.75, locale)}</p>
+          <p className="pin-mean">
+            {s("siklus.tepat_dari", locale)} {n(18)} {s("siklus.dari", locale)} {n(24)} {s("siklus.soal", locale)}.{" "}
+            {s("siklus.ambang", locale)} {format.percent(0.7, locale)}.
+          </p>
+        </section>
+        <div className="pin-banner pin-ok" role="status"><p>{s("hasil.safety.ok", locale)}</p></div>
+        <section className="pin-sec">
+          <h2>{s("hasil.domain", locale)}</h2>
+          <div className="pin-domain">
+            {doms.map(([name, a, b]) => (
+              <div className="pin-drow" key={name}>
+                <span>{name}</span><span className="pin-cnt pin-num">{n(a)}/{n(b)}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className="pin-sec">
+          <h2>{s("hasil.review", locale)}</h2>
+          <div className="pin-tinjau">
+            {items.map(([pos, stem, ans, ok], i) => (
+              <details className="pin-item" key={pos} open={!ok}>
+                <summary className="pin-ihead">
+                  <span className="pin-pos">{pos}</span>
+                  <span className="pin-q">{stem}</span>
+                  <span className={`pin-pill ${ok ? "pin-ok" : "pin-neutral"}`}>
+                    {ok ? s("hasil.answer_right", locale) : s("hasil.answer_notyet", locale)}
+                  </span>
+                </summary>
+                <span className="pin-mine">{s("hasil.answer_yours", locale)}: {ans}</span>
+                <span className="pin-why">{why[i]}</span>
+              </details>
+            ))}
+          </div>
+        </section>
+        <section className="pin-sec">
+          <h2>{s("hasil.delta.LENGKAP", locale)}</h2>
+          <div className="pin-metric">
+            <span className="pin-mv pin-num">{format.percent(0.52, locale)} → {format.percent(0.75, locale)}</span>
+            <span className="pin-mm">{s("siklus.delta_arti", locale)}</span>
+          </div>
+        </section>
+        <div className="pin-actions"><a className="pin-btn pin-primary" href="#">{s("siklus.berikutnya", locale)} →</a></div>
+        <KakiPintar />
+      </main>
+    </>
+  );
+}
+
+/** G. what next, and the honest end beside it. */
+function Lanjut({ locale, kosong }: { locale: Locale; kosong?: boolean }) {
+  const l = locale as L;
+  const n = (x: number) => format.number(x, locale);
+  return (
+    <>
+      <Shell locale={locale} current="belajar" />
+      <main className="pin-col">
+        <a className="pin-back" href="#">← {s("hasil.title", locale)}</a>
+        <div className="pin-head">
+          <p className="pin-eyebrow">{s("siklus.setelah", locale)}</p>
+          <h1 className="pin-h1">{s("siklus.berikutnya", locale)}</h1>
+          {!kosong ? <p className="pin-intro">{s("siklus.terbuka_kini", locale)}</p> : null}
+        </div>
+        {kosong ? (
+          <section className="pin-sec">
+            <h2>{s("siklus.habis.judul", locale)}</h2>
+            <div className="pin-tugas"><span className="pin-tstatus">{s("siklus.habis.isi", locale)}</span></div>
+          </section>
+        ) : (
+          <div className="pin-next">
+            <div className="pin-nrow">
+              <span><span className="pin-nt">{s("siklus.lihat_sertifikat", locale)}</span><br />
+                <span className="pin-nw">{CHAP[l].c2}</span></span>
+              <a className="pin-btn" href="#">{s("siklus.buka", locale)}</a>
+            </div>
+            <div className="pin-nrow">
+              <span><span className="pin-nt">{COURSE[l].mat}</span><br />
+                <span className="pin-nw">{s("siklus.di.pelajaran", locale)}</span></span>
+              <a className="pin-btn" href="#">{s("siklus.buka", locale)}</a>
+            </div>
+            <div className="pin-nrow">
+              <span><span className="pin-nt">{l === "id" ? "Penilaian cepat · Bab 5: Statistika Dasar" : "Quick assessment · Chapter 5: Basic Statistics"}</span><br />
+                <span className="pin-nw">{n(10)} {s("siklus.soal", locale)} · {l === "id" ? "Kelas 10A" : "Class 10A"}</span></span>
+              <a className="pin-btn" href="#">{s("siklus.buka", locale)}</a>
+            </div>
+          </div>
+        )}
+        <KakiPintar />
+      </main>
+    </>
+  );
+}
+
 const SCREENS: Record<string, (l: Locale) => React.ReactElement> = {
   "01-daftar": (l) => <List locale={l} />,
   "02-sertifikat-berlaku": (l) => <Detail locale={l} state="ISSUED" />,
@@ -368,6 +651,12 @@ const SCREENS: Record<string, (l: Locale) => React.ReactElement> = {
   "10-verifikasi-tidak-sah": (l) => <Verify locale={l} vcase="tidaksah" />,
   "11-verifikasi-tidak-ditemukan": (l) => <Verify locale={l} vcase="none" />,
   "12-fondasi-bukti": (l) => <Foundations locale={l} />,
+  "13-siklus-beranda": (l) => <Beranda locale={l} />,
+  "14-siklus-tugas": (l) => <Tugas locale={l} />,
+  "15-siklus-mulai": (l) => <Mulai locale={l} />,
+  "16-siklus-hasil": (l) => <Hasil locale={l} />,
+  "17-siklus-lanjut": (l) => <Lanjut locale={l} />,
+  "18-siklus-habis": (l) => <Lanjut locale={l} kosong />,
 };
 
 // LembarA4's own scaling runs in a useEffect, which static rendering does not

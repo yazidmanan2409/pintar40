@@ -16,6 +16,7 @@
  *   UX1-S0-SAPAAN-01       no learner is addressed informally in Indonesian
  *   UX1-S0-FAKTA-01        compact fact summaries stack on a narrow surface
  *   UX1-S2-POSISI-01       the cycle position and the home's one recommendation
+ *   UX1-S2-MELIHAT-01      looking is not committing, and the four Slice-2 rulings
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -66,21 +67,24 @@ const RESET_SURFACES = [
   "src/app/belajar/sertifikat/page.tsx",
   "src/app/belajar/[tugas]/sertifikat/page.tsx",
   "src/app/verifikasi/[token]/page.tsx",
+  "src/app/belajar/page.tsx",
+  "src/app/belajar/[tugas]/page.tsx",
+  "src/app/belajar/[tugas]/hasil/page.tsx",
+  "src/app/belajar/[tugas]/peta/page.tsx",
+  "src/app/belajar/[tugas]/pemetaan/page.tsx",
+  "src/app/belajar/[tugas]/penguasaan/page.tsx",
+  "src/app/belajar/[tugas]/pelajaran/[pelajaran]/page.tsx",
+  "src/app/belajar/_components/ItemPlayer.tsx",
+  "src/app/belajar/_components/LessonPlayer.tsx",
+  "src/app/belajar/[tugas]/lanjut/page.tsx",
+  "src/app/belajar/asesmen/[penugasan]/page.tsx",
+  "src/app/belajar/_components/PermukaanAsesmen.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
 const PENDING_SURFACES: Record<string, string> = {
   "src/app/page.tsx": "Slice 2 — entry by purpose",
   "src/app/masuk/page.tsx": "Slice 2 — sign-in",
-  "src/app/belajar/page.tsx": "Slice 3 — the learning cycle",
-  "src/app/belajar/[tugas]/page.tsx": "Slice 3 — the learning cycle",
-  "src/app/belajar/[tugas]/hasil/page.tsx": "Slice 3 — the result",
-  "src/app/belajar/[tugas]/peta/page.tsx": "Slice 3 — the reading map",
-  "src/app/belajar/[tugas]/pemetaan/page.tsx": "Slice 4 — assessment (route blocked in UX-1)",
-  "src/app/belajar/[tugas]/penguasaan/page.tsx": "Slice 4 — assessment (route blocked in UX-1)",
-  "src/app/belajar/[tugas]/pelajaran/[pelajaran]/page.tsx": "Slice 3 — the lesson",
-  "src/app/belajar/_components/ItemPlayer.tsx": "Slice 4 — assessment",
-  "src/app/belajar/_components/LessonPlayer.tsx": "Slice 3 — the lesson",
   "src/app/_evaluation-banner.tsx": "Slice 2 — the shell",
   "src/app/evaluasi/page.tsx": "Slice 2 — the demonstration room",
   "src/app/konfigurasi/page.tsx": "Slice 7 — configuration",
@@ -194,6 +198,10 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The option key's column, in em so A/B/C/D stays aligned with the type rather than the page." },
   { file: "src/app/experience.css", literal: "20ch",
     reason: "The review question's flex basis, in characters because it wraps prose." },
+  { file: "src/app/experience.css", literal: "360px",
+    reason: "An inline lesson illustration: wide enough to read a diagram, narrow enough to stay inside the measure." },
+  { file: "src/app/experience.css", literal: "0.4",
+    reason: "The disabled control's opacity: visibly unavailable without vanishing." },
   { file: "src/components/bukti/BarisKesiapan.tsx", literal: "%",
     reason: "A computed proportion of the readiness bar: data, not a design value." },
   { file: "src/components/bukti/BarisLingkup.tsx", literal: "20",
@@ -1137,6 +1145,7 @@ export const experienceTests: SelfTest[] = [
       // only on the plain selector silently leaves the commitment shell —
       // the screen the correction was raised against — in three columns.
       const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const PHONE = "@media (max-width: 560px) {";
 
       /** The body of a block, balanced braces, from its opening line. */
       function block(source: string, open: string): string {
@@ -1159,8 +1168,66 @@ export const experienceTests: SelfTest[] = [
         return out;
       }
 
-      const phone = block(css, "@media (max-width: 560px) {");
+      // EVERY phone block, not the first one. The stylesheet grew a second
+      // one when Slice 2 landed, and a rule in the first block can be
+      // overridden by a base rule written between the two.
+      const phoneBlocks: string[] = [];
+      for (let i = css.indexOf(PHONE); i >= 0; i = css.indexOf(PHONE, i + 1)) {
+        phoneBlocks.push(block(css.slice(i), PHONE));
+      }
+      const phone = phoneBlocks.join("\n");
       c.expect(phone.length > 200, "the phone block was not found in src/app/experience.css");
+
+      // AND THE STACK MUST WIN, NOT MERELY EXIST.
+      //
+      // This is the half the first version of this test was missing. It
+      // asserted that a narrow rule with `1fr` was PRESENT, and passed while
+      // the orientation was still two cramped columns on a phone: the stack
+      // sat in the first phone block and the base rule for the same selector
+      // is written further down the file. Same specificity, later rule wins,
+      // stack never happens. A screenshot caught it; the test did not.
+      //
+      // Positions are compared by walking the rules rather than by building a
+      // regex per selector — the first attempt at this did build regexes, got
+      // the escaping wrong, matched nothing, and silently skipped all three
+      // selectors while reporting success.
+      type Placed = { sels: string[]; decl: string; at: number };
+      function placed(body: string, offset: number): Placed[] {
+        const out: Placed[] = [];
+        for (const m of body.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+          out.push({
+            sels: m[1].replace(/\/\*[\s\S]*?\*\//g, " ").split(",").map((x) => x.trim()).filter(Boolean),
+            decl: m[2],
+            at: offset + (m.index ?? 0),
+          });
+        }
+        return out;
+      }
+      /** Media queries blanked out, so what is left is the unconditional CSS. */
+      const baseCss = css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, (m) => " ".repeat(m.length));
+      const baseRules = placed(baseCss, 0);
+      const narrowRules: Placed[] = [];
+      for (let i = css.indexOf(PHONE); i >= 0; i = css.indexOf(PHONE, i + 1)) {
+        narrowRules.push(...placed(block(css.slice(i), PHONE), i + PHONE.length));
+      }
+      const COLS = /grid-template-columns:\s*([^;]+)/;
+      let ordered = 0;
+      for (const sel of [".pin-facts", ".pin-commit .pin-facts", ".pin-orient .pin-facts"]) {
+        const lastBase = baseRules.filter((r) => r.sels.includes(sel) && COLS.test(r.decl)).pop();
+        const lastNarrow = narrowRules
+          .filter((r) => r.sels.includes(sel) && /grid-template-columns:\s*1fr\b/.test(r.decl))
+          .pop();
+        if (!lastBase) continue;
+        c.expect(lastNarrow !== undefined, `"${sel}" has a wide rule and no narrow one`);
+        if (!lastNarrow) continue;
+        c.expect(
+          lastNarrow.at > lastBase.at,
+          `"${sel}" is stacked at offset ${lastNarrow.at} but its wide rule is written at ${lastBase.at}, ` +
+            `later in the file at the same specificity — so the wide rule wins and the stack never happens`,
+        );
+        ordered++;
+      }
+      c.expect(ordered === 3, `only ${ordered} of 3 fact-summary selectors were order-checked`);
 
       // 1. wide is horizontal: the structure exists and has more than one column
       const wide = rules(css.slice(0, css.indexOf("@media (max-width: 560px)")))
@@ -1389,6 +1456,176 @@ export const experienceTests: SelfTest[] = [
           "lesson ever being opened, which the trail must report as the result rather than as unread work — " +
           "and the home's single recommendation follows the approved ranking rather than list position: a " +
           "running session first, a finished cycle never, and the same answer whatever order the rows arrive in",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "UX1-S2-MELIHAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      // THE FOUR SLICE-2 RULINGS OF 2026-09-17, MADE MECHANICAL AGAINST THE
+      // SOURCE. Each of them is the kind of thing that is obeyed on the day it
+      // is written and quietly undone six weeks later by somebody fixing
+      // something else, so each gets a predicate rather than a paragraph.
+      const player = join(repoRoot, "src", "app", "belajar", "_components", "PermukaanAsesmen.tsx");
+      const orient = join(repoRoot, "src", "components", "siklus", "OrientasiAsesmen.tsx");
+      const actionsFile = join(repoRoot, "src", "app", "belajar", "actions.ts");
+      for (const f of [player, orient, actionsFile]) {
+        c.expect(existsSync(f), `${relative(repoRoot, f)} does not exist`);
+      }
+      if (!existsSync(player) || !existsSync(orient)) return c.verdict("the Slice-2 assessment surface is missing");
+
+      // ---- 1. LOOKING IS NOT COMMITTING ---------------------------------
+      //
+      // Reading an orientation must create no session and spend no attempt.
+      // The database half is Bob's (assessment_orientation() is `stable` and
+      // inserts nothing); this is the half on this side of the wire: NO
+      // LEARNER PAGE MAY START A SESSION WHILE RENDERING.
+      //
+      // Before Slice 2 both assessment routes called startSession() in their
+      // render path, which made ARRIVING AT THE URL the act of committing —
+      // and made it impossible to show the integrity disclosure before the
+      // thing it discloses about. That is the defect this half prevents
+      // returning.
+      const pages = walk(join(repoRoot, "src", "app")).filter((f) => /page\.tsx$/.test(f));
+      c.expect(pages.length > 10, `only ${pages.length} page(s) found`);
+      const STARTS = /\b(startSession|start_learning_session)\b/;
+      for (const f of pages) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        c.expect(
+          !STARTS.test(code(readFileSync(f, "utf8"))),
+          `${rel} starts a session while rendering, so visiting the URL is the commitment`,
+        );
+      }
+      // The surface that shows the orientation must not start one either.
+      c.expect(
+        !STARTS.test(code(readFileSync(player, "utf8"))),
+        "PermukaanAsesmen starts a session while rendering",
+      );
+
+      // The start is a FORM POST, not a link. A link is prefetched by the
+      // router, pre-rendered by the browser and brushed by a thumb on a
+      // scroll; any of those would silently spend the one attempt a PAPER
+      // assessment allows. Exactly one place may create a session, and it is
+      // reached by a verb.
+      const actions = code(readFileSync(actionsFile, "utf8"));
+      c.expect(/export async function mulaiAsesmen\(/.test(actions),
+        "there is no server action that starts an assessment");
+      c.expect(/formData/.test(actions),
+        "the start action does not take form data, so it is reachable without a form submission");
+      const surface = code(readFileSync(player, "utf8"));
+      c.expect(/<form action=\{mulaiAsesmen\}/.test(surface),
+        "the start is not a form submission");
+      // and no Link anywhere in the surface points at the action
+      c.expect(!/<Link[^>]*mulaiAsesmen/.test(surface), "a Link invokes the start action");
+
+      // ---- 2. THE ORIENTATION'S AUTHORIZATION IS NOT WEAKENED -------------
+      //
+      // assessment_orientation() is gated by may_start_assessment() and
+      // returns NO ROW when the learner may not begin. The ruling: do not
+      // replace that with a disabled orientation page after eligibility is
+      // gone. So a null must reach the refusal, and the surface must not
+      // second-guess the gate with a check of its own.
+      c.expect(/if \(!orientasi\)/.test(surface), "the surface does not branch on a missing orientation");
+      const nullBranch = /if \(!orientasi\) \{\s*return <HalamanPenolakan/.test(surface);
+      c.expect(nullBranch, "a missing orientation does not render the one refusal page");
+      c.expect(!/disabled/.test(surface),
+        "the assessment surface renders a disabled control, which is how a refused orientation comes back as a greyed-out page");
+      // No second eligibility opinion in this process: may_start_assessment is
+      // the database's answer and the RPCs ask it themselves.
+      c.expect(!/\bmayStart\b/.test(surface),
+        "the surface asks may_start_assessment itself, which is a second opinion that can drift from the gate the RPCs use");
+
+      // ---- 3. NO ESTIMATED DURATION, AND NONE DERIVED --------------------
+      //
+      // Ruled out because no legitimate duration fact exists. A plausible
+      // number is worse than no number: a learner arranges an afternoon around
+      // "40 minutes" and the arrangement is the product's fault.
+      const types = readFileSync(join(repoRoot, "src", "lib", "assessment-engine", "types.ts"), "utf8");
+      const oriType = /export type Orientation = \{([^}]*)\}/.exec(types)?.[1] ?? "";
+      c.expect(oriType.length > 0, "the Orientation type was not found");
+      for (const field of ["duration", "durasi", "minutes", "menit", "estimated", "perkiraan", "time_limit"]) {
+        c.expect(!oriType.includes(field), `the Orientation type carries a duration field (${field})`);
+      }
+      // and the component computes none out of what it does have
+      const oriSrc = code(readFileSync(orient, "utf8"));
+      for (const derived of ["item_count *", "item_count*", "* 60", "/ 60", "hesitation_window_seconds *"]) {
+        c.expect(!oriSrc.includes(derived), `the orientation derives a duration (${derived})`);
+      }
+      // no copy key offers one either, in either language
+      for (const k of allKeys()) {
+        if (!k.startsWith("siklus.")) continue;
+        for (const locale of LOCALES) {
+          const text = t(k as HleEvent, "learner", { locale }).toLowerCase();
+          const bad = ["perkiraan waktu", "estimated time", "menit", "minutes"].find((w) => text.includes(w));
+          c.expect(bad === undefined, `${k} offers a duration in ${locale} ("${bad}"): "${text}"`);
+        }
+      }
+
+      // ---- 4. THE FACTS THAT DO EXIST ARE STILL SHOWN --------------------
+      // Removing the duration must not take the true facts with it.
+      c.expect(/siklus\.jumlah_soal/.test(oriSrc), "the orientation no longer shows how many questions");
+      c.expect(/siklus\.ditutup/.test(oriSrc), "the orientation no longer shows when it closes");
+      c.expect(/orientasi\.item_count/.test(oriSrc), "the question count is not read from the orientation");
+      c.expect(/orientasi\.closes_at/.test(oriSrc), "the closing time is not read from the orientation");
+      // and they render through the shared compact fact summary, so the
+      // approved responsive stack applies to them without being restated
+      c.expect(/className="pin-facts"/.test(oriSrc),
+        "the orientation facts do not use the shared compact fact summary, so the responsive stack does not reach them");
+
+      // ---- 5. Q-15, VERBATIM ---------------------------------------------
+      //
+      // Neither telling may be edited. "dicatat", not "dipantau"; observation,
+      // never judgment; no category list; no device named.
+      const Q15_ID =
+        "Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. " +
+        "Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis.";
+      const Q15_EN =
+        "During the assessment, certain session activity may be recorded to support process integrity. " +
+        "These records are observations and do not automatically determine your result.";
+      c.expect(t("siklus.catatan.isi" as HleEvent, "learner", { locale: "id" }) === Q15_ID,
+        "the Indonesian integrity disclosure is not the ruled wording");
+      c.expect(t("siklus.catatan.isi" as HleEvent, "learner", { locale: "en" }) === Q15_EN,
+        "the English integrity disclosure is not the ruled wording");
+      // the forbidden register, checked rather than trusted
+      for (const locale of LOCALES) {
+        const text = t("siklus.catatan.isi" as HleEvent, "learner", { locale }).toLowerCase();
+        for (const w of ["dipantau", "monitored", "webcam", "kamera", "camera", "microphone", "mikrofon",
+                         "layar", "screen record", "keystroke", "rekam layar", "diawasi", "surveillance"]) {
+          c.expect(!text.includes(w), `the disclosure in ${locale} uses the forbidden word "${w}"`);
+        }
+      }
+      // it is a quiet paragraph on the well, NOT an alert: the ruling says
+      // these records are observation and not judgment, and a bordered warning
+      // would say the opposite of the words inside it
+      c.expect(/className="pin-catatan"/.test(oriSrc), "the disclosure is not rendered on the well");
+      c.expect(!/role="alert"/.test(oriSrc), "the disclosure is announced as an alert");
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const catatan = /\.pin-catatan \{([^}]*)\}/.exec(css)?.[1] ?? "";
+      c.expect(catatan.length > 0, ".pin-catatan is not styled");
+      c.expect(!/border:/.test(catatan) && !/status-attention|status-blocked/.test(catatan),
+        `the disclosure is drawn as a warning box: ${catatan.trim()}`);
+      // and it is shown BEFORE the thing it discloses about — in the
+      // orientation, which is the screen that exists before the session
+      c.expect(!/siklus\.catatan\.isi/.test(code(readFileSync(
+        join(repoRoot, "src", "app", "belajar", "_components", "ItemPlayer.tsx"), "utf8"))),
+        "the disclosure appears inside the player, which is after the commitment it discloses about");
+
+      c.note(`${pages.length} page(s) swept for a render-time session start; Q-15 compared verbatim in ${LOCALES.length} languages`);
+      return c.verdict(
+        "the four Slice-2 rulings hold against the source: no page under src/app starts a session while " +
+          "rendering and the only thing that starts one is a form-submitted server action, so looking at an " +
+          "assessment is not committing to it; a missing orientation reaches the one refusal page rather than " +
+          "a disabled orientation, and the surface asks no second eligibility question of its own; the " +
+          "Orientation type carries no duration field, the component derives none from what it does have, and " +
+          "no Slice-2 copy key offers one in either language, while the two facts that are real are still read " +
+          "and still rendered through the shared compact fact summary; and the integrity disclosure is the " +
+          "ruled wording byte for byte in both languages, drawn as a paragraph on the well rather than an " +
+          "alert, on the screen that comes before the session rather than inside it",
       );
     },
   },

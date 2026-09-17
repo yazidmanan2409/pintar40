@@ -28,6 +28,8 @@ import {
   type AssignmentEntry, type AssistanceLevel, type AssistanceState, type Delta,
   type LearnerAnswer, type LearnerItem, type LessonEntry, type Outcome,
   type PaperEntry, type ReadingMapCard,
+  type OpenAssessment,
+  type Orientation,
 } from "./types";
 
 /**
@@ -206,6 +208,26 @@ export async function readingMap(db: EngineClient, sessionId: string): Promise<R
 
 export async function delta(db: EngineClient, learningAssignmentId: string): Promise<Delta> {
   return (await call(db, "learning_delta", { p_learning_assignment: learningAssignmentId })) as Delta;
+}
+
+/**
+ * Q-12: the assessments a learner may start that no learning assignment names.
+ * Adds no authority — the RPC returns what `may_start_assessment()` accepts.
+ */
+export async function openAssessments(db: EngineClient): Promise<OpenAssessment[]> {
+  return rows<OpenAssessment>(await call(db, "my_open_assessments"));
+}
+
+/**
+ * Orientation BEFORE the act that starts an assessment. Null means the learner
+ * may not start this one — the RPC is gated by `may_start_assessment()` and
+ * returns no row rather than a row with a disabled button, so a caller cannot
+ * accidentally render an orientation for something that is closed or spent.
+ */
+export async function orientation(db: EngineClient, assessmentAssignmentId: string): Promise<Orientation | null> {
+  const r = rows<Orientation>(
+    await call(db, "assessment_orientation", { p_assessment_assignment: assessmentAssignmentId }));
+  return r[0] ?? null;
 }
 
 export * from "./types";

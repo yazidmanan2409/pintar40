@@ -5,6 +5,7 @@
  * no client of its own, so a route cannot accidentally act as someone else
  * (INV-08 is enforced inside the database, from the JWT).
  */
+import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import type { LearnerAnswer } from "@/lib/assessment-engine";
@@ -94,4 +95,28 @@ export async function saveLessonProgress(
   } catch (e) {
     return { ok: false as const, message: (e as Error).message };
   }
+}
+
+/**
+ * START AN ASSESSMENT. A FORM POST, and that is the point.
+ *
+ * Screen D exists so a learner can look at an assessment before entering it,
+ * and `assessment_orientation()` guarantees that looking creates no session and
+ * spends no attempt. That guarantee is only worth something if the ACT of
+ * starting needs a deliberate press: a link is prefetched by the router,
+ * pre-rendered by the browser and brushed by a thumb on a scroll, and any of
+ * those would silently spend the one attempt a PAPER assessment allows.
+ *
+ * So the commitment is a verb, sent by a form, and it is the only thing in the
+ * learner surface that creates a session.
+ */
+export async function mulaiAsesmen(formData: FormData) {
+  const penugasan = String(formData.get("penugasan") ?? "");
+  const kembali = String(formData.get("kembali") ?? "/belajar");
+  if (!penugasan) redirect(kembali);
+  // No eligibility check here: `start_learning_session()` asks
+  // `may_start_assessment()` itself, inside the database, from the JWT. A check
+  // in this process would be a second opinion that can drift from the first.
+  await engine.startSession(await db(), penugasan);
+  redirect(kembali);
 }

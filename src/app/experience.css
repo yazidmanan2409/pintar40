@@ -232,6 +232,8 @@
 }
 .pin-banner.pin-info { background: var(--status-info-soft); }
 .pin-banner.pin-neutral { background: var(--surface-2); }
+.pin-banner.pin-ok { background: var(--status-ok-soft); }
+.pin-banner.pin-attention { background: var(--status-attention-soft); }
 .pin-banner h2 { font-size: var(--type-card); margin: 0; font-weight: var(--weight-strong); }
 .pin-banner p { font-size: var(--type-meta); color: var(--ink-2); margin: 0; }
 .pin-banner .pin-cta { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-top: var(--space-2); }
@@ -571,10 +573,19 @@
 .pin-orient { display: grid; gap: var(--space-5); }
 /* The orientation facts are the SAME compact fact summary the certificate and
    the commitment shell use, so they inherit the responsive stack rather than
-   restating it. The box is the only thing added here. */
+   restating it. The box is the only thing added here.
+   TWO FACTS, NOT THREE. The reviewed concept carried an estimated time; it was
+   ruled out on 2026-09-17 because no legitimate duration fact exists and a
+   plausible number a learner plans their afternoon around is worse than no
+   number. What is left is what is true: how many questions, and when it closes.
+   So the row sizes to its content and starts at the left rather than stretching
+   two short values across three columns' worth of measure — the same treatment
+   the commitment shell's summary already uses. */
 .pin-orient .pin-facts {
   border: 1px solid var(--line); border-radius: var(--radius-2);
-  padding: var(--space-5); background: var(--surface-1); gap: var(--space-4);
+  padding: var(--space-5); background: var(--surface-1);
+  grid-template-columns: repeat(2, auto); justify-content: start;
+  gap: var(--space-4) var(--space-7);
 }
 .pin-orient .pin-facts dd { font-size: var(--type-course); }
 .pin-bisa {
@@ -590,6 +601,43 @@
   font-size: var(--type-meta); color: var(--ink-2); max-width: 60ch;
 }
 .pin-catatan strong { color: var(--ink-1); font-weight: var(--weight-strong); display: block; margin-bottom: var(--space-1); }
+
+/* ------------------------------------------------------- the lesson player
+   The reading surface. Everything here serves sustained reading: a measure
+   that does not run past the eye, prose leading, and controls that sit below
+   the text rather than beside it. */
+.pin-prose { font-size: var(--type-body); color: var(--ink-1); max-width: var(--measure); line-height: var(--leading-prose); }
+.pin-prose > * + * { margin-top: var(--space-4); }
+.pin-lp { margin: 0; }
+.pin-lh3 { font-size: var(--type-course); font-weight: var(--weight-strong); margin: 0; }
+.pin-lmedia { width: 100%; max-width: 360px; border-radius: var(--radius-1); margin: var(--space-4) 0; }
+/* Reading position: dots rather than a bar, because a page of a lesson is a
+   place and not a percentage. */
+.pin-lpos { display: flex; align-items: center; gap: var(--space-2); font-size: var(--type-meta); color: var(--ink-3); margin-top: var(--space-5); }
+.pin-lpos .pin-dots { display: flex; align-items: center; gap: 6px; }
+.pin-ldot { width: var(--space-2); height: var(--space-2); border-radius: 50%; background: var(--line-strong); }
+.pin-ldot.pin-at { background: var(--pintar-primary); }
+.pin-ldot.pin-done { background: var(--ink-3); }
+.pin-actions.pin-between { justify-content: space-between; width: 100%; }
+.pin-actions .pin-btn:disabled { opacity: 0.4; cursor: default; }
+.pin-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-3); }
+.pin-contoh .pin-langkah, .pin-steps .pin-langkah {
+  display: grid; grid-template-columns: auto 1fr; gap: var(--space-3);
+  font-size: var(--type-body); align-items: baseline;
+}
+.pin-steps .pin-n { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-3); }
+.pin-lmediaset { display: grid; gap: var(--space-4); margin-top: var(--space-6); }
+.pin-lcard { border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1); padding: var(--space-4); }
+.pin-llink { color: var(--pintar-primary); text-decoration: underline; display: block; }
+.pin-lvideo { width: 100%; border-radius: var(--radius-1); }
+.pin-laudio { width: 100%; }
+.pin-lctl { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); font-size: var(--type-meta); margin-top: var(--space-3); }
+.pin-lrate { display: flex; align-items: center; gap: var(--space-2); }
+.pin-lselect {
+  font: inherit; font-size: var(--type-meta); border: 1px solid var(--line);
+  background: var(--surface-0); border-radius: var(--radius-1); padding: var(--space-1) var(--space-2); color: var(--ink-1);
+}
+.pin-ltrans { white-space: pre-wrap; color: var(--ink-2); font-size: var(--type-meta); margin-top: var(--space-3); }
 
 /* ----------------------------------------------------------- the item player */
 .pin-soalbar {
@@ -649,6 +697,22 @@
 .pin-num-btn.pin-flag { border-color: var(--status-attention); color: var(--status-attention); font-weight: var(--weight-strong); }
 .pin-num-btn.pin-at { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
 
+/* The player's own wrapper and the two pieces the re-set introduced. */
+.pin-player { display: grid; }
+.pin-soalbar .pin-sbchrome { display: flex; align-items: center; gap: var(--space-3); font-size: var(--type-meta); margin-left: auto; }
+.pin-soalbar .pin-dots { display: flex; align-items: center; gap: 6px; }
+.pin-luring { color: var(--status-attention); font-weight: var(--weight-strong); }
+.pin-soal { display: grid; gap: 0; }
+.pin-stimulus { white-space: pre-wrap; color: var(--ink-2); max-width: 60ch; margin: 0 0 var(--space-4); }
+/* The navigator is a wrapping row of targets, not a six-column table: 24 of
+   them fit the measure at any width, and a fixed column count leaves a ragged
+   last row on one screen size or another. */
+.pin-daftar {
+  list-style: none; margin: var(--space-4) 0 0; padding: var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+}
+.pin-daftar li { display: contents; }
+
 /* ------------------------------------------------------------------- result */
 .pin-hasil {
   background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-6);
@@ -669,17 +733,23 @@
 }
 .pin-drow .pin-cnt { font-variant-numeric: tabular-nums; color: var(--ink-2); }
 .pin-tinjau { display: grid; gap: var(--space-2); }
+/* A <details> is NOT a grid container worth trusting: the summary is a grid
+   item and what follows it is laid out by rules that differ between engines.
+   Rendered, the answer and its explanation ran together on one line with a
+   stray rule beside them. Block flow, and each child declares its own box. */
 .pin-item {
   border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
-  padding: var(--space-4) var(--space-5); display: grid; gap: 6px;
+  padding: var(--space-4) var(--space-5);
 }
+.pin-item > summary { cursor: pointer; }
+.pin-item > summary::marker { color: var(--ink-3); }
 .pin-item .pin-ihead { display: flex; gap: var(--space-3); align-items: baseline; flex-wrap: wrap; }
 .pin-item .pin-pos { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-3); }
 .pin-item .pin-q { font-size: var(--type-body); flex: 1 1 20ch; }
-.pin-item .pin-mine { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-item .pin-mine { display: block; font-size: var(--type-meta); color: var(--ink-2); margin-top: var(--space-3); }
 .pin-item .pin-why {
-  font-size: var(--type-meta); color: var(--ink-1); border-top: 1px solid var(--line);
-  padding-top: var(--space-2); margin-top: var(--space-1);
+  display: block; font-size: var(--type-meta); color: var(--ink-1);
+  border-top: 1px solid var(--line); padding-top: var(--space-3); margin-top: var(--space-3);
 }
 
 /* ---------------------------------------------------------------- what next */
@@ -693,6 +763,13 @@
 .pin-nrow .pin-nw { font-size: var(--type-meta); color: var(--ink-2); }
 
 @media (max-width: 560px) {
+  /* The orientation's summary stacks like every other one. It is declared HERE
+     rather than beside the two above because `.pin-orient .pin-facts` is
+     written further down this file, and at equal specificity the later rule
+     wins: a stack declared before the thing it overrides is a stack that never
+     happens. The screen looked fine in review and was two cramped columns on a
+     phone. UX1-S0-FAKTA-01 now checks document order, not just presence. */
+  .pin-orient .pin-facts { grid-template-columns: 1fr; }
   .pin-lanjut { padding: var(--space-5); }
   .pin-lanjut h2 { font-size: var(--type-subhead); }
   /* THE TRAIL KEEPS ITS SHAPE, LOSES ITS LABELS. Five step names do not fit
