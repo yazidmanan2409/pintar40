@@ -908,6 +908,47 @@ jobs:
           SQL
           red Q12-N01 'a learner of another institution discovered it' /tmp/f06-3g.sql
 
+          # 3h. UX-1 Slice 2: the orientation window must not become a doorway.
+          #     Authorization boundary -- stop delegating to may_start_assessment
+          #     and a learner of another tenant reads someone else's assignment.
+          cat > /tmp/f06-3h.sql <<'SQL'
+          begin;
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.assessment_orientation(uuid)'::regprocedure);
+            src := replace(orig, 'and (select e.ok from public.may_start_assessment(aa.id) e)', '');
+            if src = orig then raise exception 'the plant did not reach assessment_orientation'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'UX1-S2-ORIENT-01';
+          rollback;
+          SQL
+          red UX1-S2-ORIENT-01 'a learner of another institution read the orientation' /tmp/f06-3h.sql
+
+          # 3i. The distinction itself: orientation that starts a session to
+          #     answer itself has spent the single attempt it was meant to let
+          #     the learner think about.
+          cat > /tmp/f06-3i.sql <<'SQL'
+          begin;
+          create or replace function public.assessment_orientation(p_assessment_assignment uuid)
+          returns table (mode public.assessment_mode, title text, item_count smallint, allows_pause boolean,
+                         hesitation_window_seconds integer, opens_at timestamptz, closes_at timestamptz,
+                         attempt_limit smallint, attempts_used integer)
+          language plpgsql security definer set search_path = public, pg_temp as $f$
+          declare v_s uuid;
+          begin
+            v_s := public.start_learning_session(p_assessment_assignment);
+            return query select st.mode, 'x'::text, st.item_count::smallint, st.allows_pause,
+                                st.hesitation_window_seconds, null::timestamptz, st.authoritative_deadline,
+                                1::smallint, 1
+                           from public.session_state(v_s) st;
+          end $f$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'UX1-S2-ORIENT-01';
+          rollback;
+          SQL
+          red UX1-S2-ORIENT-01 'looking changed the session count' /tmp/f06-3i.sql
+
           # 4. the provenance constraint as 0082 wrote it -- catalogue version and
           #    report id required, template id and template version not. Found by
           #    the second eye (G1) and repaired by 0083; planted here so the

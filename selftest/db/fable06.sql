@@ -1993,6 +1993,133 @@ begin
     return next;
   end;
 
+  -- =========================================================================
+  -- UX1-S2-ORIENT-01 -- LOOKING IS NOT COMMITTING.
+  --
+  -- The orientation facts live on assessment_definitions and
+  -- assessment_assignments, both closed to a learner; session_state() returns
+  -- them and needs a session; and the only thing that makes a session is
+  -- start_learning_session(), which stamps started_at and spends an attempt --
+  -- attempt_limit is 1 for PRE_TEST and for most POST_TEST and QUICK
+  -- definitions. A learner had to open the door to find out what was behind it.
+  --
+  -- This proves the four things that matter about the window, and the third is
+  -- the one worth the test: reading it must leave NO trace. Session count
+  -- unchanged, no session against this assignment, no started_at. If
+  -- orientation ever starts a session to answer itself, that is the whole
+  -- distinction gone and this goes red.
+  --
+  -- The refusal is a SILENCE, not a message: an assignment that is not yours
+  -- and an assignment that does not exist both answer zero rows, so existence
+  -- is not an oracle (F06-N01's rule, applied on a new surface).
+  -- =========================================================================
+  declare
+    v_inst uuid; v_node uuid; v_module uuid; v_assign uuid; v_session uuid;
+    n_before int; n_after int; n int; v_bad text := '';
+    v_items smallint; v_limit smallint; v_used int; v_closes timestamptz;
+  begin
+    ok := true;
+    begin
+      perform selftest.as_owner();
+      select i.id into v_inst from public.institutions i where i.slug = 'pintar-bootstrap-official';
+      select o.id into v_node from public.org_nodes o
+       where o.institution_id = v_inst and o.kind = 'CLASS' order by o.created_at, o.id limit 1;
+      select m.id into v_module from public.modules m
+        join public.courses c on c.id = m.course_id
+       where c.institution_id = v_inst order by m.created_at, m.id limit 1;
+
+      perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+      select q.assessment_assignment_id into v_assign
+        from public.launch_quick_assessment(v_node, v_module, 5, 20) q;
+      perform selftest.as_owner();
+      select count(*) into n_before from public.assessment_sessions;
+
+      -- (1) the authorized learner can LOOK, and gets real facts
+      perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+      select o.item_count, o.attempt_limit, o.attempts_used, o.closes_at
+        into v_items, v_limit, v_used, v_closes
+        from public.assessment_orientation(v_assign) o;
+      perform selftest.as_owner();
+      if v_items is null then
+        ok := false; v_bad := v_bad || 'the authorized learner got no orientation at all; ';
+      elsif v_items <> 5 then
+        ok := false; v_bad := v_bad || format('orientation reported %s questions, the assignment has 5; ', v_items);
+      end if;
+      if v_used <> 0 then
+        ok := false; v_bad := v_bad || format('orientation reported %s attempts already used; ', v_used);
+      end if;
+      if v_closes is null then
+        ok := false; v_bad := v_bad || 'orientation carries no closing time, which is the one time fact there is; ';
+      end if;
+
+      -- (2) LOOKING LEFT NOTHING BEHIND
+      select count(*) into n_after from public.assessment_sessions;
+      if n_after <> n_before then
+        ok := false; v_bad := v_bad || format('looking changed the session count %s -> %s; ', n_before, n_after);
+      end if;
+      select count(*) into n from public.assessment_sessions s
+       where s.assessment_assignment_id = v_assign;
+      if n <> 0 then
+        ok := false; v_bad := v_bad || format('looking created %s session(s) against the assignment; ', n);
+      end if;
+      select count(*) into n from public.assessment_sessions s
+       where s.assessment_assignment_id = v_assign and s.started_at is not null;
+      if n <> 0 then
+        ok := false; v_bad := v_bad || 'looking stamped started_at; ';
+      end if;
+
+      -- (3) a learner of another tenant, and a uuid that does not exist,
+      --     answer IDENTICALLY
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      select count(*) into n from public.assessment_orientation(v_assign);
+      perform selftest.as_owner();
+      if n <> 0 then
+        ok := false; v_bad := v_bad || 'a learner of another institution read the orientation; ';
+      end if;
+      perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+      select count(*) into n from public.assessment_orientation(gen_random_uuid());
+      perform selftest.as_owner();
+      if n <> 0 then
+        ok := false; v_bad := v_bad || 'a uuid that does not exist answered differently from one that is not yours; ';
+      end if;
+
+      -- (4) and starting still goes down the unchanged path
+      perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+      begin
+        select public.start_learning_session(v_assign) into v_session;
+      exception when others then
+        ok := false; v_bad := v_bad || 'after looking, starting failed: ' || left(sqlerrm, 60) || '; ';
+      end;
+      perform selftest.as_owner();
+      if v_session is null and v_bad = '' then
+        ok := false; v_bad := v_bad || 'the looked-at assignment started nothing; ';
+      end if;
+
+      raise exception 'UX1_S2_ORIENT_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'UX1_S2_ORIENT_UNDO' then
+        ok := false; v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 90) || '; ';
+      end if;
+    end;
+
+    id := 'UX1-S2-ORIENT-01'; area := 'UX-1 Slice 2 -- a learner may look before committing';
+    if not ok then
+      detail := v_bad;
+    else
+      detail := 'the learner reads the assignment''s OWN facts before the act that starts it -- 5 questions, '
+             || 'its closing time, whether it pauses, and that this is attempt 0 of 1 -- and reading leaves '
+             || 'NO trace: the session count is unchanged, no session exists against the assignment and no '
+             || 'started_at is stamped, so looking has not spent the single attempt. A learner of another '
+             || 'institution and a uuid that does not exist answer identically with zero rows, so existence '
+             || 'is not an oracle. Starting afterwards still goes through the unchanged '
+             || 'start_learning_session(). Every fact comes from the definition or the assignment and is a '
+             || 'subset of what session_state() shows a second later; nothing is invented, and authorization '
+             || 'is may_start_assessment() -- the predicate start_learning_session() itself calls';
+    end if;
+    return next;
+  end;
+
   perform selftest.f06_purge();
   perform selftest.purge_certificates();
   id := 'F06-DONE'; area := 'suite'; ok := true; detail := 'FABLE-06 suite complete';

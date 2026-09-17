@@ -936,7 +936,14 @@ export const experienceTests: SelfTest[] = [
       //    purpose, with the delivery path solved, rather than by whoever adds
       //    the obvious column.
       const migrations = walk(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"));
-      c.expect(migrations.length === 83, `${migrations.length} migrations; the frozen baseline has 83`);
+      // BASELINE MOVED 83 -> 85 on 2026-09-17, which is this tripwire working
+      // rather than being worked around. Two Core migrations landed for UX-1
+      // Slice 2 -- 20260920090000 (the Q-12 learner discovery contract) and
+      // 20260921090000 (pre-start orientation). Both were re-read against §3 of
+      // the ruling before this number moved: neither creates a table nor adds a
+      // column, so the Q-7 gap below is still a gap and the assertion that
+      // matters is unchanged.
+      c.expect(migrations.length === 85, `${migrations.length} migrations; the frozen baseline has 85`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -1007,7 +1014,7 @@ export const experienceTests: SelfTest[] = [
       c.note(`${migrations.length} migrations swept for a mark column, ${experience.length} Experience file(s) for theming`);
       return c.verdict(
         "the institution-mark ruling in claude/UX-1-INSTITUTION-MARK-RULING.md still holds against the tree: " +
-          "the Q-7 source does not exist in the 83 frozen migrations and no public storage bucket has appeared, " +
+          "the Q-7 source does not exist in the 85 frozen migrations and no public storage bucket has appeared, " +
           "so the gap cannot be closed without re-reading the delivery-path half; no per-tenant theming " +
           "mechanism has entered the Experience layer, which is the boundary between bounded branding and " +
           "tenant theming; no specific institution is named in src/; and the shell identity has exactly one " +

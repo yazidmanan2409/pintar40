@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 31,
+  "version": 32,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -976,6 +976,11 @@
       "id": "Q12-N01",
       "runner": "db",
       "proves": "Q-12: a learner can DISCOVER a node-scoped assessment they are already authorized to start. An educator launches a Quick Assessment over a class through launch_quick_assessment; the learner of that class finds it through public.my_open_assessments() and through nothing else -- my_learning_assignments() reaches assessment_assignments only through learning_assignment_id and projects PRE_TEST and POST_TEST by name, and the table's own SELECT policy needs CAN_DRAFT or CAN_ASSIGN_LEARNING, which no learner holds; a learner of another institution does not find it; and the discovered id opens a session through the same start_learning_session() every other mode uses, so execution is unchanged. The doorway adds no authority: it returns the unbound assignments may_start_assessment() accepts, which is the predicate start_learning_session() itself calls, so one rule answers both. Every row is rolled back. Watched to fail: removing the may_start_assessment filter makes a learner of another tenant discover it and turns this red."
+    },
+    {
+      "id": "UX1-S2-ORIENT-01",
+      "runner": "db",
+      "proves": "LOOKING IS NOT COMMITTING. A learner reads an assignment's own pre-start facts -- how many questions, when it closes, whether it pauses, and which attempt this would be -- through public.assessment_orientation(), and reading leaves NO trace: the session count is unchanged, no session exists against the assignment, and no started_at is stamped, so looking has not spent an attempt that is 1 for PRE_TEST and for most POST_TEST and QUICK definitions. Before this the facts were unreachable: assessment_definitions SELECT needs CAN_DRAFT and assessment_assignments needs CAN_DRAFT or CAN_ASSIGN_LEARNING, session_state() returns them but needs a session, and the only thing that makes a session is start_learning_session() -- the commitment itself. assessment_definition_bounds is readable but holds platform bounds per mode (3-60 items), not this assignment's count. Nothing is invented: every column already exists on the definition or the assignment and the set is a subset of what session_state() shows a second later, with closes_at being the same value that becomes the session's authoritative deadline. Authorization is may_start_assessment(), the predicate start_learning_session() itself calls. A learner of another institution and a uuid that does not exist both answer zero rows, so existence is not an oracle (F06-N01's rule on a new surface). Watched to fail twice: dropping the may_start_assessment delegation lets a learner of another tenant read it, and making orientation start a session to answer itself trips the session count, the assignment's session and the attempts-used fact."
     },
     {
       "id": "UX1-S0-TOKEN-01",
