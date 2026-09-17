@@ -20,6 +20,13 @@ import MerekPintar from "./MerekPintar";
  * The language switch is on all three, because the reader of a public
  * verification page has no account to carry a preference in (S0.3), and a
  * learner does not lose their language by starting an assessment.
+ *
+ * A FOURTH, ADDED IN SLICE 3: `pengajar`, the educator's shell. It is the
+ * learner shell's shape with the educator's own destination, and it carries ONE
+ * tab because Slice 3 builds one surface. The reviewed concept showed three —
+ * Kelas, Materi, Akun — and the other two have no route yet; a tab that goes
+ * nowhere is a promise the product cannot keep, so it is absent until the slice
+ * that builds it arrives rather than present and inert.
  */
 export default function CangkangPengalaman({
   locale,
@@ -27,8 +34,8 @@ export default function CangkangPengalaman({
   current,
 }: {
   locale: Locale;
-  kind?: "learner" | "public" | "focus";
-  current?: "belajar" | "sertifikat";
+  kind?: "learner" | "public" | "focus" | "pengajar";
+  current?: "belajar" | "sertifikat" | "kelas";
 }) {
   // FOCUS. During an assessment the shell keeps the mark and the language and
   // drops the tabs. The engine survives navigating away — a session is server
@@ -39,6 +46,21 @@ export default function CangkangPengalaman({
     return (
       <header className="pin-top pin-shell pin-noprint">
         <MerekPintar />
+        <span className="pin-spacer" />
+        <PengalihBahasa locale={locale} />
+      </header>
+    );
+  }
+
+  if (kind === "pengajar") {
+    return (
+      <header className="pin-top pin-shell pin-noprint">
+        <MerekPintar />
+        <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
+          <Link href="/mengajar" aria-current={current === "kelas" ? "page" : undefined}>
+            {t("nav.kelas", "educator", { locale })}
+          </Link>
+        </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
       </header>

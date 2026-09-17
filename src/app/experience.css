@@ -159,10 +159,23 @@
 /* --------------------------------------------------------------------- list */
 .pin-list { border: 1px solid var(--line); border-radius: var(--radius-2); overflow: hidden; }
 .pin-row {
-  display: grid; grid-template-columns: 1fr auto;
+  /* `minmax(0, 1fr)` and not `1fr`: a grid track's implicit minimum is its
+     content, so a long row title refuses to shrink and pushes the status pill
+     out past the card's own border. Found by looking at a rendered educator
+     row whose title carries a chapter AND a class name; the same overflow was
+     always available to a long course title on the learner's list. */
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
   align-items: center; gap: var(--space-1) var(--space-5);
   padding: 18px var(--space-5); border-top: 1px solid var(--line);
   text-decoration: none; color: inherit; width: 100%; text-align: left;
+  /* WITH `width: 100%` AND HORIZONTAL PADDING, CONTENT-BOX IS 48px TOO WIDE.
+     There is no box-sizing reset in this stylesheet, so every row has always
+     been exactly 2 x --space-5 wider than the list around it; `overflow:
+     hidden` on the list hid it by clipping whatever sat furthest right, which
+     is the status pill. Measured on a rendered page rather than noticed by
+     eye — the clipped pill reads as a design choice until something counts
+     the pixels. */
+  box-sizing: border-box;
   background: none; border-left: 0; border-right: 0; border-bottom: 0;
   transition: background-color var(--motion-fast); cursor: pointer;
 }
@@ -438,7 +451,15 @@
   .pin-commit .pin-facts { grid-template-columns: 1fr; }
   .pin-verify { grid-template-columns: 1fr; }
   .pin-actions { flex-direction: column; align-items: stretch; }
-  .pin-actions .pin-btn { width: 100%; }
+  .pin-actions .pin-btn {
+    width: 100%; box-sizing: border-box;
+    /* A button sized by its own label should not wrap; a button TOLD to be the
+       width of a phone must, or a long verb runs off the screen and takes the
+       page's horizontal scroll with it. Measured at 390px on "Lihat siapa yang
+       sudah mengumpulkan". */
+    white-space: normal; height: auto; min-height: 40px;
+    padding-block: var(--space-2);
+  }
   .pin-status { padding: var(--space-5); }
   .pin-status .pin-big { font-size: var(--type-page); }
   .pin-dl > div { grid-template-columns: 1fr; padding: 14px var(--space-4); }
@@ -786,4 +807,180 @@
   .pin-tugas .pin-tfoot .pin-btn { width: 100%; }
   .pin-nrow { grid-template-columns: 1fr; }
   .pin-hasil { padding: var(--space-5); }
+}
+
+/* ═══════════════════════════════════════ UX-1 Slice 3 · the educator's surface
+   Arrangements of the same token set, and nothing new in the design language.
+   Everything here reuses the Slice 0-2 primitives where one exists — the list
+   and its rows, the compact fact summary, the metric card, the commitment
+   panel, the refusal — so the educator's screens and the learner's cannot drift
+   apart by being built twice. */
+
+/* THE TEACHING CONTEXT SWITCHER. A row of places, not a filter: the current one
+   is marked and the others are links. It carries no authority and the copy
+   beside it does not say it does. */
+.pin-switch {
+  display: inline-flex; flex-wrap: wrap; overflow: hidden;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  margin-bottom: var(--space-6);
+}
+.pin-switch a {
+  padding: var(--space-2) var(--space-4); border-left: 1px solid var(--line);
+  font-size: var(--type-meta); font-weight: var(--weight-strong);
+  color: var(--ink-2); text-decoration: none;
+  transition: background-color var(--motion-fast), color var(--motion-fast);
+}
+.pin-switch a:first-child { border-left: 0; }
+.pin-switch a:hover { background: var(--surface-0); text-decoration: none; }
+.pin-switch a[aria-current="page"] { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+
+/* THE THREE STAGES OF A COMMITMENT. Set it up, look at what will happen, do it.
+   Words and a rule between them — not a progress bar, because there is no
+   proportion of a decision and a bar would invite somebody to fill it. */
+.pin-tahap {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-2) var(--space-4); margin: 0 0 var(--space-6); padding: 0;
+  list-style: none; font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-tahap li { display: flex; align-items: center; gap: var(--space-4); }
+.pin-tahap li + li::before {
+  content: ""; width: var(--space-4); height: 1px; background: var(--line-strong);
+}
+.pin-tahap li.pin-done { color: var(--ink-2); }
+.pin-tahap li[aria-current="step"] { color: var(--ink-1); }
+
+/* NAMES, IN TWO COLUMNS AND ONE ORDER. No slot for a status, a colour or a
+   number beside anybody — the shape of the list is itself the guarantee. */
+.pin-roster {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 0 var(--space-5); font-size: var(--type-meta);
+}
+.pin-roster li { padding: var(--space-2) 0; border-top: 1px solid var(--line); }
+
+/* WHAT WILL BE MADE AVAILABLE, BEFORE IT IS. The review card: the package, then
+   the numbered list of what a learner actually receives. */
+.pin-paket {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  padding: var(--space-6); background: var(--surface-1);
+  display: grid; gap: var(--space-3);
+}
+.pin-prow {
+  display: flex; flex-wrap: wrap; gap: var(--space-3);
+  align-items: center; justify-content: space-between;
+}
+.pin-prow h2 {
+  font-size: var(--type-section); font-weight: var(--weight-strong);
+  letter-spacing: -0.01em; line-height: var(--leading-heading); margin: 0;
+}
+.pin-terima { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: grid; gap: var(--space-4); }
+.pin-terima li {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: var(--space-1) var(--space-3); align-items: baseline;
+  border-top: 1px solid var(--line); padding-top: var(--space-3);
+}
+.pin-terima .pin-n { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-3); }
+.pin-terima .pin-what { font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-terima .pin-r { font-size: var(--type-meta); color: var(--ink-3); text-align: right; }
+.pin-terima .pin-d { grid-column: 2 / -1; font-size: var(--type-meta); color: var(--ink-2); }
+
+/* THE CONSEQUENCE SENTENCE. Prose, at prose leading, naming the people and the
+   date — it is the last thing read before an act that changes a class's week. */
+.pin-akibat {
+  margin: 0; max-width: 60ch;
+  font-size: var(--type-body); color: var(--ink-1); line-height: var(--leading-prose);
+}
+
+/* A SECOND LINE UNDER A FACT. The compact fact summary gains a quiet qualifier
+   — "24 learners enrolled today" under a class name — and inherits the stack. */
+.pin-facts dd small {
+  display: block; margin-top: var(--space-1);
+  font-size: var(--type-eyebrow); font-weight: var(--weight-normal); color: var(--ink-3);
+}
+
+/* FORM FIELDS, on the two screens that configure something. Label above,
+   control, then the sentence that says where the bound came from. */
+.pin-isian { display: grid; gap: var(--space-2); margin-bottom: var(--space-5); max-width: 56ch; }
+.pin-isian > label, .pin-isian .pin-label {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-input {
+  box-sizing: border-box;
+  font: inherit; font-size: var(--type-body); height: 40px;
+  padding: 0 var(--space-3); color: var(--ink-1); background: var(--surface-1);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+}
+.pin-hint { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
+.pin-value { margin: 0; font-size: var(--type-body); }
+.pin-seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius-1); overflow: hidden; }
+.pin-seg label { position: relative; display: block; }
+.pin-seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.pin-seg span {
+  display: block; padding: var(--space-2) var(--space-4); border-left: 1px solid var(--line);
+  font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2);
+}
+.pin-seg label:first-child span { border-left: 0; }
+.pin-seg input:checked + span { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-seg input:focus-visible + span { outline: 2px solid var(--pintar-primary); outline-offset: -2px; }
+
+/* IT IS AVAILABLE NOW. The only place in the Experience that stands on status
+   green: a thing the educator just made real, said once, and then the counts
+   below it in plain ink because counts are not achievements. */
+.pin-hidup {
+  background: var(--status-ok-soft); border-radius: var(--radius-2);
+  padding: var(--space-6); display: grid; gap: var(--space-2); margin-bottom: var(--space-5);
+}
+.pin-hidup .pin-eyebrow { color: var(--status-ok); }
+.pin-hidup h1 {
+  margin: 0; font-size: var(--type-section); font-weight: var(--weight-strong);
+  letter-spacing: -0.01em; line-height: var(--leading-heading);
+}
+.pin-hidup p { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+
+/* WHAT TO DO NEXT. One card per act, each with the reason it is on the list at
+   all; the first is outlined because the order is a reading of the class. */
+.pin-acts { display: grid; gap: var(--space-3); }
+.pin-act {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--space-1) var(--space-4);
+  align-items: center; padding: var(--space-5);
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  color: inherit; text-decoration: none;
+  transition: border-color var(--motion-fast);
+}
+.pin-act:hover { border-color: var(--ink-3); text-decoration: none; }
+.pin-act.pin-first { border-color: var(--pintar-primary); }
+.pin-act .pin-title { font-size: var(--type-card); font-weight: var(--weight-strong); line-height: 1.3; }
+.pin-act .pin-why { grid-column: 1; max-width: 60ch; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-act .pin-go {
+  grid-column: 2; grid-row: 1 / span 2; white-space: nowrap;
+  font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--pintar-primary);
+}
+
+/* RECURRING MISUNDERSTANDINGS — the aggregate an educator is granted. A label,
+   how often, and what the catalogue says to do about it. No item, no learner. */
+.pin-keliru { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.pin-keliru li {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--space-1) var(--space-3);
+  border-top: 1px solid var(--line); padding-top: var(--space-3);
+}
+.pin-keliru .pin-kl { font-size: var(--type-meta); font-weight: var(--weight-strong); }
+.pin-keliru .pin-kr { grid-column: 1 / -1; font-size: var(--type-meta); color: var(--ink-2); }
+
+@media (max-width: 560px) {
+  /* Two columns of names need two readable measures; below this width there is
+     one. The same reasoning as the compact fact summary, and the same answer. */
+  .pin-roster { grid-template-columns: 1fr; }
+  .pin-switch { display: grid; grid-template-columns: 1fr; width: 100%; }
+  .pin-switch a { border-left: 0; border-top: 1px solid var(--line); }
+  .pin-switch a:first-child { border-top: 0; }
+  .pin-seg { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .pin-seg span { border-left: 1px solid var(--line); text-align: center; }
+  .pin-isian .pin-input { width: 100%; }
+  .pin-paket, .pin-hidup { padding: var(--space-5); }
+  .pin-terima li { grid-template-columns: auto 1fr; }
+  .pin-terima .pin-r { grid-column: 2; text-align: left; }
+  .pin-act { grid-template-columns: 1fr; }
+  .pin-act .pin-go { grid-column: 1; grid-row: auto; }
 }
