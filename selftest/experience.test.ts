@@ -970,7 +970,17 @@ export const experienceTests: SelfTest[] = [
       // the ruling before this number moved: neither creates a table nor adds a
       // column, so the Q-7 gap below is still a gap and the assertion that
       // matters is unchanged.
-      c.expect(migrations.length === 85, `${migrations.length} migrations; the frozen baseline has 85`);
+      //
+      // MOVED AGAIN 85 -> 87 for the first-login tour contract. 20260922090000
+      // creates two tables -- tour_registry and person_tour_state -- and so was
+      // read against the mark sweep below column by column before this number
+      // moved: tour_key, tour_version, auto_presentation_limit, note,
+      // declared_at, person_id, auto_shown_count, first_shown_at, last_shown_at,
+      // completed_at, suppressed_at, created_at, updated_at. None is a mark, a
+      // logo, a crest or a theme, so the Q-7 source still does not exist and the
+      // sweep below is asserting over two more files without its answer
+      // changing. 20260922100000 replaces one function body and creates nothing.
+      c.expect(migrations.length === 87, `${migrations.length} migrations; the frozen baseline has 87`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -1041,7 +1051,7 @@ export const experienceTests: SelfTest[] = [
       c.note(`${migrations.length} migrations swept for a mark column, ${experience.length} Experience file(s) for theming`);
       return c.verdict(
         "the institution-mark ruling in claude/UX-1-INSTITUTION-MARK-RULING.md still holds against the tree: " +
-          "the Q-7 source does not exist in the 85 frozen migrations and no public storage bucket has appeared, " +
+          "the Q-7 source does not exist in the 87 frozen migrations and no public storage bucket has appeared, " +
           "so the gap cannot be closed without re-reading the delivery-path half; no per-tenant theming " +
           "mechanism has entered the Experience layer, which is the boundary between bounded branding and " +
           "tenant theming; no specific institution is named in src/; and the shell identity has exactly one " +

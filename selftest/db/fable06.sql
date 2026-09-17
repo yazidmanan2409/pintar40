@@ -2120,6 +2120,523 @@ begin
     return next;
   end;
 
+
+  -- =========================================================================
+  -- TOUR-P01 -- THE TOUR IS REMEMBERED ABOUT THE PERSON, NOT THE BROWSER.
+  --
+  -- PINTAR is deployed where one device is shared between learners across a
+  -- period and one person uses several devices. localStorage answers "has this
+  -- BROWSER seen it", which is wrong in both directions. So the durable facts
+  -- must survive a session being thrown away entirely -- which is what a
+  -- logout, a different browser and a different machine all look like from
+  -- here -- and no device-local state may be needed for any of it.
+  --
+  -- This drives the whole approved automatic behaviour on one person:
+  -- three automatic presentations and no fourth; skipping (which is the ABSENCE
+  -- of a call) leaves the tour offered; completion stops it; dismissal stops it
+  -- on a different tour; and every read after a fresh session returns the same
+  -- answer. Nothing is written by the client and nothing is read from it.
+  -- =========================================================================
+  declare
+    v_should boolean; v_count smallint; v_limit smallint;
+    v_completed boolean; v_suppressed boolean; v_at timestamptz; v_at2 timestamptz;
+    v_bad text := ''; n int;
+  begin
+    ok := true;
+    begin
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      select t.should_auto_present, t.auto_shown_count, t.auto_presentation_limit
+        into v_should, v_count, v_limit
+        from public.my_tour_state('learner.first_login') t;
+      if v_should is null then
+        ok := false; v_bad := v_bad || 'a person who has never met the tour got no answer at all; ';
+      elsif not v_should or v_count <> 0 then
+        ok := false; v_bad := v_bad || 'first login was not offered the tour; ';
+      end if;
+      if v_limit <> 3 then
+        ok := false; v_bad := v_bad || 'the declared limit is ' || v_limit || ', not the ruled 3; ';
+      end if;
+      -- reading creates nothing: "never shown" is the ABSENCE of a row, which
+      -- is what first login means here. No accounts.created_at is consulted.
+      perform selftest.as_owner();
+      select count(*) into n from public.person_tour_state;
+      if n <> 0 then ok := false; v_bad := v_bad || 'reading the state created a row; '; end if;
+
+      -- three, counting a skip as what it is: nothing at all
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      v_count := public.note_tour_presented('learner.first_login');
+      if v_count <> 1 then ok := false; v_bad := v_bad || 'the first presentation counted as ' || v_count || '; '; end if;
+      select t.should_auto_present into v_should from public.my_tour_state('learner.first_login') t;
+      if not v_should then ok := false; v_bad := v_bad || 'a skipped tour stopped being offered after one; '; end if;
+      perform public.note_tour_presented('learner.first_login');
+      select t.should_auto_present into v_should from public.my_tour_state('learner.first_login') t;
+      if not v_should then ok := false; v_bad := v_bad || 'a skipped tour stopped being offered after two; '; end if;
+      v_count := public.note_tour_presented('learner.first_login');
+      if v_count <> 3 then ok := false; v_bad := v_bad || 'the third presentation counted as ' || v_count || '; '; end if;
+      select t.should_auto_present into v_should from public.my_tour_state('learner.first_login') t;
+      if v_should then ok := false; v_bad := v_bad || 'a FOURTH automatic presentation was offered; the ruling is three; '; end if;
+      v_count := public.note_tour_presented('learner.first_login');
+      if v_count <> 3 then ok := false; v_bad := v_bad || 'a fourth call moved the count to ' || v_count || '; '; end if;
+
+      -- THE SESSION IS THROWN AWAY, as a logout or another machine would do
+      perform selftest.as_owner();
+      perform set_config('request.jwt.claims', '', true);
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      select t.auto_shown_count, t.should_auto_present into v_count, v_should
+        from public.my_tour_state('learner.first_login') t;
+      if v_count <> 3 or v_should then
+        ok := false; v_bad := v_bad || 'the count did not survive a new session (' || v_count || '); ';
+      end if;
+
+      -- dismissal, and completion on the other tour
+      v_at := public.suppress_tour('learner.first_login');
+      if v_at is null then ok := false; v_bad := v_bad || 'dismissal recorded no instant; '; end if;
+      select t.should_auto_present, t.suppressed into v_should, v_suppressed
+        from public.my_tour_state('learner.first_login') t;
+      if v_should or not v_suppressed then
+        ok := false; v_bad := v_bad || 'a dismissed tour is still offered automatically; ';
+      end if;
+      v_at := public.complete_tour('educator.first_login');
+      v_at2 := public.complete_tour('educator.first_login');
+      if v_at is null or v_at2 <> v_at then
+        ok := false; v_bad := v_bad || 'completing twice moved the completion instant; ';
+      end if;
+      select t.should_auto_present, t.completed into v_should, v_completed
+        from public.my_tour_state('educator.first_login') t;
+      if v_should or not v_completed then
+        ok := false; v_bad := v_bad || 'a completed tour is still offered automatically; ';
+      end if;
+      -- and a completed tour spends no presentation, so a replay that calls
+      -- note_tour_presented by mistake costs nothing
+      v_count := public.note_tour_presented('educator.first_login');
+      if v_count <> 0 then ok := false; v_bad := v_bad || 'a completed tour spent a presentation; '; end if;
+
+      -- survives a THIRD session, both facts at once
+      perform selftest.as_owner();
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      select t.suppressed into v_suppressed from public.my_tour_state('learner.first_login') t;
+      select t.completed into v_completed from public.my_tour_state('educator.first_login') t;
+      if not v_suppressed or not v_completed then
+        ok := false; v_bad := v_bad || 'dismissal or completion did not survive a new session; ';
+      end if;
+
+      raise exception 'TOUR_P01_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'TOUR_P01_UNDO' then
+        ok := false; v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 90) || '; ';
+      end if;
+    end;
+
+    id := 'TOUR-P01'; area := 'first-login tour -- durable, person-scoped presentation state';
+    if not ok then detail := v_bad;
+    else
+      detail := 'the tour follows the PERSON across three independent sessions -- each one a fresh set of '
+             || 'JWT claims, which is what a logout, another browser and another machine all are from here. '
+             || 'Never shown is the ABSENCE of a row rather than a guess from accounts.created_at, and '
+             || 'reading the state creates nothing. Skipping is not a call, so a skipped tour is offered '
+             || 'again; exactly THREE automatic presentations are given and the fourth is refused by the '
+             || 'declared limit; a fourth call is a no-op and does not move the count. Dismissal stops '
+             || 'automatic presentation, completion stops it, completing twice keeps the first instant, and '
+             || 'a completed tour spends no presentation. No device-local value is written or read at any '
+             || 'point: every answer comes from the database. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- TOUR-N01 -- THE SHARED DEVICE, WHICH IS THE WHOLE REASON THIS IS BACKEND.
+  --
+  -- Two learners, one machine, one connection: everything identical but the
+  -- session. The second must meet their OWN state -- and must not be able to
+  -- read, write or reach the first's, including by naming the first's
+  -- person_id, which is the one thing a client can always try.
+  --
+  -- The insert is attempted three ways, weakest to strongest: as the client
+  -- role against the table, through the RPCs, and finally as the OWNER naming
+  -- another person -- which is what every SECURITY DEFINER function is. The
+  -- last is the one that matters, because RLS does not bind the owner here
+  -- (relforcerowsecurity is false on every public table by design); the
+  -- derivation in the trigger is what does.
+  -- =========================================================================
+  declare
+    v_pa uuid; v_pb uuid; v_count smallint; v_should boolean;
+    v_bad text := ''; n int;
+  begin
+    ok := true;
+    begin
+      perform selftest.as_owner();
+      select a.person_id into v_pa from public.accounts a
+        join auth.users u on u.id = a.auth_user_id
+       where u.email = 'alpha-siswa-1@synthetic.pintar.test';
+      select a.person_id into v_pb from public.accounts a
+        join auth.users u on u.id = a.auth_user_id
+       where u.email = 'beta-siswa-1@synthetic.pintar.test';
+      if v_pa is null or v_pb is null or v_pa = v_pb then
+        ok := false; v_bad := v_bad || 'the probe did not obtain two distinct persons; ';
+      end if;
+
+      -- person A uses the machine
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      perform public.note_tour_presented('learner.first_login');
+      perform public.note_tour_presented('learner.first_login');
+      perform public.complete_tour('educator.first_login');
+
+      -- person B sits down at the same machine
+      perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
+      select t.should_auto_present, t.auto_shown_count into v_should, v_count
+        from public.my_tour_state('learner.first_login') t;
+      if not v_should or v_count <> 0 then
+        ok := false; v_bad := v_bad || 'the next person at the same device inherited a count of ' || v_count || '; ';
+      end if;
+      select t.completed into v_should from public.my_tour_state('educator.first_login') t;
+      if v_should then
+        ok := false; v_bad := v_bad || 'the next person inherited a completed tour; ';
+      end if;
+      -- B sees no row that is not theirs
+      select count(*) into n from public.person_tour_state;
+      if n <> 0 then
+        ok := false; v_bad := v_bad || 'person B can read ' || n || ' row(s) that are not theirs; ';
+      end if;
+      select count(*) into n from public.person_tour_state where person_id = v_pa;
+      if n <> 0 then
+        ok := false; v_bad := v_bad || 'person B can read person A''s row by naming them; ';
+      end if;
+
+      -- (1) as the client role, straight at the table
+      begin
+        insert into public.person_tour_state (person_id, tour_key, tour_version)
+        values (v_pa, 'learner.first_login', 1);
+        ok := false; v_bad := v_bad || 'person B inserted tour state directly; ';
+      exception when others then null; end;
+      begin
+        update public.person_tour_state set completed_at = null where person_id = v_pa;
+        if found then ok := false; v_bad := v_bad || 'person B updated person A''s row; '; end if;
+      exception when others then null; end;
+      begin
+        delete from public.person_tour_state where person_id = v_pa;
+        if found then ok := false; v_bad := v_bad || 'person B deleted person A''s row; '; end if;
+      exception when others then null; end;
+
+      -- (2) through the contract: there is no argument to carry another person
+      select count(*) into n from pg_proc p
+       where p.pronamespace = 'public'::regnamespace
+         and p.proname in ('my_tour_state','note_tour_presented','complete_tour','suppress_tour')
+         and pg_get_function_identity_arguments(p.oid) ~* '\yuuid\y';
+      if n <> 0 then
+        ok := false; v_bad := v_bad || n || ' tour entry point(s) accept an identity argument; ';
+      end if;
+
+      -- (3) as the OWNER, naming person A while person B holds the session
+      perform selftest.as_owner();
+      perform set_config('request.jwt.claim.sub',
+        (select u.id::text from auth.users u where u.email = 'beta-siswa-1@synthetic.pintar.test'), true);
+      insert into public.person_tour_state (person_id, tour_key, tour_version)
+      values (v_pa, 'educator.first_login', 1)
+      on conflict do nothing;
+      select count(*) into n from public.person_tour_state
+       where person_id = v_pa and tour_key = 'educator.first_login' and completed_at is null;
+      if n <> 0 then
+        ok := false; v_bad := v_bad || 'a row naming person A was written while person B held the session; ';
+      end if;
+      select count(*) into n from public.person_tour_state
+       where person_id = v_pb and tour_key = 'educator.first_login';
+      if n <> 1 then
+        ok := false; v_bad := v_bad || 'the derived person_id did not land on the session holder; ';
+      end if;
+
+      -- and with no session at all there is nobody to write for
+      perform set_config('request.jwt.claims', '', true);
+      perform set_config('request.jwt.claim.sub', '', true);
+      begin
+        insert into public.person_tour_state (person_id, tour_key, tour_version)
+        values (v_pa, 'learner.first_login', 1);
+        ok := false; v_bad := v_bad || 'tour state was written with no authenticated person; ';
+      exception when others then null; end;
+
+      raise exception 'TOUR_N01_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'TOUR_N01_UNDO' then
+        ok := false; v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 90) || '; ';
+      end if;
+    end;
+
+    id := 'TOUR-N01'; area := 'first-login tour -- shared-device isolation';
+    if not ok then detail := v_bad;
+    else
+      detail := 'two learners, one machine, one connection, everything identical but the session. The second '
+             || 'meets their own state -- offered the tour, count 0, nothing completed -- reads zero rows of '
+             || 'the first''s under RLS, and cannot reach them by naming their person_id. The attempt is made '
+             || 'three ways: as the client role straight at the table (refused by the absence of an INSERT, '
+             || 'UPDATE or DELETE policy and of any write grant), through the contract (no entry point accepts '
+             || 'a uuid at all, so there is no argument to carry a foreign identity), and as the OWNER naming '
+             || 'another person -- which is what every SECURITY DEFINER function is, and where RLS does not '
+             || 'bind. That last write lands on the SESSION HOLDER, because the trigger derives person_id from '
+             || 'current_person_id() rather than trusting the row. With no session there is nobody to write '
+             || 'for and the insert is refused by name. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- TOUR-N02 -- IDENTITIES AND VERSIONS DO NOT COLLIDE, AND REPLAY GIVES
+  --             NOTHING BACK.
+  --
+  -- Four separate claims about the key and the monotonicity:
+  --
+  --   * two declared tours are two rows. A person who finished the learner
+  --     tour has NOT finished the educator tour, and no role inheritance can
+  --     make it so -- there is nowhere in this schema to express one, because
+  --     tour_key is opaque here and no table maps a role to a tour;
+  --   * two declared VERSIONS of one tour are two rows, so a materially new
+  --     tour is offered again -- but only because Experience declared a new
+  --     version, which is a registry row written in a migration. Nothing
+  --     derives a version from a deployment, a commit or a copy edit;
+  --   * a version is declared by NO client role. The registry carries no
+  --     INSERT policy and no write grant, so the application cannot make a
+  --     tour new;
+  --   * deliberate replay cannot restore automatic presentation. This is
+  --     asserted as an ABSENCE and as a REFUSAL: no verb exists that lowers a
+  --     count or clears a closing stamp, and the attempt made directly as the
+  --     owner is refused by the trigger.
+  -- =========================================================================
+  declare
+    v_should boolean; v_count smallint; v_version integer;
+    v_bad text := ''; n int;
+  begin
+    ok := true;
+    begin
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      perform public.note_tour_presented('learner.first_login');
+      perform public.suppress_tour('learner.first_login');
+
+      -- a different tour identity is a different row
+      select t.should_auto_present, t.auto_shown_count, t.suppressed
+        into v_should, v_count, v_bad
+        from public.my_tour_state('educator.first_login') t;
+      v_bad := '';
+      if not v_should or v_count <> 0 then
+        ok := false; v_bad := v_bad || 'the educator tour inherited the learner tour''s state; ';
+      end if;
+
+      -- a NEW DECLARED VERSION is a new row, and only Experience may declare one
+      perform selftest.as_owner();
+      insert into public.tour_registry (tour_key, tour_version, note)
+      values ('learner.first_login', 2, 'probe: a materially new telling of the same tour');
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      select t.tour_version, t.should_auto_present, t.auto_shown_count, t.suppressed
+        into v_version, v_should, v_count, v_bad
+        from public.my_tour_state('learner.first_login') t;
+      v_bad := '';
+      if v_version <> 2 then
+        ok := false; v_bad := v_bad || 'the declared new version is not the one offered (got ' || v_version || '); ';
+      end if;
+      if not v_should or v_count <> 0 then
+        ok := false; v_bad := v_bad || 'a newly declared version was not offered; ';
+      end if;
+      -- and version 1 keeps its own suppression: the new version did not erase it
+      perform selftest.as_owner();
+      select count(*) into n from public.person_tour_state s
+       where s.tour_key = 'learner.first_login' and s.tour_version = 1 and s.suppressed_at is not null;
+      if n <> 1 then
+        ok := false; v_bad := v_bad || 'declaring a new version disturbed version 1''s dismissal; ';
+      end if;
+
+      -- no client role may declare a version
+      select count(*) into n from information_schema.role_table_grants
+       where table_schema = 'public' and table_name = 'tour_registry'
+         and grantee in ('anon','authenticated') and privilege_type <> 'SELECT';
+      if n <> 0 then
+        ok := false; v_bad := v_bad || 'a client role holds a write grant on tour_registry; ';
+      end if;
+      select count(*) into n from pg_policies
+       where schemaname = 'public' and tablename = 'tour_registry' and cmd <> 'SELECT';
+      if n <> 0 then
+        ok := false; v_bad := v_bad || 'tour_registry carries a non-SELECT policy; ';
+      end if;
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      begin
+        insert into public.tour_registry (tour_key, tour_version, note)
+        values ('learner.first_login', 3, 'a client declaring its own version');
+        ok := false; v_bad := v_bad || 'a client declared a tour version; ';
+      exception when others then null; end;
+
+      -- REPLAY GIVES NOTHING BACK. First as an absence of any verb at all.
+      perform selftest.as_owner();
+      select count(*) into n from pg_proc
+       where pronamespace = 'public'::regnamespace
+         and proname ~ '^(reset|replay|clear|forget|restart)_tour';
+      if n <> 0 then
+        ok := false; v_bad := v_bad || n || ' verb(s) exist that could restore automatic presentation; ';
+      end if;
+      -- then as a refusal, made as the owner, which is the strongest form
+      begin
+        update public.person_tour_state set suppressed_at = null
+         where tour_key = 'learner.first_login' and tour_version = 1;
+        ok := false; v_bad := v_bad || 'a dismissed tour was un-dismissed; ';
+      exception when others then null; end;
+      begin
+        update public.person_tour_state set auto_shown_count = 0
+         where tour_key = 'learner.first_login' and tour_version = 1;
+        ok := false; v_bad := v_bad || 'an automatic presentation was uncounted; ';
+      exception when others then null; end;
+      begin
+        update public.person_tour_state set auto_shown_count = 9
+         where tour_key = 'learner.first_login' and tour_version = 1;
+        ok := false; v_bad := v_bad || 'the owner raised the count past the declared limit; ';
+      exception when others then null; end;
+      begin
+        delete from public.person_tour_state;
+        ok := false; v_bad := v_bad || 'tour state was deleted; ';
+      exception when others then null; end;
+      -- and identity itself is immutable: a row cannot be moved to another person
+      begin
+        update public.person_tour_state set tour_version = 2
+         where tour_key = 'learner.first_login' and tour_version = 1;
+        ok := false; v_bad := v_bad || 'a state row was moved onto another version; ';
+      exception when others then null; end;
+
+      -- an undeclared tour answers nothing, and cannot be presented
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      select count(*) into n from public.my_tour_state('dean.first_login');
+      if n <> 0 then ok := false; v_bad := v_bad || 'an undeclared tour answered; '; end if;
+      begin
+        perform public.note_tour_presented('dean.first_login');
+        ok := false; v_bad := v_bad || 'an undeclared tour was presented; ';
+      exception when others then null; end;
+
+      raise exception 'TOUR_N02_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'TOUR_N02_UNDO' then
+        ok := false; v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 90) || '; ';
+      end if;
+    end;
+
+    id := 'TOUR-N02'; area := 'first-login tour -- identity, version and the monotonic guarantee';
+    if not ok then detail := v_bad;
+    else
+      detail := 'two declared tours are two rows: finishing the learner tour leaves the educator tour '
+             || 'untouched, and no role inheritance can change that because nothing in this schema maps a '
+             || 'role to a tour. A newly DECLARED version is offered again while version 1 keeps its own '
+             || 'dismissal, so a materially new tour re-presents and an old decision is not erased -- and '
+             || 'the declaration is a registry row no client role can write, under no non-SELECT policy, so '
+             || 'a version can never be derived from a deployment or a copy edit. Deliberate replay restores '
+             || 'nothing, asserted twice: no reset, replay, clear, forget or restart verb exists at all, and '
+             || 'the attempt made directly AS THE OWNER to clear a dismissal, uncount a presentation, raise '
+             || 'the count past the declared limit, move a row to another version or delete it is refused by '
+             || 'the trigger in every case. An undeclared tour answers zero rows and cannot be presented. '
+             || 'Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- TOUR-N03 -- PRESENTATION STATE IS NOT EVIDENCE.
+  --
+  -- Tour state must never become learning evidence, assessment evidence,
+  -- progress, a scoring input, certificate evidence, an integrity signal or
+  -- educational telemetry. The separation is asserted structurally against the
+  -- live schema -- which is the only form that survives a future edit -- and
+  -- then once behaviourally, because a structural claim about 35 function
+  -- bodies is worth little if the numbers themselves move when a tour is shown.
+  --
+  -- The behavioural half takes a REAL OFFICIAL session in the one tenant that
+  -- can produce OFFICIAL evidence, records its mastery and its certificate
+  -- eligibility, drives the whole tour lifecycle for that same learner, and
+  -- requires both to be unchanged to the digit.
+  -- =========================================================================
+  declare
+    v_before numeric; v_after numeric; v_elig_before boolean; v_elig_after boolean;
+    v_sess uuid; v_bad text := ''; v_detail text; n int;
+  begin
+    ok := true;
+    begin
+      perform selftest.as_owner();
+      select a.ok, a.detail into ok, v_detail from public.assert_tour_state_is_not_evidence() a;
+      if not ok then v_bad := v_bad || v_detail || '; '; end if;
+
+      -- the assertion is executed, not merely present, and it is in the set
+      -- F06-P08 walks, so it cannot be dropped without that test noticing
+      select count(*) into n from pg_proc
+       where pronamespace = 'public'::regnamespace
+         and proname = 'assert_tour_state_is_not_evidence'
+         and pg_get_function_result(oid) ~ 'ok boolean';
+      if n <> 1 then
+        ok := false; v_bad := v_bad || 'the separation assertion is not in the (ok, detail) family; ';
+      end if;
+
+      -- BEHAVIOURAL. A real OFFICIAL result, before and after the tour runs.
+      select r.session_id, r.mastery into v_sess, v_before
+        from public.official_results r
+       where r.supersedes_result_id is null
+       order by r.computed_at desc, r.id limit 1;
+      if v_sess is null then
+        ok := false; v_bad := v_bad || 'no OFFICIAL result exists to measure against; ';
+      else
+        select e.eligible into v_elig_before from public.certificate_eligibility(v_sess) e;
+
+        perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+        perform public.note_tour_presented('learner.first_login');
+        perform public.note_tour_presented('learner.first_login');
+        perform public.complete_tour('learner.first_login');
+        perform public.suppress_tour('educator.first_login');
+        perform selftest.as_owner();
+
+        select r.mastery into v_after from public.official_results r where r.session_id = v_sess
+           and r.supersedes_result_id is null;
+        select e.eligible into v_elig_after from public.certificate_eligibility(v_sess) e;
+        if v_after is distinct from v_before then
+          ok := false; v_bad := v_bad || 'mastery moved from ' || v_before || ' to ' || v_after || ' while a tour ran; ';
+        end if;
+        if v_elig_after is distinct from v_elig_before then
+          ok := false; v_bad := v_bad || 'certificate eligibility changed while a tour ran; ';
+        end if;
+        -- no integrity signal was raised by any of it
+        select count(*) into n from public.integrity_signals s where s.session_id = v_sess;
+        if n <> 0 then
+          ok := false; v_bad := v_bad || 'the tour raised ' || n || ' integrity signal(s); ';
+        end if;
+        -- and nothing of it reached the audit trail, which is deliberate:
+        -- INV-18 lists the acts that must be accountable and a tour is not one
+        select count(*) into n from public.audit_log a
+         where a.action ~* 'tour' or a.target_table in ('person_tour_state','tour_registry');
+        if n <> 0 then
+          ok := false; v_bad := v_bad || 'tour activity reached the audit trail; ';
+        end if;
+      end if;
+
+      raise exception 'TOUR_N03_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'TOUR_N03_UNDO' then
+        ok := false; v_bad := v_bad || 'the probe itself failed: ' || left(sqlerrm, 90) || '; ';
+      end if;
+    end;
+
+    id := 'TOUR-N03'; area := 'first-login tour -- presentation state is not evidence';
+    if not ok then detail := v_bad;
+    else
+      detail := 'asserted structurally against the live schema and then measured. Structurally: 35 evidence '
+             || 'consumers -- the ten scoring functions, all sixteen catalogue calculators, the evaluator, '
+             || 'the report writer, both certificate paths, both evidence-class functions, the health '
+             || 'recompute and the integrity writer -- read neither tour table; no view depends on either; '
+             || 'neither carries a session, evidence, mastery, score, result, response, grade, integrity, '
+             || 'certificate, institution or enrollment column; person_tour_state references only persons and '
+             || 'the registry; neither is a declared record class (so transfers_guard refuses to carry it '
+             || 'across an institutional boundary by name) nor a declared metric source (so a calculator '
+             || 'reaching for it would fail assert_metric_closure); and no client role holds more than '
+             || 'SELECT. Behaviourally: a REAL OFFICIAL result''s mastery and its certificate eligibility are '
+             || 'recorded, the same learner is then shown a tour twice, completes it and dismisses another, '
+             || 'and both are unchanged to the digit -- with no integrity signal raised and no audit row '
+             || 'written, the last deliberately, because INV-18 lists the acts that must be accountable and '
+             || 'being shown a tour is not one of them. Every row rolled back';
+    end if;
+    return next;
+  end;
+
   perform selftest.f06_purge();
   perform selftest.purge_certificates();
   id := 'F06-DONE'; area := 'suite'; ok := true; detail := 'FABLE-06 suite complete';

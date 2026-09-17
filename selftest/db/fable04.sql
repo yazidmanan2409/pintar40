@@ -435,8 +435,12 @@ begin
     select count(*) into n from public.assessment_definitions d1, public.assessment_definitions d2
      where d1.id = v_cert and d2.id = v_def2 and d1.title = d2.title;
     if n <> 0 then ok := false; detail := detail || 'two launches in one minute share a title; '; end if;
+    -- 0090: the ruled user-facing name. The assertion is deliberately on the
+    -- label and not merely on "some title", because losing the label is one of
+    -- the two ways the collision repair could go wrong -- the other, bumping
+    -- version, is the same predicate's other half.
     select count(*) into n from public.assessment_definitions
-     where id in (v_cert, v_def2) and (version <> 1 or title !~ '^Kuis Cepat');
+     where id in (v_cert, v_def2) and (version <> 1 or title !~ '^Uji Cepat');
     if n <> 0 then ok := false; detail := detail || 'the collision was resolved by bumping version or by losing the label; '; end if;
   end if;
   -- bounds are the server's
