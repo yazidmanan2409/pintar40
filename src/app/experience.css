@@ -160,22 +160,14 @@
 .pin-list { border: 1px solid var(--line); border-radius: var(--radius-2); overflow: hidden; }
 .pin-row {
   /* `minmax(0, 1fr)` and not `1fr`: a grid track's implicit minimum is its
-     content, so a long row title refuses to shrink and pushes the status pill
-     out past the card's own border. Found by looking at a rendered educator
-     row whose title carries a chapter AND a class name; the same overflow was
-     always available to a long course title on the learner's list. */
+     content, so a title with no break opportunity refuses to shrink and pushes
+     the status pill in the `auto` track out past the card's border. Defensive
+     rather than corrective — no rendered fixture has produced it — and cheap:
+     the only thing it permits is shrinking below the content's own width. */
   display: grid; grid-template-columns: minmax(0, 1fr) auto;
   align-items: center; gap: var(--space-1) var(--space-5);
   padding: 18px var(--space-5); border-top: 1px solid var(--line);
   text-decoration: none; color: inherit; width: 100%; text-align: left;
-  /* WITH `width: 100%` AND HORIZONTAL PADDING, CONTENT-BOX IS 48px TOO WIDE.
-     There is no box-sizing reset in this stylesheet, so every row has always
-     been exactly 2 x --space-5 wider than the list around it; `overflow:
-     hidden` on the list hid it by clipping whatever sat furthest right, which
-     is the status pill. Measured on a rendered page rather than noticed by
-     eye — the clipped pill reads as a design choice until something counts
-     the pixels. */
-  box-sizing: border-box;
   background: none; border-left: 0; border-right: 0; border-bottom: 0;
   transition: background-color var(--motion-fast); cursor: pointer;
 }
@@ -452,11 +444,15 @@
   .pin-verify { grid-template-columns: 1fr; }
   .pin-actions { flex-direction: column; align-items: stretch; }
   .pin-actions .pin-btn {
-    width: 100%; box-sizing: border-box;
-    /* A button sized by its own label should not wrap; a button TOLD to be the
-       width of a phone must, or a long verb runs off the screen and takes the
-       page's horizontal scroll with it. Measured at 390px on "Lihat siapa yang
-       sudah mengumpulkan". */
+    width: 100%;
+    /* A BUTTON SIZED BY ITS OWN LABEL SHOULD NOT WRAP; A BUTTON TOLD TO BE THE
+       WIDTH OF A PHONE MUST. `.pin-btn` carries `white-space: nowrap`, which is
+       right when the button is as wide as its words and wrong once a rule
+       stretches it: the label then refuses to fold, the column flex container
+       grows to fit it, and the whole panel takes the page's horizontal scroll
+       with it. Measured at 390px: four of thirty-two rendered educator pages
+       overflowed, the worst by 279px with the document scrolling to 637px.
+       This rule alone returns all thirty-two to zero. */
     white-space: normal; height: auto; min-height: 40px;
     padding-block: var(--space-2);
   }
@@ -804,7 +800,16 @@
   .pin-jstep .pin-jname { display: none; }
   .pin-stem { font-size: var(--type-stem-phone); }
   .pin-tugas .pin-tfoot { flex-direction: column; align-items: stretch; }
-  .pin-tugas .pin-tfoot .pin-btn { width: 100%; }
+  .pin-tugas .pin-tfoot .pin-btn {
+    width: 100%;
+    /* THE SAME DEFECT AS THE ONE ON `.pin-actions .pin-btn`, on the learner's
+       home rather than the educator's, and found by the guard rather than by a
+       screenshot: no rendered fixture reaches this card, so nothing was ever
+       going to show it. A button stretched to the width of a phone must be
+       allowed to fold its label. */
+    white-space: normal; height: auto; min-height: 40px;
+    padding-block: var(--space-2);
+  }
   .pin-nrow { grid-template-columns: 1fr; }
   .pin-hasil { padding: var(--space-5); }
 }
@@ -907,7 +912,6 @@
   letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
 }
 .pin-input {
-  box-sizing: border-box;
   font: inherit; font-size: var(--type-body); height: 40px;
   padding: 0 var(--space-3); color: var(--ink-1); background: var(--surface-1);
   border: 1px solid var(--line-strong); border-radius: var(--radius-1);
@@ -943,7 +947,10 @@
    all; the first is outlined because the order is a reading of the class. */
 .pin-acts { display: grid; gap: var(--space-3); }
 .pin-act {
-  display: grid; grid-template-columns: 1fr auto; gap: var(--space-1) var(--space-4);
+  /* `minmax(0, 1fr)` for the same reason as `.pin-row`: the `auto` track holds
+     `.pin-go`, which refuses to wrap, so a title with no break opportunity
+     would push it out of the card. */
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-4);
   align-items: center; padding: var(--space-5);
   border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
   color: inherit; text-decoration: none;

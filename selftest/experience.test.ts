@@ -24,6 +24,7 @@
  *   UX1-S3-NAMA-01         names bounded, bare, unjudged, and no honorific
  *   UX1-S3-KATA-01         the educator copy is complete, declared and clean
  *   UX1-S3-FAKTA-01        the Slice-3 compositions narrow on a phone
+ *   UX1-S0-MUAT-01         a stretched box fits its container and does not clip
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -2221,7 +2222,10 @@ export const experienceTests: SelfTest[] = [
       //    — the defect UX1-S0-FAKTA-01 was rewritten to catch.
       const NARROW = [
         { sel: ".pin-roster", base: /\.pin-roster \{[^}]*grid-template-columns:\s*repeat\(2/ },
-        { sel: ".pin-act", base: /\.pin-act \{[^}]*grid-template-columns:\s*1fr auto/ },
+        // the track may be written `1fr` or `minmax(0, 1fr)` — UX1-S0-MUAT-01
+        // requires the second wherever the auto track holds something that
+        // cannot wrap, and this anchor must not care which spelling it finds
+        { sel: ".pin-act", base: /\.pin-act \{[^}]*grid-template-columns:\s*(?:minmax\(0, )?1fr\)? auto/ },
         { sel: ".pin-terima li", base: /\.pin-terima li \{[^}]*grid-template-columns:\s*auto 1fr auto/ },
         { sel: ".pin-switch", base: /\.pin-switch \{[^}]*display:\s*inline-flex/ },
         { sel: ".pin-seg", base: /\.pin-seg \{[^}]*display:\s*inline-flex/ },
@@ -2277,6 +2281,186 @@ export const experienceTests: SelfTest[] = [
         "`.pin-facts` and inherit the approved stack rather than restating it, and nothing after the last phone block " +
         "re-widens one; and the quick assessment's live panel still carries two facts rather than the three the reviewed " +
         "concept drew, because the third had no contract behind it",
+      );
+    },
+  },
+
+  {
+    id: "UX1-S0-MUAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DOES THE BOX FIT, AND IS ANYTHING CLIPPED.
+       *
+       * Promoted from a one-off Playwright measurement that found a real defect:
+       * four of thirty-two rendered educator pages overflowed at 390px, the
+       * worst by 279px, with the document scrolling to 637px inside a 390px
+       * viewport. The cause was NOT what it first looked like. The first
+       * diagnosis said this stylesheet has no `box-sizing` reset and every
+       * padded full-width box was therefore too wide -- and that was an
+       * ARTEFACT OF THE MEASURING HARNESS, which had stripped
+       * `@import "tailwindcss"` from globals.css and with it Tailwind's
+       * preflight. The product has had a global border-box all along. Reverting
+       * each candidate fix one at a time against the COMPILED stylesheet showed
+       * a single one doing all the work, and this guard is built on that one.
+       *
+       * WHY IT READS THE STYLESHEET AND NOT A BROWSER. A rendered measurement
+       * only covers what some fixture happens to render, and the fixtures do
+       * not reach every surface: measured over 44 rendered pages, `.pin-op`,
+       * `.pin-num-btn`, `.pin-drow`, `.pin-nrow`, `.pin-tugas` and the trail
+       * dot matched ZERO elements. Deriving the population from the cascade
+       * instead means a rule added tomorrow is in the population the day it is
+       * written. It also runs under `npm ci` in CI, where Playwright is not a
+       * dependency and no browser is installed. The rendered measurement
+       * remains the companion evidence, and it is what validated this guard.
+       *
+       * The defect it found on its first strict run was on the LEARNER's home
+       * (`src/app/belajar/page.tsx`), which no fixture renders at all.
+       */
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+
+      type Rule = { sel: string; decls: Record<string, string>; media: string | null; i: number };
+      function parseCss(source: string): Rule[] {
+        const clean = source.replace(/\/\*[\s\S]*?\*\//g, " ");
+        const out: Rule[] = [];
+        let n = 0, media: string | null = null, depth = 0;
+        const re = /([^{}]+)\{|\}/g;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(clean))) {
+          if (m[0] === "}") { depth--; if (depth === 0) media = null; continue; }
+          const head = m[1].trim();
+          if (head.startsWith("@")) { media = head; depth++; continue; }
+          const close = clean.indexOf("}", re.lastIndex);
+          const decls: Record<string, string> = {};
+          for (const d of clean.slice(re.lastIndex, close).split(";")) {
+            const k = d.indexOf(":");
+            if (k < 0) continue;
+            decls[d.slice(0, k).trim()] = d.slice(k + 1).trim();
+          }
+          for (const s of head.split(",")) out.push({ sel: s.trim(), decls, media, i: n++ });
+          re.lastIndex = close + 1;
+        }
+        return out;
+      }
+      const rules = parseCss(css).filter((r) => r.media !== "@media print");
+      c.expect(rules.length > 200, `only ${rules.length} rule(s) parsed from the stylesheet`);
+
+      const classesOf = (compound: string) =>
+        new Set((compound.match(/\.[a-zA-Z0-9_-]+/g) ?? []).map((x) => x.slice(1)));
+      const lastCompound = (sel: string) => sel.trim().split(/\s*[>+~]\s*|\s+/).pop() ?? sel;
+      const spec = (s: string) =>
+        (s.match(/[.:[]/g)?.length ?? 0) * 100 + (s.match(/(^|[\s>+~])[a-z]/gi)?.length ?? 0);
+      const subset = (a: Set<string>, b: Set<string>) => a.size > 0 && [...a].every((x) => b.has(x));
+
+      const VIEWPORTS = [["wide", null], ["phone", "@media (max-width: 560px)"]] as const;
+
+      // ── I0. The assumption everything below rests on. Tailwind's preflight
+      //    supplies `box-sizing: border-box` globally; without it every box in
+      //    this sheet that carries padding and a width is suddenly too wide,
+      //    all at once. It is asserted against the BUILT stylesheet, because
+      //    that is where the import actually resolves.
+      c.expect(/@import\s+"tailwindcss"/.test(readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8")),
+        "globals.css no longer imports tailwindcss, so the global border-box reset is gone");
+      const chunks = join(repoRoot, ".next", "static", "chunks");
+      let built = "";
+      if (existsSync(chunks)) {
+        built = readdirSync(chunks).filter((f) => f.endsWith(".css"))
+          .map((f) => readFileSync(join(chunks, f), "utf8")).join("\n");
+      }
+      c.expect(built.length > 0, "no compiled stylesheet in .next/static/chunks; the build must run first");
+      c.expect(/box-sizing:\s*border-box/.test(built),
+        "the compiled stylesheet carries no global border-box reset");
+
+      // ── I1. A box a rule stretches to its container's width must be allowed
+      //    to fold its text. `.pin-btn` carries `white-space: nowrap`, which is
+      //    right while the button is as wide as its words and wrong the moment
+      //    a rule makes it as wide as a phone: the label refuses to fold, the
+      //    flex column grows to fit it, and the page scrolls sideways.
+      //
+      //    A rule counts toward an element only when its selector is a SUFFIX
+      //    of that element's own, at compound boundaries. Merging every
+      //    `.pin-btn` rule into every `.pin-btn` element -- the first version of
+      //    this check -- let the fix on `.pin-actions .pin-btn` mask the
+      //    identical defect on `.pin-tugas .pin-tfoot .pin-btn`, and the guard
+      //    reported green over a real one.
+      const stretched = [...new Set(rules.filter((r) => r.decls["width"] === "100%").map((r) => r.sel))];
+      c.expect(stretched.length >= 8, `only ${stretched.length} stretched selector(s) found`);
+      let merged = 0;
+      for (const [vp, mq] of VIEWPORTS) {
+        for (const sel of stretched) {
+          const chain = sel.trim().split(/\s+/);
+          const applying = rules
+            .filter((r) => {
+              if (!(r.media === null || r.media === mq)) return false;
+              const rc = r.sel.trim().split(/\s+/);
+              if (rc.length > chain.length) return false;
+              const tail = chain.slice(chain.length - rc.length);
+              return rc.every((cc, i) => subset(classesOf(cc), classesOf(tail[i])));
+            })
+            .sort((a, b) => spec(a.sel) - spec(b.sel) || a.i - b.i);
+          if (applying.length === 0) continue;
+          merged++;
+          const d: Record<string, string> = {};
+          for (const r of applying) Object.assign(d, r.decls);
+          c.expect(
+            !(d["width"] === "100%" && d["white-space"] === "nowrap"),
+            `${vp}: ${sel} is stretched to its container's width and still refuses to wrap`,
+          );
+        }
+      }
+
+      // ── I2. A grid whose `auto` track holds something that will not wrap must
+      //    let the other track shrink. A bare `1fr` takes its content as its
+      //    minimum, so a title with no break opportunity pushes the status pill
+      //    or the arrow beside it out through the card's border -- and the list
+      //    around it has `overflow: hidden`, so what the reader loses is the
+      //    status, silently.
+      // The nowrap is usually declared on the CHILD'S OWN class (`.pin-pill`),
+      // while the containment shows up in a separate placement rule
+      // (`.pin-row > .pin-pill { grid-column: 2 }`). So the question is not
+      // "does a nowrap selector start with this grid's selector" -- the first
+      // version asked exactly that and walked past `.pin-row`, because of the
+      // child combinator and because `.pin-pill` names no ancestor at all.
+      // It is: does this grid place a child whose own class refuses to wrap.
+      const flat = (s: string) => s.trim().replace(/\s*[>+~]\s*/g, " ").replace(/\s+/g, " ");
+      const nowrapClasses = new Set<string>();
+      for (const r of rules) {
+        if (r.decls["white-space"] !== "nowrap") continue;
+        for (const cls of classesOf(lastCompound(r.sel))) nowrapClasses.add(cls);
+      }
+      let grids = 0;
+      for (const [vp, mq] of VIEWPORTS) {
+        for (const r of rules) {
+          if (!(r.media === null || r.media === mq)) continue;
+          const g = r.decls["grid-template-columns"];
+          if (!g) continue;
+          const tracks = g
+            .replace(/minmax\([^)]*\)/g, "M")
+            .replace(/repeat\(\s*\d+\s*,\s*([^)]*)\)/g, "$1 $1")
+            .split(/\s+/).filter(Boolean);
+          if (!tracks.includes("1fr") || tracks.every((x) => x === "1fr")) continue;
+          const prefix = `${flat(r.sel)} `;
+          const kids = rules
+            .filter((k) => flat(k.sel).startsWith(prefix))
+            .filter((k) => [...classesOf(lastCompound(k.sel))].some((cls) => nowrapClasses.has(cls)))
+            .map((k) => k.sel);
+          if (kids.length === 0) continue;
+          grids++;
+          c.expect(false, `${vp}: ${r.sel} lays out "${g}" while ${kids[0]} inside it refuses to wrap; the 1fr cannot shrink`);
+        }
+      }
+      c.expect(grids === 0, "");
+
+      c.note(`${rules.length} rules, ${stretched.length} stretched selector(s), ${merged} element/viewport merge(s)`);
+      c.note("validated against 32 educator + 56 Slice-1/2 rendered measurements at 390px and 1280px, all zero-overflow");
+      return c.verdict(
+        "nothing in the Experience stylesheet is stretched to its container's width while refusing to fold its text, and no " +
+        "grid puts a bare 1fr beside a track holding something that cannot wrap -- the two shapes that actually produced " +
+        "measured horizontal overflow, one of them on a learner surface no rendered fixture reaches. The global border-box " +
+        "reset every padded box depends on is asserted against the COMPILED stylesheet rather than assumed, because an " +
+        "earlier harness lost it and produced a convincing 48px defect that the product never had",
       );
     },
   },
