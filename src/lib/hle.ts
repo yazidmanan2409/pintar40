@@ -296,10 +296,12 @@ export type HleEvent =
   | "siklus.peta_anda"
   | "siklus.langkah_dari"
   | "siklus.jumlah_soal"
-  | "siklus.perkiraan"
   | "siklus.ditutup"
-  | "siklus.menit"
-  | "siklus.tanpa_batas"
+  | "siklus.soal"
+  | "siklus.lihat_peta"
+  | "siklus.pelajaran_next"
+  | "siklus.pelajaran_prev"
+  | "siklus.delta_arti"
   | "siklus.bisa_lakukan"
   | "siklus.bisa.tandai"
   | "siklus.bisa.jeda"
@@ -431,6 +433,150 @@ export type HleEvent =
   | "studio.bank.tindakan"
   | "studio.hasil.ok"
   | "studio.hasil.gagal"
+  | "mengajar.judul"
+  | "nav.kelas"
+  | "mengajar.kembali"
+  | "mengajar.sapa.pagi"
+  | "mengajar.sapa.siang"
+  | "mengajar.sapa.sore"
+  | "mengajar.sapa.malam"
+  | "mengajar.beranda.intro"
+  | "mengajar.layak.eyebrow"
+  | "mengajar.layak.kosong"
+  | "mengajar.layak.sebab"
+  | "mengajar.layak.terbit"
+  | "mengajar.aksi.siapkan"
+  | "mengajar.aksi.lihat"
+  | "mengajar.untuk"
+  | "mengajar.kelas.judul"
+  | "mengajar.kelas.sub"
+  | "mengajar.kelas.kosong"
+  | "mengajar.berjalan.judul"
+  | "mengajar.berjalan.kelas"
+  | "mengajar.berjalan.kosong"
+  | "mengajar.melihat"
+  | "mengajar.kelas.intro"
+  | "mengajar.pindah"
+  | "mengajar.fakta.mapel"
+  | "mengajar.fakta.murid"
+  | "mengajar.fakta.materi"
+  | "mengajar.fakta.materi.kosong"
+  | "mengajar.fakta.berubah"
+  | "mengajar.aksi.uji_cepat"
+  | "mengajar.aksi.bukti"
+  | "mengajar.aksi.langkah"
+  | "mengajar.materi.judul"
+  | "mengajar.materi.sub"
+  | "mengajar.materi.kosong"
+  | "mengajar.murid.judul"
+  | "mengajar.murid.sub"
+  | "mengajar.murid.kosong"
+  | "mengajar.status.tersedia"
+  | "mengajar.status.selesai"
+  | "mengajar.status.belum"
+  | "mengajar.status.siap"
+  | "mengajar.status.berjalan"
+  | "mengajar.siap.langkah1"
+  | "mengajar.siap.langkah2"
+  | "mengajar.siap.langkah3"
+  | "mengajar.siap.eyebrow"
+  | "mengajar.siap.judul"
+  | "mengajar.siap.intro"
+  | "mengajar.siap.pilih"
+  | "mengajar.siap.pilih.kosong"
+  | "mengajar.siap.terbitan"
+  | "mengajar.siap.diterbitkan"
+  | "mengajar.siap.pelajaran"
+  | "mengajar.siap.soal"
+  | "mengajar.siap.terima"
+  | "mengajar.siap.jendela"
+  | "mengajar.siap.jendela.arti"
+  | "mengajar.siap.mulai"
+  | "mengajar.siap.sampai"
+  | "mengajar.siap.sampai.kosong"
+  | "mengajar.siap.disediakan"
+  | "mengajar.siap.dipilih"
+  | "mengajar.siap.terdaftar"
+  | "mengajar.siap.tinjau"
+  | "mengajar.siap.akibat.1"
+  | "mengajar.siap.akibat.2"
+  | "mengajar.siap.akibat.3"
+  | "mengajar.siap.komit"
+  | "mengajar.siap.kembali"
+  | "mengajar.instrumen.PRE_TEST"
+  | "mengajar.instrumen.POST_TEST"
+  | "mengajar.instrumen.STANDALONE"
+  | "mengajar.instrumen.sertifikat"
+  | "mengajar.instrumen.sertifikat.arti"
+  | "mengajar.percobaan"
+  | "mengajar.cepat.eyebrow"
+  | "mengajar.cepat.judul"
+  | "mengajar.cepat.intro"
+  | "mengajar.cepat.langkah1"
+  | "mengajar.cepat.langkah2"
+  | "mengajar.cepat.langkah3"
+  | "mengajar.cepat.bab"
+  | "mengajar.cepat.bab.arti"
+  | "mengajar.cepat.bab.kosong"
+  | "mengajar.cepat.jumlah"
+  | "mengajar.cepat.jumlah.arti"
+  | "mengajar.cepat.jendela"
+  | "mengajar.cepat.jendela.arti"
+  | "mengajar.cepat.menit"
+  | "mengajar.cepat.untuk"
+  | "mengajar.cepat.lanjut"
+  | "mengajar.cepat.tinjau"
+  | "mengajar.cepat.rv1"
+  | "mengajar.cepat.rv2"
+  | "mengajar.cepat.rv3"
+  | "mengajar.cepat.rv4"
+  | "mengajar.cepat.akibat"
+  | "mengajar.cepat.komit"
+  | "mengajar.cepat.ubah"
+  | "mengajar.cepat.hidup.eyebrow"
+  | "mengajar.cepat.hidup.judul"
+  | "mengajar.cepat.hidup.kumpul"
+  | "mengajar.cepat.hidup.sisa"
+  | "mengajar.cepat.hidup.menit"
+  | "mengajar.cepat.hidup.catatan"
+  | "mengajar.cepat.hidup.siapa"
+  | "mengajar.cepat.sudah_ada"
+  | "mengajar.bukti.eyebrow"
+  | "mengajar.bukti.judul"
+  | "mengajar.bukti.intro"
+  | "mengajar.bukti.keadaan"
+  | "mengajar.bukti.kumpul"
+  | "mengajar.bukti.jendela"
+  | "mengajar.bukti.belum"
+  | "mengajar.bukti.murid"
+  | "mengajar.bukti.poin"
+  | "mengajar.bukti.bagian"
+  | "mengajar.bukti.keliru"
+  | "mengajar.bukti.kali"
+  | "mengajar.bukti.kosong"
+  | "mengajar.bukti.simpulan"
+  | "mengajar.bukti.kaki"
+  | "mengajar.langkah.eyebrow"
+  | "mengajar.langkah.judul"
+  | "mengajar.langkah.intro"
+  | "mengajar.langkah.buka"
+  | "mengajar.langkah.f1"
+  | "mengajar.langkah.f1w"
+  | "mengajar.langkah.f2"
+  | "mengajar.langkah.f2w"
+  | "mengajar.langkah.f3"
+  | "mengajar.langkah.f3w"
+  | "mengajar.langkah.f4"
+  | "mengajar.langkah.f4w"
+  | "mengajar.langkah.f5"
+  | "mengajar.langkah.f5w"
+  | "mengajar.langkah.f6"
+  | "mengajar.langkah.f6w"
+  | "mengajar.langkah.quiet"
+  | "mengajar.siapa.judul"
+  | "mengajar.siapa.sudah"
+  | "mengajar.siapa.belum"
+  | "mengajar.siapa.catatan"
   | "sync.done";
 
 /**
@@ -880,10 +1026,17 @@ const table: Table = {
   "siklus.peta_anda": { default: "Peta bacaan Anda", en: "Your reading map" },
   "siklus.langkah_dari": { default: "Lima langkah.", en: "Five steps." },
   "siklus.jumlah_soal": { default: "Jumlah soal", en: "Questions" },
-  "siklus.perkiraan": { default: "Perkiraan waktu", en: "Estimated time" },
   "siklus.ditutup": { default: "Ditutup", en: "Closes" },
-  "siklus.menit": { default: "menit", en: "minutes" },
-  "siklus.tanpa_batas": { default: "Tanpa batas waktu", en: "No time limit" },
+  "siklus.soal": { default: "soal", en: "questions" },
+  "siklus.lihat_peta": { default: "Lihat peta bacaan", en: "See the reading map" },
+  // A LESSON, not a page. lesson.next / lesson.prev turn the pages INSIDE a
+  // lesson and the player owns them; these two move between lessons.
+  "siklus.pelajaran_next": { default: "Pelajaran berikutnya", en: "Next lesson" },
+  "siklus.pelajaran_prev": { default: "Pelajaran sebelumnya", en: "Previous lesson" },
+  // The caption says what the two numbers ARE, not what they mean: reading a
+  // judgment into a learner's own change is the engine's job, and it does not
+  // make one here.
+  "siklus.delta_arti": { default: "Penguasaan Anda pada Pemetaan Awal dibandingkan dengan Uji Penguasaan. Perbandingan ini muncul hanya ketika keduanya sudah selesai.", en: "Your mastery on the Initial Mapping compared with the Mastery Check. This comparison appears only once both are finished." },
   "siklus.bisa_lakukan": { default: "Yang bisa dilakukan", en: "What you can do" },
   "siklus.bisa.tandai": { default: "Menandai soal dan kembali lagi", en: "Flag a question and come back to it" },
   "siklus.bisa.jeda": { default: "Menyimpan dan menjeda, lalu melanjutkan nanti", en: "Save and pause, then carry on later" },
@@ -1017,6 +1170,155 @@ const table: Table = {
   "studio.hasil.ok": { default: "Tersimpan.", en: "Saved." },
   "studio.hasil.gagal": { default: "Belum tersimpan.", en: "Not saved." },
   "sync.done": { default: "Semua jawaban sudah tersimpan di server.", en: "Every answer is saved on the server." },
+
+  // ══════════════════════════════════ UX-1 Slice 3 — the educator's teaching
+  // surface. Educator-facing, and deliberately NOT declared staff-only: the
+  // internal-word guard runs over every one of these tellings, which is worth
+  // more than the exemption would be.
+  "mengajar.judul": { default: "Kelas", en: "Classes" },
+  "nav.kelas": { default: "Kelas", en: "Classes" },
+  "mengajar.kembali": { default: "Kelas", en: "Classes" },
+  "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
+  "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },
+  "mengajar.sapa.sore": { default: "Selamat sore", en: "Good evening" },
+  "mengajar.sapa.malam": { default: "Selamat malam", en: "Good evening" },
+  "mengajar.beranda.intro": { default: "Satu hal yang paling layak dikerjakan lebih dulu, lalu kelas dalam lingkup mengajar Anda.", en: "The one thing most worth doing first, then the classes in your teaching scope." },
+  "mengajar.layak.eyebrow": { default: "Layak dikerjakan lebih dulu", en: "Worth doing first" },
+  "mengajar.layak.kosong": { default: "Tidak ada yang menunggu keputusan Anda hari ini.", en: "Nothing is waiting on your decision today." },
+  "mengajar.layak.sebab": { default: "Sudah diterbitkan sekolah dan bisa disediakan kapan pun Anda siap.", en: "Published by the school and can be made available whenever you are ready." },
+  "mengajar.layak.terbit": { default: "sudah diterbitkan sekolah, tetapi belum disediakan untuk", en: "is published by the school, but is not yet available to" },
+  "mengajar.aksi.siapkan": { default: "Siapkan", en: "Prepare" },
+  "mengajar.aksi.lihat": { default: "Lihat", en: "Look at" },
+  "mengajar.untuk": { default: "untuk", en: "for" },
+  "mengajar.kelas.judul": { default: "Kelas dalam lingkup mengajar Anda", en: "Classes in your teaching scope" },
+  "mengajar.kelas.sub": { default: "Berdasarkan penugasan dari sekolah. PINTAR tidak menandai kelas sebagai milik seseorang; yang tampil adalah kelas yang tercakup dalam penugasan Anda.", en: "Based on the school's assignments. PINTAR does not mark a class as anyone's; what appears is the classes covered by your assignment." },
+  "mengajar.kelas.kosong": { default: "Belum ada kelas dalam lingkup mengajar Anda. Sekolah yang menetapkannya.", en: "There is no class in your teaching scope yet. The school sets that." },
+  "mengajar.berjalan.judul": { default: "Sedang berjalan", en: "Currently open" },
+  "mengajar.berjalan.kelas": { default: "Yang sedang berjalan di kelas ini", en: "Open in this class right now" },
+  "mengajar.berjalan.kosong": { default: "Tidak ada yang sedang berjalan.", en: "Nothing is open right now." },
+  "mengajar.melihat": { default: "Anda sedang melihat", en: "You are viewing" },
+  "mengajar.kelas.intro": { default: "Kelas ini tampil karena sekolah menugaskan Anda ke lingkup yang mencakupnya. Daftar murid berasal dari pendaftaran sekolah, bukan dari PINTAR.", en: "This class appears because the school assigned you to a scope that contains it. The learner list comes from the school's enrolment, not from PINTAR." },
+  "mengajar.pindah": { default: "Pindah kelas", en: "Switch class" },
+  "mengajar.fakta.mapel": { default: "Mata pelajaran", en: "Subject" },
+  "mengajar.fakta.murid": { default: "Murid terdaftar", en: "Enrolled learners" },
+  "mengajar.fakta.materi": { default: "Materi tersedia", en: "Material available" },
+  "mengajar.fakta.materi.kosong": { default: "Belum ada", en: "None yet" },
+  "mengajar.fakta.berubah": { default: "Perubahan terakhir", en: "Last changed" },
+  "mengajar.aksi.uji_cepat": { default: "Uji Cepat", en: "Quick Assessment" },
+  "mengajar.aksi.bukti": { default: "Lihat bukti", en: "See evidence" },
+  "mengajar.aksi.langkah": { default: "Langkah berikutnya", en: "What next" },
+  "mengajar.materi.judul": { default: "Materi untuk kelas ini", en: "Material for this class" },
+  "mengajar.materi.sub": { default: "Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah.", en: "Order follows the school's curriculum. Making material available is not the same as publishing it; the school publishes." },
+  "mengajar.materi.kosong": { default: "Belum ada materi yang disediakan untuk kelas ini.", en: "No material has been made available to this class yet." },
+  "mengajar.murid.judul": { default: "Murid", en: "Learners" },
+  "mengajar.murid.sub": { default: "Nama diurutkan abjad; tidak ada peringkat.", en: "Names in alphabetical order; there is no ranking." },
+  "mengajar.murid.kosong": { default: "Belum ada murid terdaftar di kelas ini.", en: "No learner is enrolled in this class yet." },
+  "mengajar.status.tersedia": { default: "Tersedia", en: "Available" },
+  "mengajar.status.selesai": { default: "Selesai", en: "Finished" },
+  "mengajar.status.belum": { default: "Belum disediakan", en: "Not yet available" },
+  "mengajar.status.siap": { default: "Siap disediakan", en: "Ready to make available" },
+  "mengajar.status.berjalan": { default: "Berjalan", en: "Open" },
+  "mengajar.siap.langkah1": { default: "Pilih materi", en: "Choose material" },
+  "mengajar.siap.langkah2": { default: "Tinjau yang akan diterima murid", en: "Review what learners receive" },
+  "mengajar.siap.langkah3": { default: "Sediakan", en: "Make available" },
+  "mengajar.siap.eyebrow": { default: "Siapkan materi", en: "Prepare learning" },
+  "mengajar.siap.judul": { default: "Yang akan diterima murid", en: "What learners will receive" },
+  "mengajar.siap.intro": { default: "Belum ada yang berubah untuk murid. Semua di bawah ini baru berlaku setelah Anda menekan tombol sediakan di bagian akhir.", en: "Nothing has changed for learners yet. Everything below only takes effect after you press the make-available button at the end." },
+  "mengajar.siap.pilih": { default: "Pilih materi yang akan disediakan", en: "Choose the material to make available" },
+  "mengajar.siap.pilih.kosong": { default: "Belum ada materi terbitan sekolah yang bisa disediakan untuk kelas ini.", en: "The school has published no material that can be made available to this class yet." },
+  "mengajar.siap.terbitan": { default: "Terbitan", en: "Release" },
+  "mengajar.siap.diterbitkan": { default: "diterbitkan sekolah", en: "published by the school" },
+  "mengajar.siap.pelajaran": { default: "pelajaran", en: "lessons" },
+  "mengajar.siap.soal": { default: "soal", en: "items" },
+  "mengajar.siap.terima": { default: "Yang akan diterima murid", en: "What learners receive" },
+  "mengajar.siap.jendela": { default: "Jendela", en: "Window" },
+  "mengajar.siap.jendela.arti": { default: "Murid melihat materi ini di halaman Belajar selama jendela terbuka.", en: "Learners see this material on their Learning page while the window is open." },
+  "mengajar.siap.mulai": { default: "Mulai", en: "From" },
+  "mengajar.siap.sampai": { default: "Sampai", en: "Until" },
+  "mengajar.siap.sampai.kosong": { default: "Tanpa batas akhir", en: "No end date" },
+  "mengajar.siap.disediakan": { default: "Disediakan untuk", en: "Made available to" },
+  "mengajar.siap.dipilih": { default: "dipilih", en: "selected" },
+  "mengajar.siap.terdaftar": { default: "murid terdaftar hari ini", en: "learners enrolled today" },
+  "mengajar.siap.tinjau": { default: "Tinjauan sebelum disediakan", en: "Review before making available" },
+  "mengajar.siap.akibat.1": { default: "Setelah disediakan,", en: "Once made available," },
+  "mengajar.siap.akibat.2": { default: "akan melihat materi ini di halaman Belajar mereka.", en: "will see this material on their Learning page." },
+  "mengajar.siap.akibat.3": { default: "Anda bisa mengubah jendelanya nanti, tetapi tidak bisa menarik kembali pekerjaan yang sudah dimulai murid.", en: "You can change the window later, but you cannot take back work a learner has already started." },
+  "mengajar.siap.komit": { default: "Sediakan", en: "Make available" },
+  "mengajar.siap.kembali": { default: "Kembali ke pilihan materi", en: "Back to material choice" },
+  "mengajar.instrumen.PRE_TEST": { default: "Pemetaan Awal", en: "Initial Mapping" },
+  "mengajar.instrumen.POST_TEST": { default: "Uji Penguasaan", en: "Mastery Test" },
+  "mengajar.instrumen.STANDALONE": { default: "Asesmen mandiri", en: "Standalone assessment" },
+  "mengajar.instrumen.sertifikat": { default: "Sertifikat", en: "Certificate" },
+  "mengajar.instrumen.sertifikat.arti": { default: "Diterbitkan sekolah bila murid memenuhi capaian; bisa diperiksa siapa pun lewat tautan.", en: "Issued by the school when a learner meets the standard; anyone can check it through its link." },
+  "mengajar.percobaan": { default: "kesempatan", en: "attempt" },
+  "mengajar.cepat.eyebrow": { default: "Uji Cepat", en: "Quick Assessment" },
+  "mengajar.cepat.judul": { default: "Uji Cepat", en: "Quick Assessment" },
+  "mengajar.cepat.intro": { default: "Beberapa soal untuk mengecek pemahaman hari ini. Hasilnya dinilai seperti asesmen lain dan dapat menjadi bagian dari bukti pembelajaran yang dipakai saat menentukan kelayakan sertifikat.", en: "A few items to check today's understanding. The result is scored like any other assessment and may contribute to the learning evidence used when certificate eligibility is determined." },
+  "mengajar.cepat.langkah1": { default: "Atur", en: "Configure" },
+  "mengajar.cepat.langkah2": { default: "Tinjau", en: "Review" },
+  "mengajar.cepat.langkah3": { default: "Sediakan", en: "Make available" },
+  "mengajar.cepat.bab": { default: "Bab", en: "Chapter" },
+  "mengajar.cepat.bab.arti": { default: "Soal diambil dari terbitan yang sudah diterbitkan sekolah untuk bab ini.", en: "Items come from the release the school has published for this chapter." },
+  "mengajar.cepat.bab.kosong": { default: "Belum ada bab yang disediakan untuk kelas ini, jadi belum ada soal yang bisa diambil.", en: "No chapter has been made available to this class yet, so there are no items to draw from." },
+  "mengajar.cepat.jumlah": { default: "Jumlah soal", en: "Number of items" },
+  "mengajar.cepat.jumlah.arti": { default: "Batas ini ditetapkan platform, bukan oleh halaman ini.", en: "This bound is set by the platform, not by this page." },
+  "mengajar.cepat.jendela": { default: "Jendela", en: "Window" },
+  "mengajar.cepat.jendela.arti": { default: "Berhitung sejak disediakan. Tiap murid mendapat satu kesempatan.", en: "Counted from the moment it is made available. Each learner gets one attempt." },
+  "mengajar.cepat.menit": { default: "menit", en: "min" },
+  "mengajar.cepat.untuk": { default: "Untuk", en: "For" },
+  "mengajar.cepat.lanjut": { default: "Lanjut ke tinjauan", en: "Continue to review" },
+  "mengajar.cepat.tinjau": { default: "Yang akan terjadi", en: "What will happen" },
+  "mengajar.cepat.rv1": { default: "Murid kelas ini yang masuk PINTAR melihat Uji Cepat itu di halaman Belajar mereka.", en: "Learners in this class who are signed in see that Quick Assessment on their Learning page." },
+  "mengajar.cepat.rv2": { default: "Satu kesempatan untuk tiap murid, dan jendelanya mulai berjalan begitu disediakan.", en: "One attempt for each learner, and the window starts the moment it is made available." },
+  "mengajar.cepat.rv3": { default: "Hasilnya tercatat sebagai bukti pembelajaran dan dapat dipakai saat menentukan kelayakan sertifikat. Satu Uji Cepat tidak menerbitkan sertifikat; penerbitan dilakukan sekolah.", en: "The result is recorded as learning evidence and may be used when certificate eligibility is determined. One Quick Assessment does not issue a certificate; the school issues." },
+  "mengajar.cepat.rv4": { default: "Murid yang tidak sempat mengerjakan tidak dicatat sebagai tidak mampu — tercatat belum mengumpulkan.", en: "A learner who does not get to it is not recorded as unable — only as not yet submitted." },
+  "mengajar.cepat.akibat": { default: "Begitu disediakan, jendela mulai berjalan untuk semua murid dan murid bisa langsung mulai mengerjakan.", en: "The moment it is made available, the window starts for every learner and they can begin straight away." },
+  "mengajar.cepat.komit": { default: "Sediakan Uji Cepat sekarang", en: "Make the Quick Assessment available now" },
+  "mengajar.cepat.ubah": { default: "Ubah pengaturan", en: "Change settings" },
+  "mengajar.cepat.hidup.eyebrow": { default: "Tersedia untuk kelas ini", en: "Available to this class" },
+  "mengajar.cepat.hidup.judul": { default: "Uji Cepat sedang berjalan", en: "The Quick Assessment is open" },
+  "mengajar.cepat.hidup.kumpul": { default: "Sudah mengumpulkan", en: "Submitted" },
+  "mengajar.cepat.hidup.sisa": { default: "Sisa waktu", en: "Time left" },
+  "mengajar.cepat.hidup.menit": { default: "menit lagi", en: "min left" },
+  "mengajar.cepat.hidup.catatan": { default: "Angka di atas adalah hitungan, bukan penilaian. Yang belum mengumpulkan mungkin belum membuka PINTAR.", en: "The numbers above are counts, not judgments. Those who have not submitted may simply not have opened PINTAR." },
+  "mengajar.cepat.hidup.siapa": { default: "Lihat siapa yang sudah mengumpulkan", en: "See who has submitted" },
+  "mengajar.cepat.sudah_ada": { default: "Sudah ada Uji Cepat yang berjalan di kelas ini. Tunggu jendelanya berakhir sebelum menyediakan yang berikutnya.", en: "A Quick Assessment is already open in this class. Wait for its window to end before making another available." },
+  "mengajar.bukti.eyebrow": { default: "Bukti", en: "Evidence" },
+  "mengajar.bukti.judul": { default: "Apa yang sudah bisa disimpulkan", en: "What can be concluded so far" },
+  "mengajar.bukti.intro": { default: "PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum.", en: "PINTAR only concludes when the official evidence is enough. Not yet enough does not mean bad — it means not yet." },
+  "mengajar.bukti.keadaan": { default: "Keadaan hari ini", en: "Where things stand today" },
+  "mengajar.bukti.kumpul": { default: "Mengumpulkan", en: "Submitted" },
+  "mengajar.bukti.jendela": { default: "Jendela", en: "Window" },
+  "mengajar.bukti.belum": { default: "Belum mengerjakan", en: "Not yet attempted" },
+  "mengajar.bukti.murid": { default: "murid", en: "learners" },
+  "mengajar.bukti.poin": { default: "poin", en: "points" },
+  "mengajar.bukti.bagian": { default: "Penguasaan per bagian", en: "Mastery by part" },
+  "mengajar.bukti.keliru": { default: "Pemahaman keliru yang berulang di kelas ini", en: "Recurring misunderstandings in this class" },
+  "mengajar.bukti.kali": { default: "kali", en: "times" },
+  "mengajar.bukti.kosong": { default: "Belum ada asesmen yang berjalan atau selesai di kelas ini, jadi belum ada keadaan untuk dilaporkan.", en: "No assessment is open or finished in this class yet, so there is nothing to report on." },
+  "mengajar.bukti.simpulan": { default: "Kesimpulan", en: "Conclusions" },
+  "mengajar.bukti.kaki": { default: "Yang tidak tampil di sini: penilaian per soal dan sinyal integritas. Keduanya ditinjau Kepala Departemen, bukan pengajar.", en: "Not shown here: item-level review and integrity signals. Both are reviewed by the Head of Department, not the educator." },
+  "mengajar.langkah.eyebrow": { default: "Langkah berikutnya", en: "What next" },
+  "mengajar.langkah.judul": { default: "Yang bisa Anda lakukan sekarang", en: "What you can do now" },
+  "mengajar.langkah.intro": { default: "Diurutkan dari yang paling masuk akal hari ini, berdasarkan apa yang PINTAR tahu tentang kelas ini.", en: "Ordered by what makes most sense today, from what PINTAR knows about this class." },
+  "mengajar.langkah.buka": { default: "Buka", en: "Open" },
+  "mengajar.langkah.f1": { default: "Lihat murid yang belum mengumpulkan", en: "See the learners who have not submitted" },
+  "mengajar.langkah.f1w": { default: "Selama jendela masih terbuka. Ini daftar, bukan peringkat.", en: "While the window is still open. This is a list, not a ranking." },
+  "mengajar.langkah.f2": { default: "Ubah jendela asesmen yang berjalan", en: "Change the window of an open assessment" },
+  "mengajar.langkah.f2w": { default: "Bila kelas butuh waktu lebih. Murid melihat jendela yang baru di halaman Belajar mereka.", en: "If the class needs more time. Learners see the new window on their Learning page." },
+  "mengajar.langkah.f3": { default: "Beri waktu tambahan untuk satu murid", en: "Give one learner extra time" },
+  "mengajar.langkah.f3w": { default: "Untuk sesi yang terputus atau alasan lain yang sah. Dicatat dengan alasan; tidak mengubah sesi murid lain.", en: "For an interrupted session or another legitimate reason. Recorded with a reason; other learners' sessions are unchanged." },
+  "mengajar.langkah.f4": { default: "Siapkan materi berikutnya untuk kelas ini", en: "Prepare the next material for this class" },
+  "mengajar.langkah.f4w": { default: "Sudah diterbitkan sekolah. Bisa disediakan sekarang; murid mulai sesuai jendela yang Anda pilih.", en: "Published by the school. Can be made available now; learners start according to the window you choose." },
+  "mengajar.langkah.f5": { default: "Uji Cepat untuk mengecek pemahaman hari ini", en: "Quick Assessment to check today's understanding" },
+  "mengajar.langkah.f5w": { default: "Beberapa soal, satu jendela pendek. Hasilnya menjadi bukti pembelajaran seperti asesmen lain.", en: "A few items, one short window. The result becomes learning evidence like any other assessment." },
+  "mengajar.langkah.f6": { default: "Susun materi sendiri", en: "Draft your own material" },
+  "mengajar.langkah.f6w": { default: "Anda bisa menyusun dan mengunggah. Persetujuan dan penerbitan dilakukan Kepala Departemen dan sekolah.", en: "You can draft and upload. Approval and publishing are done by the Head of Department and the school." },
+  "mengajar.langkah.quiet": { default: "Ringkasan berkala untuk kelas ini belum ada; akan muncul di sini bila sudah tersedia. Yang tidak ada di daftar ini — penilaian per soal dan sinyal integritas — bukan bagian dari peran pengajar.", en: "There is no periodic briefing for this class yet; it will appear here when there is. What is not on this list — item review and integrity signals — is not part of the educator role." },
+  "mengajar.siapa.judul": { default: "Siapa yang sudah mengumpulkan", en: "Who has submitted" },
+  "mengajar.siapa.sudah": { default: "Sudah mengumpulkan", en: "Have submitted" },
+  "mengajar.siapa.belum": { default: "Belum mengumpulkan", en: "Have not submitted yet" },
+  "mengajar.siapa.catatan": { default: "Dua daftar nama, diurutkan abjad. Bukan peringkat, bukan penilaian, dan tidak menyebut sebabnya — PINTAR tidak tahu sebabnya.", en: "Two lists of names in alphabetical order. Not a ranking, not a judgment, and it names no reason — PINTAR does not know the reason." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */

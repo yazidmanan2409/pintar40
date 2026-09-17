@@ -12,8 +12,21 @@ import MerekPintar from "./MerekPintar";
  * verification page that offered a way into PINTAR would be inviting somebody
  * who came to check a certificate to go looking at something else.
  *
- * The language switch is on both, because the reader of a public verification
- * page has no account to carry a preference in (S0.3).
+ * A THIRD, ADDED IN SLICE 2: `focus`, for a learner inside an assessment. Same
+ * reasoning as the public shell from the opposite direction — there the
+ * navigation would invite a stranger further in, here it would invite a
+ * learner out of a task they are being timed on.
+ *
+ * The language switch is on all three, because the reader of a public
+ * verification page has no account to carry a preference in (S0.3), and a
+ * learner does not lose their language by starting an assessment.
+ *
+ * A FOURTH, ADDED IN SLICE 3: `pengajar`, the educator's shell. It is the
+ * learner shell's shape with the educator's own destination, and it carries ONE
+ * tab because Slice 3 builds one surface. The reviewed concept showed three —
+ * Kelas, Materi, Akun — and the other two have no route yet; a tab that goes
+ * nowhere is a promise the product cannot keep, so it is absent until the slice
+ * that builds it arrives rather than present and inert.
  */
 export default function CangkangPengalaman({
   locale,
@@ -21,9 +34,39 @@ export default function CangkangPengalaman({
   current,
 }: {
   locale: Locale;
-  kind?: "learner" | "public";
-  current?: "belajar" | "sertifikat";
+  kind?: "learner" | "public" | "focus" | "pengajar";
+  current?: "belajar" | "sertifikat" | "kelas";
 }) {
+  // FOCUS. During an assessment the shell keeps the mark and the language and
+  // drops the tabs. The engine survives navigating away — a session is server
+  // state, not a page — but a header offering three ways out of a timed task
+  // is inviting the learner to take one, and the cost of taking it is theirs.
+  // The public verification shell already works this way for its own reason.
+  if (kind === "focus") {
+    return (
+      <header className="pin-top pin-shell pin-noprint">
+        <MerekPintar />
+        <span className="pin-spacer" />
+        <PengalihBahasa locale={locale} />
+      </header>
+    );
+  }
+
+  if (kind === "pengajar") {
+    return (
+      <header className="pin-top pin-shell pin-noprint">
+        <MerekPintar />
+        <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
+          <Link href="/mengajar" aria-current={current === "kelas" ? "page" : undefined}>
+            {t("nav.kelas", "educator", { locale })}
+          </Link>
+        </nav>
+        <span className="pin-spacer" />
+        <PengalihBahasa locale={locale} />
+      </header>
+    );
+  }
+
   if (kind === "public") {
     return (
       <header className="pin-top pin-shell pin-noprint">

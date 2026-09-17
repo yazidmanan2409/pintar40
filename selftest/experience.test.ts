@@ -16,6 +16,15 @@
  *   UX1-S0-SAPAAN-01       no learner is addressed informally in Indonesian
  *   UX1-S0-FAKTA-01        compact fact summaries stack on a narrow surface
  *   UX1-S2-POSISI-01       the cycle position and the home's one recommendation
+ *   UX1-S2-MELIHAT-01      looking is not committing, and the four Slice-2 rulings
+ *   UX1-S3-LINGKUP-01      the teaching context is derived, and never claimed
+ *   UX1-S3-KOMIT-01        no educator page commits anything while rendering
+ *   UX1-S3-CEPAT-01        the quick assessment's bounds and its certificate sentence
+ *   UX1-S3-BUKTI-01        evidence through the catalogue, nothing item-level
+ *   UX1-S3-NAMA-01         names bounded, bare, unjudged, and no honorific
+ *   UX1-S3-KATA-01         the educator copy is complete, declared and clean
+ *   UX1-S3-FAKTA-01        the Slice-3 compositions narrow on a phone
+ *   UX1-S0-MUAT-01         a stretched box fits its container and does not clip
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -24,6 +33,7 @@ import jsQR from "jsqr";
 import { Checks, type SelfTest } from "./lib";
 import { allKeys, telling, renderAll, t, LOCALES, type HleEvent } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
+import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
 
@@ -66,21 +76,32 @@ const RESET_SURFACES = [
   "src/app/belajar/sertifikat/page.tsx",
   "src/app/belajar/[tugas]/sertifikat/page.tsx",
   "src/app/verifikasi/[token]/page.tsx",
+  "src/app/belajar/page.tsx",
+  "src/app/belajar/[tugas]/page.tsx",
+  "src/app/belajar/[tugas]/hasil/page.tsx",
+  "src/app/belajar/[tugas]/peta/page.tsx",
+  "src/app/belajar/[tugas]/pemetaan/page.tsx",
+  "src/app/belajar/[tugas]/penguasaan/page.tsx",
+  "src/app/belajar/[tugas]/pelajaran/[pelajaran]/page.tsx",
+  "src/app/belajar/_components/ItemPlayer.tsx",
+  "src/app/belajar/_components/LessonPlayer.tsx",
+  "src/app/belajar/[tugas]/lanjut/page.tsx",
+  "src/app/belajar/asesmen/[penugasan]/page.tsx",
+  "src/app/belajar/_components/PermukaanAsesmen.tsx",
+  // UX-1 Slice 3 — the educator's teaching surface, A-F.
+  "src/app/mengajar/page.tsx",
+  "src/app/mengajar/[kelas]/page.tsx",
+  "src/app/mengajar/[kelas]/siapkan/page.tsx",
+  "src/app/mengajar/[kelas]/uji-cepat/page.tsx",
+  "src/app/mengajar/[kelas]/bukti/page.tsx",
+  "src/app/mengajar/[kelas]/langkah/page.tsx",
+  "src/app/mengajar/[kelas]/siapa/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
 const PENDING_SURFACES: Record<string, string> = {
   "src/app/page.tsx": "Slice 2 — entry by purpose",
   "src/app/masuk/page.tsx": "Slice 2 — sign-in",
-  "src/app/belajar/page.tsx": "Slice 3 — the learning cycle",
-  "src/app/belajar/[tugas]/page.tsx": "Slice 3 — the learning cycle",
-  "src/app/belajar/[tugas]/hasil/page.tsx": "Slice 3 — the result",
-  "src/app/belajar/[tugas]/peta/page.tsx": "Slice 3 — the reading map",
-  "src/app/belajar/[tugas]/pemetaan/page.tsx": "Slice 4 — assessment (route blocked in UX-1)",
-  "src/app/belajar/[tugas]/penguasaan/page.tsx": "Slice 4 — assessment (route blocked in UX-1)",
-  "src/app/belajar/[tugas]/pelajaran/[pelajaran]/page.tsx": "Slice 3 — the lesson",
-  "src/app/belajar/_components/ItemPlayer.tsx": "Slice 4 — assessment",
-  "src/app/belajar/_components/LessonPlayer.tsx": "Slice 3 — the lesson",
   "src/app/_evaluation-banner.tsx": "Slice 2 — the shell",
   "src/app/evaluasi/page.tsx": "Slice 2 — the demonstration room",
   "src/app/konfigurasi/page.tsx": "Slice 7 — configuration",
@@ -194,6 +215,12 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The option key's column, in em so A/B/C/D stays aligned with the type rather than the page." },
   { file: "src/app/experience.css", literal: "20ch",
     reason: "The review question's flex basis, in characters because it wraps prose." },
+  { file: "src/app/experience.css", literal: "360px",
+    reason: "An inline lesson illustration: wide enough to read a diagram, narrow enough to stay inside the measure." },
+  { file: "src/app/experience.css", literal: "0.4",
+    reason: "The disabled control's opacity: visibly unavailable without vanishing." },
+  { file: "src/app/experience.css", literal: "0",
+    reason: "A native radio held at zero opacity over its own label: the standard way to keep a control focusable, operable and announced while the label carries the appearance. Hiding it any other way would take it out of the tab order, which is an accessibility regression rather than a design decision." },
   { file: "src/components/bukti/BarisKesiapan.tsx", literal: "%",
     reason: "A computed proportion of the readiness bar: data, not a design value." },
   { file: "src/components/bukti/BarisLingkup.tsx", literal: "20",
@@ -1137,6 +1164,7 @@ export const experienceTests: SelfTest[] = [
       // only on the plain selector silently leaves the commitment shell —
       // the screen the correction was raised against — in three columns.
       const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const PHONE = "@media (max-width: 560px) {";
 
       /** The body of a block, balanced braces, from its opening line. */
       function block(source: string, open: string): string {
@@ -1159,8 +1187,66 @@ export const experienceTests: SelfTest[] = [
         return out;
       }
 
-      const phone = block(css, "@media (max-width: 560px) {");
+      // EVERY phone block, not the first one. The stylesheet grew a second
+      // one when Slice 2 landed, and a rule in the first block can be
+      // overridden by a base rule written between the two.
+      const phoneBlocks: string[] = [];
+      for (let i = css.indexOf(PHONE); i >= 0; i = css.indexOf(PHONE, i + 1)) {
+        phoneBlocks.push(block(css.slice(i), PHONE));
+      }
+      const phone = phoneBlocks.join("\n");
       c.expect(phone.length > 200, "the phone block was not found in src/app/experience.css");
+
+      // AND THE STACK MUST WIN, NOT MERELY EXIST.
+      //
+      // This is the half the first version of this test was missing. It
+      // asserted that a narrow rule with `1fr` was PRESENT, and passed while
+      // the orientation was still two cramped columns on a phone: the stack
+      // sat in the first phone block and the base rule for the same selector
+      // is written further down the file. Same specificity, later rule wins,
+      // stack never happens. A screenshot caught it; the test did not.
+      //
+      // Positions are compared by walking the rules rather than by building a
+      // regex per selector — the first attempt at this did build regexes, got
+      // the escaping wrong, matched nothing, and silently skipped all three
+      // selectors while reporting success.
+      type Placed = { sels: string[]; decl: string; at: number };
+      function placed(body: string, offset: number): Placed[] {
+        const out: Placed[] = [];
+        for (const m of body.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+          out.push({
+            sels: m[1].replace(/\/\*[\s\S]*?\*\//g, " ").split(",").map((x) => x.trim()).filter(Boolean),
+            decl: m[2],
+            at: offset + (m.index ?? 0),
+          });
+        }
+        return out;
+      }
+      /** Media queries blanked out, so what is left is the unconditional CSS. */
+      const baseCss = css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, (m) => " ".repeat(m.length));
+      const baseRules = placed(baseCss, 0);
+      const narrowRules: Placed[] = [];
+      for (let i = css.indexOf(PHONE); i >= 0; i = css.indexOf(PHONE, i + 1)) {
+        narrowRules.push(...placed(block(css.slice(i), PHONE), i + PHONE.length));
+      }
+      const COLS = /grid-template-columns:\s*([^;]+)/;
+      let ordered = 0;
+      for (const sel of [".pin-facts", ".pin-commit .pin-facts", ".pin-orient .pin-facts"]) {
+        const lastBase = baseRules.filter((r) => r.sels.includes(sel) && COLS.test(r.decl)).pop();
+        const lastNarrow = narrowRules
+          .filter((r) => r.sels.includes(sel) && /grid-template-columns:\s*1fr\b/.test(r.decl))
+          .pop();
+        if (!lastBase) continue;
+        c.expect(lastNarrow !== undefined, `"${sel}" has a wide rule and no narrow one`);
+        if (!lastNarrow) continue;
+        c.expect(
+          lastNarrow.at > lastBase.at,
+          `"${sel}" is stacked at offset ${lastNarrow.at} but its wide rule is written at ${lastBase.at}, ` +
+            `later in the file at the same specificity — so the wide rule wins and the stack never happens`,
+        );
+        ordered++;
+      }
+      c.expect(ordered === 3, `only ${ordered} of 3 fact-summary selectors were order-checked`);
 
       // 1. wide is horizontal: the structure exists and has more than one column
       const wide = rules(css.slice(0, css.indexOf("@media (max-width: 560px)")))
@@ -1389,6 +1475,992 @@ export const experienceTests: SelfTest[] = [
           "lesson ever being opened, which the trail must report as the result rather than as unread work — " +
           "and the home's single recommendation follows the approved ranking rather than list position: a " +
           "running session first, a finished cycle never, and the same answer whatever order the rows arrive in",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "UX1-S2-MELIHAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      // THE FOUR SLICE-2 RULINGS OF 2026-09-17, MADE MECHANICAL AGAINST THE
+      // SOURCE. Each of them is the kind of thing that is obeyed on the day it
+      // is written and quietly undone six weeks later by somebody fixing
+      // something else, so each gets a predicate rather than a paragraph.
+      const player = join(repoRoot, "src", "app", "belajar", "_components", "PermukaanAsesmen.tsx");
+      const orient = join(repoRoot, "src", "components", "siklus", "OrientasiAsesmen.tsx");
+      const actionsFile = join(repoRoot, "src", "app", "belajar", "actions.ts");
+      for (const f of [player, orient, actionsFile]) {
+        c.expect(existsSync(f), `${relative(repoRoot, f)} does not exist`);
+      }
+      if (!existsSync(player) || !existsSync(orient)) return c.verdict("the Slice-2 assessment surface is missing");
+
+      // ---- 1. LOOKING IS NOT COMMITTING ---------------------------------
+      //
+      // Reading an orientation must create no session and spend no attempt.
+      // The database half is Bob's (assessment_orientation() is `stable` and
+      // inserts nothing); this is the half on this side of the wire: NO
+      // LEARNER PAGE MAY START A SESSION WHILE RENDERING.
+      //
+      // Before Slice 2 both assessment routes called startSession() in their
+      // render path, which made ARRIVING AT THE URL the act of committing —
+      // and made it impossible to show the integrity disclosure before the
+      // thing it discloses about. That is the defect this half prevents
+      // returning.
+      const pages = walk(join(repoRoot, "src", "app")).filter((f) => /page\.tsx$/.test(f));
+      c.expect(pages.length > 10, `only ${pages.length} page(s) found`);
+      const STARTS = /\b(startSession|start_learning_session)\b/;
+      for (const f of pages) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        c.expect(
+          !STARTS.test(code(readFileSync(f, "utf8"))),
+          `${rel} starts a session while rendering, so visiting the URL is the commitment`,
+        );
+      }
+      // The surface that shows the orientation must not start one either.
+      c.expect(
+        !STARTS.test(code(readFileSync(player, "utf8"))),
+        "PermukaanAsesmen starts a session while rendering",
+      );
+
+      // The start is a FORM POST, not a link. A link is prefetched by the
+      // router, pre-rendered by the browser and brushed by a thumb on a
+      // scroll; any of those would silently spend the one attempt a PAPER
+      // assessment allows. Exactly one place may create a session, and it is
+      // reached by a verb.
+      const actions = code(readFileSync(actionsFile, "utf8"));
+      c.expect(/export async function mulaiAsesmen\(/.test(actions),
+        "there is no server action that starts an assessment");
+      c.expect(/formData/.test(actions),
+        "the start action does not take form data, so it is reachable without a form submission");
+      const surface = code(readFileSync(player, "utf8"));
+      c.expect(/<form action=\{mulaiAsesmen\}/.test(surface),
+        "the start is not a form submission");
+      // and no Link anywhere in the surface points at the action
+      c.expect(!/<Link[^>]*mulaiAsesmen/.test(surface), "a Link invokes the start action");
+
+      // ---- 2. THE ORIENTATION'S AUTHORIZATION IS NOT WEAKENED -------------
+      //
+      // assessment_orientation() is gated by may_start_assessment() and
+      // returns NO ROW when the learner may not begin. The ruling: do not
+      // replace that with a disabled orientation page after eligibility is
+      // gone. So a null must reach the refusal, and the surface must not
+      // second-guess the gate with a check of its own.
+      c.expect(/if \(!orientasi\)/.test(surface), "the surface does not branch on a missing orientation");
+      const nullBranch = /if \(!orientasi\) \{\s*return <HalamanPenolakan/.test(surface);
+      c.expect(nullBranch, "a missing orientation does not render the one refusal page");
+      c.expect(!/disabled/.test(surface),
+        "the assessment surface renders a disabled control, which is how a refused orientation comes back as a greyed-out page");
+      // No second eligibility opinion in this process: may_start_assessment is
+      // the database's answer and the RPCs ask it themselves.
+      c.expect(!/\bmayStart\b/.test(surface),
+        "the surface asks may_start_assessment itself, which is a second opinion that can drift from the gate the RPCs use");
+
+      // ---- 3. NO ESTIMATED DURATION, AND NONE DERIVED --------------------
+      //
+      // Ruled out because no legitimate duration fact exists. A plausible
+      // number is worse than no number: a learner arranges an afternoon around
+      // "40 minutes" and the arrangement is the product's fault.
+      const types = readFileSync(join(repoRoot, "src", "lib", "assessment-engine", "types.ts"), "utf8");
+      const oriType = /export type Orientation = \{([^}]*)\}/.exec(types)?.[1] ?? "";
+      c.expect(oriType.length > 0, "the Orientation type was not found");
+      for (const field of ["duration", "durasi", "minutes", "menit", "estimated", "perkiraan", "time_limit"]) {
+        c.expect(!oriType.includes(field), `the Orientation type carries a duration field (${field})`);
+      }
+      // and the component computes none out of what it does have
+      const oriSrc = code(readFileSync(orient, "utf8"));
+      for (const derived of ["item_count *", "item_count*", "* 60", "/ 60", "hesitation_window_seconds *"]) {
+        c.expect(!oriSrc.includes(derived), `the orientation derives a duration (${derived})`);
+      }
+      // no copy key offers one either, in either language
+      for (const k of allKeys()) {
+        if (!k.startsWith("siklus.")) continue;
+        for (const locale of LOCALES) {
+          const text = t(k as HleEvent, "learner", { locale }).toLowerCase();
+          const bad = ["perkiraan waktu", "estimated time", "menit", "minutes"].find((w) => text.includes(w));
+          c.expect(bad === undefined, `${k} offers a duration in ${locale} ("${bad}"): "${text}"`);
+        }
+      }
+
+      // ---- 4. THE FACTS THAT DO EXIST ARE STILL SHOWN --------------------
+      // Removing the duration must not take the true facts with it.
+      c.expect(/siklus\.jumlah_soal/.test(oriSrc), "the orientation no longer shows how many questions");
+      c.expect(/siklus\.ditutup/.test(oriSrc), "the orientation no longer shows when it closes");
+      c.expect(/orientasi\.item_count/.test(oriSrc), "the question count is not read from the orientation");
+      c.expect(/orientasi\.closes_at/.test(oriSrc), "the closing time is not read from the orientation");
+      // and they render through the shared compact fact summary, so the
+      // approved responsive stack applies to them without being restated
+      c.expect(/className="pin-facts"/.test(oriSrc),
+        "the orientation facts do not use the shared compact fact summary, so the responsive stack does not reach them");
+
+      // ---- 5. Q-15, VERBATIM ---------------------------------------------
+      //
+      // Neither telling may be edited. "dicatat", not "dipantau"; observation,
+      // never judgment; no category list; no device named.
+      const Q15_ID =
+        "Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. " +
+        "Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis.";
+      const Q15_EN =
+        "During the assessment, certain session activity may be recorded to support process integrity. " +
+        "These records are observations and do not automatically determine your result.";
+      c.expect(t("siklus.catatan.isi" as HleEvent, "learner", { locale: "id" }) === Q15_ID,
+        "the Indonesian integrity disclosure is not the ruled wording");
+      c.expect(t("siklus.catatan.isi" as HleEvent, "learner", { locale: "en" }) === Q15_EN,
+        "the English integrity disclosure is not the ruled wording");
+      // the forbidden register, checked rather than trusted
+      for (const locale of LOCALES) {
+        const text = t("siklus.catatan.isi" as HleEvent, "learner", { locale }).toLowerCase();
+        for (const w of ["dipantau", "monitored", "webcam", "kamera", "camera", "microphone", "mikrofon",
+                         "layar", "screen record", "keystroke", "rekam layar", "diawasi", "surveillance"]) {
+          c.expect(!text.includes(w), `the disclosure in ${locale} uses the forbidden word "${w}"`);
+        }
+      }
+      // it is a quiet paragraph on the well, NOT an alert: the ruling says
+      // these records are observation and not judgment, and a bordered warning
+      // would say the opposite of the words inside it
+      c.expect(/className="pin-catatan"/.test(oriSrc), "the disclosure is not rendered on the well");
+      c.expect(!/role="alert"/.test(oriSrc), "the disclosure is announced as an alert");
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const catatan = /\.pin-catatan \{([^}]*)\}/.exec(css)?.[1] ?? "";
+      c.expect(catatan.length > 0, ".pin-catatan is not styled");
+      c.expect(!/border:/.test(catatan) && !/status-attention|status-blocked/.test(catatan),
+        `the disclosure is drawn as a warning box: ${catatan.trim()}`);
+      // and it is shown BEFORE the thing it discloses about — in the
+      // orientation, which is the screen that exists before the session
+      c.expect(!/siklus\.catatan\.isi/.test(code(readFileSync(
+        join(repoRoot, "src", "app", "belajar", "_components", "ItemPlayer.tsx"), "utf8"))),
+        "the disclosure appears inside the player, which is after the commitment it discloses about");
+
+      c.note(`${pages.length} page(s) swept for a render-time session start; Q-15 compared verbatim in ${LOCALES.length} languages`);
+      return c.verdict(
+        "the four Slice-2 rulings hold against the source: no page under src/app starts a session while " +
+          "rendering and the only thing that starts one is a form-submitted server action, so looking at an " +
+          "assessment is not committing to it; a missing orientation reaches the one refusal page rather than " +
+          "a disabled orientation, and the surface asks no second eligibility question of its own; the " +
+          "Orientation type carries no duration field, the component derives none from what it does have, and " +
+          "no Slice-2 copy key offers one in either language, while the two facts that are real are still read " +
+          "and still rendered through the shared compact fact summary; and the integrity disclosure is the " +
+          "ruled wording byte for byte in both languages, drawn as a paragraph on the well rather than an " +
+          "alert, on the screen that comes before the session rather than inside it",
+      );
+    },
+  },
+
+  // ═══════════════════════════════════════════ UX-1 Slice 3 · the educator
+  {
+    id: "UX1-S3-LINGKUP-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const A = "aaaaaaaa-0000-0000-0000-000000000001";
+      const B = "bbbbbbbb-0000-0000-0000-000000000002";
+      const DEPT = "dddddddd-0000-0000-0000-00000000000d";
+      const lama = new Date("2020-01-01T00:00:00Z").toISOString();
+      const nanti = new Date("2099-01-01T00:00:00Z").toISOString();
+      const now = new Date("2026-09-17T03:00:00Z");
+
+      // 1. a grant is a teaching context only while it is live
+      const hibah = [
+        { scope_node_id: DEPT, institution_id: "i", valid_from: lama, valid_until: nanti },
+        { scope_node_id: A, institution_id: "i", valid_from: lama, valid_until: nanti, revoked_at: lama },
+        { scope_node_id: B, institution_id: "i", valid_from: lama, valid_until: lama },
+        { scope_node_id: null, institution_id: null, valid_from: lama, valid_until: nanti },
+      ];
+      const aktif = hibahAktif(hibah, now);
+      c.expect(aktif.length === 1, `${aktif.length} grants read as live; only the unrevoked, in-date, node-bearing one is`);
+      c.expect(nodeLingkup(hibah, now).join() === DEPT, "the scope set is not exactly the live grant's node");
+
+      // 2. the containment predicate mirrors `v_jalur @> array[scope]`, including
+      //    that a node's own jalur contains itself
+      c.expect(dalamLingkup({ jalur: ["inst", DEPT, A] }, [DEPT]), "a class beneath the granted node is not in scope");
+      c.expect(dalamLingkup({ jalur: ["inst", DEPT] }, [DEPT]), "the granted node itself is not in its own scope");
+      c.expect(!dalamLingkup({ jalur: ["inst", "other", B] }, [DEPT]), "a class outside the grant is in scope");
+      c.expect(!dalamLingkup({ jalur: [] }, [DEPT]), "a node with no path is in scope — the predicate does not fail closed");
+      c.expect(!dalamLingkup({ jalur: null }, [DEPT]), "a node with a null path is in scope — the predicate does not fail closed");
+
+      // 3. THE ADVERSARIAL PLANT. A class from another department is planted in
+      //    the rows the query returned. Dropping it quietly would let the query
+      //    rot undetected, so the re-check must REFUSE rather than filter.
+      const sah = { id: A, name: "Kelas 10A", kind: "CLASS", jalur: ["inst", DEPT, A], institution_id: "i", academic_period_id: "p" };
+      const asing = { id: B, name: "Kelas 12B", kind: "CLASS", jalur: ["inst", "other", B], institution_id: "i", academic_period_id: "p" };
+      let refused = false;
+      try { kelasDalamLingkup([sah, asing], [DEPT]); } catch (e) { refused = e instanceof LingkupError; }
+      c.expect(refused, "a class outside the grants survived the re-check instead of refusing it");
+      let refusedKind = false;
+      try { kelasDalamLingkup([{ ...sah, kind: "COHORT" }], [DEPT]); } catch (e) { refusedKind = e instanceof LingkupError; }
+      c.expect(refusedKind, "a non-class node survived the re-check");
+      c.expect(kelasDalamLingkup([sah], [DEPT]).length === 1, "a class inside the grants did not survive");
+      c.expect(kelasDalamLingkup([{ ...sah, is_active: false }], [DEPT]).length === 0, "a closed class is still offered");
+
+      // 4. THE NARROWING HAPPENS IN POSTGRES, not in this process. A filter run
+      //    over a school-wide population in the application is exactly what the
+      //    ruling forbids, so the source must carry the overlap as a query.
+      const lib = readFileSync(join(repoRoot, "src", "lib", "pengajar.ts"), "utf8");
+      const derivation = code(lib);
+      c.expect(/\.overlaps\("jalur"/.test(derivation), "the class read does not narrow by jalur in the query");
+      c.expect(/from\("role_assignments"\)/.test(derivation), "the teaching context is not derived from role_assignments");
+      c.expect(/\.eq\("person_id", me\)/.test(derivation), "the grant read is not narrowed to the reader's own rows");
+      // and it must not derive scope from a role NAME — the thing doc 05 forbids
+      for (const peran of ["EDUCATOR", "HEAD_OF_DEPARTMENT", "INSTITUTION_ADMIN", "DEAN"]) {
+        c.expect(!new RegExp(`"${peran}"`).test(derivation), `the educator data layer names the role ${peran} in code`);
+      }
+      const murni = code(readFileSync(join(repoRoot, "src", "lib", "mengajar.ts"), "utf8"));
+      c.expect(!/role/i.test(murni.replace(/role_assignments/g, "")), "the containment module reads a role");
+
+      // 5. AND THE COPY DOES NOT CLAIM WHAT THE DATABASE DOES NOT DO.
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      const KLAIM = [/boleh Anda lihat/i, /bisa Anda lihat/i, /you may see/i, /you can see/i, /only you/i, /hanya Anda/i];
+      for (const key of ["mengajar.kelas.judul", "mengajar.kelas.sub", "mengajar.kelas.intro"]) {
+        const row = new RegExp(`"${key.replace(/\./g, "\\.")}":\\s*\\{([^}]*)\\}`).exec(hle);
+        c.expect(row !== null, `${key} is missing from the copy table`);
+        for (const bad of KLAIM) {
+          c.expect(!bad.test(row?.[1] ?? ""), `${key} claims an authorization boundary: ${bad}`);
+        }
+      }
+      const judul = /"mengajar\.kelas\.judul":\s*\{([^}]*)\}/.exec(hle)?.[1] ?? "";
+      c.expect(/lingkup mengajar/i.test(judul) && /teaching scope/i.test(judul),
+        "the class heading does not name the teaching scope in both languages");
+
+      // 6. AND IT PROTECTS NOTHING: every act is still authorized server-side.
+      const rute = walk(join(repoRoot, "src", "app", "mengajar")).filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"));
+      const aksi = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "actions.ts"), "utf8"));
+      c.expect(/launch_quick_assessment/.test(aksi), "the quick assessment is not launched through its own RPC");
+      c.expect(!/@\/lib\/supabase\/service/.test(rute.map((f) => readFileSync(f, "utf8")).join("\n")),
+        "an educator surface holds a privileged client");
+
+      c.note(`${aktif.length} live grant of ${hibah.length}, 2 refusals planted and caught, ${rute.length} educator file(s)`);
+      return c.verdict(
+        "the educator's teaching context is derived from the reader's OWN role grants, narrowed by jalur inside Postgres " +
+        "and re-checked on the way out — a class from another department is REFUSED rather than quietly dropped — no role " +
+        "name decides anything, and the copy names a teaching scope rather than claiming a boundary the database does not draw",
+      );
+    },
+  },
+  {
+    id: "UX1-S3-KOMIT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const dir = join(repoRoot, "src", "app", "mengajar");
+      const pages = walk(dir).filter((f) => f.endsWith("page.tsx"));
+      c.expect(pages.length >= 7, `only ${pages.length} educator page(s) found`);
+
+      // THE SCANNER, used on the real pages and then on a planted one.
+      const TULIS = /\.(insert|update|upsert|delete)\s*\(|rpc\(\s*"(launch_quick_assessment|extend_session_deadline|move_learning_assignment_release)"/;
+      for (const f of pages) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const m = TULIS.exec(code(readFileSync(f, "utf8")));
+        c.expect(m === null, `${rel} writes while rendering: ${m?.[0]}`);
+      }
+      // ADVERSARIAL PLANT: the same scanner must catch a page that does write,
+      // or it is a detector that has stopped detecting.
+      c.expect(TULIS.test('const x = await db.from("learning_assignments").insert({ a: 1 });'),
+        "the render-time write scanner does not catch an insert");
+      c.expect(TULIS.test('await db.rpc("launch_quick_assessment", {});'),
+        "the render-time write scanner does not catch the launcher");
+
+      // Both stages before a commitment are GET renders carrying their choices
+      // in the URL: the configure form navigates, it does not submit an action.
+      const cepat = code(readFileSync(join(dir, "[kelas]", "uji-cepat", "page.tsx"), "utf8"));
+      c.expect(/method="get"/.test(cepat), "the quick assessment's configure stage is not a GET form");
+      c.expect(/tahap === "tinjau"/.test(cepat), "the review stage is not a render of the query string");
+
+      // The only writes in the whole surface live in the server actions, and
+      // each is reached by a form action rather than by a link.
+      const aksiPath = join(dir, "actions.ts");
+      const aksi = code(readFileSync(aksiPath, "utf8"));
+      c.expect(/^"use server";/m.test(aksi), "the educator actions are not a server module");
+      const exported = [...aksi.matchAll(/export async function (\w+)/g)].map((m) => m[1]);
+      c.expect(exported.length === 2, `${exported.length} exported educator action(s); the surface commits two things`);
+      for (const name of exported) {
+        const used = pages.some((f) => new RegExp(`action=\\{${name}\\}`).test(readFileSync(f, "utf8")));
+        c.expect(used, `the action ${name} is exported but no form submits it`);
+      }
+      for (const f of pages) {
+        const src = code(readFileSync(f, "utf8"));
+        for (const name of exported) {
+          const asLink = new RegExp(`href=\\{[^}]*${name}`).test(src);
+          c.expect(!asLink, `${relative(repoRoot, f)} reaches a commitment through a link`);
+        }
+      }
+
+      // Making material available is born inert and becomes visible in a second,
+      // separately authorized statement — which is what makes a review possible.
+      c.expect(/\.insert\(\{[\s\S]*?\}\)/.test(aksi), "materialising an assignment does not insert a row");
+      c.expect(!/status:\s*"ACTIVE"[\s\S]*?\.insert\(/.test(aksi), "an assignment is inserted already active");
+      c.expect(/\.update\(\{ status: "ACTIVE" \}\)/.test(aksi), "the assignment is never activated in its own statement");
+
+      // A redirect target is derived, never taken from the form: the learner
+      // side's unvalidated `kembali` is a known finding and is not repeated here.
+      c.expect(!/formData\.get\("kembali"\)/.test(aksi), "an educator action takes its redirect from the form");
+
+      c.note(`${pages.length} page(s) swept, ${exported.length} action(s), 2 plants caught`);
+      return c.verdict(
+        "no page on the educator surface writes anything while rendering — the scanner is watched to catch a planted insert " +
+        "and a planted launcher — both stages before a commitment are GET renders of the query string, the only two writes " +
+        "are server actions reached by a form and never by a link, an assignment is created inert and activated in its own " +
+        "separately authorized statement, and no redirect target comes from the form",
+      );
+    },
+  },
+
+  {
+    id: "UX1-S3-CEPAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const mig = join(repoRoot, "supabase", "migrations");
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      const cepat = code(readFileSync(
+        join(repoRoot, "src", "app", "mengajar", "[kelas]", "uji-cepat", "page.tsx"), "utf8"));
+      const lib = code(readFileSync(join(repoRoot, "src", "lib", "pengajar.ts"), "utf8"));
+
+      // 1. THE BOUNDS ARE READ, NOT RESTATED. The platform owns 3-to-20 and the
+      //    surface asks for it; a literal here is a second answer that drifts.
+      c.expect(/from\("assessment_definition_bounds"\)/.test(lib), "the QUICK bounds are never read");
+      c.expect(/\.eq\("mode", "QUICK"\)/.test(lib), "the bounds read is not scoped to QUICK");
+      c.expect(/batas\?\.soalMin/.test(cepat) && /batas\?\.soalMax/.test(cepat),
+        "the form does not take its item bounds from the bounds row");
+      const bounds = readFileSync(join(mig, "20260915150000_studio_governance.sql"), "utf8");
+      const quickBound = /update public\.assessment_definition_bounds\s+set ([\s\S]*?)where mode = 'QUICK';/.exec(bounds);
+      c.expect(quickBound !== null, "the QUICK bounds row is not in the migrations");
+      c.expect(/item_count_max = 20/.test(quickBound?.[1] ?? ""), "QUICK's item ceiling is no longer 20");
+      c.expect(/attempt_limit_max = 1/.test(quickBound?.[1] ?? ""), "QUICK is no longer single-attempt");
+
+      // The three minute presets must sit inside the launcher's own 5-60 range.
+      const launcher = readFileSync(join(mig, "20260916110000_quick_assessment_over_canonical.sql"), "utf8");
+      const rentang = /p_minutes < (\d+) or p_minutes > (\d+)/.exec(launcher);
+      c.expect(rentang !== null, "the launcher no longer states a minute range");
+      const [lo, hi] = [Number(rentang?.[1]), Number(rentang?.[2])];
+      const preset = [...(/JENDELA_MENIT = \[([^\]]*)\]/.exec(lib)?.[1] ?? "").matchAll(/\d+/g)].map((m) => Number(m[0]));
+      c.expect(preset.length === 3, `${preset.length} window preset(s); the approved design offers three`);
+      for (const m of preset) c.expect(m >= lo && m <= hi, `the ${m}-minute preset is outside the launcher's ${lo}-${hi}`);
+
+      // 2. THE CERTIFICATE SENTENCE IS CHECKED AGAINST THE CONTRACT, NOT AGAINST
+      //    ITSELF. `mode_policy` decides whether a QUICK result can reach a
+      //    certificate; the copy must agree with that row, so the row is parsed
+      //    here. If a migration ever flips it, this test says the copy must move.
+      const policy = readFileSync(join(mig, "20260914093000_mode_policy_quick_assessment_integrity.sql"), "utf8");
+      const kolom = /create table public\.mode_policy \(([\s\S]*?)\n\);/.exec(policy)?.[1] ?? "";
+      const urutan = [...kolom.matchAll(/^\s{2}(\w+)\s+/gm)].map((m) => m[1]);
+      const iCert = urutan.indexOf("certifies");
+      c.expect(iCert > 0, "mode_policy no longer has a certifies column");
+      const barisQuick = /\n  \('QUICK',([^)]*)\)/.exec(policy)?.[1] ?? "";
+      const nilai = barisQuick.split(",").map((x) => x.trim());
+      const certifies = nilai[iCert - 1];
+      c.expect(certifies === "true" || certifies === "false", `could not read QUICK.certifies (${certifies})`);
+
+      const kunciCepat = [...hle.matchAll(/"(mengajar\.cepat\.[a-z0-9_.]+|mengajar\.langkah\.f5w)":\s*\{([^}]*)\}/g)];
+      c.expect(kunciCepat.length >= 20, `only ${kunciCepat.length} quick-assessment copy strings found`);
+      const semuaCepat = kunciCepat.map((m) => m[2]).join(" ");
+
+      const MENYANGKAL = [
+        /tidak masuk sertifikat/i, /bukan bagian dari sertifikat/i,
+        /not part of a certificate/i, /not part of any certificate/i,
+        /does not count toward/i, /tidak dihitung untuk sertifikat/i,
+        /tidak menilai murid/i, /bukan sebagai nilai murid/i,
+        /not a judgment of the learner/i, /not a learner grade/i,
+        /hasilnya untuk Anda\b/i, /the result is for you\b/i,
+      ];
+      if (certifies === "true") {
+        for (const bad of MENYANGKAL) {
+          c.expect(!bad.test(semuaCepat),
+            `QUICK certifies in mode_policy, but the copy still denies it: ${bad}`);
+        }
+        // and the canonical meaning must actually be told, in both languages
+        c.expect(/bukti pembelajaran/i.test(semuaCepat), "the Indonesian copy never says the result is learning evidence");
+        c.expect(/kelayakan sertifikat/i.test(semuaCepat), "the Indonesian copy never names certificate eligibility");
+        c.expect(/learning evidence/i.test(semuaCepat), "the English copy never says the result is learning evidence");
+        c.expect(/certificate eligibility/i.test(semuaCepat), "the English copy never names certificate eligibility");
+        // without the opposite overclaim
+        c.expect(/tidak menerbitkan sertifikat/i.test(semuaCepat) && /does not issue a certificate/i.test(semuaCepat),
+          "the copy never says that one quick assessment does not issue a certificate");
+        for (const bad of [/mendapat sertifikat/i, /earns a certificate/i, /gets a certificate/i]) {
+          c.expect(!bad.test(semuaCepat), `the copy implies one quick assessment earns a certificate: ${bad}`);
+        }
+      }
+
+      // 3. AND IT PROMISES NO PER-ITEM RESULT, because there is no read path.
+      for (const bad of [/per soal/i, /per-item/i, /per item/i, /tiap soal/i, /item-level result/i]) {
+        c.expect(!bad.test(semuaCepat), `the quick assessment promises a per-item result: ${bad}`);
+      }
+      c.expect(!/metric_evaluate/.test(cepat), "the quick assessment screen asks for a metric");
+
+      c.note(`QUICK.certifies=${certifies}, bounds 3-20 single attempt, presets ${preset.join("/")} inside ${lo}-${hi}, ${kunciCepat.length} copy strings`);
+      return c.verdict(
+        "the quick assessment reads its item bounds from assessment_definition_bounds rather than restating them, offers " +
+        "three windows inside the launcher's own range, and tells the truth about the result: mode_policy's QUICK row is " +
+        "PARSED here and the copy is required to agree with it — it may not deny that the result can reach certificate " +
+        "evidence while the contract says it can, may not claim one quick assessment earns a certificate, and may not " +
+        "promise a per-item result an educator has no read path to",
+      );
+    },
+  },
+  {
+    id: "UX1-S3-BUKTI-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const mig = join(repoRoot, "supabase", "migrations");
+      const lib = code(readFileSync(join(repoRoot, "src", "lib", "pengajar.ts"), "utf8"));
+      const files = walk(join(repoRoot, "src", "app", "mengajar")).filter((f) => /\.tsx?$/.test(f));
+      const surface = files.map((f) => code(readFileSync(f, "utf8"))).join("\n") + "\n" + lib;
+
+      // 1. NOTHING ITEM-LEVEL IS REACHED FOR, at any level. The educator holds
+      //    neither CAN_REVIEW_INTEGRITY nor CAN_REVIEW_QUESTION_HEALTH, the
+      //    service views are revoked from `authenticated` outright, and this
+      //    surface must not be the place that discovers it at a refusal.
+      const TERLARANG = [
+        "responses", "presented_items", "assessment_results",
+        "service_item_statistics", "service_distractor_uptake", "service_cohort_misconceptions",
+        "question_health", "integrity_signals",
+      ];
+      for (const tbl of TERLARANG) {
+        c.expect(!new RegExp(`from\\("${tbl}"`).test(surface), `the educator surface reads ${tbl} directly`);
+      }
+      for (const rpc of ["recompute_question_health", "record_question_health_review", "record_integrity_review", "terminate_session"]) {
+        c.expect(!new RegExp(`"${rpc}"`).test(surface), `the educator surface calls ${rpc}`);
+      }
+      // ADVERSARIAL PLANT: the same scanner on a line that does read one.
+      c.expect(/from\("responses"/.test('await db.from("responses").select("*")'),
+        "the forbidden-table scanner does not catch a direct response read");
+
+      // 2. EVERY METRIC ASKED FOR IS ONE THE CATALOGUE GRANTS AN EDUCATOR.
+      //    The audience list is read from the SEED, not from this file, so a
+      //    catalogue change that narrows an audience fails here.
+      const cat = readFileSync(join(mig, "20260918100000_metric_catalogue.sql"), "utf8");
+      const blok = /insert into public\.metric_definitions\n  \(catalogue_version, metric_id[\s\S]*?\n   allowed_visualizations, allowed_audiences, calculation_key\) values([\s\S]*?);\n/.exec(cat);
+      c.expect(blok !== null, "the metric catalogue seed could not be read");
+      const audiens = new Map<string, string>();
+      for (const entry of (blok?.[1] ?? "").split(/\n  \('MC-1',/).slice(1)) {
+        const id = /^\s*'([a-z._]+)'/.exec(entry)?.[1];
+        if (id) audiens.set(id, entry);
+      }
+      c.expect(audiens.size >= 13, `only ${audiens.size} metric(s) parsed from the catalogue seed`);
+      const diminta = [...(/METRIK_KELAS = \[([\s\S]*?)\] as const/.exec(lib)?.[1] ?? "").matchAll(/"([a-z._]+)"/g)].map((m) => m[1]);
+      c.expect(diminta.length >= 4, `only ${diminta.length} metric(s) requested by the evidence screen`);
+      for (const m of diminta) {
+        const entry = audiens.get(m);
+        c.expect(entry !== undefined, `the evidence screen asks for ${m}, which is not in the catalogue`);
+        c.expect(/'EDUCATOR'/.test(entry ?? ""), `the evidence screen asks for ${m}, which the catalogue does not grant an educator`);
+        c.expect(!m.startsWith("item."), `the evidence screen asks for the item-level metric ${m}`);
+      }
+      // ADVERSARIAL PLANT: an item metric must fail the same audience check.
+      c.expect(!/'EDUCATOR'/.test(audiens.get("item.correctness_rate") ?? "'EDUCATOR'"),
+        "the audience check would accept an item-level metric");
+
+      // 3. AND THE ONE THAT REPLACED A PER-ITEM SENTENCE IS THE GRANTED ONE.
+      c.expect(diminta.includes("class.misconceptions"),
+        "the legitimate cohort aggregate is not asked for");
+      const calc = readFileSync(join(mig, "20260918110000_metric_evaluator.sql"), "utf8");
+      const misc = /create function public\.calc_class_misconceptions[\s\S]*?\nend;/.exec(calc)?.[0] ?? "";
+      c.expect(/misconception_code/.test(misc) && !/person_id/.test(misc) && !/item_id/.test(misc),
+        "the cohort aggregate carries a learner or an item after all");
+
+      // 4. INSUFFICIENT EVIDENCE IS A FIRST-CLASS STATE, and no zero stands in
+      //    for an unknown. A value renders only on `ok`, and only when finite.
+      const bukti = code(readFileSync(
+        join(repoRoot, "src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"), "utf8"));
+      c.expect(/KartuKetiadaan/.test(bukti), "the evidence screen has no absence card");
+      c.expect(/e\.status !== "ok"/.test(bukti), "the evidence screen renders a value without checking the status");
+      c.expect(/Number\.isFinite\(v\)/.test(bukti), "a non-finite value would render as a figure");
+      c.expect(!/\|\|\s*0\b/.test(bukti) && !/\?\?\s*0\b/.test(bukti),
+        "the evidence screen substitutes zero for a missing figure");
+      c.expect(/actionText/.test(bukti), "a figure renders without the sentence the 3-lens rule requires");
+
+      // 5. THE SCOPE LINE NAMES A CLASS AND NOT A CHAPTER: metric_evaluate takes
+      //    a node, so a chapter-scoped claim would be a scope no contract carries.
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      const eyebrow = /"mengajar\.bukti\.eyebrow":\s*\{([^}]*)\}/.exec(hle)?.[1] ?? "";
+      c.expect(!/bab|chapter/i.test(eyebrow), "the evidence eyebrow names a chapter");
+      // scoped to the evidence read itself: the quick assessment's launcher
+      // takes a module, and a sweep over the whole module would read that as a
+      // failure here — a scanner pointed at the wrong artefact is worse than none
+      const bacaBukti = /export async function bukti\([\s\S]*?\n\}/.exec(lib)?.[0] ?? "";
+      c.expect(bacaBukti.length > 0, "the evidence read could not be located in the educator data layer");
+      c.expect(/p_node/.test(bacaBukti), "the evidence read does not pass a node");
+      c.expect(!/p_module|p_release|p_bab|p_modul/.test(bacaBukti),
+        "the evidence read passes a scope metric_evaluate does not take");
+
+      c.note(`${diminta.length} metric(s) requested, all EDUCATOR-granted; ${TERLARANG.length} forbidden read(s) swept over ${files.length} file(s)`);
+      return c.verdict(
+        "every number on the evidence screen comes through metric_evaluate and every metric it asks for is one the CATALOGUE " +
+        "SEED grants an EDUCATOR — checked against the migration, with an item-level metric watched to fail the same check — " +
+        "no responses, presented items, assessment results or service statistics view is read anywhere on the surface, the " +
+        "cohort aggregate that replaced a per-item sentence carries no learner and no item, absence renders as an absence " +
+        "card rather than a zero, and the scope line names the node the evaluator actually takes",
+      );
+    },
+  },
+
+  {
+    id: "UX1-S3-NAMA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const mig = join(repoRoot, "supabase", "migrations");
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      const lib = code(readFileSync(join(repoRoot, "src", "lib", "pengajar.ts"), "utf8"));
+      const daftar = readFileSync(join(repoRoot, "src", "components", "mengajar", "DaftarMurid.tsx"), "utf8");
+      const files = walk(join(repoRoot, "src", "app", "mengajar"))
+        .concat(walk(join(repoRoot, "src", "components", "mengajar")))
+        .filter((f) => /\.tsx?$/.test(f));
+
+      // 1. THE ABSENCE OF AN HONORIFIC IS PROVEN FROM THE CONTRACT, not asserted.
+      //    `persons` carries a display name and nothing that could authorise a
+      //    Bu or a Pak, so inferring one could only be a guess about a person.
+      const identity = readFileSync(join(mig, "20260912004321_identity_enrollment.sql"), "utf8");
+      const kolom = /create table public\.persons \(([\s\S]*?)\n\);/.exec(identity)?.[1] ?? "";
+      c.expect(/display_name/.test(kolom), "the persons table no longer carries a display name");
+      for (const bad of ["honorific", "salutation", "title", "prefix", "gender", "sex", "gelar", "sapaan"]) {
+        c.expect(!new RegExp(`\\b${bad}\\b`, "i").test(kolom),
+          `persons now carries ${bad} — the greeting may stop being name-only, but only deliberately`);
+      }
+      const semuaMig = readdirSync(mig).map((f) => readFileSync(join(mig, f), "utf8")).join("\n");
+      c.expect(!/alter table public\.persons\s+add column\s+(honorific|salutation|gelar)/i.test(semuaMig),
+        "a migration added an honorific column");
+
+      // 2. AND NO SURFACE INVENTS ONE. Neither in the copy nor in the code that
+      //    composes the greeting.
+      const s3 = [...hle.matchAll(/"(mengajar\.[a-z0-9_.]+)":\s*\{([^}]*)\}/g)];
+      c.expect(s3.length >= 130, `only ${s3.length} educator copy strings found`);
+      const semuaKata = s3.map((m) => m[2]).join(" ");
+      for (const bad of [/\bBu\s+[A-Z]/, /\bPak\s+[A-Z]/, /\bIbu\s+[A-Z]/, /\bBapak\s+[A-Z]/, /\bMrs?\.\s/, /\bMs\.\s/]) {
+        c.expect(!bad.test(semuaKata), `the educator copy carries an honorific: ${bad}`);
+      }
+      const beranda = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "page.tsx"), "utf8"));
+      c.expect(/aku\.nama/.test(beranda), "the greeting does not use the stored name");
+      // EVERY literal, not just a double-quoted one. The first version of this
+      // check looked for `"Bu ` and a template literal walked straight past it —
+      // found by mutating the greeting rather than by reading the check again,
+      // which is the only way that class of hole is ever found.
+      const LITERAL = /"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`/g;
+      // An honorific is only an honorific when it PREFIXES SOMEBODY: the title
+      // immediately before an interpolated value or a capitalised word. Cased,
+      // so the `pin-ms` class name is a class name and not a Ms.
+      const SAPAAN = /\b(Bu|Pak|Ibu|Bapak|Mr|Mrs|Ms|Sir|Madam)\b\s*(\$\{|[A-Z])/;
+      for (const f of files) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        for (const lit of code(readFileSync(f, "utf8")).match(LITERAL) ?? []) {
+          const m = SAPAAN.exec(lit);
+          c.expect(m === null, `${rel} composes the honorific "${m?.[1]}" in front of a name: ${lit.slice(0, 40)}`);
+          // and a title standing alone in its own literal, which renders in
+          // front of whatever the next expression puts beside it
+          const sendiri = lit.slice(1, -1).trim();
+          c.expect(!/^(Bu|Pak|Ibu|Bapak|Mr\.?|Mrs\.?|Ms\.?|Sir|Madam)$/.test(sendiri),
+            `${rel} carries the bare honorific ${lit} for something to be placed after`);
+        }
+      }
+
+      // 3. NAMES ARE BOUNDED BY THE DATABASE, not by this application. The
+      //    roster rides memberships → enrollments → persons, whose educator
+      //    branch is subtree containment; nothing filters a school-wide
+      //    population of people down to a class in the browser.
+      c.expect(/from\("memberships"\)/.test(lib), "the roster is not read from memberships");
+      c.expect(/persons\(id, display_name\)/.test(lib), "the roster does not read persons through the membership");
+      c.expect(/\.eq\("node_id", nodeId\)/.test(lib), "the roster read is not narrowed to the class");
+      c.expect(!/from\("persons"\)[\s\S]{0,200}\.in\(/.test(lib), "names are read in bulk and filtered afterwards");
+      const auth = readFileSync(join(mig, "20260912004431_authorization.sql"), "utf8");
+      c.expect(/create policy persons_select on public\.persons for select to authenticated\s+using \(public\.person_visible_to_me\(id\)\)/.test(auth),
+        "persons_select no longer goes through person_visible_to_me");
+      c.expect(/has_scope\('EDUCATOR', m\.node_id\)/.test(auth),
+        "person_visible_to_me's educator branch is no longer subtree-bound");
+
+      // 4. OBSERVATION IS NOT JUDGMENT. The roster component has room for a name
+      //    and for nothing else: no pill, no colour, no count, no order but the
+      //    alphabet. This is checked on the COMPONENT, so a screen cannot add one
+      //    without the component growing a slot for it.
+      const isi = code(daftar);
+      for (const bad of ["pin-pill", "pin-num", "pin-status", "status", "warna", "color", "badge"]) {
+        c.expect(!new RegExp(bad).test(isi), `the roster component carries ${bad}`);
+      }
+      c.expect(/\{m\.nama\}/.test(isi), "the roster renders something other than the name");
+      c.expect(/localeCompare/.test(lib), "the roster is not alphabetical");
+      c.expect(!/sort\([^)]*(mengumpulkan|sudah|belum|mastery|skor)/.test(lib),
+        "the roster is ordered by something about the learners");
+
+      // 5. AND NO WORD ON THE SURFACE JUDGES ANYBODY.
+      const HAKIM = [
+        /tertinggal/i, /bermasalah/i, /malas/i, /lemah/i, /bodoh/i, /gagal/i,
+        /\bfailing\b/i, /\bat risk\b/i, /\bbehind\b/i, /\bstruggl/i, /\bweak\b/i,
+        /\blazy\b/i, /\bproblem\b/i, /peringkat [0-9]/i,
+      ];
+      for (const bad of HAKIM) {
+        c.expect(!bad.test(semuaKata), `the educator copy judges a learner: ${bad}`);
+      }
+      // the neutral framing must be present, not merely the harsh one absent
+      const siapa = /"mengajar\.siapa\.catatan":\s*\{([^}]*)\}/.exec(hle)?.[1] ?? "";
+      c.expect(/bukan peringkat/i.test(siapa) && /not a ranking/i.test(siapa),
+        "the names page does not say it is not a ranking, in both languages");
+      const hitung = /"mengajar\.cepat\.hidup\.catatan":\s*\{([^}]*)\}/.exec(hle)?.[1] ?? "";
+      c.expect(/hitungan, bukan penilaian/i.test(hitung) && /counts, not judgments/i.test(hitung),
+        "the live counts are not declared to be counts rather than judgments");
+
+      c.note(`${s3.length} educator copy strings, ${HAKIM.length} judgment patterns swept, persons has ${kolom.split("\n").length - 1} column(s)`);
+      return c.verdict(
+        "no honorific is inferred, and the absence of any source for one is read from the persons table in the migrations " +
+        "rather than asserted; learner names reach the surface only through memberships and person_visible_to_me, whose " +
+        "educator branch is subtree-bound, and are never fetched in bulk and narrowed afterwards; the roster component has " +
+        "no slot for a status, a colour, a number or any order but the alphabet; and the copy neither judges a learner nor " +
+        "omits the sentences that say a count is not a judgment",
+      );
+    },
+  },
+  {
+    id: "UX1-S3-KATA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      const files = walk(join(repoRoot, "src", "app", "mengajar"))
+        .concat(walk(join(repoRoot, "src", "components", "mengajar")))
+        .filter((f) => /\.tsx?$/.test(f));
+
+      // 1. EVERY KEY A SCREEN RENDERS IS DECLARED. A missing key renders as
+      //    ⟨key⟩ to a teacher, which is the failure this catches at build time.
+      const dipakai = new Set<string>();
+      for (const f of files) {
+        const src = readFileSync(f, "utf8");
+        for (const m of src.matchAll(/s\("(mengajar\.[a-zA-Z0-9_.]+)"\)/g)) dipakai.add(m[1]);
+        for (const m of src.matchAll(/"(mengajar\.[a-zA-Z0-9_.]+)"/g)) dipakai.add(m[1]);
+      }
+      c.expect(dipakai.size >= 60, `only ${dipakai.size} educator copy key(s) rendered by the surface`);
+      const dinamis = /mengajar\.instrumen\.\$\{/.test(files.map((f) => readFileSync(f, "utf8")).join("\n"));
+      for (const k of dipakai) {
+        if (k.includes("${")) continue;
+        c.expect(hle.includes(`"${k}"`), `the educator surface renders an undeclared copy key: ${k}`);
+      }
+      // the one key built from a value must have a telling for every value it
+      // can take, which is the whole set of non-QUICK assessment modes
+      if (dinamis) {
+        for (const mode of ["PRE_TEST", "POST_TEST", "STANDALONE"]) {
+          c.expect(hle.includes(`"mengajar.instrumen.${mode}"`),
+            `the instrument list can render ${mode} and has no telling for it`);
+        }
+      }
+
+      // 2. BOTH LANGUAGES, AND NEITHER EMPTY. (UX1-S0-HLE-01 proves this over
+      //    the whole table; this proves the Slice-3 block is inside that sweep
+      //    and that no telling is a placeholder.)
+      const s3 = [...hle.matchAll(/"(mengajar\.[a-z0-9_.]+)":\s*\{\s*default:\s*"([^"]*)",\s*en:\s*"([^"]*)"\s*\}/g)];
+      c.expect(s3.length >= 130, `only ${s3.length} educator key(s) carry both languages in the expected shape`);
+      for (const [, key, id, en] of s3) {
+        c.expect(id.trim().length > 0, `${key} has an empty Indonesian telling`);
+        c.expect(en.trim().length > 0, `${key} has an empty English telling`);
+        c.expect(id !== en || /^[A-Z][a-z]*$/.test(id) || id.length < 12,
+          `${key} has the same long string in both languages — one of them was not written`);
+      }
+
+      // 3. ANDA, NEVER KAMU. One pass over words, a standalone list plus the
+      //    -mu clitic, with the words that merely end in those letters declared.
+      const STANDALONE = new Set(["kamu", "engkau", "kau", "dikau", "mu"]);
+      const NOT_A_CLITIC = new Set([
+        "ilmu", "kamu", "waktu", "tentu", "temu", "satu", "ibu", "itu", "tamu", "suku",
+        "perlu", "tahu", "tumbuh", "lampu", "bantu", "mampu", "semu", "palu", "bau",
+      ]);
+      let anda = 0;
+      for (const [, key, id] of s3) {
+        for (const raw of id.split(/[^A-Za-zÀ-ÿ-]+/)) {
+          const w = raw.toLowerCase();
+          if (!w) continue;
+          if (w === "anda") anda += 1;
+          c.expect(!STANDALONE.has(w), `${key} addresses the reader as "${raw}"`);
+          if (w.endsWith("mu") && w.length > 2 && !NOT_A_CLITIC.has(w)) {
+            c.expect(false, `${key} uses the informal clitic in "${raw}"`);
+          }
+        }
+      }
+      c.expect(anda > 0, "the educator copy never addresses the reader as Anda");
+      // ADVERSARIAL PLANT: the same sweep must catch a planted informal address.
+      const planted = "Selamat pagi, ini kelasmu hari ini";
+      let caught = false;
+      for (const raw of planted.split(/[^A-Za-zÀ-ÿ-]+/)) {
+        const w = raw.toLowerCase();
+        if (STANDALONE.has(w) || (w.endsWith("mu") && w.length > 2 && !NOT_A_CLITIC.has(w))) caught = true;
+      }
+      c.expect(caught, "the informal-address sweep does not catch a planted clitic");
+
+      // 4. NO INTERNAL VOCABULARY. Enum labels, table names and column names are
+      //    what a teacher must never meet; this is narrower than the platform
+      //    word list and aimed at what THIS surface touches.
+      const DALAM = [
+        /\bplp_/i, /\brole_assignments\b/i, /\bscope_node_id\b/i, /\bjalur\b/i,
+        /\borg_nodes\b/i, /\blearning_assignments\b/i, /\bassessment_assignments\b/i,
+        /\bmetric_evaluate\b/i, /\bbelow_minimum\b/i, /\bnot_permitted\b/i,
+        /\bCAN_[A-Z_]+/, /\bis_ad_hoc\b/i, /\bDRAFT\b/, /\bACTIVE\b/, /\bWITHDRAWN\b/,
+        /\bSUBMITTED\b/, /\bFINALIZED\b/, /\bPOST_TEST\b/, /\bPRE_TEST\b/, /\bQUICK\b/,
+      ];
+      for (const [, key, id, en] of s3) {
+        for (const bad of DALAM) {
+          c.expect(!bad.test(id), `${key} names an internal concept in Indonesian: ${bad}`);
+          c.expect(!bad.test(en), `${key} names an internal concept in English: ${bad}`);
+        }
+      }
+
+      c.note(`${dipakai.size} key(s) rendered, ${s3.length} declared in both languages, ${anda} Anda, 0 informal`);
+      return c.verdict(
+        "every copy key the educator surface renders is declared, every declared key carries a real telling in both " +
+        "languages, the mode-derived key has a telling for each mode it can take, the reader is addressed as Anda and " +
+        "never informally — with a planted clitic watched to be caught — and no telling in either language names a table, " +
+        "a column, a capability or a lifecycle enum",
+      );
+    },
+  },
+  {
+    id: "UX1-S3-FAKTA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+
+      // 1. THE PHONE BLOCK THAT NARROWS SLICE 3 COMES AFTER THE RULES IT
+      //    OVERRIDES. At equal specificity the later rule wins, and a stack
+      //    declared before the thing it overrides is a stack that never happens
+      //    — the defect UX1-S0-FAKTA-01 was rewritten to catch.
+      const NARROW = [
+        { sel: ".pin-roster", base: /\.pin-roster \{[^}]*grid-template-columns:\s*repeat\(2/ },
+        // the track may be written `1fr` or `minmax(0, 1fr)` — UX1-S0-MUAT-01
+        // requires the second wherever the auto track holds something that
+        // cannot wrap, and this anchor must not care which spelling it finds
+        { sel: ".pin-act", base: /\.pin-act \{[^}]*grid-template-columns:\s*(?:minmax\(0, )?1fr\)? auto/ },
+        { sel: ".pin-terima li", base: /\.pin-terima li \{[^}]*grid-template-columns:\s*auto 1fr auto/ },
+        { sel: ".pin-switch", base: /\.pin-switch \{[^}]*display:\s*inline-flex/ },
+        { sel: ".pin-seg", base: /\.pin-seg \{[^}]*display:\s*inline-flex/ },
+      ];
+      for (const { sel, base } of NARROW) {
+        const m = base.exec(css);
+        c.expect(m !== null, `${sel} has no wide rule to narrow`);
+        if (!m) continue;
+        const wide = m.index;
+        const narrowIdx = css.indexOf(`  ${sel} {`, wide);
+        c.expect(narrowIdx > wide, `${sel} is never narrowed after its wide rule`);
+        // and it must be inside a phone media block
+        const before = css.slice(0, narrowIdx);
+        const lastMedia = before.lastIndexOf("@media (max-width: 560px)");
+        const lastClose = before.lastIndexOf("\n}\n");
+        c.expect(lastMedia > lastClose, `${sel}'s narrow rule is not inside the phone block`);
+      }
+
+      // 2. THE NEW COMPACT FACT SUMMARIES REUSE `.pin-facts`, so they inherit
+      //    the approved stack instead of restating it. Nothing on the educator
+      //    surface declares its own fact grid.
+      const files = walk(join(repoRoot, "src", "app", "mengajar")).filter((f) => f.endsWith(".tsx"));
+      let facts = 0;
+      for (const f of files) {
+        const src = readFileSync(f, "utf8");
+        facts += [...src.matchAll(/className="pin-facts"/g)].length;
+      }
+      c.expect(facts >= 3, `only ${facts} compact fact summar(ies) on the educator surface`);
+      c.expect(!/\.pin-(isian|hidup|paket|acts)[^{]*\{[^}]*\.pin-facts/.test(css),
+        "an educator container redefines the fact grid");
+      // nothing added AFTER the Slice-3 phone block may re-widen a fact summary
+      const s3Media = css.lastIndexOf("@media (max-width: 560px)");
+      c.expect(!/\.pin-facts[^{]*\{[^}]*grid-template-columns/.test(css.slice(s3Media + 1)),
+        "a fact-summary grid is declared after the last phone block and would outrank the stack");
+
+      // 3. THE LIVE PANEL CARRIES TWO FACTS, NOT THREE. The third — per-item
+      //    results — was removed because no contract grants an educator one, and
+      //    a row that comes back silently is how a removed promise returns.
+      // comments stripped: this file EXPLAINS why the third fact is absent, and
+      // a scanner that read the explanation as the promise would fail on the
+      // very note that records the decision
+      const cepat = code(readFileSync(
+        join(repoRoot, "src", "app", "mengajar", "[kelas]", "uji-cepat", "page.tsx"), "utf8"));
+      const panel = /<dl className="pin-facts">([\s\S]*?)<\/dl>/.exec(cepat)?.[1] ?? "";
+      const baris = [...panel.matchAll(/<dt>/g)].length;
+      c.expect(baris === 2, `the live panel carries ${baris} fact(s); it carries the two it can prove`);
+      c.expect(!/hasil per soal|per-item|per soal/i.test(cepat), "the live panel promises a per-item result again");
+
+      c.note(`${NARROW.length} composition(s) narrowed in order, ${facts} fact summar(ies) reusing the shared grid, ${baris} live fact(s)`);
+      return c.verdict(
+        "every Slice-3 composition that cannot hold its shape on a phone is narrowed by a rule written AFTER the wide one " +
+        "and inside the phone block, so the cascade cannot silently undo it; the educator's compact fact summaries reuse " +
+        "`.pin-facts` and inherit the approved stack rather than restating it, and nothing after the last phone block " +
+        "re-widens one; and the quick assessment's live panel still carries two facts rather than the three the reviewed " +
+        "concept drew, because the third had no contract behind it",
+      );
+    },
+  },
+
+  {
+    id: "UX1-S0-MUAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DOES THE BOX FIT, AND IS ANYTHING CLIPPED.
+       *
+       * Promoted from a one-off Playwright measurement that found a real defect:
+       * four of thirty-two rendered educator pages overflowed at 390px, the
+       * worst by 279px, with the document scrolling to 637px inside a 390px
+       * viewport. The cause was NOT what it first looked like. The first
+       * diagnosis said this stylesheet has no `box-sizing` reset and every
+       * padded full-width box was therefore too wide -- and that was an
+       * ARTEFACT OF THE MEASURING HARNESS, which had stripped
+       * `@import "tailwindcss"` from globals.css and with it Tailwind's
+       * preflight. The product has had a global border-box all along. Reverting
+       * each candidate fix one at a time against the COMPILED stylesheet showed
+       * a single one doing all the work, and this guard is built on that one.
+       *
+       * WHY IT READS THE STYLESHEET AND NOT A BROWSER. A rendered measurement
+       * only covers what some fixture happens to render, and the fixtures do
+       * not reach every surface: measured over 44 rendered pages, `.pin-op`,
+       * `.pin-num-btn`, `.pin-drow`, `.pin-nrow`, `.pin-tugas` and the trail
+       * dot matched ZERO elements. Deriving the population from the cascade
+       * instead means a rule added tomorrow is in the population the day it is
+       * written. It also runs under `npm ci` in CI, where Playwright is not a
+       * dependency and no browser is installed. The rendered measurement
+       * remains the companion evidence, and it is what validated this guard.
+       *
+       * The defect it found on its first strict run was on the LEARNER's home
+       * (`src/app/belajar/page.tsx`), which no fixture renders at all.
+       */
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+
+      type Rule = { sel: string; decls: Record<string, string>; media: string | null; i: number };
+      function parseCss(source: string): Rule[] {
+        const clean = source.replace(/\/\*[\s\S]*?\*\//g, " ");
+        const out: Rule[] = [];
+        let n = 0, media: string | null = null, depth = 0;
+        const re = /([^{}]+)\{|\}/g;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(clean))) {
+          if (m[0] === "}") { depth--; if (depth === 0) media = null; continue; }
+          const head = m[1].trim();
+          if (head.startsWith("@")) { media = head; depth++; continue; }
+          const close = clean.indexOf("}", re.lastIndex);
+          const decls: Record<string, string> = {};
+          for (const d of clean.slice(re.lastIndex, close).split(";")) {
+            const k = d.indexOf(":");
+            if (k < 0) continue;
+            decls[d.slice(0, k).trim()] = d.slice(k + 1).trim();
+          }
+          for (const s of head.split(",")) out.push({ sel: s.trim(), decls, media, i: n++ });
+          re.lastIndex = close + 1;
+        }
+        return out;
+      }
+      const rules = parseCss(css).filter((r) => r.media !== "@media print");
+      c.expect(rules.length > 200, `only ${rules.length} rule(s) parsed from the stylesheet`);
+
+      const classesOf = (compound: string) =>
+        new Set((compound.match(/\.[a-zA-Z0-9_-]+/g) ?? []).map((x) => x.slice(1)));
+      const lastCompound = (sel: string) => sel.trim().split(/\s*[>+~]\s*|\s+/).pop() ?? sel;
+      const spec = (s: string) =>
+        (s.match(/[.:[]/g)?.length ?? 0) * 100 + (s.match(/(^|[\s>+~])[a-z]/gi)?.length ?? 0);
+      const subset = (a: Set<string>, b: Set<string>) => a.size > 0 && [...a].every((x) => b.has(x));
+
+      const VIEWPORTS = [["wide", null], ["phone", "@media (max-width: 560px)"]] as const;
+
+      // ── I0. The assumption everything below rests on. Tailwind's preflight
+      //    supplies `box-sizing: border-box` globally; without it every box in
+      //    this sheet that carries padding and a width is suddenly too wide,
+      //    all at once. It is asserted against the BUILT stylesheet, because
+      //    that is where the import actually resolves.
+      c.expect(/@import\s+"tailwindcss"/.test(readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8")),
+        "globals.css no longer imports tailwindcss, so the global border-box reset is gone");
+      const chunks = join(repoRoot, ".next", "static", "chunks");
+      let built = "";
+      if (existsSync(chunks)) {
+        built = readdirSync(chunks).filter((f) => f.endsWith(".css"))
+          .map((f) => readFileSync(join(chunks, f), "utf8")).join("\n");
+      }
+      c.expect(built.length > 0, "no compiled stylesheet in .next/static/chunks; the build must run first");
+      c.expect(/box-sizing:\s*border-box/.test(built),
+        "the compiled stylesheet carries no global border-box reset");
+
+      // ── I1. A box a rule stretches to its container's width must be allowed
+      //    to fold its text. `.pin-btn` carries `white-space: nowrap`, which is
+      //    right while the button is as wide as its words and wrong the moment
+      //    a rule makes it as wide as a phone: the label refuses to fold, the
+      //    flex column grows to fit it, and the page scrolls sideways.
+      //
+      //    A rule counts toward an element only when its selector is a SUFFIX
+      //    of that element's own, at compound boundaries. Merging every
+      //    `.pin-btn` rule into every `.pin-btn` element -- the first version of
+      //    this check -- let the fix on `.pin-actions .pin-btn` mask the
+      //    identical defect on `.pin-tugas .pin-tfoot .pin-btn`, and the guard
+      //    reported green over a real one.
+      const stretched = [...new Set(rules.filter((r) => r.decls["width"] === "100%").map((r) => r.sel))];
+      c.expect(stretched.length >= 8, `only ${stretched.length} stretched selector(s) found`);
+      let merged = 0;
+      for (const [vp, mq] of VIEWPORTS) {
+        for (const sel of stretched) {
+          const chain = sel.trim().split(/\s+/);
+          const applying = rules
+            .filter((r) => {
+              if (!(r.media === null || r.media === mq)) return false;
+              const rc = r.sel.trim().split(/\s+/);
+              if (rc.length > chain.length) return false;
+              const tail = chain.slice(chain.length - rc.length);
+              return rc.every((cc, i) => subset(classesOf(cc), classesOf(tail[i])));
+            })
+            .sort((a, b) => spec(a.sel) - spec(b.sel) || a.i - b.i);
+          if (applying.length === 0) continue;
+          merged++;
+          const d: Record<string, string> = {};
+          for (const r of applying) Object.assign(d, r.decls);
+          c.expect(
+            !(d["width"] === "100%" && d["white-space"] === "nowrap"),
+            `${vp}: ${sel} is stretched to its container's width and still refuses to wrap`,
+          );
+        }
+      }
+
+      // ── I2. A grid whose `auto` track holds something that will not wrap must
+      //    let the other track shrink. A bare `1fr` takes its content as its
+      //    minimum, so a title with no break opportunity pushes the status pill
+      //    or the arrow beside it out through the card's border -- and the list
+      //    around it has `overflow: hidden`, so what the reader loses is the
+      //    status, silently.
+      // The nowrap is usually declared on the CHILD'S OWN class (`.pin-pill`),
+      // while the containment shows up in a separate placement rule
+      // (`.pin-row > .pin-pill { grid-column: 2 }`). So the question is not
+      // "does a nowrap selector start with this grid's selector" -- the first
+      // version asked exactly that and walked past `.pin-row`, because of the
+      // child combinator and because `.pin-pill` names no ancestor at all.
+      // It is: does this grid place a child whose own class refuses to wrap.
+      const flat = (s: string) => s.trim().replace(/\s*[>+~]\s*/g, " ").replace(/\s+/g, " ");
+      const nowrapClasses = new Set<string>();
+      for (const r of rules) {
+        if (r.decls["white-space"] !== "nowrap") continue;
+        for (const cls of classesOf(lastCompound(r.sel))) nowrapClasses.add(cls);
+      }
+      let grids = 0;
+      for (const [vp, mq] of VIEWPORTS) {
+        for (const r of rules) {
+          if (!(r.media === null || r.media === mq)) continue;
+          const g = r.decls["grid-template-columns"];
+          if (!g) continue;
+          const tracks = g
+            .replace(/minmax\([^)]*\)/g, "M")
+            .replace(/repeat\(\s*\d+\s*,\s*([^)]*)\)/g, "$1 $1")
+            .split(/\s+/).filter(Boolean);
+          if (!tracks.includes("1fr") || tracks.every((x) => x === "1fr")) continue;
+          const prefix = `${flat(r.sel)} `;
+          const kids = rules
+            .filter((k) => flat(k.sel).startsWith(prefix))
+            .filter((k) => [...classesOf(lastCompound(k.sel))].some((cls) => nowrapClasses.has(cls)))
+            .map((k) => k.sel);
+          if (kids.length === 0) continue;
+          grids++;
+          c.expect(false, `${vp}: ${r.sel} lays out "${g}" while ${kids[0]} inside it refuses to wrap; the 1fr cannot shrink`);
+        }
+      }
+      c.expect(grids === 0, "");
+
+      c.note(`${rules.length} rules, ${stretched.length} stretched selector(s), ${merged} element/viewport merge(s)`);
+      c.note("validated against 32 educator + 56 Slice-1/2 rendered measurements at 390px and 1280px, all zero-overflow");
+      return c.verdict(
+        "nothing in the Experience stylesheet is stretched to its container's width while refusing to fold its text, and no " +
+        "grid puts a bare 1fr beside a track holding something that cannot wrap -- the two shapes that actually produced " +
+        "measured horizontal overflow, one of them on a learner surface no rendered fixture reaches. The global border-box " +
+        "reset every padded box depends on is asserted against the COMPILED stylesheet rather than assumed, because an " +
+        "earlier harness lost it and produced a convincing 48px defect that the product never had",
       );
     },
   },

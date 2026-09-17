@@ -1,65 +1,65 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { t } from "@/lib/hle";
+import { t, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
+import { lessonRead } from "@/lib/siklus";
+import CangkangPengalaman from "@/components/CangkangPengalaman";
+import KakiPintar from "@/components/KakiPintar";
+import PetaBacaan from "@/components/siklus/PetaBacaan";
+
+export const dynamic = "force-dynamic";
 
 /**
- * Peta Bacaan Personal (§2). Not a results page: no score, no percentage, no
- * count of what was wrong. One card per competency domain, in the order the
- * database ranked them — safety-missed, then mandatory, then recommended, then
- * already strong — each carrying where to read and a plain-language reason.
+ * The reading map on its own — where the mapping hands off to the reading.
+ *
+ * NOT A RESULTS PAGE (§2): no score, no percentage, no count of what was
+ * wrong. A learner arrives here straight from the Initial Mapping, and the
+ * first thing they should meet is what to read, not how they did. The map
+ * itself also sits on the assignment screen; this route is the landing, and
+ * both render the same component so the two can never say different things.
  */
-const TIER_KEY = {
-  PERLU_SEGERA: "map.tier.PERLU_SEGERA",
-  WAJIB: "map.tier.WAJIB",
-  DISARANKAN: "map.tier.DISARANKAN",
-  KUAT: "map.tier.KUAT",
-} as const;
-
-const TIER_TONE = {
-  PERLU_SEGERA: "border-attention bg-attention-soft",
-  WAJIB: "border-info bg-info-soft",
-  DISARANKAN: "border-line-1 bg-surface-1",
-  KUAT: "border-ok bg-ok-soft",
-} as const;
-
 export default async function Peta({ params }: { params: Promise<{ tugas: string }> }) {
   const { tugas } = await params;
+  const locale = await currentLocale();
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
+  const s = (k: HleEvent) => t(k, "learner", { locale });
+
   const state = await engine.cycleState(db, tugas);
   if (!state.pre_session || state.pre_status !== "FINALIZED") notFound();
-  const cards = await engine.readingMap(db, state.pre_session);
-  const lessons = await engine.lessons(db, tugas);
-  const lessonByTitle = new Map(lessons.map((l) => [l.judul, l.lesson_id]));
+
+  const [kartu, lessons] = await Promise.all([
+    engine.readingMap(db, state.pre_session),
+    engine.lessons(db, tugas),
+  ]);
+  const berikutnya = lessons.find((l) => !lessonRead(l));
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-12">
-      <p className="text-sm text-ink-3"><Link href={`/belajar/${tugas}`}>{t("cycle.title", "learner")}</Link></p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight">{t("map.title", "learner")}</h1>
-      <p className="mt-3 max-w-[var(--measure)] text-ink-2">{t("map.intro", "learner")}</p>
+    <>
+      <CangkangPengalaman locale={locale} current="belajar" />
+      <main className="pin-col">
+        <Link className="pin-back" href={`/belajar/${tugas}`}>
+          ← {s("cycle.title")}
+        </Link>
+        <div className="pin-head">
+          <p className="pin-eyebrow">{s("pretest.done")}</p>
+          <h1 className="pin-h1">{s("map.title")}</h1>
+          <p className="pin-intro">{s("map.intro")}</p>
+        </div>
 
-      <ul className="mt-8 grid gap-4">
-        {cards.map((c) => (
-          <li key={c.kode} className={`rounded-[var(--radius-2)] border p-5 ${TIER_TONE[c.tingkat]}`}>
-            <p className="text-sm font-medium">{t(TIER_KEY[c.tingkat], "learner")}</p>
-            <h2 className="mt-1 text-lg font-medium">{c.pernyataan}</h2>
-            <p className="mt-2 text-ink-2">{c.alasan}</p>
-            <p className="mt-3 text-sm text-ink-3">
-              {c.modul} · {c.pelajaran}
-              {c.halaman ? ` · ${t("map.page", "learner")} ${c.halaman}` : ""}
-            </p>
-            {lessonByTitle.has(c.pelajaran) && (
-              <Link
-                href={`/belajar/${tugas}/pelajaran/${lessonByTitle.get(c.pelajaran)}`}
-                className="mt-3 inline-block text-sm text-primary underline"
-              >
-                {t("map.to_lesson", "learner")}
-              </Link>
-            )}
-          </li>
-        ))}
-      </ul>
-    </main>
+        <PetaBacaan kartu={kartu} locale={locale} />
+
+        {berikutnya ? (
+          <div className="pin-actions">
+            <Link className="pin-btn pin-primary" href={`/belajar/${tugas}/pelajaran/${berikutnya.lesson_id}`}>
+              {s("map.to_lesson")}
+            </Link>
+          </div>
+        ) : null}
+
+        <KakiPintar />
+      </main>
+    </>
   );
 }

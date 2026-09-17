@@ -282,30 +282,28 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-8">
+    <div className="pin-player">
       {/* ---------------------------------------------------------- chrome */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="pin-soalbar">
         {formal ? (
-          <span className="tabular-nums text-sm text-ink-2" aria-live="off">
+          <span className="pin-time" aria-live="off">
             {t("posttest.elapsed", "learner")} {String(Math.floor(elapsed / 60)).padStart(2, "0")}:
             {String(elapsed % 60).padStart(2, "0")}
           </span>
         ) : (
           // §1: dots, never a percent bar and never a countdown-feeling timer
-          <span className="flex items-center gap-1.5" aria-label={`${t("pretest.progress", "learner")} ${index + 1}/${paper.length}`}>
+          <span className="pin-dots" aria-label={`${t("pretest.progress", "learner")} ${index + 1}/${paper.length}`}>
             {paper.map((p, i) => (
               <span
                 key={p.presentedItemId}
-                className={`h-2 w-2 rounded-full ${
-                  i === index ? "bg-primary" : accepted[p.presentedItemId] ? "bg-ink-3" : "bg-line-1"
-                }`}
+                className={`pin-ldot${i === index ? " pin-at" : accepted[p.presentedItemId] ? " pin-done" : ""}`}
               />
             ))}
           </span>
         )}
-        <span className="flex items-center gap-3 text-sm">
-          {!online && <span className="text-attention">{t("sync.offline", "learner")}</span>}
-          {online && pending > 0 && <span className="text-ink-3">{t("sync.pending", "learner")}</span>}
+        <span className="pin-sbchrome">
+          {!online && <span className="pin-luring">{t("sync.offline", "learner")}</span>}
+          {online && pending > 0 && <span className="pin-meta">{t("sync.pending", "learner")}</span>}
           {formal && allowsPause && (
             <button
               type="button"
@@ -313,14 +311,14 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                 if (paused) { await actions.resumeSession(sessionId); setPaused(false); }
                 else { await actions.pauseSession(sessionId); setPaused(true); }
               }}
-              className="rounded-[var(--radius-1)] border border-line-1 px-3 py-1.5 hover:bg-surface-2"
+              className="pin-btn"
             >
               {paused ? t("posttest.resume", "learner") : t("posttest.pause", "learner")}
             </button>
           )}
           {formal && (
             <button type="button" onClick={() => setNavOpen((o) => !o)}
-              className="rounded-[var(--radius-1)] border border-line-1 px-3 py-1.5 hover:bg-surface-2">
+              className="pin-btn">
               {t("posttest.navigator", "learner")}
             </button>
           )}
@@ -328,13 +326,11 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       </div>
 
       {formal && navOpen && (
-        <ol className="mt-4 grid grid-cols-6 gap-2 rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4">
+        <ol className="pin-daftar">
           {paper.map((p, i) => (
             <li key={p.presentedItemId}>
               <button type="button" onClick={() => go(i)}
-                className={`w-full rounded-[var(--radius-1)] border px-2 py-2 text-sm ${
-                  accepted[p.presentedItemId] ? "border-ok bg-ok-soft" : "border-line-1"
-                } ${flagged[p.presentedItemId] ? "ring-2 ring-attention" : ""} ${i === index ? "font-semibold" : ""}`}
+                className={`pin-num-btn${accepted[p.presentedItemId] ? " pin-ans" : ""}${flagged[p.presentedItemId] ? " pin-flag" : ""}${i === index ? " pin-at" : ""}`}
                 aria-label={`${i + 1} — ${accepted[p.presentedItemId] ? t("posttest.answered", "learner") : t("posttest.unanswered", "learner")}`}>
                 {i + 1}
               </button>
@@ -344,30 +340,32 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       )}
 
       {paused ? (
-        <p className="mt-10 rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-6 text-ink-2">
+        <p className="pin-pending">
           {t("posttest.resume", "learner")}
         </p>
       ) : (
         <>
           {/* ------------------------------------------------------- the item */}
-          <article className="mt-8">
-            <h2 className="text-xl leading-relaxed">{current.item.stem}</h2>
+          <article className="pin-soal">
+            <h2 className="pin-stem">{current.item.stem}</h2>
             {current.item.stimulus && (
-              <p className="mt-3 whitespace-pre-wrap text-ink-2">{current.item.stimulus}</p>
+              <p className="pin-stimulus">{current.item.stimulus}</p>
             )}
 
-            <ul className="mt-6 grid gap-2">
+            <ul className="pin-opsi">
               {current.item.opsi.map((o) => (
                 <li key={o.posisi}>
                   <button
                     type="button"
                     onClick={() => choose(o.posisi)}
                     aria-pressed={selected(o.posisi)}
-                    className={`flex w-full items-start gap-3 rounded-[var(--radius-2)] border p-4 text-left ${
-                      selected(o.posisi) ? "border-primary bg-primary-soft" : "border-line-1 bg-surface-1 hover:bg-surface-2"
-                    }`}
+                    /* The selected state is drawn from `aria-pressed` above
+                       rather than from a second class: one source of truth, so
+                       the thing a screen reader announces and the thing an eye
+                       sees cannot disagree. */
+                    className="pin-op"
                   >
-                    <span className="mt-0.5 text-sm text-ink-3">{String.fromCharCode(64 + o.posisi)}</span>
+                    <span className="pin-k">{String.fromCharCode(64 + o.posisi)}</span>
                     <span>{o.teks}</span>
                   </button>
                 </li>
@@ -375,19 +373,19 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             </ul>
 
             {formal && (
-              <div className="mt-4 flex items-center gap-3">
+              <div className="pin-actions">
                 <button
                   type="button"
                   disabled={!chosen || committed}
                   onClick={() => chosen && void send(current, chosen)}
-                  className="rounded-[var(--radius-1)] bg-primary px-4 py-2 text-primary-ink disabled:opacity-40"
+                  className="pin-btn pin-primary"
                 >
                   {committed ? t("posttest.confirmed", "learner") : t("posttest.confirm", "learner")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setFlagged((f) => ({ ...f, [current.presentedItemId]: !f[current.presentedItemId] }))}
-                  className="rounded-[var(--radius-1)] border border-line-1 px-3 py-2 text-sm hover:bg-surface-2"
+                  className="pin-btn"
                 >
                   {flagged[current.presentedItemId] ? t("posttest.flagged", "learner") : t("posttest.flag", "learner")}
                 </button>
@@ -397,24 +395,24 @@ export default function ItemPlayer(props: ItemPlayerProps) {
 
           {/* ------------------------------------------------ assistance pill */}
           {state?.due && (
-            <section className="mt-6 rounded-[var(--radius-2)] border border-attention bg-attention-soft p-4">
-              <p className="font-medium">{t(stageKey(stage), "learner")}</p>
+            <section className="pin-bantuan">
+              <p className="pin-lvl">{t(stageKey(stage), "learner")}</p>
               {opened.map((l) => (
-                <p key={l.level} className="mt-3">
-                  <span className="block text-sm text-ink-3">{t(`assist.level.${l.kode}` as HleEvent, "learner")}</span>
+                <p key={l.level}>
+                  <span className="pin-lvl">{t(`assist.level.${l.kode}` as HleEvent, "learner")}</span>
                   <span>{l.isi}</span>
                 </p>
               ))}
-              <div className="mt-3 flex gap-3 text-sm">
+              <div className="pin-actions">
                 {state.nextLevel !== null && (
                   <button type="button" onClick={() => void openLevel(state.nextLevel as number)}
-                    className="rounded-[var(--radius-1)] border border-line-1 bg-surface-1 px-3 py-1.5">
+                    className="pin-btn">
                     {opened.length === 0 ? t(stageKey(stage), "learner") : t("assist.more", "learner")}
                   </button>
                 )}
                 <button type="button"
                   onClick={() => { void actions.dismissAssistance(itemId); setAssist(null); }}
-                  className="px-2 py-1.5 text-ink-2 underline">
+                  className="pin-btn pin-quiet">
                   {t("assist.close", "learner")}
                 </button>
               </div>
@@ -424,14 +422,14 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       )}
 
       {/* ------------------------------------------------------ move / finish */}
-      <nav className="mt-10 flex items-center justify-between">
+      <nav className="pin-actions pin-between">
         <button type="button" onClick={() => go(index - 1)} disabled={index === 0}
-          className="rounded-[var(--radius-1)] border border-line-1 px-4 py-2 disabled:opacity-40">
+          className="pin-btn">
           {t(formal ? "pretest.back" : "pretest.back", "learner")}
         </button>
         {index < paper.length - 1 ? (
           <button type="button" onClick={() => go(index + 1)}
-            className="rounded-[var(--radius-1)] bg-primary px-5 py-2 text-primary-ink">
+            className="pin-btn pin-primary">
             {t("pretest.next", "learner")}
           </button>
         ) : (
@@ -442,7 +440,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
               const r = await actions.finishSession(sessionId);
               if (r.ok) router.push(finishHref);
             }}
-            className="rounded-[var(--radius-1)] bg-primary px-5 py-2 text-primary-ink"
+            className="pin-btn pin-primary"
           >
             {t(formal ? "posttest.submit" : "pretest.finish", "learner")}
           </button>

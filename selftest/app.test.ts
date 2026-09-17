@@ -66,6 +66,11 @@ const ROUTE_INVENTORY = [
   "/studio/sertifikat",
   "/studio/tinjau",
   "/studio/unggah",
+  // UX-1 Slice 3. The educator's home is the one static route the teaching
+  // surface serves; A-F below it are all class-scoped and therefore dynamic,
+  // and F06-R01 scans this one's rendered output for internal words like any
+  // other. UX1-S3-KATA-01 covers the copy of every screen including those.
+  "/mengajar",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };
