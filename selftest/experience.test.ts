@@ -15,6 +15,7 @@
  *   UX1-S1-QR-01           the printed QR really decodes to the link
  *   UX1-S0-SAPAAN-01       no learner is addressed informally in Indonesian
  *   UX1-S0-FAKTA-01        compact fact summaries stack on a narrow surface
+ *   UX1-S2-POSISI-01       the cycle position and the home's one recommendation
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -22,6 +23,7 @@ import { join, relative } from "node:path";
 import jsQR from "jsqr";
 import { Checks, type SelfTest } from "./lib";
 import { allKeys, telling, renderAll, t, LOCALES, type HleEvent } from "../src/lib/hle";
+import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
 
@@ -170,6 +172,28 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The prose measure, in characters rather than pixels — which is the point of ch." },
   { file: "src/app/experience.css", literal: "56ch",
     reason: "The same measure, one step narrower, for a secondary paragraph." },
+  { file: "src/app/experience.css", literal: "78px",
+    reason: "The cycle trail's step width: what five step names need side by side before they collide." },
+  { file: "src/app/experience.css", literal: "12px",
+    reason: "The trail dot's diameter. A dot is drawn, not spaced." },
+  { file: "src/app/experience.css", literal: "5px",
+    reason: "Half the 12px dot less half the 2px connector, so the line meets the dot's centre." },
+  { file: "src/app/experience.css", literal: "4px",
+    reason: "Detail geometry below the spacing scale: the current step's ring and the progress bar's height." },
+  { file: "src/app/experience.css", literal: "34px",
+    reason: "The question-number button: a two-digit target, sized to the finger rather than to a rhythm." },
+  { file: "src/app/experience.css", literal: "23px",
+    reason: "24px less the pixel a 2px border eats, so a selected option's text does not shift." },
+  { file: "src/app/experience.css", literal: "20px",
+    reason: "The disc list's indent, which belongs to the marker rather than to the page." },
+  { file: "src/app/experience.css", literal: "120px",
+    reason: "The progress bar's flex basis: the width below which a bar stops reading as progress." },
+  { file: "src/app/experience.css", literal: "80px",
+    reason: "The same bar's floor, so it never collapses to a dash between the two labels beside it." },
+  { file: "src/app/experience.css", literal: "1.4em",
+    reason: "The option key's column, in em so A/B/C/D stays aligned with the type rather than the page." },
+  { file: "src/app/experience.css", literal: "20ch",
+    reason: "The review question's flex basis, in characters because it wraps prose." },
   { file: "src/components/bukti/BarisKesiapan.tsx", literal: "%",
     reason: "A computed proportion of the readiness bar: data, not a design value." },
   { file: "src/components/bukti/BarisLingkup.tsx", literal: "20",
@@ -1199,6 +1223,165 @@ export const experienceTests: SelfTest[] = [
           "and on the more specific selector that outranks it — while the A4 sheet keeps its printed row " +
           "because it is scaled whole rather than reflowed; the verification page's label/value rows narrow " +
           "the same way; and nothing was added to carry the change",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "UX1-S2-POSISI-01",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+
+      // WHERE THE LEARNER IS, AND WHAT THE HOME LEADS WITH.
+      //
+      // The Slice-2 home carries ONE next action and decides it from cycle
+      // state rather than from list order. That decision is the piece of the
+      // slice that can be wrong invisibly: a misplaced dot on a trail is
+      // obvious, a home that confidently recommends the wrong thing looks
+      // exactly like one that recommends the right thing.
+      //
+      // So the derivation is a pure function and this drives it through every
+      // state a cycle can be in — no database, which is also why it runs at
+      // all in a container where the db facility is absent.
+      const S = (o: Partial<Record<string, string | null>> = {}) => ({
+        pre_assignment: "pre", pre_session: null, pre_status: null,
+        post_assignment: "post", post_session: null, post_status: null, ...o,
+      }) as Parameters<typeof posisi>[0];
+      const L = (read: number, total: number) =>
+        Array.from({ length: total }, (_, i) => ({
+          lesson_id: `l${i}`, modul: "m", urutan: i, judul: "t", ringkasan: null,
+          isi: null, contoh: [], media: [], halaman: null,
+          furthest_position: i < read ? 10 : 0, total_positions: 10,
+        })) as Parameters<typeof posisi>[1];
+
+      const CASES: Array<{ what: string; state: ReturnType<typeof S>; lessons: ReturnType<typeof L>; langkah: string; indeks: number }> = [
+        { what: "nothing started", state: S(), lessons: L(0, 5), langkah: "PEMETAAN", indeks: 0 },
+        { what: "mapping open but unfinished", state: S({ pre_session: "s", pre_status: "IN_PROGRESS" }), lessons: L(0, 5), langkah: "PEMETAAN", indeks: 0 },
+        { what: "mapping submitted, not yet scored", state: S({ pre_session: "s", pre_status: "SUBMITTED" }), lessons: L(0, 5), langkah: "PEMETAAN", indeks: 0 },
+        { what: "mapping done, nothing read", state: S({ pre_status: "FINALIZED" }), lessons: L(0, 5), langkah: "PETA", indeks: 1 },
+        { what: "part-way through the lessons", state: S({ pre_status: "FINALIZED" }), lessons: L(3, 5), langkah: "PELAJARAN", indeks: 2 },
+        { what: "every lesson read", state: S({ pre_status: "FINALIZED" }), lessons: L(5, 5), langkah: "PENGUASAAN", indeks: 3 },
+        { what: "mastery check open", state: S({ pre_status: "FINALIZED", post_session: "p", post_status: "IN_PROGRESS" }), lessons: L(2, 5), langkah: "PENGUASAAN", indeks: 3 },
+        { what: "mastery check paused", state: S({ pre_status: "FINALIZED", post_session: "p", post_status: "PAUSED" }), lessons: L(5, 5), langkah: "PENGUASAAN", indeks: 3 },
+        { what: "mastery check finished", state: S({ pre_status: "FINALIZED", post_session: "p", post_status: "FINALIZED" }), lessons: L(5, 5), langkah: "HASIL", indeks: 4 },
+        // THE ONE THAT MATTERS: the cycle is a record of what happened, not a
+        // checklist somebody has to satisfy in order. A learner who finished
+        // the Mastery Check without opening a lesson is at the result.
+        { what: "finished without reading a single lesson", state: S({ pre_status: "FINALIZED", post_session: "p", post_status: "FINALIZED" }), lessons: L(0, 5), langkah: "HASIL", indeks: 4 },
+        { what: "a course with no lessons at all", state: S({ pre_status: "FINALIZED" }), lessons: L(0, 0), langkah: "PETA", indeks: 1 },
+      ];
+      for (const t of CASES) {
+        const p = posisi(t.state, t.lessons);
+        c.expect(p.langkah === t.langkah, `${t.what}: step is ${p.langkah}, expected ${t.langkah}`);
+        c.expect(p.indeks === t.indeks, `${t.what}: index is ${p.indeks}, expected ${t.indeks}`);
+      }
+
+      // the trail draws five steps and the index always addresses one of them
+      c.expect(LANGKAH.length === 5, `the trail has ${LANGKAH.length} steps, not five`);
+      for (const t of CASES) {
+        const p = posisi(t.state, t.lessons);
+        c.expect(LANGKAH[p.indeks] === p.langkah, `${t.what}: index and step disagree`);
+      }
+
+      // every step has copy, and it is the existing cycle.step.* keys rather
+      // than a second set that can drift from the ones already on screen
+      for (const l of LANGKAH) {
+        const k = LANGKAH_KEY[l];
+        c.expect(allKeys().includes(k as HleEvent), `the step ${l} maps to ${k}, which is not in the copy table`);
+        c.expect(k.startsWith("cycle.step."), `the step ${l} uses ${k} rather than the existing cycle.step.* key`);
+      }
+      // and the enum never reaches a reader
+      for (const l of LANGKAH) {
+        for (const locale of LOCALES) {
+          const text = t(LANGKAH_KEY[l] as HleEvent, "learner", { locale });
+          c.expect(!text.includes(l), `the step telling in ${locale} contains the raw enum ${l}: "${text}"`);
+        }
+      }
+
+      // ---- THE RANKING -------------------------------------------------
+      const K = (title: string, state: ReturnType<typeof S>, lessons: ReturnType<typeof L>, berjalan = false) => ({
+        tugas: { learning_assignment_id: title, course_id: "c", plp_release_id: "r", subject: "s",
+                 stage: "SMA", grade_label: "10", title,
+                 pre_test_assignment: "pre", post_test_assignment: "post" },
+        posisi: posisi(state, lessons), berjalan,
+      }) as Parameters<typeof peringkat>[0][number];
+
+      // the approved order: a running session, then an unstarted mapping, then
+      // unread lessons, then an untaken Mastery Check
+      const mixed = [
+        K("lessons", S({ pre_status: "FINALIZED" }), L(2, 5)),
+        K("untaken mastery", S({ pre_status: "FINALIZED" }), L(5, 5)),
+        K("unstarted mapping", S(), L(0, 5)),
+      ];
+      const r1 = peringkat(mixed);
+      c.expect(r1.utama?.tugas.title === "untaken mastery",
+        `the home leads with "${r1.utama?.tugas.title}"; an untaken Mastery Check outranks an unstarted mapping`);
+
+      // a session already open jumps every rank, whatever step it belongs to
+      const r2 = peringkat([
+        K("unstarted mapping", S(), L(0, 5)),
+        K("running", S({ pre_status: "FINALIZED", post_session: "p", post_status: "IN_PROGRESS" }), L(1, 5), true),
+      ]);
+      c.expect(r2.utama?.tugas.title === "running",
+        `the home leads with "${r2.utama?.tugas.title}"; a session left open is the one obvious next action`);
+
+      // a finished cycle is never "the one thing": it is a result to collect,
+      // not work to do
+      const done = K("finished", S({ pre_status: "FINALIZED", post_session: "p", post_status: "FINALIZED" }), L(5, 5));
+      c.expect(peringkat([done]).utama === null,
+        "a learner with nothing but a finished cycle is told to go back to something they finished");
+      const r3 = peringkat([done, K("lessons", S({ pre_status: "FINALIZED" }), L(1, 5))]);
+      c.expect(r3.utama?.tugas.title === "lessons", "a finished cycle outranked real work");
+      c.expect(r3.sisa.length === 1 && r3.sisa[0].tugas.title === "finished",
+        "the finished cycle vanished instead of falling to the rest of the list");
+
+      // ranking never invents or loses an assignment
+      c.expect(r1.sisa.length === mixed.length - 1, `ranking returned ${r1.sisa.length + 1} of ${mixed.length} assignments`);
+      c.expect(peringkat([]).utama === null, "an empty list produced a recommendation");
+
+      // ORDERING IS TOTAL, and the case that proves it is a TIE. Reversing a
+      // list whose entries all sit at different steps proves nothing: the step
+      // ranking alone decides it and the tie-break never runs. So the tie is
+      // built on purpose — two assignments at the same step, equally far
+      // through their lessons — and reversing it must not change the answer.
+      // Without a total order the sort falls back to arrival order, which is
+      // list position wearing a different name.
+      const tie = [
+        K("Bab 2: Dinamika Litosfer", S({ pre_status: "FINALIZED" }), L(2, 5)),
+        K("Bab 4: Sistem Persamaan Linear", S({ pre_status: "FINALIZED" }), L(2, 5)),
+      ];
+      const fwd = peringkat(tie);
+      const bwd = peringkat([...tie].reverse());
+      c.expect(
+        fwd.utama?.tugas.title === bwd.utama?.tugas.title,
+        `two assignments at the same step rank by arrival order: forwards gives "${fwd.utama?.tugas.title}", ` +
+          `backwards gives "${bwd.utama?.tugas.title}" — which is list position by another name`,
+      );
+      c.expect(
+        fwd.sisa.map((k) => k.tugas.title).join("|") === bwd.sisa.map((k) => k.tugas.title).join("|"),
+        "the REST of the list is ordered by arrival too, so the home reshuffles itself between two reads",
+      );
+      // and the same for a list whose steps do differ
+      const rev = peringkat([...mixed].reverse());
+      c.expect(rev.utama?.tugas.title === r1.utama?.tugas.title,
+        "the recommendation depends on the order the assignments arrived in");
+      // the lesson-progress tie-break itself: further through wins
+      const nearer = peringkat([
+        K("barely started", S({ pre_status: "FINALIZED" }), L(1, 5)),
+        K("nearly done", S({ pre_status: "FINALIZED" }), L(4, 5)),
+      ]);
+      c.expect(nearer.utama?.tugas.title === "nearly done",
+        `the home leads with "${nearer.utama?.tugas.title}"; the assignment with least left to do is the one to finish`);
+
+      c.note(`${CASES.length} cycle state(s) and ${LANGKAH.length} trail step(s) driven through the pure derivation`);
+      return c.verdict(
+        "the learner's position in a cycle is derived in src/lib/siklus.ts from cycle state and lesson " +
+          "progress across every state a cycle can hold — including a Mastery Check finished without a " +
+          "lesson ever being opened, which the trail must report as the result rather than as unread work — " +
+          "and the home's single recommendation follows the approved ranking rather than list position: a " +
+          "running session first, a finished cycle never, and the same answer whatever order the rows arrive in",
       );
     },
   },

@@ -144,6 +144,11 @@
   --type-name: 40px;
   --type-name-print: 44px;
   --type-chip: 12.5px;    /* the mono verification link, a single element */
+  /* The question stem. The most-read text in the product: a learner reads it
+     with full attention and nothing on the screen competes, so it sits one
+     step above the reading size and one below the smallest subhead. */
+  --type-stem: 21px;
+  --type-stem-phone: 19px;
   --weight-normal: 400;
   --weight-strong: 600;
   --tracking-eyebrow: 0.06em;
@@ -151,6 +156,11 @@
   --tracking-tight: -0.02em;
   --leading-tight: 1.15;
   --leading-body: 1.5;
+  /* Sustained reading is looser than interface text; a heading between the
+     ladder and the display sizes is tighter. Both are decisions, so both are
+     declared here rather than written into one rule. */
+  --leading-prose: 1.65;
+  --leading-heading: 1.25;
 
   /* the mark. Heights, never widths: the logo's own proportions supply the
      rest, so no edit here can squash the artwork. Chosen optically against the

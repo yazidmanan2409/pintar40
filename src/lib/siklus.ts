@@ -1,0 +1,156 @@
+/**
+ * WHERE A LEARNER IS, AND WHAT THEY SHOULD DO NEXT.
+ *
+ * The Slice-2 home is not a dashboard. One panel carries the single most
+ * appropriate next action and everything below it is quiet — which only works
+ * if "most appropriate" is DERIVED rather than guessed from list order. This
+ * module is that derivation, and it is deliberately pure: it takes the rows
+ * the engine already returned and returns a position and a ranking. No client,
+ * no fetch, no clock.
+ *
+ * Pure because it is the one piece of Slice 2 that can be wrong in a way
+ * nobody sees. A misplaced dot on a trail is visible; a home that quietly
+ * recommends the wrong thing looks exactly like a home that recommends the
+ * right one. So it is a function over data, and UX1-S2-POSISI-01 drives it
+ * through every state a cycle can be in without needing a database.
+ *
+ * NOTHING HERE DECIDES AUTHORITY. A position is a reading of state the server
+ * already gave us; whether a learner may start an assessment is
+ * `may_start_assessment()`'s answer and is asked separately, every time.
+ */
+import type { CycleState } from "@/lib/assessment-engine";
+import type { AssignmentEntry, LessonEntry } from "@/lib/assessment-engine/types";
+
+/** The five steps of one learning cycle, in the order they happen. */
+export const LANGKAH = ["PEMETAAN", "PETA", "PELAJARAN", "PENGUASAAN", "HASIL"] as const;
+export type Langkah = (typeof LANGKAH)[number];
+
+/** The copy key for each step. The enum itself never reaches a screen. */
+export const LANGKAH_KEY = {
+  PEMETAAN: "cycle.step.pretest",
+  PETA: "cycle.step.map",
+  PELAJARAN: "cycle.step.lesson",
+  PENGUASAAN: "cycle.step.posttest",
+  HASIL: "cycle.step.result",
+} as const;
+
+export type Posisi = {
+  langkah: Langkah;
+  /** Index into LANGKAH: what the trail fills, rings and leaves hollow. */
+  indeks: number;
+  /** Lessons finished and lessons in the course, for the status line. */
+  pelajaranSelesai: number;
+  pelajaranTotal: number;
+  /** True once the whole cycle is behind the learner. */
+  selesai: boolean;
+};
+
+const FINAL = "FINALIZED";
+
+/** A lesson counts as read when the learner reached its last position. */
+export function lessonRead(l: Pick<LessonEntry, "furthest_position" | "total_positions">): boolean {
+  const total = l.total_positions ?? 0;
+  return total > 0 && l.furthest_position >= total;
+}
+
+/**
+ * Where this learner stands in one cycle.
+ *
+ * Read downwards: the first condition that holds wins, and they are ordered
+ * from the end of the cycle backwards. That ordering is the whole trick — a
+ * learner who has finished the Mastery Check is at the result even if they
+ * never opened a single lesson, because the cycle is a record of what happened
+ * and not a checklist somebody has to satisfy in order.
+ */
+export function posisi(state: CycleState, lessons: readonly LessonEntry[]): Posisi {
+  const total = lessons.length;
+  const read = lessons.filter(lessonRead).length;
+  const base = { pelajaranSelesai: read, pelajaranTotal: total };
+
+  if (state.post_status === FINAL) {
+    return { langkah: "HASIL", indeks: 4, ...base, selesai: true };
+  }
+  // A Mastery Check that is open, paused or submitted-but-unscored is still
+  // the thing in front of the learner.
+  if (state.post_session) {
+    return { langkah: "PENGUASAAN", indeks: 3, ...base, selesai: false };
+  }
+  if (state.pre_status !== FINAL) {
+    return { langkah: "PEMETAAN", indeks: 0, ...base, selesai: false };
+  }
+  // Mapping is done, so the reading map exists. Whether the learner is AT the
+  // map or past it is the difference between having read nothing and having
+  // read something.
+  if (total > 0 && read >= total) {
+    return { langkah: "PENGUASAAN", indeks: 3, ...base, selesai: false };
+  }
+  if (read > 0) {
+    return { langkah: "PELAJARAN", indeks: 2, ...base, selesai: false };
+  }
+  return { langkah: "PETA", indeks: 1, ...base, selesai: false };
+}
+
+/**
+ * The ranking behind "the one thing".
+ *
+ * THE ORDER IS THE DESIGN, stated in the approved concept and reproduced here
+ * exactly: an in-progress session outranks an unstarted mapping, which
+ * outranks unread lessons, which outranks an untaken Mastery Check. A finished
+ * cycle ranks last — it is not work, it is a result to collect.
+ *
+ * Lower is more urgent, so the caller sorts ascending and takes the first.
+ */
+export const URUTAN: Record<Langkah, number> = {
+  PENGUASAAN: 0,
+  PEMETAAN: 1,
+  PETA: 2,
+  PELAJARAN: 3,
+  HASIL: 4,
+};
+
+export type Kandidat = {
+  tugas: AssignmentEntry;
+  posisi: Posisi;
+  /** True when a session for this step is already open or paused. */
+  berjalan: boolean;
+};
+
+/**
+ * Rank the learner's assignments and hand back the one the home should lead
+ * with, plus the rest in the same order.
+ *
+ * An assignment with a session ALREADY RUNNING jumps every other rank, whatever
+ * step it belongs to: a learner who left a Mastery Check open mid-way has one
+ * obvious next action and it is not a lesson in another subject.
+ */
+export function peringkat(kandidat: readonly Kandidat[]): {
+  utama: Kandidat | null;
+  sisa: Kandidat[];
+} {
+  const urut = [...kandidat].sort((a, b) => {
+    if (a.berjalan !== b.berjalan) return a.berjalan ? -1 : 1;
+    const d = URUTAN[a.posisi.langkah] - URUTAN[b.posisi.langkah];
+    if (d !== 0) return d;
+    // A stable tie-break that is not list position: the assignment closer to
+    // finishing its lessons is the one with less left to do.
+    const ra = a.posisi.pelajaranTotal > 0 ? a.posisi.pelajaranSelesai / a.posisi.pelajaranTotal : 0;
+    const rb = b.posisi.pelajaranTotal > 0 ? b.posisi.pelajaranSelesai / b.posisi.pelajaranTotal : 0;
+    if (ra !== rb) return rb - ra;
+    return a.tugas.title.localeCompare(b.tugas.title);
+  });
+  // A cycle that is entirely behind the learner is never "the one thing": the
+  // home would be telling somebody to go and look at something they finished.
+  const utama = urut.find((k) => !k.posisi.selesai) ?? null;
+  return { utama, sisa: urut.filter((k) => k !== utama) };
+}
+
+/** The status line under a trail: which step, and how far through it. */
+export function statusKey(p: Posisi): string {
+  switch (p.langkah) {
+    case "PEMETAAN": return "siklus.di.pemetaan";
+    case "PETA": return "siklus.di.peta";
+    case "PELAJARAN": return "siklus.di.pelajaran";
+    case "PENGUASAAN": return "siklus.di.penguasaan";
+    case "HASIL": return "siklus.di.hasil";
+  }
+}

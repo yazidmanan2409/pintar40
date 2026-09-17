@@ -276,6 +276,45 @@ export type HleEvent =
   | "hasil.delta.BELUM_ADA"
   | "hasil.certificate"
   | "hasil.certificate_soon"
+  | "siklus.halo"
+  | "siklus.beranda"
+  | "siklus.hari_ini"
+  | "siklus.lanjutkan"
+  | "siklus.perhatian"
+  | "siklus.milik_anda"
+  | "siklus.terbuka"
+  | "siklus.buka"
+  | "siklus.mulai"
+  | "siklus.di.pemetaan"
+  | "siklus.di.peta"
+  | "siklus.di.pelajaran"
+  | "siklus.di.penguasaan"
+  | "siklus.di.hasil"
+  | "siklus.dari"
+  | "siklus.selesai_n"
+  | "siklus.sekarang"
+  | "siklus.peta_anda"
+  | "siklus.langkah_dari"
+  | "siklus.jumlah_soal"
+  | "siklus.perkiraan"
+  | "siklus.ditutup"
+  | "siklus.menit"
+  | "siklus.tanpa_batas"
+  | "siklus.bisa_lakukan"
+  | "siklus.bisa.tandai"
+  | "siklus.bisa.jeda"
+  | "siklus.bisa.arah"
+  | "siklus.catatan.judul"
+  | "siklus.catatan.isi"
+  | "siklus.nanti"
+  | "siklus.ambang"
+  | "siklus.tepat_dari"
+  | "siklus.setelah"
+  | "siklus.berikutnya"
+  | "siklus.terbuka_kini"
+  | "siklus.habis.judul"
+  | "siklus.habis.isi"
+  | "siklus.lihat_sertifikat"
   | "sync.offline"
   | "sync.pending"
   | "studio.title"
@@ -819,6 +858,47 @@ const table: Table = {
   "hasil.delta.BELUM_ADA": { default: "Belum ada yang bisa dibandingkan.", en: "There is nothing to compare yet." },
   "hasil.certificate": { default: "Ambil sertifikat", en: "Collect your certificate" },
   "hasil.certificate_soon": { default: "Sertifikat akan tersedia di tahap berikutnya.", en: "Certificates arrive at a later phase." },
+
+  // ----------------------------------------- UX-1 Slice 2: the learner cycle
+  "siklus.halo": { default: "Halo", en: "Hello" },
+  "siklus.beranda": { default: "Beranda", en: "Home" },
+  "siklus.hari_ini": { default: "Ini yang sedang berjalan hari ini.", en: "Here is what is under way for you today." },
+  "siklus.lanjutkan": { default: "Lanjutkan", en: "Continue" },
+  "siklus.perhatian": { default: "Perlu perhatian", en: "Needs attention" },
+  "siklus.milik_anda": { default: "Pembelajaran Anda", en: "Your learning" },
+  "siklus.terbuka": { default: "Bisa dikerjakan sekarang", en: "You can do these now" },
+  "siklus.buka": { default: "Buka", en: "Open" },
+  "siklus.mulai": { default: "Mulai", en: "Start" },
+  "siklus.di.pemetaan": { default: "Mulai dari Pemetaan Awal", en: "Begin with the Initial Mapping" },
+  "siklus.di.peta": { default: "Peta bacaan sudah siap", en: "The reading map is ready" },
+  "siklus.di.pelajaran": { default: "Sedang di Pelajaran", en: "You are at Lessons" },
+  "siklus.di.penguasaan": { default: "Siap untuk Uji Penguasaan", en: "Ready for the Mastery Check" },
+  "siklus.di.hasil": { default: "Selesai", en: "Finished" },
+  "siklus.dari": { default: "dari", en: "of" },
+  "siklus.selesai_n": { default: "selesai", en: "finished" },
+  "siklus.sekarang": { default: "Langkah Anda sekarang", en: "Where you are now" },
+  "siklus.peta_anda": { default: "Peta bacaan Anda", en: "Your reading map" },
+  "siklus.langkah_dari": { default: "Lima langkah.", en: "Five steps." },
+  "siklus.jumlah_soal": { default: "Jumlah soal", en: "Questions" },
+  "siklus.perkiraan": { default: "Perkiraan waktu", en: "Estimated time" },
+  "siklus.ditutup": { default: "Ditutup", en: "Closes" },
+  "siklus.menit": { default: "menit", en: "minutes" },
+  "siklus.tanpa_batas": { default: "Tanpa batas waktu", en: "No time limit" },
+  "siklus.bisa_lakukan": { default: "Yang bisa dilakukan", en: "What you can do" },
+  "siklus.bisa.tandai": { default: "Menandai soal dan kembali lagi", en: "Flag a question and come back to it" },
+  "siklus.bisa.jeda": { default: "Menyimpan dan menjeda, lalu melanjutkan nanti", en: "Save and pause, then carry on later" },
+  "siklus.bisa.arah": { default: "Meminta arah berpikir bila sebuah soal terasa buntu", en: "Ask for a direction to think in when a question feels stuck" },
+  "siklus.catatan.judul": { default: "Tentang catatan sesi", en: "About session records" },
+  "siklus.catatan.isi": { default: "Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis.", en: "During the assessment, certain session activity may be recorded to support process integrity. These records are observations and do not automatically determine your result." },
+  "siklus.nanti": { default: "Nanti saja", en: "Not now" },
+  "siklus.ambang": { default: "Ambang untuk bab ini", en: "The threshold for this chapter is" },
+  "siklus.tepat_dari": { default: "Terjawab tepat", en: "You answered" },
+  "siklus.setelah": { default: "Setelah bab ini", en: "After this chapter" },
+  "siklus.berikutnya": { default: "Apa berikutnya", en: "What next" },
+  "siklus.terbuka_kini": { default: "Yang terbuka untuk Anda sekarang.", en: "What is open to you now." },
+  "siklus.habis.judul": { default: "Tidak ada lagi yang menunggu", en: "Nothing else is waiting" },
+  "siklus.habis.isi": { default: "Semua yang ditugaskan sudah selesai. Kami akan memberi tahu ketika ada yang baru.", en: "Everything assigned to you is finished. We will let you know when something new arrives." },
+  "siklus.lihat_sertifikat": { default: "Lihat sertifikat", en: "See the certificate" },
 
   "sync.offline": { default: "Sedang luring. Jawaban Anda disimpan dan dikirim saat tersambung lagi.", en: "You are offline. Your answers are saved and sent once you are back on." },
   "sync.pending": { default: "Mengirim jawaban yang tertunda…", en: "Sending the answers that are waiting…" },
