@@ -47,6 +47,12 @@ const ROUTE_INVENTORY = [
   "/",
   "/masuk",
   "/belajar",
+  // UX-1 Slice 1. THE ONLY LINE THIS SESSION CHANGED IN AN EXISTING SELFTEST
+  // FILE, and it is a coverage list rather than a predicate: F06-S02 fails
+  // until a served static route is in it, and its failure message says to add
+  // it here. Leaving it out would have meant a route nobody scans for internal
+  // words, which is the opposite of the rule's intent.
+  "/belajar/sertifikat",
   "/konfigurasi",
   "/evaluasi",
   "/edukator/ringkasan",

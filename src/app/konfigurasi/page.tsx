@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -6,6 +5,8 @@ import {
   grantRoleAction, revokeRoleAction, rolloverAction, setFlagAction, setPlatformConfigAction,
   transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
 } from "./actions";
+import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { currentLocale } from "@/lib/locale";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -48,12 +49,15 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const authorized = isSys === true || adminInstitutionIds.length > 0;
 
   if (!viewer || !authorized) {
+    // S0.5: the ONE refusal page. `authorized` above is unchanged.
     return (
-      <main className="mx-auto max-w-md py-16">
-        <p className="text-sm text-ink-3">{s("app.name")}</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{s("config.refused")}</h1>
-        <p className="mt-4"><Link href="/">← {s("entry.title")}</Link></p>
-      </main>
+      <HalamanPenolakan
+        messageKey="config.refused"
+        persona="staff"
+        locale={await currentLocale()}
+        backHref="/"
+        backKey="entry.title"
+      />
     );
   }
 

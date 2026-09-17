@@ -5,6 +5,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import ItemPlayer from "../../_components/ItemPlayer";
 import * as actions from "../../actions";
+import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { currentLocale } from "@/lib/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -23,15 +25,9 @@ export default async function Pemetaan({ params }: { params: Promise<{ tugas: st
   if (!sessionId) {
     const may = await engine.mayStart(db, state.pre_assignment);
     if (!may.ok) {
-      return (
-        <main className="mx-auto max-w-2xl px-5 py-12">
-          <h1 className="text-2xl font-semibold">{t("pretest.title", "learner")}</h1>
-          <p className="mt-4 text-ink-2">{t("auth.not_yet", "learner")}</p>
-          <Link href={`/belajar/${tugas}`} className="mt-6 inline-block text-primary underline">
-            {t("cycle.title", "learner")}
-          </Link>
-        </main>
-      );
+      // S0.5: the ONE refusal page, for unauthorized, nonexistent and expired
+      // alike. `may.ok` above is the server's decision and is unchanged.
+      return <HalamanPenolakan locale={await currentLocale()} backHref={`/belajar/${tugas}`} backKey="cycle.title" />;
     }
     sessionId = await engine.startSession(db, state.pre_assignment);
   }

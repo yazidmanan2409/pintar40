@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { currentViewer } from "@/lib/auth";
 import { s, studioInstitutions } from "./_lib";
+import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { currentLocale } from "@/lib/locale";
 
 /**
  * Studio shell (FABLE-05 §1, §12).
@@ -10,16 +12,22 @@ import { s, studioInstitutions } from "./_lib";
  * database's own capability answer, not by the display role.
  */
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
+  const locale = await currentLocale();
   const viewer = await currentViewer();
   const institutions = viewer ? await studioInstitutions() : [];
 
   if (!viewer || institutions.length === 0) {
+    // S0.5: the ONE refusal page. The decision above is unchanged — the
+    // database's capability answer still decides, and this branch is reached on
+    // exactly the same condition as before. Only the telling moved.
     return (
-      <main className="mx-auto max-w-md py-16">
-        <p className="text-sm text-ink-3">{s("app.name")}</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{s("studio.refused")}</h1>
-        <p className="mt-4"><Link href="/">← {s("entry.title")}</Link></p>
-      </main>
+      <HalamanPenolakan
+        messageKey="studio.refused"
+        persona="staff"
+        locale={locale}
+        backHref="/"
+        backKey="entry.title"
+      />
     );
   }
 

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 30,
+  "version": 31,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -976,6 +976,71 @@
       "id": "Q12-N01",
       "runner": "db",
       "proves": "Q-12: a learner can DISCOVER a node-scoped assessment they are already authorized to start. An educator launches a Quick Assessment over a class through launch_quick_assessment; the learner of that class finds it through public.my_open_assessments() and through nothing else -- my_learning_assignments() reaches assessment_assignments only through learning_assignment_id and projects PRE_TEST and POST_TEST by name, and the table's own SELECT policy needs CAN_DRAFT or CAN_ASSIGN_LEARNING, which no learner holds; a learner of another institution does not find it; and the discovered id opens a session through the same start_learning_session() every other mode uses, so execution is unchanged. The doorway adds no authority: it returns the unbound assignments may_start_assessment() accepts, which is the predicate start_learning_session() itself calls, so one rule answers both. Every row is rolled back. Watched to fail: removing the may_start_assessment filter makes a learner of another tenant discover it and turns this red."
+    },
+    {
+      "id": "UX1-S0-TOKEN-01",
+      "runner": "static",
+      "proves": "THE TOKEN LINT. Every re-set Experience surface in the SOURCE resolves its colours, radii, type sizes and spacing to a token declared in src/app/globals.css -- no raw hex, no rgb(), no Tailwind scale class, no inline pixel. Scope is two declared lists rather than a directory: the surfaces UX-1 has re-set, and the surfaces awaiting their slice with the slice named, and the test fails if any file under src/app or src/components is in neither -- so a surface added later cannot land outside the lint by accident. BOUNDED AND DELIBERATE (Sauron amendment of 2026-09-16 §3): the lint protects the design system, it does not obstruct implementation, so implementation constants -- the A4 sheet's 210:297 geometry, the QR module's square, a computed proportion -- are classified in an allow-list with one line of reason each rather than tokenized, and a stale allow-list entry whose literal has gone fails the test"
+    },
+    {
+      "id": "UX1-S0-CONTRAST-01",
+      "runner": "static",
+      "proves": "WCAG 2.1 contrast COMPUTED from the token source file src/app/globals.css: every text token against white, ivory and the well, every status token against those three and against its own soft ground, and the primary's ink against the primary and its hover. Nothing below 4.5:1. This is the test that makes the token lint safe to enforce -- three v1 values failed AA (ink-3 at 2.79 on white, status-ok at 4.33 on its own soft, attention at 4.16 on the well) and a lint that required their use would have enforced an unreadable screen"
+    },
+    {
+      "id": "UX1-S0-HLE-01",
+      "runner": "static",
+      "proves": "Every key in the copy table src/lib/hle.ts carries BOTH an Indonesian and an English telling, and a persona override exists in both languages or in neither -- a key that speaks to a learner differently in one interface language is a key that says two things. The internal-word guard, which until now ran for a learner and the public only, is exercised over EVERY persona, both languages and every stage telling a learner can receive; the staff-only allow-list (STAFF_ONLY_PREFIXES) is retained as a scoped statement about audience, and F05-S03 asserts the same declaration from the other side"
+    },
+    {
+      "id": "UX1-S0-LANG-01",
+      "runner": "static",
+      "proves": "THE BILINGUAL IDENTITY. The interface language changes rendered text and number formatting and NOTHING ELSE: the learner cycle's read path and the certificate read are driven twice, once per language, through a recording client, and the recorded RPC call sequence and payloads are byte-identical. The structural half stops a later edit from breaking it -- no source file under src/ passes the language into an RPC, a write or a filter, and no migration gives the preference a column. BOUNDED: this drives the application's own call sites through a recording client rather than a hosted session, so it proves what the application ASKS FOR rather than what a live PostgREST receives"
+    },
+    {
+      "id": "UX1-S1-CERT-COLS-01",
+      "runner": "static",
+      "proves": "Q-11, made mechanical against the SOURCE. The direct certificate-list read requests exactly ten columns -- id, session_id, institution_id, certificate_number, verification_token, status, issued_at_iso, revoked_at, revoked_reason, supersedes_certificate_id -- and every .from('certificates').select(...) in src/ uses that one exported list rather than a second one written inline. signature, key_version, canonical_payload and snapshot_id are named nowhere on a learner surface, so there is nothing on this side of the wire to hide. Also asserts V-6a on the source: no learner page reaches for the service-role issuance route"
+    },
+    {
+      "id": "UX1-S1-CERT-ELIGIBLE-01",
+      "runner": "static",
+      "proves": "An ELIGIBLE certificate renders no QR code, no verification link, no copy-link action, no print action, no certificate number and no name-as-issued. Asserted two ways over the SOURCE of src/app/belajar/[tugas]/sertifikat/page.tsx: the binding's own predicates, and the branch order -- the pending state returns before any of the six is built. The binding is applied to my_certificate's result as well as to the list's, because that RPC does not filter by status and returns ELIGIBLE rows. Under the V-6a ruling ELIGIBLE is the default state, not an edge case: certificate_prepare assigns a token and a number to a row verify_certificate refuses, so a link shown here would send a stranger to 'not found' for a certificate the learner was just shown as real"
+    },
+    {
+      "id": "UX1-S1-QR-01",
+      "runner": "static",
+      "proves": "The QR symbol the certificate prints is DECODED BACK to the exact verification link by an independent decoder (jsQR), at three lengths and therefore three symbol versions, and an input past capacity is refused rather than silently truncated. The encoder is in the repository rather than fetched from an image service because a code drawn elsewhere means a URL carrying a learner's verification token leaves PINTAR every time a certificate is rendered; a symbol nobody decoded is a decoration, which is why this test exists rather than a snapshot of the drawing"
+    },
+    {
+      "id": "UX1-S1-KAKI-01",
+      "runner": "static",
+      "proves": "The application footer in the SOURCE src/components/KakiPintar.tsx carries exactly the four lines supplied -- the responsible person, the legal entity, the email and the domain -- and nothing beside them: no copyright line, no legal claim, no social link, none of which was supplied. The proper nouns are module constants rather than copy-table keys, and the copy table is asserted not to carry them, because a person's name, a company's registered name, an email address and a domain are the same string in both languages and two keys that must never diverge are a divergence waiting to happen. The protocol sits in the href where a browser needs it and out of the visible text where a reader does not, and the external link carries rel=noreferrer so a stranger arriving from a verification link does not announce where they came from. THE HALF THAT MATTERS MOST: no mount that can reach a printed page renders it -- the credential card never renders it at all, and every mount on the certificate page carries pin-noprint -- because a printed certificate carries its ISSUING INSTITUTION's identity, and the software vendor's name on the same sheet would be a second claimant to the provenance of the evidence"
+    },
+    {
+      "id": "UX1-S2-POSISI-01",
+      "runner": "static",
+      "proves": "THE SLICE-2 HOME CARRIES ONE NEXT ACTION AND DERIVES IT, rather than taking the first row of a list. The derivation in the SOURCE src/lib/siklus.ts is pure -- cycle state and lesson progress in, a trail position and a ranking out -- so this drives it through all eleven states a cycle can hold with no database, which is also why it runs in a container where the db facility is absent. The case that earns the test: a Mastery Check finished without a single lesson ever being opened must report as the RESULT, because a cycle is a record of what happened and not a checklist to satisfy in order; a naive left-to-right reading puts that learner back at unread lessons. Also asserts the approved ranking (a running session outranks everything, a finished cycle is never the recommendation and falls to the rest of the list instead of vanishing), that the ordering is total and stable so reversing the input cannot change the answer -- list position by another name -- and that each of the five trail steps renders through the EXISTING cycle.step.* copy keys with the raw enum reaching no reader in either language. BOUNDED: this proves the derivation over the rows the engine returns; it does not prove what the engine returns, and it grants no authority -- may_start_assessment() is still asked separately every time"
+    },
+    {
+      "id": "UX1-S0-SAPAAN-01",
+      "runner": "static",
+      "proves": "THE FORM OF ADDRESS, ruled 2026-09-16: natural Indonesian that avoids unnecessary pronouns, and Anda rather than kamu where the reader must be addressed at all. Second person only, and Indonesian only, because the rule is about the reader's pronoun and English has no formal and informal you to choose between. Two halves: every Indonesian telling the copy table renders to a learner or to the public -- THE STAGE OVERRIDES INCLUDED, which is where the informal register survived longest, since a Year 4 telling is exactly where kamu feels natural to write -- and the raw source of every re-set surface, where a hard-coded Indonesian string bypasses the table altogether. A word ending in -mu is read as the informal possessive clitic unless it is one of a DECLARED list of ordinary words that end that way (ilmu, bertemu), so a false positive is fixed in the diff rather than by loosening the pattern. Pending surfaces are excluded by the same declaration the token lint uses, so a surface joins this rule on the day its slice re-sets it. The guard asserts it can still see what it forbids before it sweeps"
+    },
+    {
+      "id": "UX1-S0-FAKTA-01",
+      "runner": "static",
+      "proves": "THE RESPONSIVE FACT STACK, ruled 2026-09-16: a compact fact summary reads left to right across a wide column and stacks label over value on a narrow one, site-wide wherever that structure occurs. Asserted over the SOURCE stylesheet src/app/experience.css, read as CSS rather than as a screenshot, because the defect this prevents is invisible in a wide viewport. THE HALF THAT MATTERS: the guard walks EVERY rule inside the phone block whose subject is .pin-facts, not just the plain class -- .pin-commit .pin-facts outranks .pin-facts at any width, so a stack written only on the plain selector leaves the commitment shell, the screen the correction was raised against, in three columns while the certificate card narrows correctly. The A4 sheet is the one declared exception and is asserted to KEEP its printed row, because 794px of paper is scaled whole and never reflowed, so the viewport's width is not the sheet's width. Also asserts that nothing was added to carry the change -- no generated marker on the pairs -- and that the product's other compact label/value structure, the verification page's rows, narrows the same way, which is what makes this a pattern rather than one fix"
+    },
+    {
+      "id": "UX1-BRAND-01",
+      "runner": "static",
+      "proves": "The mark the application renders is the SUPPLIED ARTWORK, byte for byte. public/brand/pintar-selalu-logo.png is verified by sha256 against the file Yazid supplied, so a redraw, a recolour, a crop or a well-meant recompression fails -- a digest is the only check that catches the last of those, which looks like nothing and alters artwork somebody else owns. Its intrinsic geometry is read from the PNG header rather than trusted (766x429), so a resize fails even if the digest were updated, and the component's width/height attributes must match it or the reserved box is the wrong shape and the header shifts as the image lands. THE RENDERING CANNOT DISTORT IT: the .pin-merek rule takes its height from a token and leaves width to auto, and the test fails if it ever sets a width, because a squash of a few per cent is not something review catches. AND IT IS NOT ON THE CREDENTIAL: the certificate card references neither the component nor the asset, because a certificate's issuer is the INSTITUTION and a software vendor's mark on the same sheet would be a second claimant to the provenance of the evidence"
+    },
+    {
+      "id": "UX1-BRAND-02",
+      "runner": "static",
+      "proves": "The institution-mark ruling of 2026-09-17 still holds against the tree. THE Q-7 GAP IS MEASURED RATHER THAN REMEMBERED: the 83 frozen migrations carry no institution-mark or theme column and no public storage bucket, so the day somebody closes Q-7 this fails and points them at the delivery-path half of the problem -- a mark on the public verification page is read by an anonymous stranger, and a column alone does not give them a path to it. BOUNDED BRANDING, NOT TENANT THEMING: no per-tenant theming mechanism has entered the Experience layer, which is the boundary the ruling draws -- an institution may replace the mark and nothing else, because the moment a second thing is configurable per tenant the guarantee that every PINTAR screen behaves the same way for every child is gone. No specific institution is named in src/ (UIN is the ruling's example and belongs in the ruling). And the shell identity has exactly one renderer, so the future substitution has exactly one place to happen"
     }
   ]
 }

@@ -1,6 +1,9 @@
 import { appUrl } from "@/lib/env";
 import { TAMPERED, type VerificationResponse } from "@/lib/certificates/verification";
-import { t } from "@/lib/hle";
+import { t, format, type HleEvent, type Locale } from "@/lib/hle";
+import { currentLocale } from "@/lib/locale";
+import CangkangPengalaman from "@/components/CangkangPengalaman";
+import KakiPintar from "@/components/KakiPintar";
 
 /**
  * THE public certificate verification route (INV-38). Exactly one exists. A
@@ -27,8 +30,38 @@ import { t } from "@/lib/hle";
  * is structural, not a template omission: `verify_certificate` does not read
  * the snapshot's name or photo columns at all, and `assert_public_surface()`
  * fails the build if it ever does.
+ *
+ * UX-1 SLICE 1. Re-set on the v2 foundations; the behaviour is unchanged and
+ * the response is still exactly the five fields. Three things about the telling:
+ *
+ *  - THE STATUS IS THE HERO, as a word in the reader's own language. It used to
+ *    render `row.validity` — the raw token BERLAKU, DICABUT, DIGANTIKAN — into a
+ *    definition list, which is the enum-in-a-text-position that F06-S03 exists
+ *    to refuse and which a stranger has no way to read. It is now an HLE key,
+ *    with the sentence that says what the word means for them.
+ *  - TIDAK SAH SHOWS THE STATUS ONLY. The five fields are still received
+ *    unchanged — this page asks for nothing different — but a page that printed
+ *    the issuer, the date and the predikat underneath a red "data tidak cocok"
+ *    would be presenting a forged certificate's own claims as facts. So the
+ *    facts render for BERLAKU, DICABUT and DIGANTIKAN, and not for TIDAK SAH.
+ *  - THE LANGUAGE SWITCH IS ON THE PAGE, because the reader here has no
+ *    account to hold a preference in. It changes only text and number
+ *    formatting; the request to the endpoint is byte-identical (UX1-S0-LANG-01).
+ *
+ * NOT FOUND, NOT YET ISSUED AND MALFORMED ARE ONE STATE, as they are at the
+ * endpoint: `verify_certificate` and `certificate_verification_material` apply
+ * the same refusals in the same order, so there is no existence oracle to leak
+ * and this page has no branch that could build one.
  */
 export const dynamic = "force-dynamic";
+
+/** The database says ISSUED / REVOKED / SUPERSEDED; the verifier may downgrade. */
+const STATUS_KEY: Record<string, { word: HleEvent; meaning: HleEvent; tone: string }> = {
+  BERLAKU: { word: "verifikasi.status.BERLAKU", meaning: "verifikasi.status.BERLAKU.arti", tone: "" },
+  DICABUT: { word: "verifikasi.status.DICABUT", meaning: "verifikasi.status.DICABUT.arti", tone: "pin-neutral" },
+  DIGANTIKAN: { word: "verifikasi.status.DIGANTIKAN", meaning: "verifikasi.status.DIGANTIKAN.arti", tone: "pin-info" },
+  [TAMPERED]: { word: "verifikasi.status.TIDAK_SAH", meaning: "verifikasi.tidak_sah", tone: "pin-blocked" },
+};
 
 export default async function VerifikasiPage({
   params,
@@ -36,6 +69,9 @@ export default async function VerifikasiPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
+  const locale: Locale = await currentLocale();
+  const s = (k: HleEvent) => t(k, "public", { locale });
+
   // Server-side fetch of this app's own verification endpoint. `no-store`
   // because a revocation must take effect on the next load, not on the next
   // cache expiry — a cached BERLAKU for a revoked certificate is the same
@@ -52,36 +88,61 @@ export default async function VerifikasiPage({
     row = null;
   }
 
+  const status = row?.validity ? STATUS_KEY[row.validity] : undefined;
+  const showsFacts = row !== null && status !== undefined && row.validity !== TAMPERED;
+
   return (
-    <main className="mx-auto max-w-xl px-6 py-16">
-      <h1 className="text-2xl font-semibold">{t("verifikasi.judul")}</h1>
+    <>
+      <CangkangPengalaman locale={locale} kind="public" />
+      <main className="pin-col pin-narrow">
+        <div className="pin-head">
+          <p className="pin-eyebrow">{s("verifikasi.eyebrow")}</p>
+          <h1 className="pin-h1">{s("verifikasi.judul")}</h1>
+          <p className="pin-intro">{s("verifikasi.intro")}</p>
+        </div>
 
-      {row === null ? (
-        <p className="mt-6 rounded-lg bg-[--pintar-surface-muted] p-4">
-          {t("verifikasi.tidak_ditemukan")}
-        </p>
-      ) : (
-        <dl className="mt-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3">
-          <dt className="font-medium">{t("verifikasi.status")}</dt>
-          <dd>{row.validity}</dd>
-          <dt className="font-medium">{t("verifikasi.hasil")}</dt>
-          <dd>{row.pass ? t("verifikasi.lulus") : t("verifikasi.belum_lulus")}</dd>
-          <dt className="font-medium">{t("verifikasi.predikat")}</dt>
-          <dd>{row.predikat}</dd>
-          <dt className="font-medium">{t("verifikasi.institusi")}</dt>
-          <dd>{row.institution}</dd>
-          <dt className="font-medium">{t("verifikasi.tanggal")}</dt>
-          <dd>{row.date}</dd>
-        </dl>
-      )}
+        {status ? (
+          <section className={`pin-status ${status.tone}`}>
+            <p className="pin-eyebrow">{s("verifikasi.status")}</p>
+            <p className="pin-big">{s(status.word)}</p>
+            <p>{s(status.meaning)}</p>
+          </section>
+        ) : (
+          <section className="pin-status pin-neutral">
+            <p className="pin-eyebrow">{s("verifikasi.status")}</p>
+            <p className="pin-big pin-quietbig">{s("verifikasi.tidak_ditemukan")}</p>
+            <p>{s("verifikasi.tidak_ditemukan.arti")}</p>
+          </section>
+        )}
 
-      {row !== null && row.validity === TAMPERED ? (
-        <p className="mt-6 rounded-lg bg-[--pintar-surface-muted] p-4">
-          {t("verifikasi.tidak_sah")}
-        </p>
-      ) : null}
+        {showsFacts ? (
+          <dl className="pin-dl">
+            <div>
+              <dt>{s("verifikasi.hasil")}</dt>
+              <dd>{row!.pass ? s("verifikasi.lulus") : s("verifikasi.belum_lulus")}</dd>
+            </div>
+            <div>
+              <dt>{s("verifikasi.predikat")}</dt>
+              <dd>{row!.predikat ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>{s("verifikasi.institusi")}</dt>
+              <dd>{row!.institution ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>{s("verifikasi.tanggal")}</dt>
+              <dd className="pin-num">{row!.date ? format.date(row!.date, locale) : "—"}</dd>
+            </div>
+          </dl>
+        ) : null}
 
-      <p className="mt-10 text-sm opacity-70">{t("verifikasi.catatan")}</p>
-    </main>
+        <p className="pin-foot">{s("verifikasi.catatan")}</p>
+
+        {/* Provenance, not a field. The five-field response is untouched: this
+            says who operates the service a stranger just used, and adds
+            nothing to what was verified. */}
+        <KakiPintar />
+      </main>
+    </>
   );
 }
