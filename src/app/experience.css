@@ -419,8 +419,21 @@
   .pin-cert { padding: var(--space-5); }
   .pin-cert .pin-name { font-size: 32px; }
   .pin-cert .pin-course { font-size: 18px; }
-  .pin-facts { grid-template-columns: 1fr 1fr; }
-  .pin-facts > div:nth-child(3) { grid-column: 1 / -1; }
+  /* RESPONSIVE FACT STACK -- the narrow treatment for a compact fact summary.
+     A compact fact summary is a short run of label/value pairs read as one
+     group: "24 soal, 40 menit, ditutup 19 Sep". Across a wide column it reads
+     left to right and the labels line up.
+     Below this width there is no honest column. Two-up left a ~150px measure
+     that broke "Perkiraan waktu" and a long-form date onto second lines, and
+     the odd third pair spanning the full width made a ragged shape that read
+     as two groups rather than one list.
+     Stacked, every pair gets the whole measure and nothing wraps. The label
+     stays above its value, which is already what `.pin-dl` does at this width
+     -- so the two compact label/value structures in the product narrow the
+     same way, and a third one written later inherits it by using `.pin-facts`.
+     Nothing is added to carry the change: no rules, no icons, no markers. */
+  .pin-facts,
+  .pin-commit .pin-facts { grid-template-columns: 1fr; }
   .pin-verify { grid-template-columns: 1fr; }
   .pin-actions { flex-direction: column; align-items: stretch; }
   .pin-actions .pin-btn { width: 100%; }
@@ -432,5 +445,8 @@
   .pin-grid2 { grid-template-columns: 1fr; }
   .pin-kaki { margin-top: var(--space-8); }
   .pin-commit, .pin-refusal { padding: var(--space-5); }
-  .pin-commit .pin-facts { grid-template-columns: repeat(3, auto); gap: var(--space-3) var(--space-5); }
+  /* The sheet is the one exception, and it is not a narrow surface: A4 is
+     794px of paper scaled whole and never reflowed, so the viewport's width
+     is not the sheet's width. Its facts keep the printed row. */
+  .pin-sheet .pin-facts { grid-template-columns: repeat(3, 1fr); }
 }

@@ -11,7 +11,7 @@ import { myCertificates, institutionNames, type CertificateRow } from "@/lib/ser
 import KakiPintar from "@/components/KakiPintar";
 
 /**
- * Sertifikatmu — the learner's certificate list.
+ * Sertifikat Anda — the learner's certificate list.
  *
  * THE READ IS THE TEN COLUMNS AND NOTHING ELSE (Q-11); the list lives once, in
  * `LIST_COLUMNS`, and UX1-S1-CERT-COLS-01 greps for it.

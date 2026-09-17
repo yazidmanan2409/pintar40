@@ -13,6 +13,8 @@
  *   UX1-S1-CERT-COLS-01    the certificate list reads exactly ten columns
  *   UX1-S1-CERT-ELIGIBLE-01 an unissued certificate shows no credential
  *   UX1-S1-QR-01           the printed QR really decodes to the link
+ *   UX1-S0-SAPAAN-01       no learner is addressed informally in Indonesian
+ *   UX1-S0-FAKTA-01        compact fact summaries stack on a narrow surface
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -986,6 +988,217 @@ export const experienceTests: SelfTest[] = [
           "mechanism has entered the Experience layer, which is the boundary between bounded branding and " +
           "tenant theming; no specific institution is named in src/; and the shell identity has exactly one " +
           "renderer, so the future substitution has exactly one place to happen",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "UX1-S0-SAPAAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      // THE FORM OF ADDRESS, RULED 2026-09-16.
+      //
+      // "Prefer natural Indonesian that avoids unnecessary pronouns. Where a
+      // learner-facing pronoun is necessary, use Anda, not kamu."
+      //
+      // The rule is about the READER'S pronoun, so this tests the second
+      // person only, and only in Indonesian: English has no formal and
+      // informal you to choose between.
+      //
+      // Two halves, because the copy table is not the only place a sentence
+      // can reach a learner. Half one reads what `t()` actually renders — the
+      // stage overrides included, which is where the informal register lived
+      // longest, since a Year 4 telling is exactly where "kamu" feels natural
+      // to write. Half two reads the surfaces, where a hard-coded Indonesian
+      // string bypasses the table altogether.
+
+      // A word ending in -mu is the informal possessive clitic UNLESS it is
+      // one of these, which are ordinary words that happen to end that way.
+      // Declared rather than guessed, so a false positive is fixed by adding
+      // a word here and is visible in the diff when somebody does.
+      const NOT_A_CLITIC = ["ilmu", "jamu", "tamu", "semu", "temu", "ramu"];
+      const STANDALONE = ["kamu", "kau", "engkau", "dikau", "dirimu", "kalian"];
+      const WORD = /\b[a-z]+\b/gi;
+
+      /**
+       * Every informal second-person form in one piece of Indonesian text.
+       *
+       * One pass over the words rather than two patterns, because "kamu" is
+       * both a standalone pronoun and a word ending in -mu: two patterns
+       * counted it twice, and a guard whose own count is wrong is a guard
+       * nobody can read a failure from.
+       */
+      function informal(text: string): string[] {
+        const hits: string[] = [];
+        for (const m of text.matchAll(WORD)) {
+          const w = m[0].toLowerCase();
+          if (STANDALONE.includes(w)) { hits.push(m[0]); continue; }
+          if (!w.endsWith("mu") || w.length < 4) continue;
+          if (NOT_A_CLITIC.some((safe) => w.endsWith(safe))) continue;
+          hits.push(m[0]);
+        }
+        return hits;
+      }
+
+      // the guard is only worth its line if it can see the thing it forbids
+      c.expect(informal("Sertifikat kamu sedang disiapkan.").length === 1, "the guard misses the standalone pronoun");
+      c.expect(informal("Jawabanmu tersimpan.").length === 1, "the guard misses the possessive clitic");
+      c.expect(informal("Anda bertemu guru yang berilmu.").length === 0, "the guard trips on an ordinary word ending in -mu");
+
+      // HALF ONE: what the copy table renders to a learner or to the public.
+      const rendered = renderAll().filter((r) => r.locale === "id" && (r.persona === "learner" || r.persona === "public"));
+      c.expect(rendered.length > 200, `only ${rendered.length} learner/public Indonesian telling(s) swept`);
+      for (const r of rendered) {
+        const hits = informal(r.text);
+        c.expect(
+          hits.length === 0,
+          `${r.event} addresses the ${r.persona} informally (${hits.join(", ")}): "${r.text}"`,
+        );
+      }
+
+      // HALF TWO: what the re-set surfaces say without going through the
+      // table. Pending surfaces are excluded by the same declaration the
+      // token lint uses, so a surface joins this rule on the day its slice
+      // re-sets it rather than on the day somebody remembers to add it.
+      const surfaces = [
+        ...walk(join(repoRoot, "src", "app")).filter((f) => /\.tsx$/.test(f)),
+        ...walk(join(repoRoot, "src", "components")).filter((f) => /\.tsx$/.test(f)),
+      ].map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      const inScope = surfaces.filter((f) => !(f in PENDING_SURFACES));
+      c.expect(inScope.length > 10, `only ${inScope.length} surface(s) in scope`);
+      for (const rel of inScope) {
+        const hits = informal(code(readFileSync(join(repoRoot, rel), "utf8")));
+        c.expect(hits.length === 0, `${rel} writes an informal second person (${hits.join(", ")})`);
+      }
+
+      c.note(
+        `${rendered.length} learner/public Indonesian tellings and ${inScope.length} re-set surface(s) swept; ` +
+          `${Object.keys(PENDING_SURFACES).length} surface(s) join the rule when their slice re-sets them`,
+      );
+      return c.verdict(
+        "no Indonesian telling addressed to a learner or to the public uses an informal second person, in the " +
+          "copy table src/lib/hle.ts or on any re-set surface: where the reader is addressed at all it is as " +
+          "Anda, and most tellings carry no pronoun because Indonesian does not need one",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "UX1-S0-FAKTA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      // THE RESPONSIVE FACT STACK, RULED 2026-09-16.
+      //
+      // A compact fact summary reads left to right across a wide column and
+      // stacks label over value on a narrow one. The rule is site-wide for
+      // this structure, which in CSS means: `.pin-facts` is the structure,
+      // and every rule that touches it inside the phone block either stacks
+      // it or is the sheet, which is paper and does not reflow.
+      //
+      // The subtle half is the MORE SPECIFIC selector. `.pin-commit
+      // .pin-facts` outranks `.pin-facts` at any width, so a stack written
+      // only on the plain selector silently leaves the commitment shell —
+      // the screen the correction was raised against — in three columns.
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+
+      /** The body of a block, balanced braces, from its opening line. */
+      function block(source: string, open: string): string {
+        const start = source.indexOf(open);
+        if (start < 0) return "";
+        let depth = 0;
+        for (let i = start + open.length - 1; i < source.length; i++) {
+          if (source[i] === "{") depth++;
+          else if (source[i] === "}" && --depth === 0) return source.slice(start + open.length, i);
+        }
+        return "";
+      }
+
+      /** Every rule in a stylesheet body, as selector plus declarations. */
+      function rules(body: string): Array<{ sel: string; decl: string }> {
+        const out: Array<{ sel: string; decl: string }> = [];
+        for (const m of body.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+          out.push({ sel: m[1].replace(/\/\*[\s\S]*?\*\//g, " ").trim(), decl: m[2] });
+        }
+        return out;
+      }
+
+      const phone = block(css, "@media (max-width: 560px) {");
+      c.expect(phone.length > 200, "the phone block was not found in src/app/experience.css");
+
+      // 1. wide is horizontal: the structure exists and has more than one column
+      const wide = rules(css.slice(0, css.indexOf("@media (max-width: 560px)")))
+        .filter((r) => /(^|,|\s)\.pin-facts(\s|,|$)/.test(r.sel) && /grid-template-columns/.test(r.decl));
+      c.expect(wide.length > 0, "no wide rule sets the columns of .pin-facts");
+      for (const r of wide) {
+        const cols = /grid-template-columns:\s*([^;]+)/.exec(r.decl)?.[1].trim() ?? "";
+        c.expect(/repeat\(\s*[2-9]/.test(cols), `the wide treatment of "${r.sel}" is not a horizontal row: ${cols}`);
+      }
+
+      // 2. narrow is a stack, for EVERY selector whose subject is .pin-facts,
+      //    however specific — except the sheet
+      const narrow = rules(phone).filter((r) => /\.pin-facts/.test(r.sel));
+      c.expect(narrow.length >= 2, `only ${narrow.length} narrow rule(s) touch .pin-facts; the specific selector is unguarded`);
+      let stacked = 0;
+      let sheet = 0;
+      for (const r of narrow) {
+        const cols = /grid-template-columns:\s*([^;]+)/.exec(r.decl)?.[1].trim();
+        if (/\.pin-sheet/.test(r.sel)) {
+          c.expect(
+            cols !== undefined && /repeat\(\s*[2-9]/.test(cols),
+            `the sheet's facts reflow at phone width (${cols}); A4 is scaled whole, never reflowed`,
+          );
+          sheet++;
+          continue;
+        }
+        c.expect(cols !== undefined, `"${r.sel}" is narrowed without setting its columns, so it keeps the wide row`);
+        c.expect(cols === "1fr", `"${r.sel}" is not a single-column stack at phone width: ${cols}`);
+        // by selector, not by rule: one comma-separated rule can narrow the
+        // plain class and the specific one together, and "1" would read as a
+        // gap that is not there
+        stacked += r.sel.split(",").length;
+      }
+      c.expect(sheet === 1, `${sheet} sheet exception(s); the paper is the one thing that does not narrow`);
+
+      // 3. every selector that narrows .pin-facts anywhere is covered above,
+      //    including the ones that outrank the plain class
+      const specific = narrow.filter((r) => /\S+\s+\.pin-facts/.test(r.sel) && !/\.pin-sheet/.test(r.sel));
+      const plain = narrow.filter((r) => /(^|,)\s*\.pin-facts\s*(,|$)/.test(r.sel));
+      c.expect(plain.length > 0, ".pin-facts itself is never stacked at phone width");
+      c.expect(
+        specific.length > 0,
+        "no descendant selector of .pin-facts is stacked at phone width, yet the wide stylesheet has one " +
+          "(.pin-commit .pin-facts) that outranks the plain class — the commitment shell would stay horizontal",
+      );
+
+      // 4. nothing was added to carry the change. The ruling said the stack
+      //    is the whole change: no icons, no markers, no rules drawn between
+      //    the pairs to hold them together once they are no longer columns.
+      for (const r of rules(css).filter((x) => /\.pin-facts/.test(x.sel) && /::(before|after)/.test(x.sel))) {
+        c.expect(false, `"${r.sel}" adds a generated marker to the fact summary`);
+      }
+
+      // 5. and the other compact label/value structure narrows the same way,
+      //    which is what makes this a pattern rather than one fix
+      const dl = rules(phone).find((r) => /\.pin-dl\s*>\s*div/.test(r.sel));
+      c.expect(dl !== undefined, ".pin-dl does not narrow at phone width");
+      c.expect(
+        /grid-template-columns:\s*1fr/.test(dl?.decl ?? ""),
+        "the verification page's label/value rows do not stack at phone width, so the two compact structures " +
+          "in the product disagree about what narrow means",
+      );
+
+      c.note(`${stacked} fact summar(ies) stacked at phone width, ${sheet} sheet exception, ${wide.length} wide rule(s)`);
+      return c.verdict(
+        "the compact fact summary stacks label over value below 560px wherever it occurs — on the plain class " +
+          "and on the more specific selector that outranks it — while the A4 sheet keeps its printed row " +
+          "because it is scaled whole rather than reflowed; the verification page's label/value rows narrow " +
+          "the same way; and nothing was added to carry the change",
       );
     },
   },
