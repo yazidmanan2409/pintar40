@@ -119,11 +119,30 @@ screenshot's wording untouched does not apply. The product's *concepts* and
 |---|---|---|
 | Pemetaan Awal intro | Ini bukan ujian. **Jawabanmu** dipakai untuk menyusun peta bacaan yang pas **untukmu**. | Ini bukan ujian. **Jawaban Anda** dipakai untuk menyusun urutan bacaan yang sesuai. |
 | Peta Bacaan intro | Mulailah dari kartu paling atas. Urutannya sudah disusun **untukmu**. | Mulailah dari kartu paling atas. Urutannya disusun dari jawaban **Anda**. |
-| KUAT tier | Sudah **kamu** kuasai | Sudah **Anda** kuasai |
+| Third tier label | Sudah **kamu** kuasai | Jawaban **Anda** sudah tepat di bagian ini |
 
 *EN:* Initial Mapping — "This is not an exam. Your answers are used to build
 a reading order that suits you." · Reading Map — "Start with the top card.
-The order comes from your answers." · KUAT — "Already yours."
+The order comes from your answers." · third tier — "Your answer here was
+already right."
+
+**SECOND CORRECTION, on the product owner's ruling of 2026-09-18.** The
+adult-register fix above was not enough. *"Sudah Anda kuasai" / "Already
+yours"* is a claim of **mastery**, and one correct Pemetaan Awal answer
+cannot support it — the same overclaim that `DIDUKUNG` was renamed to avoid
+at the other end of the journey. The tier's visible label now describes the
+**observed answer**: *"Jawaban Anda sudah tepat di bagian ini"* / *"Your
+answer here was already right."* The tier's function in §4.1 is unchanged;
+the adaptation is not redesigned.
+
+**Consequence I took on my own, flagged for reversal in one line.** The
+internal tier identifier was `KUAT` — "strong" — which is the same
+inferred-mastery word in the data model that the ruling removed from the
+screen. Leaving it would put an internal vocabulary one careless debug
+surface away from contradicting the label, which is the leak
+`INTERNAL_WORDS` exists in `src/lib/hle.ts` to prevent. The identifier is
+now **`SUDAH_TEPAT`**. Function, ordering and tier count are identical; if
+you prefer `KUAT` retained, it is one rename.
 
 ### 3.2a Pemetaan Awal — three questions
 
@@ -207,9 +226,11 @@ disiapkan, karena melewatinya juga memberi tahu sesuatu. / *EN* You skipped
 this one. The reading is offered anyway, because skipping tells us
 something too.
 
-**Already strong** (`KUAT`, label *"Sudah Anda kuasai"*) — *ID* Jawaban Anda
-sudah tepat di bagian ini. Tidak perlu diulang. / *EN* Your answer here was
-already right. No need to repeat it.
+**Answer already right** (`SUDAH_TEPAT`, label *"Jawaban Anda sudah tepat di
+bagian ini"* / *"Your answer here was already right"*) — *ID* Bagian ini
+tidak perlu dibaca lebih dulu. Kartunya tetap ditampilkan agar urutannya
+terlihat utuh. / *EN* This part does not need reading first. The card is
+still shown so the whole order stays visible.
 
 ### 3.4 Pelajaran — three lessons, of which the visitor reads one
 
@@ -440,11 +461,13 @@ your brief names ("do not make it so short that adaptation becomes
 meaningless"). Three questions is the smallest number that produces a map
 worth reading.
 
-**Recommendation:** accept 2:20–3:55 and describe the experience publicly as
-*"sekitar tiga menit" / "about three minutes"* rather than two. Over-promising
-two minutes and delivering four is a small dishonesty on a website whose
-entire argument is that PINTAR does not overstate. Carried as an open
-question in §12.
+**RULED (product owner, 2026-09-18).** The public promise is
+*"sekitar tiga menit" / "about three minutes"*, and all three Pemetaan Awal
+questions are kept. Over-promising two minutes and delivering four would be
+a small dishonesty on a website whose entire argument is that PINTAR does
+not overstate. Every remaining "dua menit / two minutes" string in the
+website documents, the wireframes and the ADR has been reconciled to this
+figure; STOP-7 is closed in §12 with the ruling recorded against it.
 
 ---
 
@@ -462,16 +485,16 @@ For each domain the visitor's answer is `correct`, a named misconception, or
 
 ```
 needs   = domains where the answer was a misconception or a skip
-strong  = domains where the answer was correct
+right   = domains where the answer was correct
 
 if needs is empty:
-    every card KUAT, ordered by severity descending,
+    every card SUDAH_TEPAT, ordered by severity descending,
     plus D2 promoted to DISARANKAN as an extension reading
 else:
     highest-severity member of needs      → PERLU_SEGERA  "Baca ini lebih dulu"
     remaining members of needs            → WAJIB         "Perlu dibaca"
-    members of strong                     → KUAT          "Sudah Anda kuasai"
-    order: PERLU_SEGERA, then WAJIB by severity desc, then KUAT by severity desc
+    members of right                      → SUDAH_TEPAT   "Jawaban Anda sudah tepat…"
+    order: PERLU_SEGERA, then WAJIB by severity desc, then SUDAH_TEPAT by severity desc
 ```
 
 The lesson served at step 3 is the one attached to the **first card**.
@@ -580,7 +603,7 @@ Five properties. Each is a structural fact, not a rule someone must remember.
    it. **DECISION:** this is stronger than required, and it is the only
    reading under which *"tidak ada catatan tentang Anda"* is literally true.
    The cost — a reload restarts the journey — is disclosed at the threshold
-   and is two minutes.
+   and is about three minutes.
 4. **No product content is present.** The bundle contains only the content
    in §3, authored for this purpose. INV-01 is untouched because no product
    item's key is published (ADR-0021, *Security implications*).
@@ -613,8 +636,8 @@ footer is gone. Under `prefers-reduced-motion`, the same end state arrives
 without the transition. Then one line and one button — nothing else on the
 screen:
 
-> **ID** Dua menit. Tidak ada akun, tidak ada data yang disimpan.  `[ Mulai ]`
-> **EN** Two minutes. No account, nothing kept about you.  `[ Start ]`
+> **ID** Sekitar tiga menit. Tidak ada akun, tidak ada data yang disimpan.  `[ Mulai ]`
+> **EN** About three minutes. No account, nothing kept about you.  `[ Start ]`
 
 That sentence is the first of exactly **two** honesty statements in the whole
 experience (the second is at the end, §11). The brief asked for elegance over
@@ -630,7 +653,7 @@ are *Keluar*, the language control, and the step indicator.
   section*, not the top. The visitor resumes where they left the argument.
 - **Finishing** → the reveal (§11), then three doors rather than one CTA:
   *Apa artinya bagi pendidik* · *Bagaimana PINTAR menjaga bukti* · *Bicara
-  dengan kami*. A single CTA after a two-minute experience wastes the one
+  dengan kami*. A single CTA after a three-minute experience wastes the one
   moment the visitor is most willing to go further, by guessing which
   direction they want.
 
@@ -795,33 +818,40 @@ choose*. The system never holds the deciding verb.
 |---|---|---|---|
 | **STOP-1** | **Baseline amendment owed.** Doc 09 must move the public Mini-PINTAR experience FOUNDATION NOW → BUILD NOW; doc 11 must mark OD-11 RESOLVED against ADR-0021. Both are frozen documents: new bytes, new `baseline` identity, in-document marker, manifest regenerated. Until it lands, doc 11 contradicts the ADR. | Not implementation — but it should not ship publicly with the baseline disagreeing with itself | Engineering, on your instruction |
 | **STOP-2** | **Analytics feasibility (R8).** Whether four counters can be implemented with no identifier and no tracking machinery is an implementation question with a privacy consequence. R8's own fallback applies if not: ship V1 with none. | Instrumentation only | Me, at implementation; you if a privacy decision appears |
-| **STOP-3** | **Content review gate (R4).** §3 is complete and is not canonical until you approve it. | All implementation | **You** |
+| ~~**STOP-3**~~ | **CLOSED 2026-09-18 — content review gate (R4).** §3 approved: "Proceed with 'Membaca Angka / Reading a Number.'" §4.2 approved with the outcome table preserved. §6.3 approved as memory-only. One bounded semantic correction was ruled and is applied in §3.2/§3.3. Native Indonesian editorial review remains required — it did **not** close, it is STOP-4. | Nothing | Closed |
 | **STOP-4** | **Native Indonesian read.** The ID content in §3 is authored, not translated, and I am confident in it — but educational copy that a public audience will read deserves a native editorial pass before launch, independent of your content approval. | Public launch | You to assign |
 | **STOP-5** | **Domain cutover (R5).** `pintarselalu.com` / `app.pintarselalu.com` — DNS, certificates, and whether the application moves now or later. R5 says do not move application routes yet, so V1 can be built and previewed without it. | Public launch, not build | You / infrastructure |
 | **STOP-6** | **Identity asset (R7).** A replaceable slot is designed in; final external release remains blocked on the approved PINTAR SELALU asset, per your ruling. | External release | Separate identity exploration |
-| **STOP-7** | **Duration claim (§3.7).** The measured journey is 2:20–3:55, not 2–3 minutes. I recommend describing it as "about three minutes" and keeping three Pemetaan Awal questions. The alternative — two questions — buys ~25 seconds and costs a Peta Bacaan card. | Public copy, not the build | **You** |
-| **STOP-8** | **Modal outcome (§4.2).** Most visitors will see `KONSISTEN`, not `BELUM_CUKUP`, because the check questions follow the lesson that answers them. The doctrine is carried by the limit statement in every outcome rather than by the distribution. If you want the refusal to be the usual result, the check questions must be materially harder. | Nothing — the design works either way | **You** |
+| ~~**STOP-7**~~ | **CLOSED 2026-09-18 — duration claim (§3.7).** Ruled: the public promise is *"sekitar tiga menit" / "about three minutes"* and all three Pemetaan Awal questions are kept. Every remaining "dua menit / two minutes" string in §7, `../EXPERIENCE-ARCHITECTURE.md`, the wireframe generator and ADR-0021 is reconciled. The measured range in §3.7 (2:20–3:55) is left as measured. | Nothing | Closed |
+| ~~**STOP-8**~~ | **CLOSED 2026-09-18 — modal outcome (§4.2).** Ruled: preserve the outcome table; `BELUM_CUKUP` is **not** to be made artificially modal and the check is **not** to be made materially harder to manufacture the refusal. The doctrine is carried by the evidence-limit statement in every outcome, `KONSISTEN` included. This is now a **standing constraint on future edits**, not merely a closed question. | Nothing | Closed |
 
-**Nothing in §§2–11 is blocked by STOP-1, 2, 5 or 6.** Only STOP-3 — your
-review of the content — stands between this document and implementation.
+**Still open after the M1 gate: STOP-1, STOP-2, STOP-4, STOP-5, STOP-6.**
+None of them blocks implementation; STOP-1 and STOP-4 block public launch and
+STOP-6 blocks external release. They are carried forward verbatim into the
+implementation phase's handoff rather than absorbed — a debt that stops being
+written down stops being paid.
 
 ---
 
-## What I need from you
+## 13 · M1 gate outcome
 
-1. **Approve or amend §3**, the content. That is the gate, and §3 has been
-   through the adversarial pass recorded in `M1-ADVERSARIAL-PASS.md` — five
-   defects found and fixed before it reached you, including one register
-   error and one item whose answer the lesson never taught.
-2. **§3.7 — the duration.** The measured journey is 2:20–3:55, not the 2–3
-   minutes the architecture asserted. I recommend saying "about three
-   minutes" and keeping three Pemetaan Awal questions.
-3. **§4.2 — the modal outcome.** Most visitors will see `KONSISTEN`. My
-   first draft claimed `BELUM_CUKUP` would be the usual result and that was
-   wrong. The doctrine is carried by the limit statement in every outcome
-   instead, which I think is the stronger mechanism — but you should decide
-   deliberately, because the alternative is harder check questions.
-4. **§6.3** — no browser storage at all, accepting that a reload restarts
-   the journey.
+**M1 CONTENT / INTERACTION GATE: PASSED**, 2026-09-18, on the product
+owner's ruling. What was decided, in the ruling's own terms:
 
-On your approval I will proceed to visual direction and implementation.
+| Asked | Ruled |
+|---|---|
+| §3 — the content | **APPROVED.** Proceed with "Membaca Angka / Reading a Number." |
+| §3.7 — the duration | **APPROVED.** Public promise is "sekitar tiga menit / about three minutes"; keep all three Pemetaan Awal questions. |
+| §4.2 — the outcome table | **APPROVED, preserved.** Do not make `BELUM_CUKUP` artificially modal; do not make the check materially harder to manufacture the refusal. |
+| §6.3 — storage | **APPROVED.** Memory-only. No `localStorage`, `sessionStorage`, IndexedDB or cookie for answers, progress, adaptation or outcome. Reload restarts. Corporate-site language preference may remain a separate functional mechanism, but **Mini-PINTAR educational state must never enter it.** |
+| adversarial corrections | **ACCEPTED** — adult register, U-D2-1, lesson↔check coherence, `DIDUKUNG`→`KONSISTEN`. |
+| ADR-0021 content boundary | **ACCEPTED.** Mini-PINTAR content is never imported from the protected PINTAR item bank. |
+
+**One bounded semantic correction was ruled and is applied** (§3.2, §3.3,
+§4.1): a single correct Pemetaan Awal response does not justify *"Sudah Anda
+kuasai / Already yours"*, so the third tier's label now describes the
+observed answer — *"Jawaban Anda sudah tepat di bagian ini"*. The tier's
+function is preserved and the adaptation is not redesigned.
+
+**Scope of the next phase, as instructed:** the already-defined Mini-PINTAR
+implementation phase only. Not the rest of the corporate website.

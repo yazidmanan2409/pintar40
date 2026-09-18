@@ -126,6 +126,18 @@ directly beneath it — the one sentence Sauron approved verbatim.
 Anda baca tampak bisa Anda gunakan"* to *"Dua jawaban Anda sejalan dengan
 bacaan itu."* Consistency is exactly what two answers can establish.
 
+### MISS D-2 — and the same overclaim at the other end, which I did not catch
+
+Recorded because the pass claimed this axis clean and it was not. I checked
+the *outcome* names for overclaim and stopped there. The Peta Bacaan's third
+tier said *"Sudah Anda kuasai" / "Already yours"* — a mastery claim resting
+on **one** Pemetaan Awal answer, which is weaker evidence than the two that
+made `DIDUKUNG` indefensible. Caught by the product owner, ruled on
+2026-09-18, and fixed in §3.2/§3.3: the label now describes the observed
+answer. The lesson for the next pass is that an axis is a *property*, not a
+location — "does any surface claim more than its evidence?" should have been
+run over every label in the document, not only over the four outcomes.
+
 ---
 
 ## E · Justification honesty
@@ -163,13 +175,14 @@ Counted, at 180 wpm plus five seconds of decision per question: the journey
 is **3:17** and the whole thing **3:54** for a careful reader, **2:20** and
 **2:45** for a fast one. The honest range is **2:20–3:55**.
 
-**Partly fixed, partly escalated.** The three lesson bodies were trimmed
-about 25 %, which is the cut available without damage, and §3.7 now carries
-the measured table. The remaining gap is a product decision (STOP-7): I
-recommend describing the experience as *"sekitar tiga menit" / "about three
-minutes"* and keeping three Pemetaan Awal questions, because dropping to two
-would leave the Peta Bacaan with two cards and make the adaptation look
-thinner than it is.
+**Fixed, then ruled.** The three lesson bodies were trimmed about 25 %,
+which is the cut available without damage, and §3.7 now carries the measured
+table. The remaining gap was a product decision (STOP-7), and it has since
+been taken: **the public promise is *"sekitar tiga menit" / "about three
+minutes"* and all three Pemetaan Awal questions are kept.** Every remaining
+"dua menit / two minutes" string has been reconciled. The measured range
+above is left as measured — the correction was to the promise, not to the
+measurement.
 
 Promising two minutes and delivering four would be a small dishonesty on a
 website whose whole argument is that PINTAR does not overstate. It is a
@@ -182,7 +195,7 @@ small thing that the site cannot afford.
 All eight map shapes were walked by hand. Each produces a sensible,
 non-repetitive map, and each of the four lesson presentations is reachable.
 
-- **All three correct** → three KUAT cards plus the D2 extension reading.
+- **All three correct** → three `SUDAH_TEPAT` cards plus the D2 extension reading.
   No manufactured weakness. Clean.
 - **All three missed** → PERLU_SEGERA on D2, WAJIB on D3 and D1. Clean.
 - **All three skipped** → same shape as all-missed, with the skip reason on

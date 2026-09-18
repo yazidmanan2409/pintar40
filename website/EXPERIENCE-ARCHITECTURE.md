@@ -33,7 +33,7 @@ every commercial incentive to flatter them — has learned the product.
 That single observation determines the whole architecture: **Mini-PINTAR is
 not a feature of the website. The website is an arrangement around
 Mini-PINTAR.** Everything before it exists to make a stranger willing to
-spend two minutes; everything after it exists to explain what they just felt.
+spend about three minutes; everything after it exists to explain what they just felt.
 
 The site must answer your eleven questions, and it does — but ordered so
 that question 10 (*can I experience it myself?*) is answered **before**
@@ -196,7 +196,7 @@ tahu.* / *PINTAR is built to be able to say: we do not know yet.*
 everything above it — the page visibly changes register before the visitor
 does.
 
-> **Dua menit. Tanpa akun. Jadilah peserta didik sebentar.**
+> **Sekitar tiga menit. Tanpa akun. Jadilah peserta didik sebentar.**
 > `[ Mulai Mini-PINTAR → ]`
 > *Tidak ada data tentang Anda yang disimpan.*
 
@@ -226,11 +226,20 @@ already conceded the point.
 
 ---
 
-## F · Mini-PINTAR — the 2–3 minute journey
+## F · Mini-PINTAR — the three-minute journey
+
+> **SUPERSEDED IN PART, 2026-09-18.** `mini-pintar/M1-CONTENT-AND-INTERACTION.md`
+> is the authority for this section's content and interaction. Three things
+> in §F have since been ruled or corrected and are left visible here rather
+> than rewritten away: **F.0 is ruled — Option 1**, "Membaca Angka /
+> Reading a Number"; the `ANAK`-register strings quoted in F.1 are **not**
+> what Mini-PINTAR says, per M1 §3.2, which restates them in `DEWASA`; and
+> the step clock in F.1 was asserted, not measured — M1 §3.7 carries the
+> counted table and the public promise is *sekitar tiga menit*.
 
 ### F.0 · Content
 
-**PROPOSAL, needs your ruling.** The demonstration topic is a product
+**PROPOSAL — RULED: Option 1.** The demonstration topic is a product
 decision about what PINTAR shows the public, so I am putting two options to
 you rather than choosing.
 
@@ -247,7 +256,7 @@ Why I recommend it:
 - **It teaches the visitor the exact literacy PINTAR is about.** Finishing
   it, they understand "a number never stands alone" because they just did
   it. The content and the product argument reinforce each other instead of
-  competing for the two minutes.
+  competing for those three minutes.
 - It is demonstrably original, so it carries no rights question and no
   dependency on OD-3 (**CANONICAL**: no real textbook editions are named
   yet, doc 11 OD-3 OPEN).
@@ -257,7 +266,7 @@ Why I recommend it:
 whose source row reads *"Bahan Ajar Sintetis PINTAR — Pecahan… Bukan
 terbitan nyata"* — explicitly synthetic and safe to derive from. It has the
 advantage of being real product content. It has the disadvantage that an
-adult decision-maker spends their two minutes on primary-school fractions,
+adult decision-maker spends those three minutes on primary-school fractions,
 which makes PINTAR look like a primary-school product and risks a faint
 insult.
 
@@ -273,7 +282,7 @@ deliberate ~400 ms settle, not a page flash — the visitor should *feel* the
 crossing from explanation into experience. One line, eight words of honesty,
 and a button.
 
-> Dua menit. Tidak ada akun, tidak ada data yang disimpan.  `[ Mulai ]`
+> Sekitar tiga menit. Tidak ada akun, tidak ada data yang disimpan.  `[ Mulai ]`
 
 **Step 1 · Pemetaan Awal** — 0:10–0:55, three questions. Framed in the
 product's own words (**OBSERVED**, `src/lib/hle.ts` `pretest.intro`): *"Ini
@@ -600,7 +609,7 @@ decision under Indonesian PDP law and adjacent to OD-5 — **yours, not mine.**
    yours, not mine.
 2. **Mini-PINTAR, before any marketing page.** Counterintuitive and correct:
    it is the hardest thing, the highest-risk thing, and the thing the entire
-   IA is arranged around. If the two-minute journey does not land, the
+   IA is arranged around. If the three-minute journey does not land, the
    homepage's shape changes — so building the homepage first would be
    building on an assumption. Ship it standalone at `/coba`, bilingual from
    the first commit, with the content model and the language audit in place

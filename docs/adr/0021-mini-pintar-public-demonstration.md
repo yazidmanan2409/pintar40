@@ -11,8 +11,8 @@
 
 ## Problem
 
-The PINTAR corporate website is to contain **Mini-PINTAR**: a two-to-three
-minute public experience in which an anonymous visitor walks one miniature
+The PINTAR corporate website is to contain **Mini-PINTAR**: a public
+experience of about three minutes in which an anonymous visitor walks one miniature
 learning journey — Pemetaan Awal → Peta Bacaan → Pelajaran → Uji Penguasaan
 → Hasil — and so understands PINTAR by doing rather than by reading.
 
@@ -119,7 +119,7 @@ pass' with subtly different rules", and Mini-PINTAR computes no such thing.
 
 ## Calm-surface check
 
-Calmer, and more rigorous underneath. The visitor sees a two-minute journey
+Calmer, and more rigorous underneath. The visitor sees a three-minute journey
 with no account, no gate and no jargon; underneath, the honesty that makes
 the journey worth having is enforced structurally rather than by copy —
 the demonstration has no way to record them, so "nothing is kept about you"

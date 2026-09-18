@@ -26,7 +26,7 @@ def chrome(step, n=None, of=None, exit_="Keluar"):
 # ---------------------------------------------------------------- the steps
 S0 = (chrome("mini-pintar", exit_="Keluar") +
       '<div style="flex:1;display:flex;flex-direction:column;justify-content:center">'
-      '<h2 class="t">Dua menit.</h2>'
+      '<h2 class="t">Sekitar tiga menit.</h2>'
       '<p class="l">Tidak ada akun, tidak ada data yang disimpan.</p>'
       '<div class="btn" style="margin-top:14px;margin-bottom:auto">Mulai</div></div>'
       '<p class="meta">honesty statement 1 of 2</p>')
@@ -54,9 +54,10 @@ S2 = (chrome("Peta Bacaan") +
       '<div class="box tier w"><div class="lbl">Perlu dibaca</div>'
       'Angka dan dasarnya<div class="m">Jawaban Anda menuju perbandingan lebih '
       'dulu.</div></div>'
-      '<div class="box tier k"><div class="lbl">Sudah Anda kuasai</div>'
-      'Berhubungan atau menyebabkan<div class="m">Jawaban Anda sudah tepat di '
-      'bagian ini.</div></div>'
+      '<div class="box tier k"><div class="lbl">Jawaban Anda sudah tepat di '
+      'bagian ini</div>'
+      'Berhubungan atau menyebabkan<div class="m">Bagian ini tidak perlu '
+      'dibaca lebih dulu.</div></div>'
       '<div class="btn">Buka pelajarannya</div>')
 
 S3 = (chrome("Pelajaran") +
@@ -155,7 +156,8 @@ STEPS = [
    "misconception-specific reasons (&sect;3.3).",
    "<b>Order is derived, deterministic, and severity-ranked</b> D2 &gt; D3 &gt; "
    "D1. No randomness anywhere in the journey.",
-   "<b>Strength is named too.</b> A correct domain gets a KUAT card rather than "
+   "<b>A right answer is named too</b>, as an observed answer and never as "
+   "mastery — the domain gets a <i>SUDAH_TEPAT</i> card rather than "
    "disappearing.",
    "<b>All-correct path is designed:</b> no weakness is manufactured; the "
    "reading offered deepens rather than repairs."],
