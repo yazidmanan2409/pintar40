@@ -25,6 +25,14 @@
  *   UX1-S3-KATA-01         the educator copy is complete, declared and clean
  *   UX1-S3-FAKTA-01        the Slice-3 compositions narrow on a phone
  *   UX1-S0-MUAT-01         a stretched box fits its container and does not clip
+ *   UX1-TUR-LIHAT-01       the tour only looks, and spends only what it presents
+ *   UX1-TUR-ORANG-01       the tour's memory belongs to the person, not the device
+ *   UX1-TUR-TAHAP-01       PINTAR does not guess a learner's stage
+ *   UX1-TUR-PERAN-01       a tour belongs to an experience; seniority inherits none
+ *   UX1-TUR-TAMPIL-01      presentation, replay and the tip agree with each other
+ *   UX1-TUR-KATA-01        the tour's copy is the approved copy, complete and clean
+ *   UX1-TUR-AKSES-01       the tour is a dialog a keyboard and a reader can use
+ *   UX1-TUR-TUNTUN-01      Guidance Mode is two states, and never a status
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -34,6 +42,10 @@ import { Checks, type SelfTest } from "./lib";
 import { allKeys, telling, renderAll, t, LOCALES, type HleEvent } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
+import {
+  tur, varianBelajar, bolehTampilOtomatis, akanMunculLagi, tipSetelahTutup,
+  peranAktif, turPengajarBerlaku, TUR_BELAJAR, TUR_PENGAJAR,
+} from "../src/lib/tur";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
 
@@ -53,6 +65,39 @@ function walk(dir: string, out: string[] = []): string[] {
 /** Source with comments removed: a rule about code is tested against code. */
 function code(text: string): string {
   return text.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ").replace(/\{\/\*[\s\S]*?\*\/\}/g, " ");
+}
+
+// A word ending in -mu is the informal possessive clitic UNLESS it is one of
+// these, which are ordinary words that happen to end that way. Declared rather
+// than guessed, so a false positive is fixed by adding a word here and is
+// visible in the diff when somebody does.
+const NOT_A_CLITIC = ["ilmu", "jamu", "tamu", "semu", "temu", "ramu"];
+const STANDALONE = ["kamu", "kau", "engkau", "dikau", "dirimu", "kalian"];
+const WORD = /\b[a-z]+\b/gi;
+
+/**
+ * Every informal second-person form in one piece of Indonesian text.
+ *
+ * One pass over the words rather than two patterns, because "kamu" is both a
+ * standalone pronoun and a word ending in -mu: two patterns counted it twice,
+ * and a guard whose own count is wrong is a guard nobody can read a failure
+ * from.
+ *
+ * AT MODULE SCOPE because two tests need it — the Slice-0 sweep over learner
+ * and public tellings, and the tour's own sweep, which also covers the
+ * educator ones. A second copy is how the two halves start to disagree about
+ * what "informal" means.
+ */
+function informal(text: string): string[] {
+  const hits: string[] = [];
+  for (const m of text.matchAll(WORD)) {
+    const w = m[0].toLowerCase();
+    if (STANDALONE.includes(w)) { hits.push(m[0]); continue; }
+    if (!w.endsWith("mu") || w.length < 4) continue;
+    if (NOT_A_CLITIC.some((safe) => w.endsWith(safe))) continue;
+    hits.push(m[0]);
+  }
+  return hits;
 }
 
 // ---------------------------------------------------------------------------
@@ -1089,34 +1134,6 @@ export const experienceTests: SelfTest[] = [
       // longest, since a Year 4 telling is exactly where "kamu" feels natural
       // to write. Half two reads the surfaces, where a hard-coded Indonesian
       // string bypasses the table altogether.
-
-      // A word ending in -mu is the informal possessive clitic UNLESS it is
-      // one of these, which are ordinary words that happen to end that way.
-      // Declared rather than guessed, so a false positive is fixed by adding
-      // a word here and is visible in the diff when somebody does.
-      const NOT_A_CLITIC = ["ilmu", "jamu", "tamu", "semu", "temu", "ramu"];
-      const STANDALONE = ["kamu", "kau", "engkau", "dikau", "dirimu", "kalian"];
-      const WORD = /\b[a-z]+\b/gi;
-
-      /**
-       * Every informal second-person form in one piece of Indonesian text.
-       *
-       * One pass over the words rather than two patterns, because "kamu" is
-       * both a standalone pronoun and a word ending in -mu: two patterns
-       * counted it twice, and a guard whose own count is wrong is a guard
-       * nobody can read a failure from.
-       */
-      function informal(text: string): string[] {
-        const hits: string[] = [];
-        for (const m of text.matchAll(WORD)) {
-          const w = m[0].toLowerCase();
-          if (STANDALONE.includes(w)) { hits.push(m[0]); continue; }
-          if (!w.endsWith("mu") || w.length < 4) continue;
-          if (NOT_A_CLITIC.some((safe) => w.endsWith(safe))) continue;
-          hits.push(m[0]);
-        }
-        return hits;
-      }
 
       // the guard is only worth its line if it can see the thing it forbids
       c.expect(informal("Sertifikat kamu sedang disiapkan.").length === 1, "the guard misses the standalone pronoun");
@@ -2478,6 +2495,848 @@ export const experienceTests: SelfTest[] = [
         "measured horizontal overflow, one of them on a learner surface no rendered fixture reaches. The global border-box " +
         "reset every padded box depends on is asserted against the COMPILED stylesheet rather than assumed, because an " +
         "earlier harness lost it and produced a convincing 48px defect that the product never had",
+      );
+    },
+  },
+
+  // ═══════════════════════════════════════════════════════ UX-1 · THE TOUR
+  {
+    id: "UX1-TUR-LIHAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const files = [
+        ...walk(join(repoRoot, "src", "components", "tur")),
+        join(repoRoot, "src", "app", "tur", "actions.ts"),
+        join(repoRoot, "src", "lib", "tur.ts"),
+        join(repoRoot, "src", "lib", "tur-negara.ts"),
+      ].filter((f) => /\.tsx?$/.test(f));
+      c.expect(files.length >= 8, `only ${files.length} tour file(s) found; the surface is bigger than that`);
+
+      // 1. THE TOUR ONLY LOOKS. Nothing navigates, nothing submits, and nothing
+      //    on it is a piece of real product wired up. A step whose subject lives
+      //    inside an assignment draws a miniature instead of going there,
+      //    because mounting a real lesson records reading progress and opening
+      //    a real assessment spends an attempt.
+      const PERGI = /from "next\/link"|<Link\b|<a\s|href=|<form\b|router\.push\(|router\.replace\(|window\.location/;
+      for (const f of files) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        // The Help control is the one exception and it is declared: from a page
+        // that is not the landing it must travel back to one, because replay
+        // runs on the landing (§F). It still navigates nowhere else.
+        if (rel.endsWith("TombolBantuan.tsx")) continue;
+        const m = PERGI.exec(code(readFileSync(f, "utf8")));
+        c.expect(m === null, `${rel} navigates or submits from inside the tour: ${m?.[0]}`);
+      }
+      c.expect(PERGI.test('<Link href="/belajar/x">go</Link>'), "the navigation scanner does not catch a link");
+      c.expect(PERGI.test("router.push(`/mengajar/${id}`);"), "the navigation scanner does not catch a push");
+
+      const tombol = code(readFileSync(join(repoRoot, "src", "components", "tur", "TombolBantuan.tsx"), "utf8"));
+      const tujuan = [...tombol.matchAll(/router\.push\(([^)]*)\)/g)].map((m) => m[1]);
+      c.expect(tujuan.length === 1, `the Help control navigates to ${tujuan.length} places; it returns to one landing`);
+      c.expect(/\$\{beranda\}/.test(tujuan[0] ?? ""), "the Help control's destination is not the experience's own landing");
+
+      // 2. NOTHING OF THE PRODUCT IS TOUCHED. No engine call, no lesson, no
+      //    session, no launcher, no certificate — a tour that changed the thing
+      //    it is describing would not be a map of it.
+      const PRODUK = /record_lesson_progress|start_session|launch_quick_assessment|assessment_orientation|submit_answer|my_certificate|assessment-engine/;
+      for (const f of files) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const m = PRODUK.exec(code(readFileSync(f, "utf8")));
+        c.expect(m === null, `${rel} reaches into the product it is describing: ${m?.[0]}`);
+      }
+      c.expect(PRODUK.test('await db.rpc("record_lesson_progress", {});'),
+        "the product scanner does not catch a lesson-progress write");
+
+      // 3. THE THREE VERBS, AND WHERE EACH ONE MAY BE CALLED FROM.
+      const aksi = code(readFileSync(join(repoRoot, "src", "app", "tur", "actions.ts"), "utf8"));
+      c.expect(/^"use server";/m.test(aksi), "the tour actions are not a server module");
+      const verbs = [...aksi.matchAll(/export async function (\w+)/g)].map((m) => m[1]);
+      c.expect(verbs.length === 3, `${verbs.length} exported tour action(s); the contract declares three verbs`);
+      // Every one validates its key: a POST endpoint a signed-in person can
+      // call must not hand an arbitrary string to the database.
+      for (const v of verbs) {
+        const body = new RegExp(`export async function ${v}\\([\\s\\S]*?\\n\\}`).exec(aksi)?.[0] ?? "";
+        c.expect(/kunciSah\(/.test(body), `the tour action ${v} does not check the key it was given`);
+      }
+      c.expect(!/revalidatePath|redirect\(/.test(aksi),
+        "a tour action re-renders or navigates; presentation state changes nothing the page shows");
+
+      // 4. REPLAY SPENDS NOTHING. Being helped on purpose must not push somebody
+      //    toward the cap, un-finish a finished tour, or undo a decision not to
+      //    be interrupted.
+      const turSrc = code(readFileSync(join(repoRoot, "src", "components", "tur", "Tur.tsx"), "utf8"));
+      const replay = /function mulaiLagi\([\s\S]*?\n  \}/.exec(turSrc)?.[0] ?? "";
+      c.expect(replay.length > 0, "the replay path cannot be found in the tour component");
+      const SPEND = /catatTampilTur|selesaikanTurAksi|bungkamTurAksi/;
+      c.expect(!SPEND.test(replay), "replay from Help calls one of the presentation verbs");
+      // ADVERSARIAL PLANT: the same reading of the same function must catch a
+      // replay that does spend a presentation.
+      const ditanam = replay.replace("setBantuan(false);", "setBantuan(false); void catatTampilTur(kunci);");
+      c.expect(SPEND.test(ditanam), "the replay scanner does not catch a planted presentation write");
+
+      // 5. AN ARRIVAL THAT WAS HELD BACK IS NOT SPENT. The presentation write
+      //    is guarded by the same condition that opens the card, and by a ref
+      //    so a refresh or a language switch cannot spend a second one.
+      c.expect(/const otomatisSekarang = tersedia && otomatis && !bantuanAwal;/.test(turSrc),
+        "the automatic-presentation condition is not the one that opens the card");
+      c.expect(/if \(!otomatisSekarang \|\| sudahDicatat\.current\) return;/.test(turSrc),
+        "the presentation write is not guarded against being made twice");
+      const kali = [...turSrc.matchAll(/catatTampilTur\(/g)].length;
+      c.expect(kali === 1, `catatTampilTur is called from ${kali} places in the tour; exactly one arrival spends one`);
+
+      c.note(`${files.length} tour file(s) swept, ${verbs.length} verb(s), 4 plants caught`);
+      return c.verdict(
+        "the tour only looks: no file in it navigates, submits or reaches a product RPC — the scanners are watched to " +
+        "catch a planted link, a planted push and a planted lesson-progress write — the only writes are the three " +
+        "declared presentation verbs, each validating the key it was handed and neither revalidating nor redirecting, " +
+        "replay from Help calls none of them with a planted spend watched to be caught, and the one automatic " +
+        "presentation is written from exactly one place under the same condition that opens the card",
+      );
+    },
+  },
+
+  {
+    id: "UX1-TUR-ORANG-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const turFiles = [
+        ...walk(join(repoRoot, "src", "components", "tur")),
+        join(repoRoot, "src", "app", "tur", "actions.ts"),
+        join(repoRoot, "src", "lib", "tur.ts"),
+        join(repoRoot, "src", "lib", "tur-negara.ts"),
+      ].filter((f) => /\.tsx?$/.test(f));
+
+      // 1. THE MEMORY IS THE PERSON'S, NOT THE DEVICE'S. A shared classroom
+      //    tablet is the case that decides this: the next child to sign in is a
+      //    different person and must get their own first tour, so no part of
+      //    the durable answer may live in storage that belongs to the machine.
+      const PERANGKAT = /localStorage|sessionStorage|document\.cookie|indexedDB|window\.name/;
+      for (const f of turFiles) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const m = PERANGKAT.exec(code(readFileSync(f, "utf8")));
+        c.expect(m === null, `${rel} keeps tour state on the device: ${m?.[0]}`);
+      }
+      c.expect(PERANGKAT.test('window.localStorage.setItem("tour", "1");'),
+        "the device-storage scanner does not catch a localStorage write");
+      c.expect(PERANGKAT.test('document.cookie = "tour=1";'),
+        "the device-storage scanner does not catch a cookie write");
+
+      // 2. THE PERSON IS THE SESSION. None of the four RPCs takes an identity,
+      //    so there is no parameter for a caller to pass somebody else through.
+      const negara = code(readFileSync(join(repoRoot, "src", "lib", "tur-negara.ts"), "utf8"));
+      const panggil = [...negara.matchAll(/\.rpc\(\s*"([a-z_]+)"\s*(?:,\s*\{([^}]*)\})?/g)];
+      const nama = panggil.map((m) => m[1]);
+      const DIHARAP = ["my_tour_state", "note_tour_presented", "complete_tour", "suppress_tour"];
+      for (const n of DIHARAP) c.expect(nama.includes(n), `the state layer never calls ${n}`);
+      for (const m of panggil) {
+        if (m[1] === "current_person_id") continue; // the seniority read, below
+        c.expect(!/person|user|actor|subject|siapa/i.test(m[2] ?? ""),
+          `${m[1]} is called with an identity argument: ${m[2]}`);
+      }
+      // `current_tour_version` is internal to the database — revoked from
+      // `authenticated` — and the version comes back inside the state row, so a
+      // surface that resolved it separately could disagree with the row it is
+      // about to write.
+      c.expect(!nama.includes("current_tour_version"),
+        "the state layer calls current_tour_version, which is not a client RPC");
+
+      // 3. THE CONTRACT IS THE MIGRATION'S, READ RATHER THAN ASSUMED.
+      const migDir = join(repoRoot, "supabase", "migrations");
+      const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
+      c.expect(migs.length === 87, `${migs.length} migrations; this work adds none and the baseline has 87`);
+      const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
+      c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
+      const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
+      for (const n of DIHARAP) {
+        const sig = new RegExp(`create (?:or replace )?function public\\.${n}\\(([^)]*)\\)`).exec(sql);
+        c.expect(sig !== null, `${n} is not declared in the migration the client calls`);
+        c.expect(!/person|user_id|uuid/i.test(sig?.[1] ?? ""),
+          `${n} takes an identity parameter: ${sig?.[1]}`);
+      }
+      c.expect(/revoke[\s\S]*current_tour_version[\s\S]*from[^;]*authenticated/i.test(sql),
+        "current_tour_version is not revoked from authenticated in the migration");
+      // The cap is the database's, and the surface never restates it.
+      c.expect(/auto_presentation_limit/.test(sql), "the migration declares no presentation cap");
+      const model = code(readFileSync(join(repoRoot, "src", "lib", "tur.ts"), "utf8"));
+      c.expect(/keadaan\.auto_presentation_limit/.test(model),
+        "the cap is not read from the person's own row");
+      c.expect(!/<\s*3\b|===\s*3\b|>=\s*3\b/.test(model),
+        "the presentation cap is restated as a literal in the model; it belongs to the database");
+
+      // 4. IT IS PRESENTATION STATE AND NOTHING ELSE. No tour write may reach a
+      //    learning record, an audit line or an evidence table.
+      const BUKTI = /responses|assessment_results|official_|integrity_|certificates|learning_assignments|audit/;
+      for (const f of turFiles) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const m = BUKTI.exec(code(readFileSync(f, "utf8")));
+        c.expect(m === null, `${rel} names an evidence or audit surface: ${m?.[0]}`);
+      }
+
+      c.note(`${turFiles.length} tour file(s), ${DIHARAP.length} RPC signature(s) read from the migration, ` +
+        `${migs.length} migration(s), 2 plants caught`);
+      return c.verdict(
+        "the tour's memory belongs to the person and not to the device: nothing in it touches localStorage, " +
+        "sessionStorage, a cookie or IndexedDB — with a planted write of each watched to be caught — every durable " +
+        "answer goes through the four declared RPCs, whose signatures are READ from the migration and carry no " +
+        "identity parameter, the internal version function is never called and is revoked from authenticated in the " +
+        "migration, the presentation cap is taken from the person's own row rather than restated, and no tour file " +
+        "names an evidence or audit surface",
+      );
+    },
+  },
+
+  {
+    id: "UX1-TUR-TAHAP-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      // 1. THE FUNCTION REFUSES BY SHAPE. It takes a legitimate person-scoped
+      //    stage or nothing, and there is no second parameter a course, a
+      //    class, an age or a heuristic could be passed through.
+      c.expect(varianBelajar.length === 1,
+        `varianBelajar takes ${varianBelajar.length} parameters; one is the whole of the refusal`);
+      c.expect(varianBelajar(null) === "netral", "a learner with no known stage is not given the neutral variant");
+      c.expect(varianBelajar(undefined) === "netral", "an absent stage is not the neutral variant");
+      c.expect(varianBelajar("sd") === "sd", "a legitimate primary stage does not select the primary variant");
+      c.expect(varianBelajar("menengah") === "menengah", "a legitimate secondary stage does not select its variant");
+
+      // 2. ONE IDENTITY, THREE VARIANTS. A variant change is not a new tour: it
+      //    must not reset state, duplicate a row or re-present anything, which
+      //    is only true while all three hang on the same key.
+      const kunciBelajar = new Set([tur("netral").kunci, tur("sd").kunci, tur("menengah").kunci]);
+      c.expect(kunciBelajar.size === 1 && kunciBelajar.has(TUR_BELAJAR),
+        `the learner variants hang on ${kunciBelajar.size} identities; a variant change would reset state`);
+      c.expect(tur("pengajar").kunci === TUR_PENGAJAR, "the educator tour is not the educator identity");
+      for (const v of ["netral", "sd", "menengah", "pengajar"] as const) {
+        c.expect(tur(v).langkah.length === 7, `the ${v} tour has ${tur(v).langkah.length} steps; the design has seven`);
+        const posisi = tur(v).langkah.map((l) => l.posisi);
+        c.expect(posisi.join(",") === "1,2,3,4,5,6,7", `the ${v} tour's positions are ${posisi.join(",")}`);
+      }
+
+      // 3. NOTHING IN THE TOUR READS A STAGE FROM ANYWHERE ELSE. `courses.stage`
+      //    is a property of a course and the session's stage is a property of a
+      //    session; neither is a fact about a learner, and guessing from either
+      //    would tell a fifteen-year-old that PINTAR thinks they are eight.
+      const turFiles = [
+        ...walk(join(repoRoot, "src", "components", "tur")),
+        join(repoRoot, "src", "lib", "tur.ts"),
+        join(repoRoot, "src", "lib", "tur-negara.ts"),
+      ].filter((f) => /\.tsx?$/.test(f));
+      const TEBAK = /courses?\.stage|\bstage\b|\bumur\b|\bage\b|birth|tanggal_lahir|\btingkat\b|\bgrade\b|jenjang/i;
+      for (const f of turFiles) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const m = TEBAK.exec(code(readFileSync(f, "utf8")));
+        c.expect(m === null, `${rel} reaches for something to guess a learner's stage from: ${m?.[0]}`);
+      }
+      c.expect(TEBAK.test('const v = varianBelajar(kursus.stage);'),
+        "the stage-guess scanner does not catch a course stage");
+      c.expect(TEBAK.test('if (murid.age < 12) {'), "the stage-guess scanner does not catch an age");
+
+      // 4. THE CALL SITE PASSES NOTHING, and it is read rather than trusted.
+      const belajar = code(readFileSync(join(repoRoot, "src", "app", "belajar", "page.tsx"), "utf8"));
+      const panggilan = [...belajar.matchAll(/varianBelajar\(([^)]*)\)/g)].map((m) => m[1].trim());
+      c.expect(panggilan.length === 1, `varianBelajar is called ${panggilan.length} times on the learner landing`);
+      c.expect(panggilan[0] === "null",
+        `the learner landing passes \`${panggilan[0]}\` as a stage; no legitimate person-scoped source exists`);
+
+      // 5. THE MACHINERY IS NEVER SHOWN. Not on a tour surface, not in its copy.
+      const MESIN = /\bRasch\b|\btheta\b|\blogit\b|\bIRT\b|ability|discrimination|p-?value|difficulty|calibration/i;
+      for (const f of turFiles) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const m = MESIN.exec(readFileSync(f, "utf8"));
+        c.expect(m === null, `${rel} names the measurement machinery: ${m?.[0]}`);
+      }
+      for (const k of allKeys().filter((k) => k.startsWith("tur."))) {
+        for (const loc of LOCALES) {
+          const text = t(k as HleEvent, "learner", { locale: loc });
+          const m = MESIN.exec(text);
+          c.expect(m === null, `the tour telling ${k}/${loc} names the machinery: ${m?.[0]}`);
+        }
+      }
+
+      c.note(`4 variant(s) x 7 step(s), ${turFiles.length} tour file(s) swept, 1 call site read, 2 plants caught`);
+      return c.verdict(
+        "PINTAR does not guess a learner's stage: varianBelajar takes one legitimate person-scoped parameter and " +
+        "nothing else, returns the neutral variant for absent and unknown alike, and the learner landing is READ to " +
+        "be passing a literal null because no such source exists at this baseline; all three learner variants hang " +
+        "on one persistence identity so a stage arriving later resets nothing; no tour file reaches for a course " +
+        "stage, an age, a grade or a year — with both watched on plants — and neither a tour surface nor a tour " +
+        "telling in either language names the measurement machinery",
+      );
+    },
+  },
+
+  {
+    id: "UX1-TUR-PERAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      // 1. SENIORITY DOES NOT ACCUMULATE TOURS. A Head of Department on the
+      //    Classes page gets no automatic tour rather than the educator's,
+      //    which omits the review work that is most of their week.
+      const TABEL: Array<[string[], boolean, string]> = [
+        [["EDUCATOR"], true, "a plain educator"],
+        [["EDUCATOR", "STUDENT"], true, "an educator who also learns"],
+        [["EDUCATOR", "HEAD_OF_DEPARTMENT"], false, "a head of department"],
+        [["EDUCATOR", "DEAN"], false, "a dean"],
+        [["EDUCATOR", "INSTITUTION_ADMIN"], false, "a school administrator"],
+        [["EDUCATOR", "SYSTEM_ADMIN"], false, "a system administrator"],
+        [["HEAD_OF_DEPARTMENT"], false, "a head of department who teaches nothing"],
+        [["STUDENT"], false, "a learner"],
+        [[], false, "somebody with no active grant at all"],
+      ];
+      for (const [peran, harap, siapa] of TABEL) {
+        c.expect(turPengajarBerlaku(peran) === harap,
+          `${siapa} (${peran.join("+") || "none"}) is ${harap ? "refused" : "given"} the educator tour`);
+      }
+      // The enum is read rather than remembered: a seventh role appearing in
+      // the schema must not silently inherit somebody else's map.
+      const dasar = readFileSync(
+        join(repoRoot, "supabase", "migrations", "20260912004158_foundation_base.sql"), "utf8");
+      const enumRow = /create type public\.app_role as enum\s*\(([^)]*)\)/.exec(dasar);
+      c.expect(enumRow !== null, "the role enum is not in the migrations");
+      const roles = [...(enumRow?.[1] ?? "").matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]);
+      c.expect(roles.length === 6, `${roles.length} roles in the enum; the table above covers six`);
+      for (const r of roles) {
+        if (r === "EDUCATOR" || r === "STUDENT") continue;
+        c.expect(!turPengajarBerlaku(["EDUCATOR", r]), `${r} inherits the educator tour`);
+      }
+
+      // 2. THE WINDOW IS THE GRANT'S OWN, and a grant with no scope node still
+      //    counts — which is exactly where this differs from the teaching
+      //    context's filter, and exactly the grant a school administrator holds.
+      const kini = new Date("2026-09-18T09:00:00Z");
+      const hidup = { role: "EDUCATOR", valid_from: null, valid_until: null, revoked_at: null };
+      c.expect(peranAktif([hidup], kini).join() === "EDUCATOR", "an open-ended live grant is not active");
+      c.expect(peranAktif([{ ...hidup, revoked_at: "2026-01-01T00:00:00Z" }], kini).length === 0,
+        "a revoked grant is still counted");
+      c.expect(peranAktif([{ ...hidup, valid_from: "2027-01-01T00:00:00Z" }], kini).length === 0,
+        "a grant that has not begun is counted");
+      c.expect(peranAktif([{ ...hidup, valid_until: "2026-01-01T00:00:00Z" }], kini).length === 0,
+        "an expired grant is still counted");
+      c.expect(peranAktif([hidup, hidup], kini).length === 1, "the same role twice is counted twice");
+      const negara = code(readFileSync(join(repoRoot, "src", "lib", "tur-negara.ts"), "utf8"));
+      c.expect(/select\("role, valid_from, valid_until, revoked_at"\)/.test(negara),
+        "the seniority read asks for something other than the grant's role and window");
+      c.expect(!/scope_node_id/.test(negara),
+        "the seniority read drops grants by scope node; an institution-wide grant has none and must not be missed");
+
+      // 3. THE GATE REACHES BOTH PRESENTATION AND THE OFFER. A tour that is not
+      //    this person's must not be presented AND must not be offered in Help
+      //    (§H-3, §H-6): a map of somebody else's page is not help.
+      const mengajar = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "page.tsx"), "utf8"));
+      c.expect(/tersedia=\{turBerlaku\}/.test(mengajar),
+        "the educator landing does not hand the seniority answer to the tour");
+      const turSrc = code(readFileSync(join(repoRoot, "src", "components", "tur", "Tur.tsx"), "utf8"));
+      c.expect(/const otomatisSekarang = tersedia &&/.test(turSrc),
+        "automatic presentation is not gated on the tour being this person's");
+      c.expect(/tur=\{tersedia \? daftar : null\}/.test(turSrc),
+        "Help offers the tour to somebody it does not belong to");
+      // ADVERSARIAL PLANT: a gate that is bypassed at the call site must fail.
+      const ditanam = mengajar.replace("tersedia={turBerlaku}", "tersedia={true}");
+      c.expect(!/tersedia=\{turBerlaku\}/.test(ditanam),
+        "the call-site check does not notice a hard-coded gate");
+
+      // 4. THE TOUR IS THE EXPERIENCE'S, AND THE EXPERIENCE IS THE DOOR'S. The
+      //    learner landing carries no role gate at all, because a senior
+      //    person's LEARNER experience is still the learner experience.
+      const belajar = code(readFileSync(join(repoRoot, "src", "app", "belajar", "page.tsx"), "utf8"));
+      c.expect(!/turPengajarBerlaku|peranSaya/.test(belajar),
+        "the learner landing counts roles to decide which tour to show");
+
+      c.note(`${TABEL.length} role combination(s), ${roles.length} enum role(s) read from the migration, ` +
+        `5 window case(s), 1 plant caught`);
+      return c.verdict(
+        "a tour belongs to an experience and seniority does not accumulate one: turPengajarBerlaku refuses every " +
+        "role above EDUCATOR in the schema's own enum, which is READ rather than remembered, so a seventh role " +
+        "cannot silently inherit somebody else's map; the active-grant filter honours the grant's own window and " +
+        "deliberately keeps grants with no scope node, which is the kind a school administrator holds; the gate " +
+        "reaches both automatic presentation and the Help offer, with a hard-coded gate watched to be caught; and " +
+        "the learner landing counts no roles at all",
+      );
+    },
+  },
+
+  {
+    id: "UX1-TUR-TAMPIL-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const K = (o: Partial<Parameters<typeof akanMunculLagi>[0] & object>) => ({
+        tour_key: TUR_BELAJAR, tour_version: 1, should_auto_present: true,
+        auto_shown_count: 0, auto_presentation_limit: 3, completed: false, suppressed: false,
+        ...o,
+      });
+
+      // 1. WHETHER IT OPENS BY ITSELF. The database owns the durable half and
+      //    this never second-guesses it; the only thing added is two Experience
+      //    exclusions, and neither of them spends a presentation — which is why
+      //    the answer carries a reason rather than a bare false.
+      const bebas = { tautanLangsung: false, ujiCepatBerjalan: false };
+      c.expect(bolehTampilOtomatis(K({}), bebas).boleh, "a first arrival with a clean row is held back");
+      const tidakBerhak = bolehTampilOtomatis(K({ should_auto_present: false }), bebas);
+      c.expect(!tidakBerhak.boleh && tidakBerhak.sebab === "tidak_berhak",
+        "the database's own refusal is not honoured, or is not named");
+      const kosong = bolehTampilOtomatis(null, bebas);
+      c.expect(!kosong.boleh && kosong.sebab === "tidak_berhak",
+        "a state that could not be read opens the tour anyway");
+      const dalam = bolehTampilOtomatis(K({}), { ...bebas, tautanLangsung: true });
+      c.expect(!dalam.boleh && dalam.sebab === "tautan_langsung",
+        "a deep-link arrival presents the tour; it waits for a landing arrival");
+      const cepat = bolehTampilOtomatis(K({}), { ...bebas, ujiCepatBerjalan: true });
+      c.expect(!cepat.boleh && cepat.sebab === "uji_cepat_berjalan",
+        "a class waiting for a quick check is held up by onboarding");
+
+      // 2. THE EXCLUSIONS ARE THE PAGE'S OWN INFORMATION, not a second question
+      //    asked of the database — and the learner's one really is the learner's.
+      const belajar = code(readFileSync(join(repoRoot, "src", "app", "belajar", "page.tsx"), "utf8"));
+      c.expect(/ujiCepatBerjalan: terbuka\.some\(\(a\) => a\.mode === "QUICK"\)/.test(belajar),
+        "the running-quick-assessment exclusion is not taken from what the page already shows");
+      c.expect(/tautanLangsung: typeof sp\.lanjut === "string"/.test(belajar),
+        "the learner landing does not recognise a deep-link arrival");
+      const mengajar = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "page.tsx"), "utf8"));
+      c.expect(/ujiCepatBerjalan: false/.test(mengajar),
+        "the educator landing borrows the learner's quick-assessment exclusion");
+
+      // 3. THE TIP TELLS THE TRUTH, and the truth is the durable state's, not
+      //    what the person just pressed. A replay closed with nothing ticked
+      //    must not promise a return that a finish, a suppression or a spent
+      //    cap has already ruled out.
+      const bersih = { tampilOtomatis: 0, dicentang: false, selesai: false };
+      c.expect(akanMunculLagi(K({}), bersih), "a skipped first presentation is said not to return");
+      c.expect(!akanMunculLagi(K({ completed: true }), bersih),
+        "a replay after finishing promises the tour will come back");
+      c.expect(!akanMunculLagi(K({ suppressed: true }), bersih),
+        "a replay after 'do not show again' promises the tour will come back");
+      c.expect(!akanMunculLagi(K({ auto_shown_count: 2 }), { ...bersih, tampilOtomatis: 1 }),
+        "the third automatic presentation still promises a fourth");
+      c.expect(akanMunculLagi(K({ auto_shown_count: 1 }), { ...bersih, tampilOtomatis: 1 }),
+        "the second of three presentations is said to be the last");
+      c.expect(!akanMunculLagi(K({}), { ...bersih, dicentang: true }), "a ticked box still promises a return");
+      c.expect(!akanMunculLagi(K({}), { ...bersih, selesai: true }), "finishing still promises a return");
+      c.expect(!akanMunculLagi(null, bersih), "an unreadable state promises a return");
+      // A limit of one is honoured as readily as three: the number is the row's.
+      c.expect(!akanMunculLagi(K({ auto_presentation_limit: 1 }), { ...bersih, tampilOtomatis: 1 }),
+        "a cap of one is not honoured; the cap is the database's, not the code's");
+
+      c.expect(tipSetelahTutup({ akanMunculLagi: true, sd: false }) === "tur.tip.lagi",
+        "a tour that will return does not say so");
+      c.expect(tipSetelahTutup({ akanMunculLagi: true, sd: true }) === "tur.tip.lagi.sd",
+        "a primary-school reader gets the adult sentence");
+      c.expect(tipSetelahTutup({ akanMunculLagi: false, sd: false }) === "tur.tip.berhenti",
+        "a tour that will not return promises one");
+      c.expect(tipSetelahTutup({ akanMunculLagi: false, sd: true }) === "tur.tip.berhenti",
+        "a primary-school reader is told the tour will return when it will not");
+
+      // 4. CLOSING, AND WHAT EACH WAY OF CLOSING MEANS. Skip and Esc are the
+      //    same act; reaching the last step and closing is finishing; the box
+      //    takes effect however the card closes.
+      const turSrc = code(readFileSync(join(repoRoot, "src", "components", "tur", "Tur.tsx"), "utf8"));
+      c.expect(/const selesai = cara === "selesai" \|\| indeks === total - 1;/.test(turSrc),
+        "closing on the last step is not treated as finishing");
+      c.expect(/if \(e\.key === "Escape"\)[\s\S]{0,120}tutup\("lewati"\)/.test(turSrc),
+        "Escape does not close the tour as a skip");
+      c.expect(/if \(centang\) void bungkamTurAksi\(kunci\);/.test(turSrc),
+        "the checkbox does not take effect when the card closes");
+      // The checkbox is absent on the last step and on a replay: the first
+      // because finishing already stops automatic presentation, the second
+      // because a deliberate replay is not the moment to decide about being
+      // interrupted.
+      c.expect(/\{akhir \|\| replay \?/.test(turSrc),
+        "the checkbox is offered on the last step or during a replay");
+      // NO TIMEOUTS ANYWHERE. Nothing in the tour closes itself.
+      const tutupSendiri = [...walk(join(repoRoot, "src", "components", "tur"))]
+        .filter((f) => /\.tsx$/.test(f))
+        .flatMap((f) => [...code(readFileSync(f, "utf8")).matchAll(/setTimeout\(([^;]*?)\)/g)]
+          .map((m) => `${relative(repoRoot, f)}: ${m[0].slice(0, 80)}`))
+        .filter((s) => /tutup|setAktif\(false\)|onTutup/.test(s));
+      c.expect(tutupSendiri.length === 0, `something in the tour closes itself on a timer: ${tutupSendiri.join("; ")}`);
+
+      c.note("5 presentation decision(s), 9 return predicate(s), 4 tip wording(s), 4 closing rule(s)");
+      return c.verdict(
+        "automatic presentation, replay and the after-closing tip agree with each other: the database's own refusal " +
+        "is honoured and an unreadable state never opens the tour, the two Experience exclusions are named rather " +
+        "than silent and are taken from what each page already shows, the tip's wording is decided from the durable " +
+        "state — so a replay closed without ticking cannot promise a return that a finish, a suppression or a spent " +
+        "cap has ruled out — the cap is the row's own number and a cap of one is honoured as readily as three, " +
+        "skip and Escape are the same act, closing on the last step is finishing, and nothing closes itself on a timer",
+      );
+    },
+  },
+
+  {
+    id: "UX1-TUR-KATA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const turKeys = allKeys().filter((k) => k.startsWith("tur.") || k === "nav.bantuan");
+      c.expect(turKeys.length >= 89, `${turKeys.length} tour copy key(s); the design's four tours need more than that`);
+
+      // 1. EVERY KEY THE TOUR RENDERS IS DECLARED, and every declared key has a
+      //    real telling in both languages.
+      const dipakai = new Set<string>();
+      // WHICH ANCHORS A LANDING CAN LEGITIMATELY REPORT EMPTY — read from the
+      // pages rather than listed here, so a new empty state cannot appear
+      // without the step pointing at it gaining wording for it, and a step
+      // cannot carry wording for an emptiness that never happens.
+      const bisaKosong = new Set<string>();
+      const anchorAda = new Set<string>();
+      const surfaces = [
+        ...walk(join(repoRoot, "src", "app")),
+        ...walk(join(repoRoot, "src", "components")),
+      ].filter((f) => /\.tsx$/.test(f));
+      for (const f of surfaces) {
+        const src = readFileSync(f, "utf8");
+        for (const m of src.matchAll(/data-tur="([a-z]+)"/g)) anchorAda.add(m[1]);
+        const i = src.indexOf("kosong={");
+        if (i < 0) continue;
+        let depth = 0, j = i + "kosong=".length;
+        for (; j < src.length; j++) {
+          if (src[j] === "{") depth++;
+          else if (src[j] === "}" && --depth === 0) break;
+        }
+        for (const m of src.slice(i, j).matchAll(/"([a-z]+)"/g)) bisaKosong.add(m[1]);
+      }
+      c.expect(bisaKosong.size >= 4,
+        `${bisaKosong.size} anchor(s) a landing can report empty; the two landings declare four between them`);
+
+      for (const v of ["netral", "sd", "menengah", "pengajar"] as const) {
+        const d = tur(v);
+        dipakai.add(d.nama as string);
+        for (const l of d.langkah) {
+          dipakai.add(l.judul as string);
+          dipakai.add(l.isi as string);
+          if (l.kosong) dipakai.add(l.kosong as string);
+          if (l.sasaran.jenis !== "anchor") {
+            c.expect(!l.kosong, `${v} step ${l.posisi} draws a miniature and carries empty-state wording`);
+            continue;
+          }
+          const nama = l.sasaran.nama;
+          // The tour may not point at something that is not there: the anchor
+          // has to exist on a real surface.
+          c.expect(anchorAda.has(nama),
+            `${v} step ${l.posisi} points at the anchor "${nama}", which no surface carries`);
+          // The count stays seven when the thing the step describes is not
+          // there yet, so a step whose target CAN be empty needs wording for it
+          // — and a step whose target never is must not pretend otherwise.
+          c.expect(bisaKosong.has(nama) === Boolean(l.kosong),
+            bisaKosong.has(nama)
+              ? `${v} step ${l.posisi} points at ${nama}, which a landing can report empty, with no wording for it`
+              : `${v} step ${l.posisi} carries empty-state wording for ${nama}, which no landing ever reports empty`);
+        }
+      }
+      for (const k of dipakai) {
+        c.expect(turKeys.includes(k as HleEvent), `the tour renders ${k}, which the copy table does not declare`);
+        for (const loc of LOCALES) {
+          c.expect(t(k as HleEvent, "learner", { locale: loc }).trim().length > 0,
+            `${k} has no telling in ${loc}`);
+        }
+      }
+      for (const k of turKeys) {
+        const both = LOCALES.map((loc) => t(k as HleEvent, "learner", { locale: loc }));
+        c.expect(both.every((s) => s.trim().length > 0), `${k} is missing a telling`);
+      }
+
+      // 2. THE CANONICAL TERMS, AND THE ONES THE RULINGS RETIRED.
+      const semua = turKeys.flatMap((k) =>
+        LOCALES.flatMap((loc) => (["learner", "educator"] as const).map((p) => ({
+          k, loc, p, text: t(k as HleEvent, p, { locale: loc }),
+        }))));
+      const TERLARANG: Array<[RegExp, string]> = [
+        [/Kuis Cepat/, "the retired learner term for a Quick Assessment"],
+        [/Mastery Test/, "the retired English name for Uji Penguasaan"],
+        [/\bDRAFT\b|\bACTIVE\b|\bFINALIZED\b|\bPOST_TEST\b|\bPRE_TEST\b|\bQUICK\b/, "a lifecycle or mode enum"],
+        [/can_on_node|has_scope|RLS|SECURITY DEFINER|role_assignments/, "a database word"],
+      ];
+      for (const r of semua) {
+        for (const [re, apa] of TERLARANG) {
+          c.expect(!re.test(r.text), `${r.k}/${r.loc}/${r.p} carries ${apa}: "${r.text.slice(0, 80)}"`);
+        }
+      }
+      const gabung = semua.map((r) => r.text).join(" | ");
+      for (const kata of ["Uji Cepat", "Quick Assessment", "Uji Penguasaan", "Mastery Check"]) {
+        c.expect(gabung.includes(kata), `the canonical term "${kata}" appears in no tour telling`);
+      }
+
+      // 3. THE CERTIFICATE STEP DOES NOT PROMISE ONE (V-6a is still open). It
+      //    may say where certificates live and that each can be checked; it may
+      //    not say one is coming.
+      for (const k of ["tur.nt.6.isi", "tur.sm.6.isi"] as const) {
+        for (const loc of LOCALES) {
+          const text = t(k, "learner", { locale: loc });
+          const JANJI = /akan (menerima|mendapat|diberikan)|you will (get|receive|earn)|dapatkan sertifikat|earn a certificate/i;
+          c.expect(!JANJI.test(text), `${k}/${loc} promises a certificate: "${text}"`);
+        }
+      }
+      // And the educator's Quick Assessment step keeps the QUICK ruling's
+      // sentence: the result is evidence, and one quick check is not a
+      // certificate.
+      const pg4 = LOCALES.map((loc) => t("tur.pg.4.isi", "educator", { locale: loc }));
+      c.expect(pg4.every((s) => /bukti belajar|learning evidence/i.test(s)),
+        "the educator's Quick Assessment step no longer says the result becomes evidence");
+      c.expect(pg4.every((s) => /tidak menerbitkan sertifikat|does not issue a certificate/i.test(s)),
+        "the educator's Quick Assessment step no longer says one quick check is not a certificate");
+
+      // 4. THE TEACHING CONTEXT IS NAMED, AND NEITHER VISIBILITY NOR AUTHORITY
+      //    IS CLAIMED (§D-1, §D-2, and the ruling that superseded the r2 text).
+      const lingkup = [t("tur.pg.1.isi", "educator", { locale: "id" }), t("tur.pg.2.judul", "educator", { locale: "id" })];
+      const lingkupEn = [t("tur.pg.1.isi", "educator", { locale: "en" }), t("tur.pg.2.judul", "educator", { locale: "en" })];
+      c.expect(lingkup.every((s) => /lingkup mengajar/.test(s)),
+        "the educator's context wording no longer names the teaching scope");
+      c.expect(lingkupEn.every((s) => /teaching context/.test(s)),
+        "the educator's English context wording no longer names the teaching context");
+      const KLAIM = /bisa Anda lihat|you (can|may) see|boleh Anda|you are allowed|izin|permission|akses/i;
+      for (const s of [...lingkup, ...lingkupEn]) {
+        c.expect(!KLAIM.test(s), `the educator's context wording claims visibility or authority: "${s}"`);
+      }
+
+      // 5. THE COUNTS ARE COUNTS. The educator's "what's open now" step must
+      //    keep saying so, because the numbers beside it are row counts.
+      const pg3 = LOCALES.map((loc) => t("tur.pg.3.isi", "educator", { locale: loc }));
+      c.expect(pg3.every((s) => /hitungan, bukan penilaian|counts, not judgments/i.test(s)),
+        "the educator's running-assessments step no longer says the numbers are counts");
+
+      // 6. NOBODY IS ADDRESSED INFORMALLY, in either persona. The Slice-0 sweep
+      //    covers learner and public tellings; the educator's are only covered
+      //    here, and the tour has plenty of them.
+      for (const r of semua) {
+        if (r.loc !== "id") continue;
+        const hits = informal(r.text);
+        c.expect(hits.length === 0,
+          `${r.k}/${r.p} addresses the reader informally (${hits.join(", ")}): "${r.text.slice(0, 80)}"`);
+      }
+
+      // ADVERSARIAL PLANTS: both sweeps must see what they forbid.
+      const palsu = "Kuis Cepat dari guru muncul di sini.";
+      c.expect(TERLARANG.some(([re]) => re.test(palsu)), "the retired-term sweep does not catch Kuis Cepat");
+      c.expect(informal("Jawabanmu tersimpan.").length === 1, "the informality sweep does not catch a clitic");
+      c.expect(informal("Ilmu yang Anda ajarkan.").length === 0, "the informality sweep calls `ilmu` a clitic");
+
+      c.note(`${turKeys.length} tour key(s), ${dipakai.size} rendered, ${semua.length} telling(s) swept, ` +
+        `${bisaKosong.size} empty-capable anchor(s) and ${anchorAda.size} anchor(s) read from the surfaces, 3 plants`);
+      return c.verdict(
+        "the tour's copy is the approved copy, complete and clean: every key the four tours render is declared and " +
+        "carries a real telling in both languages, every anchor a step points at exists on a real surface, and a step " +
+        "carries empty-state wording exactly when the landing it points at can report that anchor empty — both read " +
+        "from the pages rather than listed — no telling in either language for either persona uses a retired term, an " +
+        "informal second person or a database word — every sweep watched on a plant, including one the clitic rule " +
+        "must NOT fire on — the canonical Uji Cepat, Quick " +
+        "Assessment, Uji Penguasaan and Mastery Check all appear, the certificate step promises nothing while V-6a " +
+        "is open, the Quick Assessment step keeps the ruling's evidence sentence, the educator's context wording " +
+        "names a teaching context and claims neither visibility nor authority, and the counts are still called counts",
+      );
+    },
+  },
+
+  {
+    id: "UX1-TUR-AKSES-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const dir = join(repoRoot, "src", "components", "tur");
+      const turSrc = readFileSync(join(dir, "Tur.tsx"), "utf8");
+      const kartu = code(turSrc);
+
+      // 1. IT IS A DIALOG, AND IT SAYS SO.
+      for (const [re, apa] of [
+        [/role="dialog"/, "role=dialog"],
+        [/aria-modal="true"/, "aria-modal"],
+        [/aria-labelledby="pin-tur-judul"/, "a label pointing at the headline"],
+        [/aria-describedby="pin-tur-isi"/, "a description pointing at the body"],
+      ] as Array<[RegExp, string]>) {
+        c.expect(re.test(kartu), `the tour card has no ${apa}`);
+      }
+
+      // 2. THE PAGE BEHIND IS INERT, AND GETS ITSELF BACK. An attribute that is
+      //    set and never removed is a page nobody can use again.
+      c.expect(/setAttribute\("inert", ""\)/.test(kartu), "the page behind the tour is never made inert");
+      c.expect(/removeAttribute\("inert"\)/.test(kartu), "the page behind the tour never gets its interactivity back");
+      c.expect(/removeAttribute\("aria-hidden"\)/.test(kartu), "the page behind the tour stays hidden from a screen reader");
+      c.expect(/if \(saudara === simpul \|\| saudara\.hasAttribute\("inert"\)\) continue;/.test(kartu),
+        "the inert sweep does not skip the tour's own root, or clobbers an element that was already inert");
+
+      // 3. FOCUS. On open and on every step it lands on the headline, so the
+      //    step is read in the order it is written.
+      c.expect(/judulRef\.current\?\.focus\(\)/.test(kartu), "focus never moves to the step's headline");
+      c.expect(/\}, \[aktif, indeks\]\);/.test(kartu), "focus does not follow the step");
+      c.expect(/tabIndex=\{-1\}/.test(kartu), "the headline cannot receive focus");
+      c.expect(/document\.querySelector\("main h1"\)/.test(kartu),
+        "focus has nowhere to go after a tour that arrived uninvited");
+
+      // 4. TAB ORDER IS DOM ORDER: language, Skip, checkbox, Back, Next.
+      //    Nothing is given a tabindex to force it, so the order the reader
+      //    gets is the order the card is written in — which is the only kind
+      //    that survives somebody editing the card.
+      const urutan = ["bahasa.en", "tur.lewati", "tur.jangan", "tur.kembali", "tur.berikutnya"];
+      /** Whether these markers appear in this text in this order. */
+      function berurutan(teks: string, kunci: string[]): boolean {
+        let sebelum = -1;
+        for (const k of kunci) {
+          const p = teks.indexOf(k);
+          if (p <= sebelum) return false;
+          sebelum = p;
+        }
+        return true;
+      }
+      c.expect(berurutan(kartu, urutan),
+        `the tour card is not written in the approved tab order: ${urutan.join(" → ")}`);
+      c.expect(!/tabIndex=\{[0-9]/.test(kartu), "a control is given a positive tabindex to force its place");
+      // ADVERSARIAL PLANT: the same reading, on a card whose footer puts the
+      // checkbox after the buttons, must refuse it.
+      const benar = 'a {s("bahasa.en")} b {s("tur.lewati")} c {s("tur.jangan")} d {s("tur.kembali")} e {s("tur.berikutnya")}';
+      const ditanam = 'a {s("bahasa.en")} b {s("tur.lewati")} c {s("tur.kembali")} d {s("tur.berikutnya")} e {s("tur.jangan")}';
+      c.expect(berurutan(benar, urutan), "the tab-order reading refuses a card that is in order");
+      c.expect(!berurutan(ditanam, urutan), "the tab-order reading accepts a checkbox moved after the buttons");
+
+      // 5. EVERY CONTROL IS NATIVE, AND THE WAY OUT IS IN WORDS.
+      const semuaTur = walk(dir).filter((f) => /\.tsx$/.test(f));
+      for (const f of semuaTur) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const src = code(readFileSync(f, "utf8"));
+        const palsu = /<div[^>]*onClick|<span[^>]*onClick|role="button"/.exec(src);
+        c.expect(palsu === null, `${rel} makes a control out of something that is not one: ${palsu?.[0]}`);
+        for (const m of src.matchAll(/<button\b([^>]*)>/g)) {
+          c.expect(/type="button"|type="submit"/.test(m[1]), `${rel} has a button with no explicit type`);
+        }
+      }
+      c.expect(/\{s\("tur\.lewati"\)\}/.test(kartu), "the way out of the tour is not labelled in words");
+      c.expect(/\{s\("tur\.tutup"\)\}/.test(code(readFileSync(join(dir, "PanelBantuan.tsx"), "utf8"))),
+        "the way out of the Help panel is not labelled in words");
+
+      // 6. PROGRESS IS ANNOUNCED IN WORDS; the dots are a picture of it.
+      c.expect(/className="pin-sr"[\s\S]{0,200}tur\.langkah[\s\S]{0,120}tur\.dari/.test(kartu),
+        "the step number is not announced as words");
+      c.expect(/className="pin-tur-titik" aria-hidden="true"/.test(kartu), "the position dots are not hidden from a screen reader");
+      c.expect(/className="pin-num pin-tur-hitung" aria-hidden="true"/.test(kartu),
+        "the visible count is announced a second time");
+
+      // 7. MINIATURES CARRY NO MEANING OF THEIR OWN, so they are hidden and
+      //    carry no words that a reader could be asked to rely on.
+      const mini = readFileSync(join(dir, "Miniatur.tsx"), "utf8");
+      c.expect(/aria-hidden="true"/.test(mini), "the miniatures are not hidden from a screen reader");
+      const kunciMini = [...code(mini).matchAll(/\bt\(\s*"([^"]+)"/g)].map((m) => m[1]);
+      c.expect(kunciMini.length === 1 && kunciMini[0] === "tur.contoh",
+        `the miniature frame renders ${kunciMini.length} copy key(s); it is labelled "Contoh / Example" and nothing else`);
+      // A MINIATURE CARRIES NO WORDS OF ITS OWN. Everything it draws is
+      // geometry, because anything it said would be either a real person's data
+      // or a sentence nobody approved — the design's 132 strings do not include
+      // one. Checked by classifying EVERY string literal in the file: a class
+      // list, one of the declared kinds, or the three arguments the one copy
+      // call takes. Anything else is copy somebody added.
+      const KIND = ["spine", "peta", "soal", "pelajaran", "hasil", "cepat", "sedia", "bukti"];
+      const SAH = new Set(["use client", "tur.contoh", "learner", "true", ...KIND]);
+      const asing = [...code(mini).matchAll(/"([^"]*)"/g)]
+        .map((m) => m[1])
+        .filter((v) => !SAH.has(v) && !/^pin-[a-z-]+( pin-[a-z-]+)*$/.test(v) && !v.startsWith("@/"));
+      c.expect(asing.length === 0, `a miniature carries words of its own: ${asing.join(" / ")}`);
+      // ADVERSARIAL PLANT: the classifier must not wave through a sentence.
+      const ditanamMini = ['"pin-mini-bar"', '"Pemetaan Awal bukan ujian."'].map((q) => q.slice(1, -1))
+        .filter((v) => !SAH.has(v) && !/^pin-[a-z-]+( pin-[a-z-]+)*$/.test(v));
+      c.expect(ditanamMini.length === 1, "the miniature classifier does not catch a planted sentence");
+
+      c.note(`${semuaTur.length} tour component(s), ${urutan.length} control(s) in tab order, ` +
+        `${kunciMini.length} copy key in the miniatures, 3 plants`);
+      return c.verdict(
+        "the tour is a dialog a keyboard and a screen reader can use: it declares role, modality, its label and its " +
+        "description, the page behind it is made inert and gets both inert and aria-hidden back, focus lands on the " +
+        "headline on open and follows every step and has somewhere to go on close, the DOM gives the approved tab " +
+        "order of language, Skip, checkbox, Back and Next with no tabindex forcing it — the reading watched on a card " +
+        "whose footer puts the checkbox last — every control is a native button with an explicit type and no div " +
+        "pretending to be one, both ways out are labelled in words, the step number is announced as words while the " +
+        "dots and the visible count are hidden, and the miniatures are hidden and every string literal in them is a " +
+        "class list, a declared kind or the frame's own label, with a planted sentence watched to be caught",
+      );
+    },
+  },
+
+  {
+    id: "UX1-TUR-TUNTUN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const mulai = css.indexOf("UX-1 · GUIDANCE MODE");
+      c.expect(mulai > 0, "the guidance stylesheet is not in the Experience composition");
+      const blok = css.slice(mulai);
+      const aturan = [...blok.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1].trim(), body: m[2] }));
+      c.expect(aturan.length > 30, `only ${aturan.length} guidance rule(s); the surface is bigger than that`);
+
+      // 1. GUIDANCE MODE IS EXACTLY TWO STATES, and the environment it paints
+      //    is reached only through them. Sauron's ruling reserves the colour
+      //    away from success, correctness, evidence and authorization, so the
+      //    one rule that repaints the page must be behind the mode's own class.
+      const ground = aturan.filter((r) => /background:\s*var\(--pintar-primary-soft\)/.test(r.body));
+      for (const r of ground) {
+        const sah = /\.pin-tuntun\b/.test(r.sel) || /\.pin-bantuan\b/.test(r.sel) || /\.pin-mini-pilih\b/.test(r.sel);
+        c.expect(sah, `${r.sel} paints the guidance ground outside a tour, Help or a selection`);
+      }
+      c.expect(ground.some((r) => /html\.pin-tuntun body/.test(r.sel)),
+        "nothing repaints the page canvas when the mode is on");
+      const turSrc = code(readFileSync(join(repoRoot, "src", "components", "tur", "Tur.tsx"), "utf8"));
+      c.expect(/if \(!aktif && !bantuan\) return;[\s\S]{0,200}classList\.add\("pin-tuntun"\)/.test(turSrc),
+        "the guidance class is applied outside the two states that are the mode");
+      c.expect(/classList\.remove\("pin-tuntun"\)/.test(turSrc), "the guidance class is never taken off again");
+
+      // 2. THE MODE IS NEVER A STATUS. No status token appears anywhere in the
+      //    guidance surface: not for a result, not for a correct answer, not
+      //    for evidence being sufficient, not for permission.
+      for (const r of aturan) {
+        const m = /var\(--status-[a-z-]+\)/.exec(r.body);
+        c.expect(m === null, `${r.sel} carries a status colour inside instruction: ${m?.[0]}`);
+      }
+      // ADVERSARIAL PLANT: the sweep must catch one.
+      c.expect(/var\(--status-[a-z-]+\)/.test("background: var(--status-ok-soft);"),
+        "the status-colour sweep does not catch a status token");
+
+      // 3. THE TIP IS NOT THE MODE (§O-5). One white card on the page exactly
+      //    as it was: no soft green, no veil, no repainted ground.
+      const tip = aturan.filter((r) => /^\.pin-tip/.test(r.sel));
+      c.expect(tip.length >= 2, "the tip has no rules of its own");
+      for (const r of tip) {
+        c.expect(!/primary-soft/.test(r.body), `${r.sel} paints the tip with the guidance colour`);
+      }
+
+      // 4. THE HIGHLIGHT IS A CUT-OUT PLUS A RING, and the ring's geometry is
+      //    the approved one: 3px of white, then 2px of primary (§K-5).
+      const sorot = aturan.find((r) => r.sel.includes(".pin-tur-sorot"));
+      c.expect(Boolean(sorot), "the spotlight has no rule");
+      const bayang = /box-shadow:([^;]*);/.exec(sorot?.body ?? "")?.[1] ?? "";
+      c.expect(/0 0 0 3px var\(--surface-1\)/.test(bayang), "the spotlight has no 3px white gap");
+      c.expect(/0 0 0 5px var\(--pintar-primary\)/.test(bayang),
+        "the spotlight's primary ring is not 2px outside the white gap");
+      c.expect(/color-mix\(in srgb, var\(--pintar-primary-soft\) 72%, transparent\)/.test(bayang),
+        "the veil is not the ruled composite of primary-soft");
+      c.expect(/pointer-events:\s*none/.test(sorot?.body ?? ""), "the spotlight swallows pointer events");
+
+      // 5. THE PHONE SHEET IS CAPPED AND SCROLLS; nothing truncates and type
+      //    never shrinks (§J-15, §K-8).
+      const telepon = blok.slice(blok.indexOf("@media (max-width: 560px)"));
+      c.expect(/max-height:\s*var\(--guide-sheet-max\)/.test(telepon), "the phone sheet has no ceiling");
+      c.expect(/overflow:\s*auto/.test(telepon), "the phone sheet does not scroll its own content");
+      c.expect(/\.pin-tur-kaki \{ position: sticky/.test(telepon), "the phone sheet's buttons are not pinned");
+      c.expect(!/text-overflow|ellipsis/.test(blok), "something in the guidance surface truncates its text");
+      // The room the sheet borrows is given back.
+      c.expect(/document\.body\.style\.paddingBottom = ""/.test(turSrc),
+        "the room the phone sheet borrows at the bottom of the page is never returned");
+
+      // 6. NOTHING ANIMATES MEANING, and the one movement there is respects the
+      //    reader's own setting.
+      c.expect(!/transition:|animation:/.test(blok), "something in the guidance surface animates");
+      c.expect(/prefers-reduced-motion: reduce/.test(turSrc),
+        "the tour's scrolling ignores a reader who asked for no motion");
+
+      c.note(`${aturan.length} guidance rule(s), ${ground.length} ground(s), ${tip.length} tip rule(s), 1 plant caught`);
+      return c.verdict(
+        "Guidance Mode is exactly the two states Sauron ruled it to be: the class that repaints the page is applied " +
+        "only while a tour is running or Help is open and is always taken off again, the guidance ground appears on " +
+        "no other rule, no status colour appears anywhere inside instruction — the sweep watched on a plant — the " +
+        "tip carries none of the mode at all, the highlight is a cut-out with the approved 3px white gap and 2px " +
+        "primary ring over the ruled composite veil, the phone sheet is capped and scrolls with its buttons pinned " +
+        "and gives back the room it borrows, and nothing animates",
       );
     },
   },

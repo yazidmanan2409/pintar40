@@ -266,19 +266,28 @@ export default function Tur({
         setTaruh(null); // the sheet is placed by the stylesheet
         return;
       }
-      // Desktop: below the target when it fits, above when it does not, and
-      // never over it.
+      // DESKTOP: BESIDE OR BELOW, NEVER OVER (§M). Below the target when it
+      // fits, above it when that does not, and beside it when neither does —
+      // which is the case a tall target makes, and the case where centring
+      // would put the card on top of the thing it is describing.
       const lebar = kartu.offsetWidth;
       const bawahnya = k.top + k.height + JARAK;
       const atasnya = k.top - JARAK - tinggiKartu;
-      const top =
-        bawahnya + tinggiKartu <= window.innerHeight - TEPI
-          ? bawahnya
-          : atasnya >= TEPI
-            ? atasnya
-            : Math.max(TEPI, (window.innerHeight - tinggiKartu) / 2);
-      const left = Math.min(Math.max(TEPI, k.left), Math.max(TEPI, window.innerWidth - lebar - TEPI));
-      setTaruh({ top, left });
+      const muatBawah = bawahnya + tinggiKartu <= window.innerHeight - TEPI;
+      const muatAtas = atasnya >= TEPI;
+      if (muatBawah || muatAtas) {
+        const top = muatBawah ? bawahnya : atasnya;
+        const left = Math.min(Math.max(TEPI, k.left), Math.max(TEPI, window.innerWidth - lebar - TEPI));
+        setTaruh({ top, left });
+        return;
+      }
+      const kanan = k.left + k.width + JARAK;
+      const kiri = k.left - JARAK - lebar;
+      const disamping = kanan + lebar <= window.innerWidth - TEPI ? kanan : kiri >= TEPI ? kiri : null;
+      setTaruh({
+        top: Math.max(TEPI, Math.min(k.top, window.innerHeight - tinggiKartu - TEPI)),
+        left: disamping ?? Math.max(TEPI, (window.innerWidth - lebar) / 2),
+      });
     }
 
     ukur(true);

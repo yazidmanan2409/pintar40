@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 35,
+  "version": 36,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1111,6 +1111,62 @@
       "id": "TOUR-N03",
       "runner": "db",
       "proves": "Tour state is PRESENTATION state and never becomes evidence, asserted structurally against the live schema and then measured. Structurally, through public.assert_tour_state_is_not_evidence(): 35 evidence consumers -- the ten scoring functions, all sixteen catalogue calculators, metric_evaluate, generate_report, both certificate paths, both evidence-class functions, the question-health recompute and the integrity writer -- read neither tour table; no view depends on either; neither carries a session, evidence, mastery, score, result, response, grade, integrity, certificate, institution or enrollment column; person_tour_state has foreign keys to persons and tour_registry and to nothing else; neither table is a declared record class, so transfers_guard refuses to carry it across an institutional boundary by name; neither is a declared metric source, so a calculator reaching for it would fail assert_metric_closure; and no client role holds more than SELECT. Behaviourally: a REAL OFFICIAL result's mastery and its certificate_eligibility verdict are recorded, the same learner is then shown a tour twice, completes it and dismisses another, and both are unchanged to the digit -- with no integrity signal raised against the session and no audit row written, the last deliberately, because INV-18 lists the acts that must be accountable and being shown a tour is not one of them"
+    },
+    {
+      "id": "UX1-TUR-LIHAT-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the source of the first-login tour only looks: no file under src/components/tur, src/app/tur or the two tour libraries navigates, submits or reaches a product RPC; the only writes are the three declared presentation verbs, each validating the key it is handed, and the replay path in the source of Tur.tsx calls none of them",
+      "how": "src/components/tur/*, src/app/tur/actions.ts, src/lib/tur.ts, src/lib/tur-negara.ts — scanners watched on planted links, pushes, product writes and a replay that spends a presentation"
+    },
+    {
+      "id": "UX1-TUR-ORANG-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the tour's memory belongs to the person and not to the device: no tour source touches localStorage, sessionStorage, a cookie or IndexedDB; the four RPC signatures are read from the migration that declares them and none takes an identity; the internal version function is revoked from authenticated there; and the presentation cap is read from the person's own row rather than restated in the source",
+      "how": "src/lib/tur-negara.ts against supabase/migrations/20260922090000_tour_state_follows_the_person.sql — signatures read from the migration; planted localStorage and cookie writes watched"
+    },
+    {
+      "id": "UX1-TUR-TAHAP-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "PINTAR does not guess a learner's stage: varianBelajar in the source of src/lib/tur.ts takes one legitimate person-scoped parameter and returns the neutral variant for absent and unknown alike, all three learner variants carry one persistence identity, no tour source reaches for a course stage, an age or a grade, the learner landing's call site is read to pass a literal null, and no tour source or copy-table telling names the measurement machinery",
+      "how": "src/lib/tur.ts and the learner landing's call site, read rather than trusted; planted course-stage and age guesses watched"
+    },
+    {
+      "id": "UX1-TUR-PERAN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "a tour belongs to an experience and seniority inherits none: turPengajarBerlaku refuses every role above EDUCATOR in the app_role enum read from the foundation migration, the active-grant filter keeps grants with no scope node, and the source of both landings shows the gate reaching automatic presentation and the Help offer while the learner landing counts no roles",
+      "how": "src/lib/tur.ts, src/lib/tur-negara.ts, both landings, against the app_role enum in 20260912004158_foundation_base.sql; a hard-coded gate watched"
+    },
+    {
+      "id": "UX1-TUR-TAMPIL-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "automatic presentation, replay and the after-closing tip agree: the pure model in the source of src/lib/tur.ts honours the database's own refusal, names both Experience exclusions rather than failing silently, decides the tip's wording from durable state, and takes the cap from the row; and the source of Tur.tsx treats skip and Escape alike, treats closing on the last step as finishing, and closes nothing on a timer",
+      "how": "the pure model in src/lib/tur.ts driven through every presentation, return and wording case, plus the closing rules read from src/components/tur/Tur.tsx"
+    },
+    {
+      "id": "UX1-TUR-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the tour's copy in the copy table src/lib/hle.ts is declared and complete in both languages for both personas, carries no retired term, informality or database word, and keeps the ruled sentences; and every anchor a step names exists as a data-tur attribute in the rendered source, with empty-state wording present exactly where a landing's source can report that anchor empty",
+      "how": "src/lib/hle.ts swept over four tours in two languages and two personas; planted retired term and clitic watched"
+    },
+    {
+      "id": "UX1-TUR-AKSES-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the rendered source of the tour components declares a dialog with its label and description, makes the page inert and gives it back, moves focus to each step's headline, is written in the approved tab order with no tabindex forcing it, builds every control from a native element, labels both ways out in words, announces the step number as words, and draws miniatures whose every string literal is a class list, a declared kind or the frame's own label",
+      "how": "src/components/tur/*.tsx read for semantics and DOM order; a reordered footer watched"
+    },
+    {
+      "id": "UX1-TUR-TUNTUN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the Experience stylesheet's guidance rules paint the mode's ground only under the tour's or Help's own selector, carry no status colour anywhere inside instruction, leave the tip unpainted, draw the approved 3px white gap and 2px primary ring over the ruled composite veil, and cap the phone sheet; and the source of Tur.tsx applies and removes the mode class for exactly the two states that are the mode",
+      "how": "src/app/experience.css guidance block and src/components/tur/Tur.tsx; a planted status colour watched"
     }
   ]
 }
