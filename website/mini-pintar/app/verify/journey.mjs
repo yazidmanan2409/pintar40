@@ -9,14 +9,23 @@
 
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdir } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import { serve, launch, Page } from "./driver.mjs";
-import { DOMAINS, MAP_ITEMS, LESSONS, OUTCOMES, EVIDENCE_LIMIT, UI, REVEAL, TIER_LABELS } from "../content.js";
+import {
+  DOMAINS, MAP_ITEMS, CHECK_ITEMS, CHECK_ONLY_MISCONCEPTIONS, MAP_REASONS,
+  LESSONS, OUTCOMES, EVIDENCE_LIMIT, UI, REVEAL, TIER_LABELS,
+} from "../content.js";
 import { SKIP, mapVerdicts, buildPeta, outcomeFor } from "../adapt.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const APP = join(HERE, "..");
 const SHOTS = process.argv.includes("--shots");
+/**
+ * A reduced run, for the negative plants only. Every rule still runs; the
+ * exhaustive sweeps shrink. Never use it as the verification of record —
+ * the full run is what the report quotes.
+ */
+const FAST = process.env.MINI_PINTAR_FAST === "1";
 const SHOT_DIR = join(APP, "..", "screens");
 
 const fails = [];
@@ -43,6 +52,142 @@ const SMALL_TEXT = `[...document.querySelectorAll('main *')]
                px: parseFloat(getComputedStyle(e).fontSize) }))
   .filter(x => x.px > 0 && x.px < 14)`;
 
+/**
+ * WCAG contrast, measured rather than asserted.
+ *
+ * Written as a FUNCTION and serialised with toString(), not as a template
+ * literal. A template literal silently eats unknown escapes: `\(` becomes
+ * `(` and `\s` becomes `s`, so a regex like /rgba?\(([^)]+)\)/ turns into
+ * a different regex that still matches, parses every colour as NaN, and
+ * compares NaN against the threshold — which is false, so nothing is ever
+ * flagged. That is exactly what happened here, and the check reported
+ * green over a colour at 2.02:1. A function is compiled by Node, so a
+ * mistake in it is a syntax error rather than a quiet pass.
+ *
+ * Two things it does that a naive version does not. It composites
+ * translucent backgrounds down the ancestor chain, because the chrome is
+ * semi-transparent over the page. And where a background is a gradient it
+ * takes the DARKEST stop, so a gradient cannot hide a low-contrast corner
+ * behind an average — the lead Peta Bacaan card is exactly such a case.
+ */
+function contrastProbe() {
+  const lum = ([r, g, b]) => {
+    const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const ratio = (a, b) => {
+    const L1 = lum(a), L2 = lum(b);
+    return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
+  };
+  const parse = (str) => {
+    const m = String(str).match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const n = m[1].split(/[,\s/]+/).filter(Boolean).map(Number);
+    if (n.slice(0, 3).some(Number.isNaN)) return null;
+    return { rgb: [n[0], n[1], n[2]], a: n.length > 3 ? n[3] : 1 };
+  };
+  const colorsIn = (str) => (String(str).match(/rgba?\([^)]+\)/g) || []).map(parse).filter(Boolean);
+  const over = (fg, bg) => fg.rgb.map((c, i) => c * fg.a + bg[i] * (1 - fg.a));
+
+  const bgOf = (el) => {
+    const stack = [];
+    for (let n = el; n; n = n.parentElement) {
+      const cs = getComputedStyle(n);
+      const cands = colorsIn(cs.backgroundColor).concat(colorsIn(cs.backgroundImage))
+        .filter((c) => c.a > 0);
+      if (cands.length) {
+        cands.sort((a, b) => lum(a.rgb) - lum(b.rgb));
+        stack.push(cands[0]);
+        if (cands[0].a === 1) break;
+      }
+    }
+    let bg = [255, 255, 255];
+    for (let i = stack.length - 1; i >= 0; i -= 1) bg = over(stack[i], bg);
+    return bg;
+  };
+
+  const out = [];
+  let measured = 0;
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.closest(".sr")) continue;
+    if (!el.offsetParent) continue;
+    const hasOwnText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+    if (!hasOwnText) continue;
+    const cs = getComputedStyle(el);
+    if (cs.visibility === "hidden" || Number(cs.opacity) === 0) continue;
+    const fg = parse(cs.color);
+    if (!fg) { out.push({ el: el.tagName.toLowerCase(), unparsed: cs.color }); continue; }
+    const bg = bgOf(el);
+    measured += 1;
+    const size = parseFloat(cs.fontSize);
+    const weight = parseInt(cs.fontWeight, 10) || 400;
+    const large = size >= 24 || (size >= 18.66 && weight >= 700);
+    const need = large ? 3 : 4.5;
+    const got = ratio(over(fg, bg), bg);
+    if (!(got + 0.005 >= need)) {
+      out.push({
+        el: el.tagName.toLowerCase() + (typeof el.className === "string" && el.className
+          ? "." + el.className.trim().split(/\s+/).join(".") : ""),
+        px: size, weight, ratio: Math.round(got * 100) / 100, need,
+        text: el.textContent.trim().slice(0, 32),
+      });
+    }
+  }
+  // A probe that measures nothing has to say so: an empty result must mean
+  // "everything passed", never "nothing was looked at".
+  return { bad: out, measured };
+}
+
+/**
+ * Non-text contrast (WCAG 1.4.11) for the boundaries that carry meaning:
+ * the selected option, the lead card's rule, the step rail, the primary
+ * action. Borders that only decorate are not in this list, because
+ * demanding 3:1 of every hairline would push the whole surface louder for
+ * no gain to anyone.
+ */
+function nonTextProbe() {
+  const lum = ([r, g, b]) => {
+    const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const rgb = (str) => {
+    const m = String(str).match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const n = m[1].split(/[,\s/]+/).filter(Boolean).map(Number);
+    return n.slice(0, 3).some(Number.isNaN) ? null : [n[0], n[1], n[2]];
+  };
+  const ratio = (a, b) => {
+    const L1 = lum(a), L2 = lum(b);
+    return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
+  };
+  const paper = rgb(getComputedStyle(document.body).backgroundColor) || [251, 250, 247];
+  const out = [];
+  let measured = 0;
+  const test = (name, sel, prop) => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    // 1.4.11 exempts inactive components. The primary action is inactive
+    // until the visitor has chosen, and its disabled ground is meant to
+    // recede.
+    if (el.disabled || el.getAttribute("aria-disabled") === "true") return;
+    const c = rgb(getComputedStyle(el)[prop]);
+    if (!c) { out.push({ name, unparsed: getComputedStyle(el)[prop] }); return; }
+    measured += 1;
+    const got = ratio(c, paper);
+    if (!(got + 0.005 >= 3)) out.push({ name, ratio: Math.round(got * 100) / 100 });
+  };
+  test("selected option border", '.opt[aria-checked="true"]', "borderLeftColor");
+  test("lead card rule", ".card--PERLU_SEGERA", "borderLeftColor");
+  test("needs-reading card rule", ".card--WAJIB", "borderLeftColor");
+  test("step rail, reached", ".rail i.on", "backgroundColor");
+  test("primary action", "main button.btn:not(.btn--quiet):not(.btn--text)", "backgroundColor");
+  test("evidence limit rule", ".limit", "borderLeftColor");
+  return { bad: out, measured };
+}
+
+const CONTRAST = `(${contrastProbe.toString()})()`;
+const NON_TEXT = `(${nonTextProbe.toString()})()`;
+
 const SMALL_TARGETS = `[...document.querySelectorAll('main button, main a')]
   .map(e => ({ el: e.tagName.toLowerCase() + (e.className ? "." + e.className : ""),
                w: Math.round(e.getBoundingClientRect().width),
@@ -51,8 +196,9 @@ const SMALL_TARGETS = `[...document.querySelectorAll('main button, main a')]
 
 const clickPrimary = (p) => p.eval(`
   (() => { const b = document.querySelector(${JSON.stringify(PRIMARY)});
-    if (!b) throw new Error("no primary button");
-    if (b.disabled) throw new Error("primary button disabled");
+    const at = " at " + (location.hash || "#threshold");
+    if (!b) throw new Error("no primary button" + at);
+    if (b.disabled) throw new Error("primary button disabled" + at + ": " + b.textContent);
     b.click(); return true; })()`).then(() => p.settle());
 
 const clickTextBtn = (p, text) => p.eval(`
@@ -63,7 +209,11 @@ const clickTextBtn = (p, text) => p.eval(`
 
 const pick = (p, label) => p.eval(`
   (() => { const o = document.querySelector('.opt[data-label="' + ${JSON.stringify(label)} + '"]');
-    if (!o) throw new Error("no option " + ${JSON.stringify(label)});
+    if (!o) throw new Error("no option " + ${JSON.stringify(label)}
+      + " at " + (location.hash || "#threshold")
+      + " (options here: " + [...document.querySelectorAll('.opt')]
+          .map(x => x.dataset.label || "fixed").join("") + ")"
+      + " h1: " + (document.querySelector('main h1')?.textContent?.slice(0, 40) || "-"));
     o.click(); return true; })()`).then(() => p.settle());
 
 const bodyText = (p) => p.eval("document.getElementById('main').innerText");
@@ -108,12 +258,16 @@ async function walk(p, mapChoices, checkChoices) {
   await clickPrimary(p);              // -> lesson
   const lessonText = await bodyText(p);
   await clickPrimary(p);              // -> check 1
+  const reasonings = [];
   for (let i = 0; i < checkChoices.length; i += 1) {
+    // Commit: skipping commits too, and both reveal the reasoning (R1).
     if (checkChoices[i] === SKIP) await clickTextBtn(p, UI.skip.id);
     else { await pick(p, checkChoices[i]); await clickPrimary(p); }
+    reasonings.push(await bodyText(p));
+    await clickPrimary(p);           // continue past the reasoning
   }
   const hasilText = await bodyText(p);
-  return { petaText, lessonText, hasilText };
+  return { petaText, lessonText, hasilText, reasonings };
 }
 
 // --------------------------------------------------------------------- run
@@ -145,10 +299,11 @@ try {
   await p.goto(BASE);
 
   // ---------------------------------------- all 8 map shapes, all 12 terminals
-  const SHAPES = [
+  const ALL_SHAPES = [
     ["A", "C", "C"], ["A", "C", "A"], ["A", "A", "C"], ["A", "A", "A"],
     ["B", "C", "C"], ["B", "C", "A"], ["B", "A", "C"], [SKIP, SKIP, SKIP],
   ];
+  const SHAPES = FAST ? [ALL_SHAPES[0], ALL_SHAPES[7]] : ALL_SHAPES;
   const CHECKS = { KONSISTEN: ["A", "A"], BELUM_CUKUP: ["A", "B"], PERLU_PERHATIAN: ["B", "B"] };
 
   phase('all 8 map shapes x 12 terminal states');
@@ -204,8 +359,10 @@ try {
       `cards are in the computed order (${m.join("")})`, names.join(" | "));
   }
 
-  assert(shapesSeen.size === 8, "eight map shapes walked in the browser", String(shapesSeen.size));
-  assert(terminals.size === 12, "twelve terminal states reached in the browser", String(terminals.size));
+  if (!FAST) {
+    assert(shapesSeen.size === 8, "eight map shapes walked in the browser", String(shapesSeen.size));
+    assert(terminals.size === 12, "twelve terminal states reached in the browser", String(terminals.size));
+  }
 
   // ------------------------------------------------------------- the reveal
   await p.goto(BASE);
@@ -329,8 +486,9 @@ try {
   const lessonWas = await bodyText(p);
   assert(shows(lessonWas, LESSONS["L-D2"].title.id), "the D2 lesson is served first");
   await clickPrimary(p);                        // check 1
-  await pick(p, "A"); await clickPrimary(p);    // check 2
-  await pick(p, "A");                           // answered, not confirmed
+  await pick(p, "A"); await clickPrimary(p);    // commit question 1
+  await clickPrimary(p);                        // -> check 2
+  await pick(p, "A"); await clickPrimary(p);    // commit question 2
 
   // Back to the third Pemetaan Awal question and make D3 correct. D2 still
   // needs a reading, so the lesson stays L-D2 -- but the two check answers
@@ -355,6 +513,140 @@ try {
   const checkFresh = await p.eval(`!document.querySelector('.opt[aria-checked="true"]')`);
   assert(checkFresh, "changing a Pemetaan Awal answer discards the check answers");
   assert(await primaryDisabled(p), "and the check cannot be advanced without answering again");
+
+  // ------------------------------------------ R1: the reasoning, revealed
+  phase("reasoning revealed after commit");
+  {
+    const items = CHECK_ITEMS.D2;
+    // A choice that is not the keyed one: both its reasoning and the keyed
+    // reasoning are shown, and neither is the other.
+    await p.goto(BASE);
+    await walkMapOnly(p, ["B", "A", "A"]);
+    await clickPrimary(p); await clickPrimary(p);          // lesson -> check 1
+    const beforeCommit = await bodyText(p);
+    const wrong = items[0].options.find((o) => o.label === "B");
+    const key = items[0].options.find((o) => o.correct);
+    assert(!shows(beforeCommit, wrong.rationale.id),
+      "no reasoning is shown before the answer is committed");
+    assert(!shows(beforeCommit, key.rationale.id),
+      "the keyed reasoning is not shown before commit");
+
+    await pick(p, "B");
+    await clickPrimary(p);                                  // commit
+    const after = await bodyText(p);
+    assert(shows(after, wrong.rationale.id), "the chosen option's reasoning is revealed",
+      after.slice(0, 120));
+    assert(shows(after, key.rationale.id), "the keyed option's reasoning is revealed too");
+    const kindsWrong = await p.eval(
+      `[...document.querySelectorAll('.reason__kind')].map(n => n.textContent.trim())`);
+    assert(kindsWrong.length === 2, "two reasoning blocks when the choice was not the keyed one",
+      JSON.stringify(kindsWrong));
+    assert(shows(kindsWrong.join(" "), UI.yourChoice.id)
+        && shows(kindsWrong.join(" "), UI.mostAccurate.id),
+      "both blocks are labelled", JSON.stringify(kindsWrong));
+    assert(!/salah|keliru|wrong|incorrect/i.test(after),
+      "the reasoning judges the answer, never the person", after.slice(0, 160));
+
+    // Committing fixes the answer. Revealing why an answer falls short and
+    // then letting it be changed would make the reveal pointless.
+    const stillRadio = await p.eval(`!!document.querySelector('.opt[role="radio"]')`);
+    assert(!stillRadio, "the options stop being a radio group once committed");
+    await p.eval(`document.querySelector('.opt--key')?.click()`);
+    await p.settle();
+    const changed = await p.eval(`!!document.querySelector('.opt--chosen.opt--key')`);
+    assert(!changed, "clicking after commit does not change the answer");
+
+    // The keyed answer alone: one block, not the same paragraph twice.
+    await p.goto(BASE);
+    await walkMapOnly(p, ["B", "A", "A"]);
+    await clickPrimary(p); await clickPrimary(p);
+    await pick(p, "A"); await clickPrimary(p);
+    const rightText = await bodyText(p);
+    assert(shows(rightText, key.rationale.id), "the keyed reasoning is shown when it was chosen");
+    const kindsRight = await p.eval(
+      `[...document.querySelectorAll('.reason__kind')].map(n => n.textContent.trim())`);
+    assert(kindsRight.length === 1,
+      "the keyed block is not repeated when the visitor chose it", JSON.stringify(kindsRight));
+
+    // A skip reveals the reasoning without being called a misconception.
+    await p.goto(BASE);
+    await walkMapOnly(p, ["B", "A", "A"]);
+    await clickPrimary(p); await clickPrimary(p);
+    await clickTextBtn(p, UI.skip.id);
+    const skipText = await bodyText(p);
+    assert(shows(skipText, UI.skippedHere.id), "a skip is named as a skip", skipText.slice(0, 120));
+    assert(shows(skipText, key.rationale.id), "a skip still gets the reasoning");
+    const kindsSkip = await p.eval(
+      `[...document.querySelectorAll('.reason__kind')].map(n => n.textContent.trim())`);
+    assert(kindsSkip.length === 1 && shows(kindsSkip[0], UI.mostAccurate.id),
+      "a skip is not described as a choice", JSON.stringify(kindsSkip));
+  }
+
+  // The Hasil stays an evidence-interpretation surface (R1).
+  {
+    await p.goto(BASE);
+    const r = await walk(p, ["B", "A", "A"], ["B", "B"]);
+    const anyRationale = CHECK_ITEMS.D2.flatMap((i) => i.options)
+      .filter((o) => shows(r.hasilText, o.rationale.id));
+    assert(anyRationale.length === 0,
+      "the Hasil is not a correction sheet — no option rationale on it",
+      anyRationale.map((o) => o.label).join(", "));
+    assert(shows(r.hasilText, EVIDENCE_LIMIT.id), "and it still carries the evidence limit");
+  }
+
+  // ------------------------------- R2: the taxonomy never reaches a screen
+  phase("misconception taxonomy stays internal");
+  {
+    const codes = [...new Set([
+      ...Object.keys(MAP_REASONS), ...Object.keys(CHECK_ONLY_MISCONCEPTIONS),
+    ])];
+    await p.goto(BASE);
+    const seen = [];
+    const sweep = async (where) => {
+      const html = await p.eval("document.documentElement.outerHTML");
+      for (const c of codes) if (html.includes(c)) seen.push(`${c} at ${where}`);
+    };
+    await sweep("threshold");
+    await walkMapOnly(p, ["B", "A", "A"]);  await sweep("peta");
+    await clickPrimary(p);                  await sweep("lesson");
+    await clickPrimary(p);                  await sweep("check");
+    await pick(p, "B"); await clickPrimary(p); await sweep("check committed");
+    await clickPrimary(p); await pick(p, "B"); await clickPrimary(p);
+    await clickPrimary(p);                  await sweep("hasil");
+    await clickPrimary(p);                  await sweep("reveal");
+    assert(seen.length === 0, "no misconception code appears in the document", seen.join("; "));
+  }
+
+  // ------------------------------------------------- contrast, measured
+  phase("contrast, measured");
+  for (const [w, h, label] of (FAST ? [[1280, 900, "desktop"]]
+                                     : [[1280, 900, "desktop"], [390, 844, "mobile"]])) {
+    await p.viewport(w, h);
+    await p.goto(BASE);
+    const measure = async (name) => {
+      const text = await p.eval(CONTRAST);
+      assert(text.measured > 0, `contrast probe measured something at ${label}/${name}`,
+        JSON.stringify(text));
+      assert(text.bad.length === 0, `contrast at ${label}/${name}`, JSON.stringify(text.bad));
+      const ui = await p.eval(NON_TEXT);
+      assert(ui.measured > 0, `non-text probe measured something at ${label}/${name}`,
+        JSON.stringify(ui));
+      assert(ui.bad.length === 0, `non-text contrast at ${label}/${name}`, JSON.stringify(ui.bad));
+    };
+    await measure("threshold");
+    await clickPrimary(p); await pick(p, "B"); await measure("pemetaan awal");
+    await clickPrimary(p); await pick(p, "A"); await clickPrimary(p);
+    await pick(p, "A"); await clickPrimary(p); await measure("peta bacaan");
+    await clickPrimary(p); await measure("pelajaran");
+    await clickPrimary(p);
+    await p.eval("document.querySelector('.checkbar button').click()"); await p.settle();
+    await measure("uji penguasaan");
+    await pick(p, "B"); await clickPrimary(p); await measure("reasoning");
+    await clickPrimary(p); await pick(p, "B"); await clickPrimary(p);
+    await clickPrimary(p); await measure("hasil");
+    await clickPrimary(p); await measure("reveal");
+  }
+  await p.viewport(1280, 900);
 
   // ------------------------------- language switch keeps position and answers
   await p.goto(BASE);
@@ -507,6 +799,9 @@ try {
   // ------------------------------------------------------------ screenshots
   phase('screenshots');
   if (SHOTS) {
+    // Written fresh, so a renamed step cannot leave a stale screen behind
+    // for someone to review.
+    await rm(SHOT_DIR, { recursive: true, force: true });
     await mkdir(SHOT_DIR, { recursive: true });
     // Tall viewports on purpose. `captureBeyondViewport` stitches a
     // full-page image, and a `position: sticky` element is painted at its
@@ -528,9 +823,15 @@ try {
       await clickPrimary(p);
       await p.eval("document.querySelector('.checkbar button').click()"); await p.settle();
       await shot("4-uji-penguasaan");
-      await pick(p, "A"); await clickPrimary(p); await pick(p, "B"); await clickPrimary(p);
-      await shot("5-hasil-belum-cukup");
-      await clickPrimary(p); await shot("6-reveal");
+      // One keyed answer and one not, so the captured Hasil is
+      // BELUM_CUKUP and the captured reasoning shows both blocks.
+      await pick(p, "A"); await clickPrimary(p);   // commit question 1
+      await clickPrimary(p);                        // -> question 2
+      await pick(p, "B"); await clickPrimary(p);    // commit question 2
+      await shot("5-penjelasan");
+      await clickPrimary(p);                        // -> hasil
+      await shot("6-hasil-belum-cukup");
+      await clickPrimary(p); await shot("7-reveal");
     }
     console.log(`screens written to ${SHOT_DIR}`);
   }
@@ -556,7 +857,12 @@ async function keyboardJourney(page) {
     const step = await page.eval("location.hash || '#threshold'");
     if (step === "#reveal") return { finished: true, detail: `reached in ${guard} steps` };
 
-    if (step.startsWith("#map") || step.startsWith("#check")) {
+    // Once a check answer is committed the options are a plain list, not
+    // controls: there is nothing to choose and the only action is to
+    // continue.
+    const fixed = await page.eval("!!document.querySelector('.options--fixed')");
+
+    if (!fixed && (step.startsWith("#map") || step.startsWith("#check"))) {
       // Reach the radio group, choose with the arrow keys, then the
       // primary action. Nothing here uses a pointer.
       const reached = await page.eval(`(() => {
@@ -593,5 +899,8 @@ if (fails.length) {
   for (const f of fails) console.error("  " + f);
   process.exit(1);
 }
-console.log(`journey OK — ${checks} checks in a real browser: 8 map shapes, 12 terminal ` +
-            `states, keyboard-only completion, zero storage writes, zero external requests`);
+console.log(FAST
+  ? `journey OK (REDUCED, MINI_PINTAR_FAST=1) — ${checks} checks: ${FAST ? 2 : 8} of 8 map ` +
+    `shapes, one viewport, no screenshots. Not the verification of record.`
+  : `journey OK — ${checks} checks in a real browser: 8 map shapes, 12 terminal ` +
+    `states, keyboard-only completion, zero storage writes, zero external requests`);

@@ -89,8 +89,28 @@ for (const file of SHIPPED) {
 // preconnect. The only network activity is the browser fetching the five
 // files above. A page arguing that it keeps nothing about you has to be
 // true of its own requests first.
+//
+// XML NAMESPACE URIs ARE NOT ORIGINS. `http://www.w3.org/2000/svg` is an
+// identifier the browser compares as a string; nothing is ever fetched
+// from it. It is allowed by exact match only, and only where it is being
+// passed to createElementNS -- so the exemption cannot be widened into a
+// stylesheet link or a script src by anyone reusing the string.
+const NAMESPACES = ["http://www.w3.org/2000/svg", "http://www.w3.org/1999/xlink"];
+
 for (const file of SHIPPED) {
-  const urls = CODE[file].match(/\b(?:https?:)?\/\/[a-z0-9.-]+/gi) || [];
+  let text = CODE[file];
+  for (const ns of NAMESPACES) {
+    const used = text.split(ns).length - 1;
+    const asNamespace = (text.match(
+      new RegExp(`createElementNS\\(\\s*["'\`]${ns.replace(/[.*+?^$\\{}()|[\\]\\\\]/g, "\\$&")}`, "g")) || []).length;
+    if (used !== asNamespace) {
+      fail(`namespace URI used as something other than createElementNS: ${ns}`, file);
+    } else if (used) {
+      checks += 1;
+      text = text.split(ns).join(" ");
+    }
+  }
+  const urls = text.match(/\b(?:https?:)?\/\/[a-z0-9.-]+/gi) || [];
   if (urls.length) fail(`external origin ${urls.join(", ")}`, file);
   else checks += 1;
 }

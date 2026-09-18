@@ -284,9 +284,15 @@ export class Page {
   }
 
   async screenshot(path) {
-    // The step transition is a 400ms fade. Capturing during it produces a
+    // The step transition is a fade. Capturing during it produces a
     // washed-out image that looks like a contrast failure and is not one.
     await this.eval("new Promise(r => setTimeout(r, 520))", true);
+    // Focus moves to each step's heading, and Chromium treats the driver's
+    // synthetic clicks as keyboard-ish, so :focus-visible paints a ring
+    // that a visitor using a mouse never sees. Blur for the capture: the
+    // screens should show the resting state, and the focus behaviour is
+    // asserted by the accessibility checks rather than by a picture.
+    await this.eval("document.activeElement && document.activeElement.blur()");
     const { data } = await this.cdp.send("Page.captureScreenshot", { captureBeyondViewport: true });
     const { writeFile } = await import("node:fs/promises");
     await writeFile(path, Buffer.from(data, "base64"));

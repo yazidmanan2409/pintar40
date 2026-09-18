@@ -30,6 +30,11 @@ const FRESH = () => ({
   mapChoices: [null, null, null],
   checkIndex: 0,
   checkChoices: [null, null],
+  // Committing a check answer reveals its reasoning, so it also fixes it:
+  // you cannot show a visitor why an answer falls short and then let them
+  // change it. Pemetaan Awal answers stay changeable (M1 §5) -- nothing is
+  // revealed there.
+  checkCommitted: [false, false],
   workedShown: 0,
   assistLevel: 0,
   assistOffered: false,
@@ -55,6 +60,7 @@ function setMapChoice(i, label) {
   if (s.mapChoices[i] === label) return;
   s.mapChoices[i] = label;
   s.checkChoices = [null, null];
+  s.checkCommitted = [false, false];
   s.checkIndex = 0;
   s.workedShown = 0;
   s.assistLevel = 0;
@@ -137,9 +143,35 @@ function evidenceLimitBlock() {
   const text = t(EVIDENCE_LIMIT);
   const cut = text.indexOf(". ") + 1;
   return el("div", { class: "limit" }, [
-    el("strong", { text: text.slice(0, cut) }),
-    el("span", { text: text.slice(cut).trim() }),
+    // The mark draws what the sentence says: a line that runs, and then
+    // stops. It is not a chart and implies no quantity.
+    svg("limit__mark", 22, 12,
+      '<path d="M1 6h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+      '<path d="M17 1v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
+    el("div", { class: "limit__text" }, [
+      el("strong", { text: text.slice(0, cut) }),
+      el("span", { text: text.slice(cut).trim() }),
+    ]),
   ]);
+}
+
+/**
+ * An inline decorative mark. Inline because the bundle has no external
+ * origin -- no icon font, no sprite sheet, nothing fetched from anywhere.
+ * Always aria-hidden: every one of these sits beside text that says the
+ * same thing.
+ */
+function svg(cls, w, h, inner) {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  node.setAttribute("class", cls);
+  node.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  node.setAttribute("width", String(w));
+  node.setAttribute("height", String(h));
+  node.setAttribute("fill", "none");
+  node.setAttribute("aria-hidden", "true");
+  node.setAttribute("focusable", "false");
+  node.innerHTML = inner;
+  return node;
 }
 
 function announce(message) {
@@ -229,9 +261,8 @@ function renderChrome() {
       type: "button", text: "ID", "aria-pressed": lang === "id",
       onclick: () => setLang("id"),
     }),
-    el("span", { "aria-hidden": "true", text: "|" }),
     el("button", {
-      type: "button", text: "EN", "aria-pressed": lang === "en",
+      type: "button", class: "lang__second", text: "EN", "aria-pressed": lang === "en",
       onclick: () => setLang("en"),
     }),
   );
@@ -239,10 +270,15 @@ function renderChrome() {
   const prog = document.getElementById("progress");
   const pos = JOURNEY.indexOf(s.step);
   if (pos < 0) { prog.replaceChildren(); return; }
-  const dots = el("div", { class: "dots", "aria-hidden": "true" },
-    JOURNEY.map((_, i) => el("i", { class: i <= pos ? "on" : "" })));
+  // Five segments for the five steps of the cycle, filled as far as the
+  // visitor has come, with the current one widened. Purely graphic, so it
+  // is aria-hidden and the sentence beside it is what is read aloud.
+  const rail = el("div", { class: "rail", "aria-hidden": "true" },
+    JOURNEY.map((_, i) => el("i", {
+      class: [i <= pos ? "on" : "", i === pos ? "now" : ""].filter(Boolean).join(" "),
+    })));
   prog.replaceChildren(
-    dots,
+    rail,
     el("span", { class: "sr", text: t(UI.progressText(pos + 1, JOURNEY.length)) }),
   );
 }
@@ -404,11 +440,12 @@ function viewCheck() {
   const items = checkItemsFor(peta().lessonKey);
   const item = items[i];
   const chosen = s.checkChoices[i];
+  const committed = s.checkCommitted[i];
   const domainKey = LESSONS[peta().lessonKey].domain;
   const help = ASSISTANCE[domainKey];
 
   const assistBlock = el("div", { class: "assist" },
-    s.assistLevel === 0 ? [] : [
+    committed || s.assistLevel === 0 ? [] : [
       el("div", { class: "assist__pill", role: "note" }, [
         el("div", { class: "assist__kind",
           text: t(s.assistLevel === 1 ? UI.assistArah : UI.assistPetunjuk) }),
@@ -422,7 +459,7 @@ function viewCheck() {
     ]);
 
   return el("section", { class: "settle" }, [
-    el("div", { class: "checkbar" }, [
+    !committed && el("div", { class: "checkbar" }, [
       // Decorative, aria-hidden, imposes no limit. Announcing it every
       // second would be intolerable and would imply a limit that does not
       // exist.
@@ -438,22 +475,92 @@ function viewCheck() {
     ]),
     el("p", { class: "meta", text: t(UI.questionOf(i + 1, items.length)) }),
     el("h1", { id: "h", tabindex: "-1", text: t(item.stem) }),
-    optionGroup(item, chosen, t(UI.stepCheck), (label) => {
-      s.checkChoices[i] = label;
-      render();
-    }),
-    assistBlock,
-    el("div", { class: chosen === null ? "sticky" : "sticky sticky--on" }, [
-      el("button", { type: "button", class: "btn",
-        text: t(i < items.length - 1 ? UI.next : UI.seeResult),
-        disabled: chosen === null,
-        onclick: () => advanceCheck() }),
-      el("button", { type: "button", class: "btn btn--text", text: t(UI.skip),
-        onclick: () => { s.checkChoices[i] = SKIP; advanceCheck(); } }),
+
+    committed ? committedOptions(item, chosen) :
+      optionGroup(item, chosen, t(UI.stepCheck), (label) => {
+        s.checkChoices[i] = label;
+        render();
+      }),
+
+    committed ? reasoningBlock(item, chosen) : assistBlock,
+
+    el("div", { class: committed || chosen !== null ? "sticky sticky--on" : "sticky" }, [
+      committed
+        ? el("button", { type: "button", class: "btn",
+            text: t(i < items.length - 1 ? UI.next : UI.seeResult),
+            onclick: () => advanceCheck() })
+        : el("button", { type: "button", class: "btn", text: t(UI.seeReasoning),
+            disabled: chosen === null,
+            onclick: () => commitCheck() }),
+      !committed && el("button", { type: "button", class: "btn btn--text", text: t(UI.skip),
+        onclick: () => { s.checkChoices[i] = SKIP; commitCheck(); } }),
       el("button", { type: "button", class: "btn btn--text", text: t(UI.back),
         onclick: () => history.back() }),
     ]),
   ]);
+}
+
+/**
+ * The options after the answer is fixed: a plain list, not a radio group.
+ * Leaving four radios on screen that no longer accept input is the kind of
+ * half-interactive control a screen reader describes as usable and is not.
+ */
+function committedOptions(item, chosen) {
+  return el("ul", { class: "options options--fixed" }, item.options.map((o) => {
+    const isChoice = o.label === chosen;
+    // The marks are WORDS, not glyphs. A filled dot against a hollow one
+    // against a diamond is a legend the visitor was never given, and the
+    // three states here are worth two short labels instead. Being visible
+    // text, they are also what a screen reader reads -- no parallel
+    // visually-hidden copy to drift out of step with them.
+    const marks = [];
+    if (isChoice) marks.push([t(UI.markYourChoice), true]);
+    if (o.correct) marks.push([t(UI.markMostAccurate), false]);
+    return el("li", {
+      class: "opt opt--fixed" + (isChoice ? " opt--chosen" : "") + (o.correct ? " opt--key" : ""),
+    }, [
+      el("span", { class: "opt__label", "aria-hidden": "true", text: o.label }),
+      el("span", { class: "opt__text", text: t(o.text) }),
+      marks.length
+        ? el("span", { class: "opt__mark" }, marks.map(([m, you]) =>
+            el("span", { class: "opt__chip" + (you ? " opt__chip--you" : ""), text: m })))
+        : null,
+    ]);
+  }));
+}
+
+/**
+ * The reasoning, revealed only once the answer is committed (R1). It says
+ * why the reasoning holds or does not, rather than restating which letter
+ * was keyed -- a rationale that only names the answer teaches nothing.
+ *
+ * The Hasil stays an evidence-interpretation surface and never becomes a
+ * correction sheet: the explaining happens here, at the question.
+ */
+function reasoningBlock(item, chosen) {
+  const picked = item.options.find((o) => o.label === chosen);
+  const key = item.options.find((o) => o.correct);
+  const skipped = chosen === SKIP || !picked;
+
+  const blocks = [];
+  if (skipped) {
+    blocks.push(el("p", { class: "meta", text: t(UI.skippedHere) }));
+  } else {
+    blocks.push(el("div", { class: "reason" }, [
+      el("div", { class: "reason__kind", text: t(UI.yourChoice) }),
+      el("p", { text: t(picked.rationale) }),
+    ]));
+  }
+  // The keyed option's reasoning is added only when it is not already the
+  // one above, so nobody reads the same paragraph twice.
+  if (skipped || !picked.correct) {
+    blocks.push(el("div", { class: "reason reason--key" }, [
+      el("div", { class: "reason__kind", text: t(UI.mostAccurate) }),
+      el("p", { text: t(key.rationale) }),
+    ]));
+  }
+  blocks.push(el("p", { class: "meta", text: t(UI.lockedNote) }));
+  return el("div", { class: "reasoning" }, blocks);
 }
 
 function advanceCheck() {
@@ -467,6 +574,16 @@ function advanceCheck() {
   }
 }
 
+function commitCheck() {
+  const i = s.checkIndex;
+  s.checkCommitted[i] = true;
+  s.assistLevel = 0;
+  render();
+  const item = checkItemsFor(peta().lessonKey)[i];
+  const picked = item.options.find((o) => o.label === s.checkChoices[i]);
+  announce(t(picked ? picked.rationale : item.options.find((o) => o.correct).rationale));
+}
+
 function viewHasil() {
   const { outcome } = outcomeFor(peta().lessonKey, s.checkChoices);
   const copy = OUTCOMES[outcome];
@@ -477,9 +594,9 @@ function viewHasil() {
     t(copy.body) ? el("p", { text: t(copy.body) }) : null,
     // Naming the reading is required by the copy itself: PERLU_PERHATIAN
     // says "that shows you which part".
-    el("p", { class: "meta" }, [
-      el("strong", { text: t(UI.yourReading) + ": " }),
-      t(lesson.title),
+    el("p", { class: "reading" }, [
+      el("span", { class: "reading__label", text: t(UI.yourReading) }),
+      el("span", { class: "reading__name", text: t(lesson.title) }),
     ]),
     // It appears under EVERY outcome, KONSISTEN included.
     evidenceLimitBlock(),
@@ -561,13 +678,20 @@ function announceStep() {
 }
 
 function startCheckAids() {
+  // Once the answer is committed there is no checkbar, so there is no
+  // clock to count and no help left to offer: the reasoning is already on
+  // screen.
+  if (s.checkCommitted[s.checkIndex]) return;
+
   questionOpenedAt = Date.now();
   const clock = document.getElementById("clock");
-  tick = window.setInterval(() => {
-    if (!clock.isConnected) { window.clearInterval(tick); return; }
-    const sec = Math.floor((Date.now() - questionOpenedAt) / 1000);
-    clock.textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
-  }, 1000);
+  if (clock) {
+    tick = window.setInterval(() => {
+      if (!clock.isConnected) { window.clearInterval(tick); return; }
+      const sec = Math.floor((Date.now() - questionOpenedAt) / 1000);
+      clock.textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+    }, 1000);
+  }
 
   // The hesitation window offers the same help the persistent button
   // already offers. When the pill appears on its own it is announced
@@ -575,6 +699,7 @@ function startCheckAids() {
   if (s.assistLevel === 0 && !s.assistOffered) {
     hesitationTimer = window.setTimeout(() => {
       if (s.step !== "check" || s.assistLevel !== 0) return;
+      if (s.checkCommitted[s.checkIndex]) return;
       s.assistOffered = true;
       s.assistLevel = 1;
       const help = ASSISTANCE[LESSONS[peta().lessonKey].domain];

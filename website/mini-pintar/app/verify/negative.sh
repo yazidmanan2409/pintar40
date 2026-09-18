@@ -28,10 +28,14 @@ try() { # name verifier file 'anchor||replacement'
   if ! ( cd "$APP" && python3 - "$file" "$expr" <<'PY'
 import sys, pathlib
 f, expr = sys.argv[1], sys.argv[2]
-old, new = expr.split("||")
 p = pathlib.Path(f); s = p.read_text(encoding="utf-8")
-assert s.count(old) >= 1, f"injection anchor not found in {f}: {old[:60]}"
-p.write_text(s.replace(old, new, 1), encoding="utf-8")
+# Several edits per plant, separated by @@ — some rules only trip when two
+# places change together.
+for part in expr.split("@@"):
+    old, new = part.split("||")
+    assert s.count(old) >= 1, f"injection anchor not found in {f}: {old[:60]}"
+    s = s.replace(old, new, 1)
+p.write_text(s, encoding="utf-8")
 PY
   ); then
     printf '  SETUP-FAIL  %s\n' "$name"; fail=$((fail+1)); return
@@ -55,10 +59,35 @@ try "obsolete Kuis Cepat"        audit.mjs content.js 'Uji Penguasaan", "Mastery
 try "MAP option loses rationale" audit.mjs content.js 'rationale: L(
           "Persentase adalah perbandingan||norationale: L(
           "Persentase adalah perbandingan'
-try "CHECK gains a rationale"    audit.mjs content.js '{ label: "B", text: L("Berapa jumlah anggota klub.", "How many members the club has.") }||{ label: "B", rationale: L("x","y"), text: L("Berapa jumlah anggota klub.", "How many members the club has.") }'
 try "item overlap MAP/CHECK"     audit.mjs content.js 'id: "U-D2-1"||id: "P1"'
 try "Hasil drops the limit"      audit.mjs app.js '    evidenceLimitBlock(),||'
 try "limit block gutted"         audit.mjs app.js 'const text = t(EVIDENCE_LIMIT);||const text = t(NO_DELTA);'
+
+echo "audit.mjs — R1, the reasoning:"
+try "CHECK loses a rationale"    audit.mjs content.js 'rationale: L(
+            "Kelompok pembanding adalah||norationale: L(
+            "Kelompok pembanding adalah'
+try "rationale restates option"  audit.mjs content.js '"Populer atau tidak menggambarkan bagaimana orang memandang klub itu, bukan apakah nilainya berubah karena klub itu.",||"Apakah klub itu populer.",'
+try "rationale names the key"    audit.mjs content.js '"Kelompok pembanding adalah satu-satunya tambahan||"Jawaban yang benar adalah A. Kelompok pembanding adalah satu-satunya tambahan'
+try "rationale judges a person"  audit.mjs content.js '"Menambah kelas memperbesar angkanya||"Anda salah. Menambah kelas memperbesar angkanya'
+try "Hasil becomes a marksheet" audit.mjs app.js 'el("p", { class: "nodelta", text: t(NO_DELTA) }),||el("p", { class: "nodelta", text: t(NO_DELTA) }), // rationale'
+try "reveal not gated on commit" audit.mjs app.js 'committed ? reasoningBlock(item, chosen) : assistBlock,||reasoningBlock(item, chosen),'
+try "options stay editable"      audit.mjs app.js 'committed ? committedOptions(item, chosen) :||false ? committedOptions(item, chosen) :'
+
+echo "audit.mjs — R2, the taxonomy:"
+try "correct option coded"       audit.mjs content.js '{ label: "A", correct: true,
+          text: L("Membandingkan dengan kelas serupa||{ label: "A", correct: true, misconception: "M-D2-HIAS",
+          text: L("Membandingkan dengan kelas serupa'
+try "undeclared code used"       audit.mjs content.js 'misconception: "M-D3-PILIH"||misconception: "M-D3-TIDAKPERNAHADA"'
+try "declared code unreachable"  audit.mjs content.js '"M-D3-PILIH": "seeks only what supports the hunch",||"M-D3-PILIH": "seeks only what supports the hunch",
+  "M-D9-HANTU": "a code nothing reaches",'
+try "symmetry forced (R2)"       audit.mjs content.js '{ label: "D",
+          text: L("Apakah klub itu populer.||{ label: "D", misconception: "M-D3-UKURAN",
+          text: L("Apakah klub itu populer.@@{ label: "C",
+          text: L("Bagaimana cara menaikkannya.||{ label: "C", misconception: "M-D1-DASAR",
+          text: L("Bagaimana cara menaikkannya.'
+try "code leaks into content"    audit.mjs content.js 'seeReasoning: L("Lihat penjelasannya", "See the reasoning"),||seeReasoning: L("Lihat penjelasannya M-D2-HIAS", "See the reasoning M-D2-HIAS"),'
+try "renderer reads the code"    audit.mjs app.js 'const committed = s.checkCommitted[i];||const committed = s.checkCommitted[i]; const leak = item.options[0].misconception;'
 
 echo "paths.mjs — adaptation:"
 try "outcome table changed"      paths.mjs adapt.js 'else if (correct === 1) outcome = "BELUM_CUKUP";||else if (correct === 1) outcome = "KONSISTEN";'
@@ -82,6 +111,7 @@ try "Date in a pure module"      isolation.mjs adapt.js 'export const SKIP = "SK
 try "DOM access in adapt"        isolation.mjs adapt.js 'export const SKIP = "SKIP";||export const SKIP = "SKIP"; const q = document.title;'
 try "an answer in the URL"       isolation.mjs app.js 'history.pushState({ key }, "", key);||history.pushState({ key, choice: s.mapChoices }, "", key);'
 try "threshold hides the reload" isolation.mjs app.js 'text: t(UI.thresholdReload)||text: ""'
+try "namespace URI as a href"    isolation.mjs index.html '<link rel="stylesheet" href="style.css">||<link rel="stylesheet" href="http://www.w3.org/2000/svg">'
 
 echo
 echo "negative tests: $pass caught, $fail not caught"

@@ -1,8 +1,7 @@
 # MINI-PINTAR — IMPLEMENTATION
 
-**Phase:** M2, the implementation phase M1 defined · **Date:** 2026-09-18
-**Gate passed:** M1 CONTENT/INTERACTION, 2026-09-18, with two ruled
-corrections applied
+**Phase:** M2 implementation, then the M2 closure pass (R1–R5)
+**Date:** 2026-09-18 · **Gate passed:** M1 CONTENT/INTERACTION
 **Governing:** `../M1-CONTENT-AND-INTERACTION.md` (content and interaction),
 `../../../docs/adr/0021-mini-pintar-public-demonstration.md` (execution model)
 
@@ -30,26 +29,34 @@ cross-origin.
 ## Verify it
 
 ```
-node verify/audit.mjs        # content: both languages, register, overclaim, bank isolation
-node verify/paths.mjs        # adaptation: every reachable path, by enumeration and replay
-node verify/isolation.mjs    # source: no persistence, transmission or identification
-node verify/journey.mjs      # the journey, in a real browser
-bash verify/negative.sh      # that the four above can actually fail
-node verify/journey.mjs --shots   # also writes ../screens/
+node verify/audit.mjs             # content: languages, register, overclaim, taxonomy, bank isolation
+node verify/paths.mjs             # adaptation: every reachable path, by enumeration and replay
+node verify/isolation.mjs         # source: no persistence, transmission or identification
+node verify/journey.mjs           # the journey, in a real browser          (~9 min)
+bash verify/negative.sh           # that the three source verifiers can fail (~30 s)
+bash verify/negative-browser.sh   # that the browser verifier can fail       (~8 min)
+node verify/journey.mjs --shots   # also rewrites ../screens/
 ```
 
 No npm install, no build step, no browser download. `journey.mjs` speaks
 CDP to the Chromium already on the machine through `verify/driver.mjs`
-(override with `CHROMIUM=/path/to/chrome`).
+(override with `CHROMIUM=/path/to/chrome`). `MINI_PINTAR_FAST=1` runs a
+reduced journey for the plants; it says so in its own summary line and is
+never the verification of record.
 
-**`negative.sh` is the one to run after editing a verifier.** It injects
-thirty-one specific defects — a two-minute promise, a mastery overclaim, a
-child-register pronoun, a `localStorage` write, a webfont, a mutated
-outcome table, an answer in the URL — and fails if any verifier stays
-green. A check that cannot go red is theatre, and the first version of
-three of these checks was exactly that: `negative.sh` found two real
-weaknesses in `audit.mjs` and `paths.mjs` before either had ever been
-trusted.
+**Run the two negative scripts after editing any verifier.** Between them
+they plant forty-seven specific defects — a two-minute promise, a mastery
+overclaim, a child-register pronoun, a `localStorage` write, a webfont, a
+mutated outcome table, an answer in the URL, a rationale that only names
+the key, a leaked misconception code, a colour at 2:1, a committed answer
+that is still editable — and fail if any verifier stays green.
+
+They have now caught four checks of mine that could not fail. The worst was
+in the contrast probe itself: it lived in a template literal, so `\(` and
+`\s` in its regexes lost their backslashes, every colour parsed as `NaN`,
+every comparison against `NaN` was false, and it reported green over text
+at 2.02:1. It is a function now, compiled by Node, and both probes refuse
+to pass unless they can say how many elements they measured.
 
 ---
 
@@ -57,18 +64,13 @@ trusted.
 
 | File | What it is |
 |---|---|
-| `index.html` | The shell. Chrome, a live region, a `<noscript>` that explains itself, nothing else. |
-| `style.css` | The surface. Deck palette tokens, one 34 rem column, no external font. |
-| `content.js` | **The content**, as approved in M1 §3. Every string a `{id, en}` pair. |
+| `index.html` | The shell. Chrome, a live region, a `<noscript>` that explains itself. |
+| `style.css` | The surface. Stage H visual direction, from the deck's language. |
+| `content.js` | **The content**, as approved in M1 §3 plus the R1 rationales. Every string a `{id, en}` pair. |
 | `adapt.js` | **The adaptation.** Pure functions, no randomness, no clock, no DOM. |
 | `app.js` | The state machine, the rendering and the accessibility behaviour. |
-| `verify/audit.mjs` | Content: both languages, register, overclaim, bank isolation. |
-| `verify/paths.mjs` | Adaptation: every reachable path, by enumeration and replay. |
-| `verify/isolation.mjs` | Source: no persistence, transmission or identification. |
-| `verify/journey.mjs` | The journey, in a real browser. ~9 minutes. |
-| `verify/negative.sh` | That the four above can actually fail. |
-| `verify/driver.mjs` | A static server and a CDP driver, no npm dependency. |
-| `../screens/` | Fourteen screens, desktop and 390 px, written by `--shots`. |
+| `verify/` | Four checks, two negative-plant harnesses, a dependency-free browser driver. |
+| `../screens/` | Sixteen screens, desktop and 390 px, written by `--shots`. |
 | `package.json` | `{"type":"module"}` and nothing else. No dependency, now or planned. |
 
 `content.js` and `adapt.js` are imported by both the browser and the
@@ -77,205 +79,258 @@ the whole reason the adaptation is a separate pure module.
 
 ---
 
-## Decisions taken at implementation time
+## The closure pass
 
-These were not settled by M1. Each is reversible; each is written down
-because an implementation decision nobody recorded becomes a mystery.
+**R1 · Twenty-four rationales, authored.** Every Uji Penguasaan option now
+carries one, in both languages, and the content model's rule holds over
+every option in the bundle. They explain **why the reasoning holds or does
+not** rather than naming the key — `audit.mjs` rejects a rationale that
+contains "the correct answer is", that restates its own option, or that is
+shorter than the option it explains.
 
-**1 · It is a standalone static bundle, not a route in `src/app/`.** R5
-approved separate deployment, and ADR-0021's *Affected components* says "no
-application module changes" and "no change to `src/proxy.ts`'s
-`PUBLIC_PATHS`". Building it as a Next.js route would have made both false
-and would have put a public, anonymous surface inside the application's
-Supabase session middleware — the perimeter INV-37 protects. Outside, there
-is no perimeter to reason about.
+They are revealed **after the visitor commits**, at the question. The
+primary action reads *Lihat penjelasannya / See the reasoning*, and pressing
+it shows the chosen option's reasoning and, when the choice was not the
+keyed one, the keyed option's too — labelled *Pilihan Anda* and *Pilihan
+yang paling tepat*, never "right" and never "wrong". A skip gets the
+reasoning without being called a choice.
 
-**2 · No dependency, no build step, no external origin.** Not minimalism
-for its own sake. This is the one page in PINTAR whose argument is that it
-keeps nothing about you, and that has to be true of its own network
-activity first. A webfont from a CDN is a third-party request carrying the
-visitor's IP and referrer, made by the page that just told them nothing is
-kept. So: a system font stack, and `verify/isolation.mjs` fails the build
-on any `//host` appearing in any shipped file.
+**The Hasil is unchanged and stays an evidence-interpretation surface.**
+`audit.mjs` fails if a rationale ever reaches it.
 
-**3 · The deck palette, not a new one.** Visual direction is stage H and is
-still outstanding. Rather than invent a second palette that stage H would
-then have to reconcile, the bundle uses the tokens from the approved
-presentation deck, with R6's `#245F55` as the corporate green. When stage H
-lands, this is one stylesheet to revise.
+**R2 · Misconception codes, where defensible.** Sixteen of the eighteen
+check distractors carry one; two do not, because *"whether the club is
+popular"* and *"how to raise it"* are unhelpful without expressing one
+crisp error, and coding them would be the schema driving the content.
+`audit.mjs` asserts that at least one stays uncoded, so a later edit cannot
+quietly restore symmetry. Five of the nine map codes are reused where the
+same error reappears; seven new codes are declared in
+`CHECK_ONLY_MISCONCEPTIONS`. Correct is correct and carries no code; a skip
+is insufficient response evidence and is never a misconception. **The
+taxonomy is never exposed** — asserted three ways: no code in any authored
+string, no read of `misconception` in the check renderer, and a sweep of
+the whole document at every step of a live journey.
 
-**4 · Back and forward are real; the URL carries a step name and nothing
-else.** Each step is a `pushState` of `#map-2`, `#peta`, `#hasil`. An
-answer in the URL would be an answer in the visitor's history, their
-referrer header and any server log between them and the site;
-`isolation.mjs` asserts no history entry carries one. Any inbound hash
-naming a step is discarded, which gives M1 §5's two required behaviours
-from one rule: a reload restarts, and a deep link to `/coba/hasil` shows
-the threshold, because there is no result to show someone who has not been
-through it.
+Codes are namespaced by the **domain of the error, not of the item**. A D3
+question can elicit a D1-family mistake, and `M-D1-ATRIBUSI` on U-D3-1/C
+records exactly that rather than minting a near-duplicate.
 
-**5 · Language is read, never written.** The starting language comes from
-the `lang` attribute the corporate site served, or from `?lang=` for
-review. Per the ruling, no educational state may enter the corporate site's
-preference mechanism, and nothing here writes any preference at all.
+**R3 · Twelve outcome bodies, not authored.** The corrected §5 stands. The
+outcome architecture and the evidence-limit sentence in every outcome are
+unchanged.
 
-**6 · The tier identifier is `SUDAH_TEPAT`, not `KUAT`.** Flagged in M1
-§3.2 and repeated here because it is in the data model: "strong" is the
-same inferred-mastery word the ruling removed from the screen, and leaving
-it internally would put it one debug surface away from contradicting its own
-label. One rename to revert.
+**R4 · `SUDAH_TEPAT` preserved.**
 
-**7 · `Tandai` is not implemented — a deliberate deviation from M1 §9**,
-which puts "Timer and *Tandai* on one line above the stem". A flag-for-review
-control earns its place in a thirty-item assessment with a review screen at
-the end. In a two-question check with no review screen it would do nothing
-observable, and a control that does nothing is worse than no control. The
-`checkbar` carries the decorative timer and the persistent *Perlu arah?*
-instead. If you want it, it is a chip and a state field.
-
-**8 · Nothing is set below 14 px.** M1 §9 allowed 12 px for the step
-indicator. The indicator here is dots with a visually-hidden text
-equivalent, so the exception is not needed and is not taken — the type
-floor holds on every step, and `journey.mjs` measures it on every step
-rather than trusting the stylesheet.
+**R5 · Stage H, run.** Below.
 
 ---
 
-## What the browser test found in my own code
+## Stage H — visual direction
 
-Four defects, all in code I had already read back and believed correct.
-They are listed because the useful thing about a verification suite is the
-things it catches, and because three of the four were invisible to every
-check that does not run a browser.
+The starting point is the PINTAR presentation deck, which is the one piece
+of PINTAR 4.0 visual language that has been through review. Its palette,
+hairlines, left accent rules and quiet tracked labels are carried over.
+This is that language spoken on a screen, not a second brand.
 
-**1 · Every option's selected state was announced to nobody.** My element
-helper treated *all* attributes as HTML booleans, so the chosen option
-carried `aria-checked=""` and the rest carried no `aria-checked` at all. A
-screen-reader user could not tell which option was selected — and because
-the stylesheet selects on `[aria-checked="true"]`, neither could a sighted
-one: there was no selected state on screen either. The radio group was, in
-both senses, not a radio group. Fixed, and `journey.mjs` now reads the
-selected label back after a click, after Back, and after a language switch.
+Nothing in the questions, answers, scoring, adaptation, evidence semantics,
+outcome logic, zero-write isolation or the approved journey was touched.
 
-**2 · The quiet text buttons had no styling at all.** *Lewati*, *Kembali*
-and *Ulangi* were given `class="btn--text"` and never `btn`, so they missed
-the base rule and fell back to Chromium's 13.33 px default. Caught as a
-type-floor failure, which is the useful kind of accident: a rule about
-something small found something structural.
+**Type.** A fluid scale on `clamp()`, so the display size at the threshold
+and the question size on a phone are both deliberate rather than one
+compromise. Tightened tracking on large text, a balanced-wrap heading, a
+34 rem measure. Still a system stack — see decision 2.
 
-**3 · A changed Pemetaan Awal answer left the check answers standing.** The
-map was stored rather than derived, so going back, changing an answer and
-walking forward could serve a *different lesson* while two answers already
-given kept their positions — answers given to one lesson's questions,
-scored against another's. The map is now derived from the answers on every
-render, and changing one discards the check answers. Both are regression
-cases in `journey.mjs`.
+**Space.** A 4 px rhythm as tokens, applied throughout instead of ad-hoc
+margins.
 
-**4 · Arrow-key selection started at the wrong option.** With nothing
-chosen, ArrowDown selected the *second* option, because the
-nothing-chosen case was folded into the wrap-around arithmetic.
+**Hierarchy.** The lead Peta Bacaan card now carries three signals at once
+— a heavier rule, a tinted ground and more air — because one signal reads
+as decoration and three read as meaning, without a badge. Every quiet
+caption in the experience shares one tracked-label treatment, so they read
+as one voice.
 
-And one thing that looked like a defect and was not: in a full-page
-screenshot a `position: sticky` bar is painted at its stuck position, which
-renders it on top of the options. It reads exactly like a layout bug. The
-hit test in `journey.mjs` is what settles it — no option is covered at 320
-px — and the screenshots now use a viewport tall enough that nothing is
-stuck. A screenshot could never have proved either way.
+**Graphic treatment**, restrained to two marks, both inline SVG because the
+bundle has no external origin and therefore no icon font:
+
+- **The step rail.** Five segments for the five steps, filled as far as the
+  visitor has come, the current one widened. An order made visible, which
+  is the one thing the demonstration is about. Purely graphic, `aria-hidden`,
+  with a sentence beside it naming the position.
+- **The evidence-limit mark.** A line that runs, and then stops. It draws
+  what the sentence beneath it says. It is not a chart and implies no
+  quantity — the one place a graphic could have overclaimed is the one
+  place the doctrine lives.
+
+**Transitions.** A refined settle, plus the Peta Bacaan cards arriving one
+after another — the order is the payoff, so it is worth a beat. Every one
+has a static end state carrying the same meaning, which is the only reason
+`prefers-reduced-motion` can remove all of them safely. The journey is
+completed again with motion emulated off, as a check.
+
+**Responsive.** Fluid type, a 4 px rhythm that holds at 320 px, the
+committed-answer marks wrapping below the option text on narrow screens.
+
+**Contrast, re-measured after Stage H** at every step of the journey, at
+both widths, for text and for the non-text boundaries that carry meaning.
+It found two real failures in my own stylesheet, both now fixed: the `|`
+between ID and EN was a text character at 2.92:1 (it is a rule now — a
+separator is not language, so it should be neither read aloud nor held to a
+text ratio), and the probe was measuring the primary action's boundary
+while it was disabled, which WCAG 1.4.11 exempts.
+
+---
+
+## Decisions taken at implementation time
+
+**1 · A standalone static bundle, not a route in `src/app/`.** R5 approved
+separate deployment, and ADR-0021 says "no application module changes" and
+"no change to `src/proxy.ts`'s `PUBLIC_PATHS`". A Next.js route would make
+both false and would put a public, anonymous surface inside the
+application's Supabase session middleware — the perimeter INV-37 protects.
+
+**2 · No dependency, no build step, no external origin.** This is the one
+page in PINTAR whose argument is that it keeps nothing about the visitor,
+and that has to be true of its own network activity first. A webfont from a
+CDN is a third-party request carrying their IP and referrer, made by the
+page that just told them nothing is kept. So: a system font stack, inline
+SVG, and `isolation.mjs` fails on any `//host` in any shipped file. XML
+namespace URIs are allowed by exact match and only as arguments to
+`createElementNS`, because they are identifiers the browser compares, never
+fetches.
+
+**3 · The deck palette, not a new one.** Stage H refines it; it does not
+replace it.
+
+**4 · Back and forward are real; the URL carries a step name and nothing
+else.** An answer in the URL would be an answer in the visitor's history,
+their referrer header and any server log between them and the site.
+`isolation.mjs` asserts no history entry carries one. Any inbound hash
+naming a step is discarded, which gives M1 §5's two required behaviours
+from one rule: a reload restarts, and a deep link to a result shows the
+threshold.
+
+**5 · Language is read, never written.** From the `lang` the corporate site
+served, or `?lang=` for review. No educational state may enter the
+corporate site's preference mechanism, and nothing here writes a preference
+at all.
+
+**6 · The tier identifier is `SUDAH_TEPAT`, not `KUAT`.** Accepted in R4.
+
+**7 · `Tandai` is not implemented — a deliberate deviation from M1 §9.** A
+flag-for-review control earns its place in a thirty-item assessment with a
+review screen. In a two-question check it would do nothing observable, and
+a control that does nothing is worse than no control.
+
+**8 · Nothing is set below 14 px.** M1 §9 allowed 12 px for the step
+indicator; the indicator is a rail with a visually-hidden text equivalent,
+so the exception is not needed and is not taken. Measured on every step.
+
+**9 · Committing a check answer fixes it — a bounded deviation from M1 §5**,
+which says answers are not locked. That rule stands for Pemetaan Awal,
+where nothing is revealed and going back to change an answer is explicitly
+permitted. It cannot stand for Uji Penguasaan once R1 reveals the
+reasoning: showing a visitor why an answer falls short and then letting
+them change it makes the reveal pointless and the outcome gameable. The
+lock is per question and applies only after the visitor presses *Lihat
+penjelasannya*. Changing a Pemetaan Awal answer still discards the check
+answers entirely.
+
+**10 · The committed marks are words, not glyphs.** A filled dot against a
+hollow one against a diamond is a legend the visitor was never given.
+*Pilihan Anda* and *Paling tepat* need none, and being visible text they
+are also what a screen reader reads — no parallel hidden copy to drift.
 
 ---
 
 ## What holds the promises
 
-Every claim in ADR-0021 and M1 that could be asserted mechanically is.
-
 | Promise | Where it is asserted | How |
 |---|---|---|
-| Never imported from a PINTAR item bank (ADR-0021, binding) | `audit.mjs` | every bundle identifier is searched for across `supabase/` and `src/` — 132 files |
-| Every option teaches (INV-03's principle) | `audit.mjs` | every MAP option has a non-empty rationale in both languages |
+| Never imported from a PINTAR item bank (ADR-0021, binding) | `audit.mjs` | every bundle identifier searched for across `supabase/` and `src/` — 132 files |
+| Every option teaches (INV-03's principle) | `audit.mjs` | every option in the bundle has a non-empty rationale in both languages |
+| A rationale explains, and never just names the key (R1) | `audit.mjs` | rejects key-naming phrases, self-restatement, and rationales shorter than their option |
+| The reasoning appears only after commit (R1) | `audit.mjs`, `journey.mjs` | source gate, then read off the screen before and after committing |
+| The Hasil is not a correction sheet (R1) | `audit.mjs`, `journey.mjs` | no rationale in `viewHasil`; no rationale text on the rendered Hasil |
+| No code is forced on for symmetry (R2) | `audit.mjs` | fails if every distractor is coded |
+| The taxonomy never reaches a visitor (R2) | `audit.mjs`, `journey.mjs` | no code in any string, none read by the check renderer, whole-document sweep at every step |
 | Zero pre/post overlap (INV-24's principle) | `audit.mjs` | MAP and CHECK id sets are disjoint |
 | Help never names the answer (INV-02's principle) | `audit.mjs`, `journey.mjs` | authored, then checked on screen against every option's text |
 | Mini-PINTAR speaks to an adult | `audit.mjs` | seven child-register tokens banned in the machine's voice |
 | No surface overclaims | `audit.mjs` | seven overclaim phrases banned; negations allowed explicitly |
 | The ruled duration | `audit.mjs`, `journey.mjs` | "dua menit / two minutes" fails; the threshold string is pinned |
-| The evidence limit under **every** outcome | `audit.mjs`, `journey.mjs` | one shared block, and its text is read off the screen in all twelve terminal states |
+| The evidence limit under **every** outcome | `audit.mjs`, `journey.mjs` | one shared block, its text read off the screen in all twelve terminal states |
 | Deterministic adaptation | `paths.mjs` | 3,125 resolutions replayed identically; arguments and bundle unmutated |
 | 8 shapes, 4 lessons, 3 outcomes, 12 terminals | `paths.mjs`, `journey.mjs` | exhaustive enumeration, then walked in the browser |
 | The outcome table as ruled | `paths.mjs` | every one of 25 check states per lesson checked against the table |
-| No weakness manufactured on the all-correct path | `paths.mjs` | no `PERLU_SEGERA` or `WAJIB` card is reachable when nothing needs repair |
-| No persistence on the device | `isolation.mjs`, `journey.mjs` | source scan, then `localStorage`/`sessionStorage`/cookie/IndexedDB read as empty after a full journey |
+| No weakness manufactured on the all-correct path | `paths.mjs` | no `PERLU_SEGERA` or `WAJIB` card reachable when nothing needs repair |
+| No persistence on the device | `isolation.mjs`, `journey.mjs` | source scan, then storage read as empty after a full journey |
 | No request carries an answer | `isolation.mjs`, `journey.mjs` | source scan, then every request the browser made is inspected |
 | Nothing leaves the bundle | `journey.mjs` | the request log must contain only the bundle's own five files |
 | Reload restarts | `journey.mjs` | a real reload mid-journey lands on the threshold |
 | Keyboard completes the journey | `journey.mjs` | Tab, arrow keys, Space and Enter only, no pointer event at all |
+| **Contrast, text and non-text** | `journey.mjs` | measured at every step, both widths, compositing translucency and taking a gradient's darkest stop |
+| No text under 14 px, targets ≥ 44 px | `journey.mjs` | measured on every step, reported as elements rather than a count |
+| The action bar covers no option | `journey.mjs` | every option hit-tested at its centre at 320 px, pill open |
 | No horizontal overflow, 320–768 px and at 200 % | `journey.mjs` | measured, not eyeballed |
 | Reduced motion keeps every meaning | `journey.mjs` | the journey is completed again with motion emulated off |
-| The action bar covers no option | `journey.mjs` | every option is hit-tested at its centre at 320 px, pill open |
-| Selected state is real | `journey.mjs` | `aria-checked` read back after click, Back, and language switch |
 
 **What none of this proves.** That the Indonesian sounds right to an
-Indonesian educator (STOP-4). That a visitor understands more at the end
-than at the start — that needs people. That the three domains are the right
-three. Contrast ratios are asserted in M1 §10 by construction from the deck
-palette and are **not** measured here; a contrast check belongs with stage H,
-when the surface is final.
+Indonesian educator (STOP-4) — and there are now twenty-four more
+paragraphs of it than when that STOP was written. That a visitor
+understands more at the end than at the start; that needs people. That the
+three domains are the right three.
 
 ---
 
-## Findings for review
+## What the verification found in my own work
 
-Four things M1 asserts that the content in M1 does not support. None is
-invented away, because inventing content is how a document starts saying
-things nobody approved.
+Nine defects, all in code or copy I had already read back and believed
+correct. Listed because the useful thing about a suite is what it catches.
 
-**D-1 · Twenty-four missing rationales.** M1 §2 says `Option.rationale` is
-"required and non-empty on **every** option". M1 §3.5 — the approved
-content — supplies none for the six CHECK items' twenty-four options.
-Nothing in the designed Hasil displays one, so none is authored here, and
-`audit.mjs` asserts the field is **absent** rather than empty so the gap
-cannot be mistaken for an oversight. *My recommendation:* either scope the
-rule to MAP options, or author the twenty-four and show the chosen option's
-rationale on the Hasil. The second is better product — a visitor who was
-wrong currently learns which reading, not why — but it is content, and
-content is yours.
+**In the implementation phase.** Every option's selected state was
+announced to nobody (`aria-checked=""` on the chosen one, absent on the
+rest, and the stylesheet's `[aria-checked="true"]` matching neither). The
+quiet text buttons carried `btn--text` without `btn` and so had no styling
+at all. A changed Pemetaan Awal answer left the check answers standing
+while the lesson served changed underneath them. Arrow-key selection
+started at the second option.
 
-**D-2 · No misconception codes at the check.** M1 §4.2 describes each check
-answer as "`correct`, a misconception, or `skipped`", and §3.5 supplies no
-codes for the check distractors. The outcome table does not use them, so
-the implementation classifies check answers as correct / incorrect /
-skipped. Nothing is lost today; it would matter the moment a Hasil wanted
-to name the error.
+**In the closure pass.** Rewriting the check view dropped `advanceCheck`
+entirely, so a committed answer could not be advanced past. `startCheckAids`
+dereferenced a clock the committed view does not render, throwing once a
+second. The contrast probe could not fail at all, for the template-literal
+reason above. The `|` between ID and EN was text at 2.92:1. And the
+committed-answer marks were three unexplained glyphs.
 
-**D-3 · "Every one of them is written" was not true.** M1 §5 claims twelve
-distinct Hasil presentations, "every one of them is written — none is
-generated by template substitution". §11 supplies three outcome bodies. The
-twelve presentations are therefore three written bodies against four lesson
-contexts, with the reading named from already-approved content — which is
-substitution, of exactly the kind §5 disclaims. §5 is corrected to say what
-exists. Authoring twelve bodies is possible and is content.
-
-**D-4 · An enumeration is not a population.** `paths.mjs` reports
-`BELUM_CUKUP` in 45 of 75 outcome slots. That is the shape of the *input
-space*, and it is not evidence about visitors — under uniform guessing the
-refusal dominates; after reading the lesson that answers the questions it
-does not. The adversarial pass retracted a claim by confusing these two,
-and the number is printed here with its meaning attached so it cannot be
-quoted back as the other one.
+One thing that looked like a defect and was not: in a full-page screenshot
+a `position: sticky` bar is painted at its stuck position, on top of the
+options. The hit test settles it — no option is covered at 320 px — and the
+screens now use a viewport tall enough that nothing is stuck.
 
 ---
 
 ## Debts carried forward
 
-The M1 gate closed STOP-3, 7 and 8. These are still open, unchanged, and
-none of them blocked this phase.
-
 | # | Item | Blocks | Owner |
 |---|---|---|---|
-| **STOP-1** | Baseline amendment owed: doc 09 must move Mini-PINTAR's public experience FOUNDATION NOW → BUILD NOW, doc 11 must mark OD-11 RESOLVED against ADR-0021. Governed amendment — new bytes, new `baseline` identity, in-document marker, manifest regenerated. **Until it lands, doc 11 reads OD-11 as OPEN and contradicts the ADR.** | Public launch | Engineering, on your instruction |
-| **STOP-2** | Analytics feasibility (R8). **Now answerable: V1 ships with none.** Four counters cannot be sent without a request, and a request from this bundle would break the property `isolation.mjs` asserts. R8's own fallback applies. Recorded as answered rather than closed, because reversing it is a privacy decision and yours. | Nothing | Me, answered; you if you want it revisited |
-| **STOP-4** | Native Indonesian editorial read of §3's content. Confirmed still required by the M1 ruling; does not block implementation. | Public launch | You to assign |
-| **STOP-5** | Domain cutover (R5): `pintarselalu.com` / `app.pintarselalu.com`. The bundle is static and deployable anywhere, so this blocks launch and nothing else. | Public launch | You / infrastructure |
-| **STOP-6** | Identity asset (R7). The chrome carries a plain text wordmark in a replaceable slot. No mark is invented and none is approximated. | External release | Separate identity exploration |
-| **STOP-9** | **New.** Visual direction (stage H) has not run. The surface here is the deck's palette on a system font stack — defensible and consistent, but not designed. Contrast measurement belongs with it. | External release | Me, on your go-ahead |
+| **STOP-1** | **Baseline amendment owed.** Doc 09 must move Mini-PINTAR's public experience FOUNDATION NOW → BUILD NOW; doc 11 must mark OD-11 RESOLVED against ADR-0021. Governed amendment — new bytes, new `baseline` identity, in-document marker, manifest regenerated. **Until it lands, doc 11 reads OD-11 as OPEN and contradicts the ADR.** `npm run baseline:parity` still reports 25 documents byte-identical, so nothing has drifted into it by accident. | Public launch | Engineering, on your instruction |
+| **STOP-4** | **Native Indonesian editorial read** of the content. Still required, and now larger: R1 added twenty-four rationales in both languages. | Public launch | You to assign |
+| **STOP-5** | **Domain cutover (R5 of the architecture rulings):** `pintarselalu.com` / `app.pintarselalu.com`. The bundle is static and deployable anywhere, so this blocks launch and nothing else. | Public launch | You / infrastructure |
+| **STOP-6** | **Identity asset.** The chrome carries a plain text wordmark in a replaceable slot. No mark is invented and none is approximated. | External release | Separate identity exploration |
+| ~~**STOP-2**~~ | **RESOLVED.** V1 ships with no analytics. Four counters cannot be sent without a request, and a request from this bundle would break the property `isolation.mjs` asserts. | Nothing | Closed |
+| ~~**STOP-9**~~ | **CLOSED.** Stage H run; contrast re-measured after it, at every step and both widths, with two real failures found and fixed. | Nothing | Closed |
+
+## Environmental observations, not Mini-PINTAR defects
+
+Recorded because they show up in any full check of the repository and
+should not be mistaken for something this unit introduced. Per your
+instruction, neither is repaired here.
+
+- `npm run typecheck` reports five pre-existing errors in `src/proxy.ts`
+  (implicit `any` on cookie-handler bindings), from commit `e81b41f`. No
+  file under `src/` is touched by this unit.
+- `npm run lint` cannot run in this environment: `eslint.config.mjs`
+  imports `eslint`, which is not installed in `node_modules`.
 
 ---
 

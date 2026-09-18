@@ -1,70 +1,108 @@
-/* Mini-PINTAR — the demonstration surface.
+/* Mini-PINTAR — visual direction. Stage H.
  *
- * Type floor: nothing below 14px. M1 §9 allowed 12px for the step
- * indicator; the indicator here is dots with a visually-hidden text
- * equivalent, so the exception is not needed and is not taken.
+ * Starting point: the PINTAR presentation deck, which is the one piece of
+ * PINTAR 4.0 visual language that has been through review. Its palette,
+ * its hairlines, its left accent rules and its quiet tracked labels are
+ * carried over. This is the same language spoken on a screen, not a second
+ * brand for Mini-PINTAR.
  *
- * Palette. The approved deck tokens, reused rather than re-invented: the
- * deck is the one piece of PINTAR 4.0 visual direction that has been
- * through review, and a demonstration that invents a second palette starts
- * the drift the deck audit exists to prevent. R6 fixes #245F55 as the
- * corporate green. Full visual direction is stage H and is still
- * outstanding -- see README, "What this is not".
+ * What stage H may not touch, and does not: questions, answers, scoring,
+ * adaptation, evidence semantics, outcome logic, zero-write isolation, the
+ * approved journey. Every change here is type, space, hierarchy, surface,
+ * transition, graphic treatment and responsive presentation.
  *
- * Type. A system stack, deliberately. A webfont would mean a third-party
- * request from the one page in the product whose argument is that it keeps
- * nothing about you, and "no data is sent anywhere" has to be true of the
- * page's own network activity first.
+ * Two constraints the design is built around rather than decorated with:
+ *
+ *   No external origin. No webfont, no CDN, no icon font. This is the one
+ *   page in the product whose argument is that it keeps nothing about the
+ *   visitor, and that has to be true of its own network activity first. So
+ *   the type is a system stack and every mark is inline SVG or a border.
+ *
+ *   Nothing below 14px, anywhere. M1 §9 allowed 12px for the step
+ *   indicator; the indicator here is a rail with a visually-hidden text
+ *   equivalent, so the exception is not needed and is not taken.
  */
 
 :root {
-  --surface-0: #fbfaf7;   /* the product ground */
-  --surface-1: #ffffff;
-  --surface-2: #f3f1ec;
-  --ink-1: #1f2a33;
+  /* Surfaces — the product ground, a card, a sunk panel. */
+  --paper: #fbfaf7;
+  --card: #ffffff;
+  --sunk: #f3f1ec;
+
+  /* Hairlines. --line is the deck's; --edge is the darkened variant used
+   * wherever a border has to carry meaning and therefore has to reach 3:1. */
+  --line: #e6e2da;
+  --edge: #9a9384;
+
+  /* Ink. */
+  --ink: #1f2a33;
   --ink-2: #4e5a64;
   --ink-3: #5f6a73;
-  --line-1: #e6e2da;
-  --primary: #245f55;
-  --primary-soft: #e3efec;
-  --attention: #8a5f00;
+
+  /* PINTAR green (R6), plus a deeper tone for pressed and a soft wash. */
+  --green: #245f55;
+  --green-deep: #17443d;
+  --green-soft: #e3efec;
+  --green-edge: #8fb3ab;
+
+  --attention: #7a5400;
   --info: #3d5a80;
+
+  /* Type. Fluid between the narrow and the wide end, never below 14px. */
+  --t-display: clamp(1.75rem, 1.25rem + 2.1vw, 2.5rem);
+  --t-title: clamp(1.3rem, 1.08rem + 0.95vw, 1.625rem);
+  --t-lede: clamp(1rem, 0.975rem + 0.12vw, 1.0625rem);
+  --t-body: 1rem;
+  --t-small: 0.875rem;
+
+  /* Space, on a 4px rhythm. */
+  --s1: 0.25rem; --s2: 0.5rem;  --s3: 0.75rem; --s4: 1rem;
+  --s5: 1.5rem;  --s6: 2rem;    --s7: 3rem;    --s8: 4rem;
 
   --measure: 34rem;
   --gutter: 1rem;
-  --radius: 2px;
+  --radius: 3px;
 
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
-  --settle: 400ms;
+  --settle: 320ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-
 html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--surface-0);
-  color: var(--ink-1);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--sans);
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: var(--t-body);
+  line-height: 1.6;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visually hidden, still read aloud. Every graphic indicator in here has
+ * one of these beside it. */
+.sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
 /* ------------------------------------------------------------- the chrome
- * The only persistent affordances, per M1 §7: Keluar, the language
- * control, and the step indicator. No corporate navigation, no CTA, no
- * cookie banner, no chat widget, no newsletter.
+ * The only persistent affordances: Keluar, the language control, and the
+ * step indicator. No corporate navigation, no CTA, no cookie banner.
  */
 
 .chrome {
-  border-bottom: 1px solid var(--line-1);
-  background: var(--surface-0);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: saturate(1.2) blur(6px);
   position: sticky;
   top: 0;
   z-index: 3;
@@ -73,37 +111,40 @@ body {
 .chrome__in {
   max-width: var(--measure);
   margin: 0 auto;
-  padding: 0.75rem var(--gutter);
+  padding: var(--s2) var(--gutter);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--s3);
 }
 
 .brand {
-  font-size: 0.875rem;
+  font-size: var(--t-small);
   color: var(--ink-3);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   white-space: nowrap;
+  font-weight: 500;
 }
 
-.chrome__mid { flex: 1; display: flex; justify-content: center; }
-.chrome__end { display: flex; align-items: center; gap: 0.25rem; }
+.chrome__mid { flex: 1; display: flex; justify-content: center; min-width: 0; }
+.chrome__end { display: flex; align-items: center; gap: var(--s1); }
 
-.dots { display: flex; gap: 0.375rem; align-items: center; }
-.dots i {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--line-1);
+/* The step rail. Five segments for the five steps of the cycle, filled as
+ * far as the visitor has come. An order made visible, which is the one
+ * thing the demonstration is about. Each segment carries no text; the rail
+ * carries one visually-hidden sentence naming the position. */
+.rail { display: flex; align-items: center; gap: 3px; }
+.rail i {
+  display: block;
+  width: 14px; height: 3px;
+  border-radius: 2px;
+  background: var(--edge);
+  opacity: 0.45;
+  transition: opacity var(--settle) var(--ease), background var(--settle) var(--ease);
 }
-.dots i.on { background: var(--primary); }
+.rail i.on { background: var(--green); opacity: 1; }
+.rail i.now { width: 22px; }
 
-/* The dots have a text equivalent; it is not hidden from assistive tech,
- * only from sight, because a progress indicator nobody can read is not an
- * indicator. */
-.sr {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-}
+@media (max-width: 380px) { .rail i { width: 10px; } .rail i.now { width: 16px; } }
 
 /* ---------------------------------------------------------------- buttons */
 
@@ -121,21 +162,24 @@ body {
   display: block;
   width: 100%;
   min-height: 56px;
-  padding: 0.875rem 1.25rem;
-  background: var(--primary);
+  padding: var(--s3) var(--s5);
+  background: var(--green);
   color: #f4f7f5;
   font-weight: 600;
+  letter-spacing: 0.005em;
   text-align: center;
+  transition: background 140ms var(--ease);
 }
-.btn:hover { background: #1d4f47; }
+.btn:hover:not(:disabled) { background: var(--green-deep); }
+.btn:disabled { background: var(--sunk); color: var(--ink-3); cursor: default; }
 
 .btn--quiet {
   background: none;
-  color: var(--primary);
-  border-color: var(--line-1);
+  color: var(--green);
+  border-color: var(--green-edge);
   font-weight: 500;
 }
-.btn--quiet:hover { background: var(--primary-soft); }
+.btn--quiet:hover { background: var(--green-soft); }
 
 .btn--text {
   min-height: 44px;
@@ -143,29 +187,33 @@ body {
   color: var(--ink-3);
   font-weight: 400;
   width: auto;
-  margin: 0.5rem auto 0;
-  padding: 0.5rem 1rem;
+  margin: var(--s2) auto 0;
+  padding: var(--s2) var(--s4);
   text-decoration: underline;
   text-underline-offset: 3px;
+  text-decoration-color: var(--edge);
 }
-.btn--text:hover { color: var(--ink-1); }
+.btn--text:hover { color: var(--ink); text-decoration-color: currentColor; }
 
 .exit, .lang button {
   min-height: 44px;
   min-width: 44px;
-  padding: 0.5rem 0.625rem;
+  padding: var(--s2) 0.625rem;
   color: var(--ink-3);
-  font-size: 0.875rem;
+  font-size: var(--t-small);
 }
-.exit:hover, .lang button:hover { color: var(--ink-1); }
+.exit:hover, .lang button:hover { color: var(--ink); }
 
 .lang { display: flex; align-items: center; }
-.lang button[aria-pressed="true"] { color: var(--primary); font-weight: 600; }
-.lang span { color: var(--line-1); }
+.lang button[aria-pressed="true"] { color: var(--green); font-weight: 650; }
+/* A rule, not a "|" character: a separator is not language, so it should
+ * be neither read aloud nor held to a text contrast ratio. */
+.lang__second { border-left: 1px solid var(--line); margin-left: 2px; padding-left: var(--s2); }
 
 :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--green);
   outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* ----------------------------------------------------------------- layout */
@@ -175,202 +223,318 @@ main {
   width: 100%;
   max-width: var(--measure);
   margin: 0 auto;
-  padding: 2rem var(--gutter) 3rem;
+  padding: var(--s6) var(--gutter) var(--s7);
 }
 
 h1 {
-  font-size: 1.5rem;
-  line-height: 1.3;
-  font-weight: 650;
-  margin: 0 0 0.75rem;
-  letter-spacing: -0.005em;
+  font-size: var(--t-title);
+  line-height: 1.25;
+  font-weight: 660;
+  margin: 0 0 var(--s3);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
 }
 h1:focus { outline: none; }
-h1:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+h1:focus-visible { outline: 2px solid var(--green); outline-offset: 6px; }
 
-h2 {
-  font-size: 1.0625rem;
-  font-weight: 600;
-  margin: 2rem 0 0.5rem;
+h2 { font-size: 1.0625rem; font-weight: 620; margin: var(--s6) 0 var(--s2); }
+p { margin: 0 0 var(--s4); }
+
+.lede { color: var(--ink-2); font-size: var(--t-lede); margin-bottom: var(--s5); }
+.meta { font-size: var(--t-small); color: var(--ink-3); }
+.rule { border: 0; border-top: 1px solid var(--line); margin: var(--s6) 0; }
+
+/* A tracked label. Used for every quiet caption in the experience, so they
+ * all read as one voice. */
+.label {
+  font-size: var(--t-small);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--ink-3);
 }
-
-p { margin: 0 0 1rem; }
-
-.lede { color: var(--ink-2); margin-bottom: 1.5rem; }
-.meta { font-size: 0.875rem; color: var(--ink-3); }
-.rule { border: 0; border-top: 1px solid var(--line-1); margin: 2rem 0; }
 
 /* -------------------------------------------------------------- threshold */
 
 .threshold {
-  min-height: 60vh;
+  min-height: 58vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-.threshold h1 { font-size: 2rem; }
-.threshold .btn { margin-top: 1.5rem; }
+.threshold h1 {
+  font-size: var(--t-display);
+  letter-spacing: -0.022em;
+  margin-bottom: var(--s2);
+}
+.threshold .lede { max-width: 26rem; }
+.threshold .btn { margin-top: var(--s5); }
 .threshold .fine {
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--line);
+  font-size: var(--t-small);
   color: var(--ink-3);
+  max-width: 30rem;
 }
 
 /* -------------------------------------------------- options (radio group)
  * A real radio group: role="radiogroup", arrow keys move within it,
- * choosing does NOT auto-advance. 56px min height, 8px separation.
+ * choosing does not auto-advance.
  */
 
-.options { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.25rem 0 1.5rem; }
+.options { display: flex; flex-direction: column; gap: var(--s2); margin: var(--s5) 0; padding: 0; list-style: none; }
 
 .opt {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--s3);
   align-items: flex-start;
   width: 100%;
   min-height: 56px;
-  padding: 1rem;
+  padding: var(--s4);
   text-align: left;
   font: inherit;
-  color: var(--ink-1);
-  background: var(--surface-1);
-  border: 1px solid var(--line-1);
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   cursor: pointer;
+  transition: border-color 120ms var(--ease), background 120ms var(--ease);
 }
-.opt:hover { border-color: var(--ink-3); }
-.opt__label { color: var(--ink-3); font-variant-numeric: tabular-nums; flex: none; }
+.opt:hover { border-color: var(--edge); }
+.opt__label {
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  flex: none;
+  min-width: 1ch;
+}
 .opt[aria-checked="true"] {
-  border-color: var(--primary);
-  box-shadow: inset 0 0 0 1px var(--primary);
-  background: var(--primary-soft);
+  border-color: var(--green);
+  box-shadow: inset 0 0 0 1px var(--green);
+  background: var(--green-soft);
 }
-.opt[aria-checked="true"] .opt__label { color: var(--primary); font-weight: 600; }
+.opt[aria-checked="true"] .opt__label { color: var(--green); }
 
-/* ------------------------------------------------------------ Peta Bacaan
- * The vertical order IS the meaning, so it survives narrowing untouched.
+/* Once the answer is committed the options stop being controls. */
+.options--fixed { margin-bottom: var(--s4); }
+.opt--fixed { cursor: default; background: var(--paper); }
+.opt--fixed:hover { border-color: var(--line); }
+.opt--chosen { background: var(--card); border-color: var(--edge); }
+.opt--key { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); background: var(--green-soft); }
+.opt--key .opt__label { color: var(--green); }
+.opt__text { flex: 1; }
+.opt__mark { display: flex; gap: var(--s1); flex-wrap: wrap; flex: none; align-self: center; }
+.opt__chip {
+  font-size: var(--t-small);
+  letter-spacing: 0.04em;
+  font-weight: 620;
+  color: var(--green);
+  border: 1px solid var(--green-edge);
+  border-radius: 2px;
+  padding: 2px var(--s2);
+  white-space: nowrap;
+}
+.opt__chip--you { color: var(--ink-2); border-color: var(--edge); }
+
+@media (max-width: 430px) {
+  .opt--fixed { flex-wrap: wrap; }
+  .opt__text { flex: 1 1 100%; }
+  .opt__mark { margin-left: calc(1ch + var(--s3)); }
+}
+
+/* ---------------------------------------------- the reasoning, after commit
+ * R1: revealed only once the answer is committed, and saying why the
+ * reasoning holds or does not rather than which letter was keyed.
  */
 
-/* An <ol> because the order is the meaning and assistive technology
- * should say so -- but with no visible markers. "1. 2. 3." reads as a
- * ranking, and the reveal tells the visitor in as many words that this is
- * an order and not a ranking. */
-.cards {
-  display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0;
-  list-style: none; padding-left: 0;
+.reasoning { margin: var(--s5) 0; }
+.reason {
+  border-left: 3px solid var(--line);
+  padding: 0 0 0 var(--s4);
+  margin-bottom: var(--s4);
 }
-
-.card {
-  background: var(--surface-1);
-  border: 1px solid var(--line-1);
-  border-left: 4px solid var(--line-1);
-  border-radius: var(--radius);
-  padding: 0.875rem 1rem;
-}
-.card__tier {
-  font-size: 0.875rem;
-  letter-spacing: 0.06em;
+.reason--key { border-left-color: var(--green); }
+.reason__kind {
+  font-size: var(--t-small);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 650;
   color: var(--ink-3);
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--s1);
 }
-.card__name { font-weight: 600; }
-.card__reason { font-size: 0.875rem; color: var(--ink-2); margin-top: 0.25rem; }
+.reason--key .reason__kind { color: var(--green); }
+.reason p { margin: 0; color: var(--ink-2); }
 
-.card--PERLU_SEGERA { border-left-color: var(--primary); }
-.card--PERLU_SEGERA .card__tier { color: var(--primary); }
+/* ------------------------------------------------------------ Peta Bacaan
+ * The vertical order IS the meaning, so it survives narrowing untouched.
+ * An <ol> so assistive technology says so, with no visible markers: "1. 2.
+ * 3." reads as a ranking, and the reveal tells the visitor in as many
+ * words that this is an order and not a ranking.
+ */
+
+.cards {
+  display: flex; flex-direction: column; gap: var(--s3);
+  margin: var(--s5) 0; list-style: none; padding-left: 0;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--edge);
+  border-radius: var(--radius);
+  padding: var(--s3) var(--s4);
+}
+.card__tier {
+  font-size: var(--t-small);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--ink-3);
+  margin-bottom: var(--s1);
+}
+.card__name { font-weight: 640; font-size: 1.0625rem; letter-spacing: -0.005em; }
+.card__reason { font-size: var(--t-small); color: var(--ink-2); margin-top: var(--s1); line-height: 1.5; }
+
+/* The lead card carries more weight, in three ways at once: a heavier
+ * rule, a tinted ground and more air. One signal would be decoration;
+ * three make it unmistakable without a badge. */
+.card--PERLU_SEGERA {
+  border-left-width: 5px;
+  border-left-color: var(--green);
+  background: linear-gradient(to right, var(--green-soft), var(--card) 42%);
+  padding: var(--s4);
+}
+.card--PERLU_SEGERA .card__tier { color: var(--green); }
 .card--WAJIB { border-left-color: var(--ink-3); }
-.card--DISARANKAN { border-left-color: var(--info); }
+.card--DISARANKAN {
+  border-left-width: 5px;
+  border-left-color: var(--info);
+  padding: var(--s4);
+}
 .card--DISARANKAN .card__tier { color: var(--info); }
-.card--SUDAH_TEPAT { border-left-color: var(--line-1); }
+.card--SUDAH_TEPAT { border-left-color: var(--line); background: var(--paper); }
 
-/* The third tier's label is a sentence, not a chip: it describes the
- * observed answer. Lower-case it so it reads as language, not as a badge. */
+/* The third tier's label is a sentence, not a badge: it describes the
+ * observed answer. Set as language, not as a chip. */
 .card--SUDAH_TEPAT .card__tier {
   text-transform: none;
   letter-spacing: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 620;
 }
 
 /* ---------------------------------------------------------------- lesson */
 
-.lesson p { margin-bottom: 1rem; }
+.lesson p { margin-bottom: var(--s4); max-width: 34rem; }
 
 .worked {
-  background: var(--surface-2);
-  border: 1px solid var(--line-1);
+  background: var(--sunk);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 1rem 1.125rem;
-  margin: 1.5rem 0;
+  padding: var(--s4) var(--s5);
+  margin: var(--s5) 0;
 }
 .worked__title {
-  font-size: 0.875rem;
-  letter-spacing: 0.06em;
+  font-size: var(--t-small);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 650;
   color: var(--ink-3);
 }
-.worked h2 { margin: 0.25rem 0 0.75rem; font-size: 1rem; }
-.worked ol { margin: 0; padding-left: 1.5rem; }
-.worked li { margin-bottom: 0.625rem; }
+.worked h2 { margin: var(--s1) 0 var(--s3); font-size: 1.0625rem; }
+.worked ol { margin: 0; padding-left: var(--s5); }
+.worked li { margin-bottom: var(--s2); padding-left: var(--s1); }
+.worked li::marker { color: var(--green); font-weight: 650; }
 .worked li:last-child { margin-bottom: 0; }
-.worked .btn--quiet { margin-top: 0.75rem; }
+.worked .btn--quiet { margin-top: var(--s3); width: auto; min-height: 44px; padding: var(--s2) var(--s4); }
 
 /* ------------------------------------------------------------- assistance
- * Inline, never a modal. Not gated behind a timer: the persistent button
- * is there from the moment the question appears, and the hesitation window
- * only offers the same thing unprompted.
+ * Inline, never a modal. Not gated behind a timer.
  */
 
-.assist { margin: 1.25rem 0; }
+.assist { margin: var(--s5) 0; }
 .assist__pill {
-  background: var(--primary-soft);
-  border: 1px solid #c9ded8;
+  background: var(--green-soft);
+  border: 1px solid var(--green-edge);
   border-radius: var(--radius);
-  padding: 0.875rem 1rem;
+  padding: var(--s3) var(--s4);
   font-size: 0.9375rem;
 }
 .assist__kind {
-  font-size: 0.875rem;
-  letter-spacing: 0.06em;
+  font-size: var(--t-small);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 650;
-  color: var(--primary);
-  margin-bottom: 0.25rem;
+  color: var(--green);
+  margin-bottom: var(--s1);
 }
-.assist__note { font-size: 0.875rem; color: var(--ink-2); margin-top: 0.5rem; }
-.assist .btn--quiet { margin-top: 0.75rem; width: auto; min-height: 44px; padding: 0.5rem 1rem; }
+.assist__note {
+  font-size: var(--t-small);
+  color: var(--ink-2);
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--green-edge);
+}
+.assist .btn--quiet { margin-top: var(--s3); width: auto; min-height: 44px; padding: var(--s2) var(--s4); }
 
 .checkbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  font-size: 0.875rem;
+  gap: var(--s3);
+  font-size: var(--t-small);
   color: var(--ink-3);
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--s3);
 }
 .checkbar .btn--quiet {
-  width: auto; min-height: 44px; padding: 0.5rem 0.875rem;
-  font-size: 0.875rem; white-space: nowrap;
+  width: auto; min-height: 44px; padding: var(--s2) var(--s3);
+  font-size: var(--t-small); white-space: nowrap;
 }
 
 /* ----------------------------------------------------------------- hasil */
 
-.hasil__headline { font-size: 1.5rem; line-height: 1.3; font-weight: 650; margin: 0 0 0.75rem; }
-
-.limit {
-  border-left: 4px solid var(--attention);
-  background: var(--surface-1);
-  padding: 0.875rem 1rem;
-  margin: 1.5rem 0;
-  font-size: 0.9375rem;
+.hasil__headline {
+  font-size: var(--t-title);
+  line-height: 1.25;
+  font-weight: 660;
+  margin: 0 0 var(--s3);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
 }
-.limit strong { display: block; font-weight: 600; }
 
-.nodelta { font-size: 0.875rem; color: var(--ink-2); }
+.reading {
+  display: flex; gap: var(--s2); align-items: baseline;
+  font-size: var(--t-small);
+  margin-bottom: var(--s5);
+}
+.reading__label {
+  letter-spacing: 0.08em; text-transform: uppercase;
+  font-weight: 650; color: var(--ink-3); flex: none;
+}
+.reading__name { color: var(--ink); font-weight: 600; }
+
+/* The evidence limit. ADR-0021 makes it the condition on which the whole
+ * demonstration is permitted, and it appears under every outcome. The mark
+ * beside it draws what the sentence says: a line that runs, and then
+ * stops. Nothing about it is a chart and nothing about it implies a
+ * quantity. */
+.limit {
+  display: flex;
+  gap: var(--s3);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--attention);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  margin: var(--s5) 0;
+}
+.limit__mark { flex: none; margin-top: 0.3rem; color: var(--attention); }
+.limit__text { font-size: 0.9375rem; }
+.limit strong { display: block; font-weight: 640; color: var(--ink); }
+.limit span { color: var(--ink-2); }
+
+.nodelta { font-size: var(--t-small); color: var(--ink-2); }
 
 /* ---------------------------------------------------------------- reveal
  * Vertical on both widths. A horizontal five-step diagram that becomes
@@ -378,77 +542,80 @@ p { margin: 0 0 1rem; }
  * better on both.
  */
 
-.path { list-style: none; margin: 1.5rem 0; padding: 0; }
+.path { list-style: none; margin: var(--s5) 0; padding: 0; }
 .path li {
   position: relative;
-  padding: 0 0 1.25rem 1.75rem;
-  border-left: 1px solid var(--line-1);
+  padding: 0 0 var(--s5) var(--s5);
+  border-left: 1px solid var(--line);
 }
 .path li:last-child { border-left-color: transparent; padding-bottom: 0; }
 .path li::before {
   content: "";
-  position: absolute; left: -5px; top: 0.45rem;
+  position: absolute; left: -5px; top: 0.5rem;
   width: 9px; height: 9px; border-radius: 50%;
-  background: var(--primary);
+  background: var(--paper);
+  border: 2px solid var(--green);
 }
-.path__step { font-weight: 600; }
+.path__step { font-weight: 640; letter-spacing: -0.005em; }
 .path__note { color: var(--ink-2); font-size: 0.9375rem; }
 
-.closing { font-size: 1.0625rem; }
+.closing { font-size: var(--t-lede); max-width: 32rem; }
 
-.doors { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0 0; }
+.doors { display: flex; flex-direction: column; gap: var(--s2); margin: var(--s5) 0 0; }
 .doors a {
-  display: block;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
   min-height: 56px;
-  padding: 1rem;
-  border: 1px solid var(--line-1);
+  padding: var(--s4);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface-1);
-  color: var(--primary);
+  background: var(--card);
+  color: var(--green);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 560;
+  transition: border-color 120ms var(--ease), background 120ms var(--ease);
 }
-.doors a:hover { border-color: var(--primary); background: var(--primary-soft); }
+.doors a::after { content: "\2192"; color: var(--ink-3); }
+.doors a:hover { border-color: var(--green); background: var(--green-soft); }
+.doors a:hover::after { color: var(--green); }
 
-/* ------------------------------------------------------- sticky continue
- * Mobile only, and only once the visitor has chosen, so continuing never
- * needs a scroll.
- */
+/* ------------------------------------------------------- sticky continue */
 
-.sticky { padding-top: 0.75rem; }
+.sticky { padding-top: var(--s3); }
 
 @media (max-width: 767px) {
   /* M1 §9: sticky "once the visitor has chosen", so the bar never sits
-   * over options the visitor is still reading. On steps with nothing to
-   * choose it is on from the start, because there the primary action is
-   * the only action. */
+   * over options the visitor is still reading. */
   .sticky--on {
     position: sticky;
     bottom: 0;
-    padding: 0.75rem 0 0.5rem;
-    background: linear-gradient(to bottom, rgba(251, 250, 247, 0), var(--surface-0) 40%);
+    padding: var(--s3) 0 var(--s2);
+    background: linear-gradient(to bottom, rgba(251, 250, 247, 0), var(--paper) 42%);
   }
-  /* Room to scroll clear of the bar, so nothing can end up permanently
-   * underneath it. */
-  main { padding-bottom: 5rem; }
+  main { padding-bottom: var(--s8); }
 }
 
 /* ------------------------------------------------------------- transition
- * ~400ms settle. Every animated thing has a static end state carrying the
- * same meaning, which is the only reason reduced motion can remove all of
- * them safely.
+ * Every animated thing has a static end state carrying the same meaning,
+ * which is the only reason reduced motion can remove all of them safely.
  */
 
-.settle { animation: settle var(--settle) ease-out both; }
+.settle { animation: settle var(--settle) var(--ease) both; }
 @keyframes settle {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: none; }
 }
 
+/* The map arriving in its computed order, one card after another. The
+ * order is the payoff, so it is worth a beat. */
+.cards .card { animation: settle var(--settle) var(--ease) both; }
+.cards .card:nth-child(2) { animation-delay: 70ms; }
+.cards .card:nth-child(3) { animation-delay: 140ms; }
+
 @media (prefers-reduced-motion: reduce) {
-  .settle { animation: none; }
+  .settle, .cards .card { animation: none; }
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.001ms !important;
   }
 }
@@ -456,8 +623,9 @@ p { margin: 0 0 1rem; }
 /* --------------------------------------------------------------- noscript */
 
 .noscript {
-  border: 1px solid var(--line-1);
-  background: var(--surface-1);
-  padding: 1rem 1.125rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--attention);
+  background: var(--card);
+  padding: var(--s4) var(--s5);
   border-radius: var(--radius);
 }

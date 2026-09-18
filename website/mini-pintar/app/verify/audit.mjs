@@ -10,8 +10,9 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  MAP_ITEMS, CHECK_ITEMS, MAP_REASONS, TIER_REASONS, TIER_LABELS,
-  DOMAINS, LESSONS, ASSISTANCE, OUTCOMES, EVIDENCE_LIMIT, NO_DELTA, REVEAL, UI,
+  MAP_ITEMS, CHECK_ITEMS, CHECK_ONLY_MISCONCEPTIONS, MAP_REASONS, TIER_REASONS,
+  TIER_LABELS, DOMAINS, LESSONS, ASSISTANCE, OUTCOMES, EVIDENCE_LIMIT, NO_DELTA,
+  REVEAL, UI,
 } from "../content.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -90,16 +91,60 @@ for (const item of MAP_ITEMS) {
   }
 }
 
-// DEBT, asserted rather than hidden: §2's content model requires a
-// rationale on every option and §3.5 — the approved content — supplies none
-// for the twenty-four CHECK options. Nothing in the designed Hasil displays
-// one, so none is invented. This asserts the field is ABSENT, so the gap
-// stays visible in code and an accidental half-authored set fails here.
+// R1, 2026-09-18: the twenty-four CHECK rationales are authored, and the
+// content model's rule now holds over every option in the bundle. The debt
+// that stood here is discharged, and the rule is asserted in its place.
 for (const item of ALL_CHECK) {
   for (const o of item.options) {
-    if ("rationale" in o)
-      fail("CHECK option carries a rationale — see handoff debt D-1", `${item.id}/${o.label}`);
+    if (!isPair(o.rationale) || !o.rationale.id.trim() || !o.rationale.en.trim())
+      fail("CHECK option without a rationale", `${item.id}/${o.label}`);
     else ok();
+  }
+}
+
+// "Rationales must explain why the reasoning is appropriate or
+// inappropriate; they must not merely restate the keyed answer." Three
+// proxies for a judgement a machine cannot make, each catching a different
+// way of failing it.
+const NAMES_THE_ANSWER = [
+  "jawaban yang benar", "jawabannya adalah", "pilihan yang benar", "opsi yang benar",
+  "the correct answer is", "the right answer is", "the answer is ", "correct option is",
+];
+// Second-person judgement. Reasoning may be called inappropriate; a person
+// may not be called wrong.
+const JUDGES_THE_PERSON = [
+  "anda salah", "anda keliru", "jawaban anda salah", "you are wrong",
+  "you were wrong", "your answer is wrong", "you got it wrong", "incorrect",
+];
+for (const item of [...MAP_ITEMS, ...ALL_CHECK]) {
+  for (const o of item.options) {
+    if (!isPair(o.rationale)) continue;
+    for (const side of ["id", "en"]) {
+      const r = o.rationale[side].toLowerCase();
+      const optionText = o.text[side].toLowerCase();
+
+      for (const w of NAMES_THE_ANSWER) {
+        if (r.includes(w)) fail(`rationale names the key instead of the reasoning ("${w}")`,
+          `${item.id}/${o.label}.${side}`);
+        else ok();
+      }
+      for (const w of JUDGES_THE_PERSON) {
+        if (r.includes(w)) fail(`rationale judges the person ("${w}")`,
+          `${item.id}/${o.label}.${side}`);
+        else ok();
+      }
+      // A rationale that is the option said again teaches nothing. Both a
+      // containment check and a length floor, because either alone is easy
+      // to slip past.
+      const strip = (x) => x.replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+      if (strip(r) === strip(optionText) || strip(r).includes(strip(optionText)))
+        fail("rationale restates its own option", `${item.id}/${o.label}.${side}`);
+      else ok();
+      if (r.length < optionText.length)
+        fail("rationale is shorter than the option it explains",
+          `${item.id}/${o.label}.${side}`);
+      else ok();
+    }
   }
 }
 
@@ -109,8 +154,8 @@ const overlap = ALL_CHECK.filter((i) => mapIds.has(i.id));
 if (overlap.length) fail("MAP and CHECK item ids overlap", overlap.map((i) => i.id).join(", "));
 else ok();
 
-// Every distractor names a misconception, and every misconception has a
-// card reason. Nine of each — one per (domain × misconception).
+// Every MAP distractor names a misconception, and every MAP misconception
+// has a card reason. Nine of each — one per (domain × misconception).
 const codes = new Set();
 for (const item of MAP_ITEMS) {
   for (const o of item.options) {
@@ -119,7 +164,7 @@ for (const item of MAP_ITEMS) {
     else { codes.add(o.misconception); ok(); }
   }
 }
-if (codes.size !== 9) fail("expected nine misconception codes", `found ${codes.size}`);
+if (codes.size !== 9) fail("expected nine MAP misconception codes", `found ${codes.size}`);
 else ok();
 for (const c of codes) {
   if (!MAP_REASONS[c]) fail("misconception without a card reason", c);
@@ -129,6 +174,63 @@ for (const c of Object.keys(MAP_REASONS)) {
   if (!codes.has(c)) fail("card reason for an unreachable misconception", c);
   else ok();
 }
+
+// ------------------------------------------- CHECK misconceptions (R2)
+//
+// Bounded, internal, and added only where the authored distractor supports
+// a specific misconception. Correct is correct; a skip is insufficient
+// response evidence and is never a misconception; and the taxonomy is
+// never shown to the visitor.
+
+const checkCodes = new Set();
+let uncoded = 0;
+for (const item of ALL_CHECK) {
+  for (const o of item.options) {
+    if (o.correct) {
+      if (o.misconception) fail("correct option carries a misconception", `${item.id}/${o.label}`);
+      else ok();
+      continue;
+    }
+    if (o.misconception) checkCodes.add(o.misconception);
+    else uncoded += 1;
+  }
+}
+
+// Every code used is declared, either as one of the nine MAP codes or in
+// the check-only taxonomy. An undeclared code is a code nobody defined.
+for (const c of checkCodes) {
+  if (!codes.has(c) && !CHECK_ONLY_MISCONCEPTIONS[c])
+    fail("CHECK misconception is not declared anywhere", c);
+  else ok();
+}
+// And every declared check-only code is actually reachable.
+for (const c of Object.keys(CHECK_ONLY_MISCONCEPTIONS)) {
+  if (!checkCodes.has(c)) fail("declared check-only misconception is unreachable", c);
+  else ok();
+}
+// R2 forbids forcing a code on for symmetry. A set with none left uncoded
+// is the shape that rule was written to prevent, so it is worth noticing.
+if (uncoded === 0)
+  fail("every CHECK distractor is coded — check none was forced for symmetry (R2)",
+       "expected at least one option to carry no code");
+else ok();
+
+// THE TAXONOMY IS NEVER EXPOSED. No code may appear in any authored string,
+// and the renderer may read `misconception` only where the Peta Bacaan
+// turns a MAP code into its card reason.
+const everyCode = [...codes, ...checkCodes, ...Object.keys(CHECK_ONLY_MISCONCEPTIONS)];
+const EVERY_STRING = [
+  ...ALL,
+  ...pairs(Object.fromEntries(Object.entries(UI).filter(([, v]) => isPair(v))), "UI"),
+];
+for (const [path, p] of EVERY_STRING) {
+  for (const side of ["id", "en"]) {
+    for (const c of everyCode) {
+      if (p[side].includes(c)) fail(`misconception code leaked into content ("${c}")`, `${path}.${side}`);
+    }
+  }
+}
+ok();
 
 // Every domain has a lesson, every lesson belongs to a domain, and every
 // lesson has two CHECK items.
@@ -251,8 +353,30 @@ else if (!limitFn.includes("t(EVIDENCE_LIMIT)"))
   fail("the evidence-limit block no longer renders EVIDENCE_LIMIT", "evidenceLimitBlock");
 else ok();
 
+// The renderer may read `misconception` only where the Peta Bacaan turns a
+// MAP code into its card reason. Anywhere else is the internal taxonomy on
+// its way to a screen.
+const checkView = appSrc.slice(appSrc.indexOf("function viewCheck"),
+                               appSrc.indexOf("function commitCheck"));
+if (/\bmisconception\b/.test(checkView))
+  fail("the check renderer reads the misconception taxonomy", "viewCheck/reasoningBlock");
+else ok();
+
+// And the reasoning is revealed only after the answer is committed.
+if (!/committed \? reasoningBlock\(/.test(checkView))
+  fail("the reasoning is not gated on the answer being committed", "viewCheck");
+else ok();
+if (!/committed \? committedOptions\(/.test(checkView))
+  fail("the options are not fixed once the answer is committed", "viewCheck");
+else ok();
+
+// The Hasil stays an evidence-interpretation surface, not a correction
+// sheet: the explaining happens at the question (R1).
 const hasilFn = appSrc.slice(appSrc.indexOf("function viewHasil"),
                              appSrc.indexOf("function viewReveal"));
+if (/rationale/.test(hasilFn))
+  fail("the Hasil renders option rationales — it is not a correction sheet (R1)", "viewHasil");
+else ok();
 if (!hasilFn.includes("evidenceLimitBlock()"))
   fail("the Hasil does not render the evidence limit", "viewHasil");
 else ok();

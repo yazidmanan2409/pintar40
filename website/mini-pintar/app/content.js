@@ -359,16 +359,28 @@ export const CHECK_ITEMS = {
       options: [
         { label: "A", correct: true,
           text: L("Membandingkan dengan kelas serupa yang tidak mengikuti program.",
-                  "Comparing with similar classes that did not take part.") },
-        { label: "B",
+                  "Comparing with similar classes that did not take part."),
+          rationale: L(
+            "Kelompok pembanding adalah satu-satunya tambahan yang memisahkan program dari hal lain yang terjadi pada semester yang sama. Tanpa pembanding, data tambahan hanya menggambarkan kelompok yang sama dengan lebih rinci.",
+            "A comparison group is the one addition that separates the programme from everything else that happened in the same semester. Without one, more data only describes the same group in finer detail.") },
+        { label: "B", misconception: "M-D2-JUMLAH",
           text: L("Menambah jumlah kelas yang mengikuti program.",
-                  "Adding more classes to the programme.") },
-        { label: "C",
+                  "Adding more classes to the programme."),
+          rationale: L(
+            "Menambah kelas memperbesar angkanya, tetapi semuanya tetap mengikuti program. Yang bertambah adalah ketelitian, bukan kemampuan memisahkan sebab.",
+            "More classes makes the number bigger, but every one of them is still in the programme. What grows is precision, not the ability to separate cause.") },
+        { label: "C", misconception: "M-D2-JUMLAH",
           text: L("Memperpanjang program menjadi dua semester.",
-                  "Extending the programme to two semesters.") },
-        { label: "D",
+                  "Extending the programme to two semesters."),
+          rationale: L(
+            "Waktu yang lebih panjang menjawab pertanyaan lain — apakah hasilnya bertahan. Selama tidak ada pembanding, semester kedua mewarisi persoalan yang sama dengan semester pertama.",
+            "A longer run answers a different question — whether the result holds. With nothing to compare against, the second semester inherits exactly the problem the first one had.") },
+        { label: "D", misconception: "M-D2-KESAN",
           text: L("Mengumpulkan pendapat guru tentang program itu.",
-                  "Gathering the teachers’ views on the programme.") },
+                  "Gathering the teachers’ views on the programme."),
+          rationale: L(
+            "Pendapat guru berharga untuk memahami apa yang terjadi di kelas, tetapi tidak memberi tahu apa yang akan terjadi tanpa program. Itu menambah keterangan, bukan kekuatan bukti.",
+            "Teachers’ views are valuable for understanding what happened in the room, but they cannot tell you what would have happened without the programme. That adds description, not evidential strength.") },
       ],
     },
     {
@@ -378,15 +390,27 @@ export const CHECK_ITEMS = {
       options: [
         { label: "A", correct: true,
           text: L("“Kami belum bisa menyimpulkan, dan kami akan terus mengamati.”",
-                  "“We cannot conclude yet, and we are continuing to watch.”") },
-        { label: "B",
+                  "“We cannot conclude yet, and we are continuing to watch.”"),
+          rationale: L(
+            "Kalimat ini menyebut dua hal dengan tepat: apa yang belum bisa dikatakan, dan apa yang sedang dikerjakan. Menahan kesimpulan bukan menghindar menjawab.",
+            "The sentence names two things accurately: what cannot yet be said, and what is being done about it. Holding a conclusion back is not refusing to answer.") },
+        { label: "B", misconception: "M-D2-HIAS",
           text: L("“Sementara ini kami menyimpulkan program ini berhasil.”",
-                  "“For now we conclude that the programme works.”") },
-        { label: "C",
-          text: L("“Kami tidak menemukan apa-apa.”", "“We found nothing.”") },
-        { label: "D",
+                  "“For now we conclude that the programme works.”"),
+          rationale: L(
+            "“Sementara ini” terdengar berhati-hati, tetapi kesimpulannya tetap diambil. Syarat waktu tidak menambah satu pun bukti di belakangnya.",
+            "“For now” sounds careful, but the conclusion is still drawn. A time qualifier adds no evidence behind it.") },
+        { label: "C", misconception: "M-D2-KOSONG",
+          text: L("“Kami tidak menemukan apa-apa.”", "“We found nothing.”"),
+          rationale: L(
+            "Belum bisa menyimpulkan tidak sama dengan tidak menemukan apa-apa. Kalimat ini membuang pengamatan yang sebenarnya sudah ada.",
+            "Not being able to conclude is not the same as having found nothing. The sentence discards observations that do exist.") },
+        { label: "D", misconception: "M-D2-HIAS",
           text: L("“Program ini berhasil untuk sebagian siswa.”",
-                  "“The programme works for some students.”") },
+                  "“The programme works for some students.”"),
+          rationale: L(
+            "Menyempitkan ke “sebagian siswa” membuat klaimnya terdengar lebih kecil, padahal klaim sebabnya utuh dan buktinya sama tipisnya.",
+            "Narrowing to “some students” makes the claim sound smaller while the causal claim stays whole and the evidence stays exactly as thin.") },
       ],
     },
   ],
@@ -399,10 +423,25 @@ export const CHECK_ITEMS = {
       options: [
         { label: "A", correct: true,
           text: L("Apakah siswa yang memang sudah suka membaca yang cenderung mendaftar.",
-                  "Whether it is students who already like reading who tend to join.") },
-        { label: "B", text: L("Berapa jumlah anggota klub.", "How many members the club has.") },
-        { label: "C", text: L("Siapa yang mendirikan klub itu.", "Who founded the club.") },
-        { label: "D", text: L("Apakah klub itu populer.", "Whether the club is popular.") },
+                  "Whether it is students who already like reading who tend to join."),
+          rationale: L(
+            "Ini memeriksa apakah kedua kelompok sudah berbeda sebelum klub dimulai. Jika sudah, selisih nilainya bisa sepenuhnya berasal dari siapa yang mendaftar, bukan dari klubnya.",
+            "This checks whether the two groups already differed before the club began. If they did, the gap in grades can come entirely from who joined, not from the club.") },
+        { label: "B", misconception: "M-D3-UKURAN",
+          text: L("Berapa jumlah anggota klub.", "How many members the club has."),
+          rationale: L(
+            "Ukuran klub memberi tahu berapa banyak orangnya, bukan siapa mereka. Klub besar yang tetap diikuti oleh pembaca yang sudah tekun menghasilkan pola yang persis sama.",
+            "The club’s size tells you how many people, not which people. A large club still joined by keen readers produces exactly the same pattern.") },
+        { label: "C", misconception: "M-D1-ATRIBUSI",
+          text: L("Siapa yang mendirikan klub itu.", "Who founded the club."),
+          rationale: L(
+            "Asal-usul klub bisa menarik, tetapi tidak menyentuh pertanyaannya: apakah anggotanya sudah berbeda sejak awal.",
+            "Where the club came from may be interesting, but it does not touch the question of whether its members already differed.") },
+        { label: "D",
+          text: L("Apakah klub itu populer.", "Whether the club is popular."),
+          rationale: L(
+            "Populer atau tidak menggambarkan bagaimana orang memandang klub itu, bukan apakah nilainya berubah karena klub itu.",
+            "Popular or not describes how people regard the club, not whether grades changed because of it.") },
       ],
     },
     {
@@ -412,16 +451,28 @@ export const CHECK_ITEMS = {
       options: [
         { label: "A", correct: true,
           text: L("Catat hubungannya, sebutkan bahwa sebabnya belum diketahui, dan rencanakan cara memeriksanya.",
-                  "Record the link, say that the cause is not known, and plan how to examine it.") },
-        { label: "B",
+                  "Record the link, say that the cause is not known, and plan how to examine it."),
+          rationale: L(
+            "Ketiganya berjalan bersama: temuannya disimpan, batasnya disebut, dan langkah berikutnya direncanakan. Tidak ada yang dilebihkan dan tidak ada yang dibuang.",
+            "Three things happen together: the finding is kept, its limit is stated, and a next step is planned. Nothing is overstated and nothing is thrown away.") },
+        { label: "B", misconception: "M-D3-TOLAK",
           text: L("Abaikan temuan itu sampai ada bukti sebab.",
-                  "Set the finding aside until there is causal evidence.") },
-        { label: "C",
+                  "Set the finding aside until there is causal evidence."),
+          rationale: L(
+            "Menunggu bukti sebab tanpa merencanakan cara memeriksanya berarti bukti itu tidak akan pernah datang. Hubungan yang belum dijelaskan justru menunjukkan ke mana harus melihat.",
+            "Waiting for causal evidence without planning how to look for it means it never arrives. An unexplained link is precisely what shows you where to look.") },
+        { label: "C", misconception: "M-D3-SEBAB",
           text: L("Umumkan hubungannya sebagai sebab, dengan catatan kecil.",
-                  "Announce the link as a cause, with a small footnote.") },
-        { label: "D",
+                  "Announce the link as a cause, with a small footnote."),
+          rationale: L(
+            "Catatan kecil tidak mengubah kalimat utamanya. Yang dibaca dan diingat orang adalah klaim sebabnya.",
+            "A footnote does not change the headline. What people read, and remember, is the causal claim.") },
+        { label: "D", misconception: "M-D3-PILIH",
           text: L("Cari data lain yang mendukung sebab yang sudah diduga.",
-                  "Look for other data supporting the cause you already suspect.") },
+                  "Look for other data supporting the cause you already suspect."),
+          rationale: L(
+            "Mencari hanya yang mendukung dugaan akan selalu menemukan sesuatu. Yang benar-benar menguji sebuah dugaan adalah mencari hal yang bisa membantahnya.",
+            "Looking only for what supports a hunch will always find something. What actually tests a hunch is looking for what could contradict it.") },
       ],
     },
   ],
@@ -434,16 +485,28 @@ export const CHECK_ITEMS = {
       options: [
         { label: "A", correct: true,
           text: L("Jumlah siswa yang sering tidak hadir jauh berbeda, meskipun persentasenya sama.",
-                  "The number of frequently absent students differs greatly, even though the percentage is identical.") },
-        { label: "B",
+                  "The number of frequently absent students differs greatly, even though the percentage is identical."),
+          rationale: L(
+            "Persentase yang sama pada dasar yang berbeda menghasilkan jumlah orang yang berbeda: sepuluh siswa dan seratus siswa. Yang harus didampingi adalah orangnya, bukan persentasenya.",
+            "The same percentage on different bases gives different numbers of people: ten students and a hundred. What has to be attended to is the people, not the percentage.") },
+        { label: "B", misconception: "M-D1-DASAR",
           text: L("Kedua sekolah menghadapi persoalan yang sama besar.",
-                  "Both schools face a problem of the same size.") },
-        { label: "C",
+                  "Both schools face a problem of the same size."),
+          rationale: L(
+            "Besarnya sebuah persoalan diukur dari berapa banyak orang yang terdampak. Persentase yang sama di sini menyembunyikan selisih sepuluh kali lipat.",
+            "The size of a problem is how many people it touches. An identical percentage here hides a tenfold difference.") },
+        { label: "C", misconception: "M-D1-BESAR",
           text: L("Sekolah B lebih berhasil karena siswanya lebih banyak.",
-                  "School B is doing better because it has more students.") },
-        { label: "D",
+                  "School B is doing better because it has more students."),
+          rationale: L(
+            "Jumlah siswa bukan ukuran keberhasilan. Kalimat ini menukar besar dengan baik, dan keduanya tidak berhubungan.",
+            "The number of students is not a measure of doing well. The sentence trades big for good, and the two are unrelated.") },
+        { label: "D", misconception: "M-D1-DASAR",
           text: L("Karena persentasenya sama, penanganannya boleh sama.",
-                  "Because the percentage is the same, the response can be the same.") },
+                  "Because the percentage is the same, the response can be the same."),
+          rationale: L(
+            "Persentase yang sama tidak berarti pekerjaan yang sama. Sepuluh nama dan seratus nama menuntut cara kerja yang berbeda.",
+            "The same percentage does not mean the same work. Ten names and a hundred names call for different ways of working.") },
       ],
     },
     {
@@ -454,13 +517,56 @@ export const CHECK_ITEMS = {
       options: [
         { label: "A", correct: true,
           text: L("Dari berapa peserta, dan siapa yang tidak menjawab.",
-                  "Out of how many participants, and who did not reply.") },
-        { label: "B", text: L("Apakah 70% termasuk tinggi.", "Whether 70% counts as high.") },
-        { label: "C", text: L("Bagaimana cara menaikkannya.", "How to raise it.") },
-        { label: "D", text: L("Apakah tahun lalu lebih tinggi.", "Whether last year was higher.") },
+                  "Out of how many participants, and who did not reply."),
+          rationale: L(
+            "Dua bagian yang hilang dari angka itu: dasarnya, dan siapa yang tidak terwakili di dalamnya. Masing-masing bisa mengubah arti 70% sepenuhnya.",
+            "Two pieces are missing from the number: its base, and who is not represented in it. Either one can change what 70% means entirely.") },
+        { label: "B", misconception: "M-D1-DASAR",
+          text: L("Apakah 70% termasuk tinggi.", "Whether 70% counts as high."),
+          rationale: L(
+            "Tinggi atau rendah adalah penilaian yang baru bisa dibuat setelah angkanya dipahami, bukan sebelumnya.",
+            "High or low is a judgement that can only be made after the number is understood, not before.") },
+        { label: "C",
+          text: L("Bagaimana cara menaikkannya.", "How to raise it."),
+          rationale: L(
+            "Melompat ke tindakan melewati pertanyaan apakah angkanya sudah dipahami. Menaikkan angka yang belum dibaca bisa berarti menaikkan hal yang keliru.",
+            "Jumping to action skips the question of whether the number is understood. Raising a number you have not read can mean raising the wrong thing.") },
+        { label: "D", misconception: "M-D1-BANDING",
+          text: L("Apakah tahun lalu lebih tinggi.", "Whether last year was higher."),
+          rationale: L(
+            "Membandingkan dengan tahun lalu menambah satu angka lagi yang sama-sama belum dipahami.",
+            "Comparing with last year adds a second number that is equally unread.") },
       ],
     },
   ],
+};
+
+/**
+ * Misconception codes that appear only at the CHECK stage.
+ *
+ * INTERNAL. Ruled 2026-09-18 (R2): the taxonomy is never exposed to the
+ * visitor, and a code is added only where the authored distractor supports
+ * a specific misconception -- never for schema symmetry. Two check
+ * distractors carry none, deliberately: U-D3-1/D (whether the club is
+ * popular) and U-D1-2/C (how to raise it) are unhelpful without expressing
+ * one crisp error, and inventing a code for them would be the schema
+ * driving the content.
+ *
+ * Correct is correct. Skipped is skipped -- insufficient response
+ * evidence, never a misconception.
+ *
+ * Codes are namespaced by the DOMAIN OF THE ERROR, not of the item: a D3
+ * question can elicit a D1-family mistake, and M-D1-ATRIBUSI on U-D3-1/C
+ * records exactly that rather than minting a near-duplicate.
+ */
+export const CHECK_ONLY_MISCONCEPTIONS = {
+  "M-D1-DASAR": "reads a rate without its base",
+  "M-D1-BESAR": "treats size as performance",
+  "M-D2-JUMLAH": "more or longer of the same, with nothing to compare against",
+  "M-D2-KESAN": "impression or testimony as evidence of effect",
+  "M-D2-KOSONG": "treats “not yet” as “nothing”",
+  "M-D3-UKURAN": "a bigger group fixes a selection problem",
+  "M-D3-PILIH": "seeks only what supports the hunch",
 };
 
 // -------------------------------------------------------------- assistance
@@ -609,6 +715,18 @@ export const UI = {
                 "Help in PINTAR never names the answer."),
 
   workedExample: L("Contoh bertahap", "Worked example"),
+
+  // Uji Penguasaan reveals its reasoning AFTER the visitor commits (R1).
+  // The primary action says what it does: it does not "submit" anything,
+  // because nothing is sent anywhere.
+  seeReasoning: L("Lihat penjelasannya", "See the reasoning"),
+  yourChoice: L("Pilihan Anda", "Your choice"),
+  mostAccurate: L("Pilihan yang paling tepat", "The most accurate option"),
+  skippedHere: L("Anda melewati pertanyaan ini.", "You skipped this question."),
+  lockedNote: L("Jawaban untuk pertanyaan ini sudah tetap.",
+                "Your answer to this question is now fixed."),
+  markYourChoice: L("Pilihan Anda", "Your choice"),
+  markMostAccurate: L("Paling tepat", "Most accurate"),
   questionOf: (a, b) => L(`Pertanyaan ${a} dari ${b}`, `Question ${a} of ${b}`),
   stepAnnounce: (name, a, b) =>
     L(`${name.id}, pertanyaan ${a} dari ${b}`, `${name.en}, question ${a} of ${b}`),
