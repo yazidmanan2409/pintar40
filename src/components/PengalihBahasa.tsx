@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { t, type Locale } from "@/lib/hle";
-import { LOCALE_COOKIE } from "@/lib/locale-kontrak";
+import { simpanBahasa } from "@/lib/locale-klien";
 
 /**
  * Pengalih Bahasa Antarmuka — the interface-language switch.
@@ -23,15 +23,9 @@ export default function PengalihBahasa({ locale }: { locale: Locale }) {
 
   function choose(next: Locale) {
     if (next === locale) return;
-    // A year is long enough that a learner never meets this control twice by
-    // accident, and short enough that a shared classroom machine forgets.
-    document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
-    try {
-      window.localStorage.setItem(LOCALE_COOKIE, next);
-    } catch {
-      // A browser that refuses storage still gets the cookie; the mirror is a
-      // convenience, never the source of truth.
-    }
+    // The write itself lives in `simpanBahasa` because the tour's card carries
+    // the same control over an inert page: one preference, one mechanism.
+    simpanBahasa(next);
     startTransition(() => router.refresh());
   }
 

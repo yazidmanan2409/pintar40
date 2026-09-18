@@ -182,6 +182,18 @@
   --measure-stage: 1120px;  /* the widest a composition goes */
   --measure: 64ch;          /* prose measure, v1 name retained */
 
+  /* guidance — the first-login tour, the Help panel and the tour's one tip
+     (UX-1 §F, §O). Three named card measures, because "how wide is the thing
+     that explains the page" is a decision somebody made once and three
+     surfaces share it. What is deliberately NOT named here: the veil's 72 %,
+     which Sauron ruled is a composite of primary-soft rather than a new token,
+     and the spotlight's spread, which is a shadow larger than any viewport.
+     Neither is a choice anybody makes again. */
+  --measure-guide-card: 420px;   /* the tour card, beside its target */
+  --measure-guide-panel: 380px;  /* the Help panel */
+  --measure-guide-tip: 300px;    /* a tip, anchored to one control */
+  --guide-sheet-max: 78%;        /* the phone sheet's ceiling (§J-15) */
+
   /* motion: colour and opacity only, 160ms -------------------------------- */
   --motion-fast: 160ms;
 

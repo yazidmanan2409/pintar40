@@ -8,6 +8,10 @@ import * as engine from "@/lib/assessment-engine";
 import { posisi, peringkat, statusKey, type Kandidat } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import Tur from "@/components/tur/Tur";
+import { PARAM_BANTUAN } from "@/components/tur/TombolBantuan";
+import { bolehTampilOtomatis, varianBelajar, TUR_BELAJAR } from "@/lib/tur";
+import { keadaanTur } from "@/lib/tur-negara";
 import JejakSiklus from "@/components/siklus/JejakSiklus";
 import KartuTugas from "@/components/siklus/KartuTugas";
 
@@ -27,7 +31,12 @@ export const dynamic = "force-dynamic";
  * home of a learner with nothing to do is short, and that is the correct
  * shape for it.
  */
-export default async function Belajar() {
+export default async function Belajar({
+  searchParams,
+}: {
+  searchParams: Promise<{ lanjut?: string; [k: string]: string | string[] | undefined }>;
+}) {
+  const sp = await searchParams;
   const viewer = await currentViewer();
   if (!viewer) redirect("/masuk?lanjut=/belajar");
   const locale = await currentLocale();
@@ -63,6 +72,29 @@ export default async function Belajar() {
   // returns exactly what `may_start_assessment()` accepts, so this list adds
   // no authority — everything in it is genuinely startable right now.
   const terbuka = await engine.openAssessments(db);
+
+  // ───────────────────────────────────────────────── the first-login tour (UX-1)
+  //
+  // WHICH VARIANT. `varianBelajar` is handed nothing, and that is the whole of
+  // the stage decision: this release has no person-scoped stage signal, and the
+  // two it does have — `courses.stage` and the session's assessment stage —
+  // are properties of a course and of a session, not of a learner. Guessing
+  // from either would tell a fifteen-year-old that PINTAR thinks they are
+  // eight, so the stage-neutral variant is what runs (§L-1, Sauron 2026-09-18).
+  //
+  // WHETHER IT OPENS BY ITSELF. Two exclusions on top of what the database
+  // says, both of them about not interrupting work, and neither of them spends
+  // a presentation:
+  //   · a deep link — the person was going somewhere (§J-9);
+  //   · a teacher's Quick Assessment window standing open on this very page —
+  //     a class waiting for a quick check is never held up by onboarding
+  //     (§J-10). `my_open_assessments` carries the mode, so this is the page's
+  //     own information rather than a second question asked of the database.
+  const keadaan = await keadaanTur(TUR_BELAJAR);
+  const bolehTur = bolehTampilOtomatis(keadaan, {
+    tautanLangsung: typeof sp.lanjut === "string" && sp.lanjut.length > 0,
+    ujiCepatBerjalan: terbuka.some((a) => a.mode === "QUICK"),
+  });
 
   /** Where a step actually leads, and what the button for it says. */
   function aksi(k: Kandidat): { href: string; labelKey: HleEvent } | null {
@@ -143,7 +175,12 @@ export default async function Belajar() {
           </section>
         ) : null}
 
-        <section className="pin-sec">
+        {/* THE TOUR'S FIRST TARGET. The anchor is on the section rather than
+            on a card, so the spotlight lands on the same area whether there is
+            work here or the empty line — which is what lets step 1 keep its
+            place in an empty page without anything being invented to point at
+            (§J-1, §J-2). */}
+        <section className="pin-sec" data-tur="daftar">
           <h2>{s("siklus.milik_anda")}</h2>
           {tugas.length === 0 ? (
             <p className="pin-empty">{s("cycle.none")}</p>
@@ -184,6 +221,20 @@ export default async function Belajar() {
 
         <KakiPintar />
       </main>
+
+      {/* A SIBLING OF THE PAGE, NOT A CHILD OF IT: while a step is open the
+          tour makes every sibling inert, and a tour mounted inside `main`
+          would be making itself inert along with the page. */}
+      <Tur
+        kunci={TUR_BELAJAR}
+        varian={varianBelajar(null)}
+        locale={locale}
+        persona="learner"
+        keadaan={keadaan}
+        otomatis={bolehTur.boleh}
+        bantuanAwal={sp[PARAM_BANTUAN] === "1"}
+        kosong={tugas.length === 0 ? ["daftar"] : []}
+      />
     </>
   );
 }

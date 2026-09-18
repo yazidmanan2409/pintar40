@@ -2,6 +2,7 @@ import Link from "next/link";
 import { t, type Locale } from "@/lib/hle";
 import PengalihBahasa from "./PengalihBahasa";
 import MerekPintar from "./MerekPintar";
+import TombolBantuan from "./tur/TombolBantuan";
 
 /**
  * The Experience shell: the mark, where you are, and the language switch.
@@ -20,6 +21,15 @@ import MerekPintar from "./MerekPintar";
  * The language switch is on all three, because the reader of a public
  * verification page has no account to carry a preference in (S0.3), and a
  * learner does not lose their language by starting an assessment.
+ *
+ * BANTUAN, ADDED IN UX-1 §F. The shell had no help entry — two learner tabs,
+ * one educator tab, and the language switch — so the tour's last step ("help
+ * can always be found here") had nowhere true to point and Daisy's proposed
+ * header control stands rather than being withdrawn (L-5). It is on the two
+ * shells that have a landing to return to, and on neither of the other two:
+ * §G-3 forbids a tour or a tip inside an assessment in progress and on the
+ * public verification page, and a Help entry whose content is "start the tour"
+ * would be offering exactly that.
  *
  * A FOURTH, ADDED IN SLICE 3: `pengajar`, the educator's shell. It is the
  * learner shell's shape with the educator's own destination, and it carries ONE
@@ -62,6 +72,7 @@ export default function CangkangPengalaman({
           </Link>
         </nav>
         <span className="pin-spacer" />
+        <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
         <PengalihBahasa locale={locale} />
       </header>
     );
@@ -85,11 +96,19 @@ export default function CangkangPengalaman({
         <Link href="/belajar" aria-current={current === "belajar" ? "page" : undefined}>
           {t("nav.belajar", "learner", { locale })}
         </Link>
-        <Link href="/belajar/sertifikat" aria-current={current === "sertifikat" ? "page" : undefined}>
+        {/* A stable anchor for the tour's certificate step. It names a place,
+            and naming a place grants nothing: what is behind this tab is
+            decided by the certificate's own authority, not by the tour. */}
+        <Link
+          href="/belajar/sertifikat"
+          data-tur="sertifikat"
+          aria-current={current === "sertifikat" ? "page" : undefined}
+        >
           {t("nav.sertifikat", "learner", { locale })}
         </Link>
       </nav>
       <span className="pin-spacer" />
+      <TombolBantuan locale={locale} persona="learner" beranda="/belajar" />
       <PengalihBahasa locale={locale} />
     </header>
   );

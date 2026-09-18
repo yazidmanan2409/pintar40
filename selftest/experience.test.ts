@@ -221,6 +221,13 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The disabled control's opacity: visibly unavailable without vanishing." },
   { file: "src/app/experience.css", literal: "0",
     reason: "A native radio held at zero opacity over its own label: the standard way to keep a control focusable, operable and announced while the label carries the appearance. Hiding it any other way would take it out of the tab order, which is an accessibility regression rather than a design decision." },
+  // UX-1 guidance mode. The three card measures and the phone sheet's ceiling
+  // ARE design decisions, so they are tokens in globals.css rather than
+  // entries here. These two are not.
+  { file: "src/app/experience.css", literal: "4000px",
+    reason: "The spotlight's veil is one box-shadow spread larger than any viewport, so the cut-out has exactly one edge and the ring cannot drift from it. It is a shadow that must not end on screen, not a measurement." },
+  { file: "src/app/experience.css", literal: "72%",
+    reason: "The Guidance veil's strength. Sauron ruled it a composite of primary-soft rather than a new token (§O-2), so it is written as a mix of the token it is made of." },
   { file: "src/components/bukti/BarisKesiapan.tsx", literal: "%",
     reason: "A computed proportion of the readiness bar: data, not a design value." },
   { file: "src/components/bukti/BarisLingkup.tsx", literal: "20",

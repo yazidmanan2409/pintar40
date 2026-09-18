@@ -5,6 +5,10 @@ import * as ajar from "@/lib/pengajar";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import { BarisLingkup } from "@/components/bukti";
+import Tur from "@/components/tur/Tur";
+import { PARAM_BANTUAN } from "@/components/tur/TombolBantuan";
+import { bolehTampilOtomatis, turPengajarBerlaku, TUR_PENGAJAR } from "@/lib/tur";
+import { keadaanTur, peranSaya } from "@/lib/tur-negara";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +43,12 @@ function sapaan(jam: number): HleEvent {
   return "mengajar.sapa.malam";
 }
 
-export default async function BerandaPengajar() {
+export default async function BerandaPengajar({
+  searchParams,
+}: {
+  searchParams: Promise<{ lanjut?: string; [k: string]: string | string[] | undefined }>;
+}) {
+  const sp = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "educator", { locale });
 
@@ -53,6 +62,26 @@ export default async function BerandaPengajar() {
 
   const sekarang = ajar.waktu();
   const nama = new Map(konteks.kelas.map((k) => [k.id, k.nama]));
+
+  // ───────────────────────────────────────────────── the first-login tour (UX-1)
+  //
+  // WHOSE TOUR THIS IS. Seniority does not accumulate tours (§H-3): a Head of
+  // Department standing on this page is not shown the educator's seven steps,
+  // because their week includes review work this page does not carry and a
+  // confident map of somebody else's page is worse than none. They get no
+  // automatic tour and Help offers them none, until their own is designed.
+  //
+  // Nothing about this decides what anybody may do. Every act this page offers
+  // is authorized again in the database from the caller's own session; this
+  // only decides which map is drawn.
+  const [keadaan, peran] = await Promise.all([keadaanTur(TUR_PENGAJAR), peranSaya()]);
+  const turBerlaku = turPengajarBerlaku(peran);
+  const bolehTur = bolehTampilOtomatis(keadaan, {
+    tautanLangsung: typeof sp.lanjut === "string" && sp.lanjut.length > 0,
+    // The Quick Assessment exclusion is the LEARNER's (§J-10): it protects a
+    // class waiting to start. An educator's own landing has nothing to hold up.
+    ujiCepatBerjalan: false,
+  });
 
   return (
     <>
@@ -77,8 +106,12 @@ export default async function BerandaPengajar() {
           <p className="pin-intro">{s("mengajar.beranda.intro")}</p>
         </div>
 
+        {/* Step 1's target, on both branches: the card when there is one thing
+            worth doing, and the line that says there is not. §J-1 — the
+            spotlight goes to the area where the thing will appear, and nothing
+            is ever invented to give the tour something to point at. */}
         {satu ? (
-          <div className="pin-lanjut">
+          <div className="pin-lanjut" data-tur="layak">
             <p className="pin-where">{s("mengajar.layak.eyebrow")}</p>
             <h2>
               {satu.kursus} {s("mengajar.layak.terbit")} {satu.kelasNama}
@@ -97,10 +130,10 @@ export default async function BerandaPengajar() {
             </div>
           </div>
         ) : (
-          <p className="pin-empty">{s("mengajar.layak.kosong")}</p>
+          <p className="pin-empty" data-tur="layak">{s("mengajar.layak.kosong")}</p>
         )}
 
-        <div className="pin-sec">
+        <div className="pin-sec" data-tur="kelas">
           <h2>{s("mengajar.kelas.judul")}</h2>
           <p className="pin-sub">{s("mengajar.kelas.sub")}</p>
           {konteks.kelas.length === 0 ? (
@@ -133,7 +166,7 @@ export default async function BerandaPengajar() {
           )}
         </div>
 
-        <div className="pin-sec">
+        <div className="pin-sec" data-tur="berjalan">
           <h2>{s("mengajar.berjalan.judul")}</h2>
           {buka.length === 0 ? (
             <p className="pin-empty">{s("mengajar.berjalan.kosong")}</p>
@@ -161,6 +194,25 @@ export default async function BerandaPengajar() {
 
         <KakiPintar />
       </main>
+
+      {/* A SIBLING OF THE PAGE, NOT A CHILD OF IT: while a step is open the
+          tour makes every sibling inert, and a tour mounted inside `main`
+          would be making itself inert along with the page. */}
+      <Tur
+        kunci={TUR_PENGAJAR}
+        varian="pengajar"
+        locale={locale}
+        persona="educator"
+        keadaan={keadaan}
+        otomatis={bolehTur.boleh}
+        tersedia={turBerlaku}
+        bantuanAwal={sp[PARAM_BANTUAN] === "1"}
+        kosong={[
+          ...(satu ? [] : ["layak"]),
+          ...(konteks.kelas.length === 0 ? ["kelas"] : []),
+          ...(buka.length === 0 ? ["berjalan"] : []),
+        ]}
+      />
     </>
   );
 }

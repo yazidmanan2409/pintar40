@@ -577,6 +577,95 @@ export type HleEvent =
   | "mengajar.siapa.sudah"
   | "mengajar.siapa.belum"
   | "mengajar.siapa.catatan"
+  | "tur.tur"
+  | "tur.nama.belajar"
+  | "tur.nama.pengajar"
+  | "tur.berikutnya"
+  | "tur.kembali"
+  | "tur.lewati"
+  | "tur.selesai"
+  | "tur.jangan"
+  | "tur.langkah"
+  | "tur.dari"
+  | "tur.contoh"
+  | "tur.tutup"
+  | "tur.catatan"
+  | "tur.catatan.sd"
+  | "nav.bantuan"
+  | "tur.bantuan.judul"
+  | "tur.bantuan.langkah7"
+  | "tur.bantuan.mulai_lagi"
+  | "tur.bantuan.mulai"
+  | "tur.bantuan.atau"
+  | "tur.bantuan.lain"
+  | "tur.bantuan.guru"
+  | "tur.bantuan.sekolah"
+  | "tur.tip.lagi"
+  | "tur.tip.lagi.sd"
+  | "tur.tip.berhenti"
+  | "tur.tip.mengerti"
+  | "tur.nt.1.judul"
+  | "tur.nt.1.isi"
+  | "tur.nt.1.kosong"
+  | "tur.nt.2.judul"
+  | "tur.nt.2.isi"
+  | "tur.nt.3.judul"
+  | "tur.nt.3.isi"
+  | "tur.nt.4.judul"
+  | "tur.nt.4.isi"
+  | "tur.nt.5.judul"
+  | "tur.nt.5.isi"
+  | "tur.nt.6.judul"
+  | "tur.nt.6.isi"
+  | "tur.nt.7.judul"
+  | "tur.nt.7.isi"
+  | "tur.sd.1.judul"
+  | "tur.sd.1.isi"
+  | "tur.sd.1.kosong"
+  | "tur.sd.2.judul"
+  | "tur.sd.2.isi"
+  | "tur.sd.3.judul"
+  | "tur.sd.3.isi"
+  | "tur.sd.4.judul"
+  | "tur.sd.4.isi"
+  | "tur.sd.5.judul"
+  | "tur.sd.5.isi"
+  | "tur.sd.6.judul"
+  | "tur.sd.6.isi"
+  | "tur.sd.7.judul"
+  | "tur.sd.7.isi"
+  | "tur.sm.1.judul"
+  | "tur.sm.1.isi"
+  | "tur.sm.1.kosong"
+  | "tur.sm.2.judul"
+  | "tur.sm.2.isi"
+  | "tur.sm.3.judul"
+  | "tur.sm.3.isi"
+  | "tur.sm.4.judul"
+  | "tur.sm.4.isi"
+  | "tur.sm.5.judul"
+  | "tur.sm.5.isi"
+  | "tur.sm.6.judul"
+  | "tur.sm.6.isi"
+  | "tur.sm.7.judul"
+  | "tur.sm.7.isi"
+  | "tur.pg.1.judul"
+  | "tur.pg.1.isi"
+  | "tur.pg.1.kosong"
+  | "tur.pg.2.judul"
+  | "tur.pg.2.isi"
+  | "tur.pg.2.kosong"
+  | "tur.pg.3.judul"
+  | "tur.pg.3.isi"
+  | "tur.pg.3.kosong"
+  | "tur.pg.4.judul"
+  | "tur.pg.4.isi"
+  | "tur.pg.5.judul"
+  | "tur.pg.5.isi"
+  | "tur.pg.6.judul"
+  | "tur.pg.6.isi"
+  | "tur.pg.7.judul"
+  | "tur.pg.7.isi"
   | "sync.done";
 
 /**
@@ -1171,6 +1260,114 @@ const table: Table = {
   "studio.hasil.gagal": { default: "Belum tersimpan.", en: "Not saved." },
   "sync.done": { default: "Semua jawaban sudah tersimpan di server.", en: "Every answer is saved on the server." },
 
+  // ═══════════════════════════ UX-1 · the role-based first-login tour (r2.1).
+  // Daisy's approved copy, verbatim. Two corrections carried in from the later
+  // Sauron rulings, which take precedence over the superseded r2 text they
+  // replace: the educator's teaching-context wording (§D-1, §D-2 — visibility
+  // is not the teaching context and not authority) and the canonical EN
+  // "Mastery Check". Nothing else was reworded.
+  "tur.tur": { default: "Tur PINTAR", en: "PINTAR tour" },
+  "tur.nama.belajar": { default: "Tur halaman Belajar", en: "Tour of the Learning page" },
+  "tur.nama.pengajar": { default: "Tur untuk pengajar", en: "Tour for educators" },
+  "tur.berikutnya": { default: "Berikutnya", en: "Next" },
+  "tur.kembali": { default: "Kembali", en: "Back" },
+  "tur.lewati": { default: "Lewati tur", en: "Skip tour" },
+  "tur.selesai": { default: "Selesai", en: "Finish" },
+  "tur.jangan": { default: "Jangan tampilkan tur ini lagi", en: "Don't show this tour again" },
+  "tur.langkah": { default: "Langkah", en: "Step" },
+  "tur.dari": { default: "dari", en: "of" },
+  "tur.contoh": { default: "Contoh", en: "Example" },
+  "tur.tutup": { default: "Tutup", en: "Close" },
+  "tur.catatan": { default: "Tur ini tidak akan muncul otomatis lagi. Buka kapan saja dari Bantuan.", en: "This tour won't open automatically again. Open it any time from Help." },
+  "tur.catatan.sd": { default: "Tur ini tidak akan muncul sendiri lagi.", en: "This tour won't appear by itself again." },
+
+  // Help / replay (§F)
+  "nav.bantuan": { default: "Bantuan", en: "Help" },
+  "tur.bantuan.judul": { default: "Bantuan", en: "Help" },
+  "tur.bantuan.langkah7": { default: "7 langkah", en: "7 steps" },
+  "tur.bantuan.mulai_lagi": { default: "Mulai tur lagi", en: "Start the tour again" },
+  "tur.bantuan.mulai": { default: "Mulai tur", en: "Start the tour" },
+  "tur.bantuan.atau": { default: "Atau buka satu langkah:", en: "Or open one step:" },
+  "tur.bantuan.lain": { default: "Butuh bantuan lain?", en: "Need other help?" },
+  "tur.bantuan.guru": { default: "Tanyakan kepada guru.", en: "Ask your teacher." },
+  "tur.bantuan.sekolah": { default: "Hubungi bagian layanan sekolah.", en: "Contact your school's support." },
+
+  // The three tips the first release owns (§G-6)
+  "tur.tip.lagi": { default: "Tur akan muncul lagi saat Anda masuk berikutnya. Bisa juga dibuka dari Bantuan kapan saja.", en: "The tour will appear again next time you sign in. You can also open it from Help any time." },
+  "tur.tip.lagi.sd": { default: "Tur bisa dibuka lagi dari sini.", en: "You can open the tour again from here." },
+  "tur.tip.berhenti": { default: "Tur tidak akan muncul otomatis lagi. Bisa dibuka dari Bantuan kapan saja.", en: "The tour won't open automatically again. You can open it from Help any time." },
+  "tur.tip.mengerti": { default: "Mengerti", en: "Got it" },
+
+  // ── Belajar · Netral (§C2) — the executable learner variant
+  "tur.nt.1.judul": { default: "Mulai dari daftar ini", en: "Start from this list" },
+  "tur.nt.1.isi": { default: "Semua yang ditugaskan ada di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu; tombolnya membuka langkah berikutnya.", en: "Everything assigned is here, already in order. Begin with the one at the top — its button opens the next step." },
+  "tur.nt.1.kosong": { default: "Saat ada materi yang ditugaskan, kartunya muncul di sini, lengkap dengan tombol untuk memulai.", en: "When something is assigned, its card appears here, with a button to begin." },
+  "tur.nt.2.judul": { default: "Setiap materi punya lima langkah", en: "Every assignment has five steps" },
+  "tur.nt.2.isi": { default: "Pemetaan Awal, Peta Bacaan, Pelajaran, Uji Penguasaan, lalu Hasil. Satu langkah terbuka pada satu waktu; Pemetaan Awal bukan ujian. Uji Cepat dari guru berada di luar lima langkah ini dan muncul di daftar Belajar.", en: "Initial Mapping, Reading Map, Lessons, Mastery Check, then Results. One step is open at a time; the Initial Mapping is not a test. A Quick Assessment from a teacher sits outside these five steps and appears in the Learning list." },
+  "tur.nt.3.judul": { default: "Tempat membaca dan menonton", en: "Where you read and watch" },
+  "tur.nt.3.isi": { default: "Peta Bacaan menunjukkan bagian yang perlu dibaca lebih dulu, beserta alasannya. Pelajaran dibuka dari sana, dan posisi baca tersimpan.", en: "The Reading Map shows which part to read first, and why. Lessons open from there, and your place is saved." },
+  "tur.nt.4.judul": { default: "Saat mengerjakan soal", en: "While you answer" },
+  "tur.nt.4.isi": { default: "Pilih satu jawaban, lalu kunci. Jawaban yang sudah dikunci tersimpan. Bila perlu, tombol bantuan kecil bisa muncul — memakainya tidak mengurangi apa pun.", en: "Choose one answer, then lock it in. Locked answers are saved. If it is needed, a small help button may appear — using it never takes anything away." },
+  "tur.nt.5.judul": { default: "Hasil setiap materi", en: "Results for each assignment" },
+  "tur.nt.5.isi": { default: "Hasil adalah langkah terakhir: penguasaan, bagian yang perlu diulang, dan perubahan sejak Pemetaan Awal. Perbandingannya selalu dengan diri sendiri.", en: "Results are the last step: mastery, what to revisit, and what has changed since the Initial Mapping. The comparison is always with yourself." },
+  "tur.nt.6.judul": { default: "Sertifikat", en: "Certificates" },
+  "tur.nt.6.isi": { default: "Sertifikat yang diterbitkan sekolah ada di sini. Masing-masing bisa diperiksa keasliannya lewat tautannya.", en: "Certificates the school issues are here. Each one can be checked through its own link." },
+  "tur.nt.7.judul": { default: "Bantuan", en: "Help" },
+  "tur.nt.7.isi": { default: "Tur ini bisa dibuka lagi dari sini, termasuk langsung ke satu langkah. Bila masih ada pertanyaan, tanyakan kepada guru.", en: "You can open this tour again from here, or go straight to one step. If anything is still unclear, ask your teacher." },
+
+  // ── Belajar · SD (§B) — dormant until a legitimate stage signal exists
+  "tur.sd.1.judul": { default: "Mulai dari sini", en: "Start here" },
+  "tur.sd.1.isi": { default: "Kartu ini menunjukkan yang perlu dikerjakan sekarang. Tekan tombolnya untuk mulai.", en: "This card shows what to do now. Press its button to begin." },
+  "tur.sd.1.kosong": { default: "Kartu materi akan muncul di sini, lengkap dengan tombol untuk mulai.", en: "A card will appear here when there is something to do, with a button to begin." },
+  "tur.sd.2.judul": { default: "Pilih, lalu tekan", en: "Choose, then press" },
+  "tur.sd.2.isi": { default: "Pilih satu jawaban. Lalu tekan tombol di bawahnya.", en: "Choose one answer. Then press the button below it." },
+  "tur.sd.3.judul": { default: "Kalau bingung", en: "If you get stuck" },
+  "tur.sd.3.isi": { default: "Kadang muncul tombol bantuan kecil. Boleh dipakai. Tidak mengurangi apa pun.", en: "Sometimes a small help button appears. It's fine to use. It never takes anything away." },
+  "tur.sd.4.judul": { default: "Baca yang ini dulu", en: "Read this one first" },
+  "tur.sd.4.isi": { default: "Setelah Pemetaan Awal, muncul peta bacaan. Mulai dari yang paling atas.", en: "After the Initial Mapping, a reading map appears. Start at the top." },
+  "tur.sd.5.judul": { default: "Pelajaran", en: "Lessons" },
+  "tur.sd.5.isi": { default: "Baca atau tonton halaman demi halaman. Kalau berhenti, PINTAR ingat tempatnya.", en: "Read or watch one page at a time. If you stop, PINTAR remembers the place." },
+  "tur.sd.6.judul": { default: "Lihat hasilnya", en: "See how it went" },
+  "tur.sd.6.isi": { default: "Setelah Uji Penguasaan, ada hasilnya. Isinya: yang sudah dikuasai dan yang masih perlu dilatih.", en: "After the Mastery Check, there are results. They show what you know and what to practise more." },
+  "tur.sd.7.judul": { default: "Bantuan selalu di sini", en: "Help is always here" },
+  "tur.sd.7.isi": { default: "Tur ini bisa dibuka lagi dari sini. Kalau masih bingung, tanyakan kepada guru.", en: "You can open this tour again from here. If you're still unsure, ask your teacher." },
+
+  // ── Belajar · Menengah (§C) — dormant until a legitimate stage signal exists
+  "tur.sm.1.judul": { default: "Yang perlu dikerjakan", en: "What to do" },
+  "tur.sm.1.isi": { default: "Materi yang ditugaskan ada di sini, sudah diurutkan. Mulai dari yang paling atas; tombolnya membawa ke langkah berikutnya.", en: "Everything assigned is here, already in order. Start at the top — its button takes you to the next step." },
+  "tur.sm.1.kosong": { default: "Materi yang ditugaskan akan muncul di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu.", en: "Assigned work will appear here, already in order. The one at the top comes first." },
+  "tur.sm.2.judul": { default: "Lima langkah di setiap materi", en: "Five steps in every assignment" },
+  "tur.sm.2.isi": { default: "Pemetaan Awal, Peta Bacaan, Pelajaran, Uji Penguasaan, lalu Hasil. Hanya satu langkah yang terbuka pada satu waktu. Pemetaan Awal bukan ujian.", en: "Initial Mapping, Reading Map, Lessons, Mastery Check, then Results. Only one step is open at a time. The Initial Mapping is not a test." },
+  "tur.sm.3.judul": { default: "Tempat belajar", en: "Where you learn" },
+  "tur.sm.3.isi": { default: "Peta Bacaan menunjukkan bagian yang perlu dibaca lebih dulu, beserta alasannya. Pelajaran dibuka dari sana, dan posisi baca tersimpan.", en: "The Reading Map shows which part to read first, and why. Lessons open from there, and your place is saved." },
+  "tur.sm.4.judul": { default: "Mengerjakan penilaian", en: "Taking an assessment" },
+  "tur.sm.4.isi": { default: "Pilih jawaban, lalu kunci. Jawaban yang sudah dikunci tersimpan. Uji Cepat yang dibuka guru juga muncul di halaman Belajar.", en: "Choose an answer, then lock it in. Locked answers are saved. Quick Assessments your teacher opens also appear on the Learning page." },
+  "tur.sm.5.judul": { default: "Melihat hasil", en: "Seeing results" },
+  "tur.sm.5.isi": { default: "Hasil ada di langkah terakhir setiap materi: penguasaan, bagian yang perlu diulang, dan perubahan sejak Pemetaan Awal. Dibandingkan dengan diri sendiri, bukan dengan orang lain.", en: "Results are the last step of every assignment: mastery, what to revisit, and how you've changed since the Initial Mapping. Compared with yourself, never with others." },
+  "tur.sm.6.judul": { default: "Sertifikat", en: "Certificates" },
+  "tur.sm.6.isi": { default: "Sertifikat yang diterbitkan sekolah ada di sini, dan masing-masing bisa diperiksa keasliannya lewat tautannya.", en: "Certificates the school issues are here, and each can be checked through its own link." },
+  "tur.sm.7.judul": { default: "Kalau perlu bantuan", en: "When you need help" },
+  "tur.sm.7.isi": { default: "Tur ini bisa dibuka lagi dari Bantuan. Saat mengerjakan soal, tombol bantuan kecil bisa muncul — memakainya tidak mengurangi apa pun.", en: "You can reopen this tour from Help. While answering, a small help button may appear — using it never takes anything away." },
+
+  // ── Kelas · Pengajar (§D)
+  "tur.pg.1.judul": { default: "Satu hal yang layak dikerjakan dulu", en: "One thing worth doing first" },
+  "tur.pg.1.isi": { default: "Setiap kali masuk, kartu ini menunjukkan satu hal yang paling layak dikerjakan, disusun dari keadaan kelas dalam lingkup mengajar Anda.", en: "Each time you sign in, this card shows the one thing most worth doing, based on the state of the classes in your teaching context." },
+  "tur.pg.1.kosong": { default: "Bila ada yang layak dikerjakan lebih dulu, kartunya muncul di atas daftar ini.", en: "When something is worth doing first, its card appears above this list." },
+  "tur.pg.2.judul": { default: "Kelas dalam lingkup mengajar Anda", en: "Classes in your teaching context" },
+  "tur.pg.2.isi": { default: "Daftar ini mengikuti penugasan dari sekolah. Pilih satu kelas; yang Anda siapkan dan lihat sesudahnya berlaku untuk kelas yang dipilih.", en: "This list follows the school's assignments. Choose a class — what you prepare and view next applies to the class you selected." },
+  "tur.pg.2.kosong": { default: "Belum ada kelas di sini. Kelas muncul setelah sekolah menugaskan Anda.", en: "No classes here yet. Classes appear once the school assigns you." },
+  "tur.pg.3.judul": { default: "Yang sedang berjalan", en: "What's open now" },
+  "tur.pg.3.isi": { default: "Penilaian yang jendelanya masih terbuka, dengan jumlah murid yang sudah mengumpulkan. Angka ini hitungan, bukan penilaian.", en: "Assessments whose window is still open, with how many learners have submitted. These numbers are counts, not judgments." },
+  "tur.pg.3.kosong": { default: "Saat ada penilaian yang jendelanya terbuka, daftarnya muncul di halaman ini.", en: "When an assessment window is open, it appears on this page." },
+  "tur.pg.4.judul": { default: "Uji Cepat", en: "Quick Assessment" },
+  "tur.pg.4.isi": { default: "Dari halaman kelas: atur, tinjau, lalu sediakan. Murid baru menerimanya setelah Anda menekan Sediakan. Hasilnya ikut menjadi bukti belajar; satu Uji Cepat saja tidak menerbitkan sertifikat.", en: "From a class page: configure, review, then make it available. Learners receive it only after you press Make available. Results become learning evidence; a single Quick Assessment does not issue a certificate." },
+  "tur.pg.5.judul": { default: "Menyediakan materi", en: "Making material available" },
+  "tur.pg.5.isi": { default: "Bab yang sudah diterbitkan sekolah tidak otomatis sampai ke murid. Tinjau yang akan diterima murid, lalu sediakan untuk kelas yang dipilih.", en: "A chapter the school has published does not reach learners by itself. Review what learners will receive, then make it available to the selected class." },
+  "tur.pg.6.judul": { default: "Apa yang sudah bisa disimpulkan", en: "What can be concluded" },
+  "tur.pg.6.isi": { default: "PINTAR baru menyimpulkan bila buktinya cukup. «Belum cukup bukti» adalah keadaan biasa — artinya belum, bukan buruk.", en: "PINTAR only draws a conclusion when there is enough evidence. «Not yet enough evidence» is a normal state — it means not yet, not bad." },
+  "tur.pg.7.judul": { default: "Bantuan", en: "Help" },
+  "tur.pg.7.isi": { default: "Tur ini bisa dibuka lagi dari sini, termasuk langsung ke satu langkah. Untuk pertanyaan lain, hubungi bagian layanan sekolah.", en: "You can reopen this tour from here, or go straight to one step. For anything else, contact your school's support." },
+
   // ══════════════════════════════════ UX-1 Slice 3 — the educator's teaching
   // surface. Educator-facing, and deliberately NOT declared staff-only: the
   // internal-word guard runs over every one of these tellings, which is worth
@@ -1246,7 +1443,7 @@ const table: Table = {
   "mengajar.siap.komit": { default: "Sediakan", en: "Make available" },
   "mengajar.siap.kembali": { default: "Kembali ke pilihan materi", en: "Back to material choice" },
   "mengajar.instrumen.PRE_TEST": { default: "Pemetaan Awal", en: "Initial Mapping" },
-  "mengajar.instrumen.POST_TEST": { default: "Uji Penguasaan", en: "Mastery Test" },
+  "mengajar.instrumen.POST_TEST": { default: "Uji Penguasaan", en: "Mastery Check" },
   "mengajar.instrumen.STANDALONE": { default: "Asesmen mandiri", en: "Standalone assessment" },
   "mengajar.instrumen.sertifikat": { default: "Sertifikat", en: "Certificate" },
   "mengajar.instrumen.sertifikat.arti": { default: "Diterbitkan sekolah bila murid memenuhi capaian; bisa diperiksa siapa pun lewat tautan.", en: "Issued by the school when a learner meets the standard; anyone can check it through its link." },

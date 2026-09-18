@@ -991,3 +991,284 @@
   .pin-act { grid-template-columns: 1fr; }
   .pin-act .pin-go { grid-column: 1; grid-row: auto; }
 }
+
+/* ══════════════════════════════════════════════ UX-1 · GUIDANCE MODE (§F, §O)
+   The role-based first-login tour, the Help panel behind the header control,
+   and the one tip the tour owns.
+
+   THE VALUES BELOW ARE THE APPROVED ONES, ported from the design prototype
+   "PINTAR Tur Pertama" (r2.1, SHA-256 23a6fcdd…): the 420px card, the 3px
+   white gap and 2px primary ring, the 72% veil, the seven position dots, the
+   white miniature frame, the 78% phone sheet. Where the prototype wrote a
+   value off the token scale, the nearest token is used instead — the largest
+   such move is 2px, and none of them is visible.
+
+   GUIDANCE MODE IS EXACTLY TWO STATES (§O-1): a tour is running, and Help is
+   open. Nothing else in PINTAR may paint `primary-soft` as an environment, and
+   the mode never appears inside instruction as a status — not for a result,
+   not for a correct answer, not for evidence being sufficient, not for
+   permission. The tip below is deliberately NOT the mode: it is one sentence
+   on the page exactly as it was. */
+
+/* The environment. The class goes on <html> while a tour or Help is open, and
+   comes off when the last of the two closes. */
+html.pin-tuntun body { background: var(--pintar-primary-soft); }
+
+/* Announced, not drawn. The step number is read as words because the dots are
+   a picture of it and a picture is not a carrier (§K-4). */
+.pin-sr {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ the spotlight
+   ONE ELEMENT, NOT FOUR BANDS. The veil is the ring's own outermost shadow, so
+   the cut-out has exactly one edge and the ring can never drift from it by a
+   pixel. The spread is larger than any viewport on purpose; the shape is the
+   target's, measured live. */
+.pin-tur-sorot {
+  position: fixed; z-index: 40; pointer-events: none;
+  border-radius: var(--radius-2);
+  box-shadow:
+    0 0 0 3px var(--surface-1),
+    0 0 0 5px var(--pintar-primary),
+    0 0 0 4000px color-mix(in srgb, var(--pintar-primary-soft) 72%, transparent);
+}
+/* A step whose target is not on this page keeps its place in the seven and
+   gets the veil alone — nothing is drawn on the page to give the spotlight
+   something to hold (§J-1). */
+.pin-tur-tirai {
+  position: fixed; inset: 0; z-index: 40;
+  background: color-mix(in srgb, var(--pintar-primary-soft) 72%, transparent);
+}
+
+/* ------------------------------------------------------------- the tour card
+   Placed by measurement on a wide screen — below its target, above it when
+   there is no room below, centred when there is no target — and never over it.
+   The default here is only ever seen for the first paint of a server-rendered
+   arrival, before the measurement that runs ahead of the browser's paint. */
+.pin-tur-kartu {
+  position: fixed; z-index: 41;
+  top: var(--space-7); left: 50%; translate: -50% 0;
+  width: var(--measure-guide-card); max-width: calc(100% - var(--space-6));
+  background: var(--surface-1);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-2);
+  padding: var(--space-5);
+  display: grid; gap: var(--space-3);
+  color: var(--ink-1);
+}
+.pin-tur-atas { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.pin-tur-nama { flex: 1; white-space: nowrap; }
+.pin-tur-maju { display: inline-flex; align-items: center; gap: var(--space-2); }
+.pin-tur-hitung {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong); color: var(--ink-3);
+}
+/* Seven positions, not a bar that fills: finishing a tour is not an
+   achievement and nothing here celebrates it. */
+.pin-tur-titik { display: inline-flex; align-items: center; gap: 6px; }
+.pin-tur-titik i { width: 6px; height: 6px; border-radius: 3px; background: var(--line-strong); }
+.pin-tur-titik i.pin-lalu { background: var(--ink-3); }
+.pin-tur-titik i.pin-kini { width: var(--space-4); background: var(--pintar-primary); }
+/* The two quiet header controls: the language, and the way out. Both are text,
+   because an icon-only close is not a close anybody can read (§K-11). */
+.pin-tur-x {
+  background: none; border: 0; font: inherit;
+  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-2);
+  padding: var(--space-1) var(--space-2); border-radius: 6px; cursor: pointer;
+}
+.pin-tur-x:hover { background: var(--surface-2); }
+.pin-tur-judul {
+  font-size: var(--type-course); font-weight: var(--weight-strong);
+  line-height: var(--leading-heading); letter-spacing: -0.01em; margin: 0;
+}
+/* Focus lands here on open and on every step, so the step is read in the order
+   it is written. It is never reached by Tab, so the ring is suppressed only
+   for that programmatic case and kept for anybody arriving by keyboard. */
+.pin-tur-judul:focus:not(:focus-visible) { outline: none; }
+.pin-tur-isi { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
+.pin-tur-kaki { display: flex; align-items: center; gap: var(--space-2) var(--space-4); flex-wrap: wrap; }
+.pin-tur-centang {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  font-size: var(--type-fine); color: var(--ink-2);
+  flex: 1 1 180px; min-height: 44px; cursor: pointer;
+}
+.pin-tur-centang input {
+  width: 18px; height: 18px; margin: 0; flex: none; accent-color: var(--pintar-primary);
+}
+.pin-tur-catatan { flex: 1 1 180px; font-size: var(--type-fine); color: var(--ink-3); margin: 0; }
+.pin-tur-tombol { display: flex; gap: var(--space-2); margin-left: auto; }
+/* The primary-school variant: larger type, larger targets. Dormant in PINTAR
+   4.0, because no legitimate person-scoped stage signal exists to select it. */
+.pin-tur-sd .pin-tur-judul { font-size: var(--type-subhead); }
+.pin-tur-sd .pin-tur-isi {
+  font-size: var(--type-stem-phone); line-height: var(--leading-body); color: var(--ink-1);
+}
+.pin-tur-sd .pin-tur-tombol .pin-btn { height: var(--space-8); padding: 0 20px; font-size: var(--type-body); }
+
+/* -------------------------------------------------------------- miniatures
+   A white frame with a hairline, standing for the white product sheet (§O-3),
+   holding geometry and no words. Everything inside is `aria-hidden`: the
+   step's body already carries the meaning. */
+.pin-mini {
+  background: var(--surface-1); border: 1px solid var(--line);
+  border-radius: var(--radius-1); padding: 10px var(--space-3) var(--space-3);
+  display: grid; gap: var(--space-2);
+}
+.pin-mini-label {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-mini-bingkai {
+  background: var(--surface-1); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-1); padding: var(--space-3);
+  display: grid; gap: var(--space-2);
+}
+.pin-mini-rows, .pin-mini-soal, .pin-mini-hasil { display: grid; gap: var(--space-2); }
+.pin-mini-row { display: flex; align-items: center; gap: var(--space-2); }
+.pin-mini-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.pin-mini-lebar { width: 100%; }
+.pin-mini-judul { height: var(--space-2); background: var(--line-strong); }
+.pin-mini-pendek { flex: none; width: var(--space-9); }
+.pin-mini-nilai { flex: none; width: var(--space-6); height: 6px; border-radius: 3px; background: var(--line-strong); }
+.pin-mini-tanda { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); }
+.pin-mini-tanda.pin-mini-kini { background: var(--pintar-primary); }
+.pin-mini-spine { display: flex; align-items: center; gap: var(--space-1); }
+.pin-mini-stop { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.pin-mini-stop.pin-mini-kini { background: var(--pintar-primary); }
+.pin-mini-opsi {
+  display: block; border: 1px solid var(--line);
+  border-radius: var(--radius-1); padding: 6px 10px;
+}
+/* The chosen option, drawn as the product draws it. Sauron recorded this as
+   SELECTION, not status (§O, finding 3): it says "this one is picked", and it
+   never says "this one is right". */
+.pin-mini-pilih {
+  border-color: var(--pintar-primary); background: var(--pintar-primary-soft);
+  box-shadow: inset 0 0 0 1px var(--pintar-primary);
+}
+.pin-mini-tombol { display: block; width: var(--space-9); height: var(--space-5); border-radius: 6px; background: var(--pintar-primary); }
+.pin-mini-kartu {
+  display: grid; gap: var(--space-2); border: 1px solid var(--line);
+  border-radius: var(--radius-1); padding: 10px var(--space-3);
+}
+.pin-mini-tag {
+  display: inline-block; width: var(--space-7); height: var(--space-5);
+  border-radius: var(--radius-pill); background: var(--surface-2); border: 1px solid var(--line);
+}
+/* A measure, drawn in eight segments rather than to a width: a bar drawn to a
+   percentage looks like a reading, and a reading is a number about somebody. */
+.pin-mini-ukur { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+.pin-mini-seg { height: 6px; border-radius: 3px; background: var(--surface-2); }
+.pin-mini-isi { background: var(--ink-3); }
+/* "Not yet enough evidence" is a normal state with no number — a dashed rule,
+   never a zero and never a warning colour. */
+.pin-mini-kosong { height: 6px; border-top: 1px dashed var(--line-strong); }
+
+/* ------------------------------------------------------- the Help entry point
+   One utility control in the shell, added because the built shell had no help
+   entry for the tour's last step to point at (§F, L-5). */
+.pin-bantuan-tombol {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: 0; font: inherit;
+  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-2);
+  padding: var(--space-1) var(--space-2); border-radius: var(--radius-1);
+  min-height: 44px; cursor: pointer; white-space: nowrap;
+}
+.pin-bantuan-tombol:hover { background: var(--surface-2); }
+.pin-bantuan-glif {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--space-5); height: var(--space-5); border-radius: 50%;
+  border: 1px solid var(--line-strong); font-size: var(--type-eyebrow);
+}
+
+/* ------------------------------------------------------------- the Help panel
+   The panel's GROUND is the guidance colour and its cards are the product's
+   white (§O-2). It is not modal: the page behind it stays live and unveiled,
+   because Help is somewhere you look while the page stays where it was. */
+.pin-bantuan {
+  position: fixed; z-index: 41;
+  top: var(--space-7); right: var(--space-4);
+  width: var(--measure-guide-panel); max-width: calc(100% - var(--space-6));
+  max-height: calc(100% - var(--space-8)); overflow: auto;
+  background: var(--pintar-primary-soft);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-2);
+  padding: var(--space-5);
+  display: grid; gap: var(--space-4); align-content: start;
+}
+.pin-bantuan-atas { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.pin-bantuan-judul { font-size: var(--type-course); font-weight: var(--weight-strong); margin: 0; }
+.pin-bantuan-judul:focus:not(:focus-visible) { outline: none; }
+.pin-bantuan-tutup {
+  background: none; border: 0; font: inherit;
+  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-2);
+  padding: var(--space-1) var(--space-2); border-radius: 6px;
+  min-height: 44px; cursor: pointer;
+}
+.pin-bantuan-tutup:hover { background: var(--surface-1); }
+.pin-bantuan-kartu {
+  background: var(--surface-1); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-2); padding: var(--space-4);
+  display: grid; gap: var(--space-2); justify-items: start;
+}
+.pin-bantuan-nama { font-size: var(--type-card); font-weight: var(--weight-strong); margin: 0; }
+.pin-bantuan-atau { font-size: var(--type-fine); color: var(--ink-2); margin: 0; }
+/* The seven headlines. Reading them may be all the help that was needed, so
+   they are the panel's largest block rather than a footnote to the button. */
+.pin-bantuan-daftar {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; border-top: 1px solid var(--line);
+}
+.pin-bantuan-baris {
+  display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--line);
+  font: inherit; font-size: var(--type-meta); color: var(--ink-1);
+  padding: 10px var(--space-1); min-height: 44px; cursor: pointer;
+}
+.pin-bantuan-baris:hover { background: var(--surface-1); }
+.pin-bantuan-no {
+  flex: none; width: 18px;
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong); color: var(--ink-3);
+}
+
+/* -------------------------------------------------------------------- the tip
+   NOT Guidance Mode (§O-5). The page is exactly as it was; this is one white
+   card under the control it is about. No focus is taken, any other interaction
+   dismisses it, and there is no timeout anywhere. */
+.pin-tip {
+  position: fixed; z-index: 41;
+  /* Just under the shell header, which is where the control it is about sits.
+     A wide screen replaces this with the measured position. */
+  top: 56px;
+  width: var(--measure-guide-tip); max-width: calc(100% - var(--space-6));
+  background: var(--surface-1);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  padding: var(--space-3) var(--space-4);
+  display: grid; gap: var(--space-2); justify-items: end;
+}
+.pin-tip-isi { justify-self: stretch; font-size: var(--type-meta); color: var(--ink-1); margin: 0; }
+
+@media (max-width: 560px) {
+  /* THE CARD BECOMES A SHEET. Capped at 78% of the viewport with its own
+     scroll and the buttons pinned, so nothing truncates and type never shrinks
+     however long the Indonesian runs (§J-15, §K-8). */
+  .pin-tur-kartu {
+    top: auto; bottom: 0; left: 0; right: 0; translate: none;
+    width: auto; max-width: none;
+    max-height: var(--guide-sheet-max); overflow: auto;
+    border-radius: var(--radius-2) var(--radius-2) 0 0; border-width: 1px 0 0;
+    padding: var(--space-4) var(--space-4) var(--space-5);
+  }
+  .pin-tur-kaki { position: sticky; bottom: 0; background: var(--surface-1); padding-block: var(--space-2); }
+  .pin-tur-tombol { width: 100%; }
+  .pin-tur-tombol .pin-btn { flex: 1; }
+  .pin-tur-judul { font-size: var(--type-stem-phone); }
+  .pin-tur-sd .pin-tur-judul { font-size: var(--type-stem); }
+  /* A finger, not a pointer: the two quiet header controls get the full target. */
+  .pin-tur-x { min-height: 44px; }
+  .pin-bantuan {
+    inset: 0; width: auto; max-width: none; max-height: none;
+    border: 0; border-radius: 0; padding: var(--space-5) var(--space-4);
+  }
+  .pin-tip { left: var(--space-4); right: var(--space-4); width: auto; max-width: none; }
+}
