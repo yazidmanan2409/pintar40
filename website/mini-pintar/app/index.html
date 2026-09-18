@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini-PINTAR</title>
+<meta name="description" content="Sekitar tiga menit. Satu perjalanan belajar kecil, tanpa akun dan tanpa data yang disimpan.">
+<!-- A public demonstration. It writes nothing, keeps nothing, and is not an
+     official assessment. ADR-0021. -->
+<meta name="robots" content="index, follow">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="chrome">
+  <div class="chrome__in">
+    <span class="brand" id="brand">mini-pintar</span>
+    <div class="chrome__mid"><div id="progress"></div></div>
+    <div class="chrome__end">
+      <div class="lang" id="lang" role="group"></div>
+      <button type="button" class="exit" id="exit"></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <noscript>
+    <div class="noscript">
+      <p lang="id">Mini-PINTAR adalah pengalaman interaktif dan membutuhkan
+      JavaScript. Tanpa JavaScript, tidak ada yang bisa ditampilkan selain
+      halaman ini &mdash; tidak ada data yang dikirim ke mana pun, jadi
+      tidak ada versi server yang bisa menggantikannya.</p>
+      <p lang="en">Mini-PINTAR is an interactive experience and needs
+      JavaScript. Without it there is nothing to show but this page &mdash;
+      no data is sent anywhere, so there is no server-side version that
+      could stand in for it.</p>
+    </div>
+  </noscript>
+</main>
+
+<div class="sr" id="live" aria-live="polite" aria-atomic="true"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
