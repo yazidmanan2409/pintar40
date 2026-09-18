@@ -217,6 +217,141 @@ export function turPengajarBerlaku(peran: readonly string[]): boolean {
   return !peran.some((p) => SENIOR.has(p));
 }
 
+// ══════════════════════════════════ where the card goes, as arithmetic (§J, §M)
+//
+// PURE, AND HERE RATHER THAN IN THE COMPONENT, because this is the part of the
+// tour that cannot be read for correctness — it is four comparisons about two
+// rectangles, and getting one of them slightly wrong puts the card on top of
+// the thing the step is describing. A rendered measurement found exactly that,
+// and a rule that can be got wrong that quietly belongs where a test can drive
+// it through the geometry that broke it.
+
+/** A measured rectangle, in viewport coordinates. */
+export type Petak = { top: number; left: number; width: number; height: number };
+
+/**
+ * What the viewport offers.
+ *
+ * `atap` is the ceiling: Evaluation Mode's banner cannot be dismissed, because
+ * its presence is a property of the session (ADR-0020), so the card keeps clear
+ * of whatever sits above the Experience shell (§J-11). With nothing there it is
+ * the ordinary gutter.
+ */
+export type Layar = { lebar: number; tinggi: number; atap: number; telepon: boolean };
+
+/** The gutter the card and a scrolled-to target keep from the viewport edge. */
+export const TEPI = 16;
+/** The gap between a target and the card describing it. */
+export const JARAK = 16;
+
+/**
+ * THE BAND A TARGET MUST SIT IN — and the whole point is that it is NOT just
+ * "on screen".
+ *
+ * A target can be perfectly visible and still leave no room to put the card
+ * below it, and then the card has nowhere to go but over it. So the band
+ * subtracts the card's own height on both layouts: on a phone the sheet is
+ * docked at the bottom, so the gap is the gutter alone; on a wide screen the
+ * card floats, so it also needs the gap it keeps from its target.
+ *
+ * This is §J-7 read as it is written — "the page scrolls just enough for the
+ * target to sit above the sheet" — with the wide screen's card understood as
+ * the sheet's equivalent, which it is.
+ */
+export function pitaSasaran(layar: Layar, tinggiKartu: number): { atas: number; bawah: number } {
+  return {
+    atas: layar.atap,
+    bawah: layar.telepon
+      ? layar.tinggi - tinggiKartu - TEPI
+      : layar.tinggi - tinggiKartu - JARAK - TEPI,
+  };
+}
+
+/**
+ * THE ROOM THE PAGE LENDS THE TOUR AT ITS FOOT (§J-14).
+ *
+ * Scrolling a target up into the band only works if the page HAS that much
+ * scroll left. A short page has none, and then a target sitting low is stuck
+ * where it is with no room for the card below it — which is how the card ends
+ * up over the thing it is describing on exactly the pages that are shortest.
+ *
+ * So the page gains bottom room equal to what the card takes: the sheet's own
+ * height on a phone, where it is docked against the bottom edge, and that plus
+ * the gap on a wide screen, where the card floats clear of its target. The room
+ * is given back when the tour closes.
+ *
+ * The design names this for the phone. It is the same problem on a wide screen
+ * and the same answer, and leaving it to the phone alone was the difference
+ * between a card beside its target and a card on top of it.
+ */
+export function ruangBawah(tinggiKartu: number, telepon: boolean): number {
+  if (tinggiKartu <= 0) return 0;
+  return telepon ? tinggiKartu : tinggiKartu + JARAK;
+}
+
+/** How far the page must scroll for `sasaran` to sit inside the band. */
+export function geserKe(sasaran: Petak, pita: { atas: number; bawah: number }): number {
+  if (sasaran.top < pita.atas) return sasaran.top - pita.atas;
+  if (sasaran.top + sasaran.height > pita.bawah) {
+    return Math.min(sasaran.top - pita.atas, sasaran.top + sasaran.height - pita.bawah);
+  }
+  return 0;
+}
+
+/**
+ * WHERE THE CARD GOES ON A WIDE SCREEN: below the target when it fits, above it
+ * when that does not, beside it when neither does, and centred only when there
+ * is no target at all.
+ *
+ * "Never over it" (§M) is the property, and the order above is what keeps it:
+ * the beside case is what a target too tall for the space above or below makes,
+ * and it is exactly where centring would put the card on top of its subject.
+ */
+export function tempatKartu(
+  sasaran: Petak | null,
+  kartu: { lebar: number; tinggi: number },
+  layar: Layar,
+): { top: number; left: number } {
+  const tengah = {
+    top: Math.max(layar.atap, (layar.tinggi - kartu.tinggi) / 2),
+    left: Math.max(TEPI, (layar.lebar - kartu.lebar) / 2),
+  };
+  if (!sasaran) return tengah;
+
+  const bawahnya = sasaran.top + sasaran.height + JARAK;
+  const atasnya = sasaran.top - JARAK - kartu.tinggi;
+  const muatBawah = bawahnya + kartu.tinggi <= layar.tinggi - TEPI;
+  const muatAtas = atasnya >= layar.atap;
+  if (muatBawah || muatAtas) {
+    return {
+      top: muatBawah ? bawahnya : atasnya,
+      left: Math.min(
+        Math.max(TEPI, sasaran.left),
+        Math.max(TEPI, layar.lebar - kartu.lebar - TEPI),
+      ),
+    };
+  }
+
+  const kanan = sasaran.left + sasaran.width + JARAK;
+  const kiri = sasaran.left - JARAK - kartu.lebar;
+  const disamping =
+    kanan + kartu.lebar <= layar.lebar - TEPI ? kanan : kiri >= TEPI ? kiri : null;
+  return {
+    top: Math.max(layar.atap, Math.min(sasaran.top, layar.tinggi - kartu.tinggi - TEPI)),
+    left: disamping ?? tengah.left,
+  };
+}
+
+/** Whether two rectangles touch at all. The card must never be over its target. */
+export function bertumpuk(a: Petak, b: Petak): boolean {
+  return !(
+    a.top + a.height <= b.top ||
+    a.top >= b.top + b.height ||
+    a.left + a.width <= b.left ||
+    a.left >= b.left + b.width
+  );
+}
+
 /** The envelope `my_tour_state` returns, as this layer consumes it. */
 export type Keadaan = {
   tour_key: string;

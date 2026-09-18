@@ -44,7 +44,8 @@ import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import {
   tur, varianBelajar, bolehTampilOtomatis, akanMunculLagi, tipSetelahTutup,
-  peranAktif, turPengajarBerlaku, TUR_BELAJAR, TUR_PENGAJAR,
+  peranAktif, turPengajarBerlaku, pitaSasaran, geserKe, ruangBawah, tempatKartu, bertumpuk,
+  TEPI, JARAK, TUR_BELAJAR, TUR_PENGAJAR, type Layar, type Petak,
 } from "../src/lib/tur";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
@@ -2956,14 +2957,117 @@ export const experienceTests: SelfTest[] = [
         .filter((s) => /tutup|setAktif\(false\)|onTutup/.test(s));
       c.expect(tutupSendiri.length === 0, `something in the tour closes itself on a timer: ${tutupSendiri.join("; ")}`);
 
-      c.note("5 presentation decision(s), 9 return predicate(s), 4 tip wording(s), 4 closing rule(s)");
+      // 5. THE CARD IS NEVER OVER THE THING IT IS DESCRIBING (§M).
+      //
+      // A rendered measurement at 1280x813 found it there, and the arithmetic
+      // below is why: the scroll band asked only whether the target was VISIBLE.
+      // A target can be perfectly visible and still leave no room to put the
+      // card below it — and with a target too wide for the card to sit beside,
+      // the placement fell through to centred, on top of its own subject.
+      //
+      // The geometry here is the one that was measured, not a constructed one.
+      const layar: Layar = { lebar: 1280, tinggi: 813, atap: TEPI, telepon: false };
+      const kartu = { lebar: 420, tinggi: 327 };
+      /** The target as it was measured: visible, wide, and sitting too low. */
+      const diukur: Petak = { top: 233, left: 284, width: 712, height: 298 };
+
+      // (a) The band now subtracts the card's own height, so the scroll brings
+      //     the target up far enough to leave room rather than merely on screen.
+      const pita = pitaSasaran(layar, kartu.tinggi);
+      c.expect(pita.bawah === 813 - 327 - JARAK - TEPI,
+        `the wide-screen band is ${pita.bawah}; it must leave room for the card below the target`);
+      c.expect(pitaSasaran({ ...layar, telepon: true }, kartu.tinggi).bawah === 813 - 327 - TEPI,
+        "the phone band does not leave the docked sheet's height above it");
+      const geser = geserKe(diukur, pita);
+      c.expect(geser > 0, "the measured target is left where it was, with no room for the card below it");
+
+      //     …and the page must HAVE that much scroll to give. A short page has
+      //     none, which is how the browser measurement reproduced the overlap
+      //     even after the band was fixed: the scroll was computed and then did
+      //     nothing. The room is lent on both layouts, not only the phone.
+      c.expect(ruangBawah(kartu.tinggi, false) === kartu.tinggi + JARAK,
+        `a wide screen lends ${ruangBawah(kartu.tinggi, false)}px; the card needs its own height and its gap`);
+      c.expect(ruangBawah(kartu.tinggi, true) === kartu.tinggi,
+        "a phone lends more than the docked sheet's height");
+      c.expect(ruangBawah(0, false) === 0 && ruangBawah(0, true) === 0,
+        "the page is padded before the card has been measured");
+      c.expect(ruangBawah(kartu.tinggi, false) >= geser,
+        "the room lent is less than the scroll the measured target needs, so the scroll would do nothing");
+      const turSrcPinjam = code(readFileSync(join(repoRoot, "src", "components", "tur", "Tur.tsx"), "utf8"));
+      c.expect(/const pinjam = ruangBawah\(tinggiKartu, layar\.telepon\);/.test(turSrcPinjam),
+        "the tour does not lend the page room from the one place that decides how much");
+      c.expect(/document\.body\.style\.paddingBottom = ""/.test(turSrcPinjam),
+        "the room the page lends is never given back");
+
+      // (b) After that scroll the card goes BELOW the target, clear of it.
+      const setelah: Petak = { ...diukur, top: diukur.top - geser };
+      const tempat = tempatKartu(setelah, kartu, layar);
+      const kotakKartu: Petak = { ...tempat, width: kartu.lebar, height: kartu.tinggi };
+      c.expect(!bertumpuk(kotakKartu, setelah),
+        `the card at ${JSON.stringify(tempat)} still covers the target at ${JSON.stringify(setelah)}`);
+      c.expect(tempat.top >= setelah.top + setelah.height,
+        "the card is not below the target it describes");
+
+      // (c) THE CONTROL, which is the whole reason this is a test and not a
+      //     comment: with the OLD band — the one that asked only whether the
+      //     target was visible — the same placement puts the card over it.
+      const pitaLama = { atas: TEPI, bawah: layar.tinggi - TEPI };
+      const geserLama = geserKe(diukur, pitaLama);
+      const lama: Petak = { ...diukur, top: diukur.top - geserLama };
+      const tempatLama = tempatKartu(lama, kartu, layar);
+      c.expect(
+        bertumpuk({ ...tempatLama, width: kartu.lebar, height: kartu.tinggi }, lama),
+        "the defect this check exists for no longer reproduces under the old band, so the check proves nothing",
+      );
+
+      // (d) The other three placements, each the case it is there for.
+      const cukupRuang: Petak = { top: 120, left: 284, width: 712, height: 120 };
+      c.expect(tempatKartu(cukupRuang, kartu, layar).top === 120 + 120 + JARAK,
+        "a target with room below it does not get the card below it");
+      const dibawah: Petak = { top: 420, left: 284, width: 300, height: 40 };
+      const atas = tempatKartu(dibawah, kartu, layar);
+      c.expect(atas.top === 420 - JARAK - kartu.tinggi, "a target with no room below does not get the card above it");
+      // The tall target STRADDLES THE CENTRE on purpose: with a target off to
+      // one side, a card that simply centred would clear it by accident, and
+      // the check would pass while the beside branch was gone. Planting its
+      // removal is what found that, so the geometry is chosen to discriminate.
+      const tinggiSempit: Petak = { top: 20, left: 500, width: 300, height: 700 };
+      const samping = tempatKartu(tinggiSempit, kartu, layar);
+      c.expect(!bertumpuk({ ...samping, width: kartu.lebar, height: kartu.tinggi }, tinggiSempit),
+        `a tall target straddling the centre gets the card on top of it: ${JSON.stringify(samping)}`);
+      c.expect(samping.left >= tinggiSempit.left + tinggiSempit.width,
+        "the card is not placed beside the tall target");
+      // And the mirror: no room on the right, so it goes to the left.
+      const kananPenuh: Petak = { top: 20, left: 480, width: 760, height: 700 };
+      const kiriKartu = tempatKartu(kananPenuh, kartu, layar);
+      c.expect(kiriKartu.left + kartu.lebar <= kananPenuh.left,
+        `with no room on the right the card is not placed on the left: ${JSON.stringify(kiriKartu)}`);
+      // No target at all: centred with the veil, which is §J-1 and not a defect.
+      const tanpa = tempatKartu(null, kartu, layar);
+      c.expect(tanpa.left === (1280 - 420) / 2, "a step with no target does not centre its card");
+      // THE CEILING, on a viewport SHORT ENOUGH FOR IT TO BITE. On a tall one
+      // the centred card already clears a banner by accident and the check
+      // would pass with the ceiling gone — planting its removal is what found
+      // that, so the viewport here is one where centring would breach it.
+      const berbanner: Layar = { lebar: 1280, tinggi: 500, atap: 96, telepon: false };
+      c.expect((berbanner.tinggi - kartu.tinggi) / 2 < berbanner.atap,
+        "the ceiling fixture no longer bites, so it proves nothing");
+      c.expect(tempatKartu(null, kartu, berbanner).top >= berbanner.atap,
+        "the centred card ignores the ceiling Evaluation Mode's banner sets");
+      c.expect(tempatKartu(tinggiSempit, kartu, berbanner).top >= berbanner.atap,
+        "the card placed beside a target ignores the ceiling");
+
+      c.note("5 presentation decision(s), 9 return predicate(s), 4 tip wording(s), 4 closing rule(s), " +
+        "8 placement(s) including the measured overlap and its control");
       return c.verdict(
         "automatic presentation, replay and the after-closing tip agree with each other: the database's own refusal " +
         "is honoured and an unreadable state never opens the tour, the two Experience exclusions are named rather " +
         "than silent and are taken from what each page already shows, the tip's wording is decided from the durable " +
         "state — so a replay closed without ticking cannot promise a return that a finish, a suppression or a spent " +
         "cap has ruled out — the cap is the row's own number and a cap of one is honoured as readily as three, " +
-        "skip and Escape are the same act, closing on the last step is finishing, and nothing closes itself on a timer",
+        "skip and Escape are the same act, closing on the last step is finishing, nothing closes itself on a timer, " +
+        "and the card is never over the target it describes — driven through the exact geometry a rendered " +
+        "measurement found it there with, and watched to still reproduce under the band that caused it",
       );
     },
   },

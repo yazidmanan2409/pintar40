@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
 import { simpanBahasa } from "@/lib/locale-klien";
 import {
-  akanMunculLagi, tipSetelahTutup, tur as turUntuk,
-  type Keadaan, type Langkah, type TurKey, type Varian,
+  akanMunculLagi, geserKe, pitaSasaran, ruangBawah, tempatKartu, tipSetelahTutup, tur as turUntuk,
+  JARAK, TEPI, type Keadaan, type Langkah, type Layar, type Petak, type TurKey, type Varian,
 } from "@/lib/tur";
 import { catatTampilTur, selesaikanTurAksi, bungkamTurAksi } from "@/app/tur/actions";
 import Miniatur from "./Miniatur";
@@ -43,8 +43,6 @@ import { BUKA_BANTUAN } from "./TombolBantuan";
  * nothing either: being helped on purpose must not push somebody toward a cap.
  */
 
-type Kotak = { top: number; left: number; width: number; height: number };
-
 /**
  * Measuring must happen before the browser paints, or the card is seen in the
  * wrong place for a frame. On the server there is nothing to measure and React
@@ -54,10 +52,6 @@ const useUkurEffect = typeof window === "undefined" ? useEffect : useLayoutEffec
 
 /** Below this, the card is a bottom sheet rather than a card beside a target. */
 const TELEPON = "(max-width: 560px)";
-/** The gutter the card and the scrolled-to target keep from the viewport edge. */
-const TEPI = 16;
-/** The gap between a target and the card describing it. */
-const JARAK = 16;
 
 export default function Tur({
   kunci,
@@ -107,7 +101,7 @@ export default function Tur({
   const [bantuan, setBantuan] = useState(bantuanAwal);
   const [tip, setTip] = useState<HleEvent | null>(null);
 
-  const [kotak, setKotak] = useState<Kotak | null>(null);
+  const [kotak, setKotak] = useState<Petak | null>(null);
   const [taruh, setTaruh] = useState<{ top: number; left: number } | null>(null);
   const akarRef = useRef<HTMLDivElement>(null);
   const kartuRef = useRef<HTMLDivElement>(null);
@@ -221,27 +215,28 @@ export default function Tur({
     }
 
     function ukur(bolehGeser: boolean) {
-      const hp = window.matchMedia(TELEPON).matches;
       const kartu = kartuRef.current;
       const tinggiKartu = kartu?.offsetHeight ?? 0;
-      const ATAS = atap();
+      const layar: Layar = {
+        lebar: window.innerWidth,
+        tinggi: window.innerHeight,
+        atap: atap(),
+        telepon: window.matchMedia(TELEPON).matches,
+      };
 
-      // THE PHONE SHEET'S ROOM (§J-14). Without it a target at the very bottom
-      // of the page can never scroll above the sheet, and the card would end up
-      // docked over the thing it is describing.
-      document.body.style.paddingBottom = hp && tinggiKartu > 0 ? `${tinggiKartu}px` : "";
+      // THE ROOM THE PAGE LENDS (§J-14). Without it a short page has no scroll
+      // left to give, a target sitting low stays where it is, and the card has
+      // nowhere to go but over the thing it is describing. Both layouts need
+      // it; only the amount differs.
+      const pinjam = ruangBawah(tinggiKartu, layar.telepon);
+      document.body.style.paddingBottom = pinjam > 0 ? `${pinjam}px` : "";
+
+      const ukuranKartu = { lebar: kartu?.offsetWidth ?? 0, tinggi: tinggiKartu };
 
       /** No target: the veil alone, and the card in the middle of it. */
       function ditengah() {
         setKotak(null);
-        setTaruh(
-          hp || !kartu
-            ? null
-            : {
-                top: Math.max(ATAS, (window.innerHeight - tinggiKartu) / 2),
-                left: Math.max(TEPI, (window.innerWidth - kartu.offsetWidth) / 2),
-              },
-        );
+        setTaruh(layar.telepon || !kartu ? null : tempatKartu(null, ukuranKartu, layar));
       }
 
       if (sasaran.jenis !== "anchor") {
@@ -257,12 +252,10 @@ export default function Tur({
         return;
       }
 
-      const bawah = hp ? window.innerHeight - tinggiKartu - TEPI : window.innerHeight - TEPI;
+      const pita = pitaSasaran(layar, tinggiKartu);
       if (bolehGeser) {
         const r = el.getBoundingClientRect();
-        let geser = 0;
-        if (r.top < ATAS) geser = r.top - ATAS;
-        else if (r.bottom > bawah) geser = Math.min(r.top - ATAS, r.bottom - bawah);
+        const geser = geserKe({ top: r.top, left: r.left, width: r.width, height: r.height }, pita);
         if (geser !== 0) {
           window.scrollBy({
             top: geser,
@@ -271,12 +264,11 @@ export default function Tur({
         }
       }
 
-      // §J-13: a target taller than the room above the sheet is highlighted by
+      // §J-13: a target taller than the room the band leaves is highlighted by
       // its first meaningful part. The step's words still describe the whole,
       // which is why narrowing the ring costs the reader nothing.
       let diukur: Element = el;
-      const ruang = bawah - ATAS;
-      if (el.getBoundingClientRect().height > ruang && el.firstElementChild) {
+      if (el.getBoundingClientRect().height > pita.bawah - pita.atas && el.firstElementChild) {
         diukur = el.firstElementChild;
       }
       const r = diukur.getBoundingClientRect();
@@ -284,35 +276,14 @@ export default function Tur({
         ditengah();
         return;
       }
-      const k: Kotak = { top: r.top, left: r.left, width: r.width, height: r.height };
+      const k: Petak = { top: r.top, left: r.left, width: r.width, height: r.height };
       setKotak(k);
 
-      if (hp || !kartu) {
+      if (layar.telepon || !kartu) {
         setTaruh(null); // the sheet is placed by the stylesheet
         return;
       }
-      // DESKTOP: BESIDE OR BELOW, NEVER OVER (§M). Below the target when it
-      // fits, above it when that does not, and beside it when neither does —
-      // which is the case a tall target makes, and the case where centring
-      // would put the card on top of the thing it is describing.
-      const lebar = kartu.offsetWidth;
-      const bawahnya = k.top + k.height + JARAK;
-      const atasnya = k.top - JARAK - tinggiKartu;
-      const muatBawah = bawahnya + tinggiKartu <= window.innerHeight - TEPI;
-      const muatAtas = atasnya >= ATAS;
-      if (muatBawah || muatAtas) {
-        const top = muatBawah ? bawahnya : atasnya;
-        const left = Math.min(Math.max(TEPI, k.left), Math.max(TEPI, window.innerWidth - lebar - TEPI));
-        setTaruh({ top, left });
-        return;
-      }
-      const kanan = k.left + k.width + JARAK;
-      const kiri = k.left - JARAK - lebar;
-      const disamping = kanan + lebar <= window.innerWidth - TEPI ? kanan : kiri >= TEPI ? kiri : null;
-      setTaruh({
-        top: Math.max(ATAS, Math.min(k.top, window.innerHeight - tinggiKartu - TEPI)),
-        left: disamping ?? Math.max(TEPI, (window.innerWidth - lebar) / 2),
-      });
+      setTaruh(tempatKartu(k, ukuranKartu, layar));
     }
 
     ukur(true);

@@ -1144,8 +1144,8 @@
       "id": "UX1-TUR-TAMPIL-01",
       "runner": "static",
       "requires": [],
-      "proves": "automatic presentation, replay and the after-closing tip agree: the pure model in the source of src/lib/tur.ts honours the database's own refusal, names both Experience exclusions rather than failing silently, decides the tip's wording from durable state, and takes the cap from the row; and the source of Tur.tsx treats skip and Escape alike, treats closing on the last step as finishing, and closes nothing on a timer",
-      "how": "the pure model in src/lib/tur.ts driven through every presentation, return and wording case, plus the closing rules read from src/components/tur/Tur.tsx"
+      "proves": "automatic presentation, replay, the after-closing tip and the card's placement agree: the pure model in the source of src/lib/tur.ts honours the database's own refusal, names both Experience exclusions rather than failing silently, decides the tip's wording from durable state, takes the cap from the row, and places the card below, above or beside its target but never over it — driven through the exact geometry a rendered measurement found it overlapping with; and the source of Tur.tsx treats skip and Escape alike, treats closing on the last step as finishing, lends the page the room the card needs and gives it back, and closes nothing on a timer",
+      "how": "the pure model driven through every presentation, return, wording and placement case, including the measured 1280x813 overlap and a control that still reproduces it under the band that caused it; the closing and page-room rules read from src/components/tur/Tur.tsx"
     },
     {
       "id": "UX1-TUR-KATA-01",
