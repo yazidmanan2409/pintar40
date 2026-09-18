@@ -2,17 +2,17 @@
 //
 // No storage, no network, no analytics. Every control is inert: wiring any
 // of it would make a sample look like a working surface, and Umpan Balik
-// Pembelajaran is not a feature, it is a proposal.
+// is not a feature, it is a proposal.
 
 import { SAMPLE, UI, CHAIN, HOME, ITEMS, UMPAN } from "./content.js";
 
 const SCREENS = [
   ["beranda", L2("Beranda", "Home")],
-  ["umpan-mulai", L2("Umpan Balik · mulai", "Feedback · start")],
-  ["umpan-pertanyaan", L2("Umpan Balik · pertanyaan", "Feedback · questions")],
-  ["umpan-terbit", L2("Umpan Balik · terbitkan", "Feedback · publish")],
-  ["umpan-hasil", L2("Umpan Balik · hasil", "Feedback · result")],
-  ["umpan-tipis", L2("Umpan Balik · tanggapan sedikit", "Feedback · few responses")],
+  ["umpan-mulai", L2("Umpan Balik Pendidik · mulai", "Educator Feedback · start")],
+  ["umpan-pertanyaan", L2("Umpan Balik Pendidik · pertanyaan", "Educator Feedback · questions")],
+  ["umpan-terbit", L2("Umpan Balik Pendidik · terbitkan", "Educator Feedback · publish")],
+  ["umpan-hasil", L2("Umpan Balik Pendidik · hasil", "Educator Feedback · result")],
+  ["umpan-tipis", L2("Umpan Balik Pendidik · tanggapan sedikit", "Educator Feedback · few responses")],
 ];
 function L2(id, en) { return { id, en }; }
 
@@ -97,6 +97,11 @@ const umpanMulai = () => [
   el("h1", { text: t(UMPAN.start.title) }),
   el("p", { class: "lede", text: t(UMPAN.start.lede) }),
   el("p", { class: "boundary", text: t(UMPAN.start.boundary) }),
+  // The direction, the unresolved escalation path, and the record-class
+  // boundary — on the page, not only in the design document.
+  el("p", { class: "boundary", id: "relationship", text: t(UMPAN.start.relationship) }),
+  el("p", { class: "boundary", id: "escalation", text: t(UMPAN.start.escalation) }),
+  el("p", { class: "boundary", id: "separate", text: t(UMPAN.start.separate) }),
   el("div", { class: "step", style: "margin-top:1.5rem" }, [
     el("div", { class: "scope" }, [
       el("b", { text: t(UMPAN.start.scopeLabel) }),

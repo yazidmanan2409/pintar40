@@ -2,8 +2,8 @@
 //
 // The adversarial axes that only a rendered page can answer: whether one
 // management decision is visually preferred to the others, whether the home
-// has become a dashboard, and whether any route to an individual student's
-// answers exists on screen.
+// has become a dashboard, whether any route to an individual response exists
+// on screen, and whether the instrument is still educator feedback.
 //
 // Run: node verify/view.mjs [--shots]
 
@@ -51,7 +51,12 @@ try {
   phase("says what it is");
   await p.goto(BASE);
   const first = await body();
-  assert(shows(first, "belum ada di PINTAR"), "the banner says the concept does not exist");
+  // R1: adopted as a concept, not authorized to build. Both halves, on the
+  // page, every screen.
+  assert(shows(first, "diterima sebagai gagasan"), "the banner says the concept is adopted");
+  assert(shows(first, "belum boleh dibangun"),
+    "the banner says it is not authorized to build");
+  assert(shows(first, "perlu ADR"), "the banner says an ADR comes first");
   assert(await p.eval(`document.querySelector('.sample') === document.body.firstElementChild`),
     "the banner is the first thing in the document");
   assert(await p.eval(`!!document.querySelector('.sample .screens')`),
@@ -119,15 +124,16 @@ try {
     for (const lang of ["id", "en"]) {
       await p.goto(at(s, lang));
       const text = await body();
-      // Nothing on any screen names a learner.
-      for (const re of [/\bsiswa ke-\d/i, /\bstudent #\d/i, /\bresponden \d/i, /\brespondent \d/i]) {
+      // Nothing on any screen names one person who answered.
+      for (const re of [/\bsiswa ke-\d/i, /\bstudent #\d/i, /\bpendidik ke-\d/i,
+                        /\beducator #\d/i, /\bresponden \d/i, /\brespondent \d/i]) {
         assert(!re.test(text), `no individual respondent is named (${s}/${lang})`, String(re));
       }
       const controls = await p.eval(
         `[...document.querySelectorAll('#view button, #view a')].map(e => e.textContent.trim())`);
       for (const c of controls) {
-        assert(!/lembar jawaban|answer sheet|per siswa|per student|buka jawaban|open answers/i.test(c),
-          `no control opens an individual answer sheet (${s}/${lang})`, c);
+        assert(!/lembar jawaban|answer sheet|per siswa|per student|per pendidik|per educator|buka jawaban|open answers/i
+          .test(c), `no control opens an individual answer sheet (${s}/${lang})`, c);
       }
     }
   }
@@ -135,6 +141,31 @@ try {
   await p.goto(at("umpan-hasil"));
   assert(shows(await body(), UMPAN.result.bounding.id),
     "the result states that individual sheets are available to nobody");
+
+  // ------------------------------------- feedback follows the relationship
+  //
+  // R2/R3 on the rendered page: the Management instrument asks educators
+  // about their own working experience. The only screen that may speak
+  // about students is the one that says where student feedback goes
+  // instead — and it must say it, in both languages.
+  phase("the Management instrument is educator feedback");
+  for (const lang of ["id", "en"]) {
+    await p.goto(at("umpan-mulai", lang));
+    const startText = await body();
+    for (const [what, pair] of [["the direction of feedback", UMPAN.start.relationship],
+                                ["the escalation path as undecided", UMPAN.start.escalation],
+                                ["the record-class boundary", UMPAN.start.separate]]) {
+      assert(shows(startText, pair[lang]), `the start screen states ${what} (${lang})`);
+    }
+    const student = lang === "id" ? /\bsiswa\b/i : /\bstudents?\b/i;
+    for (const s2 of ["umpan-pertanyaan", "umpan-terbit", "umpan-hasil", "umpan-tipis"]) {
+      await p.goto(at(s2, lang));
+      const t2 = await p.eval("document.getElementById('view').innerText");
+      assert(!student.test(t2),
+        `the feedback experience does not put students back in as respondents (${s2}/${lang})`,
+        (t2.match(student) || [""])[0]);
+    }
+  }
 
   // --------------------------------------------- the chain, on every card
   phase("the doctrine chain");
