@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 37,
+  "version": 38,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1188,6 +1188,11 @@
       "runner": "static",
       "proves": "L-2 measured rather than configured: this EXECUTES against the running Auth service and the live schema rather than reading a flag. An address nobody has provisioned asks for a sign-in link exactly as the application asks (create_user: false, the wire form of shouldCreateUser: false), and creates nothing: no auth identity, no PINTAR person, no PINTAR account. Counted BEFORE and AFTER against the live schema, both for that address and as whole-table totals over auth.users, persons and accounts, so the proof is the pair rather than an absence that was always true. The chain being protected is demonstrated in the same run as the plant: an auth.users insert still produces exactly one person and one account through on_auth_user_created -- planted inside a transaction and rolled back rather than exercised against the Auth service, because persons_no_delete means a row created for real could never be removed again, and the test asserts it left no residue. Positive control: a seeded, provisioned address is still accepted by the same endpoint, so the contract refuses strangers rather than refusing everyone",
       "skip_justification": "needs a reachable Postgres with the migrations and seeds applied AND the local Supabase Auth service (CI local stack via SUPABASE_DB_URL + NEXT_PUBLIC_SUPABASE_URL); this session's egress policy denies *.supabase.co and Docker is unavailable, so the Auth half cannot run locally. CI has both and runs it strictly"
+    },
+    {
+      "id": "L1-BERSIH-01",
+      "runner": "static",
+      "proves": "No file under src, selftest, supabase or scripts carries a literal control byte outside tab, newline and carriage return -- read as BYTES from the source tree rather than as text. This exists because this patch introduced exactly that defect and the suite went green anyway: src/lib/tujuan.ts, the L-1 destination helper, was written with a NUL, a 0x1F and a 0x7F spelled as real bytes inside the very character class that exists to refuse them. The regex still functioned, every behavioural case in L1-TUJUAN-01 still passed, and the only symptom was that git classified a security-critical source file as binary and would not diff it -- so the helper had become unreviewable while reading green. A byte a reviewer cannot see is not reviewed, and a test that exercises behaviour cannot detect it, so this one inspects the file contents directly"
     }
   ]
 }

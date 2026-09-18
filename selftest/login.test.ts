@@ -103,6 +103,62 @@ function psql(sql: string): string {
 export const loginTests: SelfTest[] = [
   {
     // =======================================================================
+    // L1-BERSIH-01 — THE SOURCE SAYS WHAT IT MEANS.
+    //
+    // Added because this patch introduced exactly this defect and the suite
+    // went GREEN anyway. `src/lib/tujuan.ts` was written with the control
+    // characters it exists to refuse spelled as real bytes rather than as
+    // escapes: a NUL, a 0x1F and a 0x7F sat in the regex literal. The regex
+    // still worked, every behavioural case still passed, and the only visible
+    // symptom was that git called the file binary and would not diff it -- so
+    // a security helper had become unreviewable while reading green.
+    //
+    // A stray control byte in source is therefore its own finding: it is
+    // invisible to a reader, it defeats review, and a test that exercises
+    // behaviour cannot see it. This is the check that can.
+    // =======================================================================
+    id: "L1-BERSIH-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const EXT = /\.(?:ts|tsx|sql|json|css|mjs|js|ya?ml|md)$/;
+      // Everything except TAB (9), LF (10) and CR (13), which are legitimate
+      // whitespace in a source file.
+      const allowed = new Set([9, 10, 13]);
+      const offenders: string[] = [];
+      let scanned = 0;
+      const walk = (dir: string) => {
+        for (const e of readdirSync(dir, { withFileTypes: true })) {
+          if (e.name === "node_modules" || e.name === ".git" || e.name === ".next") continue;
+          const q = join(dir, e.name);
+          if (e.isDirectory()) { walk(q); continue; }
+          if (!EXT.test(q)) continue;
+          scanned += 1;
+          const bytes = readFileSync(q);
+          const hits = new Set<number>();
+          for (const b of bytes) if ((b < 32 && !allowed.has(b)) || b === 127) hits.add(b);
+          if (hits.size) {
+            offenders.push(`${q.slice(ctx.repoRoot.length + 1)}: ${[...hits].map((b) => `0x${b.toString(16).padStart(2, "0")}`).join(", ")}`);
+          }
+        }
+      };
+      for (const d of ["src", "selftest", "supabase", "scripts"]) {
+        const full = join(ctx.repoRoot, d);
+        if (existsSync(full)) walk(full);
+      }
+      c.expect(scanned > 100, `only ${scanned} source file(s) scanned; the sweep is not reaching the tree`);
+      c.expect(
+        offenders.length === 0,
+        "source file(s) carrying a literal control byte, which git treats as binary and a reader cannot see:\n  " +
+          offenders.join("\n  "),
+      );
+      c.note(`${scanned} file(s) scanned across src, selftest, supabase and scripts`);
+      return c.verdict(
+        "no file under src, selftest, supabase or scripts carries a literal control byte outside tab, newline and carriage return. This exists because the L-1 helper was written with a NUL, a 0x1F and a 0x7F spelled as real bytes inside the very regex that refuses them: the regex still functioned, every behavioural case still passed, and the only symptom was that git called a security-critical file binary and refused to diff it. A byte a reviewer cannot see is not reviewed, and no test of behaviour can catch that -- so this one reads bytes",
+      );
+    },
+  },
+  {
+    // =======================================================================
     // L1-TUJUAN-01 — POST-AUTH REDIRECTION STAYS ON THIS ORIGIN.
     //
     // Behaviour, not source text. The shipped helper is IMPORTED and CALLED
@@ -324,7 +380,7 @@ export const loginTests: SelfTest[] = [
         headers: { apikey: ctx.supabaseAnonKey!, "content-type": "application/json" },
         body: JSON.stringify({ email: tidakDikenal, create_user: false }),
       });
-      const otpBody = await otp.text();
+      const otpBody = (await otp.text()).slice(0, 300);
 
       const after = hitung();
       c.expect(after.authUsers === "0", `an auth identity was created for an unknown address (${after.authUsers})`);
@@ -333,7 +389,13 @@ export const loginTests: SelfTest[] = [
       c.expect(after.allUsers === before.allUsers, `auth.users grew ${before.allUsers} -> ${after.allUsers}`);
       c.expect(after.allPersons === before.allPersons, `persons grew ${before.allPersons} -> ${after.allPersons}`);
       c.expect(after.allAccounts === before.allAccounts, `accounts grew ${before.allAccounts} -> ${after.allAccounts}`);
-      c.expect(!/^2/.test(String(otp.status)) || !/user/i.test(otpBody) || true, "");
+      // The Auth service's own status and body are RECORDED, not asserted on.
+      // Whether GoTrue distinguishes a known address from an unknown one is
+      // Supabase's behaviour, not PINTAR's contract, and a test that failed on
+      // its wording would go red for something that is not this product's
+      // defect. What PINTAR owes -- that the difference is folded into one
+      // neutral outcome before it reaches a browser -- is L2-KONTRAK-01's, and
+      // it is asserted there over the shipped action.
 
       // THE PLANT, and it is the reason this test is worth running: with
       // creation left at the Supabase default, the same address DOES become an
@@ -372,7 +434,10 @@ export const loginTests: SelfTest[] = [
         c.expect(ok.status < 400, `a provisioned address was refused a sign-in link (${ok.status}); the contract refuses everyone, not just strangers`);
       }
 
-      c.note(`unknown address ${otp.status}, provisioned address accepted, auth.users steady at ${after.allUsers}`);
+      c.note(
+        `unknown address -> ${otp.status} ${JSON.stringify(otpBody.slice(0, 80))}, ` +
+        `provisioned address accepted, auth.users steady at ${after.allUsers}`,
+      );
       return c.verdict(
         "an unknown address asks the running Auth service for a sign-in link exactly as the application asks, and creates nothing: no auth identity, no PINTAR person, no PINTAR account -- counted before and after, both for that address and across the three tables as a whole, so the proof is the PAIR rather than an absence that was always true. The chain it is protecting is demonstrated in the same run: an auth.users insert still produces a person and an account through on_auth_user_created, planted and rolled back rather than exercised against the Auth service, because persons_no_delete means a row created for real could never be removed. And the positive control holds -- a provisioned address is still served by the same endpoint, so the contract refuses strangers rather than refusing everyone",
       );
