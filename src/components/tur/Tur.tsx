@@ -196,10 +196,31 @@ export default function Tur({
   useUkurEffect(() => {
     if (!aktif) return;
 
+    /**
+     * THE CEILING (§J-11). Evaluation Mode's banner sits above the Experience
+     * shell and cannot be dismissed, because its presence is a property of the
+     * session rather than of any client state (ADR-0020). The tour card must
+     * not cover it.
+     *
+     * It is found by position rather than by a marker: the banner is a closed
+     * surface this work may not touch, and it is the only thing that ever
+     * renders above the shell's header. Once the page scrolls past it the
+     * ceiling goes back to the ordinary gutter, because there is nothing left
+     * on screen to keep clear of.
+     */
+    function atap(): number {
+      const kepala = document.querySelector("header.pin-top");
+      const diatas = kepala?.previousElementSibling;
+      if (!diatas) return TEPI;
+      const r = diatas.getBoundingClientRect();
+      return r.height > 0 && r.bottom > 0 ? Math.max(TEPI, r.bottom + JARAK) : TEPI;
+    }
+
     function ukur(bolehGeser: boolean) {
       const hp = window.matchMedia(TELEPON).matches;
       const kartu = kartuRef.current;
       const tinggiKartu = kartu?.offsetHeight ?? 0;
+      const ATAS = atap();
 
       // THE PHONE SHEET'S ROOM (§J-14). Without it a target at the very bottom
       // of the page can never scroll above the sheet, and the card would end up
@@ -213,7 +234,7 @@ export default function Tur({
           hp || !kartu
             ? null
             : {
-                top: Math.max(TEPI, (window.innerHeight - tinggiKartu) / 2),
+                top: Math.max(ATAS, (window.innerHeight - tinggiKartu) / 2),
                 left: Math.max(TEPI, (window.innerWidth - kartu.offsetWidth) / 2),
               },
         );
@@ -236,8 +257,8 @@ export default function Tur({
       if (bolehGeser) {
         const r = el.getBoundingClientRect();
         let geser = 0;
-        if (r.top < TEPI) geser = r.top - TEPI;
-        else if (r.bottom > bawah) geser = Math.min(r.top - TEPI, r.bottom - bawah);
+        if (r.top < ATAS) geser = r.top - ATAS;
+        else if (r.bottom > bawah) geser = Math.min(r.top - ATAS, r.bottom - bawah);
         if (geser !== 0) {
           window.scrollBy({
             top: geser,
@@ -250,7 +271,7 @@ export default function Tur({
       // its first meaningful part. The step's words still describe the whole,
       // which is why narrowing the ring costs the reader nothing.
       let diukur: Element = el;
-      const ruang = bawah - TEPI;
+      const ruang = bawah - ATAS;
       if (el.getBoundingClientRect().height > ruang && el.firstElementChild) {
         diukur = el.firstElementChild;
       }
@@ -274,7 +295,7 @@ export default function Tur({
       const bawahnya = k.top + k.height + JARAK;
       const atasnya = k.top - JARAK - tinggiKartu;
       const muatBawah = bawahnya + tinggiKartu <= window.innerHeight - TEPI;
-      const muatAtas = atasnya >= TEPI;
+      const muatAtas = atasnya >= ATAS;
       if (muatBawah || muatAtas) {
         const top = muatBawah ? bawahnya : atasnya;
         const left = Math.min(Math.max(TEPI, k.left), Math.max(TEPI, window.innerWidth - lebar - TEPI));
@@ -285,7 +306,7 @@ export default function Tur({
       const kiri = k.left - JARAK - lebar;
       const disamping = kanan + lebar <= window.innerWidth - TEPI ? kanan : kiri >= TEPI ? kiri : null;
       setTaruh({
-        top: Math.max(TEPI, Math.min(k.top, window.innerHeight - tinggiKartu - TEPI)),
+        top: Math.max(ATAS, Math.min(k.top, window.innerHeight - tinggiKartu - TEPI)),
         left: disamping ?? Math.max(TEPI, (window.innerWidth - lebar) / 2),
       });
     }

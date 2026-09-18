@@ -3323,7 +3323,25 @@ export const experienceTests: SelfTest[] = [
       c.expect(/document\.body\.style\.paddingBottom = ""/.test(turSrc),
         "the room the phone sheet borrows at the bottom of the page is never returned");
 
-      // 6. NOTHING ANIMATES MEANING, and the one movement there is respects the
+      // 6. THE CARD NEVER COVERS EVALUATION MODE'S BANNER (§J-11). The banner
+      //    is a property of the session and cannot be dismissed (ADR-0020), so
+      //    a card placed over it would be hiding the one thing that says who
+      //    the reader is currently acting as. It is a closed surface this work
+      //    may not mark, so the ceiling is found by position — and the check
+      //    confirms the assumption that makes that work: the banner really is
+      //    rendered above the Experience shell, in the root layout.
+      c.expect(/function atap\(\)/.test(turSrc), "the tour card has no ceiling to keep clear of");
+      c.expect(/header\.pin-top"\);[\s\S]{0,120}previousElementSibling/.test(turSrc),
+        "the ceiling is not taken from whatever renders above the Experience shell");
+      const layout = code(readFileSync(join(repoRoot, "src", "app", "layout.tsx"), "utf8"));
+      const urutanLayout = layout.indexOf("<EvaluationBanner />") < layout.indexOf("{children}");
+      c.expect(layout.includes("<EvaluationBanner />") && urutanLayout,
+        "the evaluation banner no longer renders above the page, so the ceiling looks at the wrong element");
+      const banner = code(readFileSync(join(repoRoot, "src", "app", "_evaluation-banner.tsx"), "utf8"));
+      c.expect(!/position:\s*fixed|\bfixed\b/.test(banner),
+        "the evaluation banner is now fixed, and a ceiling measured from the flow would be wrong");
+
+      // 7. NOTHING ANIMATES MEANING, and the one movement there is respects the
       //    reader's own setting.
       c.expect(!/transition:|animation:/.test(blok), "something in the guidance surface animates");
       c.expect(/prefers-reduced-motion: reduce/.test(turSrc),
@@ -3336,7 +3354,9 @@ export const experienceTests: SelfTest[] = [
         "no other rule, no status colour appears anywhere inside instruction — the sweep watched on a plant — the " +
         "tip carries none of the mode at all, the highlight is a cut-out with the approved 3px white gap and 2px " +
         "primary ring over the ruled composite veil, the phone sheet is capped and scrolls with its buttons pinned " +
-        "and gives back the room it borrows, and nothing animates",
+        "and gives back the room it borrows, the card keeps clear of whatever renders above the Experience shell so " +
+        "it cannot cover Evaluation Mode's non-dismissible banner — with the layout and the banner both read to " +
+        "confirm the assumption that makes that ceiling correct — and nothing animates",
       );
     },
   },
