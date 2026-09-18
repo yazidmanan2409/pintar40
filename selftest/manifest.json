@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 39,
+  "version": 40,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1193,6 +1193,41 @@
       "id": "L1-BERSIH-01",
       "runner": "static",
       "proves": "No file under src, selftest, supabase or scripts carries a literal control byte outside tab, newline and carriage return -- read as BYTES from the source tree rather than as text. This exists because this patch introduced exactly that defect and the suite went green anyway: src/lib/tujuan.ts, the L-1 destination helper, was written with a NUL, a 0x1F and a 0x7F spelled as real bytes inside the very character class that exists to refuse them. The regex still functioned, every behavioural case in L1-TUJUAN-01 still passed, and the only symptom was that git classified a security-critical source file as binary and would not diff it -- so the helper had become unreviewable while reading green. A byte a reviewer cannot see is not reviewed, and a test that exercises behaviour cannot detect it, so this one inspects the file contents directly"
+    },
+    {
+      "id": "UX1-MASUK-KONTRAK-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the sign-in screen's source offers exactly the two doors the authentication contract has and not one more — no password field, registration, recovery, social sign-in, SSO, passkey, institution or role picker, or remember-me; ?peran= is neither branched on nor rendered for a persona and never survives the authentication boundary; L-2's shouldCreateUser:false is intact with its privacy fold ordered ahead of the rate-limit branch; and the held-resend state is driven by the authentication layer's own error code with no timer, countdown or cooldown in the surface",
+      "how": "src/app/masuk/*, src/app/auth/callback/*, src/components/masuk/* read as source; a planted password field and a planted signUp call watched to be caught"
+    },
+    {
+      "id": "UX1-MASUK-PRIVASI-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "no surface of the sign-in screen distinguishes an unknown address from a sent link, or a bad card number from a bad PIN: the send action's source reports an unregistered address as the ordinary outcome and its outcome type has no name for one, the copy table's confirmation is conditional in both languages and echoes no address, the card action collapses every refusal to one value, both card fields carry aria-invalid against one shared message id in the rendered source, and the already-signed-in surface names nobody",
+      "how": "src/app/masuk/actions.ts and src/components/masuk/LayarMasuk.tsx as source, plus the copy table; a field losing its invalid marking is watched"
+    },
+    {
+      "id": "UX1-MASUK-TUJUAN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the frozen destination helper src/lib/tujuan.ts is verified byte-for-byte unchanged by sha256; the post-authentication destination supplies the role's home as that helper's OWN fallback parameter rather than deciding after it; no surface tells a person their destination was refused; the ask-for-a-new-link control carries no destination, as ruling D1 requires; and the role-home map in src/lib/beranda.ts sends every role in the schema to a route that exists while naming no authorization primitive",
+      "how": "a digest over the frozen helper, the source of both sign-in actions and the callback surfaces, and the pure role-home map driven over every role"
+    },
+    {
+      "id": "UX1-MASUK-AKSES-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the rendered source of the sign-in components holds fields readonly and never disabled in flight, marks busy controls, makes the PIN reveal a labelled pressed-state toggle that no timer undoes — the surface runs no timer at all — declares every focus destination in one named set, deliberately moves focus nowhere when a resend is held, builds every control from a native element with no positive tabindex, makes the exchanging surface a polite live region that takes focus, and stops both moving things under reduced motion",
+      "how": "src/components/masuk/*.tsx and the sign-in block of src/app/experience.css, read as source"
+    },
+    {
+      "id": "UX1-MASUK-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the sign-in copy lives only in the copy table src/lib/hle.ts: every key the rendered surfaces reference is declared and carries both languages, no surface hard-codes a user-visible string, the three load-bearing strings match the canonical handoff byte for byte, the card route and the card submit no longer share an Indonesian label, no sign-in string carries a persona override, and nothing in either language is informal or names the machinery",
+      "how": "the copy table swept against the keys the sign-in surfaces reference; an edited conditional is watched to be refused"
     }
   ]
 }

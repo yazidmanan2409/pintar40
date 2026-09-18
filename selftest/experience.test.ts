@@ -33,6 +33,11 @@
  *   UX1-TUR-KATA-01        the tour's copy is the approved copy, complete and clean
  *   UX1-TUR-AKSES-01       the tour is a dialog a keyboard and a reader can use
  *   UX1-TUR-TUNTUN-01      Guidance Mode is two states, and never a status
+ *   UX1-MASUK-KONTRAK-01   the sign-in screen offers the two doors that exist
+ *   UX1-MASUK-PRIVASI-01   nothing distinguishes an unknown address or a bad field
+ *   UX1-MASUK-TUJUAN-01    the destination contract is frozen; D1 drops the stale one
+ *   UX1-MASUK-AKSES-01     the sign-in screen works by keyboard and screen reader
+ *   UX1-MASUK-KATA-01      the sign-in copy is the approved copy, and only in HLE
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -42,6 +47,7 @@ import { Checks, type SelfTest } from "./lib";
 import { allKeys, telling, renderAll, t, LOCALES, type HleEvent } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
+import { berandaPeran } from "../src/lib/beranda";
 import {
   tur, varianBelajar, bolehTampilOtomatis, akanMunculLagi, tipSetelahTutup,
   peranAktif, turPengajarBerlaku, pitaSasaran, geserKe, ruangBawah, tempatKartu, bertumpuk,
@@ -72,6 +78,14 @@ function code(text: string): string {
 // these, which are ordinary words that happen to end that way. Declared rather
 // than guessed, so a false positive is fixed by adding a word here and is
 // visible in the diff when somebody does.
+/**
+ * Bob's destination helper, as it was frozen at bff6897e. The login work passes
+ * a different FALLBACK to it and changes nothing about what it accepts, so the
+ * file itself must not move: a login change that needed the security contract
+ * altered would be a login change that had gone wrong.
+ */
+const TUJUAN_SHA = "443de2c68bc70a4297adfe43c968955bea222d8cf26243baf9db5d702424d5fc";
+
 const NOT_A_CLITIC = ["ilmu", "jamu", "tamu", "semu", "temu", "ramu"];
 const STANDALONE = ["kamu", "kau", "engkau", "dikau", "dirimu", "kalian"];
 const WORD = /\b[a-z]+\b/gi;
@@ -3521,6 +3535,420 @@ export const experienceTests: SelfTest[] = [
         "and gives back the room it borrows, the card keeps clear of whatever renders above the Experience shell so " +
         "it cannot cover Evaluation Mode's non-dismissible banner — with the layout and the banner both read to " +
         "confirm the assumption that makes that ceiling correct — and nothing animates",
+      );
+    },
+  },
+
+  // ════════════════════════════════════════════ UX-1 · THE SIGN-IN SCREEN
+  {
+    id: "UX1-MASUK-KONTRAK-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const files = [
+        "src/app/masuk/page.tsx", "src/app/masuk/actions.ts",
+        "src/app/auth/callback/page.tsx", "src/app/auth/callback/actions.ts",
+        ...walk(join(repoRoot, "src", "components", "masuk")).map((f) => relative(repoRoot, f).replace(/\\/g, "/")),
+      ].filter((f) => /\.tsx?$/.test(f));
+      c.expect(files.length >= 8, `only ${files.length} sign-in file(s) found`);
+
+      // 1. THE SCREEN OFFERS THE TWO DOORS THAT EXIST AND NOT ONE MORE. A
+      //    sign-in screen that offers a door which is not there is worse than
+      //    one that offers fewer doors: the person tries it, it fails, and they
+      //    conclude the system is broken rather than that they misread it.
+      const TIDAK_ADA: Array<[RegExp, string]> = [
+        [/type=["']password["']/, "a password field"],
+        [/signUp|resetPasswordForEmail|updateUser\(/, "registration or password recovery"],
+        [/signInWithOAuth|\bgoogle\b|\bmicrosoft\b|\bapple\b|\boauth\b/i, "social sign-in"],
+        [/\bsso\b|\bsaml\b|webauthn|passkey/i, "SSO or a passkey"],
+        [/ingat.?saya|remember.?me/i, "a remember-me control"],
+        [/pilih.?institusi|institution.?select|pilih.?peran|role.?select/i, "an institution or role picker"],
+      ];
+      for (const f of files) {
+        // The PIN is the one masked field, and it is a transcription from a
+        // card rather than a password somebody chose.
+        const src = code(readFileSync(join(repoRoot, f), "utf8"))
+          .replace(/type=\{pinTampil \? "text" : "password"\}/g, " ");
+        for (const [re, apa] of TIDAK_ADA) {
+          const m = re.exec(src);
+          c.expect(m === null, `${f} offers ${apa}: ${m?.[0]}`);
+        }
+      }
+      c.expect(TIDAK_ADA.some(([re]) => re.test('<input type="password" name="sandi" />')),
+        "the absent-door sweep does not catch a password field");
+      c.expect(TIDAK_ADA.some(([re]) => re.test("await supabase.auth.signUp({ email });")),
+        "the absent-door sweep does not catch a registration call");
+
+      // 2. `?peran=` IS CARRIED, NOT CONSUMED. The sign-in screen has not met
+      //    anyone yet and must not pretend it has, so it selects no wording
+      //    from the parameter and no copy key carries a persona override.
+      const page = code(readFileSync(join(repoRoot, "src", "app", "masuk", "page.tsx"), "utf8"));
+      c.expect(!/sp\.peran\s*===/.test(page), "the sign-in screen branches on ?peran=");
+      c.expect(!/persona\s*[:=]/.test(page), "the sign-in screen derives a persona from the query string");
+      for (const f of files) {
+        const src = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/t\(\s*"auth\.[a-z_]+"\s*,\s*(?!"public")/.test(src),
+          `${f} renders sign-in copy for a persona the screen has not met`);
+      }
+      // …and it does not survive authentication: nothing in the sign-in or
+      // callback path writes it into a destination.
+      for (const f of files) {
+        const src = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/peran=\$\{|peran=["'`]\s*\+|set\(["']peran/.test(src),
+          `${f} carries ?peran= past the authentication boundary`);
+      }
+
+      // 3. L-2 IS INTACT, AND ITS PRIVACY FOLD STILL COMES FIRST. The order
+      //    matters: an address nobody has must be reported as sent even when
+      //    it is also being throttled, or the throttle becomes the oracle.
+      const aksi = code(readFileSync(join(repoRoot, "src", "app", "masuk", "actions.ts"), "utf8"));
+      c.expect(/shouldCreateUser:\s*false/.test(aksi), "an unknown address can create an identity again");
+      const iFold = aksi.indexOf("tidakTerdaftar(error)");
+      const iRate = aksi.indexOf("terlaluSering(error)");
+      c.expect(iFold > 0 && iRate > 0 && iFold < iRate,
+        "the rate-limit branch is reached before the privacy fold, so a throttle can distinguish a known address");
+
+      // 4. NO TIMER, NO COUNTDOWN, NO COOLDOWN POLICY. S6 is driven by the
+      //    authentication layer's own condition or it is not reachable at all.
+      for (const f of files) {
+        const src = code(readFileSync(join(repoRoot, f), "utf8"));
+        const m = /setInterval|countdown|hitung.?mundur|cooldown|jeda.?detik|\bdetik\b/i.exec(src);
+        c.expect(m === null, `${f} invents a resend policy: ${m?.[0]}`);
+      }
+      c.expect(/over_email_send_rate_limit|over_request_rate_limit/.test(aksi),
+        "the held-resend state is not driven by the layer's own rate-limit condition");
+
+      c.note(`${files.length} sign-in file(s), ${TIDAK_ADA.length} absent door(s), 2 plants caught`);
+      return c.verdict(
+        "the sign-in screen offers exactly the two doors the contract has: no password field, no registration, no " +
+        "recovery, no social sign-in, no SSO, no passkey, no institution or role picker and no remember-me appear " +
+        "in any of its source files — both sweeps watched on plants — `?peran=` is neither branched on nor rendered " +
+        "for a persona the screen has not met and never survives the authentication boundary, L-2's " +
+        "shouldCreateUser:false is intact with its privacy fold still ordered ahead of the rate-limit branch, and " +
+        "the held-resend state is driven by the authentication layer's own condition with no timer, countdown or " +
+        "cooldown anywhere in the surface",
+      );
+    },
+  },
+
+  {
+    id: "UX1-MASUK-PRIVASI-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const aksi = code(readFileSync(join(repoRoot, "src", "app", "masuk", "actions.ts"), "utf8"));
+      const layar = code(readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8"));
+
+      // 1. AN UNKNOWN ADDRESS PRODUCES THE SENT SCREEN, NOT AN ERROR.
+      c.expect(/if \(!error \|\| tidakTerdaftar\(error\)\) return "terkirim";/.test(aksi),
+        "an address nobody has no longer produces the ordinary outcome");
+      c.expect(!/exists|terdaftar\?|cek.?email|lookup/i.test(aksi.replace(/tidakTerdaftar/g, "")),
+        "the send path asks whether an address exists before sending, which rebuilds the oracle a round-trip earlier");
+      // There is no outcome that means "no such account".
+      const hasil = /export type HasilKirim = ([^;]+);/.exec(aksi)?.[1] ?? "";
+      c.expect(/terkirim/.test(hasil) && !/tidak.?ada|unknown|not.?found/i.test(hasil),
+        `the send outcome set names an unknown address: ${hasil}`);
+
+      // 2. THE CONFIRMATION IS CONDITIONAL, IN BOTH LANGUAGES. This is the
+      //    account-enumeration protection and it costs one word.
+      c.expect(/^Jika alamat itu terhubung/.test(t("auth.link_sent", "public", { locale: "id" })),
+        "the Indonesian confirmation no longer opens with the conditional");
+      c.expect(/^If that address is linked/.test(t("auth.link_sent", "public", { locale: "en" })),
+        "the English confirmation no longer opens with the conditional");
+      for (const loc of LOCALES) {
+        const s = t("auth.link_sent", "public", { locale: loc });
+        c.expect(!/@/.test(s), `the confirmation echoes an address back in ${loc}`);
+      }
+
+      // 3. ONE FAILURE FOR EVERY CARD REFUSAL, on screen AND in the
+      //    accessibility tree. Marking only the PIN invalid tells a
+      //    screen-reader user the card number was accepted — precisely the
+      //    fact the visible copy is written to withhold.
+      c.expect(/if \(error\) return "gagal";/.test(aksi), "the card path no longer collapses every refusal to one value");
+      const invalid = [...layar.matchAll(/aria-invalid=\{layar\.salah \? "true" : undefined\}/g)].length;
+      c.expect(invalid === 2, `${invalid} card field(s) marked invalid; both must be, or the tree names the wrong one`);
+      const described = [...layar.matchAll(/aria-describedby=\{layar\.salah \? "kartu-err" : undefined\}/g)].length;
+      c.expect(described === 2, `${described} card field(s) point at the shared message; both must`);
+      c.expect((layar.match(/id="kartu-err"/g) ?? []).length === 1, "there is not exactly one card message to point at");
+      for (const loc of LOCALES) {
+        const s = t("auth.card_failed", "public", { locale: loc });
+        c.expect(!/PIN|nomor kartu|card number/i.test(s) || /dan|and/.test(s),
+          `the card failure names one credential in ${loc}: "${s}"`);
+      }
+      // "belum" is NOT YET, not wrong: the card may be fine and the PIN
+      // mistyped, and the screen does not know which.
+      c.expect(/^Belum cocok\./.test(t("auth.card_failed", "public", { locale: "id" })),
+        "the card failure no longer opens with `Belum`, which is what makes it a not-yet rather than an accusation");
+
+      // 4. THE SCREEN DOES NOT NAME A SIGNED-IN PERSON (S15). A shared device
+      //    shows that surface to whoever is holding it.
+      const page = code(readFileSync(join(repoRoot, "src", "app", "masuk", "page.tsx"), "utf8"));
+      c.expect(!/displayName|viewer\.nama|\bnama\b/.test(page),
+        "the already-signed-in surface names the person, disclosing them to the next person in the queue");
+      c.expect(/viewer \?/.test(page), "the sign-in screen no longer detects an existing session");
+
+      // ADVERSARIAL PLANTS.
+      c.expect(!/if \(!error\) return "terkirim";\s*$/m.test(aksi),
+        "the send path reports an unknown address as a failure");
+      const ditanam = layar.replace(/aria-invalid=\{layar\.salah \? "true" : undefined\}/, "PLANTED");
+      c.expect([...ditanam.matchAll(/aria-invalid=\{layar\.salah \? "true" : undefined\}/g)].length === 1,
+        "the both-fields-invalid count does not notice a field losing its marking");
+
+      c.note("4 privacy propert(ies), 2 language(s), 2 plants");
+      return c.verdict(
+        "nothing on the sign-in screen distinguishes an unknown address from a sent link, or a bad card number from " +
+        "a bad PIN: the send path reports an unregistered address as the ordinary outcome and asks no question " +
+        "beforehand that would rebuild the oracle, its outcome set has no name for `no such account`, the " +
+        "confirmation is conditional in both languages and echoes no address back, every card refusal collapses to " +
+        "one value with BOTH fields marked invalid against ONE message — watched on a plant — the failure copy " +
+        "accuses neither credential, and the already-signed-in surface names nobody",
+      );
+    },
+  },
+
+  {
+    id: "UX1-MASUK-TUJUAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      // 1. BOB'S HELPER IS UNTOUCHED. The login work passes a different
+      //    fallback; it does not change what the contract accepts.
+      const helper = readFileSync(join(repoRoot, "src", "lib", "tujuan.ts"), "utf8");
+      const digest = createHash("sha256").update(helper).digest("hex");
+      c.expect(digest === TUJUAN_SHA,
+        `src/lib/tujuan.ts changed (${digest.slice(0, 16)}…). The destination contract is frozen input; ` +
+        "a login change that needed it altered would be a login change that had gone wrong");
+      c.expect(/fallback = "\/"/.test(helper), "the helper no longer takes a caller-supplied fallback");
+
+      // 2. THE FALLBACK IS THE ROLE'S HOME (§7.3), and it is passed as the
+      //    helper's own parameter rather than decided after it.
+      const aksi = code(readFileSync(join(repoRoot, "src", "app", "masuk", "actions.ts"), "utf8"));
+      c.expect(/tujuanInternal\(raw, berandaPeran\(viewer\?\.displayRole \?\? null\)\)/.test(aksi),
+        "the post-authentication destination does not fall back to the role's home through the helper's own parameter");
+      // A refused destination is not an error the person never chose.
+      for (const f of ["src/app/masuk/actions.ts", "src/app/auth/callback/page.tsx", "src/components/masuk/TukarTautan.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/tujuan.*(gagal|ditolak|invalid)|destination.*(refused|not permitted)/i.test(src),
+          `${f} tells the person their destination was refused`);
+      }
+
+      // 3. D1 — A FRESH LINK DOES NOT INHERIT THE EXPIRED ONE'S DESTINATION.
+      const tukar = code(readFileSync(join(repoRoot, "src", "components", "masuk", "TukarTautan.tsx"), "utf8"));
+      const tombol = /href="([^"]*)"/.exec(tukar)?.[1];
+      c.expect(tombol === "/masuk",
+        `the ask-for-a-new-link control goes to "${tombol}"; it must carry no destination across a failed exchange`);
+      c.expect(!/lanjut=\$\{lanjut\}|lanjut=\$\{/.test(tukar),
+        "the ask-for-a-new-link control carries the stale destination forward");
+
+      // 4. THE ROLE HOME ITSELF, and it names only routes that exist.
+      const TABEL: Array<[Parameters<typeof berandaPeran>[0], string]> = [
+        ["STUDENT", "/belajar"],
+        ["EDUCATOR", "/mengajar"],
+        ["INSTITUTION_ADMIN", "/konfigurasi"],
+        ["SYSTEM_ADMIN", "/konfigurasi"],
+        ["HEAD_OF_DEPARTMENT", "/"],
+        ["DEAN", "/"],
+        [null, "/"],
+      ];
+      for (const [peran, rumah] of TABEL) {
+        c.expect(berandaPeran(peran) === rumah,
+          `${peran ?? "no role"} is sent to ${berandaPeran(peran)} rather than ${rumah}`);
+      }
+      for (const [, rumah] of TABEL) {
+        const ada = rumah === "/"
+          || existsSync(join(repoRoot, "src", "app", rumah.slice(1), "page.tsx"));
+        c.expect(ada, `the role home ${rumah} is not a route that exists`);
+      }
+      // It decides a door, never an authority.
+      const beranda = code(readFileSync(join(repoRoot, "src", "lib", "beranda.ts"), "utf8"));
+      c.expect(!/can_on_node|has_scope|capability|rpc\(/.test(beranda),
+        "the role-home map reaches for an authorization primitive");
+
+      c.note(`helper digest verified, ${TABEL.length} role(s) mapped, all to routes that exist`);
+      return c.verdict(
+        "the destination contract is frozen input and is verified byte-for-byte unchanged by digest; the login work " +
+        "supplies the role's home as the helper's OWN fallback parameter rather than deciding anything after it; a " +
+        "refused destination is never surfaced as an error about a thing the person did not choose; a link asked for " +
+        "after an expired one carries no destination at all, as D1 rules; and the role-home map sends every role in " +
+        "the schema to a route that exists while reaching for no authorization primitive",
+      );
+    },
+  },
+
+  {
+    id: "UX1-MASUK-AKSES-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const dir = join(repoRoot, "src", "components", "masuk");
+      const layar = code(readFileSync(join(dir, "LayarMasuk.tsx"), "utf8"));
+      const tukar = code(readFileSync(join(dir, "TukarTautan.tsx"), "utf8"));
+      const semua = walk(dir).filter((f) => /\.tsx$/.test(f));
+
+      // 1. IN FLIGHT, FIELDS ARE READONLY AND NEVER DISABLED. A disabled field
+      //    drops out of the accessibility tree and out of tab order mid-flight,
+      //    and the address on screen must still be the address the link went to.
+      c.expect(/readOnly=\{layar\.sibuk\}/.test(layar), "no field is held readonly while a request is in flight");
+      c.expect(!/disabled=\{layar\.sibuk\}\s*\n?\s*(?:type|inputMode|autoComplete)/.test(layar),
+        "a field is disabled rather than readonly in flight");
+      c.expect(/aria-busy=\{layar\.sibuk \? "true" : undefined\}/.test(layar), "a busy control does not say so");
+
+      // 2. THE REVEAL IS A LABELLED TOGGLE, and nothing re-masks it.
+      c.expect(/aria-pressed=\{pinTampil\}/.test(layar), "the reveal control is not a pressed-state toggle");
+      c.expect(/aria-label=\{s\(pinTampil \? "auth\.card_hide" : "auth\.card_show"\)\}/.test(layar),
+        "the reveal control does not swap its label with its state");
+      const timers = [...layar.matchAll(/setTimeout\(([^;]*?)\)/g)].map((m) => m[0]);
+      c.expect(timers.length === 0,
+        `the sign-in surface runs a timer: ${timers.join("; ")} — a PIN that re-hides itself while a child is ` +
+        "comparing it against a printed card is a small cruelty");
+
+      // 3. FOCUS DESTINATIONS ARE DECLARED IN ONE PLACE, not scattered.
+      c.expect(/type Fokus = "judul" \| "email" \| "kirim" \| "kartu" \| null;/.test(layar),
+        "the focus destinations are not declared as one set");
+      for (const [dari, ke] of [["bentuk", "email"], ["kirim", "kirim"]] as const) {
+        c.expect(new RegExp(`salah: "${dari}"[\\s\\S]{0,80}pindahFokus\\("${ke}"\\)`).test(layar),
+          `the ${dari} error does not send focus to ${ke}`);
+      }
+      c.expect(/setLayar\(\{ k: "terkirim" \}\);\s*\n\s*pindahFokus\("judul"\);/.test(layar),
+        "the sent surface does not move focus to its heading");
+      c.expect(/pindahFokus\("kartu"\)/.test(layar), "the card surface never sends focus to the first field");
+      // S6 must NOT move focus, and neither must a re-enable.
+      const tahan = /if \(hasil === "ditahan" && ulang\) \{[\s\S]*?\n    \}/.exec(layar)?.[0] ?? "";
+      c.expect(tahan.length > 0 && !/pindahFokus/.test(tahan),
+        "the held-resend state moves focus, which a person did not ask for and cannot explain");
+
+      // 4. NO POSITIVE TABINDEX, AND EVERY CONTROL IS NATIVE.
+      for (const f of semua) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const src = code(readFileSync(f, "utf8"));
+        c.expect(!/tabIndex=\{[0-9]/.test(src), `${rel} forces a control's place with a positive tabindex`);
+        const palsu = /<div[^>]*onClick|<span[^>]*onClick|role="button"/.exec(src);
+        c.expect(palsu === null, `${rel} makes a control out of something that is not one: ${palsu?.[0]}`);
+        for (const m of src.matchAll(/<button\b([^>]*)>/g)) {
+          c.expect(/type="(button|submit)"/.test(m[1]), `${rel} has a button with no explicit type`);
+        }
+      }
+
+      // 5. THE EXCHANGING SURFACE IS NOT A DEAD END.
+      c.expect(/role="status" aria-live="polite"/.test(tukar),
+        "the exchanging surface is silent to a screen reader");
+      c.expect(/judulRef\.current\?\.focus\(\)/.test(tukar), "the callback surfaces never move focus to their heading");
+
+      // 6. REDUCED MOTION REPLACES THE SPINNER RATHER THAN LEAVING IT SPINNING.
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const blok = css.slice(css.indexOf("UX-1 · THE SIGN-IN SCREEN"));
+      c.expect(/prefers-reduced-motion: reduce\)\s*\{[\s\S]{0,200}animation: none/.test(blok),
+        "the spinner keeps turning for a reader who asked for no motion");
+      // and nothing else on the screen animates
+      const anim = [...blok.matchAll(/animation:\s*([^;]+);/g)].map((m) => m[1].trim());
+      c.expect(anim.every((a) => a === "none" || /pin-putar/.test(a)),
+        `something other than the request spinner animates: ${anim.join(", ")}`);
+
+      c.note(`${semua.length} sign-in component(s), ${timers.length} timer(s), focus set declared once`);
+      return c.verdict(
+        "the sign-in screen is usable by keyboard and screen reader: fields go readonly and never disabled in " +
+        "flight so the address stays readable and in tab order, busy controls say so, the PIN reveal is a labelled " +
+        "pressed-state toggle that no timer ever undoes — the surface runs no timer at all — every focus " +
+        "destination is declared in one named set and moved through one effect, the held-resend state deliberately " +
+        "moves focus nowhere, no control is a div and none forces its place with a positive tabindex, the " +
+        "exchanging surface is a polite live region that takes focus rather than a dead end, and reduced motion " +
+        "stops the only two things that move",
+      );
+    },
+  },
+
+  {
+    id: "UX1-MASUK-KATA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const kunci = allKeys().filter((k) => k.startsWith("auth."));
+      c.expect(kunci.length >= 38, `${kunci.length} sign-in copy key(s); the handoff's table has 38`);
+
+      // 1. EVERY KEY THE SCREEN RENDERS IS DECLARED AND COMPLETE.
+      const dir = join(repoRoot, "src", "components", "masuk");
+      const surfaces = [
+        ...walk(dir).filter((f) => /\.tsx$/.test(f)),
+        join(repoRoot, "src", "app", "masuk", "page.tsx"),
+        join(repoRoot, "src", "app", "auth", "callback", "page.tsx"),
+      ];
+      const dipakai = new Set<string>();
+      for (const f of surfaces) {
+        for (const m of code(readFileSync(f, "utf8")).matchAll(/["']((?:auth)\.[a-z0-9_]+)["']/g)) dipakai.add(m[1]);
+      }
+      c.expect(dipakai.size >= 30, `only ${dipakai.size} sign-in key(s) rendered`);
+      for (const k of dipakai) {
+        c.expect(kunci.includes(k as HleEvent), `the sign-in screen renders ${k}, which the copy table does not declare`);
+        for (const loc of LOCALES) {
+          c.expect(t(k as HleEvent, "public", { locale: loc }).trim().length > 0, `${k} has no telling in ${loc}`);
+        }
+      }
+
+      // 2. NO PARALLEL HARD-CODED PRODUCTION COPY. Every user-visible string on
+      //    these surfaces comes through the copy table.
+      for (const f of surfaces) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const src = code(readFileSync(f, "utf8"));
+        const teks = [...src.matchAll(/>\s*([A-Za-z][A-Za-z ,.'!?-]{6,})\s*</g)].map((m) => m[1].trim());
+        c.expect(teks.length === 0, `${rel} hard-codes user-visible copy: ${teks.join(" / ")}`);
+      }
+
+      // 3. THE THREE LOAD-BEARING STRINGS, VERBATIM.
+      const VERBATIM: Array<[HleEvent, "id" | "en", string]> = [
+        ["auth.link_sent", "id", "Jika alamat itu terhubung dengan akun PINTAR, tautan masuk sudah dikirim ke sana. Buka email, lalu ketuk tautannya."],
+        ["auth.link_sent", "en", "If that address is linked to a PINTAR account, a sign-in link has been sent there. Open your email and tap the link."],
+        ["auth.card_failed", "id", "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi."],
+        ["auth.card_failed", "en", "Not a match yet. Check the card number and the PIN, then try once more."],
+        ["auth.say_p", "id", "PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia."],
+        ["auth.say_p", "en", "PINTAR helps make sense of what is happening in the learning process. The decision stays with people."],
+      ];
+      for (const [k, loc, teks] of VERBATIM) {
+        c.expect(t(k, "public", { locale: loc }) === teks,
+          `${k}/${loc} is not the approved string:\n  got "${t(k, "public", { locale: loc })}"\n  want "${teks}"`);
+      }
+
+      // 4. THE TWO CARD CONTROLS DO NOT SHARE A LABEL. The link that takes you
+      //    TO the card form and the button that SUBMITS it read identically in
+      //    Indonesian in the previous package; a screen-reader user heard the
+      //    same command for two different actions.
+      for (const loc of LOCALES) {
+        c.expect(t("auth.card_go", "public", { locale: loc }) !== t("auth.card_enter", "public", { locale: loc }),
+          `the card route and the card submit share a label in ${loc}`);
+      }
+
+      // 5. NO PERSONA OVERRIDE ON ANY SIGN-IN STRING (§1.6): a child with a
+      //    card and a head teacher with an email see the same welcome.
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      for (const k of kunci) {
+        const baris = new RegExp(`^\\s*"${k.replace(/\./g, "\\.")}":\\s*\\{(.*)$`, "m").exec(hle)?.[1] ?? "";
+        c.expect(!/\b(learner|educator|staff|en_learner|en_educator|en_staff)\s*:/.test(baris),
+          `${k} carries a persona override, so the sign-in screen words itself for somebody it has not met`);
+      }
+
+      // 6. NO INFORMALITY AND NO MACHINERY, in either language.
+      for (const k of kunci) {
+        const id = t(k as HleEvent, "public", { locale: "id" });
+        const hits = informal(id);
+        c.expect(hits.length === 0, `${k} addresses the reader informally (${hits.join(", ")})`);
+        for (const loc of LOCALES) {
+          const s = t(k as HleEvent, "public", { locale: loc });
+          c.expect(!/\bRasch\b|\btheta\b|\bOTP\b|\btoken\b|\bJWT\b|supabase/i.test(s),
+            `${k}/${loc} names the machinery: "${s}"`);
+        }
+      }
+
+      // ADVERSARIAL PLANT: the verbatim check must notice an edited string.
+      c.expect("Jika alamat itu terhubung dengan akun PINTAR." !== VERBATIM[0][2],
+        "the verbatim comparison would accept a shortened conditional");
+
+      c.note(`${kunci.length} sign-in key(s), ${dipakai.size} rendered, ${VERBATIM.length} verbatim string(s)`);
+      return c.verdict(
+        "the sign-in copy is the approved copy and lives only in the copy table: every key the screen renders is " +
+        "declared and carries both languages, no surface hard-codes a user-visible string, the three load-bearing " +
+        "strings match the handoff byte for byte, the card route and the card submit no longer share an Indonesian " +
+        "label, no sign-in string carries a persona override because the screen has not met anyone yet, and nothing " +
+        "in either language is informal or names the machinery",
       );
     },
   },
