@@ -168,21 +168,25 @@ export default function Tur({
   // and nothing here depends on where the caller chose to mount it.
   useEffect(() => {
     if (!aktif) return;
-    const ubah: Element[] = [];
+    // What was there BEFORE is recorded, not assumed: an element that already
+    // carried `aria-hidden` for a reason of its own must get that reason back,
+    // and an element that was already inert is left alone entirely.
+    const ubah: Array<{ el: Element; sembunyi: string | null }> = [];
     let simpul: Element | null = akarRef.current;
     while (simpul && simpul !== document.body && simpul.parentElement) {
       for (const saudara of Array.from(simpul.parentElement.children)) {
         if (saudara === simpul || saudara.hasAttribute("inert")) continue;
+        ubah.push({ el: saudara, sembunyi: saudara.getAttribute("aria-hidden") });
         saudara.setAttribute("inert", "");
         saudara.setAttribute("aria-hidden", "true");
-        ubah.push(saudara);
       }
       simpul = simpul.parentElement;
     }
     return () => {
-      for (const el of ubah) {
+      for (const { el, sembunyi } of ubah) {
         el.removeAttribute("inert");
-        el.removeAttribute("aria-hidden");
+        if (sembunyi === null) el.removeAttribute("aria-hidden");
+        else el.setAttribute("aria-hidden", sembunyi);
       }
     };
   }, [aktif]);
@@ -356,11 +360,21 @@ export default function Tur({
         }),
       );
 
-      // §K-2: back where they were, or to the page's own first heading when
-      // the tour arrived uninvited and there is nowhere to go back to.
+      // §K-2: back where they were, or to the page's own first heading when the
+      // tour arrived uninvited and there is nowhere to go back to. A heading is
+      // not focusable by default, so it is made focusable-by-script first —
+      // without that, `focus()` is a call that quietly does nothing and the
+      // reader is dropped at the top of the document instead.
       const balik = sebelumnya.current as HTMLElement | null;
-      if (balik && document.contains(balik) && typeof balik.focus === "function") balik.focus();
-      else (document.querySelector("main h1") as HTMLElement | null)?.focus?.();
+      if (balik && document.contains(balik) && typeof balik.focus === "function") {
+        balik.focus();
+      } else {
+        const judulHalaman = document.querySelector("main h1") as HTMLElement | null;
+        if (judulHalaman) {
+          judulHalaman.tabIndex = -1;
+          judulHalaman.focus();
+        }
+      }
       sebelumnya.current = null;
   }
 

@@ -3155,17 +3155,28 @@ export const experienceTests: SelfTest[] = [
       //    set and never removed is a page nobody can use again.
       c.expect(/setAttribute\("inert", ""\)/.test(kartu), "the page behind the tour is never made inert");
       c.expect(/removeAttribute\("inert"\)/.test(kartu), "the page behind the tour never gets its interactivity back");
-      c.expect(/removeAttribute\("aria-hidden"\)/.test(kartu), "the page behind the tour stays hidden from a screen reader");
       c.expect(/if \(saudara === simpul \|\| saudara\.hasAttribute\("inert"\)\) continue;/.test(kartu),
         "the inert sweep does not skip the tour's own root, or clobbers an element that was already inert");
+      // What was there before is RESTORED, not removed: an element that carried
+      // `aria-hidden` for a reason of its own gets that reason back, and only an
+      // element that had none loses it.
+      c.expect(/getAttribute\("aria-hidden"\)/.test(kartu),
+        "the sweep never records what aria-hidden it is about to overwrite");
+      c.expect(/if \(sembunyi === null\) el\.removeAttribute\("aria-hidden"\);[\s\S]{0,80}else el\.setAttribute\("aria-hidden", sembunyi\);/.test(kartu),
+        "the sweep gives back no aria-hidden it overwrote, so an element that had one loses it");
 
       // 3. FOCUS. On open and on every step it lands on the headline, so the
       //    step is read in the order it is written.
       c.expect(/judulRef\.current\?\.focus\(\)/.test(kartu), "focus never moves to the step's headline");
       c.expect(/\}, \[aktif, indeks\]\);/.test(kartu), "focus does not follow the step");
       c.expect(/tabIndex=\{-1\}/.test(kartu), "the headline cannot receive focus");
+      // A heading is not focusable by default, so `focus()` on one is a call
+      // that quietly does nothing and drops the reader at the top of the
+      // document. It is made focusable-by-script first.
       c.expect(/document\.querySelector\("main h1"\)/.test(kartu),
         "focus has nowhere to go after a tour that arrived uninvited");
+      c.expect(/judulHalaman\.tabIndex = -1;[\s\S]{0,60}judulHalaman\.focus\(\);/.test(kartu),
+        "the page heading is focused without being made focusable, so the call does nothing");
 
       // 4. TAB ORDER IS DOM ORDER: language, Skip, checkbox, Back, Next.
       //    Nothing is given a tabindex to force it, so the order the reader
