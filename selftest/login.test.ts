@@ -389,6 +389,18 @@ export const loginTests: SelfTest[] = [
       c.expect(after.allUsers === before.allUsers, `auth.users grew ${before.allUsers} -> ${after.allUsers}`);
       c.expect(after.allPersons === before.allPersons, `persons grew ${before.allPersons} -> ${after.allPersons}`);
       c.expect(after.allAccounts === before.allAccounts, `accounts grew ${before.allAccounts} -> ${after.allAccounts}`);
+      // REFUSED BY THE PROVISIONING GATE, specifically. Counting rows proves
+      // nothing was created; this proves WHY -- the address was turned away for
+      // not being provisioned, rather than for some unrelated failure that
+      // happens to create nothing too. Without it, a broken Auth service would
+      // pass this test.
+      const gerbangPenyediaan = (status: number, body: string) =>
+        status === 422 || /otp_disabled|signups? not allowed/i.test(body);
+      c.expect(
+        gerbangPenyediaan(otp.status, otpBody),
+        `an unprovisioned address was not refused by the provisioning gate: ${otp.status} ${otpBody.slice(0, 120)}`,
+      );
+
       // The Auth service's own status and body are RECORDED, not asserted on.
       // Whether GoTrue distinguishes a known address from an unknown one is
       // Supabase's behaviour, not PINTAR's contract, and a test that failed on
@@ -425,18 +437,50 @@ export const loginTests: SelfTest[] = [
         "where u.email like '%@synthetic.pintar.test' order by u.email limit 1",
       ).trim();
       c.expect(dikenal.length > 0, "no provisioned address exists to use as a positive control");
+      let kendaliStatus = 0;
+      let kendaliBody = "";
       if (dikenal) {
         const ok = await fetch(`${ctx.supabaseUrl}/auth/v1/otp`, {
           method: "POST",
           headers: { apikey: ctx.supabaseAnonKey!, "content-type": "application/json" },
           body: JSON.stringify({ email: dikenal, create_user: false }),
         });
-        c.expect(ok.status < 400, `a provisioned address was refused a sign-in link (${ok.status}); the contract refuses everyone, not just strangers`);
+        kendaliStatus = ok.status;
+        kendaliBody = (await ok.text()).slice(0, 300);
+
+        // THE CLAIM IS ABOUT WHICH GATE REFUSES, NOT ABOUT DELIVERY.
+        //
+        // CI runs the Supabase stack with `-x ... mailpit`, so there is no SMTP
+        // sink and GoTrue's SEND step fails for any address that reaches it --
+        // which is exactly the provisioned one, because the unprovisioned one
+        // is turned away before it. An earlier version of this control asserted
+        // `status < 400` and went red on that 500, reporting "the contract
+        // refuses everyone" when the contract had in fact let the address
+        // through and the test environment simply had nowhere to post a letter.
+        //
+        // So the control asks what the contract actually claims: a provisioned
+        // address is NOT refused by the provisioning gate. Whether the mail
+        // leaves the building is Supabase's transport and the runner's
+        // configuration, and asserting on it would make this test fail for
+        // something that is not this product's defect.
+        c.expect(
+          !gerbangPenyediaan(kendaliStatus, kendaliBody),
+          `a provisioned address was refused by the PROVISIONING gate (${kendaliStatus} ${kendaliBody.slice(0, 120)}); ` +
+            "the contract is refusing everyone rather than only strangers",
+        );
+        // And the two are genuinely distinguishable at that gate, which is what
+        // makes the pair evidence rather than two independent observations.
+        c.expect(
+          gerbangPenyediaan(otp.status, otpBody) && !gerbangPenyediaan(kendaliStatus, kendaliBody),
+          `the provisioned and unprovisioned addresses met the same gate outcome (${otp.status} vs ${kendaliStatus}), so this run proves nothing about the gate`,
+        );
       }
 
       c.note(
-        `unknown address -> ${otp.status} ${JSON.stringify(otpBody.slice(0, 80))}, ` +
-        `provisioned address accepted, auth.users steady at ${after.allUsers}`,
+        `unprovisioned -> ${otp.status} ${JSON.stringify(otpBody.slice(0, 60))}; ` +
+        `provisioned -> ${kendaliStatus} ${JSON.stringify(kendaliBody.slice(0, 60))} ` +
+        `(a 5xx here is the runner having no mail transport, not a refusal); ` +
+        `auth.users steady at ${after.allUsers}`,
       );
       return c.verdict(
         "an unknown address asks the running Auth service for a sign-in link exactly as the application asks, and creates nothing: no auth identity, no PINTAR person, no PINTAR account -- counted before and after, both for that address and across the three tables as a whole, so the proof is the PAIR rather than an absence that was always true. The chain it is protecting is demonstrated in the same run: an auth.users insert still produces a person and an account through on_auth_user_created, planted and rolled back rather than exercised against the Auth service, because persons_no_delete means a row created for real could never be removed. And the positive control holds -- a provisioned address is still served by the same endpoint, so the contract refuses strangers rather than refusing everyone",
