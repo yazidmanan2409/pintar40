@@ -1,13 +1,17 @@
 import { t, type Persona } from "@/lib/hle";
 import { sendMagicLink, signInWithCard } from "./actions";
 import Link from "next/link";
+import { tujuanInternal } from "@/lib/tujuan";
 
 type Search = Promise<{ peran?: string; lanjut?: string; kartu?: string; terkirim?: string }>;
 
 export default async function Masuk({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
   const persona: Persona = sp.peran === "staf" ? "staff" : sp.peran === "guru" ? "educator" : "learner";
-  const next = sp.lanjut && sp.lanjut.startsWith("/") ? sp.lanjut : "/";
+  // L-1. This value is written into a hidden field and posted straight back,
+  // so narrowing it here is what stops the page itself from carrying a
+  // poisoned destination forward; the actions narrow it again on receipt.
+  const next = tujuanInternal(sp.lanjut);
 
   async function submitLink(formData: FormData) {
     "use server";

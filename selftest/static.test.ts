@@ -11,6 +11,7 @@ import { join, relative, basename } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
+import { loginTests } from "./login.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -1839,4 +1840,8 @@ export const staticTests: SelfTest[] = [
   // file so that every line this session wrote is reviewable in one place, and
   // no case that existed at the frozen baseline is touched by appending them.
   ...experienceTests,
+  // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:
+  // appended in their own file, so nothing that existed at the baseline is
+  // edited to make room for them.
+  ...loginTests,
 ];

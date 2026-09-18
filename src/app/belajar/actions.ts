@@ -6,6 +6,7 @@
  * (INV-08 is enforced inside the database, from the JWT).
  */
 import { redirect } from "next/navigation";
+import { tujuanInternal } from "@/lib/tujuan";
 import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import type { LearnerAnswer } from "@/lib/assessment-engine";
@@ -112,7 +113,14 @@ export async function saveLessonProgress(
  */
 export async function mulaiAsesmen(formData: FormData) {
   const penugasan = String(formData.get("penugasan") ?? "");
-  const kembali = String(formData.get("kembali") ?? "/belajar");
+  // L-1. `kembali` is the same question as `lanjut` wearing another name, and
+  // it was the weaker of the two: unvalidated entirely, while the educator side
+  // had already stopped taking its destination from the form and said in its
+  // own comment that "the learner side already carries that as an open
+  // finding". A server action is callable without ever rendering the form, so
+  // the value is untrusted however it was drawn. The legitimate destinations
+  // -- /belajar and /belajar/<tugas> -- pass through unchanged.
+  const kembali = tujuanInternal(formData.get("kembali"), "/belajar");
   if (!penugasan) redirect(kembali);
   // No eligibility check here: `start_learning_session()` asks
   // `may_start_assessment()` itself, inside the database, from the JWT. A check

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 36,
+  "version": 37,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1167,6 +1167,27 @@
       "requires": [],
       "proves": "the Experience stylesheet's guidance rules paint the mode's ground only under the tour's or Help's own selector, carry no status colour anywhere inside instruction, leave the tip unpainted, draw the approved 3px white gap and 2px primary ring over the ruled composite veil, and cap the phone sheet; and the source of Tur.tsx applies and removes the mode class for exactly the two states that are the mode",
       "how": "src/app/experience.css guidance block and src/components/tur/Tur.tsx; a planted status colour watched"
+    },
+    {
+      "id": "L1-TUJUAN-01",
+      "runner": "static",
+      "proves": "L-1: every value that survives an authentication hop and then becomes a redirect is narrowed to this origin by ONE shipped helper, src/lib/tujuan.ts, which is IMPORTED AND EXECUTED here rather than read as text. Eleven legitimate destinations pass through with their query and fragment intact; twenty-four off-origin shapes are replaced by the caller's fallback -- the network-path //evil.example and its triple- and quadruple-slash forms, both backslash spellings a browser treats as slashes, the same three with a TAB, CR or LF in front (which the URL parser DELETES before parsing, so a check that reads the raw string is looking at a different string), userinfo and encoded-traversal variants, absolute http/https, javascript:, data:, vbscript: and file:. Each refusal is independently confirmed adversarial: the raw form is resolved by the same URL parser NextResponse.redirect will use and required to leave the origin, so a case that proves nothing cannot sit in the matrix unnoticed. THE PLANT RUNS IN-PROCESS: the startsWith('/') predicate this repair replaced is applied to the same matrix and must be shown to ACCEPT destinations that escape, so the test discriminates between the repair and the defect rather than passing against either. Also asserts the caller's fallback is honoured on refusal and NOT applied to a legitimate path, that a missing destination falls back, and that narrowing is idempotent -- what comes out is already the parser's own form, so a second parse downstream cannot read it differently from the parse that approved it"
+    },
+    {
+      "id": "L1-SENSUS-01",
+      "runner": "static",
+      "proves": "L-1 closure: the four sites that carry a destination across an authentication or action hop -- src/app/auth/callback/route.ts, src/app/masuk/actions.ts, src/app/masuk/page.tsx and src/app/belajar/actions.ts -- each narrow it through tujuanInternal, and none of them still decides with a bare leading-slash test, which is what all four did before. A comment-stripped walk over every .ts/.tsx file under src/ asserts that no OTHER file narrows a destination its own way, so a fifth site cannot be added outside the contract. The helper itself is required to RESOLVE the destination and compare origins rather than pattern-match, because replacing one leading-slash test with a longer list of forbidden prefixes would be the same defect with more lines"
+    },
+    {
+      "id": "L2-KONTRAK-01",
+      "runner": "static",
+      "proves": "L-2: PINTAR 4.0 is institution-provisioned, so magic-link authentication proves access to an identity a school already created and does not create one. The signInWithOtp call carries shouldCreateUser: false -- the Supabase default is TRUE, so the flag's absence was the defect: an unknown address became an auth.users row, and on_auth_user_created then gave it a persons row and an accounts row. No signUp, admin.createUser or inviteUserByEmail call exists in the sign-in actions. AND THE PRIVACY HALF, which is the easy one to get wrong: with creation off an unknown address errors where a known one succeeds, so returning that difference would replace a self-provisioning defect with an account-existence oracle -- the refusal meaning 'no such provisioned identity' is therefore folded into the ordinary outcome and matched on a stable error code, and the actions are asserted to run no database pre-check against accounts or persons and no auth.admin lookup, either of which would rebuild the same oracle one round-trip earlier. The classroom-card path is asserted untouched: still signInWithPassword over deriveCardSecret, with no signup behaviour, so the human PIN has not become an account password"
+    },
+    {
+      "id": "L2-TIDAK-DIBUAT-01",
+      "runner": "static",
+      "proves": "L-2 measured rather than configured: this EXECUTES against the running Auth service and the live schema rather than reading a flag. An address nobody has provisioned asks for a sign-in link exactly as the application asks (create_user: false, the wire form of shouldCreateUser: false), and creates nothing: no auth identity, no PINTAR person, no PINTAR account. Counted BEFORE and AFTER against the live schema, both for that address and as whole-table totals over auth.users, persons and accounts, so the proof is the pair rather than an absence that was always true. The chain being protected is demonstrated in the same run as the plant: an auth.users insert still produces exactly one person and one account through on_auth_user_created -- planted inside a transaction and rolled back rather than exercised against the Auth service, because persons_no_delete means a row created for real could never be removed again, and the test asserts it left no residue. Positive control: a seeded, provisioned address is still accepted by the same endpoint, so the contract refuses strangers rather than refusing everyone",
+      "skip_justification": "needs a reachable Postgres with the migrations and seeds applied AND the local Supabase Auth service (CI local stack via SUPABASE_DB_URL + NEXT_PUBLIC_SUPABASE_URL); this session's egress policy denies *.supabase.co and Docker is unavailable, so the Auth half cannot run locally. CI has both and runs it strictly"
     }
   ]
 }
