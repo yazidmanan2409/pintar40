@@ -123,15 +123,44 @@ export type HleEvent =
 
   | "app.name"
   | "auth.title"
+  | "auth.lede"
   | "auth.email_label"
-  | "auth.email_help"
+  | "auth.email_ph"
   | "auth.send_link"
+  | "auth.sending"
+  | "auth.err_email"
+  | "auth.err_send"
+  | "auth.retry"
+  | "auth.sent_h"
   | "auth.link_sent"
+  | "auth.sent_resend"
+  | "auth.sent_other"
+  | "auth.cool"
   | "auth.card_title"
+  | "auth.card_go"
+  | "auth.card_h1"
+  | "auth.card_lede"
   | "auth.card_number"
   | "auth.card_pin"
+  | "auth.card_show"
+  | "auth.card_hide"
   | "auth.card_enter"
+  | "auth.card_checking"
   | "auth.card_failed"
+  | "auth.card_back"
+  | "auth.foot"
+  | "auth.say_h"
+  | "auth.say_p"
+  | "auth.placeholder"
+  | "auth.link_h_exch"
+  | "auth.link_p_exch"
+  | "auth.link_h_exp"
+  | "auth.link_p_exp"
+  | "auth.link_again"
+  | "auth.in_h"
+  | "auth.in_p"
+  | "auth.in_go"
+  | "auth.in_out"
   | "auth.signed_out"
   | "auth.not_yet"
   | "config.title"
@@ -926,21 +955,65 @@ const table: Table = {
   "bukti.minimum": { default: "minimum", en: "minimum" },
 
   "app.name": { default: "PINTAR", en: "PINTAR" },
-  "auth.title": { default: "Masuk ke PINTAR", en: "Sign in to PINTAR", learner: "Ayo mulai belajar", en_learner: "Let's start learning" },
+  // ══════════════════════════════ UX-1 · the sign-in screen (login handoff)
+  // Daisy's canonical copy table, verbatim: 38 strings measured against their
+  // controls at every width in both languages. Three of them are load-bearing
+  // and carry a note where they sit.
+  //
+  // `?peran=` CHANGES NOTHING HERE, so none of these carries a persona
+  // override. The sign-in screen has not met anyone yet and must not pretend
+  // it has: a child with a card and a head teacher with an email see the same
+  // welcome, the same lede and the same standing line.
+  "auth.title": { default: "Selamat datang di PINTAR", en: "Welcome to PINTAR" },
+  "auth.lede": { default: "Masukkan email Anda. Kami kirimkan tautan untuk masuk — tanpa kata sandi.", en: "Enter your email. We'll send you a link to sign in — no password needed." },
   "auth.email_label": { default: "Alamat email", en: "Email address" },
-  "auth.email_help": {
-    default: "Kami kirimkan tautan masuk ke email Anda. Tidak perlu kata sandi.",
-    en: "We will send a sign-in link to your email. No password needed.",
-    staff: "Tautan masuk sekali pakai akan dikirim ke email Anda.",
-    en_staff: "A single-use sign-in link will be sent to your email.",
-  },
+  "auth.email_ph": { default: "nama@sekolah.sch.id", en: "name@school.sch.id" },
   "auth.send_link": { default: "Kirim tautan masuk", en: "Send the sign-in link" },
-  "auth.link_sent": { default: "Tautan sudah dikirim. Buka email Anda, lalu ketuk tautannya.", en: "The link is on its way. Open your email, then tap the link." },
-  "auth.card_title": { default: "Punya kartu kelas?", en: "Have a class card?", learner: "Punya kartu kelas?", en_learner: "Have a class card?" },
+  "auth.sending": { default: "Mengirim tautan…", en: "Sending the link…" },
+  "auth.err_email": { default: "Alamat email ini belum lengkap. Contoh: nama@sekolah.sch.id", en: "This email address isn't complete. Example: name@school.sch.id" },
+  "auth.err_send": { default: "Tautan belum bisa dikirim sekarang. Coba lagi sebentar lagi.", en: "The link couldn't be sent just now. Please try again in a moment." },
+  "auth.retry": { default: "Coba lagi", en: "Try again" },
+  "auth.sent_h": { default: "Periksa email Anda", en: "Check your email" },
+  // LOAD-BEARING. The conditional "Jika / If" is the account-enumeration
+  // protection: a screen that says "we sent a link to nadia@…" has told
+  // whoever is holding that phone whether Nadia has an account here. It costs
+  // one word. It is not to be edited without an Experience ruling.
+  "auth.link_sent": { default: "Jika alamat itu terhubung dengan akun PINTAR, tautan masuk sudah dikirim ke sana. Buka email, lalu ketuk tautannya.", en: "If that address is linked to a PINTAR account, a sign-in link has been sent there. Open your email and tap the link." },
+  "auth.sent_resend": { default: "Kirim ulang", en: "Send it again" },
+  "auth.sent_other": { default: "Gunakan email lain", en: "Use a different email" },
+  // Names no number of seconds, on purpose. It points the person back at their
+  // inbox, which is where the answer probably already is.
+  "auth.cool": { default: "Tautan baru bisa diminta lagi sebentar lagi. Periksa dulu email Anda — tautan yang pertama mungkin sudah sampai.", en: "You can ask for a new link again shortly. Check your email first — the first link may already have arrived." },
+  "auth.card_title": { default: "Punya kartu kelas?", en: "Have a class card?" },
+  "auth.card_go": { default: "Gunakan kartu kelas", en: "Use a class card" },
+  "auth.card_h1": { default: "Masuk dengan kartu kelas", en: "Sign in with a class card" },
+  "auth.card_lede": { default: "Masukkan nomor kartu dan PIN yang tertera pada kartu.", en: "Enter the card number and the PIN shown on the card." },
   "auth.card_number": { default: "Nomor kartu", en: "Card number" },
   "auth.card_pin": { default: "PIN", en: "PIN" },
+  "auth.card_show": { default: "Tampilkan PIN", en: "Show PIN" },
+  "auth.card_hide": { default: "Sembunyikan PIN", en: "Hide PIN" },
   "auth.card_enter": { default: "Masuk dengan kartu", en: "Sign in with the card" },
-  "auth.card_failed": { default: "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi.", en: "That does not match yet. Check the card number and the PIN, then try once more." },
+  "auth.card_checking": { default: "Memeriksa…", en: "Checking…" },
+  // LOAD-BEARING. "belum" means NOT YET, not wrong. The card may be fine and
+  // the PIN mistyped; the screen does not know which and does not accuse.
+  "auth.card_failed": { default: "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi.", en: "Not a match yet. Check the card number and the PIN, then try once more." },
+  "auth.card_back": { default: "Masuk lewat email", en: "Sign in with email" },
+  "auth.foot": { default: "Pendidikan yang lebih adil, untuk lebih banyak kesempatan.", en: "Fairer education, for more opportunity." },
+  // The newline is the designer's line break; the heading renders pre-line.
+  "auth.say_h": { default: "Belajar dengan bukti.\nMemahami sebelum memutuskan.", en: "Learning with evidence.\nUnderstand before deciding." },
+  // LOAD-BEARING. The only sentence on the screen about what the system does,
+  // and what it says is that the system does not decide. Not a tagline to cut.
+  "auth.say_p": { default: "PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.", en: "PINTAR helps make sense of what is happening in the learning process. The decision stays with people." },
+  "auth.placeholder": { default: "FOTO CONTOH", en: "PLACEHOLDER PHOTO" },
+  "auth.link_h_exch": { default: "Sedang memeriksa tautan…", en: "Checking the link…" },
+  "auth.link_p_exch": { default: "Mohon tunggu sebentar. Jangan tutup halaman ini.", en: "Please wait a moment. Don't close this page." },
+  "auth.link_h_exp": { default: "Tautan ini sudah tidak berlaku", en: "This link is no longer valid" },
+  "auth.link_p_exp": { default: "Tautan masuk berlaku sekali dan untuk waktu yang terbatas. Minta tautan baru untuk melanjutkan.", en: "A sign-in link works once, and only for a limited time. Ask for a new link to continue." },
+  "auth.link_again": { default: "Minta tautan baru", en: "Ask for a new link" },
+  "auth.in_h": { default: "Anda sudah masuk", en: "You're already signed in" },
+  "auth.in_p": { default: "Sesi Anda di perangkat ini masih aktif.", en: "Your session on this device is still active." },
+  "auth.in_go": { default: "Lanjutkan", en: "Continue" },
+  "auth.in_out": { default: "Keluar dari sesi ini", en: "Sign out of this session" },
   "auth.signed_out": { default: "Sampai jumpa lagi.", en: "See you again soon." },
   "auth.not_yet": { default: "Halaman ini belum tersedia untuk akun Anda.", en: "This page is not available to your account yet." },
   "config.title": { default: "Konfigurasi", en: "Configuration" },

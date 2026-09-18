@@ -46,6 +46,10 @@ const LEARNER_ROUTES = ["/belajar"] as const;
 const ROUTE_INVENTORY = [
   "/",
   "/masuk",
+  // UX-1 login. The magic-link callback stopped being a bare redirect and
+  // became a surface people read (S13/S14), so its rendered output joins the
+  // internal-word sweep like every other page.
+  "/auth/callback",
   "/belajar",
   // UX-1 Slice 1. THE ONLY LINE THIS SESSION CHANGED IN AN EXISTING SELFTEST
   // FILE, and it is a coverage list rather than a predicate: F06-S02 fails

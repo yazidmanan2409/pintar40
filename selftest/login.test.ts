@@ -87,7 +87,11 @@ const DITOLAK: readonly string[] = [
 
 /** Sites that carry a destination across an authentication or action hop. */
 const SITUS_TUJUAN = [
-  "src/app/auth/callback/route.ts",
+  // The magic-link callback. It was a route handler that redirected silently;
+  // the login Experience made it a surface people read while the exchange runs
+  // and when a link has aged out (S13/S14). The file moved; the rule did not,
+  // and the census follows the destination rather than the filename.
+  "src/app/auth/callback/page.tsx",
   "src/app/masuk/actions.ts",
   "src/app/masuk/page.tsx",
   "src/app/belajar/actions.ts",

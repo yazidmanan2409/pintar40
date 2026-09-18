@@ -2,17 +2,32 @@
 
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentViewer } from "@/lib/auth";
 import { deriveCardSecret } from "@/lib/card";
 import { appUrl } from "@/lib/env";
+import { berandaPeran } from "@/lib/beranda";
 import { tujuanInternal } from "@/lib/tujuan";
 
-export async function sendMagicLink(formData: FormData): Promise<{ ok: boolean }> {
+/**
+ * WHAT THE SIGN-IN SCREEN IS TOLD, AND WHAT IT IS NOT.
+ *
+ * Three outcomes, and the set is deliberately this small. `terkirim` is the
+ * ordinary answer and it is also the answer for an address nobody has — see
+ * L-2 below, and §S5 of the login handoff. `ditahan` is the authentication
+ * layer refusing a send it considers too soon. `gagal` is everything else:
+ * network, mail transport, server.
+ *
+ * There is no outcome for "no such account", because there must not be one.
+ */
+export type HasilKirim = "terkirim" | "ditahan" | "gagal";
+
+export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   // L-1. Narrowed BEFORE it is embedded in the email, so a poisoned
   // destination never reaches a learner's inbox at all. The callback narrows
   // it again on the way back, for the link nobody here built.
   const next = tujuanInternal(formData.get("lanjut"));
-  if (!email) return { ok: false };
+  if (!email) return "gagal";
   const supabase = await supabaseServer();
   const origin = appUrl();
   const { error } = await supabase.auth.signInWithOtp({
@@ -39,7 +54,11 @@ export async function sendMagicLink(formData: FormData): Promise<{ ok: boolean }
   // Deliberately not a pre-check against the database: asking "does this email
   // exist" before asking Supabase to send the link would rebuild the same
   // oracle in our own code, one round-trip earlier.
-  return { ok: !error || tidakTerdaftar(error) };
+  if (!error || tidakTerdaftar(error)) return "terkirim";
+  // Ordered after the privacy fold on purpose: an address nobody has is
+  // reported as sent even if it is also being throttled.
+  if (terlaluSering(error)) return "ditahan";
+  return "gagal";
 }
 
 /**
@@ -55,25 +74,84 @@ function tidakTerdaftar(error: { code?: string; status?: number; message?: strin
   return false;
 }
 
-export async function signInWithCard(formData: FormData): Promise<void> {
+/**
+ * THE SEND WAS REFUSED AS TOO SOON — the one condition §7.1 of the handoff
+ * makes S6 conditional on, and it is READ FROM THE AUTHENTICATION LAYER rather
+ * than invented here. `over_email_send_rate_limit` and `over_request_rate_limit`
+ * are declared members of the client library's own error-code union.
+ *
+ * No timer, no countdown, no cooldown and no policy lives in this codebase.
+ * If the layer stops reporting the condition, S6 simply stops being reachable
+ * and repeated presses fall back to the ordinary outcome, which is what the
+ * handoff asks for.
+ */
+function terlaluSering(error: { code?: string; status?: number }): boolean {
+  if (error.code === "over_email_send_rate_limit" || error.code === "over_request_rate_limit") return true;
+  return error.status === 429;
+}
+
+/** What the card path reports back. Exactly one failure, for every refusal. */
+export type HasilKartu = "gagal";
+
+export async function signInWithCard(formData: FormData): Promise<HasilKartu> {
   const card = String(formData.get("kartu") ?? "").replace(/\D/g, "");
   const pin = String(formData.get("pin") ?? "").replace(/\D/g, "");
   // L-1. A server action is reachable by a caller that never rendered the
   // form, so the hidden field is untrusted input however it was drawn.
-  const next = tujuanInternal(formData.get("lanjut"));
-  if (!card || !pin) redirect("/masuk?kartu=gagal");
+  const raw = formData.get("lanjut");
+  if (!card || !pin) return "gagal";
   const supabase = await supabaseServer();
   const host = process.env.CARD_EMAIL_DOMAIN ?? "cards.pintar.internal";
   const { error } = await supabase.auth.signInWithPassword({
     email: `card-${card}@${host}`,
     password: deriveCardSecret(card, pin),
   });
-  if (error) redirect("/masuk?kartu=gagal");
-  redirect(next);
+  // ONE FAILURE FOR EVERY REFUSAL, and the collapse happens here rather than in
+  // the screen so there is nothing for a later caller to un-collapse. A missing
+  // card and a mistyped PIN are the same `invalid_credentials` at the layer
+  // (verification task 4), and even if they ever stopped being, this function
+  // returns the same value for both.
+  if (error) return "gagal";
+  redirect(await tujuanMasuk(raw));
 }
 
-export async function signOut(): Promise<void> {
+/**
+ * Where a newly signed-in person goes.
+ *
+ * The destination they were heading for when they were interrupted, if it
+ * survives the L-1 narrowing; otherwise the home their role actually uses.
+ * Bob's helper already takes the fallback as a parameter, so this changes
+ * nothing about what it accepts -- only what a refusal falls back to, which
+ * §7.3 of the handoff rules is the role's home and NOT an error the person
+ * never chose and cannot act on.
+ */
+export async function tujuanMasuk(raw: unknown): Promise<string> {
+  const viewer = await currentViewer();
+  return tujuanInternal(raw, berandaPeran(viewer?.displayRole ?? null));
+}
+
+/**
+ * S15's sign-out. It ends the EVALUATION session first, exactly as `/keluar`
+ * does and for the same reason (ADR-0020): clearing the cookie alone would
+ * leave a live `evaluation_sessions` row behind. `exit_persona` is a no-op for
+ * an ordinary caller, so this costs one refused RPC and nothing else.
+ *
+ * It returns to the sign-in screen rather than to `/`, because the person
+ * pressed it ON the sign-in screen: they are signing out in order to sign in
+ * as somebody else, which is the whole reason S15 offers it.
+ */
+export async function keluarDariSesi(): Promise<void> {
   const supabase = await supabaseServer();
+  await supabase.rpc("exit_persona");
   await supabase.auth.signOut();
-  redirect("/?keluar=1");
+  redirect("/masuk");
+}
+
+/**
+ * S15's "Lanjutkan". The destination is resolved server-side for the same
+ * reason every other one is: `tujuanMasuk` needs the session to know the role,
+ * and the narrowing must not be something a client can skip.
+ */
+export async function lanjutkanSesi(formData: FormData): Promise<void> {
+  redirect(await tujuanMasuk(formData.get("lanjut")));
 }

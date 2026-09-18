@@ -142,12 +142,16 @@ const RESET_SURFACES = [
   "src/app/mengajar/[kelas]/bukti/page.tsx",
   "src/app/mengajar/[kelas]/langkah/page.tsx",
   "src/app/mengajar/[kelas]/siapa/page.tsx",
+  // UX-1 login. Re-set from the canonical login handoff against baseline
+  // bff6897e; the sign-in screen and the magic-link callback are now Experience
+  // surfaces and are linted as such.
+  "src/app/masuk/page.tsx",
+  "src/app/auth/callback/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
 const PENDING_SURFACES: Record<string, string> = {
   "src/app/page.tsx": "Slice 2 — entry by purpose",
-  "src/app/masuk/page.tsx": "Slice 2 — sign-in",
   "src/app/_evaluation-banner.tsx": "Slice 2 — the shell",
   "src/app/evaluasi/page.tsx": "Slice 2 — the demonstration room",
   "src/app/konfigurasi/page.tsx": "Slice 7 — configuration",
@@ -267,6 +271,34 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The disabled control's opacity: visibly unavailable without vanishing." },
   { file: "src/app/experience.css", literal: "0",
     reason: "A native radio held at zero opacity over its own label: the standard way to keep a control focusable, operable and announced while the label carries the appearance. Hiding it any other way would take it out of the tab order, which is an accessibility regression rather than a design decision." },
+  // UX-1 · THE SIGN-IN SCREEN. One measured composition, in the same sense the
+  // A4 certificate sheet is one: its proportions were arrived at by rendering
+  // and measuring the screen, not by stepping a scale. The values that repeat
+  // across rules -- the two form measures, the two control heights, the
+  // photograph band, and both of the panel's darkenings -- ARE tokens in
+  // globals.css. What is left is the geometry of this one screen.
+  { file: "src/app/experience.css", literal: "760px",
+    reason: "The sign-in stage's minimum height: below it the two columns stop reading as a stage and the panel becomes a stripe." },
+  { file: "src/app/experience.css", literal: "1024px",
+    reason: "Where the sign-in screen becomes two columns. A container-query breakpoint is a property of the composition, not a step on a scale." },
+  { file: "src/app/experience.css", literal: "561px",
+    reason: "One past the phone breakpoint: where the photograph returns as a band below the form. Paired with the 560px phone rule so there is no gap." },
+  { file: "src/app/experience.css", literal: "27px",
+    reason: "The panel sentence on a wide screen: measured between the subhead and the page title, neither of which sat right over a photograph." },
+  { file: "src/app/experience.css", literal: "0.08em",
+    reason: "The card number's tracking. It is a transcription from a printed card, and the spacing is what makes a figure checkable against paper." },
+  { file: "src/app/experience.css", literal: "60%",
+    reason: "The standing rule's weight against the primary. A 40x2px mark at full strength reads as a divider rather than a signature." },
+  { file: "src/app/experience.css", literal: "42ch",
+    reason: "The sign-in lede's measure, in characters because it wraps prose -- Indonesian first, English checked to fit." },
+  { file: "src/app/experience.css", literal: "18ch",
+    reason: "The panel heading's measure over the photograph: two balanced lines at the width the crop leaves usable." },
+  { file: "src/app/experience.css", literal: "26ch",
+    reason: "The same heading in the 260px tablet band, where the type drops a step and the measure widens with it." },
+  { file: "src/app/experience.css", literal: "34ch",
+    reason: "The panel paragraph over the photograph, narrower than body prose because it is set over an image." },
+  { file: "src/app/experience.css", literal: "52ch",
+    reason: "The same paragraph once the photograph is gone and it is ordinary text on white." },
   // UX-1 guidance mode. The three card measures and the phone sheet's ceiling
   // ARE design decisions, so they are tokens in globals.css rather than
   // entries here. These two are not.
@@ -3383,7 +3415,17 @@ export const experienceTests: SelfTest[] = [
       const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
       const mulai = css.indexOf("UX-1 · GUIDANCE MODE");
       c.expect(mulai > 0, "the guidance stylesheet is not in the Experience composition");
-      const blok = css.slice(mulai);
+      // BOUNDED TO ITS OWN BLOCK. This used to slice to the end of the file,
+      // which was correct only while the guidance block WAS the end of it. The
+      // sign-in screen was appended after it and every rule on that screen
+      // started being judged by the tour's rules -- a status colour on a
+      // sign-in error is not a status colour inside instruction. A scan whose
+      // scope is "everything after my heading" is a scan that annexes whatever
+      // is written next.
+      const sesudah = css.indexOf("\n/* ═", mulai + 1);
+      const blok = sesudah > 0 ? css.slice(mulai, sesudah) : css.slice(mulai);
+      c.expect(sesudah > 0,
+        "the guidance block is the last thing in the stylesheet, so this scan cannot prove it is bounded");
       const aturan = [...blok.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1].trim(), body: m[2] }));
       c.expect(aturan.length > 30, `only ${aturan.length} guidance rule(s); the surface is bigger than that`);
 

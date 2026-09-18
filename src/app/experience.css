@@ -1280,3 +1280,224 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   }
   .pin-tip { left: var(--space-4); right: var(--space-4); width: auto; max-width: none; }
 }
+
+/* ═══════════════════════════════════════════ UX-1 · THE SIGN-IN SCREEN
+   Built from the canonical login handoff (Daisy 🌼, 2026-09-18), against the
+   frozen authentication baseline bff6897e.
+
+   A SPLIT STAGE: the form on the left, the photographic panel on the right,
+   and on a phone the panel goes while its sentence stays as text — because the
+   picture was the decoration and the sentence was the content.
+
+   THESE ARE CONTAINER QUERIES, NOT VIEWPORT MEDIA QUERIES, and that is the
+   design's choice rather than a flourish: the same component then renders
+   correctly inside a review harness, inside a future embedded context and
+   inside the real page, instead of having three different truths.
+
+   ONE DOCUMENTED SUBSTITUTION. The handoff writes the panel's two gradients as
+   `rgba(15,26,24,α)`. A raw colour cannot be written here, so the same alpha
+   ramp is expressed over `--ink-1`, which §5.3 already names as the panel's
+   own ground. The ramp is unchanged; only the way it is spelled is. */
+
+/* THE CONTAINER IS THE PAGE ELEMENT; THE GRID IS INSIDE IT. An element cannot
+   query itself: `container-type` establishes a container for DESCENDANTS, so
+   rules that target the container in its own `@container` block never match.
+   The first build of this screen put both on one element and the two-column
+   composition silently never engaged at any width — it rendered as the tablet
+   band on a 1360px desktop and every automated check still passed, because
+   overflow, control sizes and copy were all correct. The layout assertion in
+   the render matrix exists because of this. */
+.pin-masuk {
+  container-type: inline-size;
+  container-name: masuk;
+  display: block;
+  min-height: 100dvh;
+  background: var(--surface-1);
+}
+.pin-panggung {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100dvh;
+  background: var(--surface-1);
+}
+.pin-auth {
+  display: flex; flex-direction: column;
+  padding: var(--space-5) var(--space-4);
+  background: var(--surface-1);
+}
+.pin-authtop { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.pin-authbody { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: var(--space-6) 0 var(--space-2); }
+.pin-form { display: grid; gap: var(--space-3); align-content: start; }
+.pin-mh1 {
+  font-size: 26px; font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-tight); line-height: var(--leading-heading);
+  text-wrap: balance; margin: 0;
+}
+/* Focused programmatically when a surface changes underneath the person; never
+   reached by Tab, so the ring is kept for anybody arriving by keyboard. */
+.pin-mh1:focus:not(:focus-visible) { outline: none; }
+.pin-lede-m { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
+.pin-lbl { font-size: var(--type-meta); font-weight: var(--weight-strong); margin-top: var(--space-2); }
+
+/* THE CONTROL IS THE WRAPPER. The inner input is the wrapper less its border,
+   and it fills it — the people most likely to arrive on a small, cheap,
+   cracked phone are the people least able to absorb a mis-tap. */
+.pin-inp {
+  display: flex; align-items: center; gap: var(--space-2);
+  height: var(--control-h); padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-1);
+}
+.pin-inp:focus-within { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
+.pin-inp input {
+  flex: 1; min-width: 0; height: calc(var(--control-h) - 2px);
+  border: 0; background: none; font: inherit; font-size: var(--type-body); color: var(--ink-1);
+}
+.pin-inp input:focus { outline: none; }
+.pin-inp.pin-inp-salah { border-color: var(--status-blocked); }
+/* The card path: a transcription task. Tabular figures, tracked, grouped as
+   the card prints them — never reformatted, masked or auto-advanced, because
+   the person is checking characters against a physical object. */
+.pin-inp.pin-inp-big { height: var(--control-h-big); }
+.pin-inp.pin-inp-big input {
+  height: calc(var(--control-h-big) - 2px);
+  font-size: 20px; letter-spacing: 0.08em; font-variant-numeric: tabular-nums;
+}
+.pin-lihat {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px; flex: none;
+  background: none; border: 0; border-radius: var(--radius-1);
+  color: var(--ink-2); font: inherit; cursor: pointer;
+}
+.pin-lihat:hover { background: var(--surface-2); }
+
+.pin-mbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  width: 100%; height: var(--control-h); padding: 0 var(--space-5);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-1); color: var(--ink-1);
+  font: inherit; font-size: var(--type-body); font-weight: var(--weight-strong);
+  cursor: pointer; text-decoration: none; text-align: center;
+}
+.pin-mbtn-1 { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-mbtn-1:hover { background: var(--pintar-primary-hover); }
+.pin-mbtn-2:hover { background: var(--surface-2); }
+.pin-mbtn-big { height: var(--control-h-big); font-size: var(--type-card); }
+.pin-mbtn[disabled] { opacity: 0.4; cursor: default; }
+.pin-stack { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
+.pin-stack form { display: grid; }
+
+/* The route control. Exactly one is on screen at a time, and it always points
+   the way the person is not currently going. */
+.pin-rute {
+  margin-top: 28px; padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+  font-size: var(--type-meta); color: var(--ink-2);
+}
+.pin-tautan {
+  background: none; border: 0; padding: 0; font: inherit; font-weight: var(--weight-strong);
+  color: var(--pintar-primary); text-decoration: underline; text-underline-offset: 3px;
+  cursor: pointer; min-height: 44px;
+}
+.pin-kembali {
+  justify-self: start;
+  background: none; border: 0; padding: var(--space-2) 0;
+  font: inherit; font-size: 15px; font-weight: var(--weight-strong);
+  color: var(--pintar-primary); cursor: pointer; min-height: 44px;
+}
+
+.pin-msg { margin: 0; padding: 10px var(--space-3); border-radius: var(--radius-1); font-size: var(--type-meta); }
+.pin-msg-err { background: var(--status-blocked-soft); color: var(--status-blocked); }
+.pin-msg-note { background: var(--surface-2); color: var(--ink-2); }
+
+.pin-disc {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 50%; font-size: var(--type-course);
+}
+.pin-disc-primary { background: var(--pintar-primary-soft); color: var(--pintar-primary); }
+/* Attention, not blocked: nothing is broken and nobody did anything wrong —
+   a link aged out, and it can proceed the moment a new one is asked for. */
+.pin-disc-attention { background: var(--status-attention-soft); color: var(--status-attention); }
+
+.pin-berdiri { font-size: var(--type-fine); color: var(--ink-3); margin: 0 0 var(--space-3); max-width: 60ch; }
+.pin-tanda { display: block; width: 40px; height: 2px; background: color-mix(in srgb, var(--pintar-primary) 60%, transparent); }
+
+/* ── the panel. Hidden by default; the widths below bring it back. */
+.pin-vis { display: none; position: relative; overflow: hidden; background: var(--ink-1); }
+.pin-vis-foto { position: absolute; inset: 0; background: var(--ink-1); }
+/* ASSET REQUIRED. Flat, obviously temporary, impossible to mistake for a
+   finished screen. Do not ship it; do not substitute anything for it. */
+.pin-vis-tanda {
+  position: absolute; left: var(--space-5); top: var(--space-5);
+  padding: var(--space-1) 10px; border-radius: var(--radius-pill);
+  background: var(--surface-2); color: var(--ink-2);
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow);
+}
+.pin-vis-scrim {
+  position: absolute; inset: 0;
+  background: var(--auth-scrim);
+}
+/* THE SECOND GRADIENT IS ANCHORED TO THE TYPE, not to the image, so the
+   darkening follows the text wherever it lands. With only the first, the
+   tablet heading measured 1.56:1 over a bright classroom wall. Simplifying
+   this back to one gradient reintroduces that failure. */
+.pin-say {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 78px var(--space-8) var(--space-8); color: var(--surface-1);
+  background: var(--auth-say-veil);
+}
+.pin-say-h {
+  font-size: 27px; font-weight: var(--weight-strong); line-height: var(--leading-heading);
+  letter-spacing: -0.01em; max-width: 18ch; text-wrap: balance;
+  white-space: pre-line; margin: 0;
+}
+.pin-say-p {
+  font-size: var(--type-body); line-height: var(--leading-body); margin: var(--space-3) 0 0;
+  max-width: 34ch; color: var(--surface-1);
+}
+/* The sentence, as text, at the width where the photograph is removed. */
+.pin-phonesay {
+  margin-top: 28px; padding-top: var(--space-5); border-top: 1px solid var(--line);
+  display: grid; gap: var(--space-2);
+}
+.pin-phonesay h2 { font-size: var(--type-card); font-weight: var(--weight-strong); line-height: var(--leading-heading); white-space: pre-line; margin: 0; }
+.pin-phonesay p { font-size: var(--type-meta); color: var(--ink-2); margin: 0; max-width: 52ch; }
+
+.pin-putar {
+  display: inline-block; width: var(--space-4); height: var(--space-4); flex: none;
+  border: 2px solid color-mix(in srgb, var(--surface-1) 50%, transparent);
+  border-top-color: var(--surface-1); border-radius: 50%;
+  animation: pin-putar 700ms linear infinite;
+}
+@keyframes pin-putar { to { transform: rotate(360deg); } }
+
+@container masuk (min-width: 561px) {
+  .pin-panggung { grid-template-rows: auto var(--vis-band); }
+  .pin-auth { padding: var(--space-6) var(--space-7) 28px; }
+  .pin-form, .pin-phonesay { max-width: var(--measure-auth-wide); }
+  .pin-phonesay { display: none; }
+  .pin-vis { display: block; order: 2; min-height: var(--vis-band); }
+  .pin-say { padding: var(--space-9) var(--space-6) var(--space-6); }
+  .pin-say-h { font-size: var(--type-subhead); max-width: 26ch; }
+  .pin-say-p { font-size: 15px; max-width: 52ch; }
+}
+
+@container masuk (min-width: 1024px) {
+  .pin-panggung { grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); grid-template-rows: none; min-height: 760px; }
+  .pin-auth { padding: var(--space-7) 56px var(--space-6); }
+  .pin-form { max-width: var(--measure-auth); }
+  .pin-mh1 { font-size: var(--type-page); }
+  .pin-lede-m { max-width: 42ch; }
+  .pin-vis { display: block; order: 0; min-height: 100%; }
+  .pin-say { padding: 78px var(--space-8) var(--space-8); }
+  .pin-say-h { font-size: 27px; max-width: 18ch; }
+  .pin-say-p { font-size: var(--type-body); max-width: 34ch; }
+}
+
+/* Nothing here animates meaning. With reduced motion the spinner stops turning
+   and becomes a static ring — still a visible indicator, no longer a movement
+   nobody asked for. */
+@media (prefers-reduced-motion: reduce) {
+  .pin-putar { animation: none; border-top-color: color-mix(in srgb, var(--surface-1) 50%, transparent); }
+}
