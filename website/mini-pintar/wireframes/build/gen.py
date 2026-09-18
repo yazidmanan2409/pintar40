@@ -32,6 +32,8 @@ S0 = (chrome("mini-pintar", exit_="Keluar") +
       '<p class="meta">honesty statement 1 of 2</p>')
 
 S1 = (chrome("Pemetaan Awal", 2, 3) +
+      '<p class="meta" style="margin-bottom:8px">Ini bukan ujian. Jawaban '
+      'Anda dipakai untuk menyusun urutan bacaan yang sesuai.</p>'
       '<h2 class="t">Sebuah laporan sekolah menulis: &ldquo;85% siswa lulus '
       'ujian akhir.&rdquo;</h2>'
       '<p class="l">Apa yang paling perlu Anda ketahui berikutnya?</p>'
@@ -52,7 +54,7 @@ S2 = (chrome("Peta Bacaan") +
       '<div class="box tier w"><div class="lbl">Perlu dibaca</div>'
       'Angka dan dasarnya<div class="m">Jawaban Anda menuju perbandingan lebih '
       'dulu.</div></div>'
-      '<div class="box tier k"><div class="lbl">Sudah kamu kuasai</div>'
+      '<div class="box tier k"><div class="lbl">Sudah Anda kuasai</div>'
       'Berhubungan atau menyebabkan<div class="m">Jawaban Anda sudah tepat di '
       'bagian ini.</div></div>'
       '<div class="btn">Buka pelajarannya</div>')
@@ -75,10 +77,10 @@ S4 = (chrome("Uji Penguasaan", 1, 2) +
       'margin-bottom:9px">Waktu berjalan 00:42<span>Tandai</span></div>'
       '<h2 class="t">Sebuah program baru dicoba di dua kelas selama satu '
       'semester, dan hasilnya membaik.</h2>'
-      '<p class="l">Apa yang paling perlu ditanyakan sebelum menyimpulkan '
-      'bahwa program itu berhasil?</p>'
-      '<div class="box">A &nbsp; Apa lagi yang berubah di kedua kelas itu.</div>'
-      '<div class="box">B &nbsp; Berapa biaya program itu.</div>'
+      '<p class="l">Mana yang paling menambah kekuatan buktinya?</p>'
+      '<div class="box">A &nbsp; Membandingkan dengan kelas serupa yang tidak '
+      'mengikuti program.</div>'
+      '<div class="box">B &nbsp; Menambah jumlah kelas yang mengikuti.</div>'
       '<div class="pill">&#129517; Perlu arah? &nbsp;<span style="color:#777">'
       '&mdash; tersedia sejak awal, dan muncul sendiri setelah jeda</span></div>'
       '<div class="btn">Berikutnya</div>')

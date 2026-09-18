@@ -96,7 +96,36 @@ Severity for ordering: **D2 (3) > D3 (2) > D1 (1)**. Concluding from too
 little is the error with the largest institutional consequence; mistaking a
 link for a cause is next; a missing denominator is the most easily repaired.
 
-### 3.2 Pemetaan Awal — three questions
+### 3.2 Register — Mini-PINTAR speaks to an adult
+
+**CORRECTION to the architecture document.** §F of
+`../EXPERIENCE-ARCHITECTURE.md` proposed framing Pemetaan Awal with the
+product's own words, *"Ini bukan ujian. Jawabanmu dipakai untuk menyusun
+peta bacaan yang pas untukmu."* That string belongs to the `ANAK` register —
+it is what PINTAR says to a ten-year-old. Mini-PINTAR's visitor is an adult
+on a corporate website, which is `DEWASA`, and the Voice Guide is explicit:
+*never speak down the ladder to an adult.* Borrowing a child-register
+sentence for a principal or a foundation would be a register error on the
+most visible public surface PINTAR has.
+
+**DECISION: Mini-PINTAR uses `Anda` throughout, and restates the product's
+concepts in the adult register rather than quoting its child-register
+strings.** This is not a screenshot — nothing in Mini-PINTAR is a
+reconstruction of a product screen, so the discipline that keeps a
+screenshot's wording untouched does not apply. The product's *concepts* and
+*labels* carry over; its `ANAK` phrasing does not.
+
+| Concept | Product (`ANAK`) | Mini-PINTAR (`DEWASA`) |
+|---|---|---|
+| Pemetaan Awal intro | Ini bukan ujian. **Jawabanmu** dipakai untuk menyusun peta bacaan yang pas **untukmu**. | Ini bukan ujian. **Jawaban Anda** dipakai untuk menyusun urutan bacaan yang sesuai. |
+| Peta Bacaan intro | Mulailah dari kartu paling atas. Urutannya sudah disusun **untukmu**. | Mulailah dari kartu paling atas. Urutannya disusun dari jawaban **Anda**. |
+| KUAT tier | Sudah **kamu** kuasai | Sudah **Anda** kuasai |
+
+*EN:* Initial Mapping — "This is not an exam. Your answers are used to build
+a reading order that suits you." · Reading Map — "Start with the top card.
+The order comes from your answers." · KUAT — "Already yours."
+
+### 3.2a Pemetaan Awal — three questions
 
 No score, no timer, no right/wrong feedback, dot progress, and every
 question may be skipped. **Skipping is evidence too** — an honest "I don't
@@ -178,9 +207,9 @@ disiapkan, karena melewatinya juga memberi tahu sesuatu. / *EN* You skipped
 this one. The reading is offered anyway, because skipping tells us
 something too.
 
-**Already strong** (`KUAT`) — *ID* Jawaban Anda sudah tepat di bagian ini.
-Tidak perlu diulang. / *EN* Your answer here was already right. No need to
-repeat it.
+**Already strong** (`KUAT`, label *"Sudah Anda kuasai"*) — *ID* Jawaban Anda
+sudah tepat di bagian ini. Tidak perlu diulang. / *EN* Your answer here was
+already right. No need to repeat it.
 
 ### 3.4 Pelajaran — three lessons, of which the visitor reads one
 
@@ -197,29 +226,27 @@ Peta Bacaan would be a label over a fixed path.
 >
 > Tiga siswa selama satu minggu memberi kita sesuatu, tetapi belum cukup
 > untuk memisahkan cara belajar dari hal lain yang terjadi pada minggu yang
-> sama. Ujian yang kebetulan lebih mudah, guru yang sedang bersemangat, atau
-> kebetulan biasa bisa menghasilkan gambaran yang persis sama.
+> sama. Ujian yang kebetulan lebih mudah, atau kebetulan biasa, bisa
+> menghasilkan gambaran yang persis sama.
 >
 > Yang perlu berubah bukan jawabannya, melainkan kalimatnya. "Cara itu
 > berhasil" adalah kesimpulan. "Ini arah yang layak diamati lebih lama"
-> adalah pengamatan. Keduanya bisa benar pada waktunya masing-masing, dan
-> hanya yang kedua yang jujur hari ini.
+> adalah pengamatan. Hanya yang kedua jujur hari ini.
 >
-> Menunda kesimpulan bukan sikap ragu-ragu. Menunda kesimpulan adalah cara
-> menjaga agar kesimpulan berikutnya masih berarti.
+> Menunda kesimpulan bukan sikap ragu-ragu. Itu cara menjaga agar kesimpulan
+> berikutnya masih berarti.
 
 > **EN** — Every conclusion rests on two things: how much was observed, and
 > for how long.
 >
-> Three students over one week give us something, but not yet enough to
-> separate the method from everything else that happened in the same week.
-> An exam that happened to be easier, a teacher having a good fortnight, or
-> ordinary chance would produce exactly the same picture.
+> Three students over one week give us something, but not enough to separate
+> the method from everything else that happened in the same week. An exam
+> that happened to be easier, or ordinary chance, would produce the same
+> picture.
 >
 > What has to change is not the answer but the sentence. "The method works"
 > is a conclusion. "This is a direction worth watching for longer" is an
-> observation. Both can be true in their own time, and only the second is
-> honest today.
+> observation. Only the second is honest today.
 >
 > Holding a conclusion back is not indecision. It is how you keep the next
 > conclusion worth something.
@@ -227,7 +254,7 @@ Peta Bacaan would be a label over a fixed path.
 *Worked example — "Berapa yang cukup?" / "How much is enough?"*
 1. *ID* Tanyakan dulu: berapa banyak yang diamati? Tiga. / *EN* Ask first: how many were observed? Three.
 2. *ID* Lalu: berapa lama? Satu minggu. / *EN* Then: for how long? One week.
-3. *ID* Lalu: apa lagi yang berubah pada minggu yang sama? Jika jawabannya "tidak tahu", buktinya belum memisahkan apa pun. / *EN* Then: what else changed in that same week? If the answer is "we don't know", the evidence has not separated anything yet.
+3. *ID* Lalu: apa lagi yang berubah pada waktu yang sama, dan adakah kelompok serupa yang tidak mencobanya? Tanpa pembanding, buktinya belum memisahkan apa pun. / *EN* Then: what else changed over the same period, and was there a similar group that did not try it? Without something to compare against, the evidence has not separated anything yet.
 
 ---
 
@@ -241,11 +268,11 @@ Peta Bacaan would be a label over a fixed path.
 > A, dan bahwa ada hal ketiga yang menggerakkan keduanya.
 >
 > Pada contoh bekal dan nilai, hal ketiga itu mudah dibayangkan — keadaan di
-> rumah bisa memengaruhi keduanya sekaligus. Selama hal ketiga itu belum
-> diperiksa, kalimat yang tepat adalah "berhubungan", bukan "menyebabkan".
+> rumah bisa memengaruhi keduanya. Selama itu belum diperiksa, kata yang
+> tepat adalah "berhubungan", bukan "menyebabkan".
 >
 > Yang juga keliru adalah membuang temuannya. Hubungan yang belum dijelaskan
-> tetap memberi tahu kita ke mana harus melihat berikutnya.
+> tetap menunjukkan ke mana harus melihat berikutnya.
 
 > **EN** — Two things that move together are linked. That is a real finding
 > and often a useful one.
@@ -255,11 +282,11 @@ Peta Bacaan would be a label over a fixed path.
 > both.
 >
 > In the lunch-and-grades example the third thing is easy to imagine — a
-> home circumstance could shape both at once. Until that third thing has
-> been examined, the accurate word is "linked", not "causes".
+> home circumstance could shape both. Until that has been examined, the
+> accurate word is "linked", not "causes".
 >
 > Discarding the finding is the opposite error. A link you cannot yet
-> explain still tells you where to look next.
+> explain still shows you where to look next.
 
 *Worked example — "Menguji sebuah klaim sebab" / "Testing a causal claim"*
 1. *ID* Sebutkan klaimnya: membawa bekal meningkatkan nilai. / *EN* State the claim: bringing lunch raises grades.
@@ -274,17 +301,15 @@ Peta Bacaan would be a label over a fixed path.
 > lengkap tanpa apa yang dibandingkan.
 >
 > "85% lulus" bisa berarti 17 dari 20 siswa, atau 850 dari 1.000. Keduanya
-> ditulis 85%, dan keduanya menuntut tanggapan yang berbeda. Pada 20 siswa,
-> tiga orang yang belum lulus adalah tiga nama yang bisa didampingi minggu
-> depan. Pada 1.000 siswa, 150 orang adalah persoalan dengan bentuk yang
-> lain sama sekali.
+> ditulis 85%, dan masing-masing menuntut tanggapan yang berbeda. Pada 20
+> siswa, tiga orang yang belum lulus adalah tiga nama yang bisa didampingi
+> minggu depan. Pada 1.000 siswa, 150 orang adalah persoalan dengan bentuk
+> yang lain.
 >
 > Karena itu pertanyaan pertama untuk setiap persentase selalu sama: dari
 > berapa?
 >
 > Pertanyaan kedua hampir sama pentingnya: siapa yang tidak ikut dihitung?
-> Angka yang hanya menghitung yang hadir menceritakan sekolah yang lebih
-> kecil daripada yang sebenarnya.
 
 > **EN** — A percentage is a ratio, and a ratio is not complete without
 > what it is a ratio of.
@@ -292,14 +317,12 @@ Peta Bacaan would be a label over a fixed path.
 > "85% passed" can mean 17 students out of 20, or 850 out of 1,000. Both are
 > written 85%, and each asks for a different response. At 20 students, three
 > who have not passed are three names you can sit with next week. At 1,000,
-> a hundred and fifty is a problem of an entirely different shape.
+> a hundred and fifty is a problem of a different shape.
 >
 > So the first question for any percentage is always the same: out of how
 > many?
 >
-> The second matters nearly as much: who was left out of the count? A number
-> that counts only those who turned up describes a smaller school than the
-> real one.
+> The second matters nearly as much: who was left out of the count?
 
 *Worked example — "Membaca 85%" / "Reading 85%"*
 1. *ID* Tulis ulang sebagai pecahan: 85 dari 100. / *EN* Rewrite it as a fraction: 85 out of 100.
@@ -312,14 +335,14 @@ Six items, **disjoint from the Pemetaan Awal set**. The visitor answers the
 two belonging to the lesson they read.
 
 **U-D2-1** — *ID* Sebuah program baru dicoba di dua kelas selama satu
-semester, dan hasilnya membaik. Apa yang paling perlu ditanyakan sebelum
-menyimpulkan bahwa program itu berhasil? / *EN* A new programme runs in two
-classes for a semester and results improve. What most needs asking before
-concluding that the programme worked?
-**A ✓** Apa lagi yang berubah di kedua kelas itu pada semester yang sama. / What else changed in those two classes during the same semester.
-**B** Berapa biaya program itu. / What the programme cost.
-**C** Apakah kepala sekolah menyetujuinya. / Whether the principal approved it.
-**D** Berapa banyak kelas lain yang ingin mencobanya. / How many other classes want to try it.
+semester, dan hasilnya membaik. Mana yang paling menambah kekuatan
+buktinya? / *EN* A new programme runs in two classes for a semester and
+results improve. Which of these adds the most to the strength of the
+evidence?
+**A ✓** Membandingkan dengan kelas serupa yang tidak mengikuti program. / Comparing with similar classes that did not take part.
+**B** Menambah jumlah kelas yang mengikuti program. / Adding more classes to the programme.
+**C** Memperpanjang program menjadi dua semester. / Extending the programme to two semesters.
+**D** Mengumpulkan pendapat guru tentang program itu. / Gathering the teachers' views on the programme.
 
 **U-D2-2** — *ID* Manakah kalimat yang paling tepat ketika buktinya masih
 sedikit? / *EN* Which sentence is the most accurate when the evidence is
@@ -377,6 +400,52 @@ authoring.
 | **D2** | *ID* Tanyakan berapa banyak, dan berapa lama.<br>*EN* Ask how many, and for how long. | *ID* Bayangkan apa lagi yang mungkin berubah pada waktu yang sama.<br>*EN* Picture what else might have changed over the same period. |
 | **D3** | *ID* Tanyakan apakah ada kemungkinan lain selain yang disebutkan.<br>*EN* Ask whether there is another possibility besides the one stated. | *ID* Coba balik arahnya, lalu cari sesuatu yang bisa memengaruhi keduanya.<br>*EN* Try reversing the direction, then look for something that could shape both. |
 
+### 3.7 The time budget, measured
+
+**CORRECTION.** `../EXPERIENCE-ARCHITECTURE.md` §F put step times against
+the clock — Pemetaan Awal at 0:10–0:55, Hasil at 2:40–3:00 — and those
+markers were asserted, not measured. Counting the words tells a different
+story, and it is better that you hear it from me than discover it in a
+usability session.
+
+At **180 words per minute** for a fluent adult reading a multiple-choice
+question, plus a realistic **five seconds of decision** per question:
+
+| Step | Words (ID) | Time |
+|---|---|---|
+| 0 · Threshold | 12 | 0:06 |
+| 1 · Pemetaan Awal, 3 × (stem + 4 options) | 3 × ~50 | 1:06 |
+| 2 · Peta Bacaan | ~58 | 0:22 |
+| 3 · Pelajaran, body + worked example | ~130 | 0:48 |
+| 4 · Uji Penguasaan, 2 × (stem + 4 options) | 2 × ~46 | 0:40 |
+| 5 · Hasil | ~44 | 0:15 |
+| **Journey subtotal** | | **3:17** |
+| 6 · The reveal | ~68 | 0:23 |
+| 7 · Return | ~40 | 0:14 |
+| **Total** | **~740** | **3:54** |
+
+A fast reader at 260 wpm who decides quickly completes the journey in about
+**2:20** and the whole thing in about **2:45**. A careful reader takes
+**3:54**.
+
+**So the honest figure is 2:20–3:55, not 2–3 minutes.** The lesson bodies in
+§3.4 have already been trimmed by about 25 % from the first draft to buy
+back roughly fifteen seconds; that is the cut available without damage.
+
+**What I did not do, and why.** The obvious way to reach three minutes flat
+is to drop Pemetaan Awal from three questions to two. I have not done it,
+because the Peta Bacaan would then carry two cards instead of three and the
+adaptation would look thinner than it is — which is precisely the failure
+your brief names ("do not make it so short that adaptation becomes
+meaningless"). Three questions is the smallest number that produces a map
+worth reading.
+
+**Recommendation:** accept 2:20–3:55 and describe the experience publicly as
+*"sekitar tiga menit" / "about three minutes"* rather than two. Over-promising
+two minutes and delivering four is a small dishonesty on a website whose
+entire argument is that PINTAR does not overstate. Carried as an open
+question in §12.
+
 ---
 
 ## 4 · Deterministic adaptation
@@ -401,7 +470,7 @@ if needs is empty:
 else:
     highest-severity member of needs      → PERLU_SEGERA  "Baca ini lebih dulu"
     remaining members of needs            → WAJIB         "Perlu dibaca"
-    members of strong                     → KUAT          "Sudah kamu kuasai"
+    members of strong                     → KUAT          "Sudah Anda kuasai"
     order: PERLU_SEGERA, then WAJIB by severity desc, then KUAT by severity desc
 ```
 
@@ -421,15 +490,29 @@ Two answers, each `correct`, a misconception, or `skipped`.
 | Condition | Outcome | What it says |
 |---|---|---|
 | any answer skipped | `BELUM_CUKUP` | The visitor's own honest signal is that they do not know; the demonstration does not overrule it |
-| 2 correct | `DIDUKUNG` | What was read appears usable — **bounded**, never "mastered" |
+| 2 correct | `KONSISTEN` | Consistent with having understood the reading — **bounded**, never "mastered" |
 | 1 correct | `BELUM_CUKUP` | One of two cannot separate understanding from a good guess |
 | 0 correct | `PERLU_PERHATIAN` | Names what is worth reading again — **not** a mastery verdict |
 
-**`BELUM_CUKUP` is reachable by the single most likely route.** One of two is
-the commonest outcome of a two-question check, so the honest refusal is not
-an edge case kept alive for the brochure — it is the ordinary result. That
-was a deliberate design choice and it is the reason the evidence-limit
-statement is credible.
+**`BELUM_CUKUP` is reachable by ordinary routes — but it is not the modal
+one, and the first draft of this document claimed it was.** That claim does
+not survive scrutiny: the two check questions come immediately after the
+lesson that answers them, so an attentive visitor will usually get both
+right. The honest description is that `BELUM_CUKUP` is reached by one
+correct answer out of two, or by any skip — both ordinary, neither rare —
+while the outcome most visitors see is `KONSISTEN`.
+
+**The doctrine is therefore carried by the limit statement, not by the
+outcome distribution.** Every outcome, `KONSISTEN` included, says that two
+questions cannot judge anyone's mastery. That is what makes the
+demonstration honest, and it does not depend on most visitors being told
+they fell short.
+
+If you would rather `BELUM_CUKUP` were the *modal* outcome, the check
+questions have to be materially harder — which is a different product
+choice with a real cost: a demonstration that leaves a visiting principal
+feeling caught out. My recommendation is the design as written. It is your
+call, and §12 carries it.
 
 **There is no delta, and the demonstration says why.** Pemetaan Awal and Uji
 Penguasaan ask about different things and share no items, so a before/after
@@ -644,8 +727,15 @@ Designed in, not audited on.
 
 ### 11.1 The limit, in all three outcomes
 
-Every Hasil carries it. **Including `DIDUKUNG`** — especially `DIDUKUNG`,
+Every Hasil carries it. **Including `KONSISTEN`** — especially `KONSISTEN`,
 because that is the outcome where the temptation to stay quiet is greatest.
+
+The outcome was called `DIDUKUNG` ("supported") in the first draft and is
+renamed here. Two questions cannot *support* a conclusion about mastery, so
+naming the best outcome "supported" would have contradicted the limit
+statement printed directly beneath it. `KONSISTEN` claims exactly what the
+evidence permits: the answers are consistent with having understood the
+reading.
 
 > **ID** Ini cukup untuk satu bacaan kecil. Belum cukup untuk menilai
 > penguasaan seseorang.
@@ -655,7 +745,7 @@ The three outcome headlines:
 
 | Outcome | ID | EN |
 |---|---|---|
-| `DIDUKUNG` | **Yang Anda baca tampak bisa Anda gunakan.** Dua pertanyaan tadi Anda jawab dengan tepat. | **What you read appears usable to you.** You answered both questions accurately. |
+| `KONSISTEN` | **Dua jawaban Anda sejalan dengan bacaan itu.** | **Both your answers are consistent with the reading.** |
 | `BELUM_CUKUP` | **Belum cukup bukti.** Dua pertanyaan belum cukup untuk menyimpulkan penguasaan. Itu bukan kekurangan Anda — itu batas buktinya. | **Not yet enough evidence.** Two questions are not enough to conclude anything about mastery. That is not a shortcoming in you — it is the limit of the evidence. |
 | `PERLU_PERHATIAN` | **Ada bagian yang layak dibaca ulang.** Dua pertanyaan tadi belum tepat, dan itu menunjukkan bagian mana — bukan ukuran penguasaan Anda. | **There is a part worth reading again.** Both answers were not yet right, and that shows you which part — not a measure of your mastery. |
 
@@ -709,6 +799,8 @@ choose*. The system never holds the deciding verb.
 | **STOP-4** | **Native Indonesian read.** The ID content in §3 is authored, not translated, and I am confident in it — but educational copy that a public audience will read deserves a native editorial pass before launch, independent of your content approval. | Public launch | You to assign |
 | **STOP-5** | **Domain cutover (R5).** `pintarselalu.com` / `app.pintarselalu.com` — DNS, certificates, and whether the application moves now or later. R5 says do not move application routes yet, so V1 can be built and previewed without it. | Public launch, not build | You / infrastructure |
 | **STOP-6** | **Identity asset (R7).** A replaceable slot is designed in; final external release remains blocked on the approved PINTAR SELALU asset, per your ruling. | External release | Separate identity exploration |
+| **STOP-7** | **Duration claim (§3.7).** The measured journey is 2:20–3:55, not 2–3 minutes. I recommend describing it as "about three minutes" and keeping three Pemetaan Awal questions. The alternative — two questions — buys ~25 seconds and costs a Peta Bacaan card. | Public copy, not the build | **You** |
+| **STOP-8** | **Modal outcome (§4.2).** Most visitors will see `KONSISTEN`, not `BELUM_CUKUP`, because the check questions follow the lesson that answers them. The doctrine is carried by the limit statement in every outcome rather than by the distribution. If you want the refusal to be the usual result, the check questions must be materially harder. | Nothing — the design works either way | **You** |
 
 **Nothing in §§2–11 is blocked by STOP-1, 2, 5 or 6.** Only STOP-3 — your
 review of the content — stands between this document and implementation.
@@ -717,13 +809,19 @@ review of the content — stands between this document and implementation.
 
 ## What I need from you
 
-1. **Approve or amend §3**, the content. That is the gate.
-2. **Confirm §4.2's outcome table**, in particular that `BELUM_CUKUP` on
-   "one of two" is the behaviour you want — it means most visitors will be
-   told the evidence is insufficient, which is the honest result and the
-   strongest demonstration, and it is a commercial choice as much as a
-   design one.
-3. **Confirm §6.3** — no browser storage at all, accepting that a reload
-   restarts the two-minute journey.
+1. **Approve or amend §3**, the content. That is the gate, and §3 has been
+   through the adversarial pass recorded in `M1-ADVERSARIAL-PASS.md` — five
+   defects found and fixed before it reached you, including one register
+   error and one item whose answer the lesson never taught.
+2. **§3.7 — the duration.** The measured journey is 2:20–3:55, not the 2–3
+   minutes the architecture asserted. I recommend saying "about three
+   minutes" and keeping three Pemetaan Awal questions.
+3. **§4.2 — the modal outcome.** Most visitors will see `KONSISTEN`. My
+   first draft claimed `BELUM_CUKUP` would be the usual result and that was
+   wrong. The doctrine is carried by the limit statement in every outcome
+   instead, which I think is the stronger mechanism — but you should decide
+   deliberately, because the alternative is harder check questions.
+4. **§6.3** — no browser storage at all, accepting that a reload restarts
+   the journey.
 
 On your approval I will proceed to visual direction and implementation.
