@@ -1,0 +1,224 @@
+/* Parent role view.
+ *
+ * Same PINTAR palette as the deck, Mini-PINTAR and the Educator view. NOT
+ * the Educator's layout, on purpose: that surface is a work tool with a
+ * labelled chain on every card, and a parent reading at home on a phone has
+ * a different job and a different amount of attention to give it.
+ *
+ * So: no cards, no tone rules, no tracked micro-labels, no row of decision
+ * buttons. One statement, then three quiet sections with ordinary headings,
+ * then one thing to do. The chain is still there — what happened, what the
+ * evidence supports, what is not known, a possible step, your decision —
+ * but it is carried by sentences rather than by a grid of labels.
+ *
+ * No external origin: system font stack, no icon font, no CDN.
+ *
+ * NOTHING ON THIS PAGE IS COLOURED BY HOW THE CHILD IS DOING. There is no
+ * status tone, no band, no badge. A colour that changes with the news is a
+ * traffic light on a child whatever it is called.
+ */
+
+:root {
+  --paper: #fbfaf7;
+  --card: #ffffff;
+  --sunk: #f3f1ec;
+
+  --line: #e6e2da;
+  --edge: #9a9384;
+
+  --ink: #1f2a33;
+  --ink-2: #4e5a64;
+  --ink-3: #5f6a73;
+
+  --green: #245f55;
+  --green-soft: #e3efec;
+  --green-edge: #8fb3ab;
+  --attention: #7a5400;
+
+  --t-headline: clamp(1.5rem, 1.15rem + 1.6vw, 2.125rem);
+  --t-lede: clamp(1.0625rem, 1.01rem + 0.28vw, 1.1875rem);
+  --t-body: 1.0625rem;
+  --t-small: 0.9375rem;
+
+  --s1: 0.25rem; --s2: 0.5rem; --s3: 0.75rem; --s4: 1rem;
+  --s5: 1.5rem;  --s6: 2rem;   --s7: 2.75rem; --s8: 4rem;
+
+  --measure: 36rem;
+  --gutter: 1.125rem;
+  --radius: 3px;
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--t-body);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.wrap { max-width: var(--measure); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* --------------------------------------------------------- sample banner */
+
+.sample { background: var(--sunk); border-bottom: 1px solid var(--line); }
+.sample__in {
+  max-width: var(--measure); margin: 0 auto;
+  padding: var(--s3) var(--gutter);
+  font-size: var(--t-small);
+}
+.sample__label {
+  letter-spacing: 0.1em; font-weight: 700; color: var(--attention);
+  margin-right: var(--s3);
+}
+.sample__body { color: var(--ink-2); }
+
+/* The state switcher belongs to the REVIEW, not to the design. A parent
+ * sees one state — whichever one their child's evidence puts them in. It is
+ * inside the sample banner so it cannot be mistaken for product chrome. */
+.states { margin-top: var(--s3); display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.states__label { font-size: var(--t-small); color: var(--ink-3); margin-right: var(--s1); }
+.states button {
+  font: inherit; font-size: var(--t-small);
+  min-height: 44px; padding: var(--s2) var(--s3);
+  border: 1px dashed var(--edge); border-radius: var(--radius);
+  background: none; color: var(--ink-2); cursor: pointer;
+}
+.states button[aria-pressed="true"] {
+  border-style: solid; border-color: var(--ink-3);
+  background: var(--card); color: var(--ink); font-weight: 620;
+}
+
+/* ---------------------------------------------------------------- chrome */
+
+.chrome { border-bottom: 1px solid var(--line); }
+.chrome__in {
+  max-width: var(--measure); margin: 0 auto;
+  padding: var(--s3) var(--gutter);
+  display: flex; align-items: center; gap: var(--s3);
+}
+/* Minimum identity: a given name. No class, no year, no account or student
+ * identifier on the page or in its URL. */
+.who { font-weight: 640; letter-spacing: -0.005em; }
+.when { font-size: var(--t-small); color: var(--ink-3); }
+.chrome__end { margin-left: auto; display: flex; align-items: center; }
+
+.lang { display: flex; align-items: center; }
+.lang button {
+  font: inherit; font-size: var(--t-small);
+  min-height: 44px; min-width: 44px; padding: var(--s2) 0.625rem;
+  border: 1px solid transparent; background: none; color: var(--ink-3);
+  cursor: pointer; border-radius: var(--radius);
+}
+.lang button:hover { color: var(--ink); }
+.lang button[aria-pressed="true"] { color: var(--green); font-weight: 650; }
+.lang__second { border-left: 1px solid var(--line); margin-left: 2px; padding-left: var(--s2); }
+
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 2px; }
+
+/* ------------------------------------------------------------ the answer
+ * The five-second skim. The heading and the sentence under it carry the
+ * whole message; everything below exists to explain that message, never to
+ * make the parent discover what it is.
+ */
+
+main { padding: var(--s7) 0 var(--s8); }
+
+.answer { margin-bottom: var(--s7); }
+.answer h1 {
+  font-size: var(--t-headline);
+  line-height: 1.18;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--s3);
+  text-wrap: balance;
+}
+.answer__bounding {
+  font-size: var(--t-lede);
+  color: var(--ink-2);
+  margin: 0 0 var(--s4);
+}
+/* Whether anything needs attention, and whether the parent must do
+ * anything, both live in the skim. Nobody should scroll to find out. */
+.answer__signpost {
+  margin: 0;
+  font-weight: 620;
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+  padding-top: var(--s4);
+}
+
+/* ---------------------------------------------------------------- sections */
+
+.section { margin-bottom: var(--s6); }
+.section h2 {
+  font-size: var(--t-body);
+  font-weight: 650;
+  margin: 0 0 var(--s2);
+  letter-spacing: -0.005em;
+}
+.section p { margin: 0 0 var(--s2); }
+/* The limit is set at the same size as the finding above it and only one
+ * step quieter in colour. It is never small print: making the limit
+ * quieter than the finding is the overclaim this chain exists to prevent. */
+.section .limit { color: var(--ink-2); margin: 0 0 var(--s2); }
+.section p:last-child { margin-bottom: 0; }
+
+.action { border-left: 3px solid var(--green); padding-left: var(--s4); }
+.action .note { color: var(--ink-2); }
+
+.talk {
+  display: inline-block;
+  margin-top: var(--s3);
+  min-height: 44px;
+  padding: var(--s3) var(--s5);
+  border: 1px solid var(--green-edge);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--green);
+  font: inherit;
+  font-size: var(--t-small);
+  font-weight: 560;
+  cursor: pointer;
+}
+.talk:hover { background: var(--green-soft); }
+
+/* ------------------------------------------------------------- the notes */
+
+.notes { margin-top: var(--s7); padding-top: var(--s5); border-top: 1px solid var(--line); }
+.notes h2 {
+  font-size: var(--t-small);
+  font-weight: 650;
+  color: var(--ink-3);
+  margin: 0 0 var(--s2);
+}
+.notes p { font-size: var(--t-small); color: var(--ink-2); margin: 0 0 var(--s4); }
+.notes p:last-child { margin-bottom: 0; }
+
+.noscript {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--attention);
+  background: var(--card);
+  padding: var(--s4);
+  border-radius: var(--radius);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
