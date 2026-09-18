@@ -74,9 +74,15 @@ export default function PanelBantuan({
   }, []);
 
   // Focus moves to the panel's own heading so the next thing read is where the
-  // reader now is, not wherever the page happened to be.
+  // reader now is, not wherever the page happened to be — and on the way out it
+  // goes back to the control that opened this, because a panel that closes and
+  // leaves focus nowhere drops a keyboard reader at the top of the document.
   useEffect(() => {
     judulRef.current?.focus();
+    return () => {
+      const tombol = document.querySelector('[data-tur="bantuan"]');
+      if (tombol instanceof HTMLElement) tombol.focus();
+    };
   }, []);
 
   // Esc closes, and a press outside closes. Neither is the only way out: the

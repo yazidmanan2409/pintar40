@@ -3215,8 +3215,15 @@ export const experienceTests: SelfTest[] = [
         }
       }
       c.expect(/\{s\("tur\.lewati"\)\}/.test(kartu), "the way out of the tour is not labelled in words");
-      c.expect(/\{s\("tur\.tutup"\)\}/.test(code(readFileSync(join(dir, "PanelBantuan.tsx"), "utf8"))),
-        "the way out of the Help panel is not labelled in words");
+      const panel = code(readFileSync(join(dir, "PanelBantuan.tsx"), "utf8"));
+      c.expect(/\{s\("tur\.tutup"\)\}/.test(panel), "the way out of the Help panel is not labelled in words");
+      // AND FOCUS COMES BACK. A panel that closes and leaves focus nowhere
+      // drops a keyboard reader at the top of the document, and so does a
+      // replay started from a panel row that then stops existing.
+      c.expect(/return \(\) => \{[\s\S]{0,200}data-tur="bantuan"[\s\S]{0,120}\.focus\(\)/.test(panel),
+        "closing the Help panel leaves focus nowhere");
+      c.expect(/sebelumnya\.current = document\.querySelector\('\[data-tur="bantuan"\]'\)/.test(kartu),
+        "a replay started from Help has nowhere to return focus to when the tour closes");
 
       // 6. PROGRESS IS ANNOUNCED IN WORDS; the dots are a picture of it.
       c.expect(/className="pin-sr"[\s\S]{0,200}tur\.langkah[\s\S]{0,120}tur\.dari/.test(kartu),

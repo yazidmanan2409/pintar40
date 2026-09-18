@@ -414,7 +414,10 @@ export default function Tur({
   function mulaiLagi(dari: number) {
     setBantuan(false);
     setTip(null);
-    sebelumnya.current = document.activeElement;
+    // Back to the control that opened Help, not to the panel row that was
+    // clicked: that row is about to stop existing, and focus would have
+    // nowhere to return to when the tour closes.
+    sebelumnya.current = document.querySelector('[data-tur="bantuan"]');
     setReplay(true);
     setIndeks(dari);
     setDicentang(false);
