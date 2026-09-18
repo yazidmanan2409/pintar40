@@ -41,11 +41,11 @@ PY
 
 echo "audit.mjs — the words:"
 try "empty EN side"            audit.mjs content.js 'L("Rani", "Rani")||L("Rani", "")'
-try "a ranking"                audit.mjs content.js '"Dalam tiga minggu terakhir, sebagian besar pekerjaannya sejalan dengan pelajaran kelas.",||"Dalam tiga minggu terakhir, Rani berada di atas rata-rata kelas.",' \
+try "a ranking"                audit.mjs content.js '"Tiga minggu terakhir, itu terlihat pada sebagian besar jawabannya.",||"Tiga minggu terakhir, Rani berada di atas rata-rata kelas.",' \
   "a ranking"
 try "a percentile"             audit.mjs content.js '"Empat dari enam cukup untuk diperhatikan||"Rani ada di persentil 60. Empat dari enam cukup untuk diperhatikan' \
   "a ranking"
-try "a permanent label"        audit.mjs content.js '"Rani mengikuti materi yang sedang dipelajari.",||"Perkembangan Rani: sangat baik.",' \
+try "a permanent label"        audit.mjs content.js '"Pekerjaan Rani sejalan dengan materi yang sedang dipelajari.",||"Perkembangan Rani: sangat baik.",' \
   "permanent label"
 try "describing the child"     audit.mjs content.js '"Saat membandingkan dua pecahan dengan penyebut berbeda, jawabannya belum tepat||"Rani lemah dalam pecahan. Saat membandingkan dua pecahan dengan penyebut berbeda, jawabannya belum tepat' \
   "description of the child"
@@ -55,7 +55,7 @@ try "an identifier"            audit.mjs content.js 'child: L("Rani", "Rani"),||
   "identifier"
 try "an exclamation mark"      audit.mjs content.js '"Satu bagian perlu perhatian.||"Satu bagian perlu perhatian!' \
   "exclamation"
-try "skim too long to skim"    audit.mjs content.js '"Dalam tiga minggu terakhir, sebagian besar pekerjaannya sejalan dengan pelajaran kelas.",||"Dalam tiga minggu terakhir, sebagian besar dari dua belas kegiatan yang Rani kerjakan di kelas maupun di rumah menunjukkan hasil yang sejalan dengan materi pelajaran yang sedang berjalan di sekolahnya saat ini.",' \
+try "skim too long to skim"    audit.mjs content.js '"Tiga minggu terakhir, itu terlihat pada sebagian besar jawabannya.",||"Dalam tiga minggu terakhir, sebagian besar dari dua belas kegiatan yang Rani kerjakan di kelas maupun di rumah menunjukkan hasil yang sejalan dengan materi pelajaran yang sedang berjalan di sekolahnya saat ini.",' \
   "five-second skim"
 try "skim hides the action"    audit.mjs content.js '"Satu bagian perlu perhatian. Ada satu hal kecil yang bisa Anda lakukan.",||"Satu bagian perlu perhatian.",' \
   "whether the parent must do anything"
@@ -63,6 +63,12 @@ try "belum-cukup removed"      audit.mjs content.js '"Belum cukup yang bisa kami
   "belum cukup bukti"
 try "ranking note goes vague"  audit.mjs content.js 'Yang dibandingkan adalah pekerjaannya dengan materi yang sedang dipelajari.",||Kami menilai Rani secara menyeluruh.",' \
   "what IS compared"
+
+try "keeping-up language back"  audit.mjs content.js '"Pekerjaan Rani sejalan dengan materi yang sedang dipelajari.",||"Rani mengikuti materi yang sedang dipelajari.",' \
+  "keeping-up language"
+try "an update cadence"        audit.mjs content.js 'child: L("Rani", "Rani"),||child: L("Rani", "Rani"),
+  updated: L("Diperbarui hari ini", "Updated today"),' \
+  "update cadence"
 
 echo "view.mjs — the rendered page:"
 # A status tone on the child, the way it would actually arrive: one state
@@ -78,6 +84,14 @@ try "four questions reordered" view.mjs app.js '    section(t(SECTIONS.supported
   "what can be seen"
 try "an identifier on the page" view.mjs app.js 'document.getElementById("who").textContent = t(UI.child);||document.getElementById("who").textContent = t(UI.child) + " · NIS 1029384756";' \
   "identifier"
+
+try "ranking made prominent"   view.mjs app.js 'el("details", { class: "ranking" }, [||el("details", { class: "ranking", open: "" }, [' \
+  "closed by default"
+try "ranking explanation gone" view.mjs app.js '        el("p", { text: t(RANKING.body) }),
+      ]),||      ]),' \
+  "one click away"
+try "a cadence in the chrome"  view.mjs app.js 'document.getElementById("who").textContent = t(UI.child);||document.getElementById("who").textContent = t(UI.child) + " · Diperbarui hari ini";' \
+  "no update cadence"
 
 echo
 echo "negative tests: $pass caught, $fail not caught"

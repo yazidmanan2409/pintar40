@@ -160,8 +160,36 @@ try {
   assert(shows(order[1], SECTIONS.supported.id), "then what can be seen", order[1]);
   assert(shows(order[2], SECTIONS.attention.id), "then what needs attention", order[2]);
   assert(shows(order[3], SECTIONS.action.id), "then what you can do", order[3]);
-  assert(shows(order[4], RANKING.heading.id), "the ranking answer is last, not first", order[4]);
+  assert(order.length === 4, "the four questions are the only headings", JSON.stringify(order));
   assert(await p.eval("document.querySelectorAll('h1').length") === 1, "exactly one h1");
+
+  // R3: the ranking answer is on demand, and still there.
+  phase("the ranking answer is secondary, and preserved");
+  for (const lang of ["id", "en"]) {
+    await p.goto(at("berjalan", lang));
+    const closed = await p.eval(
+      "document.querySelector('.ranking')?.open === false");
+    assert(closed, `the ranking answer is closed by default (${lang})`);
+    const summary = await p.eval(
+      "document.querySelector('.ranking summary')?.textContent.trim()");
+    assert(shows(summary, RANKING.heading[lang]),
+      `the question a parent would ask is the visible part (${lang})`, String(summary));
+    const before = await p.eval("document.getElementById('view').innerText");
+    assert(!shows(before, RANKING.body[lang]),
+      `the explanation is not on screen until asked for (${lang})`);
+    await p.eval("document.querySelector('.ranking summary').click()");
+    await p.settle();
+    const after = await p.eval("document.getElementById('view').innerText");
+    assert(shows(after, RANKING.body[lang]),
+      `the explanation is one click away, unchanged (${lang})`, after.slice(-160));
+  }
+
+  // R5: the page states no update cadence.
+  await p.goto(at("berjalan"));
+  const chrome = await p.eval("document.querySelector('.chrome').innerText");
+  for (const w of ["diperbarui", "updated", "hari ini", "today"]) {
+    assert(!chrome.toLowerCase().includes(w), "the page states no update cadence", w);
+  }
 
   // ---------------------------------------- no identifier, anywhere, ever
   phase("no identifier");
@@ -199,7 +227,7 @@ try {
         px: parseFloat(getComputedStyle(e).fontSize) }))
     .filter(x => x.px > 0 && x.px < 14)`);
   assert(small.length === 0, "no text under 14px", JSON.stringify(small));
-  const targets = await p.eval(`[...document.querySelectorAll('button, a')]
+  const targets = await p.eval(`[...document.querySelectorAll('button, a, summary')]
     .map(e => ({ el: e.textContent.trim().slice(0, 20),
                  w: Math.round(e.getBoundingClientRect().width),
                  h: Math.round(e.getBoundingClientRect().height) }))

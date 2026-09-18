@@ -33,7 +33,6 @@ export const UI = {
   langLabel: L("Bahasa", "Language"),
   stateLabel: L("Keadaan contoh", "Sample state"),
   talk: L("Bicara dengan guru Rani", "Talk to Rani’s teacher"),
-  updated: L("Diperbarui hari ini", "Updated today"),
 };
 
 // The four questions, in the order the brief fixes them. They are the
@@ -77,11 +76,11 @@ export const STATES = [
   {
     id: "berjalan",
     tab: L("Bukti cukup", "Enough evidence"),
-    headline: L("Rani mengikuti materi yang sedang dipelajari.",
-                "Rani is keeping up with the current lessons."),
+    headline: L("Pekerjaan Rani sejalan dengan materi yang sedang dipelajari.",
+                "Rani’s work lines up with the material being taught."),
     bounding: L(
-      "Dalam tiga minggu terakhir, sebagian besar pekerjaannya sejalan dengan pelajaran kelas.",
-      "Over three weeks, most of her work has matched the lessons under way."),
+      "Tiga minggu terakhir, itu terlihat pada sebagian besar jawabannya.",
+      "Over three weeks, that shows in most of her answers."),
     signpost: L("Satu bagian perlu perhatian. Ada satu hal kecil yang bisa Anda lakukan.",
                 "One part needs attention. There is one small thing you can do."),
 

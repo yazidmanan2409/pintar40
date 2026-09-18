@@ -39,7 +39,6 @@ function render() {
   document.getElementById("sample-label").textContent = t(SAMPLE.label);
   document.getElementById("sample-body").textContent = t(SAMPLE.body);
   document.getElementById("who").textContent = t(UI.child);
-  document.getElementById("when").textContent = t(UI.updated);
 
   const states = document.getElementById("states");
   states.setAttribute("aria-label", t(UI.stateLabel));
@@ -90,9 +89,16 @@ function render() {
     ]),
 
     el("section", { class: "notes" }, [
-      el("h2", { text: t(RANKING.heading) }),
-      el("p", { text: t(RANKING.body) }),
-      el("p", { text: t(NOTE.scope) }),
+      // On demand, not permanently prominent: a parent who is not asking
+      // about rank should not have to read about it every visit, and a
+      // parent who is asking should find it without hunting.
+      el("details", { class: "ranking" }, [
+        el("summary", { text: t(RANKING.heading) }),
+        el("p", { text: t(RANKING.body) }),
+      ]),
+      // The scope note stays visible. It is an evidence boundary, not an
+      // aside: what this page cannot see is part of what it is saying.
+      el("p", { class: "scope", text: t(NOTE.scope) }),
     ]),
   );
 }

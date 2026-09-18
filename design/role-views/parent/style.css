@@ -113,7 +113,6 @@ body {
 /* Minimum identity: a given name. No class, no year, no account or student
  * identifier on the page or in its URL. */
 .who { font-weight: 640; letter-spacing: -0.005em; }
-.when { font-size: var(--t-small); color: var(--ink-3); }
 .chrome__end { margin-left: auto; display: flex; align-items: center; }
 
 .lang { display: flex; align-items: center; }
@@ -207,6 +206,23 @@ main { padding: var(--s7) 0 var(--s8); }
 }
 .notes p { font-size: var(--t-small); color: var(--ink-2); margin: 0 0 var(--s4); }
 .notes p:last-child { margin-bottom: 0; }
+
+/* The ranking answer, on demand. Closed by default and quiet when closed:
+ * a parent who is not asking about rank should not read about it every
+ * visit, and one who is asking should not have to hunt. */
+.ranking { margin-bottom: var(--s4); }
+.ranking summary {
+  font-size: var(--t-small);
+  font-weight: 620;
+  color: var(--ink-2);
+  cursor: pointer;
+  padding: var(--s3) 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.ranking summary:hover { color: var(--ink); }
+.ranking p { margin-top: 0; }
 
 .noscript {
   border: 1px solid var(--line);

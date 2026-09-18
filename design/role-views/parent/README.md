@@ -2,8 +2,21 @@
 
 **"Bagaimana anak saya?" / "How is my child?"**
 
-**Date:** 2026-09-18 · **Status:** for Sauron review. Parent only — Student
-and Management remain undesigned, by instruction.
+**Date:** 2026-09-18 · **Status:** grammar approved; rulings R1–R8 applied.
+Parent only — Student and Management remain undesigned, by instruction.
+
+## Rulings applied
+
+| | Ruling | What changed |
+|---|---|---|
+| **R1** | Parent remains LATER; no implementation scope | Nothing built, nothing proposed for build. This patch adds no scope. |
+| **R2** | No keeping-up language | *"Rani mengikuti materi"* / *"Rani is keeping up"* → **"Pekerjaan Rani sejalan dengan materi yang sedang dipelajari"**. The sentence now has no second party in it at all. Enforced as a rule, not an edit. |
+| **R3** | The ranking answer becomes secondary | It is a closed disclosure at the foot. The explanation is unchanged and one click away, in both languages. |
+| **R4** | Guardian access means a bounded parent-facing interpretation | Recorded below as the shape any future doc 06 row would take — **not** a general read of learner evidence. |
+| **R5** | No daily-refresh behaviour | *"Diperbarui hari ini"* removed rather than replaced. The page states no cadence, and cadence words are now banned. |
+| **R6** | Given name is sufficient | Closed. |
+| **R7** | Do not invent the concerning-evidence state | Recorded as an unresolved product decision, below. |
+| **R8** | Preserve the rest | Evidence boundaries, identical palette, the five-second rule, mobile-first comprehension and *"saran, bukan tugas"* all still enforced, and all checks re-run. |
 
 ```
 python3 -m http.server 8000 --directory .
@@ -61,15 +74,18 @@ first-class and reported beside it. At 200 wpm.
 
 | State | ID skim | ID answer | ID with notes | EN skim | EN answer | EN with notes |
 |---|---|---|---|---|---|---|
-| Bukti cukup | **5.1 s** | 37 s | 51 s | 6.3 s | 43 s | 58 s |
+| Bukti cukup | **5.1 s** | 37 s | 51 s | 5.7 s | 42 s | 58 s |
 | Bukti masih sedikit | **5.1 s** | 30 s | 44 s | 5.4 s | 35 s | 50 s |
 | Ada pola berulang | **5.1 s** | 34 s | 48 s | 5.4 s | 38 s | 53 s |
 
 Three numbers, not one, because they answer different questions. **Skim** is
 the heading plus the first sentence. **Answer** is the whole of questions
-1–4. **With notes** adds the ranking answer and the scope note, which a
-parent reads once rather than every visit — they are reported rather than
-budgeted, and saying so is the point of listing them separately.
+1–4. **With notes** adds the scope note and the ranking explanation — and
+since R3 the ranking explanation is behind a disclosure, so the third
+column is now the cost of a parent who opens it, not of every visit.
+
+After R2 the Indonesian skim stayed at 5.1 s in all three states; the
+replacement sentence was tightened by two words to keep it there.
 
 `verify/audit.mjs` fails if the Indonesian skim passes 18 words or the
 Indonesian answer passes 40 seconds.
@@ -88,13 +104,20 @@ page, and two paragraphs of limit were doing the work of one.
 
 ## The ranking question
 
-A parent will ask. The page answers before they do, at the foot, without
-being defensive:
+A parent will ask. Since R3 the answer is **on demand**: a closed disclosure at the foot,
+showing only the question a parent might ask. Open it and the explanation is
+unchanged.
 
-> **Kalau Anda ingin tahu peringkat**
+> **Kalau Anda ingin tahu peringkat** ▸
 > PINTAR tidak memberi peringkat dan tidak membandingkan Rani dengan anak
 > lain. Yang dibandingkan adalah pekerjaannya dengan materi yang sedang
 > dipelajari.
+
+A parent who is not asking about rank no longer reads about it every visit;
+one who is asking finds it without hunting. `verify/view.mjs` asserts it is
+closed by default, that the explanation is genuinely absent from the page
+until asked for, and that one click restores it word for word — in both
+languages.
 
 The audit bans the disguises as well as the word: percentile, above or below
 average, top-anything, "better than most", a place in an order. It also
@@ -207,7 +230,10 @@ identical.
 | The four questions, in order | `view.mjs` | headings read off the page in sequence |
 | "Belum cukup bukti" stays reachable | `audit.mjs` | fails if the state is removed |
 | Contrast, type floor, targets, reflow 320–1440 | `view.mjs` | measured in three states and two languages |
-| The verifiers can fail | `negative.sh` | seventeen planted defects, seventeen caught |
+| No keeping-up language (R2) | `audit.mjs` | *mengikuti materi*, *keeping up*, *on track*, *behind the class* and their family |
+| The ranking answer is secondary, and intact (R3) | `view.mjs` | closed by default, absent from the page until asked for, word-for-word after one click, both languages |
+| The page sets no update cadence (R5) | `audit.mjs`, `view.mjs` | cadence words banned; the chrome is read back and must carry none |
+| The verifiers can fail | `negative.sh` | twenty-two planted defects, twenty-two caught |
 
 **What none of this proves.** That an Indonesian parent reads the headline
 the way I intend — see A-1 below. That the design test passes with real
@@ -220,14 +246,13 @@ Indonesian is natural (the standing STOP-4 applies, and this adds more).
 
 Run against my own work before it reached you.
 
-**A-1 · "Rani mengikuti materi yang sedang dipelajari" may be a peer
-comparison in disguise.** *Mengikuti* can be heard as "keeping up with the
-others" rather than "following the material". The grammar is defensible —
-the object is the material, which is what the brief permits comparing
-against — but connotation is not settled by grammar, and I cannot judge it.
-**This is the single most important thing for a native reader to rule on.**
-The English *"keeping up with the current lessons"* leans further toward
-comparison than the Indonesian does, and may need rewording.
+**A-1 · RESOLVED by R2.** *Mengikuti* could be heard as "keeping up with the
+others" rather than "following the material", and the English *"keeping
+up"* leaned further that way. Both are gone. The headline now states a
+relationship between Rani's work and the material — *"Pekerjaan Rani
+sejalan dengan materi yang sedang dipelajari"* — with no second party in
+the sentence to compare her to. The audit bans the whole family of
+keeping-up phrasings so it cannot come back by accident.
 
 **A-2 · Three named states are a classification.** Addressed above, and
 turned into an enforced property rather than an argument.
@@ -249,32 +274,34 @@ states are added.
 
 ## Questions that genuinely need you
 
-**Q1 — Is the parent experience moving out of LATER?** Everything above is
-a design. Building any of it is a scope change requiring a recorded decision
-and an ADR. Nothing here assumes the answer.
+**RESOLVED — Q1, scope.** Parent remains LATER (R1). Nothing here is
+proposed for build, and this patch created no implementation scope.
 
-**Q2 — What may a guardian see?** Not a UI question. A parent row in doc
-06's eligibility table is a policy decision about a third party reading a
-learner's evidence, and it interacts with OD-9. The design assumes the
-narrowest possible answer — one child, one page, no identifiers, nothing
-about anyone else's child — but the narrowest answer is still an answer
-someone has to give.
+**RESOLVED — Q4, identity.** A given name is sufficient (R6).
 
-**Q3 — How often should a parent look?** Daily updates make a page a habit,
-and an anxious parent will check a habit. Options: leave it live; update
-weekly; or say when the next meaningful change is expected. I lean to the
-third — it sets an expectation and removes the reason to refresh — but it is
-a product decision about the relationship, not a layout choice.
+**RULED, and recorded as an architectural constraint — guardian access
+(R4).** Any future doc 06 row for a parent is a row for a **bounded
+parent-facing interpretation**, not for general access to learner evidence.
+That is a stronger statement than "the narrowest answer" and worth writing
+down precisely, because it decides the shape of the thing before anyone
+designs it: a parent surface would read a purpose-built, bounded reading of
+the evidence, and a guardian principal would never be granted a general
+evidence read that a UI then narrows. The narrowing belongs in the contract,
+not in the page.
 
-**Q4 — Is "Rani" the right amount of identity?** A given name, no class, no
-year, no identifier. Adjacent to OD-10.
+**UNRESOLVED — update cadence (R5).** The page designs no refresh
+behaviour, states no cadence, and the audit now bans cadence words. The
+standing intent is that a parent update should eventually correspond to
+**meaningful new evidence** rather than to a clock; what counts as
+meaningful, and how a parent is told, is open.
 
-**Q5 — What happens when the evidence is genuinely bad?** The three states
-here cover steady, thin, and one repeating pattern. A state where a child is
-a long way behind the current material is the hardest copy in the entire
-product, and I have not written it, because writing it without a ruling on
-how much PINTAR is willing to say to a parent would be guessing at the most
-consequential sentence on the surface.
+**UNRESOLVED — the genuinely-concerning-evidence state (R7).** Not
+invented, by ruling. The three states here cover steady, thin, and one
+repeating pattern. A state where the evidence is genuinely worrying is the
+hardest copy in the product: it decides how much PINTAR is willing to say to
+a parent about their own child, and it cannot be written as a guess. It
+stays a product decision, recorded here so it is not mistaken for an
+oversight.
 
 ---
 

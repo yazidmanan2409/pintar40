@@ -147,6 +147,24 @@ const ABOUT_THE_CHILD = [
   "is weak", "struggles with", "lazy", "not capable", "poor at", "bad at",
 ];
 
+// Keeping-up language. "Mengikuti" and "keeping up" name a race even when
+// the sentence does not say who else is in it; the relationship this view
+// describes is between the child's work and the MATERIAL, which needs no
+// second party. Ruled 2026-09-18.
+const COMPARATIVE = [
+  "mengikuti materi", "mengikuti pelajaran", "mengikuti kelas", "tidak tertinggal",
+  "keeping up", "keeps up", "keep up", "on track", "behind the class", "ahead of",
+  "sesuai target", "memenuhi standar",
+];
+
+// Update cadence. A page that says when it was last updated has designed a
+// rhythm, and an anxious parent will check a rhythm. The cadence is
+// unresolved, so the page states none. Ruled 2026-09-18.
+const CADENCE = [
+  "diperbarui hari ini", "updated today", "setiap hari", "every day",
+  "harian", "daily", "diperbarui setiap", "updated every", "terakhir diperbarui",
+];
+
 // PINTAR's own vocabulary. A parent should not have to learn the product's
 // words to find out how their child is.
 const JARGON = [
@@ -168,6 +186,8 @@ for (const [path, p] of ALL) {
       ["a ranking", RANKING_WORDS], ["a permanent label", LABELS],
       ["a description of the child rather than the evidence", ABOUT_THE_CHILD],
       ["PINTAR vocabulary a parent should not need", JARGON],
+      ["keeping-up language, which implies a race", COMPARATIVE],
+      ["an update cadence this design does not set", CADENCE],
     ]) {
       for (const w of list) {
         if (text.includes(w)) fail(`${label} ("${w}")`, `${path}.${side}`);
