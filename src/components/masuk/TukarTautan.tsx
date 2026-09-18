@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { tukarKode } from "@/app/auth/callback/actions";
+import { useSiap } from "./siap";
 
 /**
  * S13 · exchanging, and S14 · the link is no longer valid.
@@ -35,6 +36,7 @@ export default function TukarTautan({
   lanjut: string;
 }) {
   const s = (k: HleEvent) => t(k, "public", { locale });
+  const siap = useSiap();
   const [mati, setMati] = useState(kode === null);
   const judulRef = useRef<HTMLHeadingElement>(null);
   const sudah = useRef(false);
@@ -64,13 +66,18 @@ export default function TukarTautan({
     );
   }
 
+  // The exchange is the client's work, so if the client never started there is
+  // nothing in flight and saying "please wait" would be a lie told to somebody
+  // who could wait for ever. The heading stays — the link has not been judged —
+  // and the note says what actually happened and what to do (D2's bounded
+  // failure behaviour).
   return (
     <div className="pin-form" role="status" aria-live="polite">
       <span className="pin-disc pin-disc-primary" aria-hidden="true">
-        <span className="pin-putar" />
+        {siap ? <span className="pin-putar" /> : null}
       </span>
       <h1 className="pin-mh1" tabIndex={-1} ref={judulRef}>{s("auth.link_h_exch")}</h1>
-      <p className="pin-lede-m">{s("auth.link_p_exch")}</p>
+      <p className="pin-lede-m">{s(siap ? "auth.link_p_exch" : "auth.belum_siap")}</p>
     </div>
   );
 }

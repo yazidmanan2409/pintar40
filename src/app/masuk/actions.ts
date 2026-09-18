@@ -11,15 +11,17 @@ import { tujuanInternal } from "@/lib/tujuan";
 /**
  * WHAT THE SIGN-IN SCREEN IS TOLD, AND WHAT IT IS NOT.
  *
- * Three outcomes, and the set is deliberately this small. `terkirim` is the
- * ordinary answer and it is also the answer for an address nobody has — see
- * L-2 below, and §S5 of the login handoff. `ditahan` is the authentication
- * layer refusing a send it considers too soon. `gagal` is everything else:
- * network, mail transport, server.
+ * TWO outcomes, and the set is deliberately this small. `terkirim` is the
+ * ordinary answer; it is also the answer for an address nobody has (L-2), and
+ * since the D2 ruling it is also the answer when the provider refuses the send
+ * as too soon. `gagal` is a failure of the REQUEST — network, mail transport,
+ * server — which is a fact about the attempt and not about the address.
  *
- * There is no outcome for "no such account", because there must not be one.
+ * There is no outcome for "no such account", and there is no longer one for
+ * "held", because either of them would answer a question the screen must not
+ * answer.
  */
-export type HasilKirim = "terkirim" | "ditahan" | "gagal";
+export type HasilKirim = "terkirim" | "gagal";
 
 export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -54,10 +56,20 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   // Deliberately not a pre-check against the database: asking "does this email
   // exist" before asking Supabase to send the link would rebuild the same
   // oracle in our own code, one round-trip earlier.
-  if (!error || tidakTerdaftar(error)) return "terkirim";
-  // Ordered after the privacy fold on purpose: an address nobody has is
-  // reported as sent even if it is also being throttled.
-  if (terlaluSering(error)) return "ditahan";
+  //
+  // D2 (Sauron, 2026-09-18): A RATE-LIMIT REFUSAL IS FOLDED IN HERE TOO, and
+  // the held-resend surface is suppressed. The provider may throttle sends
+  // however it likes; what the screen must never do is let repeated presses
+  // separate a provisioned address from an unknown one. It would have: with
+  // `shouldCreateUser: false` an unknown address never reaches the provider's
+  // throttle at all, so a held resend could only ever mean "this address is
+  // real". That is the enumeration boundary the conditional copy exists to
+  // close, and it is frozen.
+  //
+  // The fold is honest as well as safe. The throttle fires BECAUSE a link went
+  // out recently, so "if that address is linked, a sign-in link has been sent
+  // there" is describing the one already in the person's inbox.
+  if (!error || tidakTerdaftar(error) || terlaluSering(error)) return "terkirim";
   return "gagal";
 }
 
@@ -75,15 +87,15 @@ function tidakTerdaftar(error: { code?: string; status?: number; message?: strin
 }
 
 /**
- * THE SEND WAS REFUSED AS TOO SOON — the one condition §7.1 of the handoff
- * makes S6 conditional on, and it is READ FROM THE AUTHENTICATION LAYER rather
- * than invented here. `over_email_send_rate_limit` and `over_request_rate_limit`
- * are declared members of the client library's own error-code union.
+ * THE SEND WAS REFUSED AS TOO SOON. Recognised so it can be FOLDED INTO the
+ * ordinary outcome, never so it can be shown: S6 is suppressed by the D2
+ * ruling, and this function exists to make sure a throttle is not mistaken for
+ * a transport failure and reported as one — which would put the distinguishable
+ * state back through the other door.
  *
- * No timer, no countdown, no cooldown and no policy lives in this codebase.
- * If the layer stops reporting the condition, S6 simply stops being reachable
- * and repeated presses fall back to the ordinary outcome, which is what the
- * handoff asks for.
+ * No timer, no countdown, no cooldown, no retry-after and no policy lives in
+ * this codebase. The condition is the provider's; the screen's answer to it is
+ * the same answer it gives everybody.
  */
 function terlaluSering(error: { code?: string; status?: number }): boolean {
   if (error.code === "over_email_send_rate_limit" || error.code === "over_request_rate_limit") return true;

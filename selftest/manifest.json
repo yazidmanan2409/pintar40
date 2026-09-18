@@ -1198,8 +1198,8 @@
       "id": "UX1-MASUK-KONTRAK-01",
       "runner": "static",
       "requires": [],
-      "proves": "the sign-in screen's source offers exactly the two doors the authentication contract has and not one more — no password field, registration, recovery, social sign-in, SSO, passkey, institution or role picker, or remember-me; ?peran= is neither branched on nor rendered for a persona and never survives the authentication boundary; L-2's shouldCreateUser:false is intact with its privacy fold ordered ahead of the rate-limit branch; and the held-resend state is driven by the authentication layer's own error code with no timer, countdown or cooldown in the surface",
-      "how": "src/app/masuk/*, src/app/auth/callback/*, src/components/masuk/* read as source; a planted password field and a planted signUp call watched to be caught"
+      "proves": "the sign-in screen's source offers exactly the two doors the authentication contract has and not one more — no password field, registration, recovery, social sign-in, SSO, passkey, institution or role picker, or remember-me; ?peran= is neither branched on nor rendered for a persona and never survives the authentication boundary; L-2's shouldCreateUser:false is intact; S6 is SUPPRESSED BY SECURITY RULING (D2) and cannot return, because the send outcome set has no member meaning held, the throttle is still recognised so it folds into the same answer an unknown address gets rather than being reported as a transport failure, its copy is gone from the table, and no timer, countdown, cooldown or retry-after exists in the surface; and a client that never started holds every actionable control and says why, on the sign-in surfaces and the callback alike",
+      "how": "src/app/masuk/*, src/app/auth/callback/*, src/components/masuk/* read as source; six plants watched — a held outcome, an unfolded throttle, cooldown copy, controls drawn operational before hydration, a callback claiming an exchange that never started, and a password field"
     },
     {
       "id": "UX1-MASUK-PRIVASI-01",
@@ -1219,7 +1219,7 @@
       "id": "UX1-MASUK-AKSES-01",
       "runner": "static",
       "requires": [],
-      "proves": "the rendered source of the sign-in components holds fields readonly and never disabled in flight, marks busy controls, makes the PIN reveal a labelled pressed-state toggle that no timer undoes — the surface runs no timer at all — declares every focus destination in one named set, deliberately moves focus nowhere when a resend is held, builds every control from a native element with no positive tabindex, makes the exchanging surface a polite live region that takes focus, and stops both moving things under reduced motion",
+      "proves": "the rendered source of the sign-in components holds fields readonly and never disabled in flight, marks busy controls, makes the PIN reveal a labelled pressed-state toggle that no timer undoes — the surface runs no timer at all — declares every focus destination in one named set, leaves the send-outcome handler with only the two surfaces D2 permits, builds every control from a native element with no positive tabindex, makes the exchanging surface a polite live region that takes focus, and stops both moving things under reduced motion",
       "how": "src/components/masuk/*.tsx and the sign-in block of src/app/experience.css, read as source"
     },
     {

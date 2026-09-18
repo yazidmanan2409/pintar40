@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
+import { useSiap } from "./siap";
 import { sendMagicLink, signInWithCard, type HasilKirim } from "@/app/masuk/actions";
 
 /**
@@ -36,7 +37,7 @@ import { sendMagicLink, signInWithCard, type HasilKirim } from "@/app/masuk/acti
 /** Which surface is on screen, and what it is carrying. */
 type Layar =
   | { k: "email"; salah?: "bentuk" | "kirim"; sibuk?: boolean }
-  | { k: "terkirim"; ditahan?: boolean; sibuk?: boolean }
+  | { k: "terkirim"; sibuk?: boolean }
   | { k: "kartu"; salah?: boolean; sibuk?: boolean };
 
 /** Where focus goes next. Named rather than implied; see the note above. */
@@ -62,6 +63,13 @@ export default function LayarMasuk({
   lanjut: string;
 }) {
   const s = (k: HleEvent) => t(k, "public", { locale });
+
+  const siap = useSiap();
+  // Drawn once, used on all three surfaces: a control held unavailable without
+  // a reason is its own small cruelty.
+  const catatan = siap ? null : (
+    <p className="pin-msg pin-msg-note" role="status">{s("auth.belum_siap")}</p>
+  );
 
   const [layar, setLayar] = useState<Layar>({ k: "email" });
   const [pinTampil, setPinTampil] = useState(false);
@@ -105,26 +113,32 @@ export default function LayarMasuk({
     }
     alamat.current = nilai;
     setLayar({ k: "email", sibuk: true });
-    const hasil = await sendMagicLink(new FormData(form));
-    terapkanKirim(hasil, false);
+    terapkanKirim(await sendMagicLink(new FormData(form)));
   }
 
   /**
-   * S6 IS REACHABLE ONLY FROM A RESEND, exactly as the handoff scopes it. A
-   * first send that the layer refuses as too soon has still failed to send, so
-   * it lands in S7 and says so; it does not borrow the wording of a state
-   * about asking again.
+   * S6 — SUPPRESSED BY SECURITY RULING (D2, Sauron, 2026-09-18).
+   *
+   * The handoff specified a held-resend surface, conditional on the
+   * authentication layer exposing a distinguishable rate-limit condition. It
+   * does expose one. Implementation verification then established what the
+   * handoff could not know, because §7.4 records that L-2's direction was
+   * unknown when it was written: with `shouldCreateUser: false`, an UNKNOWN
+   * address never reaches the provider's throttle, so a held resend could only
+   * ever mean "this address is real". Two presses would have separated a
+   * provisioned address from an unknown one — the enumeration boundary the
+   * conditional confirmation exists to close.
+   *
+   * So the rate-limit outcome is folded into the ordinary one in the action,
+   * and this function has two branches instead of three. There is no held
+   * state, no countdown, no cooldown message, no retry-after and no throttling
+   * explanation. Repeated presses of `Kirim ulang` simply re-enter S4 → S5,
+   * which is the same thing they do for an address nobody has.
    */
-  function terapkanKirim(hasil: HasilKirim, ulang: boolean) {
+  function terapkanKirim(hasil: HasilKirim) {
     if (hasil === "terkirim") {
       setLayar({ k: "terkirim" });
       pindahFokus("judul");
-      return;
-    }
-    if (hasil === "ditahan" && ulang) {
-      setLayar({ k: "terkirim", ditahan: true });
-      // Focus does not move. A change the person did not ask for, announced
-      // to nobody, is how a screen-reader user loses their place.
       return;
     }
     setLayar({ k: "email", salah: "kirim" });
@@ -136,7 +150,7 @@ export default function LayarMasuk({
     const fd = new FormData();
     fd.set("email", alamat.current);
     fd.set("lanjut", lanjut);
-    terapkanKirim(await sendMagicLink(fd), true);
+    terapkanKirim(await sendMagicLink(fd));
   }
 
   function emailLain() {
@@ -181,21 +195,21 @@ export default function LayarMasuk({
         <span className="pin-disc pin-disc-primary" aria-hidden="true">✉</span>
         <h1 className="pin-mh1" tabIndex={-1} ref={judulRef}>{s("auth.sent_h")}</h1>
         <p className="pin-lede-m">{s("auth.link_sent")}</p>
-        {layar.ditahan ? (
-          <p className="pin-msg pin-msg-note" role="status">{s("auth.cool")}</p>
-        ) : null}
+        {catatan}
         <div className="pin-stack">
+          {/* Never held. A resend the provider refuses returns the same answer
+              as one it accepts, so this control has one behaviour for
+              everybody (D2). */}
           <button
             type="button"
             className="pin-mbtn pin-mbtn-2"
             onClick={kirimUlang}
-            disabled={Boolean(layar.ditahan) || Boolean(layar.sibuk)}
+            disabled={!siap || Boolean(layar.sibuk)}
             aria-busy={layar.sibuk ? "true" : undefined}
           >
             {layar.sibuk ? s("auth.sending") : s("auth.sent_resend")}
           </button>
-          {/* Never blocked by a limit on the previous address. */}
-          <button type="button" className="pin-mbtn pin-mbtn-2" onClick={emailLain}>
+          <button type="button" className="pin-mbtn pin-mbtn-2" onClick={emailLain} disabled={!siap}>
             {s("auth.sent_other")}
           </button>
         </div>
@@ -208,7 +222,7 @@ export default function LayarMasuk({
       <form className="pin-form" onSubmit={masukKartu} ref={formKartuRef} noValidate>
         <input type="hidden" name="lanjut" value={lanjut} />
         {/* First element, first tab stop, present in every card state. */}
-        <button type="button" className="pin-kembali" onClick={keEmail}>
+        <button type="button" className="pin-kembali" onClick={keEmail} disabled={!siap}>
           <span aria-hidden="true">←</span> {s("auth.card_back")}
         </button>
         <h1 className="pin-mh1">{s("auth.card_h1")}</h1>
@@ -262,9 +276,10 @@ export default function LayarMasuk({
           <p className="pin-msg pin-msg-err" role="alert" id="kartu-err">{s("auth.card_failed")}</p>
         ) : null}
 
+        {catatan}
         <button
           type="submit" className="pin-mbtn pin-mbtn-1 pin-mbtn-big"
-          disabled={layar.sibuk} aria-busy={layar.sibuk ? "true" : undefined}
+          disabled={!siap || layar.sibuk} aria-busy={layar.sibuk ? "true" : undefined}
         >
           {layar.sibuk ? <><span className="pin-putar" aria-hidden="true" />{s("auth.card_checking")}</> : s("auth.card_enter")}
         </button>
@@ -300,9 +315,10 @@ export default function LayarMasuk({
         <p className="pin-msg pin-msg-err" role="alert">{s("auth.err_send")}</p>
       ) : null}
 
+      {catatan}
       <button
         type="submit" className="pin-mbtn pin-mbtn-1" ref={kirimRef}
-        disabled={layar.sibuk} aria-busy={layar.sibuk ? "true" : undefined}
+        disabled={!siap || layar.sibuk} aria-busy={layar.sibuk ? "true" : undefined}
       >
         {layar.sibuk
           ? <><span className="pin-putar" aria-hidden="true" />{s("auth.sending")}</>
@@ -311,7 +327,7 @@ export default function LayarMasuk({
 
       <p className="pin-rute">
         {s("auth.card_title")}{" "}
-        <button type="button" className="pin-tautan" onClick={keKartu}>{s("auth.card_go")}</button>
+        <button type="button" className="pin-tautan" onClick={keKartu} disabled={!siap}>{s("auth.card_go")}</button>
       </p>
     </form>
   );

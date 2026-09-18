@@ -3608,25 +3608,72 @@ export const experienceTests: SelfTest[] = [
       c.expect(iFold > 0 && iRate > 0 && iFold < iRate,
         "the rate-limit branch is reached before the privacy fold, so a throttle can distinguish a known address");
 
-      // 4. NO TIMER, NO COUNTDOWN, NO COOLDOWN POLICY. S6 is driven by the
-      //    authentication layer's own condition or it is not reachable at all.
+      // 4. S6 — SUPPRESSED BY SECURITY RULING (D2, Sauron, 2026-09-18).
+      //
+      //    The handoff specified a held-resend surface conditional on the
+      //    provider exposing a distinguishable rate-limit condition. It does
+      //    expose one, so it was built — and then implementation verification
+      //    established what §7.4 of the handoff records it could not know:
+      //    with `shouldCreateUser: false` an UNKNOWN address never reaches the
+      //    provider's throttle, so a held resend could only ever mean "this
+      //    address is real". Two presses separated a provisioned address from
+      //    an unknown one, which is the enumeration boundary the conditional
+      //    confirmation exists to close.
+      //
+      //    So there is no held state, and there is no policy in its place.
       for (const f of files) {
         const src = code(readFileSync(join(repoRoot, f), "utf8"));
-        const m = /setInterval|countdown|hitung.?mundur|cooldown|jeda.?detik|\bdetik\b/i.exec(src);
+        const m = /setInterval|countdown|hitung.?mundur|cooldown|retry.?after|jeda.?detik|\bdetik\b/i.exec(src);
         c.expect(m === null, `${f} invents a resend policy: ${m?.[0]}`);
       }
+      // The outcome set has no member meaning "held", so no surface can render
+      // one however it is written.
+      const hasilKirim = /export type HasilKirim = ([^;]+);/.exec(aksi)?.[1] ?? "";
+      c.expect(/"terkirim"/.test(hasilKirim) && !/ditahan|held|throttl/i.test(hasilKirim),
+        `the send outcome set can still express a held resend: ${hasilKirim}`);
+      // The rate-limit condition is still RECOGNISED — folded into the ordinary
+      // outcome rather than ignored, so a throttle is never mistaken for a
+      // transport failure and reported as S7, which would put the
+      // distinguishable state back through the other door.
+      c.expect(/tidakTerdaftar\(error\) \|\| terlaluSering\(error\)\) return "terkirim";/.test(aksi),
+        "a throttled send no longer folds into the same answer an unknown address gets");
       c.expect(/over_email_send_rate_limit|over_request_rate_limit/.test(aksi),
-        "the held-resend state is not driven by the layer's own rate-limit condition");
+        "the throttle is no longer recognised at all, so it will be reported as a transport failure instead");
+      // And its copy is gone from the table: a suppressed state's copy sitting
+      // there is an invitation to wire it back.
+      c.expect(!allKeys().some((k) => /auth\.cool|cooldown|tahan/.test(k)),
+        "the held-resend copy is still declared");
 
-      c.note(`${files.length} sign-in file(s), ${TIDAK_ADA.length} absent door(s), 2 plants caught`);
+      // 5. A CLIENT THAT NEVER STARTED DOES NOT DRAW AN OPERATIONAL FORM.
+      //    The JavaScript dependency is accepted; a control that looks live and
+      //    silently is not is the failure that is not.
+      const siap = code(readFileSync(join(repoRoot, "src", "components", "masuk", "siap.ts"), "utf8"));
+      c.expect(/useSyncExternalStore\([^)]*\(\) => true, \(\) => false\)/.test(siap.replace(/\s+/g, " ")),
+        "the readiness signal does not report false on the server and true once hydrated");
+      const layarSrc = code(readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8"));
+      const gerbang = [...layarSrc.matchAll(/disabled=\{!siap/g)].length;
+      c.expect(gerbang >= 5,
+        `${gerbang} actionable control(s) held until the client starts; the sign-in surfaces have more than that`);
+      c.expect(/role="status">\{s\("auth\.belum_siap"\)\}/.test(layarSrc),
+        "a control is held unavailable with no reason given");
+      const tukarSrc = code(readFileSync(join(repoRoot, "src", "components", "masuk", "TukarTautan.tsx"), "utf8"));
+      c.expect(/s\(siap \? "auth\.link_p_exch" : "auth\.belum_siap"\)/.test(tukarSrc),
+        "the callback claims an exchange is in flight when no client started one");
+
+      c.note(`${files.length} sign-in file(s), ${TIDAK_ADA.length} absent door(s), ` +
+        `${gerbang} control(s) gated on client readiness, 2 plants caught`);
       return c.verdict(
         "the sign-in screen offers exactly the two doors the contract has: no password field, no registration, no " +
         "recovery, no social sign-in, no SSO, no passkey, no institution or role picker and no remember-me appear " +
         "in any of its source files — both sweeps watched on plants — `?peran=` is neither branched on nor rendered " +
         "for a persona the screen has not met and never survives the authentication boundary, L-2's " +
         "shouldCreateUser:false is intact with its privacy fold still ordered ahead of the rate-limit branch, and " +
-        "the held-resend state is driven by the authentication layer's own condition with no timer, countdown or " +
-        "cooldown anywhere in the surface",
+        "S6 is SUPPRESSED BY SECURITY RULING (D2) and cannot return: the send outcome set has no member meaning " +
+        "held, the throttle is still recognised so it can be folded into the same answer an unknown address gets " +
+        "rather than mistaken for a transport failure, its copy is gone from the table, and no timer, countdown, " +
+        "cooldown or retry-after exists anywhere in the surface. A client that never started holds every actionable " +
+        "control and says why, on both the sign-in surfaces and the callback, so nothing is ever drawn operational " +
+        "while silently doing nothing",
       );
     },
   },
@@ -3640,8 +3687,11 @@ export const experienceTests: SelfTest[] = [
       const layar = code(readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8"));
 
       // 1. AN UNKNOWN ADDRESS PRODUCES THE SENT SCREEN, NOT AN ERROR.
-      c.expect(/if \(!error \|\| tidakTerdaftar\(error\)\) return "terkirim";/.test(aksi),
-        "an address nobody has no longer produces the ordinary outcome");
+      // One answer covers three cases: a clean send, an address nobody has
+      // (L-2), and a send the provider refused as too soon (D2). Any of the
+      // three reaching a different surface is an oracle.
+      c.expect(/if \(!error \|\| tidakTerdaftar\(error\) \|\| terlaluSering\(error\)\) return "terkirim";/.test(aksi),
+        "a clean send, an unknown address and a throttled send no longer produce the same outcome");
       c.expect(!/exists|terdaftar\?|cek.?email|lookup/i.test(aksi.replace(/tidakTerdaftar/g, "")),
         "the send path asks whether an address exists before sending, which rebuilds the oracle a round-trip earlier");
       // There is no outcome that means "no such account".
@@ -3813,10 +3863,13 @@ export const experienceTests: SelfTest[] = [
       c.expect(/setLayar\(\{ k: "terkirim" \}\);\s*\n\s*pindahFokus\("judul"\);/.test(layar),
         "the sent surface does not move focus to its heading");
       c.expect(/pindahFokus\("kartu"\)/.test(layar), "the card surface never sends focus to the first field");
-      // S6 must NOT move focus, and neither must a re-enable.
-      const tahan = /if \(hasil === "ditahan" && ulang\) \{[\s\S]*?\n    \}/.exec(layar)?.[0] ?? "";
-      c.expect(tahan.length > 0 && !/pindahFokus/.test(tahan),
-        "the held-resend state moves focus, which a person did not ask for and cannot explain");
+      // S6 is suppressed (D2), so the resend path has exactly two outcomes and
+      // neither of them is a surface that appears only for a real address.
+      const terap = /function terapkanKirim\(hasil: HasilKirim\) \{[\s\S]*?\n  \}/.exec(layar)?.[0] ?? "";
+      c.expect(terap.length > 0, "the send-outcome handler cannot be found");
+      c.expect((terap.match(/setLayar\(/g) ?? []).length === 2,
+        "the send-outcome handler has more than the two surfaces D2 leaves it");
+      c.expect(!/ditahan|tahan/.test(terap), "a held-resend branch is back in the send-outcome handler");
 
       // 4. NO POSITIVE TABINDEX, AND EVERY CONTROL IS NATIVE.
       for (const f of semua) {

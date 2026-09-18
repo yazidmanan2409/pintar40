@@ -135,7 +135,7 @@ export type HleEvent =
   | "auth.link_sent"
   | "auth.sent_resend"
   | "auth.sent_other"
-  | "auth.cool"
+  | "auth.belum_siap"
   | "auth.card_title"
   | "auth.card_go"
   | "auth.card_h1"
@@ -981,9 +981,11 @@ const table: Table = {
   "auth.link_sent": { default: "Jika alamat itu terhubung dengan akun PINTAR, tautan masuk sudah dikirim ke sana. Buka email, lalu ketuk tautannya.", en: "If that address is linked to a PINTAR account, a sign-in link has been sent there. Open your email and tap the link." },
   "auth.sent_resend": { default: "Kirim ulang", en: "Send it again" },
   "auth.sent_other": { default: "Gunakan email lain", en: "Use a different email" },
-  // Names no number of seconds, on purpose. It points the person back at their
-  // inbox, which is where the answer probably already is.
-  "auth.cool": { default: "Tautan baru bisa diminta lagi sebentar lagi. Periksa dulu email Anda — tautan yang pertama mungkin sudah sampai.", en: "You can ask for a new link again shortly. Check your email first — the first link may already have arrived." },
+  // NOT FROM THE CANONICAL COPY TABLE, and flagged as such for Experience. The
+  // D2 ruling requires a bounded behaviour when the client fails to start, and
+  // a control drawn unavailable without a reason is its own small cruelty. It
+  // says nothing about any address and appears for everybody or nobody.
+  "auth.belum_siap": { default: "Halaman ini belum siap. Jika tombol tetap tidak aktif, muat ulang halaman.", en: "This page isn't ready yet. If the buttons stay unavailable, reload the page." },
   "auth.card_title": { default: "Punya kartu kelas?", en: "Have a class card?" },
   "auth.card_go": { default: "Gunakan kartu kelas", en: "Use a class card" },
   "auth.card_h1": { default: "Masuk dengan kartu kelas", en: "Sign in with a class card" },
