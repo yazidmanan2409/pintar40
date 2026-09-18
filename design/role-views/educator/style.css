@@ -1,0 +1,293 @@
+/* Educator role view — visual direction.
+ *
+ * Inherits the PINTAR language established for the deck and carried into
+ * Mini-PINTAR's stage H: the same palette, the same hairlines, the same
+ * tracked labels. It is deliberately NOT the same density. Mini-PINTAR is a
+ * reading experience for a stranger and is built out of air; this is a work
+ * surface for someone with fifteen minutes between lessons, so the measure
+ * is wider, the rhythm is tighter, and every line is carrying something.
+ *
+ * No external origin: system font stack, no icon font, no CDN.
+ *
+ * TONES ARE ON WORK, NEVER ON PEOPLE. A tone class may only ever be applied
+ * to a card's left rule and to its kind label — which name a kind of
+ * decision, not a learner. Nothing on this page colours a person, ranks
+ * one, or scores one.
+ */
+
+:root {
+  --paper: #fbfaf7;
+  --card: #ffffff;
+  --sunk: #f3f1ec;
+
+  --line: #e6e2da;
+  --edge: #9a9384;
+
+  --ink: #1f2a33;
+  --ink-2: #4e5a64;
+  --ink-3: #5f6a73;
+
+  --green: #245f55;
+  --green-deep: #17443d;
+  --green-soft: #e3efec;
+  --green-edge: #8fb3ab;
+
+  --attention: #7a5400;
+  --blocked: #8c3b3b;
+  --info: #3d5a80;
+
+  --t-title: clamp(1.35rem, 1.1rem + 1.05vw, 1.75rem);
+  --t-lede: clamp(1rem, 0.975rem + 0.12vw, 1.0625rem);
+  --t-body: 1rem;
+  --t-small: 0.875rem;
+
+  --s1: 0.25rem; --s2: 0.5rem;  --s3: 0.75rem; --s4: 1rem;
+  --s5: 1.5rem;  --s6: 2rem;    --s7: 3rem;
+
+  --measure: 44rem;
+  --gutter: 1rem;
+  --radius: 3px;
+  --label-col: 13.5rem;
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+.sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.wrap { max-width: var(--measure); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* --------------------------------------------------------- sample banner
+ * Part of the page, top of the document, not dismissible. The same
+ * reasoning as src/app/_evaluation-banner.tsx: its presence is a property
+ * of what this is, so there is no state to dismiss it with.
+ */
+
+.sample {
+  background: var(--sunk);
+  border-bottom: 1px solid var(--line);
+}
+.sample__in {
+  max-width: var(--measure); margin: 0 auto;
+  padding: var(--s3) var(--gutter);
+  display: flex; gap: var(--s3); align-items: baseline; flex-wrap: wrap;
+  font-size: var(--t-small);
+}
+.sample__label {
+  letter-spacing: 0.1em; font-weight: 700; color: var(--attention);
+  white-space: nowrap;
+}
+.sample__body { color: var(--ink-2); }
+
+/* ---------------------------------------------------------------- chrome */
+
+.chrome { border-bottom: 1px solid var(--line); }
+.chrome__in {
+  max-width: var(--measure); margin: 0 auto;
+  padding: var(--s3) var(--gutter);
+  display: flex; align-items: center; gap: var(--s3);
+}
+.crumb { font-size: var(--t-small); color: var(--ink-3); }
+.crumb b { color: var(--ink-2); font-weight: 600; }
+.chrome__end { margin-left: auto; display: flex; align-items: center; }
+
+.lang { display: flex; align-items: center; }
+.lang button {
+  font: inherit; font-size: var(--t-small);
+  min-height: 44px; min-width: 44px; padding: var(--s2) 0.625rem;
+  border: 1px solid transparent; background: none; color: var(--ink-3);
+  cursor: pointer; border-radius: var(--radius);
+}
+.lang button:hover { color: var(--ink); }
+.lang button[aria-pressed="true"] { color: var(--green); font-weight: 650; }
+.lang__second { border-left: 1px solid var(--line); margin-left: 2px; padding-left: var(--s2); }
+
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 2px; }
+
+/* ------------------------------------------------------------------ head */
+
+main { padding: var(--s6) 0 var(--s7); }
+
+h1 {
+  font-size: var(--t-title);
+  line-height: 1.2;
+  font-weight: 660;
+  letter-spacing: -0.014em;
+  margin: 0 0 var(--s2);
+  text-wrap: balance;
+}
+
+.head__count { font-size: var(--t-small); color: var(--ink-3); margin: 0 0 var(--s3); }
+
+/* The three standing sentences. They are the contract this page makes with
+ * the reader, so they sit above the work and never move. */
+.standing {
+  border-left: 3px solid var(--line);
+  padding-left: var(--s4);
+  margin: 0 0 var(--s6);
+  display: grid; gap: var(--s1);
+  font-size: var(--t-small);
+  color: var(--ink-2);
+  max-width: 34rem;
+}
+.standing b { color: var(--ink); font-weight: 620; }
+
+/* ------------------------------------------------------------------ cards */
+
+.cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s4); }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--edge);
+  border-radius: var(--radius);
+  padding: var(--s4) var(--s5);
+}
+.card--blocked { border-left-color: var(--blocked); }
+.card--attention { border-left-color: var(--attention); }
+.card--info { border-left-color: var(--info); }
+
+.card__head {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: var(--s2) var(--s3);
+  margin-bottom: var(--s3);
+}
+.card__kind {
+  font-size: var(--t-small);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.card--blocked .card__kind { color: var(--blocked); }
+.card--attention .card__kind { color: var(--attention); }
+.card--info .card__kind { color: var(--info); }
+.card__subject { font-size: var(--t-small); color: var(--ink-2); }
+.card__since { font-size: var(--t-small); color: var(--ink-3); margin-left: auto; }
+
+/* The skim line. This is the sentence that has to do the work in the first
+ * pass, so it is the only thing on the card set above body size. */
+.card__happened {
+  font-size: var(--t-lede);
+  line-height: 1.45;
+  margin: 0 0 var(--s4);
+  color: var(--ink);
+}
+
+/* The chain, as a description list: the label IS the relationship between
+ * the heading and the text, which is what a dl says and a div does not. */
+.chain { margin: 0; display: grid; gap: var(--s3); }
+.chain > div {
+  display: grid;
+  grid-template-columns: var(--label-col) 1fr;
+  gap: var(--s4);
+  align-items: start;
+}
+.chain dt {
+  font-size: var(--t-small);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+/* The uncertainty is set at the same size and weight as the support above
+ * it. Making it small print would be the overclaim the chain exists to
+ * prevent. */
+.chain dd { margin: 0; color: var(--ink-2); font-size: var(--t-small); line-height: 1.55; }
+.chain dd.is-key { color: var(--ink); }
+
+@media (max-width: 660px) {
+  .chain > div { grid-template-columns: 1fr; gap: var(--s1); }
+  .card { padding: var(--s4); }
+  .card__since { margin-left: 0; }
+}
+
+/* ---------------------------------------------------------- the decision */
+
+.decide {
+  margin-top: var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+.decide__label {
+  font-size: var(--t-small);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--ink-3);
+  display: block;
+  margin-bottom: var(--s2);
+}
+/* Every option is presented at the same weight. A primary button here
+ * would be PINTAR choosing, and the last option is always a way to decide
+ * that this needed nothing — which is what makes the row an offer of work
+ * rather than an instruction. */
+.decide__row { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.decide__row button {
+  font: inherit;
+  font-size: var(--t-small);
+  min-height: 44px;
+  padding: var(--s2) var(--s4);
+  border: 1px solid var(--green-edge);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--green);
+  font-weight: 560;
+  cursor: pointer;
+  transition: background 120ms var(--ease);
+}
+.decide__row button:hover { background: var(--green-soft); }
+.decide__row button:last-child { border-color: var(--line); color: var(--ink-3); }
+.decide__row button:last-child:hover { background: var(--sunk); }
+
+/* ------------------------------------------------------------ the quiet end
+ * What was looked at and found to need nothing. Suppression is only
+ * trustworthy if the page says what it looked at.
+ */
+
+.quiet { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); }
+.quiet__label {
+  font-size: var(--t-small);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--ink-3);
+  margin: 0 0 var(--s2);
+}
+.quiet ul { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s1); }
+.quiet li { font-size: var(--t-small); color: var(--ink-2); }
+.quiet li::before { content: "\2014"; color: var(--ink-3); margin-right: var(--s2); }
+
+.noscript {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--attention);
+  background: var(--card);
+  padding: var(--s4);
+  border-radius: var(--radius);
+  margin-bottom: var(--s5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
