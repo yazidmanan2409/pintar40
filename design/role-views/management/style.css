@@ -1,0 +1,282 @@
+/* Management role view, and the Umpan Balik screens.
+ *
+ * The Educator card grammar, at institution scope: same palette, same
+ * hairlines, same tracked chain labels, same rule that a tone lands on the
+ * left rule and the kind label and nowhere else.
+ *
+ * NOT a dashboard. There are no tiles, no counters, no charts and no
+ * trends. An institution page that opens with a grid of numbers has
+ * answered a question nobody asked and buried the one they did.
+ *
+ * NOTHING HERE IS COLOURED BY HOW AN EDUCATOR IS DOING. Tones name kinds
+ * of decision — waiting, referred, worth knowing — never a person and
+ * never a class. No external origin.
+ */
+
+:root {
+  --paper: #fbfaf7;
+  --card: #ffffff;
+  --sunk: #f3f1ec;
+
+  --line: #e6e2da;
+  --edge: #9a9384;
+
+  --ink: #1f2a33;
+  --ink-2: #4e5a64;
+  --ink-3: #5f6a73;
+
+  --green: #245f55;
+  --green-deep: #17443d;
+  --green-soft: #e3efec;
+  --green-edge: #8fb3ab;
+
+  --attention: #7a5400;
+  --blocked: #8c3b3b;
+  --info: #3d5a80;
+
+  --t-title: clamp(1.35rem, 1.1rem + 1.05vw, 1.75rem);
+  --t-lede: clamp(1rem, 0.975rem + 0.12vw, 1.0625rem);
+  --t-body: 1rem;
+  --t-small: 0.875rem;
+
+  --s1: 0.25rem; --s2: 0.5rem; --s3: 0.75rem; --s4: 1rem;
+  --s5: 1.5rem;  --s6: 2rem;   --s7: 3rem;    --s8: 4rem;
+
+  --measure: 44rem;
+  --gutter: 1rem;
+  --radius: 3px;
+  --label-col: 13.5rem;
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--sans); font-size: var(--t-body); line-height: 1.55;
+  min-height: 100vh;
+}
+
+.sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.wrap { max-width: var(--measure); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* --------------------------------------------------------- sample banner */
+
+.sample { background: var(--sunk); border-bottom: 1px solid var(--line); }
+.sample__in {
+  max-width: var(--measure); margin: 0 auto;
+  padding: var(--s3) var(--gutter); font-size: var(--t-small);
+}
+.sample__label {
+  letter-spacing: 0.1em; font-weight: 700; color: var(--attention);
+  margin-right: var(--s3);
+}
+.sample__body { color: var(--ink-2); }
+
+/* The screen switcher belongs to the review, not the design. */
+.screens { margin-top: var(--s3); display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.screens__label { font-size: var(--t-small); color: var(--ink-3); margin-right: var(--s1); }
+.screens button {
+  font: inherit; font-size: var(--t-small); min-height: 44px;
+  padding: var(--s2) var(--s3);
+  border: 1px dashed var(--edge); border-radius: var(--radius);
+  background: none; color: var(--ink-2); cursor: pointer;
+}
+.screens button[aria-pressed="true"] {
+  border-style: solid; border-color: var(--ink-3);
+  background: var(--card); color: var(--ink); font-weight: 620;
+}
+
+/* ---------------------------------------------------------------- chrome */
+
+.chrome { border-bottom: 1px solid var(--line); }
+.chrome__in {
+  max-width: var(--measure); margin: 0 auto;
+  padding: var(--s3) var(--gutter); display: flex; align-items: center; gap: var(--s3);
+}
+.crumb { font-size: var(--t-small); color: var(--ink-3); }
+.crumb b { color: var(--ink-2); font-weight: 600; }
+.chrome__end { margin-left: auto; display: flex; align-items: center; }
+
+.lang { display: flex; align-items: center; }
+.lang button {
+  font: inherit; font-size: var(--t-small); min-height: 44px; min-width: 44px;
+  padding: var(--s2) 0.625rem; border: 1px solid transparent; background: none;
+  color: var(--ink-3); cursor: pointer; border-radius: var(--radius);
+}
+.lang button:hover { color: var(--ink); }
+.lang button[aria-pressed="true"] { color: var(--green); font-weight: 650; }
+.lang__second { border-left: 1px solid var(--line); margin-left: 2px; padding-left: var(--s2); }
+
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 2px; }
+
+/* ------------------------------------------------------------------ head */
+
+main { padding: var(--s6) 0 var(--s7); }
+
+h1 {
+  font-size: var(--t-title); line-height: 1.2; font-weight: 660;
+  letter-spacing: -0.014em; margin: 0 0 var(--s2); text-wrap: balance;
+}
+.lede { font-size: var(--t-lede); color: var(--ink-2); margin: 0 0 var(--s4); }
+
+.standing {
+  border-left: 3px solid var(--line); padding-left: var(--s4);
+  margin: 0 0 var(--s6); display: grid; gap: var(--s1);
+  font-size: var(--t-small); color: var(--ink-2); max-width: 34rem;
+}
+.standing b { color: var(--ink); font-weight: 620; }
+
+/* ------------------------------------------------------------------ items */
+
+.items { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s4); }
+
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-left: 4px solid var(--edge); border-radius: var(--radius);
+  padding: var(--s4) var(--s5);
+}
+.card--blocked { border-left-color: var(--blocked); }
+.card--attention { border-left-color: var(--attention); }
+.card--info { border-left-color: var(--info); }
+
+.card__head {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: var(--s2) var(--s3); margin-bottom: var(--s3);
+}
+.card__kind {
+  font-size: var(--t-small); letter-spacing: 0.06em; text-transform: uppercase;
+  font-weight: 700;
+}
+.card--blocked .card__kind { color: var(--blocked); }
+.card--attention .card__kind { color: var(--attention); }
+.card--info .card__kind { color: var(--info); }
+.card__subject { font-size: var(--t-small); color: var(--ink-2); }
+.card__since { font-size: var(--t-small); color: var(--ink-3); margin-left: auto; }
+
+.card__happened {
+  font-size: var(--t-lede); line-height: 1.45; margin: 0 0 var(--s4); color: var(--ink);
+}
+
+.chain { margin: 0; display: grid; gap: var(--s3); }
+.chain > div {
+  display: grid; grid-template-columns: var(--label-col) 1fr;
+  gap: var(--s4); align-items: start;
+}
+.chain dt {
+  font-size: var(--t-small); letter-spacing: 0.05em; text-transform: uppercase;
+  font-weight: 650; color: var(--ink-3); line-height: 1.5;
+}
+.chain dd { margin: 0; color: var(--ink-2); font-size: var(--t-small); line-height: 1.55; }
+
+@media (max-width: 660px) {
+  .chain > div { grid-template-columns: 1fr; gap: var(--s1); }
+  .card { padding: var(--s4); }
+  .card__since { margin-left: 0; }
+}
+
+/* ---------------------------------------------------------- the decision */
+
+.decide { margin-top: var(--s4); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.decide__label {
+  font-size: var(--t-small); letter-spacing: 0.05em; text-transform: uppercase;
+  font-weight: 650; color: var(--ink-3); display: block; margin-bottom: var(--s2);
+}
+/* Every option at the same weight. A primary button here would be PINTAR
+ * choosing, and "no action now" must not be the quiet one at the end nor
+ * the loud one at the front. */
+.decide__row { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.decide__row button {
+  font: inherit; font-size: var(--t-small); min-height: 44px;
+  padding: var(--s2) var(--s4); border: 1px solid var(--green-edge);
+  border-radius: var(--radius); background: var(--card); color: var(--green);
+  font-weight: 560; cursor: pointer; transition: background 120ms var(--ease);
+}
+.decide__row button:hover { background: var(--green-soft); }
+
+.opens {
+  display: inline-block; margin-top: var(--s3); font-size: var(--t-small);
+  color: var(--green); background: none; border: 0; padding: var(--s2) 0;
+  min-height: 44px; font: inherit; font-size: var(--t-small); cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* ------------------------------------------------------------ Umpan Balik */
+
+.step { margin-bottom: var(--s6); }
+.step h2 { font-size: var(--t-body); font-weight: 650; margin: 0 0 var(--s2); }
+.step p { margin: 0 0 var(--s3); }
+.step p:last-child { margin-bottom: 0; }
+
+.boundary {
+  border-left: 3px solid var(--attention); padding-left: var(--s4);
+  font-size: var(--t-small); color: var(--ink-2);
+}
+
+.scope {
+  background: var(--sunk); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: var(--s3) var(--s4); font-size: var(--t-small);
+}
+.scope b { display: block; font-size: var(--t-small); letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: var(--s1); }
+
+.pool { list-style: none; margin: var(--s4) 0; padding: 0; display: grid; gap: var(--s2); }
+.pool li {
+  display: flex; gap: var(--s3); align-items: baseline;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: var(--s3) var(--s4);
+}
+.pool .tick { color: var(--green); flex: none; font-weight: 700; }
+
+.scale { font-size: var(--t-small); color: var(--ink-2); }
+.scale b { color: var(--ink-3); font-weight: 650; }
+
+.terms { list-style: none; margin: var(--s4) 0; padding: 0; display: grid; gap: var(--s2); }
+.terms li { font-size: var(--t-small); color: var(--ink-2); padding-left: var(--s5); position: relative; }
+.terms li::before {
+  content: "\2014"; position: absolute; left: 0; color: var(--ink-3);
+}
+
+.rows { list-style: none; margin: var(--s3) 0 var(--s5); padding: 0; display: grid; gap: var(--s3); }
+.rows li { border-top: 1px solid var(--line); padding-top: var(--s3); }
+.rows .q { font-size: var(--t-small); color: var(--ink); margin: 0 0 var(--s1); }
+/* Words, not bars, and never a total. A single figure standing for a class
+ * is a score, and a score becomes a rank the first time two of them are
+ * put side by side. */
+.rows .d { font-size: var(--t-small); color: var(--ink-2); font-variant-numeric: tabular-nums; margin: 0; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s5); }
+.buttons button {
+  font: inherit; font-size: var(--t-small); min-height: 44px;
+  padding: var(--s2) var(--s4); border: 1px solid var(--green-edge);
+  border-radius: var(--radius); background: var(--card); color: var(--green);
+  font-weight: 560; cursor: pointer;
+}
+.buttons button:hover { background: var(--green-soft); }
+
+.backlink {
+  display: inline-block; margin-bottom: var(--s5); font: inherit;
+  font-size: var(--t-small); color: var(--ink-3); background: none; border: 0;
+  padding: var(--s2) 0; min-height: 44px; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.backlink:hover { color: var(--ink); }
+
+.noscript {
+  border: 1px solid var(--line); border-left: 3px solid var(--attention);
+  background: var(--card); padding: var(--s4); border-radius: var(--radius);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important; transition-duration: 0.001ms !important;
+  }
+}
