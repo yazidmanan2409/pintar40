@@ -566,6 +566,122 @@ $$;
 revoke all on function selftest.wp5_counts() from public;
 grant execute on function selftest.wp5_counts() to authenticated;
 
+-- WP6's fixture: a professional-development course, a release, an assignment
+-- at a staff node, and an educator who is a member of it -- i.e. entitlement
+-- expressed exactly the way PINTAR already expresses it, through enrolment
+-- and membership, with no role anywhere.
+drop function if exists selftest.wp6_pd(uuid,uuid,uuid);
+drop function if exists selftest.wp6_pd(uuid,uuid,uuid,uuid);
+create or replace function selftest.wp6_pd(p_inst uuid, p_parent uuid, p_educator uuid, p_admin_uid uuid)
+returns table (node uuid, course uuid, release uuid, assignment uuid, enrolment uuid)
+language plpgsql set search_path = public, pg_temp as $$
+declare
+  v_node uuid; v_course uuid; v_rel uuid; v_la uuid; v_enr uuid; v_period uuid; v_tmpl uuid;
+  v_prog uuid; v_coh uuid; v_class uuid;
+begin
+  select ap.id into v_period from public.academic_periods ap
+   where ap.institution_id = p_inst order by ap.created_at limit 1;
+
+  -- WP6 INVENTS NO NEW SHAPE OF ORGANIZATION. A department hangs off a
+  -- faculty and a membership sits at a cohort or a class, exactly as the
+  -- containment rules already require, so professional development is an
+  -- ordinary branch of the school rather than a special structure. The
+  -- ASSIGNMENT is made at the department and the educator's MEMBERSHIP sits
+  -- at the class beneath it -- which is how every other learner reaches an
+  -- assignment made above them.
+  insert into public.org_nodes (institution_id, parent_id, kind, name)
+  values (p_inst, p_parent, 'DEPARTMENT', 'Pengembangan Profesi') returning org_nodes.id into v_node;
+  insert into public.org_nodes (institution_id, parent_id, kind, name)
+  values (p_inst, v_node, 'PROGRAMME', 'Program Pengembangan') returning org_nodes.id into v_prog;
+  insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+  values (p_inst, v_prog, 'COHORT', 'Angkatan Pengembangan', v_period) returning org_nodes.id into v_coh;
+  insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+  values (p_inst, v_coh, 'CLASS', 'Kelas Pengembangan', v_period) returning org_nodes.id into v_class;
+
+  -- THE COURSE SAYS WHAT IT IS, and that is the whole of WP6's new schema.
+  -- The content lifecycle is deliberately left alone: publishing is a
+  -- capability-gated act this test is not about, and `my_learning_assignments`
+  -- selects on the ASSIGNMENT's status, never the release's -- so walking a
+  -- course to PUBLISHED here would be ceremony that proves nothing about
+  -- learning context.
+  insert into public.courses (institution_id, subject, stage, grade_label, title, learning_context)
+  values (p_inst, 'Pengembangan', 'Guru', '-', 'Asesmen untuk Pembelajaran',
+          'PROFESSIONAL_DEVELOPMENT')
+  returning courses.id into v_course;
+
+  insert into public.plp_releases (institution_id, course_id, version_label)
+  values (p_inst, v_course, '1.0.0') returning plp_releases.id into v_rel;
+
+  insert into public.learning_assignments
+    (institution_id, plp_release_id, course_id, node_id, academic_period_id)
+  values (p_inst, v_rel, v_course, v_node, v_period)
+  returning learning_assignments.id into v_la;
+  -- assigning learning is a capability, not a side effect of editing a row
+  perform selftest.as_user_uid(p_admin_uid);
+  update public.learning_assignments set status = 'ACTIVE' where learning_assignments.id = v_la;
+  perform selftest.as_owner();
+
+  -- THE EDUCATOR'S ENTITLEMENT. An enrolment and a membership -- the same two
+  -- rows any other learner holds. No role is granted, none is taken away.
+  insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+  values (p_educator, p_inst, v_period, 'ACTIVE') returning enrollments.id into v_enr;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id)
+  values (v_enr, v_class, v_period);
+
+  node := v_node; course := v_course; release := v_rel; assignment := v_la; enrolment := v_enr;
+  return next;
+end $$;
+revoke all on function selftest.wp6_pd(uuid,uuid,uuid,uuid) from public;
+grant execute on function selftest.wp6_pd(uuid,uuid,uuid,uuid) to authenticated;
+
+-- One FINALIZED professional-development session with a result, for the
+-- educator, copied from a real session's provenance but pointed at the PD
+-- release so its course says what it is.
+create or replace function selftest.wp6_pd_session(
+  p_template uuid, p_person uuid, p_enrolment uuid, p_release uuid)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_new uuid := gen_random_uuid();
+begin
+  insert into public.assessment_sessions
+    (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
+     plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
+     scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
+     started_at, submitted_at, finalized_at, deadline_extended_count)
+  select v_new, p_person, s.institution_id, p_enrolment, s.academic_period_id, null, null,
+         p_release, s.assessment_definition_id, s.assessment_definition_version, s.engine_version,
+         s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED', s.shuffle_seed,
+         s.started_at, s.submitted_at, s.finalized_at, 0
+    from public.assessment_sessions s where s.id = p_template;
+  update public.assessment_sessions set status='IN_PROGRESS' where id=v_new;
+  update public.assessment_sessions set status='SUBMITTED'   where id=v_new;
+  update public.assessment_sessions set status='FINALIZED'   where id=v_new;
+  insert into public.assessment_results
+    (id, session_id, institution_id, person_id, evidence_class, engine_version, scoring_policy_version,
+     mastery, per_domain, safety_gate_passed, delta_inputs, computed_at)
+  select gen_random_uuid(), v_new, r.institution_id, p_person, r.evidence_class, r.engine_version,
+         r.scoring_policy_version, 0.9200, r.per_domain, r.safety_gate_passed, r.delta_inputs, now()
+    from public.assessment_results r where r.session_id = p_template limit 1;
+  return v_new;
+end $$;
+revoke all on function selftest.wp6_pd_session(uuid,uuid,uuid,uuid) from public;
+grant execute on function selftest.wp6_pd_session(uuid,uuid,uuid,uuid) to authenticated;
+
+-- Counts that answer "did a second identity appear", from outside the
+-- caller's permissions.
+create or replace function selftest.wp6_counts(p_person uuid, p_inst uuid) returns jsonb
+language sql security definer set search_path = public, pg_temp as $$
+  select jsonb_build_object(
+    'persons',      (select count(*) from public.persons),
+    'accounts',     (select count(*) from public.accounts where person_id = p_person),
+    'auth_users',   (select count(*) from auth.users),
+    'identities',   (select count(*) from public.institutional_identities
+                      where person_id = p_person and institution_id = p_inst),
+    'role_rows',    (select count(*) from public.role_assignments
+                      where person_id = p_person and revoked_at is null))
+$$;
+revoke all on function selftest.wp6_counts(uuid,uuid) from public;
+grant execute on function selftest.wp6_counts(uuid,uuid) to authenticated;
+
 
 -- One adversarial calculator, installed and asked. Returns the empty array when
 -- the boundary held and a complaint when it did not.
@@ -4843,6 +4959,285 @@ begin
         || 'holds two. Reported progress equals committed rows, a row cannot claim PROVISIONED with no '
         || 'person and no ID behind it, and a completed job refuses to advance again and carries exactly '
         || 'one completion and one pilot-completion on the record. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P19 -- WP6A. THE SAME PERSON, TEACHING AND LEARNING.
+  --
+  -- An educator teaches at 10:00, opens their own professional development at
+  -- 10:15, scores 92% at 10:20, and is back teaching at 10:30. This measures
+  -- that nothing about their identity changed -- and, far more importantly,
+  -- that the 92% stayed evidence about that learning activity.
+  --
+  -- THE CROWN CASE IS I. Every academic figure this school has is measured
+  -- BEFORE the educator's professional development exists and again AFTER,
+  -- and every one of them must be unchanged to the digit. A 92% on a staff
+  -- course is not a participant, not a cohort, and not a school's result.
+  -- =========================================================================
+  declare
+    c record; pd record; bad text[] := array[]::text[]; v_why text := ''; v_cat text;
+    v_before jsonb; v_after jsonb; v_idc jsonb; v_id text; v_id2 text;
+    v_sess uuid; v_tmpl uuid; v_r jsonb; v_who text; v_caught boolean; n int;
+    v_role text; v_other_u uuid; v_other uuid; v_metrics_before jsonb; v_metrics_after jsonb;
+  begin
+    begin
+      perform selftest.as_owner();
+      v_cat := public.current_metric_catalogue();
+      select * into c from selftest.wp2_school();
+      update public.institutions set namespace = 'HEV' where institutions.id = c.inst;
+      v_id := public.issue_institutional_id(c.edu, c.inst);
+      select s.id into v_tmpl from public.assessment_sessions s
+       where s.class_node_id = c.cls_a and s.status = 'FINALIZED' limit 1;
+
+      -- ALL SIXTEEN ACADEMIC FIGURES, BEFORE THE EDUCATOR LEARNS ANYTHING.
+      perform selftest.as_user_uid(c.adm_u);
+      select jsonb_object_agg(m.metric_id,
+               public.metric_evaluate(m.metric_id, c.root, c.inst, v_cat) - 'catalogue_version')
+        into v_metrics_before
+        from public.metric_definitions m where m.catalogue_version = v_cat;
+      perform selftest.as_owner();
+
+      -- A. AN EDUCATOR WITH NO ENTITLEMENT CONSUMES NOTHING.
+      perform selftest.as_user_uid(c.edu_u);
+      select count(*) into n from public.my_learning_assignments();
+      perform selftest.as_owner();
+      if n <> 0 then
+        bad := bad || array[format('an educator with no entitlement was offered %s learning assignment(s)', n)];
+      end if;
+
+      -- ...and is fully an educator throughout.
+      perform selftest.as_user_uid(c.edu_u);
+      if not public.can_on_node('CAN_ASSIGN_LEARNING', c.cls_a) then
+        bad := bad || array['the educator could not teach before learning anything'];
+      end if;
+      select mp.display_role::text into v_role from public.my_profile mp;
+      perform selftest.as_owner();
+      if v_role <> 'EDUCATOR' then
+        bad := bad || array[format('the educator''s display role was %s before any learning', v_role)];
+      end if;
+
+      v_idc := selftest.wp6_counts(c.edu, c.inst);
+      select * into pd from selftest.wp6_pd(c.inst, c.fac, c.edu, c.adm_u);
+
+      -- B. WITH ONE LEGITIMATE ENTITLEMENT, EXACTLY THAT ONE ARRIVES.
+      perform selftest.as_user_uid(c.edu_u);
+      select count(*) into n from public.my_learning_assignments() la
+       where la.learning_assignment_id = pd.assignment;
+      if n <> 1 then
+        bad := bad || array['the educator was not offered their own professional development'];
+      end if;
+      select count(*) into n from public.my_learning_assignments();
+      if n <> 1 then
+        bad := bad || array[format('an entitlement to one course offered %s', n)];
+      end if;
+
+      -- C. AND THEY ARE STILL TEACHING. No role transition, no STUDENT
+      --    rewrite, no second account: the same person, doing another thing.
+      if not public.can_on_node('CAN_ASSIGN_LEARNING', c.cls_a) then
+        bad := bad || array['the educator stopped being able to teach once they had learning'];
+      end if;
+      select mp.display_role::text into v_role from public.my_profile mp;
+      perform selftest.as_owner();
+      if v_role <> 'EDUCATOR' then
+        bad := bad || array[format('an enrolment rewrote the educator''s display role to %s', v_role)];
+      end if;
+
+      -- F. NO SECOND PERSON, ACCOUNT, AUTH USER, INSTITUTIONAL ID OR ROLE ROW.
+      v_after := selftest.wp6_counts(c.edu, c.inst);
+      -- `persons` is compared too. It was omitted at first, which meant a
+      -- defect that created a SECOND PERSON for the educator's learning --
+      -- the exact thing WP6 exists to forbid -- would have gone unnoticed
+      -- while the other four counts stayed put.
+      if (v_after ->> 'persons') is distinct from (v_idc ->> 'persons')
+         or (v_after ->> 'accounts') is distinct from (v_idc ->> 'accounts')
+         or (v_after ->> 'auth_users') is distinct from (v_idc ->> 'auth_users')
+         or (v_after ->> 'identities') is distinct from (v_idc ->> 'identities')
+         or (v_after ->> 'role_rows') is distinct from (v_idc ->> 'role_rows') then
+        bad := bad || array[format('learning changed the person''s identity: %s -> %s', v_idc, v_after)];
+      end if;
+      v_id2 := public.issue_institutional_id(c.edu, c.inst);
+      if v_id2 <> v_id then
+        bad := bad || array[format('learning minted a second institutional ID (%s then %s)', v_id, v_id2)];
+      end if;
+
+      -- the 92%, earned at 10:20
+      v_sess := selftest.wp6_pd_session(v_tmpl, c.edu, pd.enrolment, pd.release);
+
+      -- D. THEIR OWN RESULT IS THEIRS.
+      perform selftest.as_user_uid(c.edu_u);
+      v_r := public.metric_evaluate('learner.result', c.edu, c.inst, v_cat);
+      perform selftest.as_owner();
+      if (v_r ->> 'status') <> 'ok' then
+        bad := bad || array[format('the educator could not read their own learning result (%s)',
+                                   v_r ->> 'status')];
+      elsif not ((v_r -> 'value')::text like '%' || v_sess::text || '%') then
+        bad := bad || array['the educator''s own result did not contain their own session'];
+      end if;
+
+      -- ...and gains no general learner-result authority: the learner in the
+      -- sibling department is still refused.
+      perform selftest.as_user_uid(c.edu_u);
+      v_r := public.metric_evaluate('learner.result', c.lb, c.inst, v_cat);
+      perform selftest.as_owner();
+      if (v_r ->> 'status') <> 'not_permitted' then
+        bad := bad || array['learning gave the educator authority over another learner''s result'];
+      end if;
+
+      -- H. AND NOBODY ELSE MAY READ THE DEVELOPMENT RECORD. The head of
+      --    department and the dean stand over the node the educator's
+      --    membership sits in, and the institution admin administers the
+      --    school; none of that is authority over a colleague's own learning.
+      v_other_u := selftest.f06p10_person('wp6-guru-lain');
+      select a.person_id into v_other from public.accounts a where a.auth_user_id = v_other_u;
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until)
+      values (v_other, 'EDUCATOR', c.root, now() + interval '1 year');
+      perform set_config('app.seed_intent', '', true);
+
+      foreach v_who in array array['another educator', 'head of department', 'dean',
+                                   'institution admin', 'a learner'] loop
+        perform selftest.as_user_uid(case v_who when 'another educator' then v_other_u
+                                                when 'head of department' then c.hod_u
+                                                when 'dean' then c.dean_u
+                                                when 'institution admin' then c.adm_u
+                                                else c.la_u end);
+        v_r := public.metric_evaluate('learner.result', c.edu, c.inst, v_cat);
+        perform selftest.as_owner();
+        if (v_r ->> 'status') = 'ok' and ((v_r -> 'value')::text like '%' || v_sess::text || '%') then
+          bad := bad || array[format('%s read the educator''s professional-development result', v_who)];
+        end if;
+      end loop;
+      v_who := '';
+
+      -- ...including through the audited Management door, which binds the
+      -- authorizing NODE and therefore sees a learner's academic record and
+      -- not a colleague's development.
+      perform selftest.as_user_uid(c.hod_u);
+      begin
+        v_r := public.management_learner_detail(c.edu, c.inst);
+        if (v_r -> 'official_results')::text like '%' || v_sess::text || '%' then
+          bad := bad || array['Management opened an educator''s professional-development record'];
+        end if;
+      exception when others then null;  -- a refusal is also an acceptable answer
+      end;
+      perform selftest.as_owner();
+
+      -- I. THE CROWN CASE. Every academic figure, measured again.
+      perform selftest.as_user_uid(c.adm_u);
+      select jsonb_object_agg(m.metric_id,
+               public.metric_evaluate(m.metric_id, c.root, c.inst, v_cat) - 'catalogue_version')
+        into v_metrics_after
+        from public.metric_definitions m where m.catalogue_version = v_cat;
+      perform selftest.as_owner();
+      if v_metrics_after is distinct from v_metrics_before then
+        select string_agg(k, ', ') into v_why from jsonb_object_keys(v_metrics_before) k
+         where (v_metrics_before -> k) is distinct from (v_metrics_after -> k);
+        bad := bad || array[format('professional development changed academic figures: %s', v_why)];
+        v_why := '';
+      end if;
+
+      -- G. AN EDUCATOR WITHOUT ENTITLEMENT STILL CONSUMES NOTHING, even now
+      --    that the course exists and a colleague holds it.
+      perform selftest.as_user_uid(v_other_u);
+      select count(*) into n from public.my_learning_assignments();
+      v_caught := false;
+      begin perform public.learner_lessons(pd.assignment);
+      exception when others then v_caught := true; end;
+      perform selftest.as_owner();
+      if n <> 0 then
+        bad := bad || array[format('an unentitled educator was offered %s assignment(s)', n)];
+      end if;
+      -- and asking for the course directly is REFUSED rather than answered
+      -- with an empty list: the product says "this learning assignment is not
+      -- assigned to you", which is the honest answer to a colleague's course.
+      if not v_caught then
+        bad := bad || array['an unentitled educator read a colleague''s course'];
+      end if;
+
+      -- ...and entitlement grants no teaching. The educator's own learning
+      -- did not make them an author or a manager anywhere new.
+      perform selftest.as_user_uid(c.edu_u);
+      if public.can_on_node('CAN_DRAFT', pd.node) or public.can_on_node('CAN_REVIEW', pd.node)
+         or public.can_on_node('CAN_PROVISION_PEOPLE', c.root) then
+        bad := bad || array['a learning entitlement carried teaching or administrative authority'];
+      end if;
+      perform selftest.as_owner();
+
+      -- E. ROLE EVOLUTION DOES NOT RECLASSIFY HISTORY. The educator becomes a
+      --    head of department; the 92% is still the same evidence about the
+      --    same activity, and still theirs.
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until)
+      values (c.edu, 'HEAD_OF_DEPARTMENT', c.dept_a, now() + interval '1 year');
+      perform set_config('app.seed_intent', '', true);
+      select count(*) into n from public.assessment_results r
+       where r.session_id = v_sess and r.person_id = c.edu;
+      if n <> 1 then bad := bad || array['a role change destroyed the learning evidence']; end if;
+      select count(*) into n from public.courses co
+        join public.plp_releases pr on pr.course_id = co.id
+       where pr.id = pd.release and co.learning_context = 'PROFESSIONAL_DEVELOPMENT';
+      if n <> 1 then
+        bad := bad || array['a role change reclassified the learning context of the evidence'];
+      end if;
+      perform selftest.as_user_uid(c.edu_u);
+      v_r := public.metric_evaluate('learner.result', c.edu, c.inst, v_cat);
+      perform selftest.as_owner();
+      if (v_r ->> 'status') <> 'ok'
+         or not ((v_r -> 'value')::text like '%' || v_sess::text || '%') then
+        bad := bad || array['becoming a head of department took away their own learning record'];
+      end if;
+
+      -- J. THE CERTIFICATE MACHINERY IS NOT SPECIAL-CASED. Nothing in it
+      --    knows what a learning context is, so an educator holds a
+      --    certificate on exactly the terms anybody else does -- no weaker,
+      --    no separate engine.
+      select count(*) into n from pg_proc p
+       where p.pronamespace = 'public'::regnamespace and p.prokind = 'f'
+         and p.proname like '%certificate%'
+         and pg_get_functiondef(p.oid) like '%learning_context%';
+      if n <> 0 then
+        bad := bad || array[format('%s certificate function(s) were taught to treat a context specially', n)];
+      end if;
+
+      raise exception 'F06_P19_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      perform set_config('app.seed_intent', '', true);
+      perform set_config('pintar.metric_boundary_node', '', true);
+      perform set_config('pintar.metric_boundary_person', '', true);
+      if sqlerrm <> 'F06_P19_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 200);
+      end if;
+    end;
+
+    id := 'F06-P19'; area := 'WP6A -- the same person, teaching and learning';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'AN EDUCATOR WITH NO ENTITLEMENT IS OFFERED NO LEARNING, and holding EDUCATOR does not '
+        || 'change that: entitlement is an enrolment and a membership, and my_learning_assignments reads '
+        || 'no role at all. Given ONE legitimate entitlement the same account is offered exactly that one '
+        || 'course and no other -- and is still teaching, with CAN_ASSIGN_LEARNING intact and '
+        || 'display_role still EDUCATOR, because a held role wins the coalesce over an enrolment. NO '
+        || 'SECOND ANYTHING: the same person, the same account, the same auth user, the same '
+        || 'institutional ID -- re-asked and returned identical -- and no new role row. They score 92%% '
+        || 'and READ IT THEMSELVES, while gaining no authority over any other learner''s result. NOBODY '
+        || 'ELSE READS IT: not another educator standing over the whole school, not the head of '
+        || 'department, not the dean, not the institution admin, not a learner, and not Management '
+        || 'through the audited door -- which binds the authorizing NODE and so sees a learner''s '
+        || 'academic record rather than a colleague''s development. THE CROWN CASE: all sixteen '
+        || 'catalogue metrics are evaluated at the institution root BEFORE the professional development '
+        || 'exists and again AFTER, and every one is identical -- a 92%% on a staff course is not a '
+        || 'participant, not a cohort and not a school''s result. An unentitled colleague is offered '
+        || 'nothing and reads no lesson of it, and the entitlement itself carries no authoring, no '
+        || 'teaching and no administrative authority. The educator then BECOMES A HEAD OF DEPARTMENT and '
+        || 'the evidence is unchanged, still professional development, still theirs. No certificate '
+        || 'function knows what a learning context is, so nothing about that engine was weakened or '
+        || 'duplicated. Every row rolled back';
     end if;
     return next;
   end;
