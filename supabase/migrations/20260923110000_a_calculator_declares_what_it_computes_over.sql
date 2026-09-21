@@ -261,12 +261,12 @@ BEGIN ATOMIC
     FROM ( SELECT s.person_id,
              max(
                  CASE
-                     WHEN (s.mode = 'PRE_TEST'::assessment_mode) THEN r.mastery
+                     WHEN s.mode = 'PRE_TEST'::assessment_mode THEN r.mastery
                      ELSE NULL::numeric
                  END) AS pre,
              max(
                  CASE
-                     WHEN (s.mode = 'POST_TEST'::assessment_mode) THEN r.mastery
+                     WHEN s.mode = 'POST_TEST'::assessment_mode THEN r.mastery
                      ELSE NULL::numeric
                  END) AS post
             FROM (scoped_official_sessions s
@@ -393,12 +393,12 @@ BEGIN ATOMIC
     FROM ( SELECT s.person_id,
              max(
                  CASE
-                     WHEN (s.mode = 'PRE_TEST'::assessment_mode) THEN r.mastery
+                     WHEN s.mode = 'PRE_TEST'::assessment_mode THEN r.mastery
                      ELSE NULL::numeric
                  END) AS pre,
              max(
                  CASE
-                     WHEN (s.mode = 'POST_TEST'::assessment_mode) THEN r.mastery
+                     WHEN s.mode = 'POST_TEST'::assessment_mode THEN r.mastery
                      ELSE NULL::numeric
                  END) AS post
             FROM (scoped_official_sessions s
