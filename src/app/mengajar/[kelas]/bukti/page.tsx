@@ -24,9 +24,11 @@ export const dynamic = "force-dynamic";
  * EVERY NUMBER COMES THROUGH THE CATALOGUE. Five metrics are asked for by name
  * and each is re-authorized against this reader inside the evaluator; nothing
  * on this page is computed from a table in TypeScript. That is why
- * `assessment_results` — which an educator MAY read, institution-wide — is not
- * touched here: a class average assembled in a route would be a number that
- * reached a screen without passing the catalogue.
+ * `assessment_results` — which an educator MAY read for the classes they are
+ * assigned, since R6 narrowed that from institution-wide to the node the
+ * evidence was produced in — is not touched here: a class average assembled in
+ * a route would be a number that reached a screen without passing the
+ * catalogue.
  *
  * THE SCOPE LINE NAMES A CLASS AND NOT A CHAPTER. `metric_evaluate` takes a
  * NODE; every class calculator aggregates that node's official sessions with no

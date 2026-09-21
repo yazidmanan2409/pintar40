@@ -30,11 +30,13 @@ import {
  *   - question health and integrity signals. Those belong to the Head of
  *     Department, and the educator surface names the omission rather than
  *     reconstructing it from a different table.
- *   - per-learner mastery. `assessment_results` IS readable to
- *     CAN_ASSIGN_LEARNING, institution-wide. This module never selects it: a
- *     class number computed here would be a number that reached a screen
- *     without passing through the metric catalogue, which is the failure
- *     migration 0072 was written to close.
+ *   - per-learner mastery. `assessment_results` IS readable to a holder of
+ *     CAN_VIEW_LEARNER_RESULT over the node the evidence was produced in --
+ *     since R6 that is an organizational reach, not an institution-wide one,
+ *     and an educator's reach is the classes they are assigned. This module
+ *     never selects it either way: a class number computed here would be a
+ *     number that reached a screen without passing through the metric
+ *     catalogue, which is the failure migration 0072 was written to close.
  */
 
 export type StaffClient = {

@@ -399,6 +399,156 @@ end $$;
 revoke all on function selftest.wp1_sibling_branch() from public;
 grant execute on function selftest.wp1_sibling_branch() to authenticated;
 
+-- ---------------------------------------------------------------------------
+-- WP2's fixture: ONE purpose-built two-department school with REAL evidence in
+-- BOTH branches, five actors with real identities, and an integrity signal to
+-- refer. F06-P14 (R6) and F06-P15 (the Management decision model) both stand
+-- on it, because both are asking the same underlying question -- does an
+-- organizational boundary hold -- and a shared fixture means a leak cannot be
+-- hidden by two differently-shaped schools.
+--
+-- BOTH BRANCHES ARE POPULATED ON PURPOSE. On an empty sibling branch a policy
+-- that leaks and a policy that holds return the same zero.
+-- ---------------------------------------------------------------------------
+create or replace function selftest.wp2_school()
+returns table (inst uuid, root uuid, fac uuid, dept_a uuid, dept_b uuid,
+               cls_a uuid, cls_b uuid, sess_a uuid, sess_b uuid, signal_a uuid,
+               hod_u uuid, adm_u uuid, edu_u uuid, dean_u uuid, la_u uuid, lb_u uuid,
+               hod uuid, adm uuid, edu uuid, dean uuid, la uuid, lb uuid)
+language plpgsql set search_path = public, pg_temp as $$
+declare
+  v_inst uuid; v_root uuid; v_period uuid; v_tmpl uuid;
+  v_fac uuid; v_da uuid; v_db uuid; v_pa uuid; v_pb uuid;
+  v_ca uuid; v_cb uuid; v_cls_a uuid; v_cls_b uuid; v_e uuid;
+  v_hod uuid; v_adm uuid; v_edu uuid; v_dean uuid; v_la uuid; v_lb uuid;
+  v_hu uuid; v_au uuid; v_eu uuid; v_du uuid; v_lau uuid; v_lbu uuid;
+  v_sa uuid; v_sb uuid; v_sig uuid;
+begin
+  select i.id into v_inst from public.institutions i where i.slug = 'pintar-human-evaluation';
+  if v_inst is null then raise exception 'the demonstration tenant is absent'; end if;
+  select o.id into v_root from public.org_nodes o
+   where o.institution_id = v_inst and o.kind = 'INSTITUTION';
+  select ap.id into v_period from public.academic_periods ap
+   where ap.institution_id = v_inst order by ap.created_at limit 1;
+  -- a real finalized session to copy, so the evidence is the tenant's own
+  select s.id into v_tmpl from public.assessment_sessions s
+   where s.institution_id = v_inst and s.status = 'FINALIZED'
+     and exists (select 1 from public.assessment_results r where r.session_id = s.id)
+   order by s.id limit 1;
+  if v_tmpl is null then raise exception 'the demonstration tenant holds no finalized session to copy'; end if;
+
+  insert into public.org_nodes (institution_id,parent_id,kind,name)
+  values (v_inst,v_root,'FACULTY','Fakultas WP2') returning org_nodes.id into v_fac;
+  insert into public.org_nodes (institution_id,parent_id,kind,name)
+  values (v_inst,v_fac,'DEPARTMENT','Departemen WP2 A') returning org_nodes.id into v_da;
+  insert into public.org_nodes (institution_id,parent_id,kind,name)
+  values (v_inst,v_fac,'DEPARTMENT','Departemen WP2 B') returning org_nodes.id into v_db;
+  insert into public.org_nodes (institution_id,parent_id,kind,name)
+  values (v_inst,v_da,'PROGRAMME','Program WP2 A') returning org_nodes.id into v_pa;
+  insert into public.org_nodes (institution_id,parent_id,kind,name)
+  values (v_inst,v_db,'PROGRAMME','Program WP2 B') returning org_nodes.id into v_pb;
+  insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+  values (v_inst,v_pa,'COHORT','Angkatan WP2 A',v_period) returning org_nodes.id into v_ca;
+  insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+  values (v_inst,v_pb,'COHORT','Angkatan WP2 B',v_period) returning org_nodes.id into v_cb;
+  insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+  values (v_inst,v_ca,'CLASS','Kelas WP2 A',v_period) returning org_nodes.id into v_cls_a;
+  insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+  values (v_inst,v_cb,'CLASS','Kelas WP2 B',v_period) returning org_nodes.id into v_cls_b;
+
+  v_hu  := selftest.f06p10_person('wp2-kaprodi');
+  v_au  := selftest.f06p10_person('wp2-admin');
+  v_eu  := selftest.f06p10_person('wp2-guru');
+  v_du  := selftest.f06p10_person('wp2-dekan');
+  v_lau := selftest.f06p10_person('wp2-murid-a');
+  v_lbu := selftest.f06p10_person('wp2-murid-b');
+  select a.person_id into v_hod  from public.accounts a where a.auth_user_id = v_hu;
+  select a.person_id into v_adm  from public.accounts a where a.auth_user_id = v_au;
+  select a.person_id into v_edu  from public.accounts a where a.auth_user_id = v_eu;
+  select a.person_id into v_dean from public.accounts a where a.auth_user_id = v_du;
+  select a.person_id into v_la   from public.accounts a where a.auth_user_id = v_lau;
+  select a.person_id into v_lb   from public.accounts a where a.auth_user_id = v_lbu;
+
+  perform set_config('app.seed_intent','synthetic',true);
+  insert into public.role_assignments (person_id, role, scope_node_id, valid_until) values
+    (v_hod, 'HEAD_OF_DEPARTMENT', v_da,    now() + interval '1 year'),
+    (v_adm, 'INSTITUTION_ADMIN',  v_root,  now() + interval '1 year'),
+    (v_edu, 'EDUCATOR',           v_cls_a, now() + interval '1 year'),
+    (v_dean,'DEAN',               v_fac,   now() + interval '1 year');
+  perform set_config('app.seed_intent','',true);
+
+  insert into public.enrollments (person_id,institution_id,academic_period_id,programme_id,status)
+  values (v_la,v_inst,v_period,v_pa,'ACTIVE') returning enrollments.id into v_e;
+  insert into public.memberships (enrollment_id,node_id,academic_period_id) values (v_e,v_cls_a,v_period);
+  v_sa := selftest.wp2_session(v_tmpl, v_la, v_e, v_cls_a, v_ca);
+  insert into public.enrollments (person_id,institution_id,academic_period_id,programme_id,status)
+  values (v_lb,v_inst,v_period,v_pb,'ACTIVE') returning enrollments.id into v_e;
+  insert into public.memberships (enrollment_id,node_id,academic_period_id) values (v_e,v_cls_b,v_period);
+  v_sb := selftest.wp2_session(v_tmpl, v_lb, v_e, v_cls_b, v_cb);
+
+  -- the evidence WP2 refers: an observation, in department A
+  insert into public.integrity_signals (session_id, institution_id, category)
+  values (v_sa, v_inst, 'NAVIGATION') returning integrity_signals.id into v_sig;
+
+  inst:=v_inst; root:=v_root; fac:=v_fac; dept_a:=v_da; dept_b:=v_db;
+  cls_a:=v_cls_a; cls_b:=v_cls_b; sess_a:=v_sa; sess_b:=v_sb; signal_a:=v_sig;
+  hod_u:=v_hu; adm_u:=v_au; edu_u:=v_eu; dean_u:=v_du; la_u:=v_lau; lb_u:=v_lbu;
+  hod:=v_hod; adm:=v_adm; edu:=v_edu; dean:=v_dean; la:=v_la; lb:=v_lb;
+  return next;
+end $$;
+revoke all on function selftest.wp2_school() from public;
+grant execute on function selftest.wp2_school() to authenticated;
+
+-- One finalized session with one result, copied from a real one. The lifecycle
+-- is a trigger, so this walks it rather than asserting a finished session into
+-- existence.
+create or replace function selftest.wp2_session(
+  p_template uuid, p_person uuid, p_enrollment uuid, p_class uuid, p_cohort uuid)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_new uuid := gen_random_uuid();
+begin
+  insert into public.assessment_sessions
+    (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
+     plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
+     scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
+     started_at, submitted_at, finalized_at, deadline_extended_count)
+  select v_new, p_person, s.institution_id, p_enrollment, s.academic_period_id, p_class, p_cohort,
+         s.plp_release_id, s.assessment_definition_id, s.assessment_definition_version, s.engine_version,
+         s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED', s.shuffle_seed,
+         s.started_at, s.submitted_at, s.finalized_at, 0
+    from public.assessment_sessions s where s.id = p_template;
+  update public.assessment_sessions set status='IN_PROGRESS' where id=v_new;
+  update public.assessment_sessions set status='SUBMITTED'   where id=v_new;
+  update public.assessment_sessions set status='FINALIZED'   where id=v_new;
+  insert into public.assessment_results
+    (id, session_id, institution_id, person_id, evidence_class, engine_version, scoring_policy_version,
+     mastery, per_domain, safety_gate_passed, delta_inputs, computed_at)
+  select gen_random_uuid(), v_new, r.institution_id, p_person, r.evidence_class, r.engine_version,
+         r.scoring_policy_version, r.mastery, r.per_domain, r.safety_gate_passed, r.delta_inputs, now()
+    from public.assessment_results r where r.session_id = p_template limit 1;
+  return v_new;
+end $$;
+revoke all on function selftest.wp2_session(uuid,uuid,uuid,uuid,uuid) from public;
+grant execute on function selftest.wp2_session(uuid,uuid,uuid,uuid,uuid) to authenticated;
+
+-- One R6 cell: how many of a named session's results can this reader see?
+create or replace function selftest.r6_case(
+  p_label text, p_reader uuid, p_session uuid, p_expect int)
+returns text[] language plpgsql set search_path = public, pg_temp as $$
+declare n int;
+begin
+  perform selftest.as_user_uid(p_reader);
+  select count(*) into n from public.assessment_results r where r.session_id = p_session;
+  perform selftest.as_owner();
+  if n <> p_expect then
+    return array[format('%s: read %s result row(s), expected %s', p_label, n, p_expect)];
+  end if;
+  return array[]::text[];
+end $$;
+revoke all on function selftest.r6_case(text,uuid,uuid,int) from public;
+grant execute on function selftest.r6_case(text,uuid,uuid,int) to authenticated;
+
+
 -- One adversarial calculator, installed and asked. Returns the empty array when
 -- the boundary held and a complaint when it did not.
 --
@@ -3663,6 +3813,340 @@ begin
              || 'and both are unchanged to the digit -- with no integrity signal raised and no audit row '
              || 'written, the last deliberately, because INV-18 lists the acts that must be accountable and '
              || 'being shown a tour is not one of them. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P14 -- R6. AN INDIVIDUAL ACADEMIC RESULT IS REACHED BY CONTAINMENT.
+  --
+  -- The policy used to read `can_in_institution('CAN_REVIEW_INTEGRITY', ...)
+  -- or can_in_institution('CAN_ASSIGN_LEARNING', ...)`, which asks only
+  -- whether the reader holds the capability ANYWHERE in the tenant. Seven
+  -- cells, against real result rows in BOTH branches, because on an empty
+  -- sibling a policy that leaks and a policy that holds both answer zero.
+  --
+  -- THE INSTITUTION ADMIN IS THE CELL THAT DECIDES THE DESIGN. Narrowing the
+  -- axis alone does not refuse them: they are scoped at the root, which is an
+  -- ancestor of every class. Only a capability they do not hold refuses them,
+  -- and that is the ruling -- administrative authority is not academic
+  -- authority -- spelled the way this schema spells authority.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; n int;
+  begin
+    begin
+      perform selftest.as_owner();
+      select * into c from selftest.wp2_school();
+
+      -- THE VACUITY GUARD FIRST: one result in each branch, or the matrix
+      -- below is measuring nothing.
+      if (select count(*) from public.assessment_results where session_id = c.sess_a) <> 1
+         or (select count(*) from public.assessment_results where session_id = c.sess_b) <> 1 then
+        raise exception 'the two branches are not each populated, so a leak would be invisible';
+      end if;
+
+      bad := bad || selftest.r6_case('head of department, own department',      c.hod_u, c.sess_a, 1);
+      bad := bad || selftest.r6_case('head of department, sibling department',  c.hod_u, c.sess_b, 0);
+      bad := bad || selftest.r6_case('institution admin, department A',         c.adm_u, c.sess_a, 0);
+      bad := bad || selftest.r6_case('institution admin, department B',         c.adm_u, c.sess_b, 0);
+      bad := bad || selftest.r6_case('educator, the class they teach',          c.edu_u, c.sess_a, 1);
+      bad := bad || selftest.r6_case('educator, a class they do not teach',     c.edu_u, c.sess_b, 0);
+      bad := bad || selftest.r6_case('dean, own faculty',                       c.dean_u, c.sess_a, 0);
+      bad := bad || selftest.r6_case('learner, their own record',               c.la_u,  c.sess_a, 1);
+      bad := bad || selftest.r6_case('learner, another learner''s record',      c.la_u,  c.sess_b, 0);
+      bad := bad || selftest.r6_case('the other learner, their own record',     c.lb_u,  c.sess_b, 1);
+
+      -- and the capability itself, so the mechanism is named and not merely
+      -- observed through its effect
+      perform selftest.as_user_uid(c.adm_u);
+      if public.can_on_node('CAN_VIEW_LEARNER_RESULT', c.cls_a) then
+        bad := bad || array['the institution admin holds the academic-result capability over a class'];
+      end if;
+      if not public.can_on_node('CAN_VIEW_LEARNER_ROSTER', c.cls_a) then
+        bad := bad || array['the institution admin lost the roster while losing the result'];
+      end if;
+      perform selftest.as_owner();
+      if public.role_capabilities('DEAN') <> array['CAN_VIEW_LEARNER_ROSTER'] then
+        bad := bad || array['the dean was widened by the R6 correction'];
+      end if;
+      -- EVERYTHING THIS CASE WROTE GOES BACK. The suite is run without a
+      -- wrapping transaction by `selftest:db`, and the fixture builds real
+      -- org nodes, enrollments, memberships and FINALIZED sessions in a
+      -- seeded tenant -- several of which are append-only and cannot simply
+      -- be deleted afterwards. The sentinel unwinds the subtransaction
+      -- instead, which is the idiom F06-P11 and F06-P12 use for the same
+      -- reason. Measured: without it, a second run of the suite against one
+      -- database turned F06-P11 and F06-P15 red for accumulation rather than
+      -- for anything either of them is about.
+      raise exception 'F06_P14_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      if sqlerrm <> 'F06_P14_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 180);
+      end if;
+    end;
+
+    id := 'F06-P14'; area := 'WP2 R6 -- an academic result belongs to a place, not to a tenant';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s cell(s) wrong: %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'ten cells on a purpose-built two-department school, each branch holding its own '
+        || 'FINALIZED session and result so a leak cannot hide in an empty one: a head of department '
+        || 'reads their own department and is refused the sibling; an INSTITUTION ADMIN standing at the '
+        || 'root -- who passes every containment test by construction -- is refused BOTH, because '
+        || 'administering a school is not reading a named learner and the capability says so; an '
+        || 'educator keeps the class they teach and is refused one they do not; a dean is refused, '
+        || 'unchanged from before the correction and still holding exactly the one looking capability; '
+        || 'and each learner keeps their own record and reaches no other. The admin keeps the ROSTER '
+        || 'throughout, so what moved is the result and not the person. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P15 -- WP2. PINTAR MENGUSULKAN, MANUSIA MEMUTUSKAN.
+  --
+  -- The four things the product model insists are different: evidence exists,
+  -- Management was asked, a human decided, the state persists. This measures
+  -- all four boundaries, plus who may cross them and what the trail says.
+  --
+  -- THE ONE THAT MATTERS MOST IS THE FIRST. A signal sitting in the table
+  -- creates no Management record and no outcome. Nothing in this schema turns
+  -- an observation into a verdict by crossing a threshold, and this asserts it
+  -- against a real signal rather than against the absence of a scheduler.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; n int; n_aud int;
+    v_d uuid; v_d2 uuid; v_sig_b uuid; v_dec_b uuid; v_dec_x uuid;
+    v_caught boolean; v_who text;
+  begin
+    begin
+      perform selftest.as_owner();
+      select * into c from selftest.wp2_school();
+
+      -- A. EVIDENCE ALONE IS NOT A DECISION AND NOT A VERDICT.
+      select count(*) into n from public.management_decisions m
+       where m.source_table = 'integrity_signals' and m.source_id = c.signal_a;
+      if n <> 0 then bad := bad || array['an integrity signal created a Management record by existing']; end if;
+      select count(*) into n from public.management_decisions m
+       where m.outcome is not null and m.scope_node_id in (c.cls_a, c.cls_b);
+      if n <> 0 then bad := bad || array['an outcome existed before any human decided one']; end if;
+
+      -- C. UNAUTHORIZED REFERRAL IS REFUSED, and records nothing.
+      select count(*) into n_aud from public.audit_log where action like 'management_decision.%';
+      foreach v_why in array array['edu','dean','la'] loop
+        v_caught := false;
+        perform selftest.as_user_uid(case v_why when 'edu' then c.edu_u
+                                                when 'dean' then c.dean_u else c.la_u end);
+        begin perform public.refer_integrity_signal(c.signal_a, 'probe');
+        exception when others then v_caught := true; end;
+        perform selftest.as_owner();
+        if not v_caught then
+          bad := bad || array[format('%s referred an integrity signal without CAN_REVIEW_INTEGRITY', v_why)];
+        end if;
+      end loop;
+      v_why := '';
+      select count(*) into n from public.audit_log where action like 'management_decision.%';
+      if n <> n_aud then bad := bad || array['a refused referral wrote audit evidence']; end if;
+
+      -- and refused OUT OF SCOPE too: the same head of department, a signal in
+      -- the sibling department. Containment, not capability, is what refuses.
+      insert into public.integrity_signals (session_id, institution_id, category)
+      values (c.sess_b, c.inst, 'NAVIGATION') returning integrity_signals.id into v_sig_b;
+      v_caught := false;
+      perform selftest.as_user_uid(c.hod_u);
+      begin perform public.refer_integrity_signal(v_sig_b, 'probe');
+      exception when others then v_caught := true; end;
+      perform selftest.as_owner();
+      if not v_caught then
+        bad := bad || array['a head of department referred a signal from the sibling department'];
+      end if;
+
+      -- B. AUTHORIZED REFERRAL CREATES THE CANDIDATE, AWAITING A HUMAN.
+      perform selftest.as_user_uid(c.hod_u);
+      v_d := public.refer_integrity_signal(c.signal_a, 'perlu ditinjau');
+      -- I. IDEMPOTENT while open: the same call is the same referral.
+      v_d2 := public.refer_integrity_signal(c.signal_a, 'lagi');
+      perform selftest.as_owner();
+      if v_d is null or v_d2 is distinct from v_d then
+        bad := bad || array['a second referral of the same open signal made a second record'];
+      end if;
+      select count(*) into n from public.management_decisions m
+       where m.id = v_d and m.state = 'AWAITING_REVIEW' and outcome is null
+         and m.decided_by_person_id is null and m.scope_node_id = c.cls_a
+         and m.subject_person_id = c.la and m.source_id = c.signal_a;
+      if n <> 1 then bad := bad || array['the referral did not arrive awaiting a human, in place, about the right learner']; end if;
+      select count(*) into n from public.audit_log where action = 'management_decision.raised'
+        and target_id = v_d::text;
+      if n <> 1 then
+        bad := bad || array[format('%s audit row(s) for one referral made twice', n)];
+      end if;
+
+      -- THE EVIDENCE WAS REFERENCED, NOT REWRITTEN.
+      select count(*) into n from public.integrity_signals s where s.id = c.signal_a;
+      if n <> 1 then bad := bad || array['the referral disturbed the signal row']; end if;
+
+      -- E. INVALID TRANSITIONS REFUSED.
+      perform selftest.as_user_uid(c.hod_u);
+      v_caught := false;
+      begin perform public.advance_management_decision(v_d, 'DECIDED', null, 'no outcome');
+      exception when others then v_caught := true; end;
+      if not v_caught then bad := bad || array['a decision was recorded with no outcome']; end if;
+      v_caught := false;
+      begin perform public.advance_management_decision(v_d, 'UNDER_REVIEW', 'NO_FURTHER_ACTION', 'x');
+      exception when others then v_caught := true; end;
+      if not v_caught then bad := bad || array['an outcome was recorded without deciding']; end if;
+      v_caught := false;
+      begin perform public.advance_management_decision(v_d, 'AWAITING_REVIEW', null, 'back');
+      exception when others then v_caught := true; end;
+      if not v_caught then bad := bad || array['a decision moved backwards to awaiting review']; end if;
+      perform selftest.as_owner();
+
+      -- F. CONTAINMENT AND THE ROLE SET. The institution admin outranks both
+      -- Management roles and passes every containment test from the root; they
+      -- are refused because deciding is not an administrative act.
+      --
+      -- THESE RUN AGAINST THEIR OWN ROW, not the one the happy path uses. A
+      -- refusal probe whose subject is shared is order-fragile: when the
+      -- refusal wrongly SUCCEEDS it moves the shared row, and the next
+      -- legitimate transition then fails for a reason that has nothing to do
+      -- with the breach -- which is how a plant goes red without reporting
+      -- what it found. Measured: it did exactly that before this was split.
+      insert into public.management_decisions
+        (family, institution_id, scope_node_id, subject_person_id, source_table, source_id,
+         raised_by_person_id)
+      values ('INTEGRITY_REFERRAL', c.inst, c.cls_a, c.la, 'integrity_signals',
+              gen_random_uuid(), c.hod)
+      returning management_decisions.id into v_dec_x;
+      foreach v_who in array array['institution admin', 'educator'] loop
+        v_caught := false;
+        perform selftest.as_user_uid(case v_who when 'institution admin' then c.adm_u else c.edu_u end);
+        begin perform public.advance_management_decision(v_dec_x, 'UNDER_REVIEW', null, 'x');
+        exception when others then v_caught := true; end;
+        perform selftest.as_owner();
+        if not v_caught then
+          bad := bad || array[format('an %s decided a Management referral', v_who)];
+        end if;
+        -- AND THE REFUSAL LEFT NOTHING BEHIND.
+        select count(*) into n from public.management_decisions m
+         where m.id = v_dec_x and m.state = 'AWAITING_REVIEW';
+        if n <> 1 then
+          bad := bad || array[format('a refusal for the %s still moved the decision', v_who)];
+        end if;
+      end loop;
+
+      -- a head of department is refused a decision in the SIBLING department,
+      -- and the dean, who stands over both, is not
+      insert into public.management_decisions
+        (family, institution_id, scope_node_id, subject_person_id, source_table, source_id,
+         raised_by_person_id)
+      -- its own source key, for the reason recorded above: if the out-of-scope
+      -- referral probe wrongly SUCCEEDS it will already have queued v_sig_b,
+      -- and this insert would then collide and crash the probe instead of
+      -- reporting the breach. Measured: it did.
+      values ('INTEGRITY_REFERRAL', c.inst, c.cls_b, c.lb, 'integrity_signals',
+              gen_random_uuid(), c.dean)
+      returning management_decisions.id into v_dec_b;
+      v_caught := false;
+      perform selftest.as_user_uid(c.hod_u);
+      begin perform public.advance_management_decision(v_dec_b, 'UNDER_REVIEW', null, 'x');
+      exception when others then v_caught := true; end;
+      perform selftest.as_owner();
+      if not v_caught then
+        bad := bad || array['a head of department decided in the sibling department'];
+      end if;
+      perform selftest.as_user_uid(c.dean_u);
+      begin perform public.advance_management_decision(v_dec_b, 'UNDER_REVIEW', null, 'dean');
+      exception when others then bad := bad || array['the dean could not decide inside their own faculty']; end;
+      perform selftest.as_owner();
+
+      -- D. THE VALID HUMAN DECISION, and G. the trail it leaves.
+      select count(*) into n_aud from public.audit_log where action = 'management_decision.advanced';
+      perform selftest.as_user_uid(c.hod_u);
+      perform public.advance_management_decision(v_d, 'UNDER_REVIEW', null, 'saya tinjau');
+      perform public.advance_management_decision(v_d, 'DECIDED', 'LEARNER_SUPPORT_ARRANGED', 'sudah dibahas');
+      perform selftest.as_owner();
+      select count(*) into n from public.management_decisions m
+       where m.id = v_d and m.state = 'DECIDED' and m.outcome = 'LEARNER_SUPPORT_ARRANGED'
+         and m.decided_by_person_id = c.hod and m.decided_at is not null;
+      if n <> 1 then bad := bad || array['the human decision was not persisted with its human and its moment']; end if;
+      select count(*) into n from public.audit_log
+       where action = 'management_decision.advanced' and target_id = v_d::text
+         and actor_person_id = c.hod and institution_id = c.inst
+         and target_table = 'management_decisions';
+      if n <> 2 then
+        bad := bad || array[format('%s audit row(s) naming the actor for 2 transitions', n)];
+      end if;
+
+      -- E again, at the terminal state: a recorded decision is not edited.
+      v_caught := false;
+      perform selftest.as_user_uid(c.hod_u);
+      begin perform public.advance_management_decision(v_d, 'UNDER_REVIEW', null, 'reopen');
+      exception when others then v_caught := true; end;
+      perform selftest.as_owner();
+      if not v_caught then bad := bad || array['a recorded human decision was reopened']; end if;
+
+      -- I. AND A LATER REFERRAL OF DECIDED EVIDENCE IS LEGITIMATE.
+      perform selftest.as_user_uid(c.hod_u);
+      v_d2 := public.refer_integrity_signal(c.signal_a, 'hal baru');
+      perform selftest.as_owner();
+      if v_d2 is null or v_d2 = v_d then
+        bad := bad || array['decided evidence could not be referred again when something new happened'];
+      end if;
+
+      -- READS ARE CONTAINED TOO.
+      perform selftest.as_user_uid(c.hod_u);
+      select count(*) into n from public.management_decisions m where m.id = v_dec_b;
+      perform selftest.as_owner();
+      if n <> 0 then bad := bad || array['a head of department read a sibling department''s Management decision']; end if;
+      perform selftest.as_user_uid(c.la_u);
+      select count(*) into n from public.management_decisions;
+      perform selftest.as_owner();
+      if n <> 0 then bad := bad || array['a learner read a Management decision']; end if;
+
+      -- EVERYTHING THIS CASE WROTE GOES BACK. The suite is run without a
+      -- wrapping transaction by `selftest:db`, and the fixture builds real
+      -- org nodes, enrollments, memberships and FINALIZED sessions in a
+      -- seeded tenant -- several of which are append-only and cannot simply
+      -- be deleted afterwards. The sentinel unwinds the subtransaction
+      -- instead, which is the idiom F06-P11 and F06-P12 use for the same
+      -- reason. Measured: without it, a second run of the suite against one
+      -- database turned F06-P11 and F06-P15 red for accumulation rather than
+      -- for anything either of them is about.
+      raise exception 'F06_P15_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      if sqlerrm <> 'F06_P15_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 180);
+      end if;
+    end;
+
+    id := 'F06-P15'; area := 'WP2 -- a signal is a candidate, and only a human decides';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'a real integrity signal on a purpose-built two-department school. THE SIGNAL CREATES '
+        || 'NOTHING: no Management record and no outcome exist until a human acts. An educator, a dean '
+        || 'and a learner are each refused the referral because none holds CAN_REVIEW_INTEGRITY, and a '
+        || 'head of department is refused a signal in the SIBLING department, so the referral is '
+        || 'contained and not merely capable; none of those refusals wrote a line of audit evidence. '
+        || 'The authorized referral arrives AWAITING_REVIEW, carrying no outcome, anchored at the class '
+        || 'the evidence was observed in and naming the learner it is about, and the signal row is '
+        || 'untouched -- referenced, not rewritten. Referring twice while open is the SAME referral with '
+        || 'ONE audit row. Deciding is refused to the institution admin, who outranks both Management '
+        || 'roles and passes containment from the root, and to the educator; refused to the head of '
+        || 'department in the sibling department and allowed to the dean who stands over both. The '
+        || 'declared transitions succeed and every other one fails -- DECIDED with no outcome, an '
+        || 'outcome without deciding, a move backwards, and reopening a recorded decision -- while the '
+        || 'two that succeed leave two audit rows naming the actor, the institution and the decision. '
+        || 'Once decided, the same evidence may be referred again, because a later judgement is not a '
+        || 'duplicate. Reads obey the same boundary: the sibling''s decision is invisible to the head of '
+        || 'department and every decision is invisible to a learner. Every row rolled back';
     end if;
     return next;
   end;
