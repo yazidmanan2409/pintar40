@@ -87,6 +87,12 @@ const ROUTE_INVENTORY = [
   // state, an outcome and a readiness state — every one of them through the
   // copy table, so it is exactly the kind of page this sweep exists for.
   "/pimpinan",
+  // WP5B. The intake entry is the one static route the institutional intake
+  // serves; the job route beneath it is per-job and therefore dynamic. It
+  // renders a job's state and a validation problem, both of which arrive from
+  // the database as developer phrases, so it is exactly the kind of page this
+  // sweep exists for.
+  "/pendataan",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };

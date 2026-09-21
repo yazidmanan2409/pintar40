@@ -42,6 +42,10 @@
  *   UX1-PIMPINAN-KEPUTUSAN-01 the decision experience mirrors WP2 and automates nothing
  *   UX1-PIMPINAN-KESIAPAN-01 R5's three states, read and never recomputed
  *   UX1-PIMPINAN-KATA-01     Management copy: declared, clean, and never a ranking
+ *   UX1-DATA-BERKAS-01       a spreadsheet read properly, mapped to WP5A's own fields
+ *   UX1-DATA-TAHAP-01        the phases are the database's, and the fifty cannot be crossed
+ *   UX1-DATA-JUJUR-01        every number committed; a lost response is not a lost job
+ *   UX1-DATA-WENANG-01       provisioning authority, and copy that names no machinery
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -52,6 +56,11 @@ import { allKeys, telling, renderAll, t, LOCALES, type HleEvent } from "../src/l
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import { berandaPeran } from "../src/lib/beranda";
+import {
+  MEDAN, MASALAH, MASALAH_LAIN, PERAN_PENDATAAN, AKUN_AKTIF,
+  bacaKisi, barisTernormalisasi, tebakPemetaan, pemetaanLengkap,
+  tahap, bolehLanjut, percontohanMenunggu, bisaDilanjutkan, kunciMasalah, type Kemajuan,
+} from "../src/lib/pendataan-kontrak";
 import {
   kesiapan, hitungKesiapan, langkahBerikut, nada, urutan, menunggu,
   HASIL_SEMUA, HASIL_KUNCI, KEADAAN_KUNCI, KELUARGA_KUNCI, KESIAPAN_KUNCI, KESIAPAN_URUT,
@@ -157,6 +166,10 @@ const RESET_SURFACES = [
   "src/app/belajar/[tugas]/lanjut/page.tsx",
   "src/app/belajar/asesmen/[penugasan]/page.tsx",
   "src/app/belajar/_components/PermukaanAsesmen.tsx",
+  // WP5B — institutional intake. On the token set from its first commit, like
+  // WP4 and unlike the configuration surface it is reached from.
+  "src/app/pendataan/page.tsx",
+  "src/app/pendataan/[pekerjaan]/page.tsx",
   // WP4 — the Management surface. Built on the token set from the first commit
   // rather than re-set afterwards, which is why it joins this list and not the
   // pending one.
@@ -225,6 +238,10 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The phone tab bar: the minimum comfortable touch target, a platform requirement." },
   { file: "src/app/experience.css", literal: "40px",
     reason: "The control height, and the certificate's accent rule. Both are the same measured value." },
+  { file: "src/app/experience.css", literal: "340px",
+    reason: "The scroll ceiling on the fifty provisioned rows at the pilot checkpoint. Sized so the list "
+          + "reads as a list that scrolls rather than pushing the confirm control off the screen, which "
+          + "would leave an administrator scrolling past fifty people to find it. Not a scale step." },
   { file: "src/app/experience.css", literal: "180px",
     reason: "The definition-list label column: sized to the longest label in either language." },
   { file: "src/app/experience.css", literal: "560px",
@@ -4003,7 +4020,17 @@ export const experienceTests: SelfTest[] = [
 
       // 6. REDUCED MOTION REPLACES THE SPINNER RATHER THAN LEAVING IT SPINNING.
       const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
-      const blok = css.slice(css.indexOf("UX-1 · THE SIGN-IN SCREEN"));
+      // BOUNDED AT THE NEXT BLOCK, not at the end of the file. This sliced to
+      // end-of-file until WP5B appended a stylesheet block with an animation in
+      // it, at which point a rule belonging to an administrator's progress bar
+      // was read as a rule of the sign-in screen and this case went red for a
+      // file it does not govern. The tour guard was corrected the same way for
+      // the same reason: a section check must end where its section does.
+      const mulaiMasuk = css.indexOf("UX-1 · THE SIGN-IN SCREEN");
+      const akhirMasuk = css.indexOf("\n/* ═", mulaiMasuk + 1);
+      const blok = css.slice(mulaiMasuk, akhirMasuk === -1 ? undefined : akhirMasuk);
+      c.expect(blok.length > 500 && (akhirMasuk === -1 || akhirMasuk > mulaiMasuk),
+        "the sign-in stylesheet block could not be delimited, so this check reads the wrong rules");
       c.expect(/prefers-reduced-motion: reduce\)\s*\{[\s\S]{0,200}animation: none/.test(blok),
         "the spinner keeps turning for a reader who asked for no motion");
       // and nothing else on the screen animates
@@ -4675,6 +4702,503 @@ export const experienceTests: SelfTest[] = [
         "table, a capability, a policy or an enum; the register is declared staff-only, which is " +
         "re-proved by showing the same key still throws for a learner and for the public; and no key " +
         "carries a persona override or an informal address",
+      );
+    },
+  },
+
+  // ════════════════════════════════════════ WP5B · INSTITUTIONAL INTAKE
+  {
+    id: "UX1-DATA-BERKAS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const wp5a = readFileSync(
+        join(repoRoot, "supabase/migrations/20260926110000_an_import_that_survives_the_power_going_out.sql"), "utf8");
+
+      // 1. A SPREADSHEET IS READ PROPERLY, because a school's file contains
+      //    names and names contain commas. A naive split shifts every column
+      //    after the comma for that row only -- a defect that shows up as one
+      //    person with a wrong class, not as an error.
+      const kutip = bacaKisi('nama,kelas\n"Wijaya, S.Pd",7A\n');
+      c.expect(kutip.baris.length === 1 && kutip.baris[0][0] === "Wijaya, S.Pd" && kutip.baris[0][1] === "7A",
+        `a quoted comma split the row: ${JSON.stringify(kutip.baris)}`);
+      const ganda = bacaKisi('nama\n"Ali ""Ucok"" Basri"\n');
+      c.expect(ganda.baris[0][0] === 'Ali "Ucok" Basri', `a doubled quote was mishandled: ${ganda.baris[0][0]}`);
+      const barisDalam = bacaKisi('nama,ket\n"Sri\nRahayu",x\n');
+      c.expect(barisDalam.baris.length === 1 && barisDalam.baris[0][0] === "Sri\nRahayu",
+        "a newline inside a quoted field broke the row in two");
+      // Excel writes a BOM, and an invisible byte on the first header turns
+      // `nama` into something no guess matches.
+      const bom = bacaKisi("﻿nama,kelas\nAni,7A\n");
+      c.expect(bom.kepala[0] === "nama", `a byte-order mark survived into the header: ${JSON.stringify(bom.kepala[0])}`);
+      for (const [sep, label] of [[";", "semicolon"], ["\t", "tab"], [",", "comma"]] as const) {
+        const k = bacaKisi(`nama${sep}kelas\nAni${sep}7A\n`);
+        c.expect(k.kepala.length === 2 && k.baris[0][1] === "7A", `a ${label}-separated file was not read`);
+      }
+      // A TRAILING NEWLINE IS NOT A PERSON.
+      c.expect(bacaKisi("nama\nAni\nBudi\n").baris.length === 2,
+        "a trailing newline was counted as an extra person");
+      // A short row pads rather than reaching a payload as undefined.
+      const pendek = bacaKisi("nama,kelas,peran\nAni,7A\n");
+      c.expect(pendek.baris[0].length === 3 && pendek.baris[0][2] === "",
+        "a short row does not pad to the header's width");
+
+      // 2. EXACTLY THE FIELDS WP5A READS, taken from the migration rather than
+      //    from memory. A field the surface offered and the database ignored
+      //    would be collected, mapped, shown and silently dropped.
+      const cek = /create function public\.import_row_problems[\s\S]*?\$\$;/.exec(wp5a)?.[0] ?? "";
+      const maju = /create function public\.import_advance[\s\S]*?\ncomment on function/.exec(wp5a)?.[0] ?? "";
+      c.expect(cek.length > 500 && maju.length > 500, "the WP5A row checker or advance body could not be read");
+      const dibaca = new Set<string>();
+      for (const m of (cek + maju).matchAll(/payload ->> '([a-z_]+)'/g)) dibaca.add(m[1]);
+      const ditawarkan = new Set<string>(MEDAN);
+      for (const f of dibaca) {
+        c.expect(ditawarkan.has(f), `WP5A reads ${f} and the intake surface never offers it`);
+      }
+      for (const f of ditawarkan) {
+        c.expect(dibaca.has(f), `the intake surface offers ${f} and WP5A reads no such field`);
+      }
+      // AND NO COLUMN FOR AN INSTITUTIONAL ID. PINTAR decides all eleven
+      // characters; a column for it would invite a school to bring their own.
+      c.expect(!ditawarkan.has("institutional_id") && !dibaca.has("institutional_id"),
+        "the intake offers an institutional-ID column, which the identity doctrine forbids");
+
+      // 3. THE ROLES OFFERED ARE THE ROLES ACCEPTED. WP5A refuses two by name.
+      const ditolakDb = [...cek.matchAll(/v_role in \(([^)]*)\)/g)]
+        .flatMap((m) => [...m[1].matchAll(/'([A-Z_]+)'/g)].map((x) => x[1]));
+      c.expect(ditolakDb.length === 2, `${ditolakDb.length} role(s) refused by bulk provisioning; expected 2`);
+      for (const r of ditolakDb) {
+        c.expect(!(PERAN_PENDATAAN as readonly string[]).includes(r),
+          `the mapping screen offers ${r}, which WP5A refuses for a bulk intake`);
+      }
+      c.expect(PERAN_PENDATAAN.length === 4, `${PERAN_PENDATAAN.length} role(s) offered; expected 4`);
+
+      // 4. THE MAPPING PRODUCES ONE ROW PER ROW, AND DROPS NONE -- at every
+      //    boundary the ruling names. A surface that silently skipped a bad row
+      //    would provision a list the administrator never approved, and the
+      //    count they confirmed would not be the count that happened.
+      for (const n of [1, 50, 100, 101, 1000]) {
+        const teks = "nama,kelas\n" + Array.from({ length: n }, (_, i) => `Orang ${i + 1},7A`).join("\n") + "\n";
+        const k = bacaKisi(teks);
+        c.expect(k.baris.length === n, `${n} rows in, ${k.baris.length} read`);
+        const out = barisTernormalisasi(k, tebakPemetaan(k.kepala));
+        c.expect(out.length === n, `${n} rows mapped to ${out.length}`);
+      }
+      // A ROW WITH NO NAME IS STILL SENT, so the database reports it against
+      // its ordinal and the administrator is told. Dropping it here would hide
+      // the problem the check exists to surface.
+      const kosong = bacaKisi("nama,kelas\nAni,7A\n,7A\nBudi,7A\n");
+      const hasil = barisTernormalisasi(kosong, { display_name: { jenis: "kolom", kolom: 0 } });
+      c.expect(hasil.length === 3, `a nameless row was dropped before the database saw it: ${hasil.length} of 3`);
+      c.expect(hasil[1].display_name === undefined,
+        "an empty value is sent as an empty string rather than omitted");
+
+      // 5. A FIXED CHOICE IS THE SAME FIVE FIELDS. Three of them are uuids and
+      //    no school's spreadsheet holds one, so "one choice for everyone" is
+      //    how a class gets named -- not a sixth field.
+      const tetap = barisTernormalisasi(bacaKisi("nama\nAni\nBudi\n"), {
+        display_name: { jenis: "kolom", kolom: 0 },
+        node_id: { jenis: "tetap", nilai: "n-1" },
+      });
+      c.expect(tetap.every((r) => r.node_id === "n-1"), "a fixed choice did not reach every row");
+      c.expect(tetap.every((r) => Object.keys(r).every((k) => (MEDAN as readonly string[]).includes(k))),
+        "a normalized row carries a key WP5A does not read");
+
+      // 6. THE GUESS IS A GUESS. It suggests and the screen shows it; a mapping
+      //    with no name is refused rather than submitted.
+      c.expect(tebakPemetaan(["Nama", "Kelas", "Peran"]).display_name?.jenis === "kolom",
+        "the header guess does not find an obvious name column");
+      c.expect(pemetaanLengkap({ display_name: { jenis: "kolom", kolom: 0 } }),
+        "a mapping with a name is reported incomplete");
+      c.expect(!pemetaanLengkap({ node_id: { jenis: "tetap", nilai: "x" } }),
+        "a mapping with no name column is reported complete");
+
+      return c.verdict(
+        "the file is read as a spreadsheet rather than split on commas -- a quoted comma, a doubled " +
+        "quote, a newline inside a field, a byte-order mark, and semicolon, tab and comma separators " +
+        "all handled, with a trailing newline not counted as a person and a short row padded. The five " +
+        "mappable fields are compared AGAINST THE MIGRATION in both directions, so a field the surface " +
+        "offers that WP5A ignores and a field WP5A reads that the surface hides are both red; there is " +
+        "no institutional-ID column, because PINTAR decides all eleven characters. The roles offered " +
+        "exclude exactly the two WP5A refuses, read from its own check. One row in is one row out at 1, " +
+        "50, 100, 101 and 1,000, a nameless row is still sent so the database can report it, and an " +
+        "empty value is omitted rather than sent as an empty string",
+      );
+    },
+  },
+
+  {
+    id: "UX1-DATA-TAHAP-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const wp5a = readFileSync(
+        join(repoRoot, "supabase/migrations/20260926110000_an_import_that_survives_the_power_going_out.sql"), "utf8");
+
+      const K = (o: Partial<Kemajuan> & { state: string }): Kemajuan => ({
+        job_id: "j", institution_id: "i", total: 1000, completed: 0, remaining: 1000, failed: 0,
+        pilot_required: true, pilot_size: 50, pilot_completed: 0, pilot_verified: false,
+        pilot_verified_at: null, confirmed_at: null, completed_at: null, failure_reason: null, ...o,
+      });
+
+      // 1. EVERY STATE THE DATABASE HAS IS A PHASE THE SCREEN KNOWS. A state
+      //    with no phase renders a page with no heading and no controls.
+      const enumSrc = /create type public\.import_job_state as enum \(([\s\S]*?)\);/.exec(wp5a)?.[1] ?? "";
+      const states = [...enumSrc.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]);
+      c.expect(states.length === 8, `${states.length} job state(s) in the migration; expected 8`);
+      for (const st of states) {
+        c.expect(tahap({ state: st }) !== null, `the job state ${st} maps to no phase on the screen`);
+      }
+      c.expect(tahap({ state: "SOMETHING_ELSE" }) === null, "an unknown state is given a phase anyway");
+
+      // 2. THE FIFTY-ROW GATE. `bolehLanjut` is a whitelist of the three
+      //    provisioning states, so the checkpoint cannot be crossed by a page
+      //    that stayed open -- and the whitelist is compared with the states
+      //    `import_advance` itself accepts.
+      // SCOPED TO import_advance's OWN BODY. `import_validate` opens with the
+      // same shape -- `if j.state not in ('DRAFT', 'AWAITING_CONFIRMATION')` --
+      // and it appears first in the file, so an unscoped search read the
+      // validation guard and reported two accepted states where the
+      // provisioning guard has three.
+      const badanMaju = /create function public\.import_advance[\s\S]*?\ncomment on function/.exec(wp5a)?.[0] ?? "";
+      c.expect(badanMaju.length > 500, "import_advance's body could not be isolated from the migration");
+      const jaga = /if j\.state not in \(([^)]*)\) then/.exec(badanMaju)?.[1] ?? "";
+      const diterima = [...jaga.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      c.expect(diterima.length === 3, `import_advance accepts ${diterima.length} state(s); expected 3`);
+      for (const st of states) {
+        const ui = bolehLanjut(K({ state: st, remaining: 500 }));
+        const db = diterima.includes(st);
+        c.expect(ui === db,
+          `the surface ${ui ? "asks for" : "refuses"} a chunk in ${st}; import_advance ${db ? "accepts" : "refuses"} it`);
+      }
+      c.expect(!bolehLanjut(K({ state: "AWAITING_PILOT_VERIFICATION", remaining: 950 })),
+        "the driver would continue past the fifty without a human");
+      // And it stops when there is nothing left, so a finished job is never
+      // asked for a chunk it has no rows for.
+      c.expect(!bolehLanjut(K({ state: "IMPORTING", remaining: 0 })),
+        "the driver asks for a chunk when nothing is pending");
+
+      // 3. THE BOUNDARY SIZES, AND THE THRESHOLD READ FROM THE MIGRATION. The
+      //    surface never decides that 101 needs a pilot: it reads
+      //    `pilot_required`. What is checked here is that it HONOURS it.
+      const ambang = Number(/import_pilot_threshold\(\) returns integer[\s\S]*?select (\d+)/.exec(wp5a)?.[1]);
+      const ukuran = Number(/import_pilot_size\(\) returns integer[\s\S]*?select (\d+)/.exec(wp5a)?.[1]);
+      c.expect(ambang === 100 && ukuran === 50, `the product numbers read ${ambang}/${ukuran}`);
+      for (const n of [1, 50, 100]) {
+        // No checkpoint: one straight run, and the screen offers it.
+        const k = K({ state: "IMPORTING", total: n, remaining: n, pilot_required: false });
+        c.expect(bolehLanjut(k), `an import of ${n} is not offered a run`);
+        c.expect(!percontohanMenunggu(k), `an import of ${n} was given a pilot checkpoint`);
+      }
+      for (const n of [101, 1000]) {
+        const k = K({ state: "AWAITING_PILOT_VERIFICATION", total: n, completed: 50,
+                      remaining: n - 50, pilot_completed: 50 });
+        c.expect(percontohanMenunggu(k), `an import of ${n} does not stop at the checkpoint`);
+        c.expect(!bolehLanjut(k), `an import of ${n} would run past the checkpoint`);
+      }
+
+      // 4. INTERRUPTION, IN THE THREE PLACES THE RULING NAMES. In every one of
+      //    them the answer is "continue", never "start again" and never "the
+      //    job is lost".
+      const setelah50 = K({ state: "AWAITING_PILOT_VERIFICATION", completed: 50, remaining: 950, pilot_completed: 50 });
+      c.expect(percontohanMenunggu(setelah50) && !bolehLanjut(setelah50),
+        "an interruption after the fifty and before verification does not return to the checkpoint");
+      const setelahPeriksa = K({ state: "REMAINDER_IMPORTING", completed: 50, remaining: 950,
+                                 pilot_completed: 50, pilot_verified: true, pilot_verified_at: "2026-01-01T00:00:00Z" });
+      c.expect(bolehLanjut(setelahPeriksa) && !percontohanMenunggu(setelahPeriksa),
+        "an interruption after verification asks for the pilot to be verified again");
+      const seratus = K({ state: "REMAINDER_IMPORTING", completed: 100, remaining: 900,
+                          pilot_completed: 50, pilot_verified: true });
+      c.expect(bisaDilanjutkan(seratus), "an import interrupted at 100 of 1,000 is not offered a continue");
+      c.expect(!bisaDilanjutkan(K({ state: "COMPLETED", total: 1000, completed: 1000, remaining: 0 })),
+        "a completed import is offered a continue");
+      c.expect(!bisaDilanjutkan(K({ state: "IMPORTING", completed: 0, remaining: 1000 })),
+        "an import that has recorded nobody is described as resumable rather than as not started");
+
+      // 5. THE PAGE OFFERS NOTHING THAT WOULD REPEAT A HUMAN ACT. A confirmed
+      //    job draws no confirmation form and a verified pilot draws no verify
+      //    form -- which is what stops a lost response becoming a second act.
+      const hal = code(readFileSync(join(repoRoot, "src/app/pendataan/[pekerjaan]/page.tsx"), "utf8"));
+      c.expect(/fase === "menunggu_konfirmasi" && pratinjau/.test(hal),
+        "the confirmation form is not bound to the one state that awaits confirmation");
+      c.expect(/menungguPercontohan \?/.test(hal),
+        "the pilot verification form is not bound to the checkpoint state");
+      c.expect(/percontohanMenunggu\(/.test(hal), "the page decides the checkpoint itself");
+      // A completed or stopped job reached again draws neither.
+      for (const st of ["COMPLETED", "FAILED"]) {
+        const k = K({ state: st, completed: 1000, remaining: 0 });
+        c.expect(!bolehLanjut(k) && !percontohanMenunggu(k),
+          `reopening a ${st} job offers an action`);
+      }
+
+      return c.verdict(
+        "the intake's phases are the database's states and the fifty-row gate is the database's gate: " +
+        "every one of the eight job states maps to a phase, an unknown one maps to none, and the three " +
+        "states the surface will ask for a chunk in are compared MEMBER BY MEMBER with the three " +
+        "import_advance accepts -- so AWAITING_PILOT_VERIFICATION being absent from both is asserted " +
+        "rather than assumed. The product numbers are read from the migration (100/50); 1, 50 and 100 " +
+        "run straight through while 101 and 1,000 stop and cannot be driven past; an interruption after " +
+        "the fifty returns to the checkpoint, one after verification never asks for it again, and one at " +
+        "100 of 1,000 is offered a continue rather than a restart; and a completed or stopped job " +
+        "reopened offers no action at all",
+      );
+    },
+  },
+
+  {
+    id: "UX1-DATA-JUJUR-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const penggerak = code(readFileSync(join(repoRoot, "src/components/pendataan/Penggerak.tsx"), "utf8"));
+      const aksi = code(readFileSync(join(repoRoot, "src/app/pendataan/actions.ts"), "utf8"));
+      const kontrak = code(readFileSync(join(repoRoot, "src/lib/pendataan-kontrak.ts"), "utf8"));
+      const halaman = code(readFileSync(join(repoRoot, "src/app/pendataan/[pekerjaan]/page.tsx"), "utf8"));
+      const semua = [
+        ...walk(join(repoRoot, "src", "app", "pendataan")),
+        ...walk(join(repoRoot, "src", "components", "pendataan")),
+      ].filter((f) => /\.tsx?$/.test(f));
+
+      // 1. THE PROGRESS COMPONENT HOLDS NO COUNTER. Not one it increments per
+      //    request, not one it advances on a timer, not one it estimates
+      //    between two answers. Every number it shows came back from
+      //    import_progress, which counts rows that committed.
+      const naik = /\b(completed|selesai|kini|total|remaining)\b[^;\n]{0,24}(\+\+|\+= *\d|\+ *1\b)/.exec(penggerak);
+      c.expect(naik === null, `the progress component increments a count of its own: ${naik?.[0]}`);
+      c.expect(!/setInterval|setTimeout/.test(penggerak),
+        "the progress component moves on a timer rather than on a committed answer");
+      c.expect(/kini\.completed/.test(penggerak) && /kini\.remaining/.test(penggerak) && /kini\.total/.test(penggerak),
+        "the progress component stopped reading the durable counts");
+      // The bar's width is a rendering of a committed count, not an animation
+      // beside one.
+      c.expect(/kini\.completed \/ kini\.total/.test(penggerak),
+        "the progress bar's width is no longer derived from committed rows");
+      c.expect(/aria-valuenow=\{kini\.completed\}/.test(penggerak),
+        "the bar announces a different number from the one it draws");
+
+      // 2. A LOST RESPONSE IS NOT A LOST JOB. Every uncertain outcome re-reads
+      //    durable state instead of deciding. This is checked on all four of
+      //    the acts where it matters.
+      c.expect(/bacaUlang\(pekerjaan\)/.test(penggerak),
+        "the driver treats a missing answer as a failure instead of re-reading the job");
+      const konfirm = /export async function konfirmasiAksi[\s\S]*?\n}/.exec(aksi)?.[0] ?? "";
+      const verif = /export async function periksaPercontohanAksi[\s\S]*?\n}/.exec(aksi)?.[0] ?? "";
+      const majukan = /export async function majukanAksi[\s\S]*?\n}/.exec(aksi)?.[0] ?? "";
+      c.expect(/progress\(pekerjaan\)/.test(konfirm) && /confirmed_at/.test(konfirm),
+        "a lost confirmation response is reported as a failure rather than re-read");
+      c.expect(/progress\(pekerjaan\)/.test(verif) && /pilot_verified/.test(verif),
+        "a lost verification response would make an administrator verify the pilot twice");
+      c.expect(/return progress\(pekerjaan\)/.test(majukan),
+        "a lost advance response is reported as a failure rather than re-read");
+
+      // 3. NOTHING PROVISIONS WITHOUT A HUMAN, and nothing here is the human.
+      //    The surface calls WP5A's confirmation; it does not keep a flag.
+      c.expect(/rpc\("import_confirm"/.test(aksi), "the surface no longer calls WP5A's confirmation");
+      c.expect(/rpc\("import_verify_pilot"/.test(aksi), "the surface no longer calls WP5A's pilot release");
+      const rpcs = [...aksi.matchAll(/\.rpc\("([a-z_]+)"/g)].map((m) => m[1]);
+      for (const r of rpcs) {
+        c.expect(/^(import_|reserve_institution_namespace)/.test(r),
+          `the intake action file calls ${r}, which is not part of the WP5A intake contract`);
+      }
+      c.expect(!/dikonfirmasi|confirmed\s*=\s*true|setKonfirmasi/.test(penggerak + halaman),
+        "the surface keeps a confirmation flag of its own beside the database's");
+
+      // 4. PROVISIONED IS NOT ACTIVE. The number is zero, it is SHOWN rather
+      //    than omitted, and the sentence beside it says what the zero means.
+      c.expect(AKUN_AKTIF === 0, `the surface believes ${AKUN_AKTIF} accounts are activated by an intake`);
+      c.expect(/accounts_activated/.test(halaman),
+        "the preview does not render WP5A's own account-activation count");
+      c.expect(/pendataan\.pratinjau\.akun_arti/.test(halaman),
+        "the screen shows the zero without the sentence that explains it");
+      c.expect((halaman.match(/pendataan\.pratinjau\.akun_arti/g) ?? []).length >= 2,
+        "the provisioned-is-not-active sentence appears on only one screen");
+      // NOT ONE WORD OF ACTIVATION ANYWHERE, in code or in copy. WP5B adds no
+      // password, no invitation, no magic link, no OTP and no card claim, and
+      // this is what keeps a later edit from adding one quietly.
+      const AKTIVASI = /aktivasi|aktifkan|activate[sd]?\b|activation|kata sandi|password|undangan|invitation|invite\b|magic ?link|tautan masuk|\botp\b|verifikasi surel|email verification|klaim identitas|identity claim/i;
+      // `accounts_activated` IS WP5A'S OWN FIELD NAME and is the one mention
+      // that means the opposite: the preview returns it as a deliberate zero,
+      // and rendering it is how the screen says nobody can sign in. Reading a
+      // field called that is not promising activation, so the identifier is
+      // removed before the sweep rather than the sweep being loosened.
+      const tanpaMedan = (x: string) => x.replace(/accounts_activated/g, "AKUN_NOL");
+      for (const f of semua) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const m = AKTIVASI.exec(tanpaMedan(code(readFileSync(f, "utf8"))));
+        c.expect(m === null, `${rel} reaches for activation: "${m?.[0]}"`);
+      }
+      for (const k of allKeys().filter((x) => x.startsWith("pendataan."))) {
+        for (const l of LOCALES) {
+          const m = AKTIVASI.exec(t(k, "staff", { locale: l }));
+          c.expect(m === null, `${k} promises activation in ${l}: "${m?.[0]}"`);
+        }
+      }
+      c.expect(AKTIVASI.test("Akun sudah diaktifkan"), "the activation detector cannot catch a planted promise");
+
+      // 5. THE READINESS OF THE PURE CONTRACT: it reads the envelope and never
+      //    recomputes the pilot arithmetic the database governs.
+      c.expect(!/> *100\b|>= *101|=== *50\b/.test(kontrak),
+        "the pure contract hard-codes the pilot threshold or size instead of reading them");
+
+      return c.verdict(
+        "every number an administrator sees is the database's: the progress component holds no counter " +
+        "it increments, runs on no timer, draws its bar from completed/total and announces the same " +
+        "number it draws -- all watched on a plant. An uncertain outcome re-reads durable state at all " +
+        "four places it matters, so a lost confirmation is not a failure and a lost verification does " +
+        "not make an administrator verify the fifty twice. Provisioning goes through WP5A's own " +
+        "confirmation and pilot release, the action file calls nothing outside the intake contract, and " +
+        "the surface keeps no confirmation flag beside the database's. PROVISIONED IS NOT ACTIVE: the " +
+        "zero is rendered rather than omitted, its sentence appears on more than one screen, and not one " +
+        "word of activation -- password, invitation, magic link, one-time code, identity claim -- " +
+        "appears in any file or any telling, watched on a plant",
+      );
+    },
+  },
+
+  {
+    id: "UX1-DATA-WENANG-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const identitas = readFileSync(
+        join(repoRoot, "supabase/migrations/20260926100000_a_school_gives_a_person_a_number.sql"), "utf8");
+      const impor = readFileSync(
+        join(repoRoot, "supabase/migrations/20260926110000_an_import_that_survives_the_power_going_out.sql"), "utf8");
+      const lapis = code(readFileSync(join(repoRoot, "src/lib/pendataan.ts"), "utf8"));
+      const berkas = [
+        ...walk(join(repoRoot, "src", "app", "pendataan")),
+        ...walk(join(repoRoot, "src", "components", "pendataan")),
+      ].filter((f) => /\.tsx?$/.test(f)).map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      const src = new Map(berkas.map((f) => [f, readFileSync(join(repoRoot, f), "utf8")]));
+
+      // 1. THE CAPABILITY IS THE GATE, AND THE MIGRATION SAYS WHO HOLDS IT.
+      //    §17: Management access is not provisioning authority, and WP5A
+      //    withholds it from both Management roles by name.
+      const tabel = /role_capabilities\(r app_role\)[\s\S]*?\$function\$;/.exec(identitas)?.[0] ?? "";
+      c.expect(tabel.length > 400, "the capability table could not be read from the migration");
+      const punya = (role: string) => {
+        const m = new RegExp(`when '${role}' then array\\[([\\s\\S]*?)\\]`).exec(tabel);
+        return m ? /CAN_PROVISION_PEOPLE/.test(m[1]) : false;
+      };
+      c.expect(punya("INSTITUTION_ADMIN"), "an institution administrator no longer holds provisioning authority");
+      for (const r of ["HEAD_OF_DEPARTMENT", "DEAN", "EDUCATOR", "STUDENT"]) {
+        c.expect(!punya(r), `${r} holds CAN_PROVISION_PEOPLE, so a Management reader would reach the intake`);
+      }
+      // Every WP5A read path is bounded by the same capability.
+      for (const pol of ["import_jobs_select", "import_rows_select"]) {
+        const m = new RegExp(`create policy ${pol}[\\s\\S]*?;`).exec(impor)?.[0] ?? "";
+        c.expect(/CAN_PROVISION_PEOPLE/.test(m), `${pol} is no longer bounded by provisioning authority`);
+      }
+
+      // 2. AND THE SURFACE ASKS THAT QUESTION RATHER THAN A ROLE NAME.
+      const PERAN = /"(STUDENT|EDUCATOR|HEAD_OF_DEPARTMENT|DEAN|INSTITUTION_ADMIN|SYSTEM_ADMIN)"/;
+      const bocor = PERAN.exec(lapis);
+      c.expect(bocor === null, `src/lib/pendataan.ts reads a role name: ${bocor?.[0]}`);
+      c.expect(!/select\([^)]*\brole\b/.test(lapis), "the intake data layer selects the role column");
+      c.expect(/CAN_PROVISION_PEOPLE/.test(lapis), "the intake data layer no longer asks for the capability");
+      c.expect(PERAN.test('const r = "DEAN";'), "the role-name detector cannot catch a planted role literal");
+      for (const f of berkas.filter((x) => /page\.tsx$/.test(x))) {
+        c.expect(/HalamanPenolakan/.test(src.get(f) ?? ""), `${f} has no refusal path`);
+      }
+
+      // 3. THE COPY IS DECLARED COPY, in both languages, and names no
+      //    machinery. §4 bans the implementation vocabulary by name.
+      const dipakai = new Set<string>(
+        [...berkas.map((f) => code(src.get(f) ?? "")).join("\n").matchAll(/"(pendataan\.[a-z_.]+)"/g)].map((m) => m[1]),
+      );
+      for (const k of Object.values(MASALAH)) dipakai.add(k);
+      dipakai.add(MASALAH_LAIN);
+      c.expect(dipakai.size >= 60, `only ${dipakai.size} intake copy key(s) in use`);
+      const declared = new Set(allKeys());
+      for (const k of dipakai) {
+        if (!c.expect(declared.has(k as HleEvent), `${k} is rendered but not declared`)) continue;
+        const row = telling(k as HleEvent);
+        c.expect(Boolean(row.default?.trim()), `${k} has no Indonesian telling`);
+        c.expect(Boolean(row.en?.trim()), `${k} has no English telling`);
+      }
+      const MESIN = /\bindeks\b|\bindex\b|\block\b|\bkunci baris\b|sequence|trigger|transaksi|transaction|uuid|jsonb|rollback|commit\b|import_jobs|import_rows|institutional_identities|RLS|\benum\b|DRAFT|AWAITING_|PILOT_IMPORTING|REMAINDER_|CAN_[A-Z_]+/;
+      for (const k of dipakai) {
+        for (const l of LOCALES) {
+          const m = MESIN.exec(t(k as HleEvent, "staff", { locale: l }));
+          c.expect(m === null, `${k} names the machinery in ${l}: "${m?.[0]}"`);
+        }
+      }
+      for (const [f, body] of src) {
+        const teks = [...code(body).matchAll(/>\s*([A-Za-zÀ-ɏ][^<>{}\n]{6,})\s*</g)].map((m) => m[1].trim());
+        for (const x of teks) {
+          c.expect(!/[a-z]{3}\s+[a-z]{3}/.test(x), `${f} carries hard-coded copy: "${x.slice(0, 48)}"`);
+        }
+      }
+
+      // 4. EVERY VALIDATION PROBLEM WP5A CAN RETURN HAS A SENTENCE. The failure
+      //    mode of this map is silent: an unmapped phrase falls through to the
+      //    generic line and the administrator is told their row is wrong
+      //    without being told why.
+      const cek = /create function public\.import_row_problems[\s\S]*?\$\$;/.exec(impor)?.[0] ?? "";
+      const frasa = [...cek.matchAll(/to_jsonb\('([^']+)'::text\)/g)].map((m) => m[1]);
+      c.expect(frasa.length >= 10, `${frasa.length} validation problem(s) found in the migration`);
+      for (const f of frasa) {
+        c.expect(MASALAH[f] !== undefined, `WP5A can return "${f}" and the surface has no sentence for it`);
+      }
+      // The duplicate finding is added by import_validate rather than by the
+      // row checker, so it is asserted separately rather than missed.
+      c.expect(MASALAH["duplicate row within this import"] !== undefined,
+        "a duplicate row inside the file has no sentence");
+      c.expect(kunciMasalah("something WP5A has never said") === MASALAH_LAIN,
+        "an unknown problem phrase would render raw");
+      for (const [frase, kunci] of Object.entries(MASALAH)) {
+        c.expect(t(kunci as HleEvent, "staff") !== frase, `${kunci} renders the database's own phrase`);
+      }
+
+      // 5. THE IDENTITY DOCTRINE, SAID ON THE PAGE. §3: the number identifies a
+      //    person at a school and encodes no role, and §4: the code cannot be
+      //    changed once one number exists -- said BEFORE the first issuance,
+      //    which is the only time saying it helps.
+      const masuk = code(readFileSync(join(repoRoot, "src/app/pendataan/page.tsx"), "utf8"));
+      c.expect(/pendataan\.nomor\.arti/.test(masuk), "the page never says what the identity number is not");
+      for (const l of LOCALES) {
+        const teks = t("pendataan.nomor.arti", "staff", { locale: l });
+        c.expect(/murid|guru|pimpinan|student|teacher|management/i.test(teks),
+          `the identity-number sentence does not name the roles it refuses to encode in ${l}`);
+      }
+      c.expect(/pendataan\.kode\.peringatan/.test(masuk), "the page never warns that the code becomes permanent");
+      // A frozen code renders as identity, with no field and no save control.
+      c.expect(/dipilih\.kode && dipilih\.beku \?/.test(masuk),
+        "a frozen institution code is not told apart from an editable one");
+      c.expect(/beku:/.test(lapis) && /institutional_identities/.test(lapis),
+        "the surface decides a code is frozen without asking whether an identity exists");
+
+      // 6. STAFF-ONLY, AND NOT RENDERED ANYWHERE ELSE.
+      const hle = readFileSync(join(repoRoot, "src/lib/hle.ts"), "utf8");
+      c.expect(/STAFF_ONLY_PREFIXES = \[[^\]]*"pendataan\."/.test(hle),
+        "the intake copy is not declared staff-only, so its register is unchecked");
+      const luar = walk(join(repoRoot, "src", "app"))
+        .concat(walk(join(repoRoot, "src", "components")))
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"))
+        .filter((f) => !/^src\/(app|components)\/pendataan\//.test(f));
+      for (const f of luar) {
+        const body = readFileSync(join(repoRoot, f), "utf8");
+        const m = /"(pendataan\.[a-z_.]+)"/.exec(body);
+        // The configuration surface links to the intake by name, which is the
+        // one legitimate mention outside it.
+        const sah = f === "src/app/konfigurasi/page.tsx" && m?.[1] === "pendataan.judul";
+        c.expect(m === null || sah, `${f} renders the staff-only key ${m?.[1]}`);
+      }
+
+      c.note(`${berkas.length} file(s), ${dipakai.size} key(s)`);
+      return c.verdict(
+        "provisioning authority is WP5A's capability and the migration is read to prove who holds it: an " +
+        "institution administrator does, and HEAD_OF_DEPARTMENT, DEAN, EDUCATOR and STUDENT do not -- so " +
+        "a WP4 Management reader is refused by name rather than by an opinion in this code, which reads " +
+        "no role string at all and never selects the role column, watched on a plant. Every intake copy " +
+        "key is declared in both languages, no component hard-codes a sentence, and no telling names an " +
+        "index, a lock, a sequence, a trigger, a transaction, a table or a job state. EVERY validation " +
+        "phrase WP5A can return is matched against the migration and has a sentence of its own, an " +
+        "unknown one falls back rather than rendering raw, and none of them renders the database's " +
+        "wording. The identity doctrine is on the page in both languages -- the number encodes no role, " +
+        "and the code becomes permanent, said before the first issuance -- and a frozen code renders as " +
+        "identity with no editable control",
       );
     },
   },

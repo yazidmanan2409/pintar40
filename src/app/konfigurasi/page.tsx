@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -121,6 +122,18 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         </div>
         <form action="/keluar" method="post"><button className="text-sm text-ink-2 underline">Keluar</button></form>
       </header>
+
+      {/* WP5B. THE WAY IN TO BULK INTAKE, from the surface an institution
+          administrator already lands on. It is one link and not a panel: the
+          intake is its own experience on the design system, and reproducing a
+          piece of it here would be two places to keep true. The link decides
+          nothing — `/pendataan` asks `can_on_node('CAN_PROVISION_PEOPLE', …)`
+          on arrival and refuses a reader who does not hold it. */}
+      <p className="mt-4">
+        <Link href="/pendataan" className="text-ink-2 underline underline-offset-4 hover:text-ink-1">
+          {s("pendataan.judul")} →
+        </Link>
+      </p>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <div className={card}>

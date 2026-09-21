@@ -248,6 +248,7 @@ export type HleEvent =
   | "config.label.build"
   | "config.label.status"
   | "config.label.not_rolled"
+  | "role.STUDENT"
   | "role.EDUCATOR"
   | "role.HEAD_OF_DEPARTMENT"
   | "role.DEAN"
@@ -498,7 +499,47 @@ export type HleEvent =
   | "studio.hasil.ok"
   | "studio.hasil.gagal"
   | "mengajar.judul"
-  | "nav.kelas" | "nav.pimpinan"
+  | "nav.kelas" | "nav.pimpinan" | "nav.pendataan"
+  // ── WP5B. Institutional intake. Staff-only by declaration
+  // (STAFF_ONLY_PREFIXES), because an administrator's screen legitimately says
+  // a job is "Menunggu" where the same word on a learner's screen would be the
+  // system telling a child to wait.
+  | "pendataan.eyebrow" | "pendataan.judul" | "pendataan.intro" | "pendataan.ditolak"
+  | "pendataan.kembali" | "pendataan.sekolah" | "pendataan.nomor.arti"
+  | "pendataan.kode.judul" | "pendataan.kode.belum" | "pendataan.kode.arti"
+  | "pendataan.kode.bentuk" | "pendataan.kode.contoh" | "pendataan.kode.peringatan"
+  | "pendataan.kode.simpan" | "pendataan.kode.beku" | "pendataan.kode.gagal" | "pendataan.kode.label"
+  | "pendataan.unggah.judul" | "pendataan.unggah.berkas" | "pendataan.unggah.tempel"
+  | "pendataan.unggah.bentuk" | "pendataan.unggah.kosong" | "pendataan.unggah.terbaca"
+  | "pendataan.peta.judul" | "pendataan.peta.sub" | "pendataan.peta.tidak" | "pendataan.peta.kolom"
+  | "pendataan.peta.sama" | "pendataan.peta.wajib" | "pendataan.peta.lanjut" | "pendataan.peta.pratayang"
+  | "pendataan.medan.display_name" | "pendataan.medan.person_id" | "pendataan.medan.node_id"
+  | "pendataan.medan.role" | "pendataan.medan.programme_id"
+  | "pendataan.periksa.judul" | "pendataan.periksa.mulai" | "pendataan.periksa.jalan"
+  | "pendataan.periksa.bersih" | "pendataan.periksa.ada" | "pendataan.periksa.baris"
+  | "pendataan.periksa.perbaiki" | "pendataan.periksa.gagal"
+  | "pendataan.masalah.nama" | "pendataan.masalah.orang_bentuk" | "pendataan.masalah.orang_asing"
+  | "pendataan.masalah.orang_sudah" | "pendataan.masalah.tempat_bentuk"
+  | "pendataan.masalah.tempat_asing" | "pendataan.masalah.tempat_luar"
+  | "pendataan.masalah.peran_asing" | "pendataan.masalah.peran_dilarang"
+  | "pendataan.masalah.peran_tanpa_tempat" | "pendataan.masalah.ganda" | "pendataan.masalah.lain"
+  | "pendataan.pratinjau.judul" | "pendataan.pratinjau.total" | "pendataan.pratinjau.baru"
+  | "pendataan.pratinjau.tertaut" | "pendataan.pratinjau.nomor" | "pendataan.pratinjau.peran"
+  | "pendataan.pratinjau.akun" | "pendataan.pratinjau.akun_arti" | "pendataan.pratinjau.setuju"
+  | "pendataan.pratinjau.tanya" | "pendataan.konfirmasi.gagal"
+  | "pendataan.percontohan.judul" | "pendataan.percontohan.arti" | "pendataan.percontohan.nyata"
+  | "pendataan.percontohan.tanya" | "pendataan.percontohan.sisa" | "pendataan.percontohan.sudah"
+  | "pendataan.percontohan.gagal"
+  | "pendataan.maju.judul" | "pendataan.maju.selesai" | "pendataan.maju.sisa"
+  | "pendataan.maju.gagal_baris" | "pendataan.maju.mulai" | "pendataan.maju.lanjut"
+  | "pendataan.maju.jeda" | "pendataan.maju.terputus" | "pendataan.maju.aman"
+  | "pendataan.selesai.judul" | "pendataan.selesai.arti"
+  | "pendataan.gagal.judul" | "pendataan.gagal.baris"
+  | "pendataan.daftar.judul" | "pendataan.daftar.kosong" | "pendataan.daftar.buka"
+  | "pendataan.keadaan.menyusun" | "pendataan.keadaan.menunggu_konfirmasi"
+  | "pendataan.keadaan.percontohan" | "pendataan.keadaan.periksa_percontohan"
+  | "pendataan.keadaan.sisa" | "pendataan.keadaan.berjalan"
+  | "pendataan.keadaan.selesai" | "pendataan.keadaan.gagal"
   | "mengajar.kembali"
   | "mengajar.sapa.pagi"
   | "mengajar.sapa.siang"
@@ -1029,6 +1070,141 @@ const table: Table = {
   "pimpinan.rincian.belum": { default: "Belum ada catatan belajar yang memenuhi syarat untuk murid ini.", en: "No qualifying learning record for this learner yet." },
   "pimpinan.rincian.penguasaan": { default: "Penguasaan", en: "Mastery" },
 
+  // ═══════════════════════════════════════════════ WP5B — institutional intake
+  //
+  // REGISTER: an administrator doing administration. Institutional Indonesian,
+  // `Anda`, no PINTAR machinery: no table, no column, no enum, no capability,
+  // no index, no lock, no sequence and no trigger appears in any sentence
+  // below. An administrator provisioning six hundred people should not have to
+  // learn what a transaction boundary is.
+  "pendataan.eyebrow": { default: "Administrasi sekolah", en: "School administration" },
+  "pendataan.judul": { default: "Menambahkan orang", en: "Adding people" },
+  "pendataan.intro": { default: "Unggah daftar dari spreadsheet. PINTAR memeriksanya, menunjukkan apa yang akan terjadi, lalu meminta persetujuan Anda sebelum mencatat siapa pun.", en: "Upload a list from a spreadsheet. PINTAR checks it, shows you what will happen, then asks for your approval before it records anybody." },
+  "pendataan.ditolak": { default: "Halaman ini untuk administrator sekolah.", en: "This page is for school administrators." },
+  "pendataan.kembali": { default: "Kembali", en: "Back" },
+  "pendataan.sekolah": { default: "Sekolah", en: "School" },
+  // §3. THE NUMBER IDENTIFIES A PERSON AT A SCHOOL AND NOTHING ELSE. Said on
+  // the page, because a six-digit sequence invites a reader to believe ranges
+  // mean something -- that 000001-000999 are staff, say -- and they do not.
+  "pendataan.nomor.arti": { default: "Nomor induk menandai seseorang di sekolah ini. Nomor itu tidak menyatakan apakah orangnya murid, guru, atau pimpinan.", en: "An identity number marks a person at this school. It does not say whether that person is a student, a teacher or management." },
+
+  "pendataan.kode.judul": { default: "Kode institusi", en: "Institution code" },
+  "pendataan.kode.belum": { default: "Sekolah ini belum punya kode institusi.", en: "This school does not have an institution code yet." },
+  "pendataan.kode.arti": { default: "Kode ini menjadi bagian dari nomor induk yang dibuat PINTAR untuk setiap orang di sekolah ini.", en: "This code becomes part of the identity number PINTAR creates for each person at this school." },
+  "pendataan.kode.bentuk": { default: "Tiga huruf atau angka.", en: "Three letters or digits." },
+  "pendataan.kode.contoh": { default: "Contoh nomor induk", en: "Example identity number" },
+  // SAID BEFORE THE FIRST ISSUANCE, not discovered after it. The database makes
+  // the code immutable the moment one number exists under it, and an
+  // administrator who learns that afterwards has learned it too late.
+  "pendataan.kode.peringatan": { default: "Setelah nomor induk pertama diterbitkan, kode ini tidak bisa diubah lagi.", en: "Once the first identity number has been issued, this code can no longer be changed." },
+  "pendataan.kode.simpan": { default: "Simpan kode", en: "Save the code" },
+  "pendataan.kode.beku": { default: "Kode ini sudah dipakai pada nomor induk yang diterbitkan, jadi tidak bisa diubah lagi.", en: "This code is already part of issued identity numbers, so it can no longer be changed." },
+  "pendataan.kode.gagal": { default: "Kode itu tidak bisa dipakai. Mungkin sudah dipakai sekolah lain, atau bentuknya tidak sesuai.", en: "That code cannot be used. It may already belong to another school, or its shape is wrong." },
+  "pendataan.kode.label": { default: "Kode", en: "Code" },
+
+  "pendataan.unggah.judul": { default: "Daftar orang", en: "The list of people" },
+  "pendataan.unggah.berkas": { default: "Pilih berkas", en: "Choose a file" },
+  "pendataan.unggah.tempel": { default: "Atau tempelkan dari spreadsheet", en: "Or paste from a spreadsheet" },
+  "pendataan.unggah.bentuk": { default: "Baris pertama berisi nama kolom. Koma, titik koma, atau tab sama-sama terbaca.", en: "The first row holds the column names. Commas, semicolons and tabs are all readable." },
+  "pendataan.unggah.kosong": { default: "Belum ada baris yang terbaca.", en: "No rows have been read yet." },
+  "pendataan.unggah.terbaca": { default: "baris terbaca", en: "rows read" },
+
+  "pendataan.peta.judul": { default: "Kolom mana untuk apa", en: "Which column is which" },
+  "pendataan.peta.sub": { default: "PINTAR menebak dari nama kolom. Ubah bila tebakannya keliru.", en: "PINTAR guesses from the column names. Change it where the guess is wrong." },
+  "pendataan.peta.tidak": { default: "Tidak dipakai", en: "Not used" },
+  "pendataan.peta.kolom": { default: "Kolom", en: "Column" },
+  "pendataan.peta.sama": { default: "Satu pilihan untuk semua", en: "One choice for everyone" },
+  "pendataan.peta.wajib": { default: "Kolom nama harus dipilih.", en: "A name column must be chosen." },
+  "pendataan.peta.lanjut": { default: "Lanjut ke pemeriksaan", en: "Continue to the check" },
+  "pendataan.peta.pratayang": { default: "Beberapa baris pertama", en: "The first few rows" },
+  "pendataan.medan.display_name": { default: "Nama", en: "Name" },
+  "pendataan.medan.person_id": { default: "Orang yang sudah terdaftar", en: "Someone already registered" },
+  "pendataan.medan.node_id": { default: "Tempat", en: "Place" },
+  "pendataan.medan.role": { default: "Peran", en: "Role" },
+  "pendataan.medan.programme_id": { default: "Program", en: "Programme" },
+
+  "pendataan.periksa.judul": { default: "Pemeriksaan", en: "The check" },
+  "pendataan.periksa.mulai": { default: "Periksa daftar ini", en: "Check this list" },
+  "pendataan.periksa.jalan": { default: "Sedang memeriksa\u2026", en: "Checking\u2026" },
+  "pendataan.periksa.bersih": { default: "Semua baris bisa dicatat.", en: "Every row can be recorded." },
+  "pendataan.periksa.ada": { default: "baris perlu diperbaiki.", en: "rows need correcting." },
+  "pendataan.periksa.baris": { default: "Baris", en: "Row" },
+  // §6. NO ROW IS QUIETLY DISCARDED, and the sentence says so: an
+  // administrator whose file had three bad rows out of a thousand must not
+  // discover later that PINTAR recorded nine hundred and ninety-seven people.
+  "pendataan.periksa.perbaiki": { default: "Perbaiki berkas Anda, lalu mulai pendataan baru. Tidak ada yang dicatat sampai seluruh baris bisa dibaca.", en: "Correct your file, then start a new intake. Nothing is recorded until every row can be read." },
+  "pendataan.periksa.gagal": { default: "Pemeriksaan tidak bisa dijalankan sekarang. Coba sekali lagi.", en: "The check could not run just now. Try once more." },
+
+  // EACH PROBLEM AS A SENTENCE AN ADMINISTRATOR CAN ACT ON. The database
+  // returns them as field-name phrases; none of those reaches a screen.
+  "pendataan.masalah.nama": { default: "Nama kosong atau terlalu panjang.", en: "The name is empty or too long." },
+  "pendataan.masalah.orang_bentuk": { default: "Kolom orang yang sudah terdaftar tidak berisi penanda yang sah.", en: "The already-registered column does not hold a valid marker." },
+  "pendataan.masalah.orang_asing": { default: "Orang itu tidak bisa Anda tunjuk dari sini.", en: "That person is not one you can name from here." },
+  "pendataan.masalah.orang_sudah": { default: "Orang itu sudah punya nomor induk di sekolah ini.", en: "That person already has an identity number at this school." },
+  "pendataan.masalah.tempat_bentuk": { default: "Kolom tempat tidak berisi penanda yang sah.", en: "The place column does not hold a valid marker." },
+  "pendataan.masalah.tempat_asing": { default: "Tempat itu bukan bagian dari sekolah ini.", en: "That place is not part of this school." },
+  "pendataan.masalah.tempat_luar": { default: "Tempat itu di luar wewenang Anda.", en: "That place is outside your authority." },
+  "pendataan.masalah.peran_asing": { default: "Peran itu tidak dikenal.", en: "That role is not one PINTAR has." },
+  "pendataan.masalah.peran_dilarang": { default: "Peran itu tidak diberikan lewat pendataan massal.", en: "That role is not granted through a bulk intake." },
+  "pendataan.masalah.peran_tanpa_tempat": { default: "Peran perlu tempat: isi tempat untuk baris ini.", en: "A role needs a place: give this row one." },
+  "pendataan.masalah.ganda": { default: "Baris ini kembar dengan baris lain di berkas yang sama.", en: "This row is a twin of another row in the same file." },
+  "pendataan.masalah.lain": { default: "Baris ini belum bisa dicatat.", en: "This row cannot be recorded yet." },
+
+  "pendataan.pratinjau.judul": { default: "Yang akan terjadi", en: "What will happen" },
+  "pendataan.pratinjau.total": { default: "Baris", en: "Rows" },
+  "pendataan.pratinjau.baru": { default: "Orang baru", en: "New people" },
+  "pendataan.pratinjau.tertaut": { default: "Orang yang sudah terdaftar", en: "People already registered" },
+  "pendataan.pratinjau.nomor": { default: "Nomor induk yang akan dibuat", en: "Identity numbers to be created" },
+  "pendataan.pratinjau.peran": { default: "Peran", en: "Roles" },
+  "pendataan.pratinjau.akun": { default: "Akun yang bisa masuk", en: "Accounts that can sign in" },
+  // §16. PROVISIONED IS NOT ACTIVE, and this is the sentence that says so on
+  // the one screen where an administrator is most likely to assume otherwise.
+  "pendataan.pratinjau.akun_arti": { default: "Pendataan membuat catatan orang di sekolah ini. Pendataan tidak membuat akun, dan tidak ada orang yang bisa masuk ke PINTAR karenanya.", en: "An intake creates a record of a person at this school. It does not create an account, and nobody can sign in to PINTAR as a result of it." },
+  "pendataan.pratinjau.setuju": { default: "Ya, catat orang-orang ini", en: "Yes, record these people" },
+  "pendataan.pratinjau.tanya": { default: "PINTAR mencatat orang-orang ini hanya setelah Anda menyetujuinya.", en: "PINTAR records these people only after you approve." },
+  "pendataan.konfirmasi.gagal": { default: "Ada yang berubah sejak pemeriksaan, jadi belum ada yang dicatat. Periksa daftarnya sekali lagi.", en: "Something changed since the check, so nothing has been recorded. Check the list once more." },
+
+  "pendataan.percontohan.judul": { default: "Lima puluh orang pertama", en: "The first fifty people" },
+  // §11. HUMAN ERROR CONTAINMENT, said as what it is. Not a speed measure and
+  // not a technical safeguard: a person looks at fifty real results before a
+  // thousand are committed.
+  "pendataan.percontohan.arti": { default: "Karena daftar ini panjang, PINTAR mencatat lima puluh orang dulu lalu berhenti. Silakan periksa lima puluh ini sebelum sisanya dicatat.", en: "Because this list is long, PINTAR records fifty people first and then stops. Please check these fifty before the rest are recorded." },
+  "pendataan.percontohan.nyata": { default: "Lima puluh orang ini sudah benar-benar tercatat, lengkap dengan nomor induknya. Ini bukan contoh.", en: "These fifty people are genuinely recorded, each with their identity number. This is not a sample." },
+  "pendataan.percontohan.tanya": { default: "Sudah saya periksa, lanjutkan sisanya", en: "I have checked them, continue with the rest" },
+  "pendataan.percontohan.sisa": { default: "orang lagi menunggu", en: "more people are waiting" },
+  "pendataan.percontohan.sudah": { default: "Lima puluh pertama sudah Anda periksa.", en: "You have already checked the first fifty." },
+  "pendataan.percontohan.gagal": { default: "Belum bisa dilanjutkan sekarang. Coba sekali lagi.", en: "It cannot continue just now. Try once more." },
+
+  "pendataan.maju.judul": { default: "Sedang mencatat", en: "Recording" },
+  "pendataan.maju.selesai": { default: "sudah tercatat", en: "recorded" },
+  "pendataan.maju.sisa": { default: "belum", en: "still to go" },
+  "pendataan.maju.gagal_baris": { default: "tidak bisa dicatat", en: "could not be recorded" },
+  "pendataan.maju.mulai": { default: "Mulai mencatat", en: "Start recording" },
+  "pendataan.maju.lanjut": { default: "Lanjutkan", en: "Continue" },
+  "pendataan.maju.jeda": { default: "Berhenti sejenak", en: "Pause" },
+  // §13. THE BROWSER IS NOT THE JOB OWNER, told as reassurance rather than as
+  // architecture.
+  "pendataan.maju.terputus": { default: "Pencatatan berhenti di tengah jalan. Yang sudah tercatat tetap tercatat, dan Anda bisa melanjutkan kapan saja.", en: "Recording stopped part-way. What was recorded stays recorded, and you can continue whenever you like." },
+  "pendataan.maju.aman": { default: "Anda boleh menutup halaman ini. Yang sudah tercatat tidak hilang.", en: "You may close this page. What has been recorded is not lost." },
+
+  "pendataan.selesai.judul": { default: "Selesai", en: "Done" },
+  "pendataan.selesai.arti": { default: "orang tercatat di sekolah ini.", en: "people are recorded at this school." },
+  "pendataan.gagal.judul": { default: "Ada yang tidak bisa dicatat", en: "Something could not be recorded" },
+  "pendataan.gagal.baris": { default: "Baris berikut tidak bisa dicatat.", en: "These rows could not be recorded." },
+
+  "pendataan.daftar.judul": { default: "Pendataan sebelumnya", en: "Earlier intakes" },
+  "pendataan.daftar.kosong": { default: "Belum ada pendataan.", en: "No intakes yet." },
+  "pendataan.daftar.buka": { default: "Buka", en: "Open" },
+
+  "pendataan.keadaan.menyusun": { default: "Baru disusun", en: "Just assembled" },
+  "pendataan.keadaan.menunggu_konfirmasi": { default: "Menunggu persetujuan Anda", en: "Waiting for your approval" },
+  "pendataan.keadaan.percontohan": { default: "Mencatat lima puluh pertama", en: "Recording the first fifty" },
+  "pendataan.keadaan.periksa_percontohan": { default: "Menunggu Anda memeriksa lima puluh pertama", en: "Waiting for you to check the first fifty" },
+  "pendataan.keadaan.sisa": { default: "Mencatat sisanya", en: "Recording the rest" },
+  "pendataan.keadaan.berjalan": { default: "Sedang mencatat", en: "Recording" },
+  "pendataan.keadaan.selesai": { default: "Selesai", en: "Done" },
+  "pendataan.keadaan.gagal": { default: "Terhenti", en: "Stopped" },
+
   "tindakan.ulangi": { default: "Ulangi topik ini bersama-sama sebelum lanjut.", en: "Go over this topic together before moving on." },
   "tindakan.fokus": { default: "Fokuskan waktu tambahan pada murid di dua tingkat kesiapan terbawah.", en: "Focus extra time on students in the two lowest readiness tiers." },
   "tindakan.lanjut": { default: "Tidak perlu diulang — lanjutkan ke materi berikutnya.", en: "No need to reteach — move on to the next topic." },
@@ -1226,6 +1402,10 @@ const table: Table = {
   "config.label.build": { default: "Versi", en: "Build" },
   "config.label.status": { default: "Status", en: "Status" },
   "config.label.not_rolled": { default: "— tidak dipindahkan —", en: "— not carried over —" },
+  // WP5B. Bulk intake offers four roles and needs a telling for each; this is
+  // the one the configuration surface never had to name, because a learner is
+  // not somebody an administrator grants a role to one at a time.
+  "role.STUDENT": { default: "Murid", en: "Student" },
   "role.EDUCATOR": { default: "Guru", en: "Teacher" },
   "role.HEAD_OF_DEPARTMENT": { default: "Kepala departemen", en: "Head of department" },
   "role.DEAN": { default: "Dekan", en: "Dean" },
@@ -1608,6 +1788,7 @@ const table: Table = {
   "mengajar.judul": { default: "Kelas", en: "Classes" },
   "nav.kelas": { default: "Kelas", en: "Classes" },
   "nav.pimpinan": { default: "Beranda", en: "Home" },
+  "nav.pendataan": { default: "Pendataan", en: "Intake" },
   "mengajar.kembali": { default: "Kelas", en: "Classes" },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },
@@ -1857,7 +2038,7 @@ export const format = {
  * does not ask for a rendering that would be a bug to perform. A key not
  * listed here is still rendered for every persona and still audited.
  */
-const STAFF_ONLY_PREFIXES = ["studio.", "config.", "pimpinan."] as const;
+const STAFF_ONLY_PREFIXES = ["studio.", "config.", "pimpinan.", "pendataan."] as const;
 
 export function isStaffOnly(event: HleEvent): boolean {
   return STAFF_ONLY_PREFIXES.some((p) => event.startsWith(p));

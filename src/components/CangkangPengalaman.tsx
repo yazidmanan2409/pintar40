@@ -42,6 +42,11 @@ import TombolBantuan from "./tur/TombolBantuan";
  * tab, for the same reason — WP4 builds one Management landing and the branch
  * beneath it is reached from the page rather than from the header.
  *
+ * A SIXTH, ADDED IN WP5B: `pendataan`, the institutional intake shell. One tab
+ * again, to the intake's own entry — the job beneath it is reached from the
+ * page, because a job is a thing you were sent to rather than a place you
+ * navigate to.
+ *
  * IT CARRIES NO HELP, AND THAT IS THE SHELL'S OWN RULE RATHER THAN AN OMISSION.
  * `TombolBantuan` opens a panel whose content is the tour for this experience,
  * and the tours that exist are `learner.first_login` and
@@ -55,8 +60,8 @@ export default function CangkangPengalaman({
   current,
 }: {
   locale: Locale;
-  kind?: "learner" | "public" | "focus" | "pengajar" | "pimpinan";
-  current?: "belajar" | "sertifikat" | "kelas" | "pimpinan";
+  kind?: "learner" | "public" | "focus" | "pengajar" | "pimpinan" | "pendataan";
+  current?: "belajar" | "sertifikat" | "kelas" | "pimpinan" | "pendataan";
 }) {
   // FOCUS. During an assessment the shell keeps the mark and the language and
   // drops the tabs. The engine survives navigating away — a session is server
@@ -96,6 +101,21 @@ export default function CangkangPengalaman({
         <nav className="pin-tabs" aria-label={t("app.name", "staff", { locale })}>
           <Link href="/pimpinan" aria-current={current === "pimpinan" ? "page" : undefined}>
             {t("nav.pimpinan", "staff", { locale })}
+          </Link>
+        </nav>
+        <span className="pin-spacer" />
+        <PengalihBahasa locale={locale} />
+      </header>
+    );
+  }
+
+  if (kind === "pendataan") {
+    return (
+      <header className="pin-top pin-shell pin-noprint">
+        <MerekPintar />
+        <nav className="pin-tabs" aria-label={t("app.name", "staff", { locale })}>
+          <Link href="/pendataan" aria-current={current === "pendataan" ? "page" : undefined}>
+            {t("nav.pendataan", "staff", { locale })}
           </Link>
         </nav>
         <span className="pin-spacer" />

@@ -1634,3 +1634,141 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-lingkup { gap: var(--space-2); }
   .pin-catatan-belajar li { gap: var(--space-2); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WP5B — INSTITUTIONAL INTAKE
+
+   AN ADMINISTRATIVE SCREEN, AND STILL A CALM ONE. One column, hairlines and
+   the shared grounds, no elevation and no tile. The only thing that moves is
+   the progress bar, and what it renders is a number the database committed —
+   there is no indeterminate spinner anywhere, because "something is happening"
+   is exactly the claim this surface must not make on its own.
+
+   NOTHING HERE COLOURS A PERSON. The grounds are used for a validation problem
+   and a stopped job, which are facts about a spreadsheet and about a run.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pin-data-baca { display: contents; }
+
+/* ------------------------------------------------------------ the code */
+.pin-data-kode {
+  margin: var(--space-3) 0 0; font-family: var(--font-mono);
+  font-size: var(--type-subhead); letter-spacing: var(--tracking-wordmark); color: var(--ink-1);
+}
+
+/* --------------------------------------------------- which column is which */
+.pin-data-peta { margin: var(--space-4) 0 0; display: grid; gap: var(--space-3); }
+.pin-data-peta > div {
+  display: grid; gap: var(--space-2); align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+}
+.pin-data-peta dt { color: var(--ink-2); font-size: var(--type-meta); }
+.pin-data-peta dd { margin: 0; }
+.pin-data-peta select, .pin-data-baca textarea, .pin-data-baca input[type="file"] {
+  width: 100%; min-height: var(--control-h); font: inherit;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-0); color: var(--ink-1);
+}
+.pin-data-baca textarea { min-height: calc(var(--control-h) + var(--space-6)); resize: vertical; }
+
+.pin-data-contoh { list-style: none; margin: var(--space-3) 0 0; padding: 0; }
+.pin-data-contoh li {
+  display: flex; gap: var(--space-3); align-items: baseline;
+  padding: var(--space-2) var(--space-4);
+}
+.pin-data-contoh li + li { border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------------------- problems */
+.pin-data-masalah { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-data-masalah > li { padding: var(--space-3) var(--space-4); }
+.pin-data-masalah > li + li { border-top: 1px solid var(--line); }
+.pin-data-masalah ul { margin: var(--space-2) 0 0; padding-left: var(--space-5); color: var(--ink-2); }
+.pin-data-masalah ul li { font-size: var(--type-meta); line-height: var(--leading-prose); }
+
+/* --------------------------------------------------------------- history */
+.pin-data-riwayat { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-data-riwayat li + li { border-top: 1px solid var(--line); }
+.pin-data-riwayat a {
+  display: grid; gap: var(--space-1); min-height: 44px;
+  padding: var(--space-3) var(--space-4); color: var(--ink-1); text-decoration: none;
+}
+.pin-data-riwayat a:hover { background: var(--surface-2); }
+
+.pin-data-peran { list-style: none; margin: var(--space-3) 0 0; padding: 0; }
+.pin-data-peran li {
+  display: flex; justify-content: space-between; gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+}
+.pin-data-peran li + li { border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------- the fifty, to be checked */
+/* THE CHECKPOINT IS A PLACE, NOT A DIALOG. It sits on the attention ground
+   because somebody is being asked to do something, and it lists real people
+   with the real numbers PINTAR issued them. */
+.pin-data-periksa {
+  background: var(--status-attention-soft); border: 1px solid var(--status-attention);
+  border-radius: var(--radius-2); padding: var(--space-5);
+}
+.pin-data-periksa h2 { margin-top: 0; }
+.pin-data-pilot {
+  list-style: none; margin: var(--space-4) 0; padding: 0;
+  max-height: 340px; overflow-y: auto; background: var(--surface-0);
+  border: 1px solid var(--line); border-radius: var(--radius-1);
+}
+.pin-data-pilot li {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3); align-items: baseline; padding: var(--space-2) var(--space-4);
+}
+.pin-data-pilot li + li { border-top: 1px solid var(--line); }
+.pin-data-pilot .pin-mono { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-2); }
+
+/* -------------------------------------------------------------- progress */
+/* THE WIDTH IS A COMMITTED COUNT. There is no keyframe moving it and no
+   indeterminate state: a bar that animated on its own would be claiming
+   progress the database has not made. The stripe below says "a request is in
+   flight" and says nothing about how far the job has got. */
+.pin-data-bar {
+  position: relative; height: 6px; margin: var(--space-3) 0;
+  background: var(--surface-2); border-radius: var(--radius-pill); overflow: hidden;
+}
+.pin-data-bar > span {
+  display: block; height: 100%; background: var(--color-primary);
+  border-radius: var(--radius-pill); transition: width var(--motion-fast) linear;
+}
+.pin-data-jalan::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface-1) 50%, transparent), transparent);
+  animation: pin-data-geser 1.2s linear infinite;
+}
+@keyframes pin-data-geser { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+.pin-data-kendali { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
+
+/* A BUTTON THAT CARRIES A SENTENCE FOLDS IT. `.pin-btn` is `white-space: nowrap`,
+   which is right while a button is as wide as its words and wrong when its
+   words are "Sudah saya periksa, lanjutkan sisanya". MEASURED before this rule:
+   the pilot-release control was 383px inside a 375px viewport and the document
+   scrolled sideways by 8px in Indonesian and 57px in English — the same shape
+   UX1-S0-MUAT-01 was written for, arriving from the other direction because
+   these buttons are sized by their text rather than stretched by a rule.
+   Scoped to this surface's own controls, and it lifts them to 44px while it is
+   here, which the fold makes room for anyway. */
+.pin-data-btn {
+  white-space: normal; height: auto; min-height: 44px; max-width: 100%;
+  padding-top: var(--space-2); padding-bottom: var(--space-2);
+  text-align: center; line-height: var(--leading-tight);
+}
+
+@media (max-width: 560px) {
+  .pin-data-periksa { padding: var(--space-4); }
+  .pin-data-pilot li { grid-template-columns: auto minmax(0, 1fr); }
+  .pin-data-pilot .pin-mono { grid-column: 2; }
+}
+
+/* Reduced motion stops the one thing that moves without being asked to. The
+   bar itself keeps its width, because that width is information. */
+@media (prefers-reduced-motion: reduce) {
+  .pin-data-jalan::after { animation: none; }
+  .pin-data-bar > span { transition: none; }
+}
