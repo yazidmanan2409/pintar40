@@ -548,6 +548,24 @@ end $$;
 revoke all on function selftest.r6_case(text,uuid,uuid,int) from public;
 grant execute on function selftest.r6_case(text,uuid,uuid,int) to authenticated;
 
+-- WP5A counts the DURABLE IDENTITY tables from OUTSIDE the caller's
+-- permissions. An import job row is deliberately not among them: opening a
+-- job is supposed to change the world, and counting it here would make
+-- "uploading provisions nothing" fail on the upload itself.
+-- because the question is "did anything durable change" and not "did anything
+-- this reader can see change". auth.users and persons are not readable as
+-- `authenticated` at all, which is itself part of the answer.
+create or replace function selftest.wp5_counts() returns jsonb
+language sql security definer set search_path = public, pg_temp as $$
+  select jsonb_build_object(
+    'persons',    (select count(*) from public.persons),
+    'identities', (select count(*) from public.institutional_identities),
+    'accounts',   (select count(*) from public.accounts),
+    'auth_users', (select count(*) from auth.users))
+$$;
+revoke all on function selftest.wp5_counts() from public;
+grant execute on function selftest.wp5_counts() to authenticated;
+
 
 -- One adversarial calculator, installed and asked. Returns the empty array when
 -- the boundary held and a complaint when it did not.
@@ -4348,6 +4366,483 @@ begin
         || 'computed by the same shared rule against the same governed minimum. Content publish '
         || 'readiness and the learner mastery bands are untouched and unconnected in both directions. '
         || 'Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P17 -- WP5A. WHO MAY PROVISION, WHOSE SCHOOL, AND WHAT IT DOES NOT DO.
+  --
+  -- Provisioning is institutional administration. WP4 calls a head of
+  -- department and a dean Management, and Management is academic judgement;
+  -- neither of them gains the power to create people by being senior.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; v_who text;
+    v_other uuid; v_other_root uuid; v_oadm uuid; v_oadm_u uuid;
+    v_rows jsonb; v_job uuid; v_before jsonb; v_r jsonb; v_caught boolean; n int;
+    v_retry_person uuid; v_retry_id text;
+  begin
+    begin
+      perform selftest.as_owner();
+      select * into c from selftest.wp2_school();
+
+      insert into public.institutions (name, slug, is_synthetic)
+      values ('Sekolah WP5 lain', 'wp5x-' || substr(md5(random()::text), 1, 10), true)
+      returning institutions.id into v_other;
+      select o.id into v_other_root from public.org_nodes o
+       where o.institution_id = v_other and o.kind = 'INSTITUTION';
+      v_oadm_u := selftest.f06p10_person('wp5-admin-lain');
+      select a.person_id into v_oadm from public.accounts a where a.auth_user_id = v_oadm_u;
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until)
+      values (v_oadm, 'INSTITUTION_ADMIN', v_other_root, now() + interval '1 year');
+      perform set_config('app.seed_intent', '', true);
+      update public.institutions set namespace = 'LAI' where institutions.id = v_other;
+
+      v_rows := jsonb_build_array(
+        jsonb_build_object('display_name', 'Murid Baru Satu', 'node_id', c.cls_a),
+        jsonb_build_object('display_name', 'Murid Baru Dua',  'node_id', c.cls_a),
+        jsonb_build_object('display_name', 'Guru Baru',       'node_id', c.cls_a, 'role', 'EDUCATOR'));
+
+      -- AP/AQ/AR/AS. NOT MANAGEMENT, NOT TEACHING, NOT THE LEARNER.
+      foreach v_who in array array['head of department', 'dean', 'educator', 'learner'] loop
+        perform selftest.as_user_uid(case v_who when 'head of department' then c.hod_u
+                                                when 'dean' then c.dean_u
+                                                when 'educator' then c.edu_u else c.la_u end);
+        v_caught := false;
+        begin perform public.reserve_institution_namespace(c.inst, 'AAA');
+        exception when others then v_caught := true; end;
+        if not v_caught then bad := bad || array[format('a %s reserved a namespace', v_who)]; end if;
+        v_caught := false;
+        begin perform public.import_open(c.inst, v_rows);
+        exception when others then v_caught := true; end;
+        if not v_caught then bad := bad || array[format('a %s opened an import', v_who)]; end if;
+        perform selftest.as_owner();
+      end loop;
+      v_who := '';
+
+      -- AO. THE INSTITUTION ADMINISTRATOR, and a lowercase proposal is
+      --     canonicalised before it is reserved.
+      perform selftest.as_user_uid(c.adm_u);
+      if public.reserve_institution_namespace(c.inst, 'hev') <> 'HEV' then
+        bad := bad || array['a lowercase proposal was not canonicalised to uppercase'];
+      end if;
+
+      -- C. RESERVATION IS CASE-INSENSITIVE IN THE DATABASE, not merely in the
+      --    function that upcases before writing. Both halves are load-bearing
+      --    and both are checked HERE rather than only in the migration's
+      --    one-time block: a migration block runs on the day it is applied and
+      --    fails no later regression. Measured -- a plant that moved the index
+      --    from upper(namespace) to namespace stayed green until this existed.
+      perform selftest.as_owner();
+      if (select count(*) from pg_indexes
+           where schemaname = 'public' and tablename = 'institutions'
+             and indexdef like '%unique%' and indexdef like '%upper(namespace)%') <> 1 then
+        bad := bad || array['namespace reservation is not case-insensitive in the database'];
+      end if;
+      v_caught := false;
+      begin update public.institutions set namespace = 'hev' where institutions.id = v_other;
+      exception when check_violation then v_caught := true; end;
+      if not v_caught then
+        bad := bad || array['a lowercase namespace was storable, so the index could hold two spellings'];
+      end if;
+      perform selftest.as_user_uid(c.adm_u);
+
+      -- O/P/Q. UPLOADING, VALIDATING AND PREVIEWING PROVISION NOTHING.
+      v_before := selftest.wp5_counts();
+      v_job := public.import_open(c.inst, v_rows);
+      if selftest.wp5_counts() is distinct from v_before then
+        bad := bad || array['opening an import provisioned identity'];
+      end if;
+      perform public.import_validate(v_job);
+      if selftest.wp5_counts() is distinct from v_before then
+        bad := bad || array['validating an import provisioned identity'];
+      end if;
+      v_r := public.import_preview(v_job);
+      if selftest.wp5_counts() is distinct from v_before then
+        bad := bad || array['previewing an import provisioned identity'];
+      end if;
+      if (v_r ->> 'accounts_activated')::int <> 0 then
+        bad := bad || array['the preview promised activated accounts'];
+      end if;
+      if (v_r ->> 'institutional_ids_to_assign')::int <> 3 then
+        bad := bad || array['the preview miscounted the IDs it would assign'];
+      end if;
+
+      -- R. AND NOTHING PROVISIONS WITHOUT AN EXPLICIT CONFIRMATION.
+      v_caught := false;
+      begin perform public.import_advance(v_job, 10);
+      exception when others then v_caught := true; end;
+      if not v_caught then bad := bad || array['an unconfirmed import provisioned people']; end if;
+      if selftest.wp5_counts() is distinct from v_before then
+        bad := bad || array['a refused advance provisioned identity'];
+      end if;
+
+      -- AJ/AK. CONFIRMED, PROVISIONED -- AND STILL NOBODY HAS AN ACCOUNT.
+      perform public.import_confirm(v_job);
+      v_r := public.import_advance(v_job, 10);
+      if (v_r ->> 'state') <> 'COMPLETED' or (v_r ->> 'completed')::int <> 3 then
+        bad := bad || array[format('a three-row import ended %s with %s completed',
+                                   v_r ->> 'state', v_r ->> 'completed')];
+      end if;
+      if (selftest.wp5_counts() ->> 'accounts') is distinct from (v_before ->> 'accounts') then
+        bad := bad || array['provisioning created an account'];
+      end if;
+      if (selftest.wp5_counts() ->> 'auth_users') is distinct from (v_before ->> 'auth_users') then
+        bad := bad || array['provisioning created an auth user'];
+      end if;
+      select count(*) into n from public.import_rows ir
+       where ir.job_id = v_job and ir.institutional_id !~ '^HEV[0-9]{6}[A-Z0-9]{2}$';
+      if n <> 0 then bad := bad || array[format('%s issued ID(s) are not in this school''s form', n)]; end if;
+
+      -- AB. ROW-LEVEL IDEMPOTENCY AT ITS SOURCE. Every retry in this design
+      --     leans on one promise: asking for an identity a person already
+      --     holds here returns THAT one and mints nothing. The import path
+      --     alone never exercises it, because each of its rows is a different
+      --     person -- so a broken promise would sit there looking fine until
+      --     a real retry hit it. Measured: a plant that removed the
+      --     Person x Institution key and the short-circuit stayed green until
+      --     this asked directly.
+      perform selftest.as_owner();
+      select ir.person_id, ir.institutional_id into v_retry_person, v_retry_id
+        from public.import_rows ir where ir.job_id = v_job and ir.state = 'PROVISIONED' limit 1;
+      if v_retry_person is null then
+        bad := bad || array['the import provisioned nobody to retry against'];
+      else
+        if public.issue_institutional_id(v_retry_person, c.inst) is distinct from v_retry_id then
+          bad := bad || array['asking again for an existing identity minted a different one'];
+        end if;
+        select count(*) into n from public.institutional_identities ii
+         where ii.person_id = v_retry_person and ii.institution_id = c.inst;
+        if n <> 1 then
+          bad := bad || array[format('a retried person holds %s identities at one school', n)];
+        end if;
+      end if;
+      perform selftest.as_user_uid(c.adm_u);
+
+      -- AL/AM/AN. ANOTHER SCHOOL'S ADMINISTRATOR REACHES NOTHING HERE.
+      perform selftest.as_owner();
+      perform selftest.as_user_uid(v_oadm_u);
+      v_caught := false;
+      begin perform public.reserve_institution_namespace(c.inst, 'BBB');
+      exception when others then v_caught := true; end;
+      if not v_caught then bad := bad || array['another school''s admin reserved this school''s namespace']; end if;
+      v_caught := false;
+      begin perform public.import_open(c.inst, v_rows);
+      exception when others then v_caught := true; end;
+      if not v_caught then bad := bad || array['another school''s admin opened an import here']; end if;
+      foreach v_who in array array['progress', 'confirm', 'advance', 'verify'] loop
+        v_caught := false;
+        begin
+          if v_who = 'progress' then perform public.import_progress(v_job);
+          elsif v_who = 'confirm' then perform public.import_confirm(v_job);
+          elsif v_who = 'advance' then perform public.import_advance(v_job, 1);
+          else perform public.import_verify_pilot(v_job); end if;
+        exception when others then v_caught := true; end;
+        if not v_caught then
+          bad := bad || array[format('another school''s admin reached %s on this job', v_who)];
+        end if;
+      end loop;
+      v_who := '';
+      select count(*) into n from public.import_jobs j where j.institution_id = c.inst;
+      if n <> 0 then bad := bad || array[format('another school''s admin listed %s job(s) here', n)]; end if;
+      select count(*) into n from public.import_rows ir where ir.job_id = v_job;
+      if n <> 0 then bad := bad || array[format('another school''s admin read %s import row(s)', n)]; end if;
+      select count(*) into n from public.institutional_identities ii where ii.institution_id = c.inst;
+      if n <> 0 then bad := bad || array[format('another school''s admin read %s identities', n)]; end if;
+      perform selftest.as_owner();
+
+      -- AT. THE ACTS ARE ON THE RECORD.
+      select count(*) into n from public.audit_log
+       where action = 'institution_namespace.reserved' and institution_id = c.inst
+         and actor_person_id = c.adm;
+      if n <> 1 then bad := bad || array[format('%s audit row(s) for the namespace reservation', n)]; end if;
+      foreach v_who in array array['import.confirmed', 'import.completed'] loop
+        select count(*) into n from public.audit_log
+         where action = v_who and target_id = v_job::text and institution_id = c.inst;
+        if n <> 1 then bad := bad || array[format('%s audit row(s) for %s', n, v_who)]; end if;
+      end loop;
+      v_who := '';
+
+      raise exception 'F06_P17_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      perform set_config('app.seed_intent', '', true);
+      if sqlerrm <> 'F06_P17_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 200);
+      end if;
+    end;
+
+    id := 'F06-P17'; area := 'WP5A -- a school gives a person a number, not an account';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'PROVISIONING IS ADMINISTRATION, NOT SENIORITY: a head of department and a dean -- whom '
+        || 'WP4 calls Management -- an educator and a learner are each refused both the namespace and the '
+        || 'import, because none holds the capability at all. A lowercase namespace proposal is '
+        || 'canonicalised before it is reserved. UPLOADING, VALIDATING AND PREVIEWING PROVISION NOTHING, '
+        || 'counted across persons, identities, accounts, auth users and batches; the preview states '
+        || 'zero accounts activated, which is the thing an administrator is most likely to assume wrongly '
+        || 'about a screen that says provision three people. AN UNCONFIRMED IMPORT REFUSES TO PROVISION '
+        || 'and leaves nothing behind. Confirmed, it issues IDs in this school''s canonical form AND '
+        || 'CREATES NO ACCOUNT AND NO AUTH USER. ANOTHER SCHOOL''S ADMINISTRATOR -- who holds the '
+        || 'capability over their own root -- cannot reserve this namespace, open an import here, or '
+        || 'read, confirm, advance or verify this job, and lists none of its jobs, rows or identities. '
+        || 'The reservation, the confirmation and the completion are each on the audit record once. '
+        || 'Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P18 -- WP5A. THE THOUSAND-PERSON POWER FAILURE.
+  --
+  -- The canonical acceptance scenario, run end to end: a thousand rows
+  -- validated, previewed and confirmed; fifty provisioned for real and then a
+  -- hard stop; a human verifies them; the remainder released; fifty more
+  -- committed; and then the power goes out.
+  --
+  -- WHAT "THE POWER GOES OUT" MEANS HERE is simply that nobody calls
+  -- import_advance again. That is exactly what a closed laptop, a dropped
+  -- network and a dead building look like to this design, because the browser
+  -- owns nothing: the durable state is already complete and correct at the
+  -- moment the last chunk committed. Resuming is another call, not a recovery
+  -- procedure.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; v_rows jsonb;
+    v_job uuid; v_small uuid; v_r jsonb; v_caught boolean; n int; i int;
+    v_first jsonb; v_after jsonb; v_persons_before int; v_guard int;
+  begin
+    begin
+      perform selftest.as_owner();
+      select * into c from selftest.wp2_school();
+      update public.institutions set namespace = 'HEV' where institutions.id = c.inst;
+      perform selftest.as_user_uid(c.adm_u);
+
+      -- T. AT OR UNDER THE THRESHOLD THERE IS NO PILOT CHECKPOINT.
+      select jsonb_agg(jsonb_build_object('display_name', 'Kecil ' || g)) into v_rows
+        from generate_series(1, 10) g;
+      v_small := public.import_open(c.inst, v_rows);
+      perform public.import_validate(v_small);
+      v_r := public.import_confirm(v_small);
+      if (v_r ->> 'state') <> 'IMPORTING' or (v_r ->> 'pilot_required')::boolean then
+        bad := bad || array[format('a 10-row import demanded a pilot (state %s)', v_r ->> 'state')];
+      end if;
+      v_r := public.import_advance(v_small, 50);
+      if (v_r ->> 'state') <> 'COMPLETED' or (v_r ->> 'completed')::int <> 10 then
+        bad := bad || array['a 10-row import did not complete in one step'];
+      end if;
+
+      ------------------------------------------------ the thousand
+      select jsonb_agg(jsonb_build_object('display_name', 'Orang ' || g)) into v_rows
+        from generate_series(1, 1000) g;
+      v_persons_before := (selftest.wp5_counts() ->> 'persons')::int;
+      v_job := public.import_open(c.inst, v_rows);
+      perform public.import_validate(v_job);
+      v_r := public.import_preview(v_job);
+      if not (v_r ->> 'pilot_required')::boolean or (v_r ->> 'pilot_size')::int <> 50 then
+        bad := bad || array['a 1000-row import did not require a 50-row pilot'];
+      end if;
+      v_r := public.import_confirm(v_job);
+      if (v_r ->> 'state') <> 'PILOT_IMPORTING' then
+        bad := bad || array[format('a confirmed 1000-row import went to %s', v_r ->> 'state')];
+      end if;
+
+      -- U. NO MORE THAN THE FIRST 50 BEFORE A HUMAN LOOKS. The chunk size is
+      --    200 -- deliberately larger than the pilot -- so the ceiling is
+      --    doing the work rather than the chunking accidentally stopping.
+      v_r := public.import_advance(v_job, 200);
+      if (v_r ->> 'completed')::int <> 50 or (v_r ->> 'state') <> 'AWAITING_PILOT_VERIFICATION' then
+        bad := bad || array[format('the pilot provisioned %s rows and left the job %s',
+                                   v_r ->> 'completed', v_r ->> 'state')];
+      end if;
+
+      -- V. AND RECORD 51 IS REFUSED UNTIL IT IS VERIFIED.
+      v_caught := false;
+      begin perform public.import_advance(v_job, 200);
+      exception when others then v_caught := true; end;
+      if not v_caught then bad := bad || array['record 51 provisioned before the pilot was verified']; end if;
+      v_r := public.import_progress(v_job);
+      if (v_r ->> 'completed')::int <> 50 or (v_r ->> 'remaining')::int <> 950
+         or (v_r ->> 'pilot_verified')::boolean then
+        bad := bad || array[format('after a refused advance: %s completed, %s remaining, verified %s',
+                                   v_r ->> 'completed', v_r ->> 'remaining', v_r ->> 'pilot_verified')];
+      end if;
+
+      -- W/X. THE HUMAN VERIFIES, ONCE.
+      --
+      -- GUARDED, for the reason WP2 recorded: when a planted defect lets the
+      -- pilot overrun, the job is not waiting for verification and this call
+      -- raises -- which would crash the probe and report a state error instead
+      -- of the breach the earlier assertions already caught. Measured: the
+      -- plant that removes the pilot ceiling did exactly that.
+      begin
+        v_r := public.import_verify_pilot(v_job);
+      exception when others then
+        bad := bad || array['the job was not waiting for pilot verification when it should have been'];
+        v_r := '{}'::jsonb;
+      end;
+      if (v_r ->> 'state') is distinct from 'REMAINDER_IMPORTING'
+         or coalesce((v_r ->> 'released')::int, -1) <> 950 then
+        bad := bad || array['verification did not release the remainder'];
+      end if;
+      begin
+        v_r := public.import_verify_pilot(v_job);
+      exception when others then v_r := '{}'::jsonb; end;
+      if not coalesce((v_r ->> 'already_verified')::boolean, false) then
+        bad := bad || array['a second verification was not idempotent'];
+      end if;
+      select count(*) into n from public.audit_log
+       where action = 'import.pilot_verified' and target_id = v_job::text;
+      if n <> 1 then bad := bad || array[format('%s audit row(s) for one verification done twice', n)]; end if;
+
+      -- 51..100 commit, and then THE POWER GOES OUT.
+      -- Guarded like the verification above: under a planted defect the job
+      -- may not be provisioning at all, and an unguarded call here would crash
+      -- the probe rather than let the assertions below report what happened.
+      begin
+        v_r := public.import_advance(v_job, 50);
+      exception when others then
+        bad := bad || array['the released remainder would not provision'];
+      end;
+      v_first := jsonb_build_object();
+      select jsonb_object_agg(ir.ordinal::text, ir.institutional_id) into v_first
+        from public.import_rows ir where ir.job_id = v_job and ir.state = 'PROVISIONED';
+
+      -- §40. THE EXPECTED DURABLE STATE, READ AFTER THE INTERRUPTION.
+      v_r := public.import_progress(v_job);
+      if (v_r ->> 'total')::int <> 1000 or (v_r ->> 'completed')::int <> 100
+         or (v_r ->> 'remaining')::int <> 900 or not (v_r ->> 'pilot_verified')::boolean then
+        bad := bad || array[format('after interruption: total %s, completed %s, remaining %s, verified %s',
+                                   v_r ->> 'total', v_r ->> 'completed', v_r ->> 'remaining',
+                                   v_r ->> 'pilot_verified')];
+      end if;
+      -- Y. and those 100 are real people with real identities
+      select count(*) into n from public.import_rows ir
+        join public.institutional_identities ii
+          on ii.person_id = ir.person_id and ii.institution_id = c.inst
+       where ir.job_id = v_job and ir.state = 'PROVISIONED'
+         and ii.institutional_id = ir.institutional_id;
+      if n <> 100 then
+        bad := bad || array[format('%s of 100 committed rows hold a real institutional identity', n)];
+      end if;
+      -- Z. and nothing beyond them was touched
+      select count(*) into n from public.import_rows ir
+       where ir.job_id = v_job and ir.ordinal > 100 and ir.state <> 'PENDING';
+      if n <> 0 then bad := bad || array[format('%s rows past the interruption were not left PENDING', n)]; end if;
+
+      -- AG/AH. RESUME. The pilot is NOT re-verified, and nothing asks.
+      i := 0; v_guard := 0;
+      loop
+        v_guard := v_guard + 1;
+        exit when v_guard > 40;
+        begin
+          v_r := public.import_advance(v_job, 200);
+        exception when others then
+          bad := bad || array['the resumed job would not continue'];
+          exit;
+        end;
+        exit when (v_r ->> 'state') = 'COMPLETED' or (v_r ->> 'state') = 'FAILED';
+      end loop;
+      if (v_r ->> 'state') <> 'COMPLETED' then
+        bad := bad || array[format('the resumed job ended %s after %s steps', v_r ->> 'state', v_guard)];
+      end if;
+      if (v_r ->> 'completed')::int <> 1000 or (v_r ->> 'remaining')::int <> 0 then
+        bad := bad || array[format('the resumed job finished at %s of %s',
+                                   v_r ->> 'completed', v_r ->> 'total')];
+      end if;
+
+      -- AA/AB/AC. THE FIRST 100 WERE NOT REDONE.
+      select jsonb_object_agg(ir.ordinal::text, ir.institutional_id) into v_after
+        from public.import_rows ir
+       where ir.job_id = v_job and ir.ordinal <= 100;
+      if v_after is distinct from v_first then
+        bad := bad || array['resuming rewrote an institutional ID the interruption had already committed'];
+      end if;
+      -- measured from AFTER the 10-row job, so the thousand-row import should
+      -- account for exactly a thousand new people and not one more
+      if (selftest.wp5_counts() ->> 'persons')::int - v_persons_before <> 1000 then
+        bad := bad || array[format('%s persons were created for the 1000-row import',
+                                   (selftest.wp5_counts() ->> 'persons')::int - v_persons_before)];
+      end if;
+      select count(*) into n from public.institutional_identities ii
+       where ii.institution_id = c.inst;
+      if n <> 1010 then
+        bad := bad || array[format('%s institutional identities exist for 1010 provisioned people', n)];
+      end if;
+      -- and no person holds two of them here
+      select count(*) into n from (
+        select ii.person_id from public.institutional_identities ii
+         where ii.institution_id = c.inst group by 1 having count(*) > 1) d;
+      if n <> 0 then bad := bad || array[format('%s people hold two identities at one school', n)]; end if;
+
+      -- AD/AE. PROGRESS IS COUNTED FROM COMMITTED ROWS, and the table refuses
+      --        to let a row say PROVISIONED without the work beside it.
+      select count(*) into n from public.import_rows ir
+       where ir.job_id = v_job and ir.state = 'PROVISIONED';
+      if n <> (v_r ->> 'completed')::int then
+        bad := bad || array['reported progress and committed rows disagree'];
+      end if;
+      perform selftest.as_owner();
+      v_caught := false;
+      begin
+        update public.import_rows set state = 'PROVISIONED'
+         where job_id = v_job and ordinal = 1000 and false;
+        insert into public.import_rows (job_id, ordinal, payload, state)
+        values (v_job, 99999, '{}'::jsonb, 'PROVISIONED');
+      exception when check_violation then v_caught := true; end;
+      if not v_caught then
+        bad := bad || array['a row was marked complete with no person and no ID behind it'];
+      end if;
+      perform selftest.as_user_uid(c.adm_u);
+
+      -- AI. AND IT COMPLETES EXACTLY ONCE.
+      v_caught := false;
+      begin perform public.import_advance(v_job, 10);
+      exception when others then v_caught := true; end;
+      if not v_caught then bad := bad || array['a completed job advanced again']; end if;
+      perform selftest.as_owner();
+      select count(*) into n from public.audit_log
+       where action = 'import.completed' and target_id = v_job::text;
+      if n <> 1 then bad := bad || array[format('%s completion audit row(s) for one job', n)]; end if;
+      select count(*) into n from public.audit_log
+       where action = 'import.pilot_completed' and target_id = v_job::text;
+      if n <> 1 then bad := bad || array[format('%s pilot-completion audit row(s) for one job', n)]; end if;
+
+      raise exception 'F06_P18_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      if sqlerrm <> 'F06_P18_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 200);
+      end if;
+    end;
+
+    id := 'F06-P18'; area := 'WP5A -- a thousand people, and the power goes out';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'THE CANONICAL ACCEPTANCE SCENARIO, RUN END TO END. A 10-row import needs no pilot and '
+        || 'completes in one step. A 1,000-row import demands one: validated, previewed and confirmed, it '
+        || 'goes to PILOT_IMPORTING and provisions EXACTLY 50 -- asked for 200 at a time, so the pilot '
+        || 'ceiling is doing the work rather than the chunk size stopping by luck -- then halts at '
+        || 'AWAITING_PILOT_VERIFICATION. Record 51 is REFUSED, and the refusal leaves 50 completed and '
+        || '950 remaining. A human verifies once; verifying again is a no-op and writes no second audit '
+        || 'row. Rows 51-100 commit, and then nobody calls again -- which is what a closed laptop, a lost '
+        || 'network and a dead building all look like here, because the browser owns nothing. THE DURABLE '
+        || 'STATE READS total 1000, completed 100, remaining 900, pilot verified -- the 100 are real '
+        || 'people holding real institutional identities, and not one row past them has moved off '
+        || 'PENDING. RESUMING IS JUST ANOTHER CALL: the job runs to COMPLETED, the pilot is never '
+        || 'verified again and nothing asks, the first 100 institutional IDs are byte-identical to what '
+        || 'the interruption had already committed, 1,010 people produced 1,010 identities and nobody '
+        || 'holds two. Reported progress equals committed rows, a row cannot claim PROVISIONED with no '
+        || 'person and no ID behind it, and a completed job refuses to advance again and carries exactly '
+        || 'one completion and one pilot-completion on the record. Every row rolled back';
     end if;
     return next;
   end;

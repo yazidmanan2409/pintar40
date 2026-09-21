@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 46,
+  "version": 47,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1006,6 +1006,16 @@
       "id": "F06-N06",
       "runner": "db",
       "proves": "L3-F03: the four authoring endpoints authorize before they mutate. run_mcq_quality, validate_course_content, ingest_structured_package and propose_easy_upload_mapping each refuse an actor holding no capability with an error NAMING CAN_DRAFT, and do it before the delete each of them opens with -- a finding row planted first is still there afterwards. An actor that does hold CAN_DRAFT is accepted and clears it, so the guard guards rather than refusing everyone. Found by Layer-3 as L3-F03, where a capability-less DEAN of one institution ran run_mcq_quality against another institution's course and deleted that tenant's unacknowledged quality findings (INV-19 and INV-13); repaired by migration 20260919090000. This test builds its own institution, actors, course and ingest batch and rolls them back, which is what lets it drive the two ingestion endpoints that no seeded row reaches -- the gap F06-N02 carries as bounded for them."
+    },
+    {
+      "id": "F06-P17",
+      "runner": "db",
+      "proves": "WP5A identity and provisioning authority. PROVISIONING IS INSTITUTIONAL ADMINISTRATION, NOT SENIORITY: a head of department and a dean -- whom WP4 calls Management -- an educator and a learner are each refused both the namespace reservation and the import, because none of them holds CAN_PROVISION_PEOPLE at all. Namespace reservation is case-insensitive IN THE DATABASE and not merely in the function that upcases before writing: the unique index is asserted to be over upper(namespace) and a lowercase value is asserted unstorable, both here in the live gate rather than only in the migration's one-time block -- a plant that moved the index to namespace stayed green until this existed. OPENING, VALIDATING AND PREVIEWING AN IMPORT PROVISION NOTHING, counted across persons, institutional identities, accounts and auth users; the preview states zero accounts activated. AN UNCONFIRMED IMPORT REFUSES TO PROVISION and leaves nothing behind. Confirmed, it issues IDs in this school's canonical form and CREATES NO ACCOUNT AND NO AUTH USER. Row-level idempotency is asked at its source: requesting an identity a person already holds here returns that same one and mints nothing -- the import path alone never exercises this, because each of its rows is a different person, so a plant that removed the Person x Institution key stayed green until this asked directly. ANOTHER SCHOOL'S ADMINISTRATOR, who holds the capability over their own root, cannot reserve this namespace, open an import here, or read, confirm, advance or verify this job, and lists none of its jobs, rows or identities. Reservation, confirmation and completion each appear once on the audit record. Every row rolled back"
+    },
+    {
+      "id": "F06-P18",
+      "runner": "db",
+      "proves": "WP5A's canonical thousand-person power-failure acceptance scenario, run end to end. A 10-row import needs no pilot and completes in one step. A 1,000-row import demands one: validated, previewed and confirmed it enters PILOT_IMPORTING and provisions EXACTLY 50 -- asked for 200 rows at a time, so the pilot ceiling is doing the work rather than the chunk size stopping by luck -- then halts at AWAITING_PILOT_VERIFICATION. RECORD 51 IS REFUSED, and the refusal leaves 50 completed and 950 remaining. A human verifies once; verifying again is a no-op and writes no second audit row. Rows 51-100 commit and then nobody calls again, which is what a closed laptop, a lost network and a dead building all look like to this design, because the browser owns nothing. THE DURABLE STATE THEN READS total 1000, completed 100, remaining 900, pilot verified: those 100 are real people holding real institutional identities and not one row past them has moved off PENDING. RESUMING IS JUST ANOTHER CALL -- the job runs to COMPLETED, the pilot is never verified again and nothing asks for it, the first 100 institutional IDs are identical to what the interruption had already committed, 1,010 people hold 1,010 identities and nobody holds two. Reported progress equals committed rows; a row cannot claim PROVISIONED with no person and no ID behind it; a completed job refuses to advance again and carries exactly one completion and one pilot-completion on the record. Watched on plants that remove the pilot ceiling and that count attempts instead of commits. Every row rolled back"
     },
     {
       "id": "Q12-N01",

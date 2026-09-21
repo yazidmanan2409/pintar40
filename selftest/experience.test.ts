@@ -1116,6 +1116,23 @@ export const experienceTests: SelfTest[] = [
       // and the sweep below asserts over one more file without its answer
       // changing.
       //
+      //
+      // MOVED 95 -> 97 for WP5A's institutional identity and resumable bulk
+      // provisioning. 20260926100000 adds ONE column -- institutions.namespace,
+      // three characters of A-Z0-9 -- and creates institutional_identities
+      // whose columns are person_id, institution_id, institutional_id,
+      // sequence_number, issued_at and issued_by_person_id. 20260926110000
+      // creates import_jobs (institution_id, created_by_person_id, state,
+      // row_count, created_at, confirmed_by_person_id, confirmed_at,
+      // pilot_verified_by_person_id, pilot_verified_at, completed_at,
+      // failure_reason) and import_rows (job_id, ordinal, payload, state,
+      // person_id, institutional_id, provisioned_at, failure_reason). Read
+      // against §3 of the ruling column by column before this number moved:
+      // not one of them is a mark, a logo, a crest or a theme -- a namespace
+      // is an identifier prefix and carries no livery -- so the Q-7 source
+      // still does not exist and the sweep below asserts over two more files
+      // without its answer changing.
+      //
       // MOVED 92 -> 94 for WP2's Management decision foundation and the R6
       // academic-result correction. 20260924100000 creates NO table and adds NO
       // column: one replaced function body (role_capabilities, one capability
@@ -1137,7 +1154,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 95, `${migrations.length} migrations; the frozen baseline has 95`);
+      c.expect(migrations.length === 97, `${migrations.length} migrations; the frozen baseline has 97`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2784,7 +2801,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 95, `${migs.length} migrations; the baseline has 95`);
+      c.expect(migs.length === 97, `${migs.length} migrations; the baseline has 97`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
