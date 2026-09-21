@@ -564,6 +564,14 @@ comment on function public.audience_scope_over_learner(public.app_role[], uuid, 
 revoke all on function public.audience_scope_over_learner(public.app_role[], uuid, uuid)
   from public, anon, authenticated;
 
+-- AND ITS PREDECESSOR IS DROPPED, not left beside it. 0091's
+-- `audience_over_learner` answered the same question with a boolean; the engine
+-- now needs the NODE, because that node is the boundary it binds. Nothing calls
+-- the boolean form any more, and a dead authorization primitive sitting next to
+-- a live one is the second classifier this work exists to remove -- the next
+-- caller reaches for whichever name they meet first.
+drop function if exists public.audience_over_learner(public.app_role[], uuid, uuid);
+
 -- ─────────────────────────────────────────────── 5. the evaluator
 
 -- 0091's two-axis rule is unchanged: the catalogue AUDIENCE and organizational
