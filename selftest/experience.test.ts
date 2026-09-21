@@ -1092,6 +1092,14 @@ export const experienceTests: SelfTest[] = [
       // below asserts over four more files without its answer changing.
       //
       //
+      //
+      // MOVED 94 -> 95 for WP3's R5 evidence readiness. 20260925100000 creates
+      // NO table and adds NO column: one enum, one pure function and two
+      // replaced function bodies. There is no new relation for a mark to live
+      // in and no column of any kind, so the Q-7 source still does not exist
+      // and the sweep below asserts over one more file without its answer
+      // changing.
+      //
       // MOVED 92 -> 94 for WP2's Management decision foundation and the R6
       // academic-result correction. 20260924100000 creates NO table and adds NO
       // column: one replaced function body (role_capabilities, one capability
@@ -1113,7 +1121,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 94, `${migrations.length} migrations; the frozen baseline has 94`);
+      c.expect(migrations.length === 95, `${migrations.length} migrations; the frozen baseline has 95`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2760,7 +2768,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 94, `${migs.length} migrations; the baseline has 94`);
+      c.expect(migs.length === 95, `${migs.length} migrations; the baseline has 95`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

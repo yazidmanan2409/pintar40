@@ -14,9 +14,20 @@ import type { Locale } from "@/lib/hle";
  * `below_minimum`, `deprecated`, `not_permitted` or `unavailable`; every one is
  * turned into an HLE key before it renders, and no component below puts
  * `status` in a text position.
+ *
+ * R5 ADDS `readiness` BESIDE `status`, NOT INSTEAD OF IT. `below_minimum` was
+ * one word for two different facts -- nothing qualifying has happened yet, and
+ * some has but not enough -- and those license different sentences. The
+ * evaluator now says which, and carries the matching `statement_key`, so a
+ * surface that already prefers the envelope's own statement key tells the
+ * truthful one without deciding anything. It is absent on a refusal, on
+ * purpose: readiness is a fact about a population's evidence, and a reader who
+ * may not see the population may not have that fact either.
  */
 export type Envelope = {
   status: string;
+  /** R5: NOT_YET_EVALUABLE | INSUFFICIENT_EVIDENCE | SUFFICIENT_EVIDENCE. Absent on a refusal. */
+  readiness?: string;
   ordinal?: number;
   visualization?: string;
   label_key?: string;

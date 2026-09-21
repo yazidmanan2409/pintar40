@@ -2528,13 +2528,24 @@ begin
       bad := bad || selftest.f06p12_metric('dean, metric route', v_dean_u, v_la, v_inst, v_cat, false);
       bad := bad || selftest.f06p12_metric('institution admin, metric route', v_adm_u, v_la, v_inst, v_cat, false);
 
-      -- the payload is bounded
+      -- THE PAYLOAD IS BOUNDED. Ten fields since R5, not nine: this tripwire
+      -- fired when `official_results_readiness` was added and the field was
+      -- read before the number moved. It is the R5 answer for this consumer --
+      -- whether the official-results list is empty because nothing qualifying
+      -- has happened or merely short of the catalogue minimum -- computed by
+      -- the same evidence_readiness() the evaluator uses, so the two consumers
+      -- cannot disagree about what counts as enough. It carries no mastery, no
+      -- judgement and no count of anything outside the boundary.
       perform selftest.as_user_uid(v_hod_u);
       r := public.management_learner_detail(v_la, v_inst);
       select count(*) into n from jsonb_object_keys(r) k
        where k not in ('person_id','display_name','institution_id','enrolment_status',
-                       'academic_period','programme','placement','official_results','catalogue_version');
+                       'academic_period','programme','placement','official_results',
+                       'official_results_readiness','catalogue_version');
       if n <> 0 then bad := bad || array[format('the payload carries %s undeclared field(s)', n)]; end if;
+      if (r ->> 'official_results_readiness') is null then
+        bad := bad || array['the Management record does not say whether its evidence is sufficient'];
+      end if;
       perform selftest.as_owner();
 
       -- the dean holds no Studio capability
@@ -4147,6 +4158,196 @@ begin
         || 'Once decided, the same evidence may be referred again, because a later judgement is not a '
         || 'duplicate. Reads obey the same boundary: the sibling''s decision is invisible to the head of '
         || 'department and every decision is invisible to a learner. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P16 -- R5. ENOUGH APPROPRIATE EVIDENCE TO SAY THIS YET?
+  --
+  -- Before R5 five of the six class metrics on this fixture answered with the
+  -- single word `below_minimum`, which flattened two different facts about the
+  -- world into one. "No learner has both a pre-test and a post-test, so net
+  -- gain cannot be computed at all" and "one learner's comprehension result
+  -- exists where five are required" are not the same sentence, and neither of
+  -- them is "this class is doing badly".
+  --
+  -- THE DECISIVE CASE IS G, and it is measured rather than constructed: ONE
+  -- node, ONE body of evidence, THREE different readiness answers, because the
+  -- minimum belongs to the interpretation and not to the platform. A universal
+  -- threshold could not produce this row.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; v_cat text;
+    r jsonb; r2 jsonb; raw jsonb; v_empty uuid; n int;
+  begin
+    begin
+      perform selftest.as_owner();
+      v_cat := public.current_metric_catalogue();
+      select * into c from selftest.wp2_school();
+
+      -- a class in the reader's own department with NO evidence at all
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      select c.inst, o.parent_id, 'CLASS', 'Kelas WP3 kosong', o.academic_period_id
+        from public.org_nodes o where o.id = c.cls_a
+      returning org_nodes.id into v_empty;
+
+      perform selftest.as_user_uid(c.hod_u);
+
+      -- A. NO QUALIFYING EVIDENCE -> NOT_YET_EVALUABLE.
+      --    Two shapes of it. An empty class has nothing at all; net gain at the
+      --    POPULATED class has evidence in the room but none that qualifies,
+      --    because no learner holds both a pre-test and a post-test. The
+      --    ruling names that second one explicitly, and it is the case a
+      --    zero-vs-nonzero rule gets right and a "did the calculator return
+      --    something" rule does not.
+      r := public.metric_evaluate('class.participants', v_empty, c.inst, v_cat);
+      if r ->> 'readiness' <> 'NOT_YET_EVALUABLE' then
+        bad := bad || array[format('an empty class answered %s', coalesce(r ->> 'readiness','<none>'))];
+      end if;
+      r := public.metric_evaluate('class.net_gain', c.cls_a, c.inst, v_cat);
+      if r ->> 'readiness' <> 'NOT_YET_EVALUABLE' or (r ->> 'have')::numeric <> 0 then
+        bad := bad || array[format('net gain with no comparable pair answered %s at have=%s',
+                                   coalesce(r ->> 'readiness','<none>'), coalesce(r ->> 'have','<none>'))];
+      end if;
+      if r ->> 'statement_key' <> 'laporan.metrik.belum_ada_bukti' then
+        bad := bad || array['NOT_YET_EVALUABLE carries the not-enough-yet sentence'];
+      end if;
+
+      -- B. SOME QUALIFYING EVIDENCE, NOT ENOUGH -> INSUFFICIENT_EVIDENCE.
+      r2 := public.metric_evaluate('class.comprehension', c.cls_a, c.inst, v_cat);
+      if r2 ->> 'readiness' <> 'INSUFFICIENT_EVIDENCE' then
+        bad := bad || array[format('one result of five answered %s', coalesce(r2 ->> 'readiness','<none>'))];
+      end if;
+      if (r2 ->> 'have')::numeric <= 0 or (r2 ->> 'have')::numeric >= (r2 ->> 'needed')::numeric then
+        bad := bad || array['INSUFFICIENT_EVIDENCE was reported without being between nothing and enough'];
+      end if;
+      if r2 ->> 'statement_key' <> 'laporan.metrik.belum_cukup_data' then
+        bad := bad || array['INSUFFICIENT_EVIDENCE carries the wrong sentence'];
+      end if;
+
+      -- C+E. SUFFICIENT -> the interpretation, and the SAME one as before R5.
+      r := public.metric_evaluate('class.participants', c.cls_a, c.inst, v_cat);
+      perform selftest.as_owner();
+      perform set_config('pintar.metric_boundary_node', c.cls_a::text, true);
+      raw := public.calc_class_participants(c.cls_a, c.inst, v_cat);
+      perform set_config('pintar.metric_boundary_node', '', true);
+      perform selftest.as_user_uid(c.hod_u);
+      if r ->> 'readiness' <> 'SUFFICIENT_EVIDENCE' or r ->> 'status' <> 'ok' then
+        bad := bad || array[format('a met minimum answered %s/%s',
+                                   coalesce(r ->> 'status','<none>'), coalesce(r ->> 'readiness','<none>'))];
+      end if;
+      if (r -> 'value') is distinct from (raw -> 'value')
+         or (r -> 'sample') is distinct from (raw -> 'sample') then
+        bad := bad || array['R5 changed the figure a sufficient metric returns'];
+      end if;
+
+      -- D. NEITHER WITHHOLDING STATE EMITS AN INTERPRETATION. Not a value, not
+      --    a zero standing in for one -- which is the substitution §7 forbids.
+      foreach v_why in array array['class.net_gain', 'class.comprehension'] loop
+        r := public.metric_evaluate(v_why, c.cls_a, c.inst, v_cat);
+        if r ? 'value' then
+          bad := bad || array[format('%s emitted a value while withholding', v_why)];
+        end if;
+        if r ->> 'readiness' = 'SUFFICIENT_EVIDENCE' then
+          bad := bad || array[format('%s claimed sufficiency while withholding', v_why)];
+        end if;
+      end loop;
+      v_why := '';
+
+      -- G. ONE NODE, ONE BODY OF EVIDENCE, THREE ANSWERS.
+      select count(distinct x.readiness) into n from (
+        select (public.metric_evaluate(m.metric_id, c.cls_a, c.inst, v_cat)) ->> 'readiness' as readiness
+          from public.metric_definitions m
+         where m.catalogue_version = v_cat and m.metric_id in
+               ('class.participants', 'class.comprehension', 'class.net_gain')) x;
+      if n <> 3 then
+        bad := bad || array[format('three interpretations over one body of evidence produced %s distinct readiness state(s)', n)];
+      end if;
+
+      -- F+I. READINESS IS NOT A WAY TO SEE A POPULATION YOU MAY NOT SEE. The
+      --      sibling department holds its own real session and result; the
+      --      refusal must carry no readiness, no count and no minimum, or a
+      --      reader learns how much evidence exists over there by being told
+      --      there is not enough of it.
+      r := public.metric_evaluate('class.participants', c.cls_b, c.inst, v_cat);
+      if r ->> 'status' <> 'not_permitted' then
+        bad := bad || array['the sibling class was not refused'];
+      end if;
+      if r ? 'readiness' or r ? 'have' or r ? 'needed' or r ? 'label_key' then
+        bad := bad || array['a refusal carried readiness metadata about a population out of scope'];
+      end if;
+      -- and the same refusal for a class that does not exist at all, so the
+      -- two are indistinguishable from outside
+      r2 := public.metric_evaluate('class.participants', gen_random_uuid(), c.inst, v_cat);
+      if (r2 ->> 'status') is distinct from (r ->> 'status')
+         or (r2 ->> 'statement_key') is distinct from (r ->> 'statement_key') then
+        bad := bad || array['a real out-of-scope class and a nonexistent one answer differently'];
+      end if;
+
+      -- THE MANAGEMENT CONSUMER SAYS IT TOO, by the same rule and the same
+      -- governed minimum rather than a second opinion.
+      r := public.management_learner_detail(c.la, c.inst);
+      if (r ->> 'official_results_readiness') is null then
+        bad := bad || array['the Management record does not say whether its evidence is sufficient'];
+      end if;
+      if (r ->> 'official_results_readiness') <> public.evidence_readiness(
+            jsonb_array_length(r -> 'official_results'),
+            (select m.minimum_sample from public.metric_definitions m
+              where m.catalogue_version = v_cat and m.metric_id = 'learner.result'))::text then
+        bad := bad || array['the Management consumer disagrees with the shared readiness rule'];
+      end if;
+      perform selftest.as_owner();
+
+      -- H. CONTENT PUBLISH READINESS IS A DIFFERENT QUESTION AND IS UNTOUCHED.
+      if to_regprocedure('public.publish_readiness(uuid)') is null then
+        bad := bad || array['publish_readiness was replaced rather than left alone'];
+      elsif pg_get_functiondef('public.publish_readiness(uuid)'::regprocedure) like '%evidence_readiness%' then
+        bad := bad || array['content publish readiness was wired to evidence readiness'];
+      end if;
+      if pg_get_functiondef('public.metric_evaluate(text,uuid,uuid,text)'::regprocedure)
+         like '%publish_readiness%' then
+        bad := bad || array['the evaluator was wired to content publish readiness'];
+      end if;
+      -- and the learner mastery bands are a third thing again
+      if to_regclass('public.readiness_tiers') is null then
+        bad := bad || array['the learner readiness bands disappeared'];
+      end if;
+
+      raise exception 'F06_P16_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      perform set_config('pintar.metric_boundary_node', '', true);
+      perform set_config('pintar.metric_boundary_person', '', true);
+      if sqlerrm <> 'F06_P16_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 180);
+      end if;
+    end;
+
+    id := 'F06-P16'; area := 'WP3 R5 -- enough appropriate evidence to say this yet';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'measured on a purpose-built two-department school with real FINALIZED evidence. NO '
+        || 'QUALIFYING EVIDENCE IS NOT_YET_EVALUABLE, in both its shapes: an empty class, and -- at the '
+        || 'POPULATED class -- net gain, where results exist but no learner holds both a pre-test and a '
+        || 'post-test, so the comparison the figure needs has not happened. SOME BUT SHORT IS '
+        || 'INSUFFICIENT_EVIDENCE: one comprehension result where the catalogue requires five, asserted '
+        || 'to sit strictly between nothing and enough, and each state carries its own sentence rather '
+        || 'than one word for both. A MET MINIMUM returns SUFFICIENT_EVIDENCE and the identical figure '
+        || 'the calculator produced, so R5 withholds and does not alter. Neither withholding state emits '
+        || 'a value, so a zero never stands in for an absent interpretation. THE DECISIVE ROW: one node '
+        || 'and one body of evidence give THREE distinct readiness answers across participants, '
+        || 'comprehension and net gain, because the minimum belongs to the interpretation -- a universal '
+        || 'threshold cannot produce that. READINESS IS NOT A WAY IN: the sibling department, which holds '
+        || 'its own real session and result, is refused with no readiness, no count, no minimum and no '
+        || 'label, and answers identically to a class that does not exist, so a reader cannot learn from '
+        || 'a refusal that there is evidence over there. The Management record carries the same answer '
+        || 'computed by the same shared rule against the same governed minimum. Content publish '
+        || 'readiness and the learner mastery bands are untouched and unconnected in both directions. '
+        || 'Every row rolled back';
     end if;
     return next;
   end;

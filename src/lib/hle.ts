@@ -42,6 +42,7 @@ export type HleEvent =
   | "kesehatan.catatan_paparan" | "kesehatan.belum_dikalibrasi"
   | "laporan.metrik.tidak_dikenal" | "laporan.metrik.bukan_untuk_anda"
   | "laporan.metrik.diganti" | "laporan.metrik.belum_cukup_data"
+  | "laporan.metrik.belum_ada_bukti"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
   | "laporan.kosong" | "laporan.tak_ada_angka"
   | "tindakan.ulangi" | "tindakan.fokus" | "tindakan.lanjut" | "tindakan.tunggu"
@@ -866,6 +867,11 @@ const table: Table = {
   "laporan.metrik.bukan_untuk_anda": { default: "Angka ini tidak ditampilkan untuk peran Anda.", en: "This figure is not shown for your role." },
   "laporan.metrik.diganti": { default: "Angka ini sudah diganti dengan ukuran yang lebih baru.", en: "This figure has been replaced by a newer measure." },
   "laporan.metrik.belum_cukup_data": { default: "Belum cukup data untuk menampilkan angka ini.", en: "Not enough data to show this figure yet." },
+  // R5. DIFFERENT FROM THE LINE ABOVE, AND THE DIFFERENCE IS THE POINT: that
+  // one means some qualifying evidence exists and is short, this one means
+  // none has arrived yet. Neither says anything about how a learner or a class
+  // is doing, and both deliberately avoid a word that could be read as one.
+  "laporan.metrik.belum_ada_bukti": { default: "Belum ada bukti yang memenuhi syarat untuk angka ini.", en: "No qualifying evidence for this figure yet." },
   "laporan.kelas.judul": { default: "Ringkasan Kelas", en: "Class Summary" },
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
   "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini.", en: "There are no figures to show you here yet." },
