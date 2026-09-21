@@ -197,6 +197,8 @@ jobs:
             db-tour-gates)
               echo "the eight first-login tour defects are planted in SQL against the running stack, below" ;;
             db-wp1-gates)
+              echo "the eight WP1 source-bound authorization and objective-B defects are planted in SQL against the running stack, below" ;;
+            db-wp1-gates)
               echo "the six authorization-boundary defects are planted in SQL against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
@@ -1181,6 +1183,190 @@ jobs:
           rollback;
           SQL
           red F04-T04 'losing the label' /tmp/tour-8.sql
+
+      - name: Local stack (WP1 source-bound authorization gates)
+        if: matrix.case == 'db-wp1-gates'
+        id: gatesWp1
+        uses: ./.github/actions/local-stack
+      - name: Each planted defect must turn its own WP1 case red
+        if: matrix.case == 'db-wp1-gates'
+        env:
+          DB_URL: ${{ steps.gatesWp1.outputs.db-url }}
+        run: |
+          set -e
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
+
+          # Control inside a transaction and rolled back, for the reason
+          # db-tour-gates records beside it: run_fable06() commits a second
+          # CLASS node into the bootstrap tenant, and a committed one changes
+          # what the plants below are measured against.
+          cat > /tmp/wp1-base.sql <<'SQL'
+          begin;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06()
+           where id in ('F06-P10','F06-P11','F06-P12','F06-P13');
+          rollback;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -f /tmp/wp1-base.sql "$DB_URL" | tee baseWp1.txt
+          grep -E ' \| f \| ' baseWp1.txt && { echo "::error::a WP1 case is already red before any defect was planted"; exit 1; } || true
+
+          red() {   # red <test id> <expected substring> <sql file>
+            psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
+            grep -E "^$1 \| f \|" "out-$1.txt" || { echo "::error::$1 stayed green with the defect planted"; exit 1; }
+            grep -F "$2" "out-$1.txt" || { echo "::error::$1 went red but not for '$2'"; exit 1; }
+          }
+          case_of() { printf 'select id, case when ok then %s else %s end, detail from selftest.run_fable06() where id=%s;\nrollback;\n' "'t'" "'f'" "'$2'" >> "$1"; }
+
+          # THE SIGNATURE AND SHAPE THESE PLANTS LAND ON, asserted first. A plant
+          # aimed at something that has moved stops planting and starts passing,
+          # and the failure then reads as "the protection broke" rather than "the
+          # plant missed". This fails HERE, naming the cause.
+          psql -v ON_ERROR_STOP=1 -At -c "select to_regclass('public.scoped_official_sessions') is not null and to_regclass('public.metric_calculator_scope') is not null" "$DB_URL" | grep -qx t \
+            || { echo "::error::the scoped source or the governing-scope contract is gone; re-aim these plants before trusting this job"; exit 1; }
+
+          # ── the boundary ──────────────────────────────────────────────────
+          # 1. THE NARROWING REMOVED FROM THE SOURCE. The calculator is still
+          #    pointed at the scoped view and the view no longer narrows -- which
+          #    is the whole architecture undone in one line, and the one edit a
+          #    future author is most likely to make while "simplifying".
+          cat > /tmp/wp1-1.sql <<'SQL'
+          begin;
+          create or replace view public.scoped_official_sessions as select s.* from public.official_sessions s;
+          SQL
+          case_of /tmp/wp1-1.sql F06-P11
+          red F06-P11 'returned 2, expected 1' /tmp/wp1-1.sql
+
+          # 2. THE BOUNDARY SILENTLY FALLING BACK TO TENANT-WIDE. The binding is
+          #    still read and the tenant is still checked; only the `jalur`
+          #    containment is gone, so every bound read widens to the whole
+          #    school. This is the shape the fallback actually takes in practice
+          #    -- the first version of this plant made an UNBOUND read permissive
+          #    instead, which F06-P11 could not see because the engine always
+          #    binds something before it dispatches. A plant aimed at a state the
+          #    test never reaches is a plant that passes.
+          cat > /tmp/wp1-2.sql <<'SQL'
+          begin;
+          create or replace function public.row_in_metric_boundary(
+            p_institution uuid, p_node uuid, p_person uuid)
+          returns boolean language plpgsql stable set search_path = public, pg_temp as $f$
+          declare v_node uuid; v_person uuid; v_binst uuid;
+          begin
+            if p_institution is null then return false; end if;
+            v_person := public.metric_boundary_person();
+            if v_person is not null then return p_person is not null and p_person = v_person; end if;
+            v_node := public.metric_boundary_node();
+            if v_node is null then return false; end if;
+            select n.institution_id into v_binst from public.org_nodes n where n.id = v_node;
+            return v_binst is not null and v_binst = p_institution;
+          end $f$;
+          SQL
+          case_of /tmp/wp1-2.sql F06-P11
+          red F06-P11 'returned 2, expected 1' /tmp/wp1-2.sql
+
+          # ── the contract ──────────────────────────────────────────────────
+          # 3. A CALCULATOR DECLARED AT THE WRONG SCOPE. class.participants is
+          #    relabelled TENANT, so the engine binds the institution root and a
+          #    department-scoped reader is refused outright. The declaration
+          #    decides refusal, so the failure is a refusal rather than a leak --
+          #    which is the property worth pinning.
+          cat > /tmp/wp1-3.sql <<'SQL'
+          begin;
+          update public.metric_calculator_scope set governing_scope = 'TENANT'
+           where calculation_key = 'class_participants';
+          SQL
+          case_of /tmp/wp1-3.sql F06-P11
+          red F06-P11 'returned -1, expected 1' /tmp/wp1-3.sql
+
+          # 4. A DECLARATION REMOVED ALTOGETHER. An undeclared calculator is an
+          #    unknown boundary, and an unknown boundary must be a refusal.
+          cat > /tmp/wp1-4.sql <<'SQL'
+          begin;
+          delete from public.metric_calculator_scope where calculation_key = 'class_participants';
+          SQL
+          case_of /tmp/wp1-4.sql F06-P13
+          red F06-P13 'no governing-scope declaration' /tmp/wp1-4.sql
+
+          # 5. A CALCULATOR REACHING PAST ITS BOUNDARY to raw evidence. MC-2
+          #    declares only the scoped sources, so the closure guard owns this.
+          cat > /tmp/wp1-5.sql <<'SQL'
+          begin;
+          create or replace function public.calc_class_participants(
+            p_node uuid, p_institution uuid, p_catalogue text)
+          returns jsonb language sql stable set search_path = public, pg_temp
+          begin atomic
+            select jsonb_build_object('value', count(distinct s.person_id), 'sample', count(distinct s.person_id))
+              from official_sessions s
+             where s.institution_id = p_institution and s.class_node_id = p_node;
+          end;
+          SQL
+          case_of /tmp/wp1-5.sql F06-P13
+          red F06-P13 'does not declare' /tmp/wp1-5.sql
+
+          # ── objective B ───────────────────────────────────────────────────
+          # 6. THE ROLE SET WIDENED TO INCLUDE THE INSTITUTION ADMIN, which is
+          #    the rank-shaped wrong implementation the ROLE_SET declaration
+          #    exists to exclude.
+          cat > /tmp/wp1-6.sql <<'SQL'
+          begin;
+          create or replace function public.management_learner_roles()
+          returns public.app_role[] language sql immutable parallel safe
+          set search_path = public, pg_temp as $f$
+            select array['HEAD_OF_DEPARTMENT','DEAN','INSTITUTION_ADMIN']::public.app_role[]
+          $f$;
+          SQL
+          case_of /tmp/wp1-6.sql F06-P12
+          red F06-P12 'institution admin' /tmp/wp1-6.sql
+
+          # 7. THE ACT GOES UNRECORDED. Everything else is correct; the audit
+          #    line is renamed. An auditable read that writes nothing is the one
+          #    failure a test of the payload alone would never see.
+          cat > /tmp/wp1-7.sql <<'SQL'
+          begin;
+          do $d$
+          declare s text;
+          begin
+            s := pg_get_functiondef('public.management_learner_detail(uuid,uuid)'::regprocedure);
+            s := replace(s, '''learner_detail.opened''', '''learner_detail.unrecorded''');
+            execute s;
+          end $d$;
+          SQL
+          case_of /tmp/wp1-7.sql F06-P12
+          red F06-P12 'audit row(s) for 3 opens' /tmp/wp1-7.sql
+
+          # 8. THE METRIC ROUTE REOPENED to Management, which would put an
+          #    unaudited door beside the audited one and make the record a
+          #    formality.
+          cat > /tmp/wp1-8.sql <<'SQL'
+          begin;
+          insert into public.metric_catalogue (version, note) values ('MC-99','red case');
+          update public.metric_catalogue set superseded_by = 'MC-99' where version = 'MC-2';
+          insert into public.metric_definitions
+            (catalogue_version, metric_id, label_key, meaning_key, scope, evidence_class, minimum_sample,
+             allowed_visualizations, allowed_audiences, calculation_key, deprecated, deprecation_note_key)
+          select 'MC-99', d.metric_id, d.label_key, d.meaning_key, d.scope, d.evidence_class,
+                 d.minimum_sample, d.allowed_visualizations,
+                 case when d.metric_id = 'learner.result'
+                      then array['STUDENT','EDUCATOR','HEAD_OF_DEPARTMENT','DEAN','INSTITUTION_ADMIN']::public.app_role[]
+                      else d.allowed_audiences end,
+                 d.calculation_key, d.deprecated, d.deprecation_note_key
+            from public.metric_definitions d where d.catalogue_version = 'MC-2';
+          insert into public.readiness_tiers
+            (catalogue_version, tier_key, ordinal, min_mastery, max_mastery, requires_safety_gate, applies_without_post_test)
+          select 'MC-99', t.tier_key, t.ordinal, t.min_mastery, t.max_mastery, t.requires_safety_gate, t.applies_without_post_test
+            from public.readiness_tiers t where t.catalogue_version = 'MC-2';
+          insert into public.metric_sources (catalogue_version, source_relation, why)
+          select 'MC-99', s.source_relation, s.why from public.metric_sources s where s.catalogue_version = 'MC-2';
+          -- carried forward because `publish_metric_catalogue` does NOT carry
+          -- them and a version without them is refused by
+          -- assert_question_health_observes_only. That gap is a recorded
+          -- residual; here it just has to be worked around so the plant plants
+          -- the thing it means to.
+          insert into public.question_health_thresholds
+            (catalogue_version, signal_key, min_evidence, low_watermark, high_watermark, unwired_reason_key)
+          select 'MC-99', q.signal_key, q.min_evidence, q.low_watermark, q.high_watermark, q.unwired_reason_key
+            from public.question_health_thresholds q where q.catalogue_version = 'MC-2';
+          SQL
+          case_of /tmp/wp1-8.sql F06-P12
+          red F06-P12 'metric route' /tmp/wp1-8.sql
 
       - name: Local stack (WP1 authorization-boundary gates)
         if: matrix.case == 'db-wp1-gates'

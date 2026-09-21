@@ -1080,7 +1080,18 @@ export const experienceTests: SelfTest[] = [
       // sweep below is asserting over two more files without its answer
       // changing. 20260922100000 replaces one function body and creates nothing.
       //
-      // MOVED AGAIN 87 -> 88 for WP1's authorization-boundary correction.
+      // MOVED AGAIN 88 -> 92 for WP1's source-bound metric authorization and
+      // objective B. 20260923100000 creates six VIEWS and five functions;
+      // 20260923110000 creates one TABLE -- metric_calculator_scope, whose
+      // columns are calculation_key, governing_scope, why and declared_at;
+      // 20260923120000 adds one enum label; 20260923130000 creates two
+      // functions and replaces five. Read against §3 of the ruling column by
+      // column before this number moved: not one of those columns is a mark, a
+      // logo, a crest or a theme, and the six views project columns that
+      // already exist, so the Q-7 source still does not exist and the sweep
+      // below asserts over four more files without its answer changing.
+      //
+      // MOVED 87 -> 88 for WP1's authorization-boundary correction.
       // 20260923090000 creates NO table and adds NO column: four functions
       // (metric_computes_tenant_wide, audience_on_node, audience_over_learner,
       // node_in_my_scope), two replaced function bodies, one replaced policy
@@ -1088,7 +1099,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 88, `${migrations.length} migrations; the frozen baseline has 88`);
+      c.expect(migrations.length === 92, `${migrations.length} migrations; the frozen baseline has 92`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2156,8 +2167,33 @@ export const experienceTests: SelfTest[] = [
       const auth = readFileSync(join(mig, "20260912004431_authorization.sql"), "utf8");
       c.expect(/create policy persons_select on public\.persons for select to authenticated\s+using \(public\.person_visible_to_me\(id\)\)/.test(auth),
         "persons_select no longer goes through person_visible_to_me");
-      c.expect(/has_scope\('EDUCATOR', m\.node_id\)/.test(auth),
-        "person_visible_to_me's educator branch is no longer subtree-bound");
+      // THE BRANCH IS READ FROM WHICHEVER MIGRATION LAST DEFINES IT, not from
+      // the one that first did. This asserted `has_scope('EDUCATOR', m.node_id)`
+      // against 0002 alone, and migrations are append-only -- so when WP1
+      // replaced that branch with the capability form, this check went on
+      // matching a file that no longer describes the live schema. A test that
+      // keeps passing about a superseded definition is worse than one that
+      // fails: it reports on something nobody is running.
+      //
+      // WHAT IS ASSERTED IS THE PROPERTY, not the spelling: the educator branch
+      // must be SUBTREE-BOUND -- narrowed by a node, through one of the two
+      // primitives that carry `jalur` containment -- rather than by tenant
+      // membership. A bare `is_member_of_institution` would not qualify, and
+      // neither would no predicate at all.
+      const visibilityDefs = readdirSync(mig)
+        .filter((f) => f.endsWith(".sql"))
+        .sort()
+        .filter((f) => /create (?:or replace )?function public\.person_visible_to_me\(/
+          .test(readFileSync(join(mig, f), "utf8")));
+      c.expect(visibilityDefs.length > 0, "no migration defines person_visible_to_me");
+      const latestVisibility = readFileSync(
+        join(mig, visibilityDefs[visibilityDefs.length - 1]), "utf8");
+      const branch = /from public\.memberships m join public\.enrollments e[\s\S]{0,400}?;/
+        .exec(latestVisibility)?.[0] ?? "";
+      c.expect(branch.length > 0, "person_visible_to_me's membership branch could not be located");
+      c.expect(/(can_on_node\('CAN_VIEW_LEARNER_ROSTER', m\.node_id\)|has_scope\('EDUCATOR', m\.node_id\))/.test(branch),
+        "person_visible_to_me's educator branch is no longer subtree-bound: it narrows by neither " +
+          "can_on_node nor has_scope on the membership node");
 
       // 4. OBSERVATION IS NOT JUDGMENT. The roster component has room for a name
       //    and for nothing else: no pill, no colour, no count, no order but the
@@ -2702,13 +2738,15 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 87 -> 88 for WP1's
+      // from, not a claim about the tour. MOVED 88 -> 92 for WP1's source-bound
+      // metric authorization and objective B, none of which adds or alters a
+      // tour RPC. MOVED 87 -> 88 for WP1's
       // authorization-boundary correction (20260923090000), which touches the
       // metric evaluator, the report writer and the generated-report policy and
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 88, `${migs.length} migrations; the baseline has 88`);
+      c.expect(migs.length === 92, `${migs.length} migrations; the baseline has 92`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

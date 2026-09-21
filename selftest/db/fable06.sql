@@ -311,6 +311,214 @@ grant execute on function selftest.f06p10_person(text) to authenticated;
 grant execute on function selftest.f06p10_case(text, text, uuid, uuid, text, boolean) to authenticated;
 grant execute on function selftest.f06p10_learner(text, uuid, uuid, text, boolean) to authenticated;
 
+-- ───────────────────────────────────────── WP1 source-boundary fixture helpers
+--
+-- A SCHOOL WITH TWO POPULATED BRANCHES, which is what requirement 9 means by
+-- "no zero-row fixture": the authorized subtree holds evidence AND the sibling
+-- subtree holds DIFFERENT evidence, so "the sibling did not arrive" is a
+-- statement about rows that exist rather than about an empty table.
+--
+-- IT HAS TO BE A NON-SYNTHETIC TENANT. `derive_evidence_class` caps every
+-- `is_synthetic` institution at SYNTHETIC, so a purpose-built school could
+-- never hold OFFICIAL evidence and every calculator would answer 0 -- which is
+-- precisely the state in which an adversarial calculator is indistinguishable
+-- from an honest one. So the fixture extends the demonstration tenant, which
+-- already holds one real OFFICIAL session, with a sibling department carrying
+-- its own.
+create or replace function selftest.wp1_sibling_branch()
+returns table (inst uuid, root uuid, dept_a uuid, dept_b uuid, cls_a uuid, cls_b uuid,
+               hod text, adm text, learner_a uuid, learner_b uuid)
+language plpgsql set search_path = public, pg_temp as $$
+declare
+  v_inst uuid; v_fac uuid; v_dept_a uuid; v_dept_b uuid; v_prog_b uuid; v_coh_b uuid;
+  v_cls_a uuid; v_cls_b uuid; v_period uuid; v_sess uuid; v_new uuid; v_pb uuid; v_eb uuid;
+  v_root uuid; v_pa uuid;
+begin
+  select i.id into v_inst from public.institutions i where i.slug = 'pintar-human-evaluation';
+  if v_inst is null then raise exception 'the demonstration tenant is absent'; end if;
+  select o.id into v_root   from public.org_nodes o where o.institution_id=v_inst and o.kind='INSTITUTION';
+  select o.id into v_fac    from public.org_nodes o where o.institution_id=v_inst and o.kind='FACULTY';
+  select o.id into v_dept_a from public.org_nodes o where o.institution_id=v_inst and o.kind='DEPARTMENT'
+   order by o.name limit 1;
+  select o.id into v_cls_a  from public.org_nodes o where o.institution_id=v_inst and o.kind='CLASS'
+   order by o.name limit 1;
+  select ap.id into v_period from public.academic_periods ap where ap.institution_id=v_inst
+   order by ap.created_at limit 1;
+  select s.id, s.person_id into v_sess, v_pa from public.official_sessions s
+   where s.institution_id=v_inst and s.class_node_id=v_cls_a limit 1;
+  if v_sess is null then raise exception 'the demonstration tenant holds no OFFICIAL session in its class'; end if;
+
+  insert into public.org_nodes (institution_id,parent_id,kind,name)
+  values (v_inst,v_fac,'DEPARTMENT','Bahasa (saudara)') returning org_nodes.id into v_dept_b;
+  insert into public.org_nodes (institution_id,parent_id,kind,name)
+  values (v_inst,v_dept_b,'PROGRAMME','SD Bahasa') returning org_nodes.id into v_prog_b;
+  insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+  values (v_inst,v_prog_b,'COHORT','Angkatan Bahasa',v_period) returning org_nodes.id into v_coh_b;
+  insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+  values (v_inst,v_coh_b,'CLASS','5X',v_period) returning org_nodes.id into v_cls_b;
+
+  insert into public.persons (display_name) values ('Murid Saudara') returning persons.id into v_pb;
+  insert into public.enrollments (person_id,institution_id,academic_period_id,programme_id,status)
+  values (v_pb,v_inst,v_period,v_prog_b,'ACTIVE') returning enrollments.id into v_eb;
+  insert into public.memberships (enrollment_id,node_id,academic_period_id) values (v_eb,v_cls_b,v_period);
+
+  -- the sibling's OWN official session, copied from the real one. The lifecycle
+  -- is a trigger, so the fixture walks it rather than asserting a finished
+  -- session into existence.
+  v_new := gen_random_uuid();
+  insert into public.assessment_sessions
+    (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
+     plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
+     scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
+     started_at, submitted_at, finalized_at, deadline_extended_count)
+  select v_new, v_pb, s.institution_id, v_eb, s.academic_period_id, v_cls_b, v_coh_b,
+         s.plp_release_id, s.assessment_definition_id, s.assessment_definition_version, s.engine_version,
+         s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED', s.shuffle_seed,
+         s.started_at, s.submitted_at, s.finalized_at, 0
+    from public.assessment_sessions s where s.id = v_sess;
+  update public.assessment_sessions set status='IN_PROGRESS' where id=v_new;
+  update public.assessment_sessions set status='SUBMITTED'   where id=v_new;
+  update public.assessment_sessions set status='FINALIZED'   where id=v_new;
+  insert into public.assessment_results
+    (id, session_id, institution_id, person_id, evidence_class, engine_version, scoring_policy_version,
+     mastery, per_domain, safety_gate_passed, delta_inputs, computed_at)
+  select gen_random_uuid(), v_new, r.institution_id, v_pb, r.evidence_class, r.engine_version,
+         r.scoring_policy_version, r.mastery, r.per_domain, r.safety_gate_passed, r.delta_inputs, now()
+    from public.assessment_results r where r.session_id = v_sess;
+
+  inst := v_inst; root := v_root; dept_a := v_dept_a; dept_b := v_dept_b;
+  cls_a := v_cls_a; cls_b := v_cls_b; learner_a := v_pa; learner_b := v_pb;
+  select u.email into hod from public.role_assignments ra
+    join public.accounts a on a.person_id=ra.person_id join auth.users u on u.id=a.auth_user_id
+   where ra.role='HEAD_OF_DEPARTMENT' and ra.scope_node_id=v_dept_a and ra.revoked_at is null limit 1;
+  select u.email into adm from public.role_assignments ra
+    join public.accounts a on a.person_id=ra.person_id join auth.users u on u.id=a.auth_user_id
+   where ra.role='INSTITUTION_ADMIN' and ra.institution_id=v_inst and ra.revoked_at is null limit 1;
+  return next;
+end $$;
+revoke all on function selftest.wp1_sibling_branch() from public;
+grant execute on function selftest.wp1_sibling_branch() to authenticated;
+
+-- One adversarial calculator, installed and asked. Returns the empty array when
+-- the boundary held and a complaint when it did not.
+--
+-- NOT security definer: it must read as whoever the session was last switched
+-- to, or it measures the schema owner instead of the caller.
+create or replace function selftest.wp1_adversary(
+  p_label text, p_clause text, p_reader text, p_node uuid, p_institution uuid,
+  p_catalogue text, p_expect int)
+returns text[]
+language plpgsql set search_path = public, pg_temp as $$
+declare v jsonb; v_got int;
+begin
+  perform selftest.as_owner();
+  execute format($f$
+    create or replace function public.calc_class_participants(
+      p_node uuid, p_institution uuid, p_catalogue text)
+    returns jsonb language sql stable set search_path = public, pg_temp
+    begin atomic
+      select jsonb_build_object('value', count(distinct s.person_id), 'sample', count(distinct s.person_id))
+        from scoped_official_sessions s
+       where s.institution_id = p_institution %s;
+    end $f$, p_clause);
+  perform selftest.as_user(p_reader);
+  v := public.metric_evaluate('class.participants', p_node, p_institution, p_catalogue);
+  perform selftest.as_owner();
+  v_got := case when v ->> 'status' = 'not_permitted' then -1 else coalesce((v ->> 'sample')::int, 0) end;
+  if v_got = p_expect then return '{}'::text[]; end if;
+  return array[format('%s: returned %s, expected %s', p_label, v_got, p_expect)];
+end $$;
+revoke all on function selftest.wp1_adversary(text, text, text, uuid, uuid, text, int) from public;
+grant execute on function selftest.wp1_adversary(text, text, text, uuid, uuid, text, int) to authenticated;
+
+-- ───────────────────────────────────────── F06-P12's helpers (objective B)
+--
+-- Invoker rights, like F06-P10's: these must answer as whoever the session was
+-- last switched to. A definer helper would ask every question as the schema
+-- owner and answer "allowed" to all of them.
+
+-- as_user takes an email; these fixtures are built around auth uids, so this is
+-- the same switch keyed the other way rather than a second mechanism.
+create or replace function selftest.as_user_uid(p_uid uuid)
+returns void language plpgsql set search_path = public, pg_temp as $$
+begin
+  reset role;
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', p_uid, 'role', 'authenticated')::text, true);
+  perform set_config('request.jwt.claim.sub', p_uid::text, true);
+  set local role authenticated;
+end $$;
+revoke all on function selftest.as_user_uid(uuid) from public;
+grant execute on function selftest.as_user_uid(uuid) to authenticated;
+
+-- LEVEL 2, asked through person_visible_to_me, which is the predicate
+-- persons_select carries -- so what is measured is what the roster returns.
+create or replace function selftest.f06p12_roster(
+  p_label text, p_reader uuid, p_subject uuid, p_expect_visible boolean)
+returns text[] language plpgsql set search_path = public, pg_temp as $$
+declare v boolean;
+begin
+  perform selftest.as_user_uid(p_reader);
+  v := public.person_visible_to_me(p_subject);
+  perform selftest.as_owner();
+  if v = p_expect_visible then return '{}'::text[]; end if;
+  return array[format('%s: the roster answered %s, expected %s', p_label, v, p_expect_visible)];
+end $$;
+revoke all on function selftest.f06p12_roster(text, uuid, uuid, boolean) from public;
+grant execute on function selftest.f06p12_roster(text, uuid, uuid, boolean) to authenticated;
+
+-- LEVEL 3, asked through the endpoint, because a row predicate cannot tell a
+-- roster from a person and the endpoint is where deliberateness lives.
+--
+-- A REFUSAL IS AN EXCEPTION, AND IT MUST NAME NO SUBJECT. Both halves are
+-- checked: a refusal echoing the learner's id back would be an existence
+-- oracle wearing a denial.
+create or replace function selftest.f06p12_detail(
+  p_label text, p_reader uuid, p_subject uuid, p_institution uuid, p_expect_allowed boolean)
+returns text[] language plpgsql set search_path = public, pg_temp as $$
+declare r jsonb; v_allowed boolean := true; v_err text := '';
+begin
+  perform selftest.as_user_uid(p_reader);
+  begin
+    r := public.management_learner_detail(p_subject, p_institution);
+  exception when others then v_allowed := false; v_err := sqlerrm;
+  end;
+  perform selftest.as_owner();
+  if v_allowed <> p_expect_allowed then
+    return array[format('%s: the endpoint %s, expected %s', p_label,
+                        case when v_allowed then 'allowed' else 'refused' end,
+                        case when p_expect_allowed then 'to allow' else 'to refuse' end)];
+  end if;
+  if not v_allowed and v_err like '%' || p_subject::text || '%' then
+    return array[format('%s: the refusal named the subject', p_label)];
+  end if;
+  if v_allowed and (r ->> 'person_id') is distinct from p_subject::text then
+    return array[format('%s: the endpoint returned a different person', p_label)];
+  end if;
+  return '{}'::text[];
+end $$;
+revoke all on function selftest.f06p12_detail(text, uuid, uuid, uuid, boolean) from public;
+grant execute on function selftest.f06p12_detail(text, uuid, uuid, uuid, boolean) to authenticated;
+
+-- The metric route, asked as a reader. Kept beside the roster and detail
+-- helpers because the three together are what "the levels do not collapse"
+-- means: the same learner, three doors, three different answers per role.
+create or replace function selftest.f06p12_metric(
+  p_label text, p_reader uuid, p_subject uuid, p_institution uuid, p_catalogue text, p_expect_allowed boolean)
+returns text[] language plpgsql set search_path = public, pg_temp as $$
+declare v jsonb; v_allowed boolean;
+begin
+  perform selftest.as_user_uid(p_reader);
+  v := public.metric_evaluate('learner.result', p_subject, p_institution, p_catalogue);
+  perform selftest.as_owner();
+  v_allowed := (v ->> 'status') is distinct from 'not_permitted';
+  if v_allowed = p_expect_allowed then return '{}'::text[]; end if;
+  return array[format('%s: learner.result answered %s, expected %s', p_label, v ->> 'status',
+                      case when p_expect_allowed then 'to be permitted' else 'not_permitted' end)];
+end $$;
+revoke all on function selftest.f06p12_metric(text, uuid, uuid, uuid, text, boolean) from public;
+grant execute on function selftest.f06p12_metric(text, uuid, uuid, uuid, text, boolean) to authenticated;
+
 -- Same boundary, one level down: `item_options` carries `is_correct`, so a
 -- learner cannot read it either. Resolving "which displayed position is the
 -- right answer" is therefore a definer operation -- which is precisely the
@@ -476,6 +684,17 @@ begin
      order by public.role_rank(e.role) desc limit 1;
   elsif p_kind = 'INSTITUTION_MEMBER' then
     return 'beta-admin@synthetic.pintar.test';           -- a real admin, of the WRONG tenant
+  elsif p_kind = 'ROLE_SET' then
+    -- THE HIGHEST-RANKED ROLE OUTSIDE THE SET, for the same reason the
+    -- CAPABILITY branch takes the most-capable role outside it: the wrong
+    -- implementation of a role set is a RANK test, and a rank test lets in
+    -- exactly the roles that outrank the set. SYSTEM_ADMIN also short-circuits
+    -- several authorization primitives outright, so it is the actor most likely
+    -- to get in through a mistake rather than through the declaration.
+    select e.role into v_role
+      from (select unnest(enum_range(null::public.app_role)) as role) e
+     where not (e.role = any (string_to_array(p_req, ',')::public.app_role[]))
+     order by public.role_rank(e.role) desc limit 1;
   else
     v_role := 'DEAN';
   end if;
@@ -546,6 +765,11 @@ returns text language sql immutable set search_path = public, pg_temp as $$
     when 'SCOPE'              then p_req
     when 'INSTITUTION_MEMBER' then '(another institution|not a member|institution)'
     when 'DELEGATED'          then '(INV-16|SYSTEM_ADMIN|not authorized|may not|denied)'
+    -- A ROLE SET refuses by naming the roles it is for, so the pattern is the
+    -- declaration itself turned into an alternation. Built from p_req rather
+    -- than written out, so a set that changes cannot leave a pattern matching
+    -- the old one behind.
+    when 'ROLE_SET'           then '(' || replace(p_req, ',', '|') || ')'
   end
 $$;
 revoke all on function selftest.f06_contract_pattern(text, text) from public;
@@ -1765,7 +1989,22 @@ begin
       -- A6 IN SCOPE, WRONG AUDIENCE -- checked below on the dean, for whom the
       -- catalogue itself excludes the metric. Here the person-shaped metric is
       -- contained through the learner instead of through a node.
-      bad := bad || selftest.f06p10_learner('learner in own department', v_la, v_inst, v_cat, true);
+      --
+      -- THE HEAD OF DEPARTMENT IS NOW REFUSED BOTH, and the first of those two
+      -- expectations is the one that moved. Until MC-2, learner.result listed
+      -- HEAD_OF_DEPARTMENT among its audiences, so a head of department read an
+      -- identifiable learner's mastery through the METRIC route with nothing
+      -- recorded -- Management individual learner detail in substance, reached
+      -- through the aggregate door. The Management ruling closed that route and
+      -- opened an audited one; F06-P12 asserts the same reader reaches the same
+      -- learner through `management_learner_detail`, which writes the record.
+      --
+      -- A product rule was replaced, not a test relaxed: the case still asks
+      -- about the same learner, from the same reader, and still demands a
+      -- definite answer. What changed is which answer the product gives, and
+      -- the case proving the access still exists lives next door.
+      bad := bad || selftest.f06p10_learner('learner in own department (metric route closed by MC-2)',
+                                            v_la, v_inst, v_cat, false);
       bad := bad || selftest.f06p10_learner('learner in sibling department', v_lb, v_inst, v_cat, false);
 
       -- ── the dean, scoped to the faculty ───────────────────────────────────
@@ -1853,8 +2092,8 @@ begin
         || 'own node and its descendants and is refused the sibling department, the sibling''s class, another '
         || 'school, the ancestor faculty, the institution root, and BOTH tenant-wide aggregates asked at a node '
         || 'they do hold -- including institution.cohort_comparison, which declares COHORT scope and computes '
-        || 'over every cohort, so a repair trusting the declaration would have passed it. A learner in their '
-        || 'department answers and a learner in the sibling''s does not. A faculty-scoped dean keeps the faculty '
+        || 'over every cohort, so a repair trusting the declaration would have passed it. Both learner-shaped reads are refused on the '
+        || 'metric route, which MC-2 closed to Management in favour of the audited path. A faculty-scoped dean keeps the faculty '
         || 'and every class under it, loses the school, and is still refused a learner standing INSIDE that '
         || 'faculty because DEAN is not in that metric''s audience -- containment is not a key on its own. An '
         || 'institution-scoped admin keeps the tenant-wide aggregate and every class, and the item bank, which '
@@ -1863,6 +2102,466 @@ begin
         || '-- is refused the tenant-wide aggregate and keeps everything either hat really covers. A report drawn at another '
         || 'school''s node is refused and writes no artefact, and a saved institution-wide report is readable '
         || 'by the reader who drew it and not from below. Every row rolled back', n_checks);
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P11 -- THE CALCULATOR IS NOT TRUSTED TO ENFORCE THE BOUNDARY.
+  --
+  -- 0091 decided which node governs a metric request by INFERRING it from the
+  -- calculator. Three separate inferences were built and three were defeated,
+  -- each measured rather than argued:
+  --
+  --   text            "does the parsed body mention p_node"   beaten by
+  --                   `and (p_node is not null or p_node is null)`
+  --   behaviour       "does it return nothing for a NULL node" beaten by
+  --                   `and p_node is not null`, which reads the whole tenant
+  --                   for every REAL node and nothing for the probe value
+  --   dependency      "does the parser record a real column reference"
+  --                   beaten by `and (s.class_node_id = p_node or p_node is
+  --                   not null)`, which records class_node_id AND restricts
+  --                   nothing
+  --
+  -- The third defeats all three checks at once. The reason is structural, not
+  -- a shortage of cleverness: the calculator is code, the check feeds it
+  -- something, and code can branch on what it is fed.
+  --
+  -- SO THE BOUNDARY STOPPED DEPENDING ON THE CALCULATOR. 0092 narrowed the
+  -- SOURCES; 0093 made the engine bind the boundary before dispatch and read
+  -- the governing scope from a declared row. This case asks the only question
+  -- that matters afterwards: with a calculator that is WRONG and a caller who
+  -- is legitimately AUTHORIZED, can the sibling's evidence arrive?
+  --
+  -- THE FIXTURE HAS TWO POPULATED SIDES, which is the whole point. The reader's
+  -- own class holds one OFFICIAL session and the sibling class holds a
+  -- DIFFERENT one, both in a non-synthetic tenant -- so every "1" below is the
+  -- statement "the other one did not come", about a row that exists. On an
+  -- empty fixture a broken calculator and a correct one both answer 0 and this
+  -- case would pass having measured nothing.
+  -- =========================================================================
+  declare
+    v_why text := ''; bad text[] := '{}'; c record; v_cat text; n_sessions int; n int;
+    v_adv text[] := array[
+      'A ignores p_node entirely|',
+      'B  p_node is not null| and p_node is not null',
+      'C  cosmetic mention| and (p_node is not null or p_node is null)',
+      'D  column dependency then OR| and (s.class_node_id = p_node or p_node is not null)',
+      'E  coalesce around p_node| and s.class_node_id = coalesce(p_node, s.class_node_id)',
+      'F  branches on NULL| and (case when p_node is null then false else true end)',
+      'G  a legitimate node calculator| and s.class_node_id = p_node',
+      'H  a legitimate tenant calculator|'];
+    v text;
+  begin
+    begin
+      perform selftest.as_owner();
+      v_cat := public.current_metric_catalogue();
+      select * into c from selftest.wp1_sibling_branch();
+
+      -- THE VACUITY GUARD, FIRST. Two branches, each holding its own session.
+      select count(*) into n_sessions from public.official_sessions s where s.institution_id = c.inst;
+      if n_sessions <> 2 then
+        raise exception 'the fixture holds % OFFICIAL session(s) where 2 were expected, one per branch',
+          n_sessions;
+      end if;
+      if (select count(*) from public.official_sessions s where s.class_node_id = c.cls_a) <> 1
+         or (select count(*) from public.official_sessions s where s.class_node_id = c.cls_b) <> 1 then
+        raise exception 'the two branches are not each populated, so a leak would be invisible';
+      end if;
+      if c.hod is null or c.adm is null then
+        raise exception 'the fixture has no head of department or no institution admin to read as';
+      end if;
+
+      -- EVERY ADVERSARIAL BODY, ASKED BY A READER WHO IS AUTHORIZED. The head
+      -- of department holds the class they name, so authorization passes and
+      -- the only thing between them and the sibling's session is the boundary.
+      foreach v in array v_adv loop
+        bad := bad || selftest.wp1_adversary(split_part(v,'|',1) || ' (head of department, own class)',
+                        split_part(v,'|',2), c.hod, c.cls_a, c.inst, v_cat, 1);
+        -- and the institution admin, standing at the root, still gets the
+        -- legitimate answer for the same class rather than the whole school
+        bad := bad || selftest.wp1_adversary(split_part(v,'|',1) || ' (institution admin, same class)',
+                        split_part(v,'|',2), c.adm, c.cls_a, c.inst, v_cat, 1);
+      end loop;
+
+      -- AND THE ADMIN AT THE ROOT still obtains the legitimate institution
+      -- figure, which is both branches -- so the boundary narrows by position
+      -- rather than by always narrowing.
+      perform selftest.as_owner();
+      execute $f$
+        create or replace function public.calc_institution_participants(
+          p_node uuid, p_institution uuid, p_catalogue text)
+        returns jsonb language sql stable set search_path = public, pg_temp
+        begin atomic
+          select jsonb_build_object('value', count(distinct s.person_id), 'sample', count(distinct s.person_id))
+            from scoped_official_sessions s where s.institution_id = p_institution;
+        end $f$;
+      perform selftest.as_user(c.adm);
+      n := coalesce(((public.metric_evaluate('institution.participants', c.root, c.inst, v_cat)) ->> 'sample')::int, -1);
+      perform selftest.as_owner();
+      if n <> 2 then
+        bad := bad || array[format('the institution admin at the root received %s of 2 branches', n)];
+      end if;
+
+      -- THE SIBLING ITSELF is refused at the authorization layer, which is the
+      -- other half: the boundary is not carrying a check that should have
+      -- refused outright.
+      perform selftest.as_user(c.hod);
+      if (public.metric_evaluate('class.participants', c.cls_b, c.inst, v_cat)) ->> 'status'
+         <> 'not_permitted' then
+        bad := bad || array['the head of department was not refused the sibling class outright'];
+      end if;
+      perform selftest.as_owner();
+
+      raise exception 'F06_P11_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      perform set_config('pintar.metric_boundary_node', '', true);
+      perform set_config('pintar.metric_boundary_person', '', true);
+      if sqlerrm <> 'F06_P11_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 180);
+      end if;
+    end;
+
+    id := 'F06-P11'; area := 'WP1 -- source-bound containment, against calculators that are wrong';
+    if v_why <> '' then
+      ok := false; detail := v_why;
+    elsif array_length(bad, 1) is not null then
+      ok := false; detail := format('%s case(s) answered wrongly: %s',
+                                    array_length(bad,1), array_to_string(bad, '; '));
+    else
+      ok := true;
+      detail :=
+        'eight calculator bodies -- six deliberately wrong and two correct -- installed one at a time as '
+        || 'calc_class_participants and asked by a reader who legitimately holds the class they name, in a '
+        || 'tenant where the reader''s class and the SIBLING class each hold their own OFFICIAL session. '
+        || 'The six wrong ones are the three that defeated 0091''s inference (a cosmetic mention, '
+        || '"p_node is not null", and a real class_node_id column dependency disjoined with OR -- which '
+        || 'beats body text, a NULL probe and the parser''s own dependency record simultaneously), plus one '
+        || 'that ignores the node entirely, one wrapping it in coalesce and one branching on NULL. Every '
+        || 'one of the eight returns exactly the reader''s own class: the sibling''s session, which exists '
+        || 'and is different, never arrives -- not because the calculator declined to widen, but because '
+        || 'the widening was not its to do. The same eight asked by an institution admin at the same class '
+        || 'return the same one, and the admin standing at the ROOT still receives both branches, so the '
+        || 'boundary narrows by position rather than always narrowing. The head of department asking the '
+        || 'sibling class directly is refused outright. The fixture is asserted to hold two populated '
+        || 'branches BEFORE anything is measured, because on an empty one a broken calculator and a correct '
+        || 'one both answer 0. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P12 -- THREE ACCESS LEVELS, AND THEY DO NOT COLLAPSE INTO ONE.
+  --
+  --   LEVEL 2  a DEAN and a HEAD_OF_DEPARTMENT see the learner ROSTER inside
+  --            their assigned node and its descendants, and nothing outside.
+  --   LEVEL 3  either may OPEN one named learner inside that scope,
+  --            deliberately, and the opening is recorded.
+  --
+  -- WHY LEVEL 3 IS AN ENDPOINT AND NOT A POLICY. `persons_select` is a
+  -- predicate over ROWS: reading a roster and opening a person put the
+  -- identical question to it. So "deliberate" cannot be expressed there, and
+  -- what this case asserts about Level 3 it asserts against
+  -- `management_learner_detail` -- never against a policy.
+  --
+  -- AND THE METRIC ROUTE IS CHECKED IN THE SAME BREATH, because an audited door
+  -- beside an unaudited one is not an audited door. Until MC-2 a head of
+  -- department read an identifiable learner's mastery through
+  -- `learner.result` with nothing recorded; the ruling closed that route for
+  -- Management and for administrative authority, and left it open for the
+  -- educator whose class the learner is in, whose teaching access is not a
+  -- Management event.
+  -- =========================================================================
+  declare
+    v_why text := ''; bad text[] := '{}';
+    v_inst uuid; v_root uuid; v_fac uuid; v_dept_a uuid; v_dept_b uuid; v_period uuid;
+    v_prog_a uuid; v_prog_b uuid; v_coh_a uuid; v_coh_b uuid; v_cls_a uuid; v_cls_b uuid;
+    v_other uuid; v_cat text;
+    v_hod uuid; v_hod_u uuid; v_dean uuid; v_dean_u uuid; v_adm uuid; v_adm_u uuid;
+    v_guru uuid; v_guru_u uuid; v_la uuid; v_la_u uuid; v_lb uuid; v_lb_u uuid;
+    v_lx uuid; v_lx_u uuid; v_e uuid; r jsonb; n int; n_before bigint; a record;
+  begin
+    begin
+      perform selftest.as_owner();
+      v_cat := public.current_metric_catalogue();
+      insert into public.institutions (name, slug, is_synthetic)
+      values ('Sekolah F06-P12', 'f06p12-' || substr(md5(random()::text),1,10), true)
+      returning institutions.id into v_inst;
+      select org_nodes.id into v_root from public.org_nodes
+       where institution_id=v_inst and kind='INSTITUTION';
+      insert into public.academic_periods (institution_id,name,starts_on,ends_on)
+      values (v_inst,'2026/27',date '2026-07-01',date '2027-06-30')
+      returning academic_periods.id into v_period;
+      insert into public.org_nodes (institution_id,parent_id,kind,name)
+      values (v_inst,v_root,'FACULTY','Fakultas') returning org_nodes.id into v_fac;
+      insert into public.org_nodes (institution_id,parent_id,kind,name)
+      values (v_inst,v_fac,'DEPARTMENT','A') returning org_nodes.id into v_dept_a;
+      insert into public.org_nodes (institution_id,parent_id,kind,name)
+      values (v_inst,v_fac,'DEPARTMENT','B') returning org_nodes.id into v_dept_b;
+      insert into public.org_nodes (institution_id,parent_id,kind,name)
+      values (v_inst,v_dept_a,'PROGRAMME','PA') returning org_nodes.id into v_prog_a;
+      insert into public.org_nodes (institution_id,parent_id,kind,name)
+      values (v_inst,v_dept_b,'PROGRAMME','PB') returning org_nodes.id into v_prog_b;
+      insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+      values (v_inst,v_prog_a,'COHORT','KA',v_period) returning org_nodes.id into v_coh_a;
+      insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+      values (v_inst,v_prog_b,'COHORT','KB',v_period) returning org_nodes.id into v_coh_b;
+      insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+      values (v_inst,v_coh_a,'CLASS','5A',v_period) returning org_nodes.id into v_cls_a;
+      insert into public.org_nodes (institution_id,parent_id,kind,name,academic_period_id)
+      values (v_inst,v_coh_b,'CLASS','5B',v_period) returning org_nodes.id into v_cls_b;
+      insert into public.institutions (name, slug, is_synthetic)
+      values ('Sekolah F06-P12 lain','f06p12x-'||substr(md5(random()::text),1,10),true)
+      returning institutions.id into v_other;
+
+      v_hod_u  := selftest.f06p10_person('f06p12-kaprodi');
+      v_dean_u := selftest.f06p10_person('f06p12-dekan');
+      v_adm_u  := selftest.f06p10_person('f06p12-admin');
+      v_guru_u := selftest.f06p10_person('f06p12-guru');
+      v_la_u   := selftest.f06p10_person('f06p12-murid-a');
+      v_lb_u   := selftest.f06p10_person('f06p12-murid-b');
+      v_lx_u   := selftest.f06p10_person('f06p12-murid-x');
+      select person_id into v_hod  from public.accounts where auth_user_id=v_hod_u;
+      select person_id into v_dean from public.accounts where auth_user_id=v_dean_u;
+      select person_id into v_adm  from public.accounts where auth_user_id=v_adm_u;
+      select person_id into v_guru from public.accounts where auth_user_id=v_guru_u;
+      select person_id into v_la   from public.accounts where auth_user_id=v_la_u;
+      select person_id into v_lb   from public.accounts where auth_user_id=v_lb_u;
+      select person_id into v_lx   from public.accounts where auth_user_id=v_lx_u;
+
+      perform set_config('app.seed_intent','synthetic',true);
+      insert into public.role_assignments (person_id,role,scope_node_id,valid_until) values
+        (v_hod,'HEAD_OF_DEPARTMENT',v_dept_a,now()+interval '1 year'),
+        (v_dean,'DEAN',             v_fac,   now()+interval '1 year'),
+        (v_adm,'INSTITUTION_ADMIN', v_root,  now()+interval '1 year'),
+        (v_guru,'EDUCATOR',         v_cls_a, now()+interval '1 year');
+      perform set_config('app.seed_intent','',true);
+
+      insert into public.enrollments (person_id,institution_id,academic_period_id,programme_id,status)
+      values (v_la,v_inst,v_period,v_prog_a,'ACTIVE') returning enrollments.id into v_e;
+      insert into public.memberships (enrollment_id,node_id,academic_period_id) values (v_e,v_cls_a,v_period);
+      insert into public.enrollments (person_id,institution_id,academic_period_id,programme_id,status)
+      values (v_lb,v_inst,v_period,v_prog_b,'ACTIVE') returning enrollments.id into v_e;
+      insert into public.memberships (enrollment_id,node_id,academic_period_id) values (v_e,v_cls_b,v_period);
+
+      select count(*) into n_before from public.audit_log where action='learner_detail.opened';
+
+      -- LEVEL 2, the roster
+      bad := bad || selftest.f06p12_roster('head of department, own subtree', v_hod_u, v_la, true);
+      bad := bad || selftest.f06p12_roster('head of department, sibling department', v_hod_u, v_lb, false);
+      bad := bad || selftest.f06p12_roster('dean, own faculty', v_dean_u, v_la, true);
+      bad := bad || selftest.f06p12_roster('dean, other department of own faculty', v_dean_u, v_lb, true);
+      bad := bad || selftest.f06p12_roster('dean, nobody of theirs', v_dean_u, v_lx, false);
+      bad := bad || selftest.f06p12_roster('institution admin keeps the roster', v_adm_u, v_la, true);
+      bad := bad || selftest.f06p12_roster('educator, own class', v_guru_u, v_la, true);
+      bad := bad || selftest.f06p12_roster('educator, another class', v_guru_u, v_lb, false);
+      bad := bad || selftest.f06p12_roster('learner, themselves', v_la_u, v_la, true);
+      bad := bad || selftest.f06p12_roster('learner, another learner', v_la_u, v_lb, false);
+
+      -- LEVEL 3, one learner opened on purpose
+      bad := bad || selftest.f06p12_detail('head of department, in scope', v_hod_u, v_la, v_inst, true);
+      bad := bad || selftest.f06p12_detail('head of department, sibling department', v_hod_u, v_lb, v_inst, false);
+      bad := bad || selftest.f06p12_detail('dean, in scope', v_dean_u, v_lb, v_inst, true);
+      bad := bad || selftest.f06p12_detail('dean, outside scope', v_dean_u, v_lx, v_inst, false);
+      bad := bad || selftest.f06p12_detail('dean, another institution', v_dean_u, v_la, v_other, false);
+      bad := bad || selftest.f06p12_detail('institution admin', v_adm_u, v_la, v_inst, false);
+      bad := bad || selftest.f06p12_detail('educator', v_guru_u, v_la, v_inst, false);
+      bad := bad || selftest.f06p12_detail('learner, themselves', v_la_u, v_la, v_inst, false);
+
+      -- THE METRIC ROUTE, which must not be the unaudited twin of the above
+      bad := bad || selftest.f06p12_metric('learner, own result', v_la_u, v_la, v_inst, v_cat, true);
+      bad := bad || selftest.f06p12_metric('learner, another learner', v_la_u, v_lb, v_inst, v_cat, false);
+      bad := bad || selftest.f06p12_metric('educator, learner in own class', v_guru_u, v_la, v_inst, v_cat, true);
+      bad := bad || selftest.f06p12_metric('educator, outside teaching scope', v_guru_u, v_lb, v_inst, v_cat, false);
+      bad := bad || selftest.f06p12_metric('head of department, metric route', v_hod_u, v_la, v_inst, v_cat, false);
+      bad := bad || selftest.f06p12_metric('dean, metric route', v_dean_u, v_la, v_inst, v_cat, false);
+      bad := bad || selftest.f06p12_metric('institution admin, metric route', v_adm_u, v_la, v_inst, v_cat, false);
+
+      -- the payload is bounded
+      perform selftest.as_user_uid(v_hod_u);
+      r := public.management_learner_detail(v_la, v_inst);
+      select count(*) into n from jsonb_object_keys(r) k
+       where k not in ('person_id','display_name','institution_id','enrolment_status',
+                       'academic_period','programme','placement','official_results','catalogue_version');
+      if n <> 0 then bad := bad || array[format('the payload carries %s undeclared field(s)', n)]; end if;
+      perform selftest.as_owner();
+
+      -- the dean holds no Studio capability
+      perform selftest.as_user_uid(v_dean_u);
+      if public.can_on_node('CAN_DRAFT',v_cls_a) or public.can_on_node('CAN_PUBLISH',v_root)
+         or public.can_on_node('CAN_QUICK_ASSESSMENT',v_cls_a)
+         or public.can_on_node('CAN_ASSIGN_LEARNING',v_cls_a)
+         or public.can_on_node('CAN_AUTHORIZE_TRANSFER',v_root)
+         or public.can_on_node('CAN_REVIEW',v_root) or public.can_on_node('CAN_FREEZE_RELEASE',v_root)
+         or public.can_on_node('CAN_MANAGE_REPORT_TEMPLATES',v_root)
+         or public.can_on_node('CAN_REVIEW_QUESTION_HEALTH',v_root)
+         or public.can_on_node('CAN_REVIEW_INTEGRITY',v_root) then
+        bad := bad || array['the dean holds a Studio capability'];
+      end if;
+      perform selftest.as_owner();
+      if public.role_capabilities('DEAN') <> array['CAN_VIEW_LEARNER_ROSTER'] then
+        bad := bad || array['the dean holds something other than the one looking capability'];
+      end if;
+
+      -- the record matches the acts
+      select count(*) into n from public.audit_log where action='learner_detail.opened';
+      if n - n_before <> 3 then
+        bad := bad || array[format('%s audit row(s) for 3 opens and 6 refusals', n - n_before)];
+      end if;
+      select * into a from public.audit_log
+       where action='learner_detail.opened' and target_id=v_lb::text order by id desc limit 1;
+      if a.actor_person_id is distinct from v_dean or a.target_table <> 'persons'
+         or a.institution_id is distinct from v_inst or a.at is null then
+        bad := bad || array['the audit row does not carry reader, subject, institution and moment'];
+      end if;
+      if exists (select 1 from public.audit_log
+                  where action='learner_detail.opened' and target_id=v_lx::text) then
+        bad := bad || array['a refused read was recorded as a read'];
+      end if;
+
+      perform selftest.as_owner();
+      raise exception 'F06_P12_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      perform set_config('app.seed_intent','',true);
+      if sqlerrm <> 'F06_P12_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 180);
+      end if;
+    end;
+
+    id := 'F06-P12'; area := 'WP1 objective B -- roster, individual detail, the metric route, and the record';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s case(s) answered wrongly: %s',
+                                    array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail :=
+        '25 cases on a purpose-built two-department school. LEVEL 2, the roster, asked through '
+        || 'person_visible_to_me because that is the predicate persons_select carries: a head of department '
+        || 'sees their own subtree and not the sibling''s; a faculty-scoped dean sees both departments '
+        || 'beneath them and nobody outside; the institution admin keeps the roster it had; an educator '
+        || 'keeps their class and gains no other; a learner sees themselves alone. LEVEL 3, asked through '
+        || 'management_learner_detail because a row predicate cannot distinguish reading a roster from '
+        || 'opening a person: the head of department and the dean each open a learner inside their scope '
+        || 'and are refused outside it and in another school, while the institution admin, the educator and '
+        || 'the learner are refused the path itself. Every refusal is checked to name no subject, so a '
+        || 'denial cannot become an existence oracle. THE METRIC ROUTE is asked in the same breath, because '
+        || 'an audited door beside an unaudited one is not an audited door: since MC-2 a learner reads '
+        || 'their own result and not another''s, an educator reads a learner in their own class and not one '
+        || 'outside it, and the head of department, the dean and the institution admin are all refused -- '
+        || 'Management reaches that learner through the audited path instead, and administrative authority '
+        || 'reaches them not at all. The payload carries the nine declared fields and nothing else. DEAN '
+        || 'holds none of the ten Studio capabilities and exactly one looking capability. And the record '
+        || 'matches the acts rather than the calls: three opens wrote three learner_detail.opened rows '
+        || 'naming reader, subject, institution and moment, while six refusals wrote none. Every row '
+        || 'rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P13 -- ALL SIXTEEN CALCULATORS, CORRECTLY REPRESENTED.
+  --
+  -- The contract is only worth what its coverage is worth. This walks the live
+  -- catalogue and asserts, per calculator, that it carries exactly one declared
+  -- governing scope and that every relation it reads -- as the PARSER records
+  -- it -- is a declared source of the live catalogue, which since MC-2 means a
+  -- scoped one or the reference table. A calculator that reaches past its
+  -- boundary to raw evidence is therefore not merely discouraged: it is not in
+  -- the catalogue's source set and this goes red.
+  --
+  -- WHAT IS REPORTED AND NOT TRUSTED: whether p_node is computationally
+  -- relevant to each calculator. It is read from the parser's column-dependency
+  -- record and stated in the verdict, because it is USEFUL to a reader -- and
+  -- it is deliberately not an authorization input, since a body that records a
+  -- real column dependency and restricts nothing is exactly the attack F06-P11
+  -- exercises.
+  -- =========================================================================
+  declare
+    v_why text := ''; bad text[] := '{}'; v_cat text; d record; n int; v_undeclared text;
+    n_node int; n_tenant int; n_learner int; n_item int; v_report text := '';
+  begin
+    begin
+      perform selftest.as_owner();
+      v_cat := public.current_metric_catalogue();
+      select count(*) into n from public.metric_definitions where catalogue_version = v_cat;
+      if n <> 16 then bad := bad || array[format('the live catalogue holds %s metric(s), expected 16', n)]; end if;
+
+      for d in
+        select m.metric_id, m.calculation_key, m.scope::text as declared_scope, s.governing_scope,
+               exists (select 1 from pg_proc p join pg_namespace ns on ns.oid=p.pronamespace
+                        join pg_depend dep on dep.objid=p.oid and dep.classid='pg_proc'::regclass
+                                          and dep.refclassid='pg_class'::regclass and dep.refobjsubid>0
+                        join pg_attribute att on att.attrelid=dep.refobjid and att.attnum=dep.refobjsubid
+                       where ns.nspname='public' and p.proname='calc_'||m.calculation_key
+                         and att.attname in ('class_node_id','cohort_node_id','item_id','person_id')) as node_keyed
+          from public.metric_definitions m
+          left join public.metric_calculator_scope s on s.calculation_key = m.calculation_key
+         where m.catalogue_version = v_cat
+         order by m.metric_id
+      loop
+        if d.governing_scope is null then
+          bad := bad || array[format('%s carries no governing-scope declaration', d.metric_id)];
+        end if;
+        v_report := v_report || format('%s[%s/%s:%s] ', d.metric_id, d.declared_scope,
+                                       coalesce(d.governing_scope,'(none)'),
+                                       case when d.node_keyed then 'node-keyed' else 'not-node-keyed' end);
+      end loop;
+
+      -- EVERY RELATION EVERY CALCULATOR READS is a declared source of the live
+      -- catalogue -- guard (2e)'s property, restated here per calculator so
+      -- this case owns it rather than pointing at another one. Since MC-2 the
+      -- declared set is the scoped sources plus the reference band table, so a
+      -- calculator reaching for raw evidence shows up here by name.
+      select string_agg(distinct p.proname || ' -> ' || dep.refobjid::regclass::text, ', ')
+        into v_undeclared
+        from pg_proc p join pg_namespace ns on ns.oid=p.pronamespace
+        join pg_depend dep on dep.objid=p.oid and dep.classid='pg_proc'::regclass
+                          and dep.refclassid='pg_class'::regclass
+       where ns.nspname='public' and p.proname like 'calc\_%'
+         and not exists (select 1 from public.metric_sources ms
+                          where ms.catalogue_version=v_cat
+                            and ms.source_relation = dep.refobjid::regclass::text);
+      if v_undeclared is not null then
+        bad := bad || array['calculator(s) reading a relation the live catalogue does not declare: ' || v_undeclared];
+      end if;
+
+      select count(*) filter (where s.governing_scope='NODE'),
+             count(*) filter (where s.governing_scope='TENANT'),
+             count(*) filter (where s.governing_scope='LEARNER'),
+             count(*) filter (where s.governing_scope='ITEM')
+        into n_node, n_tenant, n_learner, n_item
+        from public.metric_calculator_scope s
+        join public.metric_definitions m
+          on m.calculation_key=s.calculation_key and m.catalogue_version=v_cat;
+      if n_node = 0 or n_tenant = 0 then
+        bad := bad || array[format('the contract declares %s NODE and %s TENANT: it is not separating',
+                                   n_node, n_tenant)];
+      end if;
+      perform selftest.as_owner();
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      v_why := 'the probe itself failed: ' || left(sqlerrm, 180);
+    end;
+
+    id := 'F06-P13'; area := 'WP1 -- the governing-scope contract covers every live calculator';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := format('%s NODE, %s TENANT, %s LEARNER and %s ITEM across the 16 live calculators, every '
+        || 'one carrying exactly one declaration and reading only relations the live catalogue declares -- '
+        || 'which since MC-2 are the organizationally scoped sources and the reference band table, so a '
+        || 'calculator reaching for raw evidence is outside the declared set and fails here. The declared '
+        || 'catalogue SCOPE and the governing scope are reported side by side and are deliberately '
+        || 'different questions: class.topic_mastery says LESSON and is governed at its class, '
+        || 'institution.cohort_comparison says COHORT and is governed at the school. Whether p_node is '
+        || 'computationally relevant is REPORTED from the parser and not used for authorization, because a '
+        || 'body that records a real column dependency and restricts nothing is the attack F06-P11 '
+        || 'exercises. %s', n_node, n_tenant, n_learner, n_item, v_report);
     end if;
     return next;
   end;
