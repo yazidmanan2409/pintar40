@@ -248,6 +248,69 @@ $$;
 revoke all on function selftest.f06_paper(uuid) from public;
 grant execute on function selftest.f06_paper(uuid) to authenticated;
 
+-- ───────────────────────────────────────────────────────── F06-P10's three helpers
+--
+-- NOT security definer, and that is the whole point: these run as whoever
+-- `selftest.as_user` last made the session, so what they measure is what THAT
+-- reader is told. A definer helper here would quietly ask the question as the
+-- schema owner and answer "permitted" to everything.
+
+create or replace function selftest.f06p10_person(p_prefix text)
+returns uuid
+language plpgsql set search_path = public, pg_temp as $$
+declare u uuid := gen_random_uuid(); e text := p_prefix || '@bootstrap.pintar.test';
+begin
+  select au.id into u from auth.users au where au.email = e;
+  if u is not null then return u; end if;
+  u := gen_random_uuid();
+  insert into auth.users (id, instance_id, aud, role, email, email_confirmed_at,
+                          raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+                          confirmation_token, recovery_token, email_change_token_new, email_change)
+  values (u, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', e, now(),
+          '{"provider":"email","providers":["email"]}',
+          jsonb_build_object('display_name', p_prefix), now(), now(), '', '', '', '');
+  return u;
+end $$;
+revoke all on function selftest.f06p10_person(text) from public;
+
+-- One boundary case. Returns the empty array when the evaluator said what it
+-- should, and a one-line complaint when it did not -- so a run reports every
+-- boundary that moved rather than stopping at the first.
+--
+-- `not_permitted` is the ONLY refusal that counts. `below_minimum` and
+-- `deprecated` are things the evaluator says AFTER deciding the reader is
+-- entitled to the metric, and reading either as a refusal is exactly how the
+-- defect hid: on the synthetic tenants every leaked metric came back
+-- `below_minimum`, which looks like a denial and is not one.
+create or replace function selftest.f06p10_case(
+  p_label text, p_metric text, p_node uuid, p_institution uuid,
+  p_catalogue text, p_expect_permitted boolean)
+returns text[]
+language plpgsql set search_path = public, pg_temp as $$
+declare v jsonb; v_status text; v_permitted boolean;
+begin
+  v := public.metric_evaluate(p_metric, p_node, p_institution, p_catalogue);
+  v_status := v ->> 'status';
+  v_permitted := v_status is distinct from 'not_permitted';
+  if v_permitted = p_expect_permitted then return '{}'::text[]; end if;
+  return array[format('%s: %s answered %s, expected %s', p_label, p_metric, v_status,
+                      case when p_expect_permitted then 'to be permitted' else 'not_permitted' end)];
+end $$;
+revoke all on function selftest.f06p10_case(text, text, uuid, uuid, text, boolean) from public;
+
+-- The same question about a metric whose subject is a PERSON rather than a node.
+create or replace function selftest.f06p10_learner(
+  p_label text, p_learner uuid, p_institution uuid, p_catalogue text, p_expect_permitted boolean)
+returns text[]
+language sql set search_path = public, pg_temp as $$
+  select selftest.f06p10_case(p_label, 'learner.result', p_learner, p_institution,
+                              p_catalogue, p_expect_permitted);
+$$;
+revoke all on function selftest.f06p10_learner(text, uuid, uuid, text, boolean) from public;
+grant execute on function selftest.f06p10_person(text) to authenticated;
+grant execute on function selftest.f06p10_case(text, text, uuid, uuid, text, boolean) to authenticated;
+grant execute on function selftest.f06p10_learner(text, uuid, uuid, text, boolean) to authenticated;
+
 -- Same boundary, one level down: `item_options` carries `is_correct`, so a
 -- learner cannot read it either. Resolving "which displayed position is the
 -- right answer" is therefore a definer operation -- which is precisely the
@@ -1433,9 +1496,36 @@ begin
     c2 record; v_t2 uuid; v_admin jsonb; v_guru jsonb; v_dep jsonb;
     n_admin_denied int; n_guru_denied int; n_named int; v_why text := '';
     n_entries_admin int; n_entries_guru int; v_depstatus text; v_depstmt text;
-    n_dep_entries int; n_admin_ok int;
+    n_dep_entries int; n_admin_ok int; v_guru_class uuid;
   begin
     select * into c2 from selftest.f06_cohort();
+    -- THE NODE IS THE EDUCATOR'S OWN CLASS, READ FROM THEIR ASSIGNMENT.
+    --
+    -- This case measures ONE axis -- the catalogue's `allowed_audiences` -- and
+    -- since 0091 there are two. Asked at the F06 cohort's class, which is a
+    -- SIBLING of boot-guru's, the educator would now be refused all three
+    -- entries and the count would be measuring containment instead: a test that
+    -- still went red for the right reason would no longer be naming it.
+    --
+    -- So the organizational half is held constant, by standing the reader
+    -- exactly where they are assigned, and the audience half is what varies.
+    -- Containment is asked separately, and adversarially, in F06-P10.
+    --
+    -- Read from role_assignments rather than by name, because the property is
+    -- "the node this educator is scoped to", and a literal would go on passing
+    -- if the seed ever moved them.
+    select ra.scope_node_id into v_guru_class
+      from public.role_assignments ra
+      join public.accounts a on a.person_id = ra.person_id
+      join auth.users u on u.id = a.auth_user_id
+     where u.email = 'boot-guru@bootstrap.pintar.test' and ra.revoked_at is null
+     limit 1;
+    if v_guru_class is null then
+      raise exception 'F06-P09: the educator persona has no scope node to stand on';
+    end if;
+    if v_guru_class = c2.class_node then
+      raise exception 'F06-P09: the educator is scoped to the cohort class, so the audience axis cannot be isolated from the containment axis here';
+    end if;
     begin
       perform selftest.as_user('boot-admin@bootstrap.pintar.test');
       insert into public.report_templates (institution_id, standard_report, title_key, template_version)
@@ -1446,9 +1536,9 @@ begin
         (v_t2, 'institution.participants', 2, 'hero_stat'),
         (v_t2, 'item.correctness_rate', 3, 'bar');
 
-      v_admin := public.generate_report(v_t2, c2.class_node);
+      v_admin := public.generate_report(v_t2, v_guru_class);
       perform selftest.as_user('boot-guru@bootstrap.pintar.test');
-      v_guru := public.generate_report(v_t2, c2.class_node);
+      v_guru := public.generate_report(v_t2, v_guru_class);
 
       -- the deprecated metric, added the only way one can exist
       perform selftest.as_owner();
@@ -1462,7 +1552,7 @@ begin
       perform selftest.as_user('boot-admin@bootstrap.pintar.test');
       insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
       values (v_t2, 'class.retired_probe', 4, 'hero_stat');
-      v_dep := public.generate_report(v_t2, c2.class_node);
+      v_dep := public.generate_report(v_t2, v_guru_class);
 
       perform selftest.as_owner();
       raise exception 'F06_P09_UNDO';
@@ -1507,9 +1597,9 @@ begin
                || 'would pass on a report that showed nobody anything';
       elsif n_guru_denied <> 2 then
         ok := false;
-        detail := format('the educator received %s honest statement(s) where 2 were expected: '
-                      || 'institution- and item-scope metrics are outside EDUCATOR''s catalogue audience, '
-                      || 'and a saved template does not grant them', n_guru_denied);
+        detail := format('the educator received %s honest statement(s) where 2 were expected at a node '
+                      || 'they are scoped to: institution- and item-scope metrics are outside EDUCATOR''s '
+                      || 'catalogue audience, and a saved template does not grant them', n_guru_denied);
       elsif n_named > 0 then
         ok := false;
         detail := format('%s withheld entr(ies) carry the metric id or its label: the statement discloses '
@@ -1522,8 +1612,10 @@ begin
         ok := false;
         detail := format('the report carrying a deprecated metric rendered %s of 4 entries', n_dep_entries);
       else
-        detail := format('one saved template, two real personas: INSTITUTION_ADMIN receives all 3 entries '
-                      || 'with %s computed, EDUCATOR receives all 3 with 2 replaced by an honest statement '
+        detail := format('one saved template, two real personas, read at the EDUCATOR''s own node so the '
+                      || 'audience axis is isolated from 0091''s containment axis: INSTITUTION_ADMIN '
+                      || 'receives all 3 entries with %s computed, EDUCATOR receives all 3 with 2 '
+                      || 'replaced by an honest statement '
                       || 'that names neither the metric nor its label -- the institution- and item-scope '
                       || 'metrics the admin saved are outside EDUCATOR''s catalogue audience and the saved '
                       || 'configuration does not grant them (§3.3). A deprecated metric added to the same '
@@ -1532,6 +1624,245 @@ begin
                       || 'inserted here as a migration would (OQ-5). Every row written is rolled back',
                          n_admin_ok, v_depstmt);
       end if;
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P10 -- A READER SEES THE PART OF THE SCHOOL THEY STAND IN.
+  --
+  -- The ruling 0091 implements: the organizational visibility of a scoped role
+  -- is its assigned `scope_node_id` and its legitimate DESCENDANTS. Belonging
+  -- to the institution does not widen that. For an intelligence read, the
+  -- catalogue's AUDIENCE and the hierarchy's CONTAINMENT must BOTH pass.
+  --
+  -- WHY THIS FIXTURE AND NOT A SEED. Every seeded school has exactly ONE
+  -- department, so the case that matters most -- a SIBLING, equal in rank,
+  -- adjacent in the tree, in the same institution -- cannot be asked of any of
+  -- them. A test that could not have caught the defect is not evidence, so the
+  -- school is built here with two departments and thrown away afterwards.
+  --
+  -- THE NODES ARE ADVERSARIAL BY POSITION, not by name. Nothing below reads
+  -- `kind`, and the string 'DEPARTMENT' decides nothing: the reader is placed
+  -- at a node and every other node is then classified by where it sits
+  -- relative to that one -- below it, beside it, above it, elsewhere.
+  --
+  -- AND THE AUDIENCE AXIS IS ASKED IN BOTH DIRECTIONS. Containment that
+  -- admitted everything in scope would be the old defect wearing the new
+  -- vocabulary, so a metric the reader is IN SCOPE for but OUTSIDE THE AUDIENCE
+  -- of must still be refused. That is the case a "check the node too" repair
+  -- passes by accident and this one does not.
+  -- =========================================================================
+  declare
+    v_why text := ''; bad text[] := '{}';
+    v_inst uuid; v_root uuid; v_fac uuid; v_dept_a uuid; v_dept_b uuid;
+    v_prog_a uuid; v_prog_b uuid; v_coh_a uuid; v_coh_b uuid;
+    v_cls_a uuid; v_cls_b uuid; v_period uuid;
+    v_other uuid; v_other_root uuid;
+    v_hod uuid; v_hod_u uuid; v_dean uuid; v_dean_u uuid; v_adm uuid; v_adm_u uuid;
+    v_la uuid; v_la_u uuid; v_lb uuid; v_lb_u uuid; v_e uuid;
+    v_dua uuid; v_dua_u uuid;
+    v_cat text; v_tmpl uuid; v_shelf int; v_rows int; v_refused boolean;
+    n_checks int := 0;
+
+  begin
+    v_cat := public.current_metric_catalogue();
+    begin
+      perform selftest.as_owner();
+
+      insert into public.institutions (name, slug, is_synthetic)
+      values ('Sekolah F06-P10', 'f06p10-' || substr(md5(random()::text), 1, 10), true)
+      returning institutions.id into v_inst;
+      select org_nodes.id into v_root from public.org_nodes
+       where institution_id = v_inst and kind = 'INSTITUTION';
+      insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+      values (v_inst, '2026/27', date '2026-07-01', date '2027-06-30') returning academic_periods.id into v_period;
+      insert into public.org_nodes (institution_id, parent_id, kind, name)
+      values (v_inst, v_root, 'FACULTY', 'Fakultas') returning org_nodes.id into v_fac;
+      insert into public.org_nodes (institution_id, parent_id, kind, name)
+      values (v_inst, v_fac, 'DEPARTMENT', 'Departemen A') returning org_nodes.id into v_dept_a;
+      insert into public.org_nodes (institution_id, parent_id, kind, name)
+      values (v_inst, v_fac, 'DEPARTMENT', 'Departemen B') returning org_nodes.id into v_dept_b;
+      insert into public.org_nodes (institution_id, parent_id, kind, name)
+      values (v_inst, v_dept_a, 'PROGRAMME', 'Program A') returning org_nodes.id into v_prog_a;
+      insert into public.org_nodes (institution_id, parent_id, kind, name)
+      values (v_inst, v_dept_b, 'PROGRAMME', 'Program B') returning org_nodes.id into v_prog_b;
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      values (v_inst, v_prog_a, 'COHORT', 'Angkatan A', v_period) returning org_nodes.id into v_coh_a;
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      values (v_inst, v_prog_b, 'COHORT', 'Angkatan B', v_period) returning org_nodes.id into v_coh_b;
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      values (v_inst, v_coh_a, 'CLASS', 'Kelas A', v_period) returning org_nodes.id into v_cls_a;
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      values (v_inst, v_coh_b, 'CLASS', 'Kelas B', v_period) returning org_nodes.id into v_cls_b;
+
+      insert into public.institutions (name, slug, is_synthetic)
+      values ('Sekolah F06-P10 lain', 'f06p10x-' || substr(md5(random()::text), 1, 10), true)
+      returning institutions.id into v_other;
+      select org_nodes.id into v_other_root from public.org_nodes
+       where institution_id = v_other and kind = 'INSTITUTION';
+
+      v_hod_u  := selftest.f06p10_person('f06p10-kaprodi');
+      v_dean_u := selftest.f06p10_person('f06p10-dekan');
+      v_adm_u  := selftest.f06p10_person('f06p10-admin');
+      -- A READER WEARING TWO HATS, which is the case that decides whether the
+      -- two halves must be carried by ONE assignment or may be collected from
+      -- two. They are an EDUCATOR over the whole school -- an over-broad grant,
+      -- but a legal one an institution admin can make -- and head of one
+      -- department. Neither assignment entitles them to a tenant-wide
+      -- aggregate: the wide one is outside that metric's audience and the
+      -- audience one does not reach the root. A rule that lets containment come
+      -- from either row hands it over.
+      v_dua_u  := selftest.f06p10_person('f06p10-duaperan');
+      v_la_u   := selftest.f06p10_person('f06p10-murid-a');
+      v_lb_u   := selftest.f06p10_person('f06p10-murid-b');
+      select person_id into v_hod  from public.accounts where auth_user_id = v_hod_u;
+      select person_id into v_dean from public.accounts where auth_user_id = v_dean_u;
+      select person_id into v_adm  from public.accounts where auth_user_id = v_adm_u;
+      select person_id into v_dua  from public.accounts where auth_user_id = v_dua_u;
+      select person_id into v_la   from public.accounts where auth_user_id = v_la_u;
+      select person_id into v_lb   from public.accounts where auth_user_id = v_lb_u;
+
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until) values
+        (v_hod,  'HEAD_OF_DEPARTMENT', v_dept_a, now() + interval '1 year'),
+        (v_dean, 'DEAN',               v_fac,    now() + interval '1 year'),
+        (v_adm,  'INSTITUTION_ADMIN',  v_root,   now() + interval '1 year'),
+        (v_dua,  'EDUCATOR',           v_root,   now() + interval '1 year'),
+        (v_dua,  'HEAD_OF_DEPARTMENT', v_dept_a, now() + interval '1 year');
+      perform set_config('app.seed_intent', '', true);
+
+      insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+      values (v_la, v_inst, v_period, v_prog_a, 'ACTIVE') returning enrollments.id into v_e;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id)
+      values (v_e, v_cls_a, v_period);
+      insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+      values (v_lb, v_inst, v_period, v_prog_b, 'ACTIVE') returning enrollments.id into v_e;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id)
+      values (v_e, v_cls_b, v_period);
+
+      -- ── the seven cases, as the reader standing on Departemen A ────────────
+      perform selftest.as_user('f06p10-kaprodi@bootstrap.pintar.test');
+
+      -- A1 the node they are assigned to
+      bad := bad || selftest.f06p10_case('A1 own node', 'class.participants', v_dept_a, v_inst, v_cat, true);
+      -- A2 a legitimate descendant, two levels down
+      bad := bad || selftest.f06p10_case('A2 descendant class', 'class.participants', v_cls_a, v_inst, v_cat, true);
+      -- A3 a SIBLING: same rank, same faculty, same school, not theirs
+      bad := bad || selftest.f06p10_case('A3 sibling department', 'class.participants', v_dept_b, v_inst, v_cat, false);
+      bad := bad || selftest.f06p10_case('A3 sibling''s class', 'class.participants', v_cls_b, v_inst, v_cat, false);
+      -- A4 a node in another school entirely
+      bad := bad || selftest.f06p10_case('A4 unrelated school', 'class.participants', v_other_root, v_inst, v_cat, false);
+      -- A5 upward: the ancestor, and the school as a whole
+      bad := bad || selftest.f06p10_case('A5 ancestor faculty', 'class.participants', v_fac, v_inst, v_cat, false);
+      bad := bad || selftest.f06p10_case('A5 institution root', 'class.participants', v_root, v_inst, v_cat, false);
+      -- A5 AND THE AGGREGATE THAT IGNORES ITS NODE. This is the case the
+      -- headline defect actually was: the calculator never reads p_node, so
+      -- naming one's own department and receiving the whole school was the
+      -- entire leak. Both metrics are asked at a node the reader DOES hold.
+      bad := bad || selftest.f06p10_case('A5 tenant-wide participants', 'institution.participants', v_dept_a, v_inst, v_cat, false);
+      bad := bad || selftest.f06p10_case('A5 tenant-wide cohort comparison', 'institution.cohort_comparison', v_dept_a, v_inst, v_cat, false);
+      -- A6 IN SCOPE, WRONG AUDIENCE -- checked below on the dean, for whom the
+      -- catalogue itself excludes the metric. Here the person-shaped metric is
+      -- contained through the learner instead of through a node.
+      bad := bad || selftest.f06p10_learner('learner in own department', v_la, v_inst, v_cat, true);
+      bad := bad || selftest.f06p10_learner('learner in sibling department', v_lb, v_inst, v_cat, false);
+
+      -- ── the dean, scoped to the faculty ───────────────────────────────────
+      perform selftest.as_user('f06p10-dekan@bootstrap.pintar.test');
+      bad := bad || selftest.f06p10_case('dean, class in own faculty', 'class.participants', v_cls_b, v_inst, v_cat, true);
+      bad := bad || selftest.f06p10_case('dean, own faculty', 'class.participants', v_fac, v_inst, v_cat, true);
+      bad := bad || selftest.f06p10_case('dean, the whole school', 'institution.participants', v_fac, v_inst, v_cat, false);
+      bad := bad || selftest.f06p10_case('dean, another school', 'class.participants', v_other_root, v_inst, v_cat, false);
+      -- A6 PROPER: this learner is inside the dean's own faculty, so
+      -- containment passes and the refusal can only come from the audience.
+      bad := bad || selftest.f06p10_learner('dean, learner in own faculty (audience)', v_la, v_inst, v_cat, false);
+
+      -- ── two hats, and neither of them fits ────────────────────────────────
+      perform selftest.as_user('f06p10-duaperan@bootstrap.pintar.test');
+      -- The audience half comes from the department assignment, the containment
+      -- half from the school-wide one, and the request is for the school. Both
+      -- halves exist somewhere on this person; neither assignment carries both.
+      bad := bad || selftest.f06p10_case('two hats, tenant-wide aggregate', 'institution.participants', v_root, v_inst, v_cat, false);
+      bad := bad || selftest.f06p10_case('two hats, tenant-wide at own department', 'institution.participants', v_dept_a, v_inst, v_cat, false);
+      -- and the same reader still gets what EITHER hat legitimately covers
+      bad := bad || selftest.f06p10_case('two hats keep the educator''s reach', 'class.participants', v_cls_b, v_inst, v_cat, true);
+
+      -- ── the three regressions ─────────────────────────────────────────────
+      perform selftest.as_user('f06p10-admin@bootstrap.pintar.test');
+      bad := bad || selftest.f06p10_case('R1 admin keeps the tenant-wide aggregate', 'institution.participants', v_dept_a, v_inst, v_cat, true);
+      bad := bad || selftest.f06p10_case('R2 admin keeps every class', 'class.participants', v_cls_b, v_inst, v_cat, true);
+      -- R3 the item bank has no node to be contained by and is unchanged
+      bad := bad || selftest.f06p10_case('R3 item bank, admin', 'item.correctness_rate', v_cls_a, v_inst, v_cat, true);
+      perform selftest.as_user('f06p10-kaprodi@bootstrap.pintar.test');
+      bad := bad || selftest.f06p10_case('R3 item bank, head of department', 'item.correctness_rate', v_cls_a, v_inst, v_cat, true);
+
+      -- ── and the shelf, which is the same numbers with a date on them ──────
+      perform selftest.as_user('f06p10-admin@bootstrap.pintar.test');
+      insert into public.report_templates (institution_id, standard_report, title_key, template_version)
+      values (v_inst, 'institution_learning_intelligence', 'laporan.institusi.judul', 1)
+      returning report_templates.id into v_tmpl;
+      insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
+      values (v_tmpl, 'institution.participants', 1, 'hero_stat');
+      perform public.generate_report(v_tmpl, v_root, v_cat);
+
+      -- a report drawn at another school's node is refused, and writes nothing
+      select count(*) into v_rows from public.generated_reports;
+      v_refused := false;
+      begin perform public.generate_report(v_tmpl, v_other_root, v_cat);
+      exception when others then v_refused := true; end;
+      -- `bad || 'text'` resolves to text[] || text[] and fails on any string
+      -- holding a comma or a quote, which is every message here. Found by a
+      -- plant going red with "malformed array literal" instead of its own
+      -- reason -- a red test is not automatically a working test.
+      if not v_refused then bad := bad || array['a report was drawn at another school''s node']; end if;
+      if (select count(*) from public.generated_reports) <> v_rows then
+        bad := bad || array['a refused report still wrote an artefact row'];
+      end if;
+
+      perform selftest.as_user('f06p10-kaprodi@bootstrap.pintar.test');
+      select count(*) into v_shelf from public.generated_reports g where g.scope_node_id = v_root;
+      if v_shelf <> 0 then
+        bad := bad || array[format('a department-scoped reader read %s institution-wide report(s) off the shelf', v_shelf)];
+      end if;
+      perform selftest.as_user('f06p10-admin@bootstrap.pintar.test');
+      select count(*) into v_shelf from public.generated_reports g where g.scope_node_id = v_root;
+      if v_shelf = 0 then bad := bad || array['the reader who drew a report cannot read it back']; end if;
+
+      n_checks := 24;
+      perform selftest.as_owner();
+      raise exception 'F06_P10_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      perform set_config('app.seed_intent', '', true);
+      if sqlerrm <> 'F06_P10_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 160);
+      end if;
+    end;
+
+    id := 'F06-P10'; area := 'WP1 ruling 1 -- audience and organizational containment must both pass';
+    if v_why <> '' then
+      ok := false; detail := v_why;
+    elsif array_length(bad, 1) is not null then
+      ok := false;
+      detail := format('%s boundary case(s) answered wrongly: %s',
+                       array_length(bad, 1), array_to_string(bad, '; '));
+    else
+      ok := true;
+      detail := format('%s case(s) on a purpose-built two-department school: a head of department reads their '
+        || 'own node and its descendants and is refused the sibling department, the sibling''s class, another '
+        || 'school, the ancestor faculty, the institution root, and BOTH tenant-wide aggregates asked at a node '
+        || 'they do hold -- including institution.cohort_comparison, which declares COHORT scope and computes '
+        || 'over every cohort, so a repair trusting the declaration would have passed it. A learner in their '
+        || 'department answers and a learner in the sibling''s does not. A faculty-scoped dean keeps the faculty '
+        || 'and every class under it, loses the school, and is still refused a learner standing INSIDE that '
+        || 'faculty because DEAN is not in that metric''s audience -- containment is not a key on its own. An '
+        || 'institution-scoped admin keeps the tenant-wide aggregate and every class, and the item bank, which '
+        || 'has no node to be contained by, is unchanged for both staff readers. A reader holding EDUCATOR '
+        || 'over the whole school AND head of one department -- audience on one row, containment on the other '
+        || '-- is refused the tenant-wide aggregate and keeps everything either hat really covers. A report drawn at another '
+        || 'school''s node is refused and writes no artefact, and a saved institution-wide report is readable '
+        || 'by the reader who drew it and not from below. Every row rolled back', n_checks);
     end if;
     return next;
   end;

@@ -1079,7 +1079,16 @@ export const experienceTests: SelfTest[] = [
       // logo, a crest or a theme, so the Q-7 source still does not exist and the
       // sweep below is asserting over two more files without its answer
       // changing. 20260922100000 replaces one function body and creates nothing.
-      c.expect(migrations.length === 87, `${migrations.length} migrations; the frozen baseline has 87`);
+      //
+      // MOVED AGAIN 87 -> 88 for WP1's authorization-boundary correction.
+      // 20260923090000 creates NO table and adds NO column: four functions
+      // (metric_computes_tenant_wide, audience_on_node, audience_over_learner,
+      // node_in_my_scope), two replaced function bodies, one replaced policy
+      // and one client_rpc_registry row. Read against §3 of the ruling before
+      // this number moved -- there is no new relation for a mark to live in and
+      // no column of any kind, so the Q-7 source still does not exist and the
+      // sweep below asserts over one more file without its answer changing.
+      c.expect(migrations.length === 88, `${migrations.length} migrations; the frozen baseline has 88`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2692,7 +2701,14 @@ export const experienceTests: SelfTest[] = [
       // 3. THE CONTRACT IS THE MIGRATION'S, READ RATHER THAN ASSUMED.
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
-      c.expect(migs.length === 87, `${migs.length} migrations; this work adds none and the baseline has 87`);
+      // The count is a drift guard on the tree this case reads its contract
+      // from, not a claim about the tour. MOVED 87 -> 88 for WP1's
+      // authorization-boundary correction (20260923090000), which touches the
+      // metric evaluator, the report writer and the generated-report policy and
+      // neither adds nor alters a tour RPC -- so the four signatures asserted
+      // below still come from the tour's own migration and still take no
+      // identity. Re-read before the number moved.
+      c.expect(migs.length === 88, `${migs.length} migrations; the baseline has 88`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
