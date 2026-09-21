@@ -45,6 +45,40 @@ export type HleEvent =
   | "laporan.metrik.belum_ada_bukti"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
   | "laporan.kosong" | "laporan.tak_ada_angka"
+  // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
+  // lead a part of a school — the word the approved Management design uses for
+  // the role, and the one this surface is named after. Every key below is
+  // declared staff-only (STAFF_ONLY_PREFIXES), because Management Indonesian
+  // legitimately says "Menunggu tinjauan" about a queue where the same word on a
+  // learner's screen would be the system telling a child to wait.
+  | "pimpinan.eyebrow" | "pimpinan.judul" | "pimpinan.batas" | "pimpinan.urutan"
+  | "pimpinan.memutuskan" | "pimpinan.ditolak" | "pimpinan.kembali"
+  | "pimpinan.menunggu.nihil" | "pimpinan.menunggu.satu" | "pimpinan.menunggu.banyak"
+  | "pimpinan.menunggu.judul" | "pimpinan.perlu_diketahui" | "pimpinan.perlu_diketahui.sub"
+  | "pimpinan.lingkup.judul" | "pimpinan.lingkup.pilih" | "pimpinan.lingkup.kosong"
+  | "pimpinan.lingkup.semua" | "pimpinan.buka.simpul"
+  | "pimpinan.rantai.didukung" | "pimpinan.rantai.belum" | "pimpinan.rantai.langkah"
+  | "pimpinan.rantai.keputusan"
+  | "pimpinan.keluarga.integritas" | "pimpinan.keluarga.pembelajaran" | "pimpinan.keluarga.program"
+  | "pimpinan.keadaan.menunggu" | "pimpinan.keadaan.ditangani" | "pimpinan.keadaan.selesai"
+  | "pimpinan.hasil.tidak_ada" | "pimpinan.hasil.pendampingan" | "pimpinan.hasil.diteruskan"
+  | "pimpinan.rantai.integritas.didukung" | "pimpinan.rantai.integritas.belum"
+  | "pimpinan.rantai.integritas.langkah"
+  | "pimpinan.rantai.pembelajaran.didukung" | "pimpinan.rantai.pembelajaran.belum"
+  | "pimpinan.rantai.pembelajaran.langkah"
+  | "pimpinan.rantai.program.didukung" | "pimpinan.rantai.program.belum"
+  | "pimpinan.rantai.program.langkah"
+  | "pimpinan.sumber.integrity_signals"
+  | "pimpinan.tentang" | "pimpinan.sejak" | "pimpinan.diputuskan"
+  | "pimpinan.aksi.ambil" | "pimpinan.aksi.putuskan" | "pimpinan.aksi.pilih"
+  | "pimpinan.aksi.catatan" | "pimpinan.aksi.gagal"
+  | "pimpinan.kesiapan.judul" | "pimpinan.kesiapan.catatan"
+  | "pimpinan.kesiapan.cukup" | "pimpinan.kesiapan.belum_cukup" | "pimpinan.kesiapan.belum_ada"
+  | "pimpinan.bukti.judul" | "pimpinan.bukti.kosong" | "pimpinan.bukti.dari"
+  | "pimpinan.murid.judul" | "pimpinan.murid.sub" | "pimpinan.murid.kosong" | "pimpinan.murid.buka"
+  | "pimpinan.rincian.judul" | "pimpinan.rincian.tercatat" | "pimpinan.rincian.status"
+  | "pimpinan.rincian.periode" | "pimpinan.rincian.program" | "pimpinan.rincian.penempatan"
+  | "pimpinan.rincian.catatan" | "pimpinan.rincian.belum" | "pimpinan.rincian.penguasaan"
   | "tindakan.ulangi" | "tindakan.fokus" | "tindakan.lanjut" | "tindakan.tunggu"
   | "verifikasi.judul"
   | "verifikasi.status"
@@ -464,7 +498,7 @@ export type HleEvent =
   | "studio.hasil.ok"
   | "studio.hasil.gagal"
   | "mengajar.judul"
-  | "nav.kelas"
+  | "nav.kelas" | "nav.pimpinan"
   | "mengajar.kembali"
   | "mengajar.sapa.pagi"
   | "mengajar.sapa.siang"
@@ -876,6 +910,124 @@ const table: Table = {
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
   "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini.", en: "There are no figures to show you here yet." },
   "laporan.tak_ada_angka": { default: "Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu.", en: "This report carries no figures, but the notes below say why, one by one." },
+
+  // ═══════════════════════════════════════════════════ WP4 — the Management surface
+  //
+  // REGISTER: adult, institutional, `Anda`. Management vocabulary is allowed
+  // here in a way it is not on a learner's page. PINTAR's own internal words
+  // still are not: no state, family or outcome enum appears in any telling
+  // below, and neither does a table name.
+  //
+  // THE GOVERNING SENTENCE, carried from the approved design and not softened:
+  // PINTAR mengusulkan, manusia memutuskan.
+  "pimpinan.eyebrow": { default: "Pimpinan", en: "Management" },
+  "pimpinan.judul": { default: "Apa yang menunggu Anda", en: "What is waiting for you" },
+  // The suppression line. It says why the page is short, so a reader does not
+  // go looking for the rest of the school somewhere else on it.
+  "pimpinan.batas": { default: "Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran tingkat institusi. Selebihnya tidak muncul.", en: "What appears here needs authority, coordination, or an institution-level reading. Nothing else appears." },
+  "pimpinan.urutan": { default: "Urutannya: yang paling lama menunggu lebih dulu. Ini urutan, bukan peringkat.", en: "Ordered by what has waited longest. It is an order, not a ranking." },
+  "pimpinan.memutuskan": { default: "PINTAR mengusulkan, manusia memutuskan.", en: "PINTAR proposes, a human decides." },
+  "pimpinan.ditolak": { default: "Halaman ini untuk kepala program dan dekan, pada bagian sekolah yang mereka pimpin.", en: "This page is for heads of department and deans, over the part of the school they lead." },
+  "pimpinan.kembali": { default: "Kembali", en: "Back" },
+
+  // A TRUTHFUL NOTHING. An empty queue is a real and good answer, not a failure
+  // and not an empty container explaining that it is empty.
+  "pimpinan.menunggu.nihil": { default: "Tidak ada keputusan yang menunggu Anda.", en: "No decisions are waiting for you." },
+  "pimpinan.menunggu.satu": { default: "Satu keputusan menunggu Anda.", en: "One decision is waiting for you." },
+  "pimpinan.menunggu.banyak": { default: "keputusan menunggu Anda.", en: "decisions are waiting for you." },
+  "pimpinan.menunggu.judul": { default: "Keputusan", en: "Decisions" },
+  "pimpinan.perlu_diketahui": { default: "Perlu diketahui", en: "Worth knowing" },
+  // R10 from the approved design, said on the page: an item here has no buttons,
+  // and the reader is told that rather than left to notice it.
+  "pimpinan.perlu_diketahui.sub": { default: "Hal berikut tidak menunggu keputusan siapa pun.", en: "The following waits on no one\u2019s decision." },
+
+  "pimpinan.lingkup.judul": { default: "Bagian sekolah yang Anda pimpin", en: "The part of the school you lead" },
+  "pimpinan.lingkup.pilih": { default: "Bagian sekolah", en: "Part of the school" },
+  "pimpinan.lingkup.kosong": { default: "Belum ada bagian sekolah yang tercatat untuk Anda.", en: "No part of the school is recorded for you yet." },
+  "pimpinan.lingkup.semua": { default: "Seluruh lingkup Anda", en: "All of your scope" },
+  "pimpinan.buka.simpul": { default: "Lihat lebih rinci", en: "Look in more detail" },
+
+  // THE CHAIN, in the fixed order and the fixed words the approved design set,
+  // and the same four the educator view uses. One product, one grammar.
+  "pimpinan.rantai.didukung": { default: "Yang didukung bukti", en: "What the evidence supports" },
+  "pimpinan.rantai.belum": { default: "Yang belum diketahui", en: "What is not yet known" },
+  "pimpinan.rantai.langkah": { default: "Langkah yang mungkin", en: "A possible next step" },
+  "pimpinan.rantai.keputusan": { default: "Keputusan Anda", en: "Your decision" },
+
+  "pimpinan.keluarga.integritas": { default: "Tinjauan integritas", en: "Integrity review" },
+  "pimpinan.keluarga.pembelajaran": { default: "Pendampingan belajar", en: "Learning support" },
+  "pimpinan.keluarga.program": { default: "Tindak lanjut program", en: "Programme follow-up" },
+
+  "pimpinan.keadaan.menunggu": { default: "Menunggu tinjauan", en: "Awaiting review" },
+  "pimpinan.keadaan.ditangani": { default: "Sedang ditangani", en: "Being handled" },
+  "pimpinan.keadaan.selesai": { default: "Sudah diputuskan", en: "Decided" },
+
+  // THE OUTCOMES NAME WHAT MANAGEMENT DID, exactly as the enum's own comment
+  // says. None of them is a finding about a learner, and none of them is a
+  // sanction, because deciding that is not something this product represents.
+  "pimpinan.hasil.tidak_ada": { default: "Tidak ada tindakan lanjutan", en: "No further action" },
+  "pimpinan.hasil.pendampingan": { default: "Pendampingan disiapkan", en: "Learner support arranged" },
+  "pimpinan.hasil.diteruskan": { default: "Diteruskan ke pihak sekolah", en: "Escalated to the institution" },
+
+  "pimpinan.rantai.integritas.didukung": { default: "Seorang peninjau sudah melihat catatan itu dan memilih meneruskannya. Catatannya menyebut satu hal yang teramati, dan tidak lebih.", en: "A reviewer looked at the note and chose to refer it. The note records one observed thing, and nothing more." },
+  "pimpinan.rantai.integritas.belum": { default: "Apa yang sebenarnya terjadi. Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang seorang murid.", en: "What actually happened. This note is material for a human to weigh, not a conclusion about a learner." },
+  "pimpinan.rantai.integritas.langkah": { default: "Menentukan siapa yang menanganinya, atau menutupnya dengan catatan.", en: "Deciding who handles it, or closing it with a note." },
+  "pimpinan.rantai.pembelajaran.didukung": { default: "Bukti belajar yang sudah memenuhi syarat pada bagian sekolah ini.", en: "The learning evidence that already qualifies in this part of the school." },
+  "pimpinan.rantai.pembelajaran.belum": { default: "Apa yang menjelaskannya. Angka menunjukkan keadaan, bukan sebabnya.", en: "What accounts for it. A figure shows a state, not its cause." },
+  "pimpinan.rantai.pembelajaran.langkah": { default: "Membicarakannya dengan pendidik di bagian ini, atau mengamati satu siklus lagi sebelum menyimpulkan apa pun.", en: "Discussing it with the educators here, or observing another cycle before concluding anything." },
+  "pimpinan.rantai.program.didukung": { default: "Apa yang sudah tercatat tentang jalannya program pada bagian sekolah ini.", en: "What is already recorded about how the programme is running in this part of the school." },
+  "pimpinan.rantai.program.belum": { default: "Apa yang ada di luar catatan itu. PINTAR hanya melihat apa yang melewati PINTAR.", en: "What lies outside that record. PINTAR sees only what passes through PINTAR." },
+  "pimpinan.rantai.program.langkah": { default: "Mengoordinasikannya dengan pihak yang menjalankan program.", en: "Coordinating it with the people running the programme." },
+
+  // THE ORIGIN, AS A TELLING. The decision row carries the name of the table the
+  // evidence lives in; that name never renders. A source with no telling here
+  // renders no line at all, which is why this map is a declaration rather than a
+  // fallback with a plausible sentence in it.
+  "pimpinan.sumber.integrity_signals": { default: "Berasal dari satu catatan integritas.", en: "Came from one integrity note." },
+
+  "pimpinan.tentang": { default: "Tentang", en: "About" },
+  "pimpinan.sejak": { default: "Sejak", en: "Since" },
+  "pimpinan.diputuskan": { default: "Diputuskan", en: "Decided on" },
+
+  "pimpinan.aksi.ambil": { default: "Saya yang menangani", en: "I am handling this" },
+  "pimpinan.aksi.putuskan": { default: "Catat keputusan", en: "Record the decision" },
+  "pimpinan.aksi.pilih": { default: "Hasil", en: "Outcome" },
+  "pimpinan.aksi.catatan": { default: "Catatan (boleh dikosongkan)", en: "Note (may be left empty)" },
+  "pimpinan.aksi.gagal": { default: "Keputusan belum tercatat. Coba sekali lagi.", en: "The decision has not been recorded. Try once more." },
+
+  // R5 ON THE PAGE. The three states are named as three different facts, and the
+  // note says out loud that two of them are not results — because a reader who
+  // sees "not enough" beside a figure will otherwise supply the missing
+  // interpretation themselves, and it will be the wrong one.
+  "pimpinan.kesiapan.judul": { default: "Kesiapan bukti", en: "Evidence readiness" },
+  "pimpinan.kesiapan.catatan": { default: "Bukti yang belum cukup bukan hasil yang buruk. Artinya PINTAR belum boleh menyimpulkan apa pun, dan angkanya muncul sendiri ketika buktinya memenuhi syarat.", en: "Evidence that is not yet enough is not a poor result. It means PINTAR may not conclude anything yet, and the figure appears on its own once the evidence qualifies." },
+  "pimpinan.kesiapan.cukup": { default: "Cukup untuk ditafsirkan", en: "Enough to interpret" },
+  "pimpinan.kesiapan.belum_cukup": { default: "Sudah ada, belum cukup", en: "Some, not enough yet" },
+  "pimpinan.kesiapan.belum_ada": { default: "Belum ada yang memenuhi syarat", en: "Nothing qualifying yet" },
+
+  "pimpinan.bukti.judul": { default: "Yang didukung bukti", en: "What the evidence supports" },
+  "pimpinan.bukti.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk bagian sekolah ini.", en: "There are no figures to show for this part of the school yet." },
+  // The evidence count travels with the figure rather than under it: a number
+  // a reader can weigh is a number whose evidence they can see.
+  "pimpinan.bukti.dari": { default: "dari", en: "from" },
+
+  "pimpinan.murid.judul": { default: "Murid pada bagian ini", en: "Learners here" },
+  // The deliberateness, said plainly. No dialog, no purpose code, no
+  // justification field: the ruling says the opening needs none of those, and it
+  // says the opening is recorded, so the page says that instead.
+  "pimpinan.murid.sub": { default: "Daftar nama menurut abjad. Membuka catatan satu murid adalah tindakan tersendiri, dan tercatat.", en: "Names in alphabetical order. Opening one learner\u2019s record is a separate act, and it is recorded." },
+  "pimpinan.murid.kosong": { default: "Belum ada murid terdaftar pada bagian ini.", en: "No learners are enrolled here yet." },
+  "pimpinan.murid.buka": { default: "Buka catatan", en: "Open the record" },
+
+  "pimpinan.rincian.judul": { default: "Catatan murid", en: "Learner record" },
+  "pimpinan.rincian.tercatat": { default: "Pembukaan catatan ini sudah tercatat.", en: "The opening of this record has been recorded." },
+  "pimpinan.rincian.status": { default: "Status pendaftaran", en: "Enrolment status" },
+  "pimpinan.rincian.periode": { default: "Periode akademik", en: "Academic period" },
+  "pimpinan.rincian.program": { default: "Program", en: "Programme" },
+  "pimpinan.rincian.penempatan": { default: "Penempatan", en: "Placement" },
+  "pimpinan.rincian.catatan": { default: "Catatan belajar", en: "Learning record" },
+  "pimpinan.rincian.belum": { default: "Belum ada catatan belajar yang memenuhi syarat untuk murid ini.", en: "No qualifying learning record for this learner yet." },
+  "pimpinan.rincian.penguasaan": { default: "Penguasaan", en: "Mastery" },
 
   "tindakan.ulangi": { default: "Ulangi topik ini bersama-sama sebelum lanjut.", en: "Go over this topic together before moving on." },
   "tindakan.fokus": { default: "Fokuskan waktu tambahan pada murid di dua tingkat kesiapan terbawah.", en: "Focus extra time on students in the two lowest readiness tiers." },
@@ -1455,6 +1607,7 @@ const table: Table = {
   // more than the exemption would be.
   "mengajar.judul": { default: "Kelas", en: "Classes" },
   "nav.kelas": { default: "Kelas", en: "Classes" },
+  "nav.pimpinan": { default: "Beranda", en: "Home" },
   "mengajar.kembali": { default: "Kelas", en: "Classes" },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },
@@ -1704,7 +1857,7 @@ export const format = {
  * does not ask for a rendering that would be a bug to perform. A key not
  * listed here is still rendered for every persona and still audited.
  */
-const STAFF_ONLY_PREFIXES = ["studio.", "config."] as const;
+const STAFF_ONLY_PREFIXES = ["studio.", "config.", "pimpinan."] as const;
 
 export function isStaffOnly(event: HleEvent): boolean {
   return STAFF_ONLY_PREFIXES.some((p) => event.startsWith(p));

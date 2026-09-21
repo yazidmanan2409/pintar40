@@ -37,6 +37,17 @@ import TombolBantuan from "./tur/TombolBantuan";
  * Kelas, Materi, Akun — and the other two have no route yet; a tab that goes
  * nowhere is a promise the product cannot keep, so it is absent until the slice
  * that builds it arrives rather than present and inert.
+ *
+ * A FIFTH, ADDED IN WP4: `pimpinan`, the Management shell. Same shape again, one
+ * tab, for the same reason — WP4 builds one Management landing and the branch
+ * beneath it is reached from the page rather than from the header.
+ *
+ * IT CARRIES NO HELP, AND THAT IS THE SHELL'S OWN RULE RATHER THAN AN OMISSION.
+ * `TombolBantuan` opens a panel whose content is the tour for this experience,
+ * and the tours that exist are `learner.first_login` and
+ * `educator.first_login`. There is no Management tour, so a Help entry here
+ * would open a panel offering nothing — which is the same objection §G-3 makes
+ * to a Help entry inside an assessment, from the other direction.
  */
 export default function CangkangPengalaman({
   locale,
@@ -44,8 +55,8 @@ export default function CangkangPengalaman({
   current,
 }: {
   locale: Locale;
-  kind?: "learner" | "public" | "focus" | "pengajar";
-  current?: "belajar" | "sertifikat" | "kelas";
+  kind?: "learner" | "public" | "focus" | "pengajar" | "pimpinan";
+  current?: "belajar" | "sertifikat" | "kelas" | "pimpinan";
 }) {
   // FOCUS. During an assessment the shell keeps the mark and the language and
   // drops the tabs. The engine survives navigating away — a session is server
@@ -73,6 +84,21 @@ export default function CangkangPengalaman({
         </nav>
         <span className="pin-spacer" />
         <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
+        <PengalihBahasa locale={locale} />
+      </header>
+    );
+  }
+
+  if (kind === "pimpinan") {
+    return (
+      <header className="pin-top pin-shell pin-noprint">
+        <MerekPintar />
+        <nav className="pin-tabs" aria-label={t("app.name", "staff", { locale })}>
+          <Link href="/pimpinan" aria-current={current === "pimpinan" ? "page" : undefined}>
+            {t("nav.pimpinan", "staff", { locale })}
+          </Link>
+        </nav>
+        <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
       </header>
     );

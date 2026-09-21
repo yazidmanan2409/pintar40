@@ -1501,3 +1501,136 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 @media (prefers-reduced-motion: reduce) {
   .pin-putar { animation: none; border-top-color: color-mix(in srgb, var(--surface-1) 50%, transparent); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WP4 — THE MANAGEMENT SURFACE
+
+   CALM, AND THE CALM IS STRUCTURAL RATHER THAN DECORATIVE. One column at every
+   width, hairlines and grounds instead of elevation, and no rule below draws a
+   chart, a gauge, a meter, a progress bar or a tile. Management reads sentences
+   with figures in them; it does not read a dashboard.
+
+   A GROUND IS A STATE, NEVER A PERSON. The three card grounds say how far along
+   a DECISION is — waiting, taken up, recorded — and each card also prints its
+   state in words, so nothing here is carried by colour alone (§13). There is no
+   `blocked` ground on this surface at all: the reddest thing a Management page
+   has to say is that somebody has been asked to look at something.
+
+   EVERY VALUE IS A TOKEN. The only literal lengths are the two the token lint
+   already exempts by name — the 560px phone breakpoint, which is a device fact,
+   and the 44px touch target, which is a platform requirement.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ------------------------------------------------------- the scope switcher */
+.pin-lingkup { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); margin-top: var(--space-4); }
+.pin-lingkup ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; }
+.pin-lingkup a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-pill);
+  background: var(--surface-1); color: var(--ink-2);
+  font-size: var(--type-meta); text-decoration: none;
+}
+.pin-lingkup a:hover { background: var(--surface-2); }
+/* The scope being read is marked by weight and by border as well as by ground,
+   so the current choice is legible without colour. */
+.pin-lingkup a[aria-current] {
+  border-color: var(--line-strong); color: var(--ink-1);
+  font-weight: var(--weight-strong); background: var(--surface-2);
+}
+
+/* --------------------------------------------------------- a decision card */
+.pin-kp {
+  display: grid; gap: var(--space-4);
+  margin-top: var(--space-5); padding: var(--space-5);
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+.pin-kp.pin-attention { background: var(--status-attention-soft); border-color: var(--status-attention); }
+.pin-kp.pin-info { background: var(--status-info-soft); border-color: var(--status-info); }
+.pin-kp.pin-ok { background: var(--surface-1); border-color: var(--line); }
+
+.pin-kp-head { display: grid; gap: var(--space-2); }
+.pin-kp-head .pin-eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin: 0; }
+.pin-kp-tanda {
+  display: inline-flex; align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-pill);
+  background: var(--surface-0); color: var(--ink-1);
+  font-size: var(--type-fine); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: none;
+}
+.pin-kp-simpul { color: var(--ink-2); font-size: var(--type-fine); }
+.pin-kp-judul { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); line-height: var(--leading-heading); }
+.pin-kp-tentang { margin: 0; color: var(--ink-1); font-size: var(--type-body); }
+.pin-kp .pin-meta { margin: 0; }
+
+/* THE CHAIN. A definition list, because that is what it is: four fixed terms in
+   one fixed order, each with the sentence that answers it. A screen reader
+   reads "what the evidence supports" and then the answer, which is the shape
+   the design intends and a stack of paragraphs would lose. */
+.pin-rantai { margin: 0; display: grid; gap: var(--space-3); }
+.pin-rantai dt {
+  font-size: var(--type-fine); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-rantai dd { margin: 0; color: var(--ink-1); line-height: var(--leading-prose); max-width: var(--measure-read); }
+
+.pin-kp-catatan {
+  margin: 0; padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--line-strong); background: var(--surface-0);
+  color: var(--ink-2); font-size: var(--type-meta); line-height: var(--leading-prose);
+}
+
+.pin-kp-putus { display: grid; gap: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.pin-kp-putus h4 { margin: 0; }
+.pin-kp-hasil { margin: 0; font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-kp-form { display: grid; gap: var(--space-3); }
+.pin-kp-form select, .pin-kp-form textarea {
+  width: 100%; min-height: var(--control-h); font: inherit;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-0); color: var(--ink-1);
+}
+.pin-kp-form textarea { min-height: calc(var(--control-h) + var(--space-5)); resize: vertical; }
+.pin-kp-form .pin-btn, .pin-kp-ambil .pin-btn { justify-self: start; min-height: 44px; }
+
+/* --------------------------------------------------------------- readiness */
+/* ALWAYS THE QUIET GROUND. A figure PINTAR may not yet interpret is not a
+   warning, and tinting it like one would say in colour what the copy refuses to
+   say in words. */
+.pin-kesiapan { border-radius: var(--radius-2); background: var(--status-info-soft); padding: var(--space-5); }
+.pin-kesiapan h2 { margin-top: 0; }
+.pin-kesiapan-list { list-style: none; margin: var(--space-3) 0; padding: 0; display: grid; gap: var(--space-3); }
+.pin-kesiapan-list li { display: flex; align-items: baseline; gap: var(--space-3); }
+.pin-kesiapan-list .pin-num { font-size: var(--type-subhead); font-weight: var(--weight-strong); font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------ names, plainly */
+/* NO ORDER BUT THE ALPHABET AND NO MARK BESIDE A NAME. No dot, no bar, no tint,
+   no count: the rules that are absent here are absent on purpose, and a future
+   edit that adds one is changing the product, not the stylesheet. */
+.pin-nama-list { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-nama-list li + li { border-top: 1px solid var(--line); }
+.pin-nama-list a {
+  display: flex; align-items: center; min-height: 44px;
+  padding: var(--space-3) var(--space-4); color: var(--ink-1); text-decoration: none;
+}
+.pin-nama-list a:hover { background: var(--surface-2); }
+
+.pin-catatan-belajar { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-catatan-belajar li {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+.pin-catatan-belajar li + li { border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------------------------- phone */
+/* NOT A DENSE DESKTOP PAGE MADE SMALL. The order is already context →
+   attention → evidence → deeper, so the phone keeps the same single column and
+   only gives back the room the padding was borrowing. */
+@media (max-width: 560px) {
+  .pin-kp { padding: var(--space-4); }
+  .pin-kesiapan { padding: var(--space-4); }
+  .pin-lingkup { gap: var(--space-2); }
+  .pin-catatan-belajar li { gap: var(--space-2); }
+}

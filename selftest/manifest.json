@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 44,
+  "version": 46,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1263,6 +1263,44 @@
       "requires": [],
       "proves": "the sign-in copy lives only in the copy table src/lib/hle.ts: every key the rendered surfaces reference is declared and carries both languages, no surface hard-codes a user-visible string, the three load-bearing strings match the canonical handoff byte for byte, the card route and the card submit no longer share an Indonesian label, no sign-in string carries a persona override, and nothing in either language is informal or names the machinery",
       "how": "the copy table swept against the keys the sign-in surfaces reference; an edited conditional is watched to be refused"
+    },
+    {
+      "id": "UX1-PIMPINAN-LINGKUP-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "who is Management is the database's answer and never the frontend's. The surface gates on management_scope_over_node, and this test READS the WP2 migration to confirm that function is still the WP1 ROLE SET -- HEAD_OF_DEPARTMENT and DEAN, taken from management_learner_roles() -- rather than a rank test, which is what keeps an INSTITUTION_ADMIN out of the academic Management experience even though the metric catalogue's allowed_audiences would have admitted them. No role name is read anywhere in the Management data layer and the role column is never selected, both watched on plants; all four Management routes ask the gate before rendering and all four refuse through the one refusal page; both Management roles land on the Management home and neither administrator role does; the branch below a scope is filtered in Postgres, re-checked in TypeScript and throws on a leak rather than dropping it; and no Management file reads evidence around the metric catalogue.",
+      "how": "the WP1 and WP2 migrations parsed for the role set and the gate; every Management source file swept; berandaPeran driven for all six roles; dalamLingkup driven on in-scope, out-of-scope and path-less nodes"
+    },
+    {
+      "id": "UX1-PIMPINAN-KEPUTUSAN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the Management decision experience is WP2's and automates nothing. The transitions the surface offers are PARSED OUT of advance_management_decision's own guard and compared with langkahBerikut, so the page can neither offer a move the endpoint refuses nor hide one it accepts, and DECIDED is terminal on both sides. The outcomes offered are exactly the three management_decision_outcome declares and none of them reads as a punishment in either language. Every family, state, outcome and source table is mapped to a copy key before it renders, an undeclared source renders no line rather than a plausible one, and the four-part chain stays in the approved order. One RPC and no second one; no timer, threshold, priority, score, SLA or automatic advance anywhere. The reading order is waiting-then-oldest and is stable for two raised in the same instant. No decision card ever takes the blocked ground, because an integrity referral names a learner on the card.",
+      "how": "the WP2 migration's transition guard and three enums parsed and compared with the shipped contract; the card's text positions swept for enum members; urutan and nada driven directly"
+    },
+    {
+      "id": "UX1-PIMPINAN-KESIAPAN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "R5 is read and never redone. The three readiness states are parsed out of evidence_readiness_state and matched against what the surface knows; the state comes from the envelope's own readiness field alone, so a refusal -- which deliberately carries none, because readiness is a fact about a population a refused reader may not have -- and an unknown value both yield nothing rather than a state the evaluator withheld. Nothing on the surface compares have with needed or reaches for minimum_sample, because that minimum is governed per interpretation and a second copy would drift from the catalogue. The three states carry three different sentences in both languages and none contains a word a reader could take as a verdict, watched on a plant. A refusal is counted in no tally, an empty state is never drawn as a nought, the readiness section keeps the quiet ground, and no figure on the surface falls back to zero.",
+      "how": "the WP3 migration's enum parsed; kesiapan and hitungKesiapan driven over every state plus a refusal and an unknown value; every readiness telling swept in both languages against a judgement pattern proved on a plant"
+    },
+    {
+      "id": "UX1-PIMPINAN-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the Management copy is declared copy and nothing else: every key the surface renders is declared and carries both languages, no component hard-codes a sentence, and the three load-bearing lines -- the suppression line, the order line and PINTAR mengusulkan, manusia memutuskan -- match the approved Management design byte for byte, with the order line still saying in BOTH languages that it is an order and not a ranking. No ranking word and no disguised ranking (a percentile, an N-of-M, an above-average, a top-anything) appears in any Management file or any Management telling, watched on two plants of which one avoids the word entirely. No telling names a table, a capability, a policy or an enum. The register is declared staff-only, which is what lets a queue legitimately say it is waiting, and that declaration is re-proved by showing the same key still throws for a learner and for the public. No key carries a persona override, and none addresses the reader informally.",
+      "how": "every pimpinan key swept against the copy table in both languages; the Management sources swept for hard-coded copy and for ranking vocabulary; t() driven for a learner and the public to prove the staff-only guard still refuses"
+    },
+    {
+      "id": "UX1-PIMPINAN-AKSES-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "proves": "the Management experience reaches exactly the two roles the WP1 ruling names, proved against the running application with real sessions rather than against the source. A DEAN standing at the institution node and a HEAD_OF_DEPARTMENT standing at one department both receive the Management home; an INSTITUTION_ADMIN is refused -- the case that matters most, because they outrank both Management roles and sit in allowed_audiences for almost the whole metric catalogue, so a surface that had gated on 'may this reader see these figures' would have admitted them; an EDUCATOR and a STUDENT are refused; and every refusal is the same one refusal page. The journey home -> part of the school -> roster works for the dean, and the SAME REAL NODE is refused to an educator and to an administrator, which is the out-of-scope case rather than a made-up uuid. An anonymous caller is turned away by the proxy before the page decides anything, and every rendered page is swept for internal words.",
+      "how": "six personas signed in through the app's own @supabase/ssr client; /pimpinan and the node and roster routes beneath it fetched with each session and the rendered text compared against the copy table's own home and refusal sentences"
     }
   ]
 }

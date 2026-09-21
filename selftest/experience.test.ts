@@ -38,6 +38,10 @@
  *   UX1-MASUK-TUJUAN-01    the destination contract is frozen; D1 drops the stale one
  *   UX1-MASUK-AKSES-01     the sign-in screen works by keyboard and screen reader
  *   UX1-MASUK-KATA-01      the sign-in copy is the approved copy, and only in HLE
+ *   UX1-PIMPINAN-LINGKUP-01  who is Management is the database's answer, not this code's
+ *   UX1-PIMPINAN-KEPUTUSAN-01 the decision experience mirrors WP2 and automates nothing
+ *   UX1-PIMPINAN-KESIAPAN-01 R5's three states, read and never recomputed
+ *   UX1-PIMPINAN-KATA-01     Management copy: declared, clean, and never a ranking
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -48,6 +52,11 @@ import { allKeys, telling, renderAll, t, LOCALES, type HleEvent } from "../src/l
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import { berandaPeran } from "../src/lib/beranda";
+import {
+  kesiapan, hitungKesiapan, langkahBerikut, nada, urutan, menunggu,
+  HASIL_SEMUA, HASIL_KUNCI, KEADAAN_KUNCI, KELUARGA_KUNCI, KESIAPAN_KUNCI, KESIAPAN_URUT,
+  RANTAI, type Keputusan,
+} from "../src/lib/pimpinan-kontrak";
 import {
   tur, varianBelajar, bolehTampilOtomatis, akanMunculLagi, tipSetelahTutup,
   peranAktif, turPengajarBerlaku, pitaSasaran, geserKe, ruangBawah, tempatKartu, bertumpuk,
@@ -148,6 +157,13 @@ const RESET_SURFACES = [
   "src/app/belajar/[tugas]/lanjut/page.tsx",
   "src/app/belajar/asesmen/[penugasan]/page.tsx",
   "src/app/belajar/_components/PermukaanAsesmen.tsx",
+  // WP4 — the Management surface. Built on the token set from the first commit
+  // rather than re-set afterwards, which is why it joins this list and not the
+  // pending one.
+  "src/app/pimpinan/page.tsx",
+  "src/app/pimpinan/[simpul]/page.tsx",
+  "src/app/pimpinan/[simpul]/murid/page.tsx",
+  "src/app/pimpinan/[simpul]/murid/[orang]/page.tsx",
   // UX-1 Slice 3 — the educator's teaching surface, A-F.
   "src/app/mengajar/page.tsx",
   "src/app/mengajar/[kelas]/page.tsx",
@@ -3873,8 +3889,12 @@ export const experienceTests: SelfTest[] = [
         ["EDUCATOR", "/mengajar"],
         ["INSTITUTION_ADMIN", "/konfigurasi"],
         ["SYSTEM_ADMIN", "/konfigurasi"],
-        ["HEAD_OF_DEPARTMENT", "/"],
-        ["DEAN", "/"],
+        // WP4 gave both Management roles a home. They are NOT sent to
+        // `/konfigurasi` with the administrators: `management_scope_over_node`
+        // refuses INSTITUTION_ADMIN and SYSTEM_ADMIN by name, so the two sets
+        // of roles land in two different places on purpose.
+        ["HEAD_OF_DEPARTMENT", "/pimpinan"],
+        ["DEAN", "/pimpinan"],
         [null, "/"],
       ];
       for (const [peran, rumah] of TABEL) {
@@ -4078,6 +4098,566 @@ export const experienceTests: SelfTest[] = [
         "strings match the handoff byte for byte, the card route and the card submit no longer share an Indonesian " +
         "label, no sign-in string carries a persona override because the screen has not met anyone yet, and nothing " +
         "in either language is informal or names the machinery",
+      );
+    },
+  },
+
+  // ════════════════════════════════════════════ WP4 · THE MANAGEMENT SURFACE
+  {
+    id: "UX1-PIMPINAN-LINGKUP-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const files = [
+        "src/lib/pimpinan.ts", "src/lib/pimpinan-kontrak.ts", "src/app/pimpinan/actions.ts",
+        ...walk(join(repoRoot, "src", "app", "pimpinan")).map((f) => relative(repoRoot, f).replace(/\\/g, "/")),
+        ...walk(join(repoRoot, "src", "components", "pimpinan")).map((f) => relative(repoRoot, f).replace(/\\/g, "/")),
+      ].filter((f, i, a) => /\.tsx?$/.test(f) && a.indexOf(f) === i);
+      c.expect(files.length >= 8, `only ${files.length} Management file(s) found`);
+      const src = new Map(files.map((f) => [f, code(readFileSync(join(repoRoot, f), "utf8"))]));
+
+      // 1. THE GATE IS ONE BACKEND FUNCTION, AND THE TEST READS WHAT IT IS.
+      //    WP4 forbids giving INSTITUTION_ADMIN the Management experience merely
+      //    for being an administrator. The evaluator would not have refused
+      //    them -- `allowed_audiences` carries INSTITUTION_ADMIN across most of
+      //    the catalogue -- so the surface has to gate on the ROLE SET, and this
+      //    reads the migration to confirm the function it gates on really is
+      //    that and not a rank test.
+      const wp2 = readFileSync(
+        join(repoRoot, "supabase/migrations/20260924110000_pintar_proposes_a_human_decides.sql"), "utf8");
+      const gerbang = /create function public\.management_scope_over_node[\s\S]*?\$\$;/.exec(wp2)?.[0] ?? "";
+      c.expect(gerbang.includes("management_learner_roles()"),
+        "management_scope_over_node no longer restricts itself to the Management role set");
+      c.expect(!/has_scope|role_rank|>=\s*'EDUCATOR'/.test(gerbang),
+        "management_scope_over_node became a rank test, which INSTITUTION_ADMIN would pass");
+      const wp1 = readFileSync(
+        join(repoRoot, "supabase/migrations/20260923130000_management_may_open_a_learner_on_purpose.sql"), "utf8");
+      const himpunan = /function public\.management_learner_roles\(\)[\s\S]*?\$\$;/.exec(wp1)?.[0] ?? "";
+      c.expect(/'HEAD_OF_DEPARTMENT'\s*,\s*'DEAN'/.test(himpunan),
+        "the Management role set is no longer HEAD_OF_DEPARTMENT and DEAN");
+      c.expect(!/INSTITUTION_ADMIN|SYSTEM_ADMIN/.test(himpunan),
+        "an administrator entered the Management role set");
+
+      // 2. NO ROLE NAME IS READ IN THE MANAGEMENT DATA LAYER. A surface that
+      //    decided "is this person Management" from a role string would be the
+      //    UI deciding authority, which doc 05 forbids and INV-37 exists to
+      //    catch -- and it is exactly how an administrator would slip in.
+      const PERAN = /"(STUDENT|EDUCATOR|HEAD_OF_DEPARTMENT|DEAN|INSTITUTION_ADMIN|SYSTEM_ADMIN)"/;
+      const lapis = src.get("src/lib/pimpinan.ts") ?? "";
+      const bocor = PERAN.exec(lapis);
+      c.expect(bocor === null, `src/lib/pimpinan.ts reads a role name: ${bocor?.[0]}`);
+      c.expect(!/select\([^)]*\brole\b/.test(lapis),
+        "src/lib/pimpinan.ts selects the role column, so a role name can reach it");
+      c.expect(PERAN.test('const r = "DEAN";'), "the role-name detector cannot catch a planted role literal");
+
+      // 3. EVERY MANAGEMENT ROUTE ASKS THE GATE, AND REFUSES THROUGH THE ONE
+      //    REFUSAL PAGE. A route that rendered without asking would be a page
+      //    whose authority came from whoever linked to it.
+      const halaman = files.filter((f) => /^src\/app\/pimpinan\/.*page\.tsx$/.test(f));
+      c.expect(halaman.length === 4, `${halaman.length} Management page(s); WP4 builds four`);
+      for (const f of halaman) {
+        const body = src.get(f) ?? "";
+        c.expect(/lingkupPimpinan\(\)|simpulDalamLingkup\(/.test(body),
+          `${f} renders without asking whether this reader is Management over the node`);
+        c.expect(/HalamanPenolakan/.test(body), `${f} has no refusal path`);
+      }
+      c.expect(/management_scope_over_node/.test(lapis),
+        "the Management data layer no longer calls the gate");
+
+      // 4. THE LANDING. Both Management roles go to the Management home; the two
+      //    administrator roles deliberately do not, because the gate refuses
+      //    them and routing somebody to a refusal is not routing them home.
+      c.expect(berandaPeran("HEAD_OF_DEPARTMENT") === "/pimpinan",
+        `HEAD_OF_DEPARTMENT lands at ${berandaPeran("HEAD_OF_DEPARTMENT")}`);
+      c.expect(berandaPeran("DEAN") === "/pimpinan", `DEAN lands at ${berandaPeran("DEAN")}`);
+      for (const p of ["INSTITUTION_ADMIN", "SYSTEM_ADMIN", "EDUCATOR", "STUDENT"] as const) {
+        c.expect(berandaPeran(p) !== "/pimpinan", `${p} is sent to the Management home`);
+      }
+
+      // 5. THE BRANCH IS RE-CHECKED AND A LEAK THROWS. Driven through the pure
+      //    containment predicate the module re-checks with, on a node that is
+      //    genuinely outside every scope.
+      c.expect(dalamLingkup({ jalur: ["inst", "fak", "dept"] }, ["dept"]),
+        "a node inside the scope is reported outside it");
+      c.expect(!dalamLingkup({ jalur: ["inst", "fak", "lain"] }, ["dept"]),
+        "a node in another department is reported inside the scope");
+      c.expect(!dalamLingkup({ jalur: [] }, ["dept"]), "a node with no path is not refused");
+      c.expect(/throw new PimpinanError/.test(lapis),
+        "the scope read drops an out-of-scope node quietly instead of throwing");
+
+      // 6. NOTHING ON THIS SURFACE READS EVIDENCE AROUND THE CATALOGUE. Every
+      //    figure is `metric_evaluate`'s; a number assembled from a table in a
+      //    route is a number that reached a screen without being governed.
+      const TERLARANG = /from\("(assessment_results|responses|presented_items|official_results|service_item_statistics|service_distractor_uptake)"/;
+      for (const [f, body] of src) {
+        const m = TERLARANG.exec(body);
+        c.expect(m === null, `${f} reads evidence directly: ${m?.[0]}`);
+      }
+      c.expect(TERLARANG.test('db.from("assessment_results")'),
+        "the direct-evidence detector cannot catch a planted read");
+
+      return c.verdict(
+        "who is Management is the database's answer and never this code's: the surface gates on " +
+        "management_scope_over_node, which the migration is read to confirm is the WP1 ROLE SET and not " +
+        "a rank test -- so an INSTITUTION_ADMIN, who the metric catalogue would have admitted, is " +
+        "refused by name; no role string is read anywhere in the data layer and the role column is " +
+        "never selected, both watched on plants; all four routes ask the gate before they render and " +
+        "all four refuse through the one refusal page; both Management roles land on the Management " +
+        "home and neither administrator role does; the branch below a scope is re-checked and a leak " +
+        "throws rather than being dropped; and no file reads evidence around the catalogue",
+      );
+    },
+  },
+
+  {
+    id: "UX1-PIMPINAN-KEPUTUSAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const wp2 = readFileSync(
+        join(repoRoot, "supabase/migrations/20260924110000_pintar_proposes_a_human_decides.sql"), "utf8");
+      const kartu = code(readFileSync(join(repoRoot, "src/components/pimpinan/KartuKeputusan.tsx"), "utf8"));
+      const aksi = code(readFileSync(join(repoRoot, "src/app/pimpinan/actions.ts"), "utf8"));
+      const kontrak = code(readFileSync(join(repoRoot, "src/lib/pimpinan-kontrak.ts"), "utf8"));
+
+      // 1. THE STATE MACHINE IS THE DATABASE'S, AND IT IS READ OUT OF THE
+      //    DATABASE. Offering a control the endpoint would refuse is the page
+      //    promising something the product does not do; offering fewer is the
+      //    page hiding something the human is entitled to do. Both are caught by
+      //    comparing with the migration rather than with a memory of it.
+      const guard = /if not \(\(([\s\S]*?)\)\) then/.exec(wp2)?.[1] ?? "";
+      c.expect(guard.length > 0, "the transition guard could not be found in the WP2 migration");
+      const diizinkan = new Map<string, Set<string>>();
+      for (const m of guard.matchAll(/d\.state = '([A-Z_]+)'\s*and p_to (?:in \(([^)]*)\)|= '([A-Z_]+)')/g)) {
+        const dari = m[1];
+        const ke = m[2] ? [...m[2].matchAll(/'([A-Z_]+)'/g)].map((x) => x[1]) : [m[3]];
+        diizinkan.set(dari, new Set([...(diizinkan.get(dari) ?? []), ...ke]));
+      }
+      c.expect(diizinkan.size === 2, `${diizinkan.size} source state(s) parsed from the migration; expected 2`);
+      for (const [dari, ke] of diizinkan) {
+        const mine = new Set<string>(langkahBerikut(dari as never));
+        c.expect(mine.size === ke.size && [...ke].every((x) => mine.has(x)),
+          `the surface offers {${[...mine].join(",")}} from ${dari}; the endpoint accepts {${[...ke].join(",")}}`);
+      }
+      // DECIDED is terminal, and the migration says so by not naming it.
+      c.expect(langkahBerikut("DECIDED").length === 0,
+        "the surface offers a move out of a recorded decision, which the endpoint refuses");
+      c.expect(!/DECIDED[\s\S]{0,40}and p_to/.test(guard),
+        "the endpoint began accepting a move out of DECIDED and this test did not notice");
+
+      // 2. EXACTLY THE OUTCOMES THE ENUM DECLARES. No fourth, no "other", no
+      //    free-text outcome: an outcome the database does not name is not one.
+      const enumSrc = /create type public\.management_decision_outcome as enum\s*\(([^)]*)\)/.exec(wp2)?.[1] ?? "";
+      const hasilDb = [...enumSrc.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      const hasilUi = [...HASIL_SEMUA].sort();
+      c.expect(hasilDb.length === 3 && hasilUi.join("|") === hasilDb.join("|"),
+        `the surface offers {${hasilUi.join(",")}}; the enum declares {${hasilDb.join(",")}}`);
+      for (const h of HASIL_SEMUA) {
+        c.expect(typeof HASIL_KUNCI[h] === "string" && HASIL_KUNCI[h].startsWith("pimpinan."),
+          `outcome ${h} has no telling`);
+      }
+      // No sanction, no penalty, no guilt: the outcomes name what Management
+      // DID, and the enum's own comment says that is deliberate.
+      const HUKUM = /sanksi|hukuman|pelanggaran|bersalah|penalty|sanction|guilt|punish/i;
+      for (const h of HASIL_SEMUA) {
+        for (const l of LOCALES) {
+          c.expect(!HUKUM.test(t(HASIL_KUNCI[h] as HleEvent, "staff", { locale: l })),
+            `outcome ${h} reads as a punishment in ${l}`);
+        }
+      }
+
+      // 3. A DECIDED CARD CARRIES NO CONTROL, and the card asks the contract
+      //    rather than deciding for itself.
+      c.expect(/berikut\.includes\("UNDER_REVIEW"\)/.test(kartu) && /berikut\.includes\("DECIDED"\)/.test(kartu),
+        "the card no longer gates its controls on the declared transitions");
+      c.expect(/langkahBerikut\(/.test(kartu), "the card no longer reads the state machine at all");
+
+      // 4. NO ENUM AND NO TABLE NAME REACHES A SCREEN. Every one of the four
+      //    database vocabularies the card touches goes through a declared map.
+      const enumWords = [
+        ...[...(/create type public\.management_decision_family as enum\s*\(([^)]*)\)/.exec(wp2)?.[1] ?? "")
+          .matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]),
+        ...[...(/create type public\.management_decision_state as enum\s*\(([^)]*)\)/.exec(wp2)?.[1] ?? "")
+          .matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]),
+        ...hasilDb,
+      ];
+      c.expect(enumWords.length >= 9, `${enumWords.length} enum member(s) found; expected at least 9`);
+      // A member may appear as a KEY in a map or as a comparison, never inside
+      // a JSX text position. The text positions are what this extracts.
+      // A TEXT POSITION IS NOT ANY GAP BETWEEN TWO ANGLE BRACKETS. `{k.keadaan
+      // === "DECIDED" ? (` sits between `>` and `<` in the source and is a
+      // comparison, not something a reader sees; the first version of this
+      // check read it as rendered text and went red on the card's own guard.
+      // A real text node carries no comparison, no quote and no arrow.
+      const teks = [...kartu.matchAll(/>\s*\{?\s*([^<>{}]{2,})\s*\}?\s*</g)]
+        .map((m) => m[1].trim())
+        .filter((x) => !/[=?"]|=>/.test(x));
+      for (const w of enumWords) {
+        c.expect(!teks.some((x) => x.includes(w)), `the decision card renders the enum member ${w}`);
+      }
+      c.expect(teks.length > 0, "no text position was found in the decision card at all");
+      // AND NO COPY KEY IS COMPOSED FROM A DATABASE VALUE. This is how a table
+      // name leaks: not by rendering it, but by interpolating it into a key, so
+      // that a family WP2 adds later builds a key the copy table does not have
+      // and `t()` is handed an undefined row at render time. Both vocabularies
+      // the card maps are looked up in a declared map instead. (This check went
+      // red on its first run and found exactly that in the shipped card.)
+      const disusun = /`(?:pimpinan|laporan|jenis|tindakan|metrik|kesiapan)\.[^`]*\$\{/.exec(kartu);
+      c.expect(disusun === null,
+        `the decision card composes a copy key from a database value: ${disusun?.[0]}`);
+      c.expect(/const SUMBER: Record<string, string>/.test(kartu),
+        "the source table is no longer resolved through a declared map");
+      for (const [, k] of Object.entries(KEADAAN_KUNCI)) {
+        c.expect(k.startsWith("pimpinan."), `a decision state maps to ${k}, which is not a copy key`);
+      }
+      for (const [, k] of Object.entries(KELUARGA_KUNCI)) {
+        c.expect(k.startsWith("pimpinan."), `a decision family maps to ${k}, which is not a copy key`);
+      }
+      // A source table with no declared telling renders NO line rather than a
+      // plausible one, so a table name cannot leak through a fallback.
+      c.expect(!/pimpinan\.sumber\.lain|SUMBER\[[^\]]*\]\s*(\?\?|\|\|)/.test(kartu),
+        "the decision card grew a fallback that would render an undeclared source");
+
+      // 5. THE CHAIN IS FOUR PARTS IN ONE ORDER, per family, and the order is
+      //    fixed in the markup rather than assembled from data.
+      const urut = ["didukung", "belum", "langkah", "keputusan"]
+        .map((k) => kartu.indexOf(`pimpinan.rantai.${k}`));
+      c.expect(urut.every((i) => i >= 0) && urut.every((v, i, a) => i === 0 || a[i - 1] < v),
+        `the chain is out of order or incomplete in the card: ${urut.join(",")}`);
+      for (const [fam, r] of Object.entries(RANTAI)) {
+        for (const part of [r.didukung, r.belum, r.langkah]) {
+          c.expect(part.startsWith("pimpinan.rantai."), `${fam} carries a chain part that is not a copy key`);
+        }
+      }
+
+      // 6. PINTAR PROPOSES AND A HUMAN DECIDES. One RPC, no second one, and
+      //    nothing in this surface advances a decision on a timer, a threshold
+      //    or a count.
+      const rpcs = [...aksi.matchAll(/\.rpc\("([a-z_]+)"/g)].map((m) => m[1]);
+      c.expect(rpcs.length === 1 && rpcs[0] === "advance_management_decision",
+        `the Management action calls {${rpcs.join(",")}}`);
+      c.expect(!/setTimeout|setInterval|cron|schedule|auto[A-Z_]|otomatis/i.test(aksi + kontrak),
+        "something in the Management decision path advances a decision without a person");
+      c.expect(!/priority|prioritas|urgency|urgensi|sla|score|skor|weight|bobot/i.test(kontrak),
+        "the decision ordering grew a priority, a score or an SLA");
+
+      // 7. THE ORDER IS AN ORDER, NOT A RANKING. Waiting first, then the oldest,
+      //    and stable for two raised in the same instant.
+      const k = (id: string, keadaan: Keputusan["keadaan"], at: string): Keputusan => ({
+        id, keluarga: "INTEGRITY_REFERRAL", keadaan, hasil: null, simpul: "n", simpulNama: null,
+        institusi: "i", subjek: null, sumberTabel: "integrity_signals", diangkatPada: at,
+        catatan: null, diputuskanPada: null,
+      });
+      const diurut = urutan([
+        k("d", "DECIDED", "2026-01-01T00:00:00Z"),
+        k("c", "AWAITING_REVIEW", "2026-03-01T00:00:00Z"),
+        k("a", "AWAITING_REVIEW", "2026-02-01T00:00:00Z"),
+        k("b", "UNDER_REVIEW", "2026-01-15T00:00:00Z"),
+      ]).map((x) => x.id);
+      c.expect(diurut.join("") === "acbd", `the reading order is ${diurut.join("")}, expected acbd`);
+      const sama = urutan([
+        k("z", "AWAITING_REVIEW", "2026-02-01T00:00:00Z"),
+        k("y", "AWAITING_REVIEW", "2026-02-01T00:00:00Z"),
+      ]).map((x) => x.id);
+      c.expect(sama.join("") === "yz", `two decisions raised in the same instant sort unstably: ${sama.join("")}`);
+      c.expect(menunggu(k("q", "AWAITING_REVIEW", "x")) && !menunggu(k("q", "DECIDED", "x")),
+        "a recorded decision is still counted as waiting for somebody");
+
+      // 8. NO TRAFFIC-LIGHT. The ground says how far along the DECISION is, and
+      //    `blocked` -- the one ground that reads as a verdict -- is never used,
+      //    because an integrity referral names a learner on the card.
+      const nadaSemua = (["AWAITING_REVIEW", "UNDER_REVIEW", "DECIDED"] as const).map(nada);
+      c.expect(!nadaSemua.includes("blocked" as never), `a decision card uses the blocked ground: ${nadaSemua.join(",")}`);
+      c.expect(new Set(nadaSemua).size === 3, "two decision states share a ground, so the tint says less than the words");
+      c.expect(/KEADAAN_KUNCI\[k\.keadaan\]/.test(kartu),
+        "the card no longer prints the state in words beside the tint, so colour carries it alone");
+
+      return c.verdict(
+        "the decision experience is WP2's and automates nothing: the transitions offered are PARSED OUT " +
+        "of advance_management_decision and compared, so the surface cannot offer a move the endpoint " +
+        "refuses nor hide one it accepts; DECIDED is terminal on both sides; the outcomes are exactly " +
+        "the three the enum declares and none of them reads as a punishment in either language; every " +
+        "family, state, outcome and source table is mapped to a telling before it renders and an " +
+        "undeclared source renders no line at all; the four-part chain is in the fixed order; one RPC " +
+        "and no timer, threshold, priority, score or SLA anywhere; the reading order is waiting-then-" +
+        "oldest and is stable; and no card ever takes the blocked ground",
+      );
+    },
+  },
+
+  {
+    id: "UX1-PIMPINAN-KESIAPAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const kontrak = code(readFileSync(join(repoRoot, "src/lib/pimpinan-kontrak.ts"), "utf8"));
+      const ringkas = code(readFileSync(join(repoRoot, "src/components/pimpinan/RingkasKesiapan.tsx"), "utf8"));
+      const wp3 = readFileSync(
+        join(repoRoot, "supabase/migrations/20260925100000_enough_evidence_to_say_it_yet.sql"), "utf8");
+
+      // 1. THE THREE STATES ARE THE DATABASE'S THREE, read from the enum.
+      const enumSrc = /create type public\.evidence_readiness_state as enum\s*\(([^)]*)\)/.exec(wp3)?.[1] ?? "";
+      const dbStates = [...enumSrc.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      const uiStates = [...KESIAPAN_URUT].sort();
+      c.expect(dbStates.length === 3 && uiStates.join("|") === dbStates.join("|"),
+        `the surface knows {${uiStates.join(",")}}; the database declares {${dbStates.join(",")}}`);
+
+      // 2. THE STATE IS READ, NEVER RECOMPUTED. `minimum_sample` is governed per
+      //    interpretation -- 1 for a participant count, 5 for comprehension, 10
+      //    for an institution outcome, 30 for an item statistic -- so a second
+      //    copy of the comparison in TypeScript would drift from the catalogue
+      //    the first time a version changed.
+      c.expect(kesiapan({ readiness: "NOT_YET_EVALUABLE" }) === "NOT_YET_EVALUABLE",
+        "the envelope's own readiness is not carried through");
+      c.expect(kesiapan({ readiness: "INSUFFICIENT_EVIDENCE" }) === "INSUFFICIENT_EVIDENCE",
+        "INSUFFICIENT_EVIDENCE is not carried through");
+      c.expect(kesiapan({ readiness: "SUFFICIENT_EVIDENCE" }) === "SUFFICIENT_EVIDENCE",
+        "SUFFICIENT_EVIDENCE is not carried through");
+      // A refusal carries no readiness, and the surface must not supply one:
+      // "there is not enough evidence about a population you cannot see" is
+      // still a fact about a population you cannot see.
+      c.expect(kesiapan({}) === null, "a refusal is given a readiness the evaluator withheld");
+      c.expect(kesiapan({ readiness: "MADE_UP" }) === null, "an unknown readiness value is accepted");
+      c.expect(!/\bhave\b[\s\S]{0,40}<[\s\S]{0,40}\bneeded\b|\bneeded\b[\s\S]{0,40}>[\s\S]{0,40}\bhave\b/.test(kontrak),
+        "the Management contract compares have with needed, which re-implements the governed minimum");
+      c.expect(!/minimum_sample/.test(kontrak + ringkas),
+        "the Management surface reaches for the catalogue minimum itself");
+
+      // 3. THREE STATES, THREE DIFFERENT SENTENCES. Flattening any two back
+      //    together is the exact regression WP3 was written to prevent.
+      const kunci = KESIAPAN_URUT.map((k) => KESIAPAN_KUNCI[k]);
+      c.expect(new Set(kunci).size === 3, `the three readiness states share ${3 - new Set(kunci).size + 1} telling(s)`);
+      for (const l of LOCALES) {
+        const teks = kunci.map((k) => t(k as HleEvent, "staff", { locale: l }));
+        c.expect(new Set(teks).size === 3, `two readiness states read identically in ${l}: ${teks.join(" / ")}`);
+      }
+
+      // 4. NONE OF THE THREE IS A RESULT. Not one of them may carry a word a
+      //    reader could take as a judgement about a class or a person -- which
+      //    is the whole distance WP3's header calls "where the harm is".
+      const PENILAIAN = /rendah|buruk|jelek|gagal|kurang baik|lemah|memprihatinkan|poor|low\b|bad\b|fail|weak|underperform|behind/i;
+      // THE STATE SENTENCES CARRY NO JUDGEMENT WORD AT ALL. These are the lines
+      // that sit beside a withheld figure, and a reader meets them without any
+      // framing.
+      for (const k of [...kunci, "laporan.metrik.belum_ada_bukti", "laporan.metrik.belum_cukup_data"]) {
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "staff", { locale: l });
+          const m = PENILAIAN.exec(teks);
+          c.expect(m === null, `${k} reads as a judgement in ${l}: "${m?.[0]}"`);
+        }
+      }
+      c.expect(PENILAIAN.test("Penguasaan kelas ini rendah."),
+        "the judgement detector cannot catch a planted verdict");
+      // THE NOTE IS THE ONE LINE THAT MAY SAY THE WORD, BECAUSE IT DENIES IT.
+      // "Not enough evidence is not a poor result" is the sentence that stops
+      // the reader supplying the interpretation themselves, and it works only
+      // by naming the interpretation it refuses. Sweeping it like the others
+      // would delete the one line doing the work -- so it is required to carry
+      // BOTH the denial and the word, in both languages, instead.
+      for (const [l, ingkar] of [["id", /bukan hasil yang buruk/], ["en", /not a poor result/i]] as const) {
+        const teks = t("pimpinan.kesiapan.catatan", "staff", { locale: l });
+        c.expect(ingkar.test(teks), `the readiness note no longer denies a poor result in ${l}: "${teks}"`);
+      }
+
+      // 5. A REFUSAL IS COUNTED IN NO TALLY. A count that included refusals
+      //    would tell the reader by arithmetic what the missing label withheld.
+      const hitung = hitungKesiapan([
+        { status: "ok", readiness: "SUFFICIENT_EVIDENCE" },
+        { status: "below_minimum", readiness: "INSUFFICIENT_EVIDENCE" },
+        { status: "below_minimum", readiness: "NOT_YET_EVALUABLE" },
+        { status: "not_permitted" },
+        { status: "unavailable" },
+      ]);
+      c.expect(hitung.SUFFICIENT_EVIDENCE === 1 && hitung.INSUFFICIENT_EVIDENCE === 1
+        && hitung.NOT_YET_EVALUABLE === 1,
+        `the readiness tally reads ${JSON.stringify(hitung)}`);
+      c.expect(Object.values(hitung).reduce((a, b) => a + b, 0) === 3,
+        "a refusal was counted in the readiness tally");
+
+      // 6. AN EMPTY STATE IS NOT DRAWN AS A NOUGHT, and the section never takes
+      //    a warning ground: tinting an uninterpretable figure like a warning
+      //    would say in colour precisely what the copy refuses to say in words.
+      c.expect(/hitung\[k\] > 0/.test(ringkas), "the readiness summary draws a zero for an empty state");
+      c.expect(/pin-kesiapan/.test(ringkas) && !/pin-attention|pin-blocked/.test(ringkas),
+        "the readiness section took a warning ground");
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      const blok = css.slice(css.indexOf(".pin-kesiapan {"));
+      c.expect(/status-info-soft/.test(blok.slice(0, 200)),
+        "the readiness ground is no longer the quiet one");
+
+      // 7. NO ZERO STANDS IN FOR A WITHHELD FIGURE anywhere on the surface.
+      for (const f of walk(join(repoRoot, "src", "app", "pimpinan"))
+        .concat(walk(join(repoRoot, "src", "components", "pimpinan")))
+        .filter((f) => /\.tsx?$/.test(f))) {
+        const body = code(readFileSync(f, "utf8"));
+        const m = /\b(value|mastery|sample)\b[^;\n]{0,30}(\?\?|\|\|)\s*0\b/.exec(body);
+        c.expect(m === null, `${relative(repoRoot, f)} substitutes a zero for an absent figure: ${m?.[0]}`);
+      }
+
+      return c.verdict(
+        "R5 is read and never redone: the three states are parsed out of the enum and matched, the " +
+        "readiness comes from the envelope alone -- a refusal and an unknown value both yield nothing " +
+        "rather than a state the evaluator withheld -- and nothing on the surface compares have with " +
+        "needed or reaches for minimum_sample, because the governed minimum differs per interpretation. " +
+        "The three states carry three different sentences in both languages, none of them containing a " +
+        "word a reader could take as a verdict (watched on a plant), a refusal is counted in no tally, " +
+        "an empty state is never drawn as a nought, the section keeps the quiet ground, and no figure " +
+        "anywhere on the surface falls back to zero",
+      );
+    },
+  },
+
+  {
+    id: "UX1-PIMPINAN-KATA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const files = [
+        ...walk(join(repoRoot, "src", "app", "pimpinan")),
+        ...walk(join(repoRoot, "src", "components", "pimpinan")),
+      ].filter((f) => /\.tsx?$/.test(f)).map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      const src = new Map(files.map((f) => [f, readFileSync(join(repoRoot, f), "utf8")]));
+      const bersih = [...src.values()].map(code).join("\n");
+
+      // 1. EVERY KEY THE SURFACE RENDERS IS DECLARED, IN BOTH LANGUAGES.
+      const dipakai = new Set<string>([
+        ...[...bersih.matchAll(/"(pimpinan\.[a-z_.]+)"/g)].map((m) => m[1]),
+        ...Object.values(KESIAPAN_KUNCI), ...Object.values(HASIL_KUNCI),
+        ...Object.values(KEADAAN_KUNCI), ...Object.values(KELUARGA_KUNCI),
+        ...Object.values(RANTAI).flatMap((r) => [r.didukung, r.belum, r.langkah]),
+      ]);
+      c.expect(dipakai.size >= 40, `only ${dipakai.size} Management copy key(s) in use`);
+      const declared = new Set(allKeys());
+      for (const k of dipakai) {
+        if (!c.expect(declared.has(k as HleEvent), `${k} is rendered but not declared`)) continue;
+        const row = telling(k as HleEvent);
+        c.expect(Boolean(row.default?.trim()), `${k} has no Indonesian telling`);
+        c.expect(Boolean(row.en?.trim()), `${k} has no English telling`);
+      }
+      c.note(`${dipakai.size} Management key(s)`);
+
+      // 2. NO HARD-CODED USER-VISIBLE COPY. Every sentence goes through the
+      //    copy table, so the English half cannot silently fall behind.
+      for (const [f, body] of src) {
+        const teks = [...code(body).matchAll(/>\s*([A-Za-zÀ-ɏ][^<>{}\n]{6,})\s*</g)].map((m) => m[1].trim());
+        for (const x of teks) {
+          c.expect(false === /[a-z]{3}\s+[a-z]{3}/.test(x), `${f} carries hard-coded copy: "${x.slice(0, 48)}"`);
+        }
+      }
+
+      // 3. NOT A RANKING, IN ANY DISGUISE. WP4 §10 names the whole family and
+      //    this refuses the word AND the shapes the word hides behind.
+      const PERINGKAT = /\bperingkat\b|\brank(ing|ed)?\b|persentil|percentile|leaderboard|papan peringkat|top\s*\d|\d+\s*(dari|of)\s*\d+|terbaik|terburuk|best.performing|worst.performing|di atas rata-rata|di bawah rata-rata|above average|below average|outperform|underperform/i;
+      for (const [f, body] of src) {
+        const m = PERINGKAT.exec(code(body));
+        c.expect(m === null, `${f} carries ranking vocabulary: "${m?.[0]}"`);
+      }
+      for (const k of dipakai) {
+        // The order line is the one telling that may say the word, because its
+        // whole job is to refuse it: "Ini urutan, bukan peringkat." Sweeping it
+        // like the rest would delete the sentence that keeps a queue from
+        // reading as a league table. Its denial is asserted positively below.
+        if (k === "pimpinan.urutan") continue;
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "staff", { locale: l });
+          const m = PERINGKAT.exec(teks);
+          c.expect(m === null, `${k} reads as a ranking in ${l}: "${m?.[0]}"`);
+        }
+      }
+      c.expect(PERINGKAT.test("Peringkat 4 dari 40"), "the ranking detector cannot catch a planted ranking");
+      c.expect(PERINGKAT.test("above average for the cohort"),
+        "the ranking detector misses a ranking that avoids the word");
+
+      // 4. THE THREE LOAD-BEARING SENTENCES, VERBATIM. The suppression line, the
+      //    order line and the governing line are the approved design's own
+      //    words; an edit that softens one is an edit to the product.
+      const VERBATIM: Array<[string, string]> = [
+        ["pimpinan.memutuskan", "PINTAR mengusulkan, manusia memutuskan."],
+        ["pimpinan.urutan", "Urutannya: yang paling lama menunggu lebih dulu. Ini urutan, bukan peringkat."],
+        ["pimpinan.batas",
+          "Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran tingkat institusi. Selebihnya tidak muncul."],
+      ];
+      for (const [k, teks] of VERBATIM) {
+        c.expect(t(k as HleEvent, "staff") === teks, `${k} no longer reads "${teks}"`);
+        c.expect(Boolean(telling(k as HleEvent).en?.trim()), `${k} lost its English telling`);
+      }
+      // The order line names itself as an order. If that clause goes, the page
+      // stops saying the one thing that keeps a queue from reading as a league.
+      c.expect(/bukan peringkat/.test(t("pimpinan.urutan", "staff")),
+        "the order line no longer says it is not a ranking");
+      c.expect(/not a ranking/i.test(t("pimpinan.urutan", "staff", { locale: "en" })),
+        "the English order line no longer says it is not a ranking");
+
+      // 5. NO INTERNAL WORD IN ANY MANAGEMENT TELLING. The copy is declared
+      //    staff-only, which exempts it from the shared sweep by AUDIENCE -- so
+      //    the sweep it is exempt from is re-run here against the words that
+      //    actually matter on this surface.
+      const MESIN = /management_decisions|integrity_signals|org_nodes|role_assignments|metric_evaluate|scope_node_id|AWAITING_REVIEW|UNDER_REVIEW|DECIDED|INTEGRITY_REFERRAL|NOT_YET_EVALUABLE|INSUFFICIENT_EVIDENCE|SUFFICIENT_EVIDENCE|CAN_[A-Z_]+|HEAD_OF_DEPARTMENT|SECURITY DEFINER|RLS/;
+      for (const k of dipakai) {
+        for (const l of LOCALES) {
+          const m = MESIN.exec(t(k as HleEvent, "staff", { locale: l }));
+          c.expect(m === null, `${k} names the machinery in ${l}: "${m?.[0]}"`);
+        }
+      }
+
+      // 6. THE STAFF-ONLY DECLARATION IS REAL. It is what lets this copy say
+      //    "Menunggu tinjauan" about a queue; without it the same key would
+      //    throw. It is a statement about AUDIENCE, and `t()` still refuses to
+      //    render one of these for a learner or the public.
+      const hle = readFileSync(join(repoRoot, "src/lib/hle.ts"), "utf8");
+      c.expect(/STAFF_ONLY_PREFIXES = \[[^\]]*"pimpinan\."/.test(hle),
+        "the Management copy is not declared staff-only, so its register is unchecked");
+      // WHAT THAT DECLARATION ACTUALLY DOES, MEASURED RATHER THAN ASSUMED. The
+      // first version of this check asserted that `t()` THROWS for a learner,
+      // on the strength of the comment above STAFF_ONLY_PREFIXES. It does not:
+      // being staff-only EXEMPTS a key from the internal-word sweep, which is
+      // what lets this copy say "Menunggu tinjauan" about a queue, and the
+      // protection the comment means is the one asserted from the other side --
+      // that no surface a learner or the public reads renders one.
+      const pesan = t("pimpinan.keadaan.menunggu", "staff");
+      c.expect(/Menunggu/.test(pesan),
+        "the queue telling no longer uses the word the staff-only declaration exists to permit");
+      // F05-S03 makes that assertion for `studio.` and `config.` by name and
+      // does not derive its list from STAFF_ONLY_PREFIXES, so `pimpinan.` is
+      // not covered by it. It is covered here instead: no surface outside the
+      // Management routes may render one of these keys.
+      const luar = walk(join(repoRoot, "src", "app"))
+        .concat(walk(join(repoRoot, "src", "components")))
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"))
+        .filter((f) => !/^src\/(app|components)\/pimpinan\//.test(f));
+      c.expect(luar.length > 30, `only ${luar.length} non-Management surface(s) swept`);
+      for (const f of luar) {
+        const m = /"(pimpinan\.[a-z_.]+)"/.exec(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(m === null, `${f} renders the staff-only key ${m?.[1]}`);
+      }
+
+      // 7. NO PERSONA OVERRIDE, and no informal Indonesian: this reader is an
+      //    adult acting in an institutional role and is addressed as Anda.
+      for (const k of dipakai) {
+        const row = telling(k as HleEvent) as Record<string, unknown>;
+        for (const persona of ["learner", "educator", "public"]) {
+          c.expect(row[persona] === undefined,
+            `${k} carries a ${persona} override on a surface that reader never sees`);
+        }
+      }
+      const INFORMAL = /\bkamu\b|\bkalian\b|\bkak\b|\bbro\b|\bnih\b|\bdong\b|\byuk\b/i;
+      for (const k of dipakai) {
+        const m = INFORMAL.exec(t(k as HleEvent, "staff"));
+        c.expect(m === null, `${k} addresses the reader informally: "${m?.[0]}"`);
+      }
+
+      c.note(`${files.length} file(s)`);
+      return c.verdict(
+        "the Management copy is declared copy and nothing else: every key the surface renders exists in " +
+        "both languages, no sentence is hard-coded in a component, and the three load-bearing lines -- " +
+        "the suppression line, the order line and \"PINTAR mengusulkan, manusia memutuskan\" -- match " +
+        "the approved design byte for byte, with the order line still saying in both languages that it " +
+        "is an order and not a ranking. No ranking word and no disguised ranking appears in the code or " +
+        "in any telling, watched on two plants including one that avoids the word; no telling names a " +
+        "table, a capability, a policy or an enum; the register is declared staff-only, which is " +
+        "re-proved by showing the same key still throws for a learner and for the public; and no key " +
+        "carries a persona override or an informal address",
       );
     },
   },

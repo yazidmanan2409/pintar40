@@ -26,6 +26,15 @@ import type { Locale } from "@/lib/hle";
  */
 export type Envelope = {
   status: string;
+  /**
+   * WP4. The evaluator has always returned this on every branch but
+   * `not_permitted` and `unavailable`, and it was not read until a surface
+   * asked for several figures at once and needed a stable React key for each.
+   * It is an identifier and never a text position: no component below renders
+   * it, and `metric_id` is in the internal-word class that UX1-S0-HLE-01 and
+   * F06-R01 sweep for.
+   */
+  metric_id?: string;
   /** R5: NOT_YET_EVALUABLE | INSUFFICIENT_EVIDENCE | SUFFICIENT_EVIDENCE. Absent on a refusal. */
   readiness?: string;
   ordinal?: number;

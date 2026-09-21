@@ -20,6 +20,12 @@ const PERSONA = {
   // out of the fixture's class, which would make these tests fail for a reason
   // that has nothing to do with the learning cycle.
   cycleLearner: { email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" },
+  // WP4. The two Management roles and the educator who must NOT be one. The
+  // dean is scoped at Alpha's institution node and the head of department at
+  // Alpha's department node, so the two of them also exercise the difference
+  // between a wide Management scope and a narrow one.
+  alphaHod: { email: "alpha-hod@synthetic.pintar.test", password: "Sintetis-AlphaHod-48!" },
+  alphaGuru: { email: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" },
 } as const;
 
 /** Every learner route FABLE-03 adds, for the copy inventory (§9). */
@@ -75,6 +81,12 @@ const ROUTE_INVENTORY = [
   // and F06-R01 scans this one's rendered output for internal words like any
   // other. UX1-S3-KATA-01 covers the copy of every screen including those.
   "/mengajar",
+  // WP4. The Management home is the one static route the Management surface
+  // serves; the node, roster and learner routes below it are all scoped and
+  // therefore dynamic. It renders four database enums — a decision family, a
+  // state, an outcome and a readiness state — every one of them through the
+  // copy table, so it is exactly the kind of page this sweep exists for.
+  "/pimpinan",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };
@@ -532,6 +544,111 @@ export const appTests: SelfTest[] = [
       return c.verdict(
         `${scanned} served route(s) fetched and scanned for internal words in rendered output; the ` +
           `inventory is the fetch list, and F06-S02 fails if the application serves a route absent from it`,
+      );
+    },
+  },
+
+  // ═══════════════════════════════════════════ WP4 · THE MANAGEMENT SURFACE
+  {
+    id: "UX1-PIMPINAN-AKSES-01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      // The two sentences that tell the Management home from the refusal. Both
+      // come from the copy table, so this test cannot drift from the product by
+      // quoting a string the product stopped using.
+      const rumah = t("pimpinan.judul", "staff");
+      const ditolak = t("pimpinan.ditolak", "staff");
+
+      const lihat = async (persona: { email: string; password: string }, path = "/pimpinan") => {
+        const sesi = await signIn(ctx, persona);
+        const res = await get(`${base}${path}`, { headers: { cookie: sesi.cookie } });
+        return { res, html: visibleText(await res.text()), sesi };
+      };
+
+      // 1. BOTH MANAGEMENT ROLES GET THE MANAGEMENT EXPERIENCE, over the scope
+      //    the school assigned them. A dean stands at the institution node and a
+      //    head of department at one department, and both are Management.
+      const dean = await lihat(PERSONA.dean);
+      c.expect(dean.res.status === 200, `DEAN /pimpinan → ${dean.res.status}`);
+      c.expect(dean.html.includes(rumah), "DEAN did not receive the Management home");
+      c.expect(!dean.html.includes(ditolak), "DEAN was refused the Management home");
+      noInternalWords(c, dean.html, "/pimpinan as DEAN");
+
+      const hod = await lihat(PERSONA.alphaHod);
+      c.expect(hod.res.status === 200, `HEAD_OF_DEPARTMENT /pimpinan → ${hod.res.status}`);
+      c.expect(hod.html.includes(rumah), "HEAD_OF_DEPARTMENT did not receive the Management home");
+      c.expect(!hod.html.includes(ditolak), "HEAD_OF_DEPARTMENT was refused the Management home");
+
+      // 2. AN ADMINISTRATOR IS NOT MANAGEMENT, AND THIS IS THE CASE THAT MATTERS
+      //    MOST. INSTITUTION_ADMIN outranks both Management roles and sits in
+      //    `allowed_audiences` for almost the whole metric catalogue, so a
+      //    surface that had gated on "may this reader see these figures" would
+      //    have admitted them. `management_scope_over_node` refuses them by
+      //    name, and this proves the surface asks that question and not the
+      //    other one.
+      const admin = await lihat(PERSONA.alphaAdmin);
+      c.expect(admin.res.status === 200, `INSTITUTION_ADMIN /pimpinan → ${admin.res.status}`);
+      c.expect(admin.html.includes(ditolak),
+        "INSTITUTION_ADMIN was given the academic Management experience for being an administrator");
+      c.expect(!admin.html.includes(rumah), "INSTITUTION_ADMIN saw Management home content");
+
+      // 3. NEITHER IS AN EDUCATOR, NOR A LEARNER.
+      for (const [nama, persona] of [["EDUCATOR", PERSONA.alphaGuru], ["STUDENT", PERSONA.alphaStudent]] as const) {
+        const r = await lihat(persona);
+        c.expect(r.res.status === 200 && r.html.includes(ditolak),
+          `${nama} /pimpinan → ${r.res.status}, refusal shown=${r.html.includes(ditolak)}`);
+        c.expect(!r.html.includes(rumah), `${nama} saw Management home content`);
+        noInternalWords(c, r.html, `/pimpinan as ${nama}`);
+      }
+
+      // 4. THE JOURNEY EXISTS AND IS SCOPED. The home offers a way into one part
+      //    of the school; that node is taken from the dean's own page rather
+      //    than invented, so this follows the product's own link.
+      const simpul = /\/pimpinan\/([0-9a-f-]{36})/.exec(
+        await (await get(`${base}/pimpinan`, { headers: { cookie: dean.sesi.cookie } })).text(),
+      )?.[1];
+      if (c.expect(Boolean(simpul), "the Management home offers no way into a part of the school")) {
+        const dalam = await get(`${base}/pimpinan/${simpul}`, { headers: { cookie: dean.sesi.cookie } });
+        const dalamHtml = visibleText(await dalam.text());
+        c.expect(dalam.status === 200 && !dalamHtml.includes(ditolak),
+          `DEAN was refused their own node → ${dalam.status}`);
+        const daftar = await get(`${base}/pimpinan/${simpul}/murid`, { headers: { cookie: dean.sesi.cookie } });
+        const daftarHtml = visibleText(await daftar.text());
+        c.expect(daftar.status === 200 && !daftarHtml.includes(ditolak),
+          `DEAN was refused the roster in their own scope → ${daftar.status}`);
+        noInternalWords(c, daftarHtml, "the Management roster");
+
+        // 5. AND THE SAME NODE IS REFUSED TO SOMEBODY WHO DOES NOT STAND OVER
+        //    IT. A real node id, a real session, and no Management authority
+        //    over it: this is the out-of-scope case rather than a made-up uuid,
+        //    which would only prove that a stranger's id is refused.
+        for (const [nama, persona] of [["EDUCATOR", PERSONA.alphaGuru],
+                                       ["INSTITUTION_ADMIN", PERSONA.alphaAdmin]] as const) {
+          const sesi = await signIn(ctx, persona);
+          for (const path of [`/pimpinan/${simpul}`, `/pimpinan/${simpul}/murid`]) {
+            const res = await get(`${base}${path}`, { headers: { cookie: sesi.cookie } });
+            const html = visibleText(await res.text());
+            c.expect(html.includes(ditolak), `${nama} reached ${path} without Management authority over it`);
+          }
+        }
+      }
+
+      // 6. A STRANGER GETS NOWHERE. The proxy refuses an anonymous caller before
+      //    the page decides anything.
+      const anon = await get(`${base}/pimpinan`, { redirect: "manual" });
+      c.expect(anon.status >= 300 && anon.status < 400,
+        `an anonymous caller reached /pimpinan with ${anon.status}`);
+
+      return c.verdict(
+        "the Management experience reaches exactly the two roles the WP1 ruling names: a DEAN standing " +
+        "at the institution and a HEAD_OF_DEPARTMENT standing at one department both receive it, while " +
+        "an INSTITUTION_ADMIN -- who outranks both and whom the metric catalogue's own audiences would " +
+        "have admitted -- is refused by name, as are an EDUCATOR and a STUDENT, each through the same " +
+        "one refusal page. The journey from the home into a part of the school and on to its roster " +
+        "works for the dean and is refused on the SAME REAL NODE to two readers without Management " +
+        "authority over it, and an anonymous caller never reaches the page at all",
       );
     },
   },
