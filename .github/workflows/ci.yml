@@ -158,7 +158,7 @@ jobs:
       matrix:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
-               db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates]
+               db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -196,6 +196,8 @@ jobs:
               echo "the three FABLE-06 static defects are planted as files, below" ;;
             db-tour-gates)
               echo "the eight first-login tour defects are planted in SQL against the running stack, below" ;;
+            db-wp1-gates)
+              echo "the six authorization-boundary defects are planted in SQL against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1179,6 +1181,176 @@ jobs:
           rollback;
           SQL
           red F04-T04 'losing the label' /tmp/tour-8.sql
+
+      - name: Local stack (WP1 authorization-boundary gates)
+        if: matrix.case == 'db-wp1-gates'
+        id: gatesWp1
+        uses: ./.github/actions/local-stack
+      - name: Each planted boundary defect must turn F06-P10 red for its own reason
+        if: matrix.case == 'db-wp1-gates'
+        env:
+          DB_URL: ${{ steps.gatesWp1.outputs.db-url }}
+        run: |
+          set -e
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
+
+          # Control inside a transaction and rolled back, for the reason
+          # db-tour-gates records above: run_fable06() commits a second CLASS
+          # node into the bootstrap tenant, and a committed one changes what the
+          # plants below are measured against.
+          cat > /tmp/wp1-base.sql <<'SQL'
+          begin;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id in ('F06-P09','F06-P10');
+          rollback;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -f /tmp/wp1-base.sql "$DB_URL" | tee baseWp1.txt
+          grep -E ' \| f \| ' baseWp1.txt && { echo "::error::a boundary case is already red before any defect was planted"; exit 1; } || true
+
+          red() {   # red <test id> <expected substring> <sql file>
+            psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
+            grep -E "^$1 \| f \|" "out-$1.txt" || { echo "::error::$1 stayed green with the defect planted"; exit 1; }
+            grep -F "$2" "out-$1.txt" || { echo "::error::$1 went red but not for '$2'"; exit 1; }
+          }
+          p10() { printf 'select id, case when ok then %s else %s end, detail from selftest.run_fable06() where id=%s;\nrollback;\n' "'t'" "'f'" "'F06-P10'" >> "$1"; }
+
+          # 1. THE DEFECT ITSELF, restored verbatim: audience in the tenant, and
+          #    the node never compared to anything. This is the state of
+          #    metric_evaluate before 0091 and the single most important plant
+          #    here -- if F06-P10 survives it, the test is decorative.
+          cat > /tmp/wp1-1.sql <<'SQL'
+          begin;
+          create or replace function public.metric_evaluate(p_metric_id text, p_node uuid, p_institution uuid, p_catalogue_version text default null)
+          returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $f$
+          declare v_cat text; d public.metric_definitions; v_out jsonb; v_permitted boolean; v_me uuid;
+          begin
+            v_cat := coalesce(p_catalogue_version, public.current_metric_catalogue());
+            if v_cat is null then raise exception 'no live metric catalogue'; end if;
+            v_me := public.current_person_id();
+            select * into d from public.metric_definitions m where m.catalogue_version = v_cat and m.metric_id = p_metric_id;
+            if d.metric_id is null then return jsonb_build_object('status','unavailable','statement_key','laporan.metrik.tidak_dikenal'); end if;
+            v_permitted := public.is_system_admin()
+              or exists (select 1 from public.role_assignments ra
+                          where ra.person_id = v_me and ra.institution_id = p_institution and ra.revoked_at is null
+                            and now() >= ra.valid_from and now() < ra.valid_until and ra.role = any(d.allowed_audiences))
+              or (d.scope = 'LEARNER_IN_INSTITUTION' and v_me is not null and p_node = v_me and 'STUDENT' = any(d.allowed_audiences));
+            if not v_permitted then return jsonb_build_object('status','not_permitted','statement_key','laporan.metrik.bukan_untuk_anda'); end if;
+            if d.deprecated then return jsonb_build_object('metric_id',p_metric_id,'catalogue_version',v_cat,'status','deprecated','label_key',d.label_key,'statement_key',coalesce(d.deprecation_note_key,'laporan.metrik.diganti')); end if;
+            execute format('select public.%I($1, $2, $3)', 'calc_' || d.calculation_key) into v_out using p_node, p_institution, v_cat;
+            if coalesce((v_out ->> 'sample')::numeric, 0) < d.minimum_sample then
+              return jsonb_build_object('metric_id',p_metric_id,'catalogue_version',v_cat,'status','below_minimum','label_key',d.label_key,'statement_key','laporan.metrik.belum_cukup_data','have',coalesce((v_out->>'sample')::numeric,0),'needed',d.minimum_sample); end if;
+            return jsonb_build_object('metric_id',p_metric_id,'catalogue_version',v_cat,'status','ok','scope',d.scope,'label_key',d.label_key,'meaning_key',d.meaning_key,'allowed_visualizations',to_jsonb(d.allowed_visualizations),'value',v_out->'value','sample',v_out->'sample');
+          end $f$;
+          SQL
+          p10 /tmp/wp1-1.sql
+          red F06-P10 'A3 sibling department' /tmp/wp1-1.sql
+
+          # 2. THE TEMPTING WRONG REPAIR: trust the catalogue's declared scope
+          #    instead of reading what the calculator actually does. It looks
+          #    tidier and it re-opens the leak through the one metric that
+          #    declares COHORT while aggregating every cohort in the school.
+          cat > /tmp/wp1-2.sql <<'SQL'
+          begin;
+          create or replace function public.metric_computes_tenant_wide(p_calculation_key text)
+          returns boolean language sql stable security definer set search_path = public, pg_temp as $f$
+            select coalesce((select d.scope = 'INSTITUTION' from public.metric_definitions d
+                              where d.catalogue_version = public.current_metric_catalogue()
+                                and d.calculation_key = p_calculation_key limit 1), true);
+          $f$;
+          SQL
+          p10 /tmp/wp1-2.sql
+          red F06-P10 'cohort comparison' /tmp/wp1-2.sql
+
+          # 3. THE TWO HALVES COLLECTED FROM TWO ASSIGNMENTS. Audience from one
+          #    row, containment from another. Every individual check still
+          #    passes; the conjunction is what fails, and only a reader wearing
+          #    two hats can show it.
+          cat > /tmp/wp1-3.sql <<'SQL'
+          begin;
+          create or replace function public.audience_on_node(p_audiences public.app_role[], p_node uuid)
+          returns boolean language plpgsql stable security definer set search_path = public, pg_temp as $f$
+          declare v_person uuid;
+          begin
+            if p_audiences is null or p_node is null then return false; end if;
+            v_person := public.current_person_id();
+            if v_person is null then return false; end if;
+            return public.node_in_my_scope(p_node)
+               and exists (select 1 from public.role_assignments ra
+                            where ra.person_id = v_person and ra.revoked_at is null
+                              and now() >= ra.valid_from and now() < ra.valid_until
+                              and ra.role = any (p_audiences));
+          exception when others then return false;
+          end $f$;
+          SQL
+          p10 /tmp/wp1-3.sql
+          red F06-P10 'two hats' /tmp/wp1-3.sql
+
+          # 4. THE SHELF REOPENED. The evaluator stays repaired and yesterday's
+          #    institution-wide report is handed over anyway -- a boundary with
+          #    a second door.
+          cat > /tmp/wp1-4.sql <<'SQL'
+          begin;
+          drop policy generated_reports_select on public.generated_reports;
+          create policy generated_reports_select on public.generated_reports for select to authenticated
+            using (public.is_member_of_institution(institution_id));
+          SQL
+          p10 /tmp/wp1-4.sql
+          red F06-P10 'off the shelf' /tmp/wp1-4.sql
+
+          # 5. A NAMED LEARNER CONTAINED BY THE TENANT RATHER THAN BY THE TREE,
+          #    which is the person-shaped version of the original defect.
+          cat > /tmp/wp1-5.sql <<'SQL'
+          begin;
+          create or replace function public.audience_over_learner(p_audiences public.app_role[], p_learner uuid, p_institution uuid)
+          returns boolean language plpgsql stable security definer set search_path = public, pg_temp as $f$
+          declare v_person uuid;
+          begin
+            if p_audiences is null or p_learner is null or p_institution is null then return false; end if;
+            v_person := public.current_person_id();
+            if v_person is null then return false; end if;
+            return exists (select 1 from public.role_assignments ra
+                            where ra.person_id = v_person and ra.institution_id = p_institution
+                              and ra.revoked_at is null and now() >= ra.valid_from and now() < ra.valid_until
+                              and ra.role = any (p_audiences));
+          exception when others then return false;
+          end $f$;
+          SQL
+          p10 /tmp/wp1-5.sql
+          red F06-P10 'learner in sibling department' /tmp/wp1-5.sql
+
+          # 6. THE REPORT NODE FORWARDED UNREAD AGAIN, so an artefact row is
+          #    written naming another school's node even though every metric in
+          #    it was refused.
+          cat > /tmp/wp1-6.sql <<'SQL'
+          begin;
+          create or replace function public.generate_report(p_template uuid, p_scope_node uuid, p_catalogue_version text default null)
+          returns jsonb language plpgsql security definer set search_path = public, pg_temp as $f$
+          declare t public.report_templates; v_cat text; v_entries jsonb := '[]'::jsonb;
+                  v_row record; v_one jsonb; v_id uuid; n_ok int; n_omitted int;
+          begin
+            select * into t from public.report_templates where id = p_template;
+            if t.id is null then raise exception 'no such report template'; end if;
+            v_cat := coalesce(p_catalogue_version, public.current_metric_catalogue());
+            if not public.is_member_of_institution(t.institution_id) then
+              raise exception 'that report belongs to another institution'; end if;
+            for v_row in select m.metric_id, m.ordinal, m.visualization from public.report_template_metrics m
+                          where m.template_id = p_template order by m.ordinal loop
+              v_one := public.metric_evaluate(v_row.metric_id, p_scope_node, t.institution_id, v_cat);
+              v_entries := v_entries || jsonb_build_array(v_one || jsonb_build_object('ordinal', v_row.ordinal, 'visualization', v_row.visualization));
+            end loop;
+            select count(*) filter (where e ->> 'status' = 'ok'), count(*) filter (where e ->> 'status' <> 'ok')
+              into n_ok, n_omitted from jsonb_array_elements(v_entries) e;
+            insert into public.generated_reports (institution_id, standard_report, template_id, template_version,
+              catalogue_version, scope_node_id, generated_by_person_id, body)
+            values (t.institution_id, t.standard_report, t.id, t.template_version, v_cat, p_scope_node,
+              public.current_person_id(), jsonb_build_object('title_key', t.title_key, 'branding', t.branding,
+                'entries', v_entries, 'shown', n_ok, 'omitted', n_omitted)) returning generated_reports.id into v_id;
+            return jsonb_build_object('generated_report_id', v_id, 'catalogue_version', v_cat, 'template_version',
+              t.template_version, 'title_key', t.title_key, 'branding', t.branding, 'entries', v_entries,
+              'shown', n_ok, 'omitted', n_omitted);
+          end $f$;
+          SQL
+          p10 /tmp/wp1-6.sql
+          red F06-P10 'another school' /tmp/wp1-6.sql
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are
