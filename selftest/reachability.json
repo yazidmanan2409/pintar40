@@ -68,6 +68,14 @@
         "p_scope_node": "rls:org_nodes"
       },
       "note": "Both are ordinary reads the reader already has. Reading a report requires standing in the institution; it does NOT require the capability that saved the template, and each metric is re-authorized against the reader."
+    },
+    "grant_role": {
+      "actor": "an active SYSTEM_ADMIN, or an INSTITUTION_ADMIN over the target node",
+      "args": {
+        "p_person": "rpc:persons_awaiting_first_role",
+        "p_scope_node": "rls:org_nodes"
+      },
+      "note": "The final release delta. p_person had no governed source for a person with no prior relationship: the only granting surface listed people from enrolments, transfers and existing roles, so a school's first administrator could not be selected. persons_awaiting_first_role is that source for exactly those people; everyone else is already reachable through rls:role_assignments, rls:enrollments or rls:transfers."
     }
   }
 }

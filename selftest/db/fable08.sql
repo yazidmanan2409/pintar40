@@ -36,6 +36,12 @@ begin
   if to_regprocedure('public.bootstrap_first_system_admin(text, timestamptz)') is null then
     raise exception 'fable08.sql needs the day-zero bootstrap migration';
   end if;
+  if to_regclass('public.platform_bootstrap') is null then
+    raise exception 'fable08.sql needs the installation-initialisation migration';
+  end if;
+  if to_regprocedure('public.persons_awaiting_first_role()') is null then
+    raise exception 'fable08.sql needs the first-role discovery migration';
+  end if;
 end $$;
 
 create or replace function selftest.f08_note(p jsonb, p_id text, p_problem text)
@@ -83,6 +89,7 @@ declare
   m_tables int := 0; m_triggers int := 0;
   m_entries int := 0; m_version int := 0; m_cfg_denied int := 0; m_audit int := 0;
   m_boot_denied int := 0; v_first_u uuid; v_first uuid; v_second_u uuid; v_second uuid;
+  m_wait_denied int := 0; v_fresh_u uuid; v_fresh uuid; v_sysadmin_u uuid;
 begin
   perform selftest.as_owner();
   begin
@@ -572,16 +579,23 @@ begin
       exception when others then
         v_probs := selftest.f08_note(v_probs, 'F08-P07', 'the day-zero bootstrap failed: ' || left(sqlerrm, 120));
       end;
-      -- (d) and shuts behind itself
+      -- (d) and shuts behind itself, naming the DURABLE fact rather than who
+      --     happens to be an administrator
       v_raised := false;
       begin
         perform public.bootstrap_first_system_admin('f08-second-' || v_tag || '@local.invalid');
       exception when others then v_raised := true; v_msg := sqlerrm; end;
       set local role postgres;
-      if not v_raised or v_msg !~ 'already has an active SYSTEM_ADMIN' then
+      if not v_raised or v_msg !~ 'already initialised' then
         v_probs := selftest.f08_note(v_probs, 'F08-P07',
           'a second bootstrap was accepted: ' || coalesce(v_msg, '(accepted)'));
       else m_boot_denied := m_boot_denied + 1; end if;
+
+      select count(*) into n from public.platform_bootstrap;
+      if n <> 1 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          format('the bootstrap left %s initialisation record(s), expected exactly one', n));
+      end if;
 
       select count(*) into n from public.role_assignments
        where person_id = v_first and role = 'SYSTEM_ADMIN' and revoked_at is null and scope_node_id is null;
@@ -641,13 +655,148 @@ begin
           'the bootstrapped administrator cannot govern: ' || left(sqlerrm, 120));
       end;
       perform selftest.as_owner();
+
+      -- (f) THE RULING: initialisation is not administrator recovery. Revoke
+      --     every SYSTEM_ADMIN there is -- the installation now has none at
+      --     all -- and the door is still shut, because what closed it was the
+      --     durable record of the act and not the existence of an admin.
+      update public.role_assignments set revoked_at = now()
+       where role = 'SYSTEM_ADMIN' and revoked_at is null;
+      select count(*) into n from public.role_assignments
+       where role = 'SYSTEM_ADMIN' and revoked_at is null and now() < valid_until;
+      if n <> 0 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'the probe could not leave the installation without an administrator, so the refusal below proves nothing');
+      end if;
+      set local role service_role;
+      v_raised := false;
+      begin
+        perform public.bootstrap_first_system_admin('f08-second-' || v_tag || '@local.invalid');
+      exception when others then v_raised := true; v_msg := sqlerrm; end;
+      set local role postgres;
+      if not v_raised or v_msg !~ 'already initialised' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'the bootstrap reopened after every administrator was revoked: ' || coalesce(v_msg, '(accepted)'));
+      else m_boot_denied := m_boot_denied + 1; end if;
+
+      -- and the record cannot be undone to reopen it
+      v_raised := false;
+      begin delete from public.platform_bootstrap;
+      exception when others then v_raised := true; end;
+      if not v_raised then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07', 'the initialisation record was deleted');
+      else m_boot_denied := m_boot_denied + 1; end if;
+      perform selftest.as_owner();
     exception when others then
       begin set local role postgres; exception when others then null; end;
       v_probs := selftest.f08_note(v_probs, 'F08-P07', 'the test could not run: ' || left(sqlerrm, 150));
       begin perform selftest.as_owner(); exception when others then null; end;
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F08-P08  A PERSON WITH NO PAST CAN BE GIVEN THEIR FIRST ROLE.
+    --          The configuration studio offered only people reachable through
+    --          an enrolment, a transfer or an existing role -- every one of
+    --          them a prior relationship -- so a school's first administrator,
+    --          who by definition has none, could not be selected at all.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into auth.users (id, email) values (gen_random_uuid(), 'f08-fresh-' || v_tag || '@local.invalid')
+      returning users.id into v_fresh_u;
+      select a.person_id into v_fresh from public.accounts a where a.auth_user_id = v_fresh_u;
+      update public.persons set display_name = 'Calon Kepala ' || v_tag where persons.id = v_fresh;
+      v_sysadmin_u := selftest.f08_user('f08-sys-' || v_tag || '@local.invalid', 'SYSTEM_ADMIN', v_inst);
+      perform set_config('app.seed_intent', '', true);
+
+      -- (a) REACHABLE THROUGH NONE OF THE THREE EXISTING SOURCES
+      select count(*) into n from public.enrollments e where e.person_id = v_fresh;
+      if n <> 0 then v_probs := selftest.f08_note(v_probs, 'F08-P08', 'the fresh person is enrolled'); end if;
+      select count(*) into n from public.transfers t where t.person_id = v_fresh;
+      if n <> 0 then v_probs := selftest.f08_note(v_probs, 'F08-P08', 'the fresh person has a transfer'); end if;
+      select count(*) into n from public.role_assignments ra where ra.person_id = v_fresh;
+      if n <> 0 then v_probs := selftest.f08_note(v_probs, 'F08-P08', 'the fresh person already holds a role'); end if;
+
+      -- (b) AND THE SYSTEM ADMIN FINDS THEM ANYWAY, BY NAME
+      perform selftest.as_user('f08-sys-' || v_tag || '@local.invalid');
+      select count(*) into n from public.persons_awaiting_first_role()
+       where person_id = v_fresh and display_name = 'Calon Kepala ' || v_tag;
+      if n <> 1 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P08',
+          'the person holding nothing is not offered for a first role');
+      end if;
+      -- it is the COMPLEMENT of the studio's three sources, not a directory:
+      -- everyone who already holds something is absent
+      select count(*) into n from public.persons_awaiting_first_role() w
+       where exists (select 1 from public.role_assignments ra
+                      where ra.person_id = w.person_id and ra.revoked_at is null)
+          or exists (select 1 from public.enrollments e where e.person_id = w.person_id)
+          or exists (select 1 from public.transfers t where t.person_id = w.person_id);
+      if n <> 0 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P08',
+          format('%s person(s) who already hold something are offered as awaiting a first role', n));
+      end if;
+
+      -- (c) THE GRANT THE LIST EXISTS FOR IS ACCEPTED, at the institution root
+      begin
+        perform public.grant_role(v_fresh, 'INSTITUTION_ADMIN', v_inst, now() + interval '365 days');
+      exception when others then
+        v_probs := selftest.f08_note(v_probs, 'F08-P08',
+          'the discovered person could not be granted a first role: ' || left(sqlerrm, 120));
+      end;
+      select count(*) into n from public.persons_awaiting_first_role() where person_id = v_fresh;
+      if n <> 0 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P08', 'a person who now holds a role is still waiting');
+      end if;
+
+      -- (d) AND ORDINARY ONBOARDING CONTINUES from that grant
+      perform selftest.as_user('f08-fresh-' || v_tag || '@local.invalid');
+      begin
+        insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+        values (v_inst, v_prog, 'COHORT', 'Angkatan baru ' || v_tag, v_period);
+      exception when others then
+        v_probs := selftest.f08_note(v_probs, 'F08-P08',
+          'the newly granted administrator cannot onboard their school: ' || left(sqlerrm, 120));
+      end;
+
+      -- (e) NOBODY ELSE MAY ASK, and the reply is a refusal rather than rows
+      for r in select * from unnest(array['f08-admin-', 'f08-dekan-', 'f08-guru-']) as t(who) loop
+        perform selftest.as_user(r.who || v_tag || '@local.invalid');
+        begin
+          perform public.persons_awaiting_first_role();
+          v_probs := selftest.f08_note(v_probs, 'F08-P08',
+            r.who || 'read the list of people awaiting a first role');
+        exception when others then
+          if sqlerrm !~ 'SYSTEM_ADMIN' then
+            v_probs := selftest.f08_note(v_probs, 'F08-P08',
+              r.who || 'was refused for the wrong reason: ' || left(sqlerrm, 90));
+          else m_wait_denied := m_wait_denied + 1; end if;
+        end;
+      end loop;
+      perform selftest.as_anon();
+      begin
+        perform public.persons_awaiting_first_role();
+        v_probs := selftest.f08_note(v_probs, 'F08-P08', 'an anonymous caller read the waiting list');
+      exception when others then m_wait_denied := m_wait_denied + 1;
+      end;
+      perform selftest.as_owner();
+
+      -- (f) AND VISIBILITY WAS NOT WIDENED TO ACHIEVE ANY OF IT
+      if pg_get_functiondef('public.person_visible_to_me(uuid)'::regprocedure) ~* '\yawaiting\y' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P08', 'person_visible_to_me was taught about this list');
+      end if;
+      if pg_get_functiondef('public.persons_awaiting_first_role()'::regprocedure)
+           not like '%person_visible_to_me%' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P08', 'the read does not defer to person_visible_to_me');
+      end if;
+    exception when others then
+      v_probs := selftest.f08_note(v_probs, 'F08-P08', 'the test could not run: ' || left(sqlerrm, 150));
+      begin perform selftest.as_owner(); exception when others then null; end;
+    end;
+
     raise exception 'F08_UNDO';
+
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
     perform set_config('app.seed_intent', '', true);
@@ -657,14 +806,15 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07'],
+      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07','F08-P08'],
       array['WP8 -- a school can build its own shape, signed in',
             'WP8 -- no client-writable table runs a trigger the client cannot execute',
             'WP8 -- an institution assembles a report and the engine runs on it',
             'WP8 -- the catalogue is PINTAR''s, and a template only selects from it',
             'WP8 -- authorization is the first gate on the new endpoint',
             'WP8 -- a retired metric, and a grant that could never work',
-            'WP8 -- the first administrator, and the door that shuts behind them'],
+            'WP8 -- the first administrator, and the door that shuts behind them',
+            'WP8 -- a person with no past can be given their first role'],
       array[
         format('an institution administrator signs in and builds a cohort and a class in their own '
             || 'school -- which is what a missing EXECUTE grant on the ladder trigger''s own helper made '
@@ -708,8 +858,19 @@ begin
             || 'On day zero -- reached by revoking every active SYSTEM_ADMIN through the guard''s own '
             || 'revocation path -- the operator binds exactly one global assignment to an identity '
             || 'Supabase Auth already created, it is on the audit record once, and normal PINTAR role '
-            || 'governance takes over: that administrator grants the next one through grant_role',
-            m_boot_denied)
+            || 'governance takes over: that administrator grants the next one through grant_role. AND '
+            || 'INITIALISATION IS NOT RECOVERY: with the record written, revoking every SYSTEM_ADMIN '
+            || 'in the installation does not reopen it, and the record itself cannot be deleted',
+            m_boot_denied),
+        format('the person a school needs most -- its first administrator, created moments ago and '
+            || 'holding no enrolment, no transfer and no role -- is offered to a SYSTEM_ADMIN by '
+            || 'name, asserted against all three of the sources that could not reach them. The grant '
+            || 'the list exists for is accepted at the institution root, the person leaves the list '
+            || 'the moment they hold something, and ordinary onboarding continues from there: they '
+            || 'build their own cohort. %s refusals -- an institution administrator, a dean, an '
+            || 'educator and an anonymous caller -- each by the SYSTEM_ADMIN name. Visibility was '
+            || 'not widened to do any of it: the read defers to person_visible_to_me and that '
+            || 'predicate knows nothing about this list', m_wait_denied)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

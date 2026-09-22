@@ -91,6 +91,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
   ]);
 
+  // FINAL DELTA 2. The people the three sources above cannot reach: no active
+  // role, no enrolment, no transfer. The database decides who may ask and who
+  // may be seen -- a non-SYSTEM_ADMIN is refused by the endpoint and gets an
+  // error rather than rows, which is why nothing here checks a role first.
+  const { data: awaiting } = await supabase.rpc("persons_awaiting_first_role");
+  const awaitingPersons = (awaiting ?? []) as Array<{ person_id: string; display_name: string }>;
+
   // W8-02. The institution's own templates, and the catalogue they may select
   // from. Both are ordinary reads under this viewer's own RLS: the template
   // rows are their school's, and the catalogue is PINTAR's, readable by anyone
@@ -335,7 +342,20 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">
                   <option value="" disabled>—</option>
-                  {(persons ?? []).filter((p) => p.id !== viewer.personId).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
+                  {/* Two groups, and the union is total: everyone the reader
+                      may see either holds something already or holds nothing
+                      yet. A school's first administrator is always in the
+                      second group, which is why it had to exist. */}
+                  {awaitingPersons.length > 0 && (
+                    <optgroup label={s("config.label.person_new")}>
+                      {awaitingPersons.map((p) => (
+                        <option key={p.person_id} value={p.person_id}>{p.display_name}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  <optgroup label={s("config.label.person_known")}>
+                    {(persons ?? []).filter((p) => p.id !== viewer.personId).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
+                  </optgroup>
                 </select>
               </label>
               <label className={label}>{s("config.label.role")}

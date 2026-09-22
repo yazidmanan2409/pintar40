@@ -12,9 +12,9 @@ restore followed by a re-apply. No hosted Supabase has been contacted.
 
 | | |
 |---|---|
-| repository, at this commit | **106 migrations** |
+| repository, at this commit | **108 migrations** |
 | hosted development project, last recorded | **80 migrations** (`docs/phases/FABLE-06-HOSTED-ADDENDUM.md`) |
-| gap | **26 migrations**, WP6 through the day-zero bootstrap |
+| gap | **28 migrations**, WP6 through the two final release deltas |
 
 The addendum is the last measurement anyone took. It is a record, not a live
 reading, and **step 0 of the rehearsal is to re-measure rather than trust this
@@ -47,7 +47,7 @@ Run against **staging first** (see §5), then production.
 1. **Back up.** Take the project's snapshot and record its identifier in the
    rehearsal log. No apply begins without one.
 2. **Dry the run locally first.** `scripts/dev/golden-db.sh rebuild` replays
-   all 106 from empty; CI's `migrations · clean database + seed` and
+   all 108 from empty; CI's `migrations · clean database + seed` and
    `migrations · previous schema → HEAD` do the same on every candidate. The
    rehearsal adds nothing to that evidence — it exercises the *hosted*
    procedure.
@@ -60,7 +60,7 @@ Run against **staging first** (see §5), then production.
 4. **Do not stamp anything by hand.** `migration repair` is not part of this
    procedure. If the history and the repository disagree in a way that blocks
    the apply, that is a finding for Sauron, not something to be typed past.
-5. **Re-measure after.** Applied count equals 106; last version equals the
+5. **Re-measure after.** Applied count equals 108; last version equals the
    repository's last file.
 
 ## 3b. The first administrator — day zero, once
@@ -84,22 +84,27 @@ The door is narrow on purpose:
 
 - granted to `service_role` only, and refused from a signed-in session even if
   the grant were ever widened by mistake;
-- it works **only while no active SYSTEM_ADMIN exists**, and refuses ever
-  after — the next administrator is granted by the first one through
-  `grant_role`, like everybody else;
+- it is **once per installation, for ever**: success writes a durable record
+  in `platform_bootstrap`, and that record — not whether an administrator
+  happens to be alive — is what closes the door. Revoking every SYSTEM_ADMIN
+  does not reopen it, and the record refuses UPDATE and DELETE;
+- it also refuses while an active SYSTEM_ADMIN exists, which covers an
+  installation that acquired one by any other path;
 - it writes exactly one global assignment, with no grantor, because there is
   nobody to be the grantor and a false one would be worse than a null;
 - it is on the audit record as `role.first_system_admin_bootstrapped`.
 
-Two operational notes. The optional second argument sets the validity, one
-year by default. And because the condition is "no ACTIVE administrator" rather
-than "none has ever existed", this is also the recovery door for a tenant that
-revokes or lets expire its last administrator — reachable only with the
-operator's key, which already grants more than this does.
+The optional second argument sets the validity, one year by default.
+
+**This is initialisation, not administrator recovery, and there is no recovery
+door.** A tenant that loses its last administrator is an operational matter for
+whoever holds the database — a restore from the snapshot in step 2 — and not
+something the product reopens.
 
 Verify: `select count(*) from public.role_assignments where role='SYSTEM_ADMIN'
-and revoked_at is null` returns 1, and calling the function a second time
-raises *"this PINTAR already has an active SYSTEM_ADMIN"*.
+and revoked_at is null` returns 1, `select count(*) from
+public.platform_bootstrap` returns 1, and calling the function a second time
+raises *"this installation was already initialised"*.
 
 ## 3c. Declare the environment
 
@@ -137,6 +142,13 @@ Run, on the hosted database, and record each result in the rehearsal log:
    — not at a faculty, or they cannot write their own tree. Then, as that
    administrator: build the org tree and assemble the school's report
    template.
+
+   **Selecting the person to grant.** A person created in Supabase Auth
+   moments earlier holds no enrolment, no transfer and no role, and the
+   configuration studio's ordinary list is built from exactly those three. They
+   appear instead under **"Holds nothing yet"** in the person selector, from
+   `persons_awaiting_first_role` — a SYSTEM_ADMIN-only read that returns the
+   complement of those three sources and nothing wider.
 
 **The selftest DB suites are not run against hosted.** They mutate business
 data; `SUPABASE_DB_URL` is never pointed at a hosted project. That rule is

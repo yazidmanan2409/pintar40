@@ -1219,6 +1219,14 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 106 -> 108 for the two final release deltas. 20261004100000 adds
+      // ONE relation, platform_bootstrap: a single row recording that this
+      // installation was initialised, closed to every client role, carrying no
+      // mark, no logo, no crest and no theme -- an id, a timestamp and a person.
+      // 20261004110000 adds one SYSTEM_ADMIN read and no relation at all. Read
+      // against §3 of the ruling before these numbers moved: the Q-7 source
+      // still does not exist.
+      //
       // MOVED 105 -> 106 for the release rehearsal's one blocker: 20261003100000
       // adds a single operator-only function and one clause inside the
       // existing role-assignment guard. No relation, no column.
@@ -1317,7 +1325,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 106, `${migrations.length} migrations; the frozen baseline has 106`);
+      c.expect(migrations.length === 108, `${migrations.length} migrations; the frozen baseline has 108`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2956,7 +2964,10 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 105 -> 106 for the day-zero
+      // from, not a claim about the tour. MOVED 106 -> 108 for the two final
+      // release deltas -- the installation-initialisation record and the
+      // first-role discovery read -- neither of which is a tour RPC nor touches
+      // person_tour_state. MOVED 105 -> 106 for the day-zero
       // first-administrator bootstrap, which is one operator-only function and
       // one guard clause and touches no tour RPC. MOVED 102 -> 105 for WP8: a grant on
       // org_kind_level plus an owner-run reachability assertion, a replaced
@@ -2987,7 +2998,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 106, `${migs.length} migrations; the baseline has 106`);
+      c.expect(migs.length === 108, `${migs.length} migrations; the baseline has 108`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

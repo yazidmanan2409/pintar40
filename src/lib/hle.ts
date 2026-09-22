@@ -206,6 +206,8 @@ export type HleEvent =
   | "config.section.intelligence"
   | "laporan.templat.judul"
   | "laporan.templat.institusi"
+  | "config.label.person_new"
+  | "config.label.person_known"
   | "laporan.templat.penjelasan"
   | "laporan.templat.kosong"
   | "laporan.templat.judul_kunci"
@@ -1430,6 +1432,8 @@ const table: Table = {
   "config.section.intelligence": { default: "Inteligensi & Laporan", en: "Intelligence & Reports" },
   "laporan.templat.judul": { default: "Templat laporan", en: "Report templates" },
   "laporan.templat.institusi": { default: "Institusi", en: "Institution" },
+  "config.label.person_new": { default: "Belum memiliki peran", en: "Holds nothing yet" },
+  "config.label.person_known": { default: "Sudah dikenal sistem", en: "Already known to the system" },
   "laporan.templat.penjelasan": { default: "PINTAR memiliki katalog metrik beserta rumus, makna, ambang sampel minimum dan siapa yang boleh membacanya. Sekolah memilih metrik mana yang muncul dan bagaimana digambarkan — bukan apa artinya.", en: "PINTAR owns the metric catalogue: the formulas, the meanings, the minimum samples and who may read each one. A school chooses which metrics appear and how they are drawn — never what they mean." },
   "laporan.templat.kosong": { default: "Sekolah ini belum menyusun templat laporan.", en: "This school has not assembled a report template yet." },
   "laporan.templat.judul_kunci": { default: "Kunci judul", en: "Title key" },
