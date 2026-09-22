@@ -7,7 +7,7 @@
     },
     "db-wp8-gates": {
       "suite": "selftest.run_fable08()",
-      "control_green": 6,
+      "control_green": 7,
       "what": "WP8's onboarding repair, the client-write reachability assertion and report configuration"
     }
   },
@@ -131,6 +131,18 @@
       "gate": "db-wp8-gates",
       "expect_red": "F08-P06",
       "expect_detail": "a retired metric was accepted into a template"
+    },
+    {
+      "name": "wp8-7",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P07",
+      "expect_detail": "a second bootstrap was accepted"
+    },
+    {
+      "name": "wp8-8",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P07",
+      "expect_detail": "the marker opened the door while an administrator existed"
     }
   ]
 }

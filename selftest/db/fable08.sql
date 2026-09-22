@@ -33,6 +33,9 @@ begin
   if to_regprocedure('public.assert_client_writes_are_reachable()') is null then
     raise exception 'fable08.sql needs the WP8 reachability assertion';
   end if;
+  if to_regprocedure('public.bootstrap_first_system_admin(text, timestamptz)') is null then
+    raise exception 'fable08.sql needs the day-zero bootstrap migration';
+  end if;
 end $$;
 
 create or replace function selftest.f08_note(p jsonb, p_id text, p_problem text)
@@ -79,6 +82,7 @@ declare
   m_depth int := 0; m_ladder_refusals int := 0; m_build_denied int := 0;
   m_tables int := 0; m_triggers int := 0;
   m_entries int := 0; m_version int := 0; m_cfg_denied int := 0; m_audit int := 0;
+  m_boot_denied int := 0; v_first_u uuid; v_first uuid; v_second_u uuid; v_second uuid;
 begin
   perform selftest.as_owner();
   begin
@@ -506,6 +510,143 @@ begin
       begin perform selftest.as_owner(); exception when others then null; end;
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F08-P07  DAY ZERO: the first administrator, and the door that shuts.
+    --          Last, because reaching day zero means revoking every active
+    --          SYSTEM_ADMIN in this fixture's world -- which the sentinel
+    --          below undoes with everything else.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into auth.users (id, email) values (gen_random_uuid(), 'f08-first-' || v_tag || '@local.invalid')
+      returning users.id into v_first_u;
+      insert into auth.users (id, email) values (gen_random_uuid(), 'f08-second-' || v_tag || '@local.invalid')
+      returning users.id into v_second_u;
+      select a.person_id into v_first from public.accounts a where a.auth_user_id = v_first_u;
+      select a.person_id into v_second from public.accounts a where a.auth_user_id = v_second_u;
+      perform set_config('app.seed_intent', '', true);
+
+      -- (a) A CLIENT CANNOT REACH IT AT ALL. Not granted, and refused by the
+      --     function's own first check even if it ever were.
+      for r in select * from unnest(array['authenticated', 'anon']) as t(who) loop
+        begin
+          if r.who = 'anon' then perform selftest.as_anon();
+          else perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid'); end if;
+          perform public.bootstrap_first_system_admin('f08-first-' || v_tag || '@local.invalid');
+          v_probs := selftest.f08_note(v_probs, 'F08-P07',
+            'a ' || r.who || ' session called the day-zero bootstrap');
+        exception when others then m_boot_denied := m_boot_denied + 1;
+        end;
+      end loop;
+      perform selftest.as_owner();
+
+      -- (b) AND THE OPERATOR CANNOT EITHER, WHILE AN ADMINISTRATOR EXISTS.
+      --     The seeded world has one, so this is the ordinary state.
+      select count(*) into n from public.role_assignments
+       where role = 'SYSTEM_ADMIN' and revoked_at is null and now() < valid_until;
+      if n = 0 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'the fixture world has no active SYSTEM_ADMIN, so the refusal below proves nothing');
+      end if;
+      set local role service_role;
+      v_raised := false;
+      begin
+        perform public.bootstrap_first_system_admin('f08-first-' || v_tag || '@local.invalid');
+      exception when others then v_raised := true; v_msg := sqlerrm; end;
+      set local role postgres;
+      if not v_raised or v_msg !~ 'already has an active SYSTEM_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'the bootstrap ran while an administrator existed: ' || coalesce(v_msg, '(accepted)'));
+      else m_boot_denied := m_boot_denied + 1; end if;
+
+      -- (c) DAY ZERO, reached honestly: every active SYSTEM_ADMIN revoked
+      --     through the guard's own revocation path.
+      update public.role_assignments set revoked_at = now()
+       where role = 'SYSTEM_ADMIN' and revoked_at is null;
+      set local role service_role;
+      begin
+        if public.bootstrap_first_system_admin('f08-first-' || v_tag || '@local.invalid') <> v_first then
+          v_probs := selftest.f08_note(v_probs, 'F08-P07', 'the bootstrap bound the wrong person');
+        end if;
+      exception when others then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07', 'the day-zero bootstrap failed: ' || left(sqlerrm, 120));
+      end;
+      -- (d) and shuts behind itself
+      v_raised := false;
+      begin
+        perform public.bootstrap_first_system_admin('f08-second-' || v_tag || '@local.invalid');
+      exception when others then v_raised := true; v_msg := sqlerrm; end;
+      set local role postgres;
+      if not v_raised or v_msg !~ 'already has an active SYSTEM_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'a second bootstrap was accepted: ' || coalesce(v_msg, '(accepted)'));
+      else m_boot_denied := m_boot_denied + 1; end if;
+
+      select count(*) into n from public.role_assignments
+       where person_id = v_first and role = 'SYSTEM_ADMIN' and revoked_at is null and scope_node_id is null;
+      if n <> 1 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          format('the bootstrap left %s global SYSTEM_ADMIN assignment(s) for the first admin', n));
+      end if;
+      select count(*) into n from public.audit_log
+       where action = 'role.first_system_admin_bootstrapped' and target_id in
+             (select ra.id::text from public.role_assignments ra where ra.person_id = v_first);
+      if n <> 1 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07', format('the bootstrap wrote %s audit row(s)', n));
+      end if;
+
+      -- (e) ORDINARY INV-16 IS UNTOUCHED. The marker is not a key, an
+      --     unauthenticated grant is still refused, a signed-in grantor still
+      --     may not grant themselves, and only an active SYSTEM_ADMIN may
+      --     grant SYSTEM_ADMIN.
+      perform set_config('pintar.bootstrap_first_admin', v_second::text, true);
+      v_raised := false;
+      begin
+        insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+        values (v_second, 'SYSTEM_ADMIN', null, now(), now() + interval '1 day');
+      exception when others then v_raised := true; v_msg := sqlerrm; end;
+      perform set_config('pintar.bootstrap_first_admin', '', true);
+      if not v_raised or v_msg !~ 'authenticated grantor' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'the marker opened the door while an administrator existed: ' || coalesce(v_msg, '(accepted)'));
+      else m_boot_denied := m_boot_denied + 1; end if;
+
+      perform selftest.as_user('f08-first-' || v_tag || '@local.invalid');
+      v_raised := false;
+      begin
+        perform public.grant_role(v_first, 'INSTITUTION_ADMIN', v_inst, now() + interval '30 days');
+      exception when others then v_raised := true; v_msg := sqlerrm; end;
+      if not v_raised or v_msg !~ 'self-grant' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'the bootstrapped administrator granted themselves: ' || coalesce(v_msg, '(accepted)'));
+      else m_boot_denied := m_boot_denied + 1; end if;
+
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      v_raised := false;
+      begin
+        perform public.grant_role(v_second, 'SYSTEM_ADMIN', null, now() + interval '30 days');
+      exception when others then v_raised := true; v_msg := sqlerrm; end;
+      if not v_raised or v_msg !~ 'SYSTEM_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'an institution administrator granted SYSTEM_ADMIN: ' || coalesce(v_msg, '(accepted)'));
+      else m_boot_denied := m_boot_denied + 1; end if;
+
+      -- and the bootstrapped administrator governs normally from here
+      perform selftest.as_user('f08-first-' || v_tag || '@local.invalid');
+      begin
+        perform public.grant_role(v_second, 'INSTITUTION_ADMIN', v_inst, now() + interval '30 days');
+      exception when others then
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'the bootstrapped administrator cannot govern: ' || left(sqlerrm, 120));
+      end;
+      perform selftest.as_owner();
+    exception when others then
+      begin set local role postgres; exception when others then null; end;
+      v_probs := selftest.f08_note(v_probs, 'F08-P07', 'the test could not run: ' || left(sqlerrm, 150));
+      begin perform selftest.as_owner(); exception when others then null; end;
+    end;
+
     raise exception 'F08_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -516,13 +657,14 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06'],
+      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07'],
       array['WP8 -- a school can build its own shape, signed in',
             'WP8 -- no client-writable table runs a trigger the client cannot execute',
             'WP8 -- an institution assembles a report and the engine runs on it',
             'WP8 -- the catalogue is PINTAR''s, and a template only selects from it',
             'WP8 -- authorization is the first gate on the new endpoint',
-            'WP8 -- a retired metric, and a grant that could never work'],
+            'WP8 -- a retired metric, and a grant that could never work',
+            'WP8 -- the first administrator, and the door that shuts behind them'],
       array[
         format('an institution administrator signs in and builds a cohort and a class in their own '
             || 'school -- which is what a missing EXECUTE grant on the ladder trigger''s own helper made '
@@ -557,7 +699,17 @@ begin
             || 'still reaches it and a seeded definition still draws its items, so delivery is intact. '
             || 'And a metric retired by a new catalogue version is refused at the moment a template '
             || 'selects it, while the template that named it before the retirement keeps its row: a '
-            || 'catalogue decision does not silently rewrite what a school assembled'
+            || 'catalogue decision does not silently rewrite what a school assembled',
+        format('a freshly deployed PINTAR can acquire its first administrator and no second one. %s '
+            || 'refusals: a signed-in session and an anonymous one cannot reach the door at all, the '
+            || 'operator cannot open it while an administrator exists, it shuts behind the first one, '
+            || 'the session marker is not a key on its own, the bootstrapped administrator may not '
+            || 'grant themselves, and an institution administrator still may not grant SYSTEM_ADMIN. '
+            || 'On day zero -- reached by revoking every active SYSTEM_ADMIN through the guard''s own '
+            || 'revocation path -- the operator binds exactly one global assignment to an identity '
+            || 'Supabase Auth already created, it is on the audit record once, and normal PINTAR role '
+            || 'governance takes over: that administrator grants the next one through grant_role',
+            m_boot_denied)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

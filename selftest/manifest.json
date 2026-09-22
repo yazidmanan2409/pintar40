@@ -1,7 +1,7 @@
 {
   "contract": "pintar-selftest",
-  "version": 55,
-  "phase": "WP8 integration / hardening / deployment readiness on the WP7 core: a school can build its own shape, and an institution assembles its own report from PINTAR's catalogue",
+  "version": 56,
+  "phase": "WP8 integration / hardening / deployment readiness, with the day-zero first-administrator bootstrap the release rehearsal required",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
     "db": "selftest/db/fable01..07.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
@@ -1562,6 +1562,11 @@
       "id": "F08-P06",
       "runner": "db",
       "proves": "Two bounded corrections. A metric retired by a new catalogue version is refused at the moment a template selects it, while a template that named it before the retirement keeps its row -- a catalogue decision does not silently rewrite what a school assembled. And drawable_items_for_definition is no longer granted to a client that could never have used it: it is invoker-rights by design and calls an owner-only function, so a client call could only ever have failed. The assembler still reaches it and a seeded definition still draws its items, so delivery is intact."
+    },
+    {
+      "id": "F08-P07",
+      "runner": "db",
+      "proves": "A freshly deployed PINTAR can acquire its FIRST administrator, and no second one. Until the release rehearsal nothing could: INV-16 requires an authenticated grantor, forbids self-grant, and lets only an active SYSTEM_ADMIN grant SYSTEM_ADMIN, so an empty database had no door at all. The door added is the operator's alone -- a signed-in session and an anonymous one cannot reach it, by grant and again by the function's own first check -- and it opens only while no active SYSTEM_ADMIN exists. Day zero is reached here by revoking every active SYSTEM_ADMIN through the guard's ordinary revocation path, not by disabling anything. The operator then binds exactly ONE global assignment to an identity Supabase Auth already created; the function creates no identity of its own and refuses when none exists. It is audited under its own action name, it refuses every call after the first, and the session marker it uses is not a key on its own -- setting it by hand while an administrator exists changes nothing. ORDINARY INV-16 IS UNCHANGED: an unmarked unauthenticated grant is still refused, the bootstrapped administrator still may not grant themselves, an institution administrator still may not grant SYSTEM_ADMIN, and that administrator governs the next grant through grant_role like anybody else."
     }
   ]
 }
