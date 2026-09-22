@@ -1905,9 +1905,10 @@ begin
                     || 'this phase added -- metric catalogue, metric closure (INV-34 semantics: no report '
                     || 'function computes), reports-do-not-compute and question-health-observes-only. The '
                     || 'set is derived from pg_proc by name and result shape, so a new assertion joins the '
-                    || 'day it is written; the floor of 20 -- re-measured in WP6A, which adds the '
-                    || 'academic-source assertion to this set -- closes the hole where deleting one would '
-                    || 'leave the set instead of failing inside it', n_run);
+                    || 'day it is written; the floor of 21 -- re-measured in WP6A, which added the '
+                    || 'academic-source assertion, and again in WP7B, which adds the feedback boundary -- '
+                    || 'closes the hole where deleting one would leave the set instead of failing inside '
+                    || 'it', n_run);
     end if;
     return next;
   end;
