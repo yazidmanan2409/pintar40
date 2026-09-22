@@ -1,7 +1,7 @@
 {
   "contract": "pintar-selftest",
-  "version": 55,
-  "phase": "WP7B (anonymous student -> educator feedback: participation and answers structurally separated) on the FABLE-06 core",
+  "version": 54,
+  "phase": "WP7D backend unblocker (governed feedback-subject discovery) on the WP7C surface and the WP7B core",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
     "db": "selftest/db/fable01..07.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
@@ -1504,6 +1504,18 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round at Alpha through open_feedback_cycle, asks five personas to close it, and reads the rendered result over HTTP. CI has both facilities, so it never skips there",
       "proves": "an authorized Management user ends collection for a real feedback round through ordinary PINTAR, and the backend decides what the round became. Measured on the RENDERED html of a round opened for this case at Alpha -- its own class, so the learning-cycle tenant's round is untouched. WHILE IT IS OPEN the operator is offered the act and the page carries no response figure, no threshold and no word of one, and the confirmation they are about to read carries none either. EVERY EXCLUDED READER IS REFUSED BY THE ENDPOINT rather than by a hidden button: an institution administrator, the subject educator, a learner and a head of department from another school are each asked to close the round DIRECTLY and each refused; none is offered a control on the ordinary path; none sees a figure; the administrator meets the refusal page rather than a disabled control; and the round is asserted STILL OPEN after all four attempts, so the refusals refused rather than merely being reported. THE AUTHORIZED OPERATOR THEN CLOSES IT, a second close is refused because terminal means terminal, and the page re-read shows the canonical withheld statement with nothing after it, no figure, no claim that it is still collecting, no close control, no confirmation, and no reopen, reset or publish offered anywhere. The subject's own view of the same round agrees and is offered no control either, because operating a round and reading its result are different things"
+    },
+    {
+      "id": "F07-P14",
+      "runner": "db",
+      "proves": "WP7D's backend unblocker, with the defect reproduced before it is closed. The subject educator is enrolled nowhere, so person_visible_to_me -- which is learner-shaped: self, an administrator over an enrolment, a roster holder over a membership, portable visibility after a transfer -- says nothing about them, and the head of department who manages their class cannot read their person row at all. The governed read answers anyway: the one educator who teaches that class, with their own display name, and the id it returns is the id open_feedback_cycle accepts, proven by opening a cycle with it on a class that had none. THE ACADEMIC RESIDUAL IS CARRIED UNCHANGED rather than worked around -- the same contract names a subject for a professional-development class and opening still refuses that class by name, while the same subject is accepted on an ordinary one, which is the advisory contract working rather than two rules disagreeing. Three educators over one class are three rows to a dean, each offered exactly once with no uniqueness invented, and a head of department who also teaches the class is never offered their own round, because open_feedback_cycle refuses subject = caller",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P15",
+      "runner": "db",
+      "proves": "WP7D: discovery is Management's, advisory, and silent about respondents. Six refusals, each naming the Management boundary rather than what it protects: a head of department of the neighbouring department, the institution's administrator, a SYSTEM_ADMIN, the subject educator themselves, another educator and a learner of the class -- authenticating is not discovery. Nobody the canonical subject rule does not hold is offered, however senior. The answer is byte-identical before a single learner has spoken and after six sheets and a published snapshot, so it is not a participation oracle with a Management login in front of it; it projects exactly person_id and display_name; and neither it nor the rule behind it reads an opportunity, a response or a result. AND IT GRANTS NOTHING: an educator listed a moment ago, whose assignment is then revoked through the product's own revoke_role, is refused by open_feedback_cycle on its own re-validation -- discovery is current state, not a token",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
     }
   ]
 }

@@ -1553,8 +1553,8 @@ jobs:
           grep -E ' \| f \| ' baseF07.txt && { echo "::error::the FABLE-07 suite is already red before any defect was planted"; exit 1; } || true
           # the control must also be COMPLETE: a suite that aborted early would
           # be green over nothing, and every plant below would then "work"
-          [ "$(grep -cE ' \| t \| ' baseF07.txt)" = "14" ] \
-            || { echo "::error::the FABLE-07 control reported $(grep -cE ' \| t \| ' baseF07.txt) green rows, expected 14"; exit 1; }
+          [ "$(grep -cE ' \| t \| ' baseF07.txt)" = "16" ] \
+            || { echo "::error::the FABLE-07 control reported $(grep -cE ' \| t \| ' baseF07.txt) green rows, expected 16"; exit 1; }
 
           red() {   # red <test id> <expected substring> <sql file>
             psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
@@ -1752,6 +1752,166 @@ jobs:
           rollback;
           SQL
           red F07-P03 'could not answer after moving' /tmp/wp7-h.sql
+
+          # WP7D's six. 9. P1, SCOPE. Discovery stops asking whether the caller
+          #    manages this class and settles for being in the school -- which is
+          #    the shape a "just let staff see staff" fix would actually take.
+          cat > /tmp/wp7d-1.sql <<'SQL'
+          begin;
+          -- P1 SCOPE: discovery stops asking whether the caller manages this class.
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.feedback_subjects_for_class(uuid)'::regprocedure);
+            src := replace(orig, 'or not public.management_scope_over_node(p_node) then',
+                                 'or not public.is_member_of_institution((select n.institution_id from public.org_nodes n where n.id = p_node)) then');
+            if src = orig then raise exception 'the plant did not reach the authorization check'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
+          rollback;
+          SQL
+          red F07-P15 'enumerated the subjects of a class' /tmp/wp7d-1.sql
+
+          # 10. P2, ROLE BOUNDARY. Administering the school, and outranking
+          #     Management, each start carrying feedback discovery with them. Both
+          #     are refused the cycle itself, so both must be refused this.
+          cat > /tmp/wp7d-2.sql <<'SQL'
+          begin;
+          -- P2 ROLE BOUNDARY: administering the school, or outranking Management, starts
+          -- carrying feedback discovery with it.
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.feedback_subjects_for_class(uuid)'::regprocedure);
+            src := replace(orig, 'or not public.management_scope_over_node(p_node) then',
+                                 'or not (public.management_scope_over_node(p_node) or public.is_system_admin()
+                  or public.has_scope(''INSTITUTION_ADMIN'', p_node)) then');
+            if src = orig then raise exception 'the plant did not reach the authorization check'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
+          rollback;
+          SQL
+          red F07-P15 'the institution administrator enumerated the subjects of a class' /tmp/wp7d-2.sql
+
+          # 11. P3, PROVENANCE DRIFT. The read stops asking the shared rule and
+          #     grows its own, looser one: every educator in the school rather than
+          #     of the class. This is the exact failure the single rule exists to
+          #     prevent -- a list that offers people the operation would refuse.
+          cat > /tmp/wp7d-3.sql <<'SQL'
+          begin;
+          -- P3 PROVENANCE: discovery stops asking the shared rule and grows its own,
+          -- looser one -- every educator in the school rather than of the class. This is
+          -- the drift the single rule exists to prevent.
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.feedback_subjects_for_class(uuid)'::regprocedure);
+            src := replace(orig, 'from public.feedback_subject_candidates(p_node) c',
+                                 'from (select distinct ra.person_id
+                        from public.role_assignments ra
+                        join public.org_nodes n on n.id = ra.scope_node_id
+                        join public.org_nodes t on t.id = p_node
+                       where ra.role = ''EDUCATOR'' and ra.revoked_at is null
+                         and now() >= ra.valid_from and now() < ra.valid_until
+                         and n.institution_id = t.institution_id) c');
+            if src = orig then raise exception 'the plant did not reach the candidate source'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
+          rollback;
+          SQL
+          red F07-P14 'expected the one educator who teaches it' /tmp/wp7d-3.sql
+
+          # 12. P4, MINIMUM PROJECTION. The read hands back the account behind the
+          #     person. One extra column is how a discovery endpoint becomes a
+          #     staff directory, and it is caught as a SIGNATURE rather than by
+          #     inspecting values.
+          cat > /tmp/wp7d-4.sql <<'SQL'
+          begin;
+          -- P4 MINIMUM PROJECTION: the read starts handing back the account behind the
+          -- person, which is how a discovery endpoint becomes a staff directory.
+          drop function public.feedback_subjects_for_class(uuid);
+          create function public.feedback_subjects_for_class(p_node uuid)
+          returns table (person_id uuid, display_name text, email text)
+          language plpgsql stable security definer set search_path = public, pg_temp as $f$
+          declare v_me uuid;
+          begin
+            v_me := public.current_person_id();
+            if v_me is null or p_node is null or not public.management_scope_over_node(p_node) then
+              raise exception 'naming the subjects of a feedback cycle is for a HEAD_OF_DEPARTMENT or DEAN standing over that class';
+            end if;
+            return query
+              select c.person_id, p.display_name, u.email::text
+                from public.feedback_subject_candidates(p_node) c
+                join public.persons p on p.id = c.person_id
+                left join public.accounts a on a.person_id = c.person_id
+                left join auth.users u on u.id = a.auth_user_id
+               where c.person_id <> v_me
+               order by p.display_name, c.person_id;
+          end $f$;
+          revoke all on function public.feedback_subjects_for_class(uuid) from public, anon, authenticated;
+          grant execute on function public.feedback_subjects_for_class(uuid) to authenticated;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
+          rollback;
+          SQL
+          red F07-P15 'the Management projection is not the two declared columns' /tmp/wp7d-4.sql
+
+          # 13. P5, PARTICIPATION ORACLE. The subject list starts carrying how many
+          #     people have answered -- the differencing attack with a Management
+          #     login in front of it.
+          cat > /tmp/wp7d-5.sql <<'SQL'
+          begin;
+          -- P5 PRIVACY: the subject list starts carrying how many people have answered,
+          -- which is the differencing attack with a Management login in front of it.
+          drop function public.feedback_subjects_for_class(uuid);
+          create function public.feedback_subjects_for_class(p_node uuid)
+          returns table (person_id uuid, display_name text, responses bigint)
+          language plpgsql stable security definer set search_path = public, pg_temp as $f$
+          declare v_me uuid;
+          begin
+            v_me := public.current_person_id();
+            if v_me is null or p_node is null or not public.management_scope_over_node(p_node) then
+              raise exception 'naming the subjects of a feedback cycle is for a HEAD_OF_DEPARTMENT or DEAN standing over that class';
+            end if;
+            return query
+              select c.person_id, p.display_name,
+                     (select count(*) from public.feedback_opportunities o
+                        join public.feedback_cycles f on f.id = o.cycle_id
+                       where f.scope_node_id = p_node and f.subject_person_id = c.person_id and o.consumed)
+                from public.feedback_subject_candidates(p_node) c
+                join public.persons p on p.id = c.person_id
+               where c.person_id <> v_me
+               order by p.display_name, c.person_id;
+          end $f$;
+          revoke all on function public.feedback_subjects_for_class(uuid) from public, anon, authenticated;
+          grant execute on function public.feedback_subjects_for_class(uuid) to authenticated;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
+          rollback;
+          SQL
+          red F07-P15 'subject discovery reads a respondent relation' /tmp/wp7d-5.sql
+
+          # 14. P6, TOCTOU. Opening stops re-validating the subject, on the
+          #     reasoning that the caller could only have got this id from
+          #     discovery. Discovery is current state, never a token.
+          cat > /tmp/wp7d-6.sql <<'SQL'
+          begin;
+          -- P6 TOCTOU: opening stops re-validating the subject, on the reasoning that
+          -- the caller could only have got this id from discovery.
+          do $d$
+          declare orig text; src text;
+          begin
+            orig := pg_get_functiondef('public.open_feedback_cycle(uuid,uuid)'::regprocedure);
+            src := replace(orig, 'if not exists (select 1 from public.feedback_subject_candidates(p_node) c',
+                                 'if false and not exists (select 1 from public.feedback_subject_candidates(p_node) c');
+            if src = orig then raise exception 'the plant did not reach the subject re-validation'; end if;
+            execute src;
+          end $d$;
+          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
+          rollback;
+          SQL
+          red F07-P15 'opening accepted a subject whose teaching authority had ended since discovery' /tmp/wp7d-6.sql
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are
