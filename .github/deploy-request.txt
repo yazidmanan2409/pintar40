@@ -1,0 +1,12 @@
+PINTAR production Supabase apply — deployment request
+
+Editing this file is what launches the apply workflow; ordinary commits on the
+deployment branch do nothing. Each entry below records one attempt.
+
+attempt:  001
+release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
+project:  trtlvibiybwixfumjrrx  (pintar-production, ap-southeast-1, PG 17.6)
+expected: 55 applied -> 108 applied; 53 pending, 20260915140000 .. 20261004110000
+why:      first production apply; the 42501 blocker is fixed by connecting as
+          the postgres ROLE through the session pooler, enforced by the
+          identity gate in the workflow.

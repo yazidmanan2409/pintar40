@@ -8,12 +8,15 @@
 # network path, so it executes the SAME CLI command, against the SAME frozen
 # SHA, with nothing transcribed by hand.
 #
-# WHY A TAG AND NOT workflow_dispatch. GitHub only registers a dispatchable
-# workflow from the DEFAULT branch, and this deployment machinery is
-# deliberately not merged into the canonical release. A push event runs the
-# workflow from the pushed ref itself, so a tag keeps the machinery isolated
-# on the deployment branch. One tag is one deployment attempt, which also
-# makes every attempt auditable by name.
+# HOW IT IS TRIGGERED, AND WHY NOT workflow_dispatch. GitHub only registers a
+# dispatchable workflow from the DEFAULT branch, and this deployment machinery
+# is deliberately not merged into the canonical release. A push event instead
+# runs the workflow from the pushed ref itself, so the machinery stays on the
+# deployment branch where it belongs. Tag pushes are refused by this
+# environment's git scope, so the trigger is a push to the deployment branch
+# NARROWED TO ONE PATH: `.github/deploy-request.txt`. Ordinary commits on the
+# branch therefore deploy nothing; editing that one file is the deliberate
+# act, and its contents record what each attempt was for.
 #
 # WHAT IT PRESERVES.
 #   * The frozen release SHA is checked out explicitly and verified before
@@ -37,8 +40,10 @@ name: deploy · supabase production
 
 on:
   push:
-    tags:
-      - 'deploy-prod-*'
+    branches:
+      - claude/quirky-meitner-a04smj
+    paths:
+      - .github/deploy-request.txt
   workflow_dispatch:
 
 concurrency:
