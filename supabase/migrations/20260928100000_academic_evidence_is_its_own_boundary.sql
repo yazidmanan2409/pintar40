@@ -339,6 +339,43 @@ begin
     end if;
   end loop;
 
+  -- THE FOURTH FAMILY. Twelve of the sixteen calculators reach evidence
+  -- through the session/result pair rather than through responses or
+  -- certificates, so the guard names that narrowing too -- otherwise it would
+  -- cover three of the four families and read as if it covered all of them,
+  -- which is the same mistake as the crown test it replaces.
+  n_checked := n_checked + 1;
+  v_def := lower(pg_get_viewdef('public.scoped_official_sessions'::regclass, true));
+  if v_def not like '%row_in_learning_context%' then
+    v_bad := v_bad || 'the session evidence source no longer narrows by learning context; ';
+  end if;
+  if v_def not like '%row_in_metric_boundary%' then
+    v_bad := v_bad || 'the session evidence source lost WP1''s organizational boundary; ';
+  end if;
+  n_checked := n_checked + 1;
+  v_def := lower(pg_get_viewdef('public.scoped_official_results'::regclass, true));
+  if v_def not like '%scoped_official_sessions%' then
+    v_bad := v_bad || 'the result source no longer inherits the session source''s narrowing; ';
+  end if;
+
+  -- AND EVERY CALCULATOR REACHES EVIDENCE THROUGH ONE OF THOSE FAMILIES.
+  -- A seventeenth metric pointed at a raw relation fails here by name.
+  select string_agg(distinct cl.relname, ', ' order by cl.relname) into v_def
+    from public.metric_definitions m
+    join pg_proc p on p.proname = 'calc_' || m.calculation_key
+                  and p.pronamespace = 'public'::regnamespace
+    join pg_depend d on d.objid = p.oid and d.classid = 'pg_proc'::regclass
+    join pg_class cl on cl.oid = d.refobjid and cl.relkind in ('v', 'r')
+   where m.catalogue_version = public.current_metric_catalogue()
+     and cl.relname not in ('scoped_official_sessions', 'scoped_official_results',
+                            'scoped_service_item_statistics', 'scoped_service_distractor_uptake',
+                            'scoped_service_cohort_misconceptions', 'scoped_certificates',
+                            'readiness_tiers');
+  if v_def is not null then
+    v_bad := v_bad || format('a calculator reaches a relation outside the narrowed source families: %s; ', v_def);
+  end if;
+  n_checked := n_checked + 1;
+
   -- AND A REVISION STILL INHERITS.
   n_checked := n_checked + 1;
   v_def := lower(pg_get_functiondef('public.create_course_revision(uuid)'::regprocedure));

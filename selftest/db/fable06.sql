@@ -5523,8 +5523,11 @@ begin
         bad := bad || array['revising an academic course changed its context'];
       end if;
 
-      -- and ingestion can say what it brings in, and refuses what it cannot read
-      perform selftest.as_owner();
+      -- and ingestion can say what it brings in, and refuses what it cannot
+      -- read. The whole sequence runs as the administrator: creating a batch
+      -- is itself gated on CAN_DRAFT, so an owner-side insert would be the
+      -- fixture stepping around the very gate the product relies on.
+      perform selftest.as_user_uid(c.adm_u);
       insert into public.ingest_batches (institution_id, source_kind, raw_payload,
                                          confirmed_by_person_id, confirmed_at)
       values (c.inst, 'STRUCTURED_PACKAGE',
@@ -5534,7 +5537,6 @@ begin
               c.adm, now())
       returning ingest_batches.id into v_batch;
       update public.ingest_batches set status = 'CONFIRMED' where ingest_batches.id = v_batch;
-      perform selftest.as_user_uid(c.adm_u);
       perform public.ingest_structured_package(v_batch);
       perform selftest.as_owner();
       if not exists (select 1 from public.courses co
@@ -5552,7 +5554,6 @@ begin
       returning ingest_batches.id into v_batch;
       update public.ingest_batches set status = 'CONFIRMED' where ingest_batches.id = v_batch;
       v_caught := false;
-      perform selftest.as_user_uid(c.adm_u);
       begin perform public.ingest_structured_package(v_batch);
       exception when others then v_caught := true; end;
       perform selftest.as_owner();
