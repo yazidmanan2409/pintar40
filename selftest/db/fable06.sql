@@ -682,6 +682,65 @@ $$;
 revoke all on function selftest.wp6_counts(uuid,uuid) from public;
 grant execute on function selftest.wp6_counts(uuid,uuid) to authenticated;
 
+-- One FINALIZED session, for any person, at any class, optionally pointed at
+-- a different release -- which is how the crown test makes an academic
+-- control and a professional-development stream that differ ONLY in context.
+create or replace function selftest.wp6_evidence_session(
+  p_template uuid, p_person uuid, p_class uuid, p_release uuid)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_new uuid := gen_random_uuid(); v_enr uuid;
+begin
+  select e.id into v_enr from public.enrollments e
+    join public.assessment_sessions s on s.institution_id = e.institution_id
+   where s.id = p_template and e.person_id = p_person order by e.created_at desc limit 1;
+  insert into public.assessment_sessions
+    (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
+     plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
+     scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
+     started_at, submitted_at, finalized_at, deadline_extended_count)
+  select v_new, p_person, s.institution_id, coalesce(v_enr, s.enrollment_id), s.academic_period_id,
+         p_class, null, coalesce(p_release, s.plp_release_id),
+         s.assessment_definition_id, s.assessment_definition_version, s.engine_version,
+         s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED',
+         s.shuffle_seed, s.started_at, s.submitted_at, s.finalized_at, 0
+    from public.assessment_sessions s where s.id = p_template;
+  update public.assessment_sessions set status='IN_PROGRESS' where id=v_new;
+  return v_new;
+end $$;
+revoke all on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid) from public;
+grant execute on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid) to authenticated;
+
+-- One presented item and one final answer, then the session is finalized with
+-- a result -- the ordinary lifecycle, walked rather than asserted.
+create or replace function selftest.wp6_answer(
+  p_session uuid, p_item uuid, p_inst uuid, p_label text, p_position smallint)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_pi uuid; v_tmpl uuid;
+begin
+  insert into public.presented_items (session_id, item_id, institution_id, position)
+  values (p_session, p_item, p_inst, p_position) returning presented_items.id into v_pi;
+  insert into public.responses (presented_item_id, session_id, institution_id, client_seq,
+                               value, value_digest, is_final)
+  values (v_pi, p_session, p_inst, 1, jsonb_build_object('pilihan', p_label),
+          encode(sha256(p_label::bytea), 'hex'), true);
+  update public.assessment_sessions set status='SUBMITTED' where id=p_session;
+  update public.assessment_sessions set status='FINALIZED' where id=p_session;
+  select s.id into v_tmpl from public.assessment_sessions s
+    join public.assessment_results r on r.session_id = s.id
+   where s.id <> p_session order by s.id limit 1;
+  insert into public.assessment_results
+    (session_id, institution_id, person_id, evidence_class, engine_version, scoring_policy_version,
+     mastery, per_domain, safety_gate_passed, delta_inputs)
+  select p_session, s.institution_id, s.person_id, s.evidence_class, r.engine_version,
+         r.scoring_policy_version, 0.9200, r.per_domain, true, r.delta_inputs
+    from public.assessment_sessions s
+    join public.assessment_results r on r.session_id = v_tmpl
+   where s.id = p_session limit 1;
+  return v_pi;
+end $$;
+revoke all on function selftest.wp6_answer(uuid,uuid,uuid,text,smallint) from public;
+grant execute on function selftest.wp6_answer(uuid,uuid,uuid,text,smallint) to authenticated;
+
 
 -- One adversarial calculator, installed and asked. Returns the empty array when
 -- the boundary held and a complaint when it did not.
@@ -4991,14 +5050,6 @@ begin
       select s.id into v_tmpl from public.assessment_sessions s
        where s.class_node_id = c.cls_a and s.status = 'FINALIZED' limit 1;
 
-      -- ALL SIXTEEN ACADEMIC FIGURES, BEFORE THE EDUCATOR LEARNS ANYTHING.
-      perform selftest.as_user_uid(c.adm_u);
-      select jsonb_object_agg(m.metric_id,
-               public.metric_evaluate(m.metric_id, c.root, c.inst, v_cat) - 'catalogue_version')
-        into v_metrics_before
-        from public.metric_definitions m where m.catalogue_version = v_cat;
-      perform selftest.as_owner();
-
       -- A. AN EDUCATOR WITH NO ENTITLEMENT CONSUMES NOTHING.
       perform selftest.as_user_uid(c.edu_u);
       select count(*) into n from public.my_learning_assignments();
@@ -5124,19 +5175,14 @@ begin
       end;
       perform selftest.as_owner();
 
-      -- I. THE CROWN CASE. Every academic figure, measured again.
-      perform selftest.as_user_uid(c.adm_u);
-      select jsonb_object_agg(m.metric_id,
-               public.metric_evaluate(m.metric_id, c.root, c.inst, v_cat) - 'catalogue_version')
-        into v_metrics_after
-        from public.metric_definitions m where m.catalogue_version = v_cat;
-      perform selftest.as_owner();
-      if v_metrics_after is distinct from v_metrics_before then
-        select string_agg(k, ', ') into v_why from jsonb_object_keys(v_metrics_before) k
-         where (v_metrics_before -> k) is distinct from (v_metrics_after -> k);
-        bad := bad || array[format('professional development changed academic figures: %s', v_why)];
-        v_why := '';
-      end if;
+      -- THE CROWN CASE USED TO BE HERE AND IT WAS WRONG. It evaluated all
+      -- sixteen metrics at the INSTITUTION ROOT, where an ITEM-scoped metric
+      -- has nothing to find and a class metric has no class, so `have=0`
+      -- before and after read as isolation while five real leaks went
+      -- straight through it. It is REMOVED rather than kept green beside its
+      -- replacement: a vacuous test that passes is worse than no test,
+      -- because it is cited. F06-P20 asks every metric at its own governing
+      -- argument over evidence that can reach it.
 
       -- G. AN EDUCATOR WITHOUT ENTITLEMENT STILL CONSUMES NOTHING, even now
       --    that the course exists and a colleague holds it.
@@ -5238,6 +5284,318 @@ begin
         || 'the evidence is unchanged, still professional development, still theirs. No certificate '
         || 'function knows what a learning context is, so nothing about that engine was weakened or '
         || 'duplicated. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P20 -- WP6A. THE SCOPE-CORRECT CROWN.
+  --
+  -- WHY THIS EXISTS INSTEAD OF WHAT WAS HERE BEFORE. My first crown test
+  -- evaluated all sixteen metrics at the INSTITUTION ROOT and found nothing
+  -- changed. That was not isolation -- it was the wrong argument. An
+  -- ITEM-scoped metric asked about a root node has no evidence to find, so
+  -- `have=0` before and `have=0` after proved only that the question was
+  -- never asked. Second Eye reproduced five real leaks straight through the
+  -- middle of that green result:
+  --
+  --   item.correctness_rate            0 -> 1
+  --   item.distractor_uptake           0 -> 1
+  --   item.position_effect             0 -> 1
+  --   class.misconceptions             0 -> 1
+  --   institution.verified_credentials 1 -> 2
+  --
+  -- So this asks every metric at ITS OWN governing argument, over evidence
+  -- that can actually reach it, and it makes the professional-development
+  -- side REAL: a response to an academic item, chosen wrongly, carrying a
+  -- misconception code, plus a sealed certificate issued through the
+  -- ordinary machinery. If the isolation breaks, these numbers move.
+  -- =========================================================================
+  declare
+    c record; pd record; bad text[] := array[]::text[]; v_why text := ''; v_cat text;
+    v_item uuid; v_opt record; v_tmpl uuid; v_pdclass uuid; v_ok_opt text;
+    v_before jsonb := '{}'::jsonb; v_after jsonb := '{}'::jsonb;
+    v_sess uuid; v_pi uuid; v_cert uuid; v_tok text; e record; cp record;
+    m text; v_arg uuid; v_reader uuid; n int; v_acad_sess uuid; v_acad_pi uuid;
+    v_pdc uuid; v_acc uuid; v_rev uuid; v_rev2 uuid; v_batch uuid; v_caught boolean;
+  begin
+    begin
+      perform selftest.as_owner();
+      v_cat := public.current_metric_catalogue();
+      select * into c from selftest.wp2_school();
+      update public.institutions set namespace = 'HEV' where institutions.id = c.inst;
+      select * into pd from selftest.wp6_pd(c.inst, c.fac, c.edu, c.adm_u);
+      select m2.node_id into v_pdclass from public.memberships m2
+        join public.enrollments e2 on e2.id = m2.enrollment_id
+       where e2.person_id = c.edu and e2.institution_id = c.inst limit 1;
+
+      -- A REAL ITEM, CHOSEN DETERMINISTICALLY. An unordered `limit 1` picks a
+      -- different item on different runs, which is how a comparison starts
+      -- measuring the harness instead of the product.
+      select i.id into v_item from public.items i
+        join public.item_options o on o.item_id = i.id
+       where i.institution_id = c.inst and o.misconception_code is not null
+       order by i.id limit 1;
+      select * into v_opt from public.item_options o
+       where o.item_id = v_item and o.misconception_code is not null and not o.is_correct
+       order by o.label limit 1;
+      select o.label into v_ok_opt from public.item_options o
+       where o.item_id = v_item and o.is_correct order by o.label limit 1;
+      select s.id into v_tmpl from public.assessment_sessions s
+       where s.class_node_id = c.cls_a and s.status = 'FINALIZED' order by s.id limit 1;
+      if v_item is null or v_opt.label is null or v_tmpl is null then
+        raise exception 'the fixture found no real item with a misconception option to answer';
+      end if;
+
+      -- A REAL ACADEMIC CONTROL STATE. The item metrics must have academic
+      -- evidence to report, or "unchanged" would again mean "never asked":
+      -- a student in the taught class answers the same item CORRECTLY.
+      v_acad_sess := selftest.wp6_evidence_session(v_tmpl, c.la, c.cls_a, null);
+      v_acad_pi := selftest.wp6_answer(v_acad_sess, v_item, c.inst, v_ok_opt, 1::smallint);
+
+      -- ───────── BEFORE: every metric at its own governing argument ─────────
+      for m, v_arg, v_reader in select * from (values
+            ('class.participants',              c.cls_a,  c.adm_u),
+            ('class.comprehension',             c.cls_a,  c.adm_u),
+            ('class.misconceptions',            c.cls_a,  c.adm_u),
+            ('class.net_gain',                  c.cls_a,  c.adm_u),
+            ('class.readiness_distribution',    c.cls_a,  c.adm_u),
+            ('class.topic_mastery',             c.cls_a,  c.adm_u),
+            ('institution.participants',        c.inst,   c.adm_u),
+            ('institution.net_gain',            c.inst,   c.adm_u),
+            ('institution.cohort_comparison',   c.inst,   c.adm_u),
+            ('institution.competency_outcomes', c.inst,   c.adm_u),
+            ('institution.safety_gate_pass_rate', c.inst, c.adm_u),
+            ('institution.verified_credentials', c.inst,  c.adm_u),
+            ('item.correctness_rate',           v_item,   c.adm_u),
+            ('item.distractor_uptake',          v_item,   c.adm_u),
+            ('item.position_effect',            v_item,   c.adm_u),
+            -- the learner metric read by somebody the catalogue admits: the
+            -- educator over their own class, about their own student
+            ('learner.result',                  c.la,     c.edu_u),
+            -- and the misconception metric ALSO at the PD class, which is
+            -- where a teacher's practice answer would surface if it leaked
+            ('class.misconceptions@pd',         v_pdclass, c.adm_u)
+          ) x(a,b,d) loop
+        perform selftest.as_user_uid(v_reader);
+        v_before := v_before || jsonb_build_object(m,
+          public.metric_evaluate(split_part(m,'@',1), v_arg, c.inst, v_cat) - 'catalogue_version');
+        perform selftest.as_owner();
+      end loop;
+
+      -- THE ACADEMIC CONTROL IS NOT VACUOUS: the item metrics can see the
+      -- student's answer, so they are capable of moving.
+      if coalesce((v_before -> 'item.correctness_rate' ->> 'have')::int, 0) < 1 then
+        bad := bad || array['the academic control produced no item evidence, so item isolation is untestable'];
+      end if;
+
+      -- ───────── the educator's genuine professional development ─────────
+      v_sess := selftest.wp6_evidence_session(v_tmpl, c.edu, v_pdclass, pd.release);
+      v_pi := selftest.wp6_answer(v_sess, v_item, c.inst, v_opt.label, 1::smallint);
+      -- a certificate through the ORDINARY machinery, not a PD-only engine
+      select * into e from public.certificate_eligibility(v_sess);
+      if e.eligible then
+        select * into cp from public.certificate_prepare(v_sess, 1::smallint);
+        v_cert := cp.certificate_id;
+        perform public.certificate_seal(v_cert, 1::smallint, repeat('c', 64));
+        select ct.verification_token into v_tok from public.certificates ct where ct.id = v_cert;
+      end if;
+
+      -- PD EVIDENCE REALLY EXISTS. Without this the whole comparison could be
+      -- green because nothing was ever written.
+      select count(*) into n from public.official_responses r where r.session_id = v_sess;
+      if n <> 1 then
+        bad := bad || array[format('%s OFFICIAL professional-development response(s) were written', n)];
+      end if;
+      select count(*) into n from public.assessment_results r where r.session_id = v_sess;
+      if n <> 1 then bad := bad || array['the professional-development result was not written']; end if;
+      -- and it is ABSENT from the academic boundary, which is the mechanism
+      select count(*) into n from public.academic_responses r where r.session_id = v_sess;
+      if n <> 0 then
+        bad := bad || array['professional-development evidence entered the academic boundary'];
+      end if;
+
+      -- ───────── AFTER: the identical questions ─────────
+      for m, v_arg, v_reader in select * from (values
+            ('class.participants',              c.cls_a,  c.adm_u),
+            ('class.comprehension',             c.cls_a,  c.adm_u),
+            ('class.misconceptions',            c.cls_a,  c.adm_u),
+            ('class.net_gain',                  c.cls_a,  c.adm_u),
+            ('class.readiness_distribution',    c.cls_a,  c.adm_u),
+            ('class.topic_mastery',             c.cls_a,  c.adm_u),
+            ('institution.participants',        c.inst,   c.adm_u),
+            ('institution.net_gain',            c.inst,   c.adm_u),
+            ('institution.cohort_comparison',   c.inst,   c.adm_u),
+            ('institution.competency_outcomes', c.inst,   c.adm_u),
+            ('institution.safety_gate_pass_rate', c.inst, c.adm_u),
+            ('institution.verified_credentials', c.inst,  c.adm_u),
+            ('item.correctness_rate',           v_item,   c.adm_u),
+            ('item.distractor_uptake',          v_item,   c.adm_u),
+            ('item.position_effect',            v_item,   c.adm_u),
+            ('learner.result',                  c.la,     c.edu_u),
+            ('class.misconceptions@pd',         v_pdclass, c.adm_u)
+          ) x(a,b,d) loop
+        perform selftest.as_user_uid(v_reader);
+        v_after := v_after || jsonb_build_object(m,
+          public.metric_evaluate(split_part(m,'@',1), v_arg, c.inst, v_cat) - 'catalogue_version');
+        perform selftest.as_owner();
+      end loop;
+
+      for m in select k from jsonb_object_keys(v_before) k loop
+        if (v_before -> m) is distinct from (v_after -> m) then
+          bad := bad || array[format('%s moved: %s -> %s', m,
+                                     left((v_before -> m)::text, 90), left((v_after -> m)::text, 90))];
+        end if;
+      end loop;
+
+      -- ───────── and the educator's own side really works ─────────
+      perform selftest.as_user_uid(c.edu_u);
+      if not ((public.metric_evaluate('learner.result', c.edu, c.inst, v_cat) -> 'value')::text
+              like '%' || v_sess::text || '%') then
+        bad := bad || array['the educator could not see their own professional-development result'];
+      end if;
+      perform selftest.as_owner();
+
+      -- THE PD CERTIFICATE IS REAL, VALID AND VERIFIABLE -- and still not an
+      -- academic credential. Valid is not countable.
+      if v_cert is null then
+        bad := bad || array[format('the professional-development session was not certificate-eligible: %s',
+                                   coalesce(e.reason, 'no reason given'))];
+      else
+        select count(*) into n from public.certificates ct
+         where ct.id = v_cert and ct.revoked_at is null and ct.signature is not null;
+        if n <> 1 then bad := bad || array['the professional-development certificate is not sealed and valid']; end if;
+        -- REACHED BY THE SAME VERIFICATION ROUTE. verify_certificate returns a
+        -- verdict ROW, so what is asserted is that the ordinary route accepts
+        -- this token and reaches a verdict about it -- not that a signature
+        -- fabricated by a test is cryptographically sound, which it is not
+        -- and must not be.
+        select count(*) into n from public.verify_certificate(v_tok);
+        if n <> 1 then
+          bad := bad || array[format('the ordinary verification route returned %s verdict(s) for the professional-development certificate', n)];
+        end if;
+        select count(*) into n from public.academic_certificates ac where ac.id = v_cert;
+        if n <> 0 then
+          bad := bad || array['a professional-development certificate entered the academic credential source'];
+        end if;
+      end if;
+
+      -- ───────── context survives creation, ingestion and revision ─────────
+      -- These are the paths that were silently dropping it. Revision was the
+      -- worst: improving a professional-development course through the
+      -- product produced an ACADEMIC successor, so the ordinary act of
+      -- editing moved a course's future evidence into the school's figures.
+      perform selftest.as_user_uid(c.adm_u);
+      v_pdc := public.create_course(c.inst, 'Pengembangan', 'Guru', '-', 'PD baru',
+                                    'PROFESSIONAL_DEVELOPMENT');
+      v_acc := public.create_course(c.inst, 'Matematika', 'SD', '5', 'Akademik baru');
+      perform selftest.as_owner();
+      if (select co.learning_context from public.courses co where co.id = v_pdc)
+         <> 'PROFESSIONAL_DEVELOPMENT' then
+        bad := bad || array['the authoritative creation path did not establish the requested context'];
+      end if;
+      if (select co.learning_context from public.courses co where co.id = v_acc) <> 'ACADEMIC' then
+        bad := bad || array['a course created without a stated context was not ACADEMIC'];
+      end if;
+
+      -- revised once, and again: a revision is not a context switch
+      perform selftest.as_user_uid(c.adm_u);
+      v_rev := public.create_course_revision(v_pdc);
+      perform selftest.as_owner();
+      if (select co.learning_context from public.courses co where co.id = v_rev)
+         <> 'PROFESSIONAL_DEVELOPMENT' then
+        bad := bad || array['revising a professional-development course produced an ACADEMIC successor'];
+      end if;
+      update public.courses set status = 'STRUCTURED' where courses.id = v_rev;
+      perform selftest.as_user_uid(c.adm_u);
+      begin
+        v_rev2 := public.create_course_revision(v_rev);
+        perform selftest.as_owner();
+        if (select co.learning_context from public.courses co where co.id = v_rev2)
+           <> 'PROFESSIONAL_DEVELOPMENT' then
+          bad := bad || array['a second revision lost the professional-development context'];
+        end if;
+      exception when others then perform selftest.as_owner(); end;
+      perform selftest.as_user_uid(c.adm_u);
+      v_rev := public.create_course_revision(v_acc);
+      perform selftest.as_owner();
+      if (select co.learning_context from public.courses co where co.id = v_rev) <> 'ACADEMIC' then
+        bad := bad || array['revising an academic course changed its context'];
+      end if;
+
+      -- and ingestion can say what it brings in, and refuses what it cannot read
+      perform selftest.as_owner();
+      insert into public.ingest_batches (institution_id, source_kind, raw_payload,
+                                         confirmed_by_person_id, confirmed_at)
+      values (c.inst, 'STRUCTURED_PACKAGE',
+              jsonb_build_object('courses', jsonb_build_array(jsonb_build_object(
+                'subject','Pengembangan','stage','Guru','grade_label','-','title','PD diimpor',
+                'learning_context','PROFESSIONAL_DEVELOPMENT'))),
+              c.adm, now())
+      returning ingest_batches.id into v_batch;
+      update public.ingest_batches set status = 'CONFIRMED' where ingest_batches.id = v_batch;
+      perform selftest.as_user_uid(c.adm_u);
+      perform public.ingest_structured_package(v_batch);
+      perform selftest.as_owner();
+      if not exists (select 1 from public.courses co
+                      where co.institution_id = c.inst and co.title = 'PD diimpor'
+                        and co.learning_context = 'PROFESSIONAL_DEVELOPMENT') then
+        bad := bad || array['structured ingestion dropped the learning context it was given'];
+      end if;
+      insert into public.ingest_batches (institution_id, source_kind, raw_payload,
+                                         confirmed_by_person_id, confirmed_at)
+      values (c.inst, 'STRUCTURED_PACKAGE',
+              jsonb_build_object('courses', jsonb_build_array(jsonb_build_object(
+                'subject','X','stage','Y','grade_label','-','title','Konteks aneh',
+                'learning_context','SOMETHING_ELSE'))),
+              c.adm, now())
+      returning ingest_batches.id into v_batch;
+      update public.ingest_batches set status = 'CONFIRMED' where ingest_batches.id = v_batch;
+      v_caught := false;
+      perform selftest.as_user_uid(c.adm_u);
+      begin perform public.ingest_structured_package(v_batch);
+      exception when others then v_caught := true; end;
+      perform selftest.as_owner();
+      if not v_caught then
+        bad := bad || array['an unknown learning context was accepted and became academic evidence'];
+      end if;
+
+      raise exception 'F06_P20_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      perform set_config('app.seed_intent', '', true);
+      perform set_config('pintar.metric_boundary_node', '', true);
+      perform set_config('pintar.metric_boundary_person', '', true);
+      if sqlerrm <> 'F06_P20_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 220);
+      end if;
+    end;
+
+    id := 'F06-P20'; area := 'WP6A -- academic evidence is its own boundary';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'SEVENTEEN READINGS, EACH AT ITS OWN GOVERNING ARGUMENT -- class metrics at a class, '
+        || 'institution metrics at the school, ITEM METRICS AT A REAL ITEM ID, the learner metric read by '
+        || 'an educator the catalogue admits about their own student, and the misconception metric asked '
+        || 'a second time at the professional-development class where a teacher''s practice answer would '
+        || 'surface if it leaked. The previous crown asked all sixteen at the institution root, where an '
+        || 'ITEM metric has nothing to find, and called have=0 before and after isolation; Second Eye '
+        || 'reproduced five real leaks through that green. THE ACADEMIC CONTROL IS NON-VACUOUS: a student '
+        || 'in the taught class answers the chosen item correctly, so the item metrics hold real evidence '
+        || 'and are capable of moving. THE PROFESSIONAL DEVELOPMENT IS REAL: the educator answers the '
+        || 'SAME academic item wrongly, choosing a distractor that carries a misconception code, in an '
+        || 'OFFICIAL session at their own PD class, with a result and a certificate SEALED THROUGH THE '
+        || 'ORDINARY MACHINERY -- eligibility, prepare, seal -- because a separate weak PD certificate '
+        || 'engine is exactly what must not exist. That evidence is asserted to exist, and asserted to be '
+        || 'ABSENT from academic_responses, which is the mechanism rather than the symptom. Every one of '
+        || 'the seventeen readings is then identical. The educator reads their own PD result; the PD '
+        || 'certificate is sealed, unrevoked and verifiable; and it is absent from the academic credential '
+        || 'source, because certificate validity and academic-metric eligibility are different questions. '
+        || 'The item is chosen with an ORDER BY, because an unordered limit measures the harness. Every '
+        || 'row rolled back';
     end if;
     return next;
   end;
