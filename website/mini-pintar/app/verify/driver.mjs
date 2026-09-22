@@ -23,7 +23,12 @@ export function serve(dir) {
   const server = createServer(async (req, res) => {
     const path = req.url.split("?")[0];
     requested.push(path);
-    const file = path === "/" ? "index.html" : path.replace(/^\/+/, "");
+    // A path ending in "/" means "this directory's index", not only at the
+    // root — a multi-page site with routes like "/apa-yang-dilakukan/"
+    // needs the same resolution a real static host gives it. Every
+    // existing caller only ever requests "/", so this is a strict
+    // superset of the previous behaviour.
+    const file = path.endsWith("/") ? `${path}index.html`.replace(/^\/+/, "") : path.replace(/^\/+/, "");
     try {
       const body = await readFile(join(dir, file));
       res.writeHead(200, { "content-type": TYPES[extname(file)] || "application/octet-stream" });
