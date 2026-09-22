@@ -129,6 +129,49 @@ export async function kuesioner(siklus: string): Promise<Kuesioner | null> {
   };
 }
 
+// ────────────────────────────────────── who a class may be asked about
+export type SubjekKelas = { id: string; nama: string };
+
+/**
+ * The educators an authorized Management caller may open a round about, for
+ * ONE class. Two columns and nothing else — no email, no account, no
+ * institutional identity, no enrolment, no other role, no cycle, no
+ * participation, no count.
+ *
+ * ═══ IT IS A FEEDBACK CONTRACT, NOT A STAFF DIRECTORY ═══
+ *
+ * ADR-0023 §Decision 1 refused the one-line version of this — teaching
+ * `person_visible_to_me` about educators — because a learner-visibility
+ * predicate that starts answering about colleagues is a different product
+ * decision reached by accident, and it would have widened every surface that
+ * predicate governs. So this asks one question, for one class, of the role set
+ * that operates the cycle, and the answer is useful for nothing else.
+ *
+ * ═══ AND IT AUTHORIZES NOTHING ═══
+ *
+ * `feedback_subjects_for_class` refuses a non-Management caller in the same
+ * sentence `open_feedback_cycle` uses, and reads the SAME subject rule the
+ * endpoint enforces — one rule, read twice, so the two cannot drift. A row
+ * here is a description of the world a moment ago, never a claim about what
+ * will be permitted: opening re-authorizes and re-validates independently, and
+ * this layer holds no token and caches nothing.
+ *
+ * NULL WHEN IT COULD NOT ASK — a caller who is not Management over this class,
+ * or a read that failed — and an empty array when the honest answer is "nobody".
+ * The surface needs those apart: "you may not ask" and "there is no one to ask
+ * about" are different sentences.
+ */
+export async function subjekKelas(node: string): Promise<SubjekKelas[] | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("feedback_subjects_for_class", { p_node: node });
+  if (error) return null;
+  return rows<Record<string, unknown>>(data).flatMap((r) => {
+    const id = r.person_id == null ? "" : String(r.person_id);
+    if (!id) return [];
+    return [{ id, nama: String(r.display_name ?? "") }];
+  });
+}
+
 // ──────────────────────────────────────────── the subject, and Management
 export type SiklusKelas = {
   id: string;
@@ -169,12 +212,38 @@ export async function siklusKelas(nodes: readonly string[]): Promise<SiklusKelas
 
   const orang = [...new Set(mentah.map((r) => String(r.subject_person_id)))];
   const simpul = [...new Set(mentah.map((r) => String(r.scope_node_id)))];
-  const [{ data: p }, { data: n }] = await Promise.all([
+  const [{ data: p }, { data: n }, subjek] = await Promise.all([
     c.from("persons").select("id, display_name").in("id", orang),
     c.from("org_nodes").select("id, name").in("id", simpul),
+    // THE GOVERNED IDENTITY, ONE CALL PER CLASS THAT ACTUALLY HAS A ROUND —
+    // bounded by the rounds on this page rather than by the classes in scope.
+    Promise.all(simpul.map((x) => subjekKelas(x))),
   ]);
-  const nama = new Map(rows<Record<string, unknown>>(p).map((x) => [String(x.id), String(x.display_name ?? "")]));
   const kelas = new Map(rows<Record<string, unknown>>(n).map((x) => [String(x.id), String(x.name ?? "")]));
+
+  // WHERE THE SUBJECT'S NAME COMES FROM, AND WHY IT IS TWO SOURCES.
+  //
+  // The feedback contract is preferred: `feedback_subjects_for_class` exists to
+  // give this Experience the display identity it needs, and it is the reason a
+  // Management reader no longer meets an em dash where a teacher's name belongs.
+  // ADR-0023's own gap table is the record of why `persons` alone was never
+  // enough — it is learner-shaped, and it answered about the first educator this
+  // path met only because that fixture happened to enrol them as a learner too.
+  //
+  // `persons` is kept BENEATH it rather than removed, for two honest reasons:
+  // an educator whose assignment has since ended is no longer a candidate and
+  // the contract has nothing to say about them (ADR-0023's carried residual),
+  // and this same function serves the SUBJECT's own view of their round, where
+  // the Management-only discovery call is refused. Neither source widens
+  // anything: both are RLS-governed and return only what this reader may
+  // already see. Where both are silent the em dash stands, which is the honest
+  // answer rather than a guess.
+  const nama = new Map(rows<Record<string, unknown>>(p).map((x) => [String(x.id), String(x.display_name ?? "")]));
+  for (const daftar of subjek) {
+    for (const orangnya of daftar ?? []) {
+      if (orangnya.nama) nama.set(orangnya.id, orangnya.nama);
+    }
+  }
 
   return mentah
     .map((r) => ({

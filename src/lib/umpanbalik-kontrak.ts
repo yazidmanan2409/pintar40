@@ -393,3 +393,83 @@ export const KUNCI_TUTUP: Record<SebabTutup, string> = {
 export function bolehDitutup(keadaan: string | null | undefined): boolean {
   return keadaan === "OPEN";
 }
+
+// ═══════════════════════════════════════════ starting a round (WP7D, Management)
+/**
+ * WHAT HAPPENED TO AN OPEN REQUEST.
+ *
+ * ═══ DISCOVERY IS ADVISORY, AND THESE OUTCOMES ARE WHY ═══
+ *
+ * `feedback_subjects_for_class` describes the world at the moment it was read.
+ * ADR-0023 §Decision 3: `open_feedback_cycle` re-authorizes the caller and
+ * re-validates the subject on every call, with no token, no cached entitlement
+ * and no "discovered therefore authorized" path. So every refusal below is a
+ * REAL possibility between listing an educator and pressing the button — an
+ * assignment revoked, authority withdrawn, a round opened by a colleague a
+ * moment earlier — and each one gets a sentence of its own rather than a shrug.
+ *
+ * THE ACADEMIC REFUSAL IS DELIBERATELY ITS OWN OUTCOME. Discovery does not
+ * restate the ACADEMIC rule, because that is a fact about the CLASS rather than
+ * about the subject, so an educator can legitimately be offered for a class
+ * whose round `open` then refuses on context grounds. That is the advisory
+ * contract working. The surface says so plainly and does nothing about it: it
+ * does not look for another class, does not infer context of its own, and does
+ * not retry. WP7B's conservative over-rejection is carried, not compensated.
+ */
+export type SebabBuka =
+  | "dibuka" | "sudah_ada" | "bukan_pengajar" | "bukan_wewenang"
+  | "bukan_akademik" | "kelas_belum_siap" | "belum_siap" | "subjek_sendiri"
+  | "tak_pasti";
+
+/**
+ * WP7B's own refusal sentences, mapped. Declared rather than matched by shape,
+ * and compared against the migration in both directions by UX1-UB-BUKA-01.
+ *
+ * Order matters here and nowhere else in this file: `includes` is a substring
+ * test, and "a feedback cycle is opened for a CLASS, not a" would also match
+ * inside a longer sentence if a shorter prefix were listed first. The endpoint
+ * raises these in its own order; this list mirrors it.
+ */
+export const SEBAB_BUKA: ReadonlyArray<{ frasa: string; sebab: SebabBuka }> = [
+  { frasa: "opening a feedback cycle is for a HEAD_OF_DEPARTMENT or DEAN standing over that class", sebab: "bukan_wewenang" },
+  { frasa: "a feedback cycle is opened for a CLASS, not a", sebab: "kelas_belum_siap" },
+  { frasa: "that class is not active", sebab: "kelas_belum_siap" },
+  { frasa: "that class is bound to no academic period", sebab: "kelas_belum_siap" },
+  { frasa: "that class is reached by professional-development material", sebab: "bukan_akademik" },
+  { frasa: "a feedback cycle is about a named educator", sebab: "kelas_belum_siap" },
+  { frasa: "a feedback cycle is opened about someone else", sebab: "subjek_sendiri" },
+  { frasa: "holds a live EDUCATOR assignment over that class, and this one does not", sebab: "bukan_pengajar" },
+  { frasa: "no feedback question set is published", sebab: "belum_siap" },
+  { frasa: "no anonymity threshold is published", sebab: "belum_siap" },
+  { frasa: "this class already has a feedback cycle about that educator", sebab: "sudah_ada" },
+];
+
+/** An unrecognised failure is never reported as a failure: see `SebabKirim`. */
+export function sebabBuka(pesan: string | null | undefined): SebabBuka {
+  if (!pesan) return "tak_pasti";
+  const m = pesan.toLowerCase();
+  for (const { frasa, sebab } of SEBAB_BUKA) if (m.includes(frasa.toLowerCase())) return sebab;
+  return "tak_pasti";
+}
+
+/** The sentence shown for each outcome. Declared, so none is ever composed. */
+export const KUNCI_BUKA: Record<SebabBuka, string> = {
+  dibuka: "umpanbalik.buka.dibuka",
+  sudah_ada: "umpanbalik.buka.sudah_ada",
+  bukan_pengajar: "umpanbalik.buka.bukan_pengajar",
+  bukan_wewenang: "umpanbalik.buka.bukan_wewenang",
+  bukan_akademik: "umpanbalik.buka.bukan_akademik",
+  kelas_belum_siap: "umpanbalik.buka.kelas_belum_siap",
+  belum_siap: "umpanbalik.buka.belum_siap",
+  subjek_sendiri: "umpanbalik.buka.subjek_sendiri",
+  tak_pasti: "umpanbalik.buka.tak_pasti",
+};
+
+/**
+ * True when a round now exists for this class and educator — whether this press
+ * made it or found it already there. Both mean the same thing to an operator:
+ * the class has been asked, and there is nothing further to do here.
+ */
+export function sudahAdaPutaran(sebab: SebabBuka): boolean {
+  return sebab === "dibuka" || sebab === "sudah_ada";
+}

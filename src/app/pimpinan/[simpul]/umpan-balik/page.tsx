@@ -63,6 +63,11 @@ export default async function UmpanBalikLingkup({
 
   const bawah = await pim.cabang([node.id]);
   const siklus = await ub.siklusKelas(bawah.map((n) => n.id));
+  // A round belongs to ONE class, so the classes in this branch are where one
+  // can be started. This is presentation — which classes to offer — and asks
+  // nothing about who may be asked about or whether a class qualifies: both
+  // are the endpoints', one call deeper, about one class at a time.
+  const kelas = bawah.filter((n) => n.kind === "CLASS");
 
   return (
     <>
@@ -98,6 +103,30 @@ export default async function UmpanBalikLingkup({
                   </li>
                 );
               })}
+            </ul>
+          )}
+        </section>
+
+        {/* ── STARTING ONE ─────────────────────────────────────────────────
+            The classes, and nothing about them: no round count, no state, no
+            indication of who could be asked about. That question costs a call
+            per class and is worth asking about the one class somebody actually
+            opened rather than about forty they did not. */}
+        <section className="pin-sec" aria-labelledby="pin-ub-kelas">
+          <h2 id="pin-ub-kelas">{s("umpanbalik.kelas.judul")}</h2>
+          <p className="pin-mm">{s("umpanbalik.kelas.sub")}</p>
+          {kelas.length === 0 ? (
+            <p className="pin-empty">{s("umpanbalik.kelas.kosong")}</p>
+          ) : (
+            <ul className="pin-list pin-ub-riwayat">
+              {kelas.map((n) => (
+                <li key={n.id}>
+                  <Link href={`/pimpinan/${encodeURIComponent(node.id)}/umpan-balik/kelas/${encodeURIComponent(n.id)}`}>
+                    <span className="pin-ml">{n.nama}</span>
+                    <span className="pin-meta">{s("umpanbalik.kelas.buka")}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           )}
         </section>

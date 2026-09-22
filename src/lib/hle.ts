@@ -546,6 +546,17 @@ export type HleEvent =
   | "umpanbalik.tutup.bukan_wewenang" | "umpanbalik.tutup.subjek"
   | "umpanbalik.tutup.belum" | "umpanbalik.tutup.tak_pasti"
   | "umpanbalik.tutup.selesai"
+  // ── WP7D resume. Management starting a round: the class list, the governed
+  // subjects, and one outcome for every way the backend can refuse between
+  // naming an educator and asking the class about them.
+  | "umpanbalik.kelas.judul" | "umpanbalik.kelas.sub" | "umpanbalik.kelas.kosong"
+  | "umpanbalik.kelas.buka" | "umpanbalik.kelas.putaran"
+  | "umpanbalik.buka.judul" | "umpanbalik.buka.sub" | "umpanbalik.buka.kosong"
+  | "umpanbalik.buka.tanpa_wewenang" | "umpanbalik.buka.aksi" | "umpanbalik.buka.memulai"
+  | "umpanbalik.buka.dibuka" | "umpanbalik.buka.sudah_ada" | "umpanbalik.buka.bukan_pengajar"
+  | "umpanbalik.buka.bukan_wewenang" | "umpanbalik.buka.bukan_akademik"
+  | "umpanbalik.buka.kelas_belum_siap" | "umpanbalik.buka.belum_siap"
+  | "umpanbalik.buka.subjek_sendiri" | "umpanbalik.buka.tak_pasti"
   // ── WP5B. Institutional intake. Staff-only by declaration
   // (STAFF_ONLY_PREFIXES), because an administrator's screen legitimately says
   // a job is "Menunggu" where the same word on a learner's screen would be the
@@ -1982,6 +1993,41 @@ const table: Table = {
   "umpanbalik.tutup.belum": { default: "Putaran ini belum ditutup.", en: "This round has not been closed." },
   "umpanbalik.tutup.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
   "umpanbalik.tutup.selesai": { default: "Pengumpulan tanggapan untuk putaran ini sudah berakhir.", en: "Collection of responses for this round has ended." },
+
+  // ── WP7D resume. STARTING A ROUND.
+  //
+  // THE HARD SENTENCES HERE ARE THE REFUSALS, and each one is a real thing
+  // that can happen between naming an educator and pressing the button: an
+  // assignment ended, authority withdrawn, a colleague opened the round first.
+  // Discovery describes the world a moment ago and opening re-decides, so each
+  // refusal says what changed in plain words rather than collapsing into "that
+  // did not work".
+  //
+  // AND THE ACADEMIC REFUSAL SAYS WHAT IT IS AND STOPS. PINTAR does not offer
+  // to find another class, does not suggest a way round it, and does not hint
+  // that the answer might differ if asked again. WP7B decided that boundary
+  // conservatively on purpose; this reports it.
+  "umpanbalik.kelas.judul": { default: "Kelas di bagian ini", en: "Classes in this part of the school" },
+  "umpanbalik.kelas.sub": { default: "Putaran umpan balik dimulai untuk satu kelas dan satu pengajarnya.", en: "A feedback round is started for one class and one of its educators." },
+  "umpanbalik.kelas.kosong": { default: "Belum ada kelas di bagian ini.", en: "There are no classes in this part of the school yet." },
+  "umpanbalik.kelas.buka": { default: "Buka kelas", en: "Open class" },
+  "umpanbalik.kelas.putaran": { default: "Putaran untuk kelas ini", en: "Rounds for this class" },
+
+  "umpanbalik.buka.judul": { default: "Mulai putaran umpan balik", en: "Start a feedback round" },
+  "umpanbalik.buka.sub": { default: "Pilih pengajar yang akan ditanyakan kepada kelas ini.", en: "Choose the educator this class will be asked about." },
+  "umpanbalik.buka.kosong": { default: "Tidak ada pengajar yang bisa ditanyakan untuk kelas ini.", en: "There is no educator this class can be asked about." },
+  "umpanbalik.buka.tanpa_wewenang": { default: "Kelas ini bukan wewenang Anda.", en: "This class is not yours." },
+  "umpanbalik.buka.aksi": { default: "Mulai putaran", en: "Start a round" },
+  "umpanbalik.buka.memulai": { default: "Memulai…", en: "Starting…" },
+  "umpanbalik.buka.dibuka": { default: "Putaran umpan balik untuk kelas ini sudah dimulai.", en: "The feedback round for this class has started." },
+  "umpanbalik.buka.sudah_ada": { default: "Kelas ini sudah punya putaran tentang pengajar itu pada periode ini.", en: "This class already has a round about that educator in this period." },
+  "umpanbalik.buka.bukan_pengajar": { default: "Pengajar itu tidak lagi tercatat mengajar kelas ini.", en: "That educator is no longer recorded as teaching this class." },
+  "umpanbalik.buka.bukan_wewenang": { default: "Kelas ini bukan wewenang Anda untuk memulai putaran.", en: "This class is not yours to start a round for." },
+  "umpanbalik.buka.bukan_akademik": { default: "Kelas ini terhubung dengan materi di luar kurikulum akademik, sehingga putaran umpan balik tidak dibuka untuknya.", en: "This class is connected to material outside the academic curriculum, so a feedback round is not opened for it." },
+  "umpanbalik.buka.kelas_belum_siap": { default: "Kelas ini belum siap untuk putaran umpan balik.", en: "This class is not ready for a feedback round." },
+  "umpanbalik.buka.belum_siap": { default: "PINTAR belum siap memulai putaran umpan balik.", en: "PINTAR is not ready to start a feedback round." },
+  "umpanbalik.buka.subjek_sendiri": { default: "Putaran tentang pengajaran Anda sendiri dimulai oleh orang lain.", en: "A round about your own teaching is started by somebody else." },
+  "umpanbalik.buka.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
   "mengajar.kembali": { default: "Kelas", en: "Classes" },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },

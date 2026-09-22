@@ -2,7 +2,7 @@
 
 import { supabaseServer } from "@/lib/supabase/server";
 import { siklus } from "@/lib/umpanbalik";
-import { sebabTutup, type SebabTutup } from "@/lib/umpanbalik-kontrak";
+import { sebabBuka, sebabTutup, type SebabBuka, type SebabTutup } from "@/lib/umpanbalik-kontrak";
 
 /**
  * MANAGEMENT ENDS COLLECTION FOR ONE ROUND.
@@ -70,4 +70,45 @@ async function pastikan(siklusId: string): Promise<SebabTutup> {
   // The row is gone or unreadable: that is not evidence either way.
   if (!kini) return "tak_pasti";
   return kini.keadaan === "OPEN" ? "belum_tertutup" : "sudah_tertutup";
+}
+
+/**
+ * MANAGEMENT ASKS A CLASS ABOUT ONE OF ITS TEACHERS.
+ *
+ * ═══ DISCOVERY GOT US A NAME; IT GOT US NOTHING ELSE ═══
+ *
+ * The educator this is called with came from `feedback_subjects_for_class`,
+ * which reads the same subject rule this endpoint enforces — but ADR-0023
+ * §Decision 3 is explicit that the list is ADVISORY. No token travels from the
+ * read to the write, nothing is cached, and this function asserts nothing about
+ * the subject on its way past. `open_feedback_cycle` re-authorizes the caller
+ * and re-validates the educator, the class, its period, its activity and its
+ * academic context on every single call, and it is allowed to refuse something
+ * it listed a moment ago. That is the contract working.
+ *
+ * So each refusal gets its own sentence: an assignment that ended, authority
+ * withdrawn, a colleague who opened the round first, a class reached by
+ * professional-development material. None of them is worked around. The
+ * surface does not look for a different class, does not infer context of its
+ * own, does not retry, and never reports a refusal as a success.
+ *
+ * ═══ AND THE NEW CYCLE'S ID IS DISCARDED ═══
+ *
+ * `open_feedback_cycle` returns it. This returns a reason instead, and the page
+ * re-reads its own rounds — the same discipline the close path uses, for the
+ * same reason: what exists afterwards is the database's account of it, not a
+ * value this call happened to carry back.
+ */
+export async function bukaPutaranAksi(
+  kelas: string,
+  subjek: string,
+): Promise<SebabBuka> {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const c = (await supabaseServer()) as any;
+  const { error } = await c.rpc("open_feedback_cycle", {
+    p_node: kelas,
+    p_subject_person_id: subjek,
+  });
+  if (!error) return "dibuka";
+  return sebabBuka(error.message);
 }

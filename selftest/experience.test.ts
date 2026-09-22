@@ -52,6 +52,7 @@
  *   UX1-UB-BATAS-01          the published snapshot is all that renders, and nobody is in it
  *   UX1-UB-KATA-01           accurate about privacy, and a verdict about nobody
  *   UX1-UB-TUTUP-01          Management ends collection; the backend decides what it became
+ *   UX1-UB-BUKA-01           discovery names a teacher; opening re-decides, every time
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -79,8 +80,9 @@ import {
 } from "../src/lib/tur";
 import { konteksPembelajaran } from "../src/lib/pembelajaran";
 import {
-  bacaHasil, bagian, bolehDitutup, keadaanKunci, lengkap, sebabKirim, sebabTutup,
-  sudahDitutup, sudahTercatat, PERNYATAAN_DITAHAN, SEBAB, SEBAB_TUTUP, type Kuesioner,
+  bacaHasil, bagian, bolehDitutup, keadaanKunci, lengkap, sebabBuka, sebabKirim, sebabTutup,
+  sudahAdaPutaran, sudahDitutup, sudahTercatat, PERNYATAAN_DITAHAN, SEBAB, SEBAB_BUKA,
+  SEBAB_TUTUP, type Kuesioner,
 } from "../src/lib/umpanbalik-kontrak";
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import { qrMatrix } from "../src/lib/qr";
@@ -230,6 +232,8 @@ const RESET_SURFACES = [
   "src/app/mengajar/[kelas]/umpan-balik/page.tsx",
   "src/app/pimpinan/[simpul]/umpan-balik/page.tsx",
   "src/app/pimpinan/[simpul]/umpan-balik/[siklus]/page.tsx",
+  // WP7D. Where Management names the teacher a class will be asked about.
+  "src/app/pimpinan/[simpul]/umpan-balik/kelas/[kelas]/page.tsx",
   // WP5B — institutional intake. On the token set from its first commit, like
   // WP4 and unlike the configuration surface it is reached from.
   "src/app/pendataan/page.tsx",
@@ -4393,11 +4397,13 @@ export const experienceTests: SelfTest[] = [
       //    The count is a DRIFT GUARD on the set this loop reads, not a claim
       //    about how many pages Management ought to have: its value is that a
       //    route added without a gate cannot slip in unnoticed. MOVED 4 -> 6
-      //    for WP7C's two class-feedback routes, both of which ask
-      //    `simpulDalamLingkup` and refuse through the one refusal page, and
-      //    are therefore now held to this rule alongside WP4's four.
+      //    for WP7C's two class-feedback routes, and 6 -> 7 for WP7D's
+      //    per-class operating page. Every one of them asks
+      //    `simpulDalamLingkup` and refuses through the one refusal page, and
+      //    is therefore held to this rule alongside WP4's four.
       const halaman = files.filter((f) => /^src\/app\/pimpinan\/.*page\.tsx$/.test(f));
-      c.expect(halaman.length === 6, `${halaman.length} Management page(s); WP4 builds four and WP7C two`);
+      c.expect(halaman.length === 7,
+        `${halaman.length} Management page(s); WP4 builds four, WP7C two and WP7D one`);
       for (const f of halaman) {
         const body = src.get(f) ?? "";
         c.expect(/lingkupPimpinan\(\)|simpulDalamLingkup\(/.test(body),
@@ -6016,18 +6022,24 @@ export const experienceTests: SelfTest[] = [
         for (const m of body.matchAll(/rpc\("([a-z_]+)"/g)) dipanggil.add(m[1]);
       }
       // The governed endpoints this Experience may call, declared. WP7D adds
-      // `close_feedback_cycle`: Management ending collection for one round is
-      // an ordinary operation on an existing contract, and it is registered as
-      // a client endpoint by WP7B like the other four. `open_feedback_cycle`
-      // is NOT here, and its absence is a fact about this release rather than
-      // an oversight — see the WP7D report.
+      // the three Management operations: ending a round, naming the educators
+      // a class may be asked about, and asking. Every one is registered as a
+      // client endpoint, and the assertion below reads BOTH feedback
+      // migrations for that — `feedback_subjects_for_class` arrived in the
+      // WP7D unblocker rather than in WP7B, and a registry check that only
+      // ever read one file would have called a governed endpoint ungoverned.
       const SAH = new Set([
         "my_feedback_cycles", "feedback_questionnaire", "feedback_result", "submit_feedback",
-        "close_feedback_cycle",
+        "close_feedback_cycle", "open_feedback_cycle", "feedback_subjects_for_class",
       ]);
+      const daftarRpc = mig + readFileSync(
+        join(repoRoot, "supabase/migrations/20261001100000_management_can_name_the_teacher_it_asks_about.sql"),
+        "utf8",
+      );
       for (const r of dipanggil) {
         c.expect(SAH.has(r), `the feedback surface calls ${r}, which is not one of the governed endpoints`);
-        c.expect(new RegExp(`'${r}'`).test(mig), `${r} is not registered as a client endpoint by WP7B`);
+        c.expect(new RegExp(`values \\('${r}', '(LEARNER|STAFF)'`).test(daftarRpc),
+          `${r} is not registered as a client endpoint by the feedback migrations`);
       }
       c.expect(dipanggil.size >= 3, `${dipanggil.size} governed endpoint(s) reached; the surface is not being read`);
 
@@ -6565,6 +6577,209 @@ export const experienceTests: SelfTest[] = [
         "deliberately unmapped platform fault named and justified. AUTHORITY IS THE ENDPOINT'S: " +
         "neither the action, the control nor the page reads a role name or decides for itself, the " +
         "page still asks the Management gate, and the endpoint still asks it again",
+      );
+    },
+  },
+  {
+    id: "UX1-UB-BUKA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const MIG = "supabase/migrations/20261001100000_management_can_name_the_teacher_it_asks_about.sql";
+      const mig = readFileSync(join(repoRoot, MIG), "utf8");
+      const AKSI = "src/app/pimpinan/[simpul]/umpan-balik/actions.ts";
+      const KONTROL = "src/components/umpanbalik/MulaiPutaran.tsx";
+      const HALAMAN = "src/app/pimpinan/[simpul]/umpan-balik/kelas/[kelas]/page.tsx";
+      const aksi = code(readFileSync(join(repoRoot, AKSI), "utf8"));
+      const kontrol = code(readFileSync(join(repoRoot, KONTROL), "utf8"));
+      const halaman = code(readFileSync(join(repoRoot, HALAMAN), "utf8"));
+      const lapis = code(readFileSync(join(repoRoot, "src/lib/umpanbalik.ts"), "utf8"));
+
+      // 1. DISCOVERY IS THE GOVERNED CONTRACT, AND IT IS THE ONLY ONE USED.
+      //    Two columns, from the endpoint whose whole purpose is to give this
+      //    Experience a display identity without giving anybody a staff
+      //    directory.
+      c.expect(/returns table \(person_id uuid, display_name text\)/.test(mig),
+        "the discovery endpoint no longer returns exactly a person and a display name");
+      c.expect(/rpc\("feedback_subjects_for_class", \{ p_node: node \}\)/.test(lapis),
+        "the data layer does not read the governed subject contract");
+      //    …and it reads nothing else about a person from it.
+      const bacaSubjek = lapis.slice(lapis.indexOf("export async function subjekKelas"),
+                                     lapis.indexOf("export async function siklusKelas"));
+      c.expect(bacaSubjek.length > 0, "the discovery read could not be located");
+      for (const medan of ["email", "auth_user", "account", "institutional", "enrol", "membership", "role"]) {
+        c.expect(!bacaSubjek.includes(medan), `the discovery read reaches for ${medan}`);
+      }
+      //    A REFUSAL AND AN EMPTY LIST ARE DIFFERENT FACTS. "Not yours to ask"
+      //    and "nobody to ask about" are different sentences, and the surface
+      //    says which.
+      c.expect(/if \(error\) return null;/.test(bacaSubjek),
+        "a refused discovery is reported as an empty list");
+      c.expect(/subjek === null \?/.test(halaman),
+        "the page does not tell a refusal apart from an empty candidate list");
+      c.expect(/umpanbalik\.buka\.tanpa_wewenang/.test(halaman) && /umpanbalik\.buka\.kosong/.test(kontrol),
+        "the two cases share one sentence");
+
+      // 2. DISCOVERY IS NOT AUTHORIZATION. ADR-0023 §Decision 3: no token, no
+      //    cached entitlement, no "listed therefore permitted". The action
+      //    passes the class and the person and asserts nothing about either.
+      c.expect(/rpc\("open_feedback_cycle", \{\s*p_node: kelas,\s*p_subject_person_id: subjek,\s*\}\)/.test(aksi),
+        "the open action sends something other than the class and the subject");
+      for (const dilarang of ["token", "signed", "claim", "cache", "allowlist", "izinkan", "boleh"]) {
+        c.expect(!aksi.includes(dilarang), `the open action carries a ${dilarang}`);
+      }
+      c.expect(!/feedback_subject_candidates|role_assignments|EDUCATOR|jalur|learning_context|ACADEMIC/.test(aksi + kontrol + halaman),
+        "the open path reconstructs the subject, scope or academic rule for itself");
+      //    THE RULE IS READ TWICE AND WRITTEN ONCE: both the endpoint and
+      //    discovery ask the same internal function, which is the reason the
+      //    frontend can trust a list it is nonetheless not allowed to rely on.
+      c.expect(/feedback_subject_candidates\(p_node\)/.test(mig), "the shared subject rule is gone");
+      const badanBuka = mig.slice(mig.indexOf("create or replace function public.open_feedback_cycle"),
+                                  mig.indexOf("create function public.feedback_subjects_for_class"));
+      c.expect(/feedback_subject_candidates/.test(badanBuka),
+        "the open endpoint no longer asks the shared subject rule");
+
+      // 3. EVERY WAY THE BACKEND CAN REFUSE HAS A SENTENCE, BOTH DIRECTIONS.
+      //    This is the whole point of an advisory list: each refusal below is
+      //    a real thing that can happen between the read and the press.
+      for (const { frasa } of SEBAB_BUKA) {
+        c.expect(badanBuka.includes(frasa), `the surface maps "${frasa}", which the endpoint never raises`);
+      }
+      const raises = [...badanBuka.matchAll(/raise exception '([^':%]+)/g)].map((m) => m[1].trim());
+      c.expect(raises.length >= 10, `${raises.length} refusal(s) in the open endpoint; the slice is wrong`);
+      for (const r of raises) {
+        c.expect(SEBAB_BUKA.some(({ frasa }) => r.includes(frasa) || frasa.includes(r)),
+          `the endpoint raises "${r}" at an operator and the surface has no sentence for it`);
+      }
+      //    The two that matter most are their OWN outcomes rather than folded
+      //    into a shrug: a stale subject, and the academic boundary.
+      c.expect(sebabBuka("the subject of a feedback cycle holds a live EDUCATOR assignment over that class, and this one does not")
+        === "bukan_pengajar", "a stale discovery is not reported as a stale discovery");
+      c.expect(sebabBuka("that class is reached by professional-development material (X): PINTAR 4.0 feedback is ACADEMIC only")
+        === "bukan_akademik", "the academic refusal is not reported as itself");
+      c.expect(sebabBuka("this class already has a feedback cycle about that educator in this academic period")
+        === "sudah_ada", "a round opened by a colleague first is not recognised");
+      c.expect(sebabBuka("something nobody has ever seen") === "tak_pasti",
+        "an unrecognised open failure is reported as something definite");
+      c.expect(sebabBuka(null) === "tak_pasti", "a missing message is reported as something definite");
+      c.expect(sudahAdaPutaran("dibuka") && sudahAdaPutaran("sudah_ada"),
+        "a class that has been asked is not treated as asked");
+      for (const x of ["bukan_pengajar", "bukan_wewenang", "bukan_akademik", "kelas_belum_siap",
+                       "belum_siap", "subjek_sendiri", "tak_pasti"] as const) {
+        c.expect(!sudahAdaPutaran(x), `${x} is treated as a round that exists`);
+      }
+
+      // 4. THE ACADEMIC REFUSAL IS CARRIED, NOT COMPENSATED. No other class is
+      //    looked for, no context is inferred, nothing is retried, and the
+      //    sentence offers no way round it.
+      for (const b of [aksi, kontrol, halaman]) {
+        c.expect(!/\bwhile\s*\(|setTimeout|setInterval|retry|coba_lagi|attempt/i.test(b),
+          "the open path retries or loops");
+      }
+      const LAIN = /kelas lain|another class|try another|cari kelas/i;
+      for (const l of LOCALES) {
+        const teks = t("umpanbalik.buka.bukan_akademik" as HleEvent, "staff", { locale: l });
+        c.expect(!LAIN.test(teks), `the academic refusal suggests a workaround in ${l}`);
+        c.expect(/(akademik|academic)/i.test(teks), `the academic refusal does not say what it is about in ${l}`);
+      }
+      c.expect(LAIN.test("Coba kelas lain."), "the workaround sweep catches nothing");
+
+      // 5. NOTHING COUNTS ANYTHING, HERE EITHER. Opening a round must not
+      //    become a place to watch one fill up.
+      const KUNCI_UB = allKeys().filter((k) => k.startsWith("umpanbalik.buka.") || k.startsWith("umpanbalik.kelas."));
+      c.expect(KUNCI_UB.length >= 15, `${KUNCI_UB.length} opening key(s); the copy is incomplete`);
+      for (const k of KUNCI_UB) {
+        const row = telling(k as HleEvent);
+        c.expect(typeof row?.default === "string" && row.default.trim().length > 0, `${k} has no Indonesian`);
+        c.expect(typeof row?.en === "string" && (row.en as string).trim().length > 0, `${k} has no English`);
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "staff", { locale: l });
+          c.expect(!/[0-9]/.test(teks), `${k} carries a figure in ${l}: "${teks}"`);
+          c.expect(informal(teks).length === 0, `${k} is informal in ${l}`);
+        }
+      }
+      for (const bocor of ["tanggapan", "responses", "ambang", "threshold", "peserta", "participants",
+                           "sudah menjawab", "have answered"]) {
+        for (const k of KUNCI_UB) {
+          for (const l of LOCALES) {
+            c.expect(!t(k as HleEvent, "staff", { locale: l }).toLowerCase().includes(bocor),
+              `${k} names ${bocor} in ${l}`);
+          }
+        }
+      }
+      //    …and the control is handed only a class, a list of people and the act.
+      const props = /\{\s*kelas,\s*subjek,\s*buka,\s*locale[^}]*\}/.exec(kontrol)?.[0] ?? "";
+      c.expect(props.length > 0, "the opening control's props could not be read");
+      for (const bocor of ["total", "jumlah", "count", "ambang", "threshold", "responses", "peserta"]) {
+        c.expect(!props.includes(bocor), `the opening control is handed ${bocor}`);
+      }
+
+      // 6. AUTHORITY IS THE ENDPOINT'S, AND THE PAGE STILL ASKS THE GATE.
+      for (const [f, b] of [[AKSI, aksi], [KONTROL, kontrol], [HALAMAN, halaman]] as const) {
+        c.expect(!/"(HEAD_OF_DEPARTMENT|DEAN|INSTITUTION_ADMIN|SYSTEM_ADMIN|EDUCATOR|STUDENT)"/.test(b),
+          `${f} reads a role name`);
+        c.expect(!/display_role|displayRole|is_system_admin|has_scope/.test(b),
+          `${f} decides authority for itself`);
+      }
+      c.expect(/simpulDalamLingkup\(/.test(halaman) && /HalamanPenolakan/.test(halaman),
+        "the per-class page does not ask the Management gate or has no refusal path");
+      c.expect(/management_scope_over_node/.test(mig), "the discovery endpoint no longer asks who is Management");
+      //    The same sentence for discovery as for the operation, so a reader
+      //    learns nothing from being refused one rather than the other.
+      c.expect(/naming the subjects of a feedback cycle is for a HEAD_OF_DEPARTMENT or DEAN standing over that class/.test(mig),
+        "the discovery refusal no longer mirrors the operation's");
+
+      // 7. THE OPENED ROUND IS THE SERVER'S ACCOUNT OF IT. The new cycle's id
+      //    is discarded and the page re-reads, exactly as the close path does.
+      c.expect(/const \{ error \} = await c\.rpc\("open_feedback_cycle"/.test(aksi),
+        "the open action takes more than the error from the endpoint's answer");
+      c.expect(/router\.refresh\(\)/.test(kontrol), "the control does not re-read after opening");
+      //    And no second transition appears on this surface either.
+      const TERLARANG2 =
+        /reopen|dibuka_kembali|buka_ulang|\breset\b|republish|terbitkan_ulang|force[-_ ]?(?:publish|open|close|terbit|buka|tutup)|paksa|override/i;
+      for (const [f, b] of [[AKSI, aksi], [KONTROL, kontrol], [HALAMAN, halaman]] as const) {
+        const m = TERLARANG2.exec(b);
+        c.expect(m === null, `${f} carries a second transition: "${m?.[0]}"`);
+      }
+
+      // 8. THE GEOMETRY HOLDS A PERSON'S NAME. §17. MEASURED at 320/375/390/
+      //    414/768 in both languages with the longest realistic educator name:
+      //    zero overflow, zero clipping, every control at or above the floor.
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      const baris = css.slice(css.indexOf(".pin-ub-orang > li {"), css.indexOf(".pin-ub-orang > li + li"));
+      c.expect(baris.length > 0, "the candidate row's rule could not be located");
+      c.expect(/min-height: 44px/.test(baris), "the candidate row has no touch-target floor");
+      c.expect(!/(?<!min-)(?:height|width):\s*\d/.test(baris),
+        "the candidate row pins a fixed size, which clips the longer of two languages");
+      c.expect(/flex-wrap: wrap/.test(baris), "a long name cannot fold away from the act");
+      c.expect(/\.pin-ub-orang \.pin-ml \{[^}]*min-width: 0/.test(css),
+        "a long name sets the row's floor instead of wrapping inside it");
+      c.expect(/pin-ub-btn/.test(kontrol), "the opening control does not use the wrapping button rule");
+
+      c.note(`${KUNCI_UB.length} opening key(s), ${raises.length} endpoint refusal(s), ` +
+        `${SEBAB_BUKA.length} mapped phrase(s), ${LOCALES.length} language(s)`);
+      return c.verdict(
+        "Management names the teacher a class will be asked about through the governed contract, and " +
+        "opening re-decides every time. DISCOVERY IS THE FEEDBACK CONTRACT AND NOTHING WIDER: the " +
+        "endpoint is asserted to return exactly a person and a display name, the data layer reaches " +
+        "for no email, account, institutional identity, enrolment, membership or other role, and a " +
+        "REFUSAL is told apart from an EMPTY LIST -- 'not yours to ask' and 'nobody to ask about' are " +
+        "different facts and the surface says which. DISCOVERY IS NOT AUTHORIZATION: the action sends " +
+        "the class and the person and nothing else, carries no token, signed claim or cache, and " +
+        "neither it nor the control nor the page names the subject rule, the role table, EDUCATOR, " +
+        "jalur containment or the academic context -- while the migration is read to confirm the " +
+        "endpoint and discovery ask ONE shared rule, which is why a list can be trusted and still not " +
+        "relied on. EVERY REFUSAL HAS A SENTENCE, compared with the endpoint's own in both " +
+        "directions, with a stale subject, the academic boundary and a colleague who got there first " +
+        "each its own outcome rather than a shrug. THE ACADEMIC REFUSAL IS CARRIED, NOT COMPENSATED: " +
+        "nothing retries, nothing loops, and the sentence names the boundary and offers no way round " +
+        "it -- watched on a plant. NOTHING COUNTS ANYTHING: no opening key in either language carries " +
+        "a digit or names a response, a threshold or a participant, and the control is handed no " +
+        "total, count or remainder. Authority stays the endpoint's, the page still asks WP4's gate " +
+        "and refuses through the one refusal page, discovery refuses in the same words the operation " +
+        "does, the new cycle's id is discarded in favour of a re-read, no second transition appears, " +
+        "and the row that holds a person's name has a touch-target floor, wraps rather than " +
+        "overflowing, and pins no geometry",
       );
     },
   },

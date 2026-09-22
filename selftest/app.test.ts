@@ -1100,6 +1100,170 @@ export const appTests: SelfTest[] = [
     },
   },
   {
+    id: "UX1-UB-BUKA-ALUR-01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const anon = ctx.supabaseAnonKey!;
+
+      const lihat = async (p: { email: string; password: string }, path: string) => {
+        const sesi = await signIn(ctx, p);
+        const res = await get(`${base}${path}`, { headers: { cookie: sesi.cookie } });
+        const raw = await res.text();
+        return { res, raw, html: visibleText(raw), sesi };
+      };
+      const rpc = async (sesi: Session, fn: string, body: unknown) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${fn}`, {
+          method: "POST",
+          headers: { apikey: anon, authorization: `Bearer ${sesi.accessToken}`, "content-type": "application/json" },
+          body: JSON.stringify(body ?? {}),
+        });
+        return { ok: r.ok, body: r.ok ? await r.json() : await r.text() };
+      };
+      const orangku = async (sesi: Session) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/my_profile?select=person_id`, {
+          headers: { apikey: anon, authorization: `Bearer ${sesi.accessToken}` },
+        });
+        return ((await r.json()) as Array<{ person_id: string }>)[0]?.person_id ?? "";
+      };
+
+      const MULAI = t("umpanbalik.buka.aksi", "staff");
+      const TANPA = t("umpanbalik.buka.tanpa_wewenang", "staff");
+      const TOLAK = t("umpanbalik.ditolak", "staff");
+      const KELAS = t("umpanbalik.kelas.judul", "staff");
+
+      // ── 0. THE CLASS, ITS TEACHER, AND THE BRANCH MANAGEMENT STANDS IN.
+      const guru = await signIn(ctx, PERSONA.alphaGuru);
+      const guruId = await orangku(guru);
+      const kelasId = /\/mengajar\/([0-9a-f-]{36})/.exec(
+        await (await get(`${base}/mengajar`, { headers: { cookie: guru.cookie } })).text(),
+      )?.[1];
+      const hod = await signIn(ctx, PERSONA.alphaHod);
+      const hodId = await orangku(hod);
+      const simpulId = /\/pimpinan\/([0-9a-f-]{36})/.exec(
+        await (await get(`${base}/pimpinan`, { headers: { cookie: hod.cookie } })).text(),
+      )?.[1];
+      if (!c.expect(Boolean(kelasId && guruId && simpulId),
+        "the Alpha class, its educator or the Management branch could not be found")) {
+        return c.verdict("no class, educator or branch to operate on");
+      }
+
+      // ── 1. DISCOVERY NAMES THE TEACHER — the capability WP7D was blocked on.
+      const cari = await rpc(hod, "feedback_subjects_for_class", { p_node: kelasId });
+      c.expect(cari.ok, `Management could not discover subjects: ${String(cari.body).slice(0, 140)}`);
+      const subjek = (cari.ok ? cari.body : []) as Array<{ person_id: string; display_name: string }>;
+      c.expect(subjek.length > 0, "the class that has an educator offers no subject");
+      const ini = subjek.find((x) => x.person_id === guruId);
+      c.expect(Boolean(ini), "the educator who teaches this class is not among its subjects");
+      c.expect(Boolean(ini?.display_name && ini.display_name.trim().length > 0),
+        "the governed contract supplies no display name, so the em dash cannot be retired");
+      //    TWO COLUMNS AND NOTHING ELSE. A staff directory would have carried
+      //    more, and the whole point of a feedback-domain read is that it does
+      //    not.
+      for (const row of subjek) {
+        c.expect(Object.keys(row).sort().join(",") === "display_name,person_id",
+          `a subject row carries more than a person and a name: ${Object.keys(row).join(",")}`);
+      }
+      //    THE CALLER IS NOT THEIR OWN CANDIDATE.
+      c.expect(!subjek.some((x) => x.person_id === hodId),
+        "Management is offered itself as the subject of its own round");
+
+      // ── 2. DISCOVERY IS REFUSED TO EVERYONE THE OPERATION IS REFUSED TO.
+      //    Learning which colleagues may be reported on is part of operating
+      //    the round, so it is gated exactly as the round is.
+      for (const [nama, persona] of [
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin],
+        ["EDUCATOR", PERSONA.alphaGuru],
+        ["STUDENT", PERSONA.alphaStudent],
+        ["out-of-scope HEAD_OF_DEPARTMENT", PERSONA.cycleHod],
+      ] as const) {
+        const sesi = await signIn(ctx, persona);
+        const coba = await rpc(sesi, "feedback_subjects_for_class", { p_node: kelasId });
+        c.expect(!coba.ok, `${nama} discovered which colleagues may be reported on`);
+        //    …and being refused discovery does not make them able to open.
+        const buka = await rpc(sesi, "open_feedback_cycle", {
+          p_node: kelasId, p_subject_person_id: guruId,
+        });
+        c.expect(!buka.ok, `${nama} opened a feedback round`);
+      }
+
+      // ── 3. THE ORDINARY PATH: the branch offers the class, the class offers
+      //    the teacher, and neither offers a figure.
+      const cabang = await lihat(PERSONA.alphaHod, `/pimpinan/${simpulId}/umpan-balik`);
+      c.expect(cabang.res.status === 200, `the branch page → ${cabang.res.status}`);
+      c.expect(cabang.html.includes(KELAS), "the branch page offers no way to start a round");
+      c.expect(new RegExp(`/umpan-balik/kelas/${kelasId}`).test(cabang.raw),
+        "the branch page does not offer this class");
+
+      const jalanKelas = `/pimpinan/${simpulId}/umpan-balik/kelas/${kelasId}`;
+      const halaman = await lihat(PERSONA.alphaHod, jalanKelas);
+      c.expect(halaman.res.status === 200, `the class page → ${halaman.res.status}`);
+      c.expect(halaman.html.includes(ini!.display_name),
+        "the class page does not name the educator the governed contract supplied");
+      c.expect(halaman.html.includes(MULAI), "the class page offers no way to start a round");
+      c.expect(!ANGKA_TANGGAPAN.test(halaman.html),
+        `the class page shows a figure: "${ANGKA_TANGGAPAN.exec(halaman.html)?.[0]}"`);
+      noInternalWords(c, halaman.html, "the class operating page");
+
+      //    EXCLUDED ROLES GET NO USABLE OPERATION on the ordinary path either.
+      for (const [nama, persona] of [
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin],
+        ["EDUCATOR", PERSONA.alphaGuru],
+        ["STUDENT", PERSONA.alphaStudent],
+      ] as const) {
+        const hal = await lihat(persona, jalanKelas);
+        c.expect(!hal.html.includes(MULAI), `${nama} is offered a control to start a round`);
+        c.expect(hal.html.includes(TOLAK) || hal.html.includes(TANPA),
+          `${nama} is neither refused the page nor told the class is not theirs`);
+        c.expect(!ANGKA_TANGGAPAN.test(hal.html), `${nama} sees a figure on the class page`);
+      }
+
+      // ── 4. OPENING, THROUGH THE SAME ENDPOINT THE PAGE'S ACTION CALLS. A
+      //    round for this class and this educator exists afterwards, whether
+      //    this press made it or found it — both are correct outcomes and the
+      //    note records which happened.
+      const buka = await rpc(hod, "open_feedback_cycle", {
+        p_node: kelasId, p_subject_person_id: guruId,
+      });
+      const pesan = String(buka.body);
+      const adaSekarang = buka.ok || /already has a feedback cycle/.test(pesan);
+      c.expect(adaSekarang, `opening was refused for a reason this test did not expect: ${pesan.slice(0, 160)}`);
+
+      // ── 5. AND THE EM DASH IS RETIRED where the contract supplies a name.
+      //    This is the whole product point of the unblocker: Management can
+      //    now see which educator a round is about.
+      const sesudah = await lihat(PERSONA.alphaHod, `/pimpinan/${simpulId}/umpan-balik`);
+      c.expect(sesudah.html.includes(ini!.display_name),
+        "the Management round list still shows no educator name");
+      c.expect(!ANGKA_TANGGAPAN.test(sesudah.html), "the Management round list shows a figure");
+      //    …and the class page now lists the round it holds.
+      const kelasLagi = await lihat(PERSONA.alphaHod, jalanKelas);
+      c.expect(kelasLagi.html.includes(ini!.display_name),
+        "the class page does not name the educator of the round it holds");
+      c.expect(!ANGKA_TANGGAPAN.test(kelasLagi.html), "the class page shows a figure after opening");
+      noInternalWords(c, kelasLagi.html, "the class page after opening");
+
+      c.note(`${subjek.length} subject(s) discovered; open ${buka.ok ? "created a round" : "found one already there"}`);
+      return c.verdict(
+        "Management names the teacher a class will be asked about, and then asks. DISCOVERY WORKS AND " +
+        "IS BOUNDED: an authorized head of department is given the educator who teaches the class, " +
+        "with a real display name, and every returned row carries EXACTLY a person id and a display " +
+        "name -- asserted key by key, because a staff directory would have carried more. The caller is " +
+        "not offered as the subject of their own round. DISCOVERY IS GATED EXACTLY AS THE OPERATION " +
+        "IS: an institution administrator, the educator themselves, a learner and a head of department " +
+        "from another school are each refused the list AND each refused the open, so being able to " +
+        "name somebody and being able to ask about them are the same authority and neither is the " +
+        "other's key. ON THE ORDINARY PATH the branch offers the class, the class page names the " +
+        "educator and offers the act, excluded roles are offered no control and meet either the " +
+        "refusal page or the not-yours sentence, and no page in this flow carries a response figure. " +
+        "OPENING then leaves a round for this class and this educator, and the Management list -- " +
+        "which showed an em dash where a teacher's name belongs before the unblocker -- NAMES THE " +
+        "EDUCATOR, which is the product point of the whole change",
+      );
+    },
+  },
+  {
     id: "UX1-UB-KELOLA-01",
     requires: ["app", "network"],
     run: async (ctx) => {

@@ -1941,3 +1941,28 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 @media (max-width: 560px) {
   .pin-ub-pasti { padding: var(--space-4); }
 }
+
+/* ------------------------------------------ naming the teacher (WP7D resume) */
+/* ONE EDUCATOR PER ROW, and the row grows for whatever the outcome turned out
+   to be. The name and the act sit on one line while there is room and stack
+   when there is not, because a name is as long as somebody's name. */
+.pin-ub-subjek { margin-top: var(--space-3); }
+.pin-ub-orang { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-ub-orang > li {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) 0; min-height: 44px;
+}
+.pin-ub-orang > li + li { border-top: 1px solid var(--line); }
+/* The name takes what is left and yields rather than pushing the act off the
+   row: `min-width: 0` is what lets a long name wrap inside a flex item instead
+   of setting the row's floor to its own longest word. */
+.pin-ub-orang .pin-ml { flex: 1 1 auto; min-width: 0; }
+.pin-ub-orang .pin-msg { flex: 1 1 100%; margin: 0; }
+.pin-ub-aksi { flex: 0 0 auto; }
+
+@media (max-width: 560px) {
+  /* The act takes the full width on a phone, like every other control here. */
+  .pin-ub-orang > li { align-items: stretch; }
+  .pin-ub-aksi { flex: 1 1 100%; }
+}
