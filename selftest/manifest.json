@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 54,
+  "version": 55,
   "phase": "WP7B (anonymous student -> educator feedback: participation and answers structurally separated) on the FABLE-06 core",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1488,6 +1488,22 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round through open_feedback_cycle as the head of department, submits as a real learner, closes it, and reads every surface over HTTP as six personas. CI has both facilities, so it never skips there",
       "proves": "one real anonymous-feedback round, opened and closed through the product's own endpoints by the head of department who may -- no seed and no service role -- and measured on the RENDERED html of every surface it touches, fetched over HTTP. THE STUDENT is told feedback is waiting, which class and educator it concerns, whether they have sent theirs and the one action to take; a learner who was not asked sees nothing, and the address bar tells them nothing either, because a round that is not theirs renders the SAME page as one that does not exist. The sheet is five question groups of four closed options with no textarea, text input, search field or contenteditable on it. WHILE THE ROUND IS OPEN NEITHER THE SUBJECT NOR MANAGEMENT RECEIVES A FIGURE, measured with a sweep for any count, proportion or shortfall in either language, and Management's view names no respondent. An INSTITUTION_ADMIN standing over the whole school is refused both the list and one round's results, sees no round id at all, and is offered no entry point on their own surface; another school's educator is refused the round. Sending twice is accepted once -- the second press is refused by WP7B's row lock -- and the learner's home then says they have sent theirs and offers the action no more. CLOSED BELOW THE THRESHOLD, both readers receive the canonical statement with NOTHING after it, checked on the sentence's own neighbourhood rather than on the page, and no figure anywhere; the learner is shown no outcome at all; and a class with no round says so plainly"
+    },
+    {
+      "id": "UX1-UB-TUTUP-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "Management ends collection for a feedback round and the BACKEND decides what the round became; the surface never learns which. close_feedback_cycle returns the new state -- asserted from the migration, so this is a refusal rather than an absence -- and the action destructures only the error, reads the returned payload nowhere, and names neither terminal state nor any count. No file under src reads the anonymity threshold at all, watched on a plant. THE OFFER IS THE STATE AND NOTHING ELSE: only an OPEN round is offered a control, every terminal and unknown state is offered none, and no file and no copy key in this Experience names a reopen, reset, republish, force or override -- watched on seven positive controls, one of which proves the scanner does not mistake Next's own force-dynamic rendering directive for a transition -- and agreeing with the endpoint, which refuses a closed round by name. THE CONFIRMATION says what ends and that it does not come back, in both languages, and carries NO DIGIT AT ALL in any of its keys; the control is handed no total, count, threshold or remainder, so nothing is passed to it that could be printed. NO BLIND REPEAT: an unrecognised outcome is settled by re-reading the round's own state, nothing loops, waits, retries or counts attempts, a second press in flight cannot start a second call, and no outcome sentence tells an operator to try again. The outcome map is compared with the endpoint's own refusals in both directions, with the one deliberately unmapped platform fault named and justified. AUTHORITY IS THE ENDPOINT'S: neither the action, the control nor the page reads a role name or decides for itself, the page still asks the Management gate, and the endpoint asks it again"
+    },
+    {
+      "id": "UX1-UB-KELOLA-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round at Alpha through open_feedback_cycle, asks five personas to close it, and reads the rendered result over HTTP. CI has both facilities, so it never skips there",
+      "proves": "an authorized Management user ends collection for a real feedback round through ordinary PINTAR, and the backend decides what the round became. Measured on the RENDERED html of a round opened for this case at Alpha -- its own class, so the learning-cycle tenant's round is untouched. WHILE IT IS OPEN the operator is offered the act and the page carries no response figure, no threshold and no word of one, and the confirmation they are about to read carries none either. EVERY EXCLUDED READER IS REFUSED BY THE ENDPOINT rather than by a hidden button: an institution administrator, the subject educator, a learner and a head of department from another school are each asked to close the round DIRECTLY and each refused; none is offered a control on the ordinary path; none sees a figure; the administrator meets the refusal page rather than a disabled control; and the round is asserted STILL OPEN after all four attempts, so the refusals refused rather than merely being reported. THE AUTHORIZED OPERATOR THEN CLOSES IT, a second close is refused because terminal means terminal, and the page re-read shows the canonical withheld statement with nothing after it, no figure, no claim that it is still collecting, no close control, no confirmation, and no reopen, reset or publish offered anywhere. The subject's own view of the same round agrees and is offered no control either, because operating a round and reading its result are different things"
     }
   ]
 }

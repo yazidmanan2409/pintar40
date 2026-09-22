@@ -3,11 +3,13 @@ import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
 import * as ub from "@/lib/umpanbalik";
-import { keadaanKunci } from "@/lib/umpanbalik-kontrak";
+import { bolehDitutup, keadaanKunci } from "@/lib/umpanbalik-kontrak";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import HasilKelas from "@/components/umpanbalik/HasilKelas";
+import TutupPutaran from "@/components/umpanbalik/TutupPutaran";
+import { tutupPutaranAksi } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,25 @@ export const dynamic = "force-dynamic";
  * second renderer for a reader with more authority would have been building the
  * place where the two quietly diverge. Management's authority decides WHICH
  * rounds they may open. It does not decide what a round says.
+ *
+ * ═══ WP7D: AND IT IS WHERE THE ROUND IS OPERATED ═══
+ *
+ * Closing belongs on the round's own page rather than on a list or in an
+ * administration centre, because this is the page that already says which class
+ * and which educator the round is about and what state it is in. An operator
+ * acts on the thing in front of them; a control somewhere else would be a
+ * control about a round you were not looking at.
+ *
+ * THE CONTROL IS OFFERED ONLY WHILE THE ROUND IS OPEN, and offering is all this
+ * page does: `close_feedback_cycle` re-asks whether this reader is Management
+ * over the class, whether they are its subject, and whether the round is still
+ * open. A terminal round is offered nothing at all — there is no reopen, no
+ * reset and no republish in this product, so there is nothing to draw.
+ *
+ * NOTHING ON THIS PAGE KNOWS HOW MANY HAVE ANSWERED, before or after. The
+ * result is read through the same governed reader as always, which returns a
+ * statement and no figures until the round closes above the threshold it bound.
+ * Closing does not change that; it changes which answer the reader gets.
  *
  * WHAT IT DOES NOT BECOME IS A ROUTE TO A PERSON. There is no respondent here,
  * no list of who answered, no sheet, no "view responses", and no option that
@@ -76,6 +97,22 @@ export default async function SatuUmpanBalik({
           <h2 id="pin-ub-hasil">{s("umpanbalik.hasil.judul")}</h2>
           {kunci ? <p className="pin-meta">{s(kunci)}</p> : null}
           <HasilKelas hasil={hasil} locale={locale} persona="staff" />
+        </section>
+
+        {/* ── OPERATING THE ROUND ────────────────────────────────────────
+            One act, and only while there is one to perform. `bolehDitutup`
+            reads the state WP7B is already showing this reader and nothing
+            else: it consults no count, no threshold and no response, because
+            none of those is in scope here or anywhere on this page. */}
+        <section className="pin-sec" aria-labelledby="pin-ub-kelola">
+          <h2 id="pin-ub-kelola">{s("umpanbalik.tutup.judul")}</h2>
+          {bolehDitutup(c.keadaan) ? (
+            <TutupPutaran siklus={c.id} tutup={tutupPutaranAksi} locale={locale} />
+          ) : (
+            // Terminal. Said plainly, and offering nothing: the round is over
+            // and PINTAR has no way to reopen, reset or republish one.
+            <p className="pin-meta">{s("umpanbalik.tutup.selesai")}</p>
+          )}
         </section>
 
         <p className="pin-mm">{s("umpanbalik.guru.guna")}</p>

@@ -537,6 +537,15 @@ export type HleEvent =
   | "umpanbalik.pimpinan.judul" | "umpanbalik.pimpinan.sub" | "umpanbalik.pimpinan.kosong"
   | "umpanbalik.pimpinan.buka"
   | "umpanbalik.kembali" | "umpanbalik.ditolak"
+  // ── WP7D. Management operating a round. Staff-read, but under the same
+  // prefix and the same register as everything else here: this surface is
+  // about a named person, so the calmest available words are correct for it.
+  | "umpanbalik.tutup.aksi" | "umpanbalik.tutup.judul" | "umpanbalik.tutup.arti"
+  | "umpanbalik.tutup.akhir" | "umpanbalik.tutup.ya" | "umpanbalik.tutup.batal"
+  | "umpanbalik.tutup.menutup" | "umpanbalik.tutup.tertutup" | "umpanbalik.tutup.sudah"
+  | "umpanbalik.tutup.bukan_wewenang" | "umpanbalik.tutup.subjek"
+  | "umpanbalik.tutup.belum" | "umpanbalik.tutup.tak_pasti"
+  | "umpanbalik.tutup.selesai"
   // ── WP5B. Institutional intake. Staff-only by declaration
   // (STAFF_ONLY_PREFIXES), because an administrator's screen legitimately says
   // a job is "Menunggu" where the same word on a learner's screen would be the
@@ -1946,6 +1955,33 @@ const table: Table = {
 
   "umpanbalik.kembali": { default: "Kembali", en: "Back" },
   "umpanbalik.ditolak": { default: "Umpan balik ini bukan milik Anda untuk dibaca.", en: "This feedback is not yours to read." },
+
+  // ── WP7D. CLOSING A ROUND, AND SAYING WHAT THAT MEANS WITHOUT SAYING WHAT
+  // IS IN IT. The confirmation has to be honest about consequence — collection
+  // ends and the round does not come back — while naming no count, no
+  // threshold and nothing from which either could be worked out. That is the
+  // whole difficulty of this copy: "are you sure" is easy, and "are you sure,
+  // and no I will not tell you how many have answered" is the sentence that
+  // actually has to be written.
+  //
+  // IT ALSO DOES NOT PROMISE AN OUTCOME. Whether the round publishes is
+  // decided inside the endpoint against the threshold the cycle bound, so the
+  // copy says PINTAR decides and stops there. A sentence hinting which way it
+  // will go would be this surface doing the arithmetic it must not do.
+  "umpanbalik.tutup.aksi": { default: "Tutup putaran ini", en: "Close this round" },
+  "umpanbalik.tutup.judul": { default: "Menutup putaran", en: "Closing the round" },
+  "umpanbalik.tutup.arti": { default: "Menutup akan mengakhiri pengumpulan tanggapan untuk kelas ini. Setelah itu PINTAR sendiri yang menentukan apakah hasilnya dapat ditampilkan.", en: "Closing ends the collection of responses for this class. After that PINTAR itself decides whether the results can be shown." },
+  "umpanbalik.tutup.akhir": { default: "Putaran yang sudah ditutup tidak dibuka lagi.", en: "A round that has been closed is not opened again." },
+  "umpanbalik.tutup.ya": { default: "Ya, tutup putaran", en: "Yes, close the round" },
+  "umpanbalik.tutup.batal": { default: "Batal", en: "Cancel" },
+  "umpanbalik.tutup.menutup": { default: "Menutup…", en: "Closing…" },
+  "umpanbalik.tutup.tertutup": { default: "Putaran ini sudah ditutup.", en: "This round is now closed." },
+  "umpanbalik.tutup.sudah": { default: "Putaran ini sudah ditutup sebelumnya.", en: "This round had already been closed." },
+  "umpanbalik.tutup.bukan_wewenang": { default: "Putaran ini bukan wewenang Anda untuk ditutup.", en: "This round is not yours to close." },
+  "umpanbalik.tutup.subjek": { default: "Putaran tentang pengajaran Anda sendiri ditutup oleh orang lain.", en: "A round about your own teaching is closed by somebody else." },
+  "umpanbalik.tutup.belum": { default: "Putaran ini belum ditutup.", en: "This round has not been closed." },
+  "umpanbalik.tutup.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
+  "umpanbalik.tutup.selesai": { default: "Pengumpulan tanggapan untuk putaran ini sudah berakhir.", en: "Collection of responses for this round has ended." },
   "mengajar.kembali": { default: "Kelas", en: "Classes" },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },

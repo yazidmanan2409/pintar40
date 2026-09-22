@@ -1099,4 +1099,189 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "UX1-UB-KELOLA-01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const anon = ctx.supabaseAnonKey!;
+
+      const lihat = async (p: { email: string; password: string }, path: string) => {
+        const sesi = await signIn(ctx, p);
+        const res = await get(`${base}${path}`, { headers: { cookie: sesi.cookie } });
+        const raw = await res.text();
+        return { res, raw, html: visibleText(raw), sesi };
+      };
+      const rpc = async (sesi: Session, fn: string, body: unknown) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${fn}`, {
+          method: "POST",
+          headers: { apikey: anon, authorization: `Bearer ${sesi.accessToken}`, "content-type": "application/json" },
+          body: JSON.stringify(body ?? {}),
+        });
+        return { ok: r.ok, body: r.ok ? await r.json() : await r.text() };
+      };
+      const orangku = async (sesi: Session) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/my_profile?select=person_id`, {
+          headers: { apikey: anon, authorization: `Bearer ${sesi.accessToken}` },
+        });
+        return ((await r.json()) as Array<{ person_id: string }>)[0]?.person_id ?? "";
+      };
+
+      const TUTUP = t("umpanbalik.tutup.aksi", "staff");
+      const YA = t("umpanbalik.tutup.ya", "staff");
+      const SELESAI = t("umpanbalik.tutup.selesai", "staff");
+      const DITAHAN = t("umpanbalik.hasil.belum_cukup_tanggapan", "staff");
+      const TERKUMPUL = t("umpanbalik.hasil.belum_ditutup", "staff");
+      const TOLAK = t("umpanbalik.ditolak", "staff");
+
+      // ── 0. A ROUND OF ITS OWN, at Alpha rather than at the learning-cycle
+      //    tenant: UX1-UB-ALUR-01 already owns the one round that class may
+      //    hold, and a second there is refused by the unique index that exists
+      //    to prevent two overlapping populations being differenced.
+      const guru = await signIn(ctx, PERSONA.alphaGuru);
+      const guruId = await orangku(guru);
+      const kelasId = /\/mengajar\/([0-9a-f-]{36})/.exec(
+        await (await get(`${base}/mengajar`, { headers: { cookie: guru.cookie } })).text(),
+      )?.[1];
+      if (!c.expect(Boolean(kelasId) && Boolean(guruId), "the Alpha educator has no class or no person")) {
+        return c.verdict("no class to open a round over");
+      }
+
+      const hod = await signIn(ctx, PERSONA.alphaHod);
+      const buka = await rpc(hod, "open_feedback_cycle", { p_node: kelasId, p_subject_person_id: guruId });
+      let siklusId = buka.ok ? String(buka.body) : "";
+      if (!buka.ok) {
+        c.expect(/already has a feedback cycle/.test(String(buka.body)),
+          `Management could not open a round: ${String(buka.body).slice(0, 140)}`);
+        const ada = await fetch(
+          `${ctx.supabaseUrl}/rest/v1/feedback_cycles?select=id&scope_node_id=eq.${kelasId}`,
+          { headers: { apikey: anon, authorization: `Bearer ${hod.accessToken}` } },
+        );
+        siklusId = ((await ada.json()) as Array<{ id: string }>)[0]?.id ?? "";
+      }
+      if (!c.expect(Boolean(siklusId), "no round exists to operate")) {
+        return c.verdict("no round to operate");
+      }
+
+      const simpulId = /\/pimpinan\/([0-9a-f-]{36})/.exec(
+        await (await get(`${base}/pimpinan`, { headers: { cookie: hod.cookie } })).text(),
+      )?.[1];
+      if (!c.expect(Boolean(simpulId), "Management is offered no part of the school")) {
+        return c.verdict("no Management branch to operate from");
+      }
+      const jalan = `/pimpinan/${simpulId}/umpan-balik/${siklusId}`;
+
+      // ── 1. THE AUTHORIZED OPERATOR IS OFFERED THE ACT, and the round is
+      //    still collecting, and nothing on the page is a figure.
+      const sebelum = await lihat(PERSONA.alphaHod, jalan);
+      c.expect(sebelum.res.status === 200, `Management's round page → ${sebelum.res.status}`);
+      c.expect(sebelum.html.includes(TUTUP), "an open round offers its operator no way to close it");
+      c.expect(sebelum.html.includes(TERKUMPUL), "an open round does not say it is still collecting");
+      c.expect(!sebelum.html.includes(DITAHAN), "an open round already carries the withheld statement");
+      c.expect(!ANGKA_TANGGAPAN.test(sebelum.html),
+        `the operating page shows a figure while the round is open: "${ANGKA_TANGGAPAN.exec(sebelum.html)?.[0]}"`);
+      //    …nor does the confirmation the operator is about to read.
+      c.expect(sebelum.html.includes(t("umpanbalik.tutup.judul", "staff")),
+        "the operating section is not on the page");
+      c.expect(!/\b(ambang|threshold|minimum)\b/i.test(sebelum.html),
+        "the operating page names a threshold");
+      c.expect(!SELESAI.length || !sebelum.html.includes(SELESAI),
+        "an open round is described as finished");
+      noInternalWords(c, sebelum.html, "Management's open round");
+
+      // ── 2. EVERY EXCLUDED READER, REFUSED BY THE BACKEND RATHER THAN BY A
+      //    HIDDEN BUTTON. Each one is asked to close the round directly, so
+      //    what is measured is the endpoint's answer and not the page's.
+      const ditolak: Array<[string, { email: string; password: string }]> = [
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin],
+        ["EDUCATOR (the subject)", PERSONA.alphaGuru],
+        ["STUDENT", PERSONA.alphaStudent],
+        ["out-of-scope HEAD_OF_DEPARTMENT", PERSONA.cycleHod],
+      ];
+      for (const [nama, persona] of ditolak) {
+        const sesi = await signIn(ctx, persona);
+        const coba = await rpc(sesi, "close_feedback_cycle", { p_cycle: siklusId });
+        c.expect(!coba.ok, `${nama} closed a round they do not operate`);
+        //    …and the ordinary path offers them nothing either.
+        const hal = await lihat(persona, jalan);
+        c.expect(!hal.html.includes(TUTUP) && !hal.html.includes(YA),
+          `${nama} is offered a close control`);
+        c.expect(!ANGKA_TANGGAPAN.test(hal.html), `${nama} sees a response figure`);
+      }
+      //    The administrator specifically meets the refusal page, not a
+      //    disabled control: WP7B gives them nothing here at all.
+      const adm = await lihat(PERSONA.alphaAdmin, jalan);
+      c.expect(adm.html.includes(TOLAK), "an administrator reached the operating page");
+      //    And the round is STILL OPEN after all four attempts: the refusals
+      //    refused, rather than merely being reported.
+      const masihBuka = await rpc(hod, "feedback_result", { p_cycle: siklusId });
+      c.expect(masihBuka.ok && (masihBuka.body as { state?: string }).state === "OPEN",
+        "an excluded reader's attempt moved the round");
+
+      // ── 3. THE AUTHORIZED OPERATOR CLOSES IT, through the same endpoint the
+      //    page's action calls.
+      const tutup = await rpc(hod, "close_feedback_cycle", { p_cycle: siklusId });
+      c.expect(tutup.ok, `Management could not close the round: ${String(tutup.body).slice(0, 140)}`);
+      //    A SECOND CLOSE IS REFUSED. Terminal means terminal, and the surface
+      //    reads that refusal as "already closed" rather than as a failure.
+      const lagi = await rpc(hod, "close_feedback_cycle", { p_cycle: siklusId });
+      c.expect(!lagi.ok && /already/.test(String(lagi.body)), "a closed round was closed again");
+
+      // ── 4. WHAT IT BECAME IS THE BACKEND'S ANSWER, AND THE PAGE RE-READ IT.
+      //    Alpha 5A holds fewer learners than the anonymity threshold and none
+      //    answered, so this round cannot publish — which makes it exactly the
+      //    state the canonical statement exists for.
+      const keadaan = tutup.ok ? (tutup.body as { state?: string }).state : "";
+      c.expect(keadaan === "WITHHELD", `the round closed ${keadaan}; this case measures the withheld surface`);
+
+      const sesudah = await lihat(PERSONA.alphaHod, jalan);
+      c.expect(sesudah.res.status === 200, `the closed round's page → ${sesudah.res.status}`);
+      c.expect(sesudah.html.includes(DITAHAN),
+        "a round that closed below the threshold does not carry the canonical statement");
+      c.expect(!sesudah.html.includes(TERKUMPUL), "a closed round still says it is collecting");
+      c.expect(!ANGKA_TANGGAPAN.test(sesudah.html),
+        `the withheld surface carries a figure: "${ANGKA_TANGGAPAN.exec(sesudah.html)?.[0]}"`);
+      //    NOTHING FOLLOWS THE STATEMENT.
+      const sekitar = sesudah.html.slice(sesudah.html.indexOf(DITAHAN) + DITAHAN.length).trim().slice(0, 24);
+      c.expect(!/^\(?\d/.test(sekitar), `something follows the canonical statement: "${sekitar}"`);
+
+      // ── 5. TERMINAL. No control, and no second transition offered anywhere.
+      c.expect(!sesudah.html.includes(TUTUP), "a closed round is still offered a close control");
+      c.expect(!sesudah.html.includes(YA), "a closed round still carries a confirmation");
+      c.expect(sesudah.html.includes(SELESAI), "a closed round does not say collection has ended");
+      c.expect(!/(buka kembali|dibuka lagi|reopen|atur ulang|reset|terbitkan|publish)/i.test(sesudah.html),
+        "a closed round is offered a second transition");
+      noInternalWords(c, sesudah.html, "Management's withheld round");
+
+      // ── 6. THE SUBJECT'S OWN VIEW AGREES, and is likewise offered nothing:
+      //    operating a round is Management's, reading its result is the
+      //    subject's, and neither becomes the other.
+      const guruHal = await lihat(PERSONA.alphaGuru, `/mengajar/${kelasId}/umpan-balik`);
+      c.expect(guruHal.res.status === 200, `the subject's page → ${guruHal.res.status}`);
+      c.expect(guruHal.html.includes(DITAHAN), "the subject gets a different withheld statement");
+      c.expect(!guruHal.html.includes(TUTUP), "the subject is offered a control over their own round");
+      c.expect(!ANGKA_TANGGAPAN.test(guruHal.html), "the subject sees a figure on a withheld round");
+
+      c.note(`round ${siklusId.slice(0, 8)} at Alpha closed ${keadaan}; ${ditolak.length} excluded reader(s)`);
+      return c.verdict(
+        "an authorized Management user ends collection for a real round through ordinary PINTAR, and " +
+        "the backend decides what the round became. Measured on the RENDERED html of a round opened " +
+        "for this case at Alpha -- its own class, so the learning-cycle tenant's round is untouched. " +
+        "WHILE IT IS OPEN the operator is offered the act and the page carries no response figure, no " +
+        "threshold and no word of one, and the confirmation they are about to read carries none " +
+        "either. EVERY EXCLUDED READER IS REFUSED BY THE ENDPOINT, not by a hidden button: an " +
+        "institution administrator, the subject educator, a learner and a head of department from " +
+        "another school are each asked to close the round DIRECTLY and each refused, none is offered a " +
+        "control on the ordinary path, none sees a figure, the administrator meets the refusal page " +
+        "rather than a disabled control, and the round is asserted to be STILL OPEN after all four " +
+        "attempts -- so the refusals refused rather than merely being reported. THE AUTHORIZED " +
+        "OPERATOR THEN CLOSES IT, a second close is refused because terminal means terminal, and the " +
+        "page re-read: the canonical statement with nothing after it, no figure, no claim that it is " +
+        "still collecting, no close control, no confirmation and no reopen, reset or publish offered " +
+        "anywhere on it. The subject's own view of the same round agrees and is offered no control " +
+        "either, because operating a round and reading its result are different things",
+      );
+    },
+  },
 ];

@@ -309,3 +309,87 @@ export const KUNCI_KIRIM: Record<SebabKirim, string> = {
   belum_terkirim: "umpanbalik.kirim.belum_terkirim",
   tak_pasti: "umpanbalik.kirim.tak_pasti",
 };
+
+// ═══════════════════════════════════════════ closing a round (WP7D, Management)
+/**
+ * WHAT HAPPENED TO A CLOSE REQUEST.
+ *
+ * ═══ THE FRONTEND DOES NOT LEARN WHAT THE ROUND BECAME, AND THAT IS THE POINT ═══
+ *
+ * `close_feedback_cycle` returns the new state, and the surface deliberately
+ * throws that away. Whether a round became PUBLISHED or WITHHELD is decided by
+ * counting consumed opportunities against the threshold version the cycle bound
+ * — inside the endpoint, in one transaction, with the number never leaving it —
+ * and a client that read the returned state would be a client that had learned
+ * something about how many people answered.
+ *
+ * So the outcomes below are about the REQUEST, never about the result. What the
+ * round became is discovered the same way it is discovered at any other moment:
+ * by re-reading `feedback_result`, which is the one path from a cycle to a
+ * number and the one place that decides whether this reader may have it.
+ *
+ *   tertutup        the round closed on this press
+ *   sudah_tertutup  it was already closed — an earlier press whose answer was
+ *                   lost, a second tab, or somebody else having closed it
+ *   bukan_wewenang  not Management over that class, or no such round. WP7B
+ *                   refuses both in one sentence, so this surface cannot tell
+ *                   them apart either
+ *   subjek          the subject of a round does not close their own
+ *   belum_tertutup  it did NOT close, established by re-reading the round
+ *                   rather than guessed from a thrown error
+ *   tak_pasti       nothing is known, and the re-read could not settle it
+ */
+export type SebabTutup =
+  | "tertutup" | "sudah_tertutup" | "bukan_wewenang" | "subjek"
+  | "belum_tertutup" | "tak_pasti";
+
+/** True when collection has ended, however that was established. */
+export function sudahDitutup(sebab: SebabTutup): boolean {
+  return sebab === "tertutup" || sebab === "sudah_tertutup";
+}
+
+/**
+ * WP7B's own refusal sentences, mapped. Declared rather than matched by shape,
+ * and compared against the migration in both directions by UX1-UB-TUTUP-01, so
+ * a sentence the endpoint stops raising or starts raising is a failing test
+ * rather than a Management user reading a developer's words.
+ *
+ * `the anonymity threshold this cycle bound (…) is gone` is deliberately NOT
+ * mapped: it is a platform fault rather than something its reader did, and it
+ * falls through to the re-read, which reports what is actually true — the round
+ * is still open. A sentence invented for it here would be guessing at a cause.
+ */
+export const SEBAB_TUTUP: ReadonlyArray<{ frasa: string; sebab: SebabTutup }> = [
+  { frasa: "closing a feedback cycle is for a HEAD_OF_DEPARTMENT or DEAN standing over that class", sebab: "bukan_wewenang" },
+  { frasa: "the subject of a feedback cycle does not close their own cycle", sebab: "subjek" },
+  { frasa: "this feedback cycle is already", sebab: "sudah_tertutup" },
+];
+
+/** An unrecognised failure is never reported as a failure: see `SebabKirim`. */
+export function sebabTutup(pesan: string | null | undefined): SebabTutup {
+  if (!pesan) return "tak_pasti";
+  const m = pesan.toLowerCase();
+  for (const { frasa, sebab } of SEBAB_TUTUP) if (m.includes(frasa.toLowerCase())) return sebab;
+  return "tak_pasti";
+}
+
+/** The sentence shown for each outcome. Declared, so none is ever composed. */
+export const KUNCI_TUTUP: Record<SebabTutup, string> = {
+  tertutup: "umpanbalik.tutup.tertutup",
+  sudah_tertutup: "umpanbalik.tutup.sudah",
+  bukan_wewenang: "umpanbalik.tutup.bukan_wewenang",
+  subjek: "umpanbalik.tutup.subjek",
+  belum_tertutup: "umpanbalik.tutup.belum",
+  tak_pasti: "umpanbalik.tutup.tak_pasti",
+};
+
+/**
+ * MAY THIS ROUND BE CLOSED AT ALL? A presentation question with one input: the
+ * state WP7B is already showing this reader. It offers nothing in a terminal
+ * state — there is no reopen, no reset and no republish to offer — and it
+ * decides nothing, because `close_feedback_cycle` asks every one of its own
+ * questions again and would refuse a request this returned true for.
+ */
+export function bolehDitutup(keadaan: string | null | undefined): boolean {
+  return keadaan === "OPEN";
+}

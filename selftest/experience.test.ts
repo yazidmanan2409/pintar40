@@ -51,6 +51,7 @@
  *   UX1-UB-BISU-01           while a round is open or withheld, nothing numeric renders
  *   UX1-UB-BATAS-01          the published snapshot is all that renders, and nobody is in it
  *   UX1-UB-KATA-01           accurate about privacy, and a verdict about nobody
+ *   UX1-UB-TUTUP-01          Management ends collection; the backend decides what it became
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -78,8 +79,8 @@ import {
 } from "../src/lib/tur";
 import { konteksPembelajaran } from "../src/lib/pembelajaran";
 import {
-  bacaHasil, bagian, keadaanKunci, lengkap, sebabKirim, sudahTercatat,
-  PERNYATAAN_DITAHAN, SEBAB, type Kuesioner,
+  bacaHasil, bagian, bolehDitutup, keadaanKunci, lengkap, sebabKirim, sebabTutup,
+  sudahDitutup, sudahTercatat, PERNYATAAN_DITAHAN, SEBAB, SEBAB_TUTUP, type Kuesioner,
 } from "../src/lib/umpanbalik-kontrak";
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import { qrMatrix } from "../src/lib/qr";
@@ -6001,7 +6002,16 @@ export const experienceTests: SelfTest[] = [
         const body = code(readFileSync(join(repoRoot, f), "utf8"));
         for (const m of body.matchAll(/rpc\("([a-z_]+)"/g)) dipanggil.add(m[1]);
       }
-      const SAH = new Set(["my_feedback_cycles", "feedback_questionnaire", "feedback_result", "submit_feedback"]);
+      // The governed endpoints this Experience may call, declared. WP7D adds
+      // `close_feedback_cycle`: Management ending collection for one round is
+      // an ordinary operation on an existing contract, and it is registered as
+      // a client endpoint by WP7B like the other four. `open_feedback_cycle`
+      // is NOT here, and its absence is a fact about this release rather than
+      // an oversight — see the WP7D report.
+      const SAH = new Set([
+        "my_feedback_cycles", "feedback_questionnaire", "feedback_result", "submit_feedback",
+        "close_feedback_cycle",
+      ]);
       for (const r of dipanggil) {
         c.expect(SAH.has(r), `the feedback surface calls ${r}, which is not one of the governed endpoints`);
         c.expect(new RegExp(`'${r}'`).test(mig), `${r} is not registered as a client endpoint by WP7B`);
@@ -6317,6 +6327,231 @@ export const experienceTests: SelfTest[] = [
         "recognised as recorded, and no outcome tells a learner to send again blindly. And no " +
         "administrator is offered a way in: the configuration surface links to none of this, and no " +
         "file outside the three experiences that own it links into it either",
+      );
+    },
+  },
+  {
+    id: "UX1-UB-TUTUP-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const MIG = "supabase/migrations/20260930100000_a_class_speaks_and_no_one_is_named.sql";
+      const mig = readFileSync(join(repoRoot, MIG), "utf8");
+      const AKSI = "src/app/pimpinan/[simpul]/umpan-balik/actions.ts";
+      const KONTROL = "src/components/umpanbalik/TutupPutaran.tsx";
+      const HALAMAN = "src/app/pimpinan/[simpul]/umpan-balik/[siklus]/page.tsx";
+      const aksi = code(readFileSync(join(repoRoot, AKSI), "utf8"));
+      const kontrol = code(readFileSync(join(repoRoot, KONTROL), "utf8"));
+      const halaman = code(readFileSync(join(repoRoot, HALAMAN), "utf8"));
+
+      // 1. THE FRONTEND NEVER LEARNS WHAT THE ROUND BECAME. §9/P2.
+      //    `close_feedback_cycle` RETURNS the new state, and the whole boundary
+      //    rests on that return being thrown away: a client that read it would
+      //    know which side of the anonymity threshold the round fell on, which
+      //    is the one bit a threshold exists to withhold.
+      const badanTutup = mig.slice(
+        mig.indexOf("create function public.close_feedback_cycle"),
+        mig.indexOf("comment on function public.close_feedback_cycle"),
+      );
+      c.expect(badanTutup.length > 0, "the close endpoint could not be located");
+      c.expect(/'state', v_to/.test(badanTutup),
+        "the endpoint no longer returns a state, so there is nothing for the surface to be refusing");
+      //    …and the action destructures ONLY the error.
+      c.expect(/const \{ error \} = await c\.rpc\("close_feedback_cycle"/.test(aksi),
+        "the close action takes more than the error from the endpoint's answer");
+      c.expect(!/\bdata\b/.test(aksi.slice(aksi.indexOf("close_feedback_cycle"))),
+        "the close action reads the endpoint's returned payload");
+      for (const dilarang of ["PUBLISHED", "WITHHELD", "total_responses", "minimum_responses"]) {
+        c.expect(!aksi.includes(dilarang), `the close action names ${dilarang}`);
+        c.expect(!kontrol.includes(dilarang), `the close control names ${dilarang}`);
+      }
+
+      // 2. NO THRESHOLD IS READ, ANYWHERE ON THE FEEDBACK SURFACE. §9/P2.
+      const berkas = walk(join(repoRoot, "src"))
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      const umpan = berkas.filter((f) => /umpan-balik|umpanbalik/.test(f));
+      c.expect(umpan.length >= 8, `${umpan.length} feedback file(s); the surface is not being read`);
+      for (const f of berkas) {
+        const b = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/feedback_thresholds|minimum_responses|current_feedback_threshold/.test(b),
+          `${f} reads the anonymity threshold`);
+      }
+      c.expect(/feedback_thresholds/.test(code('const x = "feedback_thresholds";')),
+        "the threshold scanner cannot see a read of the table");
+
+      // 3. THE OFFER IS THE STATE AND NOTHING ELSE, and a terminal round is
+      //    offered nothing at all. §10/P4.
+      c.expect(bolehDitutup("OPEN"), "an open round cannot be closed");
+      for (const k of ["PUBLISHED", "WITHHELD", "", null, undefined, "SOMETHING_ELSE"]) {
+        c.expect(!bolehDitutup(k), `${JSON.stringify(k)} is offered a close control`);
+      }
+      c.expect(/bolehDitutup\(c\.keadaan\)/.test(halaman),
+        "the page offers the close control without asking the round's state");
+      //    NO SECOND TRANSITION EXISTS IN THE PRODUCT. Not as a control, not as
+      //    a copy key, not as a call.
+      // `force` alone matched Next's own `export const dynamic = "force-dynamic"`
+      // on every page, which is a rendering directive and not a transition. The
+      // rule is about a SECOND WAY TO MOVE A ROUND, so each word is required to
+      // be next to the thing it would be forcing.
+      const TERLARANG =
+        /reopen|dibuka_kembali|buka_ulang|\breset\b|republish|terbitkan_ulang|force[-_ ]?(?:publish|open|close|terbit|buka|tutup)|paksa|override|abaikan[_ ]?ambang/i;
+      for (const f of umpan) {
+        const b = code(readFileSync(join(repoRoot, f), "utf8"));
+        const m = TERLARANG.exec(b);
+        c.expect(m === null, `${f} carries a second transition: "${m?.[0]}"`);
+      }
+      for (const k of allKeys().filter((x) => x.startsWith("umpanbalik."))) {
+        const m = TERLARANG.exec(k);
+        c.expect(m === null, `the copy table declares ${k}, which names a transition WP7B has not got`);
+      }
+      for (const contoh of ["reopenCycle", "forcePublish", "force-publish", "const reset = 1;",
+                            "terbitkan_ulang", "paksaTerbit", "buka_ulang"]) {
+        c.expect(TERLARANG.test(contoh), `the second-transition scanner does not catch "${contoh}"`);
+      }
+      c.expect(!TERLARANG.test('export const dynamic = "force-dynamic";'),
+        "the second-transition scanner mistakes a rendering directive for a transition");
+      //    And the endpoint agrees: both terminal states are terminal.
+      c.expect(/this feedback cycle is already % and does not reopen/.test(badanTutup),
+        "the endpoint no longer refuses a closed round");
+
+      // 4. THE CONFIRMATION SAYS WHAT ENDS AND NAMES NO FIGURE. §8/§14/P1.
+      const KUNCI_UB = allKeys().filter((k) => k.startsWith("umpanbalik.tutup."));
+      c.expect(KUNCI_UB.length >= 12, `${KUNCI_UB.length} closing key(s); the copy is incomplete`);
+      for (const k of KUNCI_UB) {
+        const row = telling(k as HleEvent);
+        c.expect(typeof row?.default === "string" && row.default.trim().length > 0, `${k} has no Indonesian`);
+        c.expect(typeof row?.en === "string" && (row.en as string).trim().length > 0, `${k} has no English`);
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "staff", { locale: l });
+          c.expect(!/[0-9]/.test(teks), `${k} carries a figure in ${l}: "${teks}"`);
+          c.expect(informal(teks).length === 0, `${k} is informal in ${l}`);
+        }
+      }
+      //    The two sentences that have to be there: what ends, and that it does
+      //    not come back.
+      for (const l of LOCALES) {
+        const arti = t("umpanbalik.tutup.arti", "staff", { locale: l });
+        const akhir = t("umpanbalik.tutup.akhir", "staff", { locale: l });
+        c.expect(/(tanggapan|responses)/i.test(arti), `the confirmation does not say what ends in ${l}`);
+        c.expect(/(tidak dibuka|not opened again|does not reopen)/i.test(akhir),
+          `the confirmation does not say the round stays closed in ${l}`);
+      }
+      //    AND NO COUNT, THRESHOLD OR SHORTFALL REACHES THE CONTROL. Not in its
+      //    copy and not in its props: there is nothing passed that could be
+      //    printed.
+      const props = /\{\s*siklus,\s*tutup,\s*locale[^}]*\}/.exec(kontrol)?.[0] ?? "";
+      c.expect(props.length > 0, "the close control's props could not be read");
+      for (const bocor of ["total", "jumlah", "count", "ambang", "threshold", "responses", "sisa"]) {
+        c.expect(!props.includes(bocor), `the close control is handed ${bocor}`);
+      }
+      const HITUNG = /\d+\s*(?:\/|dari|of)\s*\d+|\d+\s*%|tanggapan\s*:?\s*\d+/i;
+      c.expect(HITUNG.test("3 dari 5") && HITUNG.test("(3/5)"),
+        "the figure scanner used on this surface catches nothing");
+
+      // 5. NO BLIND REPEAT, AND THE RE-READ IS AUTHORITATIVE. §15/P5.
+      c.expect(/sebab !== "tak_pasti"/.test(aksi),
+        "the close action re-reads even where WP7B already named the outcome");
+      c.expect(/await siklus\(/.test(aksi), "an uncertain close is not settled by re-reading the round");
+      c.expect(/keadaan === "OPEN" \? "belum_tertutup" : "sudah_tertutup"/.test(aksi),
+        "the re-read does not decide from the round's own state");
+      //    Nothing loops, retries, waits or counts attempts.
+      for (const b of [aksi, kontrol]) {
+        c.expect(!/\bwhile\s*\(|setTimeout|setInterval|for\s*\(\s*let\s+\w+\s*=\s*0/.test(b),
+          "the closing path retries, waits or loops");
+        c.expect(!/attempt|percobaan|retry|coba_lagi/i.test(b), "the closing path counts attempts");
+      }
+      //    A second press while one is in flight cannot start a second call.
+      c.expect(/if \(sibuk\) return;/.test(kontrol), "the control admits a second press while one is in flight");
+      c.expect(/disabled=\{sibuk\}/.test(kontrol), "the confirm control is not disabled in flight");
+      //    An unrecognised failure is never reported as a failure.
+      c.expect(sebabTutup("something nobody has ever seen") === "tak_pasti",
+        "an unrecognised close failure is reported as something definite");
+      c.expect(sebabTutup(null) === "tak_pasti", "a missing message is reported as something definite");
+      c.expect(sudahDitutup("tertutup") && sudahDitutup("sudah_tertutup"),
+        "a closed round is not treated as closed");
+      for (const x of ["bukan_wewenang", "subjek", "belum_tertutup", "tak_pasti"] as const) {
+        c.expect(!sudahDitutup(x), `${x} is treated as a closed round`);
+      }
+      const LAGI = /coba lagi|tutup lagi|ulangi|try again|close it again/i;
+      for (const l of LOCALES) {
+        for (const k of ["umpanbalik.tutup.tak_pasti", "umpanbalik.tutup.belum"] as const) {
+          c.expect(!LAGI.test(t(k as HleEvent, "staff", { locale: l })),
+            `${k} tells an operator to press again in ${l}`);
+        }
+      }
+      c.expect(LAGI.test("Silakan coba lagi."), "the blind-retry sweep catches nothing");
+
+      // 6. THE OUTCOME MAP IS WP7B'S OWN SENTENCES, BOTH WAYS. Scoped to what
+      //    an operator pressing Close can actually reach.
+      for (const { frasa } of SEBAB_TUTUP) {
+        c.expect(badanTutup.includes(frasa), `the surface maps "${frasa}", which the endpoint never raises`);
+      }
+      const raises = [...badanTutup.matchAll(/raise exception '([^':%]+)/g)].map((m) => m[1].trim());
+      c.expect(raises.length >= 3, `${raises.length} refusal(s) in the endpoint; the slice is wrong`);
+      for (const r of raises) {
+        const dipetakan = SEBAB_TUTUP.some(({ frasa }) => r.includes(frasa) || frasa.includes(r));
+        // The bound threshold going missing is a platform fault rather than
+        // something its reader did, and it is deliberately unmapped: it falls
+        // through to the re-read, which reports that the round is still open,
+        // which is true. A sentence invented for it would be a guess at a cause.
+        c.expect(dipetakan || /anonymity threshold this cycle bound/.test(r),
+          `the endpoint raises "${r}" at an operator and the surface has no sentence for it`);
+      }
+
+      // 7. AUTHORITY IS THE ENDPOINT'S. §4/P3. The page offers, and offering is
+      //    all it does: no role name is read, and the gate it already had is
+      //    the one that decides who reaches this page at all.
+      for (const f of [AKSI, KONTROL, HALAMAN]) {
+        const b = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/"(HEAD_OF_DEPARTMENT|DEAN|INSTITUTION_ADMIN|SYSTEM_ADMIN|EDUCATOR|STUDENT)"/.test(b),
+          `${f} reads a role name`);
+        c.expect(!/display_role|displayRole|is_system_admin|has_scope/.test(b),
+          `${f} decides authority for itself`);
+      }
+      c.expect(/simpulDalamLingkup\(/.test(halaman), "the operating page no longer asks the Management gate");
+      c.expect(/management_scope_over_node/.test(badanTutup),
+        "the close endpoint no longer asks who is Management");
+
+      // 8. THE GEOMETRY HOLDS THE WORDS. §17/P6. MEASURED against the compiled
+      //    stylesheet at 320/375/390/414/768 in both languages: zero overflow,
+      //    zero clipped label, and every control at or above the touch-target
+      //    floor. The control reuses `.pin-ub-btn`, whose floor is declared at
+      //    a specificity that survives `.pin-actions .pin-btn` — the defect
+      //    WP7C measured and fixed — so the rule is asserted rather than
+      //    re-discovered here.
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(/\.pin-actions \.pin-ub-btn \{[^}]*min-height: 44px/.test(css),
+        "the operating controls' touch-target floor is declared where the phone rule outranks it");
+      c.expect(/pin-ub-btn/.test(kontrol), "the closing controls do not use the wrapping button rule");
+      const panel = css.slice(css.indexOf(".pin-ub-pasti {"), css.indexOf(".pin-ub-pasti .pin-actions"));
+      c.expect(panel.length > 0, "the confirmation panel's rule could not be located");
+      c.expect(!/(?<!min-)(?:height|width):\s*\d/.test(panel),
+        "the confirmation panel pins a fixed size, which clips the longer of two languages");
+      c.expect(/(?<!min-)(?:height|width):\s*\d/.test("height: 120px;"),
+        "the fixed-geometry scanner cannot see a pinned size");
+
+      c.note(`${KUNCI_UB.length} closing key(s), ${raises.length} endpoint refusal(s), ` +
+        `${umpan.length} feedback file(s), ${LOCALES.length} language(s)`);
+      return c.verdict(
+        "Management ends collection for a round and the backend decides what the round became. THE " +
+        "SURFACE NEVER LEARNS WHICH: `close_feedback_cycle` returns the new state -- asserted, so this " +
+        "is a refusal rather than an absence -- and the action destructures only the error, reads the " +
+        "payload nowhere, and names neither terminal state nor any count. No file under src reads the " +
+        "anonymity threshold at all, watched on a plant. THE OFFER IS THE STATE AND NOTHING ELSE: only " +
+        "an open round is offered a control, every terminal and unknown state is offered none, and no " +
+        "file and no copy key in this Experience names a reopen, a reset, a republish, a force or an " +
+        "override -- watched on a plant, and agreeing with the endpoint, which refuses a closed round " +
+        "by name. THE CONFIRMATION says what ends and that it does not come back, in both languages, " +
+        "and carries NO DIGIT AT ALL in any of its twelve keys; the control is handed no total, count, " +
+        "threshold or remainder, so there is nothing passed to it that could be printed. NO BLIND " +
+        "REPEAT: an unrecognised outcome is settled by re-reading the round's own state rather than by " +
+        "pressing again, nothing loops, waits, retries or counts attempts, a second press in flight " +
+        "cannot start a second call, and no outcome sentence tells an operator to try again. The " +
+        "outcome map is compared with the endpoint's own refusals in both directions, with the one " +
+        "deliberately unmapped platform fault named and justified. AUTHORITY IS THE ENDPOINT'S: " +
+        "neither the action, the control nor the page reads a role name or decides for itself, the " +
+        "page still asks the Management gate, and the endpoint still asks it again",
       );
     },
   },

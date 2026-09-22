@@ -1923,3 +1923,21 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-ub-pilihan { flex-direction: column; align-items: stretch; }
   .pin-ub-opsi { justify-content: flex-start; }
 }
+
+/* ------------------------------------------------ operating a round (WP7D) */
+/* THE CONFIRMATION IS A PANEL, NOT A DIALOG. PINTAR has no modal pattern
+   outside the tour, and inventing one for a single act would be inventing a
+   product convention on the way past. It sits on the attention ground because
+   somebody is being asked to make something permanent — the same ground WP5B's
+   pilot checkpoint uses for the same reason. */
+.pin-ub-tutup { margin-top: var(--space-4); }
+.pin-ub-pasti {
+  background: var(--status-attention-soft); border: 1px solid var(--status-attention);
+  border-radius: var(--radius-2); padding: var(--space-5);
+  display: grid; gap: var(--space-2);
+}
+.pin-ub-pasti .pin-actions { margin-top: var(--space-3); }
+
+@media (max-width: 560px) {
+  .pin-ub-pasti { padding: var(--space-4); }
+}
