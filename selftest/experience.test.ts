@@ -1151,6 +1151,16 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 99 -> 100 for WP6A's closure patch. 20260929100000 creates NO
+      // table and adds NO column: one predicate naming the startable release
+      // state, two replaced function bodies (the learning-cycle arm of
+      // start_learning_session, and one token added to the sealed-content
+      // guard's protected course fields). Read against §3 of the ruling
+      // before this number moved: a release status and a protected column
+      // list are neither a mark, a logo, a crest nor a theme, so the Q-7
+      // source still does not exist and the sweep below asserts over one more
+      // file without its answer changing.
+      //
       // MOVED 98 -> 99 for WP6A's academic-evidence boundary correction.
       // 20260928100000 creates NO table and adds NO column: two VIEWS over the
       // evidence boundary (academic_responses, academic_certificates), four
@@ -1192,7 +1202,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 99, `${migrations.length} migrations; the frozen baseline has 99`);
+      c.expect(migrations.length === 100, `${migrations.length} migrations; the frozen baseline has 100`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2833,7 +2843,10 @@ export const experienceTests: SelfTest[] = [
       // The count is a drift guard on the tree this case reads its contract
       // from, not a claim about the tour. MOVED 88 -> 92 for WP1's source-bound
       // metric authorization and objective B, none of which adds or alters a
-      // tour RPC. MOVED 98 -> 99 for WP6A's academic-evidence boundary
+      // tour RPC. MOVED 99 -> 100 for WP6A's closure patch (20260929100000),
+      // which gates the learning-cycle start path on a published release and
+      // protects one more course column -- neither of which is a tour RPC.
+      // MOVED 98 -> 99 for WP6A's academic-evidence boundary
       // correction (20260928100000), which adds two views over the evidence
       // boundary, rewrites the four aggregates that read it, carries the
       // learning context through course revision and structured ingestion, and
@@ -2845,7 +2858,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 99, `${migs.length} migrations; the baseline has 99`);
+      c.expect(migs.length === 100, `${migs.length} migrations; the baseline has 100`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

@@ -5698,6 +5698,274 @@ begin
     return next;
   end;
 
+
+  -- =========================================================================
+  -- F06-P21 -- MUTABLE CONTENT PRODUCES NO EVIDENCE, AND A SEALED COURSE'S
+  -- CONTEXT STOPS MOVING.
+  --
+  -- WP6A's closure review found that adding `learning_context` to the
+  -- sealed-content guard was necessary and not sufficient: the guard fires on
+  -- `content_is_sealed`, and committed OFFICIAL evidence could exist long
+  -- before that, because the ordinary learning-cycle path never asked what
+  -- state its release was in. Measured with no owner-side write at all:
+  --
+  --   item.correctness_rate  have 1 -> 0   (ACADEMIC -> PD, unsealed course)
+  --   class.misconceptions   ok/3 -> have 0, remediation gone and then back
+  --
+  -- So the repair is two-sided and this test is too: evidence may only be
+  -- written over content that is already immutable, and a course carrying such
+  -- evidence may not be reclassified. The second half is only safe because of
+  -- the first -- the startable states are a subset of the sealed ones -- so
+  -- both halves are asserted here, on one fixture, in one transaction.
+  -- =========================================================================
+  declare
+    c record; pk record; bad text[] := array[]::text[]; v_why text := ''; v_cat text;
+    v_def uuid; v_la uuid; v_aa uuid; v_enr uuid; v_cls uuid; v_period uuid;
+    v_sess uuid; v_item uuid; v_before jsonb; v_after jsonb; r record; n int;
+    v_caught boolean; v_msg text; v_pdc uuid; v_acc uuid; v_rev uuid; v_ctx text;
+    v_tag text; t text; v_rel uuid; v_pdsess uuid; v_pdrel uuid; pd record;
+  begin
+    begin
+      perform selftest.as_owner();
+      v_cat := public.current_metric_catalogue();
+      select * into c from selftest.wp2_school();
+      select ap.id into v_period from public.academic_periods ap
+       where ap.institution_id = c.inst order by ap.created_at limit 1;
+      select m.node_id into v_cls from public.memberships m
+        join public.enrollments e on e.id = m.enrollment_id
+       where e.person_id = c.la and e.institution_id = c.inst and m.valid_to is null limit 1;
+      v_tag := substr(md5(random()::text), 1, 8);
+
+      -- ── 6 (MEASURED FIRST, ON THE INHERITED WORLD) ───────────────────────
+      -- An ACTIVE learning assignment whose release can no longer start a
+      -- session would mean a learner already mid-journey is locked out, which
+      -- is the regression this repair must not cause. It is counted BEFORE
+      -- this test builds anything, because the fixtures below deliberately
+      -- include unpublished ones: selftest.wp6_pd leaves its release where
+      -- authoring leaves it, and WP6A's crown tests write their
+      -- professional-development evidence directly rather than through the
+      -- start path, so they neither need nor claim a published release.
+      select count(*) into n from public.learning_assignments la
+       where la.status = 'ACTIVE' and not public.release_starts_new_sessions(la.plp_release_id);
+      if n <> 0 then
+        bad := bad || array[format('%s ACTIVE learning assignment(s) in the seeded world bind a release that can no longer start', n)];
+      end if;
+
+      -- A PUBLISHABLE PACKAGE, left where authoring leaves it: a release row
+      -- that exists and has never been published. This is the state 0063
+      -- recorded as "the ordinary mid-authoring state".
+      select * into pk from selftest.qac_own_package(c.inst, v_tag);
+      v_rel := pk.rel;
+      perform selftest.as_user_uid(c.adm_u);
+      insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type,
+        item_count, difficulty_mix, safety_critical_minimum, passing_rules,
+        hesitation_window_seconds, shuffle_policy, allows_pause, offline_tolerant,
+        late_sync_grace_seconds, attempt_limit)
+      values (c.inst, pk.course, 'Uji siklus ' || v_tag, 'POST_TEST', 'TEST',
+              3, '{"MUDAH":2,"SEDANG":1}'::jsonb, 0, '{}'::jsonb, 25, 'ITEMS_AND_OPTIONS',
+              true, true, 120, 2)
+      returning assessment_definitions.id into v_def;
+      insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
+                                               academic_period_id)
+      values (c.inst, v_rel, pk.course, v_cls, v_period)
+      returning learning_assignments.id into v_la;
+      insert into public.assessment_assignments (institution_id, assessment_definition_id,
+                                                 learning_assignment_id, node_id, academic_period_id)
+      values (c.inst, v_def, v_la, v_cls, v_period)
+      returning assessment_assignments.id into v_aa;
+      update public.learning_assignments la2  set status = 'ACTIVE'    where la2.id = v_la;
+      update public.assessment_assignments aa2 set status = 'SCHEDULED' where aa2.id = v_aa;
+      update public.assessment_assignments aa2 set status = 'OPEN'      where aa2.id = v_aa;
+      perform selftest.as_owner();
+
+      -- ── 1. MUTABLE CONTENT: ENTITLED, AND STILL REFUSED ──────────────────
+      -- Authorization is untouched and says so: may_start_assessment, the
+      -- predicate that decides entitlement, answers OK. What refuses is the
+      -- lifecycle, and it refuses the act that would write evidence.
+      perform selftest.as_user_uid(c.la_u);
+      select e.reason into v_msg from public.may_start_assessment(v_aa) e;
+      if v_msg <> 'OK' then
+        bad := bad || array[format('the learner is not entitled (%s), so the refusal proves nothing', v_msg)];
+      end if;
+      v_caught := false;
+      begin v_sess := public.start_learning_session(v_aa);
+      exception when others then v_caught := true; v_msg := sqlerrm; end;
+      perform selftest.as_owner();
+      if not v_caught then
+        bad := bad || array['a learner wrote evidence over content that can still be edited'];
+      elsif v_msg !~ 'published' then
+        bad := bad || array[format('the refusal does not name publication: %s', left(v_msg, 70))];
+      end if;
+      select count(*) into n from public.assessment_sessions s where s.assessment_assignment_id = v_aa;
+      if n <> 0 then bad := bad || array[format('the refused start left %s session row(s)', n)]; end if;
+      select count(*) into n from public.assessment_results ar
+        join public.assessment_sessions s on s.id = ar.session_id
+       where s.assessment_assignment_id = v_aa;
+      if n <> 0 then bad := bad || array[format('the refused start left %s result row(s)', n)]; end if;
+      select i.id into v_item from public.items i
+       where i.lesson_id = pk.les order by i.id limit 1;
+      perform selftest.as_user_uid(c.adm_u);
+      v_before := public.metric_evaluate('item.correctness_rate', v_item, c.inst, v_cat);
+      perform selftest.as_owner();
+      if coalesce((v_before ->> 'have')::int, (v_before ->> 'sample')::int, 0) <> 0 then
+        bad := bad || array['unreleased content already carries item evidence'];
+      end if;
+
+      -- ── 2. PUBLISHED: THE SAME LEARNER, THE SAME ASSIGNMENT, ADMITTED ────
+      -- walked through the declared transitions by the capability holders:
+      -- CAN_FREEZE_RELEASE seals it, CAN_PUBLISH makes it available.
+      perform selftest.as_user_uid(c.adm_u);
+      foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+        update public.plp_releases r2 set status = t::public.content_status where r2.id = v_rel;
+      end loop;
+      update public.plp_releases r2 set status = 'APPROVED', reviewed_by_person_id = c.adm where r2.id = v_rel;
+      update public.plp_releases r2 set status = 'FROZEN'    where r2.id = v_rel;
+      update public.plp_releases r2 set status = 'PUBLISHED' where r2.id = v_rel;
+      perform selftest.as_owner();
+      if not public.release_starts_new_sessions(v_rel) then
+        bad := bad || array['a published release still refuses to start a session'];
+      end if;
+      perform selftest.as_user_uid(c.la_u);
+      v_caught := false;
+      begin
+        v_sess := public.start_learning_session(v_aa);
+        for r in select p.id, p.item_id from public.presented_items p where p.session_id = v_sess loop
+          perform public.record_answer(r.id, 1,
+            jsonb_build_object('posisi', selftest.f06_position(v_sess, r.item_id, true)));
+        end loop;
+        perform public.finish_my_session(v_sess);
+      exception when others then v_caught := true; v_msg := sqlerrm; end;
+      perform selftest.as_owner();
+      if v_caught then
+        bad := bad || array[format('a published release refused an entitled learner: %s', left(v_msg,70))];
+      else
+        select count(*) into n from public.official_sessions s where s.id = v_sess;
+        if n <> 1 then bad := bad || array['the admitted session is not OFFICIAL evidence']; end if;
+        select count(*) into n from public.assessment_results ar where ar.session_id = v_sess;
+        if n <> 1 then bad := bad || array['the admitted session produced no result']; end if;
+      end if;
+
+      -- ── 3. ACADEMIC -> PD IS REFUSED, AND THE EVIDENCE DOES NOT MOVE ─────
+      select p.item_id into v_item from public.presented_items p where p.session_id = v_sess limit 1;
+      perform selftest.as_user_uid(c.adm_u);
+      v_before := public.metric_evaluate('item.correctness_rate', v_item, c.inst, v_cat)
+                    - 'catalogue_version';
+      v_caught := false;
+      begin update public.courses co2 set learning_context = 'PROFESSIONAL_DEVELOPMENT' where co2.id = pk.course;
+      exception when others then v_caught := true; v_msg := sqlerrm; end;
+      v_after := public.metric_evaluate('item.correctness_rate', v_item, c.inst, v_cat)
+                   - 'catalogue_version';
+      perform selftest.as_owner();
+      if not v_caught then
+        bad := bad || array['a sealed course carrying evidence was reclassified to professional development'];
+      elsif v_msg !~ 'learning_context' then
+        bad := bad || array[format('the refusal is not about the context: %s', left(v_msg,70))];
+      end if;
+      if v_before is distinct from v_after then
+        bad := bad || array[format('the academic evidence moved anyway: %s -> %s',
+                                   left(v_before::text,60), left(v_after::text,60))];
+      end if;
+      if coalesce((v_after ->> 'have')::int, (v_after ->> 'sample')::int, 0) < 1 then
+        bad := bad || array['the academic control holds no item evidence, so "unchanged" proves nothing'];
+      end if;
+      select c2.learning_context::text into v_ctx from public.courses c2 where c2.id = pk.course;
+      if v_ctx <> 'ACADEMIC' then bad := bad || array['the refused edit moved the context anyway']; end if;
+
+      -- ── 4. PD -> ACADEMIC IS REFUSED, AND PD EVIDENCE STAYS OUT ──────────
+      select * into pd from selftest.wp6_pd(c.inst, c.fac, c.edu, c.adm_u);
+      v_pdsess := selftest.wp6_evidence_session(
+        (select s.id from public.assessment_sessions s
+          where s.class_node_id = c.cls_a and s.status = 'FINALIZED' order by s.id limit 1),
+        c.edu, v_cls, pd.release);
+      perform selftest.wp6_seal(c.inst, pd.course, c.edu_u, c.adm, c.adm_u);
+      select count(*) into n from public.academic_responses ar
+        join public.presented_items p on p.id = ar.presented_item_id
+       where p.session_id = v_pdsess;
+      if n <> 0 then bad := bad || array['professional-development answers were already academic']; end if;
+      perform selftest.as_user_uid(c.adm_u);
+      v_caught := false;
+      begin update public.courses co2 set learning_context = 'ACADEMIC' where co2.id = pd.course;
+      exception when others then v_caught := true; v_msg := sqlerrm; end;
+      perform selftest.as_owner();
+      if not v_caught then
+        bad := bad || array['a sealed professional-development course was reclassified as academic'];
+      end if;
+      select c2.learning_context::text into v_ctx from public.courses c2 where c2.id = pd.course;
+      if v_ctx <> 'PROFESSIONAL_DEVELOPMENT' then
+        bad := bad || array['the refused edit moved the professional-development context anyway'];
+      end if;
+      select count(*) into n from public.academic_responses ar
+        join public.presented_items p on p.id = ar.presented_item_id
+       where p.session_id = v_pdsess;
+      if n <> 0 then
+        bad := bad || array['professional-development answers entered the academic source after the refusal'];
+      end if;
+
+      -- ── 5. REVISION STILL INHERITS, BOTH WAYS ────────────────────────────
+      perform selftest.as_user_uid(c.adm_u);
+      v_pdc := public.create_course(c.inst, 'Pengembangan', 'Guru', '-', 'PD siklus ' || v_tag,
+                                    'PROFESSIONAL_DEVELOPMENT');
+      v_acc := public.create_course(c.inst, 'Matematika', 'SD', '5', 'Akademik siklus ' || v_tag);
+      perform selftest.as_owner();
+      perform selftest.wp6_seal(c.inst, v_pdc, c.edu_u, c.adm, c.adm_u);
+      perform selftest.wp6_seal(c.inst, v_acc, c.edu_u, c.adm, c.adm_u);
+      perform selftest.as_user_uid(c.adm_u);
+      v_rev := public.create_course_revision(v_pdc);
+      if (select co.learning_context::text from public.courses co where co.id = v_rev)
+           <> 'PROFESSIONAL_DEVELOPMENT' then
+        bad := bad || array['a revision of a sealed professional-development course lost its context'];
+      end if;
+      v_rev := public.create_course_revision(v_acc);
+      if (select co.learning_context::text from public.courses co where co.id = v_rev) <> 'ACADEMIC' then
+        bad := bad || array['a revision of a sealed academic course changed its context'];
+      end if;
+      perform selftest.as_owner();
+
+      -- ── 7. QUICK ASSESSMENT KEEPS ITS OWN RULE ───────────────────────────
+      v_msg := pg_get_functiondef('public.start_learning_session(uuid)'::regprocedure);
+      if v_msg !~ 'PUBLISHED'', ''SUPERSEDED' or v_msg !~ '\(r\.status = ''PUBLISHED''\) desc' then
+        bad := bad || array['the ad-hoc arm lost its own release rule or its ordering'];
+      end if;
+
+      raise exception 'F06_P21_UNDO';
+    exception when others then
+      begin perform selftest.as_owner(); exception when others then null; end;
+      perform set_config('app.seed_intent', '', true);
+      perform set_config('pintar.metric_boundary_node', '', true);
+      perform set_config('pintar.metric_boundary_person', '', true);
+      if sqlerrm <> 'F06_P21_UNDO' then
+        v_why := 'the probe itself failed: ' || left(sqlerrm, 220);
+      end if;
+    end;
+
+    id := 'F06-P21'; area := 'WP6A closure -- evidence only over content that cannot change';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'THE ENTITLED LEARNER IS REFUSED, AND ENTITLEMENT IS NOT WHAT REFUSES THEM: '
+        || 'may_start_assessment still answers OK over a real assignment at a real class, and '
+        || 'start_learning_session refuses anyway, naming publication -- leaving no session row, no '
+        || 'result row and no item evidence. The same learner, the same assignment and the same items '
+        || 'are then ADMITTED once the release is walked to PUBLISHED by the actors who hold '
+        || 'CAN_FREEZE_RELEASE and CAN_PUBLISH, and the attempt scores and finalizes as an OFFICIAL '
+        || 'session with a result. So the rule is a lifecycle rule, not a new refusal. THE SEALED '
+        || 'COURSE THEN STOPS MOVING: ACADEMIC -> PROFESSIONAL_DEVELOPMENT is refused by name on a '
+        || 'course carrying that learner''s evidence, and the item metric is compared before and after '
+        || 'as a whole envelope rather than trusting the exception -- it is identical, and it is '
+        || 'non-vacuous, because it holds the answer just recorded. PROFESSIONAL_DEVELOPMENT -> '
+        || 'ACADEMIC is refused on a sealed professional-development course, and the educator''s '
+        || 'answers are absent from academic_responses both before and after the attempt. Revision '
+        || 'still inherits in both directions on sealed courses, and EVERY ACTIVE learning assignment '
+        || 'THE SEEDED WORLD ALREADY HELD binds a release that can still start -- counted before this '
+        || 'test builds anything, which is the check that would catch this repair locking out a '
+        || 'learner already mid-journey. Quick Assessment''s own rule and its '
+        || 'live-release ordering are read from the function and unchanged. Every row rolled back';
+    end if;
+    return next;
+  end;
+
   perform selftest.f06_purge();
   perform selftest.purge_certificates();
   id := 'F06-DONE'; area := 'suite'; ok := true; detail := 'FABLE-06 suite complete';
