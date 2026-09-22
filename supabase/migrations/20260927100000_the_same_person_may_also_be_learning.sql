@@ -77,13 +77,20 @@ returns boolean
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare v_ctx public.learning_context;
 begin
-  -- No release means no course to ask about; leave such a row where the
-  -- boundary predicate already put it rather than inventing an opinion.
-  if p_release is null then return true; end if;
+  -- FAIL CLOSED WHEN PROVENANCE CANNOT BE RESOLVED. A row whose release is
+  -- absent, or whose release resolves to no course, has no context to be
+  -- judged by -- and "no answer" must not be read as "academic", because
+  -- academic is the historical default and would swallow it. Neither case is
+  -- reachable through the schema (assessment_sessions.plp_release_id and
+  -- plp_releases.course_id are both NOT NULL, and both are foreign keys), so
+  -- this refuses nothing that exists; it decides what happens if that ever
+  -- stops being true.
+  if p_release is null then return false; end if;
   select c.learning_context into v_ctx
     from public.plp_releases pr join public.courses c on c.id = pr.course_id
    where pr.id = p_release;
-  if v_ctx is null or v_ctx = 'ACADEMIC' then return true; end if;
+  if v_ctx is null then return false; end if;
+  if v_ctx = 'ACADEMIC' then return true; end if;
 
   -- PROFESSIONAL DEVELOPMENT IS THE PERSON'S OWN. WP1's person binding is
   -- set only when somebody is reading their own record; every aggregate and
@@ -94,21 +101,18 @@ end $$;
 comment on function public.row_in_learning_context(uuid) is
   'WP6A: academic evidence stays where the organizational boundary put it; professional-development '
   'evidence is admitted only under WP1''s person binding, which is set only when a person is reading '
-  'their own record. No new capability decides this, because none was needed.';
+  'their own record. No new capability decides this, because none was needed. Provenance that cannot '
+  'be resolved is refused rather than defaulted to academic.';
+-- NOT GRANTED TO ANY CLIENT ROLE and not registered as an RPC. The only
+-- object that calls it is `scoped_official_sessions`, which runs with the
+-- view owner's rights like its five siblings, so nothing outside the database
+-- has any use for it. Least privilege here is simply not granting it.
 revoke all on function public.row_in_learning_context(uuid) from public, anon, authenticated;
-grant execute on function public.row_in_learning_context(uuid) to authenticated;
-
-insert into public.client_rpc_registry (function_name, exposure, note)
-values ('row_in_learning_context', 'PLATFORM',
-        'Row predicate behind the scoped evidence sources. Answers whether a row''s learning context is '
-        'readable in the boundary currently bound. Takes no identity argument and returns no data.')
-on conflict (function_name) do update
-   set exposure = excluded.exposure, note = excluded.note;
 
 -- ───────────────── the scoped source carries the context as well as the node
 -- `scoped_official_results` reaches this transitively through its EXISTS on
 -- the sessions view, so one narrowing covers both and they cannot disagree.
-create or replace view public.scoped_official_sessions with (security_invoker = true) as
+create or replace view public.scoped_official_sessions as
   select s.id, s.person_id, s.institution_id, s.enrollment_id, s.academic_period_id,
          s.class_node_id, s.cohort_node_id, s.plp_release_id,
          s.assessment_definition_id, s.assessment_definition_version,
@@ -189,8 +193,14 @@ begin
     -- AND THE CONTEXT PREDICATE ANSWERS BY BINDING, NOT BY ROLE.
     perform set_config('pintar.metric_boundary_person', '', true);
     perform set_config('pintar.metric_boundary_node', v_inst::text, true);
-    if public.row_in_learning_context(null) is not true then
-      raise exception 'a row with no release was dropped by the context predicate';
+    -- AND UNRESOLVABLE PROVENANCE IS REFUSED RATHER THAN CALLED ACADEMIC.
+    -- Neither shape is reachable through the schema; the point is what the
+    -- predicate decides if one ever becomes reachable.
+    if public.row_in_learning_context(null) is not false then
+      raise exception 'a row with no release was admitted by the context predicate';
+    end if;
+    if public.row_in_learning_context(gen_random_uuid()) is not false then
+      raise exception 'a row whose release does not exist was admitted by the context predicate';
     end if;
     perform set_config('pintar.metric_boundary_node', '', true);
     perform set_config('pintar.metric_boundary_person', '', true);
@@ -205,6 +215,8 @@ begin
   end;
 
   raise notice '0101 verified: a course is ACADEMIC unless it says otherwise and no existing course was '
+    'reclassified; unresolvable provenance -- no release, or a release that does not exist -- is '
+    'REFUSED by the context predicate rather than defaulted to academic; '
     'reclassified; the scoped evidence source now carries BOTH WP1''s organizational boundary and the '
     'learning context, and the result source still inherits the session source''s narrowing; learner is '
     'still not a role -- role_assignments still refuses STUDENT and display_role still prefers a held '

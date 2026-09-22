@@ -20,7 +20,7 @@
 -- WHY THE FIRST FIX COULD NOT HAVE WORKED. The three service views read
 -- `official_responses` directly, and the certificate source reads
 -- `certificates` directly. Neither passes through a session view, so
--- narrowing that view reaches twelve calculators and misses five. Filtering
+-- narrowing that view reaches eleven calculators and misses five. Filtering
 -- one late source is not provenance.
 --
 -- THE CORRECTION IS A NAMED BOUNDARY, NOT FIVE MORE WHERE CLAUSES.
@@ -47,19 +47,32 @@
 -- revocation or verification changes, and no separate PD certificate engine
 -- is created.
 --
--- AND TWO THINGS I GOT WRONG THAT ARE REVERTED HERE:
+-- AND TWO THINGS I GOT WRONG, WITHDRAWN AT THEIR SOURCE RATHER THAN UNDONE
+-- HERE. 20260927100000 has not been promoted to anything, so the honest
+-- repair is for it not to make the mistake:
 --
---   * my `create or replace view` added `security_invoker = true` to
+--   * its `create or replace view` set `security_invoker = true` on
 --     `scoped_official_sessions`. None of its five siblings has it and WP6
 --     never needed it, so it was an unrelated change to one view's security
---     semantics. Reverted to match.
+--     semantics. That clause is gone; the view keeps its siblings' semantics.
 --   * `row_in_learning_context` was granted to `authenticated` and registered
---     as a PLATFORM RPC. With the view back to definer semantics, no client
---     needs to call it at all. Revoked and de-registered.
+--     as a PLATFORM RPC. The only object that calls it is a view running with
+--     its owner's rights, so no client has any use for it. The grant and the
+--     registry row are gone.
+--
+-- The terminal block still asserts both end states, so this migration refuses
+-- to finish on a database where either one survived.
 -- ---------------------------------------------------------------------------
 
 -- ─────────────────────────────── 1. the academic evidence boundary
-create view public.academic_responses as
+-- `security_invoker` here is NOT a new security decision: it is the semantics
+-- the boundary this sits beside already has. `official_sessions`,
+-- `official_responses` and `official_results` are all invoker views, so an
+-- academic view reading one must be invoker too, or a chain that used to check
+-- the caller's rights would start checking the view owner's. Neither view is
+-- granted to any role, so today only the owner reads them at all -- this is
+-- what keeps that safe if somebody grants one tomorrow.
+create view public.academic_responses with (security_invoker = true) as
   select r.id, r.presented_item_id, r.session_id, r.institution_id, r.client_seq,
          r.value, r.value_digest, r.received_at, r.client_asserted_at,
          r.receipt_mode, r.is_final
@@ -75,7 +88,7 @@ comment on view public.academic_responses is
   'by being forgotten. Inner joins throughout, so unresolvable provenance is absent rather than assumed '
   'academic.';
 
-create view public.academic_certificates as
+create view public.academic_certificates with (security_invoker = true) as
   select c.id, c.session_id, c.person_id, c.institution_id, c.snapshot_id,
          c.certificate_number, c.verification_token, c.status, c.issued_at, c.issued_at_iso,
          c.canonical_payload, c.signature, c.key_version, c.revoked_at, c.revoked_reason,
@@ -142,18 +155,15 @@ create or replace view public.scoped_certificates as
   select c.* from public.academic_certificates c
    where public.person_in_metric_boundary(c.institution_id, c.person_id);
 
--- ─────────── 4. reverting the two things WP6A's first pass got wrong
--- `security_invoker` is dropped to match the five sibling scoped views; the
--- learning-context narrowing itself is kept, because Second Eye confirmed it
--- works for the consumers that do reach it.
--- RESET rather than drop-and-recreate: sixteen calculators depend on these
--- views, so dropping them is not available and was never necessary. The
--- option is the only thing that was wrong; the narrowing itself stays.
-alter view public.scoped_official_sessions reset (security_invoker);
-
--- least privilege: with the view back to definer semantics, no client calls this
-revoke all on function public.row_in_learning_context(uuid) from public, anon, authenticated;
-delete from public.client_rpc_registry where function_name = 'row_in_learning_context';
+-- ─────────── 4. the two things WP6A's first pass got wrong are gone
+-- Neither is reverted here, because neither is introduced any more:
+-- 20260927100000 no longer sets `security_invoker` on
+-- `scoped_official_sessions`, and no longer grants or registers
+-- `row_in_learning_context`. The narrowing that migration added is kept
+-- exactly as it was, because Second Eye confirmed it works for the consumers
+-- that reach it. The terminal block below asserts the end state either way,
+-- so a database that carried the option or the grant fails here by name
+-- rather than drifting.
 
 -- ───────────────────────── 5. context survives creation and revision
 -- A REVISION INHERITS WHAT IT SUPERSEDES. Before this, revising a
@@ -166,21 +176,52 @@ create or replace function public.create_course_revision(p_course uuid)
 returns uuid
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare
-  v_actor uuid; src public.courses; v_new_course uuid; n_open int;
-  v_mod record; v_new_mod uuid; v_les record;
+  src record; v_actor uuid; v_new_course uuid; n_open int;
+  v_mod record; v_new_mod uuid; v_les record; v_new_les uuid;
+  v_lo record; v_it record; v_new_item uuid; v_def record; v_version int;
+  v_obj uuid[]; v_pg uuid;
+  -- old id -> new id, for the two columns that are not reachable by walking
+  -- the tree: objective_ids (an array on items) and parallel_group.
+  v_lo_map jsonb := '{}'::jsonb;
+  v_pg_map jsonb := '{}'::jsonb;
+  n_mod int := 0; n_les int := 0; n_lo int := 0; n_item int := 0; n_opt int := 0; n_def int := 0;
 begin
   v_actor := public.current_person_id();
-  select * into src from public.courses c where c.id = p_course;
-  if src.id is null then raise exception 'no such course'; end if;
+  if v_actor is null then raise exception 'a revision requires an authenticated actor'; end if;
+
+  select * into src from public.courses where id = p_course;
+  if src.id is null then raise exception 'unknown course %', p_course; end if;
+
   if not public.can_in_institution('CAN_DRAFT', src.institution_id) then
-    raise exception 'creating a revision requires CAN_DRAFT in the owning institution';
+    raise exception 'revising a course requires CAN_DRAFT in the owning institution';
   end if;
+
+  -- An unsealed course is edited directly; a revision of it would produce two
+  -- editable successors of the same thing and mean nothing.
+  if not public.content_is_sealed(p_course) then
+    raise exception 'this course is not sealed; edit it directly rather than revising it';
+  end if;
+
+  -- Two divergent open successors is a state with no correct resolution.
+  --
+  -- "Open" means still editable, which is the same question `content_is_sealed`
+  -- already answers -- NOT "its course row has not reached PUBLISHED". A course
+  -- row never reaches PUBLISHED in this system: publication is a property of a
+  -- RELEASE, and the course stays at APPROVED/FROZEN behind it. Asking the
+  -- course's status would have made the FIRST revision of any course the last
+  -- one it could ever have, permanently, which is not a rule anyone stated.
   select count(*) into n_open from public.courses c
-   where c.supersedes_course_id = p_course and not public.content_is_sealed(c.id);
+   where c.supersedes_course_id = p_course
+     and not public.content_is_sealed(c.id);
   if n_open > 0 then
     raise exception 'an open revision of this course already exists; finish or abandon it first';
   end if;
 
+  -- THE ONE CHANGE THIS MIGRATION MAKES TO THIS FUNCTION: the successor
+  -- inherits `learning_context` from what it supersedes. Everything else --
+  -- the seal precondition, the open-successor rule, objectives, items,
+  -- options, assessment definitions and the audit record -- is the function
+  -- 20260915120000 wrote, unchanged.
   insert into public.courses
     (institution_id, subject, stage, grade_label, title, status,
      author_person_id, supersedes_course_id, learning_context)
@@ -194,15 +235,126 @@ begin
     values (v_new_course, src.institution_id, v_mod.ordinal, v_mod.title, 'INGESTED',
             coalesce(v_mod.author_person_id, v_actor), v_mod.id)
     returning id into v_new_mod;
-    for v_les in select * from public.lessons where module_id = v_mod.id order by urutan loop
+    n_mod := n_mod + 1;
+
+    for v_les in select * from public.lessons where module_id = v_mod.id order by ordinal loop
       insert into public.lessons
-        (module_id, institution_id, urutan, judul, ringkasan, isi, contoh, media, halaman,
-         status, author_person_id, supersedes_lesson_id)
-      values (v_new_mod, src.institution_id, v_les.urutan, v_les.judul, v_les.ringkasan,
-              v_les.isi, v_les.contoh, v_les.media, v_les.halaman, 'INGESTED',
-              coalesce(v_les.author_person_id, v_actor), v_les.id);
+        (module_id, institution_id, ordinal, title, summary, body_markdown, worked_examples,
+         media, source_version_id, page_citation, status, author_person_id, supersedes_lesson_id)
+      values (v_new_mod, src.institution_id, v_les.ordinal, v_les.title, v_les.summary,
+              v_les.body_markdown, v_les.worked_examples, v_les.media, v_les.source_version_id,
+              v_les.page_citation, 'INGESTED', coalesce(v_les.author_person_id, v_actor), v_les.id)
+      returning id into v_new_les;
+      n_les := n_les + 1;
+
+      for v_lo in select * from public.learning_objectives where lesson_id = v_les.id order by code loop
+        insert into public.learning_objectives
+          (lesson_id, institution_id, code, statement, bloom, is_core,
+           supersedes_learning_objective_id)
+        values (v_new_les, src.institution_id, v_lo.code, v_lo.statement, v_lo.bloom, v_lo.is_core,
+                v_lo.id)
+        returning id into v_pg;
+        v_lo_map := v_lo_map || jsonb_build_object(v_lo.id::text, v_pg);
+        n_lo := n_lo + 1;
+      end loop;
     end loop;
   end loop;
+
+  -- Items come after every objective exists, because an item names its
+  -- objectives by id and the copy must name the COPIES.
+  for v_it in
+    select i.* from public.items i
+      join public.lessons l on l.id = i.lesson_id
+      join public.modules m on m.id = l.module_id
+     where m.course_id = p_course
+     order by i.created_at, i.id
+  loop
+    select array_agg(coalesce((v_lo_map ->> o::text)::uuid, o) order by ord)
+      into v_obj
+      from unnest(v_it.objective_ids) with ordinality as t(o, ord);
+
+    if v_it.parallel_group is not null then
+      if not (v_pg_map ? v_it.parallel_group::text) then
+        v_pg_map := v_pg_map || jsonb_build_object(v_it.parallel_group::text, gen_random_uuid());
+      end if;
+      v_pg := (v_pg_map ->> v_it.parallel_group::text)::uuid;
+    else
+      v_pg := null;
+    end if;
+
+    insert into public.items
+      (lesson_id, institution_id, item_type, bank_type, stem, stimulus, petunjuk, arah_berpikir,
+       objective_ids, is_safety_critical, parallel_group, predicted_difficulty,
+       -- empirical_difficulty, empirical_discrimination and empirical_evidence_count are
+       -- DELIBERATELY ABSENT. The copy has no evidence of its own and must not
+       -- claim another item's. Asserted in the terminal block.
+       source_version_id, page_citation, status, author_person_id, supersedes_item_id)
+    select (select l2.id from public.lessons l2 where l2.supersedes_lesson_id = v_it.lesson_id
+              and l2.institution_id = src.institution_id
+              and exists (select 1 from public.modules m2
+                           where m2.id = l2.module_id and m2.course_id = v_new_course)),
+           src.institution_id, v_it.item_type, v_it.bank_type, v_it.stem, v_it.stimulus,
+           v_it.petunjuk, v_it.arah_berpikir, coalesce(v_obj, '{}'::uuid[]),
+           v_it.is_safety_critical, v_pg, v_it.predicted_difficulty,
+           v_it.source_version_id, v_it.page_citation, 'INGESTED',
+           coalesce(v_it.author_person_id, v_actor), v_it.id
+    returning id into v_new_item;
+    n_item := n_item + 1;
+
+    insert into public.item_options
+      (item_id, institution_id, label, body, is_correct, rationale, misconception_code)
+    select v_new_item, src.institution_id, o.label, o.body, o.is_correct, o.rationale,
+           o.misconception_code
+      from public.item_options o where o.item_id = v_it.id order by o.label;
+  end loop;
+
+  select count(*) into n_opt from public.item_options io
+    join public.items i on i.id = io.item_id
+    join public.lessons l on l.id = i.lesson_id
+    join public.modules m on m.id = l.module_id
+   where m.course_id = v_new_course;
+
+  -- Assessment definitions follow the content they measure. An ad-hoc
+  -- instrument is not taught content, never enters a release, and is not
+  -- copied (ADR-0011).
+  for v_def in
+    select d.* from public.assessment_definitions d
+     where not d.is_ad_hoc
+       and (d.course_id = p_course
+         or d.module_id in (select id from public.modules where course_id = p_course))
+  loop
+    -- (institution_id, title, mode, version) is unique, and the copy keeps the
+    -- instrument's name. A copy is therefore the next version of that named
+    -- instrument -- which is what it is.
+    select coalesce(max(version), 0) + 1 into v_version
+      from public.assessment_definitions
+     where institution_id = src.institution_id and title = v_def.title and mode = v_def.mode;
+
+    insert into public.assessment_definitions
+      (institution_id, course_id, module_id, title, mode, bank_type, version, item_count,
+       difficulty_mix, safety_critical_minimum, passing_rules, hesitation_window_seconds,
+       shuffle_policy, allows_pause, offline_tolerant, late_sync_grace_seconds, attempt_limit,
+       author_person_id, status, is_ad_hoc)
+    values (src.institution_id,
+            case when v_def.course_id is not null then v_new_course else null end,
+            case when v_def.module_id is not null
+                 then (select m2.id from public.modules m2
+                        where m2.course_id = v_new_course and m2.supersedes_module_id = v_def.module_id)
+                 else null end,
+            v_def.title, v_def.mode, v_def.bank_type, v_version, v_def.item_count,
+            v_def.difficulty_mix, v_def.safety_critical_minimum, v_def.passing_rules,
+            v_def.hesitation_window_seconds, v_def.shuffle_policy, v_def.allows_pause,
+            v_def.offline_tolerant, v_def.late_sync_grace_seconds, v_def.attempt_limit,
+            coalesce(v_def.author_person_id, v_actor), 'INGESTED', false);
+    n_def := n_def + 1;
+  end loop;
+
+  perform public.audit_write('COURSE_REVISION_CREATED', 'courses', v_new_course::text,
+    src.institution_id,
+    jsonb_build_object('source_course_id', p_course, 'new_course_id', v_new_course,
+                       'modules', n_mod, 'lessons', n_les, 'learning_objectives', n_lo,
+                       'items', n_item, 'item_options', n_opt, 'assessment_definitions', n_def,
+                       'empirical_values_copied', 0));
   return v_new_course;
 end $$;
 revoke all on function public.create_course_revision(uuid) from public, anon, authenticated;
@@ -214,10 +366,11 @@ grant execute on function public.create_course_revision(uuid) to authenticated;
 -- value is refused rather than quietly becoming academic evidence.
 create or replace function public.ingest_structured_package(p_batch uuid) returns integer
 language plpgsql security definer set search_path = public, pg_temp as $$
-declare b public.ingest_batches; c record; v_course uuid; n int := 0; v_ctx public.learning_context;
+declare b record; c record; v_course uuid; v_module uuid; v_lesson uuid; n integer := 0;
+        v_ctx public.learning_context;
 begin
   select * into b from public.ingest_batches where id = p_batch;
-  if b.id is null then raise exception 'no such ingest batch'; end if;
+  if b.id is null then raise exception 'unknown ingest batch %', p_batch; end if;
   if not public.can_in_institution('CAN_DRAFT', b.institution_id) then
     raise exception 'materialising an ingest batch requires CAN_DRAFT in the owning institution';
   end if;
@@ -336,10 +489,18 @@ begin
       if v_def ~ '\mleft join\M' or v_def ~ '\mright join\M' or v_def ~ '\mfull join\M' then
         v_bad := v_bad || format('%s resolves provenance with an outer join, so unknown becomes academic; ', v_rel);
       end if;
+      -- AND IT READS ITS SOURCE WITH THE CALLER'S RIGHTS, like the OFFICIAL
+      -- boundary it sits beside. A definer view in an invoker chain quietly
+      -- changes whose rights the rows are filtered for.
+      if not exists (select 1 from pg_class cl
+                      where cl.oid = ('public.' || v_rel)::regclass
+                        and cl.reloptions::text like '%security_invoker=true%') then
+        v_bad := v_bad || format('%s does not read its source with the caller''s rights; ', v_rel);
+      end if;
     end if;
   end loop;
 
-  -- THE FOURTH FAMILY. Twelve of the sixteen calculators reach evidence
+  -- THE FOURTH FAMILY. Eleven of the sixteen calculators reach evidence
   -- through the session/result pair rather than through responses or
   -- certificates, so the guard names that narrowing too -- otherwise it would
   -- cover three of the four families and read as if it covered all of them,
@@ -405,9 +566,9 @@ begin
   select a.ok, a.detail into v_ok, v_detail from public.assert_academic_sources_are_context_bound() a;
   if not v_ok then raise exception 'WP6A correction: %', v_detail; end if;
 
-  -- THE SECURITY SEMANTICS OF THE SCOPED VIEWS ARE UNIFORM AGAIN. My first
-  -- pass gave one of the six `security_invoker`; none of the others has it
-  -- and WP6 never needed it.
+  -- THE SECURITY SEMANTICS OF THE SCOPED VIEWS ARE UNIFORM. My first pass
+  -- gave one of the six `security_invoker`; none of the others has it and WP6
+  -- never needed it, so that clause was withdrawn where it was written.
   select count(*) into v_n from pg_class c
    where c.relnamespace = 'public'::regnamespace and c.relkind = 'v'
      and c.relname like 'scoped\_%' and c.reloptions::text like '%security_invoker=true%';

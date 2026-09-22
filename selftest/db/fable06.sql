@@ -742,6 +742,43 @@ revoke all on function selftest.wp6_answer(uuid,uuid,uuid,text,smallint) from pu
 grant execute on function selftest.wp6_answer(uuid,uuid,uuid,text,smallint) to authenticated;
 
 
+-- SEALING A COURSE THROUGH THE LIFECYCLE, NOT AROUND IT. The product refuses
+-- to revise an unsealed course -- "edit it directly rather than revising it"
+-- -- and `content_is_sealed` is satisfied by a FROZEN release over the
+-- course. Every step here is taken by somebody who holds the capability for
+-- it: the educator authors the release (CAN_DRAFT), the administrator walks
+-- it through the declared transitions, approves it as a reviewer who is not
+-- its author, and seals it (CAN_FREEZE_RELEASE). No status is written from
+-- the owner's side, because the seal is the precondition of the rule under
+-- test and a fixture that forges it would be testing nothing.
+create or replace function selftest.wp6_seal(p_inst uuid, p_course uuid,
+                                             p_author_uid uuid, p_reviewer uuid, p_reviewer_uid uuid)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_rel uuid;
+begin
+  perform selftest.as_user_uid(p_author_uid);
+  -- version_label is semver by CHECK constraint; 9.0.0 stays out of the way
+  -- of the fixtures' own 1.0.0 releases.
+  insert into public.plp_releases (institution_id, course_id, version_label)
+  values (p_inst, p_course, '9.0.0')
+  returning plp_releases.id into v_rel;
+  perform selftest.as_user_uid(p_reviewer_uid);
+  update public.plp_releases set status = 'STRUCTURED' where plp_releases.id = v_rel;
+  update public.plp_releases set status = 'VALIDATED'  where plp_releases.id = v_rel;
+  update public.plp_releases set status = 'IN_REVIEW'  where plp_releases.id = v_rel;
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = p_reviewer
+   where plp_releases.id = v_rel;
+  update public.plp_releases set status = 'FROZEN'     where plp_releases.id = v_rel;
+  perform selftest.as_owner();
+  if not public.content_is_sealed(p_course) then
+    raise exception 'the fixture failed to seal course %', p_course;
+  end if;
+  return v_rel;
+end $$;
+revoke all on function selftest.wp6_seal(uuid,uuid,uuid,uuid,uuid) from public;
+grant execute on function selftest.wp6_seal(uuid,uuid,uuid,uuid,uuid) to authenticated;
+
+
 -- One adversarial calculator, installed and asked. Returns the empty array when
 -- the boundary held and a complaint when it did not.
 --
@@ -1844,10 +1881,17 @@ begin
     end loop;
 
     id := 'F06-P08'; area := 'every declared structural assertion, in the running system';
-    if n_run < 17 then
+    -- THE FLOOR MOVED 17 -> 20 IN WP6A, and only because this repair adds a
+    -- member to the set it guards. At 17 the floor had gone stale: three
+    -- assertions had joined since it was measured, so deleting the newest one
+    -- -- including this repair's `assert_academic_sources_are_context_bound`
+    -- -- would have left the set at or above the floor and read green, which
+    -- is the exact hole the floor exists to close. Measured on the clean room
+    -- at this commit: 20.
+    if n_run < 20 then
       ok := false;
-      detail := format('%s assertion function(s) found, fewer than the 17 measured when this check was '
-                    || 'written: an assertion has left the derived set rather than failing inside it',
+      detail := format('%s assertion function(s) found, fewer than the 20 measured when this floor was '
+                    || 'last moved: an assertion has left the derived set rather than failing inside it',
                        n_run);
     elsif v_failed <> '' then
       ok := false; detail := v_failed;
@@ -1857,8 +1901,9 @@ begin
                     || 'this phase added -- metric catalogue, metric closure (INV-34 semantics: no report '
                     || 'function computes), reports-do-not-compute and question-health-observes-only. The '
                     || 'set is derived from pg_proc by name and result shape, so a new assertion joins the '
-                    || 'day it is written; the floor of 17 closes the hole where deleting one would leave '
-                    || 'the set instead of failing inside it', n_run);
+                    || 'day it is written; the floor of 20 -- re-measured in WP6A, which adds the '
+                    || 'academic-source assertion to this set -- closes the hole where deleting one would '
+                    || 'leave the set instead of failing inside it', n_run);
     end if;
     return next;
   end;
@@ -5275,10 +5320,13 @@ begin
         || 'ELSE READS IT: not another educator standing over the whole school, not the head of '
         || 'department, not the dean, not the institution admin, not a learner, and not Management '
         || 'through the audited door -- which binds the authorizing NODE and so sees a learner''s '
-        || 'academic record rather than a colleague''s development. THE CROWN CASE: all sixteen '
-        || 'catalogue metrics are evaluated at the institution root BEFORE the professional development '
-        || 'exists and again AFTER, and every one is identical -- a 92%% on a staff course is not a '
-        || 'participant, not a cohort and not a school''s result. An unentitled colleague is offered '
+        || 'academic record rather than a colleague''s development. THIS TEST NO LONGER CLAIMS THE '
+        || 'EVIDENCE IS ISOLATED: it used to read all sixteen catalogue metrics at the institution root '
+        || 'before and after the professional development and call them identical, which was vacuous '
+        || 'for every ITEM-scoped metric -- an item metric asked at a node has nothing to find, so '
+        || 'have=0 stayed have=0 whether the isolation held or not, and five real leaks passed through '
+        || 'that green. F06-P20 makes that measurement instead, each metric at its own governing '
+        || 'argument. An unentitled colleague is offered '
         || 'nothing and reads no lesson of it, and the entitlement itself carries no authoring, no '
         || 'teaching and no administrative authority. The educator then BECOMES A HEAD OF DEPARTMENT and '
         || 'the evidence is unchanged, still professional development, still theirs. No certificate '
@@ -5352,6 +5400,20 @@ begin
       -- a student in the taught class answers the same item CORRECTLY.
       v_acad_sess := selftest.wp6_evidence_session(v_tmpl, c.la, c.cls_a, null);
       v_acad_pi := selftest.wp6_answer(v_acad_sess, v_item, c.inst, v_ok_opt, 1::smallint);
+      -- AND AN ACADEMIC CERTIFICATE, so the credential metric is reading
+      -- something before the professional development arrives. Without it
+      -- that reading would be 0 before and 0 after, and "unchanged" would
+      -- again be indistinguishable from "never asked" -- the exact defect
+      -- this test replaces. With it the metric holds a real academic
+      -- credential, and P-C shows it going to two the moment isolation is
+      -- removed.
+      select * into e from public.certificate_eligibility(v_acad_sess);
+      if not e.eligible then
+        bad := bad || array[format('the academic control could not earn a certificate (%s), so the credential metric has nothing to hold', left(coalesce(e.reason,'?'),40))];
+      else
+        select * into cp from public.certificate_prepare(v_acad_sess, 1::smallint);
+        perform public.certificate_seal(cp.certificate_id, 1::smallint, repeat('a', 64));
+      end if;
 
       -- ───────── BEFORE: every metric at its own governing argument ─────────
       for m, v_arg, v_reader in select * from (values
@@ -5387,6 +5449,12 @@ begin
       -- student's answer, so they are capable of moving.
       if coalesce((v_before -> 'item.correctness_rate' ->> 'have')::int, 0) < 1 then
         bad := bad || array['the academic control produced no item evidence, so item isolation is untestable'];
+      end if;
+      -- the same question for the credential metric, which reports `sample`
+      -- once it has enough and `have` while it is still short of the minimum
+      if coalesce((v_before -> 'institution.verified_credentials' ->> 'have')::int,
+                  (v_before -> 'institution.verified_credentials' ->> 'sample')::int, 0) < 1 then
+        bad := bad || array['the academic control holds no credential, so credential isolation is untestable'];
       end if;
 
       -- ───────── the educator's genuine professional development ─────────
@@ -5498,7 +5566,16 @@ begin
         bad := bad || array['a course created without a stated context was not ACADEMIC'];
       end if;
 
-      -- revised once, and again: a revision is not a context switch
+      -- REVISED ONCE, AND AGAIN: A REVISION IS NOT A CONTEXT SWITCH. The
+      -- product refuses to revise a course that is not yet sealed -- edit it
+      -- directly instead -- so each course is first sealed through the real
+      -- lifecycle: the educator authors a release, the administrator walks it
+      -- through the declared transitions, approves it as a reviewer who is
+      -- not its author, and seals it under CAN_FREEZE_RELEASE. Then the
+      -- revision itself is taken by the administrator through the ordinary
+      -- CAN_DRAFT-gated endpoint.
+      perform selftest.wp6_seal(c.inst, v_pdc, c.edu_u, c.adm, c.adm_u);
+      perform selftest.wp6_seal(c.inst, v_acc, c.edu_u, c.adm, c.adm_u);
       perform selftest.as_user_uid(c.adm_u);
       v_rev := public.create_course_revision(v_pdc);
       perform selftest.as_owner();
@@ -5506,16 +5583,27 @@ begin
          <> 'PROFESSIONAL_DEVELOPMENT' then
         bad := bad || array['revising a professional-development course produced an ACADEMIC successor'];
       end if;
-      update public.courses set status = 'STRUCTURED' where courses.id = v_rev;
+      -- the successor of the successor: two revisions deep, still the same
+      -- context, because inheritance that only works once is not inheritance
+      perform selftest.wp6_seal(c.inst, v_rev, c.edu_u, c.adm, c.adm_u);
       perform selftest.as_user_uid(c.adm_u);
-      begin
-        v_rev2 := public.create_course_revision(v_rev);
-        perform selftest.as_owner();
-        if (select co.learning_context from public.courses co where co.id = v_rev2)
-           <> 'PROFESSIONAL_DEVELOPMENT' then
-          bad := bad || array['a second revision lost the professional-development context'];
-        end if;
-      exception when others then perform selftest.as_owner(); end;
+      v_rev2 := public.create_course_revision(v_rev);
+      perform selftest.as_owner();
+      if (select co.learning_context from public.courses co where co.id = v_rev2)
+         <> 'PROFESSIONAL_DEVELOPMENT' then
+        bad := bad || array['a second revision lost the professional-development context'];
+      end if;
+      -- THE REVISION IS A REAL REVISION, not a bare row: the function that
+      -- carries the context forward is the one that copies the tree and
+      -- writes the audit record, so this asserts the lineage it wrote.
+      if (select co.supersedes_course_id from public.courses co where co.id = v_rev2) <> v_rev
+         or not exists (select 1 from public.audit_log a
+                         where a.action = 'COURSE_REVISION_CREATED'
+                           and a.target_id = v_rev2::text) then
+        bad := bad || array['the context-carrying revision is not the product''s revision'];
+      end if;
+      -- and an ordinary academic revision is still academic: this repair
+      -- changed what a revision CARRIES, not what an academic course IS
       perform selftest.as_user_uid(c.adm_u);
       v_rev := public.create_course_revision(v_acc);
       perform selftest.as_owner();
@@ -5544,6 +5632,7 @@ begin
                         and co.learning_context = 'PROFESSIONAL_DEVELOPMENT') then
         bad := bad || array['structured ingestion dropped the learning context it was given'];
       end if;
+      perform selftest.as_user_uid(c.adm_u);
       insert into public.ingest_batches (institution_id, source_kind, raw_payload,
                                          confirmed_by_person_id, confirmed_at)
       values (c.inst, 'STRUCTURED_PACKAGE',
@@ -5595,6 +5684,14 @@ begin
         || 'the seventeen readings is then identical. The educator reads their own PD result; the PD '
         || 'certificate is sealed, unrevoked and verifiable; and it is absent from the academic credential '
         || 'source, because certificate validity and academic-metric eligibility are different questions. '
+        || 'CONTEXT SURVIVES THE THREE PATHS THAT WERE DROPPING IT: the authoritative creation path '
+        || 'establishes the context it is given and defaults to ACADEMIC when asked for nothing; a '
+        || 'revision inherits it, and so does a revision of that revision, because editing a course is '
+        || 'not a context switch -- and it is the PRODUCT''S revision that carries it, asserted by the '
+        || 'lineage row and the audit record the same function writes, not a stand-in that only copies '
+        || 'a column; structured ingestion carries the context the package declares and '
+        || 'REFUSES a context it cannot read rather than letting it settle as academic evidence. Every '
+        || 'one of those runs as the administrator, through the CAN_DRAFT gate the product relies on. '
         || 'The item is chosen with an ORDER BY, because an unordered limit measures the harness. Every '
         || 'row rolled back';
     end if;
