@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 53,
+  "version": 54,
   "phase": "WP7B (anonymous student -> educator feedback: participation and answers structurally separated) on the FABLE-06 core",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1460,6 +1460,34 @@
       "runner": "db",
       "proves": "WP7B exactly-once under real concurrency, which a single session cannot distinguish from a retry: two psql connections submit one learner's sheet at once. The holder records it and sleeps inside its transaction; the second waits on the row lock, re-reads `not consumed`, matches nothing and is refused by name. Exactly one opportunity is consumed and exactly one sheet of answers survives, so a check-then-write shape -- which would pass both callers' reads -- is what this would catch",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "UX1-UB-BISU-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "while a round of student feedback is collecting, and forever after one that closed below the anonymity threshold, the surface renders no response-derived number at all. The two payload shapes are READ OUT OF the endpoint that produces them rather than invented in the test, the withheld one is asserted to carry nothing but a statement key, and both are RENDERED through the real component in both languages for both readers -- with every text node AND every style value swept for a digit, because a bar width is a proportion no text scan would see. The withheld surface renders the canonical ruled sentence and, character for character, nothing else. It is not the statistical absence card and reaches for none of its copy, which appends have/needed on purpose because a readiness floor is a fact a reader may act on and an anonymity floor is the opposite. Watched on plants: a response count smuggled into an open payload neither changes how it is read nor reaches the screen; an appended shortfall is caught by the scanner in both the bracketed and the written-out form; a withheld payload naming some other statement key falls back to the canonical one; a null, an empty object, an unknown state and a published state with no marginals are none of them read as a published snapshot; and an unrecognised state renders nothing rather than its own identifier"
+    },
+    {
+      "id": "UX1-UB-BATAS-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the published feedback snapshot is everything that renders and nobody is in it. Its SHAPE is read out of the two places WP7B builds it -- close_feedback_cycle writes the body, feedback_result returns it -- which is also where this asserts the construction carries no person, no respondent and no clock: the assertion that would notice one being added. Rendered, the surface carries the final total, the governed question and the per-option marginals, and the digits on the page are EXACTLY those figures, so no percentage, mean, rank or composite is being computed. A RESPONDENT PLANTED INTO THE PRESENTATION PIPELINE CANNOT SURFACE: names, person ids and a submission timestamp injected at the envelope, the entry and the option are all dropped by the fixed-key projection and reach neither the read nor the screen, with the plant asserted to really carry them. No marginal is a control that leads anywhere. And nothing is aggregated client-side: no feedback file reads the raw response table or the identity-bearing eligibility table or folds rows of its own, no file anywhere under src names the response table, the scanner is shown to catch one, and every endpoint the surface calls is one of the four WP7B registers for clients"
+    },
+    {
+      "id": "UX1-UB-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the feedback copy is accurate about privacy and is a verdict about nobody. Every label key WP7B STORES has words in both languages -- the five governed questions and four options are read out of the migration -- and the prefix is deliberately NOT staff-only, because a learner reads most of it and exempting it would exempt the questions a child is asked. NO ABSOLUTE ANONYMITY CLAIM survives the sweep in either language, watched on six positive controls, because WP7B accepts a unanimity residual and a privileged-infrastructure residual and a promise that nobody can ever know is a promise it does not make; the copy says the accurate thing instead, that answers are not shown with a name and the teacher receives the class. No database machinery reaches a learner. NOBODY IS SCORED: no telling for any of the three readers names effectiveness, performance, a ranking, a league table, an overall or composite score, an appraisal, a promotion, a sanction, a good or bad teacher, a comparison with other educators or a star, watched on seven positive controls, and no file turns the four-point scale into a figure or orders anything best-first. THE SHEET HAS NOWHERE TO TYPE, with the scanner shown to catch a textarea, and the whole sheet is required including against an option that was never offered. The outcome map is compared with the submission endpoint's own raised sentences in BOTH directions, an unrecognised failure is reported as uncertain rather than as anything definite, a lost-acknowledgement replay is recognised as recorded, and no outcome tells a learner to send again blindly. And no administrator is offered a way in, from their own surface or from anywhere else"
+    },
+    {
+      "id": "UX1-UB-ALUR-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round through open_feedback_cycle as the head of department, submits as a real learner, closes it, and reads every surface over HTTP as six personas. CI has both facilities, so it never skips there",
+      "proves": "one real anonymous-feedback round, opened and closed through the product's own endpoints by the head of department who may -- no seed and no service role -- and measured on the RENDERED html of every surface it touches, fetched over HTTP. THE STUDENT is told feedback is waiting, which class and educator it concerns, whether they have sent theirs and the one action to take; a learner who was not asked sees nothing, and the address bar tells them nothing either, because a round that is not theirs renders the SAME page as one that does not exist. The sheet is five question groups of four closed options with no textarea, text input, search field or contenteditable on it. WHILE THE ROUND IS OPEN NEITHER THE SUBJECT NOR MANAGEMENT RECEIVES A FIGURE, measured with a sweep for any count, proportion or shortfall in either language, and Management's view names no respondent. An INSTITUTION_ADMIN standing over the whole school is refused both the list and one round's results, sees no round id at all, and is offered no entry point on their own surface; another school's educator is refused the round. Sending twice is accepted once -- the second press is refused by WP7B's row lock -- and the learner's home then says they have sent theirs and offers the action no more. CLOSED BELOW THE THRESHOLD, both readers receive the canonical statement with NOTHING after it, checked on the sentence's own neighbourhood rather than on the page, and no figure anywhere; the learner is shown no outcome at all; and a class with no round says so plainly"
     }
   ]
 }

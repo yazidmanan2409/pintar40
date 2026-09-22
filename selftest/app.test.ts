@@ -32,6 +32,13 @@ const PERSONA = {
   // whole invariant: what a person may learn is their enrolment and never their
   // role, so two educators must see two different pages.
   cycleEducator: { email: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" },
+  // WP7C. The learning-cycle tenant's own Management and administrator. The
+  // head of department stands over the fixture class and can therefore open and
+  // close a real feedback round about the educator who teaches it; the
+  // administrator stands over the whole school and WP7B gives them nothing
+  // here, which is the case worth measuring.
+  cycleHod: { email: "siklus-kaprodi@synthetic.pintar.test", password: "Sintetis-SiklusKaprodi-22!" },
+  cycleAdmin: { email: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" },
 } as const;
 
 /** Every learner route FABLE-03 adds, for the copy inventory (§9). */
@@ -166,6 +173,18 @@ function productionDerivation(card: string, pin: string): string {
 async function get(url: string, init: RequestInit = {}) {
   return fetch(url, { redirect: "manual", ...init });
 }
+
+/**
+ * WP7C. ANY RESPONSE-DERIVED FIGURE, in either language.
+ *
+ * Not a search for "(3/5)": a surface that leaked the count would more likely
+ * do it as "3 tanggapan", "60%", "3 dari 5" or "3 of 5". This matches a figure
+ * standing next to any of the words this product would use for one, plus the
+ * bare shortfall forms, and it is used where the correct number of such figures
+ * is exactly zero.
+ */
+const ANGKA_TANGGAPAN =
+  /\(?\s*\d+\s*(?:\/|dari|of|out of)\s*\d+\s*\)?|\d+\s*%|\d+\s*(?:tanggapan|jawaban|responses?|replies|answers|murid|siswa|students?)|(?:tanggapan|jawaban|responses?|answers?)\s*:?\s*\d+/i;
 
 function noInternalWords(c: Checks, html: string, where: string) {
   const text = visibleText(html);
@@ -818,6 +837,240 @@ export const appTests: SelfTest[] = [
         "keeps their own two tabs, their own tour and their own Help, and is offered no way into a " +
         "teaching context. And an educator reading their own certificates stays in their own shell, on " +
         "the one certificate surface that already existed",
+      );
+    },
+  },
+  {
+    id: "UX1-UB-ALUR-01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const anon = ctx.supabaseAnonKey!;
+
+      const lihat = async (p: { email: string; password: string }, path: string) => {
+        const sesi = await signIn(ctx, p);
+        const res = await get(`${base}${path}`, { headers: { cookie: sesi.cookie } });
+        const raw = await res.text();
+        return { res, raw, html: visibleText(raw), sesi };
+      };
+      const rpc = async (sesi: Session, fn: string, body: unknown) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${fn}`, {
+          method: "POST",
+          headers: { apikey: anon, authorization: `Bearer ${sesi.accessToken}`, "content-type": "application/json" },
+          body: JSON.stringify(body ?? {}),
+        });
+        return { ok: r.ok, body: r.ok ? await r.json() : await r.text() };
+      };
+
+      // Copy read from the table, never quoted, so this test cannot pass by
+      // agreeing with a string somebody stopped using.
+      const DITAHAN = t("umpanbalik.hasil.belum_cukup_tanggapan", "educator");
+      const TERKUMPUL = t("umpanbalik.hasil.belum_ditutup", "educator");
+      const BERI = t("umpanbalik.murid.beri", "learner");
+      const SUDAH = t("umpanbalik.murid.sudah", "learner");
+      const KOSONG_GURU = t("umpanbalik.guru.kosong", "educator");
+      const TOLAK = t("umpanbalik.ditolak", "staff");
+
+      // ── 0. BUILD A REAL ROUND, THROUGH THE PRODUCT'S OWN ENDPOINTS. No seed
+      //    and no service role: the head of department opens it exactly as they
+      //    would in a school, which also measures that they may.
+      const guru = await signIn(ctx, PERSONA.cycleEducator);
+      const kelasHal = await get(`${base}/mengajar`, { headers: { cookie: guru.cookie } });
+      const kelasId = /\/mengajar\/([0-9a-f-]{36})/.exec(await kelasHal.text())?.[1];
+      if (!c.expect(Boolean(kelasId), "the fixture educator teaches no class, so no round can be opened")) {
+        return c.verdict("no class to open a feedback round over");
+      }
+      const aku = await fetch(`${ctx.supabaseUrl}/rest/v1/my_profile?select=person_id`, {
+        headers: { apikey: anon, authorization: `Bearer ${guru.accessToken}` },
+      });
+      const guruId = ((await aku.json()) as Array<{ person_id: string }>)[0]?.person_id;
+      c.expect(Boolean(guruId), "the fixture educator has no person id");
+
+      const hod = await signIn(ctx, PERSONA.cycleHod);
+      const buka = await rpc(hod, "open_feedback_cycle", { p_node: kelasId, p_subject_person_id: guruId });
+      // A re-run against a database that already carries the round is not a
+      // failure: the unique index is WP7B refusing a second overlapping
+      // population, which is the differencing attack.
+      let siklusId = buka.ok ? String(buka.body) : "";
+      if (!buka.ok) {
+        c.expect(/already has a feedback cycle/.test(String(buka.body)),
+          `Management could not open a feedback round: ${String(buka.body).slice(0, 120)}`);
+        const ada = await fetch(
+          `${ctx.supabaseUrl}/rest/v1/feedback_cycles?select=id&scope_node_id=eq.${kelasId}`,
+          { headers: { apikey: anon, authorization: `Bearer ${hod.accessToken}` } },
+        );
+        siklusId = ((await ada.json()) as Array<{ id: string }>)[0]?.id ?? "";
+      }
+      if (!c.expect(Boolean(siklusId), "no feedback round exists to measure")) {
+        return c.verdict("no feedback round to measure");
+      }
+
+      // ── 1. THE STUDENT IS ASKED, AND KNOWS THE FOUR THINGS §5 NAMES.
+      const murid = await lihat(PERSONA.cycleLearner, "/belajar");
+      c.expect(murid.res.status === 200, `learner /belajar → ${murid.res.status}`);
+      c.expect(murid.html.includes(t("umpanbalik.murid.judul", "learner")),
+        "an eligible learner is not told feedback is waiting for them");
+      c.expect(new RegExp(`/belajar/umpan-balik/${siklusId}`).test(murid.raw),
+        "the eligible learner is offered no way into the round they were asked for");
+      c.expect(murid.html.includes(BERI), "the eligible learner is offered no action");
+      noInternalWords(c, murid.html, "/belajar with a feedback round open");
+
+      // ── 2. AND A LEARNER WHO WAS NOT ASKED SEES NOTHING. A different school
+      //    entirely: `my_feedback_cycles` returns their own rows, so there is
+      //    nothing to filter out here — there is nothing to filter.
+      const asing = await lihat(PERSONA.alphaStudent, "/belajar");
+      c.expect(asing.res.status === 200, `uninvolved learner /belajar → ${asing.res.status}`);
+      c.expect(!asing.raw.includes(siklusId), "a learner who was not asked can see the round exists");
+      c.expect(!asing.html.includes(BERI), "a learner who was not asked is offered the action anyway");
+      //    …and the address bar tells them nothing either: the refusal for a
+      //    round that is not theirs is the same page as for one that does not
+      //    exist.
+      const curi = await lihat(PERSONA.alphaStudent, `/belajar/umpan-balik/${siklusId}`);
+      const hantu = await lihat(PERSONA.alphaStudent, "/belajar/umpan-balik/00000000-0000-0000-0000-000000000000");
+      c.expect(curi.html === hantu.html,
+        "a round that is not yours reads differently from one that does not exist");
+
+      // ── 3. THE SHEET: five closed questions, and nowhere to type.
+      const lembar = await lihat(PERSONA.cycleLearner, `/belajar/umpan-balik/${siklusId}`);
+      c.expect(lembar.res.status === 200, `the sheet → ${lembar.res.status}`);
+      const fieldsets = (lembar.raw.match(/<fieldset/g) ?? []).length;
+      c.expect(fieldsets === 5, `${fieldsets} question group(s) on the sheet; FQ-1 has five`);
+      const radios = (lembar.raw.match(/type="radio"/g) ?? []).length;
+      c.expect(radios === 20, `${radios} option(s) on the sheet; five questions of four is twenty`);
+      for (const bidang of ["<textarea", 'type="text"', 'type="search"', "contenteditable"]) {
+        c.expect(!lembar.raw.toLowerCase().includes(bidang), `the sheet carries a free-text field: ${bidang}`);
+      }
+      c.expect(!ANGKA_TANGGAPAN.test(lembar.html),
+        `the sheet shows a response figure: "${ANGKA_TANGGAPAN.exec(lembar.html)?.[0]}"`);
+      noInternalWords(c, lembar.html, "the feedback sheet");
+
+      // ── 4. WHILE THE ROUND IS OPEN, NEITHER READER GETS A NUMBER. This is
+      //    the measurement §25 exists for, taken on a real open cycle.
+      const guruBuka = await lihat(PERSONA.cycleEducator, `/mengajar/${kelasId}/umpan-balik`);
+      c.expect(guruBuka.res.status === 200, `the subject's own page → ${guruBuka.res.status}`);
+      c.expect(guruBuka.html.includes(TERKUMPUL), "an open round does not say it is still collecting");
+      c.expect(!guruBuka.html.includes(DITAHAN), "an open round claims it closed below the threshold");
+      c.expect(!ANGKA_TANGGAPAN.test(guruBuka.html),
+        `the subject sees a response figure while the round is open: "${ANGKA_TANGGAPAN.exec(guruBuka.html)?.[0]}"`);
+      noInternalWords(c, guruBuka.html, "the subject's open round");
+
+      const simpulHal = await get(`${base}/pimpinan`, { headers: { cookie: hod.cookie } });
+      const simpulId = /\/pimpinan\/([0-9a-f-]{36})/.exec(await simpulHal.text())?.[1];
+      if (c.expect(Boolean(simpulId), "Management is offered no part of the school")) {
+        const daftar = await lihat(PERSONA.cycleHod, `/pimpinan/${simpulId}/umpan-balik`);
+        c.expect(daftar.res.status === 200, `Management's feedback list → ${daftar.res.status}`);
+        c.expect(daftar.raw.includes(siklusId), "Management cannot see the round over a class in their scope");
+        c.expect(!ANGKA_TANGGAPAN.test(daftar.html), "Management's list shows a response figure");
+        const satu = await lihat(PERSONA.cycleHod, `/pimpinan/${simpulId}/umpan-balik/${siklusId}`);
+        c.expect(satu.html.includes(TERKUMPUL), "Management's view of an open round says something else");
+        c.expect(!ANGKA_TANGGAPAN.test(satu.html),
+          `Management sees a response figure while the round is open: "${ANGKA_TANGGAPAN.exec(satu.html)?.[0]}"`);
+        //    NO RESPONDENT, ANYWHERE. Management authority is authority over a
+        //    part of a school, never authority to identify a child.
+        c.expect(!/respondent|who answered|siapa yang menjawab|daftar penjawab/i.test(satu.html),
+          "Management's view names respondents");
+        noInternalWords(c, satu.html, "Management's open round");
+
+        // ── 5. AN ADMINISTRATOR IS NOT MANAGEMENT, AND IS OFFERED NOTHING.
+        const adm = await lihat(PERSONA.cycleAdmin, `/pimpinan/${simpulId}/umpan-balik`);
+        c.expect(adm.res.status === 200 && adm.html.includes(TOLAK),
+          `INSTITUTION_ADMIN reached Management's feedback list → ${adm.res.status}`);
+        c.expect(!adm.raw.includes(siklusId), "an administrator can see the round exists");
+        const admSatu = await lihat(PERSONA.cycleAdmin, `/pimpinan/${simpulId}/umpan-balik/${siklusId}`);
+        c.expect(admSatu.html.includes(TOLAK), "an administrator reached one round's results");
+        const konf = await lihat(PERSONA.cycleAdmin, "/konfigurasi");
+        c.expect(!/umpan-balik/.test(konf.raw), "the administrator's own surface offers a way in");
+      }
+
+      // ── 6. THE SUBJECT DOES NOT READ A COLLEAGUE'S ROUND. A different
+      //    school's educator meets the refusal, not the results.
+      const lain = await lihat(PERSONA.alphaGuru, `/mengajar/${kelasId}/umpan-balik`);
+      c.expect(!lain.raw.includes(TERKUMPUL) || lain.html.includes(TOLAK),
+        "another educator read this round");
+      c.expect(!ANGKA_TANGGAPAN.test(lain.html), "another educator sees a response figure");
+
+      // ── 7. SENDING ONCE, AND SENDING TWICE. The second press is WP7B's row
+      //    lock answering, and the product reads it as "already recorded"
+      //    rather than as a failure.
+      const belajar = await signIn(ctx, PERSONA.cycleLearner);
+      const soal = await rpc(belajar, "feedback_questionnaire", { p_cycle: siklusId });
+      const pertanyaan = (soal.body as { questions?: Array<{ question_key: string; options: Array<{ option_key: string }> }> })
+        ?.questions ?? [];
+      c.expect(pertanyaan.length === 5, `${pertanyaan.length} question(s) from the endpoint; FQ-1 has five`);
+      const lembarJawab = Object.fromEntries(pertanyaan.map((q) => [q.question_key, q.options[0].option_key]));
+      const kirim1 = await rpc(belajar, "submit_feedback", { p_cycle: siklusId, p_answers: lembarJawab });
+      const kirim2 = await rpc(belajar, "submit_feedback", { p_cycle: siklusId, p_answers: lembarJawab });
+      c.expect(kirim1.ok || /already answered/.test(String(kirim1.body)),
+        `the first submission failed: ${String(kirim1.body).slice(0, 120)}`);
+      c.expect(!kirim2.ok && /already answered/.test(String(kirim2.body)),
+        "a second submission was accepted");
+      //    …and the learner's own home now says so, and still shows no figure.
+      const sesudah = await lihat(PERSONA.cycleLearner, "/belajar");
+      c.expect(sesudah.html.includes(SUDAH), "a learner who has answered is not told so");
+      c.expect(!sesudah.html.includes(BERI), "a learner who has answered is offered the action again");
+      c.expect(!ANGKA_TANGGAPAN.test(sesudah.html), "the learner's home shows a response figure");
+
+      // ── 8. CLOSED BELOW THE THRESHOLD: THE CANONICAL SENTENCE, AND NOTHING
+      //    ELSE. The fixture class is small, so this round cannot publish —
+      //    which makes it exactly the state §11 is about.
+      const tutup = await rpc(hod, "close_feedback_cycle", { p_cycle: siklusId });
+      c.expect(tutup.ok || /already/.test(String(tutup.body)),
+        `Management could not close the round: ${String(tutup.body).slice(0, 120)}`);
+      const keadaan = tutup.ok ? (tutup.body as { state?: string }).state : "WITHHELD";
+      c.expect(keadaan === "WITHHELD",
+        `the fixture round closed ${keadaan}; this case measures the withheld surface`);
+
+      const guruTutup = await lihat(PERSONA.cycleEducator, `/mengajar/${kelasId}/umpan-balik`);
+      c.expect(guruTutup.html.includes(DITAHAN),
+        "a round that closed below the threshold does not carry the canonical statement");
+      c.expect(!ANGKA_TANGGAPAN.test(guruTutup.html),
+        `the withheld surface carries a response figure: "${ANGKA_TANGGAPAN.exec(guruTutup.html)?.[0]}"`);
+      //    NOTHING IS APPENDED TO THE SENTENCE. Measured on the sentence's own
+      //    neighbourhood rather than on the whole page, so a class name
+      //    elsewhere cannot mask an appended shortfall.
+      const sekitar = guruTutup.html.slice(guruTutup.html.indexOf(DITAHAN) + DITAHAN.length).trim().slice(0, 24);
+      c.expect(!/^\(?\d/.test(sekitar), `something follows the canonical statement: "${sekitar}"`);
+      noInternalWords(c, guruTutup.html, "the subject's withheld round");
+
+      if (simpulId) {
+        const pimTutup = await lihat(PERSONA.cycleHod, `/pimpinan/${simpulId}/umpan-balik/${siklusId}`);
+        c.expect(pimTutup.html.includes(DITAHAN), "Management gets a different withheld statement");
+        c.expect(!ANGKA_TANGGAPAN.test(pimTutup.html), "Management's withheld surface carries a figure");
+      }
+      //    And the learner is not shown the outcome of the round at all.
+      const muridTutup = await lihat(PERSONA.cycleLearner, "/belajar");
+      c.expect(!muridTutup.html.includes(DITAHAN) && !muridTutup.html.includes(TERKUMPUL),
+        "a learner is shown the round's result state");
+
+      // ── 9. A CLASS WITH NO ROUND SAYS SO, PLAINLY.
+      const tanpa = await lihat(PERSONA.alphaGuru, "/mengajar");
+      const kelasAlpha = /\/mengajar\/([0-9a-f-]{36})/.exec(tanpa.raw)?.[1];
+      if (c.expect(Boolean(kelasAlpha), "the other educator teaches no class")) {
+        const sepi = await lihat(PERSONA.alphaGuru, `/mengajar/${kelasAlpha}/umpan-balik`);
+        c.expect(sepi.res.status === 200 && sepi.html.includes(KOSONG_GURU),
+          "a class with no round does not say so");
+        c.expect(!ANGKA_TANGGAPAN.test(sepi.html), "a class with no round shows a figure");
+      }
+
+      c.note(`round ${siklusId.slice(0, 8)} closed ${keadaan}; ${fieldsets} question group(s), ${radios} option(s)`);
+      return c.verdict(
+        "one real feedback round, opened and closed through the product's own endpoints by the head of " +
+        "department who may — no seed and no service role — and measured at every surface it touches. " +
+        "THE STUDENT is told feedback is waiting, which class and educator it concerns, whether they " +
+        "have sent theirs and the one thing to do; a learner who was not asked sees nothing, and the " +
+        "address bar tells them nothing either, because a round that is not theirs renders the SAME " +
+        "page as one that does not exist. The sheet is five question groups of four closed options " +
+        "with no textarea, text input, search field or contenteditable anywhere on it. WHILE THE ROUND " +
+        "IS OPEN NEITHER THE SUBJECT NOR MANAGEMENT RECEIVES A FIGURE — measured with a sweep for any " +
+        "count, proportion or shortfall — and Management's view names no respondent. An INSTITUTION " +
+        "ADMIN standing over the whole school is refused both the list and one round's results, sees " +
+        "no round id at all, and is offered no entry point on their own surface; another school's " +
+        "educator is refused the round. Sending twice is accepted once: the second press is refused by " +
+        "the row lock, and the learner's home then says they have sent theirs and offers the action no " +
+        "more. CLOSED BELOW THE THRESHOLD, both readers receive the canonical statement with NOTHING " +
+        "after it — checked on the sentence's own neighbourhood, not on the page — and no figure " +
+        "anywhere; the learner is shown no outcome at all; and a class with no round says so plainly",
       );
     },
   },

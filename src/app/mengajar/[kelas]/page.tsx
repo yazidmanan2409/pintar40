@@ -121,6 +121,14 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
           <Link className="pin-btn" href={`/mengajar/${id}/langkah`}>
             {s("mengajar.aksi.langkah")}
           </Link>
+          {/* WP7C. The class's own feedback, beside the class's own evidence:
+              a reading rather than an act, which is what `bukti` is too. Always
+              offered, because whether a round has been held is a fact the
+              subject of one is entitled to, and the page behind it says plainly
+              when there has not been one. */}
+          <Link className="pin-btn" href={`/mengajar/${id}/umpan-balik`}>
+            {s("umpanbalik.guru.judul")}
+          </Link>
         </div>
 
         <div className="pin-sec">
