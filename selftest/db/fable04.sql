@@ -405,7 +405,14 @@ begin
   -- F04-T04 Quick Assessment: capability-gated, bounded, EXAM unreachable
   -- =========================================================================
   ok := true; detail := '';
-  select id into v_inst from public.org_nodes where institution_id = f.inst and kind='CLASS' limit 1;
+  -- The class this test teaches in must be the SEEDED bootstrap class, and
+  -- an unordered `limit 1` does not promise that: once any later suite has
+  -- committed another CLASS into this tenant, the pick can land on a class
+  -- `boot-guru` holds nothing over and the test goes red for the harness's
+  -- reason rather than the product's. Order by creation, oldest first: the
+  -- seed's class is the one that was there before any suite ran.
+  select id into v_inst from public.org_nodes where institution_id = f.inst and kind='CLASS'
+   order by created_at, id limit 1;
   perform selftest.as_user('boot-guru@bootstrap.pintar.test');
   v_cert := null;   -- reused here as the launched definition id
   begin

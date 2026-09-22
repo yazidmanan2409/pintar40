@@ -1,0 +1,47 @@
+{
+  "what": "Where an authorized actor obtains each identity-bearing argument of a client RPC through ordinary PINTAR. Read by scripts/dev/reachability.mjs at development time only. NOTHING READS THIS AT RUNTIME and it grants nothing: authorization lives in the database, in the predicates each function calls.",
+  "why": "WP7D. Management was authorized to open a feedback cycle and had no governed read from which to learn the subject's person_id. The gap was found after the surface was built. A declaration that is missing here is that question, asked early.",
+  "sources": {
+    "rpc:<name>": "another client-callable RPC this same actor may call",
+    "rls:<relation>": "a relation the actor may select under its own RLS policy",
+    "self": "the caller's own identity — current_person_id() / auth.uid()",
+    "arg:<name>": "derived from another argument of the same call",
+    "caller_choice": "a value the caller invents: a new uuid, an idempotency key"
+  },
+  "coverage": "Seeded with the feedback domain, because that is where the gap was found and where the check is already known to bite. The rest of the client surface is reported as undeclared rather than assumed correct; entries are added as work packages touch those surfaces.",
+  "rpcs": {
+    "open_feedback_cycle": {
+      "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
+      "args": {
+        "p_node": "rls:org_nodes",
+        "p_subject_person_id": "rpc:feedback_subjects_for_class"
+      },
+      "note": "p_subject_person_id is the WP7D argument. Its source must be a STAFF read available to the same Management actor; before WP7D there was none, which is the state this file exists to make visible."
+    },
+    "close_feedback_cycle": {
+      "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
+      "args": { "p_cycle": "rpc:feedback_result" },
+      "note": "Management reaches a cycle it already governs; feedback_result is the STAFF read that names it."
+    },
+    "feedback_subjects_for_class": {
+      "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
+      "args": { "p_node": "rls:org_nodes" },
+      "note": "The class is the node the reader already stands over and can see in the org tree."
+    },
+    "feedback_result": {
+      "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
+      "args": { "p_cycle": "rpc:feedback_subjects_for_class" },
+      "note": "A cycle id is discovered from the class the Management actor governs, never guessed."
+    },
+    "feedback_questionnaire": {
+      "actor": "the learner the round is asking",
+      "args": { "p_cycle": "rpc:my_feedback_cycles" },
+      "note": "A learner may know only their own eligibility, so the only governed source is their own list."
+    },
+    "submit_feedback": {
+      "actor": "the learner the round is asking",
+      "args": { "p_cycle": "rpc:my_feedback_cycles" },
+      "note": "Same source as the questionnaire: the sheet is answered for a cycle the learner was offered."
+    }
+  }
+}

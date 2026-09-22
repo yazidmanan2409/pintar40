@@ -1,0 +1,95 @@
+{
+  "gates": {
+    "db-wp7-gates": {
+      "suite": "selftest.run_fable07()",
+      "control_green": 15,
+      "what": "the WP7B anonymity core and the WP7D governed subject discovery"
+    }
+  },
+  "plants": [
+    {
+      "name": "wp7-a",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P11",
+      "expect_detail": "carries a re-identifying column: person_id"
+    },
+    {
+      "name": "wp7-b",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P09",
+      "expect_detail": "was handed more than the statement"
+    },
+    {
+      "name": "wp7-c",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P06",
+      "expect_detail": "read 30 raw answer row(s) directly"
+    },
+    {
+      "name": "wp7-d",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P13",
+      "expect_detail": "audit row(s) were written while five learners answered"
+    },
+    {
+      "name": "wp7-e",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P02",
+      "expect_detail": "the subject opened a feedback cycle about themselves"
+    },
+    {
+      "name": "wp7-f",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P11",
+      "expect_detail": "evidence consumer(s) reading feedback"
+    },
+    {
+      "name": "wp7-g",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P05",
+      "expect_detail": "was handed a figure from an open cycle"
+    },
+    {
+      "name": "wp7-h",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P03",
+      "expect_detail": "could not answer after moving"
+    },
+    {
+      "name": "wp7d-1",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "enumerated the subjects of a class"
+    },
+    {
+      "name": "wp7d-2",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "the institution administrator enumerated the subjects of a class"
+    },
+    {
+      "name": "wp7d-3",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P14",
+      "expect_detail": "expected the one educator who teaches it"
+    },
+    {
+      "name": "wp7d-4",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "the Management projection is not the two declared columns"
+    },
+    {
+      "name": "wp7d-5",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "subject discovery reads a respondent relation"
+    },
+    {
+      "name": "wp7d-6",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "opening accepted a subject whose teaching authority had ended since discovery"
+    }
+  ]
+}

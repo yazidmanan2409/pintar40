@@ -49,10 +49,34 @@ const repoRoot = resolve(__dirname, "..");
 const NEXT_BIN = join(repoRoot, "node_modules", "next", "dist", "bin", "next");
 const args = new Set(process.argv.slice(2));
 const acceptJustifiedSkips = args.has("--accept-justified-skips");
-const only = [...args].find((a) => a.startsWith("--only="))?.slice(7).split(",");
+/**
+ * TARGETED RUNS.
+ *
+ * Patterns come from `--only=A,B` or from bare arguments, so
+ * `npm run selftest:only -- 'F07-*'` and `--only=F07-P14,F07-P15` are the same
+ * request. `*` matches any run of characters; everything else is literal.
+ *
+ * The inner development loop is meant to run ONE suite. The full manifest is a
+ * completion gate, not a way to inspect one refusal string: see
+ * `pickedDbRunners` below, which is what makes a targeted run cheap rather
+ * than merely quiet.
+ */
+const patterns = [
+  ...[...args].filter((a) => a.startsWith("--only=")).flatMap((a) => a.slice(7).split(",")),
+  ...[...args].filter((a) => !a.startsWith("-")).flatMap((a) => a.split(",")),
+].map((p) => p.trim()).filter(Boolean);
+const matches = (id: string, pattern: string) =>
+  new RegExp(`^${pattern.split("*").map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(".*")}$`).test(id);
 
 const manifest: Manifest = JSON.parse(readFileSync(join(repoRoot, "selftest", "manifest.json"), "utf8"));
 const byId = new Map(manifest.tests.map((t) => [t.id, t]));
+
+/** The manifest ids a targeted run asked for, or undefined for the whole manifest. */
+const only = patterns.length
+  ? manifest.tests.filter((t) => patterns.some((p) => matches(t.id, p))).map((t) => t.id)
+  : undefined;
+/** A pattern that names nothing is a typo, and a typo must not look like a green run. */
+const unmatchedPatterns = patterns.filter((p) => !manifest.tests.some((t) => matches(t.id, p)));
 
 function log(line = "") {
   process.stdout.write(line + "\n");
@@ -89,16 +113,35 @@ function hasPsql(): boolean {
  * than trusting this list.
  */
 const DB_RUNNERS = [
-  { file: "fable01.sql", fn: "selftest.run_fable01()", done: "F01-DONE" },
-  { file: "fable02.sql", fn: "selftest.run_fable02()", done: "F02-DONE" },
-  { file: "fable03.sql", fn: "selftest.run_fable03()", done: "F03-DONE" },
-  { file: "fable04.sql", fn: "selftest.run_fable04()", done: "F04-DONE" },
-  { file: "fable05.sql", fn: "selftest.run_fable05()", done: "F05-DONE" },
-  { file: "fable05t1_quick_canonical.sql", fn: "selftest.run_quick_canonical()", done: "QAC-DONE" },
-  { file: "fable05t2_evaluation.sql", fn: "selftest.run_evaluation()", done: "EVAL-DONE" },
-  { file: "fable06.sql", fn: "selftest.run_fable06()", done: "F06-DONE" },
-  { file: "fable07.sql", fn: "selftest.run_fable07()", done: "F07-DONE" },
+  { file: "fable01.sql", fn: "selftest.run_fable01()", done: "F01-DONE", emits: ["F01-"] },
+  { file: "fable02.sql", fn: "selftest.run_fable02()", done: "F02-DONE", emits: ["F02-"] },
+  { file: "fable03.sql", fn: "selftest.run_fable03()", done: "F03-DONE", emits: ["F03-"] },
+  { file: "fable04.sql", fn: "selftest.run_fable04()", done: "F04-DONE", emits: ["F04-"] },
+  { file: "fable05.sql", fn: "selftest.run_fable05()", done: "F05-DONE", emits: ["F05-"] },
+  { file: "fable05t1_quick_canonical.sql", fn: "selftest.run_quick_canonical()", done: "QAC-DONE", emits: ["QAC-"] },
+  { file: "fable05t2_evaluation.sql", fn: "selftest.run_evaluation()", done: "EVAL-DONE", emits: ["EVAL-"] },
+  { file: "fable06.sql", fn: "selftest.run_fable06()", done: "F06-DONE", emits: ["F06-", "Q12-", "TOUR-", "UX1-S2-ORIENT-"] },
+  { file: "fable07.sql", fn: "selftest.run_fable07()", done: "F07-DONE", emits: ["F07-"] },
 ] as const;
+
+/**
+ * Which suites a targeted run actually EXECUTES.
+ *
+ * Every file is still DEFINED, because each one assumes the helpers the files
+ * before it install, and defining is cheap. Executing is not: a suite builds
+ * a world, drives it and tears it down. `--only=F07-P14` used to run all nine
+ * suites and then print one line, which is how inspecting a single refusal
+ * string came to cost minutes.
+ *
+ * `emits` is the id space each suite owns. The reconcile step below checks
+ * that every db-runner manifest id falls inside exactly one suite's prefixes,
+ * so a suite cannot be added without declaring what it emits and then be
+ * silently skipped by every targeted run.
+ */
+function pickedDbRunners(): typeof DB_RUNNERS[number][] {
+  if (!only) return [...DB_RUNNERS];
+  return DB_RUNNERS.filter((r) => only.some((id) => r.emits.some((p) => id.startsWith(p))));
+}
 
 async function runDb(dbUrl: string): Promise<Outcome[]> {
   const allFailed = (why: string): Outcome[] =>
@@ -111,24 +154,33 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
     }
   }
 
-  const union = DB_RUNNERS.map((r) => `select * from ${r.fn}`).join(" union all ");
-  const q = `select coalesce(json_agg(json_build_object('id', r.test_id, 'ok', r.ok, 'detail', r.detail)), '[]'::json) from (${union}) r`;
+  const picked = pickedDbRunners();
+  if (picked.length === 0) return [];
+  // The suites do not agree on what they call their first two columns — the
+  // early ones say (test_id, invariant), the later ones (id, area) — and a
+  // UNION takes its names from whichever select comes first. Naming the
+  // columns here rather than reading `r.test_id` is what lets any single
+  // suite be run on its own.
+  const union = picked.map((r) => `select * from ${r.fn} as t(id, area, ok, detail)`).join(" union all ");
+  const q = `select coalesce(json_agg(json_build_object('id', r.id, 'ok', r.ok, 'detail', r.detail)), '[]'::json) from (${union}) r`;
   const run = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", q, dbUrl], { encoding: "utf8" });
   if (run.status !== 0) {
     return allFailed(`runner aborted: ${run.stderr.trim().split("\n").pop()}`);
   }
 
   const rows = JSON.parse(run.stdout.trim()) as Array<{ id: string; ok: boolean; detail: string }>;
-  const sentinels = DB_RUNNERS.map((r) => r.done as string);
+  const sentinels = picked.map((r) => r.done as string);
   const out: Outcome[] = rows
     .filter((r) => !sentinels.includes(r.id))
     .map((r) => ({ id: r.id, runner: "db", status: r.ok ? "PASS" : "FAIL", detail: r.detail }));
-  for (const r of DB_RUNNERS) {
+  for (const r of picked) {
     const done = rows.find((x) => x.id === r.done);
     if (!done?.ok) out.push({ id: r.done, runner: "db", status: "FAIL", detail: `${r.file} did not reach its end` });
   }
-  out.push(await runDbConcurrency(dbUrl));
-  out.push(await runFeedbackConcurrency(dbUrl));
+  // The two races drive their own connections rather than the union above, so
+  // they are selected by id rather than by suite.
+  if (!only || only.includes("F02-C01")) out.push(await runDbConcurrency(dbUrl));
+  if (!only || only.includes("F07-C01")) out.push(await runFeedbackConcurrency(dbUrl));
   return out;
 }
 
@@ -329,6 +381,13 @@ async function runTests(tests: SelfTest[], runner: string, ctx: Context, facilit
 async function main() {
   loadDotEnvLocal();
   log(`PINTAR selftest — ${manifest.contract} v${manifest.version} (${manifest.phase}); ${manifest.tests.length} manifest ids`);
+  if (only) {
+    log(
+      `TARGETED RUN — ${patterns.join(", ")} → ${only.length} id(s) requested. A db suite runs as one unit, so the ` +
+        "suites that own those ids report all of their rows and the tally below counts them. " +
+        "This is a development loop; the completion gate is the whole manifest.",
+    );
+  }
 
   const facilities = new Set<Facility>();
   const dbUrl = process.env.SUPABASE_DB_URL;
@@ -352,7 +411,7 @@ async function main() {
 
   // db
   if (facilities.has("db")) {
-    log(`\n[db] ${DB_RUNNERS.map((r) => "selftest/db/" + r.file).join(", ")}`);
+    log(`\n[db] ${pickedDbRunners().map((r) => "selftest/db/" + r.file).join(", ") || "(no suite selected)"}`);
     outcomes.push(...(await runDb(dbUrl!)));
   } else {
     for (const t of manifest.tests.filter((t) => t.runner === "db" && (!only || only.includes(t.id)))) {
@@ -392,6 +451,16 @@ async function main() {
 
   // ---------------------------------------------------------- reconcile
   const problems: string[] = [];
+  for (const p of unmatchedPatterns) problems.push(`--only pattern "${p}" names no manifest id`);
+  // Every db id must belong to exactly one suite's declared `emits`, or a
+  // targeted run would silently skip the suite that owns it while still
+  // claiming the id was not reported.
+  for (const t of manifest.tests.filter((t) => t.runner === "db")) {
+    const owners = DB_RUNNERS.filter((r) => r.emits.some((e) => t.id.startsWith(e)));
+    if (owners.length !== 1 && !["F02-C01", "F07-C01"].includes(t.id)) {
+      problems.push(`${t.id} is claimed by ${owners.length} db suite(s) — declare it in exactly one DB_RUNNERS.emits`);
+    }
+  }
   const reported = new Map<string, Outcome>();
   for (const o of outcomes) {
     if (o.id.endsWith("-DONE")) {
