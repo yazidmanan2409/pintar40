@@ -103,7 +103,11 @@ jobs:
           PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
         run: |
           set -euo pipefail
-          ID=$(psql "$PROBE_URL" -At -c "begin; set local role authenticated; reset role; select session_user||'|'||current_user||'|'||current_setting('is_superuser'); rollback;")
+          # psql prints a command tag for every statement in the batch (BEGIN,
+          # SET, RESET, ROLLBACK), so the result row is selected by the only
+          # thing that distinguishes it: it is the line carrying the separator.
+          ID=$(psql "$PROBE_URL" -At -c "begin; set local role authenticated; reset role; select session_user||'|'||current_user||'|'||current_setting('is_superuser'); rollback;" \
+                 | tr -d '\r' | grep -F '|' | tail -1)
           echo "identity after RESET ROLE: $ID"
           test "$ID" = "postgres|postgres|off" || {
             echo "::error::identity gate failed — refusing to apply migrations"; exit 1; }
@@ -131,3 +135,68 @@ jobs:
           LOCAL=$(ls supabase/migrations/*.sql | wc -l | tr -d ' ')
           test "$N" = "$LOCAL" || { echo "::error::history is $N, repository has $LOCAL"; exit 1; }
           echo "history matches the repository: $N/$LOCAL"
+
+      # The bounded production readiness checks. They read the live catalog and
+      # live data; they mutate nothing and seed nothing. The selftest DB suites
+      # are deliberately NOT here -- they mutate business data and are never
+      # pointed at a hosted project.
+      - name: Launch readiness — 17 rows, all PASS
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          OUT=$(psql "$PROBE_URL" -At -F ' | ' -f docs/audit/launch-readiness.sql)
+          printf '%s\n' "$OUT"
+          ROWS=$(printf '%s\n' "$OUT" | grep -cE '^(PASS|FAIL)' || true)
+          FAILS=$(printf '%s\n' "$OUT" | grep -cE '^FAIL' || true)
+          echo "rows=$ROWS failing=$FAILS"
+          test "$FAILS" = "0" || { echo "::error::$FAILS launch-readiness row(s) FAIL"; exit 1; }
+          test "$ROWS" = "17" || { echo "::error::expected 17 readiness rows, got $ROWS"; exit 1; }
+
+      - name: Standing assertions — floor of 22, every one green
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          psql "$PROBE_URL" -v ON_ERROR_STOP=1 -f - <<'SQL'
+          do $verify$
+          declare r record; v_ok boolean; v_detail text; n int := 0; bad text := '';
+          begin
+            for r in
+              select p.oid::regprocedure::text as sig, p.proname as nm
+                from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+               where ns.nspname = 'public' and p.proname like 'assert\_%'
+                 and p.pronargs = 0
+                 and pg_get_function_result(p.oid) = 'TABLE(ok boolean, detail text)'
+               order by p.proname
+            loop
+              execute format('select ok, detail from %s', r.sig) into v_ok, v_detail;
+              n := n + 1;
+              if not coalesce(v_ok, false) then
+                bad := bad || '  ' || r.nm || ': ' || coalesce(v_detail, '(no detail)') || E'\n';
+              end if;
+            end loop;
+            raise notice 'assertions run: %', n;
+            if bad <> '' then raise exception E'failing assertion(s):\n%', bad; end if;
+            if n < 22 then raise exception 'only % assertion(s) present, the floor is 22', n; end if;
+            raise notice 'all % assertions green', n;
+          end $verify$;
+          SQL
+
+      - name: W8-01 — the org-tree grant a real school needs
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          G=$(psql "$PROBE_URL" -At -c "select has_function_privilege('authenticated','public.org_kind_level(public.org_kind)'::regprocedure,'execute')")
+          echo "authenticated may execute org_kind_level: $G"
+          test "$G" = "t" || { echo "::error::W8-01 grant is missing on hosted"; exit 1; }
+
+      - name: Administrator state — bootstrap not yet consumed
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          psql "$PROBE_URL" -At -F ' | ' -c "select
+            (select count(*) from public.platform_bootstrap) as bootstrap_rows,
+            (select count(*) from public.role_assignments where role='SYSTEM_ADMIN' and revoked_at is null) as active_system_admins,
+            (select environment from public.platform_environment) as environment"
