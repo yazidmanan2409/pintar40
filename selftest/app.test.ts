@@ -186,6 +186,24 @@ async function get(url: string, init: RequestInit = {}) {
 const ANGKA_TANGGAPAN =
   /\(?\s*\d+\s*(?:\/|dari|of|out of)\s*\d+\s*\)?|\d+\s*%|\d+\s*(?:tanggapan|jawaban|responses?|replies|answers|murid|siswa|students?)|(?:tanggapan|jawaban|responses?|answers?)\s*:?\s*\d+/i;
 
+/**
+ * The feedback section of a learner's home, and nothing else on it.
+ *
+ * THE WHOLE PAGE IS THE WRONG SCOPE and a measured CI failure said so: the
+ * learner's home legitimately renders their own lesson progress as "3 dari 5
+ * selesai", which the sweep above reads as a response figure. That figure is
+ * about this learner's own reading and has nothing to do with anybody's
+ * answers. What must carry no figure is the feedback section, so that is what
+ * is sliced out and swept.
+ */
+function bagianUmpanBalik(raw: string): string {
+  const mulai = raw.indexOf('aria-labelledby="pin-ub-saya"');
+  if (mulai < 0) return "";
+  const awal = raw.lastIndexOf("<section", mulai);
+  const akhir = raw.indexOf("</section>", mulai);
+  return awal >= 0 && akhir > awal ? visibleText(raw.slice(awal, akhir)) : "";
+}
+
 function noInternalWords(c: Checks, html: string, where: string) {
   const text = visibleText(html);
   c.expect(!/PINTAR\s*4\.0/i.test(text), `${where} shows the internal version string`);
@@ -914,6 +932,10 @@ export const appTests: SelfTest[] = [
       c.expect(new RegExp(`/belajar/umpan-balik/${siklusId}`).test(murid.raw),
         "the eligible learner is offered no way into the round they were asked for");
       c.expect(murid.html.includes(BERI), "the eligible learner is offered no action");
+      const bagianMurid = bagianUmpanBalik(murid.raw);
+      c.expect(bagianMurid.includes(BERI), "the feedback section could not be isolated from the page");
+      c.expect(!ANGKA_TANGGAPAN.test(bagianMurid),
+        `the feedback section carries a figure: "${ANGKA_TANGGAPAN.exec(bagianMurid)?.[0]}"`);
       noInternalWords(c, murid.html, "/belajar with a feedback round open");
 
       // ── 2. AND A LEARNER WHO WAS NOT ASKED SEES NOTHING. A different school
@@ -1007,9 +1029,12 @@ export const appTests: SelfTest[] = [
         "a second submission was accepted");
       //    …and the learner's own home now says so, and still shows no figure.
       const sesudah = await lihat(PERSONA.cycleLearner, "/belajar");
-      c.expect(sesudah.html.includes(SUDAH), "a learner who has answered is not told so");
-      c.expect(!sesudah.html.includes(BERI), "a learner who has answered is offered the action again");
-      c.expect(!ANGKA_TANGGAPAN.test(sesudah.html), "the learner's home shows a response figure");
+      const bagianSesudah = bagianUmpanBalik(sesudah.raw);
+      c.expect(bagianSesudah.length > 0, "the feedback section is gone from the learner's home");
+      c.expect(bagianSesudah.includes(SUDAH), "a learner who has answered is not told so");
+      c.expect(!bagianSesudah.includes(BERI), "a learner who has answered is offered the action again");
+      c.expect(!ANGKA_TANGGAPAN.test(bagianSesudah),
+        `the feedback section of the learner's home shows a figure: "${ANGKA_TANGGAPAN.exec(bagianSesudah)?.[0]}"`);
 
       // ── 8. CLOSED BELOW THE THRESHOLD: THE CANONICAL SENTENCE, AND NOTHING
       //    ELSE. The fixture class is small, so this round cannot publish —

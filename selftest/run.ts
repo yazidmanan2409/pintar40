@@ -424,6 +424,28 @@ async function main() {
 
   const ok = failed === 0 && skipped === 0 && problems.length === 0;
   log(`\n${passed} passed, ${failed} failed, ${skipped} skipped${justified ? `, ${justified} justified skips accepted (local only)` : ""}, ${problems.length} contract problem(s) → ${ok ? "GREEN" : "RED"}`);
+
+  // WHAT WENT WRONG, REPEATED AT THE VERY END AND SHORT.
+  //
+  // The listing above is the contract's record and each line carries a whole
+  // `proves` paragraph, so a full run is hundreds of kilobytes. A reader
+  // fetching a failed CI job's log gets its TAIL, and the tail of that listing
+  // is whichever tests happen to sort last — not the ones that failed. Twice
+  // now that has cost a round trip to find out which test went red.
+  //
+  // So the failures are printed again, after the summary, truncated: the last
+  // thing in the log is always the thing somebody needs.
+  if (!ok) {
+    log("");
+    for (const t of manifest.tests) {
+      const o = reported.get(t.id);
+      if (o && o.status === "FAIL") log(`FAILED  ${t.id}  ${o.detail.slice(0, 300)}`);
+      else if (o && o.status === "SKIP" && !(acceptJustifiedSkips && t.skip_justification)) {
+        log(`SKIPPED ${t.id}  ${o.detail.slice(0, 160)}`);
+      }
+    }
+    for (const p of problems) log(`CONTRACT ${p.slice(0, 300)}`);
+  }
   process.exit(ok ? 0 : 1);
 }
 
