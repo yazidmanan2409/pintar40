@@ -8,7 +8,7 @@
     "arg:<name>": "derived from another argument of the same call",
     "caller_choice": "a value the caller invents: a new uuid, an idempotency key"
   },
-  "coverage": "Seeded with the feedback domain, because that is where the gap was found and where the check is already known to bite. The rest of the client surface is reported as undeclared rather than assumed correct; entries are added as work packages touch those surfaces.",
+  "coverage": "Seeded with the feedback domain, where the gap was found, and extended as each work package touches a client surface. WP8 declares the report-configuration path. The rest of the client surface is reported as undeclared rather than assumed correct.",
   "rpcs": {
     "open_feedback_cycle": {
       "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
@@ -20,28 +20,54 @@
     },
     "close_feedback_cycle": {
       "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
-      "args": { "p_cycle": "rpc:feedback_result" },
+      "args": {
+        "p_cycle": "rpc:feedback_result"
+      },
       "note": "Management reaches a cycle it already governs; feedback_result is the STAFF read that names it."
     },
     "feedback_subjects_for_class": {
       "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
-      "args": { "p_node": "rls:org_nodes" },
+      "args": {
+        "p_node": "rls:org_nodes"
+      },
       "note": "The class is the node the reader already stands over and can see in the org tree."
     },
     "feedback_result": {
       "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
-      "args": { "p_cycle": "rpc:feedback_subjects_for_class" },
+      "args": {
+        "p_cycle": "rpc:feedback_subjects_for_class"
+      },
       "note": "A cycle id is discovered from the class the Management actor governs, never guessed."
     },
     "feedback_questionnaire": {
       "actor": "the learner the round is asking",
-      "args": { "p_cycle": "rpc:my_feedback_cycles" },
+      "args": {
+        "p_cycle": "rpc:my_feedback_cycles"
+      },
       "note": "A learner may know only their own eligibility, so the only governed source is their own list."
     },
     "submit_feedback": {
       "actor": "the learner the round is asking",
-      "args": { "p_cycle": "rpc:my_feedback_cycles" },
+      "args": {
+        "p_cycle": "rpc:my_feedback_cycles"
+      },
       "note": "Same source as the questionnaire: the sheet is answered for a cycle the learner was offered."
+    },
+    "save_report_template": {
+      "actor": "INSTITUTION_ADMIN or SYSTEM_ADMIN holding CAN_MANAGE_REPORT_TEMPLATES in that institution",
+      "args": {
+        "p_institution": "rls:institutions",
+        "p_template": "rls:report_templates"
+      },
+      "note": "The institution is one the administrator already stands in and can read; an existing template to revise is read from their own school's templates under RLS. The metrics are chosen from metric_definitions, which is PINTAR's and readable by anyone signed in — and they are not identity-bearing arguments, they are catalogue keys."
+    },
+    "generate_report": {
+      "actor": "any member of the institution; what they may SEE is decided per metric by metric_evaluate",
+      "args": {
+        "p_template": "rls:report_templates",
+        "p_scope_node": "rls:org_nodes"
+      },
+      "note": "Both are ordinary reads the reader already has. Reading a report requires standing in the institution; it does NOT require the capability that saved the template, and each metric is re-authorized against the reader."
     }
   }
 }

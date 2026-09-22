@@ -159,7 +159,7 @@ jobs:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
-               db-wp7-gates]
+               db-wp7-gates, db-wp8-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -203,6 +203,8 @@ jobs:
               echo "the six authorization-boundary defects are planted in SQL against the running stack, below" ;;
             db-wp7-gates)
               echo "the fourteen feedback defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-wp8-gates)
+              echo "the six WP8 defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1540,6 +1542,19 @@ jobs:
         if: matrix.case == 'db-wp7-gates'
         id: gatesWp7
         uses: ./.github/actions/local-stack
+      # WP8's gates: the onboarding repair, the standing client-write
+      # reachability assertion, and report configuration. Same harness, same
+      # declarations, same four things every plant has to prove.
+      - name: Local stack (WP8 gates)
+        if: matrix.case == 'db-wp8-gates'
+        id: gatesWp8
+        uses: ./.github/actions/local-stack
+      - name: Each planted WP8 defect must turn its own F08 test red
+        if: matrix.case == 'db-wp8-gates'
+        env:
+          DB_URL: ${{ steps.gatesWp8.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-wp8-gates
+
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'
         env:

@@ -1891,10 +1891,12 @@ begin
     -- MOVED AGAIN 20 -> 21 IN WP7B, for the same reason and under the same
     -- rule: `assert_feedback_is_not_evidence` joined the derived set, and a
     -- floor left at 20 would have let it be deleted without this test
-    -- noticing. Measured on the clean room at this commit: 21.
-    if n_run < 21 then
+    -- noticing. MOVED AGAIN 21 -> 22 IN WP8, for
+    -- `assert_client_writes_are_reachable`. Measured on the clean room at this
+    -- commit: 22.
+    if n_run < 22 then
       ok := false;
-      detail := format('%s assertion function(s) found, fewer than the 21 measured when this floor was '
+      detail := format('%s assertion function(s) found, fewer than the 22 measured when this floor was '
                     || 'last moved: an assertion has left the derived set rather than failing inside it',
                        n_run);
     elsif v_failed <> '' then
@@ -1905,10 +1907,10 @@ begin
                     || 'this phase added -- metric catalogue, metric closure (INV-34 semantics: no report '
                     || 'function computes), reports-do-not-compute and question-health-observes-only. The '
                     || 'set is derived from pg_proc by name and result shape, so a new assertion joins the '
-                    || 'day it is written; the floor of 21 -- re-measured in WP6A, which added the '
-                    || 'academic-source assertion, and again in WP7B, which adds the feedback boundary -- '
-                    || 'closes the hole where deleting one would leave the set instead of failing inside '
-                    || 'it', n_run);
+                    || 'day it is written; the floor of 22 -- re-measured in WP6A, which added the '
+                    || 'academic-source assertion, in WP7B, which added the feedback boundary, and in '
+                    || 'WP8, which adds client-write reachability -- closes the hole where deleting one '
+                    || 'would leave the set instead of failing inside it', n_run);
     end if;
     return next;
   end;
@@ -2112,7 +2114,7 @@ begin
   declare
     c2 record; v_t2 uuid; v_admin jsonb; v_guru jsonb; v_dep jsonb;
     n_admin_denied int; n_guru_denied int; n_named int; v_why text := '';
-    n_entries_admin int; n_entries_guru int; v_depstatus text; v_depstmt text;
+    n_entries_admin int; n_entries_guru int; v_depstatus text; v_depstmt text; v_live_cat text;
     n_dep_entries int; n_admin_ok int; v_guru_class uuid;
   begin
     select * into c2 from selftest.f06_cohort();
@@ -2157,18 +2159,50 @@ begin
       perform selftest.as_user('boot-guru@bootstrap.pintar.test');
       v_guru := public.generate_report(v_t2, v_guru_class);
 
-      -- the deprecated metric, added the only way one can exist
+      -- A METRIC A TEMPLATE ALREADY NAMES, RETIRED UNDER IT.
+      --
+      -- Reached the way the product reaches it, which changed in WP8. This
+      -- fixture used to define the metric already deprecated and then select
+      -- it, and W8-03 now refuses that: a template may not SELECT a retired
+      -- metric. What it may keep is a selection that was live when it was
+      -- made and was retired afterwards -- and retiring is a new catalogue
+      -- version, because metric_definitions refuses UPDATE by trigger and no
+      -- exposed surface raises the flag (OQ-5). So: define it live, select it,
+      -- then supersede the catalogue with one in which it is retired.
       perform selftest.as_owner();
+      v_live_cat := public.current_metric_catalogue();
       insert into public.metric_definitions
         (catalogue_version, metric_id, label_key, meaning_key, scope, minimum_sample,
          allowed_visualizations, allowed_audiences, calculation_key, deprecated, deprecation_note_key)
-      values (public.current_metric_catalogue(), 'class.retired_probe', 'metrik.peserta.label',
+      values (v_live_cat, 'class.retired_probe', 'metrik.peserta.label',
               'metrik.peserta.arti', 'CLASS', 1, array['hero_stat'],
               array['EDUCATOR','INSTITUTION_ADMIN']::public.app_role[], 'class_participants',
-              true, 'laporan.metrik.diganti');
+              false, null);
       perform selftest.as_user('boot-admin@bootstrap.pintar.test');
       insert into public.report_template_metrics (template_id, metric_id, ordinal, visualization)
       values (v_t2, 'class.retired_probe', 4, 'hero_stat');
+
+      perform selftest.as_owner();
+      insert into public.metric_catalogue (version, note)
+      values ('MC-9609', 'F06-P09 probe: one metric retired under a template that already named it');
+      insert into public.metric_definitions
+        (catalogue_version, metric_id, label_key, meaning_key, scope, evidence_class, minimum_sample,
+         allowed_visualizations, allowed_audiences, calculation_key, deprecated, deprecation_note_key)
+      select 'MC-9609', d.metric_id, d.label_key, d.meaning_key, d.scope, d.evidence_class, d.minimum_sample,
+             d.allowed_visualizations, d.allowed_audiences, d.calculation_key,
+             d.metric_id = 'class.retired_probe',
+             case when d.metric_id = 'class.retired_probe' then 'laporan.metrik.diganti'
+                  else d.deprecation_note_key end
+        from public.metric_definitions d where d.catalogue_version = v_live_cat;
+      insert into public.readiness_tiers
+        (catalogue_version, tier_key, ordinal, min_mastery, max_mastery,
+         requires_safety_gate, applies_without_post_test)
+      select 'MC-9609', t.tier_key, t.ordinal, t.min_mastery, t.max_mastery,
+             t.requires_safety_gate, t.applies_without_post_test
+        from public.readiness_tiers t where t.catalogue_version = v_live_cat;
+      update public.metric_catalogue set superseded_by = 'MC-9609' where version = v_live_cat;
+
+      perform selftest.as_user('boot-guru@bootstrap.pintar.test');
       v_dep := public.generate_report(v_t2, v_guru_class);
 
       perform selftest.as_owner();

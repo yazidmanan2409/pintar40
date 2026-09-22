@@ -1219,6 +1219,17 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 102 -> 105 for WP8. 20261002100000 creates no relation at all --
+      // it grants EXECUTE on the ladder helper the org_nodes trigger already
+      // called and adds one owner-run assertion. 20261002110000 replaces one
+      // trigger function and revokes one dead grant, creating nothing.
+      // 20261002120000 adds ONE endpoint (save_report_template) over the
+      // report_templates and report_template_metrics tables FABLE-06 already
+      // built, and one registry row. Read against §3 of the ruling before
+      // these numbers moved: no new relation, no new column, so the Q-7 source
+      // still does not exist and the sweep below asserts over three more files
+      // without its answer changing.
+      //
       // MOVED 101 -> 102 for WP7D's backend unblocker. 20261001100000 creates
       // NO table and adds NO column: one internal set-returning rule
       // (feedback_subject_candidates), one Management read projecting exactly
@@ -1302,7 +1313,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 102, `${migrations.length} migrations; the frozen baseline has 102`);
+      c.expect(migrations.length === 105, `${migrations.length} migrations; the frozen baseline has 105`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2941,7 +2952,11 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 88 -> 92 for WP1's source-bound
+      // from, not a claim about the tour. MOVED 102 -> 105 for WP8: a grant on
+      // org_kind_level plus an owner-run reachability assertion, a replaced
+      // report-template trigger plus one revoke, and one report-configuration
+      // endpoint. None of the three is a tour RPC and none touches
+      // person_tour_state. MOVED 88 -> 92 for WP1's source-bound
       // metric authorization and objective B, none of which adds or alters a
       // tour RPC. MOVED 101 -> 102 for WP7D's feedback-subject discovery
       // (20261001100000), which adds two feedback-domain functions and touches
@@ -2966,7 +2981,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 102, `${migs.length} migrations; the baseline has 102`);
+      c.expect(migs.length === 105, `${migs.length} migrations; the baseline has 105`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

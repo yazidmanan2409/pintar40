@@ -204,6 +204,19 @@ export type HleEvent =
   | "config.section.assessment"
   | "config.section.certificates"
   | "config.section.intelligence"
+  | "laporan.templat.judul"
+  | "laporan.templat.institusi"
+  | "laporan.templat.penjelasan"
+  | "laporan.templat.kosong"
+  | "laporan.templat.judul_kunci"
+  | "laporan.templat.jenis"
+  | "laporan.templat.metrik"
+  | "laporan.templat.tampilan"
+  | "laporan.templat.versi"
+  | "laporan.templat.simpan"
+  | "laporan.templat.pilih"
+  | "laporan.templat.tak_berwenang"
+  | "laporan.templat.batas"
   | "config.card.health"
   | "config.card.cohorts"
   | "config.placeholder"
@@ -1415,6 +1428,19 @@ const table: Table = {
   "config.section.assessment": { default: "Mesin Asesmen", en: "Assessment Engine" },
   "config.section.certificates": { default: "Sertifikat & Audit", en: "Certificates & Audit" },
   "config.section.intelligence": { default: "Inteligensi & Laporan", en: "Intelligence & Reports" },
+  "laporan.templat.judul": { default: "Templat laporan", en: "Report templates" },
+  "laporan.templat.institusi": { default: "Institusi", en: "Institution" },
+  "laporan.templat.penjelasan": { default: "PINTAR memiliki katalog metrik beserta rumus, makna, ambang sampel minimum dan siapa yang boleh membacanya. Sekolah memilih metrik mana yang muncul dan bagaimana digambarkan — bukan apa artinya.", en: "PINTAR owns the metric catalogue: the formulas, the meanings, the minimum samples and who may read each one. A school chooses which metrics appear and how they are drawn — never what they mean." },
+  "laporan.templat.kosong": { default: "Sekolah ini belum menyusun templat laporan.", en: "This school has not assembled a report template yet." },
+  "laporan.templat.judul_kunci": { default: "Kunci judul", en: "Title key" },
+  "laporan.templat.jenis": { default: "Laporan standar", en: "Standard report" },
+  "laporan.templat.metrik": { default: "Metrik yang ditampilkan", en: "Metrics shown" },
+  "laporan.templat.tampilan": { default: "Tampilan", en: "Visualization" },
+  "laporan.templat.versi": { default: "Versi", en: "Version" },
+  "laporan.templat.simpan": { default: "Simpan templat", en: "Save template" },
+  "laporan.templat.pilih": { default: "Pilih metrik dari katalog PINTAR", en: "Choose metrics from the PINTAR catalogue" },
+  "laporan.templat.tak_berwenang": { default: "Menyusun templat laporan memerlukan wewenang pengelola institusi.", en: "Assembling a report template requires institution administrator authority." },
+  "laporan.templat.batas": { default: "Satu templat menampilkan paling banyak 12 metrik.", en: "One template shows at most 12 metrics." },
   "config.card.health": { default: "Kesehatan sistem", en: "System health" },
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
   "config.placeholder": { default: "Bagian ini akan terisi pada tahap berikutnya.", en: "This section is filled in at a later phase." },

@@ -150,11 +150,17 @@ for (const fn of surface) {
         problems.push(
           `${fn.name}(${a.name}): ${fn.exposure} is told to obtain this from ${source}, which is ${src.exposure}`,
         );
-      } else if (src.requirement !== fn.requirement || src.kind !== fn.kind) {
-        // Advisory only. Comparing two authorization requirements for
-        // "narrower than" would be re-implementing authorization here, which
-        // is the one thing this file must not do.
-        rows[rows.length - 1][3] = `${source}  ⚠ declares ${src.kind || "—"} ${src.requirement || "—"} vs ${fn.kind || "—"} ${fn.requirement || "—"}`;
+      } else if (src.kind && fn.kind && (src.requirement !== fn.requirement || src.kind !== fn.kind)) {
+        // Advisory only, and only where BOTH endpoints declare. PINTAR's
+        // convention — enforced by assert_staff_rpc_authorization_declared()
+        // — is that a STAFF endpoint declares an authorization kind when it
+        // MUTATES; a stable read carries none. An earlier version of this
+        // check did not know that and reported every read source as a
+        // mismatch, which is a finding about this file rather than about
+        // PINTAR. Comparing two requirements for "narrower than" would be
+        // re-implementing authorization here, which is the one thing this
+        // file must not do.
+        rows[rows.length - 1][3] = `${source}  ⚠ declares ${src.kind} ${src.requirement || "—"} vs ${fn.kind} ${fn.requirement || "—"}`;
       }
     } else if (source.startsWith("rls:")) {
       if (!relations.has(source.slice(4))) {

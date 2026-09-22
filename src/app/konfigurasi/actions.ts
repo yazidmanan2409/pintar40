@@ -150,3 +150,42 @@ export async function setPlatformConfigAction(fd: FormData): Promise<void> {
     .eq("key", key);
   back("flags", error ? { ok: false, detail: error.message } : count ? { ok: true } : { ok: false, detail: "tidak ada perubahan" });
 }
+
+/**
+ * W8-02 — an institution assembles one of its own report templates.
+ *
+ * The form sends the metrics the administrator ticked, in the order the
+ * catalogue listed them, each with the visualization they chose from the ones
+ * that metric permits. Nothing else travels: no formula, no meaning, no
+ * audience, no minimum sample — those are PINTAR's and this action has no
+ * argument that could carry them.
+ *
+ * Authority is `save_report_template`'s, which asks for
+ * CAN_MANAGE_REPORT_TEMPLATES in the named institution before it resolves
+ * anything, and the row guards ask again on every write. This action checks
+ * nothing and decides nothing; it shapes a form into one RPC call.
+ */
+export async function saveReportTemplateAction(fd: FormData): Promise<void> {
+  const institution = uuidOrNull(str(fd, "institution"));
+  const template = uuidOrNull(str(fd, "template"));
+  const standardReport = str(fd, "standard_report");
+  const titleKey = str(fd, "title_key");
+  const metrics: Array<{ metric_id: string; visualization: string }> = [];
+  for (const [k, v] of fd.entries()) {
+    const m = /^metric\[(.+)\]$/.exec(k);
+    const visualization = String(v);
+    if (m && visualization) metrics.push({ metric_id: m[1], visualization });
+  }
+  if (!institution || !standardReport || !/^[a-z][a-z0-9_.]+$/.test(titleKey) || metrics.length === 0) {
+    back("intelligence", { ok: false, detail: "pilih institusi, kunci judul, dan minimal satu metrik" });
+  }
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("save_report_template", {
+    p_institution: institution,
+    p_standard_report: standardReport,
+    p_title_key: titleKey,
+    p_metrics: metrics,
+    p_template: template,
+  });
+  back("intelligence", error ? { ok: false, detail: error.message } : { ok: true, detail: `${metrics.length} metrik` });
+}

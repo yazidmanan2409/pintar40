@@ -4,6 +4,11 @@
       "suite": "selftest.run_fable07()",
       "control_green": 15,
       "what": "the WP7B anonymity core and the WP7D governed subject discovery"
+    },
+    "db-wp8-gates": {
+      "suite": "selftest.run_fable08()",
+      "control_green": 6,
+      "what": "WP8's onboarding repair, the client-write reachability assertion and report configuration"
     }
   },
   "plants": [
@@ -90,6 +95,42 @@
       "gate": "db-wp7-gates",
       "expect_red": "F07-P15",
       "expect_detail": "opening accepted a subject whose teaching authority had ended since discovery"
+    },
+    {
+      "name": "wp8-1",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P01",
+      "expect_detail": "the ladder helper is not executable by a client"
+    },
+    {
+      "name": "wp8-2",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P02",
+      "expect_detail": "the assertion is red"
+    },
+    {
+      "name": "wp8-3",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P03",
+      "expect_detail": "the revised template is at version"
+    },
+    {
+      "name": "wp8-4",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P04",
+      "expect_detail": "a school defined its own metric"
+    },
+    {
+      "name": "wp8-5",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P05",
+      "expect_detail": "was refused by something other than the capability"
+    },
+    {
+      "name": "wp8-6",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P06",
+      "expect_detail": "a retired metric was accepted into a template"
     }
   ]
 }
