@@ -1881,16 +1881,20 @@ begin
     end loop;
 
     id := 'F06-P08'; area := 'every declared structural assertion, in the running system';
-    -- THE FLOOR MOVED 17 -> 20 IN WP6A, and only because this repair adds a
+    -- THE FLOOR MOVED 17 -> 20 IN WP6A, and only because that repair added a
     -- member to the set it guards. At 17 the floor had gone stale: three
     -- assertions had joined since it was measured, so deleting the newest one
-    -- -- including this repair's `assert_academic_sources_are_context_bound`
+    -- -- including that repair's `assert_academic_sources_are_context_bound`
     -- -- would have left the set at or above the floor and read green, which
-    -- is the exact hole the floor exists to close. Measured on the clean room
-    -- at this commit: 20.
-    if n_run < 20 then
+    -- is the exact hole the floor exists to close.
+    --
+    -- MOVED AGAIN 20 -> 21 IN WP7B, for the same reason and under the same
+    -- rule: `assert_feedback_is_not_evidence` joined the derived set, and a
+    -- floor left at 20 would have let it be deleted without this test
+    -- noticing. Measured on the clean room at this commit: 21.
+    if n_run < 21 then
       ok := false;
-      detail := format('%s assertion function(s) found, fewer than the 20 measured when this floor was '
+      detail := format('%s assertion function(s) found, fewer than the 21 measured when this floor was '
                     || 'last moved: an assertion has left the derived set rather than failing inside it',
                        n_run);
     elsif v_failed <> '' then

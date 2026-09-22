@@ -97,6 +97,7 @@ const DB_RUNNERS = [
   { file: "fable05t1_quick_canonical.sql", fn: "selftest.run_quick_canonical()", done: "QAC-DONE" },
   { file: "fable05t2_evaluation.sql", fn: "selftest.run_evaluation()", done: "EVAL-DONE" },
   { file: "fable06.sql", fn: "selftest.run_fable06()", done: "F06-DONE" },
+  { file: "fable07.sql", fn: "selftest.run_fable07()", done: "F07-DONE" },
 ] as const;
 
 async function runDb(dbUrl: string): Promise<Outcome[]> {
@@ -127,7 +128,81 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
     if (!done?.ok) out.push({ id: r.done, runner: "db", status: "FAIL", detail: `${r.file} did not reach its end` });
   }
   out.push(await runDbConcurrency(dbUrl));
+  out.push(await runFeedbackConcurrency(dbUrl));
   return out;
+}
+
+/**
+ * F07-C01 — WP7B exactly-once under real concurrency.
+ *
+ * The suite proves that a RETRY is refused: the same connection asking twice.
+ * That is a different property from two connections asking at once, and a
+ * single session cannot tell them apart — a check-then-write would pass the
+ * first and fail only the second. So this drives two real psql connections as
+ * ONE learner: A takes the opportunity and holds its transaction open; B
+ * arrives mid-flight with the same sheet. Correct behaviour is that the row
+ * lock arbitrates — B waits, re-reads `not consumed`, matches nothing and is
+ * refused by name — leaving exactly one consumed opportunity and exactly one
+ * sheet of answers.
+ */
+async function runFeedbackConcurrency(dbUrl: string): Promise<Outcome> {
+  const id = "F07-C01";
+  const psql = (sql: string) =>
+    spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+  const fail = (detail: string): Outcome => {
+    psql("select selftest.f07_concurrency_teardown()");
+    return { id, runner: "db", status: "FAIL", detail };
+  };
+
+  const fixture = psql("select selftest.f07_concurrency_fixture()");
+  if (fixture.status !== 0) return fail(`fixture failed: ${fixture.stderr.trim().split("\n").pop()}`);
+  const [cycle, uid] = fixture.stdout.trim().split("|");
+  if (!cycle || !uid) return fail(`fixture returned nothing usable: ${fixture.stdout.trim()}`);
+  const sheet = psql("select selftest.f07_sheet('FQ-1', 3)::text").stdout.trim();
+  if (!sheet.startsWith("{")) return fail(`no answer sheet to send: ${sheet}`);
+
+  // the learner's session, set the way auth.uid() actually reads it
+  const claim =
+    `select set_config('request.jwt.claim.sub','${uid}',true);` +
+    ` select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true);`;
+  const submit = `select public.submit_feedback('${cycle}'::uuid, '${sheet}'::jsonb);`;
+
+  const race = (sql: string) =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-At", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8");
+      p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d));
+      p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+
+  const holder = race(`begin; ${claim} ${submit} select pg_sleep(1); commit;`);
+  await new Promise((r) => setTimeout(r, 300));
+  const [a, b] = await Promise.all([holder, race(`begin; ${claim} ${submit} commit;`)]);
+
+  const verdict = psql(`select selftest.f07_concurrency_verdict('${cycle}'::uuid)`).stdout.trim();
+  psql("select selftest.f07_concurrency_teardown()");
+
+  const problems: string[] = [];
+  if (!a.out.includes("recorded")) problems.push(`the holder did not record a sheet (${a.out.slice(0, 90)})`);
+  if (b.code === 0) problems.push("the concurrent submission was accepted");
+  if (!b.out.includes("already answered")) {
+    problems.push(`the concurrent submission failed for the wrong reason (${b.out.slice(0, 90)})`);
+  }
+  if (!verdict.startsWith("true|")) problems.push(`row check: ${verdict}`);
+
+  return problems.length
+    ? { id, runner: "db", status: "FAIL", detail: problems.join("; ") }
+    : {
+        id,
+        runner: "db",
+        status: "PASS",
+        detail:
+          "two connections submitted one learner's sheet at once: the holder recorded it, the " +
+          `concurrent caller waited on the row lock and was refused by name, and ${verdict.split("|")[1]}`,
+      };
 }
 
 /**

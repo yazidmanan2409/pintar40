@@ -1154,6 +1154,28 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 100 -> 101 for WP7B's anonymous student-to-educator feedback.
+      // 20260930100000 creates NINE tables and adds no column to any existing
+      // one. Read against §3 of the ruling column by column before this number
+      // moved: feedback_question_sets (version, note, published_at,
+      // published_by_person_id, superseded_by); feedback_questions
+      // (set_version, question_key, ordinal, label_key);
+      // feedback_question_options (set_version, question_key, option_key,
+      // ordinal, label_key); feedback_thresholds (version, minimum_responses,
+      // statement_key, note, published_at, published_by_person_id,
+      // superseded_by); feedback_cycle_transitions (from_state, to_state,
+      // note); feedback_cycles (id, institution_id, scope_node_id,
+      // academic_period_id, subject_person_id, question_set_version,
+      // threshold_version, state, opened_by_person_id, opened_at,
+      // closed_by_person_id, closed_at); feedback_opportunities (cycle_id,
+      // person_id, consumed); feedback_responses (id, cycle_id,
+      // institution_id, question_key, option_key); feedback_results (cycle_id,
+      // institution_id, question_set_version, threshold_version,
+      // total_responses, body, produced_at). A label key is a localization
+      // key, not a livery: not one of those columns is a mark, a logo, a crest
+      // or a theme, so the Q-7 source still does not exist and the sweep below
+      // asserts over one more file without its answer changing.
+      //
       // MOVED 99 -> 100 for WP6A's closure patch. 20260929100000 creates NO
       // table and adds NO column: one predicate naming the startable release
       // state, two replaced function bodies (the learning-cycle arm of
@@ -1205,7 +1227,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 100, `${migrations.length} migrations; the frozen baseline has 100`);
+      c.expect(migrations.length === 101, `${migrations.length} migrations; the frozen baseline has 101`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2846,7 +2868,12 @@ export const experienceTests: SelfTest[] = [
       // The count is a drift guard on the tree this case reads its contract
       // from, not a claim about the tour. MOVED 88 -> 92 for WP1's source-bound
       // metric authorization and objective B, none of which adds or alters a
-      // tour RPC. MOVED 99 -> 100 for WP6A's closure patch (20260929100000),
+      // tour RPC. MOVED 100 -> 101 for WP7B's feedback foundation
+      // (20260930100000), which creates nine feedback tables and ten
+      // endpoints, none of them a tour RPC and none of them touching
+      // person_tour_state -- so the four signatures asserted below still come
+      // from the tour's own migration and still take no identity.
+      // MOVED 99 -> 100 for WP6A's closure patch (20260929100000),
       // which gates the learning-cycle start path on a published release and
       // protects one more course column -- neither of which is a tour RPC.
       // MOVED 98 -> 99 for WP6A's academic-evidence boundary
@@ -2861,7 +2888,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 100, `${migs.length} migrations; the baseline has 100`);
+      c.expect(migs.length === 101, `${migs.length} migrations; the baseline has 101`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

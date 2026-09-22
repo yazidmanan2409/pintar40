@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 52,
-  "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
+  "version": 53,
+  "phase": "WP7B (anonymous student -> educator feedback: participation and answers structurally separated) on the FABLE-06 core",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..06.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id",
+    "db": "selftest/db/fable01..07.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -945,7 +945,7 @@
     {
       "id": "F06-P08",
       "runner": "db",
-      "proves": "every function named public.assert_*() returning (ok, detail) is EXECUTED against the live schema and must hold -- 20 at this commit, including WP6A's academic-source assertion. Each was previously checked only by the terminal block of the migration that created it, which runs once, on one database, and fails no pull request. The set is derived from pg_proc by name and result shape, so a new assertion joins the day it is written; a floor of 20 closes the hole where DELETING an assertion would shrink the derived set instead of failing inside it. The floor moved 17 -> 20 in WP6A because this repair adds a member to the set: three assertions had joined since 17 was measured, so the stale floor would have let the newest one be deleted and still read green"
+      "proves": "every function named public.assert_*() returning (ok, detail) is EXECUTED against the live schema and must hold -- 21 at this commit, including WP6A's academic-source assertion and WP7B's feedback boundary. Each was previously checked only by the terminal block of the migration that created it, which runs once, on one database, and fails no pull request. The set is derived from pg_proc by name and result shape, so a new assertion joins the day it is written; a floor of 21 closes the hole where DELETING an assertion would shrink the derived set instead of failing inside it. The floor moved 17 -> 20 in WP6A and 20 -> 21 in WP7B, each time because the repair adds a member to the set: three assertions had joined since 17 was measured, so the stale floor would have let the newest one be deleted and still read green"
     },
     {
       "id": "F06-N03",
@@ -1376,6 +1376,90 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as three real personas and compares each page with what my_learning_assignments answers for that same token. CI has both facilities, so it never skips there",
       "proves": "an educator's own learning is a second context and never a second identity, measured over HTTP as three real people. The teaching header gains exactly ONE neighbour, Pembelajaran Saya, and keeps Kelas, so the way in is one press and the way back is always on screen. WHAT AN EDUCATOR IS OFFERED IS THEIR ENROLMENT AND NEVER THEIR ROLE, proved on two educators rather than argued: my_learning_assignments is asked directly with each persona's own token and its answer is compared with the rendered page, so the expectation comes from the contract rather than from the test's idea of the fixture. The enrolled educator holds at least one entitlement -- asserted, because an educator offered nothing would make every assertion after it vacuously true -- every row of it appears on their page, and it is the SAME course their own class's learner is doing rather than a second educator-shaped one. The educator holding the same role with no enrolment holds nothing by the database's own answer, is told so in the agreed sentence, and is offered none of the other educator's rows -- on a page that carries the surface's own name and its own reassurance and reads as neither a refusal, a permission problem nor a fault. NOBODY BECAME A STUDENT: the learner first-login tour is not mounted for either educator, so it cannot be opened by any means; neither is offered it by name; neither is addressed as a learner; and neither is given a Help entry leading to a map that is not theirs. A learner keeps their own two tabs, their own tour and their own Help, and is offered no way into a teaching context. An educator reading their own certificates stays in their own shell, on the one certificate surface that already existed. Internal words are swept from every page fetched"
+    },
+    {
+      "id": "F07-P01",
+      "runner": "db",
+      "proves": "WP7B non-vacuity, established before any isolation is claimed: the suite's school is real -- eight learners in the class at the instant it is asked, an educator holding a live EDUCATOR assignment whose scope contains that class, a governed set of five questions and twenty closed options, a governed anonymity threshold of five, professional-development material reaching the PD class and not this one -- and the actors are measured through the live predicates rather than assumed from their grants: the head of department holds Management scope over the class, the subject educator does not, AND THE SUBJECT HOLDS CAN_ASSIGN_LEARNING, which is why the briefing-shaped gate was not reused as the cycle gate",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P02",
+      "runner": "db",
+      "proves": "WP7B cycle authority. Fourteen refusals, each naming its own reason: the subject educator (who holds CAN_ASSIGN_LEARNING and would have passed a capability gate), another educator, the institution's administrator, a SYSTEM_ADMIN and a head of department of the neighbouring department are all refused with the Management sentence; a cohort is refused for not being a CLASS; a class reached by professional-development material is refused by name, asked by a dean who DOES hold Management scope over it so the refusal is the context rule rather than the authorization check in front of it; an educator who does not teach the class and an administrator are both refused as subjects. A head of department in scope opens the cycle, a dean in scope opens the second class's, and a second cycle over the same class, subject and academic period is refused",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P03",
+      "runner": "db",
+      "proves": "WP7B eligibility is a snapshot taken when the class was asked, not a live membership read. The snapshot holds the eight learners who were in the class at the opening instant and does not hold the subject; nobody begins counted as having answered; a learner enrolled into the class AFTER the opening is absent from it and is refused; a learner of another class is refused; and a learner who was there and has since been moved to another class still answers -- because they were there when the class was asked",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P04",
+      "runner": "db",
+      "proves": "WP7B exactly-once and whole-sheet submission on one connection: one sheet writes five answer rows and consumes one opportunity; the replay a lost acknowledgement produces is refused by name and writes nothing; a half-answered sheet, an invented question and an invented answer are each refused; and the learner whose invalid sheet was refused can still answer properly afterwards, so a rejected sheet costs nobody their one chance to speak",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P05",
+      "runner": "db",
+      "proves": "WP7B: no live aggregate exists while a cycle is open. With four answers in, and again with the fifth that crosses the governed threshold, the head of department, the dean and the subject are each told only that the cycle is OPEN -- no total, no have, no needed, no distribution -- and no snapshot row exists to read. An aggregate readable at either moment could have been watched arriving one learner at a time",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P06",
+      "runner": "db",
+      "proves": "WP7B raw-answer boundary, measured through six real client sessions under the authenticated role: the subject, a head of department, a dean, the institution's administrator, a SYSTEM_ADMIN and a respondent are each refused feedback_responses and feedback_results outright -- those tables carry no client grant at all, which is stronger than a policy that filters -- and each sees exactly their own participation row and nobody else's, so no named participation list exists to be given out. Non-vacuous: the same sessions read the cycle row, and a learner reads none",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P07",
+      "runner": "db",
+      "proves": "WP7B publication: six respondents, thirty answer rows, one immutable snapshot carrying per-question marginals and the final total only. Every declared option appears, including those nobody chose; every question's marginal sums to the respondent count; no key outside the declared shape appears at any level; nothing in the body names a respondent; and no joint profile is derivable, because a sheet cannot be reassembled from rows that carry no one",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P08",
+      "runner": "db",
+      "proves": "WP7B terminality: an answer arriving after the close is refused by the table's own trigger and not merely by the endpoint; a closed cycle cannot be reopened or closed again; a published snapshot cannot be rewritten or deleted; the eligibility snapshot cannot be deleted; and a submitted sheet cannot be un-submitted",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P09",
+      "runner": "db",
+      "proves": "WP7B suppression below the governed threshold: two answers against a bound threshold of five close the cycle WITHHELD with no snapshot written, and the head of department, the dean and the subject each receive exactly three keys -- the cycle, the state and the canonical statement -- checked by naming what MAY be present rather than guessing what may not, so no count, have, needed, total or distribution reaches any of them. The live threshold had by then been republished at one, and the cycle still answered to the version it bound. The ten answers given remain stored, unread and unaggregated: withholding is not deletion, which nobody decided",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P10",
+      "runner": "db",
+      "proves": "WP7B movement: the real transfer path -- requested, authorized, executed -- moves a respondent to another school and grants the receiving institution portable visibility over them, which it demonstrably uses (the receiving administrator can see the person). It reads no feedback cycle, no participation row, no raw answer and no published result, and all four institution-scoped feedback tables are declared INSTITUTION_SCOPED in the record-class registry",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P11",
+      "runner": "db",
+      "proves": "WP7B evidence isolation, measured rather than asserted: assert_feedback_is_not_evidence holds over nine feedback relations against a named consumer set including every calculator; the class metric a head of department reads is BYTE-IDENTICAL before the class spoke and after thirty answers were written, compared as a whole envelope so a readiness or sample change would also be caught; no respondent gained an academic response; and no feedback relation is a declared metric source, so no calculator could reach one",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P12",
+      "runner": "db",
+      "proves": "WP7B governance of the questions and the threshold: a head of department cannot publish a question set and is refused by the name SYSTEM_ADMIN; a published set's questions, options and note, and the threshold row itself, are all frozen against edit and deletion; a SYSTEM_ADMIN publishes the next versions and they supersede the old ones; and the open cycle keeps the versions it bound -- a learner mid-cycle is still shown the questions they were actually asked, and the cycle still closes against the threshold in force when the class was asked",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P13",
+      "runner": "db",
+      "proves": "WP7B audit behaviour: zero audit rows are written across the window in which five learners answer -- counted from a watermark taken when the window contains nothing but submissions -- while four rows record two cycles opened and two closed, each attributed to the Management actor who did it. No audit row is about a response or a participation, none carries a count, a total or an answer text, and no respondent is the actor of any feedback audit row",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-C01",
+      "runner": "db",
+      "proves": "WP7B exactly-once under real concurrency, which a single session cannot distinguish from a retry: two psql connections submit one learner's sheet at once. The holder records it and sleeps inside its transaction; the second waits on the row lock, re-reads `not consumed`, matches nothing and is refused by name. Exactly one opportunity is consumed and exactly one sheet of answers survives, so a check-then-write shape -- which would pass both callers' reads -- is what this would catch",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
     }
   ]
 }
