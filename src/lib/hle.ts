@@ -500,6 +500,13 @@ export type HleEvent =
   | "studio.hasil.gagal"
   | "mengajar.judul"
   | "nav.kelas" | "nav.pimpinan" | "nav.pendataan"
+  // ── WP6B. The educator's own learning. These are NOT staff-only: they are
+  // read by a person in their learner context, so the internal-word sweep
+  // applies to them exactly as it does to the learner's own home — which is
+  // the point, because this surface must never sound like machinery.
+  | "nav.pembelajaran"
+  | "pembelajaran.eyebrow" | "pembelajaran.milik" | "pembelajaran.kosong"
+  | "pembelajaran.kosong_arti" | "pembelajaran.sertifikat_arti"
   // ── WP5B. Institutional intake. Staff-only by declaration
   // (STAFF_ONLY_PREFIXES), because an administrator's screen legitimately says
   // a job is "Menunggu" where the same word on a learner's screen would be the
@@ -1789,6 +1796,28 @@ const table: Table = {
   "nav.kelas": { default: "Kelas", en: "Classes" },
   "nav.pimpinan": { default: "Beranda", en: "Home" },
   "nav.pendataan": { default: "Pendataan", en: "Intake" },
+
+  // ── WP6B. PEMBELAJARAN SAYA — the educator reading their own learning.
+  //
+  // THE WORDS ARE ABOUT THE PERSON'S LEARNING, NEVER ABOUT THEIR TEACHING.
+  // Nothing here evaluates anybody: there is no effectiveness, no score about
+  // the educator, no comparison and no employment consequence, because the same
+  // 92% that means "this person learned something" would be a lie if it were
+  // told as "this person teaches well". The sentences say whose learning it is
+  // and that it stands apart from the classes they teach, and stop there.
+  //
+  // AND THE EMPTY SENTENCE IS THE MOST CAREFULLY CHOSEN ONE. "Belum ada" —
+  // there is not yet — is the same construction the learner's own empty home
+  // uses. It names no refusal, no missing account, no setup step and no
+  // permission, because none of those is what happened: nobody has enrolled
+  // this person in anything, which is an ordinary state of affairs and reads
+  // like one.
+  "nav.pembelajaran": { default: "Pembelajaran Saya", en: "My Learning" },
+  "pembelajaran.eyebrow": { default: "Pembelajaran Saya", en: "My Learning" },
+  "pembelajaran.milik": { default: "Ini pembelajaran Anda sendiri, terpisah dari kelas yang Anda ajar.", en: "This is your own learning, separate from the classes you teach." },
+  "pembelajaran.kosong": { default: "Belum ada pembelajaran untuk Anda saat ini.", en: "You have no learning at the moment." },
+  "pembelajaran.kosong_arti": { default: "Bila sekolah mendaftarkan Anda pada sebuah pembelajaran, ia akan muncul di sini.", en: "If your school enrols you in something, it will appear here." },
+  "pembelajaran.sertifikat_arti": { default: "Sertifikat dari pembelajaran Anda sendiri.", en: "Certificates from your own learning." },
   "mengajar.kembali": { default: "Kelas", en: "Classes" },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },

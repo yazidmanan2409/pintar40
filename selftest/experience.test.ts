@@ -46,6 +46,8 @@
  *   UX1-DATA-TAHAP-01        the phases are the database's, and the fifty cannot be crossed
  *   UX1-DATA-JUJUR-01        every number committed; a lost response is not a lost job
  *   UX1-DATA-WENANG-01       provisioning authority, and copy that names no machinery
+ *   UX1-AJAR-KONTEKS-01      an educator may learn; nothing here decides that they may
+ *   UX1-AJAR-KATA-01         Pembelajaran Saya says whose it is and judges nobody
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -71,6 +73,7 @@ import {
   peranAktif, turPengajarBerlaku, pitaSasaran, geserKe, ruangBawah, tempatKartu, bertumpuk,
   TEPI, JARAK, TUR_BELAJAR, TUR_PENGAJAR, type Layar, type Petak,
 } from "../src/lib/tur";
+import { konteksPembelajaran } from "../src/lib/pembelajaran";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
 
@@ -3054,22 +3057,61 @@ export const experienceTests: SelfTest[] = [
       c.expect(!/tersedia=\{turBerlaku\}/.test(ditanam),
         "the call-site check does not notice a hard-coded gate");
 
-      // 4. THE TOUR IS THE EXPERIENCE'S, AND THE EXPERIENCE IS THE DOOR'S. The
-      //    learner landing carries no role gate at all, because a senior
-      //    person's LEARNER experience is still the learner experience.
+      // 4. THE TOUR IS THE EXPERIENCE'S, AND THE EXPERIENCE IS THE DOOR'S.
+      //    SENIORITY STILL BUYS NO TOUR AND COSTS NONE: a senior person's
+      //    LEARNER experience is still the learner experience, so every role
+      //    above EDUCATOR still receives the learner landing's own tour.
+      //
+      //    WP6B MADE THIS PROVABLE RATHER THAN PATTERN-MATCHED. Until it, this
+      //    clause asserted that the landing never mentions `peranSaya` — a
+      //    proxy, and one that stopped meaning what it said the moment the
+      //    landing began serving two shells. The rule underneath it is
+      //    unchanged and is now asserted directly, through the function that
+      //    decides: rank does not enter into which tour is presented.
       const belajar = code(readFileSync(join(repoRoot, "src", "app", "belajar", "page.tsx"), "utf8"));
-      c.expect(!/turPengajarBerlaku|peranSaya/.test(belajar),
-        "the learner landing counts roles to decide which tour to show");
+      c.expect(!/turPengajarBerlaku\(/.test(belajar),
+        "the learner landing applies the educator seniority gate to the learner experience");
+      for (const senior of ["HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"]) {
+        c.expect(konteksPembelajaran([senior]).turBelajar === true,
+          `${senior} is denied the learner landing's own tour for being senior`);
+        c.expect(konteksPembelajaran([senior]).mengajar === false,
+          `${senior} inherits the educator's shell on the learner landing`);
+      }
+      c.expect(konteksPembelajaran([]).turBelajar === true,
+        "somebody holding no role at all is denied the learner landing's tour");
+      //    The ONE person who does not receive it is the educator, and not for
+      //    rank: their shell carries neither the Sertifikat tab nor the Bantuan
+      //    control, and steps 6 and 7 of the learner tour are anchors on
+      //    exactly those two. A map whose last two steps point at nothing is
+      //    not a map, so the tour follows the shell it describes.
+      const netral = tur("netral").langkah;
+      const jangkar = netral.filter((l) => l.sasaran.jenis === "anchor").map((l) => l.sasaran.nama);
+      c.expect(jangkar.includes("sertifikat") && jangkar.includes("bantuan"),
+        "the learner tour no longer anchors on the two shell controls this rule rests on");
+      c.expect(konteksPembelajaran(["EDUCATOR"]).turBelajar === false,
+        "the learner tour would be presented on a shell that carries neither anchor it ends on");
+      const cangkangSrc = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      // The educator's learning branch runs from `if (mengajar)` to the plain
+      // learner shell's own return, which is the last one in the file.
+      const blokAjar = cangkangSrc.slice(cangkangSrc.indexOf("if (mengajar)"), cangkangSrc.lastIndexOf("return ("));
+      c.expect(blokAjar.includes("nav.pembelajaran"), "the educator's learning shell could not be located");
+      c.expect(!/TombolBantuan/.test(blokAjar),
+        "the educator's learning shell carries a Help control whose tour is not theirs");
 
       c.note(`${TABEL.length} role combination(s), ${roles.length} enum role(s) read from the migration, ` +
-        `5 window case(s), 1 plant caught`);
+        `5 window case(s), ${jangkar.length} tour anchor(s), 1 plant caught`);
       return c.verdict(
         "a tour belongs to an experience and seniority does not accumulate one: turPengajarBerlaku refuses every " +
         "role above EDUCATOR in the schema's own enum, which is READ rather than remembered, so a seventh role " +
         "cannot silently inherit somebody else's map; the active-grant filter honours the grant's own window and " +
         "deliberately keeps grants with no scope node, which is the kind a school administrator holds; the gate " +
         "reaches both automatic presentation and the Help offer, with a hard-coded gate watched to be caught; and " +
-        "the learner landing counts no roles at all",
+        "SENIORITY STILL BUYS NO TOUR AND COSTS NONE -- every role above EDUCATOR, and somebody holding no role " +
+        "at all, still receives the learner landing's own tour, asserted through the function that decides " +
+        "rather than through a source pattern. The one reader who does not is the educator, and not for rank: " +
+        "steps 6 and 7 of that tour are anchors on the Sertifikat tab and the Bantuan control, both READ from " +
+        "the tour itself, and the educator's learning shell carries neither -- so the tour follows the shell it " +
+        "describes, because a map whose last two steps point at nothing is not a map",
       );
     },
   },
@@ -5239,6 +5281,341 @@ export const experienceTests: SelfTest[] = [
         "wording. The identity doctrine is on the page in both languages -- the number encodes no role, " +
         "and the code becomes permanent, said before the first issuance -- and a frozen code renders as " +
         "identity with no editable control",
+      );
+    },
+  },
+  {
+    id: "UX1-AJAR-KONTEKS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const read = (f: string) => readFileSync(join(repoRoot, f), "utf8");
+      const HALAMAN = "src/app/belajar/page.tsx";
+      const halaman = read(HALAMAN);
+      const badan = code(halaman);
+      const cangkang = code(read("src/components/CangkangPengalaman.tsx"));
+
+      // 1. THE RULE IS PURE, AND IT IS ABOUT ROLES HELD RATHER THAN ABOUT RANK.
+      //    Driven through every shape it can meet, because the two answers it
+      //    gives have opposite failure modes: a false "teaches" strands somebody
+      //    in a header that is not theirs, and a false "this is their first
+      //    login as a learner" tells an adult professional that PINTAR thinks
+      //    they are a child.
+      const BENTUK: Array<{ peran: readonly string[] | null; mengajar: boolean; kata: string }> = [
+        { peran: [], mengajar: false, kata: "somebody holding no role at all" },
+        { peran: ["EDUCATOR"], mengajar: true, kata: "an educator" },
+        { peran: ["HEAD_OF_DEPARTMENT"], mengajar: false, kata: "a head of department" },
+        { peran: ["DEAN"], mengajar: false, kata: "a dean" },
+        { peran: ["INSTITUTION_ADMIN"], mengajar: false, kata: "an institution administrator" },
+        { peran: ["SYSTEM_ADMIN"], mengajar: false, kata: "a platform administrator" },
+        { peran: ["EDUCATOR", "HEAD_OF_DEPARTMENT"], mengajar: false, kata: "an educator who is also a head of department" },
+        { peran: ["EDUCATOR", "DEAN"], mengajar: false, kata: "an educator who is also a dean" },
+        // A FAILED READ FALLS BACK TO THE PRODUCT AS IT WAS. `peranSaya` can now
+        // say "I could not ask", and the honest answer to that is the learner
+        // shell and the learner tour -- which is every release before this one.
+        { peran: null, mengajar: false, kata: "a reader whose roles could not be read" },
+      ];
+      for (const b of BENTUK) {
+        const k = konteksPembelajaran(b.peran);
+        c.expect(k.mengajar === b.mengajar,
+          `${b.kata} is ${k.mengajar ? "given" : "denied"} the educator's shell on their own learning`);
+        //    RANK NEVER ENTERS INTO WHICH TOUR IS PRESENTED (§H-3). The tour
+        //    follows the SHELL, and the shell's anchors are what the tour's
+        //    last two steps point at.
+        c.expect(k.turBelajar === !k.mengajar,
+          `${b.kata} gets a tour that does not match the shell they are looking at`);
+      }
+      c.expect(/Promise<string\[\] \| null>/.test(code(read("src/lib/tur-negara.ts"))),
+        "the role read cannot tell a failure apart from a person who holds no role");
+
+      //    WATCHED ON TWO PLANTS, both of them mistakes that are easy to make
+      //    and that every assertion above would otherwise wave through.
+      //
+      //    (a) "an educator who is also a dean still teaches" — dropping the
+      //        seniority rule and reading EDUCATOR on its own.
+      const tanpaSenioritas = (peran: readonly string[] | null) => (peran ?? []).includes("EDUCATOR");
+      c.expect(tanpaSenioritas(["EDUCATOR", "DEAN"]) !== konteksPembelajaran(["EDUCATOR", "DEAN"]).mengajar,
+        "dropping the seniority rule is indistinguishable from keeping it, so this case proves nothing");
+      //    (b) "the learner tour belongs only to somebody holding no role" —
+      //        which quietly takes the learner landing's own tour away from
+      //        every senior reader, the thing §H-3 exists to prevent.
+      const hanyaTanpaPeran = (peran: readonly string[] | null) => (peran ?? []).length === 0;
+      c.expect(hanyaTanpaPeran(["DEAN"]) !== konteksPembelajaran(["DEAN"]).turBelajar,
+        "gating the learner tour on holding no role is indistinguishable from gating it on the shell");
+
+      // 2. NO ROLE EVER DECIDES WHAT LEARNING IS OFFERED. The entitlement RPC
+      //    takes no argument at all, so nothing on this side of the wire can
+      //    widen it; and the reading context is not in scope anywhere between
+      //    the assignments being fetched and the list being ranked.
+      const mesin = code(read("src/lib/assessment-engine/index.ts"));
+      c.expect(/call\(db, "my_learning_assignments"\)/.test(mesin),
+        "learning entitlement is not read from my_learning_assignments, or is read with arguments");
+      const potong = (dari: string, sampai: string) => {
+        const a = badan.indexOf(dari);
+        const b = badan.indexOf(sampai);
+        return a >= 0 && b > a ? badan.slice(a, b) : "";
+      };
+      const pipa = potong("const tugas = await engine.myAssignments", "const keadaan =");
+      c.expect(pipa.length > 0, "the assignment pipeline could not be located, so nothing below is checked");
+      c.expect(!/konteks/.test(pipa),
+        "the reading context is in scope while the learning list is built, so a role could filter it");
+      const sesudah = badan.slice(badan.indexOf("return ("));
+      c.expect(sesudah.length > 0 && !/konteks[^.]/.test(pipa),
+        "the reading context leaks into the pipeline");
+      //    WATCHED ON A PLANT.
+      c.expect(/konteks/.test(pipa.replace("await engine.myAssignments", "konteks.mengajar ? await engine.myAssignments")),
+        "the pipeline scanner cannot see a context test inserted into it");
+
+      //    AND THE SURFACE READS NO ROLE OF ITS OWN. `display_role` is display
+      //    only by construction and is not what decides anything here; no file
+      //    under the learning surface names it, a role string or the role table.
+      const berkas = walk(join(repoRoot, "src", "app", "belajar"))
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"))
+        .concat(["src/components/CangkangPengalaman.tsx", "src/lib/pembelajaran.ts"]);
+      for (const f of berkas) {
+        const b = code(read(f));
+        c.expect(!/display_role|displayRole/.test(b), `${f} decides something from display_role`);
+        c.expect(!/\.from\("role_assignments"\)/.test(b), `${f} reads the role table directly`);
+        c.expect(!/"STUDENT"|'STUDENT'/.test(b), `${f} names STUDENT, so somebody is being made one`);
+      }
+
+      // 3. WHOSE TOUR IT IS. The learner's first login is mounted only for
+      //    somebody the rule says it belongs to, and its durable state is not
+      //    even read otherwise — an unread tour spends no presentation.
+      c.expect(/konteks\.turBelajar \? await keadaanTur\(TUR_BELAJAR\) : null/.test(badan),
+        "the learner tour's state is read for people it does not belong to");
+      c.expect(/\{konteks\.turBelajar \? \(/.test(badan) && /<Tur\b/.test(badan),
+        "the learner first-login tour is mounted without asking whose tour it is");
+      //    WATCHED ON A PLANT: ungating it must go red.
+      const tanpaGerbang = badan.replace("{konteks.turBelajar ? (", "{true ? (");
+      c.expect(!/\{konteks\.turBelajar \? \(/.test(tanpaGerbang),
+        "the tour-gate scanner cannot see the gate being removed");
+
+      // 4. IT IS A SECOND CONTEXT AND NOT A SWITCH. The shell offers two places
+      //    to be and no control that changes who anybody is: no role picker, no
+      //    mode, no second account, and nothing that writes an identity.
+      c.expect(/nav\.pembelajaran/.test(cangkang), "the shell has no entry for the educator's own learning");
+      const rute = [...cangkang.matchAll(/href="(\/[a-z/-]*)"/g)].map((m) => m[1]);
+      for (const r of new Set(rute)) {
+        const ada = existsSync(join(repoRoot, "src", "app", r.replace(/^\//, ""), "page.tsx"));
+        c.expect(ada, `the shell offers ${r}, which is not a route`);
+      }
+      //    AND THE LONGER LABEL MUST NOT COST A TOUCH TARGET. "Pembelajaran
+      //    Saya" is longer than any tab that shipped before it, and at 320px --
+      //    an iPhone SE, and a width a great many of the phones PINTAR is used
+      //    on report -- it needs two lines. MEASURED against the compiled
+      //    stylesheet in an iframe at 320, 375, 390, 414 and 768, in both
+      //    languages, with the learner's own two tabs as a control: a fixed
+      //    `height` CLIPPED the second line, and moving the floor to the STRIP
+      //    left the anchor sized by its own text at 32.5px -- which is the
+      //    target a thumb actually hits. The floor therefore sits on the
+      //    ANCHOR, so the target can only ever grow: every label that fitted
+      //    before renders at 44px exactly as it did, and the one that does not
+      //    gets 55px and is whole.
+      const cssShell = read("src/app/experience.css");
+      const telepon = cssShell.slice(cssShell.indexOf("@media (max-width: 560px)"));
+      const blokTab = telepon.slice(telepon.indexOf(".pin-tabs"), telepon.indexOf(".pin-col {"));
+      const aturanTab = blokTab.slice(blokTab.indexOf(".pin-tabs a"));
+      c.expect(/min-height: 44px/.test(aturanTab),
+        "the phone tab is not held to the minimum touch target");
+      c.expect(/height: auto/.test(aturanTab),
+        "the phone tab has a fixed height again, so a label needing two lines is clipped");
+      // `\b` would match inside `min-height`, which is the floor this rule is
+      // asking for: the lookbehind is what makes it a rule about a FIXED height.
+      const TETAP = /(?<!min-)height: 44px/;
+      c.expect(!TETAP.test(blokTab),
+        "the phone tab pins a fixed height, which clips a label that needs two lines");
+      //    WATCHED ON A PLANT: the rule as it was before WP6B must go red.
+      c.expect(TETAP.test(blokTab.replace("height: auto; min-height: 44px", "height: 44px")),
+        "the tab scanner cannot see the fixed height coming back");
+
+      for (const f of berkas) {
+        const b = code(read(f));
+        c.expect(!/(ganti|tukar|alih|switch)\s*(peran|role|akun|account|mode)/i.test(b),
+          `${f} carries a control that changes who somebody is`);
+        // An unauthenticated redirect that returns the reader to the page they
+        // asked for is the sign-in gate, not an account boundary: nobody
+        // changes who they are by passing through it. Anything else -- a sign
+        // out, or a redirect that lands somewhere other than back here -- is.
+        const tanpaGerbangMasuk = b.replace(/redirect\([`"]\/masuk\?lanjut=\/belajar[^)]*\)/g, " ");
+        c.expect(!/signOut|\/masuk/.test(tanpaGerbangMasuk),
+          `${f} moves somebody through an account boundary to reach their own learning`);
+      }
+
+      // 5. THE BACKEND'S OWN VOCABULARY REACHES NO FILE HERE. Provenance is the
+      //    database's business: the Experience renders what this person was
+      //    assigned and never says, or knows, which kind of course it was.
+      const MESIN_KATA = [
+        "learning_context", "PROFESSIONAL_DEVELOPMENT", "academic_responses",
+        "academic_certificates", "row_in_learning_context", "scoped_official_sessions",
+      ];
+      const semua = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f));
+      for (const f of semua) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const b = readFileSync(f, "utf8");
+        for (const w of MESIN_KATA) {
+          c.expect(!b.includes(w), `${rel} names the backend's ${w}, which no educator may meet`);
+        }
+      }
+
+      c.note(`${berkas.length} file(s) on the learning surface, ${new Set(rute).size} shell route(s)`);
+      return c.verdict(
+        "an educator may also be learning, and nothing in the Experience decides that they may. The " +
+        "reading context is a pure rule over the roles a person HOLDS -- driven through nine shapes: no " +
+        "role, an educator, each of the four senior roles alone, an educator who is also senior in two " +
+        "ways, and a failed read, which falls back to the product as it was. RANK NEVER DECIDES WHICH " +
+        "TOUR IS PRESENTED: the tour follows the SHELL, asserted shape by shape, and watched on two " +
+        "plants -- dropping the seniority rule, and gating the learner tour on holding no role, which " +
+        "would quietly take the learner landing's own tour from every senior reader. WHAT IS " +
+        "OFFERED IS NEVER DECIDED BY A ROLE: the entitlement RPC takes no argument, so nothing here can " +
+        "widen it, and the reading context is provably out of scope between the assignments being " +
+        "fetched and the list being ranked -- watched on a plant that inserts a context test into that " +
+        "pipeline. No file on the learning surface reads display_role, the role table, or the word " +
+        "STUDENT. The learner's first-login tour is mounted only where the shell it describes is the " +
+        "shell on screen, and its durable state is not even read otherwise, so no automatic " +
+        "presentation is spent on a page the tour does not map -- watched on a plant that removes the " +
+        "gate. The shell offers two places to " +
+        "be, both of them real routes, whose phone tab is held to the 44px touch target by a floor on the " +
+        "TARGET rather than on the strip -- so the longer label gets a second line at 320px instead of " +
+        "being clipped, and every label that fitted before renders exactly as it did, watched on a " +
+        "plant that restores the fixed height. It carries no control that changes a role, an account " +
+        "or a mode; and no " +
+        "file under src names learning_context, PROFESSIONAL_DEVELOPMENT, the academic evidence " +
+        "boundary or the scoped session source",
+      );
+    },
+  },
+  {
+    id: "UX1-AJAR-KATA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const read = (f: string) => readFileSync(join(repoRoot, f), "utf8");
+      const KUNCI = [
+        "nav.pembelajaran", "pembelajaran.eyebrow", "pembelajaran.milik",
+        "pembelajaran.kosong", "pembelajaran.kosong_arti", "pembelajaran.sertifikat_arti",
+      ] as const;
+
+      // 1. DECLARED, IN BOTH LANGUAGES, AND RENDERED.
+      const surfaces = ["src/app/belajar/page.tsx", "src/components/CangkangPengalaman.tsx"];
+      const sumber = surfaces.map((f) => read(f)).join("\n");
+      for (const k of KUNCI) {
+        const row = telling(k as HleEvent);
+        c.expect(typeof row?.default === "string" && row.default.trim().length > 0, `${k} has no Indonesian telling`);
+        c.expect(typeof row?.en === "string" && (row.en as string).trim().length > 0, `${k} has no English telling`);
+        c.expect(sumber.includes(k), `${k} is declared and never rendered`);
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "educator", { locale: l });
+          c.expect(informal(teks).length === 0, `${k} addresses an educator informally in ${l}: ${informal(teks)[0]}`);
+        }
+      }
+      //    None of them is hard-coded into a component.
+      for (const f of surfaces) {
+        const teks = [...code(read(f)).matchAll(/>\s*([A-Za-zÀ-ɏ][^<>{}\n]{6,})\s*</g)].map((m) => m[1].trim());
+        for (const x of teks) {
+          c.expect(!/[a-z]{3}\s+[a-z]{3}/.test(x), `${f} carries hard-coded copy: "${x.slice(0, 48)}"`);
+        }
+      }
+
+      // 2. THE PERSONA THE LEARNING SURFACE CHOOSES CHANGES NO EXISTING
+      //    SENTENCE. The page now addresses an educator where it used to
+      //    address a learner, and that must be a statement about WHO is being
+      //    spoken to rather than a silent rewrite of the copy a learner reads.
+      //    Asserted over the whole table rather than trusted.
+      let berbeda = 0;
+      for (const k of allKeys()) {
+        if (/^(studio\.|config\.|pimpinan\.|pendataan\.)/.test(k)) continue;
+        for (const l of LOCALES) {
+          if (t(k, "learner", { locale: l }) !== t(k, "educator", { locale: l })) berbeda++;
+        }
+      }
+      c.expect(berbeda === 0,
+        `${berbeda} telling(s) differ between a learner and an educator, so the learning surface's copy ` +
+        "silently changes with who is reading it");
+
+      // 3. IT NAMES NOBODY'S TEACHING. Not one word of this surface may read as
+      //    a judgement about how well the person teaches, or as anything an
+      //    employer would act on — that is the whole reason the evidence
+      //    boundary exists, and copy is the way it would leak.
+      const NILAI = new RegExp(
+        [
+          "efektivitas", "effectiveness", "kinerja", "performance",
+          "peringkat", "\\brank(ed|ing|s)?\\b", "league",
+          "penilaian guru", "teacher (score|rating|grade)", "skor guru",
+          "promosi", "promotion", "sanksi", "disciplinary", "appraisal",
+          "kompeten\\b", "incompeten", "tidak layak", "unfit",
+          "dibanding(kan)? (guru|rekan|pengajar)", "compared (with|to) other (teachers|educators)",
+          "guru (baik|buruk)", "(good|bad) teacher",
+        ].join("|"),
+        "i",
+      );
+      for (const k of KUNCI) {
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "educator", { locale: l });
+          const m = NILAI.exec(teks);
+          c.expect(m === null, `${k} judges the educator's teaching in ${l}: "${m?.[0]}"`);
+        }
+      }
+      //    WATCHED ON A PLANT, so a sweep that matches nothing is not mistaken
+      //    for a surface that says nothing wrong.
+      c.expect(NILAI.test("Efektivitas mengajar Anda: 92%"),
+        "the judgement sweep does not catch a teaching-effectiveness sentence");
+      c.expect(NILAI.test("You are ranked 4th of 40 educators"),
+        "the judgement sweep does not catch a ranking sentence");
+
+      // 4. THE EMPTY SENTENCE IS THE MOST LOAD-BEARING ONE HERE. An educator
+      //    with no learning must read an ordinary state of affairs — not a
+      //    refusal, not a missing account, not something they have to go and
+      //    fix, and above all not a hint that they are on the wrong kind of
+      //    account.
+      const SALAH = new RegExp(
+        [
+          "galat", "error", "gagal", "failed", "tidak dapat", "cannot",
+          "tidak diizinkan", "tidak berhak", "not permitted", "denied", "refused",
+          "izin", "permission", "hubungi", "contact", "administrator",
+          "akun", "account", "daftar(kan)? diri", "sign up", "pengaturan", "settings",
+          "murid", "siswa", "student",
+        ].join("|"),
+        "i",
+      );
+      for (const k of ["pembelajaran.kosong", "pembelajaran.kosong_arti"] as const) {
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "educator", { locale: l });
+          const m = SALAH.exec(teks);
+          c.expect(m === null, `the empty state reads as a problem in ${l} via ${k}: "${m?.[0]}"`);
+        }
+      }
+      c.expect(/^Belum ada/.test(t("pembelajaran.kosong", "educator")),
+        "the Indonesian empty sentence is not the 'not yet' construction the rest of the product uses");
+      c.expect(SALAH.test("Anda belum punya akun murid."),
+        "the empty-state sweep does not catch a sentence pointing at the wrong kind of account");
+
+      // 5. AND IT SAYS WHOSE LEARNING IT IS. The one sentence that has to be
+      //    there: this is yours, and it is not your teaching.
+      for (const l of LOCALES) {
+        const teks = t("pembelajaran.milik", "educator", { locale: l });
+        c.expect(/(Anda|you)/i.test(teks), `the reassurance does not address the reader in ${l}`);
+        c.expect(/(ajar|teach)/i.test(teks), `the reassurance does not say it is apart from their teaching in ${l}`);
+      }
+      c.expect(t("nav.pembelajaran", "educator") !== t("nav.belajar", "learner"),
+        "the educator's own learning is named exactly what a learner's home is named");
+
+      c.note(`${KUNCI.length} key(s), ${LOCALES.length} language(s), 0 learner/educator divergence(s)`);
+      return c.verdict(
+        "Pembelajaran Saya says whose learning it is and judges nobody. Every key is declared in both " +
+        "languages, rendered, addressed formally, and hard-coded nowhere. THE PERSONA THIS SURFACE NOW " +
+        "CHOOSES REWRITES NOTHING: every non-staff key in the table is compared between a learner and " +
+        "an educator in both languages and not one differs, so addressing an educator is a statement " +
+        "about who is being spoken to rather than a silent change to what a learner reads. No telling " +
+        "here names teaching effectiveness, a performance score, a ranking or league position, a " +
+        "comparison with other educators, an appraisal, a promotion or a sanction, or a good or bad " +
+        "teacher -- watched on two plants. AND THE EMPTY STATE IS AN ORDINARY STATE OF AFFAIRS: it is " +
+        "the same 'belum ada' construction the rest of the product uses, and in neither language does " +
+        "it name a fault, a refusal, a permission, an administrator to contact, a setting to change or " +
+        "an account to go and get -- watched on a plant that points at the wrong kind of account. What " +
+        "it does say is that the learning is the reader's own and stands apart from the classes they " +
+        "teach, in both languages, under a name that is not the learner home's",
       );
     },
   },

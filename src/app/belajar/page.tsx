@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { t, format, type HleEvent } from "@/lib/hle";
+import { t, format, type HleEvent, type Persona } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
@@ -11,14 +11,44 @@ import KakiPintar from "@/components/KakiPintar";
 import Tur from "@/components/tur/Tur";
 import { PARAM_BANTUAN } from "@/components/tur/TombolBantuan";
 import { bolehTampilOtomatis, varianBelajar, TUR_BELAJAR } from "@/lib/tur";
-import { keadaanTur } from "@/lib/tur-negara";
+import { keadaanTur, peranSaya } from "@/lib/tur-negara";
+import { konteksPembelajaran } from "@/lib/pembelajaran";
 import JejakSiklus from "@/components/siklus/JejakSiklus";
 import KartuTugas from "@/components/siklus/KartuTugas";
 
 export const dynamic = "force-dynamic";
 
 /**
- * SCREEN A — THE LEARNER'S HOME, AND IT IS NOT A DASHBOARD.
+ * SCREEN A — THE PERSONAL-LEARNING HOME, AND IT IS NOT A DASHBOARD.
+ *
+ * ═══ WP6B: ONE SURFACE, BECAUSE THERE IS ONLY ONE KIND OF OWN LEARNING ═══
+ *
+ * An educator opening their own professional development is doing what a
+ * fifteen-year-old does at the same address, through the same engine, over a
+ * course the school enrolled them in. So this page serves both rather than
+ * being copied — a second landing would be a second answer to "what should I do
+ * next", and the two would drift by the second sprint.
+ *
+ * NOTHING ABOUT ENTITLEMENT CHANGES, AND NOTHING HERE DECIDES IT.
+ * `my_learning_assignments()` selects on an ACTIVE enrolment, an open
+ * membership and node containment, and reads no role at all. This page asks it
+ * the same question for everybody and renders the answer. An educator with no
+ * enrolment gets nothing, exactly as a person with no enrolment always did; an
+ * educator with one gets that one. Holding EDUCATOR neither adds nor removes a
+ * row, and this file could not make it do so — the read happens before anything
+ * below is known.
+ *
+ * WHAT DOES CHANGE IS WHO IS BEING SPOKEN TO. Somebody who also teaches is told
+ * whose learning this is and that it stands apart from their classes, is kept
+ * one press from Kelas by the shell, and is never handed the first-login tour
+ * written for a child arriving at school. That is the whole difference, and it
+ * is framing: the assignments, the ranking, the cards and every route out of
+ * here are identical, because the learning is identical.
+ *
+ * AND IT IS NOT A ROLE SWITCH. Nobody becomes a Student to read this. There is
+ * no mode, no second account, no `display_role` anywhere in this file, and no
+ * control that changes who the person is — the only thing that changed between
+ * Mengajar and here is which of their two contexts they are looking at.
  *
  * The primary Slice-2 problem: a learner arriving here should not have to
  * choose. One panel carries the single most appropriate next action, decided
@@ -41,7 +71,16 @@ export default async function Belajar({
   if (!viewer) redirect("/masuk?lanjut=/belajar");
   const locale = await currentLocale();
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
-  const s = (k: HleEvent) => t(k, "learner", { locale });
+
+  // WP6B. Which of their contexts this person is reading from — asked of the
+  // roles they hold, answered before any copy is chosen, and used for nothing
+  // else. The persona it selects changes no existing sentence on this page: the
+  // copy table carries no `learner:` override anywhere, so every `siklus.*` key
+  // tells an educator precisely what it tells a learner. UX1-AJAR-KATA-01
+  // asserts that rather than trusting it.
+  const konteks = konteksPembelajaran(await peranSaya());
+  const persona: Persona = konteks.mengajar ? "educator" : "learner";
+  const s = (k: HleEvent) => t(k, persona, { locale });
 
   const tugas = await engine.myAssignments(db);
 
@@ -90,7 +129,15 @@ export default async function Belajar({
   //     a class waiting for a quick check is never held up by onboarding
   //     (§J-10). `my_open_assessments` carries the mode, so this is the page's
   //     own information rather than a second question asked of the database.
-  const keadaan = await keadaanTur(TUR_BELAJAR);
+  //
+  // WHOSE TOUR IT IS (WP6B). The learner's first login belongs to somebody
+  // holding no role assignment — `role_assignments` forbids STUDENT, so that is
+  // exactly the set of people who are here as learners and nothing else. An
+  // educator is not one of them, and presenting them a child's onboarding would
+  // be PINTAR announcing that it had mistaken them for a student. So the state
+  // is not even read for them: an unread tour cannot be presented, and no
+  // presentation is spent.
+  const keadaan = konteks.turBelajar ? await keadaanTur(TUR_BELAJAR) : null;
   const bolehTur = bolehTampilOtomatis(keadaan, {
     tautanLangsung: typeof sp.lanjut === "string" && sp.lanjut.length > 0,
     ujiCepatBerjalan: terbuka.some((a) => a.mode === "QUICK"),
@@ -120,11 +167,22 @@ export default async function Belajar({
       <CangkangPengalaman locale={locale} current="belajar" />
       <main className="pin-col">
         <div className="pin-head">
-          <p className="pin-eyebrow">{s("siklus.beranda")}</p>
+          <p className="pin-eyebrow">
+            {konteks.mengajar ? s("pembelajaran.eyebrow") : s("siklus.beranda")}
+          </p>
           <h1 className="pin-h1">
             {viewer.displayName ? `${s("siklus.halo")}, ${viewer.displayName}` : s("siklus.halo")}
           </h1>
-          {tugas.length > 0 ? <p className="pin-intro">{s("siklus.hari_ini")}</p> : null}
+          {/* The sentence that does the work for somebody who also teaches, and
+              it is shown whether or not they have anything to do: the thing
+              they most need to know is that this is theirs and that it is not
+              about their teaching. A learner is told what is under way today,
+              because for them there is no second context to be told apart. */}
+          {konteks.mengajar ? (
+            <p className="pin-intro">{s("pembelajaran.milik")}</p>
+          ) : tugas.length > 0 ? (
+            <p className="pin-intro">{s("siklus.hari_ini")}</p>
+          ) : null}
         </div>
 
         {/* THE ONE THING. The only element on this page standing on the primary
@@ -183,7 +241,20 @@ export default async function Belajar({
         <section className="pin-sec" data-tur="daftar">
           <h2>{s("siklus.milik_anda")}</h2>
           {tugas.length === 0 ? (
-            <p className="pin-empty">{s("cycle.none")}</p>
+            konteks.mengajar ? (
+              // NOT AN ERROR, NOT A REFUSAL, NOT A SETUP STEP. Nobody has
+              // enrolled this person in anything, which is an ordinary state of
+              // affairs — so it is said in the quiet voice an empty section is
+              // always said in here, with a second line saying what would make
+              // it fill. Nothing on this path mentions permission, an account,
+              // or anything the educator is supposed to go and do.
+              <>
+                <p className="pin-empty">{s("pembelajaran.kosong")}</p>
+                <p className="pin-mm">{s("pembelajaran.kosong_arti")}</p>
+              </>
+            ) : (
+              <p className="pin-empty">{s("cycle.none")}</p>
+            )
           ) : (
             [...(utama ? [utama] : []), ...sisa].map((k) => (
               <KartuTugas
@@ -219,22 +290,41 @@ export default async function Belajar({
           </section>
         ) : null}
 
+        {/* THEIR CERTIFICATES, THROUGH THE ONE CERTIFICATE ARCHITECTURE.
+            The learner's shell gives this a tab; somebody who also teaches
+            reaches it from inside their learning, because for them it is one
+            thing within one of two contexts rather than half the product. The
+            destination is the same page, listing the same certificates by the
+            same rules — there is no second certificate surface, and no second
+            kind of certificate for it to show. */}
+        {konteks.mengajar ? (
+          <section className="pin-sec">
+            <h2>{s("nav.sertifikat")}</h2>
+            <p className="pin-mm">{s("pembelajaran.sertifikat_arti")}</p>
+            <div className="pin-actions">
+              <Link className="pin-btn" href="/belajar/sertifikat">{s("siklus.buka")}</Link>
+            </div>
+          </section>
+        ) : null}
+
         <KakiPintar />
       </main>
 
       {/* A SIBLING OF THE PAGE, NOT A CHILD OF IT: while a step is open the
           tour makes every sibling inert, and a tour mounted inside `main`
           would be making itself inert along with the page. */}
-      <Tur
-        kunci={TUR_BELAJAR}
-        varian={varianBelajar(null)}
-        locale={locale}
-        persona="learner"
-        keadaan={keadaan}
-        otomatis={bolehTur.boleh}
-        bantuanAwal={sp[PARAM_BANTUAN] === "1"}
-        kosong={tugas.length === 0 ? ["daftar"] : []}
-      />
+      {konteks.turBelajar ? (
+        <Tur
+          kunci={TUR_BELAJAR}
+          varian={varianBelajar(null)}
+          locale={locale}
+          persona="learner"
+          keadaan={keadaan}
+          otomatis={bolehTur.boleh}
+          bantuanAwal={sp[PARAM_BANTUAN] === "1"}
+          kosong={tugas.length === 0 ? ["daftar"] : []}
+        />
+      ) : null}
     </>
   );
 }

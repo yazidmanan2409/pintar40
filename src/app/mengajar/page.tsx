@@ -75,7 +75,7 @@ export default async function BerandaPengajar({
   // is authorized again in the database from the caller's own session; this
   // only decides which map is drawn.
   const [keadaan, peran] = await Promise.all([keadaanTur(TUR_PENGAJAR), peranSaya()]);
-  const turBerlaku = turPengajarBerlaku(peran);
+  const turBerlaku = turPengajarBerlaku(peran ?? []);
   const bolehTur = bolehTampilOtomatis(keadaan, {
     tautanLangsung: typeof sp.lanjut === "string" && sp.lanjut.length > 0,
     // The Quick Assessment exclusion is the LEARNER's (§J-10): it protects a

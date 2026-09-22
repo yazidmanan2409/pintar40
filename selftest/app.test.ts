@@ -26,6 +26,12 @@ const PERSONA = {
   // between a wide Management scope and a narrow one.
   alphaHod: { email: "alpha-hod@synthetic.pintar.test", password: "Sintetis-AlphaHod-48!" },
   alphaGuru: { email: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" },
+  // WP6B. The educator who ALSO LEARNS: the learning-cycle fixture's own
+  // teacher, who authored that course, teaches that class, and is enrolled in
+  // it. Paired with `alphaGuru` -- the same role, no enrolment -- they are the
+  // whole invariant: what a person may learn is their enrolment and never their
+  // role, so two educators must see two different pages.
+  cycleEducator: { email: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" },
 } as const;
 
 /** Every learner route FABLE-03 adds, for the copy inventory (§9). */
@@ -655,6 +661,163 @@ export const appTests: SelfTest[] = [
         "one refusal page. The journey from the home into a part of the school and on to its roster " +
         "works for the dean and is refused on the SAME REAL NODE to two readers without Management " +
         "authority over it, and an anonymous caller never reaches the page at all",
+      );
+    },
+  },
+  {
+    id: "UX1-AJAR-BELAJAR-01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+
+      // Every sentence this test looks for is READ FROM THE COPY TABLE rather
+      // than quoted, so a test that still passes is a test about the product
+      // and not about a string somebody once wrote here.
+      const pembelajaran = t("nav.pembelajaran", "educator");
+      const milik = t("pembelajaran.milik", "educator");
+      const kosong = t("pembelajaran.kosong", "educator");
+      const kelas = t("nav.kelas", "educator");
+      const tabBelajar = t("nav.belajar", "learner");
+      const tabSertifikat = t("nav.sertifikat", "learner");
+      const turBelajar = t("tur.nama.belajar", "learner");
+      const murid = t("role.STUDENT", "learner");
+
+      const lihat = async (persona: { email: string; password: string }, path: string) => {
+        const sesi = await signIn(ctx, persona);
+        const res = await get(`${base}${path}`, { headers: { cookie: sesi.cookie } });
+        const raw = await res.text();
+        return { res, raw, html: visibleText(raw), sesi };
+      };
+
+      // 1. THE DOOR, AND IT IS ONE DOOR. The educator's header gains exactly one
+      //    neighbour and keeps the tab it had: this is a second context, not a
+      //    redesigned navigation and not a switch between identities.
+      const ajar = await lihat(PERSONA.cycleEducator, "/mengajar");
+      c.expect(ajar.res.status === 200, `EDUCATOR /mengajar → ${ajar.res.status}`);
+      c.expect(ajar.html.includes(pembelajaran), "the teaching header offers no way to the educator's own learning");
+      c.expect(ajar.html.includes(kelas), "the teaching tab is gone from the teaching header");
+      c.expect(/href="\/belajar"/.test(ajar.raw), "the entry names Pembelajaran Saya but leads nowhere");
+
+      // 2. WHAT IS ON THE PAGE IS WHAT THE DATABASE SAID, ASKED SEPARATELY.
+      //    `my_learning_assignments` is called directly with each persona's own
+      //    JWT, so the expected answer comes from the contract rather than from
+      //    this file's idea of the fixture — and a page that rendered one row
+      //    too many or one too few is caught by comparison rather than by a
+      //    quoted title.
+      const tugasDari = async (sesi: Session): Promise<Array<{ title: string }>> => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/my_learning_assignments`, {
+          method: "POST",
+          headers: {
+            apikey: ctx.supabaseAnonKey!,
+            authorization: `Bearer ${sesi.accessToken}`,
+            "content-type": "application/json",
+          },
+          body: "{}",
+        });
+        if (!r.ok) return [];
+        const j = (await r.json()) as unknown;
+        return Array.isArray(j) ? (j as Array<{ title: string }>) : [];
+      };
+
+      const belajarMurid = await lihat(PERSONA.cycleLearner, "/belajar");
+      c.expect(belajarMurid.res.status === 200, `learner /belajar → ${belajarMurid.res.status}`);
+      const tugasMurid = await tugasDari(belajarMurid.sesi);
+
+      const punya = await lihat(PERSONA.cycleEducator, "/belajar");
+      const tugasPunya = await tugasDari(punya.sesi);
+      c.expect(punya.res.status === 200, `EDUCATOR-who-learns /belajar → ${punya.res.status}`);
+      c.expect(punya.html.includes(pembelajaran), "the educator's own learning is not named Pembelajaran Saya");
+      c.expect(punya.html.includes(milik), "nothing tells the educator this learning is theirs and not their teaching");
+
+      //    THE FIXTURE MUST BE CAPABLE OF FAILING. An educator offered nothing
+      //    would make every assertion below vacuously true, so the entitlement
+      //    is asserted to exist before it is asserted to be rendered.
+      c.expect(tugasPunya.length > 0,
+        "the enrolled educator holds no learning entitlement, so this test could prove nothing");
+      for (const a of tugasPunya) {
+        c.expect(punya.html.includes(a.title), `the educator's own learning "${a.title}" is not on their page`);
+      }
+      //    …and it is the same course their class's learner is doing, through
+      //    the same engine — not a second, educator-shaped one.
+      c.expect(tugasPunya.every((a) => tugasMurid.some((b) => b.title === a.title)),
+        "the educator's learning is not the learning their own class is doing");
+      c.expect(!punya.html.includes(kosong), "an educator WITH learning was told they have none");
+      //    …and they never left their teaching context to read it.
+      c.expect(/href="\/mengajar"/.test(punya.raw), "the educator's learning page strands them away from their classes");
+      c.expect(punya.html.includes(kelas), "the educator's learning page drops the teaching tab");
+
+      // 3. THE SAME ROLE WITHOUT AN ENROLMENT IS OFFERED NOTHING. This is the
+      //    one that would catch entitlement being manufactured here: both
+      //    personas hold EDUCATOR, and only one holds a learning enrolment, so
+      //    a surface that inferred "educator, therefore learner" would hand
+      //    this one somebody else's course.
+      const tanpa = await lihat(PERSONA.alphaGuru, "/belajar");
+      const tugasTanpa = await tugasDari(tanpa.sesi);
+      c.expect(tanpa.res.status === 200, `EDUCATOR-without-learning /belajar → ${tanpa.res.status}`);
+      c.expect(tugasTanpa.length === 0,
+        `the unenrolled educator holds ${tugasTanpa.length} entitlement(s), so the pairing proves nothing`);
+      c.expect(tanpa.html.includes(kosong), "an educator with no learning is not told so in the agreed sentence");
+      for (const a of tugasPunya) {
+        c.expect(!tanpa.html.includes(a.title),
+          `an educator with no enrolment was offered "${a.title}", which belongs to a different educator`);
+      }
+      //    AND THE EMPTY PAGE IS NOT AN ERROR. It carries the surface's own
+      //    name and its own reassurance, which a refusal page does not have.
+      c.expect(tanpa.html.includes(pembelajaran) && tanpa.html.includes(milik),
+        "the empty state is not the Pembelajaran Saya surface at all");
+      c.expect(!/\b(ditolak|tidak diizinkan|tidak berhak|galat|not permitted|refused|error)\b/i.test(tanpa.html),
+        "the empty state reads as a refusal, a permission problem or a fault");
+
+      // 4. NOBODY BECAME A STUDENT. No learner onboarding is mounted for either
+      //    educator — the tour's root element is absent, so it cannot be opened
+      //    by any means — and nothing addresses them as a learner.
+      for (const [nama, r] of [["enrolled", punya], ["unenrolled", tanpa]] as const) {
+        c.expect(!/pin-tur-akar/.test(r.raw), `the learner first-login tour is mounted for the ${nama} educator`);
+        c.expect(!r.html.includes(turBelajar), `the ${nama} educator is offered the learner's tour by name`);
+        c.expect(!/data-tur="bantuan"/.test(r.raw), `the ${nama} educator's learning page offers Help that leads to the wrong map`);
+        c.expect(!new RegExp(`\\b${murid}\\b`).test(r.html), `the ${nama} educator is addressed as "${murid}"`);
+        noInternalWords(c, r.html, `/belajar as an ${nama} educator`);
+      }
+
+      // 5. A LEARNER IS UNTOUCHED. Their two tabs, their tour, and no door into
+      //    a teaching context that is not theirs.
+      c.expect(belajarMurid.html.includes(tabBelajar) && belajarMurid.html.includes(tabSertifikat),
+        "the learner lost their own shell");
+      c.expect(!/href="\/mengajar"/.test(belajarMurid.raw), "a learner was offered a way into teaching");
+      c.expect(!belajarMurid.html.includes(pembelajaran), "a learner's own home was renamed for them");
+      c.expect(/data-tur="bantuan"/.test(belajarMurid.raw), "the learner lost the Help entry their tour points at");
+
+      // 6. THEIR CERTIFICATES ARE THE ONE CERTIFICATE SURFACE, and reaching it
+      //    does not put an educator back into a learner's shell.
+      const sert = await lihat(PERSONA.cycleEducator, "/belajar/sertifikat");
+      c.expect(sert.res.status === 200, `EDUCATOR /belajar/sertifikat → ${sert.res.status}`);
+      c.expect(sert.html.includes(pembelajaran) && sert.html.includes(kelas),
+        "an educator reading their own certificates is put into the learner's shell");
+      c.expect(!sert.html.includes(tabBelajar) || sert.html.includes(pembelajaran),
+        "the educator's certificate page shows the learner navigation");
+      noInternalWords(c, sert.html, "/belajar/sertifikat as an educator");
+
+      c.note(`${tugasPunya.length} entitlement(s) for the enrolled educator, ${tugasTanpa.length} for the unenrolled one`);
+      return c.verdict(
+        "an educator's own learning is a second context and never a second identity: the teaching header " +
+        "gains exactly one neighbour, Pembelajaran Saya, and keeps Kelas -- so the way in is one press " +
+        "and the way back is always on screen. WHAT THEY ARE OFFERED IS THEIR ENROLMENT AND NEVER THEIR " +
+        "ROLE, proved on two educators rather than argued: `my_learning_assignments` is asked directly " +
+        "with each persona's own token and its answer is compared with the page, so the expectation " +
+        "comes from the contract and not from this file's idea of the fixture. The enrolled educator " +
+        "holds at least one entitlement -- asserted, because nothing offered would make the rest " +
+        "vacuous -- every row of it is on their page, and it is the SAME course their own class's " +
+        "learner is doing rather than a second educator-shaped one; the educator holding the same role " +
+        "with no enrolment holds nothing by the database's own answer and is told so in the agreed " +
+        "sentence, and is offered none of the other educator's rows, on a page that carries the " +
+        "surface's own name and its own reassurance and reads as neither a refusal, a permission " +
+        "problem nor a fault. NOBODY BECAME A STUDENT: the learner first-login tour is not mounted for " +
+        "either educator, so it cannot be opened by any means; neither is offered it by name; neither " +
+        "is addressed as a learner; and no Help entry leads them to a map that is not theirs. A learner " +
+        "keeps their own two tabs, their own tour and their own Help, and is offered no way into a " +
+        "teaching context. And an educator reading their own certificates stays in their own shell, on " +
+        "the one certificate surface that already existed",
       );
     },
   },

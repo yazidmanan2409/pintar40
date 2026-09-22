@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 51,
+  "version": 52,
   "phase": "FABLE-06 (metric catalogue, reports and templates, question health, briefings) — the final core-build phase",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1354,6 +1354,28 @@
       "requires": [],
       "proves": "the intake is institutional administration and the capability says so. The migration's own capability table is read to prove an INSTITUTION_ADMIN holds CAN_PROVISION_PEOPLE and that HEAD_OF_DEPARTMENT, DEAN, EDUCATOR and STUDENT do not -- so a WP4 Management reader is refused by name rather than by an opinion in frontend code, which reads no role string and never selects the role column. Both WP5A read policies are confirmed still bounded by the same capability, and every intake route refuses through the one refusal page. Every intake copy key is declared in both languages, no component hard-codes a sentence, and no telling names an index, a lock, a sequence, a trigger, a transaction, a table or a job state. EVERY validation phrase the row checker can return is matched against the migration and has a sentence of its own; an unknown phrase falls back rather than rendering raw, and none of them renders the database's own wording. The identity doctrine appears on the page in both languages -- the number encodes no role, and the code becomes permanent once a number is issued -- and a frozen code renders as identity with no editable control.",
       "how": "the WP5A migrations parsed for the capability table, the read policies and the eleven validation phrases; the intake sources and the copy table swept in both languages"
+    },
+    {
+      "id": "UX1-AJAR-KONTEKS-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "an educator may also be learning, and nothing in the Experience decides that they may. The reading context is a PURE rule over the roles a person HOLDS -- not over display_role, which is a coalesce answering a different question -- driven through nine shapes: no role at all, an educator, each of the four senior roles alone, an educator who is also senior in two ways, and a failed read, which falls back to the learner shell and the learner tour, the product as every release before this one had it. RANK NEVER DECIDES WHICH TOUR IS PRESENTED, which is the rule H-3 already set: the tour follows the SHELL, asserted shape by shape, and watched on two plants -- dropping the seniority rule so an educator who is also a dean keeps the educator's shell, and gating the learner tour on holding no role, which would quietly take the learner landing's own tour away from every senior reader. WHAT IS OFFERED IS NEVER DECIDED BY A ROLE: my_learning_assignments takes no argument, so nothing on the client side can widen it, and the reading context is provably out of scope between the assignments being fetched and the list being ranked -- watched on a plant that inserts a context test into that pipeline. No file on the learning surface reads display_role, reads the role table, or names STUDENT, so nobody is being made one, and none of them moves a reader through an account boundary to reach their own learning. The shell offers two places to be, both of them real routes, and carries no control that changes a role, an account or a mode. And no file under src names learning_context, PROFESSIONAL_DEVELOPMENT, the academic evidence boundary or the scoped session source: provenance is the database's business and reaches no screen"
+    },
+    {
+      "id": "UX1-AJAR-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "Pembelajaran Saya says whose learning it is and judges nobody. Every key is declared in both languages, actually rendered, addressed formally, and hard-coded in no component. THE PERSONA THE LEARNING SURFACE NOW CHOOSES REWRITES NOTHING: every non-staff key in the copy table is compared between a learner and an educator in both languages and not one differs, so addressing an educator is a statement about who is being spoken to rather than a silent change to the copy a learner reads. No telling on this surface names teaching effectiveness, a performance score, a ranking or league position, a comparison with other educators, an appraisal, a promotion or a sanction, or a good or bad teacher -- watched on two plants, because a sweep that matches nothing must not be mistaken for a surface that says nothing wrong. AND THE EMPTY STATE IS AN ORDINARY STATE OF AFFAIRS: it is the same 'belum ada' construction the rest of the product uses, and in neither language does it name a fault, a refusal, a permission, an administrator to contact, a setting to change, or an account to go and get -- watched on a plant that points the reader at the wrong kind of account. What it does say is that the learning is the reader's own and stands apart from the classes they teach, in both languages, under a name that is not the learner home's"
+    },
+    {
+      "id": "UX1-AJAR-BELAJAR-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as three real personas and compares each page with what my_learning_assignments answers for that same token. CI has both facilities, so it never skips there",
+      "proves": "an educator's own learning is a second context and never a second identity, measured over HTTP as three real people. The teaching header gains exactly ONE neighbour, Pembelajaran Saya, and keeps Kelas, so the way in is one press and the way back is always on screen. WHAT AN EDUCATOR IS OFFERED IS THEIR ENROLMENT AND NEVER THEIR ROLE, proved on two educators rather than argued: my_learning_assignments is asked directly with each persona's own token and its answer is compared with the rendered page, so the expectation comes from the contract rather than from the test's idea of the fixture. The enrolled educator holds at least one entitlement -- asserted, because an educator offered nothing would make every assertion after it vacuously true -- every row of it appears on their page, and it is the SAME course their own class's learner is doing rather than a second educator-shaped one. The educator holding the same role with no enrolment holds nothing by the database's own answer, is told so in the agreed sentence, and is offered none of the other educator's rows -- on a page that carries the surface's own name and its own reassurance and reads as neither a refusal, a permission problem nor a fault. NOBODY BECAME A STUDENT: the learner first-login tour is not mounted for either educator, so it cannot be opened by any means; neither is offered it by name; neither is addressed as a learner; and neither is given a Help entry leading to a map that is not theirs. A learner keeps their own two tabs, their own tour and their own Help, and is offered no way into a teaching context. An educator reading their own certificates stays in their own shell, on the one certificate surface that already existed. Internal words are swept from every page fetched"
     }
   ]
 }

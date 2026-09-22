@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { t, type Locale } from "@/lib/hle";
+import { peranSaya } from "@/lib/tur-negara";
+import { konteksPembelajaran } from "@/lib/pembelajaran";
 import PengalihBahasa from "./PengalihBahasa";
 import MerekPintar from "./MerekPintar";
 import TombolBantuan from "./tur/TombolBantuan";
@@ -53,8 +55,37 @@ import TombolBantuan from "./tur/TombolBantuan";
  * `educator.first_login`. There is no Management tour, so a Help entry here
  * would open a panel offering nothing — which is the same objection §G-3 makes
  * to a Help entry inside an assessment, from the other direction.
+ *
+ * ═══ WP6B: THE EDUCATOR SHELL GAINS ITS SECOND TAB, AND THE LEARNING SHELL
+ * LEARNS WHO IS READING IT ═══
+ *
+ * An educator may also be learning — the same person, the same account, a
+ * different legitimate context — and the two are kept apart rather than merged.
+ * So Mengajar gains ONE neighbour, Pembelajaran Saya, and that is the whole of
+ * the navigation change: no role switcher, no second dashboard, no third place
+ * to be.
+ *
+ * THE SAME TWO TABS THEN FOLLOW THEM INTO THEIR LEARNING. When somebody who
+ * teaches opens the learning surface, the header still says Kelas — so they can
+ * be back with their class in one press and never had to leave a context to get
+ * here. Building this into the shell rather than into eleven pages is not
+ * economy: it is the only way a lesson, a mapping and a certificate page cannot
+ * disagree about who is reading them.
+ *
+ * WHICH IS ALSO WHY IT IS THE SHELL THAT ASKS. The question is "does this
+ * person also teach", it is asked of the roles they hold, and it decides a
+ * header. It decides nothing about what they may learn: `my_learning_assignments()`
+ * reads no role, so a person with no enrolment sees an empty page under either
+ * header, and no header ever added a course to it.
+ *
+ * AND THE LEARNING SHELL CARRIES NO HELP FOR THEM, by the rule two paragraphs
+ * up. The two tours that exist are a learner's first login and an educator's;
+ * neither is a map of an educator's own learning, and the learner's is the one
+ * thing this work package must never show them. A Help entry offering the wrong
+ * map is worse than none, so there is none — the same answer WP4 reached for
+ * Management, for the same reason.
  */
-export default function CangkangPengalaman({
+export default async function CangkangPengalaman({
   locale,
   kind = "learner",
   current,
@@ -85,6 +116,14 @@ export default function CangkangPengalaman({
         <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
           <Link href="/mengajar" aria-current={current === "kelas" ? "page" : undefined}>
             {t("nav.kelas", "educator", { locale })}
+          </Link>
+          {/* Always here, never conditional on there being something behind it.
+              A tab that appeared the day somebody was enrolled would be
+              announcing the enrolment to anyone watching the header, and an
+              educator who has no learning is entitled to the plain answer
+              rather than to no door. */}
+          <Link href="/belajar" aria-current={undefined}>
+            {t("nav.pembelajaran", "educator", { locale })}
           </Link>
         </nav>
         <span className="pin-spacer" />
@@ -129,6 +168,32 @@ export default function CangkangPengalaman({
       <header className="pin-top pin-shell pin-noprint">
         <MerekPintar />
         <span className="pin-sub">{t("verifikasi.situs", "public", { locale })}</span>
+        <span className="pin-spacer" />
+        <PengalihBahasa locale={locale} />
+      </header>
+    );
+  }
+
+  // WP6B. The only read this component makes, and only on the learning shell:
+  // the other four return above without asking anything.
+  const { mengajar } = konteksPembelajaran(await peranSaya());
+  if (mengajar) {
+    return (
+      <header className="pin-top pin-shell pin-noprint">
+        <MerekPintar />
+        <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
+          <Link href="/mengajar" aria-current={undefined}>
+            {t("nav.kelas", "educator", { locale })}
+          </Link>
+          {/* Their certificates live under this tab rather than beside it: the
+              learner's shell gives Sertifikat top billing because learning is
+              the whole of their product, and for somebody who also teaches it
+              is one thing inside one of two contexts. It is reached from the
+              page, which is the same choice WP5B made about a job. */}
+          <Link href="/belajar" aria-current={current ? "page" : undefined}>
+            {t("nav.pembelajaran", "educator", { locale })}
+          </Link>
+        </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
       </header>

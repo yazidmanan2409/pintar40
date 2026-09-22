@@ -80,17 +80,23 @@ export async function bungkamTur(kunci: TurKey): Promise<void> {
  * own session, and a tour that skipped the check would still be looking at a
  * page that refuses.
  *
- * An empty list on failure, which means no tour: the map is the thing PINTAR
- * declines to guess at.
+ * NULL WHEN IT COULD NOT ASK, AND AN EMPTY ARRAY WHEN THE ANSWER IS "NONE".
+ * WP6B needs those apart. The educator tour reads this and treats both as "no
+ * tour", so nothing about it changes; but Pembelajaran Saya asks the opposite
+ * question — the learner's first-login tour belongs to somebody holding NO role
+ * assignment, because `role_assignments` forbids STUDENT and being a learner is
+ * an enrolment. If a failed read still came back as `[]`, a database hiccup
+ * would present an educator the onboarding written for a child. So the failure
+ * is now sayable, and every caller decides what it means for them.
  */
-export async function peranSaya(): Promise<string[]> {
+export async function peranSaya(): Promise<string[] | null> {
   const c = await db();
   const { data: aku } = await c.rpc("current_person_id");
-  if (!aku) return [];
+  if (!aku) return null;
   const { data, error } = await c
     .from("role_assignments")
     .select("role, valid_from, valid_until, revoked_at")
     .eq("person_id", aku);
-  if (error) return [];
+  if (error) return null;
   return peranAktif((data ?? []) as HibahPeran[], new Date());
 }

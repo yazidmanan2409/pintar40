@@ -415,8 +415,32 @@
   .pin-top .pin-merek { height: var(--logo-height-phone); margin-block: 10px; }
   .pin-top .pin-lang { margin-left: auto; }
   .pin-top .pin-sub { display: none; }
-  .pin-tabs { order: 10; width: 100%; gap: 0; height: 44px; border-top: 1px solid var(--line); }
-  .pin-tabs a { flex: 1; justify-content: center; }
+  /* A TAB STRIP SIZED BY ITS LONGEST LABEL, NOT BY A NUMBER (WP6B).
+     44px was a fixed HEIGHT, which is the same mistake `.pin-actions .pin-btn`
+     made two rules down: it is right while every label fits on one line and
+     silently wrong the moment one does not. Measured at 320px -- an iPhone SE,
+     and the width a great many of the phones PINTAR is actually used on report
+     -- "Pembelajaran Saya" wrapped to two lines inside the 44px box and the
+     second line was CLIPPED, so the educator's own learning read as
+     "Pembelajaran" with something cut off underneath it. English did not wrap
+     and neither did any label that shipped before, which is exactly why a fixed
+     height survived this long.
+     It is now a FLOOR: the touch target keeps its minimum, and a label that
+     needs a second line gets one. Every shell that fits on one line renders at
+     44px exactly as before -- measured on the learner's own two tabs at 320,
+     375, 390 and 414. */
+  .pin-tabs { order: 10; width: 100%; gap: 0; height: auto; border-top: 1px solid var(--line); }
+  .pin-tabs a {
+    flex: 1; justify-content: center; text-align: center;
+    /* THE FLOOR IS ON THE TARGET, NOT ON THE STRIP. Putting `min-height` on the
+       strip instead leaves the anchor sized by its own text -- measured at
+       32.5px, so the strip looked right and the thing a thumb actually has to
+       hit had quietly shrunk below the platform minimum. The anchor carries the
+       44 itself and grows past it when a label needs a second line, so the
+       target can only ever get larger. */
+    height: auto; min-height: 44px;
+    line-height: var(--leading-body); padding-block: var(--space-1);
+  }
   .pin-col { padding-block: 28px var(--space-8); padding-inline: var(--space-4); }
   .pin-h1 { font-size: 26px; }
   .pin-scope { margin-bottom: 28px; }
