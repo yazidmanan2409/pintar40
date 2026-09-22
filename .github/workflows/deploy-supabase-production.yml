@@ -122,7 +122,15 @@ jobs:
       - name: Apply pending migrations
         run: |
           set -euo pipefail
+          # `yes` is killed by SIGPIPE the moment the CLI stops reading, so
+          # under pipefail the pipeline reports failure even on a clean apply.
+          # Read the CLI's own status instead of the pipeline's.
+          set +o pipefail
           yes | supabase db push --db-url "$DB_URL"
+          rc=${PIPESTATUS[1]}
+          set -o pipefail
+          echo "supabase db push exited $rc"
+          test "$rc" = "0" || exit "$rc"
 
       - name: State after
         env:
