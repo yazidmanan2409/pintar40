@@ -1,17 +1,24 @@
 # PINTAR production deployment — Supabase migration apply.
 #
 # WHY THIS EXISTS. The canonical deployment path is: frozen repository ->
-# Supabase CLI -> hosted database. It cannot run from the operator's Mac (the
-# push was terminated) and it cannot run from the agent container (outbound
+# Supabase CLI -> hosted database. It cannot run from the operator's Mac (that
+# path was terminated) and it cannot run from the agent container (outbound
 # TCP to Postgres is blocked and api.supabase.com is policy-denied). A GitHub
 # runner is the one place that has both the exact repository bytes and a
 # network path, so it executes the SAME CLI command, against the SAME frozen
 # SHA, with nothing transcribed by hand.
 #
+# WHY A TAG AND NOT workflow_dispatch. GitHub only registers a dispatchable
+# workflow from the DEFAULT branch, and this deployment machinery is
+# deliberately not merged into the canonical release. A push event runs the
+# workflow from the pushed ref itself, so a tag keeps the machinery isolated
+# on the deployment branch. One tag is one deployment attempt, which also
+# makes every attempt auditable by name.
+#
 # WHAT IT PRESERVES.
 #   * The frozen release SHA is checked out explicitly and verified before
-#     anything connects. This workflow file living on a later commit does not
-#     change what is applied.
+#     anything connects. This file living on a later commit does not change
+#     what is applied.
 #   * The connection authenticates as the `postgres` ROLE through the session
 #     pooler. This is the whole fix for the 42501 blocker: the CLI's default
 #     login is `cli_login_postgres`, which is NOINHERIT, so `RESET ROLE`
@@ -29,23 +36,10 @@
 name: deploy · supabase production
 
 on:
+  push:
+    tags:
+      - 'deploy-prod-*'
   workflow_dispatch:
-    inputs:
-      release_sha:
-        description: The exact frozen release SHA to deploy.
-        required: true
-        default: 46fd4452ebc7b861abb5cb9b1963178088b978a7
-      project_ref:
-        description: Target Supabase project ref.
-        required: true
-        default: trtlvibiybwixfumjrrx
-      pooler_host:
-        description: Session pooler host (must be session mode, port 5432 — never the transaction pooler).
-        required: true
-        default: aws-0-ap-southeast-1.pooler.supabase.com
-      confirm:
-        description: Type DEPLOY to proceed.
-        required: true
 
 concurrency:
   group: supabase-production-apply
@@ -54,24 +48,26 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  RELEASE_SHA: 46fd4452ebc7b861abb5cb9b1963178088b978a7
+  PROJECT_REF: trtlvibiybwixfumjrrx
+  # Session mode, port 5432. Never the transaction pooler (6543): transaction
+  # pooling breaks session state and multi-statement transactions.
+  POOLER_HOST: aws-0-ap-southeast-1.pooler.supabase.com
+
 jobs:
   apply:
     name: apply pending migrations
     runs-on: ubuntu-latest
     steps:
-      - name: Refuse unless explicitly confirmed
-        run: |
-          test "${{ inputs.confirm }}" = "DEPLOY" || {
-            echo "::error::the confirm input must be exactly DEPLOY"; exit 1; }
-
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.release_sha }}
+          ref: 46fd4452ebc7b861abb5cb9b1963178088b978a7
 
       - name: Verify the frozen release SHA
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ inputs.release_sha }}" || {
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA" || {
             echo "::error::checkout is not the frozen release SHA"; exit 1; }
           test -z "$(git status --porcelain)" || {
             echo "::error::working tree is not clean"; exit 1; }
@@ -90,18 +86,19 @@ jobs:
           PGPW: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
         run: |
           set -euo pipefail
-          test -n "$PGPW" || { echo "::error::secret SUPABASE_PROD_DB_PASSWORD is not set"; exit 1; }
+          test -n "${PGPW:-}" || {
+            echo "::error::repository secret SUPABASE_PROD_DB_PASSWORD is not set"; exit 1; }
           ENC=$(python3 -c 'import os,urllib.parse; print(urllib.parse.quote(os.environ["PGPW"], safe=""))')
           echo "::add-mask::$ENC"
-          echo "DB_URL=postgresql://postgres.${{ inputs.project_ref }}:${ENC}@${{ inputs.pooler_host }}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
+          echo "DB_URL=postgresql://postgres.${PROJECT_REF}:${ENC}@${POOLER_HOST}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
+          echo "PROBE_URL=postgresql://postgres.${PROJECT_REF}@${POOLER_HOST}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
 
       - name: Identity gate — RESET ROLE must land on postgres
         env:
           PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
         run: |
           set -euo pipefail
-          ID=$(psql "postgresql://postgres.${{ inputs.project_ref }}@${{ inputs.pooler_host }}:5432/postgres?sslmode=require" \
-                 -At -c "begin; set local role authenticated; reset role; select session_user||'|'||current_user||'|'||current_setting('is_superuser'); rollback;")
+          ID=$(psql "$PROBE_URL" -At -c "begin; set local role authenticated; reset role; select session_user||'|'||current_user||'|'||current_setting('is_superuser'); rollback;")
           echo "identity after RESET ROLE: $ID"
           test "$ID" = "postgres|postgres|off" || {
             echo "::error::identity gate failed — refusing to apply migrations"; exit 1; }
@@ -110,8 +107,8 @@ jobs:
         env:
           PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
         run: |
-          psql "postgresql://postgres.${{ inputs.project_ref }}@${{ inputs.pooler_host }}:5432/postgres?sslmode=require" \
-            -At -c "select count(*)||' applied, last '||coalesce(max(version),'-') from supabase_migrations.schema_migrations"
+          psql "$PROBE_URL" -At \
+            -c "select count(*)||' applied, last '||coalesce(max(version),'-') from supabase_migrations.schema_migrations"
 
       - name: Apply pending migrations
         run: |
@@ -123,10 +120,9 @@ jobs:
           PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
         run: |
           set -euo pipefail
-          psql "postgresql://postgres.${{ inputs.project_ref }}@${{ inputs.pooler_host }}:5432/postgres?sslmode=require" \
-            -At -c "select count(*)||' applied, last '||max(version) from supabase_migrations.schema_migrations"
-          N=$(psql "postgresql://postgres.${{ inputs.project_ref }}@${{ inputs.pooler_host }}:5432/postgres?sslmode=require" \
-                -At -c "select count(*) from supabase_migrations.schema_migrations")
+          psql "$PROBE_URL" -At \
+            -c "select count(*)||' applied, last '||max(version) from supabase_migrations.schema_migrations"
+          N=$(psql "$PROBE_URL" -At -c "select count(*) from supabase_migrations.schema_migrations")
           LOCAL=$(ls supabase/migrations/*.sql | wc -l | tr -d ' ')
           test "$N" = "$LOCAL" || { echo "::error::history is $N, repository has $LOCAL"; exit 1; }
           echo "history matches the repository: $N/$LOCAL"
