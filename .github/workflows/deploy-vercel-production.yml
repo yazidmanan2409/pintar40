@@ -46,6 +46,11 @@ env:
   RELEASE_SHA: 46fd4452ebc7b861abb5cb9b1963178088b978a7
   PROJECT_REF: trtlvibiybwixfumjrrx
   VERCEL_PROJECT_NAME: pintar40
+  # The production origin. A CUSTOM domain is the whole point: this project's
+  # Deployment Protection is `all_except_custom_domains`, so PINTAR becomes
+  # publicly reachable through this hostname without that protection being
+  # weakened, and the *.vercel.app URLs stay gated behind a Vercel login.
+  CUSTOM_DOMAIN: app.pintarselalu.com
   # Public by construction: the Supabase URL and the anon key ship in the
   # browser bundle. They are configuration, not secrets.
   SUPABASE_URL: https://trtlvibiybwixfumjrrx.supabase.co
@@ -92,6 +97,53 @@ jobs:
           vercel project add "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" || true
           vercel link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
 
+      # The domain is attached and its DNS REQUIRED before anything is built.
+      # Until it resolves to Vercel the origin cannot serve the app, and a
+      # build carrying an origin that does not answer is a build that has to
+      # be thrown away -- NEXT_PUBLIC_APP_URL is baked in and generates every
+      # magic link.
+      - name: Attach the production domain and require its DNS
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -uo pipefail
+          echo "--- attach (idempotent) ---"
+          curl -sS -X POST -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H 'Content-Type: application/json' -d "{\"name\":\"${CUSTOM_DOMAIN}\"}" \
+            "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_NAME}/domains" > /tmp/add.json || true
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/add.json'))
+          e=d.get('error')
+          print('already attached:' if e and e.get('code')=='domain_already_in_use' else 'result:', e.get('message') if e else d.get('name'))
+          " || cat /tmp/add.json
+
+          echo "--- what Vercel requires for this domain ---"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains/${CUSTOM_DOMAIN}" > /tmp/dom.json || true
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/domains/${CUSTOM_DOMAIN}/config" > /tmp/cfg.json || true
+          python3 -c "
+          import json
+          dom=json.load(open('/tmp/dom.json')); cfg=json.load(open('/tmp/cfg.json'))
+          print('verified:', dom.get('verified'))
+          print('verification challenges:', json.dumps(dom.get('verification'), indent=2) if dom.get('verification') else 'none')
+          print('misconfigured:', cfg.get('misconfigured'))
+          print('recommended CNAME:', cfg.get('recommendedCNAME'))
+          print('recommended IPv4:', cfg.get('recommendedIPv4'))
+          print('observed A records:', cfg.get('aValues'))
+          print('observed CNAMEs:', cfg.get('cnames'))
+          " || { cat /tmp/dom.json; cat /tmp/cfg.json; }
+
+          MIS=$(python3 -c "import json;print(json.load(open('/tmp/cfg.json')).get('misconfigured'))" 2>/dev/null || echo True)
+          VER=$(python3 -c "import json;print(json.load(open('/tmp/dom.json')).get('verified'))" 2>/dev/null || echo False)
+          if [ "$MIS" = "False" ] && [ "$VER" = "True" ]; then
+            echo "${CUSTOM_DOMAIN} is attached, verified and pointing at Vercel"
+            exit 0
+          fi
+          echo "::error::${CUSTOM_DOMAIN} does not yet resolve to Vercel (misconfigured=$MIS verified=$VER). Add the DNS record at the registrar, then run this again. Nothing was built or deployed."
+          exit 1
+
       # REACHABILITY IS NOT CONFIGURED HERE. This project carries Vercel
       # Deployment Protection (ssoProtection: all_except_custom_domains), so
       # every *.vercel.app URL answers 302 to vercel.com/sso-api and the chain
@@ -117,6 +169,12 @@ jobs:
         run: |
           set -euo pipefail
           ORIGIN="${{ vars.PINTAR_APP_URL }}"
+          # The attached custom domain is the production origin by ruling. The
+          # Vercel-assigned names are not candidates: they sit behind
+          # Deployment Protection and cannot serve a school.
+          if [ -z "$ORIGIN" ] && [ -n "${CUSTOM_DOMAIN:-}" ]; then
+            ORIGIN="https://${CUSTOM_DOMAIN}"
+          fi
           if [ -z "$ORIGIN" ]; then
             curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
               "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains?limit=100" > /tmp/domains.json
@@ -218,6 +276,11 @@ jobs:
           print('\n'.join(custom + assigned))
           PY
           )
+          # The custom domain leads, because it is the only candidate that is
+          # exempt from Deployment Protection and therefore the only one a
+          # school could ever reach.
+          CANDS="${CUSTOM_DOMAIN:-}
+          $CANDS"
           echo "candidates:"; printf '  %s\n' $CANDS
           CHOSEN=""
           for h in $CANDS "$HOST"; do
@@ -291,6 +354,16 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
+          # HELD BY RULING. Auth is not reconfigured until Second Eye has
+          # cleared the production deployment. This stays off until the
+          # repository variable PINTAR_CONFIGURE_AUTH is set to true, so a
+          # token appearing for some other reason cannot start it.
+          if [ "${{ vars.PINTAR_CONFIGURE_AUTH }}" != "true" ]; then
+            echo "Auth configuration is held pending Second Eye clearance."
+            echo "When released, Site URL:      $APP_ORIGIN"
+            echo "When released, Redirect URL: $APP_ORIGIN/auth/callback*"
+            exit 0
+          fi
           if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
             echo "::warning::SUPABASE_ACCESS_TOKEN is not set, so Auth was not reconfigured."
             echo "Set Site URL to:      $APP_ORIGIN"
