@@ -3,13 +3,15 @@ PINTAR production application deployment — request
 Editing this file launches the Vercel deployment workflow; ordinary commits on
 the deployment branch do nothing. Each entry records one attempt.
 
-attempt:  001
+attempt:  002
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 target:   Vercel project "pintar40"
 origin:   https://pintar40.vercel.app  (override with repo variable PINTAR_APP_URL)
 auth:     Supabase trtlvibiybwixfumjrrx — Site URL and redirect allow-list are
           written to the origin AFTER that origin is proven to serve /masuk.
-why:      the first administrator's invitation dead-ended on localhost:3000
-          because no production application existed to redirect to. The
-          database is green at 108/108; this deploys the application the
-          sequence has been waiting for.
+why:      VERCEL_TOKEN now exists. Attempt 001 stopped at the token gate having
+          created nothing and contacted neither Vercel nor Supabase, which
+          confirmed the checkout, the frozen-SHA verification and the runner
+          path. This attempt deploys.
+
+attempt:  001  (stopped at the token gate; nothing created, nothing contacted)
