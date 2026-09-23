@@ -60,7 +60,6 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_PROD_DB_PASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
           PINTAR_APP_URL_VAR: ${{ vars.PINTAR_APP_URL }}
           PINTAR_CONFIGURE_AUTH_VAR: ${{ vars.PINTAR_CONFIGURE_AUTH }}
@@ -71,7 +70,9 @@ jobs:
           echo "GitHub repository secrets required by the production workflows:"
           chk VERCEL_TOKEN               "${VERCEL_TOKEN:-}"
           chk SUPABASE_ACCESS_TOKEN      "${SUPABASE_ACCESS_TOKEN:-}"
-          chk SUPABASE_SERVICE_ROLE_KEY  "${SUPABASE_SERVICE_ROLE_KEY:-}"
+          # SUPABASE_SERVICE_ROLE_KEY is no longer a GitHub secret: the Vercel
+          # deploy takes the key from the Management API (SUPABASE_ACCESS_TOKEN,
+          # checked above) and proves it before writing it.
           chk SUPABASE_PROD_DB_PASSWORD  "${SUPABASE_PROD_DB_PASSWORD:-}"
           echo "GitHub repository variables (optional, defaults documented):"
           echo "  $( [ -n "${PINTAR_APP_URL_VAR:-}" ] && echo SET || echo unset )      PINTAR_APP_URL (unset = use ${CUSTOM_DOMAIN})"
@@ -133,7 +134,7 @@ jobs:
           carry = open('/tmp/carry.txt', 'a')
           if 'SUPABASE_SERVICE_ROLE_KEY' not in names:
               print('  CARRIED FORWARD — absent from Vercel production: SUPABASE_SERVICE_ROLE_KEY')
-              carry.write('vercel-env: SUPABASE_SERVICE_ROLE_KEY (secret supplied; awaiting a deploy run, sequenced after Auth/bootstrap)\n')
+              carry.write('vercel-env: SUPABASE_SERVICE_ROLE_KEY (written by the Vercel deploy from the Management API)\n')
           carry.close()
           miss.close()
           PY

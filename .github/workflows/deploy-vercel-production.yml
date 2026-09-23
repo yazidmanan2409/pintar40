@@ -240,10 +240,55 @@ jobs:
           echo "APP_ORIGIN=$ORIGIN" >> "$GITHUB_ENV"
           echo "production origin: $ORIGIN"
 
+      # THE SERVICE-ROLE KEY COMES FROM SUPABASE ITSELF, never from a copy.
+      # The GitHub secret this used to read held something that was not a
+      # Supabase key at all, and the only check on it (an unknown-token 404)
+      # passed with an invalid key. So the key is fetched from the Management
+      # API on every deploy, masked before anything else is printed, and must
+      # authenticate against the Auth Admin API (HTTP 200) before it is written
+      # anywhere. The format is the legacy service_role JWT, the one CI's local
+      # stack tests; a project offering only sb_secret keys stops the deploy
+      # for a ruling rather than switching formats silently.
+      - name: Take the service-role key from Supabase and prove it works
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::SUPABASE_ACCESS_TOKEN is not set; the service-role key cannot be taken from its source"; exit 1; }
+          umask 077
+          KEYFILE="$RUNNER_TEMP/service-role-key"
+          python3 - "$KEYFILE" <<'PY'
+          import json, os, sys, urllib.request, urllib.error
+          out = sys.argv[1]; ref = os.environ['PROJECT_REF']; base = os.environ['SUPABASE_URL']
+          tok = os.environ['SUPABASE_ACCESS_TOKEN']
+          req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true",
+                                       headers={'Authorization': f'Bearer {tok}', 'User-Agent': 'pintar-deploy'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r: keys = json.load(r)
+          except urllib.error.HTTPError as e:
+              print(f"::error::the Management API refused to list the project's keys: HTTP {e.code}"); sys.exit(1)
+          for k in keys:                      # mask before anything else is printed
+              v = k.get('api_key') or ''
+              if v: print(f"::add-mask::{v}")
+          legacy = [k for k in keys if k.get('name') == 'service_role' and (k.get('api_key') or '').startswith('eyJ')]
+          if not legacy:
+              print("::error::no legacy service_role JWT is offered; not switching key formats without a ruling"); sys.exit(1)
+          key = legacy[0]['api_key']
+          req = urllib.request.Request(f"{base}/auth/v1/admin/users?per_page=1",
+                                       headers={'apikey': key, 'Authorization': 'Bearer ' + key, 'User-Agent': 'pintar-deploy'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r: code = r.status
+          except urllib.error.HTTPError as e: code = e.code
+          print(f"service_role key: legacy JWT, length {len(key)}; validation GET /auth/v1/admin/users?per_page=1 -> HTTP {code}")
+          if code != 200:
+              print("::error::the service-role key taken from Supabase does not authenticate; the deploy is refused"); sys.exit(1)
+          open(out, 'w').write(key)
+          PY
+          echo "SERVICE_ROLE_KEY_FILE=$KEYFILE" >> "$GITHUB_ENV"
+
       - name: Set the production environment
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
           # WRITTEN THROUGH THE API, NOT THE CLI. `vercel env add` reported
@@ -294,13 +339,38 @@ jobs:
           keep CARD_PEPPER        "$(openssl rand -hex 32)"
           keep CERT_SECRET_KEY_V1 "$(openssl rand -hex 32)"
 
-          if [ -n "${SERVICE_ROLE_KEY:-}" ]; then
-            put SUPABASE_SERVICE_ROLE_KEY "$SERVICE_ROLE_KEY"
-          elif has SUPABASE_SERVICE_ROLE_KEY; then
-            echo "SUPABASE_SERVICE_ROLE_KEY already present in Vercel; left as is"
-          else
-            echo "::warning::SUPABASE_SERVICE_ROLE_KEY is not set. Sign-in is unaffected, but the public certificate-verification endpoint will fail until it is supplied."
-          fi
+          # Always the key proven in the previous step. There is no branch that
+          # keeps whatever Vercel already holds: that is how a bad key survived.
+          test -s "${SERVICE_ROLE_KEY_FILE:-/nonexistent}" || { echo "::error::no validated service-role key; the deploy is refused"; exit 1; }
+          put SUPABASE_SERVICE_ROLE_KEY "$(cat "$SERVICE_ROLE_KEY_FILE")"
+
+          # READ BACK. Compared by SHA-256 inside the script; only the verdict
+          # is printed. A variable Vercel will not return (sensitive) is said to
+          # be unreadable, and its protection is not weakened to make it so.
+          python3 - "$SERVICE_ROLE_KEY_FILE" <<'PY'
+          import hashlib, json, os, sys, urllib.request, urllib.error
+          tok = os.environ['VERCEL_TOKEN']; proj = os.environ['VERCEL_PROJECT_NAME']
+          want = hashlib.sha256(open(sys.argv[1]).read().encode()).hexdigest()
+          def get(url):
+              req = urllib.request.Request(url, headers={'Authorization': f'Bearer {tok}'})
+              with urllib.request.urlopen(req, timeout=30) as r: return json.load(r)
+          envs = [e for e in get(f"https://api.vercel.com/v9/projects/{proj}/env?decrypt=false").get('envs', [])
+                  if e.get('key') == 'SUPABASE_SERVICE_ROLE_KEY' and 'production' in (e.get('target') or [])]
+          if len(envs) != 1:
+              print(f"::error::expected one production SUPABASE_SERVICE_ROLE_KEY in Vercel, found {len(envs)}"); sys.exit(1)
+          e = envs[0]
+          try:
+              one = get(f"https://api.vercel.com/v1/projects/{proj}/env/{e['id']}")
+          except urllib.error.HTTPError as err:
+              print(f"read-back: not possible — Vercel refused the single-variable read (HTTP {err.code})"); sys.exit(0)
+          v = one.get('value')
+          if e.get('type') == 'sensitive' or not v:
+              print(f"read-back: not possible — Vercel does not return this variable's value (type {e.get('type')!r}); its protection is left as is")
+          else:
+              ok = hashlib.sha256(v.encode()).hexdigest() == want
+              print(f"read-back: stored SUPABASE_SERVICE_ROLE_KEY matches the validated key: {ok}")
+              if not ok: sys.exit(1)
+          PY
 
       # WRITING AN ENVIRONMENT VALUE IS NOT THE SAME AS IT BEING THERE. The
       # deployment that finally routed answered 500, and its build env listed
@@ -323,7 +393,8 @@ jobs:
           echo "names present in Vercel production:"; printf '  %s\n' $NAMES
           MISSING=""
           for N in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY NEXT_PUBLIC_APP_URL \
-                   CARD_EMAIL_DOMAIN PINTAR_BUILD_SHA CARD_PEPPER CERT_SECRET_KEY_V1; do
+                   CARD_EMAIL_DOMAIN PINTAR_BUILD_SHA CARD_PEPPER CERT_SECRET_KEY_V1 \
+                   SUPABASE_SERVICE_ROLE_KEY; do
             printf '%s\n' $NAMES | grep -qx "$N" || MISSING="$MISSING $N"
           done
           if [ -n "$MISSING" ]; then
@@ -332,8 +403,6 @@ jobs:
             exit 1
           fi
           echo "every required production variable is present"
-          printf '%s\n' $NAMES | grep -qx SUPABASE_SERVICE_ROLE_KEY \
-            || echo "::warning::SUPABASE_SERVICE_ROLE_KEY absent — sign-in unaffected, but /api/verifikasi, /api/certificates/issue, /api/evaluation/assume and both /api/assets routes will fail at request time."
 
       - name: Build and deploy to production
         env:
@@ -455,7 +524,13 @@ jobs:
       # so a missing key is a 500. An unknown token is designed to return 404
       # with {"found": false} and no existence oracle, which is exactly what a
       # healthy endpoint answers here.
-      - name: Functional — the service-role key works in the running app
+      # WHAT THIS DOES AND DOES NOT PROVE. The route answers the same closed
+      # 404 when the service-role key is REJECTED as when the token is unknown,
+      # so this cannot tell a valid key from an invalid one -- it passed for an
+      # invalid key from 46fd4452 until 2026-09-23. It proves routing and the
+      # closed body only. The key itself is proven before it is written (the
+      # Admin API must answer 200).
+      - name: Functional — an unknown certificate token answers the closed 404
         run: |
           set -euo pipefail
           TOKEN="preflight$(date +%s)$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')"
@@ -463,12 +538,12 @@ jobs:
           echo "GET ${APP_ORIGIN}/api/verifikasi/<unknown> -> $CODE"
           echo "body: $(head -c 200 /tmp/v.json)"
           if [ "$CODE" = "500" ]; then
-            echo "::error::the verification endpoint returned 500 — the service-role key is absent or invalid in the running deployment"; exit 1; fi
+            echo "::error::the verification endpoint returned 500 at request time"; exit 1; fi
           test "$CODE" = "404" || {
             echo "::error::expected 404 for an unknown token, got $CODE"; exit 1; }
           grep -q '"found"' /tmp/v.json || {
             echo "::error::the response is not the endpoint's closed body"; exit 1; }
-          echo "the endpoint answered its designed 404 for an unknown token: the service-role client constructed successfully"
+          echo "the endpoint answered its designed closed 404 for an unknown token (routing and body only; the key was proven before it was written)"
 
       # The systemic repair's surfaces, asked of the running application the way
       # a stranger asks: the activation screen and its route refuse anyone not
