@@ -91,6 +91,44 @@ jobs:
               print(' ', x.get('name'), '| verified:', x.get('verified'), '| gitBranch:', x.get('gitBranch'), '| redirect:', x.get('redirect'))
           " || cat /tmp/doms.json
 
+          echo "--- latest deployment: alias state and what the build did ---"
+          LATEST=$(curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/deployments?app=${VERCEL_PROJECT_NAME}&limit=1" \
+            | python3 -c "import json,sys;print(json.load(sys.stdin)['deployments'][0]['uid'])" || true)
+          echo "latest uid: $LATEST"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v13/deployments/${LATEST}" > /tmp/l.json || true
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/l.json'))
+          print('url:', d.get('url'))
+          print('readyState:', d.get('readyState'), 'readySubstate:', d.get('readySubstate'), 'target:', d.get('target'))
+          print('aliasAssigned:', d.get('aliasAssigned'), 'aliasError:', d.get('aliasError'))
+          print('alias:', d.get('alias'))
+          print('framework(projectSettings):', (d.get('projectSettings') or {}).get('framework'))
+          print('routes:', d.get('routes'))
+          print('lambdas:', [(l.get('id'), l.get('entrypoint'), l.get('readyState')) for l in (d.get('lambdas') or [])])
+          " || cat /tmp/l.json
+
+          echo "--- build log lines that matter ---"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v3/deployments/${LATEST}/events?builds=1&limit=400" > /tmp/ev.json || true
+          python3 -c "
+          import json,re
+          try: ev=json.load(open('/tmp/ev.json'))
+          except Exception: ev=[]
+          if isinstance(ev,dict): ev=ev.get('events',[])
+          pat=re.compile(r'next|framework|detect|build completed|error|warn|output|route|install|compiled|no such|missing', re.I)
+          n=0
+          for e in ev:
+              t=(e.get('payload') or {}).get('text') or ''
+              t=t.strip()
+              if t and pat.search(t):
+                  print(' ', t[:200]); n+=1
+                  if n>60: break
+          if n==0: print('  (no build events returned)')
+          " || head -c 500 /tmp/ev.json
+
           echo "--- recent deployments ---"
           curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
             "https://api.vercel.com/v6/deployments?app=${VERCEL_PROJECT_NAME}&limit=10" > /tmp/deps.json || true

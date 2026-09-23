@@ -3,7 +3,10 @@ PINTAR production origin — forensic request
 Editing this file runs the read-only origin diagnosis. It deploys nothing,
 writes no environment value and touches no Supabase configuration.
 
-attempt:  002
+attempt:  003
+after:    attempt 007 declared framework=nextjs, rebuilt and redeployed; the
+          strict probe still refused every candidate.
+
 question: DNS is live and the domain is attached, verified and carried on the
           deployment's alias list (aliasAssigned=true, aliasError=null,
           readySubstate=PROMOTED, target=production). The strict probe still
