@@ -2,7 +2,10 @@
 # Supabase Auth configuration.
 #
 # SCOPE. The preflight job reads and reports only. The configure job writes
-# exactly two Auth settings and proves they landed. Neither deploys, builds,
+# exactly three Auth settings and proves they landed: site_url,
+# uri_allow_list and disable_signup (P-01 / F-02: PINTAR is
+# institution-provisioned, so the public signup endpoint is closed at the
+# Auth service itself; administrator-created identities are unaffected). Neither deploys, builds,
 # changes application code, migrations, RLS, Vercel settings, or any identity.
 # Neither bootstraps and neither consumes the day-zero marker.
 #
@@ -43,6 +46,10 @@ env:
   # emailRedirectTo = ${origin}/auth/callback?lanjut=..., which the wildcard
   # covers; nothing else is guessed and no development origin survives.
   REDIRECT_ALLOW: https://app.pintarselalu.com/auth/callback*
+  # P-01. The public signup endpoint is closed. Sign-in for an existing
+  # identity (magic link with shouldCreateUser:false, card password) and the
+  # admin API's createUser are not affected by this setting.
+  DISABLE_SIGNUP: "true"
 
 jobs:
   preflight:
@@ -213,7 +220,8 @@ jobs:
           python3 -c "
           import json, os
           print(json.dumps({'site_url': os.environ['APP_ORIGIN'],
-                            'uri_allow_list': os.environ['REDIRECT_ALLOW']}))" > /tmp/body.json
+                            'uri_allow_list': os.environ['REDIRECT_ALLOW'],
+                            'disable_signup': os.environ['DISABLE_SIGNUP'] == 'true'}))" > /tmp/body.json
           echo "writing: $(cat /tmp/body.json)"
           CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
             -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
@@ -240,7 +248,10 @@ jobs:
           want_site = os.environ['APP_ORIGIN']; want_allow = os.environ['REDIRECT_ALLOW']
           print('site_url AFTER:      ', repr(site))
           print('uri_allow_list AFTER:', repr(allow))
+          print('disable_signup AFTER:', repr(d.get('disable_signup')))
           bad = []
+          if d.get('disable_signup') is not True:
+              bad.append('disable_signup is %r, expected True (P-01)' % d.get('disable_signup'))
           if site != want_site: bad.append('site_url is %r, expected %r' % (site, want_site))
           if allow != want_allow: bad.append('uri_allow_list is %r, expected %r' % (allow, want_allow))
           for f in ('localhost', '127.0.0.1', '0.0.0.0'):
@@ -273,4 +284,5 @@ jobs:
           echo "project:        $PROJECT_REF"
           echo "site_url:       $APP_ORIGIN"
           echo "redirect allow: $REDIRECT_ALLOW"
+          echo "disable_signup: $DISABLE_SIGNUP"
           echo "NOT done: bootstrap, platform_environment transition, onboarding."

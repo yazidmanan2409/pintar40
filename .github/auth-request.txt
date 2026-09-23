@@ -4,7 +4,16 @@ Editing this file runs the preflight and, only if it is complete, the Auth
 configuration boundary. Neither job deploys, builds, or touches an identity,
 a migration, RLS, or any Vercel setting.
 
-attempt:  003
+attempt:  004
+change:   P-01 / F-02 -- disable_signup: true, written with the same PATCH and
+          asserted in the same independent read-back as site_url and
+          uri_allow_list (both re-sent unchanged). Second Eye Priority 0: the
+          code-level trigger refusal (F-02) was shown by probe attempt 006 not
+          to hold (NEW-1), so the signup endpoint is closed at the Auth service
+          independently of any migration. Admin-API identity creation and
+          sign-in of existing identities are unaffected.
+
+attempt:  003 (previous)
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 project:  trtlvibiybwixfumjrrx
 site_url: https://app.pintarselalu.com
