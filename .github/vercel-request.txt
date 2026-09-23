@@ -3,19 +3,20 @@ PINTAR production application deployment — request
 Editing this file launches the Vercel deployment workflow; ordinary commits on
 the deployment branch do nothing. Each entry records one attempt.
 
-attempt:  003
+attempt:  004
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 target:   Vercel project "pintar40" (scope yazidmanan-2409)
-origin:   discovered from Vercel (override with repo variable PINTAR_APP_URL)
+origin:   resolved from the deployment's own aliases and then proven by
+          fetching /masuk through each one
 auth:     Supabase trtlvibiybwixfumjrrx — Site URL and redirect allow-list are
           written to the origin AFTER that origin is proven to serve /masuk.
-why:      attempt 002 created the project, wrote the production environment and
-          deployed the frozen release successfully. It then stopped because the
-          origin was GUESSED as https://pintar40.vercel.app, which 404s: Vercel
-          qualifies the assigned domain with the owning scope when the bare
-          name is unavailable. The probe refused to let Auth be configured
-          against a URL that does not serve the app. The origin is now asked
-          for rather than assumed.
+why:      attempt 003 asked Vercel for the project's domains and was told
+          pintar40.vercel.app, which 404s. A project's domain list is a claim
+          about the project, not about what a given deployment answers on. The
+          deployment's own aliases are now the authority, each candidate is
+          probed, and if the serving origin differs from the one baked into
+          the bundle the app is rebuilt against it before Auth is touched.
 
+attempt:  003  (origin discovered from project domains; still 404; Auth untouched)
 attempt:  002  (project created, env written, deployed; origin guess 404'd, Auth untouched)
 attempt:  001  (stopped at the token gate; nothing created, nothing contacted)
