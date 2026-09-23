@@ -84,18 +84,6 @@ jobs:
       - name: Install the Vercel CLI
         run: npm i -g vercel@latest
 
-      - name: Decide the production origin
-        run: |
-          set -euo pipefail
-          # A custom domain, once one is chosen, overrides the Vercel-assigned
-          # one through this repository variable. Until then the project's own
-          # production domain is the origin, and it is deterministic.
-          ORIGIN="${{ vars.PINTAR_APP_URL }}"
-          if [ -z "$ORIGIN" ]; then ORIGIN="https://${VERCEL_PROJECT_NAME}.vercel.app"; fi
-          ORIGIN="${ORIGIN%/}"
-          echo "APP_ORIGIN=$ORIGIN" >> "$GITHUB_ENV"
-          echo "production origin: $ORIGIN"
-
       - name: Create and link the Vercel project
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -103,6 +91,41 @@ jobs:
           set -euo pipefail
           vercel project add "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" || true
           vercel link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
+
+      # ASKED, NOT ASSUMED. The first attempt guessed
+      # https://<project>.vercel.app and got a 404: that name is not this
+      # project's production alias, because Vercel qualifies the assigned
+      # domain with the owning scope when the bare name is unavailable. The
+      # origin is baked into the build (NEXT_PUBLIC_APP_URL) and written into
+      # Auth, so guessing it wrong poisons both. Vercel is asked instead, and
+      # a branch-scoped domain is never eligible.
+      - name: Decide the production origin
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          ORIGIN="${{ vars.PINTAR_APP_URL }}"
+          if [ -z "$ORIGIN" ]; then
+            curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains?limit=100" > /tmp/domains.json
+            HOST=$(python3 - <<'PY'
+          import json
+          d = json.load(open('/tmp/domains.json'))
+          doms = [x for x in d.get('domains', []) if not x.get('gitBranch')]
+          names = [x['name'] for x in doms]
+          custom = sorted(n for n in names if not n.endswith('.vercel.app'))
+          vercel = sorted((n for n in names if n.endswith('.vercel.app')), key=len)
+          print((custom or vercel or [''])[0])
+          PY
+          )
+            test -n "$HOST" || {
+              echo "::error::Vercel reports no production domain for $VERCEL_PROJECT_NAME"
+              cat /tmp/domains.json; exit 1; }
+            ORIGIN="https://${HOST}"
+          fi
+          ORIGIN="${ORIGIN%/}"
+          echo "APP_ORIGIN=$ORIGIN" >> "$GITHUB_ENV"
+          echo "production origin: $ORIGIN"
 
       - name: Set the production environment
         env:
