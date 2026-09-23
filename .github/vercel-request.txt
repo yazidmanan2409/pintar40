@@ -2,7 +2,26 @@ PINTAR production application deployment — request
 
 Editing this file launches the Vercel deployment workflow.
 
-attempt:  010
+attempt:  011
+release:  c358f5866d1d9c9ac1647559cf024e9a73c3b601
+origin:   https://app.pintarselalu.com
+purpose:  Systemic Repair 01, step 2 of Second Eye's authorization: deploy the
+          independently re-verified release (CI run 35838958032 green on this
+          exact SHA; probe attempt 008) onto the database that step 1 brought
+          to 111/111 (supabase apply run 35845602075: readiness 17/17,
+          22 assertions green, bootstrap 0, SYSTEM_ADMIN 0, environment
+          development).
+checks:   the existing ones (the origin serves /masuk; the service-role key
+          works: an unknown token gets 404 with the closed body), plus:
+          - an anonymous caller is refused by /api/akun/aktivasi (401) and
+            /aktivasi redirects to /masuk;
+          - Supabase Auth still holds the canonical boundary (site_url,
+            the single callback allow entry, disable_signup true), READ ONLY.
+            This workflow no longer writes Auth.
+not in scope: §3b (bootstrap), §3c (platform_environment), Gladys. Held
+              for Yazid's explicit decision.
+
+attempt:  010 (previous)
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 origin:   https://app.pintarselalu.com
 purpose:  ACTIVATION STAGE 1 — provision SUPABASE_SERVICE_ROLE_KEY into Vercel
