@@ -44,7 +44,7 @@ permissions:
   actions: read
 
 env:
-  RELEASE_SHA: 46fd4452ebc7b861abb5cb9b1963178088b978a7
+  RELEASE_SHA: c358f5866d1d9c9ac1647559cf024e9a73c3b601
   PROJECT_REF: trtlvibiybwixfumjrrx
   VERCEL_PROJECT_NAME: pintar40
   # The production origin. A CUSTOM domain is the whole point: this project's
@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 46fd4452ebc7b861abb5cb9b1963178088b978a7
+          ref: c358f5866d1d9c9ac1647559cf024e9a73c3b601
 
       - name: Verify the frozen release SHA
         run: |
@@ -470,40 +470,53 @@ jobs:
             echo "::error::the response is not the endpoint's closed body"; exit 1; }
           echo "the endpoint answered its designed 404 for an unknown token: the service-role client constructed successfully"
 
-      - name: Point Supabase Auth at the deployed application
+      # The systemic repair's surfaces, asked of the running application the way
+      # a stranger asks: the activation screen and its route refuse anyone not
+      # signed in, before anything is created.
+      - name: Functional — the activation surface refuses an anonymous caller
+        run: |
+          set -euo pipefail
+          CODE=$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+            --data '{"mode":"CLASSROOM_CARD","person_id":"00000000-0000-0000-0000-000000000000"}' \
+            "${APP_ORIGIN}/api/akun/aktivasi")
+          echo "anonymous POST ${APP_ORIGIN}/api/akun/aktivasi -> $CODE"
+          test "$CODE" = "401" || { echo "::error::the activation route did not refuse an anonymous caller with 401"; exit 1; }
+          LOC=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "${APP_ORIGIN}/aktivasi")
+          echo "anonymous GET ${APP_ORIGIN}/aktivasi -> $LOC"
+          case "$LOC" in 30[1278]\ *"/masuk"*) echo "redirected to sign-in, as every protected surface is";;
+            *) echo "::error::/aktivasi did not send an anonymous caller to /masuk"; exit 1;; esac
+
+      # AUTH IS NOT WRITTEN HERE ANY MORE. The Auth boundary has one owner,
+      # configure-supabase-auth.yml, which writes site_url, uri_allow_list and
+      # disable_signup together and reads them back (attempt 004). This step
+      # previously PATCHed a different allow list when a repository variable
+      # was set, which could silently diverge from that boundary. It now only
+      # READS the live configuration and fails if the boundary is not intact.
+      - name: Supabase Auth still holds the canonical boundary (read only)
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          # HELD BY RULING. Auth is not reconfigured until Second Eye has
-          # cleared the production deployment. This stays off until the
-          # repository variable PINTAR_CONFIGURE_AUTH is set to true, so a
-          # token appearing for some other reason cannot start it.
-          if [ "${{ vars.PINTAR_CONFIGURE_AUTH }}" != "true" ]; then
-            echo "Auth configuration is held pending Second Eye clearance."
-            echo "When released, Site URL:      $APP_ORIGIN"
-            echo "When released, Redirect URL: $APP_ORIGIN/auth/callback*"
-            exit 0
-          fi
-          if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
-            echo "::warning::SUPABASE_ACCESS_TOKEN is not set, so Auth was not reconfigured."
-            echo "Set Site URL to:      $APP_ORIGIN"
-            echo "Add to Redirect URLs: $APP_ORIGIN/auth/callback*"
-            exit 0
-          fi
-          BODY=$(python3 - "$APP_ORIGIN" <<'PY'
+          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::SUPABASE_ACCESS_TOKEN is not set; the Auth boundary cannot be read"; exit 1; }
+          CODE=$(curl -sS -o /tmp/auth.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
+          test "$CODE" = "200" || { echo "::error::Auth read failed (HTTP $CODE)"; exit 1; }
+          python3 - "$APP_ORIGIN" <<'PY'
           import json, sys
           o = sys.argv[1]
-          print(json.dumps({"site_url": o, "uri_allow_list": f"{o}/auth/callback*,{o}"}))
+          d = json.load(open('/tmp/auth.json'))
+          print('site_url:      ', repr(d.get('site_url')))
+          print('uri_allow_list:', repr(d.get('uri_allow_list')))
+          print('disable_signup:', repr(d.get('disable_signup')))
+          bad = []
+          if d.get('site_url') != o: bad.append('site_url is not the serving origin')
+          if d.get('uri_allow_list') != f"{o}/auth/callback*": bad.append('uri_allow_list is not the single canonical callback')
+          if d.get('disable_signup') is not True: bad.append('disable_signup is not True (P-01)')
+          if bad:
+              print('::error::' + '; '.join(bad)); sys.exit(1)
+          print('the Auth boundary is intact')
           PY
-          )
-          CODE=$(curl -s -o /tmp/auth.json -w '%{http_code}' -X PATCH \
-            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth" \
-            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            -H 'Content-Type: application/json' -d "$BODY")
-          echo "auth config PATCH -> $CODE"
-          test "$CODE" = "200" || { echo "::error::Auth configuration failed"; cat /tmp/auth.json; exit 1; }
-          python3 -c "import json;d=json.load(open('/tmp/auth.json'));print('site_url:',d.get('site_url'));print('uri_allow_list:',d.get('uri_allow_list'))"
 
       - name: Summary
         run: |
