@@ -3,23 +3,21 @@ PINTAR production origin — forensic request
 Editing this file runs the read-only origin diagnosis. It deploys nothing,
 writes no environment value and touches no Supabase configuration.
 
-attempt:  001
-question: CI probed https://pintar40-yazidmanan-2409.vercel.app/masuk twice at
-          ~00:57 UTC and recorded 200 both times. A browser opening the same
-          URL receives Vercel's platform 404 NOT_FOUND, edge sin1, body id
-          sin1::q6zdw-1790125293981-1b5bb2a0e384.
+attempt:  002
+question: DNS is live and the domain is attached, verified and carried on the
+          deployment's alias list (aliasAssigned=true, aliasError=null,
+          readySubstate=PROMOTED, target=production). The strict probe still
+          refused every candidate: all returned 302 and none carried the
+          pin-masuk marker.
 
-          Vercel's platform NOT_FOUND means the hostname resolves to no
-          deployment -- a deployed Next.js app serving an unknown route would
-          render its own 404 instead. So either the alias never propagated
-          beyond the edge CI reached, or it has since stopped pointing at a
-          deployment.
+          The deployment record also reports "public": false, and the project
+          policy is ssoProtection=all_except_custom_domains -- which should
+          exempt app.pintarselalu.com. Either that exemption is not applying,
+          or the domain is answering something else entirely.
 
-          The CI probe is also not trustworthy as written: it followed
-          redirects and read only the final status code, never asserting the
-          body was the sign-in screen. This run records the unfollowed
-          response, every redirect hop, the final effective URL, Vercel's
-          error and edge headers, the body itself, and what Vercel reports
-          about the project's production target, domains and deployments.
+          This run records, for app.pintarselalu.com specifically: the
+          unfollowed status, the Location header, x-vercel-error, the edge id,
+          the body, and where the redirect chain actually terminates. It also
+          re-reads the project's protection state.
 
-nothing is configured or activated until this is reconciled.
+attempt:  001  (established the SSO interstitial: 302 -> vercel.com/login, 200)
