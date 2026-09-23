@@ -1243,15 +1243,6 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
-      // MOVED 110 -> 111 for the repair of that repair (NEW-1, NEW-2).
-      // 20261005120000 adds ONE relation, account_activation_grants: an email
-      // address, a person or a name, an account kind, a card number, who
-      // authorized it, and when it expires and was consumed. Closed to every
-      // client role. No mark, no logo, no crest and no theme. Read against §3
-      // of the ruling before these numbers moved: the Q-7 source still does
-      // not exist.
-      //
-      //
       // MOVED 108 -> 110 for the systemic repair (R1 and F-01..F-03).
       // 20261005100000 recreates five assessment functions (a conflict and a
       // terminal refusal now carry SQLSTATE codes; a finish verifies the
@@ -1368,7 +1359,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 111, `${migrations.length} migrations; the frozen baseline has 111`);
+      c.expect(migrations.length === 110, `${migrations.length} migrations; the frozen baseline has 110`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3007,9 +2998,7 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 110 -> 111 for the activation
-      // grant (NEW-2), which is not a tour RPC and does not touch
-      // person_tour_state. MOVED 108 -> 110 for the systemic
+      // from, not a claim about the tour. MOVED 108 -> 110 for the systemic
       // repair -- assessment refusal codes and finish manifest, and account
       // activation -- neither of which is a tour RPC nor touches
       // person_tour_state. MOVED 106 -> 108 for the two final
@@ -3046,7 +3035,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 111, `${migs.length} migrations; the baseline has 111`);
+      c.expect(migs.length === 110, `${migs.length} migrations; the baseline has 110`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
