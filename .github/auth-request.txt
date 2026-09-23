@@ -1,17 +1,28 @@
 PINTAR production boundary — Supabase Auth configuration request
 
-Editing this file runs the Auth configuration boundary. It deploys nothing,
-builds nothing, and touches no identity, no migration and no Vercel setting.
+Editing this file runs the preflight and, only if it is complete, the Auth
+configuration boundary. Neither job deploys, builds, or touches an identity,
+a migration, RLS, or any Vercel setting.
 
-attempt:  001
+attempt:  002
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 project:  trtlvibiybwixfumjrrx
 site_url: https://app.pintarselalu.com
 redirect: https://app.pintarselalu.com/auth/callback*  (the only entry)
 
-authorized by: Second Eye Pass 2 GREEN + independent human browser
-               verification of https://app.pintarselalu.com/masuk.
+why:      attempt 001 stopped at the credential gate: SUPABASE_ACCESS_TOKEN
+          was absent and nothing was contacted. Both it and
+          SUPABASE_SERVICE_ROLE_KEY have since been added.
+
+          This attempt first runs a COMPLETE credential and configuration
+          preflight across the frozen application's environment contract, the
+          production workflows, Supabase and Vercel -- by name and presence
+          only, never a value -- and reports every outstanding item together
+          rather than failing at the first. Auth is configured only if that
+          preflight is clean.
 
 not in scope: SYSTEM_ADMIN bootstrap, the §3c platform_environment
-              transition, school onboarding, any change to Vercel Deployment
-              Protection, and anything at all touching Gladys.
+              transition, school onboarding, Vercel Deployment Protection,
+              and anything touching Gladys.
+
+attempt:  001  (stopped at the credential gate; Supabase never contacted)

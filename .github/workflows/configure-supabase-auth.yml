@@ -1,17 +1,20 @@
-# PINTAR production boundary — Supabase Auth configuration.
+# PINTAR production boundary — credential/configuration preflight, then
+# Supabase Auth configuration.
 #
-# SCOPE. This workflow writes exactly two Auth settings on the hosted project
-# and proves they landed. It deploys nothing, builds nothing, changes no
-# application code, no migration, no RLS, no Vercel setting, and it never
-# touches an identity. It does not bootstrap and it does not consume the
-# day-zero marker.
+# SCOPE. The preflight job reads and reports only. The configure job writes
+# exactly two Auth settings and proves they landed. Neither deploys, builds,
+# changes application code, migrations, RLS, Vercel settings, or any identity.
+# Neither bootstraps and neither consumes the day-zero marker.
 #
-# THE LESSON FROM THE VERCEL INCIDENT IS THE DESIGN HERE. `vercel env add`
-# returned success and stored nothing, and a `curl -L` status code reported a
-# login page as the application. So: a 2xx from the write is not evidence.
-# The configuration is written, then READ BACK in a separate request, and the
-# read-back is asserted field by field against the canonical values. Anything
-# else fails closed, before the functional check runs.
+# THE PREFLIGHT IS COMPREHENSIVE ON PURPOSE. It collects every missing item
+# and reports them together, rather than failing at the first and sending
+# somebody back for one more secret. Presence only: no value is ever printed.
+#
+# THE VERCEL INCIDENT IS THE DESIGN OF THE WRITE. `vercel env add` returned
+# success and stored nothing; a `curl -L` status code reported a login page as
+# the application. A 2xx is therefore evidence of nothing: the configuration
+# is read back in a SEPARATE request and asserted field by field, failing
+# closed before the functional check runs.
 
 name: boundary · supabase auth production configuration
 
@@ -33,74 +36,166 @@ permissions:
 env:
   RELEASE_SHA: 46fd4452ebc7b861abb5cb9b1963178088b978a7
   PROJECT_REF: trtlvibiybwixfumjrrx
+  VERCEL_PROJECT_NAME: pintar40
   APP_ORIGIN: https://app.pintarselalu.com
+  CUSTOM_DOMAIN: app.pintarselalu.com
   # Canonical, and deliberately the ONLY entry. The frozen application sends
-  # emailRedirectTo = ${origin}/auth/callback?lanjut=..., which this covers;
-  # nothing else is guessed, and no development origin survives as a
-  # production substitute.
+  # emailRedirectTo = ${origin}/auth/callback?lanjut=..., which the wildcard
+  # covers; nothing else is guessed and no development origin survives.
   REDIRECT_ALLOW: https://app.pintarselalu.com/auth/callback*
 
 jobs:
-  configure:
-    name: write, read back, assert
+  preflight:
+    name: complete credential and configuration preflight
     runs-on: ubuntu-latest
     steps:
-      - name: Preflight — the management credential must exist
+      - name: Repository secrets — presence only
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_PROD_DB_PASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+          PINTAR_APP_URL_VAR: ${{ vars.PINTAR_APP_URL }}
+          PINTAR_CONFIGURE_AUTH_VAR: ${{ vars.PINTAR_CONFIGURE_AUTH }}
+        run: |
+          set -uo pipefail
+          : > /tmp/missing.txt
+          chk() { if [ -n "${2:-}" ]; then echo "  PRESENT  $1"; else echo "  MISSING  $1"; echo "github-secret: $1" >> /tmp/missing.txt; fi; }
+          echo "GitHub repository secrets required by the production workflows:"
+          chk VERCEL_TOKEN               "${VERCEL_TOKEN:-}"
+          chk SUPABASE_ACCESS_TOKEN      "${SUPABASE_ACCESS_TOKEN:-}"
+          chk SUPABASE_SERVICE_ROLE_KEY  "${SUPABASE_SERVICE_ROLE_KEY:-}"
+          chk SUPABASE_PROD_DB_PASSWORD  "${SUPABASE_PROD_DB_PASSWORD:-}"
+          echo "GitHub repository variables (optional, defaults documented):"
+          echo "  $( [ -n "${PINTAR_APP_URL_VAR:-}" ] && echo SET || echo unset )      PINTAR_APP_URL (unset = use ${CUSTOM_DOMAIN})"
+          echo "  $( [ -n "${PINTAR_CONFIGURE_AUTH_VAR:-}" ] && echo SET || echo unset )      PINTAR_CONFIGURE_AUTH (gate on the deploy workflow's Auth step)"
+
+      - name: Vercel — project, framework, domain, protection, environment names
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -uo pipefail
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "  SKIPPED — no VERCEL_TOKEN"; echo "blocked-check: vercel (needs VERCEL_TOKEN)" >> /tmp/missing.txt; exit 0
+          fi
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}" > /tmp/proj.json
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/domains/${CUSTOM_DOMAIN}/config" > /tmp/cfg.json
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains/${CUSTOM_DOMAIN}" > /tmp/dom.json
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/env?decrypt=false" > /tmp/env.json
+          python3 - <<'PY'
+          import json, os
+          miss = open('/tmp/missing.txt', 'a')
+          p = json.load(open('/tmp/proj.json'))
+          print('project id:', p.get('id'), '| framework:', p.get('framework'))
+          print('ssoProtection:', p.get('ssoProtection'), '| passwordProtection:', p.get('passwordProtection'))
+          if p.get('framework') != 'nextjs':
+              print('  PROBLEM framework is', p.get('framework')); miss.write('vercel-setting: framework must be nextjs\n')
+          dom = json.load(open('/tmp/dom.json')); cfg = json.load(open('/tmp/cfg.json'))
+          print('domain verified:', dom.get('verified'), '| misconfigured:', cfg.get('misconfigured'))
+          if not dom.get('verified') or cfg.get('misconfigured'):
+              miss.write('vercel-domain: %s not verified/configured\n' % os.environ['CUSTOM_DOMAIN'])
+          names = sorted({e['key'] for e in json.load(open('/tmp/env.json')).get('envs', [])
+                          if 'production' in (e.get('target') or [])})
+          print('Vercel PRODUCTION environment variable names:')
+          for n in names: print('   ', n)
+          # The frozen application's contract: build-time NEXT_PUBLIC_*, then
+          # server-only runtime values. CERT_SECRET_KEY_V* is read dynamically
+          # by the keyring, so at least one version must exist.
+          required = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+                      'NEXT_PUBLIC_APP_URL', 'CARD_PEPPER', 'CARD_EMAIL_DOMAIN',
+                      'PINTAR_BUILD_SHA', 'SUPABASE_SERVICE_ROLE_KEY']
+          for r in required:
+              if r not in names:
+                  print('  MISSING in Vercel production:', r)
+                  miss.write('vercel-env: %s\n' % r)
+          if not any(n.startswith('CERT_SECRET_KEY_V') for n in names):
+              print('  MISSING in Vercel production: CERT_SECRET_KEY_V*')
+              miss.write('vercel-env: CERT_SECRET_KEY_V1\n')
+          miss.close()
+          PY
+
+      - name: Supabase — management access, Auth posture, email delivery
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
-            echo "::error::repository secret SUPABASE_ACCESS_TOKEN is not set. Supabase Auth cannot be configured without it. No substitute credential will be used."
-            exit 1
+            echo "  SKIPPED — no SUPABASE_ACCESS_TOKEN"; echo "blocked-check: supabase auth (needs SUPABASE_ACCESS_TOKEN)" >> /tmp/missing.txt; exit 0
           fi
-          echo "management credential is present (value never printed)"
+          CODE=$(curl -sS -o /tmp/before.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
+          echo "GET config/auth -> HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "  the management token cannot read this project's Auth config"
+            echo "github-secret: SUPABASE_ACCESS_TOKEN (present but not authorized for ${PROJECT_REF})" >> /tmp/missing.txt
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json, os
+          d = json.load(open('/tmp/before.json'))
+          want_site = os.environ['APP_ORIGIN']; want_allow = os.environ['REDIRECT_ALLOW']
+          site = d.get('site_url'); allow = d.get('uri_allow_list')
+          print('site_url BEFORE:      ', repr(site))
+          print('uri_allow_list BEFORE:', repr(allow))
+          print('already production-configured:', site == want_site and allow == want_allow)
+          # Email delivery is an operator-supplied account configuration and
+          # magic-link sign-in depends on it entirely. Presence only.
+          print('custom SMTP host configured:', bool(d.get('smtp_host')))
+          print('smtp sender configured:     ', bool(d.get('smtp_admin_email')))
+          print('external_email_enabled:     ', d.get('external_email_enabled'))
+          print('mailer_autoconfirm:         ', d.get('mailer_autoconfirm'))
+          print('disable_signup:             ', d.get('disable_signup'))
+          print('mailer_otp_exp:             ', d.get('mailer_otp_exp'))
+          open('/tmp/smtp.txt','w').write('yes' if d.get('smtp_host') else 'no')
+          PY
 
-      - name: Preflight — the canonical origin serves PINTAR
+      - name: Canonical origin serves the frozen application
         run: |
-          set -euo pipefail
+          set -uo pipefail
           for P in /masuk /auth/callback; do
             CODE=$(curl -sS -o /tmp/b.txt -D /tmp/h.txt -w '%{http_code}' "${APP_ORIGIN}${P}")
             ERR=$(grep -i '^x-vercel-error:' /tmp/h.txt | tr -d '\r' || true)
             if grep -qE 'pin-masuk|pin-auth' /tmp/b.txt; then MARK=yes; else MARK=no; fi
             echo "GET ${APP_ORIGIN}${P} -> status=$CODE marker=$MARK ${ERR:-}"
-            test "$CODE" = "200" && test "$MARK" = "yes" && test -z "$ERR" || {
-              echo "::error::${APP_ORIGIN}${P} does not serve PINTAR"; head -c 300 /tmp/b.txt; exit 1; }
+            if [ "$CODE" != "200" ] || [ "$MARK" != "yes" ] || [ -n "$ERR" ]; then
+              echo "origin: ${APP_ORIGIN}${P} does not serve PINTAR" >> /tmp/missing.txt
+            fi
           done
-          echo "the canonical origin serves the sign-in screen and the callback route"
 
-      - name: Preflight — Auth configuration BEFORE
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      - name: Verdict — everything, in one batch
         run: |
-          set -euo pipefail
-          CODE=$(curl -sS -o /tmp/before.json -w '%{http_code}' \
-            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
-          test "$CODE" = "200" || { echo "::error::could not read Auth config (HTTP $CODE)"; cat /tmp/before.json; exit 1; }
-          python3 -c "
-          import json,os
-          d=json.load(open('/tmp/before.json'))
-          site=d.get('site_url'); allow=d.get('uri_allow_list')
-          print('site_url BEFORE:      ', repr(site))
-          print('uri_allow_list BEFORE:', repr(allow))
-          want_site=os.environ['APP_ORIGIN']; want_allow=os.environ['REDIRECT_ALLOW']
-          already = (site==want_site and allow==want_allow)
-          print('already production-configured:', already)
-          open('/tmp/already.txt','w').write('yes' if already else 'no')
-          "
-          echo "ALREADY=$(cat /tmp/already.txt)" >> "$GITHUB_ENV"
+          set -uo pipefail
+          echo "================ PREFLIGHT VERDICT ================"
+          if [ -s /tmp/missing.txt ]; then
+            echo "INCOMPLETE. Outstanding items:"
+            sort -u /tmp/missing.txt | sed 's/^/  - /'
+            echo "::error::preflight incomplete — see the list above. Auth was not touched."
+            exit 1
+          fi
+          echo "COMPLETE — every required credential and configuration item is present."
+          if [ "$(cat /tmp/smtp.txt 2>/dev/null || echo no)" = "no" ]; then
+            echo "::warning::No custom SMTP is configured. Supabase's built-in email sender is rate-limited and not intended for production; the first production sign-in depends on it delivering a magic link."
+          fi
 
+  configure:
+    name: write, read back, assert
+    needs: preflight
+    runs-on: ubuntu-latest
+    steps:
       - name: Write the production Auth configuration
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           python3 -c "
-          import json,os
+          import json, os
           print(json.dumps({'site_url': os.environ['APP_ORIGIN'],
-                            'uri_allow_list': os.environ['REDIRECT_ALLOW']}))
-          " > /tmp/body.json
+                            'uri_allow_list': os.environ['REDIRECT_ALLOW']}))" > /tmp/body.json
           echo "writing: $(cat /tmp/body.json)"
           CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
             -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
@@ -110,9 +205,6 @@ jobs:
           test "$CODE" = "200" || { echo "::error::Auth write failed"; cat /tmp/write.json; exit 1; }
           echo "the API reported success — which on its own proves nothing; see the read-back"
 
-      # A SEPARATE REQUEST, NOT THE WRITE'S OWN RESPONSE. The write could echo
-      # back what it was handed and still have stored nothing; that is exactly
-      # how the missing anon key passed unnoticed on Vercel.
       - name: Read back independently and assert
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -123,33 +215,31 @@ jobs:
             -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
             "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
           test "$CODE" = "200" || { echo "::error::read-back failed (HTTP $CODE)"; exit 1; }
-          python3 -c "
-          import json,os,sys
-          d=json.load(open('/tmp/after.json'))
-          site=d.get('site_url'); allow=d.get('uri_allow_list')
-          want_site=os.environ['APP_ORIGIN']; want_allow=os.environ['REDIRECT_ALLOW']
+          python3 - <<'PY'
+          import json, os, sys
+          d = json.load(open('/tmp/after.json'))
+          site = d.get('site_url'); allow = d.get('uri_allow_list')
+          want_site = os.environ['APP_ORIGIN']; want_allow = os.environ['REDIRECT_ALLOW']
           print('site_url AFTER:      ', repr(site))
           print('uri_allow_list AFTER:', repr(allow))
-          bad=[]
-          if site!=want_site: bad.append('site_url is %r, expected %r'%(site,want_site))
-          if allow!=want_allow: bad.append('uri_allow_list is %r, expected %r'%(allow,want_allow))
-          low=(allow or '').lower()
-          for f in ('localhost','127.0.0.1','0.0.0.0'):
-              if f in low: bad.append('a development origin survives in uri_allow_list: %r'%f)
+          bad = []
+          if site != want_site: bad.append('site_url is %r, expected %r' % (site, want_site))
+          if allow != want_allow: bad.append('uri_allow_list is %r, expected %r' % (allow, want_allow))
+          for f in ('localhost', '127.0.0.1', '0.0.0.0'):
+              if f in (allow or '').lower(): bad.append('development origin survives: %r' % f)
+              if f in (site or '').lower(): bad.append('development origin survives in site_url: %r' % f)
           if bad:
               print('::error::read-back does not match the canonical configuration')
-              [print('  -',b) for b in bad]
+              for b in bad: print('  -', b)
               sys.exit(1)
           print('read-back matches the canonical production configuration exactly')
-          "
+          PY
 
       - name: Functional — application and Auth agree on the origin
         run: |
           set -euo pipefail
-          # The callback route is fetched at the exact origin now present in
-          # Supabase's allow-list. It is requested WITHOUT a code, so it
-          # renders its own "link expired" state: no session is created, no
-          # token is issued, and nothing is consumed.
+          # Fetched WITHOUT a code, so the page renders its own expired-link
+          # state: no session created, no token issued, nothing consumed.
           URL="${APP_ORIGIN}/auth/callback"
           CODE=$(curl -sS -o /tmp/cb.txt -D /tmp/cbh.txt -w '%{http_code}' "$URL")
           ERR=$(grep -i '^x-vercel-error:' /tmp/cbh.txt | tr -d '\r' || true)
@@ -157,7 +247,7 @@ jobs:
           echo "GET $URL -> status=$CODE marker=$MARK ${ERR:-}"
           test "$CODE" = "200" && test "$MARK" = "yes" && test -z "$ERR" || {
             echo "::error::the callback route does not serve PINTAR at the configured origin"; exit 1; }
-          echo "the redirect target in Supabase's allow-list is served by the frozen application"
+          echo "the redirect target now in Supabase's allow-list is served by the frozen application"
 
       - name: Summary
         run: |
@@ -165,5 +255,4 @@ jobs:
           echo "project:        $PROJECT_REF"
           echo "site_url:       $APP_ORIGIN"
           echo "redirect allow: $REDIRECT_ALLOW"
-          echo "was already configured before this run: ${ALREADY:-unknown}"
           echo "NOT done: bootstrap, platform_environment transition, onboarding."
