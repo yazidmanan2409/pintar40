@@ -1,0 +1,201 @@
+# PINTAR production deployment — the application, on Vercel.
+#
+# WHY CI AND NOT THIS AGENT. Vercel is refused outright by the agent
+# container's network policy (connection refused at the proxy, not a 403), so
+# the deployment cannot be driven from there. A GitHub runner has both the
+# frozen repository bytes and a network path, exactly as for the database.
+#
+# WHAT IT DOES, AND WHY IT ALSO TOUCHES SUPABASE AUTH. The application origin
+# is not known until Vercel has a production deployment, and Supabase Auth
+# must allow exactly that origin or every magic link dead-ends -- which is the
+# blocker that stranded the first administrator on http://localhost:3000. So
+# this workflow deploys the app AND writes the resulting origin into the
+# project's Auth configuration in the same run. Splitting them would mean
+# copying a URL between two consoles by hand, and that is precisely the step
+# that was wrong before.
+#
+# SECRETS ARE GENERATED HERE AND NEVER LEAVE. CARD_PEPPER and
+# CERT_SECRET_KEY_V1 are minted in the job with `openssl rand` and written
+# straight into Vercel. They are never printed and never pass through a chat
+# transcript. They are also written ONCE: the certificate keyring may never
+# lose a version (FABLE-04, INV-07), and re-minting the pepper would
+# invalidate every classroom-card PIN derived from it. Both are therefore
+# added only when absent.
+#
+# It deploys the frozen release and configures Auth. It creates no PINTAR
+# data, no identity and no role.
+
+name: deploy · vercel production
+
+on:
+  push:
+    branches:
+      - claude/quirky-meitner-a04smj
+    paths:
+      - .github/vercel-request.txt
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  RELEASE_SHA: 46fd4452ebc7b861abb5cb9b1963178088b978a7
+  PROJECT_REF: trtlvibiybwixfumjrrx
+  VERCEL_PROJECT_NAME: pintar40
+  # Public by construction: the Supabase URL and the anon key ship in the
+  # browser bundle. They are configuration, not secrets.
+  SUPABASE_URL: https://trtlvibiybwixfumjrrx.supabase.co
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydGx2aWJpeWJ3aXhmdW1qcnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxMDAxNDksImV4cCI6MjEwNTY3NjE0OX0.9QTwBrToGkL8XCORvbO6XtlbvvLmEwilXtgQaLQYjoE
+  CARD_EMAIL_DOMAIN: cards.pintar.internal
+
+jobs:
+  deploy:
+    name: deploy the frozen release and point Auth at it
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 46fd4452ebc7b861abb5cb9b1963178088b978a7
+
+      - name: Verify the frozen release SHA
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA" || {
+            echo "::error::checkout is not the frozen release SHA"; exit 1; }
+          test -z "$(git status --porcelain)" || {
+            echo "::error::working tree is not clean"; exit 1; }
+          echo "at $(git rev-parse HEAD)"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Require the Vercel token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          test -n "${VERCEL_TOKEN:-}" || {
+            echo "::error::repository secret VERCEL_TOKEN is not set"; exit 1; }
+
+      - name: Install the Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Decide the production origin
+        run: |
+          set -euo pipefail
+          # A custom domain, once one is chosen, overrides the Vercel-assigned
+          # one through this repository variable. Until then the project's own
+          # production domain is the origin, and it is deterministic.
+          ORIGIN="${{ vars.PINTAR_APP_URL }}"
+          if [ -z "$ORIGIN" ]; then ORIGIN="https://${VERCEL_PROJECT_NAME}.vercel.app"; fi
+          ORIGIN="${ORIGIN%/}"
+          echo "APP_ORIGIN=$ORIGIN" >> "$GITHUB_ENV"
+          echo "production origin: $ORIGIN"
+
+      - name: Create and link the Vercel project
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          vercel project add "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" || true
+          vercel link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
+
+      - name: Set the production environment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          PRESENT=$(vercel env ls production --token "$VERCEL_TOKEN" 2>/dev/null | awk '{print $1}')
+          has() { printf '%s\n' "$PRESENT" | grep -qx "$1"; }
+
+          # Replaceable configuration: rewritten every deploy so the origin and
+          # the build stamp always match what is actually deployed.
+          put() {
+            if has "$1"; then vercel env rm "$1" production --yes --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true; fi
+            printf '%s' "$2" | vercel env add "$1" production --token "$VERCEL_TOKEN" >/dev/null
+            echo "set $1"
+          }
+          # Durable secrets: written once, never rewritten. See the header.
+          keep() {
+            if has "$1"; then echo "kept $1 (already present)"; return; fi
+            printf '%s' "$2" | vercel env add "$1" production --token "$VERCEL_TOKEN" >/dev/null
+            echo "minted $1"
+          }
+
+          put NEXT_PUBLIC_SUPABASE_URL      "$SUPABASE_URL"
+          put NEXT_PUBLIC_SUPABASE_ANON_KEY "$SUPABASE_ANON_KEY"
+          put NEXT_PUBLIC_APP_URL           "$APP_ORIGIN"
+          put CARD_EMAIL_DOMAIN             "$CARD_EMAIL_DOMAIN"
+          put PINTAR_BUILD_SHA              "$RELEASE_SHA"
+
+          keep CARD_PEPPER        "$(openssl rand -hex 32)"
+          keep CERT_SECRET_KEY_V1 "$(openssl rand -hex 32)"
+
+          if [ -n "${SERVICE_ROLE_KEY:-}" ]; then
+            put SUPABASE_SERVICE_ROLE_KEY "$SERVICE_ROLE_KEY"
+          elif has SUPABASE_SERVICE_ROLE_KEY; then
+            echo "SUPABASE_SERVICE_ROLE_KEY already present in Vercel; left as is"
+          else
+            echo "::warning::SUPABASE_SERVICE_ROLE_KEY is not set. Sign-in is unaffected, but the public certificate-verification endpoint will fail until it is supplied."
+          fi
+
+      - name: Build and deploy to production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+          vercel build --prod --token "$VERCEL_TOKEN"
+          URL=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
+          echo "deployment: $URL"
+          echo "DEPLOYMENT_URL=$URL" >> "$GITHUB_ENV"
+
+      - name: The deployed application answers
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6; do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' -L "$APP_ORIGIN/masuk" || echo 000)
+            echo "attempt $i: GET $APP_ORIGIN/masuk -> $CODE"
+            if [ "$CODE" = "200" ]; then echo "the sign-in screen is live"; exit 0; fi
+            sleep 10
+          done
+          echo "::error::$APP_ORIGIN/masuk did not answer 200; the configured origin and the deployment's production domain may differ"
+          exit 1
+
+      # Auth is pointed at the origin that was just proven to serve the app,
+      # never at a value typed from memory.
+      - name: Point Supabase Auth at the deployed application
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
+            echo "::warning::SUPABASE_ACCESS_TOKEN is not set, so Auth was not reconfigured."
+            echo "Set Site URL to:      $APP_ORIGIN"
+            echo "Add to Redirect URLs: $APP_ORIGIN/auth/callback*"
+            exit 0
+          fi
+          BODY=$(python3 - "$APP_ORIGIN" <<'PY'
+          import json, sys
+          o = sys.argv[1]
+          print(json.dumps({"site_url": o, "uri_allow_list": f"{o}/auth/callback*,{o}"}))
+          PY
+          )
+          CODE=$(curl -s -o /tmp/auth.json -w '%{http_code}' -X PATCH \
+            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth" \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' -d "$BODY")
+          echo "auth config PATCH -> $CODE"
+          test "$CODE" = "200" || { echo "::error::Auth configuration failed"; cat /tmp/auth.json; exit 1; }
+          python3 -c "import json;d=json.load(open('/tmp/auth.json'));print('site_url:',d.get('site_url'));print('uri_allow_list:',d.get('uri_allow_list'))"
+
+      - name: Summary
+        run: |
+          echo "release:    $RELEASE_SHA"
+          echo "origin:     $APP_ORIGIN"
+          echo "deployment: ${DEPLOYMENT_URL:-(unknown)}"
