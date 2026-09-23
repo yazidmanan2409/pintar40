@@ -3,24 +3,20 @@ PINTAR production origin — forensic request
 Editing this file runs the read-only origin diagnosis. It deploys nothing,
 writes no environment value and touches no Supabase configuration.
 
-attempt:  003
-after:    attempt 007 declared framework=nextjs, rebuilt and redeployed; the
-          strict probe still refused every candidate.
+attempt:  004
+purpose:  EVIDENCE CAPTURE for Second Eye re-verification.
 
-question: DNS is live and the domain is attached, verified and carried on the
-          deployment's alias list (aliasAssigned=true, aliasError=null,
-          readySubstate=PROMOTED, target=production). The strict probe still
-          refused every candidate: all returned 302 and none carried the
-          pin-masuk marker.
+          Deployment run 35807152803 passed the corrected strict verification
+          for the first time. This run re-measures the same origin now, from a
+          clean client with no Vercel session, and records the whole response
+          rather than a status code: unfollowed status, Location, x-vercel-error,
+          the edge id, the body, and the pin-masuk application marker.
 
-          The deployment record also reports "public": false, and the project
-          policy is ssoProtection=all_except_custom_domains -- which should
-          exempt app.pintarselalu.com. Either that exemption is not applying,
-          or the domain is answering something else entirely.
+          It also records the Vercel project's protection posture, so the
+          package can show that Deployment Protection remains ON and that
+          reachability comes from the custom-domain exemption rather than from
+          anything being switched off.
 
-          This run records, for app.pintarselalu.com specifically: the
-          unfollowed status, the Location header, x-vercel-error, the edge id,
-          the body, and where the redirect chain actually terminates. It also
-          re-reads the project's protection state.
-
+attempt:  003  (after framework fix: 500, application executing)
+attempt:  002  (custom domain: platform 404 — nothing deployed)
 attempt:  001  (established the SSO interstitial: 302 -> vercel.com/login, 200)
