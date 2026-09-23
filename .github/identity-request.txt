@@ -6,4 +6,13 @@ identity §3b would bind, and the day each was created. It prints no email,
 no user id and no metadata. It writes, creates and consumes nothing.
 §3b and §3c are not part of this and remain held for Yazid.
 
-attempt: 001
+attempt: 002
+why:     001 got HTTP 401 from the Admin API before comparing anything, so the
+         question is unanswered, not negative. The source was correct (the
+         `***` in the log is GitHub masking the Bearer value, as it does in
+         every workflow here); the cause is in the key or the header form.
+         002 reports the key's shape and non-secret claims (role; whether
+         ref matches this project), never its value, and tries apikey+Bearer
+         and apikey-only, reporting each status and GoTrue's error code.
+
+attempt: 001 (401 before any comparison)

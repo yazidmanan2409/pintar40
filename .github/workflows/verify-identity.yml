@@ -38,16 +38,50 @@ jobs:
           set -euo pipefail
           test -n "${SERVICE_ROLE_KEY:-}" || { echo "::error::SUPABASE_SERVICE_ROLE_KEY is not set"; exit 1; }
           python3 - <<'PY'
-          import hashlib, json, os, urllib.request
-          base = os.environ['SUPABASE_URL']; key = os.environ['SERVICE_ROLE_KEY']
-          want = os.environ['TARGET_SHA256']
-          total = 0; hits = []; page = 1
+          import base64, hashlib, json, os, sys, urllib.request, urllib.error
+          base = os.environ['SUPABASE_URL']; key = os.environ['SERVICE_ROLE_KEY'].strip()
+          want = os.environ['TARGET_SHA256']; ref = base.split('//')[1].split('.')[0]
+
+          # WHAT KIND OF KEY THIS IS -- shape and non-secret claims only, never
+          # the value. Attempt 001 got 401 before comparing anything.
+          if key.startswith('eyJ'):
+              try:
+                  seg = key.split('.')[1]; seg += '=' * (-len(seg) % 4)
+                  claims = json.loads(base64.urlsafe_b64decode(seg))
+                  print(f"key shape: JWT | role claim: {claims.get('role')} | ref matches this project: {claims.get('ref') == ref}")
+              except Exception as e:
+                  print(f"key shape: JWT-like but undecodable ({type(e).__name__})")
+          elif key.startswith('sb_secret_'):
+              print("key shape: sb_secret (new-style secret key)")
+          else:
+              print(f"key shape: unrecognised (starts with neither eyJ nor sb_secret_; length {len(key)})")
+
+          def get(page, bearer):
+              h = {'apikey': key, 'User-Agent': 'pintar-verify-identity'}
+              if bearer: h['Authorization'] = 'Bearer ' + key
+              req = urllib.request.Request(f"{base}/auth/v1/admin/users?page={page}&per_page=200", headers=h, method='GET')
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as r:
+                      return r.status, json.load(r)
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode(errors='replace')
+                  try:
+                      b = json.loads(body); why = b.get('error_code') or b.get('code') or b.get('error') or b.get('msg') or b.get('message')
+                  except Exception:
+                      why = body[:80]
+                  return e.code, why
+
+          mode = None
+          for bearer in (True, False):
+              code, body = get(1, bearer)
+              print(f"GET admin/users with {'apikey + Bearer' if bearer else 'apikey only'} -> HTTP {code}" + ("" if code == 200 else f" ({body})"))
+              if code == 200: mode = bearer; first = body; break
+          if mode is None:
+              print("::error::the Admin API refused both header forms; the identity question is unanswered, not negative")
+              sys.exit(1)
+
+          total = 0; hits = []; page = 1; users = first.get('users', [])
           while True:
-              req = urllib.request.Request(f"{base}/auth/v1/admin/users?page={page}&per_page=200",
-                                           headers={'apikey': key, 'Authorization': f'Bearer {key}'}, method='GET')
-              with urllib.request.urlopen(req, timeout=30) as r:
-                  users = json.load(r).get('users', [])
-              if not users: break
               for u in users:
                   total += 1
                   e = (u.get('email') or '').strip().lower()
@@ -55,6 +89,9 @@ jobs:
                       hits.append((u.get('created_at') or '')[:10])
               if len(users) < 200: break
               page += 1
+              code, body = get(page, mode)
+              if code != 200: print(f"::error::page {page} -> HTTP {code}"); sys.exit(1)
+              users = body.get('users', [])
           print(f"identities in the project: {total}")
           print(f"identities matching the §3b target: {len(hits)}")
           for d in hits: print(f"  created on: {d}")
