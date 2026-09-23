@@ -332,6 +332,47 @@ export const appTests: SelfTest[] = [
     },
   },
   {
+    // The sign-in and verification pages are anonymous, and so is everything
+    // they load. The middleware gated public/brand and public/fonts behind
+    // sign-in, so production answered a stranger's logo and font requests with
+    // a redirect to /masuk: a broken mark and fallback type on the front door,
+    // invisible to every signed-in test. Asked over HTTP, as a stranger.
+    id: "F01-R08",
+    requires: ["app"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const html = await (await get(`${base}/masuk`)).text();
+      c.expect(html.includes("/brand/pintar-selalu-logo.png"),
+        "/masuk no longer references /brand/pintar-selalu-logo.png, so this test would prove nothing");
+      const assets: Array<[string, RegExp]> = [
+        ["/brand/pintar-selalu-logo.png", /^image\/png/],
+        ["/fonts/plus-jakarta-sans-latin.woff2", /font\/woff2|octet-stream/],
+        ["/fonts/plus-jakarta-sans-latin-ext.woff2", /font\/woff2|octet-stream/],
+        ["/fonts/ibm-plex-mono-500-latin.woff2", /font\/woff2|octet-stream/],
+        ["/fonts/ibm-plex-mono-500-latin-ext.woff2", /font\/woff2|octet-stream/],
+      ];
+      for (const [path, type] of assets) {
+        const r = await get(`${base}${path}`);
+        const ct = r.headers.get("content-type") ?? "";
+        c.expect(r.status === 200,
+          `anonymous GET ${path} → ${r.status} ${r.headers.get("location") ?? ""}; expected the file itself`);
+        c.expect(type.test(ct), `anonymous GET ${path} served ${ct || "no content-type"}`);
+      }
+      // the exemption is those two folders and nothing that merely starts with their names
+      for (const path of ["/brandx", "/fontsx/a", "/konfigurasi", "/studio"]) {
+        const r = await get(`${base}${path}`);
+        const loc = r.headers.get("location") ?? "";
+        c.expect([302, 303, 307, 308].includes(r.status) && /\/masuk(\?|$)/.test(loc),
+          `anonymous ${path} → ${r.status} ${loc || "(no redirect)"}; expected a redirect to /masuk`);
+      }
+      return c.verdict(
+        "an anonymous visitor receives the logo and all four fonts the sign-in page loads, and the exemption " +
+          "stops at public/brand/ and public/fonts/: neighbouring paths and protected routes still redirect to /masuk",
+      );
+    },
+  },
+  {
     id: "F01-R02",
     requires: ["app", "network"],
     run: async (ctx) => {

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 59,
+  "version": 60,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -324,6 +324,11 @@
       "id": "F01-R07",
       "runner": "app",
       "proves": "INV-38 against the RUNNING MIDDLEWARE rather than the database declaration: the one declared public certificate-verification endpoint, /api/verifikasi/[token], is anonymously reachable over HTTP and answers its own closed {\"found\": false} for an unknown token, while /api/verifikasi itself and its siblings stay refused. assert_public_surface() asserts public_surface_registry; nothing asserted src/proxy.ts, and the two had drifted."
+    },
+    {
+      "id": "F01-R08",
+      "runner": "app",
+      "proves": "the static files the anonymous pages load are served to an anonymous visitor, over HTTP through the running middleware: the rendered /masuk html references public/brand/pintar-selalu-logo.png, and that file and the four public/fonts/*.woff2 files answer 200 with their own content type, not a redirect to /masuk. src/proxy.ts's matcher had gated them, so production showed strangers a broken mark and fallback fonts on /masuk and /verifikasi. The exemption is exactly those two folders: /brandx, /fontsx/a, /konfigurasi and /studio still redirect to /masuk"
     },
     {
       "id": "F01-R02",

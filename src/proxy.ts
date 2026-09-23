@@ -78,6 +78,9 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// public/brand and public/fonts are what the anonymous pages themselves load.
+// Gated, a stranger at /masuk was redirected instead of sent the logo and fonts.
+// The trailing slashes keep the exemption to those two folders (F01-R08).
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|fonts/).*)"],
 };
