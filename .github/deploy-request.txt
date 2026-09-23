@@ -3,7 +3,23 @@ PINTAR production Supabase apply — deployment request
 Editing this file is what launches the apply workflow; ordinary commits on the
 deployment branch do nothing. Each entry below records one attempt.
 
-attempt:  004
+attempt:  005
+release:  c358f5866d1d9c9ac1647559cf024e9a73c3b601
+project:  trtlvibiybwixfumjrrx
+expected: 108 applied; this attempt applies the two pending migrations
+          (108 -> 111 counting the history against the repository's 111 files):
+            20261005100000_an_answer_is_never_lost_to_a_finish
+            20261005110000_a_provisioned_person_can_sign_in
+            20261005120000_activation_is_granted_not_inferred
+          then runs launch readiness (17 rows), the standing assertions (floor
+          22), the W8-01 grant check and the administrator-state read.
+why:      Systemic Repair 01, re-verified independently by Second Eye (CI run
+          35838958032 green on this commit; probe attempt 008 run 35838899134).
+          Authorized: migrations 108 -> 111. NOT authorized and not done here:
+          §3b (bootstrap) and §3c (platform_environment).
+gate:     the workflow now refuses unless ci.yml succeeded on this exact SHA.
+
+attempt:  004 (previous)
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 project:  trtlvibiybwixfumjrrx  (pintar-production, ap-southeast-1, PG 17.6)
 expected: 108 applied already; this attempt applies nothing and runs the

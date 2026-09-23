@@ -52,9 +52,10 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 env:
-  RELEASE_SHA: 46fd4452ebc7b861abb5cb9b1963178088b978a7
+  RELEASE_SHA: c358f5866d1d9c9ac1647559cf024e9a73c3b601
   PROJECT_REF: trtlvibiybwixfumjrrx
   # Session mode, port 5432. Never the transaction pooler (6543): transaction
   # pooling breaks session state and multi-statement transactions.
@@ -67,7 +68,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 46fd4452ebc7b861abb5cb9b1963178088b978a7
+          ref: c358f5866d1d9c9ac1647559cf024e9a73c3b601
 
       - name: Verify the frozen release SHA
         run: |
@@ -78,6 +79,24 @@ jobs:
             echo "::error::working tree is not clean"; exit 1; }
           echo "at $(git rev-parse HEAD)"
           echo "migration files: $(ls supabase/migrations/*.sql | wc -l)"
+
+      # P-03. No migration reaches production that the full verification
+      # contract has not passed on the exact commit being applied. A red,
+      # missing or still-running CI refuses before any database is contacted.
+      - name: Require a successful CI run on this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/ci.yml/runs?head_sha=${RELEASE_SHA}&status=success&per_page=1" \
+            > /tmp/ci.json
+          n=$(python3 -c "import json;print(json.load(open('/tmp/ci.json')).get('total_count', 0))")
+          if [ "$n" -lt 1 ]; then
+            echo "::error::no successful ci run exists for ${RELEASE_SHA}; the apply is refused"
+            exit 1
+          fi
+          echo "ci succeeded on ${RELEASE_SHA}"
 
       - uses: actions/setup-node@v4
         with:
