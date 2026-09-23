@@ -428,6 +428,29 @@ jobs:
 
       # Auth is pointed at the origin that was just proven to serve the app,
       # never at a value typed from memory.
+      # PRESENCE IS NOT FUNCTION. The service-role key is a runtime value, so
+      # writing it to Vercel does nothing until a deployment is built with it.
+      # This proves the key is actually working in the running application:
+      # the public verification endpoint constructs a service-role client on
+      # every request and `serviceRoleKey()` THROWS when the value is absent,
+      # so a missing key is a 500. An unknown token is designed to return 404
+      # with {"found": false} and no existence oracle, which is exactly what a
+      # healthy endpoint answers here.
+      - name: Functional — the service-role key works in the running app
+        run: |
+          set -euo pipefail
+          TOKEN="preflight$(date +%s)$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+          CODE=$(curl -sS -o /tmp/v.json -w '%{http_code}' "${APP_ORIGIN}/api/verifikasi/${TOKEN}")
+          echo "GET ${APP_ORIGIN}/api/verifikasi/<unknown> -> $CODE"
+          echo "body: $(head -c 200 /tmp/v.json)"
+          if [ "$CODE" = "500" ]; then
+            echo "::error::the verification endpoint returned 500 — the service-role key is absent or invalid in the running deployment"; exit 1; fi
+          test "$CODE" = "404" || {
+            echo "::error::expected 404 for an unknown token, got $CODE"; exit 1; }
+          grep -q '"found"' /tmp/v.json || {
+            echo "::error::the response is not the endpoint's closed body"; exit 1; }
+          echo "the endpoint answered its designed 404 for an unknown token: the service-role client constructed successfully"
+
       - name: Point Supabase Auth at the deployed application
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

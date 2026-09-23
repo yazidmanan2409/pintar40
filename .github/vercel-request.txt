@@ -1,50 +1,28 @@
 PINTAR production application deployment — request
 
-Editing this file launches the Vercel deployment workflow; ordinary commits on
-the deployment branch do nothing. Each entry records one attempt.
+Editing this file launches the Vercel deployment workflow.
 
-attempt:  009
+attempt:  010
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
-target:   Vercel project "pintar40" (scope yazidmanan-2409)
 origin:   https://app.pintarselalu.com
-auth:     HELD. Not configured until Second Eye clears the deployment.
-why:      the assertion worked: NEXT_PUBLIC_SUPABASE_ANON_KEY is genuinely
-          absent from Vercel production. Its `vercel env add` returned success
-          and stored nothing, while the variables written seconds either side
-          of it are present. A write that can fail silently is not a write, so
-          environment values now go through the Vercel API, which upserts and
-          reports its failures. No build was spent on the incomplete set.
+purpose:  ACTIVATION STAGE 1 — provision SUPABASE_SERVICE_ROLE_KEY into Vercel
+          production and prove it works in the running application.
 
-          Previously: ATTEMPT 007 GOT THE APPLICATION RUNNING. Declaring framework=nextjs
-          turned the platform 404 into a 500: the app is deployed, routed and
-          executing, and pintar40.vercel.app routes now too. The deployment
-          carries four function outputs where it previously carried none.
+why:      the key is a RUNTIME value. Writing it to Vercel changes nothing
+          until a deployment is built carrying it, so this stage is a real
+          redeploy of the frozen release, not a configuration edit.
 
-          A 500 is an application error, and the deployment's build env lists
-          every variable except NEXT_PUBLIC_SUPABASE_ANON_KEY -- which
-          publicSupabaseAnonKey() throws without, on a page that builds a
-          Supabase client while rendering. Writing an environment value is not
-          the same as it being there, so the set is now read back from Vercel
-          and asserted before a build is spent on it.
+          Presence is asserted by name from the Vercel API, and then function
+          is proven separately: the public certificate-verification endpoint
+          constructs a service-role client on every request and throws without
+          the key, so a missing key is a 500. An unknown token must answer 404
+          with the endpoint's closed body. Both must hold.
 
-          Previously: the custom domain proved the real state. It is NOT behind SSO --
-          the all_except_custom_domains exemption works -- and it answered a
-          platform 404 NOT_FOUND with zero redirects, from iad1. The
-          *.vercel.app hosts answer 302 to vercel.com/sso-api, so SSO had been
-          masking this the whole time: the application has never served a page
-          to anyone, through any hostname, in any attempt.
+          This closes Second Eye carry-forward item 2, which covers five API
+          routes: /api/verifikasi/[token], /api/certificates/issue,
+          /api/evaluation/assume, /api/assets/upload-url, /api/assets/read-url.
 
-          The project was created by `vercel project add` and carried
-          framework: null, buildCommand: null, outputDirectory: null. The
-          deployment held one lambda with entrypoint "." and no output. That
-          is a Next.js application Vercel was never told was Next.js. This
-          attempt declares the framework, then rebuilds and redeploys.
+not in scope: the bootstrap, the 3c transition, onboarding, Gladys.
+              Supabase Auth remains gated and is not touched by this workflow.
 
-attempt:  008  (assertion caught the missing anon key before any build)
-attempt:  007  (framework declared; 404 -> 500; app now runs; env set incomplete)
-attempt:  006  (domain live and exempt from SSO; served NOT_FOUND; framework was null)
-attempt:  005  (domain attached and verified; stopped at DNS gate; nothing built)
-attempt:  004  (reported live; was Vercel's login page — probe invalid, now fixed)
-attempt:  003  (origin from project domains; 404; Auth untouched)
-attempt:  002  (project created, env written, deployed; origin guess 404'd)
-attempt:  001  (stopped at the token gate; nothing created, nothing contacted)
+attempt:  009  (first fully verified deployment; strict probe passed)
