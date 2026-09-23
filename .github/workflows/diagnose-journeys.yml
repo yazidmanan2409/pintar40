@@ -93,6 +93,12 @@ jobs:
           nohup node node_modules/next/dist/bin/next start -p 3999 > "$RUNNER_TEMP/app.log" 2>&1 &
           for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:3999/masuk && break; sleep 1; done
           curl -s -o /dev/null -w 'app /masuk -> %{http_code}\n' http://127.0.0.1:3999/masuk
+      - name: Browser for the interruption journeys (probe-only; not a specimen dependency)
+        run: |
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw" && npm init -y >/dev/null
+          npm i --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          echo "PW_DIR=$RUNNER_TEMP/pw" >> "$GITHUB_ENV"
       - name: Run the composed-journey probe
         env:
           APP_BASE: http://127.0.0.1:3999
@@ -104,7 +110,10 @@ jobs:
         run: node probe/scripts/diagnostics/journeys.mjs specimen "journeys-${{ matrix.label }}.json"
       - name: Application log (tail)
         if: always()
-        run: tail -80 "$RUNNER_TEMP/app.log" || true
+        run: |
+          tail -80 "$RUNNER_TEMP/app.log" || true
+          echo "---- auth service (tail) ----"
+          docker ps --format '{{.Names}}' | grep -i auth | head -1 | xargs -r -I{} docker logs --tail 40 {} 2>&1 | grep -iE 'error|otp|mail|smtp|redirect|level":"(warn|error)' | tail -25 || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
