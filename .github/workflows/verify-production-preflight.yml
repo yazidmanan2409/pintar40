@@ -1,0 +1,113 @@
+# READ-ONLY, ONE-SHOT. Two questions Second Eye asked before anything else
+# moves, answered without writing anything:
+#
+#   identity     does the Auth identity §3b would bind exist? Asked of the
+#                database in a READ ONLY transaction (the database enforces
+#                it), matching a SHA-256 digest; prints a count and a date.
+#   service-key  can the Management API token read the project's keys, what
+#                shape is the service key, and does it work? Every fetched key
+#                value is masked before anything else is printed; only names,
+#                types, prefixes and lengths are shown. It also says what the
+#                retired GitHub secret held, by shape and by hash comparison
+#                only, so it can be decided whether it needs rotating.
+#
+# Deleted once it has answered; nothing here is meant to stay.
+
+name: verify · production preflight (read only)
+
+on:
+  push:
+    branches:
+      - claude/quirky-meitner-a04smj
+    paths:
+      - .github/preflight-request.txt
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_REF: trtlvibiybwixfumjrrx
+  SUPABASE_URL: https://trtlvibiybwixfumjrrx.supabase.co
+  POOLER_HOST: aws-0-ap-southeast-1.pooler.supabase.com
+  # sha256(lower(btrim(email))) of the identity §3b would bind
+  TARGET_SHA256: 52e5bbccb4be604c12b16dd38de06b0e1aa53f08d44f9356bb0759e0e47dd2a4
+
+jobs:
+  identity:
+    name: does the §3b identity exist (read-only transaction)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Count and date only
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "${PGPASSWORD:-}" || { echo "::error::SUPABASE_PROD_DB_PASSWORD is not set"; exit 1; }
+          URL="postgresql://postgres.${PROJECT_REF}@${POOLER_HOST}:5432/postgres?sslmode=require"
+          OUT=$(psql "$URL" -q -v ON_ERROR_STOP=1 -At \
+            -c "begin transaction read only" \
+            -c "select 'readonly=' || current_setting('transaction_read_only')" \
+            -c "select 'matches=' || count(*) || ' created=' || coalesce(min(created_at)::date::text, '-') from auth.users where encode(extensions.digest(lower(btrim(email)), 'sha256'), 'hex') = '${TARGET_SHA256}'" \
+            -c "rollback")
+          printf '%s\n' "$OUT"
+          printf '%s\n' "$OUT" | grep -qx 'readonly=on' || { echo "::error::the transaction was not read-only"; exit 1; }
+          if printf '%s\n' "$OUT" | grep -q '^matches=0 '; then
+            echo "::warning::no Auth identity matches the §3b target; nothing was created"
+          fi
+
+  service-key:
+    name: service key dry run (Management API, nothing written)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch, mask, describe, validate
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          RETIRED: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::SUPABASE_ACCESS_TOKEN is not set"; exit 1; }
+          python3 - <<'PY'
+          import hashlib, json, os, sys, urllib.request, urllib.error
+          ref = os.environ['PROJECT_REF']; base = os.environ['SUPABASE_URL']
+          tok = os.environ['SUPABASE_ACCESS_TOKEN']
+          def shape(v):
+              if not v: return 'empty'
+              for p in ('eyJ', 'sb_secret_', 'sb_publishable_', 'sbp_'):
+                  if v.startswith(p): return f"{p}… length {len(v)}"
+              return f"unrecognised prefix, length {len(v)}"
+          req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true",
+                                       headers={'Authorization': f'Bearer {tok}', 'User-Agent': 'pintar-preflight'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  keys = json.load(r)
+          except urllib.error.HTTPError as e:
+              print(f"::error::the Management API refused to list the project's keys: HTTP {e.code}")
+              sys.exit(1)
+          # MASK FIRST. A value fetched at run time is not a registered secret.
+          for k in keys:
+              v = k.get('api_key') or ''
+              if v: print(f"::add-mask::{v}")
+          print(f"keys returned: {len(keys)}")
+          for k in keys:
+              print(f"  name={k.get('name')!r} type={k.get('type')!r} shape={shape(k.get('api_key') or '')}")
+          legacy = [k for k in keys if k.get('name') == 'service_role' and (k.get('api_key') or '').startswith('eyJ')]
+          if not legacy:
+              newstyle = [k for k in keys if (k.get('api_key') or '').startswith('sb_secret_')]
+              print("::error::no legacy service_role JWT is offered" + (" (only sb_secret keys); not switching formats without a ruling" if newstyle else ""))
+              sys.exit(1)
+          key = legacy[0]['api_key']
+          req = urllib.request.Request(f"{base}/auth/v1/admin/users?per_page=1",
+                                       headers={'apikey': key, 'Authorization': 'Bearer ' + key, 'User-Agent': 'pintar-preflight'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r: code = r.status
+          except urllib.error.HTTPError as e: code = e.code
+          print(f"validation GET /auth/v1/admin/users?per_page=1 with the fetched service_role key -> HTTP {code}")
+          # what the retired GitHub secret held: shape and hash equality only
+          old = (os.environ.get('RETIRED') or '').strip()
+          h = lambda s: hashlib.sha256(s.encode()).hexdigest()
+          print(f"retired secret: shape={shape(old)}")
+          print(f"retired secret equals SUPABASE_ACCESS_TOKEN: {bool(old) and h(old) == h(tok)}")
+          print(f"retired secret equals any key of this project: {bool(old) and any(h(old) == h(k.get('api_key') or '') for k in keys)}")
+          if code != 200: sys.exit(1)
+          PY
