@@ -239,6 +239,7 @@ async function j10() {
     `status=${certPage.status} rendered=${state}`, state.startsWith("ISSUED"),
     { visible_text: certText.slice(0, 400) });
 
+  console.log(`       page text: ${certText.slice(0, 300)}`);
   const results = await http(`/belajar/${la}/hasil`, { jar: L.jar });
   step("the learner's results page", "200 (issuance never blocks results, §7)", String(results.status), results.status === 200);
 
@@ -347,63 +348,59 @@ async function j1a() {
 // J1b — sign-in: the magic link the production path depends on, end to end.
 // ======================================================================
 async function j1b() {
-  journey("J1b", "magic-link sign-in through the application, end to end",
+  journey("J1b", "magic-link sign-in through the application, end to end, in a real browser",
     "FABLE-01 §2 / L-2: a provisioned address requests a link on /masuk; the email's link returns to " +
     "<APP>/auth/callback; the code exchange creates the session and lands on the role home.");
+  // attempt 3's direct server-action call answered "gagal" while the identical library call succeeded:
+  // classified HARNESS DEFECT (probable FormData encoding). This run uses the real form in a real browser.
+  let b; try { b = await browser(); } catch (e) { harness(`Playwright unavailable: ${e.message}`); return; }
   const email = "boot-guru@bootstrap.pintar.test";
-  const jar = new Jar();
-  await http("/masuk", { jar });
-  const send = action("src/app/masuk/actions.ts", "sendMagicLink");
-  const t0 = Date.now();
-  const r = await callFormAction(send, { email, lanjut: "/" }, { jar, path: "/masuk" });
-  step("sendMagicLink through the sign-in screen's server action", "terkirim", `status=${r.status} value=${JSON.stringify(r.value)}`, r.value === "terkirim");
-  // DIAGNOSIS of a "gagal": the identical library call, outside the app, so the
-  // Auth service's own error is visible (the action folds it into one word).
-  try {
-    const probeJar = new Jar();
-    const c = createServerClient(SUPA, ANON, { cookies: {
-      getAll: () => [...probeJar.c].map(([name, value]) => ({ name, value })),
-      setAll: (cs) => cs.forEach(({ name, value }) => probeJar.c.set(name, value)) } });
-    const { error } = await c.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${BASE}/auth/callback?lanjut=%2F` } });
-    step("diagnosis: the same signInWithOtp call made directly (not through the app)", "no error",
-      error ? `error code=${error.code} status=${error.status} message=${error.message}` : "no error", !error);
-  } catch (e) { harness(e); }
-  const verifierCookie = [...jar.c.keys()].filter((k) => /code-verifier/.test(k));
-  step("the action response set the PKCE code-verifier cookie on THIS browser", "present", verifierCookie.join(",") || "absent", verifierCookie.length > 0);
-
-  let link = null;
-  try {
-    for (let i = 0; i < 15 && !link; i++) {
+  const latestLink = async (after) => {
+    for (let i = 0; i < 15; i++) {
       await new Promise((ok) => setTimeout(ok, 1000));
       const list = await (await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent("to:" + email)}`)).json();
-      const msg = (list.messages ?? []).find((m) => Date.parse(m.Created) >= t0 - 5000);
+      const msg = (list.messages ?? []).find((m) => Date.parse(m.Created) >= after - 2000);
       if (msg) {
         const full = await (await fetch(`${MAILPIT}/api/v1/message/${msg.ID}`)).json();
-        const body = `${full.HTML ?? ""} ${full.Text ?? ""}`.replace(/&amp;/g, "&");
-        link = /https?:\/\/[^\s"'<>]+\/auth\/v1\/verify[^\s"'<>]+/.exec(body)?.[0] ?? null;
+        return /https?:\/\/[^\s"'<>]+\/auth\/v1\/verify[^\s"'<>]+/.exec(`${full.HTML ?? ""} ${full.Text ?? ""}`.replace(/&amp;/g, "&"))?.[0] ?? null;
       }
     }
-  } catch (e) { harness(e); }
-  step("the email arrived and carries a verify link", "link", link ? link.slice(0, 90) + "…" : "no email/link", Boolean(link));
-  if (!link) return;
-  const v = await fetch(link, { redirect: "manual" });
-  const loc = v.headers.get("location") ?? "";
-  step("Auth's verify endpoint redirects back to the APPLICATION's callback", `${BASE}/auth/callback?code=…`,
-    loc.slice(0, 120), loc.startsWith(`${BASE}/auth/callback`) && /[?&]code=/.test(loc));
-  const code = /[?&]code=([^&]+)/.exec(loc)?.[1];
-  if (!code) return;
-
-  const exch = action("src/app/auth/callback/actions.ts", "tukarKode");
-  // a different browser first (the phone-mail-app case), then the same one
-  const other = new Jar();
-  const x = await callAction(exch, [code, "/"], { jar: other, path: "/auth/callback" });
-  step("the link opened in a DIFFERENT browser than the one that asked (e.g. phone mail app)", "recorded (PKCE binds to the asking browser)",
-    `value=${JSON.stringify(x.value)} redirect=${x.redirect}`, null);
-  const y = await callAction(exch, [code, "/"], { jar, path: "/auth/callback" });
-  step("the link opened in the SAME browser that asked: code exchange (tukarKode)", "redirect to the role home with a session",
-    `status=${y.status} redirect=${y.redirect} value=${JSON.stringify(y.value)}`, Boolean(y.redirect));
-  const home = await http(y.redirect?.split(";")[0] || "/mengajar", { jar });
-  step("the destination renders under the new session", "200, not a redirect to /masuk", `status=${home.status} location=${home.location}`, home.status === 200);
+    return null;
+  };
+  const ask = async (page) => {
+    const t0 = Date.now();
+    await page.goto(`${BASE}/masuk`);
+    await page.fill("#email", email);
+    await page.press("#email", "Enter");
+    await page.waitForTimeout(2500);
+    return { t0, said: text(await page.content()).slice(0, 160) };
+  };
+  try {
+    // (a) asked in browser A, opened in browser B (the phone-mail-app case)
+    const A = await b.newContext(); const pa = await A.newPage();
+    const r1 = await ask(pa);
+    const l1 = await latestLink(r1.t0);
+    step("browser A submits the /masuk form; an email with a verify link arrives", "link", l1 ? l1.slice(0, 80) + "…" : `no link (screen said: ${r1.said})`, Boolean(l1));
+    if (l1) {
+      const B = await b.newContext(); const pb = await B.newPage();
+      await pb.goto(l1); await pb.waitForTimeout(3500);
+      step("the link opened in browser B (not the one that asked)", "(recorded: PKCE binds the code to browser A)",
+        `landed on ${pb.url().replace(BASE, "")} | ${text(await pb.content()).slice(0, 120)}`, null);
+      await B.close();
+    }
+    // (b) asked and opened in the same browser
+    const r2 = await ask(pa);
+    const l2 = await latestLink(r2.t0);
+    step("browser A asks again; a second link arrives", "link", l2 ? l2.slice(0, 80) + "…" : `no link (screen said: ${r2.said})`, Boolean(l2));
+    if (l2) {
+      await pa.goto(l2); await pa.waitForTimeout(4000);
+      const at = pa.url().replace(BASE, "");
+      const cookies = (await A.cookies()).map((c) => c.name).filter((n) => /auth-token/.test(n));
+      step("the link opened in browser A: callback, code exchange, landing", "a role home (/mengajar for an educator) under a session",
+        `landed on ${at} | session cookie=${cookies.length > 0} | ${text(await pa.content()).slice(0, 120)}`, !/masuk|callback/.test(at) && cookies.length > 0);
+    }
+    await A.close();
+  } catch (e) { harness(e); } finally { await b.close(); }
 }
 
 // ======================================================================
@@ -440,12 +437,21 @@ async function j5b() {
   journey("J5b", "Studio approve and freeze by an out-of-scope actor: reported outcome vs persisted state",
     "doc 04 §1 / doc 05: IN_REVIEW -> APPROVED needs CAN_REVIEW (not the author); APPROVED -> FROZEN needs " +
     "CAN_FREEZE_RELEASE; an actor without them, or in another tenant, is refused and the refusal is shown.");
-  const course = psql(`select id||'|'||status||'|'||institution_id from public.courses where status in ('STRUCTURED','VALIDATED','IN_REVIEW') order by created_at limit 1`);
+  // the seeds hold no pre-freeze object; make one THROUGH THE PRODUCT: an authorized HoD opens a revision
+  try {
+    const H = await signIn("boot-kaprodi@bootstrap.pintar.test", "Bootstrap-Kaprodi-5528!");
+    const published = psql(`select id from public.courses where institution_id=(select institution_id from public.courses where status='APPROVED' order by created_at limit 1) and status='APPROVED' order by created_at limit 1`);
+    const rv = action("src/app/studio/actions.ts", "createRevisionAction");
+    const r = await postForm(rv, { course: published }, { jar: H.jar, path: `/studio/paket/${published}` });
+    step("an authorized HoD opens a revision of a released course (createRevisionAction)", "a new pre-freeze course", `status=${r.status} location=${r.location}`, /hasil=ok/.test(r.location ?? ""));
+  } catch (e) { harness(e); }
+  const course = psql(`select id||'|'||status||'|'||institution_id from public.courses where status in ('INGESTED','STRUCTURED','VALIDATED','IN_REVIEW') order by created_at desc limit 1`);
   const rel = psql(`select r.id||'|'||r.status||'|'||r.course_id||'|'||r.institution_id from public.plp_releases r where r.status in ('STRUCTURED','VALIDATED','IN_REVIEW','APPROVED') order by r.created_at limit 1`);
   step("discovery: a pre-freeze course and a pre-freeze release exist to act on", "both", `course=${course || "none"} release=${rel || "none"}`, Boolean(course && rel));
   const actors = [
-    ["STUDENT of the owning tenant", "siklus-email@synthetic.pintar.test", "Sintetis-SiklusEmail-84!"],
-    ["EDUCATOR of ANOTHER tenant (OFFICIAL bootstrap)", "boot-guru@bootstrap.pintar.test", "Bootstrap-Guru-7741!"],
+    ["STUDENT of the owning tenant", "boot-siswa@bootstrap.pintar.test", "Bootstrap-Siswa-3082!"],
+    ["EDUCATOR of the owning tenant (holds no CAN_REVIEW)", "boot-guru@bootstrap.pintar.test", "Bootstrap-Guru-7741!"],
+    ["HEAD_OF_DEPARTMENT of ANOTHER tenant (synthetic)", "siklus-kaprodi@synthetic.pintar.test", "Sintetis-SiklusKaprodi-22!"],
   ];
   const adv = action("src/app/studio/actions.ts", "advanceContentAction");
   const frz = action("src/app/studio/actions.ts", "freezeReleaseAction");
@@ -506,6 +512,8 @@ async function j1onboard() {
   let k = null;
   for (let i = 0; i < 10; i++) { k = (await callAction(adv, [job], { jar: A.jar, path: `/pendataan/${job}` })).value; if (!k || k.pending === 0 || k.state === "COMPLETED" || /COMPLETE|DONE/i.test(String(k?.state))) break; }
   step("provision (majukanAksi until done)", "completed", JSON.stringify(k)?.slice(0, 240), null);
+  step("the intake's own per-row outcome (import_rows.state / failure_reason)", "(recorded)",
+    psql(`select string_agg(ordinal||':'||state||':'||coalesce(failure_reason,''), ' | ' order by ordinal) from public.import_rows where job_id='${job}'`), null);
   const page = await http(`/pendataan/${job}`, { jar: A.jar });
   step("what the job page tells the administrator afterwards", "(recorded)", text(page.body).slice(0, 300), null);
   for (const r of rows) {
@@ -563,7 +571,7 @@ async function startSessionFor(L, la, aa) {
   const person = psql(`select person_id from public.accounts where auth_user_id='${L.userId}'`);
   return psql(`select id from public.assessment_sessions where person_id='${person}' and assessment_assignment_id='${aa}' order by created_at desc limit 1`);
 }
-const responses = (session) => psql(`select coalesce(string_agg(pi.position||':'||r.client_seq||':'||(r.value->>'label')||coalesce(r.value->>'posisi',''), ' ' order by pi.position, r.client_seq),'') from public.responses r join public.presented_items pi on pi.id=r.presented_item_id where r.session_id='${session}'`);
+const responses = (session) => psql(`select coalesce(string_agg(pi.position||':'||r.client_seq||':'||coalesce(r.value::text,'null'), ' ' order by pi.position, r.client_seq),'') from public.responses r join public.presented_items pi on pi.id=r.presented_item_id where r.session_id='${session}'`);
 
 async function j6outbox() {
   journey("J6", "assessment answers under interruption: pending work at Finish, and a changed answer after replay",
@@ -665,7 +673,23 @@ async function j6outbox() {
       const outbox = await page.evaluate((k) => localStorage.getItem(k), `pintar.outbox.${session}`);
       const offline = await page.locator(".pin-luring").count();
       step("S1: change item 2 to a different option after the replay", "the change is recorded with a new client_seq and becomes authoritative",
-        `server=${responses(session)} | outbox=${outbox} | offline banner shown=${offline > 0}`, null);
+        `server=${responses(session)} | outbox=${outbox} | offline banner shown=${offline > 0}`, !JSON.parse(outbox ?? "{}") || Object.keys(JSON.parse(outbox ?? "{}")).length === 0);
+      // continue as the learner would: answer the rest online, then submit
+      const n = Number(psql(`select count(*) from public.presented_items where session_id='${session}'`));
+      for (let i = 2; i < n; i++) {
+        await page.getByRole("button", { name: /Berikutnya|Next/ }).click();
+        await page.locator("button.pin-op").nth(0).click(); await confirm(); await page.waitForTimeout(500);
+      }
+      await page.getByRole("button", { name: /^Kumpulkan$|^Submit$/ }).click();
+      await page.waitForTimeout(3000);
+      const st = psql(`select status from public.assessment_sessions where id='${session}'`);
+      const item2 = psql(`select coalesce(string_agg(r.client_seq||'='||r.value::text||' '||r.receipt_mode::text, ' ; ' order by r.client_seq),'none') from public.responses r join public.presented_items pi on pi.id=r.presented_item_id where r.session_id='${session}' and pi.position=2`);
+      const ob2 = await page.evaluate((k) => localStorage.getItem(k), `pintar.outbox.${session}`);
+      const labels = psql(`select string_agg(d.display_position||'='||d.label, ',' order by d.display_position) from public.presented_items pi, public.option_display_order(pi.session_id, pi.item_id) d where pi.session_id='${session}' and pi.position=2`);
+      const want = /(?:^|,)2=([^,]+)/.exec(labels)?.[1];
+      const last = item2.split(" ; ").pop() ?? "";
+      step("S1: submit the session; item 2's authoritative answer", `the learner's last choice (display position 2 = label ${want}) is the latest recorded answer`,
+        `session=${st} | display order ${labels} | item 2 on the server: ${item2} | outbox after submit=${ob2}`, Boolean(want) && last.includes(`"${want}"`));
       await ctx.close();
     }
   } finally { await b.close(); }
@@ -690,7 +714,7 @@ async function j8integrity() {
     `status=${surf.status} empty-state shown=${/Tidak ada catatan yang menunggu tinjauan/.test(t)}`, !/Tidak ada catatan yang menunggu tinjauan/.test(t));
   const emitters = spawnSync("grep", ["-rlE", "recordIntegritySignal\\(|record_integrity_signal", join(APP_DIR, "src")], { encoding: "utf8" }).stdout.trim();
   step("callers of the one signal writer in the application (inventory)", "the assessment client", emitters ? emitters.split("\n").map((f) => f.replace(APP_DIR, "")).join(", ") : "none", null);
-  const dbWriters = psql(`select coalesce(string_agg(p.proname, ','),'') from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and pg_get_functiondef(p.oid) ilike '%insert into public.integrity_signals%'`);
+  const dbWriters = psql(`select coalesce(string_agg(p.proname, ','),'') from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.prokind='f' and pg_get_functiondef(p.oid) ilike '%insert into public.integrity_signals%'`);
   step("database functions/triggers that insert integrity signals (inventory)", "(recorded)", dbWriters || "none", null);
 }
 
