@@ -3,12 +3,19 @@ PINTAR production application deployment — request
 Editing this file launches the Vercel deployment workflow; ordinary commits on
 the deployment branch do nothing. Each entry records one attempt.
 
-attempt:  008
+attempt:  009
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 target:   Vercel project "pintar40" (scope yazidmanan-2409)
 origin:   https://app.pintarselalu.com
 auth:     HELD. Not configured until Second Eye clears the deployment.
-why:      ATTEMPT 007 GOT THE APPLICATION RUNNING. Declaring framework=nextjs
+why:      the assertion worked: NEXT_PUBLIC_SUPABASE_ANON_KEY is genuinely
+          absent from Vercel production. Its `vercel env add` returned success
+          and stored nothing, while the variables written seconds either side
+          of it are present. A write that can fail silently is not a write, so
+          environment values now go through the Vercel API, which upserts and
+          reports its failures. No build was spent on the incomplete set.
+
+          Previously: ATTEMPT 007 GOT THE APPLICATION RUNNING. Declaring framework=nextjs
           turned the platform 404 into a 500: the app is deployed, routed and
           executing, and pintar40.vercel.app routes now too. The deployment
           carries four function outputs where it previously carried none.
@@ -33,6 +40,7 @@ why:      ATTEMPT 007 GOT THE APPLICATION RUNNING. Declaring framework=nextjs
           is a Next.js application Vercel was never told was Next.js. This
           attempt declares the framework, then rebuilds and redeploys.
 
+attempt:  008  (assertion caught the missing anon key before any build)
 attempt:  007  (framework declared; 404 -> 500; app now runs; env set incomplete)
 attempt:  006  (domain live and exempt from SSO; served NOT_FOUND; framework was null)
 attempt:  005  (domain attached and verified; stopped at DNS gate; nothing built)

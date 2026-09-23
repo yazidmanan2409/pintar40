@@ -227,21 +227,43 @@ jobs:
           SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          PRESENT=$(vercel env ls production --token "$VERCEL_TOKEN" 2>/dev/null | awk '{print $1}')
+          # WRITTEN THROUGH THE API, NOT THE CLI. `vercel env add` reported
+          # success for NEXT_PUBLIC_SUPABASE_ANON_KEY and stored nothing --
+          # the variable was simply absent afterwards while its neighbours,
+          # written seconds either side, were present. A write that can fail
+          # silently is not a write. The API upserts, returns JSON, and its
+          # failures are visible.
+          PRESENT=$(curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/env?decrypt=false" \
+            | python3 -c "
+          import json,sys
+          for e in json.load(sys.stdin).get('envs',[]):
+              if 'production' in (e.get('target') or []): print(e['key'])
+          ")
           has() { printf '%s\n' "$PRESENT" | grep -qx "$1"; }
+
+          write_env() {  # name, value
+            python3 - "$1" "$2" > /tmp/envbody.json <<'PY'
+          import json,sys
+          print(json.dumps({"key":sys.argv[1],"value":sys.argv[2],
+                            "type":"encrypted","target":["production"]}))
+          PY
+            CODE=$(curl -sS -o /tmp/envres.json -w '%{http_code}' -X POST \
+              -H "Authorization: Bearer $VERCEL_TOKEN" -H 'Content-Type: application/json' \
+              --data-binary @/tmp/envbody.json \
+              "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_NAME}/env?upsert=true")
+            if [ "$CODE" != "200" ] && [ "$CODE" != "201" ]; then
+              echo "::error::writing $1 failed with HTTP $CODE"; cat /tmp/envres.json; exit 1
+            fi
+          }
 
           # Replaceable configuration: rewritten every deploy so the origin and
           # the build stamp always match what is actually deployed.
-          put() {
-            if has "$1"; then vercel env rm "$1" production --yes --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true; fi
-            printf '%s' "$2" | vercel env add "$1" production --token "$VERCEL_TOKEN" >/dev/null
-            echo "set $1"
-          }
+          put() { write_env "$1" "$2"; echo "set $1"; }
           # Durable secrets: written once, never rewritten. See the header.
           keep() {
             if has "$1"; then echo "kept $1 (already present)"; return; fi
-            printf '%s' "$2" | vercel env add "$1" production --token "$VERCEL_TOKEN" >/dev/null
-            echo "minted $1"
+            write_env "$1" "$2"; echo "minted $1"
           }
 
           put NEXT_PUBLIC_SUPABASE_URL      "$SUPABASE_URL"
@@ -272,8 +294,13 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           set -euo pipefail
-          vercel env ls production --token "$VERCEL_TOKEN" > /tmp/envls.txt 2>&1 || true
-          NAMES=$(awk '{print $1}' /tmp/envls.txt)
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/env?decrypt=false" > /tmp/envls.txt
+          NAMES=$(python3 -c "
+          import json
+          for e in json.load(open('/tmp/envls.txt')).get('envs',[]):
+              if 'production' in (e.get('target') or []): print(e['key'])
+          ")
           echo "names present in Vercel production:"; printf '  %s\n' $NAMES
           MISSING=""
           for N in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY NEXT_PUBLIC_APP_URL \
