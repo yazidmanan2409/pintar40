@@ -31,7 +31,7 @@ Decomposed into checkable clauses:
 | id | clause | owner of the check |
 |---|---|---|
 | I-R1.1 | Every learner answer the client has shown as taken ("saved" or "pending") is held durably until the server resolves it. | client |
-| I-R1.2 | A pending entry is **resolved** only by (a) a server receipt for that exact (presented item, client_seq, value) — RECORDED or ACKNOWLEDGED — or (b) a **terminal** server refusal from a closed list (session TERMINATED; session belongs to someone else). Nothing else resolves it. | server decides; client obeys |
+| I-R1.2 | A pending entry is **resolved** only by (a) a server receipt for that exact (presented item, client_seq, value) — RECORDED or ACKNOWLEDGED — or (b) a **terminal** server refusal from a closed list — session TERMINATED; session belongs to someone else; session already final (finalized from another tab or device) — each **shown to the learner** as not counted. Nothing else resolves it. | server decides; client obeys |
 | I-R1.3 | The next `client_seq` for a presented item is strictly greater than every seq the server holds for it **and** every seq still in the client's outbox for it, in every page lifecycle (first load, reload, reconnect, second tab). | client, checked by server |
 | I-R1.4 | A conflicting-receipt refusal ("receipt already carries a different answer") is never treated as terminal or as offline: it means the client's numbering was wrong, and the answer is re-sent under a correct seq. | client |
 | I-R1.5 | `finalize` succeeds only when the server holds a receipt for every pending entry the finishing client declares, or the late-sync window has closed. | server |
@@ -141,11 +141,11 @@ Four coupled changes; none is a symptom patch on its own.
 - `record_answer` / `submit_response` raise with **stable codes**
   (`SQLSTATE` + reason token), not prose: `RECEIPT_CONFLICT` (with the server's
   current max seq for that item), `SESSION_TERMINATED`, `NOT_YOURS`,
-  `CONTINUE_REFUSED:<reason>`.
+  `SESSION_FINAL`, `CONTINUE_REFUSED:<reason>`.
 - `submitAnswer` returns `{ok:false, code}`; the client maps:
   `RECEIPT_CONFLICT` → re-key the entry at `max(returned, nextSeq)` and re-send
-  (never "offline"); `SESSION_TERMINATED`/`NOT_YOURS` → terminal, shown to the
-  learner; anything else → retryable; a thrown request → offline.
+  (never "offline"); `SESSION_TERMINATED`/`NOT_YOURS`/`SESSION_FINAL` → terminal,
+  shown to the learner as not counted; anything else → retryable; a thrown request → offline.
 
 ### R1-3 · Finish declares pending work; the server refuses to finalize over it — closes F-08, I-R1.5
 - The client's Finish sends a **manifest**: for each presented item, the highest
