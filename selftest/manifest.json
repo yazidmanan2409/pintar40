@@ -1596,17 +1596,28 @@
     {
       "id": "F09-A01",
       "runner": "db",
-      "proves": "A sign-up creates nobody (F-02). Once an installation has an active SYSTEM_ADMIN and no fixtures marker, handle_new_auth_user refuses with PR010 a bare sign-up, a sign-up that wrote the provisioning marker into user_metadata (writable by the signer), an identity whose app_metadata.person_id names nobody, and the synthetic seed intent on production; the pintar_provisioned marker in app_metadata, which only the admin API can write, is honoured."
+      "proves": "A sign-up creates nobody (F-02). Once an installation has an active SYSTEM_ADMIN and no fixtures marker, handle_new_auth_user refuses with PR010 a bare sign-up, a sign-up that wrote a provisioning marker into user_metadata (writable by the signer), an identity naming a person in app_metadata at insert (GoTrue writes the caller's app_metadata only after the insert, so nothing there is a key), an expired activation grant, and the synthetic seed intent on production. What is honoured is a live activation grant, consumed exactly once by an insert shaped as GoTrue makes it (app_metadata carrying only provider/providers, the address in another case), yielding the granted person and not a name the signer chose. The decision is fail-closed (`is not true`); the NULL case this session cannot reproduce is F09-C01's."
     },
     {
       "id": "F09-A02",
       "runner": "db",
-      "proves": "A provisioned person can be activated and signs in as themselves (F-01). persons_awaiting_account offers the school's administrator the provisioned person and nobody who already holds an account; another school's administrator, an educator and an anonymous caller are refused, as are an unknown account kind, a malformed email and an institution administrator calling authorize_new_person. The authorized activation is audited once, the identity Auth creates with app_metadata.person_id links to the provisioned person and activates their PENDING enrolment, current_person_id is that person, the person leaves the list, a second activation is refused, and a SYSTEM_ADMIN may authorize a person no institution has provisioned."
+      "proves": "A provisioned person can be activated and signs in as themselves (F-01). persons_awaiting_account offers the school's administrator the provisioned person and nobody who already holds an account; another school's administrator, an educator and an anonymous caller are refused, as are an unknown account kind, a malformed email, a card account without a ten-digit card, a card number on an email account, and an institution administrator calling authorize_new_person. The authorized activation is audited once and writes a single-use activation grant; the identity Auth then inserts -- with nothing PINTAR wrote in app_metadata -- is linked through that grant to the provisioned person and activates their PENDING enrolment; current_person_id is that person; the person leaves the list; a second activation is refused; a SYSTEM_ADMIN may authorize a person no institution has provisioned. The same path through the real route and the real Auth service is F09-C02's."
     },
     {
       "id": "F09-A03",
       "runner": "db",
       "proves": "The intake enrols a learner (F-03). The validator accepted role STUDENT and the provisioning step then granted it as a role assignment, which failed every learner row. An import row with role STUDENT now completes, is enrolled (PENDING) in its class through a membership, receives no role assignment, and is who activation offers next."
+    },
+    {
+      "id": "F09-C01",
+      "runner": "db",
+      "proves": "F-02 on a connection that never set anything (NEW-1). The in-suite test runs on a session that has already set app.seed_intent, where current_setting(..., true) reads ''; GoTrue's connections never set it, and for them it reads NULL, which made the refusal's condition NULL and admitted every real sign-up. On fresh psql connections that never touch the setting -- asserted to read NULL -- with an active SYSTEM_ADMIN and the fixtures marker off, a sign-up shaped exactly as GoTrue inserts it (app_metadata carrying only provider/providers) is refused with PR010, and the same shape is admitted and linked to the granted person when a live activation grant names the address. Rolled back."
+    },
+    {
+      "id": "F09-C02",
+      "runner": "app",
+      "proves": "Account activation through the real route and the real Auth service (NEW-2). The database suite proved activation with a hand-built auth.users insert, a shape GoTrue never produces, and passed while the product could activate nobody: GoTrue's admin createUser INSERTs the user and writes the caller's app_metadata in a later update, so the trigger never saw the link. Here a signed-in institution administrator activates a provisioned learner by classroom card and a provisioned teacher by email through POST /api/akun/aktivasi, with the fixtures marker off, and the real GoTrue creates both identities. Asserted: /aktivasi offers both; an anonymous caller is refused 401; each identity is linked to the provisioned person (no second person); the learner's enrolment is ACTIVE; each activation grant was consumed once; the learner signs in with the issued card and PIN through the production derivation and reaches /belajar as themselves; a second activation is refused 403. A declared exception to the app runner's black-box rule: the world is built, and the outcome read back, through the database owner, because a provisioned person with no account is a state no seed holds; the act under test is black-box end to end.",
+      "skip_justification": "needs the app, a reachable Supabase Auth and the database owner connection (CI local stack)"
     }
   ]
 }

@@ -5,7 +5,7 @@ do $d$
 declare orig text; src text;
 begin
   orig := pg_get_functiondef('public.handle_new_auth_user()'::regprocedure);
-  src := replace(orig, 'if not (', 'if false and not (');
+  src := replace(orig, 'if v_allowed is not true then', 'if false then');
   if src = orig then raise exception 'the plant did not reach the provisioning refusal'; end if;
   execute src;
 end $d$;

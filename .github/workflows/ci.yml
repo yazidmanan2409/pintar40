@@ -1572,6 +1572,27 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesR1.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-r1-gates
+      # NEW-1 lives on a connection that never set app.seed_intent, which no
+      # in-suite test can reproduce, so its plant is driven here against the
+      # fresh-connection test F09-C01: green before, red with the defect
+      # restored (for the declared reason), green again after restoration.
+      - name: NEW-1 restored must turn the fresh-connection test F09-C01 red
+        if: matrix.case == 'db-r1-gates'
+        env:
+          SUPABASE_DB_URL: ${{ steps.gatesR1.outputs.db-url }}
+        run: |
+          set -euo pipefail
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$SUPABASE_DB_URL"; done
+          npx tsx selftest/run.ts --accept-justified-skips --only=F09-C01 | tee c01-before.txt
+          psql -At -c "select pg_get_functiondef('public.handle_new_auth_user()'::regprocedure)" "$SUPABASE_DB_URL" > orig.sql
+          printf ';\n' >> orig.sql
+          psql -v ON_ERROR_STOP=1 -q -f selftest/plants/f02-2-fresh.sql "$SUPABASE_DB_URL"
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=F09-C01 | tee c01-planted.txt; code=${PIPESTATUS[0]}; set -e
+          psql -v ON_ERROR_STOP=1 -q -f orig.sql "$SUPABASE_DB_URL"
+          test "$code" != "0" || { echo "::error::F09-C01 stayed green with NEW-1 restored"; exit 1; }
+          grep -q "NEW-1 is open" c01-planted.txt || { echo "::error::F09-C01 went red for the wrong reason"; exit 1; }
+          npx tsx selftest/run.ts --accept-justified-skips --only=F09-C01 | tee c01-after.txt
+          echo "F09-C01: green, red for the declared reason with NEW-1 restored, green after restoration"
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

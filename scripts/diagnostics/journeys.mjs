@@ -352,6 +352,34 @@ async function j1a() {
 // ======================================================================
 // J1b — sign-in: the magic link the production path depends on, end to end.
 // ======================================================================
+/** The magic link, requested on /masuk and opened in the same browser; used by J1onboard. */
+async function magicLinkSameBrowser(email) {
+  const b = await browser();
+  try {
+    const ctx = await b.newContext(); const page = await ctx.newPage();
+    const t0 = Date.now();
+    await page.goto(`${BASE}/masuk`);
+    await page.fill("#email", email);
+    await page.press("#email", "Enter");
+    await page.waitForTimeout(2500);
+    let link = null;
+    for (let i = 0; i < 15 && !link; i++) {
+      await new Promise((ok) => setTimeout(ok, 1000));
+      const list = await (await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent("to:" + email)}`)).json();
+      const msg = (list.messages ?? []).find((m) => Date.parse(m.Created) >= t0 - 2000);
+      if (msg) {
+        const full = await (await fetch(`${MAILPIT}/api/v1/message/${msg.ID}`)).json();
+        link = /https?:\/\/[^\s"'<>]+\/auth\/v1\/verify[^\s"'<>]+/.exec(`${full.HTML ?? ""} ${full.Text ?? ""}`.replace(/&amp;/g, "&"))?.[0] ?? null;
+      }
+    }
+    if (!link) return { link: false, at: null, session: false };
+    await page.goto(link); await page.waitForTimeout(4000);
+    const at = page.url().replace(BASE, "");
+    const session = (await ctx.cookies()).some((c) => /auth-token/.test(c.name));
+    return { link: true, at, session };
+  } finally { await b.close(); }
+}
+
 async function j1b() {
   journey("J1b", "magic-link sign-in through the application, end to end, in a real browser",
     "FABLE-01 §2 / L-2: a provisioned address requests a link on /masuk; the email's link returns to " +
@@ -529,8 +557,10 @@ async function j1onboard() {
     const au = p ? psql(`select count(*) from auth.users u join public.accounts a on a.auth_user_id=u.id where a.person_id='${p}'`) : "n/a";
     const role = p ? psql(`select coalesce(string_agg(role::text, ','),'') from public.role_assignments where person_id='${p}' and revoked_at is null`) : "";
     const iid = p ? psql(`select coalesce(string_agg(x::text, ','),'') from (select to_jsonb(t) ->> 'institutional_id' as x from public.institutional_identities t where t.person_id='${p}') q`).trim() : "";
-    step(`${r.role} "${r.display_name}": person / role / accounts / auth identities`, "person + role + an account that can sign in",
-      `person=${p ? "yes" : "no"} role=${role || "-"} accounts=${acc} auth_identities=${au} institutional_id=${iid || "-"}`, p && acc !== "0" && au !== "0");
+    step(`${r.role ?? "no role"} "${r.display_name}" after provisioning: person / role / accounts / auth identities`,
+      "person + institutional ID, the declared role only for staff, NO account yet (provisioned is not active; activation is next)",
+      `person=${p ? "yes" : "no"} role=${role || "-"} accounts=${acc} auth_identities=${au} institutional_id=${iid || "-"}`,
+      Boolean(p) && Boolean(iid) && acc === "0" && (r.role === "EDUCATOR" ? role === "EDUCATOR" : role === ""));
   }
   // F-01: the administrator activates them through the product
   const learner = psql(`select id from public.persons where display_name='Siswa Onboarding ${tag}'`);
@@ -564,6 +594,17 @@ async function j1onboard() {
     `value=${JSON.stringify(c.value)} redirect=${c.redirect}`, Boolean(c.redirect) && !/galat|error/i.test(String(c.redirect)));
   const home = await http("/belajar", { jar: cj });
   step("the signed-in learner's /belajar", "200, their own learning surface", `status=${home.status}${home.location ? "->" + home.location : ""}`, home.status === 200);
+  // the activated teacher signs in by magic link, in a real browser
+  try {
+    const m = await magicLinkSameBrowser(te);
+    step("the activated teacher requests a magic link on /masuk and opens it", "a link arrives; the callback lands on a home under a session",
+      `link=${m.link} landed=${m.at} session=${m.session}`, m.link && m.session && !/masuk|callback/.test(m.at ?? "masuk"));
+  } catch (e) { harness(e); }
+  step("accounts after activation (learner, teacher)", "one each, linked to the provisioned person",
+    `learner=${learner ? psql(`select count(*) from public.accounts where person_id='${learner}'`) : "n/a"} teacher=${teacher ? psql(`select count(*) from public.accounts where person_id='${teacher}'`) : "n/a"}`,
+    Boolean(learner && teacher) && psql(`select count(*) from public.accounts where person_id='${learner}'`) === "1" && psql(`select count(*) from public.accounts where person_id='${teacher}'`) === "1");
+  step("persons named like the activated learner (no second person invented at activation)", "1",
+    psql(`select count(*) from public.persons where display_name='Siswa Onboarding ${tag}'`), psql(`select count(*) from public.persons where display_name='Siswa Onboarding ${tag}'`) === "1");
   const srcDoors = spawnSync("grep", ["-rlE", "auth\\.admin\\.(createUser|inviteUserByEmail)|signUp\\(|insert into auth\\.users", join(APP_DIR, "src"), join(APP_DIR, "supabase", "migrations")], { encoding: "utf8" }).stdout.trim();
   step("any product path that creates an Auth identity for a provisioned person (inventory, src + migrations)", "one",
     srcDoors ? srcDoors.split("\n").map((f) => f.replace(APP_DIR, "")).join(", ") : "none", null);
@@ -603,6 +644,11 @@ async function startSessionFor(L, la, aa) {
   const person = psql(`select person_id from public.accounts where auth_user_id='${L.userId}'`);
   return psql(`select id from public.assessment_sessions where person_id='${person}' and assessment_assignment_id='${aa}' order by created_at desc limit 1`);
 }
+// H-10: the player keeps one durable entry per answer, keyed
+// pintar.outbox.<session>.<item>.<seq>; the legacy single key is migrated away
+const outboxCount = (page, session) =>
+  page.evaluate((p) => Object.keys(localStorage).filter((k) => k.startsWith(p)).length, `pintar.outbox.${session}.`);
+const responseCount = (session) => Number(psql(`select count(*) from public.responses where session_id='${session}'`));
 const responses = (session) => psql(`select coalesce(string_agg(pi.position||':'||r.client_seq||':'||coalesce(r.value::text,'null'), ' ' order by pi.position, r.client_seq),'') from public.responses r join public.presented_items pi on pi.id=r.presented_item_id where r.session_id='${session}'`);
 
 async function j6outbox() {
@@ -625,7 +671,7 @@ async function j6outbox() {
       await page.goto(`${BASE}/belajar/${pre.la}/pemetaan`);
       await page.locator("button.pin-op").first().click();
       await page.waitForTimeout(1500);
-      step("S2: answer item 1 online", "1 response recorded", responses(session) || "none", responses(session).split(" ").filter(Boolean).length === 1);
+      step("S2: answer item 1 online", "1 response recorded", responses(session) || "none", responseCount(session) === 1);
       // Answer sync becomes unavailable: every submitAnswer request fails at the network; nothing else does.
       await page.route("**/*", (route) => {
         const h = route.request().headers();
@@ -637,14 +683,14 @@ async function j6outbox() {
         await page.locator("button.pin-op").nth(1).click();
         await page.waitForTimeout(400);
       }
-      const outbox = await page.evaluate((k) => localStorage.getItem(k), `pintar.outbox.${session}`);
+      const held = await outboxCount(page, session);
       step(`S2: answer items 2..${n} while answer sync is unavailable`, "held in the durable outbox, not on the server",
-        `server=${responses(session)} | outbox entries=${Object.keys(JSON.parse(outbox ?? "{}")).length}`, null);
+        `server=${responses(session)} | outbox entries=${held}`, held === n - 1 && responseCount(session) === 1);
       const finishBtn = () => page.getByRole("button", { name: /Selesaikan pemetaan|Finish the mapping/ }).click();
       const observe = async (label, variant) => {
         const st = psql(`select status from public.assessment_sessions where id='${session}'`);
         const res = psql(`select coalesce((select to_jsonb(r) - 'id' from public.assessment_results r where r.session_id='${session}' limit 1)::text,'none')`);
-        const ob = Object.keys(JSON.parse((await page.evaluate((k) => localStorage.getItem(k), `pintar.outbox.${session}`)) ?? "{}")).length;
+        const ob = await outboxCount(page, session);
         step(label, "Finish refused or deferred; never a FINALIZED session that omits pending work",
           `[${variant}] session=${st} | server responses=${responses(session)} | outbox still holds=${ob} | page=${page.url().replace(BASE, "")}`,
           !(st === "FINALIZED" && ob > 0), { result: res.slice(0, 500) });
@@ -669,6 +715,19 @@ async function j6outbox() {
         await finishBtn(); await page.waitForTimeout(2500);
         await observe("S2b: press Finish while the server refuses the pending replays ({ok:false})", "EMULATED: submitAnswer -> {ok:false}");
       }
+      // S2c: sync returns. The held answers must arrive, and Finish must then
+      // complete over ALL of them -- the positive half of F-08, and the state
+      // S1 needs (its POST_TEST cannot start while this PRE_TEST is open: H-11).
+      await page.unroute("**/*");
+      await page.reload(); await page.waitForTimeout(3000);
+      const finishNow = page.getByRole("button", { name: /Selesaikan pemetaan|Finish the mapping/ });
+      if (await finishNow.count()) { await finishNow.click(); await page.waitForTimeout(3000); }
+      const st2 = psql(`select status from public.assessment_sessions where id='${session}'`);
+      const answered = psql(`select coalesce((select (r.delta_inputs->>'answered') from public.assessment_results r where r.session_id='${session}' limit 1),'none')`);
+      step("S2c: sync returns; the held answers are delivered and Finish completes over all of them",
+        `FINALIZED, ${n} answered, outbox empty`,
+        `session=${st2} | answered=${answered} | server responses=${responseCount(session)} | outbox=${await outboxCount(page, session)}`,
+        st2 === "FINALIZED" && answered === String(n) && (await outboxCount(page, session)) === 0);
       await ctx.close();
     }
 
@@ -702,10 +761,10 @@ async function j6outbox() {
         document.dispatchEvent(new Event("visibilitychange"));
       });
       await page.waitForTimeout(800);
-      const outbox = await page.evaluate((k) => localStorage.getItem(k), `pintar.outbox.${session}`);
+      const outbox = await outboxCount(page, session);
       const offline = await page.locator(".pin-luring").count();
       step("S1: change item 2 to a different option after the replay", "the change is recorded with a new client_seq and becomes authoritative",
-        `server=${responses(session)} | outbox=${outbox} | offline banner shown=${offline > 0}`, !JSON.parse(outbox ?? "{}") || Object.keys(JSON.parse(outbox ?? "{}")).length === 0);
+        `server=${responses(session)} | outbox entries=${outbox} | offline banner shown=${offline > 0}`, outbox === 0);
       // continue as the learner would: answer the rest online, then submit
       const n = Number(psql(`select count(*) from public.presented_items where session_id='${session}'`));
       for (let i = 2; i < n; i++) {
@@ -716,7 +775,7 @@ async function j6outbox() {
       await page.waitForTimeout(3000);
       const st = psql(`select status from public.assessment_sessions where id='${session}'`);
       const item2 = psql(`select coalesce(string_agg(r.client_seq||'='||r.value::text||' '||r.receipt_mode::text, ' ; ' order by r.client_seq),'none') from public.responses r join public.presented_items pi on pi.id=r.presented_item_id where r.session_id='${session}' and pi.position=2`);
-      const ob2 = await page.evaluate((k) => localStorage.getItem(k), `pintar.outbox.${session}`);
+      const ob2 = await outboxCount(page, session);
       const labels = psql(`select string_agg(d.display_position||'='||d.label, ',' order by d.display_position) from public.presented_items pi, public.option_display_order(pi.session_id, pi.item_id) d where pi.session_id='${session}' and pi.position=2`);
       const want = /(?:^|,)2=([^,]+)/.exec(labels)?.[1];
       const last = item2.split(" ; ").pop() ?? "";

@@ -1529,4 +1529,159 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    /**
+     * F09-C02 — ACCOUNT ACTIVATION THROUGH THE REAL ROUTE AND THE REAL AUTH
+     * SERVICE (NEW-2).
+     *
+     * The database suite proved activation by inserting auth.users itself, in
+     * a shape GoTrue never produces, and it passed while the product could not
+     * activate anyone: GoTrue's admin createUser INSERTs the user first and
+     * writes the caller's app_metadata in a later update, so the trigger never
+     * saw the link. This test therefore asks the running application, as a
+     * signed-in institution administrator, through `/api/akun/aktivasi`, and
+     * lets the real GoTrue create the identity; then signs in AS THE ACTIVATED
+     * LEARNER with the card and PIN the route returned.
+     *
+     * A DECLARED EXCEPTION to this runner's black-box rule: the world is built,
+     * and the outcome read back, through the database owner (facility `db`),
+     * because a provisioned person with no account is exactly the state no
+     * seed holds. The act under test is black-box end to end. The fixtures
+     * marker is held OFF for the duration, as on a real installation, and
+     * restored afterwards.
+     */
+    id: "F09-C02",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const db = process.env.SUPABASE_DB_URL!;
+      // one session, one statement per -c, so every statement's rows print;
+      // the synthetic seed intent is set only inside the transaction that
+      // builds the world, never around the act under test
+      const psql = (...sql: string[]) => {
+        const r = spawnSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", "-At", ...sql.flatMap((q) => ["-c", q]), db], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql: ${(r.stderr || "").trim().split("\n").pop()}`);
+        return r.stdout.trim();
+      };
+      const seeding = (q: string) =>
+        psql("begin", "select set_config('app.seed_intent', 'synthetic', true)", q, "commit")
+          .split("\n").filter((l) => l !== "synthetic").join("\n");
+      const tag = Date.now().toString(36).slice(-6);
+      const learnerName = `Siswa Aktivasi ${tag}`;
+      const teacherName = `Guru Aktivasi ${tag}`;
+
+      // the world: a school with a namespace, the Alpha administrator as its
+      // administrator, a provisioned learner (PENDING) and teacher, no accounts
+      const inst = seeding(
+        `insert into public.institutions (name, slug, is_synthetic, is_active) values ('Sekolah Aktivasi ${tag}', 'aktivasi-${tag}', true, true) returning id`,
+      );
+      psql(
+        "update public.institutions set namespace = (select x from generate_series(1, 500) g, " +
+          `lateral (select upper(substr(md5('${tag}' || g), 1, 3)) x) q ` +
+          "where not exists (select 1 from public.institutions t where upper(t.namespace) = q.x) limit 1) " +
+          `where id = '${inst}'`,
+      );
+      const period = psql(
+        `insert into public.academic_periods (institution_id, name, starts_on, ends_on) values ('${inst}', '2026/2027', current_date - 30, current_date + 300) returning id`,
+      );
+      seeding(
+        "insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until) " +
+          `select a.person_id, 'INSTITUTION_ADMIN', '${inst}', now() - interval '1 day', now() + interval '30 days' ` +
+          `from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${PERSONA.alphaAdmin.email}'`,
+      );
+      const person = (name: string) =>
+        psql(`insert into public.persons (display_name) values ('${name}') returning id`);
+      const learner = person(learnerName);
+      const teacher = person(teacherName);
+      psql(`select public.issue_institutional_id('${learner}', '${inst}'), public.issue_institutional_id('${teacher}', '${inst}')`);
+      const enrolment = psql(
+        `insert into public.enrollments (person_id, institution_id, academic_period_id, status) values ('${learner}', '${inst}', '${period}', 'PENDING') returning id`,
+      );
+
+      const marker = psql("select local_fixtures_enabled from public.platform_environment");
+      psql("update public.platform_environment set local_fixtures_enabled = false");
+      try {
+        const admin = await signIn(ctx, PERSONA.alphaAdmin);
+        const post = (body: object, cookie?: string) =>
+          get(`${base}/api/akun/aktivasi`, {
+            method: "POST",
+            headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) },
+            body: JSON.stringify(body),
+          });
+
+        // the list the screen reads offers both
+        const page = await get(`${base}/aktivasi`, { headers: { cookie: admin.cookie } });
+        const html = await page.text();
+        c.expect(page.status === 200, `GET /aktivasi as the administrator → ${page.status}`);
+        c.expect(html.includes(learnerName) && html.includes(teacherName), "/aktivasi does not offer the provisioned people");
+
+        // an anonymous caller is refused before anything is created
+        const anon = await post({ mode: "CLASSROOM_CARD", person_id: learner });
+        c.expect(anon.status === 401, `anonymous POST /api/akun/aktivasi → ${anon.status}, expected 401`);
+
+        // the learner, by classroom card
+        const r1 = await post({ mode: "CLASSROOM_CARD", person_id: learner }, admin.cookie);
+        const b1 = (await r1.json().catch(() => ({}))) as { ok?: boolean; card?: string; pin?: string; detail?: string };
+        c.expect(r1.status === 200 && b1.ok === true && /^\d{10}$/.test(b1.card ?? "") && /^\d{6}$/.test(b1.pin ?? ""),
+          `card activation → ${r1.status} ${JSON.stringify(b1).slice(0, 160)}`);
+        if (b1.ok && b1.card && b1.pin) {
+          const linked = psql(
+            `select count(*) from public.accounts where person_id = '${learner}' and kind = 'CLASSROOM_CARD' and card_number = '${b1.card}'`,
+          );
+          c.expect(linked === "1", `the card identity Auth created is not linked to the provisioned learner (${linked})`);
+          c.expect(psql(`select count(*) from public.persons where display_name = '${learnerName}'`) === "1",
+            "activation created a second person for the learner");
+          c.expect(psql(`select status from public.enrollments where id = '${enrolment}'`) === "ACTIVE",
+            "activation left the learner's enrolment PENDING");
+          c.expect(psql(`select count(*) from public.account_activation_grants where person_id = '${learner}' and consumed_at is not null`) === "1",
+            "the activation grant was not consumed exactly once");
+
+          // and the learner signs in with what they were given, as themselves
+          const email = `card-${b1.card}@${process.env.CARD_EMAIL_DOMAIN ?? "cards.pintar.internal"}`;
+          let session: Session | null = null;
+          try {
+            session = await signIn(ctx, { email, password: productionDerivation(b1.card, b1.pin) });
+          } catch (e) {
+            c.expect(false, `the activated learner cannot sign in with the issued card and PIN: ${(e as Error).message}`);
+          }
+          if (session) {
+            const home = await get(`${base}/belajar`, { headers: { cookie: session.cookie } });
+            c.expect(home.status === 200, `the activated learner's /belajar → ${home.status} ${home.headers.get("location") ?? ""}`);
+            const me = psql(
+              `select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where lower(u.email) = lower('${email}')`,
+            );
+            c.expect(me === learner, "the card signs in as someone other than the provisioned learner");
+          }
+          // a second activation is refused by the database
+          const again = await post({ mode: "CLASSROOM_CARD", person_id: learner }, admin.cookie);
+          c.expect(again.status === 403, `a second activation of the same learner → ${again.status}, expected 403`);
+        }
+
+        // the teacher, by email
+        const temail = `guru-aktivasi-${tag}@contoh.invalid`;
+        const r2 = await post({ mode: "EMAIL", person_id: teacher, email: temail }, admin.cookie);
+        c.expect(r2.status === 200, `email activation → ${r2.status} ${(await r2.text()).slice(0, 160)}`);
+        c.expect(
+          psql(`select count(*) from public.accounts a join auth.users u on u.id = a.auth_user_id where a.person_id = '${teacher}' and a.kind = 'EMAIL' and lower(u.email) = lower('${temail}')`) === "1",
+          "the email identity Auth created is not linked to the provisioned teacher",
+        );
+      } finally {
+        psql(`update public.platform_environment set local_fixtures_enabled = ${marker === "t"}`);
+        // the Alpha administrator leaves this school again, so no later reader
+        // of their scope sees a second institution
+        seeding(
+          "update public.role_assignments set revoked_at = now() where role = 'INSTITUTION_ADMIN' " +
+            `and scope_node_id = '${inst}' and revoked_at is null`,
+        );
+      }
+      return c.verdict(
+        "an institution administrator activated a provisioned learner by classroom card and a provisioned teacher " +
+          "by email through /api/akun/aktivasi, with the real Auth service creating both identities and the fixtures " +
+          "marker off: each identity is the provisioned person (no second person), the learner's enrolment is ACTIVE, " +
+          "each grant was consumed once, the learner signs in with the issued card and PIN and reaches /belajar as " +
+          "themselves, a second activation and an anonymous caller are refused",
+      );
+    },
+  },
 ];

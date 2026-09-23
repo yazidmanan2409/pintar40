@@ -183,7 +183,76 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   // they are selected by id rather than by suite.
   if (!only || only.includes("F02-C01")) out.push(await runDbConcurrency(dbUrl));
   if (!only || only.includes("F07-C01")) out.push(await runFeedbackConcurrency(dbUrl));
+  if (!only || only.includes("F09-C01")) out.push(runSignupOnAFreshConnection(dbUrl));
   return out;
+}
+
+/**
+ * F09-C01 — F-02 on a connection that never set anything (NEW-1).
+ *
+ * The in-suite test cannot see this defect: by the time fable09 runs, the
+ * session has already set `app.seed_intent`, so `current_setting(.., true)`
+ * reads '' there. GoTrue's connections never set it, and for them it reads
+ * NULL -- which is what turned the refusal's condition NULL and let every real
+ * sign-up through. So this opens FRESH psql connections, as GoTrue does, and
+ * never touches the setting: it asserts the setting really is NULL there,
+ * that a bare sign-up shaped exactly as GoTrue inserts it is refused with
+ * PR010, and -- the control that proves the refusal is the rule and not a
+ * broken insert -- that the same shape IS admitted when a live activation
+ * grant names the address. Everything runs inside a transaction that is
+ * rolled back.
+ */
+function runSignupOnAFreshConnection(dbUrl: string): Outcome {
+  const id = "F09-C01";
+  const fresh = (sql: string) =>
+    spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-v", "VERBOSITY=verbose", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+  const gotrue = `'{"provider":"email","providers":["email"]}'::jsonb`;
+  const tag = Date.now().toString(36);
+  const problems: string[] = [];
+
+  const pre = fresh(
+    "select coalesce(current_setting('app.seed_intent', true), '<null>') || '|' || " +
+      "(select count(*) from public.role_assignments where role = 'SYSTEM_ADMIN' and revoked_at is null " +
+      "and now() >= valid_from and now() < valid_until)",
+  );
+  const [setting, admins] = pre.stdout.trim().split("|");
+  if (pre.status !== 0) return { id, runner: "db", status: "FAIL", detail: `precondition read failed: ${pre.stderr.trim()}` };
+  if (setting !== "<null>") problems.push(`a fresh connection reads app.seed_intent as '${setting}', not NULL: this is not GoTrue's condition`);
+  if (Number(admins) < 1) problems.push("no active SYSTEM_ADMIN in this database, so the refusal clause is not the one under test");
+
+  const bare = fresh(
+    "begin; update public.platform_environment set local_fixtures_enabled = false; " +
+      `insert into auth.users (id, email, raw_app_meta_data, raw_user_meta_data) values (gen_random_uuid(), ` +
+      `'f09-c01-asing-${tag}@contoh.invalid', ${gotrue}, '{"display_name":"Kepala Sekolah (asli)"}'::jsonb); rollback;`,
+  );
+  if (bare.status === 0) problems.push("a bare sign-up on a fresh connection was ADMITTED (NEW-1 is open)");
+  else if (!/PR010/.test(bare.stderr)) problems.push(`the sign-up failed for another reason: ${bare.stderr.trim().split("\n")[0]}`);
+
+  const granted = fresh(
+    "begin; update public.platform_environment set local_fixtures_enabled = false; " +
+      "insert into public.account_activation_grants (email, display_name, kind, authorized_by) " +
+      `select 'f09-c01-diberi-${tag}@contoh.invalid', 'Diberi C01', 'EMAIL', ra.person_id from public.role_assignments ra ` +
+      "where ra.role = 'SYSTEM_ADMIN' and ra.revoked_at is null limit 1; " +
+      `insert into auth.users (id, email, raw_app_meta_data) values (gen_random_uuid(), 'f09-c01-diberi-${tag}@contoh.invalid', ${gotrue}); ` +
+      `select count(*) from public.accounts a join auth.users u on u.id = a.auth_user_id join public.persons p on p.id = a.person_id ` +
+      `where u.email = 'f09-c01-diberi-${tag}@contoh.invalid' and p.display_name = 'Diberi C01'; rollback;`,
+  );
+  const linked = granted.stdout.trim().split("\n").filter((l) => /^\d+$/.test(l)).pop();
+  if (granted.status !== 0) problems.push(`the granted control failed: ${granted.stderr.trim().split("\n")[0]}`);
+  else if (linked !== "1") problems.push(`the granted control linked ${linked ?? "nothing"} account(s), expected 1`);
+
+  return problems.length
+    ? { id, runner: "db", status: "FAIL", detail: problems.join("; ") }
+    : {
+        id,
+        runner: "db",
+        status: "PASS",
+        detail:
+          "on fresh connections, where app.seed_intent reads NULL exactly as it does for GoTrue, with an active " +
+          "SYSTEM_ADMIN and the fixtures marker off: a sign-up shaped as GoTrue inserts it is refused with PR010, " +
+          "and the same shape is admitted and linked to the granted person when a live activation grant names " +
+          "the address. Rolled back",
+      };
 }
 
 /**
@@ -459,7 +528,7 @@ async function main() {
   // claiming the id was not reported.
   for (const t of manifest.tests.filter((t) => t.runner === "db")) {
     const owners = DB_RUNNERS.filter((r) => r.emits.some((e) => t.id.startsWith(e)));
-    if (owners.length !== 1 && !["F02-C01", "F07-C01"].includes(t.id)) {
+    if (owners.length !== 1 && !["F02-C01", "F07-C01", "F09-C01"].includes(t.id)) {
       problems.push(`${t.id} is claimed by ${owners.length} db suite(s) — declare it in exactly one DB_RUNNERS.emits`);
     }
   }

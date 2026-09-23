@@ -37,7 +37,7 @@ begin
   if to_regprocedure('public.finish_my_session(uuid, jsonb)') is null then
     raise exception 'fable09.sql needs the finish-manifest migration';
   end if;
-  if to_regprocedure('public.authorize_account_activation(uuid, text, text)') is null then
+  if to_regprocedure('public.authorize_account_activation(uuid, text, text, text)') is null then
     raise exception 'fable09.sql needs the account-activation migration';
   end if;
 end $$;
@@ -409,12 +409,26 @@ begin
         v_probs := selftest.f09_note(v_probs, 'F09-A01', 'a sign-up that wrote the marker into user_metadata was accepted');
       else m_signup := m_signup + 1; end if;
 
-      -- a person_id that names nobody is refused, not silently invented
+      -- app_metadata is not a key either: GoTrue writes the caller's after the
+      -- insert (NEW-2), so a person named there at insert is a direct write
+      -- that no grant stands behind
       v_err := selftest.f09_raised(format(
         'insert into auth.users (id, email, raw_app_meta_data) values (gen_random_uuid(), %L, %L::jsonb)',
         'f09-hantu-' || v_tag || '@local.invalid', jsonb_build_object('person_id', gen_random_uuid())));
       if v_err ->> 'code' is distinct from 'PR010' then
-        v_probs := selftest.f09_note(v_probs, 'F09-A01', 'an identity naming a person who does not exist was accepted');
+        v_probs := selftest.f09_note(v_probs, 'F09-A01', 'an identity naming a person in app_metadata was admitted without a grant');
+      else m_signup := m_signup + 1; end if;
+
+      -- an expired grant, and a grant for another address, admit nobody
+      insert into public.account_activation_grants (email, display_name, kind, authorized_by, created_at, expires_at)
+      values ('f09-basi-' || v_tag || '@local.invalid', 'Basi', 'EMAIL',
+              (select a.person_id from public.accounts a where a.auth_user_id = v_sys_u),
+              now() - interval '1 hour', now() - interval '1 minute');
+      v_err := selftest.f09_raised(format(
+        'insert into auth.users (id, email, raw_app_meta_data) values (gen_random_uuid(), %L, %L::jsonb)',
+        'f09-basi-' || v_tag || '@local.invalid', '{"provider":"email","providers":["email"]}'));
+      if v_err ->> 'code' is distinct from 'PR010' then
+        v_probs := selftest.f09_note(v_probs, 'F09-A01', 'an expired activation grant admitted a sign-up');
       else m_signup := m_signup + 1; end if;
 
       -- and the synthetic seed intent is not a production key
@@ -427,13 +441,26 @@ begin
         v_probs := selftest.f09_note(v_probs, 'F09-A01', 'the synthetic seed intent created a person on production');
       else m_signup := m_signup + 1; end if;
 
-      -- the marker only the admin API can write is honoured
-      insert into auth.users (id, email, raw_app_meta_data)
-      values (gen_random_uuid(), 'f09-admin-baru-' || v_tag || '@local.invalid', '{"pintar_provisioned":"true"}'::jsonb)
+      update public.platform_environment set environment = 'development';
+      -- what IS honoured: a live grant, consumed at the insert GoTrue makes
+      -- (app_metadata = provider only, the address in another case), once
+      insert into public.account_activation_grants (email, display_name, kind, authorized_by)
+      values ('f09-admin-baru-' || v_tag || '@local.invalid', 'Admin Baru F09', 'EMAIL',
+              (select a.person_id from public.accounts a where a.auth_user_id = v_sys_u));
+      insert into auth.users (id, email, raw_app_meta_data, raw_user_meta_data)
+      values (gen_random_uuid(), upper('f09-admin-baru-' || v_tag) || '@local.invalid',
+              '{"provider":"email","providers":["email"]}', '{"display_name":"Nama Pilihan Sendiri"}')
       returning auth.users.id into v_u;
-      select count(*) into n from public.accounts a where a.auth_user_id = v_u;
+      select count(*) into n from public.accounts a join public.persons p on p.id = a.person_id
+       where a.auth_user_id = v_u and p.display_name = 'Admin Baru F09';
       if n <> 1 then
-        v_probs := selftest.f09_note(v_probs, 'F09-A01', 'an identity the admin API marked as provisioned got no account');
+        v_probs := selftest.f09_note(v_probs, 'F09-A01',
+          'a granted identity did not become the granted person (or took the name the signer chose)');
+      end if;
+      select count(*) into n from public.account_activation_grants g
+       where g.email = 'f09-admin-baru-' || v_tag || '@local.invalid' and g.consumed_by = v_u;
+      if n <> 1 then
+        v_probs := selftest.f09_note(v_probs, 'F09-A01', 'the grant was not consumed by the identity it admitted');
       end if;
     exception when others then
       v_probs := selftest.f09_note(v_probs, 'F09-A01', 'the test could not run: ' || left(sqlerrm, 150));
@@ -482,15 +509,17 @@ begin
 
       -- the administrator's own malformed requests are refused
       perform selftest.as_user_uid(v_adm_u);
-      for r in select * from unnest(array['PASSWORD', 'EMAIL'], array['x@local.invalid', 'bukan-surel']) as t(kind, email) loop
+      for r in select * from unnest(array['PASSWORD', 'EMAIL', 'CLASSROOM_CARD', 'EMAIL'],
+                                    array['x@local.invalid', 'bukan-surel', 'card-x@cards.pintar.internal', 'y@local.invalid'],
+                                    array[null, null, null, '1234567890']) as t(kind, email, card) loop
         v_err := selftest.f09_raised(format(
-          'select * from public.authorize_account_activation(%L::uuid, %L, %L)', v_p, r.kind, r.email));
+          'select * from public.authorize_account_activation(%L::uuid, %L, %L, %L)', v_p, r.kind, r.email, r.card));
         if v_err is null then
           v_probs := selftest.f09_note(v_probs, 'F09-A02', format('activation as %s with %s was authorized', r.kind, r.email));
         end if;
       end loop;
       -- an institution administrator cannot create a person outside the intake
-      v_err := selftest.f09_raised(format('select public.authorize_new_person(%L)', 'Orang Baru'));
+      v_err := selftest.f09_raised(format('select public.authorize_new_person(%L, %L)', 'Orang Baru', 'orang-baru@local.invalid'));
       if v_err is null then
         v_probs := selftest.f09_note(v_probs, 'F09-A02', 'an institution administrator could create a person outside the intake');
       else m_act_denied := m_act_denied + 1; end if;
@@ -507,11 +536,11 @@ begin
         v_probs := selftest.f09_note(v_probs, 'F09-A02', format('%s audit row(s) for one activation', n));
       end if;
 
-      -- what the route then asks Auth to create: the link, in app_metadata
+      -- what Auth then inserts when the route asks it to: GoTrue's shape, with
+      -- nothing PINTAR wrote in app_metadata (it arrives later, NEW-2)
       update public.platform_environment set local_fixtures_enabled = false;
       insert into auth.users (id, email, raw_app_meta_data)
-      values (gen_random_uuid(), 'murid-' || v_tag || '@local.invalid',
-              jsonb_build_object('person_id', v_p, 'account_kind', 'EMAIL'))
+      values (gen_random_uuid(), 'murid-' || v_tag || '@local.invalid', '{"provider":"email","providers":["email"]}')
       returning auth.users.id into v_u;
       select count(*) into n from public.accounts a where a.auth_user_id = v_u and a.person_id = v_p;
       if n <> 1 then
@@ -534,14 +563,16 @@ begin
         v_probs := selftest.f09_note(v_probs, 'F09-A02', 'an activated person is still offered for activation');
       end if;
       v_err := selftest.f09_raised(format(
-        'select * from public.authorize_account_activation(%L::uuid, %L, null)', v_p, 'CLASSROOM_CARD'));
+        'select * from public.authorize_account_activation(%L::uuid, %L, %L, %L)', v_p, 'CLASSROOM_CARD',
+        'card-1234567890@cards.pintar.internal', '1234567890'));
       if v_err is null then
         v_probs := selftest.f09_note(v_probs, 'F09-A02', 'a person with an account could be activated a second time');
       else m_act_denied := m_act_denied + 1; end if;
 
       -- a SYSTEM_ADMIN may authorize a person no institution has yet
       perform selftest.as_user_uid(v_sys_u);
-      v_err := selftest.f09_raised(format('select public.authorize_new_person(%L)', 'Admin Sekolah Baru'));
+      v_err := selftest.f09_raised(format('select public.authorize_new_person(%L, %L)', 'Admin Sekolah Baru',
+        'admin-sekolah-' || v_tag || '@local.invalid'));
       if v_err is not null then
         v_probs := selftest.f09_note(v_probs, 'F09-A02', 'a SYSTEM_ADMIN could not authorize a new person: ' || (v_err ->> 'message'));
       end if;
@@ -640,14 +671,16 @@ begin
             || 'another session does not satisfy its manifest; the learner''s own '
             || 'satisfied manifest closes it and both the live and the late answer count', m_grace),
         format('with an administrator present and no fixtures marker, a bare sign-up, a sign-up that '
-            || 'wrote the marker into user_metadata, an identity naming a person who does not exist, and '
-            || 'the synthetic seed intent on production are each refused with PR010 (%s); the marker '
-            || 'only the admin API can write is honoured', m_signup),
+            || 'wrote a marker into user_metadata, an identity naming a person in app_metadata, an '
+            || 'expired grant, and the synthetic seed intent on production are each refused with PR010 '
+            || '(%s); a live activation grant is consumed exactly once by the insert GoTrue makes, '
+            || 'case-insensitively, and yields the granted person rather than a name the signer chose', m_signup),
         format('the school''s administrator is offered the provisioned person and nobody already holding '
             || 'an account; another school''s administrator, an educator and an anonymous caller are '
             || 'refused, as are malformed requests and an institution administrator creating a person '
             || 'outside the intake (%s refusal(s)). The authorized activation is audited once, the '
-            || 'identity Auth creates links to the provisioned person and starts their enrolment, they '
+            || 'identity Auth inserts -- with nothing PINTAR wrote in app_metadata -- links to the '
+            || 'provisioned person through the grant and starts their enrolment, they '
             || 'sign in as themselves, and a second activation is refused', m_act_denied),
         format('an import row with role STUDENT completes, is enrolled in its class and receives no role '
             || 'assignment (%s), and the imported learner is who activation offers next', m_imported)

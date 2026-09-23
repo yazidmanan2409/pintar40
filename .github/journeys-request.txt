@@ -3,7 +3,10 @@ PINTAR 4.0 — SYSTEM COHERENCE ASSESSMENT: composed-journey probe request
 Diagnostic only. Local stack on the runner; no hosted system, no production
 secret, no deployment. Records canonical-vs-observed; repairs nothing.
 
-attempt: 006 (post-repair: J1a probed with the fixtures marker cleared, as a real installation;
+attempt: 007 (NEW-1 fail-closed trigger + NEW-2 activation grants; harness H-10 per-entry outbox keys,
+          H-11 PRE_TEST closed after sync returns (S2c), H-12 response count by SQL; J1onboard
+          grades provisioned-not-active, then activation, card sign-in, teacher magic link;
+          006 (post-repair: J1a probed with the fixtures marker cleared, as a real installation;
           J1onboard activates through /aktivasi and signs in with the issued card;
           005: J5b/S3/role-less row; 004: J1b browser flow OK; J5b specimen actor lacked CAN_DRAFT — harness;
           001: harness path/env; 002: J5 SQL ambiguity; 003: NULL-concat response listing,
