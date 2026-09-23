@@ -261,6 +261,34 @@ jobs:
             echo "::warning::SUPABASE_SERVICE_ROLE_KEY is not set. Sign-in is unaffected, but the public certificate-verification endpoint will fail until it is supplied."
           fi
 
+      # WRITING AN ENVIRONMENT VALUE IS NOT THE SAME AS IT BEING THERE. The
+      # deployment that finally routed answered 500, and its build env listed
+      # every variable except NEXT_PUBLIC_SUPABASE_ANON_KEY -- which
+      # publicSupabaseAnonKey() throws without, on a page that builds a
+      # Supabase client while rendering. The set is now read back and asserted
+      # before a build is spent on it.
+      - name: Assert the production environment is complete
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          vercel env ls production --token "$VERCEL_TOKEN" > /tmp/envls.txt 2>&1 || true
+          NAMES=$(awk '{print $1}' /tmp/envls.txt)
+          echo "names present in Vercel production:"; printf '  %s\n' $NAMES
+          MISSING=""
+          for N in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY NEXT_PUBLIC_APP_URL \
+                   CARD_EMAIL_DOMAIN PINTAR_BUILD_SHA CARD_PEPPER CERT_SECRET_KEY_V1; do
+            printf '%s\n' $NAMES | grep -qx "$N" || MISSING="$MISSING $N"
+          done
+          if [ -n "$MISSING" ]; then
+            echo "::error::missing from Vercel production:$MISSING"
+            echo "--- raw listing ---"; cat /tmp/envls.txt
+            exit 1
+          fi
+          echo "every required production variable is present"
+          printf '%s\n' $NAMES | grep -qx SUPABASE_SERVICE_ROLE_KEY \
+            || echo "::warning::SUPABASE_SERVICE_ROLE_KEY absent — sign-in unaffected, but /api/verifikasi, /api/certificates/issue, /api/evaluation/assume and both /api/assets routes will fail at request time."
+
       - name: Build and deploy to production
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

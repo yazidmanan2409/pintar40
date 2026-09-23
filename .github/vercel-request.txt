@@ -3,12 +3,24 @@ PINTAR production application deployment — request
 Editing this file launches the Vercel deployment workflow; ordinary commits on
 the deployment branch do nothing. Each entry records one attempt.
 
-attempt:  007
+attempt:  008
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 target:   Vercel project "pintar40" (scope yazidmanan-2409)
 origin:   https://app.pintarselalu.com
 auth:     HELD. Not configured until Second Eye clears the deployment.
-why:      the custom domain proved the real state. It is NOT behind SSO --
+why:      ATTEMPT 007 GOT THE APPLICATION RUNNING. Declaring framework=nextjs
+          turned the platform 404 into a 500: the app is deployed, routed and
+          executing, and pintar40.vercel.app routes now too. The deployment
+          carries four function outputs where it previously carried none.
+
+          A 500 is an application error, and the deployment's build env lists
+          every variable except NEXT_PUBLIC_SUPABASE_ANON_KEY -- which
+          publicSupabaseAnonKey() throws without, on a page that builds a
+          Supabase client while rendering. Writing an environment value is not
+          the same as it being there, so the set is now read back from Vercel
+          and asserted before a build is spent on it.
+
+          Previously: the custom domain proved the real state. It is NOT behind SSO --
           the all_except_custom_domains exemption works -- and it answered a
           platform 404 NOT_FOUND with zero redirects, from iad1. The
           *.vercel.app hosts answer 302 to vercel.com/sso-api, so SSO had been
@@ -21,6 +33,7 @@ why:      the custom domain proved the real state. It is NOT behind SSO --
           is a Next.js application Vercel was never told was Next.js. This
           attempt declares the framework, then rebuilds and redeploys.
 
+attempt:  007  (framework declared; 404 -> 500; app now runs; env set incomplete)
 attempt:  006  (domain live and exempt from SSO; served NOT_FOUND; framework was null)
 attempt:  005  (domain attached and verified; stopped at DNS gate; nothing built)
 attempt:  004  (reported live; was Vercel's login page — probe invalid, now fixed)
