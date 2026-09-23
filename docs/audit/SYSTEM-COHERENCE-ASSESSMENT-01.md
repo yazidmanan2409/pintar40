@@ -101,7 +101,7 @@ rendering or refusal, not a completed journey.
   `role: STUDENT`** passes validation and fails provisioning. A learner row
   without a role provisions. Transfer is reachable from `/konfigurasi` actions;
   not executed.
-- **Findings:** F-06. Transfer: **UNPROVEN at composition.**
+- **Findings:** F-03. Transfer: **UNPROVEN at composition.**
 
 ### J5 — Content create → review → freeze → publish → distribute → consume
 - **Expected:** doc 04 §1 transitions by capability; human publish; readiness
