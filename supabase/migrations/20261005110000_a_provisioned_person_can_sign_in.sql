@@ -298,6 +298,17 @@ do $$
 declare v_inst uuid; v_period uuid; v_sys_u uuid; v_sys uuid; v_p uuid; v_enr uuid; v_u uuid;
         v_raised boolean; n int; v_state text;
 begin
+  -- The probe builds a synthetic world, which a production-marked database
+  -- refuses by design (INV-16 admits the synthetic seed intent only off
+  -- production). There the structure is what can be asserted; the behaviour
+  -- is F09-A01..A03's, proven in CI on every push.
+  if (select environment from public.platform_environment) = 'production' then
+    if pg_get_functiondef('public.handle_new_auth_user()'::regprocedure) not like '%PR010%' then
+      raise exception '0112: the Auth trigger does not refuse a self-provisioned identity';
+    end if;
+    raise notice '0112: production-marked database; structural check only (behaviour: F09-A01..A03)';
+    return;
+  end if;
   begin
     perform set_config('app.seed_intent', 'synthetic', true);
     insert into public.institutions (name, slug, is_synthetic, is_active)
