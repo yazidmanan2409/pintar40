@@ -1,22 +1,26 @@
 PINTAR production origin — forensic request
 
-Editing this file runs the read-only origin diagnosis. It deploys nothing,
-writes no environment value and touches no Supabase configuration.
+Read-only. Deploys nothing, writes no environment value, touches no Supabase
+configuration.
 
-attempt:  004
-purpose:  EVIDENCE CAPTURE for Second Eye re-verification.
+attempt:  005
+purpose:  establish what the PUBLIC certificate-verification surface actually
+          serves, because activation stage 1's functional check returned an
+          unexpected 401.
 
-          Deployment run 35807152803 passed the corrected strict verification
-          for the first time. This run re-measures the same origin now, from a
-          clean client with no Vercel session, and records the whole response
-          rather than a status code: unfollowed status, Location, x-vercel-error,
-          the edge id, the body, and the pin-masuk application marker.
+finding under test:
+          /api/verifikasi/<token> returned 401 {"error":"unauthenticated"}.
+          That response comes from src/proxy.ts, not from the route handler.
+          The middleware's PUBLIC_PREFIXES is ["/verifikasi/"], which covers
+          the PAGE but not the API beneath it.
 
-          It also records the Vercel project's protection posture, so the
-          package can show that Deployment Protection remains ON and that
-          reachability comes from the custom-domain exemption rather than from
-          anything being switched off.
+          The page at /verifikasi/[token] fetches its own
+          ${appUrl()}/api/verifikasi/<token> over HTTP, so that request
+          re-enters the same middleware anonymously. If it is refused, the
+          page can only ever render its not-found state.
 
-attempt:  003  (after framework fix: 500, application executing)
-attempt:  002  (custom domain: platform 404 — nothing deployed)
-attempt:  001  (established the SSO interstitial: 302 -> vercel.com/login, 200)
+          public_surface_registry declares the API "Anonymously reachable, and
+          declared as such", and assert_public_surface() asserts the database
+          declaration -- not the middleware. So the two may have drifted.
+
+          This run measures both surfaces rather than reasoning further.

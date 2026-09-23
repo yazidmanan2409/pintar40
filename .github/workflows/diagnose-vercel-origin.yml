@@ -39,9 +39,8 @@ jobs:
         run: |
           set -uo pipefail
           for U in \
-            "https://app.pintarselalu.com/masuk" \
-            "https://app.pintarselalu.com/" \
-            "https://pintar40-yazidmanan-2409.vercel.app/masuk" ; do
+            "https://app.pintarselalu.com/verifikasi/probe-unknown-token" \
+            "https://app.pintarselalu.com/api/verifikasi/probe-unknown-token" ; do
             echo "=================================================================="
             echo "URL: $U"
             echo "--- no redirects: status line and selected headers ---"
