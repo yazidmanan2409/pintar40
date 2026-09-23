@@ -318,3 +318,94 @@ psql "$DB" -c "begin; update public.platform_environment set local_fixtures_enab
 ```
 
 The ledger's attack prompts still apply to this repair. In particular, NEW-1 and NEW-2 were caught only because the probe drove a real GoTrue. **Treat any claim in §3 that has no runtime row in §4.3 as unproven.**
+
+---
+
+## Addendum A — Second Eye ruling, Priorities 0–5 (2026-09-23)
+
+### P0 — hosted `disable_signup: true` — DONE, verified
+
+- Workflow `configure-supabase-auth.yml`, attempt 004, commit `5381758`, [run 35834922821](https://github.com/yazidmanan2409/pintar40/actions/runs/35834922821).
+- One PATCH carries `disable_signup: true`, with `site_url` and `uri_allow_list` re-sent unchanged.
+- The independent read-back logged:
+
+  ```
+  site_url AFTER:       'https://app.pintarselalu.com'
+  uri_allow_list AFTER: 'https://app.pintarselalu.com/auth/callback*'
+  disable_signup AFTER: True
+  read-back matches the canonical production configuration exactly
+  ```
+
+- The functional check against `/auth/callback` passed.
+- Nothing else was touched: no migration, no deploy, no bootstrap.
+
+### P1 — NEW-1 — fixed
+
+- **The fix.** `handle_new_auth_user` decides fail-closed: every term is NULL-safe (`coalesce(current_setting('app.seed_intent', true), '')`), and the refusal fires unless the allow-condition `is true`.
+- **The test: `F09-C01`** (db runner, a run.ts leg). The id `F02-C01` was already taken by the INV-28 concurrency test. The leg:
+  - uses fresh psql connections that never touch the setting;
+  - asserts the setting reads NULL there;
+  - asserts an insert shaped as GoTrue makes it is refused with `PR010`;
+  - control: the same shape is admitted when a live activation grant names the address.
+- **Plant.** `selftest/plants/f02-2-fresh.sql` restores NEW-1. A new `db-r1-gates` CI step requires `F09-C01` to go green, then red with "NEW-1 is open", then green again.
+- **Locally:** green on the fix, red on the plant.
+
+### P2 — NEW-2 — fixed
+
+- **The table.** `account_activation_grants` holds a single-use, 10-minute binding of a lower-cased email to a person (or, for `authorize_new_person`, to a name), with kind and card number. RLS is on, and no client role holds a grant.
+- **Who writes it.** Only `authorize_account_activation(person, kind, email, card)` and `authorize_new_person(name, email)` write it, after they decide and audit.
+- **Who consumes it.** `handle_new_auth_user` consumes the live grant matching `new.email` at INSERT time. Nothing depends on `app_metadata` timing.
+- **Test `F09-C02`** (app runner, CI local stack):
+  - An institution administrator activates a provisioned learner (card) and a provisioned teacher (email) through `POST /api/akun/aktivasi`, and the real GoTrue creates both identities. The fixtures marker is off.
+  - Asserted: the identities are linked and no second person exists; the enrolment is ACTIVE; each grant is consumed once; the card and PIN sign in and reach `/belajar` as the learner; a second activation gets 403; an anonymous caller gets 401.
+  - Setup and read-back go through the database owner, a declared exception to that runner's black-box rule.
+- **Runtime evidence, probe attempt 007** ([run 35836761727](https://github.com/yazidmanan2409/pintar40/actions/runs/35836761727), specimen `b73f20d`, same SQL as the final set):
+  - J1a sign-up refused (500), counts `24|24|24 → 24|24|24`, no session;
+  - activation by card and email ok;
+  - learner enrolment `PENDING → ACTIVE`;
+  - accounts `learner=1 teacher=1`, no second person;
+  - the teacher's magic link landed on `/` under a session.
+
+### P3 — harness
+
+| id | defect | fix |
+|---|---|---|
+| H-10 | the probe read the legacy single-key outbox | counts per-entry keys; attempt 007 read `outbox entries=4` as expected |
+| H-11 | S1 could not start while the PRE_TEST correctly stayed open | new step S2c restores sync and finishes the PRE_TEST |
+| H-12 | "1 response" counted by splitting on spaces, and the answer JSON contains a space | counts by SQL |
+| H-6 (again) | the hand-encoded card sign-in answered `gagal` in 007 | now driven through the real `/masuk` card form in a browser |
+| H-13 | S2c in 007 pressed Finish while the player had reopened at item 1, so Finish was not on screen | steps to the end first. (007 observed all 5 answers delivered and the outbox empty; only Finish was not reached.) |
+
+### Migration history — disclosed for review
+
+The final set has 111 files:
+
+- `20261005100000` unchanged since `3a91e56`;
+- `20261005110000` **byte-identical to `5381758`**;
+- **`20261005120000_activation_is_granted_not_inferred.sql`**, the NEW-1/NEW-2 repair.
+
+`20261005110000` was edited after first push twice:
+
+- in `f86992d`: the structural-only probe on production-marked databases;
+- in `b73f20d`: the repair edited in place.
+
+CI's upgrade-path job ("every previously applied migration is byte-identical in HEAD") correctly went red on `b73f20d` ([run 35836761670](https://github.com/yazidmanan2409/pintar40/actions/runs/35836761670)).
+
+That job compares HEAD with the **previous push**. My corrections therefore changed the migration set in three consecutive pushes:
+
+| commit | change |
+|---|---|
+| `1bc2900` | split |
+| `ce41301` | reverted to `b73f20d`'s set |
+| `c99535d` | final split |
+
+Each of those reads as an edit once. The commit carrying this addendum changes no migration. It is the first commit where that rule can pass without any change to the rule.
+
+None of these migrations was ever applied to a persistent database: hosted production is at 108.
+
+### P4 / P5 — pending at the time of writing
+
+- **P4:** probe attempt 008, specimen `c99535d`. Its code is identical to this commit, which changes only this document.
+- **P5:** CI on this commit.
+
+Both results are reported with run ids when complete. The hard gate is unchanged: no hosted migration, no deploy and no §3b/§3c until Second Eye re-verifies.
