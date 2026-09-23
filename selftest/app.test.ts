@@ -251,6 +251,84 @@ export const appTests: SelfTest[] = [
     },
   },
   {
+    /**
+     * INV-38, AGAINST THE MIDDLEWARE RATHER THAN THE DECLARATION.
+     *
+     * `assert_public_surface()` asserts `public_surface_registry`, which is a
+     * statement of intent held in the database. Nothing asserted `src/proxy.ts`,
+     * so the two drifted: the registry declared `/api/verifikasi/[token]`
+     * "anonymously reachable, and declared as such" while the middleware
+     * refused it with 401. Both halves reported success and the public
+     * verification surface was dead in production — a QR scan rendered "not
+     * found" for any certificate, because the page's own server-side fetch of
+     * that endpoint carries no session and was turned away.
+     *
+     * So this test asks the RUNNING APPLICATION over HTTP, and it asks in both
+     * directions. Reachable is not enough on its own: a prefix wide enough to
+     * admit the endpoint could also admit its neighbours, so the refusals
+     * matter as much as the admission.
+     *
+     * An unknown token is the whole probe. It reaches the handler, proves
+     * routing, and creates nothing: `verify_certificate` refuses it and the
+     * route answers its closed `{"found": false}`, deliberately offering no
+     * existence oracle. No certificate, person or institution is involved.
+     */
+    id: "F01-R07",
+    requires: ["app"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const token = `selftest-unknown-${Date.now()}`;
+
+      // POSITIVE — the one declared public endpoint answers anonymously, and
+      // answers as ITSELF. A 401 here is the regression; any other refusal
+      // shaped by the middleware would be too, so the body is checked.
+      const api = await get(`${base}/api/verifikasi/${token}`);
+      c.expect(
+        api.status !== 401,
+        `anonymous GET /api/verifikasi/<token> → 401: the declared public verification endpoint is refused by the middleware`,
+      );
+      c.expect(
+        api.status === 404,
+        `anonymous GET /api/verifikasi/<unknown token> → ${api.status}, expected 404 from the handler`,
+      );
+      const body = await api.text();
+      c.expect(
+        /"found"\s*:\s*false/.test(body),
+        `/api/verifikasi/<unknown token> did not return the route's closed body: ${body.slice(0, 120)}`,
+      );
+
+      // and the page above it renders rather than redirecting to sign-in
+      const page = await get(`${base}/verifikasi/${token}`);
+      c.expect(page.status === 200, `anonymous GET /verifikasi/<token> → ${page.status}, expected 200`);
+
+      // NEGATIVE — the exemption is exactly that surface and no wider. The
+      // trailing slash is what makes these refusals hold.
+      for (const path of [
+        "/api/verifikasi",
+        "/api/verifikasi-admin/x",
+        "/api/verifikasix/y",
+        "/api/certificates/issue",
+        "/api/evaluation/assume",
+      ]) {
+        const r = await get(`${base}${path}`);
+        c.expect(
+          r.status === 401 || r.status === 404,
+          `anonymous GET ${path} → ${r.status}; expected the middleware to refuse it`,
+        );
+        c.expect(
+          r.status !== 200,
+          `anonymous GET ${path} → 200: the public exemption is wider than the declared surface`,
+        );
+      }
+
+      return c.verdict(
+        "the declared public verification endpoint is anonymously reachable and answers its own closed body; " +
+          "its neighbours under /api remain refused",
+      );
+    },
+  },
+  {
     id: "F01-R02",
     requires: ["app", "network"],
     run: async (ctx) => {
