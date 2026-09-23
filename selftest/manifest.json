@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 58,
-  "phase": "PINTAR 4.0 release candidate: WP8 plus the two final deltas -- an installation is initialised once, and a person with no past can be given their first role",
+  "version": 59,
+  "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..07.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
+    "db": "selftest/db/fable01..09.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -1577,6 +1577,36 @@
       "id": "F08-P08",
       "runner": "db",
       "proves": "A person with no past can be given their first role. The only role-granting surface built its list of people from enrolments, transfers and existing role assignments -- three prior relationships -- so the person who most needs a role, a school's first administrator created moments earlier in Supabase Auth, could not be selected at all, even though grant_role permits the grant and person_visible_to_me already returns true for them to a SYSTEM_ADMIN. persons_awaiting_first_role is the complement of those three sources and nothing wider: a person appears only while they hold no active role, no enrolment and no transfer, and leaves the list the moment they hold any of them, so the union is total and neither half is a directory. It is asserted here that the fresh person is reachable through none of the three sources, that the SYSTEM_ADMIN is offered them by name, that nobody already affiliated appears, that the grant the list exists for is accepted at the institution root, that ordinary onboarding continues from it -- the new administrator builds their own cohort -- and that an institution administrator, a dean, an educator and an anonymous caller are each refused by the SYSTEM_ADMIN name. Visibility was not widened to do any of it: the read defers to person_visible_to_me, and that predicate knows nothing about this list."
+    },
+    {
+      "id": "F09-R01",
+      "runner": "db",
+      "proves": "A seq conflict and a closed session are told apart by code. The player could not distinguish 'this client_seq is taken, renumber' from 'this session is over', so it either held an answer forever or dropped it. A different answer at a taken client_seq now raises PR001 whose DETAIL is the server's high-water mark for that item, an identical replay is acknowledged, a renumbered answer above the mark is accepted, and an answer into someone else's session raises PR002, the terminal code the player stops on."
+    },
+    {
+      "id": "F09-R02",
+      "runner": "db",
+      "proves": "Finish declares what the learner gave and the server holds it or refuses. A finish that raced the outbox scored the paper without the answers still travelling. finish_my_session(session, manifest) raises PR006 naming exactly the items whose declared client_seq the server does not yet hold, a seq above the held one is pending too, a malformed manifest is refused, and none of these refusals scores anything; once the answer arrives the same finish succeeds, a repeat returns the same result row, and afterwards an answer and another learner's finish each raise PR002."
+    },
+    {
+      "id": "F09-R03",
+      "runner": "db",
+      "proves": "An expired session waits out its late-sync window. An answer given before the deadline and received inside late_sync_grace_seconds is scorable (doc 04 §3), so the paper may not be scored the moment the clock runs out: finalize_session raises PR007 while the window is open, a finish without a manifest raises PR007, the transaction-local verified-manifest marker opens only the session it names, an answer held in another session does not satisfy the manifest, and the learner's own satisfied manifest closes the window with both the live and the late answer counted."
+    },
+    {
+      "id": "F09-A01",
+      "runner": "db",
+      "proves": "A sign-up creates nobody (F-02). Once an installation has an active SYSTEM_ADMIN and no fixtures marker, handle_new_auth_user refuses with PR010 a bare sign-up, a sign-up that wrote the provisioning marker into user_metadata (writable by the signer), an identity whose app_metadata.person_id names nobody, and the synthetic seed intent on production; the pintar_provisioned marker in app_metadata, which only the admin API can write, is honoured."
+    },
+    {
+      "id": "F09-A02",
+      "runner": "db",
+      "proves": "A provisioned person can be activated and signs in as themselves (F-01). persons_awaiting_account offers the school's administrator the provisioned person and nobody who already holds an account; another school's administrator, an educator and an anonymous caller are refused, as are an unknown account kind, a malformed email and an institution administrator calling authorize_new_person. The authorized activation is audited once, the identity Auth creates with app_metadata.person_id links to the provisioned person and activates their PENDING enrolment, current_person_id is that person, the person leaves the list, a second activation is refused, and a SYSTEM_ADMIN may authorize a person no institution has provisioned."
+    },
+    {
+      "id": "F09-A03",
+      "runner": "db",
+      "proves": "The intake enrols a learner (F-03). The validator accepted role STUDENT and the provisioning step then granted it as a role assignment, which failed every learner row. An import row with role STUDENT now completes, is enrolled (PENDING) in its class through a membership, receives no role assignment, and is who activation offers next."
     }
   ]
 }

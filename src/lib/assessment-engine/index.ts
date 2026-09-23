@@ -39,15 +39,29 @@ import {
 export type EngineClient = {
   rpc(fn: string, args?: Record<string, unknown>): PromiseLike<{
     data: unknown;
-    error: { message: string } | null;
+    error: { message: string; code?: string; details?: string | null } | null;
   }>;
 };
 
-export class EngineError extends Error {}
+/**
+ * A refusal from the database, carrying its STABLE CODE when it has one (R1):
+ * PR001 receipt conflict (detail = the server's highest client_seq), PR002 the
+ * session accepts nothing more, PR006 answers still pending, PR007 late-sync
+ * window open. A client decides what to do from the code, never from the prose.
+ */
+export class EngineError extends Error {
+  readonly code: string | null;
+  readonly detail: string | null;
+  constructor(message: string, code: string | null = null, detail: string | null = null) {
+    super(message);
+    this.code = code;
+    this.detail = detail;
+  }
+}
 
 async function call(db: EngineClient, fn: string, args?: Record<string, unknown>): Promise<unknown> {
   const { data, error } = await db.rpc(fn, args ?? {});
-  if (error) throw new EngineError(error.message);
+  if (error) throw new EngineError(error.message, error.code ?? null, error.details ?? null);
   return data;
 }
 
@@ -161,8 +175,15 @@ export async function pause(db: EngineClient, sessionId: string) {
 export async function resume(db: EngineClient, sessionId: string) {
   return String(await call(db, "resume_session", { p_session: sessionId }));
 }
-export async function finish(db: EngineClient, sessionId: string): Promise<string> {
-  return String(await call(db, "finish_my_session", { p_session: sessionId }));
+/**
+ * Finish, declaring what the learner took: `manifest` maps each presented item
+ * to the highest client_seq this client issued for it. The database refuses
+ * (PR006) until it holds a receipt at or above every entry (I-R1).
+ */
+export async function finish(
+  db: EngineClient, sessionId: string, manifest: Record<string, number> | null,
+): Promise<string> {
+  return String(await call(db, "finish_my_session", { p_session: sessionId, p_manifest: manifest }));
 }
 
 // ------------------------------------------------------------------ assistance

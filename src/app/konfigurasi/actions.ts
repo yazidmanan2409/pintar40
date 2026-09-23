@@ -133,10 +133,13 @@ export async function setFlagAction(fd: FormData): Promise<void> {
   const enabled = str(fd, "enabled") === "on";
   if (!institution || !/^[a-z][a-z0-9_.]{1,80}$/.test(key)) back("flags", { ok: false, detail: "kunci fitur: huruf kecil, angka, titik, garis bawah" });
   const supabase = await supabaseServer();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("feature_flags")
-    .upsert({ key, institution_id: institution, enabled, updated_at: new Date().toISOString() }, { onConflict: "key,institution_id" });
-  back("flags", error ? { ok: false, detail: error.message } : { ok: true });
+    .upsert({ key, institution_id: institution, enabled, updated_at: new Date().toISOString() }, { onConflict: "key,institution_id" })
+    .select("enabled");
+  // F-05: an upsert RLS filtered to nothing reports no error; read back instead
+  back("flags", error ? { ok: false, detail: error.message }
+    : (data ?? []).length === 1 && data![0].enabled === enabled ? { ok: true } : { ok: false, detail: "tidak ada perubahan" });
 }
 
 export async function setPlatformConfigAction(fd: FormData): Promise<void> {

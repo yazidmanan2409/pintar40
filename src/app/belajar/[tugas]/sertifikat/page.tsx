@@ -14,7 +14,7 @@ import LembarA4 from "@/components/sertifikat/LembarA4";
 import SalinTautan from "@/components/sertifikat/SalinTautan";
 import AksiCetak from "@/components/sertifikat/AksiCetak";
 import {
-  certificateForSession, myCertificates, institutionNames, replacementFor,
+  certificateForSession, myCertificates, institutionNames, replacementFor, issueIfEligible,
   rendersCredential, rendersVerification, layoutFor,
 } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
@@ -26,9 +26,9 @@ import KakiPintar from "@/components/KakiPintar";
  *
  *   ELIGIBLE     "Sertifikat sedang disiapkan". No QR, no verification link, no
  *                copy action, no print action, no certificate number and no
- *                name-as-issued. THE PAGE RE-READS; IT DOES NOT ISSUE (V-6a) —
- *                `/api/certificates/issue` is not imported and not linked from
- *                anywhere in this module graph.
+ *                name-as-issued. Shown while the system's issuance has not yet
+ *                sealed the certificate; each load asks it again (V-6a closed,
+ *                `issueIfEligible` in src/lib/sertifikat.ts).
  *   ISSUED       the credential, with the QR, the link, print and copy.
  *   REVOKED      the credential beneath a "dicabut oleh penerbit" banner, and
  *                no QR, link, copy or print: a revoked row is a retained
@@ -64,11 +64,18 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   // the same refusal as an assignment that is not this learner's (P7).
   if (!sessionId) return <Refusal locale={locale} />;
 
-  const detail = await certificateForSession(sessionId).catch(() => null);
-  if (!detail) return <Refusal locale={locale} />;
+  // V-6a closed: a passed, certifying session that has no sealed certificate yet
+  // asks the system to issue one on every load (doc 04 §7's retry clause).
+  let detail = await certificateForSession(sessionId).catch(() => null);
+  const passed = (await engine.outcome(db, sessionId).catch(() => null))?.lulus === true;
+  if (passed && (!detail || !rendersCredential(detail.status))) {
+    await issueIfEligible(sessionId);
+    detail = await certificateForSession(sessionId).catch(() => null);
+  }
+  if (!detail && !passed) return <Refusal locale={locale} />;
 
   const all = await myCertificates();
-  const row = all.find((c) => c.id === detail.certificate_id) ?? null;
+  const row = detail ? all.find((c) => c.id === detail!.certificate_id) ?? null : null;
   const institutions = await institutionNames(row ? [row.institution_id] : []);
   const institution = row ? institutions.get(row.institution_id) ?? null : null;
   if (row) await layoutFor(row.institution_id);
@@ -84,7 +91,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   );
 
   // ---------------------------------------------------------------- ELIGIBLE
-  if (!rendersCredential(detail.status)) {
+  if (!detail || !rendersCredential(detail.status)) {
     return (
       <>
         <CangkangPengalaman locale={locale} current="sertifikat" />

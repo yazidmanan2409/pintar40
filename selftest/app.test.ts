@@ -106,6 +106,9 @@ const ROUTE_INVENTORY = [
   // the database as developer phrases, so it is exactly the kind of page this
   // sweep exists for.
   "/pendataan",
+  // F-01. Account activation — the step after the intake — is a static route
+  // like the intake's own entry, so its rendered output is swept too.
+  "/aktivasi",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };

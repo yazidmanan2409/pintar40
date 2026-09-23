@@ -7,7 +7,10 @@ name: ci
 
 on:
   push:
-    branches: [main]
+    # P-03: a development branch is verified on every push, not only when
+    # someone remembers to dispatch; the production deploy requires a green run
+    # on the exact commit it ships.
+    branches: [main, "claude/**"]
   pull_request:
   # A phase is not done until this workflow is green on a pushed commit, and
   # until now it could only run on main or on a pull request — so work on a
@@ -159,7 +162,7 @@ jobs:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
-               db-wp7-gates, db-wp8-gates]
+               db-wp7-gates, db-wp8-gates, db-r1-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -205,6 +208,8 @@ jobs:
               echo "the fourteen feedback defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-wp8-gates)
               echo "the six WP8 defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-r1-gates)
+              echo "the six systemic-repair defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1554,6 +1559,19 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesWp8.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-wp8-gates
+
+      # The systemic repair's gates: an answer is never lost to a finish (R1),
+      # and a provisioned person can sign in while a stranger cannot provision
+      # themselves (F-01..F-03). Same harness, same four proofs.
+      - name: Local stack (systemic-repair gates)
+        if: matrix.case == 'db-r1-gates'
+        id: gatesR1
+        uses: ./.github/actions/local-stack
+      - name: Each planted systemic-repair defect must turn its own F09 test red
+        if: matrix.case == 'db-r1-gates'
+        env:
+          DB_URL: ${{ steps.gatesR1.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-r1-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

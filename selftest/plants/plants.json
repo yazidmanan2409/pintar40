@@ -9,6 +9,11 @@
       "suite": "selftest.run_fable08()",
       "control_green": 8,
       "what": "WP8's onboarding repair, the client-write reachability assertion and report configuration"
+    },
+    "db-r1-gates": {
+      "suite": "selftest.run_fable09()",
+      "control_green": 6,
+      "what": "the systemic repair: an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)"
     }
   },
   "plants": [
@@ -155,6 +160,42 @@
       "gate": "db-wp8-gates",
       "expect_red": "F08-P08",
       "expect_detail": "read the list of people awaiting a first role"
+    },
+    {
+      "name": "r1-1",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-R01",
+      "expect_detail": "a seq conflict raised P0001, not PR001"
+    },
+    {
+      "name": "r1-2",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-R02",
+      "expect_detail": "a finish over an answer the server does not hold raised nothing"
+    },
+    {
+      "name": "r1-3",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-R03",
+      "expect_detail": "closing an expired session inside its grace window raised nothing"
+    },
+    {
+      "name": "f02-1",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-A01",
+      "expect_detail": "a bare sign-up raised nothing -- it created a person"
+    },
+    {
+      "name": "f01-1",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-A02",
+      "expect_detail": "admin2 could authorize an activation"
+    },
+    {
+      "name": "f03-1",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-A03",
+      "expect_detail": "the STUDENT row was not enrolled in its class"
     }
   ]
 }

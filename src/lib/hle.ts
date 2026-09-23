@@ -843,7 +843,25 @@ export type HleEvent =
   | "tur.pg.6.isi"
   | "tur.pg.7.judul"
   | "tur.pg.7.isi"
-  | "sync.done";
+  | "sync.done"
+  | "sync.belum_tersimpan"
+  | "sync.belum_terkirim"
+  | "sync.sesi_ditutup"
+  | "aktivasi.ditolak"
+  | "aktivasi.eyebrow"
+  | "aktivasi.judul"
+  | "aktivasi.intro"
+  | "aktivasi.kosong"
+  | "aktivasi.surel"
+  | "aktivasi.dengan_surel"
+  | "aktivasi.dengan_kartu"
+  | "aktivasi.kartu_dibuat"
+  | "aktivasi.gagal"
+  | "aktivasi.baru.judul"
+  | "aktivasi.baru.arti"
+  | "aktivasi.baru.nama"
+  | "aktivasi.baru.tombol"
+  | "aktivasi.baru.ok";
 
 /**
  * One key's telling, in both languages.
@@ -1759,6 +1777,29 @@ const table: Table = {
   "studio.hasil.ok": { default: "Tersimpan.", en: "Saved." },
   "studio.hasil.gagal": { default: "Belum tersimpan.", en: "Not saved." },
   "sync.done": { default: "Semua jawaban sudah tersimpan di server.", en: "Every answer is saved on the server." },
+  // R1 (F-07/F-08). Said when Finish is held back because an answer the
+  // learner gave is not yet on the server, and when an answer arrived after
+  // the assessment had already closed. Neither blames the learner.
+  "sync.belum_tersimpan": { default: "Ada jawaban yang belum tersimpan di server. Pastikan tersambung, lalu tekan sekali lagi.", en: "Some answers are not saved on the server yet. Make sure you are connected, then press again." },
+  "sync.belum_terkirim": { default: "Belum tersambung. Jawaban Anda tetap tersimpan di perangkat ini; coba lagi saat tersambung.", en: "Not connected yet. Your answers stay saved on this device; try again once you are connected." },
+  // F-01. The step after the intake: a provisioned person becomes someone
+  // who can sign in. Plain words; the card PIN is shown once and said so.
+  "aktivasi.ditolak": { default: "Halaman ini untuk pengelola data sekolah.", en: "This page is for the people who manage a school's records." },
+  "aktivasi.eyebrow": { default: "Akun", en: "Accounts" },
+  "aktivasi.judul": { default: "Aktifkan akun", en: "Activate accounts" },
+  "aktivasi.intro": { default: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih cara masuk untuk masing-masing: tautan lewat surel, atau kartu kelas dengan PIN.", en: "People your school has recorded who cannot sign in yet. Choose how each one signs in: a link by email, or a classroom card with a PIN." },
+  "aktivasi.kosong": { default: "Semua orang yang sudah didata sudah bisa masuk.", en: "Everyone who has been recorded can already sign in." },
+  "aktivasi.surel": { default: "Alamat surel", en: "Email address" },
+  "aktivasi.dengan_surel": { default: "Aktifkan dengan surel", en: "Activate by email" },
+  "aktivasi.dengan_kartu": { default: "Buat kartu kelas", en: "Make a classroom card" },
+  "aktivasi.kartu_dibuat": { default: "Kartu dibuat. Catat sekarang — PIN hanya ditampilkan sekali:", en: "Card made. Write it down now — the PIN is shown only once:" },
+  "aktivasi.gagal": { default: "Belum berhasil. Periksa alamat surel, atau apakah orang ini sudah punya akun.", en: "That did not work. Check the email address, or whether this person already has an account." },
+  "aktivasi.baru.judul": { default: "Orang baru di luar pendataan", en: "A new person outside the intake" },
+  "aktivasi.baru.arti": { default: "Untuk pengelola pertama sebuah sekolah. Setelah dibuat, beri peran di Konfigurasi.", en: "For a school's first administrator. Once created, give them a role in Configuration." },
+  "aktivasi.baru.nama": { default: "Nama", en: "Name" },
+  "aktivasi.baru.tombol": { default: "Buat dan aktifkan", en: "Create and activate" },
+  "aktivasi.baru.ok": { default: "Dibuat. Orang ini sekarang bisa masuk dengan tautan surel.", en: "Created. This person can now sign in with an email link." },
+  "sync.sesi_ditutup": { default: "Asesmen ini sudah ditutup, jadi jawaban terakhir tidak lagi dapat dikirim.", en: "This assessment is already closed, so the last answer could not be sent." },
 
   // ═══════════════════════════ UX-1 · the role-based first-login tour (r2.1).
   // Daisy's approved copy, verbatim. Two corrections carried in from the later

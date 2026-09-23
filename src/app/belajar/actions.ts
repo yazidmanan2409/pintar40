@@ -27,8 +27,14 @@ export async function submitAnswer(
     const r = await engine.answer(await db(), presentedItemId, clientSeq, value, receiptMode, clientAssertedAt);
     return { ok: true as const, outcome: r.outcome };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
+}
+
+/** The database's refusal, with its stable code (R1) so the client never parses prose. */
+function refusal(e: unknown): { message: string; code: string | null; detail: string | null } {
+  const err = e as Partial<engine.EngineError> & Error;
+  return { message: err.message, code: err.code ?? null, detail: err.detail ?? null };
 }
 
 export async function noteView(presentedItemId: string) {
@@ -64,6 +70,25 @@ export async function dismissAssistance(presentedItemId: string) {
   }
 }
 
+/**
+ * A category-7 observation (doc 07, F-09): the fact that something happened,
+ * never what was answered. It is evidence for a human reviewer and nothing
+ * reads it for scoring (`assert_integrity_never_scores`). Failure is silent on
+ * purpose: an observation that cannot be sent must never interrupt a learner.
+ */
+export async function noteIntegrity(
+  sessionId: string,
+  category: "VISIBILITY_CHANGE" | "RECONNECT" | "RAPID_OPTION_CHANGE",
+  observation: Record<string, number | string>,
+) {
+  try {
+    await engine.recordIntegritySignal(await db(), sessionId, category, observation);
+    return { ok: true as const };
+  } catch {
+    return { ok: false as const };
+  }
+}
+
 export async function pauseSession(sessionId: string) {
   try {
     return { ok: true as const, status: await engine.pause(await db(), sessionId) };
@@ -80,11 +105,11 @@ export async function resumeSession(sessionId: string) {
   }
 }
 
-export async function finishSession(sessionId: string) {
+export async function finishSession(sessionId: string, manifest: Record<string, number>) {
   try {
-    return { ok: true as const, resultId: await engine.finish(await db(), sessionId) };
+    return { ok: true as const, resultId: await engine.finish(await db(), sessionId, manifest) };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
 }
 

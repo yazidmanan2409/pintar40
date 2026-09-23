@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
-import { deriveCardSecret } from "@/lib/card";
+import { cardEmail, deriveCardSecret } from "@/lib/card";
 import { appUrl } from "@/lib/env";
 import { berandaPeran } from "@/lib/beranda";
 import { tujuanInternal } from "@/lib/tujuan";
@@ -113,9 +113,8 @@ export async function signInWithCard(formData: FormData): Promise<HasilKartu> {
   const raw = formData.get("lanjut");
   if (!card || !pin) return "gagal";
   const supabase = await supabaseServer();
-  const host = process.env.CARD_EMAIL_DOMAIN ?? "cards.pintar.internal";
   const { error } = await supabase.auth.signInWithPassword({
-    email: `card-${card}@${host}`,
+    email: cardEmail(card),
     password: deriveCardSecret(card, pin),
   });
   // ONE FAILURE FOR EVERY REFUSAL, and the collapse happens here rather than in

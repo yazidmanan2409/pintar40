@@ -258,6 +258,9 @@ const RESET_SURFACES = [
   // surfaces and are linted as such.
   "src/app/masuk/page.tsx",
   "src/app/auth/callback/page.tsx",
+  // F-01 account activation. Built on the token set, the pendataan shell and
+  // the shared pin-* classes from the start, so it joins the re-set list.
+  "src/app/aktivasi/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -848,21 +851,30 @@ export const experienceTests: SelfTest[] = [
       }
       c.expect(selects >= 1, "no direct read of the certificates table was found to check");
 
-      // 3. and the learner pages never reach for the issuance route (V-6a)
+      // 3. V-6a CLOSED: issuance is the SYSTEM's, asked over HTTP from exactly
+      //    two declared places — the certificate page's retry (issueIfEligible,
+      //    src/lib/sertifikat.ts) and the player's post-Finish request — and no
+      //    learner module imports the service-role route itself.
+      const pemanggil: string[] = [];
       for (const f of sources) {
         const rel = relative(repoRoot, f).replace(/\\/g, "/");
-        if (!rel.startsWith("src/app/belajar") && !rel.startsWith("src/components")) continue;
-        c.expect(
-          !/certificates\/issue/.test(code(readFileSync(f, "utf8"))),
-          `${rel} reaches for the issuance route; no learner page may (V-6a)`,
-        );
+        if (!rel.startsWith("src/app/belajar") && !rel.startsWith("src/components") && rel !== "src/lib/sertifikat.ts") continue;
+        const src = code(readFileSync(f, "utf8"));
+        c.expect(!/from\s+["'][^"']*api\/certificates\/issue/.test(src),
+          `${rel} imports the service-role issuance route instead of asking it over HTTP`);
+        if (/certificates\/issue/.test(src)) pemanggil.push(rel);
       }
+      c.expect(
+        JSON.stringify(pemanggil.sort()) ===
+          JSON.stringify(["src/app/belajar/_components/ItemPlayer.tsx", "src/lib/sertifikat.ts"]),
+        `the issuance route is asked from ${JSON.stringify(pemanggil)}; exactly the player and issueIfEligible may`,
+      );
 
       c.note(`${selects} direct select(s) of the certificates table in the source, all on the ten-column list`);
       return c.verdict(
         "the direct certificate-list read in the source requests exactly the ten Q-11 columns and no other; " +
           "signature, key_version, canonical_payload and snapshot_id are named nowhere on a learner surface; " +
-          "and no learner page reaches for the service-role issuance route (V-6a)",
+          "and issuance is asked over HTTP from exactly the player and issueIfEligible, never imported (V-6a closed)",
       );
     },
   },
@@ -898,7 +910,9 @@ export const experienceTests: SelfTest[] = [
         "the detail page does not apply the ELIGIBLE binding to my_certificate's own result");
       c.expect(/rendersVerification\(detail\.status\)/.test(source),
         "the detail page does not gate the verification block on the issued state");
-      const eligibleBranch = source.indexOf("!rendersCredential(detail.status)");
+      // the LAST test of the predicate is the branch that returns the pending
+      // state; an earlier one (the issuance ask, V-6a) renders nothing
+      const eligibleBranch = source.lastIndexOf("!rendersCredential(detail.status)");
       const verificationUrl = source.indexOf("verificationUrl = issued");
       c.expect(eligibleBranch >= 0 && verificationUrl > eligibleBranch,
         "the ELIGIBLE branch does not return before a verification link is built");
@@ -917,9 +931,19 @@ export const experienceTests: SelfTest[] = [
         c.expect(at > eligibleBranch, `${thing} is reachable before the ELIGIBLE branch returns`);
       }
 
-      // 3. the pending state says the honest thing and offers no issuance
+      // 3. the pending state says the honest thing, and offers the learner no
+      //    issuance ACTION. V-6a is closed: a passed session with no credential
+      //    yet asks for issuance once, server-side, through issueIfEligible --
+      //    the issuance route decides (session_is_mine, certificate_prepare), the page only
+      //    asks. The page itself never names the route, never posts, and
+      //    renders no button that would; the ask happens before the branch.
       c.expect(/sertifikat\.disiapkan\.judul/.test(source), "the pending state has no telling");
-      c.expect(!/issue/i.test(source.replace(/issued/gi, "")), "the pending state reaches for issuance");
+      const withoutAsk = source.replace(/issueIfEligible/g, "").replace(/issued/gi, "");
+      c.expect(!/issue/i.test(withoutAsk), "the page reaches for issuance other than through issueIfEligible");
+      c.expect(!/certificates\/issue|fetch\(|<form|<button/.test(source),
+        "the page posts to issuance or renders an action of its own");
+      const ask = source.indexOf("issueIfEligible(");
+      c.expect(ask < 0 || ask < eligibleBranch, "the issuance ask comes after the ELIGIBLE branch has rendered");
 
       c.note("the binding's predicates, the detail page's branch order, and the six suppressed affordances");
       return c.verdict(
@@ -1219,6 +1243,16 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 108 -> 110 for the systemic repair (R1 and F-01..F-03).
+      // 20261005100000 recreates five assessment functions (a conflict and a
+      // terminal refusal now carry SQLSTATE codes; a finish verifies the
+      // client's manifest) and adds no relation. 20261005110000 recreates the
+      // Auth trigger and import_advance and adds three activation functions and
+      // their registry rows -- no relation, and nothing that is a mark, a logo,
+      // a crest or a theme. Read against §3 of the ruling before these numbers
+      // moved: the Q-7 source still does not exist.
+      //
+      //
       // MOVED 106 -> 108 for the two final release deltas. 20261004100000 adds
       // ONE relation, platform_bootstrap: a single row recording that this
       // installation was initialised, closed to every client role, carrying no
@@ -1325,7 +1359,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 108, `${migrations.length} migrations; the frozen baseline has 108`);
+      c.expect(migrations.length === 110, `${migrations.length} migrations; the frozen baseline has 110`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2964,7 +2998,10 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 106 -> 108 for the two final
+      // from, not a claim about the tour. MOVED 108 -> 110 for the systemic
+      // repair -- assessment refusal codes and finish manifest, and account
+      // activation -- neither of which is a tour RPC nor touches
+      // person_tour_state. MOVED 106 -> 108 for the two final
       // release deltas -- the installation-initialisation record and the
       // first-role discovery read -- neither of which is a tour RPC nor touches
       // person_tour_state. MOVED 105 -> 106 for the day-zero
@@ -2998,7 +3035,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 108, `${migs.length} migrations; the baseline has 108`);
+      c.expect(migs.length === 110, `${migs.length} migrations; the baseline has 110`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
