@@ -439,11 +439,12 @@ async function j5b() {
     "CAN_FREEZE_RELEASE; an actor without them, or in another tenant, is refused and the refusal is shown.");
   // the seeds hold no pre-freeze object; make one THROUGH THE PRODUCT: an authorized HoD opens a revision
   try {
-    const H = await signIn("boot-kaprodi@bootstrap.pintar.test", "Bootstrap-Kaprodi-5528!");
+    // attempt 4: the HoD was refused by name ("requires CAN_DRAFT in the owning institution"); the author holds it
+    const H = await signIn("boot-guru@bootstrap.pintar.test", "Bootstrap-Guru-7741!");
     const published = psql(`select id from public.courses where institution_id=(select institution_id from public.courses where status='APPROVED' order by created_at limit 1) and status='APPROVED' order by created_at limit 1`);
     const rv = action("src/app/studio/actions.ts", "createRevisionAction");
     const r = await postForm(rv, { course: published }, { jar: H.jar, path: `/studio/paket/${published}` });
-    step("an authorized HoD opens a revision of a released course (createRevisionAction)", "a new pre-freeze course", `status=${r.status} location=${r.location}`, /hasil=ok/.test(r.location ?? ""));
+    step("the authoring EDUCATOR opens a revision of a released course (createRevisionAction)", "a new pre-freeze course", `status=${r.status} location=${r.location}`, /hasil=ok/.test(r.location ?? ""));
   } catch (e) { harness(e); }
   const course = psql(`select id||'|'||status||'|'||institution_id from public.courses where status in ('INGESTED','STRUCTURED','VALIDATED','IN_REVIEW') order by created_at desc limit 1`);
   const rel = psql(`select r.id||'|'||r.status||'|'||r.course_id||'|'||r.institution_id from public.plp_releases r where r.status in ('STRUCTURED','VALIDATED','IN_REVIEW','APPROVED') order by r.created_at limit 1`);
@@ -496,6 +497,7 @@ async function j1onboard() {
   const rows = [
     { display_name: `Guru Onboarding ${tag}`, role: "EDUCATOR", node_id: node },
     { display_name: `Siswa Onboarding ${tag}`, role: "STUDENT", node_id: node },
+    { display_name: `Siswa Tanpa Peran ${tag}`, node_id: node },
   ];
   const open = action("src/app/pendataan/actions.ts", "bukaPendataanAksi");
   const r1 = await postForm(open, { institusi: inst, baris: JSON.stringify(rows) }, { jar: A.jar, path: "/pendataan" });
@@ -690,6 +692,21 @@ async function j6outbox() {
       const last = item2.split(" ; ").pop() ?? "";
       step("S1: submit the session; item 2's authoritative answer", `the learner's last choice (display position 2 = label ${want}) is the latest recorded answer`,
         `session=${st} | display order ${labels} | item 2 on the server: ${item2} | outbox after submit=${ob2}`, Boolean(want) && last.includes(`"${want}"`));
+      await ctx.close();
+    }
+    // ---- S3 (control for Second Eye's observation): change an answer in the SAME page, no reload
+    const post2 = await startable(L, "POST");
+    step("discovery (product reads): a second POST_TEST attempt for S3", "one (attempt_limit 2)", JSON.stringify(post2), Boolean(post2));
+    if (post2) {
+      const session = await startSessionFor(L, post2.la, post2.aa);
+      const ctx = await browserFor(b, L.jar);
+      const page = await ctx.newPage();
+      await page.goto(`${BASE}/belajar/${post2.la}/penguasaan`);
+      const confirm = () => page.getByRole("button", { name: /Kunci jawaban ini|Confirm this answer/ }).click();
+      await page.locator("button.pin-op").nth(0).click(); await confirm(); await page.waitForTimeout(1200);
+      await page.locator("button.pin-op").nth(1).click(); await confirm(); await page.waitForTimeout(1500);
+      step("S3: answer item 1, then change it in the same page (no reload)", "two receipts, client_seq 1 then 2; the change is latest",
+        responses(session), /1:1:.* 1:2:/.test(responses(session)));
       await ctx.close();
     }
   } finally { await b.close(); }

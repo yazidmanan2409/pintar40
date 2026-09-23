@@ -3,7 +3,8 @@ PINTAR 4.0 — SYSTEM COHERENCE ASSESSMENT: composed-journey probe request
 Diagnostic only. Local stack on the runner; no hosted system, no production
 secret, no deployment. Records canonical-vs-observed; repairs nothing.
 
-attempt: 004 (001: harness path/env; 002: J5 SQL ambiguity; 003: NULL-concat response listing,
+attempt: 005 (004: J1b browser flow OK; J5b specimen actor lacked CAN_DRAFT — harness;
+          001: harness path/env; 002: J5 SQL ambiguity; 003: NULL-concat response listing,
           FormData action encoding for J1b, aggregate functiondef, no pre-freeze specimen — harness only)
 specimens: released 46fd4452 and branch head
 journeys:  J10 certificate chain, J1a Auth-level self-provisioning,
