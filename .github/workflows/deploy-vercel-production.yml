@@ -97,6 +97,30 @@ jobs:
           vercel project add "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" || true
           vercel link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
 
+      # THE PROJECT MUST KNOW WHAT IT IS BUILDING. `vercel project add` creates
+      # a project with framework: null, buildCommand: null and
+      # outputDirectory: null. The resulting deployment carried a single
+      # lambda with entrypoint "." and no output, and the one hostname not
+      # masked by SSO answered a platform NOT_FOUND -- the app was never
+      # served, by anyone, at any point. Declaring the framework is what makes
+      # the build produce a routable Next.js application.
+      - name: Declare the framework so the build is a Next.js build
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -sS -X PATCH -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H 'Content-Type: application/json' -d '{"framework":"nextjs"}' \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}" > /tmp/fw.json
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/fw.json'))
+          print('framework:', d.get('framework'))
+          print('buildCommand:', d.get('buildCommand'), '| outputDirectory:', d.get('outputDirectory'))
+          "
+          FW=$(python3 -c "import json;print(json.load(open('/tmp/fw.json')).get('framework'))")
+          test "$FW" = "nextjs" || { echo "::error::framework is $FW, expected nextjs"; exit 1; }
+
       # The domain is attached and its DNS REQUIRED before anything is built.
       # Until it resolves to Vercel the origin cannot serve the app, and a
       # build carrying an origin that does not answer is a build that has to

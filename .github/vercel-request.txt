@@ -3,23 +3,25 @@ PINTAR production application deployment — request
 Editing this file launches the Vercel deployment workflow; ordinary commits on
 the deployment branch do nothing. Each entry records one attempt.
 
-attempt:  006
+attempt:  007
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 target:   Vercel project "pintar40" (scope yazidmanan-2409)
 origin:   https://app.pintarselalu.com
 auth:     HELD. Not configured until Second Eye clears the deployment.
-why:      DNS is live. app.pintarselalu.com resolves through
-          c9510057f699bec2.vercel-dns-017.com to 64.29.17.1 and 216.198.79.1,
-          which is Vercel's rank-1 target for this project. The domain was
-          already attached and verified in attempt 005.
+why:      the custom domain proved the real state. It is NOT behind SSO --
+          the all_except_custom_domains exemption works -- and it answered a
+          platform 404 NOT_FOUND with zero redirects, from iad1. The
+          *.vercel.app hosts answer 302 to vercel.com/sso-api, so SSO had been
+          masking this the whole time: the application has never served a page
+          to anyone, through any hostname, in any attempt.
 
-          This attempt builds the frozen release with
-          NEXT_PUBLIC_APP_URL=https://app.pintarselalu.com, deploys, promotes,
-          and verifies strictly: redirects are fatal, x-vercel-error is fatal,
-          and the body must carry the sign-in screen's own marker. A Vercel
-          login page cannot satisfy that, which is the failure that produced
-          the false "production is live" claim in attempt 004.
+          The project was created by `vercel project add` and carried
+          framework: null, buildCommand: null, outputDirectory: null. The
+          deployment held one lambda with entrypoint "." and no output. That
+          is a Next.js application Vercel was never told was Next.js. This
+          attempt declares the framework, then rebuilds and redeploys.
 
+attempt:  006  (domain live and exempt from SSO; served NOT_FOUND; framework was null)
 attempt:  005  (domain attached and verified; stopped at DNS gate; nothing built)
 attempt:  004  (reported live; was Vercel's login page — probe invalid, now fixed)
 attempt:  003  (origin from project domains; 404; Auth untouched)
