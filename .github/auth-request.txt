@@ -1,0 +1,17 @@
+PINTAR production boundary — Supabase Auth configuration request
+
+Editing this file runs the Auth configuration boundary. It deploys nothing,
+builds nothing, and touches no identity, no migration and no Vercel setting.
+
+attempt:  001
+release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
+project:  trtlvibiybwixfumjrrx
+site_url: https://app.pintarselalu.com
+redirect: https://app.pintarselalu.com/auth/callback*  (the only entry)
+
+authorized by: Second Eye Pass 2 GREEN + independent human browser
+               verification of https://app.pintarselalu.com/masuk.
+
+not in scope: SYSTEM_ADMIN bootstrap, the §3c platform_environment
+              transition, school onboarding, any change to Vercel Deployment
+              Protection, and anything at all touching Gladys.
