@@ -304,12 +304,17 @@ async function j1a() {
     "auth user and therefore never a PINTAR person or account. PUBLIC may do nothing but verification and Mini-PINTAR.");
   const email = `stranger-${Date.now()}@contoh.invalid`;
   const count = () => psql(`select (select count(*) from auth.users)||'|'||(select count(*) from public.persons)||'|'||(select count(*) from public.accounts)`);
+  // The local stack carries the fixtures marker so its seeds can create
+  // people; a real installation never does. Probe as the installation would be.
+  const marker = psql(`select local_fixtures_enabled from public.platform_environment`);
+  psql(`update public.platform_environment set local_fixtures_enabled = false`, "SETUP");
   const before = count();
   const res = await fetch(`${SUPA}/auth/v1/signup`, {
     method: "POST", headers: { apikey: ANON, "content-type": "application/json" },
     body: JSON.stringify({ email, password: "Stranger-Probe-4471!", data: { display_name: "Kepala Sekolah (asli)" } }),
   });
   const b = await res.text();
+  psql(`update public.platform_environment set local_fixtures_enabled = ${marker === "t"}`, "RESTORE");
   const after = count();
   step("anonymous POST /auth/v1/signup with the PUBLIC anon key (no form, no app)", "refused; users|persons|accounts unchanged",
     `status=${res.status} before=${before} after=${after}`, before === after);
@@ -527,13 +532,38 @@ async function j1onboard() {
     step(`${r.role} "${r.display_name}": person / role / accounts / auth identities`, "person + role + an account that can sign in",
       `person=${p ? "yes" : "no"} role=${role || "-"} accounts=${acc} auth_identities=${au} institutional_id=${iid || "-"}`, p && acc !== "0" && au !== "0");
   }
-  // every product sign-in door, as the provisioned learner would try it
-  const card = action("src/app/masuk/actions.ts", "signInWithCard");
+  // F-01: the administrator activates them through the product
   const learner = psql(`select id from public.persons where display_name='Siswa Onboarding ${tag}'`);
-  const iid = learner ? psql(`select coalesce((select to_jsonb(t) ->> 'institutional_id' from public.institutional_identities t where t.person_id='${learner}' limit 1),'')`) : "";
+  const teacher = psql(`select id from public.persons where display_name='Guru Onboarding ${tag}'`);
+  const list = await http("/aktivasi", { jar: A.jar });
+  step("the activation screen offers the provisioned people", "both names listed",
+    `status=${list.status}`, list.status === 200 && text(list.body).includes(`Siswa Onboarding ${tag}`) && text(list.body).includes(`Guru Onboarding ${tag}`));
+  const activate = (body) => http("/api/akun/aktivasi", { jar: A.jar, method: "POST",
+    headers: { "content-type": "application/json", origin: BASE }, body: JSON.stringify(body) });
+  const ac = await activate({ mode: "CLASSROOM_CARD", person_id: learner });
+  let issued = null; try { issued = JSON.parse(ac.body); } catch { /* not json */ }
+  step("activate the learner with a classroom card (/api/akun/aktivasi)", "a card number and a PIN, once",
+    `status=${ac.status} ok=${issued?.ok} card=${issued?.card ? "yes" : "no"} pin=${issued?.pin ? "yes" : "no"}`, issued?.ok === true && Boolean(issued?.card && issued?.pin));
+  const te = `guru-onboarding-${tag}@contoh.invalid`;
+  const ae = await activate({ mode: "EMAIL", person_id: teacher, email: te });
+  step("activate the teacher by email (/api/akun/aktivasi)", "ok", `status=${ae.status} ${ae.body.slice(0, 120)}`, ae.status === 200);
+  step("the learner's enrolment after activation", "ACTIVE",
+    learner ? psql(`select coalesce(string_agg(status::text, ','),'none') from public.enrollments where person_id='${learner}'`) : "no person",
+    learner ? /ACTIVE/.test(psql(`select coalesce(string_agg(status::text, ','),'') from public.enrollments where person_id='${learner}'`)) : false);
+  // a stranger cannot use the door
+  const sj = new Jar();
+  const sa = await http("/api/akun/aktivasi", { jar: sj, method: "POST", headers: { "content-type": "application/json", origin: BASE },
+    body: JSON.stringify({ mode: "CLASSROOM_CARD", person_id: learner }) });
+  step("an anonymous caller asks the activation route", "refused", `status=${sa.status}`, sa.status === 401 || sa.status === 403);
+
+  // every product sign-in door, as the activated learner would try it
+  const card = action("src/app/masuk/actions.ts", "signInWithCard");
   const cj = new Jar(); await http("/masuk/kartu", { jar: cj });
-  const c = await callFormAction(card, { kartu: (iid || "0").replace(/\D/g, "") || "0", pin: "123456", lanjut: "/" }, { jar: cj, path: "/masuk/kartu" });
-  step("the provisioned learner tries the classroom-card door with their institutional id", "(no card credential was ever issued: recorded)", `value=${JSON.stringify(c.value)} redirect=${c.redirect}`, null);
+  const c = await callFormAction(card, { kartu: issued?.card ?? "0", pin: issued?.pin ?? "000000", lanjut: "/belajar" }, { jar: cj, path: "/masuk/kartu" });
+  step("the activated learner signs in with the card and PIN they were given", "a redirect into the product, no error",
+    `value=${JSON.stringify(c.value)} redirect=${c.redirect}`, Boolean(c.redirect) && !/galat|error/i.test(String(c.redirect)));
+  const home = await http("/belajar", { jar: cj });
+  step("the signed-in learner's /belajar", "200, their own learning surface", `status=${home.status}${home.location ? "->" + home.location : ""}`, home.status === 200);
   const srcDoors = spawnSync("grep", ["-rlE", "auth\\.admin\\.(createUser|inviteUserByEmail)|signUp\\(|insert into auth\\.users", join(APP_DIR, "src"), join(APP_DIR, "supabase", "migrations")], { encoding: "utf8" }).stdout.trim();
   step("any product path that creates an Auth identity for a provisioned person (inventory, src + migrations)", "one",
     srcDoors ? srcDoors.split("\n").map((f) => f.replace(APP_DIR, "")).join(", ") : "none", null);
