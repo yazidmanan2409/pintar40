@@ -44,7 +44,7 @@ permissions:
   actions: read
 
 env:
-  RELEASE_SHA: c358f5866d1d9c9ac1647559cf024e9a73c3b601
+  RELEASE_SHA: 5b5b68d4c77700976904fdee5a2fb52e46f8221e
   PROJECT_REF: trtlvibiybwixfumjrrx
   VERCEL_PROJECT_NAME: pintar40
   # The production origin. A CUSTOM domain is the whole point: this project's
@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: c358f5866d1d9c9ac1647559cf024e9a73c3b601
+          ref: 5b5b68d4c77700976904fdee5a2fb52e46f8221e
 
       - name: Verify the frozen release SHA
         run: |
@@ -560,6 +560,25 @@ jobs:
           echo "anonymous GET ${APP_ORIGIN}/aktivasi -> $LOC"
           case "$LOC" in 30[1278]\ *"/masuk"*) echo "redirected to sign-in, as every protected surface is";;
             *) echo "::error::/aktivasi did not send an anonymous caller to /masuk"; exit 1;; esac
+
+      # The front door as a stranger sees it. The middleware once gated
+      # public/brand and public/fonts, and every step above still passed while
+      # strangers at /masuk got a broken logo and fallback fonts (F01-R08).
+      - name: Functional — the sign-in page's logo and fonts reach an anonymous visitor
+        run: |
+          set -euo pipefail
+          fail=0
+          R=$(curl -sS -o /tmp/logo.png -w '%{http_code} %{content_type}' "${APP_ORIGIN}/brand/pintar-selalu-logo.png")
+          echo "anonymous GET /brand/pintar-selalu-logo.png -> $R"
+          case "$R" in "200 image/png"*) ;; *) fail=1;; esac
+          cmp -s /tmp/logo.png public/brand/pintar-selalu-logo.png && echo "  byte-identical to the released artwork" || { echo "  differs from the released artwork"; fail=1; }
+          for f in plus-jakarta-sans-latin plus-jakarta-sans-latin-ext ibm-plex-mono-500-latin ibm-plex-mono-500-latin-ext; do
+            R=$(curl -sS -o /dev/null -w '%{http_code} %{content_type}' "${APP_ORIGIN}/fonts/$f.woff2")
+            echo "anonymous GET /fonts/$f.woff2 -> $R"
+            case "$R" in "200 font/woff2"*|"200 application/octet-stream"*) ;; *) fail=1;; esac
+          done
+          test "$fail" = "0" || { echo "::error::a stranger at /masuk does not receive the page's logo and fonts"; exit 1; }
+          echo "the sign-in page's logo and all four fonts are served to an anonymous visitor"
 
       # AUTH IS NOT WRITTEN HERE ANY MORE. The Auth boundary has one owner,
       # configure-supabase-auth.yml, which writes site_url, uri_allow_list and

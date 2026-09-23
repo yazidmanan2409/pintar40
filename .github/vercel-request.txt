@@ -2,7 +2,20 @@ PINTAR production application deployment — request
 
 Editing this file launches the Vercel deployment workflow.
 
-attempt:  012
+attempt:  013
+release:  5b5b68d4c77700976904fdee5a2fb52e46f8221e
+purpose:  Serve the sign-in page's logo and fonts to anonymous visitors.
+          src/proxy.ts's matcher gated public/brand and public/fonts, so
+          production answered a stranger's logo and font requests at /masuk
+          with 307 -> /masuk (check-front-door run 35849629660). The release
+          exempts exactly those two folders; F01-R08 proves it over HTTP and
+          reproduces the 307 without the change. The deploy now also fetches
+          the logo and the four fonts anonymously and fails if any is not
+          served.
+unchanged: environment, keys, Auth, database. §3b and §3c are already
+           applied in production and are not touched here.
+
+attempt:  012 (previous; green)
 release:  c358f5866d1d9c9ac1647559cf024e9a73c3b601 (unchanged; workflow-only change)
 purpose:  Second Eye step 3: redeploy with the service-role key taken from
           Supabase itself (Management API), validated (Admin API must answer
