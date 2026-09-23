@@ -5,7 +5,7 @@ secret, no deployment. Records canonical-vs-observed; repairs nothing.
 
 attempt: 008 (card sign-in through the real /masuk form in a browser (H-6 again in 007);
           S2c steps to the end before Finish (the player reopens at item 1);
-          migration set identical to b73f20d (the split in 1bc2900 is reverted, see that commit's successor);
+          final migration set: 20261005110000 as at 5381758 + NEW-1/NEW-2 in 20261005120000 (111);
           007 (NEW-1 fail-closed trigger + NEW-2 activation grants; harness H-10 per-entry outbox keys,
           H-11 PRE_TEST closed after sync returns (S2c), H-12 response count by SQL; J1onboard
           grades provisioned-not-active, then activation, card sign-in, teacher magic link;
