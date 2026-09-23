@@ -4,13 +4,25 @@ Editing this file runs the preflight and, only if it is complete, the Auth
 configuration boundary. Neither job deploys, builds, or touches an identity,
 a migration, RLS, or any Vercel setting.
 
-attempt:  002
+attempt:  003
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 project:  trtlvibiybwixfumjrrx
 site_url: https://app.pintarselalu.com
 redirect: https://app.pintarselalu.com/auth/callback*  (the only entry)
 
-why:      attempt 001 stopped at the credential gate: SUPABASE_ACCESS_TOKEN
+why:      the complete preflight ran and returned ONE outstanding item:
+          SUPABASE_SERVICE_ROLE_KEY absent from Vercel production. Nothing
+          operator-supplied is missing -- that secret is present in GitHub.
+          What has not happened is this pipeline writing it into Vercel, which
+          needs a deploy run, is outside the Auth boundary, and which Second
+          Eye sequenced AFTER Auth/bootstrap. My gate had mis-scoped it as
+          blocking; it is now classified as carried-forward and still reported
+          on every run.
+
+          Also recorded, and needing a decision before the FIRST SIGN-IN but
+          not before this boundary: the project has no custom SMTP.
+
+          Previously: attempt 001 stopped at the credential gate: SUPABASE_ACCESS_TOKEN
           was absent and nothing was contacted. Both it and
           SUPABASE_SERVICE_ROLE_KEY have since been added.
 
@@ -25,4 +37,5 @@ not in scope: SYSTEM_ADMIN bootstrap, the §3c platform_environment
               transition, school onboarding, Vercel Deployment Protection,
               and anything touching Gladys.
 
+attempt:  002  (preflight complete; one carried-forward item; Auth untouched)
 attempt:  001  (stopped at the credential gate; Supabase never contacted)

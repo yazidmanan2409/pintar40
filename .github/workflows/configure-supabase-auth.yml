@@ -107,7 +107,7 @@ jobs:
           # by the keyring, so at least one version must exist.
           required = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY',
                       'NEXT_PUBLIC_APP_URL', 'CARD_PEPPER', 'CARD_EMAIL_DOMAIN',
-                      'PINTAR_BUILD_SHA', 'SUPABASE_SERVICE_ROLE_KEY']
+                      'PINTAR_BUILD_SHA']
           for r in required:
               if r not in names:
                   print('  MISSING in Vercel production:', r)
@@ -115,6 +115,19 @@ jobs:
           if not any(n.startswith('CERT_SECRET_KEY_V') for n in names):
               print('  MISSING in Vercel production: CERT_SECRET_KEY_V*')
               miss.write('vercel-env: CERT_SECRET_KEY_V1\n')
+          # CARRIED FORWARD, NOT BLOCKING, and the distinction is the point.
+          # The operator HAS supplied this key; it is a present GitHub secret.
+          # What has not happened is this pipeline writing it into Vercel,
+          # which needs a deploy run — outside the Auth boundary — and which
+          # Second Eye scoped to AFTER Auth/bootstrap. It affects five API
+          # routes and neither /masuk nor /auth/callback, so it cannot affect
+          # what this workflow configures or verifies. It stays reported on
+          # every run rather than being dropped.
+          carry = open('/tmp/carry.txt', 'a')
+          if 'SUPABASE_SERVICE_ROLE_KEY' not in names:
+              print('  CARRIED FORWARD — absent from Vercel production: SUPABASE_SERVICE_ROLE_KEY')
+              carry.write('vercel-env: SUPABASE_SERVICE_ROLE_KEY (secret supplied; awaiting a deploy run, sequenced after Auth/bootstrap)\n')
+          carry.close()
           miss.close()
           PY
 
@@ -171,13 +184,18 @@ jobs:
         run: |
           set -uo pipefail
           echo "================ PREFLIGHT VERDICT ================"
+          if [ -s /tmp/carry.txt ]; then
+            echo "CARRIED FORWARD (known, sequenced later, not blocking this boundary):"
+            sort -u /tmp/carry.txt | sed 's/^/  - /'
+          fi
           if [ -s /tmp/missing.txt ]; then
             echo "INCOMPLETE. Outstanding items:"
             sort -u /tmp/missing.txt | sed 's/^/  - /'
             echo "::error::preflight incomplete — see the list above. Auth was not touched."
             exit 1
           fi
-          echo "COMPLETE — every required credential and configuration item is present."
+          echo "COMPLETE — every operator-supplied credential and every configuration item"
+          echo "required for this boundary is present."
           if [ "$(cat /tmp/smtp.txt 2>/dev/null || echo no)" = "no" ]; then
             echo "::warning::No custom SMTP is configured. Supabase's built-in email sender is rate-limited and not intended for production; the first production sign-in depends on it delivering a magic link."
           fi
