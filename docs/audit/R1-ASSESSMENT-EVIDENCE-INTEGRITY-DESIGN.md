@@ -96,7 +96,7 @@ idempotency key; it is the **ordering authority** for which answer counts.
 | path | today | pending-evidence check |
 |---|---|---|
 | P-1 Finish button → `finishSession` → `finish_my_session` → `submit_session` → `finalize_session` | only application path | **none** (F-08) |
-| P-2 Deadline: `session_enforce_deadline` flips to EXPIRED **lazily**, only when P-1 runs | EXPIRED → FINALIZED only via P-1 | **none**; P-1 after the deadline finalizes immediately, **inside** the late-sync grace window, so a pending answer replayed seconds later is recorded `is_final = true` and never counted (violates I-R1.6) |
+| P-2 (STATIC FINDING — not yet executed) Deadline: `session_enforce_deadline` flips to EXPIRED **lazily**, only when P-1 runs | EXPIRED → FINALIZED only via P-1 | **none**; P-1 after the deadline finalizes immediately, **inside** the late-sync grace window, so a pending answer replayed seconds later is recorded `is_final = true` and never counted (violates I-R1.6) |
 | P-3 Repeated Finish | idempotent (existing root result returned) | n/a — correct |
 | P-4 `terminate_session` | sets TERMINATED; never finalizes (doc 04 says TERMINATED → FINALIZED) | outside R1 — recorded, not proposed |
 | P-5 System finalizer at deadline+grace | **does not exist** (no scheduler) | an EXPIRED session whose learner never returns has no result — outside R1's invariant; recorded for Sauron |
@@ -111,7 +111,7 @@ idempotency key; it is the **ordering authority** for which answer counts.
 | the set of answers taken but not yet acknowledged | **client** (only it knows) — must be **declared** to the server at Finish |
 | whether finalization may happen | **server**, using that declaration and the grace window |
 
-### 2.5 Adjacent behaviours observed while mapping (recorded; see §4 for what is in/out)
+### 2.5 Adjacent behaviours observed while mapping — STATIC FINDINGS, not yet executed (see §3 for what is in/out)
 
 - A-1 `pause_session` does not freeze the authoritative deadline (doc 04 §5 says
   paused elapsed time is frozen); `record_answer` accepts answers while PAUSED;
