@@ -3,7 +3,10 @@ PINTAR 4.0 — SYSTEM COHERENCE ASSESSMENT: composed-journey probe request
 Diagnostic only. Local stack on the runner; no hosted system, no production
 secret, no deployment. Records canonical-vs-observed; repairs nothing.
 
-attempt: 007 (NEW-1 fail-closed trigger + NEW-2 activation grants; harness H-10 per-entry outbox keys,
+attempt: 008 (card sign-in through the real /masuk form in a browser (H-6 again in 007);
+          S2c steps to the end before Finish (the player reopens at item 1);
+          migrations split forward-only: 20261005110000 restored, NEW-1/NEW-2 in 20261005120000;
+          007 (NEW-1 fail-closed trigger + NEW-2 activation grants; harness H-10 per-entry outbox keys,
           H-11 PRE_TEST closed after sync returns (S2c), H-12 response count by SQL; J1onboard
           grades provisioned-not-active, then activation, card sign-in, teacher magic link;
           006 (post-repair: J1a probed with the fixtures marker cleared, as a real installation;

@@ -586,14 +586,30 @@ async function j1onboard() {
     body: JSON.stringify({ mode: "CLASSROOM_CARD", person_id: learner }) });
   step("an anonymous caller asks the activation route", "refused", `status=${sa.status}`, sa.status === 401 || sa.status === 403);
 
-  // every product sign-in door, as the activated learner would try it
-  const card = action("src/app/masuk/actions.ts", "signInWithCard");
-  const cj = new Jar(); await http("/masuk/kartu", { jar: cj });
-  const c = await callFormAction(card, { kartu: issued?.card ?? "0", pin: issued?.pin ?? "000000", lanjut: "/belajar" }, { jar: cj, path: "/masuk/kartu" });
-  step("the activated learner signs in with the card and PIN they were given", "a redirect into the product, no error",
-    `value=${JSON.stringify(c.value)} redirect=${c.redirect}`, Boolean(c.redirect) && !/galat|error/i.test(String(c.redirect)));
-  const home = await http("/belajar", { jar: cj });
-  step("the signed-in learner's /belajar", "200, their own learning surface", `status=${home.status}${home.location ? "->" + home.location : ""}`, home.status === 200);
+  // the activated learner signs in through the REAL card form, in a real
+  // browser (a hand-encoded FormData server-action call is H-6: it reached
+  // the action with empty fields and answered "gagal" in attempts 2-3 and 7)
+  try {
+    const b = await browser();
+    try {
+      const ctx = await b.newContext(); const page = await ctx.newPage();
+      await page.goto(`${BASE}/masuk`);
+      await page.locator("button.pin-tautan").first().click();
+      await page.fill("#kartu", issued?.card ?? "0");
+      await page.fill("#pin", issued?.pin ?? "000000");
+      await page.press("#pin", "Enter");
+      await page.waitForTimeout(4000);
+      const at = page.url().replace(BASE, "");
+      const session = (await ctx.cookies()).some((c) => /auth-token/.test(c.name));
+      step("the activated learner signs in on the /masuk card form with the card and PIN they were given",
+        "a session, and the form leaves /masuk", `landed=${at} session=${session}`, session && !/^\/masuk/.test(at));
+      const r = await page.goto(`${BASE}/belajar`); await page.waitForTimeout(1500);
+      step("the signed-in learner's /belajar", "200, their own learning surface",
+        `status=${r?.status()} url=${page.url().replace(BASE, "")} | ${text(await page.content()).slice(0, 100)}`,
+        r?.status() === 200 && /\/belajar/.test(page.url()));
+      await ctx.close();
+    } finally { await b.close(); }
+  } catch (e) { harness(e); }
   // the activated teacher signs in by magic link, in a real browser
   try {
     const m = await magicLinkSameBrowser(te);
@@ -720,7 +736,12 @@ async function j6outbox() {
       // S1 needs (its POST_TEST cannot start while this PRE_TEST is open: H-11).
       await page.unroute("**/*");
       await page.reload(); await page.waitForTimeout(3000);
+      // the player reopens at the first item; Finish is offered at the end
       const finishNow = page.getByRole("button", { name: /Selesaikan pemetaan|Finish the mapping/ });
+      for (let i = 0; i < n && !(await finishNow.count()); i++) {
+        await page.getByRole("button", { name: /Berikutnya|Next/ }).click();
+        await page.waitForTimeout(300);
+      }
       if (await finishNow.count()) { await finishNow.click(); await page.waitForTimeout(3000); }
       const st2 = psql(`select status from public.assessment_sessions where id='${session}'`);
       const answered = psql(`select coalesce((select (r.delta_inputs->>'answered') from public.assessment_results r where r.session_id='${session}' limit 1),'none')`);
