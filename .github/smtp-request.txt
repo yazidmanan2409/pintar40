@@ -1,0 +1,28 @@
+PINTAR production boundary — Supabase Auth SMTP request
+
+Editing this file runs the SMTP boundary. It deploys nothing, builds nothing,
+and touches no identity, migration, RLS or Vercel setting. It does not
+bootstrap.
+
+attempt:  001
+project:  trtlvibiybwixfumjrrx
+sender:   noreply@pintarselalu.com   (display name: PINTAR)
+host:     pintarselalu.com : 465, implicit TLS
+secret:   PINTAR_SMTP_PASSWORD  (already stored; no new secret requested)
+
+sequence: credential and TLS verification -> configure Supabase SMTP ->
+          independent read-back and assertion -> controlled delivery test ->
+          STOP.
+
+delivery test: exactly one message, from noreply@pintarselalu.com to
+          noreply@pintarselalu.com. Our own mailbox, no third party, nothing
+          addressed to Gladys or any PINTAR identity. It carries the run id so
+          the message can be matched to the run.
+
+dns:      SPF, DKIM (default selector) and DMARC all resolve on
+          pintarselalu.com. DMARC is p=none, which is reported as a warning
+          and does not affect delivery.
+
+not in scope: SYSTEM_ADMIN bootstrap, the 3c platform_environment
+          transition, the Vercel redeploy for the service-role key, school
+          onboarding, and instructing Gladys to sign in.

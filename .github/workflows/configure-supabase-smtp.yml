@@ -7,8 +7,13 @@
 #
 # WHAT IT TOUCHES. Only the hosted project's Auth SMTP settings. It deploys
 # nothing, builds nothing, changes no application code, no migration, no RLS,
-# no Vercel setting, and no identity. It does not bootstrap, and it sends no
-# email to anybody.
+# no Vercel setting, and no identity. It does not bootstrap.
+#
+# IT SENDS EXACTLY ONE EMAIL, AND ONLY TO ITSELF. The delivery test posts a
+# message from noreply@pintarselalu.com TO noreply@pintarselalu.com: our own
+# mailbox, no third party, and nothing addressed to Gladys or any PINTAR
+# identity. It carries the run id so the message can be found in the mailbox
+# and matched to this run.
 #
 # THE CREDENTIAL IS PROVEN BEFORE IT IS STORED. The run opens a real TLS
 # connection to the mail host and completes an SMTP AUTH exchange, then
@@ -54,12 +59,12 @@ jobs:
       - name: Credentials must exist
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
           MISS=""
           [ -n "${SUPABASE_ACCESS_TOKEN:-}" ] || MISS="$MISS SUPABASE_ACCESS_TOKEN"
-          [ -n "${SMTP_PASSWORD:-}" ]        || MISS="$MISS SMTP_PASSWORD"
+          [ -n "${PINTAR_SMTP_PASSWORD:-}" ]        || MISS="$MISS PINTAR_SMTP_PASSWORD"
           if [ -n "$MISS" ]; then
             echo "::error::missing repository secret(s):$MISS"; exit 1; fi
           echo "both credentials present (values never printed)"
@@ -96,13 +101,13 @@ jobs:
 
       - name: Prove the mailbox credential without sending mail
         env:
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
           import os, smtplib, ssl, sys
           host = os.environ['SMTP_HOST']; port = int(os.environ['SMTP_PORT'])
-          user = os.environ['SMTP_SENDER']; pwd = os.environ['SMTP_PASSWORD']
+          user = os.environ['SMTP_SENDER']; pwd = os.environ['PINTAR_SMTP_PASSWORD']
           ctx = ssl.create_default_context()
           try:
               # Port 465 is implicit TLS (SMTPS), so the socket is wrapped from
@@ -149,7 +154,7 @@ jobs:
       - name: Write the SMTP configuration
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
           python3 - <<'PY' > /tmp/body.json
@@ -158,7 +163,7 @@ jobs:
             'smtp_host':        os.environ['SMTP_HOST'],
             'smtp_port':        os.environ['SMTP_PORT'],
             'smtp_user':        os.environ['SMTP_SENDER'],
-            'smtp_pass':        os.environ['SMTP_PASSWORD'],
+            'smtp_pass':        os.environ['PINTAR_SMTP_PASSWORD'],
             'smtp_admin_email': os.environ['SMTP_SENDER'],
             'smtp_sender_name': os.environ['SMTP_SENDER_NAME'],
           }))
@@ -203,4 +208,57 @@ jobs:
               for b in bad: print('  -', b)
               sys.exit(1)
           print('read-back matches exactly; smtp_pass is not returned by the API and was never asserted')
+          PY
+
+      # CONTROLLED DELIVERY TEST. One message, from the sender to itself,
+      # through the exact host, port, account and password Supabase now holds.
+      # It proves the full submission path — connect, TLS, AUTH, MAIL FROM,
+      # RCPT TO, DATA, accepted — rather than only that a credential works.
+      #
+      # It is honest about its limit: it exercises the SMTP path, NOT GoTrue's
+      # template rendering. That is only proven when a real magic link is sent,
+      # which belongs to a later boundary and is not performed here.
+      - name: Controlled delivery test — one message, to ourselves
+        env:
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, smtplib, ssl, sys, email.utils
+          from email.message import EmailMessage
+          host = os.environ['SMTP_HOST']; port = int(os.environ['SMTP_PORT'])
+          user = os.environ['SMTP_SENDER']; pwd = os.environ['PINTAR_SMTP_PASSWORD']
+          name = os.environ['SMTP_SENDER_NAME']; run = os.environ['RUN_ID']
+          msg = EmailMessage()
+          msg['From'] = email.utils.formataddr((name, user))
+          msg['To'] = user
+          msg['Subject'] = 'PINTAR production SMTP delivery test — run %s' % run
+          mid = email.utils.make_msgid(domain=os.environ['MAIL_DOMAIN'])
+          msg['Message-ID'] = mid
+          msg['Date'] = email.utils.formatdate(localtime=True)
+          msg.set_content(
+              'This message was sent by the PINTAR production SMTP boundary.\n\n'
+              'It confirms that Supabase Auth can deliver mail through\n'
+              '%s:%s as %s, with the display name %r.\n\n'
+              'GitHub Actions run: %s\n'
+              'No PINTAR identity was involved and nothing was sent to any\n'
+              'other recipient.\n' % (host, port, user, name, run))
+          try:
+              with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context(), timeout=45) as s:
+                  s.login(user, pwd)
+                  refused = s.send_message(msg)
+                  if refused:
+                      print('::error::the server refused recipient(s):', refused); sys.exit(1)
+                  print('accepted for delivery by', host)
+                  print('From        :', msg['From'])
+                  print('To          :', msg['To'])
+                  print('Subject     :', msg['Subject'])
+                  print('Message-ID  :', mid)
+          except Exception as e:
+              print('::error::delivery test failed — %s: %s' % (type(e).__name__, e)); sys.exit(1)
+          print()
+          print('The sending server accepted the message. Final delivery is')
+          print('confirmed by looking in the noreply@ mailbox for the subject')
+          print('above — the same way the browser confirmed the deployment.')
           PY
