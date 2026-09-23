@@ -3,20 +3,23 @@ PINTAR production application deployment — request
 Editing this file launches the Vercel deployment workflow; ordinary commits on
 the deployment branch do nothing. Each entry records one attempt.
 
-attempt:  004
+attempt:  005
 release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
 target:   Vercel project "pintar40" (scope yazidmanan-2409)
-origin:   resolved from the deployment's own aliases and then proven by
-          fetching /masuk through each one
-auth:     Supabase trtlvibiybwixfumjrrx — Site URL and redirect allow-list are
-          written to the origin AFTER that origin is proven to serve /masuk.
-why:      attempt 003 asked Vercel for the project's domains and was told
-          pintar40.vercel.app, which 404s. A project's domain list is a claim
-          about the project, not about what a given deployment answers on. The
-          deployment's own aliases are now the authority, each candidate is
-          probed, and if the serving origin differs from the one baked into
-          the bundle the app is rebuilt against it before Auth is touched.
+origin:   https://app.pintarselalu.com  — by ruling
+auth:     HELD. Not configured until Second Eye clears the deployment.
+why:      attempt 004 reported the app live and it never was. Vercel
+          Deployment Protection gates every *.vercel.app URL: the app answers
+          302 to vercel.com/sso-api and that chain ends at a login page
+          returning 200, which the old status-only probe read as success. The
+          protection stays ON; the project policy exempts custom domains, so
+          app.pintarselalu.com is how PINTAR becomes reachable without
+          weakening anything.
 
-attempt:  003  (origin discovered from project domains; still 404; Auth untouched)
-attempt:  002  (project created, env written, deployed; origin guess 404'd, Auth untouched)
+          This attempt attaches the domain and stops at the DNS gate until the
+          record exists, building and deploying nothing until then.
+
+attempt:  004  (reported live; was Vercel's login page — probe invalid, now fixed)
+attempt:  003  (origin from project domains; 404; Auth untouched)
+attempt:  002  (project created, env written, deployed; origin guess 404'd)
 attempt:  001  (stopped at the token gate; nothing created, nothing contacted)
