@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 57,
+  "version": 58,
   "phase": "PINTAR 4.0 release candidate: WP8 plus the two final deltas -- an installation is initialised once, and a person with no past can be given their first role",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -319,6 +319,11 @@
       "id": "F01-R01",
       "runner": "app",
       "proves": "INV-21/§4 unauthenticated /konfigurasi redirected and /api/* refused; /api/dev/* 404 in the production build; public copy clean"
+    },
+    {
+      "id": "F01-R07",
+      "runner": "app",
+      "proves": "INV-38 against the RUNNING MIDDLEWARE rather than the database declaration: the one declared public certificate-verification endpoint, /api/verifikasi/[token], is anonymously reachable over HTTP and answers its own closed {\"found\": false} for an unknown token, while /api/verifikasi itself and its siblings stay refused. assert_public_surface() asserts public_surface_registry; nothing asserted src/proxy.ts, and the two had drifted."
     },
     {
       "id": "F01-R02",
