@@ -92,6 +92,18 @@ jobs:
           vercel project add "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" || true
           vercel link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
 
+      # REACHABILITY IS NOT CONFIGURED HERE. This project carries Vercel
+      # Deployment Protection (ssoProtection: all_except_custom_domains), so
+      # every *.vercel.app URL answers 302 to vercel.com/sso-api and the chain
+      # ends at a login page. Removing that protection is a reduction in
+      # access control and is Sauron's decision, not this workflow's. The
+      # policy already exempts CUSTOM domains, so attaching one makes PINTAR
+      # reachable without weakening anything -- which is the preferred route
+      # and needs no change here beyond PINTAR_APP_URL.
+      #
+      # Either way the probes below are what decide whether the app is live,
+      # and they cannot be satisfied by a login page.
+
       # ASKED, NOT ASSUMED. The first attempt guessed
       # https://<project>.vercel.app and got a 404: that name is not this
       # project's production alias, because Vercel qualifies the assigned
@@ -176,6 +188,10 @@ jobs:
           vercel build --prod --token "$VERCEL_TOKEN"
           URL=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
           echo "deployment: $URL"
+          # `pintar40.vercel.app` was listed as a production alias and still
+          # answered NOT_FOUND, so the alias assignment cannot be taken on
+          # trust either. Promoting the deployment asserts it.
+          vercel promote "$URL" --token "$VERCEL_TOKEN" || echo "(promote reported nothing to do)"
           echo "DEPLOYMENT_URL=$URL" >> "$GITHUB_ENV"
 
       # THE DEPLOYMENT IS ASKED WHICH NAMES IT ANSWERS ON. Listing a project's
@@ -206,15 +222,23 @@ jobs:
           CHOSEN=""
           for h in $CANDS "$HOST"; do
             for i in 1 2 3; do
-              C=$(curl -s -o /dev/null -w '%{http_code}' -L "https://$h/masuk" || echo 000)
-              echo "  https://$h/masuk -> $C"
-              if [ "$C" = "200" ]; then CHOSEN="https://$h"; break; fi
+              # STRICT, and deliberately not `curl -L`. Following redirects is
+              # what made the earlier probe worthless: it chased Vercel's SSO
+              # chain to a login page and read that page's 200 as the app
+              # being live. A redirect is now a failure, an x-vercel-error is
+              # a failure, and the body must actually be the sign-in screen.
+              C=$(curl -sS -o /tmp/b.txt -D /tmp/h.txt -w '%{http_code}' "https://$h/masuk" || echo 000)
+              E=$(grep -i '^x-vercel-error:' /tmp/h.txt | tr -d '\r' || true)
+              if grep -qF 'pin-masuk' /tmp/b.txt; then M=yes; else M=no; fi
+              echo "  https://$h/masuk -> status=$C marker=$M ${E:-}"
+              if [ "$C" = "200" ] && [ "$M" = "yes" ] && [ -z "$E" ]; then CHOSEN="https://$h"; break; fi
               sleep 5
             done
             if [ -n "$CHOSEN" ]; then break; fi
           done
           test -n "$CHOSEN" || {
-            echo "::error::no domain of this deployment serves /masuk"; cat /tmp/dep.json; exit 1; }
+            echo "::error::no domain of this deployment serves the PINTAR sign-in screen"
+            cat /tmp/dep.json; exit 1; }
           echo "serving origin: $CHOSEN"
           echo "SERVING_ORIGIN=$CHOSEN" >> "$GITHUB_ENV"
 
@@ -245,12 +269,19 @@ jobs:
         run: |
           set -euo pipefail
           for i in 1 2 3 4 5 6; do
-            CODE=$(curl -s -o /dev/null -w '%{http_code}' -L "$APP_ORIGIN/masuk" || echo 000)
-            echo "attempt $i: GET $APP_ORIGIN/masuk -> $CODE"
-            if [ "$CODE" = "200" ]; then echo "the sign-in screen is live at $APP_ORIGIN"; exit 0; fi
+            CODE=$(curl -sS -o /tmp/f.txt -D /tmp/fh.txt -w '%{http_code}' "$APP_ORIGIN/masuk" || echo 000)
+            ERR=$(grep -i '^x-vercel-error:' /tmp/fh.txt | tr -d '\r' || true)
+            if grep -qF 'pin-masuk' /tmp/f.txt; then MARK=yes; else MARK=no; fi
+            echo "attempt $i: GET $APP_ORIGIN/masuk -> status=$CODE marker=$MARK ${ERR:-}"
+            if [ "$CODE" = "200" ] && [ "$MARK" = "yes" ] && [ -z "$ERR" ]; then
+              echo "the PINTAR sign-in screen is served at $APP_ORIGIN, with no redirect and no Vercel error"
+              exit 0
+            fi
             sleep 10
           done
-          echo "::error::$APP_ORIGIN/masuk did not answer 200 after the rebuild"
+          echo "::error::$APP_ORIGIN/masuk does not serve the PINTAR sign-in screen"
+          echo "--- headers ---"; cat /tmp/fh.txt || true
+          echo "--- body (300b) ---"; head -c 300 /tmp/f.txt || true
           exit 1
 
       # Auth is pointed at the origin that was just proven to serve the app,
