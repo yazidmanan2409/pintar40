@@ -1,0 +1,9 @@
+PINTAR — read-only identity check, requested by Second Eye before §3b.
+
+Editing this file runs verify-identity.yml. It lists Auth users with the
+service-role key (GET only) and reports how many match the digest of the
+identity §3b would bind, and the day each was created. It prints no email,
+no user id and no metadata. It writes, creates and consumes nothing.
+§3b and §3c are not part of this and remain held for Yazid.
+
+attempt: 001

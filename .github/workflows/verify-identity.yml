@@ -1,0 +1,62 @@
+# READ-ONLY. Answers one question before §3b may even be considered: does
+# the Auth identity the bootstrap would bind already exist?
+#
+# It lists users through the Supabase Admin API with the service-role key and
+# compares each address, lower-cased, against a SHA-256 digest. The address
+# itself is not in this repository and nothing identifying is printed: no
+# email, no user id, no metadata. The output is the number of matching
+# identities, the day each was created, and the total number of identities
+# in the project. It writes nothing, creates nothing and consumes nothing.
+
+name: verify · auth identity present (read only)
+
+on:
+  push:
+    branches:
+      - claude/quirky-meitner-a04smj
+    paths:
+      - .github/identity-request.txt
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE_URL: https://trtlvibiybwixfumjrrx.supabase.co
+  # sha256(lower(email)) of the identity §3b would bind
+  TARGET_SHA256: 52e5bbccb4be604c12b16dd38de06b0e1aa53f08d44f9356bb0759e0e47dd2a4
+
+jobs:
+  verify:
+    name: does the identity exist
+    runs-on: ubuntu-latest
+    steps:
+      - name: List users (Admin API, GET only) and compare digests
+        env:
+          SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${SERVICE_ROLE_KEY:-}" || { echo "::error::SUPABASE_SERVICE_ROLE_KEY is not set"; exit 1; }
+          python3 - <<'PY'
+          import hashlib, json, os, urllib.request
+          base = os.environ['SUPABASE_URL']; key = os.environ['SERVICE_ROLE_KEY']
+          want = os.environ['TARGET_SHA256']
+          total = 0; hits = []; page = 1
+          while True:
+              req = urllib.request.Request(f"{base}/auth/v1/admin/users?page={page}&per_page=200",
+                                           headers={'apikey': key, 'Authorization': f'Bearer {key}'}, method='GET')
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  users = json.load(r).get('users', [])
+              if not users: break
+              for u in users:
+                  total += 1
+                  e = (u.get('email') or '').strip().lower()
+                  if e and hashlib.sha256(e.encode()).hexdigest() == want:
+                      hits.append((u.get('created_at') or '')[:10])
+              if len(users) < 200: break
+              page += 1
+          print(f"identities in the project: {total}")
+          print(f"identities matching the §3b target: {len(hits)}")
+          for d in hits: print(f"  created on: {d}")
+          if not hits: print("::warning::no Auth identity matches the §3b target")
+          PY
