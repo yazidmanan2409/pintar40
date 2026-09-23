@@ -1,0 +1,9 @@
+PINTAR 4.0 — SYSTEM COHERENCE ASSESSMENT: composed-journey probe request
+
+Diagnostic only. Local stack on the runner; no hosted system, no production
+secret, no deployment. Records canonical-vs-observed; repairs nothing.
+
+attempt: 001
+specimens: released 46fd4452 and branch head
+journeys:  J10 certificate chain, J1a Auth-level self-provisioning,
+           J1b magic-link sign-in end to end, J5 Studio write reporting
