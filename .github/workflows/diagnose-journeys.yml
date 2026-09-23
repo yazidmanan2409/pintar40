@@ -77,7 +77,7 @@ jobs:
           anon="$(val ANON_KEY)"; [ -n "$anon" ] || anon="$(val PUBLISHABLE_KEY)"
           svc="$(val SERVICE_ROLE_KEY)"; [ -n "$svc" ] || svc="$(val SECRET_KEY)"
           echo "::add-mask::$svc"
-          { echo "api=$(val API_URL)"; echo "anon=$anon"; echo "svc=$svc"; echo "db=$(val DB_URL)"; echo "mail=$(val INBUCKET_URL)$(val MAILPIT_URL)"; } >> "$GITHUB_OUTPUT"
+          { echo "api=$(val API_URL)"; echo "anon=$anon"; echo "svc=$svc"; echo "db=$(val DB_URL)"; m="$(val MAILPIT_URL)"; [ -n "$m" ] || m="$(val INBUCKET_URL)"; echo "mail=$m"; } >> "$GITHUB_OUTPUT"
       - name: Build and start the specimen in production mode
         working-directory: specimen
         env:

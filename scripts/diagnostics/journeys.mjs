@@ -22,11 +22,11 @@
 //        SUPABASE_DB_URL, MAILPIT_URL (optional), PROBE_LABEL
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 
-const APP_DIR = process.argv[2] ?? ".";
+const APP_DIR = resolve(process.argv[2] ?? ".");
 const OUT = process.argv[3] ?? "journeys.json";
 const BASE = (process.env.APP_BASE ?? "http://127.0.0.1:3999").replace(/\/$/, "");
 const SUPA = process.env.NEXT_PUBLIC_SUPABASE_URL;
