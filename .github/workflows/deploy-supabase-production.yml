@@ -145,7 +145,7 @@ jobs:
           echo "history matches the repository: $N/$LOCAL"
 
       # The bounded production readiness checks. They read the live catalog and
-      # live data; they mutate nothing and seed nothing. The selftest DB suites
+      # live data; they mutate nothing and insert nothing. The selftest DB suites
       # are deliberately NOT here -- they mutate business data and are never
       # pointed at a hosted project.
       - name: Launch readiness — 17 rows, all PASS
