@@ -32,7 +32,7 @@ const steps = [];
 let shotN = 0;
 
 function sql(q) {
-  return execFileSync("psql", [DB, "-At", "-v", "ON_ERROR_STOP=1", "-c", q], { encoding: "utf8" }).trim();
+  return execFileSync("psql", [DB, "-qAt", "-v", "ON_ERROR_STOP=1", "-c", q], { encoding: "utf8" }).trim();
 }
 async function shot(page, name) {
   const f = `${String(++shotN).padStart(2, "0")}-${name}.png`;
@@ -114,9 +114,10 @@ async function grantViaForm(page, personName, roleValue, scopeLabelPart, until =
   await form.locator('select[name="scope"]').selectOption(scopeOpt);
   await form.locator('input[name="valid_until"]').fill(until);
   await form.getByRole("button", { name: "Berikan peran" }).click();
+  await page.waitForURL(/hasil=/, { timeout: 20000 }).catch(() => {});
   await page.waitForLoadState("networkidle");
   const u = new URL(page.url());
-  return { ok: u.searchParams.get("ok"), detail: u.searchParams.get("detail"), url: u.pathname + u.search, scopesOffered: scopes.length };
+  return { ok: u.searchParams.get("hasil"), detail: u.searchParams.get("detail"), url: u.pathname + u.search, scopesOffered: scopes.length };
 }
 async function hasSignOut(page) {
   return (await page.locator('form[action="/keluar"], a[href="/keluar"], button:has-text("Keluar")').count()) > 0;
@@ -201,7 +202,7 @@ await step("S3", "Gladys creates the school admin (Orang baru di luar pendataan)
 await step("S4", "Gladys grants Admin sekolah at SD's root (Konfigurasi → Peran & akses)", async (rec) => {
   const r = await grantViaForm(g, people.sdAdmin.name, "INSTITUTION_ADMIN", "SD Zayd");
   rec.shots.push(await shot(g, "grant-admin-result"));
-  if (r.ok !== "1" && r.ok !== "true") rec.verdict = "FAIL";
+  if (r.ok !== "ok") rec.verdict = "FAIL";
   return JSON.stringify(r);
 });
 
@@ -254,10 +255,10 @@ await step("S8", "intake with only the school's root as 'Tempat' (all a new scho
       log.push(`verify_pilot: ${vp.error?.message ?? "ok"}`);
     }
   }
-  const failed = sql(`select count(*) from public.import_rows r where r.job_id='${job.data}' and r.status::text not in ('DONE','PROVISIONED','SUCCEEDED')`);
+  const failed = sql(`select count(*) from public.import_rows r where r.job_id='${job.data}' and r.state::text <> 'PROVISIONED'`);
   if (Number(failed) > 0) rec.verdict = "FAIL";
   ids.rootJob = job.data;
-  return `${log.join(" | ")} | rows not recorded: ${failed}; row states: ${sql(`select string_agg(ordinal||':'||status::text, ',') from public.import_rows where job_id='${job.data}'`)}`;
+  return `${log.join(" | ")} | rows not recorded: ${failed}; row states: ${sql(`select string_agg(ordinal||':'||state::text, ',') from public.import_rows where job_id='${job.data}'`)}`;
 });
 
 await step("W1", "OPERATOR: build SD's tree down to a class (no screen exists for this)", async () => {
@@ -287,7 +288,7 @@ await step("S9", "intake two students into Kelas 1A", async (rec) => {
       log.push(`verify_pilot: ${vp.error?.message ?? "ok"}`);
     }
   }
-  const states = sql(`select string_agg(ordinal||':'||status::text, ',') from public.import_rows where job_id='${job.data}'`);
+  const states = sql(`select string_agg(ordinal||':'||state::text, ',') from public.import_rows where job_id='${job.data}'`);
   const enrolled = sql(`select count(*) from public.enrollments e where e.institution_id='${ids.sd}'`);
   if (Number(enrolled) < 2) rec.verdict = "FAIL";
   return `${log.join(" | ")} | row states ${states}; enrolments at SD: ${enrolled}`;
@@ -333,7 +334,7 @@ await step("S12", "Gladys creates a teacher and grants Guru at Kelas 1A", async 
   if (!np.body?.ok) throw new Error(JSON.stringify(np.body));
   const r = await grantViaForm(g, people.guru.name, "EDUCATOR", "Kelas 1A");
   rec.shots.push(await shot(g, "grant-guru-result"));
-  if (r.ok !== "1" && r.ok !== "true") rec.verdict = "FAIL";
+  if (r.ok !== "ok") rec.verdict = "FAIL";
   return JSON.stringify(r);
 });
 
@@ -370,6 +371,7 @@ await step("S14", "Gladys uploads a lesson: Unggah Mudah", async (rec) => {
   }
   await form.locator('textarea[name="isi"]').fill(JSON.stringify({ files: [{ path: "bab-1-penjumlahan.md" }, { path: "soal-bab-1.csv" }, { path: "materi.pdf" }] }));
   await form.locator('button[type="submit"]').first().click();
+  await g.waitForURL(/hasil=/, { timeout: 20000 }).catch(() => {});
   await g.waitForLoadState("networkidle");
   rec.shots.push(await shot(g, "studio-unggah-mudah-result"));
   const u = new URL(g.url());
@@ -377,14 +379,15 @@ await step("S14", "Gladys uploads a lesson: Unggah Mudah", async (rec) => {
   let confirm = "no Konfirmasi button offered";
   if (await confirmBtn.count()) {
     await confirmBtn.click();
+    await g.waitForURL(/hasil=/, { timeout: 20000 }).catch(() => {});
     await g.waitForLoadState("networkidle");
     rec.shots.push(await shot(g, "studio-unggah-mudah-confirm"));
     const u2 = new URL(g.url());
-    confirm = `confirm → ok=${u2.searchParams.get("ok")} detail=${u2.searchParams.get("detail")}`;
+    confirm = `confirm → hasil=${u2.searchParams.get("hasil")} detail=${u2.searchParams.get("detail")}`;
   }
   const courses = sql(`select count(*) from public.courses where institution_id='${ids.sd}'`);
   if (Number(courses) === 0) rec.verdict = "FAIL";
-  return `file inputs on page: ${fileInputs}; school preselected: "${firstSchool?.trim()}"; submit → ok=${u.searchParams.get("ok")} detail=${u.searchParams.get("detail")}; ${confirm}; courses at SD: ${courses}`;
+  return `file inputs on page: ${fileInputs}; school preselected: "${firstSchool?.trim()}"; submit → hasil=${u.searchParams.get("hasil")} detail=${u.searchParams.get("detail")}; ${confirm}; courses at SD: ${courses}`;
 });
 
 await step("S15", "Gladys uploads a lesson: Paket Terstruktur", async (rec) => {
@@ -397,13 +400,14 @@ await step("S15", "Gladys uploads a lesson: Paket Terstruktur", async (rec) => {
   }
   await form.locator('textarea[name="isi"]').fill(JSON.stringify({ courses: [{ subject: "Matematika", stage: "SD", grade_label: "Kelas 1", title: "Penjumlahan sampai 20" }] }));
   await form.locator('button[type="submit"]').first().click();
+  await g.waitForURL(/hasil=/, { timeout: 20000 }).catch(() => {});
   await g.waitForLoadState("networkidle");
   rec.shots.push(await shot(g, "studio-terstruktur-result"));
   const u = new URL(g.url());
   const courses = sql(`select count(*) from public.courses where institution_id='${ids.sd}'`);
   const lessons = sql(`select count(*) from public.lessons l join public.modules m on m.id=l.module_id join public.courses c on c.id=m.course_id where c.institution_id='${ids.sd}'`);
   if (Number(lessons) === 0) rec.verdict = "FAIL";
-  return `submit → ok=${u.searchParams.get("ok")} detail=${u.searchParams.get("detail")}; courses at SD: ${courses}; lessons at SD: ${lessons}`;
+  return `submit → hasil=${u.searchParams.get("hasil")} detail=${u.searchParams.get("detail")}; courses at SD: ${courses}; lessons at SD: ${lessons}`;
 });
 
 await step("S16", "Head of department: sees reports on /pimpinan", async (rec) => {

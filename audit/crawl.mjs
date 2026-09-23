@@ -144,3 +144,19 @@ for (const p of PERSONAS) {
 }
 await browser.close();
 writeFileSync(join(OUT, "crawl.json"), JSON.stringify(all, null, 2));
+
+// The detail, printed to the job log (the artifact is not reachable from everywhere).
+const REPORTY = /pimpinan|bukti|hasil|ringkasan|laporan|sertifikat|umpan-balik|bank|langkah|siapa/;
+for (const r of all) {
+  console.log(`\n=== ${r.persona} (${r.role}, ${r.school})`);
+  for (const x of r.pages) {
+    const flags = [x.refusal && "REFUSAL", x.errorPage && "ERROR-PAGE", x.error && "NAV-ERROR",
+      (x.status ?? 0) >= 400 && `HTTP${x.status}`, x.consoleErrors.length && `console:${x.consoleErrors.length}`,
+      x.failedRequests.length && `failed-req:${x.failedRequests.length}`].filter(Boolean).join(" ");
+    console.log(`  ${x.path} -> ${x.finalPath ?? "-"} | h1: ${x.h1 ?? "-"} ${flags ? "| " + flags : ""}`);
+    if (REPORTY.test(x.path) || x.errorPage || x.error) console.log(`      text: ${x.text.slice(0, 420)}`);
+    for (const c of x.consoleErrors.slice(0, 3)) console.log(`      console: ${c.text.slice(0, 200)}`);
+    for (const f of x.failedRequests.slice(0, 3)) console.log(`      failed: ${f.status} ${f.url}`);
+    if (x.error) console.log(`      nav-error: ${x.error}`);
+  }
+}
