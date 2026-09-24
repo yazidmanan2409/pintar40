@@ -124,7 +124,9 @@ try "a second shared image"      isolation.mjs index.html 'src="../shared/brand/
 try "a font from elsewhere"       isolation.mjs style.css 'url("../shared/fonts/plus-jakarta-sans-latin.woff2")||url("../../somewhere/font.woff2")'
 try "a stylesheet @import"        isolation.mjs style.css ':root {||@import "../shared/style.css";
 :root {'
-try "a site link carries a choice" isolation.mjs app.js 'const siteHref = (path) => `${path}?lang=${lang}`;||const siteHref = (path) => `${path}?lang=${lang}&d=${s.decision}`;'
+try "a site link carries a choice" isolation.mjs app.js 'const siteHref = (path) => `..${path}?lang=${lang}`;||const siteHref = (path) => `..${path}?lang=${lang}&d=${s.decision}`;'
+try "a site link from the domain root" isolation.mjs app.js 'const siteHref = (path) => `..${path}?lang=${lang}`;||const siteHref = (path) => `${path}?lang=${lang}`;'
+try "Home linked from the domain root" isolation.mjs index.html 'id="brand" href="../"||id="brand" href="/"'
 try "navigation bypasses siteHref" isolation.mjs app.js 'window.location.href = siteHref("/");||window.location.href = "/?d=" + s.decision;'
 
 echo

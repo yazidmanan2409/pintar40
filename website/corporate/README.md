@@ -1,7 +1,7 @@
 # PINTAR CORPORATE WEBSITE + MINI-PINTAR
 
 **Date:** 2026-09-24 · **Status:** reconciled with the canonical PINTAR product, for Second Eye review.
-**Not production. Not deployed. Not merged.**
+**Not production. Not merged.** A test copy is served from `/test/corporate/` on the host, uploaded by the owner for review.
 
 **Canonical baseline:** `main@2ac7ab6`, the patch baseline ruled on 24 Sep. It was re-read unchanged at `19f01b2` and at `4030937`, the `main` tip this lane last merged.
 
@@ -11,6 +11,7 @@
 python3 -m http.server 8000 --directory .
 # then http://localhost:8000/ and the routes below; ?lang=en for English.
 # Nothing is remembered: the language travels in ?lang= and nowhere else.
+# Works from any folder (e.g. /test/corporate/): every link and asset is relative.
 ```
 
 The 24 Sep review and plan that led here is [`REVIEW-2026-09-24-CANONICAL-RECONCILIATION.md`](./REVIEW-2026-09-24-CANONICAL-RECONCILIATION.md). This README describes the reconciled result.
@@ -94,6 +95,14 @@ The language travels **only** in `?lang=`, which every internal link carries. Th
 - a browser walk of every route, into Mini-PINTAR, followed by a check that the device holds nothing.
 
 The site therefore holds itself to Mini-PINTAR's ADR rule ("no persistence of any kind, including browser storage") rather than to a weaker rule beside it.
+
+**Relative, so it works from any folder.** The first upload, to `/test/corporate/`, showed the logo's alt text instead of the logo, and every menu link pointed at the domain's root. The site had been written for a domain root. Now no link or asset is written from the root.
+- Routes keep their names (`"/laporan/"`) in the content, and `withLang()` turns each one into a path relative to the page it is on (`"../laporan/?lang=id"`).
+- The logo goes through `siteAsset()`.
+- Mini-PINTAR reaches the site through `"../"`.
+- The site's root is found from the address of `shared/lang.js`, so no deployment path is written anywhere.
+
+`audit.mjs` checks the helpers at every page depth and forbids a root-absolute link or asset in any shipped file. `view.mjs` and Mini-PINTAR's `journey.mjs` serve the whole site from `/test/corporate/`, the way the host does. They check that every link and asset is relative, lands inside that folder on a real route or file, and is actually served.
 
 ## 5 · Mini-PINTAR: one implementation
 

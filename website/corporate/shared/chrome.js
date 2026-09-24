@@ -5,7 +5,7 @@
 
 import { el, L } from "./dom.js";
 import { SAMPLE, PAGES, CTA, FOOTER, NAV_LABEL, MENU_OPEN, MENU_CLOSE, SKIP_LINK } from "./content.js";
-import { getLang, setLang, withLang } from "./lang.js";
+import { getLang, setLang, withLang, siteAsset } from "./lang.js";
 
 /**
  * The supplied PINTAR SELALU mark, from the product's own file
@@ -17,10 +17,12 @@ import { getLang, setLang, withLang } from "./lang.js";
  *
  * In the site header it links Home — ordinary website navigation, ruled
  * separately from the product's own "not a link" rule for its app shells.
+ * The path is relative to the page (siteAsset), so the logo loads wherever
+ * the site is served from.
  */
-export const LOGO_SRC = "/shared/brand/pintar-selalu-logo.png";
+export const LOGO_SRC = "shared/brand/pintar-selalu-logo.png";
 function logo() {
-  return el("img", { class: "brand__logo", src: LOGO_SRC, alt: "PINTAR SELALU",
+  return el("img", { class: "brand__logo", src: siteAsset(LOGO_SRC), alt: "PINTAR SELALU",
     width: 766, height: 429 });
 }
 

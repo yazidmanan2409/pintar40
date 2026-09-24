@@ -3,8 +3,11 @@
 // What the content audit and the canonical check cannot see, because it only
 // exists once a browser renders it:
 //
+//   * the site is served from a SUBFOLDER (/test/corporate/), the way it is
+//     actually deployed, and every internal link and asset is relative,
+//     lands inside that folder on a real route, and carries the language;
 //   * every route renders with no console error and no external request, in
-//     both languages, and every internal link carries the language along;
+//     both languages;
 //   * the supplied PINTAR SELALU logo actually loads, at its own size, is
 //     drawn at the product's height, and leads Home; the product's typeface
 //     is the one in use;
@@ -24,6 +27,8 @@
 // Run: node verify/view.mjs
 
 import { dirname, join } from "node:path";
+import { mkdtemp, mkdir, symlink, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { serve, launch, Page } from "../../mini-pintar/app/verify/driver.mjs";
 import { CONTRAST_EXPR, nonTextExpr } from "../../mini-pintar/app/verify/probes.mjs";
@@ -41,10 +46,18 @@ const assert = (cond, what, detail) => { if (cond) checks += 1; else fail(what, 
 const phase = (n) => process.stderr.write(`  .. ${n}\n`);
 const settle = () => new Promise((r) => setTimeout(r, 200));
 
-const site = await serve(APP);
+// Served from a subfolder, as on the host: a link or asset written from the
+// domain root ("/laporan/", "/shared/…") fails here exactly as it would there.
+const PREFIX = "/test/corporate";
+const MOUNT = await mkdtemp(join(tmpdir(), "pintar-site-"));
+await mkdir(join(MOUNT, "test"), { recursive: true });
+await symlink(APP, join(MOUNT, "test", "corporate"), "dir");
+const site = await serve(MOUNT);
 const browser = await launch();
-const BASE = `http://127.0.0.1:${site.port}`;
-const at = (href, lang = "id") => `${BASE}${href}${href.includes("?") ? "&" : "?"}lang=${lang}`;
+const ORIGIN = `http://127.0.0.1:${site.port}`;
+const BASE = `${ORIGIN}${PREFIX}/`;
+const at = (route, lang = "id") => `${BASE}${route.replace(/^\//, "")}?lang=${lang}`;
+const ROUTE_URLS = new Set(PAGES.map((r) => `${PREFIX}${r.href}`));
 let p;
 
 const ROUTES = PAGES.filter((r) => r.href !== "/mini-pintar/");
@@ -56,6 +69,9 @@ const NON_TEXT = nonTextExpr([
   ["absent figure rule", ".fig__absent", "borderLeftColor"],
   ["primary action", ".btn--primary", "backgroundColor"],
 ]);
+
+// Every page and file any link or asset points at, fetched at the end.
+const linkTargets = new Set();
 
 try {
   p = await Page.open(browser.pageUrl);
@@ -72,19 +88,20 @@ try {
       assert(bodyLen > 200, `${where} has real content`, String(bodyLen));
       assert(p.consoleErrors.length === 0, `${where} has no console error`, p.consoleErrors.join(" | "));
       p.consoleErrors.length = 0;
-      const external = p.requests.filter((u) => !u.startsWith(BASE) && !u.startsWith("data:"));
+      const external = p.requests.filter((u) => !u.startsWith(ORIGIN) && !u.startsWith("data:"));
       assert(external.length === 0, `${where} makes no external request`, external.join(", "));
       p.requests.length = 0;
 
       const logos = await p.eval(`[...document.querySelectorAll('img.brand__logo')].map(i => ({
         loaded: i.complete && i.naturalWidth === 766 && i.naturalHeight === 429,
-        alt: i.alt, h: Math.round(i.getBoundingClientRect().height),
-        href: i.closest('a')?.getAttribute('href') ?? null }))`);
+        src: i.getAttribute('src'), alt: i.alt, h: Math.round(i.getBoundingClientRect().height),
+        home: i.closest('a')?.href ?? null }))`);
       assert(logos.length === 2, `${where}: the logo is in the header and the footer`, JSON.stringify(logos));
       for (const l of logos) {
         assert(l.loaded, `${where}: the supplied logo loads at its own size`, JSON.stringify(l));
+        assert(!l.src.startsWith("/"), `${where}: the logo's path is relative`, l.src);
         assert(l.alt === "PINTAR SELALU", `${where}: the logo says what the artwork says`, l.alt);
-        assert(l.href === `/?lang=${lang}`, `${where}: the logo leads Home in the visitor's language`, String(l.href));
+        assert(l.home === `${BASE}?lang=${lang}`, `${where}: the logo leads to the site's Home in the visitor's language`, String(l.home));
       }
       assert(logos[0]?.h === 36, `${where}: the header logo is drawn at the product's 36px`, String(logos[0]?.h));
 
@@ -93,11 +110,25 @@ try {
         && [...document.fonts].some(f => f.family.replace(/"/g, '') === 'Plus Jakarta Sans' && f.status === 'loaded')`);
       assert(font, `${where}: the product's typeface is loaded and in use`);
 
-      const stray = await p.eval(`[...document.querySelectorAll('a[href]')]
-        .map(a => a.getAttribute('href'))
-        .filter(h => h.startsWith('/') && !h.startsWith('//'))
-        .filter(h => new URL(h, location.href).searchParams.get('lang') !== ${JSON.stringify(lang)})`);
-      assert(stray.length === 0, `${where}: every internal link carries the language`, stray.join(", "));
+      // Every link on the page (anchors and every src/href in the head) is
+      // relative, lands inside the site's folder on a real route or file,
+      // and, for a page link, carries the visitor's language.
+      const refs = await p.eval(`[...document.querySelectorAll('[href], [src]')]
+        .map(e => ({ tag: e.tagName.toLowerCase(), raw: e.getAttribute('href') ?? e.getAttribute('src'),
+                     url: e.href || e.src }))
+        .filter(x => x.raw && !x.raw.startsWith('#') && !x.raw.startsWith('mailto:') && !x.raw.startsWith('data:'))`);
+      const rooted = refs.filter((x) => x.raw.startsWith("/") || /^https?:/.test(x.raw));
+      assert(rooted.length === 0, `${where}: every internal link and asset is relative`,
+        rooted.map((x) => x.raw).join(", "));
+      const outside = refs.filter((x) => !x.url.startsWith(BASE));
+      assert(outside.length === 0, `${where}: every link and asset stays inside the site's folder`,
+        outside.map((x) => x.url).join(", "));
+      const anchors = refs.filter((x) => x.tag === "a");
+      const noRoute = anchors.filter((x) => !ROUTE_URLS.has(new URL(x.url).pathname));
+      assert(noRoute.length === 0, `${where}: every internal link is a real route`, noRoute.map((x) => x.url).join(", "));
+      const noLang = anchors.filter((x) => new URL(x.url).searchParams.get("lang") !== lang);
+      assert(noLang.length === 0, `${where}: every internal link carries the language`, noLang.map((x) => x.raw).join(", "));
+      for (const x of refs) linkTargets.add(new URL(x.url).pathname);
 
       const t = await p.eval(CONTRAST_EXPR);
       assert(t.measured > 0, `${where}: the contrast probe measured something`);
@@ -125,14 +156,14 @@ try {
 
   // Mini-PINTAR is its own immersive page inside the site: the site's logo,
   // leading Home, and no site navigation or footer to leave by mid-journey.
-  await p.goto(`${BASE}/mini-pintar/?lang=id`);
+  await p.goto(at("/mini-pintar/"));
   await settle();
   const mini = await p.eval(`({ footer: !!document.querySelector('.site-footer'),
     nav: !!document.querySelector('.site-nav__links'),
     logo: (() => { const i = document.querySelector('#brand img');
-      return i && i.complete && i.naturalWidth === 766 ? i.closest('a')?.getAttribute('href') : null; })() })`);
+      return i && i.complete && i.naturalWidth === 766 ? i.closest('a')?.href : null; })() })`);
   assert(!mini.footer && !mini.nav, "Mini-PINTAR carries no site navigation or footer", JSON.stringify(mini));
-  assert(mini.logo === "/?lang=id", "Mini-PINTAR carries the supplied logo, leading Home", String(mini.logo));
+  assert(mini.logo === `${BASE}?lang=id`, "Mini-PINTAR carries the supplied logo, leading to the site's Home", String(mini.logo));
 
   // --------------------------------------------------- the product's cycle
   phase("the cycle, by the product's names, in order");
@@ -237,8 +268,8 @@ try {
   await new Promise((r) => setTimeout(r, 150));
   const confirmed = await p.eval(`document.getElementById('form-mount').textContent`);
   assert(confirmed.includes("Terima kasih"), "submitting the form shows a confirmation, not a real send");
-  assert((await p.eval("location.pathname")) === "/kontak/", "the page never navigates away on submit");
-  const external2 = p.requests.filter((u) => !u.startsWith(BASE) && !u.startsWith("data:"));
+  assert((await p.eval("location.pathname")) === `${PREFIX}/kontak/`, "the page never navigates away on submit");
+  const external2 = p.requests.filter((u) => !u.startsWith(ORIGIN) && !u.startsWith("data:"));
   assert(external2.length === 0, "no request left the page on submit", external2.join(", "));
 
   // ---------------------------------------- the language switch writes nothing
@@ -252,14 +283,14 @@ try {
     switched = await p.eval("new URLSearchParams(location.search).get('lang')").catch(() => null);
   }
   assert(switched === "en", "switching language puts it in the address", String(switched));
-  await p.goto(`${BASE}/laporan/`);
+  await p.goto(`${BASE}laporan/`);
   await settle();
   assert((await p.eval("document.documentElement.lang")) === "id",
     "a visit without ?lang= is Bahasa Indonesia: nothing was remembered", await p.eval("document.documentElement.lang"));
 
   // --------------------------- after all of it, nothing was written anywhere
   phase("device storage, after every route and into Mini-PINTAR");
-  await p.goto(`${BASE}/mini-pintar/?lang=id`);
+  await p.goto(at("/mini-pintar/"));
   await settle();
   await p.eval(`document.querySelector('main button.btn').click()`);
   await settle();
@@ -271,11 +302,20 @@ try {
   assert(storage.session === 0, "sessionStorage is empty after the whole site", String(storage.session));
   assert(storage.cookie === "", "no cookie after the whole site", storage.cookie);
   assert(storage.dbs === 0, "no IndexedDB database after the whole site", String(storage.dbs));
+
+  // --------------------------------- every link target is really there
+  phase("every page and file a link or asset points at is served");
+  assert(linkTargets.size >= PAGES.length, "the link walk found every route", String(linkTargets.size));
+  for (const path of linkTargets) {
+    const res = await fetch(`${ORIGIN}${path}`);
+    assert(res.ok, `${path} is served`, String(res.status));
+  }
 } catch (e) {
   fail("the run threw", e.message);
 } finally {
   browser.kill();
   await site.close();
+  await rm(MOUNT, { recursive: true, force: true });
 }
 
 if (fails.length) {
@@ -283,7 +323,8 @@ if (fails.length) {
   for (const f of fails) console.error("  " + f);
   process.exit(1);
 }
-console.log(`view OK — ${checks} checks in a real browser: ${ROUTES.length} routes in both languages render clean ` +
-  `with the supplied logo and the product's typeface, contrast measured on every route, type floor and ` +
+console.log(`view OK — ${checks} checks in a real browser, served from ${PREFIX}/: ${ROUTES.length} routes in both ` +
+  `languages render clean with every link and asset relative and served, ` +
+  `the supplied logo and the product's typeface, contrast measured on every route, type floor and ` +
   `targets swept, reflow 320–1440px, reports drawn in their evidence states with neutral bars, the ` +
   `contact form inert, and nothing written to the device`);

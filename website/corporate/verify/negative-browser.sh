@@ -7,7 +7,7 @@
 # spelled so no scanner finds it, a style that overrides a token from
 # somewhere else, a font that does not load, a link that drops the language.
 #
-# Run: bash verify/negative-browser.sh   (~10 minutes)
+# Run: bash verify/negative-browser.sh   (~15 minutes)
 
 set -uo pipefail
 APP="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -68,6 +68,12 @@ try "the typeface fails to load" shared/style.css \
 try "a link that forgets the language" laporan/app.js \
   'el("a", { class: "btn btn--outline", href: withLang("/kontak/", lang), text: t(CLOSING.ctaSecondary) }),||el("a", { class: "btn btn--outline", href: "/kontak/", text: t(CLOSING.ctaSecondary) }),' \
   "every internal link carries the language"
+try "the logo loaded from the domain root" shared/chrome.js \
+  'src: siteAsset(LOGO_SRC)||src: "/" + LOGO_SRC' \
+  "the supplied logo loads at its own size"
+try "a page link from the domain root" laporan/app.js \
+  'el("a", { class: "btn btn--outline", href: withLang("/kontak/", lang), text: t(CLOSING.ctaSecondary) }),||el("a", { class: "btn btn--outline", href: "/kontak/?lang=" + lang, text: t(CLOSING.ctaSecondary) }),' \
+  "every internal link and asset is relative"
 try "quiet text nudged pale" shared/style.css \
   '--ink-faint:   #6E6852;||--ink-faint:   #B9B2A4;' \
   "text contrast"

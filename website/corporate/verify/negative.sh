@@ -208,7 +208,13 @@ try "a page keeps something in the session" audit.mjs laporan/app.js 'const lang
 try "a cookie"                          audit.mjs kontak/app.js 'import { el }||document.cookie = "a=1";
 import { el }' "a storage API (\"document.cookie\")"
 try "the language read from elsewhere"  audit.mjs shared/lang.js 'return new URLSearchParams(location.search).get("lang") === "en" ? "en" : "id";||return navigator.language.startsWith("en") ? "en" : "id";' "the language no longer comes from ?lang="
-try "the logo not the supplied file"    audit.mjs shared/chrome.js 'export const LOGO_SRC = "/shared/brand/pintar-selalu-logo.png";||export const LOGO_SRC = "/shared/brand/mark.svg";' "the site header does not use the supplied logo"
+try "the logo not the supplied file"    audit.mjs shared/chrome.js 'export const LOGO_SRC = "shared/brand/pintar-selalu-logo.png";||export const LOGO_SRC = "shared/brand/mark.svg";' "the site header does not use the supplied logo"
+try "the logo from the domain root"     audit.mjs shared/chrome.js 'src: siteAsset(LOGO_SRC)||src: "/" + LOGO_SRC' "a src not made relative by withLang, siteAsset or siteHref"
+try "a nav link from the domain root"   audit.mjs shared/chrome.js 'href: withLang(p.href, lang),||href: p.href,' "a href not made relative by withLang, siteAsset or siteHref"
+try "withLang writes from the root"     audit.mjs shared/lang.js 'const relative = upToRoot() + path.replace(/^\/+/, "");||const relative = path;' "withLang does not write a relative link"
+try "siteAsset writes from the root"    audit.mjs shared/lang.js 'return upToRoot() + path.replace(/^\/+/, "");||return "/" + path.replace(/^\/+/, "");' "siteAsset does not write a relative path"
+try "a stylesheet from the domain root" audit.mjs laporan/index.html 'href="../shared/style.css"||href="/shared/style.css"' "a link or asset written from the domain root — laporan/index.html"
+try "Mini-PINTAR exits to the domain root" audit.mjs mini-pintar/app.js 'window.location.href = siteHref("/");||window.location.href = "/?lang=" + lang;' "a navigation that is not relative"
 try "the logo's width is set"           audit.mjs shared/style.css '.brand__logo { height: 36px; width: auto;||.brand__logo { height: 36px; width: 120px;' "the logo is not rendered at the product's 36px height"
 try "the footer logo stops leading Home" audit.mjs shared/chrome.js 'el("div", { class: "site-footer__brand" }, [
             el("a", { class: "brand", href: withLang("/", lang) }, [logo()]),||el("div", { class: "site-footer__brand" }, [

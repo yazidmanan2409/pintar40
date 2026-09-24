@@ -668,8 +668,9 @@ export const REVEAL = {
   honesty: L(
     "Yang barusan adalah miniatur publik: bukan asesmen resmi, tidak menghasilkan sertifikat, dan tidak meninggalkan catatan tentang Anda.",
     "What you just did is a public miniature: not an official assessment, it issues no certificate, and it leaves no record of you."),
-  // Routes of the corporate site that contains Mini-PINTAR. app.js adds
-  // ?lang= so the visitor arrives in the language they were using.
+  // Routes of the corporate site that contains Mini-PINTAR, named from the
+  // site's root. app.js turns each into a relative link ("../laporan/") and
+  // adds ?lang= so the visitor arrives in the language they were using.
   doors: [
     { label: L("Apa artinya bagi pendidik", "What this means for educators"), href: "/untuk-pendidik/" },
     { label: L("Bagaimana PINTAR menjaga bukti", "How PINTAR protects evidence"), href: "/laporan/" },

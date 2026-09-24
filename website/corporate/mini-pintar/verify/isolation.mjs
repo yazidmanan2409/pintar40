@@ -31,7 +31,9 @@ const SHIPPED = ["index.html", "style.css", "content.js", "adapt.js", "app.js"];
  * later edit can widen this into a stylesheet or script from elsewhere.
  */
 const SHARED_IN_HTML = ["../shared/brand/pintar-selalu-logo.png"];
-const NAV_IN_HTML = ["/"];
+// Home is reached relatively ("../"), never from the domain root: a link
+// starting with "/" leaves the site the moment it is served from a subfolder.
+const NAV_IN_HTML = ["../"];
 const SHARED_IN_CSS = [
   "../shared/fonts/plus-jakarta-sans-latin.woff2",
   "../shared/fonts/plus-jakarta-sans-latin-ext.woff2",
@@ -208,11 +210,12 @@ for (const p of pushes) {
 }
 if (pushes.length === 0) fail("no history handling found", "app.js");
 
-// Links back into the site carry the language and nothing else. The school
+// Links back into the site are relative ("../laporan/"), and carry the
+// language and nothing else. The school
 // view's decision, like every answer, stays in the tab.
 const siteHref = CODE["app.js"].match(/const siteHref = \(path\) => `([^`]*)`;/);
 if (!siteHref) fail("no single builder for links back into the site", "app.js");
-else if (siteHref[1] !== "${path}?lang=${lang}")
+else if (siteHref[1] !== "..${path}?lang=${lang}")
   fail(`a link back into the site carries more than the language: ${siteHref[1]}`, "app.js");
 else checks += 1;
 for (const m of CODE["app.js"].match(/location\.href\s*=\s*[^;]+;/g) || []) {

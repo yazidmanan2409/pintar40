@@ -359,8 +359,9 @@ const miniHtml = readFileSync(join(ROOT, "mini-pintar/index.html"), "utf8");
 const tokenValue = (text, name) => text.match(new RegExp(`${name}:\\s*(#[0-9A-Fa-f]{6})\\s*;`))?.[1]?.toUpperCase();
 
 // The supplied mark, rendered the product's way: height set, width never.
-if (!/export const LOGO_SRC = "\/shared\/brand\/pintar-selalu-logo\.png";/.test(chrome))
-  fail("the site header does not use the supplied logo", "shared/chrome.js");
+if (!/export const LOGO_SRC = "shared\/brand\/pintar-selalu-logo\.png";/.test(chrome) ||
+    !/src: siteAsset\(LOGO_SRC\)/.test(chrome))
+  fail("the site header does not use the supplied logo, relatively", "shared/chrome.js");
 else ok();
 if (!/alt: "PINTAR SELALU"/.test(chrome) || !/alt="PINTAR SELALU"/.test(miniHtml))
   fail("the logo's alternative text is not what the artwork says", "PINTAR SELALU");
@@ -480,6 +481,79 @@ for (const p of LOADED.shared.PAGES) {
   if (p.href !== "/" && !(p.href.startsWith("/") && p.href.endsWith("/")))
     fail("a route is not in the /slug/ form the http.server convention expects", p.href);
   else ok();
+}
+
+// ------------------------------------------- relative, from any folder
+//
+// The site is deployed in a subfolder (/test/corporate/ on the host). A link
+// or asset written from the domain root ("/laporan/", "/shared/…") leaves
+// the site there, so none may be written anywhere. Route NAMES ("/laporan/")
+// live in the content modules and only ever reach a page through withLang()
+// (the corporate pages) or siteHref() (Mini-PINTAR), which make them relative.
+
+const PAGE_CODE = SHIPPED.filter((p) => /\.js$/.test(p) && !/content\.js$/.test(p));
+for (const p of PAGE_CODE) {
+  const code = stripComments(readFileSync(p, "utf8"), p);
+  for (const m of code.matchAll(/\b(href|src):\s*([^,}\n]+)/g)) {
+    const value = m[2].trim();
+    if (!/^(withLang|siteAsset|siteHref)\(/.test(value) && !/^"#[^"]*"$/.test(value))
+      fail(`a ${m[1]} not made relative by withLang, siteAsset or siteHref`, `${relative(ROOT, p)}: ${m[1]}: ${value}`);
+    else ok();
+  }
+  for (const m of code.matchAll(/setAttribute\(\s*"(href|src)"\s*,\s*([^)]+\)?)/g)) {
+    if (!/^(withLang|siteAsset|siteHref)\(/.test(m[2].trim()))
+      fail(`a ${m[1]} set without a relative helper`, `${relative(ROOT, p)}: ${m[2]}`);
+    else ok();
+  }
+  for (const m of code.matchAll(/location\.(?:href\s*=|assign\(|replace\()\s*([^;]+)/g)) {
+    if (!/^(siteHref\(|url\.toString\(\))/.test(m[1].trim()))
+      fail("a navigation that is not relative", `${relative(ROOT, p)}: ${m[1]}`);
+    else ok();
+  }
+}
+for (const p of SHIPPED.filter((f) => /\.(html|css)$/.test(f))) {
+  const code = stripComments(readFileSync(p, "utf8"), p);
+  const refs = [...code.matchAll(/(?:href|src)="([^"]+)"/g), ...code.matchAll(/url\(\s*["']?([^"')]+)/g)].map((m) => m[1]);
+  for (const r of refs) {
+    if (r.startsWith("/") || /^https?:/.test(r)) fail("a link or asset written from the domain root", `${relative(ROOT, p)}: ${r}`);
+    else ok();
+  }
+}
+
+// And the helpers themselves, exercised at every depth a page can have:
+// served from a subfolder, they must write relative paths that resolve
+// inside that subfolder.
+{
+  const langUrl = new URL("../shared/lang.js", import.meta.url);
+  const root = new URL("../", import.meta.url).pathname;
+  const { withLang, siteAsset } = await import(langUrl.href);
+  const cases = [
+    ["", "/", "./?lang=id"], ["", "/laporan/", "laporan/?lang=id"],
+    ["index.html", "/kontak/", "kontak/?lang=id"],
+    ["laporan/", "/", "../?lang=id"], ["laporan/", "/kontak/", "../kontak/?lang=id"],
+    ["laporan/index.html", "/mini-pintar/", "../mini-pintar/?lang=id"],
+    ["tentang/", "/untuk-pendidik/#x", "../untuk-pendidik/?lang=id#x"],
+  ];
+  const had = globalThis.location;
+  try {
+    for (const [page, route, want] of cases) {
+      globalThis.location = new URL(`file://${root}${page}`);
+      const got = withLang(route, "id");
+      if (got !== want) fail("withLang does not write a relative link", `on ${page || "home"}: ${route} → ${got}, not ${want}`);
+      else ok();
+      const resolved = new URL(got, globalThis.location).pathname;
+      if (!resolved.startsWith(root)) fail("a relative link resolves outside the site", `${page}: ${got}`);
+      else ok();
+    }
+    for (const [page, want] of [["", "shared/brand/x.png"], ["laporan/", "../shared/brand/x.png"]]) {
+      globalThis.location = new URL(`file://${root}${page}`);
+      const got = siteAsset("shared/brand/x.png");
+      if (got !== want) fail("siteAsset does not write a relative path", `on ${page || "home"}: ${got}, not ${want}`);
+      else ok();
+    }
+  } finally {
+    if (had === undefined) delete globalThis.location; else globalThis.location = had;
+  }
 }
 
 // ------------------------------------------------------------ one Mini-PINTAR

@@ -25,7 +25,7 @@ This is the approved M2. It was **moved** here from `website/mini-pintar/app/` w
   - The supplied PINTAR SELALU logo leads Home.
   - The product's Plus Jakarta Sans comes from the site's `../shared/` folder, on the same origin, in its weights 400 and 600.
   - `isolation.mjs` allows exactly those three shared files, each by exact path, and nothing else.
-- **Leaving.** Exit, the logo and the three doors lead to the corporate site's real routes, carrying `?lang=` and nothing else. The corporate site around Mini-PINTAR keeps nothing either.
+- **Leaving.** Exit, the logo and the three doors lead to the corporate site's real routes, relatively (`../`, `../laporan/`), so they work from any folder the site is served from. They carry `?lang=` and nothing else. The corporate site around Mini-PINTAR keeps nothing either.
 
 ### Run it, now
 

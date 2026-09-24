@@ -9,7 +9,8 @@
 
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdir, rm } from "node:fs/promises";
+import { mkdir, rm, mkdtemp, symlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
 // The browser tooling is shared with the role views and the corporate site,
 // so it stays at website/mini-pintar/app/verify/ rather than moving here.
 import { serve, launch, Page } from "../../../mini-pintar/app/verify/driver.mjs";
@@ -160,10 +161,18 @@ async function walk(p, mapChoices, checkChoices) {
 
 // --------------------------------------------------------------------- run
 
-const site = await serve(SITE);
+// Served from a SUBFOLDER, the way the site is actually deployed
+// (/test/corporate/ on the host), not from a domain root: a link or asset
+// that only works at "/" fails here, where it would fail for a visitor.
+const PREFIX = "/test/corporate";
+const MOUNT = await mkdtemp(join(tmpdir(), "mini-pintar-"));
+await mkdir(join(MOUNT, "test"), { recursive: true });
+await symlink(SITE, join(MOUNT, "test", "corporate"), "dir");
+const site = await serve(MOUNT);
 const browser = await launch();
 const ORIGIN = `http://127.0.0.1:${site.port}`;
-const BASE = `${ORIGIN}/mini-pintar/`;
+const SITE_URL = `${ORIGIN}${PREFIX}/`;
+const BASE = `${SITE_URL}mini-pintar/`;
 let p;
 
 try {
@@ -270,11 +279,17 @@ try {
 
   // Every way out lands on a real route of the site, in the visitor's
   // language, carrying nothing else.
+  // Relative in the markup, and landing inside the site's own folder.
   const hrefs = await p.eval("[...document.querySelectorAll('.doors a')].map(a => a.getAttribute('href'))");
-  assert(JSON.stringify(hrefs) === JSON.stringify(REVEAL.doors.map((d) => `${d.href}?lang=id`)),
-    "the doors lead to the site's routes, with the language only", JSON.stringify(hrefs));
+  assert(JSON.stringify(hrefs) === JSON.stringify(REVEAL.doors.map((d) => `..${d.href}?lang=id`)),
+    "the doors lead to the site's routes, relatively, with the language only", JSON.stringify(hrefs));
+  const landed = await p.eval("[...document.querySelectorAll('.doors a')].map(a => a.href)");
+  assert(JSON.stringify(landed) === JSON.stringify(REVEAL.doors.map((d) => `${SITE_URL}${d.href.slice(1)}?lang=id`)),
+    "the doors land inside the site's folder, wherever it is served from", JSON.stringify(landed));
   const brandHref = await p.eval("document.getElementById('brand').getAttribute('href')");
-  assert(brandHref === "/?lang=id", "the PINTAR SELALU mark leads Home, in the visitor's language", brandHref);
+  assert(brandHref === "../?lang=id", "the PINTAR SELALU mark leads Home, relatively, in the visitor's language", brandHref);
+  assert((await p.eval("document.getElementById('brand').href")) === `${SITE_URL}?lang=id`,
+    "the way Home lands on the site's own Home, not the domain's", await p.eval("document.getElementById('brand').href"));
   const logo = await p.eval(`(() => { const i = document.querySelector('#brand img');
     return i && { src: i.getAttribute('src'), alt: i.alt, w: i.getAttribute('style'),
       loaded: i.complete && i.naturalWidth === 766 && i.naturalHeight === 429,
@@ -372,7 +387,7 @@ try {
     const eduEn = await bodyText(p);
     assert(shows(eduEn, E.intro.en) && shows(eduEn, SCHOOL.absent.belum_cukup.en),
       "the educator's side speaks English too", eduEn.slice(0, 80));
-    assert((await p.eval("document.getElementById('brand').getAttribute('href')")) === "/?lang=en",
+    assert((await p.eval("document.getElementById('brand').getAttribute('href')")) === "../?lang=en",
       "the way Home follows the language");
     await clickPrimary(p);
     const mgEn = await bodyText(p);
@@ -403,15 +418,37 @@ try {
   // site's identity needs: the supplied logo and the self-hosted typeface.
   // Nothing else, and no code from outside the bundle.
   const allowed = new Set([
-    "/mini-pintar/", "/mini-pintar/index.html", "/mini-pintar/style.css",
-    "/mini-pintar/content.js", "/mini-pintar/adapt.js", "/mini-pintar/app.js",
-    "/favicon.ico", "/shared/brand/pintar-selalu-logo.png",
-    "/shared/fonts/plus-jakarta-sans-latin.woff2", "/shared/fonts/plus-jakarta-sans-latin-ext.woff2",
+    "/favicon.ico",
+    ...["/mini-pintar/", "/mini-pintar/index.html", "/mini-pintar/style.css",
+      "/mini-pintar/content.js", "/mini-pintar/adapt.js", "/mini-pintar/app.js",
+      "/shared/brand/pintar-selalu-logo.png",
+      "/shared/fonts/plus-jakarta-sans-latin.woff2", "/shared/fonts/plus-jakarta-sans-latin-ext.woff2",
+    ].map((x) => PREFIX + x),
   ]);
   const unexpected = [...paths].filter((x) => !allowed.has(x));
   assert(unexpected.length === 0, "only the bundle's own files were fetched", unexpected.join(", "));
   const withAnswer = p.requests.filter((u) => /[?&#].*(choice|answer|option|outcome|opt=)/i.test(u));
   assert(withAnswer.length === 0, "no request carried an answer", withAnswer.join(", "));
+
+  // ------------------------------------------------ Keluar, from a subfolder
+  // Exit really leaves to the site's own Home in the site's folder, in the
+  // visitor's language, and that Home is there.
+  phase("leaving");
+  await p.goto(BASE + "?lang=id");
+  await p.eval("document.getElementById('exit').click()");
+  let left = null;
+  for (let i = 0; i < 30 && left !== `${PREFIX}/`; i += 1) {
+    await new Promise((r) => setTimeout(r, 150));
+    left = await p.eval("location.pathname").catch(() => null);
+  }
+  assert(left === `${PREFIX}/`, "Keluar lands on the site's Home, inside its folder", String(left));
+  assert((await p.eval("location.search")) === "?lang=id", "and keeps the visitor's language");
+  let home = false;
+  for (let i = 0; i < 30 && !home; i += 1) {
+    await new Promise((r) => setTimeout(r, 150));
+    home = await p.eval("document.body.innerText.length > 200 && !!document.querySelector('.site-header')").catch(() => false);
+  }
+  assert(home, "and that Home is really there");
 
   // -------------------------------------------------- reload restarts, as told
   await p.goto(BASE);
@@ -873,6 +910,7 @@ try {
 } finally {
   await browser.kill();
   await site.close();
+  await rm(MOUNT, { recursive: true, force: true });
 }
 
 /**

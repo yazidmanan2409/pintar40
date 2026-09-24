@@ -98,8 +98,13 @@ const num = (n) => new Intl.NumberFormat(lang === "id" ? "id-ID" : "en-GB").form
 const pct = (v) => new Intl.NumberFormat(lang === "id" ? "id-ID" : "en-GB",
   { style: "percent", maximumFractionDigits: 0 }).format(v);
 
-/** A route of the surrounding site, in the language the visitor is using. */
-const siteHref = (path) => `${path}?lang=${lang}`;
+/**
+ * A route of the surrounding site ("/laporan/"), in the language the visitor
+ * is using. RELATIVE: Mini-PINTAR sits one folder below the site's root, so a
+ * route is reached through "..", and the site works from any folder it is
+ * served from ("/" becomes "../", "/laporan/" becomes "../laporan/").
+ */
+const siteHref = (path) => `..${path}?lang=${lang}`;
 
 // ------------------------------------------------------------- DOM helpers
 
