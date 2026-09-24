@@ -3,7 +3,7 @@
 **Date:** 2026-09-24 · **Status:** reconciled with the canonical PINTAR product, for Second Eye review.
 **Not production. Not merged.** A test copy is served from `/test/corporate/` on the host, uploaded by the owner for review.
 
-**Canonical baseline:** `main@2ac7ab6`, the patch baseline ruled on 24 Sep. It was re-read unchanged at `19f01b2` and at `4030937`, the `main` tip this lane last merged.
+**Canonical baseline:** `main@2ac7ab6`, the patch baseline ruled on 24 Sep. It was re-read unchanged at `19f01b2`, `4030937` and `eb3256f`, the `main` tip this lane last merged. `eb3256f` brought Integrations 6 and 7 (BOB-03, BOB-04, DAISY-06, DAISY-09–11). None of them changed anything the website represents.
 
 **Direction of authority:** the canonical PINTAR product decides, and this website represents it. Never the reverse.
 
@@ -171,21 +171,21 @@ Adoption, availability, customer, partner-school and launch words are banned and
 
 ## 8 · Verification
 
-All of it runs locally with `bash verify/run-all.sh` (about 45 minutes; `--quick` skips the two browser-plant harnesses). There were **no GitHub Actions runs.** The results below are from the merged head `f8da0ab`; the commit that adds this README changes nothing else.
+All of it runs locally with `bash verify/run-all.sh` (about 50 minutes; `--quick` skips the two browser-plant harnesses). There were **no GitHub Actions runs.** The results below are from the merged head `091cbfc`, with the site served from `/test/corporate/`; the commit that updates this README changes nothing else.
 
-| Command | Result on `f8da0ab` |
+| Command | Result on `091cbfc` |
 |---|---|
 | `node verify/canonical.mjs` | OK — 432 checks: 63 copy rows, 16 MC-1 metrics, 4 tiers, 3 surfaces, 4 tokens, 4 assets |
 | `node verify/canonical.mjs --at 2ac7ab6` | OK — 432 checks (the snapshot matches its source commit) |
-| `node verify/audit.mjs` | OK — 152,567 checks; 516 public strings, 9 pages, 34 shipped files scanned for storage |
-| `node verify/view.mjs` | OK — 347 checks in Chromium |
-| `bash verify/negative.sh` | 83 planted defects, 83 caught (11 product changes planted in a temporary copy) |
-| `bash verify/negative-browser.sh` | 8 planted defects, 8 caught |
+| `node verify/audit.mjs` | OK — 152,639 checks; 516 public strings, 9 pages, 34 shipped files scanned for storage and root-absolute links |
+| `node verify/view.mjs` | OK — 447 checks in Chromium, served from `/test/corporate/`; every link and asset relative and served |
+| `bash verify/negative.sh` | 89 planted defects, 89 caught (11 product changes planted in a temporary copy) |
+| `bash verify/negative-browser.sh` | 10 planted defects, 10 caught |
 | `node mini-pintar/verify/audit.mjs` | OK — 11,561 checks |
 | `node mini-pintar/verify/paths.mjs` | OK — 3,125 resolutions replayed identically |
 | `node mini-pintar/verify/isolation.mjs` | OK — 266 checks |
-| `node mini-pintar/verify/journey.mjs` | OK — 480 checks in Chromium, both school sides, both languages, keyboard only |
-| `bash mini-pintar/verify/negative.sh` | 55 planted defects, 55 caught |
+| `node mini-pintar/verify/journey.mjs` | OK — 485 checks in Chromium, served from `/test/corporate/`; both school sides, both languages, keyboard only |
+| `bash mini-pintar/verify/negative.sh` | 57 planted defects, 57 caught |
 | `bash mini-pintar/verify/negative-browser.sh` | 10 planted defects, 10 caught |
 
 **What the plants found.** Several of my own checks turned out to be unable to fail until a planted defect proved it. Each is now fixed:
