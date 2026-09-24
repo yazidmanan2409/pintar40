@@ -1064,7 +1064,20 @@ export type HleEvent =
   | "aktivasi.baru.arti"
   | "aktivasi.baru.nama"
   | "aktivasi.baru.tombol"
-  | "aktivasi.baru.ok";
+  | "aktivasi.baru.ok"
+  // DAISY-09 (D-019): what each activation made, that PINTAR sent nothing, and
+  // each failure as its own sentence
+  | "aktivasi.surel_dibuat"
+  | "aktivasi.surel_arti"
+  | "aktivasi.kartu_arti"
+  | "aktivasi.galat.nama"
+  | "aktivasi.galat.surel"
+  | "aktivasi.galat.ditolak"
+  | "aktivasi.galat.baru_ditolak"
+  | "aktivasi.galat.dipakai"
+  | "aktivasi.galat.kartu"
+  | "aktivasi.galat.sesi"
+  | "aktivasi.galat.jaringan";
 
 /**
  * One key's telling, in both languages.
@@ -1822,7 +1835,7 @@ const table: Table = {
   "studio.paket.masalah.item_options_too_few": { default: "Soal ini perlu paling sedikit dua pilihan.", en: "This question needs at least two options." },
   "studio.paket.masalah.item_options_too_many": { default: "Soal ini paling banyak lima pilihan (A sampai E).", en: "This question may have at most five options (A to E)." },
   "studio.paket.masalah.item_correct_missing": { default: "Belum ada pilihan yang ditandai benar.", en: "No option is marked correct." },
-  "studio.paket.masalah.item_correct_too_many": { default: "Pilihan ganda hanya boleh satu jawaban benar. Pakai jenis \u201cbanyak jawaban\u201d bila lebih.", en: "A single-answer question may have only one correct option. Use the multiple-answer type for more." },
+  "studio.paket.masalah.item_correct_too_many": { default: "Pilihan ganda hanya boleh satu jawaban benar. Pakai jenis “banyak jawaban” bila lebih.", en: "A single-answer question may have only one correct option. Use the multiple-answer type for more." },
   "studio.paket.masalah.option_label_invalid": { default: "Label pilihan harus A, B, C, D atau E.", en: "An option label must be A, B, C, D or E." },
   "studio.paket.masalah.option_label_repeated": { default: "Label pilihan ini dipakai dua kali dalam soal yang sama.", en: "This option label is used twice in the same question." },
   "studio.paket.masalah.option_text_missing": { default: "Teks pilihan belum diisi.", en: "The option text is empty." },
@@ -2203,18 +2216,29 @@ const table: Table = {
   "aktivasi.ditolak": { default: "Halaman ini untuk pengelola data sekolah.", en: "This page is for the people who manage a school's records." },
   "aktivasi.eyebrow": { default: "Akun", en: "Accounts" },
   "aktivasi.judul": { default: "Aktifkan akun", en: "Activate accounts" },
-  "aktivasi.intro": { default: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih cara masuk untuk masing-masing: tautan lewat surel, atau kartu kelas dengan PIN.", en: "People your school has recorded who cannot sign in yet. Choose how each one signs in: a link by email, or a classroom card with a PIN." },
+  "aktivasi.intro": { default: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih caranya untuk masing-masing: dengan alamat surel, atau dengan kartu kelas dan PIN. PINTAR tidak mengirim surel atau pesan apa pun. Setelah akun dibuat, minta orangnya membuka halaman /masuk.", en: "People your school has recorded who cannot sign in yet. Choose how each one signs in: with an email address, or with a classroom card and PIN. PINTAR sends no email or message of any kind. Once the account is made, ask the person to open the /masuk page." },
   "aktivasi.kosong": { default: "Semua orang yang sudah didata sudah bisa masuk.", en: "Everyone who has been recorded can already sign in." },
   "aktivasi.surel": { default: "Alamat surel", en: "Email address" },
-  "aktivasi.dengan_surel": { default: "Aktifkan dengan surel", en: "Activate by email" },
+  "aktivasi.dengan_surel": { default: "Aktifkan dengan surel", en: "Activate with email address" },
   "aktivasi.dengan_kartu": { default: "Buat kartu kelas", en: "Make a classroom card" },
   "aktivasi.kartu_dibuat": { default: "Kartu dibuat. Catat sekarang — PIN hanya ditampilkan sekali:", en: "Card made. Write it down now — the PIN is shown only once:" },
-  "aktivasi.gagal": { default: "Belum berhasil. Periksa alamat surel, atau apakah orang ini sudah punya akun.", en: "That did not work. Check the email address, or whether this person already has an account." },
+  "aktivasi.gagal": { default: "Belum berhasil, dan belum ada yang dibuat. Coba lagi. Jika tetap gagal, muat ulang halaman ini.", en: "That did not work, and nothing was made. Try again. If it still fails, reload this page." },
   "aktivasi.baru.judul": { default: "Orang baru di luar pendataan", en: "A new person outside the intake" },
   "aktivasi.baru.arti": { default: "Untuk pengelola pertama sebuah sekolah. Setelah dibuat, beri peran di Konfigurasi.", en: "For a school's first administrator. Once created, give them a role in Configuration." },
   "aktivasi.baru.nama": { default: "Nama", en: "Name" },
   "aktivasi.baru.tombol": { default: "Buat dan aktifkan", en: "Create and activate" },
-  "aktivasi.baru.ok": { default: "Dibuat. PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka halaman /masuk di PINTAR, lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu.", en: "Created. PINTAR has not emailed this person. Ask them to open the /masuk page in PINTAR and type this email address. The sign-in link is sent then." },
+  "aktivasi.baru.ok": { default: "PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka halaman /masuk di PINTAR, lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu. Setelah itu, beri perannya di Konfigurasi.", en: "PINTAR has not emailed this person. Ask them to open the /masuk page in PINTAR and type this email address. The sign-in link is sent then. Next, give them a role in Configuration." },
+  "aktivasi.surel_dibuat": { default: "Akun dibuat untuk alamat", en: "Account made for the address" },
+  "aktivasi.surel_arti": { default: "PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka halaman /masuk di PINTAR, lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu.", en: "PINTAR has not emailed this person. Ask them to open the /masuk page in PINTAR and type this email address. The sign-in link is sent then." },
+  "aktivasi.kartu_arti": { default: "PINTAR tidak mengirim apa pun. Berikan nomor kartu dan PIN ini kepada orangnya. Di halaman /masuk ia memilih “Gunakan kartu kelas”, lalu mengetik keduanya.", en: "PINTAR has not sent anything. Give this card number and PIN to the person. On the /masuk page they choose “Use a class card” and type both." },
+  "aktivasi.galat.nama": { default: "Tulis nama orangnya dulu.", en: "Write the person's name first." },
+  "aktivasi.galat.surel": { default: "Alamat surel ini belum lengkap. Contoh: nama@sekolah.sch.id", en: "This email address isn't complete. Example: name@school.sch.id" },
+  "aktivasi.galat.ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Orang ini mungkin sudah punya akun, atau bukan dari sekolah yang Anda kelola. Muat ulang halaman ini untuk melihat daftar terbaru.", en: "PINTAR refused, and nothing was made. This person may already have an account, or may not belong to a school you manage. Reload this page to see the current list." },
+  "aktivasi.galat.baru_ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Hanya admin platform yang bisa membuat orang di luar pendataan.", en: "PINTAR refused, and nothing was made. Only a platform administrator can create a person outside the intake." },
+  "aktivasi.galat.dipakai": { default: "Akun belum bisa dibuat. Alamat surel ini mungkin sudah dipakai akun lain. Coba alamat lain.", en: "The account could not be made. This email address may already belong to another account. Try another address." },
+  "aktivasi.galat.kartu": { default: "Kartu belum bisa dibuat, dan tidak ada yang tersimpan. Coba lagi.", en: "The card could not be made, and nothing was saved. Try again." },
+  "aktivasi.galat.sesi": { default: "Sesi Anda sudah berakhir, dan tidak ada yang dibuat. Masuk lagi, lalu ulangi.", en: "Your session has ended, and nothing was made. Sign in again, then repeat this." },
+  "aktivasi.galat.jaringan": { default: "PINTAR belum bisa dihubungi. Periksa sambungan internet, lalu coba lagi.", en: "PINTAR could not be reached. Check the internet connection, then try again." },
   "sync.sesi_ditutup": { default: "Asesmen ini sudah ditutup, jadi jawaban terakhir tidak lagi dapat dikirim.", en: "This assessment is already closed, so the last answer could not be sent." },
 
   // ═══════════════════════════ UX-1 · the role-based first-login tour (r2.1).

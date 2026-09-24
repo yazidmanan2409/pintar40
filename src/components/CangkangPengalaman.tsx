@@ -7,7 +7,7 @@ import PengalihBahasa from "./PengalihBahasa";
 import MerekPintar from "./MerekPintar";
 import TombolBantuan from "./tur/TombolBantuan";
 import SesiSaya from "./SesiSaya";
-import TabTempat, { tempatDariPeran } from "./TabTempat";
+import TabTempat, { tempatDariPeran, tawarkanStudio } from "./TabTempat";
 
 /**
  * The Experience shell: the mark, where you are, and the language switch.
@@ -105,6 +105,9 @@ export default async function CangkangPengalaman({
   // The public verification page reads nothing: nobody is signed in to it.
   const [viewer, peran] = kind === "public" ? [null, null] : await Promise.all([currentViewer(), peranSaya()]);
   const tempat = tempatDariPeran(peran);
+  // DAISY-11 (D-021): the Studio tab, from the same roles, for every staff
+  // shell. Studio itself still asks the database on arrival.
+  const studio = tawarkanStudio(peran);
 
   // FOCUS. During an assessment the shell keeps the mark and the language and
   // drops the tabs. The engine survives navigating away — a session is server
@@ -138,7 +141,7 @@ export default async function CangkangPengalaman({
           <Link href="/belajar" aria-current={undefined}>
             {t("nav.pembelajaran", "educator", { locale })}
           </Link>
-          <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" />
+          <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
         </nav>
         <span className="pin-spacer" />
         <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
@@ -156,7 +159,7 @@ export default async function CangkangPengalaman({
           <Link href="/pimpinan" aria-current={current === "pimpinan" ? "page" : undefined}>
             {t("nav.pimpinan", "staff", { locale })}
           </Link>
-          <TabTempat tempat={tempat} kecuali={["/pimpinan"]} locale={locale} persona="staff" />
+          <TabTempat tempat={tempat} kecuali={["/pimpinan"]} locale={locale} persona="staff" studio={studio} />
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
@@ -178,7 +181,7 @@ export default async function CangkangPengalaman({
           <Link href="/aktivasi" aria-current={current === "aktivasi" ? "page" : undefined}>
             {t("nav.aktivasi", "staff", { locale })}
           </Link>
-          <TabTempat tempat={tempat} locale={locale} persona="staff" />
+          <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} />
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
@@ -217,7 +220,7 @@ export default async function CangkangPengalaman({
           <Link href="/belajar" aria-current={current ? "page" : undefined}>
             {t("nav.pembelajaran", "educator", { locale })}
           </Link>
-          <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" />
+          <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
