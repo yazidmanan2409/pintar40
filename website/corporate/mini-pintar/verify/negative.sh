@@ -56,6 +56,8 @@ try "child register"             audit.mjs content.js 'Jawaban Anda dipakai||Jaw
 try "machine voice says salah"   audit.mjs content.js 'Ada bagian yang layak dibaca ulang.||Jawaban Anda salah.'
 try "tidak cukup, not belum"     audit.mjs content.js 'Belum cukup bukti.", "Not yet enough evidence.||Tidak cukup bukti.", "Not enough evidence.'
 try "obsolete Kuis Cepat"        audit.mjs content.js 'Uji Penguasaan", "Mastery Check"||Kuis Cepat", "Quick Quiz"'
+try "an id drawn from the product"  audit.mjs content.js 'id: "U-D2-1",||id: "class.comprehension",'
+try "a stem drawn from the product" audit.mjs content.js '"Sebuah program baru dicoba di dua kelas selama satu semester, dan hasilnya membaik. Mana yang paling menambah kekuatan buktinya?"||"PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum."'
 try "MAP option loses rationale" audit.mjs content.js 'rationale: L(
           "Persentase adalah perbandingan||norationale: L(
           "Persentase adalah perbandingan'

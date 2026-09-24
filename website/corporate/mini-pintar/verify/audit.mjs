@@ -421,11 +421,31 @@ const productFiles = [
 if (productFiles.length === 0) fail("bank check found no product files to search", "supabase/, src/");
 else ok();
 
+// TWO-CHARACTER IDS ARE NOT EVIDENCE EITHER WAY. The Pemetaan Awal items are
+// P1..P3, and once this bundle sits in a tree beside the full product, a
+// migration's test fixture naming an organisational node 'P1' matched them —
+// a collision of tokens, not an item drawn from the bank. So an id is
+// searched only when it is distinctive (four characters or more), and the
+// stronger test is added alongside: no authored stem or option text of this
+// bundle appears anywhere in product source.
+const DISTINCTIVE = IDENTIFIERS.filter((id) => id.length >= 4);
+const AUTHORED = [...MAP_ITEMS, ...ALL_CHECK].flatMap((i) => [
+  i.stem?.id, i.stem?.en,
+  ...(i.options || []).flatMap((o) => [o.text?.id, o.text?.en]),
+]).filter((x) => typeof x === "string" && x.length >= 40);
+if (AUTHORED.length < 20) fail("bank check collected too little authored text to search", String(AUTHORED.length));
+else ok();
+
 for (const file of productFiles) {
   const text = readFileSync(file, "utf8");
-  for (const id of IDENTIFIERS) {
+  for (const id of DISTINCTIVE) {
     if (new RegExp(`['"\`]${id}['"\`]`).test(text))
       fail(`bundle identifier "${id}" also appears in product source`,
+           file.replace(REPO + "/", ""));
+  }
+  for (const a of AUTHORED) {
+    if (text.includes(a))
+      fail(`bundle text also appears in product source: "${a.slice(0, 50)}…"`,
            file.replace(REPO + "/", ""));
   }
 }

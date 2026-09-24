@@ -10,8 +10,10 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { mkdir, rm } from "node:fs/promises";
-import { serve, launch, Page } from "./driver.mjs";
-import { CONTRAST_EXPR, nonTextExpr } from "./probes.mjs";
+// The browser tooling is shared with the role views and the corporate site,
+// so it stays at website/mini-pintar/app/verify/ rather than moving here.
+import { serve, launch, Page } from "../../../mini-pintar/app/verify/driver.mjs";
+import { CONTRAST_EXPR, nonTextExpr } from "../../../mini-pintar/app/verify/probes.mjs";
 import {
   DOMAINS, MAP_ITEMS, CHECK_ITEMS, CHECK_ONLY_MISCONCEPTIONS, MAP_REASONS,
   LESSONS, OUTCOMES, EVIDENCE_LIMIT, UI, REVEAL, TIER_LABELS,
@@ -27,7 +29,10 @@ const SHOTS = process.argv.includes("--shots");
  * the full run is what the report quotes.
  */
 const FAST = process.env.MINI_PINTAR_FAST === "1";
-const SHOT_DIR = join(APP, "..", "screens");
+const SHOT_DIR = join(APP, "screens");
+// Mini-PINTAR is served as part of the corporate site, from its root, so the
+// shared logo and typeface resolve exactly as they do for a visitor.
+const SITE = join(APP, "..");
 
 const fails = [];
 const fail = (what, detail = "") => fails.push(`${what}${detail ? " — " + detail : ""}`);
@@ -147,9 +152,10 @@ async function walk(p, mapChoices, checkChoices) {
 
 // --------------------------------------------------------------------- run
 
-const site = await serve(APP);
+const site = await serve(SITE);
 const browser = await launch();
-const BASE = `http://127.0.0.1:${site.port}/`;
+const ORIGIN = `http://127.0.0.1:${site.port}`;
+const BASE = `${ORIGIN}/mini-pintar/`;
 let p;
 
 try {
@@ -269,10 +275,18 @@ try {
 
   // ------------------------------------------ nothing leaves the bundle
   phase('network');
-  const external = p.requests.filter((u) => !u.startsWith(BASE) && !u.startsWith("data:"));
+  const external = p.requests.filter((u) => !u.startsWith(ORIGIN + "/") && !u.startsWith("data:"));
   assert(external.length === 0, "no request left the bundle", external.join(", "));
   const paths = new Set(site.requested);
-  const allowed = new Set(["/", "/index.html", "/style.css", "/content.js", "/adapt.js", "/app.js", "/favicon.ico"]);
+  // The bundle's own five files, plus exactly the shared static assets the
+  // site's identity needs: the supplied logo and the self-hosted typeface.
+  // Nothing else, and no code from outside the bundle.
+  const allowed = new Set([
+    "/mini-pintar/", "/mini-pintar/index.html", "/mini-pintar/style.css",
+    "/mini-pintar/content.js", "/mini-pintar/adapt.js", "/mini-pintar/app.js",
+    "/favicon.ico", "/shared/brand/pintar-selalu-logo.png",
+    "/shared/fonts/plus-jakarta-sans-latin.woff2", "/shared/fonts/plus-jakarta-sans-latin-ext.woff2",
+  ]);
   const unexpected = [...paths].filter((x) => !allowed.has(x));
   assert(unexpected.length === 0, "only the bundle's own files were fetched", unexpected.join(", "));
   const withAnswer = p.requests.filter((u) => /[?&#].*(choice|answer|option|outcome|opt=)/i.test(u));
