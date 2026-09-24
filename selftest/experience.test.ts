@@ -87,6 +87,7 @@ import {
 } from "../src/lib/umpanbalik-kontrak";
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import BarisSesi from "../src/components/BarisSesi";
+import PanelPernyataan, { KalimatPonsel } from "../src/components/masuk/PanelPernyataan";
 import { tempatDariPeran, daftarTempat, pintuMasuk } from "../src/components/tempat";
 import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalBaca } from "../src/components/struktur/tampilan";
@@ -8154,6 +8155,139 @@ export const experienceTests: SelfTest[] = [
         "and the section is Konfigurasi's first, fed only by bacaStruktur for a school on offer. The shared school rule offers only " +
         "active INSTITUTION tenants the reader administers -- never the national library, an inactive school, an undecided kind or " +
         "a row without its kind -- starts on the first real school, and opens none of the others even when asked for by address",
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-08 (lane: Daisy)
+  {
+    id: "DAISY-08-PANEL-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-08 (D-018): THE FIRST SCREEN EVERY VISITOR SEES SHOWS PINTAR'S
+       * OWN STATEMENT, NOT A PLACEHOLDER. The sign-in panel was built for a
+       * licensed classroom photograph that does not exist yet, and showed a dark
+       * box labelled "FOTO CONTOH" on /masuk and on the expired-link screen.
+       *
+       * 1. NO PLACEHOLDER ANYWHERE. The copy table has no placeholder key, no
+       *    telling for any persona in either language says "FOTO CONTOH" or
+       *    "PLACEHOLDER PHOTO", and no source file draws the old photo scaffold.
+       */
+      const PENANDA = /FOTO CONTOH|PLACEHOLDER PHOTO/i;
+      c.expect(!(allKeys() as string[]).includes("auth.placeholder"), "the placeholder key is still in the copy table");
+      const tellings = renderAll();
+      const bocor = tellings.filter((x) => PENANDA.test(x.text));
+      c.expect(bocor.length === 0, `a telling still says it is a placeholder: ${bocor.map((x) => `${x.event}/${x.locale}`).join(", ")}`);
+      for (const f of walk(join(repoRoot, "src")).filter((p) => /\.(tsx?|css)$/.test(p))) {
+        const src = code(readFileSync(f, "utf8"));
+        c.expect(!PENANDA.test(src) && !/pin-vis-(?:foto|tanda|scrim)|PanelFoto|auth-scrim|auth-say-veil/.test(src),
+          `${relative(repoRoot, f)} still draws the photo placeholder or its scaffold`);
+      }
+
+      /**
+       * 2. THE STATEMENT, RENDERED, AND READ BY A SCREEN READER. The panel is
+       *    called and its tree walked in both languages: a section labelled by
+       *    its own heading, the statement from the copy table, no image, and
+       *    nothing on it hidden from assistive technology except the small
+       *    decorative rule. (It used to be aria-hidden as decoration while its
+       *    phone twin is hidden from the tablet width up, so a screen reader on
+       *    a tablet or desktop heard no statement at all.) The phone twin says
+       *    the same words.
+       */
+      type El = { type?: unknown; props?: Record<string, unknown> };
+      const semua = (n: Simpul, out: El[] = []): El[] => {
+        if (n === null || n === undefined || typeof n === "string" || typeof n === "number") return out;
+        out.push(n);
+        for (const k of anakDari(n)) semua(k, out);
+        return out;
+      };
+      for (const locale of LOCALES) {
+        const panel = PanelPernyataan({ locale }) as Simpul;
+        const els = semua(panel);
+        const akar = els[0];
+        const h2 = els.find((e) => e.type === "h2");
+        const p = els.find((e) => e.type === "p");
+        c.expect(akar?.type === "section" && akar?.props?.["aria-labelledby"] === h2?.props?.id && typeof h2?.props?.id === "string",
+          `(${locale}) the panel is not a section labelled by its own heading`);
+        c.expect(teksPohon(h2 as Simpul).join("") === t("auth.say_h", "public", { locale }) && teksPohon(p as Simpul).join("") === t("auth.say_p", "public", { locale }),
+          `(${locale}) the panel does not carry PINTAR's statement from the copy table`);
+        const tersembunyi = els.filter((e) => e.props?.["aria-hidden"] === true || e.props?.["aria-hidden"] === "true");
+        c.expect(tersembunyi.length === 1 && tersembunyi[0].type === "span" && teksPohon(tersembunyi[0] as Simpul).join("") === "",
+          `(${locale}) part of the statement is hidden from a screen reader`);
+        c.expect(!els.some((e) => e.type === "img" || e.type === "picture"), `(${locale}) the panel draws an image PINTAR holds no licence for`);
+        const ponsel = teksPohon(KalimatPonsel({ locale }) as Simpul).join(" ");
+        c.expect(ponsel.includes(t("auth.say_h", "public", { locale })) && ponsel.includes(t("auth.say_p", "public", { locale })),
+          `(${locale}) the phone twin does not say the same statement`);
+      }
+      for (const f of ["masuk/page.tsx", "auth/callback/page.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
+        c.expect(/<PanelPernyataan locale=\{locale\} \/>/.test(src) && /<KalimatPonsel locale=\{locale\} \/>/.test(src),
+          `${f} does not show the statement panel and its phone twin`);
+      }
+
+      /**
+       * 3. EXACTLY ONE COPY AT EVERY WIDTH, from the stylesheet. Below the
+       *    tablet width the panel is display:none and the phone twin shows;
+       *    from 561px the twin is display:none and the panel shows; from 1024px
+       *    the panel is the right-hand half. display:none also removes a copy
+       *    from the reading order, so a screen reader hears it once.
+       */
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const blok = (awal: string) => {
+        const i = css.indexOf(awal);
+        if (i < 0) return "";
+        for (let d = 0, k = css.indexOf("{", i); k < css.length; k++) {
+          if (css[k] === "{") d++;
+          else if (css[k] === "}" && --d === 0) return css.slice(i, k);
+        }
+        return "";
+      };
+      const aturan = (scope: string, sel: string) => {
+        const esc = sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return new RegExp(`(?:^|\\n)\\s*${esc}\\s*\\{([^}]*)\\}`).exec(scope)?.[1] ?? "";
+      };
+      const tablet = blok("@container masuk (min-width: 561px)");
+      const desktop = blok("@container masuk (min-width: 1024px)");
+      const luar = css.replace(tablet, "").replace(desktop, "");
+      c.expect(/display:\s*none/.test(aturan(luar, ".pin-vis")) && !/display:\s*none/.test(aturan(luar, ".pin-phonesay")),
+        "on a phone the panel is not hidden or its twin is not shown");
+      c.expect(/display:\s*none/.test(aturan(tablet, ".pin-phonesay")) && /display:\s*block/.test(aturan(tablet, ".pin-vis")),
+        "from the tablet width the twin is not hidden or the panel is not shown");
+      c.expect(/display:\s*block/.test(aturan(desktop, ".pin-vis")), "on a wide screen the panel is not shown");
+
+      /**
+       * 4. LEGIBLE ON ITS OWN GROUND, COMPUTED FROM THE TOKENS. The panel is
+       *    the brand colour with the brand's ink, and nothing is laid over it:
+       *    the two gradients a photograph needed are gone. The contrast is
+       *    worked out from the values in globals.css, so a later change of
+       *    either token cannot drop the statement below WCAG AA unnoticed.
+       */
+      const panelRule = aturan(luar, ".pin-vis");
+      const sayRule = aturan(luar, ".pin-say") + aturan(luar, ".pin-say-p") + aturan(luar, ".pin-say-h");
+      c.expect(/background:\s*var\(--pintar-primary\)/.test(panelRule) && /(?:^|;|\s)color:\s*var\(--pintar-primary-ink\)/.test(panelRule),
+        `the panel is not the brand colour with the brand's ink: "${panelRule.trim()}"`);
+      c.expect(!/gradient|background/.test(sayRule) && !/url\(|gradient/.test(panelRule), "something is still laid over the panel's ground");
+      const globals = readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8");
+      const hex = (nama: string) => /#([0-9a-f]{6})\b/i.exec(new RegExp(`--${nama}:\\s*([^;]+);`).exec(globals)?.[1] ?? "")?.[1] ?? "";
+      const lum = (h: string) => {
+        const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+          .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const [dasar, tinta] = [hex("pintar-primary"), hex("pintar-primary-ink")];
+      const rasio = dasar && tinta ? (Math.max(lum(dasar), lum(tinta)) + 0.05) / (Math.min(lum(dasar), lum(tinta)) + 0.05) : 0;
+      c.expect(rasio >= 4.5, `the statement on the panel measures ${rasio.toFixed(2)}:1, below WCAG AA (4.5:1)`);
+      c.expect(lum("000000") === 0 && Math.abs((1.05 / 0.05) - 21) < 1e-9, "the contrast arithmetic is wrong (control)");
+
+      return c.verdict(
+        `no placeholder anywhere: no key, none of ${tellings.length} tellings in either language, no source file. The statement ` +
+        "panel is RENDERED in both languages as a section labelled by its own heading, carrying PINTAR's statement from the copy " +
+        "table with no image and nothing hidden from a screen reader but its decorative rule, and its phone twin says the same; " +
+        "/masuk and the expired-link screen both show it. From the stylesheet, exactly one copy is displayed at every width, and " +
+        `the panel is the brand colour with the brand's ink and nothing laid over it: ${rasio.toFixed(2)}:1, computed from the tokens`,
       );
     },
   },

@@ -57,7 +57,10 @@ permissions:
 env:
   STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
   PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
-  STAGING_ORIGIN: https://pintar40-staging.vercel.app
+  # canonical since 24 Sep (Yazid); the Vercel-generated address stays attached but is no
+  # longer an allowed sign-in destination
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+  STAGING_PREVIOUS_ORIGIN: https://pintar40-staging.vercel.app
   SMTP_HOST: pintarselalu.com
   SMTP_PORT: "465"
   SMTP_SENDER: noreply@pintarselalu.com
@@ -308,6 +311,22 @@ jobs:
                   loc = urllib.parse.urlparse(headers.get('Location') or '')
                   print(f'the sign-in link answers HTTP {code} and sends the browser to {loc.scheme}://{loc.netloc}{loc.path}')
                   (loc.netloc == host and loc.path.startswith('/auth/callback')) or bad.append('the sign-in link does not land on staging\'s callback')
+
+              # 5. the previous address is no longer a sign-in destination: asked for, it is refused
+              #    and the link falls back to the canonical site address instead
+              prev = os.environ.get('STAGING_PREVIOUS_ORIGIN', '').rstrip('/')
+              if prev:
+                  code, _, raw = call(base + '/auth/v1/admin/generate_link', 'POST',
+                                      {'apikey': service, 'Authorization': 'Bearer ' + service},
+                                      {'type': 'magiclink', 'email': email[0], 'redirect_to': prev + '/auth/callback'})
+                  link = (json.loads(raw).get('action_link') or json.loads(raw).get('properties', {}).get('action_link')) if code == 200 else None
+                  if not link: bad.append(f'no sign-in link could be generated for the previous-address check (HTTP {code})')
+                  else:
+                      print('::add-mask::' + link)
+                      code, headers, _ = call(link, follow=False)
+                      loc = urllib.parse.urlparse(headers.get('Location') or '')
+                      print(f'asked to return to {prev}/auth/callback, the link sends the browser to {loc.scheme}://{loc.netloc}{loc.path}')
+                      loc.netloc == urllib.parse.urlparse(prev).netloc and bad.append('the previous address is still an allowed sign-in destination')
           if bad: print('::error::' + '; '.join(bad)); sys.exit(1)
-          print('VERIFIED: sign-in page, sign-up refused, one recorded admin, sign-in link lands on ' + o + '/auth/callback')
+          print('VERIFIED: sign-in page, sign-up refused, one recorded admin, sign-in link lands on ' + o + '/auth/callback, and the previous address is refused')
           PY

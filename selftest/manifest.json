@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 73,
+  "version": 74,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1863,6 +1863,11 @@
       "id": "BOB02-R01",
       "runner": "static",
       "proves": "BOB-02. The route sources agree on one media path: /api/assets/upload-url signs pelajaran/<school>/<batch>/<file> only on may_upload_package_media's answer, /api/assets/read-url accepts that shape and the seeded flat one and refuses near misses, and the longest package path fits the upload route's length rule."
+    },
+    {
+      "id": "DAISY-08-PANEL-01",
+      "runner": "static",
+      "proves": "DAISY-08 (D-018): the sign-in panel shows PINTAR's own statement, not a placeholder. From the COPY TABLE: no placeholder key, and no telling for any persona in either language says FOTO CONTOH or PLACEHOLDER PHOTO; no SOURCE file draws the old photo scaffold. The panel is RENDERED in both languages as a section labelled by its own heading, carrying the statement from the copy table with no image and nothing hidden from assistive technology but a decorative rule; its phone twin says the same; /masuk and the expired-link screen both show it. From the stylesheet FILE, exactly one copy is displayed at every width, and the panel is the brand colour with the brand's ink and nothing laid over it; the contrast is computed from the token values in globals.css and must meet WCAG AA."
     }
   ]
 }
