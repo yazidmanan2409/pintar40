@@ -10,7 +10,9 @@
 // Staging only: the project ref, origin and database URL are staging's, and the run stops
 // if production's project answers the staging token. No key, token, cookie or address is
 // printed. Idempotent: a course with the package's title already at the school is not
-// imported again; it is verified instead.
+// imported again; it is verified instead -- unless REPLACE_UNRELEASED is set (Yazid, 24 Sep,
+// for the SD 5 Bab 1 copy imported before BOB-04), and then a course that is still a draft
+// and that nothing uses is removed first and the package imported afresh.
 import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { chromium } from "playwright";
@@ -34,6 +36,7 @@ const MEDIA_DIR = env("MEDIA_DIR");
 const SCHOOL = env("SCHOOL_SLUG");
 const ADMIN_SHA256 = env("ADMIN_SHA256");
 const SHOTS = process.env.SHOTS_DIR ?? "shots";
+const REPLACE = process.env.REPLACE_UNRELEASED === "true";
 const SB = `https://${REF}.supabase.co`;
 const SUMMARY = process.env.GITHUB_STEP_SUMMARY;
 
@@ -83,6 +86,56 @@ async function main() {
   for (const f of media) if (!existsSync(join(MEDIA_DIR, f))) throw new Error(`media file missing from the media branch: ${f}`);
   say(`- media named by the package: ${media.length ? media.join(", ") : "none"}`);
   let course = sql(`select id from public.courses where institution_id='${schoolId}' and title=${lit(title)} limit 1`);
+  let batchId = null;
+
+  // 2b. REPLACING A DRAFT NOTHING USES (REPLACE_UNRELEASED). One transaction, which first
+  // re-checks that the course is still a draft with no release, no test definition, no
+  // assignment, no certificate template, no learner progress, no presented question and no
+  // question-health row, then removes it bottom-up. The foreign keys are the last guard:
+  // anything else still pointing at it rolls the whole removal back. Its files stay in
+  // storage, unreferenced; the new copy's files are checked by its own batch's path.
+  if (course && REPLACE) {
+    const had = sql(`select (select count(*) from public.modules m where m.course_id='${course}') || ' modules, ' ||
+      (select count(*) from public.lessons l join public.modules m on m.id = l.module_id where m.course_id='${course}') || ' lessons, ' ||
+      (select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}') || ' questions'`);
+    sql(`do $x$
+declare
+  c uuid := '${course}'; v_st text; v_items uuid[]; v_lessons uuid[]; v_modules uuid[];
+begin
+  select status::text into v_st from public.courses where id = c for update;
+  if v_st not in ('INGESTED', 'STRUCTURED', 'VALIDATED', 'VALIDATION_FAILED') then
+    raise exception 'not replaced: the course is %, not a draft', v_st;
+  end if;
+  select coalesce(array_agg(id), '{}') into v_modules from public.modules where course_id = c;
+  select coalesce(array_agg(id), '{}') into v_lessons from public.lessons where module_id = any (v_modules);
+  select coalesce(array_agg(id), '{}') into v_items from public.items where lesson_id = any (v_lessons);
+  if exists (select 1 from public.plp_releases where course_id = c) then
+    raise exception 'not replaced: the course has a release'; end if;
+  if exists (select 1 from public.assessment_definitions where course_id = c or module_id = any (v_modules)) then
+    raise exception 'not replaced: the course has a test definition'; end if;
+  if exists (select 1 from public.learning_assignments where course_id = c) then
+    raise exception 'not replaced: the course is assigned'; end if;
+  if exists (select 1 from public.certificate_templates where course_id = c or module_id = any (v_modules)) then
+    raise exception 'not replaced: the course has a certificate template'; end if;
+  if exists (select 1 from public.lesson_progress where lesson_id = any (v_lessons)) then
+    raise exception 'not replaced: a learner has progress in it'; end if;
+  if exists (select 1 from public.presented_items where item_id = any (v_items)) then
+    raise exception 'not replaced: a question of it was presented'; end if;
+  if exists (select 1 from public.question_health where item_id = any (v_items)) then
+    raise exception 'not replaced: a question of it has health evidence'; end if;
+  delete from public.mcq_quality_findings where course_id = c or item_id = any (v_items);
+  delete from public.coaching_findings where course_id = c;
+  delete from public.item_options where item_id = any (v_items);
+  delete from public.items where id = any (v_items);
+  delete from public.learning_objectives where lesson_id = any (v_lessons);
+  delete from public.lessons where id = any (v_lessons);
+  delete from public.modules where id = any (v_modules);
+  delete from public.courses where id = c;
+end $x$;`);
+    if (sql(`select count(*) from public.courses where id='${course}'`) !== "0") throw new Error("the draft was not removed");
+    say(`- replaced: the unreleased draft ${course.slice(0, 8)} (${had}) was removed; importing afresh`);
+    course = "";
+  }
 
   if (course) {
     say(`- already imported (course ${course.slice(0, 8)}); verifying only`);
@@ -143,6 +196,7 @@ async function main() {
       say(`- package submitted: hasil=${hasil}`);
       if (!/^[0-9a-f-]{36}$/.test(detail ?? "")) throw new Error(`the package was not accepted: hasil=${hasil} detail=${detail}`);
       const batch = detail;
+      batchId = batch;
 
       // 6. every media file the batch names, uploaded through the app's upload route
       const mapping = JSON.parse(sql(`select coalesce(inferred_mapping, '[]'::jsonb) from public.ingest_batches where id='${batch}'`) || "[]");
@@ -190,10 +244,18 @@ async function main() {
       (select count(*) from jsonb_array_elements(l.media) x where coalesce(x->>'transcript', '') <> '') || ' with transcript', '; ' order by l.ordinal), '-')
     from public.lessons l join public.modules m on m.id = l.module_id where m.course_id='${course}' and jsonb_array_length(coalesce(l.media, '[]'::jsonb)) > 0`);
   const stored = sql(`select coalesce(string_agg(split_part(name, '/', 4) || ' ' || (metadata->>'size') || ' ' || coalesce(metadata->>'mimetype', '?'), '; ' order by name), '-')
-    from storage.objects where bucket_id = 'assets' and name like 'pelajaran/${schoolId}/%'`);
+    from storage.objects where bucket_id = 'assets' and name like 'pelajaran/${schoolId}/${batchId ? `${batchId}/` : ""}%'`);
   say(`- staging holds: lessons ${lessons}, questions ${items} (${uses})`);
   say(`- lessons with media: ${withMedia}`);
-  say(`- stored files: ${stored}`);
+  say(`- stored files${batchId ? " (this import's batch)" : ""}: ${stored}`);
+  // BOB-04: a package with pre-test and post-test questions arrives with both tests
+  const tests = sql(`select coalesce(string_agg(mode::text || ' ' || n, ', ' order by mode::text), '-')
+    from (select mode, count(*) n from public.assessment_definitions where course_id='${course}' group by mode) x`);
+  say(`- test definitions: ${tests}`);
+  const marked = paket.courses[0].modules.flatMap((m) => m.lessons.flatMap((l) => l.items ?? []));
+  for (const [use, mode] of [["PRE_TEST", "PRE_TEST"], ["POST_TEST", "POST_TEST"]]) {
+    if (marked.some((i) => i.use === use) && !tests.includes(mode)) bad.push(`no ${mode} definition although the package marks ${use} questions`);
+  }
   const wantItems = want.reduce((n, l) => n + (l.items?.length ?? 0), 0);
   if (Number(lessons) !== want.length) bad.push(`lessons ${lessons}, expected ${want.length}`);
   if (Number(items) !== wantItems) bad.push(`questions ${items}, expected ${wantItems}`);
