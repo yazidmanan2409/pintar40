@@ -9,6 +9,9 @@ import {
 } from "./actions";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
+import SesiSaya from "@/components/SesiSaya";
+import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
+import { peranSaya } from "@/lib/tur-negara";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -25,6 +28,7 @@ import { currentLocale } from "@/lib/locale";
 
 const s = (event: HleEvent) => t(event, "staff");
 const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
+const tautanTempat = "text-ink-2 underline underline-offset-4 hover:text-ink-1";
 const when = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" });
 const roleLabel = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"].includes(r) ? s(`role.${r}` as HleEvent) : r);
 const transferLabel = (st: string) => (["REQUESTED", "AUTHORIZED", "EXECUTED", "REJECTED", "CANCELLED"].includes(st) ? s(`transfer.${st}` as HleEvent) : st);
@@ -48,7 +52,8 @@ type MetricDefinition = {
 type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
-  const viewer = await currentViewer();
+  // One parallel read of the viewer and their roles (DAISY-02/03).
+  const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
   const supabase = await supabaseServer();
   const sp = await searchParams;
 
@@ -157,12 +162,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
 
   return (
     <main className="py-6">
-      <header className="flex items-baseline justify-between">
+      <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm text-ink-3">{s("app.name")}</p>
           <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
         </div>
-        <form action="/keluar" method="post"><button className="text-sm text-ink-2 underline">Keluar</button></form>
+        {/* DAISY-02: the shared session strip replaces a hard-coded "Keluar"
+            that sat outside the copy table and never changed language. */}
+        <SesiSaya locale={await currentLocale()} persona="staff" viewer={viewer} peran={peran} />
       </header>
 
       {/* WP5B. THE WAY IN TO BULK INTAKE, from the surface an institution
@@ -171,11 +178,22 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           piece of it here would be two places to keep true. The link decides
           nothing — `/pendataan` asks `can_on_node('CAN_PROVISION_PEOPLE', …)`
           on arrival and refuses a reader who does not hold it. */}
-      <p className="mt-4">
-        <Link href="/pendataan" className="text-ink-2 underline underline-offset-4 hover:text-ink-1">
-          {s("pendataan.judul")} →
-        </Link>
-      </p>
+      {/* DAISY-03 (M3). Aktivasi and Studio were reachable only by typing
+          their addresses. They sit beside the intake now, with the
+          administrator's other places (D-010) after them. Every one of these
+          asks its own gate on arrival; a link here decides nothing. */}
+      <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label={t("nav.tempat", "staff", { locale: await currentLocale() })}>
+        <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}</Link>
+        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}</Link>
+        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}</Link>
+        <TabTempat
+          tempat={tempatDariPeran(peran)}
+          kecuali={["/konfigurasi"]}
+          locale={await currentLocale()}
+          persona="staff"
+          kelas={tautanTempat}
+        />
+      </nav>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <div className={card}>

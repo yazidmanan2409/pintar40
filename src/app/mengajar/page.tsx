@@ -3,6 +3,7 @@ import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
+import { namaSapaan } from "@/components/sesi";
 import KakiPintar from "@/components/KakiPintar";
 import { BarisLingkup } from "@/components/bukti";
 import Tur from "@/components/tur/Tur";
@@ -76,6 +77,7 @@ export default async function BerandaPengajar({
   // only decides which map is drawn.
   const [keadaan, peran] = await Promise.all([keadaanTur(TUR_PENGAJAR), peranSaya()]);
   const turBerlaku = turPengajarBerlaku(peran ?? []);
+  const sapa = aku ? namaSapaan(aku.nama, peran) : null;
   const bolehTur = bolehTampilOtomatis(keadaan, {
     tautanLangsung: typeof sp.lanjut === "string" && sp.lanjut.length > 0,
     // The Quick Assessment exclusion is the LEARNER's (§J-10): it protects a
@@ -98,10 +100,13 @@ export default async function BerandaPengajar({
               and nothing else — no title, no salutation, no gender — so "Bu"
               or "Pak" here could only come from guessing at a name, which the
               ruling forbids and which would be wrong about real people. The
-              name is greeted as the school stored it. */}
+              name is greeted as the school stored it -- in full for staff, and
+              by first name for anybody else who reaches this page (D-020): a
+              student who types /mengajar on a shared tablet must not see their
+              full name printed here any more than in the session strip. */}
           <h1 className="pin-h1">
             {s(sapaan(sekarang.jam))}
-            {aku ? `, ${aku.nama}` : ""}
+            {sapa ? `, ${sapa}` : ""}
           </h1>
           <p className="pin-intro">{s("mengajar.beranda.intro")}</p>
         </div>
