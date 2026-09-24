@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 60,
+  "version": 61,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1623,6 +1623,16 @@
       "runner": "app",
       "proves": "Account activation through the real route and the real Auth service (NEW-2). The database suite proved activation with a hand-built auth.users insert, a shape GoTrue never produces, and passed while the product could activate nobody: GoTrue's admin createUser INSERTs the user and writes the caller's app_metadata in a later update, so the trigger never saw the link. Here a signed-in institution administrator activates a provisioned learner by classroom card and a provisioned teacher by email through POST /api/akun/aktivasi, with the fixtures marker off, and the real GoTrue creates both identities. Asserted: /aktivasi offers both; an anonymous caller is refused 401; each identity is linked to the provisioned person (no second person); the learner's enrolment is ACTIVE; each activation grant was consumed once; the learner signs in with the issued card and PIN through the production derivation and reaches /belajar as themselves; a second activation is refused 403. A declared exception to the app runner's black-box rule: the world is built, and the outcome read back, through the database owner, because a provisioned person with no account is a state no seed holds; the act under test is black-box end to end.",
       "skip_justification": "needs the app, a reachable Supabase Auth and the database owner connection (CI local stack)"
+    },
+    {
+      "id": "DAISY-01-SALIN-01",
+      "runner": "static",
+      "proves": "DAISY-01, the copy. D-015: no telling in the COPY TABLE, RENDERED through t() for every persona that can be shown it in both languages, names the quick assessment 'kuis' or 'quiz' -- with a positive and a negative control on the sweep -- and Studio uses the teacher's own names. M1 mitigation: both the check-your-email and the expired-link screens carry a line, in both languages, that a sign-in link works only on the same device and in the same browser, required INSIDE the SOURCE branch that draws each screen, each slice proven by the heading it must also hold. N1: the activation ROUTE file is re-read to confirm it sends no mail, and 'Buat dan aktifkan' says nothing was sent and sends the person to /masuk rather than claiming they can now sign in by email."
+    },
+    {
+      "id": "DAISY-01-MASUK-01",
+      "runner": "static",
+      "proves": "DAISY-01, the sign-in layout. The geometry of /masuk is COMPUTED from the stylesheet FILE the way the browser computes it -- the gutter token at each width, the stage's margin against it, the container queries that apply, the grid split, the padding expression evaluated against the column and the form's measure -- at ten widths from 320 to 2560: the stage runs edge to edge with no page background showing down its sides, the form sits in the middle of its column wherever it could sit anywhere else, the mark is drawn at the verification page's size from a tablet up, and the split stage is never shorter than the screen. The evaluator is checked on two known expressions and reproduces the Chromium measurement of the defect to the pixel (before 56/254 at 1440 and 56/539 at 2000; after 167/167 and 310/310)."
     }
   ]
 }

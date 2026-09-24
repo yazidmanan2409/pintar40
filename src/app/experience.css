@@ -1336,6 +1336,13 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   container-name: masuk;
   display: block;
   min-height: 100dvh;
+  /* EDGE TO EDGE, the way the Experience shell already is (DAISY-01). The body
+     carries a page gutter for ordinary pages, and this stage never cancelled
+     it, so the sign-in screen sat inset 16px on a phone and 24px from 640px up
+     with the warmer page background showing down both sides as two strips. On
+     a 320px phone that gutter and the column's own padding together took 64px
+     from the form. Cancelled by name, as .pin-shell does. */
+  margin-inline: calc(var(--gutter) * -1);
   background: var(--surface-1);
 }
 .pin-panggung {
@@ -1498,7 +1505,18 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 
 @container masuk (min-width: 561px) {
   .pin-panggung { grid-template-rows: auto var(--vis-band); }
-  .pin-auth { padding: var(--space-6) var(--space-7) 28px; }
+  /* Centred from here up, not only on a desktop (DAISY-01). This band is one
+     column, and with a fixed left gutter the form sat against the left edge
+     of a tablet or a narrow desktop window: measured at a 1024px viewport it
+     had 40px on its left and 476px of empty page on its right. The mark, the
+     form and the line beneath now share the form's measure, centred. */
+  .pin-auth {
+    padding-block: var(--space-6) 28px;
+    padding-inline: max(var(--space-7), calc((100% - var(--measure-auth-wide)) / 2));
+  }
+  /* The mark at the size the verification page already uses. At 36px the
+     artwork drew about 64px wide, small for the one screen everybody sees. */
+  .pin-authtop .pin-merek { height: var(--logo-height-standalone); }
   .pin-form, .pin-phonesay { max-width: var(--measure-auth-wide); }
   .pin-phonesay { display: none; }
   .pin-vis { display: block; order: 2; min-height: var(--vis-band); }
@@ -1508,8 +1526,20 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 }
 
 @container masuk (min-width: 1024px) {
-  .pin-panggung { grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); grid-template-rows: none; min-height: 760px; }
-  .pin-auth { padding: var(--space-7) 56px var(--space-6); }
+  /* 760px is a FLOOR, not the height (DAISY-01). Written as a plain
+     min-height it replaced the 100dvh above, so on any screen taller than 760px
+     the panel stopped short and blank page showed beneath it. */
+  .pin-panggung { grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); grid-template-rows: none; min-height: max(760px, 100dvh); }
+  /* THE COLUMN CENTRES ITS CONTENT (DAISY-01). The mark, the form and the
+     line beneath share one measure and sit in the middle of their half. Before
+     this the gutter was a fixed 56px on the left only, so the column grew and
+     the form did not: at 2000px the form sat against the left edge with about
+     560px of empty page beside it. The padding is computed against the grid
+     area, so it is 56px at 1024 and grows evenly on both sides from there. */
+  .pin-auth {
+    padding-block: var(--space-7) var(--space-6);
+    padding-inline: max(56px, calc((100% - var(--measure-auth)) / 2));
+  }
   .pin-form { max-width: var(--measure-auth); }
   .pin-mh1 { font-size: var(--type-page); }
   .pin-lede-m { max-width: 42ch; }

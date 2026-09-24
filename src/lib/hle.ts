@@ -170,6 +170,7 @@ export type HleEvent =
   | "auth.link_sent"
   | "auth.sent_resend"
   | "auth.sent_other"
+  | "auth.sent_same"
   | "auth.belum_siap"
   | "auth.card_title"
   | "auth.card_go"
@@ -192,6 +193,7 @@ export type HleEvent =
   | "auth.link_h_exp"
   | "auth.link_p_exp"
   | "auth.link_again"
+  | "auth.link_same"
   | "auth.in_h"
   | "auth.in_p"
   | "auth.in_go"
@@ -1405,6 +1407,7 @@ const table: Table = {
   "auth.link_sent": { default: "Jika alamat itu terhubung dengan akun PINTAR, tautan masuk sudah dikirim ke sana. Buka email, lalu ketuk tautannya.", en: "If that address is linked to a PINTAR account, a sign-in link has been sent there. Open your email and tap the link." },
   "auth.sent_resend": { default: "Kirim ulang", en: "Send it again" },
   "auth.sent_other": { default: "Gunakan email lain", en: "Use a different email" },
+  "auth.sent_same": { default: "Buka tautan di perangkat dan browser yang sama dengan halaman ini. Tautan yang dibuka di tempat lain tidak akan berfungsi.", en: "Open the link on this same device and in this same browser. A link opened anywhere else will not work." },
   // NOT FROM THE CANONICAL COPY TABLE, and flagged as such for Experience. The
   // D2 ruling requires a bounded behaviour when the client fails to start, and
   // a control drawn unavailable without a reason is its own small cruelty. It
@@ -1436,6 +1439,7 @@ const table: Table = {
   "auth.link_h_exp": { default: "Tautan ini sudah tidak berlaku", en: "This link is no longer valid" },
   "auth.link_p_exp": { default: "Tautan masuk berlaku sekali dan untuk waktu yang terbatas. Minta tautan baru untuk melanjutkan.", en: "A sign-in link works once, and only for a limited time. Ask for a new link to continue." },
   "auth.link_again": { default: "Minta tautan baru", en: "Ask for a new link" },
+  "auth.link_same": { default: "Tautan masuk juga hanya berfungsi di perangkat dan browser tempat Anda memintanya, jadi buka tautan di perangkat dan browser yang sama.", en: "A sign-in link also only works on the device and in the browser where you asked for it, so open it on the same device and in the same browser." },
   "auth.in_h": { default: "Anda sudah masuk", en: "You're already signed in" },
   "auth.in_p": { default: "Sesi Anda di perangkat ini masih aktif.", en: "Your session on this device is still active." },
   "auth.in_go": { default: "Lanjutkan", en: "Continue" },
@@ -1685,8 +1689,8 @@ const table: Table = {
   "studio.nav.integritas": { default: "Tinjauan Integritas", en: "Integrity review" },
   "studio.nav.sertifikat": { default: "Sertifikat", en: "Certificates" },
   "studio.nav.bank": { default: "Bank Soal", en: "Item bank" },
-  "studio.nav.kuis": { default: "Kuis Cepat", en: "Quick quiz" },
-  "studio.kuis.judul": { default: "Kuis Cepat", en: "Quick Quiz" },
+  "studio.nav.kuis": { default: "Uji Cepat", en: "Quick Assessment" },
+  "studio.kuis.judul": { default: "Uji Cepat", en: "Quick Assessment" },
   "studio.kuis.pengantar": { default: "Pilih kelas dan bab yang baru Anda ajarkan, lalu luncurkan. Murid bisa mulai mengerjakan dalam waktu satu menit.", en: "Choose the class and the chapter you have just taught, then launch. Students can be working within a minute." },
   "studio.kuis.kelas": { default: "Kelas", en: "Class" },
   "studio.kuis.bab": { default: "Bab", en: "Chapter" },
@@ -1694,11 +1698,11 @@ const table: Table = {
   "studio.kuis.sumber_pustaka": { default: "Pustaka PINTAR yang bisa Anda ajarkan", en: "PINTAR Library chapters you may teach" },
   "studio.kuis.jumlah": { default: "Jumlah soal", en: "Number of questions" },
   "studio.kuis.menit": { default: "Lama pengerjaan (menit)", en: "Time allowed (minutes)" },
-  "studio.kuis.luncurkan": { default: "Luncurkan kuis", en: "Launch the quiz" },
-  "studio.kuis.riwayat": { default: "Kuis yang sudah diluncurkan", en: "Quizzes already launched" },
-  "studio.kuis.kosong": { default: "Belum ada kuis cepat di kelas ini.", en: "No quick quiz has been run in this class yet." },
-  "studio.kuis.bab_kosong": { default: "Belum ada bab yang bisa dipakai untuk kuis cepat. Buat paket sekolah Anda, atau tunggu bab Pustaka PINTAR dibuka untuk sekolah Anda.", en: "No chapter is available for a quick quiz yet. Create your school's package, or wait for a PINTAR Library chapter to be opened to your school." },
-  "studio.kuis.tidak_tersedia": { default: "Bahan kuis ini sudah tidak tersedia untuk sekolah Anda, jadi kuis ini tidak bisa dimulai lagi. Pekerjaan murid yang sudah selesai tetap tersimpan.", en: "This quiz's material is no longer available to your school, so the quiz cannot be started again. Work students have already finished stays saved." },
+  "studio.kuis.luncurkan": { default: "Luncurkan Uji Cepat", en: "Launch the Quick Assessment" },
+  "studio.kuis.riwayat": { default: "Uji Cepat yang sudah diluncurkan", en: "Quick Assessments already launched" },
+  "studio.kuis.kosong": { default: "Belum ada Uji Cepat di kelas ini.", en: "No Quick Assessment has been run in this class yet." },
+  "studio.kuis.bab_kosong": { default: "Belum ada bab yang bisa dipakai untuk Uji Cepat. Buat paket sekolah Anda, atau tunggu bab Pustaka PINTAR dibuka untuk sekolah Anda.", en: "No chapter is available for a Quick Assessment yet. Create your school's package, or wait for a PINTAR Library chapter to be opened to your school." },
+  "studio.kuis.tidak_tersedia": { default: "Bahan Uji Cepat ini sudah tidak tersedia untuk sekolah Anda, jadi Uji Cepat ini tidak bisa dimulai lagi. Pekerjaan murid yang sudah selesai tetap tersimpan.", en: "This Quick Assessment's material is no longer available to your school, so it cannot be started again. Work students have already finished stays saved." },
   "studio.kuis.tanpa_kelas": { default: "Akun Anda belum dipasangkan dengan kelas mana pun.", en: "Your account is not paired with any class yet." },
   "studio.bucket.ACTION_REQUIRED": { default: "Menunggu tindakan Anda", en: "Waiting on you" },
   "studio.bucket.AWAITING_MY_REVIEW": { default: "Menunggu tinjauan Anda", en: "Waiting on your review" },
@@ -1798,7 +1802,7 @@ const table: Table = {
   "aktivasi.baru.arti": { default: "Untuk pengelola pertama sebuah sekolah. Setelah dibuat, beri peran di Konfigurasi.", en: "For a school's first administrator. Once created, give them a role in Configuration." },
   "aktivasi.baru.nama": { default: "Nama", en: "Name" },
   "aktivasi.baru.tombol": { default: "Buat dan aktifkan", en: "Create and activate" },
-  "aktivasi.baru.ok": { default: "Dibuat. Orang ini sekarang bisa masuk dengan tautan surel.", en: "Created. This person can now sign in with an email link." },
+  "aktivasi.baru.ok": { default: "Dibuat. PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka halaman /masuk di PINTAR, lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu.", en: "Created. PINTAR has not emailed this person. Ask them to open the /masuk page in PINTAR and type this email address. The sign-in link is sent then." },
   "sync.sesi_ditutup": { default: "Asesmen ini sudah ditutup, jadi jawaban terakhir tidak lagi dapat dikirim.", en: "This assessment is already closed, so the last answer could not be sent." },
 
   // ═══════════════════════════ UX-1 · the role-based first-login tour (r2.1).

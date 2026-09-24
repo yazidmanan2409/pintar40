@@ -59,6 +59,10 @@ export default function TukarTautan({
         <span className="pin-disc pin-disc-attention" aria-hidden="true">🕐</span>
         <h1 className="pin-mh1" tabIndex={-1} ref={judulRef}>{s("auth.link_h_exp")}</h1>
         <p className="pin-lede-m">{s("auth.link_p_exp")}</p>
+        {/* The likeliest reason a fresh link lands here is that it was opened
+            somewhere other than where it was asked for (audit M1), so the way
+            out is said next to the button that takes it. */}
+        <p className="pin-msg pin-msg-note">{s("auth.link_same")}</p>
         <div className="pin-stack">
           <Link className="pin-mbtn pin-mbtn-1" href="/masuk">{s("auth.link_again")}</Link>
         </div>

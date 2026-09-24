@@ -6863,4 +6863,263 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+  // ────────────────────────────────────────────────────────── DAISY-01 (lane: Daisy)
+  {
+    id: "DAISY-01-SALIN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-01, THE COPY HALF. Three words-only fixes from the audit of 24
+       * September, each checked against what a reader is actually SHOWN -- every
+       * telling rendered through t() -- rather than against the file it lives in.
+       *
+       * D-015: THE QUICK ASSESSMENT HAS ONE NAME. It was "Uji Cepat" to learners
+       * and teachers and "Kuis Cepat" in Studio (audit N6), so a teacher who
+       * launched one in Studio then looked for a differently named thing in their
+       * class. The sweep covers every key, for every persona that can be shown
+       * it, in both languages -- not only Studio's, because the next place the
+       * old word turns up will not be a Studio key.
+       */
+      const KUIS = /\bkuis\b|\bquiz(?:zes)?\b/i;
+      c.expect(
+        KUIS.test("Kuis Cepat") && KUIS.test("Launch the quiz") && KUIS.test("Quizzes already launched"),
+        "the retired-name sweep does not catch the old name (positive control)",
+      );
+      c.expect(
+        !KUIS.test("Uji Cepat") && !KUIS.test("Quick Assessment") && !KUIS.test("kuesioner"),
+        "the retired-name sweep catches a word it should not (negative control)",
+      );
+      let disapu = 0;
+      for (const r of renderAll()) {
+        disapu++;
+        const m = r.text.match(KUIS);
+        if (m) c.expect(false, `${r.event} (${r.persona}, ${r.locale}) still says "${m[0]}"; D-015 names it Uji Cepat / Quick Assessment`);
+      }
+      c.expect(disapu > 1000, `only ${disapu} tellings were swept`);
+      for (const k of ["studio.nav.kuis", "studio.kuis.judul"] as HleEvent[]) {
+        c.expect(t(k, "staff", { locale: "id" }) === "Uji Cepat", `${k} is not "Uji Cepat"`);
+        c.expect(
+          t(k, "staff", { locale: "en" }) === t("mengajar.cepat.judul", "staff", { locale: "en" }),
+          `${k} does not use the English name the teacher's own Quick Assessment screen uses`,
+        );
+      }
+
+      /**
+       * M1 MITIGATION: A SIGN-IN LINK ONLY WORKS WHERE IT WAS ASKED FOR. Until
+       * the cross-device link lands (backlog M1), a link opened in another
+       * browser lands on "this link is no longer valid". Both screens around that
+       * moment now say so -- before (check your email) and after (the link has
+       * expired). A key nobody renders fixes nothing, so each line is required
+       * INSIDE the branch that draws its screen, and each slice is proven to be
+       * that branch by the heading it must also contain.
+       */
+      for (const k of ["auth.sent_same", "auth.link_same"]) {
+        const ada = allKeys().includes(k as HleEvent);
+        c.expect(ada, `${k} is not in the copy table`);
+        if (!ada) continue;
+        c.expect(
+          /perangkat dan browser yang sama/.test(t(k as HleEvent, "public", { locale: "id" })),
+          `${k} does not say "perangkat dan browser yang sama"`,
+        );
+        const en = t(k as HleEvent, "public", { locale: "en" });
+        c.expect(/same device/i.test(en) && /same browser/i.test(en), `${k} does not say "same device" and "same browser"`);
+      }
+      function cabang(file: string, awal: string, akhir: string): string {
+        const src = code(readFileSync(join(repoRoot, file), "utf8"));
+        const i = src.indexOf(awal);
+        const j = i < 0 ? -1 : src.indexOf(akhir, i + awal.length);
+        return i >= 0 && j > i ? src.slice(i, j) : "";
+      }
+      const terkirim = cabang("src/components/masuk/LayarMasuk.tsx", 'if (layar.k === "terkirim")', 'if (layar.k === "kartu")');
+      c.expect(terkirim.includes('"auth.sent_h"'), "could not isolate LayarMasuk's check-your-email branch");
+      c.expect(terkirim.includes('"auth.sent_same"'), "the check-your-email screen does not render auth.sent_same");
+      const mati = cabang("src/components/masuk/TukarTautan.tsx", "if (mati)", "\n  return (");
+      c.expect(mati.includes('"auth.link_h_exp"'), "could not isolate TukarTautan's expired-link branch");
+      c.expect(mati.includes('"auth.link_same"'), "the expired-link screen does not render auth.link_same");
+
+      /**
+       * N1: "BUAT DAN AKTIFKAN" SENDS NO EMAIL. The route creates the identity
+       * with email_confirm set and sends nothing -- read here, not assumed, so
+       * that if the route ever starts sending mail this guard says the message's
+       * premise changed. The success message must not say the person can now
+       * sign in by email; it must say nothing was sent and send the
+       * administrator's colleague to /masuk.
+       */
+      const rute = readFileSync(join(repoRoot, "src", "app", "api", "akun", "aktivasi", "route.ts"), "utf8");
+      c.expect(
+        /email_confirm:\s*true/.test(rute) && !/signInWithOtp|inviteUserByEmail|generateLink/.test(rute),
+        "the activation route now sends mail itself -- this message's premise has changed; re-read it",
+      );
+      for (const loc of LOCALES) {
+        const ok = t("aktivasi.baru.ok", "staff", { locale: loc });
+        c.expect(ok.includes("/masuk"), `aktivasi.baru.ok (${loc}) does not send the person to /masuk`);
+        c.expect(!/sekarang bisa masuk|can now sign in/i.test(ok), `aktivasi.baru.ok (${loc}) still says the person can now sign in`);
+      }
+      c.expect(/tidak mengirim surel/.test(t("aktivasi.baru.ok", "staff", { locale: "id" })), "aktivasi.baru.ok (id) does not say no email was sent");
+      c.expect(/not emailed/.test(t("aktivasi.baru.ok", "staff", { locale: "en" })), "aktivasi.baru.ok (en) does not say no email was sent");
+      const form = code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "FormAktivasi.tsx"), "utf8"));
+      c.expect(/hasil\.baru\.ok\s*\?\s*"aktivasi\.baru\.ok"/.test(form), "the activation form no longer shows aktivasi.baru.ok on success");
+
+      return c.verdict(
+        `D-015: no telling for any persona in either language names the quick assessment "kuis" or ` +
+        `"quiz" (${disapu} tellings swept, both controls held), and Studio uses the teacher's own names. ` +
+        "M1: both the check-your-email and the expired-link screens say, in both languages and inside " +
+        "the branch that draws them, that a link works only on the same device and browser. N1: the " +
+        "route is re-read to confirm it sends no mail, and Buat dan aktifkan's success message says so " +
+        "and sends the person to /masuk",
+      );
+    },
+  },
+
+  {
+    id: "DAISY-01-MASUK-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-01, THE LAYOUT HALF: THE SIGN-IN SCREEN HOLDS TOGETHER AT EVERY
+       * WIDTH. Measured in Chromium on main at 8956259, both languages, before
+       * this change: at 1440px the form sat 56px from the left of its column
+       * with 254px of empty page on its right, at 2000px 539px, and at a 1024px
+       * window 476px. The stage never cancelled the page gutter, so warm strips
+       * ran down both edges at every width (and a 320px phone lost 32px of form),
+       * and on any screen taller than 760px the panel stopped short with blank
+       * page beneath it.
+       *
+       * WHY IT READS THE CASCADE AND NOT A BROWSER -- the precedent is
+       * UX1-S0-MUAT-01: CI installs no browser. So the geometry is COMPUTED the
+       * way the browser computes it: the gutter token at each width, the stage's
+       * margin against it, the container queries that apply, the grid split, the
+       * padding expression evaluated against the column, and the form's measure.
+       * The Chromium measurement is the companion evidence, and this evaluator
+       * reproduces it to the pixel in both directions: before, 56/254 at 1440 and
+       * 56/539 at 2000; after, 167/167 and 310/310.
+       */
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const globals = readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8");
+      const tok = tokens(globals);
+      const lebarGutter = /@media \(min-width: (\d+)px\) \{ :root \{ --gutter: (\d+)px; \} \}/.exec(globals);
+      c.expect(lebarGutter && tok["--gutter"], "could not read the page gutter at both widths");
+      const gutter = (vw: number) =>
+        lebarGutter && vw >= Number(lebarGutter[1]) ? Number(lebarGutter[2]) : parseFloat(tok["--gutter"] ?? "NaN");
+
+      /** A CSS length expression, evaluated. `pct` is what 100% means here. */
+      function nilai(expr: string, pct: number, vw: number, vh: number): number {
+        let e = expr;
+        for (let i = 0; i < 8 && e.includes("var(--"); i++) {
+          e = e.replace(/var\((--[a-z0-9-]+)\)/g, (_, n: string) => (n === "--gutter" ? `${gutter(vw)}px` : tok[n] ?? "NaN"));
+        }
+        e = e
+          .replace(/(-?\d+(?:\.\d+)?)px/g, "$1")
+          .replace(/(-?\d+(?:\.\d+)?)%/g, (_, n: string) => String((Number(n) * pct) / 100))
+          .replace(/(-?\d+(?:\.\d+)?)dvh/g, (_, n: string) => String((Number(n) * vh) / 100))
+          .replace(/\bcalc\(/g, "(")
+          .replace(/\bmax\(/g, "Math.max(")
+          .replace(/\bmin\(/g, "Math.min(");
+        if (!/^[\d.\s+\-*/(),]*$/.test(e.replace(/Math\.(?:max|min)/g, ""))) return NaN;
+        return Number(Function(`"use strict"; return (${e});`)());
+      }
+      c.expect(nilai("max(56px, calc((100% - 400px) / 2))", 1000, 1000, 800) === 300, "the evaluator is wrong on a known expression (control)");
+      c.expect(nilai("max(760px, 100dvh)", 0, 1000, 1000) === 1000, "the evaluator is wrong on dvh (control)");
+
+      /** Declarations of one selector, at top level or inside one container block. */
+      function aturan(sel: string, head: string | null): Record<string, string> {
+        let scope = css;
+        if (head !== null) {
+          const i = css.indexOf(head);
+          if (i < 0) return {};
+          let d = 0, j = css.indexOf("{", i);
+          for (let k = j; k < css.length; k++) {
+            if (css[k] === "{") d++;
+            else if (css[k] === "}" && --d === 0) { j = k; break; }
+          }
+          scope = css.slice(css.indexOf("{", i) + 1, j);
+        }
+        const esc = sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const re = new RegExp(`^${head === null ? "" : "\\s+"}${esc}\\s*\\{([^}]*)\\}`, "m");
+        const m = re.exec(scope);
+        const out: Record<string, string> = {};
+        if (!m) return out;
+        for (const d of m[1].split(";")) {
+          const k = d.indexOf(":");
+          if (k > 0) out[d.slice(0, k).trim()] = d.slice(k + 1).trim();
+        }
+        return out;
+      }
+      /** The inline padding a rule sets, from the longhand or the shorthand. */
+      function padInline(r: Record<string, string>): string | undefined {
+        if (r["padding-inline"]) return r["padding-inline"];
+        if (!r.padding) return undefined;
+        const parts = r.padding.match(/(?:[a-z]+\((?:[^()]|\([^()]*\))*\)|[^\s]+)/g) ?? [];
+        return parts.length === 1 ? parts[0] : parts[1];
+      }
+      const TABLET = "@container masuk (min-width: 561px)";
+      const DESKTOP = "@container masuk (min-width: 1024px)";
+      c.expect(Object.keys(aturan(".pin-auth", TABLET)).length > 0 && Object.keys(aturan(".pin-panggung", DESKTOP)).length > 0,
+        "could not find the sign-in screen's container blocks");
+
+      const baris: string[] = [];
+      for (const vw of [320, 375, 400, 600, 768, 1024, 1280, 1440, 1920, 2560]) {
+        // 1. THE STAGE IS EDGE TO EDGE: its margin cancels the page gutter
+        const mg = aturan(".pin-masuk", null)["margin-inline"];
+        const margin = mg ? nilai(mg, 0, vw, 900) : 0;
+        const x = gutter(vw) + margin;
+        c.expect(x === 0, `at ${vw}px the sign-in stage starts ${x}px in from the edge, so the page background shows down both sides`);
+        const W = vw - 2 * x; // the container the queries measure
+
+        // 2. THE CASCADE THAT APPLIES AT THIS WIDTH, later blocks winning
+        const scopes: Array<string | null> = [null, ...(W >= 561 ? [TABLET] : []), ...(W >= 1024 ? [DESKTOP] : [])];
+        let pad: string | undefined, measure: string | undefined, logo: string | undefined;
+        for (const s of scopes) {
+          pad = padInline(aturan(".pin-auth", s)) ?? pad;
+          measure = aturan(".pin-form", s)["max-width"] ?? measure;
+          logo = aturan(".pin-authtop .pin-merek", s).height ?? logo;
+        }
+        logo ??= aturan(".pin-merek", null).height;
+
+        let col = W;
+        if (W >= 1024) {
+          const fr = /minmax\(0,\s*([\d.]+)fr\)\s+minmax\(0,\s*([\d.]+)fr\)/.exec(aturan(".pin-panggung", DESKTOP)["grid-template-columns"] ?? "");
+          c.expect(fr, "could not read the desktop grid split");
+          if (fr) col = (W * Number(fr[1])) / (Number(fr[1]) + Number(fr[2]));
+        }
+        const p = pad ? nilai(pad, col, vw, 900) : NaN;
+        const isi = col - 2 * p;
+        const formW = measure ? Math.min(isi, nilai(measure, col, vw, 900)) : isi;
+        const kiri = p, kanan = col - p - formW;
+        baris.push(`${vw}:${Math.round(kiri)}/${Math.round(kanan)}`);
+        c.expect(Number.isFinite(p) && formW > 0, `at ${vw}px the form's width could not be computed`);
+
+        // 3. ABOVE A PHONE, THE FORM SITS IN THE MIDDLE OF ITS COLUMN
+        if (W >= 561) {
+          c.expect(Math.abs(kiri - kanan) <= 1,
+            `at ${vw}px the form has ${Math.round(kiri)}px on its left and ${Math.round(kanan)}px of empty page on its right`);
+          // 4. and the mark is drawn at the size the verification page uses
+          const h = logo ? nilai(logo, 0, vw, 900) : NaN;
+          c.expect(h >= nilai("var(--logo-height-standalone)", 0, vw, 900),
+            `at ${vw}px the mark is ${h}px tall, smaller than the verification page draws it`);
+        }
+
+        // 5. THE SPLIT STAGE IS AT LEAST AS TALL AS THE SCREEN
+        if (W >= 1024) {
+          const mh = aturan(".pin-panggung", DESKTOP)["min-height"];
+          for (const vh of [800, 1000, 1400]) {
+            const h = mh ? nilai(mh, 0, vw, vh) : 0;
+            c.expect(h >= vh, `at ${vw}x${vh} the stage is ${h}px tall and blank page shows beneath the panel`);
+          }
+        }
+      }
+
+      return c.verdict(
+        "the sign-in stage runs edge to edge at every width from 320 to 2560 (its margin cancels the page " +
+        "gutter at both of the gutter's values), the form sits in the middle of its column wherever there is " +
+        "room for it to be anywhere else, the mark is drawn at the verification page's size from a tablet up, " +
+        "and the split stage is never shorter than the screen -- all computed from the cascade that applies " +
+        `at each width, with the evaluator checked on two known expressions (left/right gaps: ${baris.join(" ")})`,
+      );
+    },
+  },
 ];
