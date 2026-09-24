@@ -22,7 +22,12 @@
    Leave out `PINTAR_BUILD_SHA`, which Vercel supplies, and `SUPABASE_DB_URL`, which goes to GitHub instead. After creation: Settings → Git → Ignored Build Step → "Only build production".
 2. **Yazid: two GitHub secrets.** Repo → Settings → Secrets and variables → Actions:
    - `STAGING_SUPABASE_DB_URL`: staging's Connect → Session pooler URI, with the database password filled in. Done 24 Sep; the migrations were applied with it (runs 35966930847 and 35967139925, 113 = 113).
-   - `STAGING_SUPABASE_ACCESS_TOKEN`: a Supabase access token scoped to `pintar-staging` only, with **Auth config read & write** and **project admin write** (`project_admin_write`). Supabase requires the admin permission even for `site_url`, the redirect list and `disable_signup` (run 35968916899). Production's token was refused for staging (HTTP 403, run 35967139925), and it is not widened.
+   - `STAGING_SUPABASE_ACCESS_TOKEN`: a **scoped** Supabase personal access token (it starts `sbp_fc`), scoped to the `pintar-staging` project only. It needs three permissions:
+     - **Auth Config: Read-write**;
+     - **Project Settings: Read-write**. Supabase's "Update auth service config" needs both this and Auth Config. Without it, every write is refused as "Missing required permission(s): project_admin_write" (runs 35968916899, 35971103189 and 35971879016).
+     - **API Keys: Read**, for the verification step.
+
+     Project Settings Read-write also lets the token pause or delete the project it is scoped to. That is why it is scoped to staging and nothing else. Production's token was refused for staging (HTTP 403, run 35967139925), and it is not widened. The workflow prints the token's kind and an 8-character fingerprint, never the value. So a replaced secret shows as a new fingerprint, and a token that can see production raises a warning.
 3. **Coordinator: the migrations and the sign-in boundary.** Dispatch "staging · database and sign-in". It:
    - applies all migrations and checks the count against the repository;
    - writes the sign-in boundary: site URL, the one callback, sign-up off;

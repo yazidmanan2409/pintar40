@@ -86,6 +86,16 @@ jobs:
           # the URL must name staging's project, and must never name production's
           case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_REF"*) echo "::error::STAGING_SUPABASE_DB_URL names the production project"; exit 1;; esac
           case "$STAGING_SUPABASE_DB_URL" in *"$PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::STAGING_SUPABASE_DB_URL does not name staging's project ($PROJECT_REF)"; exit 1;; esac
+          # the token: its kind and a fingerprint (never the value), so a replaced secret shows as changed
+          case "$SUPABASE_ACCESS_TOKEN" in sbp_fc*) kind=scoped;; sbp_*) kind=classic;; *) kind=unrecognised;; esac
+          echo "STAGING_SUPABASE_ACCESS_TOKEN: $kind, fingerprint $(printf %s "$SUPABASE_ACCESS_TOKEN" | sha256sum | cut -c1-8)"
+          # what it can read. The writes below need Auth Config and Project Settings, both Read-write
+          # (Supabase's permission table); a missing write shows as "project_admin_write" on the write itself.
+          probe() { curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" "https://api.supabase.com/v1/projects/$PROJECT_REF$1"; }
+          echo "Project Settings read: HTTP $(probe '')   Auth Config read: HTTP $(probe /config/auth)   API Keys read: HTTP $(probe /api-keys)"
+          code=$(curl -sS -o /tmp/p.json -w '%{http_code}' -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" https://api.supabase.com/v1/projects)
+          if [ "$code" = 200 ] && grep -q "$PRODUCTION_REF" /tmp/p.json; then echo "::warning::this token can also reach production; a token scoped to pintar-staging is expected"; else echo "production is not visible to this token (HTTP $code)"; fi
+          rm -f /tmp/p.json
 
       - uses: actions/setup-node@v4
         with:
