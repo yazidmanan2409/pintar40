@@ -7,10 +7,19 @@ name: ci
 
 on:
   push:
-    # P-03: a development branch is verified on every push, not only when
-    # someone remembers to dispatch; the production deploy requires a green run
-    # on the exact commit it ships.
-    branches: [main, "claude/**"]
+    # D-025 (supersedes the lane half of P-03): CI starts automatically only on
+    # main, where the coordinator merges. A lane dispatches this workflow itself,
+    # exactly once per hand-off, on its head commit. The deploy still requires a
+    # green run on the exact commit it ships; the coordinator dispatches one on
+    # main when the release commit has none. Documentation-only pushes do not
+    # start CI, except the frozen documents that baseline parity guards.
+    branches: [main]
+    paths:
+      - "**"
+      - "!docs/coordination/**"
+      - "!docs/audit/**"
+      - "!docs/deployment/**"
+      - "!docs/onboarding/**"
   pull_request:
   # A phase is not done until this workflow is green on a pushed commit, and
   # until now it could only run on main or on a pull request — so work on a

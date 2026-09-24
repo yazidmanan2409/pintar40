@@ -59,13 +59,16 @@ A change outside your lane needs a ticket that says so. If a ticket needs someth
 Rules:
 1. **Before starting any ticket, merge the latest `origin/main` into your lane.** Use a merge, never a rebase, and never force-push.
 2. **One ticket per hand-off.** Commit messages start with the ticket id, for example `BOB-02: …`.
-3. **Pushing to a lane changes nothing in production.** Production workflows run only from `main`, and each job refuses to run from any other ref.
+3. **Pushing to a lane changes nothing in production** and, since D-025, starts no CI.
+   - Production workflows run only from `main`, and each job refuses to run from any other ref.
+   - When a ticket is ready, dispatch `ci.yml` once on your head commit. Budget is finite, so do not dispatch speculative runs.
+   - If a job never started (no runner), say so in the hand-off. Do not re-dispatch repeatedly.
 4. **Never dispatch a production workflow.** That means deploy, migrations, Auth, SMTP and diagnostics. Only the coordinator releases.
 
 ## 4. The change flow
 
 ```
-lane: merge main → build → tests red-then-green → CI green on the exact head → hand-off
+lane: merge main → build → tests red-then-green → dispatch ci.yml ONCE on the head (D-025) → green → hand-off
 coordinator: gate review → audit journeys on the candidate → merge to main → update BOARD
 coordinator: release (when a set of tickets is ready) → verify → record in RELEASES
 ```

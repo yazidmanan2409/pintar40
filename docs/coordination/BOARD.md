@@ -19,6 +19,7 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 | **BOB-05** | **Sessions and sign-out** (D-009). | B5 (logic) | — | `/keluar` ends only this device's session. Class-card sessions end after 60 minutes idle; email accounts after 7 days. Tests cover both. Contract (endpoint and behaviour) handed to Daisy. | TODO |
 | **BOB-06** | **Landing, management and report access** (D-010). | M4, M15, B6b, B6c | — | After sign-in each role lands on its own home (D-010), and the `/` → `/masuk` → "Lanjutkan" loop is gone. Every school gets a standard report template automatically, so admins can open the class and school summaries without typing an ID. Management's class figures are computed at the class level, with scope checks unchanged. | TODO |
 | **BOB-07** | **Stable error codes** (D-011): every server action and API route returns `{ ok, code }`, never database text. A catalogue in `src/lib/` is the contract. | M7 (server) | — | No `detail=` in any redirect carries raw database text (a test enforces it). Catalogue handed to Daisy. | TODO |
+| **BOB-08** | **Close the direct write path to `org_nodes`** (D-023): school admins write structure only through the BOB-01 functions; F08-P01 re-stated. | integrity | BOB-01 | A direct insert or update on `org_nodes` by an Admin sekolah is refused; the BOB-01 functions still work; F08-P01 asserts the new rule. Before the sprint 1 release. | TODO |
 
 ## Daisy — front end (lane `ux-1/daisy-experience`), in this order
 
@@ -33,6 +34,10 @@ First, merge `origin/main` into the lane. It is 112 commits behind.
 | **DAISY-05** | **"Struktur sekolah" screen** in Konfigurasi (D-006): list, create, rename and deactivate Bagian, Tingkat and Kelas. | B1 (UI) | BOB-01 | Gladys can build the structure from her Kelas sheet without help. | TODO |
 | **DAISY-06** | **Lesson upload and Studio steps**: <br>a file picker for the workbook and media; progress; problems per row in Indonesian; a downloadable Excel template matching BOB-02's contract; <br>Studio lifecycle steps labelled, with the current status visible (no three identical "Konfirmasi"); <br>the school picker labelled "Sekolah" and defaulting to the user's own school. | B2, M8, M11 (UI) | BOB-02, BOB-03 | Gladys uploads the sample workbook and takes it to "Terbit" with a second approver, without help. | TODO |
 | **DAISY-07** | **Reports and honest empty states**: the admin's way into class and school summaries; Pimpinan cards that say *why* there is no figure yet and what will make it appear. | B6 (UI) | BOB-06 | Each role sees its report once evidence exists, and understandable wording before then. | TODO |
+| **DAISY-08** | **/masuk text panel** (D-018): PINTAR's own statement replaces the "FOTO CONTOH" placeholder. | first impression | — | No placeholder anywhere; both languages; phone and desktop. | TODO |
+| **DAISY-09** | **Truthful activation copy** (D-019): every activation says no email was sent and to use /masuk; a success message after each activation; aktivasi.intro corrected. | N1 | — | No screen promises an email; each activation shows success or failure in plain Indonesian. | TODO |
+| **DAISY-10** | **First name only for learners** (D-020) on /belajar and /. | privacy | — | No learner's full name on those screens; staff screens unchanged. | TODO |
+| **DAISY-11** | **Studio tab by role** (D-021): Guru, Kepala departemen, Admin sekolah, Admin platform. | M3 | DAISY-03 | The tab appears for those roles; Studio still refuses a person without capability. | TODO |
 
 ## Coordinator
 
@@ -47,7 +52,7 @@ First, merge `origin/main` into the lane. It is 112 commits behind.
 
 | Audit ref | Item | Lane |
 |---|---|---|
-| M1 | Email link that works across devices (token-hash template plus server verification). Needs Yazid to change the Supabase email template. | Bob, then Yazid |
+| M1 | Email link that works across devices (token-hash template plus server verification). Needs Yazid to change the Supabase email template. **When it ships, remove `auth.sent_same` and `auth.link_same` (DAISY-01).** | Bob, then Yazid |
 | M2 | A school admin can give staff their roles. | Bob, then Daisy |
 | M5 b–c | Intake: a teacher imported into a class must not become a student; people recorded without a class must be enrollable later. | Bob |
 | M6 | Correct account mistakes: re-issue a class card or PIN, fix an email, disable an account. | Bob, then Daisy |

@@ -8,12 +8,7 @@
 name: audit · end-to-end journeys (local stack)
 
 on:
-  push:
-    branches:
-      - claude/awesome-rubin-bqxp6p
-    paths:
-      - .github/workflows/audit-journeys.yml
-      - audit/**
+  # Dispatched by the coordinator at the gate (D-012), never on push (D-025).
   workflow_dispatch:
     inputs:
       ref:
