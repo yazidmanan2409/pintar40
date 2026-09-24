@@ -1,20 +1,35 @@
 // PINTAR corporate website — checked in a real browser.
 //
-// What the content audit cannot see: every route actually renders with no
-// console error, in both languages; the active nav link is marked; the
-// footer sitemap matches PAGES; contrast is measured (not asserted) on a
-// representative spread of screens; no text sits under the 14px floor or
-// a target under 44px; nothing overflows at 320–1440px; the contact form
-// is inert and the Mini-PINTAR journey computes real, varying results
-// from real input rather than a scripted demo number.
+// What the content audit and the canonical check cannot see, because it only
+// exists once a browser renders it:
+//
+//   * every route renders with no console error and no external request, in
+//     both languages, and every internal link carries the language along;
+//   * the supplied PINTAR SELALU logo actually loads, at its own size, is
+//     drawn at the product's height, and leads Home; the product's typeface
+//     is the one in use;
+//   * contrast is MEASURED on every route in both languages, text and the
+//     marks that carry meaning; no text under 14px, no target under 44px, no
+//     horizontal overflow from 320 to 1440px;
+//   * the reports render the figures the content declares, each in its
+//     evidence state, every readiness bar one neutral ink and never the brand;
+//   * the product's cycle is named in order where the site names it;
+//   * the contact form is inert;
+//   * and after walking every route, including into Mini-PINTAR, NOTHING has
+//     been written to the device: no localStorage, no sessionStorage, no
+//     cookie, no IndexedDB.
+//
+// Mini-PINTAR's own journey is proved by mini-pintar/verify/journey.mjs.
 //
 // Run: node verify/view.mjs
 
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { serve, launch, Page } from "../../mini-pintar/app/verify/driver.mjs";
-import { CONTRAST_EXPR } from "../../mini-pintar/app/verify/probes.mjs";
+import { CONTRAST_EXPR, nonTextExpr } from "../../mini-pintar/app/verify/probes.mjs";
 import { PAGES } from "../shared/content.js";
+import { REPORT_A, REPORT_B, STATES } from "../laporan/content.js";
+import { CYCLE } from "../apa-yang-dilakukan/content.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const APP = join(HERE, "..");
@@ -24,6 +39,7 @@ const fail = (what, detail = "") => fails.push(`${what}${detail ? " — " + deta
 let checks = 0;
 const assert = (cond, what, detail) => { if (cond) checks += 1; else fail(what, detail); };
 const phase = (n) => process.stderr.write(`  .. ${n}\n`);
+const settle = () => new Promise((r) => setTimeout(r, 200));
 
 const site = await serve(APP);
 const browser = await launch();
@@ -31,86 +47,157 @@ const BASE = `http://127.0.0.1:${site.port}`;
 const at = (href, lang = "id") => `${BASE}${href}${href.includes("?") ? "&" : "?"}lang=${lang}`;
 let p;
 
-const ROUTES = PAGES.filter((r) => r.href !== "/mini-pintar/"); // Mini-PINTAR is its own phase below
+const ROUTES = PAGES.filter((r) => r.href !== "/mini-pintar/");
+const EVIDENCE_BAR = "rgb(95, 106, 115)";   // --evidence-bar, the product's --ink-3
+const BRAND = "rgb(36, 95, 85)";            // --brand-primary, the product's #245F55
+
+const NON_TEXT = nonTextExpr([
+  ["readiness bar", ".rbar > i", "backgroundColor"],
+  ["absent figure rule", ".fig__absent", "borderLeftColor"],
+  ["primary action", ".btn--primary", "backgroundColor"],
+]);
 
 try {
   p = await Page.open(browser.pageUrl);
   await p.viewport(1280, 1200);
 
-  // --------------------------------------------------------- every route loads
-  phase("every route loads, both languages, no console error");
+  // ------------------------------------------------ every route, both languages
+  phase("every route: renders, logo, typeface, language carried, contrast");
   for (const route of ROUTES) {
     for (const lang of ["id", "en"]) {
+      const where = `${route.slug} (${lang})`;
       await p.goto(at(route.href, lang));
-      await new Promise((r) => setTimeout(r, 180));
+      await settle();
       const bodyLen = await p.eval("document.body.innerText.length");
-      assert(bodyLen > 200, `${route.slug} (${lang}) has real content`, String(bodyLen));
-      assert(p.consoleErrors.length === 0, `${route.slug} (${lang}) has no console error`,
-        p.consoleErrors.join(" | "));
+      assert(bodyLen > 200, `${where} has real content`, String(bodyLen));
+      assert(p.consoleErrors.length === 0, `${where} has no console error`, p.consoleErrors.join(" | "));
       p.consoleErrors.length = 0;
       const external = p.requests.filter((u) => !u.startsWith(BASE) && !u.startsWith("data:"));
-      assert(external.length === 0, `${route.slug} (${lang}) makes no external request`, external.join(", "));
+      assert(external.length === 0, `${where} makes no external request`, external.join(", "));
       p.requests.length = 0;
+
+      const logos = await p.eval(`[...document.querySelectorAll('img.brand__logo')].map(i => ({
+        loaded: i.complete && i.naturalWidth === 766 && i.naturalHeight === 429,
+        alt: i.alt, h: Math.round(i.getBoundingClientRect().height),
+        href: i.closest('a')?.getAttribute('href') ?? null }))`);
+      assert(logos.length === 2, `${where}: the logo is in the header and the footer`, JSON.stringify(logos));
+      for (const l of logos) {
+        assert(l.loaded, `${where}: the supplied logo loads at its own size`, JSON.stringify(l));
+        assert(l.alt === "PINTAR SELALU", `${where}: the logo says what the artwork says`, l.alt);
+        assert(l.href === `/?lang=${lang}`, `${where}: the logo leads Home in the visitor's language`, String(l.href));
+      }
+      assert(logos[0]?.h === 36, `${where}: the header logo is drawn at the product's 36px`, String(logos[0]?.h));
+
+      const font = await p.eval(`document.fonts.check('16px "Plus Jakarta Sans"')
+        && getComputedStyle(document.body).fontFamily.startsWith('"Plus Jakarta Sans"')
+        && [...document.fonts].some(f => f.family.replace(/"/g, '') === 'Plus Jakarta Sans' && f.status === 'loaded')`);
+      assert(font, `${where}: the product's typeface is loaded and in use`);
+
+      const stray = await p.eval(`[...document.querySelectorAll('a[href]')]
+        .map(a => a.getAttribute('href'))
+        .filter(h => h.startsWith('/') && !h.startsWith('//'))
+        .filter(h => new URL(h, location.href).searchParams.get('lang') !== ${JSON.stringify(lang)})`);
+      assert(stray.length === 0, `${where}: every internal link carries the language`, stray.join(", "));
+
+      const t = await p.eval(CONTRAST_EXPR);
+      assert(t.measured > 0, `${where}: the contrast probe measured something`);
+      assert(t.bad.length === 0, `${where}: text contrast`, JSON.stringify(t.bad));
+      const ui = await p.eval(NON_TEXT);
+      assert(ui.bad.length === 0, `${where}: contrast of the marks that carry meaning`, JSON.stringify(ui.bad));
     }
   }
 
-  // ------------------------------------------------------------- nav + footer
+  // ----------------------------------------------------------- nav + footer
   phase("navigation marks the active page; footer lists every route");
   for (const route of ROUTES.filter((r) => r.primary)) {
     await p.goto(at(route.href));
-    await new Promise((r) => setTimeout(r, 180));
+    await settle();
     const current = await p.eval(`document.querySelector('.site-nav__links a[aria-current="page"]')?.textContent.trim()`);
     assert(current === route.label.id, `${route.slug}: nav marks itself active`, String(current));
   }
   await p.goto(at("/"));
-  await new Promise((r) => setTimeout(r, 180));
+  await settle();
   const footerLinks = await p.eval(`[...document.querySelectorAll('.site-footer a')].length`);
-  assert(footerLinks >= ROUTES.length, "the footer lists at least as many links as there are routes",
-    String(footerLinks));
+  assert(footerLinks >= ROUTES.length, "the footer lists at least as many links as there are routes", String(footerLinks));
+  const status = await p.eval(`document.querySelector('.site-footer__status')?.innerText || ''`);
+  assert(status.includes("dirancang") && status.includes("demonstrasi"),
+    "the footer keeps designed, demonstrated and live apart", status);
 
-  // Mini-PINTAR intentionally carries no site footer — an immersive journey,
-  // not a page to browse away from mid-story.
+  // Mini-PINTAR is its own immersive page inside the site: the site's logo,
+  // leading Home, and no site navigation or footer to leave by mid-journey.
   await p.goto(`${BASE}/mini-pintar/?lang=id`);
-  await new Promise((r) => setTimeout(r, 180));
-  const hasFooter = await p.eval(`!!document.querySelector('.site-footer')`);
-  assert(!hasFooter, "Mini-PINTAR deliberately has no site footer");
-  const hasFullNav = await p.eval(`!!document.querySelector('.site-nav__links')`);
-  assert(!hasFullNav, "Mini-PINTAR deliberately has no full site navigation");
+  await settle();
+  const mini = await p.eval(`({ footer: !!document.querySelector('.site-footer'),
+    nav: !!document.querySelector('.site-nav__links'),
+    logo: (() => { const i = document.querySelector('#brand img');
+      return i && i.complete && i.naturalWidth === 766 ? i.closest('a')?.getAttribute('href') : null; })() })`);
+  assert(!mini.footer && !mini.nav, "Mini-PINTAR carries no site navigation or footer", JSON.stringify(mini));
+  assert(mini.logo === "/?lang=id", "Mini-PINTAR carries the supplied logo, leading Home", String(mini.logo));
 
-  // --------------------------------------------------------------- contrast
-  phase("contrast, measured on a representative spread");
-  const CONTRAST_SAMPLE = ["/", "/laporan/", "/kontak/", "/untuk-manajemen/"];
-  for (const href of CONTRAST_SAMPLE) {
-    for (const lang of ["id", "en"]) {
-      await p.goto(at(href, lang));
-      await new Promise((r) => setTimeout(r, 180));
-      const t = await p.eval(CONTRAST_EXPR);
-      assert(t.measured > 0, `contrast probe measured something (${href}/${lang})`);
-      assert(t.bad.length === 0, `contrast (${href}/${lang})`, JSON.stringify(t.bad));
-    }
+  // --------------------------------------------------- the product's cycle
+  phase("the cycle, by the product's names, in order");
+  for (const lang of ["id", "en"]) {
+    await p.goto(at("/apa-yang-dilakukan/", lang));
+    await settle();
+    const steps = await p.eval(`[...document.querySelectorAll('ol.cycle li')].map(li => li.textContent.trim())`);
+    assert(JSON.stringify(steps) === JSON.stringify(CYCLE.steps.map((s) => s[lang])),
+      `the cycle is named in the product's order (${lang})`, JSON.stringify(steps));
   }
-  // And the Mini-PINTAR sim badge (dark pill on ink-free background) —
-  // the one place a bespoke component could hide a contrast miss.
-  await p.goto(`${BASE}/mini-pintar/?lang=id`);
-  await new Promise((r) => setTimeout(r, 180));
-  const cs = await p.eval(CONTRAST_EXPR);
-  assert(cs.bad.length === 0, "contrast on Mini-PINTAR's start screen", JSON.stringify(cs.bad));
 
-  // ------------------------------------------------------ type floor & targets
+  // ----------------------------------------------------- reports, rendered
+  phase("the reports render MC-1 figures in their evidence states");
+  for (const lang of ["id", "en"]) {
+    await p.goto(at("/laporan/", lang));
+    await settle();
+    for (const [key, data] of [["educator", REPORT_A], ["management", REPORT_B]]) {
+      const drawn = await p.eval(`[...document.querySelectorAll('[data-report=${key}] .fig')]
+        .map(f => ({ metric: f.dataset.metric, state: f.dataset.state, text: f.innerText,
+                     value: !!f.querySelector('.fig__value') }))`);
+      assert(drawn.length === data.figures.length, `${key} report draws every figure (${lang})`, JSON.stringify(drawn));
+      for (const f of data.figures) {
+        const d = drawn.find((x) => x.metric === f.metric);
+        assert(d && d.state === f.state, `${key}: ${f.metric} is drawn in its declared state (${lang})`, JSON.stringify(d));
+        if (!d) continue;
+        if (f.state === "belum_cukup")
+          assert(d.text.includes(`${STATES.belum_cukup.shows[lang]} (${f.have}/${f.needed})`) && !d.value,
+            `${key}: ${f.metric} below its minimum says so, with no number (${lang})`, d.text);
+        if (f.state === "belum_ada")
+          assert(d.text.includes(STATES.belum_ada.shows[lang]) && !d.value,
+            `${key}: ${f.metric} with nothing qualifying says so, with no number (${lang})`, d.text);
+      }
+    }
+    const counts = await p.eval(`[...document.querySelectorAll('[data-report=management] .kesiapan li')]
+      .map(li => li.innerText.replace(/\\s+/g, ' ').trim())`);
+    const want = { cukup: 0, belum_cukup: 0, belum_ada: 0 };
+    for (const f of REPORT_B.figures) want[f.state] += 1;
+    const expected = Object.entries(want).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${STATES[k].name[lang]}`);
+    assert(JSON.stringify(counts) === JSON.stringify(expected), `evidence readiness counts the figures (${lang})`,
+      JSON.stringify(counts));
+    const bars = await p.eval(`[...new Set([...document.querySelectorAll('.rbar > i')]
+      .map(i => getComputedStyle(i).backgroundColor))]`);
+    assert(bars.length === 1 && bars[0] === EVIDENCE_BAR, `every readiness and topic bar is the one neutral ink (${lang})`,
+      JSON.stringify(bars));
+    const brandInReport = await p.eval(`[...document.querySelectorAll('.report, .report *')]
+      .flatMap(e => { const s = getComputedStyle(e); return [s.backgroundColor, s.borderLeftColor, s.color]; })
+      .filter(c => c === ${JSON.stringify(BRAND)}).length`);
+    assert(brandInReport === 0, `no report mark is painted in the brand colour (${lang})`, String(brandInReport));
+  }
+
+  // --------------------------------------------------- type floor and targets
   phase("type floor and target size, every route");
   for (const route of ROUTES) {
     await p.goto(at(route.href));
-    await new Promise((r) => setTimeout(r, 180));
+    await settle();
     const small = await p.eval(`[...document.querySelectorAll('body *')]
       .filter(e => e.offsetParent && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()))
       .map(e => parseFloat(getComputedStyle(e).fontSize))
       .filter(px => px > 0 && px < 14)`);
     assert(small.length === 0, `no text under 14px (${route.slug})`, JSON.stringify(small));
     // The skip link is deliberately 1x1 and offscreen until keyboard focus
-    // reveals it — that is the standard pattern, not a target-size miss.
+    // reveals it; that is the standard pattern, not a target-size miss.
     const targets = await p.eval(`[...document.querySelectorAll('button, a')]
       .filter(e => !e.closest('.sr-only'))
-      .map(e => ({ t: e.textContent.trim().slice(0, 24),
+      .map(e => ({ t: (e.textContent.trim() || e.querySelector('img')?.alt || '').slice(0, 24),
                    w: Math.round(e.getBoundingClientRect().width),
                    h: Math.round(e.getBoundingClientRect().height) }))
       .filter(x => x.t && x.h > 0 && (x.h < 44 || x.w < 44))`);
@@ -121,19 +208,25 @@ try {
   phase("reflow at 320–1440px");
   for (const w of [320, 375, 768, 1024, 1440]) {
     await p.viewport(w, 900);
-    for (const href of ["/", "/laporan/", "/mini-pintar/"]) {
-      await p.goto(`${BASE}${href}?lang=id`);
-      await new Promise((r) => setTimeout(r, 180));
+    for (const href of ["/", "/apa-yang-dilakukan/", "/laporan/", "/mini-pintar/"]) {
+      await p.goto(at(href));
+      await settle();
       const over = await p.eval("document.documentElement.scrollWidth - document.documentElement.clientWidth");
       assert(over <= 0, `no horizontal overflow at ${w}px (${href})`, String(over));
+    }
+    if (w <= 720) {
+      await p.goto(at("/"));
+      await settle();
+      const h = await p.eval("Math.round(document.querySelector('.site-header img.brand__logo').getBoundingClientRect().height)");
+      assert(h === 32, `the header logo is the product's 32px on a phone (${w}px)`, String(h));
     }
   }
   await p.viewport(1280, 1200);
 
   // -------------------------------------------------------------- contact form
   phase("the contact form is inert");
-  await p.goto(`${BASE}/kontak/?lang=id`);
-  await new Promise((r) => setTimeout(r, 180));
+  await p.goto(at("/kontak/"));
+  await settle();
   await p.eval(`(() => {
     document.getElementById('f-name').value = 'Ibu Sari';
     document.getElementById('f-org').value = 'SD Contoh';
@@ -144,119 +237,40 @@ try {
   await new Promise((r) => setTimeout(r, 150));
   const confirmed = await p.eval(`document.getElementById('form-mount').textContent`);
   assert(confirmed.includes("Terima kasih"), "submitting the form shows a confirmation, not a real send");
-  const stillHere = await p.eval("location.pathname");
-  assert(stillHere === "/kontak/", "the page never navigates away on submit", stillHere);
+  assert((await p.eval("location.pathname")) === "/kontak/", "the page never navigates away on submit");
   const external2 = p.requests.filter((u) => !u.startsWith(BASE) && !u.startsWith("data:"));
   assert(external2.length === 0, "no request left the page on submit", external2.join(", "));
 
-  // -------------------------------------------------------- Mini-PINTAR journey
-  phase("Mini-PINTAR: real computed results, not a scripted demo");
-
-  async function runJourney(lang, picks, through = "evidence") {
-    await p.goto(`${BASE}/mini-pintar/?lang=${lang}`);
-    await new Promise((r) => setTimeout(r, 180));
-    const startLabel = lang === "id" ? "Mulai" : "Start";
-    const continueLabel = lang === "id" ? "Lanjut" : "Continue";
-    await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.includes(${JSON.stringify(startLabel)})).click()`);
-    await new Promise((r) => setTimeout(r, 120));
-    await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.includes(${JSON.stringify(continueLabel)})).click()`);
-    await new Promise((r) => setTimeout(r, 120));
-    for (const pick of picks) {
-      await p.eval(`document.querySelectorAll('.quiz-option')[${pick}].click()`);
-      await new Promise((r) => setTimeout(r, 480));
-    }
-    await new Promise((r) => setTimeout(r, 120));
-    // Evidence is the default stop. "educator" and "management" click one
-    // further "Lanjut"-labelled button each to advance the state machine.
-    if (through === "educator" || through === "management") {
-      await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.includes(${JSON.stringify(continueLabel)})).click()`);
-      await new Promise((r) => setTimeout(r, 120));
-    }
-    if (through === "management") {
-      // On the educator screen a decision must be made before "Lanjut ke
-      // Laporan Manajemen" exists. That button is scoped to #educator-ack
-      // rather than matched by the word "Lanjut" — one of the three
-      // decision buttons is "Lanjutkan belajar", which also contains that
-      // substring and sits earlier in the DOM, so a bare text search
-      // clicks the wrong control.
-      await p.eval(`document.querySelectorAll('.decision-btn')[0]?.click()`);
-      await new Promise((r) => setTimeout(r, 120));
-      await p.eval(`document.querySelector('#educator-ack button').click()`);
-      await new Promise((r) => setTimeout(r, 120));
-    }
-    return p.eval("document.getElementById('view').innerText");
+  // ---------------------------------------- the language switch writes nothing
+  phase("the language switch travels in the address, not on the device");
+  await p.goto(at("/laporan/"));
+  await settle();
+  await p.eval(`[...document.querySelectorAll('.site-header button')].find(b => b.textContent.trim() === 'EN').click()`);
+  let switched = null;
+  for (let i = 0; i < 30 && switched !== "en"; i += 1) {
+    await settle();
+    switched = await p.eval("new URLSearchParams(location.search).get('lang')").catch(() => null);
   }
+  assert(switched === "en", "switching language puts it in the address", String(switched));
+  await p.goto(`${BASE}/laporan/`);
+  await settle();
+  assert((await p.eval("document.documentElement.lang")) === "id",
+    "a visit without ?lang= is Bahasa Indonesia: nothing was remembered", await p.eval("document.documentElement.lang"));
 
-  // Run A: 4 correct (index 2 wrong on question 3) — mirrors the manual
-  // walkthrough. Answer key: [2,3,1,2,1].
-  const bodyA = await runJourney("id", [2, 3, 0, 2, 1]);
-  assert(bodyA.includes("4 terjawab dengan baik"), "run A: evidence reflects 4 correct, not a fixed number",
-    bodyA.slice(0, 120));
-  assert(bodyA.includes("Pecahan Sederhana") && bodyA.includes("PERLU DITINJAU LAGI"),
-    "run A: the actually-missed concept is the one flagged");
-
-  // Run B: all five correct — the interpretation and the flagged-concept
-  // text must both change, proving the result is computed, not templated
-  // around a single hardcoded branch. Driven through to the educator
-  // screen, since the "no concept flagged" line only renders there.
-  const bodyB = await runJourney("id", [2, 3, 1, 2, 1], "educator");
-  assert(bodyB.includes("5 terjawab dengan baik"), "run B: evidence reflects 5 correct", bodyB.slice(0, 120));
-  assert(bodyB.includes("Tidak ada konsep yang menonjol"), "run B: no concept is flagged when nothing was missed");
-  assert(!bodyB.includes("PERLU DITINJAU LAGI"), "run B: no chip reads ‘needs another look’ when everything was correct");
-
-  // Run C: all five wrong — the low-scoring branch, and still no shaming
-  // language, still the small-sample humility clause.
-  const bodyC = await runJourney("id", [0, 0, 0, 0, 0]);
-  assert(bodyC.includes("0 terjawab dengan baik"), "run C: evidence reflects 0 correct");
-  assert(bodyC.includes("lima soal belum cukup") || bodyC.includes("Lima soal belum cukup"),
-    "run C: the small-sample humility clause survives even at zero correct");
-  assert(!/\bsalah\b/i.test(bodyC), "run C: no answer is called ‘wrong’ in the visitor-facing copy");
-
-  // The management step must NEVER vary with the visitor's own answers —
-  // it is simulated class data, fixed regardless of what run produced it.
-  // Driven through to management for two different answer sets.
-  const mgmtHigh = await runJourney("id", [2, 3, 0, 2, 1], "management");
-  const mgmtZero = await runJourney("id", [0, 0, 0, 0, 0], "management");
-  assert(mgmtHigh.includes("22 dari 24 peserta didik") && mgmtZero.includes("22 dari 24 peserta didik"),
-    "the management report's simulated numbers do not change with the visitor's own score");
-
-  // The decision buttons: none pre-selected, and the chosen one is marked.
+  // --------------------------- after all of it, nothing was written anywhere
+  phase("device storage, after every route and into Mini-PINTAR");
   await p.goto(`${BASE}/mini-pintar/?lang=id`);
-  await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Mulai')).click()`);
-  await new Promise((r) => setTimeout(r, 100));
-  await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Lanjut')).click()`);
-  await new Promise((r) => setTimeout(r, 100));
-  for (const pick of [2, 3, 1, 2, 1]) {
-    await p.eval(`document.querySelectorAll('.quiz-option')[${pick}].click()`);
-    await new Promise((r) => setTimeout(r, 480));
-  }
-  await new Promise((r) => setTimeout(r, 100));
-  await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Lanjut')).click()`);
-  await new Promise((r) => setTimeout(r, 100));
-  const preselected = await p.eval(`[...document.querySelectorAll('.decision-btn')].some(b => b.getAttribute('aria-pressed') === 'true')`);
-  assert(!preselected, "no educator decision is pre-selected before the visitor clicks one");
-  await p.eval(`document.querySelectorAll('.decision-btn')[1].click()`);
-  await new Promise((r) => setTimeout(r, 100));
-  const chosen = await p.eval(`document.querySelector('.decision-btn[aria-pressed="true"]').textContent.trim()`);
-  assert(chosen.length > 0, "the chosen educator decision is marked after clicking", chosen);
-  assert(p.consoleErrors.length === 0, "no console error across the whole Mini-PINTAR run", p.consoleErrors.join(" | "));
-
-  // Progress indicator advances with the stage.
-  const progressAtEducator = await p.eval(`document.querySelector('.mini-progress__label').textContent`);
-  assert(progressAtEducator.includes("5 / 7"), "the progress indicator reflects the current stage",
-    progressAtEducator);
-
-  // Restart genuinely resets state (a stale answer must not leak into a
-  // fresh run).
-  await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Laporan')).click()`);
-  await new Promise((r) => setTimeout(r, 100));
-  await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Lanjut').click()`);
-  await new Promise((r) => setTimeout(r, 100));
-  await p.eval(`[...document.querySelectorAll('button')].find(b=>b.textContent.includes('awal') || b.textContent.includes('start')).click()`);
-  await new Promise((r) => setTimeout(r, 100));
-  const restarted = await p.eval("document.querySelector('.mini-progress__label').textContent");
-  assert(restarted.includes("1 / 7"), "restarting returns to stage 1", restarted);
-
+  await settle();
+  await p.eval(`document.querySelector('main button.btn').click()`);
+  await settle();
+  const storage = await p.eval(`(async () => ({
+    local: localStorage.length, session: sessionStorage.length, cookie: document.cookie,
+    dbs: (indexedDB.databases ? (await indexedDB.databases()).length : 0),
+  }))()`, true);
+  assert(storage.local === 0, "localStorage is empty after the whole site", String(storage.local));
+  assert(storage.session === 0, "sessionStorage is empty after the whole site", String(storage.session));
+  assert(storage.cookie === "", "no cookie after the whole site", storage.cookie);
+  assert(storage.dbs === 0, "no IndexedDB database after the whole site", String(storage.dbs));
 } catch (e) {
   fail("the run threw", e.message);
 } finally {
@@ -269,6 +283,7 @@ if (fails.length) {
   for (const f of fails) console.error("  " + f);
   process.exit(1);
 }
-console.log(`view OK — ${checks} checks in a real browser: every route loads clean in both languages, ` +
-  `contrast measured, type floor and target size swept, reflow checked 320–1440px, the contact form ` +
-  `is inert, and the Mini-PINTAR journey computes real results across three independent answer sets`);
+console.log(`view OK — ${checks} checks in a real browser: ${ROUTES.length} routes in both languages render clean ` +
+  `with the supplied logo and the product's typeface, contrast measured on every route, type floor and ` +
+  `targets swept, reflow 320–1440px, reports drawn in their evidence states with neutral bars, the ` +
+  `contact form inert, and nothing written to the device`);
