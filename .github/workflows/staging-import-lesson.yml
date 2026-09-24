@@ -44,7 +44,7 @@ concurrency:
 env:
   STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
   PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
-  STAGING_ORIGIN: https://pintar40-staging.vercel.app
+  STAGING_ORIGIN: https://staging.pintarselalu.com
   ADMIN_SHA256: 52e5bbccb4be604c12b16dd38de06b0e1aa53f08d44f9356bb0759e0e47dd2a4
 
 jobs:
