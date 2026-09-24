@@ -94,6 +94,8 @@ import { bacaBukuKerja } from "../src/lib/xlsx";
 import { BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
 import { crc32 as zlibCrc32 } from "node:zlib";
 import { tempatDariPeran, daftarTempat, pintuMasuk, tawarkanStudio, PERAN_STUDIO } from "../src/components/tempat";
+import { LANGKAH as LANGKAH_PAKET, posisiPaket, keadaanLangkah, bolehMengambil, kunciSalinan, type KunciLangkah } from "../src/components/studio/langkah";
+import { LANGKAH_TERBITAN, KODE_TERBITAN_DB, kunciKodeTerbitan, type KodeTerbitan } from "../src/lib/terbitan-kontrak";
 import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalBaca } from "../src/components/struktur/tampilan";
 import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src/lib/struktur-kontrak";
@@ -8955,6 +8957,225 @@ export const experienceTests: SelfTest[] = [
         "places and in the page's own link style. Every staff shell and an educator's own learning offer it from the one roles " +
         "answer; the learner's shell, the public page and an assessment in focus do not; Studio still refuses a reader with no " +
         "capability, asked of the database",
+      );
+    },
+  },
+  {
+    id: "DAISY-06-TERBIT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-06, THE TERBIT STEP (audit M11): seven named steps from an
+       * uploaded course to "Terbit", in the database's order, the current one
+       * marked, who takes each beside it, and a button only for a reader who
+       * may take the current step.
+       *
+       * 1. THE ORDER IS THE DATABASE'S. Every content step's move is an edge in
+       *    content_status_transitions, from each status that step is current
+       *    at; every release step is BOB-03's own entry in LANGKAH_TERBITAN,
+       *    with the same capability and the same starting states.
+       */
+      const mig = join(repoRoot, "supabase", "migrations");
+      const lifecycle = readFileSync(join(mig, "20260912114854_content_lifecycle.sql"), "utf8");
+      const tepi = new Set([...lifecycle.matchAll(/\('([A-Z_]+)',\s*'([A-Z_]+)',\s*'[^']*'\)/g)].map((m) => `${m[1]}>${m[2]}`));
+      c.expect(tepi.has("INGESTED>STRUCTURED") && tepi.size >= 8, `could not read the content transitions (${tepi.size})`);
+      const STATUS = ["INGESTED", "STRUCTURED", "VALIDATED", "VALIDATION_FAILED", "IN_REVIEW", "APPROVED", "FROZEN", "PUBLISHED", "SUPERSEDED"];
+      for (const l of LANGKAH_PAKET) {
+        if ("isi" in l.jalan) {
+          const dari = STATUS.filter((x) => posisiPaket({ statusKursus: x, terbitan: null }).kini === l.kunci);
+          c.expect(dari.length > 0, `no course status makes "${l.kunci}" the current step`);
+          for (const d of dari) c.expect(tepi.has(`${d}>${l.jalan.isi}`), `"${l.kunci}" moves ${d} -> ${l.jalan.isi}, which is not a content transition`);
+        } else {
+          const jalan = l.jalan.terbitan;
+          const kontrak = LANGKAH_TERBITAN.find((x) => x.aksi === jalan);
+          if (!c.expect(kontrak !== undefined, `"${l.kunci}" takes ${jalan}, which is not in BOB-03's contract`)) continue;
+          c.expect(kontrak!.kemampuan === l.kemampuan, `"${l.kunci}" asks for ${l.kemampuan}; BOB-03 says ${kontrak!.kemampuan}`);
+          const dari = "kursus" in kontrak!.dari
+            ? posisiPaket({ statusKursus: kontrak!.dari.kursus, terbitan: null }).kini === l.kunci
+            : kontrak!.dari.terbitan.every((st) => posisiPaket({ statusKursus: "APPROVED", terbitan: { status: st } }).kini === l.kunci);
+          c.expect(dari, `"${l.kunci}" is not the current step in every state BOB-03 takes ${jalan} from`);
+        }
+      }
+      c.expect(JSON.stringify(LANGKAH_PAKET.map((l) => l.kunci)) === JSON.stringify(["susun", "periksa", "ajukan", "setujui", "buat", "kunci", "terbitkan"]),
+        `the steps are ${LANGKAH_PAKET.map((l) => l.kunci).join(", ")}`);
+      // where a course stands, over every state
+      const POSISI: Array<[string, string | null, string | null, boolean]> = [
+        ["INGESTED", null, "susun", false], ["VALIDATION_FAILED", null, "susun", true], ["STRUCTURED", null, "periksa", false],
+        ["VALIDATED", null, "ajukan", false], ["IN_REVIEW", null, "setujui", false], ["APPROVED", null, "buat", false],
+        ["APPROVED", "INGESTED", "kunci", false], ["APPROVED", "APPROVED", "kunci", false], ["FROZEN", "FROZEN", "terbitkan", false],
+        ["PUBLISHED", "PUBLISHED", "terbit", false], ["SUPERSEDED", "SUPERSEDED", "ditarik", false], ["FROZEN", null, null, false],
+      ];
+      for (const [kursus, rilis, harap, kembali] of POSISI) {
+        const p = posisiPaket({ statusKursus: kursus, terbitan: rilis ? { status: rilis } : null });
+        c.expect(p.kini === harap && p.dikembalikan === kembali, `course ${kursus}, release ${rilis ?? "none"}: at ${JSON.stringify(p)}, expected ${harap}`);
+      }
+      const k = keadaanLangkah(posisiPaket({ statusKursus: "IN_REVIEW", terbitan: null })).map((x) => x.keadaan);
+      c.expect(JSON.stringify(k) === JSON.stringify(["selesai", "selesai", "selesai", "kini", "nanti", "nanti", "nanti"]), `at review the steps read ${k.join(", ")}`);
+      c.expect(keadaanLangkah(posisiPaket({ statusKursus: "PUBLISHED", terbitan: { status: "PUBLISHED" } })).every((x) => x.keadaan === "selesai"), "a published course leaves a step undone");
+
+      /**
+       * 2. WHO. The roles beside each step are exactly the school roles whose
+       *    capability map (the latest role_capabilities) holds its capability;
+       *    the two second-person steps are the two the database guards with
+       *    the four-eyes rule. A reader is offered the step only with the
+       *    capability, and a second-person step never by its author.
+       */
+      const terakhir = readdirSync(mig).filter((f) => f.endsWith(".sql")).sort()
+        .filter((f) => /create or replace function public\.role_capabilities\(/i.test(readFileSync(join(mig, f), "utf8"))).pop();
+      if (c.expect(terakhir !== undefined, "no migration defines role_capabilities")) {
+        const sql = readFileSync(join(mig, terakhir!), "utf8");
+        const i = sql.search(/create or replace function public\.role_capabilities\(/i);
+        const badan = sql.slice(i, sql.indexOf("$function$;", i));
+        const peta = new Map([...badan.matchAll(/when '([A-Z_]+)' then array\[([^\]]*)\]/g)].map((m) => [m[1], m[2]]));
+        for (const l of LANGKAH_PAKET) {
+          const harap = [...peta].filter(([r, caps]) => r !== "SYSTEM_ADMIN" && caps.includes(`'${l.kemampuan}'`)).map(([r]) => r).sort();
+          c.expect(JSON.stringify([...l.peran].sort()) === JSON.stringify(harap), `"${l.kunci}" names ${l.peran.join(", ")}; ${l.kemampuan} is held by ${harap.join(", ")} (${terakhir})`);
+        }
+      }
+      c.expect(JSON.stringify(LANGKAH_PAKET.filter((l) => l.orangKedua).map((l) => l.kunci)) === JSON.stringify(["setujui", "kunci"]), "the second person's steps are not exactly approving and locking");
+      const empatMata = readdirSync(mig).filter((f) => f.endsWith(".sql")).map((f) => readFileSync(join(mig, f), "utf8")).join("\n");
+      c.expect(/the reviewer may not be the author/.test(empatMata) && /release_refuse\('RELEASE_SAME_PERSON'\)/.test(empatMata),
+        "the database no longer carries the four-eyes rules these two steps describe");
+      const setujui = LANGKAH_PAKET.find((l) => l.kunci === "setujui")!;
+      const buat = LANGKAH_PAKET.find((l) => l.kunci === "buat")!;
+      const SEMUA = ["CAN_DRAFT", "CAN_REVIEW", "CAN_FREEZE_RELEASE", "CAN_PUBLISH"];
+      c.expect(bolehMengambil(setujui, SEMUA, "p", "p") === "penyusun" && bolehMengambil(setujui, SEMUA, "q", "p") === "boleh"
+        && bolehMengambil(setujui, ["CAN_DRAFT"], "q", "p") === "wewenang" && bolehMengambil(setujui, SEMUA, null, "p") === "wewenang"
+        && bolehMengambil(buat, SEMUA, "p", "p") === "boleh", "who may take a step is not the capability plus the four-eyes rule");
+
+      /**
+       * 3. THE WORDS. Every step has a title, a sentence and a button in both
+       *    languages; the seven buttons are seven different words and none is
+       *    "Konfirmasi"; every release code BOB-03 can return has its sentence.
+       */
+      for (const locale of LOCALES) {
+        const tombol = LANGKAH_PAKET.map((l) => t(kunciSalinan(l.kunci, "tombol"), "staff", { locale }));
+        c.expect(new Set(tombol).size === 7 && !tombol.includes(t("studio.unggah.konfirmasi", "staff", { locale })), `(${locale}) the step buttons are ${JSON.stringify(tombol)}`);
+        for (const l of LANGKAH_PAKET) for (const b of ["judul", "arti"] as const) {
+          c.expect(t(kunciSalinan(l.kunci, b), "staff", { locale }) !== TANPA_SALINAN, `(${locale}) ${kunciSalinan(l.kunci, b)} has no copy`);
+        }
+        for (const kode of [...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED"] as KodeTerbitan[]) {
+          c.expect(t(kunciKodeTerbitan(kode), "staff", { locale }) !== TANPA_SALINAN, `(${locale}) ${kode} has no sentence`);
+        }
+      }
+
+      /**
+       * 4. RENDERED, in both languages where it matters, for the course's
+       *    author (Gladys, who holds every capability) and a second person
+       *    (a head of department), at every state from upload to withdrawal.
+       */
+      const GLADYS = { saya: "gladys", penyusun: "gladys", kemampuan: SEMUA };
+      const KAPRODI = { saya: "kaprodi", penyusun: "gladys", kemampuan: ["CAN_DRAFT", "CAN_REVIEW", "CAN_FREEZE_RELEASE"] };
+      const TAMU = { saya: "tamu", penyusun: "gladys", kemampuan: [] as string[] };
+      const rilis = (status: string) => ({ id: "11111111-1111-4111-8111-111111111111", status, terbitPada: status === "PUBLISHED" ? "2026-09-25T02:00:00Z" : null });
+      const KASUS = [
+        { nama: "unggah-penyusun", kursus: "INGESTED", r: null, siapa: GLADYS, locale: "id" },
+        { nama: "unggah-penyusun-en", kursus: "INGESTED", r: null, siapa: GLADYS, locale: "en" },
+        { nama: "dikembalikan", kursus: "VALIDATION_FAILED", r: null, siapa: GLADYS, locale: "id" },
+        { nama: "tinjau-penyusun", kursus: "IN_REVIEW", r: null, siapa: GLADYS, locale: "id" },
+        { nama: "tinjau-kaprodi", kursus: "IN_REVIEW", r: null, siapa: KAPRODI, locale: "id" },
+        { nama: "disetujui-penyusun", kursus: "APPROVED", r: null, siapa: GLADYS, locale: "id" },
+        { nama: "rilis-penyusun", kursus: "APPROVED", r: rilis("INGESTED"), siapa: GLADYS, locale: "id" },
+        { nama: "rilis-kaprodi", kursus: "APPROVED", r: rilis("INGESTED"), siapa: KAPRODI, locale: "id" },
+        { nama: "beku-kaprodi", kursus: "FROZEN", r: rilis("FROZEN"), siapa: KAPRODI, locale: "id" },
+        { nama: "beku-penyusun", kursus: "FROZEN", r: rilis("FROZEN"), siapa: GLADYS, locale: "id" },
+        { nama: "terbit-penyusun", kursus: "PUBLISHED", r: rilis("PUBLISHED"), siapa: GLADYS, locale: "id" },
+        { nama: "terbit-kaprodi", kursus: "PUBLISHED", r: rilis("PUBLISHED"), siapa: KAPRODI, locale: "id" },
+        { nama: "ditarik", kursus: "SUPERSEDED", r: rilis("SUPERSEDED"), siapa: GLADYS, locale: "id" },
+        { nama: "tamu", kursus: "INGESTED", r: null, siapa: TAMU, locale: "id" },
+      ];
+      const props = KASUS.map((k) => ({
+        locale: k.locale, course: "22222222-2222-4222-8222-222222222222",
+        fakta: { statusKursus: k.kursus, terbitan: k.r ? { status: k.r.status } : null },
+        terbitan: k.r, kemampuan: k.siapa.kemampuan, saya: k.siapa.saya, penyusun: k.siapa.penyusun,
+      }));
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/studio/LangkahTerbit.tsx");' +
+        "  const L = m.default?.default ?? m.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_TERBIT).map((k) =>" +
+        "    renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(L, k))))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_TERBIT: JSON.stringify(props) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && html.length === KASUS.length, `the steps could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        const R = Object.fromEntries(KASUS.map((k, n) => [k.nama, html[n].replace(/&amp;/g, "&").replace(/&#x27;/g, "'")]));
+        const sId = (e: HleEvent) => t(e, "staff");
+        const tombolDi = (x: string) => [...x.matchAll(/<button type="submit"[^>]*>([^<]+)<\/button>/g)].map((m) => m[1]);
+        const kini = (x: string) => (x.match(/aria-current="step"/g) ?? []).length;
+        const tb = (k: KunciLangkah) => sId(kunciSalinan(k, "tombol"));
+        for (const [nama, x] of Object.entries(R)) {
+          c.expect(kini(x) === 1, `${nama}: ${kini(x)} steps are marked current`);
+          const judul = [...x.matchAll(/<p class="pin-lt-judul">([^<]+)</g)].map((m) => m[1]);
+          c.expect(judul.length === 8 && new Set(judul).size === 8, `${nama}: the list reads ${JSON.stringify(judul)}`);
+        }
+        c.expect(JSON.stringify(tombolDi(R["unggah-penyusun"])) === JSON.stringify([tb("susun")])
+          && /<input type="hidden" name="to" value="STRUCTURED"\/>/.test(R["unggah-penyusun"])
+          && /<li class="pin-lt-langkah pin-lt-kini" aria-current="step"><span class="pin-lt-no" aria-hidden="true">1<\/span>/.test(R["unggah-penyusun"]),
+          `after upload the author is not offered exactly "${tb("susun")}" on step 1: ${tombolDi(R["unggah-penyusun"])}`);
+        c.expect(JSON.stringify(tombolDi(R["unggah-penyusun-en"])) === JSON.stringify([t(kunciSalinan("susun", "tombol"), "staff", { locale: "en" })]), "(en) step 1 is not offered in English");
+        c.expect(R["dikembalikan"].includes(sId("studio.langkah.dikembalikan")) && /value="STRUCTURED"/.test(R["dikembalikan"]), "returned content does not say so, or cannot be put together again");
+        c.expect(tombolDi(R["tinjau-penyusun"]).length === 0 && R["tinjau-penyusun"].includes(sId("studio.langkah.tunggu.penyusun")),
+          "the author is offered their own approval, or not told it is a colleague's");
+        c.expect(R["tinjau-penyusun"].includes(`${sId("studio.langkah.oleh")} ${sId("role.HEAD_OF_DEPARTMENT")} ${sId("studio.langkah.atau")} ${sId("role.INSTITUTION_ADMIN")}, ${sId("studio.langkah.bukan_penyusun")}`),
+          "the approval step does not say who takes it");
+        c.expect(JSON.stringify(tombolDi(R["tinjau-kaprodi"])) === JSON.stringify([tb("setujui")]) && /value="APPROVED"/.test(R["tinjau-kaprodi"]),
+          "a second person is not offered the approval");
+        c.expect(JSON.stringify(tombolDi(R["disetujui-penyusun"])) === JSON.stringify([tb("buat")]) && /name="langkah" value="buat"/.test(R["disetujui-penyusun"]),
+          "an approved course does not offer to create its release");
+        c.expect(tombolDi(R["rilis-penyusun"]).length === 0 && R["rilis-penyusun"].includes(sId("studio.langkah.tunggu.penyusun")),
+          "the author is offered to lock their own release");
+        c.expect(JSON.stringify(tombolDi(R["rilis-kaprodi"])) === JSON.stringify([tb("kunci")])
+          && /name="release" value="11111111-1111-4111-8111-111111111111"/.test(R["rilis-kaprodi"]), "a second person is not offered the lock, on this release");
+        c.expect(tombolDi(R["beku-kaprodi"]).length === 0 && R["beku-kaprodi"].includes(sId("studio.langkah.tunggu.wewenang")),
+          "a head of department is offered to publish, which needs CAN_PUBLISH");
+        c.expect(JSON.stringify(tombolDi(R["beku-penyusun"])) === JSON.stringify([tb("terbitkan")]), "the school administrator is not offered to publish a locked release");
+        c.expect(R["terbit-penyusun"].includes(`${sId("studio.langkah.terbit.sejak")} ${format.date("2026-09-25T02:00:00Z", "id")}`)
+          && R["terbit-penyusun"].includes(`<span class="pin-meta">${sId("studio.langkah.tarik.alasan")}</span>`)
+          && JSON.stringify(tombolDi(R["terbit-penyusun"])) === JSON.stringify([sId("studio.paket.tarik")]),
+          "a published course does not say since when, or offers no labelled withdrawal to its publisher");
+        c.expect(tombolDi(R["terbit-kaprodi"]).length === 0, "a reader without CAN_PUBLISH is offered to withdraw");
+        c.expect(R["ditarik"].includes(sId("studio.langkah.ditarik.arti")) && tombolDi(R["ditarik"]).length === 0, "a withdrawn release does not say so");
+        c.expect(tombolDi(R["tamu"]).length === 0 && R["tamu"].includes(sId("studio.langkah.tunggu.wewenang")), "a reader with no capability is offered a step");
+      }
+
+      /**
+       * 5. THE SOURCE. The page draws the steps from the course's status and
+       *    its latest release, the reader's capabilities in the course's school
+       *    and whether they wrote it; it offers no lifecycle button of its own,
+       *    no "Konfirmasi" and no bare placeholder; the check is "Periksa isi
+       *    sekarang". The steps talk to the server only through the content
+       *    action and BOB-03's typed release actions.
+       */
+      const halaman = code(readFileSync(join(repoRoot, "src", "app", "studio", "paket", "[course]", "page.tsx"), "utf8"));
+      c.expect(/<LangkahTerbit[\s\S]*?fakta=\{\{ statusKursus: course\.status as string, terbitan: terakhir \? \{ status: terakhir\.status as string \} : null \}\}[\s\S]*?kemampuan=\{inst\?\.capabilities \?\? \[\]\}[\s\S]*?penyusun=\{\(course\.author_person_id as string \| null\) \?\? null\}/.test(halaman)
+        && /supabase\.rpc\("current_person_id"\)/.test(halaman) && /const terakhir = \(releases \?\? \[\]\)\.at\(-1\) \?\? null;/.test(halaman),
+        "the package page does not draw the steps from the course, its latest release and the reader");
+      c.expect(!/advanceContentAction|createReleaseAction|freezeReleaseAction|publishReleaseAction|withdrawReleaseAction|studio\.unggah\.konfirmasi|placeholder=/.test(halaman),
+        "the package page still carries lifecycle buttons of its own, a Konfirmasi or a bare placeholder");
+      c.expect(/<form action=\{runValidationAction\}[\s\S]*?s\("studio\.paket\.periksa_isi"\)/.test(halaman), "the content check is not \"Periksa isi sekarang\"");
+      const komponen = code(readFileSync(join(repoRoot, "src", "components", "studio", "LangkahTerbit.tsx"), "utf8"));
+      c.expect(!/\bfetch\(/.test(komponen) && /<form action=\{advanceContentAction\}>/.test(komponen) && /name="to" value=\{l\.jalan\.isi\}/.test(komponen)
+        && /buatTerbitanAksi[\s\S]*kunciTerbitanAksi[\s\S]*terbitkanAksi[\s\S]*tarikTerbitanAksi/.test(komponen),
+        "the steps talk to the server some other way");
+      c.expect(/s\(kunciKodeTerbitan\(h\.code\)\)/.test(komponen) && !/\.message\b|\.details\b/.test(komponen), "a release refusal is not its code's sentence");
+
+      return c.verdict(
+        "the seven steps are the database's: each content step is an edge of content_status_transitions from every status it " +
+        "is current at, each release step is BOB-03's own with the same capability and starting states; the roles beside each " +
+        "are the capability map's, the two second-person steps are the two four-eyes rules, and a step is offered with the " +
+        "capability and never to the author when it is a colleague's. Seven different buttons, none Konfirmasi, and every " +
+        "release code has its sentence. RENDERED from upload to withdrawal for the author and a head of department: one step " +
+        "current, the one right button or the reason there is none. The page draws them from the course, its latest release " +
+        "and the reader, with no lifecycle button, Konfirmasi or bare placeholder of its own",
       );
     },
   },

@@ -394,6 +394,51 @@ export type HleEvent =
   | "studio.terbitan.kode.release_input_invalid"
   | "studio.terbitan.kode.release_failed"
   | "studio.paket.buat_terbitan"
+  // DAISY-06, the Terbit step: the seven steps to publication, named
+  | "studio.langkah.judul"
+  | "studio.langkah.arti"
+  | "studio.langkah.oleh"
+  | "studio.langkah.atau"
+  | "studio.langkah.bukan_penyusun"
+  | "studio.langkah.keadaan.selesai"
+  | "studio.langkah.keadaan.kini"
+  | "studio.langkah.keadaan.nanti"
+  | "studio.langkah.tunggu.penyusun"
+  | "studio.langkah.tunggu.wewenang"
+  | "studio.langkah.dikembalikan"
+  | "studio.langkah.sibuk"
+  | "studio.langkah.hambatan"
+  | "studio.langkah.susun.judul"
+  | "studio.langkah.susun.arti"
+  | "studio.langkah.susun.tombol"
+  | "studio.langkah.periksa.judul"
+  | "studio.langkah.periksa.arti"
+  | "studio.langkah.periksa.tombol"
+  | "studio.langkah.ajukan.judul"
+  | "studio.langkah.ajukan.arti"
+  | "studio.langkah.ajukan.tombol"
+  | "studio.langkah.setujui.judul"
+  | "studio.langkah.setujui.arti"
+  | "studio.langkah.setujui.tombol"
+  | "studio.langkah.buat.judul"
+  | "studio.langkah.buat.arti"
+  | "studio.langkah.buat.tombol"
+  | "studio.langkah.kunci.judul"
+  | "studio.langkah.kunci.arti"
+  | "studio.langkah.kunci.tombol"
+  | "studio.langkah.terbitkan.judul"
+  | "studio.langkah.terbitkan.arti"
+  | "studio.langkah.terbitkan.tombol"
+  | "studio.langkah.terbit.judul"
+  | "studio.langkah.terbit.sejak"
+  | "studio.langkah.terbit.nanti"
+  | "studio.langkah.ditarik.judul"
+  | "studio.langkah.ditarik.arti"
+  | "studio.langkah.tarik.alasan"
+  | "studio.paket.periksa_isi"
+  | "studio.paket.periksa_isi_arti"
+  | "studio.paket.catatan"
+  | "studio.paket.koreksi_alasan"
   | "role.STUDENT"
   | "role.EDUCATOR"
   | "role.HEAD_OF_DEPARTMENT"
@@ -1891,6 +1936,50 @@ const table: Table = {
   "studio.terbitan.kode.release_input_invalid": { default: "Terbitan atau kursus tidak dikenali.", en: "The release or course was not recognised." },
   "studio.terbitan.kode.release_failed": { default: "Langkah ini belum berhasil. Coba lagi sebentar lagi.", en: "This step did not go through. Try again in a moment." },
   "studio.paket.buat_terbitan": { default: "Buat terbitan", en: "Create release" },
+  "studio.langkah.judul": { default: "Langkah menuju terbit", en: "Steps to publication" },
+  "studio.langkah.arti": { default: "Tujuh langkah dari unggahan sampai terbit, dalam urutan yang dijalankan PINTAR. Tombol hanya muncul untuk orang yang boleh mengambil langkah itu.", en: "Seven steps from upload to publication, in the order PINTAR takes them. A button appears only for someone who may take that step." },
+  "studio.langkah.oleh": { default: "Oleh:", en: "By:" },
+  "studio.langkah.atau": { default: "atau", en: "or" },
+  "studio.langkah.bukan_penyusun": { default: "bukan penyusun kursus ini", en: "not this course's author" },
+  "studio.langkah.keadaan.selesai": { default: "Selesai", en: "Done" },
+  "studio.langkah.keadaan.kini": { default: "Sekarang", en: "Now" },
+  "studio.langkah.keadaan.nanti": { default: "Belum", en: "Not yet" },
+  "studio.langkah.tunggu.penyusun": { default: "Anda menyusun kursus ini, jadi langkah ini diambil orang kedua. Minta rekan yang disebut di atas.", en: "You wrote this course, so a second person takes this step. Ask a colleague named above." },
+  "studio.langkah.tunggu.wewenang": { default: "Langkah ini bukan wewenang Anda di sekolah ini. Minta orang yang disebut di atas.", en: "This step is not yours to take in this school. Ask someone named above." },
+  "studio.langkah.dikembalikan": { default: "Isi ini dikembalikan untuk diperbaiki. Perbaiki, lalu tandai sudah tersusun lagi.", en: "This content was returned for correction. Fix it, then mark it as put together again." },
+  "studio.langkah.sibuk": { default: "Memproses…", en: "Working…" },
+  "studio.langkah.hambatan": { default: "Yang menahan:", en: "What is holding it:" },
+  "studio.langkah.susun.judul": { default: "Susun isi", en: "Put the content together" },
+  "studio.langkah.susun.arti": { default: "Buku kerja sudah menjadi kursus, bab, pelajaran, dan soal. Lihat seperti siswa untuk memeriksa tampilannya, lalu tandai sudah tersusun.", en: "The workbook has become a course with chapters, lessons and questions. See it as a student to check how it looks, then mark it as put together." },
+  "studio.langkah.susun.tombol": { default: "Tandai sudah tersusun", en: "Mark as put together" },
+  "studio.langkah.periksa.judul": { default: "Periksa isi", en: "Check the content" },
+  "studio.langkah.periksa.arti": { default: "Jalankan pemeriksaan isi di bagian Temuan di bawah. Perbaiki yang wajib diperbaiki, lalu tandai lolos pemeriksaan.", en: "Run the content check in the Findings section below. Fix what must be fixed, then mark the check as passed." },
+  "studio.langkah.periksa.tombol": { default: "Tandai lolos pemeriksaan", en: "Mark the check as passed" },
+  "studio.langkah.ajukan.judul": { default: "Ajukan untuk ditinjau", en: "Send for review" },
+  "studio.langkah.ajukan.arti": { default: "Kirim kursus ini kepada rekan yang boleh menyetujuinya. Persetujuannya harus dari orang lain, bukan dari penyusun.", en: "Send this course to a colleague who may approve it. The approval must come from someone other than its author." },
+  "studio.langkah.ajukan.tombol": { default: "Ajukan untuk ditinjau", en: "Send for review" },
+  "studio.langkah.setujui.judul": { default: "Setujui isi", en: "Approve the content" },
+  "studio.langkah.setujui.arti": { default: "Orang kedua membaca isinya lalu menyetujuinya. Peringatan di bagian Temuan juga diakui di langkah ini.", en: "A second person reads the content and approves it. Warnings in the Findings section are acknowledged at this step too." },
+  "studio.langkah.setujui.tombol": { default: "Setujui isi", en: "Approve the content" },
+  "studio.langkah.buat.judul": { default: "Buat terbitan", en: "Create the release" },
+  "studio.langkah.buat.arti": { default: "Terbitan adalah versi kursus yang nanti dipakai siswa. Terbitan dibuat dari kursus yang sudah disetujui.", en: "A release is the version of the course that students will use. It is made from an approved course." },
+  "studio.langkah.buat.tombol": { default: "Buat terbitan", en: "Create the release" },
+  "studio.langkah.kunci.judul": { default: "Kunci terbitan", en: "Lock the release" },
+  "studio.langkah.kunci.arti": { default: "Orang kedua mengunci terbitan. PINTAR memeriksa isinya sekali lagi. Setelah dikunci, isinya tidak dapat diubah; perbaikan dibuat sebagai salinan baru.", en: "A second person locks the release. PINTAR checks the content once more. Once locked it cannot be changed; a correction is made as a new copy." },
+  "studio.langkah.kunci.tombol": { default: "Kunci terbitan", en: "Lock the release" },
+  "studio.langkah.terbitkan.judul": { default: "Terbitkan", en: "Publish" },
+  "studio.langkah.terbitkan.arti": { default: "Setelah terbit, guru dapat menugaskannya ke kelas.", en: "Once published, teachers can assign it to a class." },
+  "studio.langkah.terbitkan.tombol": { default: "Terbitkan", en: "Publish" },
+  "studio.langkah.terbit.judul": { default: "Terbit", en: "Published" },
+  "studio.langkah.terbit.sejak": { default: "Terbit sejak", en: "Published since" },
+  "studio.langkah.terbit.nanti": { default: "Kursus ini terbit setelah langkah 7.", en: "This course is published after step 7." },
+  "studio.langkah.ditarik.judul": { default: "Ditarik", en: "Withdrawn" },
+  "studio.langkah.ditarik.arti": { default: "Terbitan ini sudah ditarik dari peredaran. Untuk memperbaikinya, buat salinan kursus di bawah.", en: "This release has been withdrawn from circulation. To correct it, make a copy of the course below." },
+  "studio.langkah.tarik.alasan": { default: "Alasan penarikan", en: "Reason for withdrawal" },
+  "studio.paket.periksa_isi": { default: "Periksa isi sekarang", en: "Check the content now" },
+  "studio.paket.periksa_isi_arti": { default: "PINTAR memeriksa pelajaran dan soalnya. Temuannya muncul di sini; langkah Kunci terbitan memeriksa sekali lagi.", en: "PINTAR checks the lessons and questions. Its findings appear here; the Lock the release step checks once more." },
+  "studio.paket.catatan": { default: "Catatan (boleh kosong)", en: "Note (optional)" },
+  "studio.paket.koreksi_alasan": { default: "Alasan pemindahan", en: "Reason for the move" },
   // WP5B. Bulk intake offers four roles and needs a telling for each; this is
   // the one the configuration surface never had to name, because a learner is
   // not somebody an administrator grants a role to one at a time.

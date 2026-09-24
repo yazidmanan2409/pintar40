@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentLocale } from "@/lib/locale";
+import LangkahTerbit from "@/components/studio/LangkahTerbit";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../../_lib";
 import {
-  acknowledgeFindingAction, advanceContentAction, createReleaseAction, createRevisionAction, freezeReleaseAction,
-  moveReleaseAction, publishReleaseAction, runValidationAction, withdrawReleaseAction,
+  acknowledgeFindingAction, createRevisionAction, moveReleaseAction, runValidationAction,
 } from "../../actions";
 
 /**
@@ -17,6 +18,15 @@ import {
  *
  * Controls are shown by capability, but that is courtesy rather than security:
  * every one of them calls a database path that re-decides the same question.
+ *
+ * DAISY-06, THE TERBIT STEP (audit M11). The lifecycle used to be six buttons
+ * side by side -- "Konfirmasi" three times among them -- with nothing to say
+ * which came first or whose turn it was. It is now one ordered list of seven
+ * named steps (LangkahTerbit, from components/studio/langkah.ts): the current
+ * one marked, the roles that take each beside it, a button only on the
+ * current step and only for a reader who may take it, and the author told
+ * that approving and locking are a second person's. The content check is
+ * "Periksa isi sekarang" beside the findings it writes.
  */
 
 type Params = Promise<{ course: string }>;
@@ -41,7 +51,10 @@ function FindingCard({ f, courseId, kind, showAck }: {
           <input type="hidden" name="course" value={courseId} />
           <input type="hidden" name="finding" value={f.id} />
           <input type="hidden" name="kind" value={kind} />
-          <input className={field} name="catatan" placeholder="catatan" />
+          <label className={label}>
+            <span>{s("studio.paket.catatan")}</span>
+            <input className={field} name="catatan" />
+          </label>
           <button className={button} type="submit">{s("studio.temuan.akui")}</button>
         </form>
       ) : null}
@@ -56,14 +69,16 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
   const { data: course } = await supabase
     .from("courses")
-    .select("id, title, subject, stage, grade_label, institution_id, supersedes_course_id, status")
+    .select("id, title, subject, stage, grade_label, institution_id, supersedes_course_id, status, author_person_id")
     .eq("id", courseId).maybeSingle();
 
   if (!course) {
     return <p className={card}>{s("studio.paket.kosong")}</p>;
   }
 
-  const institutions = await studioInstitutions();
+  const [institutions, locale, { data: saya }] = await Promise.all([
+    studioInstitutions(), currentLocale(), supabase.rpc("current_person_id"),
+  ]);
   const inst = institutions.find((i) => i.id === course.institution_id);
 
   const [{ data: stateRows }, { data: releases }, { data: mcq }, { data: coach }, { data: assignments }] =
@@ -86,6 +101,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
   const banner = outcomeLine(sp.hasil, sp.detail);
   const published = (releases ?? []).filter((r) => r.status === "PUBLISHED");
+  const terakhir = (releases ?? []).at(-1) ?? null;
+  const tersegel = terakhir !== null && !["INGESTED", "STRUCTURED", "VALIDATED", "IN_REVIEW", "APPROVED"].includes(terakhir.status);
   const findings = ((mcq ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
   const coaching = ((coach ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
 
@@ -126,37 +143,28 @@ export default async function Paket({ params, searchParams }: { params: Params; 
               {s("studio.paket.pratinjau")}
             </Link>
           ) : null}
-          {can(inst, "CAN_DRAFT") ? (
-            <form action={runValidationAction}>
-              <input type="hidden" name="course" value={courseId} />
-              <button className={button} type="submit">{s("studio.unggah.konfirmasi")}</button>
-            </form>
-          ) : null}
-          {can(inst, "CAN_DRAFT") ? (
-            <>
-              {["STRUCTURED", "VALIDATED", "IN_REVIEW"].map((to) => (
-                <form action={advanceContentAction} key={to}>
-                  <input type="hidden" name="course" value={courseId} />
-                  <input type="hidden" name="to" value={to} />
-                  <button className={button} type="submit">
-                    {to === "IN_REVIEW" ? s("studio.nav.tinjau") : s("studio.unggah.konfirmasi")}
-                  </button>
-                </form>
-              ))}
-            </>
-          ) : null}
-          {can(inst, "CAN_REVIEW") ? (
-            <form action={advanceContentAction}>
-              <input type="hidden" name="course" value={courseId} />
-              <input type="hidden" name="to" value="APPROVED" />
-              <button className={button} type="submit">{s("studio.paket.setujui")}</button>
-            </form>
-          ) : null}
         </div>
       </section>
 
+      <LangkahTerbit
+        locale={locale}
+        course={courseId}
+        fakta={{ statusKursus: course.status as string, terbitan: terakhir ? { status: terakhir.status as string } : null }}
+        terbitan={terakhir ? { id: terakhir.id as string, status: terakhir.status as string, terbitPada: (terakhir.published_at as string | null) ?? null } : null}
+        kemampuan={inst?.capabilities ?? []}
+        saya={typeof saya === "string" ? saya : null}
+        penyusun={(course.author_person_id as string | null) ?? null}
+      />
+
       <section className="grid gap-2" id="temuan">
         <h3 className="text-lg font-medium">{s("studio.temuan.masalah")}</h3>
+        {can(inst, "CAN_DRAFT") && !tersegel ? (
+          <form action={runValidationAction} className="flex flex-wrap items-center gap-3">
+            <input type="hidden" name="course" value={courseId} />
+            <button className={button} type="submit">{s("studio.paket.periksa_isi")}</button>
+            <span className="text-sm text-ink-2">{s("studio.paket.periksa_isi_arti")}</span>
+          </form>
+        ) : null}
         {findings.length + coaching.length === 0 ? (
           <p className={card}>{s("studio.temuan.kosong")}</p>
         ) : (
@@ -166,58 +174,6 @@ export default async function Paket({ params, searchParams }: { params: Params; 
             ))}
             {coaching.map((f) => (
               <FindingCard key={f.id} f={f} courseId={courseId} kind="COACHING" showAck={can(inst, "CAN_REVIEW")} />
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section className="grid gap-2" id="terbitan">
-        <h3 className="text-lg font-medium">{s("studio.paket.terbitkan")}</h3>
-        <p className="text-sm text-ink-2">{s("studio.paket.terbit_bukan_tugas")}</p>
-        {(releases ?? []).length === 0 ? (
-          <div className={card}>
-            <p>{s("studio.paket.kosong")}</p>
-            {can(inst, "CAN_FREEZE_RELEASE") && course.status === "APPROVED" ? (
-              <form action={createReleaseAction} className="mt-3">
-                <input type="hidden" name="course" value={courseId} />
-                <button className={button} type="submit">{s("studio.paket.buat_terbitan")}</button>
-              </form>
-            ) : null}
-          </div>
-        ) : (
-          <ul className="grid gap-2">
-            {(releases ?? []).map((r) => (
-              <li key={r.id} className={card}>
-                <p className="text-sm text-ink-3">
-                  {r.frozen_at ? `dikunci ${when(r.frozen_at)}` : ""}
-                  {r.published_at ? ` · terbit ${when(r.published_at)}` : ""}
-                </p>
-                <div className="mt-2 flex flex-wrap items-end gap-2">
-                  {can(inst, "CAN_FREEZE_RELEASE") && !r.frozen_at ? (
-                    <form action={freezeReleaseAction} className="grid gap-1">
-                      <input type="hidden" name="course" value={courseId} />
-                      <input type="hidden" name="release" value={r.id} />
-                      <span className="text-xs text-ink-3">{s("studio.paket.kunci_peringatan")}</span>
-                      <button className={button} type="submit">{s("studio.paket.kunci")}</button>
-                    </form>
-                  ) : null}
-                  {can(inst, "CAN_PUBLISH") && r.frozen_at && !r.published_at ? (
-                    <form action={publishReleaseAction}>
-                      <input type="hidden" name="course" value={courseId} />
-                      <input type="hidden" name="release" value={r.id} />
-                      <button className={button} type="submit">{s("studio.paket.terbitkan")}</button>
-                    </form>
-                  ) : null}
-                  {can(inst, "CAN_PUBLISH") && r.status === "PUBLISHED" ? (
-                    <form action={withdrawReleaseAction} className="flex items-end gap-2">
-                      <input type="hidden" name="course" value={courseId} />
-                      <input type="hidden" name="release" value={r.id} />
-                      <input className={field} name="alasan" placeholder="alasan" required />
-                      <button className={button} type="submit">{s("studio.paket.tarik")}</button>
-                    </form>
-                  ) : null}
-                </div>
-              </li>
             ))}
           </ul>
         )}
@@ -250,7 +206,10 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                   ))}
                 </select>
               </label>
-              <input className={field} name="alasan" placeholder="alasan" required />
+              <label className={label}>
+                <span>{s("studio.paket.koreksi_alasan")}</span>
+                <input className={field} name="alasan" required />
+              </label>
               <button className={button} type="submit">{s("studio.paket.tugaskan")}</button>
             </form>
           ))}

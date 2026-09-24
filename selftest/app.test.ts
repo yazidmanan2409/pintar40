@@ -8,7 +8,7 @@
 import { spawnSync } from "node:child_process";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
-import { INTERNAL_WORDS, t } from "../src/lib/hle";
+import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -1981,6 +1981,62 @@ export const appTests: SelfTest[] = [
       return c.verdict(
         "the teacher's Kelas, the head of department's Pimpinan and the school administrator's Pendataan each carry the Studio " +
         "tab; the dean's Pimpinan offers no Studio anywhere, and Studio refuses the dean with its one refusal (D-021)",
+      );
+    },
+  },
+  {
+    id: "DAISY-06-TERBIT-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-06's Terbit step over real HTTP against the seed. The learning-
+      // cycle school's own course ("Pecahan", the original, not a revision) is
+      // read as its school administrator and its head of department: the
+      // package page draws the seven named steps with exactly one current, and
+      // where it stands agrees with the course and its latest release as each
+      // reader's own token reads them. Published, the administrator (CAN_PUBLISH)
+      // is offered a labelled withdrawal and the head of department is not;
+      // nobody is shown a "Konfirmasi". Read only.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const langkah = ["susun", "periksa", "ajukan", "setujui", "buat", "kunci", "terbitkan"];
+      for (const [peran, orang, bolehTarik] of [
+        ["INSTITUTION_ADMIN", PERSONA.cycleAdmin, true],
+        ["HEAD_OF_DEPARTMENT", PERSONA.cycleHod, false],
+      ] as const) {
+        const sesi = await signIn(ctx, orang);
+        const rest = (q: string) => fetch(`${ctx.supabaseUrl}/rest/v1/${q}`, {
+          headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sesi.accessToken}` },
+        }).then((r) => r.json() as Promise<Array<Record<string, string | null>>>).catch(() => []);
+        const kursus = await rest("courses?select=id,status&title=eq.Pecahan&supersedes_course_id=is.null");
+        if (!c.expect(Array.isArray(kursus) && kursus.length === 1, `${peran}: the seeded course could not be read (${JSON.stringify(kursus).slice(0, 120)})`)) continue;
+        const id = kursus[0].id!;
+        const rilis = await rest(`plp_releases?select=status&course_id=eq.${id}&order=created_at.desc&limit=1`);
+        const statusRilis = Array.isArray(rilis) && rilis.length ? rilis[0].status : null;
+        const res = await get(`${base}/studio/paket/${id}`, { headers: { cookie: sesi.cookie } });
+        if (!c.expect(res.status === 200, `${peran} /studio/paket → ${res.status}`)) continue;
+        const html = await res.text();
+        const a = html.indexOf('class="pin-lt"');
+        const b = html.indexOf("</section>", a);
+        const bagian = a >= 0 && b > a ? html.slice(a, b) : "";
+        if (!c.expect(bagian.length > 0, `${peran}: the package page has no steps to publication`)) continue;
+        const judul = [...bagian.matchAll(/<p class="pin-lt-judul">([^<]+)</g)].map((m) => m[1]);
+        c.expect(judul.length === 8 && JSON.stringify(judul.slice(0, 7)) === JSON.stringify(langkah.map((k) => t(`studio.langkah.${k}.judul` as HleEvent, "staff"))),
+          `${peran}: the steps read ${JSON.stringify(judul)}`);
+        c.expect((bagian.match(/aria-current="step"/g) ?? []).length === 1, `${peran}: not exactly one step is current`);
+        const terbit = statusRilis === "PUBLISHED";
+        c.expect(terbit === /pin-lt-akhir pin-lt-selesai" aria-current="step"/.test(bagian),
+          `${peran}: the release is ${statusRilis ?? "absent"} but the list ${terbit ? "does not end" : "ends"} at Terbit`);
+        if (terbit) {
+          const tarik = bagian.includes(`<span class="pin-meta">${t("studio.langkah.tarik.alasan", "staff")}</span>`);
+          c.expect(tarik === bolehTarik, `${peran}: ${tarik ? "is" : "is not"} offered the withdrawal`);
+        }
+        c.expect(!visibleText(html).includes(t("studio.unggah.konfirmasi", "staff")), `${peran}: the package page still says "Konfirmasi"`);
+        c.note(`${peran}: release ${statusRilis ?? "none"}`);
+      }
+      return c.verdict(
+        "the seeded course's package page draws the seven named steps with exactly one current, standing where its course and " +
+        "latest release stand for each reader; published, the school administrator is offered a labelled withdrawal and the " +
+        "head of department is not, and no Konfirmasi is left on the page",
       );
     },
   },
