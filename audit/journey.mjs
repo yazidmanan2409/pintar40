@@ -636,6 +636,121 @@ await step("S16", "Head of department: sees reports on /pimpinan", async (rec) =
 });
 
 // ── Public and anonymous probes (checklist PUB-02, PUB-04, U-LOC) ─────────────
+// ───────────────────────────── D-005 end to end: the real chapter from Studio to a learner
+// S17 takes S15c's SD 5 Bab 1 through the package page's seven steps (DAISY-06's Terbit step)
+// with two people, as the four-eyes rule wants: Gladys, its author, puts it together, checks it
+// and sends it for review; the school admin approves it, creates the release and locks it;
+// Gladys publishes. S18: the teacher assigns it to Kelas 1A on Siapkan (BOB-04's
+// assign_release, both tests with it). S19: the student opens it and reaches the pre-test.
+const TERBIT = [
+  ["susun", "Tandai sudah tersusun", "g"], ["periksa", "Tandai lolos pemeriksaan", "g"],
+  ["ajukan", "Ajukan untuk ditinjau", "g"], ["setujui", "Setujui isi", "a"],
+  ["buat", "Buat terbitan", "a"], ["kunci", "Kunci terbitan", "a"], ["terbitkan", "Terbitkan", "g"],
+];
+const babSatu = () => sql(`select id from public.courses where institution_id='${ids.sd}' and title like 'Matematika Kelas 5%' order by created_at desc limit 1`).trim();
+const keadaanBab = (c) => sql(`select c.status || '|' || coalesce((select r.status::text from public.plp_releases r where r.course_id = c.id order by r.created_at desc limit 1), '-') from public.courses c where c.id='${c}'`).trim();
+let terbitBab = false;
+
+await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps (DAISY-06, BOB-03)", async (rec) => {
+  const course = babSatu();
+  if (!course) { rec.verdict = "BLOCKED"; return "S15c left no Bab 1 course"; }
+  await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  if (!(await g.getByRole("button", { name: TERBIT[0][1] }).count()) && !/Langkah menuju terbit/i.test(await bodyText(g))) {
+    rec.verdict = "NOTE"; return `this candidate has no Langkah menuju terbit on the package page (state ${keadaanBab(course)})`;
+  }
+  const notes = [`start ${keadaanBab(course)}`];
+  for (const [kunci, tombol, siapa] of TERBIT) {
+    const page = siapa === "g" ? g : a;
+    await page.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+    const btn = page.getByRole("button", { name: tombol, exact: true });
+    if (!(await btn.count())) {
+      rec.shots.push(await shot(page, `terbit-${kunci}-tanpa-tombol`));
+      // the author must NOT be offered a second person's step: record whether she is
+      const penulisDitawari = siapa === "a" ? await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" })
+        .then(() => g.getByRole("button", { name: tombol, exact: true }).count()) : null;
+      notes.push(`${kunci}: no "${tombol}" button for ${siapa === "g" ? "Gladys" : "the school admin"}${penulisDitawari !== null ? ` (the author is offered it: ${penulisDitawari > 0})` : ""}; state ${keadaanBab(course)}; page: ${(await bodyText(page)).slice(0, 200)}`);
+      rec.verdict = "FAIL"; return notes.join("; ");
+    }
+    if (siapa === "a" && ["setujui", "kunci"].includes(kunci)) {
+      await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+      const own = await g.getByRole("button", { name: tombol, exact: true }).count();
+      if (own) notes.push(`!! the author is offered "${tombol}"`);
+      if (own) rec.verdict = "FAIL";
+    }
+    const before = keadaanBab(course);
+    await btn.first().click();
+    let after = before;
+    for (let i = 0; i < 40 && after === before; i++) { await page.waitForTimeout(500); after = keadaanBab(course); }
+    await page.waitForLoadState("networkidle");
+    rec.shots.push(await shot(page, `terbit-${kunci}`));
+    if (after === before) {
+      notes.push(`${kunci}: pressed, nothing moved (${after}); page: ${(await bodyText(page)).slice(0, 260)}`);
+      rec.verdict = "FAIL"; return notes.join("; ");
+    }
+    notes.push(`${kunci} → ${after}`);
+  }
+  terbitBab = keadaanBab(course).endsWith("|PUBLISHED");
+  const tests = sql(`select coalesce(string_agg(mode::text, ',' order by mode::text), '-') from public.assessment_definitions where course_id='${course}'`).trim();
+  notes.push(`published: ${terbitBab}; its tests: ${tests}`);
+  if (!terbitBab) rec.verdict = "FAIL";
+  return notes.join("; ");
+});
+
+await step("S18", "the teacher assigns the published Bab 1 to Kelas 1A (Siapkan → Sediakan, BOB-04)", async (rec) => {
+  if (!terbitBab) { rec.verdict = "BLOCKED"; return "S17 did not publish Bab 1"; }
+  const course = babSatu();
+  const kelas = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1A' and is_active limit 1`).trim();
+  const tc = await ctx();
+  const t = await tc.newPage();
+  await magicSignIn(t, people.guru.email);
+  await t.goto(`${APP}/mengajar/${kelas}/siapkan`, { waitUntil: "networkidle" });
+  rec.shots.push(await shot(t, "siapkan-pilih"));
+  const row = t.locator("a.pin-row").filter({ hasText: "Matematika Kelas 5" }).first();
+  if (!(await row.count())) { rec.verdict = "FAIL"; return `Siapkan does not offer Bab 1; page: ${(await bodyText(t)).slice(0, 260)}`; }
+  await row.click();
+  await t.waitForLoadState("networkidle");
+  const sampai = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+  await t.locator("#pin-sampai").fill(sampai).catch(() => {});
+  rec.shots.push(await shot(t, "siapkan-tinjau"));
+  await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  await t.waitForLoadState("networkidle");
+  await t.waitForTimeout(1500);
+  rec.shots.push(await shot(t, "siapkan-hasil"));
+  const u = new URL(t.url());
+  const la = sql(`select count(*) from public.learning_assignments where course_id='${course}'`).trim();
+  const aa = sql(`select coalesce(string_agg(d.mode::text || ':' || aa.status::text, ',' order by d.mode::text), '-')
+    from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id where d.course_id='${course}'`).trim();
+  if (Number(la) < 1 || !/PRE_TEST/.test(aa) || !/POST_TEST/.test(aa)) rec.verdict = "FAIL";
+  await tc.close();
+  return `after Sediakan: ${u.pathname}${u.searchParams.get("kode") ? ` kode=${u.searchParams.get("kode")}` : ""}; learning assignments ${la}; assessment assignments ${aa}`;
+});
+
+await step("S19", "the student finds Bab 1 and reaches its pre-test (B4)", async (rec) => {
+  if (!card || !terbitBab) { rec.verdict = "BLOCKED"; return !card ? "no card" : "Bab 1 was not published"; }
+  const sc = await ctx();
+  const s = await sc.newPage();
+  await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+  await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+  await s.locator("#kartu").fill(card.number);
+  await s.locator("#pin").fill(card.pin);
+  await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+  await s.waitForTimeout(4000);
+  await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+  rec.shots.push(await shot(s, "murid-belajar-bab1"));
+  const home = await bodyText(s);
+  const tugas = sql(`select id from public.learning_assignments where course_id='${babSatu()}' order by created_at desc limit 1`).trim();
+  const listed = /Matematika Kelas 5|Bilangan Cacah/.test(home);
+  const href = tugas ? await s.locator(`a[href^="/belajar/${tugas}"]`).first().getAttribute("href").catch(() => null) : null;
+  if (!tugas || !listed || !href) { rec.verdict = "FAIL"; await sc.close(); return `Bab 1 on /belajar: named ${listed}, linked ${Boolean(href)}; page: ${home.slice(0, 260)}`; }
+  const res = await s.goto(`${APP}/belajar/${tugas}/pemetaan`, { waitUntil: "networkidle" });
+  rec.shots.push(await shot(s, "murid-pemetaan"));
+  const txt = await bodyText(s);
+  const notFound = res?.status() === 404 || /Halaman ini tidak ada/.test(txt);
+  if (notFound) rec.verdict = "FAIL";
+  await sc.close();
+  return `/belajar offers ${href}; /belajar/${tugas}/pemetaan → HTTP ${res?.status()}: ${txt.slice(0, 240)}`;
+});
+
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
   const tok = `acak${Date.now()}`;
   const api = await fetch(`${APP}/api/verifikasi/${tok}`, { redirect: "manual" });
