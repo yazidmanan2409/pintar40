@@ -8,6 +8,10 @@ import {
   bukuKerjaKePaket, kodeGalatPaket,
   type HasilPaket, type HitunganPaket, type KodePaket, type MasalahPaket, type MediaPaket,
 } from "@/lib/unggah-kontrak";
+import {
+  kodeGalatTerbitan, kunciKodeTerbitan, type HasilTerbitan, type KesiapanTerbit,
+} from "@/lib/terbitan-kontrak";
+import { s } from "./_lib";
 
 /**
  * Studio actions (FABLE-05).
@@ -120,47 +124,118 @@ export async function acknowledgeFindingAction(fd: FormData): Promise<void> {
   back(`/studio/paket/${course}`, "temuan", { ok: !error, detail: detailOf(error) });
 }
 
+// ---------------------------------------------------------------- releases
+//
+// BOB-03. Every step is one database function (create_release,
+// freeze_release, publish_release, withdraw_release); the database decides
+// who may take it, from which state, and refuses with a PR040 code. Nothing
+// here writes plp_releases itself.
+
+function gagalTerbitan(fn: string, error: { code?: string | null; details?: string | null; message?: string } | null,
+                       release?: string): HasilTerbitan {
+  const code = kodeGalatTerbitan(error);
+  if (code !== "RELEASE_FAILED") return { ok: false, code, release };
+  const ref = Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "0");
+  console.error(`[terbitan ${ref}] ${fn} failed`, error?.code, error?.message);
+  return { ok: false, code, release, ref };
+}
+
+async function buatTerbitan(course: string | null): Promise<HasilTerbitan> {
+  if (!course) return { ok: false, code: "RELEASE_INPUT_INVALID" };
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.rpc("create_release", { p_course: course });
+  if (error || !data) return gagalTerbitan("create_release", error);
+  const r = data as { release: string; version_label: string };
+  revalidatePath("/studio", "layout");
+  return { ok: true, release: r.release, status: "INGESTED", versi: r.version_label };
+}
+
+async function kunciTerbitan(release: string | null): Promise<HasilTerbitan> {
+  if (!release) return { ok: false, code: "RELEASE_INPUT_INVALID" };
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.rpc("freeze_release", { p_release: release });
+  if (error || !data) return gagalTerbitan("freeze_release", error, release);
+  const r = data as { ok: boolean; readiness: KesiapanTerbit; blockers: string[] | null };
+  revalidatePath("/studio", "layout");
+  // a blocked course is not sealed: the result carries why, and the findings
+  // the validators just wrote are on the package page
+  if (!r.ok) return { ok: false, code: "RELEASE_NOT_READY", release, kesiapan: r.readiness, hambatan: r.blockers ?? [] };
+  return { ok: true, release, status: "FROZEN", kesiapan: r.readiness, hambatan: r.blockers ?? [] };
+}
+
+async function terbitkan(release: string | null): Promise<HasilTerbitan> {
+  if (!release) return { ok: false, code: "RELEASE_INPUT_INVALID" };
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("publish_release", { p_release: release });
+  if (error) return gagalTerbitan("publish_release", error, release);
+  revalidatePath("/studio", "layout");
+  revalidatePath("/mengajar", "layout");
+  return { ok: true, release, status: "PUBLISHED" };
+}
+
+async function tarikTerbitan(release: string | null, alasan: string): Promise<HasilTerbitan> {
+  if (!release) return { ok: false, code: "RELEASE_INPUT_INVALID" };
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("withdraw_release", { p_release: release, p_reason: alasan });
+  if (error) return gagalTerbitan("withdraw_release", error, release);
+  revalidatePath("/studio", "layout");
+  revalidatePath("/mengajar", "layout");
+  return { ok: true, release, status: "SUPERSEDED" };
+}
+
+/** A result, as the calm line today's page shows: the code's sentence, never the database's words. */
+function ringkasTerbitan(h: HasilTerbitan): string | undefined {
+  if (h.ok) return undefined;
+  return [s(kunciKodeTerbitan(h.code)), ...(h.hambatan ?? []).slice(0, 3), h.ref].filter(Boolean).join(" · ");
+}
+
+export async function createReleaseAction(fd: FormData): Promise<void> {
+  const course = uuidOrNull(str(fd, "course"));
+  const h = await buatTerbitan(course);
+  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", { ok: h.ok, detail: ringkasTerbitan(h) });
+}
+
 export async function freezeReleaseAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
-  const release = uuidOrNull(str(fd, "release"));
-  if (!course || !release) back("/studio", "paket", { ok: false, detail: "terbitan tidak dikenali" });
-  const supabase = await supabaseServer();
-  for (const to of ["STRUCTURED", "VALIDATED", "IN_REVIEW", "APPROVED", "FROZEN"]) {
-    const { data: current } = await supabase.from("plp_releases").select("status").eq("id", release).maybeSingle();
-    if (!current) break;
-    const order = ["INGESTED", "STRUCTURED", "VALIDATED", "IN_REVIEW", "APPROVED", "FROZEN", "PUBLISHED", "SUPERSEDED"];
-    if (order.indexOf(current.status as string) >= order.indexOf(to)) continue;
-    const { data: me } = await supabase.rpc("current_person_id");
-    const patch: Record<string, unknown> = { status: to };
-    if (to === "APPROVED") patch.reviewed_by_person_id = me;
-    const { data: changed, error } = await supabase.from("plp_releases").update(patch).eq("id", release).select("id");
-    if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
-    if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
-  }
-  // read back the one fact the author asked for, rather than inferring it
-  const { data: after } = await supabase.from("plp_releases").select("status").eq("id", release).maybeSingle();
-  if (after?.status !== "FROZEN") back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
-  back(`/studio/paket/${course}`, "paket", { ok: true });
+  const h = await kunciTerbitan(uuidOrNull(str(fd, "release")));
+  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", { ok: h.ok, detail: ringkasTerbitan(h) });
 }
 
 export async function publishReleaseAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
-  const release = uuidOrNull(str(fd, "release"));
-  if (!course || !release) back("/studio", "paket", { ok: false, detail: "terbitan tidak dikenali" });
-  const supabase = await supabaseServer();
-  const { error } = await supabase.rpc("publish_release", { p_release: release });
-  back(`/studio/paket/${course}`, "paket", { ok: !error, detail: detailOf(error) });
+  const h = await terbitkan(uuidOrNull(str(fd, "release")));
+  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", { ok: h.ok, detail: ringkasTerbitan(h) });
 }
 
 export async function withdrawReleaseAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
-  const release = uuidOrNull(str(fd, "release"));
-  if (!course || !release) back("/studio", "paket", { ok: false, detail: "terbitan tidak dikenali" });
-  const supabase = await supabaseServer();
-  const { error } = await supabase.rpc("withdraw_release", {
-    p_release: release, p_reason: str(fd, "alasan"),
-  });
-  back(`/studio/paket/${course}`, "paket", { ok: !error, detail: detailOf(error) });
+  const h = await tarikTerbitan(uuidOrNull(str(fd, "release")), str(fd, "alasan"));
+  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", { ok: h.ok, detail: ringkasTerbitan(h) });
+}
+
+/**
+ * THE TYPED CONTRACT (DAISY-06; src/lib/terbitan-kontrak.ts, LANGKAH_TERBITAN).
+ * Each takes (prev, FormData) and resolves to a HasilTerbitan.
+ *
+ *   buatTerbitanAksi   course            APPROVED course → release INGESTED
+ *   kunciTerbitanAksi  release           → FROZEN, or RELEASE_NOT_READY with blockers
+ *   terbitkanAksi      release           FROZEN → PUBLISHED (READY only)
+ *   tarikTerbitanAksi  release, alasan   PUBLISHED → SUPERSEDED
+ */
+export async function buatTerbitanAksi(_prev: HasilTerbitan | null, fd: FormData): Promise<HasilTerbitan> {
+  return buatTerbitan(uuidOrNull(str(fd, "course")));
+}
+
+export async function kunciTerbitanAksi(_prev: HasilTerbitan | null, fd: FormData): Promise<HasilTerbitan> {
+  return kunciTerbitan(uuidOrNull(str(fd, "release")));
+}
+
+export async function terbitkanAksi(_prev: HasilTerbitan | null, fd: FormData): Promise<HasilTerbitan> {
+  return terbitkan(uuidOrNull(str(fd, "release")));
+}
+
+export async function tarikTerbitanAksi(_prev: HasilTerbitan | null, fd: FormData): Promise<HasilTerbitan> {
+  return tarikTerbitan(uuidOrNull(str(fd, "release")), str(fd, "alasan"));
 }
 
 export async function createRevisionAction(fd: FormData): Promise<void> {

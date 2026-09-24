@@ -1256,6 +1256,12 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 115 -> 116 for BOB-04, a lesson is assigned whole (D-008).
+      // 20261010100000 adds the assign function, replaces the materialiser, the
+      // draw and my_cycle_state; no column, colour or brand surface.
+      // MOVED 114 -> 115 for BOB-03, a course is released (audit B3).
+      // 20261009100000 adds release functions and codes; no column, colour or
+      // brand surface.
       // MOVED 113 -> 114 for BOB-14, lesson content is not public (D-032).
       // 20261008100000 revokes a view and restates the schema lint; it adds no
       // column, colour or brand surface.
@@ -1403,7 +1409,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 114, `${migrations.length} migrations; the frozen baseline has 114`);
+      c.expect(migrations.length === 116, `${migrations.length} migrations; the frozen baseline has 116`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2194,9 +2200,19 @@ export const experienceTests: SelfTest[] = [
 
       // Making material available is born inert and becomes visible in a second,
       // separately authorized statement — which is what makes a review possible.
-      c.expect(/\.insert\(\{[\s\S]*?\}\)/.test(aksi), "materialising an assignment does not insert a row");
-      c.expect(!/status:\s*"ACTIVE"[\s\S]*?\.insert\(/.test(aksi), "an assignment is inserted already active");
-      c.expect(/\.update\(\{ status: "ACTIVE" \}\)/.test(aksi), "the assignment is never activated in its own statement");
+      // RESTATED BY BOB-04 (D-008): the commitment moved into assign_release,
+      // which makes the learning assignment and both tests of the cycle in one
+      // transaction. The property is unchanged and is read where it now lives:
+      // the action calls that one function, and the function inserts the
+      // assignment without a status (DRAFT) and activates it in its own UPDATE.
+      c.expect(/rpc\("assign_release",/.test(aksi), "making material available does not go through assign_release");
+      c.expect(!/from\("learning_assignments"\)/.test(aksi), "the educator action writes learning_assignments itself");
+      const penugasan = readFileSync(join(repoRoot, "supabase", "migrations", "20261010100000_a_lesson_is_assigned_whole.sql"), "utf8");
+      const assign = /create function public\.assign_release[\s\S]*?end \$\$;/.exec(penugasan)?.[0] ?? "";
+      const lahir = /insert into public\.learning_assignments \(([^)]*)\)/.exec(assign)?.[1] ?? "";
+      c.expect(lahir !== "" && !/\bstatus\b/.test(lahir), "materialising an assignment does not insert a row born at DRAFT");
+      c.expect(/update public\.learning_assignments set status = 'ACTIVE' where id = v_la;/.test(assign),
+        "the assignment is never activated in its own statement");
 
       // A redirect target is derived, never taken from the form: the learner
       // side's unvalidated `kembali` is a known finding and is not repeated here.
@@ -3042,7 +3058,9 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 113 -> 114 for BOB-14's revoke of
+      // from, not a claim about the tour. MOVED 115 -> 116 for BOB-04's assign
+      // function (20261010100000), not a tour RPC (D-024). MOVED 114 -> 115 for BOB-03's release
+      // functions (20261009100000), not tour RPCs (D-024). MOVED 113 -> 114 for BOB-14's revoke of
       // the public lesson view (20261008100000), which is not a tour RPC and
       // does not touch person_tour_state (D-024). MOVED 112 -> 113 for BOB-02's lesson
       // workbook import (20261007100000), which is not a tour RPC and does not
@@ -3088,7 +3106,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 114, `${migs.length} migrations; the baseline has 114`);
+      c.expect(migs.length === 116, `${migs.length} migrations; the baseline has 116`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

@@ -89,8 +89,10 @@ begin
     insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, predicted_difficulty)
     values (v_les2, p_school, 'MCQ_SINGLE', 'PRACTICE', 'soal sekolah di pelajaran kanonik', 0.8);
 
+    perform selftest.as_release_writer();  -- D-041
     insert into public.plp_releases (institution_id, course_id, version_label)
     values (v_canon, v_course, '9.9.9') returning id into v_rel;
+    perform selftest.as_signed_in();
   else
     select m.id into v_mod from public.modules m where m.course_id = v_course and m.ordinal = 1;
     select m.id into v_mod2 from public.modules m where m.course_id = v_course and m.ordinal = 2;
@@ -859,10 +861,16 @@ begin
   --     sealing -- doc 08's "publication is not assignment".
   perform selftest.as_user('qac-own-hod@synthetic.pintar.test');
   foreach r in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = r::public.content_status where id = own.rel;
+    perform selftest.as_signed_in();
   end loop;
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = own.rel;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'FROZEN' where id = own.rel;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   if not public.content_is_sealed(own.course) then
     ok := false; detail := detail || 'the course did not seal at FROZEN, so state (b) is not what it claims; ';
@@ -931,7 +939,9 @@ begin
   --     (ADR-0016). A fresh assignment, because the attempt above is spent.
   if s2 is not null then
     perform selftest.as_user('qac-own-admin@synthetic.pintar.test');
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = 'SUPERSEDED' where id = own.rel;
+    perform selftest.as_signed_in();
     perform selftest.as_owner();
     if (select r.status::text from public.plp_releases r where r.id = own.rel) <> 'SUPERSEDED' then
       ok := false; detail := detail || 'the release did not supersede; state (d) proves nothing; ';

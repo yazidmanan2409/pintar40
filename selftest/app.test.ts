@@ -637,8 +637,9 @@ export const appTests: SelfTest[] = [
       let scanned = 0;
       for (const route of routes) {
         const r = await get(`${base}${route}`, { headers, redirect: "follow" });
-        // 404 is a legitimate answer for a step the learner has not reached
-        if (r.status === 404) continue;
+        // 404 is a legitimate answer for a step the learner has not reached --
+        // except the cycle's two tests, which never answer 404 (BOB-04, D-008)
+        if (r.status === 404 && !/\/(pemetaan|penguasaan)$/.test(route)) continue;
         c.expect(r.status === 200, `${route} → ${r.status}`);
         const body = await r.text();
         scanned++;

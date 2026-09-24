@@ -362,6 +362,7 @@ export type HleEvent =
   | "studio.paket.masalah.item_use_unknown"
   | "studio.paket.masalah.item_difficulty_invalid"
   | "studio.paket.masalah.item_parallel_tier_mixed"
+  | "studio.paket.masalah.item_parallel_cycle_mixed"
   | "studio.paket.masalah.item_options_too_few"
   | "studio.paket.masalah.item_options_too_many"
   | "studio.paket.masalah.item_correct_missing"
@@ -381,6 +382,18 @@ export type HleEvent =
   | "studio.paket.kode.package_has_problems"
   | "studio.paket.kode.package_input_invalid"
   | "studio.paket.kode.package_failed"
+  | "studio.terbitan.kode.release_not_allowed"
+  | "studio.terbitan.kode.release_publish_not_allowed"
+  | "studio.terbitan.kode.release_school_not_allowed"
+  | "studio.terbitan.kode.release_course_not_approved"
+  | "studio.terbitan.kode.release_exists"
+  | "studio.terbitan.kode.release_state_invalid"
+  | "studio.terbitan.kode.release_same_person"
+  | "studio.terbitan.kode.release_not_ready"
+  | "studio.terbitan.kode.release_reason_required"
+  | "studio.terbitan.kode.release_input_invalid"
+  | "studio.terbitan.kode.release_failed"
+  | "studio.paket.buat_terbitan"
   | "role.STUDENT"
   | "role.EDUCATOR"
   | "role.HEAD_OF_DEPARTMENT"
@@ -736,6 +749,20 @@ export type HleEvent =
   | "pendataan.keadaan.sisa" | "pendataan.keadaan.berjalan"
   | "pendataan.keadaan.selesai" | "pendataan.keadaan.gagal"
   | "mengajar.kembali"
+  | "mengajar.sedia.kode.assign_not_allowed"
+  | "mengajar.sedia.kode.assign_class_invalid"
+  | "mengajar.sedia.kode.assign_release_not_published"
+  | "mengajar.sedia.kode.assign_window_invalid"
+  | "mengajar.sedia.kode.assign_exists"
+  | "mengajar.sedia.kode.assign_pre_test_missing"
+  | "mengajar.sedia.kode.assign_post_test_missing"
+  | "mengajar.sedia.kode.assign_pre_test_too_short"
+  | "mengajar.sedia.kode.assign_post_test_too_short"
+  | "mengajar.sedia.kode.assign_cycle_overlap"
+  | "mengajar.sedia.kode.assign_input_invalid"
+  | "mengajar.sedia.kode.assign_failed"
+  | "cycle.pemetaan.belum_ada"
+  | "cycle.penguasaan.belum_ada"
   | "mengajar.sapa.pagi"
   | "mengajar.sapa.siang"
   | "mengajar.sapa.sore"
@@ -1744,6 +1771,7 @@ const table: Table = {
   "studio.paket.masalah.item_use_unknown": { default: "Kegunaan soal tidak dikenal.", en: "The question's use is not recognised." },
   "studio.paket.masalah.item_difficulty_invalid": { default: "Tingkat kesulitan tidak dikenal.", en: "The difficulty is not recognised." },
   "studio.paket.masalah.item_parallel_tier_mixed": { default: "Satu kelompok paralel mencampur soal latihan dan soal asesmen.", en: "One parallel group mixes practice and assessment questions." },
+  "studio.paket.masalah.item_parallel_cycle_mixed": { default: "Satu kelompok paralel berisi soal Pemetaan awal sekaligus soal Cek penguasaan. Soal dalam satu kelompok dianggap setara, jadi pisahkan kelompoknya.", en: "One parallel group holds both an Initial Mapping and a Mastery Check question. Questions in one group count as equivalent, so separate the groups." },
   "studio.paket.masalah.item_options_too_few": { default: "Soal ini perlu paling sedikit dua pilihan.", en: "This question needs at least two options." },
   "studio.paket.masalah.item_options_too_many": { default: "Soal ini paling banyak lima pilihan (A sampai E).", en: "This question may have at most five options (A to E)." },
   "studio.paket.masalah.item_correct_missing": { default: "Belum ada pilihan yang ditandai benar.", en: "No option is marked correct." },
@@ -1763,6 +1791,18 @@ const table: Table = {
   "studio.paket.kode.package_has_problems": { default: "Paket ini belum bisa diterima. Perbaiki baris yang disebut lalu unggah lagi.", en: "This package cannot be accepted yet. Fix the rows listed and upload again." },
   "studio.paket.kode.package_input_invalid": { default: "Pilih sekolah dan berkasnya dulu.", en: "Choose the school and the file first." },
   "studio.paket.kode.package_failed": { default: "Unggahan belum berhasil. Coba lagi sebentar lagi.", en: "The upload did not go through. Try again in a moment." },
+  "studio.terbitan.kode.release_not_allowed": { default: "Anda tidak berwenang membuat atau mengunci terbitan di sekolah ini.", en: "You are not allowed to create or lock releases in this school." },
+  "studio.terbitan.kode.release_publish_not_allowed": { default: "Anda tidak berwenang menerbitkan atau menarik terbitan di sekolah ini.", en: "You are not allowed to publish or withdraw releases in this school." },
+  "studio.terbitan.kode.release_school_not_allowed": { default: "Terbitan dibuat dari kursus sekolah, bukan dari pustaka nasional.", en: "A release is made from a school's course, not from the national library." },
+  "studio.terbitan.kode.release_course_not_approved": { default: "Kursus ini belum disetujui. Terbitan dibuat dari kursus yang sudah disetujui.", en: "This course has not been approved yet. A release is made from an approved course." },
+  "studio.terbitan.kode.release_exists": { default: "Kursus ini sudah punya terbitan. Untuk koreksi, buat revisi kursus.", en: "This course already has a release. To correct it, create a revision of the course." },
+  "studio.terbitan.kode.release_state_invalid": { default: "Terbitan ini sudah melewati langkah tersebut.", en: "This release is already past that step." },
+  "studio.terbitan.kode.release_same_person": { default: "Penyusun kursus tidak bisa mengunci terbitannya sendiri. Minta rekan yang lain.", en: "The author of a course cannot lock its own release. Ask a colleague." },
+  "studio.terbitan.kode.release_not_ready": { default: "Kursus ini belum siap terbit. Selesaikan temuan yang tercantum di halaman ini.", en: "This course is not ready to publish. Resolve the findings listed on this page." },
+  "studio.terbitan.kode.release_reason_required": { default: "Tuliskan alasan penarikan.", en: "Write the reason for the withdrawal." },
+  "studio.terbitan.kode.release_input_invalid": { default: "Terbitan atau kursus tidak dikenali.", en: "The release or course was not recognised." },
+  "studio.terbitan.kode.release_failed": { default: "Langkah ini belum berhasil. Coba lagi sebentar lagi.", en: "This step did not go through. Try again in a moment." },
+  "studio.paket.buat_terbitan": { default: "Buat terbitan", en: "Create release" },
   // WP5B. Bulk intake offers four roles and needs a telling for each; this is
   // the one the configuration surface never had to name, because a learner is
   // not somebody an administrator grants a role to one at a time.
@@ -2371,6 +2411,20 @@ const table: Table = {
   "umpanbalik.buka.subjek_sendiri": { default: "Putaran tentang pengajaran Anda sendiri dimulai oleh orang lain.", en: "A round about your own teaching is started by somebody else." },
   "umpanbalik.buka.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
   "mengajar.kembali": { default: "Kelas", en: "Classes" },
+  "mengajar.sedia.kode.assign_not_allowed": { default: "Anda tidak berwenang menyediakan materi untuk kelas ini.", en: "You are not allowed to make material available to this class." },
+  "mengajar.sedia.kode.assign_class_invalid": { default: "Kelas ini tidak aktif atau belum punya tahun ajaran.", en: "This class is inactive or has no academic year." },
+  "mengajar.sedia.kode.assign_release_not_published": { default: "Materi ini belum terbit, jadi belum bisa disediakan.", en: "This material is not published yet, so it cannot be made available." },
+  "mengajar.sedia.kode.assign_window_invalid": { default: "Tanggal selesai harus sesudah tanggal mulai.", en: "The end date must be after the start date." },
+  "mengajar.sedia.kode.assign_exists": { default: "Materi ini sudah disediakan untuk kelas ini.", en: "This material is already available to this class." },
+  "mengajar.sedia.kode.assign_pre_test_missing": { default: "Materi ini belum punya Pemetaan awal. Tandai soal Pemetaan awal lalu terbitkan ulang.", en: "This material has no Initial Mapping yet. Mark Initial Mapping questions and publish again." },
+  "mengajar.sedia.kode.assign_post_test_missing": { default: "Materi ini belum punya Cek penguasaan. Tandai soal Cek penguasaan lalu terbitkan ulang.", en: "This material has no Mastery Check yet. Mark Mastery Check questions and publish again." },
+  "mengajar.sedia.kode.assign_pre_test_too_short": { default: "Soal Pemetaan awal di materi ini kurang dari yang diminta.", en: "This material has fewer Initial Mapping questions than it asks for." },
+  "mengajar.sedia.kode.assign_post_test_too_short": { default: "Soal Cek penguasaan di materi ini kurang dari yang diminta.", en: "This material has fewer Mastery Check questions than it asks for." },
+  "mengajar.sedia.kode.assign_cycle_overlap": { default: "Soal Cek penguasaan berada di kelompok paralel yang sama dengan soal Pemetaan awal, sehingga tidak bisa dipakai. Pisahkan kelompoknya lalu terbitkan ulang.", en: "The Mastery Check questions share a parallel group with the Initial Mapping questions, so they cannot be used. Separate the groups and publish again." },
+  "mengajar.sedia.kode.assign_input_invalid": { default: "Kelas atau materi tidak dikenali.", en: "The class or material was not recognised." },
+  "mengajar.sedia.kode.assign_failed": { default: "Materi belum berhasil disediakan. Coba lagi sebentar lagi.", en: "The material could not be made available. Try again in a moment." },
+  "cycle.pemetaan.belum_ada": { default: "Pemetaan awal untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Initial Mapping for this lesson is not ready yet. Ask the teacher." },
+  "cycle.penguasaan.belum_ada": { default: "Cek penguasaan untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Mastery Check for this lesson is not ready yet. Ask the teacher." },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },
   "mengajar.sapa.sore": { default: "Selamat sore", en: "Good evening" },

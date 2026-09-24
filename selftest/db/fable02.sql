@@ -473,8 +473,12 @@ begin
   update public.plp_releases set status = 'VALIDATED'  where id = v_release;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'FROZEN'     where id = v_release;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   select content_sha256, frozen_at into v_sha, v_frozen from public.plp_releases where id = v_release;
   if v_sha is distinct from h1 then
@@ -530,23 +534,29 @@ begin
 
   perform selftest.as_user('alpha-guru@synthetic.pintar.test');
   begin
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = 'PUBLISHED' where id = v_release;
     get diagnostics n = row_count;
+    perform selftest.as_signed_in();
     if n > 0 then ok := false; detail := detail || 'an EDUCATOR published; '; end if;
     if n = 0 then ok := false; detail := detail || 'the EDUCATOR could not see the release at all; '; end if;
   exception when others then null; end;
 
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
   begin
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = 'PUBLISHED' where id = v_release;
     get diagnostics n = row_count;
+    perform selftest.as_signed_in();
     if n > 0 then ok := false; detail := detail || 'a HEAD_OF_DEPARTMENT published without CAN_PUBLISH; '; end if;
     if n = 0 then ok := false; detail := detail || 'the HEAD_OF_DEPARTMENT could not see the release at all; '; end if;
   exception when others then null; end;
 
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'PUBLISHED' where id = v_release;
   get diagnostics n = row_count;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   if n <> 1 then ok := false; detail := detail || 'the CAN_PUBLISH holder could not publish; '; end if;
   select published_at, content_sha256 into v_published, v_sha2 from public.plp_releases where id = v_release;
@@ -570,7 +580,9 @@ begin
   update public.plp_releases set status = 'VALIDATED'  where id = v_release;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
 
   begin
@@ -580,20 +592,26 @@ begin
 
   perform selftest.as_user('alpha-guru@synthetic.pintar.test');
   begin
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = 'FROZEN' where id = v_release;
     get diagnostics n = row_count;
+    perform selftest.as_signed_in();
     if n > 0 then ok := false; detail := detail || 'an EDUCATOR sealed content without CAN_FREEZE_RELEASE; '; end if;
     if n = 0 then ok := false; detail := detail || 'the EDUCATOR could not see the release at all; '; end if;
   exception when others then null; end;
 
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'FROZEN' where id = v_release;
   get diagnostics n = row_count;
+  perform selftest.as_signed_in();
   if n <> 1 then ok := false; detail := detail || 'the CAN_FREEZE_RELEASE holder could not seal; '; end if;
   -- the same caller holds CAN_FREEZE_RELEASE but not CAN_PUBLISH
   begin
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = 'PUBLISHED' where id = v_release;
     get diagnostics n = row_count;
+    perform selftest.as_signed_in();
     if n > 0 then ok := false; detail := detail || 'the sealing role also published; '; end if;
   exception when others then null; end;
   perform selftest.as_owner();
@@ -624,7 +642,9 @@ begin
   update public.plp_releases set status = 'VALIDATED'  where id = v_release;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_release;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_release;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
 
   -- the EDUCATOR of institution A is legitimately made HEAD_OF_DEPARTMENT in
@@ -638,13 +658,17 @@ begin
 
   perform selftest.as_user('alpha-guru@synthetic.pintar.test');
   begin
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set institution_id = v_beta, status = 'FROZEN' where id = v_release;
     get diagnostics n = row_count;
+    perform selftest.as_signed_in();
     if n > 0 then ok := false; detail := detail || 'a release was carried into another institution and sealed there; '; end if;
   exception when others then null; end;
   begin
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set institution_id = v_beta where id = v_release;
     get diagnostics n = row_count;
+    perform selftest.as_signed_in();
     if n > 0 then ok := false; detail := detail || 'a release changed institution; '; end if;
   exception when others then null; end;
   begin
@@ -1149,14 +1173,20 @@ begin
   update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'FROZEN' where id = v_rel3;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   -- FROZEN is sealed but not yet available
   select count(*) into n from public.published_lessons where id = v_les2;
   if n <> 0 then ok := false; detail := detail || 'a FROZEN release made a lesson public; '; end if;
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'PUBLISHED' where id = v_rel3;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   select count(*) into n from public.published_lessons where id = v_les2;
   if n <> 1 then ok := false; detail := detail || 'a PUBLISHED release did not make the lesson public; '; end if;
@@ -1241,12 +1271,18 @@ begin
   update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'FROZEN' where id = v_rel3;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
   begin
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = 'PUBLISHED' where id = v_rel3;
+    perform selftest.as_signed_in();
     ok := false; detail := detail || 'a BLOCKED course was published; ';
   exception when others then null; end;
   perform selftest.as_owner();
@@ -1274,12 +1310,18 @@ begin
   update public.plp_releases set status = 'VALIDATED'  where id = v_rel3;
   update public.plp_releases set status = 'IN_REVIEW'  where id = v_rel3;
   perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_hod where id = v_rel3;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'FROZEN' where id = v_rel3;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'PUBLISHED' where id = v_rel3;
   get diagnostics n = row_count;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   if n <> 1 then ok := false; detail := detail || 'a READY course could not be published; '; end if;
   test_id := 'F02-T19'; invariant := 'INV-35';
