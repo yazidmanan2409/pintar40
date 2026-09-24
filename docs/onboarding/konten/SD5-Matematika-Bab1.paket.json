@@ -44,7 +44,6 @@
          "stem": "Bagaimana cara membaca 6.375?",
          "use": "PRE_TEST",
          "difficulty": "0.3",
-         "parallel_group": "membaca",
          "options": [
           {
            "_row": {
@@ -98,7 +97,6 @@
          "stem": "Pada bilangan 8.456, angka 4 menempati nilai tempat ...",
          "use": "PRE_TEST",
          "difficulty": "0.3",
-         "parallel_group": "nilai tempat",
          "options": [
           {
            "_row": {
@@ -152,7 +150,6 @@
          "stem": "Bagaimana cara membaca 84.216?",
          "use": "POST_TEST",
          "difficulty": "0.3",
-         "parallel_group": "membaca",
          "options": [
           {
            "_row": {
@@ -206,7 +203,6 @@
          "stem": "Angka 7 pada bilangan 57.689 menempati nilai tempat ...",
          "use": "POST_TEST",
          "difficulty": "0.3",
-         "parallel_group": "nilai tempat",
          "options": [
           {
            "_row": {
@@ -487,7 +483,6 @@
          "stem": "Tanda yang tepat untuk 4.587 ... 4.857 adalah ...",
          "use": "PRE_TEST",
          "difficulty": "0.3",
-         "parallel_group": "membandingkan",
          "options": [
           {
            "_row": {
@@ -541,7 +536,6 @@
          "stem": "Tanda yang tepat untuk 36.954 ... 63.495 adalah ...",
          "use": "POST_TEST",
          "difficulty": "0.5",
-         "parallel_group": "membandingkan",
          "options": [
           {
            "_row": {
@@ -1047,7 +1041,6 @@
          "stem": "5.468 + 2.375 = ...",
          "use": "PRE_TEST",
          "difficulty": "0.3",
-         "parallel_group": "penjumlahan",
          "options": [
           {
            "_row": {
@@ -1101,7 +1094,6 @@
          "stem": "42.458 + 35.687 = ...",
          "use": "POST_TEST",
          "difficulty": "0.5",
-         "parallel_group": "penjumlahan",
          "options": [
           {
            "_row": {
