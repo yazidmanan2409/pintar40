@@ -73,7 +73,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # supabase-js 2.116 needs Node 22's native WebSocket (run 35991569086)
+          node-version: "22"
 
       - name: Tools (the app's own Supabase library versions; Playwright as the audit harness pins it)
         run: |
