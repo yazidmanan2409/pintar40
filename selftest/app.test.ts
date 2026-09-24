@@ -39,6 +39,10 @@ const PERSONA = {
   // here, which is the case worth measuring.
   cycleHod: { email: "siklus-kaprodi@synthetic.pintar.test", password: "Sintetis-SiklusKaprodi-22!" },
   cycleAdmin: { email: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" },
+  // DAISY-05 (audit S7b). The platform administrator, who reads every tenant --
+  // the national library among them -- and so is the reader a school picker
+  // can put in the wrong place.
+  sysadmin: { email: "sysadmin@synthetic.pintar.test", password: "Sintetis-Sys-91!" },
 } as const;
 
 /** Every learner route FABLE-03 adds, for the copy inventory (§9). */
@@ -1794,10 +1798,39 @@ export const appTests: SelfTest[] = [
       }
       c.expect(!teks.includes("Sekolah Dasar") && !teks.includes("SD Reguler"), "the seed's hidden Jenjang or Reguler is on the screen");
       c.expect(!teks.includes(t("config.struktur.konfirmasi.ya", "staff")), "a deactivation can be sent without being asked for first");
+
+      // THE PLATFORM ADMINISTRATOR (audit S7b). They read every tenant, and
+      // the national library's name sorts first, so the section used to open
+      // inside "PINTAR Kurikulum Nasional". It must open on a real school and
+      // never offer the library, whatever the address asks for.
+      const kanon = "PINTAR Kurikulum Nasional";
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      for (const alamat of ["/konfigurasi", "/konfigurasi?sekolah=00000000-0000-0000-0000-000000000000"]) {
+        const r = await get(`${base}${alamat}`, { headers: { cookie: sys.cookie } });
+        c.expect(r.status === 200, `SYSTEM_ADMIN ${alamat} → ${r.status}`);
+        const html = await r.text();
+        const a = html.indexOf('id="struktur"');
+        const b = html.indexOf('id="system"', a);
+        const sec = a >= 0 && b > a ? html.slice(a, b) : "";
+        c.expect(sec.length > 0 && !/role="alert"/.test(sec), `SYSTEM_ADMIN ${alamat}: the structure section is missing or could not be read`);
+        c.expect(!visibleText(sec).includes(kanon), `SYSTEM_ADMIN ${alamat}: the school picker offers or opens the national library`);
+      }
+      // and the library's own id, asked for by address, is not opened either
+      const idKanon = await fetch(`${ctx.supabaseUrl}/rest/v1/institutions?select=id&tenant_kind=eq.PLATFORM_CANONICAL`, {
+        headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sys.accessToken}` },
+      }).then((x) => x.json() as Promise<Array<{ id: string }>>).catch(() => [] as Array<{ id: string }>);
+      if (c.expect(Array.isArray(idKanon) && idKanon.length > 0, "the national library's tenant could not be read, so the check below proves nothing")) {
+        const r = await get(`${base}/konfigurasi?sekolah=${idKanon[0].id}`, { headers: { cookie: sys.cookie } });
+        const html = await r.text();
+        const a = html.indexOf('id="struktur"');
+        const sec = a >= 0 ? html.slice(a, html.indexOf('id="system"', a)) : "";
+        c.expect(sec.length > 0 && !visibleText(sec).includes(kanon), "asking for the national library by address opens it in the structure section");
+      }
       return c.verdict(
         "the school administrator's Konfigurasi opens on their school's structure, read from the database: the seeded Bagian, " +
         "Tingkat and Kelas are drawn with their school years and the way to add each level, the hidden Jenjang and Reguler are not, " +
-        "and nothing can be deactivated without the question",
+        "and nothing can be deactivated without the question. The platform administrator's opens on a real school and never offers " +
+        "or opens the national library, even when its id is asked for by address",
       );
     },
   },

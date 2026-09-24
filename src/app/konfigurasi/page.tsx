@@ -15,6 +15,7 @@ import { peranSaya } from "@/lib/tur-negara";
 import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
 import PanelStruktur from "@/components/struktur/PanelStruktur";
+import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -86,7 +87,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
     { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint }, { data: env },
   ] = await Promise.all([
-    supabase.from("institutions").select("id, name, slug, is_synthetic, is_active").order("name"),
+    supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
     supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active").order("name"),
     supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status").eq("status", "ACTIVE").order("created_at"),
@@ -99,11 +100,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
   ]);
 
-  // DAISY-05. The school whose structure is shown: the one asked for, if the
-  // reader administers it, else their first. Its read starts now and runs
-  // beside the reads below; `school_structure` decides again who may see it.
-  const sekolahKu = (institutions ?? []).filter((i) => isSys || adminInstitutionIds.includes(i.id));
-  const sekolahStruktur = sekolahKu.find((i) => i.id === sp.sekolah) ?? sekolahKu[0] ?? null;
+  // DAISY-05. The school whose structure is shown: an active, real school the
+  // reader administers -- never the national library, whose name sorts first
+  // (audit S7b) -- the one asked for if it is on offer, else the first. Its
+  // read starts now and runs beside the reads below; `school_structure`
+  // decides again who may see it.
+  const sekolahKu = sekolahDitawarkan(institutions ?? [], (id) => isSys === true || adminInstitutionIds.includes(id));
+  const sekolahStruktur = sekolahDipilih(sekolahKu, sp.sekolah);
   const bacaanStruktur = sekolahStruktur ? bacaStruktur(sekolahStruktur.id) : Promise.resolve(null);
 
   // FINAL DELTA 2. The people the three sources above cannot reach: no active
@@ -252,7 +255,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                         key={i.id}
                         href={`?sekolah=${i.id}#struktur`}
                         aria-current={i.id === sekolahStruktur.id ? "page" : undefined}
-                        className={i.id === sekolahStruktur.id ? "font-medium text-ink-1" : tautanTempat}
+                        className={
+                          i.id === sekolahStruktur.id
+                            ? "rounded-[var(--radius-pill)] bg-surface-2 px-3 py-1 font-medium text-ink-1 no-underline"
+                            : tautanTempat
+                        }
                       >
                         {i.name}
                       </a>

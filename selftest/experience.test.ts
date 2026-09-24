@@ -91,6 +91,7 @@ import { tempatDariPeran, daftarTempat, pintuMasuk } from "../src/components/tem
 import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalBaca } from "../src/components/struktur/tampilan";
 import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src/lib/struktur-kontrak";
+import { sekolahDitawarkan, sekolahDipilih, type SekolahBaris } from "../src/components/sekolah";
 import type { DisplayRole } from "../src/lib/auth";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
@@ -8067,8 +8068,45 @@ export const experienceTests: SelfTest[] = [
       const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
       c.expect(/const nav: Array<\[string, string\]> = \[\s*\["struktur"/.test(konfig), "Struktur sekolah is not the first entry in Konfigurasi's menu");
       c.expect(/<div className="grid gap-4">\s*(?:\{\s*\}\s*)*<section id="struktur"/.test(konfig), "Struktur sekolah is not the first section");
-      c.expect(/const sekolahKu = \(institutions \?\? \[\]\)\.filter\(\(i\) => isSys \|\| adminInstitutionIds\.includes\(i\.id\)\);/.test(konfig)
-        && /bacaStruktur\(sekolahStruktur\.id\)/.test(konfig), "the structure shown is not read through bacaStruktur for a school the reader administers");
+      c.expect(/const sekolahKu = sekolahDitawarkan\(institutions \?\? \[\], \(id\) => isSys === true \|\| adminInstitutionIds\.includes\(id\)\);/.test(konfig)
+        && /const sekolahStruktur = sekolahDipilih\(sekolahKu, sp\.sekolah\);/.test(konfig)
+        && /bacaStruktur\(sekolahStruktur\.id\)/.test(konfig), "the structure shown is not read through bacaStruktur for a school on offer to the reader");
+      // the picker's rule needs the tenant's kind and state, so the read must carry both
+      c.expect(/from\("institutions"\)\.select\("[^"]*\bis_active\b[^"]*\btenant_kind\b[^"]*"\)/.test(konfig),
+        "Konfigurasi reads the schools without their kind or state, so the picker cannot tell a real school");
+      c.expect((konfig.match(/\bsekolahKu\s*=/g) ?? []).length === 1 && (konfig.match(/\bsekolahStruktur\s*=/g) ?? []).length === 1
+        && !/sekolahKu\.(?:find|filter)\(/.test(konfig), "the page picks its school by its own rule, around the shared one");
+
+      /**
+       * 6. THE SCHOOL PICKER OFFERS ONLY REAL, ACTIVE SCHOOLS (audit S7b). A
+       *    platform admin reads every tenant, and sorted by name the national
+       *    library came first, so Konfigurasi started inside "PINTAR Kurikulum
+       *    Nasional" (PLATFORM_CANONICAL). The shared rule (sekolah.ts, also
+       *    DAISY-06's Studio picker) is OUTPUT here over a list in the database's
+       *    own order: the canonical tenant, an inactive school, a kind nobody has
+       *    decided about and rows missing their kind or state are never offered,
+       *    even when asked for by address; the first real school is where it
+       *    starts; and an administrator is offered only their own.
+       */
+      const TENANT: SekolahBaris[] = [
+        { id: "kanon", name: "PINTAR Kurikulum Nasional", tenant_kind: "PLATFORM_CANONICAL", is_active: true },
+        { id: "sd", name: "SD Zayd Pintar Selalu", tenant_kind: "INSTITUTION", is_active: true },
+        { id: "tutup", name: "Sekolah Lama", tenant_kind: "INSTITUTION", is_active: false },
+        { id: "baru", name: "Sekolah Masa Depan", tenant_kind: "SOMETHING_NEW", is_active: true },
+        { id: "tanpa", name: "Sekolah Tanpa Jenis", tenant_kind: null, is_active: true },
+        { id: "sma", name: "SMA Zayd Pintar Selalu", tenant_kind: "INSTITUTION", is_active: true },
+      ];
+      const semuaBoleh = sekolahDitawarkan(TENANT, () => true);
+      c.expect(JSON.stringify(semuaBoleh.map((x) => x.id)) === JSON.stringify(["sd", "sma"]),
+        `a platform admin is offered ${JSON.stringify(semuaBoleh.map((x) => x.id))}, not only the real, active schools`);
+      c.expect(sekolahDipilih(semuaBoleh)?.id === "sd", `a platform admin starts on ${sekolahDipilih(semuaBoleh)?.name}, not the first real school`);
+      for (const diminta of ["kanon", "tutup", "baru", "tanpa", "bukan-sekolah"]) {
+        c.expect(sekolahDipilih(semuaBoleh, diminta)?.id === "sd", `asking for "${diminta}" by address opens it instead of the first real school`);
+      }
+      c.expect(sekolahDipilih(semuaBoleh, "sma")?.id === "sma", "a real school asked for by address is not opened");
+      const adminSma = sekolahDitawarkan(TENANT, (id) => id === "sma" || id === "kanon");
+      c.expect(JSON.stringify(adminSma.map((x) => x.id)) === JSON.stringify(["sma"]), "an administrator is offered a school that is not theirs, or the library");
+      c.expect(sekolahDipilih(sekolahDitawarkan(TENANT, () => false)) === null, "somebody who administers nothing is offered a school");
       c.expect(/rows=\{struktur\.ok \? struktur\.rows : null\}/.test(konfig) && /tahunKini=\{tahunAjaranPada\(new Date\(\)\)\}/.test(konfig),
         "the panel is fed from something other than bacaStruktur's answer, or its year is not this school year");
       for (const f of walk(join(repoRoot, "src", "components", "struktur"))) {
@@ -8090,7 +8128,9 @@ export const experienceTests: SelfTest[] = [
         "nothing sendable until 'Nonaktifkan' opens the question, which names the place, says it cannot be undone here and is the " +
         "form that sends it; an empty school answers the audit's S7; an unreadable list reports its reference. From the source, " +
         "every action goes through one wrapper that re-reads after any non-success, successes are re-read by the action itself, " +
-        "and the section is Konfigurasi's first, fed only by bacaStruktur for a school the reader administers",
+        "and the section is Konfigurasi's first, fed only by bacaStruktur for a school on offer. The shared school rule offers only " +
+        "active INSTITUTION tenants the reader administers -- never the national library, an inactive school, an undecided kind or " +
+        "a row without its kind -- starts on the first real school, and opens none of the others even when asked for by address",
       );
     },
   },
