@@ -321,6 +321,67 @@ export type HleEvent =
   | "config.struktur.ok.dinonaktifkan"
   | "config.struktur.rujukan"
   | "config.struktur.gagal_baca"
+  | "studio.paket.masalah.workbook_unreadable"
+  | "studio.paket.masalah.workbook_too_large"
+  | "studio.paket.masalah.workbook_sheet_missing"
+  | "studio.paket.masalah.workbook_column_missing"
+  | "studio.paket.masalah.workbook_course_row_missing"
+  | "studio.paket.masalah.workbook_course_rows_many"
+  | "studio.paket.masalah.workbook_value_required"
+  | "studio.paket.masalah.workbook_value_unknown"
+  | "studio.paket.masalah.workbook_chapter_unknown"
+  | "studio.paket.masalah.workbook_lesson_unknown"
+  | "studio.paket.masalah.workbook_question_unknown"
+  | "studio.paket.masalah.workbook_question_without_options"
+  | "studio.paket.masalah.package_json_unreadable"
+  | "studio.paket.masalah.package_empty"
+  | "studio.paket.masalah.package_too_large"
+  | "studio.paket.masalah.package_shape_invalid"
+  | "studio.paket.masalah.course_title_missing"
+  | "studio.paket.masalah.course_subject_missing"
+  | "studio.paket.masalah.course_stage_missing"
+  | "studio.paket.masalah.course_grade_missing"
+  | "studio.paket.masalah.course_context_unknown"
+  | "studio.paket.masalah.module_number_invalid"
+  | "studio.paket.masalah.module_number_repeated"
+  | "studio.paket.masalah.module_title_missing"
+  | "studio.paket.masalah.lesson_number_invalid"
+  | "studio.paket.masalah.lesson_number_repeated"
+  | "studio.paket.masalah.lesson_title_missing"
+  | "studio.paket.masalah.lesson_text_missing"
+  | "studio.paket.masalah.objective_statement_missing"
+  | "studio.paket.masalah.objective_thinking_unknown"
+  | "studio.paket.masalah.media_name_invalid"
+  | "studio.paket.masalah.media_kind_unknown"
+  | "studio.paket.masalah.media_name_clash"
+  | "studio.paket.masalah.media_transcript_missing"
+  | "studio.paket.masalah.media_not_uploaded"
+  | "studio.paket.masalah.item_ref_repeated"
+  | "studio.paket.masalah.item_type_unknown"
+  | "studio.paket.masalah.item_question_missing"
+  | "studio.paket.masalah.item_hint_reveals_answer"
+  | "studio.paket.masalah.item_use_unknown"
+  | "studio.paket.masalah.item_difficulty_invalid"
+  | "studio.paket.masalah.item_parallel_tier_mixed"
+  | "studio.paket.masalah.item_options_too_few"
+  | "studio.paket.masalah.item_options_too_many"
+  | "studio.paket.masalah.item_correct_missing"
+  | "studio.paket.masalah.item_correct_too_many"
+  | "studio.paket.masalah.option_label_invalid"
+  | "studio.paket.masalah.option_label_repeated"
+  | "studio.paket.masalah.option_text_missing"
+  | "studio.paket.masalah.option_reason_missing"
+  | "studio.paket.masalah.option_correct_invalid"
+  | "studio.paket.masalah.option_misconception_unknown"
+  | "studio.paket.masalah.text_too_long"
+  | "studio.paket.masalah.package_could_not_be_saved"
+  | "studio.paket.masalah.lain"
+  | "studio.paket.kode.package_not_allowed"
+  | "studio.paket.kode.package_state_invalid"
+  | "studio.paket.kode.package_school_not_allowed"
+  | "studio.paket.kode.package_has_problems"
+  | "studio.paket.kode.package_input_invalid"
+  | "studio.paket.kode.package_failed"
   | "role.STUDENT"
   | "role.EDUCATOR"
   | "role.HEAD_OF_DEPARTMENT"
@@ -1601,7 +1662,7 @@ const table: Table = {
   "config.struktur.galat.isian_kurang": { default: "Lengkapi pilihan yang diminta.", en: "Complete the choices asked for." },
   "config.struktur.galat.gagal": { default: "Perubahan belum tersimpan. Coba lagi sebentar lagi.", en: "The change was not saved. Try again in a moment." },
   // DAISY-05: the Struktur sekolah screen (D-006, D-022). The names Bagian,
-  // Tingkat and Kelas are the school"s own words and stay Indonesian in English.
+  // Tingkat and Kelas are the school's own words and stay Indonesian in English.
   "config.section.struktur": { default: "Struktur sekolah", en: "School structure" },
   "config.struktur.intro": { default: "Susun sekolah dari atas ke bawah: Bagian, lalu Tingkat, lalu Kelas. Murid ditempatkan di Kelas, dan guru ditugaskan ke Kelas.", en: "Build the school from the top down: Bagian, then Tingkat, then Kelas. Students are placed in a Kelas, and teachers are assigned to one." },
   "config.struktur.langkah.bagian": { default: "Tambah Bagian, misalnya Kelas Rendah.", en: "Add a Bagian, for example Kelas Rendah." },
@@ -1641,6 +1702,69 @@ const table: Table = {
   "config.struktur.ok.dinonaktifkan": { default: "dinonaktifkan.", en: "deactivated." },
   "config.struktur.rujukan": { default: "Rujukan:", en: "Reference:" },
   "config.struktur.gagal_baca": { default: "Struktur sekolah belum bisa ditampilkan. Muat ulang halaman ini sebentar lagi.", en: "The school structure cannot be shown right now. Reload this page in a moment." },
+  // BOB-02. What the upload screen says for each lesson-package problem and refusal
+  // (src/lib/unggah-kontrak.ts: kunciMasalahPaket, kunciKodePaket). Daisy owns the wording.
+  "studio.paket.masalah.workbook_unreadable": { default: "Berkas ini tidak terbaca sebagai buku kerja Excel (.xlsx).", en: "This file cannot be read as an Excel workbook (.xlsx)." },
+  "studio.paket.masalah.workbook_too_large": { default: "Berkas terlalu besar. Batasnya 5 MB; unggah media secara terpisah.", en: "The file is too large. The limit is 5 MB; upload media separately." },
+  "studio.paket.masalah.workbook_sheet_missing": { default: "Lembar ini tidak ada di buku kerja.", en: "This sheet is missing from the workbook." },
+  "studio.paket.masalah.workbook_column_missing": { default: "Kolom wajib ini tidak ada di baris judul lembar.", en: "This required column is missing from the sheet's header row." },
+  "studio.paket.masalah.workbook_course_row_missing": { default: "Lembar Kursus belum berisi baris data.", en: "The Kursus sheet has no data row." },
+  "studio.paket.masalah.workbook_course_rows_many": { default: "Satu buku kerja untuk satu kursus: lembar Kursus hanya boleh satu baris.", en: "One workbook is one course: the Kursus sheet may have only one row." },
+  "studio.paket.masalah.workbook_value_required": { default: "Kolom ini wajib diisi.", en: "This column must be filled in." },
+  "studio.paket.masalah.workbook_value_unknown": { default: "Isi kolom ini tidak ada dalam daftar pilihannya.", en: "This value is not one of the column's choices." },
+  "studio.paket.masalah.workbook_chapter_unknown": { default: "Nomor bab ini tidak ada di lembar Bab.", en: "This chapter number is not on the Bab sheet." },
+  "studio.paket.masalah.workbook_lesson_unknown": { default: "Nomor pelajaran ini tidak ada di bab itu pada lembar Pelajaran.", en: "This lesson number is not in that chapter on the Pelajaran sheet." },
+  "studio.paket.masalah.workbook_question_unknown": { default: "Kode soal ini tidak ada di lembar Soal.", en: "This question code is not on the Soal sheet." },
+  "studio.paket.masalah.workbook_question_without_options": { default: "Soal ini belum punya pilihan di lembar Pilihan.", en: "This question has no options on the Pilihan sheet." },
+  "studio.paket.masalah.package_json_unreadable": { default: "Isi paket tidak terbaca sebagai JSON.", en: "The package cannot be read as JSON." },
+  "studio.paket.masalah.package_empty": { default: "Paket ini tidak berisi kursus.", en: "This package contains no course." },
+  "studio.paket.masalah.package_too_large": { default: "Paket ini terlalu besar untuk sekali unggah.", en: "This package is too large for one upload." },
+  "studio.paket.masalah.package_shape_invalid": { default: "Bagian paket ini tidak berbentuk yang diharapkan.", en: "This part of the package is not in the expected shape." },
+  "studio.paket.masalah.course_title_missing": { default: "Judul kursus belum diisi.", en: "The course title is empty." },
+  "studio.paket.masalah.course_subject_missing": { default: "Mata pelajaran belum diisi.", en: "The subject is empty." },
+  "studio.paket.masalah.course_stage_missing": { default: "Jenjang belum diisi.", en: "The school level is empty." },
+  "studio.paket.masalah.course_grade_missing": { default: "Kelas belum diisi.", en: "The grade is empty." },
+  "studio.paket.masalah.course_context_unknown": { default: "Konteks kursus tidak dikenal.", en: "The course context is not recognised." },
+  "studio.paket.masalah.module_number_invalid": { default: "Nomor bab harus bilangan bulat mulai dari 1.", en: "A chapter number must be a whole number from 1." },
+  "studio.paket.masalah.module_number_repeated": { default: "Nomor bab ini dipakai dua kali.", en: "This chapter number is used twice." },
+  "studio.paket.masalah.module_title_missing": { default: "Judul bab belum diisi.", en: "The chapter title is empty." },
+  "studio.paket.masalah.lesson_number_invalid": { default: "Nomor pelajaran harus bilangan bulat mulai dari 1.", en: "A lesson number must be a whole number from 1." },
+  "studio.paket.masalah.lesson_number_repeated": { default: "Nomor pelajaran ini dipakai dua kali di bab yang sama.", en: "This lesson number is used twice in the same chapter." },
+  "studio.paket.masalah.lesson_title_missing": { default: "Judul pelajaran belum diisi.", en: "The lesson title is empty." },
+  "studio.paket.masalah.lesson_text_missing": { default: "Isi pelajaran belum diisi.", en: "The lesson text is empty." },
+  "studio.paket.masalah.objective_statement_missing": { default: "Tujuan pembelajaran belum diisi.", en: "The learning objective is empty." },
+  "studio.paket.masalah.objective_thinking_unknown": { default: "Tingkat berpikir tidak dikenal.", en: "The thinking level is not recognised." },
+  "studio.paket.masalah.media_name_invalid": { default: "Nama berkas media tidak dapat dipakai.", en: "This media file name cannot be used." },
+  "studio.paket.masalah.media_kind_unknown": { default: "Jenis berkas ini tidak didukung. Pakai gambar, audio (mp3, m4a, wav, ogg), video (mp4, webm) atau PDF.", en: "This file type is not supported. Use an image, audio (mp3, m4a, wav, ogg), video (mp4, webm) or PDF." },
+  "studio.paket.masalah.media_name_clash": { default: "Dua berkas berbeda menjadi nama yang sama. Ganti salah satu namanya.", en: "Two different files end up with the same name. Rename one of them." },
+  "studio.paket.masalah.media_transcript_missing": { default: "Audio dan video wajib punya transkrip.", en: "Audio and video need a transcript." },
+  "studio.paket.masalah.media_not_uploaded": { default: "Berkas media ini belum diunggah.", en: "This media file has not been uploaded yet." },
+  "studio.paket.masalah.item_ref_repeated": { default: "Kode soal ini dipakai dua kali.", en: "This question code is used twice." },
+  "studio.paket.masalah.item_type_unknown": { default: "Jenis soal tidak dikenal.", en: "The question type is not recognised." },
+  "studio.paket.masalah.item_question_missing": { default: "Pertanyaan belum diisi.", en: "The question is empty." },
+  "studio.paket.masalah.item_hint_reveals_answer": { default: "Petunjuk ini menyebut jawabannya. Tulis petunjuk yang mengarahkan cara berpikir.", en: "This hint gives the answer away. Write a hint that guides the thinking." },
+  "studio.paket.masalah.item_use_unknown": { default: "Kegunaan soal tidak dikenal.", en: "The question's use is not recognised." },
+  "studio.paket.masalah.item_difficulty_invalid": { default: "Tingkat kesulitan tidak dikenal.", en: "The difficulty is not recognised." },
+  "studio.paket.masalah.item_parallel_tier_mixed": { default: "Satu kelompok paralel mencampur soal latihan dan soal asesmen.", en: "One parallel group mixes practice and assessment questions." },
+  "studio.paket.masalah.item_options_too_few": { default: "Soal ini perlu paling sedikit dua pilihan.", en: "This question needs at least two options." },
+  "studio.paket.masalah.item_options_too_many": { default: "Soal ini paling banyak lima pilihan (A sampai E).", en: "This question may have at most five options (A to E)." },
+  "studio.paket.masalah.item_correct_missing": { default: "Belum ada pilihan yang ditandai benar.", en: "No option is marked correct." },
+  "studio.paket.masalah.item_correct_too_many": { default: "Pilihan ganda hanya boleh satu jawaban benar. Pakai jenis \u201cbanyak jawaban\u201d bila lebih.", en: "A single-answer question may have only one correct option. Use the multiple-answer type for more." },
+  "studio.paket.masalah.option_label_invalid": { default: "Label pilihan harus A, B, C, D atau E.", en: "An option label must be A, B, C, D or E." },
+  "studio.paket.masalah.option_label_repeated": { default: "Label pilihan ini dipakai dua kali dalam soal yang sama.", en: "This option label is used twice in the same question." },
+  "studio.paket.masalah.option_text_missing": { default: "Teks pilihan belum diisi.", en: "The option text is empty." },
+  "studio.paket.masalah.option_reason_missing": { default: "Alasan pilihan belum diisi. Setiap pilihan perlu alasannya.", en: "The option's reason is empty. Every option needs its reason." },
+  "studio.paket.masalah.option_correct_invalid": { default: "Kolom Benar harus Ya atau Tidak.", en: "The Benar column must be Ya or Tidak." },
+  "studio.paket.masalah.option_misconception_unknown": { default: "Kode miskonsepsi ini belum terdaftar.", en: "This misconception code is not registered." },
+  "studio.paket.masalah.text_too_long": { default: "Teks di kolom ini terlalu panjang.", en: "The text in this column is too long." },
+  "studio.paket.masalah.package_could_not_be_saved": { default: "Paket ini belum bisa disimpan. Coba lagi, atau hubungi admin platform.", en: "This package could not be saved. Try again, or contact the platform administrator." },
+  "studio.paket.masalah.lain": { default: "Ada bagian paket yang belum bisa diterima.", en: "Part of the package cannot be accepted yet." },
+  "studio.paket.kode.package_not_allowed": { default: "Anda tidak berwenang menyusun kursus di sekolah ini.", en: "You are not allowed to author courses in this school." },
+  "studio.paket.kode.package_state_invalid": { default: "Unggahan ini sudah dikonfirmasi atau ditolak.", en: "This upload has already been confirmed or rejected." },
+  "studio.paket.kode.package_school_not_allowed": { default: "Pilih sekolah. Unggahan menjadi kursus sekolah, bukan pustaka platform.", en: "Choose a school. An upload becomes a school's course, not the platform library." },
+  "studio.paket.kode.package_has_problems": { default: "Paket ini belum bisa diterima. Perbaiki baris yang disebut lalu unggah lagi.", en: "This package cannot be accepted yet. Fix the rows listed and upload again." },
+  "studio.paket.kode.package_input_invalid": { default: "Pilih sekolah dan berkasnya dulu.", en: "Choose the school and the file first." },
+  "studio.paket.kode.package_failed": { default: "Unggahan belum berhasil. Coba lagi sebentar lagi.", en: "The upload did not go through. Try again in a moment." },
   // WP5B. Bulk intake offers four roles and needs a telling for each; this is
   // the one the configuration surface never had to name, because a learner is
   // not somebody an administrator grants a role to one at a time.
