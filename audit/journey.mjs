@@ -522,6 +522,40 @@ await step("S15b", "D-029: a package addressed to the canonical library is refus
   return `offered: ${r.chosen}; submit → hasil=${r.hasil} detail=${r.detail}; canonical courses ${before.courses} → ${after.courses}`;
 });
 
+// Real content: SD Kelas 5 Matematika Bab 1, from docs/onboarding/konten/SD5-Matematika-Bab1.xlsx,
+// converted by the app's own bukuKerjaKePaket. Imported through today's page into SD, then its
+// course page is captured, so the chapter can be seen before any school has it.
+await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD", async (rec) => {
+  const f = new URL("./fixtures/sd5-matematika-bab1.paket.json", import.meta.url);
+  if (!existsSync(f) || !paketContoh) { rec.verdict = "NOTE"; return "candidate predates BOB-02, or the chapter fixture is absent"; }
+  const before = hitung(ids.sd);
+  const r = await kirimPaket("SD Zayd", readFileSync(f, "utf8"));
+  const notes = [`submit → hasil=${r.hasil} detail=${r.detail}`];
+  const batch = /^[0-9a-f-]{36}$/.test(r.detail ?? "") ? r.detail : null;
+  if (batch) {
+    await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
+    const btn = g.locator(`form:has(input[name="batch"][value="${batch}"]) button[type="submit"]`).first();
+    if (await btn.count()) {
+      await btn.click();
+      await g.waitForLoadState("networkidle");
+      await g.waitForTimeout(1500);
+      rec.shots.push(await shot(g, "sd5-bab1-kursus"));
+      await g.setViewportSize({ width: 1280, height: 4000 });
+      rec.shots.push(await shot(g, "sd5-bab1-kursus-panjang"));
+      await g.setViewportSize({ width: 1280, height: 800 });
+      notes.push(`after confirm: ${new URL(g.url()).pathname}`);
+    } else notes.push("no Konfirmasi offered for this batch");
+    notes.push(`batch status: ${sql(`select status from public.ingest_batches where id='${batch}'`).trim()}`);
+  }
+  const after = hitung(ids.sd);
+  const course = sql(`select id from public.courses where institution_id='${ids.sd}' and title like 'Matematika Kelas 5%' limit 1`).trim();
+  const items = course ? sql(`select count(*) from public.items i join public.lessons l on l.id=i.lesson_id join public.modules m on m.id=l.module_id where m.course_id='${course}'`).trim() : "0";
+  const tags = course ? sql(`select coalesce(string_agg(r||':'||n, ', '),'-') from (select coalesce(i.cycle_role::text,'LATIHAN') r, count(*) n from public.items i join public.lessons l on l.id=i.lesson_id join public.modules m on m.id=l.module_id where m.course_id='${course}' group by 1 order by 1) x`).trim() : "-";
+  notes.push(`SD courses ${before.courses} → ${after.courses}, lessons ${before.lessons} → ${after.lessons}; this course: items ${items} (${tags})`);
+  if (!course || Number(items) !== 28) rec.verdict = "FAIL";
+  return notes.join("; ");
+});
+
 await step("S16", "Head of department: sees reports on /pimpinan", async (rec) => {
   const np = await newPerson(g, people.kaprodi.name, people.kaprodi.email);
   if (!np.body?.ok) throw new Error(JSON.stringify(np.body));
