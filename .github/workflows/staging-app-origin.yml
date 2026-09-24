@@ -12,9 +12,13 @@
 #      and the Vercel-generated domain stays attached.
 #   2. NEXT_PUBLIC_APP_URL on the project's Production target is set to STAGING_ORIGIN
 #      (the same API upsert the production deploy uses), only if it differs.
-#   3. The latest READY production deployment is rebuilt, so the new value is built in,
-#      and the run waits until the new deployment is READY.
-#   4. STAGING_ORIGIN/masuk answers 200 over valid TLS, and the deployment serves it.
+#   3. Only when step 2 changed the value, or `rebuild` is ticked: the latest READY
+#      production deployment is rebuilt, so the value is built in, and the run waits until
+#      the new deployment is READY and the canonical domain points at it.
+#   4. When `redirect_previous` is ticked (the default): the Vercel-generated domain
+#      (STAGING_PREVIOUS_ORIGIN) stays attached but redirects, 308, to the canonical domain,
+#      and a request with a path and query string must arrive at the same path and query.
+#   5. STAGING_ORIGIN/masuk answers 200 over valid TLS.
 #
 # CREDENTIAL. VERCEL_TOKEN is the account-wide Vercel token (it reaches both projects; its
 # split into per-environment tokens is a D-039 decision still open). This workflow uses it
@@ -26,6 +30,15 @@ name: staging · app origin on Vercel
 
 on:
   workflow_dispatch:
+    inputs:
+      rebuild:
+        description: "Rebuild even if NEXT_PUBLIC_APP_URL is already right"
+        type: boolean
+        default: false
+      redirect_previous:
+        description: "Redirect the Vercel-generated domain to the canonical one (308)"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -38,6 +51,7 @@ env:
   STAGING_VERCEL_PROJECT_NAME: pintar40-staging
   PRODUCTION_VERCEL_PROJECT_NAME: pintar40
   STAGING_ORIGIN: https://staging.pintarselalu.com
+  STAGING_PREVIOUS_ORIGIN: https://pintar40-staging.vercel.app
 
 jobs:
   origin:
@@ -49,6 +63,8 @@ jobs:
       - name: Set the origin, rebuild, verify
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          REBUILD: ${{ inputs.rebuild }}
+          REDIRECT_PREVIOUS: ${{ inputs.redirect_previous }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -90,7 +106,8 @@ jobs:
               c2, one = api(f'/v1/projects/{proj}/env/{cur[0]["id"]}')
               old = one.get('value') if c2 == 200 else None
           say(f'- NEXT_PUBLIC_APP_URL before: {old}')
-          if old != origin:
+          changed = old != origin
+          if changed:
               code, res = api(f'/v10/projects/{proj}/env?upsert=true', 'POST',
                               {'key': 'NEXT_PUBLIC_APP_URL', 'value': origin, 'type': 'encrypted', 'target': ['production']})
               if code not in (200, 201): say(f'::error::writing NEXT_PUBLIC_APP_URL failed: HTTP {code} {res}'); sys.exit(1)
@@ -101,37 +118,71 @@ jobs:
               say(f'::error::NEXT_PUBLIC_APP_URL read-back is not {origin} (entries: {len(cur)})'); sys.exit(1)
           say(f'- NEXT_PUBLIC_APP_URL after: {one.get("value")} (read back)')
 
-          # 3. rebuild the latest READY production deployment, so the value is built in. First let
-          #    any build already running finish (a push to main starts one with the old value), so
-          #    it cannot finish after ours and take the domain back.
-          for _ in range(60):
-              code, busy = api(f'/v6/deployments?projectId={pid}&target=production&state=BUILDING,QUEUED,INITIALIZING&limit=5')
-              if not busy.get('deployments'): break
-              print(f'  waiting for {len(busy["deployments"])} running build(s) to finish'); time.sleep(10)
-          else:
-              say('::error::a staging build is still running after 10 minutes'); sys.exit(1)
-          code, ds = api(f'/v6/deployments?projectId={pid}&target=production&state=READY&limit=1')
-          if code != 200 or not ds.get('deployments'): say(f'::error::no READY production deployment to rebuild (HTTP {code})'); sys.exit(1)
-          base = ds['deployments'][0]
-          say(f'- rebuilding deployment {base["uid"]} (commit {(base.get("meta") or {}).get("githubCommitSha", "?")[:7]})')
-          code, nd = api('/v13/deployments?forceNew=1', 'POST', {'name': proj, 'deploymentId': base['uid'], 'target': 'production'})
-          if code not in (200, 201): say(f'::error::redeploy refused: HTTP {code} {nd.get("error")}'); sys.exit(1)
-          did = nd['id']; state = nd.get('readyState')
-          for _ in range(90):
-              if state in ('READY', 'ERROR', 'CANCELED'): break
-              time.sleep(10)
-              code, cur_d = api(f'/v13/deployments/{did}'); state = cur_d.get('readyState')
-          say(f'- new deployment {did}: {state}')
-          if state != 'READY': say('::error::the rebuild did not become READY'); sys.exit(1)
-          # the canonical domain now points at this deployment
-          for _ in range(30):
-              code, cur_d = api(f'/v13/deployments/{did}')
-              if cur_d.get('aliasAssigned') and host in (cur_d.get('alias') or []): break
-              time.sleep(10)
-          say(f'- {host} assigned to the rebuilt deployment: {host in (cur_d.get("alias") or [])}')
-          if host not in (cur_d.get('alias') or []): say(f'::error::{host} does not point at the rebuilt deployment'); sys.exit(1)
+          def rebuild():
+              # 3. rebuild the latest READY production deployment, so the value is built in. First let
+              #    any build already running finish (a push to main starts one with the old value), so
+              #    it cannot finish after ours and take the domain back.
+              for _ in range(60):
+                  code, busy = api(f'/v6/deployments?projectId={pid}&target=production&state=BUILDING,QUEUED,INITIALIZING&limit=5')
+                  if not busy.get('deployments'): break
+                  print(f'  waiting for {len(busy["deployments"])} running build(s) to finish'); time.sleep(10)
+              else:
+                  say('::error::a staging build is still running after 10 minutes'); sys.exit(1)
+              code, ds = api(f'/v6/deployments?projectId={pid}&target=production&state=READY&limit=1')
+              if code != 200 or not ds.get('deployments'): say(f'::error::no READY production deployment to rebuild (HTTP {code})'); sys.exit(1)
+              base = ds['deployments'][0]
+              say(f'- rebuilding deployment {base["uid"]} (commit {(base.get("meta") or {}).get("githubCommitSha", "?")[:7]})')
+              code, nd = api('/v13/deployments?forceNew=1', 'POST', {'name': proj, 'deploymentId': base['uid'], 'target': 'production'})
+              if code not in (200, 201): say(f'::error::redeploy refused: HTTP {code} {nd.get("error")}'); sys.exit(1)
+              did = nd['id']; state = nd.get('readyState')
+              for _ in range(90):
+                  if state in ('READY', 'ERROR', 'CANCELED'): break
+                  time.sleep(10)
+                  code, cur_d = api(f'/v13/deployments/{did}'); state = cur_d.get('readyState')
+              say(f'- new deployment {did}: {state}')
+              if state != 'READY': say('::error::the rebuild did not become READY'); sys.exit(1)
+              # the canonical domain now points at this deployment
+              for _ in range(30):
+                  code, cur_d = api(f'/v13/deployments/{did}')
+                  if cur_d.get('aliasAssigned') and host in (cur_d.get('alias') or []): break
+                  time.sleep(10)
+              say(f'- {host} assigned to the rebuilt deployment: {host in (cur_d.get("alias") or [])}')
+              if host not in (cur_d.get('alias') or []): say(f'::error::{host} does not point at the rebuilt deployment'); sys.exit(1)
 
-          # 4. the front door on the canonical address, over valid TLS
+          # 3. rebuild only when the value changed here, or when asked
+          if changed or os.environ.get('REBUILD') == 'true':
+              rebuild()
+          else:
+              say('- no rebuild: NEXT_PUBLIC_APP_URL was already right and no rebuild was asked for')
+
+          # 4. the Vercel-generated domain redirects, 308, to the canonical one (kept attached)
+          prev = os.environ['STAGING_PREVIOUS_ORIGIN'].rstrip('/'); prev_host = urllib.parse.urlparse(prev).netloc
+          if not prev_host.endswith('.vercel.app') or prev_host not in names:
+              say(f'::error::{prev_host} is not a Vercel-generated domain of {proj}'); sys.exit(1)
+          if os.environ.get('REDIRECT_PREVIOUS') == 'true':
+              code, pd = api(f'/v9/projects/{proj}/domains/{prev_host}')
+              if pd.get('redirect') != host or pd.get('redirectStatusCode') != 308:
+                  code, pd = api(f'/v9/projects/{proj}/domains/{prev_host}', 'PATCH', {'redirect': host, 'redirectStatusCode': 308})
+                  if code != 200: say(f'::error::setting the redirect on {prev_host} failed: HTTP {code} {pd}'); sys.exit(1)
+              code, pd = api(f'/v9/projects/{proj}/domains/{prev_host}')
+              say(f'- {prev_host}: redirect={pd.get("redirect")} ({pd.get("redirectStatusCode")}), still attached: {code == 200}')
+              if pd.get('redirect') != host: say('::error::the redirect did not read back'); sys.exit(1)
+              class NoFollow(urllib.request.HTTPRedirectHandler):
+                  def redirect_request(self, *a, **k): return None
+              probe = f'{prev}/masuk?cek=pengalihan&n=1'; want = f'{origin}/masuk?cek=pengalihan&n=1'
+              got = None
+              for _ in range(12):
+                  try:
+                      urllib.request.build_opener(NoFollow).open(urllib.request.Request(probe, headers={'User-Agent': 'pintar-staging-origin'}), timeout=30)
+                      got = (200, None)
+                  except urllib.error.HTTPError as e:
+                      got = (e.code, e.headers.get('Location'))
+                  if got[0] == 308 and got[1] == want: break
+                  time.sleep(10)
+              say(f'- GET {probe} -> {got[0]} Location {got[1]}')
+              if got != (308, want): say(f'::error::the previous address does not redirect to {want}'); sys.exit(1)
+
+          # 5. the front door on the canonical address, over valid TLS
           ok = False
           for _ in range(18):
               try:
@@ -143,5 +194,5 @@ jobs:
               except Exception as e:
                   print(f'  waiting for {host}: {type(e).__name__}: {e}'); time.sleep(10)
           if not ok: say(f'::error::{origin}/masuk is not served with a valid certificate yet'); sys.exit(1)
-          say(f'\n**READY**: {proj} builds with NEXT_PUBLIC_APP_URL={origin}, and {origin}/masuk answers 200.')
+          say(f'\n**READY**: {proj} builds with NEXT_PUBLIC_APP_URL={origin}; {origin}/masuk answers 200' + (f'; {prev_host} redirects there, path and query kept.' if os.environ.get('REDIRECT_PREVIOUS') == 'true' else '.'))
           PY
