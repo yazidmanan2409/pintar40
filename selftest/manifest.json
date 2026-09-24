@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 68,
+  "version": 69,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -246,7 +246,7 @@
     {
       "id": "F02-T18",
       "runner": "db",
-      "proves": "INV-01 / doc 04 §9 lesson prose is publicly readable only under a PUBLISHED release; anon holds exactly one grant, on that view; item-bearing and cohort aggregates are service-role only",
+      "proves": "INV-01 / doc 04 §9, RESTATED BY D-032 (BOB-14). The view public.published_lessons shows only a PUBLISHED release's lesson prose, and no client role reads it: anon and a signed-in teacher of the school are refused, the view runs as its reader (security_invoker), anon holds no table grant at all, and item-bearing and cohort aggregates are service-role only",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
