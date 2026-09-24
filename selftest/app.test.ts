@@ -181,6 +181,30 @@ async function get(url: string, init: RequestInit = {}) {
   return fetch(url, { redirect: "manual", ...init });
 }
 
+/** Every value the rendered page gives a hidden `lanjut` field (BOB-06). */
+function nilaiLanjut(html: string): string[] {
+  return [...html.matchAll(/<input\b[^>]*\bname="lanjut"[^>]*>/g)]
+    .map((m) => /\bvalue="([^"]*)"/.exec(m[0])?.[1] ?? "(no value)")
+    .map((v) => v.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#x27;/g, "'"));
+}
+
+/**
+ * The hidden fields of the signed-in sign-in screen's "Lanjutkan" form -- the
+ * form holding `lanjut` and a server action -- exactly as a browser without
+ * script would post them, or null when the page drew no such form.
+ */
+function formLanjutkan(html: string): Array<[string, string]> | null {
+  for (const bagian of html.split(/<form\b/).slice(1)) {
+    const isi = bagian.split(/<\/form>/)[0];
+    const masukan = [...isi.matchAll(/<input\b[^>]*\btype="hidden"[^>]*>/g)].map((m) => [
+      /\bname="([^"]*)"/.exec(m[0])?.[1] ?? "",
+      (/\bvalue="([^"]*)"/.exec(m[0])?.[1] ?? "").replace(/&amp;/g, "&"),
+    ] as [string, string]);
+    if (masukan.some(([n]) => n === "lanjut") && masukan.some(([n]) => n.startsWith("$ACTION_"))) return masukan;
+  }
+  return null;
+}
+
 /**
  * WP7C. ANY RESPONSE-DERIVED FIGURE, in either language.
  *
@@ -560,6 +584,77 @@ export const appTests: SelfTest[] = [
 
       return c.verdict("signing out one device revokes its session and leaves the same person's other session alive; " +
         "the running proxy gives an email account's auth cookies 7 days and a classroom card's 60 minutes");
+    },
+  },
+  {
+    // BOB-06 (D-010; audit M4, S11, S13). A sign-in that was not interrupted on
+    // its way somewhere carries NO destination. The screen used to narrow an
+    // absent `lanjut` to "/" and post that back, and "/" then beat the role's
+    // home: everybody landed on the entry page, and management looped.
+    id: "BOB06-A01",
+    requires: ["app"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      for (const [alamat, harap] of [
+        ["/masuk", ""],
+        ["/masuk?peran=guru", ""],
+        ["/masuk?lanjut=%2F%2Fevil.example", ""],
+        ["/masuk?lanjut=%2Fbelajar%2Fsertifikat", "/belajar/sertifikat"],
+      ] as const) {
+        const r = await get(`${base}${alamat}`);
+        c.expect(r.status === 200, `GET ${alamat} → ${r.status}`);
+        const nilai = nilaiLanjut(await r.text());
+        c.expect(nilai.length > 0, `${alamat} rendered no destination field, so this test would prove nothing`);
+        c.expect(nilai.every((v) => v === harap),
+          `${alamat} carries the destination ${JSON.stringify(nilai)} into sign-in, expected ${JSON.stringify(harap)}`);
+      }
+      return c.verdict("the rendered sign-in screen carries no destination when none was asked for, whether the " +
+        "parameter is absent, a presentation hint or refused, and still carries one that was");
+    },
+  },
+  {
+    // BOB-06 (D-010). Each role lands on its own home, through the running
+    // app: signed in, the sign-in screen's "Lanjutkan" is posted exactly as a
+    // browser without script posts it, and the redirect is read.
+    id: "BOB06-R01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const lanjutkan = async (cookie: string, alamat: string): Promise<string> => {
+        const halaman = await get(`${base}${alamat}`, { headers: { cookie } });
+        const form = formLanjutkan(await halaman.text());
+        if (!form) return `(no Lanjutkan form on ${alamat}: ${halaman.status})`;
+        const fd = new FormData();
+        for (const [n, v] of form) fd.set(n, v);
+        const r = await get(`${base}${alamat}`, { method: "POST", body: fd, headers: { cookie, origin: base } });
+        const loc = r.headers.get("location") ?? "";
+        return [302, 303, 307, 308].includes(r.status) && loc ? new URL(loc, base).pathname : `(${r.status}, no redirect)`;
+      };
+      const RUMAH: Array<[string, { email: string; password: string }, string]> = [
+        ["learner", PERSONA.cycleLearner, "/belajar"],
+        ["educator", PERSONA.alphaGuru, "/mengajar"],
+        ["head of department", PERSONA.alphaHod, "/pimpinan"],
+        ["dean", PERSONA.dean, "/pimpinan"],
+        ["school admin", PERSONA.alphaAdmin, "/konfigurasi"],
+        ["platform admin", PERSONA.sysadmin, "/konfigurasi"],
+      ];
+      for (const [peran, persona, rumah] of RUMAH) {
+        const { cookie } = await signIn(ctx, persona);
+        const ke = await lanjutkan(cookie, "/masuk");
+        c.expect(ke === rumah, `the ${peran} with no destination landed on ${ke}, expected ${rumah} (D-010)`);
+        // "/" is the entry page, not a page anybody asked for; an old link may carry it
+        const keAkar = await lanjutkan(cookie, "/masuk?lanjut=%2F");
+        c.expect(keAkar === rumah, `the ${peran} whose link carried "/" landed on ${keAkar}, expected ${rumah}`);
+      }
+      // a page the person did ask for still wins
+      const { cookie } = await signIn(ctx, PERSONA.cycleLearner);
+      const diminta = await lanjutkan(cookie, "/masuk?lanjut=%2Fbelajar%2Fsertifikat");
+      c.expect(diminta === "/belajar/sertifikat", `a requested destination was replaced by ${diminta}`);
+      return c.verdict("signed in, each of the six roles posts the sign-in screen's Lanjutkan with no destination and " +
+        "is redirected by the running route to its D-010 home, also when the link carried only \"/\"; a requested " +
+        "page still wins");
     },
   },
   {

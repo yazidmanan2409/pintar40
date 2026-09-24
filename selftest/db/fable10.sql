@@ -125,10 +125,14 @@ begin
   alter table public.org_nodes disable trigger org_nodes_no_delete;
   alter table public.academic_periods disable trigger academic_periods_append_only;
   alter table public.institutions disable trigger institutions_no_delete;
+  -- BOB-06: every school now carries PINTAR's standard report templates
+  alter table public.report_templates disable trigger report_templates_guard;
   delete from public.role_assignments ra where ra.institution_id = any (v_inst);
   delete from public.org_nodes n where n.institution_id = any (v_inst);
   delete from public.academic_periods ap where ap.institution_id = any (v_inst);
+  delete from public.report_templates t where t.institution_id = any (v_inst);
   delete from public.institutions i where i.id = any (v_inst);
+  alter table public.report_templates enable trigger report_templates_guard;
   alter table public.institutions enable trigger institutions_no_delete;
   alter table public.academic_periods enable trigger academic_periods_append_only;
   alter table public.org_nodes enable trigger org_nodes_no_delete;

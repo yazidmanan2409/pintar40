@@ -46,7 +46,9 @@ export default async function Masuk({
   const s = (k: HleEvent) => t(k, "public", { locale });
   // L-1. Narrowed here as well, because this value is written into a hidden
   // field and posted straight back; the actions narrow it again on receipt.
-  const lanjut = tujuanInternal(sp.lanjut);
+  // BOB-06 (D-010): no destination stays NO destination. Narrowed to "/" it
+  // was posted back as if asked for, and beat the role's home.
+  const lanjut = tujuanInternal(sp.lanjut, "");
   // S15. Asked before anything is drawn: arriving here with a live session is
   // a different screen, not a variation of this one.
   const viewer = await currentViewer();
