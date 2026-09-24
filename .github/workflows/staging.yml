@@ -1,0 +1,196 @@
+# Staging (D-036): the copy of PINTAR that people test on. Its own Supabase
+# project and its own Vercel project; test data is allowed there, never on
+# production (D-013, D-017).
+#
+# WHAT IT DOES
+#   1. Applies every pending migration in supabase/migrations to staging, and
+#      checks the count afterwards equals the repository's.
+#   2. Sets staging's sign-in boundary and email in one write, then reads it
+#      back and asserts it: site_url is the staging origin, the one callback
+#      is allowed, sign-up is off, and mail goes through PINTAR's own sender
+#      under the name "PINTAR Staging".
+#   3. Only when dispatched with `initialise`, and only after Gladys has been
+#      bootstrapped on staging by hand: environment = staging with sample
+#      data off (the same posture as production), and SD and SMA with their
+#      2026/2027 year, if they are not there yet.
+#
+# WHAT IT NEVER TOUCHES
+#   Production. PROJECT_REF is staging's, the database URL must name staging's
+#   project (checked before anything connects), and no production database
+#   password, service key, pepper or certificate key is read. The two shared
+#   credentials are account-level: the Supabase access token (Yazid's account,
+#   which owns both projects) and the mail account's password (the sender is
+#   the same mailbox; D-036, confirmed to Yazid on 24 Sep).
+#
+# WHEN IT RUNS
+#   On pushes to main that add a migration (staging follows main), and by hand.
+name: staging · database and sign-in
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "supabase/migrations/**"
+      - ".github/workflows/staging.yml"
+  workflow_dispatch:
+    inputs:
+      initialise:
+        description: "Also set staging's environment and create SD and SMA (only after Gladys is bootstrapped on staging)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://pintar40-staging.vercel.app
+  SMTP_HOST: pintarselalu.com
+  SMTP_PORT: "465"
+  SMTP_SENDER: noreply@pintarselalu.com
+  SMTP_SENDER_NAME: PINTAR Staging
+
+jobs:
+  staging:
+    if: github.ref == 'refs/heads/main'
+    name: migrations, sign-in boundary, and (on request) initialisation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Credentials present, and the database is staging's
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          miss=0
+          for n in STAGING_SUPABASE_DB_URL SUPABASE_ACCESS_TOKEN PINTAR_SMTP_PASSWORD; do
+            if [ -n "${!n:-}" ]; then echo "$n: present"; else echo "::error::$n is not set"; miss=1; fi
+          done
+          [ "$miss" = 0 ] || exit 1
+          # the URL must name staging's project, and must never name production's
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_REF"*) echo "::error::STAGING_SUPABASE_DB_URL names the production project"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::STAGING_SUPABASE_DB_URL does not name staging's project ($PROJECT_REF)"; exit 1;; esac
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install the pinned Supabase CLI
+        run: npm i -g supabase@2.117.0
+
+      - name: Migrations before
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -uo pipefail
+          N=$(psql "$DB" -At -c "select count(*) from supabase_migrations.schema_migrations" 2>/dev/null || echo 0)
+          echo "applied on staging: $N; in the repository: $(ls supabase/migrations/*.sql | wc -l)"
+
+      - name: Apply pending migrations
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -uo pipefail
+          yes | supabase db push --db-url "$DB"
+          rc=$?
+          echo "supabase db push exited $rc"
+          exit $rc
+
+      - name: Migrations after — must equal the repository
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          N=$(psql "$DB" -At -c "select count(*) from supabase_migrations.schema_migrations")
+          R=$(ls supabase/migrations/*.sql | wc -l)
+          L=$(psql "$DB" -At -c "select max(version) from supabase_migrations.schema_migrations")
+          echo "applied on staging: $N (last $L); in the repository: $R"
+          [ "$N" = "$R" ] || { echo "::error::staging has $N migrations, the repository $R"; exit 1; }
+
+      - name: Sign-in boundary and email — write
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/body.json
+          import json, os
+          o = os.environ['STAGING_ORIGIN']
+          print(json.dumps({
+            'site_url': o,
+            'uri_allow_list': f'{o}/auth/callback*',
+            'disable_signup': True,
+            'smtp_host': os.environ['SMTP_HOST'],
+            'smtp_port': os.environ['SMTP_PORT'],
+            'smtp_user': os.environ['SMTP_SENDER'],
+            'smtp_pass': os.environ['PINTAR_SMTP_PASSWORD'],
+            'smtp_admin_email': os.environ['SMTP_SENDER'],
+            'smtp_sender_name': os.environ['SMTP_SENDER_NAME'],
+          }))
+          PY
+          CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
+            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
+          rm -f /tmp/body.json
+          echo "PATCH -> HTTP $CODE"
+          test "$CODE" = "200" || { echo "::error::the write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+
+      - name: Sign-in boundary and email — read back and assert
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          sleep 5
+          curl -sS -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth" > /tmp/after.json
+          python3 - <<'PY'
+          import json, os, sys
+          d = json.load(open('/tmp/after.json'))
+          o = os.environ['STAGING_ORIGIN']
+          want = {'site_url': o, 'uri_allow_list': f'{o}/auth/callback*', 'disable_signup': True,
+                  'smtp_host': os.environ['SMTP_HOST'], 'smtp_port': os.environ['SMTP_PORT'],
+                  'smtp_user': os.environ['SMTP_SENDER'], 'smtp_admin_email': os.environ['SMTP_SENDER'],
+                  'smtp_sender_name': os.environ['SMTP_SENDER_NAME']}
+          bad = []
+          for k, v in want.items():
+              got = d.get(k)
+              ok = str(got) == str(v)
+              print('%-18s %s %r' % (k, 'ok ' if ok else 'BAD', got))
+              if not ok: bad.append(k)
+          print('smtp_pass          (never read, never printed)')
+          if bad: print('::error::not as written: ' + ', '.join(bad)); sys.exit(1)
+          PY
+
+      - name: Initialise — environment, and SD and SMA (on request only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.initialise }}
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          B=$(psql "$DB" -At -c "select count(*) from public.platform_bootstrap")
+          [ "$B" = "1" ] || { echo "::error::Gladys is not bootstrapped on staging yet (platform_bootstrap has $B rows); see the staging runbook"; exit 1; }
+          psql "$DB" -v ON_ERROR_STOP=1 -At <<'SQL'
+          update public.platform_environment set environment = 'staging', local_fixtures_enabled = false;
+          insert into public.institutions (name, slug, is_synthetic)
+          select v.name, v.slug, false
+            from (values ('SD Zayd Pintar Selalu', 'sd-zps'), ('SMA Zayd Pintar Selalu', 'sma-zps')) v(name, slug)
+           where not exists (select 1 from public.institutions i where i.slug = v.slug);
+          insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+          select i.id, '2026/2027', '2026-07-13', '2027-06-30'
+            from public.institutions i
+           where i.slug in ('sd-zps', 'sma-zps')
+             and not exists (select 1 from public.academic_periods p where p.institution_id = i.id and p.name = '2026/2027');
+          SQL
+          psql "$DB" -At -c "select 'environment: '||environment||', sample data '||case when local_fixtures_enabled then 'ON' else 'off' end from public.platform_environment"
+          psql "$DB" -At -c "select 'school: '||i.slug||' real='||(not i.is_synthetic)||' year='||coalesce(string_agg(p.name, ','),'-') from public.institutions i left join public.academic_periods p on p.institution_id = i.id where i.slug in ('sd-zps','sma-zps') group by i.slug, i.is_synthetic order by 1"
+          psql "$DB" -At -c "select 'active SYSTEM_ADMIN assignments: '||count(*) from public.role_assignments where role = 'SYSTEM_ADMIN' and revoked_at is null and now() < valid_until"
