@@ -67,6 +67,34 @@
 .pin-spacer { flex: 1; }
 .pin-sub { color: var(--ink-3); font-size: var(--type-fine); }
 
+/* ------------------------------------------------- the session strip (DAISY-02)
+   Who is signed in, and the way out, on every signed-in screen (D-009). In the
+   header row on a wide screen; on a phone it takes a row of its own under the
+   mark (below), because a name and a 44px button do not fit beside the mark
+   and the language switch at 320px, and the point is that it is seen without
+   scrolling. The button is a real form submit, so it works before any script
+   has loaded on a slow classroom tablet. */
+.pin-sesi { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.pin-sesi-ket {
+  min-width: 0; max-width: var(--measure-sesi);
+  font-size: var(--type-fine); color: var(--ink-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pin-sesi-ket strong { color: var(--ink-1); font-weight: var(--weight-strong); }
+.pin-sesi form { display: flex; flex: none; }
+.pin-sesi-keluar {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-1); color: var(--ink-1);
+  font: inherit; font-size: var(--type-fine); font-weight: var(--weight-strong);
+  cursor: pointer; white-space: nowrap;
+}
+.pin-sesi-keluar:hover { background: var(--surface-2); }
+/* On the refusal page: under the way back, a quieter second door. */
+.pin-sesi-penolakan { flex-wrap: wrap; }
+.pin-sesi-penolakan .pin-sesi-ket { max-width: none; white-space: normal; }
+
 /* reading column and rhythm */
 .pin-col {
   max-width: var(--measure-read); margin-inline: auto;
@@ -415,6 +443,13 @@
   .pin-top .pin-merek { height: var(--logo-height-phone); margin-block: 10px; }
   .pin-top .pin-lang { margin-left: auto; }
   .pin-top .pin-sub { display: none; }
+  /* The session strip gets its own row, between the mark and the tabs, so it
+     is on screen before anything scrolls and a long name can still be read. */
+  .pin-top .pin-sesi {
+    order: 5; width: 100%; justify-content: space-between;
+    border-top: 1px solid var(--line); padding-block: var(--space-1);
+  }
+  .pin-top .pin-sesi-ket { max-width: none; }
   /* A TAB STRIP SIZED BY ITS LONGEST LABEL, NOT BY A NUMBER (WP6B).
      44px was a fixed HEIGHT, which is the same mistake `.pin-actions .pin-btn`
      made two rules down: it is right while every label fits on one line and

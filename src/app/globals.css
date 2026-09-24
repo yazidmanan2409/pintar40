@@ -199,6 +199,7 @@
      the difference between a form a child can hit and one they cannot. */
   --measure-auth: 400px;         /* the form on a wide screen */
   --measure-auth-wide: 460px;    /* the form in the one-column tablet band */
+  --measure-sesi: 28ch;          /* a signed-in name in a header row, before it ellipsizes */
   --control-h: 52px;             /* email-path field and primary action */
   --control-h-big: 60px;         /* card-path field and primary action */
   --vis-band: 260px;             /* the photograph's height below the form */

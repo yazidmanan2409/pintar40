@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 61,
+  "version": 62,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1633,6 +1633,11 @@
       "id": "DAISY-01-MASUK-01",
       "runner": "static",
       "proves": "DAISY-01, the sign-in layout. The geometry of /masuk is COMPUTED from the stylesheet FILE the way the browser computes it -- the gutter token at each width, the stage's margin against it, the container queries that apply, the grid split, the padding expression evaluated against the column and the form's measure -- at ten widths from 320 to 2560: the stage runs edge to edge with no page background showing down its sides, the form sits in the middle of its column wherever it could sit anywhere else, the mark is drawn at the verification page's size from a tablet up, and the split stage is never shorter than the screen. The evaluator is checked on two known expressions and reproduces the Chromium measurement of the defect to the pixel (before 56/254 at 1440 and 56/539 at 2000; after 167/167 and 310/310)."
+    },
+    {
+      "id": "DAISY-02-KELUAR-01",
+      "runner": "static",
+      "proves": "DAISY-02 (D-009), a way out on every signed-in screen. The session strip is RENDERED in both languages from the pure component: a staff strip names the person, a learner strip is handed no name and asks 'Bukan akun Anda?' (S15), and both are a labelled group whose way out is a POST form to /keluar with a submit button described by the line beside it. From the SOURCE: the display name reaches the render only when a caller asks, every learning surface (learner shell, an educator's own learning, an assessment in focus, the refusal page) does not ask, the public verification shell carries no strip, Belajar/Mengajar/Pimpinan/Pendataan/Aktivasi render it through the shell and Studio/Konfigurasi through their own headers, and no file writes 'Keluar' as text (D-014). From the stylesheet FILE: on a phone it is a full-width header row ordered ahead of the tabs, its button keeps a 44px target, and no rule hides it."
     }
   ]
 }

@@ -3,6 +3,7 @@ import { currentViewer } from "@/lib/auth";
 import { s, studioInstitutions } from "./_lib";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
+import SesiSaya from "@/components/SesiSaya";
 
 /**
  * Studio shell (FABLE-05 §1, §12).
@@ -46,8 +47,14 @@ export default async function StudioLayout({ children }: { children: React.React
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
-        <p className="text-sm text-ink-3">{s("app.name")}</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">{s("studio.title")}</h1>
+        {/* DAISY-02: who is signed in and the way out, beside the title. */}
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-sm text-ink-3">{s("app.name")}</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight">{s("studio.title")}</h1>
+          </div>
+          <SesiSaya locale={locale} persona="staff" sebut />
+        </div>
         <nav className="mt-4 flex flex-wrap gap-3 text-sm">
           {nav.map(([href, text]) => (
             <Link key={href} href={href} className="text-ink-2 underline-offset-4 hover:underline">{text}</Link>

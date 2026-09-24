@@ -9,6 +9,7 @@ import {
 } from "./actions";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
+import SesiSaya from "@/components/SesiSaya";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -157,12 +158,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
 
   return (
     <main className="py-6">
-      <header className="flex items-baseline justify-between">
+      <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm text-ink-3">{s("app.name")}</p>
           <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
         </div>
-        <form action="/keluar" method="post"><button className="text-sm text-ink-2 underline">Keluar</button></form>
+        {/* DAISY-02: the shared session strip replaces a hard-coded "Keluar"
+            that sat outside the copy table and never changed language. */}
+        <SesiSaya locale={await currentLocale()} persona="staff" sebut />
       </header>
 
       {/* WP5B. THE WAY IN TO BULK INTAKE, from the surface an institution

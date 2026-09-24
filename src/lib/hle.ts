@@ -194,6 +194,10 @@ export type HleEvent =
   | "auth.link_p_exp"
   | "auth.link_again"
   | "auth.link_same"
+  | "sesi.label"
+  | "sesi.sebagai"
+  | "sesi.bukan_anda"
+  | "sesi.keluar"
   | "auth.in_h"
   | "auth.in_p"
   | "auth.in_go"
@@ -1439,6 +1443,13 @@ const table: Table = {
   "auth.link_h_exp": { default: "Tautan ini sudah tidak berlaku", en: "This link is no longer valid" },
   "auth.link_p_exp": { default: "Tautan masuk berlaku sekali dan untuk waktu yang terbatas. Minta tautan baru untuk melanjutkan.", en: "A sign-in link works once, and only for a limited time. Ask for a new link to continue." },
   "auth.link_again": { default: "Minta tautan baru", en: "Ask for a new link" },
+  // DAISY-02 (D-009): who is signed in, and the way out, on every signed-in
+  // screen. "sesi.sebagai" is followed by the name on staff screens only; a
+  // learner's screen never names anybody (S15), and says "sesi.bukan_anda".
+  "sesi.label": { default: "Akun yang sedang masuk", en: "The account signed in" },
+  "sesi.sebagai": { default: "Masuk sebagai", en: "Signed in as" },
+  "sesi.bukan_anda": { default: "Bukan akun Anda?", en: "Not your account?" },
+  "sesi.keluar": { default: "Keluar", en: "Sign out" },
   "auth.link_same": { default: "Tautan masuk juga hanya berfungsi di perangkat dan browser tempat Anda memintanya, jadi buka tautan di perangkat dan browser yang sama.", en: "A sign-in link also only works on the device and in the browser where you asked for it, so open it on the same device and in the same browser." },
   "auth.in_h": { default: "Anda sudah masuk", en: "You're already signed in" },
   "auth.in_p": { default: "Sesi Anda di perangkat ini masih aktif.", en: "Your session on this device is still active." },

@@ -5,6 +5,7 @@ import { konteksPembelajaran } from "@/lib/pembelajaran";
 import PengalihBahasa from "./PengalihBahasa";
 import MerekPintar from "./MerekPintar";
 import TombolBantuan from "./tur/TombolBantuan";
+import SesiSaya from "./SesiSaya";
 
 /**
  * The Experience shell: the mark, where you are, and the language switch.
@@ -105,6 +106,7 @@ export default async function CangkangPengalaman({
         <MerekPintar />
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="learner" sebut={false} />
       </header>
     );
   }
@@ -129,6 +131,7 @@ export default async function CangkangPengalaman({
         <span className="pin-spacer" />
         <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="educator" sebut />
       </header>
     );
   }
@@ -144,6 +147,7 @@ export default async function CangkangPengalaman({
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="staff" sebut />
       </header>
     );
   }
@@ -159,6 +163,7 @@ export default async function CangkangPengalaman({
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="staff" sebut />
       </header>
     );
   }
@@ -196,6 +201,7 @@ export default async function CangkangPengalaman({
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="educator" sebut={false} />
       </header>
     );
   }
@@ -221,6 +227,8 @@ export default async function CangkangPengalaman({
       <span className="pin-spacer" />
       <TombolBantuan locale={locale} persona="learner" beranda="/belajar" />
       <PengalihBahasa locale={locale} />
+      {/* DAISY-02: a learner's screen never names anybody (S15). */}
+      <SesiSaya locale={locale} persona="learner" sebut={false} />
     </header>
   );
 }

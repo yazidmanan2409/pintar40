@@ -85,6 +85,7 @@ import {
   SEBAB_TUTUP, type Kuesioner,
 } from "../src/lib/umpanbalik-kontrak";
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
+import BarisSesi from "../src/components/BarisSesi";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
 
@@ -7119,6 +7120,167 @@ export const experienceTests: SelfTest[] = [
         "room for it to be anywhere else, the mark is drawn at the verification page's size from a tablet up, " +
         "and the split stage is never shorter than the screen -- all computed from the cascade that applies " +
         `at each width, with the evaluator checked on two known expressions (left/right gaps: ${baris.join(" ")})`,
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-02 (lane: Daisy)
+  {
+    id: "DAISY-02-KELUAR-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-02 (D-009): "KELUAR" ON EVERY SIGNED-IN SCREEN. Until now only
+       * Konfigurasi had one, as a hard-coded word that never changed language,
+       * so on a shared classroom tablet the next child simply carried on as the
+       * previous one (audit B5).
+       *
+       * 1. THE STRIP ITSELF, RENDERED. BarisSesi is a pure component, so it is
+       *    rendered here the way UX1-UB-BISU-01 renders HasilKelas: called, and
+       *    its element tree walked. A staff strip names the person; a learner
+       *    strip is handed no name and asks "Bukan akun Anda?" instead (S15). In
+       *    both, the way out is a real POST form to /keluar with a submit button
+       *    that a screen reader announces by name and describes by the line
+       *    beside it.
+       */
+      type El = { type?: unknown; props?: Record<string, unknown> };
+      function semua(n: Simpul, out: El[] = []): El[] {
+        if (n === null || n === undefined || typeof n === "string" || typeof n === "number") return out;
+        out.push(n);
+        for (const k of anakDari(n)) semua(k, out);
+        return out;
+      }
+      for (const locale of LOCALES) {
+        const nama = "Sari Wulandari";
+        const staf = BarisSesi({ locale, persona: "staff", nama }) as Simpul;
+        const murid = BarisSesi({ locale, persona: "learner", nama: null }) as Simpul;
+        const teksStaf = teksPohon(staf).join(" ");
+        const teksMurid = teksPohon(murid).join(" ");
+        c.expect(teksStaf.includes(nama) && teksStaf.includes(t("sesi.sebagai", "staff", { locale })),
+          `(${locale}) a staff strip does not say who is signed in: "${teksStaf}"`);
+        c.expect(!teksMurid.includes(t("sesi.sebagai", "learner", { locale })) && teksMurid.includes(t("sesi.bukan_anda", "learner", { locale })),
+          `(${locale}) a learner strip does not ask "not your account?" without naming anyone: "${teksMurid}"`);
+        for (const [apa, pohon, persona] of [["staff", staf, "staff"], ["learner", murid, "learner"]] as const) {
+          const els = semua(pohon);
+          const form = els.find((e) => e.type === "form");
+          const tombol = els.find((e) => e.type === "button");
+          const grup = els.find((e) => e.props?.role === "group");
+          c.expect(form?.props?.action === "/keluar" && form?.props?.method === "post",
+            `(${locale}) the ${apa} strip's way out is not a POST form to /keluar`);
+          c.expect(tombol?.props?.type === "submit" && teksPohon(tombol as Simpul).join("") === t("sesi.keluar", persona, { locale }),
+            `(${locale}) the ${apa} strip has no submit button named "${t("sesi.keluar", persona, { locale })}"`);
+          const ket = els.find((e) => e.props?.id === tombol?.props?.["aria-describedby"]);
+          c.expect(Boolean(ket) && teksPohon(ket as Simpul).join("").trim().length > 0,
+            `(${locale}) the ${apa} strip's button is not described by the line beside it`);
+          c.expect(typeof grup?.props?.["aria-label"] === "string" && String(grup?.props?.["aria-label"]).length > 0,
+            `(${locale}) the ${apa} strip is not a labelled group`);
+        }
+      }
+
+      /**
+       * 2. THE NAME NEVER REACHES A LEARNER'S SCREEN. Structural, not
+       *    behavioural, because the component is pure: SesiSaya reads the
+       *    display name into the render ONLY when told to name, and every
+       *    call site on a learning surface -- the learner shell, an educator's
+       *    own learning, an assessment in focus, and the refusal page a child
+       *    may land on -- tells it not to.
+       */
+      const sesi = code(readFileSync(join(repoRoot, "src", "components", "SesiSaya.tsx"), "utf8"));
+      c.expect(/nama=\{sebut \? viewer\.displayName : null\}/.test(sesi),
+        "SesiSaya passes the display name without being told to name the person");
+      c.expect(/if \(!viewer\) return null;/.test(sesi), "SesiSaya draws a strip for somebody who is not signed in");
+
+      const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      const cabangKind = (k: string) => {
+        const i = cangkang.indexOf(`if (kind === "${k}")`);
+        const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
+        return i >= 0 && j > i ? cangkang.slice(i, j) : "";
+      };
+      const HARAPAN: Array<[string, "sebut" | "diam" | "tidak"]> = [
+        ["focus", "diam"], ["pengajar", "sebut"], ["pimpinan", "sebut"], ["pendataan", "sebut"], ["public", "tidak"],
+      ];
+      for (const [k, harap] of HARAPAN) {
+        const b = cabangKind(k);
+        c.expect(b.length > 0 && b.includes("<MerekPintar"), `could not isolate the shell's "${k}" branch`);
+        const ada = b.match(/<SesiSaya[^>]*\/>/)?.[0] ?? "";
+        if (harap === "tidak") c.expect(!ada, `the public shell offers a sign-out; the verification page must offer no way in`);
+        else if (harap === "sebut") c.expect(/\bsebut\s*\/>|\bsebut=\{true\}/.test(ada), `the "${k}" shell does not name the staff member signed in: ${ada || "no strip"}`);
+        else c.expect(/sebut=\{false\}/.test(ada), `the "${k}" shell does not keep the person unnamed: ${ada || "no strip"}`);
+      }
+      // the two learning shells: an educator's own learning, and the learner's
+      const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran");
+      const belajar = iBelajar < 0 ? "" : cangkang.slice(iBelajar);
+      const strips = belajar.match(/<SesiSaya[^>]*\/>/g) ?? [];
+      c.expect(strips.length === 2 && strips.every((x) => /sebut=\{false\}/.test(x)),
+        `the learning shells do not both carry an unnamed strip: ${strips.join(" | ") || "none"}`);
+
+      const tolak = code(readFileSync(join(repoRoot, "src", "components", "HalamanPenolakan.tsx"), "utf8"));
+      c.expect(/<SesiSaya[^>]*sebut=\{false\}[^>]*\/>/.test(tolak), "the refusal page offers no unnamed way out");
+
+      /**
+       * 3. EVERY SCREEN THE TICKET NAMES GETS IT. Belajar, Mengajar, Pimpinan,
+       *    Pendataan and Aktivasi through the shell (never the public one);
+       *    Studio and Konfigurasi through their own headers, naming the staff
+       *    member; the refusal page above.
+       */
+      for (const f of ["belajar/page.tsx", "mengajar/page.tsx", "pimpinan/page.tsx", "pendataan/page.tsx", "aktivasi/page.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
+        const shell = src.match(/<CangkangPengalaman[^>]*\/>/)?.[0] ?? "";
+        c.expect(shell.length > 0 && !/kind="public"/.test(shell), `${f} does not render a signed-in shell`);
+      }
+      for (const f of ["studio/layout.tsx", "konfigurasi/page.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
+        c.expect(/<SesiSaya[^>]*\bsebut\s*\/>/.test(src), `${f} does not show who is signed in and the way out`);
+      }
+
+      /**
+       * 4. NO HARD-CODED "KELUAR" (D-014). The one that existed sat outside the
+       *    copy table and stayed Indonesian for an English reader.
+       */
+      const KERAS = />\s*(?:Keluar|Sign out)\s*</;
+      c.expect(KERAS.test('<button className="x">Keluar</button>'), "the hard-coded-word sweep does not catch one (control)");
+      for (const f of walk(join(repoRoot, "src")).filter((p) => p.endsWith(".tsx"))) {
+        const src = code(readFileSync(f, "utf8"));
+        c.expect(!KERAS.test(src), `${relative(repoRoot, f)} writes "Keluar" as text instead of the copy table`);
+      }
+
+      /**
+       * 5. VISIBLE WITHOUT SCROLLING ON A PHONE, from the cascade. On a phone the
+       *    strip takes its own full-width row ordered before the tab strip, so
+       *    it sits in the header, above everything the page scrolls; and its
+       *    button keeps the 44px touch target. Nothing hides it at any width.
+       */
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const iPonsel = css.indexOf("@media (max-width: 560px)");
+      let jPonsel = iPonsel;
+      for (let d = 0, k = css.indexOf("{", iPonsel); k < css.length; k++) {
+        if (css[k] === "{") d++;
+        else if (css[k] === "}" && --d === 0) { jPonsel = k; break; }
+      }
+      const ponsel = css.slice(iPonsel, jPonsel);
+      const ruleIn = (scope: string, sel: string) => {
+        const esc = sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return new RegExp(`(?:^|\\n)\\s*${esc}\\s*\\{([^}]*)\\}`).exec(scope)?.[1] ?? "";
+      };
+      const orderOf = (r: string) => Number(/order:\s*(\d+)/.exec(r)?.[1] ?? NaN);
+      const sesiPonsel = ruleIn(ponsel, ".pin-top .pin-sesi");
+      const tabsPonsel = ruleIn(ponsel, ".pin-tabs");
+      c.expect(orderOf(sesiPonsel) < orderOf(tabsPonsel) && /width:\s*100%/.test(sesiPonsel),
+        `on a phone the session strip is not a full-width row ahead of the tabs (strip: "${sesiPonsel.trim()}")`);
+      c.expect(/min-height:\s*44px/.test(ruleIn(css, ".pin-sesi-keluar")), "the Keluar button has no 44px touch target");
+      c.expect(!/\.pin-sesi[^{]*\{[^}]*display:\s*none/.test(css), "a rule hides the session strip");
+
+      return c.verdict(
+        "the session strip is RENDERED in both languages: a staff strip names the person, a learner strip is handed " +
+        "no name and asks whether the account is theirs, and both are a labelled group whose way out is a POST form " +
+        "to /keluar with a submit button described by the line beside it. The display name reaches the render only " +
+        "when a caller asks for it, and every learning surface -- the learner shell, an educator's own learning, an " +
+        "assessment in focus, the refusal page -- does not; the public verification shell carries none. Belajar, " +
+        "Mengajar, Pimpinan, Pendataan and Aktivasi render it through the shell, Studio and Konfigurasi through their " +
+        "own headers, no file writes 'Keluar' as text, and on a phone it is a full-width header row ahead of the tabs " +
+        "with a 44px button that nothing hides",
       );
     },
   },

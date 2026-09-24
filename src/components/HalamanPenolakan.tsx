@@ -2,6 +2,7 @@ import Link from "next/link";
 import { t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
 import KakiPintar from "./KakiPintar";
 import MerekPintar from "./MerekPintar";
+import SesiSaya from "./SesiSaya";
 
 /**
  * HalamanPenolakan — ONE refusal page, for unauthorized, nonexistent and
@@ -40,6 +41,10 @@ export default function HalamanPenolakan({
         <h1>{s(messageKey)}</h1>
         <p className="pin-intro">{s("tolak.arti")}</p>
         <Link className="pin-btn" href={backHref}>{s(backKey)}</Link>
+        {/* DAISY-02. A refusal is often somebody signed in as the wrong
+            account, and on a shared device it may not even be theirs, so the
+            way out is here too, naming nobody. Drawn only when signed in. */}
+        <SesiSaya locale={locale} persona={persona} sebut={false} varian="penolakan" />
       </section>
 
       <KakiPintar className="pin-noprint" />
