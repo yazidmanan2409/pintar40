@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { t, type Locale } from "@/lib/hle";
 import { peranSaya } from "@/lib/tur-negara";
+import { currentViewer } from "@/lib/auth";
 import { konteksPembelajaran } from "@/lib/pembelajaran";
 import PengalihBahasa from "./PengalihBahasa";
 import MerekPintar from "./MerekPintar";
 import TombolBantuan from "./tur/TombolBantuan";
+import SesiSaya from "./SesiSaya";
+import TabTempat, { tempatDariPeran } from "./TabTempat";
 
 /**
  * The Experience shell: the mark, where you are, and the language switch.
@@ -92,8 +95,17 @@ export default async function CangkangPengalaman({
 }: {
   locale: Locale;
   kind?: "learner" | "public" | "focus" | "pengajar" | "pimpinan" | "pendataan";
-  current?: "belajar" | "sertifikat" | "kelas" | "pimpinan" | "pendataan";
+  current?: "belajar" | "sertifikat" | "kelas" | "pimpinan" | "pendataan" | "aktivasi";
 }) {
+  // ONE READ, IN PARALLEL (DAISY-02/03). The viewer and the reader's own active
+  // roles are asked once, together, for every signed-in shell, and handed down:
+  // the staff shells offer the other places those roles lead to (D-010), the
+  // session strip decides from the same roles whether to name the reader (S15,
+  // D-020), and the learner branch below decides its context from them too.
+  // The public verification page reads nothing: nobody is signed in to it.
+  const [viewer, peran] = kind === "public" ? [null, null] : await Promise.all([currentViewer(), peranSaya()]);
+  const tempat = tempatDariPeran(peran);
+
   // FOCUS. During an assessment the shell keeps the mark and the language and
   // drops the tabs. The engine survives navigating away — a session is server
   // state, not a page — but a header offering three ways out of a timed task
@@ -105,6 +117,7 @@ export default async function CangkangPengalaman({
         <MerekPintar />
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="learner" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -125,10 +138,12 @@ export default async function CangkangPengalaman({
           <Link href="/belajar" aria-current={undefined}>
             {t("nav.pembelajaran", "educator", { locale })}
           </Link>
+          <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" />
         </nav>
         <span className="pin-spacer" />
         <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -141,9 +156,11 @@ export default async function CangkangPengalaman({
           <Link href="/pimpinan" aria-current={current === "pimpinan" ? "page" : undefined}>
             {t("nav.pimpinan", "staff", { locale })}
           </Link>
+          <TabTempat tempat={tempat} kecuali={["/pimpinan"]} locale={locale} persona="staff" />
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -156,9 +173,16 @@ export default async function CangkangPengalaman({
           <Link href="/pendataan" aria-current={current === "pendataan" ? "page" : undefined}>
             {t("nav.pendataan", "staff", { locale })}
           </Link>
+          {/* Aktivasi is the same audience's next step -- recorded people who
+              cannot sign in yet -- and was reachable only by typing it (M3). */}
+          <Link href="/aktivasi" aria-current={current === "aktivasi" ? "page" : undefined}>
+            {t("nav.aktivasi", "staff", { locale })}
+          </Link>
+          <TabTempat tempat={tempat} locale={locale} persona="staff" />
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -176,7 +200,7 @@ export default async function CangkangPengalaman({
 
   // WP6B. The only read this component makes, and only on the learning shell:
   // the other four return above without asking anything.
-  const { mengajar } = konteksPembelajaran(await peranSaya());
+  const { mengajar } = konteksPembelajaran(peran);
   if (mengajar) {
     return (
       <header className="pin-top pin-shell pin-noprint">
@@ -193,9 +217,11 @@ export default async function CangkangPengalaman({
           <Link href="/belajar" aria-current={current ? "page" : undefined}>
             {t("nav.pembelajaran", "educator", { locale })}
           </Link>
+          <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" />
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
+        <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -221,6 +247,7 @@ export default async function CangkangPengalaman({
       <span className="pin-spacer" />
       <TombolBantuan locale={locale} persona="learner" beranda="/belajar" />
       <PengalihBahasa locale={locale} />
+      <SesiSaya locale={locale} persona="learner" viewer={viewer} peran={peran} />
     </header>
   );
 }

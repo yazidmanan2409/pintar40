@@ -55,11 +55,12 @@
  *   UX1-UB-BUKA-01           discovery names a teacher; opening re-decides, every time
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
 import { Checks, type SelfTest } from "./lib";
-import { allKeys, telling, renderAll, t, LOCALES, type HleEvent } from "../src/lib/hle";
+import { allKeys, telling, renderAll, t, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import { berandaPeran } from "../src/lib/beranda";
@@ -85,6 +86,10 @@ import {
   SEBAB_TUTUP, type Kuesioner,
 } from "../src/lib/umpanbalik-kontrak";
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
+import BarisSesi from "../src/components/BarisSesi";
+import { tempatDariPeran, daftarTempat, pintuMasuk } from "../src/components/tempat";
+import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
+import type { DisplayRole } from "../src/lib/auth";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
 
@@ -207,6 +212,10 @@ function informal(text: string): string[] {
 // ---------------------------------------------------------------------------
 const RESET_SURFACES = [
   "src/app/layout.tsx",
+  // DAISY-04: PINTAR's own error and not-found pages, on the token vocabulary
+  "src/app/error.tsx",
+  "src/app/global-error.tsx",
+  "src/app/not-found.tsx",
   "src/app/globals.css",
   "src/app/experience.css",
   "src/app/_intel.ts",
@@ -7143,6 +7152,688 @@ export const experienceTests: SelfTest[] = [
         "room for it to be anywhere else, the mark is drawn at the verification page's size from a tablet up, " +
         "and the split stage is never shorter than the screen -- all computed from the cascade that applies " +
         `at each width, with the evaluator checked on two known expressions (left/right gaps: ${baris.join(" ")})`,
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-02 (lane: Daisy)
+  {
+    id: "DAISY-02-KELUAR-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-02 (D-009): "KELUAR" ON EVERY SIGNED-IN SCREEN. Until now only
+       * Konfigurasi had one, as a hard-coded word that never changed language,
+       * so on a shared classroom tablet the next child simply carried on as the
+       * previous one (audit B5).
+       *
+       * 1. THE STRIP ITSELF, RENDERED. BarisSesi is a pure component, so it is
+       *    rendered here the way UX1-UB-BISU-01 renders HasilKelas: called, and
+       *    its element tree walked. A staff strip names the person; a learner
+       *    strip is handed no name and asks "Bukan akun Anda?" instead (S15). In
+       *    both, the way out is a real POST form to /keluar with a submit button
+       *    that a screen reader announces by name and describes by the line
+       *    beside it.
+       */
+      type El = { type?: unknown; props?: Record<string, unknown> };
+      function semua(n: Simpul, out: El[] = []): El[] {
+        if (n === null || n === undefined || typeof n === "string" || typeof n === "number") return out;
+        out.push(n);
+        for (const k of anakDari(n)) semua(k, out);
+        return out;
+      }
+      for (const locale of LOCALES) {
+        const nama = "Sari Wulandari";
+        const staf = BarisSesi({ locale, persona: "staff", nama }) as Simpul;
+        const murid = BarisSesi({ locale, persona: "learner", nama: null }) as Simpul;
+        const teksStaf = teksPohon(staf).join(" ");
+        const teksMurid = teksPohon(murid).join(" ");
+        c.expect(teksStaf.includes(nama) && teksStaf.includes(t("sesi.sebagai", "staff", { locale })),
+          `(${locale}) a staff strip does not say who is signed in: "${teksStaf}"`);
+        c.expect(!teksMurid.includes(t("sesi.sebagai", "learner", { locale })) && teksMurid.includes(t("sesi.bukan_anda", "learner", { locale })),
+          `(${locale}) a learner strip does not ask "not your account?" without naming anyone: "${teksMurid}"`);
+        for (const [apa, pohon, persona] of [["staff", staf, "staff"], ["learner", murid, "learner"]] as const) {
+          const els = semua(pohon);
+          const form = els.find((e) => e.type === "form");
+          const tombol = els.find((e) => e.type === "button");
+          const grup = els.find((e) => e.props?.role === "group");
+          c.expect(form?.props?.action === "/keluar" && form?.props?.method === "post",
+            `(${locale}) the ${apa} strip's way out is not a POST form to /keluar`);
+          c.expect(tombol?.props?.type === "submit" && teksPohon(tombol as Simpul).join("") === t("sesi.keluar", persona, { locale }),
+            `(${locale}) the ${apa} strip has no submit button named "${t("sesi.keluar", persona, { locale })}"`);
+          const ket = els.find((e) => e.props?.id === tombol?.props?.["aria-describedby"]);
+          c.expect(Boolean(ket) && teksPohon(ket as Simpul).join("").trim().length > 0,
+            `(${locale}) the ${apa} strip's button is not described by the line beside it`);
+          c.expect(typeof grup?.props?.["aria-label"] === "string" && String(grup?.props?.["aria-label"]).length > 0,
+            `(${locale}) the ${apa} strip is not a labelled group`);
+        }
+      }
+
+      /**
+       * 2. THE READER DECIDES WHETHER THEY ARE NAMED, NEVER THE PAGE (S15,
+       *    D-020). The first version asked the page ("is this a staff shell?"),
+       *    and /mengajar draws the teaching shell for anybody who reaches it, so
+       *    a student who typed the address read "Masuk sebagai <their full
+       *    name>" on a shared tablet.
+       *
+       *    a) THE RULE, FOR EVERY KIND OF READER. A name is shown to a reader
+       *       who holds a staff role today and to nobody else: not a student
+       *       (who holds no role assignment at all -- being a learner is an
+       *       enrolment), not somebody whose display role outlived the
+       *       assignment behind it, not a reader whose roles could not be read.
+       */
+      const NAMA = "Nadia Putri Maharani";
+      const STAF_D010: DisplayRole[] = ["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"];
+      c.expect(JSON.stringify([...PERAN_STAF].sort()) === JSON.stringify([...STAF_D010].sort() as string[]),
+        `the staff roles that are named are not every display role but STUDENT: ${PERAN_STAF.join(",")}`);
+      type Pembaca = { siapa: string; peranTampil: DisplayRole; peran: string[] | null; sebut: boolean };
+      const PEMBACA: Pembaca[] = [
+        { siapa: "a student", peranTampil: "STUDENT", peran: [], sebut: false },
+        { siapa: "a student whose roles could not be read", peranTampil: "STUDENT", peran: null, sebut: false },
+        { siapa: "STUDENT, were it ever a role", peranTampil: "STUDENT", peran: ["STUDENT"], sebut: false },
+        { siapa: "an unknown role", peranTampil: null, peran: ["NOT_A_ROLE"], sebut: false },
+        { siapa: "an EDUCATOR display role with no active assignment", peranTampil: "EDUCATOR", peran: [], sebut: false },
+        ...STAF_D010.map((r): Pembaca => ({ siapa: String(r), peranTampil: r, peran: [String(r)], sebut: true })),
+        { siapa: "a teacher who also leads and administers", peranTampil: "INSTITUTION_ADMIN", peran: ["EDUCATOR", "HEAD_OF_DEPARTMENT", "INSTITUTION_ADMIN"], sebut: true },
+      ];
+      for (const b of PEMBACA) {
+        const hasil = namaUntukStrip(NAMA, b.peran);
+        c.expect(hasil === (b.sebut ? NAMA : null), `${b.siapa}: the rule gives the strip ${JSON.stringify(hasil)}`);
+      }
+      c.expect(namaUntukStrip(null, ["EDUCATOR"]) === null && namaUntukStrip("", ["EDUCATOR"]) === null,
+        "a staff reader with no stored name is given a placeholder instead of no name");
+
+      /**
+       *    b) SESISAYA ITSELF, RENDERED FOR EACH READER ON EVERY KIND OF SHELL.
+       *       The component the pages use is called with each reader above on
+       *       the teaching shell a student reaches at /mengajar, and on the
+       *       staff, learner, public and refusal variants too, and what it
+       *       draws is read. It imports the server-only role read, so it runs
+       *       in a child under the react-server condition (as the card
+       *       derivation does in the app runner); the reader is handed in, so
+       *       no database is asked. The name appears exactly when the READER
+       *       holds a staff role, whatever the page.
+       */
+      const RAK: Array<{ persona: Persona; varian: "kepala" | "penolakan" }> = [
+        { persona: "educator", varian: "kepala" }, { persona: "staff", varian: "kepala" },
+        { persona: "learner", varian: "kepala" }, { persona: "public", varian: "kepala" },
+        { persona: "educator", varian: "penolakan" }, { persona: "staff", varian: "penolakan" },
+      ];
+      const kasus = PEMBACA.flatMap((b) => RAK.flatMap((r) => LOCALES.map((locale) => ({ b, r, locale }))));
+      const anak = spawnSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "-e",
+        'import("file://" + process.cwd() + "/src/components/SesiSaya.tsx").then(async (m) => {' +
+        "  const SesiSaya = m.default?.default ?? m.default;" +
+        "  const out = [];" +
+        "  for (const k of JSON.parse(process.env.KASUS_SESI)) {" +
+        "    const el = await SesiSaya(k);" +
+        "    out.push(el ? JSON.stringify(el.type(el.props)) : null);" +
+        "  }" +
+        "  process.stdout.write(JSON.stringify(out));" +
+        "})"], {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          KASUS_SESI: JSON.stringify([
+            ...kasus.map(({ b, r, locale }) => ({
+              locale, persona: r.persona, varian: r.varian, peran: b.peran,
+              viewer: { authUserId: "u", personId: "p", displayName: NAMA, displayRole: b.peranTampil },
+            })),
+            // nobody signed in: nothing to sign out of
+            { locale: "id", persona: "educator", varian: "kepala", peran: ["EDUCATOR"], viewer: null },
+          ]),
+        },
+      });
+      let gambar: Array<string | null> = [];
+      try { gambar = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && gambar.length === kasus.length + 1,
+        `SesiSaya could not be rendered for each reader: ${(anak.stderr || "").trim().split("\n").slice(-3).join(" ")}`)) {
+        kasus.forEach(({ b, r, locale }, n) => {
+          const g = gambar[n] ?? "";
+          const bernama = g.includes(NAMA) && g.includes(t("sesi.sebagai", r.persona, { locale }));
+          const tanpaNama = !g.includes(NAMA) && !g.includes("Putri") && !g.includes(t("sesi.sebagai", r.persona, { locale }))
+            && g.includes(t("sesi.bukan_anda", r.persona, { locale }));
+          const keluar = g.includes('"action":"/keluar"') && g.includes(t("sesi.keluar", r.persona, { locale }));
+          c.expect(b.sebut ? bernama && keluar : tanpaNama && keluar,
+            `(${locale}) ${b.siapa} on the ${r.persona} ${r.varian} strip: ${b.sebut ? "not named" : "NAMED"} -- ${g.slice(0, 160)}`);
+        });
+        c.expect(gambar[kasus.length] === null, "SesiSaya draws a strip for somebody who is not signed in");
+      }
+
+      /**
+       *    c) NOTHING HANDS THE STRIP A NAME AROUND THE RULE. BarisSesi -- the
+       *       part that prints whatever name it is given -- is rendered by
+       *       SesiSaya alone, which gives it only the rule's answer; nothing
+       *       passes SesiSaya a name or a page's opinion; and the page a student
+       *       reaches at /mengajar greets by the same reader (first name only,
+       *       D-020).
+       */
+      const sesi = code(readFileSync(join(repoRoot, "src", "components", "SesiSaya.tsx"), "utf8"));
+      c.expect(/nama=\{namaUntukStrip\(v\.displayName, p\)\}/.test(sesi), "SesiSaya gives the strip a name other than the reader rule's answer");
+      c.expect(/if \(!v\) return null;/.test(sesi), "SesiSaya draws a strip for somebody who is not signed in");
+      for (const f of walk(join(repoRoot, "src")).filter((p) => /\.tsx?$/.test(p))) {
+        const src = code(readFileSync(f, "utf8"));
+        const rel = relative(repoRoot, f);
+        if (!rel.endsWith("SesiSaya.tsx")) c.expect(!/<BarisSesi\b/.test(src), `${rel} renders BarisSesi directly, around the reader rule`);
+        for (const x of src.match(/<SesiSaya\b[^>]*\/>/g) ?? []) {
+          c.expect(!/\b(?:nama|sebut)=/.test(x), `${rel} hands the strip a name or a page's opinion: ${x}`);
+        }
+      }
+      const ajarBeranda = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "page.tsx"), "utf8"));
+      c.expect(/const sapa = aku \? namaSapaan\(aku\.nama, peran\) : null;/.test(ajarBeranda) && (ajarBeranda.match(/aku\.nama\b/g) ?? []).length === 1,
+        "the teaching home greets whoever reaches it by full name, whatever their roles");
+
+      /**
+       * 3. EVERY SCREEN THE TICKET NAMES GETS IT, FROM ONE READ. Belajar,
+       *    Mengajar, Pimpinan, Pendataan and Aktivasi through the shell (never
+       *    the public one), which reads the viewer and their roles once, in
+       *    parallel, and hands both to every strip; the signed-in home page,
+       *    Studio and Konfigurasi the same way in their own headers; the two
+       *    report pages and the refusal page through the strip's own parallel
+       *    read.
+       */
+      const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      c.expect(/const \[viewer, peran\] = kind === "public" \? \[null, null\] : await Promise\.all\(\[currentViewer\(\), peranSaya\(\)\]\)/.test(cangkang),
+        "the shell does not read the viewer and their roles once, in parallel");
+      const cabangKind = (k: string) => {
+        const i = cangkang.indexOf(`if (kind === "${k}")`);
+        const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
+        return i >= 0 && j > i ? cangkang.slice(i, j) : "";
+      };
+      for (const k of ["focus", "pengajar", "pimpinan", "pendataan", "public"]) {
+        const b = cabangKind(k);
+        c.expect(b.length > 0 && b.includes("<MerekPintar"), `could not isolate the shell's "${k}" branch`);
+        const ada = b.match(/<SesiSaya[^>]*\/>/)?.[0] ?? "";
+        if (k === "public") c.expect(!ada, "the public shell offers a sign-out; the verification page must offer no way in");
+        else c.expect(/viewer=\{viewer\} peran=\{peran\}/.test(ada), `the "${k}" shell's strip reads again instead of using the shell's one read: ${ada || "no strip"}`);
+      }
+      const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran");
+      const strips = (iBelajar < 0 ? "" : cangkang.slice(iBelajar)).match(/<SesiSaya[^>]*\/>/g) ?? [];
+      c.expect(strips.length === 2 && strips.every((x) => /viewer=\{viewer\} peran=\{peran\}/.test(x)),
+        `the learning shells do not both carry a strip from the one read: ${strips.join(" | ") || "none"}`);
+      const tolak = code(readFileSync(join(repoRoot, "src", "components", "HalamanPenolakan.tsx"), "utf8"));
+      c.expect(/<SesiSaya[^>]*varian="penolakan"[^>]*\/>/.test(tolak), "the refusal page offers no way out");
+
+      for (const f of ["belajar/page.tsx", "mengajar/page.tsx", "pimpinan/page.tsx", "pendataan/page.tsx", "aktivasi/page.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
+        const shell = src.match(/<CangkangPengalaman[^>]*\/>/)?.[0] ?? "";
+        c.expect(shell.length > 0 && !/kind="public"/.test(shell), `${f} does not render a signed-in shell`);
+      }
+      for (const f of ["page.tsx", "studio/layout.tsx", "konfigurasi/page.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
+        c.expect(/<SesiSaya[^>]*viewer=\{viewer\} peran=\{peran\}[^>]*\/>/.test(src), `${f} does not show who is signed in and the way out, from its own read`);
+        c.expect(/await Promise\.all\(\[currentViewer\(\), peranSaya\(\)/.test(src) && (src.match(/currentViewer\(\)|peranSaya\(\)/g) ?? []).length === 2,
+          `${f} does not read the viewer and their roles exactly once, in parallel`);
+      }
+      for (const f of ["edukator/ringkasan/page.tsx", "dekan/ringkasan/page.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
+        c.expect(/<header[\s\S]*?<SesiSaya locale=\{await currentLocale\(\)\}[^>]*\/>[\s\S]*?<\/header>/.test(src),
+          `${f} does not show who is signed in and the way out in its header`);
+        // a grid item never shrinks below its content unless told to: without
+        // this a long name pushed Keluar off a 375px screen (measured, 20px)
+        c.expect(/<header className="[^"]*\bmin-w-0\b[^"]*">[\s\S]*?<SesiSaya/.test(src), `${f}'s header cannot shrink to a phone's width`);
+      }
+
+      /**
+       * 4. NO HARD-CODED "KELUAR" (D-014). The one that existed sat outside the
+       *    copy table and stayed Indonesian for an English reader.
+       */
+      const KERAS = />\s*(?:Keluar|Sign out)\s*</;
+      c.expect(KERAS.test('<button className="x">Keluar</button>'), "the hard-coded-word sweep does not catch one (control)");
+      for (const f of walk(join(repoRoot, "src")).filter((p) => p.endsWith(".tsx"))) {
+        const src = code(readFileSync(f, "utf8"));
+        c.expect(!KERAS.test(src), `${relative(repoRoot, f)} writes "Keluar" as text instead of the copy table`);
+      }
+
+      /**
+       * 5. VISIBLE WITHOUT SCROLLING ON A PHONE, from the cascade. On a phone the
+       *    strip takes its own full-width row ordered before the tab strip, so
+       *    it sits in the header, above everything the page scrolls; and its
+       *    button keeps the 44px touch target. Nothing hides it at any width.
+       */
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const iPonsel = css.indexOf("@media (max-width: 560px)");
+      let jPonsel = iPonsel;
+      for (let d = 0, k = css.indexOf("{", iPonsel); k < css.length; k++) {
+        if (css[k] === "{") d++;
+        else if (css[k] === "}" && --d === 0) { jPonsel = k; break; }
+      }
+      const ponsel = css.slice(iPonsel, jPonsel);
+      const ruleIn = (scope: string, sel: string) => {
+        const esc = sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return new RegExp(`(?:^|\\n)\\s*${esc}\\s*\\{([^}]*)\\}`).exec(scope)?.[1] ?? "";
+      };
+      const orderOf = (r: string) => Number(/order:\s*(\d+)/.exec(r)?.[1] ?? NaN);
+      const sesiPonsel = ruleIn(ponsel, ".pin-top .pin-sesi");
+      const tabsPonsel = ruleIn(ponsel, ".pin-tabs");
+      c.expect(orderOf(sesiPonsel) < orderOf(tabsPonsel) && /width:\s*100%/.test(sesiPonsel),
+        `on a phone the session strip is not a full-width row ahead of the tabs (strip: "${sesiPonsel.trim()}")`);
+      c.expect(/min-height:\s*44px/.test(ruleIn(css, ".pin-sesi-keluar")), "the Keluar button has no 44px touch target");
+      c.expect(!/\.pin-sesi[^{]*\{[^}]*display:\s*none/.test(css), "a rule hides the session strip");
+
+      return c.verdict(
+        "the session strip is RENDERED in both languages as a labelled group whose way out is a POST form to /keluar " +
+        "with a submit button described by the line beside it. Whether it names the reader is decided by the READER'S " +
+        "roles, never the page: SesiSaya itself, rendered for a student, a student whose roles could not be read, a " +
+        "lapsed display role, an unknown role and every staff role on the teaching, staff, learner, public and refusal " +
+        "strips, names exactly the staff readers -- a student on /mengajar's shell reads 'Bukan akun Anda?' and no " +
+        "name -- and draws nothing for nobody. BarisSesi is rendered only by SesiSaya, nothing passes it a name, and " +
+        "the teaching home greets a non-staff reader by first name. Belajar, Mengajar, Pimpinan, Pendataan and " +
+        "Aktivasi carry it through the shell's one parallel read, the signed-in home page, Studio and Konfigurasi " +
+        "through theirs, the two report pages and the refusal page through the strip's own; no file writes 'Keluar' " +
+        "as text, and on a phone it is a full-width header row ahead of the tabs with a 44px button that nothing hides",
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-03 (lane: Daisy)
+  {
+    id: "DAISY-03-TEMPAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-03 (D-010; audit M3, M15 UI): EVERY ROLE REACHES ITS PLACES BY
+       * CLICKING. Aktivasi and Studio were reachable only by typing them; a
+       * dean or head of department could not reach Pimpinan at all, because
+       * the home page's staff door went to /masuk and the signed-in sign-in
+       * screen sent them back; and every staff shell showed only its own area.
+       *
+       * 1. WHICH PLACES IS D-010's MAP, READ THROUGH BOB'S FUNCTION. The
+       *    helper is checked against berandaPeran for every display role, so the
+       *    shell and the landing after sign-in cannot disagree, and on the
+       *    combinations a real person holds.
+       */
+      const ROLES: DisplayRole[] = ["STUDENT", "EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"];
+      const STAF = ["/mengajar", "/pimpinan", "/konfigurasi"];
+      for (const r of ROLES) {
+        const rumah = berandaPeran(r);
+        const harap = STAF.includes(rumah) ? [rumah] : [];
+        c.expect(JSON.stringify(tempatDariPeran([r as string])) === JSON.stringify(harap),
+          `${r}: the shell offers ${JSON.stringify(tempatDariPeran([r as string]))}, D-010 (berandaPeran) says ${JSON.stringify(harap)}`);
+      }
+      c.expect(JSON.stringify(tempatDariPeran(["EDUCATOR", "HEAD_OF_DEPARTMENT", "INSTITUTION_ADMIN"])) === JSON.stringify(STAF),
+        "a person holding three roles is not offered all three places, in order");
+      c.expect(tempatDariPeran(null).length === 0 && tempatDariPeran(["NOT_A_ROLE"]).length === 0,
+        "an unreadable or unknown role is offered a place");
+      c.expect(berandaPeran("DEAN") === "/pimpinan" && berandaPeran("HEAD_OF_DEPARTMENT") === "/pimpinan",
+        "D-010 no longer sends management to Pimpinan -- this guard's premise changed");
+
+      /**
+       * 2. THE TABS ARE EXACTLY THAT LIST. daftarTempat is the list a shell
+       *    draws -- the places less the shell's own, each with its label in the
+       *    reader's language -- and TabTempat turns each entry into one link
+       *    and adds nothing. (The component itself imports next/link, which
+       *    cannot load in this runner, so the list is what is read here.)
+       */
+      for (const locale of LOCALES) {
+        const daftar = daftarTempat(["/mengajar", "/pimpinan", "/konfigurasi"], ["/pimpinan"], locale, "staff");
+        c.expect(JSON.stringify(daftar.map((x) => x.href)) === JSON.stringify(["/mengajar", "/konfigurasi"]),
+          `(${locale}) the tabs are not the places less the excluded one: ${daftar.map((x) => x.href).join(",")}`);
+        c.expect(daftar[0]?.label === t("nav.kelas", "staff", { locale }) && daftar[1]?.label === t("nav.konfigurasi", "staff", { locale }),
+          `(${locale}) a place's tab does not carry its label`);
+        // one place, one name: Pimpinan beside Kelas cannot be called "Beranda"
+        c.expect(!/^(Beranda|Home)$/.test(t("nav.pimpinan", "staff", { locale })),
+          `(${locale}) Pimpinan's tab is still called "${t("nav.pimpinan", "staff", { locale })}"`);
+      }
+
+      const tabTempat = code(readFileSync(join(repoRoot, "src", "components", "TabTempat.tsx"), "utf8"));
+      c.expect(/daftarTempat\(tempat, kecuali, locale, persona\)\.map\(\(\{ href, label \}\) => \(\s*<Link key=\{href\} href=\{href\} className=\{kelas\}>\s*\{label\}\s*<\/Link>/.test(tabTempat),
+        "TabTempat does not render the list as one link per place with its label");
+
+      /**
+       * 3. EVERY STAFF SHELL OFFERS THE OTHER PLACES; NOTHING ELSE DOES. The
+       *    roles are asked once, the learner branch reuses the same answer, and
+       *    neither the public page nor an assessment in focus offers anywhere.
+       */
+      const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      c.expect((cangkang.match(/peranSaya\(\)/g) ?? []).length === 1, "the shell asks for the reader's roles more than once, or not at all");
+      // an assessment in focus reads the roles too, now, for its strip's naming rule
+      // (DAISY-02); it still offers no places, below
+      c.expect(/kind === "public" \? \[null, null\] : await Promise\.all\(\[currentViewer\(\), peranSaya\(\)\]\)/.test(cangkang),
+        "the public page asks for the reader's roles, or the shell reads them apart from the viewer");
+      const cabang = (k: string) => {
+        const i = cangkang.indexOf(`if (kind === "${k}")`);
+        const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
+        return i >= 0 && j > i ? cangkang.slice(i, j) : "";
+      };
+      const tab = (b: string) => b.match(/<TabTempat[^>]*\/>/)?.[0] ?? "";
+      c.expect(/kecuali=\{\["\/mengajar"\]\}/.test(tab(cabang("pengajar"))), `the teaching shell does not offer the other places: ${tab(cabang("pengajar")) || "none"}`);
+      c.expect(/kecuali=\{\["\/pimpinan"\]\}/.test(tab(cabang("pimpinan"))), `the management shell does not offer the other places: ${tab(cabang("pimpinan")) || "none"}`);
+      c.expect(tab(cabang("pendataan")).length > 0 && !/kecuali/.test(tab(cabang("pendataan"))), "the intake shell does not offer the reader's places");
+      c.expect(/href="\/aktivasi"/.test(cabang("pendataan")), "the intake shell has no way to Aktivasi");
+      c.expect(!tab(cabang("public")) && !tab(cabang("focus")), "the public page or an assessment in focus offers other places");
+      const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran(peran)");
+      c.expect(iBelajar > 0, "the learning branch no longer decides its context from the one roles answer");
+      const belajar = iBelajar > 0 ? cangkang.slice(iBelajar) : "";
+      const iMurid = belajar.lastIndexOf("return (");
+      c.expect(/kecuali=\{\["\/mengajar"\]\}/.test(tab(belajar.slice(0, iMurid))), "an educator's own learning does not offer the other places");
+      c.expect(!tab(belajar.slice(iMurid)), "a learner's own shell offers staff places");
+
+      const aktivasi = code(readFileSync(join(repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"));
+      c.expect(/<CangkangPengalaman[^>]*current="aktivasi"/.test(aktivasi), "Aktivasi does not mark its own tab");
+
+      /**
+       * 4. KONFIGURASI AND STUDIO ARE NOT DEAD ENDS. Konfigurasi links Pendataan,
+       *    Aktivasi and Studio (M3) and the administrator's other places;
+       *    Studio links back to the person's places.
+       */
+      const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      for (const h of ["/pendataan", "/aktivasi", "/studio"]) {
+        c.expect(new RegExp(`<Link href="${h}"`).test(konfig), `Konfigurasi has no link to ${h}`);
+      }
+      c.expect(/<TabTempat[\s\S]*?kecuali=\{\["\/konfigurasi"\]\}/.test(konfig), "Konfigurasi does not offer the administrator's other places");
+      const studio = code(readFileSync(join(repoRoot, "src", "app", "studio", "layout.tsx"), "utf8"));
+      c.expect(/<TabTempat /.test(studio) && /tempatDariPeran\(peran\)/.test(studio), "Studio offers no way back to the person's places");
+
+      /**
+       * 5. THE HOME PAGE: A SIGNED-IN READER'S DOORS ARE ONLY THE PLACES THEY
+       *    HOLD (M15 UI; the gate on the first round). That version pointed
+       *    three fixed doors somewhere plausible, so a student was offered
+       *    /mengajar and a teacher a staff door that refused them.
+       *
+       *    a) THE RULE, OVER EVERY DISPLAY ROLE AND EVERY ROLES ANSWER: the
+       *       staff doors are exactly tempatDariPeran of the roles held today
+       *       (never the display role, which can outlive its assignment), and
+       *       Belajar is there exactly for a learner. So a student is never
+       *       sent to /mengajar, and a failed roles read opens no staff door.
+       */
+      const TAMPIL: Array<DisplayRole> = [...ROLES, null];
+      const JAWABAN: Array<string[] | null> = [
+        null, [], ["STUDENT"], ["NOT_A_ROLE"], ...ROLES.filter((r) => r !== "STUDENT").map((r) => [String(r)]),
+        ["EDUCATOR", "HEAD_OF_DEPARTMENT"], ["EDUCATOR", "DEAN", "SYSTEM_ADMIN"],
+      ];
+      for (const tampil of TAMPIL) {
+        for (const peran of JAWABAN) {
+          const pintu = pintuMasuk(tampil, peran);
+          const staf = pintu.filter((x) => x !== "/belajar");
+          c.expect(JSON.stringify(staf) === JSON.stringify(tempatDariPeran(peran)),
+            `${tampil} holding ${JSON.stringify(peran)}: staff doors ${JSON.stringify(staf)}, held ${JSON.stringify(tempatDariPeran(peran))}`);
+          c.expect(pintu.includes("/belajar") === (tampil === "STUDENT"),
+            `${tampil} holding ${JSON.stringify(peran)}: Belajar ${pintu.includes("/belajar") ? "offered" : "withheld"}`);
+          c.expect(new Set(pintu).size === pintu.length, `${tampil} holding ${JSON.stringify(peran)}: a door twice`);
+        }
+      }
+      c.expect(JSON.stringify(pintuMasuk("STUDENT", [])) === JSON.stringify(["/belajar"]), "a student is not offered exactly Belajar");
+      c.expect(!pintuMasuk("STUDENT", null).includes("/mengajar") && !pintuMasuk("STUDENT", []).includes("/mengajar"),
+        "a student is sent to /mengajar");
+      c.expect(pintuMasuk("EDUCATOR", null).length === 0, "an unreadable roles answer still opens a staff door from the display role");
+
+      /**
+       *    b) GREETED BY FIRST NAME (D-020). A learner -- or anybody holding no
+       *       staff role -- by their first name, staff in full, nobody named by
+       *       a placeholder.
+       */
+      c.expect(namaSapaan("Nadia Putri Maharani", []) === "Nadia" && namaSapaan("  Nadia  Putri ", null) === "Nadia",
+        `a learner is greeted as "${namaSapaan("Nadia Putri Maharani", [])}", not by first name`);
+      c.expect(namaSapaan("Sari Wulandari Kusumaningrum", ["EDUCATOR"]) === "Sari Wulandari Kusumaningrum",
+        "a staff member is not greeted as the school stored their name");
+      c.expect(namaSapaan(null, []) === null && namaSapaan("   ", ["EDUCATOR"]) === null, "nobody named is greeted by a placeholder");
+
+      /**
+       *    c) THE PAGE DRAWS EXACTLY THAT. Anonymous: the three doors by
+       *       purpose, two of them to sign in. Signed in: one door per entry of
+       *       pintuMasuk, each with its own words, the honest line when there
+       *       is none, the greeting through namaSapaan, and never the raw
+       *       display name. One parallel read.
+       */
+      const beranda = code(readFileSync(join(repoRoot, "src", "app", "page.tsx"), "utf8"));
+      const iMasuk = beranda.indexOf("const nama = namaSapaan(viewer.displayName, peran);");
+      c.expect(iMasuk > 0 && /if \(!viewer\) \{/.test(beranda.slice(0, iMasuk)), "could not isolate the home page's signed-in half");
+      const anonim = beranda.slice(0, iMasuk);
+      const masuk = beranda.slice(iMasuk);
+      c.expect(JSON.stringify(anonim.match(/<Link href="[^"]+"/g)) ===
+        JSON.stringify(['<Link href="/belajar"', '<Link href="/masuk?peran=guru"', '<Link href="/masuk?peran=staf"']),
+        `the anonymous doors changed: ${anonim.match(/<Link href="[^"]+"/g)}`);
+      c.expect(!/\/masuk/.test(masuk), "a signed-in reader is offered a door to /masuk");
+      c.expect(/const pintu = pintuMasuk\(viewer\.displayRole, peran\);/.test(masuk) && /pintu\.map\(\(href\) => \(\s*<Link key=\{href\} href=\{href\}/.test(masuk),
+        "the signed-in doors are not exactly pintuMasuk's list");
+      c.expect((masuk.match(/<Link\b/g) ?? []).length === 1, "the signed-in half draws a door that is not from pintuMasuk's list");
+      c.expect(/s\("entry\.kosong"\)/.test(masuk), "a signed-in reader holding no place is not told so");
+      c.expect(!/viewer\.displayName\s*[}?`]/.test(beranda) && /\{nama \? `, \$\{nama\}` : ""\}/.test(masuk),
+        "the home page greets with the raw display name instead of namaSapaan's");
+      c.expect(/await Promise\.all\(\[currentViewer\(\), peranSaya\(\), currentLocale\(\)\]\)/.test(beranda), "the home page reads the viewer, roles and language in sequence");
+      const LABEL = /const LABEL_PINTU: Record<Pintu, HleEvent> = \{([^}]*)\}/.exec(beranda)?.[1] ?? "";
+      for (const [pintu, kunci] of [["/belajar", "entry.learner"], ["/mengajar", "entry.educator"], ["/pimpinan", "entry.pimpinan"], ["/konfigurasi", "entry.staff"]]) {
+        c.expect(new RegExp(`"${pintu}": "${kunci.replace(".", "\\.")}"`).test(LABEL), `the ${pintu} door is not labelled ${kunci}`);
+        for (const locale of LOCALES) c.expect(t(kunci as HleEvent, "public", { locale }) !== TANPA_SALINAN, `(${locale}) ${kunci} has no copy`);
+      }
+      for (const locale of LOCALES) c.expect(t("entry.kosong", "public", { locale }) !== TANPA_SALINAN, `(${locale}) entry.kosong has no copy`);
+      c.expect(!/>\s*Halo,|"kamu"/.test(beranda), "the home page writes its greeting outside the copy table");
+
+      /**
+       * 6. ON A PHONE THE STRIP WRAPS RATHER THAN OVERFLOWS. A tab cannot be
+       *    narrower than its longest word; five places at 320px pushed the last
+       *    one off screen by 69px before this. (Measured after: 40 renders, no
+       *    tab off screen, none clipped, none under 44px, no overflow.)
+       */
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const iP = css.indexOf("@media (max-width: 560px)");
+      const tabsPonsel = /\n\s*\.pin-tabs\s*\{([^}]*)\}/.exec(css.slice(iP))?.[1] ?? "";
+      c.expect(/flex-wrap:\s*wrap/.test(tabsPonsel), `on a phone the tab strip does not wrap: "${tabsPonsel.trim()}"`);
+
+      return c.verdict(
+        "the places a shell offers are D-010's map read through berandaPeran, agreeing with it for every display " +
+        "role and for a three-role person; the list the tabs are drawn from is the places less the shell's own, " +
+        "each with its label in both languages, TabTempat draws one link per entry and nothing else, and Pimpinan is " +
+        "called Pimpinan beside the others. Every staff shell offers the other places " +
+        "from one roles answer, the intake shell reaches Aktivasi, and neither the public page, an assessment in " +
+        "focus nor a learner's own shell offers any. Konfigurasi links Pendataan, Aktivasi and Studio and the " +
+        "administrator's other places, and Studio links back. On the home page a signed-in reader's doors are exactly " +
+        "the places they hold -- over every display role and roles answer the staff doors equal the roles held today " +
+        "and Belajar is a learner's alone, so a student is never sent to /mengajar and an unreadable answer opens no " +
+        "staff door -- drawn one link each with their own words and an honest line when there are none; a learner is " +
+        "greeted by first name and staff in full, never by the raw display name; the anonymous doors are unchanged. On " +
+        "a phone the tab strip wraps rather than overflowing",
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-04 (lane: Daisy)
+  {
+    id: "DAISY-04-GALAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-04 (D-011; audit M7). ONE MISSING WORD USED TO TAKE A PAGE DOWN.
+       * `t()` read `.en` off a row that did not exist, so a key built from data
+       * -- `mengajar.instrumen.${mode}` on Siapkan -- threw, and the teacher saw
+       * Next's English error page. Nine assessment modes exist; three had copy.
+       *
+       * 1. AN UNKNOWN KEY NEVER THROWS, for any persona in either language, and
+       *    renders the calm fallback rather than the key itself. A throw is
+       *    caught and reported here as the failure, so the red run is a red and
+       *    not a crash of the runner.
+       */
+      const PERSONAS: Persona[] = ["learner", "educator", "staff", "public"];
+      const HANTU = "mengajar.instrumen.MODE_YANG_BELUM_ADA" as HleEvent;
+      for (const persona of PERSONAS) for (const locale of LOCALES) {
+        let keluar = "";
+        try { keluar = t(HANTU, persona, { locale }); }
+        catch (e) { c.expect(false, `t() threw on an unknown key for ${persona}/${locale}: ${(e as Error).message.slice(0, 80)}`); continue; }
+        c.expect(keluar === TANPA_SALINAN, `an unknown key rendered "${keluar}" for ${persona}/${locale}, not the calm fallback`);
+        c.expect(!keluar.includes("MODE_YANG_BELUM_ADA") && !keluar.includes("mengajar."), "an unknown key put the identifier on screen");
+      }
+      // a real key is unaffected, and the internal-word guard still refuses:
+      // the fallback is for a MISSING row, not a way round the copy's own test
+      c.expect(t("galat.ulang", "public", { locale: "id" }) !== TANPA_SALINAN, "a real key renders the fallback");
+      // Planted for one call and restored: a public key whose copy carries an
+      // internal word must still throw. The row is the table's own object.
+      const baris = telling("galat.ulang") as { default: string };
+      const asli = baris.default;
+      let threw = false;
+      try { baris.default = `${asli} ${INTERNAL_WORDS[1]}`; t("galat.ulang", "public", { locale: "id" }); }
+      catch { threw = true; }
+      finally { baris.default = asli; }
+      c.expect(threw, "the internal-word guard no longer refuses a public key that carries an internal word");
+      c.expect(t("galat.ulang", "public", { locale: "id" }) === asli, "the planted row was not restored");
+
+      /**
+       * 2. EVERY ASSESSMENT MODE THE DATABASE CAN HOLD HAS A LABEL. Read from the
+       *    migrations -- the CREATE TYPE and every ADD VALUE -- so a mode added
+       *    tomorrow is in this list the day it is added, and Siapkan cannot
+       *    render a dash (or, before, crash) for it.
+       */
+      const mig = readdirSync(join(repoRoot, "supabase", "migrations"))
+        .filter((f) => f.endsWith(".sql"))
+        .map((f) => readFileSync(join(repoRoot, "supabase", "migrations", f), "utf8"))
+        .join("\n");
+      const mode = new Set<string>();
+      for (const m of mig.matchAll(/create type public\.assessment_mode as enum \(([^)]*)\)/gi)) {
+        for (const v of m[1].matchAll(/'([A-Z_]+)'/g)) mode.add(v[1]);
+      }
+      for (const m of mig.matchAll(/alter type public\.assessment_mode add value (?:if not exists )?'([A-Z_]+)'/gi)) mode.add(m[1]);
+      c.expect(mode.size >= 9 && mode.has("QUICK") && mode.has("PAPER"), `read only ${mode.size} assessment mode(s) from the migrations`);
+      for (const m of mode) {
+        const k = `mengajar.instrumen.${m}` as HleEvent;
+        c.expect(allKeys().includes(k), `assessment mode ${m} has no label, so Siapkan shows a dash for it`);
+        for (const locale of LOCALES) {
+          if (allKeys().includes(k)) c.expect(t(k, "educator", { locale }).trim().length > 1, `${k} is empty in ${locale}`);
+        }
+      }
+      c.expect(t("mengajar.instrumen.QUICK", "educator", { locale: "id" }) === "Uji Cepat", "the quick assessment is not called Uji Cepat on Siapkan (D-015)");
+
+      /**
+       * 3. PINTAR'S OWN PAGES, NEVER NEXT'S ENGLISH DEFAULTS. The error and
+       *    root-error pages are client components (Next requires it), read the
+       *    reader's language, and hand the shared panel the error's DIGEST --
+       *    never its message, which can be database text (D-011).
+       */
+      const baca = (p: string) => { const f = join(repoRoot, p); return existsSync(f) ? readFileSync(f, "utf8") : ""; };
+      const galat = baca("src/app/error.tsx");
+      const akar = baca("src/app/global-error.tsx");
+      const tidakAda = baca("src/app/not-found.tsx");
+      const panel = baca("src/components/HalamanGalat.tsx");
+      c.expect(galat.length > 0 && akar.length > 0 && tidakAda.length > 0 && panel.length > 0,
+        "PINTAR has no error page, no root-error page or no not-found page of its own");
+      for (const [nama, src] of [["error.tsx", galat], ["global-error.tsx", akar]] as const) {
+        if (!src) continue;
+        c.expect(/^"use client";/.test(src.trimStart()), `${nama} is not a client component`);
+        c.expect(/<HalamanGalat[^>]*rujukan=\{error\.digest\}/.test(src), `${nama} does not pass the error's digest as the reference`);
+        c.expect(!/error\.(message|stack|name)\b/.test(code(src)), `${nama} reads the error's own text`);
+      }
+      c.expect(/<html lang=\{locale\}>/.test(akar), "the root-error page does not declare the reader's language");
+      c.expect(/LOCALE_COOKIE/.test(akar), "the root-error page does not read the language the reader chose");
+      c.expect(/document\.documentElement\.lang/.test(galat), "the error page does not read the language the layout declared");
+      c.expect(!/\.message\b|\.stack\b/.test(code(panel)), "the error panel can print the error's own text");
+      c.expect(/role="alert"/.test(panel), "a failure is not announced to a screen reader");
+      c.expect(/"galat\.ulang"/.test(panel) && /onClick=\{ulang\}/.test(panel), "the error page offers no way to try again");
+      c.expect(/currentLocale\(\)/.test(tidakAda) && /"tidak_ada\.judul"/.test(tidakAda), "the not-found page is not PINTAR's, in the reader's language");
+      // no visible word outside the copy table on any of the four
+      const HURUF = />\s*[A-Za-z][^<{]*</;
+      for (const [nama, src] of [["error.tsx", galat], ["global-error.tsx", akar], ["not-found.tsx", tidakAda], ["HalamanGalat.tsx", panel]] as const) {
+        c.expect(!HURUF.test(code(src)), `${nama} writes a word outside the copy table`);
+      }
+      // and the copy itself is PINTAR's, in both languages, with no default's words
+      for (const k of ["galat.judul", "galat.arti", "galat.rujukan", "galat.ulang", "galat.beranda", "tidak_ada.judul", "tidak_ada.arti"] as HleEvent[]) {
+        for (const locale of LOCALES) {
+          const v = t(k, "public", { locale });
+          c.expect(v !== TANPA_SALINAN && v.length > 1, `${k} has no copy in ${locale}`);
+          c.expect(!/could not be found|Application error|client-side exception|\b404\b|\b500\b/i.test(v), `${k} (${locale}) reads like a framework default: "${v}"`);
+        }
+      }
+
+      return c.verdict(
+        `an unknown key renders the calm fallback for every persona in both languages and never throws or shows ` +
+        `the key, while a real key is unaffected and the internal-word guard still refuses a planted internal word; every one of the ` +
+        `${mode.size} assessment modes read from the migrations has a label (Siapkan's crash); and PINTAR has its ` +
+        "own error, root-error and not-found pages, client-side where Next requires it, in the reader's language, " +
+        "passing the error's digest as the reference and never its message, announced as an alert, with every " +
+        "word from the copy table",
+      );
+    },
+  },
+  {
+    id: "DAISY-04-KUNCI-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-04, THE GATE'S HALF (§5.2): A MISTYPED KEY STILL FAILS A TEST.
+       *
+       * The calm "—" keeps a reader from a crashed page when a key has no copy,
+       * which is right for the reader and wrong for the release: a typo that
+       * used to throw in a test now renders a dash and passes. The typechecker
+       * does not catch it either, because some twenty screens translate through
+       * a helper typed `(k: string) => t(k as HleEvent, ...)` -- HasilKelas,
+       * the report pages' shared `s`, the tour's `k` -- and a string is a
+       * string.
+       *
+       * So every key written literally anywhere in src/ is swept against the
+       * copy table: the first argument of `t(`, of every helper a file defines
+       * over `t` (or over `as HleEvent`), and of the report pages' imported `s`;
+       * a literal cast `as HleEvent`; and a `...Key="..."` prop. A template with
+       * a placeholder (`mengajar.instrumen.${mode}`) cannot be checked whole, so
+       * its fixed prefix must at least begin a real key; the full set of values
+       * behind the one that matters here (the assessment modes) is enumerated
+       * by DAISY-04-GALAT-01.
+       */
+      const kunci = new Set<string>(allKeys() as string[]);
+      type Temuan = { kunci: string[]; awalan: string[]; penerjemah: string[] };
+      const sapu = (src: string): Temuan => {
+        const penerjemah = new Set(["t"]);
+        for (const m of src.matchAll(/\b(?:const|let)\s+(\w+)\s*=\s*\(\s*(\w+)\b[^)]*\)\s*(?::\s*[\w<>[\]|, ]+)?=>\s*(?:t\(\s*\2\b|\2\s+as\s+HleEvent)/g)) penerjemah.add(m[1]);
+        for (const m of src.matchAll(/\bfunction\s+(\w+)\s*\(\s*(\w+)\b[^)]*\)[^{]*\{\s*return\s+t\(\s*\2\b/g)) penerjemah.add(m[1]);
+        if (/import\s*\{[^}]*\bs\b[^}]*\}\s*from\s*"[./]*_intel"/.test(src)) penerjemah.add("s");
+        const out: Temuan = { kunci: [], awalan: [], penerjemah: [...penerjemah] };
+        for (const n of penerjemah) {
+          for (const m of src.matchAll(new RegExp(`(?<![\\w.])${n}\\(\\s*(["'])([^"'\\n]+)\\1`, "g"))) out.kunci.push(m[2]);
+          for (const m of src.matchAll(new RegExp(`(?<![\\w.])${n}\\(\\s*\`([^\`$]+)\``, "g"))) out.kunci.push(m[1]);
+          for (const m of src.matchAll(new RegExp(`(?<![\\w.])${n}\\(\\s*\`([^\`$]+)\\$\\{`, "g"))) out.awalan.push(m[1]);
+        }
+        for (const m of src.matchAll(/(["'])([a-z][\w-]*(?:\.[\w-]+)+)\1\s+as\s+HleEvent\b/g)) out.kunci.push(m[2]);
+        for (const m of src.matchAll(/\b\w*Key=\{?(["'])([^"']+)\1/g)) out.kunci.push(m[2]);
+        return out;
+      };
+
+      // CONTROL: the sweep finds each form it claims to, in a planted source
+      const tanam = sapu(
+        'const s = (k: string) => t(k as HleEvent, "staff", { locale });\n' +
+        'const u = (key: HleEvent) => t(key, "learner");\n' +
+        '<p>{s("umpanbalik.hasil.artii")}</p> {u(`nav.kelas`)} {t("entry.titel", "public")}\n' +
+        '{s(`mengajar.instrumen.${mode}`)} {s(`tidak.ada.${x}`)} {("galat.judull" as HleEvent)} <X backKey="entry.title" />',
+      );
+      const salah = tanam.kunci.filter((k) => !kunci.has(k));
+      c.expect(JSON.stringify(salah.sort()) === JSON.stringify(["entry.titel", "galat.judull", "umpanbalik.hasil.artii"]),
+        `the sweep does not catch the planted typos (control): found ${JSON.stringify(salah)} among ${JSON.stringify(tanam.kunci)}`);
+      c.expect(tanam.kunci.includes("nav.kelas") && tanam.kunci.includes("entry.title"), "the sweep misses a real key in the planted source (control)");
+      c.expect(tanam.awalan.some((a) => !([...kunci].some((k) => k.startsWith(a)))), "the sweep does not catch a prefix no key begins with (control)");
+
+      let jumlah = 0;
+      let jumlahAwalan = 0;
+      const dikenal = new Set<string>();
+      for (const f of walk(join(repoRoot, "src")).filter((p) => /\.tsx?$/.test(p))) {
+        const rel = relative(repoRoot, f);
+        if (rel === join("src", "lib", "hle.ts")) continue; // the table itself
+        const temuan = sapu(code(readFileSync(f, "utf8")));
+        for (const k of temuan.kunci) {
+          jumlah++;
+          c.expect(kunci.has(k), `${rel} asks for "${k}", which is not in the copy table`);
+        }
+        for (const a of temuan.awalan) {
+          jumlahAwalan++;
+          c.expect([...kunci].some((k) => k.startsWith(a)), `${rel} builds a key from "${a}\${...}", and no key begins that way`);
+        }
+        if (temuan.penerjemah.length > 1) dikenal.add(rel);
+      }
+      // the sweep reached the helpers the typechecker cannot see through
+      for (const f of [["src", "components", "umpanbalik", "HasilKelas.tsx"], ["src", "app", "edukator", "ringkasan", "page.tsx"], ["src", "lib", "tur.ts"]]) {
+        c.expect(dikenal.has(join(...f)), `the sweep does not recognise ${join(...f)}'s key helper`);
+      }
+      c.expect(jumlah > 500, `the sweep checked only ${jumlah} literal keys; it has stopped seeing the code`);
+
+      return c.verdict(
+        `every literal key in src/ is in the copy table: ${jumlah} keys passed to t(, to each file's own helper over ` +
+        `t (${dikenal.size} files, HasilKelas, the report pages' shared s and the tour's k among them), cast as ` +
+        `HleEvent or given as a ...Key prop, and ${jumlahAwalan} template prefixes each beginning a real key. The ` +
+        "control holds: in a planted source the sweep finds a typo through a string-typed helper, a typo passed to " +
+        "t, a typo cast as HleEvent and a prefix no key begins with, and passes the real keys beside them",
       );
     },
   },

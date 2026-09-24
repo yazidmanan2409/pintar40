@@ -1725,4 +1725,39 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "DAISY-04-TIDAK-ADA-01",
+    requires: ["app"],
+    run: async (ctx) => {
+      const c = new Checks();
+      /**
+       * DAISY-04 (D-011): AN ADDRESS THAT LEADS NOWHERE GETS PINTAR'S PAGE, not
+       * Next's English "404: This page could not be found". Asked over HTTP, as
+       * an anonymous visitor, on two public paths that lead nowhere -- one of
+       * them /masuk/kartu, which the proxy lists as public and which has no page
+       * (audit N12) -- in both languages.
+       */
+      const base = ctx.appUrl!;
+      let dilihat = 0;
+      for (const path of ["/masuk/kartu", "/verifikasi/tidak/ada"]) {
+        for (const locale of ["id", "en"] as const) {
+          const res = await get(`${base}${path}`, { headers: { cookie: `pintar-lang=${locale}` } });
+          const raw = await res.text();
+          const teks = visibleText(raw);
+          dilihat++;
+          c.expect(res.status === 404, `${path} (${locale}) → ${res.status}, expected 404`);
+          c.expect(teks.includes(t("tidak_ada.judul", "public", { locale })),
+            `${path} (${locale}) is not PINTAR's not-found page: "${teks.slice(0, 90)}"`);
+          c.expect(!/This page could not be found|404: /i.test(teks), `${path} (${locale}) shows Next's English default`);
+          c.expect(new RegExp(`<html lang="${locale}"`).test(raw), `${path} (${locale}) does not declare the reader's language`);
+          c.expect(/href="\/"/.test(raw), `${path} (${locale}) offers no way back`);
+        }
+      }
+      return c.verdict(
+        `an anonymous visitor to an address that leads nowhere gets a 404 carrying PINTAR's own page in the language ` +
+        `they chose, never Next's English default, with a way back (${dilihat} requests: /masuk/kartu and a path ` +
+        `under /verifikasi/, in Indonesian and English)`,
+      );
+    },
+  },
 ];
