@@ -1125,8 +1125,13 @@ begin
   if ok then detail := 'non-official evidence never reaches official_*; an OFFICIAL session does; the analytics role holds no grant on a raw evidence table; ' || v_inv20; end if;
   return next;
 
-  -- F02-T18 §8: the only public surface is published lesson prose, and the
-  -- item-bearing aggregates are service-role only.
+  -- F02-T18 RESTATED BY D-032 (BOB-14). Spec §8 made published lesson prose
+  -- PINTAR's one public surface; the schools are real now, so it is none.
+  -- The view still shows only a PUBLISHED release's prose (read here as its
+  -- owner), but no client role reads it: not anon, and not a signed-in
+  -- teacher, whose lesson text comes only through paths that check school,
+  -- class and assignment. anon holds no table grant at all, and the
+  -- item-bearing aggregates stay service-role only.
   ok := true; detail := '';
   insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
     values (v_inst, 'Matematika', 'SD', 'V', 'selftest view probe', v_guru) returning id into v_course2;
@@ -1156,20 +1161,29 @@ begin
   select count(*) into n from public.published_lessons where id = v_les2;
   if n <> 1 then ok := false; detail := detail || 'a PUBLISHED release did not make the lesson public; '; end if;
 
-  -- anon reads that view and nothing else
+  -- no client role reads the view: anon, and a signed-in teacher of the school
   perform selftest.as_anon();
   begin
     select count(*) into n from public.published_lessons where id = v_les2;
-    if n <> 1 then ok := false; detail := detail || 'anon could not read published lesson prose; '; end if;
-  exception when others then ok := false; detail := detail || 'anon was refused the published view; '; end;
+    ok := false; detail := detail || format('anon read %s published lesson(s) through the view; ', n);
+  exception when insufficient_privilege then null; end;
   begin
     select count(*) into n from public.items;
     if n > 0 then ok := false; detail := detail || 'anon read item content; '; end if;
   exception when others then null; end;
+  perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  begin
+    select count(*) into n from public.published_lessons;
+    ok := false; detail := detail || format('a signed-in teacher read %s lesson(s) through the public view; ', n);
+  exception when insufficient_privilege then null; end;
   perform selftest.as_owner();
   select count(*) into n from information_schema.role_table_grants
-   where table_schema = 'public' and grantee = 'anon' and table_name <> 'published_lessons';
-  if n > 0 then ok := false; detail := detail || format('anon holds %s grant(s) beyond the view; ', n); end if;
+   where table_schema = 'public' and grantee = 'anon';
+  if n > 0 then ok := false; detail := detail || format('anon holds %s table grant(s); ', n); end if;
+  if not coalesce((select c.reloptions::text[] @> array['security_invoker=true'] from pg_class c
+                    where c.oid = 'public.published_lessons'::regclass), false) then
+    ok := false; detail := detail || 'published_lessons runs as its owner; ';
+  end if;
 
   -- item-bearing aggregates are service-role only
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
@@ -1179,7 +1193,7 @@ begin
   exception when others then null; end;
   perform selftest.as_owner();
   test_id := 'F02-T18'; invariant := 'INV-01 / doc 04 §9';
-  if ok then detail := 'lesson prose is public only under a PUBLISHED release; anon holds one grant; item-bearing aggregates are service-role only'; end if;
+  if ok then detail := 'the lesson view shows only a PUBLISHED release''s prose, and no client role reads it (D-032): anon and a signed-in teacher are refused, the view runs as its reader, anon holds no table grant, and item-bearing aggregates are service-role only'; end if;
   return next;
 
   -- F02-T19 §9/INV-35: the validator coaches, and readiness gates publication.

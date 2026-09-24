@@ -312,9 +312,13 @@ begin
      -- declared anon-reachable surfaces remain (the published view and the
      -- verification route), and both spellings of the route's HTTP path are
      -- counted separately so the pair is never folded away.
+     -- RESTATED BY D-032 (BOB-14): the published lesson view is no longer
+     -- public, so the verification route is the one declared surface, and no
+     -- client role reads a view that runs as its owner.
      and (j->>'functions_executable_by_anon')::int = 0
      and (j->>'undeclared_anon_functions')::int = 0
-     and (j->>'anon_public_surface')::int = 2
+     and (j->>'anon_public_surface')::int = 1
+     and (j->>'client_readable_definer_views')::int = 0
      and (j->>'anon_reachable_http_paths')::int = 2
      and (j->>'public_surface_ok')::boolean
      and (j->>'anon_table_grants')::int = 0 and (j->>'public_buckets')::int = 0
