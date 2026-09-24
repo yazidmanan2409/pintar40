@@ -26,3 +26,13 @@ Only the coordinator releases (D-004). Newest first. Every entry names:
 | Date | Candidate | Harness run | P0 PASS | P1 exceptions | Decision |
 |---|---|---|---|---|---|
 | 24 Sep | `main` 78b0f55 (baseline, not a release candidate) | Audit journeys 35952344955 (harness `39ad60e`): Gladys's path 15 PASS · 5 FAIL · 1 BLOCKED, one operator step (W1); crawl of 14 personas; probes P1 PASS, P2 PASS, P3 FAIL | 13 / 79 | — | NO-GO for any new release until the sprint 1 tickets land. Production stays on `5b5b68d`. |
+
+## Production infrastructure (as read from the dashboard, 24 Sep)
+
+| Item | Value |
+|---|---|
+| Project | `pintar-production`, region ap-southeast-1 (Singapore), Pro plan |
+| Compute | **Nano** (t3a.nano): RAM 53% and 8/60 connections at near-zero traffic |
+| Versions | Postgres 17.6.1.166, Auth 2.197.0, PostgREST 14.5 |
+| Security Advisor | 1 CRITICAL: SECURITY DEFINER view `public.published_lessons` (D-032, BOB-14) |
+| Next | Nano → Micro before the sprint 1 release (Yazid); anything beyond Micro is sized by the D-031 load levels |

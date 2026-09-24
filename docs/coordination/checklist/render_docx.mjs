@@ -132,7 +132,7 @@ add(para([
 add(h1("1. How to use this checklist"));
 d.HOW_TO_USE.forEach((t) => add(para(t, { numbering: { reference: "steps", level: 0 }, size: 18 })));
 add(para([run("Gate  ", { bold: true, size: 18 }), run("P0 blocks go-live · P1 is fixed before go-live or accepted in writing by Yazid · P2 is tracked after go-live.", { size: 18 })], { before: 120 }));
-add(para([run("How  ", { bold: true, size: 18 }), run("AUTO automated test or harness step · RUN walked by hand, with screenshots · PROD read-only check on production · CODE code or database inspection.", { size: 18 })]));
+add(para([run("How  ", { bold: true, size: 18 }), run("AUTO automated test or harness step · LOAD load test on staging (D-031) · RUN walked by hand, with screenshots · PROD read-only check on production · CODE code or database inspection.", { size: 18 })]));
 add(para([run("Status  ", { bold: true, size: 18 }), ...["PASS", "FAIL", "PARTIAL", "BLOCKED"].flatMap((s) => [run(s, { bold: true, color: STATUS_COLOR[s], size: 18 }), run(" · ", { size: 18 })]),
   run("N-I not implemented · N-T not yet tested · N/A.", { size: 18 })]));
 
