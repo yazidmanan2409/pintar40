@@ -12,6 +12,7 @@ import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { loginTests } from "./login.test";
+import { strukturTests } from "./struktur.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -1848,4 +1849,7 @@ export const staticTests: SelfTest[] = [
   // appended in their own file, so nothing that existed at the baseline is
   // edited to make room for them.
   ...loginTests,
+  // BOB-01 — the school-structure contract (D-006, D-011, M5a). Same rule:
+  // appended in its own file, nothing that existed before it is edited.
+  ...strukturTests,
 ];

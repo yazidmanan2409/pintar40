@@ -7,10 +7,19 @@ name: ci
 
 on:
   push:
-    # P-03: a development branch is verified on every push, not only when
-    # someone remembers to dispatch; the production deploy requires a green run
-    # on the exact commit it ships.
-    branches: [main, "claude/**"]
+    # D-025 (supersedes the lane half of P-03): CI starts automatically only on
+    # main, where the coordinator merges. A lane dispatches this workflow itself,
+    # exactly once per hand-off, on its head commit. The deploy still requires a
+    # green run on the exact commit it ships; the coordinator dispatches one on
+    # main when the release commit has none. Documentation-only pushes do not
+    # start CI, except the frozen documents that baseline parity guards.
+    branches: [main]
+    paths:
+      - "**"
+      - "!docs/coordination/**"
+      - "!docs/audit/**"
+      - "!docs/deployment/**"
+      - "!docs/onboarding/**"
   pull_request:
   # A phase is not done until this workflow is green on a pushed commit, and
   # until now it could only run on main or on a pull request — so work on a
@@ -162,7 +171,7 @@ jobs:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
-               db-wp7-gates, db-wp8-gates, db-r1-gates]
+               db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -210,6 +219,8 @@ jobs:
               echo "the six WP8 defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-r1-gates)
               echo "the six systemic-repair defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob01-gates)
+              echo "the eleven school-structure and intake defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1593,6 +1604,40 @@ jobs:
           grep -q "NEW-1 is open" c01-planted.txt || { echo "::error::F09-C01 went red for the wrong reason"; exit 1; }
           npx tsx selftest/run.ts --accept-justified-skips --only=F09-C01 | tee c01-after.txt
           echo "F09-C01: green, red for the declared reason with NEW-1 restored, green after restoration"
+
+      # BOB-01's gates: who may build a school's Bagian, Tingkat and Kelas, the
+      # stable code on every refusal, and the intake's M5a place and year rules.
+      # Same harness, same four proofs, against F10.
+      - name: Local stack (school-structure gates)
+        if: matrix.case == 'db-bob01-gates'
+        id: gatesBob01
+        uses: ./.github/actions/local-stack
+      - name: Each planted school-structure defect must turn its own F10 test red
+        if: matrix.case == 'db-bob01-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob01.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob01-gates
+      # The structure race lives across two committed connections, which the
+      # one-transaction harness cannot hold, so its plant is driven here against
+      # F10-C01: green before, red with the stale-row defect (for the declared
+      # reason), green again after restoration.
+      - name: The stale-row defect must turn the race test F10-C01 red
+        if: matrix.case == 'db-bob01-gates'
+        env:
+          SUPABASE_DB_URL: ${{ steps.gatesBob01.outputs.db-url }}
+        run: |
+          set -euo pipefail
+          for f in selftest/db/fable0*.sql selftest/db/fable10.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$SUPABASE_DB_URL"; done
+          npx tsx selftest/run.ts --accept-justified-skips --only=F10-C01 | tee c01-before.txt
+          psql -At -c "select pg_get_functiondef('public.create_kelas(uuid,text,text)'::regprocedure)" "$SUPABASE_DB_URL" > orig.sql
+          printf ';\n' >> orig.sql
+          psql -v ON_ERROR_STOP=1 -q -f selftest/plants/bob01-c01.sql "$SUPABASE_DB_URL"
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=F10-C01 | tee c01-planted.txt; code=${PIPESTATUS[0]}; set -e
+          psql -v ON_ERROR_STOP=1 -q -f orig.sql "$SUPABASE_DB_URL"
+          test "$code" != "0" || { echo "::error::F10-C01 stayed green with the stale-row defect planted"; exit 1; }
+          grep -q "a Kelas was created under a Tingkat being deactivated" c01-planted.txt || { echo "::error::F10-C01 went red for the wrong reason"; exit 1; }
+          npx tsx selftest/run.ts --accept-justified-skips --only=F10-C01 | tee c01-after.txt
+          echo "F10-C01: green, red for the declared reason with the stale row planted, green after restoration"
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

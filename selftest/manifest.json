@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 64,
+  "version": 65,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..09.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
+    "db": "selftest/db/fable01..10.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -1633,6 +1633,71 @@
       "id": "DAISY-01-MASUK-01",
       "runner": "static",
       "proves": "DAISY-01, the sign-in layout. The geometry of /masuk is COMPUTED from the stylesheet FILE the way the browser computes it -- the gutter token at each width, the stage's margin against it, the container queries that apply, the grid split, the padding expression evaluated against the column and the form's measure -- at ten widths from 320 to 2560: the stage runs edge to edge with no page background showing down its sides, the form sits in the middle of its column wherever it could sit anywhere else, the mark is drawn at the verification page's size from a tablet up, and the split stage is never shorter than the screen. The evaluator is checked on two known expressions and reproduces the Chromium measurement of the defect to the pixel (before 56/254 at 1440 and 56/539 at 2000; after 167/167 and 310/310)."
+    },
+    {
+      "id": "F10-S01",
+      "runner": "db",
+      "proves": "BOB-01 (D-006). An Admin sekolah builds the school's structure through the app. As the school's INSTITUTION_ADMIN, create_bagian, create_tingkat and create_kelas build two Bagian, two Tingkat and three Kelas; the hidden Jenjang (FACULTY) is created once for the school, a hidden Reguler (PROGRAMME) once per Bagian, and the 2026/2027 academic period once (1 July to 30 June) and reused; each Kelas carries its Tingkat's year; school_structure lists exactly the visible nodes with the parent the screen shows; and every act is audited under the admin's name."
+    },
+    {
+      "id": "F10-S02",
+      "runner": "db",
+      "proves": "BOB-01. An Admin platform builds any school's structure. A SYSTEM_ADMIN scoped to a third school creates, renames and lists another school's Bagian, Tingkat and Kelas; a school built by hand before BOB-01 (D-016) keeps its one Jenjang and gains a Reguler under a Bagian at its first Tingkat; the same Tingkat name under two Bagian makes two Tingkat."
+    },
+    {
+      "id": "F10-S03",
+      "runner": "db",
+      "proves": "BOB-01. Everyone else at the school is refused. A DEAN, a HEAD_OF_DEPARTMENT at the Bagian, an EDUCATOR at a Kelas, a placed student, a person with no role and an anonymous caller are each refused by all six structure functions -- PR020 with STRUCTURE_NOT_ALLOWED in DETAIL, or no EXECUTE for anon -- and none of their attempts writes, renames or deactivates anything."
+    },
+    {
+      "id": "F10-S04",
+      "runner": "db",
+      "proves": "BOB-01. Another school's nodes are refused, with no existence oracle. Each school's INSTITUTION_ADMIN is refused STRUCTURE_NOT_ALLOWED by every structure function on the other school's nodes, and a foreign node and a node that does not exist raise the identical SQLSTATE, DETAIL and MESSAGE."
+    },
+    {
+      "id": "F10-S05",
+      "runner": "db",
+      "proves": "BOB-01. A Kelas sits under a Tingkat of the same year. create_kelas with a year other than its Tingkat's is PR020 STRUCTURE_YEAR_MISMATCH; a year not written YYYY/YYYY+1 (or outside 2000/2001..2098/2099) is STRUCTURE_YEAR_INVALID; a Kelas without a stated year takes its Tingkat's; the same names in the next year make that year's period and nodes."
+    },
+    {
+      "id": "F10-S06",
+      "runner": "db",
+      "proves": "BOB-01 (D-011). Every other refusal carries its own stable code in DETAIL: STRUCTURE_NAME_INVALID, NAME_TAKEN (case-insensitive; a Kelas name school-wide per year), PARENT_INVALID, PARENT_INACTIVE, NODE_INVALID (the school and the hidden nodes), HAS_ACTIVE_CHILDREN, HAS_MEMBERS and HAS_STAFF -- 22 cases. A rename lands and is audited once with the old and new name, a repeated deactivation is audited once, a Bagian takes its Reguler with it, a refused deactivation changes nothing, and a deactivated node's name can be reused."
+    },
+    {
+      "id": "F10-M01",
+      "runner": "db",
+      "proves": "M5a. The intake places a learner only in an active Kelas or Tingkat, and says why. import_row_problems refuses a row with no role or role STUDENT whose place is a Bagian, the Jenjang, a Reguler, the school or a deactivated Kelas with 'a learner is placed in an active Kelas or Tingkat', accepts a Kelas and a Tingkat, leaves an EDUCATOR scoped to a Bagian alone, and import_validate reports the phrase against the row before anything is provisioned."
+    },
+    {
+      "id": "F10-M02",
+      "runner": "db",
+      "proves": "M5a. The intake enrols a learner into the place's own academic year. With three periods at the school, the newest carried by no place, learners placed in a 2026/2027 Kelas, a 2027/2028 Kelas and a 2026/2027 Tingkat are each enrolled and placed in that place's own year and the import completes; before, every one failed with 'membership period must match the node's period'."
+    },
+    {
+      "id": "F10-C01",
+      "runner": "db",
+      "proves": "BOB-01 under real concurrency. Two psql connections race one school's structure as its INSTITUTION_ADMIN: A deactivates a Tingkat and holds its transaction open; B calls create_kelas under it meanwhile. B waits on the per-school structure lock, reads the Tingkat again under it, and is refused PR020 STRUCTURE_PARENT_INACTIVE; afterwards the Tingkat is inactive and holds no Kelas. A single session cannot see this: a check made on the row read before the lock passes on a stale row. Committed fixture, removed afterwards."
+    },
+    {
+      "id": "BOB01-K01",
+      "runner": "static",
+      "proves": "BOB-01 (D-011). Read from the migration source: the codes structure_refuse raises (SQLSTATE PR020, the code in DETAIL) are exactly src/lib/struktur-kontrak.ts KODE_STRUKTUR_DB; the six structure functions raise nothing except through structure_refuse and are SECURITY DEFINER with a pinned search_path; every code, with STRUCTURE_INPUT_INVALID and STRUCTURE_FAILED, has a distinct key in the copy table that renders in both languages without naming the machinery."
+    },
+    {
+      "id": "BOB01-K02",
+      "runner": "static",
+      "proves": "BOB-01 (D-011). kodeGalatStruktur trusts only PR020 with a known DETAIL (42501 is not-allowed; every other shape, including database text in DETAIL, is STRUCTURE_FAILED); the five Konfigurasi structure actions are (prev, FormData) => HasilStruktur, never redirect, keep error.message in the server log only, and send exactly the argument names the migration declares; bacaStruktur is server-only and calls school_structure by its declared argument."
+    },
+    {
+      "id": "BOB01-K03",
+      "runner": "static",
+      "proves": "BOB-01. The pure helpers in the source file src/lib/struktur-kontrak.ts, executed: susunStruktur nests Kelas under Tingkat under Bagian in natural order and drops a row whose parent is absent; tahunAjaranBaku accepts and refuses exactly the years the database does; tahunAjaranPada starts the school year on 1 July in Jakarta."
+    },
+    {
+      "id": "BOB01-M01",
+      "runner": "static",
+      "proves": "M5a. Read from the migration source: every problem phrase the import_row_problems the database now runs can return, including 'a learner is placed in an active Kelas or Tingkat', has its own sentence in src/lib/pendataan-kontrak.ts MASALAH whose key in the copy table renders in both languages and is not the phrase itself."
     },
     {
       "id": "DAISY-02-KELUAR-01",

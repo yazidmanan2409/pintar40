@@ -111,7 +111,7 @@ if (selected.length === 0) die(`no plants selected${gate ? ` for gate ${gate}` :
 // ------------------------------------------------------------------ define
 // Every suite file, because each assumes the helpers the ones before it
 // install. Defining is cheap; running is what a targeted plant avoids.
-for (const f of ["fable01", "fable02", "fable03", "fable04", "fable05", "fable05t1_quick_canonical", "fable05t2_evaluation", "fable06", "fable07", "fable08", "fable09"]) {
+for (const f of ["fable01", "fable02", "fable03", "fable04", "fable05", "fable05t1_quick_canonical", "fable05t2_evaluation", "fable06", "fable07", "fable08", "fable09", "fable10"]) {
   const r = psql(["-q", "-1", "-f", join(repoRoot, "selftest", "db", `${f}.sql`)]);
   if (r.code !== 0) die(`${f}.sql did not load: ${r.err.split("\n").pop()}`);
 }

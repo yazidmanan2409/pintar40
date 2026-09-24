@@ -8,7 +8,7 @@
     "arg:<name>": "derived from another argument of the same call",
     "caller_choice": "a value the caller invents: a new uuid, an idempotency key"
   },
-  "coverage": "Seeded with the feedback domain, where the gap was found, and extended as each work package touches a client surface. WP8 declares the report-configuration path. The rest of the client surface is reported as undeclared rather than assumed correct.",
+  "coverage": "Seeded with the feedback domain, where the gap was found, and extended as each work package touches a client surface. WP8 declares the report-configuration path. The rest of the client surface is reported as undeclared rather than assumed correct. BOB-01 declares the school-structure path.",
   "rpcs": {
     "open_feedback_cycle": {
       "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
@@ -76,6 +76,48 @@
         "p_scope_node": "rls:org_nodes"
       },
       "note": "The final release delta. p_person had no governed source for a person with no prior relationship: the only granting surface listed people from enrolments, transfers and existing roles, so a school's first administrator could not be selected. persons_awaiting_first_role is that source for exactly those people; everyone else is already reachable through rls:role_assignments, rls:enrollments or rls:transfers."
+    },
+    "school_structure": {
+      "actor": "an Admin sekolah (INSTITUTION_ADMIN at the school) or an Admin platform (SYSTEM_ADMIN)",
+      "args": {
+        "p_institution": "rls:institutions"
+      },
+      "note": "BOB-01. The school the administrator already sees in Konfigurasi."
+    },
+    "create_bagian": {
+      "actor": "an Admin sekolah (INSTITUTION_ADMIN at the school) or an Admin platform (SYSTEM_ADMIN)",
+      "args": {
+        "p_institution": "rls:institutions"
+      },
+      "note": "BOB-01. The same school; the hidden Jenjang and Reguler are the database's, never an argument."
+    },
+    "create_tingkat": {
+      "actor": "an Admin sekolah (INSTITUTION_ADMIN at the school) or an Admin platform (SYSTEM_ADMIN)",
+      "args": {
+        "p_bagian_node": "rpc:school_structure"
+      },
+      "note": "BOB-01. A BAGIAN row's node_id from the school's own structure list."
+    },
+    "create_kelas": {
+      "actor": "an Admin sekolah (INSTITUTION_ADMIN at the school) or an Admin platform (SYSTEM_ADMIN)",
+      "args": {
+        "p_tingkat_node": "rpc:school_structure"
+      },
+      "note": "BOB-01. A TINGKAT row's node_id from the school's own structure list."
+    },
+    "rename_school_node": {
+      "actor": "an Admin sekolah (INSTITUTION_ADMIN at the school) or an Admin platform (SYSTEM_ADMIN)",
+      "args": {
+        "p_node": "rpc:school_structure"
+      },
+      "note": "BOB-01. Any row's node_id from the structure list; hidden nodes are never listed, so never offered."
+    },
+    "deactivate_school_node": {
+      "actor": "an Admin sekolah (INSTITUTION_ADMIN at the school) or an Admin platform (SYSTEM_ADMIN)",
+      "args": {
+        "p_node": "rpc:school_structure"
+      },
+      "note": "BOB-01. Any row's node_id from the structure list."
     }
   }
 }

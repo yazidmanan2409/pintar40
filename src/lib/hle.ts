@@ -269,6 +269,19 @@ export type HleEvent =
   | "config.label.build"
   | "config.label.status"
   | "config.label.not_rolled"
+  | "config.struktur.galat.tidak_berwenang"
+  | "config.struktur.galat.nama_tidak_sah"
+  | "config.struktur.galat.nama_dipakai"
+  | "config.struktur.galat.tahun_tidak_sah"
+  | "config.struktur.galat.tahun_tidak_cocok"
+  | "config.struktur.galat.induk_tidak_sah"
+  | "config.struktur.galat.induk_nonaktif"
+  | "config.struktur.galat.simpul_tidak_sah"
+  | "config.struktur.galat.masih_ada_anak"
+  | "config.struktur.galat.masih_ada_murid"
+  | "config.struktur.galat.masih_ada_staf"
+  | "config.struktur.galat.isian_kurang"
+  | "config.struktur.galat.gagal"
   | "role.STUDENT"
   | "role.EDUCATOR"
   | "role.HEAD_OF_DEPARTMENT"
@@ -603,6 +616,7 @@ export type HleEvent =
   | "pendataan.masalah.tempat_asing" | "pendataan.masalah.tempat_luar"
   | "pendataan.masalah.peran_asing" | "pendataan.masalah.peran_dilarang"
   | "pendataan.masalah.peran_tanpa_tempat" | "pendataan.masalah.ganda" | "pendataan.masalah.lain"
+  | "pendataan.masalah.tempat_murid"
   | "pendataan.pratinjau.judul" | "pendataan.pratinjau.total" | "pendataan.pratinjau.baru"
   | "pendataan.pratinjau.tertaut" | "pendataan.pratinjau.nomor" | "pendataan.pratinjau.peran"
   | "pendataan.pratinjau.akun" | "pendataan.pratinjau.akun_arti" | "pendataan.pratinjau.setuju"
@@ -1252,6 +1266,7 @@ const table: Table = {
   "pendataan.masalah.peran_tanpa_tempat": { default: "Peran perlu tempat: isi tempat untuk baris ini.", en: "A role needs a place: give this row one." },
   "pendataan.masalah.ganda": { default: "Baris ini kembar dengan baris lain di berkas yang sama.", en: "This row is a twin of another row in the same file." },
   "pendataan.masalah.lain": { default: "Baris ini belum bisa dicatat.", en: "This row cannot be recorded yet." },
+  "pendataan.masalah.tempat_murid": { default: "Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif.", en: "A student can only be placed in an active Kelas or Tingkat." },
 
   "pendataan.pratinjau.judul": { default: "Yang akan terjadi", en: "What will happen" },
   "pendataan.pratinjau.total": { default: "Baris", en: "Rows" },
@@ -1529,6 +1544,21 @@ const table: Table = {
   "config.label.build": { default: "Versi", en: "Build" },
   "config.label.status": { default: "Status", en: "Status" },
   "config.label.not_rolled": { default: "— tidak dipindahkan —", en: "— not carried over —" },
+  // BOB-01. What the "Struktur sekolah" screen says for each refusal code
+  // (src/lib/struktur-kontrak.ts, KUNCI_GALAT_STRUKTUR). Daisy owns the wording.
+  "config.struktur.galat.tidak_berwenang": { default: "Anda tidak berwenang mengubah struktur sekolah ini.", en: "You are not allowed to change this school's structure." },
+  "config.struktur.galat.nama_tidak_sah": { default: "Isi nama, paling banyak 80 karakter.", en: "Enter a name of at most 80 characters." },
+  "config.struktur.galat.nama_dipakai": { default: "Nama itu sudah dipakai. Pilih nama lain.", en: "That name is already in use. Choose another." },
+  "config.struktur.galat.tahun_tidak_sah": { default: "Tulis tahun ajaran seperti 2026/2027.", en: "Write the school year like 2026/2027." },
+  "config.struktur.galat.tahun_tidak_cocok": { default: "Kelas harus memakai tahun ajaran Tingkat-nya.", en: "A Kelas must use its Tingkat's school year." },
+  "config.struktur.galat.induk_tidak_sah": { default: "Letaknya tidak sesuai: Tingkat berada di bawah Bagian, dan Kelas di bawah Tingkat.", en: "It does not fit there: a Tingkat sits under a Bagian, and a Kelas under a Tingkat." },
+  "config.struktur.galat.induk_nonaktif": { default: "Tempat di atasnya sudah dinonaktifkan.", en: "The place above it has been deactivated." },
+  "config.struktur.galat.simpul_tidak_sah": { default: "Hanya Bagian, Tingkat, dan Kelas yang bisa diubah di sini.", en: "Only a Bagian, Tingkat or Kelas can be changed here." },
+  "config.struktur.galat.masih_ada_anak": { default: "Nonaktifkan dulu Tingkat atau Kelas di bawahnya.", en: "Deactivate the Tingkat or Kelas under it first." },
+  "config.struktur.galat.masih_ada_murid": { default: "Masih ada murid di sini. Pindahkan mereka dulu.", en: "Students are still placed here. Move them first." },
+  "config.struktur.galat.masih_ada_staf": { default: "Masih ada guru atau staf yang ditugaskan di sini.", en: "A teacher or staff member is still assigned here." },
+  "config.struktur.galat.isian_kurang": { default: "Lengkapi pilihan yang diminta.", en: "Complete the choices asked for." },
+  "config.struktur.galat.gagal": { default: "Perubahan belum tersimpan. Coba lagi sebentar lagi.", en: "The change was not saved. Try again in a moment." },
   // WP5B. Bulk intake offers four roles and needs a telling for each; this is
   // the one the configuration surface never had to name, because a learner is
   // not somebody an administrator grants a role to one at a time.
