@@ -651,6 +651,10 @@ const babSatu = () => sql(`select id from public.courses where institution_id='$
 const keadaanBab = (c) => sql(`select c.status || '|' || coalesce((select r.status::text from public.plp_releases r where r.course_id = c.id order by r.created_at desc limit 1), '-') from public.courses c where c.id='${c}'`).trim();
 let terbitBab = false;
 
+// the package page's own words from the step list on, for a record of what it said
+const kataLangkah = async (page) => { const t = await bodyText(page); const i = t.indexOf("Langkah menuju terbit"); return (i >= 0 ? t.slice(i) : t).slice(0, 320); };
+const siap = (c) => sql(`select status || ' | ' || coalesce(array_to_string(blockers, '; '), '') from public.publish_readiness('${c}')`).trim();
+
 await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps (DAISY-06, BOB-03)", async (rec) => {
   const course = babSatu();
   if (!course) { rec.verdict = "BLOCKED"; return "S15c left no Bab 1 course"; }
@@ -659,35 +663,61 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
     rec.verdict = "NOTE"; return `this candidate has no Langkah menuju terbit on the package page (state ${keadaanBab(course)})`;
   }
   const notes = [`start ${keadaanBab(course)}`];
-  for (const [kunci, tombol, siapa] of TERBIT) {
-    const page = siapa === "g" ? g : a;
+  // press a step's button as `page`; the state it moved to, or null when nothing moved
+  const tekan = async (page, kunci, tombol) => {
     await page.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
     const btn = page.getByRole("button", { name: tombol, exact: true });
-    if (!(await btn.count())) {
-      rec.shots.push(await shot(page, `terbit-${kunci}-tanpa-tombol`));
-      // the author must NOT be offered a second person's step: record whether she is
-      const penulisDitawari = siapa === "a" ? await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" })
-        .then(() => g.getByRole("button", { name: tombol, exact: true }).count()) : null;
-      notes.push(`${kunci}: no "${tombol}" button for ${siapa === "g" ? "Gladys" : "the school admin"}${penulisDitawari !== null ? ` (the author is offered it: ${penulisDitawari > 0})` : ""}; state ${keadaanBab(course)}; page: ${(await bodyText(page)).slice(0, 200)}`);
-      rec.verdict = "FAIL"; return notes.join("; ");
-    }
-    if (siapa === "a" && ["setujui", "kunci"].includes(kunci)) {
-      await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
-      const own = await g.getByRole("button", { name: tombol, exact: true }).count();
-      if (own) notes.push(`!! the author is offered "${tombol}"`);
-      if (own) rec.verdict = "FAIL";
-    }
+    if (!(await btn.count())) return { tidakAda: true };
     const before = keadaanBab(course);
     await btn.first().click();
     let after = before;
     for (let i = 0; i < 40 && after === before; i++) { await page.waitForTimeout(500); after = keadaanBab(course); }
     await page.waitForLoadState("networkidle");
-    rec.shots.push(await shot(page, `terbit-${kunci}`));
-    if (after === before) {
-      notes.push(`${kunci}: pressed, nothing moved (${after}); page: ${(await bodyText(page)).slice(0, 260)}`);
-      rec.verdict = "FAIL"; return notes.join("; ");
+    rec.shots.push(await shot(page, `terbit-${kunci}${after === before ? "-ditolak" : ""}`));
+    return { after: after === before ? null : after };
+  };
+  for (const [kunci, tombol, siapa] of TERBIT) {
+    const page = siapa === "g" ? g : a;
+    if (siapa === "a" && ["setujui", "kunci"].includes(kunci)) {
+      // a second person's step: the author must not be offered it
+      await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+      if (await g.getByRole("button", { name: tombol, exact: true }).count()) { notes.push(`!! the author is offered "${tombol}"`); rec.verdict = "FAIL"; }
     }
-    notes.push(`${kunci} → ${after}`);
+    if (kunci === "terbitkan") {
+      // publishing wants every content-check finding reviewed (publish_readiness)
+      const mutu = sql(`select coalesce(string_agg(severity || ' ' || pattern_class || ' x' || n, ', ' order by severity, pattern_class), 'none')
+        from (select severity::text, pattern_class, count(*) n from public.mcq_quality_findings where course_id='${course}' group by 1, 2) x`).trim();
+      const teks = sql(`select coalesce(string_agg(severity || ' x' || n, ', '), 'none') from (select severity::text, count(*) n from public.coaching_findings where course_id='${course}' group by 1) x`).trim();
+      notes.push(`findings on Bab 1: question quality ${mutu}; student text ${teks}`);
+      const r0 = siap(course);
+      notes.push(`readiness: ${r0}`);
+      if (!r0.startsWith("READY")) {
+        const t = await tekan(g, kunci, tombol);
+        notes.push(`publishing before the review: ${t.tidakAda ? "no button" : t.after ? `moved to ${t.after} (!!)` : `refused; the page says: ${await kataLangkah(g)}`}`);
+        if (t.after) { rec.verdict = "FAIL"; return notes.join("; "); }
+        if (r0.startsWith("BLOCKED")) { rec.verdict = "FAIL"; notes.push("ERROR findings: the content must be corrected before it can be published"); return notes.join("; "); }
+        // the second person reviews each WARNING on the package page
+        let reviewed = 0;
+        for (let i = 0; i < 60; i++) {
+          await a.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+          const ack = a.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+          if (!(await ack.count())) break;
+          const open = () => Number(sql(`select (select count(*) from public.mcq_quality_findings where course_id='${course}' and acknowledged_at is null)
+            + (select count(*) from public.coaching_findings where course_id='${course}' and acknowledged_at is null)`));
+          const n0 = open();
+          await ack.first().click();
+          for (let k = 0; k < 20 && open() === n0; k++) await a.waitForTimeout(300);
+          reviewed += 1;
+        }
+        rec.shots.push(await shot(a, "terbit-temuan-ditinjau"));
+        notes.push(`the school admin reviewed ${reviewed} finding(s); readiness now: ${siap(course)}`);
+      }
+    }
+    const t = await tekan(page, kunci, tombol);
+    const who = siapa === "g" ? "Gladys" : "the school admin";
+    if (t.tidakAda) { notes.push(`${kunci}: no "${tombol}" button for ${who}; state ${keadaanBab(course)}; the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return notes.join("; "); }
+    if (!t.after) { notes.push(`${kunci}: pressed by ${who}, nothing moved (${keadaanBab(course)}); the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return notes.join("; "); }
+    notes.push(`${kunci} → ${t.after}`);
   }
   terbitBab = keadaanBab(course).endsWith("|PUBLISHED");
   const tests = sql(`select coalesce(string_agg(mode::text, ',' order by mode::text), '-') from public.assessment_definitions where course_id='${course}'`).trim();
