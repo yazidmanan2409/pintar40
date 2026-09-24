@@ -82,6 +82,19 @@ function log(line = "") {
   process.stdout.write(line + "\n");
 }
 
+/**
+ * EXIT ONLY AFTER THE RECORD IS WRITTEN. On a pipe -- which is what a CI log is --
+ * process.stdout.write is asynchronous, and process.exit discards whatever is still
+ * queued. CI #181 and #183 both lost the listing after 196 rows, and with it the
+ * summary and the FAILED lines this file prints last so that they are the thing a
+ * reader sees; only the exit status survived. The empty write's callback runs once
+ * everything written before it has been handed over.
+ */
+function exitAfterFlush(code: number): void {
+  process.exitCode = code;
+  process.stdout.write("", () => process.exit(code));
+}
+
 function loadDotEnvLocal() {
   const p = join(repoRoot, ".env.local");
   if (!existsSync(p)) return;
@@ -663,10 +676,10 @@ async function main() {
     }
     for (const p of problems) log(`CONTRACT ${p.slice(0, 300)}`);
   }
-  process.exit(ok ? 0 : 1);
+  exitAfterFlush(ok ? 0 : 1);
 }
 
 main().catch((e) => {
   log(`selftest runner crashed: ${(e as Error).stack ?? e}`);
-  process.exit(2);
+  exitAfterFlush(2);
 });
