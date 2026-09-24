@@ -1,4 +1,6 @@
 import "server-only";
+import { cookies } from "next/headers";
+import { appUrl } from "@/lib/env";
 import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 
@@ -47,10 +49,13 @@ import * as engine from "@/lib/assessment-engine";
  *     carries nothing to leak. The column discipline still applies to ISSUED,
  *     REVOKED and SUPERSEDED rows, which do carry it.
  *
- * NO PAGE HERE ISSUES ANYTHING. `POST /api/certificates/issue` is not imported,
- * not called and not linked (V-6a): the lifecycle step that turns ELIGIBLE into
- * ISSUED is Bob's bounded gap, and a learner page that called a service-role
- * route to fill it would be building the gap's replacement in the wrong layer.
+ * V-6a IS CLOSED HERE, IN THE LAYER THAT OWNS THE KEY. doc 04 §7: issuance is
+ * system-triggered, idempotent and keyed on the session, and a failure never
+ * blocks the results view — the next load retries. `issueIfEligible` asks the
+ * one issuance route over HTTP with the learner's own session, exactly as a
+ * browser would; that route checks ownership with the caller's client, lets
+ * `certificate_prepare` decide eligibility, and signs. Nothing in this module
+ * holds the key or a privileged client, and nothing here decides eligibility.
  */
 
 export {
@@ -127,4 +132,25 @@ export async function layoutFor(institutionId: string): Promise<string> {
     .limit(1);
   const row = (data ?? [])[0] as { layout?: string } | undefined;
   return row?.layout ?? DEFAULT_LAYOUT;
+}
+
+/**
+ * The system step ELIGIBLE -> ISSUED (doc 04 §7), asked on the learner's behalf.
+ * Idempotent: an already-sealed certificate comes back as issued; an ineligible
+ * session comes back as not eligible. Any failure is swallowed — the page
+ * renders the state it can read, and the next load asks again.
+ */
+export async function issueIfEligible(sessionId: string): Promise<void> {
+  const jar = await cookies();
+  const cookie = jar.getAll().map((c) => `${c.name}=${c.value}`).join("; ");
+  try {
+    await fetch(`${appUrl()}/api/certificates/issue`, {
+      method: "POST",
+      cache: "no-store",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({ session_id: sessionId }),
+    });
+  } catch {
+    /* the next load retries */
+  }
 }

@@ -204,6 +204,21 @@ export type HleEvent =
   | "config.section.assessment"
   | "config.section.certificates"
   | "config.section.intelligence"
+  | "laporan.templat.judul"
+  | "laporan.templat.institusi"
+  | "config.label.person_new"
+  | "config.label.person_known"
+  | "laporan.templat.penjelasan"
+  | "laporan.templat.kosong"
+  | "laporan.templat.judul_kunci"
+  | "laporan.templat.jenis"
+  | "laporan.templat.metrik"
+  | "laporan.templat.tampilan"
+  | "laporan.templat.versi"
+  | "laporan.templat.simpan"
+  | "laporan.templat.pilih"
+  | "laporan.templat.tak_berwenang"
+  | "laporan.templat.batas"
   | "config.card.health"
   | "config.card.cohorts"
   | "config.placeholder"
@@ -507,6 +522,56 @@ export type HleEvent =
   | "nav.pembelajaran"
   | "pembelajaran.eyebrow" | "pembelajaran.milik" | "pembelajaran.kosong"
   | "pembelajaran.kosong_arti" | "pembelajaran.sertifikat_arti"
+  // ── WP7C. Anonymous student → educator feedback. DELIBERATELY NOT declared
+  // staff-only: a learner reads the questions, the options, the form and every
+  // sentence about what happens to their answers, so the whole prefix stays
+  // inside the internal-word sweep. The educator and Management tellings sit
+  // under the same prefix and are held to the same register, which is the
+  // right way round — this surface is about a named person, and the calmest
+  // available words are the correct ones for every reader of it.
+  | "umpanbalik.pertanyaan.penjelasan_jelas" | "umpanbalik.pertanyaan.kesempatan_bertanya"
+  | "umpanbalik.pertanyaan.umpan_balik_tugas" | "umpanbalik.pertanyaan.aman_mengaku_belum_paham"
+  | "umpanbalik.pertanyaan.kecepatan_pas"
+  | "umpanbalik.pilihan.jarang" | "umpanbalik.pilihan.kadang"
+  | "umpanbalik.pilihan.sering" | "umpanbalik.pilihan.selalu"
+  | "umpanbalik.hasil.belum_cukup_tanggapan" | "umpanbalik.hasil.belum_ditutup"
+  | "umpanbalik.hasil.judul" | "umpanbalik.hasil.total" | "umpanbalik.hasil.arti"
+  | "umpanbalik.keadaan.terbuka" | "umpanbalik.keadaan.terbit" | "umpanbalik.keadaan.ditahan"
+  | "umpanbalik.murid.judul" | "umpanbalik.murid.ajakan" | "umpanbalik.murid.beri"
+  | "umpanbalik.murid.sudah"
+  | "umpanbalik.tentang.kelas" | "umpanbalik.tentang.guru"
+  | "umpanbalik.form.judul" | "umpanbalik.form.intro" | "umpanbalik.form.privasi"
+  | "umpanbalik.form.guna" | "umpanbalik.form.belum_semua" | "umpanbalik.form.kirim"
+  | "umpanbalik.form.mengirim"
+  | "umpanbalik.kirim.tercatat" | "umpanbalik.kirim.sudah" | "umpanbalik.kirim.tutup"
+  | "umpanbalik.kirim.bukan_milik" | "umpanbalik.kirim.belum_lengkap"
+  | "umpanbalik.kirim.belum_terkirim" | "umpanbalik.kirim.tak_pasti"
+  | "umpanbalik.selesai.judul" | "umpanbalik.selesai.arti"
+  | "umpanbalik.guru.judul" | "umpanbalik.guru.intro" | "umpanbalik.guru.kosong"
+  | "umpanbalik.guru.buka" | "umpanbalik.guru.guna"
+  | "umpanbalik.pimpinan.judul" | "umpanbalik.pimpinan.sub" | "umpanbalik.pimpinan.kosong"
+  | "umpanbalik.pimpinan.buka"
+  | "umpanbalik.kembali" | "umpanbalik.ditolak"
+  // ── WP7D. Management operating a round. Staff-read, but under the same
+  // prefix and the same register as everything else here: this surface is
+  // about a named person, so the calmest available words are correct for it.
+  | "umpanbalik.tutup.aksi" | "umpanbalik.tutup.judul" | "umpanbalik.tutup.arti"
+  | "umpanbalik.tutup.akhir" | "umpanbalik.tutup.ya" | "umpanbalik.tutup.batal"
+  | "umpanbalik.tutup.menutup" | "umpanbalik.tutup.tertutup" | "umpanbalik.tutup.sudah"
+  | "umpanbalik.tutup.bukan_wewenang" | "umpanbalik.tutup.subjek"
+  | "umpanbalik.tutup.belum" | "umpanbalik.tutup.tak_pasti"
+  | "umpanbalik.tutup.selesai"
+  // ── WP7D resume. Management starting a round: the class list, the governed
+  // subjects, and one outcome for every way the backend can refuse between
+  // naming an educator and asking the class about them.
+  | "umpanbalik.kelas.judul" | "umpanbalik.kelas.sub" | "umpanbalik.kelas.kosong"
+  | "umpanbalik.kelas.buka" | "umpanbalik.kelas.putaran"
+  | "umpanbalik.buka.judul" | "umpanbalik.buka.sub" | "umpanbalik.buka.kosong"
+  | "umpanbalik.buka.tanpa_wewenang" | "umpanbalik.buka.aksi" | "umpanbalik.buka.memulai"
+  | "umpanbalik.buka.dibuka" | "umpanbalik.buka.sudah_ada" | "umpanbalik.buka.bukan_pengajar"
+  | "umpanbalik.buka.bukan_wewenang" | "umpanbalik.buka.bukan_akademik"
+  | "umpanbalik.buka.kelas_belum_siap" | "umpanbalik.buka.belum_siap"
+  | "umpanbalik.buka.subjek_sendiri" | "umpanbalik.buka.tak_pasti"
   // ── WP5B. Institutional intake. Staff-only by declaration
   // (STAFF_ONLY_PREFIXES), because an administrator's screen legitimately says
   // a job is "Menunggu" where the same word on a learner's screen would be the
@@ -778,7 +843,25 @@ export type HleEvent =
   | "tur.pg.6.isi"
   | "tur.pg.7.judul"
   | "tur.pg.7.isi"
-  | "sync.done";
+  | "sync.done"
+  | "sync.belum_tersimpan"
+  | "sync.belum_terkirim"
+  | "sync.sesi_ditutup"
+  | "aktivasi.ditolak"
+  | "aktivasi.eyebrow"
+  | "aktivasi.judul"
+  | "aktivasi.intro"
+  | "aktivasi.kosong"
+  | "aktivasi.surel"
+  | "aktivasi.dengan_surel"
+  | "aktivasi.dengan_kartu"
+  | "aktivasi.kartu_dibuat"
+  | "aktivasi.gagal"
+  | "aktivasi.baru.judul"
+  | "aktivasi.baru.arti"
+  | "aktivasi.baru.nama"
+  | "aktivasi.baru.tombol"
+  | "aktivasi.baru.ok";
 
 /**
  * One key's telling, in both languages.
@@ -1365,6 +1448,21 @@ const table: Table = {
   "config.section.assessment": { default: "Mesin Asesmen", en: "Assessment Engine" },
   "config.section.certificates": { default: "Sertifikat & Audit", en: "Certificates & Audit" },
   "config.section.intelligence": { default: "Inteligensi & Laporan", en: "Intelligence & Reports" },
+  "laporan.templat.judul": { default: "Templat laporan", en: "Report templates" },
+  "laporan.templat.institusi": { default: "Institusi", en: "Institution" },
+  "config.label.person_new": { default: "Belum memiliki peran", en: "Holds nothing yet" },
+  "config.label.person_known": { default: "Sudah dikenal sistem", en: "Already known to the system" },
+  "laporan.templat.penjelasan": { default: "PINTAR memiliki katalog metrik beserta rumus, makna, ambang sampel minimum dan siapa yang boleh membacanya. Sekolah memilih metrik mana yang muncul dan bagaimana digambarkan — bukan apa artinya.", en: "PINTAR owns the metric catalogue: the formulas, the meanings, the minimum samples and who may read each one. A school chooses which metrics appear and how they are drawn — never what they mean." },
+  "laporan.templat.kosong": { default: "Sekolah ini belum menyusun templat laporan.", en: "This school has not assembled a report template yet." },
+  "laporan.templat.judul_kunci": { default: "Kunci judul", en: "Title key" },
+  "laporan.templat.jenis": { default: "Laporan standar", en: "Standard report" },
+  "laporan.templat.metrik": { default: "Metrik yang ditampilkan", en: "Metrics shown" },
+  "laporan.templat.tampilan": { default: "Tampilan", en: "Visualization" },
+  "laporan.templat.versi": { default: "Versi", en: "Version" },
+  "laporan.templat.simpan": { default: "Simpan templat", en: "Save template" },
+  "laporan.templat.pilih": { default: "Pilih metrik dari katalog PINTAR", en: "Choose metrics from the PINTAR catalogue" },
+  "laporan.templat.tak_berwenang": { default: "Menyusun templat laporan memerlukan wewenang pengelola institusi.", en: "Assembling a report template requires institution administrator authority." },
+  "laporan.templat.batas": { default: "Satu templat menampilkan paling banyak 12 metrik.", en: "One template shows at most 12 metrics." },
   "config.card.health": { default: "Kesehatan sistem", en: "System health" },
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
   "config.placeholder": { default: "Bagian ini akan terisi pada tahap berikutnya.", en: "This section is filled in at a later phase." },
@@ -1679,6 +1777,29 @@ const table: Table = {
   "studio.hasil.ok": { default: "Tersimpan.", en: "Saved." },
   "studio.hasil.gagal": { default: "Belum tersimpan.", en: "Not saved." },
   "sync.done": { default: "Semua jawaban sudah tersimpan di server.", en: "Every answer is saved on the server." },
+  // R1 (F-07/F-08). Said when Finish is held back because an answer the
+  // learner gave is not yet on the server, and when an answer arrived after
+  // the assessment had already closed. Neither blames the learner.
+  "sync.belum_tersimpan": { default: "Ada jawaban yang belum tersimpan di server. Pastikan tersambung, lalu tekan sekali lagi.", en: "Some answers are not saved on the server yet. Make sure you are connected, then press again." },
+  "sync.belum_terkirim": { default: "Belum tersambung. Jawaban Anda tetap tersimpan di perangkat ini; coba lagi saat tersambung.", en: "Not connected yet. Your answers stay saved on this device; try again once you are connected." },
+  // F-01. The step after the intake: a provisioned person becomes someone
+  // who can sign in. Plain words; the card PIN is shown once and said so.
+  "aktivasi.ditolak": { default: "Halaman ini untuk pengelola data sekolah.", en: "This page is for the people who manage a school's records." },
+  "aktivasi.eyebrow": { default: "Akun", en: "Accounts" },
+  "aktivasi.judul": { default: "Aktifkan akun", en: "Activate accounts" },
+  "aktivasi.intro": { default: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih cara masuk untuk masing-masing: tautan lewat surel, atau kartu kelas dengan PIN.", en: "People your school has recorded who cannot sign in yet. Choose how each one signs in: a link by email, or a classroom card with a PIN." },
+  "aktivasi.kosong": { default: "Semua orang yang sudah didata sudah bisa masuk.", en: "Everyone who has been recorded can already sign in." },
+  "aktivasi.surel": { default: "Alamat surel", en: "Email address" },
+  "aktivasi.dengan_surel": { default: "Aktifkan dengan surel", en: "Activate by email" },
+  "aktivasi.dengan_kartu": { default: "Buat kartu kelas", en: "Make a classroom card" },
+  "aktivasi.kartu_dibuat": { default: "Kartu dibuat. Catat sekarang — PIN hanya ditampilkan sekali:", en: "Card made. Write it down now — the PIN is shown only once:" },
+  "aktivasi.gagal": { default: "Belum berhasil. Periksa alamat surel, atau apakah orang ini sudah punya akun.", en: "That did not work. Check the email address, or whether this person already has an account." },
+  "aktivasi.baru.judul": { default: "Orang baru di luar pendataan", en: "A new person outside the intake" },
+  "aktivasi.baru.arti": { default: "Untuk pengelola pertama sebuah sekolah. Setelah dibuat, beri peran di Konfigurasi.", en: "For a school's first administrator. Once created, give them a role in Configuration." },
+  "aktivasi.baru.nama": { default: "Nama", en: "Name" },
+  "aktivasi.baru.tombol": { default: "Buat dan aktifkan", en: "Create and activate" },
+  "aktivasi.baru.ok": { default: "Dibuat. Orang ini sekarang bisa masuk dengan tautan surel.", en: "Created. This person can now sign in with an email link." },
+  "sync.sesi_ditutup": { default: "Asesmen ini sudah ditutup, jadi jawaban terakhir tidak lagi dapat dikirim.", en: "This assessment is already closed, so the last answer could not be sent." },
 
   // ═══════════════════════════ UX-1 · the role-based first-login tour (r2.1).
   // Daisy's approved copy, verbatim. Two corrections carried in from the later
@@ -1818,6 +1939,166 @@ const table: Table = {
   "pembelajaran.kosong": { default: "Belum ada pembelajaran untuk Anda saat ini.", en: "You have no learning at the moment." },
   "pembelajaran.kosong_arti": { default: "Bila sekolah mendaftarkan Anda pada sebuah pembelajaran, ia akan muncul di sini.", en: "If your school enrols you in something, it will appear here." },
   "pembelajaran.sertifikat_arti": { default: "Sertifikat dari pembelajaran Anda sendiri.", en: "Certificates from your own learning." },
+
+  // ── WP7C. ANONYMOUS STUDENT → EDUCATOR FEEDBACK.
+  //
+  // THE FIVE QUESTIONS ARE ABOUT WHAT HAPPENS IN THE ROOM, not about a person's
+  // worth. Each one is a sentence a learner can answer from their own week —
+  // whether explanations land, whether there is room to ask, whether work comes
+  // back with something useful on it, whether it is safe to admit you are lost,
+  // whether the pace fits. None of them asks for a verdict, a score or a
+  // preference, and none of them can be answered with praise or blame: the
+  // scale is how OFTEN, which is a description rather than a judgement.
+  //
+  // WP7B stores these as keys and nothing else, so the wording can be corrected
+  // without a migration and means the same thing in both languages.
+  "umpanbalik.pertanyaan.penjelasan_jelas": { default: "Penjelasan di kelas ini mudah saya pahami.", en: "The explanations in this class are easy for me to follow." },
+  "umpanbalik.pertanyaan.kesempatan_bertanya": { default: "Saya punya kesempatan untuk bertanya.", en: "I get the chance to ask questions." },
+  "umpanbalik.pertanyaan.umpan_balik_tugas": { default: "Tugas saya kembali dengan catatan yang membantu.", en: "My work comes back with comments that help me." },
+  "umpanbalik.pertanyaan.aman_mengaku_belum_paham": { default: "Saya merasa aman mengatakan bahwa saya belum paham.", en: "I feel safe saying when I have not understood something." },
+  "umpanbalik.pertanyaan.kecepatan_pas": { default: "Kecepatan pelajaran terasa pas untuk saya.", en: "The pace of the lessons feels right for me." },
+
+  // A FOUR-POINT FREQUENCY SCALE, and deliberately not a rating. There is no
+  // best end and no worst end declared anywhere, no star, no number behind the
+  // word and no midpoint to be "average": four words about how often something
+  // happens, which is what a class can actually report.
+  "umpanbalik.pilihan.jarang": { default: "Jarang", en: "Rarely" },
+  "umpanbalik.pilihan.kadang": { default: "Kadang", en: "Sometimes" },
+  "umpanbalik.pilihan.sering": { default: "Sering", en: "Often" },
+  "umpanbalik.pilihan.selalu": { default: "Selalu", en: "Always" },
+
+  // THE CANONICAL SUPPRESSION STATEMENT. WP7B binds this key per cycle through
+  // the threshold version and returns it INSTEAD of every figure when a round
+  // closed below the anonymity threshold. The sentence says the results are not
+  // being shown and why in the broadest possible terms; it names no count, no
+  // requirement and nothing from which either could be worked out, because the
+  // missing number is precisely what must stay missing.
+  "umpanbalik.hasil.belum_cukup_tanggapan": { default: "Belum cukup tanggapan untuk menampilkan hasil dengan aman.", en: "There are not enough responses to display the results safely." },
+  "umpanbalik.hasil.belum_ditutup": { default: "Umpan balik masih dikumpulkan.", en: "Feedback is still being collected." },
+  "umpanbalik.hasil.judul": { default: "Yang dipilih kelas ini", en: "What this class chose" },
+  "umpanbalik.hasil.total": { default: "Tanggapan yang masuk", en: "Responses received" },
+  "umpanbalik.hasil.arti": { default: "Angka pada tiap pilihan adalah banyaknya tanggapan yang memilihnya.", en: "The figure on each option is how many responses chose it." },
+
+  // The three states, as sentences. The enum values themselves never render.
+  "umpanbalik.keadaan.terbuka": { default: "Masih dikumpulkan", en: "Still being collected" },
+  "umpanbalik.keadaan.terbit": { default: "Hasil tersedia", en: "Results available" },
+  "umpanbalik.keadaan.ditahan": { default: "Hasil tidak ditampilkan", en: "Results not shown" },
+
+  "umpanbalik.murid.judul": { default: "Umpan balik", en: "Feedback" },
+  "umpanbalik.murid.ajakan": { default: "Kelas Anda sedang dimintai pendapat tentang pengajarannya.", en: "Your class is being asked about its teaching." },
+  "umpanbalik.murid.beri": { default: "Beri umpan balik", en: "Give feedback" },
+  "umpanbalik.murid.sudah": { default: "Sudah Anda kirim.", en: "You have sent yours." },
+  "umpanbalik.tentang.kelas": { default: "Kelas", en: "Class" },
+  "umpanbalik.tentang.guru": { default: "Guru", en: "Teacher" },
+
+  "umpanbalik.form.judul": { default: "Umpan balik untuk kelas ini", en: "Feedback for this class" },
+  "umpanbalik.form.intro": { default: "Lima pertanyaan, masing-masing dengan pilihan yang sudah ditentukan.", en: "Five questions, each with a fixed set of answers." },
+  // WHAT IS TRUE, SAID PLAINLY, AND NOTHING BEYOND IT. ADR-0022 records two
+  // residuals — a unanimous result can imply what everyone chose, and
+  // privileged infrastructure could reconstruct linkage — so PINTAR does not
+  // tell a child that nobody can ever know what they answered. What it can say
+  // without qualification is what the product does: the answers are not shown
+  // next to a name, and what the teacher receives is the class, not a sheet.
+  "umpanbalik.form.privasi": { default: "Jawaban Anda tidak ditampilkan bersama nama Anda. Yang dilihat guru adalah ringkasan satu kelas, bukan lembar jawaban satu per satu.", en: "Your answers are not shown with your name. What the teacher sees is a summary for the class, not individual answer sheets." },
+  "umpanbalik.form.guna": { default: "Guru memakai umpan balik ini untuk memperbaiki cara mengajar.", en: "Teachers use this feedback to improve how they teach." },
+  "umpanbalik.form.belum_semua": { default: "Masih ada pertanyaan yang belum dijawab.", en: "Some questions are still unanswered." },
+  "umpanbalik.form.kirim": { default: "Kirim", en: "Send" },
+  "umpanbalik.form.mengirim": { default: "Mengirim…", en: "Sending…" },
+
+  // THE OUTCOMES. "Already answered" is a CONFIRMATION rather than a refusal:
+  // WP7B refuses the second write by row lock, so a learner meeting this
+  // sentence has answers safely recorded from an earlier press whose
+  // acknowledgement was lost. And an unrecognised outcome says that nothing is
+  // known and offers a way to find out, never "send it again".
+  "umpanbalik.kirim.tercatat": { default: "Terima kasih. Jawaban Anda sudah tercatat.", en: "Thank you. Your answers have been recorded." },
+  "umpanbalik.kirim.sudah": { default: "Jawaban Anda untuk kelas ini sudah tercatat sebelumnya.", en: "Your answers for this class were already recorded." },
+  "umpanbalik.kirim.tutup": { default: "Putaran umpan balik ini sudah ditutup.", en: "This round of feedback has closed." },
+  "umpanbalik.kirim.bukan_milik": { default: "Tidak ada umpan balik yang bisa Anda isi di sini.", en: "There is no feedback here for you to give." },
+  "umpanbalik.kirim.belum_lengkap": { default: "Semua pertanyaan perlu dijawab.", en: "Every question needs an answer." },
+  "umpanbalik.kirim.belum_terkirim": { default: "Jawaban Anda belum terkirim. Anda bisa mengirimnya lagi sekarang.", en: "Your answers were not sent. You can send them again now." },
+  "umpanbalik.kirim.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
+
+  "umpanbalik.selesai.judul": { default: "Sudah terkirim", en: "Sent" },
+  "umpanbalik.selesai.arti": { default: "Jawaban Anda bergabung dengan jawaban teman sekelas Anda menjadi satu ringkasan.", en: "Your answers join your classmates' into a single summary." },
+
+  "umpanbalik.guru.judul": { default: "Umpan balik kelas", en: "Class feedback" },
+  "umpanbalik.guru.intro": { default: "Apa yang dipilih kelas ini pada lima pertanyaan yang sama untuk semua.", en: "What this class chose on the same five questions everyone is asked." },
+  "umpanbalik.guru.kosong": { default: "Belum ada putaran umpan balik untuk kelas ini.", en: "No round of feedback has been held for this class yet." },
+  "umpanbalik.guru.buka": { default: "Lihat", en: "Open" },
+  // ONE INPUT, AND WHAT IT IS AN INPUT OF. Said positively rather than as a
+  // list of things it is not: a sentence that has to deny being an appraisal
+  // has already put the idea on the screen.
+  "umpanbalik.guru.guna": { default: "Ini bahan refleksi: yang tercatat adalah pilihan yang dibuat satu kelas.", en: "This is material for reflection: what is recorded is the choices one class made." },
+
+  "umpanbalik.pimpinan.judul": { default: "Umpan balik kelas", en: "Class feedback" },
+  "umpanbalik.pimpinan.sub": { default: "Satu kelas dan guru yang mengajarnya.", en: "One class and the educator who taught it." },
+  "umpanbalik.pimpinan.kosong": { default: "Belum ada putaran umpan balik di bagian ini.", en: "No round of feedback has been held in this part of the school yet." },
+  "umpanbalik.pimpinan.buka": { default: "Buka umpan balik kelas", en: "Open class feedback" },
+
+  "umpanbalik.kembali": { default: "Kembali", en: "Back" },
+  "umpanbalik.ditolak": { default: "Umpan balik ini bukan milik Anda untuk dibaca.", en: "This feedback is not yours to read." },
+
+  // ── WP7D. CLOSING A ROUND, AND SAYING WHAT THAT MEANS WITHOUT SAYING WHAT
+  // IS IN IT. The confirmation has to be honest about consequence — collection
+  // ends and the round does not come back — while naming no count, no
+  // threshold and nothing from which either could be worked out. That is the
+  // whole difficulty of this copy: "are you sure" is easy, and "are you sure,
+  // and no I will not tell you how many have answered" is the sentence that
+  // actually has to be written.
+  //
+  // IT ALSO DOES NOT PROMISE AN OUTCOME. Whether the round publishes is
+  // decided inside the endpoint against the threshold the cycle bound, so the
+  // copy says PINTAR decides and stops there. A sentence hinting which way it
+  // will go would be this surface doing the arithmetic it must not do.
+  "umpanbalik.tutup.aksi": { default: "Tutup putaran ini", en: "Close this round" },
+  "umpanbalik.tutup.judul": { default: "Menutup putaran", en: "Closing the round" },
+  "umpanbalik.tutup.arti": { default: "Menutup akan mengakhiri pengumpulan tanggapan untuk kelas ini. Setelah itu PINTAR sendiri yang menentukan apakah hasilnya dapat ditampilkan.", en: "Closing ends the collection of responses for this class. After that PINTAR itself decides whether the results can be shown." },
+  "umpanbalik.tutup.akhir": { default: "Putaran yang sudah ditutup tidak dibuka lagi.", en: "A round that has been closed is not opened again." },
+  "umpanbalik.tutup.ya": { default: "Ya, tutup putaran", en: "Yes, close the round" },
+  "umpanbalik.tutup.batal": { default: "Batal", en: "Cancel" },
+  "umpanbalik.tutup.menutup": { default: "Menutup…", en: "Closing…" },
+  "umpanbalik.tutup.tertutup": { default: "Putaran ini sudah ditutup.", en: "This round is now closed." },
+  "umpanbalik.tutup.sudah": { default: "Putaran ini sudah ditutup sebelumnya.", en: "This round had already been closed." },
+  "umpanbalik.tutup.bukan_wewenang": { default: "Putaran ini bukan wewenang Anda untuk ditutup.", en: "This round is not yours to close." },
+  "umpanbalik.tutup.subjek": { default: "Putaran tentang pengajaran Anda sendiri ditutup oleh orang lain.", en: "A round about your own teaching is closed by somebody else." },
+  "umpanbalik.tutup.belum": { default: "Putaran ini belum ditutup.", en: "This round has not been closed." },
+  "umpanbalik.tutup.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
+  "umpanbalik.tutup.selesai": { default: "Pengumpulan tanggapan untuk putaran ini sudah berakhir.", en: "Collection of responses for this round has ended." },
+
+  // ── WP7D resume. STARTING A ROUND.
+  //
+  // THE HARD SENTENCES HERE ARE THE REFUSALS, and each one is a real thing
+  // that can happen between naming an educator and pressing the button: an
+  // assignment ended, authority withdrawn, a colleague opened the round first.
+  // Discovery describes the world a moment ago and opening re-decides, so each
+  // refusal says what changed in plain words rather than collapsing into "that
+  // did not work".
+  //
+  // AND THE ACADEMIC REFUSAL SAYS WHAT IT IS AND STOPS. PINTAR does not offer
+  // to find another class, does not suggest a way round it, and does not hint
+  // that the answer might differ if asked again. WP7B decided that boundary
+  // conservatively on purpose; this reports it.
+  "umpanbalik.kelas.judul": { default: "Kelas di bagian ini", en: "Classes in this part of the school" },
+  "umpanbalik.kelas.sub": { default: "Putaran umpan balik dimulai untuk satu kelas dan satu pengajarnya.", en: "A feedback round is started for one class and one of its educators." },
+  "umpanbalik.kelas.kosong": { default: "Belum ada kelas di bagian ini.", en: "There are no classes in this part of the school yet." },
+  "umpanbalik.kelas.buka": { default: "Buka kelas", en: "Open class" },
+  "umpanbalik.kelas.putaran": { default: "Putaran untuk kelas ini", en: "Rounds for this class" },
+
+  "umpanbalik.buka.judul": { default: "Mulai putaran umpan balik", en: "Start a feedback round" },
+  "umpanbalik.buka.sub": { default: "Pilih pengajar yang akan ditanyakan kepada kelas ini.", en: "Choose the educator this class will be asked about." },
+  "umpanbalik.buka.kosong": { default: "Tidak ada pengajar yang bisa ditanyakan untuk kelas ini.", en: "There is no educator this class can be asked about." },
+  "umpanbalik.buka.tanpa_wewenang": { default: "Kelas ini bukan wewenang Anda.", en: "This class is not yours." },
+  "umpanbalik.buka.aksi": { default: "Mulai putaran", en: "Start a round" },
+  "umpanbalik.buka.memulai": { default: "Memulai…", en: "Starting…" },
+  "umpanbalik.buka.dibuka": { default: "Putaran umpan balik untuk kelas ini sudah dimulai.", en: "The feedback round for this class has started." },
+  "umpanbalik.buka.sudah_ada": { default: "Kelas ini sudah punya putaran tentang pengajar itu pada periode ini.", en: "This class already has a round about that educator in this period." },
+  "umpanbalik.buka.bukan_pengajar": { default: "Pengajar itu tidak lagi tercatat mengajar kelas ini.", en: "That educator is no longer recorded as teaching this class." },
+  "umpanbalik.buka.bukan_wewenang": { default: "Kelas ini bukan wewenang Anda untuk memulai putaran.", en: "This class is not yours to start a round for." },
+  "umpanbalik.buka.bukan_akademik": { default: "Kelas ini terhubung dengan materi di luar kurikulum akademik, sehingga putaran umpan balik tidak dibuka untuknya.", en: "This class is connected to material outside the academic curriculum, so a feedback round is not opened for it." },
+  "umpanbalik.buka.kelas_belum_siap": { default: "Kelas ini belum siap untuk putaran umpan balik.", en: "This class is not ready for a feedback round." },
+  "umpanbalik.buka.belum_siap": { default: "PINTAR belum siap memulai putaran umpan balik.", en: "PINTAR is not ready to start a feedback round." },
+  "umpanbalik.buka.subjek_sendiri": { default: "Putaran tentang pengajaran Anda sendiri dimulai oleh orang lain.", en: "A round about your own teaching is started by somebody else." },
+  "umpanbalik.buka.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
   "mengajar.kembali": { default: "Kelas", en: "Classes" },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },

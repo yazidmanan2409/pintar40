@@ -1796,3 +1796,173 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-data-jalan::after { animation: none; }
   .pin-data-bar > span { transition: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WP7C — ANONYMOUS STUDENT → EDUCATOR FEEDBACK
+
+   THE SHEET SHOULD NOT LOOK LIKE A REVIEW SITE, and the styling carries as
+   much of that as the copy does. There is no star, no coloured scale running
+   from red to green, no emoji, no slider and no thumb: four ordinary radio
+   buttons with four ordinary words, in one neutral tone, because a scale that
+   is coloured from bad to good has told a child what the right answer is
+   before they have read the question.
+
+   AND THE RESULT BARS MEAN NOTHING ON THEIR OWN. One tone for every option, no
+   green end and no red end, and the count written beside every bar — so the
+   figure lives in the text and the bar is only its shape (§19).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ------------------------------------------------------------- the sheet */
+.pin-ub-lembar .pin-mm + .pin-mm { margin-top: var(--space-2); }
+
+.pin-ub-soal {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  padding: var(--space-4) var(--space-5); margin: var(--space-5) 0 0;
+}
+.pin-ub-soal > legend {
+  padding: 0 var(--space-2); font-size: var(--type-body);
+  font-weight: var(--weight-strong); color: var(--ink-1);
+  line-height: var(--leading-body);
+}
+/* A question still waiting for an answer AFTER a press. It is a quiet
+   correction, not an alarm: nothing is wrong with the learner's answer,
+   because they have not given one yet. */
+.pin-ub-soal[aria-invalid="true"] { border-color: var(--status-attention); }
+
+.pin-ub-pilihan {
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+/* THE WHOLE CONTROL IS THE LABEL, so the touch target is the word and its box
+   rather than the small circle beside it. */
+.pin-ub-opsi {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-height: 44px; padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-pill);
+  background: var(--surface-1); color: var(--ink-1);
+  font-size: var(--type-meta); cursor: pointer;
+  line-height: var(--leading-tight);
+}
+.pin-ub-opsi:hover { border-color: var(--ink-2); }
+.pin-ub-opsi:has(input:checked) {
+  border-color: var(--pintar-primary);
+  background: var(--pintar-primary-soft);
+  font-weight: var(--weight-strong);
+}
+/* Focus is on the LABEL when the radio inside it has focus, because the radio
+   itself is 16px in the corner of a 44px control. */
+.pin-ub-opsi:has(input:focus-visible) {
+  outline: 2px solid var(--pintar-primary); outline-offset: 2px;
+}
+.pin-ub-opsi input { margin: 0; accent-color: var(--pintar-primary); }
+
+/* Same shape as WP5B's control: a button told to be the width of a phone must
+   be allowed to fold, or its label takes the page's horizontal scroll with it. */
+.pin-ub-btn {
+  white-space: normal; height: auto; min-height: 44px; max-width: 100%;
+  padding-top: var(--space-2); padding-bottom: var(--space-2);
+  text-align: center; line-height: var(--leading-tight);
+}
+
+/* --------------------------------------------------------- what was said */
+/* The suppression statement, and the still-collecting one. Given room, and
+   given NOTHING after it. */
+.pin-ub-pernyataan { max-width: 56ch; }
+
+.pin-ub-hasil { margin-top: var(--space-4); }
+.pin-ub-daftar { list-style: none; margin: var(--space-5) 0 0; padding: 0; }
+.pin-ub-daftar > li + li { margin-top: var(--space-6); }
+.pin-ub-daftar h3 { margin: 0 0 var(--space-3); max-width: 56ch; }
+
+.pin-ub-marginal { list-style: none; margin: 0; padding: 0; }
+/* THE LABEL TAKES ITS OWN LINE AT EVERY WIDTH, not only on a phone. A column
+   sized to fit "Kadang" is a column that truncates whatever the next governed
+   question set calls its options, and the first anybody would hear of it is a
+   clipped word on somebody's screen. Above the bar it can be any length. */
+.pin-ub-marginal > li {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) 0; min-height: var(--space-6);
+}
+.pin-ub-label { grid-column: 1 / -1; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-ub-batang {
+  display: block; height: var(--space-2); background: var(--surface-2);
+  border-radius: var(--radius-pill); overflow: hidden;
+}
+/* ONE TONE FOR EVERY OPTION. A bar that turned green at one end of the scale
+   and red at the other would be PINTAR scoring a teacher in the stylesheet. */
+.pin-ub-batang > span {
+  display: block; height: 100%; background: var(--pintar-primary);
+  border-radius: var(--radius-pill);
+}
+.pin-ub-angka { font-size: var(--type-meta); color: var(--ink-1); text-align: right; }
+
+/* ------------------------------------------------------ Management's list */
+.pin-ub-riwayat { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-ub-riwayat li + li { border-top: 1px solid var(--line); }
+.pin-ub-riwayat a {
+  display: grid; gap: var(--space-1); min-height: 44px;
+  padding: var(--space-3) var(--space-4); color: var(--ink-1); text-decoration: none;
+}
+.pin-ub-riwayat a:hover { background: var(--surface-2); }
+
+@media (max-width: 560px) {
+  .pin-ub-soal { padding: var(--space-4); }
+  /* MEASURED AT 320, 375, 390 AND 414: the send control came out 40px tall in
+     both languages, because `.pin-actions .pin-btn` carries two classes and
+     `.pin-ub-btn` carries one — so the phone rule's 40px floor won on
+     specificity however late this block was written. 40px is the ordinary
+     height of a button in PINTAR and is fine for one; this is the control a
+     child presses to finish a form on a phone, and it was declared 44 on
+     purpose. The declaration is now made at a specificity that can actually
+     hold it. Nothing about `.pin-btn` itself changes. */
+  .pin-actions .pin-ub-btn { min-height: 44px; }
+  /* The four options become a column on a narrow screen rather than shrinking:
+     "Kadang" and "Sometimes" are short, but a longer scale in a later question
+     set must not be the thing that discovers this rule was missing. */
+  .pin-ub-pilihan { flex-direction: column; align-items: stretch; }
+  .pin-ub-opsi { justify-content: flex-start; }
+}
+
+/* ------------------------------------------------ operating a round (WP7D) */
+/* THE CONFIRMATION IS A PANEL, NOT A DIALOG. PINTAR has no modal pattern
+   outside the tour, and inventing one for a single act would be inventing a
+   product convention on the way past. It sits on the attention ground because
+   somebody is being asked to make something permanent — the same ground WP5B's
+   pilot checkpoint uses for the same reason. */
+.pin-ub-tutup { margin-top: var(--space-4); }
+.pin-ub-pasti {
+  background: var(--status-attention-soft); border: 1px solid var(--status-attention);
+  border-radius: var(--radius-2); padding: var(--space-5);
+  display: grid; gap: var(--space-2);
+}
+.pin-ub-pasti .pin-actions { margin-top: var(--space-3); }
+
+@media (max-width: 560px) {
+  .pin-ub-pasti { padding: var(--space-4); }
+}
+
+/* ------------------------------------------ naming the teacher (WP7D resume) */
+/* ONE EDUCATOR PER ROW, and the row grows for whatever the outcome turned out
+   to be. The name and the act sit on one line while there is room and stack
+   when there is not, because a name is as long as somebody's name. */
+.pin-ub-subjek { margin-top: var(--space-3); }
+.pin-ub-orang { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-ub-orang > li {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) 0; min-height: 44px;
+}
+.pin-ub-orang > li + li { border-top: 1px solid var(--line); }
+/* The name takes what is left and yields rather than pushing the act off the
+   row: `min-width: 0` is what lets a long name wrap inside a flex item instead
+   of setting the row's floor to its own longest word. */
+.pin-ub-orang .pin-ml { flex: 1 1 auto; min-width: 0; }
+.pin-ub-orang .pin-msg { flex: 1 1 100%; margin: 0; }
+.pin-ub-aksi { flex: 0 0 auto; }
+
+@media (max-width: 560px) {
+  /* The act takes the full width on a phone, like every other control here. */
+  .pin-ub-orang > li { align-items: stretch; }
+  .pin-ub-aksi { flex: 1 1 100%; }
+}

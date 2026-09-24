@@ -37,7 +37,7 @@ export default async function SimpulPimpinan({
 }) {
   const { simpul } = await params;
   const locale = await currentLocale();
-  const s = (k: HleEvent) => t(k, "staff", { locale });
+  const s = (k: string) => t(k as HleEvent, "staff", { locale });
 
   const node = await pim.simpulDalamLingkup(simpul);
   if (!node) {
@@ -106,6 +106,18 @@ export default async function SimpulPimpinan({
         </section>
 
         <RingkasKesiapan entries={bukti} locale={locale} />
+
+        {/* WP7C. One more thing this part of the school has, reached the same
+            way the roster is. It is a LIST of rounds, one class and one
+            educator each: nothing on the other side of this link adds two
+            classes together, and nothing compares two educators. */}
+        <section className="pin-sec" aria-labelledby="pin-ub">
+          <h2 id="pin-ub">{s("umpanbalik.pimpinan.judul")}</h2>
+          <p className="pin-mm">{s("umpanbalik.pimpinan.sub")}</p>
+          <Link className="pin-btn" href={`/pimpinan/${encodeURIComponent(node.id)}/umpan-balik`}>
+            {s("umpanbalik.pimpinan.buka")}
+          </Link>
+        </section>
 
         <section className="pin-sec" aria-labelledby="pin-murid">
           <h2 id="pin-murid">{s("pimpinan.murid.judul")}</h2>

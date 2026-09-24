@@ -865,8 +865,12 @@ export const staticTests: SelfTest[] = [
         JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
         `the anonymous path list changed: ${JSON.stringify(paths)}`,
       );
+      // Two prefixes, ONE surface (INV-38): the verification page and the data
+      // endpoint it fetches anonymously, registered as its child in
+      // public_surface_registry. The endpoint was missing, so every QR scan read
+      // "not found"; F01-R07 proves both against the running middleware.
       c.expect(
-        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/"]),
+        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/", "/api/verifikasi/"]),
         `the anonymous prefix list changed: ${JSON.stringify(prefixes)}`,
       );
       c.expect(/matcher: \["\/\(\(\?!/.test(proxy), "the proxy matcher is no longer catch-all");

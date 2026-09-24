@@ -1,0 +1,201 @@
+{
+  "gates": {
+    "db-wp7-gates": {
+      "suite": "selftest.run_fable07()",
+      "control_green": 15,
+      "what": "the WP7B anonymity core and the WP7D governed subject discovery"
+    },
+    "db-wp8-gates": {
+      "suite": "selftest.run_fable08()",
+      "control_green": 8,
+      "what": "WP8's onboarding repair, the client-write reachability assertion and report configuration"
+    },
+    "db-r1-gates": {
+      "suite": "selftest.run_fable09()",
+      "control_green": 6,
+      "what": "the systemic repair: an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)"
+    }
+  },
+  "plants": [
+    {
+      "name": "wp7-a",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P11",
+      "expect_detail": "carries a re-identifying column: person_id"
+    },
+    {
+      "name": "wp7-b",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P09",
+      "expect_detail": "was handed more than the statement"
+    },
+    {
+      "name": "wp7-c",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P06",
+      "expect_detail": "read 30 raw answer row(s) directly"
+    },
+    {
+      "name": "wp7-d",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P13",
+      "expect_detail": "audit row(s) were written while five learners answered"
+    },
+    {
+      "name": "wp7-e",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P02",
+      "expect_detail": "the subject opened a feedback cycle about themselves"
+    },
+    {
+      "name": "wp7-f",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P11",
+      "expect_detail": "evidence consumer(s) reading feedback"
+    },
+    {
+      "name": "wp7-g",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P05",
+      "expect_detail": "was handed a figure from an open cycle"
+    },
+    {
+      "name": "wp7-h",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P03",
+      "expect_detail": "could not answer after moving"
+    },
+    {
+      "name": "wp7d-1",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "enumerated the subjects of a class"
+    },
+    {
+      "name": "wp7d-2",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "the institution administrator enumerated the subjects of a class"
+    },
+    {
+      "name": "wp7d-3",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P14",
+      "expect_detail": "expected the one educator who teaches it"
+    },
+    {
+      "name": "wp7d-4",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "the Management projection is not the two declared columns"
+    },
+    {
+      "name": "wp7d-5",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "subject discovery reads a respondent relation"
+    },
+    {
+      "name": "wp7d-6",
+      "gate": "db-wp7-gates",
+      "expect_red": "F07-P15",
+      "expect_detail": "opening accepted a subject whose teaching authority had ended since discovery"
+    },
+    {
+      "name": "wp8-1",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P01",
+      "expect_detail": "the ladder helper is not executable by a client"
+    },
+    {
+      "name": "wp8-2",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P02",
+      "expect_detail": "the assertion is red"
+    },
+    {
+      "name": "wp8-3",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P03",
+      "expect_detail": "the revised template is at version"
+    },
+    {
+      "name": "wp8-4",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P04",
+      "expect_detail": "a school defined its own metric"
+    },
+    {
+      "name": "wp8-5",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P05",
+      "expect_detail": "was refused by something other than the capability"
+    },
+    {
+      "name": "wp8-6",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P06",
+      "expect_detail": "a retired metric was accepted into a template"
+    },
+    {
+      "name": "wp8-7",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P07",
+      "expect_detail": "the bootstrap reopened after every administrator was revoked"
+    },
+    {
+      "name": "wp8-8",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P07",
+      "expect_detail": "the marker opened the door while an administrator existed"
+    },
+    {
+      "name": "wp8-9",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P07",
+      "expect_detail": "the bootstrap ran while an administrator existed"
+    },
+    {
+      "name": "wp8-10",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P08",
+      "expect_detail": "read the list of people awaiting a first role"
+    },
+    {
+      "name": "r1-1",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-R01",
+      "expect_detail": "a seq conflict raised P0001, not PR001"
+    },
+    {
+      "name": "r1-2",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-R02",
+      "expect_detail": "a finish over an answer the server does not hold raised nothing"
+    },
+    {
+      "name": "r1-3",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-R03",
+      "expect_detail": "closing an expired session inside its grace window raised nothing"
+    },
+    {
+      "name": "f02-1",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-A01",
+      "expect_detail": "a bare sign-up raised nothing -- it created a person"
+    },
+    {
+      "name": "f01-1",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-A02",
+      "expect_detail": "admin2 could authorize an activation"
+    },
+    {
+      "name": "f03-1",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-A03",
+      "expect_detail": "the STUDENT row was not enrolled in its class"
+    }
+  ]
+}

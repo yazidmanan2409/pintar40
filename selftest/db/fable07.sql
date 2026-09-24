@@ -104,6 +104,8 @@ declare
   v_audit_low bigint; v_metric_before jsonb; v_metric_after jsonb;
   m_eligible int := 0; m_total int := 0; m_rows int := 0; m_blocked int := 0;
   m_readers int := 0; m_denied int := 0; m_audit_submit int := -1;
+  m_subj_before text := ''; m_subj_after text := ''; m_subj_denied int := 0;
+  v_subj record;
   m_consumers int := 0; m_rel int := 0;
   v_ok boolean; v_detail text;
 begin
@@ -416,6 +418,11 @@ begin
     -- the measurement F07-P11 compares against, taken before a single answer exists
     perform selftest.as_user_uid(v_hod_u);
     v_metric_before := public.metric_evaluate('class.participants', v_k1, v_inst);
+    -- and the subject list as it reads before anybody has answered, which
+    -- F07-P15 compares against afterwards: a discovery endpoint that moved
+    -- when a class answered would be a participation oracle
+    select coalesce(string_agg(s.person_id::text || '=' || s.display_name, '|' order by s.person_id), '(none)')
+      into m_subj_before from public.feedback_subjects_for_class(v_k1) s where s.person_id = v_e1;
     perform selftest.as_owner();
 
     -- a learner who arrives after the opening was not asked, and cannot answer
@@ -1134,6 +1141,228 @@ begin
       begin perform selftest.as_owner(); exception when others then null; end;
     end;
 
+    -- ═══════ F07-P14 Management can name the teacher it is asking about
+    begin
+    -- THE DEFECT WP7D FOUND, REPRODUCED HERE RATHER THAN DESCRIBED: this
+    -- educator is not enrolled as a learner anywhere, so the learner-shaped
+    -- visibility predicate every other person read goes through says nothing
+    -- about them -- and an authorized head of department could not have
+    -- discovered the id the open contract requires.
+    select p.display_name into v_msg from public.persons p where p.id = v_e1;
+    perform selftest.as_user_uid(v_hod_u);
+    if public.person_visible_to_me(v_e1) then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        'the subject educator is visible through learner visibility: this test is not reproducing the defect');
+    end if;
+    select count(*) into n from public.persons p where p.id = v_e1;
+    if n <> 0 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        'the head of department can already read that educator''s person row: the defect is not reproduced');
+    end if;
+    -- AND THE GOVERNED READ ANSWERS ANYWAY, with the name and nothing else.
+    select count(*) into n from public.feedback_subjects_for_class(v_k1);
+    if n <> 1 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        format('the class offers %s subject(s), expected the one educator who teaches it', n));
+    end if;
+    select s.person_id, s.display_name into v_subj from public.feedback_subjects_for_class(v_k1) s;
+    if v_subj.person_id is distinct from v_e1 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14', 'the subject offered is not the educator who teaches the class');
+    end if;
+    if coalesce(v_subj.display_name, '') = '' or v_subj.display_name is distinct from v_msg then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        'the display identity is missing or is not the person''s own name: ' || coalesce(v_subj.display_name, '(null)'));
+    end if;
+    perform selftest.as_owner();
+
+    -- THE ID IT RETURNS IS THE ID THE EXISTING CONTRACT ACCEPTS -- measured on
+    -- a class that has no cycle yet, because K1's is already open.
+    perform selftest.as_user_uid(v_dean_u);
+    select count(*) into n from public.feedback_subjects_for_class(v_k3);
+    if n <> 1 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        format('the professional-development class offers %s subject(s), expected 1', n));
+    end if;
+    -- AND THE ACADEMIC RESIDUAL IS CARRIED UNCHANGED, which is the advisory
+    -- contract working: discovery answers about the SUBJECT, and opening still
+    -- refuses this class on its own context rule.
+    v_raised := false;
+    begin
+      perform public.open_feedback_cycle(v_k3, v_e3);
+      raise exception 'F07_ACCEPTED';
+    exception when others then
+      if sqlerrm <> 'F07_ACCEPTED' then v_raised := true; v_msg := sqlerrm; end if;
+    end;
+    if not v_raised then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        'a discovered subject opened a cycle over professional-development material');
+    elsif v_msg !~ 'professional-development' then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        'opening refused the discovered subject for the wrong reason: ' || left(v_msg, 80));
+    end if;
+    -- AND THE ID DISCOVERY RETURNS IS THE ID THE OPEN CONTRACT ACCEPTS, on an
+    -- ordinary academic class that has no cycle yet -- so the refusal above is
+    -- the class's context rule and not the subject being unusable.
+    perform selftest.as_owner();
+    perform set_config('app.seed_intent', 'synthetic', true);
+    insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+    values (v_e1, 'EDUCATOR', v_k4, now() - interval '1 day', now() + interval '365 days');
+    perform set_config('app.seed_intent', '', true);
+    perform selftest.as_user_uid(v_dean_u);
+    select count(*) into n from public.feedback_subjects_for_class(v_k4) s where s.person_id = v_e1;
+    if n <> 1 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        'the educator who teaches the second class was not offered as its subject');
+    end if;
+    v_raised := false;
+    begin
+      select s.person_id into v_subj from public.feedback_subjects_for_class(v_k4) s where s.person_id = v_e1;
+      perform public.open_feedback_cycle(v_k4, v_subj.person_id);
+    exception when others then v_raised := true; v_msg := sqlerrm; end;
+    if v_raised then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        'a discovered subject was refused an ordinary academic class: ' || left(v_msg, 90));
+    end if;
+    -- TWO TEACHERS ARE TWO ROWS, deterministically ordered, with no uniqueness
+    -- invented; and the caller is never a candidate for their own round.
+    perform selftest.as_owner();
+    perform set_config('app.seed_intent', 'synthetic', true);
+    insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+    values (v_e2,  'EDUCATOR', v_k1, now() - interval '1 day', now() + interval '365 days'),
+           (v_hod, 'EDUCATOR', v_k1, now() - interval '1 day', now() + interval '365 days');
+    perform set_config('app.seed_intent', '', true);
+    perform selftest.as_user_uid(v_dean_u);
+    select count(*) into n from public.feedback_subjects_for_class(v_k1);
+    if n <> 3 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        format('three educators over one class offered %s subject(s) to a dean', n));
+    end if;
+    if (select count(*) from (select s.person_id from public.feedback_subjects_for_class(v_k1) s) x)
+       <> (select count(distinct s.person_id) from public.feedback_subjects_for_class(v_k1) s) then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14', 'one educator was offered more than once');
+    end if;
+    perform selftest.as_user_uid(v_hod_u);
+    select count(*) into n from public.feedback_subjects_for_class(v_k1) s where s.person_id = v_hod;
+    if n <> 0 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14',
+        'a head of department who also teaches the class was offered their own round');
+    end if;
+    perform selftest.as_owner();
+    exception when others then
+      v_probs := selftest.f07_note(v_probs, 'F07-P14', 'the test could not run: ' || left(sqlerrm, 150));
+      begin perform selftest.as_owner(); exception when others then null; end;
+    end;
+
+    -- ═══════ F07-P15 discovery is Management's, advisory, and says nothing
+    begin
+    -- NOBODY OUTSIDE THE MANAGEMENT BOUNDARY MAY ASK, and each refusal names
+    -- the boundary rather than what it is protecting.
+    for r in select * from unnest(array[v_hod2_u, v_adm_u, v_sys_u, v_e1_u, v_e2_u, v_lrn_u[1]],
+                                  array['a head of department of the other department',
+                                        'the institution administrator', 'a SYSTEM_ADMIN',
+                                        'the subject educator themselves', 'another educator',
+                                        'a learner of the class']) as t(uid, who)
+    loop
+      perform selftest.as_user_uid(r.uid);
+      v_raised := false; v_msg := '';
+      begin
+        perform * from public.feedback_subjects_for_class(v_k1);
+        raise exception 'F07_ACCEPTED';
+      exception when others then
+        if sqlerrm <> 'F07_ACCEPTED' then v_raised := true; v_msg := sqlerrm; end if;
+      end;
+      perform selftest.as_owner();
+      if not v_raised then
+        v_probs := selftest.f07_note(v_probs, 'F07-P15', r.who || ' enumerated the subjects of a class');
+      elsif v_msg !~ 'HEAD_OF_DEPARTMENT' then
+        v_probs := selftest.f07_note(v_probs, 'F07-P15',
+          r.who || ' was refused for the wrong reason: ' || left(v_msg, 80));
+      else
+        m_subj_denied := m_subj_denied + 1;
+      end if;
+    end loop;
+
+    -- A PERSON THE RULE DOES NOT HOLD IS NOT OFFERED, however senior.
+    perform selftest.as_user_uid(v_dean_u);
+    select count(*) into n from public.feedback_subjects_for_class(v_k1) s
+     where s.person_id in (v_adm, v_sys, v_dean, v_lrn[1], v_e3);
+    if n <> 0 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15',
+        format('%s person(s) with no teaching authority over the class were offered as subjects', n));
+    end if;
+
+    -- IT SAYS NOTHING ABOUT RESPONDENTS. The same class, after six sheets and
+    -- a published snapshot, answers exactly what it answered before anybody
+    -- had spoken: a discovery endpoint that moved would be a participation
+    -- oracle with a Management login in front of it.
+    perform selftest.as_user_uid(v_hod_u);
+    select coalesce(string_agg(s.person_id::text || '=' || s.display_name, '|' order by s.person_id), '(none)')
+      into m_subj_after
+      from public.feedback_subjects_for_class(v_k1) s
+     where s.person_id = v_e1;
+    perform selftest.as_owner();
+    if m_subj_after is distinct from m_subj_before then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15',
+        format('the subject list moved once the class answered: %s -> %s',
+               left(m_subj_before, 60), left(m_subj_after, 60)));
+    end if;
+    -- and it carries no column that could be one
+    select string_agg(a.attname, ', ' order by a.attnum) into v_msg
+      from pg_proc p, unnest(p.proargnames, p.proargmodes) with ordinality as a(attname, mode, attnum)
+     where p.pronamespace = 'public'::regnamespace and p.proname = 'feedback_subjects_for_class'
+       and a.mode = 't';
+    if v_msg is distinct from 'person_id, display_name' then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15',
+        'the Management projection is not the two declared columns: ' || coalesce(v_msg, '(none)'));
+    end if;
+    select string_agg(p.proname, ', ') into v_msg from pg_proc p
+     where p.pronamespace = 'public'::regnamespace
+       and p.proname in ('feedback_subject_candidates', 'feedback_subjects_for_class')
+       and coalesce(p.prosrc, '') ~* '\yfeedback_(responses|opportunities|results)\y';
+    if v_msg is not null then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15', 'subject discovery reads a respondent relation: ' || v_msg);
+    end if;
+
+    -- DISCOVERY IS NOT AUTHORIZATION. The subject is listed, their assignment
+    -- then ends, and opening refuses on its own re-validation rather than on
+    -- the strength of a list somebody read a moment ago.
+    perform selftest.as_user_uid(v_dean_u);
+    select count(*) into n from public.feedback_subjects_for_class(v_k2);
+    if n <> 1 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15', format('K2 offered %s subject(s) before the revocation', n));
+    end if;
+    perform selftest.as_owner();
+    select ra.id into v_one from public.role_assignments ra
+     where ra.person_id = v_e2 and ra.role = 'EDUCATOR' and ra.scope_node_id = v_k2
+       and ra.revoked_at is null;
+    perform selftest.as_user_uid(v_adm_u);
+    perform public.revoke_role(v_one);
+    perform selftest.as_owner();
+    perform selftest.as_user_uid(v_dean_u);
+    select count(*) into n from public.feedback_subjects_for_class(v_k2);
+    if n <> 0 then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15', 'a revoked educator is still offered as a subject');
+    end if;
+    v_raised := false;
+    begin
+      perform public.open_feedback_cycle(v_k4, v_e2);
+      raise exception 'F07_ACCEPTED';
+    exception when others then
+      if sqlerrm <> 'F07_ACCEPTED' then v_raised := true; v_msg := sqlerrm; end if;
+    end;
+    perform selftest.as_owner();
+    if not v_raised then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15',
+        'opening accepted a subject whose teaching authority had ended since discovery');
+    elsif v_msg !~ 'EDUCATOR' then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15',
+        'opening refused the stale subject for the wrong reason: ' || left(v_msg, 80));
+    end if;
+    exception when others then
+      v_probs := selftest.f07_note(v_probs, 'F07-P15', 'the test could not run: ' || left(sqlerrm, 150));
+      begin perform selftest.as_owner(); exception when others then null; end;
+    end;
+
     raise exception 'F07_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -1148,7 +1377,7 @@ begin
   for r in
     select * from unnest(
       array['F07-P01','F07-P02','F07-P03','F07-P04','F07-P05','F07-P06','F07-P07',
-            'F07-P08','F07-P09','F07-P10','F07-P11','F07-P12','F07-P13'],
+            'F07-P08','F07-P09','F07-P10','F07-P11','F07-P12','F07-P13','F07-P14','F07-P15'],
       array['WP7B -- the world this suite reasons about is real',
             'WP7B -- who may open a feedback cycle, and who may not',
             'WP7B -- eligibility is a snapshot taken when the class was asked',
@@ -1161,7 +1390,9 @@ begin
             'WP7B -- a learner moves school and nothing they said follows',
             'WP7B -- feedback never becomes evidence about a person',
             'WP7B -- the questions and the threshold are governed, and bound',
-            'WP7B -- the audit trail says what Management did, and no more'],
+            'WP7B -- the audit trail says what Management did, and no more',
+            'WP7D -- Management can name the teacher it is asking about',
+            'WP7D -- discovery is Management''s, advisory, and says nothing about respondents'],
       array[
         format('a real school: %s learners in the class at the instant it was asked, an educator holding '
             || 'live teaching authority over it, a governed set of 5 questions and 20 closed options, a '
@@ -1229,7 +1460,26 @@ begin
         format('%s audit rows were written while five learners answered; four rows record two cycles '
             || 'opened and two closed, each attributed to the Management actor who did it; no audit row '
             || 'is about a response or a participation; none carries a count, a total or an answer; and '
-            || 'no respondent is the actor of any of them', m_audit_submit)
+            || 'no respondent is the actor of any of them', m_audit_submit),
+        'the defect is reproduced before it is closed: the subject educator is enrolled nowhere, so the '
+            || 'learner-shaped visibility predicate says nothing about them and the head of department '
+            || 'who manages their class cannot read their person row at all -- and the governed read '
+            || 'answers anyway, with the one educator who teaches that class and their own name. The id '
+            || 'it returns is the id open_feedback_cycle accepts, proven by opening a cycle with it on a '
+            || 'class that had none. The ACADEMIC residual is carried unchanged rather than worked '
+            || 'around: the same contract names a subject for the professional-development class and '
+            || 'opening still refuses that class by name, while the same subject is accepted on an '
+            || 'ordinary one. Three educators over one class are three rows to a dean, each offered '
+            || 'once, and a head of department who also teaches it is never offered their own round',
+        format('%s refusals: a head of department of the neighbouring department, the institution''s '
+            || 'administrator, a SYSTEM_ADMIN, the subject educator themselves, another educator and a '
+            || 'learner of the class are each refused by the Management sentence -- authenticating is '
+            || 'not discovery. Nobody the rule does not hold is offered, however senior. The answer is '
+            || 'byte-identical before a single learner has spoken and after six sheets and a published '
+            || 'snapshot, so it is not a participation oracle; it projects exactly the person and the '
+            || 'name; and neither it nor the rule behind it reads an opportunity, a response or a '
+            || 'result. AND IT GRANTS NOTHING: an educator listed a moment ago, whose assignment is '
+            || 'then revoked, is refused by open_feedback_cycle on its own re-validation', m_subj_denied)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

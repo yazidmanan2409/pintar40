@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 53,
-  "phase": "WP7B (anonymous student -> educator feedback: participation and answers structurally separated) on the FABLE-06 core",
+  "version": 60,
+  "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..07.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
+    "db": "selftest/db/fable01..09.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -319,6 +319,16 @@
       "id": "F01-R01",
       "runner": "app",
       "proves": "INV-21/§4 unauthenticated /konfigurasi redirected and /api/* refused; /api/dev/* 404 in the production build; public copy clean"
+    },
+    {
+      "id": "F01-R07",
+      "runner": "app",
+      "proves": "INV-38 against the RUNNING MIDDLEWARE rather than the database declaration: the one declared public certificate-verification endpoint, /api/verifikasi/[token], is anonymously reachable over HTTP and answers its own closed {\"found\": false} for an unknown token, while /api/verifikasi itself and its siblings stay refused. assert_public_surface() asserts public_surface_registry; nothing asserted src/proxy.ts, and the two had drifted."
+    },
+    {
+      "id": "F01-R08",
+      "runner": "app",
+      "proves": "the static files the anonymous pages load are served to an anonymous visitor, over HTTP through the running middleware: the rendered /masuk html references public/brand/pintar-selalu-logo.png, and that file and the four public/fonts/*.woff2 files answer 200 with their own content type, not a redirect to /masuk. src/proxy.ts's matcher had gated them, so production showed strangers a broken mark and fallback fonts on /masuk and /verifikasi. The exemption is exactly those two folders: /brandx, /fontsx/a, /konfigurasi and /studio still redirect to /masuk"
     },
     {
       "id": "F01-R02",
@@ -1460,6 +1470,159 @@
       "runner": "db",
       "proves": "WP7B exactly-once under real concurrency, which a single session cannot distinguish from a retry: two psql connections submit one learner's sheet at once. The holder records it and sleeps inside its transaction; the second waits on the row lock, re-reads `not consumed`, matches nothing and is refused by name. Exactly one opportunity is consumed and exactly one sheet of answers survives, so a check-then-write shape -- which would pass both callers' reads -- is what this would catch",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "UX1-UB-BISU-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "while a round of student feedback is collecting, and forever after one that closed below the anonymity threshold, the surface renders no response-derived number at all. The two payload shapes are READ OUT OF the endpoint that produces them rather than invented in the test, the withheld one is asserted to carry nothing but a statement key, and both are RENDERED through the real component in both languages for both readers -- with every text node AND every style value swept for a digit, because a bar width is a proportion no text scan would see. The withheld surface renders the canonical ruled sentence and, character for character, nothing else. It is not the statistical absence card and reaches for none of its copy, which appends have/needed on purpose because a readiness floor is a fact a reader may act on and an anonymity floor is the opposite. Watched on plants: a response count smuggled into an open payload neither changes how it is read nor reaches the screen; an appended shortfall is caught by the scanner in both the bracketed and the written-out form; a withheld payload naming some other statement key falls back to the canonical one; a null, an empty object, an unknown state and a published state with no marginals are none of them read as a published snapshot; and an unrecognised state renders nothing rather than its own identifier"
+    },
+    {
+      "id": "UX1-UB-BATAS-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the published feedback snapshot is everything that renders and nobody is in it. Its SHAPE is read out of the two places WP7B builds it -- close_feedback_cycle writes the body, feedback_result returns it -- which is also where this asserts the construction carries no person, no respondent and no clock: the assertion that would notice one being added. Rendered, the surface carries the final total, the governed question and the per-option marginals, and the digits on the page are EXACTLY those figures, so no percentage, mean, rank or composite is being computed. A RESPONDENT PLANTED INTO THE PRESENTATION PIPELINE CANNOT SURFACE: names, person ids and a submission timestamp injected at the envelope, the entry and the option are all dropped by the fixed-key projection and reach neither the read nor the screen, with the plant asserted to really carry them. No marginal is a control that leads anywhere. And nothing is aggregated client-side: no feedback file reads the raw response table or the identity-bearing eligibility table or folds rows of its own, no file anywhere under src names the response table, the scanner is shown to catch one, and every endpoint the surface calls is one of the four WP7B registers for clients"
+    },
+    {
+      "id": "UX1-UB-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the feedback copy is accurate about privacy and is a verdict about nobody. Every label key WP7B STORES has words in both languages -- the five governed questions and four options are read out of the migration -- and the prefix is deliberately NOT staff-only, because a learner reads most of it and exempting it would exempt the questions a child is asked. NO ABSOLUTE ANONYMITY CLAIM survives the sweep in either language, watched on six positive controls, because WP7B accepts a unanimity residual and a privileged-infrastructure residual and a promise that nobody can ever know is a promise it does not make; the copy says the accurate thing instead, that answers are not shown with a name and the teacher receives the class. No database machinery reaches a learner. NOBODY IS SCORED: no telling for any of the three readers names effectiveness, performance, a ranking, a league table, an overall or composite score, an appraisal, a promotion, a sanction, a good or bad teacher, a comparison with other educators or a star, watched on seven positive controls, and no file turns the four-point scale into a figure or orders anything best-first. THE SHEET HAS NOWHERE TO TYPE, with the scanner shown to catch a textarea, and the whole sheet is required including against an option that was never offered. The outcome map is compared with the submission endpoint's own raised sentences in BOTH directions, an unrecognised failure is reported as uncertain rather than as anything definite, a lost-acknowledgement replay is recognised as recorded, and no outcome tells a learner to send again blindly. And no administrator is offered a way in, from their own surface or from anywhere else"
+    },
+    {
+      "id": "UX1-UB-ALUR-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round through open_feedback_cycle as the head of department, submits as a real learner, closes it, and reads every surface over HTTP as six personas. CI has both facilities, so it never skips there",
+      "proves": "one real anonymous-feedback round, opened and closed through the product's own endpoints by the head of department who may -- no seed and no service role -- and measured on the RENDERED html of every surface it touches, fetched over HTTP. THE STUDENT is told feedback is waiting, which class and educator it concerns, whether they have sent theirs and the one action to take; a learner who was not asked sees nothing, and the address bar tells them nothing either, because a round that is not theirs renders the SAME page as one that does not exist. The sheet is five question groups of four closed options with no textarea, text input, search field or contenteditable on it. WHILE THE ROUND IS OPEN NEITHER THE SUBJECT NOR MANAGEMENT RECEIVES A FIGURE, measured with a sweep for any count, proportion or shortfall in either language, and Management's view names no respondent. An INSTITUTION_ADMIN standing over the whole school is refused both the list and one round's results, sees no round id at all, and is offered no entry point on their own surface; another school's educator is refused the round. Sending twice is accepted once -- the second press is refused by WP7B's row lock -- and the learner's home then says they have sent theirs and offers the action no more. CLOSED BELOW THE THRESHOLD, both readers receive the canonical statement with NOTHING after it, checked on the sentence's own neighbourhood rather than on the page, and no figure anywhere; the learner is shown no outcome at all; and a class with no round says so plainly"
+    },
+    {
+      "id": "UX1-UB-TUTUP-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "Management ends collection for a feedback round and the BACKEND decides what the round became; the surface never learns which. close_feedback_cycle returns the new state -- asserted from the migration, so this is a refusal rather than an absence -- and the action destructures only the error, reads the returned payload nowhere, and names neither terminal state nor any count. No file under src reads the anonymity threshold at all, watched on a plant. THE OFFER IS THE STATE AND NOTHING ELSE: only an OPEN round is offered a control, every terminal and unknown state is offered none, and no file and no copy key in this Experience names a reopen, reset, republish, force or override -- watched on seven positive controls, one of which proves the scanner does not mistake Next's own force-dynamic rendering directive for a transition -- and agreeing with the endpoint, which refuses a closed round by name. THE CONFIRMATION says what ends and that it does not come back, in both languages, and carries NO DIGIT AT ALL in any of its keys; the control is handed no total, count, threshold or remainder, so nothing is passed to it that could be printed. NO BLIND REPEAT: an unrecognised outcome is settled by re-reading the round's own state, nothing loops, waits, retries or counts attempts, a second press in flight cannot start a second call, and no outcome sentence tells an operator to try again. The outcome map is compared with the endpoint's own refusals in both directions, with the one deliberately unmapped platform fault named and justified. AUTHORITY IS THE ENDPOINT'S: neither the action, the control nor the page reads a role name or decides for itself, the page still asks the Management gate, and the endpoint asks it again"
+    },
+    {
+      "id": "UX1-UB-KELOLA-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round at Alpha through open_feedback_cycle, asks five personas to close it, and reads the rendered result over HTTP. CI has both facilities, so it never skips there",
+      "proves": "an authorized Management user ends collection for a real feedback round through ordinary PINTAR, and the backend decides what the round became. Measured on the RENDERED html of a round opened for this case at Alpha -- its own class, so the learning-cycle tenant's round is untouched. WHILE IT IS OPEN the operator is offered the act and the page carries no response figure, no threshold and no word of one, and the confirmation they are about to read carries none either. EVERY EXCLUDED READER IS REFUSED BY THE ENDPOINT rather than by a hidden button: an institution administrator, the subject educator, a learner and a head of department from another school are each asked to close the round DIRECTLY and each refused; none is offered a control on the ordinary path; none sees a figure; the administrator meets the refusal page rather than a disabled control; and the round is asserted STILL OPEN after all four attempts, so the refusals refused rather than merely being reported. THE AUTHORIZED OPERATOR THEN CLOSES IT, a second close is refused because terminal means terminal, and the page re-read shows the canonical withheld statement with nothing after it, no figure, no claim that it is still collecting, no close control, no confirmation, and no reopen, reset or publish offered anywhere. The subject's own view of the same round agrees and is offered no control either, because operating a round and reading its result are different things"
+    },
+    {
+      "id": "F07-P14",
+      "runner": "db",
+      "proves": "WP7D's backend unblocker, with the defect reproduced before it is closed. The subject educator is enrolled nowhere, so person_visible_to_me -- which is learner-shaped: self, an administrator over an enrolment, a roster holder over a membership, portable visibility after a transfer -- says nothing about them, and the head of department who manages their class cannot read their person row at all. The governed read answers anyway: the one educator who teaches that class, with their own display name, and the id it returns is the id open_feedback_cycle accepts, proven by opening a cycle with it on a class that had none. THE ACADEMIC RESIDUAL IS CARRIED UNCHANGED rather than worked around -- the same contract names a subject for a professional-development class and opening still refuses that class by name, while the same subject is accepted on an ordinary one, which is the advisory contract working rather than two rules disagreeing. Three educators over one class are three rows to a dean, each offered exactly once with no uniqueness invented, and a head of department who also teaches the class is never offered their own round, because open_feedback_cycle refuses subject = caller",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P15",
+      "runner": "db",
+      "proves": "WP7D: discovery is Management's, advisory, and silent about respondents. Six refusals, each naming the Management boundary rather than what it protects: a head of department of the neighbouring department, the institution's administrator, a SYSTEM_ADMIN, the subject educator themselves, another educator and a learner of the class -- authenticating is not discovery. Nobody the canonical subject rule does not hold is offered, however senior. The answer is byte-identical before a single learner has spoken and after six sheets and a published snapshot, so it is not a participation oracle with a Management login in front of it; it projects exactly person_id and display_name; and neither it nor the rule behind it reads an opportunity, a response or a result. AND IT GRANTS NOTHING: an educator listed a moment ago, whose assignment is then revoked through the product's own revoke_role, is refused by open_feedback_cycle on its own re-validation -- discovery is current state, not a token",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "UX1-UB-BUKA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "Management names the teacher a class will be asked about through the governed contract, and opening re-decides every time. DISCOVERY IS THE FEEDBACK CONTRACT AND NOTHING WIDER: feedback_subjects_for_class is asserted to return exactly a person and a display name, the data layer reaches for no email, account, institutional identity, enrolment, membership or other role, and a REFUSAL is told apart from an EMPTY LIST, because 'not yours to ask' and 'nobody to ask about' are different facts. DISCOVERY IS NOT AUTHORIZATION: the action sends the class and the person and nothing else, carries no token, signed claim or cache, and neither it nor the control nor the page names the subject rule, the role table, EDUCATOR, jalur containment or the academic context -- while the migration is read to confirm the open endpoint and discovery ask ONE shared rule, which is why a list can be trusted and still not relied on. EVERY REFUSAL HAS A SENTENCE, compared with the endpoint's own in both directions, with a stale subject, the academic boundary and a colleague who opened first each its own outcome rather than a shrug. THE ACADEMIC REFUSAL IS CARRIED, NOT COMPENSATED: nothing retries or loops, and the sentence names the boundary and offers no way round it, watched on a plant. NOTHING COUNTS ANYTHING: no opening key in either language carries a digit or names a response, a threshold or a participant, and the control is handed no total, count or remainder. Authority stays the endpoint's, the page asks WP4's gate and refuses through the one refusal page, discovery refuses in the same words the operation does, the new cycle's id is discarded in favour of a re-read, no second transition appears, and the row holding a person's name has a touch-target floor, wraps rather than overflowing, and pins no geometry"
+    },
+    {
+      "id": "UX1-UB-BUKA-ALUR-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it discovers subjects as five personas, opens a round at Alpha, and reads the rendered Management pages over HTTP. CI has both facilities, so it never skips there",
+      "proves": "Management names the teacher a class will be asked about, and then asks, measured on the RENDERED html of the ordinary Management pages. DISCOVERY WORKS AND IS BOUNDED: an authorized head of department is given the educator who teaches the class with a real display name, and every returned row carries EXACTLY a person id and a display name, asserted key by key because a staff directory would have carried more; the caller is not offered as the subject of their own round. DISCOVERY IS GATED EXACTLY AS THE OPERATION IS: an institution administrator, the educator themselves, a learner and a head of department from another school are each refused the list AND each refused the open, so naming somebody and asking about them are the same authority and neither is the other's key. ON THE ORDINARY PATH the branch offers the class, the class page names the educator and offers the act, excluded roles are offered no control and meet either the refusal page or the not-yours sentence, and no page in the flow carries a response figure. OPENING leaves a round for this class and this educator, and the Management list -- which showed an em dash where a teacher's name belongs before the unblocker -- NAMES THE EDUCATOR, which is the product point of the whole change"
+    },
+    {
+      "id": "F08-P01",
+      "runner": "db",
+      "proves": "An institution administrator SIGNS IN -- claim and role, not a claim alone -- and builds a cohort and a class in their own school. That was impossible for everyone but the table owner: the org_nodes ladder trigger is SECURITY INVOKER by design and called org_kind_level(), which was never granted to authenticated, so real onboarding failed with a permission error while every seed and suite passed by building as owner. The node written carries a full jalur, so the trigger ran with the writer's rights rather than being skipped, and the grant moved nothing else: ladder violations are still refused, and a dean, an educator and the neighbouring school's administrator are each still refused here."
+    },
+    {
+      "id": "F08-P02",
+      "runner": "db",
+      "proves": "The standing assertion behind W8-01: no table a client may write runs an invoker-rights trigger that calls a function the client cannot execute. It is checked for NON-VACUITY -- the sweep must cover real client-writable tables and real invoker triggers, because an assertion over an empty population is green and says nothing -- and it is owner-run, since a client-executable assertion about client executability would be answering about itself."
+    },
+    {
+      "id": "F08-P03",
+      "runner": "db",
+      "proves": "An institution assembles a reusable report template from PINTAR's live catalogue and generate_report runs on it. Before WP8 the catalogue, the tables, the capability, the guards and the engine all existed and report_templates held zero rows in every environment, because no product path could write one. The order given is the order kept; each generated entry carries the status the evaluator decided, so authorization still filters per metric; revising makes a new template VERSION rather than an edit in place, and a report already issued still names the version that produced it. The act is audited, and the audit row carries no figure."
+    },
+    {
+      "id": "F08-P04",
+      "runner": "db",
+      "proves": "The catalogue is PINTAR's and a template only selects from it. A metric of the school's own invention, a visualization the catalogue does not permit for that metric, a template that shows nothing, one that shows thirteen, one assembled for the neighbouring school, and a direct edit of a metric definition are each refused. An institution decides which metrics appear and how they are drawn; it cannot reach what they mean, how they are computed, who may read them or what the minimum sample is."
+    },
+    {
+      "id": "F08-P05",
+      "runner": "db",
+      "proves": "Authorization is the FIRST gate on the new endpoint, which is RF-2's lesson applied where it is cheap to apply. A dean, an educator and another school's administrator are refused by the capability's name -- and refused by the SAME name when the rest of the call could not possibly resolve: a null metric list, an invented standard report and a template id that does not exist. So the refusal proves authorization rather than a lookup that failed. An anonymous caller is refused too."
+    },
+    {
+      "id": "F08-P06",
+      "runner": "db",
+      "proves": "Two bounded corrections. A metric retired by a new catalogue version is refused at the moment a template selects it, while a template that named it before the retirement keeps its row -- a catalogue decision does not silently rewrite what a school assembled. And drawable_items_for_definition is no longer granted to a client that could never have used it: it is invoker-rights by design and calls an owner-only function, so a client call could only ever have failed. The assembler still reaches it and a seeded definition still draws its items, so delivery is intact."
+    },
+    {
+      "id": "F08-P07",
+      "runner": "db",
+      "proves": "A freshly deployed PINTAR can acquire its FIRST administrator, and no second one. Until the release rehearsal nothing could: INV-16 requires an authenticated grantor, forbids self-grant, and lets only an active SYSTEM_ADMIN grant SYSTEM_ADMIN, so an empty database had no door at all. The door added is the operator's alone -- a signed-in session and an anonymous one cannot reach it, by grant and again by the function's own first check -- and it opens only while no active SYSTEM_ADMIN exists. Day zero is reached here by revoking every active SYSTEM_ADMIN through the guard's ordinary revocation path, not by disabling anything. The operator then binds exactly ONE global assignment to an identity Supabase Auth already created; the function creates no identity of its own and refuses when none exists. It is audited under its own action name, it refuses every call after the first, and the session marker it uses is not a key on its own -- setting it by hand while an administrator exists changes nothing. ORDINARY INV-16 IS UNCHANGED: an unmarked unauthenticated grant is still refused, the bootstrapped administrator still may not grant themselves, an institution administrator still may not grant SYSTEM_ADMIN, and that administrator governs the next grant through grant_role like anybody else. AND INITIALISATION IS NOT RECOVERY: success now writes a durable record in platform_bootstrap, and that record -- not the existence of a living administrator -- is what closes the door. Revoking every SYSTEM_ADMIN in the installation does not reopen it, the record refuses UPDATE and DELETE by trigger, and the guard's day-zero clause requires the installation to be uninitialised as well as administrator-less."
+    },
+    {
+      "id": "F08-P08",
+      "runner": "db",
+      "proves": "A person with no past can be given their first role. The only role-granting surface built its list of people from enrolments, transfers and existing role assignments -- three prior relationships -- so the person who most needs a role, a school's first administrator created moments earlier in Supabase Auth, could not be selected at all, even though grant_role permits the grant and person_visible_to_me already returns true for them to a SYSTEM_ADMIN. persons_awaiting_first_role is the complement of those three sources and nothing wider: a person appears only while they hold no active role, no enrolment and no transfer, and leaves the list the moment they hold any of them, so the union is total and neither half is a directory. It is asserted here that the fresh person is reachable through none of the three sources, that the SYSTEM_ADMIN is offered them by name, that nobody already affiliated appears, that the grant the list exists for is accepted at the institution root, that ordinary onboarding continues from it -- the new administrator builds their own cohort -- and that an institution administrator, a dean, an educator and an anonymous caller are each refused by the SYSTEM_ADMIN name. Visibility was not widened to do any of it: the read defers to person_visible_to_me, and that predicate knows nothing about this list."
+    },
+    {
+      "id": "F09-R01",
+      "runner": "db",
+      "proves": "A seq conflict and a closed session are told apart by code. The player could not distinguish 'this client_seq is taken, renumber' from 'this session is over', so it either held an answer forever or dropped it. A different answer at a taken client_seq now raises PR001 whose DETAIL is the server's high-water mark for that item, an identical replay is acknowledged, a renumbered answer above the mark is accepted, and an answer into someone else's session raises PR002, the terminal code the player stops on."
+    },
+    {
+      "id": "F09-R02",
+      "runner": "db",
+      "proves": "Finish declares what the learner gave and the server holds it or refuses. A finish that raced the outbox scored the paper without the answers still travelling. finish_my_session(session, manifest) raises PR006 naming exactly the items whose declared client_seq the server does not yet hold, a seq above the held one is pending too, a malformed manifest is refused, and none of these refusals scores anything; once the answer arrives the same finish succeeds, a repeat returns the same result row, and afterwards an answer and another learner's finish each raise PR002."
+    },
+    {
+      "id": "F09-R03",
+      "runner": "db",
+      "proves": "An expired session waits out its late-sync window. An answer given before the deadline and received inside late_sync_grace_seconds is scorable (doc 04 §3), so the paper may not be scored the moment the clock runs out: finalize_session raises PR007 while the window is open, a finish without a manifest raises PR007, the transaction-local verified-manifest marker opens only the session it names, an answer held in another session does not satisfy the manifest, and the learner's own satisfied manifest closes the window with both the live and the late answer counted."
+    },
+    {
+      "id": "F09-A01",
+      "runner": "db",
+      "proves": "A sign-up creates nobody (F-02). Once an installation has an active SYSTEM_ADMIN and no fixtures marker, handle_new_auth_user refuses with PR010 a bare sign-up, a sign-up that wrote a provisioning marker into user_metadata (writable by the signer), an identity naming a person in app_metadata at insert (GoTrue writes the caller's app_metadata only after the insert, so nothing there is a key), an expired activation grant, and the synthetic seed intent on production. What is honoured is a live activation grant, consumed exactly once by an insert shaped as GoTrue makes it (app_metadata carrying only provider/providers, the address in another case), yielding the granted person and not a name the signer chose. The decision is fail-closed (`is not true`); the NULL case this session cannot reproduce is F09-C01's."
+    },
+    {
+      "id": "F09-A02",
+      "runner": "db",
+      "proves": "A provisioned person can be activated and signs in as themselves (F-01). persons_awaiting_account offers the school's administrator the provisioned person and nobody who already holds an account; another school's administrator, an educator and an anonymous caller are refused, as are an unknown account kind, a malformed email, a card account without a ten-digit card, a card number on an email account, and an institution administrator calling authorize_new_person. The authorized activation is audited once and writes a single-use activation grant; the identity Auth then inserts -- with nothing PINTAR wrote in app_metadata -- is linked through that grant to the provisioned person and activates their PENDING enrolment; current_person_id is that person; the person leaves the list; a second activation is refused; a SYSTEM_ADMIN may authorize a person no institution has provisioned. The same path through the real route and the real Auth service is F09-C02's."
+    },
+    {
+      "id": "F09-A03",
+      "runner": "db",
+      "proves": "The intake enrols a learner (F-03). The validator accepted role STUDENT and the provisioning step then granted it as a role assignment, which failed every learner row. An import row with role STUDENT now completes, is enrolled (PENDING) in its class through a membership, receives no role assignment, and is who activation offers next."
+    },
+    {
+      "id": "F09-C01",
+      "runner": "db",
+      "proves": "F-02 on a connection that never set anything (NEW-1). The in-suite test runs on a session that has already set app.seed_intent, where current_setting(..., true) reads ''; GoTrue's connections never set it, and for them it reads NULL, which made the refusal's condition NULL and admitted every real sign-up. On fresh psql connections that never touch the setting -- asserted to read NULL -- with an active SYSTEM_ADMIN and the fixtures marker off, a sign-up shaped exactly as GoTrue inserts it (app_metadata carrying only provider/providers) is refused with PR010, and the same shape is admitted and linked to the granted person when a live activation grant names the address. Rolled back."
+    },
+    {
+      "id": "F09-C02",
+      "runner": "app",
+      "proves": "Account activation through the real route and the real Auth service (NEW-2). The database suite proved activation with a hand-built auth.users insert, a shape GoTrue never produces, and passed while the product could activate nobody: GoTrue's admin createUser INSERTs the user and writes the caller's app_metadata in a later update, so the trigger never saw the link. Here a signed-in institution administrator activates a provisioned learner by classroom card and a provisioned teacher by email through POST /api/akun/aktivasi, with the fixtures marker off, and the real GoTrue creates both identities. Asserted: /aktivasi offers both; an anonymous caller is refused 401; each identity is linked to the provisioned person (no second person); the learner's enrolment is ACTIVE; each activation grant was consumed once; the learner signs in with the issued card and PIN through the production derivation and reaches /belajar as themselves; a second activation is refused 403. A declared exception to the app runner's black-box rule: the world is built, and the outcome read back, through the database owner, because a provisioned person with no account is a state no seed holds; the act under test is black-box end to end.",
+      "skip_justification": "needs the app, a reachable Supabase Auth and the database owner connection (CI local stack)"
     }
   ]
 }

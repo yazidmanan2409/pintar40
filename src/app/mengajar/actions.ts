@@ -95,11 +95,13 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
   if (salahBuat || !baris) ke(kelasId, "?sedia=gagal");
 
   // THE COMMITMENT. This is the statement the capability check fires on.
-  const { error: salahAktif } = await db
+  // F-05: read back what changed; a write RLS filtered to nothing is a refusal
+  const { data: aktif, error: salahAktif } = await db
     .from("learning_assignments")
     .update({ status: "ACTIVE" })
-    .eq("id", baris!.id);
-  if (salahAktif) ke(kelasId, "?sedia=gagal");
+    .eq("id", baris!.id)
+    .select("id");
+  if (salahAktif || (aktif ?? []).length !== 1) ke(kelasId, "?sedia=gagal");
 
   ke(kelasId, "?sedia=ok");
 }

@@ -1,0 +1,69 @@
+PINTAR production application deployment — request
+
+Editing this file launches the Vercel deployment workflow.
+
+attempt:  013
+release:  5b5b68d4c77700976904fdee5a2fb52e46f8221e
+purpose:  Serve the sign-in page's logo and fonts to anonymous visitors.
+          src/proxy.ts's matcher gated public/brand and public/fonts, so
+          production answered a stranger's logo and font requests at /masuk
+          with 307 -> /masuk (check-front-door run 35849629660). The release
+          exempts exactly those two folders; F01-R08 proves it over HTTP and
+          reproduces the 307 without the change. The deploy now also fetches
+          the logo and the four fonts anonymously and fails if any is not
+          served.
+unchanged: environment, keys, Auth, database. §3b and §3c are already
+           applied in production and are not touched here.
+
+attempt:  012 (previous; green)
+release:  c358f5866d1d9c9ac1647559cf024e9a73c3b601 (unchanged; workflow-only change)
+purpose:  Second Eye step 3: redeploy with the service-role key taken from
+          Supabase itself (Management API), validated (Admin API must answer
+          200) before it is written, and read back by hash. Replaces the
+          invalid value Vercel has held since 46fd4452. This credential write
+          is authorized by Second Eye.
+not in scope: §3b, §3c, app code, migrations, Auth settings.
+
+attempt:  011 (previous; green, but its service-role check was vacuous)
+release:  c358f5866d1d9c9ac1647559cf024e9a73c3b601
+origin:   https://app.pintarselalu.com
+purpose:  Systemic Repair 01, step 2 of Second Eye's authorization: deploy the
+          independently re-verified release (CI run 35838958032 green on this
+          exact SHA; probe attempt 008) onto the database that step 1 brought
+          to 111/111 (supabase apply run 35845602075: readiness 17/17,
+          22 assertions green, bootstrap 0, SYSTEM_ADMIN 0, environment
+          development).
+checks:   the existing ones (the origin serves /masuk; the service-role key
+          works: an unknown token gets 404 with the closed body), plus:
+          - an anonymous caller is refused by /api/akun/aktivasi (401) and
+            /aktivasi redirects to /masuk;
+          - Supabase Auth still holds the canonical boundary (site_url,
+            the single callback allow entry, disable_signup true), READ ONLY.
+            This workflow no longer writes Auth.
+not in scope: §3b (bootstrap), §3c (platform_environment), Gladys. Held
+              for Yazid's explicit decision.
+
+attempt:  010 (previous)
+release:  46fd4452ebc7b861abb5cb9b1963178088b978a7
+origin:   https://app.pintarselalu.com
+purpose:  ACTIVATION STAGE 1 — provision SUPABASE_SERVICE_ROLE_KEY into Vercel
+          production and prove it works in the running application.
+
+why:      the key is a RUNTIME value. Writing it to Vercel changes nothing
+          until a deployment is built carrying it, so this stage is a real
+          redeploy of the frozen release, not a configuration edit.
+
+          Presence is asserted by name from the Vercel API, and then function
+          is proven separately: the public certificate-verification endpoint
+          constructs a service-role client on every request and throws without
+          the key, so a missing key is a 500. An unknown token must answer 404
+          with the endpoint's closed body. Both must hold.
+
+          This closes Second Eye carry-forward item 2, which covers five API
+          routes: /api/verifikasi/[token], /api/certificates/issue,
+          /api/evaluation/assume, /api/assets/upload-url, /api/assets/read-url.
+
+not in scope: the bootstrap, the 3c transition, onboarding, Gladys.
+              Supabase Auth remains gated and is not touched by this workflow.
+
+attempt:  009  (first fully verified deployment; strict probe passed)

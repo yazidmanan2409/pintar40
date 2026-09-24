@@ -13,6 +13,7 @@ import { PARAM_BANTUAN } from "@/components/tur/TombolBantuan";
 import { bolehTampilOtomatis, varianBelajar, TUR_BELAJAR } from "@/lib/tur";
 import { keadaanTur, peranSaya } from "@/lib/tur-negara";
 import { konteksPembelajaran } from "@/lib/pembelajaran";
+import * as ub from "@/lib/umpanbalik";
 import JejakSiklus from "@/components/siklus/JejakSiklus";
 import KartuTugas from "@/components/siklus/KartuTugas";
 
@@ -111,6 +112,16 @@ export default async function Belajar({
   // returns exactly what `may_start_assessment()` accepts, so this list adds
   // no authority — everything in it is genuinely startable right now.
   const terbuka = await engine.openAssessments(db);
+
+  // WP7C. THE FEEDBACK THIS PERSON WAS ASKED FOR, and nothing about anybody
+  // else's. `my_feedback_cycles` takes no person because the person is the
+  // session, and it returns no peer, no participation and no count of any
+  // kind — so there is nothing here to derive who has answered from, which is
+  // the whole reason the endpoint has that shape.
+  //
+  // Not a tab and not a centre. One quiet section on the home a learner
+  // already has, present only when somebody has actually been asked.
+  const umpanBalik = (await ub.siklusSaya()) ?? [];
 
   // ───────────────────────────────────────────────── the first-login tour (UX-1)
   //
@@ -267,6 +278,34 @@ export default async function Belajar({
             ))
           )}
         </section>
+
+        {/* WP7C. Absent when nobody has been asked, like every other section
+            here that has nothing to say — and it says which class and which
+            educator, whether this learner has already sent theirs, and the one
+            thing to do about it. Nothing else fits in those four facts. */}
+        {umpanBalik.length > 0 ? (
+          <section className="pin-sec" aria-labelledby="pin-ub-saya">
+            <h2 id="pin-ub-saya">{s("umpanbalik.murid.judul")}</h2>
+            <p className="pin-mm">{s("umpanbalik.murid.ajakan")}</p>
+            {umpanBalik.map((u) => (
+              <div className="pin-tugas" key={u.id}>
+                <span className="pin-ttitle">{u.kelas ?? ""}</span>
+                <div className="pin-tfoot">
+                  <span className="pin-tstatus">
+                    {s("umpanbalik.tentang.guru")}: {u.guru ?? "—"}
+                  </span>
+                  {u.sudahDijawab ? (
+                    <span className="pin-meta">{s("umpanbalik.murid.sudah")}</span>
+                  ) : (
+                    <Link className="pin-btn" href={`/belajar/umpan-balik/${u.id}`}>
+                      {s("umpanbalik.murid.beri")}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </section>
+        ) : null}
 
         {/* Q-12. Absent when there is nothing open, like every other section
             here that has nothing to say. */}

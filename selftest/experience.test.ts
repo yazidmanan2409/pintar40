@@ -48,6 +48,11 @@
  *   UX1-DATA-WENANG-01       provisioning authority, and copy that names no machinery
  *   UX1-AJAR-KONTEKS-01      an educator may learn; nothing here decides that they may
  *   UX1-AJAR-KATA-01         Pembelajaran Saya says whose it is and judges nobody
+ *   UX1-UB-BISU-01           while a round is open or withheld, nothing numeric renders
+ *   UX1-UB-BATAS-01          the published snapshot is all that renders, and nobody is in it
+ *   UX1-UB-KATA-01           accurate about privacy, and a verdict about nobody
+ *   UX1-UB-TUTUP-01          Management ends collection; the backend decides what it became
+ *   UX1-UB-BUKA-01           discovery names a teacher; opening re-decides, every time
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -74,8 +79,59 @@ import {
   TEPI, JARAK, TUR_BELAJAR, TUR_PENGAJAR, type Layar, type Petak,
 } from "../src/lib/tur";
 import { konteksPembelajaran } from "../src/lib/pembelajaran";
+import {
+  bacaHasil, bagian, bolehDitutup, keadaanKunci, lengkap, sebabBuka, sebabKirim, sebabTutup,
+  sudahAdaPutaran, sudahDitutup, sudahTercatat, PERNYATAAN_DITAHAN, SEBAB, SEBAB_BUKA,
+  SEBAB_TUTUP, type Kuesioner,
+} from "../src/lib/umpanbalik-kontrak";
+import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
+
+
+/**
+ * WP7C. A RENDER, NOT A STRING SEARCH.
+ *
+ * `HasilKelas` is an ordinary synchronous function component, so the guards
+ * below CALL it and walk what comes back. That matters: §25 asks for real
+ * backend states to be rendered and the rendered surface proved free of
+ * response-derived numbers, and a test that grepped the source for "(3/5)"
+ * would pass a component that computed the same thing a different way.
+ *
+ * Two collectors, because a number can reach a screen as text or as geometry:
+ * `teksPohon` gathers every string and number child, and `gayaPohon` gathers
+ * every style value — a bar whose width was `37%` would be a published
+ * proportion rendered in an open cycle, and it would be invisible to a text
+ * scan.
+ */
+type Simpul = { type?: unknown; props?: Record<string, unknown> } | string | number | null | undefined;
+
+function anakDari(n: Simpul): Simpul[] {
+  if (n === null || n === undefined || typeof n === "string" || typeof n === "number") return [];
+  const kids = (n.props ?? {}).children;
+  return (Array.isArray(kids) ? kids : [kids]) as Simpul[];
+}
+
+function teksPohon(n: Simpul, keluar: string[] = []): string[] {
+  if (n === null || n === undefined) return keluar;
+  if (typeof n === "string" || typeof n === "number") { keluar.push(String(n)); return keluar; }
+  for (const k of anakDari(n)) teksPohon(k, keluar);
+  return keluar;
+}
+
+function gayaPohon(n: Simpul, keluar: string[] = []): string[] {
+  if (n === null || n === undefined || typeof n === "string" || typeof n === "number") return keluar;
+  const gaya = (n.props ?? {}).style;
+  if (gaya && typeof gaya === "object") {
+    for (const v of Object.values(gaya as Record<string, unknown>)) keluar.push(String(v));
+  }
+  for (const k of anakDari(n)) gayaPohon(k, keluar);
+  return keluar;
+}
+
+/** Any digit at all. The strictest form available, used where the correct
+ *  number of response-derived figures is exactly zero. */
+const ADA_ANGKA = /[0-9\u0660-\u0669]/;
 
 const IGNORED = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -169,6 +225,15 @@ const RESET_SURFACES = [
   "src/app/belajar/[tugas]/lanjut/page.tsx",
   "src/app/belajar/asesmen/[penugasan]/page.tsx",
   "src/app/belajar/_components/PermukaanAsesmen.tsx",
+  // WP7C — anonymous student → educator feedback. One learner surface, one
+  // educator surface and two Management surfaces, all built on the token set
+  // from their first commit.
+  "src/app/belajar/umpan-balik/[siklus]/page.tsx",
+  "src/app/mengajar/[kelas]/umpan-balik/page.tsx",
+  "src/app/pimpinan/[simpul]/umpan-balik/page.tsx",
+  "src/app/pimpinan/[simpul]/umpan-balik/[siklus]/page.tsx",
+  // WP7D. Where Management names the teacher a class will be asked about.
+  "src/app/pimpinan/[simpul]/umpan-balik/kelas/[kelas]/page.tsx",
   // WP5B — institutional intake. On the token set from its first commit, like
   // WP4 and unlike the configuration surface it is reached from.
   "src/app/pendataan/page.tsx",
@@ -193,6 +258,9 @@ const RESET_SURFACES = [
   // surfaces and are linted as such.
   "src/app/masuk/page.tsx",
   "src/app/auth/callback/page.tsx",
+  // F-01 account activation. Built on the token set, the pendataan shell and
+  // the shared pin-* classes from the start, so it joins the re-set list.
+  "src/app/aktivasi/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -783,21 +851,30 @@ export const experienceTests: SelfTest[] = [
       }
       c.expect(selects >= 1, "no direct read of the certificates table was found to check");
 
-      // 3. and the learner pages never reach for the issuance route (V-6a)
+      // 3. V-6a CLOSED: issuance is the SYSTEM's, asked over HTTP from exactly
+      //    two declared places — the certificate page's retry (issueIfEligible,
+      //    src/lib/sertifikat.ts) and the player's post-Finish request — and no
+      //    learner module imports the service-role route itself.
+      const pemanggil: string[] = [];
       for (const f of sources) {
         const rel = relative(repoRoot, f).replace(/\\/g, "/");
-        if (!rel.startsWith("src/app/belajar") && !rel.startsWith("src/components")) continue;
-        c.expect(
-          !/certificates\/issue/.test(code(readFileSync(f, "utf8"))),
-          `${rel} reaches for the issuance route; no learner page may (V-6a)`,
-        );
+        if (!rel.startsWith("src/app/belajar") && !rel.startsWith("src/components") && rel !== "src/lib/sertifikat.ts") continue;
+        const src = code(readFileSync(f, "utf8"));
+        c.expect(!/from\s+["'][^"']*api\/certificates\/issue/.test(src),
+          `${rel} imports the service-role issuance route instead of asking it over HTTP`);
+        if (/certificates\/issue/.test(src)) pemanggil.push(rel);
       }
+      c.expect(
+        JSON.stringify(pemanggil.sort()) ===
+          JSON.stringify(["src/app/belajar/_components/ItemPlayer.tsx", "src/lib/sertifikat.ts"]),
+        `the issuance route is asked from ${JSON.stringify(pemanggil)}; exactly the player and issueIfEligible may`,
+      );
 
       c.note(`${selects} direct select(s) of the certificates table in the source, all on the ten-column list`);
       return c.verdict(
         "the direct certificate-list read in the source requests exactly the ten Q-11 columns and no other; " +
           "signature, key_version, canonical_payload and snapshot_id are named nowhere on a learner surface; " +
-          "and no learner page reaches for the service-role issuance route (V-6a)",
+          "and issuance is asked over HTTP from exactly the player and issueIfEligible, never imported (V-6a closed)",
       );
     },
   },
@@ -833,7 +910,9 @@ export const experienceTests: SelfTest[] = [
         "the detail page does not apply the ELIGIBLE binding to my_certificate's own result");
       c.expect(/rendersVerification\(detail\.status\)/.test(source),
         "the detail page does not gate the verification block on the issued state");
-      const eligibleBranch = source.indexOf("!rendersCredential(detail.status)");
+      // the LAST test of the predicate is the branch that returns the pending
+      // state; an earlier one (the issuance ask, V-6a) renders nothing
+      const eligibleBranch = source.lastIndexOf("!rendersCredential(detail.status)");
       const verificationUrl = source.indexOf("verificationUrl = issued");
       c.expect(eligibleBranch >= 0 && verificationUrl > eligibleBranch,
         "the ELIGIBLE branch does not return before a verification link is built");
@@ -852,9 +931,19 @@ export const experienceTests: SelfTest[] = [
         c.expect(at > eligibleBranch, `${thing} is reachable before the ELIGIBLE branch returns`);
       }
 
-      // 3. the pending state says the honest thing and offers no issuance
+      // 3. the pending state says the honest thing, and offers the learner no
+      //    issuance ACTION. V-6a is closed: a passed session with no credential
+      //    yet asks for issuance once, server-side, through issueIfEligible --
+      //    the issuance route decides (session_is_mine, certificate_prepare), the page only
+      //    asks. The page itself never names the route, never posts, and
+      //    renders no button that would; the ask happens before the branch.
       c.expect(/sertifikat\.disiapkan\.judul/.test(source), "the pending state has no telling");
-      c.expect(!/issue/i.test(source.replace(/issued/gi, "")), "the pending state reaches for issuance");
+      const withoutAsk = source.replace(/issueIfEligible/g, "").replace(/issued/gi, "");
+      c.expect(!/issue/i.test(withoutAsk), "the page reaches for issuance other than through issueIfEligible");
+      c.expect(!/certificates\/issue|fetch\(|<form|<button/.test(source),
+        "the page posts to issuance or renders an action of its own");
+      const ask = source.indexOf("issueIfEligible(");
+      c.expect(ask < 0 || ask < eligibleBranch, "the issuance ask comes after the ELIGIBLE branch has rendered");
 
       c.note("the binding's predicates, the detail page's branch order, and the six suppressed affordances");
       return c.verdict(
@@ -1154,6 +1243,58 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 110 -> 111 for the repair of that repair (NEW-1, NEW-2).
+      // 20261005120000 adds ONE relation, account_activation_grants: an email
+      // address, a person or a name, an account kind, a card number, who
+      // authorized it, and when it expires and was consumed. Closed to every
+      // client role. No mark, no logo, no crest and no theme. Read against §3
+      // of the ruling before these numbers moved: the Q-7 source still does
+      // not exist.
+      //
+      //
+      // MOVED 108 -> 110 for the systemic repair (R1 and F-01..F-03).
+      // 20261005100000 recreates five assessment functions (a conflict and a
+      // terminal refusal now carry SQLSTATE codes; a finish verifies the
+      // client's manifest) and adds no relation. 20261005110000 recreates the
+      // Auth trigger and import_advance and adds three activation functions and
+      // their registry rows -- no relation, and nothing that is a mark, a logo,
+      // a crest or a theme. Read against §3 of the ruling before these numbers
+      // moved: the Q-7 source still does not exist.
+      //
+      //
+      // MOVED 106 -> 108 for the two final release deltas. 20261004100000 adds
+      // ONE relation, platform_bootstrap: a single row recording that this
+      // installation was initialised, closed to every client role, carrying no
+      // mark, no logo, no crest and no theme -- an id, a timestamp and a person.
+      // 20261004110000 adds one SYSTEM_ADMIN read and no relation at all. Read
+      // against §3 of the ruling before these numbers moved: the Q-7 source
+      // still does not exist.
+      //
+      // MOVED 105 -> 106 for the release rehearsal's one blocker: 20261003100000
+      // adds a single operator-only function and one clause inside the
+      // existing role-assignment guard. No relation, no column.
+      //
+      // MOVED 102 -> 105 for WP8. 20261002100000 creates no relation at all --
+      // it grants EXECUTE on the ladder helper the org_nodes trigger already
+      // called and adds one owner-run assertion. 20261002110000 replaces one
+      // trigger function and revokes one dead grant, creating nothing.
+      // 20261002120000 adds ONE endpoint (save_report_template) over the
+      // report_templates and report_template_metrics tables FABLE-06 already
+      // built, and one registry row. Read against §3 of the ruling before
+      // these numbers moved: no new relation, no new column, so the Q-7 source
+      // still does not exist and the sweep below asserts over three more files
+      // without its answer changing.
+      //
+      // MOVED 101 -> 102 for WP7D's backend unblocker. 20261001100000 creates
+      // NO table and adds NO column: one internal set-returning rule
+      // (feedback_subject_candidates), one Management read projecting exactly
+      // person_id and display_name, one replaced open_feedback_cycle body that
+      // now asks that rule instead of restating it, one replaced assertion and
+      // one registry row. Read against §3 of the ruling before this number
+      // moved: there is no new relation for a mark to live in and no column of
+      // any kind, so the Q-7 source still does not exist and the sweep below
+      // asserts over one more file without its answer changing.
+      //
       // MOVED 100 -> 101 for WP7B's anonymous student-to-educator feedback.
       // 20260930100000 creates NINE tables and adds no column to any existing
       // one. Read against §3 of the ruling column by column before this number
@@ -1227,7 +1368,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 101, `${migrations.length} migrations; the frozen baseline has 101`);
+      c.expect(migrations.length === 111, `${migrations.length} migrations; the frozen baseline has 111`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2866,9 +3007,26 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 88 -> 92 for WP1's source-bound
+      // from, not a claim about the tour. MOVED 110 -> 111 for the activation
+      // grant (NEW-2), which is not a tour RPC and does not touch
+      // person_tour_state. MOVED 108 -> 110 for the systemic
+      // repair -- assessment refusal codes and finish manifest, and account
+      // activation -- neither of which is a tour RPC nor touches
+      // person_tour_state. MOVED 106 -> 108 for the two final
+      // release deltas -- the installation-initialisation record and the
+      // first-role discovery read -- neither of which is a tour RPC nor touches
+      // person_tour_state. MOVED 105 -> 106 for the day-zero
+      // first-administrator bootstrap, which is one operator-only function and
+      // one guard clause and touches no tour RPC. MOVED 102 -> 105 for WP8: a grant on
+      // org_kind_level plus an owner-run reachability assertion, a replaced
+      // report-template trigger plus one revoke, and one report-configuration
+      // endpoint. None of the three is a tour RPC and none touches
+      // person_tour_state. MOVED 88 -> 92 for WP1's source-bound
       // metric authorization and objective B, none of which adds or alters a
-      // tour RPC. MOVED 100 -> 101 for WP7B's feedback foundation
+      // tour RPC. MOVED 101 -> 102 for WP7D's feedback-subject discovery
+      // (20261001100000), which adds two feedback-domain functions and touches
+      // no tour RPC and no person_tour_state.
+      // MOVED 100 -> 101 for WP7B's feedback foundation
       // (20260930100000), which creates nine feedback tables and ten
       // endpoints, none of them a tour RPC and none of them touching
       // person_tour_state -- so the four signatures asserted below still come
@@ -2888,7 +3046,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 101, `${migs.length} migrations; the baseline has 101`);
+      c.expect(migs.length === 111, `${migs.length} migrations; the baseline has 111`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -3876,8 +4034,18 @@ export const experienceTests: SelfTest[] = [
         "the throttle is no longer recognised at all, so it will be reported as a transport failure instead");
       // And its copy is gone from the table: a suppressed state's copy sitting
       // there is an invitation to wire it back.
-      c.expect(!allKeys().some((k) => /auth\.cool|cooldown|tahan/.test(k)),
+      // `tahan` is matched as a whole key SEGMENT rather than as a substring.
+      // As a substring it also caught WP7C's `umpanbalik.keadaan.ditahan` — a
+      // withheld feedback result, which has nothing to do with a held resend
+      // and would have had to be renamed to satisfy a guard about the sign-in
+      // screen. The rule is unchanged and is now about the thing it names:
+      // `tahan`, `masuk.tahan` and `auth_tahan_kirim` all still fail.
+      c.expect(!allKeys().some((k) => /auth\.cool|cooldown|(?:^|[._])tahan(?:[._]|$)/.test(k)),
         "the held-resend copy is still declared");
+      c.expect(/(?:^|[._])tahan(?:[._]|$)/.test("auth.tahan"),
+        "the held-resend detector no longer catches the copy it exists to refuse");
+      c.expect(!/(?:^|[._])tahan(?:[._]|$)/.test("umpanbalik.keadaan.ditahan"),
+        "the held-resend detector still catches an unrelated key that merely contains the word");
 
       // 5. A CLIENT THAT NEVER STARTED DOES NOT DRAW AN OPERATIONAL FORM.
       //    The JavaScript dependency is accepted; a control that looks live and
@@ -4306,8 +4474,16 @@ export const experienceTests: SelfTest[] = [
       // 3. EVERY MANAGEMENT ROUTE ASKS THE GATE, AND REFUSES THROUGH THE ONE
       //    REFUSAL PAGE. A route that rendered without asking would be a page
       //    whose authority came from whoever linked to it.
+      //    The count is a DRIFT GUARD on the set this loop reads, not a claim
+      //    about how many pages Management ought to have: its value is that a
+      //    route added without a gate cannot slip in unnoticed. MOVED 4 -> 6
+      //    for WP7C's two class-feedback routes, and 6 -> 7 for WP7D's
+      //    per-class operating page. Every one of them asks
+      //    `simpulDalamLingkup` and refuses through the one refusal page, and
+      //    is therefore held to this rule alongside WP4's four.
       const halaman = files.filter((f) => /^src\/app\/pimpinan\/.*page\.tsx$/.test(f));
-      c.expect(halaman.length === 4, `${halaman.length} Management page(s); WP4 builds four`);
+      c.expect(halaman.length === 7,
+        `${halaman.length} Management page(s); WP4 builds four, WP7C two and WP7D one`);
       for (const f of halaman) {
         const body = src.get(f) ?? "";
         c.expect(/lingkupPimpinan\(\)|simpulDalamLingkup\(/.test(body),
@@ -5643,6 +5819,1047 @@ export const experienceTests: SelfTest[] = [
         "an account to go and get -- watched on a plant that points at the wrong kind of account. What " +
         "it does say is that the learning is the reader's own and stands apart from the classes they " +
         "teach, in both languages, under a name that is not the learner home's",
+      );
+    },
+  },
+  {
+    id: "UX1-UB-BISU-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const MIG = "supabase/migrations/20260930100000_a_class_speaks_and_no_one_is_named.sql";
+      const mig = readFileSync(join(repoRoot, MIG), "utf8");
+
+      // 1. THE SHAPES ARE WP7B'S OWN, READ OUT OF THE ENDPOINT. A fixture this
+      //    file invented could drift from what `feedback_result` actually
+      //    returns and go on passing, so the payloads rendered below are built
+      //    from the keys the migration constructs.
+      const terbuka = /'cycle_id', c\.id, 'state', 'OPEN',\s*'statement_key', '([a-z_.]+)'/.exec(mig)?.[1];
+      c.expect(terbuka === "umpanbalik.hasil.belum_ditutup",
+        `the open state's statement key is ${terbuka}, which this surface does not render`);
+      const ditahanKunci = /\('FT-1', \d+, '([a-z_.]+)'/.exec(mig)?.[1];
+      c.expect(ditahanKunci === PERNYATAAN_DITAHAN,
+        `the threshold's statement key is ${ditahanKunci}, and the surface falls back to ${PERNYATAAN_DITAHAN}`);
+      //    …and the withheld payload really does carry nothing else.
+      const potonganDitahan = /'cycle_id', c\.id, 'state', 'WITHHELD'[^)]*\)/.exec(mig)?.[0] ?? "";
+      c.expect(potonganDitahan.length > 0 && !/total|responses|entries|count/.test(potonganDitahan),
+        `the withheld payload carries more than a statement: ${potonganDitahan.slice(0, 80)}`);
+
+      // 2. RENDERED, AND WITHOUT A DIGIT IN IT. Both non-published states, both
+      //    languages, text and geometry.
+      const keadaan: Array<{ nama: string; muatan: unknown }> = [
+        { nama: "open", muatan: { cycle_id: "c", state: "OPEN", statement_key: terbuka } },
+        { nama: "withheld", muatan: { cycle_id: "c", state: "WITHHELD", statement_key: ditahanKunci } },
+      ];
+      for (const k of keadaan) {
+        const hasil = bacaHasil(k.muatan);
+        c.expect(hasil.jenis !== "terbit", `a ${k.nama} cycle was read as a published snapshot`);
+        for (const l of LOCALES) {
+          for (const persona of ["educator", "staff"] as const) {
+            const pohon = HasilKelas({ hasil, locale: l, persona }) as Simpul;
+            const teks = teksPohon(pohon).join(" ");
+            const gaya = gayaPohon(pohon).join(" ");
+            c.expect(!ADA_ANGKA.test(teks),
+              `a ${k.nama} cycle renders a figure to a ${persona} in ${l}: "${teks.slice(0, 80)}"`);
+            c.expect(!ADA_ANGKA.test(gaya),
+              `a ${k.nama} cycle renders a proportion as geometry to a ${persona} in ${l}: "${gaya}"`);
+          }
+        }
+      }
+
+      // 3. THE WITHHELD SENTENCE IS THE CANONICAL ONE, WHOLE, WITH NOTHING
+      //    APPENDED. Compared against the ruling's exact wording rather than
+      //    against whatever the table happens to say.
+      const KANONIK = {
+        id: "Belum cukup tanggapan untuk menampilkan hasil dengan aman.",
+        en: "There are not enough responses to display the results safely.",
+      } as const;
+      for (const l of LOCALES) {
+        c.expect(t(PERNYATAAN_DITAHAN as HleEvent, "educator", { locale: l }) === KANONIK[l],
+          `the canonical withheld statement in ${l} is not the ruled wording`);
+        const pohon = HasilKelas({
+          hasil: bacaHasil({ state: "WITHHELD", statement_key: PERNYATAAN_DITAHAN }),
+          locale: l,
+        }) as Simpul;
+        c.expect(teksPohon(pohon).join("").trim() === KANONIK[l],
+          `the withheld surface renders more than the statement in ${l}: ` +
+          `"${teksPohon(pohon).join("").trim()}"`);
+      }
+
+      // 4. AND IT IS NOT THE ABSENCE CARD. `KartuKetiadaan` appends have/needed
+      //    on purpose, because a STATISTICAL readiness floor is a fact a reader
+      //    may act on. An ANONYMITY floor is the opposite, and reaching for the
+      //    familiar component is exactly how the wrong one gets used.
+      const permukaan = walk(join(repoRoot, "src", "app"))
+        .concat(walk(join(repoRoot, "src", "components")))
+        .concat(walk(join(repoRoot, "src", "lib")))
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"))
+        .filter((f) => /umpan-balik|umpanbalik/.test(f));
+      c.expect(permukaan.length >= 6, `${permukaan.length} feedback file(s) found; the surface is not being read`);
+      for (const f of permukaan) {
+        // CODE, NOT PROSE. These files EXPLAIN at length why the absence card
+        // is the wrong component here, and a guard that read the explanation as
+        // a use would be a guard against documenting the decision.
+        const body = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/KartuKetiadaan|variantOf/.test(body),
+          `${f} reaches for the absence card, which appends have/needed`);
+        c.expect(!/belum_cukup_data|laporan\.metrik\./.test(body),
+          `${f} renders the statistical-readiness copy, which names the shortfall`);
+      }
+      //    …and the scanner can still see a real use.
+      c.expect(/KartuKetiadaan|variantOf/.test(code('import KartuKetiadaan from "x";\nconst a = 1;')),
+        "the absence-card scanner cannot see an import of it");
+
+      // 5. PLANTS. Each one is a way the number could come back, and each is
+      //    shown to be caught.
+      //    P1 — a response count carried alongside an OPEN state. The union has
+      //    no field for it, so it must not survive the read.
+      const p1 = bacaHasil({ state: "OPEN", statement_key: terbuka, total_responses: 3,
+                             entries: [{ question_key: "q", label_key: "umpanbalik.pilihan.jarang", ordinal: 1,
+                                         options: [{ option_key: "o", label_key: "umpanbalik.pilihan.jarang", ordinal: 1, responses: 3 }] }] });
+      c.expect(p1.jenis === "terkumpul", "a response count smuggled into an open payload changed how it is read");
+      c.expect(!ADA_ANGKA.test(teksPohon(HasilKelas({ hasil: p1 }) as Simpul).join(" ")),
+        "a response count smuggled into an open payload reached the screen");
+      //    P2 — the shortfall appended to the canonical sentence. The scanner
+      //    must be able to see it; a sweep that matches nothing proves nothing.
+      c.expect(ADA_ANGKA.test(`${KANONIK.id} (3/5)`),
+        "the digit scanner cannot see a shortfall appended to the statement");
+      c.expect(ADA_ANGKA.test(`${KANONIK.en} 3 dari 5`),
+        "the digit scanner cannot see a shortfall written out");
+      //    …and a doctored WITHHELD payload pointing at a key that is not the
+      //    canonical statement falls back rather than rendering what it names.
+      const p2 = bacaHasil({ state: "WITHHELD", statement_key: "umpanbalik.hasil.total" });
+      c.expect(p2.jenis === "ditahan" && p2.kunciPernyataan === PERNYATAAN_DITAHAN,
+        "a withheld cycle will render whatever statement key it is handed");
+      //    P8's sibling: an unknown state is not a published one.
+      for (const aneh of [null, {}, { state: "SOMETHING_ELSE" }, { state: "PUBLISHED" }]) {
+        c.expect(bacaHasil(aneh).jenis !== "terbit",
+          `${JSON.stringify(aneh)} was read as a published snapshot`);
+      }
+      //    The state map renders a sentence or nothing, never the enum.
+      c.expect(keadaanKunci("OPEN") === "umpanbalik.keadaan.terbuka", "the open state has no telling");
+      c.expect(keadaanKunci("SOMETHING_ELSE") === null, "an unknown state would render its own identifier");
+      const enumMig = [...mig.matchAll(/create type public\.feedback_cycle_state as enum \(([^)]+)\)/g)][0]?.[1] ?? "";
+      for (const v of ["OPEN", "PUBLISHED", "WITHHELD"]) {
+        c.expect(enumMig.includes(`'${v}'`), `${v} is not one of the migration's states`);
+        c.expect(keadaanKunci(v) !== null, `${v} has no telling`);
+      }
+
+      c.note(`${permukaan.length} feedback file(s), ${LOCALES.length} language(s), 2 non-published state(s)`);
+      return c.verdict(
+        "while a round is collecting, and forever after one that closed below the anonymity threshold, " +
+        "the surface renders no response-derived number at all. The two payload shapes are READ OUT OF " +
+        "the endpoint that produces them rather than invented here, the withheld one is asserted to " +
+        "carry nothing but a statement, and both are RENDERED through the real component in both " +
+        "languages for both readers -- with every text node AND every style value swept for a digit, " +
+        "because a bar width is a proportion that no text scan would see. The withheld surface renders " +
+        "the canonical ruled sentence and, character for character, nothing else. It is not the " +
+        "statistical absence card and reaches for none of its copy, which appends have/needed on " +
+        "purpose. WATCHED ON PLANTS: a response count smuggled into an open payload neither changes " +
+        "how it is read nor reaches the screen; an appended shortfall is caught by the scanner in both " +
+        "the bracketed and the written-out form; a withheld payload naming some other statement key " +
+        "falls back to the canonical one instead of rendering what it was handed; a null, an empty " +
+        "object, an unknown state and a published state with no marginals are none of them read as a " +
+        "published snapshot; and an unrecognised state renders nothing rather than its own identifier",
+      );
+    },
+  },
+  {
+    id: "UX1-UB-BATAS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const MIG = "supabase/migrations/20260930100000_a_class_speaks_and_no_one_is_named.sql";
+      const mig = readFileSync(join(repoRoot, MIG), "utf8");
+
+      // 1. THE SNAPSHOT'S SHAPE IS THE ENDPOINT'S. Read out of the two places
+      //    that build it — `close_feedback_cycle` writes the body and
+      //    `feedback_result` returns it — so a fixture below cannot drift into
+      //    proving something about a payload the backend never sends.
+      const dibangun = /'cycle_id', c\.id, 'state', 'PUBLISHED',([\s\S]*?)\);/.exec(mig)?.[1] ?? "";
+      for (const medan of ["total_responses", "entries"]) {
+        c.expect(dibangun.includes(medan), `the published payload no longer carries ${medan}`);
+      }
+      const marginal = /'option_key', o\.option_key,([\s\S]*?)order by o\.ordinal/.exec(mig)?.[1] ?? "";
+      c.expect(/'responses', \(select count\(\*\) from public\.feedback_responses/.test(marginal),
+        "the marginal is no longer a per-option count over the responses");
+      //    AND THE PAYLOAD NAMES NOBODY. The construction is read for any field
+      //    that could be a person; there is none, and this is the assertion
+      //    that would notice one being added.
+      c.expect(!/person|respondent|display_name|auth_user|submitted_at|created_at/.test(dibangun + marginal),
+        "the published payload carries a field that could identify or order a respondent");
+
+      // 2. RENDERED, AND ONLY THE THREE THINGS §12 ALLOWS.
+      const muatan = {
+        cycle_id: "c", state: "PUBLISHED", question_set_version: "FQ-1", threshold_version: "FT-1",
+        total_responses: 7, produced_at: "2026-09-22T00:00:00Z",
+        entries: [{
+          question_key: "penjelasan_jelas", label_key: "umpanbalik.pertanyaan.penjelasan_jelas", ordinal: 1,
+          options: [
+            { option_key: "jarang", label_key: "umpanbalik.pilihan.jarang", ordinal: 1, responses: 1 },
+            { option_key: "kadang", label_key: "umpanbalik.pilihan.kadang", ordinal: 2, responses: 2 },
+            { option_key: "sering", label_key: "umpanbalik.pilihan.sering", ordinal: 3, responses: 3 },
+            { option_key: "selalu", label_key: "umpanbalik.pilihan.selalu", ordinal: 4, responses: 1 },
+          ],
+        }],
+      };
+      const hasil = bacaHasil(muatan);
+      c.expect(hasil.jenis === "terbit", "a real published snapshot was not read as one");
+      if (hasil.jenis === "terbit") {
+        c.expect(hasil.total === 7, `the published total became ${hasil.total}`);
+        const pohon = HasilKelas({ hasil, locale: "id" }) as Simpul;
+        const teks = teksPohon(pohon).join(" ");
+        //    The total and every marginal are present…
+        c.expect(teks.includes("7"), "the published total does not render");
+        for (const o of ["Jarang", "Kadang", "Sering", "Selalu"]) {
+          c.expect(teks.includes(o), `the option "${o}" does not render`);
+        }
+        c.expect(teks.includes(t("umpanbalik.pertanyaan.penjelasan_jelas", "educator")),
+          "the governed question does not render");
+        //    …and the numbers on the page are EXACTLY the total and the four
+        //    marginals. Not a percentage, not a mean, not a rank, not a
+        //    composite: a surface that had computed anything from these would
+        //    have put another figure here.
+        const angka = teks.match(/[0-9]+/g) ?? [];
+        c.expect(angka.sort().join(",") === ["7", "1", "2", "3", "1"].sort().join(","),
+          `the published surface renders figures the snapshot does not contain: ${angka.join(",")}`);
+      }
+
+      //    THE ONLY ARITHMETIC IN THE MODULE, driven. The bar is a share of the
+      //    PUBLISHED total and of nothing else: it cannot exceed the bar, it
+      //    cannot go below it, and a total of zero yields no bar rather than a
+      //    division that would render as NaN%.
+      c.expect(bagian(0, 0) === 0, "a snapshot with no responses produces a bar of some width");
+      c.expect(bagian(3, 0) === 0, "a marginal with no total produces a bar");
+      c.expect(bagian(7, 7) === 100, "a unanimous marginal does not fill its bar");
+      c.expect(bagian(1, 4) === 25, `a quarter renders as ${bagian(1, 4)}`);
+      c.expect(bagian(99, 7) === 100 && bagian(-5, 7) === 0, "the bar is not clamped to its own ends");
+
+      // 3. A RESPONDENT PLANTED INTO THE PRESENTATION PIPELINE CANNOT SURFACE.
+      //    §26/P3. The projection is by a fixed key list, so an extra field on
+      //    an entry, on an option and on the envelope is dropped rather than
+      //    carried through to a component that might one day render it.
+      const ditanam = {
+        ...muatan,
+        respondent_names: ["Budi", "Siti"],
+        entries: [{
+          ...muatan.entries[0],
+          respondent_id: "11111111-1111-1111-1111-111111111111",
+          options: muatan.entries[0].options.map((o) => ({
+            ...o, person_id: "22222222-2222-2222-2222-222222222222", display_name: "Budi",
+            submitted_at: "2026-09-22T09:00:00Z",
+          })),
+        }],
+      };
+      const bocor = bacaHasil(ditanam);
+      const teksBocor = teksPohon(HasilKelas({ hasil: bocor, locale: "id" }) as Simpul).join(" ");
+      for (const jejak of ["Budi", "Siti", "11111111", "22222222", "2026-09-22", "09:00"]) {
+        c.expect(!teksBocor.includes(jejak),
+          `a respondent field planted into the published pipeline reached the screen: ${jejak}`);
+      }
+      c.expect(JSON.stringify(bocor).indexOf("Budi") === -1,
+        "a respondent field planted into the published pipeline survived the read");
+      //    The plant is real: the fields ARE in the payload it was given.
+      c.expect(JSON.stringify(ditanam).includes("Budi"),
+        "the plant carries no respondent field, so this case proves nothing");
+
+      // 4. NO WAY FROM A MARGINAL TO A PERSON. §12: no "view responses", and no
+      //    option that is clickable into anybody.
+      const berkas = walk(join(repoRoot, "src", "app"))
+        .concat(walk(join(repoRoot, "src", "components")))
+        .concat(walk(join(repoRoot, "src", "lib")))
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"))
+        .filter((f) => /umpan-balik|umpanbalik/.test(f));
+      const marginalKode = code(readFileSync(join(repoRoot, "src/components/umpanbalik/HasilKelas.tsx"), "utf8"));
+      c.expect(!/<Link|href=|onClick|router\./.test(marginalKode),
+        "an option in the published distribution is a control that leads somewhere");
+
+      // 5. THE RAW ANSWERS ARE NEVER READ, AND NOTHING IS AGGREGATED HERE.
+      //    §27/P4. The snapshot is computed once, at close, by the endpoint.
+      for (const f of berkas) {
+        const body = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/feedback_responses/.test(body), `${f} reads the raw response table`);
+        c.expect(!/feedback_opportunities/.test(body),
+          `${f} reads the eligibility table, which is the identity-bearing half`);
+        c.expect(!/\breduce\(|\bgroupBy|countBy/.test(body), `${f} aggregates rows of its own`);
+      }
+      //    The whole tree, not just this surface: a second path to a number
+      //    somewhere else is the same defect in a different file.
+      for (const f of walk(join(repoRoot, "src")).filter((x) => /\.tsx?$/.test(x))) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        c.expect(!code(readFileSync(f, "utf8")).includes("feedback_responses"),
+          `${rel} reads the raw response table`);
+      }
+      c.expect(/feedback_responses/.test(code('const x = "feedback_responses";')),
+        "the raw-response scanner cannot see a reference to the table");
+      //    And the only feedback endpoints the surface calls are the governed
+      //    ones, compared against WP7B's own client registry.
+      const dipanggil = new Set<string>();
+      for (const f of berkas.concat(["src/app/belajar/umpan-balik/actions.ts"])) {
+        const body = code(readFileSync(join(repoRoot, f), "utf8"));
+        for (const m of body.matchAll(/rpc\("([a-z_]+)"/g)) dipanggil.add(m[1]);
+      }
+      // The governed endpoints this Experience may call, declared. WP7D adds
+      // the three Management operations: ending a round, naming the educators
+      // a class may be asked about, and asking. Every one is registered as a
+      // client endpoint, and the assertion below reads BOTH feedback
+      // migrations for that — `feedback_subjects_for_class` arrived in the
+      // WP7D unblocker rather than in WP7B, and a registry check that only
+      // ever read one file would have called a governed endpoint ungoverned.
+      const SAH = new Set([
+        "my_feedback_cycles", "feedback_questionnaire", "feedback_result", "submit_feedback",
+        "close_feedback_cycle", "open_feedback_cycle", "feedback_subjects_for_class",
+      ]);
+      const daftarRpc = mig + readFileSync(
+        join(repoRoot, "supabase/migrations/20261001100000_management_can_name_the_teacher_it_asks_about.sql"),
+        "utf8",
+      );
+      for (const r of dipanggil) {
+        c.expect(SAH.has(r), `the feedback surface calls ${r}, which is not one of the governed endpoints`);
+        c.expect(new RegExp(`values \\('${r}', '(LEARNER|STAFF)'`).test(daftarRpc),
+          `${r} is not registered as a client endpoint by the feedback migrations`);
+      }
+      c.expect(dipanggil.size >= 3, `${dipanggil.size} governed endpoint(s) reached; the surface is not being read`);
+
+      c.note(`${berkas.length} feedback file(s), ${dipanggil.size} governed endpoint(s), 1 snapshot rendered`);
+      return c.verdict(
+        "the published snapshot is everything that renders and nobody is in it. Its SHAPE is read out " +
+        "of the two places WP7B builds it, which is also where this asserts the construction carries " +
+        "no person, no respondent and no clock -- the assertion that would notice one being added. " +
+        "Rendered, the surface carries the final total, the governed question and the four per-option " +
+        "marginals, and the digits on the page are EXACTLY those five figures: no percentage, no mean, " +
+        "no rank and no composite, because a surface that computed one would have put it there. A " +
+        "RESPONDENT PLANTED INTO THE PIPELINE CANNOT SURFACE -- names, person ids and a submission " +
+        "timestamp injected at the envelope, the entry and the option are all dropped by the " +
+        "fixed-key projection and reach neither the read nor the screen, with the plant asserted to " +
+        "really carry them. No marginal is a control that leads anywhere, so no distribution is " +
+        "clickable into a person. AND NOTHING IS AGGREGATED HERE: no feedback file reads the raw " +
+        "response table or the identity-bearing eligibility table or folds rows of its own, no file " +
+        "anywhere under src names the response table at all, the scanner is shown to catch one, and " +
+        "every endpoint the surface calls is one of the four WP7B registers for clients",
+      );
+    },
+  },
+  {
+    id: "UX1-UB-KATA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const MIG = "supabase/migrations/20260930100000_a_class_speaks_and_no_one_is_named.sql";
+      const mig = readFileSync(join(repoRoot, MIG), "utf8");
+      const kunci = allKeys().filter((k) => k.startsWith("umpanbalik."));
+
+      // 1. EVERY KEY WP7B STORES HAS WORDS, IN BOTH LANGUAGES. The label keys
+      //    are read out of the migration, so a governed question or option
+      //    without a telling is a failing test rather than a blank line on a
+      //    child's screen.
+      const soal = [...mig.matchAll(/\('FQ-1', '[a-z_]+',\s+\d+, '([a-z_.]+)'\)/g)].map((m) => m[1]);
+      c.expect(soal.length === 5, `${soal.length} governed question(s) in FQ-1; v1 has five`);
+      const opsi = [...mig.matchAll(/\('([a-z]+)', \d+::smallint\)/g)].map((m) => `umpanbalik.pilihan.${m[1]}`);
+      c.expect(opsi.length === 4, `${opsi.length} governed option(s) in FQ-1; v1 has four`);
+      for (const k of [...soal, ...opsi, PERNYATAAN_DITAHAN]) {
+        const row = telling(k as HleEvent);
+        c.expect(row !== undefined, `WP7B stores ${k} and the localization layer has no words for it`);
+        if (row) {
+          c.expect(typeof row.default === "string" && row.default.trim().length > 0, `${k} has no Indonesian`);
+          c.expect(typeof row.en === "string" && (row.en as string).trim().length > 0, `${k} has no English`);
+        }
+      }
+      for (const k of kunci) {
+        const row = telling(k as HleEvent);
+        c.expect(typeof row?.default === "string" && row.default.trim().length > 0, `${k} has no Indonesian`);
+        c.expect(typeof row?.en === "string" && (row.en as string).trim().length > 0, `${k} has no English`);
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "learner", { locale: l });
+          c.expect(informal(teks).length === 0, `${k} is informal in ${l}: ${informal(teks)[0]}`);
+        }
+      }
+      //    NOT DECLARED STAFF-ONLY, deliberately: a learner reads most of this
+      //    prefix, so exempting it from the internal-word sweep would exempt
+      //    the questions a child is asked.
+      const hle = readFileSync(join(repoRoot, "src/lib/hle.ts"), "utf8");
+      c.expect(!/STAFF_ONLY_PREFIXES = \[[^\]]*"umpanbalik\./.test(hle),
+        "the feedback copy is declared staff-only, which exempts a learner's own questions from the sweep");
+
+      // 2. NO ABSOLUTE ANONYMITY CLAIM. §4: WP7B accepts two residuals —
+      //    unanimity implies an individual answer, and privileged
+      //    infrastructure can reconstruct linkage — so a promise that nobody
+      //    can ever know would be a promise the architecture does not make.
+      const MUTLAK = new RegExp(
+        [
+          "sepenuhnya anonim", "benar-benar anonim", "sepenuhnya rahasia",
+          "100\\s*%\\s*anonim", "anonim\\s*100", "completely anonymous", "fully anonymous",
+          "totally anonymous", "100\\s*%\\s*anonymous", "entirely anonymous",
+          "tidak (akan )?(ada|seorang pun|siapa pun) (yang )?(bisa|dapat|akan) (tahu|mengetahui)",
+          "tidak mungkin (di)?(ketahui|lacak|identifikasi)", "mustahil",
+          "no one can (ever )?know", "nobody can (ever )?know", "impossible to identify",
+          "cannot be traced", "untraceable", "never be identified",
+        ].join("|"), "i",
+      );
+      for (const k of kunci) {
+        for (const l of LOCALES) {
+          const m = MUTLAK.exec(t(k as HleEvent, "learner", { locale: l }));
+          c.expect(m === null, `${k} overclaims anonymity in ${l}: "${m?.[0]}"`);
+        }
+      }
+      //    POSITIVE CONTROLS, so a sweep that matches nothing is not mistaken
+      //    for copy that claims nothing.
+      for (const contoh of [
+        "Jawaban Anda sepenuhnya anonim.", "Ini 100% anonim.",
+        "Tidak ada yang bisa tahu apa yang Anda jawab.",
+        "Your answer is completely anonymous.", "It is impossible to identify you.",
+        "Nobody can know what you answered.",
+      ]) {
+        c.expect(MUTLAK.test(contoh), `the anonymity sweep does not catch "${contoh}"`);
+      }
+      //    AND WHAT IT DOES SAY IS THE ACCURATE THING: the answers are not
+      //    shown next to a name, and what the teacher gets is the class.
+      const privasi = { id: t("umpanbalik.form.privasi", "learner"),
+                        en: t("umpanbalik.form.privasi", "learner", { locale: "en" }) };
+      c.expect(/nama/i.test(privasi.id) && /name/i.test(privasi.en),
+        "the privacy sentence does not say the answers are not shown with a name");
+      //    No database internals reach a learner (§4).
+      const MESIN = /xmin|WAL|service.role|superuser|RLS|postgres|transaksi basis data|row.level/i;
+      for (const k of kunci) {
+        for (const l of LOCALES) {
+          const m = MESIN.exec(t(k as HleEvent, "learner", { locale: l }));
+          c.expect(m === null, `${k} names database machinery in ${l}: "${m?.[0]}"`);
+        }
+      }
+      c.expect(MESIN.test("Tidak bisa direkonstruksi lewat xmin."), "the machinery sweep catches nothing");
+
+      // 3. NOBODY IS SCORED. §13: the result describes what respondents
+      //    selected, and PINTAR does not turn that into a verdict about a
+      //    person's employment.
+      const VONIS = new RegExp(
+        [
+          "efektivitas", "effectiveness", "kinerja", "performance",
+          "peringkat", "\\brank(ed|ing|s)?\\b", "league", "papan\\s*peringkat", "leaderboard",
+          "skor (guru|keseluruhan|total)", "(overall|composite|total) (score|rating)",
+          "nilai rata-rata guru", "penilaian kinerja", "appraisal",
+          "promosi", "promotion", "sanksi", "sanction", "disciplinary", "teguran",
+          "guru (terbaik|terburuk|baik|buruk)", "(good|bad|best|worst) (teacher|educator)",
+          "dibanding(kan)? (guru|rekan|pengajar) (lain|lainnya)",
+          "compared (with|to) other (teachers|educators)",
+          "bintang", "\\bstar rating\\b",
+        ].join("|"), "i",
+      );
+      for (const k of kunci) {
+        for (const persona of ["learner", "educator", "staff"] as const) {
+          for (const l of LOCALES) {
+            const m = VONIS.exec(t(k as HleEvent, persona, { locale: l }));
+            c.expect(m === null, `${k} scores the educator for a ${persona} in ${l}: "${m?.[0]}"`);
+          }
+        }
+      }
+      for (const contoh of [
+        "Skor efektivitas mengajar: 82.", "Peringkat 4 dari 40 guru.",
+        "Teaching effectiveness score", "You are ranked 3rd among educators",
+        "Overall rating: 4.2", "Guru terbaik bulan ini", "Bintang: 4 dari 5",
+      ]) {
+        c.expect(VONIS.test(contoh), `the verdict sweep does not catch "${contoh}"`);
+      }
+      //    …and the code computes none of it either. No mean of the four-point
+      //    scale, no weighting, no total beyond the one the snapshot carries.
+      const berkas = walk(join(repoRoot, "src", "app"))
+        .concat(walk(join(repoRoot, "src", "components")))
+        .concat(walk(join(repoRoot, "src", "lib")))
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"))
+        .filter((f) => /umpan-balik|umpanbalik/.test(f));
+      for (const f of berkas) {
+        const body = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/\.sort\(\s*\(a, ?b\)\s*=>\s*b\./.test(body), `${f} orders something best-first`);
+        c.expect(!/ordinal\s*\*|\*\s*ordinal|weight|bobot|rata2|rerata|average\(/.test(body),
+          `${f} turns the four-point scale into a figure`);
+      }
+
+      // 4. NO FREE TEXT ANYWHERE ON THE SHEET. §6/P7. The largest
+      //    re-identification channel a feedback form can have.
+      const lembar = code(readFileSync(join(repoRoot, "src/components/umpanbalik/LembarUmpanBalik.tsx"), "utf8"));
+      for (const bidang of ["textarea", 'type="text"', 'type="search"', "contentEditable", "komentar", "catatan"]) {
+        c.expect(!lembar.includes(bidang), `the feedback sheet carries a free-text field: ${bidang}`);
+      }
+      c.expect(/type="radio"/.test(lembar), "the feedback sheet has no closed options at all");
+      c.expect(code('<textarea id="x" />').includes("textarea"),
+        "the free-text scanner cannot see a textarea");
+      //    The whole sheet is required, agreeing with the endpoint.
+      const kuesioner: Kuesioner = {
+        cycle_id: "c", class_name: "5A", subject_name: "Guru", already_answered: false,
+        questions: soal.map((label_key, i) => ({
+          question_key: `q${i}`, label_key, ordinal: i + 1,
+          options: [{ option_key: "jarang", label_key: "umpanbalik.pilihan.jarang", ordinal: 1 }],
+        })),
+      };
+      c.expect(!lengkap(kuesioner, {}), "an empty sheet is treated as complete");
+      c.expect(!lengkap(kuesioner, { q0: "jarang" }), "a partly answered sheet is treated as complete");
+      const semua = Object.fromEntries(kuesioner.questions.map((q) => [q.question_key, "jarang"]));
+      c.expect(lengkap(kuesioner, semua), "a whole sheet is not treated as complete");
+      c.expect(!lengkap(kuesioner, { ...semua, q0: "tidak_ada_pilihan_ini" }),
+        "an answer that is not one of the offered options is treated as complete");
+
+      //    AND THE GEOMETRY CAN HOLD THE WORDS. §19/P8. MEASURED against the
+      //    compiled stylesheet at 320, 375, 390, 414 and 768 in both languages,
+      //    with the longest realistic class and educator names: zero horizontal
+      //    overflow and zero clipped label on all forty renders. Two rules make
+      //    that true and both are easy to undo by accident, so both are held
+      //    here rather than left to the next measurement to rediscover.
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      const blokUb = css.slice(css.indexOf("WP7C — ANONYMOUS STUDENT"));
+      c.expect(blokUb.length > 0, "the feedback stylesheet block could not be located");
+      //    (a) an option is sized by its own word, with a floor and no ceiling.
+      const aturanOpsi = blokUb.slice(blokUb.indexOf(".pin-ub-opsi {"), blokUb.indexOf(".pin-ub-opsi:hover"));
+      c.expect(/min-height: 44px/.test(aturanOpsi), "the option control has no touch-target floor");
+      c.expect(!/(?<!min-)(?:height|width):\s*\d/.test(aturanOpsi),
+        "the option control pins a fixed size, which clips the longer of two languages");
+      //    (b) the marginal's label takes its own row, so no column has to be
+      //    wide enough for a word nobody has written yet.
+      const marg = blokUb.slice(blokUb.indexOf(".pin-ub-marginal > li"), blokUb.indexOf(".pin-ub-batang {"));
+      c.expect(/grid-template-columns: 1fr auto/.test(marg) && /grid-column: 1 \/ -1/.test(marg),
+        "the option label shares a row with the bar, so a long one is squeezed");
+      c.expect(!/\dch/.test(marg), "the marginal sizes a column in characters");
+      //    (c) the send control's floor is declared where it can actually hold:
+      //    `.pin-actions .pin-btn` carries two classes and beat a one-class
+      //    rule on specificity, which measured as a 40px target on a phone.
+      c.expect(/\.pin-actions \.pin-ub-btn \{[^}]*min-height: 44px/.test(blokUb),
+        "the send control's touch-target floor is declared where the phone rule outranks it");
+      //    The scanners can see the things they refuse.
+      c.expect(/(?<!min-)(?:height|width):\s*\d/.test("height: 40px;"),
+        "the fixed-geometry scanner cannot see a pinned height");
+      c.expect(!/(?<!min-)(?:height|width):\s*\d/.test("min-height: 44px;"),
+        "the fixed-geometry scanner mistakes a floor for a ceiling");
+      c.expect(/\dch/.test("grid-template-columns: minmax(6ch, 12ch) 1fr;"),
+        "the character-sizing scanner cannot see a ch column");
+
+      // 5. THE OUTCOME MAP IS WP7B'S OWN SENTENCES, BOTH WAYS. A phrase the
+      //    endpoint raises that has no outcome here would reach a learner as a
+      //    developer's sentence; a phrase here the endpoint never raises is
+      //    dead copy that will quietly rot.
+      for (const { frasa } of SEBAB) {
+        c.expect(mig.includes(frasa), `the surface maps "${frasa}", which WP7B never raises`);
+      }
+      //    THE REVERSE DIRECTION IS SCOPED TO WHAT A LEARNER CAN ACTUALLY
+      //    REACH: `submit_feedback`'s own body, plus the response trigger that
+      //    fires inside it. The migration raises two dozen other sentences —
+      //    integrity guards on the cycle and eligibility tables, and the
+      //    Management endpoints — and none of them is reachable by pressing
+      //    Send, so requiring a learner-facing outcome for them would be
+      //    requiring copy for a screen nobody can be on.
+      const badanKirim = mig.slice(
+        mig.indexOf("create function public.submit_feedback"),
+        mig.indexOf("comment on function public.submit_feedback"),
+      );
+      c.expect(badanKirim.length > 0,
+        "the submission endpoint could not be located, so nothing below is checked");
+      const raises = [...badanKirim.matchAll(/raise exception '([^':]+)/g)].map((m) => m[1].trim());
+      c.expect(raises.length >= 8, `${raises.length} refusal(s) found in the endpoint; the slice is wrong`);
+      for (const r of raises) {
+        c.expect(SEBAB.some(({ frasa }) => r.includes(frasa) || frasa.includes(r)),
+          `WP7B raises "${r}" at a learner and the surface has no sentence for it`);
+      }
+      //    The response trigger fires INSIDE that endpoint, and one of its
+      //    refusals is genuinely reachable: a round that closes between the
+      //    state check and the insert. It is mapped. Its other three are
+      //    integrity assertions about rows `submit_feedback` has already
+      //    validated — unreachable by pressing Send, and if one ever did fire
+      //    it lands in `tak_pasti`, which re-reads the learner's own durable
+      //    state and answers from that rather than from the sentence. That
+      //    fallback is why an unmapped refusal is a wording gap and never a
+      //    wrong thing said to a learner.
+      const badanPemicu = mig.slice(
+        mig.indexOf("create function public.enforce_feedback_response"),
+        mig.indexOf("create table public.feedback_results"),
+      );
+      c.expect(/this feedback cycle is closed and accepts no further answers/.test(badanPemicu),
+        "the response trigger no longer refuses a closed cycle, so the mapped race cannot happen");
+      c.expect(sebabKirim("this feedback cycle is closed and accepts no further answers") === "tutup",
+        "the one trigger refusal a race can produce has no outcome");
+      c.expect(sebabKirim("some error nobody has ever seen") === "tak_pasti",
+        "an unrecognised failure is reported as something definite");
+      c.expect(sebabKirim(null) === "tak_pasti", "a missing message is reported as something definite");
+      c.expect(sebabKirim("you have already answered this feedback cycle") === "sudah",
+        "a lost-acknowledgement replay is not recognised");
+      c.expect(sudahTercatat("sudah") && sudahTercatat("tercatat"),
+        "a recorded sheet is not treated as recorded");
+      for (const s of ["tutup", "bukan_milik", "belum_lengkap", "belum_terkirim", "tak_pasti"] as const) {
+        c.expect(!sudahTercatat(s), `${s} is treated as a recorded sheet`);
+      }
+      //    AND NO OUTCOME TELLS A LEARNER TO SEND AGAIN BLINDLY.
+      const LAGI = /coba lagi|kirim lagi|ulangi|try again|resend|send it again/i;
+      for (const l of LOCALES) {
+        const teks = t("umpanbalik.kirim.tak_pasti" as HleEvent, "learner", { locale: l });
+        c.expect(!LAGI.test(teks), `the uncertain outcome tells a learner to send again in ${l}`);
+      }
+      c.expect(LAGI.test("Silakan coba lagi."), "the blind-retry sweep catches nothing");
+
+      // 6. NO ADMINISTRATOR ENTRY POINT. §16: WP7B gives these roles nothing
+      //    here, so the product offers them nothing — not even a door that
+      //    fails after they have walked through it.
+      const konfigurasi = code(readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
+      c.expect(!/umpan-balik|umpanbalik/.test(konfigurasi),
+        "the configuration surface offers a feedback entry point");
+      const semuaBerkas = walk(join(repoRoot, "src", "app")).filter((f) => /\.tsx$/.test(f));
+      for (const f of semuaBerkas) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        if (/^src\/app\/(belajar|mengajar|pimpinan)\//.test(rel)) continue;
+        c.expect(!/href=\{?["`][^"`]*umpan-balik/.test(code(readFileSync(f, "utf8"))),
+          `${rel} links into the feedback surface from outside the three experiences that own it`);
+      }
+
+      c.note(`${kunci.length} key(s), ${soal.length} question(s), ${opsi.length} option(s), ` +
+        `${SEBAB.length} outcome phrase(s), 20 positive control(s)`);
+      return c.verdict(
+        "the feedback copy is accurate about privacy and is a verdict about nobody. Every label key " +
+        "WP7B STORES has words in both languages -- the five questions and four options are read out " +
+        "of the migration, so a governed question without a telling is a failing test rather than a " +
+        "blank line on a child's screen -- and the prefix is deliberately NOT staff-only, because a " +
+        "learner reads most of it. NO ABSOLUTE ANONYMITY CLAIM survives the sweep in either language, " +
+        "watched on six positive controls, because WP7B accepts a unanimity residual and a privileged- " +
+        "infrastructure residual and a promise that nobody can ever know is a promise it does not " +
+        "make; what the copy says instead is the accurate thing, that the answers are not shown with a " +
+        "name and the teacher receives the class. No database machinery reaches a learner. NOBODY IS " +
+        "SCORED: no telling for any of the three readers names effectiveness, performance, a ranking, " +
+        "a league table, an overall or composite score, an appraisal, a promotion, a sanction, a " +
+        "good or bad teacher, a comparison with other educators or a star, watched on seven positive " +
+        "controls -- and no file turns the four-point scale into a figure or orders anything " +
+        "best-first. THE SHEET HAS NOWHERE TO TYPE: no textarea, no text or search input, no " +
+        "contenteditable and no comment field, with the scanner shown to catch one, and the whole " +
+        "sheet is required including against an option that was never offered. The outcome map is " +
+        "compared with WP7B's own raised sentences IN BOTH DIRECTIONS, an unrecognised failure is " +
+        "reported as uncertain rather than as anything definite, a lost-acknowledgement replay is " +
+        "recognised as recorded, and no outcome tells a learner to send again blindly. And no " +
+        "administrator is offered a way in: the configuration surface links to none of this, and no " +
+        "file outside the three experiences that own it links into it either",
+      );
+    },
+  },
+  {
+    id: "UX1-UB-TUTUP-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const MIG = "supabase/migrations/20260930100000_a_class_speaks_and_no_one_is_named.sql";
+      const mig = readFileSync(join(repoRoot, MIG), "utf8");
+      const AKSI = "src/app/pimpinan/[simpul]/umpan-balik/actions.ts";
+      const KONTROL = "src/components/umpanbalik/TutupPutaran.tsx";
+      const HALAMAN = "src/app/pimpinan/[simpul]/umpan-balik/[siklus]/page.tsx";
+      const aksi = code(readFileSync(join(repoRoot, AKSI), "utf8"));
+      const kontrol = code(readFileSync(join(repoRoot, KONTROL), "utf8"));
+      const halaman = code(readFileSync(join(repoRoot, HALAMAN), "utf8"));
+
+      // 1. THE FRONTEND NEVER LEARNS WHAT THE ROUND BECAME. §9/P2.
+      //    `close_feedback_cycle` RETURNS the new state, and the whole boundary
+      //    rests on that return being thrown away: a client that read it would
+      //    know which side of the anonymity threshold the round fell on, which
+      //    is the one bit a threshold exists to withhold.
+      const badanTutup = mig.slice(
+        mig.indexOf("create function public.close_feedback_cycle"),
+        mig.indexOf("comment on function public.close_feedback_cycle"),
+      );
+      c.expect(badanTutup.length > 0, "the close endpoint could not be located");
+      c.expect(/'state', v_to/.test(badanTutup),
+        "the endpoint no longer returns a state, so there is nothing for the surface to be refusing");
+      //    …and the action destructures ONLY the error.
+      c.expect(/const \{ error \} = await c\.rpc\("close_feedback_cycle"/.test(aksi),
+        "the close action takes more than the error from the endpoint's answer");
+      c.expect(!/\bdata\b/.test(aksi.slice(aksi.indexOf("close_feedback_cycle"))),
+        "the close action reads the endpoint's returned payload");
+      for (const dilarang of ["PUBLISHED", "WITHHELD", "total_responses", "minimum_responses"]) {
+        c.expect(!aksi.includes(dilarang), `the close action names ${dilarang}`);
+        c.expect(!kontrol.includes(dilarang), `the close control names ${dilarang}`);
+      }
+
+      // 2. NO THRESHOLD IS READ, ANYWHERE ON THE FEEDBACK SURFACE. §9/P2.
+      const berkas = walk(join(repoRoot, "src"))
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      const umpan = berkas.filter((f) => /umpan-balik|umpanbalik/.test(f));
+      c.expect(umpan.length >= 8, `${umpan.length} feedback file(s); the surface is not being read`);
+      for (const f of berkas) {
+        const b = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/feedback_thresholds|minimum_responses|current_feedback_threshold/.test(b),
+          `${f} reads the anonymity threshold`);
+      }
+      c.expect(/feedback_thresholds/.test(code('const x = "feedback_thresholds";')),
+        "the threshold scanner cannot see a read of the table");
+
+      // 3. THE OFFER IS THE STATE AND NOTHING ELSE, and a terminal round is
+      //    offered nothing at all. §10/P4.
+      c.expect(bolehDitutup("OPEN"), "an open round cannot be closed");
+      for (const k of ["PUBLISHED", "WITHHELD", "", null, undefined, "SOMETHING_ELSE"]) {
+        c.expect(!bolehDitutup(k), `${JSON.stringify(k)} is offered a close control`);
+      }
+      c.expect(/bolehDitutup\(c\.keadaan\)/.test(halaman),
+        "the page offers the close control without asking the round's state");
+      //    NO SECOND TRANSITION EXISTS IN THE PRODUCT. Not as a control, not as
+      //    a copy key, not as a call.
+      // `force` alone matched Next's own `export const dynamic = "force-dynamic"`
+      // on every page, which is a rendering directive and not a transition. The
+      // rule is about a SECOND WAY TO MOVE A ROUND, so each word is required to
+      // be next to the thing it would be forcing.
+      const TERLARANG =
+        /reopen|dibuka_kembali|buka_ulang|\breset\b|republish|terbitkan_ulang|force[-_ ]?(?:publish|open|close|terbit|buka|tutup)|paksa|override|abaikan[_ ]?ambang/i;
+      for (const f of umpan) {
+        const b = code(readFileSync(join(repoRoot, f), "utf8"));
+        const m = TERLARANG.exec(b);
+        c.expect(m === null, `${f} carries a second transition: "${m?.[0]}"`);
+      }
+      for (const k of allKeys().filter((x) => x.startsWith("umpanbalik."))) {
+        const m = TERLARANG.exec(k);
+        c.expect(m === null, `the copy table declares ${k}, which names a transition WP7B has not got`);
+      }
+      for (const contoh of ["reopenCycle", "forcePublish", "force-publish", "const reset = 1;",
+                            "terbitkan_ulang", "paksaTerbit", "buka_ulang"]) {
+        c.expect(TERLARANG.test(contoh), `the second-transition scanner does not catch "${contoh}"`);
+      }
+      c.expect(!TERLARANG.test('export const dynamic = "force-dynamic";'),
+        "the second-transition scanner mistakes a rendering directive for a transition");
+      //    And the endpoint agrees: both terminal states are terminal.
+      c.expect(/this feedback cycle is already % and does not reopen/.test(badanTutup),
+        "the endpoint no longer refuses a closed round");
+
+      // 4. THE CONFIRMATION SAYS WHAT ENDS AND NAMES NO FIGURE. §8/§14/P1.
+      const KUNCI_UB = allKeys().filter((k) => k.startsWith("umpanbalik.tutup."));
+      c.expect(KUNCI_UB.length >= 12, `${KUNCI_UB.length} closing key(s); the copy is incomplete`);
+      for (const k of KUNCI_UB) {
+        const row = telling(k as HleEvent);
+        c.expect(typeof row?.default === "string" && row.default.trim().length > 0, `${k} has no Indonesian`);
+        c.expect(typeof row?.en === "string" && (row.en as string).trim().length > 0, `${k} has no English`);
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "staff", { locale: l });
+          c.expect(!/[0-9]/.test(teks), `${k} carries a figure in ${l}: "${teks}"`);
+          c.expect(informal(teks).length === 0, `${k} is informal in ${l}`);
+        }
+      }
+      //    The two sentences that have to be there: what ends, and that it does
+      //    not come back.
+      for (const l of LOCALES) {
+        const arti = t("umpanbalik.tutup.arti", "staff", { locale: l });
+        const akhir = t("umpanbalik.tutup.akhir", "staff", { locale: l });
+        c.expect(/(tanggapan|responses)/i.test(arti), `the confirmation does not say what ends in ${l}`);
+        c.expect(/(tidak dibuka|not opened again|does not reopen)/i.test(akhir),
+          `the confirmation does not say the round stays closed in ${l}`);
+      }
+      //    AND NO COUNT, THRESHOLD OR SHORTFALL REACHES THE CONTROL. Not in its
+      //    copy and not in its props: there is nothing passed that could be
+      //    printed.
+      const props = /\{\s*siklus,\s*tutup,\s*locale[^}]*\}/.exec(kontrol)?.[0] ?? "";
+      c.expect(props.length > 0, "the close control's props could not be read");
+      for (const bocor of ["total", "jumlah", "count", "ambang", "threshold", "responses", "sisa"]) {
+        c.expect(!props.includes(bocor), `the close control is handed ${bocor}`);
+      }
+      const HITUNG = /\d+\s*(?:\/|dari|of)\s*\d+|\d+\s*%|tanggapan\s*:?\s*\d+/i;
+      c.expect(HITUNG.test("3 dari 5") && HITUNG.test("(3/5)"),
+        "the figure scanner used on this surface catches nothing");
+
+      // 5. NO BLIND REPEAT, AND THE RE-READ IS AUTHORITATIVE. §15/P5.
+      c.expect(/sebab !== "tak_pasti"/.test(aksi),
+        "the close action re-reads even where WP7B already named the outcome");
+      c.expect(/await siklus\(/.test(aksi), "an uncertain close is not settled by re-reading the round");
+      c.expect(/keadaan === "OPEN" \? "belum_tertutup" : "sudah_tertutup"/.test(aksi),
+        "the re-read does not decide from the round's own state");
+      //    Nothing loops, retries, waits or counts attempts.
+      for (const b of [aksi, kontrol]) {
+        c.expect(!/\bwhile\s*\(|setTimeout|setInterval|for\s*\(\s*let\s+\w+\s*=\s*0/.test(b),
+          "the closing path retries, waits or loops");
+        c.expect(!/attempt|percobaan|retry|coba_lagi/i.test(b), "the closing path counts attempts");
+      }
+      //    A second press while one is in flight cannot start a second call.
+      c.expect(/if \(sibuk\) return;/.test(kontrol), "the control admits a second press while one is in flight");
+      c.expect(/disabled=\{sibuk\}/.test(kontrol), "the confirm control is not disabled in flight");
+      //    An unrecognised failure is never reported as a failure.
+      c.expect(sebabTutup("something nobody has ever seen") === "tak_pasti",
+        "an unrecognised close failure is reported as something definite");
+      c.expect(sebabTutup(null) === "tak_pasti", "a missing message is reported as something definite");
+      c.expect(sudahDitutup("tertutup") && sudahDitutup("sudah_tertutup"),
+        "a closed round is not treated as closed");
+      for (const x of ["bukan_wewenang", "subjek", "belum_tertutup", "tak_pasti"] as const) {
+        c.expect(!sudahDitutup(x), `${x} is treated as a closed round`);
+      }
+      const LAGI = /coba lagi|tutup lagi|ulangi|try again|close it again/i;
+      for (const l of LOCALES) {
+        for (const k of ["umpanbalik.tutup.tak_pasti", "umpanbalik.tutup.belum"] as const) {
+          c.expect(!LAGI.test(t(k as HleEvent, "staff", { locale: l })),
+            `${k} tells an operator to press again in ${l}`);
+        }
+      }
+      c.expect(LAGI.test("Silakan coba lagi."), "the blind-retry sweep catches nothing");
+
+      // 6. THE OUTCOME MAP IS WP7B'S OWN SENTENCES, BOTH WAYS. Scoped to what
+      //    an operator pressing Close can actually reach.
+      for (const { frasa } of SEBAB_TUTUP) {
+        c.expect(badanTutup.includes(frasa), `the surface maps "${frasa}", which the endpoint never raises`);
+      }
+      const raises = [...badanTutup.matchAll(/raise exception '([^':%]+)/g)].map((m) => m[1].trim());
+      c.expect(raises.length >= 3, `${raises.length} refusal(s) in the endpoint; the slice is wrong`);
+      for (const r of raises) {
+        const dipetakan = SEBAB_TUTUP.some(({ frasa }) => r.includes(frasa) || frasa.includes(r));
+        // The bound threshold going missing is a platform fault rather than
+        // something its reader did, and it is deliberately unmapped: it falls
+        // through to the re-read, which reports that the round is still open,
+        // which is true. A sentence invented for it would be a guess at a cause.
+        c.expect(dipetakan || /anonymity threshold this cycle bound/.test(r),
+          `the endpoint raises "${r}" at an operator and the surface has no sentence for it`);
+      }
+
+      // 7. AUTHORITY IS THE ENDPOINT'S. §4/P3. The page offers, and offering is
+      //    all it does: no role name is read, and the gate it already had is
+      //    the one that decides who reaches this page at all.
+      for (const f of [AKSI, KONTROL, HALAMAN]) {
+        const b = code(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(!/"(HEAD_OF_DEPARTMENT|DEAN|INSTITUTION_ADMIN|SYSTEM_ADMIN|EDUCATOR|STUDENT)"/.test(b),
+          `${f} reads a role name`);
+        c.expect(!/display_role|displayRole|is_system_admin|has_scope/.test(b),
+          `${f} decides authority for itself`);
+      }
+      c.expect(/simpulDalamLingkup\(/.test(halaman), "the operating page no longer asks the Management gate");
+      c.expect(/management_scope_over_node/.test(badanTutup),
+        "the close endpoint no longer asks who is Management");
+
+      // 8. THE GEOMETRY HOLDS THE WORDS. §17/P6. MEASURED against the compiled
+      //    stylesheet at 320/375/390/414/768 in both languages: zero overflow,
+      //    zero clipped label, and every control at or above the touch-target
+      //    floor. The control reuses `.pin-ub-btn`, whose floor is declared at
+      //    a specificity that survives `.pin-actions .pin-btn` — the defect
+      //    WP7C measured and fixed — so the rule is asserted rather than
+      //    re-discovered here.
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(/\.pin-actions \.pin-ub-btn \{[^}]*min-height: 44px/.test(css),
+        "the operating controls' touch-target floor is declared where the phone rule outranks it");
+      c.expect(/pin-ub-btn/.test(kontrol), "the closing controls do not use the wrapping button rule");
+      const panel = css.slice(css.indexOf(".pin-ub-pasti {"), css.indexOf(".pin-ub-pasti .pin-actions"));
+      c.expect(panel.length > 0, "the confirmation panel's rule could not be located");
+      c.expect(!/(?<!min-)(?:height|width):\s*\d/.test(panel),
+        "the confirmation panel pins a fixed size, which clips the longer of two languages");
+      c.expect(/(?<!min-)(?:height|width):\s*\d/.test("height: 120px;"),
+        "the fixed-geometry scanner cannot see a pinned size");
+
+      c.note(`${KUNCI_UB.length} closing key(s), ${raises.length} endpoint refusal(s), ` +
+        `${umpan.length} feedback file(s), ${LOCALES.length} language(s)`);
+      return c.verdict(
+        "Management ends collection for a round and the backend decides what the round became. THE " +
+        "SURFACE NEVER LEARNS WHICH: `close_feedback_cycle` returns the new state -- asserted, so this " +
+        "is a refusal rather than an absence -- and the action destructures only the error, reads the " +
+        "payload nowhere, and names neither terminal state nor any count. No file under src reads the " +
+        "anonymity threshold at all, watched on a plant. THE OFFER IS THE STATE AND NOTHING ELSE: only " +
+        "an open round is offered a control, every terminal and unknown state is offered none, and no " +
+        "file and no copy key in this Experience names a reopen, a reset, a republish, a force or an " +
+        "override -- watched on a plant, and agreeing with the endpoint, which refuses a closed round " +
+        "by name. THE CONFIRMATION says what ends and that it does not come back, in both languages, " +
+        "and carries NO DIGIT AT ALL in any of its twelve keys; the control is handed no total, count, " +
+        "threshold or remainder, so there is nothing passed to it that could be printed. NO BLIND " +
+        "REPEAT: an unrecognised outcome is settled by re-reading the round's own state rather than by " +
+        "pressing again, nothing loops, waits, retries or counts attempts, a second press in flight " +
+        "cannot start a second call, and no outcome sentence tells an operator to try again. The " +
+        "outcome map is compared with the endpoint's own refusals in both directions, with the one " +
+        "deliberately unmapped platform fault named and justified. AUTHORITY IS THE ENDPOINT'S: " +
+        "neither the action, the control nor the page reads a role name or decides for itself, the " +
+        "page still asks the Management gate, and the endpoint still asks it again",
+      );
+    },
+  },
+  {
+    id: "UX1-UB-BUKA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const MIG = "supabase/migrations/20261001100000_management_can_name_the_teacher_it_asks_about.sql";
+      const mig = readFileSync(join(repoRoot, MIG), "utf8");
+      const AKSI = "src/app/pimpinan/[simpul]/umpan-balik/actions.ts";
+      const KONTROL = "src/components/umpanbalik/MulaiPutaran.tsx";
+      const HALAMAN = "src/app/pimpinan/[simpul]/umpan-balik/kelas/[kelas]/page.tsx";
+      const aksi = code(readFileSync(join(repoRoot, AKSI), "utf8"));
+      const kontrol = code(readFileSync(join(repoRoot, KONTROL), "utf8"));
+      const halaman = code(readFileSync(join(repoRoot, HALAMAN), "utf8"));
+      const lapis = code(readFileSync(join(repoRoot, "src/lib/umpanbalik.ts"), "utf8"));
+
+      // 1. DISCOVERY IS THE GOVERNED CONTRACT, AND IT IS THE ONLY ONE USED.
+      //    Two columns, from the endpoint whose whole purpose is to give this
+      //    Experience a display identity without giving anybody a staff
+      //    directory.
+      c.expect(/returns table \(person_id uuid, display_name text\)/.test(mig),
+        "the discovery endpoint no longer returns exactly a person and a display name");
+      c.expect(/rpc\("feedback_subjects_for_class", \{ p_node: node \}\)/.test(lapis),
+        "the data layer does not read the governed subject contract");
+      //    …and it reads nothing else about a person from it.
+      const bacaSubjek = lapis.slice(lapis.indexOf("export async function subjekKelas"),
+                                     lapis.indexOf("export async function siklusKelas"));
+      c.expect(bacaSubjek.length > 0, "the discovery read could not be located");
+      for (const medan of ["email", "auth_user", "account", "institutional", "enrol", "membership", "role"]) {
+        c.expect(!bacaSubjek.includes(medan), `the discovery read reaches for ${medan}`);
+      }
+      //    A REFUSAL AND AN EMPTY LIST ARE DIFFERENT FACTS. "Not yours to ask"
+      //    and "nobody to ask about" are different sentences, and the surface
+      //    says which.
+      c.expect(/if \(error\) return null;/.test(bacaSubjek),
+        "a refused discovery is reported as an empty list");
+      c.expect(/subjek === null \?/.test(halaman),
+        "the page does not tell a refusal apart from an empty candidate list");
+      c.expect(/umpanbalik\.buka\.tanpa_wewenang/.test(halaman) && /umpanbalik\.buka\.kosong/.test(kontrol),
+        "the two cases share one sentence");
+
+      // 2. DISCOVERY IS NOT AUTHORIZATION. ADR-0023 §Decision 3: no token, no
+      //    cached entitlement, no "listed therefore permitted". The action
+      //    passes the class and the person and asserts nothing about either.
+      c.expect(/rpc\("open_feedback_cycle", \{\s*p_node: kelas,\s*p_subject_person_id: subjek,\s*\}\)/.test(aksi),
+        "the open action sends something other than the class and the subject");
+      for (const dilarang of ["token", "signed", "claim", "cache", "allowlist", "izinkan", "boleh"]) {
+        c.expect(!aksi.includes(dilarang), `the open action carries a ${dilarang}`);
+      }
+      c.expect(!/feedback_subject_candidates|role_assignments|EDUCATOR|jalur|learning_context|ACADEMIC/.test(aksi + kontrol + halaman),
+        "the open path reconstructs the subject, scope or academic rule for itself");
+      //    THE RULE IS READ TWICE AND WRITTEN ONCE: both the endpoint and
+      //    discovery ask the same internal function, which is the reason the
+      //    frontend can trust a list it is nonetheless not allowed to rely on.
+      c.expect(/feedback_subject_candidates\(p_node\)/.test(mig), "the shared subject rule is gone");
+      const badanBuka = mig.slice(mig.indexOf("create or replace function public.open_feedback_cycle"),
+                                  mig.indexOf("create function public.feedback_subjects_for_class"));
+      c.expect(/feedback_subject_candidates/.test(badanBuka),
+        "the open endpoint no longer asks the shared subject rule");
+
+      // 3. EVERY WAY THE BACKEND CAN REFUSE HAS A SENTENCE, BOTH DIRECTIONS.
+      //    This is the whole point of an advisory list: each refusal below is
+      //    a real thing that can happen between the read and the press.
+      for (const { frasa } of SEBAB_BUKA) {
+        c.expect(badanBuka.includes(frasa), `the surface maps "${frasa}", which the endpoint never raises`);
+      }
+      const raises = [...badanBuka.matchAll(/raise exception '([^':%]+)/g)].map((m) => m[1].trim());
+      c.expect(raises.length >= 10, `${raises.length} refusal(s) in the open endpoint; the slice is wrong`);
+      for (const r of raises) {
+        c.expect(SEBAB_BUKA.some(({ frasa }) => r.includes(frasa) || frasa.includes(r)),
+          `the endpoint raises "${r}" at an operator and the surface has no sentence for it`);
+      }
+      //    The two that matter most are their OWN outcomes rather than folded
+      //    into a shrug: a stale subject, and the academic boundary.
+      c.expect(sebabBuka("the subject of a feedback cycle holds a live EDUCATOR assignment over that class, and this one does not")
+        === "bukan_pengajar", "a stale discovery is not reported as a stale discovery");
+      c.expect(sebabBuka("that class is reached by professional-development material (X): PINTAR 4.0 feedback is ACADEMIC only")
+        === "bukan_akademik", "the academic refusal is not reported as itself");
+      c.expect(sebabBuka("this class already has a feedback cycle about that educator in this academic period")
+        === "sudah_ada", "a round opened by a colleague first is not recognised");
+      c.expect(sebabBuka("something nobody has ever seen") === "tak_pasti",
+        "an unrecognised open failure is reported as something definite");
+      c.expect(sebabBuka(null) === "tak_pasti", "a missing message is reported as something definite");
+      c.expect(sudahAdaPutaran("dibuka") && sudahAdaPutaran("sudah_ada"),
+        "a class that has been asked is not treated as asked");
+      for (const x of ["bukan_pengajar", "bukan_wewenang", "bukan_akademik", "kelas_belum_siap",
+                       "belum_siap", "subjek_sendiri", "tak_pasti"] as const) {
+        c.expect(!sudahAdaPutaran(x), `${x} is treated as a round that exists`);
+      }
+
+      // 4. THE ACADEMIC REFUSAL IS CARRIED, NOT COMPENSATED. No other class is
+      //    looked for, no context is inferred, nothing is retried, and the
+      //    sentence offers no way round it.
+      for (const b of [aksi, kontrol, halaman]) {
+        c.expect(!/\bwhile\s*\(|setTimeout|setInterval|retry|coba_lagi|attempt/i.test(b),
+          "the open path retries or loops");
+      }
+      const LAIN = /kelas lain|another class|try another|cari kelas/i;
+      for (const l of LOCALES) {
+        const teks = t("umpanbalik.buka.bukan_akademik" as HleEvent, "staff", { locale: l });
+        c.expect(!LAIN.test(teks), `the academic refusal suggests a workaround in ${l}`);
+        c.expect(/(akademik|academic)/i.test(teks), `the academic refusal does not say what it is about in ${l}`);
+      }
+      c.expect(LAIN.test("Coba kelas lain."), "the workaround sweep catches nothing");
+
+      // 5. NOTHING COUNTS ANYTHING, HERE EITHER. Opening a round must not
+      //    become a place to watch one fill up.
+      const KUNCI_UB = allKeys().filter((k) => k.startsWith("umpanbalik.buka.") || k.startsWith("umpanbalik.kelas."));
+      c.expect(KUNCI_UB.length >= 15, `${KUNCI_UB.length} opening key(s); the copy is incomplete`);
+      for (const k of KUNCI_UB) {
+        const row = telling(k as HleEvent);
+        c.expect(typeof row?.default === "string" && row.default.trim().length > 0, `${k} has no Indonesian`);
+        c.expect(typeof row?.en === "string" && (row.en as string).trim().length > 0, `${k} has no English`);
+        for (const l of LOCALES) {
+          const teks = t(k as HleEvent, "staff", { locale: l });
+          c.expect(!/[0-9]/.test(teks), `${k} carries a figure in ${l}: "${teks}"`);
+          c.expect(informal(teks).length === 0, `${k} is informal in ${l}`);
+        }
+      }
+      for (const bocor of ["tanggapan", "responses", "ambang", "threshold", "peserta", "participants",
+                           "sudah menjawab", "have answered"]) {
+        for (const k of KUNCI_UB) {
+          for (const l of LOCALES) {
+            c.expect(!t(k as HleEvent, "staff", { locale: l }).toLowerCase().includes(bocor),
+              `${k} names ${bocor} in ${l}`);
+          }
+        }
+      }
+      //    …and the control is handed only a class, a list of people and the act.
+      const props = /\{\s*kelas,\s*subjek,\s*buka,\s*locale[^}]*\}/.exec(kontrol)?.[0] ?? "";
+      c.expect(props.length > 0, "the opening control's props could not be read");
+      for (const bocor of ["total", "jumlah", "count", "ambang", "threshold", "responses", "peserta"]) {
+        c.expect(!props.includes(bocor), `the opening control is handed ${bocor}`);
+      }
+
+      // 6. AUTHORITY IS THE ENDPOINT'S, AND THE PAGE STILL ASKS THE GATE.
+      for (const [f, b] of [[AKSI, aksi], [KONTROL, kontrol], [HALAMAN, halaman]] as const) {
+        c.expect(!/"(HEAD_OF_DEPARTMENT|DEAN|INSTITUTION_ADMIN|SYSTEM_ADMIN|EDUCATOR|STUDENT)"/.test(b),
+          `${f} reads a role name`);
+        c.expect(!/display_role|displayRole|is_system_admin|has_scope/.test(b),
+          `${f} decides authority for itself`);
+      }
+      c.expect(/simpulDalamLingkup\(/.test(halaman) && /HalamanPenolakan/.test(halaman),
+        "the per-class page does not ask the Management gate or has no refusal path");
+      c.expect(/management_scope_over_node/.test(mig), "the discovery endpoint no longer asks who is Management");
+      //    The same sentence for discovery as for the operation, so a reader
+      //    learns nothing from being refused one rather than the other.
+      c.expect(/naming the subjects of a feedback cycle is for a HEAD_OF_DEPARTMENT or DEAN standing over that class/.test(mig),
+        "the discovery refusal no longer mirrors the operation's");
+
+      // 7. THE OPENED ROUND IS THE SERVER'S ACCOUNT OF IT. The new cycle's id
+      //    is discarded and the page re-reads, exactly as the close path does.
+      c.expect(/const \{ error \} = await c\.rpc\("open_feedback_cycle"/.test(aksi),
+        "the open action takes more than the error from the endpoint's answer");
+      c.expect(/router\.refresh\(\)/.test(kontrol), "the control does not re-read after opening");
+      //    And no second transition appears on this surface either.
+      const TERLARANG2 =
+        /reopen|dibuka_kembali|buka_ulang|\breset\b|republish|terbitkan_ulang|force[-_ ]?(?:publish|open|close|terbit|buka|tutup)|paksa|override/i;
+      for (const [f, b] of [[AKSI, aksi], [KONTROL, kontrol], [HALAMAN, halaman]] as const) {
+        const m = TERLARANG2.exec(b);
+        c.expect(m === null, `${f} carries a second transition: "${m?.[0]}"`);
+      }
+
+      // 8. THE GEOMETRY HOLDS A PERSON'S NAME. §17. MEASURED at 320/375/390/
+      //    414/768 in both languages with the longest realistic educator name:
+      //    zero overflow, zero clipping, every control at or above the floor.
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      const baris = css.slice(css.indexOf(".pin-ub-orang > li {"), css.indexOf(".pin-ub-orang > li + li"));
+      c.expect(baris.length > 0, "the candidate row's rule could not be located");
+      c.expect(/min-height: 44px/.test(baris), "the candidate row has no touch-target floor");
+      c.expect(!/(?<!min-)(?:height|width):\s*\d/.test(baris),
+        "the candidate row pins a fixed size, which clips the longer of two languages");
+      c.expect(/flex-wrap: wrap/.test(baris), "a long name cannot fold away from the act");
+      c.expect(/\.pin-ub-orang \.pin-ml \{[^}]*min-width: 0/.test(css),
+        "a long name sets the row's floor instead of wrapping inside it");
+      c.expect(/pin-ub-btn/.test(kontrol), "the opening control does not use the wrapping button rule");
+
+      c.note(`${KUNCI_UB.length} opening key(s), ${raises.length} endpoint refusal(s), ` +
+        `${SEBAB_BUKA.length} mapped phrase(s), ${LOCALES.length} language(s)`);
+      return c.verdict(
+        "Management names the teacher a class will be asked about through the governed contract, and " +
+        "opening re-decides every time. DISCOVERY IS THE FEEDBACK CONTRACT AND NOTHING WIDER: the " +
+        "endpoint is asserted to return exactly a person and a display name, the data layer reaches " +
+        "for no email, account, institutional identity, enrolment, membership or other role, and a " +
+        "REFUSAL is told apart from an EMPTY LIST -- 'not yours to ask' and 'nobody to ask about' are " +
+        "different facts and the surface says which. DISCOVERY IS NOT AUTHORIZATION: the action sends " +
+        "the class and the person and nothing else, carries no token, signed claim or cache, and " +
+        "neither it nor the control nor the page names the subject rule, the role table, EDUCATOR, " +
+        "jalur containment or the academic context -- while the migration is read to confirm the " +
+        "endpoint and discovery ask ONE shared rule, which is why a list can be trusted and still not " +
+        "relied on. EVERY REFUSAL HAS A SENTENCE, compared with the endpoint's own in both " +
+        "directions, with a stale subject, the academic boundary and a colleague who got there first " +
+        "each its own outcome rather than a shrug. THE ACADEMIC REFUSAL IS CARRIED, NOT COMPENSATED: " +
+        "nothing retries, nothing loops, and the sentence names the boundary and offers no way round " +
+        "it -- watched on a plant. NOTHING COUNTS ANYTHING: no opening key in either language carries " +
+        "a digit or names a response, a threshold or a participant, and the control is handed no " +
+        "total, count or remainder. Authority stays the endpoint's, the page still asks WP4's gate " +
+        "and refuses through the one refusal page, discovery refuses in the same words the operation " +
+        "does, the new cycle's id is discarded in favour of a re-read, no second transition appears, " +
+        "and the row that holds a person's name has a touch-target floor, wraps rather than " +
+        "overflowing, and pins no geometry",
       );
     },
   },

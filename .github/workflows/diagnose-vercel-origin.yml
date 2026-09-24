@@ -1,0 +1,139 @@
+# FORENSICS ONLY. This workflow deploys nothing, writes no environment value,
+# touches no Supabase configuration and creates nothing. It answers one
+# question: what does the claimed production origin actually serve, and to
+# whom.
+#
+# WHY IT EXISTS. The deployment workflow's probe checked `curl -L` and read
+# only the final status code. That is not proof the application is reachable:
+# it follows redirects, so an authentication interstitial or any other page
+# that ends in a 200 satisfies it, and it never asserts the body is PINTAR.
+# A browser then got 404 NOT_FOUND on the same URL. One of those observations
+# is wrong and this establishes which.
+#
+# It records, for every candidate: the unfollowed response, every redirect
+# hop, the final effective URL, Vercel's own error and edge headers, and
+# whether the body actually contains the sign-in screen.
+
+name: diagnose · vercel origin
+
+on:
+  push:
+    branches:
+      - claude/quirky-meitner-a04smj
+    paths:
+      - .github/diagnose-request.txt
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_PROJECT_NAME: pintar40
+
+jobs:
+  diagnose:
+    name: what does that origin actually serve
+    runs-on: ubuntu-latest
+    steps:
+      - name: Unfollowed response, headers and body, per candidate
+        run: |
+          set -uo pipefail
+          for U in \
+            "https://app.pintarselalu.com/verifikasi/probe-unknown-token" \
+            "https://app.pintarselalu.com/api/verifikasi/probe-unknown-token" ; do
+            echo "=================================================================="
+            echo "URL: $U"
+            echo "--- no redirects: status line and selected headers ---"
+            curl -sS -o /tmp/body.txt -D /tmp/hdr.txt -w 'status=%{http_code} final=%{url_effective}\n' "$U" || echo "(curl failed)"
+            head -1 /tmp/hdr.txt || true
+            grep -iE '^(location|x-vercel-error|x-vercel-id|x-matched-path|server|content-type|set-cookie):' /tmp/hdr.txt || echo "(none of the interesting headers)"
+            echo "--- body: first 300 bytes ---"
+            head -c 300 /tmp/body.txt; echo
+            echo "--- body markers ---"
+            for M in "NOT_FOUND" "DEPLOYMENT_NOT_FOUND" "Authentication Required" "vercel.com/sso" "pin-masuk" "PINTAR"; do
+              if grep -qiF "$M" /tmp/body.txt; then echo "  PRESENT: $M"; fi
+            done
+            echo "--- following redirects ---"
+            curl -sS -L -o /tmp/lbody.txt -w '  final_status=%{http_code} final_url=%{url_effective} redirects=%{num_redirects}\n' "$U" || echo "(curl failed)"
+            echo "  final body first 200 bytes:"; head -c 200 /tmp/lbody.txt; echo
+          done
+
+      - name: What Vercel says about the project and its deployments
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -uo pipefail
+          echo "--- project ---"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}" > /tmp/proj.json || true
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/proj.json'))
+          print('id:', d.get('id'), 'name:', d.get('name'))
+          print('accountId:', d.get('accountId'))
+          print('link:', (d.get('link') or {}).get('type'))
+          t=(d.get('targets') or {}).get('production') or {}
+          print('production target id:', t.get('id'), 'url:', t.get('url'), 'readyState:', t.get('readyState'))
+          print('production alias:', t.get('alias'))
+          print('protection bypass:', bool(d.get('protectionBypass')))
+          print('ssoProtection:', d.get('ssoProtection'))
+          print('passwordProtection:', d.get('passwordProtection'))
+          " || cat /tmp/proj.json
+
+          echo "--- project domains ---"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains?limit=100" > /tmp/doms.json || true
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/doms.json'))
+          for x in d.get('domains',[]):
+              print(' ', x.get('name'), '| verified:', x.get('verified'), '| gitBranch:', x.get('gitBranch'), '| redirect:', x.get('redirect'))
+          " || cat /tmp/doms.json
+
+          echo "--- latest deployment: alias state and what the build did ---"
+          LATEST=$(curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/deployments?app=${VERCEL_PROJECT_NAME}&limit=1" \
+            | python3 -c "import json,sys;print(json.load(sys.stdin)['deployments'][0]['uid'])" || true)
+          echo "latest uid: $LATEST"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v13/deployments/${LATEST}" > /tmp/l.json || true
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/l.json'))
+          print('url:', d.get('url'))
+          print('readyState:', d.get('readyState'), 'readySubstate:', d.get('readySubstate'), 'target:', d.get('target'))
+          print('aliasAssigned:', d.get('aliasAssigned'), 'aliasError:', d.get('aliasError'))
+          print('alias:', d.get('alias'))
+          print('framework(projectSettings):', (d.get('projectSettings') or {}).get('framework'))
+          print('routes:', d.get('routes'))
+          print('lambdas:', [(l.get('id'), l.get('entrypoint'), l.get('readyState')) for l in (d.get('lambdas') or [])])
+          " || cat /tmp/l.json
+
+          echo "--- build log lines that matter ---"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v3/deployments/${LATEST}/events?builds=1&limit=400" > /tmp/ev.json || true
+          python3 -c "
+          import json,re
+          try: ev=json.load(open('/tmp/ev.json'))
+          except Exception: ev=[]
+          if isinstance(ev,dict): ev=ev.get('events',[])
+          pat=re.compile(r'next|framework|detect|build completed|error|warn|output|route|install|compiled|no such|missing', re.I)
+          n=0
+          for e in ev:
+              t=(e.get('payload') or {}).get('text') or ''
+              t=t.strip()
+              if t and pat.search(t):
+                  print(' ', t[:200]); n+=1
+                  if n>60: break
+          if n==0: print('  (no build events returned)')
+          " || head -c 500 /tmp/ev.json
+
+          echo "--- recent deployments ---"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/deployments?app=${VERCEL_PROJECT_NAME}&limit=10" > /tmp/deps.json || true
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/deps.json'))
+          for x in d.get('deployments',[]):
+              print(' ', x.get('uid'), '|', x.get('url'), '| state:', x.get('state'), '| target:', x.get('target'), '| created:', x.get('created'))
+          " || cat /tmp/deps.json

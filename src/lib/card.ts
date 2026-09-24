@@ -10,3 +10,11 @@ import { cardPepper } from "@/lib/env";
 export function deriveCardSecret(cardNumber: string, pin: string): string {
   return createHash("sha256").update(`${cardPepper()}|${cardNumber}|${pin}`).digest("hex");
 }
+
+/**
+ * The Auth address a classroom card signs in as. One definition, used by the
+ * card sign-in and by account activation (F-01), so the two can never drift.
+ */
+export function cardEmail(cardNumber: string): string {
+  return `card-${cardNumber}@${process.env.CARD_EMAIL_DOMAIN ?? "cards.pintar.internal"}`;
+}

@@ -3,8 +3,9 @@ import { t, type HleEvent } from "@/lib/hle";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
-  grantRoleAction, revokeRoleAction, rolloverAction, setFlagAction, setPlatformConfigAction,
-  transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
+  grantRoleAction, revokeRoleAction, rolloverAction, saveReportTemplateAction, setFlagAction,
+  setPlatformConfigAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction,
+  transferRequestAction,
 } from "./actions";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
@@ -32,6 +33,17 @@ const card = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4";
 const field = "rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-2 py-1 text-sm";
 const button = "rounded-[var(--radius-1)] bg-surface-2 px-3 py-1 text-sm hover:bg-line-1";
 const label = "grid gap-1 text-sm text-ink-2";
+
+/** The three reports PINTAR defines. The table's own CHECK is the authority. */
+const STANDARD_REPORTS = ["class_learning_intelligence", "institution_learning_intelligence", "learner_result"] as const;
+
+type MetricDefinition = {
+  metric_id: string;
+  label_key: string;
+  scope: string;
+  allowed_visualizations: string[];
+  deprecated: boolean;
+};
 
 type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string }>;
 
@@ -79,6 +91,28 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
   ]);
 
+  // FINAL DELTA 2. The people the three sources above cannot reach: no active
+  // role, no enrolment, no transfer. The database decides who may ask and who
+  // may be seen -- a non-SYSTEM_ADMIN is refused by the endpoint and gets an
+  // error rather than rows, which is why nothing here checks a role first.
+  const { data: awaiting } = await supabase.rpc("persons_awaiting_first_role");
+  const awaitingPersons = (awaiting ?? []) as Array<{ person_id: string; display_name: string }>;
+
+  // W8-02. The institution's own templates, and the catalogue they may select
+  // from. Both are ordinary reads under this viewer's own RLS: the template
+  // rows are their school's, and the catalogue is PINTAR's, readable by anyone
+  // signed in and writable by nobody through this surface.
+  const liveCatalogue = (await supabase.rpc("current_metric_catalogue")).data as string | null;
+  const [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }] = await Promise.all([
+    supabase.from("report_templates").select("id, institution_id, template_version, standard_report, title_key").order("title_key"),
+    supabase.from("report_template_metrics").select("template_id, metric_id, ordinal, visualization").order("ordinal"),
+    liveCatalogue
+      ? supabase.from("metric_definitions")
+          .select("metric_id, label_key, scope, allowed_visualizations, deprecated")
+          .eq("catalogue_version", liveCatalogue).eq("deprecated", false).order("metric_id")
+      : Promise.resolve({ data: [] as MetricDefinition[] }),
+  ]);
+
   // Names for the people this viewer may see (RLS decides who that is).
   const personIds = Array.from(new Set([
     ...(enrollments ?? []).map((e) => e.person_id), ...(transfers ?? []).map((x) => x.person_id), ...(assignments ?? []).map((a) => a.person_id),
@@ -97,6 +131,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     : null;
   const configValue = (key: string) => (platformConfig ?? []).find((r) => r.key === key)?.value === true;
   const myInstitutions = (institutions ?? []).filter((i) => isSys || adminInstitutionIds.includes(i.id));
+  const myInstitutionIds = myInstitutions.map((i) => i.id);
+  const myTemplates = (reportTemplates ?? []).filter((t) => myInstitutionIds.includes(t.institution_id));
+  const metricsByTemplate = new Map<string, Array<{ metric_id: string; visualization: string }>>();
+  for (const m of templateMetrics ?? []) {
+    const list = metricsByTemplate.get(m.template_id) ?? [];
+    list.push({ metric_id: m.metric_id, visualization: m.visualization });
+    metricsByTemplate.set(m.template_id, list);
+  }
   const rollNodes = (nodes ?? []).filter((n) => (n.kind === "COHORT" || n.kind === "CLASS") && n.academic_period_id);
 
   const result = (section: string) =>
@@ -300,7 +342,20 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">
                   <option value="" disabled>—</option>
-                  {(persons ?? []).filter((p) => p.id !== viewer.personId).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
+                  {/* Two groups, and the union is total: everyone the reader
+                      may see either holds something already or holds nothing
+                      yet. A school's first administrator is always in the
+                      second group, which is why it had to exist. */}
+                  {awaitingPersons.length > 0 && (
+                    <optgroup label={s("config.label.person_new")}>
+                      {awaitingPersons.map((p) => (
+                        <option key={p.person_id} value={p.person_id}>{p.display_name}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  <optgroup label={s("config.label.person_known")}>
+                    {(persons ?? []).filter((p) => p.id !== viewer.personId).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
+                  </optgroup>
                 </select>
               </label>
               <label className={label}>{s("config.label.role")}
@@ -386,8 +441,81 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             {result("flags")}
           </section>
 
+          {/* W8-02 — REPORT CONFIGURATION.
+              PINTAR owns the metrics; the school owns the selection. The form
+              below can send a metric id, an order and a visualization, and
+              nothing else: there is no field for a formula, a meaning, an
+              audience or a minimum sample, because those are not an
+              institution's to set. `save_report_template` asks for
+              CAN_MANAGE_REPORT_TEMPLATES before it resolves anything, and the
+              row guards ask again on every write — this panel is a form, not
+              an authority. */}
+          <section id="intelligence" className={card}>
+            <h2 className="font-medium">{s("laporan.templat.judul")}</h2>
+            <p className="mt-2 text-sm text-ink-3">{s("laporan.templat.penjelasan")}</p>
+
+            {myTemplates.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-3">{s("laporan.templat.kosong")}</p>
+            ) : (
+              <ul className="mt-3 grid gap-2 text-sm">
+                {myTemplates.map((tpl) => (
+                  <li key={tpl.id} className="rounded-[var(--radius-1)] border border-line-1 p-2">
+                    <span className="font-medium">{tpl.title_key}</span>
+                    <span className="text-ink-3"> · {tpl.standard_report} · {s("laporan.templat.versi")} {tpl.template_version}</span>
+                    <p className="mt-1 text-ink-2">
+                      {(metricsByTemplate.get(tpl.id) ?? []).map((m) => `${m.metric_id} (${m.visualization})`).join(", ")}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {myInstitutions.length === 0 || (metricDefs ?? []).length === 0 ? (
+              <p className="mt-3 text-sm text-ink-3">{s("laporan.templat.tak_berwenang")}</p>
+            ) : (
+              <form action={saveReportTemplateAction} className="mt-4 grid gap-3">
+                <label className={label}>{s("laporan.templat.institusi")}
+                  <select name="institution" className={field} required defaultValue={myInstitutions[0]?.id}>
+                    {myInstitutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+                  </select>
+                </label>
+                <label className={label}>{s("laporan.templat.jenis")}
+                  <select name="standard_report" className={field} required>
+                    {STANDARD_REPORTS.map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </label>
+                <label className={label}>{s("laporan.templat.judul_kunci")}
+                  <input name="title_key" className={field} required pattern="[a-z][a-z0-9_.]+"
+                         defaultValue="laporan.institusi.judul" />
+                </label>
+                <fieldset className="grid gap-1">
+                  <legend className="text-sm text-ink-2">{s("laporan.templat.pilih")}</legend>
+                  <p className="text-xs text-ink-3">{s("laporan.templat.batas")}</p>
+                  {(metricDefs ?? []).map((d) => (
+                    <label key={d.metric_id} className="flex flex-wrap items-center gap-2 text-sm">
+                      {/* The metric id, which is PINTAR's own name for it and
+                          already carries its scope ("class.", "institution.").
+                          The scope column itself is an enum and §7 does not
+                          let one be rendered raw to a human. */}
+                      <span className="min-w-[14rem] text-ink-2">{d.metric_id}</span>
+                      {/* No selection is the default: an empty visualization
+                          is how a metric is left out, so the form cannot
+                          silently include one nobody ticked. */}
+                      <select name={`metric[${d.metric_id}]`} className={field} defaultValue="">
+                        <option value="">—</option>
+                        {(d.allowed_visualizations ?? []).map((v: string) => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </label>
+                  ))}
+                </fieldset>
+                <button className={button}>{s("laporan.templat.simpan")}</button>
+              </form>
+            )}
+            {result("intelligence")}
+          </section>
+
           {/* Placeholders for later phases — nothing faked */}
-          {(["content", "assessment", "certificates", "intelligence"] as const).map((key) => (
+          {(["content", "assessment", "certificates"] as const).map((key) => (
             <section key={key} id={key} className={card}>
               <h2 className="font-medium">{s(`config.section.${key}` as HleEvent)}</h2>
               <p className="mt-2 text-sm text-ink-3">{s("config.placeholder")}</p>

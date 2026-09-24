@@ -1,0 +1,619 @@
+# PINTAR production deployment — the application, on Vercel.
+#
+# WHY CI AND NOT THIS AGENT. Vercel is refused outright by the agent
+# container's network policy (connection refused at the proxy, not a 403), so
+# the deployment cannot be driven from there. A GitHub runner has both the
+# frozen repository bytes and a network path, exactly as for the database.
+#
+# WHAT IT DOES, AND WHY IT ALSO TOUCHES SUPABASE AUTH. The application origin
+# is not known until Vercel has a production deployment, and Supabase Auth
+# must allow exactly that origin or every magic link dead-ends -- which is the
+# blocker that stranded the first administrator on http://localhost:3000. So
+# this workflow deploys the app AND writes the resulting origin into the
+# project's Auth configuration in the same run. Splitting them would mean
+# copying a URL between two consoles by hand, and that is precisely the step
+# that was wrong before.
+#
+# SECRETS ARE GENERATED HERE AND NEVER LEAVE. CARD_PEPPER and
+# CERT_SECRET_KEY_V1 are minted in the job with `openssl rand` and written
+# straight into Vercel. They are never printed and never pass through a chat
+# transcript. They are also written ONCE: the certificate keyring may never
+# lose a version (FABLE-04, INV-07), and re-minting the pepper would
+# invalidate every classroom-card PIN derived from it. Both are therefore
+# added only when absent.
+#
+# It deploys the frozen release and configures Auth. It creates no PINTAR
+# data, no identity and no role.
+
+name: deploy · vercel production
+
+on:
+  push:
+    branches:
+      - claude/quirky-meitner-a04smj
+    paths:
+      - .github/vercel-request.txt
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  RELEASE_SHA: 5b5b68d4c77700976904fdee5a2fb52e46f8221e
+  PROJECT_REF: trtlvibiybwixfumjrrx
+  VERCEL_PROJECT_NAME: pintar40
+  # The production origin. A CUSTOM domain is the whole point: this project's
+  # Deployment Protection is `all_except_custom_domains`, so PINTAR becomes
+  # publicly reachable through this hostname without that protection being
+  # weakened, and the *.vercel.app URLs stay gated behind a Vercel login.
+  CUSTOM_DOMAIN: app.pintarselalu.com
+  # Public by construction: the Supabase URL and the anon key ship in the
+  # browser bundle. They are configuration, not secrets.
+  SUPABASE_URL: https://trtlvibiybwixfumjrrx.supabase.co
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydGx2aWJpeWJ3aXhmdW1qcnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxMDAxNDksImV4cCI6MjEwNTY3NjE0OX0.9QTwBrToGkL8XCORvbO6XtlbvvLmEwilXtgQaLQYjoE
+  CARD_EMAIL_DOMAIN: cards.pintar.internal
+
+jobs:
+  deploy:
+    name: deploy the frozen release and point Auth at it
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 5b5b68d4c77700976904fdee5a2fb52e46f8221e
+
+      - name: Verify the frozen release SHA
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA" || {
+            echo "::error::checkout is not the frozen release SHA"; exit 1; }
+          test -z "$(git status --porcelain)" || {
+            echo "::error::working tree is not clean"; exit 1; }
+          echo "at $(git rev-parse HEAD)"
+
+      # P-03. Nothing reaches production that the full verification contract
+      # has not passed on the exact commit being shipped. A red, missing or
+      # still-running CI refuses the deploy before any token is used.
+      - name: Require a successful CI run on this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/ci.yml/runs?head_sha=${RELEASE_SHA}&status=success&per_page=1" \
+            > /tmp/ci.json
+          n=$(python3 -c "import json;print(json.load(open('/tmp/ci.json')).get('total_count', 0))")
+          if [ "$n" -lt 1 ]; then
+            echo "::error::no successful ci run exists for ${RELEASE_SHA}; the deploy is refused"
+            exit 1
+          fi
+          echo "ci succeeded on ${RELEASE_SHA}"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Require the Vercel token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          test -n "${VERCEL_TOKEN:-}" || {
+            echo "::error::repository secret VERCEL_TOKEN is not set"; exit 1; }
+
+      - name: Install the Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Create and link the Vercel project
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          vercel project add "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" || true
+          vercel link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
+
+      # THE PROJECT MUST KNOW WHAT IT IS BUILDING. `vercel project add` creates
+      # a project with framework: null, buildCommand: null and
+      # outputDirectory: null. The resulting deployment carried a single
+      # lambda with entrypoint "." and no output, and the one hostname not
+      # masked by SSO answered a platform NOT_FOUND -- the app was never
+      # served, by anyone, at any point. Declaring the framework is what makes
+      # the build produce a routable Next.js application.
+      - name: Declare the framework so the build is a Next.js build
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -sS -X PATCH -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H 'Content-Type: application/json' -d '{"framework":"nextjs"}' \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}" > /tmp/fw.json
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/fw.json'))
+          print('framework:', d.get('framework'))
+          print('buildCommand:', d.get('buildCommand'), '| outputDirectory:', d.get('outputDirectory'))
+          "
+          FW=$(python3 -c "import json;print(json.load(open('/tmp/fw.json')).get('framework'))")
+          test "$FW" = "nextjs" || { echo "::error::framework is $FW, expected nextjs"; exit 1; }
+
+      # The domain is attached and its DNS REQUIRED before anything is built.
+      # Until it resolves to Vercel the origin cannot serve the app, and a
+      # build carrying an origin that does not answer is a build that has to
+      # be thrown away -- NEXT_PUBLIC_APP_URL is baked in and generates every
+      # magic link.
+      - name: Attach the production domain and require its DNS
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -uo pipefail
+          echo "--- attach (idempotent) ---"
+          curl -sS -X POST -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H 'Content-Type: application/json' -d "{\"name\":\"${CUSTOM_DOMAIN}\"}" \
+            "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_NAME}/domains" > /tmp/add.json || true
+          python3 -c "
+          import json
+          d=json.load(open('/tmp/add.json'))
+          e=d.get('error')
+          print('already attached:' if e and e.get('code')=='domain_already_in_use' else 'result:', e.get('message') if e else d.get('name'))
+          " || cat /tmp/add.json
+
+          echo "--- what Vercel requires for this domain ---"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains/${CUSTOM_DOMAIN}" > /tmp/dom.json || true
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/domains/${CUSTOM_DOMAIN}/config" > /tmp/cfg.json || true
+          python3 -c "
+          import json
+          dom=json.load(open('/tmp/dom.json')); cfg=json.load(open('/tmp/cfg.json'))
+          print('verified:', dom.get('verified'))
+          print('verification challenges:', json.dumps(dom.get('verification'), indent=2) if dom.get('verification') else 'none')
+          print('misconfigured:', cfg.get('misconfigured'))
+          print('recommended CNAME:', cfg.get('recommendedCNAME'))
+          print('recommended IPv4:', cfg.get('recommendedIPv4'))
+          print('observed A records:', cfg.get('aValues'))
+          print('observed CNAMEs:', cfg.get('cnames'))
+          " || { cat /tmp/dom.json; cat /tmp/cfg.json; }
+
+          MIS=$(python3 -c "import json;print(json.load(open('/tmp/cfg.json')).get('misconfigured'))" 2>/dev/null || echo True)
+          VER=$(python3 -c "import json;print(json.load(open('/tmp/dom.json')).get('verified'))" 2>/dev/null || echo False)
+          if [ "$MIS" = "False" ] && [ "$VER" = "True" ]; then
+            echo "${CUSTOM_DOMAIN} is attached, verified and pointing at Vercel"
+            exit 0
+          fi
+          echo "::error::${CUSTOM_DOMAIN} does not yet resolve to Vercel (misconfigured=$MIS verified=$VER). Add the DNS record at the registrar, then run this again. Nothing was built or deployed."
+          exit 1
+
+      # REACHABILITY IS NOT CONFIGURED HERE. This project carries Vercel
+      # Deployment Protection (ssoProtection: all_except_custom_domains), so
+      # every *.vercel.app URL answers 302 to vercel.com/sso-api and the chain
+      # ends at a login page. Removing that protection is a reduction in
+      # access control and is Sauron's decision, not this workflow's. The
+      # policy already exempts CUSTOM domains, so attaching one makes PINTAR
+      # reachable without weakening anything -- which is the preferred route
+      # and needs no change here beyond PINTAR_APP_URL.
+      #
+      # Either way the probes below are what decide whether the app is live,
+      # and they cannot be satisfied by a login page.
+
+      # ASKED, NOT ASSUMED. The first attempt guessed
+      # https://<project>.vercel.app and got a 404: that name is not this
+      # project's production alias, because Vercel qualifies the assigned
+      # domain with the owning scope when the bare name is unavailable. The
+      # origin is baked into the build (NEXT_PUBLIC_APP_URL) and written into
+      # Auth, so guessing it wrong poisons both. Vercel is asked instead, and
+      # a branch-scoped domain is never eligible.
+      - name: Decide the production origin
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          ORIGIN="${{ vars.PINTAR_APP_URL }}"
+          # The attached custom domain is the production origin by ruling. The
+          # Vercel-assigned names are not candidates: they sit behind
+          # Deployment Protection and cannot serve a school.
+          if [ -z "$ORIGIN" ] && [ -n "${CUSTOM_DOMAIN:-}" ]; then
+            ORIGIN="https://${CUSTOM_DOMAIN}"
+          fi
+          if [ -z "$ORIGIN" ]; then
+            curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains?limit=100" > /tmp/domains.json
+            HOST=$(python3 - <<'PY'
+          import json
+          d = json.load(open('/tmp/domains.json'))
+          doms = [x for x in d.get('domains', []) if not x.get('gitBranch')]
+          names = [x['name'] for x in doms]
+          custom = sorted(n for n in names if not n.endswith('.vercel.app'))
+          vercel = sorted((n for n in names if n.endswith('.vercel.app')), key=len)
+          print((custom or vercel or [''])[0])
+          PY
+          )
+            test -n "$HOST" || {
+              echo "::error::Vercel reports no production domain for $VERCEL_PROJECT_NAME"
+              cat /tmp/domains.json; exit 1; }
+            ORIGIN="https://${HOST}"
+          fi
+          ORIGIN="${ORIGIN%/}"
+          echo "APP_ORIGIN=$ORIGIN" >> "$GITHUB_ENV"
+          echo "production origin: $ORIGIN"
+
+      # THE SERVICE-ROLE KEY COMES FROM SUPABASE ITSELF, never from a copy.
+      # The GitHub secret this used to read held something that was not a
+      # Supabase key at all, and the only check on it (an unknown-token 404)
+      # passed with an invalid key. So the key is fetched from the Management
+      # API on every deploy, masked before anything else is printed, and must
+      # authenticate against the Auth Admin API (HTTP 200) before it is written
+      # anywhere. The format is the legacy service_role JWT, the one CI's local
+      # stack tests; a project offering only sb_secret keys stops the deploy
+      # for a ruling rather than switching formats silently.
+      - name: Take the service-role key from Supabase and prove it works
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::SUPABASE_ACCESS_TOKEN is not set; the service-role key cannot be taken from its source"; exit 1; }
+          umask 077
+          KEYFILE="$RUNNER_TEMP/service-role-key"
+          python3 - "$KEYFILE" <<'PY'
+          import json, os, sys, urllib.request, urllib.error
+          out = sys.argv[1]; ref = os.environ['PROJECT_REF']; base = os.environ['SUPABASE_URL']
+          tok = os.environ['SUPABASE_ACCESS_TOKEN']
+          req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true",
+                                       headers={'Authorization': f'Bearer {tok}', 'User-Agent': 'pintar-deploy'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r: keys = json.load(r)
+          except urllib.error.HTTPError as e:
+              print(f"::error::the Management API refused to list the project's keys: HTTP {e.code}"); sys.exit(1)
+          for k in keys:                      # mask before anything else is printed
+              v = k.get('api_key') or ''
+              if v: print(f"::add-mask::{v}")
+          legacy = [k for k in keys if k.get('name') == 'service_role' and (k.get('api_key') or '').startswith('eyJ')]
+          if not legacy:
+              print("::error::no legacy service_role JWT is offered; not switching key formats without a ruling"); sys.exit(1)
+          key = legacy[0]['api_key']
+          req = urllib.request.Request(f"{base}/auth/v1/admin/users?per_page=1",
+                                       headers={'apikey': key, 'Authorization': 'Bearer ' + key, 'User-Agent': 'pintar-deploy'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r: code = r.status
+          except urllib.error.HTTPError as e: code = e.code
+          print(f"service_role key: legacy JWT, length {len(key)}; validation GET /auth/v1/admin/users?per_page=1 -> HTTP {code}")
+          if code != 200:
+              print("::error::the service-role key taken from Supabase does not authenticate; the deploy is refused"); sys.exit(1)
+          open(out, 'w').write(key)
+          PY
+          echo "SERVICE_ROLE_KEY_FILE=$KEYFILE" >> "$GITHUB_ENV"
+
+      - name: Set the production environment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          # WRITTEN THROUGH THE API, NOT THE CLI. `vercel env add` reported
+          # success for NEXT_PUBLIC_SUPABASE_ANON_KEY and stored nothing --
+          # the variable was simply absent afterwards while its neighbours,
+          # written seconds either side, were present. A write that can fail
+          # silently is not a write. The API upserts, returns JSON, and its
+          # failures are visible.
+          PRESENT=$(curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/env?decrypt=false" \
+            | python3 -c "
+          import json,sys
+          for e in json.load(sys.stdin).get('envs',[]):
+              if 'production' in (e.get('target') or []): print(e['key'])
+          ")
+          has() { printf '%s\n' "$PRESENT" | grep -qx "$1"; }
+
+          write_env() {  # name, value
+            python3 - "$1" "$2" > /tmp/envbody.json <<'PY'
+          import json,sys
+          print(json.dumps({"key":sys.argv[1],"value":sys.argv[2],
+                            "type":"encrypted","target":["production"]}))
+          PY
+            CODE=$(curl -sS -o /tmp/envres.json -w '%{http_code}' -X POST \
+              -H "Authorization: Bearer $VERCEL_TOKEN" -H 'Content-Type: application/json' \
+              --data-binary @/tmp/envbody.json \
+              "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_NAME}/env?upsert=true")
+            if [ "$CODE" != "200" ] && [ "$CODE" != "201" ]; then
+              echo "::error::writing $1 failed with HTTP $CODE"; cat /tmp/envres.json; exit 1
+            fi
+          }
+
+          # Replaceable configuration: rewritten every deploy so the origin and
+          # the build stamp always match what is actually deployed.
+          put() { write_env "$1" "$2"; echo "set $1"; }
+          # Durable secrets: written once, never rewritten. See the header.
+          keep() {
+            if has "$1"; then echo "kept $1 (already present)"; return; fi
+            write_env "$1" "$2"; echo "minted $1"
+          }
+
+          put NEXT_PUBLIC_SUPABASE_URL      "$SUPABASE_URL"
+          put NEXT_PUBLIC_SUPABASE_ANON_KEY "$SUPABASE_ANON_KEY"
+          put NEXT_PUBLIC_APP_URL           "$APP_ORIGIN"
+          put CARD_EMAIL_DOMAIN             "$CARD_EMAIL_DOMAIN"
+          put PINTAR_BUILD_SHA              "$RELEASE_SHA"
+
+          keep CARD_PEPPER        "$(openssl rand -hex 32)"
+          keep CERT_SECRET_KEY_V1 "$(openssl rand -hex 32)"
+
+          # Always the key proven in the previous step. There is no branch that
+          # keeps whatever Vercel already holds: that is how a bad key survived.
+          test -s "${SERVICE_ROLE_KEY_FILE:-/nonexistent}" || { echo "::error::no validated service-role key; the deploy is refused"; exit 1; }
+          put SUPABASE_SERVICE_ROLE_KEY "$(cat "$SERVICE_ROLE_KEY_FILE")"
+
+          # READ BACK. Compared by SHA-256 inside the script; only the verdict
+          # is printed. A variable Vercel will not return (sensitive) is said to
+          # be unreadable, and its protection is not weakened to make it so.
+          python3 - "$SERVICE_ROLE_KEY_FILE" <<'PY'
+          import hashlib, json, os, sys, urllib.request, urllib.error
+          tok = os.environ['VERCEL_TOKEN']; proj = os.environ['VERCEL_PROJECT_NAME']
+          want = hashlib.sha256(open(sys.argv[1]).read().encode()).hexdigest()
+          def get(url):
+              req = urllib.request.Request(url, headers={'Authorization': f'Bearer {tok}'})
+              with urllib.request.urlopen(req, timeout=30) as r: return json.load(r)
+          envs = [e for e in get(f"https://api.vercel.com/v9/projects/{proj}/env?decrypt=false").get('envs', [])
+                  if e.get('key') == 'SUPABASE_SERVICE_ROLE_KEY' and 'production' in (e.get('target') or [])]
+          if len(envs) != 1:
+              print(f"::error::expected one production SUPABASE_SERVICE_ROLE_KEY in Vercel, found {len(envs)}"); sys.exit(1)
+          e = envs[0]
+          try:
+              one = get(f"https://api.vercel.com/v1/projects/{proj}/env/{e['id']}")
+          except urllib.error.HTTPError as err:
+              print(f"read-back: not possible — Vercel refused the single-variable read (HTTP {err.code})"); sys.exit(0)
+          v = one.get('value')
+          if e.get('type') == 'sensitive' or not v:
+              print(f"read-back: not possible — Vercel does not return this variable's value (type {e.get('type')!r}); its protection is left as is")
+          else:
+              ok = hashlib.sha256(v.encode()).hexdigest() == want
+              print(f"read-back: stored SUPABASE_SERVICE_ROLE_KEY matches the validated key: {ok}")
+              if not ok: sys.exit(1)
+          PY
+
+      # WRITING AN ENVIRONMENT VALUE IS NOT THE SAME AS IT BEING THERE. The
+      # deployment that finally routed answered 500, and its build env listed
+      # every variable except NEXT_PUBLIC_SUPABASE_ANON_KEY -- which
+      # publicSupabaseAnonKey() throws without, on a page that builds a
+      # Supabase client while rendering. The set is now read back and asserted
+      # before a build is spent on it.
+      - name: Assert the production environment is complete
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/env?decrypt=false" > /tmp/envls.txt
+          NAMES=$(python3 -c "
+          import json
+          for e in json.load(open('/tmp/envls.txt')).get('envs',[]):
+              if 'production' in (e.get('target') or []): print(e['key'])
+          ")
+          echo "names present in Vercel production:"; printf '  %s\n' $NAMES
+          MISSING=""
+          for N in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY NEXT_PUBLIC_APP_URL \
+                   CARD_EMAIL_DOMAIN PINTAR_BUILD_SHA CARD_PEPPER CERT_SECRET_KEY_V1 \
+                   SUPABASE_SERVICE_ROLE_KEY; do
+            printf '%s\n' $NAMES | grep -qx "$N" || MISSING="$MISSING $N"
+          done
+          if [ -n "$MISSING" ]; then
+            echo "::error::missing from Vercel production:$MISSING"
+            echo "--- raw listing ---"; cat /tmp/envls.txt
+            exit 1
+          fi
+          echo "every required production variable is present"
+
+      - name: Build and deploy to production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+          vercel build --prod --token "$VERCEL_TOKEN"
+          URL=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
+          echo "deployment: $URL"
+          # `pintar40.vercel.app` was listed as a production alias and still
+          # answered NOT_FOUND, so the alias assignment cannot be taken on
+          # trust either. Promoting the deployment asserts it.
+          vercel promote "$URL" --token "$VERCEL_TOKEN" || echo "(promote reported nothing to do)"
+          echo "DEPLOYMENT_URL=$URL" >> "$GITHUB_ENV"
+
+      # THE DEPLOYMENT IS ASKED WHICH NAMES IT ANSWERS ON. Listing a project's
+      # domains was not enough: Vercel listed <project>.vercel.app and that
+      # name 404s, so the list is a claim about the project rather than about
+      # what this deployment actually serves. The deployment's own aliases are
+      # the authority, and each is then PROVEN by fetching the sign-in screen
+      # through it. Nothing is accepted because it looked plausible.
+      - name: Resolve the origin the deployment actually serves
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          HOST="${DEPLOYMENT_URL#https://}"
+          curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v13/deployments/${HOST}" > /tmp/dep.json
+          python3 -c "import json;d=json.load(open('/tmp/dep.json'));print('target:',d.get('target'),'readyState:',d.get('readyState'));print('aliases:',d.get('alias'))"
+          CANDS=$(python3 - <<'PY'
+          import json
+          d = json.load(open('/tmp/dep.json'))
+          al = [a for a in (d.get('alias') or []) if '-git-' not in a]
+          custom = sorted(a for a in al if not a.endswith('.vercel.app'))
+          assigned = sorted((a for a in al if a.endswith('.vercel.app')), key=len)
+          print('\n'.join(custom + assigned))
+          PY
+          )
+          # The custom domain leads, because it is the only candidate that is
+          # exempt from Deployment Protection and therefore the only one a
+          # school could ever reach.
+          CANDS="${CUSTOM_DOMAIN:-}
+          $CANDS"
+          echo "candidates:"; printf '  %s\n' $CANDS
+          CHOSEN=""
+          for h in $CANDS "$HOST"; do
+            for i in 1 2 3; do
+              # STRICT, and deliberately not `curl -L`. Following redirects is
+              # what made the earlier probe worthless: it chased Vercel's SSO
+              # chain to a login page and read that page's 200 as the app
+              # being live. A redirect is now a failure, an x-vercel-error is
+              # a failure, and the body must actually be the sign-in screen.
+              C=$(curl -sS -o /tmp/b.txt -D /tmp/h.txt -w '%{http_code}' "https://$h/masuk" || echo 000)
+              E=$(grep -i '^x-vercel-error:' /tmp/h.txt | tr -d '\r' || true)
+              if grep -qF 'pin-masuk' /tmp/b.txt; then M=yes; else M=no; fi
+              echo "  https://$h/masuk -> status=$C marker=$M ${E:-}"
+              if [ "$C" = "200" ] && [ "$M" = "yes" ] && [ -z "$E" ]; then CHOSEN="https://$h"; break; fi
+              sleep 5
+            done
+            if [ -n "$CHOSEN" ]; then break; fi
+          done
+          test -n "$CHOSEN" || {
+            echo "::error::no domain of this deployment serves the PINTAR sign-in screen"
+            cat /tmp/dep.json; exit 1; }
+          echo "serving origin: $CHOSEN"
+          echo "SERVING_ORIGIN=$CHOSEN" >> "$GITHUB_ENV"
+
+      # NEXT_PUBLIC_APP_URL is baked at build time, so if the origin that
+      # actually serves the app is not the one the bundle was built with, the
+      # bundle is wrong and must be rebuilt. Magic links are generated from
+      # this value; a stale one sends people somewhere that does not exist.
+      - name: Rebuild if the baked origin is not the serving one
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "$SERVING_ORIGIN" = "$APP_ORIGIN" ]; then
+            echo "the build already carries the serving origin: $APP_ORIGIN"
+            exit 0
+          fi
+          echo "rebaking NEXT_PUBLIC_APP_URL: $APP_ORIGIN -> $SERVING_ORIGIN"
+          vercel env rm NEXT_PUBLIC_APP_URL production --yes --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true
+          printf '%s' "$SERVING_ORIGIN" | vercel env add NEXT_PUBLIC_APP_URL production --token "$VERCEL_TOKEN" >/dev/null
+          vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+          vercel build --prod --token "$VERCEL_TOKEN"
+          URL=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
+          echo "redeployed: $URL"
+          echo "APP_ORIGIN=$SERVING_ORIGIN" >> "$GITHUB_ENV"
+          echo "DEPLOYMENT_URL=$URL" >> "$GITHUB_ENV"
+
+      - name: The deployed application answers on the final origin
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6; do
+            CODE=$(curl -sS -o /tmp/f.txt -D /tmp/fh.txt -w '%{http_code}' "$APP_ORIGIN/masuk" || echo 000)
+            ERR=$(grep -i '^x-vercel-error:' /tmp/fh.txt | tr -d '\r' || true)
+            if grep -qF 'pin-masuk' /tmp/f.txt; then MARK=yes; else MARK=no; fi
+            echo "attempt $i: GET $APP_ORIGIN/masuk -> status=$CODE marker=$MARK ${ERR:-}"
+            if [ "$CODE" = "200" ] && [ "$MARK" = "yes" ] && [ -z "$ERR" ]; then
+              echo "the PINTAR sign-in screen is served at $APP_ORIGIN, with no redirect and no Vercel error"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::$APP_ORIGIN/masuk does not serve the PINTAR sign-in screen"
+          echo "--- headers ---"; cat /tmp/fh.txt || true
+          echo "--- body (300b) ---"; head -c 300 /tmp/f.txt || true
+          exit 1
+
+      # Auth is pointed at the origin that was just proven to serve the app,
+      # never at a value typed from memory.
+      # PRESENCE IS NOT FUNCTION. The service-role key is a runtime value, so
+      # writing it to Vercel does nothing until a deployment is built with it.
+      # This proves the key is actually working in the running application:
+      # the public verification endpoint constructs a service-role client on
+      # every request and `serviceRoleKey()` THROWS when the value is absent,
+      # so a missing key is a 500. An unknown token is designed to return 404
+      # with {"found": false} and no existence oracle, which is exactly what a
+      # healthy endpoint answers here.
+      # WHAT THIS DOES AND DOES NOT PROVE. The route answers the same closed
+      # 404 when the service-role key is REJECTED as when the token is unknown,
+      # so this cannot tell a valid key from an invalid one -- it passed for an
+      # invalid key from 46fd4452 until 2026-09-23. It proves routing and the
+      # closed body only. The key itself is proven before it is written (the
+      # Admin API must answer 200).
+      - name: Functional — an unknown certificate token answers the closed 404
+        run: |
+          set -euo pipefail
+          TOKEN="preflight$(date +%s)$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+          CODE=$(curl -sS -o /tmp/v.json -w '%{http_code}' "${APP_ORIGIN}/api/verifikasi/${TOKEN}")
+          echo "GET ${APP_ORIGIN}/api/verifikasi/<unknown> -> $CODE"
+          echo "body: $(head -c 200 /tmp/v.json)"
+          if [ "$CODE" = "500" ]; then
+            echo "::error::the verification endpoint returned 500 at request time"; exit 1; fi
+          test "$CODE" = "404" || {
+            echo "::error::expected 404 for an unknown token, got $CODE"; exit 1; }
+          grep -q '"found"' /tmp/v.json || {
+            echo "::error::the response is not the endpoint's closed body"; exit 1; }
+          echo "the endpoint answered its designed closed 404 for an unknown token (routing and body only; the key was proven before it was written)"
+
+      # The systemic repair's surfaces, asked of the running application the way
+      # a stranger asks: the activation screen and its route refuse anyone not
+      # signed in, before anything is created.
+      - name: Functional — the activation surface refuses an anonymous caller
+        run: |
+          set -euo pipefail
+          CODE=$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+            --data '{"mode":"CLASSROOM_CARD","person_id":"00000000-0000-0000-0000-000000000000"}' \
+            "${APP_ORIGIN}/api/akun/aktivasi")
+          echo "anonymous POST ${APP_ORIGIN}/api/akun/aktivasi -> $CODE"
+          test "$CODE" = "401" || { echo "::error::the activation route did not refuse an anonymous caller with 401"; exit 1; }
+          LOC=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "${APP_ORIGIN}/aktivasi")
+          echo "anonymous GET ${APP_ORIGIN}/aktivasi -> $LOC"
+          case "$LOC" in 30[1278]\ *"/masuk"*) echo "redirected to sign-in, as every protected surface is";;
+            *) echo "::error::/aktivasi did not send an anonymous caller to /masuk"; exit 1;; esac
+
+      # The front door as a stranger sees it. The middleware once gated
+      # public/brand and public/fonts, and every step above still passed while
+      # strangers at /masuk got a broken logo and fallback fonts (F01-R08).
+      - name: Functional — the sign-in page's logo and fonts reach an anonymous visitor
+        run: |
+          set -euo pipefail
+          fail=0
+          R=$(curl -sS -o /tmp/logo.png -w '%{http_code} %{content_type}' "${APP_ORIGIN}/brand/pintar-selalu-logo.png")
+          echo "anonymous GET /brand/pintar-selalu-logo.png -> $R"
+          case "$R" in "200 image/png"*) ;; *) fail=1;; esac
+          cmp -s /tmp/logo.png public/brand/pintar-selalu-logo.png && echo "  byte-identical to the released artwork" || { echo "  differs from the released artwork"; fail=1; }
+          for f in plus-jakarta-sans-latin plus-jakarta-sans-latin-ext ibm-plex-mono-500-latin ibm-plex-mono-500-latin-ext; do
+            R=$(curl -sS -o /dev/null -w '%{http_code} %{content_type}' "${APP_ORIGIN}/fonts/$f.woff2")
+            echo "anonymous GET /fonts/$f.woff2 -> $R"
+            case "$R" in "200 font/woff2"*|"200 application/octet-stream"*) ;; *) fail=1;; esac
+          done
+          test "$fail" = "0" || { echo "::error::a stranger at /masuk does not receive the page's logo and fonts"; exit 1; }
+          echo "the sign-in page's logo and all four fonts are served to an anonymous visitor"
+
+      # AUTH IS NOT WRITTEN HERE ANY MORE. The Auth boundary has one owner,
+      # configure-supabase-auth.yml, which writes site_url, uri_allow_list and
+      # disable_signup together and reads them back (attempt 004). This step
+      # previously PATCHed a different allow list when a repository variable
+      # was set, which could silently diverge from that boundary. It now only
+      # READS the live configuration and fails if the boundary is not intact.
+      - name: Supabase Auth still holds the canonical boundary (read only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::SUPABASE_ACCESS_TOKEN is not set; the Auth boundary cannot be read"; exit 1; }
+          CODE=$(curl -sS -o /tmp/auth.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
+          test "$CODE" = "200" || { echo "::error::Auth read failed (HTTP $CODE)"; exit 1; }
+          python3 - "$APP_ORIGIN" <<'PY'
+          import json, sys
+          o = sys.argv[1]
+          d = json.load(open('/tmp/auth.json'))
+          print('site_url:      ', repr(d.get('site_url')))
+          print('uri_allow_list:', repr(d.get('uri_allow_list')))
+          print('disable_signup:', repr(d.get('disable_signup')))
+          bad = []
+          if d.get('site_url') != o: bad.append('site_url is not the serving origin')
+          if d.get('uri_allow_list') != f"{o}/auth/callback*": bad.append('uri_allow_list is not the single canonical callback')
+          if d.get('disable_signup') is not True: bad.append('disable_signup is not True (P-01)')
+          if bad:
+              print('::error::' + '; '.join(bad)); sys.exit(1)
+          print('the Auth boundary is intact')
+          PY
+
+      - name: Summary
+        run: |
+          echo "release:    $RELEASE_SHA"
+          echo "origin:     $APP_ORIGIN"
+          echo "deployment: ${DEPLOYMENT_URL:-(unknown)}"

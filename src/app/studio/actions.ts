@@ -30,6 +30,14 @@ const num = (fd: FormData, key: string) => {
 const uuidOrNull = (v: string): string | null =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) ? v : null;
 
+/**
+ * NEVER TRUST A 2XX (F-05). An UPDATE that row-level security filters to zero
+ * rows returns no error from PostgREST: the author was told "Tersimpan" while
+ * nothing had changed. Every table write here reads back what it touched and
+ * compares it with what it meant to touch; a shortfall is a refusal.
+ */
+const TIDAK_BERUBAH = "tidak ada yang berubah — perubahan ini di luar wewenang Anda atau sudah tidak berlaku";
+
 /** The database's message is the coaching text; it is written for a human. */
 function detailOf(error: { message?: string } | null): string | undefined {
   return error?.message?.replace(/^ERROR:\s*/i, "").slice(0, 300);
@@ -49,25 +57,37 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
     ? await supabase.from("lessons").select("id").in("module_id", moduleIds)
     : { data: [] as Array<{ id: string }> };
   const lessonIds = (lessons ?? []).map((l) => l.id as string);
+  const { data: itemRows } = lessonIds.length
+    ? await supabase.from("items").select("id").in("lesson_id", lessonIds)
+    : { data: [] as Array<{ id: string }> };
+  const itemCount = (itemRows ?? []).length;
 
   // The reviewer of record is the caller; the database refuses anything else.
   const { data: me } = await supabase.rpc("current_person_id");
   const patch: Record<string, unknown> = { status: to };
   if (to === "APPROVED") patch.reviewed_by_person_id = me;
 
-  for (const [table, column, ids] of [
-    ["items", "lesson_id", lessonIds],
-    ["lessons", "module_id", moduleIds],
-    ["modules", "course_id", [course]],
-    ["assessment_definitions", "course_id", [course]],
+  // expected: every visible item and lesson, every visible module; definitions
+  // may legitimately be none, so they are counted but not required
+  for (const [table, column, ids, expected] of [
+    ["items", "lesson_id", lessonIds, itemCount],
+    ["lessons", "module_id", moduleIds, lessonIds.length],
+    ["modules", "course_id", [course], moduleIds.length],
+    ["assessment_definitions", "course_id", [course], -1],
   ] as const) {
     if (ids.length === 0) continue;
     const q = supabase.from(table).update(patch).in(column, ids as string[]);
-    const { error } = table === "assessment_definitions" ? await q.eq("is_ad_hoc", false) : await q;
+    const { data, error } = table === "assessment_definitions"
+      ? await q.eq("is_ad_hoc", false).select("id")
+      : await q.select("id");
     if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
+    if (expected >= 0 && (data ?? []).length !== expected) {
+      back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
+    }
   }
-  const { error } = await supabase.from("courses").update(patch).eq("id", course);
+  const { data: changed, error } = await supabase.from("courses").update(patch).eq("id", course).select("id");
   if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
+  if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
   back(`/studio/paket/${course}`, "paket", { ok: true });
 }
 
@@ -107,9 +127,13 @@ export async function freezeReleaseAction(fd: FormData): Promise<void> {
     const { data: me } = await supabase.rpc("current_person_id");
     const patch: Record<string, unknown> = { status: to };
     if (to === "APPROVED") patch.reviewed_by_person_id = me;
-    const { error } = await supabase.from("plp_releases").update(patch).eq("id", release);
+    const { data: changed, error } = await supabase.from("plp_releases").update(patch).eq("id", release).select("id");
     if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
+    if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
   }
+  // read back the one fact the author asked for, rather than inferring it
+  const { data: after } = await supabase.from("plp_releases").select("status").eq("id", release).maybeSingle();
+  if (after?.status !== "FROZEN") back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
   back(`/studio/paket/${course}`, "paket", { ok: true });
 }
 
@@ -232,11 +256,13 @@ export async function confirmMappingAction(fd: FormData): Promise<void> {
   if (!batch) back("/studio/unggah", "mudah", { ok: false, detail: "unggahan tidak dikenali" });
   const supabase = await supabaseServer();
   const { data: me } = await supabase.rpc("current_person_id");
-  const { error } = await supabase
+  const { data: confirmed, error } = await supabase
     .from("ingest_batches")
     .update({ confirmed_by_person_id: me, confirmed_at: new Date().toISOString(), status: "MAPPED" })
-    .eq("id", batch);
+    .eq("id", batch)
+    .select("id");
   if (error) back("/studio/unggah", "mudah", { ok: false, detail: detailOf(error) });
+  if ((confirmed ?? []).length !== 1) back("/studio/unggah", "mudah", { ok: false, detail: TIDAK_BERUBAH });
   const { error: e2 } = await supabase.rpc("ingest_structured_package", { p_batch: batch });
   back("/studio/unggah", "mudah", { ok: !e2, detail: detailOf(e2) });
 }

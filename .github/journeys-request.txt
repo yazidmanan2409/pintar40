@@ -1,0 +1,23 @@
+PINTAR 4.0 — SYSTEM COHERENCE ASSESSMENT: composed-journey probe request
+
+Diagnostic only. Local stack on the runner; no hosted system, no production
+secret, no deployment. Records canonical-vs-observed; repairs nothing.
+
+attempt: 008 (card sign-in through the real /masuk form in a browser (H-6 again in 007);
+          S2c steps to the end before Finish (the player reopens at item 1);
+          final migration set: 20261005110000 as at 5381758 + NEW-1/NEW-2 in 20261005120000 (111);
+          007 (NEW-1 fail-closed trigger + NEW-2 activation grants; harness H-10 per-entry outbox keys,
+          H-11 PRE_TEST closed after sync returns (S2c), H-12 response count by SQL; J1onboard
+          grades provisioned-not-active, then activation, card sign-in, teacher magic link;
+          006 (post-repair: J1a probed with the fixtures marker cleared, as a real installation;
+          J1onboard activates through /aktivasi and signs in with the issued card;
+          005: J5b/S3/role-less row; 004: J1b browser flow OK; J5b specimen actor lacked CAN_DRAFT — harness;
+          001: harness path/env; 002: J5 SQL ambiguity; 003: NULL-concat response listing,
+          FormData action encoding for J1b, aggregate functiondef, no pre-freeze specimen — harness only)
+specimens: released 46fd4452 and branch head
+journeys:  J10 certificate chain, J1a Auth-level self-provisioning,
+           J1b magic-link sign-in end to end (+ diagnosis of 'gagal'),
+           J5/J5b Studio write reporting incl. approve/freeze out of scope,
+           J1onboard institution onboarding -> identity -> sign-in,
+           J6 finish with pending unsynced work (S2) and replay-then-change (S1),
+           J8 integrity observation lifecycle

@@ -7,7 +7,10 @@ name: ci
 
 on:
   push:
-    branches: [main]
+    # P-03: a development branch is verified on every push, not only when
+    # someone remembers to dispatch; the production deploy requires a green run
+    # on the exact commit it ships.
+    branches: [main, "claude/**"]
   pull_request:
   # A phase is not done until this workflow is green on a pushed commit, and
   # until now it could only run on main or on a pull request — so work on a
@@ -159,7 +162,7 @@ jobs:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
-               db-wp7-gates]
+               db-wp7-gates, db-wp8-gates, db-r1-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -202,7 +205,11 @@ jobs:
             db-wp1-gates)
               echo "the six authorization-boundary defects are planted in SQL against the running stack, below" ;;
             db-wp7-gates)
-              echo "the eight WP7B anonymity defects are planted in SQL against the running stack, below" ;;
+              echo "the fourteen feedback defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-wp8-gates)
+              echo "the six WP8 defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-r1-gates)
+              echo "the six systemic-repair defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1540,218 +1547,63 @@ jobs:
         if: matrix.case == 'db-wp7-gates'
         id: gatesWp7
         uses: ./.github/actions/local-stack
+      # WP8's gates: the onboarding repair, the standing client-write
+      # reachability assertion, and report configuration. Same harness, same
+      # declarations, same four things every plant has to prove.
+      - name: Local stack (WP8 gates)
+        if: matrix.case == 'db-wp8-gates'
+        id: gatesWp8
+        uses: ./.github/actions/local-stack
+      - name: Each planted WP8 defect must turn its own F08 test red
+        if: matrix.case == 'db-wp8-gates'
+        env:
+          DB_URL: ${{ steps.gatesWp8.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-wp8-gates
+
+      # The systemic repair's gates: an answer is never lost to a finish (R1),
+      # and a provisioned person can sign in while a stranger cannot provision
+      # themselves (F-01..F-03). Same harness, same four proofs.
+      - name: Local stack (systemic-repair gates)
+        if: matrix.case == 'db-r1-gates'
+        id: gatesR1
+        uses: ./.github/actions/local-stack
+      - name: Each planted systemic-repair defect must turn its own F09 test red
+        if: matrix.case == 'db-r1-gates'
+        env:
+          DB_URL: ${{ steps.gatesR1.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-r1-gates
+      # NEW-1 lives on a connection that never set app.seed_intent, which no
+      # in-suite test can reproduce, so its plant is driven here against the
+      # fresh-connection test F09-C01: green before, red with the defect
+      # restored (for the declared reason), green again after restoration.
+      - name: NEW-1 restored must turn the fresh-connection test F09-C01 red
+        if: matrix.case == 'db-r1-gates'
+        env:
+          SUPABASE_DB_URL: ${{ steps.gatesR1.outputs.db-url }}
+        run: |
+          set -euo pipefail
+          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$SUPABASE_DB_URL"; done
+          npx tsx selftest/run.ts --accept-justified-skips --only=F09-C01 | tee c01-before.txt
+          psql -At -c "select pg_get_functiondef('public.handle_new_auth_user()'::regprocedure)" "$SUPABASE_DB_URL" > orig.sql
+          printf ';\n' >> orig.sql
+          psql -v ON_ERROR_STOP=1 -q -f selftest/plants/f02-2-fresh.sql "$SUPABASE_DB_URL"
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=F09-C01 | tee c01-planted.txt; code=${PIPESTATUS[0]}; set -e
+          psql -v ON_ERROR_STOP=1 -q -f orig.sql "$SUPABASE_DB_URL"
+          test "$code" != "0" || { echo "::error::F09-C01 stayed green with NEW-1 restored"; exit 1; }
+          grep -q "NEW-1 is open" c01-planted.txt || { echo "::error::F09-C01 went red for the wrong reason"; exit 1; }
+          npx tsx selftest/run.ts --accept-justified-skips --only=F09-C01 | tee c01-after.txt
+          echo "F09-C01: green, red for the declared reason with NEW-1 restored, green after restoration"
+
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'
         env:
           DB_URL: ${{ steps.gatesWp7.outputs.db-url }}
-        run: |
-          set -e
-          for f in selftest/db/fable0*.sql; do psql -v ON_ERROR_STOP=1 -q -1 -f "$f" "$DB_URL"; done
-          psql -v ON_ERROR_STOP=1 -At -F ' | ' \
-            -c "select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07()" \
-            "$DB_URL" | tee baseF07.txt
-          grep -E ' \| f \| ' baseF07.txt && { echo "::error::the FABLE-07 suite is already red before any defect was planted"; exit 1; } || true
-          # the control must also be COMPLETE: a suite that aborted early would
-          # be green over nothing, and every plant below would then "work"
-          [ "$(grep -cE ' \| t \| ' baseF07.txt)" = "14" ] \
-            || { echo "::error::the FABLE-07 control reported $(grep -cE ' \| t \| ' baseF07.txt) green rows, expected 14"; exit 1; }
-
-          red() {   # red <test id> <expected substring> <sql file>
-            psql -v ON_ERROR_STOP=1 -At -F ' | ' -f "$3" "$DB_URL" | tee "out-$1.txt"
-            grep -E "^$1 \| f \|" "out-$1.txt" || { echo "::error::$1 stayed green with the defect planted"; exit 1; }
-            grep -F "$2" "out-$1.txt" || { echo "::error::$1 went red but not for '$2'"; exit 1; }
-          }
-
-          # 1. P-A, THE IDENTITY LEAK. The response table learns who wrote each row
-          #    and the submission fills it in. This is the defect the whole design
-          #    exists to prevent, and the boundary check has to see it as a COLUMN
-          #    rather than as a behaviour: nothing else in the suite would notice a
-          #    person_id that is written but never read back.
-          cat > /tmp/wp7-a.sql <<'SQL'
-          begin;
-          -- P-A IDENTITY LEAK: the response table learns who wrote each row.
-          -- Matched line by line rather than across lines, so the plant does not depend
-          -- on how the function body happens to be indented.
-          alter table public.feedback_responses add column person_id uuid references public.persons(id);
-          do $d$
-          declare orig text; src text;
-          begin
-            orig := pg_get_functiondef('public.submit_feedback(uuid,jsonb)'::regprocedure);
-            src := replace(orig, '(cycle_id, institution_id, question_key, option_key)',
-                                 '(cycle_id, institution_id, question_key, option_key, person_id)');
-            src := replace(src, 'k, p_answers ->> k', 'k, p_answers ->> k, v_me');
-            if src = orig then raise exception 'the plant did not reach the submit_feedback body'; end if;
-            execute src;
-          end $d$;
-          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
-          rollback;
-          SQL
-          red F07-P11 'carries a re-identifying column: person_id' /tmp/wp7-a.sql
-
-          # 2. P-B, THE THRESHOLD LEAK. A withheld cycle reports how short it fell.
-          #    `have` and `needed` are exactly what metric_evaluate returns below its
-          #    minimum, so this is the plausible mistake -- reusing the readiness
-          #    shape for an anonymity floor -- and the test refuses it by naming the
-          #    three keys that MAY be present rather than guessing at the rest.
-          cat > /tmp/wp7-b.sql <<'SQL'
-          begin;
-          -- P-B THRESHOLD LEAK: a withheld cycle reports how short it fell.
-          do $d$
-          declare orig text; src text;
-          begin
-            orig := pg_get_functiondef('public.feedback_result(uuid)'::regprocedure);
-            src := replace(orig,
-              'return jsonb_build_object(''cycle_id'', c.id, ''state'', ''WITHHELD'', ''statement_key'', v_statement);',
-              'return jsonb_build_object(''cycle_id'', c.id, ''state'', ''WITHHELD'', ''statement_key'', v_statement,
-                 ''have'', (select count(*) from public.feedback_opportunities o where o.cycle_id = p_cycle and o.consumed),
-                 ''needed'', (select t.minimum_responses from public.feedback_thresholds t where t.version = c.threshold_version));');
-            if src = orig then raise exception 'the plant did not reach the withheld branch'; end if;
-            execute src;
-          end $d$;
-          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
-          rollback;
-          SQL
-          red F07-P09 'was handed more than the statement' /tmp/wp7-b.sql
-
-          # 3. P-C, RAW SELECT. A grant and a permissive policy, which is how the
-          #    answers would actually become readable: not through a new endpoint but
-          #    by someone making the table behave like every other table.
-          cat > /tmp/wp7-c.sql <<'SQL'
-          begin;
-          -- P-C RAW SELECT: ordinary authenticated clients may read the answers.
-          grant select on public.feedback_responses to authenticated;
-          create policy feedback_responses_red_case on public.feedback_responses
-            for select to authenticated using (true);
-          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
-          rollback;
-          SQL
-          red F07-P06 'read 30 raw answer row(s) directly' /tmp/wp7-c.sql
-
-          # 4. P-D, AUDIT LINKAGE. Every other mutating endpoint in PINTAR audits
-          #    itself, so an audit row here is the change a careful engineer would
-          #    make on purpose. audit_write derives the actor from auth.uid(): the
-          #    row is the respondent, timestamped, beside their answers.
-          cat > /tmp/wp7-d.sql <<'SQL'
-          begin;
-          -- P-D AUDIT LINKAGE: the submission writes the respondent beside their answers.
-          do $d$
-          declare orig text; src text;
-          begin
-            orig := pg_get_functiondef('public.submit_feedback(uuid,jsonb)'::regprocedure);
-            src := replace(orig,
-              '  return jsonb_build_object(''outcome'', ''recorded'', ''answers'', n_written);',
-              '  perform public.audit_write(''feedback.submitted'', ''feedback_responses'', p_cycle::text,
-                c.institution_id, jsonb_build_object(''person_id'', v_me, ''answers'', p_answers));
-            return jsonb_build_object(''outcome'', ''recorded'', ''answers'', n_written);');
-            if src = orig then raise exception 'the plant did not reach the submission return'; end if;
-            execute src;
-          end $d$;
-          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
-          rollback;
-          SQL
-          red F07-P13 'audit row(s) were written while five learners answered' /tmp/wp7-d.sql
-
-          # 5. P-E, SUBJECT CONTROL. The gate becomes CAN_ASSIGN_LEARNING -- the
-          #    briefing gate, which an EDUCATOR holds -- and the constraint that makes
-          #    self-opening unrepresentable is dropped with it. Both halves, because
-          #    either one alone would still be refused by the other.
-          cat > /tmp/wp7-e.sql <<'SQL'
-          begin;
-          -- P-E SUBJECT CONTROL: the gate becomes CAN_ASSIGN_LEARNING, which the
-          -- subject holds, and nothing stops them naming themselves.
-          alter table public.feedback_cycles drop constraint feedback_cycles_subject_is_not_the_opener;
-          do $d$
-          declare orig text; src text;
-          begin
-            orig := pg_get_functiondef('public.open_feedback_cycle(uuid,uuid)'::regprocedure);
-            src := replace(orig, 'not public.management_scope_over_node(p_node)',
-                                 'not public.can_on_node(''CAN_ASSIGN_LEARNING'', p_node)');
-            src := replace(src, 'if p_subject_person_id = v_me then',
-                                'if false and p_subject_person_id = v_me then');
-            if src = orig then raise exception 'the plant did not reach the open body'; end if;
-            execute src;
-          end $d$;
-          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
-          rollback;
-          SQL
-          red F07-P02 'the subject opened a feedback cycle about themselves' /tmp/wp7-e.sql
-
-          # 6. P-F, EVIDENCE CONTAMINATION. A calculator starts counting feedback
-          #    rows, so a class's anonymous answers become a number in an academic
-          #    report. Planted in a REAL consumer rather than in a new function,
-          #    which is what the assertion's named-consumer set exists to catch.
-          cat > /tmp/wp7-f.sql <<'SQL'
-          begin;
-          -- P-F EVIDENCE CONTAMINATION: a calculator starts reading feedback, so a
-          -- class's anonymous answers become a number in an academic report.
-          create or replace function public.calc_class_participants(p_node uuid, p_institution uuid, p_catalogue text)
-          returns jsonb language sql stable set search_path = public, pg_temp as $f$
-            select jsonb_build_object(
-              'value', (select count(distinct s.person_id) from public.scoped_official_sessions s
-                         where s.institution_id = p_institution and s.class_node_id = p_node)
-                     + (select count(*) from public.feedback_responses r
-                         join public.feedback_cycles c on c.id = r.cycle_id
-                        where c.scope_node_id = p_node),
-              'sample', (select count(distinct s.person_id) from public.scoped_official_sessions s
-                          where s.institution_id = p_institution and s.class_node_id = p_node))
-          $f$;
-          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
-          rollback;
-          SQL
-          red F07-P11 'evidence consumer(s) reading feedback' /tmp/wp7-f.sql
-
-          # 7. P-G, THE LIVE AGGREGATE. The result moves as each answer arrives, which
-          #    is differencing with a refresh button: read, watch one learner submit,
-          #    read again.
-          cat > /tmp/wp7-g.sql <<'SQL'
-          begin;
-          -- P-G LIVE AGGREGATE: the result moves as each answer arrives.
-          do $d$
-          declare orig text; src text;
-          begin
-            orig := pg_get_functiondef('public.feedback_result(uuid)'::regprocedure);
-            src := replace(orig,
-              '''statement_key'', ''umpanbalik.hasil.belum_ditutup'');',
-              '''statement_key'', ''umpanbalik.hasil.belum_ditutup'',
-                 ''total_responses'', (select count(*) from public.feedback_opportunities o
-                                        where o.cycle_id = p_cycle and o.consumed));');
-            if src = orig then raise exception 'the plant did not reach the open branch'; end if;
-            execute src;
-          end $d$;
-          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
-          rollback;
-          SQL
-          red F07-P05 'was handed a figure from an open cycle' /tmp/wp7-g.sql
-
-          # 8. P-H, ELIGIBILITY DRIFT. The snapshot is replaced by membership as it
-          #    stands now -- the shape anyone would write without thinking about the
-          #    learner who leaves the class mid-cycle. That learner was there when the
-          #    class was asked and their answer is already counted; under current
-          #    membership they are refused, the published total drops from six to five
-          #    and the marginals stop summing to it.
-          cat > /tmp/wp7-h.sql <<'SQL'
-          begin;
-          -- P-H ELIGIBILITY DRIFT: the snapshot is replaced by membership as it stands
-          -- now, so the learner who has moved on since the class was asked -- and whose
-          -- answer is already counted -- is refused, and the published total drops.
-          do $d$
-          declare orig text; src text;
-          begin
-            orig := pg_get_functiondef('public.submit_feedback(uuid,jsonb)'::regprocedure);
-            src := replace(orig,
-              'if not exists (select 1 from public.feedback_opportunities o',
-              'if not exists (select 1 from public.feedback_cycles f
-                             join public.members_of_node_at(f.scope_node_id, now()) m on m.person_id = v_me');
-            src := replace(src,
-              'where o.cycle_id = p_cycle and o.person_id = v_me) then',
-              'where f.id = p_cycle) then');
-            if src = orig then raise exception 'the plant did not reach the eligibility check'; end if;
-            execute src;
-          end $d$;
-          select id, case when ok then 't' else 'f' end, detail from selftest.run_fable07();
-          rollback;
-          SQL
-          red F07-P03 'could not answer after moving' /tmp/wp7-h.sql
+        # The defects themselves live in selftest/plants/, declared once in
+        # selftest/plants/plants.json and run by the same harness a developer
+        # runs against a clone of the golden database. They used to be
+        # heredocs here as well, and the two copies drifted over nothing more
+        # than this file's indentation.
+        run: node scripts/dev/plants.mjs run --gate=db-wp7-gates
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are
