@@ -4,7 +4,7 @@
 |---|---|
 | Supabase | `pintar-staging`, ref `keijhmdtsgrfvnvocfvk`, Singapore, Micro |
 | Vercel | `pintar40-staging`, Git-connected to `main`, **Production environment only**, Ignored Build Step "Only build production" |
-| Origin | `https://pintar40-staging.vercel.app` (to confirm after the first deploy) |
+| Origin | **`https://staging.pintarselalu.com`** (canonical since 24 Sep: the site URL, the one allowed sign-in callback, and `NEXT_PUBLIC_APP_URL`). The Vercel-generated `https://pintar40-staging.vercel.app` stays attached to the project but is no longer an allowed sign-in destination. |
 | Workflow | `.github/workflows/staging.yml` ("staging · database and sign-in") |
 | Rules | Test data is allowed here and never on production (D-013, D-017). Staging's service key, database password, pepper and certificate key are its own; nothing is copied from production. |
 
@@ -45,3 +45,11 @@
 - **App:** every push to `main` deploys to staging automatically (Vercel's Git connection).
 - **Database:** every push to `main` that adds a migration runs the workflow, which applies it.
 - **Load tests (C-06)** use this project at times when nobody is testing.
+
+## Changing staging's address
+
+Order matters, because the app builds its sign-in links from `NEXT_PUBLIC_APP_URL` and Next.js bakes it into the build:
+
+1. **"staging · app origin on Vercel"** (`staging-app-origin.yml`): checks the domain is attached and verified on `pintar40-staging`, sets `NEXT_PUBLIC_APP_URL`, rebuilds the current production deployment (after any running build finishes), and checks `/masuk` answers 200 over valid TLS on the new address. DNS is never touched.
+2. **"staging · database and sign-in"** (`staging.yml`) with `STAGING_ORIGIN` set to the new address: writes the site URL and the one callback, reads them back, and verifies live, including that a sign-in link asking for the previous address is not sent there.
+
