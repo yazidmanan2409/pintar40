@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 74,
+  "version": 75,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1833,6 +1833,17 @@
       "id": "F13-N03",
       "runner": "db",
       "proves": "BOB-04 (D-040). prepare_ingest_batch refuses a package whose two pre-test questions share their parallel groups with its two post-test questions: ok=false with ITEM_PARALLEL_CYCLE_MIXED and nothing else, at Soal rows 2, 3, 4 and 5 -- every question of those groups; the same package with separate groups prepares cleanly."
+    },
+    {
+      "id": "BOB05-K01",
+      "runner": "static",
+      "proves": "BOB-05 (D-009). keluarPerangkatIni in the source file src/lib/keluar.ts, run against the real supabase-js with a recording fetch, asks Auth for POST /auth/v1/logout?scope=local and forgets this device's session, while the bare default sends scope=global; no other sign-out exists in src/, and /keluar and S15's keluarDariSesi both use it. A classroom card's session lives 60 minutes idle and an email account's 7 days (src/lib/sesi.ts), lookalike addresses are not cards, the address is read from @supabase/ssr's own cookie format whole and chunked, src/proxy.ts re-sends the auth cookies with that lifetime on every signed-in request, src/lib/supabase/server.ts applies it on sign-in and refresh, and supabase/config.toml's Auth idle backstop is 7 days."
+    },
+    {
+      "id": "BOB05-R01",
+      "runner": "app",
+      "proves": "BOB-05 (D-009), against the running app and Auth: the same person signed in on two devices signs out on one through the route POST /keluar; that device's refresh token is dead and the other device's still buys a session. The running proxy (src/proxy.ts) writes, in the Set-Cookie headers of the rendered response, an email account's auth cookies with Max-Age 604800 and a classroom card's (card 7001) with Max-Age 3600.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
       "id": "BOB02-X01",

@@ -1,4 +1,5 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, DEFAULT_COOKIE_OPTIONS } from "@supabase/ssr";
+import { adalahCookieSesi, umurSesi } from "@/lib/sesi";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
@@ -61,6 +62,23 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
+
+  // BOB-05 (D-009): the idle limit slides with activity. Each signed-in
+  // request re-sends the auth cookies with this account's lifetime -- 60
+  // minutes for a classroom card, 7 days for an email account -- so a device
+  // left idle past it is forgotten by the browser itself. A refresh above has
+  // already put the new cookies on `response`; otherwise the request's own are
+  // re-sent unchanged but for their lifetime.
+  if (user) {
+    const umur = umurSesi(user.email);
+    const baru = new Map(response.cookies.getAll().map((k) => [k.name, k]));
+    for (const k of request.cookies.getAll()) {
+      if (!adalahCookieSesi(k.name)) continue;
+      const tulis = baru.get(k.name);
+      if (tulis && !tulis.value) continue; // a deletion stays a deletion
+      response.cookies.set(k.name, tulis?.value ?? k.value, { ...DEFAULT_COOKIE_OPTIONS, maxAge: umur });
+    }
+  }
   // /api/dev/* is decided by its own handler: a plain 404 outside development
   // (FABLE-01 §11) — a 401 here would reveal that the namespace exists.
   const isDevNamespace = path === "/api/dev" || path.startsWith("/api/dev/");

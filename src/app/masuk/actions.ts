@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { keluarPerangkatIni } from "@/lib/keluar";
 import { currentViewer } from "@/lib/auth";
 import { cardEmail, deriveCardSecret } from "@/lib/card";
 import { appUrl } from "@/lib/env";
@@ -154,7 +155,8 @@ export async function tujuanMasuk(raw: unknown): Promise<string> {
 export async function keluarDariSesi(): Promise<void> {
   const supabase = await supabaseServer();
   await supabase.rpc("exit_persona");
-  await supabase.auth.signOut();
+  // this device only (D-009, BOB-05), exactly as /keluar
+  await keluarPerangkatIni(supabase);
   redirect("/masuk");
 }
 

@@ -485,7 +485,8 @@ export const appTests: SelfTest[] = [
 
       // Control: an unrelated live session, so a later refusal is attributable
       // to the sign-out and not to a broken endpoint or bad credentials.
-      // A different persona, because signOut() is global for the user it signs out.
+      // A different persona. (Since BOB-05 sign-out is local; BOB05-R01 is the
+      // same-person case.)
       const control = await signIn(ctx, PERSONA.alphaStudent);
       const controlRefresh = await refresh(ctx, control.refreshToken);
       c.expect(controlRefresh.ok, `control refresh failed (${controlRefresh.status}); the rest of this test would prove nothing`);
@@ -519,6 +520,46 @@ export const appTests: SelfTest[] = [
 
       c.note(`${cleared.length} auth cookie(s) cleared`);
       return c.verdict("sign-out revokes the session server-side; the previously authenticated browser is refused; other sessions survive");
+    },
+  },
+  {
+    // BOB-05 (D-009). "Keluar" ends THIS device only, and each account kind's
+    // session carries its own idle lifetime. F01-R05's control is a different
+    // person, so it passes under a global sign-out too; this one is the same
+    // person twice.
+    id: "BOB05-R01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+
+      // the same person, signed in on two devices
+      const perangkatA = await signIn(ctx, PERSONA.alphaAdmin);
+      const perangkatB = await signIn(ctx, PERSONA.alphaAdmin);
+      const out = await get(`${base}/keluar`, { method: "POST", headers: { cookie: perangkatA.cookie } });
+      c.expect([302, 303, 307, 308].includes(out.status), `POST /keluar → ${out.status}, expected a redirect`);
+      const matiA = await refresh(ctx, perangkatA.refreshToken);
+      c.expect(!matiA.ok, `the signed-out device's refresh token still bought a session (${matiA.status})`);
+      const hidupB = await refresh(ctx, perangkatB.refreshToken);
+      c.expect(hidupB.ok, `signing out one device ended the same person's other session (${hidupB.status}): the sign-out is not local`);
+
+      // each account kind's lifetime, as the running proxy writes it
+      const umurDari = (r: Response) => r.headers.getSetCookie().filter((sc) => /^sb-[^=]+-auth-token(\.\d+)?=/.test(sc))
+        .map((sc) => Number(/Max-Age=(\d+)/i.exec(sc)?.[1] ?? NaN));
+      const guru = await signIn(ctx, PERSONA.alphaAdmin);
+      const rEmail = await get(`${base}/konfigurasi`, { headers: { cookie: guru.cookie } });
+      const uEmail = umurDari(rEmail);
+      c.expect(uEmail.length > 0 && uEmail.every((u) => u === 604800),
+        `an email account's auth cookies came back with Max-Age ${JSON.stringify(uEmail)}, expected 604800 (7 days)`);
+      const host = process.env.CARD_EMAIL_DOMAIN ?? "cards.pintar.internal";
+      const kartu = await signIn(ctx, { email: `card-7001@${host}`, password: productionDerivation("7001", "2468") });
+      const rKartu = await get(`${base}/belajar`, { headers: { cookie: kartu.cookie } });
+      const uKartu = umurDari(rKartu);
+      c.expect(uKartu.length > 0 && uKartu.every((u) => u === 3600),
+        `a classroom card's auth cookies came back with Max-Age ${JSON.stringify(uKartu)}, expected 3600 (60 minutes)`);
+
+      return c.verdict("signing out one device revokes its session and leaves the same person's other session alive; " +
+        "the running proxy gives an email account's auth cookies 7 days and a classroom card's 60 minutes");
     },
   },
   {
