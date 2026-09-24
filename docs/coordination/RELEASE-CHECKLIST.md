@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Baseline** | PINTAR 4.0 as built. Canonical decisions D-001…D-030 (docs/coordination/DECISIONS.md); board BOB-/DAISY- tickets (BOARD.md). |
+| **Baseline** | PINTAR 4.0 as built. Canonical decisions D-001…D-031 (docs/coordination/DECISIONS.md); board BOB-/DAISY- tickets (BOARD.md). |
 | **Purpose** | Prove that every intended flow exists, can be reached, holds together end to end, and respects the role boundary — and decide whether a release may go live. |
 | **Method** | Inspect the release candidate as a user: automated browser journeys on a production-like copy, walkthroughs by hand, then read-only production checks after deploy. A route, function or component existing is not a PASS. |
 | **Gate rule** | No push to live unless every P0 check is PASS on the release candidate, and every P1 check is PASS or accepted in writing by Yazid (DECISIONS.md). |
@@ -28,10 +28,11 @@ P0 checks only; each must be PASS on the release candidate before any push to li
 | System admin / Admin platform | 3 | 2 | 1 | 0 | 0 | 0 | 0 |
 | Anonymous visitor and certificate verifier | 5 | 4 | 0 | 1 | 0 | 0 | 0 |
 | The cross-role scenario | 12 | 0 | 0 | 7 | 5 | 0 | 0 |
+| Capacity | 4 | 0 | 0 | 0 | 0 | 1 | 3 |
 | Universal checks | 9 | 2 | 2 | 5 | 0 | 0 | 0 |
-| **Total** | **79** | **13** | **11** | **33** | **22** | **0** | **0** |
+| **Total** | **83** | **13** | **11** | **33** | **22** | **1** | **3** |
 
-**Verdict on this baseline:** 13 of 79 P0 checks pass. NO-GO for any new release until the sprint 1 tickets land and the full run is repeated on the release candidate. The live release (5b5b68d) stays as it is.
+**Verdict on this baseline:** 13 of 83 P0 checks pass. NO-GO for any new release until the sprint 1 tickets land and the full run is repeated on the release candidate. The live release (5b5b68d) stays as it is.
 
 ## 1. How to use this checklist
 
@@ -48,7 +49,7 @@ P0 checks only; each must be PASS on the release candidate before any push to li
 11. Never create test people, classes or content in production (D-013, D-017). Pre-release runs use the production-like copy; production checks are read-only.
 
 **Gate:** P0 blocks go-live · P1 is fixed before go-live or accepted in writing by Yazid · P2 is tracked after go-live.  
-**How:** AUTO automated test or harness step · RUN walked by hand with screenshots · PROD read-only check on production · CODE code or database inspection.  
+**How:** AUTO automated test or harness step · LOAD load test on staging (D-031) · RUN walked by hand with screenshots · PROD read-only check on production · CODE code or database inspection.  
 **Status:** PASS · FAIL · PARTIAL · BLOCKED (by another failing check) · N-I not implemented · N-T not yet tested · N/A.
 
 ## 2. Roles and where they land
@@ -224,7 +225,24 @@ One lesson, end to end, through the app (D-005). Run it last, after the role jou
 | X-12 | Dean and admin read reports. | The right scope, carrying their standing. | RUN | P0 | **FAIL** (B6). |
 | X-13 | Everyone signs out. | The next person never continues as the last. | AUTO · RUN | P0 | **FAIL** (B5). |
 
-## 11. Universal checks (every flow)
+## 11. Capacity — 150 schools, 60,000 students (D-031)
+
+Run on a staging copy with production's compute tier, never on production. Rows marked Onboarding block adding schools beyond that number until they pass.
+
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) |
+|---|---|---|---|---|---|
+| CAP-01 | A school's morning: 400 students sign in with class cards within 10 minutes (L1). | Every valid card gets in; a refusal for load says so plainly, never 'wrong card or PIN'; no student is locked out by another school's traffic. | LOAD | P0 | **N-T**: no load harness or staging project yet (C-06). Risk found at review: sign-in and session refresh reach Supabase Auth from PINTAR's server, so all students share that address's limit (bursts of 30), and the card screen reports a 429 as a wrong PIN. BOB-12. |
+| CAP-02 | One school sits a synchronized assessment (L1): start, answer, change answers, sync, lose and regain the network, submit, results, teachers open reports. | No answer lost or duplicated; server errors < 0.1%; answer save p95 < 1 s, p99 < 3 s; no pool exhaustion. | LOAD | P0 | **N-T**: needs BOB-04 (the assessment exists) and C-06. |
+| CAP-03 | The same journey for 10 schools at once (L2: 4,000 students). | The D-031 pass criteria hold. | LOAD | Onboarding: >10 schools | **N-T** |
+| CAP-04 | 25 schools at once (L3: 10,000 students). | The D-031 pass criteria hold. | LOAD | Onboarding: >25 schools | **N-T** |
+| CAP-05 | 50 schools at once (L4: 20,000 students). | The D-031 pass criteria hold. | LOAD | Onboarding: >50 schools | **N-T** |
+| CAP-06 | 150 schools at once (L5: 60,000 students). | Where PINTAR degrades is found and recorded, with the fix or tier that moves it. | LOAD | Onboarding: >50 schools | **N-T** |
+| CAP-07 | Recovery after each spike. | The database returns to its baseline within 10 minutes; queued answers sync; nobody is signed out by the spike. | LOAD | P0 | **N-T** |
+| CAP-08 | Where the load runs. | A staging Supabase project on production's compute tier; never production (D-013). | CODE · PROD | P0 | **N-I**: no staging project yet (Yazid, C-06). |
+| CAP-09 | Hot paths are index-backed. | pg_stat_statements and the Performance Advisor show no unindexed or per-row query on sign-in, assessment write, learner home or teacher class view (README gate rule 9). | CODE · LOAD | P1 | **N-T** (BOB-13). |
+| CAP-10 | Lists that grow with schools. | Konfigurasi and Pendataan lists page; nothing loads every person at once (M14). | RUN · CODE | Onboarding: >10 schools | **N-I** (BOB-13). |
+
+## 12. Universal checks (every flow)
 
 | ID | Check | Gate | Baseline |
 |---|---|---|---|
@@ -240,7 +258,7 @@ One lesson, end to end, through the app (D-005). Run it last, after the role jou
 | U-RECOVER | Recovery without SQL where the product claims self-service. | P1 | **FAIL**: account corrections (M6). |
 | U-ERR | Error pages are PINTAR's own and show a reference, never a stack trace. | P0 | **FAIL**: framework defaults (P3). DAISY-04. |
 
-## 12. Release-day checks (production, read-only)
+## 13. Release-day checks (production, read-only)
 
 Run after the migrations and the deploy of the release candidate. None of them writes to production.
 
@@ -259,7 +277,7 @@ Run after the migrations and the deploy of the release candidate. None of them w
 | REL-11 | No test data exists in production; production data changed only through audited steps (D-013, D-017). | P0 | **PASS**: 1 person, 1 account, 2 schools, all recorded. |
 | REL-12 | After go-live and onboarding, Gladys walks X-01…X-13 on production with real data and signs off. | P0 (post-deploy) | **N/A**: until the sprint 1 release. |
 
-## 13. Known findings and where they are fixed
+## 14. Known findings and where they are fixed
 
 | Ref | Finding | Fix | State |
 |---|---|---|---|
@@ -273,9 +291,10 @@ Run after the migrations and the deploy of the release candidate. None of them w
 | New | Intake enrols into the newest year, not the Kelas's year | BOB-01 (F10-M02) | FIXED on main |
 | N1, N6 | Activation copy; one name for Uji Cepat | DAISY-01 | FIXED on main |
 | Front door | Logo and fonts redirected for strangers | 5b5b68d | FIXED, live |
+| Capacity | Card sign-in and session refresh share the server's per-address Auth limit; a 429 reads as a wrong PIN | BOB-12 (Yazid: IP forwarding, secret key); proven by CAP-01 | OPEN |
 | M1–M15, N2–N15 | See the audit report | BOARD backlog and sprint 1 tickets | OPEN |
 
-## 14. Run record (kept for every run, in RELEASES.md)
+## 15. Run record (kept for every run, in RELEASES.md)
 
 | Field | What to record |
 |---|---|
@@ -290,7 +309,7 @@ Run after the migrations and the deploy of the release candidate. None of them w
 | Decision | GO or NO-GO, by the coordinator, recorded in RELEASES.md |
 | Sign-off | Gladys, after REL-12 |
 
-## 15. Completion rule
+## 16. Completion rule
 
 A role is complete only when a person can enter through the intended door, find the next action, finish the consequential work, receive a truthful outcome, recover or be refused safely, and sign out — without SQL, typed addresses, developer help or knowledge of PINTAR's internals.
 
@@ -300,7 +319,7 @@ The acceptance scenario, in order: set up a school → add classes and people �
 
 ## Appendix A — sources
 
-- docs/coordination/DECISIONS.md: D-001…D-030 (canonical; overrides older specs where they differ, e.g. landings D-010).
+- docs/coordination/DECISIONS.md: D-001…D-031 (canonical; overrides older specs where they differ, e.g. landings D-010).
 - docs/coordination/BOARD.md: tickets BOB-01…10, DAISY-01…11, backlog.
 - docs/audit/PINTAR-4.0-ISSUES-AND-STATUS-2026-09-24.md: the 36 audit findings.
 - Audit harness: audit/journey.mjs (steps S1–S16, P1–P3) and audit/crawl.mjs; workflow 'audit · end-to-end journeys'.
@@ -315,3 +334,4 @@ The acceptance scenario, in order: set up a school → add classes and people �
 - New section: release-day production checks (read-only), including the Supabase settings and secret custody only Yazid can confirm.
 - Rule added: never create test data in production; pre-release runs use a production-like copy (D-013, D-017).
 - The known-findings list now maps each finding to its ticket and current state.
+- New section: capacity (D-031), 150 schools and 60,000 students, with load levels L1–L5 that gate onboarding.

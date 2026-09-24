@@ -85,7 +85,7 @@ def render():
         w(f"{i}. {t}")
     w("")
     w("**Gate:** P0 blocks go-live · P1 is fixed before go-live or accepted in writing by Yazid · P2 is tracked after go-live.  ")
-    w("**How:** AUTO automated test or harness step · RUN walked by hand with screenshots · PROD read-only check on production · CODE code or database inspection.  ")
+    w("**How:** AUTO automated test or harness step · LOAD load test on staging (D-031) · RUN walked by hand with screenshots · PROD read-only check on production · CODE code or database inspection.  ")
     w("**Status:** PASS · FAIL · PARTIAL · BLOCKED (by another failing check) · N-I not implemented · N-T not yet tested · N/A.")
     w("")
 

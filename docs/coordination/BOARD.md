@@ -24,6 +24,14 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 | **BOB-10** | **The intake refuses staff rows at validation**, with a reason, until M5b is fixed. Today an EDUCATOR row with a place passes "Periksa daftar ini" and then fails at recording with raw text. F10-M01 re-stated (a changed requirement, recorded). | M5b (interim) | BOB-01 | A staff row is refused before recording, in plain Indonesian; learner rows are unchanged. | TODO |
 | **BOB-11** | **Lesson media play** (M9, read side). The player today points `<video>`/`<audio>` at `/api/assets/read-url`, which answers JSON, so nothing plays. Either the route gains a redirect mode (302 to the signed URL, after the same authority check) or the player fetches the URL first; the one-line player change is allowed in this ticket. Staff who may draft or review in the school can also preview their own school's unpublished media in Studio. | M9 | BOB-02 | A student hears and sees the sample workbook's media in the lesson; a reviewer previews it before freeze; another school's media stay refused. Checklist STU-11, ADM-10. | TODO |
 
+## Capacity track (D-031): 150 schools, 60,000 students
+
+| # | Item | Lane | Before | Status |
+|---|---|---|---|---|
+| **BOB-12** | **A school's morning sign-in.** (a) Class-card sign-in and the proxy's session refresh send the student's own address to Supabase Auth (`Sb-Forwarded-For`, with a secret key used for those Auth calls only, never for data, and a test that proves no data query runs with it). (b) PINTAR limits failed attempts per card, so raising or forwarding Auth's limits never opens PIN guessing. (c) A rate-limit refusal on the card screen says "wait and try again" in plain Indonesian, never "wrong card or PIN" (M13). Yazid enables IP address forwarding and creates the secret key. | Bob (Yazid for settings) | sprint 1 release (L1) | TODO |
+| **BOB-13** | **Hot paths at scale.** From the L1–L2 runs: `pg_stat_statements` and the Performance Advisor on the assessment write path, the learner home and the teacher class view; indexes and query shape fixed first. Pagination in Konfigurasi and Pendataan lists (M14) before 10 schools. | Bob | L2 | TODO |
+| **C-06** | **Load harness and staging.** k6 scenarios for the D-031 journey, run against a staging Supabase project with production's compute tier; every run recorded in `RELEASES.md` with its metrics. | Coordinator (Yazid creates the staging project) | L1 | TODO |
+
 ## Daisy — front end (lane `ux-1/daisy-experience`), in this order
 
 First, merge `origin/main` into the lane. It is 112 commits behind.
@@ -64,5 +72,5 @@ First, merge `origin/main` into the lane. It is 112 commits behind.
 | M10, N7 | Assignment windows enforced and stored in WIB; time zone per school. | Bob |
 | M12 | Quick-quiz score view for students and teachers. | Bob, then Daisy |
 | M13 | Rate-limit errors shown truthfully. | Bob, then Daisy |
-| M14 | Performance: one call for Studio permissions; pagination in Konfigurasi. | Bob |
+| M14 | Performance: one call for Studio permissions (pagination moved to BOB-13, D-031). | Bob |
 | N5, N8–N14 | Hint-checker false positives, certificate-number race, role/place checks, one person in two schools, security headers, the dead `/masuk/kartu` path, future-dated migrations, the `evaluation_state` log noise. | Bob, Daisy |

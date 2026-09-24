@@ -7,6 +7,7 @@
 #           P1 = fix before go-live, or Yazid accepts it in writing (DECISIONS);
 #           P2 = tracked, after go-live.
 # How:      AUTO = automated test or harness step on the release candidate;
+#           LOAD = load test on the staging project (D-031);
 #           RUN  = walked by hand on the candidate, with screenshots;
 #           PROD = read-only check on production after deploy;
 #           CODE = code or database inspection.
@@ -29,7 +30,7 @@ META = {
     "subtitle": "End-to-End User Flow & Release Checklist",
     "version": "v2 — 24 September 2026 (improves the 24 Sep draft)",
     "rows": [
-        ("Baseline", "PINTAR 4.0 as built. Canonical decisions D-001…D-030 (docs/coordination/DECISIONS.md); board BOB-/DAISY- tickets (BOARD.md)."),
+        ("Baseline", "PINTAR 4.0 as built. Canonical decisions D-001…D-031 (docs/coordination/DECISIONS.md); board BOB-/DAISY- tickets (BOARD.md)."),
         ("Purpose", "Prove that every intended flow exists, can be reached, holds together end to end, and respects the role boundary — and decide whether a release may go live."),
         ("Method", "Inspect the release candidate as a user: automated browser journeys on a production-like copy, walkthroughs by hand, then read-only production checks after deploy. A route, function or component existing is not a PASS."),
         ("Gate rule", "No push to live unless every P0 check is PASS on the release candidate, and every P1 check is PASS or accepted in writing by Yazid (DECISIONS.md)."),
@@ -192,6 +193,21 @@ CROSS = [
     ("X-13", "Everyone signs out.", "The next person never continues as the last.", "AUTO · RUN", "P0", "FAIL (B5)."),
 ]
 
+CAPACITY = [
+    ("CAP-01", "A school's morning: 400 students sign in with class cards within 10 minutes (L1).", "Every valid card gets in; a refusal for load says so plainly, never 'wrong card or PIN'; no student is locked out by another school's traffic.", "LOAD", "P0",
+     "N-T: no load harness or staging project yet (C-06). Risk found at review: sign-in and session refresh reach Supabase Auth from PINTAR's server, so all students share that address's limit (bursts of 30), and the card screen reports a 429 as a wrong PIN. BOB-12."),
+    ("CAP-02", "One school sits a synchronized assessment (L1): start, answer, change answers, sync, lose and regain the network, submit, results, teachers open reports.", "No answer lost or duplicated; server errors < 0.1%; answer save p95 < 1 s, p99 < 3 s; no pool exhaustion.", "LOAD", "P0",
+     "N-T: needs BOB-04 (the assessment exists) and C-06."),
+    ("CAP-03", "The same journey for 10 schools at once (L2: 4,000 students).", "The D-031 pass criteria hold.", "LOAD", "Onboarding: >10 schools", "N-T."),
+    ("CAP-04", "25 schools at once (L3: 10,000 students).", "The D-031 pass criteria hold.", "LOAD", "Onboarding: >25 schools", "N-T."),
+    ("CAP-05", "50 schools at once (L4: 20,000 students).", "The D-031 pass criteria hold.", "LOAD", "Onboarding: >50 schools", "N-T."),
+    ("CAP-06", "150 schools at once (L5: 60,000 students).", "Where PINTAR degrades is found and recorded, with the fix or tier that moves it.", "LOAD", "Onboarding: >50 schools", "N-T."),
+    ("CAP-07", "Recovery after each spike.", "The database returns to its baseline within 10 minutes; queued answers sync; nobody is signed out by the spike.", "LOAD", "P0", "N-T."),
+    ("CAP-08", "Where the load runs.", "A staging Supabase project on production's compute tier; never production (D-013).", "CODE · PROD", "P0", "N-I: no staging project yet (Yazid, C-06)."),
+    ("CAP-09", "Hot paths are index-backed.", "pg_stat_statements and the Performance Advisor show no unindexed or per-row query on sign-in, assessment write, learner home or teacher class view (README gate rule 9).", "CODE · LOAD", "P1", "N-T (BOB-13)."),
+    ("CAP-10", "Lists that grow with schools.", "Konfigurasi and Pendataan lists page; nothing loads every person at once (M14).", "RUN · CODE", "Onboarding: >10 schools", "N-I (BOB-13)."),
+]
+
 UNIVERSAL = [
     ("U-NAV", "Navigation: every intended screen is reachable by clicking.", "P0", "FAIL: Aktivasi, Studio and Pimpinan are unlinked (M3, M15)."),
     ("U-AUTH", "Authorization: a direct address outside role or scope fails closed; navigation is never the security boundary.", "P0", "PASS: every destination refuses server-side (gate review of DAISY-02/03); RLS everywhere."),
@@ -232,6 +248,7 @@ FINDINGS = [
     ("New", "Intake enrols into the newest year, not the Kelas's year", "BOB-01 (F10-M02)", "FIXED on main"),
     ("N1, N6", "Activation copy; one name for Uji Cepat", "DAISY-01", "FIXED on main"),
     ("Front door", "Logo and fonts redirected for strangers", "5b5b68d", "FIXED, live"),
+    ("Capacity", "Card sign-in and session refresh share the server's per-address Auth limit; a 429 reads as a wrong PIN", "BOB-12 (Yazid: IP forwarding, secret key); proven by CAP-01", "OPEN"),
     ("M1–M15, N2–N15", "See the audit report", "BOARD backlog and sprint 1 tickets", "OPEN"),
 ]
 
@@ -242,7 +259,7 @@ COMPLETION = [
 ]
 
 SOURCES = [
-    "docs/coordination/DECISIONS.md: D-001…D-030 (canonical; overrides older specs where they differ, e.g. landings D-010).",
+    "docs/coordination/DECISIONS.md: D-001…D-031 (canonical; overrides older specs where they differ, e.g. landings D-010).",
     "docs/coordination/BOARD.md: tickets BOB-01…10, DAISY-01…11, backlog.",
     "docs/audit/PINTAR-4.0-ISSUES-AND-STATUS-2026-09-24.md: the 36 audit findings.",
     "Audit harness: audit/journey.mjs (steps S1–S16, P1–P3) and audit/crawl.mjs; workflow 'audit · end-to-end journeys'.",
@@ -257,6 +274,7 @@ CHANGES_FROM_DRAFT = [
     "New section: release-day production checks (read-only), including the Supabase settings and secret custody only Yazid can confirm.",
     "Rule added: never create test data in production; pre-release runs use a production-like copy (D-013, D-017).",
     "The known-findings list now maps each finding to its ticket and current state.",
+    "New section: capacity (D-031), 150 schools and 60,000 students, with load levels L1–L5 that gate onboarding.",
 ]
 
 # The record kept for every run of this checklist (replaces the draft's blank result grid).
@@ -283,6 +301,7 @@ ROLE_SECTIONS = [
     ("SYSADMIN", "System admin / Admin platform", "Operate the platform. Today this is Gladys alone (D-001)."),
     ("PUBLIC", "Anonymous visitor and certificate verifier", "What a stranger can see and do, and what they must never learn."),
     ("CROSS", "The cross-role scenario — the check that decides go-live", "One lesson, end to end, through the app (D-005). Run it last, after the role journeys."),
+    ("CAPACITY", "Capacity — 150 schools, 60,000 students (D-031)", "Run on a staging copy with production's compute tier, never on production. Rows marked Onboarding block adding schools beyond that number until they pass."),
 ]
 
 
