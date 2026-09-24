@@ -43,6 +43,11 @@ declare
 begin
   select environment into v_env from public.platform_environment;
   if v_env = 'production' then raise exception 'seed refused: environment is production (INV-21)'; end if;
+  -- L3-F01: fail-closed. Refuses on any database where the local seed pipeline
+  -- has not set the marker -- which is every hosted (migrations-only) project.
+  if not public.synthetic_fixtures_permitted() then
+    raise exception 'seed refused: synthetic credential fixtures are local-only (L3-F01); platform_environment.local_fixtures_enabled is false';
+  end if;
   if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
     raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
   end if;
@@ -476,8 +481,17 @@ begin
   -- ------------------------------------------- validator and MCQ quality
   -- Run them for real. A fixture that skipped its own quality gate would tell
   -- the acceptance suite nothing about whether the gate works.
+  -- ...and AS the Head of Department, who holds CAN_DRAFT. From 0085 the
+  -- validator and the MCQ quality pass are authoring acts with a capability
+  -- check of their own, so the fixture names the actor that runs them exactly
+  -- as it already names the reviewer that approves.
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', u_hod, 'role','authenticated')::text, true);
+  perform set_config('request.jwt.claim.sub', u_hod::text, true);
   v_findings := public.validate_course_content(course);
   v_mcq := public.run_mcq_quality(course);
+  perform set_config('request.jwt.claims', '', true);
+  perform set_config('request.jwt.claim.sub', '', true);
   select status, blockers into v_status, v_blockers from public.publish_readiness(course);
   if v_status <> 'READY' then
     raise exception 'fixture content is not publishable (% findings, % mcq): % — fix the fixture, never the gate',
@@ -563,6 +577,10 @@ begin
   if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
     raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
   end if;
+  -- L3-F01: this block also creates credential-bearing auth.users, same fail-closed guard.
+  if not public.synthetic_fixtures_permitted() then
+    raise exception 'seed refused: synthetic credential fixtures are local-only (L3-F01); platform_environment.local_fixtures_enabled is false';
+  end if;
   select id into inst from public.institutions where slug like 'synth-siklus-%' order by created_at desc limit 1;
   select id into period from public.academic_periods where institution_id = inst order by starts_on limit 1;
   select id into cls  from public.org_nodes where institution_id = inst and kind='CLASS'  order by created_at limit 1;
@@ -603,4 +621,67 @@ begin
     (e_card, coh, period), (e_card, cls, period);
 
   raise notice 'fixture: cycle learners siklus-email and card-% placed in the fixture class', card;
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- WP6B fixture — THE SAME PERSON TEACHES THIS CLASS AND ALSO LEARNS IN IT.
+--
+-- WHY A FIXTURE IS NEEDED AT ALL. WP6A proved in the database that an educator
+-- may hold learning: entitlement is an ACTIVE enrolment plus an open membership
+-- under the assignment's node, and `my_learning_assignments()` reads no role.
+-- What no fixture yet carried was an educator the APPLICATION could sign in as
+-- who actually holds one — so the Experience surface could only ever be tested
+-- empty, and "an educator with learning is offered it" would have been asserted
+-- by reading the source rather than by looking.
+--
+-- WHY THIS EDUCATOR AND THIS CLASS. `siklus-guru` already teaches this class
+-- and authored its course, and this tenant is the one the FABLE-03 comment at
+-- the top of this file calls its own: it exists precisely so that the suites
+-- which rewrite Alpha cannot reach it. Adding a second context to a person who
+-- is already here costs no new account, no new auth user and no new Person —
+-- which is the product claim WP6B makes, so a fixture that created a second
+-- anything would be demonstrating the wrong thing.
+--
+-- AND IT IS AN ORDINARY ENROLMENT. No role changes, nothing is granted, and
+-- `learning_context` is not touched: this course is ACADEMIC, as every course
+-- was before WP6A and as every course is by default. That is deliberate. The
+-- Experience must be blind to which context a course belongs to — it renders
+-- what the database assigned this person and never asks why — so proving the
+-- surface with an ACADEMIC entitlement proves the thing that matters, and a
+-- fixture that reached for PROFESSIONAL_DEVELOPMENT would be inviting the
+-- surface to learn a distinction it must not have.
+--
+-- Same guards as every block in this file.
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  inst uuid; period uuid; cls uuid; coh uuid; prog uuid; p_guru uuid; e_guru uuid;
+begin
+  if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
+    raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
+  end if;
+  if not public.synthetic_fixtures_permitted() then
+    raise exception 'seed refused: synthetic fixtures are local-only (L3-F01); platform_environment.local_fixtures_enabled is false';
+  end if;
+
+  select id into inst from public.institutions where slug like 'synth-siklus-%' order by created_at desc limit 1;
+  select id into period from public.academic_periods where institution_id = inst order by starts_on limit 1;
+  select id into cls  from public.org_nodes where institution_id = inst and kind='CLASS'  order by created_at limit 1;
+  select id into coh  from public.org_nodes where institution_id = inst and kind='COHORT' order by created_at limit 1;
+  select id into prog from public.org_nodes where institution_id = inst and kind='PROGRAMME' order by created_at limit 1;
+  select a.person_id into p_guru from public.accounts a join auth.users u on u.id = a.auth_user_id
+   where u.email = 'siklus-guru@synthetic.pintar.test';
+  if p_guru is null then raise exception 'WP6B fixture: the learning-cycle educator has no person'; end if;
+
+  -- The membership must be AT the class or below it: `my_learning_assignments`
+  -- admits `n.id = la.node_id or n.jalur @> array[la.node_id]`, and the cohort
+  -- sits above the class, so a cohort-only membership would reach nothing. The
+  -- cohort row is here for the same reason the learners' is -- a person placed
+  -- in a class is placed in its cohort -- not to make the entitlement work.
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  values (p_guru, inst, period, prog, 'ACTIVE') returning id into e_guru;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id) values
+    (e_guru, coh, period), (e_guru, cls, period);
+
+  raise notice 'fixture: siklus-guru now teaches AND learns in the fixture class (same person, same account)';
 end $$;

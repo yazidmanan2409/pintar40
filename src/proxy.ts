@@ -13,12 +13,31 @@ import { NextResponse, type NextRequest } from "next/server";
  * handlers (INV-21).
  */
 const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/auth/callback", "/keluar"]);
-// INV-38: exactly one public certificate verification surface. It is a prefix
-// rather than a fixed path because the token is in the URL, and it is the ONLY
-// prefix here — a second verification shape would be a second route, which the
-// invariant forbids. `public_surface_registry` declares it and
-// `assert_public_surface()` asserts the declaration matches reality.
-const PUBLIC_PREFIXES = ["/verifikasi/"];
+// INV-38: exactly one public certificate verification surface. Both entries
+// below ARE that one surface — the route a QR code points at, and the data
+// endpoint that route reads. `public_surface_registry` records the second as
+// a CHILD of the first (`parent: certificate_verification`), not as a second
+// verification shape, which is what the invariant forbids. They are prefixes
+// rather than fixed paths because the token is in the URL.
+//
+// THE ENDPOINT HAS TO BE HERE. The page fetches
+// `${appUrl()}/api/verifikasi/<token>` over HTTP, so that request re-enters
+// this middleware carrying no session. While it was absent every such fetch
+// answered 401, `res.ok` was false, `row` stayed null, and a QR scan rendered
+// "not found" for a perfectly valid certificate. The failure was silent
+// because it is fail-closed: it could never report a forged certificate as
+// valid, only refuse every real one.
+//
+// It went unseen because nothing tested THIS FILE. The registry declared the
+// endpoint anonymously reachable and `assert_public_surface()` asserted that
+// DECLARATION, so the declaration and the middleware drifted apart with both
+// halves reporting success. F01-R07 now probes the running middleware over
+// HTTP, positively and negatively.
+//
+// The trailing slash is load-bearing. It admits `/api/verifikasi/<token>` and
+// nothing else: `/api/verifikasi` itself, and any sibling such as
+// `/api/verifikasi-admin`, remain protected.
+const PUBLIC_PREFIXES = ["/verifikasi/", "/api/verifikasi/"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -59,6 +78,9 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// public/brand and public/fonts are what the anonymous pages themselves load.
+// Gated, a stranger at /masuk was redirected instead of sent the logo and fonts.
+// The trailing slashes keep the exemption to those two folders (F01-R08).
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|fonts/).*)"],
 };

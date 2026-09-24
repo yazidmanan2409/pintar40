@@ -10,6 +10,10 @@ import { spawnSync } from "node:child_process";
 import { join, relative, basename } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
+import { experienceTests } from "./experience.test";
+import { loginTests } from "./login.test";
+import { strukturTests } from "./struktur.test";
+import { unggahTests } from "./unggah.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -554,7 +558,7 @@ export const staticTests: SelfTest[] = [
 
       // the comparison is timing-safe: assert the function, not only a false
       const src = readFileSync(new URL("../src/lib/certificates/sign.ts", import.meta.url), "utf8");
-      c.expect(src.includes("timingSafeEqual"), "verification does not use crypto.timingSafeEqual (INV-05)");
+      c.expect(src.includes("timingSafeEqual"), "verification does not use crypto.timingSafeEqual (INV-06)");
       c.expect(
         !/\bexpected\s*===\s*signature\b|\bsignature\s*===\s*expected\b/.test(src),
         "verification compares signatures with ===",
@@ -863,8 +867,12 @@ export const staticTests: SelfTest[] = [
         JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
         `the anonymous path list changed: ${JSON.stringify(paths)}`,
       );
+      // Two prefixes, ONE surface (INV-38): the verification page and the data
+      // endpoint it fetches anonymously, registered as its child in
+      // public_surface_registry. The endpoint was missing, so every QR scan read
+      // "not found"; F01-R07 proves both against the running middleware.
       c.expect(
-        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/"]),
+        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/", "/api/verifikasi/"]),
         `the anonymous prefix list changed: ${JSON.stringify(prefixes)}`,
       );
       c.expect(/matcher: \["\/\(\(\?!/.test(proxy), "the proxy matcher is no longer catch-all");
@@ -1258,6 +1266,473 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    // THE MANIFEST'S OWN METADATA, HELD TO L5.
+    //
+    // FABLE-05's completion report was careful: it marked the staff-only HLE
+    // declaration "reading -- flagged" and pointed at F05-S03 for the rest. The
+    // OVERCLAIM WAS IN THE MANIFEST -- F05-S03's `proves` read "no Studio copy
+    // shows a lifecycle enum", a property of the SURFACE, asserted by a test of
+    // the COPY TABLE. The prose was honest and the machine-readable record was
+    // not, which is the inverse of the usual failure and worse, because the
+    // manifest is what a gate reads.
+    //
+    // A `proves` string is unasserted prose living inside a machine-checked
+    // artefact. Nothing can validate prose against a predicate, so this does
+    // the cheap half: EVERY STATIC OR APP TEST NAMES THE ARTEFACT IT INSPECTS
+    // -- the copy table, rendered output, the migration text, the source, the
+    // live schema. F05-S03's then reads "the copy table contains no lifecycle
+    // enum", which is true and VISIBLY NARROWER than the property anyone wants.
+    // Scope becomes comparable by eye even where the claim cannot be checked.
+    //
+    // Scoped to static and app deliberately. A db test's artefact is the live
+    // database and is never ambiguous; source-versus-output-versus-copy-table
+    // is where the confusion actually lives, and a rule applied where it does
+    // not bite is the box-ticking this was meant to avoid.
+    //
+    // WHAT THIS CHECK DOES NOT COVER, stated because the exemption above is an
+    // unmeasured universal over 91 db strings and would otherwise be read as
+    // more than it is:
+    //
+    //   * It covers ARTEFACT IDENTIFICATION, across static and app tests only.
+    //   * It does NOT cover VERB ACCURACY, anywhere. That dimension is
+    //     orthogonal and lives just as comfortably in a db test: "proves X is
+    //     impossible", backed by a check that a constraint merely EXISTS, is
+    //     the same overclaim wearing a different noun. Verb accuracy was found
+    //     by hand on eleven strings -- F04-S02 and F04-S03 said "inspects" for
+    //     something that EXECUTES -- and the db set was NOT audited for it.
+    //
+    // So this is a bounded pass, not "the manifest's prose has been validated".
+    // Writing that sentence in the capstone would be the next instance of the
+    // thing this check exists to stop.
+    id: "F06-S04",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const manifest = JSON.parse(
+        readFileSync(join(repoRoot, "selftest", "manifest.json"), "utf8")
+      ) as { tests: Array<{ id: string; runner: string; proves?: string }> };
+
+      const ARTEFACTS = [
+        "copy table", "rendered", "output", "migration", "schema", "audit log", "source",
+        "catalogue", "manifest", "route", "bundle", "html", "file", "prosrc", "registry",
+        "lint", "git", "workflow", "import graph", "build", "keyring", "document",
+        "environment", "executes", "document text",
+      ];
+      const scoped = manifest.tests.filter((t) => t.runner === "static" || t.runner === "app");
+      c.expect(scoped.length > 20, `only ${scoped.length} static/app test(s) to check`);
+
+      const silent = scoped.filter(
+        (t) => !ARTEFACTS.some((a) => (t.proves ?? "").toLowerCase().includes(a))
+      );
+      c.expect(
+        silent.length === 0,
+        "static/app test(s) whose `proves` does not name the artefact it inspects. A claim about a " +
+          "surface, asserted by a test of a copy table, reads true at a gate and is not:\n  " +
+          silent.map((t) => `${t.id}: ${(t.proves ?? "").slice(0, 70)}`).join("\n  ")
+      );
+      return c.verdict(
+        `${scoped.length} static/app test(s), each naming the artefact its predicate inspects, so a ` +
+          `gate reading the manifest can see the scope of a claim without reading the test`
+      );
+    },
+  },
+  {
+    // §7 ITEM 8, MADE MECHANICAL: "every checklist item from Phases 1-5 is in
+    // the manifest. If any was verified by hand and never added, add it now
+    // rather than re-verifying by hand. This is the last chance to make the
+    // manifest the whole truth."
+    //
+    // The measurement that produced this test found two of thirty-eight
+    // declared invariants that no manifest `proves` string named: INV-34, which
+    // had no test at all and now has F06-N03, and INV-06, which was tested all
+    // along inside F04-S02 and labelled INV-05 in both the assertion message
+    // and the manifest. A gate reading the manifest would have reported INV-06
+    // unverified and INV-05 verified twice -- the same class of error F06-S04
+    // catches in the other direction.
+    //
+    // THE INVARIANT LIST IS DERIVED FROM DOC 03, not written here. A new
+    // invariant added to the frozen document joins this check the day it is
+    // written, and immediately fails until a test names it.
+    //
+    // BOUNDED, AND THE BOUND IS THE WHOLE POINT: this proves every invariant is
+    // NAMED by a test, not that the test is ADEQUATE. Doc 03's own prescribed
+    // test for INV-06 has two halves -- the comparison function used, and a
+    // behavioural test that near-miss hashes fail identically fast -- and only
+    // the first is implemented. INV-35 and INV-22 are named and carried in the
+    // capstone as inadequately covered. Naming is the floor, not the ceiling.
+    id: "F06-S05",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const doc = join(repoRoot, "docs", "rebuild", "03-PINTAR-INVARIANTS.md");
+      c.expect(existsSync(doc), "docs/rebuild/03-PINTAR-INVARIANTS.md is missing");
+      const declared = [
+        ...new Set((readFileSync(doc, "utf8").match(/INV-\d+/g) ?? [])),
+      ].sort((a, b) => Number(a.slice(4)) - Number(b.slice(4)));
+      c.expect(declared.length > 30, `only ${declared.length} invariant(s) derived from doc 03`);
+
+      const manifest = JSON.parse(
+        readFileSync(join(repoRoot, "selftest", "manifest.json"), "utf8")
+      ) as { tests: Array<{ id: string; proves?: string }> };
+      const named = new Map<string, string[]>();
+      for (const t of manifest.tests) {
+        // THIS TEST'S OWN ENTRY IS EXCLUDED, and the exclusion is the difference
+        // between a check and a mirror. F06-S05's `proves` names INV-06, INV-22
+        // and INV-35 to state what it does NOT cover -- which, counted, would
+        // make it the citer that satisfies its own requirement for those three.
+        // An invariant nobody tests could then be "covered" by writing its name
+        // into this sentence.
+        if (t.id === "F06-S05") continue;
+        for (const inv of new Set((t.proves ?? "").match(/INV-\d+/g) ?? [])) {
+          named.set(inv, [...(named.get(inv) ?? []), t.id]);
+        }
+      }
+      const orphans = declared.filter((i) => !named.has(i));
+      c.expect(
+        orphans.length === 0,
+        "invariant(s) declared in doc 03 that no manifest test names. Verified by hand is not " +
+          "verified: a gate reads the manifest:\n  " + orphans.join(", ")
+      );
+      // and the other direction: a manifest test naming an invariant the frozen
+      // document does not declare is a claim about something that is not a rule
+      const invented = [...named.keys()].filter((i) => !declared.includes(i)).sort();
+      c.expect(
+        invented.length === 0,
+        "manifest test(s) claiming invariant(s) doc 03 does not declare: " +
+          invented.map((i) => `${i} (${named.get(i)!.join(", ")})`).join("; ")
+      );
+      const total = declared.reduce((n, i) => n + (named.get(i)?.length ?? 0), 0);
+      return c.verdict(
+        `all ${declared.length} invariants declared in the document docs/rebuild/03-PINTAR-INVARIANTS.md ` +
+          `are named by at least one of the ${total} OTHER manifest entries that cite one -- this test's ` +
+          `own entry is excluded, so naming an invariant here cannot cover it -- and no manifest ` +
+          `entry cites an invariant the document does not declare. BOUNDED: this reads the manifest's ` +
+          `own text and proves NAMING, not adequacy -- INV-06's behavioural half, INV-22 and INV-35 are ` +
+          `named and carried as inadequately covered`
+      );
+    },
+  },
+  {
+    // §7 ITEM 3: "every dev-only tool gated behind NODE_ENV==='development',
+    // verified against a production build." F01-R01 does the verifying, by
+    // fetching four /api/dev/* paths from a real production build and
+    // requiring 404. This is the half F01-R01 cannot have: the paths it fetches
+    // are WRITTEN DOWN, so a dev tool added tomorrow in a new file under the
+    // namespace would be gated by nobody and fetched by nobody.
+    //
+    // THE FILE SET IS DERIVED from src/app/api/dev, and every exported HTTP
+    // handler in each file must carry the gate in its own body -- not merely
+    // somewhere in the file, which is how a second handler added below a gated
+    // one escapes. A namespace with no route files at all fails rather than
+    // passing vacuously.
+    id: "F06-S06",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const devDir = join(repoRoot, "src", "app", "api", "dev");
+      const files: string[] = [];
+      const walk = (dir: string) => {
+        for (const e of readdirSync(dir, { withFileTypes: true })) {
+          const p = join(dir, e.name);
+          if (e.isDirectory()) walk(p);
+          else if (/^route\.tsx?$/.test(e.name)) files.push(p);
+        }
+      };
+      c.expect(existsSync(devDir), "src/app/api/dev does not exist; the dev namespace check has no subject");
+      if (existsSync(devDir)) walk(devDir);
+      c.expect(files.length > 0, "no route file under src/app/api/dev: this check would pass over nothing");
+
+      const GATE = /process\.env\.NODE_ENV\s*!==\s*["']development["']/;
+      const HANDLER = /export\s+(?:async\s+)?function\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b/g;
+      const ungated: string[] = [];
+      let handlers = 0;
+      for (const f of files) {
+        const src = readFileSync(f, "utf8");
+        const cuts = [...src.matchAll(HANDLER)];
+        const rel = f.slice(repoRoot.length + 1);
+        if (cuts.length === 0) ungated.push(`${rel}: a route file exporting no HTTP handler`);
+        cuts.forEach((m, i) => {
+          handlers += 1;
+          const body = src.slice(m.index!, i + 1 < cuts.length ? cuts[i + 1].index! : src.length);
+          if (!GATE.test(body)) ungated.push(`${rel}:${m[1]}`);
+        });
+      }
+      c.expect(
+        ungated.length === 0,
+        "dev-namespace HTTP handler(s) whose own body does not refuse outside NODE_ENV==='development' " +
+          "(INV-21). A tool that exists in production is a tool, not a 404:\n  " + ungated.join("\n  ")
+      );
+      return c.verdict(
+        `${handlers} exported HTTP handler(s) across ${files.length} route file(s) under the source ` +
+          `directory src/app/api/dev, each refusing in its own body outside development. The file set is ` +
+          `derived from the directory, so a new dev tool is covered the day it is added; F01-R01 proves ` +
+          `the same namespace answers 404 in a real production build`
+      );
+    },
+  },
+  {
+    // THE COMPLEMENT TO BOTH EXISTING SCANS, and the one that catches the leak
+    // they were each built to miss.
+    //
+    // F01-S03 scans source and skips `{...}` expressions, saying "enum
+    // comparisons in code are not user copy". That is TRUE of
+    // `if (x.status === 'FROZEN')` and FALSE of `>{x.status}<`. The difference
+    // is POSITION, not syntax: an interpolation in a JSX TEXT NODE is copy.
+    //
+    // F06-R01 scans rendered output, which would catch it -- but only for
+    // routes a stranger can reach. Every Studio route redirects an
+    // unauthenticated caller, so the leak lives exactly where neither scan
+    // looks.
+    //
+    // WHAT IT FOUND ON ITS FIRST RUN: `{i.bank_type}` on the Studio bank page
+    // and `{b.mode}` / `{d.mode}` on the definitions page -- PRACTICE, TEST,
+    // EXAM, PRE_TEST, POST_TEST rendered raw to a staff reader. None of those
+    // values is in INTERNAL_WORDS, so no word list would ever have caught them,
+    // which is why this rule is about SHAPE and about where the enum came from.
+    //
+    // THE ENUM-BEARING COLUMN LIST IS DERIVED FROM THE MIGRATIONS, not written
+    // here: every `create type ... as enum` gives a type, and every column
+    // declared with one gives a name. A new enum column is covered the day it
+    // is created, the same reason the route inventory is derived.
+    id: "F06-S03",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const migDir = join(repoRoot, "supabase", "migrations");
+      const sql = readdirSync(migDir).filter((f) => f.endsWith(".sql")).sort()
+        .map((f) => readFileSync(join(migDir, f), "utf8")).join("\n");
+
+      const enumTypes = new Set<string>();
+      for (const m of sql.matchAll(/create\s+type\s+(?:public\.)?([a-z_][a-z0-9_]*)\s+as\s+enum/gi)) {
+        enumTypes.add(m[1].toLowerCase());
+      }
+      c.expect(enumTypes.size > 5, `only ${enumTypes.size} enum type(s) found in the migrations`);
+
+      const enumColumns = new Set<string>();
+      for (const t of enumTypes) {
+        const re = new RegExp(`^\\s*([a-z_][a-z0-9_]*)\\s+(?:public\\.)?${t}\\b`, "gim");
+        for (const m of sql.matchAll(re)) enumColumns.add(m[1].toLowerCase());
+      }
+      // the column often shares its name with the type (status status, mode mode)
+      for (const t of enumTypes) enumColumns.add(t);
+      c.expect(enumColumns.size > 5, `only ${enumColumns.size} enum-bearing column name(s) derived`);
+
+      const offenders: string[] = [];
+      for (const f of walk(join(repoRoot, "src", "app")).filter((x) => /\.tsx$/.test(x))) {
+        const text = code(readFileSync(f, "utf8"));
+        const rel = relative(repoRoot, f);
+        // interpolation standing alone in a TEXT position: between tags, or
+        // adjacent to literal text rather than inside an attribute.
+        for (const m of text.matchAll(/[>}]\s*\{([^{}]+)\}/g)) {
+          const expr = m[1].trim();
+          // a call is a lookup (t(`hasil.delta.${d.status}`)) and is fine --
+          // the enum is a KEY there, not the rendered string
+          if (/[(`]/.test(expr)) continue;
+          const tail = /\.([a-z_][a-z0-9_]*)\s*$/.exec(expr);
+          if (tail && enumColumns.has(tail[1].toLowerCase())) {
+            offenders.push(`${rel}: {${expr}}`);
+          }
+        }
+      }
+
+      c.expect(
+        offenders.length === 0,
+        "enum-bearing value(s) interpolated into a JSX text position -- a lifecycle or classification " +
+          "enum rendered raw to a human (§7). Render an HLE key instead:\n  " + offenders.join("\n  ")
+      );
+      return c.verdict(
+        `${enumColumns.size} enum-bearing column name(s) derived from ${enumTypes.size} enum type(s) in the ` +
+          `migrations; no src/app surface interpolates one into a text position`
+      );
+    },
+  },
+  {
+    // S-1, AND THE REASON IT IS A DERIVED LIST RATHER THAN A WRITTEN ONE.
+    //
+    // Two INTERNAL_WORDS checks already existed and they answer opposite
+    // questions. F01-S03's source scan matches JSX TEXT NODES only and says so:
+    // "enum comparisons in code are not user copy". That is correct about what
+    // it was written to do, and it is structurally blind to the leak that
+    // matters -- `{item.state}` rendering SIGNAL_RAISED never puts the literal
+    // in the source. The output scan in app.test.ts reads rendered HTML and is
+    // the real one -- but it only covers the routes it FETCHES, and that list
+    // was maintained by hand.
+    //
+    // A hand-maintained fetch list is a convention doing a mechanism's job, the
+    // same shape ADR-0021 was written for. It would hold for the surfaces this
+    // phase adds and lapse silently for the next one someone writes, with a
+    // green suite behind it. So: every route the application serves is
+    // enumerated from the route table, and a route that exists without output
+    // coverage is a FAILURE, not an omission.
+    //
+    // This is also §7's copy/route inventory, which is why the two obligations
+    // are one test: the inventory IS the fetch list, so it cannot drift from it.
+    id: "F06-S02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const appDir = join(repoRoot, "src", "app");
+
+      // The route table: every page.tsx under src/app, minus route groups and
+      // private folders, mapped to the path the application serves.
+      const routes: string[] = [];
+      for (const f of walk(appDir)) {
+        if (basename(f) !== "page.tsx") continue;
+        const rel = relative(appDir, f).replace(/\\/g, "/").replace(/\/page\.tsx$/, "");
+        const segs = rel === "page.tsx" ? [] : rel.split("/");
+        if (segs.some((sg) => sg.startsWith("_"))) continue;
+        routes.push("/" + segs.join("/"));
+      }
+      c.expect(routes.length > 0, "no routes found under src/app: the inventory is measuring nothing");
+
+      // The fetch list the output scan actually drives.
+      const appSrc = readFileSync(join(repoRoot, "selftest", "app.test.ts"), "utf8");
+      const covered = new Set<string>();
+      for (const m of appSrc.matchAll(/ROUTE_INVENTORY\s*=\s*\[([\s\S]*?)\]/g)) {
+        for (const q of m[1].matchAll(/"([^"]+)"/g)) covered.add(q[1]);
+      }
+
+      const dynamic = routes.filter((r) => /\[/.test(r));
+      const staticRoutes = routes.filter((r) => !/\[/.test(r));
+      const missing = staticRoutes.filter((r) => !covered.has(r));
+
+      c.expect(
+        missing.length === 0,
+        "route(s) served by the application with no output-level INTERNAL_WORDS coverage — add them to " +
+          "ROUTE_INVENTORY in selftest/app.test.ts so a rendered enum cannot reach a human:\n  " +
+          missing.join("\n  ")
+      );
+      if (dynamic.length) c.note(`${dynamic.length} dynamic route(s) covered by their own tests`);
+      return c.verdict(
+        `copy/route inventory: ${staticRoutes.length} static route(s) served, every one fetched and scanned ` +
+          `for internal words at the output level; the list is derived from src/app rather than written down`
+      );
+    },
+  },
+  {
+    // ADR-0021. PostgreSQL grants EXECUTE on every new function to PUBLIC, and
+    // `alter default privileges` cannot revoke from PUBLIC -- so there is no
+    // default-off setting to rely on. Forty-nine migrations have carried an
+    // explicit revoke; the line has held because a human remembered it, and it
+    // has been forgotten three times. This is the prevention half: a syntax
+    // check at authoring time, paired with the privilege counter that already
+    // catches it late.
+    id: "F06-S01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const dir = join(repoRoot, "supabase", "migrations");
+      const all = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
+
+      // THE RULE IS FORWARD-SCOPED, AND THE CUTOFF IS RECORDED RATHER THAN
+      // IMPLIED. Migrations before ADR-0021 are closed by a different and
+      // legitimate mechanism: 20260912004654_function_privileges.sql sweeps
+      // the functions created before it, and the live schema measures
+      // `functions_executable_by_anon = 0`. That runtime fact is a stronger
+      // proof than this syntax check for the history it covers.
+      //
+      // It is not a mechanism available going forward -- a sweep cannot close
+      // a function that shipped reachable in the migrations between -- and
+      // rewriting an applied migration is forbidden. So the check governs
+      // everything authored from ADR-0021 onward, and the cutoff is a constant
+      // here so that moving it is an edit somebody has to make on purpose.
+      const ADR_0021_CUTOFF = "20260918100000";
+      const files = all.filter((f) => f >= ADR_0021_CUTOFF);
+      c.expect(all.length > 0, "no migrations found to check");
+      // Vacuity guard. If the cutoff ever outruns the series -- a renamed
+      // file, a changed convention -- this check would pass over an empty set
+      // and report success having examined nothing.
+      c.expect(
+        files.length >= 2,
+        `ADR-0021's check is examining ${files.length} migration(s): the cutoff ${ADR_0021_CUTOFF} ` +
+          "no longer selects the post-ADR series, so this check is measuring nothing"
+      );
+
+      // Comments stripped FIRST, per L4. A migration header that explains why a
+      // function is revoked would otherwise satisfy the rule by talking about
+      // it -- which is the exact failure L4 names, and two of this project's
+      // guards have already shipped with it.
+      const strip = (t: string) =>
+        t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*--.*$/gm, "");
+
+      const offenders: string[] = [];
+      for (const f of files) {
+        const sql = strip(readFileSync(join(dir, f), "utf8"));
+
+        // Functions created in this migration. Trigger functions and
+        // calculators alike -- PUBLIC can execute anything it is not revoked
+        // from, and "nobody would call it directly" is not a control.
+        // Functions created in this migration, with the offset of the LAST
+        // create. Trigger functions and calculators alike -- PUBLIC can execute
+        // anything it is not revoked from, and "nobody would call it directly"
+        // is not a control.
+        const created = new Map<string, number>();
+        for (const m of sql.matchAll(
+          /create\s+(?:or\s+replace\s+)?function\s+(?:public\.)?([a-z_][a-z0-9_]*)\s*\(/gi
+        )) created.set(m[1].toLowerCase(), m.index ?? 0);
+        if (created.size === 0) continue;
+
+        // ORDER MATTERS, and getting this wrong was a real hole in the first
+        // version of this check. A revoke only closes a function that already
+        // exists: a function created AFTER the revoke ran is still open, and a
+        // name-only match would have passed it. Every rule below therefore
+        // compares offsets, not just names.
+        const revokes: Array<{ at: number; name?: string; pattern?: RegExp }> = [];
+        for (const m of sql.matchAll(
+          /revoke\s+[\s\S]{0,80}?on\s+function\s+(?:public\.)?([a-z_][a-z0-9_]*)\s*\([^)]*\)\s*\n?\s*from\s+([^;]*);/gi
+        )) if (/\bpublic\b/i.test(m[2])) revokes.push({ at: m.index ?? 0, name: m[1].toLowerCase() });
+
+        // A family pattern is legitimate where functions are created together
+        // under a shared prefix: the risk in a family is omitting one NAME, and
+        // a loop cannot omit one. ADR-0021 requires such a migration to assert
+        // the resulting count as well, which its terminal block does.
+        if (/revoke\s+all\s+on\s+function[^;]*from\s+[^;]*public/i.test(sql)) {
+          for (const m of sql.matchAll(/proname\s+like\s+'([a-z_\\%]+)'/gi)) {
+            const lit = m[1].replace(/\\_/g, "_");
+            if (lit.includes("%")) {
+              revokes.push({
+                at: m.index ?? 0,
+                pattern: new RegExp("^" + lit.replace(/%/g, ".*") + "$", "i"),
+              });
+            }
+          }
+        }
+
+        // A function dropped in the same migration never commits, so it was
+        // never exposed -- transactional DDL means no other session can see it.
+        // This is what makes a probe function inside a rolled-back verification
+        // block legitimate, and it is an exemption with no loophole in it: the
+        // drop has to actually be there, after the create.
+        const dropped = new Map<string, number>();
+        for (const m of sql.matchAll(
+          /drop\s+function\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_][a-z0-9_]*)\s*\(/gi
+        )) dropped.set(m[1].toLowerCase(), m.index ?? 0);
+
+        for (const [fn, createdAt] of created) {
+          const droppedAt = dropped.get(fn);
+          if (droppedAt !== undefined && droppedAt > createdAt) continue;
+          const closed = revokes.some(
+            (r) => r.at > createdAt && (r.name === fn || (r.pattern?.test(fn) ?? false))
+          );
+          if (!closed) offenders.push(`${f}: ${fn}`);
+        }
+      }
+
+      c.expect(
+        offenders.length === 0,
+        "ADR-0021: function(s) created without revoking EXECUTE from PUBLIC in the same migration " +
+          "(EXECUTE is granted to PUBLIC by default and `alter default privileges` cannot revoke it):\n  " +
+          offenders.slice(0, 25).join("\n  ")
+      );
+      return c.verdict(
+        `ADR-0021: every function created across the ${files.length} migration(s) authored since the ADR ` +
+          `is revoked from PUBLIC in the migration that creates it, by name or by a family pattern whose ` +
+          `count is asserted; the ${all.length - files.length} earlier migration(s) are covered by the ` +
+          `sweep in function_privileges.sql and by functions_executable_by_anon = 0`
+      );
+    },
+  },
+  {
     id: "DOC-P01",
     requires: [],
     run: async ({ repoRoot }) => {
@@ -1294,4 +1769,90 @@ export const staticTests: SelfTest[] = [
       );
     },
   },
+  {
+    // L3-F01 C.1 -- synthetic credential-bearing seed execution is LOCAL-ONLY.
+    //
+    // The FABLE-01 seed guard was fail-OPEN: it refused only environment=
+    // 'production', and platform_environment.environment is 'development' on
+    // hosted too, so synthetic.sql populated real Auth identities -- a global
+    // SYSTEM_ADMIN with a tracked password -- on the hosted development project.
+    // Repaired by migration 0084 (a fail-closed marker) plus the seed guards.
+    //
+    // Proven mechanically over the repository:
+    //   (1) every seed that inserts a credential-bearing auth.users row calls
+    //       synthetic_fixtures_permitted() BEFORE that insert -- derived from the
+    //       seed directory, so a new credential seed is covered the day it lands;
+    //   (2) the local-only enabler (00_local_fixtures.sql) runs FIRST in the
+    //       config.toml pipeline, before any credential seed, and creates nothing;
+    //   (3) no tracked automation applies seeds to a hosted project.
+    // The hosted half is docs/audit/hosted-credential-audit.sql (C.2), not CI.
+    id: "F06-S07",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const seedDir = join(repoRoot, "supabase", "seed");
+      const seeds = readdirSync(seedDir).filter((f) => f.endsWith(".sql")).sort();
+      c.expect(seeds.length > 0, "no seed files found");
+
+      const CRED = /insert\s+into\s+auth\.users\b/i;
+      const GUARD = /synthetic_fixtures_permitted\s*\(\s*\)/;
+      const unguarded: string[] = [];
+      let credSeeds = 0, credInserts = 0;
+      for (const f of seeds) {
+        const src = readFileSync(join(seedDir, f), "utf8");
+        const inserts = [...src.matchAll(/insert\s+into\s+auth\.users\b/gi)];
+        if (inserts.length === 0) continue;
+        credSeeds += 1;
+        for (const m of inserts) {
+          credInserts += 1;
+          if (!GUARD.test(src.slice(0, m.index!)))
+            unguarded.push(`${f}: an insert into auth.users with no synthetic_fixtures_permitted() guard above it`);
+        }
+      }
+      c.expect(credSeeds > 0, "no seed inserts into auth.users; the credential-seed check has no subject");
+      c.expect(unguarded.length === 0,
+        "credential-bearing seed insert(s) not gated by the fail-closed marker (L3-F01):\n  " + unguarded.join("\n  "));
+
+      const cfg = readFileSync(join(repoRoot, "supabase", "config.toml"), "utf8");
+      const mPaths = /sql_paths\s*=\s*\[([^\]]*)\]/.exec(cfg);
+      c.expect(!!mPaths, "config.toml has no [db.seed] sql_paths");
+      const order = (mPaths ? mPaths[1] : "").split(",").map((x) => x.replace(/["'\s]/g, ""));
+      const enablerIdx = order.findIndex((x) => x.endsWith("00_local_fixtures.sql"));
+      c.expect(enablerIdx === 0, "00_local_fixtures.sql (the local-only enabler) is not the first seed in config.toml");
+      const firstCred = order.findIndex((x) => /synthetic\.sql|learning_cycle\.sql|official_bootstrap\.sql|human_evaluation\.sql/.test(x));
+      c.expect(firstCred === -1 || enablerIdx < firstCred,
+        "a credential seed is ordered before the local-fixtures enabler in config.toml");
+      const enabler = readFileSync(join(seedDir, "00_local_fixtures.sql"), "utf8");
+      c.expect(!CRED.test(enabler) && /local_fixtures_enabled\s*=\s*true/.test(enabler),
+        "00_local_fixtures.sql must only set local_fixtures_enabled = true and create no identity");
+
+      const ghDir = join(repoRoot, ".github");
+      const gh: string[] = [];
+      const walk = (d: string) => { for (const e of readdirSync(d, { withFileTypes: true })) { const q = join(d, e.name); if (e.isDirectory()) walk(q); else gh.push(q); } };
+      if (existsSync(ghDir)) walk(ghDir);
+      const hostedSeed = gh.filter((f) => { const t = readFileSync(f, "utf8"); return /--project-ref|db\s+push|--linked/.test(t) && /seed/i.test(t); });
+      c.expect(hostedSeed.length === 0,
+        "tracked automation appears to apply seeds to a hosted project:\n  " + hostedSeed.map((f)=>f.slice(repoRoot.length+1)).join("\n  "));
+
+      return c.verdict(
+        `${credInserts} credential-bearing insert(s) across ${credSeeds} seed(s), each gated by ` +
+        `synthetic_fixtures_permitted(); the local-only enabler runs first and creates no identity; ` +
+        `no tracked automation seeds a hosted project. Derived from the seed directory. Hosted half: ` +
+        `docs/audit/hosted-credential-audit.sql (L3-F01 C.2), which CI cannot run.`
+      );
+    },
+  },
+  // UX-1 Slice 0 + Slice 1. ADDED, NOT EDITED: the cases live in their own
+  // file so that every line this session wrote is reviewable in one place, and
+  // no case that existed at the frozen baseline is touched by appending them.
+  ...experienceTests,
+  // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:
+  // appended in their own file, so nothing that existed at the baseline is
+  // edited to make room for them.
+  ...loginTests,
+  // BOB-01 — the school-structure contract (D-006, D-011, M5a). Same rule:
+  // appended in its own file, nothing that existed before it is edited.
+  ...strukturTests,
+  // BOB-02 — the lesson workbook (D-007, D-008, D-011, M8). Same rule.
+  ...unggahTests,
 ];

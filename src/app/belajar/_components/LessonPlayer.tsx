@@ -45,7 +45,7 @@ function Visual({ spec }: { spec: string }) {
       const w = 320, h = 64, cell = w / den;
       return (
         <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`${num} dari ${den} bagian`}
-             className="my-4 w-full max-w-sm">
+             className="pin-lmedia">
           {Array.from({ length: den }, (_, i) => (
             <rect key={i} x={i * cell} y={0} width={cell} height={h}
               fill={i < num ? "var(--pintar-primary)" : "var(--surface-2)"}
@@ -55,15 +55,15 @@ function Visual({ spec }: { spec: string }) {
       );
     }
   }
-  return <p className="my-4 text-ink-3">{spec}</p>;
+  return <p className="pin-meta">{spec}</p>;
 }
 
 function renderBlock(line: string, key: number) {
   const visual = /^\[\[visual:(.+)\]\]$/.exec(line.trim());
   if (visual) return <Visual key={key} spec={visual[1]} />;
-  if (line.startsWith("## ")) return <h3 key={key} className="mt-6 text-lg font-medium">{line.slice(3)}</h3>;
+  if (line.startsWith("## ")) return <h3 key={key} className="pin-lh3">{line.slice(3)}</h3>;
   if (line.trim() === "") return null;
-  return <p key={key} className="mt-3 leading-relaxed text-ink-1">{line}</p>;
+  return <p key={key} className="pin-lp">{line}</p>;
 }
 
 export default function LessonPlayer(props: LessonPlayerProps) {
@@ -104,50 +104,50 @@ export default function LessonPlayer(props: LessonPlayerProps) {
 
   return (
     <div>
-      <article className="mt-6">{pages[page].map(renderBlock)}</article>
+      <article className="pin-prose">{pages[page].map(renderBlock)}</article>
 
-      <p className="mt-6 flex items-center gap-2 text-sm text-ink-3">
+      <p className="pin-lpos">
         <span>{t("lesson.page_of", "learner")} {page + 1}/{pages.length}</span>
-        <span className="flex items-center gap-1.5">
+        <span className="pin-dots">
           {pages.map((_, i) => (
-            <span key={i} className={`h-2 w-2 rounded-full ${i === page ? "bg-primary" : i < page ? "bg-ink-3" : "bg-line-1"}`} />
+            <span key={i} className={`pin-ldot${i === page ? " pin-at" : i < page ? " pin-done" : ""}`} />
           ))}
         </span>
       </p>
 
-      <nav className="mt-4 flex justify-between">
+      <nav className="pin-actions pin-between">
         <button type="button" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}
-          className="rounded-[var(--radius-1)] border border-line-1 px-4 py-2 disabled:opacity-40">
+          className="pin-btn">
           {t("lesson.prev", "learner")}
         </button>
         <button type="button" disabled={page >= pages.length - 1}
           onClick={() => setPage((p) => Math.min(pages.length - 1, p + 1))}
-          className="rounded-[var(--radius-1)] bg-primary px-5 py-2 text-primary-ink disabled:opacity-40">
+          className="pin-btn pin-primary">
           {t("lesson.next", "learner")}
         </button>
       </nav>
 
       {langkah.length > 0 && (
-        <section className="mt-10 rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-5">
-          <h3 className="text-lg font-medium">{example?.judul}</h3>
-          <ol className="mt-3 grid gap-2">
+        <section className="pin-contoh">
+          <h3 className="pin-lh3">{example?.judul}</h3>
+          <ol className="pin-steps">
             {langkah.slice(0, steps).map((s, i) => (
-              <li key={i} className="flex gap-3"><span className="text-ink-3">{i + 1}</span><span>{s}</span></li>
+              <li key={i} className="pin-langkah"><span className="pin-n">{i + 1}</span><span>{s}</span></li>
             ))}
           </ol>
           {steps < langkah.length ? (
             <button type="button" onClick={() => setSteps((s) => s + 1)}
-              className="mt-4 rounded-[var(--radius-1)] border border-line-1 px-4 py-2 hover:bg-surface-2">
+              className="pin-btn">
               {t("lesson.example.reveal", "learner")}
             </button>
           ) : (
-            <p className="mt-4 text-sm text-ink-3">{t("lesson.example.done", "learner")}</p>
+            <p className="pin-meta">{t("lesson.example.done", "learner")}</p>
           )}
         </section>
       )}
 
       {props.media.length > 0 && (
-        <section className="mt-8 grid gap-4">
+        <section className="pin-lmediaset">
           {props.media.map((m) => (
             <MediaEntry key={m.path} entry={m} />
           ))}
@@ -177,34 +177,34 @@ function MediaEntry({ entry }: { entry: LessonPlayerProps["media"][number] }) {
   if (entry.jenis === "pdf") {
     return entry.url ? (
       <a href={entry.url} target="_blank" rel="noreferrer"
-         className="rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4 text-primary underline">
+         className="pin-lcard pin-llink">
         {t("lesson.pdf", "learner")}
       </a>
     ) : null;
   }
 
   return (
-    <div className="rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4">
+    <div className="pin-lcard">
       {entry.url && entry.jenis === "video" && (
-        <video ref={attach} controls src={entry.url} className="w-full rounded-[var(--radius-1)]" />
+        <video ref={attach} controls src={entry.url} className="pin-lvideo" />
       )}
-      {entry.url && entry.jenis === "audio" && <audio ref={attach} controls src={entry.url} className="w-full" />}
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-        <label className="flex items-center gap-2">
+      {entry.url && entry.jenis === "audio" && <audio ref={attach} controls src={entry.url} className="pin-laudio" />}
+      <div className="pin-lctl">
+        <label className="pin-lrate">
           {t("lesson.speed", "learner")}
           <select value={rate} onChange={(e) => setRate(Number(e.target.value))}
-            className="rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-2 py-1">
+            className="pin-lselect">
             {[0.75, 1, 1.25, 1.5, 2].map((r) => <option key={r} value={r}>{r}×</option>)}
           </select>
         </label>
         {entry.transcript && (
-          <button type="button" onClick={() => setShowTranscript((s) => !s)} className="text-primary underline">
+          <button type="button" onClick={() => setShowTranscript((s) => !s)} className="pin-btn pin-quiet">
             {t("lesson.transcript", "learner")}
           </button>
         )}
       </div>
       {showTranscript && entry.transcript && (
-        <p className="mt-3 whitespace-pre-wrap text-ink-2">{entry.transcript}</p>
+        <p className="pin-ltrans">{entry.transcript}</p>
       )}
     </div>
   );

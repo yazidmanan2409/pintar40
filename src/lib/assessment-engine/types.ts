@@ -110,3 +110,47 @@ export type Delta = {
   akhir: number | null;
   selisih: number | null;
 };
+
+/**
+ * An assessment a learner may start that NO learning assignment names — Quick
+ * and Practice. Q-12's discovery root: `my_open_assessments()` takes no
+ * argument and decides nothing, returning exactly the candidates
+ * `may_start_assessment()` accepts, so discovery and authorization cannot
+ * drift apart.
+ */
+export type OpenAssessment = {
+  assessment_assignment_id: string;
+  mode: string;
+  title: string;
+  node_id: string;
+  node_name: string;
+  item_count: number;
+  opens_at: string | null;
+  closes_at: string | null;
+};
+
+/**
+ * What a learner may know about an assessment BEFORE the act that starts it.
+ *
+ * LOOKING IS NOT COMMITTING: `assessment_orientation()` creates no session,
+ * stamps no `started_at` and spends no attempt. It is gated by the same
+ * `may_start_assessment()` the start is gated by, so it returns NOTHING rather
+ * than a row for an assessment the learner may not begin — which is why the
+ * page reads a null here as a refusal and never as an empty orientation.
+ *
+ * There is NO DURATION FIELD, and none is derived. An estimated time was in
+ * the reviewed concept and was ruled out on 2026-09-17: no legitimate duration
+ * fact exists, and a plausible number a learner plans around is worse than no
+ * number at all.
+ */
+export type Orientation = {
+  mode: string;
+  title: string;
+  item_count: number;
+  allows_pause: boolean;
+  hesitation_window_seconds: number | null;
+  opens_at: string | null;
+  closes_at: string | null;
+  attempt_limit: number | null;
+  attempts_used: number;
+};

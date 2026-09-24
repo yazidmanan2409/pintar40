@@ -1,0 +1,10 @@
+PINTAR — read-only production preflight (Second Eye, before the service-key fix)
+
+Editing this file runs verify-production-preflight.yml. It writes nothing:
+  identity     count + creation date of the §3b identity, via a READ ONLY
+               transaction on the database; creates nothing if absent
+  service-key  Management API key listing (values masked first, shapes only),
+               validation GET against the Auth Admin API, and what the retired
+               GitHub secret held (shape and hash equality only)
+
+attempt: 001

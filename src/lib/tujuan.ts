@@ -1,0 +1,89 @@
+/**
+ * THE INTERNAL DESTINATION CONTRACT (L-1).
+ *
+ * One rule, in one place, for every value that survives an authentication hop
+ * and then becomes a redirect: `lanjut` on the sign-in page and the magic-link
+ * callback, and `kembali` on the learner's start-assessment action. Those are
+ * the same question wearing two names -- "where was this person going before
+ * we interrupted them" -- and answering it three subtly different ways is how
+ * one of the three ends up wrong.
+ *
+ * WHAT WAS WRONG. Every site tested `raw.startsWith("/")`. Six destination
+ * shapes pass that test and resolve to somebody else's origin, measured rather
+ * than imagined -- a network-path `//evil.example`, its triple-slash form, the
+ * two backslash spellings a browser treats as slashes, and the same thing with
+ * a tab or a carriage return in front of it.
+ *
+ * The last two are the instructive ones. The URL parser DELETES tab, carriage
+ * return and line feed before it parses, so a predicate that reads the raw
+ * string is looking at a different string from the one that will be resolved.
+ * That is the whole class of defect here: any check that inspects the text
+ * instead of asking the parser is guessing.
+ *
+ * SO THIS ASKS THE PARSER. The destination is resolved against a base the
+ * product can never legitimately be served from, and it is accepted only if it
+ * is STILL on that base afterwards. A shape nobody here thought of cannot slip
+ * through, because the question is not "does this look internal" but "does the
+ * same machinery that will follow this link keep it at home".
+ *
+ * AND IT RETURNS THE PARSER'S OWN FORM, not the caller's text. Whatever comes
+ * back has already been through `new URL`, so a second parse downstream cannot
+ * read it differently from the parse that approved it -- which is how a
+ * check-then-use pair usually gets separated.
+ *
+ * NOT AN ALLOWLIST OF ROUTES. The architecture does not have one, and inventing
+ * one here would make every new page a two-file change and would fail closed in
+ * the most confusing possible way the first time somebody forgot.
+ */
+
+/**
+ * Reserved by RFC 2606 and resolvable by nobody. It exists only so the parser
+ * has something to resolve against; it never reaches a response.
+ */
+const PROBE = "https://pintar.invalid";
+
+/** Tab, CR, LF and the rest of C0/C1 plus DEL. */
+const CONTROL = /[\u0000-\u001f\u007f-\u009f]/;
+
+/**
+ * Narrow an untrusted destination to an internal one.
+ *
+ * Returns `fallback` for anything that is not a same-origin path, so a caller
+ * never has to decide what to do with a refusal -- refusing and defaulting are
+ * the same act, and splitting them is how a refusal gets ignored.
+ */
+export function tujuanInternal(raw: unknown, fallback = "/"): string {
+  if (typeof raw !== "string" || raw.length === 0) return fallback;
+
+  // Refused before parsing, because the parser would strip these and then
+  // agree with us about a string we never saw. There is no legitimate
+  // producer of one: `src/proxy.ts` supplies `nextUrl.pathname`.
+  if (CONTROL.test(raw)) return fallback;
+
+  // A destination is a path. Everything else -- absolute URLs, `javascript:`,
+  // `data:`, protocol-relative and the backslash spellings a browser treats as
+  // a slash -- is refused by shape before the parser is asked. The parser check
+  // below would catch these too; both are here because this one states the
+  // contract and that one enforces it.
+  if (!raw.startsWith("/")) return fallback;
+  if (raw.startsWith("//") || raw.startsWith("/\\")) return fallback;
+
+  let url: URL;
+  try {
+    url = new URL(raw, PROBE);
+  } catch {
+    return fallback;
+  }
+
+  // THE CONTRACT. Resolved against a base it cannot belong to, an internal
+  // path is still on that base; anything that reached out is not.
+  if (url.origin !== PROBE) return fallback;
+
+  // The parser's own rendering, so query and fragment survive and nothing
+  // downstream re-reads the caller's text.
+  const out = `${url.pathname}${url.search}${url.hash}`;
+
+  // `new URL` always yields a rooted pathname for an http(s) base; this says so
+  // out loud rather than trusting it, because the return value is a redirect.
+  return out.startsWith("/") && !out.startsWith("//") ? out : fallback;
+}

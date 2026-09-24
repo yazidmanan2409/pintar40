@@ -405,7 +405,14 @@ begin
   -- F04-T04 Quick Assessment: capability-gated, bounded, EXAM unreachable
   -- =========================================================================
   ok := true; detail := '';
-  select id into v_inst from public.org_nodes where institution_id = f.inst and kind='CLASS' limit 1;
+  -- The class this test teaches in must be the SEEDED bootstrap class, and
+  -- an unordered `limit 1` does not promise that: once any later suite has
+  -- committed another CLASS into this tenant, the pick can land on a class
+  -- `boot-guru` holds nothing over and the test goes red for the harness's
+  -- reason rather than the product's. Order by creation, oldest first: the
+  -- seed's class is the one that was there before any suite ran.
+  select id into v_inst from public.org_nodes where institution_id = f.inst and kind='CLASS'
+   order by created_at, id limit 1;
   perform selftest.as_user('boot-guru@bootstrap.pintar.test');
   v_cert := null;   -- reused here as the launched definition id
   begin
@@ -435,8 +442,12 @@ begin
     select count(*) into n from public.assessment_definitions d1, public.assessment_definitions d2
      where d1.id = v_cert and d2.id = v_def2 and d1.title = d2.title;
     if n <> 0 then ok := false; detail := detail || 'two launches in one minute share a title; '; end if;
+    -- 0090: the ruled user-facing name. The assertion is deliberately on the
+    -- label and not merely on "some title", because losing the label is one of
+    -- the two ways the collision repair could go wrong -- the other, bumping
+    -- version, is the same predicate's other half.
     select count(*) into n from public.assessment_definitions
-     where id in (v_cert, v_def2) and (version <> 1 or title !~ '^Kuis Cepat');
+     where id in (v_cert, v_def2) and (version <> 1 or title !~ '^Uji Cepat');
     if n <> 0 then ok := false; detail := detail || 'the collision was resolved by bumping version or by losing the label; '; end if;
   end if;
   -- bounds are the server's
@@ -861,7 +872,9 @@ begin
   foreach bad in array array['CORRECT_OPTION_LENGTH_IMBALANCE','ANSWER_POSITION_SKEW',
                              'IMPLAUSIBLE_DISTRACTOR','STEM_REVEALS_ANSWER'] loop
     v_course := selftest.adversarial_bank(bad);
+    perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
     perform public.run_mcq_quality(v_course);
+    perform selftest.as_owner();
     select p.status, p.blockers into v_status, v_blockers from public.publish_readiness(v_course) p;
 
     if v_status = 'READY' then
@@ -911,7 +924,9 @@ begin
               join public.modules m on m.id = l.module_id where m.course_id = v_course);
     end if;
 
+    perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
     perform public.run_mcq_quality(v_course);
+    perform selftest.as_owner();
     select p.status, p.blockers into v_status, v_blockers from public.publish_readiness(v_course) p;
     if v_status <> 'READY' then
       ok := false; detail := detail || format('%s did not clear to READY after the repair (%s: %s); ',
@@ -922,7 +937,9 @@ begin
   -- the control: a bank with none of the four patterns must reach READY on its
   -- own, or "READY after repair" would only be proving that READY is reachable
   v_course := selftest.adversarial_bank('CLEAN');
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   perform public.run_mcq_quality(v_course);
+  perform selftest.as_owner();
   select p.status into v_status from public.publish_readiness(v_course) p;
   if v_status <> 'READY' then
     ok := false; detail := detail || format('the clean control bank reported %s; ', v_status);

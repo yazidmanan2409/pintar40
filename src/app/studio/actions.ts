@@ -1,7 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { BATAS, bacaBukuKerja } from "@/lib/xlsx";
+import {
+  bukuKerjaKePaket, kodeGalatPaket,
+  type HasilPaket, type HitunganPaket, type KodePaket, type MasalahPaket, type MediaPaket,
+} from "@/lib/unggah-kontrak";
 
 /**
  * Studio actions (FABLE-05).
@@ -30,6 +36,14 @@ const num = (fd: FormData, key: string) => {
 const uuidOrNull = (v: string): string | null =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) ? v : null;
 
+/**
+ * NEVER TRUST A 2XX (F-05). An UPDATE that row-level security filters to zero
+ * rows returns no error from PostgREST: the author was told "Tersimpan" while
+ * nothing had changed. Every table write here reads back what it touched and
+ * compares it with what it meant to touch; a shortfall is a refusal.
+ */
+const TIDAK_BERUBAH = "tidak ada yang berubah — perubahan ini di luar wewenang Anda atau sudah tidak berlaku";
+
 /** The database's message is the coaching text; it is written for a human. */
 function detailOf(error: { message?: string } | null): string | undefined {
   return error?.message?.replace(/^ERROR:\s*/i, "").slice(0, 300);
@@ -49,25 +63,37 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
     ? await supabase.from("lessons").select("id").in("module_id", moduleIds)
     : { data: [] as Array<{ id: string }> };
   const lessonIds = (lessons ?? []).map((l) => l.id as string);
+  const { data: itemRows } = lessonIds.length
+    ? await supabase.from("items").select("id").in("lesson_id", lessonIds)
+    : { data: [] as Array<{ id: string }> };
+  const itemCount = (itemRows ?? []).length;
 
   // The reviewer of record is the caller; the database refuses anything else.
   const { data: me } = await supabase.rpc("current_person_id");
   const patch: Record<string, unknown> = { status: to };
   if (to === "APPROVED") patch.reviewed_by_person_id = me;
 
-  for (const [table, column, ids] of [
-    ["items", "lesson_id", lessonIds],
-    ["lessons", "module_id", moduleIds],
-    ["modules", "course_id", [course]],
-    ["assessment_definitions", "course_id", [course]],
+  // expected: every visible item and lesson, every visible module; definitions
+  // may legitimately be none, so they are counted but not required
+  for (const [table, column, ids, expected] of [
+    ["items", "lesson_id", lessonIds, itemCount],
+    ["lessons", "module_id", moduleIds, lessonIds.length],
+    ["modules", "course_id", [course], moduleIds.length],
+    ["assessment_definitions", "course_id", [course], -1],
   ] as const) {
     if (ids.length === 0) continue;
     const q = supabase.from(table).update(patch).in(column, ids as string[]);
-    const { error } = table === "assessment_definitions" ? await q.eq("is_ad_hoc", false) : await q;
+    const { data, error } = table === "assessment_definitions"
+      ? await q.eq("is_ad_hoc", false).select("id")
+      : await q.select("id");
     if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
+    if (expected >= 0 && (data ?? []).length !== expected) {
+      back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
+    }
   }
-  const { error } = await supabase.from("courses").update(patch).eq("id", course);
+  const { data: changed, error } = await supabase.from("courses").update(patch).eq("id", course).select("id");
   if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
+  if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
   back(`/studio/paket/${course}`, "paket", { ok: true });
 }
 
@@ -107,9 +133,13 @@ export async function freezeReleaseAction(fd: FormData): Promise<void> {
     const { data: me } = await supabase.rpc("current_person_id");
     const patch: Record<string, unknown> = { status: to };
     if (to === "APPROVED") patch.reviewed_by_person_id = me;
-    const { error } = await supabase.from("plp_releases").update(patch).eq("id", release);
+    const { data: changed, error } = await supabase.from("plp_releases").update(patch).eq("id", release).select("id");
     if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
+    if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
   }
+  // read back the one fact the author asked for, rather than inferring it
+  const { data: after } = await supabase.from("plp_releases").select("status").eq("id", release).maybeSingle();
+  if (after?.status !== "FROZEN") back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
   back(`/studio/paket/${course}`, "paket", { ok: true });
 }
 
@@ -179,66 +209,145 @@ export async function withdrawDistributionAction(fd: FormData): Promise<void> {
 
 // ----------------------------------------------------------------- ingestion
 
-export async function easyUploadAction(fd: FormData): Promise<void> {
-  const institution = uuidOrNull(str(fd, "institution"));
-  if (!institution) back("/studio/unggah", "mudah", { ok: false, detail: "pilih sekolah" });
-  const supabase = await supabaseServer();
-  let payload: unknown;
-  try {
-    payload = JSON.parse(str(fd, "isi") || "{}");
-  } catch {
-    back("/studio/unggah", "mudah", { ok: false, detail: "isi paket belum bisa dibaca" });
+/**
+ * BOB-02 — A LESSON PACKAGE, IN THREE STEPS, WHICHEVER DOOR IT CAME IN BY.
+ *
+ *   the workbook (D-007) ─┐
+ *   Unggah Mudah (JSON)  ─┼─> a batch at RECEIVED ─> prepare_ingest_batch ─> (media uploads)
+ *   Paket Terstruktur    ─┘      (the table write)     problems by code,        ─> confirm_ingest_batch
+ *                                                      media paths, counts          course, chapters,
+ *                                                                                   lessons, questions
+ *
+ * The database decides everything: CAN_DRAFT, every content rule, the media
+ * paths, who confirmed. These actions carry a file or a JSON text to it and
+ * bring back codes, never its words (D-011).
+ *
+ * TWO SHAPES. The three redirect actions below keep the forms on today's
+ * /studio/unggah working end to end (Bug A: a confirmation wrote 'MAPPED',
+ * which is not an ingest status; Bug B: a structured package was
+ * materialised before anyone confirmed it). The typed actions after them --
+ * unggahBukuKerjaAksi, siapkanPaketAksi, konfirmasiPaketAksi -- return
+ * HasilPaket for useActionState, for DAISY-06's file picker and row list.
+ */
+
+type Asal = "EASY_UPLOAD" | "STRUCTURED_PACKAGE";
+
+/** A workbook file, or a JSON text, as the package the database checks. */
+async function paketDari(fd: FormData): Promise<
+  { ok: true; paket: unknown; asal: "WORKBOOK" | "JSON" } | { ok: false; code: KodePaket; problems?: MasalahPaket[] }
+> {
+  const berkas = fd.get("berkas");
+  if (berkas instanceof File && berkas.size > 0) {
+    if (berkas.size > BATAS.berkas) return { ok: false, code: "PACKAGE_HAS_PROBLEMS", problems: [{ code: "WORKBOOK_TOO_LARGE" }] };
+    const baca = bacaBukuKerja(new Uint8Array(await berkas.arrayBuffer()));
+    if (!baca.ok) return { ok: false, code: "PACKAGE_HAS_PROBLEMS", problems: [{ code: baca.code }] };
+    const paket = bukuKerjaKePaket(baca.lembar);
+    if (!paket.ok) return { ok: false, code: "PACKAGE_HAS_PROBLEMS", problems: paket.problems };
+    return { ok: true, paket: { format: "pintar-buku-kerja/1", ...paket.paket }, asal: "WORKBOOK" };
   }
+  try {
+    const paket = JSON.parse(str(fd, "isi") || "{}");
+    return { ok: true, paket, asal: "JSON" };
+  } catch {
+    return { ok: false, code: "PACKAGE_HAS_PROBLEMS", problems: [{ code: "PACKAGE_JSON_UNREADABLE" }] };
+  }
+}
+
+function gagal(fn: string, error: { code?: string | null; details?: string | null; message?: string } | null): HasilPaket {
+  const code = kodeGalatPaket(error);
+  if (code !== "PACKAGE_FAILED") return { ok: false, code };
+  const ref = Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "0");
+  console.error(`[paket ${ref}] ${fn} failed`, error?.code, error?.message);
+  return { ok: false, code, ref };
+}
+
+/** Insert the batch and prepare it: problems, media paths, counts. */
+async function siapkan(fd: FormData, kind: Asal): Promise<HasilPaket> {
+  const institution = uuidOrNull(str(fd, "institution") || str(fd, "institusi"));
+  if (!institution) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
+  const paket = await paketDari(fd);
+  if (!paket.ok) return { ok: false, code: paket.code, problems: paket.problems };
+  const supabase = await supabaseServer();
   const { data: batch, error } = await supabase
     .from("ingest_batches")
     .insert({
-      institution_id: institution, source_kind: "EASY_UPLOAD", raw_payload: payload,
-      producer_identifier: str(fd, "produsen") || null,
+      institution_id: institution, source_kind: kind, raw_payload: paket.paket,
+      producer_identifier: str(fd, "produsen") || (paket.asal === "WORKBOOK" ? "pintar-buku-kerja" : null),
       capability_contract: str(fd, "kontrak") || null,
       request_id: str(fd, "permintaan") || null,
     })
     .select("id").maybeSingle();
-  if (error || !batch) back("/studio/unggah", "mudah", { ok: false, detail: detailOf(error) });
-  const { error: e2 } = await supabase.rpc("propose_easy_upload_mapping", { p_batch: batch.id });
-  back("/studio/unggah", "mudah", { ok: !e2, detail: detailOf(e2) ?? batch.id });
+  if (error) return gagal("ingest_batches.insert", error);
+  // F-05: an insert RLS filtered to nothing is a refusal, not a success
+  if (!batch) return { ok: false, code: "PACKAGE_NOT_ALLOWED" };
+  const { data, error: e2 } = await supabase.rpc("prepare_ingest_batch", { p_batch: batch.id });
+  if (e2 || !data) return gagal("prepare_ingest_batch", e2);
+  const r = data as { ok: boolean; problems: MasalahPaket[]; media: MediaPaket[]; counts: HitunganPaket };
+  return r.ok
+    ? { ok: true, batch: batch.id as string, counts: r.counts, media: r.media }
+    : { ok: false, code: "PACKAGE_HAS_PROBLEMS", batch: batch.id as string, problems: r.problems, media: r.media };
+}
+
+async function konfirmasi(batch: string | null): Promise<HasilPaket> {
+  if (!batch) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.rpc("confirm_ingest_batch", { p_batch: batch });
+  if (error || !data) return gagal("confirm_ingest_batch", error);
+  const r = data as { ok: boolean; problems?: MasalahPaket[]; media?: MediaPaket[]; counts: HitunganPaket; courses?: string[] };
+  if (!r.ok) return { ok: false, code: "PACKAGE_HAS_PROBLEMS", batch, problems: r.problems, media: r.media };
+  revalidatePath("/studio", "layout");
+  return { ok: true, batch, counts: r.counts, media: [], courses: r.courses ?? [] };
+}
+
+/** A result, as the calm line today's page shows: codes, never the database's words. */
+function ringkas(h: HasilPaket): string | undefined {
+  if (h.ok) return h.batch;
+  const kode = (h.problems ?? []).slice(0, 5)
+    .map((p) => p.code + (p.sheet ? ` (${p.sheet}${p.row ? ` ${p.row}` : ""})` : "")).join(", ");
+  return [h.code, kode, h.ref].filter(Boolean).join(": ");
+}
+
+export async function easyUploadAction(fd: FormData): Promise<void> {
+  const h = await siapkan(fd, "EASY_UPLOAD");
+  back("/studio/unggah", h.ok ? "pertanyaan" : "mudah", { ok: h.ok, detail: ringkas(h) });
 }
 
 export async function structuredImportAction(fd: FormData): Promise<void> {
-  const institution = uuidOrNull(str(fd, "institution"));
-  if (!institution) back("/studio/unggah", "terstruktur", { ok: false, detail: "pilih sekolah" });
-  const supabase = await supabaseServer();
-  let payload: unknown;
-  try {
-    payload = JSON.parse(str(fd, "isi") || "{}");
-  } catch {
-    back("/studio/unggah", "terstruktur", { ok: false, detail: "paket belum bisa dibaca" });
-  }
-  const { data: batch, error } = await supabase
-    .from("ingest_batches")
-    .insert({
-      institution_id: institution, source_kind: "STRUCTURED_PACKAGE", raw_payload: payload,
-      producer_identifier: str(fd, "produsen") || null,
-      capability_contract: str(fd, "kontrak") || null,
-      request_id: str(fd, "permintaan") || null,
-    })
-    .select("id").maybeSingle();
-  if (error || !batch) back("/studio/unggah", "terstruktur", { ok: false, detail: detailOf(error) });
-  const { error: e2 } = await supabase.rpc("ingest_structured_package", { p_batch: batch.id });
-  back("/studio/unggah", "terstruktur", { ok: !e2, detail: detailOf(e2) });
+  const h = await siapkan(fd, "STRUCTURED_PACKAGE");
+  back("/studio/unggah", h.ok ? "pertanyaan" : "terstruktur", { ok: h.ok, detail: ringkas(h) });
 }
 
 export async function confirmMappingAction(fd: FormData): Promise<void> {
-  const batch = uuidOrNull(str(fd, "batch"));
-  if (!batch) back("/studio/unggah", "mudah", { ok: false, detail: "unggahan tidak dikenali" });
-  const supabase = await supabaseServer();
-  const { data: me } = await supabase.rpc("current_person_id");
-  const { error } = await supabase
-    .from("ingest_batches")
-    .update({ confirmed_by_person_id: me, confirmed_at: new Date().toISOString(), status: "MAPPED" })
-    .eq("id", batch);
-  if (error) back("/studio/unggah", "mudah", { ok: false, detail: detailOf(error) });
-  const { error: e2 } = await supabase.rpc("ingest_structured_package", { p_batch: batch });
-  back("/studio/unggah", "mudah", { ok: !e2, detail: detailOf(e2) });
+  const h = await konfirmasi(uuidOrNull(str(fd, "batch")));
+  if (h.ok && h.courses && h.courses[0]) redirect(`/studio/paket/${h.courses[0]}`);
+  back("/studio/unggah", "pertanyaan", { ok: h.ok, detail: ringkas(h) });
+}
+
+/**
+ * THE TYPED CONTRACT (DAISY-06). Each is (prev, FormData) => Promise<HasilPaket>.
+ *
+ *   unggahBukuKerjaAksi  institusi, berkas (.xlsx, at most 5 MB)
+ *   siapkanPaketAksi     institusi, isi (the package JSON)
+ *   konfirmasiPaketAksi  batch
+ *
+ * After a successful prepare, upload each `media[].path` through
+ * POST /api/assets/upload-url { path } and PUT the file to the signed URL it
+ * returns; then confirm. A confirmation before every file has arrived comes
+ * back as PACKAGE_HAS_PROBLEMS with MEDIA_NOT_UPLOADED for each missing file.
+ */
+export async function unggahBukuKerjaAksi(_prev: HasilPaket | null, fd: FormData): Promise<HasilPaket> {
+  const berkas = fd.get("berkas");
+  if (!(berkas instanceof File) || berkas.size === 0) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
+  return siapkan(fd, "EASY_UPLOAD");
+}
+
+export async function siapkanPaketAksi(_prev: HasilPaket | null, fd: FormData): Promise<HasilPaket> {
+  fd.delete("berkas");
+  return siapkan(fd, "STRUCTURED_PACKAGE");
+}
+
+export async function konfirmasiPaketAksi(_prev: HasilPaket | null, fd: FormData): Promise<HasilPaket> {
+  return konfirmasi(uuidOrNull(str(fd, "batch")));
 }
 
 // ------------------------------------------------------------------ panels

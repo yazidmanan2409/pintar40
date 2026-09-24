@@ -1,0 +1,2100 @@
+/*
+  PINTAR Experience composition — UX-1 Slice 0 + Slice 1.
+
+  The rendered reference for every class here is the approved v2 prototype
+  (Artifact "PINTAR Sertifikat & Fondasi", pintar-slice-0-1.html, 2026-09-16)
+  and the review images in PINTAR-UX1-v2-visual-review.zip. "Built matches
+  approved" is one of the nine return criteria, so this file is the place the
+  match is kept: the components render these class names and hold no values.
+
+  EVERY VALUE BELOW RESOLVES TO A TOKEN in globals.css. The handful that do not
+  are implementation constants rather than design choices — the A4 sheet's
+  210:297 geometry, the QR module's square — and each is declared in the token
+  lint's allow-list with its reason (Sauron amendment §3).
+
+  Nothing here knows a tenant. An institution's mark, name or colour arrives as
+  data through a component prop; this file has no slot for one.
+*/
+
+/* ---------------------------------------------------------------- primitives */
+.pin-num { font-variant-numeric: tabular-nums; }
+.pin-mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ shell */
+.pin-top {
+  display: flex; align-items: center; gap: var(--space-6);
+  padding: 0 var(--space-6); height: 56px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-1);
+}
+/* ------------------------------------------------------------------- the mark
+   THE SUPPLIED ARTWORK, UNTOUCHED. 766 x 429, fully opaque, two full-bleed
+   bands — pale above, dark below. It carries its own ground, so it reads as a
+   block on any surface; that is the logo, not a mistake to design around, and
+   clear space is what makes a block read as a mark rather than as a stray
+   image.
+
+   HEIGHT ONLY, NEVER WIDTH. The intrinsic ratio supplies the width, so there
+   is no pair of values here that could drift apart and squash the letterforms.
+   UX1-BRAND-01 fails if this rule ever sets both. */
+.pin-merek {
+  height: var(--logo-height);
+  width: auto;
+  display: block;
+  flex: none;
+}
+.pin-merek-standalone { height: var(--logo-height-standalone); }
+
+.pin-wordmark {
+  font-size: var(--type-fine); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-wordmark);
+}
+.pin-tabs { display: flex; gap: var(--space-5); height: 100%; }
+.pin-tabs a {
+  display: flex; align-items: center; height: 100%;
+  text-decoration: none; color: var(--ink-3); font-size: 15px;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color var(--motion-fast);
+}
+.pin-tabs a[aria-current="page"] {
+  color: var(--ink-1); font-weight: var(--weight-strong);
+  border-color: var(--pintar-primary);
+}
+.pin-spacer { flex: 1; }
+.pin-sub { color: var(--ink-3); font-size: var(--type-fine); }
+
+/* ------------------------------------------------- the session strip (DAISY-02)
+   Who is signed in, and the way out, on every signed-in screen (D-009). In the
+   header row on a wide screen; on a phone it takes a row of its own under the
+   mark (below), because a name and a 44px button do not fit beside the mark
+   and the language switch at 320px, and the point is that it is seen without
+   scrolling. The button is a real form submit, so it works before any script
+   has loaded on a slow classroom tablet. */
+.pin-sesi { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.pin-sesi-ket {
+  min-width: 0; max-width: var(--measure-sesi);
+  font-size: var(--type-fine); color: var(--ink-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pin-sesi-ket strong { color: var(--ink-1); font-weight: var(--weight-strong); }
+.pin-sesi form { display: flex; flex: none; }
+.pin-sesi-keluar {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-1); color: var(--ink-1);
+  font: inherit; font-size: var(--type-fine); font-weight: var(--weight-strong);
+  cursor: pointer; white-space: nowrap;
+}
+.pin-sesi-keluar:hover { background: var(--surface-2); }
+/* On the refusal page: under the way back, a quieter second door. */
+.pin-sesi-penolakan { flex-wrap: wrap; }
+.pin-sesi-penolakan .pin-sesi-ket { max-width: none; white-space: normal; }
+
+/* reading column and rhythm */
+.pin-col {
+  max-width: var(--measure-read); margin-inline: auto;
+  padding-block: var(--space-7) var(--space-9);
+  padding-inline: var(--space-5);
+}
+.pin-col.pin-narrow { max-width: var(--measure-narrow); }
+.pin-col.pin-wide { max-width: var(--measure-stage); }
+
+/* type ladder, as classes */
+.pin-eyebrow {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase;
+  color: var(--ink-3);
+}
+.pin-h1 {
+  font-size: var(--type-page); font-weight: var(--weight-strong);
+  line-height: var(--leading-tight); letter-spacing: var(--tracking-tight);
+  text-wrap: balance; margin: 0;
+}
+.pin-intro { font-size: var(--type-body); color: var(--ink-2); max-width: 60ch; margin: 0; }
+.pin-meta { font-size: var(--type-meta); color: var(--ink-3); }
+.pin-head .pin-eyebrow { display: block; margin-bottom: var(--space-2); }
+.pin-head .pin-h1 { margin-bottom: var(--space-3); }
+.pin-head .pin-intro { margin-bottom: var(--space-6); }
+
+/* BarisLingkup — the scope line */
+.pin-scope {
+  display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3);
+  font-size: var(--type-fine); color: var(--ink-3);
+  margin-bottom: var(--space-7); align-items: center;
+}
+.pin-scope .pin-sep { opacity: 0.5; }
+.pin-scope .pin-mark { display: inline-flex; align-items: center; }
+
+/* ----------------------------------------------------------------- controls */
+.pin-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--space-2); height: 40px; padding: 0 var(--space-4);
+  border-radius: var(--radius-1);
+  font-size: var(--type-meta); font-weight: var(--weight-strong);
+  border: 1px solid var(--line-strong);
+  background: var(--surface-1); color: var(--ink-1);
+  white-space: nowrap; text-decoration: none;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast);
+}
+.pin-btn:hover { border-color: var(--ink-2); text-decoration: none; }
+.pin-btn.pin-primary {
+  background: var(--pintar-primary); border-color: var(--pintar-primary);
+  color: var(--pintar-primary-ink);
+}
+.pin-btn.pin-primary:hover { background: var(--pintar-primary-hover); }
+.pin-btn.pin-quiet { border-color: transparent; color: var(--pintar-primary); padding: 0 var(--space-1); }
+.pin-actions { display: flex; gap: var(--space-3); margin-top: var(--space-5); flex-wrap: wrap; align-items: center; }
+.pin-back {
+  display: inline-flex; gap: var(--space-1) 6px; align-items: center;
+  font-size: var(--type-meta); font-weight: var(--weight-strong);
+  text-decoration: none; margin-bottom: var(--space-5);
+  background: none; border: 0; padding: 0; color: var(--pintar-primary);
+}
+
+/* Pengalih Bahasa Antarmuka */
+.pin-lang {
+  display: inline-flex; border: 1px solid var(--line-strong);
+  border-radius: 6px; overflow: hidden; flex: none;
+}
+.pin-lang button {
+  background: transparent; border: 0; padding: var(--space-1) 10px;
+  font: inherit; font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: 0.04em; color: var(--ink-2); cursor: pointer;
+  transition: background-color var(--motion-fast), color var(--motion-fast);
+}
+.pin-lang button[aria-pressed="true"] {
+  background: var(--pintar-primary); color: var(--pintar-primary-ink);
+}
+
+/* status pill */
+.pin-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 24px; padding: 0 10px; border-radius: var(--radius-pill);
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong); white-space: nowrap;
+}
+.pin-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pin-pill.pin-ok { background: var(--status-ok-soft); color: var(--status-ok); }
+.pin-pill.pin-info { background: var(--status-info-soft); color: var(--status-info); }
+.pin-pill.pin-neutral { background: var(--surface-2); color: var(--ink-2); }
+.pin-pill.pin-attention { background: var(--status-attention-soft); color: var(--status-attention); }
+.pin-pill.pin-blocked { background: var(--status-blocked-soft); color: var(--status-blocked); }
+
+/* --------------------------------------------------------------------- list */
+.pin-list { border: 1px solid var(--line); border-radius: var(--radius-2); overflow: hidden; }
+.pin-row {
+  /* `minmax(0, 1fr)` and not `1fr`: a grid track's implicit minimum is its
+     content, so a title with no break opportunity refuses to shrink and pushes
+     the status pill in the `auto` track out past the card's border. Defensive
+     rather than corrective — no rendered fixture has produced it — and cheap:
+     the only thing it permits is shrinking below the content's own width. */
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--space-1) var(--space-5);
+  padding: 18px var(--space-5); border-top: 1px solid var(--line);
+  text-decoration: none; color: inherit; width: 100%; text-align: left;
+  background: none; border-left: 0; border-right: 0; border-bottom: 0;
+  transition: background-color var(--motion-fast); cursor: pointer;
+}
+.pin-row:first-child { border-top: 0; }
+.pin-row:hover { background: var(--surface-0); text-decoration: none; }
+.pin-row .pin-eyebrow { grid-column: 1; }
+.pin-row .pin-title {
+  grid-column: 1; font-size: var(--type-card); font-weight: var(--weight-strong);
+  line-height: 1.3; margin-top: 2px;
+}
+.pin-row .pin-rowmeta {
+  grid-column: 1; margin-top: var(--space-1);
+  display: flex; flex-wrap: wrap; gap: 6px var(--space-3); align-items: center;
+  font-size: var(--type-meta); color: var(--ink-3);
+}
+.pin-row > .pin-pill { grid-column: 2; grid-row: 1 / span 3; }
+.pin-row .pin-rowmeta .pin-pill { display: none; }
+
+/* -------------------------------------------------------------- certificate */
+.pin-cert { border: 1px solid var(--line); border-radius: var(--radius-2); padding: var(--space-6); background: var(--surface-1); }
+.pin-cert .pin-inst { font-size: var(--type-meta); font-weight: var(--weight-strong); margin: 0; }
+.pin-cert .pin-rule { width: 40px; height: 2px; background: var(--pintar-primary); margin: var(--space-4) 0 28px; }
+.pin-cert .pin-name {
+  font-size: var(--type-name); font-weight: var(--weight-strong); line-height: 1.05;
+  letter-spacing: var(--tracking-tight); margin: var(--space-2) 0 var(--space-5);
+}
+.pin-cert .pin-done { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
+.pin-cert .pin-course {
+  font-size: var(--type-course); font-weight: var(--weight-strong);
+  line-height: 1.3; margin: var(--space-1) 0 0;
+}
+.pin-cert hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+.pin-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4) var(--space-5); margin: 0; }
+.pin-facts dt {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-facts dd { margin: var(--space-1) 0 0; font-size: var(--type-body); font-weight: var(--weight-strong); }
+.pin-facts dd.pin-mono { font-size: 15px; }
+
+.pin-verify {
+  display: grid; grid-template-columns: 96px 1fr; gap: var(--space-5);
+  align-items: start; background: var(--surface-2);
+  border-radius: var(--radius-1); padding: var(--space-5);
+}
+/* 96px and the 6px module inset are the QR's own geometry, not a design scale:
+   a QR is square and its quiet zone is part of the symbol. */
+.pin-qr {
+  width: 96px; height: 96px; background: var(--surface-1);
+  border: 2px solid var(--pintar-primary); border-radius: 6px; padding: 6px; display: block;
+}
+.pin-qr svg { width: 100%; height: 100%; display: block; }
+.pin-verify h3 { font-size: var(--type-meta); margin: 0 0 var(--space-1); font-weight: var(--weight-strong); }
+.pin-verify p { font-size: var(--type-meta); color: var(--ink-2); margin: 0; }
+.pin-chip {
+  display: block; margin-top: var(--space-3);
+  font-family: var(--font-mono); font-weight: 500; font-size: var(--type-chip);
+  background: var(--surface-1); border: 1px solid var(--line);
+  border-radius: 6px; padding: var(--space-2) 10px;
+  overflow-wrap: anywhere; word-break: break-all; color: var(--ink-1);
+}
+
+/* banners over a retained record */
+.pin-banner {
+  border-radius: var(--radius-2); padding: var(--space-5);
+  margin-bottom: var(--space-4); display: grid; gap: 6px;
+}
+.pin-banner.pin-info { background: var(--status-info-soft); }
+.pin-banner.pin-neutral { background: var(--surface-2); }
+.pin-banner.pin-ok { background: var(--status-ok-soft); }
+.pin-banner.pin-attention { background: var(--status-attention-soft); }
+.pin-banner h2 { font-size: var(--type-card); margin: 0; font-weight: var(--weight-strong); }
+.pin-banner p { font-size: var(--type-meta); color: var(--ink-2); margin: 0; }
+.pin-banner .pin-cta { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-top: var(--space-2); }
+.pin-banner .pin-cta .pin-mono { font-size: var(--type-fine); color: var(--ink-2); }
+
+/* belum diterbitkan */
+.pin-pending {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  padding: var(--space-6); display: grid; gap: var(--space-3); background: var(--surface-1);
+}
+.pin-pending .pin-dots { display: flex; gap: 6px; margin-bottom: var(--space-1); }
+.pin-pending .pin-dots i { width: var(--space-2); height: var(--space-2); border-radius: 50%; background: var(--line-strong); }
+.pin-pending .pin-dots i:first-child { background: var(--pintar-primary); }
+.pin-pending h2 { font-size: var(--type-subhead); letter-spacing: -0.01em; margin: 0; font-weight: var(--weight-strong); }
+.pin-pending p { font-size: var(--type-body); color: var(--ink-2); max-width: 56ch; margin: 0; }
+
+/* ------------------------------------------------------- public verification */
+.pin-status { background: var(--pintar-primary-soft); border-radius: var(--radius-2); padding: var(--space-5) 28px; margin-bottom: var(--space-4); }
+.pin-status .pin-eyebrow { color: var(--ink-2); display: block; }
+.pin-status .pin-big {
+  font-size: var(--type-hero); line-height: 1.1; font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-tight); color: var(--status-ok);
+  margin: 6px 0 var(--space-2);
+}
+.pin-status p { font-size: 15px; color: var(--ink-2); margin: 0; }
+.pin-status.pin-neutral { background: var(--surface-2); }
+.pin-status.pin-neutral .pin-big { color: var(--ink-1); }
+.pin-status.pin-info { background: var(--status-info-soft); }
+.pin-status.pin-info .pin-big { color: var(--status-info); }
+.pin-status.pin-blocked { background: var(--status-blocked-soft); }
+.pin-status.pin-blocked .pin-big { color: var(--status-blocked); }
+.pin-status .pin-big.pin-quietbig { font-size: var(--type-section); }
+
+.pin-dl { border: 1px solid var(--line); border-radius: var(--radius-2); overflow: hidden; margin: 0; }
+.pin-dl > div {
+  display: grid; grid-template-columns: 180px 1fr; gap: var(--space-1) var(--space-5);
+  align-items: baseline; padding: var(--space-4) var(--space-5); border-top: 1px solid var(--line);
+}
+.pin-dl > div:first-child { border-top: 0; }
+.pin-dl dt {
+  font-size: var(--type-fine); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-dl dd { font-size: var(--type-card); font-weight: 500; margin: 0; }
+.pin-foot { font-size: var(--type-meta); color: var(--ink-3); margin-top: var(--space-5); max-width: 56ch; }
+
+/* ------------------------------------------------------------- A4 print sheet
+   794 × 1123 px is 210 × 297 mm at 96 dpi. It is the paper, not a scale step:
+   the sheet never reflows, it is scaled whole. */
+.pin-printwell { background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-5); }
+.pin-sheetbox { position: relative; margin: 0 auto; max-width: 794px; }
+.pin-sheet {
+  width: 794px; height: 1123px; background: var(--surface-1);
+  box-shadow: 0 1px 0 var(--line), 0 0 0 1px var(--line);
+  transform-origin: top left; position: absolute; left: 0; top: 0;
+  padding: 72px; display: flex; flex-direction: column;
+  font-size: var(--type-body); color: var(--ink-1);
+}
+.pin-sheet .pin-s-top { flex: 0 0 auto; }
+.pin-sheet .pin-s-mid { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); }
+.pin-sheet .pin-s-low { flex: 0 0 auto; display: grid; gap: 28px; }
+.pin-sheet .pin-inst { font-size: 15px; font-weight: var(--weight-strong); margin: 0; }
+.pin-sheet .pin-rule { width: 40px; height: 2px; background: var(--pintar-primary); margin: 14px 0 0; }
+.pin-sheet .pin-name {
+  font-size: var(--type-name-print); font-weight: var(--weight-strong); line-height: 1.05;
+  letter-spacing: var(--tracking-tight); margin: var(--space-3) 0 var(--space-5);
+}
+.pin-sheet .pin-done { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
+.pin-sheet .pin-course { font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: 1.3; margin: 6px 0 0; }
+.pin-sheet .pin-verify { background: transparent; padding: var(--space-5) 0 0; border-top: 1px solid var(--line); border-radius: 0; }
+
+/* The sheet is the page when printed: the shell, the actions and the well all
+   step aside, and one A4 leaves the printer. */
+@media print {
+  .pin-noprint { display: none !important; }
+  .pin-printwell { background: none; padding: 0; }
+  .pin-sheetbox { max-width: none; height: auto !important; }
+  .pin-sheet { position: static; transform: none !important; box-shadow: none; width: 100%; height: 100vh; }
+  .pin-col { padding: 0; max-width: none; }
+}
+
+/* --------------------------------------------------------- product provenance
+   The application footer. PROVENANCE, NOT PROMOTION: it says who stands behind
+   PINTAR, in the quietest register the type ladder has, and it is the last
+   thing on the page rather than a band competing with it.
+
+   `pin-noprint` on the element that mounts it — a printed certificate carries
+   its issuing institution's identity, not its software vendor's. */
+.pin-kaki {
+  border-top: 1px solid var(--line);
+  margin-top: var(--space-9);
+  padding-block: var(--space-5) var(--space-6);
+  display: grid;
+  gap: 2px;
+  font-size: var(--type-fine);
+  color: var(--ink-3);
+}
+.pin-kaki .pin-orang { font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-kaki .pin-badan { color: var(--ink-2); }
+/* The two links sit on one line at comfortable widths and stack when the
+   column narrows — a wrapping flex row rather than a fixed pair, so a long
+   domain can never push the page into a horizontal scroll. */
+.pin-kaki .pin-hubungi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--space-3);
+  margin-top: 6px;
+}
+.pin-kaki a {
+  color: var(--ink-3);
+  text-decoration: none;
+  /* The hairline, not its emphatic sibling: at rest these two links are the
+     quietest thing on the page, and hover is where they become obviously
+     clickable. A stronger resting rule pulled the eye to the least important
+     line in the footer. */
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+  transition: color var(--motion-fast), border-color var(--motion-fast);
+}
+.pin-kaki a:hover {
+  color: var(--pintar-primary);
+  border-bottom-color: var(--pintar-primary);
+  text-decoration: none;
+}
+
+/* ------------------------------------------------------------ evidence cards */
+.pin-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+.pin-metric {
+  border: 1px solid var(--line); border-radius: var(--radius-2); padding: var(--space-5);
+  display: grid; gap: 6px; align-content: start; background: var(--surface-1);
+}
+.pin-metric .pin-ml { font-size: var(--type-meta); font-weight: var(--weight-strong); }
+.pin-metric .pin-mv { font-size: 32px; font-weight: var(--weight-strong); letter-spacing: var(--tracking-tight); line-height: 1.1; }
+.pin-metric .pin-mm { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-metric .pin-ms { font-size: var(--type-eyebrow); color: var(--ink-3); }
+.pin-metric .pin-ma { font-size: var(--type-meta); border-top: 1px solid var(--line); padding-top: 10px; margin-top: var(--space-1); }
+.pin-metric .pin-abs { font-size: var(--type-body); color: var(--ink-2); }
+
+.pin-readiness { display: grid; gap: 10px; }
+.pin-rrow { display: grid; grid-template-columns: 1fr 40px; gap: var(--space-3); align-items: center; font-size: var(--type-meta); }
+.pin-rbar { grid-column: 1 / -1; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.pin-rbar i { display: block; height: 100%; background: var(--ink-3); }
+
+/* --------------------------------------------------- commitment and refusal */
+.pin-commit {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  padding: var(--space-6); display: grid; gap: var(--space-4); background: var(--surface-1);
+}
+.pin-commit h2 { font-size: var(--type-section); letter-spacing: -0.01em; margin: 0; font-weight: var(--weight-strong); }
+.pin-commit .pin-facts { grid-template-columns: repeat(3, auto); justify-content: start; gap: var(--space-4) var(--space-7); }
+.pin-commit .pin-facts dd { font-size: var(--type-section); }
+.pin-refusal {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  padding: var(--space-6); display: grid; gap: var(--space-3);
+  justify-items: start; background: var(--surface-1);
+}
+.pin-refusal h1 { font-size: var(--type-course); margin: 0; font-weight: var(--weight-strong); }
+
+/* --------------------------------------------------------- scope picker */
+.pin-picker { display: inline-flex; align-items: center; gap: var(--space-2); }
+.pin-picker select {
+  font: inherit; font-size: var(--type-meta); color: var(--ink-1);
+  background: var(--surface-1); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-1); padding: 6px 10px;
+}
+
+/* ------------------------------------------------------- phone composition */
+@media (max-width: 560px) {
+  .pin-top { flex-wrap: wrap; height: auto; padding: 0 var(--space-4); gap: 0 var(--space-4); }
+  .pin-top .pin-wordmark { padding: 14px 0; }
+  /* One step down on a phone: the header row here carries only the mark and
+     the language switch, and 36px made the row taller than the tab strip below
+     it without buying any legibility. */
+  .pin-top .pin-merek { height: var(--logo-height-phone); margin-block: 10px; }
+  .pin-top .pin-lang { margin-left: auto; }
+  .pin-top .pin-sub { display: none; }
+  /* The session strip gets its own row, between the mark and the tabs, so it
+     is on screen before anything scrolls and a long name can still be read. */
+  .pin-top .pin-sesi {
+    order: 5; width: 100%; justify-content: space-between;
+    border-top: 1px solid var(--line); padding-block: var(--space-1);
+  }
+  .pin-top .pin-sesi-ket { max-width: none; }
+  /* A TAB STRIP SIZED BY ITS LONGEST LABEL, NOT BY A NUMBER (WP6B).
+     44px was a fixed HEIGHT, which is the same mistake `.pin-actions .pin-btn`
+     made two rules down: it is right while every label fits on one line and
+     silently wrong the moment one does not. Measured at 320px -- an iPhone SE,
+     and the width a great many of the phones PINTAR is actually used on report
+     -- "Pembelajaran Saya" wrapped to two lines inside the 44px box and the
+     second line was CLIPPED, so the educator's own learning read as
+     "Pembelajaran" with something cut off underneath it. English did not wrap
+     and neither did any label that shipped before, which is exactly why a fixed
+     height survived this long.
+     It is now a FLOOR: the touch target keeps its minimum, and a label that
+     needs a second line gets one. Every shell that fits on one line renders at
+     44px exactly as before -- measured on the learner's own two tabs at 320,
+     375, 390 and 414. */
+  /* WRAPS WHEN, AND ONLY WHEN, THE LABELS DO NOT FIT (DAISY-03). Somebody who
+     holds several roles now has up to five places here, and a tab cannot be
+     narrower than its longest word: measured at 320px, five tabs pushed the
+     last one off the screen and the page scrolled sideways by 69px. A strip
+     that fits stays one row, exactly as before. */
+  .pin-tabs { order: 10; width: 100%; gap: 0; height: auto; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .pin-tabs a {
+    flex: 1; justify-content: center; text-align: center;
+    /* THE FLOOR IS ON THE TARGET, NOT ON THE STRIP. Putting `min-height` on the
+       strip instead leaves the anchor sized by its own text -- measured at
+       32.5px, so the strip looked right and the thing a thumb actually has to
+       hit had quietly shrunk below the platform minimum. The anchor carries the
+       44 itself and grows past it when a label needs a second line, so the
+       target can only ever get larger. */
+    height: auto; min-height: 44px;
+    line-height: var(--leading-body); padding-block: var(--space-1);
+  }
+  .pin-col { padding-block: 28px var(--space-8); padding-inline: var(--space-4); }
+  .pin-h1 { font-size: 26px; }
+  .pin-scope { margin-bottom: 28px; }
+  .pin-row { grid-template-columns: 1fr; padding: var(--space-4); }
+  .pin-row > .pin-pill { display: none; }
+  .pin-row .pin-rowmeta .pin-pill { display: inline-flex; }
+  .pin-cert { padding: var(--space-5); }
+  .pin-cert .pin-name { font-size: 32px; }
+  .pin-cert .pin-course { font-size: 18px; }
+  /* RESPONSIVE FACT STACK -- the narrow treatment for a compact fact summary.
+     A compact fact summary is a short run of label/value pairs read as one
+     group: "24 soal, 40 menit, ditutup 19 Sep". Across a wide column it reads
+     left to right and the labels line up.
+     Below this width there is no honest column. Two-up left a ~150px measure
+     that broke "Perkiraan waktu" and a long-form date onto second lines, and
+     the odd third pair spanning the full width made a ragged shape that read
+     as two groups rather than one list.
+     Stacked, every pair gets the whole measure and nothing wraps. The label
+     stays above its value, which is already what `.pin-dl` does at this width
+     -- so the two compact label/value structures in the product narrow the
+     same way, and a third one written later inherits it by using `.pin-facts`.
+     Nothing is added to carry the change: no rules, no icons, no markers. */
+  .pin-facts,
+  .pin-commit .pin-facts { grid-template-columns: 1fr; }
+  .pin-verify { grid-template-columns: 1fr; }
+  .pin-actions { flex-direction: column; align-items: stretch; }
+  .pin-actions .pin-btn {
+    width: 100%;
+    /* A BUTTON SIZED BY ITS OWN LABEL SHOULD NOT WRAP; A BUTTON TOLD TO BE THE
+       WIDTH OF A PHONE MUST. `.pin-btn` carries `white-space: nowrap`, which is
+       right when the button is as wide as its words and wrong once a rule
+       stretches it: the label then refuses to fold, the column flex container
+       grows to fit it, and the whole panel takes the page's horizontal scroll
+       with it. Measured at 390px: four of thirty-two rendered educator pages
+       overflowed, the worst by 279px with the document scrolling to 637px.
+       This rule alone returns all thirty-two to zero. */
+    white-space: normal; height: auto; min-height: 40px;
+    padding-block: var(--space-2);
+  }
+  .pin-status { padding: var(--space-5); }
+  .pin-status .pin-big { font-size: var(--type-page); }
+  .pin-dl > div { grid-template-columns: 1fr; padding: 14px var(--space-4); }
+  .pin-pending { padding: var(--space-5); }
+  .pin-printwell { padding: var(--space-3); }
+  .pin-grid2 { grid-template-columns: 1fr; }
+  .pin-kaki { margin-top: var(--space-8); }
+  .pin-commit, .pin-refusal { padding: var(--space-5); }
+  /* The sheet is the one exception, and it is not a narrow surface: A4 is
+     794px of paper scaled whole and never reflowed, so the viewport's width
+     is not the sheet's width. Its facts keep the printed row. */
+  .pin-sheet .pin-facts { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ═══════════════════════════════════════════ UX-1 Slice 2 · the learner cycle
+   The composition the approved Slice-2 concept established. Everything here is
+   built from the token set; the classes below are arrangements of it, not new
+   design values. */
+
+/* THE ONE THING. The single most appropriate next action, decided from cycle
+   state rather than from a list position. It is the ONLY element on the home
+   that stands on the primary ground, because there is only ever one of it: the
+   moment a second thing claims that ground, the home is a dashboard again and
+   the learner is back to choosing. */
+.pin-lanjut {
+  background: var(--pintar-primary-soft); border-radius: var(--radius-2);
+  padding: var(--space-6); display: grid; gap: var(--space-2); margin-bottom: var(--space-7);
+}
+.pin-lanjut .pin-where { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-lanjut h2 {
+  font-size: var(--type-section); font-weight: var(--weight-strong);
+  letter-spacing: -0.01em; margin: 0; line-height: var(--leading-heading);
+}
+.pin-lanjut .pin-sub { font-size: var(--type-body); color: var(--ink-2); max-width: 56ch; }
+.pin-lanjut .pin-actions { margin-top: var(--space-3); }
+
+/* THE CYCLE TRAIL. Position, not score. Filled = done, ring = where you are,
+   hollow = not yet. NO STATUS COLOUR anywhere in it: a learner part-way
+   through a cycle is not in a warning state, they are simply part-way through,
+   and colouring the remaining steps would tell them otherwise. */
+.pin-jejak {
+  display: flex; align-items: flex-start; gap: 0;
+  margin: var(--space-4) 0 var(--space-3); overflow-x: auto; padding-bottom: var(--space-1);
+}
+.pin-jstep { display: grid; justify-items: center; gap: 6px; flex: 1 1 0; min-width: 78px; position: relative; }
+.pin-jstep .pin-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid var(--line-strong); background: var(--surface-1); z-index: 1;
+}
+.pin-jstep .pin-jname { font-size: var(--type-eyebrow); color: var(--ink-3); text-align: center; line-height: 1.3; }
+.pin-jstep::before {
+  content: ""; position: absolute; top: 5px; left: -50%;
+  width: 100%; height: 2px; background: var(--line); z-index: 0;
+}
+.pin-jstep:first-child::before { display: none; }
+.pin-jstep.pin-done .pin-dot { background: var(--pintar-primary); border-color: var(--pintar-primary); }
+.pin-jstep.pin-done::before { background: var(--pintar-primary); }
+.pin-jstep.pin-now .pin-dot { border-color: var(--pintar-primary); box-shadow: 0 0 0 4px var(--pintar-primary-soft); }
+.pin-jstep.pin-now .pin-jname { color: var(--ink-1); font-weight: var(--weight-strong); }
+.pin-jstep.pin-now::before { background: var(--pintar-primary); }
+
+/* An assignment, as a POSITION IN A JOURNEY rather than a row in a table. */
+.pin-tugas {
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  padding: var(--space-5); display: grid; gap: var(--space-1);
+}
+.pin-tugas + .pin-tugas { margin-top: var(--space-3); }
+.pin-tugas .pin-ttitle { font-size: var(--type-course); font-weight: var(--weight-strong); line-height: 1.3; }
+.pin-tugas .pin-tfoot {
+  display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center;
+  justify-content: space-between; margin-top: var(--space-2);
+}
+.pin-tugas .pin-tstatus { font-size: var(--type-meta); color: var(--ink-2); }
+
+/* NEEDS ATTENTION, and the accent is the RULE rather than a fill. A filled
+   amber band across the column outweighed the one primary panel above it,
+   which inverted the very priority the home exists to express. The section is
+   ABSENT entirely when nothing needs attention — honest absence, never an
+   empty container explaining that it is empty. */
+.pin-perhatian {
+  background: var(--surface-1); border: 1px solid var(--line);
+  border-left: 3px solid var(--status-attention);
+  border-radius: 0 var(--radius-1) var(--radius-1) 0;
+  padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-1); margin-bottom: var(--space-3);
+}
+.pin-perhatian .pin-what { font-weight: var(--weight-strong); font-size: var(--type-card); color: var(--ink-1); }
+.pin-perhatian .pin-why { font-size: var(--type-meta); color: var(--ink-2); }
+
+.pin-sec { margin-top: var(--space-7); }
+.pin-sec > h2 {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+  margin: 0 0 var(--space-3);
+}
+.pin-empty { font-size: var(--type-meta); color: var(--ink-3); padding: var(--space-4) 0; }
+
+/* ------------------------------------------------------------------- lesson */
+.pin-lesson { display: grid; gap: var(--space-5); }
+.pin-lesson .pin-prose {
+  font-size: var(--type-body); color: var(--ink-1); max-width: var(--measure);
+  display: grid; gap: var(--space-4); line-height: var(--leading-prose);
+}
+.pin-lesson .pin-prose p { margin: 0; }
+.pin-contoh {
+  background: var(--surface-2); border-radius: var(--radius-2);
+  padding: var(--space-5); display: grid; gap: var(--space-3);
+}
+.pin-contoh .pin-langkah {
+  display: grid; grid-template-columns: auto 1fr; gap: var(--space-3);
+  font-size: var(--type-body); align-items: baseline;
+}
+.pin-contoh .pin-n { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-3); }
+
+/* --------------------------------------------------------------- reading map */
+.pin-peta { display: grid; gap: var(--space-2); }
+.pin-kartu {
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-1);
+}
+.pin-kartu .pin-tier {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-kartu .pin-claim { font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-kartu .pin-why { font-size: var(--type-meta); color: var(--ink-2); }
+/* The card to read first is drawn with a heavier rule and its padding is
+   reduced by the extra border width, so the text inside sits where it sits on
+   every other card and the stack does not shuffle by a pixel. */
+.pin-kartu.pin-now { border-color: var(--pintar-primary); border-width: 2px; padding: 15px 23px; }
+
+/* --------------------------------------------------------------- assessment */
+.pin-orient { display: grid; gap: var(--space-5); }
+/* The orientation facts are the SAME compact fact summary the certificate and
+   the commitment shell use, so they inherit the responsive stack rather than
+   restating it. The box is the only thing added here.
+   TWO FACTS, NOT THREE. The reviewed concept carried an estimated time; it was
+   ruled out on 2026-09-17 because no legitimate duration fact exists and a
+   plausible number a learner plans their afternoon around is worse than no
+   number. What is left is what is true: how many questions, and when it closes.
+   So the row sizes to its content and starts at the left rather than stretching
+   two short values across three columns' worth of measure — the same treatment
+   the commitment shell's summary already uses. */
+.pin-orient .pin-facts {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  padding: var(--space-5); background: var(--surface-1);
+  grid-template-columns: repeat(2, auto); justify-content: start;
+  gap: var(--space-4) var(--space-7);
+}
+.pin-orient .pin-facts dd { font-size: var(--type-course); }
+.pin-bisa {
+  margin: 0; padding-left: 20px; font-size: var(--type-body); color: var(--ink-2);
+  display: grid; gap: 6px; max-width: 60ch; list-style: disc;
+}
+.pin-bisa li::marker { color: var(--ink-3); }
+/* THE INTEGRITY NOTE (Q-15). A quiet paragraph on the well, NOT a warning box:
+   the ruling says these records are observation and never judgment, and a
+   bordered alert would say the opposite of the words inside it. */
+.pin-catatan {
+  background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-5);
+  font-size: var(--type-meta); color: var(--ink-2); max-width: 60ch;
+}
+.pin-catatan strong { color: var(--ink-1); font-weight: var(--weight-strong); display: block; margin-bottom: var(--space-1); }
+
+/* ------------------------------------------------------- the lesson player
+   The reading surface. Everything here serves sustained reading: a measure
+   that does not run past the eye, prose leading, and controls that sit below
+   the text rather than beside it. */
+.pin-prose { font-size: var(--type-body); color: var(--ink-1); max-width: var(--measure); line-height: var(--leading-prose); }
+.pin-prose > * + * { margin-top: var(--space-4); }
+.pin-lp { margin: 0; }
+.pin-lh3 { font-size: var(--type-course); font-weight: var(--weight-strong); margin: 0; }
+.pin-lmedia { width: 100%; max-width: 360px; border-radius: var(--radius-1); margin: var(--space-4) 0; }
+/* Reading position: dots rather than a bar, because a page of a lesson is a
+   place and not a percentage. */
+.pin-lpos { display: flex; align-items: center; gap: var(--space-2); font-size: var(--type-meta); color: var(--ink-3); margin-top: var(--space-5); }
+.pin-lpos .pin-dots { display: flex; align-items: center; gap: 6px; }
+.pin-ldot { width: var(--space-2); height: var(--space-2); border-radius: 50%; background: var(--line-strong); }
+.pin-ldot.pin-at { background: var(--pintar-primary); }
+.pin-ldot.pin-done { background: var(--ink-3); }
+.pin-actions.pin-between { justify-content: space-between; width: 100%; }
+.pin-actions .pin-btn:disabled { opacity: 0.4; cursor: default; }
+.pin-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-3); }
+.pin-contoh .pin-langkah, .pin-steps .pin-langkah {
+  display: grid; grid-template-columns: auto 1fr; gap: var(--space-3);
+  font-size: var(--type-body); align-items: baseline;
+}
+.pin-steps .pin-n { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-3); }
+.pin-lmediaset { display: grid; gap: var(--space-4); margin-top: var(--space-6); }
+.pin-lcard { border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1); padding: var(--space-4); }
+.pin-llink { color: var(--pintar-primary); text-decoration: underline; display: block; }
+.pin-lvideo { width: 100%; border-radius: var(--radius-1); }
+.pin-laudio { width: 100%; }
+.pin-lctl { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); font-size: var(--type-meta); margin-top: var(--space-3); }
+.pin-lrate { display: flex; align-items: center; gap: var(--space-2); }
+.pin-lselect {
+  font: inherit; font-size: var(--type-meta); border: 1px solid var(--line);
+  background: var(--surface-0); border-radius: var(--radius-1); padding: var(--space-1) var(--space-2); color: var(--ink-1);
+}
+.pin-ltrans { white-space: pre-wrap; color: var(--ink-2); font-size: var(--type-meta); margin-top: var(--space-3); }
+
+/* ----------------------------------------------------------- the item player */
+.pin-soalbar {
+  display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;
+  padding-bottom: var(--space-3); border-bottom: 1px solid var(--line); margin-bottom: var(--space-5);
+}
+.pin-soalbar .pin-pos { font-size: var(--type-meta); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pin-soalbar .pin-sbar {
+  flex: 1 1 120px; height: 4px; background: var(--surface-2);
+  border-radius: 2px; overflow: hidden; min-width: 80px;
+}
+.pin-soalbar .pin-sbar i { display: block; height: 100%; background: var(--pintar-primary); }
+.pin-soalbar .pin-time { font-size: var(--type-meta); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.pin-soalbar .pin-btn { height: 32px; font-size: var(--type-fine); }
+
+.pin-stem { font-size: var(--type-stem); line-height: var(--leading-body); font-weight: var(--weight-normal); max-width: 60ch; margin: 0 0 var(--space-5); }
+.pin-opsi { display: grid; gap: var(--space-3); max-width: 60ch; }
+.pin-op {
+  display: flex; gap: var(--space-4); padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  font-size: var(--type-card); font-weight: var(--weight-normal); align-items: baseline;
+  cursor: pointer; text-align: left; width: 100%;
+  transition: border-color var(--motion-fast), background-color var(--motion-fast);
+}
+.pin-op:hover { border-color: var(--line-strong); }
+.pin-op .pin-k { font-size: var(--type-meta); color: var(--ink-3); min-width: 1.4em; flex: none; }
+/* Same trick as the reading map's first card: the heavier border eats its own
+   two pixels out of the padding so a chosen option does not jump. */
+.pin-op[aria-pressed="true"] {
+  border: 2px solid var(--pintar-primary); background: var(--pintar-primary-soft);
+  padding: 15px 23px; font-weight: var(--weight-strong);
+}
+.pin-op[aria-pressed="true"] .pin-k { color: var(--pintar-primary); }
+
+/* Assistance is OFFERED, never pushed, and it carries no answer key. */
+.pin-bantuan {
+  background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-5);
+  display: grid; gap: var(--space-2); max-width: 60ch; margin-top: var(--space-5);
+}
+.pin-bantuan .pin-lvl {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-bantuan p { margin: 0; font-size: var(--type-body); color: var(--ink-1); }
+
+.pin-daftar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
+.pin-num-btn {
+  width: 34px; height: 34px; border-radius: var(--radius-1); border: 1px solid var(--line);
+  background: var(--surface-1); font: inherit; font-size: var(--type-meta);
+  font-variant-numeric: tabular-nums; color: var(--ink-2); cursor: pointer;
+  display: grid; place-items: center;
+}
+.pin-num-btn.pin-ans {
+  background: var(--pintar-primary); border-color: var(--pintar-primary);
+  color: var(--pintar-primary-ink); font-weight: var(--weight-strong);
+}
+.pin-num-btn.pin-flag { border-color: var(--status-attention); color: var(--status-attention); font-weight: var(--weight-strong); }
+.pin-num-btn.pin-at { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
+
+/* The player's own wrapper and the two pieces the re-set introduced. */
+.pin-player { display: grid; }
+.pin-soalbar .pin-sbchrome { display: flex; align-items: center; gap: var(--space-3); font-size: var(--type-meta); margin-left: auto; }
+.pin-soalbar .pin-dots { display: flex; align-items: center; gap: 6px; }
+.pin-luring { color: var(--status-attention); font-weight: var(--weight-strong); }
+.pin-soal { display: grid; gap: 0; }
+.pin-stimulus { white-space: pre-wrap; color: var(--ink-2); max-width: 60ch; margin: 0 0 var(--space-4); }
+/* The navigator is a wrapping row of targets, not a six-column table: 24 of
+   them fit the measure at any width, and a fixed column count leaves a ragged
+   last row on one screen size or another. */
+.pin-daftar {
+  list-style: none; margin: var(--space-4) 0 0; padding: var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+}
+.pin-daftar li { display: contents; }
+
+/* ------------------------------------------------------------------- result */
+.pin-hasil {
+  background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-6);
+  display: grid; gap: var(--space-2); margin-bottom: var(--space-5);
+}
+.pin-hasil .pin-big2 {
+  font-size: var(--type-hero); font-weight: var(--weight-strong); line-height: 1.05;
+  letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums; margin: 0;
+}
+/* A NUMBER NEVER STANDS ALONE: the figure is always followed by what it is out
+   of and what the threshold is, and both come from the engine. */
+.pin-hasil .pin-mean { font-size: var(--type-body); color: var(--ink-2); max-width: 56ch; margin: 0; }
+.pin-domain { display: grid; gap: var(--space-2); }
+.pin-drow {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--space-3); align-items: center;
+  padding: var(--space-3) var(--space-4); border: 1px solid var(--line);
+  border-radius: var(--radius-1); background: var(--surface-1); font-size: var(--type-meta);
+}
+.pin-drow .pin-cnt { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.pin-tinjau { display: grid; gap: var(--space-2); }
+/* A <details> is NOT a grid container worth trusting: the summary is a grid
+   item and what follows it is laid out by rules that differ between engines.
+   Rendered, the answer and its explanation ran together on one line with a
+   stray rule beside them. Block flow, and each child declares its own box. */
+.pin-item {
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  padding: var(--space-4) var(--space-5);
+}
+.pin-item > summary { cursor: pointer; }
+.pin-item > summary::marker { color: var(--ink-3); }
+.pin-item .pin-ihead { display: flex; gap: var(--space-3); align-items: baseline; flex-wrap: wrap; }
+.pin-item .pin-pos { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-3); }
+.pin-item .pin-q { font-size: var(--type-body); flex: 1 1 20ch; }
+.pin-item .pin-mine { display: block; font-size: var(--type-meta); color: var(--ink-2); margin-top: var(--space-3); }
+.pin-item .pin-why {
+  display: block; font-size: var(--type-meta); color: var(--ink-1);
+  border-top: 1px solid var(--line); padding-top: var(--space-3); margin-top: var(--space-3);
+}
+
+/* ---------------------------------------------------------------- what next */
+.pin-next { display: grid; gap: var(--space-2); }
+.pin-nrow {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--space-4); align-items: center;
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  padding: var(--space-4) var(--space-5);
+}
+.pin-nrow .pin-nt { font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-nrow .pin-nw { font-size: var(--type-meta); color: var(--ink-2); }
+
+@media (max-width: 560px) {
+  /* The orientation's summary stacks like every other one. It is declared HERE
+     rather than beside the two above because `.pin-orient .pin-facts` is
+     written further down this file, and at equal specificity the later rule
+     wins: a stack declared before the thing it overrides is a stack that never
+     happens. The screen looked fine in review and was two cramped columns on a
+     phone. UX1-S0-FAKTA-01 now checks document order, not just presence. */
+  .pin-orient .pin-facts { grid-template-columns: 1fr; }
+  .pin-lanjut { padding: var(--space-5); }
+  .pin-lanjut h2 { font-size: var(--type-subhead); }
+  /* THE TRAIL KEEPS ITS SHAPE, LOSES ITS LABELS. Five step names do not fit
+     across 390px, and a trail that scrolls sideways cannot be read at a
+     glance — which is the only thing a trail is for. So on a phone the dots
+     alone carry "where in five", and the status line already directly below
+     every trail carries "which one". Nothing is cut off, and nothing is hidden
+     that is not said in words a line further down. */
+  .pin-jejak { overflow: visible; margin-bottom: var(--space-2); }
+  .pin-jstep { min-width: 0; }
+  .pin-jstep .pin-jname { display: none; }
+  .pin-stem { font-size: var(--type-stem-phone); }
+  .pin-tugas .pin-tfoot { flex-direction: column; align-items: stretch; }
+  .pin-tugas .pin-tfoot .pin-btn {
+    width: 100%;
+    /* THE SAME DEFECT AS THE ONE ON `.pin-actions .pin-btn`, on the learner's
+       home rather than the educator's, and found by the guard rather than by a
+       screenshot: no rendered fixture reaches this card, so nothing was ever
+       going to show it. A button stretched to the width of a phone must be
+       allowed to fold its label. */
+    white-space: normal; height: auto; min-height: 40px;
+    padding-block: var(--space-2);
+  }
+  .pin-nrow { grid-template-columns: 1fr; }
+  .pin-hasil { padding: var(--space-5); }
+}
+
+/* ═══════════════════════════════════════ UX-1 Slice 3 · the educator's surface
+   Arrangements of the same token set, and nothing new in the design language.
+   Everything here reuses the Slice 0-2 primitives where one exists — the list
+   and its rows, the compact fact summary, the metric card, the commitment
+   panel, the refusal — so the educator's screens and the learner's cannot drift
+   apart by being built twice. */
+
+/* THE TEACHING CONTEXT SWITCHER. A row of places, not a filter: the current one
+   is marked and the others are links. It carries no authority and the copy
+   beside it does not say it does. */
+.pin-switch {
+  display: inline-flex; flex-wrap: wrap; overflow: hidden;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  margin-bottom: var(--space-6);
+}
+.pin-switch a {
+  padding: var(--space-2) var(--space-4); border-left: 1px solid var(--line);
+  font-size: var(--type-meta); font-weight: var(--weight-strong);
+  color: var(--ink-2); text-decoration: none;
+  transition: background-color var(--motion-fast), color var(--motion-fast);
+}
+.pin-switch a:first-child { border-left: 0; }
+.pin-switch a:hover { background: var(--surface-0); text-decoration: none; }
+.pin-switch a[aria-current="page"] { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+
+/* THE THREE STAGES OF A COMMITMENT. Set it up, look at what will happen, do it.
+   Words and a rule between them — not a progress bar, because there is no
+   proportion of a decision and a bar would invite somebody to fill it. */
+.pin-tahap {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-2) var(--space-4); margin: 0 0 var(--space-6); padding: 0;
+  list-style: none; font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-tahap li { display: flex; align-items: center; gap: var(--space-4); }
+.pin-tahap li + li::before {
+  content: ""; width: var(--space-4); height: 1px; background: var(--line-strong);
+}
+.pin-tahap li.pin-done { color: var(--ink-2); }
+.pin-tahap li[aria-current="step"] { color: var(--ink-1); }
+
+/* NAMES, IN TWO COLUMNS AND ONE ORDER. No slot for a status, a colour or a
+   number beside anybody — the shape of the list is itself the guarantee. */
+.pin-roster {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 0 var(--space-5); font-size: var(--type-meta);
+}
+.pin-roster li { padding: var(--space-2) 0; border-top: 1px solid var(--line); }
+
+/* WHAT WILL BE MADE AVAILABLE, BEFORE IT IS. The review card: the package, then
+   the numbered list of what a learner actually receives. */
+.pin-paket {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  padding: var(--space-6); background: var(--surface-1);
+  display: grid; gap: var(--space-3);
+}
+.pin-prow {
+  display: flex; flex-wrap: wrap; gap: var(--space-3);
+  align-items: center; justify-content: space-between;
+}
+.pin-prow h2 {
+  font-size: var(--type-section); font-weight: var(--weight-strong);
+  letter-spacing: -0.01em; line-height: var(--leading-heading); margin: 0;
+}
+.pin-terima { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: grid; gap: var(--space-4); }
+.pin-terima li {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: var(--space-1) var(--space-3); align-items: baseline;
+  border-top: 1px solid var(--line); padding-top: var(--space-3);
+}
+.pin-terima .pin-n { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-3); }
+.pin-terima .pin-what { font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-terima .pin-r { font-size: var(--type-meta); color: var(--ink-3); text-align: right; }
+.pin-terima .pin-d { grid-column: 2 / -1; font-size: var(--type-meta); color: var(--ink-2); }
+
+/* THE CONSEQUENCE SENTENCE. Prose, at prose leading, naming the people and the
+   date — it is the last thing read before an act that changes a class's week. */
+.pin-akibat {
+  margin: 0; max-width: 60ch;
+  font-size: var(--type-body); color: var(--ink-1); line-height: var(--leading-prose);
+}
+
+/* A SECOND LINE UNDER A FACT. The compact fact summary gains a quiet qualifier
+   — "24 learners enrolled today" under a class name — and inherits the stack. */
+.pin-facts dd small {
+  display: block; margin-top: var(--space-1);
+  font-size: var(--type-eyebrow); font-weight: var(--weight-normal); color: var(--ink-3);
+}
+
+/* FORM FIELDS, on the two screens that configure something. Label above,
+   control, then the sentence that says where the bound came from. */
+.pin-isian { display: grid; gap: var(--space-2); margin-bottom: var(--space-5); max-width: 56ch; }
+.pin-isian > label, .pin-isian .pin-label {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-input {
+  font: inherit; font-size: var(--type-body); height: 40px;
+  padding: 0 var(--space-3); color: var(--ink-1); background: var(--surface-1);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+}
+.pin-hint { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
+.pin-value { margin: 0; font-size: var(--type-body); }
+.pin-seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius-1); overflow: hidden; }
+.pin-seg label { position: relative; display: block; }
+.pin-seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.pin-seg span {
+  display: block; padding: var(--space-2) var(--space-4); border-left: 1px solid var(--line);
+  font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2);
+}
+.pin-seg label:first-child span { border-left: 0; }
+.pin-seg input:checked + span { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-seg input:focus-visible + span { outline: 2px solid var(--pintar-primary); outline-offset: -2px; }
+
+/* IT IS AVAILABLE NOW. The only place in the Experience that stands on status
+   green: a thing the educator just made real, said once, and then the counts
+   below it in plain ink because counts are not achievements. */
+.pin-hidup {
+  background: var(--status-ok-soft); border-radius: var(--radius-2);
+  padding: var(--space-6); display: grid; gap: var(--space-2); margin-bottom: var(--space-5);
+}
+.pin-hidup .pin-eyebrow { color: var(--status-ok); }
+.pin-hidup h1 {
+  margin: 0; font-size: var(--type-section); font-weight: var(--weight-strong);
+  letter-spacing: -0.01em; line-height: var(--leading-heading);
+}
+.pin-hidup p { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+
+/* WHAT TO DO NEXT. One card per act, each with the reason it is on the list at
+   all; the first is outlined because the order is a reading of the class. */
+.pin-acts { display: grid; gap: var(--space-3); }
+.pin-act {
+  /* `minmax(0, 1fr)` for the same reason as `.pin-row`: the `auto` track holds
+     `.pin-go`, which refuses to wrap, so a title with no break opportunity
+     would push it out of the card. */
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-4);
+  align-items: center; padding: var(--space-5);
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  color: inherit; text-decoration: none;
+  transition: border-color var(--motion-fast);
+}
+.pin-act:hover { border-color: var(--ink-3); text-decoration: none; }
+.pin-act.pin-first { border-color: var(--pintar-primary); }
+.pin-act .pin-title { font-size: var(--type-card); font-weight: var(--weight-strong); line-height: 1.3; }
+.pin-act .pin-why { grid-column: 1; max-width: 60ch; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-act .pin-go {
+  grid-column: 2; grid-row: 1 / span 2; white-space: nowrap;
+  font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--pintar-primary);
+}
+
+/* RECURRING MISUNDERSTANDINGS — the aggregate an educator is granted. A label,
+   how often, and what the catalogue says to do about it. No item, no learner. */
+.pin-keliru { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.pin-keliru li {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--space-1) var(--space-3);
+  border-top: 1px solid var(--line); padding-top: var(--space-3);
+}
+.pin-keliru .pin-kl { font-size: var(--type-meta); font-weight: var(--weight-strong); }
+.pin-keliru .pin-kr { grid-column: 1 / -1; font-size: var(--type-meta); color: var(--ink-2); }
+
+@media (max-width: 560px) {
+  /* Two columns of names need two readable measures; below this width there is
+     one. The same reasoning as the compact fact summary, and the same answer. */
+  .pin-roster { grid-template-columns: 1fr; }
+  .pin-switch { display: grid; grid-template-columns: 1fr; width: 100%; }
+  .pin-switch a { border-left: 0; border-top: 1px solid var(--line); }
+  .pin-switch a:first-child { border-top: 0; }
+  .pin-seg { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .pin-seg span { border-left: 1px solid var(--line); text-align: center; }
+  .pin-isian .pin-input { width: 100%; }
+  .pin-paket, .pin-hidup { padding: var(--space-5); }
+  .pin-terima li { grid-template-columns: auto 1fr; }
+  .pin-terima .pin-r { grid-column: 2; text-align: left; }
+  .pin-act { grid-template-columns: 1fr; }
+  .pin-act .pin-go { grid-column: 1; grid-row: auto; }
+}
+
+/* ══════════════════════════════════════════════ UX-1 · GUIDANCE MODE (§F, §O)
+   The role-based first-login tour, the Help panel behind the header control,
+   and the one tip the tour owns.
+
+   THE VALUES BELOW ARE THE APPROVED ONES, ported from the design prototype
+   "PINTAR Tur Pertama" (r2.1, SHA-256 23a6fcdd…): the 420px card, the 3px
+   white gap and 2px primary ring, the 72% veil, the seven position dots, the
+   white miniature frame, the 78% phone sheet. Where the prototype wrote a
+   value off the token scale, the nearest token is used instead — the largest
+   such move is 2px, and none of them is visible.
+
+   GUIDANCE MODE IS EXACTLY TWO STATES (§O-1): a tour is running, and Help is
+   open. Nothing else in PINTAR may paint `primary-soft` as an environment, and
+   the mode never appears inside instruction as a status — not for a result,
+   not for a correct answer, not for evidence being sufficient, not for
+   permission. The tip below is deliberately NOT the mode: it is one sentence
+   on the page exactly as it was. */
+
+/* The environment. The class goes on <html> while a tour or Help is open, and
+   comes off when the last of the two closes. */
+html.pin-tuntun body { background: var(--pintar-primary-soft); }
+
+/* Announced, not drawn. The step number is read as words because the dots are
+   a picture of it and a picture is not a carrier (§K-4). */
+.pin-sr {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ the spotlight
+   ONE ELEMENT, NOT FOUR BANDS. The veil is the ring's own outermost shadow, so
+   the cut-out has exactly one edge and the ring can never drift from it by a
+   pixel. The spread is larger than any viewport on purpose; the shape is the
+   target's, measured live. */
+.pin-tur-sorot {
+  position: fixed; z-index: 40; pointer-events: none;
+  border-radius: var(--radius-2);
+  box-shadow:
+    0 0 0 3px var(--surface-1),
+    0 0 0 5px var(--pintar-primary),
+    0 0 0 4000px color-mix(in srgb, var(--pintar-primary-soft) 72%, transparent);
+}
+/* A step whose target is not on this page keeps its place in the seven and
+   gets the veil alone — nothing is drawn on the page to give the spotlight
+   something to hold (§J-1). */
+.pin-tur-tirai {
+  position: fixed; inset: 0; z-index: 40;
+  background: color-mix(in srgb, var(--pintar-primary-soft) 72%, transparent);
+}
+
+/* ------------------------------------------------------------- the tour card
+   Placed by measurement on a wide screen — below its target, above it when
+   there is no room below, centred when there is no target — and never over it.
+   The default here is only ever seen for the first paint of a server-rendered
+   arrival, before the measurement that runs ahead of the browser's paint. */
+.pin-tur-kartu {
+  position: fixed; z-index: 41;
+  top: var(--space-7); left: 50%; translate: -50% 0;
+  width: var(--measure-guide-card); max-width: calc(100% - var(--space-6));
+  background: var(--surface-1);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-2);
+  padding: var(--space-5);
+  display: grid; gap: var(--space-3);
+  color: var(--ink-1);
+}
+.pin-tur-atas { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.pin-tur-nama { flex: 1; white-space: nowrap; }
+.pin-tur-maju { display: inline-flex; align-items: center; gap: var(--space-2); }
+.pin-tur-hitung {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong); color: var(--ink-3);
+}
+/* Seven positions, not a bar that fills: finishing a tour is not an
+   achievement and nothing here celebrates it. */
+.pin-tur-titik { display: inline-flex; align-items: center; gap: 6px; }
+.pin-tur-titik i { width: 6px; height: 6px; border-radius: 3px; background: var(--line-strong); }
+.pin-tur-titik i.pin-lalu { background: var(--ink-3); }
+.pin-tur-titik i.pin-kini { width: var(--space-4); background: var(--pintar-primary); }
+/* The two quiet header controls: the language, and the way out. Both are text,
+   because an icon-only close is not a close anybody can read (§K-11). */
+.pin-tur-x {
+  background: none; border: 0; font: inherit;
+  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-2);
+  padding: var(--space-1) var(--space-2); border-radius: 6px; cursor: pointer;
+}
+.pin-tur-x:hover { background: var(--surface-2); }
+.pin-tur-judul {
+  font-size: var(--type-course); font-weight: var(--weight-strong);
+  line-height: var(--leading-heading); letter-spacing: -0.01em; margin: 0;
+}
+/* Focus lands here on open and on every step, so the step is read in the order
+   it is written. It is never reached by Tab, so the ring is suppressed only
+   for that programmatic case and kept for anybody arriving by keyboard. */
+.pin-tur-judul:focus:not(:focus-visible) { outline: none; }
+.pin-tur-isi { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
+.pin-tur-kaki { display: flex; align-items: center; gap: var(--space-2) var(--space-4); flex-wrap: wrap; }
+.pin-tur-centang {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  font-size: var(--type-fine); color: var(--ink-2);
+  flex: 1 1 180px; min-height: 44px; cursor: pointer;
+}
+.pin-tur-centang input {
+  width: 18px; height: 18px; margin: 0; flex: none; accent-color: var(--pintar-primary);
+}
+.pin-tur-catatan { flex: 1 1 180px; font-size: var(--type-fine); color: var(--ink-3); margin: 0; }
+.pin-tur-tombol { display: flex; gap: var(--space-2); margin-left: auto; }
+/* The primary-school variant: larger type, larger targets. Dormant in PINTAR
+   4.0, because no legitimate person-scoped stage signal exists to select it. */
+.pin-tur-sd .pin-tur-judul { font-size: var(--type-subhead); }
+.pin-tur-sd .pin-tur-isi {
+  font-size: var(--type-stem-phone); line-height: var(--leading-body); color: var(--ink-1);
+}
+.pin-tur-sd .pin-tur-tombol .pin-btn { height: var(--space-8); padding: 0 20px; font-size: var(--type-body); }
+
+/* -------------------------------------------------------------- miniatures
+   A white frame with a hairline, standing for the white product sheet (§O-3),
+   holding geometry and no words. Everything inside is `aria-hidden`: the
+   step's body already carries the meaning. */
+.pin-mini {
+  background: var(--surface-1); border: 1px solid var(--line);
+  border-radius: var(--radius-1); padding: 10px var(--space-3) var(--space-3);
+  display: grid; gap: var(--space-2);
+}
+.pin-mini-label {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-mini-bingkai {
+  background: var(--surface-1); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-1); padding: var(--space-3);
+  display: grid; gap: var(--space-2);
+}
+.pin-mini-rows, .pin-mini-soal, .pin-mini-hasil { display: grid; gap: var(--space-2); }
+.pin-mini-row { display: flex; align-items: center; gap: var(--space-2); }
+.pin-mini-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.pin-mini-lebar { width: 100%; }
+.pin-mini-judul { height: var(--space-2); background: var(--line-strong); }
+.pin-mini-pendek { flex: none; width: var(--space-9); }
+.pin-mini-nilai { flex: none; width: var(--space-6); height: 6px; border-radius: 3px; background: var(--line-strong); }
+.pin-mini-tanda { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); }
+.pin-mini-tanda.pin-mini-kini { background: var(--pintar-primary); }
+.pin-mini-spine { display: flex; align-items: center; gap: var(--space-1); }
+.pin-mini-stop { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.pin-mini-stop.pin-mini-kini { background: var(--pintar-primary); }
+.pin-mini-opsi {
+  display: block; border: 1px solid var(--line);
+  border-radius: var(--radius-1); padding: 6px 10px;
+}
+/* The chosen option, drawn as the product draws it. Sauron recorded this as
+   SELECTION, not status (§O, finding 3): it says "this one is picked", and it
+   never says "this one is right". */
+.pin-mini-pilih {
+  border-color: var(--pintar-primary); background: var(--pintar-primary-soft);
+  box-shadow: inset 0 0 0 1px var(--pintar-primary);
+}
+.pin-mini-tombol { display: block; width: var(--space-9); height: var(--space-5); border-radius: 6px; background: var(--pintar-primary); }
+.pin-mini-kartu {
+  display: grid; gap: var(--space-2); border: 1px solid var(--line);
+  border-radius: var(--radius-1); padding: 10px var(--space-3);
+}
+.pin-mini-tag {
+  display: inline-block; width: var(--space-7); height: var(--space-5);
+  border-radius: var(--radius-pill); background: var(--surface-2); border: 1px solid var(--line);
+}
+/* A measure, drawn in eight segments rather than to a width: a bar drawn to a
+   percentage looks like a reading, and a reading is a number about somebody. */
+.pin-mini-ukur { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+.pin-mini-seg { height: 6px; border-radius: 3px; background: var(--surface-2); }
+.pin-mini-isi { background: var(--ink-3); }
+/* "Not yet enough evidence" is a normal state with no number — a dashed rule,
+   never a zero and never a warning colour. */
+.pin-mini-kosong { height: 6px; border-top: 1px dashed var(--line-strong); }
+
+/* ------------------------------------------------------- the Help entry point
+   One utility control in the shell, added because the built shell had no help
+   entry for the tour's last step to point at (§F, L-5). */
+.pin-bantuan-tombol {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: 0; font: inherit;
+  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-2);
+  padding: var(--space-1) var(--space-2); border-radius: var(--radius-1);
+  min-height: 44px; cursor: pointer; white-space: nowrap;
+}
+.pin-bantuan-tombol:hover { background: var(--surface-2); }
+.pin-bantuan-glif {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--space-5); height: var(--space-5); border-radius: 50%;
+  border: 1px solid var(--line-strong); font-size: var(--type-eyebrow);
+}
+
+/* ------------------------------------------------------------- the Help panel
+   The panel's GROUND is the guidance colour and its cards are the product's
+   white (§O-2). It is not modal: the page behind it stays live and unveiled,
+   because Help is somewhere you look while the page stays where it was. */
+.pin-bantuan {
+  position: fixed; z-index: 41;
+  top: var(--space-7); right: var(--space-4);
+  width: var(--measure-guide-panel); max-width: calc(100% - var(--space-6));
+  max-height: calc(100% - var(--space-8)); overflow: auto;
+  background: var(--pintar-primary-soft);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-2);
+  padding: var(--space-5);
+  display: grid; gap: var(--space-4); align-content: start;
+}
+.pin-bantuan-atas { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.pin-bantuan-judul { font-size: var(--type-course); font-weight: var(--weight-strong); margin: 0; }
+.pin-bantuan-judul:focus:not(:focus-visible) { outline: none; }
+.pin-bantuan-tutup {
+  background: none; border: 0; font: inherit;
+  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-2);
+  padding: var(--space-1) var(--space-2); border-radius: 6px;
+  min-height: 44px; cursor: pointer;
+}
+.pin-bantuan-tutup:hover { background: var(--surface-1); }
+.pin-bantuan-kartu {
+  background: var(--surface-1); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-2); padding: var(--space-4);
+  display: grid; gap: var(--space-2); justify-items: start;
+}
+.pin-bantuan-nama { font-size: var(--type-card); font-weight: var(--weight-strong); margin: 0; }
+.pin-bantuan-atau { font-size: var(--type-fine); color: var(--ink-2); margin: 0; }
+/* The seven headlines. Reading them may be all the help that was needed, so
+   they are the panel's largest block rather than a footnote to the button. */
+.pin-bantuan-daftar {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; border-top: 1px solid var(--line);
+}
+.pin-bantuan-baris {
+  display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--line);
+  font: inherit; font-size: var(--type-meta); color: var(--ink-1);
+  padding: 10px var(--space-1); min-height: 44px; cursor: pointer;
+}
+.pin-bantuan-baris:hover { background: var(--surface-1); }
+.pin-bantuan-no {
+  flex: none; width: 18px;
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong); color: var(--ink-3);
+}
+
+/* -------------------------------------------------------------------- the tip
+   NOT Guidance Mode (§O-5). The page is exactly as it was; this is one white
+   card under the control it is about. No focus is taken, any other interaction
+   dismisses it, and there is no timeout anywhere. */
+.pin-tip {
+  position: fixed; z-index: 41;
+  /* Just under the shell header, which is where the control it is about sits.
+     A wide screen replaces this with the measured position. */
+  top: 56px;
+  width: var(--measure-guide-tip); max-width: calc(100% - var(--space-6));
+  background: var(--surface-1);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  padding: var(--space-3) var(--space-4);
+  display: grid; gap: var(--space-2); justify-items: end;
+}
+.pin-tip-isi { justify-self: stretch; font-size: var(--type-meta); color: var(--ink-1); margin: 0; }
+
+@media (max-width: 560px) {
+  /* THE CARD BECOMES A SHEET. Capped at 78% of the viewport with its own
+     scroll and the buttons pinned, so nothing truncates and type never shrinks
+     however long the Indonesian runs (§J-15, §K-8). */
+  .pin-tur-kartu {
+    top: auto; bottom: 0; left: 0; right: 0; translate: none;
+    width: auto; max-width: none;
+    max-height: var(--guide-sheet-max); overflow: auto;
+    border-radius: var(--radius-2) var(--radius-2) 0 0; border-width: 1px 0 0;
+    padding: var(--space-4) var(--space-4) var(--space-5);
+  }
+  .pin-tur-kaki { position: sticky; bottom: 0; background: var(--surface-1); padding-block: var(--space-2); }
+  .pin-tur-tombol { width: 100%; }
+  .pin-tur-tombol .pin-btn { flex: 1; }
+  .pin-tur-judul { font-size: var(--type-stem-phone); }
+  .pin-tur-sd .pin-tur-judul { font-size: var(--type-stem); }
+  /* A finger, not a pointer: the two quiet header controls get the full target. */
+  .pin-tur-x { min-height: 44px; }
+  /* THE HEADER TAKES TWO LINES HERE. The approved phone renders are 480 wide
+     and the four items fit on one; at 390 they do not, and the design's answer
+     to that is to wrap rather than to truncate or shrink type (§K-9). So the
+     tour's own name takes the first line and the progress and both controls
+     take the second, where the way out keeps its corner — which is better
+     than the raggedness of letting one button fall out on its own. */
+  .pin-tur-nama { flex: 1 0 100%; }
+  .pin-tur-x:nth-last-child(2) { margin-left: auto; }
+  .pin-bantuan {
+    inset: 0; width: auto; max-width: none; max-height: none;
+    border: 0; border-radius: 0; padding: var(--space-5) var(--space-4);
+  }
+  .pin-tip { left: var(--space-4); right: var(--space-4); width: auto; max-width: none; }
+}
+
+/* ═══════════════════════════════════════════ UX-1 · THE SIGN-IN SCREEN
+   Built from the canonical login handoff (Daisy 🌼, 2026-09-18), against the
+   frozen authentication baseline bff6897e.
+
+   A SPLIT STAGE: the form on the left, the photographic panel on the right,
+   and on a phone the panel goes while its sentence stays as text — because the
+   picture was the decoration and the sentence was the content.
+
+   THESE ARE CONTAINER QUERIES, NOT VIEWPORT MEDIA QUERIES, and that is the
+   design's choice rather than a flourish: the same component then renders
+   correctly inside a review harness, inside a future embedded context and
+   inside the real page, instead of having three different truths.
+
+   ONE DOCUMENTED SUBSTITUTION. The handoff writes the panel's two gradients as
+   `rgba(15,26,24,α)`. A raw colour cannot be written here, so the same alpha
+   ramp is expressed over `--ink-1`, which §5.3 already names as the panel's
+   own ground. The ramp is unchanged; only the way it is spelled is. */
+
+/* THE CONTAINER IS THE PAGE ELEMENT; THE GRID IS INSIDE IT. An element cannot
+   query itself: `container-type` establishes a container for DESCENDANTS, so
+   rules that target the container in its own `@container` block never match.
+   The first build of this screen put both on one element and the two-column
+   composition silently never engaged at any width — it rendered as the tablet
+   band on a 1360px desktop and every automated check still passed, because
+   overflow, control sizes and copy were all correct. The layout assertion in
+   the render matrix exists because of this. */
+.pin-masuk {
+  container-type: inline-size;
+  container-name: masuk;
+  display: block;
+  min-height: 100dvh;
+  /* EDGE TO EDGE, the way the Experience shell already is (DAISY-01). The body
+     carries a page gutter for ordinary pages, and this stage never cancelled
+     it, so the sign-in screen sat inset 16px on a phone and 24px from 640px up
+     with the warmer page background showing down both sides as two strips. On
+     a 320px phone that gutter and the column's own padding together took 64px
+     from the form. Cancelled by name, as .pin-shell does. */
+  margin-inline: calc(var(--gutter) * -1);
+  background: var(--surface-1);
+}
+.pin-panggung {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100dvh;
+  background: var(--surface-1);
+}
+.pin-auth {
+  display: flex; flex-direction: column;
+  padding: var(--space-5) var(--space-4);
+  background: var(--surface-1);
+}
+.pin-authtop { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.pin-authbody { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: var(--space-6) 0 var(--space-2); }
+.pin-form { display: grid; gap: var(--space-3); align-content: start; }
+.pin-mh1 {
+  font-size: 26px; font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-tight); line-height: var(--leading-heading);
+  text-wrap: balance; margin: 0;
+}
+/* Focused programmatically when a surface changes underneath the person; never
+   reached by Tab, so the ring is kept for anybody arriving by keyboard. */
+.pin-mh1:focus:not(:focus-visible) { outline: none; }
+.pin-lede-m { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
+.pin-lbl { font-size: var(--type-meta); font-weight: var(--weight-strong); margin-top: var(--space-2); }
+
+/* THE CONTROL IS THE WRAPPER. The inner input is the wrapper less its border,
+   and it fills it — the people most likely to arrive on a small, cheap,
+   cracked phone are the people least able to absorb a mis-tap. */
+.pin-inp {
+  display: flex; align-items: center; gap: var(--space-2);
+  height: var(--control-h); padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-1);
+}
+.pin-inp:focus-within { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
+.pin-inp input {
+  flex: 1; min-width: 0; height: calc(var(--control-h) - 2px);
+  border: 0; background: none; font: inherit; font-size: var(--type-body); color: var(--ink-1);
+}
+.pin-inp input:focus { outline: none; }
+.pin-inp.pin-inp-salah { border-color: var(--status-blocked); }
+/* The card path: a transcription task. Tabular figures, tracked, grouped as
+   the card prints them — never reformatted, masked or auto-advanced, because
+   the person is checking characters against a physical object. */
+.pin-inp.pin-inp-big { height: var(--control-h-big); }
+.pin-inp.pin-inp-big input {
+  height: calc(var(--control-h-big) - 2px);
+  font-size: 20px; letter-spacing: 0.08em; font-variant-numeric: tabular-nums;
+}
+.pin-lihat {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px; flex: none;
+  background: none; border: 0; border-radius: var(--radius-1);
+  color: var(--ink-2); font: inherit; cursor: pointer;
+}
+.pin-lihat:hover { background: var(--surface-2); }
+
+.pin-mbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  width: 100%; height: var(--control-h); padding: 0 var(--space-5);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-1); color: var(--ink-1);
+  font: inherit; font-size: var(--type-body); font-weight: var(--weight-strong);
+  cursor: pointer; text-decoration: none; text-align: center;
+}
+.pin-mbtn-1 { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-mbtn-1:hover { background: var(--pintar-primary-hover); }
+.pin-mbtn-2:hover { background: var(--surface-2); }
+.pin-mbtn-big { height: var(--control-h-big); font-size: var(--type-card); }
+.pin-mbtn[disabled] { opacity: 0.4; cursor: default; }
+.pin-stack { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
+.pin-stack form { display: grid; }
+
+/* The route control. Exactly one is on screen at a time, and it always points
+   the way the person is not currently going. */
+.pin-rute {
+  margin-top: 28px; padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+  font-size: var(--type-meta); color: var(--ink-2);
+}
+.pin-tautan {
+  background: none; border: 0; padding: 0; font: inherit; font-weight: var(--weight-strong);
+  color: var(--pintar-primary); text-decoration: underline; text-underline-offset: 3px;
+  cursor: pointer; min-height: 44px;
+}
+.pin-kembali {
+  justify-self: start;
+  background: none; border: 0; padding: var(--space-2) 0;
+  font: inherit; font-size: 15px; font-weight: var(--weight-strong);
+  color: var(--pintar-primary); cursor: pointer; min-height: 44px;
+}
+
+.pin-msg { margin: 0; padding: 10px var(--space-3); border-radius: var(--radius-1); font-size: var(--type-meta); }
+.pin-msg-err { background: var(--status-blocked-soft); color: var(--status-blocked); }
+.pin-msg-note { background: var(--surface-2); color: var(--ink-2); }
+
+.pin-disc {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 50%; font-size: var(--type-course);
+}
+.pin-disc-primary { background: var(--pintar-primary-soft); color: var(--pintar-primary); }
+/* Attention, not blocked: nothing is broken and nobody did anything wrong —
+   a link aged out, and it can proceed the moment a new one is asked for. */
+.pin-disc-attention { background: var(--status-attention-soft); color: var(--status-attention); }
+
+.pin-berdiri { font-size: var(--type-fine); color: var(--ink-3); margin: 0 0 var(--space-3); max-width: 60ch; }
+.pin-tanda { display: block; width: 40px; height: 2px; background: color-mix(in srgb, var(--pintar-primary) 60%, transparent); }
+
+/* ── the panel: PINTAR's statement on the brand's own ground (DAISY-08,
+   D-018). Hidden by default; the widths below bring it back. It was built for
+   a photograph PINTAR holds no licence for and showed "FOTO CONTOH" until
+   now. On a flat ground white type needs no darkening -- about 7.4:1 on
+   --pintar-primary, which DAISY-08-PANEL-01 computes from the tokens -- so the
+   two gradients the photograph needed are gone with it. A licensed photograph
+   can come back as the ground later; the statement stays. */
+.pin-vis {
+  display: none; position: relative; overflow: hidden;
+  background: var(--pintar-primary); color: var(--pintar-primary-ink);
+}
+.pin-say {
+  display: grid; align-content: center; gap: var(--space-4);
+  min-height: 100%; padding: var(--space-8);
+}
+.pin-say-tanda { display: block; width: 40px; height: 2px; background: currentColor; opacity: var(--say-mark); }
+.pin-say-h {
+  font-size: 27px; font-weight: var(--weight-strong); line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-tight); max-width: 18ch; text-wrap: balance;
+  white-space: pre-line; margin: 0;
+}
+.pin-say-p {
+  font-size: var(--type-body); line-height: var(--leading-body); margin: 0;
+  max-width: 34ch; color: var(--pintar-primary-ink);
+}
+/* The statement, as text below the form, at the width where the panel is not shown. */
+.pin-phonesay {
+  margin-top: 28px; padding-top: var(--space-5); border-top: 1px solid var(--line);
+  display: grid; gap: var(--space-2);
+}
+.pin-phonesay h2 { font-size: var(--type-card); font-weight: var(--weight-strong); line-height: var(--leading-heading); white-space: pre-line; margin: 0; }
+.pin-phonesay p { font-size: var(--type-meta); color: var(--ink-2); margin: 0; max-width: 52ch; }
+
+.pin-putar {
+  display: inline-block; width: var(--space-4); height: var(--space-4); flex: none;
+  border: 2px solid color-mix(in srgb, var(--surface-1) 50%, transparent);
+  border-top-color: var(--surface-1); border-radius: 50%;
+  animation: pin-putar 700ms linear infinite;
+}
+@keyframes pin-putar { to { transform: rotate(360deg); } }
+
+@container masuk (min-width: 561px) {
+  .pin-panggung { grid-template-rows: auto var(--vis-band); }
+  /* Centred from here up, not only on a desktop (DAISY-01). This band is one
+     column, and with a fixed left gutter the form sat against the left edge
+     of a tablet or a narrow desktop window: measured at a 1024px viewport it
+     had 40px on its left and 476px of empty page on its right. The mark, the
+     form and the line beneath now share the form's measure, centred. */
+  .pin-auth {
+    padding-block: var(--space-6) 28px;
+    padding-inline: max(var(--space-7), calc((100% - var(--measure-auth-wide)) / 2));
+  }
+  /* The mark at the size the verification page already uses. At 36px the
+     artwork drew about 64px wide, small for the one screen everybody sees. */
+  .pin-authtop .pin-merek { height: var(--logo-height-standalone); }
+  .pin-form, .pin-phonesay { max-width: var(--measure-auth-wide); }
+  .pin-phonesay { display: none; }
+  .pin-vis { display: block; order: 2; min-height: var(--vis-band); }
+  /* The statement shares the form's column above it (the same measure,
+     centred the same way), so the page reads as one column in two parts. */
+  .pin-say {
+    padding-block: var(--space-7);
+    padding-inline: max(var(--space-7), calc((100% - var(--measure-auth-wide)) / 2));
+  }
+  .pin-say-h { font-size: var(--type-subhead); max-width: 26ch; }
+  .pin-say-p { font-size: 15px; max-width: 52ch; }
+}
+
+@container masuk (min-width: 1024px) {
+  /* 760px is a FLOOR, not the height (DAISY-01). Written as a plain
+     min-height it replaced the 100dvh above, so on any screen taller than 760px
+     the panel stopped short and blank page showed beneath it. */
+  .pin-panggung { grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); grid-template-rows: none; min-height: max(760px, 100dvh); }
+  /* THE COLUMN CENTRES ITS CONTENT (DAISY-01). The mark, the form and the
+     line beneath share one measure and sit in the middle of their half. Before
+     this the gutter was a fixed 56px on the left only, so the column grew and
+     the form did not: at 2000px the form sat against the left edge with about
+     560px of empty page beside it. The padding is computed against the grid
+     area, so it is 56px at 1024 and grows evenly on both sides from there. */
+  .pin-auth {
+    padding-block: var(--space-7) var(--space-6);
+    padding-inline: max(56px, calc((100% - var(--measure-auth)) / 2));
+  }
+  .pin-form { max-width: var(--measure-auth); }
+  .pin-mh1 { font-size: var(--type-page); }
+  .pin-lede-m { max-width: 42ch; }
+  .pin-vis { display: block; order: 0; min-height: 100%; }
+  /* Centred in its half exactly as the form is in the other, so the two
+     halves balance at every width instead of the statement hugging a gutter. */
+  .pin-say {
+    padding-block: var(--space-9);
+    padding-inline: max(var(--space-8), calc((100% - var(--measure-auth)) / 2));
+  }
+  .pin-say-h { font-size: var(--type-hero); max-width: 18ch; }
+  .pin-say-p { font-size: var(--type-body); max-width: 34ch; }
+}
+
+/* Nothing here animates meaning. With reduced motion the spinner stops turning
+   and becomes a static ring — still a visible indicator, no longer a movement
+   nobody asked for. */
+@media (prefers-reduced-motion: reduce) {
+  .pin-putar { animation: none; border-top-color: color-mix(in srgb, var(--surface-1) 50%, transparent); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WP4 — THE MANAGEMENT SURFACE
+
+   CALM, AND THE CALM IS STRUCTURAL RATHER THAN DECORATIVE. One column at every
+   width, hairlines and grounds instead of elevation, and no rule below draws a
+   chart, a gauge, a meter, a progress bar or a tile. Management reads sentences
+   with figures in them; it does not read a dashboard.
+
+   A GROUND IS A STATE, NEVER A PERSON. The three card grounds say how far along
+   a DECISION is — waiting, taken up, recorded — and each card also prints its
+   state in words, so nothing here is carried by colour alone (§13). There is no
+   `blocked` ground on this surface at all: the reddest thing a Management page
+   has to say is that somebody has been asked to look at something.
+
+   EVERY VALUE IS A TOKEN. The only literal lengths are the two the token lint
+   already exempts by name — the 560px phone breakpoint, which is a device fact,
+   and the 44px touch target, which is a platform requirement.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ------------------------------------------------------- the scope switcher */
+.pin-lingkup { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); margin-top: var(--space-4); }
+.pin-lingkup ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; }
+.pin-lingkup a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-pill);
+  background: var(--surface-1); color: var(--ink-2);
+  font-size: var(--type-meta); text-decoration: none;
+}
+.pin-lingkup a:hover { background: var(--surface-2); }
+/* The scope being read is marked by weight and by border as well as by ground,
+   so the current choice is legible without colour. */
+.pin-lingkup a[aria-current] {
+  border-color: var(--line-strong); color: var(--ink-1);
+  font-weight: var(--weight-strong); background: var(--surface-2);
+}
+
+/* --------------------------------------------------------- a decision card */
+.pin-kp {
+  display: grid; gap: var(--space-4);
+  margin-top: var(--space-5); padding: var(--space-5);
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+.pin-kp.pin-attention { background: var(--status-attention-soft); border-color: var(--status-attention); }
+.pin-kp.pin-info { background: var(--status-info-soft); border-color: var(--status-info); }
+.pin-kp.pin-ok { background: var(--surface-1); border-color: var(--line); }
+
+.pin-kp-head { display: grid; gap: var(--space-2); }
+.pin-kp-head .pin-eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin: 0; }
+.pin-kp-tanda {
+  display: inline-flex; align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-pill);
+  background: var(--surface-0); color: var(--ink-1);
+  font-size: var(--type-fine); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: none;
+}
+.pin-kp-simpul { color: var(--ink-2); font-size: var(--type-fine); }
+.pin-kp-judul { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); line-height: var(--leading-heading); }
+.pin-kp-tentang { margin: 0; color: var(--ink-1); font-size: var(--type-body); }
+.pin-kp .pin-meta { margin: 0; }
+
+/* THE CHAIN. A definition list, because that is what it is: four fixed terms in
+   one fixed order, each with the sentence that answers it. A screen reader
+   reads "what the evidence supports" and then the answer, which is the shape
+   the design intends and a stack of paragraphs would lose. */
+.pin-rantai { margin: 0; display: grid; gap: var(--space-3); }
+.pin-rantai dt {
+  font-size: var(--type-fine); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-rantai dd { margin: 0; color: var(--ink-1); line-height: var(--leading-prose); max-width: var(--measure-read); }
+
+.pin-kp-catatan {
+  margin: 0; padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--line-strong); background: var(--surface-0);
+  color: var(--ink-2); font-size: var(--type-meta); line-height: var(--leading-prose);
+}
+
+.pin-kp-putus { display: grid; gap: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.pin-kp-putus h4 { margin: 0; }
+.pin-kp-hasil { margin: 0; font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-kp-form { display: grid; gap: var(--space-3); }
+.pin-kp-form select, .pin-kp-form textarea {
+  width: 100%; min-height: var(--control-h); font: inherit;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-0); color: var(--ink-1);
+}
+.pin-kp-form textarea { min-height: calc(var(--control-h) + var(--space-5)); resize: vertical; }
+.pin-kp-form .pin-btn, .pin-kp-ambil .pin-btn { justify-self: start; min-height: 44px; }
+
+/* --------------------------------------------------------------- readiness */
+/* ALWAYS THE QUIET GROUND. A figure PINTAR may not yet interpret is not a
+   warning, and tinting it like one would say in colour what the copy refuses to
+   say in words. */
+.pin-kesiapan { border-radius: var(--radius-2); background: var(--status-info-soft); padding: var(--space-5); }
+.pin-kesiapan h2 { margin-top: 0; }
+.pin-kesiapan-list { list-style: none; margin: var(--space-3) 0; padding: 0; display: grid; gap: var(--space-3); }
+.pin-kesiapan-list li { display: flex; align-items: baseline; gap: var(--space-3); }
+.pin-kesiapan-list .pin-num { font-size: var(--type-subhead); font-weight: var(--weight-strong); font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------ names, plainly */
+/* NO ORDER BUT THE ALPHABET AND NO MARK BESIDE A NAME. No dot, no bar, no tint,
+   no count: the rules that are absent here are absent on purpose, and a future
+   edit that adds one is changing the product, not the stylesheet. */
+.pin-nama-list { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-nama-list li + li { border-top: 1px solid var(--line); }
+.pin-nama-list a {
+  display: flex; align-items: center; min-height: 44px;
+  padding: var(--space-3) var(--space-4); color: var(--ink-1); text-decoration: none;
+}
+.pin-nama-list a:hover { background: var(--surface-2); }
+
+.pin-catatan-belajar { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-catatan-belajar li {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+.pin-catatan-belajar li + li { border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------------------------- phone */
+/* NOT A DENSE DESKTOP PAGE MADE SMALL. The order is already context →
+   attention → evidence → deeper, so the phone keeps the same single column and
+   only gives back the room the padding was borrowing. */
+@media (max-width: 560px) {
+  .pin-kp { padding: var(--space-4); }
+  .pin-kesiapan { padding: var(--space-4); }
+  .pin-lingkup { gap: var(--space-2); }
+  .pin-catatan-belajar li { gap: var(--space-2); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WP5B — INSTITUTIONAL INTAKE
+
+   AN ADMINISTRATIVE SCREEN, AND STILL A CALM ONE. One column, hairlines and
+   the shared grounds, no elevation and no tile. The only thing that moves is
+   the progress bar, and what it renders is a number the database committed —
+   there is no indeterminate spinner anywhere, because "something is happening"
+   is exactly the claim this surface must not make on its own.
+
+   NOTHING HERE COLOURS A PERSON. The grounds are used for a validation problem
+   and a stopped job, which are facts about a spreadsheet and about a run.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pin-data-baca { display: contents; }
+
+/* ------------------------------------------------------------ the code */
+.pin-data-kode {
+  margin: var(--space-3) 0 0; font-family: var(--font-mono);
+  font-size: var(--type-subhead); letter-spacing: var(--tracking-wordmark); color: var(--ink-1);
+}
+
+/* --------------------------------------------------- which column is which */
+.pin-data-peta { margin: var(--space-4) 0 0; display: grid; gap: var(--space-3); }
+.pin-data-peta > div {
+  display: grid; gap: var(--space-2); align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+}
+.pin-data-peta dt { color: var(--ink-2); font-size: var(--type-meta); }
+.pin-data-peta dd { margin: 0; }
+.pin-data-peta select, .pin-data-baca textarea, .pin-data-baca input[type="file"] {
+  width: 100%; min-height: var(--control-h); font: inherit;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  background: var(--surface-0); color: var(--ink-1);
+}
+.pin-data-baca textarea { min-height: calc(var(--control-h) + var(--space-6)); resize: vertical; }
+
+.pin-data-contoh { list-style: none; margin: var(--space-3) 0 0; padding: 0; }
+.pin-data-contoh li {
+  display: flex; gap: var(--space-3); align-items: baseline;
+  padding: var(--space-2) var(--space-4);
+}
+.pin-data-contoh li + li { border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------------------- problems */
+.pin-data-masalah { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-data-masalah > li { padding: var(--space-3) var(--space-4); }
+.pin-data-masalah > li + li { border-top: 1px solid var(--line); }
+.pin-data-masalah ul { margin: var(--space-2) 0 0; padding-left: var(--space-5); color: var(--ink-2); }
+.pin-data-masalah ul li { font-size: var(--type-meta); line-height: var(--leading-prose); }
+
+/* --------------------------------------------------------------- history */
+.pin-data-riwayat { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-data-riwayat li + li { border-top: 1px solid var(--line); }
+.pin-data-riwayat a {
+  display: grid; gap: var(--space-1); min-height: 44px;
+  padding: var(--space-3) var(--space-4); color: var(--ink-1); text-decoration: none;
+}
+.pin-data-riwayat a:hover { background: var(--surface-2); }
+
+.pin-data-peran { list-style: none; margin: var(--space-3) 0 0; padding: 0; }
+.pin-data-peran li {
+  display: flex; justify-content: space-between; gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+}
+.pin-data-peran li + li { border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------- the fifty, to be checked */
+/* THE CHECKPOINT IS A PLACE, NOT A DIALOG. It sits on the attention ground
+   because somebody is being asked to do something, and it lists real people
+   with the real numbers PINTAR issued them. */
+.pin-data-periksa {
+  background: var(--status-attention-soft); border: 1px solid var(--status-attention);
+  border-radius: var(--radius-2); padding: var(--space-5);
+}
+.pin-data-periksa h2 { margin-top: 0; }
+.pin-data-pilot {
+  list-style: none; margin: var(--space-4) 0; padding: 0;
+  max-height: 340px; overflow-y: auto; background: var(--surface-0);
+  border: 1px solid var(--line); border-radius: var(--radius-1);
+}
+.pin-data-pilot li {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3); align-items: baseline; padding: var(--space-2) var(--space-4);
+}
+.pin-data-pilot li + li { border-top: 1px solid var(--line); }
+.pin-data-pilot .pin-mono { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-2); }
+
+/* -------------------------------------------------------------- progress */
+/* THE WIDTH IS A COMMITTED COUNT. There is no keyframe moving it and no
+   indeterminate state: a bar that animated on its own would be claiming
+   progress the database has not made. The stripe below says "a request is in
+   flight" and says nothing about how far the job has got. */
+.pin-data-bar {
+  position: relative; height: 6px; margin: var(--space-3) 0;
+  background: var(--surface-2); border-radius: var(--radius-pill); overflow: hidden;
+}
+.pin-data-bar > span {
+  display: block; height: 100%; background: var(--color-primary);
+  border-radius: var(--radius-pill); transition: width var(--motion-fast) linear;
+}
+.pin-data-jalan::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface-1) 50%, transparent), transparent);
+  animation: pin-data-geser 1.2s linear infinite;
+}
+@keyframes pin-data-geser { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+.pin-data-kendali { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
+
+/* A BUTTON THAT CARRIES A SENTENCE FOLDS IT. `.pin-btn` is `white-space: nowrap`,
+   which is right while a button is as wide as its words and wrong when its
+   words are "Sudah saya periksa, lanjutkan sisanya". MEASURED before this rule:
+   the pilot-release control was 383px inside a 375px viewport and the document
+   scrolled sideways by 8px in Indonesian and 57px in English — the same shape
+   UX1-S0-MUAT-01 was written for, arriving from the other direction because
+   these buttons are sized by their text rather than stretched by a rule.
+   Scoped to this surface's own controls, and it lifts them to 44px while it is
+   here, which the fold makes room for anyway. */
+.pin-data-btn {
+  white-space: normal; height: auto; min-height: 44px; max-width: 100%;
+  padding-top: var(--space-2); padding-bottom: var(--space-2);
+  text-align: center; line-height: var(--leading-tight);
+}
+
+@media (max-width: 560px) {
+  .pin-data-periksa { padding: var(--space-4); }
+  .pin-data-pilot li { grid-template-columns: auto minmax(0, 1fr); }
+  .pin-data-pilot .pin-mono { grid-column: 2; }
+}
+
+/* Reduced motion stops the one thing that moves without being asked to. The
+   bar itself keeps its width, because that width is information. */
+@media (prefers-reduced-motion: reduce) {
+  .pin-data-jalan::after { animation: none; }
+  .pin-data-bar > span { transition: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WP7C — ANONYMOUS STUDENT → EDUCATOR FEEDBACK
+
+   THE SHEET SHOULD NOT LOOK LIKE A REVIEW SITE, and the styling carries as
+   much of that as the copy does. There is no star, no coloured scale running
+   from red to green, no emoji, no slider and no thumb: four ordinary radio
+   buttons with four ordinary words, in one neutral tone, because a scale that
+   is coloured from bad to good has told a child what the right answer is
+   before they have read the question.
+
+   AND THE RESULT BARS MEAN NOTHING ON THEIR OWN. One tone for every option, no
+   green end and no red end, and the count written beside every bar — so the
+   figure lives in the text and the bar is only its shape (§19).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ------------------------------------------------------------- the sheet */
+.pin-ub-lembar .pin-mm + .pin-mm { margin-top: var(--space-2); }
+
+.pin-ub-soal {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  padding: var(--space-4) var(--space-5); margin: var(--space-5) 0 0;
+}
+.pin-ub-soal > legend {
+  padding: 0 var(--space-2); font-size: var(--type-body);
+  font-weight: var(--weight-strong); color: var(--ink-1);
+  line-height: var(--leading-body);
+}
+/* A question still waiting for an answer AFTER a press. It is a quiet
+   correction, not an alarm: nothing is wrong with the learner's answer,
+   because they have not given one yet. */
+.pin-ub-soal[aria-invalid="true"] { border-color: var(--status-attention); }
+
+.pin-ub-pilihan {
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+/* THE WHOLE CONTROL IS THE LABEL, so the touch target is the word and its box
+   rather than the small circle beside it. */
+.pin-ub-opsi {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-height: 44px; padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-pill);
+  background: var(--surface-1); color: var(--ink-1);
+  font-size: var(--type-meta); cursor: pointer;
+  line-height: var(--leading-tight);
+}
+.pin-ub-opsi:hover { border-color: var(--ink-2); }
+.pin-ub-opsi:has(input:checked) {
+  border-color: var(--pintar-primary);
+  background: var(--pintar-primary-soft);
+  font-weight: var(--weight-strong);
+}
+/* Focus is on the LABEL when the radio inside it has focus, because the radio
+   itself is 16px in the corner of a 44px control. */
+.pin-ub-opsi:has(input:focus-visible) {
+  outline: 2px solid var(--pintar-primary); outline-offset: 2px;
+}
+.pin-ub-opsi input { margin: 0; accent-color: var(--pintar-primary); }
+
+/* Same shape as WP5B's control: a button told to be the width of a phone must
+   be allowed to fold, or its label takes the page's horizontal scroll with it. */
+.pin-ub-btn {
+  white-space: normal; height: auto; min-height: 44px; max-width: 100%;
+  padding-top: var(--space-2); padding-bottom: var(--space-2);
+  text-align: center; line-height: var(--leading-tight);
+}
+
+/* --------------------------------------------------------- what was said */
+/* The suppression statement, and the still-collecting one. Given room, and
+   given NOTHING after it. */
+.pin-ub-pernyataan { max-width: 56ch; }
+
+.pin-ub-hasil { margin-top: var(--space-4); }
+.pin-ub-daftar { list-style: none; margin: var(--space-5) 0 0; padding: 0; }
+.pin-ub-daftar > li + li { margin-top: var(--space-6); }
+.pin-ub-daftar h3 { margin: 0 0 var(--space-3); max-width: 56ch; }
+
+.pin-ub-marginal { list-style: none; margin: 0; padding: 0; }
+/* THE LABEL TAKES ITS OWN LINE AT EVERY WIDTH, not only on a phone. A column
+   sized to fit "Kadang" is a column that truncates whatever the next governed
+   question set calls its options, and the first anybody would hear of it is a
+   clipped word on somebody's screen. Above the bar it can be any length. */
+.pin-ub-marginal > li {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) 0; min-height: var(--space-6);
+}
+.pin-ub-label { grid-column: 1 / -1; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-ub-batang {
+  display: block; height: var(--space-2); background: var(--surface-2);
+  border-radius: var(--radius-pill); overflow: hidden;
+}
+/* ONE TONE FOR EVERY OPTION. A bar that turned green at one end of the scale
+   and red at the other would be PINTAR scoring a teacher in the stylesheet. */
+.pin-ub-batang > span {
+  display: block; height: 100%; background: var(--pintar-primary);
+  border-radius: var(--radius-pill);
+}
+.pin-ub-angka { font-size: var(--type-meta); color: var(--ink-1); text-align: right; }
+
+/* ------------------------------------------------------ Management's list */
+.pin-ub-riwayat { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-ub-riwayat li + li { border-top: 1px solid var(--line); }
+.pin-ub-riwayat a {
+  display: grid; gap: var(--space-1); min-height: 44px;
+  padding: var(--space-3) var(--space-4); color: var(--ink-1); text-decoration: none;
+}
+.pin-ub-riwayat a:hover { background: var(--surface-2); }
+
+@media (max-width: 560px) {
+  .pin-ub-soal { padding: var(--space-4); }
+  /* MEASURED AT 320, 375, 390 AND 414: the send control came out 40px tall in
+     both languages, because `.pin-actions .pin-btn` carries two classes and
+     `.pin-ub-btn` carries one — so the phone rule's 40px floor won on
+     specificity however late this block was written. 40px is the ordinary
+     height of a button in PINTAR and is fine for one; this is the control a
+     child presses to finish a form on a phone, and it was declared 44 on
+     purpose. The declaration is now made at a specificity that can actually
+     hold it. Nothing about `.pin-btn` itself changes. */
+  .pin-actions .pin-ub-btn { min-height: 44px; }
+  /* The four options become a column on a narrow screen rather than shrinking:
+     "Kadang" and "Sometimes" are short, but a longer scale in a later question
+     set must not be the thing that discovers this rule was missing. */
+  .pin-ub-pilihan { flex-direction: column; align-items: stretch; }
+  .pin-ub-opsi { justify-content: flex-start; }
+}
+
+/* ------------------------------------------------ operating a round (WP7D) */
+/* THE CONFIRMATION IS A PANEL, NOT A DIALOG. PINTAR has no modal pattern
+   outside the tour, and inventing one for a single act would be inventing a
+   product convention on the way past. It sits on the attention ground because
+   somebody is being asked to make something permanent — the same ground WP5B's
+   pilot checkpoint uses for the same reason. */
+.pin-ub-tutup { margin-top: var(--space-4); }
+.pin-ub-pasti {
+  background: var(--status-attention-soft); border: 1px solid var(--status-attention);
+  border-radius: var(--radius-2); padding: var(--space-5);
+  display: grid; gap: var(--space-2);
+}
+.pin-ub-pasti .pin-actions { margin-top: var(--space-3); }
+
+@media (max-width: 560px) {
+  .pin-ub-pasti { padding: var(--space-4); }
+}
+
+/* ------------------------------------------ naming the teacher (WP7D resume) */
+/* ONE EDUCATOR PER ROW, and the row grows for whatever the outcome turned out
+   to be. The name and the act sit on one line while there is room and stack
+   when there is not, because a name is as long as somebody's name. */
+.pin-ub-subjek { margin-top: var(--space-3); }
+.pin-ub-orang { list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.pin-ub-orang > li {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) 0; min-height: 44px;
+}
+.pin-ub-orang > li + li { border-top: 1px solid var(--line); }
+/* The name takes what is left and yields rather than pushing the act off the
+   row: `min-width: 0` is what lets a long name wrap inside a flex item instead
+   of setting the row's floor to its own longest word. */
+.pin-ub-orang .pin-ml { flex: 1 1 auto; min-width: 0; }
+.pin-ub-orang .pin-msg { flex: 1 1 100%; margin: 0; }
+.pin-ub-aksi { flex: 0 0 auto; }
+
+@media (max-width: 560px) {
+  /* The act takes the full width on a phone, like every other control here. */
+  .pin-ub-orang > li { align-items: stretch; }
+  .pin-ub-aksi { flex: 1 1 100%; }
+}
+
+/* ------------------------------------------------ Struktur sekolah (DAISY-05)
+   One school's Bagian → Tingkat → Kelas as a tree, with the add form under
+   each parent, so a sheet can be typed in from top to bottom. Each Bagian is a
+   card; a level below it hangs from a rule, so where a Kelas belongs is read
+   from the shape, not from a label. Deactivating opens a question in the row
+   (D-022), drawn in the refusal colours because it cannot be undone here. */
+.pin-str { display: grid; gap: var(--space-4); }
+.pin-str-langkah {
+  margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); list-style: decimal;
+  font-size: var(--type-meta); color: var(--ink-2);
+}
+.pin-str-pohon, .pin-str-anak { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.pin-str-pohon > .pin-str-simpul {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1); padding: var(--space-3) var(--space-4);
+}
+.pin-str-anak {
+  margin: var(--space-2) 0 0 var(--space-1);
+  padding-left: var(--space-4); border-left: 2px solid var(--line);
+}
+.pin-str-kepala {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-1) var(--space-3); min-width: 0;
+}
+.pin-str-jenis {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-str-nama { font-size: var(--type-body); min-width: 0; overflow-wrap: anywhere; }
+.pin-str-tahun, .pin-str-murid { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-str-tanda {
+  font-size: var(--type-fine); color: var(--ink-3);
+  border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 0 var(--space-2);
+}
+.pin-str-aksi { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); margin-left: auto; }
+.pin-str-nonaktif .pin-str-nama,
+.pin-str-nonaktif .pin-str-tahun,
+.pin-str-nonaktif .pin-str-murid { color: var(--ink-3); }
+.pin-str-kosong { font-size: var(--type-meta); color: var(--ink-3); }
+.pin-str-tambah { display: grid; gap: var(--space-1); margin-top: var(--space-3); }
+.pin-str-tambah-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2) var(--space-3); }
+/* A place's name is short ("1A", "Kelas Rendah"): the field is sized for one
+   and the button sits beside it, rather than a full-width bar under every
+   Tingkat. On a phone it takes the row and the button wraps beneath. */
+.pin-str-isian { display: grid; gap: var(--space-1); flex: 0 1 34ch; min-width: 0; }
+.pin-str-isian-tahun { flex: 0 1 20ch; }
+.pin-str-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-str-isian .pin-input { width: 100%; min-width: 0; }
+.pin-str-pesan { margin: 0; font-size: var(--type-meta); color: var(--status-ok); }
+.pin-str-ubah { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); flex: 1 1 20ch; min-width: 0; }
+.pin-str-ubah .pin-input { flex: 1 1 20ch; min-width: 0; }
+.pin-str-tanya {
+  display: grid; gap: var(--space-2); margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-1);
+  border: 1px solid var(--status-blocked); background: var(--status-blocked-soft);
+}
+.pin-str-tanya-judul { margin: 0; font-weight: var(--weight-strong); }
+.pin-str-tanya-aksi { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.pin-btn.pin-str-bahaya { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--surface-1); }
+.pin-str .pin-msg { margin-top: var(--space-1); }

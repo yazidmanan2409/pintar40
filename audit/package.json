@@ -1,0 +1,9 @@
+{
+  "name": "pintar-audit-harness",
+  "private": true,
+  "type": "module",
+  "description": "Second Eye's end-to-end audit of the deployed release, run on a GitHub runner against a local Supabase stack. Never pointed at production.",
+  "dependencies": {
+    "playwright": "1.55.0"
+  }
+}

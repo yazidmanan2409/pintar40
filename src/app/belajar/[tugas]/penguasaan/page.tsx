@@ -1,17 +1,19 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { t } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
-import ItemPlayer from "../../_components/ItemPlayer";
-import * as actions from "../../actions";
+import PermukaanAsesmen from "../../_components/PermukaanAsesmen";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Post-test — "Uji Penguasaan" (§4). Formal: counting-up timer, pause where
- * the definition allows it, flag-for-review, a navigator, and no auto-advance.
- * Zero overlap with the pre-test is enforced in the draw (INV-24), not here.
+ * Uji Penguasaan — the cycle's Mastery Check (§4). Formal: counting-up timer,
+ * pause where the definition allows it, flag-for-review, a navigator, and no
+ * auto-advance. Zero overlap with the mapping is enforced in the draw
+ * (INV-24), in the database, not here.
+ *
+ * As with the mapping, arriving is no longer committing: the orientation is
+ * shown first and the session begins on a press.
  */
 export default async function Penguasaan({ params }: { params: Promise<{ tugas: string }> }) {
   const { tugas } = await params;
@@ -21,57 +23,19 @@ export default async function Penguasaan({ params }: { params: Promise<{ tugas: 
   if (state.pre_status !== "FINALIZED") redirect(`/belajar/${tugas}`);
   if (state.post_status === "FINALIZED") redirect(`/belajar/${tugas}/hasil`);
 
-  let sessionId = state.post_session;
-  if (!sessionId) {
-    const may = await engine.mayStart(db, state.post_assignment);
-    if (!may.ok) {
-      return (
-        <main className="mx-auto max-w-2xl px-5 py-12">
-          <h1 className="text-2xl font-semibold">{t("posttest.title", "learner")}</h1>
-          <p className="mt-4 text-ink-2">{t("auth.not_yet", "learner")}</p>
-          <Link href={`/belajar/${tugas}`} className="mt-6 inline-block text-primary underline">
-            {t("cycle.title", "learner")}
-          </Link>
-        </main>
-      );
-    }
-    sessionId = await engine.startSession(db, state.post_assignment);
-  }
-
-  const [paper, prior, session] = await Promise.all([
-    engine.paper(db, sessionId),
-    engine.answersSoFar(db, sessionId),
-    engine.sessionState(db, sessionId),
-  ]);
-
-  const accepted: Record<string, { posisi: number } | { posisi: number[] }> = {};
-  const seqs: Record<string, number> = {};
-  for (const row of prior) {
-    seqs[row.presented_item_id] = Math.max(seqs[row.presented_item_id] ?? 0, row.client_seq);
-    if (row.posisi != null) accepted[row.presented_item_id] = { posisi: row.posisi } as never;
-  }
+  const mine = (await engine.myAssignments(db)).find((a) => a.learning_assignment_id === tugas);
+  if (!mine) notFound();
 
   return (
-    <main>
-      <div className="mx-auto max-w-2xl px-5 pt-10">
-        <p className="text-sm text-ink-3">
-          <Link href={`/belajar/${tugas}`}>{t("cycle.title", "learner")}</Link>
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{t("posttest.title", "learner")}</h1>
-        <p className="mt-2 max-w-[var(--measure)] text-ink-2">{t("posttest.intro", "learner")}</p>
-      </div>
-      <ItemPlayer
-        sessionId={sessionId}
-        paper={paper}
-        accepted={accepted}
-        seqs={seqs}
-        mode="PENGUASAAN"
-        stage={session?.stage ?? null}
-        allowsPause={session?.allows_pause ?? false}
-        startedAt={session?.started_at ?? null}
-        finishHref={`/belajar/${tugas}/hasil`}
-        actions={actions}
-      />
-    </main>
+    <PermukaanAsesmen
+      penugasan={state.post_assignment}
+      sesi={state.post_session}
+      locale={await currentLocale()}
+      eyebrow={`${mine.subject} · ${mine.grade_label} · ${mine.title}`}
+      kembali={{ href: `/belajar/${tugas}`, key: "cycle.title" }}
+      diriHref={`/belajar/${tugas}/penguasaan`}
+      selesaiHref={`/belajar/${tugas}/hasil`}
+      mode="PENGUASAAN"
+    />
   );
 }

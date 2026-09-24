@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 11,
-  "phase": "FABLE-05 + Task 1 (Quick Assessment over authorized canonical content, ADR-0018 as amended by 0063 and 0064)",
+  "version": 71,
+  "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..05.sql and fable05t1_quick_canonical.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id",
+    "db": "selftest/db/fable01..11.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -246,7 +246,7 @@
     {
       "id": "F02-T18",
       "runner": "db",
-      "proves": "INV-01 / doc 04 §9 lesson prose is publicly readable only under a PUBLISHED release; anon holds exactly one grant, on that view; item-bearing and cohort aggregates are service-role only",
+      "proves": "INV-01 / doc 04 §9, RESTATED BY D-032 (BOB-14). The view public.published_lessons shows only a PUBLISHED release's lesson prose, and no client role reads it: anon and a signed-in teacher of the school are refused, the view runs as its reader (security_invoker), anon holds no table grant at all, and item-bearing and cohort aggregates are service-role only",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -308,12 +308,12 @@
     {
       "id": "F01-S05",
       "runner": "static",
-      "proves": "doc 13 ADR-0001 exists with every required section and the traceability block"
+      "proves": "the ADR FILE docs/adr/0001-foundation.md carries every required section and the traceability block (doc 13). Inspects the document text, not the behaviour it describes"
     },
     {
       "id": "F02-S01",
       "runner": "static",
-      "proves": "INV-20 no analytics, psychometric, reporting or certification code path reads a raw evidence table; evidence is consumed through official_* only"
+      "proves": "INV-20: no analytics, psychometric, reporting or certification code path reads a raw evidence table. Inspects the SOURCE of every module under src/ for raw-table references, and the LIVE SCHEMA for the grants that would permit one"
     },
     {
       "id": "F01-R01",
@@ -321,9 +321,19 @@
       "proves": "INV-21/§4 unauthenticated /konfigurasi redirected and /api/* refused; /api/dev/* 404 in the production build; public copy clean"
     },
     {
+      "id": "F01-R07",
+      "runner": "app",
+      "proves": "INV-38 against the RUNNING MIDDLEWARE rather than the database declaration: the one declared public certificate-verification endpoint, /api/verifikasi/[token], is anonymously reachable over HTTP and answers its own closed {\"found\": false} for an unknown token, while /api/verifikasi itself and its siblings stay refused. assert_public_surface() asserts public_surface_registry; nothing asserted src/proxy.ts, and the two had drifted."
+    },
+    {
+      "id": "F01-R08",
+      "runner": "app",
+      "proves": "the static files the anonymous pages load are served to an anonymous visitor, over HTTP through the running middleware: the rendered /masuk html references public/brand/pintar-selalu-logo.png, and that file and the four public/fonts/*.woff2 files answer 200 with their own content type, not a redirect to /masuk. src/proxy.ts's matcher had gated them, so production showed strangers a broken mark and fallback fonts on /masuk and /verifikasi. The exemption is exactly those two folders: /brandx, /fontsx/a, /konfigurasi and /studio still redirect to /masuk"
+    },
+    {
       "id": "F01-R02",
       "runner": "app",
-      "proves": "INV-19/INV-13 DEAN and STUDENT get a clean refusal on /konfigurasi; INSTITUTION_ADMIN renders own institution only",
+      "proves": "INV-19 / INV-13: DEAN and STUDENT get a clean refusal on /konfigurasi and INSTITUTION_ADMIN renders its own institution. Inspects the RENDERED OUTPUT of a real HTTP request under each persona's session",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
@@ -347,7 +357,7 @@
     {
       "id": "F01-R06",
       "runner": "app",
-      "proves": "FABLE-01 §2 classroom-card auth: the configured CARD_PEPPER meets the production contract (>= 32 chars) and the production TypeScript derivation in src/lib/card.ts authenticates the seeded card 7001 / PIN 2468 through real GoTrue, proving it agrees with the SQL derivation in supabase/seed/synthetic.sql",
+      "proves": "FABLE-01 §2 classroom-card auth: the configured CARD_PEPPER meets the production contract. Inspects the RUNNING PROCESS ENVIRONMENT and the rendered output of a card sign-in over HTTP",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
@@ -403,22 +413,22 @@
     {
       "id": "F03-S01",
       "runner": "static",
-      "proves": "INV-26 — exactly one module calls the engine's RPCs, and it holds no privilege of its own"
+      "proves": "INV-26: exactly one module calls the engine's RPCs and holds no privilege of its own. Inspects the SOURCE import graph under src/ and the live schema's grants"
     },
     {
       "id": "F03-S02",
       "runner": "static",
-      "proves": "INV-01 — the authoring shape diffed against the sanitizer allow-list, with the SQL and the TypeScript type required to agree"
+      "proves": "INV-01: the authoring shape diffed against the sanitizer allow-list. Inspects the MIGRATION TEXT under supabase/migrations and the TypeScript type in src/lib/assessment-engine/types.ts -- two declarations of one shape, compared"
     },
     {
       "id": "F03-S03",
       "runner": "static",
-      "proves": "INV-31 / INV-32 — the assistance context equals the sanitized item, refuses an authoring row, and names no provider"
+      "proves": "INV-31 / INV-32: the assistance context equals the sanitized item, refuses an authoring row and names no protected field. Inspects the SOURCE of src/ai-gateway"
     },
     {
       "id": "F03-R01",
       "runner": "app",
-      "proves": "FABLE-03 §8 — a learner signs in and reaches the cycle over HTTP; an anonymous request never does",
+      "proves": "FABLE-03 §8: a learner signs in and reaches the cycle over HTTP; an anonymous request never does. Inspects the RENDERED OUTPUT of the learner routes under a real session",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
     },
     {
@@ -520,12 +530,12 @@
     {
       "id": "F04-S02",
       "runner": "static",
-      "proves": "INV-05 — a signed canonical payload verifies; tampering with EACH of the ten protected fields breaks verification; key order does not matter; the compare uses crypto.timingSafeEqual and not ==="
+      "proves": "INV-05: a signed canonical payload verifies and tampering with each of the ten protected fields breaks verification. EXECUTES src/lib/certificates/sign.ts against constructed payloads -- a behavioural test of the module, not a reading of it. INV-06: the same test asserts that src/lib/certificates/sign.ts compares with crypto.timingSafeEqual and never with ===. BOUNDED, and this is the half doc 03 asks for that is NOT here: the behavioural claim that near-miss signatures fail identically fast is not measured. Until the §7 traceability sweep this clause was labelled INV-05 in both the assertion message and here, so a gate reading the manifest saw INV-05 twice and INV-06 nowhere"
     },
     {
       "id": "F04-S03",
       "runner": "static",
-      "proves": "INV-07 — rotation advances the signing key version, leaves a V1 certificate verifiable, refuses a cross-version signature, and never drops an old key"
+      "proves": "INV-07: rotation advances the signing key version, leaves a V1 certificate verifiable and refuses a cross-version signature. EXECUTES src/lib/certificates/keyring.ts"
     },
     {
       "id": "F04-S04",
@@ -683,7 +693,7 @@
     {
       "id": "F05-S03",
       "runner": "static",
-      "proves": "§12: no learner surface renders a staff-only copy key, and no Studio copy shows a lifecycle enum, version string or evidence class"
+      "proves": "§12: no learner surface renders a staff-only copy key, and no Studio COPY STRING in src/lib/hle.ts contains a lifecycle enum, version string or evidence class. AMENDED 2026-09-15: the original wording read as a property of the Studio SURFACE. What is tested is the copy table -- a page interpolating {x.status} into a text position would pass it, and five such interpolations existed when F06-S03 first ran. The surface property is F06-S03's; this remains true and is narrower than it sounded"
     },
     {
       "id": "F05-R01",
@@ -753,7 +763,7 @@
     {
       "id": "QAC-S01",
       "runner": "static",
-      "proves": "ADR-0018 §5: the Quick Assessment surface offers authorized canonical chapters through the named accessors and names no tenant kind, distribution status or internal flag in its copy"
+      "proves": "ADR-0018 §5: the Quick Assessment surface offers authorized canonical chapters through the named accessors. Inspects the SOURCE of src/app/studio/actions.ts and studio/kuis/page.tsx, and the COPY TABLE in src/lib/hle.ts -- not the rendered page"
     },
     {
       "id": "QAC-T11",
@@ -856,6 +866,943 @@
       "id": "DOC-P01",
       "runner": "static",
       "proves": "baseline integrity by content, not by marker: every document listed in docs/rebuild/BASELINE-MANIFEST.json is byte-identical to the frozen baseline, every file in a governed directory is listed by the manifest, each document's own amendment marker agrees with its manifest entry, and no ungoverned second copy of a governed document exists anywhere in the repository. Retires DOC-S01, which counted markers — doc 03 carried the right marker while still stale, and three of eighteen documents carry none"
+    },
+    {
+      "id": "F06-S01",
+      "runner": "static",
+      "proves": "ADR-0021: every function created in a migration authored since the ADR is revoked from EXECUTE on PUBLIC in that same migration, by name or by a family pattern whose resulting count is asserted. EXECUTE is granted to PUBLIC by default and `alter default privileges` cannot revoke it, so 49 migrations have carried the revoke by convention and it has been forgotten twice. The check is order-aware (a revoke before the create closes nothing) and exempts a function dropped in the same migration, which never commits"
+    },
+    {
+      "id": "F06-P01",
+      "runner": "db",
+      "proves": "sanitized_item executes to a successful return and the projection contains the stem and options only: the item's real option rationale appears nowhere in the output, no correctness-shaped key is present, no option carries its own label, and every key is inside the declared safe set. Found by the happy-path sweep, which showed this function had never run successfully under any migration, seed or test. Asserts absence of the real secret, not presence of a return"
+    },
+    {
+      "id": "F06-N01",
+      "runner": "db",
+      "proves": "a presented item belonging to another person and a uuid that does not exist produce the identical refusal from sanitized_item, so existence is not an oracle. The previous body raised 'unknown presented item' before authorizing — the same check-then-authorize inversion 0073 removed from metric_evaluate"
+    },
+    {
+      "id": "F06-P02",
+      "runner": "db",
+      "proves": "every item_type_registry.sanitizer_allowlist is inside the declared safe set {item_type, stem, stimulus, opsi}, enforced by a CHECK rather than by convention, so widening the learner projection requires a migration; no projection is empty; and sanitized_item and session_paper both authorize before disclosing anything, existence included"
+    },
+    {
+      "id": "F06-P03",
+      "runner": "db",
+      "proves": "Question Health over REAL OFFICIAL evidence: 160 learners in the D1 bootstrap tenant drive one item to correctness 1.0 and another to 0.0; both reach SIGNAL_RAISED and no other item does. Asserts the least-sampled item's actual count against the catalogue threshold, so a run whose draw under-samples says so rather than mis-measuring. The migration probes proved the mechanism; this proves the mechanism over evidence, which is where 0076's illegal birth state was found"
+    },
+    {
+      "id": "F06-P04",
+      "runner": "db",
+      "proves": "evidence withdrawn by an integrity reviewer drives the downward pair on real data: 47 sessions reclassified out of OFFICIAL drop an item from 76 responses to 29, and it walks SIGNAL_RAISED -> OBSERVING -> INSUFFICIENT_EVIDENCE as two declared edges and two audit rows ordered by identity. enforce_evidence_override is INSERT-only and refuses promotion, so the OFFICIAL pool only shrinks and a state resting on withdrawn evidence is the failure these edges exist to prevent"
+    },
+    {
+      "id": "F06-P05",
+      "runner": "db",
+      "proves": "the analytics cohort is isolated inside the one tenant that can produce OFFICIAL evidence: it has its own CLASS node and assignment, the bootstrap learner remains outside it with its own class and certificate, and the cohort issues no certificates. D1's single enrolment is the below-threshold case only if that separation holds, so it is asserted rather than assumed"
+    },
+    {
+      "id": "F06-S02",
+      "runner": "static",
+      "proves": "the copy/route inventory (§7) IS the fetch list for the output-level INTERNAL_WORDS scan, and it is derived from src/app rather than written down: every route the application serves must appear in ROUTE_INVENTORY or this fails. F01-S03's source scan matches JSX text nodes and deliberately ignores {...} expressions, so it is structurally blind to {item.state} rendering an enum; only fetched HTML catches that, and only for routes that are fetched. A hand-maintained list would hold for the surfaces this phase adds and lapse silently for the next one"
+    },
+    {
+      "id": "F06-R01",
+      "runner": "app",
+      "proves": "every route in the inventory is fetched unauthenticated and its rendered output scanned for internal words. Unauthenticated on purpose: a stranger's view is the widest audience any page has, so an enum reaching it has reached the worst reader. Scales automatically as routes are added, because F06-S02 fails if a served route is absent from the list"
+    },
+    {
+      "id": "F06-S03",
+      "runner": "static",
+      "proves": "no src/app surface interpolates an enum-bearing value into a JSX TEXT POSITION. The enum-bearing column names are derived from every `create type ... as enum` in the migrations and the columns declared with them, so a new enum column is covered the day it is created. Complements both existing scans and catches what each was built to miss: F01-S03 skips {...} expressions by design, and F06-R01's unauthenticated fetch cannot reach a Studio route. Found five live leaks on first run -- bank_type, three renderings of mode, and integrity category -- none of which is an INTERNAL_WORD, so no word list would have caught them"
+    },
+    {
+      "id": "F06-S04",
+      "runner": "static",
+      "proves": "every static or app test's `proves` string in the MANIFEST FILE names the artefact its predicate inspects -- copy table, rendered output, migration text, source, live schema. L5 applied to the manifest's own metadata rather than to a test body. F05-S03's proves claimed a property of the Studio surface while testing the copy table: the completion report was honest and the machine-readable record was not, which is the inverse of the usual failure and worse, because the manifest is what a gate reads. Prose cannot be validated against a predicate, so this does the cheap half and makes scope comparable by eye. BOUNDED: covers artefact identification across static and app tests only; verb accuracy -- \"inspects\" written for something that executes -- was found by hand on eleven strings and was NOT audited across the 91 db strings"
+    },
+    {
+      "id": "F06-S05",
+      "runner": "static",
+      "proves": "every invariant declared in the document docs/rebuild/03-PINTAR-INVARIANTS.md is named by at least one `proves` string in the manifest file, and no manifest entry cites an invariant the document does not declare. The invariant list is derived from the frozen document, so a new invariant joins the check the day it is written and fails until a test names it. It found INV-34 (no test at all) and INV-06 (mislabelled INV-05). BOUNDED: this reads the manifest's own text and proves NAMING, not adequacy -- INV-06's behavioural half, INV-22 and INV-35 are named and carried as inadequately covered"
+    },
+    {
+      "id": "F06-S06",
+      "runner": "static",
+      "proves": "every exported HTTP handler in every route file under the source directory src/app/api/dev refuses in its own body outside NODE_ENV==='development' (INV-21). The file set is derived from the directory rather than written down, so a dev tool added in a new file is covered the day it appears -- the half F01-R01 cannot have, because the paths it fetches from the production build are a written list. Fails rather than passing vacuously if the namespace holds no route file"
+    },
+    {
+      "id": "F06-S07",
+      "runner": "static",
+      "proves": "L3-F01 C.1: over the repository seed files and config.toml, synthetic credential-bearing seed execution is proven local-only. Every seed file that inserts into auth.users calls synthetic_fixtures_permitted() before the insert (the file set is derived from the seed directory, not a written list); 00_local_fixtures.sql -- the local-only enabler that flips the fail-closed marker -- runs first in the config.toml sql_paths and creates no identity; and no tracked workflow file applies seeds to a hosted project. The hosted half (no such identity actually present) is the docs/audit/hosted-credential-audit.sql document, which CI cannot run."
+    },
+    {
+      "id": "F06-N02",
+      "runner": "db",
+      "proves": "INV-19 in the API rather than the UI, over a population that is DECLARED rather than read off the implementation. A dean is refused every client-callable mutating STAFF endpoint whose declared capability DEAN lacks, and READS successfully through the same session so the refusals are not simply an absent session. TWO POPULATIONS, and they are not the same width. The DECLARED population -- what public.assert_staff_rpc_authorization_declared() covers -- is client_rpc_registry.exposure = 'STAFF' intersected with pg_proc.provolatile = 'v', and nothing else: 31 endpoints, with no grant clause. This test's PROBE population additionally requires the EXECUTE grant that makes an endpoint client-reachable, because an endpoint a client cannot call is not an INV-19 question; where the two differ the verdict reports the difference rather than assuming it. What each endpoint must enforce comes from the registry columns authorization_kind and authorization_requirement added by migration 20260919100000. None of those is touched by `create or replace`, so an endpoint that deletes its own capability check stays in this set and fails inside it. THE FLOOR IS GONE: membership is the closure. Completeness is carried by two mechanisms and by neither column being NOT NULL: authorization_kind is a NULLABLE column, the BEFORE trigger client_rpc_registry_declares_authorization REFUSES a mutating STAFF registration that leaves it null, and assert_staff_rpc_authorization_declared() independently DETECTS an undeclared member of the live population -- which is what catches a function that becomes volatile after it was registered. Each endpoint is called twice: once as the negative actor its declaration implies -- for a capability, the role holding the most capabilities among those that do not hold this one, which is what catches a declaration stricter than its implementation -- and once as the DEAN, who holds nothing anywhere. MEASURED AT THIS COMMIT on a clean seeded stack: 31 endpoints, 19 refusing with an error naming the declared requirement and 12 refused earlier. An endpoint that takes a SCOPE is probed against a class this test CREATES inside the same subtransaction as the call and rolls back with it, rather than against whichever fixture row an unordered lookup returned: sharing the briefing fixture's node let one probe collide with the happy-path test on briefings' UNIQUE (institution_id, scope_node_id, created_at), where created_at is now() and now() is constant within a transaction -- an unrelated refusal that hid a planted defect in one CI run and not the next. The split between those two is FIXTURE-DEPENDENT and the verdict reports whichever it measures; the endpoint set is not. REPLACES the mechanism Layer-3 broke as L3-F02: the old set was derived from capability names inside pg_proc.prosrc and a floor of 18 against a population of 21, so deleting one guard removed the endpoint from its own test and the full contract stayed green. BOUNDED: for the 11 refused earlier -- acknowledge_finding, advance_briefing, generate_report, ingest_structured_package, propose_easy_upload_mapping, record_integrity_review, record_question_health_review, review_briefing, revoke_role, transfer_authorize, transfer_execute, transfer_reject, transfer_request, and revoke_certificate where the fixture leaves no certificate the probe's tenant may act on -- refusal is proved but not that it is the declared authorization, because no seeded row lets the probe reach the check. RF-2 is narrowed, not closed."
+    },
+    {
+      "id": "F06-P06",
+      "runner": "db",
+      "proves": "a briefing reaches READY over the D1 cohort's real OFFICIAL evidence and the ARTEFACT carries the catalogue version and template version it was made from (§3.4). Walks two declared edges, leaving two audit rows in the LIVE DATABASE ordered by identity because both share one transaction timestamp (L3). Re-evaluating pinned to the recorded catalogue answers under it, so the version determines the numbers rather than naming them. 0082's terminal block could not reach this branch -- a synthetic tenant caps at SYNTHETIC and the catalogue refuses a minimum sample of 0 -- and says so rather than faking evidence"
+    },
+    {
+      "id": "F06-P07",
+      "runner": "db",
+      "proves": "the human half of both lifecycles executes in the LIVE DATABASE: an educator marks a briefing REVIEWED, and a reviewer moves a raised question-health signal to UNDER_REVIEW -- the edge the computation is forbidden to drive. Both were named by the happy-path sweep as never having executed; record_question_health_review was outcome (3), unreachable, until this phase produced the first question_health row for it to act on. Closing a sweep finding rather than only recording it"
+    },
+    {
+      "id": "F06-P08",
+      "runner": "db",
+      "proves": "every function named public.assert_*() returning (ok, detail) is EXECUTED against the live schema and must hold -- 21 at this commit, including WP6A's academic-source assertion and WP7B's feedback boundary. Each was previously checked only by the terminal block of the migration that created it, which runs once, on one database, and fails no pull request. The set is derived from pg_proc by name and result shape, so a new assertion joins the day it is written; a floor of 21 closes the hole where DELETING an assertion would shrink the derived set instead of failing inside it. The floor moved 17 -> 20 in WP6A and 20 -> 21 in WP7B, each time because the repair adds a member to the set: three assertions had joined since 17 was measured, so the stale floor would have let the newest one be deleted and still read green"
+    },
+    {
+      "id": "F06-N03",
+      "runner": "db",
+      "proves": "INV-34 at write time in the live schema: a formula as the metric id, a SQL fragment as the visualization, a metric the catalogue does not define and a chart the catalogue does not permit for that metric are each refused on INSERT into report_template_metrics, and a legitimate selection over the same template is accepted so the refusals are the rule rather than a broken write path. INV-34 had no manifest test before this one. MEASURED WHILE WRITING IT: the BEFORE trigger refuses before constraint evaluation, so the CHECK constraints 0073 describes as the first wall are never reached by these inputs -- the test disables the trigger in a rolled-back subtransaction to prove the constraints refuse them too. Every row and the DDL are rolled back"
+    },
+    {
+      "id": "F06-P09",
+      "runner": "db",
+      "proves": "one saved report template in the live schema, generated through two real personas AT THE NODE THE EDUCATOR IS ASSIGNED TO, read from role_assignments rather than named: INSTITUTION_ADMIN receives every entry, EDUCATOR receives the same number of entries with the institution-scope and item-scope metrics replaced by an honest statement that carries neither the metric id nor its label. §3.3 -- a saved configuration is a request, not an entitlement -- asserted rather than argued. Since 0091 authorization has two axes, so this case holds the ORGANIZATIONAL one constant by standing the reader where they are assigned and varies only the catalogue AUDIENCE; the containment axis is asked adversarially in F06-P10. A deprecated metric added to the same template reads status=deprecated with its note key while the other entries still render. BOUNDED: no exposed surface can deprecate a metric (publish_metric_catalogue copies the flag forward and metric_definitions is immutable), so the definition is inserted here as a migration would -- what is proven is the READING of a deprecated metric, not a deprecation workflow, which does not exist (OQ-5). Every row is rolled back"
+    },
+    {
+      "id": "F06-P10",
+      "runner": "db",
+      "proves": "24 boundary cases executed against the live schema on a two-department school built for the purpose and rolled back, because no seeded tenant has a SIBLING department and the case that matters most cannot be asked of any of them. A HEAD_OF_DEPARTMENT reads their own node and its descendants, and is refused the sibling department, the sibling's class, a node in another school, the ancestor faculty, the institution root, and BOTH tenant-wide aggregates asked at a node they DO hold. institution.cohort_comparison is one of those two: it declares COHORT scope and computes over every cohort in the school, so a repair that trusted the catalogue's declared scope would have passed it -- the plant that makes exactly that substitution turns this case red and nothing else. A metric whose subject is a person is contained through the learner: one in the reader's own department answers, one in the sibling's does not. A faculty-scoped DEAN keeps the faculty and every class under it, loses the school, and is still refused a learner standing INSIDE that faculty, because DEAN is absent from that metric's audience -- so containment is not a key on its own, which is the case a node-check-only repair passes by accident. A reader holding EDUCATOR over the whole school AND head of one department -- audience on one row, containment on the other -- is refused the tenant-wide aggregate and keeps everything either assignment really covers. Regressions: an institution-scoped INSTITUTION_ADMIN keeps the tenant-wide aggregate and every class, and the item bank, which carries no node to be contained by, is unchanged for both staff readers. The artefact channel is asked too: a report drawn at another school's node is refused and writes no generated_reports row, and a saved institution-wide report is readable by the reader who drew it and not from below. not_permitted is the only status counted as a refusal, because on a synthetic tenant every leaked metric came back below_minimum -- which looks like a denial and is not one, and is how the defect stayed invisible. Every row written is rolled back"
+    },
+    {
+      "id": "F06-P11",
+      "runner": "db",
+      "proves": "eight calculator bodies -- six deliberately wrong and two correct -- installed one at a time as calc_class_participants against the live schema and asked by a reader who legitimately holds the class they name, in a non-synthetic tenant where the reader's class and the SIBLING class each hold their own OFFICIAL session. The six wrong ones are the three measured to defeat 0091's inference -- a cosmetic p_node mention, `and p_node is not null` (which reads the whole tenant for every real node and nothing for a NULL probe), and a real class_node_id column dependency disjoined with OR (which beats body text, a NULL behavioural probe AND the parser's own column-dependency record simultaneously) -- plus one that ignores the node entirely, one wrapping it in coalesce and one branching on NULL. Every one of the eight returns exactly the reader's own class: the sibling's session, which exists and is different, never arrives, and not because the calculator declined to widen but because after 0092/0093 the widening is not its to do. The same eight asked by an institution admin at the same class return the same one, and the admin standing at the ROOT still receives both branches, so the boundary narrows by position rather than always narrowing. The head of department asking the sibling class directly is refused outright, so the boundary is not carrying a check that should have refused. The fixture is asserted to hold two POPULATED branches before anything is measured, because on an empty one a broken calculator and a correct one both answer 0 and this case would pass having measured nothing. Every row rolled back"
+    },
+    {
+      "id": "F06-P12",
+      "runner": "db",
+      "proves": "25 cases on a purpose-built two-department school, covering the three access levels the Management ruling separates and asserting they do not collapse into one. LEVEL 2, the roster, asked through person_visible_to_me because that is the predicate persons_select carries: a head of department sees their own subtree and not the sibling's; a faculty-scoped dean sees both departments beneath them and nobody outside; the institution admin keeps the roster it had; an educator keeps their class and gains no other; a learner sees themselves alone. LEVEL 3, asked through management_learner_detail because a row predicate cannot distinguish reading a roster from opening a person -- both put the identical question to a SELECT policy, which is why this is an endpoint and not a policy: the head of department and the dean each open a learner inside their scope and are refused outside it and in another school, while the institution admin, the educator and the learner are refused the path itself. Every refusal is checked to name no subject, so a denial cannot become an existence oracle. THE METRIC ROUTE is asked in the same breath, because an audited door beside an unaudited one is not an audited door: since MC-2 a learner reads their own result and not another's, an educator reads a learner in their own class and not one outside it, and the head of department, the dean and the institution admin are all refused. The payload carries the nine declared fields and nothing else. DEAN holds none of the ten Studio capabilities and exactly one looking capability. And the audit matches the acts rather than the calls: three opens wrote three learner_detail.opened rows naming reader, subject, institution and moment, while six refusals wrote none. Every row rolled back"
+    },
+    {
+      "id": "F06-P13",
+      "runner": "db",
+      "proves": "every one of the 16 live calculators carries exactly one governing-scope declaration and reads only relations the live catalogue declares -- which since MC-2 are the organizationally scoped sources and the reference band table, so a calculator reaching past its boundary to raw evidence is outside the declared set and is named here. The declared catalogue SCOPE and the governing scope are reported side by side and are deliberately different questions: class.topic_mastery says LESSON and is governed at its class, institution.cohort_comparison says COHORT and is governed at the school -- both statements are true and only one is an authorization fact. Whether p_node is computationally relevant is REPORTED from the parser's column-dependency record and deliberately NOT used for authorization, because a body that records a real column dependency while restricting nothing is precisely the attack F06-P11 exercises. A vacuity guard requires the contract to hold at least two distinct values across the live catalogue, so a declaration that said the same thing about everything would fail rather than read green"
+    },
+    {
+      "id": "F06-P14",
+      "runner": "db",
+      "proves": "R6. Ten cells on a purpose-built two-department school where EACH branch holds its own FINALIZED session and result, because on an empty sibling a policy that leaks and a policy that holds both answer zero. assessment_results_select used to read can_in_institution('CAN_REVIEW_INTEGRITY') or can_in_institution('CAN_ASSIGN_LEARNING'), which asks only whether the reader holds the capability ANYWHERE in the tenant: a department-scoped head of department could read a sibling department's academic results, and an institution administrator could read every result in the school because administering one happens to carry CAN_ASSIGN_LEARNING. Now the policy asks a capability over the node the evidence was produced in. The head of department keeps their own department and is refused the sibling. The INSTITUTION ADMIN is the cell that decides the design: scoped at the root, they pass every containment test by construction, and narrowing the axis alone would not have refused them -- they are refused because CAN_VIEW_LEARNER_RESULT is a capability the role does not hold, which is the ruling that administrative authority is not academic authority spelled the way this schema spells authority. They keep the ROSTER throughout, so what moved is the result and not the person. An educator keeps the class they teach and is refused one they do not; a dean is refused and still holds exactly the one looking capability, unchanged by the correction; each learner keeps their own record and reaches no other. Watched on a plant that restores the institution-flat predicate, which turns exactly four cells red. Every row rolled back"
+    },
+    {
+      "id": "F06-P15",
+      "runner": "db",
+      "proves": "WP2. The Management decision model measured against a real integrity signal on a purpose-built two-department school. THE SIGNAL CREATES NOTHING: no Management record and no outcome exist until a human acts, so nothing here turns an observation into a verdict by crossing a threshold. An educator, a dean and a learner are each refused the referral because none holds CAN_REVIEW_INTEGRITY, and a head of department is refused a signal in the SIBLING department, so referring is contained and not merely capable. The authorized referral arrives AWAITING_REVIEW carrying no outcome, anchored at the class the evidence was observed in and naming the learner it is about, and the signal row is untouched -- referenced, never rewritten. Referring twice while open is the SAME referral with ONE audit row; once decided, the same evidence may be referred again, because a later judgement is not a duplicate. Deciding is refused to the institution admin -- who outranks both Management roles and passes containment from the root -- and to the educator, each against their own decision row so that a refusal which wrongly succeeds cannot crash the probe instead of reporting the breach, and each refusal is checked to have moved nothing. A head of department is refused in the sibling department and the dean standing over both is not. The declared transitions succeed and every other one fails: DECIDED with no outcome, an outcome without deciding, a move backwards, and reopening a recorded decision. The two that succeed leave two audit rows naming the actor, the institution and the decision. Reads obey the same boundary: the sibling's decision is invisible to the head of department and every decision is invisible to a learner. Watched on four plants -- Management authority by rank, an institution-flat referral, the idempotency guard removed, and an audit row written before the authorization check. Every row rolled back"
+    },
+    {
+      "id": "F06-P16",
+      "runner": "db",
+      "proves": "R5, measured on a purpose-built two-department school with real FINALIZED evidence. Before this, five of the six class metrics on this fixture answered with one undifferentiated `below_minimum`, flattening two different facts about the world. NO QUALIFYING EVIDENCE is NOT_YET_EVALUABLE in both its shapes: an empty class, and -- at the POPULATED class -- net gain, where results exist but no learner holds both a pre-test and a post-test, so the comparison the figure needs has not happened; that second shape is the one a 'did the calculator return anything' rule gets wrong. SOME BUT SHORT is INSUFFICIENT_EVIDENCE: one comprehension result where the catalogue requires five, asserted to sit strictly between nothing and enough, and each state carries its own HLE sentence rather than one word for both. A MET MINIMUM returns SUFFICIENT_EVIDENCE and the identical value and sample the calculator produced, so R5 withholds and never alters. Neither withholding state emits a value, so a zero never stands in for an absent interpretation. THE DECISIVE ROW: one node and one body of evidence produce THREE distinct readiness answers across participants (minimum 1), comprehension (5) and net gain (5), because the minimum belongs to the interpretation and not to the platform -- a universal threshold could not produce that row. READINESS IS NOT A WAY IN: the sibling department, which holds its own real session and result, is refused carrying no readiness, no count, no minimum and no label, and answers identically to a class that does not exist, so a refusal cannot disclose that evidence exists out of scope. The Management learner record carries the same answer from the same shared rule against the same governed minimum. Content publish_readiness and the learner mastery bands readiness_tiers are asserted untouched and unconnected in both directions. Watched on three plants: readiness made universally sufficient, the withholding path made to emit the calculated value, and the refusal made to report how much evidence exists out of scope. Every row rolled back"
+    },
+    {
+      "id": "F06-N04",
+      "runner": "db",
+      "proves": "the live CHECK predicate on public.briefings requires all four provenance columns -- catalogue_version, generated_report_id, template_id and template_version -- and a READY briefing missing the template id, missing the template version, or naming no template at all is refused on UPDATE, while one carrying all four is accepted so the predicate is a rule rather than a wall. Second-eye finding G1: 0082 enforced two of the four while its header claimed §3.4's \"the catalogue version AND the template version it used\" -- a description broader than its predicate, in a CONSTRAINT rather than in a proves string. Repaired by 0083. Structural and behavioural halves both, because a predicate naming four columns that never fires proves nothing. Every row written is rolled back"
+    },
+    {
+      "id": "F06-N05",
+      "runner": "db",
+      "proves": "L3-F01: synthetic_fixtures_permitted() -- the predicate every credential-bearing seed now consults -- is FAIL-CLOSED on the live schema. TRUE only on a non-production environment whose platform_environment.local_fixtures_enabled marker is set (flipped true solely by the local config.toml seed pipeline, which hosted never runs); clearing the marker refuses, and production refuses regardless. Replaces the FABLE-01 fail-OPEN guard that refused only environment='production' and so let synthetic.sql place a global SYSTEM_ADMIN with a tracked password on the hosted development project. Truth table asserted in a rolled-back subtransaction; no residue."
+    },
+    {
+      "id": "F06-N06",
+      "runner": "db",
+      "proves": "L3-F03: the four authoring endpoints authorize before they mutate. run_mcq_quality, validate_course_content, ingest_structured_package and propose_easy_upload_mapping each refuse an actor holding no capability with an error NAMING CAN_DRAFT, and do it before the delete each of them opens with -- a finding row planted first is still there afterwards. An actor that does hold CAN_DRAFT is accepted and clears it, so the guard guards rather than refusing everyone. Found by Layer-3 as L3-F03, where a capability-less DEAN of one institution ran run_mcq_quality against another institution's course and deleted that tenant's unacknowledged quality findings (INV-19 and INV-13); repaired by migration 20260919090000. This test builds its own institution, actors, course and ingest batch and rolls them back, which is what lets it drive the two ingestion endpoints that no seeded row reaches -- the gap F06-N02 carries as bounded for them."
+    },
+    {
+      "id": "F06-P17",
+      "runner": "db",
+      "proves": "WP5A identity and provisioning authority. PROVISIONING IS INSTITUTIONAL ADMINISTRATION, NOT SENIORITY: a head of department and a dean -- whom WP4 calls Management -- an educator and a learner are each refused both the namespace reservation and the import, because none of them holds CAN_PROVISION_PEOPLE at all. Namespace reservation is case-insensitive IN THE DATABASE and not merely in the function that upcases before writing: the unique index is asserted to be over upper(namespace) and a lowercase value is asserted unstorable, both here in the live gate rather than only in the migration's one-time block -- a plant that moved the index to namespace stayed green until this existed. OPENING, VALIDATING AND PREVIEWING AN IMPORT PROVISION NOTHING, counted across persons, institutional identities, accounts and auth users; the preview states zero accounts activated. AN UNCONFIRMED IMPORT REFUSES TO PROVISION and leaves nothing behind. Confirmed, it issues IDs in this school's canonical form and CREATES NO ACCOUNT AND NO AUTH USER. Row-level idempotency is asked at its source: requesting an identity a person already holds here returns that same one and mints nothing -- the import path alone never exercises this, because each of its rows is a different person, so a plant that removed the Person x Institution key stayed green until this asked directly. ANOTHER SCHOOL'S ADMINISTRATOR, who holds the capability over their own root, cannot reserve this namespace, open an import here, or read, confirm, advance or verify this job, and lists none of its jobs, rows or identities. Reservation, confirmation and completion each appear once on the audit record. Every row rolled back"
+    },
+    {
+      "id": "F06-P18",
+      "runner": "db",
+      "proves": "WP5A's canonical thousand-person power-failure acceptance scenario, run end to end. A 10-row import needs no pilot and completes in one step. A 1,000-row import demands one: validated, previewed and confirmed it enters PILOT_IMPORTING and provisions EXACTLY 50 -- asked for 200 rows at a time, so the pilot ceiling is doing the work rather than the chunk size stopping by luck -- then halts at AWAITING_PILOT_VERIFICATION. RECORD 51 IS REFUSED, and the refusal leaves 50 completed and 950 remaining. A human verifies once; verifying again is a no-op and writes no second audit row. Rows 51-100 commit and then nobody calls again, which is what a closed laptop, a lost network and a dead building all look like to this design, because the browser owns nothing. THE DURABLE STATE THEN READS total 1000, completed 100, remaining 900, pilot verified: those 100 are real people holding real institutional identities and not one row past them has moved off PENDING. RESUMING IS JUST ANOTHER CALL -- the job runs to COMPLETED, the pilot is never verified again and nothing asks for it, the first 100 institutional IDs are identical to what the interruption had already committed, 1,010 people hold 1,010 identities and nobody holds two. Reported progress equals committed rows; a row cannot claim PROVISIONED with no person and no ID behind it; a completed job refuses to advance again and carries exactly one completion and one pilot-completion on the record. Watched on plants that remove the pilot ceiling and that count attempts instead of commits. Every row rolled back"
+    },
+    {
+      "id": "F06-P19",
+      "runner": "db",
+      "proves": "WP6A, measured on a purpose-built school where one educator both teaches and learns. AN EDUCATOR WITH NO ENTITLEMENT IS OFFERED NO LEARNING, and holding EDUCATOR does not change that: entitlement is an ACTIVE enrolment plus an open membership under the assignment's node, and my_learning_assignments reads no role at all. Given ONE legitimate entitlement the same account is offered exactly that course and no other, and is still teaching -- CAN_ASSIGN_LEARNING intact, display_role still EDUCATOR, because a held role wins the coalesce over an enrolment. NO SECOND ANYTHING: the same person, account, auth user and institutional ID -- re-asked and returned identical -- and no new role row; the person count is compared too, because omitting it would let a defect minting a second Person pass while the other four counts stayed put. The educator scores 92% and READS IT THEMSELVES while gaining no authority over any other learner's result. NOBODY ELSE READS IT: not another educator standing over the whole school, not the head of department, not the dean, not the institution admin, not a learner, and not Management through the audited door, which binds the authorizing NODE and therefore sees a learner's academic record rather than a colleague's development -- so no Management-visibility question had to be decided, because the answer is closed by construction. THIS TEST NO LONGER CLAIMS THE EVIDENCE IS ISOLATED. It used to read all sixteen catalogue metrics at the institution root before and after the professional development and call them identical; that was vacuous for every ITEM-scoped metric, because an item metric asked at a node has nothing to find, so have=0 stayed have=0 whether the isolation held or not -- and five real leaks passed through that green. The isolation claim now belongs to F06-P20, which asks each metric at its own governing argument. An unentitled colleague is offered nothing and is REFUSED the course outright, and the entitlement carries no authoring, teaching or administrative authority. The educator then becomes a HEAD OF DEPARTMENT and the evidence is unchanged, still professional development, still theirs. No certificate function knows what a learning context is, so that engine was neither weakened nor duplicated. Watched on plants: a second Person, a second auth identity, a second institutional ID, teaching authority carried by an entitlement, and display_role rewritten to STUDENT. Every row rolled back"
+    },
+    {
+      "id": "F06-P20",
+      "runner": "db",
+      "proves": "WP6A, the isolation claim itself, measured where each metric can actually be measured. SEVENTEEN READINGS, EACH AT ITS OWN GOVERNING ARGUMENT: class metrics at a class, institution metrics at the school, ITEM METRICS AT A REAL ITEM ID, the learner metric read by an educator the catalogue admits about their own student, and the misconception metric asked a second time at the professional-development class where a teacher's practice answer would surface if it leaked. THE ACADEMIC CONTROL IS NON-VACUOUS: a student in the taught class answers the chosen item correctly, so the item metrics hold real evidence and are capable of moving; the item is chosen with an ORDER BY, because an unordered limit measures the harness. THE PROFESSIONAL DEVELOPMENT IS REAL: the same educator answers the SAME academic item wrongly, choosing a distractor that carries a misconception code, in an OFFICIAL session at their own PD class, with a result and a certificate sealed through the ORDINARY machinery -- eligibility, prepare, seal -- because a separate weak PD certificate engine is exactly what must not exist. That evidence is asserted to EXIST and asserted to be ABSENT from academic_responses and academic_certificates, which is the mechanism rather than the symptom, and every one of the seventeen readings is then identical. The educator reads their own PD result; the PD certificate is sealed, unrevoked and verifiable through the ordinary verification route, and is absent from the academic credential source, because certificate validity and academic-metric eligibility are different questions. CONTEXT SURVIVES THE THREE PATHS THAT WERE DROPPING IT: the authoritative creation path establishes the context it is given and defaults to ACADEMIC when asked for nothing; a revision inherits it, and so does a revision of that revision, because editing a course is not a context switch; structured ingestion carries the context the package declares and REFUSES a context it cannot read rather than letting it settle as academic evidence -- each of those run as the administrator, through the CAN_DRAFT gate the product relies on, rather than around it. Watched on five plants, each red naming its own metric or path: response aggregation reading past the academic boundary (item correctness, distractor uptake and position effect), the misconception source reading past it (class and PD misconceptions), PD certificates entering the academic credential source (institution verified credentials), a revision that does not inherit its predecessor's context, and an authoritative creation path that falls back to ACADEMIC. Every row rolled back"
+    },
+    {
+      "id": "F06-P21",
+      "runner": "db",
+      "proves": "WP6A's closure: mutable content produces no committed evidence, and a sealed course's learning context stops moving. The defect this replaces was measured through the ordinary product path with no owner-side write at all -- an educator with CAN_DRAFT authored a course and a release, an administrator with CAN_ASSIGN_LEARNING activated the assignments, a learner sat the assessment, and the course was never sealed, so the same educator could then move its context and take item.correctness_rate from have 1 to 0 and class.misconceptions from a real finding with remediation attached to nothing. THE ENTITLED LEARNER IS NOW REFUSED, AND ENTITLEMENT IS NOT WHAT REFUSES THEM: may_start_assessment still answers OK, and start_learning_session refuses anyway, naming publication, leaving no session row, no result row and no item evidence. The SAME learner, assignment and items are admitted once the release is walked to PUBLISHED by the holders of CAN_FREEZE_RELEASE and CAN_PUBLISH, and the attempt scores and finalizes as OFFICIAL evidence with a result -- so this is a lifecycle rule, not a new refusal. THE SEALED COURSE THEN STOPS MOVING: ACADEMIC -> PROFESSIONAL_DEVELOPMENT is refused by name on a course carrying that learner's evidence, and the item metric is compared as a whole envelope before and after rather than trusting the exception -- identical, and non-vacuous because it holds the answer just recorded. PROFESSIONAL_DEVELOPMENT -> ACADEMIC is refused on a sealed professional-development course and the educator's answers are absent from academic_responses on both sides of the attempt. Revision still inherits both ways on sealed courses; every ACTIVE learning assignment the seeded world already held still binds a startable release, counted before the test builds anything, which is the check that would catch this repair locking out a learner mid-journey; and Quick Assessment's own rule and live-release ordering are read from the function and unchanged. Watched on two plants: removing the learning-cycle release check lets the learner write evidence over editable content, and removing learning_context from the sealed-content guard lets a sealed course be reclassified and its committed evidence reinterpreted. Every row rolled back"
+    },
+    {
+      "id": "Q12-N01",
+      "runner": "db",
+      "proves": "Q-12: a learner can DISCOVER a node-scoped assessment they are already authorized to start. An educator launches a Quick Assessment over a class through launch_quick_assessment; the learner of that class finds it through public.my_open_assessments() and through nothing else -- my_learning_assignments() reaches assessment_assignments only through learning_assignment_id and projects PRE_TEST and POST_TEST by name, and the table's own SELECT policy needs CAN_DRAFT or CAN_ASSIGN_LEARNING, which no learner holds; a learner of another institution does not find it; and the discovered id opens a session through the same start_learning_session() every other mode uses, so execution is unchanged. The doorway adds no authority: it returns the unbound assignments may_start_assessment() accepts, which is the predicate start_learning_session() itself calls, so one rule answers both. Every row is rolled back. Watched to fail: removing the may_start_assessment filter makes a learner of another tenant discover it and turns this red."
+    },
+    {
+      "id": "UX1-S2-ORIENT-01",
+      "runner": "db",
+      "proves": "LOOKING IS NOT COMMITTING. A learner reads an assignment's own pre-start facts -- how many questions, when it closes, whether it pauses, and which attempt this would be -- through public.assessment_orientation(), and reading leaves NO trace: the session count is unchanged, no session exists against the assignment, and no started_at is stamped, so looking has not spent an attempt that is 1 for PRE_TEST and for most POST_TEST and QUICK definitions. Before this the facts were unreachable: assessment_definitions SELECT needs CAN_DRAFT and assessment_assignments needs CAN_DRAFT or CAN_ASSIGN_LEARNING, session_state() returns them but needs a session, and the only thing that makes a session is start_learning_session() -- the commitment itself. assessment_definition_bounds is readable but holds platform bounds per mode (3-60 items), not this assignment's count. Nothing is invented: every column already exists on the definition or the assignment and the set is a subset of what session_state() shows a second later, with closes_at being the same value that becomes the session's authoritative deadline. Authorization is may_start_assessment(), the predicate start_learning_session() itself calls. A learner of another institution and a uuid that does not exist both answer zero rows, so existence is not an oracle (F06-N01's rule on a new surface). Watched to fail twice: dropping the may_start_assessment delegation lets a learner of another tenant read it, and making orientation start a session to answer itself trips the session count, the assignment's session and the attempts-used fact."
+    },
+    {
+      "id": "UX1-S0-TOKEN-01",
+      "runner": "static",
+      "proves": "THE TOKEN LINT. Every re-set Experience surface in the SOURCE resolves its colours, radii, type sizes and spacing to a token declared in src/app/globals.css -- no raw hex, no rgb(), no Tailwind scale class, no inline pixel. Scope is two declared lists rather than a directory: the surfaces UX-1 has re-set, and the surfaces awaiting their slice with the slice named, and the test fails if any file under src/app or src/components is in neither -- so a surface added later cannot land outside the lint by accident. BOUNDED AND DELIBERATE (Sauron amendment of 2026-09-16 §3): the lint protects the design system, it does not obstruct implementation, so implementation constants -- the A4 sheet's 210:297 geometry, the QR module's square, a computed proportion -- are classified in an allow-list with one line of reason each rather than tokenized, and a stale allow-list entry whose literal has gone fails the test"
+    },
+    {
+      "id": "UX1-S0-CONTRAST-01",
+      "runner": "static",
+      "proves": "WCAG 2.1 contrast COMPUTED from the token source file src/app/globals.css: every text token against white, ivory and the well, every status token against those three and against its own soft ground, and the primary's ink against the primary and its hover. Nothing below 4.5:1. This is the test that makes the token lint safe to enforce -- three v1 values failed AA (ink-3 at 2.79 on white, status-ok at 4.33 on its own soft, attention at 4.16 on the well) and a lint that required their use would have enforced an unreadable screen"
+    },
+    {
+      "id": "UX1-S0-HLE-01",
+      "runner": "static",
+      "proves": "Every key in the copy table src/lib/hle.ts carries BOTH an Indonesian and an English telling, and a persona override exists in both languages or in neither -- a key that speaks to a learner differently in one interface language is a key that says two things. The internal-word guard, which until now ran for a learner and the public only, is exercised over EVERY persona, both languages and every stage telling a learner can receive; the staff-only allow-list (STAFF_ONLY_PREFIXES) is retained as a scoped statement about audience, and F05-S03 asserts the same declaration from the other side"
+    },
+    {
+      "id": "UX1-S0-LANG-01",
+      "runner": "static",
+      "proves": "THE BILINGUAL IDENTITY. The interface language changes rendered text and number formatting and NOTHING ELSE: the learner cycle's read path and the certificate read are driven twice, once per language, through a recording client, and the recorded RPC call sequence and payloads are byte-identical. The structural half stops a later edit from breaking it -- no source file under src/ passes the language into an RPC, a write or a filter, and no migration gives the preference a column. BOUNDED: this drives the application's own call sites through a recording client rather than a hosted session, so it proves what the application ASKS FOR rather than what a live PostgREST receives"
+    },
+    {
+      "id": "UX1-S1-CERT-COLS-01",
+      "runner": "static",
+      "proves": "Q-11, made mechanical against the SOURCE. The direct certificate-list read requests exactly ten columns -- id, session_id, institution_id, certificate_number, verification_token, status, issued_at_iso, revoked_at, revoked_reason, supersedes_certificate_id -- and every .from('certificates').select(...) in src/ uses that one exported list rather than a second one written inline. signature, key_version, canonical_payload and snapshot_id are named nowhere on a learner surface, so there is nothing on this side of the wire to hide. Also asserts V-6a on the source: no learner page reaches for the service-role issuance route"
+    },
+    {
+      "id": "UX1-S1-CERT-ELIGIBLE-01",
+      "runner": "static",
+      "proves": "An ELIGIBLE certificate renders no QR code, no verification link, no copy-link action, no print action, no certificate number and no name-as-issued. Asserted two ways over the SOURCE of src/app/belajar/[tugas]/sertifikat/page.tsx: the binding's own predicates, and the branch order -- the pending state returns before any of the six is built. The binding is applied to my_certificate's result as well as to the list's, because that RPC does not filter by status and returns ELIGIBLE rows. Under the V-6a ruling ELIGIBLE is the default state, not an edge case: certificate_prepare assigns a token and a number to a row verify_certificate refuses, so a link shown here would send a stranger to 'not found' for a certificate the learner was just shown as real"
+    },
+    {
+      "id": "UX1-S1-QR-01",
+      "runner": "static",
+      "proves": "The QR symbol the certificate prints is DECODED BACK to the exact verification link by an independent decoder (jsQR), at three lengths and therefore three symbol versions, and an input past capacity is refused rather than silently truncated. The encoder is in the repository rather than fetched from an image service because a code drawn elsewhere means a URL carrying a learner's verification token leaves PINTAR every time a certificate is rendered; a symbol nobody decoded is a decoration, which is why this test exists rather than a snapshot of the drawing"
+    },
+    {
+      "id": "UX1-S1-KAKI-01",
+      "runner": "static",
+      "proves": "The application footer in the SOURCE src/components/KakiPintar.tsx carries exactly the four lines supplied -- the responsible person, the legal entity, the email and the domain -- and nothing beside them: no copyright line, no legal claim, no social link, none of which was supplied. The proper nouns are module constants rather than copy-table keys, and the copy table is asserted not to carry them, because a person's name, a company's registered name, an email address and a domain are the same string in both languages and two keys that must never diverge are a divergence waiting to happen. The protocol sits in the href where a browser needs it and out of the visible text where a reader does not, and the external link carries rel=noreferrer so a stranger arriving from a verification link does not announce where they came from. THE HALF THAT MATTERS MOST: no mount that can reach a printed page renders it -- the credential card never renders it at all, and every mount on the certificate page carries pin-noprint -- because a printed certificate carries its ISSUING INSTITUTION's identity, and the software vendor's name on the same sheet would be a second claimant to the provenance of the evidence"
+    },
+    {
+      "id": "UX1-S2-MELIHAT-01",
+      "runner": "static",
+      "proves": "THE FOUR SLICE-2 RULINGS OF 2026-09-17, made mechanical against the SOURCE, because each is the kind of thing obeyed on the day it is written and quietly undone six weeks later by somebody fixing something else. (1) LOOKING IS NOT COMMITTING: no page under src/app starts a session while rendering, and the only thing that creates one is a form-submitted server action -- before this slice both assessment routes called startSession() in their render path, so ARRIVING AT THE URL was the commitment and the integrity disclosure could not be shown before the thing it discloses about; a link would also be prefetched by the router and brushed by a thumb, spending the one attempt a PAPER assessment allows. (2) THE ORIENTATION'S AUTHORIZATION IS NOT WEAKENED: assessment_orientation() returns no row when the learner may not begin, and a null reaches the one refusal page rather than a disabled orientation, with no second eligibility opinion computed in this process that could drift from the gate the RPCs use. (3) NO ESTIMATED DURATION AND NONE DERIVED: the Orientation type carries no duration field, the component computes none from item count or hesitation window, and no Slice-2 copy key offers one in either language -- while the two facts that ARE real, the question count and the closing time, are still read and still rendered through the shared compact fact summary so the approved responsive stack reaches them without being restated. (4) Q-15 VERBATIM: both tellings compared byte for byte against the ruled wording, swept for the forbidden register (dipantau, monitored, webcam, screen recording), asserted to render as a paragraph on the well rather than a bordered alert -- which would contradict the words inside it -- and asserted absent from the player, because a disclosure after the commitment is not a disclosure. BOUNDED: this reads the source and the copy table; the database half (the RPC is stable, inserts nothing and spends no attempt) is Bob's terminal verification, not this test's"
+    },
+    {
+      "id": "UX1-S2-POSISI-01",
+      "runner": "static",
+      "proves": "THE SLICE-2 HOME CARRIES ONE NEXT ACTION AND DERIVES IT, rather than taking the first row of a list. The derivation in the SOURCE src/lib/siklus.ts is pure -- cycle state and lesson progress in, a trail position and a ranking out -- so this drives it through all eleven states a cycle can hold with no database, which is also why it runs in a container where the db facility is absent. The case that earns the test: a Mastery Check finished without a single lesson ever being opened must report as the RESULT, because a cycle is a record of what happened and not a checklist to satisfy in order; a naive left-to-right reading puts that learner back at unread lessons. Also asserts the approved ranking (a running session outranks everything, a finished cycle is never the recommendation and falls to the rest of the list instead of vanishing), that the ordering is total and stable so reversing the input cannot change the answer -- list position by another name -- and that each of the five trail steps renders through the EXISTING cycle.step.* copy keys with the raw enum reaching no reader in either language. BOUNDED: this proves the derivation over the rows the engine returns; it does not prove what the engine returns, and it grants no authority -- may_start_assessment() is still asked separately every time"
+    },
+    {
+      "id": "UX1-S0-SAPAAN-01",
+      "runner": "static",
+      "proves": "THE FORM OF ADDRESS, ruled 2026-09-16: natural Indonesian that avoids unnecessary pronouns, and Anda rather than kamu where the reader must be addressed at all. Second person only, and Indonesian only, because the rule is about the reader's pronoun and English has no formal and informal you to choose between. Two halves: every Indonesian telling the copy table renders to a learner or to the public -- THE STAGE OVERRIDES INCLUDED, which is where the informal register survived longest, since a Year 4 telling is exactly where kamu feels natural to write -- and the raw source of every re-set surface, where a hard-coded Indonesian string bypasses the table altogether. A word ending in -mu is read as the informal possessive clitic unless it is one of a DECLARED list of ordinary words that end that way (ilmu, bertemu), so a false positive is fixed in the diff rather than by loosening the pattern. Pending surfaces are excluded by the same declaration the token lint uses, so a surface joins this rule on the day its slice re-sets it. The guard asserts it can still see what it forbids before it sweeps"
+    },
+    {
+      "id": "UX1-S0-FAKTA-01",
+      "runner": "static",
+      "proves": "THE RESPONSIVE FACT STACK, ruled 2026-09-16: a compact fact summary reads left to right across a wide column and stacks label over value on a narrow one, site-wide wherever that structure occurs. Asserted over the SOURCE stylesheet src/app/experience.css, read as CSS rather than as a screenshot, because the defect this prevents is invisible in a wide viewport. THE HALF THAT MATTERS: the guard walks EVERY rule inside the phone block whose subject is .pin-facts, not just the plain class -- .pin-commit .pin-facts outranks .pin-facts at any width, so a stack written only on the plain selector leaves the commitment shell, the screen the correction was raised against, in three columns while the certificate card narrows correctly. The A4 sheet is the one declared exception and is asserted to KEEP its printed row, because 794px of paper is scaled whole and never reflowed, so the viewport's width is not the sheet's width. Also asserts that nothing was added to carry the change -- no generated marker on the pairs -- and that the product's other compact label/value structure, the verification page's rows, narrows the same way, which is what makes this a pattern rather than one fix"
+    },
+    {
+      "id": "UX1-BRAND-01",
+      "runner": "static",
+      "proves": "The mark the application renders is the SUPPLIED ARTWORK, byte for byte. public/brand/pintar-selalu-logo.png is verified by sha256 against the file Yazid supplied, so a redraw, a recolour, a crop or a well-meant recompression fails -- a digest is the only check that catches the last of those, which looks like nothing and alters artwork somebody else owns. Its intrinsic geometry is read from the PNG header rather than trusted (766x429), so a resize fails even if the digest were updated, and the component's width/height attributes must match it or the reserved box is the wrong shape and the header shifts as the image lands. THE RENDERING CANNOT DISTORT IT: the .pin-merek rule takes its height from a token and leaves width to auto, and the test fails if it ever sets a width, because a squash of a few per cent is not something review catches. AND IT IS NOT ON THE CREDENTIAL: the certificate card references neither the component nor the asset, because a certificate's issuer is the INSTITUTION and a software vendor's mark on the same sheet would be a second claimant to the provenance of the evidence"
+    },
+    {
+      "id": "UX1-BRAND-02",
+      "runner": "static",
+      "proves": "The institution-mark ruling of 2026-09-17 still holds against the tree. THE Q-7 GAP IS MEASURED RATHER THAN REMEMBERED: the 83 frozen migrations carry no institution-mark or theme column and no public storage bucket, so the day somebody closes Q-7 this fails and points them at the delivery-path half of the problem -- a mark on the public verification page is read by an anonymous stranger, and a column alone does not give them a path to it. BOUNDED BRANDING, NOT TENANT THEMING: no per-tenant theming mechanism has entered the Experience layer, which is the boundary the ruling draws -- an institution may replace the mark and nothing else, because the moment a second thing is configurable per tenant the guarantee that every PINTAR screen behaves the same way for every child is gone. No specific institution is named in src/ (UIN is the ruling's example and belongs in the ruling). And the shell identity has exactly one renderer, so the future substitution has exactly one place to happen"
+    },
+    {
+      "id": "UX1-S3-LINGKUP-01",
+      "runner": "static",
+      "proves": "THE EDUCATOR'S TEACHING CONTEXT IS DERIVED, AND NEVER CLAIMED AS A BOUNDARY. `org_nodes_select` and `classes_select` are both is_member_of_institution(...), so the database hands any member of a school EVERY node and EVERY class in it -- a learner included. A heading reading \"the classes you may see\" over such a list would claim an authorization boundary the database does not draw, which is what the Slice-3 ruling forbids. So the context is derived instead from the reader's OWN role grants: this drives the PURE module src/lib/mengajar.ts through revoked, expired and node-less grants, through the containment predicate that mirrors v_jalur @> array[scope_node_id] including a node's own jalur containing itself, and through a fail-closed empty and null path. THE CASE THAT EARNS THE TEST is the adversarial plant: a class from another department is placed among the rows the query returned, and kelasDalamLingkup must REFUSE rather than filter it out, because a silent drop would let the query filter rot undetected and a stranger's class would then appear under a teaching heading. Also asserts against the SOURCE src/lib/pengajar.ts that the narrowing runs in Postgres (.overlaps on jalur) rather than in this process, that the grant read is narrowed to the reader's own person, that no role NAME appears in the derivation at all -- the thing doc 05 forbids a picker from doing -- and against src/lib/hle.ts that no Slice-3 heading says \"boleh Anda lihat\"/\"you may see\" while the replacement names a teaching scope in both languages. BOUNDED: this proves the derivation and the claim; it grants nothing -- every act reached from the context is authorized again by the database"
+    },
+    {
+      "id": "UX1-S3-KOMIT-01",
+      "runner": "static",
+      "proves": "LOOKING IS NOT COMMITTING, ON THE EDUCATOR'S SIDE. The Slice-2 ruling was written for a learner brushing a link and spending their one attempt; the same rule governs a teacher whose next press makes something real for twenty-four children. Asserted against the SOURCE of every page under src/app/mengajar: none writes while rendering -- no insert, update, upsert or delete, and no call to launch_quick_assessment, extend_session_deadline or move_learning_assignment_release -- with the scanner itself watched to catch a planted insert and a planted launcher, because a detector that has stopped detecting reads green forever. The two stages before each commitment are GET renders of the query string (the quick assessment's configure stage is method=\"get\"), so a reload, a prefetch or a back button cannot commit. The only writes in the surface are the two exported server actions in src/app/mengajar/actions.ts, each reached by a form action and asserted NOT to be reachable through an href. Making material available is asserted to be born at DRAFT and activated in its own separate UPDATE -- the statement enforce_assignment_status fires the CAN_ASSIGN_LEARNING check on -- which is also what makes a review page possible at all. And no educator action takes its redirect target from the form, so the learner side's unvalidated `kembali` is not repeated here. BOUNDED: this reads the source; that the database refuses an unauthorized write is the migrations' own property, proved elsewhere"
+    },
+    {
+      "id": "UX1-S3-CEPAT-01",
+      "runner": "static",
+      "proves": "THE QUICK ASSESSMENT'S BOUNDS ARE READ, AND ITS CERTIFICATE SENTENCE IS CHECKED AGAINST THE CONTRACT RATHER THAN AGAINST ITSELF. The item range comes from public.assessment_definition_bounds for QUICK rather than from a literal in the route, the migration's own row is parsed to confirm the ceiling of 20 and the single attempt, and the three minute presets in src/lib/pengajar.ts are asserted to sit inside the 5-to-60 range launch_quick_assessment itself enforces. THE HALF THAT EARNS THE TEST: the reviewed concept told an educator three times that a Quick Assessment does not enter a certificate. mode_policy's QUICK row has certifies = true and its own note reads \"evidence is ordinary evidence\", so certificate_eligibility does not refuse a QUICK session on mode grounds. This test therefore PARSES mode_policy's column order and its QUICK row out of the migration and requires the copy in src/lib/hle.ts to agree with what it finds: while certifies is true the copy may not deny that the result can reach certificate evidence, may not say the result is not a learner's or is the educator's alone, must actually tell the canonical meaning in BOTH languages (learning evidence, certificate eligibility), and must still say that one Quick Assessment does not issue a certificate -- the opposite overclaim. If a later migration flips that row, this test says the copy has to move rather than quietly becoming wrong. Also asserts the screen promises no per-item result, because responses_select and presented_items_select are CAN_REVIEW_INTEGRITY only and the service statistics views are revoked from authenticated outright"
+    },
+    {
+      "id": "UX1-S3-BUKTI-01",
+      "runner": "static",
+      "proves": "EVERY NUMBER ON THE EDUCATOR'S EVIDENCE SCREEN COMES THROUGH THE METRIC CATALOGUE, AND NOTHING ITEM-LEVEL IS REACHABLE. The metrics src/lib/pengajar.ts asks for are checked against the CATALOGUE SEED parsed out of 20260918100000_metric_catalogue.sql: each must exist and must carry EDUCATOR in allowed_audiences, and an item-level metric is watched to fail that same audience check so the check cannot pass vacuously. No file under src/app/mengajar or in the educator data layer reads responses, presented_items, assessment_results, service_item_statistics, service_distractor_uptake, service_cohort_misconceptions, question health or integrity signals, and none calls recompute_question_health, record_question_health_review, record_integrity_review or terminate_session -- with the forbidden-table scanner watched to catch a planted direct read. class.misconceptions, the aggregate that replaced a concept sentence counting learners against two questions, is asserted to be asked for AND its calculator asserted to carry a misconception code without a person_id or an item_id, so the replacement is not the forbidden read under another name. Absence is first class: a figure renders only on status ok and only when finite, no zero and no `?? 0` stands in for an unknown, and every figure carries the 3-lens action sentence. And the scope line names a class rather than a chapter, because metric_evaluate takes a NODE and every class calculator aggregates that node's official sessions with no release or module filter -- so \"Evidence - Class 10A - Chapter 3\" was a scope no contract carries. BOUNDED: this reads the source and the seed; what the evaluator returns at runtime is the database's own property"
+    },
+    {
+      "id": "UX1-S3-NAMA-01",
+      "runner": "static",
+      "proves": "LEARNER NAMES STAY BOUNDED, BARE AND UNJUDGED, AND NO HONORIFIC IS INFERRED. The absence of any source for a Bu or a Pak is READ FROM THE CONTRACT rather than asserted: public.persons is parsed out of 20260912004321_identity_enrollment.sql and shown to carry display_name and no honorific, salutation, title, prefix or gender column, and no migration adds one -- so a greeting that guessed would be guessing about a real person. The copy and the home's greeting composition are then swept for one anyway. Names reach the surface only through memberships -> enrollments -> persons: the test asserts the read is narrowed to the class node, that persons is never fetched in bulk and filtered afterwards, and -- from 20260912004431_authorization.sql -- that persons_select still runs through person_visible_to_me and that its educator branch is still has_scope('EDUCATOR', m.node_id), which is subtree containment. So the name set is bounded by the DATABASE, not by this application, and that is the one set on the educator surface of which that is true. Observation is not judgment: the roster COMPONENT is asserted to have no slot for a pill, a colour, a number or a status and no order but the alphabet, so a screen cannot add one without the component growing a place to put it; the ordering is asserted not to be by anything about the learners; and the copy is swept for tertinggal, bermasalah, malas, failing, at risk, behind, struggling and a dozen more. The neutral sentences are required to be PRESENT rather than merely the harsh ones absent -- \"this is a list, not a ranking\" and \"counts, not judgments\", in both languages"
+    },
+    {
+      "id": "UX1-S3-KATA-01",
+      "runner": "static",
+      "proves": "THE EDUCATOR COPY IS COMPLETE, DECLARED, BILINGUAL AND FREE OF THE PRODUCT'S INTERNAL VOCABULARY, asserted over the copy table src/lib/hle.ts and the source of every educator surface file under src/app/mengajar. Every mengajar.* key the surface renders is asserted to exist in src/lib/hle.ts, because a missing key renders as the literal angle-bracketed key to a teacher; the one key composed from a value -- the instrument list's mode -- is required to have a telling for every mode it can take. Every declared key is asserted to carry a non-empty telling in both languages in the flat shape F05-S03 and QAC-S01 depend on, and a key whose two long tellings are byte-identical is treated as one that was never translated. The language rule is enforced by ONE pass over the words of every Indonesian telling: a standalone list (kamu, engkau, kau, dikau) plus the -mu clitic with the words that merely end in those letters declared, rather than two patterns that would double-count the same word -- and a planted informal address is watched to be caught, because a sweep that matches nothing reads exactly like a sweep that finds nothing. Anda is required to be present, not merely kamu absent. Finally every telling in both languages is swept for what a teacher must never meet: plp_, role_assignments, scope_node_id, jalur, org_nodes, learning_assignments, assessment_assignments, metric_evaluate, below_minimum, not_permitted, any CAN_* capability, is_ad_hoc, and the lifecycle and mode enums DRAFT, ACTIVE, WITHDRAWN, SUBMITTED, FINALIZED, PRE_TEST, POST_TEST and QUICK"
+    },
+    {
+      "id": "UX1-S3-FAKTA-01",
+      "runner": "static",
+      "proves": "THE SLICE-3 COMPOSITIONS NARROW ON A PHONE, IN DOCUMENT ORDER. Asserted against the SOURCE stylesheet src/app/experience.css, and the ordering half is the point: at equal specificity the later rule wins, so a narrow rule written before the wide rule it overrides is a narrow rule that never happens -- which is exactly the defect that made the orientation facts render as two cramped columns while the test reported them stacked, and why UX1-S0-FAKTA-01 was rewritten to compare document order. Each of the five Slice-3 compositions that cannot hold its shape below 560px (the two-column roster, the action card, the numbered instrument row, the class switcher and the segmented window control) is required to have its wide rule, then a narrow rule AFTER it, and that narrow rule to sit inside a phone media block rather than merely later in the file. The educator's compact fact summaries are asserted to reuse `.pin-facts` so they inherit the approved responsive stack instead of restating it, no educator container redefines that grid, and nothing declared after the last phone block re-widens one. And the quick assessment's live panel is asserted to still carry TWO facts rather than the three the reviewed concept drew: the third was per-item results, which no contract grants an educator, and a silently returning row is how a removed promise comes back"
+    },
+    {
+      "id": "UX1-S0-MUAT-01",
+      "runner": "static",
+      "proves": "DOES THE BOX FIT, AND IS ANYTHING CLIPPED -- asserted over the SOURCE stylesheet src/app/experience.css and the COMPILED stylesheet in .next/static/chunks. Promoted from a one-off Playwright measurement that found a real defect: four of thirty-two rendered educator pages overflowed at 390px, the worst by 279px, with the document scrolling to 637px inside a 390px viewport. THE FIRST DIAGNOSIS WAS WRONG AND IS RECORDED HERE BECAUSE IT WAS CONVINCING: it read as a missing box-sizing reset making every padded full-width box 48px too wide, and that was an artefact of the measuring harness, which had stripped `@import \"tailwindcss\"` from globals.css and with it Tailwind's preflight -- the product has had a global border-box all along. Reverting each candidate fix one at a time against the compiled stylesheet showed ONE doing all the work: a button a rule stretches to the width of a phone while `.pin-btn` still tells it `white-space: nowrap`, so the label refuses to fold, the flex column grows to fit it and the panel takes the page's horizontal scroll with it. The guard asserts three things: (I0) the global border-box reset still exists, checked against the BUILT stylesheet rather than assumed, because that is the assumption every padded box in the sheet rests on and losing it breaks all of them at once; (I1) nothing a rule stretches to its container's width refuses to wrap, with a rule counted toward an element only when its selector is a SUFFIX of that element's own -- the first version merged every `.pin-btn` rule into every `.pin-btn` element and let the fix on `.pin-actions .pin-btn` mask the identical defect on `.pin-tugas .pin-tfoot .pin-btn`, reporting green over a real one; (I2) no grid puts a bare `1fr` beside a track holding something that cannot wrap, because the 1fr takes its content as its minimum and pushes the status pill out through a border the surrounding list clips at. WHY THE CASCADE AND NOT A BROWSER: a rendered measurement only covers what some fixture renders, and measured over 44 rendered pages `.pin-op`, `.pin-num-btn`, `.pin-drow`, `.pin-nrow`, `.pin-tugas` and the trail dot matched zero elements -- the defect this guard found on its first strict run was on the learner's home, which no fixture reaches -- and it runs under `npm ci` in CI, where Playwright is not a dependency and no browser is installed. Watched to fail: reverting the wrap treatment turns it RED and restoring it turns it GREEN. BOUNDED: this proves the two shapes that produced measured overflow; emergent overflow from unbreakable content in a fixture nobody has written is not in its reach, and the rendered measurement (32 educator + 56 Slice-1/2 pages at 390px and 1280px, all zero-overflow) is the companion evidence."
+    },
+    {
+      "id": "TOUR-P01",
+      "runner": "db",
+      "proves": "The first-login tour is remembered about the PERSON, not the browser, which is the whole reason it is backend state: PINTAR is deployed where one device is shared between learners across a period and one person uses several machines, so localStorage answers the wrong question in both directions. Driven over three INDEPENDENT sessions against public.my_tour_state / note_tour_presented / complete_tour / suppress_tour in the live database -- each session a fresh set of JWT claims, which is what a logout, another browser and another machine all look like from here. Never shown is the ABSENCE of a public.person_tour_state row rather than a guess derived from accounts.created_at, and reading the state creates nothing. Skipping is not a call at all, so a skipped tour is offered again; exactly THREE automatic presentations are given and the fourth is refused by tour_registry.auto_presentation_limit, whose CHECK bounds it at three so no tour can ever declare more; a fourth call to note_tour_presented is a no-op and does not move the count. Dismissal suppresses automatic presentation, completion suppresses it, completing twice keeps the FIRST instant, and a completed tour spends no presentation -- so a deliberate replay that calls the presentation verb by mistake costs nothing. No device-local value is written or read at any point: every answer comes from the database"
+    },
+    {
+      "id": "TOUR-N01",
+      "runner": "db",
+      "proves": "Shared-device isolation for tour state, over two seeded learners on one connection with everything identical but the session. The second person meets their own state -- offered the tour, count 0, nothing completed -- reads zero rows of the first's under RLS, and cannot reach them by naming their person_id. The attempt is made three ways, weakest to strongest: as the client role straight at public.person_tour_state, where INSERT, UPDATE and DELETE are refused by the absence of any policy for those commands and of any write grant; through the contract, where a signature walk over pg_proc shows NO tour entry point accepts a uuid at all, so there is no argument that could carry a foreign identity; and AS THE OWNER naming another person, which is what every SECURITY DEFINER function is and where RLS does not bind because relforcerowsecurity is false on every public table by design. That last write lands on the SESSION HOLDER rather than the named person, because enforce_tour_state_write derives person_id from current_person_id() instead of trusting the row -- the INV-08 rule applied to a new surface. With no session at all there is nobody to write for and the insert is refused by name"
+    },
+    {
+      "id": "TOUR-N02",
+      "runner": "db",
+      "proves": "Tour identity, explicit version, and the monotonic guarantee that makes deliberate replay safe. Two declared tours are two rows: finishing learner.first_login leaves educator.first_login untouched, and no role inheritance can change that because nothing in this schema maps a role to a tour -- tour_key is opaque to the backend, so a DEAN cannot inherit the educator tour by construction rather than by rule. A newly DECLARED version of one tour is offered again while version 1 keeps its own dismissal, so a materially new tour re-presents without erasing an earlier decision; and the declaration is a public.tour_registry row that no client role can write -- no non-SELECT policy, no write grant, and a client INSERT refused -- so a version can never be derived from a deployment, a commit, a changed-file count or a copy edit. Replay restores nothing, asserted twice over: NO reset, replay, clear, forget or restart verb exists in public at all, and the attempt made directly AS THE OWNER to clear a dismissal, uncount a presentation, raise the count past the declared limit, move a row onto another version or delete it is refused by the trigger in every case. An undeclared tour answers zero rows and cannot be presented"
+    },
+    {
+      "id": "TOUR-N03",
+      "runner": "db",
+      "proves": "Tour state is PRESENTATION state and never becomes evidence, asserted structurally against the live schema and then measured. Structurally, through public.assert_tour_state_is_not_evidence(): 35 evidence consumers -- the ten scoring functions, all sixteen catalogue calculators, metric_evaluate, generate_report, both certificate paths, both evidence-class functions, the question-health recompute and the integrity writer -- read neither tour table; no view depends on either; neither carries a session, evidence, mastery, score, result, response, grade, integrity, certificate, institution or enrollment column; person_tour_state has foreign keys to persons and tour_registry and to nothing else; neither table is a declared record class, so transfers_guard refuses to carry it across an institutional boundary by name; neither is a declared metric source, so a calculator reaching for it would fail assert_metric_closure; and no client role holds more than SELECT. Behaviourally: a REAL OFFICIAL result's mastery and its certificate_eligibility verdict are recorded, the same learner is then shown a tour twice, completes it and dismisses another, and both are unchanged to the digit -- with no integrity signal raised against the session and no audit row written, the last deliberately, because INV-18 lists the acts that must be accountable and being shown a tour is not one of them"
+    },
+    {
+      "id": "UX1-TUR-LIHAT-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the source of the first-login tour only looks: no file under src/components/tur, src/app/tur or the two tour libraries navigates, submits or reaches a product RPC; the only writes are the three declared presentation verbs, each validating the key it is handed, and the replay path in the source of Tur.tsx calls none of them",
+      "how": "src/components/tur/*, src/app/tur/actions.ts, src/lib/tur.ts, src/lib/tur-negara.ts — scanners watched on planted links, pushes, product writes and a replay that spends a presentation"
+    },
+    {
+      "id": "UX1-TUR-ORANG-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the tour's memory belongs to the person and not to the device: no tour source touches localStorage, sessionStorage, a cookie or IndexedDB; the four RPC signatures are read from the migration that declares them and none takes an identity; the internal version function is revoked from authenticated there; and the presentation cap is read from the person's own row rather than restated in the source",
+      "how": "src/lib/tur-negara.ts against supabase/migrations/20260922090000_tour_state_follows_the_person.sql — signatures read from the migration; planted localStorage and cookie writes watched"
+    },
+    {
+      "id": "UX1-TUR-TAHAP-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "PINTAR does not guess a learner's stage: varianBelajar in the source of src/lib/tur.ts takes one legitimate person-scoped parameter and returns the neutral variant for absent and unknown alike, all three learner variants carry one persistence identity, no tour source reaches for a course stage, an age or a grade, the learner landing's call site is read to pass a literal null, and no tour source or copy-table telling names the measurement machinery",
+      "how": "src/lib/tur.ts and the learner landing's call site, read rather than trusted; planted course-stage and age guesses watched"
+    },
+    {
+      "id": "UX1-TUR-PERAN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "a tour belongs to an experience and seniority inherits none: turPengajarBerlaku refuses every role above EDUCATOR in the app_role enum read from the foundation migration, the active-grant filter keeps grants with no scope node, and the source of both landings shows the gate reaching automatic presentation and the Help offer while the learner landing counts no roles",
+      "how": "src/lib/tur.ts, src/lib/tur-negara.ts, both landings, against the app_role enum in 20260912004158_foundation_base.sql; a hard-coded gate watched"
+    },
+    {
+      "id": "UX1-TUR-TAMPIL-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "automatic presentation, replay, the after-closing tip and the card's placement agree: the pure model in the source of src/lib/tur.ts honours the database's own refusal, names both Experience exclusions rather than failing silently, decides the tip's wording from durable state, takes the cap from the row, and places the card below, above or beside its target but never over it — driven through the exact geometry a rendered measurement found it overlapping with; and the source of Tur.tsx treats skip and Escape alike, treats closing on the last step as finishing, lends the page the room the card needs and gives it back, and closes nothing on a timer",
+      "how": "the pure model driven through every presentation, return, wording and placement case, including the measured 1280x813 overlap and a control that still reproduces it under the band that caused it; the closing and page-room rules read from src/components/tur/Tur.tsx"
+    },
+    {
+      "id": "UX1-TUR-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the tour's copy in the copy table src/lib/hle.ts is declared and complete in both languages for both personas, carries no retired term, informality or database word, and keeps the ruled sentences; and every anchor a step names exists as a data-tur attribute in the rendered source, with empty-state wording present exactly where a landing's source can report that anchor empty",
+      "how": "src/lib/hle.ts swept over four tours in two languages and two personas; planted retired term and clitic watched"
+    },
+    {
+      "id": "UX1-TUR-AKSES-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the rendered source of the tour components declares a dialog with its label and description, makes the page inert and gives it back, moves focus to each step's headline, is written in the approved tab order with no tabindex forcing it, builds every control from a native element, labels both ways out in words, announces the step number as words, and draws miniatures whose every string literal is a class list, a declared kind or the frame's own label",
+      "how": "src/components/tur/*.tsx read for semantics and DOM order; a reordered footer watched"
+    },
+    {
+      "id": "UX1-TUR-TUNTUN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the Experience stylesheet's guidance rules paint the mode's ground only under the tour's or Help's own selector, carry no status colour anywhere inside instruction, leave the tip unpainted, draw the approved 3px white gap and 2px primary ring over the ruled composite veil, and cap the phone sheet; and the source of Tur.tsx applies and removes the mode class for exactly the two states that are the mode",
+      "how": "src/app/experience.css guidance block and src/components/tur/Tur.tsx; a planted status colour watched"
+    },
+    {
+      "id": "L1-TUJUAN-01",
+      "runner": "static",
+      "proves": "L-1: every value that survives an authentication hop and then becomes a redirect is narrowed to this origin by ONE shipped helper, src/lib/tujuan.ts, which is IMPORTED AND EXECUTED here rather than read as text. Eleven legitimate destinations pass through with their query and fragment intact; twenty-four off-origin shapes are replaced by the caller's fallback -- the network-path //evil.example and its triple- and quadruple-slash forms, both backslash spellings a browser treats as slashes, the same three with a TAB, CR or LF in front (which the URL parser DELETES before parsing, so a check that reads the raw string is looking at a different string), userinfo and encoded-traversal variants, absolute http/https, javascript:, data:, vbscript: and file:. Each refusal is independently confirmed adversarial: the raw form is resolved by the same URL parser NextResponse.redirect will use and required to leave the origin, so a case that proves nothing cannot sit in the matrix unnoticed. THE PLANT RUNS IN-PROCESS: the startsWith('/') predicate this repair replaced is applied to the same matrix and must be shown to ACCEPT destinations that escape, so the test discriminates between the repair and the defect rather than passing against either. Also asserts the caller's fallback is honoured on refusal and NOT applied to a legitimate path, that a missing destination falls back, and that narrowing is idempotent -- what comes out is already the parser's own form, so a second parse downstream cannot read it differently from the parse that approved it"
+    },
+    {
+      "id": "L1-SENSUS-01",
+      "runner": "static",
+      "proves": "L-1 closure: the four sites that carry a destination across an authentication or action hop -- src/app/auth/callback/route.ts, src/app/masuk/actions.ts, src/app/masuk/page.tsx and src/app/belajar/actions.ts -- each narrow it through tujuanInternal, and none of them still decides with a bare leading-slash test, which is what all four did before. A comment-stripped walk over every .ts/.tsx file under src/ asserts that no OTHER file narrows a destination its own way, so a fifth site cannot be added outside the contract. The helper itself is required to RESOLVE the destination and compare origins rather than pattern-match, because replacing one leading-slash test with a longer list of forbidden prefixes would be the same defect with more lines"
+    },
+    {
+      "id": "L2-KONTRAK-01",
+      "runner": "static",
+      "proves": "L-2: PINTAR 4.0 is institution-provisioned, so magic-link authentication proves access to an identity a school already created and does not create one. The signInWithOtp call carries shouldCreateUser: false -- the Supabase default is TRUE, so the flag's absence was the defect: an unknown address became an auth.users row, and on_auth_user_created then gave it a persons row and an accounts row. No signUp, admin.createUser or inviteUserByEmail call exists in the sign-in actions. AND THE PRIVACY HALF, which is the easy one to get wrong: with creation off an unknown address errors where a known one succeeds, so returning that difference would replace a self-provisioning defect with an account-existence oracle -- the refusal meaning 'no such provisioned identity' is therefore folded into the ordinary outcome and matched on a stable error code, and the actions are asserted to run no database pre-check against accounts or persons and no auth.admin lookup, either of which would rebuild the same oracle one round-trip earlier. The classroom-card path is asserted untouched: still signInWithPassword over deriveCardSecret, with no signup behaviour, so the human PIN has not become an account password"
+    },
+    {
+      "id": "L2-TIDAK-DIBUAT-01",
+      "runner": "static",
+      "proves": "L-2 measured rather than configured: this EXECUTES against the running Auth service and the live schema rather than reading a flag. An address nobody has provisioned asks for a sign-in link exactly as the application asks (create_user: false, the wire form of shouldCreateUser: false), and creates nothing: no auth identity, no PINTAR person, no PINTAR account. Counted BEFORE and AFTER against the live schema, both for that address and as whole-table totals over auth.users, persons and accounts, so the proof is the pair rather than an absence that was always true -- and it is additionally required to have been refused BY THE PROVISIONING GATE, so a broken Auth service that also happens to create nothing cannot pass. The chain being protected is demonstrated in the same run as the plant: an auth.users insert still produces exactly one person and one account through on_auth_user_created -- planted inside a transaction and rolled back rather than exercised against the Auth service, because persons_no_delete means a row created for real could never be removed again, and the test asserts it left no residue. POSITIVE CONTROL, and it asks which gate refused rather than whether mail was delivered: a seeded provisioned address must NOT meet the provisioning gate, and the two addresses must meet different outcomes at it. Delivery is deliberately not asserted -- CI starts the stack with mailpit excluded, so there is no SMTP sink and the send step 500s for any address that reaches it, which is only the provisioned one; an earlier version asserted status < 400 and reported 'the contract refuses everyone' when the contract had let the address through and the runner simply had nowhere to post a letter",
+      "skip_justification": "needs a reachable Postgres with the migrations and seeds applied AND the local Supabase Auth service (CI local stack via SUPABASE_DB_URL + NEXT_PUBLIC_SUPABASE_URL); this session's egress policy denies *.supabase.co and Docker is unavailable, so the Auth half cannot run locally. CI has both and runs it strictly"
+    },
+    {
+      "id": "L1-BERSIH-01",
+      "runner": "static",
+      "proves": "No file under src, selftest, supabase or scripts carries a literal control byte outside tab, newline and carriage return -- read as BYTES from the source tree rather than as text. This exists because this patch introduced exactly that defect and the suite went green anyway: src/lib/tujuan.ts, the L-1 destination helper, was written with a NUL, a 0x1F and a 0x7F spelled as real bytes inside the very character class that exists to refuse them. The regex still functioned, every behavioural case in L1-TUJUAN-01 still passed, and the only symptom was that git classified a security-critical source file as binary and would not diff it -- so the helper had become unreviewable while reading green. A byte a reviewer cannot see is not reviewed, and a test that exercises behaviour cannot detect it, so this one inspects the file contents directly"
+    },
+    {
+      "id": "UX1-MASUK-KONTRAK-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the sign-in screen's source offers exactly the two doors the authentication contract has and not one more — no password field, registration, recovery, social sign-in, SSO, passkey, institution or role picker, or remember-me; ?peran= is neither branched on nor rendered for a persona and never survives the authentication boundary; L-2's shouldCreateUser:false is intact; S6 is SUPPRESSED BY SECURITY RULING (D2) and cannot return, because the send outcome set has no member meaning held, the throttle is still recognised so it folds into the same answer an unknown address gets rather than being reported as a transport failure, its copy is gone from the table, and no timer, countdown, cooldown or retry-after exists in the surface; and a client that never started holds every actionable control and says why, on the sign-in surfaces and the callback alike",
+      "how": "src/app/masuk/*, src/app/auth/callback/*, src/components/masuk/* read as source; six plants watched — a held outcome, an unfolded throttle, cooldown copy, controls drawn operational before hydration, a callback claiming an exchange that never started, and a password field"
+    },
+    {
+      "id": "UX1-MASUK-PRIVASI-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "no surface of the sign-in screen distinguishes an unknown address from a sent link, or a bad card number from a bad PIN: the send action's source reports an unregistered address as the ordinary outcome and its outcome type has no name for one, the copy table's confirmation is conditional in both languages and echoes no address, the card action collapses every refusal to one value, both card fields carry aria-invalid against one shared message id in the rendered source, and the already-signed-in surface names nobody",
+      "how": "src/app/masuk/actions.ts and src/components/masuk/LayarMasuk.tsx as source, plus the copy table; a field losing its invalid marking is watched"
+    },
+    {
+      "id": "UX1-MASUK-TUJUAN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the frozen destination helper src/lib/tujuan.ts is verified byte-for-byte unchanged by sha256; the post-authentication destination supplies the role's home as that helper's OWN fallback parameter rather than deciding after it; no surface tells a person their destination was refused; the ask-for-a-new-link control carries no destination, as ruling D1 requires; and the role-home map in src/lib/beranda.ts sends every role in the schema to a route that exists while naming no authorization primitive",
+      "how": "a digest over the frozen helper, the source of both sign-in actions and the callback surfaces, and the pure role-home map driven over every role"
+    },
+    {
+      "id": "UX1-MASUK-AKSES-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the rendered source of the sign-in components holds fields readonly and never disabled in flight, marks busy controls, makes the PIN reveal a labelled pressed-state toggle that no timer undoes — the surface runs no timer at all — declares every focus destination in one named set, leaves the send-outcome handler with only the two surfaces D2 permits, builds every control from a native element with no positive tabindex, makes the exchanging surface a polite live region that takes focus, and stops both moving things under reduced motion",
+      "how": "src/components/masuk/*.tsx and the sign-in block of src/app/experience.css, read as source"
+    },
+    {
+      "id": "UX1-MASUK-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the sign-in copy lives only in the copy table src/lib/hle.ts: every key the rendered surfaces reference is declared and carries both languages, no surface hard-codes a user-visible string, the three load-bearing strings match the canonical handoff byte for byte, the card route and the card submit no longer share an Indonesian label, no sign-in string carries a persona override, and nothing in either language is informal or names the machinery",
+      "how": "the copy table swept against the keys the sign-in surfaces reference; an edited conditional is watched to be refused"
+    },
+    {
+      "id": "UX1-PIMPINAN-LINGKUP-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "who is Management is the database's answer and never the frontend's. The surface gates on management_scope_over_node, and this test READS the WP2 migration to confirm that function is still the WP1 ROLE SET -- HEAD_OF_DEPARTMENT and DEAN, taken from management_learner_roles() -- rather than a rank test, which is what keeps an INSTITUTION_ADMIN out of the academic Management experience even though the metric catalogue's allowed_audiences would have admitted them. No role name is read anywhere in the Management data layer and the role column is never selected, both watched on plants; all four Management routes ask the gate before rendering and all four refuse through the one refusal page; both Management roles land on the Management home and neither administrator role does; the branch below a scope is filtered in Postgres, re-checked in TypeScript and throws on a leak rather than dropping it; and no Management file reads evidence around the metric catalogue.",
+      "how": "the WP1 and WP2 migrations parsed for the role set and the gate; every Management source file swept; berandaPeran driven for all six roles; dalamLingkup driven on in-scope, out-of-scope and path-less nodes"
+    },
+    {
+      "id": "UX1-PIMPINAN-KEPUTUSAN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the Management decision experience is WP2's and automates nothing. The transitions the surface offers are PARSED OUT of advance_management_decision's own guard and compared with langkahBerikut, so the page can neither offer a move the endpoint refuses nor hide one it accepts, and DECIDED is terminal on both sides. The outcomes offered are exactly the three management_decision_outcome declares and none of them reads as a punishment in either language. Every family, state, outcome and source table is mapped to a copy key before it renders, an undeclared source renders no line rather than a plausible one, and the four-part chain stays in the approved order. One RPC and no second one; no timer, threshold, priority, score, SLA or automatic advance anywhere. The reading order is waiting-then-oldest and is stable for two raised in the same instant. No decision card ever takes the blocked ground, because an integrity referral names a learner on the card.",
+      "how": "the WP2 migration's transition guard and three enums parsed and compared with the shipped contract; the card's text positions swept for enum members; urutan and nada driven directly"
+    },
+    {
+      "id": "UX1-PIMPINAN-KESIAPAN-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "R5 is read and never redone. The three readiness states are parsed out of evidence_readiness_state and matched against what the surface knows; the state comes from the envelope's own readiness field alone, so a refusal -- which deliberately carries none, because readiness is a fact about a population a refused reader may not have -- and an unknown value both yield nothing rather than a state the evaluator withheld. Nothing on the surface compares have with needed or reaches for minimum_sample, because that minimum is governed per interpretation and a second copy would drift from the catalogue. The three states carry three different sentences in both languages and none contains a word a reader could take as a verdict, watched on a plant. A refusal is counted in no tally, an empty state is never drawn as a nought, the readiness section keeps the quiet ground, and no figure on the surface falls back to zero.",
+      "how": "the WP3 migration's enum parsed; kesiapan and hitungKesiapan driven over every state plus a refusal and an unknown value; every readiness telling swept in both languages against a judgement pattern proved on a plant"
+    },
+    {
+      "id": "UX1-PIMPINAN-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the Management copy is declared copy and nothing else: every key the surface renders is declared and carries both languages, no component hard-codes a sentence, and the three load-bearing lines -- the suppression line, the order line and PINTAR mengusulkan, manusia memutuskan -- match the approved Management design byte for byte, with the order line still saying in BOTH languages that it is an order and not a ranking. No ranking word and no disguised ranking (a percentile, an N-of-M, an above-average, a top-anything) appears in any Management file or any Management telling, watched on two plants of which one avoids the word entirely. No telling names a table, a capability, a policy or an enum. The register is declared staff-only, which is what lets a queue legitimately say it is waiting, and that declaration is re-proved by showing the same key still throws for a learner and for the public. No key carries a persona override, and none addresses the reader informally.",
+      "how": "every pimpinan key swept against the copy table in both languages; the Management sources swept for hard-coded copy and for ranking vocabulary; t() driven for a learner and the public to prove the staff-only guard still refuses"
+    },
+    {
+      "id": "UX1-PIMPINAN-AKSES-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "proves": "the Management experience reaches exactly the two roles the WP1 ruling names, proved against the running application with real sessions rather than against the source. A DEAN standing at the institution node and a HEAD_OF_DEPARTMENT standing at one department both receive the Management home; an INSTITUTION_ADMIN is refused -- the case that matters most, because they outrank both Management roles and sit in allowed_audiences for almost the whole metric catalogue, so a surface that had gated on 'may this reader see these figures' would have admitted them; an EDUCATOR and a STUDENT are refused; and every refusal is the same one refusal page. The journey home -> part of the school -> roster works for the dean, and the SAME REAL NODE is refused to an educator and to an administrator, which is the out-of-scope case rather than a made-up uuid. An anonymous caller is turned away by the proxy before the page decides anything, and every rendered page is swept for internal words.",
+      "how": "six personas signed in through the app's own @supabase/ssr client; /pimpinan and the node and roster routes beneath it fetched with each session and the rendered text compared against the copy table's own home and refusal sentences"
+    },
+    {
+      "id": "UX1-DATA-BERKAS-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the intake reads a spreadsheet as a spreadsheet and maps it to exactly the fields WP5A accepts. A quoted comma, a doubled quote, a newline inside a field, a byte-order mark and semicolon/tab/comma separators are all handled; a trailing newline is not counted as a person and a short row pads rather than reaching a payload as undefined. The five mappable fields are compared with the migration IN BOTH DIRECTIONS -- a field the surface offers that WP5A ignores and a field WP5A reads that the surface hides are both red -- and there is no institutional-ID column, because PINTAR decides all eleven characters. The roles offered exclude exactly the two the row checker refuses, read from its own body. One row in is one row out at 1, 50, 100, 101 and 1,000; a nameless row is still sent so the database can report it against its ordinal rather than being silently discarded; and an empty value is omitted rather than sent as an empty string, so payload and database agree on what absent means.",
+      "how": "the WP5A migration parsed for the payload keys it reads and the roles it refuses; the pure parser and mapper driven over quoting, separator and boundary-size cases"
+    },
+    {
+      "id": "UX1-DATA-TAHAP-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the intake's phases are the database's states and the fifty-row gate is the database's gate. All eight job states map to a phase and an unknown state maps to none; the three states the surface will ask for a chunk in are compared MEMBER BY MEMBER with the three import_advance accepts, so AWAITING_PILOT_VERIFICATION being absent from both is asserted rather than assumed, and the driver additionally stops when nothing is pending. The pilot threshold and size are read from the migration (100/50): 1, 50 and 100 run straight through, 101 and 1,000 stop at the checkpoint and cannot be driven past it. Interruption is covered in the three places the ruling names -- after the fifty and before verification, after verification, and at 100 of 1,000 -- and in each the answer is continue rather than restart or lost. A completed or stopped job reopened offers no action, and the confirmation and verification forms are bound to the one state each belongs to, so a lost response cannot become a second human act.",
+      "how": "the WP5A migration parsed for the job-state enum, the advance guard and the two product numbers; the pure phase and gate functions driven over every state and every boundary size"
+    },
+    {
+      "id": "UX1-DATA-JUJUR-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "every number an administrator sees is counted from rows that committed, and provisioning is never shown as activation. The progress component holds no counter it increments, runs on no timer, derives its bar from completed/total and announces the same number it draws. An uncertain outcome re-reads durable state at all four places it matters -- advancing, confirming, verifying the pilot and plain progress -- so a lost confirmation is not reported as a failure and a lost verification does not make an administrator verify the fifty a second time. Provisioning goes through WP5A's own confirmation and pilot release, the action file calls nothing outside the intake contract, and the surface keeps no confirmation flag beside the database's. PROVISIONED IS NOT ACTIVE: the zero is rendered rather than omitted, its explaining sentence appears on more than one screen, and no file and no telling in either language reaches for a password, an invitation, a magic link, a one-time code, an email verification or an identity claim.",
+      "how": "the progress component, the action file and the job page swept for a client-side counter, a timer, a local confirmation flag and any activation vocabulary; the activation detector proved on a planted promise"
+    },
+    {
+      "id": "UX1-DATA-WENANG-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the intake is institutional administration and the capability says so. The migration's own capability table is read to prove an INSTITUTION_ADMIN holds CAN_PROVISION_PEOPLE and that HEAD_OF_DEPARTMENT, DEAN, EDUCATOR and STUDENT do not -- so a WP4 Management reader is refused by name rather than by an opinion in frontend code, which reads no role string and never selects the role column. Both WP5A read policies are confirmed still bounded by the same capability, and every intake route refuses through the one refusal page. Every intake copy key is declared in both languages, no component hard-codes a sentence, and no telling names an index, a lock, a sequence, a trigger, a transaction, a table or a job state. EVERY validation phrase the row checker can return is matched against the migration and has a sentence of its own; an unknown phrase falls back rather than rendering raw, and none of them renders the database's own wording. The identity doctrine appears on the page in both languages -- the number encodes no role, and the code becomes permanent once a number is issued -- and a frozen code renders as identity with no editable control.",
+      "how": "the WP5A migrations parsed for the capability table, the read policies and the eleven validation phrases; the intake sources and the copy table swept in both languages"
+    },
+    {
+      "id": "UX1-AJAR-KONTEKS-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "an educator may also be learning, and nothing in the Experience decides that they may. The reading context is a PURE rule over the roles a person HOLDS -- not over display_role, which is a coalesce answering a different question -- driven through nine shapes: no role at all, an educator, each of the four senior roles alone, an educator who is also senior in two ways, and a failed read, which falls back to the learner shell and the learner tour, the product as every release before this one had it. RANK NEVER DECIDES WHICH TOUR IS PRESENTED, which is the rule H-3 already set: the tour follows the SHELL, asserted shape by shape, and watched on two plants -- dropping the seniority rule so an educator who is also a dean keeps the educator's shell, and gating the learner tour on holding no role, which would quietly take the learner landing's own tour away from every senior reader. WHAT IS OFFERED IS NEVER DECIDED BY A ROLE: my_learning_assignments takes no argument, so nothing on the client side can widen it, and the reading context is provably out of scope between the assignments being fetched and the list being ranked -- watched on a plant that inserts a context test into that pipeline. No file on the learning surface reads display_role, reads the role table, or names STUDENT, so nobody is being made one, and none of them moves a reader through an account boundary to reach their own learning. The shell offers two places to be, both of them real routes, and carries no control that changes a role, an account or a mode. And no file under src names learning_context, PROFESSIONAL_DEVELOPMENT, the academic evidence boundary or the scoped session source: provenance is the database's business and reaches no screen"
+    },
+    {
+      "id": "UX1-AJAR-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "Pembelajaran Saya says whose learning it is and judges nobody. Every key is declared in both languages, actually rendered, addressed formally, and hard-coded in no component. THE PERSONA THE LEARNING SURFACE NOW CHOOSES REWRITES NOTHING: every non-staff key in the copy table is compared between a learner and an educator in both languages and not one differs, so addressing an educator is a statement about who is being spoken to rather than a silent change to the copy a learner reads. No telling on this surface names teaching effectiveness, a performance score, a ranking or league position, a comparison with other educators, an appraisal, a promotion or a sanction, or a good or bad teacher -- watched on two plants, because a sweep that matches nothing must not be mistaken for a surface that says nothing wrong. AND THE EMPTY STATE IS AN ORDINARY STATE OF AFFAIRS: it is the same 'belum ada' construction the rest of the product uses, and in neither language does it name a fault, a refusal, a permission, an administrator to contact, a setting to change, or an account to go and get -- watched on a plant that points the reader at the wrong kind of account. What it does say is that the learning is the reader's own and stands apart from the classes they teach, in both languages, under a name that is not the learner home's"
+    },
+    {
+      "id": "UX1-AJAR-BELAJAR-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as three real personas and compares each page with what my_learning_assignments answers for that same token. CI has both facilities, so it never skips there",
+      "proves": "an educator's own learning is a second context and never a second identity, measured over HTTP as three real people. The teaching header gains exactly ONE neighbour, Pembelajaran Saya, and keeps Kelas, so the way in is one press and the way back is always on screen. WHAT AN EDUCATOR IS OFFERED IS THEIR ENROLMENT AND NEVER THEIR ROLE, proved on two educators rather than argued: my_learning_assignments is asked directly with each persona's own token and its answer is compared with the rendered page, so the expectation comes from the contract rather than from the test's idea of the fixture. The enrolled educator holds at least one entitlement -- asserted, because an educator offered nothing would make every assertion after it vacuously true -- every row of it appears on their page, and it is the SAME course their own class's learner is doing rather than a second educator-shaped one. The educator holding the same role with no enrolment holds nothing by the database's own answer, is told so in the agreed sentence, and is offered none of the other educator's rows -- on a page that carries the surface's own name and its own reassurance and reads as neither a refusal, a permission problem nor a fault. NOBODY BECAME A STUDENT: the learner first-login tour is not mounted for either educator, so it cannot be opened by any means; neither is offered it by name; neither is addressed as a learner; and neither is given a Help entry leading to a map that is not theirs. A learner keeps their own two tabs, their own tour and their own Help, and is offered no way into a teaching context. An educator reading their own certificates stays in their own shell, on the one certificate surface that already existed. Internal words are swept from every page fetched"
+    },
+    {
+      "id": "F07-P01",
+      "runner": "db",
+      "proves": "WP7B non-vacuity, established before any isolation is claimed: the suite's school is real -- eight learners in the class at the instant it is asked, an educator holding a live EDUCATOR assignment whose scope contains that class, a governed set of five questions and twenty closed options, a governed anonymity threshold of five, professional-development material reaching the PD class and not this one -- and the actors are measured through the live predicates rather than assumed from their grants: the head of department holds Management scope over the class, the subject educator does not, AND THE SUBJECT HOLDS CAN_ASSIGN_LEARNING, which is why the briefing-shaped gate was not reused as the cycle gate",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P02",
+      "runner": "db",
+      "proves": "WP7B cycle authority. Fourteen refusals, each naming its own reason: the subject educator (who holds CAN_ASSIGN_LEARNING and would have passed a capability gate), another educator, the institution's administrator, a SYSTEM_ADMIN and a head of department of the neighbouring department are all refused with the Management sentence; a cohort is refused for not being a CLASS; a class reached by professional-development material is refused by name, asked by a dean who DOES hold Management scope over it so the refusal is the context rule rather than the authorization check in front of it; an educator who does not teach the class and an administrator are both refused as subjects. A head of department in scope opens the cycle, a dean in scope opens the second class's, and a second cycle over the same class, subject and academic period is refused",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P03",
+      "runner": "db",
+      "proves": "WP7B eligibility is a snapshot taken when the class was asked, not a live membership read. The snapshot holds the eight learners who were in the class at the opening instant and does not hold the subject; nobody begins counted as having answered; a learner enrolled into the class AFTER the opening is absent from it and is refused; a learner of another class is refused; and a learner who was there and has since been moved to another class still answers -- because they were there when the class was asked",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P04",
+      "runner": "db",
+      "proves": "WP7B exactly-once and whole-sheet submission on one connection: one sheet writes five answer rows and consumes one opportunity; the replay a lost acknowledgement produces is refused by name and writes nothing; a half-answered sheet, an invented question and an invented answer are each refused; and the learner whose invalid sheet was refused can still answer properly afterwards, so a rejected sheet costs nobody their one chance to speak",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P05",
+      "runner": "db",
+      "proves": "WP7B: no live aggregate exists while a cycle is open. With four answers in, and again with the fifth that crosses the governed threshold, the head of department, the dean and the subject are each told only that the cycle is OPEN -- no total, no have, no needed, no distribution -- and no snapshot row exists to read. An aggregate readable at either moment could have been watched arriving one learner at a time",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P06",
+      "runner": "db",
+      "proves": "WP7B raw-answer boundary, measured through six real client sessions under the authenticated role: the subject, a head of department, a dean, the institution's administrator, a SYSTEM_ADMIN and a respondent are each refused feedback_responses and feedback_results outright -- those tables carry no client grant at all, which is stronger than a policy that filters -- and each sees exactly their own participation row and nobody else's, so no named participation list exists to be given out. Non-vacuous: the same sessions read the cycle row, and a learner reads none",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P07",
+      "runner": "db",
+      "proves": "WP7B publication: six respondents, thirty answer rows, one immutable snapshot carrying per-question marginals and the final total only. Every declared option appears, including those nobody chose; every question's marginal sums to the respondent count; no key outside the declared shape appears at any level; nothing in the body names a respondent; and no joint profile is derivable, because a sheet cannot be reassembled from rows that carry no one",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P08",
+      "runner": "db",
+      "proves": "WP7B terminality: an answer arriving after the close is refused by the table's own trigger and not merely by the endpoint; a closed cycle cannot be reopened or closed again; a published snapshot cannot be rewritten or deleted; the eligibility snapshot cannot be deleted; and a submitted sheet cannot be un-submitted",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P09",
+      "runner": "db",
+      "proves": "WP7B suppression below the governed threshold: two answers against a bound threshold of five close the cycle WITHHELD with no snapshot written, and the head of department, the dean and the subject each receive exactly three keys -- the cycle, the state and the canonical statement -- checked by naming what MAY be present rather than guessing what may not, so no count, have, needed, total or distribution reaches any of them. The live threshold had by then been republished at one, and the cycle still answered to the version it bound. The ten answers given remain stored, unread and unaggregated: withholding is not deletion, which nobody decided",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P10",
+      "runner": "db",
+      "proves": "WP7B movement: the real transfer path -- requested, authorized, executed -- moves a respondent to another school and grants the receiving institution portable visibility over them, which it demonstrably uses (the receiving administrator can see the person). It reads no feedback cycle, no participation row, no raw answer and no published result, and all four institution-scoped feedback tables are declared INSTITUTION_SCOPED in the record-class registry",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P11",
+      "runner": "db",
+      "proves": "WP7B evidence isolation, measured rather than asserted: assert_feedback_is_not_evidence holds over nine feedback relations against a named consumer set including every calculator; the class metric a head of department reads is BYTE-IDENTICAL before the class spoke and after thirty answers were written, compared as a whole envelope so a readiness or sample change would also be caught; no respondent gained an academic response; and no feedback relation is a declared metric source, so no calculator could reach one",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P12",
+      "runner": "db",
+      "proves": "WP7B governance of the questions and the threshold: a head of department cannot publish a question set and is refused by the name SYSTEM_ADMIN; a published set's questions, options and note, and the threshold row itself, are all frozen against edit and deletion; a SYSTEM_ADMIN publishes the next versions and they supersede the old ones; and the open cycle keeps the versions it bound -- a learner mid-cycle is still shown the questions they were actually asked, and the cycle still closes against the threshold in force when the class was asked",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P13",
+      "runner": "db",
+      "proves": "WP7B audit behaviour: zero audit rows are written across the window in which five learners answer -- counted from a watermark taken when the window contains nothing but submissions -- while four rows record two cycles opened and two closed, each attributed to the Management actor who did it. No audit row is about a response or a participation, none carries a count, a total or an answer text, and no respondent is the actor of any feedback audit row",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-C01",
+      "runner": "db",
+      "proves": "WP7B exactly-once under real concurrency, which a single session cannot distinguish from a retry: two psql connections submit one learner's sheet at once. The holder records it and sleeps inside its transaction; the second waits on the row lock, re-reads `not consumed`, matches nothing and is refused by name. Exactly one opportunity is consumed and exactly one sheet of answers survives, so a check-then-write shape -- which would pass both callers' reads -- is what this would catch",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "UX1-UB-BISU-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "while a round of student feedback is collecting, and forever after one that closed below the anonymity threshold, the surface renders no response-derived number at all. The two payload shapes are READ OUT OF the endpoint that produces them rather than invented in the test, the withheld one is asserted to carry nothing but a statement key, and both are RENDERED through the real component in both languages for both readers -- with every text node AND every style value swept for a digit, because a bar width is a proportion no text scan would see. The withheld surface renders the canonical ruled sentence and, character for character, nothing else. It is not the statistical absence card and reaches for none of its copy, which appends have/needed on purpose because a readiness floor is a fact a reader may act on and an anonymity floor is the opposite. Watched on plants: a response count smuggled into an open payload neither changes how it is read nor reaches the screen; an appended shortfall is caught by the scanner in both the bracketed and the written-out form; a withheld payload naming some other statement key falls back to the canonical one; a null, an empty object, an unknown state and a published state with no marginals are none of them read as a published snapshot; and an unrecognised state renders nothing rather than its own identifier"
+    },
+    {
+      "id": "UX1-UB-BATAS-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the published feedback snapshot is everything that renders and nobody is in it. Its SHAPE is read out of the two places WP7B builds it -- close_feedback_cycle writes the body, feedback_result returns it -- which is also where this asserts the construction carries no person, no respondent and no clock: the assertion that would notice one being added. Rendered, the surface carries the final total, the governed question and the per-option marginals, and the digits on the page are EXACTLY those figures, so no percentage, mean, rank or composite is being computed. A RESPONDENT PLANTED INTO THE PRESENTATION PIPELINE CANNOT SURFACE: names, person ids and a submission timestamp injected at the envelope, the entry and the option are all dropped by the fixed-key projection and reach neither the read nor the screen, with the plant asserted to really carry them. No marginal is a control that leads anywhere. And nothing is aggregated client-side: no feedback file reads the raw response table or the identity-bearing eligibility table or folds rows of its own, no file anywhere under src names the response table, the scanner is shown to catch one, and every endpoint the surface calls is one of the four WP7B registers for clients"
+    },
+    {
+      "id": "UX1-UB-KATA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "the feedback copy is accurate about privacy and is a verdict about nobody. Every label key WP7B STORES has words in both languages -- the five governed questions and four options are read out of the migration -- and the prefix is deliberately NOT staff-only, because a learner reads most of it and exempting it would exempt the questions a child is asked. NO ABSOLUTE ANONYMITY CLAIM survives the sweep in either language, watched on six positive controls, because WP7B accepts a unanimity residual and a privileged-infrastructure residual and a promise that nobody can ever know is a promise it does not make; the copy says the accurate thing instead, that answers are not shown with a name and the teacher receives the class. No database machinery reaches a learner. NOBODY IS SCORED: no telling for any of the three readers names effectiveness, performance, a ranking, a league table, an overall or composite score, an appraisal, a promotion, a sanction, a good or bad teacher, a comparison with other educators or a star, watched on seven positive controls, and no file turns the four-point scale into a figure or orders anything best-first. THE SHEET HAS NOWHERE TO TYPE, with the scanner shown to catch a textarea, and the whole sheet is required including against an option that was never offered. The outcome map is compared with the submission endpoint's own raised sentences in BOTH directions, an unrecognised failure is reported as uncertain rather than as anything definite, a lost-acknowledgement replay is recognised as recorded, and no outcome tells a learner to send again blindly. And no administrator is offered a way in, from their own surface or from anywhere else"
+    },
+    {
+      "id": "UX1-UB-ALUR-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round through open_feedback_cycle as the head of department, submits as a real learner, closes it, and reads every surface over HTTP as six personas. CI has both facilities, so it never skips there",
+      "proves": "one real anonymous-feedback round, opened and closed through the product's own endpoints by the head of department who may -- no seed and no service role -- and measured on the RENDERED html of every surface it touches, fetched over HTTP. THE STUDENT is told feedback is waiting, which class and educator it concerns, whether they have sent theirs and the one action to take; a learner who was not asked sees nothing, and the address bar tells them nothing either, because a round that is not theirs renders the SAME page as one that does not exist. The sheet is five question groups of four closed options with no textarea, text input, search field or contenteditable on it. WHILE THE ROUND IS OPEN NEITHER THE SUBJECT NOR MANAGEMENT RECEIVES A FIGURE, measured with a sweep for any count, proportion or shortfall in either language, and Management's view names no respondent. An INSTITUTION_ADMIN standing over the whole school is refused both the list and one round's results, sees no round id at all, and is offered no entry point on their own surface; another school's educator is refused the round. Sending twice is accepted once -- the second press is refused by WP7B's row lock -- and the learner's home then says they have sent theirs and offers the action no more. CLOSED BELOW THE THRESHOLD, both readers receive the canonical statement with NOTHING after it, checked on the sentence's own neighbourhood rather than on the page, and no figure anywhere; the learner is shown no outcome at all; and a class with no round says so plainly"
+    },
+    {
+      "id": "UX1-UB-TUTUP-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "Management ends collection for a feedback round and the BACKEND decides what the round became; the surface never learns which. close_feedback_cycle returns the new state -- asserted from the migration, so this is a refusal rather than an absence -- and the action destructures only the error, reads the returned payload nowhere, and names neither terminal state nor any count. No file under src reads the anonymity threshold at all, watched on a plant. THE OFFER IS THE STATE AND NOTHING ELSE: only an OPEN round is offered a control, every terminal and unknown state is offered none, and no file and no copy key in this Experience names a reopen, reset, republish, force or override -- watched on seven positive controls, one of which proves the scanner does not mistake Next's own force-dynamic rendering directive for a transition -- and agreeing with the endpoint, which refuses a closed round by name. THE CONFIRMATION says what ends and that it does not come back, in both languages, and carries NO DIGIT AT ALL in any of its keys; the control is handed no total, count, threshold or remainder, so nothing is passed to it that could be printed. NO BLIND REPEAT: an unrecognised outcome is settled by re-reading the round's own state, nothing loops, waits, retries or counts attempts, a second press in flight cannot start a second call, and no outcome sentence tells an operator to try again. The outcome map is compared with the endpoint's own refusals in both directions, with the one deliberately unmapped platform fault named and justified. AUTHORITY IS THE ENDPOINT'S: neither the action, the control nor the page reads a role name or decides for itself, the page still asks the Management gate, and the endpoint asks it again"
+    },
+    {
+      "id": "UX1-UB-KELOLA-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round at Alpha through open_feedback_cycle, asks five personas to close it, and reads the rendered result over HTTP. CI has both facilities, so it never skips there",
+      "proves": "an authorized Management user ends collection for a real feedback round through ordinary PINTAR, and the backend decides what the round became. Measured on the RENDERED html of a round opened for this case at Alpha -- its own class, so the learning-cycle tenant's round is untouched. WHILE IT IS OPEN the operator is offered the act and the page carries no response figure, no threshold and no word of one, and the confirmation they are about to read carries none either. EVERY EXCLUDED READER IS REFUSED BY THE ENDPOINT rather than by a hidden button: an institution administrator, the subject educator, a learner and a head of department from another school are each asked to close the round DIRECTLY and each refused; none is offered a control on the ordinary path; none sees a figure; the administrator meets the refusal page rather than a disabled control; and the round is asserted STILL OPEN after all four attempts, so the refusals refused rather than merely being reported. THE AUTHORIZED OPERATOR THEN CLOSES IT, a second close is refused because terminal means terminal, and the page re-read shows the canonical withheld statement with nothing after it, no figure, no claim that it is still collecting, no close control, no confirmation, and no reopen, reset or publish offered anywhere. The subject's own view of the same round agrees and is offered no control either, because operating a round and reading its result are different things"
+    },
+    {
+      "id": "F07-P14",
+      "runner": "db",
+      "proves": "WP7D's backend unblocker, with the defect reproduced before it is closed. The subject educator is enrolled nowhere, so person_visible_to_me -- which is learner-shaped: self, an administrator over an enrolment, a roster holder over a membership, portable visibility after a transfer -- says nothing about them, and the head of department who manages their class cannot read their person row at all. The governed read answers anyway: the one educator who teaches that class, with their own display name, and the id it returns is the id open_feedback_cycle accepts, proven by opening a cycle with it on a class that had none. THE ACADEMIC RESIDUAL IS CARRIED UNCHANGED rather than worked around -- the same contract names a subject for a professional-development class and opening still refuses that class by name, while the same subject is accepted on an ordinary one, which is the advisory contract working rather than two rules disagreeing. Three educators over one class are three rows to a dean, each offered exactly once with no uniqueness invented, and a head of department who also teaches the class is never offered their own round, because open_feedback_cycle refuses subject = caller",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "F07-P15",
+      "runner": "db",
+      "proves": "WP7D: discovery is Management's, advisory, and silent about respondents. Six refusals, each naming the Management boundary rather than what it protects: a head of department of the neighbouring department, the institution's administrator, a SYSTEM_ADMIN, the subject educator themselves, another educator and a learner of the class -- authenticating is not discovery. Nobody the canonical subject rule does not hold is offered, however senior. The answer is byte-identical before a single learner has spoken and after six sheets and a published snapshot, so it is not a participation oracle with a Management login in front of it; it projects exactly person_id and display_name; and neither it nor the rule behind it reads an opportunity, a response or a result. AND IT GRANTS NOTHING: an educator listed a moment ago, whose assignment is then revoked through the product's own revoke_role, is refused by open_feedback_cycle on its own re-validation -- discovery is current state, not a token",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the suite builds its own school, drives the endpoints as real personas and rolls every row back, so there is nothing to run against without a database"
+    },
+    {
+      "id": "UX1-UB-BUKA-01",
+      "runner": "static",
+      "requires": [],
+      "proves": "Management names the teacher a class will be asked about through the governed contract, and opening re-decides every time. DISCOVERY IS THE FEEDBACK CONTRACT AND NOTHING WIDER: feedback_subjects_for_class is asserted to return exactly a person and a display name, the data layer reaches for no email, account, institutional identity, enrolment, membership or other role, and a REFUSAL is told apart from an EMPTY LIST, because 'not yours to ask' and 'nobody to ask about' are different facts. DISCOVERY IS NOT AUTHORIZATION: the action sends the class and the person and nothing else, carries no token, signed claim or cache, and neither it nor the control nor the page names the subject rule, the role table, EDUCATOR, jalur containment or the academic context -- while the migration is read to confirm the open endpoint and discovery ask ONE shared rule, which is why a list can be trusted and still not relied on. EVERY REFUSAL HAS A SENTENCE, compared with the endpoint's own in both directions, with a stale subject, the academic boundary and a colleague who opened first each its own outcome rather than a shrug. THE ACADEMIC REFUSAL IS CARRIED, NOT COMPENSATED: nothing retries or loops, and the sentence names the boundary and offers no way round it, watched on a plant. NOTHING COUNTS ANYTHING: no opening key in either language carries a digit or names a response, a threshold or a participant, and the control is handed no total, count or remainder. Authority stays the endpoint's, the page asks WP4's gate and refuses through the one refusal page, discovery refuses in the same words the operation does, the new cycle's id is discarded in favour of a re-read, no second transition appears, and the row holding a person's name has a touch-target floor, wraps rather than overflowing, and pins no geometry"
+    },
+    {
+      "id": "UX1-UB-BUKA-ALUR-01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it discovers subjects as five personas, opens a round at Alpha, and reads the rendered Management pages over HTTP. CI has both facilities, so it never skips there",
+      "proves": "Management names the teacher a class will be asked about, and then asks, measured on the RENDERED html of the ordinary Management pages. DISCOVERY WORKS AND IS BOUNDED: an authorized head of department is given the educator who teaches the class with a real display name, and every returned row carries EXACTLY a person id and a display name, asserted key by key because a staff directory would have carried more; the caller is not offered as the subject of their own round. DISCOVERY IS GATED EXACTLY AS THE OPERATION IS: an institution administrator, the educator themselves, a learner and a head of department from another school are each refused the list AND each refused the open, so naming somebody and asking about them are the same authority and neither is the other's key. ON THE ORDINARY PATH the branch offers the class, the class page names the educator and offers the act, excluded roles are offered no control and meet either the refusal page or the not-yours sentence, and no page in the flow carries a response figure. OPENING leaves a round for this class and this educator, and the Management list -- which showed an em dash where a teacher's name belongs before the unblocker -- NAMES THE EDUCATOR, which is the product point of the whole change"
+    },
+    {
+      "id": "F08-P01",
+      "runner": "db",
+      "proves": "An institution administrator SIGNS IN -- claim and role, not a claim alone -- and builds a cohort and a class in their own school. That was impossible for everyone but the table owner: the org_nodes ladder trigger is SECURITY INVOKER by design and called org_kind_level(), which was never granted to authenticated, so real onboarding failed with a permission error while every seed and suite passed by building as owner. The node written carries a full jalur, so the trigger ran with the writer's rights rather than being skipped, and the grant moved nothing else: ladder violations are still refused, and a dean, an educator and the neighbouring school's administrator are each still refused here."
+    },
+    {
+      "id": "F08-P02",
+      "runner": "db",
+      "proves": "The standing assertion behind W8-01: no table a client may write runs an invoker-rights trigger that calls a function the client cannot execute. It is checked for NON-VACUITY -- the sweep must cover real client-writable tables and real invoker triggers, because an assertion over an empty population is green and says nothing -- and it is owner-run, since a client-executable assertion about client executability would be answering about itself."
+    },
+    {
+      "id": "F08-P03",
+      "runner": "db",
+      "proves": "An institution assembles a reusable report template from PINTAR's live catalogue and generate_report runs on it. Before WP8 the catalogue, the tables, the capability, the guards and the engine all existed and report_templates held zero rows in every environment, because no product path could write one. The order given is the order kept; each generated entry carries the status the evaluator decided, so authorization still filters per metric; revising makes a new template VERSION rather than an edit in place, and a report already issued still names the version that produced it. The act is audited, and the audit row carries no figure."
+    },
+    {
+      "id": "F08-P04",
+      "runner": "db",
+      "proves": "The catalogue is PINTAR's and a template only selects from it. A metric of the school's own invention, a visualization the catalogue does not permit for that metric, a template that shows nothing, one that shows thirteen, one assembled for the neighbouring school, and a direct edit of a metric definition are each refused. An institution decides which metrics appear and how they are drawn; it cannot reach what they mean, how they are computed, who may read them or what the minimum sample is."
+    },
+    {
+      "id": "F08-P05",
+      "runner": "db",
+      "proves": "Authorization is the FIRST gate on the new endpoint, which is RF-2's lesson applied where it is cheap to apply. A dean, an educator and another school's administrator are refused by the capability's name -- and refused by the SAME name when the rest of the call could not possibly resolve: a null metric list, an invented standard report and a template id that does not exist. So the refusal proves authorization rather than a lookup that failed. An anonymous caller is refused too."
+    },
+    {
+      "id": "F08-P06",
+      "runner": "db",
+      "proves": "Two bounded corrections. A metric retired by a new catalogue version is refused at the moment a template selects it, while a template that named it before the retirement keeps its row -- a catalogue decision does not silently rewrite what a school assembled. And drawable_items_for_definition is no longer granted to a client that could never have used it: it is invoker-rights by design and calls an owner-only function, so a client call could only ever have failed. The assembler still reaches it and a seeded definition still draws its items, so delivery is intact."
+    },
+    {
+      "id": "F08-P07",
+      "runner": "db",
+      "proves": "A freshly deployed PINTAR can acquire its FIRST administrator, and no second one. Until the release rehearsal nothing could: INV-16 requires an authenticated grantor, forbids self-grant, and lets only an active SYSTEM_ADMIN grant SYSTEM_ADMIN, so an empty database had no door at all. The door added is the operator's alone -- a signed-in session and an anonymous one cannot reach it, by grant and again by the function's own first check -- and it opens only while no active SYSTEM_ADMIN exists. Day zero is reached here by revoking every active SYSTEM_ADMIN through the guard's ordinary revocation path, not by disabling anything. The operator then binds exactly ONE global assignment to an identity Supabase Auth already created; the function creates no identity of its own and refuses when none exists. It is audited under its own action name, it refuses every call after the first, and the session marker it uses is not a key on its own -- setting it by hand while an administrator exists changes nothing. ORDINARY INV-16 IS UNCHANGED: an unmarked unauthenticated grant is still refused, the bootstrapped administrator still may not grant themselves, an institution administrator still may not grant SYSTEM_ADMIN, and that administrator governs the next grant through grant_role like anybody else. AND INITIALISATION IS NOT RECOVERY: success now writes a durable record in platform_bootstrap, and that record -- not the existence of a living administrator -- is what closes the door. Revoking every SYSTEM_ADMIN in the installation does not reopen it, the record refuses UPDATE and DELETE by trigger, and the guard's day-zero clause requires the installation to be uninitialised as well as administrator-less."
+    },
+    {
+      "id": "F08-P08",
+      "runner": "db",
+      "proves": "A person with no past can be given their first role. The only role-granting surface built its list of people from enrolments, transfers and existing role assignments -- three prior relationships -- so the person who most needs a role, a school's first administrator created moments earlier in Supabase Auth, could not be selected at all, even though grant_role permits the grant and person_visible_to_me already returns true for them to a SYSTEM_ADMIN. persons_awaiting_first_role is the complement of those three sources and nothing wider: a person appears only while they hold no active role, no enrolment and no transfer, and leaves the list the moment they hold any of them, so the union is total and neither half is a directory. It is asserted here that the fresh person is reachable through none of the three sources, that the SYSTEM_ADMIN is offered them by name, that nobody already affiliated appears, that the grant the list exists for is accepted at the institution root, that ordinary onboarding continues from it -- the new administrator builds their own cohort -- and that an institution administrator, a dean, an educator and an anonymous caller are each refused by the SYSTEM_ADMIN name. Visibility was not widened to do any of it: the read defers to person_visible_to_me, and that predicate knows nothing about this list."
+    },
+    {
+      "id": "F09-R01",
+      "runner": "db",
+      "proves": "A seq conflict and a closed session are told apart by code. The player could not distinguish 'this client_seq is taken, renumber' from 'this session is over', so it either held an answer forever or dropped it. A different answer at a taken client_seq now raises PR001 whose DETAIL is the server's high-water mark for that item, an identical replay is acknowledged, a renumbered answer above the mark is accepted, and an answer into someone else's session raises PR002, the terminal code the player stops on."
+    },
+    {
+      "id": "F09-R02",
+      "runner": "db",
+      "proves": "Finish declares what the learner gave and the server holds it or refuses. A finish that raced the outbox scored the paper without the answers still travelling. finish_my_session(session, manifest) raises PR006 naming exactly the items whose declared client_seq the server does not yet hold, a seq above the held one is pending too, a malformed manifest is refused, and none of these refusals scores anything; once the answer arrives the same finish succeeds, a repeat returns the same result row, and afterwards an answer and another learner's finish each raise PR002."
+    },
+    {
+      "id": "F09-R03",
+      "runner": "db",
+      "proves": "An expired session waits out its late-sync window. An answer given before the deadline and received inside late_sync_grace_seconds is scorable (doc 04 §3), so the paper may not be scored the moment the clock runs out: finalize_session raises PR007 while the window is open, a finish without a manifest raises PR007, the transaction-local verified-manifest marker opens only the session it names, an answer held in another session does not satisfy the manifest, and the learner's own satisfied manifest closes the window with both the live and the late answer counted."
+    },
+    {
+      "id": "F09-A01",
+      "runner": "db",
+      "proves": "A sign-up creates nobody (F-02). Once an installation has an active SYSTEM_ADMIN and no fixtures marker, handle_new_auth_user refuses with PR010 a bare sign-up, a sign-up that wrote a provisioning marker into user_metadata (writable by the signer), an identity naming a person in app_metadata at insert (GoTrue writes the caller's app_metadata only after the insert, so nothing there is a key), an expired activation grant, and the synthetic seed intent on production. What is honoured is a live activation grant, consumed exactly once by an insert shaped as GoTrue makes it (app_metadata carrying only provider/providers, the address in another case), yielding the granted person and not a name the signer chose. The decision is fail-closed (`is not true`); the NULL case this session cannot reproduce is F09-C01's."
+    },
+    {
+      "id": "F09-A02",
+      "runner": "db",
+      "proves": "A provisioned person can be activated and signs in as themselves (F-01). persons_awaiting_account offers the school's administrator the provisioned person and nobody who already holds an account; another school's administrator, an educator and an anonymous caller are refused, as are an unknown account kind, a malformed email, a card account without a ten-digit card, a card number on an email account, and an institution administrator calling authorize_new_person. The authorized activation is audited once and writes a single-use activation grant; the identity Auth then inserts -- with nothing PINTAR wrote in app_metadata -- is linked through that grant to the provisioned person and activates their PENDING enrolment; current_person_id is that person; the person leaves the list; a second activation is refused; a SYSTEM_ADMIN may authorize a person no institution has provisioned. The same path through the real route and the real Auth service is F09-C02's."
+    },
+    {
+      "id": "F09-A03",
+      "runner": "db",
+      "proves": "The intake enrols a learner (F-03). The validator accepted role STUDENT and the provisioning step then granted it as a role assignment, which failed every learner row. An import row with role STUDENT now completes, is enrolled (PENDING) in its class through a membership, receives no role assignment, and is who activation offers next."
+    },
+    {
+      "id": "F09-C01",
+      "runner": "db",
+      "proves": "F-02 on a connection that never set anything (NEW-1). The in-suite test runs on a session that has already set app.seed_intent, where current_setting(..., true) reads ''; GoTrue's connections never set it, and for them it reads NULL, which made the refusal's condition NULL and admitted every real sign-up. On fresh psql connections that never touch the setting -- asserted to read NULL -- with an active SYSTEM_ADMIN and the fixtures marker off, a sign-up shaped exactly as GoTrue inserts it (app_metadata carrying only provider/providers) is refused with PR010, and the same shape is admitted and linked to the granted person when a live activation grant names the address. Rolled back."
+    },
+    {
+      "id": "F09-C02",
+      "runner": "app",
+      "proves": "Account activation through the real route and the real Auth service (NEW-2). The database suite proved activation with a hand-built auth.users insert, a shape GoTrue never produces, and passed while the product could activate nobody: GoTrue's admin createUser INSERTs the user and writes the caller's app_metadata in a later update, so the trigger never saw the link. Here a signed-in institution administrator activates a provisioned learner by classroom card and a provisioned teacher by email through POST /api/akun/aktivasi, with the fixtures marker off, and the real GoTrue creates both identities. Asserted: /aktivasi offers both; an anonymous caller is refused 401; each identity is linked to the provisioned person (no second person); the learner's enrolment is ACTIVE; each activation grant was consumed once; the learner signs in with the issued card and PIN through the production derivation and reaches /belajar as themselves; a second activation is refused 403. A declared exception to the app runner's black-box rule: the world is built, and the outcome read back, through the database owner, because a provisioned person with no account is a state no seed holds; the act under test is black-box end to end.",
+      "skip_justification": "needs the app, a reachable Supabase Auth and the database owner connection (CI local stack)"
+    },
+    {
+      "id": "DAISY-01-SALIN-01",
+      "runner": "static",
+      "proves": "DAISY-01, the copy. D-015: no telling in the COPY TABLE, RENDERED through t() for every persona that can be shown it in both languages, names the quick assessment 'kuis' or 'quiz' -- with a positive and a negative control on the sweep -- and Studio uses the teacher's own names. M1 mitigation: both the check-your-email and the expired-link screens carry a line, in both languages, that a sign-in link works only on the same device and in the same browser, required INSIDE the SOURCE branch that draws each screen, each slice proven by the heading it must also hold. N1: the activation ROUTE file is re-read to confirm it sends no mail, and 'Buat dan aktifkan' says nothing was sent and sends the person to /masuk rather than claiming they can now sign in by email."
+    },
+    {
+      "id": "DAISY-01-MASUK-01",
+      "runner": "static",
+      "proves": "DAISY-01, the sign-in layout. The geometry of /masuk is COMPUTED from the stylesheet FILE the way the browser computes it -- the gutter token at each width, the stage's margin against it, the container queries that apply, the grid split, the padding expression evaluated against the column and the form's measure -- at ten widths from 320 to 2560: the stage runs edge to edge with no page background showing down its sides, the form sits in the middle of its column wherever it could sit anywhere else, the mark is drawn at the verification page's size from a tablet up, and the split stage is never shorter than the screen. The evaluator is checked on two known expressions and reproduces the Chromium measurement of the defect to the pixel (before 56/254 at 1440 and 56/539 at 2000; after 167/167 and 310/310)."
+    },
+    {
+      "id": "F10-S01",
+      "runner": "db",
+      "proves": "BOB-01 (D-006). An Admin sekolah builds the school's structure through the app. As the school's INSTITUTION_ADMIN, create_bagian, create_tingkat and create_kelas build two Bagian, two Tingkat and three Kelas; the hidden Jenjang (FACULTY) is created once for the school, a hidden Reguler (PROGRAMME) once per Bagian, and the 2026/2027 academic period once (1 July to 30 June) and reused; each Kelas carries its Tingkat's year; school_structure lists exactly the visible nodes with the parent the screen shows; and every act is audited under the admin's name."
+    },
+    {
+      "id": "F10-S02",
+      "runner": "db",
+      "proves": "BOB-01. An Admin platform builds any school's structure. A SYSTEM_ADMIN scoped to a third school creates, renames and lists another school's Bagian, Tingkat and Kelas; a school built by hand before BOB-01 (D-016) keeps its one Jenjang and gains a Reguler under a Bagian at its first Tingkat; the same Tingkat name under two Bagian makes two Tingkat."
+    },
+    {
+      "id": "F10-S03",
+      "runner": "db",
+      "proves": "BOB-01. Everyone else at the school is refused. A DEAN, a HEAD_OF_DEPARTMENT at the Bagian, an EDUCATOR at a Kelas, a placed student, a person with no role and an anonymous caller are each refused by all six structure functions -- PR020 with STRUCTURE_NOT_ALLOWED in DETAIL, or no EXECUTE for anon -- and none of their attempts writes, renames or deactivates anything."
+    },
+    {
+      "id": "F10-S04",
+      "runner": "db",
+      "proves": "BOB-01. Another school's nodes are refused, with no existence oracle. Each school's INSTITUTION_ADMIN is refused STRUCTURE_NOT_ALLOWED by every structure function on the other school's nodes, and a foreign node and a node that does not exist raise the identical SQLSTATE, DETAIL and MESSAGE."
+    },
+    {
+      "id": "F10-S05",
+      "runner": "db",
+      "proves": "BOB-01. A Kelas sits under a Tingkat of the same year. create_kelas with a year other than its Tingkat's is PR020 STRUCTURE_YEAR_MISMATCH; a year not written YYYY/YYYY+1 (or outside 2000/2001..2098/2099) is STRUCTURE_YEAR_INVALID; a Kelas without a stated year takes its Tingkat's; the same names in the next year make that year's period and nodes."
+    },
+    {
+      "id": "F10-S06",
+      "runner": "db",
+      "proves": "BOB-01 (D-011). Every other refusal carries its own stable code in DETAIL: STRUCTURE_NAME_INVALID, NAME_TAKEN (case-insensitive; a Kelas name school-wide per year), PARENT_INVALID, PARENT_INACTIVE, NODE_INVALID (the school and the hidden nodes), HAS_ACTIVE_CHILDREN, HAS_MEMBERS and HAS_STAFF -- 22 cases. A rename lands and is audited once with the old and new name, a repeated deactivation is audited once, a Bagian takes its Reguler with it, a refused deactivation changes nothing, and a deactivated node's name can be reused."
+    },
+    {
+      "id": "F10-M01",
+      "runner": "db",
+      "proves": "M5a. The intake places a learner only in an active Kelas or Tingkat, and says why. import_row_problems refuses a row with no role or role STUDENT whose place is a Bagian, the Jenjang, a Reguler, the school or a deactivated Kelas with 'a learner is placed in an active Kelas or Tingkat', accepts a Kelas and a Tingkat, leaves an EDUCATOR scoped to a Bagian alone, and import_validate reports the phrase against the row before anything is provisioned."
+    },
+    {
+      "id": "F10-M02",
+      "runner": "db",
+      "proves": "M5a. The intake enrols a learner into the place's own academic year. With three periods at the school, the newest carried by no place, learners placed in a 2026/2027 Kelas, a 2027/2028 Kelas and a 2026/2027 Tingkat are each enrolled and placed in that place's own year and the import completes; before, every one failed with 'membership period must match the node's period'."
+    },
+    {
+      "id": "F10-C01",
+      "runner": "db",
+      "proves": "BOB-01 under real concurrency. Two psql connections race one school's structure as its INSTITUTION_ADMIN: A deactivates a Tingkat and holds its transaction open; B calls create_kelas under it meanwhile. B waits on the per-school structure lock, reads the Tingkat again under it, and is refused PR020 STRUCTURE_PARENT_INACTIVE; afterwards the Tingkat is inactive and holds no Kelas. A single session cannot see this: a check made on the row read before the lock passes on a stale row. Committed fixture, removed afterwards."
+    },
+    {
+      "id": "BOB01-K01",
+      "runner": "static",
+      "proves": "BOB-01 (D-011). Read from the migration source: the codes structure_refuse raises (SQLSTATE PR020, the code in DETAIL) are exactly src/lib/struktur-kontrak.ts KODE_STRUKTUR_DB; the six structure functions raise nothing except through structure_refuse and are SECURITY DEFINER with a pinned search_path; every code, with STRUCTURE_INPUT_INVALID and STRUCTURE_FAILED, has a distinct key in the copy table that renders in both languages without naming the machinery."
+    },
+    {
+      "id": "BOB01-K02",
+      "runner": "static",
+      "proves": "BOB-01 (D-011). kodeGalatStruktur trusts only PR020 with a known DETAIL (42501 is not-allowed; every other shape, including database text in DETAIL, is STRUCTURE_FAILED); the five Konfigurasi structure actions are (prev, FormData) => HasilStruktur, never redirect, keep error.message in the server log only, and send exactly the argument names the migration declares; bacaStruktur is server-only and calls school_structure by its declared argument."
+    },
+    {
+      "id": "BOB01-K03",
+      "runner": "static",
+      "proves": "BOB-01. The pure helpers in the source file src/lib/struktur-kontrak.ts, executed: susunStruktur nests Kelas under Tingkat under Bagian in natural order and drops a row whose parent is absent; tahunAjaranBaku accepts and refuses exactly the years the database does; tahunAjaranPada starts the school year on 1 July in Jakarta."
+    },
+    {
+      "id": "BOB01-M01",
+      "runner": "static",
+      "proves": "M5a. Read from the migration source: every problem phrase the import_row_problems the database now runs can return, including 'a learner is placed in an active Kelas or Tingkat', has its own sentence in src/lib/pendataan-kontrak.ts MASALAH whose key in the copy table renders in both languages and is not the phrase itself."
+    },
+    {
+      "id": "DAISY-02-KELUAR-01",
+      "runner": "static",
+      "proves": "DAISY-02 (D-009; S15, D-020), a way out on every signed-in screen, and a name only for a reader who holds a staff role. The session strip is RENDERED in both languages from the pure component as a labelled group whose way out is a POST form to /keluar with a submit button described by the line beside it. The naming rule is OUTPUT by the pure helper for every kind of reader -- a student, a student whose roles could not be read, a lapsed display role, an unknown role, every staff role, a three-role person -- and names exactly the staff readers. SesiSaya itself -- the component the pages render -- is RENDERED in a child process under the react-server condition for each of those readers on the teaching (as /mengajar's), staff, learner, public and refusal strips in both languages: a student on the teaching shell reads 'Bukan akun Anda?' and no name, staff are named, and nobody signed in gets no strip. From the SOURCE: BarisSesi is rendered only by SesiSaya, nothing passes SesiSaya a name or a page flag, the teaching home greets through the same reader rule; the shell reads the viewer and roles once with Promise.all and hands both to every strip; the signed-in home page, Studio and Konfigurasi do the same; the two report pages and the refusal page carry the strip; no file writes 'Keluar' as text. From the stylesheet FILE: on a phone the strip is a full-width header row ahead of the tabs with a 44px button, and no rule hides it."
+    },
+    {
+      "id": "DAISY-03-TEMPAT-01",
+      "runner": "static",
+      "proves": "DAISY-03 (D-010; M3, M15 UI), every role reaches its places by clicking, and only places they hold. The places a shell offers are D-010's map read through berandaPeran, checked against it for every display role and a three-role person. The list the tabs are drawn from is OUTPUT by the pure helper -- the places less the calling shell's own, with their labels in both languages -- and the component SOURCE draws one link per entry and nothing else; Pimpinan is not called Beranda. The home page's doors for a signed-in reader are OUTPUT by the pure helper over every display role and every roles answer: the staff doors equal the roles held today, Belajar is a learner's alone, a student is never sent to /mengajar and an unreadable answer opens no staff door; the greeting helper OUTPUTS a learner's first name and staff in full (D-020). From the SOURCE: the home page draws exactly that list with each door's own words from the COPY TABLE, an honest line when it is empty, the greeting through the helper and never the raw name, the anonymous three doors unchanged, one parallel read; every staff shell offers the other places from one roles answer, the intake shell reaches Aktivasi, neither the public page, an assessment in focus nor a learner's shell offers any, Konfigurasi links Pendataan, Aktivasi and Studio, and Studio links back. From the stylesheet FILE: on a phone the tab strip wraps."
+    },
+    {
+      "id": "DAISY-04-GALAT-01",
+      "runner": "static",
+      "proves": "DAISY-04 (D-011; M7). From the COPY TABLE through t(): an unknown key renders the calm fallback for every persona in both languages and never throws or shows the key (a throw is caught and reported as the failure), a real key is unaffected, and the internal-word guard still throws on a public key planted with an internal word for one call and restored. From the MIGRATION files: every value of assessment_mode, read from CREATE TYPE and every ADD VALUE, has a Siapkan label in both languages (the Siapkan crash). From the SOURCE: PINTAR has its own error, root-error and not-found pages; the two error pages are client components that read the reader's language and pass the error's digest as the reference, never its message; the panel is announced as an alert and offers a retry; and no visible word on any of the four sits outside the copy table."
+    },
+    {
+      "id": "DAISY-04-TIDAK-ADA-01",
+      "runner": "app",
+      "proves": "DAISY-04 (D-011): an address that leads nowhere gets PINTAR's own not-found page. The RENDERED html of two public paths that lead nowhere -- /masuk/kartu (audit N12) and a path under /verifikasi/ -- is fetched anonymously over HTTP in Indonesian and English: each answers 404, carries PINTAR's heading in the chosen language, declares that language on <html>, offers the way back, and never shows Next's English default."
+    },
+    {
+      "id": "DAISY-04-KUNCI-01",
+      "runner": "static",
+      "proves": "DAISY-04 (gate rule 5.2): a mistyped key fails a test although a reader sees the calm fallback. Every literal key in the SOURCE files of src/ -- the first argument of t(, of each file's own helper over t or over 'as HleEvent', and of the report pages' imported s; a literal cast as HleEvent; a ...Key prop -- is checked against the COPY TABLE's allKeys(), and every template prefix must begin a real key. A control plants typos through a string-typed helper, through t and through a cast, and a prefix no key begins with, in a synthetic source, and the sweep must find exactly those and pass the real keys beside them; the sweep must recognise HasilKelas's, the report pages' and the tour's helpers and check more than 500 keys."
+    },
+    {
+      "id": "DAISY-05-STRUKTUR-01",
+      "runner": "static",
+      "proves": "DAISY-05 (D-006, D-022, D-027; audit B1, journey S7): the Struktur sekolah screen. From the COPY TABLE through the screen's own function: every code BOB-01 can return has its own sentence in both languages, never the code or the fallback, a failure carries its reference, an unreadable list is not called unsaved. The tree is OUTPUT from rows with a planted Jenjang and Reguler, which never survive; inactive places come last and cannot be changed. The panel is RENDERED to html in a child process in both languages: the three steps above the tree; years on Tingkat and Kelas only; Tambah Kelas under each active Tingkat with no year field, Tambah Tingkat under each active Bagian with this year filled in, Tambah Bagian for the school, and only those forms; rename and deactivate on active places only; nothing sendable until Nonaktifkan opens the question, which names the place, says it cannot be undone here and is the form that sends it; an empty school answers the audit's S7; an unreadable list shows its reference. From the SOURCE: the deactivation is dispatched only through the question; every action goes through one wrapper that re-reads the list after any non-success, and BOB-01's action file revalidates after a success; the section is Konfigurasi's first, fed only by bacaStruktur for a school the reader administers; no file or copy of the screen names a hidden level. The shared school rule (src/components/sekolah.ts, also for DAISY-06's Studio picker) is OUTPUT over a tenant list in the database's order: only active INSTITUTION tenants the reader administers are offered -- never the national library (PLATFORM_CANONICAL), an inactive school, an undecided kind or a row without its kind -- the first real school is where it starts, and none of the others opens when asked for by address; from the SOURCE, Konfigurasi reads tenant_kind and is_active and picks its school only through that rule (audit S7b)."
+    },
+    {
+      "id": "DAISY-05-STRUKTUR-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered Konfigurasi against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-05 over real HTTP against the seeded database: the RENDERED html of /konfigurasi for Alpha's school administrator opens with the Struktur sekolah section, read through school_structure without a refusal; the seeded Bagian (Matematika), Tingkat (Kelas 5 and Kelas 6) and Kelas (5A, 6B) are drawn as places with their school years and the way to add each level; the seed's hidden Jenjang (Sekolah Dasar) and Reguler (SD Reguler) are nowhere in the section; nothing offers a deactivation before the question. Read only. As the seeded platform administrator, who reads every tenant: the RENDERED section opens on a real school and never offers or opens 'PINTAR Kurikulum Nasional', by default, for an unknown id, or for the library's own id read from the institutions table (audit S7b)."
+    },
+    {
+      "id": "F11-P01",
+      "runner": "db",
+      "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, 2 parallel groups, and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
+    },
+    {
+      "id": "F11-P02",
+      "runner": "db",
+      "proves": "BOB-02 bug B. A structured package reaches its confirmation: prepare_ingest_batch leaves it MAPPING_PROPOSED, unconfirmed, with one PACKAGE_CONFIRM open question -- what /studio/unggah lists for confirmation -- and a teacher's confirm_ingest_batch materialises it whole. A course-only package still works, and ingest_structured_package on a batch confirmed the old way now makes the whole hierarchy instead of an empty course."
+    },
+    {
+      "id": "F11-N01",
+      "runner": "db",
+      "proves": "BOB-02 (D-011). A broken package comes back as codes at their sheet and row and writes nothing: sixteen distinct faults answer ok=false with exactly those codes, each problem is only a code and a place, the batch is not offered for confirmation and a confirmation makes nothing; an empty package is PACKAGE_EMPTY."
+    },
+    {
+      "id": "F11-N02",
+      "runner": "db",
+      "proves": "BOB-02 (M8). Only someone who may draft in the batch's school prepares or confirms it: a DEAN and another school's admin are PR030 PACKAGE_NOT_ALLOWED, a foreign and an unknown batch answer identically, an anonymous caller cannot execute confirm_ingest_batch, and a package for the platform's canonical library is PACKAGE_SCHOOL_NOT_ALLOWED."
+    },
+    {
+      "id": "F11-N03",
+      "runner": "db",
+      "proves": "BOB-02. may_upload_package_media grants a signed upload only for a file the package names, in the batch's own school, to someone who may draft there, while the batch awaits confirmation: an unnamed file, another school's id, a path without its batch, another school's admin and a DEAN are refused, and a materialised batch grants nothing."
+    },
+    {
+      "id": "F11-P03",
+      "runner": "db",
+      "proves": "BOB-02. A save that fails inside lesson_package_materialise leaves nothing behind: confirm_ingest_batch answers PACKAGE_COULD_NOT_BE_SAVED, the batch is back at MAPPING_PROPOSED with the error recorded and no course written, and once the fault is gone a second confirmation of the same batch materialises the course."
+    },
+    {
+      "id": "BOB02-X01",
+      "runner": "static",
+      "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook."
+    },
+    {
+      "id": "BOB02-X02",
+      "runner": "static",
+      "proves": "BOB-02 (D-030(b)). The .xlsx reader in the source file src/lib/xlsx.ts scans in linear time: ten hostile workbooks filling the 40 MB inflated limit (an unclosed row, cell, shared string, text run and phonetic run; a row tag, a sheet tag and a relationship tag without '>'; an attribute without its closing quote; an unclosed value) are each refused as WORKBOOK_UNREADABLE in under a second, and a well-formed 10,000-row sheet at the row limit is read in under 2.5 seconds, by the harness selftest/fixtures/bob02/hostile.mts."
+    },
+    {
+      "id": "BOB02-K01",
+      "runner": "static",
+      "proves": "BOB-02 (D-007). The sample workbook file, the committed file contoh-pelajaran.paket.json and the literal in selftest/db/fable11.sql are one lesson package; the converter in the source file src/lib/unggah-kontrak.ts matches headers in any case, spacing and order, maps each column's choices, and returns eight workbook-only faults as their code at their sheet and row."
+    },
+    {
+      "id": "BOB02-K02",
+      "runner": "static",
+      "proves": "BOB-02 (D-011). Read from the migration source: the problem codes lesson_package_check and confirm_ingest_batch can return and the refusal codes of package_refuse are exactly the contract's; every code has a key in the copy table in both languages without machinery words; the ingestion actions in the source file src/app/studio/actions.ts never write 'MAPPED', never update a batch's status directly, never materialise before a confirmation, keep error.message in the server log, and call prepare_ingest_batch and confirm_ingest_batch by their declared arguments."
+    },
+    {
+      "id": "BOB02-K03",
+      "runner": "static",
+      "proves": "BOB-02 (D-030). The v1 limits in the source file src/lib/unggah-kontrak.ts (BATAS_PAKET, which DAISY-06's template states) are the ones enforced: file, unpacked, row and column limits equal the reader's BATAS in src/lib/xlsx.ts, and every package, question, option, media and text limit is read back from the clause of lesson_package_check in the migration that enforces it, with the contract code that clause returns."
+    },
+    {
+      "id": "BOB02-R01",
+      "runner": "static",
+      "proves": "BOB-02. The route sources agree on one media path: /api/assets/upload-url signs pelajaran/<school>/<batch>/<file> only on may_upload_package_media's answer, /api/assets/read-url accepts that shape and the seeded flat one and refuses near misses, and the longest package path fits the upload route's length rule."
+    },
+    {
+      "id": "DAISY-08-PANEL-01",
+      "runner": "static",
+      "proves": "DAISY-08 (D-018): the sign-in panel shows PINTAR's own statement, not a placeholder. From the COPY TABLE: no placeholder key, and no telling for any persona in either language says FOTO CONTOH or PLACEHOLDER PHOTO; no SOURCE file draws the old photo scaffold. The panel is RENDERED in both languages as a section labelled by its own heading, carrying the statement from the copy table with no image and nothing hidden from assistive technology but a decorative rule; its phone twin says the same; /masuk and the expired-link screen both show it. From the stylesheet FILE, exactly one copy is displayed at every width, and the panel is the brand colour with the brand's ink and nothing laid over it; the contrast is computed from the token values in globals.css and must meet WCAG AA."
     }
   ]
 }

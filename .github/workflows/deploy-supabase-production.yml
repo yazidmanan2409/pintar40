@@ -1,0 +1,233 @@
+# PINTAR production deployment — Supabase migration apply.
+#
+# WHY THIS EXISTS. The canonical deployment path is: frozen repository ->
+# Supabase CLI -> hosted database. It cannot run from the operator's Mac (that
+# path was terminated) and it cannot run from the agent container (outbound
+# TCP to Postgres is blocked and api.supabase.com is policy-denied). A GitHub
+# runner is the one place that has both the exact repository bytes and a
+# network path, so it executes the SAME CLI command, against the SAME frozen
+# SHA, with nothing transcribed by hand.
+#
+# HOW IT IS TRIGGERED, AND WHY NOT workflow_dispatch. GitHub only registers a
+# dispatchable workflow from the DEFAULT branch, and this deployment machinery
+# is deliberately not merged into the canonical release. A push event instead
+# runs the workflow from the pushed ref itself, so the machinery stays on the
+# deployment branch where it belongs. Tag pushes are refused by this
+# environment's git scope, so the trigger is a push to the deployment branch
+# NARROWED TO ONE PATH: `.github/deploy-request.txt`. Ordinary commits on the
+# branch therefore deploy nothing; editing that one file is the deliberate
+# act, and its contents record what each attempt was for.
+#
+# WHAT IT PRESERVES.
+#   * The frozen release SHA is checked out explicitly and verified before
+#     anything connects. This file living on a later commit does not change
+#     what is applied.
+#   * The connection authenticates as the `postgres` ROLE through the session
+#     pooler. This is the whole fix for the 42501 blocker: the CLI's default
+#     login is `cli_login_postgres`, which is NOINHERIT, so `RESET ROLE`
+#     inside a migration's terminal verification block dropped the privileges
+#     the probe needs. The identity gate below refuses to proceed unless
+#     `RESET ROLE` demonstrably lands back on `postgres`.
+#   * `supabase db push` applies only migrations absent from the history
+#     table, in version order, each in its own transaction, writing the
+#     canonical history record atomically with it. A migration that fails its
+#     own ADR-0014 verification block rolls itself back and stops the run.
+#
+# It applies migrations. It creates no data, no identity and no role, and it
+# changes no grant.
+
+name: deploy · supabase production
+
+on:
+  push:
+    branches:
+      # D-004: production changes only from main, where only the coordinator
+      # merges. Lane branches (Bob's, Daisy's) never reach production directly.
+      - main
+    paths:
+      - .github/deploy-request.txt
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-production-apply
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  RELEASE_SHA: c358f5866d1d9c9ac1647559cf024e9a73c3b601
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  # Session mode, port 5432. Never the transaction pooler (6543): transaction
+  # pooling breaks session state and multi-statement transactions.
+  POOLER_HOST: aws-0-ap-southeast-1.pooler.supabase.com
+
+jobs:
+  apply:
+    # D-004: runs only from main. Dispatching it from a lane branch does nothing.
+    if: github.ref == 'refs/heads/main'
+    name: apply pending migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: c358f5866d1d9c9ac1647559cf024e9a73c3b601
+
+      - name: Verify the frozen release SHA
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA" || {
+            echo "::error::checkout is not the frozen release SHA"; exit 1; }
+          test -z "$(git status --porcelain)" || {
+            echo "::error::working tree is not clean"; exit 1; }
+          echo "at $(git rev-parse HEAD)"
+          echo "migration files: $(ls supabase/migrations/*.sql | wc -l)"
+
+      # P-03. No migration reaches production that the full verification
+      # contract has not passed on the exact commit being applied. A red,
+      # missing or still-running CI refuses before any database is contacted.
+      - name: Require a successful CI run on this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/ci.yml/runs?head_sha=${RELEASE_SHA}&status=success&per_page=1" \
+            > /tmp/ci.json
+          n=$(python3 -c "import json;print(json.load(open('/tmp/ci.json')).get('total_count', 0))")
+          if [ "$n" -lt 1 ]; then
+            echo "::error::no successful ci run exists for ${RELEASE_SHA}; the apply is refused"
+            exit 1
+          fi
+          echo "ci succeeded on ${RELEASE_SHA}"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install the pinned Supabase CLI
+        run: npm i -g supabase@2.117.0
+
+      - name: Build the connection URL
+        env:
+          PGPW: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "${PGPW:-}" || {
+            echo "::error::repository secret SUPABASE_PROD_DB_PASSWORD is not set"; exit 1; }
+          ENC=$(python3 -c 'import os,urllib.parse; print(urllib.parse.quote(os.environ["PGPW"], safe=""))')
+          echo "::add-mask::$ENC"
+          echo "DB_URL=postgresql://postgres.${PRODUCTION_SUPABASE_PROJECT_REF}:${ENC}@${POOLER_HOST}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
+          echo "PROBE_URL=postgresql://postgres.${PRODUCTION_SUPABASE_PROJECT_REF}@${POOLER_HOST}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
+
+      - name: Identity gate — RESET ROLE must land on postgres
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # psql prints a command tag for every statement in the batch (BEGIN,
+          # SET, RESET, ROLLBACK), so the result row is selected by the only
+          # thing that distinguishes it: it is the line carrying the separator.
+          ID=$(psql "$PROBE_URL" -At -c "begin; set local role authenticated; reset role; select session_user||'|'||current_user||'|'||current_setting('is_superuser'); rollback;" \
+                 | tr -d '\r' | grep -F '|' | tail -1)
+          echo "identity after RESET ROLE: $ID"
+          test "$ID" = "postgres|postgres|off" || {
+            echo "::error::identity gate failed — refusing to apply migrations"; exit 1; }
+
+      - name: State before
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          psql "$PROBE_URL" -At \
+            -c "select count(*)||' applied, last '||coalesce(max(version),'-') from supabase_migrations.schema_migrations"
+
+      - name: Apply pending migrations
+        run: |
+          set -euo pipefail
+          # `yes` is killed by SIGPIPE the moment the CLI stops reading, so
+          # under pipefail the pipeline reports failure even on a clean apply.
+          # Read the CLI's own status instead of the pipeline's.
+          set +o pipefail
+          yes | supabase db push --db-url "$DB_URL"
+          rc=${PIPESTATUS[1]}
+          set -o pipefail
+          echo "supabase db push exited $rc"
+          test "$rc" = "0" || exit "$rc"
+
+      - name: State after
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          psql "$PROBE_URL" -At \
+            -c "select count(*)||' applied, last '||max(version) from supabase_migrations.schema_migrations"
+          N=$(psql "$PROBE_URL" -At -c "select count(*) from supabase_migrations.schema_migrations")
+          LOCAL=$(ls supabase/migrations/*.sql | wc -l | tr -d ' ')
+          test "$N" = "$LOCAL" || { echo "::error::history is $N, repository has $LOCAL"; exit 1; }
+          echo "history matches the repository: $N/$LOCAL"
+
+      # The bounded production readiness checks. They read the live catalog and
+      # live data; they mutate nothing and insert nothing. The selftest DB suites
+      # are deliberately NOT here -- they mutate business data and are never
+      # pointed at a hosted project.
+      - name: Launch readiness — 17 rows, all PASS
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          OUT=$(psql "$PROBE_URL" -At -F ' | ' -f docs/audit/launch-readiness.sql)
+          printf '%s\n' "$OUT"
+          ROWS=$(printf '%s\n' "$OUT" | grep -cE '^(PASS|FAIL)' || true)
+          FAILS=$(printf '%s\n' "$OUT" | grep -cE '^FAIL' || true)
+          echo "rows=$ROWS failing=$FAILS"
+          test "$FAILS" = "0" || { echo "::error::$FAILS launch-readiness row(s) FAIL"; exit 1; }
+          test "$ROWS" = "17" || { echo "::error::expected 17 readiness rows, got $ROWS"; exit 1; }
+
+      - name: Standing assertions — floor of 22, every one green
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          psql "$PROBE_URL" -v ON_ERROR_STOP=1 -f - <<'SQL'
+          do $verify$
+          declare r record; v_ok boolean; v_detail text; n int := 0; bad text := '';
+          begin
+            for r in
+              select p.oid::regprocedure::text as sig, p.proname as nm
+                from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+               where ns.nspname = 'public' and p.proname like 'assert\_%'
+                 and p.pronargs = 0
+                 and pg_get_function_result(p.oid) = 'TABLE(ok boolean, detail text)'
+               order by p.proname
+            loop
+              execute format('select ok, detail from %s', r.sig) into v_ok, v_detail;
+              n := n + 1;
+              if not coalesce(v_ok, false) then
+                bad := bad || '  ' || r.nm || ': ' || coalesce(v_detail, '(no detail)') || E'\n';
+              end if;
+            end loop;
+            raise notice 'assertions run: %', n;
+            if bad <> '' then raise exception E'failing assertion(s):\n%', bad; end if;
+            if n < 22 then raise exception 'only % assertion(s) present, the floor is 22', n; end if;
+            raise notice 'all % assertions green', n;
+          end $verify$;
+          SQL
+
+      - name: W8-01 — the org-tree grant a real school needs
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          G=$(psql "$PROBE_URL" -At -c "select has_function_privilege('authenticated','public.org_kind_level(public.org_kind)'::regprocedure,'execute')")
+          echo "authenticated may execute org_kind_level: $G"
+          test "$G" = "t" || { echo "::error::W8-01 grant is missing on hosted"; exit 1; }
+
+      - name: Administrator state — bootstrap not yet consumed
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          psql "$PROBE_URL" -At -F ' | ' -c "select
+            (select count(*) from public.platform_bootstrap) as bootstrap_rows,
+            (select count(*) from public.role_assignments where role='SYSTEM_ADMIN' and revoked_at is null) as active_system_admins,
+            (select environment from public.platform_environment) as environment"

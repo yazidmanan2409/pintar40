@@ -3,9 +3,19 @@ import { t, type HleEvent } from "@/lib/hle";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
-  grantRoleAction, revokeRoleAction, rolloverAction, setFlagAction, setPlatformConfigAction,
-  transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
+  grantRoleAction, revokeRoleAction, rolloverAction, saveReportTemplateAction, setFlagAction,
+  setPlatformConfigAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction,
+  transferRequestAction,
 } from "./actions";
+import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { currentLocale } from "@/lib/locale";
+import SesiSaya from "@/components/SesiSaya";
+import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
+import { peranSaya } from "@/lib/tur-negara";
+import { bacaStruktur } from "@/lib/struktur";
+import { tahunAjaranPada } from "@/lib/struktur-kontrak";
+import PanelStruktur from "@/components/struktur/PanelStruktur";
+import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -22,6 +32,7 @@ import {
 
 const s = (event: HleEvent) => t(event, "staff");
 const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
+const tautanTempat = "text-ink-2 underline underline-offset-4 hover:text-ink-1";
 const when = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" });
 const roleLabel = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"].includes(r) ? s(`role.${r}` as HleEvent) : r);
 const transferLabel = (st: string) => (["REQUESTED", "AUTHORIZED", "EXECUTED", "REJECTED", "CANCELLED"].includes(st) ? s(`transfer.${st}` as HleEvent) : st);
@@ -31,10 +42,22 @@ const field = "rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-2 
 const button = "rounded-[var(--radius-1)] bg-surface-2 px-3 py-1 text-sm hover:bg-line-1";
 const label = "grid gap-1 text-sm text-ink-2";
 
-type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string }>;
+/** The three reports PINTAR defines. The table's own CHECK is the authority. */
+const STANDARD_REPORTS = ["class_learning_intelligence", "institution_learning_intelligence", "learner_result"] as const;
+
+type MetricDefinition = {
+  metric_id: string;
+  label_key: string;
+  scope: string;
+  allowed_visualizations: string[];
+  deprecated: boolean;
+};
+
+type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string; sekolah?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
-  const viewer = await currentViewer();
+  // One parallel read of the viewer and their roles (DAISY-02/03).
+  const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
   const supabase = await supabaseServer();
   const sp = await searchParams;
 
@@ -48,12 +71,15 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const authorized = isSys === true || adminInstitutionIds.length > 0;
 
   if (!viewer || !authorized) {
+    // S0.5: the ONE refusal page. `authorized` above is unchanged.
     return (
-      <main className="mx-auto max-w-md py-16">
-        <p className="text-sm text-ink-3">{s("app.name")}</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{s("config.refused")}</h1>
-        <p className="mt-4"><Link href="/">← {s("entry.title")}</Link></p>
-      </main>
+      <HalamanPenolakan
+        messageKey="config.refused"
+        persona="staff"
+        locale={await currentLocale()}
+        backHref="/"
+        backKey="entry.title"
+      />
     );
   }
 
@@ -61,7 +87,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
     { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint }, { data: env },
   ] = await Promise.all([
-    supabase.from("institutions").select("id, name, slug, is_synthetic, is_active").order("name"),
+    supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
     supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active").order("name"),
     supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status").eq("status", "ACTIVE").order("created_at"),
@@ -72,6 +98,37 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     supabase.from("platform_config").select("key, value"),
     isSys ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null }),
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
+  ]);
+
+  // DAISY-05. The school whose structure is shown: an active, real school the
+  // reader administers -- never the national library, whose name sorts first
+  // (audit S7b) -- the one asked for if it is on offer, else the first. Its
+  // read starts now and runs beside the reads below; `school_structure`
+  // decides again who may see it.
+  const sekolahKu = sekolahDitawarkan(institutions ?? [], (id) => isSys === true || adminInstitutionIds.includes(id));
+  const sekolahStruktur = sekolahDipilih(sekolahKu, sp.sekolah);
+  const bacaanStruktur = sekolahStruktur ? bacaStruktur(sekolahStruktur.id) : Promise.resolve(null);
+
+  // FINAL DELTA 2. The people the three sources above cannot reach: no active
+  // role, no enrolment, no transfer. The database decides who may ask and who
+  // may be seen -- a non-SYSTEM_ADMIN is refused by the endpoint and gets an
+  // error rather than rows, which is why nothing here checks a role first.
+  const { data: awaiting } = await supabase.rpc("persons_awaiting_first_role");
+  const awaitingPersons = (awaiting ?? []) as Array<{ person_id: string; display_name: string }>;
+
+  // W8-02. The institution's own templates, and the catalogue they may select
+  // from. Both are ordinary reads under this viewer's own RLS: the template
+  // rows are their school's, and the catalogue is PINTAR's, readable by anyone
+  // signed in and writable by nobody through this surface.
+  const liveCatalogue = (await supabase.rpc("current_metric_catalogue")).data as string | null;
+  const [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }] = await Promise.all([
+    supabase.from("report_templates").select("id, institution_id, template_version, standard_report, title_key").order("title_key"),
+    supabase.from("report_template_metrics").select("template_id, metric_id, ordinal, visualization").order("ordinal"),
+    liveCatalogue
+      ? supabase.from("metric_definitions")
+          .select("metric_id, label_key, scope, allowed_visualizations, deprecated")
+          .eq("catalogue_version", liveCatalogue).eq("deprecated", false).order("metric_id")
+      : Promise.resolve({ data: [] as MetricDefinition[] }),
   ]);
 
   // Names for the people this viewer may see (RLS decides who that is).
@@ -92,6 +149,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     : null;
   const configValue = (key: string) => (platformConfig ?? []).find((r) => r.key === key)?.value === true;
   const myInstitutions = (institutions ?? []).filter((i) => isSys || adminInstitutionIds.includes(i.id));
+  const myInstitutionIds = myInstitutions.map((i) => i.id);
+  const myTemplates = (reportTemplates ?? []).filter((t) => myInstitutionIds.includes(t.institution_id));
+  const metricsByTemplate = new Map<string, Array<{ metric_id: string; visualization: string }>>();
+  for (const m of templateMetrics ?? []) {
+    const list = metricsByTemplate.get(m.template_id) ?? [];
+    list.push({ metric_id: m.metric_id, visualization: m.visualization });
+    metricsByTemplate.set(m.template_id, list);
+  }
   const rollNodes = (nodes ?? []).filter((n) => (n.kind === "COHORT" || n.kind === "CLASS") && n.academic_period_id);
 
   const result = (section: string) =>
@@ -101,7 +166,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       </p>
     ) : null;
 
+  const [struktur, locale] = await Promise.all([bacaanStruktur, currentLocale()]);
+  const sl = (event: HleEvent) => t(event, "staff", { locale });
+
   const nav: Array<[string, string]> = [
+    ["struktur", s("config.section.struktur")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
     ["roles", s("config.section.roles")], ["audit", s("config.section.audit")], ["flags", s("config.section.flags")],
     ["content", s("config.section.content")], ["assessment", s("config.section.assessment")],
@@ -110,13 +179,38 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
 
   return (
     <main className="py-6">
-      <header className="flex items-baseline justify-between">
+      <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm text-ink-3">{s("app.name")}</p>
           <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
         </div>
-        <form action="/keluar" method="post"><button className="text-sm text-ink-2 underline">Keluar</button></form>
+        {/* DAISY-02: the shared session strip replaces a hard-coded "Keluar"
+            that sat outside the copy table and never changed language. */}
+        <SesiSaya locale={await currentLocale()} persona="staff" viewer={viewer} peran={peran} />
       </header>
+
+      {/* WP5B. THE WAY IN TO BULK INTAKE, from the surface an institution
+          administrator already lands on. It is one link and not a panel: the
+          intake is its own experience on the design system, and reproducing a
+          piece of it here would be two places to keep true. The link decides
+          nothing — `/pendataan` asks `can_on_node('CAN_PROVISION_PEOPLE', …)`
+          on arrival and refuses a reader who does not hold it. */}
+      {/* DAISY-03 (M3). Aktivasi and Studio were reachable only by typing
+          their addresses. They sit beside the intake now, with the
+          administrator's other places (D-010) after them. Every one of these
+          asks its own gate on arrival; a link here decides nothing. */}
+      <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label={t("nav.tempat", "staff", { locale: await currentLocale() })}>
+        <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}</Link>
+        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}</Link>
+        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}</Link>
+        <TabTempat
+          tempat={tempatDariPeran(peran)}
+          kecuali={["/konfigurasi"]}
+          locale={await currentLocale()}
+          persona="staff"
+          kelas={tautanTempat}
+        />
+      </nav>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <div className={card}>
@@ -145,6 +239,53 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         </nav>
 
         <div className="grid gap-4">
+          {/* DAISY-05 (D-006, D-022). Struktur sekolah: first, because a new
+              school cannot place a student or assign a teacher until it has a
+              Kelas, and until now nothing here could make one. */}
+          <section id="struktur" className={card}>
+            <h2 className="font-medium">{sl("config.section.struktur")}</h2>
+            {sekolahStruktur && struktur ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.struktur.intro")}</p>
+                {sekolahKu.length > 1 ? (
+                  <nav className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm" aria-label={sl("config.struktur.sekolah")}>
+                    <span className="text-ink-3">{sl("config.struktur.sekolah")}</span>
+                    {sekolahKu.map((i) => (
+                      <a
+                        key={i.id}
+                        href={`?sekolah=${i.id}#struktur`}
+                        aria-current={i.id === sekolahStruktur.id ? "page" : undefined}
+                        className={
+                          i.id === sekolahStruktur.id
+                            ? "rounded-[var(--radius-pill)] bg-surface-2 px-3 py-1 font-medium text-ink-1 no-underline"
+                            : tautanTempat
+                        }
+                      >
+                        {i.name}
+                      </a>
+                    ))}
+                  </nav>
+                ) : (
+                  <p className="mt-3 text-sm text-ink-2">
+                    {sl("config.struktur.sekolah")}: <span className="font-medium text-ink-1">{sekolahStruktur.name}</span>
+                  </p>
+                )}
+                <div className="mt-4">
+                  <PanelStruktur
+                    key={sekolahStruktur.id}
+                    locale={locale}
+                    institusi={sekolahStruktur.id}
+                    rows={struktur.ok ? struktur.rows : null}
+                    gagalBaca={struktur.ok ? null : { code: struktur.code, ref: struktur.ref }}
+                    tahunKini={tahunAjaranPada(new Date())}
+                  />
+                </div>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
           {/* System & Configuration: institutions and periods */}
           <section id="system" className={card}>
             <h2 className="font-medium">{s("config.section.system")}</h2>
@@ -283,7 +424,20 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">
                   <option value="" disabled>—</option>
-                  {(persons ?? []).filter((p) => p.id !== viewer.personId).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
+                  {/* Two groups, and the union is total: everyone the reader
+                      may see either holds something already or holds nothing
+                      yet. A school's first administrator is always in the
+                      second group, which is why it had to exist. */}
+                  {awaitingPersons.length > 0 && (
+                    <optgroup label={s("config.label.person_new")}>
+                      {awaitingPersons.map((p) => (
+                        <option key={p.person_id} value={p.person_id}>{p.display_name}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  <optgroup label={s("config.label.person_known")}>
+                    {(persons ?? []).filter((p) => p.id !== viewer.personId).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
+                  </optgroup>
                 </select>
               </label>
               <label className={label}>{s("config.label.role")}
@@ -369,8 +523,81 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             {result("flags")}
           </section>
 
+          {/* W8-02 — REPORT CONFIGURATION.
+              PINTAR owns the metrics; the school owns the selection. The form
+              below can send a metric id, an order and a visualization, and
+              nothing else: there is no field for a formula, a meaning, an
+              audience or a minimum sample, because those are not an
+              institution's to set. `save_report_template` asks for
+              CAN_MANAGE_REPORT_TEMPLATES before it resolves anything, and the
+              row guards ask again on every write — this panel is a form, not
+              an authority. */}
+          <section id="intelligence" className={card}>
+            <h2 className="font-medium">{s("laporan.templat.judul")}</h2>
+            <p className="mt-2 text-sm text-ink-3">{s("laporan.templat.penjelasan")}</p>
+
+            {myTemplates.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-3">{s("laporan.templat.kosong")}</p>
+            ) : (
+              <ul className="mt-3 grid gap-2 text-sm">
+                {myTemplates.map((tpl) => (
+                  <li key={tpl.id} className="rounded-[var(--radius-1)] border border-line-1 p-2">
+                    <span className="font-medium">{tpl.title_key}</span>
+                    <span className="text-ink-3"> · {tpl.standard_report} · {s("laporan.templat.versi")} {tpl.template_version}</span>
+                    <p className="mt-1 text-ink-2">
+                      {(metricsByTemplate.get(tpl.id) ?? []).map((m) => `${m.metric_id} (${m.visualization})`).join(", ")}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {myInstitutions.length === 0 || (metricDefs ?? []).length === 0 ? (
+              <p className="mt-3 text-sm text-ink-3">{s("laporan.templat.tak_berwenang")}</p>
+            ) : (
+              <form action={saveReportTemplateAction} className="mt-4 grid gap-3">
+                <label className={label}>{s("laporan.templat.institusi")}
+                  <select name="institution" className={field} required defaultValue={myInstitutions[0]?.id}>
+                    {myInstitutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+                  </select>
+                </label>
+                <label className={label}>{s("laporan.templat.jenis")}
+                  <select name="standard_report" className={field} required>
+                    {STANDARD_REPORTS.map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </label>
+                <label className={label}>{s("laporan.templat.judul_kunci")}
+                  <input name="title_key" className={field} required pattern="[a-z][a-z0-9_.]+"
+                         defaultValue="laporan.institusi.judul" />
+                </label>
+                <fieldset className="grid gap-1">
+                  <legend className="text-sm text-ink-2">{s("laporan.templat.pilih")}</legend>
+                  <p className="text-xs text-ink-3">{s("laporan.templat.batas")}</p>
+                  {(metricDefs ?? []).map((d) => (
+                    <label key={d.metric_id} className="flex flex-wrap items-center gap-2 text-sm">
+                      {/* The metric id, which is PINTAR's own name for it and
+                          already carries its scope ("class.", "institution.").
+                          The scope column itself is an enum and §7 does not
+                          let one be rendered raw to a human. */}
+                      <span className="min-w-[14rem] text-ink-2">{d.metric_id}</span>
+                      {/* No selection is the default: an empty visualization
+                          is how a metric is left out, so the form cannot
+                          silently include one nobody ticked. */}
+                      <select name={`metric[${d.metric_id}]`} className={field} defaultValue="">
+                        <option value="">—</option>
+                        {(d.allowed_visualizations ?? []).map((v: string) => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </label>
+                  ))}
+                </fieldset>
+                <button className={button}>{s("laporan.templat.simpan")}</button>
+              </form>
+            )}
+            {result("intelligence")}
+          </section>
+
           {/* Placeholders for later phases — nothing faked */}
-          {(["content", "assessment", "certificates", "intelligence"] as const).map((key) => (
+          {(["content", "assessment", "certificates"] as const).map((key) => (
             <section key={key} id={key} className={card}>
               <h2 className="font-medium">{s(`config.section.${key}` as HleEvent)}</h2>
               <p className="mt-2 text-sm text-ink-3">{s("config.placeholder")}</p>

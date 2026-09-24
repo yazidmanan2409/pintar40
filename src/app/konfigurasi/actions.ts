@@ -1,7 +1,9 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
 
 /**
  * Config Studio actions (FABLE-01 §10). Every action is a thin call to an
@@ -133,10 +135,13 @@ export async function setFlagAction(fd: FormData): Promise<void> {
   const enabled = str(fd, "enabled") === "on";
   if (!institution || !/^[a-z][a-z0-9_.]{1,80}$/.test(key)) back("flags", { ok: false, detail: "kunci fitur: huruf kecil, angka, titik, garis bawah" });
   const supabase = await supabaseServer();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("feature_flags")
-    .upsert({ key, institution_id: institution, enabled, updated_at: new Date().toISOString() }, { onConflict: "key,institution_id" });
-  back("flags", error ? { ok: false, detail: error.message } : { ok: true });
+    .upsert({ key, institution_id: institution, enabled, updated_at: new Date().toISOString() }, { onConflict: "key,institution_id" })
+    .select("enabled");
+  // F-05: an upsert RLS filtered to nothing reports no error; read back instead
+  back("flags", error ? { ok: false, detail: error.message }
+    : (data ?? []).length === 1 && data![0].enabled === enabled ? { ok: true } : { ok: false, detail: "tidak ada perubahan" });
 }
 
 export async function setPlatformConfigAction(fd: FormData): Promise<void> {
@@ -149,4 +154,120 @@ export async function setPlatformConfigAction(fd: FormData): Promise<void> {
     .update({ value, updated_at: new Date().toISOString() }, { count: "exact" })
     .eq("key", key);
   back("flags", error ? { ok: false, detail: error.message } : count ? { ok: true } : { ok: false, detail: "tidak ada perubahan" });
+}
+
+/**
+ * W8-02 — an institution assembles one of its own report templates.
+ *
+ * The form sends the metrics the administrator ticked, in the order the
+ * catalogue listed them, each with the visualization they chose from the ones
+ * that metric permits. Nothing else travels: no formula, no meaning, no
+ * audience, no minimum sample — those are PINTAR's and this action has no
+ * argument that could carry them.
+ *
+ * Authority is `save_report_template`'s, which asks for
+ * CAN_MANAGE_REPORT_TEMPLATES in the named institution before it resolves
+ * anything, and the row guards ask again on every write. This action checks
+ * nothing and decides nothing; it shapes a form into one RPC call.
+ */
+export async function saveReportTemplateAction(fd: FormData): Promise<void> {
+  const institution = uuidOrNull(str(fd, "institution"));
+  const template = uuidOrNull(str(fd, "template"));
+  const standardReport = str(fd, "standard_report");
+  const titleKey = str(fd, "title_key");
+  const metrics: Array<{ metric_id: string; visualization: string }> = [];
+  for (const [k, v] of fd.entries()) {
+    const m = /^metric\[(.+)\]$/.exec(k);
+    const visualization = String(v);
+    if (m && visualization) metrics.push({ metric_id: m[1], visualization });
+  }
+  if (!institution || !standardReport || !/^[a-z][a-z0-9_.]+$/.test(titleKey) || metrics.length === 0) {
+    back("intelligence", { ok: false, detail: "pilih institusi, kunci judul, dan minimal satu metrik" });
+  }
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("save_report_template", {
+    p_institution: institution,
+    p_standard_report: standardReport,
+    p_title_key: titleKey,
+    p_metrics: metrics,
+    p_template: template,
+  });
+  back("intelligence", error ? { ok: false, detail: error.message } : { ok: true, detail: `${metrics.length} metrik` });
+}
+
+// ═══════════════════════════════════════════════════ BOB-01: school structure
+
+/**
+ * BOB-01 — THE FIVE STRUCTURE ACTS (D-006): create a Bagian, a Tingkat or a
+ * Kelas, rename one, deactivate one. Each is one call to the database function
+ * of the same purpose, acting AS THE SIGNED-IN USER; who may do it, every rule
+ * about names and years, the hidden Jenjang and Reguler, and the audit row are
+ * the database's. This file carries a form to that call and brings back a
+ * code.
+ *
+ * SHAPED FOR `useActionState(action, null)`: each takes the previous result
+ * and the form, and returns `HasilStruktur` -- `{ ok: true, id }` or
+ * `{ ok: false, code, ref? }` -- never the database's own words (D-011). After
+ * any result the screen re-reads the list rather than trusting it: a create
+ * whose response was lost has still happened, and a retry then answers
+ * STRUCTURE_NAME_TAKEN.
+ *
+ *   buatBagianAksi           institusi, nama
+ *   buatTingkatAksi          bagian, nama, tahun_ajaran
+ *   buatKelasAksi            tingkat, nama, tahun_ajaran (optional; must be the Tingkat's)
+ *   ubahNamaStrukturAksi     simpul, nama
+ *   nonaktifkanStrukturAksi  simpul
+ */
+async function struktur(fn: string, args: Record<string, string | null>): Promise<HasilStruktur> {
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.rpc(fn, args);
+  if (error || typeof data !== "string") {
+    const code = kodeGalatStruktur(error);
+    if (code !== "STRUCTURE_FAILED") return { ok: false, code };
+    const ref = rujukanGalat();
+    console.error(`[struktur ${ref}] ${fn} failed`, error?.code, error?.message);
+    return { ok: false, code, ref };
+  }
+  revalidatePath("/konfigurasi", "layout");
+  return { ok: true, id: data };
+}
+
+const KURANG: HasilStruktur = { ok: false, code: "STRUCTURE_INPUT_INVALID" };
+
+export async function buatBagianAksi(_prev: HasilStruktur | null, fd: FormData): Promise<HasilStruktur> {
+  const institusi = uuidOrNull(str(fd, "institusi"));
+  if (!institusi) return KURANG;
+  return struktur("create_bagian", { p_institution: institusi, p_name: str(fd, "nama") });
+}
+
+export async function buatTingkatAksi(_prev: HasilStruktur | null, fd: FormData): Promise<HasilStruktur> {
+  const bagian = uuidOrNull(str(fd, "bagian"));
+  if (!bagian) return KURANG;
+  return struktur("create_tingkat", {
+    p_bagian_node: bagian,
+    p_name: str(fd, "nama"),
+    p_academic_year: str(fd, "tahun_ajaran"),
+  });
+}
+
+export async function buatKelasAksi(_prev: HasilStruktur | null, fd: FormData): Promise<HasilStruktur> {
+  const tingkat = uuidOrNull(str(fd, "tingkat"));
+  if (!tingkat) return KURANG;
+  return struktur("create_kelas", {
+    p_tingkat_node: tingkat,
+    p_name: str(fd, "nama"),
+    p_academic_year: str(fd, "tahun_ajaran") || null,
+  });
+}
+
+export async function ubahNamaStrukturAksi(_prev: HasilStruktur | null, fd: FormData): Promise<HasilStruktur> {
+  const simpul = uuidOrNull(str(fd, "simpul"));
+  if (!simpul) return KURANG;
+  return struktur("rename_school_node", { p_node: simpul, p_name: str(fd, "nama") });
+}
+
+export async function nonaktifkanStrukturAksi(_prev: HasilStruktur | null, fd: FormData): Promise<HasilStruktur> {
+  const simpul = uuidOrNull(str(fd, "simpul"));
+  if (!simpul) return KURANG;
+  return struktur("deactivate_school_node", { p_node: simpul });
 }

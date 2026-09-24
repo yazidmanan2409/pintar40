@@ -211,8 +211,12 @@ begin
    where id = v_defn;
 
   perform selftest.as_owner();
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   perform public.validate_course_content(v_course);
+  perform selftest.as_owner();
+  perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
   perform public.run_mcq_quality(v_course);
+  perform selftest.as_owner();
   select pr.status, pr.blockers into v_status, v_blockers from public.publish_readiness(v_course) pr;
   if v_status <> 'READY' then
     raise exception 'the canonical fixture is not publishable (%): % -- fix the fixture, never the gate',
@@ -987,8 +991,12 @@ begin
     update public.assessment_definitions set status = 'APPROVED', reviewed_by_person_id = v_admin
      where course_id = v_rev or module_id in (select id from public.modules where course_id = v_rev);
     perform selftest.as_owner();
+    perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
     perform public.validate_course_content(v_rev);
+    perform selftest.as_owner();
+    perform selftest.as_draft_author();  -- 0085: an authoring act now names its actor
     perform public.run_mcq_quality(v_rev);
+    perform selftest.as_owner();
     select pr.status, pr.blockers into v_status, v_blockers from public.publish_readiness(v_rev) pr;
     if v_status <> 'READY' then
       ok := false;
@@ -1410,13 +1418,15 @@ begin
                            'anon_table_grants','unclassified_client_rpcs','undeclared_anon_functions',
                            'audit_log_client_write_grants','public_buckets','client_storage_policies',
                            'evidence_class_overrides','anon_public_view_write_grants',
-                           'overloaded_client_rpcs','malformed_jalur','persons_institution_columns'] loop
-    if (v_lint ->> r)::int <> 0 then
-      ok := false; detail := detail || format('%s is %s, expected 0; ', r, v_lint ->> r);
+                           'overloaded_client_rpcs','malformed_jalur','persons_institution_columns',
+                           'client_readable_definer_views'] loop
+    if (v_lint ->> r)::int is distinct from 0 then
+      ok := false; detail := detail || format('%s is %s, expected 0; ', r, coalesce(v_lint ->> r, 'missing'));
     end if;
   end loop;
-  if (v_lint ->> 'anon_public_surface')::int <> 2 then
-    ok := false; detail := detail || format('anon_public_surface is %s, expected 2; ', v_lint ->> 'anon_public_surface');
+  -- 1 since D-032 (BOB-14): the verification route; the lesson view is not public
+  if (v_lint ->> 'anon_public_surface')::int <> 1 then
+    ok := false; detail := detail || format('anon_public_surface is %s, expected 1; ', v_lint ->> 'anon_public_surface');
   end if;
   if (v_lint ->> 'anon_reachable_http_paths')::int <> 2 then
     ok := false; detail := detail || format('anon_reachable_http_paths is %s, expected 2; ', v_lint ->> 'anon_reachable_http_paths');
@@ -1444,7 +1454,7 @@ begin
   select count(*) into n from unnest(enum_range(null::public.record_portability));
   if n <> 2 then ok := false; detail := detail || format('record_portability has %s values, expected 2; ', n); end if;
   test_id := 'F05-T21'; invariant := 'FABLE-05 §11';
-  if ok then detail := format('every fixed counter is unmoved, both anonymous-surface counters are 2, every standing assertion is true, and the two deliberate movements are separately visible (%s non-synthetic tenant(s), %s canonical)',
+  if ok then detail := format('every fixed counter is unmoved, the anonymous surface is one declared route (D-032) at 2 HTTP paths, every standing assertion is true, and the two deliberate movements are separately visible (%s non-synthetic tenant(s), %s canonical)',
     v_lint ->> 'non_synthetic_institutions', v_lint ->> 'platform_canonical_tenants'); end if;
   return next;
 

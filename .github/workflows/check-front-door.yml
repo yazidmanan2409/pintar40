@@ -1,0 +1,56 @@
+# Read-only: does the production sign-in page and every asset it depends on
+# actually serve? The sandbox that runs Second Eye cannot reach the production
+# origin, so this asks from a GitHub runner. It writes nothing anywhere.
+
+name: check · front door assets (read only)
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/workflows/check-front-door.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  front-door:
+    name: sign-in page and its assets
+    runs-on: ubuntu-latest
+    env:
+      ORIGIN: https://app.pintarselalu.com
+      LOGO_SHA256: 0e85e80fb232b299016f3d363102823686a7489e86cb957cfbe0e48128a86463
+    steps:
+      - name: Fetch /masuk and every asset it needs
+        run: |
+          set -uo pipefail
+          fail=0
+          code=$(curl -sS -o /tmp/masuk.html -D /tmp/masuk.h -w '%{http_code}' "$ORIGIN/masuk")
+          echo "GET /masuk -> $code"
+          [ "$code" = "200" ] || fail=1
+          grep -qF 'pin-masuk' /tmp/masuk.html && echo "  sign-in marker present" || { echo "  sign-in marker ABSENT"; fail=1; }
+          grep -qF '/brand/pintar-selalu-logo.png' /tmp/masuk.html && echo "  page references the logo" || { echo "  page does NOT reference the logo"; fail=1; }
+
+          r=$(curl -sS -o /tmp/logo.png -w '%{http_code} %{content_type} %{size_download}' "$ORIGIN/brand/pintar-selalu-logo.png")
+          echo "GET /brand/pintar-selalu-logo.png -> $r"
+          case "$r" in "200 image/png "*) ;; *) fail=1;; esac
+          got=$(sha256sum /tmp/logo.png | cut -d' ' -f1)
+          [ "$got" = "$LOGO_SHA256" ] && echo "  served logo is byte-identical to the committed artwork" || { echo "  served logo differs from the committed artwork"; fail=1; }
+
+          for f in plus-jakarta-sans-latin plus-jakarta-sans-latin-ext ibm-plex-mono-500-latin ibm-plex-mono-500-latin-ext; do
+            r=$(curl -sS -o /dev/null -w '%{http_code} %{content_type} %{size_download}' "$ORIGIN/fonts/$f.woff2")
+            echo "GET /fonts/$f.woff2 -> $r"
+            case "$r" in "200 "*) ;; *) fail=1;; esac
+          done
+
+          for css in $(grep -oE '/_next/static/[^"]+\.css' /tmp/masuk.html | sort -u); do
+            c=$(curl -sS -o /tmp/c.css -w '%{http_code}' "$ORIGIN$css")
+            n=$(grep -o '/fonts/[a-z0-9-]*\.woff2' /tmp/c.css | sort -u | wc -l)
+            echo "GET $css -> $c (distinct font files referenced: $n)"
+            [ "$c" = "200" ] || fail=1
+          done
+
+          [ "$fail" = "0" ] && echo "FRONT DOOR OK" || echo "::error::the front door is missing something above"
+          exit $fail

@@ -32,7 +32,8 @@ import { t, type HleEvent } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 
 type Answer = { posisi: number } | { posisi: number[] };
-type Outbox = Record<string, { presentedItemId: string; clientSeq: number; value: Answer }>;
+/** One answer the learner took and the server has not yet acknowledged. */
+type Entry = { presentedItemId: string; clientSeq: number; value: Answer };
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -49,7 +50,7 @@ export type ItemPlayerProps = {
   actions: {
     submitAnswer: (presentedItemId: string, clientSeq: number, value: Answer,
                    receiptMode?: "LIVE" | "REPLAYED" | "LATE_SYNC") =>
-      Promise<{ ok: true; outcome: string } | { ok: false; message: string }>;
+      Promise<{ ok: true; outcome: string } | { ok: false; message: string; code: string | null; detail: string | null }>;
     noteView: (presentedItemId: string) => Promise<{ ok: boolean }>;
     assistance: (presentedItemId: string) =>
       Promise<{ ok: true; state: AssistanceState } | { ok: false; message: string }>;
@@ -58,7 +59,11 @@ export type ItemPlayerProps = {
     dismissAssistance: (presentedItemId: string) => Promise<{ ok: boolean }>;
     pauseSession: (sessionId: string) => Promise<{ ok: boolean }>;
     resumeSession: (sessionId: string) => Promise<{ ok: boolean }>;
-    finishSession: (sessionId: string) => Promise<{ ok: boolean }>;
+    noteIntegrity: (sessionId: string,
+                    category: "VISIBILITY_CHANGE" | "RECONNECT" | "RAPID_OPTION_CHANGE",
+                    observation: Record<string, number | string>) => Promise<{ ok: boolean }>;
+    finishSession: (sessionId: string, manifest: Record<string, number>) =>
+      Promise<{ ok: true; resultId: string } | { ok: false; message: string; code: string | null; detail: string | null }>;
   };
 };
 
@@ -74,26 +79,70 @@ function stageKey(stage: string | null): HleEvent {
   return STAGE_KEY.UNIVERSITAS;
 }
 
-function outboxKey(sessionId: string) {
-  return `pintar.outbox.${sessionId}`;
+/*
+ * THE OUTBOX, ONE KEY PER ENTRY (R1). It used to be one JSON object per session,
+ * rewritten whole on every change, so two tabs of the same assessment could
+ * overwrite each other's unacknowledged answers. An entry is now its own key,
+ * `pintar.outbox.<session>.<presented item>.<client_seq>`, written before it is
+ * sent and removed only when the server acknowledges it or refuses it for good.
+ * Where storage is unavailable the entry lives in memory for this page, so
+ * Finish still sees it; it is simply not durable across a reload.
+ */
+const prefix = (sessionId: string) => `pintar.outbox.${sessionId}.`;
+const entryKey = (sessionId: string, e: { presentedItemId: string; clientSeq: number }) =>
+  `${prefix(sessionId)}${e.presentedItemId}.${e.clientSeq}`;
+const memory = new Map<string, Entry>();
+
+function readEntries(sessionId: string): Entry[] {
+  const found = new Map<string, Entry>();
+  for (const [k, v] of memory) if (k.startsWith(prefix(sessionId))) found.set(k, v);
+  if (typeof window !== "undefined") {
+    try {
+      const ls = window.localStorage;
+      // the pre-R1 single-object outbox, carried over once rather than lost
+      const legacyKey = `pintar.outbox.${sessionId}`;
+      const legacy = ls.getItem(legacyKey);
+      if (legacy) {
+        for (const e of Object.values(JSON.parse(legacy) as Record<string, Entry>)) {
+          ls.setItem(entryKey(sessionId, e), JSON.stringify(e));
+        }
+        ls.removeItem(legacyKey);
+      }
+      const keys: string[] = [];
+      for (let i = 0; i < ls.length; i++) {
+        const k = ls.key(i);
+        if (k && k.startsWith(prefix(sessionId))) keys.push(k);
+      }
+      for (const k of keys) {
+        try { found.set(k, JSON.parse(ls.getItem(k) ?? "") as Entry); } catch { /* not ours */ }
+      }
+    } catch {
+      /* storage unavailable: the in-memory entries above are all there is */
+    }
+  }
+  return [...found.values()].sort((a, b) =>
+    a.presentedItemId === b.presentedItemId ? a.clientSeq - b.clientSeq
+      : a.presentedItemId < b.presentedItemId ? -1 : 1);
 }
 
-function readOutbox(sessionId: string): Outbox {
-  if (typeof window === "undefined") return {};
+function putEntry(sessionId: string, e: Entry) {
+  const k = entryKey(sessionId, e);
   try {
-    return JSON.parse(window.localStorage.getItem(outboxKey(sessionId)) ?? "{}") as Outbox;
+    window.localStorage.setItem(k, JSON.stringify(e));
+    memory.delete(k);
   } catch {
-    return {};
+    memory.set(k, e);
   }
 }
 
-function writeOutbox(sessionId: string, box: Outbox) {
-  try {
-    window.localStorage.setItem(outboxKey(sessionId), JSON.stringify(box));
-  } catch {
-    /* storage unavailable: the server remains the source of truth either way */
-  }
+function dropEntry(sessionId: string, e: Entry) {
+  const k = entryKey(sessionId, e);
+  memory.delete(k);
+  try { window.localStorage.removeItem(k); } catch { /* nothing stored */ }
 }
+
+/** What one delivery attempt came to. */
+type Delivery = "acked" | "pending" | "offline" | "closed";
 
 function sameAnswer(a: Answer | undefined, b: Answer): boolean {
   if (!a) return false;
@@ -112,7 +161,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   const [accepted, setAccepted] = useState<Record<string, Answer>>(props.accepted);
   const [draft, setDraft] = useState<Record<string, Answer>>({});
   const [flagged, setFlagged] = useState<Record<string, boolean>>({});
-  const [pending, setPending] = useState<number>(() => Object.keys(readOutbox(sessionId)).length);
+  const [pending, setPending] = useState<number>(() => readEntries(sessionId).length);
   const [online, setOnline] = useState(() =>
     typeof window === "undefined" ? true : window.navigator.onLine);
   const [paused, setPaused] = useState(false);
@@ -124,28 +173,96 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   const [levels, setLevels] = useState<{ itemId: string; opened: AssistanceLevel[] }>(
     { itemId: "", opened: [] });
   const [navOpen, setNavOpen] = useState(false);
-  const seqs = useRef<Record<string, number>>({ ...props.seqs });
+  // R1: what Finish says to the learner when it cannot finish yet, and whether
+  // the server has closed the session under this page (another tab finished).
+  const [notice, setNotice] = useState<HleEvent | null>(null);
+  const [closed, setClosed] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+  // THE SEQUENCE RULE (R1, F-07). Two sources of truth, never one:
+  //   serverSeqs — the highest client_seq the server is known to hold per item
+  //                (the page's read, raised by every acknowledgement);
+  //   issued     — the highest client_seq this page has issued per item.
+  // `nextSeq` is one above BOTH of them AND above everything still in the
+  // outbox, which is the one thing a reload used to forget: an answer replayed
+  // from the outbox after the page's read carried a seq the read never saw.
+  const serverSeqs = useRef<Record<string, number>>({ ...props.seqs });
+  const issued = useRef<Record<string, number>>({});
   const current = paper[index];
 
+  const outboxMax = useCallback((item: string) =>
+    readEntries(sessionId).filter((e) => e.presentedItemId === item)
+      .reduce((m, e) => Math.max(m, e.clientSeq), 0), [sessionId]);
+
+  const nextSeq = useCallback((item: string) => {
+    const n = 1 + Math.max(serverSeqs.current[item] ?? 0, issued.current[item] ?? 0, outboxMax(item));
+    issued.current[item] = n;
+    return n;
+  }, [outboxMax]);
+
   // ------------------------------------------------------------- the outbox
-  const flush = useCallback(async () => {
-    const box = readOutbox(sessionId);
-    const keys = Object.keys(box);
-    if (keys.length === 0) { setPending(0); return; }
-    for (const k of keys) {
-      const e = box[k];
-      const r = await actions.submitAnswer(e.presentedItemId, e.clientSeq, e.value, "REPLAYED");
-      if (r.ok) {
-        delete box[k];
-        writeOutbox(sessionId, box);
-        setAccepted((a) => ({ ...a, [e.presentedItemId]: e.value }));
-      } else {
-        setOnline(false);
-        break;
+  /*
+   * ONE DELIVERY, CLASSIFIED BY THE SERVER'S CODE (R1). Only an acknowledgement
+   * or a terminal refusal removes an entry:
+   *   acked    RECORDED / ACKNOWLEDGED            — removed
+   *   PR001    the seq is taken by another answer — renumbered above the server's
+   *            high-water mark and sent again; never "offline"
+   *   PR002    the session accepts nothing more   — removed, and said to the learner
+   *   thrown   the request never arrived          — kept; offline
+   *   other    a refusal we cannot interpret      — kept; tried again later
+   */
+  const deliver = useCallback(async (e: Entry, mode: "LIVE" | "REPLAYED"): Promise<Delivery> => {
+    let cur = e;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      let r: Awaited<ReturnType<typeof actions.submitAnswer>>;
+      try {
+        r = await actions.submitAnswer(cur.presentedItemId, cur.clientSeq, cur.value, mode);
+      } catch {
+        return "offline";
       }
+      if (r.ok) {
+        dropEntry(sessionId, cur);
+        const item = cur.presentedItemId;
+        serverSeqs.current[item] = Math.max(serverSeqs.current[item] ?? 0, cur.clientSeq);
+        // shown as the learner's answer only if nothing newer was taken since
+        if (cur.clientSeq >= Math.max(issued.current[item] ?? 0, outboxMax(item))) {
+          const v = cur.value;
+          setAccepted((a) => ({ ...a, [item]: v }));
+        }
+        return "acked";
+      }
+      if (r.code === "PR001") {
+        const held = Number(r.detail);
+        if (Number.isFinite(held)) {
+          serverSeqs.current[cur.presentedItemId] = Math.max(serverSeqs.current[cur.presentedItemId] ?? 0, held);
+        }
+        dropEntry(sessionId, cur);
+        cur = { ...cur, clientSeq: nextSeq(cur.presentedItemId) };
+        putEntry(sessionId, cur);
+        continue;
+      }
+      if (r.code === "PR002") {
+        dropEntry(sessionId, cur);
+        return "closed";
+      }
+      return "pending";
     }
-    setPending(Object.keys(readOutbox(sessionId)).length);
-  }, [actions, sessionId]);
+    return "pending";
+  }, [actions, nextSeq, outboxMax, sessionId]);
+
+  /** Every entry still held, oldest first per item. Stops at the first lost request. */
+  const flush = useCallback(async (): Promise<Delivery | "clear"> => {
+    let result: Delivery | "clear" = "clear";
+    for (const e of readEntries(sessionId)) {
+      const o = await deliver(e, "REPLAYED");
+      if (o === "offline") { result = "offline"; break; }
+      if (o === "closed") result = "closed";
+      else if (o === "pending" && result === "clear") result = "pending";
+    }
+    setPending(readEntries(sessionId).length);
+    setOnline(result !== "offline");
+    if (result === "closed") setClosed(true);
+    return result;
+  }, [deliver, sessionId]);
 
   useEffect(() => {
     // The mount replay is deferred by a tick rather than run in the effect
@@ -164,27 +281,99 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   }, [flush]);
 
   const send = useCallback(async (entry: PaperEntry, value: Answer) => {
-    if (sameAnswer(accepted[entry.presentedItemId], value)) return;
-    const seq = (seqs.current[entry.presentedItemId] ?? 0) + 1;
-    seqs.current[entry.presentedItemId] = seq;
-    const box = readOutbox(sessionId);
-    const k = `${entry.presentedItemId}:${seq}`;
-    box[k] = { presentedItemId: entry.presentedItemId, clientSeq: seq, value };
-    writeOutbox(sessionId, box);
-    setPending(Object.keys(box).length);
+    const item = entry.presentedItemId;
+    const heldForItem = readEntries(sessionId).some((e) => e.presentedItemId === item);
+    if (sameAnswer(accepted[item], value) && !heldForItem) return;
+    const e: Entry = { presentedItemId: item, clientSeq: nextSeq(item), value };
+    putEntry(sessionId, e);
+    setPending(readEntries(sessionId).length);
+    const o = await deliver(e, "LIVE");
+    setPending(readEntries(sessionId).length);
+    setOnline(o !== "offline");
+    if (o === "closed") setClosed(true);
+  }, [accepted, deliver, nextSeq, sessionId]);
 
-    const r = await actions.submitAnswer(entry.presentedItemId, seq, value, "LIVE");
-    if (r.ok) {
-      const after = readOutbox(sessionId);
-      delete after[k];
-      writeOutbox(sessionId, after);
-      setPending(Object.keys(after).length);
-      setAccepted((a) => ({ ...a, [entry.presentedItemId]: value }));
-      setOnline(true);
-    } else {
-      setOnline(false);
+  /*
+   * FINISH NEVER OUTRUNS THE LEARNER'S WORK (R1, F-08). Replay everything held;
+   * if anything is still held, do not finish — say so. Otherwise send the
+   * manifest (the highest seq taken per item), and the database refuses (PR006)
+   * if it does not hold every one of them, whatever this page believed.
+   */
+  const finish = useCallback(async () => {
+    if (finishing) return;
+    setFinishing(true);
+    setNotice(null);
+    try {
+      const f = await flush();
+      if (f === "offline") { setNotice("sync.belum_terkirim"); return; }
+      if (readEntries(sessionId).length > 0) { setNotice("sync.belum_tersimpan"); return; }
+      const manifest: Record<string, number> = {};
+      for (const p of paper) {
+        const m = Math.max(serverSeqs.current[p.presentedItemId] ?? 0, issued.current[p.presentedItemId] ?? 0);
+        if (m > 0) manifest[p.presentedItemId] = m;
+      }
+      let r: Awaited<ReturnType<typeof actions.finishSession>>;
+      try {
+        r = await actions.finishSession(sessionId, manifest);
+      } catch {
+        setNotice("sync.belum_terkirim");
+        return;
+      }
+      if (r.ok || r.code === "PR002") {
+        // doc 04 §7: the system issues a certificate for a certifying pass. Asked
+        // at once, never awaited: the results view must not wait on issuance,
+        // and the certificate page asks again on every load.
+        if (formal) {
+          void fetch("/api/certificates/issue", {
+            method: "POST", keepalive: true, headers: { "content-type": "application/json" },
+            body: JSON.stringify({ session_id: sessionId }),
+          }).catch(() => undefined);
+        }
+        router.push(finishHref);
+        return;
+      }
+      setNotice("sync.belum_tersimpan");
+    } finally {
+      setFinishing(false);
     }
-  }, [accepted, actions, sessionId]);
+  }, [actions, finishHref, finishing, flush, formal, paper, router, sessionId]);
+
+  // ---------------------------------------- integrity observations (F-09)
+  /*
+   * doc 07's category-7 events, proportionate by construction: that the tab
+   * was hidden, that the connection came back, that one question's answer was
+   * changed several times in a few seconds. Never the answer, never content,
+   * never a verdict — a human with CAN_REVIEW_INTEGRITY reads these, nothing
+   * scores them. At most one of each kind per ten seconds from this page.
+   */
+  const lastSignal = useRef<Record<string, number>>({});
+  const changes = useRef<Record<string, number[]>>({});
+  const observe = useCallback((category: "VISIBILITY_CHANGE" | "RECONNECT" | "RAPID_OPTION_CHANGE",
+                               observation: Record<string, number | string>) => {
+    const now = Date.now();
+    if (now - (lastSignal.current[category] ?? 0) < 10_000) return;
+    lastSignal.current[category] = now;
+    void actions.noteIntegrity(sessionId, category, observation).catch(() => undefined);
+  }, [actions, sessionId]);
+
+  useEffect(() => {
+    let wentOffline = false;
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") observe("VISIBILITY_CHANGE", { state: "hidden" });
+    };
+    const onOffline = () => { wentOffline = true; };
+    const onOnline = () => {
+      if (wentOffline) { wentOffline = false; observe("RECONNECT", {}); }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("offline", onOffline);
+    window.addEventListener("online", onOnline);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("offline", onOffline);
+      window.removeEventListener("online", onOnline);
+    };
+  }, [observe]);
 
   // -------------------------------------------------- the server's own clock
   useEffect(() => {
@@ -230,10 +419,14 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       next = { posisi };
     }
     setDraft((d) => ({ ...d, [current.presentedItemId]: next }));
+    const now = Date.now();
+    const recent = [...(changes.current[current.presentedItemId] ?? []), now].filter((x) => now - x < 5_000);
+    changes.current[current.presentedItemId] = recent;
+    if (recent.length >= 3) observe("RAPID_OPTION_CHANGE", { soal: index + 1, kali: recent.length });
     // §4: no auto-advance and no auto-commit in the formal test — the learner
     // confirms. The diagnostic screen commits when they move on.
     if (!formal) void send(current, next);
-  }, [current, draft, accepted, formal, send]);
+  }, [current, draft, accepted, formal, send, observe, index]);
 
   const go = useCallback((to: number) => {
     if (to < 0 || to >= paper.length) return;
@@ -282,45 +475,48 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-8">
+    <div className="pin-player">
       {/* ---------------------------------------------------------- chrome */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="pin-soalbar">
         {formal ? (
-          <span className="tabular-nums text-sm text-ink-2" aria-live="off">
+          <span className="pin-time" aria-live="off">
             {t("posttest.elapsed", "learner")} {String(Math.floor(elapsed / 60)).padStart(2, "0")}:
             {String(elapsed % 60).padStart(2, "0")}
           </span>
         ) : (
           // §1: dots, never a percent bar and never a countdown-feeling timer
-          <span className="flex items-center gap-1.5" aria-label={`${t("pretest.progress", "learner")} ${index + 1}/${paper.length}`}>
+          <span className="pin-dots" aria-label={`${t("pretest.progress", "learner")} ${index + 1}/${paper.length}`}>
             {paper.map((p, i) => (
               <span
                 key={p.presentedItemId}
-                className={`h-2 w-2 rounded-full ${
-                  i === index ? "bg-primary" : accepted[p.presentedItemId] ? "bg-ink-3" : "bg-line-1"
-                }`}
+                className={`pin-ldot${i === index ? " pin-at" : accepted[p.presentedItemId] ? " pin-done" : ""}`}
               />
             ))}
           </span>
         )}
-        <span className="flex items-center gap-3 text-sm">
-          {!online && <span className="text-attention">{t("sync.offline", "learner")}</span>}
-          {online && pending > 0 && <span className="text-ink-3">{t("sync.pending", "learner")}</span>}
+        <span className="pin-sbchrome">
+          {!online && <span className="pin-luring">{t("sync.offline", "learner")}</span>}
+          {online && pending > 0 && <span className="pin-meta">{t("sync.pending", "learner")}</span>}
           {formal && allowsPause && (
             <button
               type="button"
               onClick={async () => {
-                if (paused) { await actions.resumeSession(sessionId); setPaused(false); }
-                else { await actions.pauseSession(sessionId); setPaused(true); }
+                // the server decides; the screen follows what it said
+                try {
+                  if (paused) { if ((await actions.resumeSession(sessionId)).ok) setPaused(false); }
+                  else if ((await actions.pauseSession(sessionId)).ok) setPaused(true);
+                } catch {
+                  setOnline(false);
+                }
               }}
-              className="rounded-[var(--radius-1)] border border-line-1 px-3 py-1.5 hover:bg-surface-2"
+              className="pin-btn"
             >
               {paused ? t("posttest.resume", "learner") : t("posttest.pause", "learner")}
             </button>
           )}
           {formal && (
             <button type="button" onClick={() => setNavOpen((o) => !o)}
-              className="rounded-[var(--radius-1)] border border-line-1 px-3 py-1.5 hover:bg-surface-2">
+              className="pin-btn">
               {t("posttest.navigator", "learner")}
             </button>
           )}
@@ -328,13 +524,11 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       </div>
 
       {formal && navOpen && (
-        <ol className="mt-4 grid grid-cols-6 gap-2 rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4">
+        <ol className="pin-daftar">
           {paper.map((p, i) => (
             <li key={p.presentedItemId}>
               <button type="button" onClick={() => go(i)}
-                className={`w-full rounded-[var(--radius-1)] border px-2 py-2 text-sm ${
-                  accepted[p.presentedItemId] ? "border-ok bg-ok-soft" : "border-line-1"
-                } ${flagged[p.presentedItemId] ? "ring-2 ring-attention" : ""} ${i === index ? "font-semibold" : ""}`}
+                className={`pin-num-btn${accepted[p.presentedItemId] ? " pin-ans" : ""}${flagged[p.presentedItemId] ? " pin-flag" : ""}${i === index ? " pin-at" : ""}`}
                 aria-label={`${i + 1} — ${accepted[p.presentedItemId] ? t("posttest.answered", "learner") : t("posttest.unanswered", "learner")}`}>
                 {i + 1}
               </button>
@@ -344,30 +538,32 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       )}
 
       {paused ? (
-        <p className="mt-10 rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-6 text-ink-2">
+        <p className="pin-pending">
           {t("posttest.resume", "learner")}
         </p>
       ) : (
         <>
           {/* ------------------------------------------------------- the item */}
-          <article className="mt-8">
-            <h2 className="text-xl leading-relaxed">{current.item.stem}</h2>
+          <article className="pin-soal">
+            <h2 className="pin-stem">{current.item.stem}</h2>
             {current.item.stimulus && (
-              <p className="mt-3 whitespace-pre-wrap text-ink-2">{current.item.stimulus}</p>
+              <p className="pin-stimulus">{current.item.stimulus}</p>
             )}
 
-            <ul className="mt-6 grid gap-2">
+            <ul className="pin-opsi">
               {current.item.opsi.map((o) => (
                 <li key={o.posisi}>
                   <button
                     type="button"
                     onClick={() => choose(o.posisi)}
                     aria-pressed={selected(o.posisi)}
-                    className={`flex w-full items-start gap-3 rounded-[var(--radius-2)] border p-4 text-left ${
-                      selected(o.posisi) ? "border-primary bg-primary-soft" : "border-line-1 bg-surface-1 hover:bg-surface-2"
-                    }`}
+                    /* The selected state is drawn from `aria-pressed` above
+                       rather than from a second class: one source of truth, so
+                       the thing a screen reader announces and the thing an eye
+                       sees cannot disagree. */
+                    className="pin-op"
                   >
-                    <span className="mt-0.5 text-sm text-ink-3">{String.fromCharCode(64 + o.posisi)}</span>
+                    <span className="pin-k">{String.fromCharCode(64 + o.posisi)}</span>
                     <span>{o.teks}</span>
                   </button>
                 </li>
@@ -375,19 +571,19 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             </ul>
 
             {formal && (
-              <div className="mt-4 flex items-center gap-3">
+              <div className="pin-actions">
                 <button
                   type="button"
                   disabled={!chosen || committed}
                   onClick={() => chosen && void send(current, chosen)}
-                  className="rounded-[var(--radius-1)] bg-primary px-4 py-2 text-primary-ink disabled:opacity-40"
+                  className="pin-btn pin-primary"
                 >
                   {committed ? t("posttest.confirmed", "learner") : t("posttest.confirm", "learner")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setFlagged((f) => ({ ...f, [current.presentedItemId]: !f[current.presentedItemId] }))}
-                  className="rounded-[var(--radius-1)] border border-line-1 px-3 py-2 text-sm hover:bg-surface-2"
+                  className="pin-btn"
                 >
                   {flagged[current.presentedItemId] ? t("posttest.flagged", "learner") : t("posttest.flag", "learner")}
                 </button>
@@ -397,24 +593,24 @@ export default function ItemPlayer(props: ItemPlayerProps) {
 
           {/* ------------------------------------------------ assistance pill */}
           {state?.due && (
-            <section className="mt-6 rounded-[var(--radius-2)] border border-attention bg-attention-soft p-4">
-              <p className="font-medium">{t(stageKey(stage), "learner")}</p>
+            <section className="pin-bantuan">
+              <p className="pin-lvl">{t(stageKey(stage), "learner")}</p>
               {opened.map((l) => (
-                <p key={l.level} className="mt-3">
-                  <span className="block text-sm text-ink-3">{t(`assist.level.${l.kode}` as HleEvent, "learner")}</span>
+                <p key={l.level}>
+                  <span className="pin-lvl">{t(`assist.level.${l.kode}` as HleEvent, "learner")}</span>
                   <span>{l.isi}</span>
                 </p>
               ))}
-              <div className="mt-3 flex gap-3 text-sm">
+              <div className="pin-actions">
                 {state.nextLevel !== null && (
                   <button type="button" onClick={() => void openLevel(state.nextLevel as number)}
-                    className="rounded-[var(--radius-1)] border border-line-1 bg-surface-1 px-3 py-1.5">
+                    className="pin-btn">
                     {opened.length === 0 ? t(stageKey(stage), "learner") : t("assist.more", "learner")}
                   </button>
                 )}
                 <button type="button"
                   onClick={() => { void actions.dismissAssistance(itemId); setAssist(null); }}
-                  className="px-2 py-1.5 text-ink-2 underline">
+                  className="pin-btn pin-quiet">
                   {t("assist.close", "learner")}
                 </button>
               </div>
@@ -424,25 +620,27 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       )}
 
       {/* ------------------------------------------------------ move / finish */}
-      <nav className="mt-10 flex items-center justify-between">
+      {(notice || closed) && (
+        <p className="pin-pending" role="status">
+          {t(closed ? "sync.sesi_ditutup" : (notice as HleEvent), "learner")}
+        </p>
+      )}
+      <nav className="pin-actions pin-between">
         <button type="button" onClick={() => go(index - 1)} disabled={index === 0}
-          className="rounded-[var(--radius-1)] border border-line-1 px-4 py-2 disabled:opacity-40">
+          className="pin-btn">
           {t(formal ? "pretest.back" : "pretest.back", "learner")}
         </button>
         {index < paper.length - 1 ? (
           <button type="button" onClick={() => go(index + 1)}
-            className="rounded-[var(--radius-1)] bg-primary px-5 py-2 text-primary-ink">
+            className="pin-btn pin-primary">
             {t("pretest.next", "learner")}
           </button>
         ) : (
           <button
             type="button"
-            onClick={async () => {
-              await flush();
-              const r = await actions.finishSession(sessionId);
-              if (r.ok) router.push(finishHref);
-            }}
-            className="rounded-[var(--radius-1)] bg-primary px-5 py-2 text-primary-ink"
+            onClick={() => void finish()}
+            disabled={finishing}
+            className="pin-btn pin-primary"
           >
             {t(formal ? "posttest.submit" : "pretest.finish", "learner")}
           </button>

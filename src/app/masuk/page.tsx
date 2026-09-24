@@ -1,61 +1,99 @@
-import { t, type Persona } from "@/lib/hle";
-import { sendMagicLink, signInWithCard } from "./actions";
-import Link from "next/link";
+import { t, type HleEvent } from "@/lib/hle";
+import { currentLocale } from "@/lib/locale";
+import { currentViewer } from "@/lib/auth";
+import { tujuanInternal } from "@/lib/tujuan";
+import PengalihBahasa from "@/components/PengalihBahasa";
+import MerekPintar from "@/components/MerekPintar";
+import LayarMasuk from "@/components/masuk/LayarMasuk";
+import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyataan";
+import FokusAwal from "@/components/masuk/FokusAwal";
+import { keluarDariSesi, lanjutkanSesi } from "./actions";
 
-type Search = Promise<{ peran?: string; lanjut?: string; kartu?: string; terkirim?: string }>;
+export const dynamic = "force-dynamic";
 
-export default async function Masuk({ searchParams }: { searchParams: Search }) {
+/**
+ * THE SIGN-IN SCREEN.
+ *
+ * A split stage: the form on the left, PINTAR's statement on the right
+ * (D-018), and on a phone the panel goes and its statement stays below the
+ * form. The hierarchy follows the authentication contract's own asymmetry —
+ * one road almost everyone takes, one named turning off it — rather than
+ * offering two equal doors or asking a person to classify themselves before
+ * they can act.
+ *
+ * `?peran=` CHANGES NOTHING ON THIS SCREEN, and that is deliberate rather than
+ * an omission. The parameter selects wording elsewhere and confers no role, no
+ * permission and no scope; here there is nobody to word anything for. The
+ * screen has not met this person yet and should not pretend it has, so a child
+ * with a card and a head teacher with an email see the same welcome. It is
+ * carried to the authentication boundary and dropped there: a presentation
+ * hint that outlives the moment it was for invites later code to read it as an
+ * assertion about who somebody is.
+ *
+ * THE LANGUAGE CONTROL IS HERE, BEFORE ANYONE SIGNS IN, for the reason it is
+ * on the public verification page: a person who cannot read the screen cannot
+ * sign in to change the setting. It is the same cookie mechanism the rest of
+ * the Experience uses, which is also why the choice survives the magic-link
+ * round trip — it never needed a session.
+ */
+export default async function Masuk({
+  searchParams,
+}: {
+  searchParams: Promise<{ peran?: string; lanjut?: string }>;
+}) {
   const sp = await searchParams;
-  const persona: Persona = sp.peran === "staf" ? "staff" : sp.peran === "guru" ? "educator" : "learner";
-  const next = sp.lanjut && sp.lanjut.startsWith("/") ? sp.lanjut : "/";
-
-  async function submitLink(formData: FormData) {
-    "use server";
-    const r = await sendMagicLink(formData);
-    const { redirect } = await import("next/navigation");
-    redirect(`/masuk?peran=${sp.peran ?? ""}&terkirim=${r.ok ? "1" : "0"}`);
-  }
+  const locale = await currentLocale();
+  const s = (k: HleEvent) => t(k, "public", { locale });
+  // L-1. Narrowed here as well, because this value is written into a hidden
+  // field and posted straight back; the actions narrow it again on receipt.
+  const lanjut = tujuanInternal(sp.lanjut);
+  // S15. Asked before anything is drawn: arriving here with a live session is
+  // a different screen, not a variation of this one.
+  const viewer = await currentViewer();
 
   return (
-    <main className="mx-auto max-w-md py-12">
-      <p className="text-sm text-ink-3"><Link href="/">{t("app.name", "public")}</Link></p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight">{t("auth.title", persona)}</h1>
+    <main className="pin-masuk">
+      <div className="pin-panggung">
+      <div className="pin-auth">
+        <div className="pin-authtop">
+          <MerekPintar />
+          <PengalihBahasa locale={locale} />
+        </div>
 
-      <section className="mt-8 rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-5">
-        {sp.terkirim === "1" ? (
-          <p className="text-ink-2">{t("auth.link_sent", persona)}</p>
-        ) : (
-          <form action={submitLink} className="grid gap-3">
-            <input type="hidden" name="lanjut" value={next} />
-            <label className="text-sm text-ink-2" htmlFor="email">{t("auth.email_label", persona)}</label>
-            <input id="email" name="email" type="email" required autoComplete="email"
-              className="rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-3 py-2" />
-            <p className="text-sm text-ink-3">{t("auth.email_help", persona)}</p>
-            <button type="submit" className="rounded-[var(--radius-1)] bg-primary px-4 py-2 text-primary-ink">
-              {t("auth.send_link", persona)}
-            </button>
-          </form>
-        )}
-      </section>
+        <div className="pin-authbody">
+          {viewer ? (
+            /* S15. THE SCREEN DOES NOT NAME THE SIGNED-IN PERSON. A shared
+               device shows this surface to whoever is holding it, and
+               "Welcome back, Nadia" discloses Nadia to the next child in the
+               queue. "Lanjutkan" is enough. */
+            <div className="pin-form">
+              <FokusAwal />
+              <span className="pin-disc pin-disc-primary" aria-hidden="true">✓</span>
+              <h1 className="pin-mh1" tabIndex={-1} data-fokus-awal="1">{s("auth.in_h")}</h1>
+              <p className="pin-lede-m">{s("auth.in_p")}</p>
+              <div className="pin-stack">
+                <form action={lanjutkanSesi}>
+                  <input type="hidden" name="lanjut" value={lanjut} />
+                  <button type="submit" className="pin-mbtn pin-mbtn-1">{s("auth.in_go")}</button>
+                </form>
+                <form action={keluarDariSesi}>
+                  <button type="submit" className="pin-mbtn pin-mbtn-2">{s("auth.in_out")}</button>
+                </form>
+              </div>
+            </div>
+          ) : (
+            <LayarMasuk locale={locale} lanjut={lanjut} />
+          )}
 
-      {persona === "learner" && (
-        <section className="mt-6 rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-5">
-          <h2 className="text-lg font-medium">{t("auth.card_title", "learner")}</h2>
-          <form action={signInWithCard} className="mt-3 grid gap-3">
-            <input type="hidden" name="lanjut" value={next} />
-            <label className="text-sm text-ink-2" htmlFor="kartu">{t("auth.card_number", "learner")}</label>
-            <input id="kartu" name="kartu" inputMode="numeric" autoComplete="off" required
-              className="rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-3 py-2" />
-            <label className="text-sm text-ink-2" htmlFor="pin">{t("auth.card_pin", "learner")}</label>
-            <input id="pin" name="pin" type="password" inputMode="numeric" autoComplete="off" required
-              className="rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-3 py-2" />
-            {sp.kartu === "gagal" && <p className="text-sm text-attention">{t("auth.card_failed", "learner")}</p>}
-            <button type="submit" className="rounded-[var(--radius-1)] border border-line-1 px-4 py-2 hover:bg-surface-2">
-              {t("auth.card_enter", "learner")}
-            </button>
-          </form>
-        </section>
-      )}
+          <KalimatPonsel locale={locale} />
+        </div>
+
+        <p className="pin-berdiri">{s("auth.foot")}</p>
+        <span className="pin-tanda" aria-hidden="true" />
+      </div>
+
+      <PanelPernyataan locale={locale} />
+      </div>
     </main>
   );
 }

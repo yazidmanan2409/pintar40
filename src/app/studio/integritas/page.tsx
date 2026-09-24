@@ -1,3 +1,4 @@
+import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, card, field, label, outcomeLine, s, short, studioInstitutions, when } from "../_lib";
 import { recordIntegrityReviewAction } from "../actions";
@@ -51,7 +52,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
             <li key={session} className={card}>
               <p className="text-sm text-ink-3">{short(session)} · {group.length}</p>
               <ul className="mt-2 grid gap-1 text-sm text-ink-2">
-                {group.map((g) => <li key={g.id}>{g.category} · {when(g.observed_at)}</li>)}
+                {group.map((g) => <li key={g.id}>{enumLabel("integritas", g.category)} · {when(g.observed_at)}</li>)}
               </ul>
               <form action={recordIntegrityReviewAction} className="mt-3 flex flex-wrap items-end gap-2">
                 <input type="hidden" name="sinyal" value={group[0].id} />

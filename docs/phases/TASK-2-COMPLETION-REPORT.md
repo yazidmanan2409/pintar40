@@ -297,6 +297,13 @@ GREEN and after CI run 65 returned **all 14 jobs success** on `879f0c2`.
 school, its five personas and its evaluator are seed data and exist only where
 the seed is installed. That is measured below, not asserted.
 
+> **L3-F01 correction (2026-09-16).** Accurate for the Human Evaluation seed; it does not
+> generalize. The FABLE-01 `synthetic.sql` persona seed HAD been applied to the hosted
+> development project and was still resident (a global SYSTEM_ADMIN plus seven other
+> credentialed identities, passwords tracked in the repository). Layer-3 (L3-F01) removed
+> them; migration 0084 makes the credential seeds fail-closed off the local pipeline. See
+> docs/audit/L3-F01-CREDENTIAL-BOUNDARY.md.
+
 **Migrations applied: 70.** All six Task 2 migrations recorded byte-identically.
 `md5(array_to_string(statements,''))` on hosted equals `md5` of the repository
 file with its trailing newline stripped, for every one:

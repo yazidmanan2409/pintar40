@@ -1,0 +1,188 @@
+# Second Eye's end-to-end audit of the deployed release.
+#
+# Runs the RELEASE's own code against a local Supabase stack on this runner:
+# nothing here reaches production, and no production credential is used. The
+# harness lives on this branch under audit/; the application is checked out at
+# the release SHA so what is audited is exactly what is deployed.
+
+name: audit · end-to-end journeys (local stack)
+
+on:
+  # Dispatched by the coordinator at the gate (D-012), never on push (D-025).
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Commit or branch of the application to audit (the gate runs it on a candidate before release)"
+        required: false
+        default: "main"
+
+permissions:
+  contents: read
+
+env:
+  # The application under audit: the dispatched ref, else the release in production.
+  RELEASE_SHA: ${{ inputs.ref || '5b5b68d4c77700976904fdee5a2fb52e46f8221e' }}
+  APP_PORT: "3999"
+
+jobs:
+  seeded-world:
+    name: A · every role's screens in the seeded world
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: harness
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+          path: app
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the release's dependencies
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+      - name: Point local Auth at the app port, and close sign-up as production does
+        working-directory: app
+        run: |
+          set -euo pipefail
+          sed -i 's#^site_url = .*#site_url = "http://127.0.0.1:3999"#' supabase/config.toml
+          sed -i 's#^additional_redirect_urls = .*#additional_redirect_urls = ["http://127.0.0.1:3999/auth/callback*"]#' supabase/config.toml
+          # [auth] enable_signup only, which is production's disable_signup. The
+          # second one, under [auth.email], switches email sign-in off entirely.
+          sed -i '0,/^enable_signup = true/s//enable_signup = false/' supabase/config.toml
+          grep -nE '^(site_url|additional_redirect_urls|enable_signup)' supabase/config.toml
+      - name: Start the local stack and load every migration plus the seeds
+        working-directory: app
+        run: |
+          set -euo pipefail
+          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+          npx --no-install supabase db reset --local
+          npx --no-install supabase status -o env > "$RUNNER_TEMP/stack.env"
+          val() { grep -E "^$1=" "$RUNNER_TEMP/stack.env" | head -1 | cut -d= -f2- | tr -d '"'; }
+          svc="$(val SERVICE_ROLE_KEY)"; [ -n "$svc" ] || svc="$(val SECRET_KEY)"
+          anon="$(val ANON_KEY)"; [ -n "$anon" ] || anon="$(val PUBLISHABLE_KEY)"
+          echo "::add-mask::$svc"
+          { echo "SUPABASE_URL=$(val API_URL)"; echo "SUPABASE_ANON_KEY=$anon"; echo "SUPABASE_SERVICE_ROLE_KEY=$svc"; echo "SUPABASE_DB_URL=$(val DB_URL)"; } >> "$GITHUB_ENV"
+      - name: Build and start the release in production mode
+        working-directory: app
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: |
+          set -euo pipefail
+          export NEXT_PUBLIC_SUPABASE_URL="$SUPABASE_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+          export NEXT_PUBLIC_APP_URL="http://127.0.0.1:${APP_PORT}"
+          export CARD_PEPPER=synthetic-card-pepper-fable01-32plus CARD_EMAIL_DOMAIN=cards.synthetic.pintar.test
+          export CERT_SECRET_KEY_V1=synthetic-certificate-key-fable04-32plus PINTAR_BUILD_SHA="$RELEASE_SHA"
+          npm run build > "$RUNNER_TEMP/build.log" 2>&1 || { tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
+          nohup npx next start -p "$APP_PORT" -H 127.0.0.1 > "$RUNNER_TEMP/app.log" 2>&1 &
+          for i in $(seq 1 60); do curl -fsS -o /dev/null "http://127.0.0.1:${APP_PORT}/masuk" && break; sleep 2; done
+          curl -fsS -o /dev/null -w 'app up: /masuk %{http_code}\n' "http://127.0.0.1:${APP_PORT}/masuk"
+      - name: What evidence each seeded school holds (the reports comparison)
+        run: |
+          psql "$SUPABASE_DB_URL" -P pager=off -c "
+            select i.slug, i.is_synthetic,
+                   (select count(*) from public.assessment_sessions s where s.institution_id=i.id) as sessions,
+                   (select count(*) from public.official_sessions s where s.institution_id=i.id) as official_sessions,
+                   (select count(*) from public.assessment_results r where r.institution_id=i.id) as results,
+                   (select count(*) from public.official_results r where r.institution_id=i.id) as official_results,
+                   (select count(*) from public.report_templates t where t.institution_id=i.id) as report_templates
+              from public.institutions i order by i.is_synthetic, i.slug;"
+      - name: Install the browser
+        working-directory: harness/audit
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Walk every role's screens
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/crawl
+        run: node crawl.mjs
+      - name: Server log (errors only)
+        if: always()
+        run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audit-seeded-world
+          path: audit-out/
+          retention-days: 14
+
+  production-posture:
+    name: B · Gladys's path from an empty production-like database
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: harness
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+          path: app
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the release's dependencies
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+      - name: Point local Auth at the app port, close sign-up, allow the journey's emails
+        working-directory: app
+        run: |
+          set -euo pipefail
+          sed -i 's#^site_url = .*#site_url = "http://127.0.0.1:3999"#' supabase/config.toml
+          sed -i 's#^additional_redirect_urls = .*#additional_redirect_urls = ["http://127.0.0.1:3999/auth/callback*"]#' supabase/config.toml
+          sed -i '0,/^enable_signup = true/s//enable_signup = false/' supabase/config.toml
+          sed -i 's#^email_sent = .*#email_sent = 100#' supabase/config.toml
+          grep -nE '^(site_url|additional_redirect_urls|enable_signup|email_sent)' supabase/config.toml
+      - name: Start the local stack with migrations only (no seed), as production has
+        working-directory: app
+        run: |
+          set -euo pipefail
+          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+          npx --no-install supabase db reset --local --no-seed
+          npx --no-install supabase status -o env > "$RUNNER_TEMP/stack.env"
+          val() { grep -E "^$1=" "$RUNNER_TEMP/stack.env" | head -1 | cut -d= -f2- | tr -d '"'; }
+          svc="$(val SERVICE_ROLE_KEY)"; [ -n "$svc" ] || svc="$(val SECRET_KEY)"
+          anon="$(val ANON_KEY)"; [ -n "$anon" ] || anon="$(val PUBLISHABLE_KEY)"
+          echo "::add-mask::$svc"
+          { echo "SUPABASE_URL=$(val API_URL)"; echo "SUPABASE_ANON_KEY=$anon"; echo "SUPABASE_SERVICE_ROLE_KEY=$svc"; echo "SUPABASE_DB_URL=$(val DB_URL)"; echo "MAILPIT_URL=http://127.0.0.1:54324"; } >> "$GITHUB_ENV"
+          psql "$(val DB_URL)" -At -c "select 'institutions='||count(*) from public.institutions"
+      - name: Build and start the release in production mode
+        working-directory: app
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: |
+          set -euo pipefail
+          export NEXT_PUBLIC_SUPABASE_URL="$SUPABASE_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+          export NEXT_PUBLIC_APP_URL="http://127.0.0.1:${APP_PORT}"
+          export CARD_PEPPER=audit-card-pepper-0123456789abcdef CARD_EMAIL_DOMAIN=cards.pintar.internal
+          export CERT_SECRET_KEY_V1=audit-certificate-key-0123456789abcdef PINTAR_BUILD_SHA="$RELEASE_SHA"
+          npm run build > "$RUNNER_TEMP/build.log" 2>&1 || { tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
+          nohup npx next start -p "$APP_PORT" -H 127.0.0.1 > "$RUNNER_TEMP/app.log" 2>&1 &
+          for i in $(seq 1 60); do curl -fsS -o /dev/null "http://127.0.0.1:${APP_PORT}/masuk" && break; sleep 2; done
+          curl -fsS -o /dev/null -w 'app up: /masuk %{http_code}\n' "http://127.0.0.1:${APP_PORT}/masuk"
+      - name: Install the browser
+        working-directory: harness/audit
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Walk Gladys's path
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/journey
+        run: node journey.mjs
+      - name: Server log (errors only)
+        if: always()
+        run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audit-production-posture
+          path: audit-out/
+          retention-days: 14

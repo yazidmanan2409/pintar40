@@ -1,16 +1,19 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { t } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
-import ItemPlayer from "../../_components/ItemPlayer";
-import * as actions from "../../actions";
+import PermukaanAsesmen from "../../_components/PermukaanAsesmen";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Pre-test — "Pemetaan Awal" (§1). Diagnostic: no pass/fail wording anywhere
- * on this screen or its result, no rationale, dots instead of a bar.
+ * Pemetaan Awal — the cycle's mapping (§1). DIAGNOSTIC: no pass/fail wording
+ * anywhere on this screen or its result, no rationale, dots instead of a bar.
+ *
+ * The route now SHOWS the assessment before entering it. It used to call
+ * `startSession()` during render, which made arriving at the URL the act of
+ * committing — so the integrity disclosure could not be shown before the thing
+ * it discloses about. The commitment is a form press inside `PermukaanAsesmen`.
  */
 export default async function Pemetaan({ params }: { params: Promise<{ tugas: string }> }) {
   const { tugas } = await params;
@@ -19,57 +22,19 @@ export default async function Pemetaan({ params }: { params: Promise<{ tugas: st
   if (!state.pre_assignment) notFound();
   if (state.pre_status === "FINALIZED") redirect(`/belajar/${tugas}/peta`);
 
-  let sessionId = state.pre_session;
-  if (!sessionId) {
-    const may = await engine.mayStart(db, state.pre_assignment);
-    if (!may.ok) {
-      return (
-        <main className="mx-auto max-w-2xl px-5 py-12">
-          <h1 className="text-2xl font-semibold">{t("pretest.title", "learner")}</h1>
-          <p className="mt-4 text-ink-2">{t("auth.not_yet", "learner")}</p>
-          <Link href={`/belajar/${tugas}`} className="mt-6 inline-block text-primary underline">
-            {t("cycle.title", "learner")}
-          </Link>
-        </main>
-      );
-    }
-    sessionId = await engine.startSession(db, state.pre_assignment);
-  }
-
-  const [paper, prior, session] = await Promise.all([
-    engine.paper(db, sessionId),
-    engine.answersSoFar(db, sessionId),
-    engine.sessionState(db, sessionId),
-  ]);
-
-  const accepted: Record<string, { posisi: number } | { posisi: number[] }> = {};
-  const seqs: Record<string, number> = {};
-  for (const row of prior) {
-    seqs[row.presented_item_id] = Math.max(seqs[row.presented_item_id] ?? 0, row.client_seq);
-    if (row.posisi != null) accepted[row.presented_item_id] = { posisi: row.posisi } as never;
-  }
+  const mine = (await engine.myAssignments(db)).find((a) => a.learning_assignment_id === tugas);
+  if (!mine) notFound();
 
   return (
-    <main>
-      <div className="mx-auto max-w-2xl px-5 pt-10">
-        <p className="text-sm text-ink-3">
-          <Link href={`/belajar/${tugas}`}>{t("cycle.title", "learner")}</Link>
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{t("pretest.title", "learner")}</h1>
-        <p className="mt-2 max-w-[var(--measure)] text-ink-2">{t("pretest.intro", "learner")}</p>
-      </div>
-      <ItemPlayer
-        sessionId={sessionId}
-        paper={paper}
-        accepted={accepted}
-        seqs={seqs}
-        mode="PEMETAAN"
-        stage={session?.stage ?? null}
-        allowsPause={false}
-        startedAt={session?.started_at ?? null}
-        finishHref={`/belajar/${tugas}/peta`}
-        actions={actions}
-      />
-    </main>
+    <PermukaanAsesmen
+      penugasan={state.pre_assignment}
+      sesi={state.pre_session}
+      locale={await currentLocale()}
+      eyebrow={`${mine.subject} · ${mine.grade_label} · ${mine.title}`}
+      kembali={{ href: `/belajar/${tugas}`, key: "cycle.title" }}
+      diriHref={`/belajar/${tugas}/pemetaan`}
+      selesaiHref={`/belajar/${tugas}/peta`}
+      mode="PEMETAAN"
+    />
   );
 }

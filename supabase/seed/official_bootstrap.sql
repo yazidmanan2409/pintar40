@@ -37,6 +37,12 @@ declare
   v_status text; v_blockers text[]; n int;
 begin
   select environment into v_env from public.platform_environment;
+  -- L3-F01: fail-closed. This seed creates credential-bearing auth.users
+  -- (including a bootstrap ADMIN). It runs only where the local seed pipeline
+  -- set the marker; a migrations-only hosted project keeps it false and refuses.
+  if not public.synthetic_fixtures_permitted() then
+    raise exception 'seed refused: bootstrap credential fixtures are local-only (L3-F01); platform_environment.local_fixtures_enabled is false';
+  end if;
   if v_env = 'production' then
     raise exception 'seed refused: the OFFICIAL bootstrap tenant is never created in production (D1, INV-21)';
   end if;
@@ -256,8 +262,15 @@ begin
   perform set_config('request.jwt.claims', '', true);
 
   -- the real quality gate, not a bypass
+  -- run as the Head of Department, who holds CAN_DRAFT: from 0085 both are
+  -- authoring acts that check a capability of their own.
+  perform set_config('request.jwt.claim.sub', u_hod::text, true);
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', u_hod, 'role','authenticated')::text, true);
   perform public.validate_course_content(course);
   perform public.run_mcq_quality(course);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '', true);
   select status, blockers into v_status, v_blockers from public.publish_readiness(course);
   if v_status <> 'READY' then
     raise exception 'bootstrap content is not publishable (%): % — fix the fixture, never the gate',

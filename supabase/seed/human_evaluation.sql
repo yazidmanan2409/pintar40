@@ -64,6 +64,11 @@ declare
   v_persona_ids uuid[];
 begin
   select environment into v_env from public.platform_environment;
+  -- L3-F01: fail-closed. This seed creates a credential-bearing evaluator
+  -- account; local-only, same marker as every other fixture credential seed.
+  if not public.synthetic_fixtures_permitted() then
+    raise exception 'seed refused: evaluation credential fixtures are local-only (L3-F01); platform_environment.local_fixtures_enabled is false';
+  end if;
   if v_env = 'production' then
     raise exception 'seed refused: the human-evaluation facility is never created in production (ADR-0020, INV-21)';
   end if;
@@ -287,8 +292,13 @@ begin
 
   -- The real quality gate. A demonstration fixture that could not pass the gate
   -- would demonstrate the wrong thing.
+  -- run as the Head of Department, who holds CAN_DRAFT (0085).
+  perform set_config('request.jwt.claim.sub', u_hod::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', u_hod, 'role','authenticated')::text, true);
   perform public.validate_course_content(course);
   perform public.run_mcq_quality(course);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '', true);
   select status, blockers into v_status, v_blockers from public.publish_readiness(course);
   if v_status <> 'READY' then
     raise exception 'evaluation content is not publishable (%): % — fix the fixture, never the gate',

@@ -1,0 +1,125 @@
+# SYSTEM COHERENCE ASSESSMENT — composed-journey probe. DIAGNOSTIC ONLY.
+#
+# Touches no hosted system: no production secret is referenced, nothing is
+# deployed, nothing is written anywhere but a throwaway local Supabase stack on
+# the runner. It builds the specimen at each SHA below, starts it in production
+# mode against that local stack, and runs scripts/diagnostics/journeys.mjs,
+# which drives assembled journeys over HTTP and RECORDS canonical-vs-observed.
+#
+# Two specimens, on purpose: the released SHA production serves, and the
+# current branch head. The same probe against both separates "defect in the
+# release" from "defect in the head".
+#
+# The one deliberate deviation from the specimen, recorded in the log: the
+# local auth redirect allow-list is pointed at the probe's app origin, because
+# the repository's local config names :3000 while every CI job serves :3999.
+# Without it the magic-link journey cannot return to the app at all; that fact
+# is itself recorded by the probe's first run of J1b being preceded by this diff.
+
+name: diagnose · composed journeys
+
+on:
+  push:
+    branches:
+      # D-004: production changes only from main, where only the coordinator
+      # merges. Lane branches (Bob's, Daisy's) never reach production directly.
+      - main
+    paths:
+      - .github/journeys-request.txt
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    # D-004: runs only from main. Dispatching it from a lane branch does nothing.
+    if: github.ref == 'refs/heads/main'
+    name: journeys · ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: released-46fd4452
+            ref: 46fd4452ebc7b861abb5cb9b1963178088b978a7
+          - label: head
+            ref: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: probe
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.ref }}
+          path: specimen
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: specimen/package-lock.json
+      - name: Specimen identity
+        working-directory: specimen
+        run: git log -1 --format='specimen %H %s'
+      - run: npm ci
+        working-directory: specimen
+      - name: Point the local auth redirect allow-list at the probe origin (recorded deviation)
+        working-directory: specimen
+        run: |
+          sed -i 's#^site_url = .*#site_url = "http://127.0.0.1:3999"#' supabase/config.toml
+          sed -i 's#^additional_redirect_urls = .*#additional_redirect_urls = ["http://127.0.0.1:3999/**"]#' supabase/config.toml
+          git diff -- supabase/config.toml
+      - name: Start the local stack WITH the mail sink, reset, read credentials
+        id: stack
+        working-directory: specimen
+        run: |
+          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+          npx --no-install supabase db reset --local
+          npx --no-install supabase status -o env > "$RUNNER_TEMP/stack.env"
+          val() { grep -E "^$1=" "$RUNNER_TEMP/stack.env" | head -1 | cut -d= -f2- | tr -d '"'; }
+          anon="$(val ANON_KEY)"; [ -n "$anon" ] || anon="$(val PUBLISHABLE_KEY)"
+          svc="$(val SERVICE_ROLE_KEY)"; [ -n "$svc" ] || svc="$(val SECRET_KEY)"
+          echo "::add-mask::$svc"
+          { echo "api=$(val API_URL)"; echo "anon=$anon"; echo "svc=$svc"; echo "db=$(val DB_URL)"; m="$(val MAILPIT_URL)"; [ -n "$m" ] || m="$(val INBUCKET_URL)"; echo "mail=$m"; } >> "$GITHUB_OUTPUT"
+      - name: Build and start the specimen in production mode
+        working-directory: specimen
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.stack.outputs.api }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.stack.outputs.anon }}
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3999
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.stack.outputs.svc }}
+          CARD_PEPPER: synthetic-card-pepper-fable01-32plus
+          CARD_EMAIL_DOMAIN: cards.synthetic.pintar.test
+          CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus
+        run: |
+          npm run build
+          nohup node node_modules/next/dist/bin/next start -p 3999 > "$RUNNER_TEMP/app.log" 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:3999/masuk && break; sleep 1; done
+          curl -s -o /dev/null -w 'app /masuk -> %{http_code}\n' http://127.0.0.1:3999/masuk
+      - name: Browser for the interruption journeys (probe-only; not a specimen dependency)
+        run: |
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw" && npm init -y >/dev/null
+          npm i --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          echo "PW_DIR=$RUNNER_TEMP/pw" >> "$GITHUB_ENV"
+      - name: Run the composed-journey probe
+        env:
+          APP_BASE: http://127.0.0.1:3999
+          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.stack.outputs.api }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.stack.outputs.anon }}
+          SUPABASE_DB_URL: ${{ steps.stack.outputs.db }}
+          MAILPIT_URL: ${{ steps.stack.outputs.mail }}
+          PROBE_LABEL: ${{ matrix.label }}
+        run: node probe/scripts/diagnostics/journeys.mjs specimen "journeys-${{ matrix.label }}.json"
+      - name: Application log (tail)
+        if: always()
+        run: |
+          tail -80 "$RUNNER_TEMP/app.log" || true
+          echo "---- auth service (tail) ----"
+          docker ps --format '{{.Names}}' | grep -i auth | head -1 | xargs -r -I{} docker logs --tail 40 {} 2>&1 | grep -iE 'error|otp|mail|smtp|redirect|level":"(warn|error)' | tail -25 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: journeys-${{ matrix.label }}
+          path: journeys-${{ matrix.label }}.json

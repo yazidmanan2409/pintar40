@@ -122,3 +122,277 @@ no control, because it is believed.
 
 *Distinct from L5: L5 is about believing a boundary you never read; L7 is about
 changing a boundary you did read, in only one of the places it exists.*
+
+---
+
+## L8 — An illustration in a prompt is not a specification, and the builder cannot tell
+
+Two of the four documents this build works from are written by the reviewer.
+When that prose names a role, a column or a count, **it will be read as
+measured** — because most of it is, and nothing in the sentence distinguishes
+the two.
+
+The FABLE-06 execution prompt §3.3 illustrated execution-time re-authorization
+with *"a template saved by a dean and opened by a lecturer."* A dean cannot save
+an institution report template. `role_capabilities()` returns
+`CAN_MANAGE_REPORT_TEMPLATES` for `INSTITUTION_ADMIN` and `SYSTEM_ADMIN` only,
+and doc 05's authorization matrix says the same thing with four ❌ in the
+STUDENT / EDUCATOR / HoD / DEAN columns. **The frozen baseline and the running
+schema agreed with each other; only the illustration disagreed with both.**
+
+The failure is cheap to catch and expensive to miss in a specific way: the
+builder's instinct on finding prose that contradicts the schema is to record a
+**baseline discrepancy** — and that is the wrong repair, because it writes a
+disagreement into the record between two documents that never disagreed. The
+first move on any conflict is to read the baseline, not to reconcile the prompt
+against the code.
+
+**So, both directions:**
+- Writing a prompt: an illustrative example either uses values you have
+  measured, or says *illustrative* in the sentence itself.
+- Reading one: a role, column, count or capability named in prose is a claim to
+  verify, not a fact to build on — and when it is wrong, check the baseline
+  before concluding the baseline is wrong.
+
+*Distinct from L5 and L7: those are about boundaries in code. L8 is about the
+prose upstream of the code, which carries no compiler and no test.*
+
+---
+
+## L9 — Coverage by count is not coverage by path
+
+`metric_evaluate` shipped in 0072 with a dispatch that could never have worked:
+it built the calculator's name from `calculation_key` without the `calc_` prefix
+every calculator carries. **No metric could have been computed.** Its terminal
+block had four probes. All four passed.
+
+All four were refusals — `unavailable`, `not_permitted`, and two guards — and
+**guards are placed before the work.** A verification block made of refusal
+probes exercises the prefix of a function N times and its body zero times, and
+it feels thorough in proportion to N. Four probes were evidence of diligence,
+not of coverage.
+
+This project's own culture produced the blind spot. *"Watch at least one new
+assertion fail before trusting it"* is a standing rule and a good one — and a
+refusal is the easiest failure to provoke, so a block drifts toward refusals
+without anyone choosing that. The rule is right. It is not sufficient:
+
+> **Watching an assertion fail proves the assertion works. It does not prove the
+> thing it guards works.**
+
+**So: a verification block must reach at least one successful return, and must
+say which probe does it.** If no probe can — because success needs OFFICIAL
+evidence, a human decision, or a real Auth session — that is a finding to record,
+not a gap to leave silent.
+
+## L10 — A bijection between two names does not bind the third
+
+0072 asserted that the catalogue's `calculation_key` set and the `calc_*`
+function names were in bijection. **That assertion was true, and stayed green
+through the entire defect.** The dispatch built a *third* string from
+`calculation_key`, and nothing compared that string to either set.
+
+The map was proved consistent. Nobody proved the code read the map.
+
+**So: when an assertion proves A and B agree, check that the code actually
+traverses A→B.** An assertion over a mapping is not an assertion that the
+mapping is used, and a name constructed at the call site is a third participant
+no bijection can see.
+
+*Distinct from L5: L5 is believing a boundary you never read. L10 is reading the
+right boundary and asserting the wrong pair.*
+
+---
+
+## L11 — A `limit 1` is a sample; a universal claim needs the aggregate
+
+The FABLE-06 sweep review stated that *"all seven `item_type_registry` rows
+currently carry `["item_type", "stem", "stimulus", "opsi"]`"*, and concluded the
+sanitizer allowlist narrowed nothing. **`NUMERIC` carries three keys.** It
+withholds `opsi`, because a numeric-entry question has no options to show.
+
+The query behind the sentence was `select sanitizer_allowlist from
+item_type_registry limit 1`, run beside a `count(*) = 7`. A sample of one and a
+count of seven, written up as a universal over seven. **The data for the claim
+was never fetched** — this was not a misreading.
+
+It then propagated: the same sentence was copied into migration 0074's header by
+a second reader who had the contradicting measurement on screen and read past it.
+An unverified universal is contagious precisely because it sounds measured.
+
+**So: before writing *all*, *every*, *none*, *identical* or *always* about a set,
+the query must have grouped or counted over that set.** `limit 1` answers "what
+does one look like", never "what do they all look like". The aggregate costs
+nothing:
+
+```sql
+-- not this
+select sanitizer_allowlist from item_type_registry limit 1;
+-- this
+select jsonb_array_length(sanitizer_allowlist) n, count(*)
+  from item_type_registry group by 1;
+```
+
+**And the correction strengthened the finding.** An inert allowlist is a latent
+risk; a live one is a boundary already doing work and sitting in an editable
+row. The error understated its own argument — which is the usual shape, and the
+reason to check rather than to assume the error is conservative.
+
+*The mechanical form of L8's reading half: L8 says verify a claim in prose; L11
+says what "verify" has to mean for a claim quantified over a set.*
+
+---
+
+## L9a — A state machine cannot be tested without data
+
+Corollary to L9, and it explains why six migrations of careful probing could not
+reach a defect that eighty real sessions found on the first run.
+
+`enforce_question_health` requires a health row to **begin** at
+`INSUFFICIENT_EVIDENCE`. Migration 0076's insert path wrote the derived state
+directly, which is illegal for any item whose evidence already crosses a
+threshold. Every probe passed.
+
+**In a world with no data, the states collapse onto each other.** A probe's item
+has no evidence, so its derived state *is* the starting state, and the guard
+distinguishing them is unreachable. The probe exercised the transitions it
+happened to name; it could not exercise the one the world would have forced.
+
+**So: a verification block over an empty world proves the transitions it writes
+down, and nothing about which transitions reality produces.** A state machine
+needs a fixture with real data before its entry and exit conditions mean
+anything — and the fixture has to be big enough to push items into *different*
+states, because a fixture where everything lands in one state has the same blind
+spot in miniature.
+
+*L9 says a block of refusals never reaches the body. L9a says a block over an
+empty database never reaches the branches data would have forced.*
+
+---
+
+## L12 — A probe that fails before reaching its subject reports the subject's behaviour
+
+Three instances in one phase, each caught by a different mechanism and **none
+caught by the suite being green**:
+
+| | the probe | what it reported |
+|---|---|---|
+| 0072 | four refusal probes, all returning at a guard | that `metric_evaluate` worked, while its dispatch could never have run |
+| the draw measurement | a regex using `\b`, which in PostgreSQL ARE is a **backspace** and matches nothing | that four service views contained zero aggregate calls |
+| F06-N02 | a malformed argument list producing a syntax error in the generated SQL | that fifteen endpoints had **refused** a call they never received |
+| F06-N02 | a population derived from the capability names in the bodies it was testing | that deleting a capability check made the endpoint **leave** the test rather than fail it — L3-F02 |
+
+The shape is identical every time: **the probe failed upstream of its subject,
+and its failure was recorded as the subject's answer.** It is invisible because
+failing is what a negative probe is supposed to do — the result looks exactly
+like success at the thing being tested.
+
+**So: a probe's own error is a FAILURE, never an outcome.** Distinguish, in the
+probe, between "the subject refused" and "I could not ask" — different exception
+classes, different counters, and the second one is red. F06-N02 does this: a
+`syntax_error_or_access_rule_violation` that does not name an authorization
+reason increments a `n_broken` counter that fails the test, rather than falling
+into the "refused for some other reason" bucket where it had been passing.
+
+*L9 says a block of refusals never reaches the body. L9a says an empty world
+never reaches the branches data would force. L12 is the third member: a broken
+probe never reaches the subject at all, and says so in the subject's voice.*
+
+---
+
+## L13 — A probe's safety must not depend on the property it is probing
+
+F06-N02 called eighteen privileged endpoints as a dean with real arguments and
+no rollback. It was safe — because **INV-19 held**. Every endpoint refused, so
+nothing mutated.
+
+Had the invariant been broken, the test would have failed **and destroyed the
+evidence needed to investigate the failure**, in the same run, before anyone read
+the output. *The one scenario the test exists for is the one in which it does
+damage.* A test that is only safe when it passes has no negative result worth
+reading.
+
+(The *population* that test walked was a separate defect, found in Layer-3 and
+recorded as L15 below: it was derived from the bodies it was testing.)
+
+So rollback there is not tidiness. **It is what makes the failing case
+legible.** The general form:
+
+> A probe must be safe in the world where the property is FALSE, because that is
+> the only world whose result matters.
+
+Apply it by asking, before writing a probe: *if the thing I am checking is
+broken, what does this probe do?* If the answer is "the same thing, but it
+lands", the probe needs a subtransaction.
+
+**Related, and found the same day:** the db suite is a single query, so a fixture
+escaping its own scope is a **total runner failure**, not a localised one. When
+`f06_withdraw` reclassified sessions outside its cohort, the orphaned row blocked
+a shared purge and **129 tests failed for one test's trespass.** The rule that
+prevents it is short: *a fixture must purge everything it can TOUCH, not
+everything it meant to touch* — and the cheap check is that the purge predicate
+is at least as wide as the write predicate, rather than that it names the right
+node.
+
+---
+
+## L15 — A verification population must not be derived from the implementation it verifies
+
+F06-N02 decided which endpoints must refuse a DEAN by asking each candidate
+function's own body whether it named a capability a DEAN lacks. That made the
+population a function of the artefact under test: the defect it hunted — a
+deleted capability check — was also the edit that removed the endpoint from the
+hunt.
+
+A floor was written as the closure, and a floor is not membership. Eighteen
+against a population of twenty-one tolerated three silent deletions. Layer-3
+deleted one guard from `save_certificate_template`; a DEAN could write, the
+derived set fell from 21 to 20, and the full 173-entry contract stayed green —
+reproduced both as a runtime replacement and as a source edit replayed from
+zero, where the migration's own terminal block did not catch it either because
+it exercised only the happy path.
+
+**The rule.** When the thing being deleted is the thing under test, the expected
+population must be *declared* somewhere the implementation cannot reach, and the
+completeness of that declaration enforced separately. A count is evidence about
+size; only membership is evidence about coverage.
+
+---
+
+## L15b — A probe that shares a fixture shares its collisions
+
+The retained `open_briefing` red-case fired in CI run 78 and stayed silent in
+run 79, with nothing between the two commits but documentation. The probe took
+whichever CLASS node an unordered `limit 1` returned. One of the two was D1's
+own class; the other was the node the briefing happy-path test uses in the same
+transaction. `briefings` carries `UNIQUE (institution_id, scope_node_id,
+created_at)`, `created_at` defaults to `now()`, and **`now()` is constant within
+a transaction** — so the second call on the shared node failed with `23505`
+instead of being accepted, and a deliberately planted defect went unreported.
+
+Two independently harmless things composed into a silent gate: an unordered
+fixture selection, and a uniqueness key that only bites inside one transaction.
+
+**The rule.** Verification builds the data it probes. Selecting a different
+existing row only moves the coincidence; the probe must own the state it acts
+on, created in the same subtransaction that rolls it back, so no other test can
+have reached it first. And a red-case that has ever been observed both red and
+green on the same code is not a flake to be re-run — it is a gate that does not
+yet exist.
+
+---
+
+## L16 — "No authorization predicate" is not an open question
+
+Four mutating, client-exposed, SECURITY DEFINER STAFF RPCs carried no
+authorization at all. Two of them were reachable: a capability-less DEAN of one
+institution ran `run_mcq_quality` against another institution's course and
+deleted that tenant's unacknowledged quality findings.
+
+The observation was available from static reading the whole time. What was
+missing was a disposition. **A security observation describing a mutating
+endpoint with no authorization predicate is not eligible to cross a
+build-complete gate merely as an open question.** It requires either
+evidence-backed closure or an explicit gate-blocking disposition, recorded as
+such. Anything else is an unowned finding wearing the costume of a known
+limitation.
