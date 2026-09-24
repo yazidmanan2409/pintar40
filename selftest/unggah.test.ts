@@ -61,12 +61,19 @@ function dibaca(buf: Buffer) {
 /**
  * D-030(d): the sample workbook as real applications save it. The original is
  * openpyxl's; each copy is that file re-saved by the application named, and
- * must read to the same cells and the same package. A copy not yet delivered
- * is a slot, reported rather than skipped silently.
+ * must read to the same cells and the same package as the file it was saved
+ * from (`asal`). A copy not yet delivered is a slot, reported rather than
+ * skipped silently.
+ *
+ * D-040 regrouped the sample: its pre-test and post-test questions no longer
+ * share a Kelompok paralel. The copies were saved from the sample before that
+ * (kept byte for byte as contoh-pelajaran-v1.xlsx), so each is compared with
+ * the file it came from, and the two originals are asserted to differ in
+ * exactly those four cells.
  */
-const SALINAN: ReadonlyArray<{ berkas: string; oleh: string; wajib: boolean }> = [
-  { berkas: "contoh-excel.xlsx", oleh: "Microsoft Excel for Mac 16", wajib: true },
-  { berkas: "contoh-gsheets.xlsx", oleh: "Google Sheets", wajib: false },
+const SALINAN: ReadonlyArray<{ berkas: string; oleh: string; wajib: boolean; asal: string }> = [
+  { berkas: "contoh-excel.xlsx", oleh: "Microsoft Excel for Mac 16", wajib: true, asal: "contoh-pelajaran-v1.xlsx" },
+  { berkas: "contoh-gsheets.xlsx", oleh: "Google Sheets", wajib: false, asal: "contoh-pelajaran-v1.xlsx" },
 ];
 
 /** Rows without trailing empty cells or trailing empty rows: what a person typed. */
@@ -105,8 +112,23 @@ export const unggahTests: SelfTest[] = [
           `the onboarding workbook's Kelas sheet came back as ${JSON.stringify(kelas?.baris.slice(0, 2)).slice(0, 160)}`);
       }
 
-      // each application's copy holds the original's cells, exactly
+      // each application's copy holds the cells of the file it was saved from, exactly
       const dir = join(ctx.repoRoot, "selftest", "fixtures", "bob02");
+      // D-040: the regrouped sample differs from v1 in the four Kelompok paralel cells and nothing else
+      const v1 = dibaca(readFileSync(join(dir, "contoh-pelajaran-v1.xlsx")));
+      if (c.expect(v1.ok && contoh.ok, "contoh-pelajaran-v1.xlsx could not be read") && v1.ok && contoh.ok) {
+        const beda: string[] = [];
+        for (const l of contoh.lembar) {
+          const a = isiTerketik(l.baris); const b = isiTerketik(v1.lembar.find((y) => y.nama === l.nama)?.baris ?? []);
+          for (let r = 0; r < Math.max(a.length, b.length); r++) {
+            for (let k = 0; k < Math.max(a[r]?.length ?? 0, b[r]?.length ?? 0); k++) {
+              if ((a[r]?.[k] ?? "") !== (b[r]?.[k] ?? "")) beda.push(`${l.nama}!${r + 1}:${k + 1}=${b[r]?.[k] ?? ""}`);
+            }
+          }
+        }
+        c.expect(JSON.stringify(beda) === JSON.stringify(["Soal!2:10=P1", "Soal!3:10=P1", "Soal!4:10=P2", "Soal!5:10=P2"]),
+          `the regrouped sample differs from v1 in ${JSON.stringify(beda).slice(0, 200)}, not exactly its four Kelompok paralel cells`);
+      }
       let salinan = 0;
       for (const x of SALINAN) {
         if (!existsSync(join(dir, x.berkas))) {
@@ -116,14 +138,15 @@ export const unggahTests: SelfTest[] = [
         }
         const r = dibaca(readFileSync(join(dir, x.berkas)));
         c.expect(r.ok, `${x.berkas} (${x.oleh}) could not be read: ${!r.ok ? r.code : ""}`);
-        if (!r.ok || !contoh.ok) continue;
-        for (const l of contoh.lembar) {
+        const sumber = dibaca(readFileSync(join(dir, x.asal)));
+        if (!r.ok || !sumber.ok) continue;
+        for (const l of sumber.lembar) {
           const lain = r.lembar.find((y) => y.nama === l.nama);
           c.expect(!!lain, `${x.berkas} has no sheet ${l.nama}`);
           if (!lain) continue;
           const a1 = JSON.stringify(isiTerketik(l.baris));
           const b1 = JSON.stringify(isiTerketik(lain.baris));
-          c.expect(a1 === b1, `${x.berkas}'s ${l.nama} sheet does not hold the original's cells: ${b1.slice(0, 160)}`);
+          c.expect(a1 === b1, `${x.berkas}'s ${l.nama} sheet does not hold the cells of ${x.asal}: ${b1.slice(0, 160)}`);
         }
         salinan += 1;
       }
@@ -262,9 +285,11 @@ baris</t></si></sst>`;
         if (!existsSync(join(dir, x.berkas))) { c.expect(!x.wajib, `${x.berkas} (${x.oleh}) is missing`); continue; }
         const r = dibaca(readFileSync(join(dir, x.berkas)));
         const p = r.ok ? bukuKerjaKePaket(r.lembar) : null;
-        c.expect(p?.ok === true && JSON.stringify(p.paket) === JSON.stringify(json),
-          `${x.berkas} (${x.oleh}) does not make the committed sample package`);
-        if (p?.ok && JSON.stringify(p.paket) === JSON.stringify(json)) sama += 1;
+        const src = dibaca(readFileSync(join(dir, x.asal)));
+        const q = src.ok ? bukuKerjaKePaket(src.lembar) : null;
+        const sah = p?.ok === true && q?.ok === true && JSON.stringify(p.paket) === JSON.stringify(q.paket);
+        c.expect(sah, `${x.berkas} (${x.oleh}) does not make the package ${x.asal} makes`);
+        if (sah) sama += 1;
       }
 
       // what only a workbook can get wrong, each at its sheet and row
@@ -326,7 +351,9 @@ baris</t></si></sst>`;
     id: "BOB02-K02",
     run: async (ctx) => {
       const c = new Checks();
-      const sql = readFileSync(join(ctx.repoRoot, "supabase", "migrations", MIGRASI), "utf8").replace(/--[^\n]*/g, "");
+      // BOB-04 (D-040) replaced lesson_package_check, adding one code: both sources are read
+      const sql = [MIGRASI, "20261010100000_a_lesson_is_assigned_whole.sql"]
+        .map((f) => readFileSync(join(ctx.repoRoot, "supabase", "migrations", f), "utf8")).join("\n").replace(/--[^\n]*/g, "");
       const dariDb = new Set<string>();
       for (const m of sql.matchAll(/package_problem\('([A-Z_]+)'/g)) dariDb.add(m[1]);
       for (const m of sql.matchAll(/'code', '([A-Z_]+)'/g)) if (m[1] !== "PACKAGE_CONFIRM") dariDb.add(m[1]);

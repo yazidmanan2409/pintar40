@@ -24,6 +24,16 @@
       "suite": "selftest.run_fable11()",
       "control_green": 6,
       "what": "BOB-02's lesson package: the sample workbook materialised whole, the structured-package confirmation, a failed save that undoes its confirmation, coded problems, who may prepare or confirm, and media upload authority"
+    },
+    "db-bob03-gates": {
+      "suite": "selftest.run_fable12()",
+      "control_green": 6,
+      "what": "BOB-03's release path: a school's course approved, created, frozen and published by the people the capabilities name, the release authored by the course's author, readiness measured at the seal, the revision's next version, and every refusal's stable code; and releases changing only through their functions (D-041)"
+    },
+    "db-bob04-gates": {
+      "suite": "selftest.run_fable13()",
+      "control_green": 5,
+      "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle; and the upload refusing a parallel group that spans both tests (D-040)"
     }
   },
   "plants": [
@@ -332,6 +342,114 @@
       "gate": "db-bob02-gates",
       "expect_red": "F11-P03",
       "expect_detail": "after a failed save the batch is CONFIRMED"
+    },
+    {
+      "name": "bob03-1",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-P01",
+      "expect_detail": "the release was not created as 1.0.0 of the course by its author"
+    },
+    {
+      "name": "bob03-2",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N01",
+      "expect_detail": "a course in review answered ok -- a release was created"
+    },
+    {
+      "name": "bob03-3",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N02",
+      "expect_detail": "freezing a blocked course answered"
+    },
+    {
+      "name": "bob03-4",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N02",
+      "expect_detail": "a blocked course was sealed"
+    },
+    {
+      "name": "bob03-5",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N01",
+      "expect_detail": "a teacher creating a release answered"
+    },
+    {
+      "name": "bob03-6",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-P02",
+      "expect_detail": "the revision's release is not 1.1.0 chained to the first"
+    },
+    {
+      "name": "bob03-7",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N01",
+      "expect_detail": "publishing an unfrozen release answered"
+    },
+    {
+      "name": "bob03-8",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N01",
+      "expect_detail": "a second release of the course answered"
+    },
+    {
+      "name": "bob04-1",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-P01",
+      "expect_detail": "the course does not carry an approved pre-test of 3 and post-test of 2 questions"
+    },
+    {
+      "name": "bob04-2",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-P02",
+      "expect_detail": "the pre-test may draw"
+    },
+    {
+      "name": "bob04-3",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N01",
+      "expect_detail": "a post-test sharing parallel groups with the pre-test answered"
+    },
+    {
+      "name": "bob04-4",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N01",
+      "expect_detail": "a DEAN assigning answered"
+    },
+    {
+      "name": "bob04-5",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N01",
+      "expect_detail": "a second assignment to the class answered"
+    },
+    {
+      "name": "bob04-6",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-P01",
+      "expect_detail": "open test(s) of 2"
+    },
+    {
+      "name": "bob04-7",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N02",
+      "expect_detail": "a stranger asking for a learner's cycle answered"
+    },
+    {
+      "name": "bob04-8",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N01",
+      "expect_detail": "a lesson with no pre-test answered"
+    },
+    {
+      "name": "bob03-9",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N03",
+      "expect_detail": "a teacher's direct insert of a release naming another author answered ok"
+    },
+    {
+      "name": "bob04-9",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N03",
+      "expect_detail": "a package whose groups span both tests answered"
     }
   ]
 }

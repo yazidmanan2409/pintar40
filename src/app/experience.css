@@ -1493,41 +1493,32 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-berdiri { font-size: var(--type-fine); color: var(--ink-3); margin: 0 0 var(--space-3); max-width: 60ch; }
 .pin-tanda { display: block; width: 40px; height: 2px; background: color-mix(in srgb, var(--pintar-primary) 60%, transparent); }
 
-/* ── the panel. Hidden by default; the widths below bring it back. */
-.pin-vis { display: none; position: relative; overflow: hidden; background: var(--ink-1); }
-.pin-vis-foto { position: absolute; inset: 0; background: var(--ink-1); }
-/* ASSET REQUIRED. Flat, obviously temporary, impossible to mistake for a
-   finished screen. Do not ship it; do not substitute anything for it. */
-.pin-vis-tanda {
-  position: absolute; left: var(--space-5); top: var(--space-5);
-  padding: var(--space-1) 10px; border-radius: var(--radius-pill);
-  background: var(--surface-2); color: var(--ink-2);
-  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
-  letter-spacing: var(--tracking-eyebrow);
+/* ── the panel: PINTAR's statement on the brand's own ground (DAISY-08,
+   D-018). Hidden by default; the widths below bring it back. It was built for
+   a photograph PINTAR holds no licence for and showed "FOTO CONTOH" until
+   now. On a flat ground white type needs no darkening -- about 7.4:1 on
+   --pintar-primary, which DAISY-08-PANEL-01 computes from the tokens -- so the
+   two gradients the photograph needed are gone with it. A licensed photograph
+   can come back as the ground later; the statement stays. */
+.pin-vis {
+  display: none; position: relative; overflow: hidden;
+  background: var(--pintar-primary); color: var(--pintar-primary-ink);
 }
-.pin-vis-scrim {
-  position: absolute; inset: 0;
-  background: var(--auth-scrim);
-}
-/* THE SECOND GRADIENT IS ANCHORED TO THE TYPE, not to the image, so the
-   darkening follows the text wherever it lands. With only the first, the
-   tablet heading measured 1.56:1 over a bright classroom wall. Simplifying
-   this back to one gradient reintroduces that failure. */
 .pin-say {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  padding: 78px var(--space-8) var(--space-8); color: var(--surface-1);
-  background: var(--auth-say-veil);
+  display: grid; align-content: center; gap: var(--space-4);
+  min-height: 100%; padding: var(--space-8);
 }
+.pin-say-tanda { display: block; width: 40px; height: 2px; background: currentColor; opacity: var(--say-mark); }
 .pin-say-h {
   font-size: 27px; font-weight: var(--weight-strong); line-height: var(--leading-heading);
-  letter-spacing: -0.01em; max-width: 18ch; text-wrap: balance;
+  letter-spacing: var(--tracking-tight); max-width: 18ch; text-wrap: balance;
   white-space: pre-line; margin: 0;
 }
 .pin-say-p {
-  font-size: var(--type-body); line-height: var(--leading-body); margin: var(--space-3) 0 0;
-  max-width: 34ch; color: var(--surface-1);
+  font-size: var(--type-body); line-height: var(--leading-body); margin: 0;
+  max-width: 34ch; color: var(--pintar-primary-ink);
 }
-/* The sentence, as text, at the width where the photograph is removed. */
+/* The statement, as text below the form, at the width where the panel is not shown. */
 .pin-phonesay {
   margin-top: 28px; padding-top: var(--space-5); border-top: 1px solid var(--line);
   display: grid; gap: var(--space-2);
@@ -1560,7 +1551,12 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-form, .pin-phonesay { max-width: var(--measure-auth-wide); }
   .pin-phonesay { display: none; }
   .pin-vis { display: block; order: 2; min-height: var(--vis-band); }
-  .pin-say { padding: var(--space-9) var(--space-6) var(--space-6); }
+  /* The statement shares the form's column above it (the same measure,
+     centred the same way), so the page reads as one column in two parts. */
+  .pin-say {
+    padding-block: var(--space-7);
+    padding-inline: max(var(--space-7), calc((100% - var(--measure-auth-wide)) / 2));
+  }
   .pin-say-h { font-size: var(--type-subhead); max-width: 26ch; }
   .pin-say-p { font-size: 15px; max-width: 52ch; }
 }
@@ -1584,8 +1580,13 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-mh1 { font-size: var(--type-page); }
   .pin-lede-m { max-width: 42ch; }
   .pin-vis { display: block; order: 0; min-height: 100%; }
-  .pin-say { padding: 78px var(--space-8) var(--space-8); }
-  .pin-say-h { font-size: 27px; max-width: 18ch; }
+  /* Centred in its half exactly as the form is in the other, so the two
+     halves balance at every width instead of the statement hugging a gutter. */
+  .pin-say {
+    padding-block: var(--space-9);
+    padding-inline: max(var(--space-8), calc((100% - var(--measure-auth)) / 2));
+  }
+  .pin-say-h { font-size: var(--type-hero); max-width: 18ch; }
   .pin-say-p { font-size: var(--type-body); max-width: 34ch; }
 }
 
@@ -2036,3 +2037,115 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-ub-orang > li { align-items: stretch; }
   .pin-ub-aksi { flex: 1 1 100%; }
 }
+
+/* ------------------------------------------------ Struktur sekolah (DAISY-05)
+   One school's Bagian → Tingkat → Kelas as a tree, with the add form under
+   each parent, so a sheet can be typed in from top to bottom. Each Bagian is a
+   card; a level below it hangs from a rule, so where a Kelas belongs is read
+   from the shape, not from a label. Deactivating opens a question in the row
+   (D-022), drawn in the refusal colours because it cannot be undone here. */
+.pin-str { display: grid; gap: var(--space-4); }
+.pin-str-langkah {
+  margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); list-style: decimal;
+  font-size: var(--type-meta); color: var(--ink-2);
+}
+.pin-str-pohon, .pin-str-anak { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.pin-str-pohon > .pin-str-simpul {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1); padding: var(--space-3) var(--space-4);
+}
+.pin-str-anak {
+  margin: var(--space-2) 0 0 var(--space-1);
+  padding-left: var(--space-4); border-left: 2px solid var(--line);
+}
+.pin-str-kepala {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-1) var(--space-3); min-width: 0;
+}
+.pin-str-jenis {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-str-nama { font-size: var(--type-body); min-width: 0; overflow-wrap: anywhere; }
+.pin-str-tahun, .pin-str-murid { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-str-tanda {
+  font-size: var(--type-fine); color: var(--ink-3);
+  border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 0 var(--space-2);
+}
+.pin-str-aksi { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); margin-left: auto; }
+.pin-str-nonaktif .pin-str-nama,
+.pin-str-nonaktif .pin-str-tahun,
+.pin-str-nonaktif .pin-str-murid { color: var(--ink-3); }
+.pin-str-kosong { font-size: var(--type-meta); color: var(--ink-3); }
+.pin-str-tambah { display: grid; gap: var(--space-1); margin-top: var(--space-3); }
+.pin-str-tambah-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2) var(--space-3); }
+/* A place's name is short ("1A", "Kelas Rendah"): the field is sized for one
+   and the button sits beside it, rather than a full-width bar under every
+   Tingkat. On a phone it takes the row and the button wraps beneath. */
+.pin-str-isian { display: grid; gap: var(--space-1); flex: 0 1 34ch; min-width: 0; }
+.pin-str-isian-tahun { flex: 0 1 20ch; }
+.pin-str-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-str-isian .pin-input { width: 100%; min-width: 0; }
+.pin-str-pesan { margin: 0; font-size: var(--type-meta); color: var(--status-ok); }
+.pin-str-ubah { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); flex: 1 1 20ch; min-width: 0; }
+.pin-str-ubah .pin-input { flex: 1 1 20ch; min-width: 0; }
+.pin-str-tanya {
+  display: grid; gap: var(--space-2); margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-1);
+  border: 1px solid var(--status-blocked); background: var(--status-blocked-soft);
+}
+.pin-str-tanya-judul { margin: 0; font-weight: var(--weight-strong); }
+.pin-str-tanya-aksi { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.pin-btn.pin-str-bahaya { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--surface-1); }
+.pin-str .pin-msg { margin-top: var(--space-1); }
+
+/* ---------------------------------------------- Unggah buku kerja (DAISY-06)
+   A lesson workbook in three named steps -- check it, upload its media, save
+   it -- with the one being done marked. Problems are listed by sheet and row,
+   each with its own sentence, so a teacher can go straight to the cell. */
+/* minmax(0, 1fr), not the implicit auto track: a grid track is never narrower
+   than its widest item's minimum, and a file input's minimum is wide, so on a
+   375px phone the panel ran 39px off the screen. */
+.pin-ung { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+.pin-ung-templat { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.pin-ung-langkah {
+  display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5);
+  margin: 0; padding: 0; list-style: none; font-size: var(--type-meta); color: var(--ink-3);
+}
+.pin-ung-langkah li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.pin-ung-no {
+  display: inline-grid; place-items: center; width: var(--space-6); height: var(--space-6);
+  border-radius: var(--radius-pill); border: 1px solid var(--line-strong);
+  font-size: var(--type-fine); font-weight: var(--weight-strong);
+}
+.pin-ung-kini { color: var(--ink-1); font-weight: var(--weight-strong); }
+.pin-ung-kini .pin-ung-no { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-ung-lewat .pin-ung-no { background: var(--pintar-primary-soft); border-color: var(--pintar-primary-soft); color: var(--pintar-primary); }
+.pin-ung-langkah-isi {
+  display: grid; gap: var(--space-3); justify-items: start;
+  padding: var(--space-4) var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+.pin-ung-langkah-isi { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.pin-ung-langkah-isi > * { max-width: 100%; }
+.pin-ung-isian { display: grid; gap: var(--space-1); min-width: 0; width: 100%; }
+.pin-ung-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-ung-isian input[type="file"], .pin-ung-isian select { width: 100%; min-width: 0; font-size: var(--type-meta); }
+.pin-ung-catatan { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-ung-hasil { display: grid; gap: var(--space-2); }
+.pin-ung-lolos { margin: 0; font-weight: var(--weight-strong); color: var(--status-ok); }
+.pin-ung-hitung { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-ung-gagal .pin-ung-judul-masalah { margin: 0; font-weight: var(--weight-strong); color: var(--status-blocked); }
+.pin-ung-masalah { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-1); font-size: var(--type-meta); }
+.pin-ung-masalah li {
+  display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-1); background: var(--status-blocked-soft);
+}
+.pin-ung-lokasi { font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-ung-media { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-1); font-size: var(--type-meta); width: 100%; }
+.pin-ung-media li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-3); overflow-wrap: anywhere; }
+.pin-ung-status { color: var(--ink-3); }
+.pin-ung-status-siap { color: var(--ink-2); }
+.pin-ung-status-selesai { color: var(--status-ok); font-weight: var(--weight-strong); }
+.pin-ung-status-gagal { color: var(--status-blocked); font-weight: var(--weight-strong); }
+.pin-ung-tautan { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }

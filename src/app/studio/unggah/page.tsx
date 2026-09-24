@@ -1,4 +1,9 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { t } from "@/lib/hle";
+import { currentLocale } from "@/lib/locale";
+import { BATAS_PAKET } from "@/lib/unggah-kontrak";
+import { sekolahDitawarkan } from "@/components/sekolah";
+import PanelUnggah from "@/components/unggah/PanelUnggah";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { confirmMappingAction, easyUploadAction, structuredImportAction } from "../actions";
 
@@ -11,9 +16,18 @@ import { confirmMappingAction, easyUploadAction, structuredImportAction } from "
  * sees: `propose_easy_upload_mapping` returns open questions, and the batch
  * stays unconfirmed until a human answers them here.
  *
- * Media never leaves the browser to storage directly — the asset routes under
- * /api/assets hold the signed-upload contract (INV-15), and this page holds no
- * storage client at all.
+ * Media never reaches storage except through the asset route under
+ * /api/assets, which holds the signed-upload contract (INV-15): the browser
+ * asks it for a signed upload to one path and sends the file there.
+ *
+ * DAISY-06. THE WORKBOOK FIRST. A teacher's way in is the Excel template and a
+ * file picker (PanelUnggah), checked row by row before anything is saved. The
+ * two JSON forms below stay for packages another system produces.
+ *
+ * THE SCHOOL is one the reader may draft in AND a real, active school
+ * (sekolah.ts), never the national library, which sorts first by name and was
+ * preselected here (audit S14; D-029: an import writes only into a school).
+ * Both the panel and the JSON forms offer that same list, labelled "Sekolah".
  */
 
 type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
@@ -21,7 +35,12 @@ type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
 export default async function Unggah({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
   const supabase = await supabaseServer();
-  const institutions = (await studioInstitutions()).filter((i) => can(i, "CAN_DRAFT"));
+  const [boleh, locale] = await Promise.all([studioInstitutions(), currentLocale()]);
+  const menyusun = new Set(boleh.filter((i) => can(i, "CAN_DRAFT")).map((i) => i.id));
+  const { data: tenant } = menyusun.size
+    ? await supabase.from("institutions").select("id, name, tenant_kind, is_active").in("id", [...menyusun]).order("name")
+    : { data: [] as Array<{ id: string; name: string; tenant_kind: string | null; is_active: boolean | null }> };
+  const institutions = sekolahDitawarkan(tenant ?? [], (id) => menyusun.has(id)).map(({ id, name }) => ({ id, name }));
 
   const { data: batches } = await supabase
     .from("ingest_batches")
@@ -36,7 +55,7 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
 
   const institutionField = (
     <label className={label}>
-      <span>{s("config.section.roles")}</span>
+      <span>{s("studio.unggah.sekolah")}</span>
       <select className={field} name="institution" defaultValue={institutions[0]?.id ?? ""} required>
         {institutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
       </select>
@@ -48,6 +67,16 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
       <h2 className="text-lg font-medium">{s("studio.unggah.judul")}</h2>
       {banner ? <p className={card}>{banner}</p> : null}
       <p className="text-sm text-ink-2">{s("studio.unggah.media_catatan")}</p>
+
+      <section className={card} id="buku-kerja">
+        <h3 className="font-medium">{t("studio.unggah.buku.judul", "staff", { locale })}</h3>
+        <p className="mt-1 text-sm text-ink-2">{t("studio.unggah.buku.arti", "staff", { locale })}</p>
+        <div className="mt-4">
+          <PanelUnggah locale={locale} sekolah={institutions} batasMb={BATAS_PAKET.berkasMaks.nilai / (1024 * 1024)} />
+        </div>
+      </section>
+
+      <h3 className="text-lg font-medium">{s("studio.unggah.json_judul")}</h3>
 
       <section className={card} id="mudah">
         <h3 className="font-medium">{s("studio.unggah.mudah")}</h3>

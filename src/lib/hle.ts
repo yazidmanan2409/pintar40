@@ -187,7 +187,6 @@ export type HleEvent =
   | "auth.foot"
   | "auth.say_h"
   | "auth.say_p"
-  | "auth.placeholder"
   | "auth.link_h_exch"
   | "auth.link_p_exch"
   | "auth.link_h_exp"
@@ -282,6 +281,45 @@ export type HleEvent =
   | "config.struktur.galat.masih_ada_staf"
   | "config.struktur.galat.isian_kurang"
   | "config.struktur.galat.gagal"
+  | "config.section.struktur"
+  | "config.struktur.intro"
+  | "config.struktur.langkah.bagian"
+  | "config.struktur.langkah.tingkat"
+  | "config.struktur.langkah.kelas"
+  | "config.struktur.sekolah"
+  | "config.struktur.tanpa_sekolah"
+  | "config.struktur.kosong"
+  | "config.struktur.tingkat_kosong"
+  | "config.struktur.kelas_kosong"
+  | "config.struktur.jenis.BAGIAN"
+  | "config.struktur.jenis.TINGKAT"
+  | "config.struktur.jenis.KELAS"
+  | "config.struktur.tambah.BAGIAN"
+  | "config.struktur.tambah.TINGKAT"
+  | "config.struktur.tambah.KELAS"
+  | "config.struktur.nama"
+  | "config.struktur.contoh.BAGIAN"
+  | "config.struktur.contoh.TINGKAT"
+  | "config.struktur.contoh.KELAS"
+  | "config.struktur.tahun"
+  | "config.struktur.tahun_ikut"
+  | "config.struktur.murid.satu"
+  | "config.struktur.murid.banyak"
+  | "config.struktur.nonaktif"
+  | "config.struktur.ubah_nama"
+  | "config.struktur.nama_baru"
+  | "config.struktur.simpan"
+  | "config.struktur.batal"
+  | "config.struktur.sibuk"
+  | "config.struktur.nonaktifkan"
+  | "config.struktur.konfirmasi.tanya"
+  | "config.struktur.konfirmasi.arti"
+  | "config.struktur.konfirmasi.ya"
+  | "config.struktur.ok.dibuat"
+  | "config.struktur.ok.diubah"
+  | "config.struktur.ok.dinonaktifkan"
+  | "config.struktur.rujukan"
+  | "config.struktur.gagal_baca"
   | "studio.paket.masalah.workbook_unreadable"
   | "studio.paket.masalah.workbook_too_large"
   | "studio.paket.masalah.workbook_sheet_missing"
@@ -324,6 +362,7 @@ export type HleEvent =
   | "studio.paket.masalah.item_use_unknown"
   | "studio.paket.masalah.item_difficulty_invalid"
   | "studio.paket.masalah.item_parallel_tier_mixed"
+  | "studio.paket.masalah.item_parallel_cycle_mixed"
   | "studio.paket.masalah.item_options_too_few"
   | "studio.paket.masalah.item_options_too_many"
   | "studio.paket.masalah.item_correct_missing"
@@ -343,6 +382,18 @@ export type HleEvent =
   | "studio.paket.kode.package_has_problems"
   | "studio.paket.kode.package_input_invalid"
   | "studio.paket.kode.package_failed"
+  | "studio.terbitan.kode.release_not_allowed"
+  | "studio.terbitan.kode.release_publish_not_allowed"
+  | "studio.terbitan.kode.release_school_not_allowed"
+  | "studio.terbitan.kode.release_course_not_approved"
+  | "studio.terbitan.kode.release_exists"
+  | "studio.terbitan.kode.release_state_invalid"
+  | "studio.terbitan.kode.release_same_person"
+  | "studio.terbitan.kode.release_not_ready"
+  | "studio.terbitan.kode.release_reason_required"
+  | "studio.terbitan.kode.release_input_invalid"
+  | "studio.terbitan.kode.release_failed"
+  | "studio.paket.buat_terbitan"
   | "role.STUDENT"
   | "role.EDUCATOR"
   | "role.HEAD_OF_DEPARTMENT"
@@ -561,6 +612,81 @@ export type HleEvent =
   | "studio.unggah.pertanyaan"
   | "studio.unggah.konfirmasi"
   | "studio.unggah.media_catatan"
+  | "studio.templat.judul"
+  | "studio.templat.cara.1"
+  | "studio.templat.cara.2"
+  | "studio.templat.cara.3"
+  | "studio.templat.cara.4"
+  | "studio.templat.cara.5"
+  | "studio.templat.kolom.lembar"
+  | "studio.templat.kolom.kolom"
+  | "studio.templat.kolom.wajib"
+  | "studio.templat.kolom.pilihan"
+  | "studio.templat.kolom.batas"
+  | "studio.templat.kolom.arti"
+  | "studio.templat.ya"
+  | "studio.templat.tidak"
+  | "studio.templat.batas.judul"
+  | "studio.templat.batas.berkas"
+  | "studio.templat.batas.kursus"
+  | "studio.templat.batas.baris"
+  | "studio.templat.batas.pelajaran"
+  | "studio.templat.batas.soal"
+  | "studio.templat.batas.pilihan"
+  | "studio.templat.batas.media"
+  | "studio.templat.batas.transkrip"
+  | "studio.templat.paling_besar"
+  | "studio.templat.paling_banyak"
+  | "studio.templat.satu_kursus"
+  | "studio.templat.baris_termasuk_judul"
+  | "studio.templat.berlabel"
+  | "studio.templat.media.gambar"
+  | "studio.templat.media.audio"
+  | "studio.templat.media.video"
+  | "studio.templat.nama_media"
+  | "studio.templat.karakter"
+  | "studio.templat.transkrip_wajib"
+  | "studio.unggah.buku.judul"
+  | "studio.unggah.buku.arti"
+  | "studio.unggah.templat"
+  | "studio.unggah.templat_arti"
+  | "studio.unggah.sekolah"
+  | "studio.unggah.tanpa_sekolah"
+  | "studio.unggah.berkas"
+  | "studio.unggah.berkas_batas"
+  | "studio.unggah.langkah.periksa"
+  | "studio.unggah.langkah.media"
+  | "studio.unggah.langkah.simpan"
+  | "studio.unggah.sibuk.periksa"
+  | "studio.unggah.sibuk.media"
+  | "studio.unggah.sibuk.simpan"
+  | "studio.unggah.lolos"
+  | "studio.unggah.hitung.courses"
+  | "studio.unggah.hitung.modules"
+  | "studio.unggah.hitung.lessons"
+  | "studio.unggah.hitung.items"
+  | "studio.unggah.hitung.options"
+  | "studio.unggah.hitung.media"
+  | "studio.unggah.masalah_judul"
+  | "studio.unggah.lokasi.lembar"
+  | "studio.unggah.lokasi.baris"
+  | "studio.unggah.lokasi.kolom"
+  | "studio.unggah.lokasi.berkas"
+  | "studio.unggah.masalah_lain"
+  | "studio.unggah.media_arti"
+  | "studio.unggah.media_pilih"
+  | "studio.unggah.media.belum"
+  | "studio.unggah.media.siap"
+  | "studio.unggah.media.naik"
+  | "studio.unggah.media.selesai"
+  | "studio.unggah.media.gagal"
+  | "studio.unggah.media_progres"
+  | "studio.unggah.simpan_arti"
+  | "studio.unggah.tersimpan"
+  | "studio.unggah.buka_kursus"
+  | "studio.unggah.ulang"
+  | "studio.unggah.rujukan"
+  | "studio.unggah.json_judul"
   | "studio.tinjau.judul"
   | "studio.tinjau.kosong"
   | "studio.tinjau.penulis"
@@ -698,6 +824,20 @@ export type HleEvent =
   | "pendataan.keadaan.sisa" | "pendataan.keadaan.berjalan"
   | "pendataan.keadaan.selesai" | "pendataan.keadaan.gagal"
   | "mengajar.kembali"
+  | "mengajar.sedia.kode.assign_not_allowed"
+  | "mengajar.sedia.kode.assign_class_invalid"
+  | "mengajar.sedia.kode.assign_release_not_published"
+  | "mengajar.sedia.kode.assign_window_invalid"
+  | "mengajar.sedia.kode.assign_exists"
+  | "mengajar.sedia.kode.assign_pre_test_missing"
+  | "mengajar.sedia.kode.assign_post_test_missing"
+  | "mengajar.sedia.kode.assign_pre_test_too_short"
+  | "mengajar.sedia.kode.assign_post_test_too_short"
+  | "mengajar.sedia.kode.assign_cycle_overlap"
+  | "mengajar.sedia.kode.assign_input_invalid"
+  | "mengajar.sedia.kode.assign_failed"
+  | "cycle.pemetaan.belum_ada"
+  | "cycle.penguasaan.belum_ada"
   | "mengajar.sapa.pagi"
   | "mengajar.sapa.siang"
   | "mengajar.sapa.sore"
@@ -1522,7 +1662,6 @@ const table: Table = {
   // LOAD-BEARING. The only sentence on the screen about what the system does,
   // and what it says is that the system does not decide. Not a tagline to cut.
   "auth.say_p": { default: "PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.", en: "PINTAR helps make sense of what is happening in the learning process. The decision stays with people." },
-  "auth.placeholder": { default: "FOTO CONTOH", en: "PLACEHOLDER PHOTO" },
   "auth.link_h_exch": { default: "Sedang memeriksa tautan…", en: "Checking the link…" },
   "auth.link_p_exch": { default: "Mohon tunggu sebentar. Jangan tutup halaman ini.", en: "Please wait a moment. Don't close this page." },
   "auth.link_h_exp": { default: "Tautan ini sudah tidak berlaku", en: "This link is no longer valid" },
@@ -1622,6 +1761,47 @@ const table: Table = {
   "config.struktur.galat.masih_ada_staf": { default: "Masih ada guru atau staf yang ditugaskan di sini.", en: "A teacher or staff member is still assigned here." },
   "config.struktur.galat.isian_kurang": { default: "Lengkapi pilihan yang diminta.", en: "Complete the choices asked for." },
   "config.struktur.galat.gagal": { default: "Perubahan belum tersimpan. Coba lagi sebentar lagi.", en: "The change was not saved. Try again in a moment." },
+  // DAISY-05: the Struktur sekolah screen (D-006, D-022). The names Bagian,
+  // Tingkat and Kelas are the school's own words and stay Indonesian in English.
+  "config.section.struktur": { default: "Struktur sekolah", en: "School structure" },
+  "config.struktur.intro": { default: "Susun sekolah dari atas ke bawah: Bagian, lalu Tingkat, lalu Kelas. Murid ditempatkan di Kelas, dan guru ditugaskan ke Kelas.", en: "Build the school from the top down: Bagian, then Tingkat, then Kelas. Students are placed in a Kelas, and teachers are assigned to one." },
+  "config.struktur.langkah.bagian": { default: "Tambah Bagian, misalnya Kelas Rendah.", en: "Add a Bagian, for example Kelas Rendah." },
+  "config.struktur.langkah.tingkat": { default: "Di dalam Bagian, tambah Tingkat dengan tahun ajarannya, misalnya Kelas 1 untuk 2026/2027.", en: "Inside the Bagian, add a Tingkat with its school year, for example Kelas 1 for 2026/2027." },
+  "config.struktur.langkah.kelas": { default: "Di dalam Tingkat, tambah Kelas satu per satu, misalnya 1A lalu 1B.", en: "Inside the Tingkat, add each Kelas in turn, for example 1A, then 1B." },
+  "config.struktur.sekolah": { default: "Sekolah", en: "School" },
+  "config.struktur.tanpa_sekolah": { default: "Belum ada sekolah yang Anda kelola.", en: "There is no school you administer yet." },
+  "config.struktur.kosong": { default: "Sekolah ini belum punya Bagian.", en: "This school has no Bagian yet." },
+  "config.struktur.tingkat_kosong": { default: "Belum ada Tingkat di Bagian ini.", en: "There is no Tingkat in this Bagian yet." },
+  "config.struktur.kelas_kosong": { default: "Belum ada Kelas di Tingkat ini.", en: "There is no Kelas in this Tingkat yet." },
+  "config.struktur.jenis.BAGIAN": { default: "Bagian", en: "Bagian" },
+  "config.struktur.jenis.TINGKAT": { default: "Tingkat", en: "Tingkat" },
+  "config.struktur.jenis.KELAS": { default: "Kelas", en: "Kelas" },
+  "config.struktur.tambah.BAGIAN": { default: "Tambah Bagian", en: "Add Bagian" },
+  "config.struktur.tambah.TINGKAT": { default: "Tambah Tingkat", en: "Add Tingkat" },
+  "config.struktur.tambah.KELAS": { default: "Tambah Kelas", en: "Add Kelas" },
+  "config.struktur.nama": { default: "Nama", en: "Name" },
+  "config.struktur.contoh.BAGIAN": { default: "Misalnya Kelas Rendah", en: "For example Kelas Rendah" },
+  "config.struktur.contoh.TINGKAT": { default: "Misalnya Kelas 1", en: "For example Kelas 1" },
+  "config.struktur.contoh.KELAS": { default: "Misalnya 1A", en: "For example 1A" },
+  "config.struktur.tahun": { default: "Tahun ajaran", en: "School year" },
+  "config.struktur.tahun_ikut": { default: "Tahun ajaran mengikuti Tingkat:", en: "School year, from the Tingkat:" },
+  "config.struktur.murid.satu": { default: "murid", en: "student" },
+  "config.struktur.murid.banyak": { default: "murid", en: "students" },
+  "config.struktur.nonaktif": { default: "Nonaktif", en: "Inactive" },
+  "config.struktur.ubah_nama": { default: "Ubah nama", en: "Rename" },
+  "config.struktur.nama_baru": { default: "Nama baru", en: "New name" },
+  "config.struktur.simpan": { default: "Simpan", en: "Save" },
+  "config.struktur.batal": { default: "Batal", en: "Cancel" },
+  "config.struktur.sibuk": { default: "Menyimpan…", en: "Saving…" },
+  "config.struktur.nonaktifkan": { default: "Nonaktifkan", en: "Deactivate" },
+  "config.struktur.konfirmasi.tanya": { default: "Nonaktifkan", en: "Deactivate" },
+  "config.struktur.konfirmasi.arti": { default: "Setelah dinonaktifkan, tempat ini tidak bisa diaktifkan lagi dari layar ini. Namanya boleh dipakai lagi untuk yang baru.", en: "Once deactivated, it cannot be turned back on from this screen. Its name can be used again for a new one." },
+  "config.struktur.konfirmasi.ya": { default: "Ya, nonaktifkan", en: "Yes, deactivate" },
+  "config.struktur.ok.dibuat": { default: "ditambahkan.", en: "added." },
+  "config.struktur.ok.diubah": { default: "Nama sekarang:", en: "The name is now" },
+  "config.struktur.ok.dinonaktifkan": { default: "dinonaktifkan.", en: "deactivated." },
+  "config.struktur.rujukan": { default: "Rujukan:", en: "Reference:" },
+  "config.struktur.gagal_baca": { default: "Struktur sekolah belum bisa ditampilkan. Muat ulang halaman ini sebentar lagi.", en: "The school structure cannot be shown right now. Reload this page in a moment." },
   // BOB-02. What the upload screen says for each lesson-package problem and refusal
   // (src/lib/unggah-kontrak.ts: kunciMasalahPaket, kunciKodePaket). Daisy owns the wording.
   "studio.paket.masalah.workbook_unreadable": { default: "Berkas ini tidak terbaca sebagai buku kerja Excel (.xlsx).", en: "This file cannot be read as an Excel workbook (.xlsx)." },
@@ -1666,6 +1846,7 @@ const table: Table = {
   "studio.paket.masalah.item_use_unknown": { default: "Kegunaan soal tidak dikenal.", en: "The question's use is not recognised." },
   "studio.paket.masalah.item_difficulty_invalid": { default: "Tingkat kesulitan tidak dikenal.", en: "The difficulty is not recognised." },
   "studio.paket.masalah.item_parallel_tier_mixed": { default: "Satu kelompok paralel mencampur soal latihan dan soal asesmen.", en: "One parallel group mixes practice and assessment questions." },
+  "studio.paket.masalah.item_parallel_cycle_mixed": { default: "Satu kelompok paralel berisi soal Pemetaan awal sekaligus soal Cek penguasaan. Soal dalam satu kelompok dianggap setara, jadi pisahkan kelompoknya.", en: "One parallel group holds both an Initial Mapping and a Mastery Check question. Questions in one group count as equivalent, so separate the groups." },
   "studio.paket.masalah.item_options_too_few": { default: "Soal ini perlu paling sedikit dua pilihan.", en: "This question needs at least two options." },
   "studio.paket.masalah.item_options_too_many": { default: "Soal ini paling banyak lima pilihan (A sampai E).", en: "This question may have at most five options (A to E)." },
   "studio.paket.masalah.item_correct_missing": { default: "Belum ada pilihan yang ditandai benar.", en: "No option is marked correct." },
@@ -1685,6 +1866,18 @@ const table: Table = {
   "studio.paket.kode.package_has_problems": { default: "Paket ini belum bisa diterima. Perbaiki baris yang disebut lalu unggah lagi.", en: "This package cannot be accepted yet. Fix the rows listed and upload again." },
   "studio.paket.kode.package_input_invalid": { default: "Pilih sekolah dan berkasnya dulu.", en: "Choose the school and the file first." },
   "studio.paket.kode.package_failed": { default: "Unggahan belum berhasil. Coba lagi sebentar lagi.", en: "The upload did not go through. Try again in a moment." },
+  "studio.terbitan.kode.release_not_allowed": { default: "Anda tidak berwenang membuat atau mengunci terbitan di sekolah ini.", en: "You are not allowed to create or lock releases in this school." },
+  "studio.terbitan.kode.release_publish_not_allowed": { default: "Anda tidak berwenang menerbitkan atau menarik terbitan di sekolah ini.", en: "You are not allowed to publish or withdraw releases in this school." },
+  "studio.terbitan.kode.release_school_not_allowed": { default: "Terbitan dibuat dari kursus sekolah, bukan dari pustaka nasional.", en: "A release is made from a school's course, not from the national library." },
+  "studio.terbitan.kode.release_course_not_approved": { default: "Kursus ini belum disetujui. Terbitan dibuat dari kursus yang sudah disetujui.", en: "This course has not been approved yet. A release is made from an approved course." },
+  "studio.terbitan.kode.release_exists": { default: "Kursus ini sudah punya terbitan. Untuk koreksi, buat revisi kursus.", en: "This course already has a release. To correct it, create a revision of the course." },
+  "studio.terbitan.kode.release_state_invalid": { default: "Terbitan ini sudah melewati langkah tersebut.", en: "This release is already past that step." },
+  "studio.terbitan.kode.release_same_person": { default: "Penyusun kursus tidak bisa mengunci terbitannya sendiri. Minta rekan yang lain.", en: "The author of a course cannot lock its own release. Ask a colleague." },
+  "studio.terbitan.kode.release_not_ready": { default: "Kursus ini belum siap terbit. Selesaikan temuan yang tercantum di halaman ini.", en: "This course is not ready to publish. Resolve the findings listed on this page." },
+  "studio.terbitan.kode.release_reason_required": { default: "Tuliskan alasan penarikan.", en: "Write the reason for the withdrawal." },
+  "studio.terbitan.kode.release_input_invalid": { default: "Terbitan atau kursus tidak dikenali.", en: "The release or course was not recognised." },
+  "studio.terbitan.kode.release_failed": { default: "Langkah ini belum berhasil. Coba lagi sebentar lagi.", en: "This step did not go through. Try again in a moment." },
+  "studio.paket.buat_terbitan": { default: "Buat terbitan", en: "Create release" },
   // WP5B. Bulk intake offers four roles and needs a telling for each; this is
   // the one the configuration surface never had to name, because a learner is
   // not somebody an administrator grants a role to one at a time.
@@ -1919,7 +2112,7 @@ const table: Table = {
   "studio.temuan.kosong": { default: "Tidak ada catatan mutu yang menunggu.", en: "No quality notes are waiting." },
   "studio.unggah.judul": { default: "Buat Paket Pembelajaran", en: "Create a Learning Package" },
   "studio.unggah.mudah": { default: "Unggah Mudah", en: "Easy upload" },
-  "studio.unggah.mudah_penjelasan": { default: "Unggah folder, ZIP, atau berkas lepas. PINTAR mengenali peran tiap berkas dan menanyakan yang belum pasti.", en: "Upload a folder, a ZIP, or loose files. PINTAR works out what each file is for and asks about anything it is unsure of." },
+  "studio.unggah.mudah_penjelasan": { default: "Tempel paket JSON dari sistem lain. PINTAR memeriksanya dan menanyakan yang belum pasti sebelum menyimpan apa pun.", en: "Paste a JSON package from another system. PINTAR checks it and asks about anything unclear before it saves anything." },
   "studio.unggah.terstruktur": { default: "Paket Terstruktur", en: "Structured package" },
   "studio.unggah.terstruktur_penjelasan": { default: "Untuk paket yang sudah dibuat mesin dalam format baku.", en: "For packages a machine has already produced in a standard format." },
   "studio.unggah.buat_paket": { default: "Buat Paket Pembelajaran", en: "Create a Learning Package" },
@@ -1928,6 +2121,82 @@ const table: Table = {
   "studio.unggah.pertanyaan": { default: "Yang perlu Anda pastikan", en: "What we need you to confirm" },
   "studio.unggah.konfirmasi": { default: "Konfirmasi", en: "Confirm" },
   "studio.unggah.media_catatan": { default: "Berkas media diunggah melalui server PINTAR, bukan langsung dari peramban.", en: "Media files are uploaded through the PINTAR server, not straight from the browser." },
+  // DAISY-06: the workbook template's guidance sheet and the upload panel.
+  "studio.templat.judul": { default: "Templat pelajaran PINTAR: cara mengisi", en: "PINTAR lesson template: how to fill it in" },
+  "studio.templat.cara.1": { default: "Satu buku kerja berisi satu kursus. Isi lima lembar berikutnya: Kursus, Bab, Pelajaran, Soal, dan Pilihan.", en: "One workbook holds one course. Fill in the next five sheets: Kursus, Bab, Pelajaran, Soal and Pilihan." },
+  "studio.templat.cara.2": { default: "Baris 1 di setiap lembar adalah judul kolom. Jangan mengubah, menghapus, atau memindahkannya. Isi data mulai baris 2.", en: "Row 1 of every sheet holds the column headers. Do not change, delete or move them. Enter data from row 2." },
+  "studio.templat.cara.3": { default: "Kolom bertanda Wajib harus diisi di setiap baris. Kolom yang punya daftar pilihan hanya menerima nilai dari daftar itu.", en: "Columns marked Wajib must be filled in on every row. A column with a list of choices accepts only a value from that list." },
+  "studio.templat.cara.4": { default: "Setiap soal perlu pilihan jawaban di lembar Pilihan, dengan kode soal yang sama. Setiap pilihan perlu alasannya.", en: "Every question needs its answer choices on the Pilihan sheet, under the same question code. Every choice needs its reason." },
+  "studio.templat.cara.5": { default: "Berkas media (gambar, audio, video, PDF) tidak dimasukkan ke buku kerja. Tulis nama berkasnya di kolom Media, lalu unggah berkasnya di Studio setelah buku kerja diperiksa.", en: "Media files (images, audio, video, PDF) are not put in the workbook. Write each file's name in the Media column, then upload the files in Studio after the workbook is checked." },
+  "studio.templat.kolom.lembar": { default: "Lembar", en: "Sheet" },
+  "studio.templat.kolom.kolom": { default: "Kolom", en: "Column" },
+  "studio.templat.kolom.wajib": { default: "Wajib", en: "Required" },
+  "studio.templat.kolom.pilihan": { default: "Pilihan yang diterima", en: "Accepted choices" },
+  "studio.templat.kolom.batas": { default: "Batas", en: "Limit" },
+  "studio.templat.kolom.arti": { default: "Keterangan", en: "Notes" },
+  "studio.templat.ya": { default: "Ya", en: "Yes" },
+  "studio.templat.tidak": { default: "Tidak", en: "No" },
+  "studio.templat.batas.judul": { default: "Batas lain", en: "Other limits" },
+  "studio.templat.batas.berkas": { default: "Ukuran buku kerja", en: "Workbook size" },
+  "studio.templat.batas.kursus": { default: "Kursus", en: "Courses" },
+  "studio.templat.batas.baris": { default: "Baris per lembar", en: "Rows per sheet" },
+  "studio.templat.batas.pelajaran": { default: "Pelajaran", en: "Lessons" },
+  "studio.templat.batas.soal": { default: "Soal", en: "Questions" },
+  "studio.templat.batas.pilihan": { default: "Pilihan per soal", en: "Choices per question" },
+  "studio.templat.batas.media": { default: "Media", en: "Media" },
+  "studio.templat.batas.transkrip": { default: "Transkrip", en: "Transcripts" },
+  "studio.templat.paling_besar": { default: "Paling besar", en: "At most" },
+  "studio.templat.paling_banyak": { default: "Paling banyak", en: "At most" },
+  "studio.templat.satu_kursus": { default: "Satu kursus per buku kerja: satu baris data di lembar Kursus.", en: "One course per workbook: one data row on the Kursus sheet." },
+  "studio.templat.baris_termasuk_judul": { default: "baris, termasuk baris judul", en: "rows, the header row included" },
+  "studio.templat.berlabel": { default: "berlabel", en: "labelled" },
+  "studio.templat.media.gambar": { default: "Gambar", en: "Images" },
+  "studio.templat.media.audio": { default: "audio", en: "audio" },
+  "studio.templat.media.video": { default: "video", en: "video" },
+  "studio.templat.nama_media": { default: "Nama berkas paling panjang", en: "File names at most" },
+  "studio.templat.karakter": { default: "karakter", en: "characters" },
+  "studio.templat.transkrip_wajib": { default: "Audio dan video wajib punya transkrip, di kolom Transkrip lembar Pelajaran.", en: "Audio and video must have a transcript, in the Transkrip column of the Pelajaran sheet." },
+  "studio.unggah.buku.judul": { default: "Unggah buku kerja pelajaran", en: "Upload a lesson workbook" },
+  "studio.unggah.buku.arti": { default: "Isi templat Excel, lalu unggah di sini. PINTAR memeriksa setiap baris lebih dulu dan tidak menyimpan apa pun sebelum semuanya benar.", en: "Fill in the Excel template, then upload it here. PINTAR checks every row first and saves nothing until everything is right." },
+  "studio.unggah.templat": { default: "Unduh templat Excel", en: "Download the Excel template" },
+  "studio.unggah.templat_arti": { default: "Lembar Cara mengisi di dalamnya menjelaskan setiap kolom dan batasnya.", en: "Its Cara mengisi sheet explains every column and its limits." },
+  "studio.unggah.sekolah": { default: "Sekolah", en: "School" },
+  "studio.unggah.tanpa_sekolah": { default: "Anda belum dapat menyusun materi di sekolah mana pun.", en: "You cannot prepare material for any school yet." },
+  "studio.unggah.berkas": { default: "Buku kerja (.xlsx)", en: "Workbook (.xlsx)" },
+  "studio.unggah.berkas_batas": { default: "Paling besar", en: "At most" },
+  "studio.unggah.langkah.periksa": { default: "Periksa buku kerja", en: "Check the workbook" },
+  "studio.unggah.langkah.media": { default: "Unggah media", en: "Upload the media" },
+  "studio.unggah.langkah.simpan": { default: "Simpan ke Studio", en: "Save to Studio" },
+  "studio.unggah.sibuk.periksa": { default: "Memeriksa…", en: "Checking…" },
+  "studio.unggah.sibuk.media": { default: "Mengunggah…", en: "Uploading…" },
+  "studio.unggah.sibuk.simpan": { default: "Menyimpan…", en: "Saving…" },
+  "studio.unggah.lolos": { default: "Buku kerja lolos pemeriksaan.", en: "The workbook passed the check." },
+  "studio.unggah.hitung.courses": { default: "Kursus", en: "Courses" },
+  "studio.unggah.hitung.modules": { default: "Bab", en: "Chapters" },
+  "studio.unggah.hitung.lessons": { default: "Pelajaran", en: "Lessons" },
+  "studio.unggah.hitung.items": { default: "Soal", en: "Questions" },
+  "studio.unggah.hitung.options": { default: "Pilihan", en: "Choices" },
+  "studio.unggah.hitung.media": { default: "Media", en: "Media files" },
+  "studio.unggah.masalah_judul": { default: "Belum ada yang disimpan. Perbaiki baris berikut di buku kerja, lalu periksa lagi.", en: "Nothing has been saved. Fix these rows in the workbook, then check it again." },
+  "studio.unggah.lokasi.lembar": { default: "Lembar", en: "Sheet" },
+  "studio.unggah.lokasi.baris": { default: "baris", en: "row" },
+  "studio.unggah.lokasi.kolom": { default: "kolom", en: "column" },
+  "studio.unggah.lokasi.berkas": { default: "berkas", en: "file" },
+  "studio.unggah.masalah_lain": { default: "masalah lain; perbaiki yang di atas dulu, lalu periksa lagi.", en: "more problems; fix the ones above first, then check again." },
+  "studio.unggah.media_arti": { default: "Buku kerja ini menyebut berkas media berikut. Pilih semuanya sekaligus; PINTAR mencocokkannya menurut nama berkas.", en: "This workbook names the media files below. Choose them all at once; PINTAR matches them by file name." },
+  "studio.unggah.media_pilih": { default: "Pilih berkas media", en: "Choose the media files" },
+  "studio.unggah.media.belum": { default: "Belum dipilih", en: "Not chosen yet" },
+  "studio.unggah.media.siap": { default: "Siap diunggah", en: "Ready to upload" },
+  "studio.unggah.media.naik": { default: "Mengunggah…", en: "Uploading…" },
+  "studio.unggah.media.selesai": { default: "Terunggah", en: "Uploaded" },
+  "studio.unggah.media.gagal": { default: "Gagal diunggah. Coba lagi.", en: "The upload failed. Try again." },
+  "studio.unggah.media_progres": { default: "berkas terunggah", en: "files uploaded" },
+  "studio.unggah.simpan_arti": { default: "Semuanya siap. Simpan sebagai draf di Studio; murid belum melihatnya sebelum diterbitkan.", en: "Everything is ready. Save it as a draft in Studio; students do not see it until it is published." },
+  "studio.unggah.tersimpan": { default: "Tersimpan di Studio sebagai draf.", en: "Saved to Studio as a draft." },
+  "studio.unggah.buka_kursus": { default: "Buka kursus", en: "Open the course" },
+  "studio.unggah.ulang": { default: "Unggah buku kerja lain", en: "Upload another workbook" },
+  "studio.unggah.rujukan": { default: "Rujukan:", en: "Reference:" },
+  "studio.unggah.json_judul": { default: "Paket dari sistem lain (JSON)", en: "Packages from another system (JSON)" },
   "studio.tinjau.judul": { default: "Antrean Tinjauan", en: "Review Queue" },
   "studio.tinjau.kosong": { default: "Tidak ada yang menunggu tinjauan Anda.", en: "Nothing is waiting on your review." },
   "studio.tinjau.penulis": { default: "Penyusun", en: "Author" },
@@ -2293,6 +2562,20 @@ const table: Table = {
   "umpanbalik.buka.subjek_sendiri": { default: "Putaran tentang pengajaran Anda sendiri dimulai oleh orang lain.", en: "A round about your own teaching is started by somebody else." },
   "umpanbalik.buka.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
   "mengajar.kembali": { default: "Kelas", en: "Classes" },
+  "mengajar.sedia.kode.assign_not_allowed": { default: "Anda tidak berwenang menyediakan materi untuk kelas ini.", en: "You are not allowed to make material available to this class." },
+  "mengajar.sedia.kode.assign_class_invalid": { default: "Kelas ini tidak aktif atau belum punya tahun ajaran.", en: "This class is inactive or has no academic year." },
+  "mengajar.sedia.kode.assign_release_not_published": { default: "Materi ini belum terbit, jadi belum bisa disediakan.", en: "This material is not published yet, so it cannot be made available." },
+  "mengajar.sedia.kode.assign_window_invalid": { default: "Tanggal selesai harus sesudah tanggal mulai.", en: "The end date must be after the start date." },
+  "mengajar.sedia.kode.assign_exists": { default: "Materi ini sudah disediakan untuk kelas ini.", en: "This material is already available to this class." },
+  "mengajar.sedia.kode.assign_pre_test_missing": { default: "Materi ini belum punya Pemetaan awal. Tandai soal Pemetaan awal lalu terbitkan ulang.", en: "This material has no Initial Mapping yet. Mark Initial Mapping questions and publish again." },
+  "mengajar.sedia.kode.assign_post_test_missing": { default: "Materi ini belum punya Cek penguasaan. Tandai soal Cek penguasaan lalu terbitkan ulang.", en: "This material has no Mastery Check yet. Mark Mastery Check questions and publish again." },
+  "mengajar.sedia.kode.assign_pre_test_too_short": { default: "Soal Pemetaan awal di materi ini kurang dari yang diminta.", en: "This material has fewer Initial Mapping questions than it asks for." },
+  "mengajar.sedia.kode.assign_post_test_too_short": { default: "Soal Cek penguasaan di materi ini kurang dari yang diminta.", en: "This material has fewer Mastery Check questions than it asks for." },
+  "mengajar.sedia.kode.assign_cycle_overlap": { default: "Soal Cek penguasaan berada di kelompok paralel yang sama dengan soal Pemetaan awal, sehingga tidak bisa dipakai. Pisahkan kelompoknya lalu terbitkan ulang.", en: "The Mastery Check questions share a parallel group with the Initial Mapping questions, so they cannot be used. Separate the groups and publish again." },
+  "mengajar.sedia.kode.assign_input_invalid": { default: "Kelas atau materi tidak dikenali.", en: "The class or material was not recognised." },
+  "mengajar.sedia.kode.assign_failed": { default: "Materi belum berhasil disediakan. Coba lagi sebentar lagi.", en: "The material could not be made available. Try again in a moment." },
+  "cycle.pemetaan.belum_ada": { default: "Pemetaan awal untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Initial Mapping for this lesson is not ready yet. Ask the teacher." },
+  "cycle.penguasaan.belum_ada": { default: "Cek penguasaan untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Mastery Check for this lesson is not ready yet. Ask the teacher." },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },
   "mengajar.sapa.sore": { default: "Selamat sore", en: "Good evening" },

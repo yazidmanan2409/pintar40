@@ -224,13 +224,21 @@ begin
   end if;
 
   perform selftest.as_user('kanonik-admin@pintar.test');
+  perform selftest.as_release_writer();  -- D-041
   insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
   values (v_canon, v_course, '1.0.0', v_guru) returning id into v_rel;
+  perform selftest.as_signed_in();
   foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = t::public.content_status where id = v_rel;
+    perform selftest.as_signed_in();
   end loop;
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_admin where id = v_rel;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'FROZEN' where id = v_rel;
+  perform selftest.as_signed_in();
   if p_publish then perform public.publish_release(v_rel); end if;
   perform selftest.as_owner();
 
@@ -1008,14 +1016,22 @@ begin
     perform selftest.as_user('kanonik-admin@pintar.test');
     -- the release is authored by the canonical educator, so the administrator
     -- who approves it is not its own reviewer
+    perform selftest.as_release_writer();  -- D-041
     insert into public.plp_releases (institution_id, course_id, version_label, supersedes_release_id,
                                      author_person_id)
     values (p.canon, v_rev, '1.1.0', p.rel, v_guru) returning id into v_rel2;
+    perform selftest.as_signed_in();
     foreach t2 in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+      perform selftest.as_release_writer();  -- D-041
       update public.plp_releases set status = t2::public.content_status where id = v_rel2;
+      perform selftest.as_signed_in();
     end loop;
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_admin where id = v_rel2;
+    perform selftest.as_signed_in();
+    perform selftest.as_release_writer();  -- D-041
     update public.plp_releases set status = 'FROZEN' where id = v_rel2;
+    perform selftest.as_signed_in();
     perform public.publish_release(v_rel2);
     perform public.grant_release_distribution(v_rel2, v_a, 'fable05 v1.1');
     perform selftest.as_owner();
@@ -1418,13 +1434,15 @@ begin
                            'anon_table_grants','unclassified_client_rpcs','undeclared_anon_functions',
                            'audit_log_client_write_grants','public_buckets','client_storage_policies',
                            'evidence_class_overrides','anon_public_view_write_grants',
-                           'overloaded_client_rpcs','malformed_jalur','persons_institution_columns'] loop
-    if (v_lint ->> r)::int <> 0 then
-      ok := false; detail := detail || format('%s is %s, expected 0; ', r, v_lint ->> r);
+                           'overloaded_client_rpcs','malformed_jalur','persons_institution_columns',
+                           'client_readable_definer_views'] loop
+    if (v_lint ->> r)::int is distinct from 0 then
+      ok := false; detail := detail || format('%s is %s, expected 0; ', r, coalesce(v_lint ->> r, 'missing'));
     end if;
   end loop;
-  if (v_lint ->> 'anon_public_surface')::int <> 2 then
-    ok := false; detail := detail || format('anon_public_surface is %s, expected 2; ', v_lint ->> 'anon_public_surface');
+  -- 1 since D-032 (BOB-14): the verification route; the lesson view is not public
+  if (v_lint ->> 'anon_public_surface')::int <> 1 then
+    ok := false; detail := detail || format('anon_public_surface is %s, expected 1; ', v_lint ->> 'anon_public_surface');
   end if;
   if (v_lint ->> 'anon_reachable_http_paths')::int <> 2 then
     ok := false; detail := detail || format('anon_reachable_http_paths is %s, expected 2; ', v_lint ->> 'anon_reachable_http_paths');
@@ -1452,7 +1470,7 @@ begin
   select count(*) into n from unnest(enum_range(null::public.record_portability));
   if n <> 2 then ok := false; detail := detail || format('record_portability has %s values, expected 2; ', n); end if;
   test_id := 'F05-T21'; invariant := 'FABLE-05 §11';
-  if ok then detail := format('every fixed counter is unmoved, both anonymous-surface counters are 2, every standing assertion is true, and the two deliberate movements are separately visible (%s non-synthetic tenant(s), %s canonical)',
+  if ok then detail := format('every fixed counter is unmoved, the anonymous surface is one declared route (D-032) at 2 HTTP paths, every standing assertion is true, and the two deliberate movements are separately visible (%s non-synthetic tenant(s), %s canonical)',
     v_lint ->> 'non_synthetic_institutions', v_lint ->> 'platform_canonical_tenants'); end if;
   return next;
 

@@ -202,24 +202,10 @@
   --measure-sesi: 28ch;          /* a signed-in name in a header row, before it ellipsizes */
   --control-h: 52px;             /* email-path field and primary action */
   --control-h-big: 60px;         /* card-path field and primary action */
-  --vis-band: 260px;             /* the photograph's height below the form */
-  /* The panel's two darkenings, named here because each is ONE design decision
-     with a dozen stops, and because §6.4 of the login handoff records what
-     happened when there was only one of them: the tablet heading measured
-     1.56:1 over a bright classroom wall. The first is anchored to the image,
-     the second to the text block so the darkening follows the type. The
-     handoff writes them as rgba(15,26,24,a); they are expressed over --ink-1,
-     which it already names as the panel's own ground. */
-  --auth-scrim: linear-gradient(180deg,
-    color-mix(in srgb, var(--ink-1) 10%, transparent) 0%,
-    color-mix(in srgb, var(--ink-1) 18%, transparent) 38%,
-    color-mix(in srgb, var(--ink-1) 72%, transparent) 76%,
-    color-mix(in srgb, var(--ink-1) 88%, transparent) 100%);
-  --auth-say-veil: linear-gradient(180deg,
-    color-mix(in srgb, var(--ink-1) 0%, transparent) 0%,
-    color-mix(in srgb, var(--ink-1) 58%, transparent) 20%,
-    color-mix(in srgb, var(--ink-1) 80%, transparent) 50%,
-    color-mix(in srgb, var(--ink-1) 90%, transparent) 100%);
+  --vis-band: 260px;             /* the statement panel's height below the form */
+  /* The sign-in panel's small rule over the statement (DAISY-08): the ink's
+     own colour, faded, so it reads as a mark and not as a divider. */
+  --say-mark: 0.6;
 
   /* motion: colour and opacity only, 160ms -------------------------------- */
   --motion-fast: 160ms;

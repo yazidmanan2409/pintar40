@@ -49,7 +49,6 @@
                   "petunjuk": "Ingat letak angka pada pecahan.",
                   "use": "PRE_TEST",
                   "difficulty": "0.3",
-                  "parallel_group": "P1",
                   "options": [
                     {
                       "_row": {
@@ -83,7 +82,6 @@
                   "stem": "Pada pecahan 2/7, angka 7 disebut apa?",
                   "use": "POST_TEST",
                   "difficulty": "0.3",
-                  "parallel_group": "P1",
                   "options": [
                     {
                       "_row": {
@@ -149,7 +147,6 @@
                   "stem": "Manakah yang senilai dengan 1/2?",
                   "use": "PRE_TEST",
                   "difficulty": "0.5",
-                  "parallel_group": "P2",
                   "options": [
                     {
                       "_row": {
@@ -193,7 +190,6 @@
                   "stem": "Pilih semua pecahan yang senilai dengan 1/3.",
                   "use": "POST_TEST",
                   "difficulty": "0.5",
-                  "parallel_group": "P2",
                   "options": [
                     {
                       "_row": {

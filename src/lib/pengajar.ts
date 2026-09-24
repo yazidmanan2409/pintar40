@@ -238,6 +238,9 @@ export async function terbitan(institusi: string): Promise<Terbitan[]> {
     .from("plp_releases")
     .select("id, course_id, version_label, published_at, status, course:courses(title, subject)")
     .eq("institution_id", institusi)
+    // PUBLISHED only: a withdrawn release (SUPERSEDED) keeps its published_at
+    // and must never be offered for a new assignment (BOB-03)
+    .eq("status", "PUBLISHED")
     .not("published_at", "is", null)
     .order("published_at", { ascending: false });
 

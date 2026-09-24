@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 68,
+  "version": 75,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..11.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
+    "db": "selftest/db/fable01..13.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -246,7 +246,7 @@
     {
       "id": "F02-T18",
       "runner": "db",
-      "proves": "INV-01 / doc 04 §9 lesson prose is publicly readable only under a PUBLISHED release; anon holds exactly one grant, on that view; item-bearing and cohort aggregates are service-role only",
+      "proves": "INV-01 / doc 04 §9, RESTATED BY D-032 (BOB-14). The view public.published_lessons shows only a PUBLISHED release's lesson prose, and no client role reads it: anon and a signed-in teacher of the school are refused, the view runs as its reader (security_invoker), anon holds no table grant at all, and item-bearing and cohort aggregates are service-role only",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); the assertion needs seeded institutions and persons, so it cannot live in a migration verification block"
     },
     {
@@ -434,7 +434,7 @@
     {
       "id": "F03-R02",
       "runner": "app",
-      "proves": "FABLE-03 §9 — no lifecycle enum, evidence class, engine version or release hash appears on any learner route",
+      "proves": "FABLE-03 §9 — no lifecycle enum, evidence class, engine version or release hash appears on any learner route; and (BOB-04, D-008) the cycle's /pemetaan and /penguasaan never answer 404",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
     },
     {
@@ -1130,7 +1130,7 @@
     {
       "id": "UX1-S3-KOMIT-01",
       "runner": "static",
-      "proves": "LOOKING IS NOT COMMITTING, ON THE EDUCATOR'S SIDE. The Slice-2 ruling was written for a learner brushing a link and spending their one attempt; the same rule governs a teacher whose next press makes something real for twenty-four children. Asserted against the SOURCE of every page under src/app/mengajar: none writes while rendering -- no insert, update, upsert or delete, and no call to launch_quick_assessment, extend_session_deadline or move_learning_assignment_release -- with the scanner itself watched to catch a planted insert and a planted launcher, because a detector that has stopped detecting reads green forever. The two stages before each commitment are GET renders of the query string (the quick assessment's configure stage is method=\"get\"), so a reload, a prefetch or a back button cannot commit. The only writes in the surface are the two exported server actions in src/app/mengajar/actions.ts, each reached by a form action and asserted NOT to be reachable through an href. Making material available is asserted to be born at DRAFT and activated in its own separate UPDATE -- the statement enforce_assignment_status fires the CAN_ASSIGN_LEARNING check on -- which is also what makes a review page possible at all. And no educator action takes its redirect target from the form, so the learner side's unvalidated `kembali` is not repeated here. BOUNDED: this reads the source; that the database refuses an unauthorized write is the migrations' own property, proved elsewhere"
+      "proves": "LOOKING IS NOT COMMITTING, ON THE EDUCATOR'S SIDE. The Slice-2 ruling was written for a learner brushing a link and spending their one attempt; the same rule governs a teacher whose next press makes something real for twenty-four children. Asserted against the SOURCE of every page under src/app/mengajar: none writes while rendering -- no insert, update, upsert or delete, and no call to launch_quick_assessment, extend_session_deadline or move_learning_assignment_release -- with the scanner itself watched to catch a planted insert and a planted launcher, because a detector that has stopped detecting reads green forever. The two stages before each commitment are GET renders of the query string (the quick assessment's configure stage is method=\"get\"), so a reload, a prefetch or a back button cannot commit. The only writes in the surface are the two exported server actions in src/app/mengajar/actions.ts, each reached by a form action and asserted NOT to be reachable through an href. Making material available is asserted to be born at DRAFT and activated in its own separate UPDATE -- the statement enforce_assignment_status fires the CAN_ASSIGN_LEARNING check on -- which is also what makes a review page possible at all; RESTATED BY BOB-04 (D-008), this is read where the commitment now lives: the action calls assign_release and never writes learning_assignments itself, and the migration 20261010100000_a_lesson_is_assigned_whole.sql inserts the assignment without a status and activates it in its own UPDATE. And no educator action takes its redirect target from the form, so the learner side's unvalidated `kembali` is not repeated here. BOUNDED: this reads the source; that the database refuses an unauthorized write is the migrations' own property, proved elsewhere"
     },
     {
       "id": "UX1-S3-CEPAT-01",
@@ -1725,9 +1725,24 @@
       "proves": "DAISY-04 (gate rule 5.2): a mistyped key fails a test although a reader sees the calm fallback. Every literal key in the SOURCE files of src/ -- the first argument of t(, of each file's own helper over t or over 'as HleEvent', and of the report pages' imported s; a literal cast as HleEvent; a ...Key prop -- is checked against the COPY TABLE's allKeys(), and every template prefix must begin a real key. A control plants typos through a string-typed helper, through t and through a cast, and a prefix no key begins with, in a synthetic source, and the sweep must find exactly those and pass the real keys beside them; the sweep must recognise HasilKelas's, the report pages' and the tour's helpers and check more than 500 keys."
     },
     {
+      "id": "DAISY-05-STRUKTUR-01",
+      "runner": "static",
+      "proves": "DAISY-05 (D-006, D-022, D-027; audit B1, journey S7): the Struktur sekolah screen. From the COPY TABLE through the screen's own function: every code BOB-01 can return has its own sentence in both languages, never the code or the fallback, a failure carries its reference, an unreadable list is not called unsaved. The tree is OUTPUT from rows with a planted Jenjang and Reguler, which never survive; inactive places come last and cannot be changed. The panel is RENDERED to html in a child process in both languages: the three steps above the tree; years on Tingkat and Kelas only; Tambah Kelas under each active Tingkat with no year field, Tambah Tingkat under each active Bagian with this year filled in, Tambah Bagian for the school, and only those forms; rename and deactivate on active places only; nothing sendable until Nonaktifkan opens the question, which names the place, says it cannot be undone here and is the form that sends it; an empty school answers the audit's S7; an unreadable list shows its reference. From the SOURCE: the deactivation is dispatched only through the question; every action goes through one wrapper that re-reads the list after any non-success, and BOB-01's action file revalidates after a success; the section is Konfigurasi's first, fed only by bacaStruktur for a school the reader administers; no file or copy of the screen names a hidden level. The shared school rule (src/components/sekolah.ts, also for DAISY-06's Studio picker) is OUTPUT over a tenant list in the database's order: only active INSTITUTION tenants the reader administers are offered -- never the national library (PLATFORM_CANONICAL), an inactive school, an undecided kind or a row without its kind -- the first real school is where it starts, and none of the others opens when asked for by address; from the SOURCE, Konfigurasi reads tenant_kind and is_active and picks its school only through that rule (audit S7b)."
+    },
+    {
+      "id": "DAISY-05-STRUKTUR-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered Konfigurasi against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-05 over real HTTP against the seeded database: the RENDERED html of /konfigurasi for Alpha's school administrator opens with the Struktur sekolah section, read through school_structure without a refusal; the seeded Bagian (Matematika), Tingkat (Kelas 5 and Kelas 6) and Kelas (5A, 6B) are drawn as places with their school years and the way to add each level; the seed's hidden Jenjang (Sekolah Dasar) and Reguler (SD Reguler) are nowhere in the section; nothing offers a deactivation before the question. Read only. As the seeded platform administrator, who reads every tenant: the RENDERED section opens on a real school and never offers or opens 'PINTAR Kurikulum Nasional', by default, for an unknown id, or for the library's own id read from the institutions table (audit S7b)."
+    },
+    {
       "id": "F11-P01",
       "runner": "db",
-      "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, 2 parallel groups, and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
+      "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, no parallel group spanning the pre-test and post-test (D-040: the sample was regrouped, and v1 kept as the source of the application copies), and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
     },
     {
       "id": "F11-P02",
@@ -1755,9 +1770,74 @@
       "proves": "BOB-02. A save that fails inside lesson_package_materialise leaves nothing behind: confirm_ingest_batch answers PACKAGE_COULD_NOT_BE_SAVED, the batch is back at MAPPING_PROPOSED with the error recorded and no course written, and once the fault is gone a second confirmation of the same batch materialises the course."
     },
     {
+      "id": "F12-P01",
+      "runner": "db",
+      "proves": "BOB-03 (audit B3). A teacher's lesson package becomes a course; a head of department approves it; the school's admin creates release 1.0.0 through create_release, authored by the teacher; the head of department freezes it through freeze_release (approved by them, content hash stamped, course sealed); the admin publishes it through publish_release; the teacher reads it among the school's PUBLISHED releases, as /mengajar/[kelas]/siapkan lists them; create, freeze and publish are each audited once."
+    },
+    {
+      "id": "F12-P02",
+      "runner": "db",
+      "proves": "BOB-03. A correction is a revision: after withdraw_release, the course's revision (create_course_revision) is approved and create_release makes its release 1.1.0 with supersedes_release_id on the first; the withdrawn release is no longer among the PUBLISHED releases a teacher is offered."
+    },
+    {
+      "id": "F12-P03",
+      "runner": "db",
+      "proves": "BOB-03, four eyes. A release is authored by its course's author whoever creates it: for a course the head of department wrote and the admin approved, the admin's create_release makes a release authored by the head of department, whose freeze_release is PR040 RELEASE_SAME_PERSON, and the admin's goes through."
+    },
+    {
+      "id": "F12-N01",
+      "runner": "db",
+      "proves": "BOB-03 (D-011). Every refusal on the release path is PR040 with its code and changes nothing: a course in review (RELEASE_COURSE_NOT_APPROVED), a second release (RELEASE_EXISTS), a teacher, a DEAN, another school's admin and an unknown course (RELEASE_NOT_ALLOWED, the last two identical), the platform library (RELEASE_SCHOOL_NOT_ALLOWED, D-029), a second freeze and publishing an unfrozen release (RELEASE_STATE_INVALID), a teacher's freeze, a head of department's and another school's withdrawal (RELEASE_PUBLISH_NOT_ALLOWED) and a withdrawal without a reason (RELEASE_REASON_REQUIRED); a second click on publish publishes and audits nothing twice."
+    },
+    {
+      "id": "F12-N02",
+      "runner": "db",
+      "proves": "BOB-03. Readiness is measured at the seal: a course whose question names its answer carries no finding until freeze_release runs validate_course_content and run_mcq_quality; the freeze then answers ok=false RELEASE_NOT_READY with readiness BLOCKED naming STEM_REVEALS_ANSWER, leaves the release INGESTED and the course unsealed, and keeps the finding for the author."
+    },
+    {
+      "id": "BOB03-K01",
+      "runner": "static",
+      "proves": "BOB-03 (D-011, D-014). Read from the migration source and the source files src/lib/terbitan-kontrak.ts, src/app/studio/actions.ts and src/lib/pengajar.ts: the codes release_refuse raises are exactly the contract's; every code has a copy key in both languages without machinery words; each step of LANGKAH_TERBITAN calls its function with the declared argument from its typed action; no Studio action writes plp_releases directly; and the teacher's release list reads PUBLISHED releases only."
+    },
+    {
+      "id": "F13-P01",
+      "runner": "db",
+      "proves": "BOB-04 (D-008, audit B4). In the seeded learning-cycle school, a teacher's package of 3 pre-test, 2 post-test and 1 practice question becomes a course carrying an approved PRE_TEST definition of 3 and POST_TEST of 2 (made by lesson_package_materialise before the seal and reviewed with the course); a frozen, unpublished release is ASSIGN_RELEASE_NOT_PUBLISHED; once published, the teacher's assign_release makes an ACTIVE learning assignment whose learning_cycle names both definitions and two OPEN assessment assignments for the class, audited once as LEARNING_ASSIGNED."
+    },
+    {
+      "id": "F13-P02",
+      "runner": "db",
+      "proves": "BOB-04 (D-008). eligible_items_for_definition gives each cycle test exactly the questions marked for it (3 and 2; no practice question, none of the other test's); the class's learner sees both tests in my_cycle_state, starts and finishes the pre-test (3 pre-test questions presented), records the lesson, starts and finishes the post-test (2 post-test questions presented) and has an outcome, both sessions FINALIZED."
+    },
+    {
+      "id": "F13-N01",
+      "runner": "db",
+      "proves": "BOB-04 (D-011, INV-24). assign_release refuses with PR050 and a stable code, making nothing: a second assignment to the class (ASSIGN_EXISTS), a window that closes before it opens (ASSIGN_WINDOW_INVALID), the school instead of a class (ASSIGN_CLASS_INVALID), an unknown release, a DEAN and another school's class (ASSIGN_NOT_ALLOWED), a lesson with no pre-test (ASSIGN_PRE_TEST_MISSING) and a post-test sharing every parallel group with the pre-test (ASSIGN_CYCLE_OVERLAP; the overlap is made after upload, which refuses it under D-040, as hand-authored content still could); the last two leave no learning assignment."
+    },
+    {
+      "id": "F13-N02",
+      "runner": "db",
+      "proves": "BOB-04 (D-008). my_cycle_state answers PR050 CYCLE_NOT_ASSIGNED, never the cycle, to a DEAN asking about a learner's assignment and to a learner asking about an unknown one."
+    },
+    {
+      "id": "BOB04-K01",
+      "runner": "static",
+      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised; every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
+    },
+    {
+      "id": "F12-N03",
+      "runner": "db",
+      "proves": "BOB-03 (D-041). Releases change only through their functions: a teacher's direct insert into plp_releases naming the head of department as author and an admin's direct update of a published release are both refused by the database (42501, no client grant), no write policy remains on plp_releases, and signed-in staff still read the school's releases."
+    },
+    {
+      "id": "F13-N03",
+      "runner": "db",
+      "proves": "BOB-04 (D-040). prepare_ingest_batch refuses a package whose two pre-test questions share their parallel groups with its two post-test questions: ok=false with ITEM_PARALLEL_CYCLE_MIXED and nothing else, at Soal rows 2, 3, 4 and 5 -- every question of those groups; the same package with separate groups prepares cleanly."
+    },
+    {
       "id": "BOB02-X01",
       "runner": "static",
-      "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook."
+      "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook. Each application's copy is compared with the file it was saved from, contoh-pelajaran-v1.xlsx (kept byte for byte); D-040 regrouped the sample, and the two originals are asserted to differ in exactly its four Kelompok paralel cells."
     },
     {
       "id": "BOB02-X02",
@@ -1767,7 +1847,7 @@
     {
       "id": "BOB02-K01",
       "runner": "static",
-      "proves": "BOB-02 (D-007). The sample workbook file, the committed file contoh-pelajaran.paket.json and the literal in selftest/db/fable11.sql are one lesson package; the converter in the source file src/lib/unggah-kontrak.ts matches headers in any case, spacing and order, maps each column's choices, and returns eight workbook-only faults as their code at their sheet and row."
+      "proves": "BOB-02 (D-007). The sample workbook file, the committed file contoh-pelajaran.paket.json and the literal in selftest/db/fable11.sql are one lesson package; the converter in the source file src/lib/unggah-kontrak.ts matches headers in any case, spacing and order, maps each column's choices, and returns eight workbook-only faults as their code at their sheet and row. Each application's copy makes the same package as the file it was saved from (contoh-pelajaran-v1.xlsx, before the D-040 regrouping)."
     },
     {
       "id": "BOB02-K02",
@@ -1783,6 +1863,31 @@
       "id": "BOB02-R01",
       "runner": "static",
       "proves": "BOB-02. The route sources agree on one media path: /api/assets/upload-url signs pelajaran/<school>/<batch>/<file> only on may_upload_package_media's answer, /api/assets/read-url accepts that shape and the seeded flat one and refuses near misses, and the longest package path fits the upload route's length rule."
+    },
+    {
+      "id": "DAISY-08-PANEL-01",
+      "runner": "static",
+      "proves": "DAISY-08 (D-018): the sign-in panel shows PINTAR's own statement, not a placeholder. From the COPY TABLE: no placeholder key, and no telling for any persona in either language says FOTO CONTOH or PLACEHOLDER PHOTO; no SOURCE file draws the old photo scaffold. The panel is RENDERED in both languages as a section labelled by its own heading, carrying the statement from the copy table with no image and nothing hidden from assistive technology but a decorative rule; its phone twin says the same; /masuk and the expired-link screen both show it. From the stylesheet FILE, exactly one copy is displayed at every width, and the panel is the brand colour with the brand's ink and nothing laid over it; the contrast is computed from the token values in globals.css and must meet WCAG AA."
+    },
+    {
+      "id": "DAISY-06-TEMPLAT-01",
+      "runner": "static",
+      "proves": "DAISY-06: the lesson workbook template is BOB-02's contract written out, checked against Bob's own reader and converter (no network). (a) The blank template OUTPUT by the browser writer is read by bacaBukuKerja: the guidance sheet then Kursus, Bab, Pelajaran, Soal, Pilihan in LEMBAR order, each data sheet exactly KOLOM's headers in KOLOM order and nothing else; bukuKerjaKePaket finds no missing sheet or column; the guidance states every column as the contract does and every BATAS_PAKET limit with its own number. (b) One filled row per sheet, written by the same writer, converts with no problem, choices becoming their codes and XML special characters, quotes and a line break coming back exactly. (c) Two builds are byte-identical; from the zip FILE, every entry is stored with the fixed timestamp and a CRC-32 equal to Node's zlib.crc32, every cell is an inline string, and every fixed list is a dropdown on its own column. From the SOURCE: neither the template nor the upload panel imports src/lib/xlsx.ts or a node: module, and the contract file they import brings in types only."
+    },
+    {
+      "id": "DAISY-06-UNGGAH-01",
+      "runner": "static",
+      "proves": "DAISY-06: the upload panel is RENDERED to html in a child process in both languages: the template download; three steps named for what they do with the first current; a Sekolah picker offering exactly the given schools with the first selected; an .xlsx file input; a check that waits for a file; no upload when no school is on offer. From the COPY TABLE, every package problem and refusal code reads as its own sentence in both languages, and a problem's place is OUTPUT as sheet, row and the column's KOLOM header. From the SOURCE, /studio/unggah reads each drafting school's tenant_kind and is_active and offers them through the shared school rule (never the national library) to the panel and the JSON forms, labelled Sekolah; the workbook panel comes first; and the panel reaches the server only through BOB-02's two typed actions and the signed-upload route, to the path the check returned."
+    },
+    {
+      "id": "DAISY-06-UNGGAH-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered /studio/unggah against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on the page offers the national library. Read only."
     }
   ]
 }
