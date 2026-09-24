@@ -223,17 +223,54 @@ await step("S6", "the school admin's Orang list on day one (can they grant staff
   return `people offered: ${real.length} (${real.slice(0, 5).join(" / ")})`;
 });
 
-await step("S7", "is there any screen to create a class (org tree)?", async (rec) => {
-  const pages = ["/konfigurasi", "/pendataan", "/studio"];
-  const found = [];
-  for (const p of pages) {
-    await a.goto(`${APP}${p}`, { waitUntil: "networkidle" });
-    const t = await bodyText(a);
-    if (/(buat|tambah)\s+(kelas|rombel|unit|jurusan|departemen)/i.test(t)) found.push(p);
+// D-005 (1): the school builds its own structure. When the candidate carries
+// the Struktur sekolah screen (DAISY-05), the school admin builds SD's Bagian,
+// Tingkat and Kelas there, and W1 (the operator's SQL) is skipped.
+async function tambahDi(page, tingkatan, nama) {
+  const f = page.locator(`div.pin-str-tambah-${tingkatan} form`).first();
+  await f.locator('input[name="nama"]').fill(nama);
+  await f.locator('button[type="submit"]').click();
+  await page.locator("#struktur").getByText(nama, { exact: false }).first().waitFor({ timeout: 15000 }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+}
+
+await step("S7", "the school admin builds SD's structure on a screen (Bagian, Tingkat, Kelas)", async (rec) => {
+  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  if (!(await a.locator("div.pin-str-tambah-bagian form").count())) {
+    const found = [];
+    for (const p of ["/konfigurasi", "/pendataan", "/studio"]) {
+      await a.goto(`${APP}${p}`, { waitUntil: "networkidle" });
+      if (/(buat|tambah)\s+(kelas|rombel|unit|jurusan|departemen)/i.test(await bodyText(a))) found.push(p);
+    }
+    rec.shots.push(await shot(a, "pendataan-admin"));
+    rec.verdict = "BLOCKED";
+    return found.length ? `class wording on ${found.join(", ")}, but no Struktur sekolah panel` : "no screen offers to create a class, department or cohort";
   }
-  rec.shots.push(await shot(a, "pendataan-admin"));
-  if (!found.length) rec.verdict = "BLOCKED";
-  return found.length ? `class creation offered on ${found.join(", ")}` : "no screen offers to create a class, department or cohort";
+  const steps = [];
+  const count = (kind, name) => sql(`select count(*) from public.org_nodes where institution_id='${ids.sd}' and kind='${kind}' and name='${name}' and is_active`).trim();
+  await tambahDi(a, "bagian", "Kelas Rendah");
+  steps.push(`Bagian ${count("DEPARTMENT", "Kelas Rendah")}`);
+  await tambahDi(a, "tingkat", "Kelas 1");
+  steps.push(`Tingkat ${count("COHORT", "Kelas 1")}`);
+  await tambahDi(a, "kelas", "Kelas 1A");
+  const kl = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1A' and is_active limit 1`).trim();
+  steps.push(`Kelas ${kl ? 1 : 0}`);
+  rec.shots.push(await shot(a, "struktur-sekolah"));
+  const hidden = /Jenjang|Reguler/.test(await a.locator("#struktur").innerText().catch(() => ""));
+  steps.push(`hidden levels shown: ${hidden}`);
+  if (kl) ids.klass = kl;
+  if (!kl || hidden) rec.verdict = "FAIL";
+  const ladder = kl ? sql(`with recursive up as (select id, parent_id, kind::text k, 1 n from public.org_nodes where id='${kl}' union all select o.id, o.parent_id, o.kind::text, up.n + 1 from public.org_nodes o join up on o.id = up.parent_id) select string_agg(k, ' <- ' order by n) from up`).trim() : "-";
+  return `${steps.join("; ")}; ladder: ${ladder}`;
+});
+
+await step("S7b", "Gladys (platform admin) opens Struktur sekolah: which school is chosen first?", async (rec) => {
+  await g.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  if (!(await g.locator("div.pin-str-tambah-bagian form").count())) { rec.verdict = "NOTE"; return "no Struktur sekolah panel"; }
+  const chosen = (await g.locator('#struktur [aria-current="page"]').first().textContent().catch(() => null)) ?? "(single school)";
+  const offered = await g.locator("#struktur nav a").allTextContents().catch(() => []);
+  if (/Kurikulum Nasional/i.test(chosen) || offered.some((o) => /Kurikulum Nasional/i.test(o))) rec.verdict = "FAIL";
+  return `preselected: "${chosen.trim()}"; offered: ${JSON.stringify(offered)}`;
 });
 
 let adminApi;
@@ -261,7 +298,8 @@ await step("S8", "intake with only the school's root as 'Tempat' (all a new scho
   return `${log.join(" | ")} | rows not recorded: ${failed}; row states: ${sql(`select string_agg(ordinal||':'||state::text, ',') from public.import_rows where job_id='${job.data}'`)}`;
 });
 
-await step("W1", "OPERATOR: build SD's tree down to a class (no screen exists for this)", async () => {
+await step("W1", "OPERATOR: build SD's tree down to a class (only when no screen built it)", async () => {
+  if (ids.klass) return "skipped: S7 built Kelas 1A on the Struktur sekolah screen, so no operator step";
   const f = sql(`insert into public.org_nodes (institution_id, parent_id, kind, name) values ('${ids.sd}','${ids.sd}','FACULTY','Jenjang SD') returning id`);
   const d = sql(`insert into public.org_nodes (institution_id, parent_id, kind, name) values ('${ids.sd}','${f}','DEPARTMENT','Kelas Rendah') returning id`);
   const p = sql(`insert into public.org_nodes (institution_id, parent_id, kind, name) values ('${ids.sd}','${d}','PROGRAMME','Program Reguler') returning id`);
