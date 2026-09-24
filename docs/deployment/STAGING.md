@@ -31,7 +31,7 @@
 4. **Yazid: Gladys, in the staging dashboard (two steps).** These are operator actions, so her email never passes through GitHub.
    1. Authentication → Users → Add user → Create new user. Enter Gladys's email and tick **Auto Confirm User**. Any long random password will do; she signs in by link, so nobody needs to know it.
    2. SQL Editor → run `select public.bootstrap_first_system_admin('<Gladys email>');`. It returns her person id, and it can only ever run once.
-5. **Coordinator: initialise.** Dispatch the workflow again with **initialise** ticked. It sets the environment to `staging` with sample data off (production's posture), and creates SD and SMA with the 2026/2027 year.
+5. **Coordinator: initialise.** Dispatch the workflow again with **initialise** ticked. It sets the database's environment to `production` with sample data off (D-038: real schools and official evidence need it, so reports work), and creates SD and SMA with the 2026/2027 year.
 6. **Gladys's team** signs in at the staging origin. Reports go through the tester form (D-037).
 
 ## Afterwards
