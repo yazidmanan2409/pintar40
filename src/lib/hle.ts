@@ -363,6 +363,7 @@ export type HleEvent =
   | "studio.paket.masalah.item_use_unknown"
   | "studio.paket.masalah.item_difficulty_invalid"
   | "studio.paket.masalah.item_parallel_tier_mixed"
+  | "studio.paket.masalah.item_parallel_cycle_mixed"
   | "studio.paket.masalah.item_options_too_few"
   | "studio.paket.masalah.item_options_too_many"
   | "studio.paket.masalah.item_correct_missing"
@@ -1772,6 +1773,7 @@ const table: Table = {
   "studio.paket.masalah.item_use_unknown": { default: "Kegunaan soal tidak dikenal.", en: "The question's use is not recognised." },
   "studio.paket.masalah.item_difficulty_invalid": { default: "Tingkat kesulitan tidak dikenal.", en: "The difficulty is not recognised." },
   "studio.paket.masalah.item_parallel_tier_mixed": { default: "Satu kelompok paralel mencampur soal latihan dan soal asesmen.", en: "One parallel group mixes practice and assessment questions." },
+  "studio.paket.masalah.item_parallel_cycle_mixed": { default: "Satu kelompok paralel berisi soal Pemetaan awal sekaligus soal Cek penguasaan. Soal dalam satu kelompok dianggap setara, jadi pisahkan kelompoknya.", en: "One parallel group holds both an Initial Mapping and a Mastery Check question. Questions in one group count as equivalent, so separate the groups." },
   "studio.paket.masalah.item_options_too_few": { default: "Soal ini perlu paling sedikit dua pilihan.", en: "This question needs at least two options." },
   "studio.paket.masalah.item_options_too_many": { default: "Soal ini paling banyak lima pilihan (A sampai E).", en: "This question may have at most five options (A to E)." },
   "studio.paket.masalah.item_correct_missing": { default: "Belum ada pilihan yang ditandai benar.", en: "No option is marked correct." },

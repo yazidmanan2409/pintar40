@@ -224,9 +224,9 @@ jobs:
             db-bob02-gates)
               echo "the ten lesson-package defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob03-gates)
-              echo "the eight release-path defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the nine release-path defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob04-gates)
-              echo "the eight learning-cycle defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the nine learning-cycle defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'

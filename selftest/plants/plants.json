@@ -27,13 +27,13 @@
     },
     "db-bob03-gates": {
       "suite": "selftest.run_fable12()",
-      "control_green": 5,
-      "what": "BOB-03's release path: a school's course approved, created, frozen and published by the people the capabilities name, the release authored by the course's author, readiness measured at the seal, the revision's next version, and every refusal's stable code"
+      "control_green": 6,
+      "what": "BOB-03's release path: a school's course approved, created, frozen and published by the people the capabilities name, the release authored by the course's author, readiness measured at the seal, the revision's next version, and every refusal's stable code; and releases changing only through their functions (D-041)"
     },
     "db-bob04-gates": {
       "suite": "selftest.run_fable13()",
-      "control_green": 4,
-      "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle"
+      "control_green": 5,
+      "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle; and the upload refusing a parallel group that spans both tests (D-040)"
     }
   },
   "plants": [
@@ -438,6 +438,18 @@
       "gate": "db-bob04-gates",
       "expect_red": "F13-N01",
       "expect_detail": "a lesson with no pre-test answered"
+    },
+    {
+      "name": "bob03-9",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N03",
+      "expect_detail": "a teacher's direct insert of a release naming another author answered ok"
+    },
+    {
+      "name": "bob04-9",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N03",
+      "expect_detail": "a package whose groups span both tests answered"
     }
   ]
 }

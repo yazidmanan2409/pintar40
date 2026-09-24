@@ -48,6 +48,31 @@ begin
   perform set_config('request.jwt.claim.sub', '', true);
 end $$;
 
+-- D-041 (BOB-03). Signed-in clients no longer write plp_releases: the release
+-- functions do, as the table's owner, with the caller's identity. A suite that
+-- drives a release through its lifecycle as a person does exactly that: the
+-- person's claims stay, only the role is dropped for the one statement, so
+-- every trigger (four-eyes, capability, freeze stamp, readiness) decides as it
+-- would inside create_release or freeze_release. as_signed_in() returns to the
+-- person's client role; an exception rolls the role back with its block.
+-- Inside a SECURITY DEFINER fixture the statement already runs as the owner
+-- and the role cannot change, so there both are no-ops.
+create or replace function selftest.as_release_writer() returns void
+language plpgsql set search_path = public, pg_temp as $$
+begin
+  reset role;
+exception when others then
+  if sqlerrm !~ 'security-definer' then raise; end if;
+end $$;
+
+create or replace function selftest.as_signed_in() returns void
+language plpgsql set search_path = public, pg_temp as $$
+begin
+  set local role authenticated;
+exception when others then
+  if sqlerrm !~ 'security-definer' then raise; end if;
+end $$;
+
 -- Privileges the harness needs on its own schema (CI-01). The helpers above
 -- switch the session role (`set local role authenticated` / `anon`), so every
 -- later `selftest.*` call in run_fable01() is made as that role, not as the

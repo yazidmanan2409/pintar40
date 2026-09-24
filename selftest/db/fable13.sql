@@ -17,10 +17,13 @@
 --            test draws only the questions marked for it
 --   F13-N01  a lesson that cannot make a whole cycle is refused with its code
 --            and makes nothing: no pre-test, a post-test that shares parallel
---            groups with the pre-test (INV-24), an unpublished release, a second
+--            groups with the pre-test (INV-24; made after upload, as hand-authored
+--            content still could), an unpublished release, a second
 --            assignment, a bad window, a class that is not one, and people who
 --            may not assign
 --   F13-N02  a stranger asking for someone's cycle gets a code, not the cycle
+--   F13-N03  the upload refuses a parallel group that holds both a pre-test and
+--            a post-test question, naming every row of it (D-040)
 --
 -- EVERY ROW IS ROLLED BACK: one subtransaction, verdicts collected in a jsonb
 -- of problems, a sentinel to undo the lot, and the findings emitted afterwards.
@@ -48,6 +51,7 @@ returns jsonb language sql immutable as $$
       jsonb_build_object('title', 'Pelajaran satu', 'body_markdown', 'Isi pelajaran untuk murid kelas lima.',
         'items',
           coalesce((select jsonb_agg(jsonb_build_object(
+              '_row', jsonb_build_object('sheet', 'Soal', 'row', k + 1),
               'stem', format('Pertanyaan awal nomor %s tentang pecahan?', k), 'use', 'PRE_TEST',
               'parallel_group', 'A' || k,
               'options', jsonb_build_array(
@@ -55,6 +59,7 @@ returns jsonb language sql immutable as $$
                 jsonb_build_object('label', 'B', 'body', format('Pilihan lain %s', k), 'is_correct', false, 'rationale', 'Ini belum tepat.'))))
              from generate_series(1, p_pre) k), '[]'::jsonb)
           || coalesce((select jsonb_agg(jsonb_build_object(
+              '_row', jsonb_build_object('sheet', 'Soal', 'row', p_pre + k + 1),
               'stem', format('Pertanyaan akhir nomor %s tentang pecahan?', k), 'use', 'POST_TEST',
               'parallel_group', case when p_overlap then 'A' || k else 'B' || k end,
               'options', jsonb_build_array(
@@ -75,7 +80,10 @@ grant execute on function selftest.f13_paket(text, int, int, boolean) to authent
 -- capabilities name: the teacher uploads, the head of department approves and
 -- freezes, the admin creates and publishes. Returns the course and release.
 -- p_publish false stops at FROZEN.
-create or replace function selftest.f13_release(p_inst uuid, p_paket jsonb, p_publish boolean default true)
+-- the earlier three-argument form, so a reload onto an existing database is not ambiguous
+drop function if exists selftest.f13_release(uuid, jsonb, boolean);
+create or replace function selftest.f13_release(p_inst uuid, p_paket jsonb, p_publish boolean default true,
+                                                p_overlap boolean default false)
 returns table (course uuid, release uuid)
 language plpgsql set search_path = public, pg_temp as $$
 declare v_batch uuid; v jsonb; r record;
@@ -86,6 +94,20 @@ begin
   v := public.confirm_ingest_batch(v_batch);
   if (v ->> 'ok')::boolean is not true then raise exception 'the fixture package did not materialise: %', left(v::text, 160); end if;
   course := (v -> 'courses' ->> 0)::uuid;
+  -- p_overlap: after the upload (which refuses it, D-040), each post-test
+  -- question joins the parallel group of a pre-test question, as hand-authored
+  -- content still could -- so assign_release's own INV-24 check is exercised
+  if p_overlap then
+    perform selftest.as_owner();
+    with pre as (select i.parallel_group g, row_number() over (order by i.stem) n from public.items i
+                   join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id
+                  where m.course_id = course and i.cycle_role = 'PRE_TEST'),
+         post as (select i.id, row_number() over (order by i.stem) n from public.items i
+                   join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id
+                  where m.course_id = course and i.cycle_role = 'POST_TEST')
+    update public.items it set parallel_group = pre.g from post join pre on pre.n = post.n where it.id = post.id;
+    perform selftest.as_user('siklus-guru@synthetic.pintar.test');
+  end if;
   perform selftest.f12_advance(course, 'STRUCTURED');
   perform selftest.f12_advance(course, 'VALIDATED');
   perform selftest.f12_advance(course, 'IN_REVIEW');
@@ -109,8 +131,8 @@ begin
   perform selftest.as_owner();
   return next;
 end $$;
-revoke all on function selftest.f13_release(uuid, jsonb, boolean) from public;
-grant execute on function selftest.f13_release(uuid, jsonb, boolean) to authenticated;
+revoke all on function selftest.f13_release(uuid, jsonb, boolean, boolean) from public;
+grant execute on function selftest.f13_release(uuid, jsonb, boolean, boolean) to authenticated;
 
 -- A refusal's stable code, or null when the call went through.
 create or replace function selftest.f13_code(p_sql text)
@@ -301,7 +323,7 @@ begin
       if n <> 0 then v_probs := selftest.f11_note(v_probs, 'F13-N01', 'a refused assignment left a learning assignment behind'); end if;
 
       -- a lesson whose post-test shares every parallel group with the pre-test
-      select * into r from selftest.f13_release(v_inst, selftest.f13_paket('Paralel F13 ' || v_tag, 2, 2, true));
+      select * into r from selftest.f13_release(v_inst, selftest.f13_paket('Paralel F13 ' || v_tag, 2, 2, false), true, true);
       perform selftest.as_user('siklus-guru@synthetic.pintar.test');
       v_code := selftest.f13_code(format('select public.assign_release(%L, %L, null, null)', r.release, v_cls));
       perform selftest.as_owner();
@@ -337,6 +359,34 @@ begin
       v_probs := selftest.f11_note(v_probs, 'F13-N02', 'the test could not run: ' || left(sqlerrm, 150));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F13-N03  THE UPLOAD REFUSES A PARALLEL GROUP THAT SPANS BOTH TESTS
+    --          (D-040), NAMING EVERY ROW OF IT, AND ACCEPTS SEPARATE GROUPS.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_user('siklus-guru@synthetic.pintar.test');
+      v := public.prepare_ingest_batch(selftest.f11_batch(v_inst, 'STRUCTURED_PACKAGE',
+             selftest.f13_paket('Campur F13 ' || v_tag, 2, 2, true)));
+      perform selftest.as_owner();
+      select string_agg(distinct x ->> 'code', ','), string_agg((x ->> 'sheet') || ' ' || (x ->> 'row'), ',' order by (x ->> 'row')::int)
+        into v_code, v_state from jsonb_array_elements(v -> 'problems') x;
+      if (v ->> 'ok')::boolean is not false or v_code is distinct from 'ITEM_PARALLEL_CYCLE_MIXED'
+         or v_state is distinct from 'Soal 2,Soal 3,Soal 4,Soal 5' then
+        v_probs := selftest.f11_note(v_probs, 'F13-N03', format('a package whose groups span both tests answered %s at %s',
+          coalesce(v_code, 'ok'), coalesce(v_state, 'no row')));
+      end if;
+      perform selftest.as_user('siklus-guru@synthetic.pintar.test');
+      v := public.prepare_ingest_batch(selftest.f11_batch(v_inst, 'STRUCTURED_PACKAGE',
+             selftest.f13_paket('Terpisah F13 ' || v_tag, 2, 2, false)));
+      perform selftest.as_owner();
+      if (v ->> 'ok')::boolean is not true then
+        v_probs := selftest.f11_note(v_probs, 'F13-N03', 'a package with separate groups was refused: ' || left((v -> 'problems')::text, 160));
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f11_note(v_probs, 'F13-N03', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
     raise exception 'F13_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -347,11 +397,12 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F13-P01', 'F13-P02', 'F13-N01', 'F13-N02'],
+      array['F13-P01', 'F13-P02', 'F13-N01', 'F13-N02', 'F13-N03'],
       array['BOB-04 -- a course carries its pre-test and post-test, and assigning makes the whole cycle',
             'BOB-04 -- a learner completes pre, lesson, post and result, each test drawing its own questions',
             'BOB-04 -- a lesson that cannot make a whole cycle is refused with its code and makes nothing',
-            'BOB-04 -- a stranger asking for a learner''s cycle gets a code'],
+            'BOB-04 -- a stranger asking for a learner''s cycle gets a code',
+            'BOB-04 -- the upload refuses a parallel group spanning both tests, naming its rows (D-040)'],
       array[
         format('a teacher''s package of 3 pre-test, 2 post-test and 1 practice question became a course carrying an '
           || 'approved PRE_TEST of 3 and POST_TEST of 2, reviewed with it; once published, the teacher''s assign_release '
@@ -365,7 +416,10 @@ begin
           || 'class; a lesson with no pre-test (ASSIGN_PRE_TEST_MISSING); and a post-test sharing every parallel group '
           || 'with the pre-test (ASSIGN_CYCLE_OVERLAP, INV-24) -- the last two leaving no learning assignment', m_refused),
         'my_cycle_state answered PR050 CYCLE_NOT_ASSIGNED to a DEAN asking about a learner''s assignment and to a '
-          || 'learner asking about an unknown one'
+          || 'learner asking about an unknown one',
+        'a package whose two pre-test questions share their parallel groups with its two post-test questions came back '
+          || 'ok=false with ITEM_PARALLEL_CYCLE_MIXED and nothing else, at Soal rows 2, 3, 4 and 5 -- every question of '
+          || 'those groups; the same package with separate groups prepared cleanly'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

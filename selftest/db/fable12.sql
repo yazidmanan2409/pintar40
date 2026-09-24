@@ -15,6 +15,8 @@
 --            nothing
 --   F12-N02  readiness is measured at the seal: a course the validators block
 --            is not frozen, and its findings stay for the author to fix
+--   F12-N03  releases change only through their functions (D-041): no direct
+--            insert or update by a signed-in client; reading stays
 --
 -- EVERY ROW IS ROLLED BACK: one subtransaction, verdicts collected in a jsonb
 -- of problems, a sentinel to undo the lot, and the findings emitted afterwards.
@@ -391,6 +393,40 @@ begin
       v_probs := selftest.f11_note(v_probs, 'F12-N02', 'the test could not run: ' || left(sqlerrm, 150));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F12-N03  RELEASES CHANGE ONLY THROUGH THEIR FUNCTIONS (D-041): a teacher
+    --          cannot insert a release naming another author, an admin cannot
+    --          move one by a direct update, and reading stays open.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      if v_rel is null or v_course_x is null then raise exception 'the fixtures above made no release to probe'; end if;
+      perform selftest.as_user_uid(v_guru);
+      v_code := selftest.f12_code(format(
+        'insert into public.plp_releases (institution_id, course_id, version_label, author_person_id) values (%L, %L, %L, %L)',
+        v_a, v_course_x, '7.0.0', v_kajur_p));
+      perform selftest.as_owner();
+      if v_code is null or v_code not like '42501%' then
+        v_probs := selftest.f11_note(v_probs, 'F12-N03', 'a teacher''s direct insert of a release naming another author answered '
+          || coalesce(v_code, 'ok -- the row was written'));
+      end if;
+      perform selftest.as_user_uid(v_adm);
+      v_code := selftest.f12_code(format('update public.plp_releases set status = %L where id = %L', 'SUPERSEDED', v_rel));
+      perform selftest.as_owner();
+      if v_code is null or v_code not like '42501%' then
+        v_probs := selftest.f11_note(v_probs, 'F12-N03', 'an admin''s direct update of a release answered '
+          || coalesce(v_code, 'ok -- the row moved'));
+      end if;
+      perform selftest.as_user_uid(v_guru);
+      select count(*) into n from public.plp_releases pr where pr.institution_id = v_a;
+      perform selftest.as_owner();
+      if n < 1 then v_probs := selftest.f11_note(v_probs, 'F12-N03', 'a teacher can no longer read the school''s releases'); end if;
+      select count(*) into n from pg_policies where schemaname = 'public' and tablename = 'plp_releases' and cmd <> 'SELECT';
+      if n <> 0 then v_probs := selftest.f11_note(v_probs, 'F12-N03', format('%s write policy(ies) remain on plp_releases', n)); end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f11_note(v_probs, 'F12-N03', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
     raise exception 'F12_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -401,12 +437,13 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F12-P01', 'F12-P02', 'F12-P03', 'F12-N01', 'F12-N02'],
+      array['F12-P01', 'F12-P02', 'F12-P03', 'F12-N01', 'F12-N02', 'F12-N03'],
       array['BOB-03 -- a school''s course goes approve, create, freeze, publish, and the teacher sees it',
             'BOB-03 -- a correction is a revision whose release is the next minor version',
             'BOB-03 -- the release is the course''s: its author cannot freeze it',
             'BOB-03 -- every refusal on the release path is its stable code',
-            'BOB-03 -- readiness is measured at the seal; a blocked course is not frozen'],
+            'BOB-03 -- readiness is measured at the seal; a blocked course is not frozen',
+            'BOB-03 -- releases change only through their functions (D-041)'],
       array[
         format('a teacher''s package became a course; the head of department approved it; the school''s admin created '
           || 'release 1.0.0, authored by the teacher; the head of department froze it (approved by them, content hash '
@@ -424,7 +461,10 @@ begin
           || 'second click on Terbitkan published and audited nothing twice', m_refused),
         'a course whose question names its answer had no findings until freeze_release ran the validators; the freeze '
           || 'answered ok=false RELEASE_NOT_READY with readiness BLOCKED naming STEM_REVEALS_ANSWER, left the release '
-          || 'INGESTED and the course unsealed, and kept the finding for the author'
+          || 'INGESTED and the course unsealed, and kept the finding for the author',
+        'a teacher''s direct insert of a release naming the head of department as author and an admin''s direct update '
+          || 'of a published release were both refused by the database (42501, no grant), no write policy remains on '
+          || 'plp_releases, and the teacher still reads the school''s releases'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

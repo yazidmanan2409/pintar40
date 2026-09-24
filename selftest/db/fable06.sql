@@ -759,16 +759,28 @@ begin
   perform selftest.as_user_uid(p_author_uid);
   -- version_label is semver by CHECK constraint; 9.0.0 stays out of the way
   -- of the fixtures' own 1.0.0 releases.
+  perform selftest.as_release_writer();  -- D-041
   insert into public.plp_releases (institution_id, course_id, version_label)
   values (p_inst, p_course, '9.0.0')
   returning plp_releases.id into v_rel;
+  perform selftest.as_signed_in();
   perform selftest.as_user_uid(p_reviewer_uid);
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'STRUCTURED' where plp_releases.id = v_rel;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'VALIDATED'  where plp_releases.id = v_rel;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'IN_REVIEW'  where plp_releases.id = v_rel;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = p_reviewer
    where plp_releases.id = v_rel;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();  -- D-041
   update public.plp_releases set status = 'FROZEN'     where plp_releases.id = v_rel;
+  perform selftest.as_signed_in();
   perform selftest.as_owner();
   if not public.content_is_sealed(p_course) then
     raise exception 'the fixture failed to seal course %', p_course;
@@ -5855,11 +5867,19 @@ begin
       -- CAN_FREEZE_RELEASE seals it, CAN_PUBLISH makes it available.
       perform selftest.as_user_uid(c.adm_u);
       foreach t in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+        perform selftest.as_release_writer();  -- D-041
         update public.plp_releases r2 set status = t::public.content_status where r2.id = v_rel;
+        perform selftest.as_signed_in();
       end loop;
+      perform selftest.as_release_writer();  -- D-041
       update public.plp_releases r2 set status = 'APPROVED', reviewed_by_person_id = c.adm where r2.id = v_rel;
+      perform selftest.as_signed_in();
+      perform selftest.as_release_writer();  -- D-041
       update public.plp_releases r2 set status = 'FROZEN'    where r2.id = v_rel;
+      perform selftest.as_signed_in();
+      perform selftest.as_release_writer();  -- D-041
       update public.plp_releases r2 set status = 'PUBLISHED' where r2.id = v_rel;
+      perform selftest.as_signed_in();
       perform selftest.as_owner();
       if not public.release_starts_new_sessions(v_rel) then
         bad := bad || array['a published release still refuses to start a session'];

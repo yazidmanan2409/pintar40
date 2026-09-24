@@ -21,6 +21,9 @@
 -- findings (freeze on a BLOCKED course) is returned, not raised, so the
 -- findings the validators just wrote survive for the author to act on.
 --
+-- RELEASES CHANGE ONLY THROUGH THESE FUNCTIONS (D-041): the direct INSERT and
+-- UPDATE policies and client grants on plp_releases are removed; SELECT stays.
+--
 -- THE FOUR-EYES RULE IS UNCHANGED. enforce_content_status still refuses a
 -- release approved by its author. What this migration decides is only who the
 -- author IS: the course's author, never whoever pressed "create". So the same
@@ -230,6 +233,19 @@ revoke all on function public.withdraw_release(uuid, text) from public, anon, au
 grant execute on function public.withdraw_release(uuid, text) to authenticated;
 
 -- ---------------------------------------------------------------------------
+-- 3b. RELEASES CHANGE ONLY THROUGH THEIR FUNCTIONS (D-041). The two policies
+--     below let any CAN_DRAFT holder insert a release naming any author and
+--     move it along the lifecycle directly -- around create_release's rule that
+--     a release's author is its course's author, which the four-eyes check
+--     relies on. Signed-in clients keep SELECT (the Studio and Siapkan read it);
+--     every write is create_release, freeze_release, publish_release or
+--     withdraw_release, which run as the table's owner and check the caller.
+-- ---------------------------------------------------------------------------
+drop policy plp_releases_insert on public.plp_releases;
+drop policy plp_releases_update on public.plp_releases;
+revoke insert, update, delete, truncate on public.plp_releases from public, anon, authenticated;
+
+-- ---------------------------------------------------------------------------
 -- 4. THE REGISTRY (L3-F02).
 -- ---------------------------------------------------------------------------
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement)
@@ -279,6 +295,19 @@ begin
   if has_function_privilege('anon', 'public.create_release(uuid)'::regprocedure, 'execute')
      or has_function_privilege('anon', 'public.freeze_release(uuid)'::regprocedure, 'execute') then
     raise exception 'BOB-03: an anonymous caller can reach a release function';
+  end if;
+  -- D-041: no client writes a release row; SELECT stays
+  if has_table_privilege('authenticated', 'public.plp_releases', 'INSERT')
+     or has_table_privilege('authenticated', 'public.plp_releases', 'UPDATE')
+     or has_table_privilege('anon', 'public.plp_releases', 'INSERT')
+     or has_table_privilege('anon', 'public.plp_releases', 'UPDATE') then
+    raise exception 'BOB-03: a client role can still write plp_releases directly (D-041)';
+  end if;
+  if not has_table_privilege('authenticated', 'public.plp_releases', 'SELECT') then
+    raise exception 'BOB-03: signed-in clients lost SELECT on plp_releases';
+  end if;
+  if exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'plp_releases' and cmd <> 'SELECT') then
+    raise exception 'BOB-03: a write policy remains on plp_releases';
   end if;
   -- the four-eyes rule this migration relies on is still the trigger's
   if pg_get_functiondef('public.enforce_content_status()'::regprocedure) !~ 'reviewed_by_person_id' then
