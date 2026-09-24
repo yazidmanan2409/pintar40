@@ -10,6 +10,8 @@ import {
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
+import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
+import { peranSaya } from "@/lib/tur-negara";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -26,6 +28,7 @@ import SesiSaya from "@/components/SesiSaya";
 
 const s = (event: HleEvent) => t(event, "staff");
 const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
+const tautanTempat = "text-ink-2 underline underline-offset-4 hover:text-ink-1";
 const when = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" });
 const roleLabel = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"].includes(r) ? s(`role.${r}` as HleEvent) : r);
 const transferLabel = (st: string) => (["REQUESTED", "AUTHORIZED", "EXECUTED", "REJECTED", "CANCELLED"].includes(st) ? s(`transfer.${st}` as HleEvent) : st);
@@ -174,11 +177,22 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           piece of it here would be two places to keep true. The link decides
           nothing — `/pendataan` asks `can_on_node('CAN_PROVISION_PEOPLE', …)`
           on arrival and refuses a reader who does not hold it. */}
-      <p className="mt-4">
-        <Link href="/pendataan" className="text-ink-2 underline underline-offset-4 hover:text-ink-1">
-          {s("pendataan.judul")} →
-        </Link>
-      </p>
+      {/* DAISY-03 (M3). Aktivasi and Studio were reachable only by typing
+          their addresses. They sit beside the intake now, with the
+          administrator's other places (D-010) after them. Every one of these
+          asks its own gate on arrival; a link here decides nothing. */}
+      <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label={t("nav.tempat", "staff", { locale: await currentLocale() })}>
+        <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}</Link>
+        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}</Link>
+        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}</Link>
+        <TabTempat
+          tempat={tempatDariPeran(await peranSaya())}
+          kecuali={["/konfigurasi"]}
+          locale={await currentLocale()}
+          persona="staff"
+          kelas={tautanTempat}
+        />
+      </nav>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <div className={card}>

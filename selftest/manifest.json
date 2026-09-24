@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 62,
+  "version": 63,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1638,6 +1638,11 @@
       "id": "DAISY-02-KELUAR-01",
       "runner": "static",
       "proves": "DAISY-02 (D-009), a way out on every signed-in screen. The session strip is RENDERED in both languages from the pure component: a staff strip names the person, a learner strip is handed no name and asks 'Bukan akun Anda?' (S15), and both are a labelled group whose way out is a POST form to /keluar with a submit button described by the line beside it. From the SOURCE: the display name reaches the render only when a caller asks, every learning surface (learner shell, an educator's own learning, an assessment in focus, the refusal page) does not ask, the public verification shell carries no strip, Belajar/Mengajar/Pimpinan/Pendataan/Aktivasi render it through the shell and Studio/Konfigurasi through their own headers, and no file writes 'Keluar' as text (D-014). From the stylesheet FILE: on a phone it is a full-width header row ordered ahead of the tabs, its button keeps a 44px target, and no rule hides it."
+    },
+    {
+      "id": "DAISY-03-TEMPAT-01",
+      "runner": "static",
+      "proves": "DAISY-03 (D-010; M3, M15 UI), every role reaches its places by clicking. The places a shell offers are D-010's map read through berandaPeran, checked against it for every display role and a three-role person. The list the tabs are drawn from is OUTPUT by the pure helper -- the places less the calling shell's own, with their labels in both languages -- and the component SOURCE draws one link per entry and nothing else; Pimpinan is not called 'Beranda' beside the others. From the SOURCE: every staff shell offers the other places from one roles answer, the intake shell links Aktivasi, the public page, an assessment in focus and a learner's own shell offer none; Konfigurasi links Pendataan, Aktivasi and Studio and the administrator's other places; Studio links back; the home page's doors no longer send a signed-in reader to /masuk (the loop) and its greeting comes from the copy table. From the stylesheet FILE: on a phone the tab strip wraps rather than overflowing."
     }
   ]
 }

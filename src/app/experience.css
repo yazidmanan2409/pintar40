@@ -464,7 +464,12 @@
      needs a second line gets one. Every shell that fits on one line renders at
      44px exactly as before -- measured on the learner's own two tabs at 320,
      375, 390 and 414. */
-  .pin-tabs { order: 10; width: 100%; gap: 0; height: auto; border-top: 1px solid var(--line); }
+  /* WRAPS WHEN, AND ONLY WHEN, THE LABELS DO NOT FIT (DAISY-03). Somebody who
+     holds several roles now has up to five places here, and a tab cannot be
+     narrower than its longest word: measured at 320px, five tabs pushed the
+     last one off the screen and the page scrolled sideways by 69px. A strip
+     that fits stays one row, exactly as before. */
+  .pin-tabs { order: 10; width: 100%; gap: 0; height: auto; border-top: 1px solid var(--line); flex-wrap: wrap; }
   .pin-tabs a {
     flex: 1; justify-content: center; text-align: center;
     /* THE FLOOR IS ON THE TARGET, NOT ON THE STRIP. Putting `min-height` on the

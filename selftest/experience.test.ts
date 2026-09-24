@@ -86,6 +86,8 @@ import {
 } from "../src/lib/umpanbalik-kontrak";
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import BarisSesi from "../src/components/BarisSesi";
+import { tempatDariPeran, daftarTempat } from "../src/components/tempat";
+import type { DisplayRole } from "../src/lib/auth";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
 
@@ -7281,6 +7283,141 @@ export const experienceTests: SelfTest[] = [
         "Mengajar, Pimpinan, Pendataan and Aktivasi render it through the shell, Studio and Konfigurasi through their " +
         "own headers, no file writes 'Keluar' as text, and on a phone it is a full-width header row ahead of the tabs " +
         "with a 44px button that nothing hides",
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-03 (lane: Daisy)
+  {
+    id: "DAISY-03-TEMPAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-03 (D-010; audit M3, M15 UI): EVERY ROLE REACHES ITS PLACES BY
+       * CLICKING. Aktivasi and Studio were reachable only by typing them; a
+       * dean or head of department could not reach Pimpinan at all, because
+       * the home page's staff door went to /masuk and the signed-in sign-in
+       * screen sent them back; and every staff shell showed only its own area.
+       *
+       * 1. WHICH PLACES IS D-010's MAP, READ THROUGH BOB'S FUNCTION. The
+       *    helper is checked against berandaPeran for every display role, so the
+       *    shell and the landing after sign-in cannot disagree, and on the
+       *    combinations a real person holds.
+       */
+      const ROLES: DisplayRole[] = ["STUDENT", "EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"];
+      const STAF = ["/mengajar", "/pimpinan", "/konfigurasi"];
+      for (const r of ROLES) {
+        const rumah = berandaPeran(r);
+        const harap = STAF.includes(rumah) ? [rumah] : [];
+        c.expect(JSON.stringify(tempatDariPeran([r as string])) === JSON.stringify(harap),
+          `${r}: the shell offers ${JSON.stringify(tempatDariPeran([r as string]))}, D-010 (berandaPeran) says ${JSON.stringify(harap)}`);
+      }
+      c.expect(JSON.stringify(tempatDariPeran(["EDUCATOR", "HEAD_OF_DEPARTMENT", "INSTITUTION_ADMIN"])) === JSON.stringify(STAF),
+        "a person holding three roles is not offered all three places, in order");
+      c.expect(tempatDariPeran(null).length === 0 && tempatDariPeran(["NOT_A_ROLE"]).length === 0,
+        "an unreadable or unknown role is offered a place");
+      c.expect(berandaPeran("DEAN") === "/pimpinan" && berandaPeran("HEAD_OF_DEPARTMENT") === "/pimpinan",
+        "D-010 no longer sends management to Pimpinan -- this guard's premise changed");
+
+      /**
+       * 2. THE TABS ARE EXACTLY THAT LIST. daftarTempat is the list a shell
+       *    draws -- the places less the shell's own, each with its label in the
+       *    reader's language -- and TabTempat turns each entry into one link
+       *    and adds nothing. (The component itself imports next/link, which
+       *    cannot load in this runner, so the list is what is read here.)
+       */
+      for (const locale of LOCALES) {
+        const daftar = daftarTempat(["/mengajar", "/pimpinan", "/konfigurasi"], ["/pimpinan"], locale, "staff");
+        c.expect(JSON.stringify(daftar.map((x) => x.href)) === JSON.stringify(["/mengajar", "/konfigurasi"]),
+          `(${locale}) the tabs are not the places less the excluded one: ${daftar.map((x) => x.href).join(",")}`);
+        c.expect(daftar[0]?.label === t("nav.kelas", "staff", { locale }) && daftar[1]?.label === t("nav.konfigurasi", "staff", { locale }),
+          `(${locale}) a place's tab does not carry its label`);
+        // one place, one name: Pimpinan beside Kelas cannot be called "Beranda"
+        c.expect(!/^(Beranda|Home)$/.test(t("nav.pimpinan", "staff", { locale })),
+          `(${locale}) Pimpinan's tab is still called "${t("nav.pimpinan", "staff", { locale })}"`);
+      }
+
+      const tabTempat = code(readFileSync(join(repoRoot, "src", "components", "TabTempat.tsx"), "utf8"));
+      c.expect(/daftarTempat\(tempat, kecuali, locale, persona\)\.map\(\(\{ href, label \}\) => \(\s*<Link key=\{href\} href=\{href\} className=\{kelas\}>\s*\{label\}\s*<\/Link>/.test(tabTempat),
+        "TabTempat does not render the list as one link per place with its label");
+
+      /**
+       * 3. EVERY STAFF SHELL OFFERS THE OTHER PLACES; NOTHING ELSE DOES. The
+       *    roles are asked once, the learner branch reuses the same answer, and
+       *    neither the public page nor an assessment in focus offers anywhere.
+       */
+      const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      c.expect((cangkang.match(/peranSaya\(\)/g) ?? []).length === 1, "the shell asks for the reader's roles more than once, or not at all");
+      c.expect(/kind === "public" \|\| kind === "focus" \? null : await peranSaya\(\)/.test(cangkang),
+        "the public page or an assessment in focus asks for the reader's roles");
+      const cabang = (k: string) => {
+        const i = cangkang.indexOf(`if (kind === "${k}")`);
+        const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
+        return i >= 0 && j > i ? cangkang.slice(i, j) : "";
+      };
+      const tab = (b: string) => b.match(/<TabTempat[^>]*\/>/)?.[0] ?? "";
+      c.expect(/kecuali=\{\["\/mengajar"\]\}/.test(tab(cabang("pengajar"))), `the teaching shell does not offer the other places: ${tab(cabang("pengajar")) || "none"}`);
+      c.expect(/kecuali=\{\["\/pimpinan"\]\}/.test(tab(cabang("pimpinan"))), `the management shell does not offer the other places: ${tab(cabang("pimpinan")) || "none"}`);
+      c.expect(tab(cabang("pendataan")).length > 0 && !/kecuali/.test(tab(cabang("pendataan"))), "the intake shell does not offer the reader's places");
+      c.expect(/href="\/aktivasi"/.test(cabang("pendataan")), "the intake shell has no way to Aktivasi");
+      c.expect(!tab(cabang("public")) && !tab(cabang("focus")), "the public page or an assessment in focus offers other places");
+      const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran(peran)");
+      c.expect(iBelajar > 0, "the learning branch no longer decides its context from the one roles answer");
+      const belajar = iBelajar > 0 ? cangkang.slice(iBelajar) : "";
+      const iMurid = belajar.lastIndexOf("return (");
+      c.expect(/kecuali=\{\["\/mengajar"\]\}/.test(tab(belajar.slice(0, iMurid))), "an educator's own learning does not offer the other places");
+      c.expect(!tab(belajar.slice(iMurid)), "a learner's own shell offers staff places");
+
+      const aktivasi = code(readFileSync(join(repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"));
+      c.expect(/<CangkangPengalaman[^>]*current="aktivasi"/.test(aktivasi), "Aktivasi does not mark its own tab");
+
+      /**
+       * 4. KONFIGURASI AND STUDIO ARE NOT DEAD ENDS. Konfigurasi links Pendataan,
+       *    Aktivasi and Studio (M3) and the administrator's other places;
+       *    Studio links back to the person's places.
+       */
+      const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      for (const h of ["/pendataan", "/aktivasi", "/studio"]) {
+        c.expect(new RegExp(`<Link href="${h}"`).test(konfig), `Konfigurasi has no link to ${h}`);
+      }
+      c.expect(/<TabTempat[\s\S]*?kecuali=\{\["\/konfigurasi"\]\}/.test(konfig), "Konfigurasi does not offer the administrator's other places");
+      const studio = code(readFileSync(join(repoRoot, "src", "app", "studio", "layout.tsx"), "utf8"));
+      c.expect(/<TabTempat /.test(studio) && /tempatDariPeran\(await peranSaya\(\)\)/.test(studio), "Studio offers no way back to the person's places");
+
+      /**
+       * 5. THE HOME PAGE NO LONGER LOOPS (M15, UI). A signed-in reader's doors
+       *    go to real places by D-010's map; /masuk is only for somebody who is
+       *    not signed in. And its greeting comes from the copy table.
+       */
+      const beranda = code(readFileSync(join(repoRoot, "src", "app", "page.tsx"), "utf8"));
+      c.expect(/const pintuStaf = !viewer \? "\/masuk\?peran=staf"/.test(beranda) && /const pintuGuru = viewer \? "\/mengajar" : "\/masuk\?peran=guru"/.test(beranda),
+        "a signed-in reader's door on the home page still leads to /masuk");
+      c.expect(/berandaPeran\(viewer\.displayRole\)/.test(beranda), "the home page does not use D-010's map for a signed-in reader");
+      c.expect((beranda.match(/\/masuk\?peran=/g) ?? []).length === 2, "the home page links to /masuk from somewhere other than the two anonymous doors");
+      c.expect(!/>\s*Halo,|"kamu"/.test(beranda), "the home page writes its greeting outside the copy table");
+
+      /**
+       * 6. ON A PHONE THE STRIP WRAPS RATHER THAN OVERFLOWS. A tab cannot be
+       *    narrower than its longest word; five places at 320px pushed the last
+       *    one off screen by 69px before this. (Measured after: 40 renders, no
+       *    tab off screen, none clipped, none under 44px, no overflow.)
+       */
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const iP = css.indexOf("@media (max-width: 560px)");
+      const tabsPonsel = /\n\s*\.pin-tabs\s*\{([^}]*)\}/.exec(css.slice(iP))?.[1] ?? "";
+      c.expect(/flex-wrap:\s*wrap/.test(tabsPonsel), `on a phone the tab strip does not wrap: "${tabsPonsel.trim()}"`);
+
+      return c.verdict(
+        "the places a shell offers are D-010's map read through berandaPeran, agreeing with it for every display " +
+        "role and for a three-role person; the list the tabs are drawn from is the places less the shell's own, " +
+        "each with its label in both languages, TabTempat draws one link per entry and nothing else, and Pimpinan is " +
+        "called Pimpinan beside the others. Every staff shell offers the other places " +
+        "from one roles answer, the intake shell reaches Aktivasi, and neither the public page, an assessment in " +
+        "focus nor a learner's own shell offers any. Konfigurasi links Pendataan, Aktivasi and Studio and the " +
+        "administrator's other places, Studio links back, the home page's doors no longer send a signed-in reader " +
+        "to /masuk, and on a phone the tab strip wraps rather than overflowing",
       );
     },
   },

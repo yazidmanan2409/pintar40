@@ -284,6 +284,7 @@ export type HleEvent =
   | "entry.learner"
   | "entry.educator"
   | "entry.staff"
+  | "entry.halo"
   // FABLE-03 — the Dr. Gladys learning cycle. Learner-facing copy only; no
   // lifecycle enum, evidence class, engine version or release hash appears in
   // any of it (§9), and the guard below refuses one if it ever does.
@@ -521,6 +522,7 @@ export type HleEvent =
   | "studio.hasil.gagal"
   | "mengajar.judul"
   | "nav.kelas" | "nav.pimpinan" | "nav.pendataan"
+  | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat"
   // ── WP6B. The educator's own learning. These are NOT staff-only: they are
   // read by a person in their learner context, so the internal-word sweep
   // applies to them exactly as it does to the learner's own home — which is
@@ -1540,6 +1542,7 @@ const table: Table = {
   "entry.learner": { default: "Saya mau belajar", en: "I want to learn" },
   "entry.educator": { default: "Saya mengajar", en: "I teach" },
   "entry.staff": { default: "Saya mengelola sekolah", en: "I run the school" },
+  "entry.halo": { default: "Halo", en: "Hello" },
 
   // ---------------------------------------------------------------- FABLE-03
   "cycle.title": { default: "Perjalanan belajar Anda", en: "Your learning journey" },
@@ -1930,8 +1933,14 @@ const table: Table = {
   // more than the exemption would be.
   "mengajar.judul": { default: "Kelas", en: "Classes" },
   "nav.kelas": { default: "Kelas", en: "Classes" },
-  "nav.pimpinan": { default: "Beranda", en: "Home" },
+  // DAISY-03: "Pimpinan", not "Beranda". Beside Kelas or Konfigurasi, "Beranda"
+  // named nothing -- every place is somebody's home -- and D-010 calls it Pimpinan.
+  "nav.pimpinan": { default: "Pimpinan", en: "Management" },
   "nav.pendataan": { default: "Pendataan", en: "Intake" },
+  "nav.aktivasi": { default: "Aktivasi akun", en: "Account activation" },
+  "nav.konfigurasi": { default: "Konfigurasi", en: "Configuration" },
+  "nav.studio": { default: "Studio", en: "Studio" },
+  "nav.tempat": { default: "Tempat kerja Anda", en: "Your places" },
 
   // ── WP6B. PEMBELAJARAN SAYA — the educator reading their own learning.
   //
