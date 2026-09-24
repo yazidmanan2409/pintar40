@@ -21,7 +21,10 @@ export async function GET(request: NextRequest) {
 
   const path = new URL(request.url).searchParams.get("path") ?? "";
   const profile = /^profile\/([0-9a-f-]{36})\/[a-z0-9_.-]{1,120}$/i.exec(path);
-  const lesson = /^pelajaran\/[a-z0-9_.-]{1,160}$/i.test(path);
+  // flat for the seeded lessons; pelajaran/<school>/<batch>/<file> for a
+  // package's media (BOB-02). Either way the exact path must be named by a
+  // lesson the caller is assigned; the shape only decides what is asked.
+  const lesson = /^pelajaran\/(?:[0-9a-f-]{36}\/[0-9a-f-]{36}\/)?[a-z0-9_.-]{1,160}$/i.test(path);
   if (!profile && !lesson) return NextResponse.json({ error: "invalid_path" }, { status: 400 });
 
   if (profile) {

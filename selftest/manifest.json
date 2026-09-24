@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 62,
+  "version": 63,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..10.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
+    "db": "selftest/db/fable01..11.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -1698,6 +1698,51 @@
       "id": "BOB01-M01",
       "runner": "static",
       "proves": "M5a. Read from the migration source: every problem phrase the import_row_problems the database now runs can return, including 'a learner is placed in an active Kelas or Tingkat', has its own sentence in src/lib/pendataan-kontrak.ts MASALAH whose key in the copy table renders in both languages and is not the phrase itself."
+    },
+    {
+      "id": "F11-P01",
+      "runner": "db",
+      "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, 2 parallel groups, and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
+    },
+    {
+      "id": "F11-P02",
+      "runner": "db",
+      "proves": "BOB-02 bug B. A structured package reaches its confirmation: prepare_ingest_batch leaves it MAPPING_PROPOSED, unconfirmed, with one PACKAGE_CONFIRM open question -- what /studio/unggah lists for confirmation -- and a teacher's confirm_ingest_batch materialises it whole. A course-only package still works, and ingest_structured_package on a batch confirmed the old way now makes the whole hierarchy instead of an empty course."
+    },
+    {
+      "id": "F11-N01",
+      "runner": "db",
+      "proves": "BOB-02 (D-011). A broken package comes back as codes at their sheet and row and writes nothing: sixteen distinct faults answer ok=false with exactly those codes, each problem is only a code and a place, the batch is not offered for confirmation and a confirmation makes nothing; an empty package is PACKAGE_EMPTY."
+    },
+    {
+      "id": "F11-N02",
+      "runner": "db",
+      "proves": "BOB-02 (M8). Only someone who may draft in the batch's school prepares or confirms it: a DEAN and another school's admin are PR030 PACKAGE_NOT_ALLOWED, a foreign and an unknown batch answer identically, an anonymous caller cannot execute confirm_ingest_batch, and a package for the platform's canonical library is PACKAGE_SCHOOL_NOT_ALLOWED."
+    },
+    {
+      "id": "F11-N03",
+      "runner": "db",
+      "proves": "BOB-02. may_upload_package_media grants a signed upload only for a file the package names, in the batch's own school, to someone who may draft there, while the batch awaits confirmation: an unnamed file, another school's id, a path without its batch, another school's admin and a DEAN are refused, and a materialised batch grants nothing."
+    },
+    {
+      "id": "BOB02-X01",
+      "runner": "static",
+      "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook."
+    },
+    {
+      "id": "BOB02-K01",
+      "runner": "static",
+      "proves": "BOB-02 (D-007). The sample workbook file, the committed file contoh-pelajaran.paket.json and the literal in selftest/db/fable11.sql are one lesson package; the converter in the source file src/lib/unggah-kontrak.ts matches headers in any case, spacing and order, maps each column's choices, and returns eight workbook-only faults as their code at their sheet and row."
+    },
+    {
+      "id": "BOB02-K02",
+      "runner": "static",
+      "proves": "BOB-02 (D-011). Read from the migration source: the problem codes lesson_package_check and confirm_ingest_batch can return and the refusal codes of package_refuse are exactly the contract's; every code has a key in the copy table in both languages without machinery words; the ingestion actions in the source file src/app/studio/actions.ts never write 'MAPPED', never update a batch's status directly, never materialise before a confirmation, keep error.message in the server log, and call prepare_ingest_batch and confirm_ingest_batch by their declared arguments."
+    },
+    {
+      "id": "BOB02-R01",
+      "runner": "static",
+      "proves": "BOB-02. The route sources agree on one media path: /api/assets/upload-url signs pelajaran/<school>/<batch>/<file> only on may_upload_package_media's answer, /api/assets/read-url accepts that shape and the seeded flat one and refuses near misses, and the longest package path fits the upload route's length rule."
     }
   ]
 }

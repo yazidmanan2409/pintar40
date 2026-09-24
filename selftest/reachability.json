@@ -8,7 +8,7 @@
     "arg:<name>": "derived from another argument of the same call",
     "caller_choice": "a value the caller invents: a new uuid, an idempotency key"
   },
-  "coverage": "Seeded with the feedback domain, where the gap was found, and extended as each work package touches a client surface. WP8 declares the report-configuration path. The rest of the client surface is reported as undeclared rather than assumed correct. BOB-01 declares the school-structure path.",
+  "coverage": "Seeded with the feedback domain, where the gap was found, and extended as each work package touches a client surface. WP8 declares the report-configuration path. The rest of the client surface is reported as undeclared rather than assumed correct. BOB-01 declares the school-structure path. BOB-02 declares the lesson-package path.",
   "rpcs": {
     "open_feedback_cycle": {
       "actor": "HEAD_OF_DEPARTMENT or DEAN standing over the class",
@@ -118,6 +118,20 @@
         "p_node": "rpc:school_structure"
       },
       "note": "BOB-01. Any row's node_id from the structure list."
+    },
+    "prepare_ingest_batch": {
+      "actor": "a person holding CAN_DRAFT in the batch's school (Guru, Kepala departemen, Admin sekolah, Admin platform)",
+      "args": {
+        "p_batch": "rls:ingest_batches"
+      },
+      "note": "BOB-02. The id the caller's own insert into ingest_batches returned, or a row of the Unggah list."
+    },
+    "confirm_ingest_batch": {
+      "actor": "a person holding CAN_DRAFT in the batch's school (Guru, Kepala departemen, Admin sekolah, Admin platform)",
+      "args": {
+        "p_batch": "rls:ingest_batches"
+      },
+      "note": "BOB-02. The batch the caller prepared, as the Unggah list shows it awaiting confirmation."
     }
   }
 }
