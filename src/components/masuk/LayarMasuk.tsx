@@ -195,6 +195,10 @@ export default function LayarMasuk({
         <span className="pin-disc pin-disc-primary" aria-hidden="true">✉</span>
         <h1 className="pin-mh1" tabIndex={-1} ref={judulRef}>{s("auth.sent_h")}</h1>
         <p className="pin-lede-m">{s("auth.link_sent")}</p>
+        {/* Said BEFORE the link is opened, because it is the most common reason
+            a sign-in fails: the link only works in the browser that asked for
+            it (audit M1). A note rather than a lede, so it is not read past. */}
+        <p className="pin-msg pin-msg-note">{s("auth.sent_same")}</p>
         {catatan}
         <div className="pin-stack">
           {/* Never held. A resend the provider refuses returns the same answer
