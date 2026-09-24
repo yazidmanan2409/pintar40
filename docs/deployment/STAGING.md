@@ -22,7 +22,7 @@
    Leave out `PINTAR_BUILD_SHA`, which Vercel supplies, and `SUPABASE_DB_URL`, which goes to GitHub instead. After creation: Settings → Git → Ignored Build Step → "Only build production".
 2. **Yazid: two GitHub secrets.** Repo → Settings → Secrets and variables → Actions:
    - `STAGING_SUPABASE_DB_URL`: staging's Connect → Session pooler URI, with the database password filled in. Done 24 Sep; the migrations were applied with it (runs 35966930847 and 35967139925, 113 = 113).
-   - `STAGING_SUPABASE_ACCESS_TOKEN`: a Supabase access token for `pintar-staging`. Production's token was refused for staging (HTTP 403, run 35967139925), and it is not widened.
+   - `STAGING_SUPABASE_ACCESS_TOKEN`: a Supabase access token scoped to `pintar-staging` only, with **Auth config read & write** and **project admin write** (`project_admin_write`). Supabase requires the admin permission even for `site_url`, the redirect list and `disable_signup` (run 35968916899). Production's token was refused for staging (HTTP 403, run 35967139925), and it is not widened.
 3. **Coordinator: the migrations and the sign-in boundary.** Dispatch "staging · database and sign-in". It:
    - applies all migrations and checks the count against the repository;
    - writes the sign-in boundary: site URL, the one callback, sign-up off;
@@ -31,7 +31,8 @@
 4. **Yazid: Gladys, in the staging dashboard (two steps).** These are operator actions, so her email never passes through GitHub.
    1. Authentication → Users → Add user → Create new user. Enter Gladys's email and tick **Auto Confirm User**. Any long random password will do; she signs in by link, so nobody needs to know it.
    2. SQL Editor → run `select public.bootstrap_first_system_admin('<Gladys email>');`. It returns her person id, and it can only ever run once.
-5. **Coordinator: initialise.** Dispatch the workflow again with **initialise** ticked. It sets the database's environment to `production` with sample data off (D-038: real schools and official evidence need it, so reports work), and creates SD and SMA with the 2026/2027 year.
+5. **Coordinator: initialise.** Done 24 Sep (run 35968916899): environment `production`, sample data off, SD and SMA real with 2026/2027, 1 SYSTEM_ADMIN.
+   Originally: Dispatch the workflow again with **initialise** ticked. It sets the database's environment to `production` with sample data off (D-038: real schools and official evidence need it, so reports work), and creates SD and SMA with the 2026/2027 year.
 6. **Gladys's team** signs in at the staging origin. Reports go through the tester form (D-037).
 
 ## Afterwards
