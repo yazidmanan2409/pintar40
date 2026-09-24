@@ -20,7 +20,9 @@
    - `CERT_SECRET_KEY_V1` (new).
 
    Leave out `PINTAR_BUILD_SHA`, which Vercel supplies, and `SUPABASE_DB_URL`, which goes to GitHub instead. After creation: Settings → Git → Ignored Build Step → "Only build production".
-2. **Yazid: the GitHub secret.** Repo → Settings → Secrets and variables → Actions → `STAGING_SUPABASE_DB_URL`: staging's Connect → Session pooler URI, with the database password filled in.
+2. **Yazid: two GitHub secrets.** Repo → Settings → Secrets and variables → Actions:
+   - `STAGING_SUPABASE_DB_URL`: staging's Connect → Session pooler URI, with the database password filled in. Done 24 Sep; the migrations were applied with it (runs 35966930847 and 35967139925, 113 = 113).
+   - `STAGING_SUPABASE_ACCESS_TOKEN`: a Supabase access token for `pintar-staging`. Production's token was refused for staging (HTTP 403, run 35967139925), and it is not widened.
 3. **Coordinator: the migrations and the sign-in boundary.** Dispatch "staging · database and sign-in". It:
    - applies all migrations and checks the count against the repository;
    - writes the sign-in boundary: site URL, the one callback, sign-up off;

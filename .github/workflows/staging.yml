@@ -67,13 +67,14 @@ jobs:
       - name: Credentials present, and the database is staging's
         env:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
           PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
           miss=0
           for n in STAGING_SUPABASE_DB_URL SUPABASE_ACCESS_TOKEN PINTAR_SMTP_PASSWORD; do
-            if [ -n "${!n:-}" ]; then echo "$n: present"; else echo "::error::$n is not set"; miss=1; fi
+            label=$n; [ "$n" = SUPABASE_ACCESS_TOKEN ] && label=STAGING_SUPABASE_ACCESS_TOKEN
+            if [ -n "${!n:-}" ]; then echo "$label: present"; else echo "::error::$label is not set"; miss=1; fi
           done
           [ "$miss" = 0 ] || exit 1
           # the URL must name staging's project, and must never name production's
@@ -123,7 +124,7 @@ jobs:
 
       - name: Sign-in boundary and email — write
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
           PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
@@ -152,7 +153,7 @@ jobs:
 
       - name: Sign-in boundary and email — read back and assert
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           sleep 5
