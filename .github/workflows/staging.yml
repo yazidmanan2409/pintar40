@@ -122,7 +122,48 @@ jobs:
           echo "applied on staging: $N (last $L); in the repository: $R"
           [ "$N" = "$R" ] || { echo "::error::staging has $N migrations, the repository $R"; exit 1; }
 
-      - name: Sign-in boundary and email — write
+      - name: Initialise — environment, and SD and SMA (on request only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.initialise }}
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          B=$(psql "$DB" -At -c "select count(*) from public.platform_bootstrap")
+          [ "$B" = "1" ] || { echo "::error::Gladys is not bootstrapped on staging yet (platform_bootstrap has $B rows); see the staging runbook"; exit 1; }
+          psql "$DB" -v ON_ERROR_STOP=1 -At <<'SQL'
+          update public.platform_environment set environment = 'staging', local_fixtures_enabled = false;
+          insert into public.institutions (name, slug, is_synthetic)
+          select v.name, v.slug, false
+            from (values ('SD Zayd Pintar Selalu', 'sd-zps'), ('SMA Zayd Pintar Selalu', 'sma-zps')) v(name, slug)
+           where not exists (select 1 from public.institutions i where i.slug = v.slug);
+          insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+          select i.id, '2026/2027', '2026-07-13', '2027-06-30'
+            from public.institutions i
+           where i.slug in ('sd-zps', 'sma-zps')
+             and not exists (select 1 from public.academic_periods p where p.institution_id = i.id and p.name = '2026/2027');
+          SQL
+          psql "$DB" -At -c "select 'environment: '||environment||', sample data '||case when local_fixtures_enabled then 'ON' else 'off' end from public.platform_environment"
+          psql "$DB" -At -c "select 'school: '||i.slug||' real='||(not i.is_synthetic)||' year='||coalesce(string_agg(p.name, ','),'-') from public.institutions i left join public.academic_periods p on p.institution_id = i.id where i.slug in ('sd-zps','sma-zps') group by i.slug, i.is_synthetic order by 1"
+          psql "$DB" -At -c "select 'active SYSTEM_ADMIN assignments: '||count(*) from public.role_assignments where role = 'SYSTEM_ADMIN' and revoked_at is null and now() < valid_until"
+
+      - name: Sign-in boundary — write (site URL, the one callback, sign-up off)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/body.json
+          import json, os
+          o = os.environ['STAGING_ORIGIN']
+          print(json.dumps({'site_url': o, 'uri_allow_list': f'{o}/auth/callback*', 'disable_signup': True}))
+          PY
+          CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
+            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
+          echo "PATCH (boundary) -> HTTP $CODE"
+          test "$CODE" = "200" || { echo "::error::the sign-in boundary write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+
+      - name: Email — write (sender "PINTAR Staging")
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
           PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
@@ -130,11 +171,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY' > /tmp/body.json
           import json, os
-          o = os.environ['STAGING_ORIGIN']
           print(json.dumps({
-            'site_url': o,
-            'uri_allow_list': f'{o}/auth/callback*',
-            'disable_signup': True,
             'smtp_host': os.environ['SMTP_HOST'],
             'smtp_port': os.environ['SMTP_PORT'],
             'smtp_user': os.environ['SMTP_SENDER'],
@@ -148,10 +185,11 @@ jobs:
             -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
             "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
           rm -f /tmp/body.json
-          echo "PATCH -> HTTP $CODE"
-          test "$CODE" = "200" || { echo "::error::the write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+          echo "PATCH (email) -> HTTP $CODE"
+          test "$CODE" = "200" || { echo "::error::the email write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
 
       - name: Sign-in boundary and email — read back and assert
+        if: ${{ always() && !cancelled() }}
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
         run: |
@@ -177,26 +215,3 @@ jobs:
           if bad: print('::error::not as written: ' + ', '.join(bad)); sys.exit(1)
           PY
 
-      - name: Initialise — environment, and SD and SMA (on request only)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.initialise }}
-        env:
-          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
-        run: |
-          set -euo pipefail
-          B=$(psql "$DB" -At -c "select count(*) from public.platform_bootstrap")
-          [ "$B" = "1" ] || { echo "::error::Gladys is not bootstrapped on staging yet (platform_bootstrap has $B rows); see the staging runbook"; exit 1; }
-          psql "$DB" -v ON_ERROR_STOP=1 -At <<'SQL'
-          update public.platform_environment set environment = 'staging', local_fixtures_enabled = false;
-          insert into public.institutions (name, slug, is_synthetic)
-          select v.name, v.slug, false
-            from (values ('SD Zayd Pintar Selalu', 'sd-zps'), ('SMA Zayd Pintar Selalu', 'sma-zps')) v(name, slug)
-           where not exists (select 1 from public.institutions i where i.slug = v.slug);
-          insert into public.academic_periods (institution_id, name, starts_on, ends_on)
-          select i.id, '2026/2027', '2026-07-13', '2027-06-30'
-            from public.institutions i
-           where i.slug in ('sd-zps', 'sma-zps')
-             and not exists (select 1 from public.academic_periods p where p.institution_id = i.id and p.name = '2026/2027');
-          SQL
-          psql "$DB" -At -c "select 'environment: '||environment||', sample data '||case when local_fixtures_enabled then 'ON' else 'off' end from public.platform_environment"
-          psql "$DB" -At -c "select 'school: '||i.slug||' real='||(not i.is_synthetic)||' year='||coalesce(string_agg(p.name, ','),'-') from public.institutions i left join public.academic_periods p on p.institution_id = i.id where i.slug in ('sd-zps','sma-zps') group by i.slug, i.is_synthetic order by 1"
-          psql "$DB" -At -c "select 'active SYSTEM_ADMIN assignments: '||count(*) from public.role_assignments where role = 'SYSTEM_ADMIN' and revoked_at is null and now() < valid_until"
