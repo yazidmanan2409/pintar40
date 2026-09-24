@@ -1,0 +1,147 @@
+# Staging: the app's public origin on Vercel (D-036). Yazid, 24 Sep: the custom domain
+# https://staging.pintarselalu.com becomes staging's canonical address.
+#
+# WHY IT EXISTS
+#   The app builds its sign-in email links from NEXT_PUBLIC_APP_URL (appUrl() in
+#   src/app/masuk/actions.ts), and Next.js bakes NEXT_PUBLIC_* values into the build. So
+#   moving staging's address means: the variable on staging's Vercel project, then a
+#   rebuild, then Supabase's sign-in settings (staging.yml).
+#
+# WHAT IT DOES (staging's Vercel project only; the name is hard-wired and checked)
+#   1. The custom domain is attached to pintar40-staging and verified. DNS is not touched,
+#      and the Vercel-generated domain stays attached.
+#   2. NEXT_PUBLIC_APP_URL on the project's Production target is set to STAGING_ORIGIN
+#      (the same API upsert the production deploy uses), only if it differs.
+#   3. The latest READY production deployment is rebuilt, so the new value is built in,
+#      and the run waits until the new deployment is READY.
+#   4. STAGING_ORIGIN/masuk answers 200 over valid TLS, and the deployment serves it.
+#
+# CREDENTIAL. VERCEL_TOKEN is the account-wide Vercel token (it reaches both projects; its
+# split into per-environment tokens is a D-039 decision still open). This workflow uses it
+# only against pintar40-staging and refuses any other project name.
+#
+# WHEN IT RUNS
+#   By hand only.
+name: staging · app origin on Vercel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_VERCEL_PROJECT_NAME: pintar40-staging
+  PRODUCTION_VERCEL_PROJECT_NAME: pintar40
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+
+jobs:
+  origin:
+    name: app origin, rebuild, and the front door
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Set the origin, rebuild, verify
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, ssl, sys, time, urllib.error, urllib.parse, urllib.request
+          tok = os.environ['VERCEL_TOKEN']; proj = os.environ['STAGING_VERCEL_PROJECT_NAME']
+          origin = os.environ['STAGING_ORIGIN'].rstrip('/'); host = urllib.parse.urlparse(origin).netloc
+          if proj == os.environ['PRODUCTION_VERCEL_PROJECT_NAME'] or proj != 'pintar40-staging':
+              print('::error::this workflow only touches pintar40-staging'); sys.exit(1)
+          summary = open(os.environ['GITHUB_STEP_SUMMARY'], 'a')
+          def say(s): print(s); summary.write(s + '\n')
+          def api(path, method='GET', body=None):
+              req = urllib.request.Request('https://api.vercel.com' + path, method=method,
+                    data=json.dumps(body).encode() if body is not None else None,
+                    headers={'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json'})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r: return r.status, json.load(r)
+              except urllib.error.HTTPError as e:
+                  return e.code, json.loads(e.read() or b'{}')
+
+          # 0. the project, by name
+          code, p = api(f'/v9/projects/{proj}')
+          if code != 200: say(f'::error::project {proj}: HTTP {code}'); sys.exit(1)
+          pid = p['id']
+
+          # 1. the custom domain is attached and verified; list every domain (none is removed)
+          code, doms = api(f'/v9/projects/{proj}/domains?limit=100')
+          names = sorted(d['name'] for d in doms.get('domains', []))
+          say(f'- domains on {proj}: {", ".join(names)}')
+          code, d = api(f'/v9/projects/{proj}/domains/{host}')
+          if code != 200: say(f'::error::{host} is not attached to {proj} (HTTP {code})'); sys.exit(1)
+          say(f'- {host}: verified={d.get("verified")}, redirect={d.get("redirect")}')
+          if not d.get('verified'): say(f'::error::{host} is attached but not verified yet'); sys.exit(1)
+
+          # 2. NEXT_PUBLIC_APP_URL on Production
+          code, envs = api(f'/v9/projects/{proj}/env?decrypt=false')
+          cur = [e for e in envs.get('envs', []) if e.get('key') == 'NEXT_PUBLIC_APP_URL' and 'production' in (e.get('target') or [])]
+          old = None
+          if cur:
+              c2, one = api(f'/v1/projects/{proj}/env/{cur[0]["id"]}')
+              old = one.get('value') if c2 == 200 else None
+          say(f'- NEXT_PUBLIC_APP_URL before: {old}')
+          if old != origin:
+              code, res = api(f'/v10/projects/{proj}/env?upsert=true', 'POST',
+                              {'key': 'NEXT_PUBLIC_APP_URL', 'value': origin, 'type': 'encrypted', 'target': ['production']})
+              if code not in (200, 201): say(f'::error::writing NEXT_PUBLIC_APP_URL failed: HTTP {code} {res}'); sys.exit(1)
+          code, envs = api(f'/v9/projects/{proj}/env?decrypt=false')
+          cur = [e for e in envs.get('envs', []) if e.get('key') == 'NEXT_PUBLIC_APP_URL' and 'production' in (e.get('target') or [])]
+          c2, one = api(f'/v1/projects/{proj}/env/{cur[0]["id"]}') if len(cur) == 1 else (0, {})
+          if len(cur) != 1 or one.get('value') != origin:
+              say(f'::error::NEXT_PUBLIC_APP_URL read-back is not {origin} (entries: {len(cur)})'); sys.exit(1)
+          say(f'- NEXT_PUBLIC_APP_URL after: {one.get("value")} (read back)')
+
+          # 3. rebuild the latest READY production deployment, so the value is built in. First let
+          #    any build already running finish (a push to main starts one with the old value), so
+          #    it cannot finish after ours and take the domain back.
+          for _ in range(60):
+              code, busy = api(f'/v6/deployments?projectId={pid}&target=production&state=BUILDING,QUEUED,INITIALIZING&limit=5')
+              if not busy.get('deployments'): break
+              print(f'  waiting for {len(busy["deployments"])} running build(s) to finish'); time.sleep(10)
+          else:
+              say('::error::a staging build is still running after 10 minutes'); sys.exit(1)
+          code, ds = api(f'/v6/deployments?projectId={pid}&target=production&state=READY&limit=1')
+          if code != 200 or not ds.get('deployments'): say(f'::error::no READY production deployment to rebuild (HTTP {code})'); sys.exit(1)
+          base = ds['deployments'][0]
+          say(f'- rebuilding deployment {base["uid"]} (commit {(base.get("meta") or {}).get("githubCommitSha", "?")[:7]})')
+          code, nd = api('/v13/deployments?forceNew=1', 'POST', {'name': proj, 'deploymentId': base['uid'], 'target': 'production'})
+          if code not in (200, 201): say(f'::error::redeploy refused: HTTP {code} {nd.get("error")}'); sys.exit(1)
+          did = nd['id']; state = nd.get('readyState')
+          for _ in range(90):
+              if state in ('READY', 'ERROR', 'CANCELED'): break
+              time.sleep(10)
+              code, cur_d = api(f'/v13/deployments/{did}'); state = cur_d.get('readyState')
+          say(f'- new deployment {did}: {state}')
+          if state != 'READY': say('::error::the rebuild did not become READY'); sys.exit(1)
+          # the canonical domain now points at this deployment
+          for _ in range(30):
+              code, cur_d = api(f'/v13/deployments/{did}')
+              if cur_d.get('aliasAssigned') and host in (cur_d.get('alias') or []): break
+              time.sleep(10)
+          say(f'- {host} assigned to the rebuilt deployment: {host in (cur_d.get("alias") or [])}')
+          if host not in (cur_d.get('alias') or []): say(f'::error::{host} does not point at the rebuilt deployment'); sys.exit(1)
+
+          # 4. the front door on the canonical address, over valid TLS
+          ok = False
+          for _ in range(18):
+              try:
+                  req = urllib.request.Request(origin + '/masuk', headers={'User-Agent': 'pintar-staging-origin'})
+                  with urllib.request.urlopen(req, timeout=30, context=ssl.create_default_context()) as r:
+                      say(f'- GET {origin}/masuk -> {r.status} (TLS verified)'); ok = r.status == 200; break
+              except urllib.error.HTTPError as e:
+                  say(f'- GET {origin}/masuk -> {e.code}'); break
+              except Exception as e:
+                  print(f'  waiting for {host}: {type(e).__name__}: {e}'); time.sleep(10)
+          if not ok: say(f'::error::{origin}/masuk is not served with a valid certificate yet'); sys.exit(1)
+          say(f'\n**READY**: {proj} builds with NEXT_PUBLIC_APP_URL={origin}, and {origin}/masuk answers 200.')
+          PY
