@@ -56,6 +56,26 @@ export function daftarTempat(
     .map((x) => ({ href: x, label: t(LABEL[x], persona, { locale }) }));
 }
 
+/**
+ * STUDIO, OFFERED BY ROLE (DAISY-11, D-021). Studio is not anybody's home, so
+ * it is not one of D-010's places above: it is where content is drafted, and
+ * the tab is shown to every role whose capability map includes drafting
+ * (CAN_DRAFT) -- Guru, Kepala departemen, Admin sekolah and Admin platform. A
+ * dean holds no Studio capability and is not offered it.
+ *
+ * A ROLE RULE, ON PURPOSE. Asking the database for the capability in every
+ * school on every page is what D-021 decided against; the role list is read
+ * from the capability map by a guard, so the two cannot drift apart unnoticed.
+ * The tab decides nothing: Studio's own layout still asks the database and
+ * refuses a person who holds no capability in any school.
+ */
+export const PERAN_STUDIO: readonly string[] = ["EDUCATOR", "HEAD_OF_DEPARTMENT", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"];
+
+/** Whether a shell offers the Studio tab. Roles that could not be read offer nothing. */
+export function tawarkanStudio(peran: readonly string[] | null): boolean {
+  return !!peran && peran.some((p) => PERAN_STUDIO.includes(p));
+}
+
 /** A door on the home page: the learner's place or one of the staff places. */
 export type Pintu = "/belajar" | Tempat;
 

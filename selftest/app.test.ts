@@ -1895,4 +1895,93 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "DAISY-10-SAPA-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // D-020 over real HTTP against the seed: a learner signed in reads only
+      // their first name on /belajar and on /, and their full name nowhere on
+      // either page; the educator who also learns is greeted on /belajar as
+      // their name is stored, because staff screens are unchanged. The names
+      // are read from my_profile as each person, not assumed. Read only.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const teks = (html: string, re: RegExp) => visibleText(re.exec(html)?.[1] ?? "").replace(/\s+/g, " ").trim();
+      for (const [label, orang, staf] of [
+        ["learner", PERSONA.cycleLearner, false],
+        ["learner (Alpha)", PERSONA.alphaStudent, false],
+        ["educator who learns", PERSONA.cycleEducator, true],
+      ] as const) {
+        const sesi = await signIn(ctx, orang);
+        const profil = await fetch(`${ctx.supabaseUrl}/rest/v1/my_profile?select=display_name`, {
+          headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sesi.accessToken}` },
+        }).then((r) => r.json() as Promise<Array<{ display_name: string | null }>>).catch(() => []);
+        const nama = (Array.isArray(profil) ? profil[0]?.display_name ?? "" : "").trim();
+        if (!c.expect(/\s/.test(nama), `${label}: the seeded name "${nama}" has one word, so this proves nothing`)) continue;
+        const depan = nama.split(/\s+/)[0];
+        const sapa = staf ? nama : depan;
+
+        const b = await get(`${base}/belajar`, { headers: { cookie: sesi.cookie } });
+        if (c.expect(b.status === 200, `${label}: /belajar → ${b.status}`)) {
+          const html = await b.text();
+          const h1 = teks(html, /<h1 class="pin-h1">([\s\S]*?)<\/h1>/);
+          const halo = t("siklus.halo", staf ? "educator" : "learner");
+          c.expect(h1 === `${halo}, ${sapa}`, `${label}: /belajar greets "${h1}", expected "${halo}, ${sapa}"`);
+          if (!staf) c.expect(!visibleText(html).includes(nama), `${label}: the full name "${nama}" is on /belajar`);
+        }
+        if (staf) continue;
+        const r = await get(`${base}/`, { headers: { cookie: sesi.cookie } });
+        if (c.expect(r.status === 200, `${label}: / → ${r.status}`)) {
+          const html = await r.text();
+          // React writes the greeting as three text nodes separated by empty
+          // comments; the reader sees one sentence, so the markers go first.
+          const kalimat = visibleText(html.replace(/<!-- -->/g, ""));
+          c.expect(kalimat.includes(`${t("entry.halo", "public")}, ${depan}.`), `${label}: / does not greet by first name`);
+          c.expect(!visibleText(html).includes(nama), `${label}: the full name "${nama}" is on /`);
+        }
+      }
+      return c.verdict(
+        "a learner signed in is greeted by first name only on /belajar and on /, and their full name is on neither page; the " +
+        "educator who also learns is greeted on /belajar as their name is stored (D-020, names read from my_profile)",
+      );
+    },
+  },
+  {
+    id: "DAISY-11-STUDIO-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // D-021 over real HTTP against the seed. The Studio tab is in the shell
+      // of every role that may draft -- the teacher on Kelas, the head of
+      // department on Pimpinan, the school administrator on Pendataan -- and
+      // nowhere on the dean's pages; and Studio itself still refuses the dean,
+      // who holds no Studio capability, with its one refusal. Read only.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const tabs = (html: string) => /<nav class="pin-tabs"[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
+      for (const [peran, orang, jalan] of [
+        ["EDUCATOR", PERSONA.alphaGuru, "/mengajar"],
+        ["HEAD_OF_DEPARTMENT", PERSONA.alphaHod, "/pimpinan"],
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "/pendataan"],
+      ] as const) {
+        const sesi = await signIn(ctx, orang);
+        const r = await get(`${base}${jalan}`, { headers: { cookie: sesi.cookie } });
+        if (!c.expect(r.status === 200, `${peran} ${jalan} → ${r.status}`)) continue;
+        const nav = tabs(await r.text());
+        c.expect(nav.length > 0, `${peran} ${jalan}: the page has no tabs`);
+        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>${t("nav.studio", "staff")}</a>`).test(nav), `${peran} ${jalan}: no Studio tab`);
+      }
+      const dekan = await signIn(ctx, PERSONA.dean);
+      const p = await get(`${base}/pimpinan`, { headers: { cookie: dekan.cookie } });
+      c.expect(p.status === 200, `DEAN /pimpinan → ${p.status}`);
+      c.expect(!/href="\/studio"/.test(await p.text()), "the dean is offered Studio");
+      const st = await get(`${base}/studio`, { headers: { cookie: dekan.cookie } });
+      const html = await st.text();
+      c.expect(st.status === 200 && visibleText(html).includes(t("studio.refused", "staff")), `DEAN /studio → ${st.status} without Studio's refusal`);
+      c.expect(!visibleText(html).includes(t("studio.nav.unggah", "staff")), "the dean reaches Studio's own pages");
+      return c.verdict(
+        "the teacher's Kelas, the head of department's Pimpinan and the school administrator's Pendataan each carry the Studio " +
+        "tab; the dean's Pimpinan offers no Studio anywhere, and Studio refuses the dean with its one refusal (D-021)",
+      );
+    },
+  },
 ];
