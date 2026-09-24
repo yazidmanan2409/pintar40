@@ -10,17 +10,24 @@
 #      is allowed, sign-up is off, and mail goes through PINTAR's own sender
 #      under the name "PINTAR Staging".
 #   3. Only when dispatched with `initialise`, and only after Gladys has been
-#      bootstrapped on staging by hand: environment = staging with sample
-#      data off (the same posture as production), and SD and SMA with their
+#      bootstrapped on staging by hand: the database's environment is set to
+#      production with sample data off (D-038: real schools and official
+#      evidence need it, so reports work), and SD and SMA are created with their
 #      2026/2027 year, if they are not there yet.
+#   4. Verifies it live, sending no email: the sign-in page loads, a stranger's
+#      sign-up is refused, there is exactly one platform admin and it is the
+#      recorded person (by digest), and a sign-in link generated on the server
+#      lands on staging's own /auth/callback. Opening that link counts as one
+#      sign-in for the admin; its token is never printed.
 #
 # WHAT IT NEVER TOUCHES
-#   Production. PROJECT_REF is staging's, the database URL must name staging's
-#   project (checked before anything connects), and no production database
-#   password, service key, pepper or certificate key is read. The two shared
-#   credentials are account-level: the Supabase access token (Yazid's account,
-#   which owns both projects) and the mail account's password (the sender is
-#   the same mailbox; D-036, confirmed to Yazid on 24 Sep).
+#   Production. STAGING_SUPABASE_PROJECT_REF is staging's; the database URL
+#   must name staging's project (checked before anything connects); the
+#   Supabase token is scoped to pintar-staging alone, and the run stops if
+#   production's project answers it. No production database password,
+#   service key, pepper or certificate key is read. The one shared credential
+#   is the mail account's password: the sender is the same mailbox (D-036,
+#   confirmed to Yazid on 24 Sep; a separate mailbox is D-039 decision 2).
 #
 # WHEN IT RUNS
 #   On pushes to main that add a migration (staging follows main), and by hand.
@@ -48,8 +55,8 @@ permissions:
   contents: read
 
 env:
-  PROJECT_REF: keijhmdtsgrfvnvocfvk
-  PRODUCTION_REF: trtlvibiybwixfumjrrx
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
   STAGING_ORIGIN: https://pintar40-staging.vercel.app
   SMTP_HOST: pintarselalu.com
   SMTP_PORT: "465"
@@ -67,19 +74,29 @@ jobs:
       - name: Credentials present, and the database is staging's
         env:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
           PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
           miss=0
-          for n in STAGING_SUPABASE_DB_URL SUPABASE_ACCESS_TOKEN PINTAR_SMTP_PASSWORD; do
-            label=$n; [ "$n" = SUPABASE_ACCESS_TOKEN ] && label=STAGING_SUPABASE_ACCESS_TOKEN
-            if [ -n "${!n:-}" ]; then echo "$label: present"; else echo "::error::$label is not set"; miss=1; fi
+          for n in STAGING_SUPABASE_DB_URL STAGING_SUPABASE_ACCESS_TOKEN PINTAR_SMTP_PASSWORD; do
+            if [ -n "${!n:-}" ]; then echo "$n: present"; else echo "::error::$n is not set"; miss=1; fi
           done
           [ "$miss" = 0 ] || exit 1
           # the URL must name staging's project, and must never name production's
-          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_REF"*) echo "::error::STAGING_SUPABASE_DB_URL names the production project"; exit 1;; esac
-          case "$STAGING_SUPABASE_DB_URL" in *"$PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::STAGING_SUPABASE_DB_URL does not name staging's project ($PROJECT_REF)"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::STAGING_SUPABASE_DB_URL names the production project"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::STAGING_SUPABASE_DB_URL does not name staging's project ($STAGING_SUPABASE_PROJECT_REF)"; exit 1;; esac
+          # the token: its kind and a fingerprint (never the value), so a replaced secret shows as changed
+          case "$STAGING_SUPABASE_ACCESS_TOKEN" in sbp_fc*) kind=scoped;; sbp_*) kind=classic;; *) kind=unrecognised;; esac
+          echo "STAGING_SUPABASE_ACCESS_TOKEN: $kind, fingerprint $(printf %s "$STAGING_SUPABASE_ACCESS_TOKEN" | sha256sum | cut -c1-8)"
+          # what it can read. The writes below need Auth Config and Project Settings, both Read-write
+          # (Supabase's permission table); a missing write shows as "project_admin_write" on the write itself.
+          probe() { curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $STAGING_SUPABASE_ACCESS_TOKEN" "https://api.supabase.com/v1/projects/$STAGING_SUPABASE_PROJECT_REF$1"; }
+          echo "Project Settings read: HTTP $(probe '')   Auth Config read: HTTP $(probe /config/auth)   API Keys read: HTTP $(probe /api-keys)"
+          # it must not reach production: asked of production's project itself, never inferred from a list
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $STAGING_SUPABASE_ACCESS_TOKEN" "https://api.supabase.com/v1/projects/$PRODUCTION_SUPABASE_PROJECT_REF")
+          if [ "$code" = 200 ]; then echo "::error::STAGING_SUPABASE_ACCESS_TOKEN can reach production; refusing to continue"; exit 1; fi
+          echo "production refuses this token: HTTP $code"
 
       - uses: actions/setup-node@v4
         with:
@@ -122,19 +139,59 @@ jobs:
           echo "applied on staging: $N (last $L); in the repository: $R"
           [ "$N" = "$R" ] || { echo "::error::staging has $N migrations, the repository $R"; exit 1; }
 
-      - name: Sign-in boundary and email — write
+      - name: Initialise — environment, and SD and SMA (on request only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.initialise }}
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
-          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          B=$(psql "$DB" -At -c "select count(*) from public.platform_bootstrap")
+          [ "$B" = "1" ] || { echo "::error::Gladys is not bootstrapped on staging yet (platform_bootstrap has $B rows); see the staging runbook"; exit 1; }
+          psql "$DB" -v ON_ERROR_STOP=1 -At <<'SQL'
+          -- D-038: staging's database runs in production mode. PINTAR's database knows only two
+          -- postures: production (real schools, official evidence, what reports read) and not-production
+          -- (sample schools only). Staging is set apart by being its own project, keys and origin.
+          update public.platform_environment set environment = 'production', local_fixtures_enabled = false;
+          insert into public.institutions (name, slug, is_synthetic)
+          select v.name, v.slug, false
+            from (values ('SD Zayd Pintar Selalu', 'sd-zps'), ('SMA Zayd Pintar Selalu', 'sma-zps')) v(name, slug)
+           where not exists (select 1 from public.institutions i where i.slug = v.slug);
+          insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+          select i.id, '2026/2027', '2026-07-13', '2027-06-30'
+            from public.institutions i
+           where i.slug in ('sd-zps', 'sma-zps')
+             and not exists (select 1 from public.academic_periods p where p.institution_id = i.id and p.name = '2026/2027');
+          SQL
+          psql "$DB" -At -c "select 'environment: '||environment||', sample data '||case when local_fixtures_enabled then 'ON' else 'off' end from public.platform_environment"
+          psql "$DB" -At -c "select 'school: '||i.slug||' real='||(not i.is_synthetic)||' year='||coalesce(string_agg(p.name, ','),'-') from public.institutions i left join public.academic_periods p on p.institution_id = i.id where i.slug in ('sd-zps','sma-zps') group by i.slug, i.is_synthetic order by 1"
+          psql "$DB" -At -c "select 'active SYSTEM_ADMIN assignments: '||count(*) from public.role_assignments where role = 'SYSTEM_ADMIN' and revoked_at is null and now() < valid_until"
+
+      - name: Sign-in boundary — write (site URL, the one callback, sign-up off)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           python3 - <<'PY' > /tmp/body.json
           import json, os
           o = os.environ['STAGING_ORIGIN']
+          print(json.dumps({'site_url': o, 'uri_allow_list': f'{o}/auth/callback*', 'disable_signup': True}))
+          PY
+          CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
+            -H "Authorization: Bearer ${STAGING_SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
+            "https://api.supabase.com/v1/projects/${STAGING_SUPABASE_PROJECT_REF}/config/auth")
+          echo "PATCH (boundary) -> HTTP $CODE"
+          test "$CODE" = "200" || { echo "::error::the sign-in boundary write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+
+      - name: Email — write (sender "PINTAR Staging")
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/body.json
+          import json, os
           print(json.dumps({
-            'site_url': o,
-            'uri_allow_list': f'{o}/auth/callback*',
-            'disable_signup': True,
             'smtp_host': os.environ['SMTP_HOST'],
             'smtp_port': os.environ['SMTP_PORT'],
             'smtp_user': os.environ['SMTP_SENDER'],
@@ -144,21 +201,22 @@ jobs:
           }))
           PY
           CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
-            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H "Authorization: Bearer ${STAGING_SUPABASE_ACCESS_TOKEN}" \
             -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
-            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
+            "https://api.supabase.com/v1/projects/${STAGING_SUPABASE_PROJECT_REF}/config/auth")
           rm -f /tmp/body.json
-          echo "PATCH -> HTTP $CODE"
-          test "$CODE" = "200" || { echo "::error::the write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+          echo "PATCH (email) -> HTTP $CODE"
+          test "$CODE" = "200" || { echo "::error::the email write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
 
       - name: Sign-in boundary and email — read back and assert
+        if: ${{ always() && !cancelled() }}
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           sleep 5
-          curl -sS -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth" > /tmp/after.json
+          curl -sS -H "Authorization: Bearer ${STAGING_SUPABASE_ACCESS_TOKEN}" \
+            "https://api.supabase.com/v1/projects/${STAGING_SUPABASE_PROJECT_REF}/config/auth" > /tmp/after.json
           python3 - <<'PY'
           import json, os, sys
           d = json.load(open('/tmp/after.json'))
@@ -177,26 +235,79 @@ jobs:
           if bad: print('::error::not as written: ' + ', '.join(bad)); sys.exit(1)
           PY
 
-      - name: Initialise — environment, and SD and SMA (on request only)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.initialise }}
+
+      - name: Verify — the live sign-in round trip and the front door (no email is sent)
         env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
           DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          ADMIN_SHA256: 52e5bbccb4be604c12b16dd38de06b0e1aa53f08d44f9356bb0759e0e47dd2a4
         run: |
           set -euo pipefail
-          B=$(psql "$DB" -At -c "select count(*) from public.platform_bootstrap")
-          [ "$B" = "1" ] || { echo "::error::Gladys is not bootstrapped on staging yet (platform_bootstrap has $B rows); see the staging runbook"; exit 1; }
-          psql "$DB" -v ON_ERROR_STOP=1 -At <<'SQL'
-          update public.platform_environment set environment = 'staging', local_fixtures_enabled = false;
-          insert into public.institutions (name, slug, is_synthetic)
-          select v.name, v.slug, false
-            from (values ('SD Zayd Pintar Selalu', 'sd-zps'), ('SMA Zayd Pintar Selalu', 'sma-zps')) v(name, slug)
-           where not exists (select 1 from public.institutions i where i.slug = v.slug);
-          insert into public.academic_periods (institution_id, name, starts_on, ends_on)
-          select i.id, '2026/2027', '2026-07-13', '2027-06-30'
-            from public.institutions i
-           where i.slug in ('sd-zps', 'sma-zps')
-             and not exists (select 1 from public.academic_periods p where p.institution_id = i.id and p.name = '2026/2027');
-          SQL
-          psql "$DB" -At -c "select 'environment: '||environment||', sample data '||case when local_fixtures_enabled then 'ON' else 'off' end from public.platform_environment"
-          psql "$DB" -At -c "select 'school: '||i.slug||' real='||(not i.is_synthetic)||' year='||coalesce(string_agg(p.name, ','),'-') from public.institutions i left join public.academic_periods p on p.institution_id = i.id where i.slug in ('sd-zps','sma-zps') group by i.slug, i.is_synthetic order by 1"
-          psql "$DB" -At -c "select 'active SYSTEM_ADMIN assignments: '||count(*) from public.role_assignments where role = 'SYSTEM_ADMIN' and revoked_at is null and now() < valid_until"
+          python3 - <<'PY'
+          import hashlib, json, os, secrets, subprocess, sys, urllib.error, urllib.parse, urllib.request
+          ref, o = os.environ['STAGING_SUPABASE_PROJECT_REF'], os.environ['STAGING_ORIGIN']
+          base = f'https://{ref}.supabase.co'
+          host = urllib.parse.urlparse(o).netloc
+          bad = []
+
+          class NoFollow(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, *a, **k): return None
+          opener = urllib.request.build_opener(NoFollow)
+
+          def call(url, method='GET', headers=None, body=None, follow=True):
+              data = json.dumps(body).encode() if body is not None else None
+              h = {'User-Agent': 'pintar-staging-verify', **({'Content-Type': 'application/json'} if data else {}), **(headers or {})}
+              req = urllib.request.Request(url, data=data, method=method, headers=h)
+              try:
+                  r = (urllib.request.urlopen if follow else opener.open)(req, timeout=30)
+                  return r.status, r.headers, r.read()
+              except urllib.error.HTTPError as e:
+                  return e.code, e.headers, e.read()
+
+          # the project's own keys, masked before anything else is printed
+          code, _, raw = call(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                              headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          if code != 200: print(f'::error::the project keys could not be read: HTTP {code}'); sys.exit(1)
+          keys = json.loads(raw)
+          for k in keys:
+              if k.get('api_key'): print('::add-mask::' + k['api_key'])
+          pick = lambda n: next((k['api_key'] for k in keys if k.get('name') == n and (k.get('api_key') or '').startswith('eyJ')), None)
+          anon, service = pick('anon'), pick('service_role')
+          if not anon or not service: print('::error::the legacy anon and service_role keys are not both offered'); sys.exit(1)
+
+          # 1. the front door
+          code, _, _ = call(o + '/masuk')
+          print(f'GET {o}/masuk -> {code}'); code == 200 or bad.append('the sign-in page does not load')
+
+          # 2. a stranger cannot sign up
+          code, _, raw = call(base + '/auth/v1/signup', 'POST', {'apikey': anon},
+                              {'email': f'probe-{secrets.token_hex(6)}@example.invalid', 'password': secrets.token_urlsafe(24)})
+          refused = code in (400, 403, 422) and b'signup' in raw.lower()
+          print(f'self sign-up -> HTTP {code} ({"refused" if refused else "NOT refused"})'); refused or bad.append('sign-up is not refused')
+
+          # 3. the one platform admin is the recorded person (by digest; the address is never printed)
+          email = subprocess.check_output(['psql', os.environ['DB'], '-At', '-c',
+              "select u.email from auth.users u join public.accounts a on a.auth_user_id = u.id "
+              "join public.role_assignments r on r.person_id = a.person_id "
+              "where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null and now() < r.valid_until"]).decode().split()
+          for e in email: print('::add-mask::' + e)
+          print(f'active platform admins: {len(email)}'); len(email) == 1 or bad.append('there is not exactly one platform admin')
+          if email:
+              same = os.environ['ADMIN_SHA256'] in (hashlib.sha256(email[0].encode()).hexdigest(), hashlib.sha256(email[0].strip().lower().encode()).hexdigest())
+              print(f'the admin is the recorded person (digest): {same}'); same or bad.append('the admin is not the recorded person')
+
+              # 4. a sign-in link, generated on the server (no email), lands on staging's own callback
+              code, _, raw = call(base + '/auth/v1/admin/generate_link', 'POST',
+                                  {'apikey': service, 'Authorization': 'Bearer ' + service},
+                                  {'type': 'magiclink', 'email': email[0], 'redirect_to': o + '/auth/callback'})
+              link = (json.loads(raw).get('action_link') or json.loads(raw).get('properties', {}).get('action_link')) if code == 200 else None
+              if not link: bad.append(f'no sign-in link could be generated (HTTP {code})')
+              else:
+                  print('::add-mask::' + link)
+                  code, headers, _ = call(link, follow=False)
+                  loc = urllib.parse.urlparse(headers.get('Location') or '')
+                  print(f'the sign-in link answers HTTP {code} and sends the browser to {loc.scheme}://{loc.netloc}{loc.path}')
+                  (loc.netloc == host and loc.path.startswith('/auth/callback')) or bad.append('the sign-in link does not land on staging\'s callback')
+          if bad: print('::error::' + '; '.join(bad)); sys.exit(1)
+          print('VERIFIED: sign-in page, sign-up refused, one recorded admin, sign-in link lands on ' + o + '/auth/callback')
+          PY

@@ -46,7 +46,7 @@ permissions:
   contents: read
 
 env:
-  PROJECT_REF: trtlvibiybwixfumjrrx
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
   SMTP_HOST: pintarselalu.com
   SMTP_PORT: '465'
   SMTP_SENDER: noreply@pintarselalu.com
@@ -62,12 +62,12 @@ jobs:
     steps:
       - name: Credentials must exist
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PRODUCTION_SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
           PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
           MISS=""
-          [ -n "${SUPABASE_ACCESS_TOKEN:-}" ] || MISS="$MISS SUPABASE_ACCESS_TOKEN"
+          [ -n "${PRODUCTION_SUPABASE_ACCESS_TOKEN:-}" ] || MISS="$MISS PRODUCTION_SUPABASE_ACCESS_TOKEN"
           [ -n "${PINTAR_SMTP_PASSWORD:-}" ]        || MISS="$MISS PINTAR_SMTP_PASSWORD"
           if [ -n "$MISS" ]; then
             echo "::error::missing repository secret(s):$MISS"; exit 1; fi
@@ -142,11 +142,11 @@ jobs:
 
       - name: Auth SMTP configuration BEFORE
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PRODUCTION_SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          curl -sS -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth" > /tmp/before.json
+          curl -sS -H "Authorization: Bearer ${PRODUCTION_SUPABASE_ACCESS_TOKEN}" \
+            "https://api.supabase.com/v1/projects/${PRODUCTION_SUPABASE_PROJECT_REF}/config/auth" > /tmp/before.json
           python3 -c "
           import json
           d=json.load(open('/tmp/before.json'))
@@ -157,7 +157,7 @@ jobs:
 
       - name: Write the SMTP configuration
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PRODUCTION_SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
           PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
@@ -173,9 +173,9 @@ jobs:
           }))
           PY
           CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
-            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H "Authorization: Bearer ${PRODUCTION_SUPABASE_ACCESS_TOKEN}" \
             -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
-            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
+            "https://api.supabase.com/v1/projects/${PRODUCTION_SUPABASE_PROJECT_REF}/config/auth")
           rm -f /tmp/body.json
           echo "PATCH -> HTTP $CODE"
           test "$CODE" = "200" || { echo "::error::SMTP write failed"; python3 -c "
@@ -184,12 +184,12 @@ jobs:
 
       - name: Read back independently and assert
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PRODUCTION_SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           sleep 5
-          curl -sS -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth" > /tmp/after.json
+          curl -sS -H "Authorization: Bearer ${PRODUCTION_SUPABASE_ACCESS_TOKEN}" \
+            "https://api.supabase.com/v1/projects/${PRODUCTION_SUPABASE_PROJECT_REF}/config/auth" > /tmp/after.json
           python3 - <<'PY'
           import json, os, sys
           d = json.load(open('/tmp/after.json'))

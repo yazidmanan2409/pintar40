@@ -30,7 +30,7 @@ permissions:
   contents: read
 
 env:
-  VERCEL_PROJECT_NAME: pintar40
+  PRODUCTION_VERCEL_PROJECT_NAME: pintar40
 
 jobs:
   diagnose:
@@ -69,7 +69,7 @@ jobs:
           set -uo pipefail
           echo "--- project ---"
           curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}" > /tmp/proj.json || true
+            "https://api.vercel.com/v9/projects/${PRODUCTION_VERCEL_PROJECT_NAME}" > /tmp/proj.json || true
           python3 -c "
           import json
           d=json.load(open('/tmp/proj.json'))
@@ -86,7 +86,7 @@ jobs:
 
           echo "--- project domains ---"
           curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains?limit=100" > /tmp/doms.json || true
+            "https://api.vercel.com/v9/projects/${PRODUCTION_VERCEL_PROJECT_NAME}/domains?limit=100" > /tmp/doms.json || true
           python3 -c "
           import json
           d=json.load(open('/tmp/doms.json'))
@@ -96,7 +96,7 @@ jobs:
 
           echo "--- latest deployment: alias state and what the build did ---"
           LATEST=$(curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v6/deployments?app=${VERCEL_PROJECT_NAME}&limit=1" \
+            "https://api.vercel.com/v6/deployments?app=${PRODUCTION_VERCEL_PROJECT_NAME}&limit=1" \
             | python3 -c "import json,sys;print(json.load(sys.stdin)['deployments'][0]['uid'])" || true)
           echo "latest uid: $LATEST"
           curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
@@ -134,7 +134,7 @@ jobs:
 
           echo "--- recent deployments ---"
           curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v6/deployments?app=${VERCEL_PROJECT_NAME}&limit=10" > /tmp/deps.json || true
+            "https://api.vercel.com/v6/deployments?app=${PRODUCTION_VERCEL_PROJECT_NAME}&limit=10" > /tmp/deps.json || true
           python3 -c "
           import json
           d=json.load(open('/tmp/deps.json'))

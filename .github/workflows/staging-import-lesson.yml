@@ -1,0 +1,102 @@
+# Staging: import a lesson package into a school, with its media, through the app's own
+# pages (audit/import-staging.mjs). Yazid's authorization, 24 Sep: the machine imports as
+# the platform admin's account, on staging only.
+#
+# WHAT IT DOES
+#   Checks out the package (from main) and the media (from a media/* branch), signs in as
+#   the platform admin with a server-generated token written as the app's own session
+#   cookie (no email is sent), submits the package on /studio/unggah, uploads every media
+#   file the batch names through /api/assets/upload-url, presses the batch's Konfirmasi,
+#   then checks staging holds every lesson, question and file at full size. READY or
+#   FAILED, with screenshots as an artifact.
+#
+# WHAT IT NEVER TOUCHES
+#   Production. Staging's ref, origin and database URL only; the run stops if production's
+#   project answers the staging token. A course already imported is verified, not doubled.
+#
+# WHEN IT RUNS
+#   By hand only.
+name: staging · import a lesson package
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Package JSON on main"
+        required: true
+        default: docs/onboarding/konten/SD5-Matematika-Bab1.paket.json
+      media_branch:
+        description: "The media/* branch holding media/ files"
+        required: true
+        default: media/sd5-matematika-bab1
+      school:
+        description: "School slug on staging"
+        required: true
+        default: sd-zps
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://pintar40-staging.vercel.app
+  ADMIN_SHA256: 52e5bbccb4be604c12b16dd38de06b0e1aa53f08d44f9356bb0759e0e47dd2a4
+
+jobs:
+  import:
+    name: import into staging, then verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Inputs are what they claim
+        env:
+          MEDIA_BRANCH: ${{ inputs.media_branch }}
+          PACKAGE: ${{ inputs.package }}
+          SCHOOL: ${{ inputs.school }}
+        run: |
+          case "$MEDIA_BRANCH" in media/*) ;; *) echo "::error::media must come from a media/* branch"; exit 1;; esac
+          case "$PACKAGE" in *.paket.json) ;; *) echo "::error::the package must be a .paket.json file"; exit 1;; esac
+          echo "$SCHOOL" | grep -Eq '^[a-z0-9-]+$' || { echo "::error::school must be a slug"; exit 1; }
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.media_branch }}
+          path: media-branch
+
+      - uses: actions/setup-node@v4
+        with:
+          # supabase-js 2.116 needs Node 22's native WebSocket (run 35991569086)
+          node-version: "22"
+
+      - name: Tools (the app's own Supabase library versions; Playwright as the audit harness pins it)
+        run: |
+          mkdir -p /tmp/tools && cd /tmp/tools && npm init -y >/dev/null
+          npm install --no-audit --no-fund @supabase/ssr@0.12.7 @supabase/supabase-js@2.116.0 playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          cp "$GITHUB_WORKSPACE/audit/import-staging.mjs" /tmp/tools/
+
+      - name: Import and verify
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          PACKAGE_JSON: ${{ github.workspace }}/${{ inputs.package }}
+          MEDIA_DIR: ${{ github.workspace }}/media-branch/media
+          SCHOOL_SLUG: ${{ inputs.school }}
+          SHOTS_DIR: ${{ github.workspace }}/shots
+        run: |
+          cd /tmp/tools && node import-staging.mjs
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: staging-import-screens
+          path: shots/
+          if-no-files-found: ignore

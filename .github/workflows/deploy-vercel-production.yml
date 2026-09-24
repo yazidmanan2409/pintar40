@@ -47,8 +47,8 @@ permissions:
 
 env:
   RELEASE_SHA: 5b5b68d4c77700976904fdee5a2fb52e46f8221e
-  PROJECT_REF: trtlvibiybwixfumjrrx
-  VERCEL_PROJECT_NAME: pintar40
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  PRODUCTION_VERCEL_PROJECT_NAME: pintar40
   # The production origin. A CUSTOM domain is the whole point: this project's
   # Deployment Protection is `all_except_custom_domains`, so PINTAR becomes
   # publicly reachable through this hostname without that protection being
@@ -117,8 +117,8 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           set -euo pipefail
-          vercel project add "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" || true
-          vercel link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
+          vercel project add "$PRODUCTION_VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" || true
+          vercel link --yes --project "$PRODUCTION_VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
 
       # THE PROJECT MUST KNOW WHAT IT IS BUILDING. `vercel project add` creates
       # a project with framework: null, buildCommand: null and
@@ -134,7 +134,7 @@ jobs:
           set -euo pipefail
           curl -sS -X PATCH -H "Authorization: Bearer $VERCEL_TOKEN" \
             -H 'Content-Type: application/json' -d '{"framework":"nextjs"}' \
-            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}" > /tmp/fw.json
+            "https://api.vercel.com/v9/projects/${PRODUCTION_VERCEL_PROJECT_NAME}" > /tmp/fw.json
           python3 -c "
           import json
           d=json.load(open('/tmp/fw.json'))
@@ -157,7 +157,7 @@ jobs:
           echo "--- attach (idempotent) ---"
           curl -sS -X POST -H "Authorization: Bearer $VERCEL_TOKEN" \
             -H 'Content-Type: application/json' -d "{\"name\":\"${CUSTOM_DOMAIN}\"}" \
-            "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_NAME}/domains" > /tmp/add.json || true
+            "https://api.vercel.com/v10/projects/${PRODUCTION_VERCEL_PROJECT_NAME}/domains" > /tmp/add.json || true
           python3 -c "
           import json
           d=json.load(open('/tmp/add.json'))
@@ -167,7 +167,7 @@ jobs:
 
           echo "--- what Vercel requires for this domain ---"
           curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains/${CUSTOM_DOMAIN}" > /tmp/dom.json || true
+            "https://api.vercel.com/v9/projects/${PRODUCTION_VERCEL_PROJECT_NAME}/domains/${CUSTOM_DOMAIN}" > /tmp/dom.json || true
           curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
             "https://api.vercel.com/v6/domains/${CUSTOM_DOMAIN}/config" > /tmp/cfg.json || true
           python3 -c "
@@ -224,7 +224,7 @@ jobs:
           fi
           if [ -z "$ORIGIN" ]; then
             curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-              "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/domains?limit=100" > /tmp/domains.json
+              "https://api.vercel.com/v9/projects/${PRODUCTION_VERCEL_PROJECT_NAME}/domains?limit=100" > /tmp/domains.json
             HOST=$(python3 - <<'PY'
           import json
           d = json.load(open('/tmp/domains.json'))
@@ -236,7 +236,7 @@ jobs:
           PY
           )
             test -n "$HOST" || {
-              echo "::error::Vercel reports no production domain for $VERCEL_PROJECT_NAME"
+              echo "::error::Vercel reports no production domain for $PRODUCTION_VERCEL_PROJECT_NAME"
               cat /tmp/domains.json; exit 1; }
             ORIGIN="https://${HOST}"
           fi
@@ -255,16 +255,16 @@ jobs:
       # for a ruling rather than switching formats silently.
       - name: Take the service-role key from Supabase and prove it works
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PRODUCTION_SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::SUPABASE_ACCESS_TOKEN is not set; the service-role key cannot be taken from its source"; exit 1; }
+          test -n "${PRODUCTION_SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::PRODUCTION_SUPABASE_ACCESS_TOKEN is not set; the service-role key cannot be taken from its source"; exit 1; }
           umask 077
           KEYFILE="$RUNNER_TEMP/service-role-key"
           python3 - "$KEYFILE" <<'PY'
           import json, os, sys, urllib.request, urllib.error
-          out = sys.argv[1]; ref = os.environ['PROJECT_REF']; base = os.environ['SUPABASE_URL']
-          tok = os.environ['SUPABASE_ACCESS_TOKEN']
+          out = sys.argv[1]; ref = os.environ['PRODUCTION_SUPABASE_PROJECT_REF']; base = os.environ['SUPABASE_URL']
+          tok = os.environ['PRODUCTION_SUPABASE_ACCESS_TOKEN']
           req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true",
                                        headers={'Authorization': f'Bearer {tok}', 'User-Agent': 'pintar-deploy'})
           try:
@@ -302,7 +302,7 @@ jobs:
           # silently is not a write. The API upserts, returns JSON, and its
           # failures are visible.
           PRESENT=$(curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/env?decrypt=false" \
+            "https://api.vercel.com/v9/projects/${PRODUCTION_VERCEL_PROJECT_NAME}/env?decrypt=false" \
             | python3 -c "
           import json,sys
           for e in json.load(sys.stdin).get('envs',[]):
@@ -319,7 +319,7 @@ jobs:
             CODE=$(curl -sS -o /tmp/envres.json -w '%{http_code}' -X POST \
               -H "Authorization: Bearer $VERCEL_TOKEN" -H 'Content-Type: application/json' \
               --data-binary @/tmp/envbody.json \
-              "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_NAME}/env?upsert=true")
+              "https://api.vercel.com/v10/projects/${PRODUCTION_VERCEL_PROJECT_NAME}/env?upsert=true")
             if [ "$CODE" != "200" ] && [ "$CODE" != "201" ]; then
               echo "::error::writing $1 failed with HTTP $CODE"; cat /tmp/envres.json; exit 1
             fi
@@ -353,7 +353,7 @@ jobs:
           # be unreadable, and its protection is not weakened to make it so.
           python3 - "$SERVICE_ROLE_KEY_FILE" <<'PY'
           import hashlib, json, os, sys, urllib.request, urllib.error
-          tok = os.environ['VERCEL_TOKEN']; proj = os.environ['VERCEL_PROJECT_NAME']
+          tok = os.environ['VERCEL_TOKEN']; proj = os.environ['PRODUCTION_VERCEL_PROJECT_NAME']
           want = hashlib.sha256(open(sys.argv[1]).read().encode()).hexdigest()
           def get(url):
               req = urllib.request.Request(url, headers={'Authorization': f'Bearer {tok}'})
@@ -388,7 +388,7 @@ jobs:
         run: |
           set -euo pipefail
           curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}/env?decrypt=false" > /tmp/envls.txt
+            "https://api.vercel.com/v9/projects/${PRODUCTION_VERCEL_PROJECT_NAME}/env?decrypt=false" > /tmp/envls.txt
           NAMES=$(python3 -c "
           import json
           for e in json.load(open('/tmp/envls.txt')).get('envs',[]):
@@ -592,13 +592,13 @@ jobs:
       # READS the live configuration and fails if the boundary is not intact.
       - name: Supabase Auth still holds the canonical boundary (read only)
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PRODUCTION_SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::SUPABASE_ACCESS_TOKEN is not set; the Auth boundary cannot be read"; exit 1; }
+          test -n "${PRODUCTION_SUPABASE_ACCESS_TOKEN:-}" || { echo "::error::PRODUCTION_SUPABASE_ACCESS_TOKEN is not set; the Auth boundary cannot be read"; exit 1; }
           CODE=$(curl -sS -o /tmp/auth.json -w '%{http_code}' \
-            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            "https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth")
+            -H "Authorization: Bearer ${PRODUCTION_SUPABASE_ACCESS_TOKEN}" \
+            "https://api.supabase.com/v1/projects/${PRODUCTION_SUPABASE_PROJECT_REF}/config/auth")
           test "$CODE" = "200" || { echo "::error::Auth read failed (HTTP $CODE)"; exit 1; }
           python3 - "$APP_ORIGIN" <<'PY'
           import json, sys

@@ -31,6 +31,24 @@ assert 2 * 20_000 + 10_000 + 5_000 + 1_000 + 500 + 4 * 100 == 56_900
 assert 2 * 20_000 + 10_000 + 5_000 + 1_000 + 500 + 2 * 100 == 56_700
 assert 2 * 20_000 + 10_000 + 5_000 + 500 + 4 * 100 == 55_900
 
+# Post-test PB1-PB5 use fresh numbers (24 Sep): the chapter's own exercises, with their
+# answers, are in the NotebookLM summary students now receive in lesson 5.
+assert 42_458 + 35_687 == 78_145 and 42_458 - 35_687 == 6_771
+
+
+def tanpa_simpan(a, b):
+    """a + b with every carry forgotten, digit by digit."""
+    hasil, tempat = 0, 1
+    while a or b:
+        hasil += (a % 10 + b % 10) % 10 * tempat
+        a, b, tempat = a // 10, b // 10, tempat * 10
+    return hasil
+
+
+assert tanpa_simpan(42_458, 35_687) == 77_035
+assert 78_145 - 1_000 == 77_145     # only the carry from ratusan to ribuan forgotten (4 + 6 + 1 = 11)
+assert str(57_689)[1] == "7" and 36_954 < 63_495 and 7 * 10_000 + 2 * 100 + 8 == 70_208
+
 
 def cara_bayar_pas(total, dompet):
     """Every exact way to pay `total` from the wallet {denomination: count}."""
@@ -214,7 +232,53 @@ Hasilnya **89.054**.
 Contoh: Nisa memiliki Rp100.000 dan berbelanja Rp53.000. Sisanya 100.000 − 53.000 = **Rp47.000**.
 
 {SUMBER}"""),
+    dict(no=5, judul="Rangkuman Bab 1: Video, Infografik, dan Ringkasan",
+         ringkasan="Mengulang seluruh Bab 1 lewat video podcast dengan contoh sehari-hari, infografik, dan ringkasan tertulis.",
+         tujuan="Murid dapat menghubungkan membaca, nilai tempat, membandingkan, komposisi, dan operasi hitung bilangan sampai 100.000 dengan kehidupan sehari-hari.",
+         bloom="Memahami",
+         media="sd5_matematika_1_video.mp4; sd5_matematika_1_doc.jpg; sd5_matematika_1_text.pdf",
+         transkrip_berkas="sd5_matematika_1_video.txt",
+         isi=f"""## Mengulang Bab 1
+
+Kamu sudah belajar membaca, menulis, membandingkan, menyusun, dan menghitung bilangan sampai 100.000. Sekarang ulangi semuanya dengan cara yang berbeda.
+
+1. **Tonton video podcast.** Dua orang membahas Bab 1 dengan contoh sehari-hari: harga di toko, uang kembalian, dan data penduduk. Transkripnya ada di bawah video.
+2. **Lihat infografik** "Petualangan Angka". Coba baca setiap bilangan di dalamnya dengan suara keras.
+3. **Baca ringkasan (PDF).** Kerjakan kuis latihannya lebih dulu, baru periksa kunci jawabannya.
+
+Setelah itu, kerjakan **Cek penguasaan** untuk melihat seberapa jauh kamu sudah menguasai Bab 1.
+
+_Media rangkuman disiapkan oleh sekolah dengan NotebookLM._"""),
+    dict(no=6, judul="Diskusi Bab 1 (Audio)",
+         ringkasan="Mendengarkan diskusi tentang Bab 1 dan mengikuti transkripnya.",
+         tujuan="Murid dapat mengikuti penjelasan lisan tentang bilangan cacah sampai 100.000 dan mengenali konsep Bab 1 di dalamnya.",
+         bloom="Memahami",
+         media="sd5_matematika_1_audio.m4a",
+         transkrip_berkas="sd5_matematika_1_audio.txt",
+         isi=f"""## Dengarkan diskusinya
+
+Dengarkan diskusi tentang Bab 1. Kamu boleh berhenti kapan saja dan mengulang bagian yang belum jelas. Transkripnya ada di bawah audio, untuk dibaca sambil mendengarkan atau bila kamu tidak dapat memutar suara.
+
+Saat mendengarkan, catat:
+
+- satu bilangan besar yang disebut, lalu tulis dengan angka;
+- satu contoh membandingkan dua bilangan;
+- satu soal cerita, lalu hitung jawabannya sendiri.
+
+_Media diskusi disiapkan oleh sekolah dengan NotebookLM._"""),
 ]
+
+# Transcripts: machine drafts from content-draft-transcripts.yml, kept beside this file
+# until a teacher checks them. A lesson with audio or video is refused without one.
+TRANSKRIP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "transkrip")
+for _p in PELAJARAN:
+    _p.setdefault("media", "")
+    _p["transkrip"] = ""
+    if _p.get("transkrip_berkas"):
+        _f = os.path.join(TRANSKRIP_DIR, _p["transkrip_berkas"])
+        assert os.path.exists(_f), f"lesson {_p['no']} has audio or video but no transcript at {_f}"
+        _p["transkrip"] = open(_f, encoding="utf-8").read().strip()
+        assert len(_p["transkrip"]) > 200, f"transcript for lesson {_p['no']} is suspiciously short"
 
 # ── Questions. Each: ref, lesson, stem, options [(text, correct, reason)], use, level, group, hint.
 S = []
@@ -226,63 +290,68 @@ def soal(ref, pel, tanya, pilihan, guna="", sulit="Mudah", kelompok="", petunjuk
     S.append(dict(ref=ref, pel=pel, tanya=tanya, pilihan=pilihan, guna=guna, sulit=sulit, kelompok=kelompok, petunjuk=petunjuk))
 
 
-# Pemetaan awal (pre-test, D-008): where the class starts. Each is paired with a
-# Cek penguasaan question of the same skill (Kelompok paralel).
+# Pemetaan awal (pre-test, D-008): where the class starts. PA1-PA4 test the same skills as
+# PB1-PB4 (reading, place value, comparing, adding), with different numbers. They are NOT put in
+# a Kelompok paralel together: a parallel group means equivalent questions, and INV-24 keeps a
+# learner's post-test clear of every sibling of their pre-test questions, so pairing them left
+# only 4 of the 8 post-test questions drawable (Bob, 24 Sep; assign_release refuses it).
 soal("PA1", 1, "Bagaimana cara membaca 6.375?", [
     ("Enam ribu tiga ratus tujuh puluh lima", True, "Benar. Bagian di depan titik (6) dibaca enam ribu, lalu 375 dibaca tiga ratus tujuh puluh lima."),
     ("Enam tiga tujuh lima", False, "Angkanya dibaca satu per satu. Setiap angka harus dibaca sesuai nilai tempatnya."),
     ("Enam puluh tiga ribu tujuh ratus lima", False, "Itu cara membaca 63.705. Titik ada setelah angka 6, jadi hanya 6 yang menjadi ribuan."),
     ("Enam ratus tiga puluh tujuh ribu lima", False, "Itu terlalu besar. Bilangan ini hanya punya empat angka, jadi paling besar ribuan."),
-], guna="Pemetaan awal", kelompok="membaca")
+], guna="Pemetaan awal")
 soal("PA2", 1, "Pada bilangan 8.456, angka 4 menempati nilai tempat ...", [
     ("satuan", False, "Satuan adalah angka paling kanan, yaitu 6."),
     ("puluhan", False, "Puluhan adalah angka kedua dari kanan, yaitu 5."),
     ("ratusan", True, "Benar. Dari kanan: 6 satuan, 5 puluhan, 4 ratusan, 8 ribuan."),
     ("ribuan", False, "Ribuan adalah angka di depan titik, yaitu 8."),
-], guna="Pemetaan awal", kelompok="nilai tempat")
+], guna="Pemetaan awal")
 soal("PA3", 2, "Tanda yang tepat untuk 4.587 ... 4.857 adalah ...", [
     (">", False, "Ribuannya sama (4). Di ratusan, 5 lebih kecil dari 8, jadi 4.587 lebih kecil."),
     ("<", True, "Benar. Ribuannya sama, lalu di ratusan 5 lebih kecil dari 8."),
     ("=", False, "Kedua bilangan memakai angka yang sama, tetapi letaknya berbeda, jadi nilainya berbeda."),
     ("Tidak dapat dibandingkan", False, "Dua bilangan cacah selalu dapat dibandingkan, mulai dari angka paling kiri."),
-], guna="Pemetaan awal", kelompok="membandingkan")
+], guna="Pemetaan awal")
 soal("PA4", 4, "5.468 + 2.375 = ...", [
     ("7.843", True, "Benar. 8 + 5 = 13, tulis 3 simpan 1; 6 + 7 + 1 = 14, tulis 4 simpan 1; 4 + 3 + 1 = 8; 5 + 2 = 7."),
     ("7.733", False, "Angka yang disimpan terlupa. 8 + 5 = 13 dan 6 + 7 = 13 masing-masing menyimpan 1 ke tempat berikutnya."),
     ("7.743", False, "Simpanan dari satuan sudah dipakai, tetapi simpanan dari puluhan ke ratusan terlupa."),
     ("3.093", False, "Ini hasil pengurangan 5.468 − 2.375. Soalnya meminta penjumlahan."),
-], guna="Pemetaan awal", kelompok="penjumlahan")
+], guna="Pemetaan awal")
 
-# Cek penguasaan (post-test, D-008), from the chapter's Uji Kompetensi.
-soal("PB1", 1, "Bagaimana cara membaca 72.135?", [
-    ("Tujuh puluh dua ribu seratus tiga puluh lima", True, "Benar. 72 di depan titik dibaca tujuh puluh dua ribu, lalu 135 dibaca seratus tiga puluh lima."),
-    ("Tujuh dua ribu seratus tiga puluh lima", False, "72 adalah tujuh puluh dua, bukan tujuh dua."),
-    ("Tujuh ratus dua puluh satu ribu tiga puluh lima", False, "Itu cara membaca 721.035. Titik ada setelah 72."),
-    ("Tujuh puluh dua seratus tiga puluh lima", False, "Kata ribu terlupa. 72 di depan titik adalah tujuh puluh dua ribu."),
-], guna="Cek penguasaan", kelompok="membaca")
-soal("PB2", 1, "Angka 7 pada bilangan 87.986 menempati nilai tempat ...", [
-    ("puluh ribuan", False, "Puluh ribuan adalah angka paling kiri, yaitu 8."),
-    ("ribuan", True, "Benar. 8 puluh ribuan, 7 ribuan, 9 ratusan, 8 puluhan, 6 satuan."),
-    ("ratusan", False, "Ratusan adalah angka pertama setelah titik, yaitu 9."),
+# Cek penguasaan (post-test, D-008), from the chapter's Uji Kompetensi. PB1-PB5 carry fresh
+# numbers: the chapter's own versions (72.135, 87.986, 45.867/55.876, 76.598 + 12.456, 50.303)
+# appear with their answers in the NotebookLM summary given in lesson 5.
+soal("PB1", 1, "Bagaimana cara membaca 84.216?", [
+    ("Delapan puluh empat ribu dua ratus enam belas", True, "Benar. 84 di depan titik dibaca delapan puluh empat ribu, lalu 216 dibaca dua ratus enam belas."),
+    ("Delapan empat ribu dua ratus enam belas", False, "84 adalah delapan puluh empat, bukan delapan empat."),
+    ("Delapan ratus empat puluh dua ribu enam belas", False, "Itu cara membaca 842.016. Titik ada setelah 84."),
+    ("Delapan puluh empat dua ratus enam belas", False, "Kata ribu terlupa. 84 di depan titik adalah delapan puluh empat ribu."),
+], guna="Cek penguasaan")
+soal("PB2", 1, "Angka 7 pada bilangan 57.689 menempati nilai tempat ...", [
+    ("puluh ribuan", False, "Puluh ribuan adalah angka paling kiri, yaitu 5."),
+    ("ribuan", True, "Benar. 5 puluh ribuan, 7 ribuan, 6 ratusan, 8 puluhan, 9 satuan."),
+    ("ratusan", False, "Ratusan adalah angka pertama setelah titik, yaitu 6."),
     ("puluhan", False, "Puluhan adalah angka kedua dari kanan, yaitu 8."),
-], guna="Cek penguasaan", kelompok="nilai tempat")
-soal("PB3", 2, "Tanda yang tepat untuk 45.867 ... 55.876 adalah ...", [
-    (">", False, "Di tempat puluh ribuan, 4 lebih kecil dari 5, jadi 45.867 lebih kecil."),
-    ("<", True, "Benar. Mulai dari kiri: di puluh ribuan 4 lebih kecil dari 5."),
-    ("=", False, "Angka paling kirinya sudah berbeda (4 dan 5), jadi keduanya tidak sama."),
+], guna="Cek penguasaan")
+soal("PB3", 2, "Tanda yang tepat untuk 36.954 ... 63.495 adalah ...", [
+    (">", False, "Di tempat puluh ribuan, 3 lebih kecil dari 6, jadi 36.954 lebih kecil."),
+    ("<", True, "Benar. Mulai dari kiri: di puluh ribuan 3 lebih kecil dari 6."),
+    ("=", False, "Angka paling kirinya sudah berbeda (3 dan 6), jadi keduanya tidak sama."),
     ("Tidak dapat dibandingkan", False, "Dua bilangan cacah selalu dapat dibandingkan, mulai dari angka paling kiri."),
-], guna="Cek penguasaan", kelompok="membandingkan", sulit="Sedang")
-soal("PB4", 4, "76.598 + 12.456 = ...", [
-    ("89.054", True, "Benar. Tiga kali menyimpan: dari satuan, puluhan, dan ratusan."),
-    ("88.944", False, "Tidak ada angka yang disimpan. 8 + 6 = 14 menyimpan 1 ke puluhan, dan seterusnya."),
-    ("88.054", False, "Simpanan dari ratusan ke ribuan terlupa: 5 + 4 + 1 = 10, jadi 1 disimpan ke ribuan."),
-    ("64.142", False, "Ini hasil pengurangan 76.598 − 12.456. Soalnya meminta penjumlahan."),
-], guna="Cek penguasaan", kelompok="penjumlahan", sulit="Sedang")
-soal("PB5", 1, "\"Lima puluh ribu tiga ratus tiga\" ditulis ...", [
-    ("50.303", True, "Benar. Lima puluh ribu (50.000), tiga ratus (300), tiga (3); tempat ribuan dan puluhan diisi 0."),
-    ("5.303", False, "Itu lima ribu tiga ratus tiga. Lima puluh ribu ditulis 50 di depan titik."),
-    ("50.330", False, "Itu lima puluh ribu tiga ratus tiga puluh. Tiga di sini adalah satuan, bukan puluhan."),
-    ("53.003", False, "Itu lima puluh tiga ribu tiga. Tiga ratus ada di tempat ratusan, setelah titik."),
+], guna="Cek penguasaan", sulit="Sedang")
+soal("PB4", 4, "42.458 + 35.687 = ...", [
+    ("78.145", True, "Benar. Tiga kali menyimpan: dari satuan, puluhan, dan ratusan."),
+    ("77.035", False, "Tidak ada angka yang disimpan. 8 + 7 = 15 menyimpan 1 ke puluhan, dan seterusnya."),
+    ("77.145", False, "Simpanan dari ratusan ke ribuan terlupa: 4 + 6 + 1 = 11, jadi 1 disimpan ke ribuan."),
+    ("6.771", False, "Ini hasil pengurangan 42.458 − 35.687. Soalnya meminta penjumlahan."),
+], guna="Cek penguasaan", sulit="Sedang")
+soal("PB5", 1, "\"Tujuh puluh ribu dua ratus delapan\" ditulis ...", [
+    ("70.208", True, "Benar. Tujuh puluh ribu (70.000), dua ratus (200), delapan (8); tempat ribuan dan puluhan diisi 0."),
+    ("7.208", False, "Itu tujuh ribu dua ratus delapan. Tujuh puluh ribu ditulis 70 di depan titik."),
+    ("70.280", False, "Itu tujuh puluh ribu dua ratus delapan puluh. Delapan di sini adalah satuan, bukan puluhan."),
+    ("72.008", False, "Itu tujuh puluh dua ribu delapan. Dua ratus ada di tempat ratusan, setelah titik."),
 ], guna="Cek penguasaan")
 soal("PB6", 3, "3 lembar sepuluh ribuan, 7 lembar seribuan, dan 10 keping seratusan jumlahnya ...", [
     ("Rp38.000", True, "Benar. 30.000 + 7.000 + 1.000 (10 keping seratusan) = 38.000."),
@@ -405,6 +474,9 @@ refs = [s["ref"] for s in S]
 assert len(refs) == len(set(refs))
 assert {p["no"] for p in PELAJARAN} >= {s["pel"] for s in S}
 assert sum(1 for s in S if s["guna"] == "Pemetaan awal") == 4 and sum(1 for s in S if s["guna"] == "Cek penguasaan") == 8
+# INV-24: no parallel group may hold both a Pemetaan awal and a Cek penguasaan question.
+for _k in {s["kelompok"] for s in S if s["kelompok"]}:
+    assert len({s["guna"] for s in S if s["kelompok"] == _k} & {"Pemetaan awal", "Cek penguasaan"}) < 2, _k
 
 
 def tulis(path):
@@ -427,7 +499,7 @@ def tulis(path):
     lembar("Kursus", list(KURSUS), [list(KURSUS.values())])
     lembar("Bab", ["No bab*", "Judul bab*"], [list(b) for b in BAB])
     lembar("Pelajaran", ["No bab", "No pelajaran", "Judul pelajaran", "Ringkasan", "Isi pelajaran", "Tujuan pembelajaran", "Tingkat berpikir", "Media", "Transkrip"],
-           [[1, p["no"], p["judul"], p["ringkasan"], p["isi"], p["tujuan"], p["bloom"], "", ""] for p in PELAJARAN])
+           [[1, p["no"], p["judul"], p["ringkasan"], p["isi"], p["tujuan"], p["bloom"], p["media"], p["transkrip"]] for p in PELAJARAN])
     lembar("Soal", ["Kode soal", "No bab", "No pelajaran", "Jenis soal", "Pertanyaan", "Bacaan", "Petunjuk", "Kegunaan", "Tingkat kesulitan", "Kelompok paralel"],
            [[s["ref"], 1, s["pel"], "Pilihan ganda", s["tanya"], "", s["petunjuk"], s["guna"], s["sulit"], s["kelompok"]] for s in S])
     lembar("Pilihan", ["Kode soal", "Pilihan", "Teks pilihan", "Benar", "Alasan", "Kode miskonsepsi"],

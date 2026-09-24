@@ -1,0 +1,175 @@
+# Draft transcripts for lesson audio and video, on the runner itself.
+#
+# WHY IT EXISTS
+#   A lesson with audio or video is refused without a transcript
+#   (MEDIA_TRANSCRIPT_MISSING), so students who cannot play sound are not left
+#   out. Typing half an hour of speech is slow; checking a draft is quick.
+#
+# WHAT IT DOES
+#   For every .mp4 / .m4a / .mp3 / .wav / .ogg / .webm under media/ on the
+#   given media/* branch:
+#     1. rewrites the file with its index first ("faststart"), so playback can
+#        begin before the whole file arrives. Stream copy only: nothing is
+#        re-encoded, and the duration must come out unchanged;
+#     2. drafts an Indonesian transcript with faster-whisper (open source,
+#        run on this runner; no outside transcription service) as plain
+#        paragraphs (transkrip/<name>.txt) and timed captions (.vtt).
+#   A last job commits both back to the same media/* branch, marked as an
+#   unreviewed machine draft. A teacher checks the draft before production.
+#
+# WHAT IT NEVER DOES
+#   It reads no secret, touches no Supabase or Vercel project, and writes
+#   only to the media/* branch it was given (never main, never a lane).
+#
+# WHEN IT RUNS
+#   By hand only.
+name: content · draft transcripts (speech-to-text on the runner)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The media/* branch holding media/ files"
+        required: true
+        default: media/sd5-matematika-bab1
+      model:
+        description: "faster-whisper model"
+        required: true
+        default: medium
+
+permissions:
+  contents: read
+
+concurrency:
+  group: content-draft-transcripts
+  cancel-in-progress: false
+
+jobs:
+  list:
+    name: Find the media
+    runs-on: ubuntu-latest
+    outputs:
+      files: ${{ steps.find.outputs.files }}
+    steps:
+      - name: The branch must be a media/* branch
+        env:
+          BRANCH: ${{ inputs.branch }}
+        run: |
+          case "$BRANCH" in media/*) echo "branch: $BRANCH";; *) echo "::error::only media/* branches are allowed"; exit 1;; esac
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+      - id: find
+        run: |
+          files=$(cd media && ls | grep -iE '\.(mp4|m4a|mp3|wav|ogg|webm)$' | python3 -c 'import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))')
+          echo "files=$files" >> "$GITHUB_OUTPUT"; echo "media: $files"
+          [ "$files" != "[]" ] || { echo "::error::no audio or video under media/"; exit 1; }
+
+  transcribe:
+    name: "Transcribe · ${{ matrix.file }}"
+    needs: list
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        file: ${{ fromJSON(needs.list.outputs.files) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tools (ffmpeg for the stream copy, faster-whisper for the draft)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          pip install -q faster-whisper==1.2.1
+      - name: Faststart (stream copy; the duration must not change)
+        env:
+          FILE: ${{ matrix.file }}
+        run: |
+          set -euo pipefail
+          mkdir -p out/media out/transkrip
+          in="media/$FILE"; out="out/media/$FILE"
+          ffmpeg -v error -i "$in" -map 0 -c copy -movflags +faststart "$out"
+          d() { ffprobe -v error -show_entries format=duration -of csv=p=0 "$1"; }
+          a=$(d "$in"); b=$(d "$out")
+          python3 -c "import sys; a,b=float(sys.argv[1]),float(sys.argv[2]); print(f'duration {a:.2f}s -> {b:.2f}s'); sys.exit(0 if abs(a-b)<0.2 else 1)" "$a" "$b"
+          ls -l "$in" "$out"
+      - name: Draft the transcript (Indonesian)
+        env:
+          FILE: ${{ matrix.file }}
+          MODEL: ${{ inputs.model }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, time
+          from faster_whisper import WhisperModel
+          f = os.environ['FILE']; stem = os.path.splitext(f)[0]
+          t0 = time.time()
+          model = WhisperModel(os.environ['MODEL'], device='cpu', compute_type='int8', cpu_threads=os.cpu_count())
+          segments, info = model.transcribe(f'media/{f}', language='id', beam_size=5, vad_filter=True,
+                                            condition_on_previous_text=False)
+          def ts(s):
+              h, r = divmod(s, 3600); m, s = divmod(r, 60)
+              return f'{int(h):02d}:{int(m):02d}:{s:06.3f}'
+          paras, cur, last_end, vtt = [], [], 0.0, ['WEBVTT', '']
+          for seg in segments:
+              text = seg.text.strip()
+              if not text:
+                  continue
+              vtt += [f'{ts(seg.start)} --> {ts(seg.end)}', text, '']
+              if cur and (seg.start - last_end > 1.2 or sum(len(x) for x in cur) > 600):
+                  paras.append(' '.join(cur)); cur = []
+              cur.append(text); last_end = seg.end
+          if cur:
+              paras.append(' '.join(cur))
+          head = (f'[Draf transkrip mesin, belum diperiksa guru. Berkas: {f}. '
+                  f'Model faster-whisper {os.environ["MODEL"]}, bahasa id.]')
+          open(f'out/transkrip/{stem}.txt', 'w').write(head + '\n\n' + '\n\n'.join(paras) + '\n')
+          open(f'out/transkrip/{stem}.vtt', 'w').write('\n'.join(vtt))
+          words = sum(len(p.split()) for p in paras)
+          print(f'{f}: {info.duration:.0f}s of audio, language {info.language} (p={info.language_probability:.2f}), '
+                f'{len(paras)} paragraphs, {words} words, {time.time()-t0:.0f}s to transcribe')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: out-${{ strategy.job-index }}
+          path: out/
+
+  commit:
+    name: Commit the drafts to the media branch
+    needs: transcribe
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: The branch must be a media/* branch
+        env:
+          BRANCH: ${{ inputs.branch }}
+        run: |
+          case "$BRANCH" in media/*) ;; *) echo "::error::only media/* branches are allowed"; exit 1;; esac
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: out-*
+          merge-multiple: true
+      - name: Commit
+        env:
+          BRANCH: ${{ inputs.branch }}
+          MODEL: ${{ inputs.model }}
+        run: |
+          set -euo pipefail
+          mkdir -p transkrip
+          cp artifacts/media/* media/
+          cp artifacts/transkrip/* transkrip/
+          ls -l media transkrip
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add media transkrip
+          git commit -q -m "Draft transcripts (faster-whisper $MODEL, unreviewed) and faststart media" -m "Machine drafts for a teacher to check before production. Media rewritten by stream copy only; durations checked unchanged."
+          git push origin "HEAD:$BRANCH"

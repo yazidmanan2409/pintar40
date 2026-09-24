@@ -12,6 +12,10 @@ import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
 import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { peranSaya } from "@/lib/tur-negara";
+import { bacaStruktur } from "@/lib/struktur";
+import { tahunAjaranPada } from "@/lib/struktur-kontrak";
+import PanelStruktur from "@/components/struktur/PanelStruktur";
+import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -49,7 +53,7 @@ type MetricDefinition = {
   deprecated: boolean;
 };
 
-type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string }>;
+type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string; sekolah?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
@@ -83,7 +87,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
     { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint }, { data: env },
   ] = await Promise.all([
-    supabase.from("institutions").select("id, name, slug, is_synthetic, is_active").order("name"),
+    supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
     supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active").order("name"),
     supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status").eq("status", "ACTIVE").order("created_at"),
@@ -95,6 +99,15 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     isSys ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null }),
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
   ]);
+
+  // DAISY-05. The school whose structure is shown: an active, real school the
+  // reader administers -- never the national library, whose name sorts first
+  // (audit S7b) -- the one asked for if it is on offer, else the first. Its
+  // read starts now and runs beside the reads below; `school_structure`
+  // decides again who may see it.
+  const sekolahKu = sekolahDitawarkan(institutions ?? [], (id) => isSys === true || adminInstitutionIds.includes(id));
+  const sekolahStruktur = sekolahDipilih(sekolahKu, sp.sekolah);
+  const bacaanStruktur = sekolahStruktur ? bacaStruktur(sekolahStruktur.id) : Promise.resolve(null);
 
   // FINAL DELTA 2. The people the three sources above cannot reach: no active
   // role, no enrolment, no transfer. The database decides who may ask and who
@@ -153,7 +166,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       </p>
     ) : null;
 
+  const [struktur, locale] = await Promise.all([bacaanStruktur, currentLocale()]);
+  const sl = (event: HleEvent) => t(event, "staff", { locale });
+
   const nav: Array<[string, string]> = [
+    ["struktur", s("config.section.struktur")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
     ["roles", s("config.section.roles")], ["audit", s("config.section.audit")], ["flags", s("config.section.flags")],
     ["content", s("config.section.content")], ["assessment", s("config.section.assessment")],
@@ -222,6 +239,53 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         </nav>
 
         <div className="grid gap-4">
+          {/* DAISY-05 (D-006, D-022). Struktur sekolah: first, because a new
+              school cannot place a student or assign a teacher until it has a
+              Kelas, and until now nothing here could make one. */}
+          <section id="struktur" className={card}>
+            <h2 className="font-medium">{sl("config.section.struktur")}</h2>
+            {sekolahStruktur && struktur ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.struktur.intro")}</p>
+                {sekolahKu.length > 1 ? (
+                  <nav className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm" aria-label={sl("config.struktur.sekolah")}>
+                    <span className="text-ink-3">{sl("config.struktur.sekolah")}</span>
+                    {sekolahKu.map((i) => (
+                      <a
+                        key={i.id}
+                        href={`?sekolah=${i.id}#struktur`}
+                        aria-current={i.id === sekolahStruktur.id ? "page" : undefined}
+                        className={
+                          i.id === sekolahStruktur.id
+                            ? "rounded-[var(--radius-pill)] bg-surface-2 px-3 py-1 font-medium text-ink-1 no-underline"
+                            : tautanTempat
+                        }
+                      >
+                        {i.name}
+                      </a>
+                    ))}
+                  </nav>
+                ) : (
+                  <p className="mt-3 text-sm text-ink-2">
+                    {sl("config.struktur.sekolah")}: <span className="font-medium text-ink-1">{sekolahStruktur.name}</span>
+                  </p>
+                )}
+                <div className="mt-4">
+                  <PanelStruktur
+                    key={sekolahStruktur.id}
+                    locale={locale}
+                    institusi={sekolahStruktur.id}
+                    rows={struktur.ok ? struktur.rows : null}
+                    gagalBaca={struktur.ok ? null : { code: struktur.code, ref: struktur.ref }}
+                    tahunKini={tahunAjaranPada(new Date())}
+                  />
+                </div>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
           {/* System & Configuration: institutions and periods */}
           <section id="system" className={card}>
             <h2 className="font-medium">{s("config.section.system")}</h2>
