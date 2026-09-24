@@ -290,32 +290,35 @@ def soal(ref, pel, tanya, pilihan, guna="", sulit="Mudah", kelompok="", petunjuk
     S.append(dict(ref=ref, pel=pel, tanya=tanya, pilihan=pilihan, guna=guna, sulit=sulit, kelompok=kelompok, petunjuk=petunjuk))
 
 
-# Pemetaan awal (pre-test, D-008): where the class starts. Each is paired with a
-# Cek penguasaan question of the same skill (Kelompok paralel).
+# Pemetaan awal (pre-test, D-008): where the class starts. PA1-PA4 test the same skills as
+# PB1-PB4 (reading, place value, comparing, adding), with different numbers. They are NOT put in
+# a Kelompok paralel together: a parallel group means equivalent questions, and INV-24 keeps a
+# learner's post-test clear of every sibling of their pre-test questions, so pairing them left
+# only 4 of the 8 post-test questions drawable (Bob, 24 Sep; assign_release refuses it).
 soal("PA1", 1, "Bagaimana cara membaca 6.375?", [
     ("Enam ribu tiga ratus tujuh puluh lima", True, "Benar. Bagian di depan titik (6) dibaca enam ribu, lalu 375 dibaca tiga ratus tujuh puluh lima."),
     ("Enam tiga tujuh lima", False, "Angkanya dibaca satu per satu. Setiap angka harus dibaca sesuai nilai tempatnya."),
     ("Enam puluh tiga ribu tujuh ratus lima", False, "Itu cara membaca 63.705. Titik ada setelah angka 6, jadi hanya 6 yang menjadi ribuan."),
     ("Enam ratus tiga puluh tujuh ribu lima", False, "Itu terlalu besar. Bilangan ini hanya punya empat angka, jadi paling besar ribuan."),
-], guna="Pemetaan awal", kelompok="membaca")
+], guna="Pemetaan awal")
 soal("PA2", 1, "Pada bilangan 8.456, angka 4 menempati nilai tempat ...", [
     ("satuan", False, "Satuan adalah angka paling kanan, yaitu 6."),
     ("puluhan", False, "Puluhan adalah angka kedua dari kanan, yaitu 5."),
     ("ratusan", True, "Benar. Dari kanan: 6 satuan, 5 puluhan, 4 ratusan, 8 ribuan."),
     ("ribuan", False, "Ribuan adalah angka di depan titik, yaitu 8."),
-], guna="Pemetaan awal", kelompok="nilai tempat")
+], guna="Pemetaan awal")
 soal("PA3", 2, "Tanda yang tepat untuk 4.587 ... 4.857 adalah ...", [
     (">", False, "Ribuannya sama (4). Di ratusan, 5 lebih kecil dari 8, jadi 4.587 lebih kecil."),
     ("<", True, "Benar. Ribuannya sama, lalu di ratusan 5 lebih kecil dari 8."),
     ("=", False, "Kedua bilangan memakai angka yang sama, tetapi letaknya berbeda, jadi nilainya berbeda."),
     ("Tidak dapat dibandingkan", False, "Dua bilangan cacah selalu dapat dibandingkan, mulai dari angka paling kiri."),
-], guna="Pemetaan awal", kelompok="membandingkan")
+], guna="Pemetaan awal")
 soal("PA4", 4, "5.468 + 2.375 = ...", [
     ("7.843", True, "Benar. 8 + 5 = 13, tulis 3 simpan 1; 6 + 7 + 1 = 14, tulis 4 simpan 1; 4 + 3 + 1 = 8; 5 + 2 = 7."),
     ("7.733", False, "Angka yang disimpan terlupa. 8 + 5 = 13 dan 6 + 7 = 13 masing-masing menyimpan 1 ke tempat berikutnya."),
     ("7.743", False, "Simpanan dari satuan sudah dipakai, tetapi simpanan dari puluhan ke ratusan terlupa."),
     ("3.093", False, "Ini hasil pengurangan 5.468 − 2.375. Soalnya meminta penjumlahan."),
-], guna="Pemetaan awal", kelompok="penjumlahan")
+], guna="Pemetaan awal")
 
 # Cek penguasaan (post-test, D-008), from the chapter's Uji Kompetensi. PB1-PB5 carry fresh
 # numbers: the chapter's own versions (72.135, 87.986, 45.867/55.876, 76.598 + 12.456, 50.303)
@@ -325,25 +328,25 @@ soal("PB1", 1, "Bagaimana cara membaca 84.216?", [
     ("Delapan empat ribu dua ratus enam belas", False, "84 adalah delapan puluh empat, bukan delapan empat."),
     ("Delapan ratus empat puluh dua ribu enam belas", False, "Itu cara membaca 842.016. Titik ada setelah 84."),
     ("Delapan puluh empat dua ratus enam belas", False, "Kata ribu terlupa. 84 di depan titik adalah delapan puluh empat ribu."),
-], guna="Cek penguasaan", kelompok="membaca")
+], guna="Cek penguasaan")
 soal("PB2", 1, "Angka 7 pada bilangan 57.689 menempati nilai tempat ...", [
     ("puluh ribuan", False, "Puluh ribuan adalah angka paling kiri, yaitu 5."),
     ("ribuan", True, "Benar. 5 puluh ribuan, 7 ribuan, 6 ratusan, 8 puluhan, 9 satuan."),
     ("ratusan", False, "Ratusan adalah angka pertama setelah titik, yaitu 6."),
     ("puluhan", False, "Puluhan adalah angka kedua dari kanan, yaitu 8."),
-], guna="Cek penguasaan", kelompok="nilai tempat")
+], guna="Cek penguasaan")
 soal("PB3", 2, "Tanda yang tepat untuk 36.954 ... 63.495 adalah ...", [
     (">", False, "Di tempat puluh ribuan, 3 lebih kecil dari 6, jadi 36.954 lebih kecil."),
     ("<", True, "Benar. Mulai dari kiri: di puluh ribuan 3 lebih kecil dari 6."),
     ("=", False, "Angka paling kirinya sudah berbeda (3 dan 6), jadi keduanya tidak sama."),
     ("Tidak dapat dibandingkan", False, "Dua bilangan cacah selalu dapat dibandingkan, mulai dari angka paling kiri."),
-], guna="Cek penguasaan", kelompok="membandingkan", sulit="Sedang")
+], guna="Cek penguasaan", sulit="Sedang")
 soal("PB4", 4, "42.458 + 35.687 = ...", [
     ("78.145", True, "Benar. Tiga kali menyimpan: dari satuan, puluhan, dan ratusan."),
     ("77.035", False, "Tidak ada angka yang disimpan. 8 + 7 = 15 menyimpan 1 ke puluhan, dan seterusnya."),
     ("77.145", False, "Simpanan dari ratusan ke ribuan terlupa: 4 + 6 + 1 = 11, jadi 1 disimpan ke ribuan."),
     ("6.771", False, "Ini hasil pengurangan 42.458 − 35.687. Soalnya meminta penjumlahan."),
-], guna="Cek penguasaan", kelompok="penjumlahan", sulit="Sedang")
+], guna="Cek penguasaan", sulit="Sedang")
 soal("PB5", 1, "\"Tujuh puluh ribu dua ratus delapan\" ditulis ...", [
     ("70.208", True, "Benar. Tujuh puluh ribu (70.000), dua ratus (200), delapan (8); tempat ribuan dan puluhan diisi 0."),
     ("7.208", False, "Itu tujuh ribu dua ratus delapan. Tujuh puluh ribu ditulis 70 di depan titik."),
@@ -471,6 +474,9 @@ refs = [s["ref"] for s in S]
 assert len(refs) == len(set(refs))
 assert {p["no"] for p in PELAJARAN} >= {s["pel"] for s in S}
 assert sum(1 for s in S if s["guna"] == "Pemetaan awal") == 4 and sum(1 for s in S if s["guna"] == "Cek penguasaan") == 8
+# INV-24: no parallel group may hold both a Pemetaan awal and a Cek penguasaan question.
+for _k in {s["kelompok"] for s in S if s["kelompok"]}:
+    assert len({s["guna"] for s in S if s["kelompok"] == _k} & {"Pemetaan awal", "Cek penguasaan"}) < 2, _k
 
 
 def tulis(path):
