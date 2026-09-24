@@ -343,6 +343,18 @@ export type HleEvent =
   | "studio.paket.kode.package_has_problems"
   | "studio.paket.kode.package_input_invalid"
   | "studio.paket.kode.package_failed"
+  | "studio.terbitan.kode.release_not_allowed"
+  | "studio.terbitan.kode.release_publish_not_allowed"
+  | "studio.terbitan.kode.release_school_not_allowed"
+  | "studio.terbitan.kode.release_course_not_approved"
+  | "studio.terbitan.kode.release_exists"
+  | "studio.terbitan.kode.release_state_invalid"
+  | "studio.terbitan.kode.release_same_person"
+  | "studio.terbitan.kode.release_not_ready"
+  | "studio.terbitan.kode.release_reason_required"
+  | "studio.terbitan.kode.release_input_invalid"
+  | "studio.terbitan.kode.release_failed"
+  | "studio.paket.buat_terbitan"
   | "role.STUDENT"
   | "role.EDUCATOR"
   | "role.HEAD_OF_DEPARTMENT"
@@ -1685,6 +1697,18 @@ const table: Table = {
   "studio.paket.kode.package_has_problems": { default: "Paket ini belum bisa diterima. Perbaiki baris yang disebut lalu unggah lagi.", en: "This package cannot be accepted yet. Fix the rows listed and upload again." },
   "studio.paket.kode.package_input_invalid": { default: "Pilih sekolah dan berkasnya dulu.", en: "Choose the school and the file first." },
   "studio.paket.kode.package_failed": { default: "Unggahan belum berhasil. Coba lagi sebentar lagi.", en: "The upload did not go through. Try again in a moment." },
+  "studio.terbitan.kode.release_not_allowed": { default: "Anda tidak berwenang membuat atau mengunci terbitan di sekolah ini.", en: "You are not allowed to create or lock releases in this school." },
+  "studio.terbitan.kode.release_publish_not_allowed": { default: "Anda tidak berwenang menerbitkan atau menarik terbitan di sekolah ini.", en: "You are not allowed to publish or withdraw releases in this school." },
+  "studio.terbitan.kode.release_school_not_allowed": { default: "Terbitan dibuat dari kursus sekolah, bukan dari pustaka nasional.", en: "A release is made from a school's course, not from the national library." },
+  "studio.terbitan.kode.release_course_not_approved": { default: "Kursus ini belum disetujui. Terbitan dibuat dari kursus yang sudah disetujui.", en: "This course has not been approved yet. A release is made from an approved course." },
+  "studio.terbitan.kode.release_exists": { default: "Kursus ini sudah punya terbitan. Untuk koreksi, buat revisi kursus.", en: "This course already has a release. To correct it, create a revision of the course." },
+  "studio.terbitan.kode.release_state_invalid": { default: "Terbitan ini sudah melewati langkah tersebut.", en: "This release is already past that step." },
+  "studio.terbitan.kode.release_same_person": { default: "Penyusun kursus tidak bisa mengunci terbitannya sendiri. Minta rekan yang lain.", en: "The author of a course cannot lock its own release. Ask a colleague." },
+  "studio.terbitan.kode.release_not_ready": { default: "Kursus ini belum siap terbit. Selesaikan temuan yang tercantum di halaman ini.", en: "This course is not ready to publish. Resolve the findings listed on this page." },
+  "studio.terbitan.kode.release_reason_required": { default: "Tuliskan alasan penarikan.", en: "Write the reason for the withdrawal." },
+  "studio.terbitan.kode.release_input_invalid": { default: "Terbitan atau kursus tidak dikenali.", en: "The release or course was not recognised." },
+  "studio.terbitan.kode.release_failed": { default: "Langkah ini belum berhasil. Coba lagi sebentar lagi.", en: "This step did not go through. Try again in a moment." },
+  "studio.paket.buat_terbitan": { default: "Buat terbitan", en: "Create release" },
   // WP5B. Bulk intake offers four roles and needs a telling for each; this is
   // the one the configuration surface never had to name, because a learner is
   // not somebody an administrator grants a role to one at a time.

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../../_lib";
 import {
-  acknowledgeFindingAction, advanceContentAction, createRevisionAction, freezeReleaseAction,
+  acknowledgeFindingAction, advanceContentAction, createReleaseAction, createRevisionAction, freezeReleaseAction,
   moveReleaseAction, publishReleaseAction, runValidationAction, withdrawReleaseAction,
 } from "../../actions";
 
@@ -56,7 +56,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
   const { data: course } = await supabase
     .from("courses")
-    .select("id, title, subject, stage, grade_label, institution_id, supersedes_course_id")
+    .select("id, title, subject, stage, grade_label, institution_id, supersedes_course_id, status")
     .eq("id", courseId).maybeSingle();
 
   if (!course) {
@@ -175,7 +175,15 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         <h3 className="text-lg font-medium">{s("studio.paket.terbitkan")}</h3>
         <p className="text-sm text-ink-2">{s("studio.paket.terbit_bukan_tugas")}</p>
         {(releases ?? []).length === 0 ? (
-          <p className={card}>{s("studio.paket.kosong")}</p>
+          <div className={card}>
+            <p>{s("studio.paket.kosong")}</p>
+            {can(inst, "CAN_FREEZE_RELEASE") && course.status === "APPROVED" ? (
+              <form action={createReleaseAction} className="mt-3">
+                <input type="hidden" name="course" value={courseId} />
+                <button className={button} type="submit">{s("studio.paket.buat_terbitan")}</button>
+              </form>
+            ) : null}
+          </div>
         ) : (
           <ul className="grid gap-2">
             {(releases ?? []).map((r) => (

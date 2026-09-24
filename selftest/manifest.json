@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 69,
+  "version": 70,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..11.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
+    "db": "selftest/db/fable01..12.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -1753,6 +1753,36 @@
       "id": "F11-P03",
       "runner": "db",
       "proves": "BOB-02. A save that fails inside lesson_package_materialise leaves nothing behind: confirm_ingest_batch answers PACKAGE_COULD_NOT_BE_SAVED, the batch is back at MAPPING_PROPOSED with the error recorded and no course written, and once the fault is gone a second confirmation of the same batch materialises the course."
+    },
+    {
+      "id": "F12-P01",
+      "runner": "db",
+      "proves": "BOB-03 (audit B3). A teacher's lesson package becomes a course; a head of department approves it; the school's admin creates release 1.0.0 through create_release, authored by the teacher; the head of department freezes it through freeze_release (approved by them, content hash stamped, course sealed); the admin publishes it through publish_release; the teacher reads it among the school's PUBLISHED releases, as /mengajar/[kelas]/siapkan lists them; create, freeze and publish are each audited once."
+    },
+    {
+      "id": "F12-P02",
+      "runner": "db",
+      "proves": "BOB-03. A correction is a revision: after withdraw_release, the course's revision (create_course_revision) is approved and create_release makes its release 1.1.0 with supersedes_release_id on the first; the withdrawn release is no longer among the PUBLISHED releases a teacher is offered."
+    },
+    {
+      "id": "F12-P03",
+      "runner": "db",
+      "proves": "BOB-03, four eyes. A release is authored by its course's author whoever creates it: for a course the head of department wrote and the admin approved, the admin's create_release makes a release authored by the head of department, whose freeze_release is PR040 RELEASE_SAME_PERSON, and the admin's goes through."
+    },
+    {
+      "id": "F12-N01",
+      "runner": "db",
+      "proves": "BOB-03 (D-011). Every refusal on the release path is PR040 with its code and changes nothing: a course in review (RELEASE_COURSE_NOT_APPROVED), a second release (RELEASE_EXISTS), a teacher, a DEAN, another school's admin and an unknown course (RELEASE_NOT_ALLOWED, the last two identical), the platform library (RELEASE_SCHOOL_NOT_ALLOWED, D-029), a second freeze and a second publication (RELEASE_STATE_INVALID), a teacher's freeze, a head of department's and another school's withdrawal (RELEASE_PUBLISH_NOT_ALLOWED) and a withdrawal without a reason (RELEASE_REASON_REQUIRED)."
+    },
+    {
+      "id": "F12-N02",
+      "runner": "db",
+      "proves": "BOB-03. Readiness is measured at the seal: a course whose question names its answer carries no finding until freeze_release runs validate_course_content and run_mcq_quality; the freeze then answers ok=false RELEASE_NOT_READY with readiness BLOCKED naming STEM_REVEALS_ANSWER, leaves the release INGESTED and the course unsealed, and keeps the finding for the author."
+    },
+    {
+      "id": "BOB03-K01",
+      "runner": "static",
+      "proves": "BOB-03 (D-011, D-014). Read from the migration source and the source files src/lib/terbitan-kontrak.ts, src/app/studio/actions.ts and src/lib/pengajar.ts: the codes release_refuse raises are exactly the contract's; every code has a copy key in both languages without machinery words; each step of LANGKAH_TERBITAN calls its function with the declared argument from its typed action; no Studio action writes plp_releases directly; and the teacher's release list reads PUBLISHED releases only."
     },
     {
       "id": "BOB02-X01",

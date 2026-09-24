@@ -24,6 +24,11 @@
       "suite": "selftest.run_fable11()",
       "control_green": 6,
       "what": "BOB-02's lesson package: the sample workbook materialised whole, the structured-package confirmation, a failed save that undoes its confirmation, coded problems, who may prepare or confirm, and media upload authority"
+    },
+    "db-bob03-gates": {
+      "suite": "selftest.run_fable12()",
+      "control_green": 5,
+      "what": "BOB-03's release path: a school's course approved, created, frozen and published by the people the capabilities name, the release authored by the course's author, readiness measured at the seal, the revision's next version, and every refusal's stable code"
     }
   },
   "plants": [
@@ -332,6 +337,54 @@
       "gate": "db-bob02-gates",
       "expect_red": "F11-P03",
       "expect_detail": "after a failed save the batch is CONFIRMED"
+    },
+    {
+      "name": "bob03-1",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-P01",
+      "expect_detail": "the release was not created as 1.0.0 of the course by its author"
+    },
+    {
+      "name": "bob03-2",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N01",
+      "expect_detail": "a course in review answered ok -- a release was created"
+    },
+    {
+      "name": "bob03-3",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N02",
+      "expect_detail": "freezing a blocked course answered"
+    },
+    {
+      "name": "bob03-4",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N02",
+      "expect_detail": "a blocked course was sealed"
+    },
+    {
+      "name": "bob03-5",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N01",
+      "expect_detail": "a teacher creating a release answered"
+    },
+    {
+      "name": "bob03-6",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-P02",
+      "expect_detail": "the revision's release is not 1.1.0 chained to the first"
+    },
+    {
+      "name": "bob03-7",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N01",
+      "expect_detail": "publishing it again answered"
+    },
+    {
+      "name": "bob03-8",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-N01",
+      "expect_detail": "a second release of the course answered"
     }
   ]
 }

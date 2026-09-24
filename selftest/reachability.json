@@ -132,6 +132,20 @@
         "p_batch": "rls:ingest_batches"
       },
       "note": "BOB-02. The batch the caller prepared, as the Unggah list shows it awaiting confirmation."
+    },
+    "create_release": {
+      "actor": "a person holding CAN_FREEZE_RELEASE in the course's school (Kepala departemen, Admin sekolah, Admin platform)",
+      "args": {
+        "p_course": "rls:courses"
+      },
+      "note": "BOB-03. The course the Studio's package page shows, once it is APPROVED."
+    },
+    "freeze_release": {
+      "actor": "a person holding CAN_FREEZE_RELEASE in the release's school, other than the course's author",
+      "args": {
+        "p_release": "rls:plp_releases"
+      },
+      "note": "BOB-03. A row of the package page's release list, or the id create_release returned."
     }
   }
 }

@@ -171,7 +171,7 @@ jobs:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
-               db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates]
+               db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -222,7 +222,9 @@ jobs:
             db-bob01-gates)
               echo "the eleven school-structure and intake defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob02-gates)
-              echo "the nine lesson-package defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the ten lesson-package defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob03-gates)
+              echo "the eight release-path defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1653,6 +1655,19 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob02.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob02-gates
+
+      # BOB-03's gates: the release path from an approved course to a published
+      # release, its author, readiness at the seal, versions and refusals.
+      # Same harness, same four proofs, against F12.
+      - name: Local stack (release-path gates)
+        if: matrix.case == 'db-bob03-gates'
+        id: gatesBob03
+        uses: ./.github/actions/local-stack
+      - name: Each planted release-path defect must turn its own F12 test red
+        if: matrix.case == 'db-bob03-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob03.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob03-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

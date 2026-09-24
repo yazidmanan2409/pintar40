@@ -1252,6 +1252,9 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 114 -> 115 for BOB-03, a course is released (audit B3).
+      // 20261009100000 adds release functions and codes; no column, colour or
+      // brand surface.
       // MOVED 113 -> 114 for BOB-14, lesson content is not public (D-032).
       // 20261008100000 revokes a view and restates the schema lint; it adds no
       // column, colour or brand surface.
@@ -1399,7 +1402,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 114, `${migrations.length} migrations; the frozen baseline has 114`);
+      c.expect(migrations.length === 115, `${migrations.length} migrations; the frozen baseline has 115`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3038,7 +3041,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 113 -> 114 for BOB-14's revoke of
+      // from, not a claim about the tour. MOVED 114 -> 115 for BOB-03's release
+      // functions (20261009100000), not tour RPCs (D-024). MOVED 113 -> 114 for BOB-14's revoke of
       // the public lesson view (20261008100000), which is not a tour RPC and
       // does not touch person_tour_state (D-024). MOVED 112 -> 113 for BOB-02's lesson
       // workbook import (20261007100000), which is not a tour RPC and does not
@@ -3084,7 +3088,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 114, `${migs.length} migrations; the baseline has 114`);
+      c.expect(migs.length === 115, `${migs.length} migrations; the baseline has 115`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
