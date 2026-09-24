@@ -1,305 +1,250 @@
-# PINTAR CORPORATE WEBSITE + MINI-PINTAR — fresh start
+# PINTAR CORPORATE WEBSITE + MINI-PINTAR
 
-**Date:** 2026-09-22 · **Status:** first delivery, for Sauron review.
+**Date:** 2026-09-24 · **Status:** reconciled with the canonical PINTAR product, for Second Eye review.
+**Not production. Not deployed. Not merged.**
 
-A ground-up design direction for the PINTAR corporate website, built fresh
-rather than continuing the earlier website work. Visual inspiration: the
-FYLLA reference (editorial composition, generous whitespace, oversized
-type, thin structural rules, asymmetric layout) — not copied, and not the
-PINTAR application's own design language.
+**Canonical baseline:** `main@2ac7ab6`, the patch baseline ruled on 24 Sep. It was re-read unchanged at `19f01b2` and at `4030937`, the `main` tip this lane last merged.
+
+**Direction of authority:** the canonical PINTAR product decides, and this website represents it. Never the reverse.
 
 ```
 python3 -m http.server 8000 --directory .
-# then: http://localhost:8000/  (Home)
-#       http://localhost:8000/apa-yang-dilakukan/
-#       http://localhost:8000/untuk-pendidik/
-#       http://localhost:8000/untuk-manajemen/
-#       http://localhost:8000/cara-kerja/
-#       http://localhost:8000/laporan/
-#       http://localhost:8000/tentang/
-#       http://localhost:8000/kontak/
-#       http://localhost:8000/mini-pintar/
-# ?lang=en on any page for English; the choice is then remembered
+# then http://localhost:8000/ and the routes below; ?lang=en for English.
+# Nothing is remembered: the language travels in ?lang= and nowhere else.
 ```
+
+The 24 Sep review and plan that led here is [`REVIEW-2026-09-24-CANONICAL-RECONCILIATION.md`](./REVIEW-2026-09-24-CANONICAL-RECONCILIATION.md). This README describes the reconciled result.
 
 ---
 
-## 1 · Pages / routes created
+## 1 · Where the authority sits
 
-Nine routes, each its own folder with `index.html` + `content.js` +
-`app.js`, sharing one design system in `shared/`:
+The site says what PINTAR is designed to do. It says it in the product's own words wherever the product has words:
+- metric labels and meanings;
+- readiness tiers and their thresholds;
+- evidence states;
+- the educator's and management's screen titles;
+- the cycle names;
+- role names;
+- Uji Cepat and Pustaka PINTAR.
+
+`verify/canonical.mjs` reads the product's own sources, not a copy of them:
+- `src/lib/hle.ts`;
+- the MC-1 catalogue migration;
+- `pengajar.ts` / `pimpinan.ts`, for the figures each surface asks for;
+- `globals.css`;
+- `public/brand`, `public/fonts`;
+- every migration that writes the catalogue or defines role capabilities.
+
+It reports two different failures:
+
+| Message | Meaning | What to do |
+|---|---|---|
+| `canonical product changed — website reconciliation required: …` | PINTAR no longer says what the website was reconciled against | Reconcile the **website** with the product, then re-record the snapshot |
+| `website misrepresents canonical PINTAR: …` | The website says something the product does not | Fix the website |
+
+`verify/canonical-snapshot.mjs` is **not a specification**. It records the product values the website was reconciled against, pinned to its source commit (`SOURCE_COMMIT = "2ac7ab6"`), so that verification is deterministic.
+
+To re-reconcile after a product change:
+1. Update the website.
+2. Run `node verify/canonical.mjs --print --at <commit>`.
+3. Re-record the snapshot from that output and set `SOURCE_COMMIT`.
+
+Never edit a snapshot value to make a check pass. If the product sources are missing, the check fails; it never passes blind.
+
+`node verify/canonical.mjs --at 2ac7ab6` proves that the snapshot matches its declared source commit.
+
+---
+
+## 2 · Routes
 
 | Route | Purpose |
 |---|---|
-| `/` | Home — what PINTAR is, who it's for, why it matters, in one screen |
-| `/apa-yang-dilakukan/` | What PINTAR Does — the six-stage flow as one coherent system |
-| `/untuk-pendidik/` | For Educators — four lived moments, outcomes not features |
-| `/untuk-manajemen/` | For Management — evidence, explicitly not surveillance |
-| `/cara-kerja/` | How PINTAR Works — the operational sequence, no technical background needed |
-| `/laporan/` | Reports — two worked report examples, in PINTAR's own evidence language |
-| `/tentang/` | About / Philosophy — three short paragraphs, no manifesto, no fabricated bios |
-| `/kontak/` | Contact / Demo — a request-a-conversation form, honestly inert |
-| `/mini-pintar/` | The interactive journey (its own section below) |
-
-The primary nav stays restrained (five links); the full sitemap lives in
-the footer. `Cara Kerja` and `Kontak` are reachable from the footer and
-from in-page cross-links rather than the header, so the header never
-carries more than five items.
+| `/` | Home: what PINTAR is designed to do, and who it is for (the product's four staff roles) |
+| `/apa-yang-dilakukan/` | What PINTAR Does: the connected flow, and the product's cycle named once, by its own names |
+| `/untuk-pendidik/` | For Educators: Pustaka PINTAR or your own material, with approval and publishing by the HoD and the school; Uji Cepat; patterns once enough learners finish; your decision |
+| `/untuk-manajemen/` | For Management: reports about learning, not rankings of people; the roster, and the deliberate, recorded opening of one learner's record |
+| `/cara-kerja/` | How It Works: the sequence PINTAR is designed to follow. Only answers on official assessments are evidence. |
+| `/laporan/` | Reports: the educator's and management's screens, redrawn from MC-1 with simulated numbers |
+| `/tentang/` | About: why PINTAR exists. The unsupported team claim is removed. |
+| `/kontak/` | Contact: an inert request form. It says so. |
+| `/mini-pintar/` | The single Mini-PINTAR (§5) |
 
 ---
 
-## 2 · Corporate visual system
+## 3 · Identity
 
-`shared/style.css` — one design system, deliberately not the product's:
+- **Public name:** PINTAR. No version name is used publicly anywhere on the site; `audit.mjs` checks the copy and scans every shipped file.
+- **Logo:** the supplied PINTAR SELALU mark, copied byte for byte from `public/brand/pintar-selalu-logo.png` (sha256 `0e85e80f…`, checked).
+  - It is rendered the product's way (`MerekPintar.tsx`): alt "PINTAR SELALU"; height 36 px (32 px on a phone); width never set.
+  - In the header and footer the logo **links Home**, carrying `?lang=`. That is the website convention you allowed; the product's "not a link" rule is written for its app screens.
+- **Colour:** `--brand-primary #245F55` plus its ink, soft and hover companions, all equal to the product's token set v2. The product's comment is "APPROVED, NOT FROZEN"; the site takes it as a reference and checks it against the product.
+- **Brand and evidence are separate tokens.**
+  - `--evidence-bar` (the product's ink-3), `--evidence-track` and `--evidence-absent-line` are never brand values, and no report style references a brand or status colour.
+  - Readiness tiers are drawn as the product draws them (`BarisKesiapan`): one neutral bar for every tier, never a tier colour. That is why there is no `--tier-*` ramp.
+- **Type:** Plus Jakarta Sans, self-hosted from the product's own files (latin and latin-ext, with the OFL licence), in the product's two weights, 400 and 600.
+- **Copyright:** no legal entity is invented. The line says the holder is pending confirmation and that this is not a production site. The footer heading is "Tentang PINTAR", not "Perusahaan", so no company is implied.
 
-- **Palette.** Warm paper background (`#F7F3EA`), near-black charcoal ink,
-  one restrained accent — a deep pine green, picked and *validated* with
-  the dataviz skill's palette checker (chroma floor, CVD separation,
-  contrast) rather than eyeballed, because the same green is reused as the
-  "strong evidence" band color on the Reports and Mini-PINTAR report
-  screens. A second, narrow-use ochre stands for "partial/mixed" — a
-  status pair, not a brand palette.
-- **Type.** System font stack only (no webfont request); an oversized,
-  tight-tracked hero size down to a 14px floor everywhere, enforced by
-  the browser check.
-- **Structure.** Thin 1px rules as the only dividers; asymmetric
-  `5fr/7fr` grids for hero and feature rows; a slim pill "chain" for the
-  mini flow-teaser on Home; a numbered `seq` component for the lived-
-  moment and operational-sequence pages; a labelled placeholder box that
-  previews the real image's aspect ratio.
-- **Not done:** rounded cards everywhere, gradients, the hero → 3 cards →
-  testimonials → pricing → FAQ template.
-- **Every page carries a design-sample banner** ("CONTOH RANCANGAN /
-  DESIGN SAMPLE"), because this is a review artifact, not a production
-  site — no page pretends otherwise, and the contact form says the same
-  about itself before anyone fills it in.
+## 4 · Language, and nothing kept
 
----
+Bahasa Indonesia is the default and English is second. Every string is an `L(id, en)` pair.
 
-## 3 · ID / EN implementation
+The language travels **only** in `?lang=`, which every internal link carries. There is no localStorage, sessionStorage, cookie or IndexedDB anywhere on the site. This is checked in two ways:
+- a source scan of every shipped file;
+- a browser walk of every route, into Mini-PINTAR, followed by a check that the device holds nothing.
 
-Every page is one HTML file; every string is authored as an `L(id, en)`
-pair (the same convention as `design/role-views`), rendered by a single
-`t()` accessor keyed to the resolved language. There is no second, forked
-copy of any page — both languages are the same structure by construction,
-so they cannot drift apart silently.
+The site therefore holds itself to Mini-PINTAR's ADR rule ("no persistence of any kind, including browser storage") rather than to a weaker rule beside it.
 
-- **Default:** Bahasa Indonesia. **Switch:** `ID`/`EN` pills in the header
-  and footer, `aria-pressed` marked.
-- The choice is written to `localStorage` and carried in `?lang=` on
-  every internal link, so it survives navigation across the nine routes
-  without re-choosing on every page — while a direct `?lang=en` link
-  still works from cold, for sharing.
-- Copy is written natively per language, not translated literally (e.g.
-  the EN closing line on Mini-PINTAR is a rephrasing, not a gloss of the
-  Indonesian).
-- The content audit checks 275 bilingual string pairs for non-empty
-  sides, a 65-word cap per block (no walls of text), and a banned-
-  vocabulary sweep in **both** languages independently.
+## 5 · Mini-PINTAR: one implementation
 
----
+The approved M2 is the single public Mini-PINTAR.
+- It was **moved** here with `git mv`, so its history is kept.
+- The corporate arithmetic quiz was **retired**, not linked.
+- `website/mini-pintar/app/` now holds only the shared browser tooling (`verify/driver.mjs`, `probes.mjs`) that the role views import. `audit.mjs` fails if anything else reappears there.
 
-## 4 · Mini-PINTAR journey
+**The core is unchanged in governance.** It runs Pemetaan Awal → Peta Bacaan Personal → Pelajaran → Uji Penguasaan → Hasil, then "Itu tadi PINTAR", in *sekitar tiga menit*.
+- The adaptation module is untouched.
+- The evidence-limit sentence appears under every outcome.
+- The misconception taxonomy stays internal.
+- It is zero-write.
 
-Seven stages, one state machine, `mini-pintar/app.js`. Its own minimal
-chrome (brand mark, exit, language switch, a slim progress bar) —
-deliberately **not** the eight-link site header or the footer, because
-this is a short story to go through, not a page to browse away from.
+The subject stays *Membaca Angka*.
 
-1. **Mulai** — the one-screen pitch, "about 3–5 minutes, no account,
-   simple Mathematics," one `Mulai` button.
-2. **Belajar** — `12 × 4 = 48`, two lines of explanation, no lesson.
-3. **Asesmen Singkat** — five questions, one at a time, tap-to-answer,
-   auto-advancing: multiplication, division, a simple fraction (¼ of 20),
-   a word problem (pencils in boxes), a number pattern. Every option is a
-   plain number — nothing to type, nothing to get wrong on a phone
-   keyboard.
-4. **Bukti** — **not** "4/5". Per-question evidence chips
-   ("terjawab dengan baik" / "perlu ditinjau lagi" — never "salah"), and
-   an interpretation chosen from the visitor's *actual* result: five
-   correct, three-or-four correct, or fewer — each ending in the same
-   small-sample clause. There is no fourth branch that fabricates
-   certainty; the zero-correct branch is exercised in `verify/view.mjs`
-   and still reads as evidence, not as a verdict on the visitor.
-5. **Sudut Pandang Pendidik** — the same five answers, reframed: an
-   assessment summary, the one concept that may deserve attention
-   (**derived from the visitor's own first missed question**, or an
-   honest "nothing stands out" if they got everything right), a
-   PINTAR-proposes next step, and three decision buttons — computationally
-   identical, none pre-selected — that the visitor clicks themself. The
-   click is acknowledged ("Keputusan ini tetap milik Anda; PINTAR hanya
-   mengusulkan") rather than acted on.
-6. **Laporan Manajemen** — a **visibly, repeatedly labelled simulated
-   class** ("KELAS CONTOH · DATA SIMULASI", stated again in prose: *"Ini
-   BUKAN hasil Anda"*), using the identical band-distribution report
-   component as `/laporan/`, with one concept flagged "mungkin perlu
-   perhatian" and an explicit `belum cukup bukti` box. These numbers are
-   fixed — they do not, and must not, vary with what the visitor answered,
-   because one person's five questions cannot stand in for a class of 24.
-   `verify/view.mjs` proves this by driving two opposite answer sets
-   through to this screen and asserting the report is identical.
-7. **Selesai** — the closing line, two CTAs out to the corporate site, and
-   "Coba lagi dari awal" — which genuinely resets all state, not just the
-   screen.
+**Lesson and questions reconciled.** L-D2 and L-D3 each gain one worked-example step. Each step teaches the principle that the lesson's second Uji Penguasaan item tests:
+- L-D2: what to say when evidence is thin;
+- L-D3: what to do when the cause is unclear.
 
-**Every number on screens 4–5 is computed from what the visitor actually
-clicked**, never scripted. This was the one behavior worth adversarial
-proof rather than a screenshot: `verify/view.mjs` runs the quiz three
-times with three different, real answer sets (4/5, 5/5, 0/5) and asserts
-the evidence text, the chip labels, and the flagged concept all change
-correctly — including that "no concept stands out" only appears on the
-all-correct run, and that no chip ever reads "needs another look" when
-nothing was missed.
+The questions, answer keys and rationales are unchanged. A new audit rule forbids any lesson line from sharing five or more consecutive words with any Uji Penguasaan option.
 
----
+**"Lihat dari sisi sekolah" (optional, about one minute).** It is offered after the reveal and is never required.
+- **The educator's side.** The visitor is the only learner in the class.
+  - It opens with the product's own screen title and sentence: *"PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum."*
+  - Next come *Mengumpulkan 1 / 1*, then the class figures. Each one reads *"Belum cukup data untuk menampilkan angka ini. (1/5)"*, or *(1/3)*, because MC-1's minimums are 5 and 3.
+  - Kenaikan is not drawn, for the reason M2 already gives.
+  - None of the visitor's answers is shown, because an educator does not see item-level answers in PINTAR either (`mengajar.bukti.kaki`).
+  - The visitor then chooses between two of the product's own next steps and "Tidak ada tindakan sekarang". Nothing is preselected, and the choice is acknowledged as theirs and not kept.
+- **The management side.** A class of 24, badged **DATA SIMULASI**, fixed for every visitor and "none of it from your answers".
+  - It shows what a Head of department's view of a class asks for: Peserta, Pemahaman, Kenaikan (shown below its minimum, 4/5) and Sebaran kesiapan.
+  - Sebaran kesiapan uses the four tiers word for word, with MC-1's rules, drawn as neutral bars.
+  - Kesiapan bukti is **counted** from the figures, and the product's note follows.
+- Exit, the logo and the three doors lead back into the site's real routes, carrying only `?lang=`.
 
-## 5 · Report / demo behaviour
+## 6 · Reports, drawn from MC-1
 
-Both `/laporan/` and the Mini-PINTAR management screen share one
-discipline, carried over deliberately from the already-approved
-Management role view:
+`/laporan/` shows two cards that follow two real product screens.
+- **Educator card: "Apa yang sudah bisa disimpulkan".**
+  - Figures: Pemahaman, Kenaikan (below its minimum, 4/5), Penguasaan per topik, Pemahaman keliru yang berulang (with its suggested remedy) and Sebaran kesiapan.
+  - The product's own action sentences are used, where its rule would pick them, and the product's footnote on what educators do not see.
+- **Management card: "Yang didukung bukti".**
+  - Figures: Peserta, Kenaikan, Butir wajib, and Capaian kompetensi (*"Belum ada bukti yang memenuhi syarat untuk angka ini."*).
+  - Below them, Kesiapan bukti is counted from the figures.
 
-- **No composite score, ever.** Every row is a labelled, multi-band
-  distribution (raw counts, not an average or a `%`) — enforced
-  structurally by the audit, which fails a row whose bands don't sum to
-  its own stated total.
-- **"Belum cukup bukti" is a legitimate, visible result** — not a loading
-  state, not hidden. `/laporan/`'s principle section states it as PINTAR's
-  own rule; both report examples carry one row explicitly marked
-  insufficient, with the reason given in one plain sentence, never a
-  diagnosis of why.
-- **Simulated data is labelled as simulated**, not merely "example" —
-  checked directly in the audit against the word "simulasi"/"simulated".
-- The contact form is genuinely inert: submitting swaps the form for a
-  confirmation panel and sends nothing anywhere, checked in the browser
-  (no navigation, no outbound request) rather than only claimed in copy.
+Between them the page shows all three evidence states in use. The legend states them word for word, as the product does:
+- *Cukup untuk ditafsirkan*;
+- *Sudah ada, belum cukup*;
+- *Belum ada yang memenuhi syarat*.
 
----
+The principle is quoted word for word from the product: *"Bukti yang belum cukup bukan hasil yang buruk…"*.
 
-## 6 · Responsive treatment
+The page makes these guarantees:
+- It never shows a learner band. "Belum cukup bukti" is the state of a figure.
+- It never guesses a cause.
+- Every number is labelled simulated.
 
-Reflow checked in the browser at 320 / 375 / 768 / 1024 / 1440px on Home,
-Reports, and Mini-PINTAR — zero horizontal overflow at any width. Every
-interactive target (nav links, lang switch, footer links, quiz options,
-decision buttons, form fields) is at least 44×44px; the one exception is
-the skip-to-content link, which is the standard focus-only pattern (1×1,
-revealed on keyboard focus) and is exempted from the sweep on that basis,
-not overlooked by it. Mini-PINTAR's quiz grid is 2-up at every width down
-to 320px rather than collapsing to a single column, so answering stays a
-one-thumb tap. The header and its "Coba Mini-PINTAR" CTA wrap onto a
-second line below ~360px instead of overflowing.
+## 7 · What is designed, what is demonstrated, what is live
 
----
+The three are kept apart on every page.
+- **Designed:** capability is written as *PINTAR dirancang untuk… / PINTAR is designed to…* wherever the present tense could read as a working deployment.
+- **Demonstrated:** Mini-PINTAR is labelled a demonstration, not an official assessment.
+- **Live:** the site makes **no** claim. The footer says: *"Situs ini menjelaskan cara PINTAR dirancang bekerja. Mini-PINTAR adalah demonstrasi, bukan asesmen resmi. Untuk ketersediaan di sekolah Anda, bicaralah dengan kami."*
 
-## 7 · Image placeholder inventory
-
-**Nine placeholders**, itemised with type/size/ratio in
-[`PLACEHOLDERS.md`](./PLACEHOLDERS.md) and rendered on the page itself as
-a labelled box sized to the real image's aspect ratio — five documentary
-photography briefs, two product-UI illustration briefs, two product-
-mockup screens. No stock photography has been sourced; the brief's ban
-list (robots, AI brains, glowing networks, holograms, generic laptop
-stock, theatrical pointing children) is recorded there rather than only
-implied.
-
----
+Adoption, availability, customer, partner-school and launch words are banned and checked. No removed claim was replaced with a new one.
 
 ## 8 · Verification
 
-Same discipline as the rest of this repository: a content audit, a
-browser check, and adversarial plants that prove each check can fail.
+All of it runs locally with `bash verify/run-all.sh` (about 45 minutes; `--quick` skips the two browser-plant harnesses). There were **no GitHub Actions runs.** The results below are from the merged head `f8da0ab`; the commit that adds this README changes nothing else.
 
-- **`verify/audit.mjs` — 41,342 checks**, 275 bilingual string pairs
-  across 10 content modules. Checks: non-empty ID/EN sides; a banned-
-  vocabulary sweep (AI hype, corporate jargon, exaggerated claims,
-  fabricated trust signals, "PINTAR decides") in both languages
-  independently; a 65-word cap per copy block; the evidence →
-  understanding → human-decision chain and *"belum cukup bukti"* are both
-  actually on the site, not only in this brief; every internal link
-  resolves to a route in `PAGES`; the five quiz concepts are distinct and
-  every question has exactly four options with a valid answer index;
-  every report row's bands sum to its stated total; the Mini-PINTAR
-  management step says in words that it is not the visitor's own result.
-- **`verify/view.mjs` — 122 checks in a real browser.** Every route loads
-  clean in both languages with no console error and no external request;
-  the active nav link is marked; the footer lists every route; Mini-PINTAR
-  carries neither the full nav nor the footer, by design; contrast is
-  measured (not asserted) on Home, Reports, Contact, For Management, and
-  Mini-PINTAR's start screen; the 14px type floor and 44px target floor
-  are swept on every route; reflow is checked 320–1440px; the contact form
-  is proven inert; the Mini-PINTAR journey is driven through three
-  independent answer sets and the computed results are asserted to differ
-  correctly, while the simulated management numbers are asserted **not**
-  to.
-- **`verify/negative.sh` — 12 planted defects, 12 caught.** AI hype,
-  jargon, an exaggerated claim, a fabricated trust claim, PINTAR sold as
-  deciding, an empty translation, mismatched report-row counts, a link to
-  a route that doesn't exist, Mini-PINTAR's management screen losing its
-  "not your result" disclaimer, the simulated-data badge dropping the
-  word "simulated", a duplicated quiz concept, and the core principle
-  disappearing from every location that states it.
+| Command | Result on `f8da0ab` |
+|---|---|
+| `node verify/canonical.mjs` | OK — 432 checks: 63 copy rows, 16 MC-1 metrics, 4 tiers, 3 surfaces, 4 tokens, 4 assets |
+| `node verify/canonical.mjs --at 2ac7ab6` | OK — 432 checks (the snapshot matches its source commit) |
+| `node verify/audit.mjs` | OK — 152,567 checks; 516 public strings, 9 pages, 34 shipped files scanned for storage |
+| `node verify/view.mjs` | OK — 347 checks in Chromium |
+| `bash verify/negative.sh` | 83 planted defects, 83 caught (11 product changes planted in a temporary copy) |
+| `bash verify/negative-browser.sh` | 8 planted defects, 8 caught |
+| `node mini-pintar/verify/audit.mjs` | OK — 11,561 checks |
+| `node mini-pintar/verify/paths.mjs` | OK — 3,125 resolutions replayed identically |
+| `node mini-pintar/verify/isolation.mjs` | OK — 266 checks |
+| `node mini-pintar/verify/journey.mjs` | OK — 480 checks in Chromium, both school sides, both languages, keyboard only |
+| `bash mini-pintar/verify/negative.sh` | 55 planted defects, 55 caught |
+| `bash mini-pintar/verify/negative-browser.sh` | 10 planted defects, 10 caught |
 
-**A real bug this exercise found and fixed, outside the corporate site
-itself:** `website/mini-pintar/app/verify/driver.mjs`'s static server only
-resolved `index.html` for the exact root path `/`; a nested route like
-`/apa-yang-dilakukan/` 404'd. Every prior consumer of that shared file
-(the role views, Mini-PINTAR's own M1/M2 suite) only ever serves from a
-single root, so the bug was latent until a multi-page site needed it. Now
-fixed as a strict superset (root behaviour is byte-identical; only paths
-ending in `/` other than the root gain resolution) and re-verified against
-zero regression: Mini-PINTAR M1/M2's `verify/journey.mjs` (383 checks) and
-the Educator role view's `verify/view.mjs` (62 checks) both still pass.
+**What the plants found.** Several of my own checks turned out to be unable to fail until a planted defect proved it. Each is now fixed:
+- **The logo rule** was satisfied by the footer's link alone. It now counts every logo drawn.
+- **The typeface rule** was satisfied by the second of two `@font-face` blocks. It now checks the stack too.
+- **`canonical.mjs`** crashed, rather than reported, when a figure named a metric the website was never reconciled against.
+- **Contrast of the new school-side marks** measured 2.92:1 against the card: the dashed "below minimum" rule and the badge edge. Both now use the neutral ink.
 
-**What none of this proves.** That a visiting principal or teacher finds
-the tone right in practice — that needs real readers. That the five demo
-questions are the right five (Q2's "72 ÷ 8" and Q4's word problem are
-deliberately easy; whether that's the right difficulty for the brief's
-"most adults can participate comfortably" is a content judgement, not a
-mechanical one). That the placeholder-to-final-photography handoff in
-§7 actually produces documentary-feeling, contemporary Indonesian imagery
-rather than something that reads as stock once shot.
+**What this does not prove:**
+- that readers find the tone right;
+- that final photography reads as documentary rather than stock;
+- that the product's evaluator returns the states the illustrations draw for any real class. The illustrations are simulated and say so.
 
----
+## 9 · For the coordinator and Second Eye: recorded, not resolved
 
-## 9 · Decisions that genuinely need Sauron
+No website claim depends on any item below.
 
-**Q1 — Is this meant to go live, or does it stay a review artifact?** The
-sample banner and the inert contact form both say "not production" on
-every page. If this direction is approved, someone has to decide what
-"launch" means: real photography (§7), a real contact-form backend, and
-whether the design-sample banner comes off entirely or narrows to just
-Mini-PINTAR (which will likely want a "this is a demo, not your real
-result" framing even once the site itself is live).
+- **A · Student → Educator feedback is implemented and in production.** This is ADR-0022/0023 (WP7B–D): anonymous feedback from students, and feedback cycles that Management opens about named educators. It conflicts with Management rulings R2/R4.
+  - One consequence is visible here: `design/role-views/management/verify/audit.mjs` now fails, *by design*, with "the product now has feedback strings — this design's scope note is stale".
+  - That file is outside this lane's boundary and was not touched.
+- **B · ADR-0021 number collision.** This lane's `docs/adr/0021-mini-pintar-public-demonstration.md` shares its number with a different ADR-0021 on `main`, and OD-11 is still OPEN. The ADR needs renumbering at integration.
+- **C · An observation about the product.** On `/pimpinan`, an evaluated `class.readiness_distribution` is rendered through `nilai()`, which prints the *number of tiers present* (a count of keys) rather than the distribution.
+  - The website draws the catalogue's own visualisation for this metric (`distribution`).
+  - The product was not changed.
+- **D · An observation about the product.** The educator's evidence screen labels topic mastery "Penguasaan per bagian" when shown, but "Penguasaan per topik" (the catalogue label) when it is below minimum. The website uses the catalogue label.
 
-**Q2 — The accent color's second life as a data color.** `--accent` is
-now used both as PINTAR's brand green *and* as the "strong evidence" band
-color in every report. That reuse is deliberate — one visual vocabulary
-end to end — but it does mean the corporate palette and the report-chart
-palette are now coupled. If a future report ever needs a third or fourth
-band color, that decision should go through the dataviz palette validator
-again rather than being eyeballed to match.
+**Where the result differs from the approved manifest's wording.** Each difference follows the product, per the direction of authority.
 
-**Q3 — Mini-PINTAR's difficulty and subject.** Simple arithmetic was
-chosen per the brief ("so subject difficulty does not distract from the
-PINTAR experience"). Whether Mathematics specifically, at this level, is
-the right first impression for every visitor type in §CONTACT (a
-foundation board member is a different reader than a classroom teacher)
-is a product call, not a design one.
+1. **Audience list.** It uses the product's role labels word for word: *Guru · Kepala departemen · Dekan · Admin sekolah*. The manifest had *Pimpinan Sekolah*, which is not a product role.
+2. **Management figures.** These are the figures the product's management surface actually reads (`pimpinan.ts`).
+   - The school card shows Capaian kompetensi, not Perbandingan angkatan, because no product surface renders cohort comparison.
+   - Mini-PINTAR's management side shows class figures only. Topic mastery and recurring misunderstandings are educator figures (`pengajar.ts`), so they appear on the educator card.
+3. **"Peta Bacaan Personal".** This is `cycle.step.map`, word for word, on the site and in Mini-PINTAR.
+4. **The educator's side of Mini-PINTAR.** It shows *Mengumpulkan 1 / 1* under *Keadaan hari ini*, not a Peserta figure, because the product's educator evidence screen does not ask for `class.participants`. It shows the absence sentence, with have/needed, on each figure, as the product's card does. The state name *Sudah ada, belum cukup* appears in management's Kesiapan bukti.
+5. **No `--tier-*` colour ramp.** See §3.
+6. **Two more unsupported claims were qualified in the same class.** No new claim was added.
+   - The footer tagline now reads "dirancang untuk…".
+   - "Perusahaan / Company" is now "Tentang PINTAR".
 
-**Q4 — Where "Cara Kerja" and "Apa yang Dilakukan" should live relative
-to each other long-term.** They're deliberately distinct today — one is
-the conceptual flow, one is the day-to-day operational sequence — but
-they're adjacent enough in content that a future information-architecture
-pass might want to merge or more clearly cross-sell them from the start,
-rather than relying on the one cross-link each carries now.
+## 10 · Before this could go live (gates, not proposals)
 
----
+- The canonical findings above are ruled.
+- The legal entity is confirmed, for © and the contact channel.
+- Sprint 1 is released.
+- Final photography (§11) is done.
+- **Contact backend (spec only, nothing built):**
+  - a named owner and a response commitment;
+  - a destination decided, with no new service until it is ruled;
+  - minimal fields, with phone optional;
+  - a consent and privacy notice written for UU No. 27/2022 (PDP);
+  - a retention period;
+  - spam protection without a third-party tracker (a honeypot plus a server rate limit);
+  - an audit trail;
+  - no analytics;
+  - confirmation copy rewritten to say what really happens.
+- The design-sample banner comes off only when all of the above is true.
+- Before any merge, re-check the current `main` and run `node verify/canonical.mjs`.
 
-## Not done, by instruction
+## 11 · Image placeholders
 
-No final photography was sourced (§7 is the brief for that work). PINTAR's
-production application and architecture were not touched — this is a new,
-isolated `website/corporate/` directory; `src/`, `supabase/`, `selftest/`,
-`design/role-views/`, and `docs/rebuild/` carry zero changes, and
-`npm run baseline:parity` still reports 25/25 documents byte-identical to
-the frozen baseline.
+There are **eight**, itemised in [`PLACEHOLDERS.md`](./PLACEHOLDERS.md): two documentary photography briefs, two product-UI illustrations and four product mockups. The "who builds it" team photo was removed with the claim it illustrated. The identity is the supplied logo, not a placeholder.
+
+## 12 · Boundary
+
+Changes are confined to `website/corporate/` and the approved move out of `website/mini-pintar/app/`.
+
+Nothing was changed in: the product code (`src/`, `supabase/`, `public/`), the ADRs, `design/role-views/`, the CI configuration, deployment, DNS or secrets.
+
+The product was read, never modified. The product-change plants in `verify/negative.sh` mutate a temporary copy.
+
+Deploy only the site itself. These are repository documents and tools, not pages: `README.md`, `REVIEW-*.md`, `PLACEHOLDERS.md`, `verify/`, `mini-pintar/README.md`, `mini-pintar/verify/`, and both `package.json` files.
