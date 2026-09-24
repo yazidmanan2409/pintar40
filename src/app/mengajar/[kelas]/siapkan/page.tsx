@@ -8,6 +8,7 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
+import { kodePenugasanDari, kunciKodePenugasan } from "@/lib/penugasan-kontrak";
 
 export const dynamic = "force-dynamic";
 
@@ -49,14 +50,18 @@ export default async function Siapkan({
   searchParams,
 }: {
   params: Promise<{ kelas: string }>;
-  searchParams: Promise<{ terbitan?: string }>;
+  searchParams: Promise<{ terbitan?: string; kode?: string }>;
 }) {
   const { kelas: id } = await params;
-  const { terbitan: pilihan } = await searchParams;
+  const { terbitan: pilihan, kode } = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "educator", { locale });
 
   const ctx = await ajar.kelas(id);
+  // BOB-04 (D-008): a refused "Sediakan" comes back here with its code, and the
+  // teacher reads what the lesson is missing -- never the database's words
+  const galat = kodePenugasanDari(kode);
+  const tolakan = galat ? <p className="pin-intro" role="alert">{s(kunciKodePenugasan(galat))}</p> : null;
   if (!ctx) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
@@ -92,6 +97,7 @@ export default async function Siapkan({
         <main className="pin-col">
           <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
           {lingkup}
+        {tolakan}
           <TahapKomitmen tahap={0} nama={langkah} locale={locale} />
           <div className="pin-head">
             <p className="pin-eyebrow">
@@ -135,6 +141,7 @@ export default async function Siapkan({
       <main className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}/siapkan`}>← {s("mengajar.siap.kembali")}</Link>
         {lingkup}
+        {tolakan}
         <TahapKomitmen tahap={1} nama={langkah} locale={locale} />
 
         <div className="pin-head">

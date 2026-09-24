@@ -637,8 +637,9 @@ export const appTests: SelfTest[] = [
       let scanned = 0;
       for (const route of routes) {
         const r = await get(`${base}${route}`, { headers, redirect: "follow" });
-        // 404 is a legitimate answer for a step the learner has not reached
-        if (r.status === 404) continue;
+        // 404 is a legitimate answer for a step the learner has not reached --
+        // except the cycle's two tests, which never answer 404 (BOB-04, D-008)
+        if (r.status === 404 && !/\/(pemetaan|penguasaan)$/.test(route)) continue;
         c.expect(r.status === 200, `${route} → ${r.status}`);
         const body = await r.text();
         scanned++;
@@ -1831,6 +1832,155 @@ export const appTests: SelfTest[] = [
         "Tingkat and Kelas are drawn with their school years and the way to add each level, the hidden Jenjang and Reguler are not, " +
         "and nothing can be deactivated without the question. The platform administrator's opens on a real school and never offers " +
         "or opens the national library, even when its id is asked for by address",
+      );
+    },
+  },
+  {
+    id: "DAISY-06-UNGGAH-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-06 over real HTTP against the seeded database (audit S14). A
+      // teacher's way into Studio's upload is the workbook: the template to
+      // download, a school to put it in, and one file input that takes an
+      // .xlsx, in three steps with the first one current. The school is a real
+      // one the reader may draft in: for Alpha's school administrator that is
+      // Alpha, and for the platform administrator, who reads every tenant and
+      // for whom "PINTAR Kurikulum Nasional" sorts first, it is never the
+      // national library, in the workbook panel or in the JSON forms below it
+      // (sekolah.ts). Read only: nothing is uploaded.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const kanon = "PINTAR Kurikulum Nasional";
+      const opsi = (html: string) =>
+        [...html.matchAll(/<option([^>]*)>([^<]*)<\/option>/g)].map((m) => ({
+          nama: m[2].replace(/&amp;/g, "&").trim(),
+          dipilih: /\sselected(=""|\s|$)/.test(m[1]),
+        }));
+      for (const [peran, orang, harap] of [
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "Sekolah Sintetis Alpha"],
+        ["SYSTEM_ADMIN", PERSONA.sysadmin, null],
+      ] as const) {
+        const sesi = await signIn(ctx, orang);
+        const res = await get(`${base}/studio/unggah`, { headers: { cookie: sesi.cookie } });
+        if (!c.expect(res.status === 200, `${peran} /studio/unggah → ${res.status}`)) continue;
+        const html = await res.text();
+        const a = html.indexOf('id="buku-kerja"');
+        const b = html.indexOf('id="mudah"', a);
+        const panel = a >= 0 && b > a ? html.slice(a, b) : "";
+        if (!c.expect(panel.length > 0, `${peran}: the page has no workbook section before the JSON forms`)) continue;
+        const teks = visibleText(panel);
+        c.expect(!/role="alert"/.test(panel), `${peran}: the workbook section opens on a refusal: ${teks.slice(0, 200)}`);
+        c.expect(teks.includes(t("studio.unggah.templat", "staff")), `${peran}: the template download is not offered`);
+        for (const k of ["studio.unggah.langkah.periksa", "studio.unggah.langkah.media", "studio.unggah.langkah.simpan"] as const) {
+          c.expect(teks.includes(t(k, "staff")), `${peran}: the step "${t(k, "staff")}" is missing`);
+        }
+        c.expect((panel.match(/aria-current="step"/g) ?? []).length === 1, `${peran}: not exactly one step is marked current`);
+        const berkas = [...panel.matchAll(/<input[^>]*type="file"[^>]*>/g)].map((m) => m[0]);
+        c.expect(berkas.length === 1, `${peran}: the first step has ${berkas.length} file input(s), expected 1`);
+        c.expect(berkas.some((x) => /accept="[^"]*\.xlsx/.test(x)), `${peran}: the file input does not take an .xlsx workbook`);
+        const sel = panel.match(/<select[^>]*id="ung-sekolah"[^>]*>([\s\S]*?)<\/select>/);
+        if (!c.expect(sel !== null, `${peran}: the workbook panel has no Sekolah picker`)) continue;
+        const pilihan = opsi(sel![1]);
+        const awal = pilihan.find((o) => o.dipilih) ?? pilihan[0];
+        c.expect(pilihan.length > 0, `${peran}: the Sekolah picker offers no school`);
+        c.expect(awal !== undefined && awal.nama !== kanon, `${peran}: the Sekolah picker starts on "${awal?.nama ?? "(nothing)"}"`);
+        if (harap) c.expect(awal?.nama === harap, `${peran}: the Sekolah picker starts on "${awal?.nama ?? "(nothing)"}", expected "${harap}"`);
+        c.expect(!opsi(html).some((o) => o.nama === kanon), `${peran}: a school picker on the page offers the national library`);
+        c.note(`${peran}: ${pilihan.length} school(s) offered, starting on "${awal?.nama ?? ""}"`);
+      }
+      return c.verdict(
+        "Studio's upload opens, for Alpha's school administrator and for the platform administrator, on the workbook: the template " +
+        "to download, three steps with the first current, and one file input that takes an .xlsx. Its Sekolah picker starts on a " +
+        "real school (Alpha for Alpha's administrator), and no picker on the page offers the national library (audit S14)",
+      );
+    },
+  },
+  {
+    id: "DAISY-10-SAPA-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // D-020 over real HTTP against the seed: a learner signed in reads only
+      // their first name on /belajar and on /, and their full name nowhere on
+      // either page; the educator who also learns is greeted on /belajar as
+      // their name is stored, because staff screens are unchanged. The names
+      // are read from my_profile as each person, not assumed. Read only.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const teks = (html: string, re: RegExp) => visibleText(re.exec(html)?.[1] ?? "").replace(/\s+/g, " ").trim();
+      for (const [label, orang, staf] of [
+        ["learner", PERSONA.cycleLearner, false],
+        ["learner (Alpha)", PERSONA.alphaStudent, false],
+        ["educator who learns", PERSONA.cycleEducator, true],
+      ] as const) {
+        const sesi = await signIn(ctx, orang);
+        const profil = await fetch(`${ctx.supabaseUrl}/rest/v1/my_profile?select=display_name`, {
+          headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sesi.accessToken}` },
+        }).then((r) => r.json() as Promise<Array<{ display_name: string | null }>>).catch(() => []);
+        const nama = (Array.isArray(profil) ? profil[0]?.display_name ?? "" : "").trim();
+        if (!c.expect(/\s/.test(nama), `${label}: the seeded name "${nama}" has one word, so this proves nothing`)) continue;
+        const depan = nama.split(/\s+/)[0];
+        const sapa = staf ? nama : depan;
+
+        const b = await get(`${base}/belajar`, { headers: { cookie: sesi.cookie } });
+        if (c.expect(b.status === 200, `${label}: /belajar → ${b.status}`)) {
+          const html = await b.text();
+          const h1 = teks(html, /<h1 class="pin-h1">([\s\S]*?)<\/h1>/);
+          const halo = t("siklus.halo", staf ? "educator" : "learner");
+          c.expect(h1 === `${halo}, ${sapa}`, `${label}: /belajar greets "${h1}", expected "${halo}, ${sapa}"`);
+          if (!staf) c.expect(!visibleText(html).includes(nama), `${label}: the full name "${nama}" is on /belajar`);
+        }
+        if (staf) continue;
+        const r = await get(`${base}/`, { headers: { cookie: sesi.cookie } });
+        if (c.expect(r.status === 200, `${label}: / → ${r.status}`)) {
+          const html = await r.text();
+          // React writes the greeting as three text nodes separated by empty
+          // comments; the reader sees one sentence, so the markers go first.
+          const kalimat = visibleText(html.replace(/<!-- -->/g, ""));
+          c.expect(kalimat.includes(`${t("entry.halo", "public")}, ${depan}.`), `${label}: / does not greet by first name`);
+          c.expect(!visibleText(html).includes(nama), `${label}: the full name "${nama}" is on /`);
+        }
+      }
+      return c.verdict(
+        "a learner signed in is greeted by first name only on /belajar and on /, and their full name is on neither page; the " +
+        "educator who also learns is greeted on /belajar as their name is stored (D-020, names read from my_profile)",
+      );
+    },
+  },
+  {
+    id: "DAISY-11-STUDIO-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // D-021 over real HTTP against the seed. The Studio tab is in the shell
+      // of every role that may draft -- the teacher on Kelas, the head of
+      // department on Pimpinan, the school administrator on Pendataan -- and
+      // nowhere on the dean's pages; and Studio itself still refuses the dean,
+      // who holds no Studio capability, with its one refusal. Read only.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const tabs = (html: string) => /<nav class="pin-tabs"[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
+      for (const [peran, orang, jalan] of [
+        ["EDUCATOR", PERSONA.alphaGuru, "/mengajar"],
+        ["HEAD_OF_DEPARTMENT", PERSONA.alphaHod, "/pimpinan"],
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "/pendataan"],
+      ] as const) {
+        const sesi = await signIn(ctx, orang);
+        const r = await get(`${base}${jalan}`, { headers: { cookie: sesi.cookie } });
+        if (!c.expect(r.status === 200, `${peran} ${jalan} → ${r.status}`)) continue;
+        const nav = tabs(await r.text());
+        c.expect(nav.length > 0, `${peran} ${jalan}: the page has no tabs`);
+        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>${t("nav.studio", "staff")}</a>`).test(nav), `${peran} ${jalan}: no Studio tab`);
+      }
+      const dekan = await signIn(ctx, PERSONA.dean);
+      const p = await get(`${base}/pimpinan`, { headers: { cookie: dekan.cookie } });
+      c.expect(p.status === 200, `DEAN /pimpinan → ${p.status}`);
+      c.expect(!/href="\/studio"/.test(await p.text()), "the dean is offered Studio");
+      const st = await get(`${base}/studio`, { headers: { cookie: dekan.cookie } });
+      const html = await st.text();
+      c.expect(st.status === 200 && visibleText(html).includes(t("studio.refused", "staff")), `DEAN /studio → ${st.status} without Studio's refusal`);
+      c.expect(!visibleText(html).includes(t("studio.nav.unggah", "staff")), "the dean reaches Studio's own pages");
+      return c.verdict(
+        "the teacher's Kelas, the head of department's Pimpinan and the school administrator's Pendataan each carry the Studio " +
+        "tab; the dean's Pimpinan offers no Studio anywhere, and Studio refuses the dean with its one refusal (D-021)",
       );
     },
   },

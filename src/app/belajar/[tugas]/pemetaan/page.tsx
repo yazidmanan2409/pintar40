@@ -1,8 +1,9 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
 import PermukaanAsesmen from "../../_components/PermukaanAsesmen";
+import HalamanPenolakan from "@/components/HalamanPenolakan";
 
 export const dynamic = "force-dynamic";
 
@@ -18,18 +19,24 @@ export const dynamic = "force-dynamic";
 export default async function Pemetaan({ params }: { params: Promise<{ tugas: string }> }) {
   const { tugas } = await params;
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
-  const state = await engine.cycleState(db, tugas);
-  if (!state.pre_assignment) notFound();
-  if (state.pre_status === "FINALIZED") redirect(`/belajar/${tugas}/peta`);
+  const locale = await currentLocale();
 
+  // NEVER A 404 (BOB-04, D-008). An assignment that is not the reader's gets
+  // the one refusal page every refusal gets; a lesson whose test is not there
+  // says so, and the way back is to the lesson.
   const mine = (await engine.myAssignments(db)).find((a) => a.learning_assignment_id === tugas);
-  if (!mine) notFound();
+  const state = mine ? await engine.cycleState(db, tugas).catch(() => null) : null;
+  if (!mine || !state) return <HalamanPenolakan locale={locale} />;
+  if (!state.pre_assignment) {
+    return <HalamanPenolakan locale={locale} messageKey="cycle.pemetaan.belum_ada" backHref={`/belajar/${tugas}`} backKey="cycle.title" />;
+  }
+  if (state.pre_status === "FINALIZED") redirect(`/belajar/${tugas}/peta`);
 
   return (
     <PermukaanAsesmen
       penugasan={state.pre_assignment}
       sesi={state.pre_session}
-      locale={await currentLocale()}
+      locale={locale}
       eyebrow={`${mine.subject} · ${mine.grade_label} · ${mine.title}`}
       kembali={{ href: `/belajar/${tugas}`, key: "cycle.title" }}
       diriHref={`/belajar/${tugas}/pemetaan`}

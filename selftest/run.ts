@@ -82,6 +82,19 @@ function log(line = "") {
   process.stdout.write(line + "\n");
 }
 
+/**
+ * EXIT ONLY AFTER THE RECORD IS WRITTEN. On a pipe -- which is what a CI log is --
+ * process.stdout.write is asynchronous, and process.exit discards whatever is still
+ * queued. CI #181 and #183 both lost the listing after 196 rows, and with it the
+ * summary and the FAILED lines this file prints last so that they are the thing a
+ * reader sees; only the exit status survived. The empty write's callback runs once
+ * everything written before it has been handed over.
+ */
+function exitAfterFlush(code: number): void {
+  process.exitCode = code;
+  process.stdout.write("", () => process.exit(code));
+}
+
 function loadDotEnvLocal() {
   const p = join(repoRoot, ".env.local");
   if (!existsSync(p)) return;
@@ -126,6 +139,8 @@ const DB_RUNNERS = [
   { file: "fable09.sql", fn: "selftest.run_fable09()", done: "F09-DONE", emits: ["F09-"] },
   { file: "fable10.sql", fn: "selftest.run_fable10()", done: "F10-DONE", emits: ["F10-"] },
   { file: "fable11.sql", fn: "selftest.run_fable11()", done: "F11-DONE", emits: ["F11-"] },
+  { file: "fable12.sql", fn: "selftest.run_fable12()", done: "F12-DONE", emits: ["F12-"] },
+  { file: "fable13.sql", fn: "selftest.run_fable13()", done: "F13-DONE", emits: ["F13-"] },
 ] as const;
 
 /**
@@ -663,10 +678,10 @@ async function main() {
     }
     for (const p of problems) log(`CONTRACT ${p.slice(0, 300)}`);
   }
-  process.exit(ok ? 0 : 1);
+  exitAfterFlush(ok ? 0 : 1);
 }
 
 main().catch((e) => {
   log(`selftest runner crashed: ${(e as Error).stack ?? e}`);
-  process.exit(2);
+  exitAfterFlush(2);
 });

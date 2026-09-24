@@ -1,42 +1,62 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
+import { isianKurang, type JawabanAktivasi, type ModeAktivasi } from "./hasil";
+import HasilAktivasi from "./HasilAktivasi";
 
 type Orang = { person_id: string; display_name: string; institutional_id: string; institution_id: string };
-type Hasil = { ok: boolean; card?: string; pin?: string; detail?: string | null };
+
+/** One press and what came of it: the route's answer, or the check that stopped it being sent. */
+type Hasil = { mode: ModeAktivasi; jawaban: JawabanAktivasi | null; surel?: string; nama?: string };
 
 /**
  * The activation controls. Each press is one POST to /api/akun/aktivasi; the
  * database decides and the route creates the identity. A classroom card's
  * number and PIN come back ONCE and are shown here only — they are not stored
  * anywhere PINTAR can show them again, so the screen says to write them down.
+ *
+ * DAISY-09 (D-019). PINTAR SENDS NOTHING, and every outcome says so. The answer
+ * stays where it was asked, in place of that person's controls, until the page
+ * is next opened: an email activation used to refresh the list at once, which
+ * took the person -- and the only word of success -- off the screen. A refused
+ * or failed press is one plain sentence (HasilAktivasi), and a missing name or
+ * an incomplete address is told before anything is sent.
  */
 export default function FormAktivasi({ locale, orang, adminSistem }: {
   locale: Locale; orang: Orang[]; adminSistem: boolean;
 }) {
-  const router = useRouter();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const [surel, setSurel] = useState<Record<string, string>>({});
   const [hasil, setHasil] = useState<Record<string, Hasil>>({});
+  const [kurang, setKurang] = useState<Record<string, HleEvent>>({});
   const [sibuk, setSibuk] = useState<string | null>(null);
   const [baru, setBaru] = useState({ nama: "", surel: "" });
 
-  async function kirim(key: string, body: Record<string, string>) {
+  async function kirim(key: string, mode: ModeAktivasi, body: Record<string, string>, isian: { nama?: string; surel?: string }) {
+    const cegah = isianKurang(mode, isian);
+    setKurang((x) => {
+      const y = { ...x };
+      if (cegah) y[key] = cegah;
+      else delete y[key];
+      return y;
+    });
+    if (cegah) return;
     setSibuk(key);
+    let jawaban: JawabanAktivasi | null = null;
     try {
       const res = await fetch("/api/akun/aktivasi", {
-        method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+        method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ mode, ...body }),
       });
-      const r = (await res.json().catch(() => ({ ok: false }))) as Hasil;
-      setHasil((h) => ({ ...h, [key]: r }));
-      if (r.ok && !r.card) router.refresh();
+      const r = (await res.json().catch(() => null)) as JawabanAktivasi | null;
+      jawaban = r && typeof r.ok === "boolean" ? r : null;
     } catch {
-      setHasil((h) => ({ ...h, [key]: { ok: false } }));
+      jawaban = null;
     } finally {
       setSibuk(null);
     }
+    setHasil((h) => ({ ...h, [key]: { mode, jawaban, surel: isian.surel?.trim(), nama: isian.nama?.trim() } }));
+    if (jawaban?.ok && key === "baru") setBaru({ nama: "", surel: "" });
   }
 
   return (
@@ -44,35 +64,39 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
       {orang.length === 0 ? (
         <p className="pin-meta">{s("aktivasi.kosong")}</p>
       ) : (
-        <ul className="pin-daftar">
+        <ul className="pin-akt-daftar">
           {orang.map((o) => {
             const h = hasil[o.person_id];
+            const alamat = surel[o.person_id] ?? "";
             return (
-              <li key={o.person_id} className="pin-card">
+              <li key={o.person_id} className="pin-akt-orang">
                 <p><strong>{o.display_name}</strong> · <span className="pin-num">{o.institutional_id}</span></p>
-                {h?.ok && h.card ? (
-                  <p role="status">
-                    {s("aktivasi.kartu_dibuat")} <strong className="pin-num">{h.card}</strong> · PIN{" "}
-                    <strong className="pin-num">{h.pin}</strong>
-                  </p>
+                {h?.jawaban?.ok ? (
+                  <HasilAktivasi locale={locale} mode={h.mode} jawaban={h.jawaban} surel={h.surel} />
                 ) : (
-                  <div className="pin-actions">
-                    <label>
-                      <span className="pin-meta">{s("aktivasi.surel")}</span>
-                      <input type="email" value={surel[o.person_id] ?? ""}
-                        onChange={(e) => setSurel((x) => ({ ...x, [o.person_id]: e.target.value }))} />
-                    </label>
-                    <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
-                      onClick={() => void kirim(o.person_id, { mode: "EMAIL", person_id: o.person_id, email: surel[o.person_id] ?? "" })}>
-                      {s("aktivasi.dengan_surel")}
-                    </button>
-                    <button type="button" className="pin-btn" disabled={sibuk !== null}
-                      onClick={() => void kirim(o.person_id, { mode: "CLASSROOM_CARD", person_id: o.person_id })}>
-                      {s("aktivasi.dengan_kartu")}
-                    </button>
-                  </div>
+                  <>
+                    <div className="pin-actions">
+                      <label className="pin-akt-isian">
+                        <span className="pin-meta">{s("aktivasi.surel")}</span>
+                        <input className="pin-input" type="email" value={alamat}
+                          onChange={(e) => setSurel((x) => ({ ...x, [o.person_id]: e.target.value }))} />
+                      </label>
+                      <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
+                        onClick={() => void kirim(o.person_id, "EMAIL", { person_id: o.person_id, email: alamat.trim() }, { surel: alamat })}>
+                        {s("aktivasi.dengan_surel")}
+                      </button>
+                      <button type="button" className="pin-btn" disabled={sibuk !== null}
+                        onClick={() => void kirim(o.person_id, "CLASSROOM_CARD", { person_id: o.person_id }, {})}>
+                        {s("aktivasi.dengan_kartu")}
+                      </button>
+                    </div>
+                    {kurang[o.person_id] ? (
+                      <p className="pin-msg pin-msg-err" role="alert">{s(kurang[o.person_id])}</p>
+                    ) : h ? (
+                      <HasilAktivasi locale={locale} mode={h.mode} jawaban={h.jawaban} surel={h.surel} />
+                    ) : null}
+                  </>
                 )}
-                {h && !h.ok && <p className="pin-meta" role="status">{s("aktivasi.gagal")}</p>}
               </li>
             );
           })}
@@ -80,26 +104,29 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
       )}
 
       {adminSistem && (
-        <section className="pin-card">
+        <section className="pin-akt-orang pin-akt-baru">
           <h2>{s("aktivasi.baru.judul")}</h2>
           <p className="pin-meta">{s("aktivasi.baru.arti")}</p>
           <div className="pin-actions">
-            <label>
+            <label className="pin-akt-isian">
               <span className="pin-meta">{s("aktivasi.baru.nama")}</span>
-              <input value={baru.nama} onChange={(e) => setBaru((b) => ({ ...b, nama: e.target.value }))} />
+              <input className="pin-input" value={baru.nama} onChange={(e) => setBaru((b) => ({ ...b, nama: e.target.value }))} />
             </label>
-            <label>
+            <label className="pin-akt-isian">
               <span className="pin-meta">{s("aktivasi.surel")}</span>
-              <input type="email" value={baru.surel} onChange={(e) => setBaru((b) => ({ ...b, surel: e.target.value }))} />
+              <input className="pin-input" type="email" value={baru.surel} onChange={(e) => setBaru((b) => ({ ...b, surel: e.target.value }))} />
             </label>
             <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
-              onClick={() => void kirim("baru", { mode: "NEW_PERSON", display_name: baru.nama, email: baru.surel })}>
+              onClick={() => void kirim("baru", "NEW_PERSON", { display_name: baru.nama.trim(), email: baru.surel.trim() }, baru)}>
               {s("aktivasi.baru.tombol")}
             </button>
           </div>
-          {hasil.baru && (
-            <p className="pin-meta" role="status">{s(hasil.baru.ok ? "aktivasi.baru.ok" : "aktivasi.gagal")}</p>
-          )}
+          {kurang.baru ? (
+            <p className="pin-msg pin-msg-err" role="alert">{s(kurang.baru)}</p>
+          ) : hasil.baru ? (
+            <HasilAktivasi locale={locale} mode="NEW_PERSON" jawaban={hasil.baru.jawaban}
+              surel={hasil.baru.surel} nama={hasil.baru.nama} />
+          ) : null}
         </section>
       )}
     </>

@@ -60,7 +60,7 @@ import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
 import { Checks, type SelfTest } from "./lib";
-import { allKeys, telling, renderAll, t, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
+import { allKeys, telling, renderAll, t, format, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import { berandaPeran } from "../src/lib/beranda";
@@ -88,11 +88,17 @@ import {
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import BarisSesi from "../src/components/BarisSesi";
 import PanelPernyataan, { KalimatPonsel } from "../src/components/masuk/PanelPernyataan";
-import { tempatDariPeran, daftarTempat, pintuMasuk } from "../src/components/tempat";
+import { templatPelajaran, tulisBukuKerja, xmlTeks, crc32, hurufKolom, LEMBAR_PANDUAN, BATAS_TEKS_KOLOM } from "../src/components/unggah/templat";
+import { lokasiMasalah } from "../src/components/unggah/lokasi";
+import { bacaBukuKerja } from "../src/lib/xlsx";
+import { BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
+import { crc32 as zlibCrc32 } from "node:zlib";
+import { tempatDariPeran, daftarTempat, pintuMasuk, tawarkanStudio, PERAN_STUDIO } from "../src/components/tempat";
 import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalBaca } from "../src/components/struktur/tampilan";
 import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src/lib/struktur-kontrak";
 import { sekolahDitawarkan, sekolahDipilih, type SekolahBaris } from "../src/components/sekolah";
+import { kunciGagal, isianKurang, surelLengkap, GALAT_RUTE, type ModeAktivasi, type JawabanAktivasi } from "../src/components/aktivasi/hasil";
 import type { DisplayRole } from "../src/lib/auth";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
@@ -1256,6 +1262,12 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 115 -> 116 for BOB-04, a lesson is assigned whole (D-008).
+      // 20261010100000 adds the assign function, replaces the materialiser, the
+      // draw and my_cycle_state; no column, colour or brand surface.
+      // MOVED 114 -> 115 for BOB-03, a course is released (audit B3).
+      // 20261009100000 adds release functions and codes; no column, colour or
+      // brand surface.
       // MOVED 113 -> 114 for BOB-14, lesson content is not public (D-032).
       // 20261008100000 revokes a view and restates the schema lint; it adds no
       // column, colour or brand surface.
@@ -1403,7 +1415,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 114, `${migrations.length} migrations; the frozen baseline has 114`);
+      c.expect(migrations.length === 116, `${migrations.length} migrations; the frozen baseline has 116`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2194,9 +2206,19 @@ export const experienceTests: SelfTest[] = [
 
       // Making material available is born inert and becomes visible in a second,
       // separately authorized statement — which is what makes a review possible.
-      c.expect(/\.insert\(\{[\s\S]*?\}\)/.test(aksi), "materialising an assignment does not insert a row");
-      c.expect(!/status:\s*"ACTIVE"[\s\S]*?\.insert\(/.test(aksi), "an assignment is inserted already active");
-      c.expect(/\.update\(\{ status: "ACTIVE" \}\)/.test(aksi), "the assignment is never activated in its own statement");
+      // RESTATED BY BOB-04 (D-008): the commitment moved into assign_release,
+      // which makes the learning assignment and both tests of the cycle in one
+      // transaction. The property is unchanged and is read where it now lives:
+      // the action calls that one function, and the function inserts the
+      // assignment without a status (DRAFT) and activates it in its own UPDATE.
+      c.expect(/rpc\("assign_release",/.test(aksi), "making material available does not go through assign_release");
+      c.expect(!/from\("learning_assignments"\)/.test(aksi), "the educator action writes learning_assignments itself");
+      const penugasan = readFileSync(join(repoRoot, "supabase", "migrations", "20261010100000_a_lesson_is_assigned_whole.sql"), "utf8");
+      const assign = /create function public\.assign_release[\s\S]*?end \$\$;/.exec(penugasan)?.[0] ?? "";
+      const lahir = /insert into public\.learning_assignments \(([^)]*)\)/.exec(assign)?.[1] ?? "";
+      c.expect(lahir !== "" && !/\bstatus\b/.test(lahir), "materialising an assignment does not insert a row born at DRAFT");
+      c.expect(/update public\.learning_assignments set status = 'ACTIVE' where id = v_la;/.test(assign),
+        "the assignment is never activated in its own statement");
 
       // A redirect target is derived, never taken from the form: the learner
       // side's unvalidated `kembali` is a known finding and is not repeated here.
@@ -3042,7 +3064,9 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 113 -> 114 for BOB-14's revoke of
+      // from, not a claim about the tour. MOVED 115 -> 116 for BOB-04's assign
+      // function (20261010100000), not a tour RPC (D-024). MOVED 114 -> 115 for BOB-03's release
+      // functions (20261009100000), not tour RPCs (D-024). MOVED 113 -> 114 for BOB-14's revoke of
       // the public lesson view (20261008100000), which is not a tour RPC and
       // does not touch person_tour_state (D-024). MOVED 112 -> 113 for BOB-02's lesson
       // workbook import (20261007100000), which is not a tour RPC and does not
@@ -3088,7 +3112,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 114, `${migs.length} migrations; the baseline has 114`);
+      c.expect(migs.length === 116, `${migs.length} migrations; the baseline has 116`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -7001,8 +7025,14 @@ export const experienceTests: SelfTest[] = [
       }
       c.expect(/tidak mengirim surel/.test(t("aktivasi.baru.ok", "staff", { locale: "id" })), "aktivasi.baru.ok (id) does not say no email was sent");
       c.expect(/not emailed/.test(t("aktivasi.baru.ok", "staff", { locale: "en" })), "aktivasi.baru.ok (en) does not say no email was sent");
+      // DAISY-09 moved the drawing of each outcome into HasilAktivasi; the
+      // form hands it the new person's answer, and it draws aktivasi.baru.ok
+      // on that path's success.
       const form = code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "FormAktivasi.tsx"), "utf8"));
-      c.expect(/hasil\.baru\.ok\s*\?\s*"aktivasi\.baru\.ok"/.test(form), "the activation form no longer shows aktivasi.baru.ok on success");
+      const hasilAkt = code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "HasilAktivasi.tsx"), "utf8"));
+      c.expect(/<HasilAktivasi locale=\{locale\} mode="NEW_PERSON" jawaban=\{hasil\.baru\.jawaban\}/.test(form)
+        && /if \(!jawaban\?\.ok\)/.test(hasilAkt) && /mode === "NEW_PERSON" \? "aktivasi\.baru\.ok"/.test(hasilAkt),
+        "the activation form no longer shows aktivasi.baru.ok on success");
 
       return c.verdict(
         `D-015: no telling for any persona in either language names the quick assessment "kuis" or ` +
@@ -8270,6 +8300,661 @@ export const experienceTests: SelfTest[] = [
         "table with no image and nothing hidden from a screen reader but its decorative rule, and its phone twin says the same; " +
         "/masuk and the expired-link screen both show it. From the stylesheet, exactly one copy is displayed at every width, and " +
         `the panel is the brand colour with the brand's ink and nothing laid over it: ${rasio.toFixed(2)}:1, computed from the tokens`,
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-06 (lane: Daisy)
+  {
+    id: "DAISY-06-TEMPLAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-06: THE LESSON TEMPLATE IS BOB-02'S CONTRACT, WRITTEN OUT. It is
+       * built in the browser from KOLOM, LEMBAR and BATAS_PAKET (no dependency,
+       * D-030), so it is checked here against Bob's own reader and converter --
+       * the code the upload runs -- not against a copy of the rules.
+       *
+       * A small reader of stored zip entries, for what Bob's reader does not
+       * report (the entry method, the timestamp, the CRC, the raw sheet XML).
+       */
+      type Entri = { nama: string; metode: number; waktu: number; tanggal: number; crc: number; isi: Buffer };
+      const entriZip = (bytes: Uint8Array): Entri[] => {
+        const b = Buffer.from(bytes);
+        const akhir = b.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+        const n = b.readUInt16LE(akhir + 10);
+        let p = b.readUInt32LE(akhir + 16);
+        const out: Entri[] = [];
+        for (let i = 0; i < n; i++) {
+          const nama = b.toString("utf8", p + 46, p + 46 + b.readUInt16LE(p + 28));
+          const off = b.readUInt32LE(p + 42);
+          const mulai = off + 30 + b.readUInt16LE(off + 26) + b.readUInt16LE(off + 28);
+          out.push({ nama, metode: b.readUInt16LE(p + 10), waktu: b.readUInt16LE(p + 12), tanggal: b.readUInt16LE(p + 14),
+            crc: b.readUInt32LE(p + 16), isi: b.subarray(mulai, mulai + b.readUInt32LE(p + 20)) });
+          p += 46 + b.readUInt16LE(p + 28) + b.readUInt16LE(p + 30) + b.readUInt16LE(p + 32);
+        }
+        return out;
+      };
+
+      /**
+       * (a) THE BLANK TEMPLATE, THROUGH bacaBukuKerja AND bukuKerjaKePaket. The
+       *     guidance sheet first, then the five data sheets named exactly as
+       *     LEMBAR and in that order; each data sheet holds row 1 -- every
+       *     column's judul, in KOLOM order -- and nothing else. The converter
+       *     finds no missing sheet and no missing column; the only thing it can
+       *     say about a blank template is that the course row is still empty.
+       */
+      const templat = templatPelajaran();
+      const baca = bacaBukuKerja(templat);
+      if (c.expect(baca.ok, `Bob's reader cannot read the template: ${JSON.stringify(baca)}`) && baca.ok) {
+        c.expect(JSON.stringify(baca.lembar.map((l) => l.nama)) === JSON.stringify([LEMBAR_PANDUAN, ...LEMBAR]),
+          `the sheets are ${baca.lembar.map((l) => l.nama).join(", ")}`);
+        for (const l of LEMBAR) {
+          const sh = baca.lembar.find((x) => x.nama === l);
+          c.expect(sh?.baris.length === 1 && JSON.stringify(sh.baris[0]) === JSON.stringify(KOLOM[l].map((k) => k.judul)),
+            `${l}: row 1 is not exactly KOLOM's headers, or the sheet holds more than row 1: ${JSON.stringify(sh?.baris)}`);
+        }
+        const kosong = bukuKerjaKePaket(baca.lembar);
+        const kodeKosong = kosong.ok ? [] : kosong.problems.map((x) => x.code);
+        c.expect(!kodeKosong.includes("WORKBOOK_SHEET_MISSING") && !kodeKosong.includes("WORKBOOK_COLUMN_MISSING"),
+          `the blank template is missing a sheet or a column: ${kodeKosong.join(", ")}`);
+        c.expect(JSON.stringify(kodeKosong) === JSON.stringify(["WORKBOOK_COURSE_ROW_MISSING"]),
+          `a blank template should only lack its course row, not: ${kodeKosong.join(", ")}`);
+
+        /**
+         *     THE GUIDANCE, from the same contract: every column of every sheet
+         *     with whether it is required, its accepted choices and its meaning;
+         *     every text limit beside the column it governs; and the other
+         *     limits of BATAS_PAKET, each with BATAS_PAKET's own number.
+         */
+        const panduan = baca.lembar[0].baris;
+        const teksPanduan = panduan.map((r) => r.join(" | ")).join("\n");
+        for (const l of LEMBAR) for (const k of KOLOM[l]) {
+          const r = panduan.find((x) => x[0] === l && x[1] === k.judul);
+          c.expect(Boolean(r) && r![2] === t(k.wajib ? "studio.templat.ya" : "studio.templat.tidak", "staff", { locale: "id" })
+            && (r![3] ?? "") === (k.pilihan ? k.pilihan.map(([x]) => x).join(", ") : "") && (r![5] ?? "") === k.arti,
+            `the guidance does not describe ${l} · ${k.judul} as the contract does: ${JSON.stringify(r)}`);
+        }
+        const teksMaks = BATAS_PAKET.teksMaks.nilai;
+        for (const [nama, [l, kunci]] of Object.entries(BATAS_TEKS_KOLOM)) {
+          const judul = KOLOM[l].find((k) => k.kunci === kunci)?.judul;
+          const r = panduan.find((x) => x[0] === l && x[1] === judul);
+          const angka = format.number(teksMaks[nama as keyof typeof teksMaks], "id");
+          c.expect(Boolean(judul) && (r?.[4] ?? "").startsWith(`${angka} `), `the ${nama} limit (${angka}) is not shown on ${l} · ${judul ?? kunci}`);
+        }
+        c.expect(JSON.stringify(Object.keys(BATAS_TEKS_KOLOM).sort()) === JSON.stringify(Object.keys(teksMaks).sort()),
+          "a text limit in BATAS_PAKET has no column in the guidance");
+        const B = BATAS_PAKET;
+        const harus = [
+          `${format.number(B.berkasMaks.nilai / 1048576, "id")} MB`, format.number(B.barisMaks.nilai, "id"),
+          format.number(B.pelajaranMaks.nilai, "id"), format.number(B.soalMaks.nilai, "id"),
+          `${B.pilihanMin.nilai}–${B.pilihanMaks.nilai}`, B.labelPilihan.nilai.join(", "),
+          ...Object.values(B.jenisMedia.nilai).map((x) => x.join(", ")), format.number(B.namaMediaMaks.nilai, "id"),
+        ];
+        for (const x of harus) c.expect(teksPanduan.includes(x), `the guidance does not state the limit "${x}"`);
+      }
+
+      /**
+       * (b) ONE FILLED ROW PER SHEET, WRITTEN BY THE SAME WRITER, CONVERTS WITH
+       *     NO PROBLEM, and each value lands in its own field: the choices are
+       *     turned into their codes, and text holding XML's special characters,
+       *     both quotes and a line break comes back exactly.
+       */
+      const SULIT = `Isi <b>tebal</b> & "kutip" 'tunggal'\nbaris dua`;
+      const ISI: Record<string, Record<string, string>> = {
+        Kursus: { title: "Pecahan Senilai", subject: "Matematika", stage: "SD", grade_label: "Kelas 4", konteks: "Akademik" },
+        Bab: { ordinal: "1", title: "Pecahan" },
+        Pelajaran: { module: "1", ordinal: "1", title: "Mengenal pecahan", summary: "Ringkas", body_markdown: SULIT, objective: "Murid mengenal pecahan", bloom: "Memahami" },
+        Soal: { ref: "S1", module: "1", lesson: "1", item_type: "Pilihan ganda", stem: "Berapa 1/2 + 1/4?", use: "Pemetaan awal", difficulty: "Sedang" },
+        Pilihan: { ref: "S1", label: "A", body: "3/4", is_correct: "Ya", rationale: "Samakan penyebutnya dulu." },
+      };
+      const terisi = tulisBukuKerja(LEMBAR.map((l) => ({ nama: l, baris: [KOLOM[l].map((k) => k.judul), KOLOM[l].map((k) => ISI[l][k.kunci] ?? "")] })));
+      for (const e of entriZip(terisi)) {
+        c.expect(!/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;|#x[0-9a-f]+;)/i.test(e.isi.toString("utf8")), `the filled workbook's ${e.nama} holds an unescaped "&"`);
+      }
+      const bacaIsi = bacaBukuKerja(terisi);
+      const paket = bacaIsi.ok ? bukuKerjaKePaket(bacaIsi.lembar) : null;
+      if (c.expect(paket?.ok === true, `a filled workbook does not convert cleanly: ${JSON.stringify(paket && !paket.ok ? paket.problems : bacaIsi)}`) && paket?.ok) {
+        const kursus = (paket.paket.courses as Array<Record<string, unknown>>)[0];
+        const pel = ((kursus.modules as Array<Record<string, unknown>>)[0].lessons as Array<Record<string, unknown>>)[0];
+        const soal = (pel.items as Array<Record<string, unknown>>)[0];
+        c.expect(kursus.title === "Pecahan Senilai" && pel.body_markdown === SULIT, `a value did not come back exactly: ${JSON.stringify(pel.body_markdown)}`);
+        c.expect(soal.item_type === "MCQ_SINGLE" && soal.use === "PRE_TEST" && (pel.objective as Record<string, unknown>).bloom === "UNDERSTAND",
+          "a choice did not become its code");
+      }
+
+      /**
+       * (c) THE SAME CONTRACT, THE SAME BYTES. Two builds are byte-identical;
+       *     every entry is stored, stamped with the one fixed time, and its CRC-32
+       *     equals Node's own zlib.crc32 of its content; every cell is an inline
+       *     string (no shared-strings part), and the data sheets offer each
+       *     fixed list as a dropdown on its own column.
+       */
+      c.expect(Buffer.compare(Buffer.from(templat), Buffer.from(templatPelajaran())) === 0, "two builds of the template differ");
+      const entri = entriZip(templat);
+      c.expect(entri.length >= 5 + LEMBAR.length, `the template has ${entri.length} parts`);
+      for (const e of entri) {
+        // 1 January 1980, 00:00: the fixed stamp, time and date both, so no clock can reach the bytes
+        c.expect(e.metode === 0 && e.waktu === 0 && e.tanggal === 0x21, `${e.nama} is compressed or is not stamped with the fixed time`);
+        c.expect(e.crc === zlibCrc32(e.isi), `${e.nama}: the stored CRC-32 is wrong`);
+        // an XML part may hold "&" only as the start of an entity; a lenient reader forgives it, Excel does not
+        c.expect(!/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;|#x[0-9a-f]+;)/i.test(e.isi.toString("utf8")), `${e.nama} holds an unescaped "&"`);
+      }
+      c.expect(!entri.some((e) => e.nama === "xl/sharedStrings.xml"), "the template relies on shared strings instead of inline strings");
+      LEMBAR.forEach((l, i) => {
+        const xml = entri.find((e) => e.nama === `xl/worksheets/sheet${i + 2}.xml`)?.isi.toString("utf8") ?? "";
+        const sel = xml.match(/<c [^>]*>/g) ?? [];
+        c.expect(sel.length === KOLOM[l].length && sel.every((x) => /t="inlineStr"/.test(x)), `${l}: a cell is not an inline string`);
+        const daftar = [...xml.matchAll(/<dataValidation [^>]*sqref="([A-Z]+)2:[A-Z]+\d+"><formula1>&quot;([^<]*)&quot;<\/formula1>/g)].map((m) => [m[1], m[2]]);
+        const harap = KOLOM[l].flatMap((k, n) => (k.pilihan ? [[hurufKolom(n), k.pilihan.map(([x]) => x).join(",")]] : []));
+        c.expect(JSON.stringify(daftar) === JSON.stringify(harap), `${l}: the dropdowns are ${JSON.stringify(daftar)}, not ${JSON.stringify(harap)}`);
+      });
+      c.expect(xmlTeks(`<&>"'`) === "&lt;&amp;&gt;&quot;&apos;" && crc32(new TextEncoder().encode("123456789")) === 0xcbf43926,
+        "the escaping or the CRC-32 is wrong on a known value (control)");
+
+      /**
+       * SAFE IN THE BROWSER (the gate's condition 1). The template and the
+       * panel import nothing from src/lib/xlsx.ts and no node: module, and the
+       * contract file they do import brings in types only -- so nothing that
+       * needs node:zlib can ever be bundled for the browser through them.
+       */
+      const importDari = (f: string) => [...code(readFileSync(join(repoRoot, f), "utf8")).matchAll(/^\s*import\s+([\s\S]*?)\s+from\s+"([^"]+)"/gm)];
+      for (const f of ["src/components/unggah/templat.ts", "src/components/unggah/lokasi.ts", "src/components/unggah/PanelUnggah.tsx"]) {
+        for (const [, , dari] of importDari(f)) {
+          c.expect(!/lib\/xlsx|^node:/.test(dari), `${f} imports ${dari}, which cannot run in the browser`);
+        }
+      }
+      const kontrak = importDari("src/lib/unggah-kontrak.ts");
+      c.expect(kontrak.length > 0 && kontrak.every(([, apa]) => /^type\b/.test(apa.trim())), "unggah-kontrak.ts imports more than types, so it is no longer safe to import in the browser");
+      const dariKontrak = importDari("src/components/unggah/templat.ts").find(([, , d]) => d === "@/lib/unggah-kontrak")?.[1] ?? "";
+      c.expect(/\bBATAS_PAKET\b/.test(dariKontrak) && /\bKOLOM\b/.test(dariKontrak) && /\bLEMBAR\b/.test(dariKontrak),
+        "the template is not written from KOLOM, LEMBAR and BATAS_PAKET");
+
+      return c.verdict(
+        `the template Bob's own reader reads: "${LEMBAR_PANDUAN}" then ${LEMBAR.join(", ")} in that order, each data sheet exactly ` +
+        "KOLOM's headers and nothing else, and the converter finds no missing sheet or column; the guidance states every column " +
+        "as the contract does and every BATAS_PAKET limit with its own number. One filled row per sheet converts with no problem, " +
+        "choices becoming their codes and special characters coming back exactly. Two builds are byte-identical, every entry " +
+        "stored with the fixed time and a CRC-32 matching Node's zlib, every cell an inline string, every fixed list a dropdown " +
+        "on its own column; and nothing that needs node:zlib can reach the browser through the template or the panel",
+      );
+    },
+  },
+  {
+    id: "DAISY-06-UNGGAH-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-06: THE UPLOAD PANEL, RENDERED. The panel is rendered to HTML in a
+       * child process in both languages: the template button; three steps named
+       * for what they do (not three "Konfirmasi"), the first marked current; the
+       * "Sekolah" picker offering exactly the schools the page gives it, the
+       * first selected; a file input for .xlsx; the check disabled until a file
+       * is chosen. With no school to offer, it says so and offers no file input.
+       */
+      const SEKOLAH = [{ id: "sd", name: "SD Zayd Pintar Selalu" }, { id: "sma", name: "SMA Zayd Pintar Selalu" }];
+      const KASUS = [
+        ...LOCALES.map((locale) => ({ locale, sekolah: SEKOLAH, batasMb: 5 })),
+        { locale: "id", sekolah: [], batasMb: 5 },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/unggah/PanelUnggah.tsx");' +
+        "  const Panel = m.default?.default ?? m.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_UNGGAH).map((k) =>" +
+        "    renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(Panel, k))))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_UNGGAH: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && html.length === KASUS.length, `the panel could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        LOCALES.forEach((locale, n) => {
+          const x = html[n];
+          const s = (k: HleEvent) => t(k, "staff", { locale });
+          c.expect(x.includes(`<button type="button" class="pin-btn">${s("studio.unggah.templat")}</button>`), `(${locale}) no template download`);
+          const langkah = [...x.matchAll(/<li[^>]*><span class="pin-ung-no">(\d)<\/span> ([^<]+)<\/li>/g)].map((m) => m[2]);
+          c.expect(JSON.stringify(langkah) === JSON.stringify(["periksa", "media", "simpan"].map((k) => s(`studio.unggah.langkah.${k}` as HleEvent)))
+            && new Set(langkah).size === 3, `(${locale}) the steps are ${JSON.stringify(langkah)}`);
+          c.expect(/<li class="pin-ung-kini" aria-current="step"><span class="pin-ung-no">1<\/span>/.test(x), `(${locale}) step 1 is not marked current`);
+          c.expect(/<label for="ung-sekolah">/.test(x) && x.includes(`<label for="ung-sekolah">${s("studio.unggah.sekolah")}</label>`), `(${locale}) the school picker is not labelled Sekolah`);
+          const opsi = [...x.matchAll(/<option value="([^"]+)"( selected="")?>([^<]+)<\/option>/g)].map((m) => [m[1], Boolean(m[2]), m[3]]);
+          c.expect(JSON.stringify(opsi) === JSON.stringify([["sd", true, SEKOLAH[0].name], ["sma", false, SEKOLAH[1].name]]),
+            `(${locale}) the picker offers ${JSON.stringify(opsi)}`);
+          c.expect(/<input id="ung-berkas" type="file" accept="\.xlsx[^"]*"/.test(x), `(${locale}) there is no file input for an .xlsx workbook`);
+          c.expect(x.includes(`disabled="">${s("studio.unggah.langkah.periksa")}</button>`), `(${locale}) the check can be pressed before a file is chosen`);
+        });
+        const tanpa = html[2];
+        c.expect(tanpa.includes(t("studio.unggah.tanpa_sekolah", "staff")) && !/type="file"/.test(tanpa), "with no school on offer the panel still offers an upload");
+      }
+
+      /**
+       * EVERY ANSWER HAS ITS OWN SENTENCE, AND EVERY PROBLEM SAYS WHERE. Each
+       * problem code and each refusal code the actions can return reads as a
+       * sentence in both languages -- never the calm dash, never the code -- and
+       * a problem's place is "Lembar Soal, baris 4, kolom Pertanyaan", with the
+       * column's own header from KOLOM.
+       */
+      const kodeTolak = [...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED"] as const;
+      for (const locale of LOCALES) {
+        for (const k of KODE_MASALAH_PAKET) {
+          const v = t(kunciMasalahPaket(k), "staff", { locale });
+          c.expect(v !== TANPA_SALINAN && !v.includes(k), `(${locale}) the problem ${k} reads "${v}"`);
+        }
+        for (const k of kodeTolak) {
+          const v = t(kunciKodePaket(k), "staff", { locale });
+          c.expect(v !== TANPA_SALINAN && !v.includes(k), `(${locale}) the refusal ${k} reads "${v}"`);
+        }
+      }
+      c.expect(lokasiMasalah({ code: "WORKBOOK_VALUE_REQUIRED", sheet: "Soal", row: 4, field: "stem" }, "id") === "Lembar Soal, baris 4, kolom Pertanyaan",
+        `a problem's place reads "${lokasiMasalah({ code: "WORKBOOK_VALUE_REQUIRED", sheet: "Soal", row: 4, field: "stem" }, "id")}"`);
+      c.expect(lokasiMasalah({ code: "MEDIA_NOT_UPLOADED", file: "gambar-1.png" }, "en") === "file gambar-1.png", "a media problem does not name its file");
+
+      /**
+       * THE PAGE AND THE FLOW, FROM THE SOURCE.
+       *   - /studio/unggah reads each drafting school's tenant_kind and
+       *     is_active and offers them through sekolah.ts -- never the national
+       *     library (audit S14; D-029) -- to the panel AND the JSON forms, and
+       *     labels the JSON forms' picker "Sekolah" (it said "Peran & akses").
+       *   - The panel comes before the JSON forms.
+       *   - The panel talks to the server only through BOB-02's two typed
+       *     actions and the one signed-upload route, sending each file to the
+       *     path the check returned, in the "assets" bucket.
+       */
+      const halaman = code(readFileSync(join(repoRoot, "src", "app", "studio", "unggah", "page.tsx"), "utf8"));
+      c.expect(/from\("institutions"\)\.select\("[^"]*\btenant_kind\b[^"]*\bis_active\b[^"]*"\)/.test(halaman) || /from\("institutions"\)\.select\("[^"]*\bis_active\b[^"]*\btenant_kind\b[^"]*"\)/.test(halaman),
+        "the upload page reads the schools without their kind or state");
+      c.expect(/const institutions = sekolahDitawarkan\(tenant \?\? \[\], \(id\) => menyusun\.has\(id\)\)/.test(halaman), "the upload page does not offer its schools through the shared rule");
+      c.expect(!/config\.section\.roles/.test(halaman) && /<span>\{s\("studio\.unggah\.sekolah"\)\}<\/span>/.test(halaman), "the JSON forms' school picker is not labelled Sekolah");
+      c.expect(/<PanelUnggah locale=\{locale\} sekolah=\{institutions\}/.test(halaman) && halaman.indexOf("<PanelUnggah") < halaman.indexOf("easyUploadAction}"),
+        "the workbook panel is not the first way in, or it is not given the offered schools");
+      const panel = code(readFileSync(join(repoRoot, "src", "components", "unggah", "PanelUnggah.tsx"), "utf8"));
+      const panggilan = [...panel.matchAll(/\bawait\s+(\w+)\s*\(/g)].map((m) => m[1]).filter((f) => !["fetch", "r"].includes(f));
+      c.expect(/await fetch\("\/api\/assets\/upload-url", \{[\s\S]*?body: JSON\.stringify\(\{ path: m\.path \}\)/.test(panel)
+        && /storage\.from\("assets"\)\.uploadToSignedUrl\(path, token, f,/.test(panel), "media do not go through the signed-upload route to the checked path");
+      c.expect((panel.match(/\bfetch\(/g) ?? []).length === 1 && /await unggahBukuKerjaAksi\(null, fd\)/.test(panel) && /await konfirmasiPaketAksi\(null, fd\)/.test(panel),
+        `the panel talks to the server some other way: ${panggilan.join(", ")}`);
+
+      return c.verdict(
+        "the upload panel is RENDERED in both languages with the template download, three steps named for what they do " +
+        "with the first current, a Sekolah picker offering exactly the given schools with the first selected, an .xlsx file " +
+        "input and a check that waits for a file; with no school it offers no upload. Every problem and refusal code reads " +
+        "as its own sentence in both languages, and a problem says its sheet, row and column. The page offers only real, " +
+        "active drafting schools (never the national library) to the panel and the JSON forms, labels them Sekolah, puts the " +
+        "workbook first, and the panel reaches the server only through BOB-02's two actions and the signed-upload route",
+      );
+    },
+  },
+  {
+    id: "DAISY-09-AKTIVASI-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-09 (D-019): ACTIVATION SENDS NO EMAIL, AND EVERY SCREEN SAYS SO.
+       *
+       * 1. THE ROUTE STILL SENDS NOTHING. Read, not assumed: if it ever starts
+       *    sending mail, every sentence below has a false premise.
+       */
+      const rute = readFileSync(join(repoRoot, "src", "app", "api", "akun", "aktivasi", "route.ts"), "utf8");
+      c.expect(/email_confirm:\s*true/.test(rute) && !/signInWithOtp|inviteUserByEmail|generateLink|resend|sendEmail/i.test(rute),
+        "the activation route now sends mail itself -- D-019's premise has changed; re-read every activation sentence");
+
+      /**
+       * 2. NO ACTIVATION SENTENCE PROMISES AN EMAIL, in either language. The
+       *    old introduction ("tautan lewat surel" / "a link by email") is the
+       *    planted control: the sweep must catch it.
+       */
+      const JANJI = /tautan lewat surel|link by e-?mail|kami kirim|kirimkan|dikirim ke|periksa (kotak )?surel|cek surel|undangan|we('ll| will) (send|e-?mail)|sent to (their|your|the)|check (your|their) (e-?mail|inbox)|invitation|invite\b/i;
+      const kunciAktivasi = allKeys().filter((k) => k.startsWith("aktivasi."));
+      for (const k of kunciAktivasi) {
+        for (const locale of LOCALES) {
+          const m = JANJI.exec(t(k, "staff", { locale }));
+          c.expect(m === null, `${k} (${locale}) promises an email: "${m?.[0]}"`);
+        }
+      }
+      for (const lama of [
+        "Pilih cara masuk untuk masing-masing: tautan lewat surel, atau kartu kelas dengan PIN.",
+        "Choose how each one signs in: a link by email, or a classroom card with a PIN.",
+      ]) c.expect(JANJI.test(lama), `the promise sweep cannot catch the old introduction: "${lama}"`);
+
+      /**
+       * 3. EVERY WAY IN SAYS NOTHING WAS SENT AND SENDS THE PERSON TO /masuk:
+       *    the page's introduction, an email account, a card, and a new person.
+       *    The card sentence names the /masuk button by its own copy.
+       */
+      const TIDAK_DIKIRIM: Record<string, RegExp> = { id: /tidak mengirim/, en: /has not (emailed|sent)|sends no/ };
+      for (const locale of LOCALES) {
+        for (const k of ["aktivasi.intro", "aktivasi.surel_arti", "aktivasi.kartu_arti", "aktivasi.baru.ok"] as const) {
+          const x = t(k, "staff", { locale });
+          c.expect(x.includes("/masuk") && TIDAK_DIKIRIM[locale].test(x), `${k} (${locale}) does not say nothing was sent and to use /masuk: "${x}"`);
+          c.expect(!/sekarang bisa masuk|can now sign in/i.test(x), `${k} (${locale}) says the person can now sign in`);
+        }
+        c.expect(t("aktivasi.kartu_arti", "staff", { locale }).includes(`“${t("auth.card_go", "public", { locale })}”`),
+          `aktivasi.kartu_arti (${locale}) does not name the /masuk card button as /masuk shows it`);
+      }
+
+      /**
+       * 4. EVERY FAILURE IS ITS OWN PLAIN SENTENCE (D-011). Each word the route
+       *    writes, and no answer at all, maps per path to a sentence with copy in
+       *    both languages -- never the dash, never the route's word, never the
+       *    server's text -- and the paths that mean different things read
+       *    differently.
+       */
+      const MODE: ModeAktivasi[] = ["EMAIL", "CLASSROOM_CARD", "NEW_PERSON"];
+      const GALAT = [...GALAT_RUTE, "sesuatu-yang-baru"];
+      for (const mode of MODE) {
+        const semua = [kunciGagal(mode, null), ...GALAT.map((e) => kunciGagal(mode, { ok: false, error: e, detail: "this person already has an account" }))];
+        for (const k of semua) {
+          for (const locale of LOCALES) {
+            const x = t(k, "staff", { locale });
+            c.expect(x !== TANPA_SALINAN && x.length > 20 && !/already has an account|exception|unauthenticated|create_failed|person_id/.test(x) && !(GALAT as string[]).includes(x),
+              `${mode} → ${k} (${locale}) is not a plain sentence: "${x}"`);
+          }
+        }
+      }
+      c.expect(kunciGagal("EMAIL", null) === "aktivasi.galat.jaringan", "no answer at all is not told as a lost connection");
+      c.expect(kunciGagal("EMAIL", { ok: false, error: "unauthenticated" }) === "aktivasi.galat.sesi", "an ended session is not told as such");
+      c.expect(kunciGagal("EMAIL", { ok: false, error: "refused" }) !== kunciGagal("NEW_PERSON", { ok: false, error: "refused" }),
+        "a refusal reads the same for a recorded person and a new one");
+      c.expect(kunciGagal("EMAIL", { ok: false, error: "create_failed" }) === "aktivasi.galat.dipakai"
+        && kunciGagal("CLASSROOM_CARD", { ok: false, error: "create_failed" }) === "aktivasi.galat.kartu",
+        "a card that could not be made reads like an address already in use");
+      c.expect(new Set(MODE.flatMap((m) => GALAT.map((e) => kunciGagal(m, { ok: false, error: e })))).size >= 7,
+        "the failures collapse into too few sentences to tell the administrator what to do");
+
+      /**
+       * 5. WHAT IS MISSING IS TOLD BEFORE ANYTHING IS SENT, with the same shape
+       *    check as /masuk: agreeing with LayarMasuk's on every sample.
+       */
+      c.expect(isianKurang("NEW_PERSON", { nama: "  ", surel: "a@b.sch.id" }) === "aktivasi.galat.nama", "a new person with no name is sent anyway");
+      c.expect(isianKurang("EMAIL", { surel: "guru.sekolah.sch.id" }) === "aktivasi.galat.surel", "an address with no @ is sent anyway");
+      c.expect(isianKurang("NEW_PERSON", { nama: "Gladys", surel: "gladys@sekolah" }) === "aktivasi.galat.surel", "an address with no domain ending is sent anyway");
+      c.expect(isianKurang("CLASSROOM_CARD", {}) === null, "a card is held back for want of an address it does not need");
+      c.expect(isianKurang("EMAIL", { surel: " guru@sd-negeri-1.jakarta.sch.id " }) === null, "a real school address is refused before it is sent");
+      const masuk = readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8");
+      const rx = /function bentukEmailMasukAkal\(v: string\): boolean \{\s*return (\/.+\/)\.test\(v\.trim\(\)\);/.exec(masuk);
+      if (c.expect(rx !== null, "could not read /masuk's address check to compare with")) {
+        const bentuk = new RegExp(rx![1].slice(1, -1));
+        for (const v of ["a@b.id", "a@b.c", "guru@sd-negeri-1.jakarta.sch.id", "tanpa-at.sch.id", "a@b", " a@b.co ", "a b@c.id", ""]) {
+          c.expect(surelLengkap(v) === bentuk.test(v.trim()), `the activation check and /masuk's disagree on "${v}"`);
+        }
+      }
+
+      /**
+       * 6. RENDERED. Each outcome drawn in both languages as the administrator
+       *    reads it: an email account names the address and says what to do;
+       *    a card shows its number and PIN once, with where to use them; a new
+       *    person names the person and the address; a failure is an alert with
+       *    its sentence and never the server's own words. The form itself
+       *    renders with its controls and no outcome yet.
+       */
+      const DETAIL = "this person already has an account";
+      const KASUS = LOCALES.flatMap((locale) => [
+        { locale, mode: "EMAIL", jawaban: { ok: true, mode: "EMAIL" }, surel: "guru@sekolah.sch.id" },
+        { locale, mode: "CLASSROOM_CARD", jawaban: { ok: true, card: "7001234567", pin: "482913" } },
+        { locale, mode: "NEW_PERSON", jawaban: { ok: true }, surel: "gladys@sekolah.sch.id", nama: "Gladys Ayu Lestari" },
+        { locale, mode: "EMAIL", jawaban: { ok: false, error: "refused", detail: DETAIL }, surel: "guru@sekolah.sch.id" },
+        { locale, mode: "NEW_PERSON", jawaban: null },
+      ]);
+      const FORM = { locale: "id", adminSistem: true, orang: [{ person_id: "p1", display_name: "Nadia Putri", institutional_id: "2026001", institution_id: "i1" }] };
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const a = await import("file://" + process.cwd() + "/src/components/aktivasi/HasilAktivasi.tsx");' +
+        '  const f = await import("file://" + process.cwd() + "/src/components/aktivasi/FormAktivasi.tsx");' +
+        "  const Hasil = a.default?.default ?? a.default; const Form = f.default?.default ?? f.default;" +
+        "  const out = JSON.parse(process.env.KASUS_AKT).map((k) => renderToStaticMarkup(h(Hasil, k)));" +
+        "  out.push(renderToStaticMarkup(h(Form, JSON.parse(process.env.FORM_AKT))));" +
+        "  process.stdout.write(JSON.stringify(out));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_AKT: JSON.stringify(KASUS), FORM_AKT: JSON.stringify(FORM) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      const bersih = (x: string) => x.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
+      if (c.expect(anak.status === 0 && html.length === KASUS.length + 1, `the activation outcomes could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        KASUS.forEach((k, n) => {
+          const x = bersih(html[n]);
+          const s = (e: HleEvent) => t(e, "staff", { locale: k.locale });
+          const label = `${k.mode} ${k.jawaban?.ok ? "ok" : "gagal"} (${k.locale})`;
+          if (k.jawaban?.ok) {
+            c.expect(/^<div class="pin-akt-hasil" role="status">/.test(x), `${label}: not announced as a status`);
+            if (k.mode === "CLASSROOM_CARD") {
+              c.expect(x.includes(s("aktivasi.kartu_dibuat")) && x.includes(">7001234567<") && x.includes(">482913<") && x.includes(s("aktivasi.kartu_arti")),
+                `${label}: the card, its PIN or where to use them is missing`);
+            } else {
+              c.expect(x.includes(`${s("aktivasi.surel_dibuat")} <strong>${k.surel}</strong>`), `${label}: the address the account was made for is not named`);
+              c.expect(x.includes(s(k.mode === "NEW_PERSON" ? "aktivasi.baru.ok" : "aktivasi.surel_arti")), `${label}: the no-email, go-to-/masuk sentence is missing`);
+              if (k.mode === "NEW_PERSON") c.expect(x.includes(`<strong>${k.nama}</strong>`), `${label}: the new person is not named`);
+            }
+          } else {
+            c.expect(x === `<p class="pin-msg pin-msg-err" role="alert">${s(kunciGagal(k.mode as ModeAktivasi, k.jawaban as JawabanAktivasi | null))}</p>`,
+              `${label}: the failure is not its own sentence as an alert: ${x.slice(0, 160)}`);
+            c.expect(!x.includes(DETAIL), `${label}: the server's own words reach the screen`);
+          }
+        });
+        const form = bersih(html[KASUS.length]);
+        const s = (e: HleEvent) => t(e, "staff", { locale: "id" });
+        c.expect(form.includes("<strong>Nadia Putri</strong>") && form.includes(s("aktivasi.dengan_surel")) && form.includes(s("aktivasi.dengan_kartu"))
+          && form.includes(s("aktivasi.baru.tombol")) && !/role="(status|alert)"/.test(form),
+          "the activation form does not render its controls, or shows an outcome before anything was pressed");
+      }
+
+      /**
+       * 7. THE SOURCE. The form asks the route and nothing else, checks what is
+       *    missing before it sends, never reads the route's `detail`, and no
+       *    longer refreshes the list on success -- which is what took the only
+       *    word of an email activation's success off the screen.
+       */
+      const form = code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "FormAktivasi.tsx"), "utf8"));
+      c.expect((form.match(/\bfetch\(/g) ?? []).length === 1 && /fetch\("\/api\/akun\/aktivasi"/.test(form), "the form talks to the server some other way");
+      c.expect(/const cegah = isianKurang\(mode, isian\);[\s\S]*if \(cegah\) return;[\s\S]*fetch\(/.test(form), "the form sends before checking what is missing");
+      c.expect(!/\.detail\b/.test(form + code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "HasilAktivasi.tsx"), "utf8"))),
+        "the route's detail -- the server's own text -- is read by the form or its outcome");
+      c.expect(!/router\.refresh|useRouter/.test(form), "a success still refreshes the list and takes its message off the screen");
+      c.expect(/<p className="pin-intro">\{s\("aktivasi\.intro"\)\}<\/p>/.test(code(readFileSync(join(repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"))),
+        "the activation page does not open with the corrected introduction");
+
+      return c.verdict(
+        "D-019: the activation route is re-read and sends no mail; no activation sentence in either language promises an email " +
+        "(the old introduction is the planted control); the introduction, an email account, a card and a new person each say " +
+        "nothing was sent and send the person to /masuk, and the card names /masuk's own button. Every failure the route can " +
+        "answer, and no answer, is its own plain sentence per path, never the server's text; a missing name or address is told " +
+        "before sending with /masuk's own check. Each outcome is RENDERED in both languages where it was asked, and the form " +
+        "no longer refreshes its message away",
+      );
+    },
+  },
+  {
+    id: "DAISY-10-SAPA-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-10 (D-020): /belajar GREETS A LEARNER BY FIRST NAME ONLY, by the
+       * same rule and from the same roles as the home page, so the next child
+       * on a shared tablet does not read a full name there either.
+       *
+       * THE SOURCE. The roles are read once and serve both the context and the
+       * greeting; the greeting is namaSapaan's; the raw display name reaches
+       * nothing else on the page.
+       */
+      const belajar = code(readFileSync(join(repoRoot, "src", "app", "belajar", "page.tsx"), "utf8"));
+      c.expect(/const peran = await peranSaya\(\);\s*const konteks = konteksPembelajaran\(peran\);/.test(belajar),
+        "the learner's page does not read its roles once for both its context and its greeting");
+      c.expect(/const sapa = namaSapaan\(viewer\.displayName, peran\);/.test(belajar), "the learner's page does not greet through namaSapaan");
+      c.expect((belajar.match(/viewer\.displayName/g) ?? []).length === 1, "the raw display name reaches the learner's page some other way");
+      c.expect(/<h1 className="pin-h1">\s*\{sapa \? `\$\{s\("siklus\.halo"\)\}, \$\{sapa\}` : s\("siklus\.halo"\)\}\s*<\/h1>/.test(belajar),
+        "the learner's page heading does not greet with namaSapaan's name");
+      c.expect(/import \{ namaSapaan \} from "@\/components\/sesi";/.test(belajar), "the learner's page greets by a rule of its own");
+
+      /**
+       * THE RULE, over the names a school actually stores: a learner reads the
+       * first word; somebody who also holds a staff role reads their name as
+       * stored (staff screens unchanged); roles that could not be read greet as
+       * a learner, never in full; nobody named is greeted with no name.
+       */
+      const KASUS: Array<[string | null, string[] | null, string | null]> = [
+        ["Siswa Alpha Satu (sintetis)", [], "Siswa"],
+        ["Nadia Putri Maharani", null, "Nadia"],
+        ["  Muhammad  Rizky ", [], "Muhammad"],
+        ["Aisyah", [], "Aisyah"],
+        ["Guru Siklus (sintetis)", ["EDUCATOR"], "Guru Siklus (sintetis)"],
+        ["Dr. Sari Wulandari", ["HEAD_OF_DEPARTMENT"], "Dr. Sari Wulandari"],
+        [null, [], null],
+        ["   ", ["EDUCATOR"], null],
+      ];
+      for (const [nama, peran, harap] of KASUS) {
+        c.expect(namaSapaan(nama, peran) === harap, `${JSON.stringify(nama)} with roles ${JSON.stringify(peran)} is greeted as ${JSON.stringify(namaSapaan(nama, peran))}, expected ${JSON.stringify(harap)}`);
+      }
+      for (const locale of LOCALES) {
+        for (const persona of ["learner", "educator"] as const) {
+          c.expect(t("siklus.halo", persona, { locale }) !== TANPA_SALINAN, `(${locale}, ${persona}) siklus.halo has no copy`);
+        }
+      }
+
+      return c.verdict(
+        "D-020 on /belajar: the page reads its roles once for its context and its greeting, greets through namaSapaan -- the " +
+        "home page's rule -- and the raw display name reaches nothing else; over stored names, a learner is greeted by the " +
+        "first word, somebody who also holds a staff role as stored, unreadable roles as a learner, and nobody named by no name",
+      );
+    },
+  },
+  {
+    id: "DAISY-11-STUDIO-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-11 (D-021): THE STUDIO TAB, BY ROLE.
+       *
+       * 1. THE ROLES ARE THE CAPABILITY MAP'S. D-021 names "every role whose
+       *    capability map includes drafting". The map is the database's
+       *    role_capabilities, so its latest definition is read from the
+       *    migrations and the roles holding CAN_DRAFT must be exactly the tab's
+       *    roles. A copy of the map with EDUCATOR's CAN_DRAFT removed is the
+       *    control: the comparison must notice.
+       */
+      const mig = join(repoRoot, "supabase", "migrations");
+      const terakhir = readdirSync(mig).filter((f) => f.endsWith(".sql")).sort()
+        .filter((f) => /create or replace function public\.role_capabilities\(/i.test(readFileSync(join(mig, f), "utf8"))).pop();
+      const peta = (sql: string): Map<string, string[]> => {
+        const i = sql.search(/create or replace function public\.role_capabilities\(/i);
+        const badan = i < 0 ? "" : sql.slice(i, sql.indexOf("$function$;", i) > 0 ? sql.indexOf("$function$;", i) : undefined);
+        return new Map([...badan.matchAll(/when '([A-Z_]+)' then array\[([^\]]*)\]/g)]
+          .map((m) => [m[1], [...m[2].matchAll(/'([A-Z_]+)'/g)].map((x) => x[1])] as [string, string[]]));
+      };
+      const drafting = (m: Map<string, string[]>) => [...m].filter(([, caps]) => caps.includes("CAN_DRAFT")).map(([r]) => r).sort();
+      if (c.expect(terakhir !== undefined, "no migration defines role_capabilities, so the tab's roles cannot be checked against it")) {
+        const sql = readFileSync(join(mig, terakhir!), "utf8");
+        const m = peta(sql);
+        c.expect(m.size >= 6 && m.has("DEAN") && m.has("STUDENT"), `could not read the capability map from ${terakhir}: ${[...m.keys()].join(", ")}`);
+        c.expect(JSON.stringify(drafting(m)) === JSON.stringify([...PERAN_STUDIO].sort()),
+          `the roles that may draft (${terakhir}) are ${JSON.stringify(drafting(m))}; the Studio tab is offered to ${JSON.stringify(PERAN_STUDIO)}`);
+        const tanam = peta(sql.replace(/(when 'EDUCATOR' then array\[)'CAN_DRAFT',/, "$1"));
+        c.expect(JSON.stringify(drafting(tanam)) !== JSON.stringify([...PERAN_STUDIO].sort()), "the capability-map comparison cannot notice a role losing CAN_DRAFT");
+        c.note(`capability map read from ${terakhir}`);
+      }
+
+      /**
+       * 2. THE RULE. Each drafting role is offered Studio, alone or among
+       *    others; a dean, a student, an unknown role, no roles and roles that
+       *    could not be read are not.
+       */
+      for (const r of ["EDUCATOR", "HEAD_OF_DEPARTMENT", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"]) {
+        c.expect(tawarkanStudio([r]) && tawarkanStudio(["DEAN", r]), `${r} is not offered Studio`);
+      }
+      for (const [label, peran] of [["DEAN", ["DEAN"]], ["STUDENT", ["STUDENT"]], ["unknown", ["NOT_A_ROLE"]], ["none", []], ["unreadable", null]] as const) {
+        c.expect(!tawarkanStudio(peran), `${label} is offered Studio`);
+      }
+      for (const locale of LOCALES) c.expect(t("nav.studio", "staff", { locale }) !== TANPA_SALINAN, `(${locale}) nav.studio has no copy`);
+
+      /**
+       * 3. RENDERED. The tab component ends with Studio exactly when told to,
+       *    after the places and with the calling page's link style, and the
+       *    places are unchanged either way.
+       */
+      const KASUS = [
+        { tempat: ["/pimpinan"], kecuali: [], locale: "id", persona: "educator", studio: true },
+        { tempat: ["/pimpinan"], kecuali: [], locale: "en", persona: "staff", studio: true, kelas: "gaya" },
+        { tempat: ["/pimpinan"], kecuali: [], locale: "id", persona: "staff", studio: false },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/TabTempat.tsx");' +
+        "  const Tab = m.default?.default ?? m.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_TAB).map((k) =>" +
+        "    renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(Tab, k))))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_TAB: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && html.length === KASUS.length, `the tabs could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        const tautan = (x: string) => [...x.matchAll(/<a ([^>]*)href="([^"]+)"[^>]*>([^<]*)<\/a>/g)].map((m) => [m[2], m[3], /class="gaya"/.test(m[0])]);
+        c.expect(JSON.stringify(tautan(html[0])) === JSON.stringify([["/pimpinan", t("nav.pimpinan", "educator"), false], ["/studio", t("nav.studio", "educator"), false]]),
+          `with Studio offered the tabs are ${JSON.stringify(tautan(html[0]))}`);
+        c.expect(JSON.stringify(tautan(html[1])) === JSON.stringify([["/pimpinan", t("nav.pimpinan", "staff", { locale: "en" }), true], ["/studio", t("nav.studio", "staff", { locale: "en" }), true]]),
+          `(en, styled) the tabs are ${JSON.stringify(tautan(html[1]))}`);
+        c.expect(JSON.stringify(tautan(html[2])) === JSON.stringify([["/pimpinan", t("nav.pimpinan", "staff"), false]]), `without Studio the tabs are ${JSON.stringify(tautan(html[2]))}`);
+      }
+
+      /**
+       * 4. EVERY STAFF SHELL OFFERS IT FROM THE ONE ROLES ANSWER; NOTHING ELSE
+       *    DOES. The teaching, management and intake shells and an educator's
+       *    own learning pass tawarkanStudio of the roles already read; the
+       *    learner's own shell, the public page and an assessment in focus draw
+       *    no Studio. Studio's layout still refuses a reader with no Studio
+       *    capability in any school, asked of the database, exactly as before.
+       */
+      const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      c.expect(/const studio = tawarkanStudio\(peran\);/.test(cangkang) && (cangkang.match(/peranSaya\(\)/g) ?? []).length === 1,
+        "the shell does not decide the Studio tab from its one roles answer");
+      const cabang = (k: string) => {
+        const i = cangkang.indexOf(`if (kind === "${k}")`);
+        const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
+        return i >= 0 && j > i ? cangkang.slice(i, j) : "";
+      };
+      const tab = (b: string) => b.match(/<TabTempat[^>]*\/>/)?.[0] ?? "";
+      for (const k of ["pengajar", "pimpinan", "pendataan"]) {
+        c.expect(/studio=\{studio\}/.test(tab(cabang(k))), `the ${k} shell does not offer Studio by role`);
+      }
+      const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran(peran)");
+      const belajar = iBelajar > 0 ? cangkang.slice(iBelajar) : "";
+      const iMurid = belajar.lastIndexOf("return (");
+      c.expect(/studio=\{studio\}/.test(tab(belajar.slice(0, iMurid))), "an educator's own learning does not offer Studio");
+      c.expect(!/studio|\/studio/.test(belajar.slice(iMurid)) && !/\/studio|studio=/.test(cabang("public") + cabang("focus")),
+        "a learner's own shell, the public page or an assessment in focus offers Studio");
+      c.expect((cangkang.match(/href="\/studio"/g) ?? []).length === 0, "a shell draws a Studio link of its own beside the rule");
+      const studio = code(readFileSync(join(repoRoot, "src", "app", "studio", "layout.tsx"), "utf8"));
+      c.expect(/const institutions = viewer \? await studioInstitutions\(\) : \[\];/.test(studio)
+        && /if \(!viewer \|\| institutions\.length === 0\) \{[\s\S]*?<HalamanPenolakan[\s\S]*?messageKey="studio\.refused"/.test(studio),
+        "Studio no longer refuses a reader with no Studio capability, asked of the database");
+
+      return c.verdict(
+        "D-021: the Studio tab's roles are exactly those holding CAN_DRAFT in the latest role_capabilities (a map with the " +
+        "educator's drafting removed is the control); Guru, Kepala departemen, Admin sekolah and Admin platform are offered it, " +
+        "a dean, a student and unreadable roles are not. RENDERED, the tabs end with Studio exactly when offered, after the " +
+        "places and in the page's own link style. Every staff shell and an educator's own learning offer it from the one roles " +
+        "answer; the learner's shell, the public page and an assessment in focus do not; Studio still refuses a reader with no " +
+        "capability, asked of the database",
       );
     },
   },
