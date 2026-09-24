@@ -17,7 +17,9 @@ import { t } from "@/lib/hle";
  */
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
   const locale = await currentLocale();
-  const viewer = await currentViewer();
+  // One parallel read of the viewer and their roles, for the gate below, the
+  // way back to their places and the session strip (DAISY-02/03).
+  const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
   const institutions = viewer ? await studioInstitutions() : [];
 
   if (!viewer || institutions.length === 0) {
@@ -37,7 +39,7 @@ export default async function StudioLayout({ children }: { children: React.React
 
   // DAISY-03: Studio was a dead end -- no way back to the person's own places
   // but the browser's back button. Offered, never granted (D-010).
-  const tempat = tempatDariPeran(await peranSaya());
+  const tempat = tempatDariPeran(peran);
 
   const nav: Array<[string, string]> = [
     ["/studio", s("studio.nav.beranda")],
@@ -60,7 +62,7 @@ export default async function StudioLayout({ children }: { children: React.React
             <p className="text-sm text-ink-3">{s("app.name")}</p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">{s("studio.title")}</h1>
           </div>
-          <SesiSaya locale={locale} persona="staff" sebut />
+          <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
         </div>
         {tempat.length > 0 ? (
           <nav className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label={t("nav.tempat", "staff", { locale })}>

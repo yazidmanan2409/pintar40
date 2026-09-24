@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 65,
+  "version": 66,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1702,12 +1702,12 @@
     {
       "id": "DAISY-02-KELUAR-01",
       "runner": "static",
-      "proves": "DAISY-02 (D-009), a way out on every signed-in screen. The session strip is RENDERED in both languages from the pure component: a staff strip names the person, a learner strip is handed no name and asks 'Bukan akun Anda?' (S15), and both are a labelled group whose way out is a POST form to /keluar with a submit button described by the line beside it. From the SOURCE: the display name reaches the render only when a caller asks, every learning surface (learner shell, an educator's own learning, an assessment in focus, the refusal page) does not ask, the public verification shell carries no strip, Belajar/Mengajar/Pimpinan/Pendataan/Aktivasi render it through the shell and Studio/Konfigurasi through their own headers, and no file writes 'Keluar' as text (D-014). From the stylesheet FILE: on a phone it is a full-width header row ordered ahead of the tabs, its button keeps a 44px target, and no rule hides it."
+      "proves": "DAISY-02 (D-009; S15, D-020), a way out on every signed-in screen, and a name only for a reader who holds a staff role. The session strip is RENDERED in both languages from the pure component as a labelled group whose way out is a POST form to /keluar with a submit button described by the line beside it. The naming rule is OUTPUT by the pure helper for every kind of reader -- a student, a student whose roles could not be read, a lapsed display role, an unknown role, every staff role, a three-role person -- and names exactly the staff readers. SesiSaya itself -- the component the pages render -- is RENDERED in a child process under the react-server condition for each of those readers on the teaching (as /mengajar's), staff, learner, public and refusal strips in both languages: a student on the teaching shell reads 'Bukan akun Anda?' and no name, staff are named, and nobody signed in gets no strip. From the SOURCE: BarisSesi is rendered only by SesiSaya, nothing passes SesiSaya a name or a page flag, the teaching home greets through the same reader rule; the shell reads the viewer and roles once with Promise.all and hands both to every strip; the signed-in home page, Studio and Konfigurasi do the same; the two report pages and the refusal page carry the strip; no file writes 'Keluar' as text. From the stylesheet FILE: on a phone the strip is a full-width header row ahead of the tabs with a 44px button, and no rule hides it."
     },
     {
       "id": "DAISY-03-TEMPAT-01",
       "runner": "static",
-      "proves": "DAISY-03 (D-010; M3, M15 UI), every role reaches its places by clicking. The places a shell offers are D-010's map read through berandaPeran, checked against it for every display role and a three-role person. The list the tabs are drawn from is OUTPUT by the pure helper -- the places less the calling shell's own, with their labels in both languages -- and the component SOURCE draws one link per entry and nothing else; Pimpinan is not called 'Beranda' beside the others. From the SOURCE: every staff shell offers the other places from one roles answer, the intake shell links Aktivasi, the public page, an assessment in focus and a learner's own shell offer none; Konfigurasi links Pendataan, Aktivasi and Studio and the administrator's other places; Studio links back; the home page's doors no longer send a signed-in reader to /masuk (the loop) and its greeting comes from the copy table. From the stylesheet FILE: on a phone the tab strip wraps rather than overflowing."
+      "proves": "DAISY-03 (D-010; M3, M15 UI), every role reaches its places by clicking, and only places they hold. The places a shell offers are D-010's map read through berandaPeran, checked against it for every display role and a three-role person. The list the tabs are drawn from is OUTPUT by the pure helper -- the places less the calling shell's own, with their labels in both languages -- and the component SOURCE draws one link per entry and nothing else; Pimpinan is not called Beranda. The home page's doors for a signed-in reader are OUTPUT by the pure helper over every display role and every roles answer: the staff doors equal the roles held today, Belajar is a learner's alone, a student is never sent to /mengajar and an unreadable answer opens no staff door; the greeting helper OUTPUTS a learner's first name and staff in full (D-020). From the SOURCE: the home page draws exactly that list with each door's own words from the COPY TABLE, an honest line when it is empty, the greeting through the helper and never the raw name, the anonymous three doors unchanged, one parallel read; every staff shell offers the other places from one roles answer, the intake shell reaches Aktivasi, neither the public page, an assessment in focus nor a learner's shell offers any, Konfigurasi links Pendataan, Aktivasi and Studio, and Studio links back. From the stylesheet FILE: on a phone the tab strip wraps."
     },
     {
       "id": "DAISY-04-GALAT-01",
@@ -1718,6 +1718,11 @@
       "id": "DAISY-04-TIDAK-ADA-01",
       "runner": "app",
       "proves": "DAISY-04 (D-011): an address that leads nowhere gets PINTAR's own not-found page. The RENDERED html of two public paths that lead nowhere -- /masuk/kartu (audit N12) and a path under /verifikasi/ -- is fetched anonymously over HTTP in Indonesian and English: each answers 404, carries PINTAR's heading in the chosen language, declares that language on <html>, offers the way back, and never shows Next's English default."
+    },
+    {
+      "id": "DAISY-04-KUNCI-01",
+      "runner": "static",
+      "proves": "DAISY-04 (gate rule 5.2): a mistyped key fails a test although a reader sees the calm fallback. Every literal key in the SOURCE files of src/ -- the first argument of t(, of each file's own helper over t or over 'as HleEvent', and of the report pages' imported s; a literal cast as HleEvent; a ...Key prop -- is checked against the COPY TABLE's allKeys(), and every template prefix must begin a real key. A control plants typos through a string-typed helper, through t and through a cast, and a prefix no key begins with, in a synthetic source, and the sweep must find exactly those and pass the real keys beside them; the sweep must recognise HasilKelas's, the report pages' and the tour's helpers and check more than 500 keys."
     }
   ]
 }

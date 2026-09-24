@@ -42,9 +42,9 @@ export default function HalamanPenolakan({
         <p className="pin-intro">{s("tolak.arti")}</p>
         <Link className="pin-btn" href={backHref}>{s(backKey)}</Link>
         {/* DAISY-02. A refusal is often somebody signed in as the wrong
-            account, and on a shared device it may not even be theirs, so the
-            way out is here too, naming nobody. Drawn only when signed in. */}
-        <SesiSaya locale={locale} persona={persona} sebut={false} varian="penolakan" />
+            account, so the way out is here too. Drawn only when signed in, and
+            it names the reader only if they hold a staff role (S15, D-020). */}
+        <SesiSaya locale={locale} persona={persona} varian="penolakan" />
       </section>
 
       <KakiPintar className="pin-noprint" />

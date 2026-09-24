@@ -298,6 +298,8 @@ export type HleEvent =
   | "entry.educator"
   | "entry.staff"
   | "entry.halo"
+  | "entry.pimpinan"
+  | "entry.kosong"
   // FABLE-03 — the Dr. Gladys learning cycle. Learner-facing copy only; no
   // lifecycle enum, evidence class, engine version or release hash appears in
   // any of it (§9), and the guard below refuses one if it ever does.
@@ -1578,6 +1580,14 @@ const table: Table = {
   "entry.educator": { default: "Saya mengajar", en: "I teach" },
   "entry.staff": { default: "Saya mengelola sekolah", en: "I run the school" },
   "entry.halo": { default: "Halo", en: "Hello" },
+  // DAISY-03: a signed-in reader's doors are only the places they hold. A head
+  // of department or a dean leads part of the school; the plain door for them.
+  "entry.pimpinan": { default: "Saya memimpin bagian sekolah", en: "I lead part of the school" },
+  // Signed in, but holding no place yet: said plainly, with the one next step.
+  "entry.kosong": {
+    default: "Akun Anda belum terhubung dengan kelas atau tugas apa pun. Hubungi admin sekolah Anda.",
+    en: "Your account is not linked to any class or role yet. Please ask your school administrator.",
+  },
 
   // ---------------------------------------------------------------- FABLE-03
   "cycle.title": { default: "Perjalanan belajar Anda", en: "Your learning journey" },

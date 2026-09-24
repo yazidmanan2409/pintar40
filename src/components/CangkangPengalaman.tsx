@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { t, type Locale } from "@/lib/hle";
 import { peranSaya } from "@/lib/tur-negara";
+import { currentViewer } from "@/lib/auth";
 import { konteksPembelajaran } from "@/lib/pembelajaran";
 import PengalihBahasa from "./PengalihBahasa";
 import MerekPintar from "./MerekPintar";
@@ -96,11 +97,13 @@ export default async function CangkangPengalaman({
   kind?: "learner" | "public" | "focus" | "pengajar" | "pimpinan" | "pendataan";
   current?: "belajar" | "sertifikat" | "kelas" | "pimpinan" | "pendataan" | "aktivasi";
 }) {
-  // DAISY-03. The reader's own active roles, asked ONCE for every signed-in
-  // shell: the staff shells offer the other places those roles lead to (D-010),
-  // and the learner branch below decides its context from the same answer.
-  // Neither the public page nor an assessment in focus offers anywhere else.
-  const peran = kind === "public" || kind === "focus" ? null : await peranSaya();
+  // ONE READ, IN PARALLEL (DAISY-02/03). The viewer and the reader's own active
+  // roles are asked once, together, for every signed-in shell, and handed down:
+  // the staff shells offer the other places those roles lead to (D-010), the
+  // session strip decides from the same roles whether to name the reader (S15,
+  // D-020), and the learner branch below decides its context from them too.
+  // The public verification page reads nothing: nobody is signed in to it.
+  const [viewer, peran] = kind === "public" ? [null, null] : await Promise.all([currentViewer(), peranSaya()]);
   const tempat = tempatDariPeran(peran);
 
   // FOCUS. During an assessment the shell keeps the mark and the language and
@@ -114,7 +117,7 @@ export default async function CangkangPengalaman({
         <MerekPintar />
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="learner" sebut={false} />
+        <SesiSaya locale={locale} persona="learner" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -140,7 +143,7 @@ export default async function CangkangPengalaman({
         <span className="pin-spacer" />
         <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
         <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="educator" sebut />
+        <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -157,7 +160,7 @@ export default async function CangkangPengalaman({
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="staff" sebut />
+        <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -179,7 +182,7 @@ export default async function CangkangPengalaman({
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="staff" sebut />
+        <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -218,7 +221,7 @@ export default async function CangkangPengalaman({
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="educator" sebut={false} />
+        <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
       </header>
     );
   }
@@ -244,8 +247,7 @@ export default async function CangkangPengalaman({
       <span className="pin-spacer" />
       <TombolBantuan locale={locale} persona="learner" beranda="/belajar" />
       <PengalihBahasa locale={locale} />
-      {/* DAISY-02: a learner's screen never names anybody (S15). */}
-      <SesiSaya locale={locale} persona="learner" sebut={false} />
+      <SesiSaya locale={locale} persona="learner" viewer={viewer} peran={peran} />
     </header>
   );
 }

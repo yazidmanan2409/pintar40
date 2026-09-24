@@ -55,6 +55,7 @@
  *   UX1-UB-BUKA-01           discovery names a teacher; opening re-decides, every time
  */
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
@@ -86,7 +87,8 @@ import {
 } from "../src/lib/umpanbalik-kontrak";
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import BarisSesi from "../src/components/BarisSesi";
-import { tempatDariPeran, daftarTempat } from "../src/components/tempat";
+import { tempatDariPeran, daftarTempat, pintuMasuk } from "../src/components/tempat";
+import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import type { DisplayRole } from "../src/lib/auth";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
@@ -7199,59 +7201,168 @@ export const experienceTests: SelfTest[] = [
       }
 
       /**
-       * 2. THE NAME NEVER REACHES A LEARNER'S SCREEN. Structural, not
-       *    behavioural, because the component is pure: SesiSaya reads the
-       *    display name into the render ONLY when told to name, and every
-       *    call site on a learning surface -- the learner shell, an educator's
-       *    own learning, an assessment in focus, and the refusal page a child
-       *    may land on -- tells it not to.
+       * 2. THE READER DECIDES WHETHER THEY ARE NAMED, NEVER THE PAGE (S15,
+       *    D-020). The first version asked the page ("is this a staff shell?"),
+       *    and /mengajar draws the teaching shell for anybody who reaches it, so
+       *    a student who typed the address read "Masuk sebagai <their full
+       *    name>" on a shared tablet.
+       *
+       *    a) THE RULE, FOR EVERY KIND OF READER. A name is shown to a reader
+       *       who holds a staff role today and to nobody else: not a student
+       *       (who holds no role assignment at all -- being a learner is an
+       *       enrolment), not somebody whose display role outlived the
+       *       assignment behind it, not a reader whose roles could not be read.
+       */
+      const NAMA = "Nadia Putri Maharani";
+      const STAF_D010: DisplayRole[] = ["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"];
+      c.expect(JSON.stringify([...PERAN_STAF].sort()) === JSON.stringify([...STAF_D010].sort() as string[]),
+        `the staff roles that are named are not every display role but STUDENT: ${PERAN_STAF.join(",")}`);
+      type Pembaca = { siapa: string; peranTampil: DisplayRole; peran: string[] | null; sebut: boolean };
+      const PEMBACA: Pembaca[] = [
+        { siapa: "a student", peranTampil: "STUDENT", peran: [], sebut: false },
+        { siapa: "a student whose roles could not be read", peranTampil: "STUDENT", peran: null, sebut: false },
+        { siapa: "STUDENT, were it ever a role", peranTampil: "STUDENT", peran: ["STUDENT"], sebut: false },
+        { siapa: "an unknown role", peranTampil: null, peran: ["NOT_A_ROLE"], sebut: false },
+        { siapa: "an EDUCATOR display role with no active assignment", peranTampil: "EDUCATOR", peran: [], sebut: false },
+        ...STAF_D010.map((r): Pembaca => ({ siapa: String(r), peranTampil: r, peran: [String(r)], sebut: true })),
+        { siapa: "a teacher who also leads and administers", peranTampil: "INSTITUTION_ADMIN", peran: ["EDUCATOR", "HEAD_OF_DEPARTMENT", "INSTITUTION_ADMIN"], sebut: true },
+      ];
+      for (const b of PEMBACA) {
+        const hasil = namaUntukStrip(NAMA, b.peran);
+        c.expect(hasil === (b.sebut ? NAMA : null), `${b.siapa}: the rule gives the strip ${JSON.stringify(hasil)}`);
+      }
+      c.expect(namaUntukStrip(null, ["EDUCATOR"]) === null && namaUntukStrip("", ["EDUCATOR"]) === null,
+        "a staff reader with no stored name is given a placeholder instead of no name");
+
+      /**
+       *    b) SESISAYA ITSELF, RENDERED FOR EACH READER ON EVERY KIND OF SHELL.
+       *       The component the pages use is called with each reader above on
+       *       the teaching shell a student reaches at /mengajar, and on the
+       *       staff, learner, public and refusal variants too, and what it
+       *       draws is read. It imports the server-only role read, so it runs
+       *       in a child under the react-server condition (as the card
+       *       derivation does in the app runner); the reader is handed in, so
+       *       no database is asked. The name appears exactly when the READER
+       *       holds a staff role, whatever the page.
+       */
+      const RAK: Array<{ persona: Persona; varian: "kepala" | "penolakan" }> = [
+        { persona: "educator", varian: "kepala" }, { persona: "staff", varian: "kepala" },
+        { persona: "learner", varian: "kepala" }, { persona: "public", varian: "kepala" },
+        { persona: "educator", varian: "penolakan" }, { persona: "staff", varian: "penolakan" },
+      ];
+      const kasus = PEMBACA.flatMap((b) => RAK.flatMap((r) => LOCALES.map((locale) => ({ b, r, locale }))));
+      const anak = spawnSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "-e",
+        'import("file://" + process.cwd() + "/src/components/SesiSaya.tsx").then(async (m) => {' +
+        "  const SesiSaya = m.default?.default ?? m.default;" +
+        "  const out = [];" +
+        "  for (const k of JSON.parse(process.env.KASUS_SESI)) {" +
+        "    const el = await SesiSaya(k);" +
+        "    out.push(el ? JSON.stringify(el.type(el.props)) : null);" +
+        "  }" +
+        "  process.stdout.write(JSON.stringify(out));" +
+        "})"], {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          KASUS_SESI: JSON.stringify([
+            ...kasus.map(({ b, r, locale }) => ({
+              locale, persona: r.persona, varian: r.varian, peran: b.peran,
+              viewer: { authUserId: "u", personId: "p", displayName: NAMA, displayRole: b.peranTampil },
+            })),
+            // nobody signed in: nothing to sign out of
+            { locale: "id", persona: "educator", varian: "kepala", peran: ["EDUCATOR"], viewer: null },
+          ]),
+        },
+      });
+      let gambar: Array<string | null> = [];
+      try { gambar = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && gambar.length === kasus.length + 1,
+        `SesiSaya could not be rendered for each reader: ${(anak.stderr || "").trim().split("\n").slice(-3).join(" ")}`)) {
+        kasus.forEach(({ b, r, locale }, n) => {
+          const g = gambar[n] ?? "";
+          const bernama = g.includes(NAMA) && g.includes(t("sesi.sebagai", r.persona, { locale }));
+          const tanpaNama = !g.includes(NAMA) && !g.includes("Putri") && !g.includes(t("sesi.sebagai", r.persona, { locale }))
+            && g.includes(t("sesi.bukan_anda", r.persona, { locale }));
+          const keluar = g.includes('"action":"/keluar"') && g.includes(t("sesi.keluar", r.persona, { locale }));
+          c.expect(b.sebut ? bernama && keluar : tanpaNama && keluar,
+            `(${locale}) ${b.siapa} on the ${r.persona} ${r.varian} strip: ${b.sebut ? "not named" : "NAMED"} -- ${g.slice(0, 160)}`);
+        });
+        c.expect(gambar[kasus.length] === null, "SesiSaya draws a strip for somebody who is not signed in");
+      }
+
+      /**
+       *    c) NOTHING HANDS THE STRIP A NAME AROUND THE RULE. BarisSesi -- the
+       *       part that prints whatever name it is given -- is rendered by
+       *       SesiSaya alone, which gives it only the rule's answer; nothing
+       *       passes SesiSaya a name or a page's opinion; and the page a student
+       *       reaches at /mengajar greets by the same reader (first name only,
+       *       D-020).
        */
       const sesi = code(readFileSync(join(repoRoot, "src", "components", "SesiSaya.tsx"), "utf8"));
-      c.expect(/nama=\{sebut \? viewer\.displayName : null\}/.test(sesi),
-        "SesiSaya passes the display name without being told to name the person");
-      c.expect(/if \(!viewer\) return null;/.test(sesi), "SesiSaya draws a strip for somebody who is not signed in");
+      c.expect(/nama=\{namaUntukStrip\(v\.displayName, p\)\}/.test(sesi), "SesiSaya gives the strip a name other than the reader rule's answer");
+      c.expect(/if \(!v\) return null;/.test(sesi), "SesiSaya draws a strip for somebody who is not signed in");
+      for (const f of walk(join(repoRoot, "src")).filter((p) => /\.tsx?$/.test(p))) {
+        const src = code(readFileSync(f, "utf8"));
+        const rel = relative(repoRoot, f);
+        if (!rel.endsWith("SesiSaya.tsx")) c.expect(!/<BarisSesi\b/.test(src), `${rel} renders BarisSesi directly, around the reader rule`);
+        for (const x of src.match(/<SesiSaya\b[^>]*\/>/g) ?? []) {
+          c.expect(!/\b(?:nama|sebut)=/.test(x), `${rel} hands the strip a name or a page's opinion: ${x}`);
+        }
+      }
+      const ajarBeranda = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "page.tsx"), "utf8"));
+      c.expect(/const sapa = aku \? namaSapaan\(aku\.nama, peran\) : null;/.test(ajarBeranda) && (ajarBeranda.match(/aku\.nama\b/g) ?? []).length === 1,
+        "the teaching home greets whoever reaches it by full name, whatever their roles");
 
+      /**
+       * 3. EVERY SCREEN THE TICKET NAMES GETS IT, FROM ONE READ. Belajar,
+       *    Mengajar, Pimpinan, Pendataan and Aktivasi through the shell (never
+       *    the public one), which reads the viewer and their roles once, in
+       *    parallel, and hands both to every strip; the signed-in home page,
+       *    Studio and Konfigurasi the same way in their own headers; the two
+       *    report pages and the refusal page through the strip's own parallel
+       *    read.
+       */
       const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      c.expect(/const \[viewer, peran\] = kind === "public" \? \[null, null\] : await Promise\.all\(\[currentViewer\(\), peranSaya\(\)\]\)/.test(cangkang),
+        "the shell does not read the viewer and their roles once, in parallel");
       const cabangKind = (k: string) => {
         const i = cangkang.indexOf(`if (kind === "${k}")`);
         const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
         return i >= 0 && j > i ? cangkang.slice(i, j) : "";
       };
-      const HARAPAN: Array<[string, "sebut" | "diam" | "tidak"]> = [
-        ["focus", "diam"], ["pengajar", "sebut"], ["pimpinan", "sebut"], ["pendataan", "sebut"], ["public", "tidak"],
-      ];
-      for (const [k, harap] of HARAPAN) {
+      for (const k of ["focus", "pengajar", "pimpinan", "pendataan", "public"]) {
         const b = cabangKind(k);
         c.expect(b.length > 0 && b.includes("<MerekPintar"), `could not isolate the shell's "${k}" branch`);
         const ada = b.match(/<SesiSaya[^>]*\/>/)?.[0] ?? "";
-        if (harap === "tidak") c.expect(!ada, `the public shell offers a sign-out; the verification page must offer no way in`);
-        else if (harap === "sebut") c.expect(/\bsebut\s*\/>|\bsebut=\{true\}/.test(ada), `the "${k}" shell does not name the staff member signed in: ${ada || "no strip"}`);
-        else c.expect(/sebut=\{false\}/.test(ada), `the "${k}" shell does not keep the person unnamed: ${ada || "no strip"}`);
+        if (k === "public") c.expect(!ada, "the public shell offers a sign-out; the verification page must offer no way in");
+        else c.expect(/viewer=\{viewer\} peran=\{peran\}/.test(ada), `the "${k}" shell's strip reads again instead of using the shell's one read: ${ada || "no strip"}`);
       }
-      // the two learning shells: an educator's own learning, and the learner's
       const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran");
-      const belajar = iBelajar < 0 ? "" : cangkang.slice(iBelajar);
-      const strips = belajar.match(/<SesiSaya[^>]*\/>/g) ?? [];
-      c.expect(strips.length === 2 && strips.every((x) => /sebut=\{false\}/.test(x)),
-        `the learning shells do not both carry an unnamed strip: ${strips.join(" | ") || "none"}`);
-
+      const strips = (iBelajar < 0 ? "" : cangkang.slice(iBelajar)).match(/<SesiSaya[^>]*\/>/g) ?? [];
+      c.expect(strips.length === 2 && strips.every((x) => /viewer=\{viewer\} peran=\{peran\}/.test(x)),
+        `the learning shells do not both carry a strip from the one read: ${strips.join(" | ") || "none"}`);
       const tolak = code(readFileSync(join(repoRoot, "src", "components", "HalamanPenolakan.tsx"), "utf8"));
-      c.expect(/<SesiSaya[^>]*sebut=\{false\}[^>]*\/>/.test(tolak), "the refusal page offers no unnamed way out");
+      c.expect(/<SesiSaya[^>]*varian="penolakan"[^>]*\/>/.test(tolak), "the refusal page offers no way out");
 
-      /**
-       * 3. EVERY SCREEN THE TICKET NAMES GETS IT. Belajar, Mengajar, Pimpinan,
-       *    Pendataan and Aktivasi through the shell (never the public one);
-       *    Studio and Konfigurasi through their own headers, naming the staff
-       *    member; the refusal page above.
-       */
       for (const f of ["belajar/page.tsx", "mengajar/page.tsx", "pimpinan/page.tsx", "pendataan/page.tsx", "aktivasi/page.tsx"]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
         const shell = src.match(/<CangkangPengalaman[^>]*\/>/)?.[0] ?? "";
         c.expect(shell.length > 0 && !/kind="public"/.test(shell), `${f} does not render a signed-in shell`);
       }
-      for (const f of ["studio/layout.tsx", "konfigurasi/page.tsx"]) {
+      for (const f of ["page.tsx", "studio/layout.tsx", "konfigurasi/page.tsx"]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
-        c.expect(/<SesiSaya[^>]*\bsebut\s*\/>/.test(src), `${f} does not show who is signed in and the way out`);
+        c.expect(/<SesiSaya[^>]*viewer=\{viewer\} peran=\{peran\}[^>]*\/>/.test(src), `${f} does not show who is signed in and the way out, from its own read`);
+        c.expect(/await Promise\.all\(\[currentViewer\(\), peranSaya\(\)/.test(src) && (src.match(/currentViewer\(\)|peranSaya\(\)/g) ?? []).length === 2,
+          `${f} does not read the viewer and their roles exactly once, in parallel`);
+      }
+      for (const f of ["edukator/ringkasan/page.tsx", "dekan/ringkasan/page.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
+        c.expect(/<header[\s\S]*?<SesiSaya locale=\{await currentLocale\(\)\}[^>]*\/>[\s\S]*?<\/header>/.test(src),
+          `${f} does not show who is signed in and the way out in its header`);
+        // a grid item never shrinks below its content unless told to: without
+        // this a long name pushed Keluar off a 375px screen (measured, 20px)
+        c.expect(/<header className="[^"]*\bmin-w-0\b[^"]*">[\s\S]*?<SesiSaya/.test(src), `${f}'s header cannot shrink to a phone's width`);
       }
 
       /**
@@ -7292,14 +7403,16 @@ export const experienceTests: SelfTest[] = [
       c.expect(!/\.pin-sesi[^{]*\{[^}]*display:\s*none/.test(css), "a rule hides the session strip");
 
       return c.verdict(
-        "the session strip is RENDERED in both languages: a staff strip names the person, a learner strip is handed " +
-        "no name and asks whether the account is theirs, and both are a labelled group whose way out is a POST form " +
-        "to /keluar with a submit button described by the line beside it. The display name reaches the render only " +
-        "when a caller asks for it, and every learning surface -- the learner shell, an educator's own learning, an " +
-        "assessment in focus, the refusal page -- does not; the public verification shell carries none. Belajar, " +
-        "Mengajar, Pimpinan, Pendataan and Aktivasi render it through the shell, Studio and Konfigurasi through their " +
-        "own headers, no file writes 'Keluar' as text, and on a phone it is a full-width header row ahead of the tabs " +
-        "with a 44px button that nothing hides",
+        "the session strip is RENDERED in both languages as a labelled group whose way out is a POST form to /keluar " +
+        "with a submit button described by the line beside it. Whether it names the reader is decided by the READER'S " +
+        "roles, never the page: SesiSaya itself, rendered for a student, a student whose roles could not be read, a " +
+        "lapsed display role, an unknown role and every staff role on the teaching, staff, learner, public and refusal " +
+        "strips, names exactly the staff readers -- a student on /mengajar's shell reads 'Bukan akun Anda?' and no " +
+        "name -- and draws nothing for nobody. BarisSesi is rendered only by SesiSaya, nothing passes it a name, and " +
+        "the teaching home greets a non-staff reader by first name. Belajar, Mengajar, Pimpinan, Pendataan and " +
+        "Aktivasi carry it through the shell's one parallel read, the signed-in home page, Studio and Konfigurasi " +
+        "through theirs, the two report pages and the refusal page through the strip's own; no file writes 'Keluar' " +
+        "as text, and on a phone it is a full-width header row ahead of the tabs with a 44px button that nothing hides",
       );
     },
   },
@@ -7367,8 +7480,10 @@ export const experienceTests: SelfTest[] = [
        */
       const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
       c.expect((cangkang.match(/peranSaya\(\)/g) ?? []).length === 1, "the shell asks for the reader's roles more than once, or not at all");
-      c.expect(/kind === "public" \|\| kind === "focus" \? null : await peranSaya\(\)/.test(cangkang),
-        "the public page or an assessment in focus asks for the reader's roles");
+      // an assessment in focus reads the roles too, now, for its strip's naming rule
+      // (DAISY-02); it still offers no places, below
+      c.expect(/kind === "public" \? \[null, null\] : await Promise\.all\(\[currentViewer\(\), peranSaya\(\)\]\)/.test(cangkang),
+        "the public page asks for the reader's roles, or the shell reads them apart from the viewer");
       const cabang = (k: string) => {
         const i = cangkang.indexOf(`if (kind === "${k}")`);
         const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
@@ -7401,18 +7516,81 @@ export const experienceTests: SelfTest[] = [
       }
       c.expect(/<TabTempat[\s\S]*?kecuali=\{\["\/konfigurasi"\]\}/.test(konfig), "Konfigurasi does not offer the administrator's other places");
       const studio = code(readFileSync(join(repoRoot, "src", "app", "studio", "layout.tsx"), "utf8"));
-      c.expect(/<TabTempat /.test(studio) && /tempatDariPeran\(await peranSaya\(\)\)/.test(studio), "Studio offers no way back to the person's places");
+      c.expect(/<TabTempat /.test(studio) && /tempatDariPeran\(peran\)/.test(studio), "Studio offers no way back to the person's places");
 
       /**
-       * 5. THE HOME PAGE NO LONGER LOOPS (M15, UI). A signed-in reader's doors
-       *    go to real places by D-010's map; /masuk is only for somebody who is
-       *    not signed in. And its greeting comes from the copy table.
+       * 5. THE HOME PAGE: A SIGNED-IN READER'S DOORS ARE ONLY THE PLACES THEY
+       *    HOLD (M15 UI; the gate on the first round). That version pointed
+       *    three fixed doors somewhere plausible, so a student was offered
+       *    /mengajar and a teacher a staff door that refused them.
+       *
+       *    a) THE RULE, OVER EVERY DISPLAY ROLE AND EVERY ROLES ANSWER: the
+       *       staff doors are exactly tempatDariPeran of the roles held today
+       *       (never the display role, which can outlive its assignment), and
+       *       Belajar is there exactly for a learner. So a student is never
+       *       sent to /mengajar, and a failed roles read opens no staff door.
+       */
+      const TAMPIL: Array<DisplayRole> = [...ROLES, null];
+      const JAWABAN: Array<string[] | null> = [
+        null, [], ["STUDENT"], ["NOT_A_ROLE"], ...ROLES.filter((r) => r !== "STUDENT").map((r) => [String(r)]),
+        ["EDUCATOR", "HEAD_OF_DEPARTMENT"], ["EDUCATOR", "DEAN", "SYSTEM_ADMIN"],
+      ];
+      for (const tampil of TAMPIL) {
+        for (const peran of JAWABAN) {
+          const pintu = pintuMasuk(tampil, peran);
+          const staf = pintu.filter((x) => x !== "/belajar");
+          c.expect(JSON.stringify(staf) === JSON.stringify(tempatDariPeran(peran)),
+            `${tampil} holding ${JSON.stringify(peran)}: staff doors ${JSON.stringify(staf)}, held ${JSON.stringify(tempatDariPeran(peran))}`);
+          c.expect(pintu.includes("/belajar") === (tampil === "STUDENT"),
+            `${tampil} holding ${JSON.stringify(peran)}: Belajar ${pintu.includes("/belajar") ? "offered" : "withheld"}`);
+          c.expect(new Set(pintu).size === pintu.length, `${tampil} holding ${JSON.stringify(peran)}: a door twice`);
+        }
+      }
+      c.expect(JSON.stringify(pintuMasuk("STUDENT", [])) === JSON.stringify(["/belajar"]), "a student is not offered exactly Belajar");
+      c.expect(!pintuMasuk("STUDENT", null).includes("/mengajar") && !pintuMasuk("STUDENT", []).includes("/mengajar"),
+        "a student is sent to /mengajar");
+      c.expect(pintuMasuk("EDUCATOR", null).length === 0, "an unreadable roles answer still opens a staff door from the display role");
+
+      /**
+       *    b) GREETED BY FIRST NAME (D-020). A learner -- or anybody holding no
+       *       staff role -- by their first name, staff in full, nobody named by
+       *       a placeholder.
+       */
+      c.expect(namaSapaan("Nadia Putri Maharani", []) === "Nadia" && namaSapaan("  Nadia  Putri ", null) === "Nadia",
+        `a learner is greeted as "${namaSapaan("Nadia Putri Maharani", [])}", not by first name`);
+      c.expect(namaSapaan("Sari Wulandari Kusumaningrum", ["EDUCATOR"]) === "Sari Wulandari Kusumaningrum",
+        "a staff member is not greeted as the school stored their name");
+      c.expect(namaSapaan(null, []) === null && namaSapaan("   ", ["EDUCATOR"]) === null, "nobody named is greeted by a placeholder");
+
+      /**
+       *    c) THE PAGE DRAWS EXACTLY THAT. Anonymous: the three doors by
+       *       purpose, two of them to sign in. Signed in: one door per entry of
+       *       pintuMasuk, each with its own words, the honest line when there
+       *       is none, the greeting through namaSapaan, and never the raw
+       *       display name. One parallel read.
        */
       const beranda = code(readFileSync(join(repoRoot, "src", "app", "page.tsx"), "utf8"));
-      c.expect(/const pintuStaf = !viewer \? "\/masuk\?peran=staf"/.test(beranda) && /const pintuGuru = viewer \? "\/mengajar" : "\/masuk\?peran=guru"/.test(beranda),
-        "a signed-in reader's door on the home page still leads to /masuk");
-      c.expect(/berandaPeran\(viewer\.displayRole\)/.test(beranda), "the home page does not use D-010's map for a signed-in reader");
-      c.expect((beranda.match(/\/masuk\?peran=/g) ?? []).length === 2, "the home page links to /masuk from somewhere other than the two anonymous doors");
+      const iMasuk = beranda.indexOf("const nama = namaSapaan(viewer.displayName, peran);");
+      c.expect(iMasuk > 0 && /if \(!viewer\) \{/.test(beranda.slice(0, iMasuk)), "could not isolate the home page's signed-in half");
+      const anonim = beranda.slice(0, iMasuk);
+      const masuk = beranda.slice(iMasuk);
+      c.expect(JSON.stringify(anonim.match(/<Link href="[^"]+"/g)) ===
+        JSON.stringify(['<Link href="/belajar"', '<Link href="/masuk?peran=guru"', '<Link href="/masuk?peran=staf"']),
+        `the anonymous doors changed: ${anonim.match(/<Link href="[^"]+"/g)}`);
+      c.expect(!/\/masuk/.test(masuk), "a signed-in reader is offered a door to /masuk");
+      c.expect(/const pintu = pintuMasuk\(viewer\.displayRole, peran\);/.test(masuk) && /pintu\.map\(\(href\) => \(\s*<Link key=\{href\} href=\{href\}/.test(masuk),
+        "the signed-in doors are not exactly pintuMasuk's list");
+      c.expect((masuk.match(/<Link\b/g) ?? []).length === 1, "the signed-in half draws a door that is not from pintuMasuk's list");
+      c.expect(/s\("entry\.kosong"\)/.test(masuk), "a signed-in reader holding no place is not told so");
+      c.expect(!/viewer\.displayName\s*[}?`]/.test(beranda) && /\{nama \? `, \$\{nama\}` : ""\}/.test(masuk),
+        "the home page greets with the raw display name instead of namaSapaan's");
+      c.expect(/await Promise\.all\(\[currentViewer\(\), peranSaya\(\), currentLocale\(\)\]\)/.test(beranda), "the home page reads the viewer, roles and language in sequence");
+      const LABEL = /const LABEL_PINTU: Record<Pintu, HleEvent> = \{([^}]*)\}/.exec(beranda)?.[1] ?? "";
+      for (const [pintu, kunci] of [["/belajar", "entry.learner"], ["/mengajar", "entry.educator"], ["/pimpinan", "entry.pimpinan"], ["/konfigurasi", "entry.staff"]]) {
+        c.expect(new RegExp(`"${pintu}": "${kunci.replace(".", "\\.")}"`).test(LABEL), `the ${pintu} door is not labelled ${kunci}`);
+        for (const locale of LOCALES) c.expect(t(kunci as HleEvent, "public", { locale }) !== TANPA_SALINAN, `(${locale}) ${kunci} has no copy`);
+      }
+      for (const locale of LOCALES) c.expect(t("entry.kosong", "public", { locale }) !== TANPA_SALINAN, `(${locale}) entry.kosong has no copy`);
       c.expect(!/>\s*Halo,|"kamu"/.test(beranda), "the home page writes its greeting outside the copy table");
 
       /**
@@ -7433,8 +7611,12 @@ export const experienceTests: SelfTest[] = [
         "called Pimpinan beside the others. Every staff shell offers the other places " +
         "from one roles answer, the intake shell reaches Aktivasi, and neither the public page, an assessment in " +
         "focus nor a learner's own shell offers any. Konfigurasi links Pendataan, Aktivasi and Studio and the " +
-        "administrator's other places, Studio links back, the home page's doors no longer send a signed-in reader " +
-        "to /masuk, and on a phone the tab strip wraps rather than overflowing",
+        "administrator's other places, and Studio links back. On the home page a signed-in reader's doors are exactly " +
+        "the places they hold -- over every display role and roles answer the staff doors equal the roles held today " +
+        "and Belajar is a learner's alone, so a student is never sent to /mengajar and an unreadable answer opens no " +
+        "staff door -- drawn one link each with their own words and an honest line when there are none; a learner is " +
+        "greeted by first name and staff in full, never by the raw display name; the anonymous doors are unchanged. On " +
+        "a phone the tab strip wraps rather than overflowing",
       );
     },
   },
@@ -7552,6 +7734,95 @@ export const experienceTests: SelfTest[] = [
         "own error, root-error and not-found pages, client-side where Next requires it, in the reader's language, " +
         "passing the error's digest as the reference and never its message, announced as an alert, with every " +
         "word from the copy table",
+      );
+    },
+  },
+  {
+    id: "DAISY-04-KUNCI-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-04, THE GATE'S HALF (§5.2): A MISTYPED KEY STILL FAILS A TEST.
+       *
+       * The calm "—" keeps a reader from a crashed page when a key has no copy,
+       * which is right for the reader and wrong for the release: a typo that
+       * used to throw in a test now renders a dash and passes. The typechecker
+       * does not catch it either, because some twenty screens translate through
+       * a helper typed `(k: string) => t(k as HleEvent, ...)` -- HasilKelas,
+       * the report pages' shared `s`, the tour's `k` -- and a string is a
+       * string.
+       *
+       * So every key written literally anywhere in src/ is swept against the
+       * copy table: the first argument of `t(`, of every helper a file defines
+       * over `t` (or over `as HleEvent`), and of the report pages' imported `s`;
+       * a literal cast `as HleEvent`; and a `...Key="..."` prop. A template with
+       * a placeholder (`mengajar.instrumen.${mode}`) cannot be checked whole, so
+       * its fixed prefix must at least begin a real key; the full set of values
+       * behind the one that matters here (the assessment modes) is enumerated
+       * by DAISY-04-GALAT-01.
+       */
+      const kunci = new Set<string>(allKeys() as string[]);
+      type Temuan = { kunci: string[]; awalan: string[]; penerjemah: string[] };
+      const sapu = (src: string): Temuan => {
+        const penerjemah = new Set(["t"]);
+        for (const m of src.matchAll(/\b(?:const|let)\s+(\w+)\s*=\s*\(\s*(\w+)\b[^)]*\)\s*(?::\s*[\w<>[\]|, ]+)?=>\s*(?:t\(\s*\2\b|\2\s+as\s+HleEvent)/g)) penerjemah.add(m[1]);
+        for (const m of src.matchAll(/\bfunction\s+(\w+)\s*\(\s*(\w+)\b[^)]*\)[^{]*\{\s*return\s+t\(\s*\2\b/g)) penerjemah.add(m[1]);
+        if (/import\s*\{[^}]*\bs\b[^}]*\}\s*from\s*"[./]*_intel"/.test(src)) penerjemah.add("s");
+        const out: Temuan = { kunci: [], awalan: [], penerjemah: [...penerjemah] };
+        for (const n of penerjemah) {
+          for (const m of src.matchAll(new RegExp(`(?<![\\w.])${n}\\(\\s*(["'])([^"'\\n]+)\\1`, "g"))) out.kunci.push(m[2]);
+          for (const m of src.matchAll(new RegExp(`(?<![\\w.])${n}\\(\\s*\`([^\`$]+)\``, "g"))) out.kunci.push(m[1]);
+          for (const m of src.matchAll(new RegExp(`(?<![\\w.])${n}\\(\\s*\`([^\`$]+)\\$\\{`, "g"))) out.awalan.push(m[1]);
+        }
+        for (const m of src.matchAll(/(["'])([a-z][\w-]*(?:\.[\w-]+)+)\1\s+as\s+HleEvent\b/g)) out.kunci.push(m[2]);
+        for (const m of src.matchAll(/\b\w*Key=\{?(["'])([^"']+)\1/g)) out.kunci.push(m[2]);
+        return out;
+      };
+
+      // CONTROL: the sweep finds each form it claims to, in a planted source
+      const tanam = sapu(
+        'const s = (k: string) => t(k as HleEvent, "staff", { locale });\n' +
+        'const u = (key: HleEvent) => t(key, "learner");\n' +
+        '<p>{s("umpanbalik.hasil.artii")}</p> {u(`nav.kelas`)} {t("entry.titel", "public")}\n' +
+        '{s(`mengajar.instrumen.${mode}`)} {s(`tidak.ada.${x}`)} {("galat.judull" as HleEvent)} <X backKey="entry.title" />',
+      );
+      const salah = tanam.kunci.filter((k) => !kunci.has(k));
+      c.expect(JSON.stringify(salah.sort()) === JSON.stringify(["entry.titel", "galat.judull", "umpanbalik.hasil.artii"]),
+        `the sweep does not catch the planted typos (control): found ${JSON.stringify(salah)} among ${JSON.stringify(tanam.kunci)}`);
+      c.expect(tanam.kunci.includes("nav.kelas") && tanam.kunci.includes("entry.title"), "the sweep misses a real key in the planted source (control)");
+      c.expect(tanam.awalan.some((a) => !([...kunci].some((k) => k.startsWith(a)))), "the sweep does not catch a prefix no key begins with (control)");
+
+      let jumlah = 0;
+      let jumlahAwalan = 0;
+      const dikenal = new Set<string>();
+      for (const f of walk(join(repoRoot, "src")).filter((p) => /\.tsx?$/.test(p))) {
+        const rel = relative(repoRoot, f);
+        if (rel === join("src", "lib", "hle.ts")) continue; // the table itself
+        const temuan = sapu(code(readFileSync(f, "utf8")));
+        for (const k of temuan.kunci) {
+          jumlah++;
+          c.expect(kunci.has(k), `${rel} asks for "${k}", which is not in the copy table`);
+        }
+        for (const a of temuan.awalan) {
+          jumlahAwalan++;
+          c.expect([...kunci].some((k) => k.startsWith(a)), `${rel} builds a key from "${a}\${...}", and no key begins that way`);
+        }
+        if (temuan.penerjemah.length > 1) dikenal.add(rel);
+      }
+      // the sweep reached the helpers the typechecker cannot see through
+      for (const f of [["src", "components", "umpanbalik", "HasilKelas.tsx"], ["src", "app", "edukator", "ringkasan", "page.tsx"], ["src", "lib", "tur.ts"]]) {
+        c.expect(dikenal.has(join(...f)), `the sweep does not recognise ${join(...f)}'s key helper`);
+      }
+      c.expect(jumlah > 500, `the sweep checked only ${jumlah} literal keys; it has stopped seeing the code`);
+
+      return c.verdict(
+        `every literal key in src/ is in the copy table: ${jumlah} keys passed to t(, to each file's own helper over ` +
+        `t (${dikenal.size} files, HasilKelas, the report pages' shared s and the tour's k among them), cast as ` +
+        `HleEvent or given as a ...Key prop, and ${jumlahAwalan} template prefixes each beginning a real key. The ` +
+        "control holds: in a planted source the sweep finds a typo through a string-typed helper, a typo passed to " +
+        "t, a typo cast as HleEvent and a prefix no key begins with, and passes the real keys beside them",
       );
     },
   },

@@ -52,7 +52,8 @@ type MetricDefinition = {
 type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
-  const viewer = await currentViewer();
+  // One parallel read of the viewer and their roles (DAISY-02/03).
+  const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
   const supabase = await supabaseServer();
   const sp = await searchParams;
 
@@ -168,7 +169,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         </div>
         {/* DAISY-02: the shared session strip replaces a hard-coded "Keluar"
             that sat outside the copy table and never changed language. */}
-        <SesiSaya locale={await currentLocale()} persona="staff" sebut />
+        <SesiSaya locale={await currentLocale()} persona="staff" viewer={viewer} peran={peran} />
       </header>
 
       {/* WP5B. THE WAY IN TO BULK INTAKE, from the surface an institution
@@ -186,7 +187,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}</Link>
         <Link href="/studio" className={tautanTempat}>{s("nav.studio")}</Link>
         <TabTempat
-          tempat={tempatDariPeran(await peranSaya())}
+          tempat={tempatDariPeran(peran)}
           kecuali={["/konfigurasi"]}
           locale={await currentLocale()}
           persona="staff"

@@ -1,4 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentLocale } from "@/lib/locale";
+import SesiSaya from "@/components/SesiSaya";
 import { s, card, omissionText, actionText, tierLabel, type Entry } from "../../_intel";
 
 /**
@@ -46,7 +48,13 @@ export default async function RingkasanSekolah({
 
   return (
     <main className="mx-auto grid max-w-3xl gap-6 p-6">
-      <h1 className="text-xl font-semibold">{s("laporan.institusi.judul")}</h1>
+      {/* Who is signed in, and the way out (DAISY-02, D-009). min-w-0: a grid
+          item is otherwise never narrower than the strip's unbroken line, and a
+          long name pushed the button off a phone screen. */}
+      <header className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+        <h1 className="text-xl font-semibold">{s("laporan.institusi.judul")}</h1>
+        <SesiSaya locale={await currentLocale()} persona="staff" />
+      </header>
 
       {!template || !simpul ? (
         <p className={card}>{s("laporan.kosong")}</p>
