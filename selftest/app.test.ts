@@ -1760,4 +1760,45 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  // ────────────────────────────────────────────────────────── DAISY-05 (lane: Daisy)
+  {
+    id: "DAISY-05-STRUKTUR-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-05 over real HTTP, as the school administrator Alpha's seed
+      // names, against the seeded database: Konfigurasi opens on the school's
+      // own structure, read through school_structure, with the way to add each
+      // level -- and the seed's hidden Jenjang ("Sekolah Dasar") and Reguler
+      // ("SD Reguler") nowhere in it (D-006, D-027). Read only: this test
+      // changes nothing in the shared fixture.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const res = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      c.expect(res.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${res.status}`);
+      const raw = await res.text();
+      const i = raw.indexOf('id="struktur"');
+      const j = raw.indexOf('id="system"', i);
+      const bagian = i >= 0 && j > i ? raw.slice(i, j) : "";
+      if (!c.expect(bagian.length > 0, "Konfigurasi has no Struktur sekolah section")) return c.verdict("");
+      const teks = visibleText(bagian);
+      c.expect(teks.includes(t("config.section.struktur", "staff")), "the section is not headed Struktur sekolah");
+      c.expect(!/role="alert"/.test(bagian), `the school's structure could not be read: ${teks.slice(0, 200)}`);
+      // the seeded Bagian, Tingkat and Kelas, each drawn as a place
+      for (const nama of ["Matematika", "Kelas 5 — 2026/27", "5A", "Kelas 6 — 2027/28", "6B"]) {
+        c.expect(bagian.includes(`<strong class="pin-str-nama">${nama}</strong>`), `the seeded place "${nama}" is not in the structure`);
+      }
+      c.expect(/2026\/2027/.test(teks) && /2027\/2028/.test(teks), "a Tingkat or Kelas is shown without its school year");
+      for (const k of ["config.struktur.tambah.BAGIAN", "config.struktur.tambah.TINGKAT", "config.struktur.tambah.KELAS"] as const) {
+        c.expect(teks.includes(t(k, "staff")), `the section does not offer "${t(k, "staff")}"`);
+      }
+      c.expect(!teks.includes("Sekolah Dasar") && !teks.includes("SD Reguler"), "the seed's hidden Jenjang or Reguler is on the screen");
+      c.expect(!teks.includes(t("config.struktur.konfirmasi.ya", "staff")), "a deactivation can be sent without being asked for first");
+      return c.verdict(
+        "the school administrator's Konfigurasi opens on their school's structure, read from the database: the seeded Bagian, " +
+        "Tingkat and Kelas are drawn with their school years and the way to add each level, the hidden Jenjang and Reguler are not, " +
+        "and nothing can be deactivated without the question",
+      );
+    },
+  },
 ];

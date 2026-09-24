@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 66,
+  "version": 67,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1723,6 +1723,21 @@
       "id": "DAISY-04-KUNCI-01",
       "runner": "static",
       "proves": "DAISY-04 (gate rule 5.2): a mistyped key fails a test although a reader sees the calm fallback. Every literal key in the SOURCE files of src/ -- the first argument of t(, of each file's own helper over t or over 'as HleEvent', and of the report pages' imported s; a literal cast as HleEvent; a ...Key prop -- is checked against the COPY TABLE's allKeys(), and every template prefix must begin a real key. A control plants typos through a string-typed helper, through t and through a cast, and a prefix no key begins with, in a synthetic source, and the sweep must find exactly those and pass the real keys beside them; the sweep must recognise HasilKelas's, the report pages' and the tour's helpers and check more than 500 keys."
+    },
+    {
+      "id": "DAISY-05-STRUKTUR-01",
+      "runner": "static",
+      "proves": "DAISY-05 (D-006, D-022, D-027; audit B1, journey S7): the Struktur sekolah screen. From the COPY TABLE through the screen's own function: every code BOB-01 can return has its own sentence in both languages, never the code or the fallback, a failure carries its reference, an unreadable list is not called unsaved. The tree is OUTPUT from rows with a planted Jenjang and Reguler, which never survive; inactive places come last and cannot be changed. The panel is RENDERED to html in a child process in both languages: the three steps above the tree; years on Tingkat and Kelas only; Tambah Kelas under each active Tingkat with no year field, Tambah Tingkat under each active Bagian with this year filled in, Tambah Bagian for the school, and only those forms; rename and deactivate on active places only; nothing sendable until Nonaktifkan opens the question, which names the place, says it cannot be undone here and is the form that sends it; an empty school answers the audit's S7; an unreadable list shows its reference. From the SOURCE: the deactivation is dispatched only through the question; every action goes through one wrapper that re-reads the list after any non-success, and BOB-01's action file revalidates after a success; the section is Konfigurasi's first, fed only by bacaStruktur for a school the reader administers; no file or copy of the screen names a hidden level."
+    },
+    {
+      "id": "DAISY-05-STRUKTUR-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and reads the rendered Konfigurasi against the seeded structure. CI has both facilities, so it never skips there",
+      "proves": "DAISY-05 over real HTTP against the seeded database: the RENDERED html of /konfigurasi for Alpha's school administrator opens with the Struktur sekolah section, read through school_structure without a refusal; the seeded Bagian (Matematika), Tingkat (Kelas 5 and Kelas 6) and Kelas (5A, 6B) are drawn as places with their school years and the way to add each level; the seed's hidden Jenjang (Sekolah Dasar) and Reguler (SD Reguler) are nowhere in the section; nothing offers a deactivation before the question. Read only."
     }
   ]
 }

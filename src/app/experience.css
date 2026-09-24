@@ -2036,3 +2036,64 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-ub-orang > li { align-items: stretch; }
   .pin-ub-aksi { flex: 1 1 100%; }
 }
+
+/* ------------------------------------------------ Struktur sekolah (DAISY-05)
+   One school's Bagian → Tingkat → Kelas as a tree, with the add form under
+   each parent, so a sheet can be typed in from top to bottom. Each Bagian is a
+   card; a level below it hangs from a rule, so where a Kelas belongs is read
+   from the shape, not from a label. Deactivating opens a question in the row
+   (D-022), drawn in the refusal colours because it cannot be undone here. */
+.pin-str { display: grid; gap: var(--space-4); }
+.pin-str-langkah {
+  margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); list-style: decimal;
+  font-size: var(--type-meta); color: var(--ink-2);
+}
+.pin-str-pohon, .pin-str-anak { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.pin-str-pohon > .pin-str-simpul {
+  border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1); padding: var(--space-3) var(--space-4);
+}
+.pin-str-anak {
+  margin: var(--space-2) 0 0 var(--space-1);
+  padding-left: var(--space-4); border-left: 2px solid var(--line);
+}
+.pin-str-kepala {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-1) var(--space-3); min-width: 0;
+}
+.pin-str-jenis {
+  font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-str-nama { font-size: var(--type-body); min-width: 0; overflow-wrap: anywhere; }
+.pin-str-tahun, .pin-str-murid { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-str-tanda {
+  font-size: var(--type-fine); color: var(--ink-3);
+  border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 0 var(--space-2);
+}
+.pin-str-aksi { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); margin-left: auto; }
+.pin-str-nonaktif .pin-str-nama,
+.pin-str-nonaktif .pin-str-tahun,
+.pin-str-nonaktif .pin-str-murid { color: var(--ink-3); }
+.pin-str-kosong { font-size: var(--type-meta); color: var(--ink-3); }
+.pin-str-tambah { display: grid; gap: var(--space-1); margin-top: var(--space-3); }
+.pin-str-tambah-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2) var(--space-3); }
+/* A place's name is short ("1A", "Kelas Rendah"): the field is sized for one
+   and the button sits beside it, rather than a full-width bar under every
+   Tingkat. On a phone it takes the row and the button wraps beneath. */
+.pin-str-isian { display: grid; gap: var(--space-1); flex: 0 1 34ch; min-width: 0; }
+.pin-str-isian-tahun { flex: 0 1 20ch; }
+.pin-str-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-str-isian .pin-input { width: 100%; min-width: 0; }
+.pin-str-pesan { margin: 0; font-size: var(--type-meta); color: var(--status-ok); }
+.pin-str-ubah { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); flex: 1 1 20ch; min-width: 0; }
+.pin-str-ubah .pin-input { flex: 1 1 20ch; min-width: 0; }
+.pin-str-tanya {
+  display: grid; gap: var(--space-2); margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-1);
+  border: 1px solid var(--status-blocked); background: var(--status-blocked-soft);
+}
+.pin-str-tanya-judul { margin: 0; font-weight: var(--weight-strong); }
+.pin-str-tanya-aksi { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.pin-btn.pin-str-bahaya { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--surface-1); }
+.pin-str .pin-msg { margin-top: var(--space-1); }
