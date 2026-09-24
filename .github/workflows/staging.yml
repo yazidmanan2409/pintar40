@@ -14,6 +14,11 @@
 #      production with sample data off (D-038: real schools and official
 #      evidence need it, so reports work), and SD and SMA are created with their
 #      2026/2027 year, if they are not there yet.
+#   4. Verifies it live, sending no email: the sign-in page loads, a stranger's
+#      sign-up is refused, there is exactly one platform admin and it is the
+#      recorded person (by digest), and a sign-in link generated on the server
+#      lands on staging's own /auth/callback. Opening that link counts as one
+#      sign-in for the admin; its token is never printed.
 #
 # WHAT IT NEVER TOUCHES
 #   Production. PROJECT_REF is staging's, the database URL must name staging's
@@ -219,3 +224,79 @@ jobs:
           if bad: print('::error::not as written: ' + ', '.join(bad)); sys.exit(1)
           PY
 
+
+      - name: Verify — the live sign-in round trip and the front door (no email is sent)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          ADMIN_SHA256: 52e5bbccb4be604c12b16dd38de06b0e1aa53f08d44f9356bb0759e0e47dd2a4
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, secrets, subprocess, sys, urllib.error, urllib.parse, urllib.request
+          ref, o = os.environ['PROJECT_REF'], os.environ['STAGING_ORIGIN']
+          base = f'https://{ref}.supabase.co'
+          host = urllib.parse.urlparse(o).netloc
+          bad = []
+
+          class NoFollow(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, *a, **k): return None
+          opener = urllib.request.build_opener(NoFollow)
+
+          def call(url, method='GET', headers=None, body=None, follow=True):
+              data = json.dumps(body).encode() if body is not None else None
+              h = {'User-Agent': 'pintar-staging-verify', **({'Content-Type': 'application/json'} if data else {}), **(headers or {})}
+              req = urllib.request.Request(url, data=data, method=method, headers=h)
+              try:
+                  r = (urllib.request.urlopen if follow else opener.open)(req, timeout=30)
+                  return r.status, r.headers, r.read()
+              except urllib.error.HTTPError as e:
+                  return e.code, e.headers, e.read()
+
+          # the project's own keys, masked before anything else is printed
+          code, _, raw = call(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                              headers={'Authorization': 'Bearer ' + os.environ['SUPABASE_ACCESS_TOKEN']})
+          if code != 200: print(f'::error::the project keys could not be read: HTTP {code}'); sys.exit(1)
+          keys = json.loads(raw)
+          for k in keys:
+              if k.get('api_key'): print('::add-mask::' + k['api_key'])
+          pick = lambda n: next((k['api_key'] for k in keys if k.get('name') == n and (k.get('api_key') or '').startswith('eyJ')), None)
+          anon, service = pick('anon'), pick('service_role')
+          if not anon or not service: print('::error::the legacy anon and service_role keys are not both offered'); sys.exit(1)
+
+          # 1. the front door
+          code, _, _ = call(o + '/masuk')
+          print(f'GET {o}/masuk -> {code}'); code == 200 or bad.append('the sign-in page does not load')
+
+          # 2. a stranger cannot sign up
+          code, _, raw = call(base + '/auth/v1/signup', 'POST', {'apikey': anon},
+                              {'email': f'probe-{secrets.token_hex(6)}@example.invalid', 'password': secrets.token_urlsafe(24)})
+          refused = code in (400, 403, 422) and b'signup' in raw.lower()
+          print(f'self sign-up -> HTTP {code} ({"refused" if refused else "NOT refused"})'); refused or bad.append('sign-up is not refused')
+
+          # 3. the one platform admin is the recorded person (by digest; the address is never printed)
+          email = subprocess.check_output(['psql', os.environ['DB'], '-At', '-c',
+              "select u.email from auth.users u join public.accounts a on a.auth_user_id = u.id "
+              "join public.role_assignments r on r.person_id = a.person_id "
+              "where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null and now() < r.valid_until"]).decode().split()
+          for e in email: print('::add-mask::' + e)
+          print(f'active platform admins: {len(email)}'); len(email) == 1 or bad.append('there is not exactly one platform admin')
+          if email:
+              same = os.environ['ADMIN_SHA256'] in (hashlib.sha256(email[0].encode()).hexdigest(), hashlib.sha256(email[0].strip().lower().encode()).hexdigest())
+              print(f'the admin is the recorded person (digest): {same}'); same or bad.append('the admin is not the recorded person')
+
+              # 4. a sign-in link, generated on the server (no email), lands on staging's own callback
+              code, _, raw = call(base + '/auth/v1/admin/generate_link', 'POST',
+                                  {'apikey': service, 'Authorization': 'Bearer ' + service},
+                                  {'type': 'magiclink', 'email': email[0], 'redirect_to': o + '/auth/callback'})
+              link = (json.loads(raw).get('action_link') or json.loads(raw).get('properties', {}).get('action_link')) if code == 200 else None
+              if not link: bad.append(f'no sign-in link could be generated (HTTP {code})')
+              else:
+                  print('::add-mask::' + link)
+                  code, headers, _ = call(link, follow=False)
+                  loc = urllib.parse.urlparse(headers.get('Location') or '')
+                  print(f'the sign-in link answers HTTP {code} and sends the browser to {loc.scheme}://{loc.netloc}{loc.path}')
+                  (loc.netloc == host and loc.path.startswith('/auth/callback')) or bad.append('the sign-in link does not land on staging\'s callback')
+          if bad: print('::error::' + '; '.join(bad)); sys.exit(1)
+          print('VERIFIED: sign-in page, sign-up refused, one recorded admin, sign-in link lands on ' + o + '/auth/callback')
+          PY
