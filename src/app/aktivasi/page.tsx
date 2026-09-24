@@ -47,7 +47,7 @@ export default async function Aktivasi() {
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" />
+      <CangkangPengalaman locale={locale} kind="pendataan" current="aktivasi" />
       <main className="pin-col">
         <div className="pin-head">
           <p className="pin-eyebrow">{s("aktivasi.eyebrow")}</p>
