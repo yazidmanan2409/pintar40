@@ -282,6 +282,45 @@ export type HleEvent =
   | "config.struktur.galat.masih_ada_staf"
   | "config.struktur.galat.isian_kurang"
   | "config.struktur.galat.gagal"
+  | "config.section.struktur"
+  | "config.struktur.intro"
+  | "config.struktur.langkah.bagian"
+  | "config.struktur.langkah.tingkat"
+  | "config.struktur.langkah.kelas"
+  | "config.struktur.sekolah"
+  | "config.struktur.tanpa_sekolah"
+  | "config.struktur.kosong"
+  | "config.struktur.tingkat_kosong"
+  | "config.struktur.kelas_kosong"
+  | "config.struktur.jenis.BAGIAN"
+  | "config.struktur.jenis.TINGKAT"
+  | "config.struktur.jenis.KELAS"
+  | "config.struktur.tambah.BAGIAN"
+  | "config.struktur.tambah.TINGKAT"
+  | "config.struktur.tambah.KELAS"
+  | "config.struktur.nama"
+  | "config.struktur.contoh.BAGIAN"
+  | "config.struktur.contoh.TINGKAT"
+  | "config.struktur.contoh.KELAS"
+  | "config.struktur.tahun"
+  | "config.struktur.tahun_ikut"
+  | "config.struktur.murid.satu"
+  | "config.struktur.murid.banyak"
+  | "config.struktur.nonaktif"
+  | "config.struktur.ubah_nama"
+  | "config.struktur.nama_baru"
+  | "config.struktur.simpan"
+  | "config.struktur.batal"
+  | "config.struktur.sibuk"
+  | "config.struktur.nonaktifkan"
+  | "config.struktur.konfirmasi.tanya"
+  | "config.struktur.konfirmasi.arti"
+  | "config.struktur.konfirmasi.ya"
+  | "config.struktur.ok.dibuat"
+  | "config.struktur.ok.diubah"
+  | "config.struktur.ok.dinonaktifkan"
+  | "config.struktur.rujukan"
+  | "config.struktur.gagal_baca"
   | "studio.paket.masalah.workbook_unreadable"
   | "studio.paket.masalah.workbook_too_large"
   | "studio.paket.masalah.workbook_sheet_missing"
@@ -1622,6 +1661,47 @@ const table: Table = {
   "config.struktur.galat.masih_ada_staf": { default: "Masih ada guru atau staf yang ditugaskan di sini.", en: "A teacher or staff member is still assigned here." },
   "config.struktur.galat.isian_kurang": { default: "Lengkapi pilihan yang diminta.", en: "Complete the choices asked for." },
   "config.struktur.galat.gagal": { default: "Perubahan belum tersimpan. Coba lagi sebentar lagi.", en: "The change was not saved. Try again in a moment." },
+  // DAISY-05: the Struktur sekolah screen (D-006, D-022). The names Bagian,
+  // Tingkat and Kelas are the school's own words and stay Indonesian in English.
+  "config.section.struktur": { default: "Struktur sekolah", en: "School structure" },
+  "config.struktur.intro": { default: "Susun sekolah dari atas ke bawah: Bagian, lalu Tingkat, lalu Kelas. Murid ditempatkan di Kelas, dan guru ditugaskan ke Kelas.", en: "Build the school from the top down: Bagian, then Tingkat, then Kelas. Students are placed in a Kelas, and teachers are assigned to one." },
+  "config.struktur.langkah.bagian": { default: "Tambah Bagian, misalnya Kelas Rendah.", en: "Add a Bagian, for example Kelas Rendah." },
+  "config.struktur.langkah.tingkat": { default: "Di dalam Bagian, tambah Tingkat dengan tahun ajarannya, misalnya Kelas 1 untuk 2026/2027.", en: "Inside the Bagian, add a Tingkat with its school year, for example Kelas 1 for 2026/2027." },
+  "config.struktur.langkah.kelas": { default: "Di dalam Tingkat, tambah Kelas satu per satu, misalnya 1A lalu 1B.", en: "Inside the Tingkat, add each Kelas in turn, for example 1A, then 1B." },
+  "config.struktur.sekolah": { default: "Sekolah", en: "School" },
+  "config.struktur.tanpa_sekolah": { default: "Belum ada sekolah yang Anda kelola.", en: "There is no school you administer yet." },
+  "config.struktur.kosong": { default: "Sekolah ini belum punya Bagian.", en: "This school has no Bagian yet." },
+  "config.struktur.tingkat_kosong": { default: "Belum ada Tingkat di Bagian ini.", en: "There is no Tingkat in this Bagian yet." },
+  "config.struktur.kelas_kosong": { default: "Belum ada Kelas di Tingkat ini.", en: "There is no Kelas in this Tingkat yet." },
+  "config.struktur.jenis.BAGIAN": { default: "Bagian", en: "Bagian" },
+  "config.struktur.jenis.TINGKAT": { default: "Tingkat", en: "Tingkat" },
+  "config.struktur.jenis.KELAS": { default: "Kelas", en: "Kelas" },
+  "config.struktur.tambah.BAGIAN": { default: "Tambah Bagian", en: "Add Bagian" },
+  "config.struktur.tambah.TINGKAT": { default: "Tambah Tingkat", en: "Add Tingkat" },
+  "config.struktur.tambah.KELAS": { default: "Tambah Kelas", en: "Add Kelas" },
+  "config.struktur.nama": { default: "Nama", en: "Name" },
+  "config.struktur.contoh.BAGIAN": { default: "Misalnya Kelas Rendah", en: "For example Kelas Rendah" },
+  "config.struktur.contoh.TINGKAT": { default: "Misalnya Kelas 1", en: "For example Kelas 1" },
+  "config.struktur.contoh.KELAS": { default: "Misalnya 1A", en: "For example 1A" },
+  "config.struktur.tahun": { default: "Tahun ajaran", en: "School year" },
+  "config.struktur.tahun_ikut": { default: "Tahun ajaran mengikuti Tingkat:", en: "School year, from the Tingkat:" },
+  "config.struktur.murid.satu": { default: "murid", en: "student" },
+  "config.struktur.murid.banyak": { default: "murid", en: "students" },
+  "config.struktur.nonaktif": { default: "Nonaktif", en: "Inactive" },
+  "config.struktur.ubah_nama": { default: "Ubah nama", en: "Rename" },
+  "config.struktur.nama_baru": { default: "Nama baru", en: "New name" },
+  "config.struktur.simpan": { default: "Simpan", en: "Save" },
+  "config.struktur.batal": { default: "Batal", en: "Cancel" },
+  "config.struktur.sibuk": { default: "Menyimpan…", en: "Saving…" },
+  "config.struktur.nonaktifkan": { default: "Nonaktifkan", en: "Deactivate" },
+  "config.struktur.konfirmasi.tanya": { default: "Nonaktifkan", en: "Deactivate" },
+  "config.struktur.konfirmasi.arti": { default: "Setelah dinonaktifkan, tempat ini tidak bisa diaktifkan lagi dari layar ini. Namanya boleh dipakai lagi untuk yang baru.", en: "Once deactivated, it cannot be turned back on from this screen. Its name can be used again for a new one." },
+  "config.struktur.konfirmasi.ya": { default: "Ya, nonaktifkan", en: "Yes, deactivate" },
+  "config.struktur.ok.dibuat": { default: "ditambahkan.", en: "added." },
+  "config.struktur.ok.diubah": { default: "Nama sekarang:", en: "The name is now" },
+  "config.struktur.ok.dinonaktifkan": { default: "dinonaktifkan.", en: "deactivated." },
+  "config.struktur.rujukan": { default: "Rujukan:", en: "Reference:" },
+  "config.struktur.gagal_baca": { default: "Struktur sekolah belum bisa ditampilkan. Muat ulang halaman ini sebentar lagi.", en: "The school structure cannot be shown right now. Reload this page in a moment." },
   // BOB-02. What the upload screen says for each lesson-package problem and refusal
   // (src/lib/unggah-kontrak.ts: kunciMasalahPaket, kunciKodePaket). Daisy owns the wording.
   "studio.paket.masalah.workbook_unreadable": { default: "Berkas ini tidak terbaca sebagai buku kerja Excel (.xlsx).", en: "This file cannot be read as an Excel workbook (.xlsx)." },

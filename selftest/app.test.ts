@@ -39,6 +39,10 @@ const PERSONA = {
   // here, which is the case worth measuring.
   cycleHod: { email: "siklus-kaprodi@synthetic.pintar.test", password: "Sintetis-SiklusKaprodi-22!" },
   cycleAdmin: { email: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" },
+  // DAISY-05 (audit S7b). The platform administrator, who reads every tenant --
+  // the national library among them -- and so is the reader a school picker
+  // can put in the wrong place.
+  sysadmin: { email: "sysadmin@synthetic.pintar.test", password: "Sintetis-Sys-91!" },
 } as const;
 
 /** Every learner route FABLE-03 adds, for the copy inventory (§9). */
@@ -1757,6 +1761,76 @@ export const appTests: SelfTest[] = [
         `an anonymous visitor to an address that leads nowhere gets a 404 carrying PINTAR's own page in the language ` +
         `they chose, never Next's English default, with a way back (${dilihat} requests: /masuk/kartu and a path ` +
         `under /verifikasi/, in Indonesian and English)`,
+      );
+    },
+  },
+  // ────────────────────────────────────────────────────────── DAISY-05 (lane: Daisy)
+  {
+    id: "DAISY-05-STRUKTUR-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-05 over real HTTP, as the school administrator Alpha's seed
+      // names, against the seeded database: Konfigurasi opens on the school's
+      // own structure, read through school_structure, with the way to add each
+      // level -- and the seed's hidden Jenjang ("Sekolah Dasar") and Reguler
+      // ("SD Reguler") nowhere in it (D-006, D-027). Read only: this test
+      // changes nothing in the shared fixture.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const res = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      c.expect(res.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${res.status}`);
+      const raw = await res.text();
+      const i = raw.indexOf('id="struktur"');
+      const j = raw.indexOf('id="system"', i);
+      const bagian = i >= 0 && j > i ? raw.slice(i, j) : "";
+      if (!c.expect(bagian.length > 0, "Konfigurasi has no Struktur sekolah section")) return c.verdict("");
+      const teks = visibleText(bagian);
+      c.expect(teks.includes(t("config.section.struktur", "staff")), "the section is not headed Struktur sekolah");
+      c.expect(!/role="alert"/.test(bagian), `the school's structure could not be read: ${teks.slice(0, 200)}`);
+      // the seeded Bagian, Tingkat and Kelas, each drawn as a place
+      for (const nama of ["Matematika", "Kelas 5 — 2026/27", "5A", "Kelas 6 — 2027/28", "6B"]) {
+        c.expect(bagian.includes(`<strong class="pin-str-nama">${nama}</strong>`), `the seeded place "${nama}" is not in the structure`);
+      }
+      c.expect(/2026\/2027/.test(teks) && /2027\/2028/.test(teks), "a Tingkat or Kelas is shown without its school year");
+      for (const k of ["config.struktur.tambah.BAGIAN", "config.struktur.tambah.TINGKAT", "config.struktur.tambah.KELAS"] as const) {
+        c.expect(teks.includes(t(k, "staff")), `the section does not offer "${t(k, "staff")}"`);
+      }
+      c.expect(!teks.includes("Sekolah Dasar") && !teks.includes("SD Reguler"), "the seed's hidden Jenjang or Reguler is on the screen");
+      c.expect(!teks.includes(t("config.struktur.konfirmasi.ya", "staff")), "a deactivation can be sent without being asked for first");
+
+      // THE PLATFORM ADMINISTRATOR (audit S7b). They read every tenant, and
+      // the national library's name sorts first, so the section used to open
+      // inside "PINTAR Kurikulum Nasional". It must open on a real school and
+      // never offer the library, whatever the address asks for.
+      const kanon = "PINTAR Kurikulum Nasional";
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      for (const alamat of ["/konfigurasi", "/konfigurasi?sekolah=00000000-0000-0000-0000-000000000000"]) {
+        const r = await get(`${base}${alamat}`, { headers: { cookie: sys.cookie } });
+        c.expect(r.status === 200, `SYSTEM_ADMIN ${alamat} → ${r.status}`);
+        const html = await r.text();
+        const a = html.indexOf('id="struktur"');
+        const b = html.indexOf('id="system"', a);
+        const sec = a >= 0 && b > a ? html.slice(a, b) : "";
+        c.expect(sec.length > 0 && !/role="alert"/.test(sec), `SYSTEM_ADMIN ${alamat}: the structure section is missing or could not be read`);
+        c.expect(!visibleText(sec).includes(kanon), `SYSTEM_ADMIN ${alamat}: the school picker offers or opens the national library`);
+      }
+      // and the library's own id, asked for by address, is not opened either
+      const idKanon = await fetch(`${ctx.supabaseUrl}/rest/v1/institutions?select=id&tenant_kind=eq.PLATFORM_CANONICAL`, {
+        headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sys.accessToken}` },
+      }).then((x) => x.json() as Promise<Array<{ id: string }>>).catch(() => [] as Array<{ id: string }>);
+      if (c.expect(Array.isArray(idKanon) && idKanon.length > 0, "the national library's tenant could not be read, so the check below proves nothing")) {
+        const r = await get(`${base}/konfigurasi?sekolah=${idKanon[0].id}`, { headers: { cookie: sys.cookie } });
+        const html = await r.text();
+        const a = html.indexOf('id="struktur"');
+        const sec = a >= 0 ? html.slice(a, html.indexOf('id="system"', a)) : "";
+        c.expect(sec.length > 0 && !visibleText(sec).includes(kanon), "asking for the national library by address opens it in the structure section");
+      }
+      return c.verdict(
+        "the school administrator's Konfigurasi opens on their school's structure, read from the database: the seeded Bagian, " +
+        "Tingkat and Kelas are drawn with their school years and the way to add each level, the hidden Jenjang and Reguler are not, " +
+        "and nothing can be deactivated without the question. The platform administrator's opens on a real school and never offers " +
+        "or opens the national library, even when its id is asked for by address",
       );
     },
   },
