@@ -526,6 +526,9 @@ begin
   end if;
   return v_bad;
 end $$;
+-- ADR-0021: the same grants as the definition it replaces -- reached only
+-- through import_validate and import_advance, never by a client directly.
+revoke all on function public.import_row_problems(uuid, jsonb) from public, anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- 7. M5a — THE INTAKE ENROLS INTO THE PLACE'S OWN YEAR.
