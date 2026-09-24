@@ -114,6 +114,7 @@ Next for you: <ticket>
 ## 6. Releases (coordinator only)
 
 1. `main` is green, and the audit journeys pass on its head.
+   The release checklist (`RELEASE-CHECKLIST.md`, D-028) is run on that exact commit: every P0 check PASS, every P1 PASS or accepted by Yazid in writing.
 2. If there are migrations, they are released first:
    - `deploy-request.txt` on `main`;
    - the migrations are applied;
@@ -122,7 +123,8 @@ Next for you: <ticket>
    - `RELEASE_SHA` and `vercel-request.txt` are updated on `main`;
    - the deploy runs, including its own functional checks;
    - the front-door check and readiness are re-run.
-4. The release is recorded in `RELEASES.md`, with a rollback point.
+4. The release-day checks (REL-01…REL-11) are run on production, read-only.
+5. The release is recorded in `RELEASES.md`, with a rollback point and the checklist run.
 5. **Production data changes** (schools, classes, rosters) go only through reviewed, auditable steps, never ad-hoc SQL except in a recorded emergency (D-013).
 
 ## 7. Keeping in sync

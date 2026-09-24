@@ -47,8 +47,9 @@ First, merge `origin/main` into the lane. It is 112 commits behind.
 |---|---|---|
 | C-01 | Trunk and gate: `main` fast-forwarded to the production source; production workflows restricted to `main` (D-004); coordination folder published. | DONE (24 Sep) |
 | C-02 | ~~Interim onboarding (D-016)~~. **Deferred by D-017:** once sprint 1 is released, write Gladys's step-by-step for onboarding both schools herself in the app, using her filled workbook. | DEFERRED until sprint 1 is released |
-| C-03 | Extend the audit journeys to assert D-005 end to end as the tickets land. | TODO |
+| C-03 | Extend the audit journeys to assert D-005 end to end as the tickets land. | IN PROGRESS (public probes P1–P3 added, `39ad60e`) |
 | C-04 | Sprint 1 release(s): gate, merge, release, verify, record. | TODO |
+| C-05 | **Release checklist v2** (D-028): `RELEASE-CHECKLIST.md`. Baseline recorded on `main` 78b0f55: 13/79 P0 PASS (run 35952344955). The full run on the sprint 1 release candidate decides go-live. | Baseline DONE; release-candidate run TODO |
 
 ## Backlog (sprint 2, not started)
 
