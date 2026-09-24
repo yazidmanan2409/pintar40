@@ -20,3 +20,9 @@ Only the coordinator releases (D-004). Newest first. Every entry names:
 | 23 Sep | §3c: environment set to `production`, fixtures off | Runbook procedure; verified by the coordinator | platform_environment |
 | 23 Sep | Schools `sd-zps` and `sma-zps` created, each with the 2026/2027 period | Coordinator (database), on Yazid's instruction | `institution.created` ×2 |
 | 23 Sep | Both schools reclassified from demo to real (D-003) | Coordinator (database), on Yazid's decision | `institution.reclassified_official` ×2 |
+
+## Release checklist runs (D-028)
+
+| Date | Candidate | Harness run | P0 PASS | P1 exceptions | Decision |
+|---|---|---|---|---|---|
+| 24 Sep | `main` 78b0f55 (baseline, not a release candidate) | Audit journeys 35952344955 (harness `39ad60e`): Gladys's path 15 PASS · 5 FAIL · 1 BLOCKED, one operator step (W1); crawl of 14 personas; probes P1 PASS, P2 PASS, P3 FAIL | 13 / 79 | — | NO-GO for any new release until the sprint 1 tickets land. Production stays on `5b5b68d`. |
