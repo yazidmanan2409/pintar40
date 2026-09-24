@@ -401,9 +401,66 @@ await step("S13", "the teacher signs in and opens the class", async (rec) => {
   return `landed on ${r.landed}; sees Kelas 1A: ${sees}; sign-out control: ${await hasSignOut(t)}; siapkan says: ${siapkan}`;
 });
 
-await step("S14", "Gladys uploads a lesson: Unggah Mudah", async (rec) => {
+// SD's course and lesson counts (a declaration, so S14 can use it before `hitung` below exists)
+function hitungSd() {
+  const q = (t) => sql(t).trim();
+  return {
+    courses: q(`select count(*) from public.courses where institution_id='${ids.sd}'`),
+    lessons: q(`select count(*) from public.lessons l join public.modules m on m.id=l.module_id join public.courses c on c.id=m.course_id where c.institution_id='${ids.sd}'`),
+  };
+}
+
+// S14 -- the way Gladys uploads. Since DAISY-06 the page opens on the workbook panel:
+// a school, an .xlsx, "Periksa buku kerja", the media the workbook names, "Simpan ke
+// Studio". The candidate's own sample workbook (BOB-02) is the file; the media are small
+// stand-ins carrying the names the workbook gives them. A candidate without the panel
+// gets the old Unggah Mudah probe, which fails as B2 recorded.
+await step("S14", "Gladys uploads a lesson: the Excel workbook (DAISY-06)", async (rec) => {
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
   rec.shots.push(await shot(g, "studio-unggah"));
+  const panel = g.locator("#ung-berkas");
+  const buku = join(process.env.APP_DIR, "selftest/fixtures/bob02/contoh-pelajaran.xlsx");
+  const paketBuku = join(process.env.APP_DIR, "selftest/fixtures/bob02/contoh-pelajaran.paket.json");
+  if (await panel.count() && existsSync(buku) && existsSync(paketBuku)) {
+    const notes = [];
+    const beforeSd = hitungSd();
+    const sel = g.locator("#ung-sekolah");
+    const preselected = (await sel.locator("option:checked").textContent().catch(() => ""))?.trim();
+    const offered = await sel.locator("option").allTextContents();
+    notes.push(`school preselected: "${preselected}"; offered: ${JSON.stringify(offered.map((x) => x.trim()))}`);
+    const v = await sel.locator("option").filter({ hasText: "SD Zayd" }).first().getAttribute("value").catch(() => null);
+    if (v) await sel.selectOption(v);
+    await panel.setInputFiles(buku);
+    await g.getByRole("button", { name: "Periksa buku kerja" }).click();
+    const lolos = await g.getByText("Buku kerja lolos pemeriksaan.").waitFor({ timeout: 30000 }).then(() => true).catch(() => false);
+    rec.shots.push(await shot(g, "studio-unggah-periksa"));
+    notes.push(`check: ${lolos ? "passed" : "did not pass"}`);
+    if (lolos) {
+      // stand-in media, named as the workbook names them
+      const dir = join(OUT, "media-s14");
+      mkdirSync(dir, { recursive: true });
+      const names = JSON.parse(readFileSync(paketBuku, "utf8")).courses
+        .flatMap((c) => c.modules.flatMap((m) => m.lessons.flatMap((l) => (l.media ?? []).map((x) => x.file))));
+      const files = names.map((n) => { const f = join(dir, n); writeFileSync(f, `audit stand-in for ${n}`); return f; });
+      if (files.length) {
+        await g.locator("#ung-media").setInputFiles(files);
+        await g.getByRole("button", { name: "Unggah media" }).click();
+        const all = `${files.length} / ${files.length}`;
+        const done = await g.getByText(new RegExp(`^${all.replace(/ /g, "\\s")}`)).waitFor({ timeout: 60000 }).then(() => true).catch(() => false);
+        notes.push(`media: ${files.length} named, all uploaded: ${done}`);
+      }
+      await g.getByRole("button", { name: "Simpan ke Studio" }).click();
+      const saved = await g.getByText("Tersimpan di Studio sebagai draf.").waitFor({ timeout: 30000 }).then(() => true).catch(() => false);
+      rec.shots.push(await shot(g, "studio-unggah-simpan"));
+      notes.push(`saved: ${saved}`);
+    }
+    const afterSd = hitungSd();
+    notes.push(`at SD: courses ${beforeSd.courses} → ${afterSd.courses}, lessons ${beforeSd.lessons} → ${afterSd.lessons}`);
+    if (!lolos || Number(afterSd.courses) <= Number(beforeSd.courses) || Number(afterSd.lessons) <= Number(beforeSd.lessons)
+        || /Kurikulum Nasional/.test(preselected ?? "")) rec.verdict = "FAIL";
+    return notes.join("; ");
+  }
+  // older candidates: the Unggah Mudah probe B2 recorded
   const selects = g.locator("select");
   const firstSchool = (await selects.count()) ? await selects.first().locator("option:checked").textContent() : "(no select)";
   const fileInputs = await g.locator('input[type="file"]').count();
@@ -441,12 +498,16 @@ const PAKET = join(process.env.APP_DIR, "selftest/fixtures/bob02/contoh-pelajara
 const paketContoh = existsSync(PAKET) ? readFileSync(PAKET, "utf8") : null;
 const paketLama = JSON.stringify({ courses: [{ subject: "Matematika", stage: "SD", grade_label: "Kelas 1", title: "Penjumlahan sampai 20" }] });
 
-async function kirimPaket(schoolText, isi) {
+async function kirimPaket(schoolText, isi, forgedId = null) {
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
   const form = g.locator("form").filter({ has: g.locator('textarea[name="isi"]') }).nth(1);
   const sel = form.locator("select").first();
   let chosen = false;
-  if (await sel.count()) {
+  if (forgedId && await sel.count()) {
+    // a request the page would never build: the school's value set by hand
+    await sel.evaluate((el, id) => { const o = document.createElement("option"); o.value = id; o.textContent = "forged"; el.appendChild(o); el.value = id; }, forgedId);
+    chosen = true;
+  } else if (await sel.count()) {
     const v = await sel.locator("option").filter({ hasText: schoolText }).first().getAttribute("value").catch(() => null);
     if (v) { await sel.selectOption(v); chosen = true; }
   } else {
@@ -515,11 +576,16 @@ await step("S15b", "D-029: a package addressed to the canonical library is refus
   const inst = sql(`select id from public.institutions where tenant_kind='PLATFORM_CANONICAL' limit 1`).trim();
   if (!inst) { rec.verdict = "NOTE"; return "no canonical tenant in this database"; }
   const before = hitung(inst);
-  const r = await kirimPaket("Kurikulum Nasional", paketContoh ?? paketLama);
+  // Since DAISY-06 the page no longer offers the library at all (M8), so the server's own
+  // refusal is proved with a request the page would never build.
+  await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
+  const offered = (await g.locator("select option").filter({ hasText: "Kurikulum Nasional" }).count()) > 0;
+  const r = offered ? await kirimPaket("Kurikulum Nasional", paketContoh ?? paketLama)
+                    : await kirimPaket("Kurikulum Nasional", paketContoh ?? paketLama, inst);
   const after = hitung(inst);
   if (!r.chosen) rec.verdict = "NOTE";
   else if (after.courses !== before.courses || r.hasil === "ok") rec.verdict = "FAIL";
-  return `offered: ${r.chosen}; submit → hasil=${r.hasil} detail=${r.detail}; canonical courses ${before.courses} → ${after.courses}`;
+  return `offered on the page: ${offered}; ${offered ? "chosen" : "forged request"} → hasil=${r.hasil} detail=${r.detail}; canonical courses ${before.courses} → ${after.courses}`;
 });
 
 // Real content: SD Kelas 5 Matematika Bab 1, from docs/onboarding/konten/SD5-Matematika-Bab1.xlsx,
