@@ -60,7 +60,7 @@ import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
 import { Checks, type SelfTest } from "./lib";
-import { allKeys, telling, renderAll, t, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
+import { allKeys, telling, renderAll, t, format, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import { berandaPeran } from "../src/lib/beranda";
@@ -88,6 +88,11 @@ import {
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import BarisSesi from "../src/components/BarisSesi";
 import PanelPernyataan, { KalimatPonsel } from "../src/components/masuk/PanelPernyataan";
+import { templatPelajaran, tulisBukuKerja, xmlTeks, crc32, hurufKolom, LEMBAR_PANDUAN, BATAS_TEKS_KOLOM } from "../src/components/unggah/templat";
+import { lokasiMasalah } from "../src/components/unggah/lokasi";
+import { bacaBukuKerja } from "../src/lib/xlsx";
+import { BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
+import { crc32 as zlibCrc32 } from "node:zlib";
 import { tempatDariPeran, daftarTempat, pintuMasuk } from "../src/components/tempat";
 import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalBaca } from "../src/components/struktur/tampilan";
@@ -8270,6 +8275,296 @@ export const experienceTests: SelfTest[] = [
         "table with no image and nothing hidden from a screen reader but its decorative rule, and its phone twin says the same; " +
         "/masuk and the expired-link screen both show it. From the stylesheet, exactly one copy is displayed at every width, and " +
         `the panel is the brand colour with the brand's ink and nothing laid over it: ${rasio.toFixed(2)}:1, computed from the tokens`,
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-06 (lane: Daisy)
+  {
+    id: "DAISY-06-TEMPLAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-06: THE LESSON TEMPLATE IS BOB-02'S CONTRACT, WRITTEN OUT. It is
+       * built in the browser from KOLOM, LEMBAR and BATAS_PAKET (no dependency,
+       * D-030), so it is checked here against Bob's own reader and converter --
+       * the code the upload runs -- not against a copy of the rules.
+       *
+       * A small reader of stored zip entries, for what Bob's reader does not
+       * report (the entry method, the timestamp, the CRC, the raw sheet XML).
+       */
+      type Entri = { nama: string; metode: number; waktu: number; tanggal: number; crc: number; isi: Buffer };
+      const entriZip = (bytes: Uint8Array): Entri[] => {
+        const b = Buffer.from(bytes);
+        const akhir = b.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+        const n = b.readUInt16LE(akhir + 10);
+        let p = b.readUInt32LE(akhir + 16);
+        const out: Entri[] = [];
+        for (let i = 0; i < n; i++) {
+          const nama = b.toString("utf8", p + 46, p + 46 + b.readUInt16LE(p + 28));
+          const off = b.readUInt32LE(p + 42);
+          const mulai = off + 30 + b.readUInt16LE(off + 26) + b.readUInt16LE(off + 28);
+          out.push({ nama, metode: b.readUInt16LE(p + 10), waktu: b.readUInt16LE(p + 12), tanggal: b.readUInt16LE(p + 14),
+            crc: b.readUInt32LE(p + 16), isi: b.subarray(mulai, mulai + b.readUInt32LE(p + 20)) });
+          p += 46 + b.readUInt16LE(p + 28) + b.readUInt16LE(p + 30) + b.readUInt16LE(p + 32);
+        }
+        return out;
+      };
+
+      /**
+       * (a) THE BLANK TEMPLATE, THROUGH bacaBukuKerja AND bukuKerjaKePaket. The
+       *     guidance sheet first, then the five data sheets named exactly as
+       *     LEMBAR and in that order; each data sheet holds row 1 -- every
+       *     column's judul, in KOLOM order -- and nothing else. The converter
+       *     finds no missing sheet and no missing column; the only thing it can
+       *     say about a blank template is that the course row is still empty.
+       */
+      const templat = templatPelajaran();
+      const baca = bacaBukuKerja(templat);
+      if (c.expect(baca.ok, `Bob's reader cannot read the template: ${JSON.stringify(baca)}`) && baca.ok) {
+        c.expect(JSON.stringify(baca.lembar.map((l) => l.nama)) === JSON.stringify([LEMBAR_PANDUAN, ...LEMBAR]),
+          `the sheets are ${baca.lembar.map((l) => l.nama).join(", ")}`);
+        for (const l of LEMBAR) {
+          const sh = baca.lembar.find((x) => x.nama === l);
+          c.expect(sh?.baris.length === 1 && JSON.stringify(sh.baris[0]) === JSON.stringify(KOLOM[l].map((k) => k.judul)),
+            `${l}: row 1 is not exactly KOLOM's headers, or the sheet holds more than row 1: ${JSON.stringify(sh?.baris)}`);
+        }
+        const kosong = bukuKerjaKePaket(baca.lembar);
+        const kodeKosong = kosong.ok ? [] : kosong.problems.map((x) => x.code);
+        c.expect(!kodeKosong.includes("WORKBOOK_SHEET_MISSING") && !kodeKosong.includes("WORKBOOK_COLUMN_MISSING"),
+          `the blank template is missing a sheet or a column: ${kodeKosong.join(", ")}`);
+        c.expect(JSON.stringify(kodeKosong) === JSON.stringify(["WORKBOOK_COURSE_ROW_MISSING"]),
+          `a blank template should only lack its course row, not: ${kodeKosong.join(", ")}`);
+
+        /**
+         *     THE GUIDANCE, from the same contract: every column of every sheet
+         *     with whether it is required, its accepted choices and its meaning;
+         *     every text limit beside the column it governs; and the other
+         *     limits of BATAS_PAKET, each with BATAS_PAKET's own number.
+         */
+        const panduan = baca.lembar[0].baris;
+        const teksPanduan = panduan.map((r) => r.join(" | ")).join("\n");
+        for (const l of LEMBAR) for (const k of KOLOM[l]) {
+          const r = panduan.find((x) => x[0] === l && x[1] === k.judul);
+          c.expect(Boolean(r) && r![2] === t(k.wajib ? "studio.templat.ya" : "studio.templat.tidak", "staff", { locale: "id" })
+            && (r![3] ?? "") === (k.pilihan ? k.pilihan.map(([x]) => x).join(", ") : "") && (r![5] ?? "") === k.arti,
+            `the guidance does not describe ${l} · ${k.judul} as the contract does: ${JSON.stringify(r)}`);
+        }
+        const teksMaks = BATAS_PAKET.teksMaks.nilai;
+        for (const [nama, [l, kunci]] of Object.entries(BATAS_TEKS_KOLOM)) {
+          const judul = KOLOM[l].find((k) => k.kunci === kunci)?.judul;
+          const r = panduan.find((x) => x[0] === l && x[1] === judul);
+          const angka = format.number(teksMaks[nama as keyof typeof teksMaks], "id");
+          c.expect(Boolean(judul) && (r?.[4] ?? "").startsWith(`${angka} `), `the ${nama} limit (${angka}) is not shown on ${l} · ${judul ?? kunci}`);
+        }
+        c.expect(JSON.stringify(Object.keys(BATAS_TEKS_KOLOM).sort()) === JSON.stringify(Object.keys(teksMaks).sort()),
+          "a text limit in BATAS_PAKET has no column in the guidance");
+        const B = BATAS_PAKET;
+        const harus = [
+          `${format.number(B.berkasMaks.nilai / 1048576, "id")} MB`, format.number(B.barisMaks.nilai, "id"),
+          format.number(B.pelajaranMaks.nilai, "id"), format.number(B.soalMaks.nilai, "id"),
+          `${B.pilihanMin.nilai}–${B.pilihanMaks.nilai}`, B.labelPilihan.nilai.join(", "),
+          ...Object.values(B.jenisMedia.nilai).map((x) => x.join(", ")), format.number(B.namaMediaMaks.nilai, "id"),
+        ];
+        for (const x of harus) c.expect(teksPanduan.includes(x), `the guidance does not state the limit "${x}"`);
+      }
+
+      /**
+       * (b) ONE FILLED ROW PER SHEET, WRITTEN BY THE SAME WRITER, CONVERTS WITH
+       *     NO PROBLEM, and each value lands in its own field: the choices are
+       *     turned into their codes, and text holding XML's special characters,
+       *     both quotes and a line break comes back exactly.
+       */
+      const SULIT = `Isi <b>tebal</b> & "kutip" 'tunggal'\nbaris dua`;
+      const ISI: Record<string, Record<string, string>> = {
+        Kursus: { title: "Pecahan Senilai", subject: "Matematika", stage: "SD", grade_label: "Kelas 4", konteks: "Akademik" },
+        Bab: { ordinal: "1", title: "Pecahan" },
+        Pelajaran: { module: "1", ordinal: "1", title: "Mengenal pecahan", summary: "Ringkas", body_markdown: SULIT, objective: "Murid mengenal pecahan", bloom: "Memahami" },
+        Soal: { ref: "S1", module: "1", lesson: "1", item_type: "Pilihan ganda", stem: "Berapa 1/2 + 1/4?", use: "Pemetaan awal", difficulty: "Sedang" },
+        Pilihan: { ref: "S1", label: "A", body: "3/4", is_correct: "Ya", rationale: "Samakan penyebutnya dulu." },
+      };
+      const terisi = tulisBukuKerja(LEMBAR.map((l) => ({ nama: l, baris: [KOLOM[l].map((k) => k.judul), KOLOM[l].map((k) => ISI[l][k.kunci] ?? "")] })));
+      for (const e of entriZip(terisi)) {
+        c.expect(!/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;|#x[0-9a-f]+;)/i.test(e.isi.toString("utf8")), `the filled workbook's ${e.nama} holds an unescaped "&"`);
+      }
+      const bacaIsi = bacaBukuKerja(terisi);
+      const paket = bacaIsi.ok ? bukuKerjaKePaket(bacaIsi.lembar) : null;
+      if (c.expect(paket?.ok === true, `a filled workbook does not convert cleanly: ${JSON.stringify(paket && !paket.ok ? paket.problems : bacaIsi)}`) && paket?.ok) {
+        const kursus = (paket.paket.courses as Array<Record<string, unknown>>)[0];
+        const pel = ((kursus.modules as Array<Record<string, unknown>>)[0].lessons as Array<Record<string, unknown>>)[0];
+        const soal = (pel.items as Array<Record<string, unknown>>)[0];
+        c.expect(kursus.title === "Pecahan Senilai" && pel.body_markdown === SULIT, `a value did not come back exactly: ${JSON.stringify(pel.body_markdown)}`);
+        c.expect(soal.item_type === "MCQ_SINGLE" && soal.use === "PRE_TEST" && (pel.objective as Record<string, unknown>).bloom === "UNDERSTAND",
+          "a choice did not become its code");
+      }
+
+      /**
+       * (c) THE SAME CONTRACT, THE SAME BYTES. Two builds are byte-identical;
+       *     every entry is stored, stamped with the one fixed time, and its CRC-32
+       *     equals Node's own zlib.crc32 of its content; every cell is an inline
+       *     string (no shared-strings part), and the data sheets offer each
+       *     fixed list as a dropdown on its own column.
+       */
+      c.expect(Buffer.compare(Buffer.from(templat), Buffer.from(templatPelajaran())) === 0, "two builds of the template differ");
+      const entri = entriZip(templat);
+      c.expect(entri.length >= 5 + LEMBAR.length, `the template has ${entri.length} parts`);
+      for (const e of entri) {
+        // 1 January 1980, 00:00: the fixed stamp, time and date both, so no clock can reach the bytes
+        c.expect(e.metode === 0 && e.waktu === 0 && e.tanggal === 0x21, `${e.nama} is compressed or is not stamped with the fixed time`);
+        c.expect(e.crc === zlibCrc32(e.isi), `${e.nama}: the stored CRC-32 is wrong`);
+        // an XML part may hold "&" only as the start of an entity; a lenient reader forgives it, Excel does not
+        c.expect(!/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;|#x[0-9a-f]+;)/i.test(e.isi.toString("utf8")), `${e.nama} holds an unescaped "&"`);
+      }
+      c.expect(!entri.some((e) => e.nama === "xl/sharedStrings.xml"), "the template relies on shared strings instead of inline strings");
+      LEMBAR.forEach((l, i) => {
+        const xml = entri.find((e) => e.nama === `xl/worksheets/sheet${i + 2}.xml`)?.isi.toString("utf8") ?? "";
+        const sel = xml.match(/<c [^>]*>/g) ?? [];
+        c.expect(sel.length === KOLOM[l].length && sel.every((x) => /t="inlineStr"/.test(x)), `${l}: a cell is not an inline string`);
+        const daftar = [...xml.matchAll(/<dataValidation [^>]*sqref="([A-Z]+)2:[A-Z]+\d+"><formula1>&quot;([^<]*)&quot;<\/formula1>/g)].map((m) => [m[1], m[2]]);
+        const harap = KOLOM[l].flatMap((k, n) => (k.pilihan ? [[hurufKolom(n), k.pilihan.map(([x]) => x).join(",")]] : []));
+        c.expect(JSON.stringify(daftar) === JSON.stringify(harap), `${l}: the dropdowns are ${JSON.stringify(daftar)}, not ${JSON.stringify(harap)}`);
+      });
+      c.expect(xmlTeks(`<&>"'`) === "&lt;&amp;&gt;&quot;&apos;" && crc32(new TextEncoder().encode("123456789")) === 0xcbf43926,
+        "the escaping or the CRC-32 is wrong on a known value (control)");
+
+      /**
+       * SAFE IN THE BROWSER (the gate's condition 1). The template and the
+       * panel import nothing from src/lib/xlsx.ts and no node: module, and the
+       * contract file they do import brings in types only -- so nothing that
+       * needs node:zlib can ever be bundled for the browser through them.
+       */
+      const importDari = (f: string) => [...code(readFileSync(join(repoRoot, f), "utf8")).matchAll(/^\s*import\s+([\s\S]*?)\s+from\s+"([^"]+)"/gm)];
+      for (const f of ["src/components/unggah/templat.ts", "src/components/unggah/lokasi.ts", "src/components/unggah/PanelUnggah.tsx"]) {
+        for (const [, , dari] of importDari(f)) {
+          c.expect(!/lib\/xlsx|^node:/.test(dari), `${f} imports ${dari}, which cannot run in the browser`);
+        }
+      }
+      const kontrak = importDari("src/lib/unggah-kontrak.ts");
+      c.expect(kontrak.length > 0 && kontrak.every(([, apa]) => /^type\b/.test(apa.trim())), "unggah-kontrak.ts imports more than types, so it is no longer safe to import in the browser");
+      const dariKontrak = importDari("src/components/unggah/templat.ts").find(([, , d]) => d === "@/lib/unggah-kontrak")?.[1] ?? "";
+      c.expect(/\bBATAS_PAKET\b/.test(dariKontrak) && /\bKOLOM\b/.test(dariKontrak) && /\bLEMBAR\b/.test(dariKontrak),
+        "the template is not written from KOLOM, LEMBAR and BATAS_PAKET");
+
+      return c.verdict(
+        `the template Bob's own reader reads: "${LEMBAR_PANDUAN}" then ${LEMBAR.join(", ")} in that order, each data sheet exactly ` +
+        "KOLOM's headers and nothing else, and the converter finds no missing sheet or column; the guidance states every column " +
+        "as the contract does and every BATAS_PAKET limit with its own number. One filled row per sheet converts with no problem, " +
+        "choices becoming their codes and special characters coming back exactly. Two builds are byte-identical, every entry " +
+        "stored with the fixed time and a CRC-32 matching Node's zlib, every cell an inline string, every fixed list a dropdown " +
+        "on its own column; and nothing that needs node:zlib can reach the browser through the template or the panel",
+      );
+    },
+  },
+  {
+    id: "DAISY-06-UNGGAH-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-06: THE UPLOAD PANEL, RENDERED. The panel is rendered to HTML in a
+       * child process in both languages: the template button; three steps named
+       * for what they do (not three "Konfirmasi"), the first marked current; the
+       * "Sekolah" picker offering exactly the schools the page gives it, the
+       * first selected; a file input for .xlsx; the check disabled until a file
+       * is chosen. With no school to offer, it says so and offers no file input.
+       */
+      const SEKOLAH = [{ id: "sd", name: "SD Zayd Pintar Selalu" }, { id: "sma", name: "SMA Zayd Pintar Selalu" }];
+      const KASUS = [
+        ...LOCALES.map((locale) => ({ locale, sekolah: SEKOLAH, batasMb: 5 })),
+        { locale: "id", sekolah: [], batasMb: 5 },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/unggah/PanelUnggah.tsx");' +
+        "  const Panel = m.default?.default ?? m.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_UNGGAH).map((k) =>" +
+        "    renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(Panel, k))))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_UNGGAH: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && html.length === KASUS.length, `the panel could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        LOCALES.forEach((locale, n) => {
+          const x = html[n];
+          const s = (k: HleEvent) => t(k, "staff", { locale });
+          c.expect(x.includes(`<button type="button" class="pin-btn">${s("studio.unggah.templat")}</button>`), `(${locale}) no template download`);
+          const langkah = [...x.matchAll(/<li[^>]*><span class="pin-ung-no">(\d)<\/span> ([^<]+)<\/li>/g)].map((m) => m[2]);
+          c.expect(JSON.stringify(langkah) === JSON.stringify(["periksa", "media", "simpan"].map((k) => s(`studio.unggah.langkah.${k}` as HleEvent)))
+            && new Set(langkah).size === 3, `(${locale}) the steps are ${JSON.stringify(langkah)}`);
+          c.expect(/<li class="pin-ung-kini" aria-current="step"><span class="pin-ung-no">1<\/span>/.test(x), `(${locale}) step 1 is not marked current`);
+          c.expect(/<label for="ung-sekolah">/.test(x) && x.includes(`<label for="ung-sekolah">${s("studio.unggah.sekolah")}</label>`), `(${locale}) the school picker is not labelled Sekolah`);
+          const opsi = [...x.matchAll(/<option value="([^"]+)"( selected="")?>([^<]+)<\/option>/g)].map((m) => [m[1], Boolean(m[2]), m[3]]);
+          c.expect(JSON.stringify(opsi) === JSON.stringify([["sd", true, SEKOLAH[0].name], ["sma", false, SEKOLAH[1].name]]),
+            `(${locale}) the picker offers ${JSON.stringify(opsi)}`);
+          c.expect(/<input id="ung-berkas" type="file" accept="\.xlsx[^"]*"/.test(x), `(${locale}) there is no file input for an .xlsx workbook`);
+          c.expect(x.includes(`disabled="">${s("studio.unggah.langkah.periksa")}</button>`), `(${locale}) the check can be pressed before a file is chosen`);
+        });
+        const tanpa = html[2];
+        c.expect(tanpa.includes(t("studio.unggah.tanpa_sekolah", "staff")) && !/type="file"/.test(tanpa), "with no school on offer the panel still offers an upload");
+      }
+
+      /**
+       * EVERY ANSWER HAS ITS OWN SENTENCE, AND EVERY PROBLEM SAYS WHERE. Each
+       * problem code and each refusal code the actions can return reads as a
+       * sentence in both languages -- never the calm dash, never the code -- and
+       * a problem's place is "Lembar Soal, baris 4, kolom Pertanyaan", with the
+       * column's own header from KOLOM.
+       */
+      const kodeTolak = [...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED"] as const;
+      for (const locale of LOCALES) {
+        for (const k of KODE_MASALAH_PAKET) {
+          const v = t(kunciMasalahPaket(k), "staff", { locale });
+          c.expect(v !== TANPA_SALINAN && !v.includes(k), `(${locale}) the problem ${k} reads "${v}"`);
+        }
+        for (const k of kodeTolak) {
+          const v = t(kunciKodePaket(k), "staff", { locale });
+          c.expect(v !== TANPA_SALINAN && !v.includes(k), `(${locale}) the refusal ${k} reads "${v}"`);
+        }
+      }
+      c.expect(lokasiMasalah({ code: "WORKBOOK_VALUE_REQUIRED", sheet: "Soal", row: 4, field: "stem" }, "id") === "Lembar Soal, baris 4, kolom Pertanyaan",
+        `a problem's place reads "${lokasiMasalah({ code: "WORKBOOK_VALUE_REQUIRED", sheet: "Soal", row: 4, field: "stem" }, "id")}"`);
+      c.expect(lokasiMasalah({ code: "MEDIA_NOT_UPLOADED", file: "gambar-1.png" }, "en") === "file gambar-1.png", "a media problem does not name its file");
+
+      /**
+       * THE PAGE AND THE FLOW, FROM THE SOURCE.
+       *   - /studio/unggah reads each drafting school's tenant_kind and
+       *     is_active and offers them through sekolah.ts -- never the national
+       *     library (audit S14; D-029) -- to the panel AND the JSON forms, and
+       *     labels the JSON forms' picker "Sekolah" (it said "Peran & akses").
+       *   - The panel comes before the JSON forms.
+       *   - The panel talks to the server only through BOB-02's two typed
+       *     actions and the one signed-upload route, sending each file to the
+       *     path the check returned, in the "assets" bucket.
+       */
+      const halaman = code(readFileSync(join(repoRoot, "src", "app", "studio", "unggah", "page.tsx"), "utf8"));
+      c.expect(/from\("institutions"\)\.select\("[^"]*\btenant_kind\b[^"]*\bis_active\b[^"]*"\)/.test(halaman) || /from\("institutions"\)\.select\("[^"]*\bis_active\b[^"]*\btenant_kind\b[^"]*"\)/.test(halaman),
+        "the upload page reads the schools without their kind or state");
+      c.expect(/const institutions = sekolahDitawarkan\(tenant \?\? \[\], \(id\) => menyusun\.has\(id\)\)/.test(halaman), "the upload page does not offer its schools through the shared rule");
+      c.expect(!/config\.section\.roles/.test(halaman) && /<span>\{s\("studio\.unggah\.sekolah"\)\}<\/span>/.test(halaman), "the JSON forms' school picker is not labelled Sekolah");
+      c.expect(/<PanelUnggah locale=\{locale\} sekolah=\{institutions\}/.test(halaman) && halaman.indexOf("<PanelUnggah") < halaman.indexOf("easyUploadAction}"),
+        "the workbook panel is not the first way in, or it is not given the offered schools");
+      const panel = code(readFileSync(join(repoRoot, "src", "components", "unggah", "PanelUnggah.tsx"), "utf8"));
+      const panggilan = [...panel.matchAll(/\bawait\s+(\w+)\s*\(/g)].map((m) => m[1]).filter((f) => !["fetch", "r"].includes(f));
+      c.expect(/await fetch\("\/api\/assets\/upload-url", \{[\s\S]*?body: JSON\.stringify\(\{ path: m\.path \}\)/.test(panel)
+        && /storage\.from\("assets"\)\.uploadToSignedUrl\(path, token, f,/.test(panel), "media do not go through the signed-upload route to the checked path");
+      c.expect((panel.match(/\bfetch\(/g) ?? []).length === 1 && /await unggahBukuKerjaAksi\(null, fd\)/.test(panel) && /await konfirmasiPaketAksi\(null, fd\)/.test(panel),
+        `the panel talks to the server some other way: ${panggilan.join(", ")}`);
+
+      return c.verdict(
+        "the upload panel is RENDERED in both languages with the template download, three steps named for what they do " +
+        "with the first current, a Sekolah picker offering exactly the given schools with the first selected, an .xlsx file " +
+        "input and a check that waits for a file; with no school it offers no upload. Every problem and refusal code reads " +
+        "as its own sentence in both languages, and a problem says its sheet, row and column. The page offers only real, " +
+        "active drafting schools (never the national library) to the panel and the JSON forms, labels them Sekolah, puts the " +
+        "workbook first, and the panel reaches the server only through BOB-02's two actions and the signed-upload route",
       );
     },
   },

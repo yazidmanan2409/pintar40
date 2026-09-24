@@ -599,6 +599,81 @@ export type HleEvent =
   | "studio.unggah.pertanyaan"
   | "studio.unggah.konfirmasi"
   | "studio.unggah.media_catatan"
+  | "studio.templat.judul"
+  | "studio.templat.cara.1"
+  | "studio.templat.cara.2"
+  | "studio.templat.cara.3"
+  | "studio.templat.cara.4"
+  | "studio.templat.cara.5"
+  | "studio.templat.kolom.lembar"
+  | "studio.templat.kolom.kolom"
+  | "studio.templat.kolom.wajib"
+  | "studio.templat.kolom.pilihan"
+  | "studio.templat.kolom.batas"
+  | "studio.templat.kolom.arti"
+  | "studio.templat.ya"
+  | "studio.templat.tidak"
+  | "studio.templat.batas.judul"
+  | "studio.templat.batas.berkas"
+  | "studio.templat.batas.kursus"
+  | "studio.templat.batas.baris"
+  | "studio.templat.batas.pelajaran"
+  | "studio.templat.batas.soal"
+  | "studio.templat.batas.pilihan"
+  | "studio.templat.batas.media"
+  | "studio.templat.batas.transkrip"
+  | "studio.templat.paling_besar"
+  | "studio.templat.paling_banyak"
+  | "studio.templat.satu_kursus"
+  | "studio.templat.baris_termasuk_judul"
+  | "studio.templat.berlabel"
+  | "studio.templat.media.gambar"
+  | "studio.templat.media.audio"
+  | "studio.templat.media.video"
+  | "studio.templat.nama_media"
+  | "studio.templat.karakter"
+  | "studio.templat.transkrip_wajib"
+  | "studio.unggah.buku.judul"
+  | "studio.unggah.buku.arti"
+  | "studio.unggah.templat"
+  | "studio.unggah.templat_arti"
+  | "studio.unggah.sekolah"
+  | "studio.unggah.tanpa_sekolah"
+  | "studio.unggah.berkas"
+  | "studio.unggah.berkas_batas"
+  | "studio.unggah.langkah.periksa"
+  | "studio.unggah.langkah.media"
+  | "studio.unggah.langkah.simpan"
+  | "studio.unggah.sibuk.periksa"
+  | "studio.unggah.sibuk.media"
+  | "studio.unggah.sibuk.simpan"
+  | "studio.unggah.lolos"
+  | "studio.unggah.hitung.courses"
+  | "studio.unggah.hitung.modules"
+  | "studio.unggah.hitung.lessons"
+  | "studio.unggah.hitung.items"
+  | "studio.unggah.hitung.options"
+  | "studio.unggah.hitung.media"
+  | "studio.unggah.masalah_judul"
+  | "studio.unggah.lokasi.lembar"
+  | "studio.unggah.lokasi.baris"
+  | "studio.unggah.lokasi.kolom"
+  | "studio.unggah.lokasi.berkas"
+  | "studio.unggah.masalah_lain"
+  | "studio.unggah.media_arti"
+  | "studio.unggah.media_pilih"
+  | "studio.unggah.media.belum"
+  | "studio.unggah.media.siap"
+  | "studio.unggah.media.naik"
+  | "studio.unggah.media.selesai"
+  | "studio.unggah.media.gagal"
+  | "studio.unggah.media_progres"
+  | "studio.unggah.simpan_arti"
+  | "studio.unggah.tersimpan"
+  | "studio.unggah.buka_kursus"
+  | "studio.unggah.ulang"
+  | "studio.unggah.rujukan"
+  | "studio.unggah.json_judul"
   | "studio.tinjau.judul"
   | "studio.tinjau.kosong"
   | "studio.tinjau.penulis"
@@ -1997,7 +2072,7 @@ const table: Table = {
   "studio.temuan.kosong": { default: "Tidak ada catatan mutu yang menunggu.", en: "No quality notes are waiting." },
   "studio.unggah.judul": { default: "Buat Paket Pembelajaran", en: "Create a Learning Package" },
   "studio.unggah.mudah": { default: "Unggah Mudah", en: "Easy upload" },
-  "studio.unggah.mudah_penjelasan": { default: "Unggah folder, ZIP, atau berkas lepas. PINTAR mengenali peran tiap berkas dan menanyakan yang belum pasti.", en: "Upload a folder, a ZIP, or loose files. PINTAR works out what each file is for and asks about anything it is unsure of." },
+  "studio.unggah.mudah_penjelasan": { default: "Tempel paket JSON dari sistem lain. PINTAR memeriksanya dan menanyakan yang belum pasti sebelum menyimpan apa pun.", en: "Paste a JSON package from another system. PINTAR checks it and asks about anything unclear before it saves anything." },
   "studio.unggah.terstruktur": { default: "Paket Terstruktur", en: "Structured package" },
   "studio.unggah.terstruktur_penjelasan": { default: "Untuk paket yang sudah dibuat mesin dalam format baku.", en: "For packages a machine has already produced in a standard format." },
   "studio.unggah.buat_paket": { default: "Buat Paket Pembelajaran", en: "Create a Learning Package" },
@@ -2006,6 +2081,82 @@ const table: Table = {
   "studio.unggah.pertanyaan": { default: "Yang perlu Anda pastikan", en: "What we need you to confirm" },
   "studio.unggah.konfirmasi": { default: "Konfirmasi", en: "Confirm" },
   "studio.unggah.media_catatan": { default: "Berkas media diunggah melalui server PINTAR, bukan langsung dari peramban.", en: "Media files are uploaded through the PINTAR server, not straight from the browser." },
+  // DAISY-06: the workbook template's guidance sheet and the upload panel.
+  "studio.templat.judul": { default: "Templat pelajaran PINTAR: cara mengisi", en: "PINTAR lesson template: how to fill it in" },
+  "studio.templat.cara.1": { default: "Satu buku kerja berisi satu kursus. Isi lima lembar berikutnya: Kursus, Bab, Pelajaran, Soal, dan Pilihan.", en: "One workbook holds one course. Fill in the next five sheets: Kursus, Bab, Pelajaran, Soal and Pilihan." },
+  "studio.templat.cara.2": { default: "Baris 1 di setiap lembar adalah judul kolom. Jangan mengubah, menghapus, atau memindahkannya. Isi data mulai baris 2.", en: "Row 1 of every sheet holds the column headers. Do not change, delete or move them. Enter data from row 2." },
+  "studio.templat.cara.3": { default: "Kolom bertanda Wajib harus diisi di setiap baris. Kolom yang punya daftar pilihan hanya menerima nilai dari daftar itu.", en: "Columns marked Wajib must be filled in on every row. A column with a list of choices accepts only a value from that list." },
+  "studio.templat.cara.4": { default: "Setiap soal perlu pilihan jawaban di lembar Pilihan, dengan kode soal yang sama. Setiap pilihan perlu alasannya.", en: "Every question needs its answer choices on the Pilihan sheet, under the same question code. Every choice needs its reason." },
+  "studio.templat.cara.5": { default: "Berkas media (gambar, audio, video, PDF) tidak dimasukkan ke buku kerja. Tulis nama berkasnya di kolom Media, lalu unggah berkasnya di Studio setelah buku kerja diperiksa.", en: "Media files (images, audio, video, PDF) are not put in the workbook. Write each file's name in the Media column, then upload the files in Studio after the workbook is checked." },
+  "studio.templat.kolom.lembar": { default: "Lembar", en: "Sheet" },
+  "studio.templat.kolom.kolom": { default: "Kolom", en: "Column" },
+  "studio.templat.kolom.wajib": { default: "Wajib", en: "Required" },
+  "studio.templat.kolom.pilihan": { default: "Pilihan yang diterima", en: "Accepted choices" },
+  "studio.templat.kolom.batas": { default: "Batas", en: "Limit" },
+  "studio.templat.kolom.arti": { default: "Keterangan", en: "Notes" },
+  "studio.templat.ya": { default: "Ya", en: "Yes" },
+  "studio.templat.tidak": { default: "Tidak", en: "No" },
+  "studio.templat.batas.judul": { default: "Batas lain", en: "Other limits" },
+  "studio.templat.batas.berkas": { default: "Ukuran buku kerja", en: "Workbook size" },
+  "studio.templat.batas.kursus": { default: "Kursus", en: "Courses" },
+  "studio.templat.batas.baris": { default: "Baris per lembar", en: "Rows per sheet" },
+  "studio.templat.batas.pelajaran": { default: "Pelajaran", en: "Lessons" },
+  "studio.templat.batas.soal": { default: "Soal", en: "Questions" },
+  "studio.templat.batas.pilihan": { default: "Pilihan per soal", en: "Choices per question" },
+  "studio.templat.batas.media": { default: "Media", en: "Media" },
+  "studio.templat.batas.transkrip": { default: "Transkrip", en: "Transcripts" },
+  "studio.templat.paling_besar": { default: "Paling besar", en: "At most" },
+  "studio.templat.paling_banyak": { default: "Paling banyak", en: "At most" },
+  "studio.templat.satu_kursus": { default: "Satu kursus per buku kerja: satu baris data di lembar Kursus.", en: "One course per workbook: one data row on the Kursus sheet." },
+  "studio.templat.baris_termasuk_judul": { default: "baris, termasuk baris judul", en: "rows, the header row included" },
+  "studio.templat.berlabel": { default: "berlabel", en: "labelled" },
+  "studio.templat.media.gambar": { default: "Gambar", en: "Images" },
+  "studio.templat.media.audio": { default: "audio", en: "audio" },
+  "studio.templat.media.video": { default: "video", en: "video" },
+  "studio.templat.nama_media": { default: "Nama berkas paling panjang", en: "File names at most" },
+  "studio.templat.karakter": { default: "karakter", en: "characters" },
+  "studio.templat.transkrip_wajib": { default: "Audio dan video wajib punya transkrip, di kolom Transkrip lembar Pelajaran.", en: "Audio and video must have a transcript, in the Transkrip column of the Pelajaran sheet." },
+  "studio.unggah.buku.judul": { default: "Unggah buku kerja pelajaran", en: "Upload a lesson workbook" },
+  "studio.unggah.buku.arti": { default: "Isi templat Excel, lalu unggah di sini. PINTAR memeriksa setiap baris lebih dulu dan tidak menyimpan apa pun sebelum semuanya benar.", en: "Fill in the Excel template, then upload it here. PINTAR checks every row first and saves nothing until everything is right." },
+  "studio.unggah.templat": { default: "Unduh templat Excel", en: "Download the Excel template" },
+  "studio.unggah.templat_arti": { default: "Lembar Cara mengisi di dalamnya menjelaskan setiap kolom dan batasnya.", en: "Its Cara mengisi sheet explains every column and its limits." },
+  "studio.unggah.sekolah": { default: "Sekolah", en: "School" },
+  "studio.unggah.tanpa_sekolah": { default: "Anda belum dapat menyusun materi di sekolah mana pun.", en: "You cannot prepare material for any school yet." },
+  "studio.unggah.berkas": { default: "Buku kerja (.xlsx)", en: "Workbook (.xlsx)" },
+  "studio.unggah.berkas_batas": { default: "Paling besar", en: "At most" },
+  "studio.unggah.langkah.periksa": { default: "Periksa buku kerja", en: "Check the workbook" },
+  "studio.unggah.langkah.media": { default: "Unggah media", en: "Upload the media" },
+  "studio.unggah.langkah.simpan": { default: "Simpan ke Studio", en: "Save to Studio" },
+  "studio.unggah.sibuk.periksa": { default: "Memeriksa…", en: "Checking…" },
+  "studio.unggah.sibuk.media": { default: "Mengunggah…", en: "Uploading…" },
+  "studio.unggah.sibuk.simpan": { default: "Menyimpan…", en: "Saving…" },
+  "studio.unggah.lolos": { default: "Buku kerja lolos pemeriksaan.", en: "The workbook passed the check." },
+  "studio.unggah.hitung.courses": { default: "Kursus", en: "Courses" },
+  "studio.unggah.hitung.modules": { default: "Bab", en: "Chapters" },
+  "studio.unggah.hitung.lessons": { default: "Pelajaran", en: "Lessons" },
+  "studio.unggah.hitung.items": { default: "Soal", en: "Questions" },
+  "studio.unggah.hitung.options": { default: "Pilihan", en: "Choices" },
+  "studio.unggah.hitung.media": { default: "Media", en: "Media files" },
+  "studio.unggah.masalah_judul": { default: "Belum ada yang disimpan. Perbaiki baris berikut di buku kerja, lalu periksa lagi.", en: "Nothing has been saved. Fix these rows in the workbook, then check it again." },
+  "studio.unggah.lokasi.lembar": { default: "Lembar", en: "Sheet" },
+  "studio.unggah.lokasi.baris": { default: "baris", en: "row" },
+  "studio.unggah.lokasi.kolom": { default: "kolom", en: "column" },
+  "studio.unggah.lokasi.berkas": { default: "berkas", en: "file" },
+  "studio.unggah.masalah_lain": { default: "masalah lain; perbaiki yang di atas dulu, lalu periksa lagi.", en: "more problems; fix the ones above first, then check again." },
+  "studio.unggah.media_arti": { default: "Buku kerja ini menyebut berkas media berikut. Pilih semuanya sekaligus; PINTAR mencocokkannya menurut nama berkas.", en: "This workbook names the media files below. Choose them all at once; PINTAR matches them by file name." },
+  "studio.unggah.media_pilih": { default: "Pilih berkas media", en: "Choose the media files" },
+  "studio.unggah.media.belum": { default: "Belum dipilih", en: "Not chosen yet" },
+  "studio.unggah.media.siap": { default: "Siap diunggah", en: "Ready to upload" },
+  "studio.unggah.media.naik": { default: "Mengunggah…", en: "Uploading…" },
+  "studio.unggah.media.selesai": { default: "Terunggah", en: "Uploaded" },
+  "studio.unggah.media.gagal": { default: "Gagal diunggah. Coba lagi.", en: "The upload failed. Try again." },
+  "studio.unggah.media_progres": { default: "berkas terunggah", en: "files uploaded" },
+  "studio.unggah.simpan_arti": { default: "Semuanya siap. Simpan sebagai draf di Studio; murid belum melihatnya sebelum diterbitkan.", en: "Everything is ready. Save it as a draft in Studio; students do not see it until it is published." },
+  "studio.unggah.tersimpan": { default: "Tersimpan di Studio sebagai draf.", en: "Saved to Studio as a draft." },
+  "studio.unggah.buka_kursus": { default: "Buka kursus", en: "Open the course" },
+  "studio.unggah.ulang": { default: "Unggah buku kerja lain", en: "Upload another workbook" },
+  "studio.unggah.rujukan": { default: "Rujukan:", en: "Reference:" },
+  "studio.unggah.json_judul": { default: "Paket dari sistem lain (JSON)", en: "Packages from another system (JSON)" },
   "studio.tinjau.judul": { default: "Antrean Tinjauan", en: "Review Queue" },
   "studio.tinjau.kosong": { default: "Tidak ada yang menunggu tinjauan Anda.", en: "Nothing is waiting on your review." },
   "studio.tinjau.penulis": { default: "Penyusun", en: "Author" },
