@@ -3,7 +3,7 @@ import { currentLocale } from "@/lib/locale";
 import { tujuanInternal } from "@/lib/tujuan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
-import PanelFoto, { KalimatPonsel } from "@/components/masuk/PanelFoto";
+import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyataan";
 import TukarTautan from "@/components/masuk/TukarTautan";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +57,7 @@ export default async function Callback({
         <p className="pin-berdiri">{s("auth.foot")}</p>
         <span className="pin-tanda" aria-hidden="true" />
       </div>
-      <PanelFoto locale={locale} />
+      <PanelPernyataan locale={locale} />
       </div>
     </main>
   );

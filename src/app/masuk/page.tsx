@@ -5,7 +5,7 @@ import { tujuanInternal } from "@/lib/tujuan";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import MerekPintar from "@/components/MerekPintar";
 import LayarMasuk from "@/components/masuk/LayarMasuk";
-import PanelFoto, { KalimatPonsel } from "@/components/masuk/PanelFoto";
+import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyataan";
 import FokusAwal from "@/components/masuk/FokusAwal";
 import { keluarDariSesi, lanjutkanSesi } from "./actions";
 
@@ -14,11 +14,12 @@ export const dynamic = "force-dynamic";
 /**
  * THE SIGN-IN SCREEN.
  *
- * A split stage: the form on the left, the photographic panel on the right,
- * and on a phone the panel goes and its sentence stays. The hierarchy follows
- * the authentication contract's own asymmetry — one road almost everyone
- * takes, one named turning off it — rather than offering two equal doors or
- * asking a person to classify themselves before they can act.
+ * A split stage: the form on the left, PINTAR's statement on the right
+ * (D-018), and on a phone the panel goes and its statement stays below the
+ * form. The hierarchy follows the authentication contract's own asymmetry —
+ * one road almost everyone takes, one named turning off it — rather than
+ * offering two equal doors or asking a person to classify themselves before
+ * they can act.
  *
  * `?peran=` CHANGES NOTHING ON THIS SCREEN, and that is deliberate rather than
  * an omission. The parameter selects wording elsewhere and confers no role, no
@@ -91,7 +92,7 @@ export default async function Masuk({
         <span className="pin-tanda" aria-hidden="true" />
       </div>
 
-      <PanelFoto locale={locale} />
+      <PanelPernyataan locale={locale} />
       </div>
     </main>
   );
