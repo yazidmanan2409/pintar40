@@ -39,7 +39,7 @@ First, merge `origin/main` into the lane. It is 112 commits behind.
 | # | Item | Status |
 |---|---|---|
 | C-01 | Trunk and gate: `main` fast-forwarded to the production source; production workflows restricted to `main` (D-004); coordination folder published. | DONE (24 Sep) |
-| C-02 | **Interim onboarding** (D-016): build Bagian, Tingkat and Kelas for SD and SMA from Gladys's workbook; write Gladys's step-by-step for staff and students. | WAITING for Gladys's filled workbook |
+| C-02 | ~~Interim onboarding (D-016)~~. **Deferred by D-017:** once sprint 1 is released, write Gladys's step-by-step for onboarding both schools herself in the app, using her filled workbook. | DEFERRED until sprint 1 is released |
 | C-03 | Extend the audit journeys to assert D-005 end to end as the tickets land. | TODO |
 | C-04 | Sprint 1 release(s): gate, merge, release, verify, record. | TODO |
 
