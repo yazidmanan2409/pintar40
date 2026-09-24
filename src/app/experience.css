@@ -2149,3 +2149,28 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-ung-status-selesai { color: var(--status-ok); font-weight: var(--weight-strong); }
 .pin-ung-status-gagal { color: var(--status-blocked); font-weight: var(--weight-strong); }
 .pin-ung-tautan { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
+
+/* DAISY-09: the activation list. It used the question navigator's list, whose
+   items are display: contents, so every person ran together in one box, and
+   its fields had no border or label of their own. Each person is a card now,
+   each field a label above a control, and an answer sits in place of that
+   person's controls. */
+.pin-akt-daftar { list-style: none; margin: var(--space-5) 0 0; padding: 0; display: grid; gap: var(--space-3); }
+.pin-akt-orang {
+  display: grid; gap: var(--space-3); min-width: 0; padding: var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+}
+.pin-akt-orang > p, .pin-akt-orang > h2 { margin: 0; }
+.pin-akt-orang > h2 { font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-akt-baru { margin-top: var(--space-5); }
+.pin-akt-orang .pin-actions { margin-top: 0; }
+/* The buttons sit on the fields' baseline in a row; stacked on a phone they are
+   full width already, so this changes nothing there (the row's own
+   align-items is left to .pin-actions, which stretches it on a phone). */
+.pin-akt-orang .pin-actions > .pin-btn { align-self: flex-end; }
+/* Grows along a row and takes its own height in the phone's column: a flex
+   basis in ch would become a height once .pin-actions stacks. */
+.pin-akt-isian { display: grid; gap: var(--space-1); align-content: start; flex: 1 1 auto; min-width: 0; }
+.pin-akt-isian .pin-input { width: 100%; min-width: 0; }
+.pin-akt-hasil { display: grid; gap: var(--space-1); }
+.pin-akt-hasil p { margin: 0; }
