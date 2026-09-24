@@ -111,6 +111,7 @@ Next for you: <ticket>
 6. **No raw English error text reaches a user** (D-011). **No new string appears outside `hle.ts`.**
 7. **The audit journeys are run against the candidate.** The coordinator runs workflow "audit · end-to-end journeys" with `ref=<sha>`. They must be no worse than on `main`, and better wherever the ticket says.
 8. **The coordinator reads the diff adversarially**, asking what would break in production or for which role.
+9. **Hot paths stay cheap (D-031).** A change that touches sign-in, the assessment answer, sync or submit path, the learner home or the teacher class view states its queries per request. The reviewer checks that none is unindexed or per-row, because at 60,000 students a slow query is an outage, not an inconvenience.
 
 ## 6. Releases (coordinator only)
 
