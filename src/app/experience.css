@@ -2098,3 +2098,54 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-str-tanya-aksi { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .pin-btn.pin-str-bahaya { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--surface-1); }
 .pin-str .pin-msg { margin-top: var(--space-1); }
+
+/* ---------------------------------------------- Unggah buku kerja (DAISY-06)
+   A lesson workbook in three named steps -- check it, upload its media, save
+   it -- with the one being done marked. Problems are listed by sheet and row,
+   each with its own sentence, so a teacher can go straight to the cell. */
+/* minmax(0, 1fr), not the implicit auto track: a grid track is never narrower
+   than its widest item's minimum, and a file input's minimum is wide, so on a
+   375px phone the panel ran 39px off the screen. */
+.pin-ung { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+.pin-ung-templat { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.pin-ung-langkah {
+  display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5);
+  margin: 0; padding: 0; list-style: none; font-size: var(--type-meta); color: var(--ink-3);
+}
+.pin-ung-langkah li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.pin-ung-no {
+  display: inline-grid; place-items: center; width: var(--space-6); height: var(--space-6);
+  border-radius: var(--radius-pill); border: 1px solid var(--line-strong);
+  font-size: var(--type-fine); font-weight: var(--weight-strong);
+}
+.pin-ung-kini { color: var(--ink-1); font-weight: var(--weight-strong); }
+.pin-ung-kini .pin-ung-no { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-ung-lewat .pin-ung-no { background: var(--pintar-primary-soft); border-color: var(--pintar-primary-soft); color: var(--pintar-primary); }
+.pin-ung-langkah-isi {
+  display: grid; gap: var(--space-3); justify-items: start;
+  padding: var(--space-4) var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+.pin-ung-langkah-isi { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.pin-ung-langkah-isi > * { max-width: 100%; }
+.pin-ung-isian { display: grid; gap: var(--space-1); min-width: 0; width: 100%; }
+.pin-ung-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-ung-isian input[type="file"], .pin-ung-isian select { width: 100%; min-width: 0; font-size: var(--type-meta); }
+.pin-ung-catatan { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-ung-hasil { display: grid; gap: var(--space-2); }
+.pin-ung-lolos { margin: 0; font-weight: var(--weight-strong); color: var(--status-ok); }
+.pin-ung-hitung { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-ung-gagal .pin-ung-judul-masalah { margin: 0; font-weight: var(--weight-strong); color: var(--status-blocked); }
+.pin-ung-masalah { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-1); font-size: var(--type-meta); }
+.pin-ung-masalah li {
+  display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-1); background: var(--status-blocked-soft);
+}
+.pin-ung-lokasi { font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-ung-media { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-1); font-size: var(--type-meta); width: 100%; }
+.pin-ung-media li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-3); overflow-wrap: anywhere; }
+.pin-ung-status { color: var(--ink-3); }
+.pin-ung-status-siap { color: var(--ink-2); }
+.pin-ung-status-selesai { color: var(--status-ok); font-weight: var(--weight-strong); }
+.pin-ung-status-gagal { color: var(--status-blocked); font-weight: var(--weight-strong); }
+.pin-ung-tautan { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 74,
+  "version": 75,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1868,6 +1868,26 @@
       "id": "DAISY-08-PANEL-01",
       "runner": "static",
       "proves": "DAISY-08 (D-018): the sign-in panel shows PINTAR's own statement, not a placeholder. From the COPY TABLE: no placeholder key, and no telling for any persona in either language says FOTO CONTOH or PLACEHOLDER PHOTO; no SOURCE file draws the old photo scaffold. The panel is RENDERED in both languages as a section labelled by its own heading, carrying the statement from the copy table with no image and nothing hidden from assistive technology but a decorative rule; its phone twin says the same; /masuk and the expired-link screen both show it. From the stylesheet FILE, exactly one copy is displayed at every width, and the panel is the brand colour with the brand's ink and nothing laid over it; the contrast is computed from the token values in globals.css and must meet WCAG AA."
+    },
+    {
+      "id": "DAISY-06-TEMPLAT-01",
+      "runner": "static",
+      "proves": "DAISY-06: the lesson workbook template is BOB-02's contract written out, checked against Bob's own reader and converter (no network). (a) The blank template OUTPUT by the browser writer is read by bacaBukuKerja: the guidance sheet then Kursus, Bab, Pelajaran, Soal, Pilihan in LEMBAR order, each data sheet exactly KOLOM's headers in KOLOM order and nothing else; bukuKerjaKePaket finds no missing sheet or column; the guidance states every column as the contract does and every BATAS_PAKET limit with its own number. (b) One filled row per sheet, written by the same writer, converts with no problem, choices becoming their codes and XML special characters, quotes and a line break coming back exactly. (c) Two builds are byte-identical; from the zip FILE, every entry is stored with the fixed timestamp and a CRC-32 equal to Node's zlib.crc32, every cell is an inline string, and every fixed list is a dropdown on its own column. From the SOURCE: neither the template nor the upload panel imports src/lib/xlsx.ts or a node: module, and the contract file they import brings in types only."
+    },
+    {
+      "id": "DAISY-06-UNGGAH-01",
+      "runner": "static",
+      "proves": "DAISY-06: the upload panel is RENDERED to html in a child process in both languages: the template download; three steps named for what they do with the first current; a Sekolah picker offering exactly the given schools with the first selected; an .xlsx file input; a check that waits for a file; no upload when no school is on offer. From the COPY TABLE, every package problem and refusal code reads as its own sentence in both languages, and a problem's place is OUTPUT as sheet, row and the column's KOLOM header. From the SOURCE, /studio/unggah reads each drafting school's tenant_kind and is_active and offers them through the shared school rule (never the national library) to the panel and the JSON forms, labelled Sekolah; the workbook panel comes first; and the panel reaches the server only through BOB-02's two typed actions and the signed-upload route, to the path the check returned."
+    },
+    {
+      "id": "DAISY-06-UNGGAH-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered /studio/unggah against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on the page offers the national library. Read only."
     }
   ]
 }

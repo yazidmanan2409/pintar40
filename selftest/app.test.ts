@@ -1835,4 +1835,64 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "DAISY-06-UNGGAH-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-06 over real HTTP against the seeded database (audit S14). A
+      // teacher's way into Studio's upload is the workbook: the template to
+      // download, a school to put it in, and one file input that takes an
+      // .xlsx, in three steps with the first one current. The school is a real
+      // one the reader may draft in: for Alpha's school administrator that is
+      // Alpha, and for the platform administrator, who reads every tenant and
+      // for whom "PINTAR Kurikulum Nasional" sorts first, it is never the
+      // national library, in the workbook panel or in the JSON forms below it
+      // (sekolah.ts). Read only: nothing is uploaded.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const kanon = "PINTAR Kurikulum Nasional";
+      const opsi = (html: string) =>
+        [...html.matchAll(/<option([^>]*)>([^<]*)<\/option>/g)].map((m) => ({
+          nama: m[2].replace(/&amp;/g, "&").trim(),
+          dipilih: /\sselected(=""|\s|$)/.test(m[1]),
+        }));
+      for (const [peran, orang, harap] of [
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "Sekolah Sintetis Alpha"],
+        ["SYSTEM_ADMIN", PERSONA.sysadmin, null],
+      ] as const) {
+        const sesi = await signIn(ctx, orang);
+        const res = await get(`${base}/studio/unggah`, { headers: { cookie: sesi.cookie } });
+        if (!c.expect(res.status === 200, `${peran} /studio/unggah → ${res.status}`)) continue;
+        const html = await res.text();
+        const a = html.indexOf('id="buku-kerja"');
+        const b = html.indexOf('id="mudah"', a);
+        const panel = a >= 0 && b > a ? html.slice(a, b) : "";
+        if (!c.expect(panel.length > 0, `${peran}: the page has no workbook section before the JSON forms`)) continue;
+        const teks = visibleText(panel);
+        c.expect(!/role="alert"/.test(panel), `${peran}: the workbook section opens on a refusal: ${teks.slice(0, 200)}`);
+        c.expect(teks.includes(t("studio.unggah.templat", "staff")), `${peran}: the template download is not offered`);
+        for (const k of ["studio.unggah.langkah.periksa", "studio.unggah.langkah.media", "studio.unggah.langkah.simpan"] as const) {
+          c.expect(teks.includes(t(k, "staff")), `${peran}: the step "${t(k, "staff")}" is missing`);
+        }
+        c.expect((panel.match(/aria-current="step"/g) ?? []).length === 1, `${peran}: not exactly one step is marked current`);
+        const berkas = [...panel.matchAll(/<input[^>]*type="file"[^>]*>/g)].map((m) => m[0]);
+        c.expect(berkas.length === 1, `${peran}: the first step has ${berkas.length} file input(s), expected 1`);
+        c.expect(berkas.some((x) => /accept="[^"]*\.xlsx/.test(x)), `${peran}: the file input does not take an .xlsx workbook`);
+        const sel = panel.match(/<select[^>]*id="ung-sekolah"[^>]*>([\s\S]*?)<\/select>/);
+        if (!c.expect(sel !== null, `${peran}: the workbook panel has no Sekolah picker`)) continue;
+        const pilihan = opsi(sel![1]);
+        const awal = pilihan.find((o) => o.dipilih) ?? pilihan[0];
+        c.expect(pilihan.length > 0, `${peran}: the Sekolah picker offers no school`);
+        c.expect(awal !== undefined && awal.nama !== kanon, `${peran}: the Sekolah picker starts on "${awal?.nama ?? "(nothing)"}"`);
+        if (harap) c.expect(awal?.nama === harap, `${peran}: the Sekolah picker starts on "${awal?.nama ?? "(nothing)"}", expected "${harap}"`);
+        c.expect(!opsi(html).some((o) => o.nama === kanon), `${peran}: a school picker on the page offers the national library`);
+        c.note(`${peran}: ${pilihan.length} school(s) offered, starting on "${awal?.nama ?? ""}"`);
+      }
+      return c.verdict(
+        "Studio's upload opens, for Alpha's school administrator and for the platform administrator, on the workbook: the template " +
+        "to download, three steps with the first current, and one file input that takes an .xlsx. Its Sekolah picker starts on a " +
+        "real school (Alpha for Alpha's administrator), and no picker on the page offers the national library (audit S14)",
+      );
+    },
+  },
 ];
