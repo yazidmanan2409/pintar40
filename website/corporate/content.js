@@ -4,19 +4,21 @@ export const HERO = {
   eyebrow: L("PENDIDIKAN · TEKNOLOGI", "EDUCATION · TECHNOLOGY"),
   headline: L("Lebih banyak waktu untuk mendidik.", "More time to educate."),
   lede: L(
-    "PINTAR mengubah bukti belajar menjadi pemahaman yang jelas — supaya pendidik punya lebih banyak waktu untuk benar-benar mengajar, memahami peserta didik, dan mengambil keputusan.",
-    "PINTAR turns learning evidence into clear understanding — so educators have more time to actually teach, understand learners, and make decisions."),
+    "PINTAR dirancang untuk mengubah bukti belajar menjadi pemahaman yang jelas — supaya pendidik punya lebih banyak waktu untuk benar-benar mengajar, memahami peserta didik, dan mengambil keputusan.",
+    "PINTAR is designed to turn learning evidence into clear understanding — so educators have more time to actually teach, understand learners, and make decisions."),
   ctaPrimary: L("Coba Mini-PINTAR", "Try Mini-PINTAR"),
   ctaSecondary: L("Kenali PINTAR", "About PINTAR"),
 };
 
 export const TRUST = {
   label: L("DIRANCANG UNTUK", "BUILT FOR"),
+  // The product's own role labels, word for word (hle.ts role.*). Only roles
+  // PINTAR actually has; no audience the product has no surface for.
   items: [
-    L("Guru dan Pendidik", "Teachers and Educators"),
-    L("Kepala Sekolah", "Principals"),
-    L("Yayasan Pendidikan", "Education Foundations"),
-    L("Dinas dan Pengambil Kebijakan", "Education Offices and Policymakers"),
+    L("Guru", "Teacher"),
+    L("Kepala departemen", "Head of department"),
+    L("Dekan", "Dean"),
+    L("Admin sekolah", "School administrator"),
   ],
 };
 
@@ -43,8 +45,8 @@ export const AUDIENCES = {
     label: L("UNTUK PENDIDIK", "FOR EDUCATORS"),
     headline: L("Waktu Anda kembali ke ruang kelas.", "Your time comes back to the classroom."),
     body: L(
-      "Siapkan pembelajaran, jalankan asesmen singkat, dan langsung lihat apa yang perlu perhatian Anda hari ini.",
-      "Prepare learning, run a short assessment, and see straight away what needs your attention today."),
+      "Siapkan pembelajaran, jalankan Uji Cepat, lalu lihat apa yang paling layak dikerjakan lebih dulu.",
+      "Prepare learning, run a Quick Assessment, then see the one thing most worth doing first."),
     cta: L("Untuk Pendidik", "For Educators"),
     href: "/untuk-pendidik/",
   },
@@ -72,11 +74,11 @@ export const REPORTS_TEASER = {
 
 export const CLOSING = {
   label: L("RASAKAN SENDIRI", "SEE FOR YOURSELF"),
-  headline: L("Lima menit untuk memahami apa yang PINTAR lakukan.",
-              "Five minutes to understand what PINTAR does."),
+  headline: L("Sekitar tiga menit untuk memahami apa yang PINTAR lakukan.",
+              "About three minutes to understand what PINTAR does."),
   body: L(
-    "Tidak perlu akun. Coba perjalanan singkat Mini-PINTAR, dari jawaban sederhana sampai laporan yang bisa dipahami.",
-    "No account needed. Try the short Mini-PINTAR journey, from a simple answer to a report that makes sense."),
+    "Tidak ada akun, tidak ada data yang disimpan. Coba perjalanan singkat Mini-PINTAR, dari jawaban sederhana sampai hasil yang bisa dipahami.",
+    "No account, no data kept. Try the short Mini-PINTAR journey, from a simple answer to a result that makes sense."),
   ctaPrimary: L("Coba Mini-PINTAR", "Try Mini-PINTAR"),
   ctaSecondary: L("Bicara dengan Kami", "Talk to Us"),
 };

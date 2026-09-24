@@ -1,7 +1,7 @@
 import { el, ph } from "../shared/dom.js";
 import { mountChrome } from "../shared/chrome.js";
 import { withLang } from "../shared/lang.js";
-import { HEADER, FLOW, PULLQUOTE, EXPLAIN, CROSSLINK, CLOSING } from "./content.js";
+import { HEADER, FLOW, CYCLE, PULLQUOTE, EXPLAIN, CROSSLINK, CLOSING } from "./content.js";
 
 const lang = mountChrome("apa-yang-dilakukan");
 const t = (pair) => pair[lang];
@@ -9,7 +9,7 @@ document.title = lang === "id" ? "Apa yang Dilakukan PINTAR" : "What PINTAR Does
 
 const header = el("section", { class: "section--tight" }, [
   el("div", { class: "wrap", style: "max-width:44em" }, [
-    el("span", { class: "label label--accent", text: t(HEADER.eyebrow) }),
+    el("span", { class: "label label--brand", text: t(HEADER.eyebrow) }),
     el("h1", { class: "mt-3", style: "font-size:var(--fs-h1)", text: t(HEADER.headline) }),
     el("p", { class: "lede mt-4", text: t(HEADER.lede) }),
   ]),
@@ -28,6 +28,15 @@ const flow = el("section", { class: "section--tight" }, [
   ]),
 ]);
 
+const cycle = el("section", { class: "section--tight" }, [
+  el("div", { class: "wrap", style: "max-width:44em" }, [
+    el("span", { class: "label label--brand", text: t(CYCLE.label) }),
+    el("p", { class: "lede mt-3", text: t(CYCLE.body) }),
+    el("ol", { class: "cycle mt-4" }, CYCLE.steps.map((s) => el("li", { text: t(s) }))),
+    el("p", { class: "mt-4", text: t(CYCLE.note) }),
+  ]),
+]);
+
 const pull = el("section", { class: "section--ink center" }, [
   el("div", { class: "wrap" }, [
     el("span", { class: "label", text: t(PULLQUOTE.label) }),
@@ -37,7 +46,7 @@ const pull = el("section", { class: "section--ink center" }, [
 
 function explainBlock(x) {
   return el("div", {}, [
-    el("span", { class: "label label--accent", text: t(x.label) }),
+    el("span", { class: "label label--brand", text: t(x.label) }),
     el("h2", { class: "mt-3", style: "font-size:var(--fs-h2)", text: t(x.headline) }),
     el("p", { class: "lede mt-4", text: t(x.body) }),
   ]);
@@ -67,4 +76,4 @@ const closing = el("section", { class: "center" }, [
   ]),
 ]);
 
-document.getElementById("view").replaceChildren(header, flow, pull, explain, crosslink, closing);
+document.getElementById("view").replaceChildren(header, flow, cycle, pull, explain, crosslink, closing);

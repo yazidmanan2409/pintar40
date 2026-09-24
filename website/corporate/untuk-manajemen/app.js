@@ -9,7 +9,7 @@ document.title = lang === "id" ? "PINTAR untuk Manajemen Sekolah" : "PINTAR for 
 
 const header = el("section", { class: "section--tight" }, [
   el("div", { class: "wrap", style: "max-width:44em" }, [
-    el("span", { class: "label label--accent", text: t(HEADER.eyebrow) }),
+    el("span", { class: "label label--brand", text: t(HEADER.eyebrow) }),
     el("h1", { class: "mt-3", style: "font-size:var(--fs-h1)", text: t(HEADER.headline) }),
     el("p", { class: "lede mt-4", text: t(HEADER.lede) }),
   ]),
@@ -17,7 +17,7 @@ const header = el("section", { class: "section--tight" }, [
 
 const boundary = el("section", { class: "section--tight section--sunken" }, [
   el("div", { class: "wrap" }, [
-    el("span", { class: "label label--accent", text: t(BOUNDARY.label) }),
+    el("span", { class: "label label--brand", text: t(BOUNDARY.label) }),
     el("h2", { class: "mt-3", style: "font-size:var(--fs-h2); max-width:22em", text: t(BOUNDARY.headline) }),
     el("p", { class: "lede mt-4", text: t(BOUNDARY.body) }),
   ]),

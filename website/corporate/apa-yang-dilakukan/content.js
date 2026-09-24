@@ -12,16 +12,36 @@ export const FLOW = [
   { node: L("Materi", "Material"),
     desc: L("Sekolah menyiapkan apa yang akan dipelajari.", "The school prepares what will be learned.") },
   { node: L("Pembelajaran", "Learning"),
-    desc: L("Peserta didik menjalaninya dengan caranya sendiri.", "Learners engage with it in their own way.") },
+    desc: L("Urutan bacaannya menyesuaikan apa yang sudah diketahui peserta didik.", "The reading order adapts to what each learner already knows.") },
   { node: L("Asesmen", "Assessment"),
     desc: L("Pemahaman diperiksa lewat pertanyaan singkat.", "Understanding is checked through short questions.") },
   { node: L("Bukti", "Evidence"),
-    desc: L("Setiap jawaban menjadi bukti, bukan sekadar skor.", "Every answer becomes evidence, not just a score.") },
+    desc: L("Setiap jawaban resmi menjadi bukti, bukan sekadar skor.", "Every official answer becomes evidence, not just a score.") },
   { node: L("Pemahaman", "Understanding"),
     desc: L("Bukti itu disusun menjadi gambaran yang bisa dibaca.", "That evidence is organized into something readable.") },
   { node: L("Keputusan Pendidik", "Educator's Decision"),
     desc: L("Pendidik yang memutuskan langkah berikutnya.", "The educator decides what happens next.") },
 ];
+
+// The product's own names for one learner's cycle, word for word (hle.ts
+// cycle.step.*). Named once on the site, here, so the site and the product
+// share one vocabulary.
+export const CYCLE = {
+  label: L("NAMANYA DI DALAM PINTAR", "WHAT PINTAR CALLS IT"),
+  body: L(
+    "Bagi seorang peserta didik, pembelajaran dan asesmen di atas berjalan sebagai satu siklus:",
+    "For one learner, the learning and assessment above run as one cycle:"),
+  steps: [
+    L("Pemetaan Awal", "Initial Mapping"),
+    L("Peta Bacaan Personal", "Personal Reading Map"),
+    L("Pelajaran", "Lesson"),
+    L("Uji Penguasaan", "Mastery Check"),
+    L("Hasil", "Result"),
+  ],
+  note: L(
+    "Mini-PINTAR menjalankan siklus yang sama dalam bentuk kecil.",
+    "Mini-PINTAR runs the same cycle, in miniature."),
+};
 
 export const PULLQUOTE = {
   label: L("PRINSIPNYA SEDERHANA", "THE PRINCIPLE IS SIMPLE"),
@@ -51,7 +71,7 @@ export const CROSSLINK = {
 };
 
 export const CLOSING = {
-  headline: L("Coba alur ini sendiri, dalam lima menit.", "Try this flow yourself, in five minutes."),
+  headline: L("Coba alur ini sendiri, dalam sekitar tiga menit.", "Try this flow yourself, in about three minutes."),
   ctaPrimary: L("Coba Mini-PINTAR", "Try Mini-PINTAR"),
   ctaSecondary: L("Untuk Pendidik", "For Educators"),
 };

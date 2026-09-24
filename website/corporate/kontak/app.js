@@ -9,7 +9,7 @@ document.title = lang === "id" ? "Kontak PINTAR" : "Contact PINTAR";
 
 const header = el("section", { class: "section--tight" }, [
   el("div", { class: "wrap", style: "max-width:40em" }, [
-    el("span", { class: "label label--accent", text: t(HEADER.eyebrow) }),
+    el("span", { class: "label label--brand", text: t(HEADER.eyebrow) }),
     el("h1", { class: "mt-3", style: "font-size:var(--fs-h1)", text: t(HEADER.headline) }),
     el("p", { class: "lede mt-4", text: t(HEADER.lede) }),
   ]),
@@ -69,7 +69,7 @@ const formSection = el("section", {}, [
   el("div", { class: "wrap grid-asym--rev" }, [
     el("div", { id: "form-mount" }, [renderForm()]),
     el("div", {}, [
-      el("span", { class: "label label--accent", text: t(NEXT.label) }),
+      el("span", { class: "label label--brand", text: t(NEXT.label) }),
       el("ol", { class: "steps-list" }, NEXT.items.map((i) => el("li", { text: t(i) }))),
     ]),
   ]),

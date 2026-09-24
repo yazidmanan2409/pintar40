@@ -6,8 +6,8 @@ import { L } from "./dom.js";
 export const SAMPLE = {
   label: L("CONTOH RANCANGAN", "DESIGN SAMPLE"),
   body: L(
-    "Arah desain baru untuk situs korporat PINTAR, dibuat untuk ditinjau. Semua foto adalah placeholder berlabel; formulir kontak tidak terhubung ke mana pun.",
-    "A fresh design direction for the PINTAR corporate site, made for review. Every photo is a labelled placeholder; the contact form connects to nothing."),
+    "Situs korporat PINTAR, untuk ditinjau. Semua foto adalah placeholder berlabel; formulir kontak tidak terhubung ke mana pun.",
+    "The PINTAR corporate site, for review. Every photo is a labelled placeholder; the contact form connects to nothing."),
 };
 
 export const BRAND = { word: "PINTAR" };
@@ -47,15 +47,25 @@ export const CTA = {
 
 export const FOOTER = {
   tagline: L(
-    "PINTAR memberi pendidik lebih banyak waktu untuk mendidik.",
-    "PINTAR gives educators more time to educate."),
+    "PINTAR dirancang untuk memberi pendidik lebih banyak waktu untuk mendidik.",
+    "PINTAR is designed to give educators more time to educate."),
   navHeading: L("Jelajahi", "Explore"),
   roleHeading: L("Untuk Siapa", "Who It's For"),
-  aboutHeading: L("Perusahaan", "Company"),
+  // Not "Perusahaan / Company": the legal entity is still open, and a heading
+  // must not imply one.
+  aboutHeading: L("Tentang PINTAR", "About PINTAR"),
   langHeading: L("Bahasa", "Language"),
+  // The legal entity is OPEN pending Yazid's confirmation. The line names
+  // none rather than inventing one, and says so.
   copyright: L(
-    `© ${new Date().getFullYear()} PINTAR. Contoh rancangan, bukan situs produksi.`,
-    `© ${new Date().getFullYear()} PINTAR. Design sample, not a production site.`),
+    `© ${new Date().getFullYear()} · Pemegang hak cipta menunggu konfirmasi. Contoh rancangan, bukan situs produksi.`,
+    `© ${new Date().getFullYear()} · Copyright holder pending confirmation. Design sample, not a production site.`),
+  // Three different things, kept apart on every page: what PINTAR is designed
+  // to do, what Mini-PINTAR demonstrates, and what is live. The site makes no
+  // claim about the third; availability is a conversation, not a sentence.
+  status: L(
+    "Situs ini menjelaskan cara PINTAR dirancang bekerja. Mini-PINTAR adalah demonstrasi, bukan asesmen resmi. Untuk ketersediaan di sekolah Anda, bicaralah dengan kami.",
+    "This site explains how PINTAR is designed to work. Mini-PINTAR is a demonstration, not an official assessment. For availability at your school, talk to us."),
 };
 
 export const NAV_LABEL = L("Navigasi utama", "Main navigation");

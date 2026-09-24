@@ -1,26 +1,19 @@
 // Language state, shared across every page of the corporate site.
 //
-// A ?lang= query parameter always wins and is remembered; otherwise the
-// visitor's last choice (if any) is used; otherwise Bahasa Indonesia,
-// which is the default language of the product, not a fallback.
-
-const KEY = "pintar-site-lang";
+// ZERO-WRITE. The language travels in `?lang=` and nowhere else: no
+// localStorage, no sessionStorage, no cookie. Every internal link already
+// carries it (withLang), so moving around the site never needs anything
+// remembered on the visitor's device. Mini-PINTAR's ADR forbids persistence
+// of any kind, including browser storage, and the site that contains it
+// holds itself to the same rule rather than to a weaker one beside it.
+//
+// Bahasa Indonesia is the default language of the product, not a fallback.
 
 export function getLang() {
-  const q = new URLSearchParams(location.search).get("lang");
-  if (q === "id" || q === "en") {
-    try { localStorage.setItem(KEY, q); } catch { /* private mode: ignore */ }
-    return q;
-  }
-  try {
-    const saved = localStorage.getItem(KEY);
-    if (saved === "id" || saved === "en") return saved;
-  } catch { /* private mode: ignore */ }
-  return "id";
+  return new URLSearchParams(location.search).get("lang") === "en" ? "en" : "id";
 }
 
 export function setLang(lang) {
-  try { localStorage.setItem(KEY, lang); } catch { /* private mode: ignore */ }
   const url = new URL(location.href);
   url.searchParams.set("lang", lang);
   location.href = url.toString();
@@ -30,5 +23,5 @@ export function setLang(lang) {
 export function withLang(href, lang) {
   const url = new URL(href, location.href);
   url.searchParams.set("lang", lang);
-  return url.pathname + url.search;
+  return url.pathname + url.search + url.hash;
 }

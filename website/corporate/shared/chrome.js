@@ -7,6 +7,23 @@ import { el, L } from "./dom.js";
 import { SAMPLE, PAGES, CTA, FOOTER, NAV_LABEL, MENU_OPEN, MENU_CLOSE, SKIP_LINK } from "./content.js";
 import { getLang, setLang, withLang } from "./lang.js";
 
+/**
+ * The supplied PINTAR SELALU mark, from the product's own file
+ * (public/brand/pintar-selalu-logo.png on main, copied byte for byte into
+ * shared/brand/; website verification compares the hashes). Rendered the way
+ * the product renders it: a plain <img> at the artwork's intrinsic size,
+ * height set in CSS, width never set. The public product name is PINTAR; the
+ * artwork reads PINTAR SELALU, and its alt text says what it shows.
+ *
+ * In the site header it links Home — ordinary website navigation, ruled
+ * separately from the product's own "not a link" rule for its app shells.
+ */
+export const LOGO_SRC = "/shared/brand/pintar-selalu-logo.png";
+function logo() {
+  return el("img", { class: "brand__logo", src: LOGO_SRC, alt: "PINTAR SELALU",
+    width: 766, height: 429 });
+}
+
 export function renderSample(mount, lang) {
   mount.replaceChildren(
     el("div", { class: "sample" }, [
@@ -32,10 +49,7 @@ export function renderHeader(mount, { lang, active }) {
   const header = el("header", { class: "site-header", id: "site-header" }, [
     el("a", { class: "sr-only", href: "#main" }, [t(SKIP_LINK)]),
     el("div", { class: "wrap site-header__bar" }, [
-      el("a", { class: "brand", href: withLang("/", lang) }, [
-        el("span", { class: "brand__mark", "aria-hidden": "true" }),
-        el("span", { class: "brand__word", text: "PINTAR" }),
-      ]),
+      el("a", { class: "brand", href: withLang("/", lang) }, [logo()]),
       el("nav", { class: "site-nav", "aria-label": t(NAV_LABEL) }, [
         el("ul", { class: "site-nav__links" }, links.map((a) => el("li", {}, [a]))),
       ]),
@@ -80,16 +94,14 @@ export function renderFooter(mount, { lang }) {
       el("div", { class: "wrap site-footer__in" }, [
         el("div", { class: "site-footer__grid" }, [
           el("div", { class: "site-footer__brand" }, [
-            el("a", { class: "brand", href: withLang("/", lang) }, [
-              el("span", { class: "brand__mark", "aria-hidden": "true" }),
-              el("span", { class: "brand__word", text: "PINTAR" }),
-            ]),
+            el("a", { class: "brand", href: withLang("/", lang) }, [logo()]),
             el("p", { text: t(FOOTER.tagline) }),
           ]),
           col(FOOTER.navHeading, explore),
           col(FOOTER.roleHeading, roles),
           col(FOOTER.aboutHeading, about),
         ]),
+        el("p", { class: "site-footer__status", text: t(FOOTER.status) }),
         el("div", { class: "site-footer__bottom" }, [
           el("span", { text: t(FOOTER.copyright) }),
           el("div", { class: "lang-switch", role: "group", "aria-label": "Bahasa / Language" }, [
