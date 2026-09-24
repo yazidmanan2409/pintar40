@@ -13,7 +13,7 @@
 import { chromium } from "playwright";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const APP = process.env.APP_URL;
@@ -390,24 +390,92 @@ await step("S14", "Gladys uploads a lesson: Unggah Mudah", async (rec) => {
   return `file inputs on page: ${fileInputs}; school preselected: "${firstSchool?.trim()}"; submit → hasil=${u.searchParams.get("hasil")} detail=${u.searchParams.get("detail")}; ${confirm}; courses at SD: ${courses}`;
 });
 
-await step("S15", "Gladys uploads a lesson: Paket Terstruktur", async (rec) => {
+// BOB-02's sample package, when the candidate carries it: the whole course, its
+// media uploaded through the real upload route, then the batch's own Konfirmasi.
+// Older candidates get the one-course JSON the audit has always used.
+const PAKET = join(process.env.APP_DIR, "selftest/fixtures/bob02/contoh-pelajaran.paket.json");
+const paketContoh = existsSync(PAKET) ? readFileSync(PAKET, "utf8") : null;
+const paketLama = JSON.stringify({ courses: [{ subject: "Matematika", stage: "SD", grade_label: "Kelas 1", title: "Penjumlahan sampai 20" }] });
+
+async function kirimPaket(schoolText, isi) {
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
   const form = g.locator("form").filter({ has: g.locator('textarea[name="isi"]') }).nth(1);
   const sel = form.locator("select").first();
+  let chosen = false;
   if (await sel.count()) {
-    const v = await sel.locator("option").filter({ hasText: "SD Zayd" }).first().getAttribute("value");
-    if (v) await sel.selectOption(v);
+    const v = await sel.locator("option").filter({ hasText: schoolText }).first().getAttribute("value").catch(() => null);
+    if (v) { await sel.selectOption(v); chosen = true; }
+  } else {
+    const v = await g.locator("select").first().locator("option").filter({ hasText: schoolText }).first().getAttribute("value").catch(() => null);
+    if (v) { await g.locator("select").first().selectOption(v); chosen = true; }
   }
-  await form.locator('textarea[name="isi"]').fill(JSON.stringify({ courses: [{ subject: "Matematika", stage: "SD", grade_label: "Kelas 1", title: "Penjumlahan sampai 20" }] }));
+  await form.locator('textarea[name="isi"]').fill(isi);
   await form.locator('button[type="submit"]').first().click();
   await g.waitForURL(/hasil=/, { timeout: 20000 }).catch(() => {});
   await g.waitForLoadState("networkidle");
-  rec.shots.push(await shot(g, "studio-terstruktur-result"));
   const u = new URL(g.url());
-  const courses = sql(`select count(*) from public.courses where institution_id='${ids.sd}'`);
-  const lessons = sql(`select count(*) from public.lessons l join public.modules m on m.id=l.module_id join public.courses c on c.id=m.course_id where c.institution_id='${ids.sd}'`);
-  if (Number(lessons) === 0) rec.verdict = "FAIL";
-  return `submit → hasil=${u.searchParams.get("hasil")} detail=${u.searchParams.get("detail")}; courses at SD: ${courses}; lessons at SD: ${lessons}`;
+  return { chosen, hasil: u.searchParams.get("hasil"), detail: u.searchParams.get("detail") };
+}
+
+const hitung = (inst) => {
+  const q = (t) => sql(t).trim();
+  return {
+    courses: q(`select count(*) from public.courses where institution_id='${inst}'`),
+    lessons: q(`select count(*) from public.lessons l join public.modules m on m.id=l.module_id join public.courses c on c.id=m.course_id where c.institution_id='${inst}'`),
+  };
+};
+
+await step("S15", "Gladys uploads a lesson: Paket Terstruktur", async (rec) => {
+  const r = await kirimPaket("SD Zayd", paketContoh ?? paketLama);
+  rec.shots.push(await shot(g, "studio-terstruktur-result"));
+  const notes = [`package: ${paketContoh ? "BOB-02 sample (workbook fixture)" : "one-course JSON"}`, `submit → hasil=${r.hasil} detail=${r.detail}`];
+  const batch = /^[0-9a-f-]{36}$/.test(r.detail ?? "") ? r.detail : null;
+  if (batch) {
+    // media: sign each path the batch names, as Gladys, and upload through the signed URL
+    const media = JSON.parse(sql(`select coalesce(inferred_mapping, '[]'::jsonb) from public.ingest_batches where id='${batch}'`) || "[]");
+    let uploaded = 0;
+    for (const m of Array.isArray(media) ? media : []) {
+      if (!m?.path) continue;
+      const signed = await g.evaluate(async (path) => {
+        const res = await fetch("/api/assets/upload-url", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ path }) });
+        return { status: res.status, body: await res.json().catch(() => null) };
+      }, m.path);
+      if (signed.status !== 200 || !signed.body?.token) { notes.push(`upload-url ${m.path}: HTTP ${signed.status}`); continue; }
+      const put = await fetch(`${SB}/storage/v1/object/upload/sign/assets/${signed.body.path}?token=${encodeURIComponent(signed.body.token)}`, {
+        method: "PUT", headers: { "content-type": "application/octet-stream" }, body: Buffer.from(`audit media for ${m.path}`),
+      });
+      if (put.ok) uploaded += 1; else notes.push(`upload ${m.path}: HTTP ${put.status}`);
+    }
+    notes.push(`media uploaded: ${uploaded}/${Array.isArray(media) ? media.length : 0}`);
+    // the batch's own Konfirmasi on today's page
+    await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
+    const btn = g.locator(`form:has(input[name="batch"][value="${batch}"]) button[type="submit"]`).first();
+    if (await btn.count()) {
+      await btn.click();
+      await g.waitForURL(/hasil=/, { timeout: 20000 }).catch(() => {});
+      await g.waitForLoadState("networkidle");
+      rec.shots.push(await shot(g, "studio-terstruktur-confirm"));
+      const u2 = new URL(g.url());
+      notes.push(`confirm → hasil=${u2.searchParams.get("hasil")} detail=${u2.searchParams.get("detail")}`);
+    } else notes.push("no Konfirmasi offered for this batch");
+    notes.push(`batch status: ${sql(`select status from public.ingest_batches where id='${batch}'`).trim()}`);
+  }
+  const n = hitung(ids.sd);
+  const items = sql(`select count(*) from public.items where institution_id='${ids.sd}'`).trim();
+  notes.push(`at SD: courses ${n.courses}, lessons ${n.lessons}, items ${items}`);
+  if (Number(n.lessons) === 0) rec.verdict = "FAIL";
+  return notes.join("; ");
+});
+
+await step("S15b", "D-029: a package addressed to the canonical library is refused", async (rec) => {
+  const inst = sql(`select id from public.institutions where tenant_kind='PLATFORM_CANONICAL' limit 1`).trim();
+  if (!inst) { rec.verdict = "NOTE"; return "no canonical tenant in this database"; }
+  const before = hitung(inst);
+  const r = await kirimPaket("Kurikulum Nasional", paketContoh ?? paketLama);
+  const after = hitung(inst);
+  if (!r.chosen) rec.verdict = "NOTE";
+  else if (after.courses !== before.courses || r.hasil === "ok") rec.verdict = "FAIL";
+  return `offered: ${r.chosen}; submit → hasil=${r.hasil} detail=${r.detail}; canonical courses ${before.courses} → ${after.courses}`;
 });
 
 await step("S16", "Head of department: sees reports on /pimpinan", async (rec) => {
