@@ -59,7 +59,7 @@ import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
 import { Checks, type SelfTest } from "./lib";
-import { allKeys, telling, renderAll, t, LOCALES, type HleEvent } from "../src/lib/hle";
+import { allKeys, telling, renderAll, t, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import { berandaPeran } from "../src/lib/beranda";
@@ -210,6 +210,10 @@ function informal(text: string): string[] {
 // ---------------------------------------------------------------------------
 const RESET_SURFACES = [
   "src/app/layout.tsx",
+  // DAISY-04: PINTAR's own error and not-found pages, on the token vocabulary
+  "src/app/error.tsx",
+  "src/app/global-error.tsx",
+  "src/app/not-found.tsx",
   "src/app/globals.css",
   "src/app/experience.css",
   "src/app/_intel.ts",
@@ -7418,6 +7422,123 @@ export const experienceTests: SelfTest[] = [
         "focus nor a learner's own shell offers any. Konfigurasi links Pendataan, Aktivasi and Studio and the " +
         "administrator's other places, Studio links back, the home page's doors no longer send a signed-in reader " +
         "to /masuk, and on a phone the tab strip wraps rather than overflowing",
+      );
+    },
+  },
+
+  // ────────────────────────────────────────────────────────── DAISY-04 (lane: Daisy)
+  {
+    id: "DAISY-04-GALAT-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-04 (D-011; audit M7). ONE MISSING WORD USED TO TAKE A PAGE DOWN.
+       * `t()` read `.en` off a row that did not exist, so a key built from data
+       * -- `mengajar.instrumen.${mode}` on Siapkan -- threw, and the teacher saw
+       * Next's English error page. Nine assessment modes exist; three had copy.
+       *
+       * 1. AN UNKNOWN KEY NEVER THROWS, for any persona in either language, and
+       *    renders the calm fallback rather than the key itself. A throw is
+       *    caught and reported here as the failure, so the red run is a red and
+       *    not a crash of the runner.
+       */
+      const PERSONAS: Persona[] = ["learner", "educator", "staff", "public"];
+      const HANTU = "mengajar.instrumen.MODE_YANG_BELUM_ADA" as HleEvent;
+      for (const persona of PERSONAS) for (const locale of LOCALES) {
+        let keluar = "";
+        try { keluar = t(HANTU, persona, { locale }); }
+        catch (e) { c.expect(false, `t() threw on an unknown key for ${persona}/${locale}: ${(e as Error).message.slice(0, 80)}`); continue; }
+        c.expect(keluar === TANPA_SALINAN, `an unknown key rendered "${keluar}" for ${persona}/${locale}, not the calm fallback`);
+        c.expect(!keluar.includes("MODE_YANG_BELUM_ADA") && !keluar.includes("mengajar."), "an unknown key put the identifier on screen");
+      }
+      // a real key is unaffected, and the internal-word guard still refuses:
+      // the fallback is for a MISSING row, not a way round the copy's own test
+      c.expect(t("galat.ulang", "public", { locale: "id" }) !== TANPA_SALINAN, "a real key renders the fallback");
+      // Planted for one call and restored: a public key whose copy carries an
+      // internal word must still throw. The row is the table's own object.
+      const baris = telling("galat.ulang") as { default: string };
+      const asli = baris.default;
+      let threw = false;
+      try { baris.default = `${asli} ${INTERNAL_WORDS[1]}`; t("galat.ulang", "public", { locale: "id" }); }
+      catch { threw = true; }
+      finally { baris.default = asli; }
+      c.expect(threw, "the internal-word guard no longer refuses a public key that carries an internal word");
+      c.expect(t("galat.ulang", "public", { locale: "id" }) === asli, "the planted row was not restored");
+
+      /**
+       * 2. EVERY ASSESSMENT MODE THE DATABASE CAN HOLD HAS A LABEL. Read from the
+       *    migrations -- the CREATE TYPE and every ADD VALUE -- so a mode added
+       *    tomorrow is in this list the day it is added, and Siapkan cannot
+       *    render a dash (or, before, crash) for it.
+       */
+      const mig = readdirSync(join(repoRoot, "supabase", "migrations"))
+        .filter((f) => f.endsWith(".sql"))
+        .map((f) => readFileSync(join(repoRoot, "supabase", "migrations", f), "utf8"))
+        .join("\n");
+      const mode = new Set<string>();
+      for (const m of mig.matchAll(/create type public\.assessment_mode as enum \(([^)]*)\)/gi)) {
+        for (const v of m[1].matchAll(/'([A-Z_]+)'/g)) mode.add(v[1]);
+      }
+      for (const m of mig.matchAll(/alter type public\.assessment_mode add value (?:if not exists )?'([A-Z_]+)'/gi)) mode.add(m[1]);
+      c.expect(mode.size >= 9 && mode.has("QUICK") && mode.has("PAPER"), `read only ${mode.size} assessment mode(s) from the migrations`);
+      for (const m of mode) {
+        const k = `mengajar.instrumen.${m}` as HleEvent;
+        c.expect(allKeys().includes(k), `assessment mode ${m} has no label, so Siapkan shows a dash for it`);
+        for (const locale of LOCALES) {
+          if (allKeys().includes(k)) c.expect(t(k, "educator", { locale }).trim().length > 1, `${k} is empty in ${locale}`);
+        }
+      }
+      c.expect(t("mengajar.instrumen.QUICK", "educator", { locale: "id" }) === "Uji Cepat", "the quick assessment is not called Uji Cepat on Siapkan (D-015)");
+
+      /**
+       * 3. PINTAR'S OWN PAGES, NEVER NEXT'S ENGLISH DEFAULTS. The error and
+       *    root-error pages are client components (Next requires it), read the
+       *    reader's language, and hand the shared panel the error's DIGEST --
+       *    never its message, which can be database text (D-011).
+       */
+      const baca = (p: string) => { const f = join(repoRoot, p); return existsSync(f) ? readFileSync(f, "utf8") : ""; };
+      const galat = baca("src/app/error.tsx");
+      const akar = baca("src/app/global-error.tsx");
+      const tidakAda = baca("src/app/not-found.tsx");
+      const panel = baca("src/components/HalamanGalat.tsx");
+      c.expect(galat.length > 0 && akar.length > 0 && tidakAda.length > 0 && panel.length > 0,
+        "PINTAR has no error page, no root-error page or no not-found page of its own");
+      for (const [nama, src] of [["error.tsx", galat], ["global-error.tsx", akar]] as const) {
+        if (!src) continue;
+        c.expect(/^"use client";/.test(src.trimStart()), `${nama} is not a client component`);
+        c.expect(/<HalamanGalat[^>]*rujukan=\{error\.digest\}/.test(src), `${nama} does not pass the error's digest as the reference`);
+        c.expect(!/error\.(message|stack|name)\b/.test(code(src)), `${nama} reads the error's own text`);
+      }
+      c.expect(/<html lang=\{locale\}>/.test(akar), "the root-error page does not declare the reader's language");
+      c.expect(/LOCALE_COOKIE/.test(akar), "the root-error page does not read the language the reader chose");
+      c.expect(/document\.documentElement\.lang/.test(galat), "the error page does not read the language the layout declared");
+      c.expect(!/\.message\b|\.stack\b/.test(code(panel)), "the error panel can print the error's own text");
+      c.expect(/role="alert"/.test(panel), "a failure is not announced to a screen reader");
+      c.expect(/"galat\.ulang"/.test(panel) && /onClick=\{ulang\}/.test(panel), "the error page offers no way to try again");
+      c.expect(/currentLocale\(\)/.test(tidakAda) && /"tidak_ada\.judul"/.test(tidakAda), "the not-found page is not PINTAR's, in the reader's language");
+      // no visible word outside the copy table on any of the four
+      const HURUF = />\s*[A-Za-z][^<{]*</;
+      for (const [nama, src] of [["error.tsx", galat], ["global-error.tsx", akar], ["not-found.tsx", tidakAda], ["HalamanGalat.tsx", panel]] as const) {
+        c.expect(!HURUF.test(code(src)), `${nama} writes a word outside the copy table`);
+      }
+      // and the copy itself is PINTAR's, in both languages, with no default's words
+      for (const k of ["galat.judul", "galat.arti", "galat.rujukan", "galat.ulang", "galat.beranda", "tidak_ada.judul", "tidak_ada.arti"] as HleEvent[]) {
+        for (const locale of LOCALES) {
+          const v = t(k, "public", { locale });
+          c.expect(v !== TANPA_SALINAN && v.length > 1, `${k} has no copy in ${locale}`);
+          c.expect(!/could not be found|Application error|client-side exception|\b404\b|\b500\b/i.test(v), `${k} (${locale}) reads like a framework default: "${v}"`);
+        }
+      }
+
+      return c.verdict(
+        `an unknown key renders the calm fallback for every persona in both languages and never throws or shows ` +
+        `the key, while a real key is unaffected and the internal-word guard still refuses a planted internal word; every one of the ` +
+        `${mode.size} assessment modes read from the migrations has a label (Siapkan's crash); and PINTAR has its ` +
+        "own error, root-error and not-found pages, client-side where Next requires it, in the reader's language, " +
+        "passing the error's digest as the reference and never its message, announced as an alert, with every " +
+        "word from the copy table",
       );
     },
   },

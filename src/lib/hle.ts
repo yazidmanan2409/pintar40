@@ -691,6 +691,11 @@ export type HleEvent =
   | "mengajar.instrumen.PRE_TEST"
   | "mengajar.instrumen.POST_TEST"
   | "mengajar.instrumen.STANDALONE"
+  | "mengajar.instrumen.QUICK"
+  | "mengajar.instrumen.PRACTICE" | "mengajar.instrumen.TEST" | "mengajar.instrumen.EXAM"
+  | "mengajar.instrumen.PUBLIC_DEMO" | "mengajar.instrumen.PAPER"
+  | "galat.judul" | "galat.arti" | "galat.rujukan" | "galat.ulang" | "galat.beranda"
+  | "tidak_ada.judul" | "tidak_ada.arti"
   | "mengajar.instrumen.sertifikat"
   | "mengajar.instrumen.sertifikat.arti"
   | "mengajar.percobaan"
@@ -2194,6 +2199,26 @@ const table: Table = {
   "mengajar.instrumen.PRE_TEST": { default: "Pemetaan Awal", en: "Initial Mapping" },
   "mengajar.instrumen.POST_TEST": { default: "Uji Penguasaan", en: "Mastery Check" },
   "mengajar.instrumen.STANDALONE": { default: "Asesmen mandiri", en: "Standalone assessment" },
+  // DAISY-04. The fourth assessment mode had no label, so any class that had run an
+  // Uji Cepat took the Siapkan page down with it (audit M7). D-015 names it.
+  "mengajar.instrumen.QUICK": { default: "Uji Cepat", en: "Quick Assessment" },
+  // ...and the five modes FABLE-04 added (migration 0038), none of which had a
+  // label either. Every value of assessment_mode now has one; DAISY-04-GALAT-01
+  // reads the enum from the migrations so the next mode added cannot slip by.
+  "mengajar.instrumen.PRACTICE": { default: "Latihan", en: "Practice" },
+  "mengajar.instrumen.TEST": { default: "Tes", en: "Test" },
+  "mengajar.instrumen.EXAM": { default: "Ujian", en: "Exam" },
+  "mengajar.instrumen.PUBLIC_DEMO": { default: "Demonstrasi", en: "Demonstration" },
+  "mengajar.instrumen.PAPER": { default: "Tes di kertas", en: "Paper test" },
+  // DAISY-04 (D-011): PINTAR's own error and not-found pages, never Next's English
+  // defaults. Calm, no blame, no raw message; a short reference to pass on.
+  "galat.judul": { default: "Maaf, halaman ini tidak bisa ditampilkan", en: "Sorry, this page could not be shown" },
+  "galat.arti": { default: "Coba lagi sebentar lagi. Jika masih terjadi, sampaikan kode rujukan di bawah kepada pengelola sekolah Anda.", en: "Please try again in a moment. If it keeps happening, give the reference below to your school's administrator." },
+  "galat.rujukan": { default: "Kode rujukan", en: "Reference" },
+  "galat.ulang": { default: "Coba lagi", en: "Try again" },
+  "galat.beranda": { default: "Ke halaman awal", en: "Go to the start page" },
+  "tidak_ada.judul": { default: "Halaman ini tidak ada", en: "This page does not exist" },
+  "tidak_ada.arti": { default: "Alamatnya mungkin keliru, atau halaman ini sudah dipindahkan.", en: "The address may be mistyped, or the page may have moved." },
   "mengajar.instrumen.sertifikat": { default: "Sertifikat", en: "Certificate" },
   "mengajar.instrumen.sertifikat.arti": { default: "Diterbitkan sekolah bila murid memenuhi capaian; bisa diperiksa siapa pun lewat tautan.", en: "Issued by the school when a learner meets the standard; anyone can check it through its link." },
   "mengajar.percobaan": { default: "kesempatan", en: "attempt" },
@@ -2274,12 +2299,27 @@ export const INTERNAL_WORDS = [
   "Salah", "Incorrect", "Penalty",
 ];
 
+/** What a key with no copy renders (DAISY-04): calm, and never the key itself. */
+export const TANPA_SALINAN = "\u2014";
+
 export function t(
   event: HleEvent,
   persona: Persona = "learner",
   ctx: TellingContext = {},
 ): string {
   const row = table[event];
+  // DAISY-04 (D-011). A key with no row -- one built from data, like an
+  // assessment mode the copy had not caught up with -- used to throw from the
+  // property read below and take the whole page down with it: the Siapkan
+  // crash (audit M7). It now renders a calm dash, the fallback PINTAR already
+  // uses for an unmapped enum, and never the raw key, which would put an
+  // identifier on a reader's screen. The log names the key so it gets written.
+  // The internal-word guard below is unchanged and still throws: that one is a
+  // test of the copy, not a gap in it.
+  if (!row) {
+    console.warn(`HLE: no copy for "${String(event)}"`);
+    return TANPA_SALINAN;
+  }
   const locale: Locale = ctx.locale ?? "id";
 
   // Stage first, because a stage override is a whole sentence written for this
