@@ -423,6 +423,43 @@ await step("S16", "Head of department: sees reports on /pimpinan", async (rec) =
   return `grant ok=${r.ok}; landed ${s.landed}; /pimpinan says: ${t.slice(0, 320)}; sign-out control: ${await hasSignOut(h)}`;
 });
 
+// ── Public and anonymous probes (checklist PUB-02, PUB-04, U-LOC) ─────────────
+await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
+  const tok = `acak${Date.now()}`;
+  const api = await fetch(`${APP}/api/verifikasi/${tok}`, { redirect: "manual" });
+  const body = await api.text();
+  const pc = await ctx();
+  const p = await pc.newPage();
+  await p.goto(`${APP}/verifikasi/${tok}`, { waitUntil: "networkidle" });
+  rec.shots.push(await shot(p, "verifikasi-random-token"));
+  const txt = await bodyText(p);
+  if (api.status !== 404 || !/"found"\s*:\s*false/.test(body)) rec.verdict = "FAIL";
+  return `API ${api.status} ${body.slice(0, 60)} | page: ${txt.slice(0, 160)}`;
+});
+
+await step("P2", "PUB-02: a stranger cannot sign themselves up", async (rec) => {
+  const r = await fetch(`${SB}/auth/v1/signup`, {
+    method: "POST",
+    headers: { apikey: ANON, "content-type": "application/json" },
+    body: JSON.stringify({ email: `stranger${Date.now()}@audit.pintar.test`, password: "Stranger-Pass-12345!" }),
+  });
+  const j = await r.json().catch(() => ({}));
+  const refused = r.status >= 400 && /signup|disabled|not allowed/i.test(JSON.stringify(j));
+  if (!refused) rec.verdict = "FAIL";
+  return `HTTP ${r.status} ${JSON.stringify(j).slice(0, 140)}`;
+});
+
+await step("P3", "U-LOC: an unknown page shows PINTAR's own localized page, not a framework default", async (rec) => {
+  const pc = await ctx();
+  const p = await pc.newPage();
+  const resp = await p.goto(`${APP}/masuk/kartu`, { waitUntil: "networkidle" });
+  rec.shots.push(await shot(p, "unknown-page"));
+  const txt = await bodyText(p);
+  const frameworkDefault = /This page could not be found|Application error/i.test(txt);
+  if (frameworkDefault) rec.verdict = "FAIL";
+  return `HTTP ${resp?.status()} | framework default page: ${frameworkDefault} | text: ${txt.slice(0, 120)}`;
+});
+
 await browser.close();
 writeFileSync(join(OUT, "journey.json"), JSON.stringify({ ids, steps }, null, 2));
 const tally = steps.reduce((m, s) => ((m[s.verdict] = (m[s.verdict] ?? 0) + 1), m), {});
