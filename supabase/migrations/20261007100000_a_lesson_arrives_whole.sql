@@ -518,13 +518,14 @@ begin
                               'media', v -> 'media', 'counts', v -> 'counts');
   end if;
 
-  update public.ingest_batches set status = 'CONFIRMED' where ingest_batches.id = b.id;
-  select * into b from public.ingest_batches where ingest_batches.id = b.id;
+  -- the confirmation and the save are one unit: a failure undoes both, so the
+  -- batch is never left CONFIRMED without its course and can be confirmed again
   begin
+    update public.ingest_batches set status = 'CONFIRMED' where ingest_batches.id = b.id;
     v_courses := public.lesson_package_materialise(b.id);
   exception when others then
     -- the check should have found it; if it did not, nothing is written, the
-    -- batch goes back to waiting, and the database's words stay in the batch
+    -- batch is back where it was, and the database's words stay in the batch
     get stacked diagnostics v_state = returned_sqlstate, v_msg = message_text;
     update public.ingest_batches
        set validation_result = validation_result || jsonb_build_object('materialise_error',

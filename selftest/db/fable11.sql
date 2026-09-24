@@ -11,6 +11,8 @@
 --   F11-P02  a structured package reaches its confirmation (bug B) and
 --            materialises through the same door; a course-only package and the
 --            old ingest_structured_package still work
+--   F11-P03  a save that fails inside the materialiser undoes the confirmation:
+--            the batch waits again, and a second confirmation saves it
 --   F11-N01  a broken package comes back as codes at their sheet and row, and
 --            writes nothing
 --   F11-N02  only someone who may draft in the batch's school may prepare or
@@ -323,6 +325,71 @@ begin
     end;
 
     -- ═══════════════════════════════════════════════════════════════════════
+    -- F11-P03  A SAVE THAT FAILS LEAVES NOTHING BEHIND: the batch is back at
+    --          MAPPING_PROPOSED, no course, the error kept -- and once the fault
+    --          is gone the same batch confirms into its course.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_user_uid(v_guru);
+      v_batch2 := selftest.f11_batch(v_a, 'STRUCTURED_PACKAGE', jsonb_build_object('courses', jsonb_build_array(
+        jsonb_build_object('title', 'Paket Gagal Simpan ' || v_tag, 'subject', 'IPA', 'stage', 'SMP', 'grade_label', 'Kelas 7',
+          'modules', jsonb_build_array(jsonb_build_object('title', 'Gaya', 'lessons', jsonb_build_array(
+            jsonb_build_object('title', 'Gaya dorong', 'body_markdown', 'Dorongan dapat menggerakkan benda.',
+              'items', jsonb_build_array(jsonb_build_object('stem', 'F11P03 dorongan menggerakkan apa?', 'use', 'POST_TEST',
+                'options', jsonb_build_array(
+                  jsonb_build_object('label', 'A', 'body', 'Benda', 'is_correct', true, 'rationale', 'Dorongan adalah gaya.'),
+                  jsonb_build_object('label', 'B', 'body', 'Bayangan', 'is_correct', false, 'rationale', 'Bayangan tidak bermassa.'))))))))))));
+      v := public.prepare_ingest_batch(v_batch2);
+      if (v ->> 'ok')::boolean is not true then raise exception 'the recovery fixture did not prepare: %', left(v::text, 120); end if;
+
+      -- the planted fault: the materialiser's item insert fails for this stem only
+      perform selftest.as_owner();
+      execute $plant$
+        create function selftest.f11_gagal() returns trigger language plpgsql as $f$
+        begin
+          if new.stem like 'F11P03 %' then raise exception 'F11P03 planted save failure'; end if;
+          return new;
+        end $f$;
+        create trigger f11_gagal before insert on public.items for each row execute function selftest.f11_gagal();
+      $plant$;
+
+      perform selftest.as_user_uid(v_guru);
+      v := public.confirm_ingest_batch(v_batch2);
+      perform selftest.as_owner();
+      if (v ->> 'ok')::boolean is not false or v -> 'problems' -> 0 ->> 'code' is distinct from 'PACKAGE_COULD_NOT_BE_SAVED' then
+        v_probs := selftest.f11_note(v_probs, 'F11-P03', 'the failed save answered ' || left(v::text, 160));
+      end if;
+      select b.status::text into v_state from public.ingest_batches b where b.id = v_batch2;
+      if v_state is distinct from 'MAPPING_PROPOSED' then
+        v_probs := selftest.f11_note(v_probs, 'F11-P03', 'after a failed save the batch is ' || coalesce(v_state, 'gone'));
+      end if;
+      select count(*) into n from public.ingest_batches b
+       where b.id = v_batch2 and b.validation_result -> 'materialise_error' ->> 'message' like '%F11P03 planted save failure%';
+      if n <> 1 then v_probs := selftest.f11_note(v_probs, 'F11-P03', 'the failed save did not keep the database''s error'); end if;
+      select count(*) into n from public.courses c where c.institution_id = v_a and c.title = 'Paket Gagal Simpan ' || v_tag;
+      if n <> 0 then v_probs := selftest.f11_note(v_probs, 'F11-P03', format('a failed save left %s course(s)', n)); end if;
+
+      -- the fault is removed; the same batch now confirms into its course
+      execute 'drop trigger f11_gagal on public.items; drop function selftest.f11_gagal()';
+      perform selftest.as_user_uid(v_guru);
+      begin
+        v := public.confirm_ingest_batch(v_batch2); v_err := null;
+      exception when others then
+        v := null; v_err := jsonb_build_object('code', sqlstate, 'message', sqlerrm);
+      end;
+      perform selftest.as_owner();
+      select count(*) into n from public.courses c where c.institution_id = v_a and c.title = 'Paket Gagal Simpan ' || v_tag;
+      select b.status::text into v_state from public.ingest_batches b where b.id = v_batch2;
+      if v_err is not null or (v ->> 'ok')::boolean is not true or n <> 1 or v_state is distinct from 'MATERIALISED' then
+        v_probs := selftest.f11_note(v_probs, 'F11-P03', format('a second confirmation after the fault answered %s; %s course(s), batch %s',
+          left(coalesce(v_err, v)::text, 160), n, coalesce(v_state, 'gone')));
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f11_note(v_probs, 'F11-P03', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
     -- F11-N01  A BROKEN PACKAGE COMES BACK AS CODES AT THEIR SHEET AND ROW,
     --          AND WRITES NOTHING.
     -- ═══════════════════════════════════════════════════════════════════════
@@ -497,9 +564,10 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F11-P01', 'F11-P02', 'F11-N01', 'F11-N02', 'F11-N03'],
+      array['F11-P01', 'F11-P02', 'F11-P03', 'F11-N01', 'F11-N02', 'F11-N03'],
       array['BOB-02 -- the sample workbook becomes a real course in the chosen school, whole',
             'BOB-02 -- a structured package reaches its confirmation and materialises',
+            'BOB-02 -- a failed save leaves the batch waiting and a second confirmation saves it',
             'BOB-02 -- a broken package comes back as codes at their row and writes nothing',
             'BOB-02 -- only a drafter in the batch''s school prepares or confirms it (M8)',
             'BOB-02 -- a media upload is granted only for a named file of a waiting batch'],
@@ -515,6 +583,10 @@ begin
           || '-- exactly what /studio/unggah lists for confirmation -- and a teacher''s confirmation materialises it '
           || 'whole; a course-only package still works, and ingest_structured_package on an old-style CONFIRMED batch '
           || 'now makes the whole hierarchy (%s of 4)', m_struct),
+        'with a planted fault in the materialiser''s item insert, confirm_ingest_batch answered ok=false '
+          || 'PACKAGE_COULD_NOT_BE_SAVED, the batch was back at MAPPING_PROPOSED with the database''s error in '
+          || 'validation_result.materialise_error and no course written; with the fault removed, a second confirmation '
+          || 'of the same batch answered ok, made its one course and left the batch MATERIALISED',
         format('a package with sixteen distinct faults answered ok=false with exactly those %s codes, each at its '
           || 'sheet and row where the package named one, and nothing but a code and a place; it was not offered for '
           || 'confirmation, a confirmation made nothing, and an empty package is PACKAGE_EMPTY', m_codes),

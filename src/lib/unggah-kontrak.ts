@@ -98,6 +98,51 @@ export const KOLOM: Record<NamaLembar, readonly Kolom[]> = {
   ],
 };
 
+// ══════════════════════════════════════════════════════════ the v1 limits
+
+/**
+ * WHAT A PACKAGE MAY HOLD IN V1 (D-030). DAISY-06's template states these;
+ * the reader (src/lib/xlsx.ts, BATAS) or lesson_package_check enforces each
+ * one, and anything past a limit comes back as `kode` -- at its sheet and row
+ * wherever the limit belongs to a row. BOB02-K03 fails if a number here stops
+ * being the one the reader or the database uses.
+ */
+export const BATAS_PAKET = {
+  /** The workbook file, and the text its parts may unpack to. */
+  berkasMaks: { nilai: 5 * 1024 * 1024, kode: "WORKBOOK_TOO_LARGE" },
+  teruraiMaks: { nilai: 40 * 1024 * 1024, kode: "WORKBOOK_TOO_LARGE" },
+  /** Rows per sheet (the header included) and columns per row. */
+  barisMaks: { nilai: 10_000, kode: "WORKBOOK_TOO_LARGE" },
+  kolomMaks: { nilai: 200, kode: "WORKBOOK_TOO_LARGE" },
+  /** Per package: courses, lessons, questions. */
+  kursusMaks: { nilai: 20, kode: "PACKAGE_TOO_LARGE" },
+  pelajaranMaks: { nilai: 500, kode: "PACKAGE_TOO_LARGE" },
+  soalMaks: { nilai: 2000, kode: "PACKAGE_TOO_LARGE" },
+  /** Per question: its options and their labels, and its kinds (JENIS_SOAL). */
+  pilihanMin: { nilai: 2, kode: "ITEM_OPTIONS_TOO_FEW" },
+  pilihanMaks: { nilai: 5, kode: "ITEM_OPTIONS_TOO_MANY" },
+  labelPilihan: { nilai: ["A", "B", "C", "D", "E"], kode: "OPTION_LABEL_INVALID" },
+  jenisSoal: { nilai: JENIS_SOAL.map(([, v]) => v), kode: "ITEM_TYPE_UNKNOWN" },
+  /** Media: the file's name after it is made safe, and the kinds by extension. */
+  namaMediaMaks: { nilai: 110, kode: "MEDIA_NAME_INVALID" },
+  jenisMedia: {
+    nilai: { gambar: ["png", "jpg", "jpeg", "webp", "svg", "gif"], audio: ["mp3", "m4a", "wav", "ogg"], video: ["mp4", "webm"], pdf: ["pdf"] },
+    kode: "MEDIA_KIND_UNKNOWN",
+  },
+  /** Every sound or video file carries its own transcript. */
+  transkripWajib: { nilai: ["audio", "video"], kode: "MEDIA_TRANSCRIPT_MISSING" },
+  /** An option's misconception must be a code already in the taxonomy; none is created by a package. */
+  miskonsepsi: { nilai: "misconception_taxonomy", kode: "OPTION_MISCONCEPTION_UNKNOWN" },
+  /** Characters per text. */
+  teksMaks: {
+    nilai: {
+      judulKursus: 200, mapel: 200, jenjang: 200, kelas: 200, judulBab: 200, judulPelajaran: 200,
+      ringkasan: 1000, isiPelajaran: 50_000, soal: 4000, stimulus: 20_000, pilihan: 2000, alasan: 2000, kelompokSetara: 60,
+    },
+    kode: "TEXT_TOO_LONG",
+  },
+} as const;
+
 // ═════════════════════════════════════════════════════════════ the problems
 
 /** Every problem a workbook or package can come back with, as a stable code. */

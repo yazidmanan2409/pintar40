@@ -22,8 +22,8 @@
     },
     "db-bob02-gates": {
       "suite": "selftest.run_fable11()",
-      "control_green": 5,
-      "what": "BOB-02's lesson package: the sample workbook materialised whole, the structured-package confirmation, coded problems, who may prepare or confirm, and media upload authority"
+      "control_green": 6,
+      "what": "BOB-02's lesson package: the sample workbook materialised whole, the structured-package confirmation, a failed save that undoes its confirmation, coded problems, who may prepare or confirm, and media upload authority"
     }
   },
   "plants": [
@@ -326,6 +326,12 @@
       "gate": "db-bob02-gates",
       "expect_red": "F11-P01",
       "expect_detail": "a second confirmation answered"
+    },
+    {
+      "name": "bob02-10",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-P03",
+      "expect_detail": "after a failed save the batch is CONFIRMED"
     }
   ]
 }

@@ -91,12 +91,21 @@ function isiEntri(buf: Buffer, e: Entri, anggaran: { sisa: number }): string {
 }
 
 // ═══════════════════════════════════════════════════════════════ the XML
+//
+// ONE FORWARD PASS PER PART (D-030(b)). The XML is walked tag by tag with
+// indexOf and a quote-aware scan for the end of each tag; no position is ever
+// read twice and no pattern backtracks, so the work is linear in the size of
+// the part whatever the file holds. The first tag that never closes stops the
+// read as WORKBOOK_UNREADABLE instead of rescanning the rest of the file for
+// every tag that follows -- which is what the earlier regular expressions did,
+// quadratically, on a file of unclosed <row>, <c>, <si> or <t> tags.
 
-/** XML entities and OOXML's own `_xHHHH_` escapes, and nothing more. */
+/** XML entities and OOXML's own `_xHHHH_` escapes, and nothing more (no DTD). */
 export function uraiTeks(s: string): string {
+  if (s.indexOf("&") < 0 && s.indexOf("_x") < 0) return s;
   return s
     .replace(/_x([0-9a-fA-F]{4})_/g, (_, h: string) => String.fromCharCode(parseInt(h, 16)))
-    .replace(/&(#x[0-9a-fA-F]+|#[0-9]+|lt|gt|amp|quot|apos);/g, (_, e: string) => {
+    .replace(/&(#x[0-9a-fA-F]{1,6}|#[0-9]{1,7}|lt|gt|amp|quot|apos);/g, (_, e: string) => {
       if (e === "lt") return "<";
       if (e === "gt") return ">";
       if (e === "amp") return "&";
@@ -107,17 +116,84 @@ export function uraiTeks(s: string): string {
     });
 }
 
-const atribut = (tag: string, nama: string): string | null => {
-  const m = new RegExp(`\\s${nama}="([^"]*)"`).exec(tag) ?? new RegExp(`\\s${nama}='([^']*)'`).exec(tag);
-  return m ? uraiTeks(m[1]) : null;
-};
+type Tag = { nama: string; isi: string; tutup: boolean; sendiri: boolean };
 
-/** The visible text of an <si> or <is>: every <t> except phonetic runs. */
-function teksKaya(xml: string): string {
-  const tanpaFonetik = xml.replace(/<rPh\b[\s\S]*?<\/rPh>/g, "");
-  let out = "";
-  for (const m of tanpaFonetik.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>|<t(?:\s[^>]*)?\/>/g)) out += uraiTeks(m[1] ?? "");
+/**
+ * Every tag and every run of text in `xml`, in order. `teks` receives raw
+ * text between tags; `tag` receives each element tag (comments, processing
+ * instructions and declarations are skipped). Throws on a tag that never
+ * closes.
+ */
+function jalani(xml: string, tag: (t: Tag) => void, teks: (t: string) => void): void {
+  const n = xml.length;
+  let pos = 0;
+  while (pos < n) {
+    const lt = xml.indexOf("<", pos);
+    if (lt < 0) { teks(xml.slice(pos)); return; }
+    if (lt > pos) teks(xml.slice(pos, lt));
+    if (xml.startsWith("<!--", lt)) {
+      const e = xml.indexOf("-->", lt + 4);
+      if (e < 0) throw new Tolak("WORKBOOK_UNREADABLE");
+      pos = e + 3;
+      continue;
+    }
+    // the end of the tag: the first '>' outside a quoted attribute value
+    let q = 0;
+    let gt = -1;
+    for (let k = lt + 1; k < n; k += 1) {
+      const ch = xml.charCodeAt(k);
+      if (q !== 0) { if (ch === q) q = 0; }
+      else if (ch === 34 || ch === 39) q = ch;
+      else if (ch === 62) { gt = k; break; }
+      else if (ch === 60) throw new Tolak("WORKBOOK_UNREADABLE"); // '<' inside a tag: it never closed
+    }
+    if (gt < 0) throw new Tolak("WORKBOOK_UNREADABLE");
+    const c0 = xml.charCodeAt(lt + 1);
+    if (c0 !== 63 && c0 !== 33) { // not <? … ?> or <! … >
+      const tutup = c0 === 47;
+      const awal = tutup ? lt + 2 : lt + 1;
+      const sendiri = xml.charCodeAt(gt - 1) === 47;
+      let akhirNama = awal;
+      while (akhirNama < gt) {
+        const ch = xml.charCodeAt(akhirNama);
+        if (ch === 32 || ch === 9 || ch === 10 || ch === 13 || ch === 47) break;
+        akhirNama += 1;
+      }
+      tag({ nama: xml.slice(awal, akhirNama), isi: xml.slice(akhirNama, sendiri ? gt - 1 : gt), tutup, sendiri });
+    }
+    pos = gt + 1;
+  }
+}
+
+/** A tag's attributes, read once, left to right. */
+function atributTag(isi: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const n = isi.length;
+  let i = 0;
+  while (i < n) {
+    while (i < n && /\s/.test(isi[i])) i += 1;
+    const mulai = i;
+    while (i < n && isi[i] !== "=" && !/\s/.test(isi[i])) i += 1;
+    const nama = isi.slice(mulai, i);
+    while (i < n && /\s/.test(isi[i])) i += 1;
+    if (isi[i] !== "=") { i += 1; continue; }
+    i += 1;
+    while (i < n && /\s/.test(isi[i])) i += 1;
+    const kutip = isi[i];
+    if (kutip !== '"' && kutip !== "'") break;
+    const tutup = isi.indexOf(kutip, i + 1);
+    if (tutup < 0) throw new Tolak("WORKBOOK_UNREADABLE");
+    if (nama) out.set(nama, uraiTeks(isi.slice(i + 1, tutup)));
+    i = tutup + 1;
+  }
   return out;
+}
+
+/** Depth of an element that may not nest: 0 or 1, and never a second opening. */
+function buka(dalam: number, tutup: boolean): number {
+  if (tutup) return 0;
+  if (dalam > 0) throw new Tolak("WORKBOOK_UNREADABLE");
+  return 1;
 }
 
 function kolomKe(indeksHuruf: string): number {
@@ -126,39 +202,116 @@ function kolomKe(indeksHuruf: string): number {
   return n - 1;
 }
 
+/** The shared-string table: the visible text of each <si>, phonetic runs excluded. */
+function bacaTeksBersama(xml: string): string[] {
+  const out: string[] = [];
+  let dalamSi = false;
+  let dalamT = 0;
+  let dalamRph = 0;
+  let isi: string[] = [];
+  jalani(xml, (t) => {
+    // none of these nest: a second opening tag before the first has closed is
+    // a broken part, refused at once rather than read to its end
+    if (t.nama === "si") {
+      if (t.sendiri) { if (dalamSi) throw new Tolak("WORKBOOK_UNREADABLE"); out.push(""); return; }
+      if (!t.tutup) { if (dalamSi) throw new Tolak("WORKBOOK_UNREADABLE"); dalamSi = true; isi = []; }
+      else { out.push(isi.join("")); dalamSi = false; }
+    } else if (t.nama === "rPh") {
+      if (!t.sendiri) dalamRph = buka(dalamRph, t.tutup);
+    } else if (t.nama === "t") {
+      if (!t.sendiri) dalamT = buka(dalamT, t.tutup);
+    }
+  }, (s) => {
+    if (dalamSi && dalamT > 0 && dalamRph === 0) isi.push(uraiTeks(s));
+  });
+  if (dalamSi) throw new Tolak("WORKBOOK_UNREADABLE");
+  return out;
+}
+
 function bacaLembar(xml: string, teksBersama: string[]): string[][] {
   const baris: string[][] = [];
-  const data = /<sheetData\b[^>]*>([\s\S]*?)<\/sheetData>/.exec(xml)?.[1] ?? "";
+  let sel: string[] | null = null;
   let urutBaris = 0;
-  for (const r of data.matchAll(/<row\b([^>]*)>([\s\S]*?)<\/row>|<row\b([^>]*)\/>/g)) {
-    const tagBaris = r[1] ?? r[3] ?? "";
-    const nomor = Number(atribut(`<row${tagBaris}>`, "r") ?? urutBaris + 1);
-    urutBaris = Number.isFinite(nomor) && nomor > 0 ? nomor : urutBaris + 1;
-    if (urutBaris > BATAS.baris) throw new Tolak("WORKBOOK_TOO_LARGE");
-    const sel: string[] = [];
-    let urutKolom = 0;
-    for (const c of (r[2] ?? "").matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
-      const tag = `<c${c[1]}>`;
-      const ref = atribut(tag, "r");
-      const m = ref ? /^([A-Z]{1,3})[0-9]+$/.exec(ref) : null;
-      const k = m ? kolomKe(m[1]) : urutKolom;
-      urutKolom = k + 1;
-      if (k >= BATAS.kolom) throw new Tolak("WORKBOOK_TOO_LARGE");
-      const isi = c[2] ?? "";
-      const jenis = atribut(tag, "t");
-      const v = /<v>([\s\S]*?)<\/v>/.exec(isi)?.[1];
-      let teks = "";
-      if (jenis === "s") teks = teksBersama[Number(v)] ?? "";
-      else if (jenis === "inlineStr") teks = teksKaya(/<is>([\s\S]*?)<\/is>/.exec(isi)?.[1] ?? "");
-      else if (jenis === "b") teks = v === "1" ? "TRUE" : v === "0" ? "FALSE" : "";
-      else if (jenis === "e") teks = "";
-      else teks = v !== undefined ? uraiTeks(v) : "";
-      while (sel.length < k) sel.push("");
-      sel[k] = teks;
-    }
+  let urutKolom = 0;
+  // the cell being read
+  let k = -1;
+  let jenis: string | null = null;
+  let v: string[] | null = null;
+  let tIs: string[] | null = null;
+  let dalamIs = false;
+  let dalamT = 0;
+  let dalamRph = 0;
+  let dalamV = false;
+
+  const tutupSel = () => {
+    if (!sel || k < 0) return;
+    const nilai = v ? v.join("") : undefined;
+    let teks = "";
+    if (jenis === "s") teks = teksBersama[Number(nilai)] ?? "";
+    else if (jenis === "inlineStr") teks = tIs ? tIs.join("") : "";
+    else if (jenis === "b") teks = nilai === "1" ? "TRUE" : nilai === "0" ? "FALSE" : "";
+    else if (jenis === "e") teks = "";
+    else teks = nilai !== undefined ? uraiTeks(nilai) : "";
+    // A line break in a cell is a line break, whichever application wrote it:
+    // Excel stores one as _x000D_ and a newline (CR LF), openpyxl and Sheets
+    // as a newline alone. One form reaches the package, so the same workbook
+    // saved by two applications is the same lesson.
+    if (teks.indexOf("\r") >= 0) teks = teks.replace(/\r\n?/g, "\n");
+    while (sel.length < k) sel.push("");
+    sel[k] = teks;
+    k = -1;
+  };
+  const tutupBaris = () => {
+    if (!sel) return;
     while (baris.length < urutBaris - 1) baris.push([]);
     baris[urutBaris - 1] = sel;
-  }
+    sel = null;
+  };
+
+  jalani(xml, (t) => {
+    if (t.nama === "row") {
+      if (t.tutup) { tutupBaris(); return; }
+      if (sel !== null) throw new Tolak("WORKBOOK_UNREADABLE"); // a row inside a row
+      const r = Number(atributTag(t.isi).get("r") ?? urutBaris + 1);
+      urutBaris = Number.isFinite(r) && r > 0 ? Math.floor(r) : urutBaris + 1;
+      if (urutBaris > BATAS.baris) throw new Tolak("WORKBOOK_TOO_LARGE");
+      sel = [];
+      urutKolom = 0;
+      if (t.sendiri) tutupBaris();
+    } else if (t.nama === "c") {
+      if (t.tutup) { tutupSel(); return; }
+      if (k >= 0) throw new Tolak("WORKBOOK_UNREADABLE"); // a cell inside a cell
+      if (!sel) return;
+      const a = atributTag(t.isi);
+      const m = /^([A-Z]{1,3})[0-9]+$/.exec(a.get("r") ?? "");
+      k = m ? kolomKe(m[1]) : urutKolom;
+      urutKolom = k + 1;
+      if (k >= BATAS.kolom) throw new Tolak("WORKBOOK_TOO_LARGE");
+      jenis = a.get("t") ?? null;
+      v = null; tIs = null; dalamIs = false; dalamT = 0; dalamRph = 0;
+      if (t.sendiri) tutupSel();
+    } else if (t.nama === "v") {
+      if (t.sendiri) return;
+      if (t.tutup) { dalamV = false; return; }
+      if (dalamV) throw new Tolak("WORKBOOK_UNREADABLE");
+      dalamV = true;
+      if (k >= 0) v = v ?? [];
+    } else if (t.nama === "is") {
+      if (t.sendiri) return;
+      if (!t.tutup && dalamIs) throw new Tolak("WORKBOOK_UNREADABLE");
+      dalamIs = !t.tutup;
+      if (dalamIs) tIs = [];
+    } else if (t.nama === "rPh") {
+      if (!t.sendiri) dalamRph = buka(dalamRph, t.tutup);
+    } else if (t.nama === "t") {
+      if (!t.sendiri) dalamT = buka(dalamT, t.tutup);
+    }
+  }, (s) => {
+    if (k < 0) return;
+    if (dalamIs) { if (dalamT > 0 && dalamRph === 0 && tIs) tIs.push(uraiTeks(s)); }
+    else if (v && dalamV) v.push(s);
+  });
+  if (sel !== null) throw new Tolak("WORKBOOK_UNREADABLE"); // a row that never closed
   return baris;
 }
 
@@ -173,6 +326,13 @@ function normalisasiTarget(target: string): string {
     else if (p !== "." && p !== "") parts.push(p);
   }
   return parts.join("/");
+}
+
+/** Every element of one name in a part, with its attributes. */
+function elemen(xml: string, nama: string): Array<Map<string, string>> {
+  const out: Array<Map<string, string>> = [];
+  jalani(xml, (t) => { if (t.nama === nama && !t.tutup) out.push(atributTag(t.isi)); }, () => {});
+  return out;
 }
 
 /** Every sheet of an .xlsx file, in workbook order, as rows of cell text. */
@@ -192,18 +352,18 @@ export function bacaBukuKerja(berkas: Uint8Array): HasilBaca {
     const rels = baca("xl/_rels/workbook.xml.rels");
     if (!workbook || !rels) throw new Tolak("WORKBOOK_UNREADABLE");
     const target = new Map<string, string>();
-    for (const m of rels.matchAll(/<Relationship\b[^>]*>/g)) {
-      const id = atribut(m[0], "Id");
-      const t = atribut(m[0], "Target");
+    for (const a of elemen(rels, "Relationship")) {
+      const id = a.get("Id");
+      const t = a.get("Target");
       if (id && t) target.set(id, normalisasiTarget(t));
     }
     const shared = baca("xl/sharedStrings.xml");
-    const teksBersama = shared ? [...shared.matchAll(/<si>([\s\S]*?)<\/si>|<si\/>/g)].map((m) => teksKaya(m[1] ?? "")) : [];
+    const teksBersama = shared ? bacaTeksBersama(shared) : [];
 
     const lembar: Lembar[] = [];
-    for (const m of workbook.matchAll(/<sheet\b[^>]*>/g)) {
-      const nama = atribut(m[0], "name");
-      const rid = atribut(m[0], "r:id");
+    for (const a of elemen(workbook, "sheet")) {
+      const nama = a.get("name");
+      const rid = a.get("r:id");
       const bagian = rid ? target.get(rid) : undefined;
       if (!nama || !bagian) continue;
       const xml = baca(bagian);

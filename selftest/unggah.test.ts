@@ -9,7 +9,8 @@
  * that every problem code has a sentence, and that the actions and routes
  * carry codes and call the functions by the names the migration declares.
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { deflateRawSync } from "node:zlib";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
@@ -17,7 +18,7 @@ import { t, LOCALES, type HleEvent } from "../src/lib/hle";
 import { bacaBukuKerja, BATAS, type Lembar } from "../src/lib/xlsx";
 import {
   KOLOM, LEMBAR, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, bukuKerjaKePaket, kodeGalatPaket,
-  kunciKodePaket, kunciMasalahPaket, type KodePaket,
+  kunciKodePaket, kunciMasalahPaket, BATAS_PAKET, type KodePaket,
 } from "../src/lib/unggah-kontrak";
 
 const MIGRASI = "20261007100000_a_lesson_arrives_whole.sql";
@@ -57,6 +58,24 @@ function dibaca(buf: Buffer) {
   return bacaBukuKerja(new Uint8Array(buf));
 }
 
+/**
+ * D-030(d): the sample workbook as real applications save it. The original is
+ * openpyxl's; each copy is that file re-saved by the application named, and
+ * must read to the same cells and the same package. A copy not yet delivered
+ * is a slot, reported rather than skipped silently.
+ */
+const SALINAN: ReadonlyArray<{ berkas: string; oleh: string; wajib: boolean }> = [
+  { berkas: "contoh-excel.xlsx", oleh: "Microsoft Excel for Mac 16", wajib: true },
+  { berkas: "contoh-gsheets.xlsx", oleh: "Google Sheets", wajib: false },
+];
+
+/** Rows without trailing empty cells or trailing empty rows: what a person typed. */
+function isiTerketik(baris: string[][]): string[][] {
+  const out = baris.map((r) => { const x = [...r]; while (x.length && x[x.length - 1] === "") x.pop(); return x; });
+  while (out.length && out[out.length - 1].length === 0) out.pop();
+  return out;
+}
+
 export const unggahTests: SelfTest[] = [
   {
     // =======================================================================
@@ -86,11 +105,36 @@ export const unggahTests: SelfTest[] = [
           `the onboarding workbook's Kelas sheet came back as ${JSON.stringify(kelas?.baris.slice(0, 2)).slice(0, 160)}`);
       }
 
+      // each application's copy holds the original's cells, exactly
+      const dir = join(ctx.repoRoot, "selftest", "fixtures", "bob02");
+      let salinan = 0;
+      for (const x of SALINAN) {
+        if (!existsSync(join(dir, x.berkas))) {
+          c.expect(!x.wajib, `${x.berkas} (${x.oleh}) is missing from selftest/fixtures/bob02`);
+          if (!x.wajib) c.note(`${x.berkas} (${x.oleh}) not yet delivered`);
+          continue;
+        }
+        const r = dibaca(readFileSync(join(dir, x.berkas)));
+        c.expect(r.ok, `${x.berkas} (${x.oleh}) could not be read: ${!r.ok ? r.code : ""}`);
+        if (!r.ok || !contoh.ok) continue;
+        for (const l of contoh.lembar) {
+          const lain = r.lembar.find((y) => y.nama === l.nama);
+          c.expect(!!lain, `${x.berkas} has no sheet ${l.nama}`);
+          if (!lain) continue;
+          const a1 = JSON.stringify(isiTerketik(l.baris));
+          const b1 = JSON.stringify(isiTerketik(lain.baris));
+          c.expect(a1 === b1, `${x.berkas}'s ${l.nama} sheet does not hold the original's cells: ${b1.slice(0, 160)}`);
+        }
+        salinan += 1;
+      }
+
       const sheet = `<worksheet><sheetData>
         <row r="1"><c r="A1" t="s"><v>0</v></c><c r="C1" t="inlineStr"><is><t>inline</t></is></c></row>
         <row r="3"><c t="s"><v>1</v></c><c t="b"><v>1</v></c><c t="str"><v>formula &lt;teks&gt;</v></c><c><v>0.5</v></c></row>
+        <row r="4"><c r="A4" t="s"><v>2</v></c></row>
       </sheetData></worksheet>`;
-      const shared = `<sst><si><r><t>Ha</t></r><r><t xml:space="preserve">lo </t></r><rPh><t>FONETIK</t></rPh></si><si><t>A&amp;B &#x41;&#66; baris_x000D_</t></si></sst>`;
+      const shared = `<sst><si><r><t>Ha</t></r><r><t xml:space="preserve">lo </t></r><rPh><t>FONETIK</t></rPh></si><si><t>A&amp;B &#x41;&#66; baris_x000D_</t></si><si><t>dua_x000D_
+baris</t></si></sst>`;
       const buat = dibaca(zip([
         { name: "xl/workbook.xml", data: WB, store: true },
         { name: "xl/_rels/workbook.xml.rels", data: RELS },
@@ -104,8 +148,10 @@ export const unggahTests: SelfTest[] = [
         c.expect(JSON.stringify(l.baris[0]) === JSON.stringify(["Halo ", "", "inline"]),
           `rich text, a gap and an inline string came back as ${JSON.stringify(l.baris[0])}`);
         c.expect(JSON.stringify(l.baris[1]) === "[]", "the missing row 2 is not an empty row");
-        c.expect(JSON.stringify(l.baris[2]) === JSON.stringify(["A&B AB baris\r", "TRUE", "formula <teks>", "0.5"]),
+        c.expect(JSON.stringify(l.baris[2]) === JSON.stringify(["A&B AB baris\n", "TRUE", "formula <teks>", "0.5"]),
           `entities, escapes, cells without a reference, a boolean and a formula string came back as ${JSON.stringify(l.baris[2])}`);
+        c.expect(JSON.stringify(l.baris[3]) === JSON.stringify(["dua\nbaris"]),
+          `Excel's CR LF line break came back as ${JSON.stringify(l.baris[3])}`);
       }
 
       const tolak: Array<[string, Buffer, string]> = [
@@ -131,11 +177,56 @@ export const unggahTests: SelfTest[] = [
         c.expect(!r.ok && r.code === want, `${label} came back ${r.ok ? "read" : r.code}, not ${want}`);
       }
       return c.verdict(
-        "the .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's " +
-        "shared strings, the onboarding file's inline strings) and a crafted one carrying rich text with phonetic runs, " +
-        "entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, " +
+        "the .xlsx reader in the source file src/lib/xlsx.ts reads the sample workbook as openpyxl wrote it and as " +
+        `${salinan} real application(s) re-saved it (${SALINAN.filter((x) => existsSync(join(dir, x.berkas))).map((x) => x.oleh).join(", ")}; every copy delivered holds ` +
+        "exactly the original's cells), the onboarding file's inline strings, and a crafted one carrying rich text with " +
+        "phonetic runs, entities and _xHHHH_ escapes, Excel's CR LF line break as a newline, gaps, cells without references, " +
+        "booleans and formula strings; it refuses a non-zip, " +
         `a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, ` +
         `a sheet past ${BATAS.baris} rows and a zip without a workbook (${tolak.length} refusals)`,
+      );
+    },
+  },
+  {
+    // =======================================================================
+    // BOB02-X02 — EVERY SCAN IS LINEAR (D-030(b)). A 5 MB upload can inflate
+    // to 40 MB, and the earlier reader's regular expressions went quadratic on
+    // unclosed tags: 400 KB of unclosed <si> took 14 s, so the 40 MB budget
+    // would hold a server function for hours. Each hostile shape here fills
+    // the budget and must be refused in well under a second; a well-formed
+    // 10,000-row sheet must still be read. The reads run in a child process
+    // with a hard timeout, so a reader that goes quadratic fails this test by
+    // being killed rather than by hanging the suite.
+    // =======================================================================
+    id: "BOB02-X02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const cli = join(ctx.repoRoot, "node_modules", "tsx", "dist", "cli.mjs");
+      const harness = join(ctx.repoRoot, "selftest", "fixtures", "bob02", "hostile.mts");
+      const r = spawnSync(process.execPath, [cli, harness, join(ctx.repoRoot, "src", "lib", "xlsx.ts")],
+        { encoding: "utf8", timeout: 30_000, maxBuffer: 1 << 20 });
+      if (r.error || r.status !== 0) {
+        c.expect(false, `the hostile reads did not finish within 30 s (${r.error?.message ?? r.stderr.split("\n").filter(Boolean).pop()})`);
+        return c.verdict("");
+      }
+      const out = JSON.parse(r.stdout.trim()) as Array<{ shape: string; ms: number; code: string; bytes: number }>;
+      const HOSTILE_MS = 1000;
+      const VALID_MS = 2500;
+      let terlama = 0;
+      for (const x of out) {
+        const sah = x.shape.startsWith("a well-formed");
+        c.expect(sah ? x.code === "read" : x.code !== "read", `${x.shape} came back ${x.code}`);
+        c.expect(x.ms < (sah ? VALID_MS : HOSTILE_MS), `${x.shape} took ${x.ms} ms`);
+        c.expect(x.bytes < BATAS.berkas, `${x.shape} is ${x.bytes} bytes, not an upload the route would accept`);
+        if (!sah) terlama = Math.max(terlama, x.ms);
+      }
+      c.expect(out.length === 11, `${out.length} shape(s) reported, expected 11`);
+      const sah = out.find((x) => x.shape.startsWith("a well-formed"));
+      return c.verdict(
+        `${out.length - 1} hostile workbooks, each an upload under 5 MB inflating to the 40 MB budget -- unclosed <row>, <c>, ` +
+        "<si>, <t>, <rPh> and <v>, a tag missing its >, an attribute missing its quote, and <sheet> and <Relationship> " +
+        `tags missing their > -- were each refused by the reader in the source file src/lib/xlsx.ts in at most ${terlama} ms ` +
+        `(bound ${HOSTILE_MS} ms), and a well-formed 10,000-row sheet was read in ${sah?.ms ?? "?"} ms (bound ${VALID_MS} ms)`,
       );
     },
   },
@@ -163,6 +254,17 @@ export const unggahTests: SelfTest[] = [
           "the literal F11 runs on is not the committed sample package");
         c.expect(JSON.stringify(paket.media) === JSON.stringify(["Kue Empat Potong.png", "penjelasan-senilai.mp3"]),
           `the sample names media ${JSON.stringify(paket.media)}`);
+      }
+
+      // the same package, whichever application saved the workbook (D-030(d))
+      let sama = 0;
+      for (const x of SALINAN) {
+        if (!existsSync(join(dir, x.berkas))) { c.expect(!x.wajib, `${x.berkas} (${x.oleh}) is missing`); continue; }
+        const r = dibaca(readFileSync(join(dir, x.berkas)));
+        const p = r.ok ? bukuKerjaKePaket(r.lembar) : null;
+        c.expect(p?.ok === true && JSON.stringify(p.paket) === JSON.stringify(json),
+          `${x.berkas} (${x.oleh}) does not make the committed sample package`);
+        if (p?.ok && JSON.stringify(p.paket) === JSON.stringify(json)) sama += 1;
       }
 
       // what only a workbook can get wrong, each at its sheet and row
@@ -205,7 +307,8 @@ export const unggahTests: SelfTest[] = [
         c.expect(new Set(judul).size === judul.length, `the ${n} sheet declares a header twice`);
       }
       return c.verdict(
-        "the sample workbook, the committed file contoh-pelajaran.paket.json and the literal F11 runs on are one package, " +
+        `the sample workbook, ${sama} copy(ies) of it re-saved by a real application, the committed file ` +
+        "contoh-pelajaran.paket.json and the literal F11 runs on are one package, " +
         "naming two media files; headers match in any case, spacing and order, choices map to their values, and " +
         `${salah.length} workbook-only faults each come back as their code at their sheet and row`,
       );
@@ -290,6 +393,71 @@ export const unggahTests: SelfTest[] = [
         "confirmation, keep error.message in the server log, and call prepare_ingest_batch and confirm_ingest_batch by " +
         "their declared arguments",
       );
+    },
+  },
+  {
+    // =======================================================================
+    // BOB02-K03 — THE LIMITS THE TEMPLATE STATES ARE THE ONES ENFORCED
+    // (D-030). Every number and list in BATAS_PAKET is read back from the
+    // reader's BATAS or from the clause of lesson_package_check that enforces
+    // it, and names the code that clause returns.
+    // =======================================================================
+    id: "BOB02-K03",
+    run: async (ctx) => {
+      const c = new Checks();
+      const sql = readFileSync(join(ctx.repoRoot, "supabase", "migrations", MIGRASI), "utf8").replace(/--[^\n]*/g, "");
+      const b = BATAS_PAKET;
+      c.expect(b.berkasMaks.nilai === BATAS.berkas, `the template states ${b.berkasMaks.nilai} bytes and the reader allows ${BATAS.berkas}`);
+      c.expect(b.teruraiMaks.nilai === BATAS.terurai, `the template states ${b.teruraiMaks.nilai} unpacked bytes and the reader allows ${BATAS.terurai}`);
+      c.expect(b.barisMaks.nilai === BATAS.baris, `the template states ${b.barisMaks.nilai} rows and the reader allows ${BATAS.baris}`);
+      c.expect(b.kolomMaks.nilai === BATAS.kolom, `the template states ${b.kolomMaks.nilai} columns and the reader allows ${BATAS.kolom}`);
+      const t = b.teksMaks.nilai;
+      const klausa: Array<[string, string, string]> = [
+        ["kursusMaks", `jsonb_array_length(p_package -> 'courses') > ${b.kursusMaks.nilai} then\n    v_p := v_p || public.package_problem('${b.kursusMaks.kode}'`, ""],
+        ["pelajaranMaks/soalMaks", `if n_i > ${b.soalMaks.nilai} or n_l > ${b.pelajaranMaks.nilai} then\n    v_p := v_p || public.package_problem('${b.soalMaks.kode}'`, ""],
+        ["pilihanMin", `if v_n < ${b.pilihanMin.nilai} then v_p := v_p || public.package_problem('${b.pilihanMin.kode}'`, ""],
+        ["pilihanMaks", `elsif v_n > ${b.pilihanMaks.nilai} then v_p := v_p || public.package_problem('${b.pilihanMaks.kode}'`, ""],
+        ["labelPilihan", `if v_t !~ '^[${b.labelPilihan.nilai[0]}-${b.labelPilihan.nilai.at(-1)}]$' then v_p := v_p || public.package_problem('${b.labelPilihan.kode}'`, ""],
+        ["jenisSoal", `if v_type not in (${b.jenisSoal.nilai.map((v) => `'${v}'`).join(", ")}) then\n            v_p := v_p || public.package_problem('${b.jenisSoal.kode}'`, ""],
+        ["namaMediaMaks", `length(v_name) > ${b.namaMediaMaks.nilai} or v_name !~ '^[a-z0-9][a-z0-9_.-]*$' then\n            v_p := v_p || public.package_problem('${b.namaMediaMaks.kode}'`, ""],
+        ["jenisMedia", `elsif v_kind is null then\n            v_p := v_p || public.package_problem('${b.jenisMedia.kode}'`, ""],
+        ["transkripWajib", `if v_kind in (${b.transkripWajib.nilai.map((v) => `'${v}'`).join(", ")}) and public.package_text(md, 'transcript') is null then\n              v_p := v_p || public.package_problem('${b.transkripWajib.kode}'`, ""],
+        ["miskonsepsi", `not exists (select 1 from public.${b.miskonsepsi.nilai} mt where mt.code = v_t) then\n              v_p := v_p || public.package_problem('${b.miskonsepsi.kode}'`, ""],
+        ["teksMaks.kursus", `if length(coalesce(public.package_text(c, v_t), '')) > ${t.judulKursus} then\n        v_p := v_p || public.package_problem('${b.teksMaks.kode}', c, v_path, v_t)`, ""],
+        ["teksMaks.judulBab", `length(public.package_text(m, 'title')) > ${t.judulBab} then v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+        ["teksMaks.judulPelajaran", `length(public.package_text(l, 'title')) > ${t.judulPelajaran} then v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+        ["teksMaks.isiPelajaran", `length(public.package_text(l, 'body_markdown')) > ${t.isiPelajaran} then\n          v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+        ["teksMaks.ringkasan", `length(coalesce(public.package_text(l, 'summary'), '')) > ${t.ringkasan} then\n          v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+        ["teksMaks.soal", `length(public.package_text(i, 'stem')) > ${t.soal} then v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+        ["teksMaks.stimulus", `length(coalesce(public.package_text(i, 'stimulus'), '')) > ${t.stimulus} then\n            v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+        ["teksMaks.kelompokSetara", `if length(v_t) > ${t.kelompokSetara} then v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+        ["teksMaks.pilihan", `length(public.package_text(o, 'body')) > ${t.pilihan} then v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+        ["teksMaks.alasan", `length(public.package_text(o, 'rationale')) > ${t.alasan} then v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
+      ];
+      for (const [nama, potongan] of klausa) {
+        c.expect(sql.includes(potongan), `BATAS_PAKET.${nama} is not the clause lesson_package_check enforces`);
+      }
+      c.expect(t.mapel === t.judulKursus && t.jenjang === t.judulKursus && t.kelas === t.judulKursus,
+        "the course's subject, stage and grade share the title's limit in the database");
+      c.expect(sql.includes("foreach v_t in array array['title', 'subject', 'stage', 'grade_label'] loop"),
+        "the course's four texts are no longer checked by one limit");
+      // the media kinds are exactly the extensions package_media_kind knows
+      const fn = /create function public\.package_media_kind[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const db: Record<string, string[]> = {};
+      for (const m of fn.matchAll(/when p_name ~ '\\\.\(([^)]*)\)\$'\s+then '([a-z]+)'|when p_name ~ '\\\.([a-z]+)\$'\s+then '([a-z]+)'/g)) {
+        const kind = m[2] ?? m[4];
+        const ext = (m[1] ?? m[3]).split("|").flatMap((e) => (e === "jpe?g" ? ["jpg", "jpeg"] : [e]));
+        db[kind] = ext.sort();
+      }
+      const kontrak = Object.fromEntries(Object.entries(b.jenisMedia.nilai).map(([k, v]) => [k, [...v].sort()]));
+      c.expect(JSON.stringify(db) === JSON.stringify(kontrak),
+        `package_media_kind knows ${JSON.stringify(db)} and the template states ${JSON.stringify(kontrak)}`);
+      const codes = new Set<string>(KODE_MASALAH_PAKET);
+      for (const [nama, v] of Object.entries(b)) c.expect(codes.has(v.kode), `BATAS_PAKET.${nama} names ${v.kode}, not a contract code`);
+      return c.verdict(`the template's v1 limits are the reader's (5 MB, 40 MB unpacked, 10,000 rows, 200 columns) and `
+        + `the database's (20 courses, 500 lessons, 2,000 questions, 2-5 options labelled A-E, MCQ_SINGLE and MCQ_MULTI, `
+        + `media names up to 110 characters of ${Object.keys(b.jenisMedia.nilai).length} kinds, a transcript for sound and video, `
+        + `taxonomy misconceptions only, and ${Object.keys(t).length} text lengths), each with its contract code`);
     },
   },
   {
