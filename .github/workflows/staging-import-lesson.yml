@@ -12,7 +12,10 @@
 #
 # WHAT IT NEVER TOUCHES
 #   Production. Staging's ref, origin and database URL only; the run stops if production's
-#   project answers the staging token. A course already imported is verified, not doubled.
+#   project answers the staging token. A course already imported is verified, not doubled,
+#   unless `replace_unreleased` is ticked: then a course that is still a draft and that
+#   nothing uses (no release, test, assignment, template, progress, presented question or
+#   health row) is removed in one transaction and the package imported afresh (Yazid, 24 Sep).
 #
 # WHEN IT RUNS
 #   By hand only.
@@ -33,6 +36,10 @@ on:
         description: "School slug on staging"
         required: true
         default: sd-zps
+      replace_unreleased:
+        description: "Replace the course if it exists and is an unreleased draft nothing uses"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -90,6 +97,7 @@ jobs:
           PACKAGE_JSON: ${{ github.workspace }}/${{ inputs.package }}
           MEDIA_DIR: ${{ github.workspace }}/media-branch/media
           SCHOOL_SLUG: ${{ inputs.school }}
+          REPLACE_UNRELEASED: ${{ inputs.replace_unreleased }}
           SHOTS_DIR: ${{ github.workspace }}/shots
         run: |
           cd /tmp/tools && node import-staging.mjs
