@@ -289,7 +289,7 @@ export const AKUN_AKTIF = 0;
 // ═══════════════════════════════════════ 4. a refusal, as a sentence
 
 /**
- * WP5A'S ELEVEN VALIDATION PROBLEMS, EACH AS A COPY KEY.
+ * WP5A'S VALIDATION PROBLEMS (TWELVE SINCE M5a), EACH AS A COPY KEY.
  *
  * `import_row_problems` returns phrases written for a developer —
  * "display_name is missing or too long", "node_id is outside your provisioning
@@ -312,6 +312,8 @@ export const MASALAH: Record<string, string> = {
   "node_id is not a uuid": "pendataan.masalah.tempat_bentuk",
   "node_id is not an organizational node of this institution": "pendataan.masalah.tempat_asing",
   "node_id is outside your provisioning scope": "pendataan.masalah.tempat_luar",
+  // BOB-01 / M5a: a learner row placed anywhere but an active Kelas or Tingkat
+  "a learner is placed in an active Kelas or Tingkat": "pendataan.masalah.tempat_murid",
   "role is not a role this platform has": "pendataan.masalah.peran_asing",
   "this role is not granted by bulk provisioning": "pendataan.masalah.peran_dilarang",
   "a role needs an organizational node to be scoped to": "pendataan.masalah.peran_tanpa_tempat",

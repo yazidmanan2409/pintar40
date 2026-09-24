@@ -14,6 +14,11 @@
       "suite": "selftest.run_fable09()",
       "control_green": 6,
       "what": "the systemic repair: an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)"
+    },
+    "db-bob01-gates": {
+      "suite": "selftest.run_fable10()",
+      "control_green": 8,
+      "what": "BOB-01's school structure functions (who may build a school's Bagian, Tingkat and Kelas, and every refusal's stable code) and the intake's M5a place and year rules"
     }
   },
   "plants": [
@@ -196,6 +201,72 @@
       "gate": "db-r1-gates",
       "expect_red": "F09-A03",
       "expect_detail": "the STUDENT row was not enrolled in its class"
+    },
+    {
+      "name": "bob01-1",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S03",
+      "expect_detail": "a DEAN at the school: create_bagian answered ok -- it was accepted"
+    },
+    {
+      "name": "bob01-2",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S04",
+      "expect_detail": "another school's admin: create_bagian answered ok -- it was accepted"
+    },
+    {
+      "name": "bob01-3",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S04",
+      "expect_detail": "a foreign node and an unknown node answer differently"
+    },
+    {
+      "name": "bob01-4",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S05",
+      "expect_detail": "a Kelas of another year under a 2026/2027 Tingkat answered ok"
+    },
+    {
+      "name": "bob01-5",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S01",
+      "expect_detail": "2 Jenjang for one school"
+    },
+    {
+      "name": "bob01-6",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-M01",
+      "expect_detail": "a learner placed in a Bagian was accepted"
+    },
+    {
+      "name": "bob01-7",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-M02",
+      "expect_detail": "membership period must match the node's period"
+    },
+    {
+      "name": "bob01-8",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S06",
+      "expect_detail": "a Bagian name in another case answered ok -- it was accepted, not STRUCTURE_NAME_TAKEN"
+    },
+    {
+      "name": "bob01-9",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S06",
+      "expect_detail": "deactivating a Kelas with a student placed answered ok -- it was accepted, not STRUCTURE_HAS_MEMBERS"
+    },
+    {
+      "name": "bob01-10",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S06",
+      "expect_detail": "an empty name answered PR020:, not STRUCTURE_NAME_INVALID"
+    },
+    {
+      "name": "bob01-11",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S03",
+      "expect_detail": "a DEAN at the school: school_structure answered ok -- it was accepted"
     }
   ]
 }
