@@ -187,7 +187,6 @@ export type HleEvent =
   | "auth.foot"
   | "auth.say_h"
   | "auth.say_p"
-  | "auth.placeholder"
   | "auth.link_h_exch"
   | "auth.link_p_exch"
   | "auth.link_h_exp"
@@ -1561,7 +1560,6 @@ const table: Table = {
   // LOAD-BEARING. The only sentence on the screen about what the system does,
   // and what it says is that the system does not decide. Not a tagline to cut.
   "auth.say_p": { default: "PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.", en: "PINTAR helps make sense of what is happening in the learning process. The decision stays with people." },
-  "auth.placeholder": { default: "FOTO CONTOH", en: "PLACEHOLDER PHOTO" },
   "auth.link_h_exch": { default: "Sedang memeriksa tautan…", en: "Checking the link…" },
   "auth.link_p_exch": { default: "Mohon tunggu sebentar. Jangan tutup halaman ini.", en: "Please wait a moment. Don't close this page." },
   "auth.link_h_exp": { default: "Tautan ini sudah tidak berlaku", en: "This link is no longer valid" },
