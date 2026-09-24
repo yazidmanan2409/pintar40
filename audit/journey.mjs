@@ -102,7 +102,8 @@ async function newPerson(page, name, email) {
   return { status: r.status(), body: await r.json().catch(() => null) };
 }
 async function grantViaForm(page, personName, roleValue, scopeLabelPart, until = "2027-06-30") {
-  await page.goto(`${APP}/konfigurasi#roles`, { waitUntil: "networkidle" });
+  // a real load every time: a hash-only change on the same path keeps a stale person list
+  await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
   const form = page.locator("form").filter({ has: page.locator('select[name="person"]') });
   const personOpt = await form.locator('select[name="person"] option').filter({ hasText: personName }).first().getAttribute("value");
   if (!personOpt) throw new Error(`"${personName}" is not offered in the Orang list`);
@@ -226,11 +227,16 @@ await step("S6", "the school admin's Orang list on day one (can they grant staff
 // D-005 (1): the school builds its own structure. When the candidate carries
 // the Struktur sekolah screen (DAISY-05), the school admin builds SD's Bagian,
 // Tingkat and Kelas there, and W1 (the operator's SQL) is skipped.
+const KIND = { bagian: "DEPARTMENT", tingkat: "COHORT", kelas: "CLASS" };
 async function tambahDi(page, tingkatan, nama) {
   const f = page.locator(`div.pin-str-tambah-${tingkatan} form`).first();
   await f.locator('input[name="nama"]').fill(nama);
   await f.locator('button[type="submit"]').click();
-  await page.locator("#struktur").getByText(nama, { exact: false }).first().waitFor({ timeout: 15000 }).catch(() => {});
+  // wait for the row itself: the step guide above the tree already names "Kelas Rendah"
+  for (let i = 0; i < 30; i++) {
+    if (Number(sql(`select count(*) from public.org_nodes where institution_id='${ids.sd}' and kind='${KIND[tingkatan]}' and name='${nama}' and is_active`)) > 0) break;
+    await page.waitForTimeout(500);
+  }
   await page.waitForLoadState("networkidle");
 }
 
