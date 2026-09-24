@@ -22,6 +22,20 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const APP = join(HERE, "..");
 
 const SHIPPED = ["index.html", "style.css", "content.js", "adapt.js", "app.js"];
+
+/**
+ * The only things outside the bundle it may reference, each by exact path:
+ * the site's logo and the product's typeface, both served from the same
+ * origin as Mini-PINTAR itself (the corporate site's shared/ folder), and
+ * the site's Home as a navigation link. Nothing is added by pattern, so no
+ * later edit can widen this into a stylesheet or script from elsewhere.
+ */
+const SHARED_IN_HTML = ["../shared/brand/pintar-selalu-logo.png"];
+const NAV_IN_HTML = ["/"];
+const SHARED_IN_CSS = [
+  "../shared/fonts/plus-jakarta-sans-latin.woff2",
+  "../shared/fonts/plus-jakarta-sans-latin-ext.woff2",
+];
 const PURE = ["content.js", "adapt.js"];
 
 const fails = [];
@@ -85,9 +99,9 @@ for (const file of SHIPPED) {
   }
 }
 
-// No external origin anywhere: no webfont, no CDN, no tracking pixel, no
-// preconnect. The only network activity is the browser fetching the five
-// files above. A page arguing that it keeps nothing about you has to be
+// No external origin anywhere: no third-party webfont, no CDN, no tracking
+// pixel, no preconnect. The only network activity is the browser fetching
+// the five files above and the same-origin shared assets named at the top. A page arguing that it keeps nothing about you has to be
 // true of its own requests first.
 //
 // XML NAMESPACE URIs ARE NOT ORIGINS. `http://www.w3.org/2000/svg` is an
@@ -115,14 +129,25 @@ for (const file of SHIPPED) {
   else checks += 1;
 }
 
-// Every relative reference resolves inside the bundle.
+// Every reference resolves inside the bundle, or is one of the named shared
+// assets.
 const refs = [
   ...(CODE["index.html"].match(/(?:src|href)="([^"]+)"/g) || []),
 ].map((m) => m.replace(/.*="([^"]+)"/, "$1"));
 for (const r of refs) {
-  if (!SHIPPED.includes(r)) fail(`reference outside the bundle: ${r}`, "index.html");
+  if (!SHIPPED.includes(r) && !SHARED_IN_HTML.includes(r) && !NAV_IN_HTML.includes(r))
+    fail(`reference outside the bundle: ${r}`, "index.html");
   else checks += 1;
 }
+const cssRefs = (CODE["style.css"].match(/url\(\s*["']?([^"')]+)["']?\s*\)/g) || [])
+  .map((m) => m.replace(/url\(\s*["']?([^"')]+)["']?\s*\)/, "$1"));
+for (const r of cssRefs) {
+  if (!SHARED_IN_CSS.includes(r)) fail(`stylesheet reference outside the bundle: ${r}`, "style.css");
+  else checks += 1;
+}
+// @import would fetch a second stylesheet that this file never sees.
+if (/@import/.test(CODE["style.css"])) fail("stylesheet @import", "style.css");
+else checks += 1;
 
 // ----------------------------------------------------------------- purity
 //
@@ -166,9 +191,8 @@ if (!CODE["app.js"].includes("thresholdReload"))
   fail("the threshold does not disclose that a reload restarts", "app.js");
 else checks += 1;
 
-// The language preference is read, never written: a functional preference
-// may live on the corporate site by its own mechanism, but nothing
-// educational may enter it and nothing here may write one.
+// The language preference is read, never written. The corporate site around
+// Mini-PINTAR keeps none either: language travels in ?lang= alone.
 if (!/URLSearchParams\(location\.search\)/.test(CODE["app.js"]))
   fail("initial language is not read from the document or the query", "app.js");
 else checks += 1;
@@ -183,6 +207,18 @@ for (const p of pushes) {
   else checks += 1;
 }
 if (pushes.length === 0) fail("no history handling found", "app.js");
+
+// Links back into the site carry the language and nothing else. The school
+// view's decision, like every answer, stays in the tab.
+const siteHref = CODE["app.js"].match(/const siteHref = \(path\) => `([^`]*)`;/);
+if (!siteHref) fail("no single builder for links back into the site", "app.js");
+else if (siteHref[1] !== "${path}?lang=${lang}")
+  fail(`a link back into the site carries more than the language: ${siteHref[1]}`, "app.js");
+else checks += 1;
+for (const m of CODE["app.js"].match(/location\.href\s*=\s*[^;]+;/g) || []) {
+  if (!/^location\.href\s*=\s*siteHref\(/.test(m)) fail(`navigation not built by siteHref: ${m}`, "app.js");
+  else checks += 1;
+}
 
 // --------------------------------------------------------------- report
 

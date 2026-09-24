@@ -16,7 +16,7 @@ import { serve, launch, Page } from "../../../mini-pintar/app/verify/driver.mjs"
 import { CONTRAST_EXPR, nonTextExpr } from "../../../mini-pintar/app/verify/probes.mjs";
 import {
   DOMAINS, MAP_ITEMS, CHECK_ITEMS, CHECK_ONLY_MISCONCEPTIONS, MAP_REASONS,
-  LESSONS, OUTCOMES, EVIDENCE_LIMIT, UI, REVEAL, TIER_LABELS,
+  LESSONS, OUTCOMES, EVIDENCE_LIMIT, NO_DELTA, UI, REVEAL, SCHOOL, TIER_LABELS,
 } from "../content.js";
 import { SKIP, mapVerdicts, buildPeta, outcomeFor } from "../adapt.js";
 
@@ -66,6 +66,9 @@ const NON_TEXT = nonTextExpr([
   ["step rail, reached", ".rail i.on", "backgroundColor"],
   ["primary action", "main button.btn:not(.btn--quiet):not(.btn--text)", "backgroundColor"],
   ["evidence limit rule", ".limit", "borderLeftColor"],
+  ["absent figure rule", ".fig__absent", "borderLeftColor"],
+  ["readiness bar", ".rbar i", "backgroundColor"],
+  ["simulated-data badge edge", ".badge", "borderLeftColor"],
 ]);
 
 const SMALL_TARGETS = `[...document.querySelectorAll('main button, main a')]
@@ -97,6 +100,11 @@ const pick = (p, label) => p.eval(`
     o.click(); return true; })()`).then(() => p.settle());
 
 const bodyText = (p) => p.eval("document.getElementById('main').innerText");
+
+/** From the reveal into the optional school's side. */
+const toSchool = (p) => p.eval(`(() => { const b = document.getElementById('to-school');
+    if (!b) throw new Error("no school offer at " + (location.hash || "#threshold"));
+    b.click(); return true; })()`).then(() => p.settle());
 
 /**
  * innerText is what the visitor SEES, which is the right thing to assert
@@ -260,6 +268,119 @@ try {
   const doors = await p.eval("[...document.querySelectorAll('.doors a')].map(a => a.textContent.trim())");
   assert(doors.length === 3, "three doors, not one CTA", String(doors.length));
 
+  // Every way out lands on a real route of the site, in the visitor's
+  // language, carrying nothing else.
+  const hrefs = await p.eval("[...document.querySelectorAll('.doors a')].map(a => a.getAttribute('href'))");
+  assert(JSON.stringify(hrefs) === JSON.stringify(REVEAL.doors.map((d) => `${d.href}?lang=id`)),
+    "the doors lead to the site's routes, with the language only", JSON.stringify(hrefs));
+  const brandHref = await p.eval("document.getElementById('brand').getAttribute('href')");
+  assert(brandHref === "/?lang=id", "the PINTAR SELALU mark leads Home, in the visitor's language", brandHref);
+  const logo = await p.eval(`(() => { const i = document.querySelector('#brand img');
+    return i && { src: i.getAttribute('src'), alt: i.alt, w: i.getAttribute('style'),
+      loaded: i.complete && i.naturalWidth === 766 && i.naturalHeight === 429,
+      h: Math.round(i.getBoundingClientRect().height) }; })()`);
+  assert(logo && logo.loaded, "the supplied logo is served and loads at its own size", JSON.stringify(logo));
+  assert(logo && logo.alt === "PINTAR SELALU", "the logo is named as the product names it", JSON.stringify(logo));
+  assert(logo && logo.h === 36, "the logo is 36px high, width never set, as in the product", JSON.stringify(logo));
+  const font = await p.eval(`document.fonts.check('16px "Plus Jakarta Sans"') &&
+    getComputedStyle(document.body).fontFamily.startsWith('"Plus Jakarta Sans"')`);
+  assert(font, "the product's typeface is loaded and used");
+
+  // ------------------------------------------- the school's side (optional)
+  phase("the school's side");
+  assert(shows(reveal, REVEAL.school.id), "the reveal offers the school's side");
+  assert(shows(reveal, REVEAL.schoolNote.id), "the offer says it is optional and about a minute");
+  await toSchool(p);
+  assert((await hash(p)) === "#pendidik", "the school's side opens on the educator", await hash(p));
+  {
+    const E = SCHOOL.educator;
+    const edu = await bodyText(p);
+    assert(shows(edu, E.title.id), "the educator's screen carries the product's own title");
+    assert(shows(edu, E.intro.id), "and the product's own sentence about concluding only on enough evidence");
+    assert(shows(edu, `${E.submitted.id} 1 / 1`), "one learner, and it says so");
+    const figs = await p.eval(`[...document.querySelectorAll('[data-view=educator] .fig')]
+      .map(f => [f.dataset.metric, f.dataset.state, f.querySelector('.fig__absent')?.textContent])`);
+    assert(figs.length === E.figures.length, "every class figure is drawn", JSON.stringify(figs));
+    for (const f of E.figures) {
+      const got = figs.find((x) => x[0] === f.metric);
+      assert(got && got[1] === "belum_cukup" && got[2] === `${SCHOOL.absent.belum_cukup.id} (1/${f.needed})`,
+        `with one learner, ${f.metric} is below its minimum and says so in the product's sentence`,
+        JSON.stringify(got));
+    }
+    assert(!(await p.eval("!!document.querySelector('[data-view=educator] .fig__value')")),
+      "no figure is shown for a class of one");
+    assert(shows(edu, NO_DELTA.id), "Kenaikan is not drawn, and the reason is given");
+    assert(shows(edu, E.foot.id), "the educator is told what they do not see");
+    const answerTexts = [...MAP_ITEMS, ...Object.values(CHECK_ITEMS).flat()]
+      .flatMap((i) => i.options.map((o) => o.text.id));
+    const leaked = answerTexts.filter((x) => shows(edu, x));
+    assert(leaked.length === 0, "the educator's side shows none of the visitor's answers", leaked.join(" | "));
+    assert(await p.eval(`!document.querySelector('.opt[aria-checked="true"]')`), "no next step is preselected");
+    assert((await p.eval("document.querySelector('.options')?.getAttribute('role')")) === "radiogroup",
+      "the decision is a real radio group");
+    assert(!shows(edu, E.ack.id), "nothing is acknowledged before a choice");
+    await pick(p, "A");
+    assert(shows(await bodyText(p), E.ack.id), "the choice is acknowledged as the visitor's own, and not kept");
+    assert((await p.eval(`document.querySelector('.opt[aria-checked="true"]')?.dataset.label`)) === "A",
+      "the choice is shown as chosen");
+
+    await clickPrimary(p);
+    assert((await hash(p)) === "#pimpinan", "the educator's side continues to management", await hash(p));
+    const M = SCHOOL.management;
+    const mg = await bodyText(p);
+    assert(shows(mg, M.badge.id), "the management side is badged DATA SIMULASI");
+    assert(await p.eval(`document.querySelector('.badge').getBoundingClientRect().top <
+      document.querySelector('[data-view=management]').getBoundingClientRect().top`),
+      "the badge comes before any figure");
+    assert(shows(mg, M.sub.id), "it says the figures are the same for everyone and none is the visitor's");
+    const mfigs = await p.eval(`[...document.querySelectorAll('[data-view=management] .fig')]
+      .map(f => [f.dataset.metric, f.dataset.state, f.innerText])`);
+    assert(mfigs.length === M.figures.length, "every management figure is drawn", JSON.stringify(mfigs));
+    for (const f of M.figures) {
+      const got = mfigs.find((x) => x[0] === f.metric);
+      assert(got && got[1] === f.state, `${f.metric} is drawn in its declared evidence state`, JSON.stringify(got));
+      if (got && f.state === "belum_cukup")
+        assert(shows(got[2], `${SCHOOL.absent.belum_cukup.id} (${f.have}/${f.needed})`),
+          `${f.metric} is below its minimum and says so`, got[2]);
+      if (got && f.state === "cukup")
+        assert(shows(got[2], f.label.id) && (f.meaning ? shows(got[2], f.meaning.id) : true),
+          `${f.metric} carries the product's label and meaning`, got[2]);
+    }
+    for (const x of Object.values(M.tiers))
+      assert(shows(mg, x.name.id) && shows(mg, x.rule.id), "every readiness tier is named with its rule", x.name.id);
+    const counts = await p.eval(`Object.fromEntries([...document.querySelectorAll('.kesiapan li')]
+      .map(li => [li.dataset.state, li.querySelector('strong').textContent]))`);
+    const want = { cukup: 0, belum_cukup: 0, belum_ada: 0 };
+    for (const f of M.figures) want[f.state] += 1;
+    for (const [k, n] of Object.entries(want)) {
+      if (n === 0) assert(!(k in counts), `an empty evidence state is not drawn (${k})`, JSON.stringify(counts));
+      else assert(counts[k] === String(n), `evidence readiness counts the figures (${k})`, JSON.stringify(counts));
+    }
+    assert(shows(mg, M.readiness.note.id), "the product's note on evidence that is not yet enough");
+    const bars = await p.eval(`[...new Set([...document.querySelectorAll('.rbar i')]
+      .map(i => getComputedStyle(i).backgroundColor))]`);
+    assert(bars.length === 1 && bars[0] === "rgb(95, 106, 115)",
+      "every readiness bar is one neutral ink, never a tier colour", JSON.stringify(bars));
+
+    // Back returns to the educator's side with the choice still there.
+    await p.eval("history.back()"); await p.settle();
+    assert((await hash(p)) === "#pendidik", "back returns to the educator's side", await hash(p));
+    assert((await p.eval(`document.querySelector('.opt[aria-checked="true"]')?.dataset.label`)) === "A",
+      "the choice survives back, in memory");
+    await p.eval(`[...document.querySelectorAll('#lang button')].find(b => b.textContent === 'EN').click()`);
+    await p.settle();
+    const eduEn = await bodyText(p);
+    assert(shows(eduEn, E.intro.en) && shows(eduEn, SCHOOL.absent.belum_cukup.en),
+      "the educator's side speaks English too", eduEn.slice(0, 80));
+    assert((await p.eval("document.getElementById('brand').getAttribute('href')")) === "/?lang=en",
+      "the way Home follows the language");
+    await clickPrimary(p);
+    const mgEn = await bodyText(p);
+    assert(shows(mgEn, M.badge.en) && shows(mgEn, M.readiness.note.en), "the management side speaks English too");
+    await p.eval(`[...document.querySelectorAll('#lang button')].find(b => b.textContent === 'ID').click()`);
+    await p.settle();
+  }
+
   // ------------------------------------ nothing is written to the device
   phase('device storage');
   const storage = await p.eval(`(async () => ({
@@ -306,10 +427,12 @@ try {
 
   // --------------------------------------- a deep link shows nobody's result
   phase('deep link');
-  await p.goto(BASE + "#hasil");
-  const deep = await bodyText(p);
-  assert(shows(deep, UI.thresholdLede.id), "deep link to a result redirects to the threshold");
-  assert((await hash(p)) === "", "the stale hash is cleared", await hash(p));
+  for (const target of ["#hasil", "#pendidik", "#pimpinan"]) {
+    await p.goto(BASE + target);
+    const deep = await bodyText(p);
+    assert(shows(deep, UI.thresholdLede.id), `deep link to ${target} redirects to the threshold`);
+    assert((await hash(p)) === "", "the stale hash is cleared", await hash(p));
+  }
 
   // ------------------------------------- back keeps the answer, and it changes
   await p.goto(BASE);
@@ -503,6 +626,8 @@ try {
     await clickPrimary(p); await pick(p, "B"); await clickPrimary(p);
     await clickPrimary(p);                  await sweep("hasil");
     await clickPrimary(p);                  await sweep("reveal");
+    await toSchool(p);                      await sweep("sisi pendidik");
+    await pick(p, "B"); await clickPrimary(p); await sweep("sisi pimpinan");
     assert(seen.length === 0, "no misconception code appears in the document", seen.join("; "));
   }
 
@@ -534,6 +659,15 @@ try {
     await clickPrimary(p); await pick(p, "B"); await clickPrimary(p);
     await clickPrimary(p); await measure("hasil");
     await clickPrimary(p); await measure("reveal");
+    await toSchool(p); await measure("sisi pendidik");
+    await pick(p, "C"); await measure("sisi pendidik, chosen");
+    await clickPrimary(p); await measure("sisi pimpinan");
+    for (const stop of ["sisi pimpinan"]) {
+      const small = await p.eval(SMALL_TEXT);
+      const tgt = await p.eval(SMALL_TARGETS);
+      assert(small.length === 0, `no text under 14px (${label}/${stop})`, JSON.stringify(small));
+      assert(tgt.length === 0, `targets at least 44px (${label}/${stop})`, JSON.stringify(tgt));
+    }
   }
   await p.viewport(1280, 900);
 
@@ -556,7 +690,7 @@ try {
   await p.goto(BASE + "?lang=id");
   phase('keyboard only');
   const kb = await keyboardJourney(p);
-  assert(kb.finished, "keyboard alone completes the whole journey", kb.detail);
+  assert(kb.finished, "keyboard alone completes the whole journey, school's side included", kb.detail);
 
   // ----------------------------------------------- accessibility structure
   await p.goto(BASE);
@@ -626,6 +760,14 @@ try {
     const overflow = await p.eval(
       "document.documentElement.scrollWidth - document.documentElement.clientWidth");
     assert(overflow <= 0, `no horizontal overflow at ${label}`, String(overflow));
+    await toSchool(p);
+    for (const stop of ["sisi pendidik", "sisi pimpinan"]) {
+      const o = await p.eval("document.documentElement.scrollWidth - document.documentElement.clientWidth");
+      assert(o <= 0, `no horizontal overflow at ${label} (${stop})`, String(o));
+      const small = await p.eval(SMALL_TEXT);
+      assert(small.length === 0, `no text under 14px at ${label} (${stop})`, JSON.stringify(small));
+      if (stop === "sisi pendidik") await clickPrimary(p);
+    }
   }
   // A sticky action bar that covers an option is a trap that no width
   // measurement can see: hit-test the centre of every option, at the
@@ -721,6 +863,8 @@ try {
       await clickPrimary(p);                        // -> hasil
       await shot("6-hasil-belum-cukup");
       await clickPrimary(p); await shot("7-reveal");
+      await toSchool(p); await pick(p, "A"); await shot("8-sisi-pendidik");
+      await clickPrimary(p); await shot("9-sisi-pimpinan");
     }
     console.log(`screens written to ${SHOT_DIR}`);
   }
@@ -744,14 +888,14 @@ async function keyboardJourney(page) {
 
   for (let guard = 0; guard < 80; guard += 1) {
     const step = await page.eval("location.hash || '#threshold'");
-    if (step === "#reveal") return { finished: true, detail: `reached in ${guard} steps` };
+    if (step === "#pimpinan") return { finished: true, detail: `reached in ${guard} steps` };
 
     // Once a check answer is committed the options are a plain list, not
     // controls: there is nothing to choose and the only action is to
     // continue.
     const fixed = await page.eval("!!document.querySelector('.options--fixed')");
 
-    if (!fixed && (step.startsWith("#map") || step.startsWith("#check"))) {
+    if (!fixed && (step.startsWith("#map") || step.startsWith("#check") || step === "#pendidik")) {
       // Reach the radio group, choose with the arrow keys, then the
       // primary action. Nothing here uses a pointer.
       const reached = await page.eval(`(() => {
@@ -764,12 +908,14 @@ async function keyboardJourney(page) {
       if (!chosen) return { finished: false, detail: "space did not choose at " + step };
     }
 
-    // Tab forward until the primary action has focus, then press it.
+    // Tab forward until the primary action has focus, then press it. On the
+    // reveal, the way on is the optional school's side.
+    const target = step === "#reveal" ? "#to-school" : PRIMARY;
     let pressed = false;
     for (let i = 0; i < 14; i += 1) {
       await TAB();
       const onPrimary = await page.eval(
-        `document.activeElement === document.querySelector(${JSON.stringify(PRIMARY)})`);
+        `document.activeElement === document.querySelector(${JSON.stringify(target)})`);
       if (onPrimary) {
         await ENTER();
         pressed = true;
@@ -778,7 +924,7 @@ async function keyboardJourney(page) {
     }
     if (!pressed) return { finished: false, detail: "primary action unreachable by Tab at " + step };
   }
-  return { finished: false, detail: "did not reach the reveal within the guard" };
+  return { finished: false, detail: "did not reach the school's side within the guard" };
 }
 
 // --------------------------------------------------------------- report
@@ -792,4 +938,5 @@ console.log(FAST
   ? `journey OK (REDUCED, MINI_PINTAR_FAST=1) — ${checks} checks: ${FAST ? 2 : 8} of 8 map ` +
     `shapes, one viewport, no screenshots. Not the verification of record.`
   : `journey OK — ${checks} checks in a real browser: 8 map shapes, 12 terminal ` +
-    `states, keyboard-only completion, zero storage writes, zero external requests`);
+    `states, the school's side in both languages, keyboard-only completion, ` +
+    `zero storage writes, zero external requests`);

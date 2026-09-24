@@ -272,6 +272,8 @@ export const LESSONS = {
         L("Lalu: berapa lama? Satu minggu.", "Then: for how long? One week."),
         L("Lalu: apa lagi yang berubah pada waktu yang sama, dan adakah kelompok serupa yang tidak mencobanya? Tanpa pembanding, buktinya belum memisahkan apa pun.",
           "Then: what else changed over the same period, and was there a similar group that did not try it? Without something to compare against, the evidence has not separated anything yet."),
+        L("Terakhir, pilih kalimat yang sanggup dipikul buktinya: sebut apa yang sudah terlihat, apa yang belum boleh dikatakan, dan apa yang masih dikumpulkan.",
+          "Last, choose the sentence the evidence can carry: say what has been seen, what may not be said yet, and what is still being gathered."),
       ],
     },
   },
@@ -302,6 +304,8 @@ export const LESSONS = {
           "Reverse it: could higher grades be what leads students to bring lunch? If you cannot rule that out, the claim is not standing yet."),
         L("Cari hal ketiga: adakah sesuatu yang memengaruhi keduanya? Jika ada, klaim sebab belum boleh diambil.",
           "Look for a third thing: is there something shaping both? If there is, the causal claim cannot be made yet."),
+        L("Jika sebabnya tetap belum jelas, jangan buang temuannya: tuliskan hubungannya, nyatakan batasnya, lalu rancang pemeriksaan yang bisa membuktikan dugaan itu keliru.",
+          "If the cause is still unclear, do not throw the finding away: write the link down, state its limit, then design a check that could prove the hunch wrong."),
       ],
     },
   },
@@ -641,7 +645,7 @@ export const REVEAL = {
     { step: L("Pemetaan Awal", "Initial Mapping"),
       note: L("Jawaban Anda bukan nilai. Jawaban Anda adalah bukti.",
               "Your answers were not a score. They were evidence.") },
-    { step: L("Peta Bacaan", "Reading Map"),
+    { step: L("Peta Bacaan Personal", "Personal Reading Map"),
       note: L("Urutannya berubah karena jawaban Anda. Ini urutan, bukan peringkat.",
               "The order changed because of your answers. It is an order, not a ranking.") },
     { step: L("Pelajaran", "Lesson"),
@@ -664,17 +668,137 @@ export const REVEAL = {
   honesty: L(
     "Yang barusan adalah miniatur publik: bukan asesmen resmi, tidak menghasilkan sertifikat, dan tidak meninggalkan catatan tentang Anda.",
     "What you just did is a public miniature: not an official assessment, it issues no certificate, and it leaves no record of you."),
+  // Routes of the corporate site that contains Mini-PINTAR. app.js adds
+  // ?lang= so the visitor arrives in the language they were using.
   doors: [
-    { label: L("Apa artinya bagi pendidik", "What this means for educators"), href: "/cara-kerja" },
-    { label: L("Bagaimana PINTAR menjaga bukti", "How PINTAR protects evidence"), href: "/bukti" },
-    { label: L("Bicara dengan kami", "Talk to us"), href: "/tentang#kontak" },
+    { label: L("Apa artinya bagi pendidik", "What this means for educators"), href: "/untuk-pendidik/" },
+    { label: L("Bagaimana PINTAR menjaga bukti", "How PINTAR protects evidence"), href: "/laporan/" },
+    { label: L("Bicara dengan kami", "Talk to us"), href: "/kontak/" },
   ],
+  // The optional continuation. Offered, never required, and it adds about a
+  // minute to a journey that is about three.
+  school: L("Lihat dari sisi sekolah", "See it from the school’s side"),
+  schoolNote: L("Sekitar satu menit, opsional.", "About one minute, optional."),
+};
+
+// ------------------------------------------------ Lihat dari sisi sekolah
+//
+// The optional continuation after the reveal: what PINTAR shows the SCHOOL,
+// drawn from the product rather than invented beside it.
+//
+//   Sisi pendidik. The visitor is the only learner in the class, so every
+//   class figure is below MC-1's minimum and says so in the product's own
+//   sentence (laporan.metrik.belum_cukup_data, with have/needed). Nothing of
+//   the visitor's answers is shown: an educator does not see item-level
+//   answers in PINTAR either (mengajar.bukti.kaki). Kenaikan is not drawn,
+//   for the reason NO_DELTA already gives. The decision is the visitor's,
+//   between two of the product's own next steps (mengajar.langkah.f5, f4)
+//   and doing nothing; none is preselected and none is kept.
+//
+//   Sisi pimpinan. A simulated class of 24, the same for every visitor and
+//   badged DATA SIMULASI, showing the class figures the product's management
+//   view reads (pimpinan.ts METRIK_SIMPUL). One of them is below its minimum.
+//   Evidence readiness is counted from the figures, never typed beside them.
+//
+// Every label, meaning sentence, tier name and state name is hle.ts, word for
+// word; every minimum is MC-1's. The corporate verifier checks both against
+// website/corporate/verify/canonical-snapshot.mjs, which is itself checked
+// against the product.
+
+export const SCHOOL = {
+  educator: {
+    eyebrow: L("SISI PENDIDIK", "THE EDUCATOR’S SIDE"),
+    headline: L("Bayangkan Anda pendidiknya, dan kelas ini hanya berisi satu murid: Anda.",
+                "Imagine you are the educator, and this class has one learner: you."),
+    title: L("Apa yang sudah bisa disimpulkan", "What can be concluded so far"),
+    intro: L("PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum.",
+             "PINTAR only concludes when the official evidence is enough. Not yet enough does not mean bad — it means not yet."),
+    where: L("Keadaan hari ini", "Where things stand today"),
+    submitted: L("Mengumpulkan", "Submitted"),
+    conclusions: L("Kesimpulan", "Conclusions"),
+    figures: [
+      { metric: "class.comprehension", state: "belum_cukup", have: 1, needed: 5,
+        label: L("Pemahaman", "Comprehension") },
+      { metric: "class.topic_mastery", state: "belum_cukup", have: 1, needed: 5,
+        label: L("Penguasaan per topik", "Mastery by topic") },
+      { metric: "class.misconceptions", state: "belum_cukup", have: 1, needed: 3,
+        label: L("Pemahaman keliru yang berulang", "Recurring misunderstandings") },
+      { metric: "class.readiness_distribution", state: "belum_cukup", have: 1, needed: 5,
+        label: L("Sebaran kesiapan", "Readiness distribution") },
+    ],
+    foot: L("Yang tidak tampil di sini: penilaian per soal dan sinyal integritas. Keduanya ditinjau Kepala Departemen, bukan pengajar.",
+            "Not shown here: item-level review and integrity signals. Both are reviewed by the Head of Department, not the educator."),
+    decide: L("Yang bisa Anda lakukan sekarang", "What you can do now"),
+    options: [
+      { label: "A", step: "f5",
+        text: L("Uji Cepat untuk mengecek pemahaman hari ini", "Quick Assessment to check today's understanding") },
+      { label: "B", step: "f4",
+        text: L("Siapkan materi berikutnya untuk kelas ini", "Prepare the next material for this class") },
+      { label: "C", step: "none",
+        text: L("Tidak ada tindakan sekarang", "No action for now") },
+    ],
+    ack: L("Itu keputusan Anda, bukan keputusan PINTAR. Di demonstrasi ini, pilihan Anda tidak disimpan ke mana pun.",
+           "That is your decision, not PINTAR’s. In this demonstration your choice is not kept anywhere."),
+    next: L("Lanjut ke sisi pimpinan", "Continue to the management side"),
+  },
+
+  management: {
+    badge: L("DATA SIMULASI", "SIMULATED DATA"),
+    eyebrow: L("SISI PIMPINAN", "THE MANAGEMENT SIDE"),
+    headline: L("Sekarang bayangkan satu kelas berisi 24 murid.", "Now imagine one class of 24 students."),
+    sub: L("Seperti yang dilihat Kepala departemen untuk kelas itu. Angkanya dibuat untuk contoh ini dan sama untuk setiap pengunjung; tidak ada yang berasal dari jawaban Anda.",
+           "As a Head of department would see that class. The figures are made up for this example and are the same for every visitor; none of them comes from your answers."),
+    title: L("Yang didukung bukti", "What the evidence supports"),
+    from: L("dari", "from"),
+    figures: [
+      { metric: "class.participants", kind: "count", value: 22, state: "cukup", have: 22, needed: 1,
+        label: L("Peserta", "Students"),
+        meaning: L("Banyaknya murid yang mengerjakan penilaian di kelas ini.", "How many students took the assessment in this class.") },
+      { metric: "class.comprehension", kind: "percent", value: 0.71, state: "cukup", have: 22, needed: 5,
+        label: L("Pemahaman", "Comprehension"),
+        meaning: L("Rata-rata penguasaan kelas pada penilaian akhir.", "The class's average mastery on the Mastery Check.") },
+      { metric: "class.net_gain", kind: "percent", state: "belum_cukup", have: 4, needed: 5,
+        label: L("Kenaikan", "Gain"),
+        meaning: L("Selisih penguasaan sebelum dan sesudah pembelajaran, per murid.", "The difference in mastery before and after the lessons, per student.") },
+      { metric: "class.readiness_distribution", kind: "tiers", state: "cukup", have: 24, needed: 5,
+        label: L("Sebaran kesiapan", "Readiness distribution"),
+        meaning: L("Banyaknya murid pada tiap tingkat kesiapan.", "How many students sit at each readiness tier."),
+        tiers: { siap_sertifikasi: 8, perlu_review: 7, butuh_pendampingan: 7, belum_post_test: 2 } },
+    ],
+    // MC-1's four readiness tiers (kesiapan.*), in the catalogue's order.
+    tiers: {
+      siap_sertifikasi: { name: L("Siap sertifikasi", "Ready for certification"),
+        rule: L("penguasaan 80% ke atas, dan semua butir wajib dijawab benar", "mastery of 80% or more, and every required item answered correctly") },
+      perlu_review: { name: L("Perlu review", "Needs review"),
+        rule: L("penguasaan 60–79%", "mastery of 60–79%") },
+      butuh_pendampingan: { name: L("Butuh pendampingan ekstra", "Needs extra support"),
+        rule: L("penguasaan di bawah 60%, atau tidak semua butir wajib dijawab benar", "mastery below 60%, or not every required item answered correctly") },
+      belum_post_test: { name: L("Belum mengerjakan penilaian akhir", "Mastery Check not yet taken"),
+        rule: L("belum mengerjakan Uji Penguasaan", "has not yet taken the Mastery Check") },
+    },
+    readiness: {
+      title: L("Kesiapan bukti", "Evidence readiness"),
+      cukup: L("Cukup untuk ditafsirkan", "Enough to interpret"),
+      belum_cukup: L("Sudah ada, belum cukup", "Some, not enough yet"),
+      belum_ada: L("Belum ada yang memenuhi syarat", "Nothing qualifying yet"),
+      note: L("Bukti yang belum cukup bukan hasil yang buruk. Artinya PINTAR belum boleh menyimpulkan apa pun, dan angkanya muncul sendiri ketika buktinya memenuhi syarat.",
+              "Evidence that is not yet enough is not a poor result. It means PINTAR may not conclude anything yet, and the figure appears on its own once the evidence qualifies."),
+    },
+  },
+
+  // The product's two absence sentences (laporan.metrik.*), word for word.
+  absent: {
+    belum_cukup: L("Belum cukup data untuk menampilkan angka ini.", "Not enough data to show this figure yet."),
+    belum_ada: L("Belum ada bukti yang memenuhi syarat untuk angka ini.", "No qualifying evidence for this figure yet."),
+  },
+  stepEducator: L("Sisi pendidik", "The educator’s side"),
+  stepManagement: L("Sisi pimpinan", "The management side"),
 };
 
 // ------------------------------------------------------------ chrome and UI
 
 export const UI = {
-  brand: L("mini-pintar", "mini-pintar"),
+  brand: L("Mini-PINTAR", "Mini-PINTAR"),
   exit: L("Keluar", "Exit"),
   // The first of exactly two honesty statements. Duration ruled 2026-09-18:
   // "sekitar tiga menit / about three minutes", never "dua menit".
@@ -686,7 +810,7 @@ export const UI = {
   start: L("Mulai", "Start"),
 
   stepMap: L("Pemetaan Awal", "Initial Mapping"),
-  stepPeta: L("Peta Bacaan", "Reading Map"),
+  stepPeta: L("Peta Bacaan Personal", "Personal Reading Map"),
   stepLesson: L("Pelajaran", "Lesson"),
   stepCheck: L("Uji Penguasaan", "Mastery Check"),
   stepHasil: L("Hasil", "Result"),

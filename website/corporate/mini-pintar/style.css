@@ -1,7 +1,7 @@
 /* Mini-PINTAR — visual direction. Stage H.
  *
  * Starting point: the PINTAR presentation deck, which is the one piece of
- * PINTAR 4.0 visual language that has been through review. Its palette,
+ * PINTAR visual language that has been through review. Its palette,
  * its hairlines, its left accent rules and its quiet tracked labels are
  * carried over. This is the same language spoken on a screen, not a second
  * brand for Mini-PINTAR.
@@ -13,15 +13,39 @@
  *
  * Two constraints the design is built around rather than decorated with:
  *
- *   No external origin. No webfont, no CDN, no icon font. This is the one
- *   page in the product whose argument is that it keeps nothing about the
- *   visitor, and that has to be true of its own network activity first. So
- *   the type is a system stack and every mark is inline SVG or a border.
+ *   No external origin. No CDN, no third-party webfont, no icon font. This
+ *   is the one page whose argument is that it keeps nothing about the
+ *   visitor, and that has to be true of its own network activity first. The
+ *   typeface is the product's own Plus Jakarta Sans, served from the same
+ *   origin as the rest of the corporate site (../shared/fonts/, copied byte
+ *   for byte from the product), and every mark is inline SVG or a border.
+ *   Weights are the product's two: 400 and 600.
  *
  *   Nothing below 14px, anywhere. M1 §9 allowed 12px for the step
  *   indicator; the indicator here is a rail with a visually-hidden text
  *   equivalent, so the exception is not needed and is not taken.
  */
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("../shared/fonts/plus-jakarta-sans-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("../shared/fonts/plus-jakarta-sans-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
 
 :root {
   /* Surfaces — the product ground, a card, a sunk panel. */
@@ -63,7 +87,7 @@
   --gutter: 1rem;
   --radius: 3px;
 
-  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+  --sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
   --settle: 320ms;
@@ -117,13 +141,20 @@ body {
   gap: var(--s3);
 }
 
-.brand {
+/* The supplied PINTAR SELALU mark, rendered the product's way (MerekPintar):
+ * height set, width never set. It leads Home; the demonstration's name sits
+ * beside it, outside the link. */
+.brand { display: flex; align-items: center; gap: var(--s2); flex: none; }
+.brand__home { display: flex; align-items: center; min-height: 44px; border-radius: var(--radius); }
+.brand__logo { height: 36px; width: auto; display: block; }
+.brand__demo {
   font-size: var(--t-small);
   color: var(--ink-3);
-  letter-spacing: 0.04em;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 400;
 }
+@media (max-width: 720px) { .brand__logo { height: 32px; } }
+@media (max-width: 380px) { .brand__demo { display: none; } }
 
 .chrome__mid { flex: 1; display: flex; justify-content: center; min-width: 0; }
 .chrome__end { display: flex; align-items: center; gap: var(--s1); }
@@ -177,7 +208,7 @@ body {
   background: none;
   color: var(--green);
   border-color: var(--green-edge);
-  font-weight: 500;
+  font-weight: 400;
 }
 .btn--quiet:hover { background: var(--green-soft); }
 
@@ -205,7 +236,7 @@ body {
 .exit:hover, .lang button:hover { color: var(--ink); }
 
 .lang { display: flex; align-items: center; }
-.lang button[aria-pressed="true"] { color: var(--green); font-weight: 650; }
+.lang button[aria-pressed="true"] { color: var(--green); font-weight: 600; }
 /* A rule, not a "|" character: a separator is not language, so it should
  * be neither read aloud nor held to a text contrast ratio. */
 .lang__second { border-left: 1px solid var(--line); margin-left: 2px; padding-left: var(--s2); }
@@ -229,7 +260,7 @@ main {
 h1 {
   font-size: var(--t-title);
   line-height: 1.25;
-  font-weight: 660;
+  font-weight: 600;
   margin: 0 0 var(--s3);
   letter-spacing: -0.012em;
   text-wrap: balance;
@@ -237,7 +268,7 @@ h1 {
 h1:focus { outline: none; }
 h1:focus-visible { outline: 2px solid var(--green); outline-offset: 6px; }
 
-h2 { font-size: 1.0625rem; font-weight: 620; margin: var(--s6) 0 var(--s2); }
+h2 { font-size: 1.0625rem; font-weight: 600; margin: var(--s6) 0 var(--s2); }
 p { margin: 0 0 var(--s4); }
 
 .lede { color: var(--ink-2); font-size: var(--t-lede); margin-bottom: var(--s5); }
@@ -250,7 +281,7 @@ p { margin: 0 0 var(--s4); }
   font-size: var(--t-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--ink-3);
 }
 
@@ -329,7 +360,7 @@ p { margin: 0 0 var(--s4); }
 .opt__chip {
   font-size: var(--t-small);
   letter-spacing: 0.04em;
-  font-weight: 620;
+  font-weight: 600;
   color: var(--green);
   border: 1px solid var(--green-edge);
   border-radius: 2px;
@@ -360,7 +391,7 @@ p { margin: 0 0 var(--s4); }
   font-size: var(--t-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--ink-3);
   margin-bottom: var(--s1);
 }
@@ -390,11 +421,11 @@ p { margin: 0 0 var(--s4); }
   font-size: var(--t-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--ink-3);
   margin-bottom: var(--s1);
 }
-.card__name { font-weight: 640; font-size: 1.0625rem; letter-spacing: -0.005em; }
+.card__name { font-weight: 600; font-size: 1.0625rem; letter-spacing: -0.005em; }
 .card__reason { font-size: var(--t-small); color: var(--ink-2); margin-top: var(--s1); line-height: 1.5; }
 
 /* The lead card carries more weight, in three ways at once: a heavier
@@ -421,7 +452,7 @@ p { margin: 0 0 var(--s4); }
 .card--SUDAH_TEPAT .card__tier {
   text-transform: none;
   letter-spacing: 0;
-  font-weight: 620;
+  font-weight: 600;
 }
 
 /* ---------------------------------------------------------------- lesson */
@@ -439,13 +470,13 @@ p { margin: 0 0 var(--s4); }
   font-size: var(--t-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--ink-3);
 }
 .worked h2 { margin: var(--s1) 0 var(--s3); font-size: 1.0625rem; }
 .worked ol { margin: 0; padding-left: var(--s5); }
 .worked li { margin-bottom: var(--s2); padding-left: var(--s1); }
-.worked li::marker { color: var(--green); font-weight: 650; }
+.worked li::marker { color: var(--green); font-weight: 600; }
 .worked li:last-child { margin-bottom: 0; }
 .worked .btn--quiet { margin-top: var(--s3); width: auto; min-height: 44px; padding: var(--s2) var(--s4); }
 
@@ -465,7 +496,7 @@ p { margin: 0 0 var(--s4); }
   font-size: var(--t-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--green);
   margin-bottom: var(--s1);
 }
@@ -497,7 +528,7 @@ p { margin: 0 0 var(--s4); }
 .hasil__headline {
   font-size: var(--t-title);
   line-height: 1.25;
-  font-weight: 660;
+  font-weight: 600;
   margin: 0 0 var(--s3);
   letter-spacing: -0.012em;
   text-wrap: balance;
@@ -510,7 +541,7 @@ p { margin: 0 0 var(--s4); }
 }
 .reading__label {
   letter-spacing: 0.08em; text-transform: uppercase;
-  font-weight: 650; color: var(--ink-3); flex: none;
+  font-weight: 600; color: var(--ink-3); flex: none;
 }
 .reading__name { color: var(--ink); font-weight: 600; }
 
@@ -531,7 +562,7 @@ p { margin: 0 0 var(--s4); }
 }
 .limit__mark { flex: none; margin-top: 0.3rem; color: var(--attention); }
 .limit__text { font-size: 0.9375rem; }
-.limit strong { display: block; font-weight: 640; color: var(--ink); }
+.limit strong { display: block; font-weight: 600; color: var(--ink); }
 .limit span { color: var(--ink-2); }
 
 .nodelta { font-size: var(--t-small); color: var(--ink-2); }
@@ -556,7 +587,7 @@ p { margin: 0 0 var(--s4); }
   background: var(--paper);
   border: 2px solid var(--green);
 }
-.path__step { font-weight: 640; letter-spacing: -0.005em; }
+.path__step { font-weight: 600; letter-spacing: -0.005em; }
 .path__note { color: var(--ink-2); font-size: 0.9375rem; }
 
 .closing { font-size: var(--t-lede); max-width: 32rem; }
@@ -571,7 +602,7 @@ p { margin: 0 0 var(--s4); }
   background: var(--card);
   color: var(--green);
   text-decoration: none;
-  font-weight: 560;
+  font-weight: 400;
   transition: border-color 120ms var(--ease), background 120ms var(--ease);
 }
 .doors a::after { content: "\2192"; color: var(--ink-3); }
@@ -629,3 +660,62 @@ p { margin: 0 0 var(--s4); }
   padding: var(--s4) var(--s5);
   border-radius: var(--radius);
 }
+
+/* ------------------------------------------------- Lihat dari sisi sekolah
+ * The school's side, drawn after the product's evidence cards. Every bar is
+ * one neutral ink: no tier and no figure is painted in the brand or a status
+ * colour, because a readiness tier is where a child stands, not a verdict.
+ */
+
+.school-offer { margin: var(--s5) 0 0; }
+.school-offer .btn--quiet { width: auto; min-height: 44px; padding: var(--s2) var(--s4); }
+.school-offer .meta { margin: var(--s1) 0 0; }
+
+.eyebrow {
+  font-size: var(--t-small); font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-3); margin: 0 0 var(--s2);
+}
+.badge {
+  display: inline-block; margin: 0 0 var(--s3);
+  font-size: var(--t-small); font-weight: 600; letter-spacing: 0.08em;
+  color: var(--ink); background: var(--sunk); border: 1px solid var(--ink-3);
+  border-radius: var(--radius); padding: var(--s1) var(--s3);
+}
+
+.panel {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: var(--s4) var(--s5); margin: var(--s5) 0;
+}
+.panel__title { font-weight: 600; font-size: 1.0625rem; margin: 0; }
+.panel__intro { color: var(--ink-2); font-size: 0.9375rem; margin: var(--s1) 0 0; }
+.panel__h {
+  font-size: var(--t-small); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-3); margin: var(--s4) 0 var(--s1);
+}
+.panel__foot { color: var(--ink-2); font-size: var(--t-small); margin: var(--s4) 0 0; }
+.facts { display: flex; gap: var(--s3); align-items: baseline; margin: 0; }
+.num { font-variant-numeric: tabular-nums; }
+
+.fig { display: flex; flex-direction: column; gap: 2px; padding: var(--s3) 0; border-top: 1px solid var(--line); }
+.fig__label { font-weight: 600; font-size: 0.9375rem; }
+.fig__value { font-size: 1.75rem; font-weight: 600; line-height: 1.15; }
+.fig__meaning { color: var(--ink-2); font-size: var(--t-small); }
+/* --edge reaches 3:1 on the paper, not on a card: the absent rule and the
+ * badge edge carry meaning, so they take --ink-3, measured by journey.mjs. */
+.fig__absent { color: var(--ink-2); border-left: 2px dashed var(--ink-3); padding-left: var(--s3); }
+
+.rrows { display: flex; flex-direction: column; gap: var(--s2); margin-top: var(--s1); }
+.rrow { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--s3); align-items: center; font-size: var(--t-small); }
+.rbar { grid-column: 1 / -1; height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; }
+.rbar i { display: block; height: 100%; background: var(--ink-3); }
+
+.rules { display: grid; grid-template-columns: auto 1fr; gap: 2px var(--s3); margin: var(--s3) 0 0; font-size: var(--t-small); }
+.rules dt { font-weight: 600; }
+.rules dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 430px) { .rules { grid-template-columns: 1fr; } .rules dd { margin-bottom: var(--s2); } }
+
+.kesiapan { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); }
+.kesiapan li { display: flex; align-items: baseline; gap: var(--s2); font-size: 0.9375rem; }
+.kesiapan strong { font-size: 1.25rem; font-weight: 600; }
+
+.ack { border-left: 3px solid var(--green); padding-left: var(--s3); color: var(--ink); margin: var(--s4) 0 0; }

@@ -1,8 +1,60 @@
 # MINI-PINTAR — IMPLEMENTATION
 
+## Since 24 Sep 2026: the single public Mini-PINTAR, inside the corporate site
+
+This is the approved M2. It was **moved** here from `website/mini-pintar/app/` with `git mv`, so its history is kept. It is now the only public Mini-PINTAR: the corporate site's arithmetic quiz was retired rather than linked (the reconciliation ruling of 24 Sep). The M1 governing documents stay at `website/mini-pintar/`. The shared browser tooling (`verify/driver.mjs`, `probes.mjs`) also stays there, because the role views import it.
+
+**What did not change:**
+- the journey;
+- the adaptation module;
+- the content model;
+- the rationales;
+- the internal misconception taxonomy;
+- the evidence-limit sentence under every outcome;
+- zero-write.
+
+**What changed:**
+
+- **Canonical cycle name.** *Peta Bacaan Personal / Personal Reading Map*, word for word from the product (`cycle.step.map`).
+- **Lesson and questions reconciled.** L-D2 and L-D3 each gain a fourth worked-example step. It teaches the principle that the lesson's second Uji Penguasaan item tests, in words that reproduce no option. `audit.mjs` enforces that no lesson line shares a run of five or more words with any Uji Penguasaan option.
+- **"Lihat dari sisi sekolah" (optional, about one minute).** It comes after the reveal.
+  - **The educator's side:** the visitor as a class of one. Every class figure is below MC-1's minimum and says so in the product's own sentence. The visitor's answers are never shown. The next step is the visitor's own choice, between two of the product's actions and "no action now".
+  - **The management side:** a simulated class of 24, badged DATA SIMULASI, drawn from the figures the product's management view reads.
+  - `verify/journey.mjs` walks both sides in both languages, by keyboard alone, and measures contrast on each. The labels are checked against the product by `../verify/canonical.mjs`.
+- **Identity.**
+  - The supplied PINTAR SELALU logo leads Home.
+  - The product's Plus Jakarta Sans comes from the site's `../shared/` folder, on the same origin, in its weights 400 and 600.
+  - `isolation.mjs` allows exactly those three shared files, each by exact path, and nothing else.
+- **Leaving.** Exit, the logo and the three doors lead to the corporate site's real routes, carrying `?lang=` and nothing else. The corporate site around Mini-PINTAR keeps nothing either.
+
+### Run it, now
+
+```
+cd website/corporate
+python3 -m http.server 8000 --directory .
+open http://localhost:8000/mini-pintar/
+```
+
+### Verify it, now
+
+```
+node verify/audit.mjs             # content: languages, register, overclaim, taxonomy, bank isolation, no lesson leak
+node verify/paths.mjs             # adaptation: every reachable path, by enumeration and replay
+node verify/isolation.mjs         # source: no persistence, transmission or identification; exact shared assets
+node verify/journey.mjs           # the journey and the school's side, in a real browser   (~10 min)
+bash verify/negative.sh           # that the three source verifiers can fail                (~40 s)
+bash verify/negative-browser.sh   # that the browser verifier can fail                      (~25 min)
+```
+
+The sections below are the M2 record as it was approved, kept for its history. Where they give paths, a run command or check counts, the paragraphs above supersede them.
+
+---
+
+## The M2 record
+
 **Phase:** M2 implementation, then the M2 closure pass (R1–R5)
 **Date:** 2026-09-18 · **Gate passed:** M1 CONTENT/INTERACTION
-**Governing:** `../M1-CONTENT-AND-INTERACTION.md` (content and interaction),
+**Governing:** `../../mini-pintar/M1-CONTENT-AND-INTERACTION.md` (content and interaction),
 `../../../docs/adr/0021-mini-pintar-public-demonstration.md` (execution model)
 
 A public, anonymous, zero-write demonstration of the PINTAR learning cycle.
@@ -128,7 +180,7 @@ unchanged.
 ## Stage H — visual direction
 
 The starting point is the PINTAR presentation deck, which is the one piece
-of PINTAR 4.0 visual language that has been through review. Its palette,
+of PINTAR visual language that has been through review. Its palette,
 hairlines, left accent rules and quiet tracked labels are carried over.
 This is that language spoken on a screen, not a second brand.
 

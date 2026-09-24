@@ -3,19 +3,20 @@
 // ZERO-WRITE, MEMORY-ONLY. Ruled 2026-09-18 (M1 §6.3): no localStorage, no
 // sessionStorage, no IndexedDB, no cookie for answers, progress, adaptation
 // or outcome. Reload restarts the experience, and the threshold says so in
-// advance. The corporate site may keep a language preference by its own
-// separate mechanism; Mini-PINTAR educational state never enters it.
+// advance. The corporate site around it keeps nothing either: its language
+// travels in ?lang= alone, and Mini-PINTAR hands it back the same way.
 //
-// The only network activity this file causes is the browser fetching
-// index.html, style.css, content.js, adapt.js and this file. There is no
-// fetch, no XHR, no sendBeacon, no WebSocket, no image ping, no analytics.
+// The only network activity this page causes is the browser fetching
+// index.html, style.css, content.js, adapt.js and this file, plus the site's
+// own logo and typeface from the same origin. There is no fetch, no XHR, no
+// sendBeacon, no WebSocket, no image ping, no analytics.
 // verify/isolation.mjs asserts that by scanning the source, so the claim
 // fails a build rather than surviving as a comment.
 
 import {
   MAP_ITEMS, MAP_REASONS, TIER_REASONS, TIER_LABELS,
   LESSONS, DOMAIN, ASSISTANCE,
-  OUTCOMES, EVIDENCE_LIMIT, NO_DELTA, REVEAL, UI,
+  OUTCOMES, EVIDENCE_LIMIT, NO_DELTA, REVEAL, SCHOOL, UI,
 } from "./content.js";
 import { SKIP, mapVerdicts, buildPeta, checkItemsFor, outcomeFor } from "./adapt.js";
 
@@ -38,6 +39,8 @@ const FRESH = () => ({
   workedShown: 0,
   assistLevel: 0,
   assistOffered: false,
+  // The visitor's choice on the educator's side. Memory only, like the rest.
+  decision: null,
   visited: ["threshold"],
 });
 
@@ -69,7 +72,8 @@ function setMapChoice(i, label) {
   // and simply re-derive. Only the steps that hold ANSWERS stop being
   // meaningful, and only those are forgotten.
   s.visited = s.visited.filter(
-    (k) => !k.startsWith("#check") && k !== "#hasil" && k !== "#reveal");
+    (k) => !k.startsWith("#check") && !["#hasil", "#reveal", "#pendidik", "#pimpinan"].includes(k));
+  s.decision = null;
 }
 
 let lang = initialLang();
@@ -90,6 +94,12 @@ function initialLang() {
 }
 
 const t = (pair) => pair[lang];
+const num = (n) => new Intl.NumberFormat(lang === "id" ? "id-ID" : "en-GB").format(n);
+const pct = (v) => new Intl.NumberFormat(lang === "id" ? "id-ID" : "en-GB",
+  { style: "percent", maximumFractionDigits: 0 }).format(v);
+
+/** A route of the surrounding site, in the language the visitor is using. */
+const siteHref = (path) => `${path}?lang=${lang}`;
 
 // ------------------------------------------------------------- DOM helpers
 
@@ -190,6 +200,8 @@ const STEP_NAMES = {
   check: UI.stepCheck,
   hasil: UI.stepHasil,
   reveal: UI.stepReveal,
+  pendidik: SCHOOL.stepEducator,
+  pimpinan: SCHOOL.stepManagement,
 };
 
 const JOURNEY = ["map", "peta", "lesson", "check", "hasil"];
@@ -245,13 +257,16 @@ function restart() {
 // ------------------------------------------------------------ the chrome
 
 function renderChrome() {
-  document.getElementById("brand").textContent = t(UI.brand);
+  // The PINTAR SELALU mark leads Home, as it does on every page of the site;
+  // the demonstration's own name sits beside it, outside the link.
+  document.getElementById("brand").setAttribute("href", siteHref("/"));
+  document.getElementById("brand-demo").textContent = t(UI.brand);
   const exit = document.getElementById("exit");
   exit.textContent = t(UI.exit);
   exit.onclick = () => {
-    // Keluar returns to the homepage AT the invitation section, not the
-    // top: the visitor resumes where they left the argument.
-    window.location.href = "/#coba";
+    // Keluar returns to the site's homepage, in the visitor's language.
+    // Nothing of the journey goes with it.
+    window.location.href = siteHref("/");
   };
 
   const langBox = document.getElementById("lang");
@@ -622,10 +637,125 @@ function viewReveal() {
     // Three doors rather than one CTA: a single CTA after a three-minute
     // experience wastes the one moment the visitor is most willing to go
     // further, by guessing which direction they want.
-    el("nav", { class: "doors", "aria-label": t(REVEAL.headline) },
-      REVEAL.doors.map((d) => el("a", { href: d.href, text: t(d.label) }))),
+    el("div", { class: "school-offer" }, [
+      el("button", { type: "button", class: "btn btn--quiet", id: "to-school", text: t(REVEAL.school),
+        onclick: () => go("pendidik") }),
+      el("p", { class: "meta", text: t(REVEAL.schoolNote) }),
+    ]),
+    doors(),
     el("button", { type: "button", class: "btn btn--text", text: t(UI.restart),
       onclick: () => restart() }),
+  ]);
+}
+
+function doors() {
+  return el("nav", { class: "doors", "aria-label": t(REVEAL.headline) },
+    REVEAL.doors.map((d) => el("a", { href: siteHref(d.href), text: t(d.label) })));
+}
+
+// ------------------------------------------------ Lihat dari sisi sekolah
+
+/** A figure below MC-1's minimum, in the product's own sentence. */
+function absentFigure(f) {
+  const sentence = f.state === "belum_ada"
+    ? t(SCHOOL.absent.belum_ada)
+    : `${t(SCHOOL.absent.belum_cukup)} (${num(f.have)}/${num(f.needed)})`;
+  return el("div", { class: "fig", "data-metric": f.metric, "data-state": f.state }, [
+    el("span", { class: "fig__label", text: t(f.label) }),
+    el("span", { class: "fig__absent", text: sentence }),
+  ]);
+}
+
+function viewPendidik() {
+  const e = SCHOOL.educator;
+  const pickDecision = (label) => {
+    s.decision = label;
+    render();
+    announce(t(e.ack));
+    window.requestAnimationFrame(() => {
+      const target = document.querySelector(`.opt[data-label="${label}"]`);
+      if (target) target.focus();
+    });
+  };
+  return el("section", { class: "settle" }, [
+    el("p", { class: "eyebrow", text: t(e.eyebrow) }),
+    el("h1", { id: "h", tabindex: "-1", text: t(e.headline) }),
+    // What the educator's screen would say, with this class of one.
+    el("div", { class: "panel", "data-view": "educator" }, [
+      el("p", { class: "panel__title", text: t(e.title) }),
+      el("p", { class: "panel__intro", text: t(e.intro) }),
+      el("p", { class: "panel__h", text: t(e.where) }),
+      el("p", { class: "facts" }, [
+        el("span", { text: t(e.submitted) }),
+        el("strong", { class: "num", text: `${num(1)} / ${num(1)}` }),
+      ]),
+      el("p", { class: "panel__h", text: t(e.conclusions) }),
+      ...e.figures.map(absentFigure),
+      el("p", { class: "nodelta", text: t(NO_DELTA) }),
+      el("p", { class: "panel__foot", text: t(e.foot) }),
+    ]),
+    el("h2", { text: t(e.decide) }),
+    optionGroup(e, s.decision, t(e.decide), pickDecision),
+    s.decision ? el("p", { class: "ack", text: t(e.ack) }) : null,
+    el("div", { class: "sticky sticky--on" }, [
+      el("button", { type: "button", class: "btn", text: t(e.next), onclick: () => go("pimpinan") }),
+      el("button", { type: "button", class: "btn btn--text", text: t(UI.back), onclick: () => history.back() }),
+    ]),
+  ]);
+}
+
+function viewPimpinan() {
+  const m = SCHOOL.management;
+  const figure = (f) => {
+    if (f.state !== "cukup") return absentFigure(f);
+    if (f.kind === "tiers") {
+      const total = Object.values(f.tiers).reduce((a, b) => a + b, 0);
+      return el("div", { class: "fig", "data-metric": f.metric, "data-state": f.state }, [
+        el("span", { class: "fig__label", text: t(f.label) }),
+        el("span", { class: "fig__meaning", text: t(f.meaning) }),
+        // Neutral rows, as the product draws readiness: one ink for every
+        // tier, because a tier is where a child stands, not a verdict.
+        el("div", { class: "rrows" }, Object.entries(f.tiers).map(([k, n]) =>
+          el("div", { class: "rrow" }, [
+            el("span", { text: t(m.tiers[k].name) }),
+            el("span", { class: "num", text: num(n) }),
+            el("div", { class: "rbar", "aria-hidden": "true" }, [
+              el("i", { style: `width:${((n / total) * 100).toFixed(1)}%` })]),
+          ]))),
+        el("dl", { class: "rules" }, Object.values(m.tiers).flatMap((x) => [
+          el("dt", { text: t(x.name) }), el("dd", { text: t(x.rule) })])),
+      ]);
+    }
+    return el("div", { class: "fig", "data-metric": f.metric, "data-state": f.state }, [
+      el("span", { class: "fig__label", text: t(f.label) }),
+      el("span", { class: "fig__value num", text: f.kind === "percent" ? pct(f.value) : num(f.value) }),
+      el("span", { class: "fig__meaning", text: t(f.meaning) }),
+      el("span", { class: "meta", text: `${t(m.from)} ${num(f.have)}` }),
+    ]);
+  };
+  // Counted from the figures, never typed beside them; an empty state is
+  // not drawn (RingkasKesiapan).
+  const counts = { cukup: 0, belum_cukup: 0, belum_ada: 0 };
+  for (const f of m.figures) counts[f.state] += 1;
+
+  return el("section", { class: "settle" }, [
+    el("p", { class: "badge", text: t(m.badge) }),
+    el("p", { class: "eyebrow", text: t(m.eyebrow) }),
+    el("h1", { id: "h", tabindex: "-1", text: t(m.headline) }),
+    el("p", { class: "lede", text: t(m.sub) }),
+    el("div", { class: "panel", "data-view": "management" }, [
+      el("p", { class: "panel__title", text: t(m.title) }),
+      ...m.figures.map(figure),
+      el("p", { class: "panel__h", text: t(m.readiness.title) }),
+      el("ul", { class: "kesiapan" }, Object.entries(counts).filter(([, n]) => n > 0).map(([k, n]) =>
+        el("li", { "data-state": k }, [el("strong", { class: "num", text: num(n) }), el("span", { text: t(m.readiness[k]) })]))),
+      el("p", { class: "panel__foot", text: t(m.readiness.note) }),
+    ]),
+    doors(),
+    el("div", { class: "sticky" }, [
+      el("button", { type: "button", class: "btn btn--text", text: t(UI.back), onclick: () => history.back() }),
+      el("button", { type: "button", class: "btn btn--text", text: t(UI.restart), onclick: () => restart() }),
+    ]),
   ]);
 }
 
@@ -639,6 +769,8 @@ const VIEWS = {
   check: viewCheck,
   hasil: viewHasil,
   reveal: viewReveal,
+  pendidik: viewPendidik,
+  pimpinan: viewPimpinan,
 };
 
 let lastKey = null;

@@ -12,7 +12,7 @@
 # still runs, the exhaustive sweeps shrink. The verification of record is
 # always the full run.
 #
-# Run: bash verify/negative-browser.sh   (~8 minutes)
+# Run: bash verify/negative-browser.sh   (~25 minutes)
 
 set -uo pipefail
 APP="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -76,6 +76,36 @@ try "committed answer editable" app.js \
 try "taxonomy reaches the DOM" app.js \
   '"data-label": o.label,||"data-label": o.label, "data-mc": (o.misconception ? o.misconception : ""),' \
   "no misconception code appears in the document"
+
+# 4–10. The school's side. Each is a way to make it misrepresent PINTAR
+#    while every source check still reads correctly.
+try "a readiness bar in the brand colour" style.css \
+  '.rbar i { display: block; height: 100%; background: var(--ink-3); }||.rbar i { display: block; height: 100%; background: var(--green); }' \
+  "every readiness bar is one neutral ink"
+
+try "the educator sees a number for a class of one" app.js \
+  'el("span", { class: "fig__absent", text: sentence }),||el("span", { class: "fig__value", text: "100%" }), el("span", { class: "fig__absent", text: sentence }),' \
+  "no figure is shown for a class of one"
+
+try "a next step preselected" app.js \
+  'optionGroup(e, s.decision, t(e.decide), pickDecision),||optionGroup(e, s.decision ?? "A", t(e.decide), pickDecision),' \
+  "no next step is preselected"
+
+try "the simulated-data badge dropped" app.js \
+  'el("p", { class: "badge", text: t(m.badge) }),||null,' \
+  "badged DATA SIMULASI"
+
+try "evidence readiness typed, not counted" app.js \
+  'for (const f of m.figures) counts[f.state] += 1;||counts.cukup = m.figures.length;' \
+  "evidence readiness counts the figures"
+
+try "the visitor's answer on the educator's screen" app.js \
+  '...e.figures.map(absentFigure),||...e.figures.map(absentFigure), el("p", { text: t(checkItemsFor(peta().lessonKey)[0].options[0].text) }),' \
+  "shows none of the visitor's answers"
+
+try "a door drops the language" app.js \
+  'REVEAL.doors.map((d) => el("a", { href: siteHref(d.href), text: t(d.label) })));||REVEAL.doors.map((d) => el("a", { href: d.href, text: t(d.label) })));' \
+  "the doors lead to the site's routes"
 
 echo
 echo "browser negative tests: $pass caught, $fail not caught"

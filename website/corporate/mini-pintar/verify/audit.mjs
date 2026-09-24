@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import {
   MAP_ITEMS, CHECK_ITEMS, CHECK_ONLY_MISCONCEPTIONS, MAP_REASONS, TIER_REASONS,
   TIER_LABELS, DOMAINS, LESSONS, ASSISTANCE, OUTCOMES, EVIDENCE_LIMIT, NO_DELTA,
-  REVEAL, UI,
+  REVEAL, SCHOOL, UI,
 } from "../content.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -43,7 +43,7 @@ function pairs(value, path, out = []) {
 
 const ALL = pairs(
   { MAP_ITEMS, CHECK_ITEMS, MAP_REASONS, TIER_REASONS, TIER_LABELS, DOMAINS,
-    LESSONS, ASSISTANCE, OUTCOMES, EVIDENCE_LIMIT, NO_DELTA, REVEAL },
+    LESSONS, ASSISTANCE, OUTCOMES, EVIDENCE_LIMIT, NO_DELTA, REVEAL, SCHOOL },
   "bundle");
 
 // OUTCOMES.KONSISTEN.body is intentionally empty on both sides: its
@@ -247,6 +247,49 @@ if (new Set(DOMAINS.map((d) => d.severity)).size !== DOMAINS.length)
   fail("severities are not distinct", "ordering would not be total");
 else ok();
 
+// --------------------------------------- a lesson teaches, it does not leak
+//
+// Ruled 2026-09-24: the check items test what the lesson actually teaches.
+// The other half of that rule is that the lesson teaches the PRINCIPLE, not
+// the words of an answer: a lesson line that reproduces an option would turn
+// the Uji Penguasaan into recognition. No lesson line (title, paragraph,
+// worked-example title or step) may share a run of five or more consecutive
+// words with any option of an Uji Penguasaan item, in either language. The
+// longest run in the approved content is four ("out of how many", the D1
+// principle). Pemetaan Awal options are exempt on purpose: they are answered
+// BEFORE the lesson, which deliberately returns to their scenario to teach.
+
+const words = (x) => x.toLowerCase()
+  .replace(/[“”"’‘.,:;?!—()–\-]/g, " ").split(/\s+/).filter(Boolean);
+const runs = (w, n) => new Set(w.slice(0, Math.max(0, w.length - n + 1))
+  .map((_, i) => w.slice(i, i + n).join(" ")));
+const LEAK = 5;
+const ALL_OPTIONS = Object.values(CHECK_ITEMS).flat()
+  .flatMap((item) => item.options.map((o) => ({ item, o })));
+for (const [key, lesson] of Object.entries(LESSONS)) {
+  for (const side of ["id", "en"]) {
+    const lines = [lesson.title[side], ...lesson.body[side], lesson.workedExample.title[side],
+                   ...lesson.workedExample.steps.map((x) => x[side])];
+    for (const line of lines) {
+      const mine = runs(words(line), LEAK);
+      for (const { item, o } of ALL_OPTIONS) {
+        const hit = [...runs(words(o.text[side]), LEAK)].find((g) => mine.has(g));
+        if (hit) fail(`lesson reproduces ${o.correct ? "the keyed" : "an"} option ("${hit}")`,
+                      `${key}.${side} ~ ${item.id}${o.label}`);
+        else ok();
+      }
+    }
+  }
+}
+
+// Every lesson that carries a second CHECK item carries a worked-example
+// step for it: four steps where two items test two principles.
+for (const key of ["L-D2", "L-D3"]) {
+  if (LESSONS[key].workedExample.steps.length !== 4)
+    fail("worked example lost the step that teaches its second item", key);
+  else ok();
+}
+
 // ------------------------------------------------- the machine's own voice
 //
 // Scoped deliberately. These rules govern what the DEMONSTRATION says to
@@ -255,7 +298,7 @@ else ok();
 // "nilai" there would ban the content from talking about numbers.
 
 const VOICE = pairs(
-  { MAP_REASONS, TIER_REASONS, TIER_LABELS, OUTCOMES, EVIDENCE_LIMIT, NO_DELTA, REVEAL,
+  { MAP_REASONS, TIER_REASONS, TIER_LABELS, OUTCOMES, EVIDENCE_LIMIT, NO_DELTA, REVEAL, SCHOOL,
     UI: Object.fromEntries(Object.entries(UI).filter(([, v]) => isPair(v))),
     LESSON_TITLES: Object.fromEntries(Object.entries(LESSONS).map(([k, l]) => [k, l.title])) },
   "voice");

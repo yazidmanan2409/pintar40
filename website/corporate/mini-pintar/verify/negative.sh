@@ -58,6 +58,12 @@ try "tidak cukup, not belum"     audit.mjs content.js 'Belum cukup bukti.", "Not
 try "obsolete Kuis Cepat"        audit.mjs content.js 'Uji Penguasaan", "Mastery Check"||Kuis Cepat", "Quick Quiz"'
 try "an id drawn from the product"  audit.mjs content.js 'id: "U-D2-1",||id: "class.comprehension",'
 try "a stem drawn from the product" audit.mjs content.js '"Sebuah program baru dicoba di dua kelas selama satu semester, dan hasilnya membaik. Mana yang paling menambah kekuatan buktinya?"||"PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum."'
+try "a lesson step quotes the keyed answer" audit.mjs content.js 'L("Terakhir, pilih kalimat yang sanggup dipikul buktinya: sebut apa yang sudah terlihat, apa yang belum boleh dikatakan, dan apa yang masih dikumpulkan.",||L("Terakhir, tulis: “Kami belum bisa menyimpulkan, dan kami akan terus mengamati.”",'
+try "a lesson loses its fourth step" audit.mjs content.js '        L("Jika sebabnya tetap belum jelas, jangan buang temuannya: tuliskan hubungannya, nyatakan batasnya, lalu rancang pemeriksaan yang bisa membuktikan dugaan itu keliru.",
+          "If the cause is still unclear, do not throw the finding away: write the link down, state its limit, then design a check that could prove the hunch wrong."),
+||'
+try "the school view judges the visitor" audit.mjs content.js 'Tidak ada tindakan sekarang", "No action for now"||Jawaban Anda salah", "Your answer was wrong"'
+try "the school view says tidak cukup" audit.mjs content.js 'belum_cukup: L("Belum cukup data untuk menampilkan angka ini.", "Not enough data to show this figure yet."),||belum_cukup: L("Tidak cukup data untuk menampilkan angka ini.", "Not enough data to show this figure yet."),'
 try "MAP option loses rationale" audit.mjs content.js 'rationale: L(
           "Persentase adalah perbandingan||norationale: L(
           "Persentase adalah perbandingan'
@@ -114,6 +120,12 @@ try "DOM access in adapt"        isolation.mjs adapt.js 'export const SKIP = "SK
 try "an answer in the URL"       isolation.mjs app.js 'history.pushState({ key }, "", key);||history.pushState({ key, choice: s.mapChoices }, "", key);'
 try "threshold hides the reload" isolation.mjs app.js 'text: t(UI.thresholdReload)||text: ""'
 try "namespace URI as a href"    isolation.mjs index.html '<link rel="stylesheet" href="style.css">||<link rel="stylesheet" href="http://www.w3.org/2000/svg">'
+try "a second shared image"      isolation.mjs index.html 'src="../shared/brand/pintar-selalu-logo.png"||src="../shared/brand/other.png"'
+try "a font from elsewhere"       isolation.mjs style.css 'url("../shared/fonts/plus-jakarta-sans-latin.woff2")||url("../../somewhere/font.woff2")'
+try "a stylesheet @import"        isolation.mjs style.css ':root {||@import "../shared/style.css";
+:root {'
+try "a site link carries a choice" isolation.mjs app.js 'const siteHref = (path) => `${path}?lang=${lang}`;||const siteHref = (path) => `${path}?lang=${lang}&d=${s.decision}`;'
+try "navigation bypasses siteHref" isolation.mjs app.js 'window.location.href = siteHref("/");||window.location.href = "/?d=" + s.decision;'
 
 echo
 echo "negative tests: $pass caught, $fail not caught"
