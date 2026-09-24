@@ -64,6 +64,7 @@ Rules:
    - When a ticket is ready, dispatch `ci.yml` once on your head commit. Budget is finite, so do not dispatch speculative runs.
    - If a job never started (no runner), say so in the hand-off. Do not re-dispatch repeatedly.
 4. **Never dispatch a production workflow.** That means deploy, migrations, Auth, SMTP and diagnostics. Only the coordinator releases.
+5. **A push to `main` that starts no CI (documentation only) must still pass `npm run lint` locally first.** Lint covers every script in the repository, `docs/` included, and a lane that merges `main` inherits whatever is there. On 24 Sep a coordinator script in `docs/coordination/checklist/` failed lint on `main` unseen and failed Daisy's CI #168 after she merged it.
 
 ## 4. The change flow
 
