@@ -32,7 +32,8 @@ Only the coordinator releases (D-004). Newest first. Every entry names:
 | Item | Value |
 |---|---|
 | Project | `pintar-production`, region ap-southeast-1 (Singapore), Pro plan |
-| Compute | **Nano** (t3a.nano): RAM 53% and 8/60 connections at near-zero traffic |
+| Compute | **Micro** (1 GB, shared CPU) since 24 Sep, upgraded by Yazid from Nano (RAM had been 53–56% at near-zero traffic). After the restart: project `ACTIVE_HEALTHY`; front-door check run 35958041303 FRONT DOOR OK |
 | Versions | Postgres 17.6.1.166, Auth 2.197.0, PostgREST 14.5 |
-| Security Advisor | 1 CRITICAL: SECURITY DEFINER view `public.published_lessons` (D-032, BOB-14) |
-| Next | Nano → Micro before the sprint 1 release (Yazid); anything beyond Micro is sized by the D-031 load levels |
+| Security Advisor (24 Sep) | ERROR 1: SECURITY DEFINER view `published_lessons` (D-032, BOB-14). WARN 121 SECURITY DEFINER functions callable by signed-in users and INFO 17 tables with RLS and no policy: by design (D-033). WARN leaked-password protection off: no human-chosen passwords exist (D-033) |
+| Performance Advisor (24 Sep) | Auth capped at 10 database connections, absolute (BOB-12: switch to a percentage). `accounts_select_own` re-evaluates `auth.uid()` per row, and two report tables have duplicate permissive SELECT policies (BOB-13). 153 foreign keys without an index (BOB-13 triages the hot-path ones). 26 unused indexes: no traffic yet, revisit after load |
+| Next | Anything beyond Micro is sized by the D-031 load levels |
