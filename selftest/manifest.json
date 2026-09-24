@@ -1672,7 +1672,7 @@
     {
       "id": "BOB01-K01",
       "runner": "static",
-      "proves": "BOB-01 (D-011). The codes structure_refuse raises (SQLSTATE PR020, the code in DETAIL) are exactly src/lib/struktur-kontrak.ts KODE_STRUKTUR_DB; the six structure functions raise nothing except through structure_refuse and are SECURITY DEFINER with a pinned search_path; every code, with STRUCTURE_INPUT_INVALID and STRUCTURE_FAILED, has a distinct copy key that renders in both languages without naming the machinery."
+      "proves": "BOB-01 (D-011). Read from the migration source: the codes structure_refuse raises (SQLSTATE PR020, the code in DETAIL) are exactly src/lib/struktur-kontrak.ts KODE_STRUKTUR_DB; the six structure functions raise nothing except through structure_refuse and are SECURITY DEFINER with a pinned search_path; every code, with STRUCTURE_INPUT_INVALID and STRUCTURE_FAILED, has a distinct key in the copy table that renders in both languages without naming the machinery."
     },
     {
       "id": "BOB01-K02",
@@ -1682,12 +1682,12 @@
     {
       "id": "BOB01-K03",
       "runner": "static",
-      "proves": "BOB-01. The contract's pure helpers: susunStruktur nests Kelas under Tingkat under Bagian in natural order and drops a row whose parent is absent; tahunAjaranBaku accepts and refuses exactly the years the database does; tahunAjaranPada starts the school year on 1 July in Jakarta."
+      "proves": "BOB-01. The pure helpers in the source file src/lib/struktur-kontrak.ts, executed: susunStruktur nests Kelas under Tingkat under Bagian in natural order and drops a row whose parent is absent; tahunAjaranBaku accepts and refuses exactly the years the database does; tahunAjaranPada starts the school year on 1 July in Jakarta."
     },
     {
       "id": "BOB01-M01",
       "runner": "static",
-      "proves": "M5a. Every problem phrase the import_row_problems the database now runs can return, including 'a learner is placed in an active Kelas or Tingkat', has its own sentence in src/lib/pendataan-kontrak.ts MASALAH that renders in both languages and is not the phrase itself."
+      "proves": "M5a. Read from the migration source: every problem phrase the import_row_problems the database now runs can return, including 'a learner is placed in an active Kelas or Tingkat', has its own sentence in src/lib/pendataan-kontrak.ts MASALAH whose key in the copy table renders in both languages and is not the phrase itself."
     }
   ]
 }

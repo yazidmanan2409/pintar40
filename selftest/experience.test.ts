@@ -1243,6 +1243,16 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 111 -> 112 for BOB-01, the school structure (D-006) and M5a.
+      // 20261006100000 creates NO relation and adds NO column: six structure
+      // functions over the existing org_nodes and academic_periods (list,
+      // create Bagian / Tingkat / Kelas, rename, deactivate), their internal
+      // helpers and registry rows, and two replaced bodies (import_row_problems
+      // gains one learner-place rule; import_advance enrols into the place's own
+      // period). No mark, no logo, no crest and no theme, and no storage
+      // bucket. Read against §3 of the ruling before this number moved: the Q-7
+      // source still does not exist.
+      //
       // MOVED 110 -> 111 for the repair of that repair (NEW-1, NEW-2).
       // 20261005120000 adds ONE relation, account_activation_grants: an email
       // address, a person or a name, an account kind, a card number, who
@@ -1368,7 +1378,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 111, `${migrations.length} migrations; the frozen baseline has 111`);
+      c.expect(migrations.length === 112, `${migrations.length} migrations; the frozen baseline has 112`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3007,7 +3017,10 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 110 -> 111 for the activation
+      // from, not a claim about the tour. MOVED 111 -> 112 for BOB-01's school
+      // structure functions and the intake's M5a rules (20261006100000), none
+      // of which is a tour RPC and none of which touches person_tour_state.
+      // MOVED 110 -> 111 for the activation
       // grant (NEW-2), which is not a tour RPC and does not touch
       // person_tour_state. MOVED 108 -> 110 for the systemic
       // repair -- assessment refusal codes and finish manifest, and account
@@ -3046,7 +3059,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 111, `${migs.length} migrations; the baseline has 111`);
+      c.expect(migs.length === 112, `${migs.length} migrations; the baseline has 112`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
