@@ -11,6 +11,7 @@ import { supabaseService } from "@/lib/supabase/service";
  *
  * Phase 1 paths: `profile/<person_id>/<file>` (own photo, any signed-in
  * person). Content paths arrive with Phase 2 (`CAN_DRAFT`/`CAN_REVIEW`).
+ * BOB-02: `pelajaran/<school>/<batch>/<file>`, a lesson package's media.
  */
 export async function POST(request: NextRequest) {
   const supabase = await supabaseServer();
@@ -29,6 +30,14 @@ export async function POST(request: NextRequest) {
     allowed = true;
   } else if (path.startsWith("content/") && body?.nodeId) {
     const { data } = await supabase.rpc("can_on_node", { p_capability: "CAN_DRAFT", p_node: body.nodeId });
+    allowed = data === true;
+  } else if (path.startsWith("pelajaran/")) {
+    // BOB-02: a lesson package's media, at pelajaran/<school>/<batch>/<file>.
+    // The database says yes only while the batch awaits confirmation, only to
+    // someone who may draft in its school, and only for a file the package
+    // names -- the same path the lesson will carry and the student read route
+    // accepts.
+    const { data } = await supabase.rpc("may_upload_package_media", { p_path: path });
     allowed = data === true;
   }
   if (!allowed) return NextResponse.json({ error: "forbidden" }, { status: 403 });

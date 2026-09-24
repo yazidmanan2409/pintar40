@@ -1,0 +1,279 @@
+{
+  "courses": [
+    {
+      "_row": {
+        "sheet": "Kursus",
+        "row": 2
+      },
+      "title": "Pecahan untuk Kelas 4",
+      "subject": "Matematika",
+      "stage": "SD",
+      "grade_label": "Kelas 4",
+      "konteks": "Akademik",
+      "modules": [
+        {
+          "_row": {
+            "sheet": "Bab",
+            "row": 2
+          },
+          "ordinal": "1",
+          "title": "Mengenal pecahan",
+          "lessons": [
+            {
+              "_row": {
+                "sheet": "Pelajaran",
+                "row": 2
+              },
+              "ordinal": "1",
+              "title": "Apa itu pecahan?",
+              "summary": "Pecahan menyatakan bagian dari keseluruhan.",
+              "body_markdown": "Bayangkan sebuah kue dipotong menjadi empat bagian sama besar. Satu potong adalah 1/4 dari kue.\n\nAngka di atas disebut pembilang, angka di bawah disebut penyebut.",
+              "objective": {
+                "statement": "Murid dapat menjelaskan arti pembilang dan penyebut.",
+                "bloom": "UNDERSTAND"
+              },
+              "media": [
+                {
+                  "file": "Kue Empat Potong.png"
+                }
+              ],
+              "items": [
+                {
+                  "_row": {
+                    "sheet": "Soal",
+                    "row": 2
+                  },
+                  "ref": "S1",
+                  "item_type": "MCQ_SINGLE",
+                  "stem": "Pada pecahan 3/5, angka 5 disebut apa?",
+                  "petunjuk": "Ingat letak angka pada pecahan.",
+                  "use": "PRE_TEST",
+                  "difficulty": "0.3",
+                  "parallel_group": "P1",
+                  "options": [
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 2
+                      },
+                      "label": "A",
+                      "body": "Pembilang",
+                      "is_correct": false,
+                      "rationale": "Pembilang adalah angka di atas garis pecahan."
+                    },
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 3
+                      },
+                      "label": "B",
+                      "body": "Penyebut",
+                      "is_correct": true,
+                      "rationale": "Angka di bawah garis pecahan menyatakan banyaknya bagian seluruhnya."
+                    }
+                  ]
+                },
+                {
+                  "_row": {
+                    "sheet": "Soal",
+                    "row": 3
+                  },
+                  "ref": "S2",
+                  "item_type": "MCQ_SINGLE",
+                  "stem": "Pada pecahan 2/7, angka 7 disebut apa?",
+                  "use": "POST_TEST",
+                  "difficulty": "0.3",
+                  "parallel_group": "P1",
+                  "options": [
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 4
+                      },
+                      "label": "A",
+                      "body": "Penyebut",
+                      "is_correct": true,
+                      "rationale": "Angka di bawah garis adalah penyebut."
+                    },
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 5
+                      },
+                      "label": "B",
+                      "body": "Pembilang",
+                      "is_correct": false,
+                      "rationale": "Pembilang ada di atas garis."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "_row": {
+            "sheet": "Bab",
+            "row": 3
+          },
+          "ordinal": "2",
+          "title": "Pecahan senilai",
+          "lessons": [
+            {
+              "_row": {
+                "sheet": "Pelajaran",
+                "row": 3
+              },
+              "ordinal": "1",
+              "title": "Pecahan yang senilai",
+              "summary": "Dua pecahan senilai menyatakan bagian yang sama.",
+              "body_markdown": "1/2 dan 2/4 menyatakan bagian yang sama dari sebuah kue. Kalikan pembilang dan penyebut dengan bilangan yang sama untuk mendapatkan pecahan senilai.",
+              "objective": {
+                "statement": "Murid dapat menentukan pecahan yang senilai.",
+                "bloom": "APPLY"
+              },
+              "media": [
+                {
+                  "file": "penjelasan-senilai.mp3",
+                  "transcript": "Guru menjelaskan bahwa satu per dua sama dengan dua per empat."
+                }
+              ],
+              "items": [
+                {
+                  "_row": {
+                    "sheet": "Soal",
+                    "row": 4
+                  },
+                  "ref": "S3",
+                  "item_type": "MCQ_SINGLE",
+                  "stem": "Manakah yang senilai dengan 1/2?",
+                  "use": "PRE_TEST",
+                  "difficulty": "0.5",
+                  "parallel_group": "P2",
+                  "options": [
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 6
+                      },
+                      "label": "A",
+                      "body": "2/4",
+                      "is_correct": true,
+                      "rationale": "Dua per empat sama dengan setengah."
+                    },
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 7
+                      },
+                      "label": "B",
+                      "body": "1/3",
+                      "is_correct": false,
+                      "rationale": "Sepertiga lebih kecil daripada setengah."
+                    },
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 8
+                      },
+                      "label": "C",
+                      "body": "2/3",
+                      "is_correct": false,
+                      "rationale": "Dua per tiga lebih besar daripada setengah."
+                    }
+                  ]
+                },
+                {
+                  "_row": {
+                    "sheet": "Soal",
+                    "row": 5
+                  },
+                  "ref": "S4",
+                  "item_type": "MCQ_MULTI",
+                  "stem": "Pilih semua pecahan yang senilai dengan 1/3.",
+                  "use": "POST_TEST",
+                  "difficulty": "0.5",
+                  "parallel_group": "P2",
+                  "options": [
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 9
+                      },
+                      "label": "A",
+                      "body": "2/6",
+                      "is_correct": true,
+                      "rationale": "Pembilang dan penyebut 1/3 dikali 2."
+                    },
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 10
+                      },
+                      "label": "B",
+                      "body": "3/9",
+                      "is_correct": true,
+                      "rationale": "Pembilang dan penyebut 1/3 dikali 3."
+                    },
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 11
+                      },
+                      "label": "C",
+                      "body": "1/6",
+                      "is_correct": false,
+                      "rationale": "Penyebutnya dikali tetapi pembilangnya tidak."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "_row": {
+                "sheet": "Pelajaran",
+                "row": 4
+              },
+              "ordinal": "2",
+              "title": "Menyederhanakan pecahan",
+              "body_markdown": "Bagi pembilang dan penyebut dengan faktor persekutuan terbesar.",
+              "media": [],
+              "items": [
+                {
+                  "_row": {
+                    "sheet": "Soal",
+                    "row": 6
+                  },
+                  "ref": "S5",
+                  "stem": "Bentuk paling sederhana dari 4/8 adalah ...",
+                  "options": [
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 12
+                      },
+                      "label": "A",
+                      "body": "1/2",
+                      "is_correct": true,
+                      "rationale": "4 dan 8 dibagi 4."
+                    },
+                    {
+                      "_row": {
+                        "sheet": "Pilihan",
+                        "row": 13
+                      },
+                      "label": "B",
+                      "body": "2/4",
+                      "is_correct": false,
+                      "rationale": "Masih bisa dibagi 2 lagi."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

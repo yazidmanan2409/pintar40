@@ -19,6 +19,11 @@
       "suite": "selftest.run_fable10()",
       "control_green": 8,
       "what": "BOB-01's school structure functions (who may build a school's Bagian, Tingkat and Kelas, and every refusal's stable code) and the intake's M5a place and year rules"
+    },
+    "db-bob02-gates": {
+      "suite": "selftest.run_fable11()",
+      "control_green": 6,
+      "what": "BOB-02's lesson package: the sample workbook materialised whole, the structured-package confirmation, a failed save that undoes its confirmation, coded problems, who may prepare or confirm, and media upload authority"
     }
   },
   "plants": [
@@ -267,6 +272,66 @@
       "gate": "db-bob01-gates",
       "expect_red": "F10-S03",
       "expect_detail": "a DEAN at the school: school_structure answered ok -- it was accepted"
+    },
+    {
+      "name": "bob02-1",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-P01",
+      "expect_detail": "0 option(s), 0 with a reason; expected 12 and 12"
+    },
+    {
+      "name": "bob02-2",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-N01",
+      "expect_detail": "missing OPTION_REASON_MISSING"
+    },
+    {
+      "name": "bob02-3",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-N02",
+      "expect_detail": "a DEAN at the school: prepare_ingest_batch answered ok -- it was accepted"
+    },
+    {
+      "name": "bob02-4",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-P01",
+      "expect_detail": "a package was confirmed before its media were uploaded"
+    },
+    {
+      "name": "bob02-5",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-P02",
+      "expect_detail": "a prepared structured package is not offered for confirmation"
+    },
+    {
+      "name": "bob02-6",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-P01",
+      "expect_detail": "0 pre-test, 0 post-test and 1 practice question(s), expected 2, 2 and 1"
+    },
+    {
+      "name": "bob02-7",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-N03",
+      "expect_detail": "a file the package does not name: upload granted"
+    },
+    {
+      "name": "bob02-8",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-N02",
+      "expect_detail": "a package for the platform library answered ok -- it was accepted"
+    },
+    {
+      "name": "bob02-9",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-P01",
+      "expect_detail": "a second confirmation answered"
+    },
+    {
+      "name": "bob02-10",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-P03",
+      "expect_detail": "after a failed save the batch is CONFIRMED"
     }
   ]
 }
