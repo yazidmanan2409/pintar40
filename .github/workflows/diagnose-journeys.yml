@@ -21,7 +21,9 @@ name: diagnose · composed journeys
 on:
   push:
     branches:
-      - claude/quirky-meitner-a04smj
+      # D-004: production changes only from main, where only the coordinator
+      # merges. Lane branches (Bob's, Daisy's) never reach production directly.
+      - main
     paths:
       - .github/journeys-request.txt
   workflow_dispatch:
@@ -31,6 +33,8 @@ permissions:
 
 jobs:
   probe:
+    # D-004: runs only from main. Dispatching it from a lane branch does nothing.
+    if: github.ref == 'refs/heads/main'
     name: journeys · ${{ matrix.label }}
     runs-on: ubuntu-latest
     timeout-minutes: 40

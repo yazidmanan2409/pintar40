@@ -31,7 +31,9 @@ name: boundary · supabase auth smtp
 on:
   push:
     branches:
-      - claude/quirky-meitner-a04smj
+      # D-004: production changes only from main, where only the coordinator
+      # merges. Lane branches (Bob's, Daisy's) never reach production directly.
+      - main
     paths:
       - .github/smtp-request.txt
   workflow_dispatch:
@@ -53,6 +55,8 @@ env:
 
 jobs:
   smtp:
+    # D-004: runs only from main. Dispatching it from a lane branch does nothing.
+    if: github.ref == 'refs/heads/main'
     name: verify the sender, then configure it
     runs-on: ubuntu-latest
     steps:

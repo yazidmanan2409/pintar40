@@ -19,7 +19,9 @@ name: diagnose · vercel origin
 on:
   push:
     branches:
-      - claude/quirky-meitner-a04smj
+      # D-004: production changes only from main, where only the coordinator
+      # merges. Lane branches (Bob's, Daisy's) never reach production directly.
+      - main
     paths:
       - .github/diagnose-request.txt
   workflow_dispatch:
@@ -32,6 +34,8 @@ env:
 
 jobs:
   diagnose:
+    # D-004: runs only from main. Dispatching it from a lane branch does nothing.
+    if: github.ref == 'refs/heads/main'
     name: what does that origin actually serve
     runs-on: ubuntu-latest
     steps:

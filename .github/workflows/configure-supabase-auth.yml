@@ -24,7 +24,9 @@ name: boundary · supabase auth production configuration
 on:
   push:
     branches:
-      - claude/quirky-meitner-a04smj
+      # D-004: production changes only from main, where only the coordinator
+      # merges. Lane branches (Bob's, Daisy's) never reach production directly.
+      - main
     paths:
       - .github/auth-request.txt
   workflow_dispatch:
@@ -53,6 +55,8 @@ env:
 
 jobs:
   preflight:
+    # D-004: runs only from main. Dispatching it from a lane branch does nothing.
+    if: github.ref == 'refs/heads/main'
     name: complete credential and configuration preflight
     runs-on: ubuntu-latest
     steps:
@@ -209,6 +213,8 @@ jobs:
           fi
 
   configure:
+    # D-004: runs only from main. Dispatching it from a lane branch does nothing.
+    if: github.ref == 'refs/heads/main'
     name: write, read back, assert
     needs: preflight
     runs-on: ubuntu-latest
