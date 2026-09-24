@@ -146,6 +146,14 @@
         "p_release": "rls:plp_releases"
       },
       "note": "BOB-03. A row of the package page's release list, or the id create_release returned."
+    },
+    "assign_release": {
+      "actor": "a person holding CAN_ASSIGN_LEARNING in the class's school (Guru, Kepala departemen, Admin sekolah)",
+      "args": {
+        "p_release": "rls:plp_releases",
+        "p_node": "rpc:school_structure"
+      },
+      "note": "BOB-04. A published release from the teacher's Siapkan list (pengajar.terbitan) and the class the teacher is looking at."
     }
   }
 }

@@ -1,10 +1,10 @@
 {
   "contract": "pintar-selftest",
-  "version": 70,
+  "version": 71,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
-    "db": "selftest/db/fable01..12.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
+    "db": "selftest/db/fable01..13.sql, fable05t1_quick_canonical.sql and fable05t2_evaluation.sql — psql against $SUPABASE_DB_URL (CI local stack); the same files run on the management channel; one row per id, plus two concurrency legs driven from run.ts over two real connections (F02-C01, F07-C01)",
     "static": "selftest/static.test.ts — repository and production build; no database, no network",
     "app": "selftest/app.test.ts — black-box HTTP against the production-mode app and the Supabase project's Auth/Storage surface with real persona JWTs"
   },
@@ -434,7 +434,7 @@
     {
       "id": "F03-R02",
       "runner": "app",
-      "proves": "FABLE-03 §9 — no lifecycle enum, evidence class, engine version or release hash appears on any learner route",
+      "proves": "FABLE-03 §9 — no lifecycle enum, evidence class, engine version or release hash appears on any learner route; and (BOB-04, D-008) the cycle's /pemetaan and /penguasaan never answer 404",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and the local stack needs Docker. CI has both, and runs it strictly."
     },
     {
@@ -1130,7 +1130,7 @@
     {
       "id": "UX1-S3-KOMIT-01",
       "runner": "static",
-      "proves": "LOOKING IS NOT COMMITTING, ON THE EDUCATOR'S SIDE. The Slice-2 ruling was written for a learner brushing a link and spending their one attempt; the same rule governs a teacher whose next press makes something real for twenty-four children. Asserted against the SOURCE of every page under src/app/mengajar: none writes while rendering -- no insert, update, upsert or delete, and no call to launch_quick_assessment, extend_session_deadline or move_learning_assignment_release -- with the scanner itself watched to catch a planted insert and a planted launcher, because a detector that has stopped detecting reads green forever. The two stages before each commitment are GET renders of the query string (the quick assessment's configure stage is method=\"get\"), so a reload, a prefetch or a back button cannot commit. The only writes in the surface are the two exported server actions in src/app/mengajar/actions.ts, each reached by a form action and asserted NOT to be reachable through an href. Making material available is asserted to be born at DRAFT and activated in its own separate UPDATE -- the statement enforce_assignment_status fires the CAN_ASSIGN_LEARNING check on -- which is also what makes a review page possible at all. And no educator action takes its redirect target from the form, so the learner side's unvalidated `kembali` is not repeated here. BOUNDED: this reads the source; that the database refuses an unauthorized write is the migrations' own property, proved elsewhere"
+      "proves": "LOOKING IS NOT COMMITTING, ON THE EDUCATOR'S SIDE. The Slice-2 ruling was written for a learner brushing a link and spending their one attempt; the same rule governs a teacher whose next press makes something real for twenty-four children. Asserted against the SOURCE of every page under src/app/mengajar: none writes while rendering -- no insert, update, upsert or delete, and no call to launch_quick_assessment, extend_session_deadline or move_learning_assignment_release -- with the scanner itself watched to catch a planted insert and a planted launcher, because a detector that has stopped detecting reads green forever. The two stages before each commitment are GET renders of the query string (the quick assessment's configure stage is method=\"get\"), so a reload, a prefetch or a back button cannot commit. The only writes in the surface are the two exported server actions in src/app/mengajar/actions.ts, each reached by a form action and asserted NOT to be reachable through an href. Making material available is asserted to be born at DRAFT and activated in its own separate UPDATE -- the statement enforce_assignment_status fires the CAN_ASSIGN_LEARNING check on -- which is also what makes a review page possible at all; RESTATED BY BOB-04 (D-008), this is read where the commitment now lives: the action calls assign_release and never writes learning_assignments itself, and the migration 20261010100000_a_lesson_is_assigned_whole.sql inserts the assignment without a status and activates it in its own UPDATE. And no educator action takes its redirect target from the form, so the learner side's unvalidated `kembali` is not repeated here. BOUNDED: this reads the source; that the database refuses an unauthorized write is the migrations' own property, proved elsewhere"
     },
     {
       "id": "UX1-S3-CEPAT-01",
@@ -1783,6 +1783,31 @@
       "id": "BOB03-K01",
       "runner": "static",
       "proves": "BOB-03 (D-011, D-014). Read from the migration source and the source files src/lib/terbitan-kontrak.ts, src/app/studio/actions.ts and src/lib/pengajar.ts: the codes release_refuse raises are exactly the contract's; every code has a copy key in both languages without machinery words; each step of LANGKAH_TERBITAN calls its function with the declared argument from its typed action; no Studio action writes plp_releases directly; and the teacher's release list reads PUBLISHED releases only."
+    },
+    {
+      "id": "F13-P01",
+      "runner": "db",
+      "proves": "BOB-04 (D-008, audit B4). In the seeded learning-cycle school, a teacher's package of 3 pre-test, 2 post-test and 1 practice question becomes a course carrying an approved PRE_TEST definition of 3 and POST_TEST of 2 (made by lesson_package_materialise before the seal and reviewed with the course); a frozen, unpublished release is ASSIGN_RELEASE_NOT_PUBLISHED; once published, the teacher's assign_release makes an ACTIVE learning assignment whose learning_cycle names both definitions and two OPEN assessment assignments for the class, audited once as LEARNING_ASSIGNED."
+    },
+    {
+      "id": "F13-P02",
+      "runner": "db",
+      "proves": "BOB-04 (D-008). eligible_items_for_definition gives each cycle test exactly the questions marked for it (3 and 2; no practice question, none of the other test's); the class's learner sees both tests in my_cycle_state, starts and finishes the pre-test (3 pre-test questions presented), records the lesson, starts and finishes the post-test (2 post-test questions presented) and has an outcome, both sessions FINALIZED."
+    },
+    {
+      "id": "F13-N01",
+      "runner": "db",
+      "proves": "BOB-04 (D-011, INV-24). assign_release refuses with PR050 and a stable code, making nothing: a second assignment to the class (ASSIGN_EXISTS), a window that closes before it opens (ASSIGN_WINDOW_INVALID), the school instead of a class (ASSIGN_CLASS_INVALID), an unknown release, a DEAN and another school's class (ASSIGN_NOT_ALLOWED), a lesson with no pre-test (ASSIGN_PRE_TEST_MISSING) and a post-test sharing every parallel group with the pre-test (ASSIGN_CYCLE_OVERLAP); the last two leave no learning assignment."
+    },
+    {
+      "id": "F13-N02",
+      "runner": "db",
+      "proves": "BOB-04 (D-008). my_cycle_state answers PR050 CYCLE_NOT_ASSIGNED, never the cycle, to a DEAN asking about a learner's assignment and to a learner asking about an unknown one."
+    },
+    {
+      "id": "BOB04-K01",
+      "runner": "static",
+      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised; every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
     },
     {
       "id": "BOB02-X01",

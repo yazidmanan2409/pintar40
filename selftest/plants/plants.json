@@ -29,6 +29,11 @@
       "suite": "selftest.run_fable12()",
       "control_green": 5,
       "what": "BOB-03's release path: a school's course approved, created, frozen and published by the people the capabilities name, the release authored by the course's author, readiness measured at the seal, the revision's next version, and every refusal's stable code"
+    },
+    "db-bob04-gates": {
+      "suite": "selftest.run_fable13()",
+      "control_green": 4,
+      "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle"
     }
   },
   "plants": [
@@ -385,6 +390,54 @@
       "gate": "db-bob03-gates",
       "expect_red": "F12-N01",
       "expect_detail": "a second release of the course answered"
+    },
+    {
+      "name": "bob04-1",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-P01",
+      "expect_detail": "the course does not carry an approved pre-test of 3 and post-test of 2 questions"
+    },
+    {
+      "name": "bob04-2",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-P02",
+      "expect_detail": "the pre-test may draw"
+    },
+    {
+      "name": "bob04-3",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N01",
+      "expect_detail": "a post-test sharing parallel groups with the pre-test answered"
+    },
+    {
+      "name": "bob04-4",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N01",
+      "expect_detail": "a DEAN assigning answered"
+    },
+    {
+      "name": "bob04-5",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N01",
+      "expect_detail": "a second assignment to the class answered"
+    },
+    {
+      "name": "bob04-6",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-P01",
+      "expect_detail": "open test(s) of 2"
+    },
+    {
+      "name": "bob04-7",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N02",
+      "expect_detail": "a stranger asking for a learner's cycle answered"
+    },
+    {
+      "name": "bob04-8",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-N01",
+      "expect_detail": "a lesson with no pre-test answered"
     }
   ]
 }

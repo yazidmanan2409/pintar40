@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
+import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
 
 /**
  * THE EDUCATOR'S COMMITMENTS — every write the Slice-3 surface can make, and
@@ -23,10 +24,11 @@ import { kelas as kelasKonteks } from "@/lib/pengajar";
  * attached. It is NOT the authorization, and removing it would not grant
  * anybody anything:
  *
- *   sediakanMateri   → the DRAFT→ACTIVE update fires `enforce_assignment_status`,
- *                      which refuses without `can_in_institution
- *                      ('CAN_ASSIGN_LEARNING', …)` — and the insert and update
- *                      are both under the `learning_assignments` RLS policies.
+ *   sediakanMateri   → `assign_release` (BOB-04, D-008) refuses without
+ *                      `can_in_institution('CAN_ASSIGN_LEARNING', …)`, and its
+ *                      own DRAFT→ACTIVE update fires `enforce_assignment_status`,
+ *                      which refuses the same way. It makes the learning
+ *                      assignment and BOTH tests of the cycle, or nothing.
  *   sediakanUjiCepat → `launch_quick_assessment` refuses without
  *                      `can_on_node('CAN_QUICK_ASSESSMENT', p_node)`, which is
  *                      subtree-bound, and re-checks the item and minute bounds
@@ -74,34 +76,22 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
 
   const db = (await supabaseServer()) as any;
 
-  // Created at DRAFT because the trigger insists on it: an assignment is born
-  // inert and becomes visible to learners in a second, separately authorized
-  // step. That is also why the review page can exist at all.
-  const { data: dibuat, error: salahBuat } = await db
-    .from("learning_assignments")
-    .insert({
-      plp_release_id: terbitan,
-      course_id: kursus,
-      node_id: kelasId,
-      institution_id: ctx.ini.institusi,
-      academic_period_id: ctx.ini.periode,
-      available_from: mulai ? `${mulai}T00:00:00Z` : null,
-      available_until: sampai ? `${sampai}T23:59:59Z` : null,
-    })
-    .select("id")
-    .limit(1);
-
-  const baris = (dibuat ?? [])[0] as { id: string } | undefined;
-  if (salahBuat || !baris) ke(kelasId, "?sedia=gagal");
-
-  // THE COMMITMENT. This is the statement the capability check fires on.
-  // F-05: read back what changed; a write RLS filtered to nothing is a refusal
-  const { data: aktif, error: salahAktif } = await db
-    .from("learning_assignments")
-    .update({ status: "ACTIVE" })
-    .eq("id", baris!.id)
-    .select("id");
-  if (salahAktif || (aktif ?? []).length !== 1) ke(kelasId, "?sedia=gagal");
+  // THE COMMITMENT (BOB-04, D-008). One call: the learning assignment, born at
+  // DRAFT and activated in its own statement inside assign_release, and the
+  // cycle's two tests with it -- or a PR050 refusal and nothing at all. The
+  // teacher is sent back to the review with the refusal's code, whose sentence
+  // says what the lesson is missing.
+  const { data, error } = await db.rpc("assign_release", {
+    p_release: terbitan,
+    p_node: kelasId,
+    p_from: mulai ? `${mulai}T00:00:00Z` : null,
+    p_until: sampai ? `${sampai}T23:59:59Z` : null,
+  });
+  if (error || !data?.ok) {
+    const kode = kodeGalatPenugasan(error);
+    if (kode === "ASSIGN_FAILED") console.error("[sediakan] assign_release failed", error?.code, error?.message);
+    ke(kelasId, `/siapkan?terbitan=${encodeURIComponent(terbitan)}&kode=${kode}`);
+  }
 
   ke(kelasId, "?sedia=ok");
 }

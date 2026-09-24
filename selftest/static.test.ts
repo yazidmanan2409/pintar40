@@ -15,6 +15,7 @@ import { loginTests } from "./login.test";
 import { strukturTests } from "./struktur.test";
 import { unggahTests } from "./unggah.test";
 import { terbitanTests } from "./terbitan.test";
+import { penugasanTests } from "./penugasan.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -1857,4 +1858,5 @@ export const staticTests: SelfTest[] = [
   // BOB-02 — the lesson workbook (D-007, D-008, D-011, M8). Same rule.
   ...unggahTests,
   ...terbitanTests,
+  ...penugasanTests,
 ];
