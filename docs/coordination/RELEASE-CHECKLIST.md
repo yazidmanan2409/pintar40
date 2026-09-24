@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Baseline** | PINTAR 4.0 as built. Canonical decisions D-001…D-028 (docs/coordination/DECISIONS.md); board BOB-/DAISY- tickets (BOARD.md). |
+| **Baseline** | PINTAR 4.0 as built. Canonical decisions D-001…D-030 (docs/coordination/DECISIONS.md); board BOB-/DAISY- tickets (BOARD.md). |
 | **Purpose** | Prove that every intended flow exists, can be reached, holds together end to end, and respects the role boundary — and decide whether a release may go live. |
 | **Method** | Inspect the release candidate as a user: automated browser journeys on a production-like copy, walkthroughs by hand, then read-only production checks after deploy. A route, function or component existing is not a PASS. |
 | **Gate rule** | No push to live unless every P0 check is PASS on the release candidate, and every P1 check is PASS or accepted in writing by Yazid (DECISIONS.md). |
@@ -159,7 +159,7 @@ The journey Gladys and each school admin make first. Every step must work withou
 | ADM-06 | Give and revoke staff roles. | Allowed roles only; no self-grant; no escalation. | AUTO · CODE | P1 | **FAIL** for the school admin (M2); PASS for Gladys. |
 | ADM-07 | Add students. | Intake into a Kelas; places that are not a Kelas are refused with a reason; staff are never turned into students. | AUTO | P0 | **PARTIAL**: intake into a Kelas works (S9); a school-level place is now refused at validation, with the reason in Indonesian (BOB-01; S8 on this baseline). Staff rows are still a trap (BOB-10). Pickers show hidden nodes (BOB-09). |
 | ADM-08 | Correct account mistakes. | Fix a wrong email; re-issue a lost card or PIN. | RUN | P1 | **N-I** (M6). |
-| ADM-09 | Import a lesson. | A file picker and template; problems per row, in Indonesian. | AUTO · RUN | P0 | **FAIL**: text boxes only; both paths fail (S14, S15). BOB-02, DAISY-06. |
+| ADM-09 | Import a lesson. | A file picker and template; a workbook saved by Microsoft Excel and one saved by Google Sheets both import (D-030); problems per row, in Indonesian; never into the canonical library (D-029). | AUTO · RUN | P0 | **FAIL**: text boxes only; both paths fail (S14, S15). BOB-02, DAISY-06. |
 | ADM-10 | Check the imported content and media. | Text, questions and media exist and play. | RUN | P0 (media P1) | **FAIL**: no content can be imported; media playback fails (M9). |
 | ADM-11 | Move content through its lifecycle. | Understandable steps, with the current status shown. | RUN | P0 | **FAIL** (M11). DAISY-06. |
 | ADM-12 | Publish. | Only ready content; the right school selected by default. | AUTO · RUN | P0 | **FAIL**: no release can be created (B3); Studio defaults to the national library (M8, S14). BOB-03, DAISY-06. |
@@ -300,7 +300,7 @@ The acceptance scenario, in order: set up a school → add classes and people �
 
 ## Appendix A — sources
 
-- docs/coordination/DECISIONS.md: D-001…D-028 (canonical; overrides older specs where they differ, e.g. landings D-010).
+- docs/coordination/DECISIONS.md: D-001…D-030 (canonical; overrides older specs where they differ, e.g. landings D-010).
 - docs/coordination/BOARD.md: tickets BOB-01…10, DAISY-01…11, backlog.
 - docs/audit/PINTAR-4.0-ISSUES-AND-STATUS-2026-09-24.md: the 36 audit findings.
 - Audit harness: audit/journey.mjs (steps S1–S16, P1–P3) and audit/crawl.mjs; workflow 'audit · end-to-end journeys'.
