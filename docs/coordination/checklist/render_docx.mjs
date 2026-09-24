@@ -1,16 +1,20 @@
 // Renders checklist_data.py as the Word copy for Yazid.
-// Run: python3 checklist_data.py > /tmp/c.json && NODE_PATH=<dir with the docx package> node render_docx.js /tmp/c.json out.docx
-const fs = require("fs");
+// docx is not a dependency of the app, so it is loaded from wherever `npm install docx` ran:
+//   python3 checklist_data.py > /tmp/c.json
+//   DOCX_MODULES=<folder holding node_modules/docx> node render_docx.mjs /tmp/c.json out.docx
+import fs from "node:fs";
+import { createRequire } from "node:module";
+
+const require = createRequire(process.env.DOCX_MODULES ? `${process.env.DOCX_MODULES.replace(/\/$/, "")}/` : import.meta.url);
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType,
   AlignmentType, HeadingLevel, PageOrientation, LevelFormat, BorderStyle, Footer, PageNumber,
-  VerticalAlign,
 } = require("docx");
 
 const [, , input, output] = process.argv;
 const d = JSON.parse(fs.readFileSync(input, "utf8"));
 
-const PAGE_W = 16838, PAGE_H = 11906, MARGIN = 850, USABLE = PAGE_W - 2 * MARGIN; // A4 landscape
+const PAGE_W = 16838, MARGIN = 850, USABLE = PAGE_W - 2 * MARGIN; // A4 landscape
 const FONT = "Arial";
 const INK = "1D2939", MUTED = "475467", ACCENT = "0B5394", HEAD_FILL = "E8EEF6", RULE = "C9D1DC";
 const STATUS_COLOR = {
