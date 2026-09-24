@@ -1772,7 +1772,7 @@
     {
       "id": "F12-N01",
       "runner": "db",
-      "proves": "BOB-03 (D-011). Every refusal on the release path is PR040 with its code and changes nothing: a course in review (RELEASE_COURSE_NOT_APPROVED), a second release (RELEASE_EXISTS), a teacher, a DEAN, another school's admin and an unknown course (RELEASE_NOT_ALLOWED, the last two identical), the platform library (RELEASE_SCHOOL_NOT_ALLOWED, D-029), a second freeze and a second publication (RELEASE_STATE_INVALID), a teacher's freeze, a head of department's and another school's withdrawal (RELEASE_PUBLISH_NOT_ALLOWED) and a withdrawal without a reason (RELEASE_REASON_REQUIRED)."
+      "proves": "BOB-03 (D-011). Every refusal on the release path is PR040 with its code and changes nothing: a course in review (RELEASE_COURSE_NOT_APPROVED), a second release (RELEASE_EXISTS), a teacher, a DEAN, another school's admin and an unknown course (RELEASE_NOT_ALLOWED, the last two identical), the platform library (RELEASE_SCHOOL_NOT_ALLOWED, D-029), a second freeze and publishing an unfrozen release (RELEASE_STATE_INVALID), a teacher's freeze, a head of department's and another school's withdrawal (RELEASE_PUBLISH_NOT_ALLOWED) and a withdrawal without a reason (RELEASE_REASON_REQUIRED); a second click on publish publishes and audits nothing twice."
     },
     {
       "id": "F12-N02",

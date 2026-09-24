@@ -154,14 +154,31 @@ revoke all on function public.freeze_release(uuid) from public, anon, authentica
 grant execute on function public.freeze_release(uuid) to authenticated;
 
 -- ---------------------------------------------------------------------------
--- 3. PUBLISH and WITHDRAW -- as before, with every refusal a code. The
---    readiness trigger still guards a direct update; this checks first so the
---    refusal can say which step is missing.
+-- 3. PUBLISH and WITHDRAW -- as before, with every refusal a code. Readiness
+--    stays ONE gate, the trigger every path to PUBLISHED passes; it now
+--    refuses as PR040 RELEASE_NOT_READY, keeping its words and its blockers.
 -- ---------------------------------------------------------------------------
+create or replace function public.enforce_release_publish_readiness() returns trigger
+language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_status text; v_blockers text[];
+begin
+  if new.status = 'PUBLISHED' and old.status is distinct from new.status then
+    select status, blockers into v_status, v_blockers from public.publish_readiness(new.course_id);
+    if v_status <> 'READY' then
+      raise exception using
+        errcode = 'PR040',
+        detail  = 'RELEASE_NOT_READY',
+        message = format('publish readiness is %s: %s', v_status, array_to_string(v_blockers, '; '));
+    end if;
+  end if;
+  return new;
+end $$;
+revoke all on function public.enforce_release_publish_readiness() from public, anon, authenticated;
+
 create or replace function public.publish_release(p_release uuid)
 returns uuid
 language plpgsql security definer set search_path = public, pg_temp as $$
-declare r record; v_ready record;
+declare r record;
 begin
   select pr.id, pr.status, pr.institution_id, pr.course_id, pr.version_label into r
     from public.plp_releases pr where pr.id = p_release;
@@ -169,10 +186,13 @@ begin
      or not public.can_in_institution('CAN_PUBLISH', r.institution_id) then
     perform public.release_refuse('RELEASE_PUBLISH_NOT_ALLOWED');
   end if;
+  -- a second click publishes nothing twice: no second update, no second audit row
+  if r.status = 'PUBLISHED' then return p_release; end if;
   if r.status <> 'FROZEN' then perform public.release_refuse('RELEASE_STATE_INVALID'); end if;
-  select * into v_ready from public.publish_readiness(r.course_id);
-  if v_ready.status <> 'READY' then perform public.release_refuse('RELEASE_NOT_READY'); end if;
 
+  -- The readiness gate is the trigger's, not a second copy here: this update
+  -- passes through enforce_release_publish_readiness exactly as a direct one
+  -- would, and the trigger now refuses with the same PR040 code.
   update public.plp_releases set status = 'PUBLISHED' where id = p_release;
 
   perform public.audit_write('RELEASE_PUBLISHED', 'plp_releases', p_release::text, r.institution_id,

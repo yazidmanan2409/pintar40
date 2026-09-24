@@ -172,6 +172,14 @@ begin
         v_probs := selftest.f11_note(v_probs, 'F12-P01', 'the release was not created as 1.0.0 of the course by its author: ' || left(v::text, 160));
       else m_steps := m_steps + 1; end if;
 
+      -- an unfrozen release is not published
+      perform selftest.as_user_uid(v_adm);
+      v_code := selftest.f12_code(format('select public.publish_release(%L)', v_rel));
+      perform selftest.as_owner();
+      if v_code is distinct from 'RELEASE_STATE_INVALID' then
+        v_probs := selftest.f11_note(v_probs, 'F12-N01', 'publishing an unfrozen release answered ' || coalesce(v_code, 'ok -- it was published'));
+      else m_refused := m_refused + 1; end if;
+
       perform selftest.as_user_uid(v_kajur);
       v := public.freeze_release(v_rel);
       perform selftest.as_owner();
@@ -231,7 +239,7 @@ begin
           ('an unknown course',                    v_adm,   format('select public.create_release(%L)', gen_random_uuid()), 'RELEASE_NOT_ALLOWED'),
           ('freezing a published release',         v_kajur, format('select public.freeze_release(%L)', v_rel), 'RELEASE_STATE_INVALID'),
           ('a teacher freezing',                   v_guru,  format('select public.freeze_release(%L)', v_rel), 'RELEASE_NOT_ALLOWED'),
-          ('publishing it again',                  v_adm,   format('select public.publish_release(%L)', v_rel), 'RELEASE_STATE_INVALID'),
+          ('publishing it again (a second click)', v_adm,   format('select public.publish_release(%L)', v_rel), null),
           ('a head of department withdrawing',     v_kajur, format('select public.withdraw_release(%L, %L)', v_rel, 'alasan'), 'RELEASE_PUBLISH_NOT_ALLOWED'),
           ('a withdrawal without a reason',        v_adm,   format('select public.withdraw_release(%L, %L)', v_rel, '  '), 'RELEASE_REASON_REQUIRED'),
           ('another school''s admin withdrawing',  v_adm_b, format('select public.withdraw_release(%L, %L)', v_rel, 'alasan'), 'RELEASE_PUBLISH_NOT_ALLOWED')
@@ -271,6 +279,8 @@ begin
       if n <> 1 or v_state <> 'PUBLISHED' then
         v_probs := selftest.f11_note(v_probs, 'F12-N01', format('the refusals left %s release(s), the first %s', n, v_state));
       end if;
+      select count(*) into n from public.audit_log al where al.target_id = v_rel::text and al.action = 'RELEASE_PUBLISHED';
+      if n <> 1 then v_probs := selftest.f11_note(v_probs, 'F12-N01', format('a second click audited %s publication(s), expected 1', n)); end if;
     exception when others then
       perform selftest.as_owner();
       v_probs := selftest.f11_note(v_probs, 'F12-N01', 'the test could not run: ' || left(sqlerrm, 150));
@@ -409,8 +419,9 @@ begin
           || 'admin''s freeze goes through',
         format('%s refusal(s), each PR040 with its code: a course in review, a second release, a teacher, a DEAN, '
           || 'another school''s admin and an unknown course (answering identically), the platform library, a second '
-          || 'freeze, a teacher''s freeze, a second publication, a head of department''s withdrawal, a withdrawal '
-          || 'without a reason and another school''s withdrawal; the release was left as it was', m_refused),
+          || 'freeze, a teacher''s freeze, publishing an unfrozen release, a head of department''s withdrawal, a '
+          || 'withdrawal without a reason and another school''s withdrawal; the release was left as it was, and a '
+          || 'second click on Terbitkan published and audited nothing twice', m_refused),
         'a course whose question names its answer had no findings until freeze_release ran the validators; the freeze '
           || 'answered ok=false RELEASE_NOT_READY with readiness BLOCKED naming STEM_REVEALS_ANSWER, left the release '
           || 'INGESTED and the course unsealed, and kept the finding for the author'

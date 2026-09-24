@@ -378,7 +378,7 @@
       "name": "bob03-7",
       "gate": "db-bob03-gates",
       "expect_red": "F12-N01",
-      "expect_detail": "publishing it again answered"
+      "expect_detail": "publishing an unfrozen release answered"
     },
     {
       "name": "bob03-8",

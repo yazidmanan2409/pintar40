@@ -27,7 +27,10 @@ export const terbitanTests: SelfTest[] = [
       const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
       c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_TERBITAN_DB].sort()),
         `release_refuse raises ${dariDb.join(",")} and the contract names ${KODE_TERBITAN_DB.join(",")}`);
-      const dipakai = new Set([...sql.matchAll(/release_refuse\('([A-Z_]+)'\)/g)].map((m) => m[1]));
+      const dipakai = new Set([...sql.matchAll(/release_refuse\('([A-Z_]+)'\)|detail\s*=\s*'([A-Z_]+)'/g)].map((m) => m[1] ?? m[2]));
+      c.expect(/errcode = 'PR040',\s*detail\s*=\s*'RELEASE_NOT_READY'/.test(
+        /function public\.enforce_release_publish_readiness[\s\S]*?\$\$;/.exec(sql)?.[0] ?? ""),
+        "the readiness trigger no longer refuses as PR040 RELEASE_NOT_READY");
       for (const k of KODE_TERBITAN_DB) c.expect(dipakai.has(k), `the contract names ${k} and no release function raises it`);
       c.expect(/'code', 'RELEASE_NOT_READY'/.test(sql), "freeze_release no longer returns RELEASE_NOT_READY as a result");
 
