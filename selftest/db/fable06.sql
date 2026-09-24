@@ -1002,24 +1002,42 @@ $$;
 revoke all on function selftest.f06_official_for(uuid) from public;
 grant execute on function selftest.f06_official_for(uuid) to authenticated;
 
-create or replace function selftest.f06_withdraw(p_item uuid, p_keep int)
+-- SPARING THE OTHER DRIVEN ITEM (24 Sep, CI #183). Each paper draws 6 of the
+-- 12 items, two per difficulty band, so between a third and a half of the
+-- sessions that present the high item also present the low one. Withdrawn in
+-- session-id order -- random -- they took the low item's evidence down with
+-- the high item's, and recompute_question_health derives the state from the
+-- count alone: below min_evidence is INSUFFICIENT_EVIDENCE. In the draws where
+-- the low item fell under the threshold it left SIGNAL_RAISED too, and F06-P07
+-- found no raised signal to review -- decided by the draw, not by the product
+-- (in CI #183 the same suite passed in one job and failed in another).
+-- Sessions that do not present `p_spare` are withdrawn first, so the low item
+-- loses only what the high item's target still needs after those. With
+-- p_spare null the order is the old one.
+drop function if exists selftest.f06_withdraw(uuid, int);
+create or replace function selftest.f06_withdraw(p_item uuid, p_keep int, p_spare uuid default null)
 returns integer language plpgsql set search_path = public, pg_temp as $$
-declare r record; n int := 0; v_total int;
+declare v_sessions uuid[]; v_s uuid; n int := 0; v_total int;
 begin
-  select count(*) into v_total from selftest.f06_official_for(p_item);
+  -- resolved as the owner, before switching to the reviewer
+  select array_agg(x.session_id order by x.presents_spare, x.session_id) into v_sessions
+    from (select f.session_id,
+                 exists (select 1 from public.presented_items p
+                          where p.session_id = f.session_id and p.item_id = p_spare) as presents_spare
+            from selftest.f06_official_for(p_item) f) x;
+  v_total := coalesce(array_length(v_sessions, 1), 0);
   perform selftest.as_user('boot-kaprodi@bootstrap.pintar.test');
-  for r in select f.session_id from selftest.f06_official_for(p_item) f
-  loop
+  foreach v_s in array coalesce(v_sessions, '{}'::uuid[]) loop
     exit when v_total - n <= p_keep;
     insert into public.evidence_class_overrides (session_id, to_class, reason)
-    values (r.session_id, 'SYNTHETIC',
+    values (v_s, 'SYNTHETIC',
             'FABLE-06 fixture: withdrawing evidence to exercise the downward Question Health edges');
     n := n + 1;
   end loop;
   perform selftest.as_owner();
   return n;
 end $$;
-revoke all on function selftest.f06_withdraw(uuid, int) from public;
+revoke all on function selftest.f06_withdraw(uuid, int, uuid) from public;
 
 -- THE EXPECTED POPULATION IS DECLARED, NOT READ OFF THE IMPLEMENTATION.
 --
@@ -1490,7 +1508,7 @@ begin
     -- resolves it to the variable, not the column. Third shadowing of this kind
     -- in the build -- `r`, `t`, and now `id`.
     select coalesce(max(al.id), 0) into v_mark from public.audit_log al;
-    n_with := selftest.f06_withdraw(c.high_item, 29);
+    n_with := selftest.f06_withdraw(c.high_item, 29, c.low_item);
     perform selftest.as_user('boot-kaprodi@bootstrap.pintar.test');
     perform public.recompute_question_health(c.inst);
     perform selftest.as_owner();

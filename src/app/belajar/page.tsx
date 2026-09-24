@@ -15,6 +15,7 @@ import { keadaanTur, peranSaya } from "@/lib/tur-negara";
 import { konteksPembelajaran } from "@/lib/pembelajaran";
 import * as ub from "@/lib/umpanbalik";
 import JejakSiklus from "@/components/siklus/JejakSiklus";
+import { namaSapaan } from "@/components/sesi";
 import KartuTugas from "@/components/siklus/KartuTugas";
 
 export const dynamic = "force-dynamic";
@@ -79,9 +80,15 @@ export default async function Belajar({
   // copy table carries no `learner:` override anywhere, so every `siklus.*` key
   // tells an educator precisely what it tells a learner. UX1-AJAR-KATA-01
   // asserts that rather than trusting it.
-  const konteks = konteksPembelajaran(await peranSaya());
+  const peran = await peranSaya();
+  const konteks = konteksPembelajaran(peran);
   const persona: Persona = konteks.mengajar ? "educator" : "learner";
   const s = (k: HleEvent) => t(k, persona, { locale });
+  // DAISY-10 (D-020). A learner is greeted by first name only, so the next
+  // child on a shared tablet does not read a full name; somebody who also holds
+  // a staff role may be greeted in full, as on the home page. The same rule as
+  // /, from the same roles, and never the raw display name.
+  const sapa = namaSapaan(viewer.displayName, peran);
 
   const tugas = await engine.myAssignments(db);
 
@@ -182,7 +189,7 @@ export default async function Belajar({
             {konteks.mengajar ? s("pembelajaran.eyebrow") : s("siklus.beranda")}
           </p>
           <h1 className="pin-h1">
-            {viewer.displayName ? `${s("siklus.halo")}, ${viewer.displayName}` : s("siklus.halo")}
+            {sapa ? `${s("siklus.halo")}, ${sapa}` : s("siklus.halo")}
           </h1>
           {/* The sentence that does the work for somebody who also teaches, and
               it is shown whether or not they have anything to do: the thing

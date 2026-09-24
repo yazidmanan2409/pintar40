@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 75,
+  "version": 78,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1879,6 +1879,61 @@
       "id": "DAISY-08-PANEL-01",
       "runner": "static",
       "proves": "DAISY-08 (D-018): the sign-in panel shows PINTAR's own statement, not a placeholder. From the COPY TABLE: no placeholder key, and no telling for any persona in either language says FOTO CONTOH or PLACEHOLDER PHOTO; no SOURCE file draws the old photo scaffold. The panel is RENDERED in both languages as a section labelled by its own heading, carrying the statement from the copy table with no image and nothing hidden from assistive technology but a decorative rule; its phone twin says the same; /masuk and the expired-link screen both show it. From the stylesheet FILE, exactly one copy is displayed at every width, and the panel is the brand colour with the brand's ink and nothing laid over it; the contrast is computed from the token values in globals.css and must meet WCAG AA."
+    },
+    {
+      "id": "DAISY-06-TEMPLAT-01",
+      "runner": "static",
+      "proves": "DAISY-06: the lesson workbook template is BOB-02's contract written out, checked against Bob's own reader and converter (no network). (a) The blank template OUTPUT by the browser writer is read by bacaBukuKerja: the guidance sheet then Kursus, Bab, Pelajaran, Soal, Pilihan in LEMBAR order, each data sheet exactly KOLOM's headers in KOLOM order and nothing else; bukuKerjaKePaket finds no missing sheet or column; the guidance states every column as the contract does and every BATAS_PAKET limit with its own number. (b) One filled row per sheet, written by the same writer, converts with no problem, choices becoming their codes and XML special characters, quotes and a line break coming back exactly. (c) Two builds are byte-identical; from the zip FILE, every entry is stored with the fixed timestamp and a CRC-32 equal to Node's zlib.crc32, every cell is an inline string, and every fixed list is a dropdown on its own column. From the SOURCE: neither the template nor the upload panel imports src/lib/xlsx.ts or a node: module, and the contract file they import brings in types only."
+    },
+    {
+      "id": "DAISY-06-UNGGAH-01",
+      "runner": "static",
+      "proves": "DAISY-06: the upload panel is RENDERED to html in a child process in both languages: the template download; three steps named for what they do with the first current; a Sekolah picker offering exactly the given schools with the first selected; an .xlsx file input; a check that waits for a file; no upload when no school is on offer. From the COPY TABLE, every package problem and refusal code reads as its own sentence in both languages, and a problem's place is OUTPUT as sheet, row and the column's KOLOM header. From the SOURCE, /studio/unggah reads each drafting school's tenant_kind and is_active and offers them through the shared school rule (never the national library) to the panel and the JSON forms, labelled Sekolah; the workbook panel comes first; and the panel reaches the server only through BOB-02's two typed actions and the signed-upload route, to the path the check returned."
+    },
+    {
+      "id": "DAISY-06-UNGGAH-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered /studio/unggah against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on the page offers the national library. Read only."
+    },
+    {
+      "id": "DAISY-09-AKTIVASI-01",
+      "runner": "static",
+      "proves": "DAISY-09 (D-019, D-011). The activation ROUTE is re-read and sends no mail (no OTP, invite, generated link or mail call). From the COPY TABLE, no aktivasi.* sentence in either language promises an email -- the old introduction ('tautan lewat surel' / 'a link by email') is the planted control the sweep must catch -- and the introduction, an email account's success, a card's success and a new person's success each say nothing was sent and send the person to /masuk, never that they can now sign in; the card sentence quotes /masuk's own card button. Every error word the route writes, an unknown one and no answer at all map, per path, to a plain sentence with copy in both languages that is never the dash, the route's word or the server's detail; a refusal reads differently for a recorded and a new person, and a card that could not be made differently from an address in use. A missing name or incomplete address is caught before sending, by a check that agrees with /masuk's own on every sample. Each outcome is RENDERED in both languages in a child process: an email account names its address with the no-email sentence, a card shows number and PIN with where to use them, a new person is named with the address, and a failure is an alert carrying its sentence and never the server's text; the form renders its controls and no outcome before anything is pressed. From the SOURCE, the form asks only /api/akun/aktivasi, checks before it sends, never reads the route's detail, and no longer refreshes the list on success."
+    },
+    {
+      "id": "DAISY-10-SAPA-01",
+      "runner": "static",
+      "proves": "DAISY-10 (D-020) from the SOURCE of /belajar: the roles are read once and serve both the learning context and the greeting; the heading greets through namaSapaan, the home page's rule, and the raw display name reaches nothing else on the page. The rule over stored names: a learner is greeted by the first word, somebody who also holds a staff role as stored, unreadable roles as a learner and never in full, nobody named by no name; siklus.halo has copy for both personas in both languages."
+    },
+    {
+      "id": "DAISY-10-SAPA-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as two seeded learners and the educator who also learns and reads the rendered /belajar and / against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-10 (D-020) over real HTTP against the seed, with each name read from my_profile as that person and required to have more than one word: the RENDERED /belajar heading of two learners is exactly 'Halo, <first name>' and their full name is nowhere on the page; the RENDERED / greets them by first name and shows no full name; the educator who also learns is greeted on /belajar by the name as stored (staff unchanged). Read only."
+    },
+    {
+      "id": "DAISY-11-STUDIO-01",
+      "runner": "static",
+      "proves": "DAISY-11 (D-021). The Studio tab's roles are exactly the roles holding CAN_DRAFT in the LATEST role_capabilities definition read from the migrations, with a copy of that map missing the educator's CAN_DRAFT as the control; EDUCATOR, HEAD_OF_DEPARTMENT, INSTITUTION_ADMIN and SYSTEM_ADMIN are offered it alone or among other roles, and DEAN, STUDENT, an unknown role, no roles and unreadable roles are not. The tab component is RENDERED in a child process: it ends with the Studio link exactly when offered, after the places, in the calling page's link style and in both languages, and the places are unchanged either way. From the SOURCE, the shell decides Studio from its one roles read; the teaching, management and intake shells and an educator's own learning offer it; the learner's own shell, the public page and an assessment in focus draw no Studio; no shell draws its own Studio link; and Studio's layout still refuses a reader with no Studio capability, asked of the database, with its one refusal."
+    },
+    {
+      "id": "DAISY-11-STUDIO-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as the seeded teacher, head of department, school administrator and dean and reads their rendered pages. CI has both facilities, so it never skips there",
+      "proves": "DAISY-11 (D-021) over real HTTP against the seed: the RENDERED tabs of the teacher's /mengajar, the head of department's /pimpinan and the school administrator's /pendataan each carry a Studio link labelled from nav.studio; the dean's /pimpinan carries no link to /studio anywhere; and the dean's /studio is Studio's one refusal (studio.refused), not its pages. Read only."
     }
   ]
 }
