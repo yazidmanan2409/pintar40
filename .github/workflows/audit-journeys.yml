@@ -35,8 +35,16 @@ jobs:
           path: harness
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.RELEASE_SHA }}
           path: app
+          fetch-depth: 0
+      # The candidate by branch, tag, full SHA or short SHA: actions/checkout
+      # accepts only the first three, so the ref is resolved here and the full
+      # SHA that was audited is printed for the record.
+      - name: Check out the candidate
+        run: |
+          set -euo pipefail
+          git -C app checkout --quiet --detach "$RELEASE_SHA" 2>/dev/null || git -C app checkout --quiet --detach "origin/$RELEASE_SHA"
+          echo "auditing $(git -C app rev-parse HEAD)"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -121,8 +129,16 @@ jobs:
           path: harness
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.RELEASE_SHA }}
           path: app
+          fetch-depth: 0
+      # The candidate by branch, tag, full SHA or short SHA: actions/checkout
+      # accepts only the first three, so the ref is resolved here and the full
+      # SHA that was audited is printed for the record.
+      - name: Check out the candidate
+        run: |
+          set -euo pipefail
+          git -C app checkout --quiet --detach "$RELEASE_SHA" 2>/dev/null || git -C app checkout --quiet --detach "origin/$RELEASE_SHA"
+          echo "auditing $(git -C app rev-parse HEAD)"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
