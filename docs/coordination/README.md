@@ -64,6 +64,7 @@ Rules:
    - When a ticket is ready, dispatch `ci.yml` once on your head commit. Budget is finite, so do not dispatch speculative runs.
    - If a job never started (no runner), say so in the hand-off. Do not re-dispatch repeatedly.
 4. **Never dispatch a production workflow.** That means deploy, migrations, Auth, SMTP and diagnostics. Only the coordinator releases.
+5. **A push to `main` that starts no CI (documentation only) must still pass `npm run lint` locally first.** Lint covers every script in the repository, `docs/` included, and a lane that merges `main` inherits whatever is there. On 24 Sep a coordinator script in `docs/coordination/checklist/` failed lint on `main` unseen and failed Daisy's CI #168 after she merged it.
 
 ## 4. The change flow
 
@@ -114,6 +115,7 @@ Next for you: <ticket>
 ## 6. Releases (coordinator only)
 
 1. `main` is green, and the audit journeys pass on its head.
+   The release checklist (`RELEASE-CHECKLIST.md`, D-028) is run on that exact commit: every P0 check PASS, every P1 PASS or accepted by Yazid in writing.
 2. If there are migrations, they are released first:
    - `deploy-request.txt` on `main`;
    - the migrations are applied;
@@ -122,7 +124,8 @@ Next for you: <ticket>
    - `RELEASE_SHA` and `vercel-request.txt` are updated on `main`;
    - the deploy runs, including its own functional checks;
    - the front-door check and readiness are re-run.
-4. The release is recorded in `RELEASES.md`, with a rollback point.
+4. The release-day checks (REL-01…REL-11) are run on production, read-only.
+5. The release is recorded in `RELEASES.md`, with a rollback point and the checklist run.
 5. **Production data changes** (schools, classes, rosters) go only through reviewed, auditable steps, never ad-hoc SQL except in a recorded emergency (D-013).
 
 ## 7. Keeping in sync
