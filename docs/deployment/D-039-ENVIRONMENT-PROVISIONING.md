@@ -3,6 +3,21 @@
 **Status:** proposed on 24 Sep 2026, for Yazid's approval. Nothing is built until it is approved.
 **Scope:** non-production PINTAR environments only. Production is not changed in any way (section 11).
 
+## 0. Naming rule (in force from 24 Sep, ahead of the rest of D-039)
+
+Every environment-specific credential, secret, workflow input and infrastructure reference begins with the complete environment name: `PRODUCTION_`, `STAGING_`, `UAT_`, `LOAD_` or `DEMO_`. The pattern is `<ENVIRONMENT>_<SERVICE>_<PURPOSE>`:
+
+- `PRODUCTION_SUPABASE_ACCESS_TOKEN`, `STAGING_SUPABASE_ACCESS_TOKEN`;
+- `PRODUCTION_SUPABASE_PROJECT_REF`, `STAGING_SUPABASE_PROJECT_REF`;
+- `PRODUCTION_VERCEL_...`, `STAGING_VERCEL_...`;
+- `PRODUCTION_SMTP_...`, `STAGING_SMTP_...`.
+
+Generic names such as `SUPABASE_ACCESS_TOKEN`, abbreviations such as `PROD`, and ambiguous prefixes are prohibited. Existing names are renamed only after the credential audit establishes what each holds: audit first, rename second.
+
+**Operating principle:** Yazid authorizes, the machine executes and verifies, and Yazid receives READY or FAILED. Yazid is not the API between GitHub, Supabase and Vercel.
+
+The `NONPROD_*` names in section 6 were written before this rule. They are superseded, and will be restated when the D-039 decisions are made.
+
 ## 1. The goal in one line
 
 Give an environment a **name** and a **type** once. One workflow then does the rest and reports **READY** or **FAILED at stage N**:
