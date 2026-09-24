@@ -58,7 +58,7 @@ permissions:
 
 env:
   RELEASE_SHA: c358f5866d1d9c9ac1647559cf024e9a73c3b601
-  PROJECT_REF: trtlvibiybwixfumjrrx
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
   # Session mode, port 5432. Never the transaction pooler (6543): transaction
   # pooling breaks session state and multi-statement transactions.
   POOLER_HOST: aws-0-ap-southeast-1.pooler.supabase.com
@@ -118,8 +118,8 @@ jobs:
             echo "::error::repository secret SUPABASE_PROD_DB_PASSWORD is not set"; exit 1; }
           ENC=$(python3 -c 'import os,urllib.parse; print(urllib.parse.quote(os.environ["PGPW"], safe=""))')
           echo "::add-mask::$ENC"
-          echo "DB_URL=postgresql://postgres.${PROJECT_REF}:${ENC}@${POOLER_HOST}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
-          echo "PROBE_URL=postgresql://postgres.${PROJECT_REF}@${POOLER_HOST}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
+          echo "DB_URL=postgresql://postgres.${PRODUCTION_SUPABASE_PROJECT_REF}:${ENC}@${POOLER_HOST}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
+          echo "PROBE_URL=postgresql://postgres.${PRODUCTION_SUPABASE_PROJECT_REF}@${POOLER_HOST}:5432/postgres?sslmode=require" >> "$GITHUB_ENV"
 
       - name: Identity gate — RESET ROLE must land on postgres
         env:
