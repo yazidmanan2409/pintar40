@@ -99,11 +99,16 @@ jobs:
         env:
           DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
         run: |
-          set -uo pipefail
+          set -euo pipefail
+          # `yes` is killed by SIGPIPE the moment the CLI stops reading, so under
+          # pipefail the pipeline fails even on a clean apply (run 35966930847).
+          # Read the CLI's own status instead, as the production workflow does.
+          set +o pipefail
           yes | supabase db push --db-url "$DB"
-          rc=$?
+          rc=${PIPESTATUS[1]}
+          set -o pipefail
           echo "supabase db push exited $rc"
-          exit $rc
+          test "$rc" = "0" || exit "$rc"
 
       - name: Migrations after — must equal the repository
         env:
