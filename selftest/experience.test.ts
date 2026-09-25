@@ -88,7 +88,7 @@ import {
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import BarisSesi from "../src/components/BarisSesi";
 import PanelPernyataan, { KalimatPonsel } from "../src/components/masuk/PanelPernyataan";
-import { templatPelajaran, tulisBukuKerja, xmlTeks, crc32, hurufKolom, LEMBAR_PANDUAN, BATAS_TEKS_KOLOM } from "../src/components/unggah/templat";
+import { templatPelajaran, tulisBukuKerja, xmlTeks, crc32, hurufKolom, LEMBAR_PANDUAN, BATAS_TEKS_KOLOM, KOLOM_BERNOMOR, formatKolom } from "../src/components/unggah/templat";
 import { lokasiMasalah } from "../src/components/unggah/lokasi";
 import { bacaBukuKerja } from "../src/lib/xlsx";
 import { KEGUNAAN, BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
@@ -8464,6 +8464,41 @@ export const experienceTests: SelfTest[] = [
         "the escaping or the CRC-32 is wrong on a known value (control)");
 
       /**
+       * DAISY-15: EVERY COLUMN'S FORMAT. A free-text column is Text (the
+       * built-in "@", numFmtId 49) on its own <col>, so what a teacher types
+       * stays exactly as typed -- "1/2", "01", "0,5"; a numbered column stays
+       * General, and the numbered columns are exactly the ones the reader
+       * parses as numbers (nomor(...) in bukuKerjaKePaket); a dropdown column
+       * stays General. Read from the bytes: styles.xml's cellXfs and each data
+       * sheet's <cols>.
+       */
+      const gaya = entri.find((e) => e.nama === "xl/styles.xml")?.isi.toString("utf8") ?? "";
+      const xfs = [...(/<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/.exec(gaya)?.[1] ?? "").matchAll(/<xf [^>]*numFmtId="(\d+)"/g)].map((m) => Number(m[1]));
+      const kontrakSumber = readFileSync(join(repoRoot, "src", "lib", "unggah-kontrak.ts"), "utf8");
+      const dibacaAngka = new Set([...kontrakSumber.matchAll(/nomor\(\w+\.nilai\.(\w+)\)/g)].map((m) => m[1]));
+      c.expect(dibacaAngka.size > 0 && JSON.stringify([...dibacaAngka].sort()) === JSON.stringify([...KOLOM_BERNOMOR].sort()),
+        `the reader parses ${[...dibacaAngka].sort().join(", ")} as numbers; the template keeps ${[...KOLOM_BERNOMOR].sort().join(", ")} General`);
+      LEMBAR.forEach((l, i) => {
+        const xml = entri.find((e) => e.nama === `xl/worksheets/sheet${i + 2}.xml`)?.isi.toString("utf8") ?? "";
+        const cols = [...xml.matchAll(/<col ([^>]*)\/>/g)].map((m) => {
+          const min = /\bmin="(\d+)"/.exec(m[1])?.[1], gayaCol = /\bstyle="(\d+)"/.exec(m[1])?.[1];
+          return { kolom: Number(min) - 1, fmt: gayaCol === undefined ? 0 : xfs[Number(gayaCol)] };
+        });
+        c.expect(cols.length === KOLOM[l].length, `${l}: ${cols.length} column definitions for ${KOLOM[l].length} columns`);
+        KOLOM[l].forEach((k, n) => {
+          const fmt = cols.find((x) => x.kolom === n)?.fmt;
+          const harap = KOLOM_BERNOMOR.has(k.kunci) || k.pilihan ? 0 : 49;
+          c.expect(fmt === harap, `${l} · ${k.judul}: format ${fmt === 49 ? "Text" : fmt === 0 ? "General" : String(fmt)}, expected ${harap === 49 ? "Text" : "General"}`);
+          c.expect(formatKolom(k) === (harap === 49 ? "teks" : "umum"), `${l} · ${k.judul}: formatKolom disagrees with the file`);
+        });
+        // the header row keeps its own heading style over the column's
+        c.expect((xml.match(/<c r="[A-Z]+1" t="inlineStr" s="1">/g) ?? []).length === KOLOM[l].length, `${l}: a header cell lost its heading style`);
+      });
+      const teksSemua = LEMBAR.flatMap((l) => KOLOM[l].filter((k) => formatKolom(k) === "teks").map((k) => `${l}.${k.kunci}`));
+      c.expect(["Soal.stem", "Pilihan.body", "Pilihan.ref", "Soal.ref", "Kursus.grade_label", "Soal.parallel_group"].every((x) => teksSemua.includes(x))
+        && !teksSemua.some((x) => /\.(ordinal|module|lesson)$/.test(x)), "the column split is not free text versus numbered (control on known columns)");
+
+      /**
        * SAFE IN THE BROWSER (the gate's condition 1). The template and the
        * panel import nothing from src/lib/xlsx.ts and no node: module, and the
        * contract file they do import brings in types only -- so nothing that
@@ -8487,7 +8522,9 @@ export const experienceTests: SelfTest[] = [
         "as the contract does and every BATAS_PAKET limit with its own number. One filled row per sheet converts with no problem, " +
         "choices becoming their codes and special characters coming back exactly. Two builds are byte-identical, every entry " +
         "stored with the fixed time and a CRC-32 matching Node's zlib, every cell an inline string, every fixed list a dropdown " +
-        "on its own column; and nothing that needs node:zlib can reach the browser through the template or the panel",
+        "on its own column, every free-text column Text and every numbered or dropdown column General (the numbered ones being " +
+        "exactly what the reader parses as numbers); and nothing that needs node:zlib can reach the browser through the " +
+        "template or the panel",
       );
     },
   },

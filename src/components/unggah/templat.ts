@@ -123,8 +123,13 @@ export function hurufKolom(i: number): string {
   return s;
 }
 
-/** Cell styles, as indexes into styles.xml's cellXfs. */
-const GAYA = { biasa: 0, judulKolom: 1, judulHalaman: 2, bungkus: 3 } as const;
+/**
+ * Cell styles, as indexes into styles.xml's cellXfs. `teks` is the Text number
+ * format ("@", built-in 49): a cell in a column that carries it keeps exactly
+ * what was typed -- "1/2" stays a fraction instead of becoming 1 February,
+ * "01" keeps its zero, "0,5" is not turned into a number (DAISY-15).
+ */
+const GAYA = { biasa: 0, judulKolom: 1, judulHalaman: 2, bungkus: 3, teks: 4 } as const;
 type Gaya = (typeof GAYA)[keyof typeof GAYA];
 
 export type Sel = string | { teks: string; gaya: Gaya };
@@ -137,6 +142,8 @@ export type LembarTulis = {
   bekukanJudul?: boolean;
   /** A dropdown list for a column, from row 2 down. */
   daftar?: Array<{ kolom: number; nilai: string[] }>;
+  /** Each column's own style, for every cell typed into it (null: General). */
+  gayaKolom?: Array<Gaya | null>;
 };
 
 const NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
@@ -149,7 +156,10 @@ function lembarXml(l: LembarTulis, pertama: boolean): string {
     l.bekukanJudul ? '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>' : ""
   }</sheetView></sheetViews>`;
   const kolom = l.lebar?.length
-    ? `<cols>${l.lebar.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>`
+    ? `<cols>${l.lebar.map((w, i) => {
+        const gaya = l.gayaKolom?.[i];
+        return `<col min="${i + 1}" max="${i + 1}" width="${w}"${gaya ? ` style="${gaya}"` : ""} customWidth="1"/>`;
+      }).join("")}</cols>`
     : "";
   const baris = l.baris.map((sel, r) => {
     const isi = sel.map((x, k) => {
@@ -174,10 +184,11 @@ const GAYA_XML = `${XML}<styleSheet xmlns="http://schemas.openxmlformats.org/spr
   + '<fill><patternFill patternType="solid"><fgColor rgb="FFE3EFEC"/><bgColor indexed="64"/></patternFill></fill></fills>'
   + '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
   + '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-  + '<cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+  + '<cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
   + '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>'
   + '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
-  + '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs>'
+  + '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+  + '<xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>'
   + '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
 
 /** An .xlsx file of the given sheets, in order. The same sheets always give the same bytes. */
@@ -292,8 +303,22 @@ export function lembarTemplat(): LembarTulis[] {
       lebar: KOLOM[l].map((k) => Math.min(48, Math.max(14, k.judul.length + 6))),
       bekukanJudul: true,
       daftar: KOLOM[l].flatMap((k, i) => (k.pilihan ? [{ kolom: i, nilai: k.pilihan.map(([label]) => label) }] : [])),
+      gayaKolom: KOLOM[l].map((k) => (formatKolom(k) === "teks" ? GAYA.teks : null)),
     })),
   ];
+}
+
+/**
+ * THE NUMBERED COLUMNS (DAISY-15): the ones the reader reads as numbers --
+ * a chapter's or a lesson's number, wherever it appears. They stay General,
+ * so 1, 2, 3 are numbers. Every other free-text column is Text, so what a
+ * teacher types stays exactly as typed. A column with a dropdown is neither:
+ * its values are the list's words, and it stays General as before.
+ */
+export const KOLOM_BERNOMOR: ReadonlySet<string> = new Set(["ordinal", "module", "lesson"]);
+
+export function formatKolom(k: { kunci: string; pilihan?: unknown }): "teks" | "umum" {
+  return KOLOM_BERNOMOR.has(k.kunci) || k.pilihan ? "umum" : "teks";
 }
 
 /** The template file itself. */
