@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
 import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
+import { batasHari } from "@/lib/hle";
 
 /**
  * THE EDUCATOR'S COMMITMENTS — every write the Slice-3 surface can make, and
@@ -84,8 +85,9 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
   const { data, error } = await db.rpc("assign_release", {
     p_release: terbitan,
     p_node: kelasId,
-    p_from: mulai ? `${mulai}T00:00:00Z` : null,
-    p_until: sampai ? `${sampai}T23:59:59Z` : null,
+    // DAISY-14 (M10): the teacher's days on the school's clock, not London's
+    p_from: mulai ? batasHari(mulai, "awal") : null,
+    p_until: sampai ? batasHari(sampai, "akhir") : null,
   });
   if (error || !data?.ok) {
     const kode = kodeGalatPenugasan(error);
