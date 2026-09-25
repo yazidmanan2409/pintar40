@@ -358,7 +358,7 @@ CURRENT = {
     "DEA-07": "PASS: Keluar on /pimpinan (DAISY-02).",
     # School admin
     "ADM-03": "PASS: Bagian, Tingkat and Kelas built on the Struktur sekolah screen, no SQL (S7, DAISY-05).",
-    "ADM-09": "PARTIAL: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). A workbook saved by Microsoft Excel imports (BOB02-X01); one saved by Google Sheets is not yet delivered (D-030(d)).",
+    "ADM-09": "PASS: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). A workbook saved by Microsoft Excel imports (BOB02-X01, K01); one saved by Google Sheets (Yazid, 25 Sep) converts to the identical package (coordinator, with the app's own reader; it enters CI with BOB-16). Found on the way: Google Sheets stores whole numbers as N.0, and the template does not keep typed text as text (BOB-16, DAISY-15).",
     "ADM-10": "PARTIAL: the text, questions and media files exist (S14, S15c); media do not play (M9, BOB-11).",
     "ADM-11": "PASS: seven named steps with the current one marked, no 'Konfirmasi' (S17, DAISY-06).",
     "ADM-12": "PASS: published only after the content check's findings were reviewed; before that it was refused in plain words (S17). SD is preselected; the national library is not offered (S14, S15b).",
@@ -413,10 +413,10 @@ NOW["evidence"] = NOW["evidence"].replace("AUDIT_RUN", "36075836312 (25 PASS, 1 
 
 VERDICT_NOW = ("NO-GO. What stands between the candidate and go-live, by owner: "
                "Daisy — DAISY-07 (reports reachable by clicking: DEA-03, ADM-16, X-12, HOD-09) and DAISY-14 (M10, the 7-hour "
-               "assignment window: EDU-06, STU-05). Bob — BOB-07 (raw English: U-LOC), BOB-10 (intake trap: ADM-07, X-01), "
+               "assignment window: EDU-06, STU-05), DAISY-15 (the template keeps typed text as text). Bob — BOB-16 (Google Sheets numbers; its fixture), BOB-07 (raw English: U-LOC), BOB-10 (intake trap: ADM-07, X-01), "
                "BOB-11 (media playback: STU-11, ADM-10), then BOB-12 before 1 Nov (CAP-01). Coordinator — extend the audit to "
                "answer the pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. "
-               "Yazid — REL-08 and REL-09 (Supabase settings, offline key copies), and a Google Sheets workbook for ADM-09 (D-030(d)). "
+               "Yazid — REL-08 and REL-09 (Supabase settings, offline key copies). "
                "The live release (5b5b68d) stays as it is.")
 
 CHANGES_V21 = [
@@ -426,7 +426,7 @@ CHANGES_V21 = [
     "taken to Terbit by two people, with the content check's findings reviewed first; S18 the teacher assigns it; "
     "S19 the student reaches the pre-test.",
     "Checks unblocked by BOB-03 and BOB-04 are N-T until the audit answers the tests; they no longer read BLOCKED.",
-    "New finding on the candidate: M10 is live. Siapkan reads the teacher's days as UTC, so an assignment opens at "
+    "New findings: M10 is live. Siapkan reads the teacher's days as UTC, so an assignment opens at "
     "07:00 WIB and closes at 06:59 WIB the day after its last (S18). DAISY-14.",
     "Counts: the summary counts the Now column; the baseline's counts stay beside it.",
 ]
@@ -445,6 +445,7 @@ FINDINGS[:] = [
     ("M11", "Unlabelled lifecycle steps", "DAISY-06 Terbit step", "FIXED on the candidate (S17)"),
     ("M5", "Intake traps", "BOB-01 (fixed part); BOB-10", "OPEN: a school-level place (S8), staff rows"),
     ("M7", "Raw English errors", "DAISY-04 (pages); BOB-07 (actions)", "PARTLY FIXED"),
+    ("GS-1", "A number typed in a text column (an option like 78.145) becomes a number in Excel or Google Sheets; Google Sheets also stores whole numbers as N.0", "BOB-16 (reader); DAISY-15 (template columns as Text)", "OPEN, before 28 Sep"),
     ("Capacity", "Card sign-in shares the server's Auth limit; a 429 reads as a wrong PIN", "BOB-12 (contract published 25 Sep); DAISY-13", "OPEN, before 1 Nov"),
     ("M1–M15, N2–N15", "The rest of the audit report", "BOARD backlog and tickets", "OPEN unless listed above"),
 ]
