@@ -3,6 +3,7 @@ import { randomInt } from "node:crypto";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseService } from "@/lib/supabase/service";
 import { cardEmail, deriveCardSecret } from "@/lib/card";
+import { rujukan } from "@/lib/galat-kontrak";
 
 /**
  * ACCOUNT ACTIVATION (F-01). The one place an Auth identity is created for a
@@ -54,11 +55,11 @@ export async function POST(request: Request) {
     const { data: name, error } = await caller.rpc("authorize_new_person", {
       p_display_name: body.display_name ?? "", p_email: email,
     });
-    if (error || typeof name !== "string") return refused(error?.message);
+    if (error || typeof name !== "string") return refused("authorize_new_person", error);
     const { error: created } = await service.auth.admin.createUser({
       email, email_confirm: true, user_metadata: { display_name: name },
     });
-    if (created) return NextResponse.json({ ok: false, error: "create_failed", detail: created.message }, { status: 409 });
+    if (created) return gagalBuat(created);
     return NextResponse.json({ ok: true, mode: body.mode });
   }
 
@@ -74,11 +75,11 @@ export async function POST(request: Request) {
 
   if (body.mode === "EMAIL") {
     const { row, error } = await authorize("EMAIL", email, null);
-    if (error || !row) return refused(error?.message);
+    if (error || !row) return refused("authorize_account_activation", error);
     const { error: created } = await service.auth.admin.createUser({
       email, email_confirm: true, user_metadata: { display_name: row.display_name },
     });
-    if (created) return NextResponse.json({ ok: false, error: "create_failed", detail: created.message }, { status: 409 });
+    if (created) return gagalBuat(created);
     return NextResponse.json({ ok: true, mode: body.mode });
   }
 
@@ -89,19 +90,32 @@ export async function POST(request: Request) {
     const card = String(randomInt(1_000_000_000, 9_999_999_999));
     const pin = String(randomInt(0, 1_000_000)).padStart(6, "0");
     const { row, error } = await authorize("CLASSROOM_CARD", cardEmail(card), card);
-    if (error || !row) return refused(error?.message);
+    if (error || !row) return refused("authorize_account_activation", error);
     const { error: created } = await service.auth.admin.createUser({
       email: cardEmail(card), password: deriveCardSecret(card, pin), email_confirm: true,
       user_metadata: { display_name: row.display_name },
     });
     if (!created) return NextResponse.json({ ok: true, mode: body.mode, card, pin });
     if (!/already|exists|registered/i.test(created.message)) {
-      return NextResponse.json({ ok: false, error: "create_failed", detail: created.message }, { status: 409 });
+      return gagalBuat(created);
     }
   }
   return NextResponse.json({ ok: false, error: "create_failed" }, { status: 409 });
 }
 
-function refused(message: string | undefined) {
-  return NextResponse.json({ ok: false, error: "refused", detail: message ?? null }, { status: 403 });
+/**
+ * BOB-07 (D-011): the answer carries the route's own word and a reference;
+ * the database's or Auth's own sentence goes to the server log beside it and
+ * never into the response (the screen never showed it: src/components/aktivasi/hasil.ts).
+ */
+function refused(fn: string, error: { code?: string | null; message?: string | null } | null) {
+  const ref = rujukan();
+  console.error(`[aktivasi ${ref}] ${fn} refused`, error?.code, error?.message);
+  return NextResponse.json({ ok: false, error: "refused", ref }, { status: 403 });
+}
+
+function gagalBuat(created: { code?: string | null; status?: number; message?: string | null }) {
+  const ref = rujukan();
+  console.error(`[aktivasi ${ref}] auth.admin.createUser failed`, created.code ?? created.status, created.message);
+  return NextResponse.json({ ok: false, error: "create_failed", ref }, { status: 409 });
 }

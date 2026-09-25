@@ -767,6 +767,33 @@ export type HleEvent =
   | "studio.bank.tindakan"
   | "studio.hasil.ok"
   | "studio.hasil.gagal"
+  // BOB-07 (D-011): the stable codes' sentences (src/lib/galat-kontrak.ts)
+  | "galat.action_not_allowed"
+  | "galat.action_not_found"
+  | "galat.action_input_invalid"
+  | "galat.action_already_exists"
+  | "galat.action_unchanged"
+  | "galat.action_failed"
+  | "galat.rollover_input_incomplete"
+  | "galat.transfer_input_incomplete"
+  | "galat.role_input_incomplete"
+  | "galat.role_scope_required"
+  | "galat.flag_key_invalid"
+  | "galat.template_input_incomplete"
+  | "galat.school_required"
+  | "galat.rollover_done"
+  | "galat.template_saved"
+  | "studio.konten.kode.content_transition_invalid"
+  | "studio.konten.kode.content_review_not_allowed"
+  | "studio.konten.kode.content_reviewer_required"
+  | "studio.konten.kode.content_author_unknown"
+  | "studio.konten.kode.content_reviewer_is_author"
+  | "studio.konten.kode.content_reviewer_not_caller"
+  | "studio.konten.kode.content_seal_not_allowed"
+  | "studio.konten.kode.content_publish_not_allowed"
+  | "studio.konten.kode.content_withdraw_not_allowed"
+  | "studio.konten.kode.content_author_immutable"
+  | "studio.konten.kode.content_created_not_ingested"
   | "mengajar.judul"
   | "nav.kelas" | "nav.pimpinan" | "nav.pendataan"
   | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat"
@@ -2334,6 +2361,33 @@ const table: Table = {
   "studio.bank.tindakan": { default: "Sudah ditinjau, soal ini diperbaiki", en: "Reviewed — this item was corrected" },
   "studio.hasil.ok": { default: "Tersimpan.", en: "Saved." },
   "studio.hasil.gagal": { default: "Belum tersimpan.", en: "Not saved." },
+  // BOB-07 (D-011): each code's sentence. Bob's best wording; Daisy owns it (D-014).
+  "galat.action_not_allowed": { default: "Anda belum memiliki wewenang untuk langkah ini.", en: "You do not have permission for this step." },
+  "galat.action_not_found": { default: "Yang dipilih tidak ditemukan atau sudah tidak tersedia.", en: "What you chose was not found or is no longer available." },
+  "galat.action_input_invalid": { default: "Isian belum lengkap atau belum sesuai. Periksa, lalu coba lagi.", en: "The form is incomplete or a value is not right. Check it and try again." },
+  "galat.action_already_exists": { default: "Data ini sudah ada.", en: "This already exists." },
+  "galat.action_unchanged": { default: "Tidak ada yang berubah: perubahan ini di luar wewenang Anda atau sudah tidak berlaku.", en: "Nothing changed: this change is outside your permission or no longer applies." },
+  "galat.action_failed": { default: "Ada kendala di server. Coba sekali lagi; bila masih terjadi, sampaikan kode rujukannya kepada admin sekolah.", en: "Something went wrong on the server. Try once more; if it happens again, give the reference to your school administrator." },
+  "galat.rollover_input_incomplete": { default: "Lengkapi tahun ajaran asal, tahun ajaran tujuan, dan minimal satu pemetaan kelas.", en: "Choose the source year, the target year and at least one class mapping." },
+  "galat.transfer_input_incomplete": { default: "Pendaftaran asal, kode sekolah tujuan, dan kode tahun ajaran tujuan wajib diisi.", en: "The source enrolment, the target school's code and the target year's code are required." },
+  "galat.role_input_incomplete": { default: "Pilih orang, peran, dan tanggal berlaku.", en: "Choose the person, the role and the dates." },
+  "galat.role_scope_required": { default: "Peran sekolah memerlukan lingkup.", en: "A school role needs a scope." },
+  "galat.flag_key_invalid": { default: "Kunci fitur hanya boleh berisi huruf kecil, angka, titik, dan garis bawah.", en: "A feature key may contain only lower-case letters, digits, dots and underscores." },
+  "galat.template_input_incomplete": { default: "Pilih institusi, kunci judul, dan minimal satu metrik.", en: "Choose the institution, the title key and at least one metric." },
+  "galat.school_required": { default: "Pilih sekolah terlebih dahulu.", en: "Choose a school first." },
+  "galat.rollover_done": { default: "Keanggotaan dipindahkan:", en: "Memberships moved:" },
+  "galat.template_saved": { default: "Metrik dalam templat:", en: "Metrics in the template:" },
+  "studio.konten.kode.content_transition_invalid": { default: "Langkah ini belum bisa diambil dari tahap paket saat ini.", en: "This step cannot be taken from where the package stands now." },
+  "studio.konten.kode.content_review_not_allowed": { default: "Menyetujui paket memerlukan wewenang meninjau di sekolah ini.", en: "Approving a package needs review permission in this school." },
+  "studio.konten.kode.content_reviewer_required": { default: "Persetujuan memerlukan peninjau yang tercatat.", en: "Approval needs a recorded reviewer." },
+  "studio.konten.kode.content_author_unknown": { default: "Penyusun paket ini tidak tercatat, sehingga peninjau tidak dapat dipastikan orang yang berbeda.", en: "This package's author is not recorded, so the reviewer cannot be shown to be someone else." },
+  "studio.konten.kode.content_reviewer_is_author": { default: "Penyusun tidak dapat menyetujui paketnya sendiri. Mintalah rekan untuk meninjau.", en: "An author cannot approve their own package. Ask a colleague to review it." },
+  "studio.konten.kode.content_reviewer_not_caller": { default: "Peninjau yang tercatat haruslah Anda sendiri.", en: "The recorded reviewer must be you." },
+  "studio.konten.kode.content_seal_not_allowed": { default: "Mengunci paket memerlukan wewenang mengunci terbitan di sekolah ini.", en: "Locking a package needs release-locking permission in this school." },
+  "studio.konten.kode.content_publish_not_allowed": { default: "Menerbitkan memerlukan wewenang menerbitkan di sekolah ini.", en: "Publishing needs publishing permission in this school." },
+  "studio.konten.kode.content_withdraw_not_allowed": { default: "Menarik isi yang sudah terbit memerlukan wewenang menerbitkan di sekolah ini.", en: "Withdrawing published content needs publishing permission in this school." },
+  "studio.konten.kode.content_author_immutable": { default: "Penyusun paket tidak dapat diubah.", en: "A package's author cannot be changed." },
+  "studio.konten.kode.content_created_not_ingested": { default: "Isi baru selalu dimulai dari tahap unggah.", en: "New content always starts at upload." },
   "sync.done": { default: "Semua jawaban sudah tersimpan di server.", en: "Every answer is saved on the server." },
   // R1 (F-07/F-08). Said when Finish is held back because an answer the
   // learner gave is not yet on the server, and when an answer arrived after

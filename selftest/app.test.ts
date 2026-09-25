@@ -658,6 +658,51 @@ export const appTests: SelfTest[] = [
     },
   },
   {
+    // BOB-07 (D-011). The banners a Studio page and Konfigurasi draw read only
+    // the result's code. Each page is asked with a code AND a planted `detail`
+    // in the database's own English: the code's Indonesian sentence and the
+    // reference render, and the English never does. (Before BOB-07 both pages
+    // printed `detail` after "Belum tersimpan.".)
+    id: "BOB07-R01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const bahasaDb = "the reviewer may not be the author (public.courses)";
+
+      const admin = await signIn(ctx, PERSONA.cycleAdmin);
+      const kursus = await fetch(`${ctx.supabaseUrl}/rest/v1/courses?select=id&title=eq.Pecahan&supersedes_course_id=is.null`, {
+        headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${admin.accessToken}` },
+      }).then((r) => r.json() as Promise<Array<{ id: string }>>).catch(() => []);
+      if (c.expect(Array.isArray(kursus) && kursus.length === 1, `the seeded course could not be read (${JSON.stringify(kursus).slice(0, 100)})`)) {
+        const q = new URLSearchParams({ bagian: "paket", hasil: "gagal", kode: "CONTENT_REVIEWER_IS_AUTHOR", detail: bahasaDb });
+        const r = await get(`${base}/studio/paket/${kursus[0].id}?${q}`, { headers: { cookie: admin.cookie } });
+        const teks = visibleText(await r.text());
+        c.expect(r.status === 200, `/studio/paket → ${r.status}`);
+        c.expect(teks.includes(`${t("studio.hasil.gagal", "staff")} ${t("studio.konten.kode.content_reviewer_is_author", "staff")}`),
+          "the package page does not show the content refusal's sentence");
+        c.expect(!teks.includes("reviewer may not be"), "the package page shows the database's own words");
+        const g = new URLSearchParams({ bagian: "paket", hasil: "gagal", kode: "ACTION_FAILED", ref: "AB12CD", detail: bahasaDb });
+        const rg = visibleText(await (await get(`${base}/studio/paket/${kursus[0].id}?${g}`, { headers: { cookie: admin.cookie } })).text());
+        c.expect(rg.includes(`${t("galat.rujukan", "staff")}: AB12CD.`) && !rg.includes("reviewer may not be"),
+          "a failure nobody named does not show its reference, or shows the database's words");
+      }
+
+      const alpha = await signIn(ctx, PERSONA.alphaAdmin);
+      const k = new URLSearchParams({ bagian: "roles", hasil: "gagal", kode: "ROLE_SCOPE_REQUIRED", detail: "permission denied for function grant_role" });
+      const rk = await get(`${base}/konfigurasi?${k}`, { headers: { cookie: alpha.cookie } });
+      const tk = visibleText(await rk.text());
+      c.expect(rk.status === 200, `/konfigurasi → ${rk.status}`);
+      c.expect(tk.includes(`${t("config.result.failed", "staff")} ${t("galat.role_scope_required", "staff")}`),
+        "Konfigurasi does not show the code's sentence");
+      c.expect(!tk.includes("permission denied"), "Konfigurasi shows the database's own words");
+
+      return c.verdict("asked with a code and a planted detail in the database's English, the rendered package page shows " +
+        "\"Belum tersimpan.\" and the content refusal's sentence, and a failure's reference, and Konfigurasi the role " +
+        "refusal's sentence; neither shows the planted words");
+    },
+  },
+  {
     id: "F01-R06",
     requires: ["app", "network"],
     run: async (ctx) => {

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 81,
+  "version": 82,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1859,6 +1859,22 @@
       "id": "F14-N01",
       "runner": "db",
       "proves": "BOB-06. The school's admin is refused, by the guard's own rule, editing, unmarking, revising, extending and removing PINTAR's standard class report, and refused by a missing grant writing the provisioning pass and calling the provisioner; an educator writes no template; no pass is open, and no client is granted the provisioner or the pass, which has no policies."
+    },
+    {
+      "id": "BOB07-K01",
+      "runner": "static",
+      "proves": "BOB-07 (D-011). A walk over the source of every server action file and route handler in src/app finds no error's .message, .details or .hint outside the server log or a classifier that answers with a code, no detail parameter set or read on any page, and no learner component reading a learner action's message; the walk is watched by four planted leaks (a redirect detail, a JSON body, refusal details, a caught error) and lets the log and the classifiers be."
+    },
+    {
+      "id": "BOB07-K02",
+      "runner": "static",
+      "proves": "BOB-07 (D-011). Each refusal enforce_content_status raises, read from the migration source that defines it last, maps to its own CONTENT_ code in the source file src/lib/galat-kontrak.ts, and a message that only quotes one does not; any action's refusal becomes its code by SQLSTATE and wording, else ACTION_FAILED; every code of the catalogue has a sentence in the copy table in both languages naming no machinery; the banner shows a code's sentence, a count, a package problem at its place and a failure's reference, while a planted legacy detail, unknown code, bad reference and unknown problem never reach it; Studio's shared outcome line and Konfigurasi's result line read only the code."
+    },
+    {
+      "id": "BOB07-R01",
+      "runner": "app",
+      "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
       "id": "BOB06-K01",

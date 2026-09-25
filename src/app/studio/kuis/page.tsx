@@ -23,7 +23,7 @@ import { launchQuickAssessmentAction } from "../actions";
  * history — and says so in a sentence a teacher can act on. Work already
  * finished stays finished (ADR-0018, INV-27).
  */
-type Search = Promise<{ hasil?: string; detail?: string; kelas?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; kelas?: string }>;
 
 export default async function Kuis({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -94,7 +94,7 @@ export default async function Kuis({ searchParams }: { searchParams: Search }) {
   return (
     <div className="grid gap-6">
       <h2 className="text-lg font-medium">{s("studio.kuis.judul")}</h2>
-      {outcomeLine(sp.hasil, sp.detail) ? <p className={card}>{outcomeLine(sp.hasil, sp.detail)}</p> : null}
+      {outcomeLine(sp) ? <p className={card}>{outcomeLine(sp)}</p> : null}
       <p className="text-sm text-ink-2">{s("studio.kuis.pengantar")}</p>
 
       <section className={card} id="kuis">

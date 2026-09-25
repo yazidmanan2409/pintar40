@@ -298,6 +298,16 @@ jobs:
           grep -E '^BOB02-X01 +FAIL' r5.txt
           grep -F "contoh-gsheets.xlsx's Bab sheet does not hold the cells" r5.txt
           git checkout -- src/lib/xlsx.ts
+
+          # 6. BOB-07: a server action that sends the database's words back in a
+          #    redirect. BOB07-K01 must go red and name the file.
+          mkdir -p src/app/redcase3
+          printf '"use server";\nexport async function a() { const { error } = await x(); back("s", { ok: false, detail: error.message }); }\n' > src/app/redcase3/actions.ts
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=BOB07-K01 | tee r6.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::BOB07-K01 stayed green with database words sent back in a redirect"; exit 1; }
+          grep -E '^BOB07-K01 +FAIL' r6.txt
+          grep -F 'src/app/redcase3/actions.ts:2 lets .message leave the server' r6.txt
+          rm -rf src/app/redcase3
       - name: The INV-20 lint must catch a planted raw-evidence read
         if: matrix.case == 'static-raw-evidence-read'
         run: |
