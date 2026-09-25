@@ -80,7 +80,7 @@ async function magicSignIn(page, email) {
   await page.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
   await page.locator("#email").fill(email);
   await page.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await page.getByText("Periksa email Anda").waitFor({ timeout: 15000 });
+  await page.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: 15000 });
   const { link, subject } = await latestLink(email, t0);
   if (!link) throw new Error("no sign-in email arrived");
   await page.goto(link, { waitUntil: "networkidle" });
@@ -168,7 +168,7 @@ await step("S1b", "the same link opened in a different browser", async (rec) => 
   await asker.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
   await asker.locator("#email").fill(GLADYS);
   await asker.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await asker.getByText("Periksa email Anda").waitFor({ timeout: 15000 });
+  await asker.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: 15000 });
   const { link } = await latestLink(GLADYS, t0);
   await p.goto(link, { waitUntil: "networkidle" });
   await p.waitForTimeout(3000);
