@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 77,
+  "version": 80,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1835,6 +1835,53 @@
       "proves": "BOB-04 (D-040). prepare_ingest_batch refuses a package whose two pre-test questions share their parallel groups with its two post-test questions: ok=false with ITEM_PARALLEL_CYCLE_MIXED and nothing else, at Soal rows 2, 3, 4 and 5 -- every question of those groups; the same package with separate groups prepares cleanly."
     },
     {
+      "id": "BOB05-K01",
+      "runner": "static",
+      "proves": "BOB-05 (D-009). keluarPerangkatIni in the source file src/lib/keluar.ts, run against the real supabase-js with a recording fetch, asks Auth for POST /auth/v1/logout?scope=local and forgets this device's session, while the bare default sends scope=global; no other sign-out exists in src/, and /keluar and S15's keluarDariSesi both use it. A classroom card's session lives 60 minutes idle and an email account's 7 days (src/lib/sesi.ts), lookalike addresses are not cards, the address is read from @supabase/ssr's own cookie format whole and chunked, src/proxy.ts re-sends the auth cookies with that lifetime on every signed-in request, src/lib/supabase/server.ts applies it on sign-in and refresh, and supabase/config.toml's Auth idle backstop is 7 days."
+    },
+    {
+      "id": "BOB05-R01",
+      "runner": "app",
+      "proves": "BOB-05 (D-009), against the running app and Auth: the same person signed in on two devices signs out on one through the route POST /keluar; that device's refresh token is dead and the other device's still buys a session. The running proxy (src/proxy.ts) writes, in the Set-Cookie headers of the rendered response, an email account's auth cookies with Max-Age 604800 and a classroom card's (card 7001) with Max-Age 3600.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "F14-P01",
+      "runner": "db",
+      "proves": "BOB-06 (D-010, audit B6b), by migration 20261011100000: every INSTITUTION tenant carries exactly one standard class report and one standard school report at version 1, each PINTAR's standard assembly in its standard order, every row a metric and drawing the live catalogue offers; the platform's canonical tenant carries none; a school created now is given both, unowned and in the standard order, with a report_template.provisioned audit row each."
+    },
+    {
+      "id": "F14-P02",
+      "runner": "db",
+      "proves": "BOB-06 (B6b). In the seeded learning-cycle school the admin reads both standard reports and generate_report of the class report at a class gives all 6 entries, each decided per metric; a dean's school report at the school gives 6, none refused; the school's own assembly through save_report_template is its own version 1, beside the standard one."
+    },
+    {
+      "id": "F14-N01",
+      "runner": "db",
+      "proves": "BOB-06. The school's admin is refused, by the guard's own rule, editing, unmarking, revising, extending and removing PINTAR's standard class report, and refused by a missing grant writing the provisioning pass and calling the provisioner; an educator writes no template; no pass is open, and no client is granted the provisioner or the pass, which has no policies."
+    },
+    {
+      "id": "BOB06-K01",
+      "runner": "static",
+      "proves": "BOB-06 (B6b). pilihTemplat in the source file src/lib/laporan-kontrak.ts, driven with template rows of two schools, gives the school's own latest assembly, else PINTAR's standard one, never another school's and never the other standard report; both summary pages read their template through templatUntuk in src/lib/laporan.ts, which narrows to the scope node's school, and neither reads report_templates directly."
+    },
+    {
+      "id": "BOB06-K02",
+      "runner": "static",
+      "proves": "BOB-06 (B6c). The source file src/lib/pimpinan.ts, driven with a recording client over one school's tree: at a department no class figure is asked of the department and the school's figures are asked of the school; at a class its class figures are asked of it; buktiPerKelasDari asks the four class figures of each active class in the branch and of none outside it or inactive, and returns them per class by name."
+    },
+    {
+      "id": "BOB06-A01",
+      "runner": "app",
+      "proves": "BOB-06 (D-010; audit M4, S11, S13), against the running app: the rendered sign-in screen /masuk carries an empty destination in every hidden lanjut field when none was asked for -- no parameter, only ?peran=, or a refused off-origin one -- and still carries /belajar/sertifikat when that route was asked for. Before the fix every one of them carried \"/\", which then beat the role's home."
+    },
+    {
+      "id": "BOB06-R01",
+      "runner": "app",
+      "proves": "BOB-06 (D-010), against the running app and Auth: a learner, an educator, a head of department, a dean, a school admin and a platform admin each sign in, and the sign-in screen's rendered Lanjutkan form is posted as a browser without script posts it; the route redirects each to their own home (/belajar, /mengajar, /pimpinan, /pimpinan, /konfigurasi, /konfigurasi), also when the link carried only \"/\", and a requested /belajar/sertifikat still wins.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
       "id": "BOB02-X01",
       "runner": "static",
       "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook. Each application's copy is compared with the file it was saved from, contoh-pelajaran-v1.xlsx (kept byte for byte); D-040 regrouped the sample, and the two originals are asserted to differ in exactly its four Kelompok paralel cells."
@@ -1923,6 +1970,21 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as the seeded teacher, head of department, school administrator and dean and reads their rendered pages. CI has both facilities, so it never skips there",
       "proves": "DAISY-11 (D-021) over real HTTP against the seed: the RENDERED tabs of the teacher's /mengajar, the head of department's /pimpinan and the school administrator's /pendataan each carry a Studio link labelled from nav.studio; the dean's /pimpinan carries no link to /studio anywhere; and the dean's /studio is Studio's one refusal (studio.refused), not its pages. Read only."
+    },
+    {
+      "id": "DAISY-06-TERBIT-01",
+      "runner": "static",
+      "proves": "DAISY-06, the Terbit step (audit M11). THE ORDER is read from the database's own sources: each content step's move is an edge of content_status_transitions (the migration's insert list) from every course status that step is current at, and each release step is BOB-03's own LANGKAH_TERBITAN entry with the same capability and starting states; where a course stands is checked over twelve course/release states, returned content included. WHO: each step's roles are exactly the school roles holding its capability in the LATEST role_capabilities migration, the second person's steps are exactly approving and locking (the four-eyes rules still present in the migrations), and a step is offered with the capability and never to the course's author when it is a colleague's. WORDS: seven distinct step buttons in both languages, none 'Konfirmasi'; every BOB-03 release code has a sentence. RENDERED in a child process at fourteen states from upload to withdrawal, for the author holding every capability, a head of department and a reader with none: exactly one current step, eight distinct entries, and the one right button (with its hidden target status or release) or the sentence saying whose step it is; the publication date and a labelled withdrawal only for the publisher. SOURCE: the package page draws the steps from the course's status, its latest release, the reader's capabilities and author check, carries no lifecycle button, 'Konfirmasi' or bare placeholder of its own, and names the check 'Periksa isi sekarang'; the steps reach the server only through advanceContentAction and BOB-03's typed actions, and a refusal is its code's sentence."
+    },
+    {
+      "id": "DAISY-06-TERBIT-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as the learning-cycle school's administrator and head of department and reads the seeded course's rendered package page. CI has both facilities, so it never skips there",
+      "proves": "DAISY-06's Terbit step over real HTTP against the seed: for the learning-cycle school's own course 'Pecahan' (the original), read as its INSTITUTION_ADMIN and its HEAD_OF_DEPARTMENT, the RENDERED package page carries the seven named steps in order plus Terbit, exactly one current, ending at Terbit exactly when the course's latest release (read with the same reader's token) is PUBLISHED; when published, the administrator is offered the labelled withdrawal and the head of department is not; and no 'Konfirmasi' remains on the page. Read only."
     }
   ]
 }

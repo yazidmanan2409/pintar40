@@ -8,7 +8,7 @@
 import { spawnSync } from "node:child_process";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
-import { INTERNAL_WORDS, t } from "../src/lib/hle";
+import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -179,6 +179,30 @@ function productionDerivation(card: string, pin: string): string {
 
 async function get(url: string, init: RequestInit = {}) {
   return fetch(url, { redirect: "manual", ...init });
+}
+
+/** Every value the rendered page gives a hidden `lanjut` field (BOB-06). */
+function nilaiLanjut(html: string): string[] {
+  return [...html.matchAll(/<input\b[^>]*\bname="lanjut"[^>]*>/g)]
+    .map((m) => /\bvalue="([^"]*)"/.exec(m[0])?.[1] ?? "(no value)")
+    .map((v) => v.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#x27;/g, "'"));
+}
+
+/**
+ * The hidden fields of the signed-in sign-in screen's "Lanjutkan" form -- the
+ * form holding `lanjut` and a server action -- exactly as a browser without
+ * script would post them, or null when the page drew no such form.
+ */
+function formLanjutkan(html: string): Array<[string, string]> | null {
+  for (const bagian of html.split(/<form\b/).slice(1)) {
+    const isi = bagian.split(/<\/form>/)[0];
+    const masukan = [...isi.matchAll(/<input\b[^>]*\btype="hidden"[^>]*>/g)].map((m) => [
+      /\bname="([^"]*)"/.exec(m[0])?.[1] ?? "",
+      (/\bvalue="([^"]*)"/.exec(m[0])?.[1] ?? "").replace(/&amp;/g, "&"),
+    ] as [string, string]);
+    if (masukan.some(([n]) => n === "lanjut") && masukan.some(([n]) => n.startsWith("$ACTION_"))) return masukan;
+  }
+  return null;
 }
 
 /**
@@ -485,7 +509,8 @@ export const appTests: SelfTest[] = [
 
       // Control: an unrelated live session, so a later refusal is attributable
       // to the sign-out and not to a broken endpoint or bad credentials.
-      // A different persona, because signOut() is global for the user it signs out.
+      // A different persona. (Since BOB-05 sign-out is local; BOB05-R01 is the
+      // same-person case.)
       const control = await signIn(ctx, PERSONA.alphaStudent);
       const controlRefresh = await refresh(ctx, control.refreshToken);
       c.expect(controlRefresh.ok, `control refresh failed (${controlRefresh.status}); the rest of this test would prove nothing`);
@@ -519,6 +544,117 @@ export const appTests: SelfTest[] = [
 
       c.note(`${cleared.length} auth cookie(s) cleared`);
       return c.verdict("sign-out revokes the session server-side; the previously authenticated browser is refused; other sessions survive");
+    },
+  },
+  {
+    // BOB-05 (D-009). "Keluar" ends THIS device only, and each account kind's
+    // session carries its own idle lifetime. F01-R05's control is a different
+    // person, so it passes under a global sign-out too; this one is the same
+    // person twice.
+    id: "BOB05-R01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+
+      // the same person, signed in on two devices
+      const perangkatA = await signIn(ctx, PERSONA.alphaAdmin);
+      const perangkatB = await signIn(ctx, PERSONA.alphaAdmin);
+      const out = await get(`${base}/keluar`, { method: "POST", headers: { cookie: perangkatA.cookie } });
+      c.expect([302, 303, 307, 308].includes(out.status), `POST /keluar → ${out.status}, expected a redirect`);
+      const matiA = await refresh(ctx, perangkatA.refreshToken);
+      c.expect(!matiA.ok, `the signed-out device's refresh token still bought a session (${matiA.status})`);
+      const hidupB = await refresh(ctx, perangkatB.refreshToken);
+      c.expect(hidupB.ok, `signing out one device ended the same person's other session (${hidupB.status}): the sign-out is not local`);
+
+      // each account kind's lifetime, as the running proxy writes it
+      const umurDari = (r: Response) => r.headers.getSetCookie().filter((sc) => /^sb-[^=]+-auth-token(\.\d+)?=/.test(sc))
+        .map((sc) => Number(/Max-Age=(\d+)/i.exec(sc)?.[1] ?? NaN));
+      const guru = await signIn(ctx, PERSONA.alphaAdmin);
+      const rEmail = await get(`${base}/konfigurasi`, { headers: { cookie: guru.cookie } });
+      const uEmail = umurDari(rEmail);
+      c.expect(uEmail.length > 0 && uEmail.every((u) => u === 604800),
+        `an email account's auth cookies came back with Max-Age ${JSON.stringify(uEmail)}, expected 604800 (7 days)`);
+      const host = process.env.CARD_EMAIL_DOMAIN ?? "cards.pintar.internal";
+      const kartu = await signIn(ctx, { email: `card-7001@${host}`, password: productionDerivation("7001", "2468") });
+      const rKartu = await get(`${base}/belajar`, { headers: { cookie: kartu.cookie } });
+      const uKartu = umurDari(rKartu);
+      c.expect(uKartu.length > 0 && uKartu.every((u) => u === 3600),
+        `a classroom card's auth cookies came back with Max-Age ${JSON.stringify(uKartu)}, expected 3600 (60 minutes)`);
+
+      return c.verdict("signing out one device revokes its session and leaves the same person's other session alive; " +
+        "the running proxy gives an email account's auth cookies 7 days and a classroom card's 60 minutes");
+    },
+  },
+  {
+    // BOB-06 (D-010; audit M4, S11, S13). A sign-in that was not interrupted on
+    // its way somewhere carries NO destination. The screen used to narrow an
+    // absent `lanjut` to "/" and post that back, and "/" then beat the role's
+    // home: everybody landed on the entry page, and management looped.
+    id: "BOB06-A01",
+    requires: ["app"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      for (const [alamat, harap] of [
+        ["/masuk", ""],
+        ["/masuk?peran=guru", ""],
+        ["/masuk?lanjut=%2F%2Fevil.example", ""],
+        ["/masuk?lanjut=%2Fbelajar%2Fsertifikat", "/belajar/sertifikat"],
+      ] as const) {
+        const r = await get(`${base}${alamat}`);
+        c.expect(r.status === 200, `GET ${alamat} → ${r.status}`);
+        const nilai = nilaiLanjut(await r.text());
+        c.expect(nilai.length > 0, `${alamat} rendered no destination field, so this test would prove nothing`);
+        c.expect(nilai.every((v) => v === harap),
+          `${alamat} carries the destination ${JSON.stringify(nilai)} into sign-in, expected ${JSON.stringify(harap)}`);
+      }
+      return c.verdict("the rendered sign-in screen carries no destination when none was asked for, whether the " +
+        "parameter is absent, a presentation hint or refused, and still carries one that was");
+    },
+  },
+  {
+    // BOB-06 (D-010). Each role lands on its own home, through the running
+    // app: signed in, the sign-in screen's "Lanjutkan" is posted exactly as a
+    // browser without script posts it, and the redirect is read.
+    id: "BOB06-R01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const lanjutkan = async (cookie: string, alamat: string): Promise<string> => {
+        const halaman = await get(`${base}${alamat}`, { headers: { cookie } });
+        const form = formLanjutkan(await halaman.text());
+        if (!form) return `(no Lanjutkan form on ${alamat}: ${halaman.status})`;
+        const fd = new FormData();
+        for (const [n, v] of form) fd.set(n, v);
+        const r = await get(`${base}${alamat}`, { method: "POST", body: fd, headers: { cookie, origin: base } });
+        const loc = r.headers.get("location") ?? "";
+        return [302, 303, 307, 308].includes(r.status) && loc ? new URL(loc, base).pathname : `(${r.status}, no redirect)`;
+      };
+      const RUMAH: Array<[string, { email: string; password: string }, string]> = [
+        ["learner", PERSONA.cycleLearner, "/belajar"],
+        ["educator", PERSONA.alphaGuru, "/mengajar"],
+        ["head of department", PERSONA.alphaHod, "/pimpinan"],
+        ["dean", PERSONA.dean, "/pimpinan"],
+        ["school admin", PERSONA.alphaAdmin, "/konfigurasi"],
+        ["platform admin", PERSONA.sysadmin, "/konfigurasi"],
+      ];
+      for (const [peran, persona, rumah] of RUMAH) {
+        const { cookie } = await signIn(ctx, persona);
+        const ke = await lanjutkan(cookie, "/masuk");
+        c.expect(ke === rumah, `the ${peran} with no destination landed on ${ke}, expected ${rumah} (D-010)`);
+        // "/" is the entry page, not a page anybody asked for; an old link may carry it
+        const keAkar = await lanjutkan(cookie, "/masuk?lanjut=%2F");
+        c.expect(keAkar === rumah, `the ${peran} whose link carried "/" landed on ${keAkar}, expected ${rumah}`);
+      }
+      // a page the person did ask for still wins
+      const { cookie } = await signIn(ctx, PERSONA.cycleLearner);
+      const diminta = await lanjutkan(cookie, "/masuk?lanjut=%2Fbelajar%2Fsertifikat");
+      c.expect(diminta === "/belajar/sertifikat", `a requested destination was replaced by ${diminta}`);
+      return c.verdict("signed in, each of the six roles posts the sign-in screen's Lanjutkan with no destination and " +
+        "is redirected by the running route to its D-010 home, also when the link carried only \"/\"; a requested " +
+        "page still wins");
     },
   },
   {
@@ -1981,6 +2117,62 @@ export const appTests: SelfTest[] = [
       return c.verdict(
         "the teacher's Kelas, the head of department's Pimpinan and the school administrator's Pendataan each carry the Studio " +
         "tab; the dean's Pimpinan offers no Studio anywhere, and Studio refuses the dean with its one refusal (D-021)",
+      );
+    },
+  },
+  {
+    id: "DAISY-06-TERBIT-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-06's Terbit step over real HTTP against the seed. The learning-
+      // cycle school's own course ("Pecahan", the original, not a revision) is
+      // read as its school administrator and its head of department: the
+      // package page draws the seven named steps with exactly one current, and
+      // where it stands agrees with the course and its latest release as each
+      // reader's own token reads them. Published, the administrator (CAN_PUBLISH)
+      // is offered a labelled withdrawal and the head of department is not;
+      // nobody is shown a "Konfirmasi". Read only.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const langkah = ["susun", "periksa", "ajukan", "setujui", "buat", "kunci", "terbitkan"];
+      for (const [peran, orang, bolehTarik] of [
+        ["INSTITUTION_ADMIN", PERSONA.cycleAdmin, true],
+        ["HEAD_OF_DEPARTMENT", PERSONA.cycleHod, false],
+      ] as const) {
+        const sesi = await signIn(ctx, orang);
+        const rest = (q: string) => fetch(`${ctx.supabaseUrl}/rest/v1/${q}`, {
+          headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sesi.accessToken}` },
+        }).then((r) => r.json() as Promise<Array<Record<string, string | null>>>).catch(() => []);
+        const kursus = await rest("courses?select=id,status&title=eq.Pecahan&supersedes_course_id=is.null");
+        if (!c.expect(Array.isArray(kursus) && kursus.length === 1, `${peran}: the seeded course could not be read (${JSON.stringify(kursus).slice(0, 120)})`)) continue;
+        const id = kursus[0].id!;
+        const rilis = await rest(`plp_releases?select=status&course_id=eq.${id}&order=created_at.desc&limit=1`);
+        const statusRilis = Array.isArray(rilis) && rilis.length ? rilis[0].status : null;
+        const res = await get(`${base}/studio/paket/${id}`, { headers: { cookie: sesi.cookie } });
+        if (!c.expect(res.status === 200, `${peran} /studio/paket → ${res.status}`)) continue;
+        const html = await res.text();
+        const a = html.indexOf('class="pin-lt"');
+        const b = html.indexOf("</section>", a);
+        const bagian = a >= 0 && b > a ? html.slice(a, b) : "";
+        if (!c.expect(bagian.length > 0, `${peran}: the package page has no steps to publication`)) continue;
+        const judul = [...bagian.matchAll(/<p class="pin-lt-judul">([^<]+)</g)].map((m) => m[1]);
+        c.expect(judul.length === 8 && JSON.stringify(judul.slice(0, 7)) === JSON.stringify(langkah.map((k) => t(`studio.langkah.${k}.judul` as HleEvent, "staff"))),
+          `${peran}: the steps read ${JSON.stringify(judul)}`);
+        c.expect((bagian.match(/aria-current="step"/g) ?? []).length === 1, `${peran}: not exactly one step is current`);
+        const terbit = statusRilis === "PUBLISHED";
+        c.expect(terbit === /pin-lt-akhir pin-lt-selesai" aria-current="step"/.test(bagian),
+          `${peran}: the release is ${statusRilis ?? "absent"} but the list ${terbit ? "does not end" : "ends"} at Terbit`);
+        if (terbit) {
+          const tarik = bagian.includes(`<span class="pin-meta">${t("studio.langkah.tarik.alasan", "staff")}</span>`);
+          c.expect(tarik === bolehTarik, `${peran}: ${tarik ? "is" : "is not"} offered the withdrawal`);
+        }
+        c.expect(!visibleText(html).includes(t("studio.unggah.konfirmasi", "staff")), `${peran}: the package page still says "Konfirmasi"`);
+        c.note(`${peran}: release ${statusRilis ?? "none"}`);
+      }
+      return c.verdict(
+        "the seeded course's package page draws the seven named steps with exactly one current, standing where its course and " +
+        "latest release stand for each reader; published, the school administrator is offered a labelled withdrawal and the " +
+        "head of department is not, and no Konfirmasi is left on the page",
       );
     },
   },

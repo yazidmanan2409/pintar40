@@ -2174,3 +2174,44 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-akt-isian .pin-input { width: 100%; min-width: 0; }
 .pin-akt-hasil { display: grid; gap: var(--space-1); }
 .pin-akt-hasil p { margin: 0; }
+
+/* DAISY-06, the Terbit step: seven named steps to publication on the package
+   page, the current one open, each with who takes it. Built like the upload
+   panel's steps so the two read as one journey. */
+.pin-lt {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); min-width: 0;
+  padding: var(--space-4) var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+.pin-lt-kepala { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-lt-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+.pin-lt-langkah {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: start;
+  padding: var(--space-2) var(--space-3); border: 1px solid transparent; border-radius: var(--radius-1);
+}
+.pin-lt-langkah.pin-lt-kini { border-color: var(--line-strong); background: var(--surface-0); }
+.pin-lt-no {
+  display: inline-grid; place-items: center; width: var(--space-6); height: var(--space-6);
+  border-radius: var(--radius-pill); border: 1px solid var(--line-strong);
+  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-3);
+}
+.pin-lt-kini .pin-lt-no { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-lt-selesai .pin-lt-no { background: var(--pintar-primary-soft); border-color: var(--pintar-primary-soft); color: var(--pintar-primary); }
+.pin-lt-isi { display: grid; gap: var(--space-1); min-width: 0; }
+.pin-lt-judul {
+  margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2);
+  font-size: var(--type-body); color: var(--ink-2);
+}
+.pin-lt-kini .pin-lt-judul, .pin-lt-selesai .pin-lt-judul { color: var(--ink-1); }
+.pin-lt-kini .pin-lt-judul { font-weight: var(--weight-strong); }
+.pin-lt-tanda { font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-3); }
+.pin-lt-kini .pin-lt-tanda { color: var(--pintar-primary); }
+.pin-lt-oleh { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
+.pin-lt-kerja { display: grid; gap: var(--space-2); justify-items: start; margin-top: var(--space-1); min-width: 0; }
+.pin-lt-kerja > * { max-width: 100%; }
+.pin-lt-kerja p { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-lt-catatan { font-weight: var(--weight-strong); }
+.pin-lt-hambatan { font-weight: var(--weight-strong); }
+.pin-lt-tarik { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); width: 100%; }
+.pin-lt-isian { display: grid; gap: var(--space-1); flex: 1 1 auto; min-width: 0; }
+.pin-lt-isian .pin-input { width: 100%; min-width: 0; }
