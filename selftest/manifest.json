@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 80,
+  "version": 81,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1884,7 +1884,7 @@
     {
       "id": "BOB02-X01",
       "runner": "static",
-      "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook. Each application's copy is compared with the file it was saved from, contoh-pelajaran-v1.xlsx (kept byte for byte); D-040 regrouped the sample, and the two originals are asserted to differ in exactly its four Kelompok paralel cells."
+      "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook. Each application's copy is compared with the file it was saved from, contoh-pelajaran-v1.xlsx (kept byte for byte); D-040 regrouped the sample, and the two originals are asserted to differ in exactly its four Kelompok paralel cells. A whole number Google Sheets stores as N.0 (contoh-gsheets.xlsx, Yazid's round trip of contoh-pelajaran-v1.xlsx, 25 Sep) reads as N in a number cell, while a fraction, a formula string and typed text keep what was stored (BOB-16)."
     },
     {
       "id": "BOB02-X02",
