@@ -451,6 +451,50 @@ FINDINGS[:] = [
 ]
 
 
+# --- Integration 9 on main (25 Sep): DAISY-14 (M10), BOB-07 (stable error codes), BOB-16 (Google Sheets numbers) ---
+NOW.update({
+    "sha": "1e46714",
+    "label": "Integration 9 (main)",
+    "evidence": ("main 1e46714 = Integration 9: DAISY-14, BOB-07 and BOB-16 on top of Integration 8 (7bbbd23). "
+                 "CI #196 (26/26); audit #26, run 36084953370 (26 PASS, 1 NOTE, 1 FAIL: S8, BOB-10). Before it, today: Integrations 5–8 (CI #181, #184, #186, #191; "
+                 "audits 36062055456, 36068869059, 36069731659, 36075836312) and the first full D-005 journey (audit 36074652928): "
+                 "the real SD 5 Bab 1 uploaded as a workbook, taken to Terbit by two people, assigned by a teacher, "
+                 "and found by the student. Staging: 117 migrations (Integration 9 adds none), SD 5 Bab 1 imported whole (run 36071811494)."),
+})
+CURRENT.update({
+    "STU-05": "PASS: the pre-test orientation opens from /belajar (S19); the window opens at the school's midnight, which S18 checks at any hour (DAISY-14).",
+    "EDU-06": "PASS: assigning makes the learning assignment with both tests open, from 00:00:00 to 23:59:59 WIB of the chosen days at any hour (S18; DAISY-14-TANGGAL-01).",
+    "ADM-13": "PASS: assigned to Kelas 1A with both tests, the window in WIB (S18).",
+    "X-06": "PARTIAL: the student reaches the pre-test orientation (S19), open from the school's midnight (S18); answering it is not yet driven.",
+    "U-LOC": ("PARTIAL: every server action and route answers with a code, never the database's words (BOB-07: BOB07-K01 walks src/app, "
+              "K02 the content refusals, R01 live); PINTAR's own localized 404 (P3). Left: release blockers in the Terbit step are "
+              "the database's sentences (BOB-17, DAISY-16)."),
+    "ADM-09": ("PASS: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). "
+               "A workbook saved by Microsoft Excel and one saved by Google Sheets both import, in CI (BOB02-X01 counts 2 real applications; K01; BOB-16 "
+               "reads Google Sheets' N.0 as N). Left: the template keeps typed text as text (DAISY-15, on its lane), then one Google Sheets round trip on the new template (Yazid)."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main and staging carry 117.",
+})
+VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
+               "Daisy — DAISY-07 (reports reachable by clicking: DEA-03, ADM-16, X-12, HOD-09; its fix is pushed) and DAISY-15 "
+               "(the template keeps typed text as text), one CI run for both; DAISY-16 with BOB-17 (release blockers in codes: U-LOC). "
+               "Bob — BOB-10 (intake trap: ADM-07, X-01), BOB-11 (media playback: STU-11, ADM-10), BOB-17, then BOB-12 before 1 Nov (CAP-01). "
+               "Coordinator — extend the audit to answer the pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), "
+               "and walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key copies); after DAISY-15, "
+               "one Google Sheets round trip on the new template. The live release (5b5b68d) stays as it is.")
+CHANGES_V21.append(
+    "Re-marked on 25 Sep against Integration 9 on main (1e46714): DAISY-14 fixes M10 (the assignment window is the school's "
+    "calendar day: EDU-06, STU-05, ADM-13; S18), BOB-07 answers every action and route with a code (U-LOC moves; the release "
+    "blockers are left for BOB-17 and DAISY-16), and BOB-16 reads a Google Sheets workbook as its author saw it, now in CI.")
+_fixed = {
+    "M10": ("M10", "Assignment window shifted by 7 hours", "DAISY-14", "FIXED (S18; DAISY-14-TANGGAL-01)"),
+    "M7": ("M7", "Raw English errors", "DAISY-04 (pages); BOB-07 (actions, routes); BOB-17 and DAISY-16 (release blockers)",
+           "PARTLY FIXED: pages, and every action and route answers with a code (BOB07-K01); the release blockers are left"),
+    "GS-1": ("GS-1", "A number typed in a text column (an option like 78.145) becomes a number in Excel or Google Sheets; Google Sheets also stores whole numbers as N.0",
+             "BOB-16 (reader); DAISY-15 (template columns as Text)", "PARTLY FIXED: the reader (BOB-16); the template is DAISY-15, on its lane"),
+}
+FINDINGS[:] = [_fixed.get(f[0], f) for f in FINDINGS]
+
+
 def as_dict():
     g = globals()
     return {
