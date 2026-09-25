@@ -24,17 +24,17 @@ P0 checks only; each must be PASS on the release candidate before any push to li
 | Educator / Guru | 8 | 4 | 3 | 0 | 0 | 0 | 1 | 1 |
 | Head of department / Kepala departemen | 8 | 4 | 3 | 0 | 0 | 0 | 1 | 1 |
 | Dean / Dekan | 5 | 3 | 0 | 1 | 0 | 0 | 1 | 1 |
-| School admin / Admin sekolah | 14 | 8 | 4 | 1 | 0 | 0 | 1 | 1 |
+| School admin / Admin sekolah | 14 | 9 | 3 | 1 | 0 | 0 | 1 | 1 |
 | System admin / Admin platform | 3 | 3 | 0 | 0 | 0 | 0 | 0 | 2 |
 | Anonymous visitor and certificate verifier | 5 | 5 | 0 | 0 | 0 | 0 | 0 | 4 |
 | The cross-role scenario | 12 | 3 | 4 | 1 | 0 | 0 | 4 | 0 |
 | Capacity | 4 | 0 | 1 | 0 | 0 | 0 | 3 | 0 |
 | Universal checks | 9 | 6 | 3 | 0 | 0 | 0 | 0 | 2 |
-| **Total** | **83** | **39** | **21** | **4** | **0** | **0** | **19** | **13** |
+| **Total** | **83** | **40** | **20** | **4** | **0** | **0** | **19** | **13** |
 
 **Baseline, for comparison:** 13 PASS · 11 PARTIAL · 33 FAIL · 22 BLOCKED · 1 N-I · 3 N-T. **Evidence at baseline:** Audit journeys run 35952344955 (harness 39ad60e, app main 78b0f55): Gladys's path from an empty production-like database, 15 PASS · 5 FAIL · 1 BLOCKED · 1 note, with one operator (SQL) step (W1); the seeded-world crawl of 14 personas; the public probes P1–P3. Plus CI, selftests and read-only production checks, as cited per row.
 
-**Verdict now:** 39 of 83 P0 checks pass (baseline 13). NO-GO. What stands between the candidate and go-live, by owner: Daisy — DAISY-07 (reports reachable by clicking: DEA-03, ADM-16, X-12, HOD-09) and DAISY-14 (M10, the 7-hour assignment window: EDU-06, STU-05). Bob — BOB-07 (raw English: U-LOC), BOB-10 (intake trap: ADM-07, X-01), BOB-11 (media playback: STU-11, ADM-10), then BOB-12 before 1 Nov (CAP-01). Coordinator — extend the audit to answer the pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key copies), and a Google Sheets workbook for ADM-09 (D-030(d)). The live release (5b5b68d) stays as it is.
+**Verdict now:** 40 of 83 P0 checks pass (baseline 13). NO-GO. What stands between the candidate and go-live, by owner: Daisy — DAISY-07 (reports reachable by clicking: DEA-03, ADM-16, X-12, HOD-09) and DAISY-14 (M10, the 7-hour assignment window: EDU-06, STU-05), DAISY-15 (the template keeps typed text as text). Bob — BOB-16 (Google Sheets numbers; its fixture), BOB-07 (raw English: U-LOC), BOB-10 (intake trap: ADM-07, X-01), BOB-11 (media playback: STU-11, ADM-10), then BOB-12 before 1 Nov (CAP-01). Coordinator — extend the audit to answer the pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key copies). The live release (5b5b68d) stays as it is.
 
 ## 1. How to use this checklist
 
@@ -162,7 +162,7 @@ The journey Gladys and each school admin make first. Every step must work withou
 | ADM-06 | Give and revoke staff roles. | Allowed roles only; no self-grant; no escalation. | AUTO · CODE | P1 | **FAIL** for the school admin (M2); PASS for Gladys. | **FAIL** (unchanged) |
 | ADM-07 | Add students. | Intake into a Kelas; places that are not a Kelas are refused with a reason; staff are never turned into students. | AUTO | P0 | **PARTIAL**: intake into a Kelas works (S9); a school-level place is now refused at validation, with the reason in Indonesian (BOB-01; S8 on this baseline). Staff rows are still a trap (BOB-10). Pickers show hidden nodes (BOB-09). | **PARTIAL** (unchanged) |
 | ADM-08 | Correct account mistakes. | Fix a wrong email; re-issue a lost card or PIN. | RUN | P1 | **N-I** (M6). | **N-I** (unchanged) |
-| ADM-09 | Import a lesson. | A file picker and template; a workbook saved by Microsoft Excel and one saved by Google Sheets both import (D-030); problems per row, in Indonesian; never into the canonical library (D-029). | AUTO · RUN | P0 | **FAIL**: text boxes only; both paths fail (S14, S15). BOB-02, DAISY-06. | **PARTIAL**: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). A workbook saved by Microsoft Excel imports (BOB02-X01); one saved by Google Sheets is not yet delivered (D-030(d)). |
+| ADM-09 | Import a lesson. | A file picker and template; a workbook saved by Microsoft Excel and one saved by Google Sheets both import (D-030); problems per row, in Indonesian; never into the canonical library (D-029). | AUTO · RUN | P0 | **FAIL**: text boxes only; both paths fail (S14, S15). BOB-02, DAISY-06. | **PASS**: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). A workbook saved by Microsoft Excel imports (BOB02-X01, K01); one saved by Google Sheets (Yazid, 25 Sep) converts to the identical package (coordinator, with the app's own reader; it enters CI with BOB-16). Found on the way: Google Sheets stores whole numbers as N.0, and the template does not keep typed text as text (BOB-16, DAISY-15). |
 | ADM-10 | Check the imported content and media. | Text, questions and media exist and play. | RUN | P0 (media P1) | **FAIL**: no content can be imported; media playback fails (M9). | **PARTIAL**: the text, questions and media files exist (S14, S15c); media do not play (M9, BOB-11). |
 | ADM-11 | Move content through its lifecycle. | Understandable steps, with the current status shown. | RUN | P0 | **FAIL** (M11). DAISY-06. | **PASS**: seven named steps with the current one marked, no 'Konfirmasi' (S17, DAISY-06). |
 | ADM-12 | Publish. | Only ready content; the right school selected by default. | AUTO · RUN | P0 | **FAIL**: no release can be created (B3); Studio defaults to the national library (M8, S14). BOB-03, DAISY-06. | **PASS**: published only after the content check's findings were reviewed; before that it was refused in plain words (S17). SD is preselected; the national library is not offered (S14, S15b). |
@@ -297,6 +297,7 @@ Run after the migrations and the deploy of the release candidate. None of them w
 | M11 | Unlabelled lifecycle steps | DAISY-06 Terbit step | FIXED on the candidate (S17) |
 | M5 | Intake traps | BOB-01 (fixed part); BOB-10 | OPEN: a school-level place (S8), staff rows |
 | M7 | Raw English errors | DAISY-04 (pages); BOB-07 (actions) | PARTLY FIXED |
+| GS-1 | A number typed in a text column (an option like 78.145) becomes a number in Excel or Google Sheets; Google Sheets also stores whole numbers as N.0 | BOB-16 (reader); DAISY-15 (template columns as Text) | OPEN, before 28 Sep |
 | Capacity | Card sign-in shares the server's Auth limit; a 429 reads as a wrong PIN | BOB-12 (contract published 25 Sep); DAISY-13 | OPEN, before 1 Nov |
 | M1–M15, N2–N15 | The rest of the audit report | BOARD backlog and tickets | OPEN unless listed above |
 
@@ -347,5 +348,5 @@ The acceptance scenario, in order: set up a school → add classes and people �
 - A 'Now' column beside every baseline, re-marked on 25 Sep against the Integration 8 candidate (7bbbd23): DAISY-06's Terbit step, BOB-05 and BOB-06 on top of main be34191.
 - The audit journey now carries D-005 end to end: S14 the workbook upload as Gladys does it; S17 the real SD 5 Bab 1 taken to Terbit by two people, with the content check's findings reviewed first; S18 the teacher assigns it; S19 the student reaches the pre-test.
 - Checks unblocked by BOB-03 and BOB-04 are N-T until the audit answers the tests; they no longer read BLOCKED.
-- New finding on the candidate: M10 is live. Siapkan reads the teacher's days as UTC, so an assignment opens at 07:00 WIB and closes at 06:59 WIB the day after its last (S18). DAISY-14.
+- New findings: M10 is live. Siapkan reads the teacher's days as UTC, so an assignment opens at 07:00 WIB and closes at 06:59 WIB the day after its last (S18). DAISY-14.
 - Counts: the summary counts the Now column; the baseline's counts stay beside it.
