@@ -22,6 +22,17 @@ def tail(baseline, s):
     return (" " + rest) if re.match(r"^(\(|for |by )", rest) else (": " + rest)
 
 
+def now(i, b):
+    """The row's status now (v2.1), or its baseline when it has not changed."""
+    return getattr(d, "CURRENT", {}).get(i, b)
+
+
+def now_cell(i, b):
+    n = now(i, b)
+    s = status(n)
+    return f"**{s}**{cell(tail(n, s))}" if n is not b else f"**{s}** (unchanged)"
+
+
 def cell(text):
     return str(text).replace("|", "\\|")
 
@@ -34,9 +45,11 @@ def summary_rows():
     for title, checks in sections:
         p0 = [c for c in checks if c[4].startswith("P0")]
         counts = {s: 0 for s in ORDER}
+        base = {s: 0 for s in ORDER}
         for c in p0:
-            counts[status(c[5])] += 1
-        rows.append((title.split(" — ")[0], len(p0), counts))
+            counts[status(now(c[0], c[5]))] += 1
+            base[status(c[5])] += 1
+        rows.append((title.split(" — ")[0], len(p0), counts, base))
     return rows
 
 
@@ -58,25 +71,30 @@ def render():
     w("")
 
     b = d.BASELINE
-    w(f"## Baseline at a glance (main `{b['sha']}`, {b['date']})")
+    nw = d.NOW
+    w(f"## Status at a glance ({nw['label']} `{nw['sha']}`, {nw['date']})")
     w("")
-    w("P0 checks only; each must be PASS on the release candidate before any push to live.")
+    w("P0 checks only; each must be PASS on the release candidate before any push to live. "
+      f"The baseline of {b['date']} (main `{b['sha']}`) is kept beside each row.")
     w("")
-    w(f"**Evidence:** {b['evidence']}")
+    w(f"**Evidence now:** {nw['evidence']}")
     w("")
-    w("| Section | P0 checks | " + " | ".join(ORDER[:6]) + " |")
-    w("|---|---:|" + "---:|" * 6)
+    w("| Section | P0 checks | " + " | ".join(ORDER[:6]) + " | PASS at baseline |")
+    w("|---|---:|" + "---:|" * 7)
     tot = {s: 0 for s in ORDER}
+    tb = {s: 0 for s in ORDER}
     n = 0
-    for title, count, counts in summary_rows():
+    for title, count, counts, base in summary_rows():
         n += count
         for s in ORDER:
             tot[s] += counts[s]
-        w(f"| {title} | {count} | " + " | ".join(str(counts[s]) for s in ORDER[:6]) + " |")
-    w(f"| **Total** | **{n}** | " + " | ".join(f"**{tot[s]}**" for s in ORDER[:6]) + " |")
+            tb[s] += base[s]
+        w(f"| {title} | {count} | " + " | ".join(str(counts[s]) for s in ORDER[:6]) + f" | {base['PASS']} |")
+    w(f"| **Total** | **{n}** | " + " | ".join(f"**{tot[s]}**" for s in ORDER[:6]) + f" | **{tb['PASS']}** |")
     w("")
-    w(f"**Verdict on this baseline:** {tot['PASS']} of {n} P0 checks pass. NO-GO for any new release until the "
-      "sprint 1 tickets land and the full run is repeated on the release candidate. The live release (5b5b68d) stays as it is.")
+    w(f"**Baseline, for comparison:** {' · '.join(f'{tb[s]} {s}' for s in ORDER[:6])}. **Evidence at baseline:** {b['evidence']}")
+    w("")
+    w(f"**Verdict now:** {tot['PASS']} of {n} P0 checks pass (baseline {tb['PASS']}). {d.VERDICT_NOW}")
     w("")
 
     w("## 1. How to use this checklist")
@@ -104,33 +122,33 @@ def render():
         w("")
         w(intro)
         w("")
-        w(f"| ID | Checkpoint | Expected | How | Gate | Baseline (main {d.BASELINE['sha']}) |")
-        w("|---|---|---|---|---|---|")
+        w(f"| ID | Checkpoint | Expected | How | Gate | Baseline (main {d.BASELINE['sha']}) | Now ({d.NOW['sha']}) |")
+        w("|---|---|---|---|---|---|---|")
         for r in getattr(d, k):
             i, c, e, how, g, b = r
             s = status(b)
-            w(f"| {i} | {cell(c)} | {cell(e)} | {how} | {g} | **{s}**{cell(tail(b, s))} |")
+            w(f"| {i} | {cell(c)} | {cell(e)} | {how} | {g} | **{s}**{cell(tail(b, s))} | {now_cell(i, b)} |")
         w("")
 
     sec = 3 + len(d.ROLE_SECTIONS)
     w(f"## {sec}. Universal checks (every flow)")
     w("")
-    w("| ID | Check | Gate | Baseline |")
-    w("|---|---|---|---|")
+    w(f"| ID | Check | Gate | Baseline | Now ({d.NOW['sha']}) |")
+    w("|---|---|---|---|---|")
     for i, c, g, b in d.UNIVERSAL:
         s = status(b)
-        w(f"| {i} | {cell(c)} | {g} | **{s}**{cell(tail(b, s))} |")
+        w(f"| {i} | {cell(c)} | {g} | **{s}**{cell(tail(b, s))} | {now_cell(i, b)} |")
     w("")
 
     w(f"## {sec + 1}. Release-day checks (production, read-only)")
     w("")
     w("Run after the migrations and the deploy of the release candidate. None of them writes to production.")
     w("")
-    w("| ID | Check | Gate | Status today |")
-    w("|---|---|---|---|")
+    w(f"| ID | Check | Gate | At baseline | Now ({d.NOW['sha']}) |")
+    w("|---|---|---|---|---|")
     for i, c, g, b in d.RELEASE:
         s = status(b)
-        w(f"| {i} | {cell(c)} | {g} | **{s}**{cell(tail(b, s))} |")
+        w(f"| {i} | {cell(c)} | {g} | **{s}**{cell(tail(b, s))} | {now_cell(i, b)} |")
     w("")
 
     w(f"## {sec + 2}. Known findings and where they are fixed")
@@ -163,6 +181,11 @@ def render():
     w("## Appendix B — what changed from the 24 September draft")
     w("")
     for t in d.CHANGES_FROM_DRAFT:
+        w(f"- {t}")
+    w("")
+    w("## Appendix C — what changed in v2.1")
+    w("")
+    for t in d.CHANGES_V21:
         w(f"- {t}")
     w("")
     return "\n".join(out)
