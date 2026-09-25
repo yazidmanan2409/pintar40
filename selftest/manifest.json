@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 80,
+  "version": 83,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1861,6 +1861,22 @@
       "proves": "BOB-06. The school's admin is refused, by the guard's own rule, editing, unmarking, revising, extending and removing PINTAR's standard class report, and refused by a missing grant writing the provisioning pass and calling the provisioner; an educator writes no template; no pass is open, and no client is granted the provisioner or the pass, which has no policies."
     },
     {
+      "id": "BOB07-K01",
+      "runner": "static",
+      "proves": "BOB-07 (D-011). A walk over the source of every server action file and route handler in src/app finds no error's .message, .details or .hint outside the server log or a classifier that answers with a code, no detail parameter set or read on any page, and no learner component reading a learner action's message; the walk is watched by four planted leaks (a redirect detail, a JSON body, refusal details, a caught error) and lets the log and the classifiers be."
+    },
+    {
+      "id": "BOB07-K02",
+      "runner": "static",
+      "proves": "BOB-07 (D-011). Each refusal enforce_content_status raises, read from the migration source that defines it last, maps to its own CONTENT_ code in the source file src/lib/galat-kontrak.ts, and a message that only quotes one does not; any action's refusal becomes its code by SQLSTATE and wording, else ACTION_FAILED; every code of the catalogue has a sentence in the copy table in both languages naming no machinery; the banner shows a code's sentence, a count, a package problem at its place and a failure's reference, while a planted legacy detail, unknown code, bad reference and unknown problem never reach it; Studio's shared outcome line and Konfigurasi's result line read only the code."
+    },
+    {
+      "id": "BOB07-R01",
+      "runner": "app",
+      "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
       "id": "BOB06-K01",
       "runner": "static",
       "proves": "BOB-06 (B6b). pilihTemplat in the source file src/lib/laporan-kontrak.ts, driven with template rows of two schools, gives the school's own latest assembly, else PINTAR's standard one, never another school's and never the other standard report; both summary pages read their template through templatUntuk in src/lib/laporan.ts, which narrows to the scope node's school, and neither reads report_templates directly."
@@ -1884,7 +1900,7 @@
     {
       "id": "BOB02-X01",
       "runner": "static",
-      "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook. Each application's copy is compared with the file it was saved from, contoh-pelajaran-v1.xlsx (kept byte for byte); D-040 regrouped the sample, and the two originals are asserted to differ in exactly its four Kelompok paralel cells."
+      "proves": "BOB-02. The .xlsx reader in the source file src/lib/xlsx.ts reads two workbooks written by two tools (openpyxl's shared strings; the onboarding file's inline strings) and a crafted one with rich text and phonetic runs, entities and _xHHHH_ escapes, gaps, cells without references, booleans and formula strings; it refuses a non-zip, a truncated file, a file past 5 MB, a part that inflates past its declared size, parts declaring more than 40 MB, a sheet past 10,000 rows and a zip without a workbook. Each application's copy is compared with the file it was saved from, contoh-pelajaran-v1.xlsx (kept byte for byte); D-040 regrouped the sample, and the two originals are asserted to differ in exactly its four Kelompok paralel cells. A whole number Google Sheets stores as N.0 (contoh-gsheets.xlsx, Yazid's round trip of contoh-pelajaran-v1.xlsx, 25 Sep) reads as N in a number cell, while a fraction, a formula string and typed text keep what was stored (BOB-16)."
     },
     {
       "id": "BOB02-X02",
@@ -1985,6 +2001,11 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as the learning-cycle school's administrator and head of department and reads the seeded course's rendered package page. CI has both facilities, so it never skips there",
       "proves": "DAISY-06's Terbit step over real HTTP against the seed: for the learning-cycle school's own course 'Pecahan' (the original), read as its INSTITUTION_ADMIN and its HEAD_OF_DEPARTMENT, the RENDERED package page carries the seven named steps in order plus Terbit, exactly one current, ending at Terbit exactly when the course's latest release (read with the same reader's token) is PUBLISHED; when published, the administrator is offered the labelled withdrawal and the head of department is not; and no 'Konfirmasi' remains on the page. Read only."
+    },
+    {
+      "id": "DAISY-14-TANGGAL-01",
+      "runner": "static",
+      "proves": "DAISY-14 (audit M10): an assignment's days are the school's calendar days. For five days (month and year ends, a leap day) batasHari gives 00:00:00 and 23:59:59 on the Asia/Jakarta clock, one whole day apart, and the class page's format.date shows exactly the chosen day in both languages; impossible or malformed days are refused. At every hour of a Jakarta day, Siapkan's today (hariIniSekolah) is that day and a window starting today is already open. The old `${day}T00:00:00Z`/`T23:59:59Z` construction is the control: it fails the day checks and is shut for exactly the 7 hours before 07:00 WIB. From the SOURCE: sediakanMateri sends batasHari's first and last instants to assign_release, Siapkan's first-day field starts on hariIniSekolah(), and no source file under src builds a day boundary in UTC."
     }
   ]
 }

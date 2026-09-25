@@ -30,7 +30,7 @@ import {
  */
 
 type Params = Promise<{ course: string }>;
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 type Finding = {
   id: string; severity: string; lokasi: string; masalah: string;
@@ -99,7 +99,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const state = (Array.isArray(stateRows) ? stateRows[0] : stateRows) as
     | { surface_state: string; reasons: string[]; preview_lesson_id: string | null } | undefined;
 
-  const banner = outcomeLine(sp.hasil, sp.detail);
+  const banner = outcomeLine(sp);
   const published = (releases ?? []).filter((r) => r.status === "PUBLISHED");
   const terakhir = (releases ?? []).at(-1) ?? null;
   const tersegel = terakhir !== null && !["INGESTED", "STRUCTURED", "VALIDATED", "IN_REVIEW", "APPROVED"].includes(terakhir.status);

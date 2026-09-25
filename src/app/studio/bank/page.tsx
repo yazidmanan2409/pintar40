@@ -13,7 +13,7 @@ import { recordQuestionHealthReviewAction } from "../actions";
  * statistic, and nothing here states that a question is "too easy" or "wrong":
  * a reviewer sees the evidence and records what they decided.
  */
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Bank({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -30,7 +30,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
 
   const healthByItem = new Map(((health ?? []) as Array<{ item_id: string; state: string; evidence_count: number }>)
     .map((h) => [h.item_id, h]));
-  const banner = outcomeLine(sp.hasil, sp.detail);
+  const banner = outcomeLine(sp);
 
   return (
     <div className="grid gap-4" id="kesehatan">

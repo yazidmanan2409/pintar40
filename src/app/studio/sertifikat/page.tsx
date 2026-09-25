@@ -11,7 +11,7 @@ import { saveCertificateTemplateAction } from "../actions";
  * the same thing. Nothing here touches the public verification payload, which
  * stays fixed at {pass, predikat, institution, date, validity}.
  */
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Sertifikat({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -24,7 +24,7 @@ export default async function Sertifikat({ searchParams }: { searchParams: Searc
     supabase.from("courses").select("id, title, institution_id").order("title"),
   ]);
 
-  const banner = outcomeLine(sp.hasil, sp.detail);
+  const banner = outcomeLine(sp);
 
   return (
     <div className="grid gap-4" id="sertifikat">

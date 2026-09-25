@@ -2,6 +2,7 @@ import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { saveDefinitionAction } from "../actions";
+import { kunciKode } from "@/lib/galat-kontrak";
 
 /**
  * Assessment Definition builder (§10).
@@ -14,7 +15,7 @@ import { saveDefinitionAction } from "../actions";
  * A change that alters how a result is read saves as a NEW version and says so
  * in plain language; a change of name alone says that instead (INV-29).
  */
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Definisi({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -29,11 +30,10 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
     supabase.from("courses").select("id, title, institution_id").order("title"),
   ]);
 
-  const banner = sp.detail === "versi-baru"
-    ? s("studio.definisi.versi_baru")
-    : sp.detail === "tetap"
-      ? s("studio.definisi.tetap")
-      : outcomeLine(sp.hasil, sp.detail);
+  // the definition's two outcomes are whole sentences of their own
+  const banner = sp.hasil === "ok" && (sp.kode === "DEFINITION_NEW_VERSION" || sp.kode === "DEFINITION_KEPT")
+    ? s(kunciKode(sp.kode))
+    : outcomeLine(sp);
 
   return (
     <div className="grid gap-6">
