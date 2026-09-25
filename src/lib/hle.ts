@@ -405,6 +405,8 @@ export type HleEvent =
   | "pimpinan.kelas.ada"
   | "pimpinan.kelas.belum"
   | "pimpinan.kelas.kosong"
+  | "pimpinan.laporan.sekolah"
+  | "pimpinan.laporan.kelas"
   | "config.laporan.judul"
   | "config.laporan.arti"
   | "config.laporan.sekolah"
@@ -1962,6 +1964,8 @@ const table: Table = {
   "pimpinan.kelas.ada": { default: "Ada angka", en: "Has figures" },
   "pimpinan.kelas.belum": { default: "Belum ada angka", en: "No figures yet" },
   "pimpinan.kelas.kosong": { default: "Belum ada kelas di bagian ini.", en: "There are no classes in this part yet." },
+  "pimpinan.laporan.sekolah": { default: "Buka ringkasan sekolah", en: "Open the school summary" },
+  "pimpinan.laporan.kelas": { default: "Buka ringkasan kelas ini", en: "Open this class\u2019s summary" },
   "config.laporan.judul": { default: "Laporan", en: "Reports" },
   "config.laporan.arti": { default: "Ringkasan dibaca dari penilaian resmi murid. Sebelum ada cukup hasil, setiap angka menjelaskan apa yang membuatnya muncul.", en: "Summaries are read from students' official assessments. Until there are enough results, each figure explains what will make it appear." },
   "config.laporan.sekolah": { default: "Ringkasan sekolah", en: "School summary" },

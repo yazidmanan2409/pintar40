@@ -9425,7 +9425,11 @@ export const experienceTests: SelfTest[] = [
        *    figures and absence cards, or one refusal line; at a class it asks
        *    nothing more. Both summaries add what will make a figure appear.
        *    Konfigurasi links the chosen school's summary at its own root node
-       *    and each active Kelas's at that class.
+       *    and each active Kelas's at that class. Pimpinan links them too, for
+       *    the dean and the head of department, who never see Konfigurasi: the
+       *    school summary where the reader may read a school figure, a class's
+       *    summary at that class and inside each class they may read, and
+       *    never a link into a page of refusals.
        */
       const pimpinan = code(readFileSync(join(repoRoot, "src", "app", "pimpinan", "page.tsx"), "utf8"));
       c.expect(/const diKelas = dipilih\.kind === "CLASS";/.test(pimpinan)
@@ -9436,6 +9440,29 @@ export const experienceTests: SelfTest[] = [
       for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8"));
         c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
+      }
+      // Pimpinan's own links. Their condition leans on a refusal never reaching
+      // `bukti` or a class's list, so that is checked where it is decided.
+      const pimLib = code(readFileSync(join(repoRoot, "src", "lib", "pimpinan.ts"), "utf8"));
+      c.expect(/return e\.status !== "not_permitted" && e\.status !== "unavailable";/.test(pimLib)
+        && /return out\.filter\(terbaca\);/.test(pimLib) && /bukti: bukti\.filter\(terbaca\)/.test(pimLib),
+        "a refusal can reach Pimpinan's figures, so a figure there no longer means the reader may read it");
+      c.expect(/const bacaSekolah = bukti\.some\(\(e\) => e\.metric_id\?\.startsWith\("institution\."\)\);/.test(pimpinan)
+        && /\{bacaSekolah \? \(\s*<Link className="pin-btn" href=\{`\/dekan\/ringkasan\?simpul=\$\{encodeURIComponent\(dipilih\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.sekolah"\)\}/.test(pimpinan),
+        "Pimpinan does not link the school summary exactly where the reader may read a school figure");
+      c.expect(/const bacaKelas = diKelas && bukti\.some\(\(e\) => e\.metric_id\?\.startsWith\("class\."\)\);/.test(pimpinan)
+        && /\{bacaKelas \? \(\s*<Link className="pin-btn" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(dipilih\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(pimpinan),
+        "Pimpinan, standing at a class the reader may read, does not link that class's summary");
+      {
+        // inside a class's disclosure only when it has figures the reader may read
+        const a = pimpinan.indexOf("{bk.length > 0 ? (");
+        // from the condition to its own close, the last `) : null}` before the class's </details>
+        const b = pimpinan.lastIndexOf(") : null}", pimpinan.indexOf("</details>", a));
+        const isi = a >= 0 && b > a ? pimpinan.slice(a, b) : "";
+        c.expect(/<Link className="pin-btn pin-quiet" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(kelas\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(isi),
+          "a class the reader may read does not link its own summary inside its disclosure");
+        c.expect((pimpinan.match(/\/edukator\/ringkasan\?/g) ?? []).length === 2 && (pimpinan.match(/\/dekan\/ringkasan\?/g) ?? []).length === 1,
+          "Pimpinan links a summary somewhere other than the three places named");
       }
       const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
       c.expect(/from\("org_nodes"\)\.select\("id"\)\.eq\("institution_id", sekolahStruktur\.id\)\.eq\("kind", "INSTITUTION"\)/.test(konfig)
@@ -9449,8 +9476,11 @@ export const experienceTests: SelfTest[] = [
       for (const [hal, param] of [["edukator", "kelas"], ["dekan", "simpul"]] as const) {
         const src = code(readFileSync(join(repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
         const dibaca = /searchParams: Promise<\{ (\w+)\?: string \}>/.exec(src)?.[1];
-        c.expect(dibaca === param && new RegExp(`href=\\{\`\\/${hal}\\/ringkasan\\?${param}=`).test(konfig),
-          `/${hal}/ringkasan reads ?${dibaca ?? "nothing"}=; Konfigurasi must link it with ?${param}=, and does not`);
+        for (const [nama, sumber] of [["Konfigurasi", konfig], ["Pimpinan", pimpinan]] as const) {
+          c.expect(dibaca === param && new RegExp(`href=\\{\`\\/${hal}\\/ringkasan\\?${param}=`).test(sumber),
+            `/${hal}/ringkasan reads ?${dibaca ?? "nothing"}=; ${nama} must link it with ?${param}=, and does not`);
+          c.expect(!new RegExp(`\\/${hal}\\/ringkasan\\?(?!${param}=)`).test(sumber), `${nama} links /${hal}/ringkasan with a parameter it does not read`);
+        }
       }
 
       return c.verdict(
@@ -9459,7 +9489,8 @@ export const experienceTests: SelfTest[] = [
         "workbook does, in both languages, and only for a figure short of evidence. RENDERED, the absence card keeps why and " +
         "how far and adds what; a refusal and a retired measure add nothing. Pimpinan asks each class of the branch for itself " +
         "and draws it as a disclosure; both summaries say what will make a figure appear; Konfigurasi links the school summary " +
-        "at its root and each active Kelas's",
+        "at its root and each active Kelas's; Pimpinan links the school summary where the reader may read a school figure and " +
+        "a class's summary at that class and inside each class they may read, each link with the parameter its page reads",
       );
     },
   },

@@ -2233,3 +2233,4 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-kelas-nama { flex: 1 1 auto; font-weight: var(--weight-strong); color: var(--ink-1); }
 .pin-kelas-tanda { font-size: var(--type-meta); color: var(--ink-3); }
 .pin-kelas-isi { display: grid; gap: var(--space-3); padding: 0 var(--space-4) var(--space-4); min-width: 0; }
+.pin-kelas-isi > .pin-btn { justify-self: start; }

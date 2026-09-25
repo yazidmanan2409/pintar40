@@ -83,6 +83,15 @@ export default async function Pimpinan({
   const angka = bukti.filter((e) => e.status === "ok");
   const absen = bukti.filter((e) => e.status !== "ok");
 
+  // DAISY-07 (DEA-03, X-12): the full summaries, one click from here. A
+  // refusal never reaches `bukti` (it is dropped, see buktiPimpinanDari), so a
+  // summary is offered only where the reader may read at least one of its
+  // figures, never as a way into a page of refusals. The school's figures are
+  // asked at its root whatever node is named (TENANT), so the chosen node only
+  // says which school's summary; a class's are asked of the class.
+  const bacaSekolah = bukti.some((e) => e.metric_id?.startsWith("institution."));
+  const bacaKelas = diKelas && bukti.some((e) => e.metric_id?.startsWith("class."));
+
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
@@ -218,6 +227,9 @@ export default async function Pimpinan({
                         {bk.filter((e) => e.status !== "ok").map((e, i) => (
                           <KartuKetiadaan key={e.metric_id ?? `absen-${i}`} entry={e} locale={locale} persona="staff" />
                         ))}
+                        <Link className="pin-btn pin-quiet" href={`/edukator/ringkasan?kelas=${encodeURIComponent(kelas.id)}`}>
+                          {s("pimpinan.laporan.kelas")}
+                        </Link>
                       </div>
                     ) : null}
                   </details>
@@ -234,9 +246,21 @@ export default async function Pimpinan({
         <section className="pin-sec" aria-labelledby="pin-lanjut">
           <h2 id="pin-lanjut">{s("pimpinan.perlu_diketahui")}</h2>
           <p className="pin-mm">{s("pimpinan.perlu_diketahui.sub")}</p>
-          <Link className="pin-btn" href={`/pimpinan/${encodeURIComponent(dipilih.id)}`}>
-            {s("pimpinan.buka.simpul")}
-          </Link>
+          <div className="pin-actions">
+            <Link className="pin-btn" href={`/pimpinan/${encodeURIComponent(dipilih.id)}`}>
+              {s("pimpinan.buka.simpul")}
+            </Link>
+            {bacaKelas ? (
+              <Link className="pin-btn" href={`/edukator/ringkasan?kelas=${encodeURIComponent(dipilih.id)}`}>
+                {s("pimpinan.laporan.kelas")}
+              </Link>
+            ) : null}
+            {bacaSekolah ? (
+              <Link className="pin-btn" href={`/dekan/ringkasan?simpul=${encodeURIComponent(dipilih.id)}`}>
+                {s("pimpinan.laporan.sekolah")}
+              </Link>
+            ) : null}
+          </div>
         </section>
       </main>
       <KakiPintar className="pin-noprint" />

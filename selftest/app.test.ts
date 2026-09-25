@@ -2187,7 +2187,8 @@ export const appTests: SelfTest[] = [
       // reader). Both open on a report the school has (never "no figures to
       // show you"), and a report with no figure yet says what will make one
       // appear. A head of department and a dean, standing above the classes,
-      // get Pimpinan's class-by-class section. Read only.
+      // get Pimpinan's class-by-class section, and open the summaries they may
+      // read from Pimpinan by clicking (DEA-03, X-12). Read only.
       const c = new Checks();
       const base = ctx.appUrl!;
       const muncul = ["penilaian", "akhir", "awal_akhir", "miskonsepsi", "sertifikat"].map((k) => t(`laporan.muncul.${k}` as HleEvent, "staff"));
@@ -2236,13 +2237,48 @@ export const appTests: SelfTest[] = [
         const tanda = new Set(["pimpinan.kelas.ada", "pimpinan.kelas.belum", "laporan.metrik.bukan_untuk_anda"].map((k) => t(k as HleEvent, "staff")));
         c.expect(ringkas.length > 0 || visibleText(sec).includes(t("pimpinan.kelas.kosong", "staff")), `${peran}: the section neither lists a class nor says there is none`);
         c.expect(ringkas.every((m) => tanda.has(m[2].replace(/&#x27;/g, "'"))), `${peran}: a class is summarised as ${ringkas.map((m) => m[2]).join(", ")}`);
-        c.note(`${peran}: ${ringkas.length} class(es)`);
+
+        // DEA-03 / X-12: the reports are one click from Pimpinan, for readers
+        // who never see Konfigurasi. The school summary is offered exactly when
+        // Pimpinan shows a school figure (a refusal never reaches the page), and
+        // the Alpha dean, standing at the school, has them; each class the
+        // reader may read links its own summary, and one they may not does not.
+        const cC = x.indexOf('id="pin-bukti"');
+        const figur = visibleText(cC >= 0 ? x.slice(cC, x.indexOf("</section>", cC)) : "");
+        const labelSekolah = ["metrik.peserta_institusi.label", "metrik.kenaikan_institusi.label", "metrik.gerbang_keselamatan.label",
+          "metrik.perbandingan_kohort.label", "metrik.kompetensi.label", "metrik.kredensial.label"].map((k) => t(k as HleEvent, "staff"));
+        const adaSekolah = labelSekolah.some((l) => figur.includes(l));
+        const lanjut = x.slice(x.indexOf('id="pin-lanjut"'));
+        const keSekolah = [...lanjut.matchAll(/href="(\/dekan\/ringkasan\?simpul=[0-9a-f-]{36})"/g)].map((m) => m[1]);
+        c.expect(keSekolah.length === (adaSekolah ? 1 : 0), `${peran}: ${keSekolah.length} school-summary link(s) while Pimpinan ${adaSekolah ? "shows" : "shows no"} school figure`);
+        if (peran === "DEAN") c.expect(adaSekolah && keSekolah.length === 1, "DEAN at Alpha's root is not offered the school summary from Pimpinan");
+        const perKelas = [...sec.matchAll(/<details[^>]*class="pin-kelas-bukti"[^>]*>([\s\S]*?)<\/details>/g)].map((m) => m[1]);
+        const tandaKelas = (d: string) => (/<span class="pin-kelas-tanda">([^<]+)<\/span>/.exec(d)?.[1] ?? "").replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
+        const bolehKelas = perKelas.filter((d) => tandaKelas(d) !== t("laporan.metrik.bukan_untuk_anda", "staff"));
+        const keKelas = perKelas.map((d) => /href="(\/edukator\/ringkasan\?kelas=[0-9a-f-]{36})"/.exec(d)?.[1]);
+        c.expect(perKelas.every((d, i) => Boolean(keKelas[i]) === bolehKelas.includes(d)),
+          `${peran}: a class links its summary other than exactly when its figures are the reader's`);
+        const tujuan: Array<[string, HleEvent]> = [];
+        if (keSekolah[0]) tujuan.push([keSekolah[0].replace(/&amp;/g, "&"), "laporan.institusi.judul"]);
+        const kelasPertama = keKelas.find(Boolean);
+        if (kelasPertama) tujuan.push([kelasPertama, "laporan.kelas.judul"]);
+        for (const [jalan, judul] of tujuan) {
+          const r2 = await get(`${base}${jalan}`, { headers: { cookie: sesi.cookie } });
+          const x2 = await r2.text();
+          const teks = visibleText(x2);
+          c.expect(r2.status === 200 && teks.includes(t(judul, "staff")), `${peran} ${jalan} → ${r2.status} without its title`);
+          c.expect(!teks.includes(t("laporan.kosong", "staff")), `${peran} ${jalan} finds no report`);
+          // a labelled figure: a refusal carries no label, so a page of refusals has none
+          c.expect(/<h2 class="font-medium">[^<]+<\/h2>/.test(x2), `${peran} ${jalan} is a page of refusals`);
+        }
+        c.note(`${peran}: ${ringkas.length} class(es), ${bolehKelas.length} readable; school summary ${keSekolah.length ? "linked" : "not linked"}`);
       }
       return c.verdict(
         "Alpha's school administrator finds one school summary linked at the school's own INSTITUTION node and a summary for " +
         "each active class at a CLASS node of that school; both open on the school's report, and one with no figure yet says " +
         "what will make one appear. A head of department and a dean get Pimpinan's class-by-class section, each class " +
-        "summarised as having figures, none yet, or not theirs",
+        "summarised as having figures, none yet, or not theirs; from Pimpinan the dean opens the school summary, which is " +
+        "linked exactly when a school figure is theirs, and each readable class opens its own summary, never a page of refusals",
       );
     },
   },
