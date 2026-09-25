@@ -499,6 +499,9 @@ const paketContoh = existsSync(PAKET) ? readFileSync(PAKET, "utf8") : null;
 const paketLama = JSON.stringify({ courses: [{ subject: "Matematika", stage: "SD", grade_label: "Kelas 1", title: "Penjumlahan sampai 20" }] });
 
 async function kirimPaket(schoolText, isi, forgedId = null) {
+  // Since BOB-07 the redirect carries no batch id (codes only), so the new batch is read from the database.
+  const newest = () => sql(`select coalesce((select id::text from public.ingest_batches order by created_at desc, id desc limit 1), '')`).trim();
+  const sebelum = newest();
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
   const form = g.locator("form").filter({ has: g.locator('textarea[name="isi"]') }).nth(1);
   const sel = form.locator("select").first();
@@ -519,7 +522,10 @@ async function kirimPaket(schoolText, isi, forgedId = null) {
   await g.waitForURL(/hasil=/, { timeout: 20000 }).catch(() => {});
   await g.waitForLoadState("networkidle");
   const u = new URL(g.url());
-  return { chosen, hasil: u.searchParams.get("hasil"), detail: u.searchParams.get("detail") };
+  const detail = u.searchParams.get("detail");
+  const sesudah = newest();
+  const batch = /^[0-9a-f-]{36}$/.test(detail ?? "") ? detail : (sesudah && sesudah !== sebelum ? sesudah : null);
+  return { chosen, hasil: u.searchParams.get("hasil"), detail, batch };
 }
 
 const hitung = (inst) => {
@@ -534,7 +540,7 @@ await step("S15", "Gladys uploads a lesson: Paket Terstruktur", async (rec) => {
   const r = await kirimPaket("SD Zayd", paketContoh ?? paketLama);
   rec.shots.push(await shot(g, "studio-terstruktur-result"));
   const notes = [`package: ${paketContoh ? "BOB-02 sample (workbook fixture)" : "one-course JSON"}`, `submit → hasil=${r.hasil} detail=${r.detail}`];
-  const batch = /^[0-9a-f-]{36}$/.test(r.detail ?? "") ? r.detail : null;
+  const batch = r.batch;
   if (batch) {
     // media: sign each path the batch names, as Gladys, and upload through the signed URL
     const media = JSON.parse(sql(`select coalesce(inferred_mapping, '[]'::jsonb) from public.ingest_batches where id='${batch}'`) || "[]");
@@ -597,7 +603,7 @@ await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD",
   const before = hitung(ids.sd);
   const r = await kirimPaket("SD Zayd", readFileSync(f, "utf8"));
   const notes = [`submit → hasil=${r.hasil} detail=${r.detail}`];
-  const batch = /^[0-9a-f-]{36}$/.test(r.detail ?? "") ? r.detail : null;
+  const batch = r.batch;
   if (batch) {
     await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
     const btn = g.locator(`form:has(input[name="batch"][value="${batch}"]) button[type="submit"]`).first();
