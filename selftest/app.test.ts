@@ -2176,4 +2176,74 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "DAISY-07-LAPORAN-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-07 over real HTTP against the seed. Alpha's school administrator
+      // finds the school's reports in Konfigurasi: one school summary, linked at
+      // the school's own INSTITUTION node, and one summary per active class,
+      // each linked at a CLASS node of that school (read back as the same
+      // reader). Both open on a report the school has (never "no figures to
+      // show you"), and a report with no figure yet says what will make one
+      // appear. A head of department and a dean, standing above the classes,
+      // get Pimpinan's class-by-class section. Read only.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const muncul = ["penilaian", "akhir", "awal_akhir", "miskonsepsi", "sertifikat"].map((k) => t(`laporan.muncul.${k}` as HleEvent, "staff"));
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const rest = (q: string) => fetch(`${ctx.supabaseUrl}/rest/v1/${q}`, {
+        headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${admin.accessToken}` },
+      }).then((r) => r.json() as Promise<Array<Record<string, string | null>>>).catch(() => []);
+      const k = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      c.expect(k.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${k.status}`);
+      const html = await k.text();
+      const a = html.indexOf('id="laporan"');
+      const b = html.indexOf("</section>", a);
+      const bagian = a >= 0 && b > a ? html.slice(a, b) : "";
+      if (!c.expect(bagian.length > 0, "Konfigurasi has no Laporan section")) return c.verdict("");
+      const sekolah = [...bagian.matchAll(/href="\/dekan\/ringkasan\?simpul=([0-9a-f-]{36})"/g)].map((m) => m[1]);
+      const kelas = [...bagian.matchAll(/href="\/edukator\/ringkasan\?kelas=([0-9a-f-]{36})"/g)].map((m) => m[1]);
+      c.expect(sekolah.length === 1, `the Laporan section links ${sekolah.length} school summaries, expected 1`);
+      c.expect(kelas.length >= 1, "the Laporan section links no class summary, though Alpha's seed has active classes");
+      const simpul = await rest(`org_nodes?select=id,kind,institution_id&id=in.(${[...sekolah, ...kelas].join(",")})`);
+      const jenis = new Map((Array.isArray(simpul) ? simpul : []).map((n) => [n.id, n]));
+      const inst = jenis.get(sekolah[0])?.institution_id;
+      c.expect(jenis.get(sekolah[0])?.kind === "INSTITUTION", `the school summary is linked at a ${jenis.get(sekolah[0])?.kind ?? "unreadable"} node`);
+      for (const id of kelas) {
+        c.expect(jenis.get(id)?.kind === "CLASS" && jenis.get(id)?.institution_id === inst, `a class summary is linked at ${jenis.get(id)?.kind ?? "an unreadable node"} of another school or kind`);
+      }
+      for (const [jalan, judul] of [[`/dekan/ringkasan?simpul=${sekolah[0]}`, "laporan.institusi.judul"], [`/edukator/ringkasan?kelas=${kelas[0]}`, "laporan.kelas.judul"]] as const) {
+        if (!sekolah[0] || !kelas[0]) break;
+        const r = await get(`${base}${jalan}`, { headers: { cookie: admin.cookie } });
+        const x = await r.text();
+        const teks = visibleText(x);
+        c.expect(r.status === 200 && teks.includes(t(judul, "staff")), `${jalan} → ${r.status} without its title`);
+        c.expect(!teks.includes(t("laporan.kosong", "staff")), `${jalan} finds no report for the administrator's own school`);
+        if (teks.includes(t("laporan.tak_ada_angka", "staff"))) {
+          c.expect(muncul.some((m) => teks.includes(m)), `${jalan} has no figure yet and does not say what will make one appear`);
+        }
+      }
+      for (const [peran, orang] of [["HEAD_OF_DEPARTMENT", PERSONA.alphaHod], ["DEAN", PERSONA.dean]] as const) {
+        const sesi = await signIn(ctx, orang);
+        const r = await get(`${base}/pimpinan`, { headers: { cookie: sesi.cookie } });
+        if (!c.expect(r.status === 200, `${peran} /pimpinan → ${r.status}`)) continue;
+        const x = await r.text();
+        const i = x.indexOf('id="pin-perkelas"');
+        if (!c.expect(i >= 0, `${peran}: Pimpinan has no class-by-class section above the classes`)) continue;
+        const sec = x.slice(i, x.indexOf("</section>", i));
+        const ringkas = [...sec.matchAll(/<summary><span class="pin-kelas-nama">([^<]+)<\/span><span class="pin-kelas-tanda">([^<]+)<\/span><\/summary>/g)];
+        const tanda = new Set(["pimpinan.kelas.ada", "pimpinan.kelas.belum", "laporan.metrik.bukan_untuk_anda"].map((k) => t(k as HleEvent, "staff")));
+        c.expect(ringkas.length > 0 || visibleText(sec).includes(t("pimpinan.kelas.kosong", "staff")), `${peran}: the section neither lists a class nor says there is none`);
+        c.expect(ringkas.every((m) => tanda.has(m[2].replace(/&#x27;/g, "'"))), `${peran}: a class is summarised as ${ringkas.map((m) => m[2]).join(", ")}`);
+        c.note(`${peran}: ${ringkas.length} class(es)`);
+      }
+      return c.verdict(
+        "Alpha's school administrator finds one school summary linked at the school's own INSTITUTION node and a summary for " +
+        "each active class at a CLASS node of that school; both open on the school's report, and one with no figure yet says " +
+        "what will make one appear. A head of department and a dean get Pimpinan's class-by-class section, each class " +
+        "summarised as having figures, none yet, or not theirs",
+      );
+    },
+  },
 ];

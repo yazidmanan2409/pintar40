@@ -91,7 +91,7 @@ import PanelPernyataan, { KalimatPonsel } from "../src/components/masuk/PanelPer
 import { templatPelajaran, tulisBukuKerja, xmlTeks, crc32, hurufKolom, LEMBAR_PANDUAN, BATAS_TEKS_KOLOM } from "../src/components/unggah/templat";
 import { lokasiMasalah } from "../src/components/unggah/lokasi";
 import { bacaBukuKerja } from "../src/lib/xlsx";
-import { BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
+import { KEGUNAAN, BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
 import { crc32 as zlibCrc32 } from "node:zlib";
 import { tempatDariPeran, daftarTempat, pintuMasuk, tawarkanStudio, PERAN_STUDIO } from "../src/components/tempat";
 import { LANGKAH as LANGKAH_PAKET, posisiPaket, keadaanLangkah, bolehMengambil, kunciSalinan, type KunciLangkah } from "../src/components/studio/langkah";
@@ -101,6 +101,7 @@ import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalB
 import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src/lib/struktur-kontrak";
 import { sekolahDitawarkan, sekolahDipilih, type SekolahBaris } from "../src/components/sekolah";
 import { kunciGagal, isianKurang, surelLengkap, GALAT_RUTE, type ModeAktivasi, type JawabanAktivasi } from "../src/components/aktivasi/hasil";
+import { SYARAT_METRIK, kunciMuncul } from "../src/components/bukti/muncul";
 import type { DisplayRole } from "../src/lib/auth";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
@@ -9265,6 +9266,163 @@ export const experienceTests: SelfTest[] = [
         "that same day in both languages; at every hour of a Jakarta day Siapkan's today is that day and a window from today is " +
         "already open (the old UTC construction, the control, fails each and is shut for the 7 hours before 07:00); impossible " +
         "days are refused; sediakanMateri sends batasHari's instants and no source file builds a day boundary in UTC",
+      );
+    },
+  },
+  {
+    id: "DAISY-07-LAPORAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-07 (audit B6): REPORTS ONE CLICK AWAY, AND AN ABSENT FIGURE THAT
+       * SAYS WHAT WILL MAKE IT APPEAR.
+       *
+       * 1. THE "WHAT" IS READ FROM THE CALCULATORS. For every class and school
+       *    metric in the catalogue, its calculator's latest body in the
+       *    migrations decides the evidence it counts -- certificates,
+       *    misconception rows, both tests, the Cek penguasaan, or any official
+       *    assessment -- and that must be the kind SYARAT_METRIK names. A copy
+       *    of a POST_TEST calculator with its mode filter removed is the
+       *    control: the classifier must call it something else.
+       */
+      const mig = join(repoRoot, "supabase", "migrations");
+      const berkas = readdirSync(mig).filter((f) => f.endsWith(".sql")).sort().map((f) => readFileSync(join(mig, f), "utf8"));
+      const katalog = readFileSync(join(mig, "20260918100000_metric_catalogue.sql"), "utf8");
+      // the calculation key is the metric id with its dot made an underscore; each is checked to exist below
+      const metrik = [...new Set([...katalog.matchAll(/\('MC-1', '((?:class|institution)\.[a-z_]+)'/g)].map((m) => m[1]))]
+        .map((id) => ({ id, kalkulator: id.replace(".", "_") }));
+      c.expect(metrik.length >= 12, `could not read the class and school metrics from the catalogue (${metrik.length})`);
+      // The LATEST definition wins, in either style the migrations use: the
+      // original `create function ... end;` and the pg_dump-style
+      // `CREATE OR REPLACE FUNCTION ... BEGIN ATOMIC ... END` / `;` that MC-2
+      // rewrote them in (a CASE's own END) is not the body's end).
+      const badan = (fn: string): string => {
+        let hasil = "";
+        for (const sql of berkas) {
+          const re = new RegExp(`create (?:or replace )?function public\\.calc_${fn}\\(`, "gi");
+          let m: RegExpExecArray | null;
+          while ((m = re.exec(sql))) {
+            const akhir = /\n(?:END\s*\n;|end;)/.exec(sql.slice(m.index));
+            hasil = sql.slice(m.index, akhir ? m.index + akhir.index : undefined);
+          }
+        }
+        return hasil.split("\n").filter((l) => !l.trim().startsWith("--")).join("\n");
+      };
+      const jenis = (b: string): string =>
+        /certificates\b/i.test(b) ? "sertifikat"
+        : /service_cohort_misconceptions/i.test(b) ? "miskonsepsi"
+        : /mode in \('PRE_TEST',\s*'POST_TEST'\)|mode = ANY \(ARRAY\['PRE_TEST'[^\]]*'POST_TEST'/i.test(b) ? "awal_akhir"
+        : /mode = 'POST_TEST'/i.test(b) ? "akhir"
+        : /official_sessions/i.test(b) ? "penilaian" : "tidak_dikenal";
+      for (const { id, kalkulator } of metrik) {
+        const b = badan(kalkulator);
+        if (!c.expect(b.length > 0, `${id}: the body of calc_${kalkulator} could not be found`)) continue;
+        c.expect(SYARAT_METRIK[id] === jenis(b), `${id} counts ${jenis(b)} (calc_${kalkulator}); the card would say ${SYARAT_METRIK[id] ?? "nothing"}`);
+      }
+      const akhir = badan("class_comprehension");
+      c.expect(jenis(akhir) === "akhir" && jenis(akhir.replace(/\s*and \(?s\.mode = 'POST_TEST'(?:::assessment_mode)?\)?/i, "")) !== "akhir",
+        "the control: a comprehension calculator without its Cek penguasaan filter is still classified as akhir");
+
+      /**
+       * 2. THE WORDS name the two tests exactly as the product does (KEGUNAAN,
+       *    the workbook's own list), in both languages, and "what will make it
+       *    appear" is offered only to a figure short of evidence.
+       */
+      const nama = Object.fromEntries(KEGUNAAN.map(([n, k]) => [k, n]));
+      for (const locale of LOCALES) {
+        for (const k of ["penilaian", "akhir", "awal_akhir", "miskonsepsi", "sertifikat"]) {
+          c.expect(t(`laporan.muncul.${k}` as HleEvent, "staff", { locale }) !== TANPA_SALINAN, `(${locale}) laporan.muncul.${k} has no copy`);
+        }
+      }
+      c.expect(t("laporan.muncul.akhir", "staff").includes(nama.POST_TEST) && !t("laporan.muncul.akhir", "staff").includes(nama.PRE_TEST),
+        `the Cek penguasaan sentence does not name "${nama.POST_TEST}" alone`);
+      c.expect(t("laporan.muncul.awal_akhir", "staff").includes(nama.PRE_TEST) && t("laporan.muncul.awal_akhir", "staff").includes(nama.POST_TEST),
+        "the gain sentence does not name both tests");
+      c.expect(kunciMuncul({ status: "below_minimum", metric_id: "class.net_gain" }) === "laporan.muncul.awal_akhir"
+        && kunciMuncul({ status: "not_permitted", metric_id: "class.net_gain" }) === null
+        && kunciMuncul({ status: "deprecated", metric_id: "class.net_gain" }) === null
+        && kunciMuncul({ status: "unavailable" }) === null && kunciMuncul({ status: "ok", metric_id: "class.net_gain" }) === null
+        && kunciMuncul({ status: "below_minimum", metric_id: "item.correctness_rate" }) === null,
+        "what will make a figure appear is offered to something other than a figure short of evidence");
+
+      /**
+       * 3. RENDERED. The absence card, in both languages: short of evidence it
+       *    keeps the evaluator's sentence and its count and adds what will make
+       *    the figure appear; a refusal stays unlabelled and says nothing more;
+       *    a retired measure says it was replaced and nothing more.
+       */
+      const KASUS = [
+        { locale: "id", persona: "staff", entry: { status: "below_minimum", metric_id: "class.comprehension", label_key: "metrik.pemahaman.label", statement_key: "laporan.metrik.belum_cukup_data", have: 3, needed: 5 } },
+        { locale: "en", persona: "staff", entry: { status: "below_minimum", metric_id: "class.net_gain", label_key: "metrik.kenaikan.label", statement_key: "laporan.metrik.belum_ada_bukti", have: 0, needed: 5 } },
+        { locale: "id", persona: "staff", entry: { status: "not_permitted" } },
+        { locale: "id", persona: "staff", entry: { status: "deprecated", metric_id: "class.comprehension", label_key: "metrik.pemahaman.label" } },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/bukti/KartuKetiadaan.tsx");' +
+        "  const K = m.default?.default ?? m.default;" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_KARTU).map((k) => renderToStaticMarkup(h(K, k)))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_KARTU: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && html.length === KASUS.length, `the absence card could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        const x = html.map((h) => h.replace(/&#x27;/g, "'").replace(/&amp;/g, "&"));
+        c.expect(x[0].includes(t("metrik.pemahaman.label", "staff")) && x[0].includes(`${t("laporan.metrik.belum_cukup_data", "staff")} (3/5)`)
+          && x[0].includes(t("laporan.muncul.akhir", "staff")), `short of evidence, the card does not say why, how far and what will make it appear: ${x[0]}`);
+        c.expect(x[1].includes(t("laporan.muncul.awal_akhir", "staff", { locale: "en" })), "(en) the gain card does not say what will make it appear");
+        c.expect(!/pin-ml/.test(x[2])
+          && !x[2].includes(t("laporan.muncul.akhir", "staff")) && x[2].includes(t("laporan.metrik.bukan_untuk_anda", "staff")),
+          `a refusal is labelled or told what would make it appear: ${x[2]}`);
+        c.expect(x[3].includes(t("laporan.metrik.diganti", "staff")) && !x[3].includes(t("laporan.muncul.akhir", "staff")), "a retired measure is told what would make it appear");
+      }
+
+      /**
+       * 4. THE PAGES. Pimpinan, above the classes, asks each class of the
+       *    branch through buktiPerKelas and draws it as a disclosure with its
+       *    figures and absence cards, or one refusal line; at a class it asks
+       *    nothing more. Both summaries add what will make a figure appear.
+       *    Konfigurasi links the chosen school's summary at its own root node
+       *    and each active Kelas's at that class.
+       */
+      const pimpinan = code(readFileSync(join(repoRoot, "src", "app", "pimpinan", "page.tsx"), "utf8"));
+      c.expect(/const diKelas = dipilih\.kind === "CLASS";/.test(pimpinan)
+        && /diKelas \? Promise\.resolve\(\[\] as pim\.BuktiKelas\[\]\) : pim\.buktiPerKelas\(dipilih\.id\)/.test(pimpinan),
+        "Pimpinan does not ask each class of the branch for its own figures");
+      c.expect(/<details key=\{kelas\.id\} className="pin-kelas-bukti">/.test(pimpinan) && /<KartuKetiadaan key=\{e\.metric_id/.test(pimpinan)
+        && /bk\.length === 0 \? "laporan\.metrik\.bukan_untuk_anda"/.test(pimpinan), "a class is not drawn with its figures, its absences, or one refusal line");
+      for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8"));
+        c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
+      }
+      const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      c.expect(/from\("org_nodes"\)\.select\("id"\)\.eq\("institution_id", sekolahStruktur\.id\)\.eq\("kind", "INSTITUTION"\)/.test(konfig)
+        && /href=\{`\/dekan\/ringkasan\?simpul=\$\{\(akar as \{ id: string \}\)\.id\}`\}/.test(konfig),
+        "Konfigurasi does not link the chosen school's summary at its own root node");
+      c.expect(/struktur\.rows\.filter\(\(r\) => r\.level === "KELAS" && r\.is_active\)/.test(konfig)
+        && /href=\{`\/edukator\/ringkasan\?kelas=\$\{k\.node_id\}`\}/.test(konfig), "Konfigurasi does not link each active Kelas's summary");
+      c.expect(/\["laporan", s\("config\.laporan\.judul"\)\]/.test(konfig), "the Laporan section is not in Konfigurasi's index");
+      // each link carries the parameter its summary actually reads (the class
+      // summary reads ?kelas=, the school summary ?simpul=)
+      for (const [hal, param] of [["edukator", "kelas"], ["dekan", "simpul"]] as const) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
+        const dibaca = /searchParams: Promise<\{ (\w+)\?: string \}>/.exec(src)?.[1];
+        c.expect(dibaca === param && new RegExp(`href=\\{\`\\/${hal}\\/ringkasan\\?${param}=`).test(konfig),
+          `/${hal}/ringkasan reads ?${dibaca ?? "nothing"}=; Konfigurasi must link it with ?${param}=, and does not`);
+      }
+
+      return c.verdict(
+        "every class and school metric's \"what will make it appear\" is the evidence its calculator's latest body counts (a " +
+        "comprehension calculator stripped of its Cek penguasaan filter is the control); the sentences name the tests as the " +
+        "workbook does, in both languages, and only for a figure short of evidence. RENDERED, the absence card keeps why and " +
+        "how far and adds what; a refusal and a retired measure add nothing. Pimpinan asks each class of the branch for itself " +
+        "and draws it as a disclosure; both summaries say what will make a figure appear; Konfigurasi links the school summary " +
+        "at its root and each active Kelas's",
       );
     },
   },

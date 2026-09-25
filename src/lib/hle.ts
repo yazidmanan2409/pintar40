@@ -394,6 +394,22 @@ export type HleEvent =
   | "studio.terbitan.kode.release_input_invalid"
   | "studio.terbitan.kode.release_failed"
   | "studio.paket.buat_terbitan"
+  // DAISY-07: what makes an absent figure appear; class by class; the admin's reports
+  | "laporan.muncul.penilaian"
+  | "laporan.muncul.akhir"
+  | "laporan.muncul.awal_akhir"
+  | "laporan.muncul.miskonsepsi"
+  | "laporan.muncul.sertifikat"
+  | "pimpinan.kelas.judul"
+  | "pimpinan.kelas.arti"
+  | "pimpinan.kelas.ada"
+  | "pimpinan.kelas.belum"
+  | "pimpinan.kelas.kosong"
+  | "config.laporan.judul"
+  | "config.laporan.arti"
+  | "config.laporan.sekolah"
+  | "config.laporan.kelas"
+  | "config.laporan.tanpa_kelas"
   // DAISY-06, the Terbit step: the seven steps to publication, named
   | "studio.langkah.judul"
   | "studio.langkah.arti"
@@ -1936,6 +1952,21 @@ const table: Table = {
   "studio.terbitan.kode.release_input_invalid": { default: "Terbitan atau kursus tidak dikenali.", en: "The release or course was not recognised." },
   "studio.terbitan.kode.release_failed": { default: "Langkah ini belum berhasil. Coba lagi sebentar lagi.", en: "This step did not go through. Try again in a moment." },
   "studio.paket.buat_terbitan": { default: "Buat terbitan", en: "Create release" },
+  "laporan.muncul.penilaian": { default: "Angka ini muncul setelah murid menyelesaikan penilaian pertamanya.", en: "This figure appears once a student has finished their first assessment." },
+  "laporan.muncul.akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Cek penguasaan.", en: "This figure appears once enough students have finished the Mastery Check." },
+  "laporan.muncul.awal_akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Pemetaan awal dan Cek penguasaan. Hanya murid yang menyelesaikan keduanya yang dihitung.", en: "This figure appears once enough students have finished both the Initial mapping and the Mastery Check. Only students who finished both are counted." },
+  "laporan.muncul.miskonsepsi": { default: "Angka ini muncul setelah beberapa murid memilih jawaban keliru yang sama pada pilihan yang diberi kode miskonsepsi.", en: "This figure appears once several students choose the same wrong answer on an option that carries a misconception code." },
+  "laporan.muncul.sertifikat": { default: "Angka ini muncul setelah sertifikat pertama sekolah ini terbit.", en: "This figure appears once this school's first certificate is issued." },
+  "pimpinan.kelas.judul": { default: "Per kelas", en: "Class by class" },
+  "pimpinan.kelas.arti": { default: "Angka kelas dihitung untuk tiap kelas sendiri dan tidak dijumlahkan antarkelas. Buka satu kelas untuk melihat angkanya, atau apa yang membuatnya muncul.", en: "Class figures are counted for each class on its own and never added across classes. Open a class to see its figures, or what will make them appear." },
+  "pimpinan.kelas.ada": { default: "Ada angka", en: "Has figures" },
+  "pimpinan.kelas.belum": { default: "Belum ada angka", en: "No figures yet" },
+  "pimpinan.kelas.kosong": { default: "Belum ada kelas di bagian ini.", en: "There are no classes in this part yet." },
+  "config.laporan.judul": { default: "Laporan", en: "Reports" },
+  "config.laporan.arti": { default: "Ringkasan dibaca dari penilaian resmi murid. Sebelum ada cukup hasil, setiap angka menjelaskan apa yang membuatnya muncul.", en: "Summaries are read from students' official assessments. Until there are enough results, each figure explains what will make it appear." },
+  "config.laporan.sekolah": { default: "Ringkasan sekolah", en: "School summary" },
+  "config.laporan.kelas": { default: "Ringkasan per kelas", en: "Summary by class" },
+  "config.laporan.tanpa_kelas": { default: "Belum ada Kelas aktif. Buat Kelas di Struktur sekolah di atas; ringkasannya lalu muncul di sini.", en: "There is no active class yet. Create one in the school structure above; its summary then appears here." },
   "studio.langkah.judul": { default: "Langkah menuju terbit", en: "Steps to publication" },
   "studio.langkah.arti": { default: "Tujuh langkah dari unggahan sampai terbit, dalam urutan yang dijalankan PINTAR. Tombol hanya muncul untuk orang yang boleh mengambil langkah itu.", en: "Seven steps from upload to publication, in the order PINTAR takes them. A button appears only for someone who may take that step." },
   "studio.langkah.oleh": { default: "Oleh:", en: "By:" },

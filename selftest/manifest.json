@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 81,
+  "version": 83,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1990,6 +1990,21 @@
       "id": "DAISY-14-TANGGAL-01",
       "runner": "static",
       "proves": "DAISY-14 (audit M10): an assignment's days are the school's calendar days. For five days (month and year ends, a leap day) batasHari gives 00:00:00 and 23:59:59 on the Asia/Jakarta clock, one whole day apart, and the class page's format.date shows exactly the chosen day in both languages; impossible or malformed days are refused. At every hour of a Jakarta day, Siapkan's today (hariIniSekolah) is that day and a window starting today is already open. The old `${day}T00:00:00Z`/`T23:59:59Z` construction is the control: it fails the day checks and is shut for exactly the 7 hours before 07:00 WIB. From the SOURCE: sediakanMateri sends batasHari's first and last instants to assign_release, Siapkan's first-day field starts on hariIniSekolah(), and no source file under src builds a day boundary in UTC."
+    },
+    {
+      "id": "DAISY-07-LAPORAN-01",
+      "runner": "static",
+      "proves": "DAISY-07 (audit B6). For every class and school metric in the catalogue, the evidence named by 'what will make it appear' is read from its calculator's LATEST body in the migrations -- certificates, misconception rows, both tests, the Cek penguasaan, or any official assessment -- and must equal SYARAT_METRIK; a comprehension calculator stripped of its Cek penguasaan filter is the control the classifier must call something else. The sentences name the tests exactly as KEGUNAAN (the workbook's list) does, have copy in both languages, and are offered only to a figure short of evidence (never a refusal, a retired or uncomputable figure, a present figure or an item metric). RENDERED in a child process: the absence card short of evidence keeps its label, the evaluator's sentence and its have/needed count and adds what will make it appear (both languages); a refusal stays unlabelled and a retired measure adds nothing. SOURCE: Pimpinan, above the classes, asks each class of the branch through buktiPerKelas and draws it as a disclosure with its figures and absence cards or one refusal line; both summaries say what will make a figure appear; Konfigurasi links the chosen school's summary at its own INSTITUTION node and each active Kelas's at that class (as ?kelas=, the parameter the class summary reads), and lists the section in its index."
+    },
+    {
+      "id": "DAISY-07-LAPORAN-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator, head of department and dean and reads the rendered Konfigurasi, both summaries and Pimpinan against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-07 over real HTTP against the seed. The RENDERED Konfigurasi of Alpha's school administrator has a Laporan section linking exactly one school summary, at a node read back (as the same reader) as that school's INSTITUTION node, and at least one class summary, each at a CLASS node of the same school. Following them, both summaries open with their title on a report the school has (never 'no figures to show you'), and a report with no figure yet says what will make one appear. A head of department and a dean, standing above the classes, get Pimpinan's class-by-class section: it lists classes, each summarised as having figures, none yet, or not theirs, or says there is none. Read only."
     }
   ]
 }

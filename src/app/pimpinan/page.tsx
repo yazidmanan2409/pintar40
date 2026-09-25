@@ -68,9 +68,14 @@ export default async function Pimpinan({
   // rather than being passed to a read.
   const dipilih = lingkup.find((n) => n.id === sp.lingkup) ?? lingkup[0];
 
-  const [keputusan, bukti] = await Promise.all([
+  // DAISY-07 (B6c): a class figure is asked of a class. Standing above the
+  // classes, each class of the branch answers for itself (BOB-06's
+  // buktiPerKelas), never summed; standing at a class, buktiPimpinan asks it.
+  const diKelas = dipilih.kind === "CLASS";
+  const [keputusan, bukti, perKelas] = await Promise.all([
     pim.keputusanSaya(),
     pim.buktiPimpinan(dipilih.id, dipilih.institusi),
+    diKelas ? Promise.resolve([] as pim.BuktiKelas[]) : pim.buktiPerKelas(dipilih.id).catch(() => [] as pim.BuktiKelas[]),
   ]);
 
   const tertib = urutan(keputusan);
@@ -177,6 +182,50 @@ export default async function Pimpinan({
             </>
           )}
         </section>
+
+        {/* ── C2. CLASS BY CLASS (DAISY-07) ──────────────────────────────────
+            Above the classes, each class answers for its own figures, and a
+            class is a disclosure the reader opens: the summary line says
+            whether it has any figure yet, and inside, every absent figure says
+            what will make it appear. A class whose figures are not the
+            reader's says so once, without counting what was withheld. */}
+        {!diKelas ? (
+          <section className="pin-sec" aria-labelledby="pin-perkelas">
+            <h2 id="pin-perkelas">{s("pimpinan.kelas.judul")}</h2>
+            <p className="pin-mm">{s("pimpinan.kelas.arti")}</p>
+            {perKelas.length === 0 ? (
+              <p className="pin-empty">{s("pimpinan.kelas.kosong")}</p>
+            ) : (
+              perKelas.map(({ kelas, bukti: bk }) => {
+                const ada = bk.filter((e) => e.status === "ok");
+                return (
+                  <details key={kelas.id} className="pin-kelas-bukti">
+                    <summary>
+                      <span className="pin-kelas-nama">{kelas.nama}</span>
+                      <span className="pin-kelas-tanda">
+                        {s(bk.length === 0 ? "laporan.metrik.bukan_untuk_anda" : ada.length > 0 ? "pimpinan.kelas.ada" : "pimpinan.kelas.belum")}
+                      </span>
+                    </summary>
+                    {bk.length > 0 ? (
+                      <div className="pin-kelas-isi">
+                        {ada.length > 0 ? (
+                          <div className="pin-grid2">
+                            {ada.map((e, i) => (
+                              <AngkaTerkelola key={e.metric_id ?? `angka-${i}`} entry={e} value={nilai(e.value, locale)} locale={locale} />
+                            ))}
+                          </div>
+                        ) : null}
+                        {bk.filter((e) => e.status !== "ok").map((e, i) => (
+                          <KartuKetiadaan key={e.metric_id ?? `absen-${i}`} entry={e} locale={locale} persona="staff" />
+                        ))}
+                      </div>
+                    ) : null}
+                  </details>
+                );
+              })
+            )}
+          </section>
+        ) : null}
 
         {/* ── D. EVIDENCE READINESS ─────────────────────────────────────── */}
         <RingkasKesiapan entries={bukti} locale={locale} />

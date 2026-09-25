@@ -108,6 +108,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const sekolahKu = sekolahDitawarkan(institutions ?? [], (id) => isSys === true || adminInstitutionIds.includes(id));
   const sekolahStruktur = sekolahDipilih(sekolahKu, sp.sekolah);
   const bacaanStruktur = sekolahStruktur ? bacaStruktur(sekolahStruktur.id) : Promise.resolve(null);
+  // DAISY-07 (B6b): the school's own root node, for its school summary
+  const bacaanAkar = sekolahStruktur
+    ? supabase.from("org_nodes").select("id").eq("institution_id", sekolahStruktur.id).eq("kind", "INSTITUTION").limit(1).maybeSingle()
+    : Promise.resolve({ data: null });
 
   // FINAL DELTA 2. The people the three sources above cannot reach: no active
   // role, no enrolment, no transfer. The database decides who may ask and who
@@ -166,11 +170,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       </p>
     ) : null;
 
-  const [struktur, locale] = await Promise.all([bacaanStruktur, currentLocale()]);
+  const [struktur, locale, { data: akar }] = await Promise.all([bacaanStruktur, currentLocale(), bacaanAkar]);
+  const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   const sl = (event: HleEvent) => t(event, "staff", { locale });
 
   const nav: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
+    ["laporan", s("config.laporan.judul")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
     ["roles", s("config.section.roles")], ["audit", s("config.section.audit")], ["flags", s("config.section.flags")],
     ["content", s("config.section.content")], ["assessment", s("config.section.assessment")],
@@ -280,6 +286,44 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     tahunKini={tahunAjaranPada(new Date())}
                   />
                 </div>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
+          {/* DAISY-07 (B6b). THE SCHOOL'S REPORTS, one click away. BOB-06 gave
+              every school PINTAR's standard class and school reports; nothing
+              linked to them, so an administrator had to type an id. The school
+              summary is read at the school's own root node and each class's at
+              that class, for the school chosen above. A link decides nothing:
+              generate_report decides every figure for this reader. */}
+          <section id="laporan" className={card}>
+            <h2 className="font-medium">{sl("config.laporan.judul")}</h2>
+            {sekolahStruktur ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.laporan.arti")}</p>
+                <nav className="mt-3 grid gap-2 text-sm" aria-label={sl("config.laporan.judul")}>
+                  {akar ? (
+                    <Link href={`/dekan/ringkasan?simpul=${(akar as { id: string }).id}`} className={tautanTempat}>
+                      {sl("config.laporan.sekolah")} · {sekolahStruktur.name}
+                    </Link>
+                  ) : null}
+                  <span className="text-ink-3">{sl("config.laporan.kelas")}</span>
+                  {kelasAktif.length > 0 ? (
+                    <ul className="flex flex-wrap gap-x-4 gap-y-1">
+                      {kelasAktif.map((k) => (
+                        <li key={k.node_id}>
+                          <Link href={`/edukator/ringkasan?kelas=${k.node_id}`} className={tautanTempat}>
+                            {k.name}{k.academic_year ? ` (${k.academic_year})` : ""}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-ink-3">{sl("config.laporan.tanpa_kelas")}</p>
+                  )}
+                </nav>
               </>
             ) : (
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
