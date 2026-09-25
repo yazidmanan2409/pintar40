@@ -739,7 +739,9 @@ await step("S18", "the teacher assigns the published Bab 1 to Kelas 1A (Siapkan 
   if (!(await row.count())) { rec.verdict = "FAIL"; return `Siapkan does not offer Bab 1; page: ${(await bodyText(t)).slice(0, 260)}`; }
   await row.click();
   await t.waitForLoadState("networkidle");
-  const sampai = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+  // the school's calendar (Asia/Jakarta): the teacher's "until" is a day on it
+  const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(Date.now() + 30 * 86400000));
   await t.locator("#pin-sampai").fill(sampai).catch(() => {});
   rec.shots.push(await shot(t, "siapkan-tinjau"));
   await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
@@ -751,8 +753,18 @@ await step("S18", "the teacher assigns the published Bab 1 to Kelas 1A (Siapkan 
   const aa = sql(`select coalesce(string_agg(d.mode::text || ':' || aa.status::text, ',' order by d.mode::text), '-')
     from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id where d.course_id='${course}'`).trim();
   if (Number(la) < 1 || !/PRE_TEST/.test(aa) || !/POST_TEST/.test(aa)) rec.verdict = "FAIL";
+  // M10: "from" (today, the form's default) and "until" are days on the school's calendar,
+  // so the window is 00:00 of the first to 23:59:59 of the last, Jakarta time, at any hour
+  // the audit happens to run
+  const jendela = sql(`select to_char(available_from at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS') || ' .. ' ||
+      coalesce(to_char(available_until at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS'), '-') || '|' ||
+      (available_from = ((now() at time zone 'Asia/Jakarta')::date::timestamp at time zone 'Asia/Jakarta'))::text || '|' ||
+      coalesce((available_until = ((date '${sampai}' + time '23:59:59') at time zone 'Asia/Jakarta'))::text, 'false')
+    from public.learning_assignments where course_id='${course}' order by created_at desc limit 1`).trim();
+  const [win, dariOk, sampaiOk] = jendela.split("|");
+  if (dariOk !== "true" || sampaiOk !== "true") rec.verdict = "FAIL";
   await tc.close();
-  return `after Sediakan: ${u.pathname}${u.searchParams.get("kode") ? ` kode=${u.searchParams.get("kode")}` : ""}; learning assignments ${la}; assessment assignments ${aa}`;
+  return `after Sediakan: ${u.pathname}${u.searchParams.get("kode") ? ` kode=${u.searchParams.get("kode")}` : ""}; learning assignments ${la}; assessment assignments ${aa}; window in Jakarta time ${win} (asked: today .. ${sampai}; starts at the school's midnight: ${dariOk}; ends at 23:59:59 of ${sampai}: ${sampaiOk})`;
 });
 
 await step("S19", "the student finds Bab 1 and reaches its pre-test (B4)", async (rec) => {
@@ -776,9 +788,13 @@ await step("S19", "the student finds Bab 1 and reaches its pre-test (B4)", async
   rec.shots.push(await shot(s, "murid-pemetaan"));
   const txt = await bodyText(s);
   const notFound = res?.status() === 404 || /Halaman ini tidak ada/.test(txt);
-  if (notFound) rec.verdict = "FAIL";
+  // the one refusal page ("belum tersedia untuk akun Anda") is not the pre-test either
+  const refused = /belum tersedia untuk akun Anda/.test(txt);
+  const bukaSejak = sql(`select to_char(available_from at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI') || ' Jakarta; now ' || to_char(now() at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI')
+    from public.learning_assignments where id='${tugas}'`).trim();
+  if (notFound || refused) rec.verdict = "FAIL";
   await sc.close();
-  return `/belajar offers ${href}; /belajar/${tugas}/pemetaan → HTTP ${res?.status()}: ${txt.slice(0, 240)}`;
+  return `/belajar offers ${href}; /belajar/${tugas}/pemetaan → HTTP ${res?.status()}${refused ? " (the refusal page)" : ""}; open from ${bukaSejak}: ${txt.slice(0, 200)}`;
 });
 
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
