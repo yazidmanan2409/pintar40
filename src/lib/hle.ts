@@ -2955,6 +2955,44 @@ export const format = {
   },
 };
 
+/**
+ * THE SCHOOL'S CALENDAR DAY (DAISY-14, audit M10). A teacher picks days, not
+ * instants: "from 25 September to 30 September" means from the first moment
+ * of the 25th to the last of the 30th, on the school's clock. Siapkan used to
+ * send `${day}T00:00:00Z` and `${day}T23:59:59Z`, which are midnight in
+ * London: the assignment opened at 07:00 WIB, closed at 06:59 WIB the day after
+ * its last, and "from today" stayed shut until seven in the morning. These
+ * read the day in TIMEZONE instead, with the zone's own offset on that date
+ * (asked of Intl rather than written down, so a zone with daylight saving
+ * would still be right), and the same helper gives Siapkan its "today".
+ */
+function selisihZona(hari: string): string {
+  const nama = new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, timeZoneName: "longOffset" })
+    .formatToParts(new Date(`${hari}T12:00:00Z`))
+    .find((p) => p.type === "timeZoneName")?.value ?? "GMT";
+  const m = /GMT([+-]\d{2}):?(\d{2})?/.exec(nama);
+  return m ? `${m[1]}:${m[2] ?? "00"}` : "+00:00";
+}
+
+/** Today's date on the school's clock, as a date input writes it (yyyy-mm-dd). */
+export function hariIniSekolah(sekarang: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric", month: "2-digit", day: "2-digit", timeZone: TIMEZONE,
+  }).format(sekarang);
+}
+
+/**
+ * The first ("awal", 00:00:00) or last ("akhir", 23:59:59) instant of a
+ * yyyy-mm-dd day on the school's clock, as an ISO timestamp with its offset;
+ * null for anything that is not such a day.
+ */
+export function batasHari(hari: string, ujung: "awal" | "akhir"): string | null {
+  // a real calendar day: 2026-02-30 is refused, not rolled into March
+  const tengah = new Date(`${hari}T12:00:00Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(hari) || Number.isNaN(tengah.getTime()) || tengah.toISOString().slice(0, 10) !== hari) return null;
+  return `${hari}T${ujung === "awal" ? "00:00:00" : "23:59:59"}${selisihZona(hari)}`;
+}
+
 /** For tests: every key, every persona, rendered. */
 /**
  * Keys that belong to a staff-only surface and are never addressed to a
