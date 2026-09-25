@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
 import { s, card, omissionText, actionText, tierLabel, type Entry } from "../../_intel";
@@ -26,12 +27,9 @@ export default async function RingkasanSekolah({
   const { simpul } = await searchParams;
   const supabase = await supabaseServer();
 
-  const { data: templates } = await supabase
-    .from("report_templates")
-    .select("id, title_key, standard_report")
-    .eq("standard_report", "institution_learning_intelligence")
-    .limit(1);
-  const template = (templates ?? [])[0] as { id: string; title_key: string } | undefined;
+  // BOB-06 (B6b): the template of the school this node belongs to -- its own
+  // latest assembly, else PINTAR's standard one -- never another school's.
+  const template = simpul ? (await templatUntuk("institution_learning_intelligence", simpul)) ?? undefined : undefined;
 
   type Report = { entries?: Entry[]; shown?: number; omitted?: number };
   let report: Report | null = null;

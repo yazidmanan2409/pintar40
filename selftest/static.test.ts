@@ -16,6 +16,8 @@ import { strukturTests } from "./struktur.test";
 import { unggahTests } from "./unggah.test";
 import { terbitanTests } from "./terbitan.test";
 import { penugasanTests } from "./penugasan.test";
+import { sesiTests } from "./sesi.test";
+import { bob06Tests } from "./bob06.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -1859,4 +1861,6 @@ export const staticTests: SelfTest[] = [
   ...unggahTests,
   ...terbitanTests,
   ...penugasanTests,
+  ...sesiTests,
+  ...bob06Tests,
 ];

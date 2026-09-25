@@ -171,7 +171,8 @@ jobs:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
-               db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates]
+               db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
+               db-bob06-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -227,6 +228,8 @@ jobs:
               echo "the nine release-path defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob04-gates)
               echo "the nine learning-cycle defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob06-gates)
+              echo "the six standard-report defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1683,6 +1686,19 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob04.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob04-gates
+
+      # BOB-06's gates: every school carries PINTAR's standard class and school
+      # reports from creation, and PINTAR's rows and the provisioning pass are
+      # nobody else's. Same harness, same four proofs, on F14.
+      - name: Local stack (standard-report gates)
+        if: matrix.case == 'db-bob06-gates'
+        id: gatesBob06
+        uses: ./.github/actions/local-stack
+      - name: Each planted standard-report defect must turn its own F14 test red
+        if: matrix.case == 'db-bob06-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob06.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob06-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

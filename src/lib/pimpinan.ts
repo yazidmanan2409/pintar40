@@ -166,7 +166,12 @@ export async function simpulDalamLingkup(node: string): Promise<SimpulPimpinan |
  */
 export async function cabang(scopes: readonly string[]): Promise<SimpulPimpinan[]> {
   if (scopes.length === 0) return [];
-  const c = await db();
+  return cabangDari(await db(), scopes);
+}
+
+/** `cabang` over a given client (BOB-06: so the evidence planner can be driven in a test). */
+export async function cabangDari(c: Db, scopes: readonly string[]): Promise<SimpulPimpinan[]> {
+  if (scopes.length === 0) return [];
   const { data } = await c
     .from("org_nodes")
     .select("id, name, kind, institution_id, jalur, is_active")
@@ -306,8 +311,22 @@ function terbaca(e: Envelope): boolean {
 }
 
 export async function buktiPimpinan(node: string, institusi: string): Promise<Envelope[]> {
-  const c = await db();
-  const minta = async (metric: string, p_node: string) => {
+  return buktiPimpinanDari(await db(), node, institusi);
+}
+
+/**
+ * BOB-06 (audit B6c): A CLASS FIGURE IS ASKED OF A CLASS. The class
+ * calculators count the sessions whose class is exactly the node asked, so a
+ * class figure asked at a department or a faculty is structurally empty and
+ * read as "not enough evidence yet". At a class node the class figures are
+ * asked of it, as before; anywhere else only the school's figures are asked
+ * here, and the classes of the branch each answer for themselves through
+ * `buktiPerKelas`. Scope is unchanged: every figure is still decided per
+ * reader by `metric_evaluate`, and the classes come from `cabang`, which
+ * throws on a node outside the reader's scope.
+ */
+function mintaDari(c: Db, institusi: string) {
+  return async (metric: string, p_node: string): Promise<Envelope> => {
     const { data, error } = await c.rpc("metric_evaluate", {
       p_metric_id: metric,
       p_node,
@@ -316,11 +335,44 @@ export async function buktiPimpinan(node: string, institusi: string): Promise<En
     if (error) return { status: "unavailable" } as Envelope;
     return (data ?? { status: "unavailable" }) as Envelope;
   };
+}
+
+/** `buktiPimpinan` over a given client (BOB-06: driven in selftest/bob06.test.ts). */
+export async function buktiPimpinanDari(c: Db, node: string, institusi: string): Promise<Envelope[]> {
+  const minta = mintaDari(c, institusi);
+  const { data: simpul } = await c.from("org_nodes").select("kind").eq("id", node).maybeSingle();
+  const diKelas = (simpul as { kind?: string } | null)?.kind === "CLASS";
   const out = await Promise.all([
-    ...METRIK_SIMPUL.map((m) => minta(m, node)),
+    ...(diKelas ? METRIK_SIMPUL.map((m) => minta(m, node)) : []),
     ...METRIK_INSTITUSI.map((m) => minta(m, institusi)),
   ]);
   return out.filter(terbaca);
+}
+
+/** One class of the reader's branch and the class figures it answers for itself. */
+export type BuktiKelas = { kelas: SimpulPimpinan; bukti: Envelope[] };
+
+/**
+ * BOB-06 (B6c): THE CLASS FIGURES OF EACH CLASS IN THIS BRANCH, asked of that
+ * class. The node itself when it is a class; otherwise every active class
+ * below it that `cabang` returns, in its order. A class none of whose figures
+ * the reader may see comes back with an empty list, so a screen can say so
+ * per class rather than count what was withheld. Nothing is summed across
+ * classes (WP7C: nothing here adds two classes together).
+ */
+export async function buktiPerKelas(node: string): Promise<BuktiKelas[]> {
+  return buktiPerKelasDari(await db(), node);
+}
+
+export async function buktiPerKelasDari(c: Db, node: string): Promise<BuktiKelas[]> {
+  const kelas = (await cabangDari(c, [node])).filter((n) => n.kind === "CLASS");
+  return Promise.all(
+    kelas.map(async (k) => {
+      const minta = mintaDari(c, k.institusi);
+      const bukti = await Promise.all(METRIK_SIMPUL.map((m) => minta(m, k.id)));
+      return { kelas: k, bukti: bukti.filter(terbaca) };
+    }),
+  );
 }
 
 // ═══════════════════════════════════════════════════════ 4. roster, then one

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { keluarPerangkatIni } from "@/lib/keluar";
 import { currentViewer } from "@/lib/auth";
 import { cardEmail, deriveCardSecret } from "@/lib/card";
 import { appUrl } from "@/lib/env";
@@ -28,7 +29,8 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   // L-1. Narrowed BEFORE it is embedded in the email, so a poisoned
   // destination never reaches a learner's inbox at all. The callback narrows
   // it again on the way back, for the link nobody here built.
-  const next = tujuanInternal(formData.get("lanjut"));
+  // BOB-06 (D-010): none asked for stays none, and the link then carries none.
+  const next = tujuanInternal(formData.get("lanjut"), "");
   if (!email) return "gagal";
   const supabase = await supabaseServer();
   const origin = appUrl();
@@ -43,7 +45,7 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
       // gives it a `persons` row and an `accounts` row -- a stranger
       // self-provisioning a PINTAR identity from the sign-in form.
       shouldCreateUser: false,
-      emailRedirectTo: `${origin}/auth/callback?lanjut=${encodeURIComponent(next)}`,
+      emailRedirectTo: next ? `${origin}/auth/callback?lanjut=${encodeURIComponent(next)}` : `${origin}/auth/callback`,
     },
   });
   // AND THE ANSWER IS THE SAME EITHER WAY. With creation off, an unknown
@@ -135,9 +137,15 @@ export async function signInWithCard(formData: FormData): Promise<HasilKartu> {
  * nothing about what it accepts -- only what a refusal falls back to, which
  * §7.3 of the handoff rules is the role's home and NOT an error the person
  * never chose and cannot act on.
+ *
+ * BOB-06 (D-010): "/" is not a destination. It is the entry page, which no
+ * interruption produces (the proxy never sends a visitor away from it), and
+ * links written before this fix carry it for "none"; taken as asked for, it
+ * beat the role's home and management looped back to the sign-in screen.
  */
 export async function tujuanMasuk(raw: unknown): Promise<string> {
   const viewer = await currentViewer();
+  if (tujuanInternal(raw, "") === "/") raw = null;
   return tujuanInternal(raw, berandaPeran(viewer?.displayRole ?? null));
 }
 
@@ -154,7 +162,8 @@ export async function tujuanMasuk(raw: unknown): Promise<string> {
 export async function keluarDariSesi(): Promise<void> {
   const supabase = await supabaseServer();
   await supabase.rpc("exit_persona");
-  await supabase.auth.signOut();
+  // this device only (D-009, BOB-05), exactly as /keluar
+  await keluarPerangkatIni(supabase);
   redirect("/masuk");
 }
 

@@ -34,6 +34,11 @@
       "suite": "selftest.run_fable13()",
       "control_green": 5,
       "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle; and the upload refusing a parallel group that spans both tests (D-040)"
+    },
+    "db-bob06-gates": {
+      "suite": "selftest.run_fable14()",
+      "control_green": 3,
+      "what": "BOB-06's standard reports: every school carries PINTAR's class and school reports from creation, in the standard assembly, and PINTAR's rows and the provisioning pass are nobody else's"
     }
   },
   "plants": [
@@ -450,6 +455,42 @@
       "gate": "db-bob04-gates",
       "expect_red": "F13-N03",
       "expect_detail": "a package whose groups span both tests answered"
+    },
+    {
+      "name": "bob06-1",
+      "gate": "db-bob06-gates",
+      "expect_red": "F14-P01",
+      "expect_detail": "a school created now has 0 standard report(s)"
+    },
+    {
+      "name": "bob06-2",
+      "gate": "db-bob06-gates",
+      "expect_red": "F14-N01",
+      "expect_detail": "the school's admin could add a metric"
+    },
+    {
+      "name": "bob06-3",
+      "gate": "db-bob06-gates",
+      "expect_red": "F14-N01",
+      "expect_detail": "the school's admin could remove"
+    },
+    {
+      "name": "bob06-4",
+      "gate": "db-bob06-gates",
+      "expect_red": "F14-N01",
+      "expect_detail": "the school's admin could call the provisioner"
+    },
+    {
+      "name": "bob06-5",
+      "gate": "db-bob06-gates",
+      "expect_red": "F14-N01",
+      "expect_detail": "the school's admin could edit"
+    },
+    {
+      "name": "bob06-6",
+      "gate": "db-bob06-gates",
+      "expect_red": "F14-P01",
+      "expect_detail": "the class report is not the standard assembly"
     }
   ]
 }
