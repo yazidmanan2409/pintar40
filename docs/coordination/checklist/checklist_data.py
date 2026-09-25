@@ -28,7 +28,7 @@ BASELINE = {
 META = {
     "title": "PINTAR 4.0",
     "subtitle": "End-to-End User Flow & Release Checklist",
-    "version": "v2 — 24 September 2026 (improves the 24 Sep draft)",
+    "version": "v2.1 — 25 September 2026 (status on the Integration 8 candidate; v2 of 24 Sep kept as the baseline)",
     "rows": [
         ("Baseline", "PINTAR 4.0 as built. Canonical decisions D-001…D-037 (docs/coordination/DECISIONS.md); board BOB-/DAISY- tickets (BOARD.md)."),
         ("Purpose", "Prove that every intended flow exists, can be reached, holds together end to end, and respects the role boundary — and decide whether a release may go live."),
@@ -306,6 +306,150 @@ ROLE_SECTIONS = [
 ]
 
 
+# ─────────────────────────────────────────────────────────────── status now (v2.1)
+# The same checks, re-marked against the evidence gathered since the baseline:
+# Integrations 5–8, the audit journeys (S14 the workbook upload; S17 Studio to Terbit with
+# two people; S18 the teacher assigns; S19 the student reaches the pre-test) and CI.
+# A row not listed here is unchanged from its baseline.
+NOW = {
+    "sha": "7bbbd23",
+    "label": "Integration 8 candidate",
+    "date": "25 Sep 2026",
+    "evidence": ("Integration 8 candidate 7bbbd23 (main be34191 + DAISY-06's Terbit step + BOB-05 + BOB-06): "
+                 "audit run AUDIT_RUN and CI #191. Earlier today: Integrations 5–7 on main (CI #181, #184, #186; "
+                 "audits 36062055456, 36068869059, 36069731659) and the first full D-005 journey (audit 36074652928): "
+                 "the real SD 5 Bab 1 uploaded as a workbook, taken to Terbit by two people, assigned by a teacher, "
+                 "and found by the student. Staging: 116 migrations, SD 5 Bab 1 imported whole (run 36071811494)."),
+}
+
+CURRENT = {
+    # Student
+    "STU-01": "PASS: email link and class card sign in (S1, S11), on every audit today.",
+    "STU-03": "PASS: greeted by first name only, 'Halo, Ani' (S11, DAISY-10); the empty state is clear, and with an assignment /belajar offers the next step (S19).",
+    "STU-04": "N-T: unblocked. The assignment is on /belajar (S19); the lesson page itself is not yet walked.",
+    "STU-06": "N-T: unblocked. The engine is covered by selftests; the audit does not yet press Mulai.",
+    "STU-07": "N-T: unblocked; not yet driven in the audit (selftests cover the R1 outbox).",
+    "STU-09": "N-T: unblocked; not yet driven in the audit (selftests cover the outbox).",
+    "STU-10": "N-T: unblocked; not yet driven in the audit (selftests, R1).",
+    "STU-11": "FAIL: lesson media still do not play (M9, BOB-11); the text is not yet walked.",
+    "STU-13": "PARTIAL: neither /pemetaan nor /penguasaan can answer 404 (BOB04-K01); the post-test itself is not yet walked.",
+    "STU-14": "N-T: unblocked; not yet walked.",
+    "STU-15": "N-T: unblocked; not yet walked.",
+    "STU-16": "N-T: unblocked; not yet walked.",
+    "STU-17": "N-T: unblocked; not yet walked. The lifecycle is covered by selftests (F04).",
+    "STU-18": "N-T: unblocked; not yet walked.",
+    "STU-19": "PARTIAL: Keluar on every learner screen (S11, DAISY-02); sign-out ends this device only and a card session ends after 60 minutes idle (BOB-05, BOB05-R01). The shared-tablet walk by hand is pending.",
+    # Educator
+    "EDU-05": "PASS: the teacher finds the published SD 5 Bab 1 on Siapkan and reviews it (S18).",
+    "EDU-06": "PARTIAL: assigning makes the learning assignment with both tests open (S18, BOB-04). The dates are shifted by 7 hours, so 'from today' is closed until 07:00 WIB (M10, P1): DAISY-14.",
+    "EDU-07": "N-T: unblocked (content exists); not yet walked.",
+    "EDU-12": "N-T: unblocked; no learner has answered in the audit yet.",
+    "EDU-14": "PASS: Keluar on /mengajar (S13, DAISY-02).",
+    # Head of department
+    "HOD-03": "N-T: the review queue (/studio/tinjau) is not walked; the package page's own step list is (S17).",
+    "HOD-04": "PARTIAL: the four-eyes rule holds in the browser: the author is never offered approve or lock, and a second person approves (S17, DAISY-06, BOB-03). Walked with the school admin as reviewer, not yet a Kepala departemen.",
+    "HOD-05": "PASS: 'Kunci terbitan' is its own named step with the current status shown; the lock succeeds for the second person (S17, DAISY-06).",
+    "HOD-08": "N-T: unblocked; not yet walked.",
+    "HOD-09": "PARTIAL: class figures are asked of each class (BOB-06, BOB06-K02); the department screen half is DAISY-07 (after BOB-06).",
+    "HOD-11": "PASS: Keluar on /pimpinan (S16, DAISY-02).",
+    # Dean
+    "DEA-02": "N-T: no evidence in the audit yet.",
+    "DEA-03": "FAIL: every school now has its standard reports (BOB-06), but the way in by clicking is DAISY-07.",
+    "DEA-07": "PASS: Keluar on /pimpinan (DAISY-02).",
+    # School admin
+    "ADM-03": "PASS: Bagian, Tingkat and Kelas built on the Struktur sekolah screen, no SQL (S7, DAISY-05).",
+    "ADM-09": "PARTIAL: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). A workbook saved by Microsoft Excel imports (BOB02-X01); one saved by Google Sheets is not yet delivered (D-030(d)).",
+    "ADM-10": "PARTIAL: the text, questions and media files exist (S14, S15c); media do not play (M9, BOB-11).",
+    "ADM-11": "PASS: seven named steps with the current one marked, no 'Konfirmasi' (S17, DAISY-06).",
+    "ADM-12": "PASS: published only after the content check's findings were reviewed; before that it was refused in plain words (S17). SD is preselected; the national library is not offered (S14, S15b).",
+    "ADM-13": "PASS: assigned to Kelas 1A with both tests (S18). Dates: see EDU-06 (M10).",
+    "ADM-14": "PASS: both tests are made at upload and opened on assignment (S15c, S18); no 404 by construction (BOB04-K01).",
+    "ADM-15": "N-T: the student reaches the pre-test (S19); answering is not yet driven.",
+    "ADM-16": "FAIL: the standard reports exist for every school (BOB-06); reachable by clicking only with DAISY-07.",
+    "ADM-22": "PASS: Keluar on Konfigurasi, Pendataan, Aktivasi and Studio (DAISY-02).",
+    # Public
+    "PUB-07": "PASS: PINTAR's own localized not-found (P3, DAISY-04).",
+    # Cross-role
+    "X-01": "PARTIAL: structure, staff roles, cards and intake without SQL (S3–S12; W1 skipped). A school-level place is refused at intake (S8, BOB-10) and a school admin cannot give staff roles (M2).",
+    "X-02": "PASS: the workbook upload (S14) and the real SD 5 Bab 1 whole (S15c).",
+    "X-03": "PASS: review and lock by a second person, the author never offered them (S17).",
+    "X-04": "PASS: refused until the content check's findings were reviewed, then published (S17).",
+    "X-05": "PARTIAL: the class is assigned and the eligible learner sees it (S18, S19); an ineligible learner is not yet checked.",
+    "X-07": "N-T: unblocked; not yet walked (media: M9).",
+    "X-08": "N-T: unblocked; not yet walked.",
+    "X-09": "N-T: unblocked; not yet walked.",
+    "X-10": "N-T: unblocked; not yet walked.",
+    "X-11": "N-T: unblocked; not yet walked.",
+    "X-12": "FAIL: reports reachable by clicking only with DAISY-07.",
+    "X-13": "PARTIAL: Keluar everywhere (DAISY-02); this device only and the card idle limit (BOB-05). The next-person walk on a shared device is pending.",
+    # Capacity
+    "CAP-08": "PARTIAL: the staging project exists (pintar-staging, D-036); production's compute tier is not yet matched for load.",
+    # Universal
+    "U-NAV": "PARTIAL: Aktivasi, Studio and Pimpinan are reached by clicking (S2, DAISY-03, DAISY-11); the report pages are not (DAISY-07).",
+    "U-TRUTH": "PASS: the upload creates what it says (S14); publishing refuses until ready (S17).",
+    "U-LOC": "PARTIAL: PINTAR's own localized 404 (P3). Raw English from the older content steps and other actions remains (M7, BOB-07).",
+    "U-DEVICE": "PARTIAL: Keluar everywhere (DAISY-02) and the card idle limit (BOB-05). 320 px walked on /masuk, the upload panel, activation and the step list only.",
+    "U-CONTEXT": "PASS: the school is shown and preselected in Studio (S14); class, school and year on /mengajar (S13).",
+    "U-PRIV": "PASS: no learner full name on / or /belajar (DAISY-10-SAPA-02); no existence oracle (P1).",
+    "U-ERR": "PASS: PINTAR's own error and not-found pages with a reference (DAISY-04).",
+    # Release day
+    "REL-01": "PASS for the candidate's CI when #191 is green; recorded per release.",
+    "REL-02": "FAIL: not every P0 check passes yet (see the summary).",
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). The candidate carries 117; staging holds 116 (+1 with Integration 8).",
+}
+
+CURRENT.update({
+    "STU-02": "PASS: lands on /belajar (S11, BOB-06).",
+    "STU-05": "PARTIAL: the pre-test orientation opens from /belajar (S19, after 07:00 WIB). Before 07:00 WIB a lesson assigned 'from today' is still closed (M10, DAISY-14).",
+    "EDU-01": "PASS: lands on /mengajar (S13, BOB-06).",
+    "EDU-06": "PARTIAL: assigning makes the learning assignment with both tests open (S18, BOB-04), but the window is 07:00 to 06:59 WIB instead of midnight to midnight (M10, P1; S18 FAIL): DAISY-14.",
+    "HOD-01": "PASS: lands on /pimpinan (S16, BOB-06); Studio is a tab on it (DAISY-11).",
+    "DEA-01": "PASS: lands on /pimpinan (BOB06-R01, every role redirected home; CI #191).",
+    "ADM-01": "PASS: the grant works (S4) and the school admin lands on /konfigurasi (S5, BOB-06).",
+    "SYS-01": "PASS: lands on /konfigurasi (S1, BOB-06).",
+    "X-06": "PARTIAL: the student reaches the pre-test orientation (S19); answering it is not yet driven; before 07:00 WIB it is closed (M10).",
+})
+NOW["evidence"] = NOW["evidence"].replace("AUDIT_RUN", "36075836312 (25 PASS, 1 NOTE, 2 FAIL: S8, BOB-10; S18, M10)")
+
+VERDICT_NOW = ("NO-GO. What stands between the candidate and go-live, by owner: "
+               "Daisy — DAISY-07 (reports reachable by clicking: DEA-03, ADM-16, X-12, HOD-09) and DAISY-14 (M10, the 7-hour "
+               "assignment window: EDU-06, STU-05). Bob — BOB-07 (raw English: U-LOC), BOB-10 (intake trap: ADM-07, X-01), "
+               "BOB-11 (media playback: STU-11, ADM-10), then BOB-12 before 1 Nov (CAP-01). Coordinator — extend the audit to "
+               "answer the pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. "
+               "Yazid — REL-08 and REL-09 (Supabase settings, offline key copies), and a Google Sheets workbook for ADM-09 (D-030(d)). "
+               "The live release (5b5b68d) stays as it is.")
+
+CHANGES_V21 = [
+    "A 'Now' column beside every baseline, re-marked on 25 Sep against the Integration 8 candidate (7bbbd23): "
+    "DAISY-06's Terbit step, BOB-05 and BOB-06 on top of main be34191.",
+    "The audit journey now carries D-005 end to end: S14 the workbook upload as Gladys does it; S17 the real SD 5 Bab 1 "
+    "taken to Terbit by two people, with the content check's findings reviewed first; S18 the teacher assigns it; "
+    "S19 the student reaches the pre-test.",
+    "Checks unblocked by BOB-03 and BOB-04 are N-T until the audit answers the tests; they no longer read BLOCKED.",
+    "New finding on the candidate: M10 is live. Siapkan reads the teacher's days as UTC, so an assignment opens at "
+    "07:00 WIB and closes at 06:59 WIB the day after its last (S18). DAISY-14.",
+    "Counts: the summary counts the Now column; the baseline's counts stay beside it.",
+]
+
+FINDINGS[:] = [
+    ("B1", "No screen for classes", "BOB-01; DAISY-05", "FIXED (S7)"),
+    ("B2", "Lesson upload does not work", "BOB-02; DAISY-06 upload half", "FIXED (S14, S15c)"),
+    ("B3", "No release or publish path", "BOB-03; DAISY-06 Terbit step", "FIXED on the candidate (S17)"),
+    ("B4", "Pre-test and post-test never created", "BOB-04", "FIXED: made at upload, opened on assignment (S18, S19); answering not yet driven"),
+    ("B5", "No sign-out", "DAISY-02; BOB-05", "FIXED on the candidate (Keluar everywhere; this device only; card idle 60 min)"),
+    ("B6", "Reports unreachable or empty", "(a) D-003; (b)(c) BOB-06; DAISY-07", "PARTLY FIXED: standard reports and class figures (BOB-06); the way in is DAISY-07"),
+    ("M4", "Everyone lands on the generic page", "BOB-06", "FIXED on the candidate (S1, S5, S11, S13, S16)"),
+    ("M8", "Studio defaults to the national library", "DAISY-06; D-029", "FIXED (S14, S15b)"),
+    ("M9", "Lesson media do not play", "BOB-11", "OPEN"),
+    ("M10", "Assignment window shifted by 7 hours", "DAISY-14", "OPEN (S18)"),
+    ("M11", "Unlabelled lifecycle steps", "DAISY-06 Terbit step", "FIXED on the candidate (S17)"),
+    ("M5", "Intake traps", "BOB-01 (fixed part); BOB-10", "OPEN: a school-level place (S8), staff rows"),
+    ("M7", "Raw English errors", "DAISY-04 (pages); BOB-07 (actions)", "PARTLY FIXED"),
+    ("Capacity", "Card sign-in shares the server's Auth limit; a 429 reads as a wrong PIN", "BOB-12 (contract published 25 Sep); DAISY-13", "OPEN, before 1 Nov"),
+    ("M1–M15, N2–N15", "The rest of the audit report", "BOARD backlog and tickets", "OPEN unless listed above"),
+]
+
+
 def as_dict():
     g = globals()
     return {
@@ -313,9 +457,11 @@ def as_dict():
         "ROLE_SECTIONS": [{"key": k, "title": t, "intro": i, "rows": g[k]} for k, t, i in ROLE_SECTIONS],
         "UNIVERSAL": UNIVERSAL, "RELEASE": RELEASE, "FINDINGS": FINDINGS, "RUN_RECORD": RUN_RECORD,
         "COMPLETION": COMPLETION, "SOURCES": SOURCES, "CHANGES_FROM_DRAFT": CHANGES_FROM_DRAFT,
+        "NOW": NOW, "CURRENT": CURRENT, "VERDICT_NOW": VERDICT_NOW, "CHANGES_V21": CHANGES_V21,
     }
 
 
 if __name__ == "__main__":
     import json, sys
     json.dump(as_dict(), sys.stdout, ensure_ascii=False, indent=1)
+
