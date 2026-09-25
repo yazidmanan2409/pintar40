@@ -11,6 +11,7 @@ import KartuKeputusan from "@/components/pimpinan/KartuKeputusan";
 import RingkasKesiapan from "@/components/pimpinan/RingkasKesiapan";
 import { BarisLingkup, KartuKetiadaan } from "@/components/bukti";
 import AngkaTerkelola from "@/components/pimpinan/AngkaTerkelola";
+import { lingkupAwal } from "@/components/pimpinan/lingkup";
 
 export const dynamic = "force-dynamic";
 
@@ -64,9 +65,11 @@ export default async function Pimpinan({
   }
 
   // The scope being read. A hand-edited query string is not trusted: an id that
-  // is not one of the reader's own confirmed scopes falls back to the first
-  // rather than being passed to a read.
-  const dipilih = lingkup.find((n) => n.id === sp.lingkup) ?? lingkup[0];
+  // is not one of the reader's own confirmed scopes falls back to the default
+  // rather than being passed to a read. The default is the broadest of them
+  // (DAISY-07): a head of department opens on the department, not on a class
+  // inside it that happens to sort first.
+  const dipilih = lingkupAwal(lingkup, sp.lingkup) ?? lingkup[0];
 
   // DAISY-07 (B6c): a class figure is asked of a class. Standing above the
   // classes, each class of the branch answers for itself (BOB-06's

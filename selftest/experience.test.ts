@@ -102,6 +102,7 @@ import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src
 import { sekolahDitawarkan, sekolahDipilih, type SekolahBaris } from "../src/components/sekolah";
 import { kunciGagal, isianKurang, surelLengkap, GALAT_RUTE, type ModeAktivasi, type JawabanAktivasi } from "../src/components/aktivasi/hasil";
 import { SYARAT_METRIK, kunciMuncul } from "../src/components/bukti/muncul";
+import { lingkupAwal } from "../src/components/pimpinan/lingkup";
 import type { DisplayRole } from "../src/lib/auth";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
@@ -9429,9 +9430,28 @@ export const experienceTests: SelfTest[] = [
        *    the dean and the head of department, who never see Konfigurasi: the
        *    school summary where the reader may read a school figure, a class's
        *    summary at that class and inside each class they may read, and
-       *    never a link into a page of refusals.
+       *    never a link into a page of refusals. And Pimpinan opens on the
+       *    reader's BROADEST scope, so a head of department who also holds a
+       *    class inside the department lands on the department (CI #194 found
+       *    "5A" sorting before "Matematika" on the seed).
        */
       const pimpinan = code(readFileSync(join(repoRoot, "src", "app", "pimpinan", "page.tsx"), "utf8"));
+      {
+        const akar = "00000000-0000-4000-8000-0000000000a1";
+        const dept = { id: "00000000-0000-4000-8000-0000000000d1", nama: "Matematika", jalur: [akar, "00000000-0000-4000-8000-0000000000d1"] };
+        const kelas5 = { id: "00000000-0000-4000-8000-0000000000c1", nama: "5A", jalur: [akar, dept.id, "00000000-0000-4000-8000-0000000000c1"] };
+        const lain = { id: "00000000-0000-4000-8000-0000000000d2", nama: "Bahasa", jalur: [akar, "00000000-0000-4000-8000-0000000000d2"] };
+        const urut = [kelas5, dept]; // as lingkupPimpinan returns them: by name
+        const lama = (l: typeof urut, d?: string) => l.find((n) => n.id === d) ?? l[0];
+        c.expect(lingkupAwal(urut)?.id === dept.id && lama(urut)?.id === kelas5.id,
+          "Pimpinan does not open a head of department on the department when a class inside it sorts first (the old rule, the control, must pick the class)");
+        c.expect(lingkupAwal(urut, kelas5.id)?.id === kelas5.id && lingkupAwal(urut, "00000000-0000-4000-8000-0000000000ff")?.id === dept.id,
+          "a scope asked for by id is not honoured, or an id outside the reader's scopes is");
+        c.expect(lingkupAwal([lain, dept])?.id === lain.id && lingkupAwal([{ ...kelas5, jalur: [] }, dept])?.id === kelas5.id
+          && lingkupAwal([]) === undefined,
+          "two unrelated scopes, or a scope without a path, are not left in their given order");
+        c.expect(/const dipilih = lingkupAwal\(lingkup, sp\.lingkup\) \?\? lingkup\[0\];/.test(pimpinan), "Pimpinan does not choose its scope with lingkupAwal");
+      }
       c.expect(/const diKelas = dipilih\.kind === "CLASS";/.test(pimpinan)
         && /diKelas \? Promise\.resolve\(\[\] as pim\.BuktiKelas\[\]\) : pim\.buktiPerKelas\(dipilih\.id\)/.test(pimpinan),
         "Pimpinan does not ask each class of the branch for its own figures");
@@ -9490,7 +9510,9 @@ export const experienceTests: SelfTest[] = [
         "how far and adds what; a refusal and a retired measure add nothing. Pimpinan asks each class of the branch for itself " +
         "and draws it as a disclosure; both summaries say what will make a figure appear; Konfigurasi links the school summary " +
         "at its root and each active Kelas's; Pimpinan links the school summary where the reader may read a school figure and " +
-        "a class's summary at that class and inside each class they may read, each link with the parameter its page reads",
+        "a class's summary at that class and inside each class they may read, each link with the parameter its page reads; " +
+        "Pimpinan opens on the reader's broadest scope, so a head of department holding a class inside the department opens on " +
+        "the department (the old first-by-name rule is the control)",
       );
     },
   },
