@@ -1,5 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { t, type HleEvent } from "@/lib/hle";
+import { kalimatHasil, type QueryHasil } from "@/lib/galat-kontrak";
 
 /**
  * Studio shared helpers (FABLE-05).
@@ -72,11 +73,14 @@ export function can(inst: StudioInstitution | undefined, capability: string): bo
   return inst?.capabilities.includes(capability) ?? false;
 }
 
-/** A result banner carried back from a server action, never an exception page. */
-export function outcomeLine(hasil?: string, detail?: string): string | null {
-  if (!hasil) return null;
-  if (hasil === "ok") return detail ? detail : s("studio.hasil.ok");
-  return detail ? `${s("studio.hasil.gagal")} ${detail}` : s("studio.hasil.gagal");
+/**
+ * A result banner carried back from a server action, never an exception page.
+ * BOB-07 (D-011): the action sends a code (and a reference for a failure
+ * nobody named); the sentence is the copy table's. Nothing typed into the
+ * address reaches the banner: an unknown code, reference or count is dropped.
+ */
+export function outcomeLine(q: QueryHasil): string | null {
+  return kalimatHasil(q, s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" });
 }
 
 export const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");

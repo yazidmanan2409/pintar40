@@ -289,6 +289,25 @@ jobs:
           grep -E '^F06-S07 +FAIL' r4.txt
           grep -F 'zz_rogue_fixture.sql' r4.txt
           rm -f supabase/seed/zz_rogue_fixture.sql
+
+          # 5. BOB-16: a reader that returns Google Sheets' stored N.0 as it is.
+          #    BOB02-X01 must go red on the Google Sheets copy of the sample.
+          node -e 'const fs=require("fs");const f="src/lib/xlsx.ts";const s=fs.readFileSync(f,"utf8");const t=s.split("\n").filter(l=>!(l.includes("jenis === null") && l.includes("teks.replace"))).join("\n");if(t===s)process.exit(3);fs.writeFileSync(f,t)'
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=BOB02-X01 | tee r5.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::BOB02-X01 stayed green with a reader that keeps N.0"; exit 1; }
+          grep -E '^BOB02-X01 +FAIL' r5.txt
+          grep -F "contoh-gsheets.xlsx's Bab sheet does not hold the cells" r5.txt
+          git checkout -- src/lib/xlsx.ts
+
+          # 6. BOB-07: a server action that sends the database's words back in a
+          #    redirect. BOB07-K01 must go red and name the file.
+          mkdir -p src/app/redcase3
+          printf '"use server";\nexport async function a() { const { error } = await x(); back("s", { ok: false, detail: error.message }); }\n' > src/app/redcase3/actions.ts
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=BOB07-K01 | tee r6.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::BOB07-K01 stayed green with database words sent back in a redirect"; exit 1; }
+          grep -E '^BOB07-K01 +FAIL' r6.txt
+          grep -F 'src/app/redcase3/actions.ts:2 lets .message leave the server' r6.txt
+          rm -rf src/app/redcase3
       - name: The INV-20 lint must catch a planted raw-evidence read
         if: matrix.case == 'static-raw-evidence-read'
         run: |

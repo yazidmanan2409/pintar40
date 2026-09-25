@@ -252,6 +252,11 @@ function bacaLembar(xml: string, teksBersama: string[]): string[][] {
     else if (jenis === "b") teks = nilai === "1" ? "TRUE" : nilai === "0" ? "FALSE" : "";
     else if (jenis === "e") teks = "";
     else teks = nilai !== undefined ? uraiTeks(nilai) : "";
+    // BOB-16 (D-030(d)): Google Sheets stores a whole number as 1.0 where
+    // Excel stores 1. A NUMBER cell (no type, or "n") that is whole reads as
+    // the author saw it; a fraction, a formula's text ("str") and typed text
+    // ("s", "inlineStr") keep exactly what was stored.
+    if ((jenis === null || jenis === "n") && /^-?\d+\.0+$/.test(teks)) teks = teks.replace(/\.0+$/, "").replace(/^-0$/, "0");
     // A line break in a cell is a line break, whichever application wrote it:
     // Excel stores one as _x000D_ and a newline (CR LF), openpyxl and Sheets
     // as a newline alone. One form reaches the package, so the same workbook

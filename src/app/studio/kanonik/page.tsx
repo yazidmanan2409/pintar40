@@ -16,7 +16,7 @@ import { grantDistributionAction, withdrawDistributionAction } from "../actions"
  * learners already working continue, new sessions do not open (INV-27).
  */
 
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Kanonik({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -37,7 +37,7 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
     distribution_status: string; authorized_at: string; withdrawn_at: string | null;
   }>;
 
-  const banner = outcomeLine(sp.hasil, sp.detail);
+  const banner = outcomeLine(sp);
 
   // The grant form appears only for a caller the database would accept: a
   // system administrator, or a publisher in a canonical tenant.

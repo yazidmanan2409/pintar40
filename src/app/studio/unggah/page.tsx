@@ -30,7 +30,7 @@ import { confirmMappingAction, easyUploadAction, structuredImportAction } from "
  * Both the panel and the JSON forms offer that same list, labelled "Sekolah".
  */
 
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Unggah({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -48,7 +48,7 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
     .order("created_at", { ascending: false })
     .limit(10);
 
-  const banner = outcomeLine(sp.hasil, sp.detail);
+  const banner = outcomeLine(sp);
   const pending = (batches ?? []).filter(
     (b) => b.confirmed_at === null && Array.isArray(b.open_questions) && b.open_questions.length > 0,
   );
