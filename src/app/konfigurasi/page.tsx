@@ -54,7 +54,7 @@ type MetricDefinition = {
   deprecated: boolean;
 };
 
-type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string }>;
+type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
@@ -97,7 +97,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha").order("at", { ascending: false }).limit(50),
     supabase.from("feature_flags").select("key, institution_id, enabled, note").order("key"),
     supabase.from("platform_config").select("key, value"),
-    isSys ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null }),
+    // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
+    // on an ordinary load -- it reads the whole catalogue, and every sign-in of
+    // the platform admin lands here.
+    isSys && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null }),
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
   ]);
 
@@ -222,7 +225,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <div className={card}>
           <p className="text-sm text-ink-3">{s("config.card.health")}</p>
-          {lintOk === null ? <p className="mt-1 text-ink-2">—</p> : (
+          {lintOk === null ? (
+            isSys === true ? (
+              <Link href="/konfigurasi?periksa=skema" className={`mt-1 inline-block ${tautanTempat}`}>{s("config.card.health.periksa")}</Link>
+            ) : <p className="mt-1 text-ink-2">—</p>
+          ) : (
             <p className={`mt-1 inline-block rounded px-2 py-0.5 ${lintOk ? "bg-ok-soft text-ok" : "bg-blocked-soft text-blocked"}`}>
               {lintOk ? "Semua pemeriksaan lolos" : "Perlu perhatian"}
             </p>

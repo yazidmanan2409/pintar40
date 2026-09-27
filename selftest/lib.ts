@@ -30,6 +30,8 @@ export type Context = {
   supabaseServiceRoleKey: string | null;
   /** Upstream CI job results forwarded by the workflow (facility `ci`). */
   ciUpstream: Record<string, string> | null;
+  /** BOB-18: the running app's Supabase calls, one `METHOD /path` line each (present with facility `app`). */
+  fetchLog?: string | null;
 };
 
 export function pass(detail: string): Verdict {

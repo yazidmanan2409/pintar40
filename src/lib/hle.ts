@@ -225,6 +225,7 @@ export type HleEvent =
   | "laporan.templat.tak_berwenang"
   | "laporan.templat.batas"
   | "config.card.health"
+  | "config.card.health.periksa"
   | "config.card.cohorts"
   | "config.placeholder"
   | "config.environment"
@@ -1810,6 +1811,7 @@ const table: Table = {
   "laporan.templat.tak_berwenang": { default: "Menyusun templat laporan memerlukan wewenang pengelola institusi.", en: "Assembling a report template requires institution administrator authority." },
   "laporan.templat.batas": { default: "Satu templat menampilkan paling banyak 12 metrik.", en: "One template shows at most 12 metrics." },
   "config.card.health": { default: "Kesehatan sistem", en: "System health" },
+  "config.card.health.periksa": { default: "Jalankan pemeriksaan", en: "Run the checks" },
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
   "config.placeholder": { default: "Bagian ini akan terisi pada tahap berikutnya.", en: "This section is filled in at a later phase." },
   "config.environment": { default: "Lingkungan", en: "Environment" },

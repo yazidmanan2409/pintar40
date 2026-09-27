@@ -431,6 +431,93 @@ begin
   if txt is not null then ok := false; detail := detail || format('malformed header stored as %s; ', txt); end if;
   test_id := 'F01-T19'; invariant := 'INV-18 build_sha'; if ok then detail := 'header SHA stamped; malformed header rejected'; end if; return next;
 
+  -- F01-T20 BOB-18 (D-046): the learner-RPC assert gives its verdict in bounded
+  -- time. It took 26.9 s on staging's 344 functions (one regex per pair of
+  -- functions) against the 8 s statement_timeout, so the lint that runs it
+  -- answered 500. Timed on this database's whole schema first, then the same
+  -- verdict on four planted entry points, rolled back.
+  perform selftest.as_owner();
+  ok := true; detail := '';
+  declare t1 timestamptz; ms numeric; v_ok boolean; v_detail text;
+  begin
+    t1 := clock_timestamp();
+    select a.ok, a.detail into v_ok, v_detail from public.assert_learner_rpcs_are_guarded() a;
+    ms := round(extract(epoch from clock_timestamp() - t1) * 1000);
+    if not v_ok then ok := false; detail := detail || v_detail || '; '; end if;
+    if ms > 2000 then ok := false; detail := detail || format('the assert took %s ms over %s functions; the bound is 2000 ms; ', ms,
+      (select count(*) from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace where ns.nspname = 'public' and p.prokind = 'f')); end if;
+    begin
+      -- no ownership check anywhere
+      execute $f$create function public.selftest_b18_tanpa(p uuid) returns int language plpgsql
+        set search_path = public, pg_temp as $b$ begin return 1; end $b$ $f$;
+      -- guarded two calls down
+      execute $f$create function public.selftest_b18_tengah(p uuid) returns boolean language plpgsql
+        set search_path = public, pg_temp as $b$ begin return public.session_is_mine(p); end $b$ $f$;
+      execute $f$create function public.selftest_b18_rantai(p uuid) returns int language plpgsql
+        set search_path = public, pg_temp as $b$ begin if not public.selftest_b18_tengah(p) then return 0; end if; return 1; end $b$ $f$;
+      -- the checks named only in comments
+      execute $f$create function public.selftest_b18_komentar(p uuid) returns int language plpgsql
+        set search_path = public, pg_temp as $b$ begin
+          -- session_is_mine(p)
+          /* current_person_id() */
+          return 1; end $b$ $f$;
+      -- a longer word that begins with the check's name
+      execute $f$create function public.selftest_b18_awalan(p uuid) returns int language plpgsql
+        set search_path = public, pg_temp as $b$ declare current_person_id_lain uuid; begin current_person_id_lain := p; return 1; end $b$ $f$;
+      insert into public.client_rpc_registry values
+        ('selftest_b18_tanpa', 'LEARNER', 'planted'), ('selftest_b18_rantai', 'LEARNER', 'planted'),
+        ('selftest_b18_komentar', 'LEARNER', 'planted'), ('selftest_b18_awalan', 'LEARNER', 'planted');
+      select a.ok, a.detail into v_ok, v_detail from public.assert_learner_rpcs_are_guarded() a;
+      raise exception 'F01_T20_ROLLBACK';
+    exception when others then
+      if sqlerrm <> 'F01_T20_ROLLBACK' then ok := false; detail := detail || 'plant failed: ' || sqlerrm || '; '; end if;
+    end;
+    if v_ok or v_detail is distinct from
+       'LEARNER RPC(s) that never reach an ownership check: selftest_b18_awalan, selftest_b18_komentar, selftest_b18_tanpa' then
+      ok := false; detail := detail || format('planted verdict %s: %s; ', v_ok, v_detail);
+    end if;
+    if ok then detail := format('the whole schema in %s ms; of four planted entry points, the one guarded two calls down passes '
+      || 'and the unguarded one, the one naming the checks only in comments and the one using a longer word are named', ms); end if;
+  end;
+  test_id := 'F01-T20'; invariant := 'INV-09 / D-046'; return next;
+
+  -- F01-T21 BOB-18 (D-046): Studio's one capability call answers what asking
+  -- can_in_institution once per school and capability answers, for every
+  -- synthetic persona. The reference asks about EVERY school, so a school the
+  -- function's own candidate list left out would show here.
+  perform selftest.as_owner();
+  ok := true; detail := '';
+  declare
+    caps text[] := array['CAN_DRAFT','CAN_REVIEW','CAN_FREEZE_RELEASE','CAN_PUBLISH','CAN_ASSIGN_LEARNING',
+                         'CAN_REVIEW_QUESTION_HEALTH','CAN_REVIEW_INTEGRITY','CAN_QUICK_ASSESSMENT'];
+    semua uuid[]; v_email text; a jsonb; b jsonb; n_orang int := 0; n_isi int := 0;
+  begin
+    select array_agg(i.id order by i.id) into semua from public.institutions i;
+    for v_email in select u.email from auth.users u where u.email like '%@synthetic.pintar.test' order by u.email loop
+      perform selftest.as_user(v_email);
+      select coalesce(jsonb_agg(jsonb_build_array(s.institution_id, s.capabilities) order by s.institution_id), '[]'::jsonb)
+        into a from public.studio_capabilities(caps) s;
+      select coalesce(jsonb_agg(jsonb_build_array(h.id, h.dipegang) order by h.id), '[]'::jsonb) into b
+        from (select x.id, array_agg(c.cap order by c.nomor) as dipegang
+                from unnest(semua) as x(id) cross join unnest(caps) with ordinality as c(cap, nomor)
+               where public.can_in_institution(c.cap, x.id)
+               group by x.id) h;
+      n_orang := n_orang + 1;
+      if jsonb_array_length(a) > 0 then n_isi := n_isi + 1; end if;
+      if a is distinct from b then ok := false; detail := detail || format('%s: studio_capabilities %s, can_in_institution %s; ', v_email, a, b); end if;
+    end loop;
+    perform selftest.as_anon();
+    begin
+      perform 1 from public.studio_capabilities(caps);
+      ok := false; detail := detail || 'anon called studio_capabilities; ';
+    exception when insufficient_privilege then null; end;
+    perform selftest.as_owner();
+    if n_isi = 0 then ok := false; detail := detail || 'no persona holds a Studio capability, so this proves nothing; '; end if;
+    if ok then detail := format('%s personas, %s holding a Studio capability: each gets exactly the schools and capabilities '
+      || 'can_in_institution grants when asked about every school; anon cannot call it', n_orang, n_isi); end if;
+  end;
+  test_id := 'F01-T21'; invariant := 'INV-37 / D-046'; return next;
+
   perform selftest.as_owner();
   test_id := 'F01-DONE'; invariant := '-'; ok := true; detail := format('elapsed %s ms', round(extract(epoch from clock_timestamp() - t0) * 1000)); return next;
 end $$;

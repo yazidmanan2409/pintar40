@@ -17,7 +17,8 @@
  *          Supabase project's HTTP surface when reachable)
  */
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { staticTests } from "./static.test";
 import { appTests } from "./app.test";
@@ -520,13 +521,27 @@ async function runDbConcurrency(dbUrl: string): Promise<Outcome> {
 }
 
 // ---------------------------------------------------------------- app process
+const FETCH_LOG = join(tmpdir(), `pintar-selftest-fetch-${process.pid}.log`);
 async function startApp(port: number): Promise<{ child: ChildProcess; url: string }> {
   if (!existsSync(join(repoRoot, ".next", "BUILD_ID"))) {
     log("  building production bundle (.next/BUILD_ID missing)…");
     const b = spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: repoRoot, stdio: "inherit", env: process.env });
     if (b.status !== 0) throw new Error("next build failed");
   }
-  const child = spawn(process.execPath, [NEXT_BIN, "start", "-p", String(port)], { cwd: repoRoot, env: { ...process.env, NODE_ENV: "production" }, stdio: ["ignore", "pipe", "pipe"] });
+  // BOB-18 (D-046): the app's calls to Supabase are counted, path only, into
+  // FETCH_LOG, so a test can read what one click cost (selftest/hitung-fetch.cjs).
+  writeFileSync(FETCH_LOG, "");
+  const preload = `--require ${join(repoRoot, "selftest", "hitung-fetch.cjs")}`;
+  const child = spawn(process.execPath, [NEXT_BIN, "start", "-p", String(port)], {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      NODE_ENV: "production",
+      SELFTEST_FETCH_LOG: FETCH_LOG,
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, preload].filter(Boolean).join(" "),
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   let logs = "";
   child.stdout?.on("data", (d) => (logs += d));
   child.stderr?.on("data", (d) => (logs += d));
@@ -629,6 +644,7 @@ async function main() {
     supabaseAnonKey: facilities.has("network") ? anon! : null,
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? null,
     ciUpstream,
+    fetchLog: app ? FETCH_LOG : null,
   };
   try {
     log("\n[static] selftest/static.test.ts");

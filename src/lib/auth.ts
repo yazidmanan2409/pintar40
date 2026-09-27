@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export type DisplayRole =
@@ -13,8 +14,13 @@ export type Viewer = {
 /**
  * Who is signed in, as the database sees them (my_profile view under RLS).
  * `displayRole` is display only — never used as authority (FABLE-01 §4).
+ *
+ * ONCE PER REQUEST (BOB-18, D-046). A layout, its page and the session strip
+ * each ask; React's `cache` answers the second and third from the first, so a
+ * click asks Auth for the user and reads the profile once. The cache lives
+ * for one server render and is never shared between requests or people.
  */
-export async function currentViewer(): Promise<Viewer | null> {
+export const currentViewer = cache(async (): Promise<Viewer | null> => {
   const supabase = await supabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
@@ -25,14 +31,14 @@ export async function currentViewer(): Promise<Viewer | null> {
     displayName: data?.display_name ?? null,
     displayRole: (data?.display_role as DisplayRole) ?? null,
   };
-}
+});
 
-/** Authority checks always go to the shared database primitives (doc 05). */
-export async function isSystemAdmin(): Promise<boolean> {
+/** Authority checks always go to the shared database primitives (doc 05). Asked once per request. */
+export const isSystemAdmin = cache(async (): Promise<boolean> => {
   const supabase = await supabaseServer();
   const { data } = await supabase.rpc("is_system_admin");
   return data === true;
-}
+});
 
 export async function hasScope(minRole: Exclude<DisplayRole, null>, nodeId: string): Promise<boolean> {
   const supabase = await supabaseServer();
