@@ -22,14 +22,9 @@ export type Viewer = {
  */
 export const currentViewer = cache(async (): Promise<Viewer | null> => {
   const supabase = await supabaseServer();
-  // Side by side: my_profile is read under the same session's RLS, so it
-  // needs nothing from the user check but the cookie both already carry; a
-  // session Auth refuses is null either way.
-  const [{ data: { user } }, { data }] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase.from("my_profile").select("person_id, display_name, display_role").maybeSingle(),
-  ]);
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
+  const { data } = await supabase.from("my_profile").select("person_id, display_name, display_role").maybeSingle();
   return {
     authUserId: user.id,
     personId: data?.person_id ?? null,
