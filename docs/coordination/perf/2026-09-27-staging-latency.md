@@ -32,6 +32,13 @@ So after the link is clicked, about 10 s pass before the first screen, and about
 | Konfigurasi (platform admin) | 21–54 | at least 8.3 s |
 | Studio | 62–141 (2–4 runs of the 24 checks) | 13–25 s |
 
+## Writes (added 27 Sep, from the synthetic setup; D-046(e))
+
+- **What happened:** "Berikan peran" (Konfigurasi → Peran & akses), as the platform admin, took **about 10–15 s**, with nothing on screen to show the click had registered. The database then held **two identical active grants**, a double submit.
+- **Why it took so long:** the action is one `grant_role` call. It then redirects to `/konfigurasi?bagian=roles`, and that full re-render includes the lint's 8.3 s timeout.
+- **Why it saved twice:** the button is a plain `<button>` in a server-action form, with no pending or disabled state, and nothing in the database refuses a duplicate active grant.
+- **Tickets:** BOB-18 (e) and DAISY-17.
+
 ## Not the cause
 - **Supabase itself:** the same calls take about 19 ms from Singapore.
 - **The browser:** only 2 of 406 calls came from it.

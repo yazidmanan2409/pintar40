@@ -564,6 +564,13 @@ VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-09", "Bob — BOB-18 first (U-PER
 CHANGES_V21.append("27 Sep: U-PERF added as a must-pass check (D-046): responsive is part of PASS. It FAILs on today's evidence; BOB-18 is next for Bob.")
 
 
+# --- 27 Sep, later: writes are part of U-PERF (D-046(e)) ---
+UNIVERSAL[:] = [(u[0], u[1] + " A click that saves is acknowledged at once and cannot be submitted twice; representative writes are timed.", u[2], u[3])
+                if u[0] == "U-PERF" else u for u in UNIVERSAL]
+CURRENT["U-PERF"] = CURRENT["U-PERF"].replace(" BOB-18.", " Writes: \"Berikan peran\" took 10–15 s with no sign of progress, and a second click left a duplicate grant. BOB-18, DAISY-17.")
+VERDICT_NOW = VERDICT_NOW.replace("Coordinator —", "Daisy — DAISY-17 (a click that saves says so at once and saves once: U-PERF). Coordinator —", 1)
+
+
 def as_dict():
     g = globals()
     return {

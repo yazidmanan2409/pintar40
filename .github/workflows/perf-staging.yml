@@ -1,0 +1,91 @@
+name: perf · staging (U-PERF, D-046)
+
+# Measures staging as a person uses it (D-046). Dispatch only; it reads, it never writes.
+#   probe: where the server code actually runs (Vercel's x-vercel-id: edge::function::id) and the
+#          time to first byte of a few server-rendered pages, three times each (the first may be a cold start).
+#   region: what Vercel says each project is configured with, and which regions the latest staging
+#          deployment was built for (read-only API; only fields whose names mention "region" are printed).
+# The per-click journeys and the concurrency run are added to this workflow as further modes.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "What to measure"
+        type: choice
+        options: [probe, region]
+        default: probe
+
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-staging
+  cancel-in-progress: false
+
+env:
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+
+jobs:
+  probe:
+    if: ${{ inputs.mode == 'probe' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Where the server code runs, and how long the first byte takes
+        run: |
+          set -euo pipefail
+          printf '%-22s %-4s %-9s %-9s %s\n' path http ttfb_s total_s x-vercel-id
+          for path in /masuk "/masuk?peran=staf" /; do
+            for i in 1 2 3; do
+              out=$(curl -sS -o /dev/null -D /tmp/h -w '%{http_code} %{time_starttransfer} %{time_total}' "$STAGING_ORIGIN$path")
+              id=$(grep -i '^x-vercel-id:' /tmp/h | cut -d' ' -f2 | tr -d '\r' || true)
+              read -r code ttfb total <<<"$out"
+              printf '%-22s %-4s %-9s %-9s %s\n' "$path" "$code" "$ttfb" "$total" "${id:-none}"
+            done
+          done
+          echo
+          echo "x-vercel-id reads edge::function::request. A function region of sin1 means the server code runs in Singapore, beside Supabase."
+
+  region:
+    if: ${{ inputs.mode == 'region' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      PROJECTS: pintar40-staging pintar40
+    steps:
+      - name: Region settings per project, and the latest staging deployment's regions
+        run: |
+          set -euo pipefail
+          [ -n "${VERCEL_TOKEN:-}" ] || { echo "::error::VERCEL_TOKEN is not set"; exit 1; }
+          python3 - <<'PY'
+          import json, os, urllib.request
+          tok = os.environ['VERCEL_TOKEN']
+          def get(path):
+              req = urllib.request.Request('https://api.vercel.com' + path, headers={'Authorization': 'Bearer ' + tok})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.load(r)
+          def regions(o, path=''):
+              out = []
+              if isinstance(o, dict):
+                  for k, v in o.items():
+                      p = f'{path}.{k}' if path else k
+                      if 'region' in k.lower() and not isinstance(v, dict):
+                          out.append((p, v))
+                      out += regions(v, p)
+              elif isinstance(o, list):
+                  for i, v in enumerate(o):
+                      out += regions(v, f'{path}[{i}]')
+              return out
+          for proj in os.environ['PROJECTS'].split():
+              p = get(f'/v9/projects/{proj}')
+              print(f'== project {proj} (framework {p.get("framework")}, fluid {p.get("resourceConfig", {}).get("fluid")})')
+              for k, v in regions(p):
+                  print(f'   {k} = {v}')
+              d = get(f'/v6/deployments?projectId={p["id"]}&limit=1').get('deployments', [])
+              if d:
+                  dep = get(f'/v13/deployments/{d[0]["uid"]}')
+                  print(f'   latest deployment {dep.get("id")} created {dep.get("createdAt")} target {dep.get("target")} state {dep.get("readyState")}')
+                  for k, v in regions(dep):
+                      print(f'   deployment.{k} = {v}')
+          PY
