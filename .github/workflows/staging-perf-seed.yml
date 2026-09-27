@@ -19,7 +19,8 @@ env:
   STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
   PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
   SCHOOL_SLUG: uji-kinerja
-  ADMIN_EMAIL: uji-kinerja-admin@example.com
+  # as created on Gladys's screen, 27 Sep (a typo for example.com); deactivated with the synthetic school after U-PERF
+  ADMIN_EMAIL: uji-kinerja-admin@example.co
   GURU_NAME: Uji Kinerja Guru (sintetis)
   YEAR: 2026/2027
 
