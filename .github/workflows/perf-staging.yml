@@ -1,0 +1,45 @@
+name: perf · staging (U-PERF, D-046)
+
+# Measures staging as a person uses it (D-046). Dispatch only; it reads, it never writes.
+#   probe: where the server code actually runs (Vercel's x-vercel-id: edge::function::id) and the
+#          time to first byte of a few server-rendered pages, three times each (the first may be a cold start).
+# The per-click journeys and the concurrency run are added to this workflow as further modes.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "What to measure"
+        type: choice
+        options: [probe]
+        default: probe
+
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-staging
+  cancel-in-progress: false
+
+env:
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+
+jobs:
+  probe:
+    if: ${{ inputs.mode == 'probe' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Where the server code runs, and how long the first byte takes
+        run: |
+          set -euo pipefail
+          printf '%-22s %-4s %-9s %-9s %s\n' path http ttfb_s total_s x-vercel-id
+          for path in /masuk "/masuk?peran=staf" /; do
+            for i in 1 2 3; do
+              out=$(curl -sS -o /dev/null -D /tmp/h -w '%{http_code} %{time_starttransfer} %{time_total}' "$STAGING_ORIGIN$path")
+              id=$(grep -i '^x-vercel-id:' /tmp/h | cut -d' ' -f2 | tr -d '\r' || true)
+              read -r code ttfb total <<<"$out"
+              printf '%-22s %-4s %-9s %-9s %s\n' "$path" "$code" "$ttfb" "$total" "${id:-none}"
+            done
+          done
+          echo
+          echo "x-vercel-id reads edge::function::request. A function region of sin1 means the server code runs in Singapore, beside Supabase."
