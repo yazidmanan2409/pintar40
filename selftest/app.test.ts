@@ -2150,7 +2150,9 @@ export const appTests: SelfTest[] = [
         if (!c.expect(r.status === 200, `${peran} ${jalan} → ${r.status}`)) continue;
         const nav = tabs(await r.text());
         c.expect(nav.length > 0, `${peran} ${jalan}: the page has no tabs`);
-        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>${t("nav.studio", "staff")}</a>`).test(nav), `${peran} ${jalan}: no Studio tab`);
+        // DAISY-18: a menu link carries its working dot, an empty span at rest
+        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>${t("nav.studio", "staff")}(?:<span aria-hidden="true" class="pin-tanda-tautan"></span>)?</a>`).test(nav),
+          `${peran} ${jalan}: no Studio tab`);
       }
       const dekan = await signIn(ctx, PERSONA.dean);
       const p = await get(`${base}/pimpinan`, { headers: { cookie: dekan.cookie } });
