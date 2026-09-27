@@ -132,6 +132,9 @@ jobs:
           import sys
           print('::add-mask::' + svc, file=sys.stderr, flush=True)
           print(f'SERVICE_KEY={svc}')
+          anon = next(k['api_key'] for k in keys if k.get('name') == 'anon' and (k.get('api_key') or '').startswith('eyJ'))
+          print('::add-mask::' + anon, file=sys.stderr, flush=True)
+          print(f'ANON_KEY={anon}')
           print(f'SUPABASE_URL=https://{ref}.supabase.co')
           PY
       - name: The journey, timed

@@ -8,24 +8,47 @@ import { chromium } from "playwright";
 const APP = process.env.STAGING_ORIGIN;
 const SB = process.env.SUPABASE_URL;
 const SERVICE = process.env.SERVICE_KEY;
+const ANON = process.env.ANON_KEY;
 const REPS = Number(process.env.REPS || 2);
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const GURU_EMAIL = process.env.GURU_EMAIL;
-const SLOW = 60000;
+const SLOW = 30000;
 
 const out = [];
 function line(o) { out.push(o); console.log(JSON.stringify(o)); }
 
-async function link(email) {
-  const r = await fetch(`${SB}/auth/v1/admin/generate_link`, {
+// PINTAR's callback completes a sign-in only with the ?code= its own /masuk started (PKCE), and the real
+// form would email the synthetic addresses. So the session is made on the server (Auth's verify, as
+// staging-perf-seed does) and set as PINTAR's own session cookie (@supabase/ssr: sb-<ref>-auth-token,
+// "base64-" + base64url(JSON), chunked at 3180); the timed step is opening "/" until the reader's home is
+// usable. The callback's one code exchange is the only part of a real sign-in not timed here.
+const REF = new URL(SB).hostname.split(".")[0];
+async function session(email) {
+  const g = await fetch(`${SB}/auth/v1/admin/generate_link`, {
     method: "POST",
     headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "magiclink", email, redirect_to: `${APP}/auth/callback` }),
+    body: JSON.stringify({ type: "magiclink", email }),
   });
-  const j = await r.json();
-  const url = j.action_link || j.properties?.action_link;
-  if (!url) throw new Error(`no sign-in link (HTTP ${r.status})`);
-  return url;
+  const gj = await g.json();
+  const th = gj.hashed_token || gj.properties?.hashed_token;
+  if (!th) throw new Error(`no sign-in token (HTTP ${g.status})`);
+  const v = await fetch(`${SB}/auth/v1/verify`, {
+    method: "POST", headers: { apikey: ANON, "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "magiclink", token_hash: th }),
+  });
+  const sj = await v.json();
+  if (!sj.access_token) throw new Error(`verify failed (HTTP ${v.status})`);
+  return sj;
+}
+function sessionCookies(sess) {
+  const key = `sb-${REF}-auth-token`;
+  const value = "base64-" + Buffer.from(JSON.stringify(sess)).toString("base64url");
+  const host = new URL(APP).hostname;
+  const base = { domain: host, path: "/", secure: true, sameSite: "Lax", httpOnly: false };
+  if (value.length <= 3180) return [{ ...base, name: key, value }];
+  const out = [];
+  for (let i = 0, n = 0; i < value.length; i += 3180, n++) out.push({ ...base, name: `${key}.${n}`, value: value.slice(i, i + 3180) });
+  return out;
 }
 
 function watch(page) {
@@ -44,13 +67,15 @@ async function step(page, seen, role, rep, name, act) {
   let ok = true, note = "";
   try { note = (await act()) || ""; } catch (e) { ok = false; note = String(e.message || e).slice(0, 200); }
   const t1 = Date.now();
-  const fn = seen.slice(before).filter((s) => s.id.includes("::"));
+  const fn = seen.slice(before).filter((s) => s.id.split("::").length === 3);
   line({ role, rep, step: name, ok, ms: t1 - t0, start, end: new Date(t1).toISOString(),
          vercel_function_responses: fn.length, regions: [...new Set(fn.map((s) => s.id.split("::")[1]))], note });
+  // a failed step leaves the page somewhere else: the rest of this journey would only time out
+  if (!ok) throw new Error(`stopped after "${name}"`);
 }
 
 async function usable(page, path) {
-  await page.waitForURL((u) => u.pathname === path, { timeout: SLOW });
+  await page.waitForURL((u) => u.pathname === path, { timeout: SLOW, waitUntil: "commit" });
   await page.locator("h1").first().waitFor({ state: "visible", timeout: SLOW });
 }
 
@@ -62,10 +87,12 @@ async function clickTo(page, href, path = href.split("?")[0]) {
 }
 
 async function signIn(page, email, landing) {
-  await page.goto(await link(email), { timeout: SLOW });
-  await page.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: SLOW });
+  await page.context().addCookies(sessionCookies(await session(email)));
+  const t = Date.now();
+  // where the callback's own redirect (tujuanMasuk) sends this reader; "/" itself does not redirect
+  await page.goto(`${APP}${landing}`, { timeout: SLOW });
   await usable(page, landing);
-  return new URL(page.url()).pathname;
+  return `home ${new URL(page.url()).pathname} usable ${Date.now() - t} ms after opening it`;
 }
 
 async function admin(browser, rep) {
