@@ -88,10 +88,10 @@ import {
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import BarisSesi from "../src/components/BarisSesi";
 import PanelPernyataan, { KalimatPonsel } from "../src/components/masuk/PanelPernyataan";
-import { templatPelajaran, tulisBukuKerja, xmlTeks, crc32, hurufKolom, LEMBAR_PANDUAN, BATAS_TEKS_KOLOM } from "../src/components/unggah/templat";
+import { templatPelajaran, tulisBukuKerja, xmlTeks, crc32, hurufKolom, LEMBAR_PANDUAN, BATAS_TEKS_KOLOM, KOLOM_BERNOMOR, formatKolom } from "../src/components/unggah/templat";
 import { lokasiMasalah } from "../src/components/unggah/lokasi";
 import { bacaBukuKerja } from "../src/lib/xlsx";
-import { BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
+import { KEGUNAAN, BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
 import { crc32 as zlibCrc32 } from "node:zlib";
 import { tempatDariPeran, daftarTempat, pintuMasuk, tawarkanStudio, PERAN_STUDIO } from "../src/components/tempat";
 import { LANGKAH as LANGKAH_PAKET, posisiPaket, keadaanLangkah, bolehMengambil, kunciSalinan, type KunciLangkah } from "../src/components/studio/langkah";
@@ -101,6 +101,8 @@ import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalB
 import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src/lib/struktur-kontrak";
 import { sekolahDitawarkan, sekolahDipilih, type SekolahBaris } from "../src/components/sekolah";
 import { kunciGagal, isianKurang, surelLengkap, GALAT_RUTE, type ModeAktivasi, type JawabanAktivasi } from "../src/components/aktivasi/hasil";
+import { SYARAT_METRIK, kunciMuncul } from "../src/components/bukti/muncul";
+import { lingkupAwal } from "../src/components/pimpinan/lingkup";
 import type { DisplayRole } from "../src/lib/auth";
 import { qrMatrix } from "../src/lib/qr";
 import { LIST_COLUMNS, rendersCredential, rendersVerification } from "../src/lib/sertifikat-kontrak";
@@ -1264,6 +1266,10 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 117 -> 118 for BOB-08, a school's structure holds (D-023).
+      // 20261012100000 closes the direct structure writes, adds the place
+      // trigger, the year window and the not-a-school refusal; no column,
+      // colour, mark or brand surface.
       // MOVED 116 -> 117 for BOB-06, every school has its standard reports
       // (B6b). 20261011100000 adds report_templates.is_standard (a boolean
       // marking PINTAR's own rows) and report_template_provisioning (txid,
@@ -1422,7 +1428,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 117, `${migrations.length} migrations; the frozen baseline has 117`);
+      c.expect(migrations.length === 118, `${migrations.length} migrations; the frozen baseline has 118`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3071,7 +3077,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 116 -> 117 for BOB-06's standard
+      // from, not a claim about the tour. MOVED 117 -> 118 for BOB-08's structure
+      // integrity (20261012100000), not a tour RPC (D-024). MOVED 116 -> 117 for BOB-06's standard
       // report templates (20261011100000), not a tour RPC (D-024). MOVED 115 -> 116 for BOB-04's assign
       // function (20261010100000), not a tour RPC (D-024). MOVED 114 -> 115 for BOB-03's release
       // functions (20261009100000), not tour RPCs (D-024). MOVED 113 -> 114 for BOB-14's revoke of
@@ -3120,7 +3127,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 117, `${migs.length} migrations; the baseline has 117`);
+      c.expect(migs.length === 118, `${migs.length} migrations; the baseline has 118`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -8463,6 +8470,41 @@ export const experienceTests: SelfTest[] = [
         "the escaping or the CRC-32 is wrong on a known value (control)");
 
       /**
+       * DAISY-15: EVERY COLUMN'S FORMAT. A free-text column is Text (the
+       * built-in "@", numFmtId 49) on its own <col>, so what a teacher types
+       * stays exactly as typed -- "1/2", "01", "0,5"; a numbered column stays
+       * General, and the numbered columns are exactly the ones the reader
+       * parses as numbers (nomor(...) in bukuKerjaKePaket); a dropdown column
+       * stays General. Read from the bytes: styles.xml's cellXfs and each data
+       * sheet's <cols>.
+       */
+      const gaya = entri.find((e) => e.nama === "xl/styles.xml")?.isi.toString("utf8") ?? "";
+      const xfs = [...(/<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/.exec(gaya)?.[1] ?? "").matchAll(/<xf [^>]*numFmtId="(\d+)"/g)].map((m) => Number(m[1]));
+      const kontrakSumber = readFileSync(join(repoRoot, "src", "lib", "unggah-kontrak.ts"), "utf8");
+      const dibacaAngka = new Set([...kontrakSumber.matchAll(/nomor\(\w+\.nilai\.(\w+)\)/g)].map((m) => m[1]));
+      c.expect(dibacaAngka.size > 0 && JSON.stringify([...dibacaAngka].sort()) === JSON.stringify([...KOLOM_BERNOMOR].sort()),
+        `the reader parses ${[...dibacaAngka].sort().join(", ")} as numbers; the template keeps ${[...KOLOM_BERNOMOR].sort().join(", ")} General`);
+      LEMBAR.forEach((l, i) => {
+        const xml = entri.find((e) => e.nama === `xl/worksheets/sheet${i + 2}.xml`)?.isi.toString("utf8") ?? "";
+        const cols = [...xml.matchAll(/<col ([^>]*)\/>/g)].map((m) => {
+          const min = /\bmin="(\d+)"/.exec(m[1])?.[1], gayaCol = /\bstyle="(\d+)"/.exec(m[1])?.[1];
+          return { kolom: Number(min) - 1, fmt: gayaCol === undefined ? 0 : xfs[Number(gayaCol)] };
+        });
+        c.expect(cols.length === KOLOM[l].length, `${l}: ${cols.length} column definitions for ${KOLOM[l].length} columns`);
+        KOLOM[l].forEach((k, n) => {
+          const fmt = cols.find((x) => x.kolom === n)?.fmt;
+          const harap = KOLOM_BERNOMOR.has(k.kunci) || k.pilihan ? 0 : 49;
+          c.expect(fmt === harap, `${l} · ${k.judul}: format ${fmt === 49 ? "Text" : fmt === 0 ? "General" : String(fmt)}, expected ${harap === 49 ? "Text" : "General"}`);
+          c.expect(formatKolom(k) === (harap === 49 ? "teks" : "umum"), `${l} · ${k.judul}: formatKolom disagrees with the file`);
+        });
+        // the header row keeps its own heading style over the column's
+        c.expect((xml.match(/<c r="[A-Z]+1" t="inlineStr" s="1">/g) ?? []).length === KOLOM[l].length, `${l}: a header cell lost its heading style`);
+      });
+      const teksSemua = LEMBAR.flatMap((l) => KOLOM[l].filter((k) => formatKolom(k) === "teks").map((k) => `${l}.${k.kunci}`));
+      c.expect(["Soal.stem", "Pilihan.body", "Pilihan.ref", "Soal.ref", "Kursus.grade_label", "Soal.parallel_group"].every((x) => teksSemua.includes(x))
+        && !teksSemua.some((x) => /\.(ordinal|module|lesson)$/.test(x)), "the column split is not free text versus numbered (control on known columns)");
+
+      /**
        * SAFE IN THE BROWSER (the gate's condition 1). The template and the
        * panel import nothing from src/lib/xlsx.ts and no node: module, and the
        * contract file they do import brings in types only -- so nothing that
@@ -8486,7 +8528,9 @@ export const experienceTests: SelfTest[] = [
         "as the contract does and every BATAS_PAKET limit with its own number. One filled row per sheet converts with no problem, " +
         "choices becoming their codes and special characters coming back exactly. Two builds are byte-identical, every entry " +
         "stored with the fixed time and a CRC-32 matching Node's zlib, every cell an inline string, every fixed list a dropdown " +
-        "on its own column; and nothing that needs node:zlib can reach the browser through the template or the panel",
+        "on its own column, every free-text column Text and every numbered or dropdown column General (the numbered ones being " +
+        "exactly what the reader parses as numbers); and nothing that needs node:zlib can reach the browser through the " +
+        "template or the panel",
       );
     },
   },
@@ -9174,6 +9218,31 @@ export const experienceTests: SelfTest[] = [
         "the steps talk to the server some other way");
       c.expect(/s\(kunciKodeTerbitan\(h\.code\)\)/.test(komponen) && !/\.message\b|\.details\b/.test(komponen), "a release refusal is not its code's sentence");
 
+      // BOB-07's content refusals appear on these steps (Daisy's wording
+      // review). One that sends the reader to a step names it exactly as the
+      // step list does, in both languages, and they all speak of the course
+      // and its content, never of a "paket".
+      {
+        const RUJUK: Array<[string, string]> = [
+          ["content_review_not_allowed", "setujui"], ["content_reviewer_is_author", "setujui"],
+          ["content_seal_not_allowed", "kunci"], ["content_publish_not_allowed", "terbitkan"], ["content_withdraw_not_allowed", "terbitkan"],
+        ];
+        const menunjuk = (kalimat: string, judul: string, locale: "id" | "en") =>
+          locale === "id" ? kalimat.includes(`langkah ${judul}.`) : kalimat.includes(`the ${judul} step.`);
+        for (const locale of LOCALES) {
+          for (const [kode, langkah] of RUJUK) {
+            const kalimat = t(`studio.konten.kode.${kode}` as HleEvent, "staff", { locale });
+            const judul = t(`studio.langkah.${langkah}.judul` as HleEvent, "staff", { locale });
+            c.expect(menunjuk(kalimat, judul, locale), `(${locale}) ${kode} does not send the reader to the "${judul}" step by its name: ${kalimat}`);
+          }
+          for (const k of allKeys().filter((k) => k.startsWith("studio.konten.kode."))) {
+            c.expect(!/\bpaket|\bpackage/i.test(t(k as HleEvent, "staff", { locale })), `(${locale}) ${k} calls the course a package`);
+          }
+        }
+        c.expect(!menunjuk("Minta orang yang disebut di langkah Setujui paket.", t("studio.langkah.setujui.judul", "staff"), "id"),
+          "the control: a sentence naming a step that does not exist is taken as naming it");
+      }
+
       return c.verdict(
         "the seven steps are the database's: each content step is an edge of content_status_transitions from every status it " +
         "is current at, each release step is BOB-03's own with the same capability and starting states; the roles beside each " +
@@ -9181,7 +9250,8 @@ export const experienceTests: SelfTest[] = [
         "capability and never to the author when it is a colleague's. Seven different buttons, none Konfirmasi, and every " +
         "release code has its sentence. RENDERED from upload to withdrawal for the author and a head of department: one step " +
         "current, the one right button or the reason there is none. The page draws them from the course, its latest release " +
-        "and the reader, with no lifecycle button, Konfirmasi or bare placeholder of its own",
+        "and the reader, with no lifecycle button, Konfirmasi or bare placeholder of its own; BOB-07's content refusals send " +
+        "the reader to a step by its exact name in both languages and speak of the course, never a package",
       );
     },
   },
@@ -9265,6 +9335,215 @@ export const experienceTests: SelfTest[] = [
         "that same day in both languages; at every hour of a Jakarta day Siapkan's today is that day and a window from today is " +
         "already open (the old UTC construction, the control, fails each and is shut for the 7 hours before 07:00); impossible " +
         "days are refused; sediakanMateri sends batasHari's instants and no source file builds a day boundary in UTC",
+      );
+    },
+  },
+  {
+    id: "DAISY-07-LAPORAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-07 (audit B6): REPORTS ONE CLICK AWAY, AND AN ABSENT FIGURE THAT
+       * SAYS WHAT WILL MAKE IT APPEAR.
+       *
+       * 1. THE "WHAT" IS READ FROM THE CALCULATORS. For every class and school
+       *    metric in the catalogue, its calculator's latest body in the
+       *    migrations decides the evidence it counts -- certificates,
+       *    misconception rows, both tests, the Cek penguasaan, or any official
+       *    assessment -- and that must be the kind SYARAT_METRIK names. A copy
+       *    of a POST_TEST calculator with its mode filter removed is the
+       *    control: the classifier must call it something else.
+       */
+      const mig = join(repoRoot, "supabase", "migrations");
+      const berkas = readdirSync(mig).filter((f) => f.endsWith(".sql")).sort().map((f) => readFileSync(join(mig, f), "utf8"));
+      const katalog = readFileSync(join(mig, "20260918100000_metric_catalogue.sql"), "utf8");
+      // the calculation key is the metric id with its dot made an underscore; each is checked to exist below
+      const metrik = [...new Set([...katalog.matchAll(/\('MC-1', '((?:class|institution)\.[a-z_]+)'/g)].map((m) => m[1]))]
+        .map((id) => ({ id, kalkulator: id.replace(".", "_") }));
+      c.expect(metrik.length >= 12, `could not read the class and school metrics from the catalogue (${metrik.length})`);
+      // The LATEST definition wins, in either style the migrations use: the
+      // original `create function ... end;` and the pg_dump-style
+      // `CREATE OR REPLACE FUNCTION ... BEGIN ATOMIC ... END` / `;` that MC-2
+      // rewrote them in (a CASE's own END) is not the body's end).
+      const badan = (fn: string): string => {
+        let hasil = "";
+        for (const sql of berkas) {
+          const re = new RegExp(`create (?:or replace )?function public\\.calc_${fn}\\(`, "gi");
+          let m: RegExpExecArray | null;
+          while ((m = re.exec(sql))) {
+            const akhir = /\n(?:END\s*\n;|end;)/.exec(sql.slice(m.index));
+            hasil = sql.slice(m.index, akhir ? m.index + akhir.index : undefined);
+          }
+        }
+        return hasil.split("\n").filter((l) => !l.trim().startsWith("--")).join("\n");
+      };
+      const jenis = (b: string): string =>
+        /certificates\b/i.test(b) ? "sertifikat"
+        : /service_cohort_misconceptions/i.test(b) ? "miskonsepsi"
+        : /mode in \('PRE_TEST',\s*'POST_TEST'\)|mode = ANY \(ARRAY\['PRE_TEST'[^\]]*'POST_TEST'/i.test(b) ? "awal_akhir"
+        : /mode = 'POST_TEST'/i.test(b) ? "akhir"
+        : /official_sessions/i.test(b) ? "penilaian" : "tidak_dikenal";
+      for (const { id, kalkulator } of metrik) {
+        const b = badan(kalkulator);
+        if (!c.expect(b.length > 0, `${id}: the body of calc_${kalkulator} could not be found`)) continue;
+        c.expect(SYARAT_METRIK[id] === jenis(b), `${id} counts ${jenis(b)} (calc_${kalkulator}); the card would say ${SYARAT_METRIK[id] ?? "nothing"}`);
+      }
+      const akhir = badan("class_comprehension");
+      c.expect(jenis(akhir) === "akhir" && jenis(akhir.replace(/\s*and \(?s\.mode = 'POST_TEST'(?:::assessment_mode)?\)?/i, "")) !== "akhir",
+        "the control: a comprehension calculator without its Cek penguasaan filter is still classified as akhir");
+
+      /**
+       * 2. THE WORDS name the two tests exactly as the product does (KEGUNAAN,
+       *    the workbook's own list), in both languages, and "what will make it
+       *    appear" is offered only to a figure short of evidence.
+       */
+      const nama = Object.fromEntries(KEGUNAAN.map(([n, k]) => [k, n]));
+      for (const locale of LOCALES) {
+        for (const k of ["penilaian", "akhir", "awal_akhir", "miskonsepsi", "sertifikat"]) {
+          c.expect(t(`laporan.muncul.${k}` as HleEvent, "staff", { locale }) !== TANPA_SALINAN, `(${locale}) laporan.muncul.${k} has no copy`);
+        }
+      }
+      c.expect(t("laporan.muncul.akhir", "staff").includes(nama.POST_TEST) && !t("laporan.muncul.akhir", "staff").includes(nama.PRE_TEST),
+        `the Cek penguasaan sentence does not name "${nama.POST_TEST}" alone`);
+      c.expect(t("laporan.muncul.awal_akhir", "staff").includes(nama.PRE_TEST) && t("laporan.muncul.awal_akhir", "staff").includes(nama.POST_TEST),
+        "the gain sentence does not name both tests");
+      c.expect(kunciMuncul({ status: "below_minimum", metric_id: "class.net_gain" }) === "laporan.muncul.awal_akhir"
+        && kunciMuncul({ status: "not_permitted", metric_id: "class.net_gain" }) === null
+        && kunciMuncul({ status: "deprecated", metric_id: "class.net_gain" }) === null
+        && kunciMuncul({ status: "unavailable" }) === null && kunciMuncul({ status: "ok", metric_id: "class.net_gain" }) === null
+        && kunciMuncul({ status: "below_minimum", metric_id: "item.correctness_rate" }) === null,
+        "what will make a figure appear is offered to something other than a figure short of evidence");
+
+      /**
+       * 3. RENDERED. The absence card, in both languages: short of evidence it
+       *    keeps the evaluator's sentence and its count and adds what will make
+       *    the figure appear; a refusal stays unlabelled and says nothing more;
+       *    a retired measure says it was replaced and nothing more.
+       */
+      const KASUS = [
+        { locale: "id", persona: "staff", entry: { status: "below_minimum", metric_id: "class.comprehension", label_key: "metrik.pemahaman.label", statement_key: "laporan.metrik.belum_cukup_data", have: 3, needed: 5 } },
+        { locale: "en", persona: "staff", entry: { status: "below_minimum", metric_id: "class.net_gain", label_key: "metrik.kenaikan.label", statement_key: "laporan.metrik.belum_ada_bukti", have: 0, needed: 5 } },
+        { locale: "id", persona: "staff", entry: { status: "not_permitted" } },
+        { locale: "id", persona: "staff", entry: { status: "deprecated", metric_id: "class.comprehension", label_key: "metrik.pemahaman.label" } },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/bukti/KartuKetiadaan.tsx");' +
+        "  const K = m.default?.default ?? m.default;" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_KARTU).map((k) => renderToStaticMarkup(h(K, k)))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_KARTU: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && html.length === KASUS.length, `the absence card could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        const x = html.map((h) => h.replace(/&#x27;/g, "'").replace(/&amp;/g, "&"));
+        c.expect(x[0].includes(t("metrik.pemahaman.label", "staff")) && x[0].includes(`${t("laporan.metrik.belum_cukup_data", "staff")} (3/5)`)
+          && x[0].includes(t("laporan.muncul.akhir", "staff")), `short of evidence, the card does not say why, how far and what will make it appear: ${x[0]}`);
+        c.expect(x[1].includes(t("laporan.muncul.awal_akhir", "staff", { locale: "en" })), "(en) the gain card does not say what will make it appear");
+        c.expect(!/pin-ml/.test(x[2])
+          && !x[2].includes(t("laporan.muncul.akhir", "staff")) && x[2].includes(t("laporan.metrik.bukan_untuk_anda", "staff")),
+          `a refusal is labelled or told what would make it appear: ${x[2]}`);
+        c.expect(x[3].includes(t("laporan.metrik.diganti", "staff")) && !x[3].includes(t("laporan.muncul.akhir", "staff")), "a retired measure is told what would make it appear");
+      }
+
+      /**
+       * 4. THE PAGES. Pimpinan, above the classes, asks each class of the
+       *    branch through buktiPerKelas and draws it as a disclosure with its
+       *    figures and absence cards, or one refusal line; at a class it asks
+       *    nothing more. Both summaries add what will make a figure appear.
+       *    Konfigurasi links the chosen school's summary at its own root node
+       *    and each active Kelas's at that class. Pimpinan links them too, for
+       *    the dean and the head of department, who never see Konfigurasi: the
+       *    school summary where the reader may read a school figure, a class's
+       *    summary at that class and inside each class they may read, and
+       *    never a link into a page of refusals. And Pimpinan opens on the
+       *    reader's BROADEST scope, so a head of department who also holds a
+       *    class inside the department lands on the department (CI #194 found
+       *    "5A" sorting before "Matematika" on the seed).
+       */
+      const pimpinan = code(readFileSync(join(repoRoot, "src", "app", "pimpinan", "page.tsx"), "utf8"));
+      {
+        const akar = "00000000-0000-4000-8000-0000000000a1";
+        const dept = { id: "00000000-0000-4000-8000-0000000000d1", nama: "Matematika", jalur: [akar, "00000000-0000-4000-8000-0000000000d1"] };
+        const kelas5 = { id: "00000000-0000-4000-8000-0000000000c1", nama: "5A", jalur: [akar, dept.id, "00000000-0000-4000-8000-0000000000c1"] };
+        const lain = { id: "00000000-0000-4000-8000-0000000000d2", nama: "Bahasa", jalur: [akar, "00000000-0000-4000-8000-0000000000d2"] };
+        const urut = [kelas5, dept]; // as lingkupPimpinan returns them: by name
+        const lama = (l: typeof urut, d?: string) => l.find((n) => n.id === d) ?? l[0];
+        c.expect(lingkupAwal(urut)?.id === dept.id && lama(urut)?.id === kelas5.id,
+          "Pimpinan does not open a head of department on the department when a class inside it sorts first (the old rule, the control, must pick the class)");
+        c.expect(lingkupAwal(urut, kelas5.id)?.id === kelas5.id && lingkupAwal(urut, "00000000-0000-4000-8000-0000000000ff")?.id === dept.id,
+          "a scope asked for by id is not honoured, or an id outside the reader's scopes is");
+        c.expect(lingkupAwal([lain, dept])?.id === lain.id && lingkupAwal([{ ...kelas5, jalur: [] }, dept])?.id === kelas5.id
+          && lingkupAwal([]) === undefined,
+          "two unrelated scopes, or a scope without a path, are not left in their given order");
+        c.expect(/const dipilih = lingkupAwal\(lingkup, sp\.lingkup\) \?\? lingkup\[0\];/.test(pimpinan), "Pimpinan does not choose its scope with lingkupAwal");
+      }
+      c.expect(/const diKelas = dipilih\.kind === "CLASS";/.test(pimpinan)
+        && /diKelas \? Promise\.resolve\(\[\] as pim\.BuktiKelas\[\]\) : pim\.buktiPerKelas\(dipilih\.id\)/.test(pimpinan),
+        "Pimpinan does not ask each class of the branch for its own figures");
+      c.expect(/<details key=\{kelas\.id\} className="pin-kelas-bukti">/.test(pimpinan) && /<KartuKetiadaan key=\{e\.metric_id/.test(pimpinan)
+        && /bk\.length === 0 \? "laporan\.metrik\.bukan_untuk_anda"/.test(pimpinan), "a class is not drawn with its figures, its absences, or one refusal line");
+      for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8"));
+        c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
+      }
+      // Pimpinan's own links. Their condition leans on a refusal never reaching
+      // `bukti` or a class's list, so that is checked where it is decided.
+      const pimLib = code(readFileSync(join(repoRoot, "src", "lib", "pimpinan.ts"), "utf8"));
+      c.expect(/return e\.status !== "not_permitted" && e\.status !== "unavailable";/.test(pimLib)
+        && /return out\.filter\(terbaca\);/.test(pimLib) && /bukti: bukti\.filter\(terbaca\)/.test(pimLib),
+        "a refusal can reach Pimpinan's figures, so a figure there no longer means the reader may read it");
+      c.expect(/const bacaSekolah = bukti\.some\(\(e\) => e\.metric_id\?\.startsWith\("institution\."\)\);/.test(pimpinan)
+        && /\{bacaSekolah \? \(\s*<Link className="pin-btn" href=\{`\/dekan\/ringkasan\?simpul=\$\{encodeURIComponent\(dipilih\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.sekolah"\)\}/.test(pimpinan),
+        "Pimpinan does not link the school summary exactly where the reader may read a school figure");
+      c.expect(/const bacaKelas = diKelas && bukti\.some\(\(e\) => e\.metric_id\?\.startsWith\("class\."\)\);/.test(pimpinan)
+        && /\{bacaKelas \? \(\s*<Link className="pin-btn" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(dipilih\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(pimpinan),
+        "Pimpinan, standing at a class the reader may read, does not link that class's summary");
+      {
+        // inside a class's disclosure only when it has figures the reader may read
+        const a = pimpinan.indexOf("{bk.length > 0 ? (");
+        // from the condition to its own close, the last `) : null}` before the class's </details>
+        const b = pimpinan.lastIndexOf(") : null}", pimpinan.indexOf("</details>", a));
+        const isi = a >= 0 && b > a ? pimpinan.slice(a, b) : "";
+        c.expect(/<Link className="pin-btn pin-quiet" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(kelas\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(isi),
+          "a class the reader may read does not link its own summary inside its disclosure");
+        c.expect((pimpinan.match(/\/edukator\/ringkasan\?/g) ?? []).length === 2 && (pimpinan.match(/\/dekan\/ringkasan\?/g) ?? []).length === 1,
+          "Pimpinan links a summary somewhere other than the three places named");
+      }
+      const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      c.expect(/from\("org_nodes"\)\.select\("id"\)\.eq\("institution_id", sekolahStruktur\.id\)\.eq\("kind", "INSTITUTION"\)/.test(konfig)
+        && /href=\{`\/dekan\/ringkasan\?simpul=\$\{\(akar as \{ id: string \}\)\.id\}`\}/.test(konfig),
+        "Konfigurasi does not link the chosen school's summary at its own root node");
+      c.expect(/struktur\.rows\.filter\(\(r\) => r\.level === "KELAS" && r\.is_active\)/.test(konfig)
+        && /href=\{`\/edukator\/ringkasan\?kelas=\$\{k\.node_id\}`\}/.test(konfig), "Konfigurasi does not link each active Kelas's summary");
+      c.expect(/\["laporan", s\("config\.laporan\.judul"\)\]/.test(konfig), "the Laporan section is not in Konfigurasi's index");
+      // each link carries the parameter its summary actually reads (the class
+      // summary reads ?kelas=, the school summary ?simpul=)
+      for (const [hal, param] of [["edukator", "kelas"], ["dekan", "simpul"]] as const) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
+        const dibaca = /searchParams: Promise<\{ (\w+)\?: string \}>/.exec(src)?.[1];
+        for (const [nama, sumber] of [["Konfigurasi", konfig], ["Pimpinan", pimpinan]] as const) {
+          c.expect(dibaca === param && new RegExp(`href=\\{\`\\/${hal}\\/ringkasan\\?${param}=`).test(sumber),
+            `/${hal}/ringkasan reads ?${dibaca ?? "nothing"}=; ${nama} must link it with ?${param}=, and does not`);
+          c.expect(!new RegExp(`\\/${hal}\\/ringkasan\\?(?!${param}=)`).test(sumber), `${nama} links /${hal}/ringkasan with a parameter it does not read`);
+        }
+      }
+
+      return c.verdict(
+        "every class and school metric's \"what will make it appear\" is the evidence its calculator's latest body counts (a " +
+        "comprehension calculator stripped of its Cek penguasaan filter is the control); the sentences name the tests as the " +
+        "workbook does, in both languages, and only for a figure short of evidence. RENDERED, the absence card keeps why and " +
+        "how far and adds what; a refusal and a retired measure add nothing. Pimpinan asks each class of the branch for itself " +
+        "and draws it as a disclosure; both summaries say what will make a figure appear; Konfigurasi links the school summary " +
+        "at its root and each active Kelas's; Pimpinan links the school summary where the reader may read a school figure and " +
+        "a class's summary at that class and inside each class they may read, each link with the parameter its page reads; " +
+        "Pimpinan opens on the reader's broadest scope, so a head of department holding a class inside the department opens on " +
+        "the department (the old first-by-name rule is the control)",
       );
     },
   },

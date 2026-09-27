@@ -17,8 +17,8 @@
     },
     "db-bob01-gates": {
       "suite": "selftest.run_fable10()",
-      "control_green": 8,
-      "what": "BOB-01's school structure functions (who may build a school's Bagian, Tingkat and Kelas, and every refusal's stable code) and the intake's M5a place and year rules"
+      "control_green": 12,
+      "what": "BOB-01's school structure functions (who may build a school's Bagian, Tingkat and Kelas, and every refusal's stable code) and the intake's M5a place and year rules; and BOB-08's structure integrity: nothing placed or granted in a deactivated place, a year near now, the national library not a school, and one way in"
     },
     "db-bob02-gates": {
       "suite": "selftest.run_fable11()",
@@ -491,6 +491,30 @@
       "gate": "db-bob06-gates",
       "expect_red": "F14-P01",
       "expect_detail": "the class report is not the standard assembly"
+    },
+    {
+      "name": "bob01-12",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S07",
+      "expect_detail": "a role grant into a deactivated place answered ok"
+    },
+    {
+      "name": "bob01-13",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S08",
+      "expect_detail": "answered ok"
+    },
+    {
+      "name": "bob01-14",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S09",
+      "expect_detail": "a node was built in the canonical library"
+    },
+    {
+      "name": "bob01-15",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-S10",
+      "expect_detail": "the admin's direct write answered ok"
     }
   ]
 }

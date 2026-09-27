@@ -2,6 +2,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
+import { kunciMuncul } from "@/components/bukti/muncul";
 import { s, card, omissionText, actionText, tierLabel, type Entry } from "../../_intel";
 
 /**
@@ -82,7 +83,11 @@ export default async function RingkasanSekolah({
                     <p className="mt-2 text-sm text-black/70">{actionText(e)}</p>
                   </>
                 ) : (
-                  <p className="text-sm text-black/70">{omissionText(e)}</p>
+                  <>
+                    <p className="text-sm text-black/70">{omissionText(e)}</p>
+                    {/* DAISY-07: and what will make it appear, when it is short of evidence */}
+                    {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!)}</p> : null}
+                  </>
                 )}
               </article>
             ))}

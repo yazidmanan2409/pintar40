@@ -90,10 +90,26 @@ export type SimpulPimpinan = {
  * one refusal page for it. It does not mean "no data".
  */
 export async function lingkupPimpinan(): Promise<SimpulPimpinan[]> {
-  const c = await db();
+  return lingkupPimpinanDari(await db());
+}
+
+/**
+ * `lingkupPimpinan` over a given client (BOB-08: driven in selftest/bob08.test.ts).
+ *
+ * BOB-08 (Daisy, 25 Sep): THE CANDIDATES ARE THE GRANTS STILL IN FORCE. A
+ * revoked or expired grant decided nothing -- management_scope_over_node
+ * refuses it -- but its node was still offered in the picker, which then led
+ * to the one refusal page. The same window the database applies is asked for
+ * here: not revoked, begun, and not yet ended.
+ */
+export async function lingkupPimpinanDari(c: Db, kini: Date = new Date()): Promise<SimpulPimpinan[]> {
+  const sekarang = kini.toISOString();
   const { data: hibah } = await c
     .from("role_assignments")
-    .select("scope_node_id");
+    .select("scope_node_id")
+    .is("revoked_at", null)
+    .lte("valid_from", sekarang)
+    .gt("valid_until", sekarang);
   const kandidat = [
     ...new Set(
       rows<{ scope_node_id: string | null }>(hibah)

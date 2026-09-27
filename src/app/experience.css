@@ -2215,3 +2215,22 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-lt-tarik { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); width: 100%; }
 .pin-lt-isian { display: grid; gap: var(--space-1); flex: 1 1 auto; min-width: 0; }
 .pin-lt-isian .pin-input { width: 100%; min-width: 0; }
+
+/* DAISY-07: Pimpinan, class by class. Each class is a disclosure the reader
+   opens; the summary line names the class and whether it has figures yet. */
+.pin-kelas-bukti {
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  margin-top: var(--space-2); min-width: 0;
+}
+.pin-kelas-bukti > summary {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-1) var(--space-3);
+  padding: var(--space-3) var(--space-4); cursor: pointer; list-style-position: inside;
+}
+/* a flex summary loses the browser's own triangle; this one turns when open */
+.pin-kelas-bukti > summary::-webkit-details-marker { display: none; }
+.pin-kelas-bukti > summary::before { content: "\25B8"; color: var(--ink-3); }
+.pin-kelas-bukti[open] > summary::before { content: "\25BE"; }
+.pin-kelas-nama { flex: 1 1 auto; font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-kelas-tanda { font-size: var(--type-meta); color: var(--ink-3); }
+.pin-kelas-isi { display: grid; gap: var(--space-3); padding: 0 var(--space-4) var(--space-4); min-width: 0; }
+.pin-kelas-isi > .pin-btn { justify-self: start; }

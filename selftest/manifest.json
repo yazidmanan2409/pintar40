@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 83,
+  "version": 89,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1546,7 +1546,7 @@
     {
       "id": "F08-P01",
       "runner": "db",
-      "proves": "An institution administrator SIGNS IN -- claim and role, not a claim alone -- and builds a cohort and a class in their own school. That was impossible for everyone but the table owner: the org_nodes ladder trigger is SECURITY INVOKER by design and called org_kind_level(), which was never granted to authenticated, so real onboarding failed with a permission error while every seed and suite passed by building as owner. The node written carries a full jalur, so the trigger ran with the writer's rights rather than being skipped, and the grant moved nothing else: ladder violations are still refused, and a dean, an educator and the neighbouring school's administrator are each still refused here."
+      "proves": "W8-01, restated for BOB-08 (a): an institution administrator signed in builds a Bagian, a Tingkat and a Kelas in their own school through BOB-01's structure functions, and the Kelas carries a jalur 6 deep; the same administrator's direct writes to org_nodes and academic_periods are refused (42501); the ladder still refuses a step that is not a step, even to the owner; a dean, an educator and the neighbouring school's administrator are refused. Read from the migration source 20261012100000, which closes the direct write path."
     },
     {
       "id": "F08-P02",
@@ -1740,6 +1740,36 @@
       "proves": "DAISY-05 over real HTTP against the seeded database: the RENDERED html of /konfigurasi for Alpha's school administrator opens with the Struktur sekolah section, read through school_structure without a refusal; the seeded Bagian (Matematika), Tingkat (Kelas 5 and Kelas 6) and Kelas (5A, 6B) are drawn as places with their school years and the way to add each level; the seed's hidden Jenjang (Sekolah Dasar) and Reguler (SD Reguler) are nowhere in the section; nothing offers a deactivation before the question. Read only. As the seeded platform administrator, who reads every tenant: the RENDERED section opens on a real school and never offers or opens 'PINTAR Kurikulum Nasional', by default, for an unknown id, or for the library's own id read from the institutions table (audit S7b)."
     },
     {
+      "id": "F10-S07",
+      "runner": "db",
+      "proves": "BOB-08 (b), by migration 20261012100000: in a Kelas the school's admin deactivated, a role grant, a membership, a rollover into it and an enrolment in a deactivated programme are each refused PR020 STRUCTURE_PLACE_INACTIVE by the one trigger on memberships, role_assignments and enrollments, leaving no membership there; a grant into an active Kelas is accepted."
+    },
+    {
+      "id": "F10-S08",
+      "runner": "db",
+      "proves": "BOB-08 (c): the structure functions accept the academic year one before, of and one after the current school year (Jakarta, from 1 July), and refuse two either side PR020 STRUCTURE_YEAR_OUT_OF_RANGE with no period made. The suite names its years relative to today's, so it cannot age out of the window."
+    },
+    {
+      "id": "F10-S09",
+      "runner": "db",
+      "proves": "BOB-08 (f): a platform administrator's create_bagian and school_structure on the canonical library are each PR020 STRUCTURE_NOT_A_SCHOOL, and nothing is built there."
+    },
+    {
+      "id": "F10-S10",
+      "runner": "db",
+      "proves": "BOB-08 (a, e): the school's admin, signed in, inserting and updating org_nodes and academic_periods directly is refused 42501; a Bagian with a role scoped at its hidden Reguler below it is STRUCTURE_HAS_STAFF."
+    },
+    {
+      "id": "F10-C02",
+      "runner": "db",
+      "proves": "BOB-08 (b) under real concurrency: two psql connections as the school's admin; the holder deactivates a Tingkat and holds its transaction open, and a concurrent grant_role there waits on the shared structure lock the place trigger takes, reads the Tingkat again and is refused PR020 STRUCTURE_PLACE_INACTIVE, leaving no role scoped there. The racer starts only once the holder is seen asleep holding the lock."
+    },
+    {
+      "id": "F10-C03",
+      "runner": "db",
+      "proves": "BOB-08 (e) under real concurrency: two admins' connections create a Bagian of the same name at once; the second waits on the per-school structure lock, reads the names again and is refused PR020 STRUCTURE_NAME_TAKEN, leaving one Bagian of that name."
+    },
+    {
       "id": "F11-P01",
       "runner": "db",
       "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, no parallel group spanning the pre-test and post-test (D-040: the sample was regrouped, and v1 kept as the source of the application copies), and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
@@ -1861,6 +1891,11 @@
       "proves": "BOB-06. The school's admin is refused, by the guard's own rule, editing, unmarking, revising, extending and removing PINTAR's standard class report, and refused by a missing grant writing the provisioning pass and calling the provisioner; an educator writes no template; no pass is open, and no client is granted the provisioner or the pass, which has no policies."
     },
     {
+      "id": "BOB08-K01",
+      "runner": "static",
+      "proves": "BOB-08 (d, g). The structure helper struktur() in the source file src/app/konfigurasi/actions.ts re-reads the list once on each path: before a refusal returns (it re-read only after a success) and after a success, as DAISY-05-STRUKTUR-01 also holds; lingkupPimpinanDari in src/lib/pimpinan.ts, driven with a revoked, an expired, a not-yet-begun and an active grant, offers only the active one's node in the Pimpinan picker."
+    },
+    {
       "id": "BOB07-K01",
       "runner": "static",
       "proves": "BOB-07 (D-011). A walk over the source of every server action file and route handler in src/app finds no error's .message, .details or .hint outside the server log or a classifier that answers with a code, no detail parameter set or read on any page, and no learner component reading a learner action's message; the walk is watched by four planted leaks (a redirect detail, a JSON body, refusal details, a caught error) and lets the log and the classifiers be."
@@ -1935,7 +1970,7 @@
     {
       "id": "DAISY-06-TEMPLAT-01",
       "runner": "static",
-      "proves": "DAISY-06: the lesson workbook template is BOB-02's contract written out, checked against Bob's own reader and converter (no network). (a) The blank template OUTPUT by the browser writer is read by bacaBukuKerja: the guidance sheet then Kursus, Bab, Pelajaran, Soal, Pilihan in LEMBAR order, each data sheet exactly KOLOM's headers in KOLOM order and nothing else; bukuKerjaKePaket finds no missing sheet or column; the guidance states every column as the contract does and every BATAS_PAKET limit with its own number. (b) One filled row per sheet, written by the same writer, converts with no problem, choices becoming their codes and XML special characters, quotes and a line break coming back exactly. (c) Two builds are byte-identical; from the zip FILE, every entry is stored with the fixed timestamp and a CRC-32 equal to Node's zlib.crc32, every cell is an inline string, and every fixed list is a dropdown on its own column. From the SOURCE: neither the template nor the upload panel imports src/lib/xlsx.ts or a node: module, and the contract file they import brings in types only."
+      "proves": "DAISY-06: the lesson workbook template is BOB-02's contract written out, checked against Bob's own reader and converter (no network). (a) The blank template OUTPUT by the browser writer is read by bacaBukuKerja: the guidance sheet then Kursus, Bab, Pelajaran, Soal, Pilihan in LEMBAR order, each data sheet exactly KOLOM's headers in KOLOM order and nothing else; bukuKerjaKePaket finds no missing sheet or column; the guidance states every column as the contract does and every BATAS_PAKET limit with its own number. (b) One filled row per sheet, written by the same writer, converts with no problem, choices becoming their codes and XML special characters, quotes and a line break coming back exactly. (c) Two builds are byte-identical; from the zip FILE, every entry is stored with the fixed timestamp and a CRC-32 equal to Node's zlib.crc32, every cell is an inline string, and every fixed list is a dropdown on its own column. From the SOURCE: neither the template nor the upload panel imports src/lib/xlsx.ts or a node: module, and the contract file they import brings in types only. DAISY-15: every column's format is read from the bytes (styles.xml's cellXfs and each data sheet's <col> style): every free-text column is Text (numFmtId 49, '@'), so what a teacher types stays as typed; every numbered column stays General, the numbered columns being exactly the fields the reader parses with nomor() in bukuKerjaKePaket; a dropdown column stays General; the header row keeps its heading style; and a control on known columns (Pertanyaan, Teks pilihan, Kode soal, Kelas, Kelompok paralel as Text; no No bab or No pelajaran as Text)."
     },
     {
       "id": "DAISY-06-UNGGAH-01",
@@ -1990,7 +2025,7 @@
     {
       "id": "DAISY-06-TERBIT-01",
       "runner": "static",
-      "proves": "DAISY-06, the Terbit step (audit M11). THE ORDER is read from the database's own sources: each content step's move is an edge of content_status_transitions (the migration's insert list) from every course status that step is current at, and each release step is BOB-03's own LANGKAH_TERBITAN entry with the same capability and starting states; where a course stands is checked over twelve course/release states, returned content included. WHO: each step's roles are exactly the school roles holding its capability in the LATEST role_capabilities migration, the second person's steps are exactly approving and locking (the four-eyes rules still present in the migrations), and a step is offered with the capability and never to the course's author when it is a colleague's. WORDS: seven distinct step buttons in both languages, none 'Konfirmasi'; every BOB-03 release code has a sentence. RENDERED in a child process at fourteen states from upload to withdrawal, for the author holding every capability, a head of department and a reader with none: exactly one current step, eight distinct entries, and the one right button (with its hidden target status or release) or the sentence saying whose step it is; the publication date and a labelled withdrawal only for the publisher. SOURCE: the package page draws the steps from the course's status, its latest release, the reader's capabilities and author check, carries no lifecycle button, 'Konfirmasi' or bare placeholder of its own, and names the check 'Periksa isi sekarang'; the steps reach the server only through advanceContentAction and BOB-03's typed actions, and a refusal is its code's sentence."
+      "proves": "DAISY-06, the Terbit step (audit M11). THE ORDER is read from the database's own sources: each content step's move is an edge of content_status_transitions (the migration's insert list) from every course status that step is current at, and each release step is BOB-03's own LANGKAH_TERBITAN entry with the same capability and starting states; where a course stands is checked over twelve course/release states, returned content included. WHO: each step's roles are exactly the school roles holding its capability in the LATEST role_capabilities migration, the second person's steps are exactly approving and locking (the four-eyes rules still present in the migrations), and a step is offered with the capability and never to the course's author when it is a colleague's. WORDS: seven distinct step buttons in both languages, none 'Konfirmasi'; every BOB-03 release code has a sentence. RENDERED in a child process at fourteen states from upload to withdrawal, for the author holding every capability, a head of department and a reader with none: exactly one current step, eight distinct entries, and the one right button (with its hidden target status or release) or the sentence saying whose step it is; the publication date and a labelled withdrawal only for the publisher. SOURCE: the package page draws the steps from the course's status, its latest release, the reader's capabilities and author check, carries no lifecycle button, 'Konfirmasi' or bare placeholder of its own, and names the check 'Periksa isi sekarang'; the steps reach the server only through advanceContentAction and BOB-03's typed actions, and a refusal is its code's sentence. BOB-07's content refusals, as Daisy worded them, send the reader to a step by its exact name in both languages (approving to Setujui isi, locking to Kunci terbitan, publishing and withdrawing to Terbitkan) and speak of the course and its content, never a package; a sentence naming a step that does not exist is the control."
     },
     {
       "id": "DAISY-06-TERBIT-02",
@@ -2006,6 +2041,21 @@
       "id": "DAISY-14-TANGGAL-01",
       "runner": "static",
       "proves": "DAISY-14 (audit M10): an assignment's days are the school's calendar days. For five days (month and year ends, a leap day) batasHari gives 00:00:00 and 23:59:59 on the Asia/Jakarta clock, one whole day apart, and the class page's format.date shows exactly the chosen day in both languages; impossible or malformed days are refused. At every hour of a Jakarta day, Siapkan's today (hariIniSekolah) is that day and a window starting today is already open. The old `${day}T00:00:00Z`/`T23:59:59Z` construction is the control: it fails the day checks and is shut for exactly the 7 hours before 07:00 WIB. From the SOURCE: sediakanMateri sends batasHari's first and last instants to assign_release, Siapkan's first-day field starts on hariIniSekolah(), and no source file under src builds a day boundary in UTC."
+    },
+    {
+      "id": "DAISY-07-LAPORAN-01",
+      "runner": "static",
+      "proves": "DAISY-07 (audit B6). For every class and school metric in the catalogue, the evidence named by 'what will make it appear' is read from its calculator's LATEST body in the migrations -- certificates, misconception rows, both tests, the Cek penguasaan, or any official assessment -- and must equal SYARAT_METRIK; a comprehension calculator stripped of its Cek penguasaan filter is the control the classifier must call something else. The sentences name the tests exactly as KEGUNAAN (the workbook's list) does, have copy in both languages, and are offered only to a figure short of evidence (never a refusal, a retired or uncomputable figure, a present figure or an item metric). RENDERED in a child process: the absence card short of evidence keeps its label, the evaluator's sentence and its have/needed count and adds what will make it appear (both languages); a refusal stays unlabelled and a retired measure adds nothing. SOURCE: Pimpinan, above the classes, asks each class of the branch through buktiPerKelas and draws it as a disclosure with its figures and absence cards or one refusal line; both summaries say what will make a figure appear; Konfigurasi links the chosen school's summary at its own INSTITUTION node and each active Kelas's at that class (as ?kelas=, the parameter the class summary reads), and lists the section in its index. Pimpinan links the summaries too, for the dean and the head of department who never see Konfigurasi: the school summary exactly where the reader may read a school figure (refusals never reach Pimpinan's figures, checked in src/lib/pimpinan.ts), a class's summary at that class and inside each class disclosure only on the branch where its figures are the reader's, and no other summary link; every link in Konfigurasi and Pimpinan carries the parameter its page reads and no other. Pimpinan opens on the reader's BROADEST scope (lingkupAwal: the first with none of the reader's other scopes on its path; an asked-for scope of theirs wins, a foreign id never does), so a head of department who also holds a class inside the department opens on the department; the old first-by-name rule is the control and must pick the class (CI #194 found it on the seed)."
+    },
+    {
+      "id": "DAISY-07-LAPORAN-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator, head of department and dean and reads the rendered Konfigurasi, both summaries and Pimpinan against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-07 over real HTTP against the seed. The RENDERED Konfigurasi of Alpha's school administrator has a Laporan section linking exactly one school summary, at a node read back (as the same reader) as that school's INSTITUTION node, and at least one class summary, each at a CLASS node of the same school. Following them, both summaries open with their title on a report the school has (never 'no figures to show you'), and a report with no figure yet says what will make one appear. A head of department and a dean, standing above the classes, get Pimpinan's class-by-class section: it lists classes, each summarised as having figures, none yet, or not theirs, or says there is none. From Pimpinan (DEA-03, X-12), the school summary is linked exactly when Pimpinan shows the reader a school figure, and Alpha's dean, standing at the school, has it; each class links its own summary exactly when its figures are the reader's. Following them as the same reader, each opens with its title on a report with at least one labelled figure, never 'no figures' and never a page of refusals. Read only."
     }
   ]
 }

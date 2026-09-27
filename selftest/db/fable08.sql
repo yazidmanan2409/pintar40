@@ -79,7 +79,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_inst uuid; v_other uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid;
-  v_coh uuid; v_cls uuid; v_tag text;
+  v_coh uuid; v_cls uuid; v_tag text; v_bag uuid; v_tahun text; m_direct int := 0;
   v_adm_u uuid; v_dean_u uuid; v_adm2_u uuid; v_guru_u uuid;
   v_tpl uuid; v_tpl_again uuid; v_cat text; v_m1 text; v_m2 text; v_v1 text; v_v2 text;
   v_body jsonb; v_msg text; v_raised boolean; v_big jsonb;
@@ -145,12 +145,26 @@ begin
           'the ladder helper is not executable by a client, so a fresh session building an org node is refused');
       end if;
 
+      -- RESTATED FOR BOB-08 (a). The school builds through BOB-01's structure
+      -- functions, the one way in; a direct write to org_nodes is refused.
+      v_tahun := public.structure_current_year_start()::text || '/' || (public.structure_current_year_start() + 1)::text;
       perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
       begin
         insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-        values (v_inst, v_prog, 'COHORT', 'Angkatan 2026', v_period) returning org_nodes.id into v_coh;
-        insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-        values (v_inst, v_coh, 'CLASS', '7A', v_period) returning org_nodes.id into v_cls;
+        values (v_inst, v_prog, 'COHORT', 'Langsung', v_period);
+        v_probs := selftest.f08_note(v_probs, 'F08-P01', 'an administrator still writes org_nodes directly');
+      exception when insufficient_privilege then m_direct := m_direct + 1;
+      end;
+      begin
+        insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+        values (v_inst, 'Langsung', current_date, current_date + 1);
+        v_probs := selftest.f08_note(v_probs, 'F08-P01', 'an administrator still writes academic_periods directly');
+      exception when insufficient_privilege then m_direct := m_direct + 1;
+      end;
+      begin
+        v_bag := public.create_bagian(v_inst, 'Bagian ' || v_tag);
+        v_coh := public.create_tingkat(v_bag, 'Kelas 7', v_tahun);
+        v_cls := public.create_kelas(v_coh, '7A', v_tahun);
       exception when others then
         v_probs := selftest.f08_note(v_probs, 'F08-P01',
           'an institution administrator could not build their own org tree: ' || left(sqlerrm, 120));
@@ -171,8 +185,9 @@ begin
         end if;
       end if;
 
-      -- THE RULES ARE UNCHANGED. A grant is not a licence: the ladder still
-      -- refuses a step that is not a step.
+      -- THE RULES ARE UNCHANGED. The ladder still refuses a step that is not a
+      -- step, even to the table's owner.
+      perform selftest.as_owner();
       for r in select * from unnest(array['CLASS', 'PROGRAMME'], array[v_fac, v_inst]) as t(kind, parent) loop
         begin
           insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
@@ -188,8 +203,7 @@ begin
       for r in select * from unnest(array['f08-dekan-', 'f08-guru-', 'f08-admin2-']) as t(who) loop
         begin
           perform selftest.as_user(r.who || v_tag || '@local.invalid');
-          insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-          values (v_inst, v_prog, 'COHORT', 'tak berwenang', v_period);
+          perform public.create_bagian(v_inst, 'tak berwenang');
           v_probs := selftest.f08_note(v_probs, 'F08-P01',
             r.who || 'built an org node in a school they do not administer');
         exception when others then m_build_denied := m_build_denied + 1;
@@ -751,10 +765,10 @@ begin
       end if;
 
       -- (d) AND ORDINARY ONBOARDING CONTINUES from that grant
+      -- (restated for BOB-08 (a): through the structure functions)
       perform selftest.as_user('f08-fresh-' || v_tag || '@local.invalid');
       begin
-        insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-        values (v_inst, v_prog, 'COHORT', 'Angkatan baru ' || v_tag, v_period);
+        perform public.create_bagian(v_inst, 'Bagian baru ' || v_tag);
       exception when others then
         v_probs := selftest.f08_note(v_probs, 'F08-P08',
           'the newly granted administrator cannot onboard their school: ' || left(sqlerrm, 120));
@@ -816,16 +830,13 @@ begin
             'WP8 -- the first administrator, and the door that shuts behind them',
             'WP8 -- a person with no past can be given their first role'],
       array[
-        format('an institution administrator signs in and builds a cohort and a class in their own '
-            || 'school -- which is what a missing EXECUTE grant on the ladder trigger''s own helper made '
-            || 'impossible for everyone but the table owner -- and the node they wrote carries a jalur %s '
-            || 'deep, so the trigger ran with their rights rather than being skipped. The grant is also '
-            || 'asserted directly, because plpgsql checks function-execute permission when it builds a '
-            || 'plan and caches it: a write after an owner-built fixture can reuse a plan the owner was '
-            || 'cleared for, and the fresh session a real school arrives in cannot. The rules did not '
-            || 'move with the grant: %s ladder violation(s) are still refused, and %s actor(s) without '
-            || 'administration here -- a dean, an educator and the neighbouring school''s administrator '
-            || '-- are still refused', m_depth, m_ladder_refusals, m_build_denied),
+        format('an institution administrator signs in and builds a Bagian, a Tingkat and a Kelas in their '
+            || 'own school through BOB-01''s structure functions, and the Kelas carries a jalur %s deep; '
+            || 'restated for BOB-08 (a), the same administrator''s direct writes to org_nodes and '
+            || 'academic_periods are refused (%s of 2). The ladder helper stays executable by a client. '
+            || 'The rules did not move: %s ladder violation(s) are refused even to the owner, and %s '
+            || 'actor(s) without administration here -- a dean, an educator and the neighbouring school''s '
+            || 'administrator -- are refused', m_depth, m_direct, m_ladder_refusals, m_build_denied),
         format('the standing assertion holds across %s client-writable table(s) and the %s '
             || 'invoker-rights trigger(s) on them, and it is owner-run: a client-executable assertion '
             || 'about client executability would be answering about itself', m_tables, m_triggers),
