@@ -2393,6 +2393,10 @@ export const appTests: SelfTest[] = [
         sekali(peran, "/konfigurasi", k);
         c.expect(k.n("/rest/v1/rpc/platform_schema_lint") === 0, `${peran} /konfigurasi ran the schema lint on an ordinary load`);
       }
+      // (e) the page "Berikan peran" returns to once the grant is saved
+      const kembali = await klik(sys.cookie, "/konfigurasi?bagian=roles&hasil=ok");
+      sekali("SYSTEM_ADMIN", "/konfigurasi?bagian=roles&hasil=ok", kembali);
+      c.expect(kembali.n("/rest/v1/rpc/platform_schema_lint") === 0, "the page a saved grant returns to ran the schema lint");
       const diminta = await klik(sys.cookie, "/konfigurasi?periksa=skema");
       sekali("SYSTEM_ADMIN", "/konfigurasi?periksa=skema", diminta);
       c.expect(diminta.n("/rest/v1/rpc/platform_schema_lint") === 1, `asked for, the schema lint ran ${diminta.n("/rest/v1/rpc/platform_schema_lint")} times`);
@@ -2405,8 +2409,8 @@ export const appTests: SelfTest[] = [
 
       c.note(catatan.join("; "));
       return c.verdict(
-        "counted through the running app, a Studio click asks studio_capabilities once and can_in_institution never; Konfigurasi " +
-        "runs the schema lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at " +
+        "counted through the running app, a Studio click asks studio_capabilities once and can_in_institution never; Konfigurasi, " +
+        "including the page a saved grant returns to, runs the schema lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at " +
         "most twice (the proxy's check and the page's), the profile read at most once, is_system_admin asked at most once and " +
         "the viewer's own roles read at most once (a Studio page reads role_assignments for nothing else). Calls per click: " + catatan.join("; "),
       );

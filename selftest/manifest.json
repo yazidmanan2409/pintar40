@@ -148,6 +148,12 @@
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
     },
     {
+      "id": "F01-T22",
+      "runner": "db",
+      "proves": "BOB-18 (D-046(e)). A grant is saved once: the platform admin's second identical grant_role (same person, role and place) is refused 23505 GRANT_ALREADY_ACTIVE and one grant stands; the same role in another place, again after a revoke, and again after an expired grant are each saved.",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
       "id": "F02-T01",
       "runner": "db",
       "proves": "INV-22 content rows are created at INGESTED only; a skipped transition is refused; the listed path is permitted",
@@ -1782,6 +1788,11 @@
       "proves": "BOB-08 (e) under real concurrency: two admins' connections create a Bagian of the same name at once; the second waits on the per-school structure lock, reads the names again and is refused PR020 STRUCTURE_NAME_TAKEN, leaving one Bagian of that name."
     },
     {
+      "id": "F10-C04",
+      "runner": "db",
+      "proves": "BOB-18 (D-046(e)). Two real connections grant the same person the same role in the same Tingkat at once, as a double-pressed \"Berikan peran\" does: the second waits on the grant's advisory lock taken by the role_assignments trigger, reads the first's row and is refused 23505 GRANT_ALREADY_ACTIVE, and one grant stands."
+    },
+    {
       "id": "F11-P01",
       "runner": "db",
       "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, no parallel group spanning the pre-test and post-test (D-040: the sample was regrouped, and v1 kept as the source of the application copies), and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
@@ -1936,7 +1947,7 @@
     {
       "id": "BOB18-A01",
       "runner": "app",
-      "proves": "BOB-18 (D-046). Counted through the running app (selftest/hitung-fetch.cjs), a Studio click asks studio_capabilities once and can_in_institution never; the Konfigurasi page in src/app/konfigurasi/page.tsx runs platform_schema_lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at most twice, the profile read at most once, is_system_admin asked at most once and the viewer's own roles read at most once, a Studio page reading role_assignments for nothing else.",
+      "proves": "BOB-18 (D-046). Counted through the running app (selftest/hitung-fetch.cjs), a Studio click asks studio_capabilities once and can_in_institution never; the Konfigurasi page in src/app/konfigurasi/page.tsx, including the page a saved grant returns to, runs platform_schema_lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at most twice, the profile read at most once, is_system_admin asked at most once and the viewer's own roles read at most once, a Studio page reading role_assignments for nothing else.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {

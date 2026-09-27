@@ -87,6 +87,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const [
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
     { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint }, { data: env },
+    { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
     supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
@@ -102,6 +103,29 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     // the platform admin lands here.
     isSys && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null }),
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
+    // FINAL DELTA 2. The people the three sources above cannot reach: no active
+    // role, no enrolment, no transfer. The database decides who may ask and who
+    // may be seen -- a non-SYSTEM_ADMIN is refused by the endpoint and gets an
+    // error rather than rows, which is why nothing here checks a role first.
+    supabase.rpc("persons_awaiting_first_role"),
+    // W8-02. The institution's own templates, and the catalogue they may select
+    // from. Both are ordinary reads under this viewer's own RLS: the template
+    // rows are their school's, and the catalogue is PINTAR's, readable by anyone
+    // signed in and writable by nobody through this surface.
+    // BOB-18 (e): read beside everything above rather than after it, so the
+    // page a save returns to costs one round trip here instead of three.
+    Promise.all([
+      supabase.from("report_templates").select("id, institution_id, template_version, standard_report, title_key").order("title_key"),
+      supabase.from("report_template_metrics").select("template_id, metric_id, ordinal, visualization").order("ordinal"),
+      (async (): Promise<{ data: MetricDefinition[] }> => {
+        const liveCatalogue = (await supabase.rpc("current_metric_catalogue")).data as string | null;
+        if (!liveCatalogue) return { data: [] };
+        const { data } = await supabase.from("metric_definitions")
+          .select("metric_id, label_key, scope, allowed_visualizations, deprecated")
+          .eq("catalogue_version", liveCatalogue).eq("deprecated", false).order("metric_id");
+        return { data: (data ?? []) as MetricDefinition[] };
+      })(),
+    ]),
   ]);
 
   // DAISY-05. The school whose structure is shown: an active, real school the
@@ -117,27 +141,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ? supabase.from("org_nodes").select("id").eq("institution_id", sekolahStruktur.id).eq("kind", "INSTITUTION").limit(1).maybeSingle()
     : Promise.resolve({ data: null });
 
-  // FINAL DELTA 2. The people the three sources above cannot reach: no active
-  // role, no enrolment, no transfer. The database decides who may ask and who
-  // may be seen -- a non-SYSTEM_ADMIN is refused by the endpoint and gets an
-  // error rather than rows, which is why nothing here checks a role first.
-  const { data: awaiting } = await supabase.rpc("persons_awaiting_first_role");
   const awaitingPersons = (awaiting ?? []) as Array<{ person_id: string; display_name: string }>;
-
-  // W8-02. The institution's own templates, and the catalogue they may select
-  // from. Both are ordinary reads under this viewer's own RLS: the template
-  // rows are their school's, and the catalogue is PINTAR's, readable by anyone
-  // signed in and writable by nobody through this surface.
-  const liveCatalogue = (await supabase.rpc("current_metric_catalogue")).data as string | null;
-  const [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }] = await Promise.all([
-    supabase.from("report_templates").select("id, institution_id, template_version, standard_report, title_key").order("title_key"),
-    supabase.from("report_template_metrics").select("template_id, metric_id, ordinal, visualization").order("ordinal"),
-    liveCatalogue
-      ? supabase.from("metric_definitions")
-          .select("metric_id, label_key, scope, allowed_visualizations, deprecated")
-          .eq("catalogue_version", liveCatalogue).eq("deprecated", false).order("metric_id")
-      : Promise.resolve({ data: [] as MetricDefinition[] }),
-  ]);
 
   // Names for the people this viewer may see (RLS decides who that is).
   const personIds = Array.from(new Set([

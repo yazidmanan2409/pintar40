@@ -518,6 +518,56 @@ begin
   end;
   test_id := 'F01-T21'; invariant := 'INV-37 / D-046'; return next;
 
+  -- F01-T22 BOB-18 (e): a grant is saved once. The platform admin grants a
+  -- teacher Kaprodi of Alpha's Bagian, then presses again: refused, one
+  -- standing grant. A revoke, an expiry or another place is a different grant.
+  perform selftest.as_owner();
+  ok := true; detail := '';
+  declare g1 uuid; g2 uuid; n_aktif int; v_state text; v_msg text;
+  begin
+    begin
+      perform selftest.as_user('sysadmin@synthetic.pintar.test');
+      g1 := public.grant_role(p_aguru, 'HEAD_OF_DEPARTMENT', a_dept, now() + interval '30 days');
+      begin
+        g2 := public.grant_role(p_aguru, 'HEAD_OF_DEPARTMENT', a_dept, now() + interval '60 days');
+        ok := false; detail := detail || 'a second identical grant was saved; ';
+      exception when others then
+        get stacked diagnostics v_state = returned_sqlstate, v_msg = message_text;
+        if v_state <> '23505' or v_msg <> 'GRANT_ALREADY_ACTIVE' then
+          ok := false; detail := detail || format('the second grant was refused with %s %s; ', v_state, v_msg);
+        end if;
+      end;
+      perform selftest.as_owner();
+      select count(*) into n_aktif from public.role_assignments
+       where person_id = p_aguru and role = 'HEAD_OF_DEPARTMENT' and scope_node_id = a_dept
+         and revoked_at is null and valid_until > now();
+      if n_aktif <> 1 then ok := false; detail := detail || format('%s standing grants after two presses; ', n_aktif); end if;
+      perform selftest.as_user('sysadmin@synthetic.pintar.test');
+      -- another place is another grant
+      perform public.grant_role(p_aguru, 'HEAD_OF_DEPARTMENT', a_cls5a, now() + interval '30 days');
+      -- revoked, it may be granted again
+      perform public.revoke_role(g1);
+      perform public.grant_role(p_aguru, 'HEAD_OF_DEPARTMENT', a_dept, now() + interval '30 days');
+      -- an expired grant does not stand (seeded rows may be dated; the owner writes one)
+      perform selftest.as_owner();
+      perform set_config('app.seed_intent', 'synthetic', true);
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform set_config('request.jwt.claims', '', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+      values (p_aguru, 'DEAN', a_dept, now() - interval '2 days', now() - interval '1 day');
+      perform set_config('app.seed_intent', '', true);
+      perform selftest.as_user('sysadmin@synthetic.pintar.test');
+      perform public.grant_role(p_aguru, 'DEAN', a_dept, now() + interval '30 days');
+      raise exception 'F01_T22_ROLLBACK';
+    exception when others then
+      if sqlerrm <> 'F01_T22_ROLLBACK' then ok := false; detail := detail || 'a grant that should stand was refused: ' || sqlerrm || '; '; end if;
+    end;
+    perform selftest.as_owner();
+    if ok then detail := 'a second identical grant is refused 23505 GRANT_ALREADY_ACTIVE and one grant stands; the same '
+      || 'role in another place, again after a revoke, and again after an expired one are each saved'; end if;
+  end;
+  test_id := 'F01-T22'; invariant := 'INV-16 / D-046'; return next;
+
   perform selftest.as_owner();
   test_id := 'F01-DONE'; invariant := '-'; ok := true; detail := format('elapsed %s ms', round(extract(epoch from clock_timestamp() - t0) * 1000)); return next;
 end $$;

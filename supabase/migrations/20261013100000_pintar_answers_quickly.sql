@@ -27,6 +27,8 @@
 --     exactly as the app's reads did, and every answer is still
 --     `can_in_institution`, the primitive the policies use. Nothing is inferred
 --     from a role name.
+--
+-- (e) A GRANT IS SAVED ONCE. See below.
 
 -- ---------------------------------------------------------------------------
 -- (b)
@@ -118,6 +120,45 @@ insert into public.client_rpc_registry values
   ('studio_capabilities', 'STAFF', 'BOB-18: the Studio capability loop in one call; each answer is can_in_institution under the caller''s RLS');
 
 -- ---------------------------------------------------------------------------
+-- (e) ONE STANDING GRANT PER PERSON, ROLE AND PLACE. "Berikan peran" pressed
+--     twice while the first press was still saving left two identical active
+--     grants on staging (27 Sep): nothing refused the second. Every writer of
+--     role_assignments -- grant_role, the intake, rollover, transfer, the
+--     bootstrap -- now meets one rule, in a trigger rather than in each of them:
+--     a grant is refused while an identical one (same person, role and place)
+--     still stands, i.e. is not revoked and has not expired. It takes an
+--     advisory lock on that triple first, so two submits arriving together are
+--     serialised and the second reads the first's row. The refusal is SQLSTATE
+--     23505, the unique-violation class the app already turns into
+--     ACTION_ALREADY_EXISTS; the message names GRANT_ALREADY_ACTIVE for logs.
+--
+--     It runs after role_assignments_guard (triggers fire in name order), so a
+--     caller who may not grant there is refused for that first and learns
+--     nothing about which grants exist. Existing duplicates are left as they
+--     are: a revoke is an audited human act, not a migration's.
+-- ---------------------------------------------------------------------------
+create function public.refuse_duplicate_active_grant() returns trigger
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  perform pg_advisory_xact_lock(hashtextextended(
+    'pintar.grant:' || new.person_id::text || ':' || new.role::text || ':' || coalesce(new.scope_node_id::text, '-'), 0));
+  if exists (
+    select 1 from public.role_assignments ra
+     where ra.person_id = new.person_id and ra.role = new.role
+       and ra.scope_node_id is not distinct from new.scope_node_id
+       and ra.revoked_at is null and ra.valid_until > now()
+  ) then
+    raise exception 'GRANT_ALREADY_ACTIVE'
+      using errcode = '23505', detail = 'GRANT_ALREADY_ACTIVE',
+            hint = 'this person already holds this role here; revoke it first to grant it again';
+  end if;
+  return new;
+end $$;
+revoke all on function public.refuse_duplicate_active_grant() from public, anon, authenticated;
+create trigger role_assignments_unique_active before insert on public.role_assignments
+  for each row execute function public.refuse_duplicate_active_grant();
+
+-- ---------------------------------------------------------------------------
 -- Terminal verification.
 -- ---------------------------------------------------------------------------
 do $$
@@ -130,5 +171,11 @@ begin
   end if;
   if has_function_privilege('anon', 'public.studio_capabilities(text[])', 'execute') then
     raise exception 'BOB-18: anon can execute studio_capabilities';
+  end if;
+  if (select array_agg(t.tgname::text order by t.tgname) from pg_trigger t
+       where t.tgrelid = 'public.role_assignments'::regclass and not t.tgisinternal
+         and t.tgname in ('role_assignments_guard', 'role_assignments_unique_active'))
+     is distinct from array['role_assignments_guard', 'role_assignments_unique_active'] then
+    raise exception 'BOB-18: the duplicate-grant trigger is missing or would fire before the grant guard';
   end if;
 end $$;
