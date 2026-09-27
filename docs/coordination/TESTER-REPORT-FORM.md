@@ -2,6 +2,8 @@
 
 Chosen by Yazid on 27 Sep: a **Google Form**, so testers need no claude.ai account. Yazid builds the form from this page and shares its link with Gladys's team. Once a day he downloads the responses as a CSV (Responses → ⋮ → Download responses) and uploads it to the coordinator. The coordinator sorts every report within one working day, either into a BOARD ticket or with an answer. Chat is only for "I am stuck right now".
 
+**The route:** tester → Google Form → response sheet → daily CSV → coordinator triage → a BOB or DAISY ticket. Once its link is on the board, the form is the one canonical way testers report. Nothing more is built for staging feedback.
+
 The wording matches what testers see in PINTAR: "Kode rujukan" is the label on PINTAR's error page, and the roles are named as in D-037.
 
 ## Form
@@ -30,6 +32,7 @@ The wording matches what testers see in PINTAR: "Kode rujukan" is the label on P
 The form records the date and time of each response automatically.
 
 **Before sharing it:**
+- **Screenshot upload stays (Yazid, 27 Sep):** Gladys's team signs in with Google. If it causes friction during testing, remove question 10 and take screenshots by chat.
 - **File uploads need a Google sign-in.** With question 10 in the form, Google asks every respondent to sign in to Google, and the files are saved in the form owner's Drive. If testers must be able to report without a Google account, leave question 10 out and ask them to send screenshots by chat, quoting the report's time.
 - **Responses:** link the form to a response sheet, so there is one list to export each day.
 
