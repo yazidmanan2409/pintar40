@@ -32,6 +32,15 @@ So after the link is clicked, about 10 s pass before the first screen, and about
 | Konfigurasi (platform admin) | 21–54 | at least 8.3 s |
 | Studio | 62–141 (2–4 runs of the 24 checks) | 13–25 s |
 
+## After (a): the server in Singapore (27 Sep, 11:56 UTC)
+
+- **Configured:** both Vercel projects were set to `sin1` by Yazid and read back from Vercel's API (`resourceConfig.functionDefaultRegions = ['sin1']`).
+- **As deployed:** staging's new deployment answers `x-vercel-id: sfo1::sin1::…` (the perf-staging probe).
+- **Supabase's side:** the server's calls now come from **SIN, at p50 21.5 ms and p90 39 ms**. Before, they came from IAD at 277 ms and 813 ms.
+- **First byte, measured from a US runner, so it includes that runner's own trip to Singapore:** `/masuk` 0.42–0.52 s warm (before: 0.5–1.1 s), `/` 0.35–0.37 s (before: 0.55 s).
+- **Still to do:** the unnecessary work (b)–(e) remains, and so does its request count. This fixes the distance only.
+- **Production** is unchanged until its next release.
+
 ## Writes (added 27 Sep, from the synthetic setup; D-046(e))
 
 - **What happened:** "Berikan peran" (Konfigurasi → Peran & akses), as the platform admin, took **about 10–15 s**, with nothing on screen to show the click had registered. The database then held **two identical active grants**, a double submit.

@@ -2,6 +2,37 @@
 
 This is the coordinator's working state, so a new session can pick up without the old conversation. BOARD.md (the PAUSED note and the ticket rows), DECISIONS.md and RELEASE-CHECKLIST.md stay the source of truth; this brief says how the coordinator works with them.
 
+## Update: paused again 27 Sep, ~12:05 UTC (weekly usage at 94%, resets in about 9 h)
+
+**Since the 25 Sep pause:**
+- **Integration 10** is merged (main `2adce88`): DAISY-07, DAISY-15, the wording of BOB-07's messages, BOB-08.
+  - CI #199 26/26; audit #27 26 PASS, 1 NOTE, 1 FAIL (S8).
+  - Staging has 118 migrations.
+- **D-045:** testers start 5 Oct. The report form is ready but not yet shared (`TESTER-REPORT-FORM.md`).
+- **GS-1** is fixed (Yazid's Google Sheets round trip). Checklist v2.1: 47 of 84 P0 PASS.
+- **U-PERF (D-046)** is a must-pass gate. The evidence is in `perf/2026-09-27-staging-latency.md`.
+  - **BOB-18 goes first for Bob;** **DAISY-17 first for Daisy.**
+  - **BOB-18(a) is done:** both Vercel projects are on `sin1`, verified as deployed on staging (`x-vercel-id` reads `sfo1::sin1`; Supabase time per call is 21.5 ms against 277 ms before). Production switches only at its next release.
+
+**U-PERF tooling, on main:**
+- `perf-staging.yml` has two read-only modes:
+  - `probe`: the deployed region and the time to first byte;
+  - `region`: Vercel's configured regions, read from its API.
+- A write mode that would set the region through the API was refused as a production change and is not in the repo.
+- `staging-perf-seed.yml` is idempotent.
+
+**Synthetic test data (D-046(c)), on staging only:**
+- **The school:** "Sekolah Uji Kinerja (sintetis)" (`uji-kinerja`), made by operator SQL and audited.
+- **The admin:** *Uji Kinerja Admin (sintetis)*, account `uji-kinerja-admin@example.co`. The address has a typo for example.com. Gladys created the person and made them Admin sekolah; the grant is recorded twice, from a double submit.
+- **The teacher:** *Uji Kinerja Guru (sintetis)*, account `uji-kinerja-guru@example.com`, Guru at Kelas Uji Kinerja A. Both the structure and this grant were made by the synthetic admin through PINTAR's own functions.
+- **Cleanup:** deactivate the school and both accounts after U-PERF (C-07 reset).
+
+**Next for the coordinator:**
+1. Build the U-PERF journeys on the synthetic accounts: sign-in, clicks and representative saves, with per-click timings and Supabase request counts.
+2. Take the single-session baseline on today's code.
+3. After BOB-18 and DAISY-17: the same run again, then the 30-session, 10-minute concurrency run.
+4. Gate BOB-18 and DAISY-17 together in one integration if both are ready.
+
 ## Role
 
 - **Coordinator, gatekeeper and release authority** for PINTAR 4.0. "Yazid authorizes. Machine executes. Machine verifies. Yazid receives READY or FAILED."
