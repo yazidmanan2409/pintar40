@@ -89,9 +89,10 @@ async function clickTo(page, href, path = href.split("?")[0]) {
 async function signIn(page, email, landing) {
   await page.context().addCookies(sessionCookies(await session(email)));
   const t = Date.now();
-  await page.goto(`${APP}/`, { timeout: SLOW });
+  // where the callback's own redirect (tujuanMasuk) sends this reader; "/" itself does not redirect
+  await page.goto(`${APP}${landing}`, { timeout: SLOW });
   await usable(page, landing);
-  return `home ${new URL(page.url()).pathname} usable ${Date.now() - t} ms after opening /`;
+  return `home ${new URL(page.url()).pathname} usable ${Date.now() - t} ms after opening it`;
 }
 
 async function admin(browser, rep) {
