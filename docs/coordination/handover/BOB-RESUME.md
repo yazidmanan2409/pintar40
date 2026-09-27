@@ -73,7 +73,12 @@ The evidence is `docs/coordination/perf/2026-09-27-staging-latency.md`, includin
    - Last full run at `419acdd`, before the revert: 341 passed, 0 failed; 8 app tests skipped only because of item 1's start-probe timeout. Plants 79/79.
    - Before `419acdd`, the run at `5acc7f8` gave 345 passed, with only F01-R07 failing.
    - **Stop the fake Supabase before a full run**, or the network tests run against it and fail for its data.
-4. **Questions already in the draft:**
+4. **Coordinator's answers (27 Sep), to fold into the hand-off:**
+   - **The duplicate-grant rule is a BEFORE INSERT trigger, not an index or constraint.** Migration 119 applies over existing duplicates and never deletes or revokes a grant; I checked the file: no index, constraint, update or delete on `role_assignments`. Name the clean-up in the hand-off: staging's synthetic pair (Uji Kinerja Admin, `INSTITUTION_ADMIN` at `uji-kinerja`, twice) can be revoked by the synthetic admin if wanted. The coordinator checks production for duplicates (read-only) before the release.
+   - **Send BOB-09's hand-off together with BOB-18's.** It is saved as `docs/coordination/handover/bob18/HANDOFF-BOB-09.md`. BOB-09 has its own green run, CI #200 on `e3232ca`. BOB-18 (a)–(d) was green in CI #201 on `5acc7f8`. One CI run on the final BOB-18 head covers both (D-043).
+   - **Keep the modelled timings labelled as a model.** The U-PERF evidence is the coordinator's staging measurement after the merge.
+   - The viewer-read plan (the session cookie before any network call) is agreed.
+5. **Questions already in the draft:**
    - the lane order (BOB-09 underneath);
    - prefetch: about 21 `proxy.ts` session checks per page load;
    - the health card's "Perlu perhatian" rule;
