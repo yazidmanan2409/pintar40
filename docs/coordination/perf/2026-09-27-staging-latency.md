@@ -48,6 +48,29 @@ So after the link is clicked, about 10 s pass before the first screen, and about
 - **Why it saved twice:** the button is a plain `<button>` in a server-action form, with no pending or disabled state, and nothing in the database refuses a duplicate active grant.
 - **Tickets:** BOB-18 (e) and DAISY-17.
 
+## U-PERF baseline: before BOB-18 (27 Sep, 23:28–23:31 UTC)
+
+- **Where:** staging on `main` 163bbcc (118 migrations, Singapore), from a GitHub runner in the US, so every number includes that runner's own trip to Singapore (about 0.2 s per round trip).
+- **Who:** the synthetic accounts (D-046(c)): the platform admin and a Guru in the synthetic school "Uji Kinerja". Signed in by PINTAR's own session cookie, then timed from the click to the page's heading being visible.
+- **Run:** `perf · staging`, mode `journey`, run 36358786975, two repetitions. Times in ms.
+
+| Step | Rep 1 | Rep 2 |
+|---|---|---|
+| Admin: sign-in → Konfigurasi usable | 4,754 | 3,061 |
+| Aktivasi akun | 1,468 | 696 |
+| Back to Konfigurasi (browser cache) | 29 | 24 |
+| Studio | 1,559 | 990 |
+| Studio → Buat Paket | 2,288 | 1,251 |
+| Antrean Tinjauan | 983 | 1,076 |
+| Bank Soal | 964 | 1,026 |
+| Open Konfigurasi | 2,151 | 1,205 |
+| Ringkasan sekolah | 1,004 | 649 |
+| Teacher: sign-in → Mengajar usable | 2,866 | 2,623 |
+
+- **Against D-046(b):** sign-in is under the 5 s gate but over the 3 s target on the first repetition. Clicks are 0.65–2.3 s, so the typical click is near the 1.5 s bound, and none is over 3 s.
+- **Not yet measured, harness faults, not PINTAR's:** the timed write (the grant form did not offer the synthetic teacher to the admin) and the teacher's class click (the first-visit tour overlay took the click). The harness is fixed for both before the measurement after BOB-18.
+- **Request counts** for these windows come from Supabase's edge logs, beside the counts after BOB-18.
+
 ## Not the cause
 - **Supabase itself:** the same calls take about 19 ms from Singapore.
 - **The browser:** only 2 of 406 calls came from it.
