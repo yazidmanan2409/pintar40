@@ -86,7 +86,8 @@ CI's BOB18-A01 prints the same breakdown per click against the real local stack 
 ## CI
 
 I dispatched one run on `HEAD_SHA` and haven't waited on it; please read the result there. It covers BOB-09 and all of BOB-18. The earlier runs were CI #200 (BOB-09, `e3232ca`) and CI #201 (BOB-18 (a)–(d), `5acc7f8`), both green.
-- **Local, before dispatch:** FULL_LOCAL_E
+- **Local, before dispatch:** tsc and lint are clean. A full run on a fresh database with all 119 migrations: 347 passed. The one failure is F01-R07, which always fails locally. The one skip is the same as the baseline's. BOB18-A01 needs the real stack, so it runs in CI.
+- All 79 plants prove their gates. The F01-T13 unguarded-learner red case still goes red for `"learner_rpcs_guarded_ok": false`.
 - One run, no new job. BOB18-A01 runs in the existing app job.
 
 ## CONTRACT
