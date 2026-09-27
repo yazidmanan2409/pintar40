@@ -88,6 +88,7 @@ import {
 import HasilKelas from "../src/components/umpanbalik/HasilKelas";
 import BarisSesi from "../src/components/BarisSesi";
 import PanelPernyataan, { KalimatPonsel } from "../src/components/masuk/PanelPernyataan";
+import { KODE_KARTU, bacaJawabanKartu, kalimatKartu, menunggu as kartuMenunggu, tujuanAman, type GagalKartu } from "../src/components/masuk/kartu";
 import { templatPelajaran, tulisBukuKerja, xmlTeks, crc32, hurufKolom, LEMBAR_PANDUAN, BATAS_TEKS_KOLOM, KOLOM_BERNOMOR, formatKolom } from "../src/components/unggah/templat";
 import { lokasiMasalah } from "../src/components/unggah/lokasi";
 import { bacaBukuKerja } from "../src/lib/xlsx";
@@ -4095,10 +4096,29 @@ export const experienceTests: SelfTest[] = [
       //    confirmation exists to close.
       //
       //    So there is no held state, and there is no policy in its place.
-      for (const f of files) {
+      //
+      //    ONE FILE IS NOT THE EMAIL PATH, AND IT IS NAMED. The class card's
+      //    wait (DAISY-13, BOB-12 (c), M13) is the card route's own answer, and
+      //    its cooldown counts every card number submitted, existing or not
+      //    (BOB-12 design condition 4), so showing it separates nothing. It
+      //    lives in src/components/masuk/kartu.ts and nowhere else, and the
+      //    email path is held away from it below.
+      const KARTU = "src/components/masuk/kartu.ts";
+      c.expect(files.includes(KARTU), "the card path's module is not where this sweep expects it, so the exemption names nothing");
+      for (const f of files.filter((f) => f !== KARTU)) {
         const src = code(readFileSync(join(repoRoot, f), "utf8"));
         const m = /setInterval|countdown|hitung.?mundur|cooldown|retry.?after|jeda.?detik|\bdetik\b/i.exec(src);
         c.expect(m === null, `${f} invents a resend policy: ${m?.[0]}`);
+      }
+      // Only the card surface imports it: the send action and the email
+      // surface's own functions never reach the card's wait.
+      const pengimpor = files.filter((f) => f !== KARTU && /from "(?:\.\/|@\/components\/masuk\/)kartu"/.test(readFileSync(join(repoRoot, f), "utf8")));
+      c.expect(pengimpor.length === 1 && pengimpor[0] === "src/components/masuk/LayarMasuk.tsx",
+        `the card path's module is imported by ${pengimpor.join(", ") || "nothing"}, not by the card surface alone`);
+      const layarKirim = code(readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8"));
+      for (const fn of ["kirim", "terapkanKirim", "kirimUlang", "emailLain"]) {
+        const badan = new RegExp(`(?:async )?function ${fn}\\([^)]*\\)[^{]*\\{[\\s\\S]*?\\n  \\}`).exec(layarKirim)?.[0] ?? "";
+        c.expect(badan.length > 0 && !/kirimKartu|kalimatKartu|menunggu\(|layar\.gagal/.test(badan), `the email path's ${fn} reaches the card's result`);
       }
       // The outcome set has no member meaning "held", so no surface can render
       // one however it is written.
@@ -4155,7 +4175,9 @@ export const experienceTests: SelfTest[] = [
         "S6 is SUPPRESSED BY SECURITY RULING (D2) and cannot return: the send outcome set has no member meaning " +
         "held, the throttle is still recognised so it can be folded into the same answer an unknown address gets " +
         "rather than mistaken for a transport failure, its copy is gone from the table, and no timer, countdown, " +
-        "cooldown or retry-after exists anywhere in the surface. A client that never started holds every actionable " +
+        "cooldown or retry-after exists anywhere on the email path; the class card's wait is the card route's own, " +
+        "lives in one named module that only the card surface imports, and no email function reaches it. A client " +
+        "that never started holds every actionable " +
         "control and says why, on both the sign-in surfaces and the callback, so nothing is ever drawn operational " +
         "while silently doing nothing",
       );
@@ -4198,10 +4220,17 @@ export const experienceTests: SelfTest[] = [
       //    accessibility tree. Marking only the PIN invalid tells a
       //    screen-reader user the card number was accepted — precisely the
       //    fact the visible copy is written to withhold.
-      c.expect(/if \(error\) return "gagal";/.test(aksi), "the card path no longer collapses every refusal to one value");
-      const invalid = [...layar.matchAll(/aria-invalid=\{layar\.salah \? "true" : undefined\}/g)].length;
+      // DAISY-13: the card signs in through BOB-12's route, whose one non-match
+      // code (CARD_NOT_MATCHED) is the only one that says "belum cocok" and the
+      // only one that marks the fields. No code names the card or the PIN.
+      const KODE = Object.keys(KODE_KARTU);
+      c.expect(KODE.filter((k) => /MATCH/.test(k)).length === 1 && !KODE.some((k) => /PIN|NUMBER|NOMOR|UNKNOWN|EXIST/.test(k)),
+        `the card codes can tell a card number from a PIN, or a card from no card: ${KODE.join(", ")}`);
+      c.expect(/const tidakCocok = layar\.gagal\?\.kode === "CARD_NOT_MATCHED";/.test(layar),
+        "the card fields are marked invalid by something other than a non-match");
+      const invalid = [...layar.matchAll(/aria-invalid=\{tidakCocok \? "true" : undefined\}/g)].length;
       c.expect(invalid === 2, `${invalid} card field(s) marked invalid; both must be, or the tree names the wrong one`);
-      const described = [...layar.matchAll(/aria-describedby=\{layar\.salah \? "kartu-err" : undefined\}/g)].length;
+      const described = [...layar.matchAll(/aria-describedby=\{layar\.gagal \? "kartu-err" : undefined\}/g)].length;
       c.expect(described === 2, `${described} card field(s) point at the shared message; both must`);
       c.expect((layar.match(/id="kartu-err"/g) ?? []).length === 1, "there is not exactly one card message to point at");
       for (const loc of LOCALES) {
@@ -4224,8 +4253,8 @@ export const experienceTests: SelfTest[] = [
       // ADVERSARIAL PLANTS.
       c.expect(!/if \(!error\) return "terkirim";\s*$/m.test(aksi),
         "the send path reports an unknown address as a failure");
-      const ditanam = layar.replace(/aria-invalid=\{layar\.salah \? "true" : undefined\}/, "PLANTED");
-      c.expect([...ditanam.matchAll(/aria-invalid=\{layar\.salah \? "true" : undefined\}/g)].length === 1,
+      const ditanam = layar.replace(/aria-invalid=\{tidakCocok \? "true" : undefined\}/, "PLANTED");
+      c.expect([...ditanam.matchAll(/aria-invalid=\{tidakCocok \? "true" : undefined\}/g)].length === 1,
         "the both-fields-invalid count does not notice a field losing its marking");
 
       c.note("4 privacy propert(ies), 2 language(s), 2 plants");
@@ -4233,8 +4262,9 @@ export const experienceTests: SelfTest[] = [
         "nothing on the sign-in screen distinguishes an unknown address from a sent link, or a bad card number from " +
         "a bad PIN: the send path reports an unregistered address as the ordinary outcome and asks no question " +
         "beforehand that would rebuild the oracle, its outcome set has no name for `no such account`, the " +
-        "confirmation is conditional in both languages and echoes no address back, every card refusal collapses to " +
-        "one value with BOTH fields marked invalid against ONE message — watched on a plant — the failure copy " +
+        "confirmation is conditional in both languages and echoes no address back, the card route's one non-match " +
+        "code is the only one that marks the fields, BOTH of them against ONE message — watched on a plant — and " +
+        "no card code tells a card number from a PIN or a card from no card; the failure copy " +
         "accuses neither credential, and the already-signed-in surface names nobody",
       );
     },
@@ -9552,6 +9582,134 @@ export const experienceTests: SelfTest[] = [
         "a class's summary at that class and inside each class they may read, each link with the parameter its page reads; " +
         "Pimpinan opens on the reader's broadest scope, so a head of department holding a class inside the department opens on " +
         "the department (the old first-by-name rule is the control)",
+      );
+    },
+  },
+  {
+    id: "DAISY-13-KARTU-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-13 (BOB-12 (c), audit M13): THE CARD SCREEN READS ITS RESULT.
+       *
+       * 1. THE ANSWER, READ AS THE CONTRACT PUBLISHED IT (BOB-12, 25 Sep): a
+       *    known code wins, a wait is the route's (body, else Retry-After) and
+       *    never invented, a reference must look like one, a destination must
+       *    be inside PINTAR, and nothing else the route sends is kept.
+       */
+      const baca = (status: number, body: unknown, jeda: string | null = null) => bacaJawabanKartu(status, body, jeda);
+      const g = (j: ReturnType<typeof baca>) => (j.k === "gagal" ? j : null);
+      c.expect(JSON.stringify(baca(200, { ok: true, tujuan: "/belajar?x=1" })) === JSON.stringify({ k: "masuk", tujuan: "/belajar?x=1" }),
+        "a signed-in answer does not go where the route says");
+      for (const luar of ["//contoh.com", "https://contoh.com", "/\\contoh.com", 7, null]) {
+        c.expect(tujuanAman(luar) === "/", `a destination outside PINTAR is followed: ${String(luar)}`);
+      }
+      c.expect(g(baca(401, { ok: false, code: "CARD_NOT_MATCHED" }))?.kode === "CARD_NOT_MATCHED", "a non-match is not read as one");
+      const jeda = g(baca(429, { ok: false, code: "CARD_COOLDOWN", tunggu: 30 }, "60"));
+      c.expect(jeda?.kode === "CARD_COOLDOWN" && jeda.tunggu === 30, "a cooldown does not carry the route's own wait");
+      c.expect(g(baca(429, { ok: false, code: "CARD_COOLDOWN" }, "60"))?.tunggu === 60, "a cooldown without a body wait ignores Retry-After");
+      c.expect(g(baca(429, { ok: false, code: "CARD_RATE_LIMITED" }))?.tunggu === null, "a rate limit with no wait given gets an invented one");
+      for (const salahTunggu of [0, -5, 99999, "abc", 1.5e9]) {
+        c.expect(g(baca(429, { code: "CARD_RATE_LIMITED", tunggu: salahTunggu }))?.tunggu === null, `a wait of ${salahTunggu} is shown`);
+      }
+      c.expect(g(baca(401, { code: "CARD_NOT_MATCHED", tunggu: 30 }))?.tunggu === null, "a non-match carries a wait");
+      c.expect(g(baca(403, { code: "CARD_REQUEST_REFUSED" }))?.kode === "CARD_REQUEST_REFUSED", "a refused request is not read as one");
+      c.expect(g(baca(503, { code: "CARD_UNAVAILABLE", ref: "AB12CD" }))?.ref === "AB12CD", "an outage loses its reference");
+      c.expect(g(baca(503, { code: "CARD_UNAVAILABLE", ref: "<b>x</b>" }))?.ref === null, "a reference that is not one reaches the screen");
+      c.expect(g(baca(401, { code: "CARD_SOMETHING_NEW" }))?.kode === "CARD_NOT_MATCHED"
+        && g(baca(503, "not json"))?.kode === "CARD_UNAVAILABLE" && g(baca(404, "<html>"))?.kode === "CARD_OFFLINE"
+        && g(baca(429, {}))?.kode === "CARD_RATE_LIMITED",
+        "an answer without a known code is not read by its status, or an unknown one is not \"could not reach PINTAR\"");
+      const bocor = JSON.stringify(baca(401, { code: "CARD_NOT_MATCHED", message: "Invalid login credentials", error: "invalid_grant" }));
+      c.expect(!/Invalid|invalid_grant|message/.test(bocor), `the route's other words are kept: ${bocor}`);
+
+      /**
+       * 2. THE WORDS, both languages. A non-match is the one "Belum cocok"; a
+       *    cooldown and a rate limit say wait and try again, with the route's
+       *    wait when it gives one, and never "belum cocok" (M13); a cooldown
+       *    adds who to ask about a forgotten PIN; an outage gives its
+       *    reference; nothing names the machinery. A wait is styled as a note.
+       */
+      const MESIN = /CARD_|\b40[13]\b|\b429\b|\b50[03]\b|\bAuth\b|server|rate|JSON|Retry/;
+      const kasus: Record<string, GagalKartu> = {
+        tidakCocok: { kode: "CARD_NOT_MATCHED", tunggu: null, ref: null },
+        dingin: { kode: "CARD_COOLDOWN", tunggu: 30, ref: null },
+        dinginLama: { kode: "CARD_COOLDOWN", tunggu: 300, ref: null },
+        ramai: { kode: "CARD_RATE_LIMITED", tunggu: null, ref: null },
+        ramaiTunggu: { kode: "CARD_RATE_LIMITED", tunggu: 45, ref: null },
+        tolak: { kode: "CARD_REQUEST_REFUSED", tunggu: null, ref: null },
+        mati: { kode: "CARD_UNAVAILABLE", tunggu: null, ref: "AB12CD" },
+        matiTanpaRef: { kode: "CARD_UNAVAILABLE", tunggu: null, ref: null },
+        putus: { kode: "CARD_OFFLINE", tunggu: null, ref: null },
+      };
+      for (const locale of LOCALES) {
+        const s = (k: HleEvent) => t(k, "public", { locale });
+        const k = Object.fromEntries(Object.entries(kasus).map(([n, v]) => [n, kalimatKartu(v, s, locale)])) as Record<keyof typeof kasus, string>;
+        c.expect(k.tidakCocok === s("auth.card_failed"), `(${locale}) a non-match is not the one card sentence`);
+        const cocok = locale === "id" ? /cocok/i : /match/i;
+        c.expect(cocok.test(s("auth.card_failed")), `(${locale}) the control: the non-match sentence does not say so, so the check below proves nothing`);
+        for (const n of ["dingin", "dinginLama", "ramai", "ramaiTunggu", "tolak", "mati", "matiTanpaRef", "putus"] as const) {
+          c.expect(!cocok.test(k[n]), `(${locale}) ${n} is told it does not match: ${k[n]}`);
+        }
+        const tunggu = (lama: number) => `${s("auth.card_tunggu")} ${format.durasi(lama, locale)}${s("auth.card_lalu_coba")}`;
+        c.expect(k.dingin.includes(tunggu(30)) && k.dinginLama.includes(tunggu(300)) && k.dingin.includes(s("auth.card_tanya_guru")),
+          `(${locale}) a cooldown does not give the route's wait and who to ask: ${k.dingin}`);
+        c.expect(k.ramai.includes(s("auth.card_tunggu_sebentar")) && k.ramaiTunggu.includes(tunggu(45)) && !k.ramai.includes(format.durasi(1, locale).replace(/^1\s*/, "")),
+          `(${locale}) a rate limit invents a wait, or drops the one it was given: ${k.ramai} / ${k.ramaiTunggu}`);
+        c.expect(k.mati.endsWith(`${s("auth.card_rujukan")}: AB12CD.`) && !k.matiTanpaRef.includes(s("auth.card_rujukan")),
+          `(${locale}) an outage does not give its reference, or names one it does not have`);
+        for (const [n, v] of Object.entries(k)) c.expect(!MESIN.test(v), `(${locale}) ${n} names the machinery: ${v}`);
+      }
+      c.expect(t("auth.card_tunggu", "public") + " " + format.durasi(30, "id") + t("auth.card_lalu_coba", "public") === "Tunggu 30 detik, lalu coba lagi."
+        && t("auth.card_tunggu", "public", { locale: "en" }) + " " + format.durasi(300, "en") + t("auth.card_lalu_coba", "public", { locale: "en" }) === "Wait 5 minutes, then try again.",
+        "the wait does not read as a sentence in both languages");
+      c.expect(Object.values(kasus).filter((v) => kartuMenunggu(v)).map((v) => v.kode).sort().join() === "CARD_COOLDOWN,CARD_COOLDOWN,CARD_RATE_LIMITED,CARD_RATE_LIMITED",
+        "something other than a wait is drawn as a note, or a wait as an error");
+
+      /**
+       * 3. THE SCREEN. The card form posts itself to the route and nowhere
+       *    else, follows only a signed-in answer, and says the result's own
+       *    sentence in the one message both fields point at. The old server
+       *    action is not called, and no word the route sends reaches the page
+       *    except through the code (D-011).
+       */
+      const layar = code(readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8"));
+      const kartu = code(readFileSync(join(repoRoot, "src", "components", "masuk", "kartu.ts"), "utf8"));
+      c.expect(!/signInWithCard/.test(layar), "the card surface still calls the server action BOB-12 deletes");
+      c.expect(/fetch\("\/masuk\/kartu", \{ method: "POST", body: fd,/.test(kartu) && (kartu.match(/fetch\(/g) ?? []).length === 1,
+        "the card form is not posted, as it is, to the card route alone");
+      c.expect(/const jawaban = await kirimKartu\(fd\);\s*if \(jawaban\.k === "masuk"\) \{[\s\S]{0,200}window\.location\.assign\(jawaban\.tujuan\);/.test(layar),
+        "the surface leaves for somewhere other than the signed-in answer's destination");
+      c.expect(/\{kalimatKartu\(layar\.gagal, s, locale\)\}/.test(layar) && /role="alert" id="kartu-err"/.test(layar),
+        "the result is not said in the one card message");
+      c.expect(!/\.message\b|\.error\b|\.details\b/.test(kartu), "the card path reads the route's words");
+
+      /**
+       * 4. THE ROUTE, WHEN IT IS ON THIS HEAD (BOB-12 lands with this, gated
+       *    together): every code it answers with is one the screen has a
+       *    sentence for, and every code the screen reads is one it answers with.
+       */
+      const rute = join(repoRoot, "src", "app", "masuk", "kartu", "route.ts");
+      if (existsSync(rute)) {
+        const dari = new Set([...readFileSync(rute, "utf8").matchAll(/"(CARD_[A-Z_]+)"/g)].map((m) => m[1]));
+        const kita = new Set(Object.keys(KODE_KARTU));
+        c.expect([...dari].every((k) => kita.has(k)) && [...kita].every((k) => dari.has(k)),
+          `the route answers with ${[...dari].sort().join(", ")}; the screen reads ${[...kita].sort().join(", ")}`);
+        c.note(`BOB-12's route: ${dari.size} code(s), all read`);
+      } else {
+        c.note("BOB-12's route is not on this head yet; the screen reads the published contract's five codes");
+      }
+
+      return c.verdict(
+        "the card screen reads BOB-12's answer as published: a known code wins, else its status; a wait is the route's " +
+        "(body, else Retry-After), never invented and never out of range; a reference must look like one; a destination " +
+        "must be inside PINTAR; nothing else the route sends is kept. In both languages a non-match is the one \"Belum " +
+        "cocok\", a cooldown and a rate limit say wait and try again with the route's wait when given and never that the " +
+        "card does not match, an outage gives its reference, and nothing names the machinery. The form posts itself to " +
+        "/masuk/kartu alone, follows only a signed-in answer, says the result in the one message, and no longer calls " +
+        "signInWithCard; with BOB-12's route on the head, its codes and the screen's are the same set",
       );
     },
   },

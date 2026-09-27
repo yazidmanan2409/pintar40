@@ -9,6 +9,7 @@ import { spawnSync } from "node:child_process";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
 import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
+import { bacaJawabanKartu } from "../src/components/masuk/kartu";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -1919,13 +1920,14 @@ export const appTests: SelfTest[] = [
       /**
        * DAISY-04 (D-011): AN ADDRESS THAT LEADS NOWHERE GETS PINTAR'S PAGE, not
        * Next's English "404: This page could not be found". Asked over HTTP, as
-       * an anonymous visitor, on two public paths that lead nowhere -- one of
-       * them /masuk/kartu, which the proxy lists as public and which has no page
-       * (audit N12) -- in both languages.
+       * an anonymous visitor, on two public paths that lead nowhere, in both
+       * languages. Both are under /verifikasi/, the public prefix: /masuk/kartu,
+       * which this used to ask (audit N12), is BOB-12's card route now and
+       * answers a GET with a redirect to /masuk (DAISY-13).
        */
       const base = ctx.appUrl!;
       let dilihat = 0;
-      for (const path of ["/masuk/kartu", "/verifikasi/tidak/ada"]) {
+      for (const path of ["/verifikasi/tidak/ada", "/verifikasi/a/b/c"]) {
         for (const locale of ["id", "en"] as const) {
           const res = await get(`${base}${path}`, { headers: { cookie: `pintar-lang=${locale}` } });
           const raw = await res.text();
@@ -1941,8 +1943,8 @@ export const appTests: SelfTest[] = [
       }
       return c.verdict(
         `an anonymous visitor to an address that leads nowhere gets a 404 carrying PINTAR's own page in the language ` +
-        `they chose, never Next's English default, with a way back (${dilihat} requests: /masuk/kartu and a path ` +
-        `under /verifikasi/, in Indonesian and English)`,
+        `they chose, never Next's English default, with a way back (${dilihat} requests: two paths under ` +
+        `/verifikasi/, in Indonesian and English)`,
       );
     },
   },
@@ -2324,6 +2326,43 @@ export const appTests: SelfTest[] = [
         "what will make one appear. A head of department and a dean get Pimpinan's class-by-class section, each class " +
         "summarised as having figures, none yet, or not theirs; from Pimpinan the dean opens the school summary, which is " +
         "linked exactly when a school figure is theirs, and each readable class opens its own summary, never a page of refusals",
+      );
+    },
+  },
+  {
+    id: "DAISY-13-KARTU-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-13 against BOB-12's running route (they are gated together).
+      // The card form's own request, from PINTAR's own page, for a card number
+      // nobody holds: the route answers with its one non-match code and the
+      // screen reads it as the one "Belum cocok", never as a wait. The same
+      // request from another site is refused, and read as a reload. A fresh
+      // random number each run, so no seeded card's cooldown is touched.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const asal = new URL(base).origin;
+      const nomor = `10${String(Math.floor(Math.random() * 1e8)).padStart(8, "0")}`;
+      const kirim = async (origin: string) => {
+        const fd = new FormData();
+        fd.set("kartu", nomor); fd.set("pin", "000000"); fd.set("lanjut", "/belajar");
+        const r = await get(`${base}/masuk/kartu`, { method: "POST", body: fd, headers: { origin, accept: "application/json" } });
+        const body = await r.json().catch(() => null);
+        return { status: r.status, body, jawaban: bacaJawabanKartu(r.status, body, r.headers.get("retry-after")) };
+      };
+      const sendiri = await kirim(asal);
+      c.expect(sendiri.status === 401 && (sendiri.body as { code?: string } | null)?.code === "CARD_NOT_MATCHED",
+        `an unknown card from PINTAR's own page → ${sendiri.status} ${JSON.stringify(sendiri.body)}, expected 401 CARD_NOT_MATCHED`);
+      c.expect(sendiri.jawaban.k === "gagal" && sendiri.jawaban.kode === "CARD_NOT_MATCHED" && sendiri.jawaban.tunggu === null,
+        `the screen reads that answer as ${JSON.stringify(sendiri.jawaban)}`);
+      const asing = await kirim("https://contoh.example");
+      c.expect(asing.status === 403 && asing.jawaban.k === "gagal" && asing.jawaban.kode === "CARD_REQUEST_REFUSED",
+        `the same request from another site → ${asing.status}, read as ${JSON.stringify(asing.jawaban)}`);
+      c.note(`card ${nomor.slice(0, 2)}…: ${sendiri.status}, foreign origin: ${asing.status}`);
+      return c.verdict(
+        "against BOB-12's running route, the card form's own request for a card nobody holds is answered 401 " +
+        "CARD_NOT_MATCHED and read by the screen as the one non-match with no wait; the same request from another " +
+        "site is refused 403 and read as CARD_REQUEST_REFUSED",
       );
     },
   },
