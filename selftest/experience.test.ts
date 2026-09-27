@@ -9213,6 +9213,31 @@ export const experienceTests: SelfTest[] = [
         "the steps talk to the server some other way");
       c.expect(/s\(kunciKodeTerbitan\(h\.code\)\)/.test(komponen) && !/\.message\b|\.details\b/.test(komponen), "a release refusal is not its code's sentence");
 
+      // BOB-07's content refusals appear on these steps (Daisy's wording
+      // review). One that sends the reader to a step names it exactly as the
+      // step list does, in both languages, and they all speak of the course
+      // and its content, never of a "paket".
+      {
+        const RUJUK: Array<[string, string]> = [
+          ["content_review_not_allowed", "setujui"], ["content_reviewer_is_author", "setujui"],
+          ["content_seal_not_allowed", "kunci"], ["content_publish_not_allowed", "terbitkan"], ["content_withdraw_not_allowed", "terbitkan"],
+        ];
+        const menunjuk = (kalimat: string, judul: string, locale: "id" | "en") =>
+          locale === "id" ? kalimat.includes(`langkah ${judul}.`) : kalimat.includes(`the ${judul} step.`);
+        for (const locale of LOCALES) {
+          for (const [kode, langkah] of RUJUK) {
+            const kalimat = t(`studio.konten.kode.${kode}` as HleEvent, "staff", { locale });
+            const judul = t(`studio.langkah.${langkah}.judul` as HleEvent, "staff", { locale });
+            c.expect(menunjuk(kalimat, judul, locale), `(${locale}) ${kode} does not send the reader to the "${judul}" step by its name: ${kalimat}`);
+          }
+          for (const k of allKeys().filter((k) => k.startsWith("studio.konten.kode."))) {
+            c.expect(!/\bpaket|\bpackage/i.test(t(k as HleEvent, "staff", { locale })), `(${locale}) ${k} calls the course a package`);
+          }
+        }
+        c.expect(!menunjuk("Minta orang yang disebut di langkah Setujui paket.", t("studio.langkah.setujui.judul", "staff"), "id"),
+          "the control: a sentence naming a step that does not exist is taken as naming it");
+      }
+
       return c.verdict(
         "the seven steps are the database's: each content step is an edge of content_status_transitions from every status it " +
         "is current at, each release step is BOB-03's own with the same capability and starting states; the roles beside each " +
@@ -9220,7 +9245,8 @@ export const experienceTests: SelfTest[] = [
         "capability and never to the author when it is a colleague's. Seven different buttons, none Konfirmasi, and every " +
         "release code has its sentence. RENDERED from upload to withdrawal for the author and a head of department: one step " +
         "current, the one right button or the reason there is none. The page draws them from the course, its latest release " +
-        "and the reader, with no lifecycle button, Konfirmasi or bare placeholder of its own",
+        "and the reader, with no lifecycle button, Konfirmasi or bare placeholder of its own; BOB-07's content refusals send " +
+        "the reader to a step by its exact name in both languages and speak of the course, never a package",
       );
     },
   },
