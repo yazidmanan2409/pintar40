@@ -1921,7 +1921,7 @@
     {
       "id": "BOB18-K01",
       "runner": "static",
-      "proves": "BOB-18 (D-046). vercel.json sets the functions' region to sin1, beside both Supabase projects in ap-southeast-1; studioInstitutionsDari in the source file src/app/studio/_lib.ts, driven with a recording client, asks studio_capabilities once with the eight Studio capabilities and nothing else, offers only schools holding a capability, sorted by name, and none when the call fails; currentViewer and isSystemAdmin in src/lib/auth.ts, peranSaya in src/lib/tur-negara.ts and studioInstitutions are React per-request caches, and peranSaya takes the person from the viewer."
+      "proves": "BOB-18 (D-046). vercel.json sets the functions' region to sin1, beside both Supabase projects in ap-southeast-1; studioInstitutionsDari in the source file src/app/studio/_lib.ts, driven with a recording client, asks studio_capabilities once with the eight Studio capabilities and nothing else, offers only schools holding a capability, sorted by name, and none when the call fails; currentViewer and isSystemAdmin in src/lib/auth.ts, peranSaya in src/lib/tur-negara.ts and studioInstitutions are React per-request caches, and peranSaya takes the person from the viewer; viewerDari in src/lib/auth.ts, driven, makes no call without a session cookie and, with one, asks for the user and my_profile side by side."
     },
     {
       "id": "BOB08-K01",

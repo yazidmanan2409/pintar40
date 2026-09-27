@@ -80,6 +80,33 @@ export const bob18Tests: SelfTest[] = [
       c.expect(!/rpc\("current_person_id"\)/.test(/export const peranSaya[\s\S]*?\n\}\);/.exec(src("src/lib/tur-negara.ts"))?.[0] ?? "rpc(\"current_person_id\")"),
         "peranSaya asks current_person_id again instead of using the viewer's person");
 
+      // (d) the viewer: no session cookie, no call; with one, the check and the profile side by side
+      const auth = (await import("../src/lib/auth")) as Record<string, unknown>;
+      const viewerDari = auth.viewerDari as ((c: unknown) => Promise<{ personId: string | null } | null>) | undefined;
+      c.expect(typeof viewerDari === "function", "there is no viewerDari to drive");
+      if (viewerDari) {
+        const jejak: string[] = [];
+        let tertunda = 0, palingBanyak = 0;
+        const lambat = <T,>(nama: string, nilai: T) => {
+          jejak.push(nama); tertunda++; palingBanyak = Math.max(palingBanyak, tertunda);
+          return new Promise<T>((ok) => setTimeout(() => { tertunda--; ok(nilai); }, 20));
+        };
+        const klienViewer = (sesi: boolean) => ({
+          auth: {
+            getSession: async () => { jejak.push("getSession"); return { data: { session: sesi ? { access_token: "t" } : null } }; },
+            getUser: () => lambat("getUser", { data: { user: { id: "u" } } }),
+          },
+          from: (t: string) => ({ select: () => ({ maybeSingle: () => lambat(`from:${t}`, { data: { person_id: "p", display_name: "X", display_role: null } }) }) }),
+        });
+        const anon = await viewerDari(klienViewer(false));
+        c.expect(anon === null && JSON.stringify(jejak) === JSON.stringify(["getSession"]),
+          `with no session cookie the viewer read made ${JSON.stringify(jejak)} and gave ${JSON.stringify(anon)}; expected only the cookie read, and null`);
+        jejak.length = 0; palingBanyak = 0;
+        const ada = await viewerDari(klienViewer(true));
+        c.expect(ada?.personId === "p" && jejak.includes("getUser") && jejak.includes("from:my_profile") && palingBanyak === 2,
+          `with a session the viewer read made ${JSON.stringify(jejak)} with at most ${palingBanyak} in flight; expected the user check and my_profile side by side`);
+      }
+
       // (a) the server beside the database: both Supabase projects are in Singapore
       let wilayah: unknown = null;
       try {
@@ -93,7 +120,8 @@ export const bob18Tests: SelfTest[] = [
       return c.verdict("vercel.json runs the functions in sin1, beside both Supabase projects; studioInstitutionsDari in the source file src/app/studio/_lib.ts, driven with a recording client, asks " +
         "studio_capabilities once with the eight Studio capabilities and nothing else, offers only schools holding a capability, " +
         "sorted by name, and none when the call fails; currentViewer and isSystemAdmin (src/lib/auth.ts), peranSaya " +
-        "(src/lib/tur-negara.ts) and studioInstitutions are React per-request caches, and peranSaya takes the person from the viewer");
+        "(src/lib/tur-negara.ts) and studioInstitutions are React per-request caches, and peranSaya takes the person from the viewer; viewerDari (src/lib/auth.ts) asks nothing without a session cookie and, with one, " +
+        "asks for the user and the profile side by side");
     },
   },
 ];

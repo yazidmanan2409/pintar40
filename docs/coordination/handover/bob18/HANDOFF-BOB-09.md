@@ -55,4 +55,4 @@ None. The labels are the school's own names and years; the " · " separator is t
 
 ## READY
 
-Yes, on a green run at `e3232ca`.
+Yes. CI #200 on `e3232ca` is green, and BOB-09 rides in the lane under BOB-18, so the run on BOB-18's head covers it again.
