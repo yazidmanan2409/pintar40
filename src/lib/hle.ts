@@ -275,6 +275,10 @@ export type HleEvent =
   | "config.struktur.galat.tahun_tidak_cocok"
   | "config.struktur.galat.induk_tidak_sah"
   | "config.struktur.galat.induk_nonaktif"
+  | "config.struktur.galat.bukan_sekolah"
+  | "config.struktur.galat.tahun_di_luar"
+  | "config.struktur.galat.tempat_nonaktif"
+  | "galat.action_place_inactive"
   | "config.struktur.galat.simpul_tidak_sah"
   | "config.struktur.galat.masih_ada_anak"
   | "config.struktur.galat.masih_ada_murid"
@@ -1858,6 +1862,11 @@ const table: Table = {
   "config.struktur.galat.tahun_tidak_cocok": { default: "Kelas harus memakai tahun ajaran Tingkat-nya.", en: "A Kelas must use its Tingkat's school year." },
   "config.struktur.galat.induk_tidak_sah": { default: "Letaknya tidak sesuai: Tingkat berada di bawah Bagian, dan Kelas di bawah Tingkat.", en: "It does not fit there: a Tingkat sits under a Bagian, and a Kelas under a Tingkat." },
   "config.struktur.galat.induk_nonaktif": { default: "Tempat di atasnya sudah dinonaktifkan.", en: "The place above it has been deactivated." },
+  // BOB-08: Bob's best wording; Daisy owns it (D-014)
+  "config.struktur.galat.bukan_sekolah": { default: "Pustaka nasional bukan sekolah, jadi tidak memiliki Bagian, Tingkat, atau Kelas.", en: "The national library is not a school, so it has no Bagian, Tingkat or Kelas." },
+  "config.struktur.galat.tahun_di_luar": { default: "Tahun ajaran hanya boleh tahun ajaran ini, tahun sebelumnya, atau tahun berikutnya.", en: "The academic year may only be this one, the one before or the one after." },
+  "config.struktur.galat.tempat_nonaktif": { default: "Tempat ini sudah dinonaktifkan; tidak ada yang dapat ditempatkan atau diberi peran di sini.", en: "This place has been deactivated; nobody can be placed or given a role here." },
+  "galat.action_place_inactive": { default: "Tempat yang dipilih sudah dinonaktifkan. Pilih tempat yang masih aktif.", en: "The place you chose has been deactivated. Choose one that is still active." },
   "config.struktur.galat.simpul_tidak_sah": { default: "Hanya Bagian, Tingkat, dan Kelas yang bisa diubah di sini.", en: "Only a Bagian, Tingkat or Kelas can be changed here." },
   "config.struktur.galat.masih_ada_anak": { default: "Nonaktifkan dulu Tingkat atau Kelas di bawahnya.", en: "Deactivate the Tingkat or Kelas under it first." },
   "config.struktur.galat.masih_ada_murid": { default: "Masih ada murid di sini. Pindahkan mereka dulu.", en: "Students are still placed here. Move them first." },

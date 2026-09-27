@@ -230,6 +230,10 @@ async function struktur(fn: string, args: Record<string, string | null>): Promis
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc(fn, args);
   if (error || typeof data !== "string") {
+    // BOB-08 (d): the list is re-read after a refusal too, not only after a
+    // success. A refusal (a name another admin just took, a Tingkat just
+    // deactivated) is when the page most needs to show what is there now.
+    revalidatePath("/konfigurasi", "layout");
     const code = kodeGalatStruktur(error);
     if (code !== "STRUCTURE_FAILED") return { ok: false, code };
     const ref = rujukanGalat();

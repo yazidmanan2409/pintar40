@@ -42,6 +42,19 @@ begin
   end if;
 end $$;
 
+-- BOB-08 (c): a structure function accepts only the current school year, the
+-- one before and the one after, so the suite names its years relative to
+-- today's rather than as literals that would age out of that window.
+create or replace function selftest.f10_mulai(k int)
+returns int language sql stable security definer set search_path = public, pg_temp as $$
+  select public.structure_current_year_start() + k
+$$;
+create or replace function selftest.f10_tahun(k int)
+returns text language sql stable security definer set search_path = public, pg_temp as $$
+  select (public.structure_current_year_start() + k)::text || '/' || (public.structure_current_year_start() + k + 1)::text
+$$;
+grant execute on function selftest.f10_mulai(int), selftest.f10_tahun(int) to authenticated;
+
 create or replace function selftest.f10_note(p jsonb, p_id text, p_problem text)
 returns jsonb language sql immutable as $$
   select jsonb_set(coalesce(p, '{}'::jsonb), array[p_id],
@@ -155,7 +168,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', v_uid, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', v_uid::text, true);
   v_bag  := public.create_bagian(v_inst, 'Bagian Balapan');
-  v_ting := public.create_tingkat(v_bag, 'Tingkat Balapan', '2026/2027');
+  v_ting := public.create_tingkat(v_bag, 'Tingkat Balapan', selftest.f10_tahun(0));
   perform set_config('request.jwt.claims', '', true);
   perform set_config('request.jwt.claim.sub', '', true);
   return v_ting || '|' || v_uid;
@@ -193,6 +206,9 @@ declare
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
   m_built int := 0; m_refused int := 0; m_foreign int := 0; m_year int := 0; m_codes int := 0;
   m_place int := 0; m_period int := 0; m_sys int := 0;
+  -- BOB-08
+  s7_b uuid; s7_t uuid; s7_a uuid; s7_k uuid; s7_b2 uuid; s7_reg uuid; s7_enr uuid; s7_person uuid;
+  s9_canon uuid; s10_b uuid; s10_reg uuid; m_inactive int := 0; m_window int := 0; m_canon int := 0; m_direct int := 0;
 begin
   perform selftest.as_owner();
   begin
@@ -230,9 +246,9 @@ begin
       perform selftest.as_user_uid(v_adm_a);
       v_bag1 := public.create_bagian(v_a, '  Kelas   Rendah ');
       v_bag2 := public.create_bagian(v_a, 'Kelas Tinggi');
-      v_t1   := public.create_tingkat(v_bag1, 'Kelas 1', '2026/2027');
+      v_t1   := public.create_tingkat(v_bag1, 'Kelas 1', selftest.f10_tahun(0));
       v_t4   := public.create_tingkat(v_bag2, 'Kelas 4', ' 2026 / 2027 ');
-      v_k1a  := public.create_kelas(v_t1, '1A', '2026/2027');
+      v_k1a  := public.create_kelas(v_t1, '1A', selftest.f10_tahun(0));
       v_k1b  := public.create_kelas(v_t1, '1B');
       v_k4a  := public.create_kelas(v_t4, '4A');
       select count(*) into n from public.school_structure(v_a);
@@ -278,8 +294,8 @@ begin
         v_probs := selftest.f10_note(v_probs, 'F10-S01', 'the Tingkat does not sit under its Bagian''s Reguler');
       end if;
       select count(*) into n from public.academic_periods ap
-       where ap.institution_id = v_a and ap.name = '2026/2027'
-         and ap.starts_on = date '2026-07-01' and ap.ends_on = date '2027-06-30';
+       where ap.institution_id = v_a and ap.name = selftest.f10_tahun(0)
+         and ap.starts_on = make_date(selftest.f10_mulai(0), 7, 1) and ap.ends_on = make_date(selftest.f10_mulai(1), 6, 30);
       select count(*) + 0 into m_built from public.academic_periods ap where ap.institution_id = v_a;
       if n <> 1 or m_built <> 1 then
         v_probs := selftest.f10_note(v_probs, 'F10-S01',
@@ -312,7 +328,7 @@ begin
       v_guru  := selftest.f10_user('f10-guru-'   || v_tag || '@local.invalid', 'EDUCATOR',           coalesce(v_k1a, v_a));
       v_murid := selftest.f10_user('f10-murid-'  || v_tag || '@local.invalid', null,                 null);
       if v_k1b is not null then
-        select ap.id into v_period from public.academic_periods ap where ap.institution_id = v_a and ap.name = '2026/2027';
+        select ap.id into v_period from public.academic_periods ap where ap.institution_id = v_a and ap.name = selftest.f10_tahun(0);
         insert into public.enrollments (person_id, institution_id, academic_period_id, status)
         values ((select a.person_id from public.accounts a where a.auth_user_id = v_murid), v_a, v_period, 'ACTIVE')
         returning enrollments.id into v_enr;
@@ -330,10 +346,10 @@ begin
     begin
       perform selftest.as_user_uid(v_sys);
       v_ips := public.create_bagian(v_b, 'IPS');
-      v_tx  := public.create_tingkat(v_mipa, 'Kelas X', '2026/2027');
+      v_tx  := public.create_tingkat(v_mipa, 'Kelas X', selftest.f10_tahun(0));
       -- the same Tingkat name under another Bagian is another Tingkat
-      v_txi := public.create_tingkat(v_ips, 'Kelas X', '2026/2027');
-      v_kbx := public.create_kelas(v_tx, 'X MIPA 1', '2026/2027');
+      v_txi := public.create_tingkat(v_ips, 'Kelas X', selftest.f10_tahun(0));
+      v_kbx := public.create_kelas(v_tx, 'X MIPA 1', selftest.f10_tahun(0));
       perform public.rename_school_node(v_kbx, 'X MIPA 2');
       select count(*) into n from public.school_structure(v_b);
       if n <> 5 then
@@ -371,7 +387,7 @@ begin
       v_calls := array[
         format('select * from public.school_structure(%L::uuid)', v_a),
         format('select public.create_bagian(%L::uuid, %L)', v_a, 'Bagian Liar'),
-        format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'Tingkat Liar', '2026/2027'),
+        format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'Tingkat Liar', selftest.f10_tahun(0)),
         format('select public.create_kelas(%L::uuid, %L)', v_t1, 'Kelas Liar'),
         format('select public.rename_school_node(%L::uuid, %L)', v_k1a, 'Liar'),
         format('select public.deactivate_school_node(%L::uuid)', v_k1b)];
@@ -425,12 +441,12 @@ begin
           array[v_adm_b, v_adm_b, v_adm_b, v_adm_b, v_adm_b, v_adm_b, v_adm_a, v_adm_a, v_adm_a, v_adm_a],
           array[format('select * from public.school_structure(%L::uuid)', v_a),
                 format('select public.create_bagian(%L::uuid, %L)', v_a, 'Asing'),
-                format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'Asing', '2026/2027'),
+                format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'Asing', selftest.f10_tahun(0)),
                 format('select public.create_kelas(%L::uuid, %L)', v_t1, 'Asing'),
                 format('select public.rename_school_node(%L::uuid, %L)', v_bag1, 'Asing'),
                 format('select public.deactivate_school_node(%L::uuid)', v_k1b),
                 format('select * from public.school_structure(%L::uuid)', v_b),
-                format('select public.create_tingkat(%L::uuid, %L, %L)', v_ips, 'Asing', '2026/2027'),
+                format('select public.create_tingkat(%L::uuid, %L, %L)', v_ips, 'Asing', selftest.f10_tahun(0)),
                 format('select public.rename_school_node(%L::uuid, %L)', v_kbx, 'Asing'),
                 format('select public.deactivate_school_node(%L::uuid)', v_txi)]) as t(uid, q) loop
         perform selftest.as_user_uid(r.uid);
@@ -469,8 +485,8 @@ begin
       if v_t1 is null then raise exception 'F10-S01 built no Tingkat'; end if;
       perform selftest.as_user_uid(v_adm_a);
       for r in select * from unnest(
-          array[format('select public.create_kelas(%L::uuid, %L, %L)', v_t1, '1C', '2027/2028'),
-                format('select public.create_kelas(%L::uuid, %L, %L)', v_t1, '1C', '2025/2026')],
+          array[format('select public.create_kelas(%L::uuid, %L, %L)', v_t1, '1C', selftest.f10_tahun(1)),
+                format('select public.create_kelas(%L::uuid, %L, %L)', v_t1, '1C', selftest.f10_tahun(-1))],
           array['PR020:STRUCTURE_YEAR_MISMATCH', 'PR020:STRUCTURE_YEAR_MISMATCH']) as t(q, want) loop
         v_got := selftest.f10_code(r.q);
         if v_got = r.want then m_year := m_year + 1;
@@ -490,12 +506,12 @@ begin
       else v_probs := selftest.f10_note(v_probs, 'F10-S05', 'a Kelas with a malformed year answered ' || v_got); end if;
 
       -- the same Tingkat and Kelas names in the next year are the next year's
-      v_t1b := public.create_tingkat(v_bag1, 'Kelas 1', '2027/2028');
-      v_p   := public.create_kelas(v_t1b, '1A', '2027/2028');
+      v_t1b := public.create_tingkat(v_bag1, 'Kelas 1', selftest.f10_tahun(1));
+      v_p   := public.create_kelas(v_t1b, '1A', selftest.f10_tahun(1));
       perform selftest.as_owner();
       select count(*) into n from public.org_nodes k
         join public.academic_periods ap on ap.id = k.academic_period_id
-       where k.id = v_p and ap.name = '2027/2028' and ap.starts_on = date '2027-07-01';
+       where k.id = v_p and ap.name = selftest.f10_tahun(1) and ap.starts_on = make_date(selftest.f10_mulai(1), 7, 1);
       if n <> 1 then
         v_probs := selftest.f10_note(v_probs, 'F10-S05', 'the next year''s Kelas does not carry the next year');
       end if;
@@ -521,7 +537,7 @@ begin
       v_guru2 := selftest.f10_user('f10-guru2-' || v_tag || '@local.invalid', 'EDUCATOR', v_k4b);
       -- an inactive Tingkat and an inactive Bagian, for STRUCTURE_PARENT_INACTIVE
       perform selftest.as_user_uid(v_adm_a);
-      v_t5   := public.create_tingkat(v_bag2, 'Kelas 5', '2026/2027');
+      v_t5   := public.create_tingkat(v_bag2, 'Kelas 5', selftest.f10_tahun(0));
       perform public.deactivate_school_node(v_t5);
       v_bag3 := public.create_bagian(v_a, 'Sementara');
       perform public.deactivate_school_node(v_bag3);
@@ -539,15 +555,15 @@ begin
             format('select public.create_bagian(%L::uuid, %L)', v_a, 'a' || chr(1) || 'b'),
             format('select public.create_kelas(%L::uuid, null)', v_t1),
             format('select public.create_bagian(%L::uuid, %L)', v_a, 'kelas rendah'),
-            format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'KELAS 1', '2026/2027'),
+            format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'KELAS 1', selftest.f10_tahun(0)),
             format('select public.create_kelas(%L::uuid, %L)', v_t4, '1a'),
             format('select public.rename_school_node(%L::uuid, %L)', v_k1b, '1A'),
             format('select public.rename_school_node(%L::uuid, %L)', v_bag2, 'Kelas Rendah'),
-            format('select public.create_tingkat(%L::uuid, %L, %L)', v_t1, 'Anak', '2026/2027'),
+            format('select public.create_tingkat(%L::uuid, %L, %L)', v_t1, 'Anak', selftest.f10_tahun(0)),
             format('select public.create_kelas(%L::uuid, %L)', v_bag1, 'Anak'),
             format('select public.create_bagian(%L::uuid, %L)', v_bag1, 'Anak'),
             format('select public.create_kelas(%L::uuid, %L)', v_t5, '5A'),
-            format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag3, 'Kelas 9', '2026/2027'),
+            format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag3, 'Kelas 9', selftest.f10_tahun(0)),
             format('select public.rename_school_node(%L::uuid, %L)', v_a, 'Sekolah Baru'),
             format('select public.rename_school_node(%L::uuid, %L)', v_jenjang, 'Terlihat'),
             format('select public.deactivate_school_node(%L::uuid)', c_prog),
@@ -590,7 +606,7 @@ begin
       perform public.rename_school_node(v_k1b, '1 B');
       perform public.rename_school_node(v_k1b, '1 B');
       perform public.deactivate_school_node(v_t5);
-      v_p := public.create_tingkat(v_bag2, 'Kelas 5', '2026/2027');
+      v_p := public.create_tingkat(v_bag2, 'Kelas 5', selftest.f10_tahun(0));
       perform selftest.as_owner();
       select count(*) into n from public.org_nodes o where o.id = v_k1b and o.name = '1 B';
       if n <> 1 then v_probs := selftest.f10_note(v_probs, 'F10-S06', 'the rename did not land'); end if;
@@ -628,9 +644,9 @@ begin
     perform set_config('app.seed_intent', 'synthetic', true);
     begin
       insert into public.academic_periods (institution_id, name, starts_on, ends_on)
-      values (v_c, '2026/2027', date '2026-07-01', date '2027-06-30') returning academic_periods.id into v_period;
+      values (v_c, selftest.f10_tahun(0), make_date(selftest.f10_mulai(0), 7, 1), make_date(selftest.f10_mulai(1), 6, 30)) returning academic_periods.id into v_period;
       insert into public.academic_periods (institution_id, name, starts_on, ends_on)
-      values (v_c, '2027/2028', date '2027-07-01', date '2028-06-30') returning academic_periods.id into v_period2;
+      values (v_c, selftest.f10_tahun(1), make_date(selftest.f10_mulai(1), 7, 1), make_date(selftest.f10_mulai(2), 6, 30)) returning academic_periods.id into v_period2;
       insert into public.academic_periods (institution_id, name, starts_on, ends_on, created_at)
       values (v_c, '2030/2031', date '2030-07-01', date '2031-06-30', now() + interval '1 hour');
       insert into public.org_nodes (institution_id, parent_id, kind, name)
@@ -744,6 +760,149 @@ begin
       v_probs := selftest.f10_note(v_probs, 'F10-M02', 'the test could not run: ' || left(sqlerrm, 150));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F10-S07  BOB-08 (b): NOBODY IS PLACED OR GRANTED A ROLE IN A
+    --          DEACTIVATED PLACE -- a grant, a membership, a rollover into it
+    --          and an enrolment in a deactivated programme are each refused
+    --          PR020 STRUCTURE_PLACE_INACTIVE, by the one rule on the tables
+    --          every writer (the intake, grant_role, period_rollover,
+    --          transfer_execute) goes through; an active place still takes them.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.f10_claims(v_adm_a);
+      s7_b := public.create_bagian(v_a, 'Tutup ' || v_tag);
+      s7_t := public.create_tingkat(s7_b, 'Tutup T', selftest.f10_tahun(0));
+      s7_a := public.create_kelas(s7_t, 'Tutup A', selftest.f10_tahun(0));
+      s7_k := public.create_kelas(s7_t, 'Tutup K', selftest.f10_tahun(0));
+      perform public.deactivate_school_node(s7_k);
+      s7_b2 := public.create_bagian(v_a, 'Tutup Dua ' || v_tag);
+      select n.id into s7_reg from public.org_nodes n where n.parent_id = s7_b2 and n.kind = 'PROGRAMME';
+      perform public.deactivate_school_node(s7_b2);
+      perform selftest.as_owner();
+      select a.person_id into s7_person from public.accounts a where a.auth_user_id = v_nobody;
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+      select s7_person, v_a, n.academic_period_id, 'ACTIVE' from public.org_nodes n where n.id = s7_a
+      returning enrollments.id into s7_enr;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id)
+      select s7_enr, s7_a, n.academic_period_id from public.org_nodes n where n.id = s7_a;
+
+      perform selftest.f10_claims(v_adm_a);
+      for r in select * from (values
+          ('a role grant', format('select public.grant_role(%L::uuid, %L, %L::uuid, now() + interval ''30 days'')', s7_person, 'EDUCATOR', s7_k)),
+          ('a membership', format('insert into public.memberships (enrollment_id, node_id, academic_period_id) select %L::uuid, %L::uuid, n.academic_period_id from public.org_nodes n where n.id = %L::uuid', s7_enr, s7_k, s7_k)),
+          ('a rollover into it', format('select public.period_rollover(%L::uuid, n.academic_period_id, n.academic_period_id, jsonb_build_array(jsonb_build_object(%L, %L, %L, %L))) from public.org_nodes n where n.id = %L::uuid',
+                                        v_a, 'from_node', s7_a, 'to_node', s7_k, s7_a)),
+          ('an enrolment in a deactivated programme', format('insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status) select %L::uuid, %L::uuid, n.academic_period_id, %L::uuid, %L from public.org_nodes n where n.id = %L::uuid',
+                                        s7_person, v_a, s7_reg, 'PENDING', s7_a))
+        ) as t(what, sql)
+      loop
+        v_got := selftest.f10_code(r.sql);
+        if v_got = 'PR020:STRUCTURE_PLACE_INACTIVE' then m_inactive := m_inactive + 1;
+        else v_probs := selftest.f10_note(v_probs, 'F10-S07', format('%s into a deactivated place answered %s', r.what, v_got));
+        end if;
+      end loop;
+      v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, %L, %L::uuid, now() + interval ''30 days'')', s7_person, 'EDUCATOR', s7_a));
+      if v_got <> 'ok' then v_probs := selftest.f10_note(v_probs, 'F10-S07', 'a grant into an active Kelas answered ' || v_got); end if;
+      perform selftest.as_owner();
+      select count(*) into n from public.memberships m where m.node_id = s7_k;
+      if n <> 0 then v_probs := selftest.f10_note(v_probs, 'F10-S07', format('%s membership(s) in the deactivated Kelas', n)); end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f10_note(v_probs, 'F10-S07', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F10-S08  BOB-08 (c): AN ACADEMIC YEAR NEAR NOW. The year before the
+    --          current one, the current one and the one after are accepted;
+    --          two either side are STRUCTURE_YEAR_OUT_OF_RANGE, and no period
+    --          is made for them.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.f10_claims(v_adm_a);
+      for r in select * from unnest(array[-2, -1, 0, 1, 2]) as t(k) loop
+        v_got := selftest.f10_code(format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'Jendela ' || r.k, selftest.f10_tahun(r.k)));
+        if (abs(r.k) <= 1 and v_got = 'ok') or (abs(r.k) = 2 and v_got = 'PR020:STRUCTURE_YEAR_OUT_OF_RANGE') then
+          m_window := m_window + 1;
+        else
+          v_probs := selftest.f10_note(v_probs, 'F10-S08', format('the year %s answered %s', selftest.f10_tahun(r.k), v_got));
+        end if;
+      end loop;
+      perform selftest.as_owner();
+      select count(*) into n from public.academic_periods ap
+       where ap.institution_id = v_a and ap.name in (selftest.f10_tahun(-2), selftest.f10_tahun(2));
+      if n <> 0 then v_probs := selftest.f10_note(v_probs, 'F10-S08', format('%s period(s) were made for a year out of range', n)); end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f10_note(v_probs, 'F10-S08', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F10-S09  BOB-08 (f): THE NATIONAL LIBRARY IS NOT A SCHOOL. A platform
+    --          administrator's structure calls on the canonical tenant are
+    --          STRUCTURE_NOT_A_SCHOOL, and nothing is built there.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      select i.id into s9_canon from public.institutions i where i.tenant_kind = 'PLATFORM_CANONICAL' limit 1;
+      if s9_canon is null then raise exception 'no canonical tenant in the seed'; end if;
+      select count(*) into n from public.org_nodes o where o.institution_id = s9_canon;
+      perform selftest.f10_claims(v_sys);
+      for r in select * from unnest(array[
+          format('select public.create_bagian(%L::uuid, %L)', s9_canon, 'Bagian Pustaka'),
+          format('select count(*) from public.school_structure(%L::uuid)', s9_canon)]) as t(sql) loop
+        v_got := selftest.f10_code(r.sql);
+        if v_got = 'PR020:STRUCTURE_NOT_A_SCHOOL' then m_canon := m_canon + 1;
+        else v_probs := selftest.f10_note(v_probs, 'F10-S09', format('%s answered %s', left(r.sql, 40), v_got));
+        end if;
+      end loop;
+      perform selftest.as_owner();
+      if (select count(*) from public.org_nodes o where o.institution_id = s9_canon) <> n then
+        v_probs := selftest.f10_note(v_probs, 'F10-S09', 'a node was built in the canonical library');
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f10_note(v_probs, 'F10-S09', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F10-S10  BOB-08 (a, e): ONE WAY IN, AND STAFF BELOW A BAGIAN. The
+    --          school's admin, signed in, writes neither org_nodes nor
+    --          academic_periods directly (42501); and a Bagian with a role
+    --          scoped below it, at its hidden Reguler, is STRUCTURE_HAS_STAFF.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.f10_claims(v_adm_a);
+      set local role authenticated;
+      for r in select * from unnest(array[
+          format('insert into public.org_nodes (institution_id, parent_id, kind, name) values (%L::uuid, %L::uuid, %L, %L)', v_a, v_bag1, 'PROGRAMME', 'Langsung'),
+          format('update public.org_nodes set name = %L where id = %L::uuid', 'Langsung', v_bag1),
+          format('insert into public.academic_periods (institution_id, name, starts_on, ends_on) values (%L::uuid, %L, current_date, current_date + 1)', v_a, 'Langsung'),
+          format('update public.academic_periods set name = name where institution_id = %L::uuid', v_a)]) as t(sql) loop
+        v_got := selftest.f10_code(r.sql);
+        if v_got like '42501%' then m_direct := m_direct + 1;
+        else v_probs := selftest.f10_note(v_probs, 'F10-S10', format('the admin''s direct write answered %s: %s', v_got, left(r.sql, 60)));
+        end if;
+      end loop;
+      reset role;
+      perform selftest.f10_claims(v_adm_a);
+      s10_b := public.create_bagian(v_a, 'Berstaf ' || v_tag);
+      select n.id into s10_reg from public.org_nodes n where n.parent_id = s10_b and n.kind = 'PROGRAMME';
+      perform selftest.as_owner();
+      select a.person_id into s7_person from public.accounts a where a.auth_user_id = v_nobody;
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until)
+      values (s7_person, 'EDUCATOR', s10_reg, now() + interval '30 days');
+      perform set_config('app.seed_intent', '', true);
+      perform selftest.f10_claims(v_adm_a);
+      v_got := selftest.f10_code(format('select public.deactivate_school_node(%L::uuid)', s10_b));
+      if v_got <> 'PR020:STRUCTURE_HAS_STAFF' then
+        v_probs := selftest.f10_note(v_probs, 'F10-S10', 'a Bagian with staff below it answered ' || v_got);
+      end if;
+      perform selftest.as_owner();
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f10_note(v_probs, 'F10-S10', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
     raise exception 'F10_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -754,7 +913,8 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F10-S01','F10-S02','F10-S03','F10-S04','F10-S05','F10-S06','F10-M01','F10-M02'],
+      array['F10-S01','F10-S02','F10-S03','F10-S04','F10-S05','F10-S06','F10-M01','F10-M02',
+            'F10-S07','F10-S08','F10-S09','F10-S10'],
       array['BOB-01 -- an Admin sekolah builds Bagian, Tingkat and Kelas',
             'BOB-01 -- an Admin platform builds them for any school',
             'BOB-01 -- everyone else at the school is refused',
@@ -762,7 +922,11 @@ begin
             'BOB-01 -- a Kelas sits under a Tingkat of the same year',
             'BOB-01 -- every refusal carries its own stable code',
             'M5a -- the intake places a learner only in a Kelas or Tingkat, and says why',
-            'M5a -- the intake enrols a learner into the place''s own year'],
+            'M5a -- the intake enrols a learner into the place''s own year',
+            'BOB-08 -- nobody is placed or granted a role in a deactivated place',
+            'BOB-08 -- an academic year near now',
+            'BOB-08 -- the national library is not a school',
+            'BOB-08 -- one way in, and staff below a Bagian'],
       array[
         format('as the school''s INSTITUTION_ADMIN, two Bagian, two Tingkat and three Kelas were built and '
             || 'listed with the parent the screen shows and the year (%s visible node(s)); the school has one hidden '
@@ -791,7 +955,16 @@ begin
             || 'the phrase against the row and provisions nobody', m_place),
         format('with three academic years at the school, the newest carried by no place, learners placed in a '
             || '2026/2027 Kelas, a 2027/2028 Kelas and a 2026/2027 Tingkat were each enrolled and placed in that '
-            || 'place''s own year (%s of 3), and the import completed', m_period)
+            || 'place''s own year (%s of 3), and the import completed', m_period),
+        format('in a Kelas deactivated by the school''s admin, a role grant, a membership, a rollover into it and an '
+            || 'enrolment in a deactivated programme were each refused PR020 STRUCTURE_PLACE_INACTIVE (%s of 4), '
+            || 'leaving no membership there, while a grant into an active Kelas was accepted', m_inactive),
+        format('the years one before, of and one after the current school year were accepted and the years two '
+            || 'either side refused STRUCTURE_YEAR_OUT_OF_RANGE with no period made (%s of 5)', m_window),
+        format('a platform administrator''s create_bagian and school_structure on the canonical library were each '
+            || 'STRUCTURE_NOT_A_SCHOOL (%s of 2), and nothing was built there', m_canon),
+        format('signed in, the school''s admin inserting and updating org_nodes and academic_periods directly was '
+            || 'refused 42501 (%s of 4); a Bagian with a role scoped at its hidden Reguler was STRUCTURE_HAS_STAFF', m_direct)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

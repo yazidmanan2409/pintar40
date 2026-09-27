@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 88,
+  "version": 89,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1546,7 +1546,7 @@
     {
       "id": "F08-P01",
       "runner": "db",
-      "proves": "An institution administrator SIGNS IN -- claim and role, not a claim alone -- and builds a cohort and a class in their own school. That was impossible for everyone but the table owner: the org_nodes ladder trigger is SECURITY INVOKER by design and called org_kind_level(), which was never granted to authenticated, so real onboarding failed with a permission error while every seed and suite passed by building as owner. The node written carries a full jalur, so the trigger ran with the writer's rights rather than being skipped, and the grant moved nothing else: ladder violations are still refused, and a dean, an educator and the neighbouring school's administrator are each still refused here."
+      "proves": "W8-01, restated for BOB-08 (a): an institution administrator signed in builds a Bagian, a Tingkat and a Kelas in their own school through BOB-01's structure functions, and the Kelas carries a jalur 6 deep; the same administrator's direct writes to org_nodes and academic_periods are refused (42501); the ladder still refuses a step that is not a step, even to the owner; a dean, an educator and the neighbouring school's administrator are refused. Read from the migration source 20261012100000, which closes the direct write path."
     },
     {
       "id": "F08-P02",
@@ -1740,6 +1740,36 @@
       "proves": "DAISY-05 over real HTTP against the seeded database: the RENDERED html of /konfigurasi for Alpha's school administrator opens with the Struktur sekolah section, read through school_structure without a refusal; the seeded Bagian (Matematika), Tingkat (Kelas 5 and Kelas 6) and Kelas (5A, 6B) are drawn as places with their school years and the way to add each level; the seed's hidden Jenjang (Sekolah Dasar) and Reguler (SD Reguler) are nowhere in the section; nothing offers a deactivation before the question. Read only. As the seeded platform administrator, who reads every tenant: the RENDERED section opens on a real school and never offers or opens 'PINTAR Kurikulum Nasional', by default, for an unknown id, or for the library's own id read from the institutions table (audit S7b)."
     },
     {
+      "id": "F10-S07",
+      "runner": "db",
+      "proves": "BOB-08 (b), by migration 20261012100000: in a Kelas the school's admin deactivated, a role grant, a membership, a rollover into it and an enrolment in a deactivated programme are each refused PR020 STRUCTURE_PLACE_INACTIVE by the one trigger on memberships, role_assignments and enrollments, leaving no membership there; a grant into an active Kelas is accepted."
+    },
+    {
+      "id": "F10-S08",
+      "runner": "db",
+      "proves": "BOB-08 (c): the structure functions accept the academic year one before, of and one after the current school year (Jakarta, from 1 July), and refuse two either side PR020 STRUCTURE_YEAR_OUT_OF_RANGE with no period made. The suite names its years relative to today's, so it cannot age out of the window."
+    },
+    {
+      "id": "F10-S09",
+      "runner": "db",
+      "proves": "BOB-08 (f): a platform administrator's create_bagian and school_structure on the canonical library are each PR020 STRUCTURE_NOT_A_SCHOOL, and nothing is built there."
+    },
+    {
+      "id": "F10-S10",
+      "runner": "db",
+      "proves": "BOB-08 (a, e): the school's admin, signed in, inserting and updating org_nodes and academic_periods directly is refused 42501; a Bagian with a role scoped at its hidden Reguler below it is STRUCTURE_HAS_STAFF."
+    },
+    {
+      "id": "F10-C02",
+      "runner": "db",
+      "proves": "BOB-08 (b) under real concurrency: two psql connections as the school's admin; the holder deactivates a Tingkat and holds its transaction open, and a concurrent grant_role there waits on the shared structure lock the place trigger takes, reads the Tingkat again and is refused PR020 STRUCTURE_PLACE_INACTIVE, leaving no role scoped there. The racer starts only once the holder is seen asleep holding the lock."
+    },
+    {
+      "id": "F10-C03",
+      "runner": "db",
+      "proves": "BOB-08 (e) under real concurrency: two admins' connections create a Bagian of the same name at once; the second waits on the per-school structure lock, reads the names again and is refused PR020 STRUCTURE_NAME_TAKEN, leaving one Bagian of that name."
+    },
+    {
       "id": "F11-P01",
       "runner": "db",
       "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, no parallel group spanning the pre-test and post-test (D-040: the sample was regrouped, and v1 kept as the source of the application copies), and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
@@ -1859,6 +1889,11 @@
       "id": "F14-N01",
       "runner": "db",
       "proves": "BOB-06. The school's admin is refused, by the guard's own rule, editing, unmarking, revising, extending and removing PINTAR's standard class report, and refused by a missing grant writing the provisioning pass and calling the provisioner; an educator writes no template; no pass is open, and no client is granted the provisioner or the pass, which has no policies."
+    },
+    {
+      "id": "BOB08-K01",
+      "runner": "static",
+      "proves": "BOB-08 (d, g). The structure helper struktur() in the source file src/app/konfigurasi/actions.ts re-reads the list once on each path: before a refusal returns (it re-read only after a success) and after a success, as DAISY-05-STRUKTUR-01 also holds; lingkupPimpinanDari in src/lib/pimpinan.ts, driven with a revoked, an expired, a not-yet-begun and an active grant, offers only the active one's node in the Pimpinan picker."
     },
     {
       "id": "BOB07-K01",

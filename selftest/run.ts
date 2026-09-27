@@ -202,42 +202,37 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.includes("F02-C01")) out.push(await runDbConcurrency(dbUrl));
   if (!only || only.includes("F07-C01")) out.push(await runFeedbackConcurrency(dbUrl));
   if (!only || only.includes("F09-C01")) out.push(runSignupOnAFreshConnection(dbUrl));
-  if (!only || only.includes("F10-C01")) out.push(await runStructureConcurrency(dbUrl));
+  if (!only || only.some((x) => /^F10-C0[123]$/.test(x))) out.push(...(await runStructureConcurrency(dbUrl, only)));
   return out;
 }
 
 /**
- * F10-C01 — BOB-01 under real concurrency: a Kelas cannot be added under a
- * Tingkat that is being deactivated.
+ * F10-C01..C03 — a school's structure under real concurrency.
  *
- * One session cannot see this. The functions read their node, check it is
- * active, and write; a second connection that read the node before the first
- * committed its deactivation would pass the check on a stale row and put a
- * Kelas under a closed Tingkat. So two real psql connections race as the
- * school's admin: A deactivates the Tingkat and holds its transaction open; B
- * arrives mid-flight to add a Kelas under it. Correct behaviour is that the
- * per-school structure lock arbitrates -- B waits, reads the Tingkat again
- * under the lock, and is refused STRUCTURE_PARENT_INACTIVE -- leaving no Kelas
- * under the deactivated Tingkat.
+ * One session cannot see these. A function reads its node, checks it, and
+ * writes; a second connection that read the node before the first committed
+ * would pass the check on a stale row. So two real psql connections race as
+ * the school's admin: A (the holder) makes a structure change and holds its
+ * transaction open; B arrives mid-flight. The per-school structure lock must
+ * arbitrate: B waits, reads again under the lock, and is refused.
+ *
+ *   F10-C01  A deactivates a Tingkat; B adds a Kelas under it
+ *            → STRUCTURE_PARENT_INACTIVE, and no Kelas under it.
+ *   F10-C02  BOB-08 (b): A deactivates a Tingkat; B grants a role there
+ *            → STRUCTURE_PLACE_INACTIVE, and no grant there. (The same trigger
+ *            guards memberships and enrolments, the intake's writes.)
+ *   F10-C03  BOB-08 (e): A creates a Bagian; B creates one of the same name
+ *            → STRUCTURE_NAME_TAKEN, and one Bagian of that name.
+ *
+ * BOB-08 (e): ROBUST TO A SLOW FIRST CONNECTION. B used to start a fixed 300 ms
+ * after A. If A's connection took longer to open, B ran first and the race
+ * failed for the wrong reason. B now starts only once A is seen asleep in its
+ * own transaction, holding the lock (pg_stat_activity: wait_event PgSleep on
+ * A's own marker), with a 20-second bound.
  */
-async function runStructureConcurrency(dbUrl: string): Promise<Outcome> {
-  const id = "F10-C01";
+async function runStructureConcurrency(dbUrl: string, only: string[] | null | undefined): Promise<Outcome[]> {
   const psql = (sql: string) =>
     spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
-  const teardown = () => psql("select selftest.f10_concurrency_teardown()");
-  const fail = (detail: string): Outcome => {
-    teardown();
-    return { id, runner: "db", status: "FAIL", detail };
-  };
-
-  const fixture = psql("select selftest.f10_concurrency_fixture()");
-  if (fixture.status !== 0) return fail(`fixture failed: ${fixture.stderr.trim().split("\n").pop()}`);
-  const [tingkat, uid] = fixture.stdout.trim().split("|");
-  if (!tingkat || !uid) return fail(`fixture returned nothing usable: ${fixture.stdout.trim()}`);
-
-  const claim =
-    `select set_config('request.jwt.claim.sub','${uid}',true);` +
-    ` select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true);`;
   const race = (sql: string) =>
     new Promise<{ code: number; out: string }>((done) => {
       const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
@@ -248,36 +243,67 @@ async function runStructureConcurrency(dbUrl: string): Promise<Outcome> {
       p.stderr.on("data", (d: string) => (buf += d));
       p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
     });
+  const asleep = async (marker: string): Promise<boolean> => {
+    for (let i = 0; i < 200; i++) {
+      const n = psql(`select count(*) from pg_stat_activity where wait_event = 'PgSleep' and query like '%${marker}%' and pid <> pg_backend_pid()`);
+      if (n.stdout.trim() !== "0" && n.status === 0) return true;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    return false;
+  };
 
-  const holder = race(`begin; ${claim} select public.deactivate_school_node('${tingkat}'::uuid); select pg_sleep(1); commit;`);
-  await new Promise((r) => setTimeout(r, 300));
-  const [a, b] = await Promise.all([
-    holder,
-    race(`begin; ${claim} select public.create_kelas('${tingkat}'::uuid, 'Kelas Balapan'); commit;`),
-  ]);
+  const cases = [
+    { id: "F10-C01", holder: (t: string) => `select public.deactivate_school_node('${t}'::uuid)`,
+      racer: (t: string) => `select public.create_kelas('${t}'::uuid, 'Kelas Balapan')`, code: "STRUCTURE_PARENT_INACTIVE",
+      went: "a Kelas was created under a Tingkat being deactivated",
+      verdict: (t: string) => `select selftest.f10_concurrency_verdict('${t}'::uuid)`,
+      held: (t: string, out: string) => out.includes(t),
+      pass: "the holder deactivated a Tingkat and held its transaction open; the concurrent create_kelas under it waited " +
+        "on the per-school structure lock, read the Tingkat again and was refused PR020 STRUCTURE_PARENT_INACTIVE" },
+    { id: "F10-C02", holder: (t: string) => `select public.deactivate_school_node('${t}'::uuid)`,
+      // to someone else: a self-grant is refused whatever the place (INV-16)
+      racer: (t: string, uid: string) => `select public.grant_role((select p.id from public.persons p where p.id <> (select a.person_id from public.accounts a where a.auth_user_id = '${uid}') order by p.created_at limit 1), 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
+      code: "STRUCTURE_PLACE_INACTIVE", went: "a role was granted in a Tingkat being deactivated",
+      verdict: (t: string) => `select (count(*) = 0)::text || '|no role is scoped to the deactivated Tingkat' from public.role_assignments where scope_node_id = '${t}'::uuid`,
+      held: (t: string, out: string) => out.includes(t),
+      pass: "the holder deactivated a Tingkat and held its transaction open; a concurrent grant_role there waited on the " +
+        "shared structure lock the place trigger takes, read the Tingkat again and was refused PR020 STRUCTURE_PLACE_INACTIVE" },
+    { id: "F10-C03", holder: (t: string) => `select public.create_bagian((select institution_id from public.org_nodes where id = '${t}'::uuid), 'Kembar')`,
+      racer: (t: string) => `select public.create_bagian((select institution_id from public.org_nodes where id = '${t}'::uuid), 'Kembar')`,
+      code: "STRUCTURE_NAME_TAKEN", went: "a second Bagian of the same name was created",
+      verdict: (t: string) => `select (count(*) = 1)::text || '|one Bagian is named Kembar' from public.org_nodes where institution_id = (select institution_id from public.org_nodes where id = '${t}'::uuid) and kind = 'DEPARTMENT' and name = 'Kembar'`,
+      held: (_t: string, out: string) => /^[0-9a-f-]{36}$/m.test(out),
+      pass: "two admins' connections created a Bagian of the same name at once; the second waited on the per-school " +
+        "structure lock, read the names again and was refused PR020 STRUCTURE_NAME_TAKEN" },
+  ].filter((k) => !only || only.includes(k.id));
 
-  const verdict = psql(`select selftest.f10_concurrency_verdict('${tingkat}'::uuid)`).stdout.trim();
-  teardown();
-
-  const problems: string[] = [];
-  if (a.code !== 0 || !a.out.includes(tingkat)) problems.push(`the holder did not deactivate the Tingkat (${a.out.slice(0, 90)})`);
-  if (b.code === 0) problems.push("a Kelas was created under a Tingkat being deactivated");
-  else if (!b.out.includes("STRUCTURE_PARENT_INACTIVE")) {
-    problems.push(`the concurrent create failed for the wrong reason (${b.out.slice(0, 120)})`);
+  const out: Outcome[] = [];
+  for (const k of cases) {
+    const teardown = () => psql("select selftest.f10_concurrency_teardown()");
+    const fail = (detail: string): Outcome => { teardown(); return { id: k.id, runner: "db", status: "FAIL", detail }; };
+    const fixture = psql("select selftest.f10_concurrency_fixture()");
+    if (fixture.status !== 0) { out.push(fail(`fixture failed: ${fixture.stderr.trim().split("\n").pop()}`)); continue; }
+    const [tingkat, uid] = fixture.stdout.trim().split("|");
+    if (!tingkat || !uid) { out.push(fail(`fixture returned nothing usable: ${fixture.stdout.trim()}`)); continue; }
+    const claim =
+      `select set_config('request.jwt.claim.sub','${uid}',true);` +
+      ` select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true);`;
+    const marker = `pg_sleep(1.3${k.id.slice(-1)}7)`;
+    const holder = race(`begin; ${claim} ${k.holder(tingkat)}; select ${marker}; commit;`);
+    if (!(await asleep(marker))) { await holder; out.push(fail("the holder never held its transaction open within 20 s")); continue; }
+    const [a, b] = await Promise.all([holder, race(`begin; ${claim} ${k.racer(tingkat, uid)}; commit;`)]);
+    const verdict = psql(k.verdict(tingkat)).stdout.trim();
+    teardown();
+    const problems: string[] = [];
+    if (a.code !== 0 || !k.held(tingkat, a.out)) problems.push(`the holder did not make its change (${a.out.slice(0, 90)})`);
+    if (b.code === 0) problems.push(k.went);
+    else if (!b.out.includes(k.code)) problems.push(`the concurrent call failed for the wrong reason (${b.out.slice(0, 120)})`);
+    if (!verdict.startsWith("true|")) problems.push(`row check: ${verdict}`);
+    out.push(problems.length
+      ? { id: k.id, runner: "db", status: "FAIL", detail: problems.join("; ") }
+      : { id: k.id, runner: "db", status: "PASS", detail: `${k.pass}, and ${verdict.split("|")[1]}` });
   }
-  if (!verdict.startsWith("true|")) problems.push(`row check: ${verdict}`);
-
-  return problems.length
-    ? { id, runner: "db", status: "FAIL", detail: problems.join("; ") }
-    : {
-        id,
-        runner: "db",
-        status: "PASS",
-        detail:
-          "two connections raced one school's structure as its admin: the holder deactivated a Tingkat and held " +
-          "its transaction open; the concurrent create_kelas under it waited on the per-school structure lock, " +
-          `read the Tingkat again and was refused PR020 STRUCTURE_PARENT_INACTIVE, and ${verdict.split("|")[1]}`,
-      };
+  return out;
 }
 
 /**
@@ -621,7 +647,7 @@ async function main() {
   // claiming the id was not reported.
   for (const t of manifest.tests.filter((t) => t.runner === "db")) {
     const owners = DB_RUNNERS.filter((r) => r.emits.some((e) => t.id.startsWith(e)));
-    if (owners.length !== 1 && !["F02-C01", "F07-C01", "F09-C01", "F10-C01"].includes(t.id)) {
+    if (owners.length !== 1 && !["F02-C01", "F07-C01", "F09-C01", "F10-C01", "F10-C02", "F10-C03"].includes(t.id)) {
       problems.push(`${t.id} is claimed by ${owners.length} db suite(s) — declare it in exactly one DB_RUNNERS.emits`);
     }
   }
