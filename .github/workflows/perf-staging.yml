@@ -129,7 +129,8 @@ jobs:
                                        headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
           keys = json.load(urllib.request.urlopen(req, timeout=30))
           svc = next(k['api_key'] for k in keys if k.get('name') == 'service_role' and (k.get('api_key') or '').startswith('eyJ'))
-          print('::add-mask::' + svc)
+          import sys
+          print('::add-mask::' + svc, file=sys.stderr, flush=True)
           print(f'SERVICE_KEY={svc}')
           print(f'SUPABASE_URL=https://{ref}.supabase.co')
           PY
