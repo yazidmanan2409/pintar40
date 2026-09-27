@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 91,
+  "version": 90,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1717,7 +1717,7 @@
     {
       "id": "DAISY-04-TIDAK-ADA-01",
       "runner": "app",
-      "proves": "DAISY-04 (D-011): an address that leads nowhere gets PINTAR's own not-found page. The RENDERED html of two public paths that lead nowhere -- two paths under the public prefix /verifikasi/ (not /masuk/kartu any more: it is BOB-12's card route, DAISY-13) -- is fetched anonymously over HTTP in Indonesian and English: each answers 404, carries PINTAR's heading in the chosen language, declares that language on <html>, offers the way back, and never shows Next's English default."
+      "proves": "DAISY-04 (D-011): an address that leads nowhere gets PINTAR's own not-found page. The RENDERED html of two public paths that lead nowhere -- /masuk/kartu (audit N12) and a path under /verifikasi/ -- is fetched anonymously over HTTP in Indonesian and English: each answers 404, carries PINTAR's heading in the chosen language, declares that language on <html>, offers the way back, and never shows Next's English default."
     },
     {
       "id": "DAISY-04-KUNCI-01",
@@ -2056,21 +2056,6 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator, head of department and dean and reads the rendered Konfigurasi, both summaries and Pimpinan against the seed. CI has both facilities, so it never skips there",
       "proves": "DAISY-07 over real HTTP against the seed. The RENDERED Konfigurasi of Alpha's school administrator has a Laporan section linking exactly one school summary, at a node read back (as the same reader) as that school's INSTITUTION node, and at least one class summary, each at a CLASS node of the same school. Following them, both summaries open with their title on a report the school has (never 'no figures to show you'), and a report with no figure yet says what will make one appear. A head of department and a dean, standing above the classes, get Pimpinan's class-by-class section: it lists classes, each summarised as having figures, none yet, or not theirs, or says there is none. From Pimpinan (DEA-03, X-12), the school summary is linked exactly when Pimpinan shows the reader a school figure, and Alpha's dean, standing at the school, has it; each class links its own summary exactly when its figures are the reader's. Following them as the same reader, each opens with its title on a report with at least one labelled figure, never 'no figures' and never a page of refusals. Read only."
-    },
-    {
-      "id": "DAISY-13-KARTU-01",
-      "runner": "static",
-      "proves": "DAISY-13 (BOB-12 (c), audit M13): the card screen reads BOB-12's published answer from POST /masuk/kartu. Read: a known code wins, else its status (401 non-match, 429 rate limit, 403 refused, 503 unavailable, anything else 'could not reach PINTAR'); a wait is the route's own (the body's tunggu, else Retry-After), never invented and never outside 1..3600 s, and only on the two waits; a reference must be six capitals or digits; a destination must be inside PINTAR (no //, no other scheme); nothing else the route sends (message, error) is kept. Words, both languages: a non-match is exactly auth.card_failed ('Belum cocok'); a cooldown and a rate limit say wait and try again with the route's wait in the reader's units when given ('Tunggu 30 detik, lalu coba lagi.', 'Wait 5 minutes, then try again.') and 'sebentar' when not, and never that the card does not match (the non-match sentence is the control); a cooldown adds who to ask about a forgotten PIN; an outage gives its reference only when it has one; nothing names a code, a status or the machinery; only the two waits are drawn as a note. Screen: the card form is posted as it is to /masuk/kartu by the one fetch, the page leaves only for a signed-in answer's destination, the result is said in the one card message, signInWithCard is no longer called and the card path reads no .message/.error/.details. With BOB-12's route on the head, the codes it answers with and the codes the screen reads are the same set."
-    },
-    {
-      "id": "DAISY-13-KARTU-02",
-      "runner": "app",
-      "requires": [
-        "app",
-        "network"
-      ],
-      "skip_justification": "needs the running application with BOB-12's card route and the Supabase project it asks: it posts the card form to POST /masuk/kartu. CI has both facilities (and, gated with BOB-12, the route), so it never skips there",
-      "proves": "DAISY-13 against BOB-12's running route (gated together, D-043). The card form's own request (kartu, pin, lanjut), from PINTAR's own origin, for a fresh random card number nobody holds, is answered 401 with code CARD_NOT_MATCHED, and the screen's own reader (bacaJawabanKartu) reads it as the one non-match with no wait; the same request with another site's Origin is answered 403 and read as CARD_REQUEST_REFUSED. A fresh number each run, so no seeded card's cooldown is touched."
     }
   ]
 }
