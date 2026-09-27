@@ -5,6 +5,8 @@ name: perf · staging (U-PERF, D-046)
 #          time to first byte of a few server-rendered pages, three times each (the first may be a cold start).
 #   region: what Vercel says each project is configured with, and which regions the latest staging
 #          deployment was built for (read-only API; only fields whose names mention "region" are printed).
+#   journey: the synthetic admin and teacher sign in, click through and save (a grant and its revoke), timed per
+#          step with its window, for request counts from Supabase's log (audit/perf/journey.mjs; D-046(c) accounts only).
 # The per-click journeys and the concurrency run are added to this workflow as further modes.
 on:
   workflow_dispatch:
@@ -12,8 +14,12 @@ on:
       mode:
         description: "What to measure"
         type: choice
-        options: [probe, region]
+        options: [probe, region, journey]
         default: probe
+      reps:
+        description: "journey: repetitions per role (the first may include cold starts)"
+        type: number
+        default: 2
 
 permissions:
   contents: read
@@ -89,3 +95,48 @@ jobs:
                   for k, v in regions(dep):
                       print(f'   deployment.{k} = {v}')
           PY
+
+  journey:
+    if: ${{ inputs.mode == 'journey' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+      PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+      STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+      ADMIN_EMAIL: uji-kinerja-admin@example.co
+      GURU_EMAIL: uji-kinerja-guru@example.com
+      REPS: ${{ inputs.reps }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/perf
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Staging's keys (masked)
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          keys = json.load(urllib.request.urlopen(req, timeout=30))
+          svc = next(k['api_key'] for k in keys if k.get('name') == 'service_role' and (k.get('api_key') or '').startswith('eyJ'))
+          import sys
+          print('::add-mask::' + svc, file=sys.stderr, flush=True)
+          print(f'SERVICE_KEY={svc}')
+          anon = next(k['api_key'] for k in keys if k.get('name') == 'anon' and (k.get('api_key') or '').startswith('eyJ'))
+          print('::add-mask::' + anon, file=sys.stderr, flush=True)
+          print(f'ANON_KEY={anon}')
+          print(f'SUPABASE_URL=https://{ref}.supabase.co')
+          PY
+      - name: The journey, timed
+        working-directory: audit/perf
+        run: node journey.mjs

@@ -6,6 +6,7 @@
  * evidence forwarded from the CI workflow's own jobs.
  */
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
 import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
@@ -2359,6 +2360,94 @@ export const appTests: SelfTest[] = [
         "Konfigurasi offers Menambahkan orang exactly when /pendataan admits the same reader, for the platform " +
         "administrator and for Alpha's school administrator; a school administrator refused Pimpinan reads the staff " +
         "refusal, not \"ask your teacher\"",
+      );
+    },
+  },
+  {
+    // BOB-18 (D-046; perf/2026-09-27-staging-latency.md). What one click costs,
+    // counted: every call the app's server makes to Supabase while it answers
+    // one page, read from the runner's count (selftest/hitung-fetch.cjs).
+    // Studio asked 8 capabilities per school one after another and asked again
+    // for the page (62-141 calls a click); Konfigurasi ran the schema lint on
+    // every load; the sign-in check, profile and roles were read 2-10 times.
+    id: "BOB18-A01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.fetchLog), "the runner kept no count of the app's calls, so this test would prove nothing")) {
+        return c.verdict("");
+      }
+      const klik = async (cookie: string, jalan: string) => {
+        const awal = readFileSync(ctx.fetchLog!, "utf8").length;
+        const r = await get(`${base}${jalan}`, { headers: { cookie } });
+        const html = await r.text();
+        const baris = readFileSync(ctx.fetchLog!, "utf8").slice(awal).split("\n").filter(Boolean);
+        // the evidence, pass or fail: what this click cost, by path
+        const perJalan = new Map<string, number>();
+        for (const b of baris) perJalan.set(b.split(" ")[1], (perJalan.get(b.split(" ")[1]) ?? 0) + 1);
+        console.log(`  BOB18-A01 ${jalan} → ${r.status}: ${baris.length} Supabase calls; ` +
+          [...perJalan].sort((a, b) => b[1] - a[1]).map(([p, x]) => `${p.replace(/^\/rest\/v1\//, "")} ${x}`).join(", "));
+        const n = (path: string, kolom?: string) =>
+          baris.filter((b) => b.split(" ")[1] === path && (kolom === undefined || b.split(" ")[2] === `select=${kolom}`)).length;
+        return { status: r.status, html, total: baris.length, n };
+      };
+      const catatan: string[] = [];
+      const sekali = (peran: string, jalan: string, k: Awaited<ReturnType<typeof klik>>) => {
+        catatan.push(`${peran} ${jalan}: ${k.total} calls`);
+        c.expect(k.status === 200, `${peran} ${jalan} → ${k.status}`);
+        // proxy.ts checks the session for every request; the page asks once more
+        c.expect(k.n("/auth/v1/user") <= 2, `${peran} ${jalan} asked Auth for the user ${k.n("/auth/v1/user")} times`);
+        c.expect(k.n("/rest/v1/my_profile") <= 1, `${peran} ${jalan} read the profile ${k.n("/rest/v1/my_profile")} times`);
+        c.expect(k.n("/rest/v1/rpc/is_system_admin") <= 1, `${peran} ${jalan} asked is_system_admin ${k.n("/rest/v1/rpc/is_system_admin")} times`);
+        const peranku = k.n("/rest/v1/role_assignments", "role,valid_from,valid_until,revoked_at");
+        c.expect(peranku <= 1, `${peran} ${jalan} read the viewer's own roles ${peranku} times`);
+      };
+
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const guru = await signIn(ctx, PERSONA.alphaGuru);
+
+      // (c) Studio: one capability call, shared by the layout and the page
+      for (const [peran, sesi, jalan] of [
+        ["SYSTEM_ADMIN", sys, "/studio"], ["SYSTEM_ADMIN", sys, "/studio/tinjau"], ["INSTITUTION_ADMIN", admin, "/studio/unggah"],
+      ] as const) {
+        const k = await klik(sesi.cookie, jalan);
+        sekali(peran, jalan, k);
+        c.expect(k.n("/rest/v1/rpc/can_in_institution") === 0,
+          `${peran} ${jalan} asked can_in_institution ${k.n("/rest/v1/rpc/can_in_institution")} times, one call per capability per school`);
+        c.expect(k.n("/rest/v1/rpc/studio_capabilities") === 1,
+          `${peran} ${jalan} asked studio_capabilities ${k.n("/rest/v1/rpc/studio_capabilities")} times; expected once for the layout and the page together`);
+        // the capability read was the only other role_assignments read on a Studio page
+        c.expect(k.n("/rest/v1/role_assignments") <= 1, `${peran} ${jalan} read role_assignments ${k.n("/rest/v1/role_assignments")} times`);
+      }
+
+      // (b) Konfigurasi: the lint only when asked
+      for (const [peran, sesi] of [["SYSTEM_ADMIN", sys], ["INSTITUTION_ADMIN", admin]] as const) {
+        const k = await klik(sesi.cookie, "/konfigurasi");
+        sekali(peran, "/konfigurasi", k);
+        c.expect(k.n("/rest/v1/rpc/platform_schema_lint") === 0, `${peran} /konfigurasi ran the schema lint on an ordinary load`);
+      }
+      // (e) the page "Berikan peran" returns to once the grant is saved
+      const kembali = await klik(sys.cookie, "/konfigurasi?bagian=roles&hasil=ok");
+      sekali("SYSTEM_ADMIN", "/konfigurasi?bagian=roles&hasil=ok", kembali);
+      c.expect(kembali.n("/rest/v1/rpc/platform_schema_lint") === 0, "the page a saved grant returns to ran the schema lint");
+      const diminta = await klik(sys.cookie, "/konfigurasi?periksa=skema");
+      sekali("SYSTEM_ADMIN", "/konfigurasi?periksa=skema", diminta);
+      c.expect(diminta.n("/rest/v1/rpc/platform_schema_lint") === 1, `asked for, the schema lint ran ${diminta.n("/rest/v1/rpc/platform_schema_lint")} times`);
+      c.expect(!visibleText(diminta.html).includes(t("config.card.health.periksa", "staff")), "asked for, the health card still offers to run the checks");
+      const biasa = await klik(sys.cookie, "/konfigurasi");
+      c.expect(visibleText(biasa.html).includes(t("config.card.health.periksa", "staff")), "the platform admin is not offered the checks on Konfigurasi");
+
+      // (d) an ordinary page
+      for (const jalan of ["/", "/mengajar"]) sekali("EDUCATOR", jalan, await klik(guru.cookie, jalan));
+
+      c.note(catatan.join("; "));
+      return c.verdict(
+        "counted through the running app, a Studio click asks studio_capabilities once and can_in_institution never; Konfigurasi, " +
+        "including the page a saved grant returns to, runs the schema lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at " +
+        "most twice (the proxy's check and the page's), the profile read at most once, is_system_admin asked at most once and " +
+        "the viewer's own roles read at most once (a Studio page reads role_assignments for nothing else). Calls per click: " + catatan.join("; "),
       );
     },
   },

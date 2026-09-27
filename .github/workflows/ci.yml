@@ -308,6 +308,15 @@ jobs:
           grep -E '^BOB07-K01 +FAIL' r6.txt
           grep -F 'src/app/redcase3/actions.ts:2 lets .message leave the server' r6.txt
           rm -rf src/app/redcase3
+
+          # 7. BOB-09: a picker that treats the hidden Reguler as a Bagian.
+          #    BOB09-K01 must go red and name the hidden node it was offered.
+          node -e 'const fs=require("fs");const f="src/lib/struktur-kontrak.ts";const s=fs.readFileSync(f,"utf8");const t=s.replace("  DEPARTMENT: \"BAGIAN\",\n","  DEPARTMENT: \"BAGIAN\",\n  PROGRAMME: \"BAGIAN\",\n");if(t===s)process.exit(3);fs.writeFileSync(f,t)'
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=BOB09-K01 | tee r7.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::BOB09-K01 stayed green with the hidden Reguler offered as a place"; exit 1; }
+          grep -E '^BOB09-K01 +FAIL' r7.txt
+          grep -F 'the intake offers a hidden node: ["SD · Reguler","SMA · Reguler"]' r7.txt
+          git checkout -- src/lib/struktur-kontrak.ts
       - name: The INV-20 lint must catch a planted raw-evidence read
         if: matrix.case == 'static-raw-evidence-read'
         run: |
