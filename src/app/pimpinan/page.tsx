@@ -11,6 +11,7 @@ import KartuKeputusan from "@/components/pimpinan/KartuKeputusan";
 import RingkasKesiapan from "@/components/pimpinan/RingkasKesiapan";
 import { BarisLingkup, KartuKetiadaan } from "@/components/bukti";
 import AngkaTerkelola from "@/components/pimpinan/AngkaTerkelola";
+import { lingkupAwal } from "@/components/pimpinan/lingkup";
 
 export const dynamic = "force-dynamic";
 
@@ -64,19 +65,35 @@ export default async function Pimpinan({
   }
 
   // The scope being read. A hand-edited query string is not trusted: an id that
-  // is not one of the reader's own confirmed scopes falls back to the first
-  // rather than being passed to a read.
-  const dipilih = lingkup.find((n) => n.id === sp.lingkup) ?? lingkup[0];
+  // is not one of the reader's own confirmed scopes falls back to the default
+  // rather than being passed to a read. The default is the broadest of them
+  // (DAISY-07): a head of department opens on the department, not on a class
+  // inside it that happens to sort first.
+  const dipilih = lingkupAwal(lingkup, sp.lingkup) ?? lingkup[0];
 
-  const [keputusan, bukti] = await Promise.all([
+  // DAISY-07 (B6c): a class figure is asked of a class. Standing above the
+  // classes, each class of the branch answers for itself (BOB-06's
+  // buktiPerKelas), never summed; standing at a class, buktiPimpinan asks it.
+  const diKelas = dipilih.kind === "CLASS";
+  const [keputusan, bukti, perKelas] = await Promise.all([
     pim.keputusanSaya(),
     pim.buktiPimpinan(dipilih.id, dipilih.institusi),
+    diKelas ? Promise.resolve([] as pim.BuktiKelas[]) : pim.buktiPerKelas(dipilih.id).catch(() => [] as pim.BuktiKelas[]),
   ]);
 
   const tertib = urutan(keputusan);
   const antre = tertib.filter(menunggu);
   const angka = bukti.filter((e) => e.status === "ok");
   const absen = bukti.filter((e) => e.status !== "ok");
+
+  // DAISY-07 (DEA-03, X-12): the full summaries, one click from here. A
+  // refusal never reaches `bukti` (it is dropped, see buktiPimpinanDari), so a
+  // summary is offered only where the reader may read at least one of its
+  // figures, never as a way into a page of refusals. The school's figures are
+  // asked at its root whatever node is named (TENANT), so the chosen node only
+  // says which school's summary; a class's are asked of the class.
+  const bacaSekolah = bukti.some((e) => e.metric_id?.startsWith("institution."));
+  const bacaKelas = diKelas && bukti.some((e) => e.metric_id?.startsWith("class."));
 
   return (
     <>
@@ -178,6 +195,53 @@ export default async function Pimpinan({
           )}
         </section>
 
+        {/* ── C2. CLASS BY CLASS (DAISY-07) ──────────────────────────────────
+            Above the classes, each class answers for its own figures, and a
+            class is a disclosure the reader opens: the summary line says
+            whether it has any figure yet, and inside, every absent figure says
+            what will make it appear. A class whose figures are not the
+            reader's says so once, without counting what was withheld. */}
+        {!diKelas ? (
+          <section className="pin-sec" aria-labelledby="pin-perkelas">
+            <h2 id="pin-perkelas">{s("pimpinan.kelas.judul")}</h2>
+            <p className="pin-mm">{s("pimpinan.kelas.arti")}</p>
+            {perKelas.length === 0 ? (
+              <p className="pin-empty">{s("pimpinan.kelas.kosong")}</p>
+            ) : (
+              perKelas.map(({ kelas, bukti: bk }) => {
+                const ada = bk.filter((e) => e.status === "ok");
+                return (
+                  <details key={kelas.id} className="pin-kelas-bukti">
+                    <summary>
+                      <span className="pin-kelas-nama">{kelas.nama}</span>
+                      <span className="pin-kelas-tanda">
+                        {s(bk.length === 0 ? "laporan.metrik.bukan_untuk_anda" : ada.length > 0 ? "pimpinan.kelas.ada" : "pimpinan.kelas.belum")}
+                      </span>
+                    </summary>
+                    {bk.length > 0 ? (
+                      <div className="pin-kelas-isi">
+                        {ada.length > 0 ? (
+                          <div className="pin-grid2">
+                            {ada.map((e, i) => (
+                              <AngkaTerkelola key={e.metric_id ?? `angka-${i}`} entry={e} value={nilai(e.value, locale)} locale={locale} />
+                            ))}
+                          </div>
+                        ) : null}
+                        {bk.filter((e) => e.status !== "ok").map((e, i) => (
+                          <KartuKetiadaan key={e.metric_id ?? `absen-${i}`} entry={e} locale={locale} persona="staff" />
+                        ))}
+                        <Link className="pin-btn pin-quiet" href={`/edukator/ringkasan?kelas=${encodeURIComponent(kelas.id)}`}>
+                          {s("pimpinan.laporan.kelas")}
+                        </Link>
+                      </div>
+                    ) : null}
+                  </details>
+                );
+              })
+            )}
+          </section>
+        ) : null}
+
         {/* ── D. EVIDENCE READINESS ─────────────────────────────────────── */}
         <RingkasKesiapan entries={bukti} locale={locale} />
 
@@ -185,9 +249,21 @@ export default async function Pimpinan({
         <section className="pin-sec" aria-labelledby="pin-lanjut">
           <h2 id="pin-lanjut">{s("pimpinan.perlu_diketahui")}</h2>
           <p className="pin-mm">{s("pimpinan.perlu_diketahui.sub")}</p>
-          <Link className="pin-btn" href={`/pimpinan/${encodeURIComponent(dipilih.id)}`}>
-            {s("pimpinan.buka.simpul")}
-          </Link>
+          <div className="pin-actions">
+            <Link className="pin-btn" href={`/pimpinan/${encodeURIComponent(dipilih.id)}`}>
+              {s("pimpinan.buka.simpul")}
+            </Link>
+            {bacaKelas ? (
+              <Link className="pin-btn" href={`/edukator/ringkasan?kelas=${encodeURIComponent(dipilih.id)}`}>
+                {s("pimpinan.laporan.kelas")}
+              </Link>
+            ) : null}
+            {bacaSekolah ? (
+              <Link className="pin-btn" href={`/dekan/ringkasan?simpul=${encodeURIComponent(dipilih.id)}`}>
+                {s("pimpinan.laporan.sekolah")}
+              </Link>
+            ) : null}
+          </div>
         </section>
       </main>
       <KakiPintar className="pin-noprint" />
