@@ -6,6 +6,7 @@ import * as actions from "../actions";
 import { mulaiAsesmen } from "../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import OrientasiAsesmen from "@/components/siklus/OrientasiAsesmen";
 import ItemPlayer from "./ItemPlayer";
@@ -88,9 +89,9 @@ export default async function PermukaanAsesmen({
               <form action={mulaiAsesmen}>
                 <input type="hidden" name="penugasan" value={penugasan} />
                 <input type="hidden" name="kembali" value={diriHref} />
-                <button type="submit" className="pin-btn pin-primary">
+                <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.memulai")}>
                   {s("cycle.open")} {s(mode === "PEMETAAN" ? "pretest.title" : "posttest.title")}
-                </button>
+                </TombolKirim>
               </form>
             }
             kembali={{ href: kembali.href, label: s("siklus.nanti") }}

@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { saveDefinitionAction } from "../actions";
 import { kunciKode } from "@/lib/galat-kontrak";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * Assessment Definition builder (§10).
@@ -91,7 +92,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
           <input className={field} name="komposisi" placeholder='komposisi, mis. {"MUDAH":3,"SEDANG":2}' />
           <input className={field} name="kelulusan" placeholder='kelulusan, mis. {"mastery_min":0.6}' />
           <input type="hidden" name="definisi" value="" />
-          <button className={button} type="submit">{s("studio.definisi.simpan")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
         </form>
       </section>
 
@@ -105,7 +106,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                 <input type="hidden" name="definisi" value={d.id} />
                 <input className={field} name="judul" defaultValue={d.title} />
                 <input className={field} name="jumlah" type="number" defaultValue={d.item_count} />
-                <button className={button} type="submit">{s("studio.definisi.simpan")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
               </form>
             </li>
           ))}

@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
+import TombolKirim from "@/components/TombolKirim";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type {
   HasilStruktur,
@@ -245,9 +246,9 @@ function FormTambah({
             />
           </div>
         )}
-        <button type="submit" className="pin-btn pin-primary" disabled={sibuk}>
-          {sibuk ? s("config.struktur.sibuk") : s(KUNCI_TAMBAH[tingkatan])}
-        </button>
+        <TombolKirim className="pin-btn pin-primary" disabled={sibuk} sibuk={s("config.struktur.sibuk")}>
+          {s(KUNCI_TAMBAH[tingkatan])}
+        </TombolKirim>
       </form>
       {tahunIkut ? (
         <p className="pin-hint">
@@ -299,9 +300,9 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
               required
               autoComplete="off"
             />
-            <button type="submit" className="pin-btn pin-primary" disabled={sibukUbah}>
-              {sibukUbah ? s("config.struktur.sibuk") : s("config.struktur.simpan")}
-            </button>
+            <TombolKirim className="pin-btn pin-primary" disabled={sibukUbah} sibuk={s("config.struktur.sibuk")}>
+              {s("config.struktur.simpan")}
+            </TombolKirim>
             <button type="button" className="pin-btn" onClick={() => setMode("lihat")}>
               {s("config.struktur.batal")}
             </button>
@@ -364,9 +365,9 @@ export function KonfirmasiNonaktif({
       </p>
       <p className="pin-hint">{s("config.struktur.konfirmasi.arti")}</p>
       <div className="pin-str-tanya-aksi">
-        <button type="submit" className="pin-btn pin-str-bahaya" disabled={sibuk}>
-          {sibuk ? s("config.struktur.sibuk") : s("config.struktur.konfirmasi.ya")}
-        </button>
+        <TombolKirim className="pin-btn pin-str-bahaya" disabled={sibuk} sibuk={s("config.struktur.sibuk")}>
+          {s("config.struktur.konfirmasi.ya")}
+        </TombolKirim>
         <button type="button" className="pin-btn" onClick={batal}>
           {s("config.struktur.batal")}
         </button>

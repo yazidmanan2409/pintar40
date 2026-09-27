@@ -150,6 +150,14 @@ export type HleEvent =
   | "lingkup.semua"
   | "lingkup.kosong"
   | "tolak.arti"
+  // DAISY-17: a submit button's words while its form is being saved
+  | "tombol.menyimpan"
+  | "tombol.memproses"
+  | "tombol.memeriksa"
+  | "tombol.mengirim"
+  | "tombol.menyediakan"
+  | "tombol.memulai"
+  | "tombol.mengaktifkan"
   | "tolak.kembali"
   | "komitmen.kembali"
   | "bukti.dari"
@@ -1710,7 +1718,17 @@ const table: Table = {
   "lingkup.pilih": { default: "Pilih lingkup", en: "Choose a scope" },
   "lingkup.semua": { default: "Semua yang bisa Anda lihat", en: "Everything you can see" },
   "lingkup.kosong": { default: "Belum ada lingkup yang bisa dipilih.", en: "There is no scope to choose from yet." },
-  "tolak.arti": { default: "Jika ini keliru, tanyakan kepada guru Anda.", en: "If you think this is a mistake, ask your teacher." },
+  // DAISY-17: a staff reader has no teacher to ask; they ask whoever looks after PINTAR at the school (as galat.action_failed does)
+  "tolak.arti": { default: "Jika ini keliru, tanyakan kepada guru Anda.", en: "If you think this is a mistake, ask your teacher.",
+    staff: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_staff: "If you think this is a mistake, ask whoever looks after PINTAR at your school." },
+  // DAISY-17 (D-046(e)): what a submit button says from the click until the answer comes back
+  "tombol.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "tombol.memproses": { default: "Memproses…", en: "Working…" },
+  "tombol.memeriksa": { default: "Memeriksa…", en: "Checking…" },
+  "tombol.mengirim": { default: "Mengirim…", en: "Sending…" },
+  "tombol.menyediakan": { default: "Menyediakan…", en: "Assigning…" },
+  "tombol.memulai": { default: "Memulai…", en: "Starting…" },
+  "tombol.mengaktifkan": { default: "Mengaktifkan…", en: "Activating…" },
   "tolak.kembali": { default: "Kembali ke Belajar", en: "Back to Learning" },
   "komitmen.kembali": { default: "Periksa lagi", en: "Check again" },
   "bukti.dari": { default: "Dari", en: "From" },

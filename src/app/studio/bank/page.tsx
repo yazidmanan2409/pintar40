@@ -2,6 +2,7 @@ import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, card, field, label, outcomeLine, s, short, studioInstitutions } from "../_lib";
 import { recordQuestionHealthReviewAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * Content & Question Banks, and the Question Health surface (§8, §10).
@@ -68,7 +69,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                       </select>
                     </label>
                     <input className={field} name="catatan" placeholder="catatan" />
-                    <button className={button} type="submit">{s("studio.integritas.catat")}</button>
+                    <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                   </form>
                 ) : null}
               </li>

@@ -1,6 +1,7 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { saveCertificateTemplateAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * Certificate template manager (§10).
@@ -57,7 +58,7 @@ export default async function Sertifikat({ searchParams }: { searchParams: Searc
             <span>{s("studio.sertifikat.awalan")}</span>
             <input className={field} name="awalan" placeholder="PNT/2026" required />
           </label>
-          <button className={button} type="submit">{s("studio.sertifikat.simpan")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.sertifikat.simpan")}</TombolKirim>
         </form>
       </section>
 

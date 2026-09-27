@@ -1,6 +1,7 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../_lib";
 import { launchQuickAssessmentAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * Quick Assessment (ADR-0018).
@@ -141,7 +142,7 @@ export default async function Kuis({ searchParams }: { searchParams: Search }) {
                 <input className={field} name="menit" type="number" defaultValue={15} required />
               </label>
             </div>
-            <button className={button} type="submit">{s("studio.kuis.luncurkan")}</button>
+            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.kuis.luncurkan")}</TombolKirim>
           </form>
         )}
       </section>

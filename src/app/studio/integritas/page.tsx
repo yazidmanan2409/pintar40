@@ -2,6 +2,7 @@ import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, card, field, label, outcomeLine, s, short, studioInstitutions, when } from "../_lib";
 import { recordIntegrityReviewAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * Integrity review centre (§10).
@@ -65,7 +66,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
                   </select>
                 </label>
                 <input className={field} name="catatan" placeholder="catatan" />
-                <button className={button} type="submit">{s("studio.integritas.catat")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
               </form>
             </li>
           ))}

@@ -8,6 +8,7 @@ import {
 } from "../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import PeriksaDaftar from "@/components/pendataan/PeriksaDaftar";
 import Penggerak from "@/components/pendataan/Penggerak";
@@ -159,7 +160,7 @@ export default async function SatuPendataan({
                 it calls WP5A's confirmation rather than moving a flag here. */}
             <form action={konfirmasiAksi}>
               <input type="hidden" name="pekerjaan" value={pekerjaan} />
-              <button type="submit" className="pin-btn pin-go pin-data-btn">{s("pendataan.pratinjau.setuju")}</button>
+              <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
             </form>
           </section>
         ) : null}
@@ -193,7 +194,7 @@ export default async function SatuPendataan({
 
             <form action={periksaPercontohanAksi}>
               <input type="hidden" name="pekerjaan" value={pekerjaan} />
-              <button type="submit" className="pin-btn pin-go pin-data-btn">{s("pendataan.percontohan.tanya")}</button>
+              <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memeriksa")}>{s("pendataan.percontohan.tanya")}</TombolKirim>
             </form>
           </section>
         ) : null}
