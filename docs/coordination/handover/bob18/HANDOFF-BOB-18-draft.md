@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-18 (PINTAR answers quickly, D-046)
 
-**Head:** `HEAD_SHA`, on main `17f823a` (merged first). (a)–(d) were first at `5acc7f8` (CI #201 green).
+**Head:** `9295bd7`, on main `17f823a` (merged first). (a)–(d) were first at `5acc7f8` (CI #201 green).
 **Sent with BOB-09's hand-off** (`HANDOFF-BOB-09.md` beside this file; its own run was CI #200, green). One run on this head covers both (D-043).
 
 ## CHANGED
@@ -59,7 +59,7 @@
 | click | before | after |
 |---|---|---|
 | Studio page (server only) | 29 (16 `can_in_institution`) | 8 (1 `studio_capabilities`) |
-| Studio, in a browser: open `/studio` | 48 | 29 (21 of them are link prefetches passing `proxy.ts`, see QUESTIONS 3) |
+| Studio, in a browser: open `/studio` | 48 | 29 (21 of them are link prefetches passing `proxy.ts`, see QUESTIONS 1) |
 | Studio, in a browser: next nav click | 15 (8 `can_in_institution`) | 4 |
 | Konfigurasi (platform admin) | lint every load (8.3 s timeout on staging) | lint 0; 1 only when asked |
 
@@ -85,7 +85,7 @@ CI's BOB18-A01 prints the same breakdown per click against the real local stack 
 
 ## CI
 
-I dispatched one run on `HEAD_SHA` and haven't waited on it; please read the result there. It covers BOB-09 and all of BOB-18. The earlier runs were CI #200 (BOB-09, `e3232ca`) and CI #201 (BOB-18 (a)–(d), `5acc7f8`), both green.
+I dispatched one run on `9295bd7` and haven't waited on it; please read the result there. It covers BOB-09 and all of BOB-18. The earlier runs were CI #200 (BOB-09, `e3232ca`) and CI #201 (BOB-18 (a)–(d), `5acc7f8`), both green.
 - **Local, before dispatch:** tsc and lint are clean. A full run on a fresh database with all 119 migrations: 347 passed. The one failure is F01-R07, which always fails locally. The one skip is the same as the baseline's. BOB18-A01 needs the real stack, so it runs in CI.
 - All 79 plants prove their gates. The F01-T13 unguarded-learner red case still goes red for `"learner_rpcs_guarded_ok": false`.
 - One run, no new job. BOB18-A01 runs in the existing app job.
@@ -122,4 +122,4 @@ One key, `config.card.health.periksa`: "Jalankan pemeriksaan" / "Run the checks"
 
 ## READY
 
-Yes, once the run on `HEAD_SHA` is green, for BOB-09 and BOB-18 together. Then your U-PERF measurement on staging.
+Yes, once the run on `9295bd7` is green, for BOB-09 and BOB-18 together. Then your U-PERF measurement on staging.
