@@ -1,6 +1,7 @@
 // U-PERF (D-046): a person's journey on staging, timed. Synthetic staff only (D-046(c)).
-// Sign-in to a usable first screen; menu clicks; representative saves (a role grant and its revoke,
-// so each run leaves the data as it found it). Each step prints one JSON line with its window, so the
+// Sign-in to a usable first screen; menu clicks; a representative save (renaming the synthetic school's
+// Bagian and renaming it back, so each run leaves the data as it found it), timed twice: click to the
+// button's own "saving" state (D-046(e): acknowledged at once) and click to the result line. Each step prints one JSON line with its window, so the
 // coordinator can count Supabase requests per step from the log, and the Vercel function
 // responses seen in the browser during the step (x-vercel-id ::sin1::).
 import { chromium } from "playwright";
@@ -86,6 +87,48 @@ async function clickTo(page, href, path = href.split("?")[0]) {
   await usable(page, path);
 }
 
+// A person's first visit to a surface opens its tour, and the tour holds the page until it is closed.
+// Closed once as "Lewati" (skip), which PINTAR records against the person, so later visits are those of
+// a returning user. Not timed; one line says whether it was there.
+async function closeTour(page, seen, role, rep) {
+  const card = page.locator('.pin-tur-kartu[role="dialog"]');
+  const there = await card.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false);
+  if (!there) return;
+  await card.locator("button.pin-tur-x").last().click();
+  await card.waitFor({ state: "detached", timeout: SLOW });
+  line({ role, rep, step: "first-visit tour closed (not timed)", ok: true });
+}
+
+// A save, timed twice: from the click to the button showing its own "saving" state (TombolKirim sets
+// aria-busy and disabled while the form is pending), and from the click to the result line.
+async function save(page, button, result) {
+  await button.waitFor({ state: "visible", timeout: SLOW });
+  const ack = button.evaluate((b) => new Promise((done) => {
+    let t0 = null;
+    b.addEventListener("click", () => { t0 = performance.now(); }, { capture: true, once: true });
+    const obs = new MutationObserver(() => {
+      if (t0 !== null && (b.disabled || b.getAttribute("aria-busy") === "true")) { obs.disconnect(); done(Math.round(performance.now() - t0)); }
+    });
+    obs.observe(b, { attributes: true, childList: true, subtree: true, characterData: true });
+    setTimeout(() => { obs.disconnect(); done(null); }, 30000);
+  }));
+  const t = Date.now();
+  await button.click();
+  await result.waitFor({ state: "visible", timeout: SLOW });
+  const resultMs = Date.now() - t;
+  const ackMs = await ack;
+  return `click→saving ${ackMs === null ? "never shown" : `${ackMs} ms`}; click→result ${resultMs} ms`;
+}
+
+async function rename(page, from, to) {
+  const head = page.locator(".pin-str-kepala").filter({ has: page.locator("strong.pin-str-nama", { hasText: new RegExp(`^${from.replace(/[()]/g, "\\$&")}$`) }) }).first();
+  await head.waitFor({ state: "visible", timeout: SLOW });
+  await head.getByRole("button", { name: "Ubah nama" }).click();
+  const form = page.locator("form.pin-str-ubah");
+  await form.locator('input[name="nama"]').fill(to);
+  return save(page, form.getByRole("button", { name: "Simpan" }), page.getByRole("status").filter({ hasText: to }).first());
+}
+
 async function signIn(page, email, landing) {
   await page.context().addCookies(sessionCookies(await session(email)));
   const t = Date.now();
@@ -101,6 +144,7 @@ async function admin(browser, rep) {
   const seen = watch(page);
   const R = "admin";
   await step(page, seen, R, rep, "sign-in → Konfigurasi", () => signIn(page, ADMIN_EMAIL, "/konfigurasi"));
+  await closeTour(page, seen, R, rep);
   await step(page, seen, R, rep, "click Aktivasi akun", () => clickTo(page, "/aktivasi"));
   await step(page, seen, R, rep, "back to Konfigurasi", async () => { await page.goBack(); await usable(page, "/konfigurasi"); });
   await step(page, seen, R, rep, "click Studio", () => clickTo(page, "/studio"));
@@ -112,34 +156,12 @@ async function admin(browser, rep) {
     const a = page.locator('a[href^="/dekan/ringkasan"]').first();
     await a.waitFor({ state: "visible", timeout: SLOW }); await a.click(); await usable(page, "/dekan/ringkasan");
   });
-  // saves: grant Kepala departemen to the synthetic teacher at Bagian Uji Kinerja, then revoke it
-  await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { timeout: SLOW });
+  // the save: rename the synthetic school's Bagian and rename it back (Konfigurasi → Struktur sekolah)
+  const BAGIAN = "Bagian Uji Kinerja", SEMENTARA = "Bagian Uji Kinerja (diukur)";
+  await page.goto(`${APP}/konfigurasi#struktur`, { timeout: SLOW });
   await usable(page, "/konfigurasi");
-  await step(page, seen, R, rep, "save: Berikan peran", async () => {
-    const form = page.locator("form").filter({ has: page.locator('select[name="person"]') });
-    const person = await form.locator('select[name="person"] option').filter({ hasText: "Uji Kinerja Guru" }).first().getAttribute("value");
-    if (!person) throw new Error("the synthetic teacher is not offered");
-    await form.locator('select[name="person"]').selectOption(person);
-    await form.locator('select[name="role"]').selectOption("HEAD_OF_DEPARTMENT");
-    const scope = await form.locator('select[name="scope"] option').filter({ hasText: "Bagian Uji Kinerja" }).first().getAttribute("value");
-    if (!scope) throw new Error("Bagian Uji Kinerja is not offered as a scope");
-    await form.locator('select[name="scope"]').selectOption(scope);
-    await form.locator('input[name="valid_until"]').fill("2027-06-30");
-    const t = Date.now();
-    await form.getByRole("button", { name: "Berikan peran" }).click();
-    await page.waitForURL(/hasil=/, { timeout: SLOW });
-    await page.locator("h1").first().waitFor({ state: "visible", timeout: SLOW });
-    return `hasil=${new URL(page.url()).searchParams.get("hasil")}; click→result ${Date.now() - t} ms`;
-  });
-  await step(page, seen, R, rep, "save: Cabut", async () => {
-    const row = page.locator("li").filter({ hasText: "Uji Kinerja Guru (sintetis)" }).filter({ hasText: "Kepala departemen" }).first();
-    await row.waitFor({ state: "visible", timeout: SLOW });
-    const t = Date.now();
-    await row.getByRole("button", { name: "Cabut" }).click();
-    await page.waitForURL(/hasil=/, { timeout: SLOW });
-    await page.locator("h1").first().waitFor({ state: "visible", timeout: SLOW });
-    return `hasil=${new URL(page.url()).searchParams.get("hasil")}; click→result ${Date.now() - t} ms`;
-  });
+  await step(page, seen, R, rep, "save: Ubah nama", () => rename(page, BAGIAN, SEMENTARA));
+  await step(page, seen, R, rep, "save: Ubah nama back", () => rename(page, SEMENTARA, BAGIAN));
   await ctx.close();
 }
 
@@ -149,6 +171,7 @@ async function guru(browser, rep) {
   const seen = watch(page);
   const R = "guru";
   await step(page, seen, R, rep, "sign-in → Mengajar", () => signIn(page, GURU_EMAIL, "/mengajar"));
+  await closeTour(page, seen, R, rep);
   let kelas = null;
   await step(page, seen, R, rep, "click Kelas Uji Kinerja A", async () => {
     const a = page.locator('a[href^="/mengajar/"]').filter({ hasText: "Kelas Uji Kinerja A" }).first();
@@ -157,6 +180,7 @@ async function guru(browser, rep) {
     await a.click(); await usable(page, kelas.split("?")[0]);
   });
   if (kelas) {
+    await closeTour(page, seen, R, rep);
     await step(page, seen, R, rep, "click Siapkan", async () => {
       const a = page.locator(`a[href^="${kelas}/siapkan"]`).first();
       await a.waitFor({ state: "visible", timeout: SLOW }); await a.click(); await usable(page, `${kelas}/siapkan`);
