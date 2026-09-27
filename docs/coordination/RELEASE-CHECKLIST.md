@@ -29,12 +29,12 @@ P0 checks only; each must be PASS on the release candidate before any push to li
 | Anonymous visitor and certificate verifier | 5 | 5 | 0 | 0 | 0 | 0 | 0 | 4 |
 | The cross-role scenario | 12 | 4 | 4 | 0 | 0 | 0 | 4 | 0 |
 | Capacity | 4 | 0 | 1 | 0 | 0 | 0 | 3 | 0 |
-| Universal checks | 9 | 7 | 2 | 0 | 0 | 0 | 0 | 2 |
-| **Total** | **83** | **47** | **16** | **1** | **0** | **0** | **19** | **13** |
+| Universal checks | 10 | 7 | 2 | 1 | 0 | 0 | 0 | 2 |
+| **Total** | **84** | **47** | **16** | **2** | **0** | **0** | **19** | **13** |
 
 **Baseline, for comparison:** 13 PASS · 11 PARTIAL · 33 FAIL · 22 BLOCKED · 1 N-I · 3 N-T. **Evidence at baseline:** Audit journeys run 35952344955 (harness 39ad60e, app main 78b0f55): Gladys's path from an empty production-like database, 15 PASS · 5 FAIL · 1 BLOCKED · 1 note, with one operator (SQL) step (W1); the seeded-world crawl of 14 personas; the public probes P1–P3. Plus CI, selftests and read-only production checks, as cited per row.
 
-**Verdict now:** 47 of 83 P0 checks pass (baseline 13). NO-GO. What stands between main and go-live, by owner: Bob — BOB-09 (pickers show hidden places: ADM-07), BOB-10 (intake trap: ADM-07, X-01), BOB-11 (media playback: STU-11, ADM-10), BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01). Coordinator — extend the audit to answer the pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key copies). The live release (5b5b68d) stays as it is.
+**Verdict now:** 47 of 84 P0 checks pass (baseline 13). NO-GO. What stands between main and go-live, by owner: Bob — BOB-18 first (U-PERF: PINTAR answers slowly, D-046), then BOB-09 (pickers show hidden places: ADM-07), BOB-10 (intake trap: ADM-07, X-01), BOB-11 (media playback: STU-11, ADM-10), BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01). Coordinator — extend the audit to answer the pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key copies). The live release (5b5b68d) stays as it is.
 
 ## 1. How to use this checklist
 
@@ -259,6 +259,7 @@ Run on the staging project (D-036) with production's compute tier, never on prod
 | U-PRIV | Privacy: no existence oracle; no keys or integrity internals for learners; no learner full name on shared screens (D-020). | P0 | **PARTIAL**: the greeting uses the full name; the staff strip could name a learner (caught at the gate, DAISY-02). | **PASS**: no learner full name on / or /belajar (DAISY-10-SAPA-02); no existence oracle (P1). |
 | U-RECOVER | Recovery without SQL where the product claims self-service. | P1 | **FAIL**: account corrections (M6). | **FAIL** (unchanged) |
 | U-ERR | Error pages are PINTAR's own and show a reference, never a stack trace. | P0 | **FAIL**: framework defaults (P3). DAISY-04. | **PASS**: PINTAR's own error and not-found pages with a reference (DAISY-04). |
+| U-PERF | Responsiveness on staging: sign-in acknowledges at once and reaches a usable first screen in 3 s or less (gate: under 5 s); a typical menu click takes 1.5 s or less, and 95% take under 3 s; no timeout or error with 30 active staff sessions for 10 minutes; no pathological repeated requests (request counts recorded); auth, RLS and permission decisions unchanged. | P0 | **NOT VERIFIED** (added 27 Sep, D-046). | **FAIL**: about 10 s from the sign-in link to the first screen; clicks take 1.7–5.5 s on ordinary pages, 8.3 s or more on Konfigurasi (the schema lint times out) and 13–25 s on Studio (62–141 calls); 406 Supabase requests in one ordinary session (perf/2026-09-27-staging-latency.md). BOB-18. |
 
 ## 13. Release-day checks (production, read-only)
 
@@ -353,3 +354,4 @@ The acceptance scenario, in order: set up a school → add classes and people �
 - Re-marked on 25 Sep against Integration 9 on main (1e46714): DAISY-14 fixes M10 (the assignment window is the school's calendar day: EDU-06, STU-05, ADM-13; S18), BOB-07 answers every action and route with a code (U-LOC moves; the release blockers are left for BOB-17 and DAISY-16), and BOB-16 reads a Google Sheets workbook as its author saw it, now in CI.
 - Re-marked on 27 Sep against Integration 10 on main (6074833): DAISY-07 puts the reports one click away (DEA-03, ADM-16, X-12, HOD-09 and U-NAV now PASS), DAISY-15 keeps typed text as text in the template (GS-1: Google Sheets' round trip left), Daisy reworded BOB-07's 26 messages, and BOB-08 closes the structure's side doors (no direct writes, nobody placed in a deactivated place, a year near now, the library not a school).
 - 27 Sep: Yazid's Google Sheets round trip on the new template passes (78.145 and 007 stay text); GS-1 is fixed.
+- 27 Sep: U-PERF added as a must-pass check (D-046): responsive is part of PASS. It FAILs on today's evidence; BOB-18 is next for Bob.

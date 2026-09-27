@@ -551,6 +551,19 @@ CHANGES_V21.append("27 Sep: Yazid's Google Sheets round trip on the new template
 FINDINGS[:] = [(f[0], f[1], f[2], "FIXED (BOB-16 reader; DAISY-15 template; Google Sheets round trip, 27 Sep)") if f[0] == "GS-1" else f for f in FINDINGS]
 
 
+# --- 27 Sep: U-PERF, a must-pass gate before 5 Oct (D-046) ---
+UNIVERSAL.append(("U-PERF",
+    "Responsiveness on staging: sign-in acknowledges at once and reaches a usable first screen in 3 s or less (gate: under 5 s); "
+    "a typical menu click takes 1.5 s or less, and 95% take under 3 s; no timeout or error with 30 active staff sessions for 10 minutes; "
+    "no pathological repeated requests (request counts recorded); auth, RLS and permission decisions unchanged.",
+    "P0", "NOT VERIFIED (added 27 Sep, D-046)."))
+CURRENT["U-PERF"] = ("FAIL: about 10 s from the sign-in link to the first screen; clicks take 1.7–5.5 s on ordinary pages, 8.3 s or more on Konfigurasi "
+                     "(the schema lint times out) and 13–25 s on Studio (62–141 calls); 406 Supabase requests in one ordinary session "
+                     "(perf/2026-09-27-staging-latency.md). BOB-18.")
+VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-09", "Bob — BOB-18 first (U-PERF: PINTAR answers slowly, D-046), then BOB-09", 1)
+CHANGES_V21.append("27 Sep: U-PERF added as a must-pass check (D-046): responsive is part of PASS. It FAILs on today's evidence; BOB-18 is next for Bob.")
+
+
 def as_dict():
     g = globals()
     return {
