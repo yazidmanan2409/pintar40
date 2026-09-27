@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
+import { kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
 
 /**
  * Config Studio actions (FABLE-01 §10). Every action is a thin call to an
@@ -13,15 +14,22 @@ import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struk
  * invents policy — transfer consent/authorization policy is OD-9.
  *
  * Results return to the page as a calm status line (`?hasil=…`) anchored to
- * the section that was used.
+ * the section that was used. BOB-07 (D-011): the line is told a code and draws
+ * the copy table's sentence; the database's own words go to the server log
+ * beside the reference the reader is shown.
  */
 
-type Outcome = { ok: boolean; detail?: string };
+function back(section: string, h: HasilAksi): never {
+  redirect(`/konfigurasi?${queryHasil(section, h).toString()}#${section}`);
+}
 
-function back(section: string, outcome: Outcome): never {
-  const q = new URLSearchParams({ bagian: section, hasil: outcome.ok ? "ok" : "gagal" });
-  if (outcome.detail) q.set("detail", outcome.detail.slice(0, 300));
-  redirect(`/konfigurasi?${q.toString()}#${section}`);
+/** A refusal as its code; one nobody named is logged with the reference the page shows. */
+function ditolak(fn: string, error: { code?: string | null; message?: string | null } | null): HasilAksi {
+  const kode = kodeGalat(error);
+  if (kode !== "ACTION_FAILED") return { ok: false, kode };
+  const ref = rujukanGalat();
+  console.error(`[konfigurasi ${ref}] ${fn} failed`, error?.code, error?.message);
+  return { ok: false, kode, ref };
 }
 
 function str(fd: FormData, key: string): string {
@@ -43,7 +51,7 @@ export async function rolloverAction(fd: FormData): Promise<void> {
     if (m && to) mapping.push({ from_node: m[1], to_node: to });
   }
   if (!institution || !fromPeriod || !toPeriod || fromPeriod === toPeriod || mapping.length === 0) {
-    back("rollover", { ok: false, detail: "lengkapi tahun ajaran asal, tujuan, dan minimal satu pemetaan kelas" });
+    back("rollover", { ok: false, kode: "ROLLOVER_INPUT_INCOMPLETE" });
   }
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("period_rollover", {
@@ -52,7 +60,7 @@ export async function rolloverAction(fd: FormData): Promise<void> {
     p_to_period: toPeriod,
     p_mapping: mapping,
   });
-  back("rollover", error ? { ok: false, detail: error.message } : { ok: true, detail: `${data ?? 0} keanggotaan dipindahkan` });
+  back("rollover", error ? ditolak("period_rollover", error) : { ok: true, kode: "ROLLOVER_DONE", n: Number(data ?? 0) });
 }
 
 export async function transferRequestAction(fd: FormData): Promise<void> {
@@ -62,7 +70,7 @@ export async function transferRequestAction(fd: FormData): Promise<void> {
   const toProgramme = uuidOrNull(str(fd, "to_programme"));
   const reason = str(fd, "reason");
   if (!fromEnrollment || !toInstitution || !toPeriod) {
-    back("transfers", { ok: false, detail: "pendaftaran asal, kode sekolah tujuan dan kode tahun ajaran tujuan wajib diisi" });
+    back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" });
   }
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("transfer_request", {
@@ -73,31 +81,31 @@ export async function transferRequestAction(fd: FormData): Promise<void> {
     p_reason: reason || null,
     p_consent: {},
   });
-  back("transfers", error ? { ok: false, detail: error.message } : { ok: true });
+  back("transfers", error ? ditolak("transfer_request", error) : { ok: true });
 }
 
 export async function transferAuthorizeAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
-  if (!id) back("transfers", { ok: false });
+  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("transfer_authorize", { p_transfer: id, p_consent: {} });
-  back("transfers", error ? { ok: false, detail: error.message } : { ok: true });
+  back("transfers", error ? ditolak("transfer_authorize", error) : { ok: true });
 }
 
 export async function transferExecuteAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
-  if (!id) back("transfers", { ok: false });
+  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("transfer_execute", { p_transfer: id });
-  back("transfers", error ? { ok: false, detail: error.message } : { ok: true });
+  back("transfers", error ? ditolak("transfer_execute", error) : { ok: true });
 }
 
 export async function transferRejectAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
-  if (!id) back("transfers", { ok: false });
+  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("transfer_reject", { p_transfer: id, p_reason: str(fd, "reason") || null });
-  back("transfers", error ? { ok: false, detail: error.message } : { ok: true });
+  back("transfers", error ? ditolak("transfer_reject", error) : { ok: true });
 }
 
 const GRANTABLE = new Set(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"]);
@@ -108,9 +116,9 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
   const scope = uuidOrNull(str(fd, "scope"));
   const until = str(fd, "valid_until");
   if (!person || !GRANTABLE.has(role) || !/^\d{4}-\d{2}-\d{2}$/.test(until)) {
-    back("roles", { ok: false, detail: "pilih orang, peran, dan tanggal berlaku" });
+    back("roles", { ok: false, kode: "ROLE_INPUT_INCOMPLETE" });
   }
-  if (role !== "SYSTEM_ADMIN" && !scope) back("roles", { ok: false, detail: "peran sekolah memerlukan lingkup" });
+  if (role !== "SYSTEM_ADMIN" && !scope) back("roles", { ok: false, kode: "ROLE_SCOPE_REQUIRED" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("grant_role", {
     p_person: person,
@@ -118,42 +126,42 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
     p_scope_node: role === "SYSTEM_ADMIN" ? null : scope,
     p_valid_until: `${until}T23:59:59+07:00`,
   });
-  back("roles", error ? { ok: false, detail: error.message } : { ok: true });
+  back("roles", error ? ditolak("grant_role", error) : { ok: true });
 }
 
 export async function revokeRoleAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "assignment"));
-  if (!id) back("roles", { ok: false });
+  if (!id) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("revoke_role", { p_assignment: id });
-  back("roles", error ? { ok: false, detail: error.message } : { ok: true });
+  back("roles", error ? ditolak("revoke_role", error) : { ok: true });
 }
 
 export async function setFlagAction(fd: FormData): Promise<void> {
   const institution = uuidOrNull(str(fd, "institution"));
   const key = str(fd, "key");
   const enabled = str(fd, "enabled") === "on";
-  if (!institution || !/^[a-z][a-z0-9_.]{1,80}$/.test(key)) back("flags", { ok: false, detail: "kunci fitur: huruf kecil, angka, titik, garis bawah" });
+  if (!institution || !/^[a-z][a-z0-9_.]{1,80}$/.test(key)) back("flags", { ok: false, kode: "FLAG_KEY_INVALID" });
   const supabase = await supabaseServer();
   const { data, error } = await supabase
     .from("feature_flags")
     .upsert({ key, institution_id: institution, enabled, updated_at: new Date().toISOString() }, { onConflict: "key,institution_id" })
     .select("enabled");
   // F-05: an upsert RLS filtered to nothing reports no error; read back instead
-  back("flags", error ? { ok: false, detail: error.message }
-    : (data ?? []).length === 1 && data![0].enabled === enabled ? { ok: true } : { ok: false, detail: "tidak ada perubahan" });
+  back("flags", error ? ditolak("feature_flags upsert", error)
+    : (data ?? []).length === 1 && data![0].enabled === enabled ? { ok: true } : { ok: false, kode: "ACTION_UNCHANGED" });
 }
 
 export async function setPlatformConfigAction(fd: FormData): Promise<void> {
   const key = str(fd, "key");
-  if (!["maintenance_mode", "registration_lock"].includes(key)) back("flags", { ok: false });
+  if (!["maintenance_mode", "registration_lock"].includes(key)) back("flags", { ok: false, kode: "ACTION_INPUT_INVALID" });
   const value = str(fd, "value") === "on";
   const supabase = await supabaseServer();
   const { error, count } = await supabase
     .from("platform_config")
     .update({ value, updated_at: new Date().toISOString() }, { count: "exact" })
     .eq("key", key);
-  back("flags", error ? { ok: false, detail: error.message } : count ? { ok: true } : { ok: false, detail: "tidak ada perubahan" });
+  back("flags", error ? ditolak("platform_config update", error) : count ? { ok: true } : { ok: false, kode: "ACTION_UNCHANGED" });
 }
 
 /**
@@ -182,7 +190,7 @@ export async function saveReportTemplateAction(fd: FormData): Promise<void> {
     if (m && visualization) metrics.push({ metric_id: m[1], visualization });
   }
   if (!institution || !standardReport || !/^[a-z][a-z0-9_.]+$/.test(titleKey) || metrics.length === 0) {
-    back("intelligence", { ok: false, detail: "pilih institusi, kunci judul, dan minimal satu metrik" });
+    back("intelligence", { ok: false, kode: "TEMPLATE_INPUT_INCOMPLETE" });
   }
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("save_report_template", {
@@ -192,7 +200,7 @@ export async function saveReportTemplateAction(fd: FormData): Promise<void> {
     p_metrics: metrics,
     p_template: template,
   });
-  back("intelligence", error ? { ok: false, detail: error.message } : { ok: true, detail: `${metrics.length} metrik` });
+  back("intelligence", error ? ditolak("save_report_template", error) : { ok: true, kode: "TEMPLATE_SAVED", n: metrics.length });
 }
 
 // ═══════════════════════════════════════════════════ BOB-01: school structure

@@ -12,7 +12,7 @@ import { recordIntegrityReviewAction } from "../actions";
  * onto the signal, the session or the result. There is no surveillance control
  * to configure here because none exists to configure.
  */
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Integritas({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -34,7 +34,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
   const bySession = new Map<string, typeof rows>();
   for (const r of rows) bySession.set(r.session_id, [...(bySession.get(r.session_id) ?? []), r]);
 
-  const banner = outcomeLine(sp.hasil, sp.detail);
+  const banner = outcomeLine(sp);
 
   return (
     <div className="grid gap-4" id="integritas">

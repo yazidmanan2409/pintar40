@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
+import { kalimatHasil } from "@/lib/galat-kontrak";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
@@ -53,7 +54,7 @@ type MetricDefinition = {
   deprecated: boolean;
 };
 
-type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string; sekolah?: string }>;
+type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
@@ -166,7 +167,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const result = (section: string) =>
     sp.bagian === section && sp.hasil ? (
       <p className={`mt-3 inline-block rounded px-2 py-0.5 text-sm ${sp.hasil === "ok" ? "bg-ok-soft text-ok" : "bg-blocked-soft text-blocked"}`}>
-        {sp.hasil === "ok" ? s("config.result.ok") : s("config.result.failed")}{sp.detail ? ` ${sp.detail}` : ""}
+        {kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" })}
       </p>
     ) : null;
 
