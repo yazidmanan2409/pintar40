@@ -1264,6 +1264,10 @@ export const experienceTests: SelfTest[] = [
       // without its answer changing.
       //
       //
+      // MOVED 117 -> 118 for BOB-08, a school's structure holds (D-023).
+      // 20261012100000 closes the direct structure writes, adds the place
+      // trigger, the year window and the not-a-school refusal; no column,
+      // colour, mark or brand surface.
       // MOVED 116 -> 117 for BOB-06, every school has its standard reports
       // (B6b). 20261011100000 adds report_templates.is_standard (a boolean
       // marking PINTAR's own rows) and report_template_provisioning (txid,
@@ -1422,7 +1426,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 117, `${migrations.length} migrations; the frozen baseline has 117`);
+      c.expect(migrations.length === 118, `${migrations.length} migrations; the frozen baseline has 118`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3071,7 +3075,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 116 -> 117 for BOB-06's standard
+      // from, not a claim about the tour. MOVED 117 -> 118 for BOB-08's structure
+      // integrity (20261012100000), not a tour RPC (D-024). MOVED 116 -> 117 for BOB-06's standard
       // report templates (20261011100000), not a tour RPC (D-024). MOVED 115 -> 116 for BOB-04's assign
       // function (20261010100000), not a tour RPC (D-024). MOVED 114 -> 115 for BOB-03's release
       // functions (20261009100000), not tour RPCs (D-024). MOVED 113 -> 114 for BOB-14's revoke of
@@ -3120,7 +3125,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 117, `${migs.length} migrations; the baseline has 117`);
+      c.expect(migs.length === 118, `${migs.length} migrations; the baseline has 118`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

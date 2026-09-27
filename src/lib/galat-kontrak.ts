@@ -28,6 +28,7 @@ export const KODE_GALAT = [
   "ACTION_INPUT_INVALID",   // the form is incomplete or a value is not the right shape
   "ACTION_ALREADY_EXISTS",  // a unique rule: it is already there
   "ACTION_UNCHANGED",       // nothing changed: row-level security filtered it to no rows (F-05)
+  "ACTION_PLACE_INACTIVE",  // BOB-08: the place chosen has been deactivated (PR020 STRUCTURE_PLACE_INACTIVE)
   "ACTION_FAILED",          // anything else; the reader is given a reference to quote
 ] as const;
 
@@ -97,6 +98,7 @@ type GalatDb = { code?: string | null; details?: string | null; message?: string
 export function kodeGalat(e: GalatDb): KodeGalat {
   const state = e?.code ?? "";
   const pesan = e?.message ?? "";
+  if (state === "PR020" && e?.details === "STRUCTURE_PLACE_INACTIVE") return "ACTION_PLACE_INACTIVE";
   if (state === "42501" || /permission denied|\brequires CAN_[A-Z_]+|\bnot allowed\b|\bmay not\b|\bonly (?:a|an|the) [A-Z_]+/i.test(pesan)) {
     return "ACTION_NOT_ALLOWED";
   }

@@ -107,6 +107,10 @@ export const KODE_STRUKTUR_DB = [
   "STRUCTURE_HAS_ACTIVE_CHILDREN",
   "STRUCTURE_HAS_MEMBERS",
   "STRUCTURE_HAS_STAFF",
+  // BOB-08
+  "STRUCTURE_NOT_A_SCHOOL",
+  "STRUCTURE_YEAR_OUT_OF_RANGE",
+  "STRUCTURE_PLACE_INACTIVE",
 ] as const;
 
 /**
@@ -158,6 +162,9 @@ export const KUNCI_GALAT_STRUKTUR: Record<KodeStruktur, HleEvent> = {
   STRUCTURE_HAS_ACTIVE_CHILDREN: "config.struktur.galat.masih_ada_anak",
   STRUCTURE_HAS_MEMBERS: "config.struktur.galat.masih_ada_murid",
   STRUCTURE_HAS_STAFF: "config.struktur.galat.masih_ada_staf",
+  STRUCTURE_NOT_A_SCHOOL: "config.struktur.galat.bukan_sekolah",
+  STRUCTURE_YEAR_OUT_OF_RANGE: "config.struktur.galat.tahun_di_luar",
+  STRUCTURE_PLACE_INACTIVE: "config.struktur.galat.tempat_nonaktif",
   STRUCTURE_INPUT_INVALID: "config.struktur.galat.isian_kurang",
   STRUCTURE_FAILED: "config.struktur.galat.gagal",
 };
