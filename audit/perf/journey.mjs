@@ -120,13 +120,16 @@ async function save(page, button, result) {
   return `click→saving ${ackMs === null ? "never shown" : `${ackMs} ms`}; click→result ${resultMs} ms`;
 }
 
+const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 async function rename(page, from, to) {
-  const head = page.locator(".pin-str-kepala").filter({ has: page.locator("strong.pin-str-nama", { hasText: new RegExp(`^${from.replace(/[()]/g, "\\$&")}$`) }) }).first();
+  const head = page.locator(".pin-str-kepala").filter({ has: page.locator("strong.pin-str-nama", { hasText: new RegExp(`^${esc(from)}$`) }) }).first();
   await head.waitFor({ state: "visible", timeout: SLOW });
   await head.getByRole("button", { name: "Ubah nama" }).click();
   const form = page.locator("form.pin-str-ubah");
   await form.locator('input[name="nama"]').fill(to);
-  return save(page, form.getByRole("button", { name: "Simpan" }), page.getByRole("status").filter({ hasText: to }).first());
+  // the line that ENDS with the new name: renaming back, the previous line ("… Bagian Uji Kinerja (diukur).")
+  // also contains it
+  return save(page, form.getByRole("button", { name: "Simpan" }), page.getByRole("status").filter({ hasText: new RegExp(`${esc(to)}\\.?\\s*$`) }).first());
 }
 
 async function signIn(page, email, landing) {

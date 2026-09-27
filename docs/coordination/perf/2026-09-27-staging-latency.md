@@ -71,6 +71,40 @@ So after the link is clicked, about 10 s pass before the first screen, and about
 - **Not yet measured, harness faults, not PINTAR's:** the timed write (the grant form did not offer the synthetic teacher to the admin) and the teacher's class click (the first-visit tour overlay took the click). The harness is fixed for both before the measurement after BOB-18.
 - **Request counts** for these windows come from Supabase's edge logs, beside the counts after BOB-18.
 
+## U-PERF after BOB-18 (28 Sep, 23:49–23:50 UTC; single session)
+
+- **Where:** staging serving `87fedc9` (Integration 11 plus the harness; read back from Vercel in the run), 119 migrations, Singapore. The same US runner, so every number still includes about 0.2 s per round trip to Singapore. Repetition 1 met a freshly deployed function (cold start).
+- **Run:** `perf · staging`, mode `journey`, run 36359917724, three repetitions. Times in ms. **Server calls** are the Supabase requests from Vercel's Singapore functions in the step's window (edge logs, colo SIN), repetition 2 of each run, before → after.
+
+| Step | Rep 1 | Rep 2 | Rep 3 | Server calls before → after |
+|---|---|---|---|---|
+| Admin: sign-in → Konfigurasi, whole step | 5,107 | 3,333 | 2,246 | 24 → 27 |
+| … of which the page, from opening it to usable | 3,288 | 1,646 | 1,593 | |
+| Aktivasi akun | 1,651 | 1,289 | 1,565 | 10 → 9 |
+| Studio | 2,092 | 677 | 908 | **27 → 6** |
+| Studio → Buat Paket | 1,752 | 722 | 941 | **13 → 3** |
+| Antrean Tinjauan | 1,423 | 915 | 1,407 | **13 → 3** |
+| Bank Soal | 1,649 | 898 | 905 | **13 → 3** |
+| Open Konfigurasi | 1,525 | 1,900 | 1,155 | 24 → 27 |
+| Ringkasan sekolah | 808 | 1,592 | 1,522 | 7 → 6 |
+| **Save: rename the Bagian**, click → "saving" shown | 4 | 4 | 4 | |
+| … click → result line | 1,864 | 1,838 | 1,841 | 28 (the action and Konfigurasi re-read) |
+| Teacher: sign-in → Mengajar, whole step | 1,972 | 1,656 | 2,411 | |
+| … of which the page | 1,323 | 999 | 1,242 | |
+| Teacher: Kelas Uji Kinerja A | 2,476 | 1,074 | 1,110 | 13 |
+| Teacher: Siapkan | 785 | 1,101 | 1,072 | 12 |
+
+- **Against D-046(b), single session:**
+  - **Sign-in:** the page is usable 1.0–3.3 s after opening it (3.3 s only on the cold start). The whole step also creates the session from the US runner (two calls to Singapore), which a real sign-in replaces with one code exchange inside Singapore; with that included it was 5.1 s once, on the cold start, and 1.7–3.3 s otherwise.
+  - **Typical click:** median 1.16 s over all 27 clicks (1.09 s warm). Target 1.5 s: **met**.
+  - **95% under 3 s:** 27 of 27, the slowest 2.5 s (cold). **Met.**
+  - **Writes:** the button shows "Menyimpan…" **2–4 ms** after the click (D-046(e): acknowledged at once), and the result line appears after 1.8 s, which includes re-reading the whole Konfigurasi page (27 reads).
+  - **Errors:** none.
+- **What BOB-18 changed:** the server work fell where it was pathological (Studio 27 → 6 calls per click, its other pages 13 → 3; the schema lint no longer runs on Konfigurasi). From a US runner the wall-clock gain is small, because each navigation's round trips to Singapore dominate; people in Indonesia do not pay that distance.
+- **Still broad:** Konfigurasi reads 27 times per render, and a save there re-reads all of it. Not repeated work, but the next candidate after 5 Oct (D-047(d)).
+- **Prefetch sign-in checks (Bob's Q1), measured:** `proxy.ts` asks Auth for the user on every prefetched link, from the edge nearest the browser (IAD here). That is **6–10 checks per page view**, on top of the server calls above. Kept for now (the prefetch header can be forged). The concurrency run shows whether they matter under load.
+- **Harness notes:** the rename back was not timed correctly (its result matched the previous line; fixed for the next run), and its server calls fell into the teacher's sign-in window, so that window's count (45) is not used.
+
 ## Not the cause
 - **Supabase itself:** the same calls take about 19 ms from Singapore.
 - **The browser:** only 2 of 406 calls came from it.

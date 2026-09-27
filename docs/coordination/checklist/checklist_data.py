@@ -605,6 +605,13 @@ CHANGES_V21.append(
     "acknowledges every save at once and saves it once. U-PERF waits for its measurement on staging.")
 
 
+# --- 28 Sep: U-PERF single session after BOB-18 (run 36359917724) ---
+CURRENT["U-PERF"] = ("PARTIAL: single session after BOB-18 passes (staging 87fedc9, a US runner, 3 repetitions, run 36359917724): "
+                     "the page usable 1.0–3.3 s after sign-in (3.3 s cold); clicks median 1.16 s, 27 of 27 under 3 s; a save shows "
+                     "\"Menyimpan…\" 2–4 ms after the click and its result after 1.8 s; no errors. Server calls per Studio click 27 → 6, its "
+                     "other pages 13 → 3 (perf/2026-09-27-staging-latency.md). Left: the 30-session, 10-minute run.")
+
+
 def as_dict():
     g = globals()
     return {

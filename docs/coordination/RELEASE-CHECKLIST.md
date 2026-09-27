@@ -29,8 +29,8 @@ P0 checks only; each must be PASS on the release candidate before any push to li
 | Anonymous visitor and certificate verifier | 5 | 5 | 0 | 0 | 0 | 0 | 0 | 4 |
 | The cross-role scenario | 12 | 4 | 4 | 0 | 0 | 0 | 4 | 0 |
 | Capacity | 4 | 0 | 1 | 0 | 0 | 0 | 3 | 0 |
-| Universal checks | 10 | 7 | 2 | 0 | 0 | 0 | 0 | 2 |
-| **Total** | **84** | **47** | **16** | **1** | **0** | **0** | **19** | **13** |
+| Universal checks | 10 | 7 | 3 | 0 | 0 | 0 | 0 | 2 |
+| **Total** | **84** | **47** | **17** | **1** | **0** | **0** | **19** | **13** |
 
 **Baseline, for comparison:** 13 PASS · 11 PARTIAL · 33 FAIL · 22 BLOCKED · 1 N-I · 3 N-T. **Evidence at baseline:** Audit journeys run 35952344955 (harness 39ad60e, app main 78b0f55): Gladys's path from an empty production-like database, 15 PASS · 5 FAIL · 1 BLOCKED · 1 note, with one operator (SQL) step (W1); the seeded-world crawl of 14 personas; the public probes P1–P3. Plus CI, selftests and read-only production checks, as cited per row.
 
@@ -259,7 +259,7 @@ Run on the staging project (D-036) with production's compute tier, never on prod
 | U-PRIV | Privacy: no existence oracle; no keys or integrity internals for learners; no learner full name on shared screens (D-020). | P0 | **PARTIAL**: the greeting uses the full name; the staff strip could name a learner (caught at the gate, DAISY-02). | **PASS**: no learner full name on / or /belajar (DAISY-10-SAPA-02); no existence oracle (P1). |
 | U-RECOVER | Recovery without SQL where the product claims self-service. | P1 | **FAIL**: account corrections (M6). | **FAIL** (unchanged) |
 | U-ERR | Error pages are PINTAR's own and show a reference, never a stack trace. | P0 | **FAIL**: framework defaults (P3). DAISY-04. | **PASS**: PINTAR's own error and not-found pages with a reference (DAISY-04). |
-| U-PERF | Responsiveness on staging: sign-in acknowledges at once and reaches a usable first screen in 3 s or less (gate: under 5 s); a typical menu click takes 1.5 s or less, and 95% take under 3 s; no timeout or error with 30 active staff sessions for 10 minutes; no pathological repeated requests (request counts recorded); auth, RLS and permission decisions unchanged. A click that saves is acknowledged at once and cannot be submitted twice; representative writes are timed. | P0 | **NOT VERIFIED** (added 27 Sep, D-046). | **NOT VERIFIED**: after the fixes. Before (27 Sep, staging, Singapore, a US runner, run 36358786975): admin sign-in to Konfigurasi 3.1–4.8 s, teacher 2.6–2.9 s; clicks 0.7–2.3 s. Before Singapore: about 10 s to sign in, Studio 13–25 s, 406 Supabase requests in one session. BOB-18 (the unnecessary work removed) and DAISY-17 (a save acknowledged at once, saved once) are on main; the measurement after them, with request counts, and the 30-session run come next. |
+| U-PERF | Responsiveness on staging: sign-in acknowledges at once and reaches a usable first screen in 3 s or less (gate: under 5 s); a typical menu click takes 1.5 s or less, and 95% take under 3 s; no timeout or error with 30 active staff sessions for 10 minutes; no pathological repeated requests (request counts recorded); auth, RLS and permission decisions unchanged. A click that saves is acknowledged at once and cannot be submitted twice; representative writes are timed. | P0 | **NOT VERIFIED** (added 27 Sep, D-046). | **PARTIAL**: single session after BOB-18 passes (staging 87fedc9, a US runner, 3 repetitions, run 36359917724): the page usable 1.0–3.3 s after sign-in (3.3 s cold); clicks median 1.16 s, 27 of 27 under 3 s; a save shows "Menyimpan…" 2–4 ms after the click and its result after 1.8 s; no errors. Server calls per Studio click 27 → 6, its other pages 13 → 3 (perf/2026-09-27-staging-latency.md). Left: the 30-session, 10-minute run. |
 
 ## 13. Release-day checks (production, read-only)
 
