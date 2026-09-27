@@ -539,6 +539,18 @@ _fixed10 = {
 FINDINGS[:] = [_fixed10.get(f[0], f) for f in FINDINGS]
 
 
+# --- 27 Sep: Yazid's Google Sheets round trip on the new template (DAISY-15) ---
+CURRENT.update({
+    "ADM-09": ("PASS: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). "
+               "A workbook saved by Microsoft Excel and one saved by Google Sheets both import, in CI (BOB02-X01 counts 2 real applications; K01; BOB-16 "
+               "reads Google Sheets' N.0 as N). The template keeps typed text as text in Excel and LibreOffice (DAISY-15, DAISY-06-TEMPLAT-01) "
+               "and in Google Sheets (Yazid's round trip on 27 Sep: 78.145 and 007 come back as text with the Text format)."),
+})
+VERDICT_NOW = VERDICT_NOW.replace(", and one Google Sheets round trip on the new template", "")
+CHANGES_V21.append("27 Sep: Yazid's Google Sheets round trip on the new template passes (78.145 and 007 stay text); GS-1 is fixed.")
+FINDINGS[:] = [(f[0], f[1], f[2], "FIXED (BOB-16 reader; DAISY-15 template; Google Sheets round trip, 27 Sep)") if f[0] == "GS-1" else f for f in FINDINGS]
+
+
 def as_dict():
     g = globals()
     return {
