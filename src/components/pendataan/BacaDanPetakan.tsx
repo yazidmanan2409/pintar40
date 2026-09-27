@@ -82,7 +82,7 @@ export default function BacaDanPetakan({
   // already-registered person is per row or not at all.
   const pilihanTetap: Partial<Record<Medan, Array<{ nilai: string; label: string }>>> = {
     node_id: tempat.map((x) => ({ nilai: x.id, label: x.nama })),
-    programme_id: tempat.map((x) => ({ nilai: x.id, label: x.nama })),
+    programme_id: tempat.filter((x) => x.program).map((x) => ({ nilai: x.program!, label: x.nama })),
     role: PERAN_PENDATAAN.map((r) => ({ nilai: r, label: t(`role.${r}` as HleEvent, "staff", { locale }) })),
   };
 

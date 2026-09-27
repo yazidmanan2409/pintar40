@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 91,
+  "version": 92,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -133,6 +133,24 @@
       "id": "F01-T19",
       "runner": "db",
       "proves": "INV-18 audit rows carry the running build SHA via the x-pintar-build request header; malformed values rejected",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T20",
+      "runner": "db",
+      "proves": "BOB-18 (D-046). assert_learner_rpcs_are_guarded, timed over this database's whole schema, answers within 2000 ms (26.9 s on staging's 344 functions before, one regular expression per pair of functions), and gives the same verdict on four planted LEARNER entry points: the one guarded two calls down passes; the unguarded one, the one naming session_is_mine and current_person_id only in comments, and the one using a longer word that begins with current_person_id are each named.",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T21",
+      "runner": "db",
+      "proves": "BOB-18 (D-046). studio_capabilities, the one call Studio makes for its capabilities, gives every synthetic persona exactly the schools and capabilities can_in_institution grants when asked about every school and each of the eight Studio capabilities, so moving the loop into the database changed no answer; anon cannot call it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T22",
+      "runner": "db",
+      "proves": "BOB-18 (D-046(e)). A grant is saved once: the platform admin's second identical grant_role (same person, role and place) is refused 23505 GRANT_ALREADY_ACTIVE and one grant stands; the same role in another place, again after a revoke, and again after an expired grant are each saved.",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
     },
     {
@@ -1770,6 +1788,11 @@
       "proves": "BOB-08 (e) under real concurrency: two admins' connections create a Bagian of the same name at once; the second waits on the per-school structure lock, reads the names again and is refused PR020 STRUCTURE_NAME_TAKEN, leaving one Bagian of that name."
     },
     {
+      "id": "F10-C04",
+      "runner": "db",
+      "proves": "BOB-18 (D-046(e)). Two real connections grant the same person the same role in the same Tingkat at once, as a double-pressed \"Berikan peran\" does: the second waits on the grant's advisory lock taken by the role_assignments trigger, reads the first's row and is refused 23505 GRANT_ALREADY_ACTIVE, and one grant stands."
+    },
+    {
       "id": "F11-P01",
       "runner": "db",
       "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, no parallel group spanning the pre-test and post-test (D-040: the sample was regrouped, and v1 kept as the source of the application copies), and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
@@ -1891,6 +1914,16 @@
       "proves": "BOB-06. The school's admin is refused, by the guard's own rule, editing, unmarking, revising, extending and removing PINTAR's standard class report, and refused by a missing grant writing the provisioning pass and calling the provisioner; an educator writes no template; no pass is open, and no client is granted the provisioner or the pass, which has no policies."
     },
     {
+      "id": "BOB09-K01",
+      "runner": "static",
+      "proves": "BOB-09 (D-006, M5). tempatSekolahDari in the source file src/lib/pendataan.ts and myScopesDari in src/lib/lingkup.ts, driven over one school's tree, offer only Bagian, Tingkat and Kelas -- never the school root, the hidden Jenjang or Reguler, nor a deactivated Kelas -- each labelled by its visible path and its year, so two Kelas named 1A in two years are told apart; the intake's Program choices are each Bagian carrying its hidden Reguler as the value, and the mapping screen offers them for programme_id."
+    },
+    {
+      "id": "BOB18-K01",
+      "runner": "static",
+      "proves": "BOB-18 (D-046). vercel.json sets the functions' region to sin1, beside both Supabase projects in ap-southeast-1; studioInstitutionsDari in the source file src/app/studio/_lib.ts, driven with a recording client, asks studio_capabilities once with the eight Studio capabilities and nothing else, offers only schools holding a capability, sorted by name, and none when the call fails; currentViewer and isSystemAdmin in src/lib/auth.ts, peranSaya in src/lib/tur-negara.ts and studioInstitutions are React per-request caches, and peranSaya takes the person from the viewer; viewerDari in src/lib/auth.ts, driven, makes no call without a session cookie and, with one, asks for the user and my_profile side by side."
+    },
+    {
       "id": "BOB08-K01",
       "runner": "static",
       "proves": "BOB-08 (d, g). The structure helper struktur() in the source file src/app/konfigurasi/actions.ts re-reads the list once on each path: before a refusal returns (it re-read only after a success) and after a success, as DAISY-05-STRUKTUR-01 also holds; lingkupPimpinanDari in src/lib/pimpinan.ts, driven with a revoked, an expired, a not-yet-begun and an active grant, offers only the active one's node in the Pimpinan picker."
@@ -1909,6 +1942,12 @@
       "id": "BOB07-R01",
       "runner": "app",
       "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB18-A01",
+      "runner": "app",
+      "proves": "BOB-18 (D-046). Counted through the running app (selftest/hitung-fetch.cjs), a Studio click asks studio_capabilities once and can_in_institution never; the Konfigurasi page in src/app/konfigurasi/page.tsx, including the page a saved grant returns to, runs platform_schema_lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at most twice, the profile read at most once, is_system_admin asked at most once and the viewer's own roles read at most once, a Studio page reading role_assignments for nothing else.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {

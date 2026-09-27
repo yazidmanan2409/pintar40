@@ -1,5 +1,7 @@
 import "server-only";
+import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentViewer } from "@/lib/auth";
 import { peranAktif, type HibahPeran, type Keadaan, type TurKey } from "@/lib/tur";
 
 /**
@@ -89,9 +91,12 @@ export async function bungkamTur(kunci: TurKey): Promise<void> {
  * would present an educator the onboarding written for a child. So the failure
  * is now sayable, and every caller decides what it means for them.
  */
-export async function peranSaya(): Promise<string[] | null> {
-  const c = await db();
-  const { data: aku } = await c.rpc("current_person_id");
+export const peranSaya = cache(async (): Promise<string[] | null> => {
+  // BOB-18 (D-046): once per request, and the person comes from the viewer
+  // read the same request already made (my_profile is current_person_id()'s
+  // row) rather than a second round trip.
+  const [c, viewer] = await Promise.all([db(), currentViewer()]);
+  const aku = viewer?.personId;
   if (!aku) return null;
   const { data, error } = await c
     .from("role_assignments")
@@ -99,4 +104,4 @@ export async function peranSaya(): Promise<string[] | null> {
     .eq("person_id", aku);
   if (error) return null;
   return peranAktif((data ?? []) as HibahPeran[], new Date());
-}
+});

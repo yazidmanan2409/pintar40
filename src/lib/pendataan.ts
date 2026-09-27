@@ -1,6 +1,7 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { Kemajuan } from "@/lib/pendataan-kontrak";
+import { pilihanTempat, type SimpulPohon } from "@/lib/struktur-kontrak";
 
 /**
  * THE INTAKE DATA LAYER — WP5B.
@@ -216,7 +217,13 @@ export async function barisPekerjaan(
 
 // ═══════════════════════════════════════════════ 3. the places a row can name
 
-export type Tempat = { id: string; nama: string };
+export type Tempat = {
+  id: string;
+  /** The place by its visible path and year (BOB-09), e.g. "SMA · Kelas X · X IPS 1 · 2026/2027". */
+  nama: string;
+  /** For a Bagian: its hidden Reguler, which is what `programme_id` takes. */
+  program?: string;
+};
 
 /**
  * THE ORGANIZATIONAL NODES AN ADMINISTRATOR CAN PUT PEOPLE IN.
@@ -226,16 +233,30 @@ export type Tempat = { id: string; nama: string };
  * all. It decides nothing: `import_row_problems` checks on every row that the
  * node belongs to this institution AND sits inside the caller's provisioning
  * scope, and it checks again at confirmation and again at provisioning time.
+ *
+ * ONLY BAGIAN, TINGKAT AND KELAS (BOB-09, D-006). The hidden Jenjang and
+ * Reguler and the school root are never offered; each place is named by its
+ * visible path and year (`pilihanTempat`), and a Bagian carries its Reguler so
+ * the Program field can offer the Bagian by name.
  */
 export async function tempatSekolah(institusi: string): Promise<Tempat[]> {
-  const c = await db();
-  const { data } = await c
-    .from("org_nodes")
-    .select("id, name, kind, is_active")
-    .eq("institution_id", institusi)
-    .order("name")
-    .limit(500);
-  return rows<{ id: string; name: string; kind: string; is_active?: boolean | null }>(data)
-    .filter((n) => n.is_active !== false)
-    .map((n) => ({ id: String(n.id), nama: String(n.name) }));
+  return tempatSekolahDari(await db(), institusi);
+}
+
+/** `tempatSekolah` over a given client (BOB-09: driven in selftest/bob09.test.ts). */
+export async function tempatSekolahDari(c: Db, institusi: string): Promise<Tempat[]> {
+  const [simpul, periode] = await Promise.all([
+    c.from("org_nodes")
+      .select("id, name, kind, parent_id, jalur, academic_period_id, is_active")
+      .eq("institution_id", institusi)
+      .order("name")
+      .limit(2000),
+    c.from("academic_periods").select("id, name").eq("institution_id", institusi),
+  ]);
+  const tahun = new Map(rows<{ id: string; name: string }>(periode.data).map((p) => [String(p.id), String(p.name)]));
+  return pilihanTempat(rows<SimpulPohon>(simpul.data), tahun).map((p) => ({
+    id: p.id,
+    nama: p.label,
+    ...(p.program ? { program: p.program } : {}),
+  }));
 }

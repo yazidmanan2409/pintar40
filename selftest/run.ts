@@ -17,7 +17,8 @@
  *          Supabase project's HTTP surface when reachable)
  */
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { staticTests } from "./static.test";
 import { appTests } from "./app.test";
@@ -202,7 +203,7 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.includes("F02-C01")) out.push(await runDbConcurrency(dbUrl));
   if (!only || only.includes("F07-C01")) out.push(await runFeedbackConcurrency(dbUrl));
   if (!only || only.includes("F09-C01")) out.push(runSignupOnAFreshConnection(dbUrl));
-  if (!only || only.some((x) => /^F10-C0[123]$/.test(x))) out.push(...(await runStructureConcurrency(dbUrl, only)));
+  if (!only || only.some((x) => /^F10-C0[1234]$/.test(x))) out.push(...(await runStructureConcurrency(dbUrl, only)));
   return out;
 }
 
@@ -223,6 +224,8 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
  *            guards memberships and enrolments, the intake's writes.)
  *   F10-C03  BOB-08 (e): A creates a Bagian; B creates one of the same name
  *            → STRUCTURE_NAME_TAKEN, and one Bagian of that name.
+ *   F10-C04  BOB-18 (e): A grants a person a role in a Tingkat; B grants the
+ *            identical role → GRANT_ALREADY_ACTIVE, and one standing grant.
  *
  * BOB-08 (e): ROBUST TO A SLOW FIRST CONNECTION. B used to start a fixed 300 ms
  * after A. If A's connection took longer to open, B ran first and the race
@@ -275,6 +278,14 @@ async function runStructureConcurrency(dbUrl: string, only: string[] | null | un
       held: (_t: string, out: string) => /^[0-9a-f-]{36}$/m.test(out),
       pass: "two admins' connections created a Bagian of the same name at once; the second waited on the per-school " +
         "structure lock, read the names again and was refused PR020 STRUCTURE_NAME_TAKEN" },
+    // BOB-18 (e): "Berikan peran" pressed twice while the first was saving
+    { id: "F10-C04", holder: (t: string, uid: string) => `select public.grant_role((select p.id from public.persons p where p.id <> (select a.person_id from public.accounts a where a.auth_user_id = '${uid}') order by p.created_at limit 1), 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
+      racer: (t: string, uid: string) => `select public.grant_role((select p.id from public.persons p where p.id <> (select a.person_id from public.accounts a where a.auth_user_id = '${uid}') order by p.created_at limit 1), 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
+      code: "GRANT_ALREADY_ACTIVE", went: "a second identical grant was saved beside the first",
+      verdict: (t: string) => `select (count(*) = 1)::text || '|one EDUCATOR grant stands in the Tingkat' from public.role_assignments where scope_node_id = '${t}'::uuid and role = 'EDUCATOR' and revoked_at is null`,
+      held: (_t: string, out: string) => /^[0-9a-f-]{36}$/m.test(out),
+      pass: "two connections granted the same person the same role in the same Tingkat at once; the second waited on " +
+        "the grant's advisory lock, read the first's row and was refused 23505 GRANT_ALREADY_ACTIVE" },
   ].filter((k) => !only || only.includes(k.id));
 
   const out: Outcome[] = [];
@@ -289,7 +300,7 @@ async function runStructureConcurrency(dbUrl: string, only: string[] | null | un
       `select set_config('request.jwt.claim.sub','${uid}',true);` +
       ` select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true);`;
     const marker = `pg_sleep(1.3${k.id.slice(-1)}7)`;
-    const holder = race(`begin; ${claim} ${k.holder(tingkat)}; select ${marker}; commit;`);
+    const holder = race(`begin; ${claim} ${k.holder(tingkat, uid)}; select ${marker}; commit;`);
     if (!(await asleep(marker))) { await holder; out.push(fail("the holder never held its transaction open within 20 s")); continue; }
     const [a, b] = await Promise.all([holder, race(`begin; ${claim} ${k.racer(tingkat, uid)}; commit;`)]);
     const verdict = psql(k.verdict(tingkat)).stdout.trim();
@@ -520,13 +531,27 @@ async function runDbConcurrency(dbUrl: string): Promise<Outcome> {
 }
 
 // ---------------------------------------------------------------- app process
+const FETCH_LOG = join(tmpdir(), `pintar-selftest-fetch-${process.pid}.log`);
 async function startApp(port: number): Promise<{ child: ChildProcess; url: string }> {
   if (!existsSync(join(repoRoot, ".next", "BUILD_ID"))) {
     log("  building production bundle (.next/BUILD_ID missing)…");
     const b = spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: repoRoot, stdio: "inherit", env: process.env });
     if (b.status !== 0) throw new Error("next build failed");
   }
-  const child = spawn(process.execPath, [NEXT_BIN, "start", "-p", String(port)], { cwd: repoRoot, env: { ...process.env, NODE_ENV: "production" }, stdio: ["ignore", "pipe", "pipe"] });
+  // BOB-18 (D-046): the app's calls to Supabase are counted, path only, into
+  // FETCH_LOG, so a test can read what one click cost (selftest/hitung-fetch.cjs).
+  writeFileSync(FETCH_LOG, "");
+  const preload = `--require ${join(repoRoot, "selftest", "hitung-fetch.cjs")}`;
+  const child = spawn(process.execPath, [NEXT_BIN, "start", "-p", String(port)], {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      NODE_ENV: "production",
+      SELFTEST_FETCH_LOG: FETCH_LOG,
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, preload].filter(Boolean).join(" "),
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   let logs = "";
   child.stdout?.on("data", (d) => (logs += d));
   child.stderr?.on("data", (d) => (logs += d));
@@ -629,6 +654,7 @@ async function main() {
     supabaseAnonKey: facilities.has("network") ? anon! : null,
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? null,
     ciUpstream,
+    fetchLog: app ? FETCH_LOG : null,
   };
   try {
     log("\n[static] selftest/static.test.ts");
@@ -647,7 +673,7 @@ async function main() {
   // claiming the id was not reported.
   for (const t of manifest.tests.filter((t) => t.runner === "db")) {
     const owners = DB_RUNNERS.filter((r) => r.emits.some((e) => t.id.startsWith(e)));
-    if (owners.length !== 1 && !["F02-C01", "F07-C01", "F09-C01", "F10-C01", "F10-C02", "F10-C03"].includes(t.id)) {
+    if (owners.length !== 1 && !["F02-C01", "F07-C01", "F09-C01", "F10-C01", "F10-C02", "F10-C03", "F10-C04"].includes(t.id)) {
       problems.push(`${t.id} is claimed by ${owners.length} db suite(s) — declare it in exactly one DB_RUNNERS.emits`);
     }
   }
