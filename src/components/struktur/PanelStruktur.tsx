@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type {
   HasilStruktur,
@@ -169,20 +170,16 @@ function Pesan({ jejak, apa, locale }: { jejak: Jejak; apa: Apa; locale: Locale 
   const s = (k: HleEvent) => t(k, "staff", { locale });
   if (jejak.hasil.ok) {
     return apa === "diubah" ? (
-      <p className="pin-str-pesan" role="status">
+      <BarisHasil nada="ok">
         {s("config.struktur.ok.diubah")} <strong>{jejak.nama}</strong>.
-      </p>
+      </BarisHasil>
     ) : (
-      <p className="pin-str-pesan" role="status">
+      <BarisHasil nada="ok">
         <strong>{jejak.nama}</strong> {s(apa === "dibuat" ? "config.struktur.ok.dibuat" : "config.struktur.ok.dinonaktifkan")}
-      </p>
+      </BarisHasil>
     );
   }
-  return (
-    <p className="pin-msg pin-msg-err" role="alert">
-      {kalimatGagal(jejak.hasil.code, jejak.hasil.ref, locale)}
-    </p>
-  );
+  return <BarisHasil nada="gagal">{kalimatGagal(jejak.hasil.code, jejak.hasil.ref, locale)}</BarisHasil>;
 }
 
 /** "Tambah Bagian / Tingkat / Kelas" under its parent. The name field stays filled after a refusal. */

@@ -2050,7 +2050,7 @@ export const appTests: SelfTest[] = [
         const panel = a >= 0 && b > a ? html.slice(a, b) : "";
         if (!c.expect(panel.length > 0, `${peran}: the page has no workbook section before the JSON forms`)) continue;
         const teks = visibleText(panel);
-        c.expect(!/role="alert"/.test(panel), `${peran}: the workbook section opens on a refusal: ${teks.slice(0, 200)}`);
+        c.expect(!/role="alert"|pin-hasil-gagal/.test(panel), `${peran}: the workbook section opens on a refusal: ${teks.slice(0, 200)}`);
         c.expect(teks.includes(t("studio.unggah.templat", "staff")), `${peran}: the template download is not offered`);
         for (const k of ["studio.unggah.langkah.periksa", "studio.unggah.langkah.media", "studio.unggah.langkah.simpan"] as const) {
           c.expect(teks.includes(t(k, "staff")), `${peran}: the step "${t(k, "staff")}" is missing`);

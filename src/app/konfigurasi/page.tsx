@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TandaTautan from "@/components/TandaTautan";
 import { t, type HleEvent } from "@/lib/hle";
 import { kalimatHasil } from "@/lib/galat-kontrak";
 import { currentViewer } from "@/lib/auth";
@@ -17,6 +18,7 @@ import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
 import PanelStruktur from "@/components/struktur/PanelStruktur";
 import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 
@@ -166,11 +168,12 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   }
   const rollNodes = (nodes ?? []).filter((n) => (n.kind === "COHORT" || n.kind === "CLASS") && n.academic_period_id);
 
+  // DAISY-18: the result sits under the form it answers, in the shared line.
   const result = (section: string) =>
     sp.bagian === section && sp.hasil ? (
-      <p className={`mt-3 inline-block rounded px-2 py-0.5 text-sm ${sp.hasil === "ok" ? "bg-ok-soft text-ok" : "bg-blocked-soft text-blocked"}`}>
+      <BarisHasil nada={sp.hasil === "ok" ? "ok" : "gagal"}>
         {kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" })}
-      </p>
+      </BarisHasil>
     ) : null;
 
   // DAISY-17: "Menambahkan orang" is offered only to a reader /pendataan
@@ -214,9 +217,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           administrator's other places (D-010) after them. Every one of these
           asks its own gate on arrival; a link here decides nothing. */}
       <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label={t("nav.tempat", "staff", { locale: await currentLocale() })}>
-        {bolehPendataan ? <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}</Link> : null}
-        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}</Link>
-        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}</Link>
+        {bolehPendataan ? <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}<TandaTautan /></Link> : null}
+        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}<TandaTautan /></Link>
+        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link>
         <TabTempat
           tempat={tempatDariPeran(peran)}
           kecuali={["/konfigurasi"]}
@@ -315,6 +318,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   {akar ? (
                     <Link href={`/dekan/ringkasan?simpul=${(akar as { id: string }).id}`} className={tautanTempat}>
                       {sl("config.laporan.sekolah")} · {sekolahStruktur.name}
+                      <TandaTautan />
                     </Link>
                   ) : null}
                   <span className="text-ink-3">{sl("config.laporan.kelas")}</span>
@@ -324,6 +328,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                         <li key={k.node_id}>
                           <Link href={`/edukator/ringkasan?kelas=${k.node_id}`} className={tautanTempat}>
                             {k.name}{k.academic_year ? ` (${k.academic_year})` : ""}
+                            <TandaTautan />
                           </Link>
                         </li>
                       ))}

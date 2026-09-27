@@ -3,6 +3,7 @@ import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import { sediakanUjiCepat } from "../../actions";
+import BarisHasil from "@/components/BarisHasil";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import TombolKirim from "@/components/TombolKirim";
@@ -218,7 +219,8 @@ export default async function UjiCepat({
           <p className="pin-intro">{s("mengajar.cepat.intro")}</p>
         </div>
 
-        {q.cepat === "gagal" ? <p className="pin-catatan">{s("mengajar.cepat.sudah_ada")}</p> : null}
+        {q.cepat === "gagal" ? <BarisHasil nada="gagal">{s("mengajar.cepat.sudah_ada")}</BarisHasil> : null}
+        {q.cepat === "ok" ? <BarisHasil nada="ok">{s("mengajar.cepat.ok")}</BarisHasil> : null}
 
         {bab.length === 0 ? (
           <p className="pin-empty">{s("mengajar.cepat.bab.kosong")}</p>
