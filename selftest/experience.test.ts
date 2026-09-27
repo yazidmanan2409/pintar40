@@ -8409,6 +8409,14 @@ export const experienceTests: SelfTest[] = [
           ...Object.values(B.jenisMedia.nilai).map((x) => x.join(", ")), format.number(B.namaMediaMaks.nilai, "id"),
         ];
         for (const x of harus) c.expect(teksPanduan.includes(x), `the guidance does not state the limit "${x}"`);
+        // DAISY-15's follow-up: the guidance says that Excel draws a text cell
+        // over 255 characters as ####, naming a column that really is Text
+        // and really can run that long.
+        const baris6 = t("studio.templat.cara.6", "staff", { locale: "id" });
+        const isi = KOLOM.Pelajaran.find((k) => k.kunci === "body_markdown");
+        c.expect(teksPanduan.includes(baris6) && baris6.includes("####") && baris6.includes("255")
+          && Boolean(isi) && baris6.includes(isi!.judul) && formatKolom(isi!) === "teks" && BATAS_PAKET.teksMaks.nilai.isiPelajaran > 255,
+          "the guidance does not warn that Excel shows a long text cell as ####, or names a column that is not a long Text column");
       }
 
       /**

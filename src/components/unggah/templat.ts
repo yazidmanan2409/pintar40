@@ -276,7 +276,7 @@ export function lembarTemplat(): LembarTulis[] {
   const panduan: Sel[][] = [
     [{ teks: s("studio.templat.judul"), gaya: GAYA.judulHalaman }],
     [],
-    ...(["studio.templat.cara.1", "studio.templat.cara.2", "studio.templat.cara.3", "studio.templat.cara.4", "studio.templat.cara.5"] as const)
+    ...(["studio.templat.cara.1", "studio.templat.cara.2", "studio.templat.cara.3", "studio.templat.cara.4", "studio.templat.cara.5", "studio.templat.cara.6"] as const)
       .map((k) => [bungkus(s(k))]),
     [],
     [judul(s("studio.templat.kolom.lembar")), judul(s("studio.templat.kolom.kolom")), judul(s("studio.templat.kolom.wajib")),
