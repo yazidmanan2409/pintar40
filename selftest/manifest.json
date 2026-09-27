@@ -2070,7 +2070,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as the platform administrator and Alpha's school administrator and reads /konfigurasi, /pendataan and /pimpinan against the seed. CI has both facilities, so it never skips there",
-      "proves": "DAISY-17's same-push fixes over real HTTP against the seed: Konfigurasi offers Menambahkan orang (a link to /pendataan) exactly when /pendataan admits the same reader, asked of the platform administrator and of Alpha's school administrator; a school administrator refused Pimpinan reads the staff refusal sentence and not the learner's \"ask your teacher\"."
+      "proves": "DAISY-17's same-push fixes over real HTTP against the seed, read from the RENDERED html of /konfigurasi, /pendataan and /pimpinan: Konfigurasi offers Menambahkan orang (a link to /pendataan) exactly when /pendataan admits the same reader, asked of the platform administrator and of Alpha's school administrator; a school administrator refused Pimpinan reads the staff refusal sentence and not the learner's \"ask your teacher\"."
     }
   ]
 }
