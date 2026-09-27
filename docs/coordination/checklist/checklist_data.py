@@ -495,6 +495,50 @@ _fixed = {
 FINDINGS[:] = [_fixed.get(f[0], f) for f in FINDINGS]
 
 
+# --- Integration 10 on main (27 Sep): DAISY-07 (reports by clicking), DAISY-15 (template keeps typed text),
+#     BOB-07's wording (Daisy), BOB-08 (a school's structure holds) ---
+NOW.update({
+    "sha": "6074833",
+    "label": "Integration 10 (main)",
+    "evidence": ("main 6074833 = Integration 10: DAISY-07, DAISY-15, the wording of BOB-07's messages and BOB-08 on top of "
+                 "Integration 9 (1e46714). CI #199 (26/26); audit #27, run 36312396989 (26 PASS, 1 NOTE, 1 FAIL: S8, BOB-10). The lanes' own runs: CI #197 (98f5b12) and #198 (1c31f87). "
+                 "Before it: Integrations 5–9 (CI #181, #184, #186, #191, #196; audit #26 for Integration 9). Staging: "
+                 "118 migrations after this integration, SD 5 Bab 1 imported whole (run 36071811494)."),
+})
+_lap = "DAISY-07-LAPORAN-02, against the seeded school, CI #197 and #199 (26/26)"
+CURRENT.update({
+    "DEA-03": f"PASS: from Pimpinan the dean opens the school summary and each class summary by clicking, at their own scope ({_lap}).",
+    "ADM-16": f"PASS: Konfigurasi → Laporan opens the school summary and each Kelas's summary by clicking ({_lap}); the figures are BOB-06's standard reports.",
+    "X-12": f"PASS: the dean (Pimpinan) and the school admin (Konfigurasi → Laporan) each reach the reports of their own scope by clicking, and a figure they may not read is never linked ({_lap}).",
+    "HOD-09": f"PASS: Pimpinan's \"Per kelas\" asks each class of the department for itself and says why a figure is absent (BOB-06; DAISY-07; {_lap}).",
+    "U-NAV": "PASS: Aktivasi, Studio, Pimpinan (S2, DAISY-03, DAISY-11) and now the report pages (DAISY-07) are reached by clicking.",
+    "ADM-09": ("PASS: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). "
+               "A workbook saved by Microsoft Excel and one saved by Google Sheets both import, in CI (BOB02-X01 counts 2 real applications; K01; BOB-16 "
+               "reads Google Sheets' N.0 as N). The template keeps typed text as text in Excel and LibreOffice (DAISY-15, DAISY-06-TEMPLAT-01). "
+               "Left: one Google Sheets round trip on the new template (Yazid)."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 118; staging 118 after this integration.",
+})
+VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
+               "Bob — BOB-09 (pickers show hidden places: ADM-07), BOB-10 (intake trap: ADM-07, X-01), BOB-11 (media playback: "
+               "STU-11, ADM-10), BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01). "
+               "Coordinator — extend the audit to answer the pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), "
+               "and walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key copies), and one Google "
+               "Sheets round trip on the new template. The live release (5b5b68d) stays as it is.")
+CHANGES_V21.append(
+    "Re-marked on 27 Sep against Integration 10 on main (6074833): DAISY-07 puts the reports one click away (DEA-03, ADM-16, X-12, "
+    "HOD-09 and U-NAV now PASS), DAISY-15 keeps typed text as text in the template (GS-1: Google Sheets' round trip left), "
+    "Daisy reworded BOB-07's 26 messages, and BOB-08 closes the structure's side doors (no direct writes, nobody placed in a "
+    "deactivated place, a year near now, the library not a school).")
+_fixed10 = {
+    "GS-1": ("GS-1", "A number typed in a text column (an option like 78.145) becomes a number in Excel or Google Sheets; Google Sheets also stores whole numbers as N.0",
+             "BOB-16 (reader); DAISY-15 (template columns as Text)",
+             "FIXED for Excel and LibreOffice (BOB-16, DAISY-15); Google Sheets: one round trip on the new template (Yazid)"),
+    "B6": ("B6", "Reports unreachable or empty", "(a) D-003; (b)(c) BOB-06; DAISY-07",
+           "FIXED on main: standard reports and class figures (BOB-06), one click away (DAISY-07)"),
+}
+FINDINGS[:] = [_fixed10.get(f[0], f) for f in FINDINGS]
+
+
 def as_dict():
     g = globals()
     return {
