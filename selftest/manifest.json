@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 92,
+  "version": 93,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1685,7 +1685,7 @@
     {
       "id": "F10-M01",
       "runner": "db",
-      "proves": "M5a. The intake places a learner only in an active Kelas or Tingkat, and says why. import_row_problems refuses a row with no role or role STUDENT whose place is a Bagian, the Jenjang, a Reguler, the school or a deactivated Kelas with 'a learner is placed in an active Kelas or Tingkat', accepts a Kelas and a Tingkat, leaves an EDUCATOR scoped to a Bagian alone, and import_validate reports the phrase against the row before anything is provisioned."
+      "proves": "M5a, and BOB-10 (M5b interim; restated, a changed requirement recorded on the board). The intake places a learner only in an active Kelas or Tingkat, and refuses a staff row before recording, each with a reason. import_row_problems refuses a row with no role or role STUDENT whose place is a Bagian, the Jenjang, a Reguler, the school or a deactivated Kelas with 'a learner is placed in an active Kelas or Tingkat', accepts a Kelas and a Tingkat, refuses an EDUCATOR at a Bagian or in a Kelas, a HEAD_OF_DEPARTMENT and a DEAN with 'a staff row is not recorded by the bulk intake yet', and import_validate reports each phrase against its row before anything is provisioned."
     },
     {
       "id": "F10-M02",

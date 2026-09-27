@@ -909,7 +909,7 @@ export type HleEvent =
   | "pendataan.masalah.tempat_asing" | "pendataan.masalah.tempat_luar"
   | "pendataan.masalah.peran_asing" | "pendataan.masalah.peran_dilarang"
   | "pendataan.masalah.peran_tanpa_tempat" | "pendataan.masalah.ganda" | "pendataan.masalah.lain"
-  | "pendataan.masalah.tempat_murid"
+  | "pendataan.masalah.tempat_murid" | "pendataan.masalah.staf"
   | "pendataan.pratinjau.judul" | "pendataan.pratinjau.total" | "pendataan.pratinjau.baru"
   | "pendataan.pratinjau.tertaut" | "pendataan.pratinjau.nomor" | "pendataan.pratinjau.peran"
   | "pendataan.pratinjau.akun" | "pendataan.pratinjau.akun_arti" | "pendataan.pratinjau.setuju"
@@ -1587,6 +1587,7 @@ const table: Table = {
   "pendataan.masalah.ganda": { default: "Baris ini kembar dengan baris lain di berkas yang sama.", en: "This row is a twin of another row in the same file." },
   "pendataan.masalah.lain": { default: "Baris ini belum bisa dicatat.", en: "This row cannot be recorded yet." },
   "pendataan.masalah.tempat_murid": { default: "Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif.", en: "A student can only be placed in an active Kelas or Tingkat." },
+  "pendataan.masalah.staf": { default: "Peran guru dan staf belum bisa diberikan lewat pendataan massal. Kosongkan kolom peran dan tempat pada baris ini; Admin platform memberikan perannya dari Konfigurasi.", en: "Teacher and staff roles can't be given through a bulk intake yet. Leave this row's role and place empty; the platform admin gives the role from Konfigurasi." },
 
   "pendataan.pratinjau.judul": { default: "Yang akan terjadi", en: "What will happen" },
   "pendataan.pratinjau.total": { default: "Baris", en: "Rows" },

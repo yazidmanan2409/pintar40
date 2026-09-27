@@ -289,7 +289,7 @@ export const AKUN_AKTIF = 0;
 // ═══════════════════════════════════════ 4. a refusal, as a sentence
 
 /**
- * WP5A'S VALIDATION PROBLEMS (TWELVE SINCE M5a), EACH AS A COPY KEY.
+ * WP5A'S VALIDATION PROBLEMS (THIRTEEN SINCE BOB-10), EACH AS A COPY KEY.
  *
  * `import_row_problems` returns phrases written for a developer —
  * "display_name is missing or too long", "node_id is outside your provisioning
@@ -317,6 +317,8 @@ export const MASALAH: Record<string, string> = {
   "role is not a role this platform has": "pendataan.masalah.peran_asing",
   "this role is not granted by bulk provisioning": "pendataan.masalah.peran_dilarang",
   "a role needs an organizational node to be scoped to": "pendataan.masalah.peran_tanpa_tempat",
+  // BOB-10 (M5b, interim): a staff row, refused until the intake has a staff path
+  "a staff row is not recorded by the bulk intake yet": "pendataan.masalah.staf",
   "duplicate row within this import": "pendataan.masalah.ganda",
 };
 
