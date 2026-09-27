@@ -2,6 +2,7 @@ import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, card, field, label, outcomeLine, s, studioInstitutions, when } from "../_lib";
 import { grantDistributionAction, withdrawDistributionAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * The PINTAR library — distributed canonical content (this phase's §5.3).
@@ -93,12 +94,12 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
             </label>
             <input className={field} name="institution" placeholder="id sekolah" required />
             <input className={field} name="alasan" placeholder="alasan" />
-            <button className={button} type="submit">{s("studio.definisi.simpan")}</button>
+            <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
           </form>
           <form action={withdrawDistributionAction} className="mt-3 flex flex-wrap items-end gap-2">
             <input className={field} name="distribusi" placeholder="id izin" required />
             <input className={field} name="alasan" placeholder="alasan" required />
-            <button className={button} type="submit">{s("studio.paket.tarik")}</button>
+            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.tarik")}</TombolKirim>
           </form>
         </section>
       ) : null}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { isianKurang, type JawabanAktivasi, type ModeAktivasi } from "./hasil";
 import HasilAktivasi from "./HasilAktivasi";
@@ -30,7 +30,10 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
   const [surel, setSurel] = useState<Record<string, string>>({});
   const [hasil, setHasil] = useState<Record<string, Hasil>>({});
   const [kurang, setKurang] = useState<Record<string, HleEvent>>({});
+  // DAISY-17: which button is working ("<key>:<mode>"), so it can say so,
+  // and a guard that holds a second press before the page has redrawn.
   const [sibuk, setSibuk] = useState<string | null>(null);
+  const berjalan = useRef(false);
   const [baru, setBaru] = useState({ nama: "", surel: "" });
 
   async function kirim(key: string, mode: ModeAktivasi, body: Record<string, string>, isian: { nama?: string; surel?: string }) {
@@ -41,8 +44,9 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
       else delete y[key];
       return y;
     });
-    if (cegah) return;
-    setSibuk(key);
+    if (cegah || berjalan.current) return;
+    berjalan.current = true;
+    setSibuk(`${key}:${mode}`);
     let jawaban: JawabanAktivasi | null = null;
     try {
       const res = await fetch("/api/akun/aktivasi", {
@@ -53,6 +57,7 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
     } catch {
       jawaban = null;
     } finally {
+      berjalan.current = false;
       setSibuk(null);
     }
     setHasil((h) => ({ ...h, [key]: { mode, jawaban, surel: isian.surel?.trim(), nama: isian.nama?.trim() } }));
@@ -82,12 +87,14 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
                           onChange={(e) => setSurel((x) => ({ ...x, [o.person_id]: e.target.value }))} />
                       </label>
                       <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
+                        aria-busy={sibuk === `${o.person_id}:EMAIL` ? "true" : undefined}
                         onClick={() => void kirim(o.person_id, "EMAIL", { person_id: o.person_id, email: alamat.trim() }, { surel: alamat })}>
-                        {s("aktivasi.dengan_surel")}
+                        {sibuk === `${o.person_id}:EMAIL` ? s("tombol.mengaktifkan") : s("aktivasi.dengan_surel")}
                       </button>
                       <button type="button" className="pin-btn" disabled={sibuk !== null}
+                        aria-busy={sibuk === `${o.person_id}:CLASSROOM_CARD` ? "true" : undefined}
                         onClick={() => void kirim(o.person_id, "CLASSROOM_CARD", { person_id: o.person_id }, {})}>
-                        {s("aktivasi.dengan_kartu")}
+                        {sibuk === `${o.person_id}:CLASSROOM_CARD` ? s("tombol.mengaktifkan") : s("aktivasi.dengan_kartu")}
                       </button>
                     </div>
                     {kurang[o.person_id] ? (
@@ -117,8 +124,9 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
               <input className="pin-input" type="email" value={baru.surel} onChange={(e) => setBaru((b) => ({ ...b, surel: e.target.value }))} />
             </label>
             <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
+              aria-busy={sibuk === "baru:NEW_PERSON" ? "true" : undefined}
               onClick={() => void kirim("baru", "NEW_PERSON", { display_name: baru.nama.trim(), email: baru.surel.trim() }, baru)}>
-              {s("aktivasi.baru.tombol")}
+              {sibuk === "baru:NEW_PERSON" ? s("tombol.mengaktifkan") : s("aktivasi.baru.tombol")}
             </button>
           </div>
           {kurang.baru ? (

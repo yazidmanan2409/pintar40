@@ -6,6 +6,7 @@ import { button, can, card, field, label, outcomeLine, s, studioInstitutions, wh
 import {
   acknowledgeFindingAction, createRevisionAction, moveReleaseAction, runValidationAction,
 } from "../../actions";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * Package detail — Publish Readiness (§5), freeze & publish (§6), release
@@ -55,7 +56,7 @@ function FindingCard({ f, courseId, kind, showAck }: {
             <span>{s("studio.paket.catatan")}</span>
             <input className={field} name="catatan" />
           </label>
-          <button className={button} type="submit">{s("studio.temuan.akui")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.temuan.akui")}</TombolKirim>
         </form>
       ) : null}
     </li>
@@ -161,7 +162,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         {can(inst, "CAN_DRAFT") && !tersegel ? (
           <form action={runValidationAction} className="flex flex-wrap items-center gap-3">
             <input type="hidden" name="course" value={courseId} />
-            <button className={button} type="submit">{s("studio.paket.periksa_isi")}</button>
+            <TombolKirim className={button} sibuk={s("tombol.memeriksa")}>{s("studio.paket.periksa_isi")}</TombolKirim>
             <span className="text-sm text-ink-2">{s("studio.paket.periksa_isi_arti")}</span>
           </form>
         ) : null}
@@ -185,7 +186,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           <p className="mt-1 text-sm text-ink-2">{s("studio.paket.revisi_penjelasan")}</p>
           <form action={createRevisionAction} className="mt-3">
             <input type="hidden" name="course" value={courseId} />
-            <button className={button} type="submit">{s("studio.paket.revisi")}</button>
+            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.revisi")}</TombolKirim>
           </form>
         </section>
       ) : null}
@@ -210,7 +211,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                 <span>{s("studio.paket.koreksi_alasan")}</span>
                 <input className={field} name="alasan" required />
               </label>
-              <button className={button} type="submit">{s("studio.paket.tugaskan")}</button>
+              <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.paket.tugaskan")}</TombolKirim>
             </form>
           ))}
         </section>

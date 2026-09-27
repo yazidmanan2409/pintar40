@@ -8075,7 +8075,7 @@ export const experienceTests: SelfTest[] = [
           c.expect(tampil.startsWith(`${s("config.struktur.konfirmasi.tanya")} ${s("config.struktur.jenis.KELAS")} 1A ?`) || tampil.startsWith(`${s("config.struktur.konfirmasi.tanya")} ${s("config.struktur.jenis.KELAS")} 1A?`),
             `(${locale}) the question does not name the level and the place: "${tampil}"`);
           c.expect(tampil.includes(s("config.struktur.konfirmasi.arti")), `(${locale}) the question does not say it cannot be undone here`);
-          c.expect(x.includes('name="simpul" value="k1"') && x.includes(`<button type="submit" class="pin-btn pin-str-bahaya">${s("config.struktur.konfirmasi.ya")}</button>`)
+          c.expect(x.includes('name="simpul" value="k1"') && /<button\b(?=[^>]*\bclass="pin-btn pin-str-bahaya")(?=[^>]*\btype="submit")[^>]*>([^<]+)<\/button>/.exec(x)?.[1] === s("config.struktur.konfirmasi.ya")
             && x.includes(`<button type="button" class="pin-btn">${s("config.struktur.batal")}</button>`),
             `(${locale}) the question is not the form that sends the deactivation, with a way back`);
         });
@@ -8409,6 +8409,14 @@ export const experienceTests: SelfTest[] = [
           ...Object.values(B.jenisMedia.nilai).map((x) => x.join(", ")), format.number(B.namaMediaMaks.nilai, "id"),
         ];
         for (const x of harus) c.expect(teksPanduan.includes(x), `the guidance does not state the limit "${x}"`);
+        // DAISY-15's follow-up: the guidance says that Excel draws a text cell
+        // over 255 characters as ####, naming a column that really is Text
+        // and really can run that long.
+        const baris6 = t("studio.templat.cara.6", "staff", { locale: "id" });
+        const isi = KOLOM.Pelajaran.find((k) => k.kunci === "body_markdown");
+        c.expect(teksPanduan.includes(baris6) && baris6.includes("####") && baris6.includes("255")
+          && Boolean(isi) && baris6.includes(isi!.judul) && formatKolom(isi!) === "teks" && BATAS_PAKET.teksMaks.nilai.isiPelajaran > 255,
+          "the guidance does not warn that Excel shows a long text cell as ####, or names a column that is not a long Text column");
       }
 
       /**
@@ -8811,7 +8819,7 @@ export const experienceTests: SelfTest[] = [
        */
       const form = code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "FormAktivasi.tsx"), "utf8"));
       c.expect((form.match(/\bfetch\(/g) ?? []).length === 1 && /fetch\("\/api\/akun\/aktivasi"/.test(form), "the form talks to the server some other way");
-      c.expect(/const cegah = isianKurang\(mode, isian\);[\s\S]*if \(cegah\) return;[\s\S]*fetch\(/.test(form), "the form sends before checking what is missing");
+      c.expect(/const cegah = isianKurang\(mode, isian\);[\s\S]*if \(cegah(?: \|\| berjalan\.current)?\) return;[\s\S]*fetch\(/.test(form), "the form sends before checking what is missing");
       c.expect(!/\.detail\b/.test(form + code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "HasilAktivasi.tsx"), "utf8"))),
         "the route's detail -- the server's own text -- is read by the form or its outcome");
       c.expect(!/router\.refresh|useRouter/.test(form), "a success still refreshes the list and takes its message off the screen");
@@ -9159,7 +9167,7 @@ export const experienceTests: SelfTest[] = [
       if (c.expect(anak.status === 0 && html.length === KASUS.length, `the steps could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
         const R = Object.fromEntries(KASUS.map((k, n) => [k.nama, html[n].replace(/&amp;/g, "&").replace(/&#x27;/g, "'")]));
         const sId = (e: HleEvent) => t(e, "staff");
-        const tombolDi = (x: string) => [...x.matchAll(/<button type="submit"[^>]*>([^<]+)<\/button>/g)].map((m) => m[1]);
+        const tombolDi = (x: string) => [...x.matchAll(/<button\b(?=[^>]*\btype="submit")[^>]*>([^<]+)<\/button>/g)].map((m) => m[1]);
         const kini = (x: string) => (x.match(/aria-current="step"/g) ?? []).length;
         const tb = (k: KunciLangkah) => sId(kunciSalinan(k, "tombol"));
         for (const [nama, x] of Object.entries(R)) {
@@ -9544,6 +9552,127 @@ export const experienceTests: SelfTest[] = [
         "a class's summary at that class and inside each class they may read, each link with the parameter its page reads; " +
         "Pimpinan opens on the reader's broadest scope, so a head of department holding a class inside the department opens on " +
         "the department (the old first-by-name rule is the control)",
+      );
+    },
+  },
+  {
+    id: "DAISY-17-KIRIM-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-17 (D-046(e)): A CLICK THAT SAVES SAYS SO AT ONCE AND SAVES ONCE.
+       * "Berikan peran" showed nothing for 10–15 s and a second click made a
+       * second grant.
+       *
+       * 1. EVERY FORM THAT CALLS A SERVER ACTION submits through TombolKirim:
+       *    every <form action={…}> under src/app and src/components has one, and
+       *    no plain submit button (a <button> without type="button", or an
+       *    <input type="submit">). Every TombolKirim says what it does while
+       *    it works (a sibuk= prop). A planted plain button is the control.
+       */
+      const periksa = (src: string) => {
+        const salah: string[] = [];
+        let n = 0;
+        for (const m of src.matchAll(/<form\b([^>]*)>/g)) {
+          if (!/\baction=\{/.test(m[1])) continue;
+          n++;
+          const akhir = src.indexOf("</form>", m.index!);
+          const isi = src.slice(m.index! + m[0].length, akhir < 0 ? undefined : akhir);
+          const polos = [...isi.matchAll(/<button\b[^>]*>/g)].map((b) => b[0]).filter((b) => !/type="button"/.test(b));
+          if (polos.length || /<input\b[^>]*type="submit"/.test(isi) || !/<TombolKirim\b/.test(isi)) {
+            salah.push(`<form action={${/\baction=\{([^}]*)\}/.exec(m[1])?.[1]}}>: ${polos[0] ?? (/<TombolKirim\b/.test(isi) ? "an input submit" : "no TombolKirim")}`);
+          }
+        }
+        return { n, salah };
+      };
+      const berkas = [...walk(join(repoRoot, "src", "app")), ...walk(join(repoRoot, "src", "components"))]
+        .filter((f) => f.endsWith(".tsx")).map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+      let jumlah = 0;
+      const tombol: string[] = [];
+      for (const f of berkas) {
+        const src = code(readFileSync(join(repoRoot, f), "utf8"));
+        const { n, salah } = periksa(src);
+        jumlah += n;
+        for (const x of salah) c.expect(false, `${f} ${x}: a form that saves without saying so, or twice`);
+        tombol.push(...[...src.matchAll(/<TombolKirim\b[^>]*>/g)].map((m) => `${f}: ${m[0]}`));
+      }
+      c.expect(jumlah >= 43, `only ${jumlah} server-action form(s) found; the sweep is not seeing the app`);
+      for (const tk of tombol) c.expect(/\bsibuk=\{s\("(?:tombol\.[a-z_]+|studio\.langkah\.sibuk|config\.struktur\.sibuk)"\)\}|\bsibuk=\{e\("tombol\.[a-z_]+"\)\}/.test(tk), `${tk} does not say what it does while it works`);
+      const ditanam = periksa(`<form action={simpan}><input name="x" /><button className="pin-btn">Simpan</button></form>`);
+      const tanpaTipe = periksa(`<form action={simpan}><TombolKirim sibuk={s("tombol.menyimpan")}>Simpan</TombolKirim><button>Lagi</button></form>`);
+      const baik = periksa(`<form action={simpan}><TombolKirim sibuk={s("tombol.menyimpan")}>Simpan</TombolKirim><button type="button">Batal</button></form>`);
+      c.expect(ditanam.salah.length === 1 && tanpaTipe.salah.length === 1 && baik.salah.length === 0,
+        "the control: a planted plain button, or a second untyped button, is not caught, or a cancel button is");
+
+      /**
+       * 2. THE BUTTON ITSELF: it reads its own form's status, is disabled and
+       *    busy and shows its pending words from the submit until the answer,
+       *    and holds a second submit that lands before the page redraws (in
+       *    the capture phase at the document, never by disabling itself inside
+       *    its own click, which would cancel the submission).
+       */
+      const jalurTk = join(repoRoot, "src", "components", "TombolKirim.tsx");
+      const tkMentah = existsSync(jalurTk) ? readFileSync(jalurTk, "utf8") : "";
+      c.expect(tkMentah !== "", "there is no pending-aware submit button (src/components/TombolKirim.tsx)");
+      const tk = code(tkMentah);
+      c.expect(/^"use client";/.test(tkMentah.trimStart())
+        && /import \{ useFormStatus \} from "react-dom";/.test(tk) && /const \{ pending \} = useFormStatus\(\);/.test(tk),
+        "the button does not read its own form's status");
+      c.expect(/type="submit" disabled=\{pending \|\| disabled\} aria-busy=\{pending \? "true" : undefined\}/.test(tk) && /\{pending \? sibuk : children\}/.test(tk),
+        "the button is not disabled, busy and worded while its form is being saved");
+      c.expect(/sibuk: ReactNode;/.test(tk) && !/sibuk\?: ReactNode/.test(tk), "a TombolKirim may be written without its pending words");
+      c.expect(/document\.addEventListener\("submit", jaga, true\)/.test(tk) && /e\.preventDefault\(\);\s*e\.stopImmediatePropagation\(\);/.test(tk)
+        && /if \(!pending\) terkirim\.current = false;/.test(tk) && !/onClick/.test(tk),
+        "a second submit before the redraw is not held, the hold never clears, or the button acts inside its own click");
+      for (const locale of LOCALES) {
+        for (const k of ["menyimpan", "memproses", "memeriksa", "mengirim", "menyediakan", "memulai", "mengaktifkan"]) {
+          const v = t(`tombol.${k}` as HleEvent, "staff", { locale });
+          c.expect(v !== TANPA_SALINAN && v.endsWith("…"), `(${locale}) tombol.${k} does not read as work in progress: ${v}`);
+        }
+      }
+
+      /**
+       * 3. AKTIVASI sends through fetch, not a form: the pressed button says
+       *    "Mengaktifkan…" and a second press before the redraw is held.
+       */
+      const akt = code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "FormAktivasi.tsx"), "utf8"));
+      c.expect((akt.match(/s\("tombol\.mengaktifkan"\)/g) ?? []).length === 3 && (akt.match(/aria-busy=\{sibuk === /g) ?? []).length === 3,
+        "an activation button does not say it is working");
+      c.expect(/if \(cegah \|\| berjalan\.current\) return;\s*berjalan\.current = true;/.test(akt) && /finally \{\s*berjalan\.current = false;/.test(akt),
+        "a second activation press before the redraw is not held, or the hold never clears");
+
+      /**
+       * 4. IN THE SAME PUSH: a staff refusal does not tell an adult to ask
+       *    their teacher, and Konfigurasi offers "Menambahkan orang" only to a
+       *    reader /pendataan admits (the same predicate).
+       */
+      for (const locale of LOCALES) {
+        const staf = t("tolak.arti", "staff", { locale });
+        const murid = t("tolak.arti", "learner", { locale });
+        c.expect(!/\bguru\b|\bteacher\b/i.test(staf) && /\bguru\b|\bteacher\b/i.test(murid) && staf !== murid,
+          `(${locale}) a staff refusal still sends an adult to a teacher, or a learner's no longer does: ${staf} / ${murid}`);
+      }
+      const tolak = code(readFileSync(join(repoRoot, "src", "components", "HalamanPenolakan.tsx"), "utf8"));
+      c.expect(/const s = \(k: HleEvent\) => t\(k, persona, \{ locale \}\);/.test(tolak) && /\{s\("tolak\.arti"\)\}/.test(tolak),
+        "the refusal page does not say tolak.arti in its reader's own register");
+      const konf = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      c.expect(/sekolahPendataan\(\)\.then\(\(x\) => x\.length > 0\)/.test(konf)
+        && /\{bolehPendataan \? <Link href="\/pendataan"/.test(konf) && (konf.match(/href="\/pendataan"/g) ?? []).length === 1,
+        "Konfigurasi offers Menambahkan orang to a reader /pendataan refuses");
+      const pend = code(readFileSync(join(repoRoot, "src", "app", "pendataan", "page.tsx"), "utf8"));
+      c.expect(/const sekolah = await data\.sekolahPendataan\(\);\s*if \(sekolah\.length === 0\)/.test(pend),
+        "/pendataan no longer admits by sekolahPendataan, so Konfigurasi's offer asks a different question");
+
+      c.note(`${jumlah} server-action form(s), ${tombol.length} TombolKirim`);
+      return c.verdict(
+        `every one of the ${jumlah} forms that call a server action submits through TombolKirim and nothing else, each ` +
+        "saying what it does while it works (a planted plain button and a second untyped one are caught, a cancel " +
+        "button is not); TombolKirim reads its own form's status, is disabled, busy and worded from the submit until " +
+        "the answer, and holds a second submit that lands before the redraw; the activation buttons say " +
+        "\"Mengaktifkan…\" and hold a second press; a staff refusal no longer sends an adult to a teacher while a " +
+        "learner's still does; Konfigurasi offers Menambahkan orang only by /pendataan's own predicate",
       );
     },
   },

@@ -2327,4 +2327,39 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "DAISY-17-KIRIM-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-17's two same-push fixes, over real HTTP against the seed.
+      // Konfigurasi offers "Menambahkan orang" exactly when /pendataan admits
+      // the same reader -- asked of the platform administrator, whom it always
+      // refused, and of Alpha's school administrator, whom it admits. A staff
+      // reader refused a page reads the staff sentence, not "ask your teacher".
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const ditolak = visibleText(`<p>${t("pendataan.ditolak", "staff")}</p>`);
+      for (const [nama, orang] of [["SYSTEM_ADMIN", PERSONA.sysadmin], ["INSTITUTION_ADMIN", PERSONA.alphaAdmin]] as const) {
+        const sesi = await signIn(ctx, orang);
+        const k = await get(`${base}/konfigurasi`, { headers: { cookie: sesi.cookie } });
+        const html = await k.text();
+        c.expect(k.status === 200, `${nama} /konfigurasi → ${k.status}`);
+        const ditawarkan = /href="\/pendataan"/.test(html);
+        const p2 = await get(`${base}/pendataan`, { headers: { cookie: sesi.cookie } });
+        const diterima = p2.status === 200 && !visibleText(await p2.text()).includes(ditolak);
+        c.expect(ditawarkan === diterima, `${nama}: Konfigurasi ${ditawarkan ? "offers" : "does not offer"} Menambahkan orang, and /pendataan ${diterima ? "admits" : "refuses"} them`);
+        c.note(`${nama}: ${diterima ? "admitted, offered" : "refused, not offered"}`);
+      }
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const r = await get(`${base}/pimpinan`, { headers: { cookie: admin.cookie } });
+      const teks = visibleText(await r.text());
+      c.expect(teks.includes(t("tolak.arti", "staff")) && !teks.includes(t("tolak.arti", "learner")),
+        "a school administrator refused Pimpinan is told to ask their teacher");
+      return c.verdict(
+        "Konfigurasi offers Menambahkan orang exactly when /pendataan admits the same reader, for the platform " +
+        "administrator and for Alpha's school administrator; a school administrator refused Pimpinan reads the staff " +
+        "refusal, not \"ask your teacher\"",
+      );
+    },
+  },
 ];

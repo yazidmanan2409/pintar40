@@ -5,6 +5,7 @@ import * as ajar from "@/lib/pengajar";
 import { sediakanUjiCepat } from "../../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
@@ -192,7 +193,7 @@ export default async function UjiCepat({
               <input type="hidden" name="soal" value={pilihSoal} />
               <input type="hidden" name="menit" value={pilihMenit} />
               <div className="pin-actions">
-                <button type="submit" className="pin-btn pin-primary">{s("mengajar.cepat.komit")}</button>
+                <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.menyediakan")}>{s("mengajar.cepat.komit")}</TombolKirim>
                 <Link className="pin-btn" href={`/mengajar/${id}/uji-cepat`}>{s("mengajar.cepat.ubah")}</Link>
               </div>
             </form>

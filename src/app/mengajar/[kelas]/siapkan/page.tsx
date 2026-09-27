@@ -5,6 +5,7 @@ import * as ajar from "@/lib/pengajar";
 import { sediakanMateri } from "../../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
@@ -226,9 +227,9 @@ export default async function Siapkan({
                 {s("mengajar.siap.akibat.2")} {s("mengajar.siap.akibat.3")}
               </p>
               <div className="pin-actions">
-                <button type="submit" className="pin-btn pin-primary">
+                <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.menyediakan")}>
                   {s("mengajar.siap.komit")} {dipilih.kursus} {s("mengajar.untuk")} {ctx.ini.nama}
-                </button>
+                </TombolKirim>
                 <Link className="pin-btn" href={`/mengajar/${id}/siapkan`}>
                   {s("mengajar.siap.kembali")}
                 </Link>

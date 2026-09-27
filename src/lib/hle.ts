@@ -150,6 +150,14 @@ export type HleEvent =
   | "lingkup.semua"
   | "lingkup.kosong"
   | "tolak.arti"
+  // DAISY-17: a submit button's words while its form is being saved
+  | "tombol.menyimpan"
+  | "tombol.memproses"
+  | "tombol.memeriksa"
+  | "tombol.mengirim"
+  | "tombol.menyediakan"
+  | "tombol.memulai"
+  | "tombol.mengaktifkan"
   | "tolak.kembali"
   | "komitmen.kembali"
   | "bukti.dari"
@@ -685,6 +693,7 @@ export type HleEvent =
   | "studio.templat.cara.3"
   | "studio.templat.cara.4"
   | "studio.templat.cara.5"
+  | "studio.templat.cara.6"
   | "studio.templat.kolom.lembar"
   | "studio.templat.kolom.kolom"
   | "studio.templat.kolom.wajib"
@@ -1709,7 +1718,17 @@ const table: Table = {
   "lingkup.pilih": { default: "Pilih lingkup", en: "Choose a scope" },
   "lingkup.semua": { default: "Semua yang bisa Anda lihat", en: "Everything you can see" },
   "lingkup.kosong": { default: "Belum ada lingkup yang bisa dipilih.", en: "There is no scope to choose from yet." },
-  "tolak.arti": { default: "Jika ini keliru, tanyakan kepada guru Anda.", en: "If you think this is a mistake, ask your teacher." },
+  // DAISY-17: a staff reader has no teacher to ask; they ask whoever looks after PINTAR at the school (as galat.action_failed does)
+  "tolak.arti": { default: "Jika ini keliru, tanyakan kepada guru Anda.", en: "If you think this is a mistake, ask your teacher.",
+    staff: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_staff: "If you think this is a mistake, ask whoever looks after PINTAR at your school." },
+  // DAISY-17 (D-046(e)): what a submit button says from the click until the answer comes back
+  "tombol.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "tombol.memproses": { default: "Memproses…", en: "Working…" },
+  "tombol.memeriksa": { default: "Memeriksa…", en: "Checking…" },
+  "tombol.mengirim": { default: "Mengirim…", en: "Sending…" },
+  "tombol.menyediakan": { default: "Menyediakan…", en: "Assigning…" },
+  "tombol.memulai": { default: "Memulai…", en: "Starting…" },
+  "tombol.mengaktifkan": { default: "Mengaktifkan…", en: "Activating…" },
   "tolak.kembali": { default: "Kembali ke Belajar", en: "Back to Learning" },
   "komitmen.kembali": { default: "Periksa lagi", en: "Check again" },
   "bukti.dari": { default: "Dari", en: "From" },
@@ -1862,11 +1881,11 @@ const table: Table = {
   "config.struktur.galat.tahun_tidak_cocok": { default: "Kelas harus memakai tahun ajaran Tingkat-nya.", en: "A Kelas must use its Tingkat's school year." },
   "config.struktur.galat.induk_tidak_sah": { default: "Letaknya tidak sesuai: Tingkat berada di bawah Bagian, dan Kelas di bawah Tingkat.", en: "It does not fit there: a Tingkat sits under a Bagian, and a Kelas under a Tingkat." },
   "config.struktur.galat.induk_nonaktif": { default: "Tempat di atasnya sudah dinonaktifkan.", en: "The place above it has been deactivated." },
-  // BOB-08: Bob's best wording; Daisy owns it (D-014)
-  "config.struktur.galat.bukan_sekolah": { default: "Pustaka nasional bukan sekolah, jadi tidak memiliki Bagian, Tingkat, atau Kelas.", en: "The national library is not a school, so it has no Bagian, Tingkat or Kelas." },
-  "config.struktur.galat.tahun_di_luar": { default: "Tahun ajaran hanya boleh tahun ajaran ini, tahun sebelumnya, atau tahun berikutnya.", en: "The academic year may only be this one, the one before or the one after." },
-  "config.struktur.galat.tempat_nonaktif": { default: "Tempat ini sudah dinonaktifkan; tidak ada yang dapat ditempatkan atau diberi peran di sini.", en: "This place has been deactivated; nobody can be placed or given a role here." },
-  "galat.action_place_inactive": { default: "Tempat yang dipilih sudah dinonaktifkan. Pilih tempat yang masih aktif.", en: "The place you chose has been deactivated. Choose one that is still active." },
+  // BOB-08 (D-014), worded by Daisy: the library by its on-screen name, and each refusal says what to do next
+  "config.struktur.galat.bukan_sekolah": { default: "Pustaka PINTAR bukan sekolah, jadi tidak memiliki Bagian, Tingkat, atau Kelas. Pilih sebuah sekolah.", en: "PINTAR Library is not a school, so it has no Bagian, Tingkat or Kelas. Choose a school." },
+  "config.struktur.galat.tahun_di_luar": { default: "Gunakan tahun ajaran yang sedang berjalan, yang sebelumnya, atau yang berikutnya.", en: "Use the current academic year, the one before or the one after." },
+  "config.struktur.galat.tempat_nonaktif": { default: "Tempat ini sudah dinonaktifkan, jadi tidak ada yang dapat ditempatkan atau diberi peran di sini. Pilih tempat yang masih aktif.", en: "This place has been deactivated, so nobody can be placed or given a role here. Choose a place that is still active." },
+  "galat.action_place_inactive": { default: "Tempat yang dipilih sudah dinonaktifkan. Muat ulang halaman, lalu pilih tempat yang masih aktif.", en: "The place you chose has been deactivated. Reload the page, then choose one that is still active." },
   "config.struktur.galat.simpul_tidak_sah": { default: "Hanya Bagian, Tingkat, dan Kelas yang bisa diubah di sini.", en: "Only a Bagian, Tingkat or Kelas can be changed here." },
   "config.struktur.galat.masih_ada_anak": { default: "Nonaktifkan dulu Tingkat atau Kelas di bawahnya.", en: "Deactivate the Tingkat or Kelas under it first." },
   "config.struktur.galat.masih_ada_murid": { default: "Masih ada murid di sini. Pindahkan mereka dulu.", en: "Students are still placed here. Move them first." },
@@ -2301,6 +2320,8 @@ const table: Table = {
   "studio.templat.cara.3": { default: "Kolom bertanda Wajib harus diisi di setiap baris. Kolom yang punya daftar pilihan hanya menerima nilai dari daftar itu.", en: "Columns marked Wajib must be filled in on every row. A column with a list of choices accepts only a value from that list." },
   "studio.templat.cara.4": { default: "Setiap soal perlu pilihan jawaban di lembar Pilihan, dengan kode soal yang sama. Setiap pilihan perlu alasannya.", en: "Every question needs its answer choices on the Pilihan sheet, under the same question code. Every choice needs its reason." },
   "studio.templat.cara.5": { default: "Berkas media (gambar, audio, video, PDF) tidak dimasukkan ke buku kerja. Tulis nama berkasnya di kolom Media, lalu unggah berkasnya di Studio setelah buku kerja diperiksa.", en: "Media files (images, audio, video, PDF) are not put in the workbook. Write each file's name in the Media column, then upload the files in Studio after the workbook is checked." },
+  // DAISY-15 follow-up (coordinator, 27 Sep): Excel draws a long Text cell as ####; say so where the teacher reads first.
+  "studio.templat.cara.6": { default: "Kolom teks menyimpan isian persis seperti diketik. Di Excel, sel teks yang berisi lebih dari 255 karakter (misalnya Isi pelajaran) tampil sebagai ####. Isinya tetap utuh dan tetap terbaca oleh PINTAR; klik selnya untuk melihat isinya di bilah rumus.", en: "Text columns keep what is typed exactly as typed. In Excel, a text cell holding more than 255 characters (Isi pelajaran, for example) shows as ####. Its content is kept whole and PINTAR still reads it; click the cell to see it in the formula bar." },
   "studio.templat.kolom.lembar": { default: "Lembar", en: "Sheet" },
   "studio.templat.kolom.kolom": { default: "Kolom", en: "Column" },
   "studio.templat.kolom.wajib": { default: "Wajib", en: "Required" },

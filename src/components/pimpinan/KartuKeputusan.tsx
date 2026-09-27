@@ -3,6 +3,7 @@ import {
   HASIL_KUNCI, HASIL_SEMUA, KEADAAN_KUNCI, KELUARGA_KUNCI, RANTAI,
   langkahBerikut, nada, type Keputusan,
 } from "@/lib/pimpinan-kontrak";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * ONE MANAGEMENT DECISION, AS SOMETHING A HUMAN CAN ACT ON.
@@ -108,9 +109,9 @@ export default function KartuKeputusan({
           <form action={aksi} className="pin-kp-ambil">
             <input type="hidden" name="keputusan" value={k.id} />
             <input type="hidden" name="ke" value="UNDER_REVIEW" />
-            <button type="submit" className="pin-btn">
+            <TombolKirim className="pin-btn" sibuk={s("tombol.memproses")}>
               {s("pimpinan.aksi.ambil")}
-            </button>
+            </TombolKirim>
           </form>
         ) : null}
 
@@ -135,9 +136,9 @@ export default function KartuKeputusan({
               <label htmlFor={`catatan-${k.id}`}>{s("pimpinan.aksi.catatan")}</label>
               <textarea id={`catatan-${k.id}`} name="catatan" rows={2} />
             </div>
-            <button type="submit" className="pin-btn pin-go">
+            <TombolKirim className="pin-btn pin-go" sibuk={s("tombol.menyimpan")}>
               {s("pimpinan.aksi.putuskan")}
-            </button>
+            </TombolKirim>
           </form>
         ) : null}
       </section>
