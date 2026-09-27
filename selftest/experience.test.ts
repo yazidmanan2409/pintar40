@@ -60,7 +60,7 @@ import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
 import { Checks, type SelfTest } from "./lib";
-import { allKeys, telling, renderAll, t, format, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
+import { allKeys, telling, renderAll, t, format, batasHari, hariIniSekolah, TIMEZONE, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
 import { berandaPeran } from "../src/lib/beranda";
@@ -9182,6 +9182,89 @@ export const experienceTests: SelfTest[] = [
         "release code has its sentence. RENDERED from upload to withdrawal for the author and a head of department: one step " +
         "current, the one right button or the reason there is none. The page draws them from the course, its latest release " +
         "and the reader, with no lifecycle button, Konfirmasi or bare placeholder of its own",
+      );
+    },
+  },
+  {
+    id: "DAISY-14-TANGGAL-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+
+      /**
+       * DAISY-14 (audit M10): AN ASSIGNMENT'S DAYS ARE THE SCHOOL'S DAYS.
+       * Siapkan sent `${day}T00:00:00Z` and `${day}T23:59:59Z`: the window
+       * opened at 07:00 WIB, closed at 06:59 WIB the day after its last, and
+       * "from today" was shut until seven. The old construction is kept here
+       * as the control each property must reject.
+       */
+      const lama = (hari: string, ujung: "awal" | "akhir") => `${hari}T${ujung === "awal" ? "00:00:00" : "23:59:59"}Z`;
+      const HARI = ["2026-09-25", "2026-09-28", "2026-12-31", "2027-01-01", "2028-02-29"];
+      const jakarta = (iso: string) => new Intl.DateTimeFormat("en-CA", {
+        year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hourCycle: "h23", timeZone: TIMEZONE,
+      }).format(new Date(iso));
+      c.expect(TIMEZONE === "Asia/Jakarta", `the school's zone is ${TIMEZONE}`);
+
+      /**
+       * 1. EACH DAY RUNS FROM 00:00:00 TO 23:59:59 ON THE SCHOOL'S CLOCK, and
+       *    the class page, which formats the stored instants in that zone,
+       *    shows exactly the days the teacher chose, in both languages.
+       */
+      for (const hari of HARI) {
+        const awal = batasHari(hari, "awal"), akhir = batasHari(hari, "akhir");
+        if (!c.expect(awal !== null && akhir !== null, `${hari} is not read as a day`)) continue;
+        c.expect(jakarta(awal!) === `${hari}, 00:00:00` && jakarta(akhir!) === `${hari}, 23:59:59`,
+          `${hari} runs from ${jakarta(awal!)} to ${jakarta(akhir!)} on the school's clock`);
+        c.expect(Date.parse(akhir!) - Date.parse(awal!) === (24 * 3600 - 1) * 1000, `${hari} is not one whole day long`);
+        for (const locale of LOCALES) {
+          const siang = format.date(`${hari}T12:00:00+07:00`, locale);
+          c.expect(format.date(awal!, locale) === siang && format.date(akhir!, locale) === siang,
+            `(${locale}) ${hari} is shown as ${format.date(awal!, locale)} – ${format.date(akhir!, locale)}`);
+        }
+      }
+      c.expect(HARI.some((h) => jakarta(lama(h, "awal")) !== `${h}, 00:00:00`) && HARI.some((h) => format.date(lama(h, "akhir"), "id") !== format.date(`${h}T12:00:00+07:00`, "id")),
+        "the control does not fail: the old UTC construction would pass these checks");
+      for (const bukan of ["", "25-09-2026", "2026-9-25", "2026-02-30", "2026-13-01", "2026-09-25T00:00:00Z"]) {
+        c.expect(batasHari(bukan, "awal") === null, `"${bukan}" is read as a day`);
+      }
+
+      /**
+       * 2. "FROM TODAY" IS OPEN FROM THE SCHOOL'S MIDNIGHT. At every hour of a
+       *    Jakarta day, Siapkan's today is that day, and the window starting
+       *    today has already opened. With the old construction it stayed shut
+       *    until 07:00, which is the control.
+       */
+      let tutupLama = 0;
+      for (let jam = 0; jam < 24; jam++) {
+        const kini = new Date(Date.parse("2026-09-24T17:00:00Z") + jam * 3600_000 + 30 * 60_000); // 25 Sep, jam:30 WIB
+        const hari = hariIniSekolah(kini);
+        c.expect(hari === "2026-09-25", `at ${jakarta(kini.toISOString())} Siapkan's today is ${hari}`);
+        c.expect(Date.parse(batasHari(hari, "awal")!) <= kini.getTime() && kini.getTime() <= Date.parse(batasHari(hari, "akhir")!),
+          `at ${jakarta(kini.toISOString())} a window from today is not open`);
+        if (Date.parse(lama(hari, "awal")) > kini.getTime()) tutupLama++;
+      }
+      c.expect(tutupLama === 7, `the control: the old construction should be shut for the 7 hours before 07:00, was ${tutupLama}`);
+
+      /**
+       * 3. THE SOURCE. sediakanMateri sends the school's first and last
+       *    instants, Siapkan's date field starts on the school's today, and no
+       *    source file builds a day boundary in UTC.
+       */
+      const aksi = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "actions.ts"), "utf8"));
+      c.expect(/p_from: mulai \? batasHari\(mulai, "awal"\) : null,/.test(aksi) && /p_until: sampai \? batasHari\(sampai, "akhir"\) : null,/.test(aksi),
+        "sediakanMateri does not send the school's days");
+      const siapkan = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"), "utf8"));
+      c.expect(/name="mulai" defaultValue=\{hariIniSekolah\(\)\}/.test(siapkan), "Siapkan's first day does not start on the school's today");
+      const utc = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f))
+        .filter((f) => /T00:00:00Z|T23:59:59Z|T00:00:00\.000Z/.test(code(readFileSync(f, "utf8"))));
+      c.expect(utc.length === 0, `a day boundary is built in UTC in ${utc.map((f) => relative(repoRoot, f)).join(", ")}`);
+
+      return c.verdict(
+        "an assignment's days are the school's: each chosen day runs from 00:00:00 to 23:59:59 in Asia/Jakarta and is shown as " +
+        "that same day in both languages; at every hour of a Jakarta day Siapkan's today is that day and a window from today is " +
+        "already open (the old UTC construction, the control, fails each and is shut for the 7 hours before 07:00); impossible " +
+        "days are refused; sediakanMateri sends batasHari's instants and no source file builds a day boundary in UTC",
       );
     },
   },

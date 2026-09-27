@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { t, format, TIMEZONE, type HleEvent } from "@/lib/hle";
+import { t, format, hariIniSekolah, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import { sediakanMateri } from "../../actions";
@@ -39,12 +39,6 @@ export const dynamic = "force-dynamic";
  * database draws. The copy says "dipilih" for exactly that reason and claims no
  * enforcement it cannot point at.
  */
-function hariIni(): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    year: "numeric", month: "2-digit", day: "2-digit", timeZone: TIMEZONE,
-  }).format(new Date());
-}
-
 export default async function Siapkan({
   params,
   searchParams,
@@ -200,7 +194,7 @@ export default async function Siapkan({
               <div>
                 <dt><label htmlFor="pin-mulai">{s("mengajar.siap.mulai")}</label></dt>
                 <dd>
-                  <input className="pin-input" id="pin-mulai" type="date" name="mulai" defaultValue={hariIni()} />
+                  <input className="pin-input" id="pin-mulai" type="date" name="mulai" defaultValue={hariIniSekolah()} />
                 </dd>
               </div>
               <div>

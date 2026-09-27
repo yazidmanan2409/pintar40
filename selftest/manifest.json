@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 82,
+  "version": 83,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2001,6 +2001,11 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as the learning-cycle school's administrator and head of department and reads the seeded course's rendered package page. CI has both facilities, so it never skips there",
       "proves": "DAISY-06's Terbit step over real HTTP against the seed: for the learning-cycle school's own course 'Pecahan' (the original), read as its INSTITUTION_ADMIN and its HEAD_OF_DEPARTMENT, the RENDERED package page carries the seven named steps in order plus Terbit, exactly one current, ending at Terbit exactly when the course's latest release (read with the same reader's token) is PUBLISHED; when published, the administrator is offered the labelled withdrawal and the head of department is not; and no 'Konfirmasi' remains on the page. Read only."
+    },
+    {
+      "id": "DAISY-14-TANGGAL-01",
+      "runner": "static",
+      "proves": "DAISY-14 (audit M10): an assignment's days are the school's calendar days. For five days (month and year ends, a leap day) batasHari gives 00:00:00 and 23:59:59 on the Asia/Jakarta clock, one whole day apart, and the class page's format.date shows exactly the chosen day in both languages; impossible or malformed days are refused. At every hour of a Jakarta day, Siapkan's today (hariIniSekolah) is that day and a window starting today is already open. The old `${day}T00:00:00Z`/`T23:59:59Z` construction is the control: it fails the day checks and is shut for exactly the 7 hours before 07:00 WIB. From the SOURCE: sediakanMateri sends batasHari's first and last instants to assign_release, Siapkan's first-day field starts on hariIniSekolah(), and no source file under src builds a day boundary in UTC."
     }
   ]
 }
