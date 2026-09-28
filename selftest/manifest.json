@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 94,
+  "version": 95,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2130,6 +2130,21 @@
       ],
       "skip_justification": "needs the running application with BOB-12's card route and the Supabase project it asks: it posts the card form to POST /masuk/kartu. CI has both facilities (and, gated with BOB-12, the route), so it never skips there",
       "proves": "DAISY-13 against BOB-12's running route (gated together, D-043). The card form's own request (kartu, pin, lanjut), from PINTAR's own origin, for a fresh random card number nobody holds, is answered 401 with code CARD_NOT_MATCHED, and the screen's own reader (bacaJawabanKartu) reads it as the one non-match with no wait; the same request with another site's Origin is answered 403 and read as CARD_REQUEST_REFUSED. A fresh number each run, so no seeded card's cooldown is touched."
+    },
+    {
+      "id": "BOB19-K01",
+      "runner": "static",
+      "proves": "BOB-19: the Konfigurasi health card tells the truth, read from the SOURCE files and the RENDERED card. (1) One rule, two readers: the expected lint values are one file, src/lib/kesehatan-skema.json; F01-T13's SOURCE in selftest/db/fable01.sql loads it and compares the lint key by key with no per-check literal left in its block; the card's rule (src/lib/kesehatan-skema.ts) imports the same file; Konfigurasi judges by nothing else and writes no card words itself. (2) Over the lint's real keys (read from the latest migration defining platform_schema_lint), a clean, fully migrated lint reads healthy where the old any-value-but-0 rule read it as a problem (the control); every expected check planted wrong is caught and named alone, and a missing one is caught. (3) RENDERED in both languages: clean reads \"Semua pemeriksaan lolos\", a planted value reads \"Perlu perhatian\" and names that check alone in words, a check that could not run gives its reference and a way to try again, not-yet-checked offers the check, a school administrator is told who runs it; every check has its name in both languages. (4) Same run: Konfigurasi asks persons_awaiting_first_role only for the platform administrator, and a confirmed upload returns to its course's page with \"Paket dibuat.\" (DRAFT_CREATED). Red on today's code: no shared list, the card judges by v === 0."
+    },
+    {
+      "id": "BOB19-A01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the seeded, fully migrated Supabase stack: it signs in as the platform administrator and Alpha's school administrator, runs the schema lint through Konfigurasi and reads the runner's count of the app's Supabase calls. CI has both facilities, so it never skips there",
+      "proves": "BOB-19 over real HTTP against the seeded, fully migrated local stack, read from the RENDERED html of /konfigurasi and /studio/paket and the runner's count of the app's Supabase calls (selftest/hitung-fetch.cjs): the platform administrator's health card, asked to check, reads \"Semua pemeriksaan lolos\" and never \"Perlu perhatian\" (today it reads \"Perlu perhatian\"); an ordinary load runs no lint (BOB-18 (b)) and offers the check; persons_awaiting_first_role is asked once for the platform administrator and never for Alpha's school administrator (today: asked and refused, 338 refusals in U-PERF's 30-session run), whose card says who runs the checks; a confirmed upload's return reads \"Tersimpan. Paket dibuat.\" as a status on its course page."
     }
   ]
 }

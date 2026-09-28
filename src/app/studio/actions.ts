@@ -402,7 +402,8 @@ export async function structuredImportAction(fd: FormData): Promise<void> {
 
 export async function confirmMappingAction(fd: FormData): Promise<void> {
   const h = await konfirmasi(uuidOrNull(str(fd, "batch")));
-  if (h.ok && h.courses && h.courses[0]) redirect(`/studio/paket/${h.courses[0]}`);
+  // BOB-19 (coordinator, 28 Sep): the new course's page says the package was made
+  if (h.ok && h.courses && h.courses[0]) back(`/studio/paket/${h.courses[0]}`, "paket", { ok: true, kode: "DRAFT_CREATED" });
   back("/studio/unggah", "pertanyaan", ringkas(h));
 }
 

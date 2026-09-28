@@ -248,6 +248,33 @@ export type HleEvent =
   | "laporan.templat.batas"
   | "config.card.health"
   | "config.card.health.periksa"
+  | "config.kesehatan.bukan_admin"
+  | "config.kesehatan.sehat"
+  | "config.kesehatan.jumlah"
+  | "config.kesehatan.perhatian"
+  | "config.kesehatan.menyimpang"
+  | "config.kesehatan.gagal"
+  | "config.kesehatan.ulang"
+  | "config.kesehatan.cek.tables_without_rls"
+  | "config.kesehatan.cek.policies_using_true"
+  | "config.kesehatan.cek.secdef_without_search_path"
+  | "config.kesehatan.cek.functions_without_search_path"
+  | "config.kesehatan.cek.unclassified_client_rpcs"
+  | "config.kesehatan.cek.evidence_consumer_boundary_ok"
+  | "config.kesehatan.cek.learner_rpcs_guarded_ok"
+  | "config.kesehatan.cek.overloaded_client_rpcs"
+  | "config.kesehatan.cek.functions_executable_by_anon"
+  | "config.kesehatan.cek.undeclared_anon_functions"
+  | "config.kesehatan.cek.anon_public_surface"
+  | "config.kesehatan.cek.client_readable_definer_views"
+  | "config.kesehatan.cek.anon_reachable_http_paths"
+  | "config.kesehatan.cek.public_surface_ok"
+  | "config.kesehatan.cek.anon_table_grants"
+  | "config.kesehatan.cek.public_buckets"
+  | "config.kesehatan.cek.client_storage_policies"
+  | "config.kesehatan.cek.persons_institution_columns"
+  | "config.kesehatan.cek.audit_log_client_write_grants"
+  | "config.kesehatan.cek.malformed_jalur"
   | "config.card.cohorts"
   | "config.placeholder"
   | "config.environment"
@@ -847,6 +874,7 @@ export type HleEvent =
   | "galat.review_recorded"
   | "galat.certificate_saved"
   | "galat.quick_check_launched"
+  | "galat.draft_created"
   | "studio.konten.kode.content_transition_invalid"
   | "studio.konten.kode.content_review_not_allowed"
   | "studio.konten.kode.content_reviewer_required"
@@ -1880,6 +1908,34 @@ const table: Table = {
   "laporan.templat.batas": { default: "Satu templat menampilkan paling banyak 12 metrik.", en: "One template shows at most 12 metrics." },
   "config.card.health": { default: "Kesehatan sistem", en: "System health" },
   "config.card.health.periksa": { default: "Jalankan pemeriksaan", en: "Run the checks" },
+  // BOB-19: the health card's states, and each check by its plain name
+  "config.kesehatan.bukan_admin": { default: "Pemeriksaan ini dijalankan oleh Admin platform.", en: "A Platform administrator runs these checks." },
+  "config.kesehatan.sehat": { default: "Semua pemeriksaan lolos", en: "All checks pass" },
+  "config.kesehatan.jumlah": { default: "pemeriksaan skema, semuanya sesuai nilai yang diharapkan.", en: "schema checks, each reading its expected value." },
+  "config.kesehatan.perhatian": { default: "Perlu perhatian", en: "Needs attention" },
+  "config.kesehatan.menyimpang": { default: "Tidak sesuai harapan:", en: "Not as expected:" },
+  "config.kesehatan.gagal": { default: "Pemeriksaan belum dapat dijalankan. Coba sekali lagi; bila masih terjadi, sampaikan kode rujukan berikut.", en: "The checks could not run. Try once more; if it happens again, pass on the reference that follows." },
+  "config.kesehatan.ulang": { default: "Periksa lagi", en: "Check again" },
+  "config.kesehatan.cek.tables_without_rls": { default: "Setiap tabel dilindungi aturan per baris", en: "Every table is guarded row by row" },
+  "config.kesehatan.cek.policies_using_true": { default: "Tidak ada aturan akses yang membuka semua baris", en: "No access rule opens every row" },
+  "config.kesehatan.cek.secdef_without_search_path": { default: "Setiap fungsi berhak pemilik menetapkan jalur pencariannya", en: "Every owner-rights function pins its search path" },
+  "config.kesehatan.cek.functions_without_search_path": { default: "Setiap fungsi menetapkan jalur pencariannya", en: "Every function pins its search path" },
+  "config.kesehatan.cek.unclassified_client_rpcs": { default: "Setiap fungsi yang dapat dipanggil aplikasi sudah digolongkan", en: "Every app-callable function is classified" },
+  "config.kesehatan.cek.evidence_consumer_boundary_ok": { default: "Bukti mentah hanya dibaca oleh pembaca yang diizinkan", en: "Raw evidence is read only by its permitted readers" },
+  "config.kesehatan.cek.learner_rpcs_guarded_ok": { default: "Setiap fungsi peserta didik memeriksa kepemilikan", en: "Every learner function checks ownership" },
+  "config.kesehatan.cek.overloaded_client_rpcs": { default: "Setiap fungsi aplikasi hanya punya satu bentuk panggilan", en: "Every app-callable function has one signature" },
+  "config.kesehatan.cek.functions_executable_by_anon": { default: "Tidak ada fungsi yang dapat dijalankan tanpa masuk", en: "No function runs without signing in" },
+  "config.kesehatan.cek.undeclared_anon_functions": { default: "Tidak ada fungsi terbuka tanpa masuk yang tidak dinyatakan", en: "No undeclared function is open without signing in" },
+  "config.kesehatan.cek.anon_public_surface": { default: "Tepat satu permukaan publik: pemeriksaan sertifikat", en: "Exactly one public surface: certificate verification" },
+  "config.kesehatan.cek.client_readable_definer_views": { default: "Tidak ada tampilan berhak pemilik yang terbaca aplikasi", en: "No owner-rights view is readable by the app" },
+  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat dua alamat terbuka tanpa masuk: pemeriksaan sertifikat, dalam dua ejaannya", en: "Exactly two addresses open without signing in: certificate verification, in its two spellings" },
+  "config.kesehatan.cek.public_surface_ok": { default: "Permukaan publik sesuai yang dinyatakan", en: "The public surface matches its declaration" },
+  "config.kesehatan.cek.anon_table_grants": { default: "Tidak ada hak tabel bagi pengguna yang belum masuk", en: "No table grant to signed-out users" },
+  "config.kesehatan.cek.public_buckets": { default: "Tidak ada penyimpanan berkas yang publik", en: "No public storage bucket" },
+  "config.kesehatan.cek.client_storage_policies": { default: "Aplikasi tidak punya jalan langsung ke berkas tersimpan", en: "The app has no direct path to stored files" },
+  "config.kesehatan.cek.persons_institution_columns": { default: "Data orang tidak menyimpan sekolah di kolomnya sendiri", en: "Person records hold no school column of their own" },
+  "config.kesehatan.cek.audit_log_client_write_grants": { default: "Aplikasi tidak dapat menulis ke jejak audit", en: "The app cannot write to the audit trail" },
+  "config.kesehatan.cek.malformed_jalur": { default: "Setiap jalur kurikulum berbentuk benar", en: "Every curriculum path is well formed" },
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
   "config.placeholder": { default: "Bagian ini akan terisi pada tahap berikutnya.", en: "This section is filled in at a later phase." },
   "config.environment": { default: "Lingkungan", en: "Environment" },
@@ -2513,6 +2569,7 @@ const table: Table = {
   "galat.review_recorded": { default: "Tinjauan Anda dicatat.", en: "Your review was recorded." },
   "galat.certificate_saved": { default: "Tata letak ini dipakai untuk sertifikat berikutnya.", en: "This layout will be used for the next certificates." },
   "galat.quick_check_launched": { default: "Uji Cepat diluncurkan untuk kelas itu.", en: "The Quick Assessment was launched for that class." },
+  "galat.draft_created": { default: "Paket dibuat.", en: "Package created." },
   "studio.konten.kode.content_transition_invalid": { default: "Kursus ini sudah tidak berada di langkah itu, mungkin karena rekan baru saja mengambilnya. Muat ulang halaman untuk melihat langkah yang berlaku sekarang.", en: "This course is no longer at that step, perhaps because a colleague has just taken it. Reload the page to see the current step." },
   "studio.konten.kode.content_review_not_allowed": { default: "Menyetujui isi bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Setujui isi.", en: "Approving the content is not yours to do in this school. Ask someone named at the Approve the content step." },
   "studio.konten.kode.content_reviewer_required": { default: "Persetujuan belum tercatat atas nama Anda. Muat ulang halaman, lalu setujui sekali lagi.", en: "The approval was not recorded under your name. Reload the page and approve once more." },

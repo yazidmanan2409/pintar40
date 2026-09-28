@@ -10109,4 +10109,182 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "BOB19-K01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? readFileSync(f, "utf8") : "";
+      };
+
+      /**
+       * BOB-19: THE HEALTH CARD TELLS THE TRUTH. Konfigurasi's card called any
+       * lint value but 0 a problem, so a clean, fully migrated database read
+       * "Perlu perhatian": some right values are 1, 2 or true, and some keys
+       * are only information.
+       *
+       * 1. ONE RULE, TWO READERS. The expected values are one file,
+       *    src/lib/kesehatan-skema.json. F01-T13 loads that file and compares
+       *    the lint against it key by key, with no per-check literal left in
+       *    its block. The card judges with nilaiSkema, which imports the same
+       *    file. Konfigurasi judges with nothing else.
+       */
+      const harapanMentah = baca("src", "lib", "kesehatan-skema.json");
+      let harapan: Record<string, unknown> = {};
+      try { harapan = JSON.parse(harapanMentah); } catch { /* reported below */ }
+      c.expect(Object.keys(harapan).length >= 15 && Object.values(harapan).every((v) => typeof v === "number" || typeof v === "boolean"),
+        "there is no shared list of expected lint values (src/lib/kesehatan-skema.json), or it holds something other than counts and flags");
+      const sql = baca("selftest", "db", "fable01.sql");
+      const t13 = sql.slice(sql.indexOf("-- F01-T13 INV-15/36/14"), sql.indexOf("-- lint RPC is SYSTEM_ADMIN only"));
+      c.expect(/^\\set harapan_skema `cat src\/lib\/kesehatan-skema\.json`$/m.test(sql)
+        && /insert into selftest\.harapan_skema \(v\) values \(:'harapan_skema'::jsonb\);/.test(sql),
+        "F01-T13's file does not load the shared list");
+      c.expect(t13.length > 0 && /select h\.v into harapan from selftest\.harapan_skema h;/.test(t13)
+        && /from jsonb_each\(harapan\) e;/.test(t13) && /j -> e\.key is not distinct from e\.value/.test(t13)
+        && !/\(j->>'[a-z_]+'\)/.test(code(t13)),
+        "F01-T13 does not judge by the shared list alone (a per-check literal is left in its block)");
+      const regel = code(baca("src", "lib", "kesehatan-skema.ts"));
+      c.expect(/import HARAPAN from "\.\/kesehatan-skema\.json";/.test(regel), "the card's rule does not read the shared list");
+      const konf = code(baca("src", "app", "konfigurasi", "page.tsx"));
+      c.expect(/nilaiSkema\(lint as Record<string, unknown>\)/.test(konf) && /<KartuKesehatan /.test(konf)
+        && !/v === 0/.test(konf) && !/Perlu perhatian|Semua pemeriksaan lolos/.test(konf),
+        "Konfigurasi still judges the lint by its own rule, or writes the card's words itself");
+
+      /**
+       * 2. THE RULE, OVER THE LINT'S REAL SHAPE. The keys come from the latest
+       *    migration that defines platform_schema_lint. A clean, fully
+       *    migrated lint (every expected value, and every other key as
+       *    information: a count above 0, a flag, the environment) reads
+       *    healthy. The old rule read that same lint as "Perlu perhatian",
+       *    which is the control. Every expected key, planted wrong, is caught
+       *    and named alone, and a missing key is caught.
+       */
+      // imported here, not at the top: on code without the rule this test is red
+      // for its own reason, and every other test in this file still runs
+      let aturan: typeof import("../src/lib/kesehatan-skema") | null = null;
+      try { aturan = await import("../src/lib/kesehatan-skema"); } catch { /* reported below */ }
+      if (!c.expect(aturan !== null, "there is no shared rule for the card (src/lib/kesehatan-skema.ts)")) {
+        return c.verdict("");
+      }
+      const { HARAPAN_SKEMA, KUNCI_SKEMA, nilaiSkema } = aturan!;
+      const migrasi = walk(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql")).sort()
+        .filter((f) => /create or replace function public\.platform_schema_lint\s*\(/.test(readFileSync(f, "utf8")));
+      const terakhir = migrasi.length ? readFileSync(migrasi[migrasi.length - 1], "utf8") : "";
+      const kunciLint = [...new Set([...terakhir.matchAll(/jsonb_build_object\('([a-z_0-9]+)'/g)].map((m) => m[1]))];
+      c.expect(kunciLint.length > 30, `the lint's keys could not be read from its migration (${kunciLint.length})`);
+      for (const k of KUNCI_SKEMA) c.expect(kunciLint.includes(k), `the shared list expects "${k}", which the lint does not return`);
+      const bersih: Record<string, unknown> = {};
+      for (const k of kunciLint) bersih[k] = k === "environment" ? "local" : /_ok$/.test(k) ? true : 1;
+      Object.assign(bersih, HARAPAN_SKEMA);
+      const h = nilaiSkema(bersih);
+      c.expect(h.sehat && h.menyimpang.length === 0 && h.jumlah === KUNCI_SKEMA.length,
+        `a clean, fully migrated lint reads unhealthy: ${h.menyimpang.join(", ")}`);
+      const lama = Object.entries(bersih).every(([k, v]) => k === "environment" || k === "migrations_applied" || v === 0);
+      c.expect(!lama, "the control: the old rule no longer reads a clean lint as a problem, so this test proves nothing");
+      for (const k of KUNCI_SKEMA) {
+        const v = HARAPAN_SKEMA[k];
+        const x = nilaiSkema({ ...bersih, [k]: typeof v === "boolean" ? !v : (v as number) + 1 });
+        c.expect(!x.sehat && x.menyimpang.length === 1 && x.menyimpang[0] === k, `a planted wrong "${k}" is not caught and named alone`);
+      }
+      const tanpa = { ...bersih } as Record<string, unknown>;
+      delete tanpa.anon_reachable_http_paths;
+      c.expect(nilaiSkema(tanpa).menyimpang.includes("anon_reachable_http_paths"), "a check the lint no longer returns is skipped, not caught");
+
+      /**
+       * 3. THE CARD, RENDERED in both languages. A clean lint reads "Semua
+       *    pemeriksaan lolos" and never "Perlu perhatian". A planted wrong
+       *    value reads "Perlu perhatian" and names that check in words, and
+       *    no other. The check that could not run gives its reference. Not
+       *    checked yet offers the check. A school administrator is told who
+       *    runs it. Every check has its name in both languages.
+       */
+      for (const locale of LOCALES) {
+        for (const k of KUNCI_SKEMA) {
+          c.expect(t(`config.kesehatan.cek.${k}` as HleEvent, "staff", { locale }) !== TANPA_SALINAN, `(${locale}) the check "${k}" has no name`);
+        }
+      }
+      c.expect(t("config.kesehatan.perhatian", "staff", { locale: "id" }) === "Perlu perhatian", "the card's attention state no longer reads \"Perlu perhatian\"");
+      const tanam = nilaiSkema({ ...bersih, tables_without_rls: 1 });
+      const KASUS = [
+        { locale: "id", keadaan: { jenis: "diperiksa", hasil: h } },
+        { locale: "en", keadaan: { jenis: "diperiksa", hasil: h } },
+        { locale: "id", keadaan: { jenis: "diperiksa", hasil: tanam } },
+        { locale: "en", keadaan: { jenis: "diperiksa", hasil: tanam } },
+        { locale: "id", keadaan: { jenis: "gagal", rujukan: "AB12CD" } },
+        { locale: "id", keadaan: { jenis: "belum" } },
+        { locale: "id", keadaan: { jenis: "bukan_admin" } },
+      ].map((k) => ({ ...k, kelas: "kartu", tautan: "tautan" }));
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/konfigurasi/KartuKesehatan.tsx");' +
+        "  const Kartu = m.default?.default ?? m.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_SEHAT).map((k) =>" +
+        "    renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(Kartu, k))))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_SEHAT: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      const teks = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+      if (c.expect(anak.status === 0 && html.length === KASUS.length, `the health card could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        const nama = (k: string, locale: string) => t(`config.kesehatan.cek.${k}` as HleEvent, "staff", { locale: locale as "id" | "en" });
+        for (const [n, locale] of [[0, "id"], [1, "en"]] as const) {
+          const x = teks(html[n]);
+          const s = (k: HleEvent) => t(k, "staff", { locale });
+          c.expect(x.includes(s("config.kesehatan.sehat")) && !x.includes(s("config.kesehatan.perhatian"))
+            && x.includes(`${KUNCI_SKEMA.length} ${s("config.kesehatan.jumlah")}`),
+            `(${locale}) a clean lint does not read healthy: ${x.slice(0, 160)}`);
+        }
+        for (const [n, locale] of [[2, "id"], [3, "en"]] as const) {
+          const x = teks(html[n]);
+          const s = (k: HleEvent) => t(k, "staff", { locale });
+          c.expect(x.includes(s("config.kesehatan.perhatian")) && x.includes(nama("tables_without_rls", locale))
+            && KUNCI_SKEMA.filter((k) => k !== "tables_without_rls").every((k) => !x.includes(nama(k, locale)))
+            && !x.includes(s("config.kesehatan.sehat")),
+            `(${locale}) a planted wrong value does not read "${s("config.kesehatan.perhatian")}" naming that check alone: ${x.slice(0, 200)}`);
+        }
+        const s = (k: HleEvent) => t(k, "staff", { locale: "id" });
+        c.expect(teks(html[4]).includes(s("config.kesehatan.gagal")) && teks(html[4]).includes("AB12CD") && html[4].includes('href="/konfigurasi?periksa=skema"'),
+          `the check that could not run gives no reference or no way to try again: ${teks(html[4]).slice(0, 160)}`);
+        c.expect(html[5].includes('href="/konfigurasi?periksa=skema"') && teks(html[5]).includes(s("config.card.health.periksa")),
+          "not checked yet does not offer the check");
+        c.expect(teks(html[6]).includes(s("config.kesehatan.bukan_admin")) && !html[6].includes("periksa=skema"),
+          "a school administrator is offered a check the database refuses them");
+      }
+
+      /**
+       * 4. THE SAME RUN. Konfigurasi asks persons_awaiting_first_role only for
+       *    the platform administrator, whom alone the database answers (the
+       *    school administrator's asking was 338 refusals in U-PERF's
+       *    30-session run). A confirmed upload returns to its new course's page
+       *    with "Paket dibuat.".
+       */
+      c.expect(/isSys === true \? supabase\.rpc\("persons_awaiting_first_role"\) : Promise\.resolve\(\{ data: \[\] \}\)/.test(konf)
+        && (konf.match(/persons_awaiting_first_role/g) ?? []).length === 1,
+        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses");
+      const studio = code(baca("src", "app", "studio", "actions.ts"));
+      c.expect(/if \(h\.ok && h\.courses && h\.courses\[0\]\) back\(`\/studio\/paket\/\$\{h\.courses\[0\]\}`, "paket", \{ ok: true, kode: "DRAFT_CREATED" \}\);/.test(studio)
+        && (KODE_SUKSES as readonly string[]).includes("DRAFT_CREATED")
+        && t(kunciKode("DRAFT_CREATED"), "staff", { locale: "id" }) === "Paket dibuat.",
+        "a confirmed upload does not return to its course saying \"Paket dibuat.\"");
+
+      c.note(`${KUNCI_SKEMA.length} checks in the shared list, ${kunciLint.length} keys in the lint (${migrasi.length ? relative(repoRoot, migrasi[migrasi.length - 1]) : "no migration"})`);
+      return c.verdict(
+        `the health card and F01-T13 judge by one list, src/lib/kesehatan-skema.json (${KUNCI_SKEMA.length} checks): F01-T13's SOURCE loads it ` +
+        "and compares key by key with no literal of its own, the card's rule imports it, Konfigurasi judges by nothing else. " +
+        "Over the lint's real keys, a clean, fully migrated lint reads healthy where the old rule read it as a problem (the " +
+        "control); each expected check planted wrong is caught and named alone, and a missing one is caught. RENDERED in both " +
+        "languages: clean reads \"Semua pemeriksaan lolos\", a planted value reads \"Perlu perhatian\" and names that check " +
+        "alone, a failed check gives its reference, not-yet-checked offers the check, a school administrator is told who runs " +
+        "it. Konfigurasi asks persons_awaiting_first_role only for the platform administrator, and a confirmed upload returns " +
+        "to its course with \"Paket dibuat.\"",
+      );
+    },
+  },
 ];

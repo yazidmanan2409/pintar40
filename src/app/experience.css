@@ -2266,3 +2266,13 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-msg.pin-hasil-ok { background: var(--status-ok-soft); color: var(--status-ok); }
 .pin-msg.pin-hasil-gagal { background: var(--status-blocked-soft); color: var(--status-blocked); }
 .pin-msg.pin-hasil-netral { background: var(--surface-2); color: var(--ink-2); }
+
+/* ── BOB-19: the Konfigurasi health card, judged by F01-T13's own rule ───── */
+.pin-sehat { display: grid; gap: var(--space-1); justify-items: start; align-content: start; }
+.pin-sehat-label { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
+.pin-sehat-kata { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-sehat-gagal { margin: 0; font-size: var(--type-meta); color: var(--status-blocked); }
+.pin-sehat-tanda { margin: 0; padding: 2px var(--space-2); border-radius: var(--radius-1); font-size: var(--type-meta); }
+.pin-sehat-tanda.pin-ok { background: var(--status-ok-soft); color: var(--status-ok); }
+.pin-sehat-tanda.pin-perhatian { background: var(--status-blocked-soft); color: var(--status-blocked); }
+.pin-sehat-daftar { margin: 0; padding-left: var(--space-5); font-size: var(--type-meta); color: var(--ink-2); }

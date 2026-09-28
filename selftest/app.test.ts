@@ -2492,4 +2492,67 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    // BOB-19 over real HTTP against the seeded, fully migrated local stack. The
+    // platform administrator's health card, asked to check, reads healthy by
+    // the one rule F01-T13 uses; before, any value but 0 read "Perlu perhatian".
+    // The app's calls are read from the runner's count (selftest/hitung-fetch.cjs):
+    // the lint runs only when asked (BOB-18 (b)), and persons_awaiting_first_role
+    // is asked only for the platform administrator. A confirmed upload's return
+    // renders "Paket dibuat." on the course page.
+    id: "BOB19-A01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.fetchLog), "the runner kept no count of the app's calls, so this test would prove nothing")) {
+        return c.verdict("");
+      }
+      const klik = async (cookie: string, jalan: string) => {
+        const awal = readFileSync(ctx.fetchLog!, "utf8").length;
+        const r = await get(`${base}${jalan}`, { headers: { cookie } });
+        const html = await r.text();
+        const baris = readFileSync(ctx.fetchLog!, "utf8").slice(awal).split("\n").filter(Boolean);
+        return { status: r.status, html, n: (path: string) => baris.filter((b) => b.split(" ")[1] === path).length };
+      };
+      const s = (k: HleEvent) => t(k, "staff");
+      const kartu = (html: string) => {
+        const i = html.indexOf(`>${s("config.card.health")}<`);
+        return i < 0 ? "" : visibleText(html.slice(i, html.indexOf("</div>", i)));
+      };
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+
+      const periksa = await klik(sys.cookie, "/konfigurasi?periksa=skema");
+      const k1 = kartu(periksa.html);
+      c.expect(periksa.status === 200 && periksa.n("/rest/v1/rpc/platform_schema_lint") === 1, `SYSTEM_ADMIN /konfigurasi?periksa=skema → ${periksa.status}, lint asked ${periksa.n("/rest/v1/rpc/platform_schema_lint")} times`);
+      c.expect(k1.includes(s("config.kesehatan.sehat")) && !k1.includes(s("config.kesehatan.perhatian")),
+        `a clean, fully migrated database does not read healthy: ${k1.slice(0, 300)}`);
+
+      const biasa = await klik(sys.cookie, "/konfigurasi");
+      c.expect(biasa.status === 200 && biasa.n("/rest/v1/rpc/platform_schema_lint") === 0 && kartu(biasa.html).includes(s("config.card.health.periksa")),
+        "an ordinary Konfigurasi load runs the lint, or does not offer the check");
+      c.expect(biasa.n("/rest/v1/rpc/persons_awaiting_first_role") === 1, `the platform administrator's Konfigurasi asked persons_awaiting_first_role ${biasa.n("/rest/v1/rpc/persons_awaiting_first_role")} times`);
+      const sekolah = await klik(admin.cookie, "/konfigurasi");
+      c.expect(sekolah.status === 200 && sekolah.n("/rest/v1/rpc/persons_awaiting_first_role") === 0,
+        `the school administrator's Konfigurasi still asks persons_awaiting_first_role (${sekolah.n("/rest/v1/rpc/persons_awaiting_first_role")} times), which the database refuses`);
+      c.expect(kartu(sekolah.html).includes(s("config.kesehatan.bukan_admin")) && sekolah.n("/rest/v1/rpc/platform_schema_lint") === 0,
+        "the school administrator's card does not say who runs the checks");
+
+      const studio = await klik(sys.cookie, "/studio");
+      const kursus = /href="\/studio\/paket\/([0-9a-f-]{36})"/.exec(studio.html)?.[1];
+      if (c.expect(Boolean(kursus), "the platform administrator's Studio lists no course to return to")) {
+        const kembali = await klik(sys.cookie, `/studio/paket/${kursus}?bagian=paket&hasil=ok&kode=DRAFT_CREATED`);
+        c.expect(kembali.status === 200 && /role="status"/.test(kembali.html) && visibleText(kembali.html).includes(`${s("studio.hasil.ok")} Paket dibuat.`),
+          "a confirmed upload's return does not read \"Paket dibuat.\" on its course page");
+      }
+      return c.verdict(
+        "the platform administrator's RENDERED health card, asked to check the seeded, fully migrated stack, reads " +
+        "\"Semua pemeriksaan lolos\" and never \"Perlu perhatian\"; an ordinary Konfigurasi load runs no lint and offers the " +
+        "check; persons_awaiting_first_role is asked once for the platform administrator and never for Alpha's school " +
+        "administrator, whose card says who runs the checks; a confirmed upload's return reads \"Paket dibuat.\" as a status " +
+        "on its course page",
+      );
+    },
+  },
 ];

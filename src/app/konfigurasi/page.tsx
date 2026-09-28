@@ -1,7 +1,9 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
 import { t, type HleEvent } from "@/lib/hle";
-import { kalimatHasil } from "@/lib/galat-kontrak";
+import { kalimatHasil, rujukan } from "@/lib/galat-kontrak";
+import { nilaiSkema } from "@/lib/kesehatan-skema";
+import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
@@ -90,7 +92,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
 
   const [
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
-    { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint }, { data: env },
+    { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint, error: lintError }, { data: env },
     { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
     supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
@@ -105,13 +107,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
     // on an ordinary load -- it reads the whole catalogue, and every sign-in of
     // the platform admin lands here.
-    isSys && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null }),
+    isSys && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null, error: null }),
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
     // FINAL DELTA 2. The people the three sources above cannot reach: no active
     // role, no enrolment, no transfer. The database decides who may ask and who
-    // may be seen -- a non-SYSTEM_ADMIN is refused by the endpoint and gets an
-    // error rather than rows, which is why nothing here checks a role first.
-    supabase.rpc("persons_awaiting_first_role"),
+    // may be seen, and it refuses everyone but the platform administrator. So
+    // only the platform administrator asks: the school administrator's asking
+    // was 338 refusals in U-PERF's 30-session run on staging. The refusal is
+    // still the database's; this only stops asking a question whose answer is
+    // known.
+    isSys === true ? supabase.rpc("persons_awaiting_first_role") : Promise.resolve({ data: [] }),
     // W8-02. The institution's own templates, and the catalogue they may select
     // from. Both are ordinary reads under this viewer's own RLS: the template
     // rows are their school's, and the catalogue is PINTAR's, readable by anyone
@@ -160,9 +165,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const nodeName = new Map((nodes ?? []).map((n) => [n.id, `${n.name}`]));
 
   const activeClassCount = (nodes ?? []).filter((n) => n.kind === "CLASS" && n.is_active).length;
-  const lintOk = lint
-    ? Object.entries(lint as Record<string, unknown>).every(([k, v]) => k === "environment" || k === "migrations_applied" || v === 0)
-    : null;
+  // BOB-19: the card judges each check by the one rule F01-T13 uses
+  // (src/lib/kesehatan-skema), never "anything but 0 is a problem"
+  let kesehatan: KeadaanKesehatan;
+  if (isSys !== true) kesehatan = { jenis: "bukan_admin" };
+  else if (sp.periksa !== "skema") kesehatan = { jenis: "belum" };
+  else if (lintError || !lint || typeof lint !== "object") {
+    const ref = rujukan();
+    console.error(`[konfigurasi ${ref}] platform_schema_lint failed`, lintError?.code, lintError?.message);
+    kesehatan = { jenis: "gagal", rujukan: ref };
+  } else kesehatan = { jenis: "diperiksa", hasil: nilaiSkema(lint as Record<string, unknown>) };
   const configValue = (key: string) => (platformConfig ?? []).find((r) => r.key === key)?.value === true;
   const myInstitutions = (institutions ?? []).filter((i) => isSys || adminInstitutionIds.includes(i.id));
   const myInstitutionIds = myInstitutions.map((i) => i.id);
@@ -237,18 +249,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       </nav>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
-        <div className={card}>
-          <p className="text-sm text-ink-3">{s("config.card.health")}</p>
-          {lintOk === null ? (
-            isSys === true ? (
-              <Link href="/konfigurasi?periksa=skema" className={`mt-1 inline-block ${tautanTempat}`}>{s("config.card.health.periksa")}</Link>
-            ) : <p className="mt-1 text-ink-2">—</p>
-          ) : (
-            <p className={`mt-1 inline-block rounded px-2 py-0.5 ${lintOk ? "bg-ok-soft text-ok" : "bg-blocked-soft text-blocked"}`}>
-              {lintOk ? "Semua pemeriksaan lolos" : "Perlu perhatian"}
-            </p>
-          )}
-        </div>
+        <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />
         <div className={card}>
           <p className="text-sm text-ink-3">{s("config.card.cohorts")}</p>
           <p className="mt-1 text-ink-2">{activeClassCount}</p>

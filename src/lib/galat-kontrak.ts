@@ -76,6 +76,8 @@ export const KODE_SUKSES = [
   "FLAG_SAVED", "PLATFORM_SETTING_SAVED",
   "STEP_TAKEN", "CHECK_RUN", "FINDING_ACKNOWLEDGED", "REVISION_CREATED", "ASSIGNMENT_MOVED",
   "DISTRIBUTION_GRANTED", "DISTRIBUTION_WITHDRAWN", "REVIEW_RECORDED", "CERTIFICATE_SAVED", "QUICK_CHECK_LAUNCHED",
+  // BOB-19: a confirmed upload opens its new course, which says so
+  "DRAFT_CREATED",
 ] as const;
 
 export type KodeGalat = (typeof KODE_GALAT)[number];
