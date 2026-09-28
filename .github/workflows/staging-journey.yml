@@ -21,6 +21,12 @@ name: staging · learning journey (D-050)
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "journey: the whole learning journey; limits: read staging's sign-in limits that matter for 150 testers (read-only)"
+        type: choice
+        options: [journey, limits]
+        default: journey
 
 permissions:
   contents: read
@@ -37,8 +43,31 @@ env:
   GURU_EMAIL: uji-kinerja-guru@example.com
 
 jobs:
+  limits:
+    if: github.ref == 'refs/heads/main' && inputs.mode == 'limits'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Staging's sign-in limits (read-only; no secret value is printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/config/auth',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          d = json.load(urllib.request.urlopen(req, timeout=30))
+          for k in sorted(d):
+              if k.startswith('rate_limit_') or k in ('smtp_max_frequency', 'mailer_otp_exp', 'jwt_exp', 'sessions_timebox',
+                                                     'sessions_inactivity_timeout', 'sessions_single_per_user', 'refresh_token_rotation_enabled',
+                                                     'security_refresh_token_reuse_interval', 'disable_signup', 'site_url', 'smtp_host', 'smtp_sender_name'):
+                  print(f'{k:40} {d.get(k)!r}')
+          PY
+
   journey:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && inputs.mode != 'limits'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
