@@ -298,8 +298,19 @@ await step("S8", "intake with only the school's root as 'Tempat' (all a new scho
       log.push(`verify_pilot: ${vp.error?.message ?? "ok"}`);
     }
   }
+  // Restated 28 Sep (the requirement changed; S8 used to fail whenever a row was not recorded). A new school's
+  // only place is its root, and neither row may be taken in there: a learner at the root is refused at
+  // validation with a reason (BOB-01), and so is a staff row, until M5b (BOB-10), which before this went
+  // through the learner branch and enrolled the teacher as a student. PASS: validation refuses BOTH rows, each
+  // with a reason, nothing is recorded, and nobody is enrolled. FAIL: a row passes, or anyone is recorded.
+  const hasil = Array.isArray(v.data?.rows) ? v.data.rows : [];
+  const refused = hasil.filter((r) => r.ok === false && Array.isArray(r.problems) && r.problems.length > 0).length;
   const failed = sql(`select count(*) from public.import_rows r where r.job_id='${job.data}' and r.state::text <> 'PROVISIONED'`);
-  if (Number(failed) > 0) rec.verdict = "FAIL";
+  const enrolled = sql(`select count(*) from public.enrollments e join public.persons p on p.id = e.person_id
+                         where e.institution_id='${ids.sd}' and p.display_name in ('Ani Murid','Pak Guru Tono')
+                           and e.created_at > now() - interval '10 minutes'`);
+  if (v.error || v.data?.ok !== false || refused !== rows.length || Number(failed) !== rows.length || Number(enrolled) > 0) rec.verdict = "FAIL";
+  log.push(`rows refused at validation with a reason: ${refused}/${rows.length}; enrolled: ${enrolled}`);
   ids.rootJob = job.data;
   return `${log.join(" | ")} | rows not recorded: ${failed}; row states: ${sql(`select string_agg(ordinal||':'||state::text, ',') from public.import_rows where job_id='${job.data}'`)}`;
 });
