@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-20 (a school admin sees and names their own staff; D-048)
 
-**Head:** `HEAD_SHA`, with `main` merged in first (`f745441`, D-048 on the board). **One run:** `RUN`.
+**Head:** `c2e8e4b`, with `main` merged in: first `f745441` (D-048), then `6ee4bc4` (Integration 13, D-049, BOB-21). The second merge's only conflict was the manifest version (100 vs 101, now 102). **One run:** ci #215.
 
 ## CHANGED
 
@@ -68,8 +68,12 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-`RUN` on `HEAD_SHA`, dispatched once and not waited on; please read the result there.
-- **Local, before dispatch, every database with an `en-US` ICU collation as on CI's stack:** FULL_LOCAL
+`ci #215` on `c2e8e4b`, dispatched once and not waited on; please read the result there.
+- **Local, before dispatch, every database with an `en-US` ICU collation as on CI's stack:** on the merged head `9d72ed8` (the one commit after it is this hand-off):
+  - **Plants:** 88 of 88 proved their gate on a copy taken straight after the seeds, and every control is green (`db-bob01-gates` 15 rows).
+  - **Full suite, fresh database:** 358 passed. F01-R07 fails, as it always does locally. 29 justified skips, BOB20-A01 among them.
+  - **Shared red cases:** all 15 gates exited 0 on one shared stack, the schema digest stayed the same, and every recheck was 239 of 239.
+  - **Seed and history:** the migration history matches the repo (123 files).
 - One run, no new job.
 
 ## CONTRACT
@@ -101,4 +105,4 @@ None open. Both were answered on 28 Sep:
 
 ## READY
 
-Yes, once `RUN` on `HEAD_SHA` is green.
+Yes, once `ci #215` on `c2e8e4b` is green.
