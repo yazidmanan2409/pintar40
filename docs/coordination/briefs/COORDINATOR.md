@@ -38,7 +38,10 @@ This is the coordinator's working state, so a new session can pick up without th
 - How class figures get proven with official evidence.
 - The mail path at the pilot stage (Supabase's email rate limit on staging is 2/hour; Namecheap Stellar allows 50/hour, shared with production). **Decided (D-053):** Stellar Business (10,000 per hour per domain) before external educator testing; PINTAR is not designed around 50/hour; Supabase Auth's `rate_limit_email_sent` is set separately before testing. Nothing changes now.
 
+- **Staff sign-in on shared school computers: Yazid decides on 29 Sep.** The discussion, evidence and blast radius are in `auth/2026-09-28-staff-signin-shared-computers.md`. In brief: email + password, a shared-computer idle sign-out with a "perangkat pribadi" option, and the PIN lock in 4.5. Six questions are listed there. The discussion was read-only: no tickets or decisions until he decides.
+
 **Next for the coordinator:**
+0. Take Yazid's staff sign-in decision (the auth document), then record it and ticket it.
 1. Gate BOB-23 when handed off: the hand-off's browser measurement, CI, one audit, merge, then staging J09.
 2. Gate LANA-02 when handed off: her three checks on her commit, then `staging-journey.yml` with `content_ref` = her sha and `chapter` = `SD5-Matematika-Bab2`, a read of a sample, then merge.
 3. Daisy: the reader walk against `ux/UX-POLISH-REGISTER.md` (UX-01…06), for the UI/UX POLISHED gate.
