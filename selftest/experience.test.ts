@@ -100,6 +100,7 @@ import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalBaca } from "../src/components/struktur/tampilan";
 import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src/lib/struktur-kontrak";
 import { sekolahDitawarkan, sekolahDipilih, type SekolahBaris } from "../src/components/sekolah";
+import { KODE_SUKSES, kunciKode } from "../src/lib/galat-kontrak";
 import { kunciGagal, isianKurang, surelLengkap, GALAT_RUTE, type ModeAktivasi, type JawabanAktivasi } from "../src/components/aktivasi/hasil";
 import { SYARAT_METRIK, kunciMuncul } from "../src/components/bukti/muncul";
 import { lingkupAwal } from "../src/components/pimpinan/lingkup";
@@ -226,6 +227,15 @@ function informal(text: string): string[] {
 // ---------------------------------------------------------------------------
 const RESET_SURFACES = [
   "src/app/layout.tsx",
+  // DAISY-18: each main section's loading screen is the shared shell
+  // (src/components/MemuatHalaman.tsx), re-exported and styled nowhere else
+  "src/app/aktivasi/loading.tsx",
+  "src/app/belajar/loading.tsx",
+  "src/app/konfigurasi/loading.tsx",
+  "src/app/mengajar/loading.tsx",
+  "src/app/pendataan/loading.tsx",
+  "src/app/pimpinan/loading.tsx",
+  "src/app/studio/loading.tsx",
   // DAISY-04: PINTAR's own error and not-found pages, on the token vocabulary
   "src/app/error.tsx",
   "src/app/global-error.tsx",
@@ -7556,7 +7566,7 @@ export const experienceTests: SelfTest[] = [
       }
 
       const tabTempat = code(readFileSync(join(repoRoot, "src", "components", "TabTempat.tsx"), "utf8"));
-      c.expect(/daftarTempat\(tempat, kecuali, locale, persona\)\.map\(\(\{ href, label \}\) => \(\s*<Link key=\{href\} href=\{href\} className=\{kelas\}>\s*\{label\}\s*<\/Link>/.test(tabTempat),
+      c.expect(/daftarTempat\(tempat, kecuali, locale, persona\)\.map\(\(\{ href, label \}\) => \(\s*<Link key=\{href\} href=\{href\} className=\{kelas\}>\s*\{label\}\s*<TandaTautan \/>\s*<\/Link>/.test(tabTempat),
         "TabTempat does not render the list as one link per place with its label");
 
       /**
@@ -8810,7 +8820,8 @@ export const experienceTests: SelfTest[] = [
           const s = (e: HleEvent) => t(e, "staff", { locale: k.locale });
           const label = `${k.mode} ${k.jawaban?.ok ? "ok" : "gagal"} (${k.locale})`;
           if (k.jawaban?.ok) {
-            c.expect(/^<div class="pin-akt-hasil" role="status">/.test(x), `${label}: not announced as a status`);
+            // DAISY-18: through the shared result line, keeping the card's own look
+            c.expect(/^<div class="pin-akt-hasil pin-hasil-ok" role="status">/.test(x), `${label}: not announced as a status`);
             if (k.mode === "CLASSROOM_CARD") {
               c.expect(x.includes(s("aktivasi.kartu_dibuat")) && x.includes(">7001234567<") && x.includes(">482913<") && x.includes(s("aktivasi.kartu_arti")),
                 `${label}: the card, its PIN or where to use them is missing`);
@@ -8820,8 +8831,8 @@ export const experienceTests: SelfTest[] = [
               if (k.mode === "NEW_PERSON") c.expect(x.includes(`<strong>${k.nama}</strong>`), `${label}: the new person is not named`);
             }
           } else {
-            c.expect(x === `<p class="pin-msg pin-msg-err" role="alert">${s(kunciGagal(k.mode as ModeAktivasi, k.jawaban as JawabanAktivasi | null))}</p>`,
-              `${label}: the failure is not its own sentence as an alert: ${x.slice(0, 160)}`);
+            c.expect(x === `<div class="pin-msg pin-hasil pin-hasil-gagal" role="status">${s(kunciGagal(k.mode as ModeAktivasi, k.jawaban as JawabanAktivasi | null))}</div>`,
+              `${label}: the failure is not its own sentence in the shared result line: ${x.slice(0, 160)}`);
             c.expect(!x.includes(DETAIL), `${label}: the server's own words reach the screen`);
           }
         });
@@ -8989,7 +9000,7 @@ export const experienceTests: SelfTest[] = [
       let html: string[] = [];
       try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
       if (c.expect(anak.status === 0 && html.length === KASUS.length, `the tabs could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
-        const tautan = (x: string) => [...x.matchAll(/<a ([^>]*)href="([^"]+)"[^>]*>([^<]*)<\/a>/g)].map((m) => [m[2], m[3], /class="gaya"/.test(m[0])]);
+        const tautan = (x: string) => [...x.matchAll(/<a ([^>]*)href="([^"]+)"[^>]*>([^<]*)(?:<span aria-hidden="true" class="pin-tanda-tautan"><\/span>)?<\/a>/g)].map((m) => [m[2], m[3], /class="gaya"/.test(m[0])]);
         c.expect(JSON.stringify(tautan(html[0])) === JSON.stringify([["/pimpinan", t("nav.pimpinan", "educator"), false], ["/studio", t("nav.studio", "educator"), false]]),
           `with Studio offered the tabs are ${JSON.stringify(tautan(html[0]))}`);
         c.expect(JSON.stringify(tautan(html[1])) === JSON.stringify([["/pimpinan", t("nav.pimpinan", "staff", { locale: "en" }), true], ["/studio", t("nav.studio", "staff", { locale: "en" }), true]]),
@@ -9694,6 +9705,443 @@ export const experienceTests: SelfTest[] = [
         "the answer, and holds a second submit that lands before the redraw; the activation buttons say " +
         "\"Mengaktifkan…\" and hold a second press; a staff refusal no longer sends an adult to a teacher while a " +
         "learner's still does; Konfigurasi offers Menambahkan orang only by /pendataan's own predicate",
+      );
+    },
+  },
+  {
+    id: "DAISY-18-DENGAR-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? readFileSync(f, "utf8") : "";
+      };
+      const semua = [...walk(join(repoRoot, "src", "app")), ...walk(join(repoRoot, "src", "components"))]
+        .filter((f) => f.endsWith(".tsx")).map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
+
+      /**
+       * DAISY-18 (D-047): PINTAR SHOWS IT HEARD YOU. DAISY-17's pattern, Idle →
+       * Working → Success / Error, as shared pieces rather than per page.
+       *
+       * 1. NAVIGATION ANSWERS AT ONCE. Each main section's loading.tsx is the
+       *    one shared shell (MemuatHalaman) and nothing else; inside a section
+       *    that draws its own frame (a layout.tsx: Studio) it is the framed
+       *    shell, without a second header and <main>. A planted page-own
+       *    loading screen is the control.
+       */
+      const BAGIAN = ["konfigurasi", "studio", "mengajar", "pimpinan", "belajar", "aktivasi", "pendataan"];
+      const cangkang = (src: string, bingkai: boolean) => {
+        const k = code(src).replace(/\s+/g, " ").trim();
+        return bingkai
+          ? /^import MemuatHalaman from "@\/components\/MemuatHalaman"; export default function \w+\(\) \{ return <MemuatHalaman dalamBingkai \/>; \}$/.test(k)
+          : k === 'export { default } from "@/components/MemuatHalaman";';
+      };
+      for (const b of BAGIAN) {
+        const bingkai = existsSync(join(repoRoot, "src", "app", b, "layout.tsx"));
+        const src = baca("src", "app", b, "loading.tsx");
+        c.expect(src !== "" && cangkang(src, bingkai),
+          `/${b} ${src === "" ? "has no loading.tsx, so a menu click shows nothing until the page is ready" : `has a loading screen of its own, not the shared shell${bingkai ? " inside its frame" : ""}`}`);
+      }
+      for (const f of semua.filter((x) => /\/loading\.tsx$/.test(x))) {
+        c.expect(/@\/components\/MemuatHalaman/.test(baca(f)), `${f} is a loading screen of its own, not the shared shell`);
+      }
+      c.expect(!cangkang(`export default function Memuat() { return <p>Memuat…</p>; }`, false)
+        && !cangkang(`export { default } from "@/components/MemuatHalaman";`, true),
+        "the control: a page-own loading screen, or the full shell inside a frame, is not caught");
+      const memuatMentah = baca("src", "components", "MemuatHalaman.tsx");
+      const memuat = code(memuatMentah);
+      c.expect(memuat !== "" && /<p className="pin-memuat-kata" role="status">\{t\("memuat\.halaman", "public", \{ locale \}\)\}<\/p>/.test(memuat)
+        && /<div className="pin-memuat-bentuk" aria-hidden="true">/.test(memuat),
+        "the loading shell does not say \"Memuat halaman…\" once, in the reader's language, with its shape hidden");
+      const bingkaiSaja = /if \(dalamBingkai\) \{\s*return ([\s\S]*?);\s*\}/.exec(memuat)?.[1] ?? "";
+      c.expect(bingkaiSaja !== "" && !/<header|<main|MerekPintar/.test(bingkaiSaja),
+        "inside a section's frame the shell draws a second header or <main>");
+      for (const locale of LOCALES) {
+        const v = t("memuat.halaman", "public", { locale });
+        c.expect(v !== TANPA_SALINAN && v.endsWith("…"), `(${locale}) memuat.halaman does not read as work in progress: ${v}`);
+      }
+
+      /**
+       * 2. A MENU LINK ACKNOWLEDGES THE CLICK. Every <Link> inside a <nav>
+       *    (and every place tab, TabTempat, which is drawn inside one) carries
+       *    TandaTautan, which reads Next's useLinkStatus and draws a working
+       *    dot from the click until the next page is on screen, taking no room
+       *    at rest. A planted bare menu link is the control.
+       */
+      const menu = (src: string) => {
+        const salah: string[] = [];
+        let n = 0;
+        for (const nav of src.matchAll(/<nav\b[^>]*>([\s\S]*?)<\/nav>/g)) {
+          for (const l of nav[1].matchAll(/<Link\b[\s\S]*?<\/Link>/g)) {
+            n++;
+            if (!/<TandaTautan \/>/.test(l[0])) salah.push(/href=(\{[^}]*\}|"[^"]*")/.exec(l[0])?.[1] ?? l[0].slice(0, 60));
+          }
+        }
+        return { n, salah };
+      };
+      let tautan = 0;
+      for (const f of semua) {
+        const src = code(baca(f));
+        const { n, salah } = menu(src);
+        tautan += n;
+        for (const x of salah) c.expect(false, `${f}: the menu link ${x} does not acknowledge a click`);
+      }
+      const tab = code(baca("src", "components", "TabTempat.tsx"));
+      const tabLinks = [...tab.matchAll(/<Link\b[\s\S]*?<\/Link>/g)].map((m) => m[0]);
+      c.expect(tabLinks.length > 0 && tabLinks.every((l) => /<TandaTautan \/>/.test(l)), "a place tab (TabTempat) does not acknowledge a click");
+      c.expect(tautan >= 15, `only ${tautan} menu link(s) found inside <nav>; the sweep is not seeing the menus`);
+      c.expect(menu(`<nav><Link href="/studio">Studio</Link></nav>`).salah.length === 1
+        && menu(`<nav><Link href="/studio">Studio<TandaTautan /></Link></nav>`).salah.length === 0,
+        "the control: a planted bare menu link is not caught, or a marked one is");
+      const tanda = baca("src", "components", "TandaTautan.tsx");
+      c.expect(/^"use client";/.test(tanda.trimStart()) && /import \{ useLinkStatus \} from "next\/link";/.test(tanda)
+        && /const \{ pending \} = useLinkStatus\(\);/.test(tanda) && /aria-hidden="true"/.test(tanda)
+        && /pending \? "pin-tanda-tautan pin-tanda-tautan-sibuk" : "pin-tanda-tautan"/.test(tanda),
+        "TandaTautan does not draw Next's link status");
+      const css = baca("src", "app", "experience.css");
+      c.expect(/\.pin-tanda-tautan \{[^}]*width: 0;/.test(css) && /\.pin-tanda-tautan-sibuk::after \{/.test(css),
+        "the working dot takes room at rest (the menu would shift), or is never drawn");
+
+      /**
+       * 3. THE RESULT APPEARS WHERE THE ACTION WAS. The line is BarisHasil:
+       *    role="status", and it brings itself into view when it appears, so
+       *    after "Berikan peran" it is on screen without scrolling. Every
+       *    section an action reports to has its line on the page it returns
+       *    to (Studio: HasilDi naming the section, beside the form; Konfigurasi:
+       *    result(section) under the section's form), and a sentence built
+       *    from the address reaches the screen through nothing else.
+       */
+      const baris = code(baca("src", "components", "BarisHasil.tsx"));
+      c.expect(/role="status"/.test(baris) && !/role="alert"/.test(baris) && /className=\{`\$\{kelas \?\? "pin-msg pin-hasil"\} pin-hasil-\$\{nada\}`\}/.test(baris)
+        && /useEffect\(\(\) => \{\s*baris\.current\?\.scrollIntoView\(\{ block: "nearest" \}\);\s*\}, \[\]\);/.test(baris),
+        "BarisHasil is not a status that brings itself into view");
+      const di = code(baca("src", "components", "HasilDi.tsx"));
+      c.expect(/if \(!cocok \|\| !q\.hasil \|\| !kalimat\) return null;/.test(di) && /return <BarisHasil nada=\{q\.hasil === "ok" \? "ok" : "gagal"\}>\{kalimat\}<\/BarisHasil>;/.test(di),
+        "HasilDi does not draw its section's result, and only its section's, in BarisHasil");
+
+      /** Split a call's arguments at its top-level commas. */
+      const argumen = (src: string, buka: number) => {
+        const out: string[] = [];
+        let d = 0, awal = buka + 1;
+        for (let i = buka; i < src.length; i++) {
+          const ch = src[i];
+          if ("([{".includes(ch)) d++;
+          else if (")]}".includes(ch)) { d--; if (d === 0) { out.push(src.slice(awal, i).trim()); break; } }
+          else if (ch === "," && d === 1) { out.push(src.slice(awal, i).trim()); awal = i + 1; }
+        }
+        return out;
+      };
+      const literal = (x: string) => [...x.matchAll(/"([^"]*)"|`([^`]*)`/g)].map((m) => m[1] ?? m[2]);
+      const rute = new Map(semua.filter((f) => /^src\/app\/.*page\.tsx$/.test(f))
+        .map((f) => [f.replace(/^src\/app/, "").replace(/\/page\.tsx$/, "") || "/", f] as const));
+      const halaman = (alamat: string) => {
+        const pola = alamat.replace(/\$\{[^}]*\}/g, "*").split("/");
+        for (const [r, f] of rute) {
+          const seg = r.split("/");
+          if (seg.length === pola.length && seg.every((x, i) => pola[i] === x || (pola[i] === "*" && /^\[.+\]$/.test(x)))) return f;
+        }
+        return null;
+      };
+      /** Every (page, section) a Studio action answers to, and every success that says only "saved". */
+      const jawaban = (src: string, satuArg: boolean) => {
+        const pasang: Array<[string, string]> = [];
+        const polos: string[] = [];
+        for (const m of src.matchAll(/(?<!function )\bback\(/g)) {
+          const a = argumen(src, m.index! + 4);
+          const [alamat, bagian, hasil] = satuArg ? ['"/konfigurasi"', a[0], a[1]] : a;
+          for (const x of literal(alamat).filter((y) => y.startsWith("/"))) for (const y of literal(bagian)) pasang.push([x, y]);
+          if (/\{ ok: true \}/.test(hasil ?? "")) polos.push(a.join(", ").slice(0, 90));
+        }
+        return { pasang, polos };
+      };
+      const berkasBagian = (f: string, bagian: string) => {
+        const src = code(baca(f));
+        return [...src.matchAll(/<HasilDi q=\{sp\} bagian=(\{\[[^\]]*\]\}|"[^"]*")/g)].some((m) => literal(m[1]).includes(bagian));
+      };
+      const studio = jawaban(code(baca("src", "app", "studio", "actions.ts")), false);
+      c.expect(studio.pasang.length >= 20, `only ${studio.pasang.length} Studio result(s) found; the sweep is not reading the actions`);
+      const dilewati = new Set<string>();
+      for (const [alamat, bagian] of new Map(studio.pasang.map((x) => [x.join(" "), x] as const)).values()) {
+        // The Studio home is reached only by a form that names no course (a hand-made post)
+        if (alamat === "/studio") { dilewati.add(bagian); continue; }
+        const f = halaman(alamat);
+        if (!c.expect(f !== null, `a Studio action returns to ${alamat}, which is no page`)) continue;
+        c.expect(berkasBagian(f!, bagian), `${f}: the "${bagian}" result has no line beside its form`);
+      }
+      for (const f of semua.filter((x) => /^src\/app\/studio\/.*page\.tsx$/.test(x))) {
+        const src = code(baca(f));
+        const nama = [...src.matchAll(/const (\w+) = [^;]*outcomeLine\(sp\)/g)].map((m) => m[1]);
+        for (const v of nama) {
+          const pakai = [...src.matchAll(new RegExp(`\\b${v}\\b`, "g"))].filter((m) => !/const $/.test(src.slice(m.index! - 6, m.index!)));
+          c.expect(pakai.every((m) => src.slice(m.index! - 9, m.index!) === "kalimat={"),
+            `${f}: the result sentence "${v}" reaches the screen other than through HasilDi`);
+        }
+        const langsung = [...src.matchAll(/outcomeLine\(sp\)/g)].filter((m) => !/const \w+ = [^;]*$/.test(src.slice(Math.max(0, m.index! - 200), m.index!)));
+        c.expect(langsung.every((m) => src.slice(m.index! - 9, m.index!) === "kalimat={"), `${f}: outcomeLine reaches the screen other than through HasilDi`);
+      }
+      c.expect(!berkasBagian("src/app/studio/kuis/page.tsx", "bukan-bagian"), "the control: a section no line names is found");
+
+      const konf = jawaban(code(baca("src", "app", "konfigurasi", "actions.ts")), true);
+      const konfHal = code(baca("src", "app", "konfigurasi", "page.tsx"));
+      c.expect(konf.pasang.length >= 15, `only ${konf.pasang.length} Konfigurasi result(s) found; the sweep is not reading the actions`);
+      for (const [, bagian] of konf.pasang) c.expect(konfHal.includes(`{result("${bagian}")}`), `Konfigurasi's "${bagian}" result has no line under its form`);
+      c.expect(/<BarisHasil nada=\{sp\.hasil === "ok" \? "ok" : "gagal"\}>\s*\{kalimatHasil\(sp, s, \{ ok: "config\.result\.ok", gagal: "config\.result\.failed" \}\)\}\s*<\/BarisHasil>/.test(konfHal)
+        && (konfHal.match(/kalimatHasil\(/g) ?? []).length === 1,
+        "Konfigurasi's result sentence reaches the screen other than through BarisHasil");
+
+      /**
+       * No other way to announce a result: role="alert" and the old error
+       * line are gone from every section, except where the line is not a
+       * save's answer -- the error page, sign-in (outside the seven sections,
+       * its errors tied to their fields), a structure that could not be READ,
+       * and the live count of a run in progress.
+       */
+      const DIIZINKAN: Record<string, number> = {
+        "src/components/HalamanGalat.tsx": 1,
+        "src/components/masuk/LayarMasuk.tsx": 3,
+        "src/components/struktur/PanelStruktur.tsx": 1,
+        "src/components/pendataan/Penggerak.tsx": 1,
+      };
+      const lama = (src: string) => [...src.matchAll(/<[a-z]+\b[^>]*(?:role="alert"|pin-msg-err)[^>]*>/g)].map((m) => m[0]);
+      for (const f of semua) {
+        const x = lama(code(baca(f)));
+        c.expect(x.length <= (DIIZINKAN[f] ?? 0), `${f}: a result announced the old way: ${x[0] ?? ""}`);
+      }
+      c.expect(/if \(rows === null\) \{\s*return \(\s*<p className="pin-msg pin-msg-err" role="alert">\s*\{kalimatGagalBaca\(/.test(code(baca("src", "components", "struktur", "PanelStruktur.tsx"))),
+        "the structure panel's one alert is no longer the unreadable-structure line");
+      c.expect(lama(`<p className="pin-msg pin-msg-err" role="alert">{s("x")}</p>`).length === 1, "the control: a planted alert line is not caught");
+      const PEMAKAI = [
+        "src/components/aktivasi/HasilAktivasi.tsx", "src/components/aktivasi/FormAktivasi.tsx", "src/components/struktur/PanelStruktur.tsx",
+        "src/components/studio/LangkahTerbit.tsx", "src/components/unggah/PanelUnggah.tsx", "src/components/pendataan/PeriksaDaftar.tsx",
+        "src/components/pimpinan/KartuKeputusan.tsx", "src/components/umpanbalik/MulaiPutaran.tsx", "src/components/umpanbalik/TutupPutaran.tsx",
+        "src/components/umpanbalik/LembarUmpanBalik.tsx", "src/app/mengajar/[kelas]/siapkan/page.tsx", "src/app/mengajar/[kelas]/uji-cepat/page.tsx",
+        "src/app/mengajar/[kelas]/page.tsx", "src/app/pimpinan/page.tsx", "src/app/pendataan/page.tsx", "src/app/pendataan/[pekerjaan]/page.tsx",
+      ];
+      for (const f of PEMAKAI) c.expect(/<BarisHasil nada=/.test(code(baca(f))), `${f} does not answer in the shared result line`);
+
+      // beside the thing that was acted on
+      const siapkan = code(baca("src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"));
+      c.expect(/\{tolakan\}\s*<div className="pin-actions">\s*<TombolKirim/.test(siapkan), "a refused Sediakan does not answer at its button");
+      const pim = code(baca("src", "app", "pimpinan", "page.tsx"));
+      const pimAksi = code(baca("src", "app", "pimpinan", "actions.ts"));
+      c.expect(/galat=\{sp\.galat === "1" && sp\.keputusan === k\.id\}/.test(pim) && /tercatat=\{sp\.hasil === "ok" && sp\.keputusan === k\.id\}/.test(pim)
+        && /const kartu = `keputusan=\$\{encodeURIComponent\(id\)\}`;/.test(pimAksi) && (pimAksi.match(/\$\{kartu\}/g) ?? []).length === 3,
+        "a decision's answer is not on the card that was moved");
+      const ajar = code(baca("src", "app", "mengajar", "actions.ts"));
+      c.expect(/ke\(kelasId, "\?sedia=ok"\);/.test(ajar) && /ke\(kelasId, "\/uji-cepat\?cepat=ok"\);/.test(ajar),
+        "a teacher's Sediakan or Uji Cepat returns without saying it was done");
+
+      /**
+       * 4. SPECIFIC WORDS FOR THE KEY ACTIONS. No success in Konfigurasi or
+       *    Studio returns a bare "ok": each names what it did, and each has
+       *    its sentence in both languages -- "Peran diberikan." / "Peran
+       *    dicabut.", "<Kelas> ditambahkan.", and the rest.
+       */
+      for (const x of [...studio.polos, ...konf.polos]) c.expect(false, `a success says only "saved": back(${x})`);
+      const s = (k: HleEvent, locale: "id" | "en" = "id") => t(k, "staff", { locale });
+      c.expect(s(kunciKode("ROLE_GRANTED")) === "Peran diberikan." && s(kunciKode("ROLE_REVOKED")) === "Peran dicabut."
+        && s("config.struktur.ok.dibuat") === "ditambahkan.",
+        `the key actions do not say what was done: ${s(kunciKode("ROLE_GRANTED"))} / ${s(kunciKode("ROLE_REVOKED"))} / ${s("config.struktur.ok.dibuat")}`);
+      for (const kode of KODE_SUKSES) {
+        for (const locale of LOCALES) {
+          const v = s(kunciKode(kode), locale as "id" | "en");
+          c.expect(v !== TANPA_SALINAN && !/[A-Z]{3,}_[A-Z_]+/.test(v), `(${locale}) ${kode} has no sentence of its own, or names a code: ${v}`);
+        }
+      }
+      for (const k of ["mengajar.sedia.ok", "mengajar.cepat.ok", "pimpinan.aksi.tercatat"] as const) {
+        for (const locale of LOCALES) c.expect(s(k, locale as "id" | "en") !== TANPA_SALINAN, `(${locale}) ${k} has no sentence`);
+      }
+
+      c.note(`${BAGIAN.length} section shells, ${tautan} menu links, ${studio.pasang.length} Studio and ${konf.pasang.length} Konfigurasi results` +
+        (dilewati.size ? `; the Studio home's ${[...dilewati].join(", ")} (a form naming no course) not placed` : ""));
+      return c.verdict(
+        "every main section's loading.tsx source is the one shared shell (framed inside Studio's own layout), saying " +
+        "\"Memuat halaman…\" in the reader's language; every menu link inside a <nav>, and every place tab, carries Next's " +
+        "link status as a working dot that takes no room at rest; every section a Konfigurasi or Studio action answers " +
+        "to has its line beside its form, in BarisHasil (role=\"status\", brought into view when it appears), and no " +
+        "result is announced the old way outside four named non-results; a decision's answer sits on its card, and a " +
+        "teacher's Sediakan and Uji Cepat say they were done; no success says only \"saved\" and every success code has " +
+        "its own sentence in both languages (Peran diberikan / dicabut, Kelas ditambahkan). The file sweep's controls: " +
+        "a page-own loading screen, a bare menu link, an unplaced section and a planted alert line are each caught",
+      );
+    },
+  },
+  {
+    id: "BOB19-K01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? readFileSync(f, "utf8") : "";
+      };
+
+      /**
+       * BOB-19: THE HEALTH CARD TELLS THE TRUTH. Konfigurasi's card called any
+       * lint value but 0 a problem, so a clean, fully migrated database read
+       * "Perlu perhatian": some right values are 1, 2 or true, and some keys
+       * are only information.
+       *
+       * 1. ONE RULE, TWO READERS. The expected values are one file,
+       *    src/lib/kesehatan-skema.json. F01-T13 loads that file and compares
+       *    the lint against it key by key, with no per-check literal left in
+       *    its block. The card judges with nilaiSkema, which imports the same
+       *    file. Konfigurasi judges with nothing else.
+       */
+      const harapanMentah = baca("src", "lib", "kesehatan-skema.json");
+      let harapan: Record<string, unknown> = {};
+      try { harapan = JSON.parse(harapanMentah); } catch { /* reported below */ }
+      c.expect(Object.keys(harapan).length >= 15 && Object.values(harapan).every((v) => typeof v === "number" || typeof v === "boolean"),
+        "there is no shared list of expected lint values (src/lib/kesehatan-skema.json), or it holds something other than counts and flags");
+      const sql = baca("selftest", "db", "fable01.sql");
+      const t13 = sql.slice(sql.indexOf("-- F01-T13 INV-15/36/14"), sql.indexOf("-- lint RPC is SYSTEM_ADMIN only"));
+      c.expect(/^\\set harapan_skema `cat src\/lib\/kesehatan-skema\.json`$/m.test(sql)
+        && /insert into selftest\.harapan_skema \(v\) values \(:'harapan_skema'::jsonb\);/.test(sql),
+        "F01-T13's file does not load the shared list");
+      c.expect(t13.length > 0 && /select h\.v into harapan from selftest\.harapan_skema h;/.test(t13)
+        && /from jsonb_each\(harapan\) e;/.test(t13) && /j -> e\.key is not distinct from e\.value/.test(t13)
+        && !/\(j->>'[a-z_]+'\)/.test(code(t13)),
+        "F01-T13 does not judge by the shared list alone (a per-check literal is left in its block)");
+      const regel = code(baca("src", "lib", "kesehatan-skema.ts"));
+      c.expect(/import HARAPAN from "\.\/kesehatan-skema\.json";/.test(regel), "the card's rule does not read the shared list");
+      const konf = code(baca("src", "app", "konfigurasi", "page.tsx"));
+      c.expect(/nilaiSkema\(lint as Record<string, unknown>\)/.test(konf) && /<KartuKesehatan /.test(konf)
+        && !/v === 0/.test(konf) && !/Perlu perhatian|Semua pemeriksaan lolos/.test(konf),
+        "Konfigurasi still judges the lint by its own rule, or writes the card's words itself");
+
+      /**
+       * 2. THE RULE, OVER THE LINT'S REAL SHAPE. The keys come from the latest
+       *    migration that defines platform_schema_lint. A clean, fully
+       *    migrated lint (every expected value, and every other key as
+       *    information: a count above 0, a flag, the environment) reads
+       *    healthy. The old rule read that same lint as "Perlu perhatian",
+       *    which is the control. Every expected key, planted wrong, is caught
+       *    and named alone, and a missing key is caught.
+       */
+      // imported here, not at the top: on code without the rule this test is red
+      // for its own reason, and every other test in this file still runs
+      let aturan: typeof import("../src/lib/kesehatan-skema") | null = null;
+      try { aturan = await import("../src/lib/kesehatan-skema"); } catch { /* reported below */ }
+      if (!c.expect(aturan !== null, "there is no shared rule for the card (src/lib/kesehatan-skema.ts)")) {
+        return c.verdict("");
+      }
+      const { HARAPAN_SKEMA, KUNCI_SKEMA, nilaiSkema } = aturan!;
+      const migrasi = walk(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql")).sort()
+        .filter((f) => /create or replace function public\.platform_schema_lint\s*\(/.test(readFileSync(f, "utf8")));
+      const terakhir = migrasi.length ? readFileSync(migrasi[migrasi.length - 1], "utf8") : "";
+      const kunciLint = [...new Set([...terakhir.matchAll(/jsonb_build_object\('([a-z_0-9]+)'/g)].map((m) => m[1]))];
+      c.expect(kunciLint.length > 30, `the lint's keys could not be read from its migration (${kunciLint.length})`);
+      for (const k of KUNCI_SKEMA) c.expect(kunciLint.includes(k), `the shared list expects "${k}", which the lint does not return`);
+      const bersih: Record<string, unknown> = {};
+      for (const k of kunciLint) bersih[k] = k === "environment" ? "local" : /_ok$/.test(k) ? true : 1;
+      Object.assign(bersih, HARAPAN_SKEMA);
+      const h = nilaiSkema(bersih);
+      c.expect(h.sehat && h.menyimpang.length === 0 && h.jumlah === KUNCI_SKEMA.length,
+        `a clean, fully migrated lint reads unhealthy: ${h.menyimpang.join(", ")}`);
+      const lama = Object.entries(bersih).every(([k, v]) => k === "environment" || k === "migrations_applied" || v === 0);
+      c.expect(!lama, "the control: the old rule no longer reads a clean lint as a problem, so this test proves nothing");
+      for (const k of KUNCI_SKEMA) {
+        const v = HARAPAN_SKEMA[k];
+        const x = nilaiSkema({ ...bersih, [k]: typeof v === "boolean" ? !v : (v as number) + 1 });
+        c.expect(!x.sehat && x.menyimpang.length === 1 && x.menyimpang[0] === k, `a planted wrong "${k}" is not caught and named alone`);
+      }
+      const tanpa = { ...bersih } as Record<string, unknown>;
+      delete tanpa.anon_reachable_http_paths;
+      c.expect(nilaiSkema(tanpa).menyimpang.includes("anon_reachable_http_paths"), "a check the lint no longer returns is skipped, not caught");
+
+      /**
+       * 3. THE CARD, RENDERED in both languages. A clean lint reads "Semua
+       *    pemeriksaan lolos" and never "Perlu perhatian". A planted wrong
+       *    value reads "Perlu perhatian" and names that check in words, and
+       *    no other. The check that could not run gives its reference. Not
+       *    checked yet offers the check. A school administrator is told who
+       *    runs it. Every check has its name in both languages.
+       */
+      for (const locale of LOCALES) {
+        for (const k of KUNCI_SKEMA) {
+          c.expect(t(`config.kesehatan.cek.${k}` as HleEvent, "staff", { locale }) !== TANPA_SALINAN, `(${locale}) the check "${k}" has no name`);
+        }
+      }
+      c.expect(t("config.kesehatan.perhatian", "staff", { locale: "id" }) === "Perlu perhatian", "the card's attention state no longer reads \"Perlu perhatian\"");
+      const tanam = nilaiSkema({ ...bersih, tables_without_rls: 1 });
+      const KASUS = [
+        { locale: "id", keadaan: { jenis: "diperiksa", hasil: h } },
+        { locale: "en", keadaan: { jenis: "diperiksa", hasil: h } },
+        { locale: "id", keadaan: { jenis: "diperiksa", hasil: tanam } },
+        { locale: "en", keadaan: { jenis: "diperiksa", hasil: tanam } },
+        { locale: "id", keadaan: { jenis: "gagal", rujukan: "AB12CD" } },
+        { locale: "id", keadaan: { jenis: "belum" } },
+        { locale: "id", keadaan: { jenis: "bukan_admin" } },
+      ].map((k) => ({ ...k, kelas: "kartu", tautan: "tautan" }));
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/konfigurasi/KartuKesehatan.tsx");' +
+        "  const Kartu = m.default?.default ?? m.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_SEHAT).map((k) =>" +
+        "    renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(Kartu, k))))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_SEHAT: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      const teks = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+      if (c.expect(anak.status === 0 && html.length === KASUS.length, `the health card could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        const nama = (k: string, locale: string) => t(`config.kesehatan.cek.${k}` as HleEvent, "staff", { locale: locale as "id" | "en" });
+        for (const [n, locale] of [[0, "id"], [1, "en"]] as const) {
+          const x = teks(html[n]);
+          const s = (k: HleEvent) => t(k, "staff", { locale });
+          c.expect(x.includes(s("config.kesehatan.sehat")) && !x.includes(s("config.kesehatan.perhatian"))
+            && x.includes(`${KUNCI_SKEMA.length} ${s("config.kesehatan.jumlah")}`),
+            `(${locale}) a clean lint does not read healthy: ${x.slice(0, 160)}`);
+        }
+        for (const [n, locale] of [[2, "id"], [3, "en"]] as const) {
+          const x = teks(html[n]);
+          const s = (k: HleEvent) => t(k, "staff", { locale });
+          c.expect(x.includes(s("config.kesehatan.perhatian")) && x.includes(nama("tables_without_rls", locale))
+            && KUNCI_SKEMA.filter((k) => k !== "tables_without_rls").every((k) => !x.includes(nama(k, locale)))
+            && !x.includes(s("config.kesehatan.sehat")),
+            `(${locale}) a planted wrong value does not read "${s("config.kesehatan.perhatian")}" naming that check alone: ${x.slice(0, 200)}`);
+        }
+        const s = (k: HleEvent) => t(k, "staff", { locale: "id" });
+        c.expect(teks(html[4]).includes(s("config.kesehatan.gagal")) && teks(html[4]).includes("AB12CD") && html[4].includes('href="/konfigurasi?periksa=skema"'),
+          `the check that could not run gives no reference or no way to try again: ${teks(html[4]).slice(0, 160)}`);
+        c.expect(html[5].includes('href="/konfigurasi?periksa=skema"') && teks(html[5]).includes(s("config.card.health.periksa")),
+          "not checked yet does not offer the check");
+        c.expect(teks(html[6]).includes(s("config.kesehatan.bukan_admin")) && !html[6].includes("periksa=skema"),
+          "a school administrator is offered a check the database refuses them");
+      }
+
+      /**
+       * 4. THE SAME RUN. Konfigurasi asks persons_awaiting_first_role only for
+       *    the platform administrator, whom alone the database answers (the
+       *    school administrator's asking was 338 refusals in U-PERF's
+       *    30-session run). A confirmed upload returns to its new course's page
+       *    with "Paket dibuat.".
+       */
+      c.expect(/isSys === true \? supabase\.rpc\("persons_awaiting_first_role"\) : Promise\.resolve\(\{ data: \[\] \}\)/.test(konf)
+        && (konf.match(/persons_awaiting_first_role/g) ?? []).length === 1,
+        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses");
+      const studio = code(baca("src", "app", "studio", "actions.ts"));
+      c.expect(/if \(h\.ok && h\.courses && h\.courses\[0\]\) back\(`\/studio\/paket\/\$\{h\.courses\[0\]\}`, "paket", \{ ok: true, kode: "DRAFT_CREATED" \}\);/.test(studio)
+        && (KODE_SUKSES as readonly string[]).includes("DRAFT_CREATED")
+        && t(kunciKode("DRAFT_CREATED"), "staff", { locale: "id" }) === "Paket dibuat.",
+        "a confirmed upload does not return to its course saying \"Paket dibuat.\"");
+
+      c.note(`${KUNCI_SKEMA.length} checks in the shared list, ${kunciLint.length} keys in the lint (${migrasi.length ? relative(repoRoot, migrasi[migrasi.length - 1]) : "no migration"})`);
+      return c.verdict(
+        `the health card and F01-T13 judge by one list, src/lib/kesehatan-skema.json (${KUNCI_SKEMA.length} checks): F01-T13's SOURCE loads it ` +
+        "and compares key by key with no literal of its own, the card's rule imports it, Konfigurasi judges by nothing else. " +
+        "Over the lint's real keys, a clean, fully migrated lint reads healthy where the old rule read it as a problem (the " +
+        "control); each expected check planted wrong is caught and named alone, and a missing one is caught. RENDERED in both " +
+        "languages: clean reads \"Semua pemeriksaan lolos\", a planted value reads \"Perlu perhatian\" and names that check " +
+        "alone, a failed check gives its reference, not-yet-checked offers the check, a school administrator is told who runs " +
+        "it. Konfigurasi asks persons_awaiting_first_role only for the platform administrator, and a confirmed upload returns " +
+        "to its course with \"Paket dibuat.\"",
       );
     },
   },

@@ -627,6 +627,41 @@ VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
                "copies). The live release (5b5b68d) stays as it is.")
 
 
+# --- Integration 12 on main (28 Sep): BOB-10 (the intake refuses staff rows), BOB-11 (lesson media play),
+#     DAISY-18 (PINTAR shows it heard you, D-047), BOB-19 (the health card) ---
+NOW.update({
+    "sha": "f48da56",
+    "date": "28 Sep 2026",
+    "label": "Integration 12 (main)",
+    "evidence": ("main f48da56 = Integration 12: BOB-10 and BOB-11 (92d74aa) with DAISY-18 and BOB-19 (a60ba25; DAISY-13 held off) on top of "
+                 "Integration 11 (b24a95b). CI #210 (26/26); audit #30, run 36364515756 (26 PASS, 1 NOTE, 1 FAIL: S8, an outdated oracle -- both "
+                 "rows are now refused at validation with reasons and nobody is recorded, which is the requirement; restated). The lanes' own runs: "
+                 "CI #207, #208 (Bob), #206, #209 (Daisy). Staging: 121 migrations after this integration."),
+})
+CURRENT.update({
+    "ADM-07": ("PASS: intake into a Kelas works (S9); a place that is not a Kelas or Tingkat is refused at validation with a reason (BOB-01); "
+               "staff rows are refused at validation with a reason and never become students (BOB-10: F10-M01, CI #210; audit #30 S8 shows "
+               "both refusals and nobody recorded); pickers offer only Bagian, Tingkat and Kelas by path (BOB-09)."),
+    "STU-11": ("PARTIAL: lesson media now play: the lesson's <audio>/<video> link answers with the file after the same permission check "
+               "(BOB-11: BOB11-A01, CI #210, real storage). Left: the RUN walk on staging with SD 5 Bab 1 (its media are on staging)."),
+    "ADM-10": ("PARTIAL: text, questions and media exist (S14, S15c) and media play, for learners and in Studio's preview for the school's "
+               "own staff (BOB-11: F11-P04, BOB11-A01). Left: the RUN walk on staging with SD 5 Bab 1."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 121; staging 121 after this integration.",
+})
+CURRENT["U-PERF"] = CURRENT["U-PERF"] + (" Since Integration 12 a menu click also answers at once: a working mark on the link and a shared "
+                                          "loading screen within 100 ms (DAISY-18, D-047).")
+VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
+               "Bob — BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01); "
+               "M2, a school admin giving staff their roles (X-01), once Yazid decides whether a school admin may see their own staff (BOB-10 Q1). "
+               "Coordinator — walk STU-11 and ADM-10 on staging with SD 5 Bab 1; extend the audit to answer the pre-test and post-test and read "
+               "the result (STU-06…STU-18, X-06…X-11); walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key "
+               "copies); BOB-10 Q1. The live release (5b5b68d) stays as it is.")
+CHANGES_V21.append(
+    "Re-marked on 28 Sep against Integration 12 on main (f48da56): the intake refuses staff rows with a reason (BOB-10; ADM-07 PASS), "
+    "lesson media play for learners and in Studio's preview (BOB-11; STU-11 and ADM-10 wait only for the walk on staging), every click "
+    "and save says it was heard (DAISY-18), and the health card judges by F01-T13's own list (BOB-19).")
+
+
 def as_dict():
     g = globals()
     return {

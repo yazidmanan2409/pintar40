@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { isianKurang, type JawabanAktivasi, type ModeAktivasi } from "./hasil";
 import HasilAktivasi from "./HasilAktivasi";
+import BarisHasil from "@/components/BarisHasil";
 
 type Orang = { person_id: string; display_name: string; institutional_id: string; institution_id: string };
 
@@ -98,7 +99,7 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
                       </button>
                     </div>
                     {kurang[o.person_id] ? (
-                      <p className="pin-msg pin-msg-err" role="alert">{s(kurang[o.person_id])}</p>
+                      <BarisHasil nada="gagal">{s(kurang[o.person_id])}</BarisHasil>
                     ) : h ? (
                       <HasilAktivasi locale={locale} mode={h.mode} jawaban={h.jawaban} surel={h.surel} />
                     ) : null}
@@ -130,7 +131,7 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
             </button>
           </div>
           {kurang.baru ? (
-            <p className="pin-msg pin-msg-err" role="alert">{s(kurang.baru)}</p>
+            <BarisHasil nada="gagal">{s(kurang.baru)}</BarisHasil>
           ) : hasil.baru ? (
             <HasilAktivasi locale={locale} mode="NEW_PERSON" jawaban={hasil.baru.jawaban}
               surel={hasil.baru.surel} nama={hasil.baru.nama} />

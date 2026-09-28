@@ -122,5 +122,5 @@ export async function sediakanUjiCepat(formData: FormData): Promise<void> {
     p_minutes: menit,
   });
   if (error) ke(kelasId, "/uji-cepat?cepat=gagal");
-  ke(kelasId, "/uji-cepat");
+  ke(kelasId, "/uji-cepat?cepat=ok");
 }

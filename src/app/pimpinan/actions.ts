@@ -44,7 +44,9 @@ export async function putuskanAksi(formData: FormData): Promise<void> {
   const bentukBenar =
     id.length > 0 && KEADAAN.has(ke) && (ke !== "DECIDED" || HASIL.has(hasil));
 
-  if (!bentukBenar) redirect("/pimpinan?galat=1");
+  // DAISY-18: the answer names the card it belongs to, which the reader sent
+  const kartu = `keputusan=${encodeURIComponent(id)}`;
+  if (!bentukBenar) redirect(`/pimpinan?galat=1&${kartu}`);
 
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("advance_management_decision", {
@@ -58,8 +60,8 @@ export async function putuskanAksi(formData: FormData): Promise<void> {
   // that is already decided and a uuid that is nobody all come back the same
   // way, because telling them apart would answer questions about decisions this
   // reader is not entitled to know exist.
-  if (error) redirect("/pimpinan?galat=1");
+  if (error) redirect(`/pimpinan?galat=1&${kartu}`);
 
   revalidatePath("/pimpinan");
-  redirect("/pimpinan");
+  redirect(`/pimpinan?hasil=ok&${kartu}`);
 }

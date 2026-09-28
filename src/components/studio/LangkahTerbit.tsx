@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import { kalimatHambatan, kunciKodeTerbitan, type HasilTerbitan } from "@/lib/terbitan-kontrak";
 import {
@@ -100,7 +101,7 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
     const h = gagal(langkah);
     if (!h || h.ok) return null;
     return (
-      <div className="pin-msg pin-msg-err" role="alert">
+      <BarisHasil nada="gagal">
         <p>{s(kunciKodeTerbitan(h.code))}{h.ref ? ` (${s("studio.unggah.rujukan")} ${h.ref})` : ""}</p>
         {h.hambatan && h.hambatan.length > 0 ? (
           <>
@@ -109,7 +110,7 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
             <ul>{h.hambatan.map((x, i) => <li key={`${x.code}-${x.lesson_id ?? ""}-${x.pattern ?? ""}-${i}`}>{kalimatHambatan(x, s, (n) => format.number(n, locale))}</li>)}</ul>
           </>
         ) : null}
-      </div>
+      </BarisHasil>
     );
   };
 

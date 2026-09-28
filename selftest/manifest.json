@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 96,
+  "version": 98,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2137,6 +2137,26 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as the platform administrator and Alpha's school administrator and reads /konfigurasi, /pendataan and /pimpinan against the seed. CI has both facilities, so it never skips there",
       "proves": "DAISY-17's same-push fixes over real HTTP against the seed, read from the RENDERED html of /konfigurasi, /pendataan and /pimpinan: Konfigurasi offers Menambahkan orang (a link to /pendataan) exactly when /pendataan admits the same reader, asked of the platform administrator and of Alpha's school administrator; a school administrator refused Pimpinan reads the staff refusal sentence and not the learner's \"ask your teacher\"."
+    },
+    {
+      "id": "DAISY-18-DENGAR-01",
+      "runner": "static",
+      "proves": "DAISY-18 (D-047): PINTAR shows it heard you -- DAISY-17's Idle → Working → Success / Error as shared pieces, read from the SOURCE files. (1) Each main section (Konfigurasi, Studio, Mengajar, Pimpinan, Belajar, Aktivasi, Pendataan) has a loading.tsx file that is the one shared shell, MemuatHalaman, and nothing else -- the framed shell inside a section that draws its own layout (Studio), with no second header or <main>; every other loading.tsx is the shell too; it says \"Memuat halaman…\" once (role=\"status\") in the reader's language with its shape aria-hidden. (2) Every <Link> inside a <nav> and every place tab (TabTempat) carries TandaTautan, a client component drawing Next 16's useLinkStatus as a working dot that takes no room at rest. (3) Every section a Studio or Konfigurasi action returns to (parsed from each back() call) has its result line on that page -- Studio's HasilDi naming the section beside its form, Konfigurasi's result(section) under its form -- and the sentence reaches the screen only through BarisHasil (role=\"status\", scrolled into view when it appears); role=\"alert\" and the old error line are gone from src/app and src/components except four named non-results (the error page, sign-in, an unreadable structure, a run's live count); the listed result components answer in BarisHasil; a refused Sediakan answers at its button; a decision's answer sits on the card that was moved; Sediakan and Uji Cepat say they were done. (4) No Studio or Konfigurasi success returns a bare { ok: true }; every success code has its own sentence in both languages naming no code (Peran diberikan. / Peran dicabut.; the structure panel's <Kelas> ditambahkan.). Controls: a page-own loading screen, the full shell inside a frame, a bare menu link, an unplaced section and a planted alert line are each caught. Red on d6cde10: no section has a loading.tsx, no menu link carries TandaTautan, no BarisHasil exists."
+    },
+    {
+      "id": "BOB19-K01",
+      "runner": "static",
+      "proves": "BOB-19: the Konfigurasi health card tells the truth, read from the SOURCE files and the RENDERED card. (1) One rule, two readers: the expected lint values are one file, src/lib/kesehatan-skema.json; F01-T13's SOURCE in selftest/db/fable01.sql loads it and compares the lint key by key with no per-check literal left in its block; the card's rule (src/lib/kesehatan-skema.ts) imports the same file; Konfigurasi judges by nothing else and writes no card words itself. (2) Over the lint's real keys (read from the latest migration defining platform_schema_lint), a clean, fully migrated lint reads healthy where the old any-value-but-0 rule read it as a problem (the control); every expected check planted wrong is caught and named alone, and a missing one is caught. (3) RENDERED in both languages: clean reads \"Semua pemeriksaan lolos\", a planted value reads \"Perlu perhatian\" and names that check alone in words, a check that could not run gives its reference and a way to try again, not-yet-checked offers the check, a school administrator is told who runs it; every check has its name in both languages. (4) Same run: Konfigurasi asks persons_awaiting_first_role only for the platform administrator, and a confirmed upload returns to its course's page with \"Paket dibuat.\" (DRAFT_CREATED). Red on today's code: no shared list, the card judges by v === 0."
+    },
+    {
+      "id": "BOB19-A01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the seeded, fully migrated Supabase stack: it signs in as the platform administrator and Alpha's school administrator, runs the schema lint through Konfigurasi and reads the runner's count of the app's Supabase calls. CI has both facilities, so it never skips there",
+      "proves": "BOB-19 over real HTTP against the seeded, fully migrated local stack, read from the RENDERED html of /konfigurasi and /studio/paket and the runner's count of the app's Supabase calls (selftest/hitung-fetch.cjs): the platform administrator's health card, asked to check, reads \"Semua pemeriksaan lolos\" and never \"Perlu perhatian\" (today it reads \"Perlu perhatian\"); an ordinary load runs no lint (BOB-18 (b)) and offers the check; persons_awaiting_first_role is asked once for the platform administrator and never for Alpha's school administrator (today: asked and refused, 338 refusals in U-PERF's 30-session run), whose card says who runs the checks; a confirmed upload's return reads \"Tersimpan. Paket dibuat.\" as a status on its course page."
     }
   ]
 }

@@ -11,6 +11,8 @@ import KartuKeputusan from "@/components/pimpinan/KartuKeputusan";
 import RingkasKesiapan from "@/components/pimpinan/RingkasKesiapan";
 import { BarisLingkup, KartuKetiadaan } from "@/components/bukti";
 import AngkaTerkelola from "@/components/pimpinan/AngkaTerkelola";
+import BarisHasil from "@/components/BarisHasil";
+import TandaTautan from "@/components/TandaTautan";
 import { lingkupAwal } from "@/components/pimpinan/lingkup";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +47,7 @@ export const dynamic = "force-dynamic";
 export default async function Pimpinan({
   searchParams,
 }: {
-  searchParams: Promise<{ lingkup?: string; galat?: string }>;
+  searchParams: Promise<{ lingkup?: string; galat?: string; hasil?: string; keputusan?: string }>;
 }) {
   const sp = await searchParams;
   const locale = await currentLocale();
@@ -124,6 +126,7 @@ export default async function Pimpinan({
                     aria-current={n.id === dipilih.id ? "true" : undefined}
                   >
                     {n.nama}
+                    <TandaTautan />
                   </Link>
                 </li>
               ))}
@@ -150,13 +153,21 @@ export default async function Pimpinan({
 
           {antre.length > 1 ? <p className="pin-meta">{s("pimpinan.urutan")}</p> : null}
 
+          {/* DAISY-18: the answer sits on the card that was moved; an answer
+              for a card not on this page is said once, above the cards */}
+          {(sp.galat === "1" || sp.hasil === "ok") && !tertib.some((k) => k.id === sp.keputusan) ? (
+            <BarisHasil nada={sp.galat === "1" ? "gagal" : "ok"}>
+              {s(sp.galat === "1" ? "pimpinan.aksi.gagal" : "pimpinan.aksi.tercatat")}
+            </BarisHasil>
+          ) : null}
           {tertib.map((k) => (
             <KartuKeputusan
               key={k.id}
               keputusan={k}
               aksi={putuskanAksi}
               locale={locale}
-              galat={sp.galat === "1"}
+              galat={sp.galat === "1" && sp.keputusan === k.id}
+              tercatat={sp.hasil === "ok" && sp.keputusan === k.id}
             />
           ))}
 

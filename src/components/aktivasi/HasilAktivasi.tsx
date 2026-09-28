@@ -1,5 +1,6 @@
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { kunciGagal, type JawabanAktivasi, type ModeAktivasi } from "./hasil";
+import BarisHasil from "@/components/BarisHasil";
 
 /**
  * WHAT THE ADMINISTRATOR READS AFTER EACH ACTIVATION (DAISY-09, D-019).
@@ -25,28 +26,28 @@ export default function HasilAktivasi({ locale, mode, jawaban, surel, nama }: {
   const s = (k: HleEvent) => t(k, "staff", { locale });
 
   if (!jawaban?.ok) {
-    return <p className="pin-msg pin-msg-err" role="alert">{s(kunciGagal(mode, jawaban))}</p>;
+    return <BarisHasil nada="gagal">{s(kunciGagal(mode, jawaban))}</BarisHasil>;
   }
 
   if (mode === "CLASSROOM_CARD") {
     return (
-      <div className="pin-akt-hasil" role="status">
+      <BarisHasil nada="ok" kelas="pin-akt-hasil">
         <p>
           {s("aktivasi.kartu_dibuat")} <strong className="pin-num">{jawaban.card}</strong> · PIN{" "}
           <strong className="pin-num">{jawaban.pin}</strong>
         </p>
         <p className="pin-meta">{s("aktivasi.kartu_arti")}</p>
-      </div>
+      </BarisHasil>
     );
   }
 
   return (
-    <div className="pin-akt-hasil" role="status">
+    <BarisHasil nada="ok" kelas="pin-akt-hasil">
       <p>
         {mode === "NEW_PERSON" && nama ? <><strong>{nama}</strong> · </> : null}
         {s("aktivasi.surel_dibuat")} <strong>{surel}</strong>
       </p>
       <p className="pin-meta">{s(mode === "NEW_PERSON" ? "aktivasi.baru.ok" : "aktivasi.surel_arti")}</p>
-    </div>
+    </BarisHasil>
   );
 }

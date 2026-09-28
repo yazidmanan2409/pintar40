@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
+import BarisHasil from "@/components/BarisHasil";
 import { KUNCI_TUTUP, sudahDitutup, type SebabTutup } from "@/lib/umpanbalik-kontrak";
 
 /**
@@ -72,16 +73,12 @@ export default function TutupPutaran({
   // Closed, on this press or an earlier one. The control is gone: there is no
   // reopen, no reset and no republish to offer, so nothing is offered.
   if (sebab && sudahDitutup(sebab)) {
-    return (
-      <p className="pin-msg pin-msg-note" role="status">{s(KUNCI_TUTUP[sebab])}</p>
-    );
+    return <BarisHasil nada="ok">{s(KUNCI_TUTUP[sebab])}</BarisHasil>;
   }
 
   return (
     <div className="pin-ub-tutup">
-      {sebab ? (
-        <p className="pin-msg pin-msg-note" role="status">{s(KUNCI_TUTUP[sebab])}</p>
-      ) : null}
+      {sebab ? <BarisHasil nada="netral">{s(KUNCI_TUTUP[sebab])}</BarisHasil> : null}
 
       {tanya ? (
         <div className="pin-ub-pasti" role="group" aria-labelledby="pin-ub-pasti-judul">

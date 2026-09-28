@@ -4,6 +4,7 @@ import { button, can, card, field, label, outcomeLine, s, studioInstitutions } f
 import { saveDefinitionAction } from "../actions";
 import { kunciKode } from "@/lib/galat-kontrak";
 import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Assessment Definition builder (§10).
@@ -39,7 +40,6 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
   return (
     <div className="grid gap-6">
       <h2 className="text-lg font-medium">{s("studio.definisi.judul")}</h2>
-      {banner ? <p className={card}>{banner}</p> : null}
 
       <section className={card}>
         <h3 className="font-medium">{s("studio.definisi.batas")}</h3>
@@ -94,6 +94,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
           <input type="hidden" name="definisi" value="" />
           <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
         </form>
+        <HasilDi q={sp} bagian="definisi" kalimat={banner} />
       </section>
 
       <section className="grid gap-2">
