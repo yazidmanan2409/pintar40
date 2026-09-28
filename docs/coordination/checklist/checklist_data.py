@@ -687,6 +687,26 @@ CHANGES_V21.append("Re-marked on 28 Sep against Integration 13 (15bfc99): releas
                    "the audit ran clean for the first time (27 PASS, 1 NOTE, 0 FAIL), Studio to the student's pre-test included.")
 
 
+# --- Integration 14 on main (28 Sep): BOB-20 (a school admin sees and names their own staff, D-048) ---
+NOW.update({
+    "sha": "c2e8e4b",
+    "date": "28 Sep 2026",
+    "label": "Integration 14 (main)",
+    "evidence": ("Integration 14: BOB-20 (c2e8e4b, CI #215, 26/26) on top of Integration 13 (15bfc99). Audit #33, run 36374922245: "
+                 "27 PASS, 1 NOTE (S1b), 0 FAIL. Staging: 123 migrations after this integration."),
+})
+CURRENT.update({
+    "X-01": ("PARTIAL: structure, staff roles, cards and intake without SQL (S3-S12); a place that is not a Kelas or Tingkat and a staff row "
+             "are refused at intake with reasons (BOB-01, BOB-10); a school admin now sees and names their own staff and finds a newly "
+             "recorded teacher in their own waiting list (BOB-20, D-048). Left: a school admin grants only to a person they may act upon "
+             "(BOB-21, D-049)."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 123; staging 123 after this integration.",
+})
+VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-20 (a school admin sees and names their own staff, D-048) and BOB-21 (grants only to a person they may act upon): X-01; ",
+                                  "Bob — BOB-21 (a school admin grants only to a person they may act upon, D-049): X-01; ")
+CHANGES_V21.append("Re-marked on 28 Sep against Integration 14 (c2e8e4b): a school admin sees and names their own staff (BOB-20, D-048); audit clean again.")
+
+
 def as_dict():
     g = globals()
     return {
