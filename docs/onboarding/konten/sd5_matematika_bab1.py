@@ -75,6 +75,7 @@ cek(20_000 + 6_000 + 900 + 30 + 2 == 26_932)
 cek(20_000 + 2_000 + 200 + 20 + 2 == 22_222)
 cek(str(43_518)[1] == "3")                                   # Coba: 3 in 43.518 is ribuan
 cek(50 * 1_000 + 303 == 50_303 and 20 * 1_000 + 40 == 20_040)
+cek(int("503" + "3") == 5_033 < 50_303)                    # 50.303 with its puluhan 0 left out
 cek(76_675 > 67_765 and 70_000 > 67_765)                     # 7 puluh ribuan beats all of 67.765
 cek(86_567 < 86_576 and 45_867 < 55_876)
 cek(sorted([45_500, 42_000, 38_500]) == [38_500, 42_000, 45_500])
@@ -186,7 +187,7 @@ Tulis "lima puluh ribu tiga ratus tiga" dengan angka.
 2. Bagian sesudahnya: tiga ratus tiga. Ada 3 ratusan, **0 puluhan**, dan 3 satuan, jadi **303**.
 3. Gabungkan: **50.303**.
 
-Angka 0 tetap ditulis. Tanpa 0, angka 3 terakhir akan bergeser ke tempat yang salah.
+Angka 0 tetap ditulis. Tanpa 0 itu, angka 3 terakhir bergeser ke tempat lain dan bilangannya menjadi 5.033 (lima ribu tiga puluh tiga), jauh lebih kecil.
 
 **Coba:** tulis "dua puluh ribu empat puluh" dengan angka.
 _Periksa: 20.040. Tidak ada ratusan dan satuan, jadi kedua tempat itu diisi 0._
@@ -432,13 +433,13 @@ MISKONSEPSI = {
                     "Bilangan dibaca angka demi angka, tanpa memperhatikan nilai tempat dan kelompok ribuan.",
                     "Tulis bilangan di tabel nilai tempat, lalu baca bagian di depan titik dengan kata \"ribu\" sebelum membaca tiga angka di belakangnya."),
     "SD5-M-B1-02": ("Kelompok ribuan keliru",
-                    "Titik pemisah ribuan diabaikan atau diletakkan di tempat yang salah, sehingga bagian \"ribu\" dibaca terlalu besar, terlalu kecil, atau tidak dibaca.",
+                    "Titik pemisah ribuan diabaikan atau diletakkan di tempat lain, sehingga bagian \"ribu\" dibaca terlalu besar, terlalu kecil, atau tidak dibaca.",
                     "Tunjuk titiknya lebih dulu dan tanyakan: angka berapa yang ada di depan titik? Itulah bagian yang diikuti kata \"ribu\"."),
     "SD5-M-B1-03": ("Tempat bernilai nol terlewat",
-                    "Tempat yang kosong (nol) tidak ditulis atau tidak diperhitungkan, sehingga angka lain bergeser ke tempat yang salah.",
+                    "Tempat yang kosong (nol) tidak ditulis atau tidak diperhitungkan, sehingga angka lain bergeser dari tempatnya.",
                     "Isi tabel nilai tempat kolom demi kolom dan tulis 0 di setiap kolom yang kosong sebelum menyalin bilangannya."),
     "SD5-M-B1-04": ("Tempat angka tertukar",
-                    "Angka ditempatkan di kolom tetangga (ribuan dengan ratusan, puluhan dengan satuan), atau tempat dihitung dari arah yang salah.",
+                    "Angka ditempatkan di kolom tetangga (ribuan dengan ratusan, puluhan dengan satuan), atau tempat dihitung dari arah sebaliknya.",
                     "Beri nama kolom dari kanan (satuan, puluhan, ratusan, ribuan, puluh ribuan) dan cocokkan setiap angka dengan kolomnya."),
     "SD5-M-B1-05": ("Nilai angka sama dengan angkanya",
                     "Nilai sebuah angka dianggap sama dengan angkanya sendiri, tanpa dikalikan nilai tempatnya.",
@@ -455,7 +456,7 @@ MISKONSEPSI = {
     "SD5-M-B1-09": ("Lupa menyimpan",
                     "Pada penjumlahan bersusun, hasil yang lebih dari 9 di satu tempat ditulis angka satuannya saja dan 1 yang disimpan tidak dijumlahkan ke tempat berikutnya.",
                     "Tulis angka simpanan kecil di atas kolom berikutnya dan centang setelah ikut dijumlahkan."),
-    "SD5-M-B1-10": ("Operasi salah dipilih",
+    "SD5-M-B1-10": ("Operasi tidak sesuai pertanyaan",
                     "Operasi dipilih dari angka yang tampak, bukan dari yang ditanyakan (misalnya menjumlahkan saat ditanya sisa, atau mengali saat dibagi rata).",
                     "Garis bawahi kata kunci pertanyaannya (sisa, selisih, semuanya, masing-masing, dibagi rata) dan pasangkan dengan operasinya sebelum menghitung."),
     "SD5-M-B1-11": ("Hasil kali sebagian",

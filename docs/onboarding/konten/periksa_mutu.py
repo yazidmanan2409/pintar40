@@ -11,6 +11,12 @@
 #   WEAK_MISCONCEPTION_LINKAGE      WARNING  no distractor carries a misconception code
 #   ANSWER_POSITION_SKEW            WARNING  10+ questions and one letter holds more than half the answers
 #
+# and Studio's student-text check, validate_course_content: every pattern of public.doctrine_lexicon
+# (supabase/migrations/20260912200500_validator_and_publish_readiness.sql), case-insensitive, on
+# every field in public.learner_readable_fields: lesson title, summary, body and objective; question
+# stem, stimulus and petunjuk; option body and Alasan; and, with --miskonsepsi, the CSV's
+# remediation. An ERROR there blocks "Kunci terbitan" and cannot be acknowledged.
+#
 # With --miskonsepsi <csv> the codes the CSV proposes (column `questions`, e.g. "PB3:C;L2S4:B")
 # count as linked, to show what the pass will say once the codes are registered and filled in.
 #
@@ -31,6 +37,28 @@ def like(hay, token):
     return re.search(pola, hay, re.S) is not None
 
 
+# public.doctrine_lexicon, pattern for pattern (Postgres \y is \b here), with its label and severity.
+LEKSIKON = [
+    (r"\bsalah\b(?!\s+satu)", 'kata menghakimi: "salah"', "ERROR"),
+    (r"\b(gagal|bodoh|malas)\b", "kata menghakimi tentang siswa", "ERROR"),
+    (r"\b(wrong|incorrect|failed|stupid|penalty)\b", "judgemental English term", "ERROR"),
+    (r"\b(INGESTED|STRUCTURED|VALIDATED|VALIDATION_FAILED|IN_REVIEW|APPROVED|FROZEN|SUPERSEDED)\b",
+     "status internal bocor ke teks siswa", "ERROR"),
+    (r"\b(evidence_class|OFFICIAL|PREVIEW|SYNTHETIC|PUBLIC_DEMO)\b", "istilah bukti internal bocor ke teks siswa", "ERROR"),
+    (r"\bPINTAR\s*4\.0\b", "nama versi internal", "WARNING"),
+]
+
+
+def periksa_teks(teks, tempat):
+    """public.validate_learner_text: every lexicon rule the text breaks, with the words that broke it."""
+    hasil = []
+    for pola, label, sev in LEKSIKON:
+        kena = [m.group(0) for m in re.finditer(pola, teks or "", re.I)]
+        if kena:
+            hasil.append((sev, "DOCTRINE_LEXICON", tempat, f"{label}: {', '.join(sorted(set(kena)))}"))
+    return hasil
+
+
 def soal_dari(paket):
     for c in paket["courses"]:
         for m in c["modules"]:
@@ -43,6 +71,21 @@ def periksa(paket, tautan=None):
     tautan = tautan or set()
     temuan = []
     semua = list(soal_dari(paket))
+
+    # the student-text check, lesson fields first
+    for c in paket["courses"]:
+        for m in c["modules"]:
+            for l in m["lessons"]:
+                obj = (l.get("objective") or {}).get("statement")
+                for kolom, teks in (("title", l.get("title")), ("summary", l.get("summary")),
+                                    ("body_markdown", l.get("body_markdown")), ("objective", obj)):
+                    temuan += periksa_teks(teks, f"pelajaran {l['ordinal']} {kolom}")
+    for l, i in semua:
+        for kolom in ("stem", "stimulus", "petunjuk"):
+            temuan += periksa_teks(i.get(kolom), f"{i['ref']} {kolom}")
+        for o in i["options"]:
+            temuan += periksa_teks(o.get("body"), f"{i['ref']}:{o['label']} body")
+            temuan += periksa_teks(o.get("rationale"), f"{i['ref']}:{o['label']} Alasan")
 
     for l, i in semua:
         ref = i["ref"]
@@ -84,11 +127,12 @@ def periksa(paket, tautan=None):
                 temuan.append(("ERROR", "STEM_REVEALS_ANSWER", tempat, f"'{token}' is in the question and only in {oc['label']}"))
 
         # IMPLAUSIBLE_DISTRACTOR
+        # one finding per question, as Studio raises it; the detail names every short option
         rata = sum(len(o["body"]) for o in opsi) / len(opsi)
-        for o in salah:
-            if len(o["body"]) * 3 < rata:
-                temuan.append(("WARNING", "IMPLAUSIBLE_DISTRACTOR", tempat,
-                               f"{o['label']} is {len(o['body'])} chars, option average {rata:.1f}"))
+        pendek = [o for o in salah if len(o["body"]) * 3 < rata]
+        if pendek:
+            temuan.append(("WARNING", "IMPLAUSIBLE_DISTRACTOR", tempat,
+                           ", ".join(f"{o['label']} is {len(o['body'])} chars" for o in pendek) + f"; option average {rata:.1f}"))
 
         # WEAK_MISCONCEPTION_LINKAGE
         if salah and not any(o.get("misconception_code") or f"{ref}:{o['label']}" in tautan for o in salah):
@@ -101,18 +145,27 @@ def periksa(paket, tautan=None):
     return temuan, semua, huruf
 
 
+def periksa_miskonsepsi(path):
+    """The CSV's remediation is student-readable (misconception_taxonomy.remediation)."""
+    temuan, tautan = [], set()
+    with open(path, encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            tautan |= {q.strip() for q in r["questions"].split(";") if q.strip()}
+            temuan += periksa_teks(r.get("remediation"), f"{r['code']} remediation")
+    return temuan, tautan
+
+
 def main(argv):
     if not argv or argv[0].startswith("-"):
         print(__doc__ or "usage: periksa_mutu.py <package.json> [--miskonsepsi <csv>]")
         return 2
     paket = json.load(open(argv[0], encoding="utf-8"))
-    tautan = set()
+    temuan_csv, tautan = [], set()
     if "--miskonsepsi" in argv:
-        with open(argv[argv.index("--miskonsepsi") + 1], encoding="utf-8") as f:
-            for r in csv.DictReader(f):
-                tautan |= {q.strip() for q in r["questions"].split(";") if q.strip()}
+        temuan_csv, tautan = periksa_miskonsepsi(argv[argv.index("--miskonsepsi") + 1])
 
     temuan, semua, huruf = periksa(paket, tautan)
+    temuan += temuan_csv
     for sev, kode, tempat, rinci in temuan:
         print(f"{sev:7} {kode:32} {tempat:22} {rinci}")
     guna = Counter(i.get("use") or "PRACTICE" for _, i in semua)

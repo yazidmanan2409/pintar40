@@ -1,5 +1,27 @@
 # LANA-01: SD5 Matematika Bab 1, Bilangan Cacah sampai 100.000
 
+## Round 2 (after GATE: FAIL @ 9545a39)
+
+- **Blocking finding fixed.** Lesson 1, "Menulis bilangan dengan angka": "...akan bergeser ke tempat
+  yang salah" now reads "...angka 3 terakhir bergeser ke tempat lain dan bilangannya menjadi 5.033
+  (lima ribu tiga puluh tiga), jauh lebih kecil." The generator asserts 5.033.
+- "salah" also removed from the CSV (three descriptions and the label of SD5-M-B1-10, now
+  "Operasi tidak sesuai pertanyaan"). Studio reads only remediation, but labels and descriptions
+  may reach teachers later. The only "salah" left is "salah satu", which the lexicon allows.
+- **periksa_mutu.py now runs the doctrine lexicon.** It uses Studio's six patterns from
+  `public.doctrine_lexicon`, case-insensitive, with the same severities. They are applied to every
+  field in `public.learner_readable_fields`: lesson title, summary, body and objective; question
+  stem, stimulus and petunjuk; option body and Alasan; and, with `--miskonsepsi`, the CSV's
+  remediation.
+- **IMPLAUSIBLE_DISTRACTOR is counted once per question**, as Studio does.
+- **Calibration.** On the pre-LANA-01 package (a536edd) the checker gives
+  `TOTAL: 0 ERROR, 33 WARNING (ANSWER_POSITION_SKEW 1, IMPLAUSIBLE_DISTRACTOR 4,
+  WEAK_MISCONCEPTION_LINKAGE 28)`, as staging did. On the failed commit's package it gives the one
+  ERROR staging raised (lesson 1 body_markdown, "salah"). Red test: a CSV whose remediation says
+  "salah", "malas" and "PINTAR 4.0" gives 2 ERROR and 1 WARNING; "salah satu" gives none.
+
+## Round 1
+
 Source: Buku Panduan Guru Matematika untuk SD/MI Kelas V (Fitrianawati, Surtiani, Istiandaru),
 Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 1, pp. 15-42
 (`sd5_matematika_1_lesson.pdf`, 28 pages).
@@ -45,7 +67,7 @@ Please check it against the SQL before relying on it for other chapters.
 $ python3 docs/onboarding/konten/sd5_matematika_bab1.py
 SD5-Matematika-Bab1.xlsx: lessons 5 (23 pages), questions 31 (pre 4, post 8, practice 19), answers A=7 B=8 C=8 D=8
 SD5-Matematika-Bab1-miskonsepsi.csv: 18 codes
-assertions passed: 578
+assertions passed: 579
 
 $ npx tsx docs/onboarding/konten/ke-paket.ts docs/onboarding/konten/SD5-Matematika-Bab1.xlsx docs/onboarding/konten/SD5-Matematika-Bab1.paket.json
 docs/onboarding/konten/SD5-Matematika-Bab1.paket.json: media none
