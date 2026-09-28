@@ -10127,9 +10127,14 @@ export const experienceTests: SelfTest[] = [
        *    30-session run). A confirmed upload returns to its new course's page
        *    with "Paket dibuat.".
        */
-      c.expect(/isSys === true \? supabase\.rpc\("persons_awaiting_first_role"\) : Promise\.resolve\(\{ data: \[\] \}\)/.test(konf)
-        && (konf.match(/persons_awaiting_first_role/g) ?? []).length === 1,
-        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses");
+      // RESTATED FOR BOB-20 (D-048, a changed requirement): a school
+      // administrator now asks their own school's list,
+      // persons_awaiting_first_role_at, once per school they administer. The
+      // platform's list is still asked only for the platform administrator.
+      c.expect(/isSys === true\s*\?\s*supabase\.rpc\("persons_awaiting_first_role"\)\s*:/.test(konf)
+        && (konf.match(/"persons_awaiting_first_role"/g) ?? []).length === 1
+        && /adminInstitutionIds\.map\(\(sekolah\) => supabase\.rpc\("persons_awaiting_first_role_at", \{ p_institution: sekolah \}\)\)/.test(konf),
+        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses, or asks a school's list for a school the reader does not administer");
       const studio = code(baca("src", "app", "studio", "actions.ts"));
       c.expect(/if \(h\.ok && h\.courses && h\.courses\[0\]\) back\(`\/studio\/paket\/\$\{h\.courses\[0\]\}`, "paket", \{ ok: true, kode: "DRAFT_CREATED" \}\);/.test(studio)
         && (KODE_SUKSES as readonly string[]).includes("DRAFT_CREATED")

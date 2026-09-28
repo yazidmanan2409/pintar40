@@ -70,7 +70,10 @@ begin
   return false;
 exception when others then return false;
 end $$;
--- create or replace keeps the function's grants as they were
+-- ADR-0021: every function a migration creates revokes EXECUTE from PUBLIC in
+-- the same migration; the grant to authenticated is the one it had
+revoke all on function public.person_visible_to_me(uuid) from public, anon;
+grant execute on function public.person_visible_to_me(uuid) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- 2. The school's own "waiting for a first role" list.
