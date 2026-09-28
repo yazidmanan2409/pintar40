@@ -2,6 +2,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../_lib";
 import { launchQuickAssessmentAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Quick Assessment (ADR-0018).
@@ -95,7 +96,6 @@ export default async function Kuis({ searchParams }: { searchParams: Search }) {
   return (
     <div className="grid gap-6">
       <h2 className="text-lg font-medium">{s("studio.kuis.judul")}</h2>
-      {outcomeLine(sp) ? <p className={card}>{outcomeLine(sp)}</p> : null}
       <p className="text-sm text-ink-2">{s("studio.kuis.pengantar")}</p>
 
       <section className={card} id="kuis">
@@ -145,6 +145,7 @@ export default async function Kuis({ searchParams }: { searchParams: Search }) {
             <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.kuis.luncurkan")}</TombolKirim>
           </form>
         )}
+        <HasilDi q={sp} bagian="kuis" kalimat={outcomeLine(sp)} />
       </section>
 
       <section className="grid gap-2">

@@ -71,7 +71,7 @@ export type HleEvent =
   | "pimpinan.sumber.integrity_signals"
   | "pimpinan.tentang" | "pimpinan.sejak" | "pimpinan.diputuskan"
   | "pimpinan.aksi.ambil" | "pimpinan.aksi.putuskan" | "pimpinan.aksi.pilih"
-  | "pimpinan.aksi.catatan" | "pimpinan.aksi.gagal"
+  | "pimpinan.aksi.catatan" | "pimpinan.aksi.gagal" | "pimpinan.aksi.tercatat"
   | "pimpinan.kesiapan.judul" | "pimpinan.kesiapan.catatan"
   | "pimpinan.kesiapan.cukup" | "pimpinan.kesiapan.belum_cukup" | "pimpinan.kesiapan.belum_ada"
   | "pimpinan.bukti.judul" | "pimpinan.bukti.kosong" | "pimpinan.bukti.dari"
@@ -150,6 +150,8 @@ export type HleEvent =
   | "lingkup.semua"
   | "lingkup.kosong"
   | "tolak.arti"
+  // DAISY-18: the shared loading shell
+  | "memuat.halaman"
   // DAISY-17: a submit button's words while its form is being saved
   | "tombol.menyimpan"
   | "tombol.memproses"
@@ -234,6 +236,33 @@ export type HleEvent =
   | "laporan.templat.batas"
   | "config.card.health"
   | "config.card.health.periksa"
+  | "config.kesehatan.bukan_admin"
+  | "config.kesehatan.sehat"
+  | "config.kesehatan.jumlah"
+  | "config.kesehatan.perhatian"
+  | "config.kesehatan.menyimpang"
+  | "config.kesehatan.gagal"
+  | "config.kesehatan.ulang"
+  | "config.kesehatan.cek.tables_without_rls"
+  | "config.kesehatan.cek.policies_using_true"
+  | "config.kesehatan.cek.secdef_without_search_path"
+  | "config.kesehatan.cek.functions_without_search_path"
+  | "config.kesehatan.cek.unclassified_client_rpcs"
+  | "config.kesehatan.cek.evidence_consumer_boundary_ok"
+  | "config.kesehatan.cek.learner_rpcs_guarded_ok"
+  | "config.kesehatan.cek.overloaded_client_rpcs"
+  | "config.kesehatan.cek.functions_executable_by_anon"
+  | "config.kesehatan.cek.undeclared_anon_functions"
+  | "config.kesehatan.cek.anon_public_surface"
+  | "config.kesehatan.cek.client_readable_definer_views"
+  | "config.kesehatan.cek.anon_reachable_http_paths"
+  | "config.kesehatan.cek.public_surface_ok"
+  | "config.kesehatan.cek.anon_table_grants"
+  | "config.kesehatan.cek.public_buckets"
+  | "config.kesehatan.cek.client_storage_policies"
+  | "config.kesehatan.cek.persons_institution_columns"
+  | "config.kesehatan.cek.audit_log_client_write_grants"
+  | "config.kesehatan.cek.malformed_jalur"
   | "config.card.cohorts"
   | "config.placeholder"
   | "config.environment"
@@ -815,6 +844,25 @@ export type HleEvent =
   | "galat.school_required"
   | "galat.rollover_done"
   | "galat.template_saved"
+  | "galat.role_granted"
+  | "galat.role_revoked"
+  | "galat.transfer_requested"
+  | "galat.transfer_authorized"
+  | "galat.transfer_executed"
+  | "galat.transfer_rejected"
+  | "galat.flag_saved"
+  | "galat.platform_setting_saved"
+  | "galat.step_taken"
+  | "galat.check_run"
+  | "galat.finding_acknowledged"
+  | "galat.revision_created"
+  | "galat.assignment_moved"
+  | "galat.distribution_granted"
+  | "galat.distribution_withdrawn"
+  | "galat.review_recorded"
+  | "galat.certificate_saved"
+  | "galat.quick_check_launched"
+  | "galat.draft_created"
   | "studio.konten.kode.content_transition_invalid"
   | "studio.konten.kode.content_review_not_allowed"
   | "studio.konten.kode.content_reviewer_required"
@@ -1043,6 +1091,8 @@ export type HleEvent =
   | "mengajar.cepat.rv4"
   | "mengajar.cepat.akibat"
   | "mengajar.cepat.komit"
+  | "mengajar.cepat.ok"
+  | "mengajar.sedia.ok"
   | "mengajar.cepat.ubah"
   | "mengajar.cepat.hidup.eyebrow"
   | "mengajar.cepat.hidup.judul"
@@ -1472,6 +1522,7 @@ const table: Table = {
   "pimpinan.aksi.pilih": { default: "Hasil", en: "Outcome" },
   "pimpinan.aksi.catatan": { default: "Catatan (boleh dikosongkan)", en: "Note (may be left empty)" },
   "pimpinan.aksi.gagal": { default: "Keputusan belum tercatat. Coba sekali lagi.", en: "The decision has not been recorded. Try once more." },
+  "pimpinan.aksi.tercatat": { default: "Tercatat. Keadaan keputusan ini sudah diperbarui.", en: "Recorded. This decision’s state has been updated." },
 
   // R5 ON THE PAGE. The three states are named as three different facts, and the
   // note says out loud that two of them are not results — because a reader who
@@ -1723,6 +1774,8 @@ const table: Table = {
   // DAISY-17: a staff reader has no teacher to ask; they ask whoever looks after PINTAR at the school (as galat.action_failed does)
   "tolak.arti": { default: "Jika ini keliru, tanyakan kepada guru Anda.", en: "If you think this is a mistake, ask your teacher.",
     staff: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_staff: "If you think this is a mistake, ask whoever looks after PINTAR at your school." },
+  // DAISY-18 (D-047): what the screen says the moment a section is asked for
+  "memuat.halaman": { default: "Memuat halaman…", en: "Loading the page…" },
   // DAISY-17 (D-046(e)): what a submit button says from the click until the answer comes back
   "tombol.menyimpan": { default: "Menyimpan…", en: "Saving…" },
   "tombol.memproses": { default: "Memproses…", en: "Working…" },
@@ -1832,6 +1885,34 @@ const table: Table = {
   "laporan.templat.batas": { default: "Satu templat menampilkan paling banyak 12 metrik.", en: "One template shows at most 12 metrics." },
   "config.card.health": { default: "Kesehatan sistem", en: "System health" },
   "config.card.health.periksa": { default: "Jalankan pemeriksaan", en: "Run the checks" },
+  // BOB-19: the health card's states, and each check by its plain name
+  "config.kesehatan.bukan_admin": { default: "Pemeriksaan ini dijalankan oleh Admin platform.", en: "A Platform administrator runs these checks." },
+  "config.kesehatan.sehat": { default: "Semua pemeriksaan lolos", en: "All checks pass" },
+  "config.kesehatan.jumlah": { default: "pemeriksaan skema, semuanya sesuai nilai yang diharapkan.", en: "schema checks, each reading its expected value." },
+  "config.kesehatan.perhatian": { default: "Perlu perhatian", en: "Needs attention" },
+  "config.kesehatan.menyimpang": { default: "Tidak sesuai harapan:", en: "Not as expected:" },
+  "config.kesehatan.gagal": { default: "Pemeriksaan belum dapat dijalankan. Coba sekali lagi; bila masih terjadi, sampaikan kode rujukan berikut.", en: "The checks could not run. Try once more; if it happens again, pass on the reference that follows." },
+  "config.kesehatan.ulang": { default: "Periksa lagi", en: "Check again" },
+  "config.kesehatan.cek.tables_without_rls": { default: "Setiap tabel dilindungi aturan per baris", en: "Every table is guarded row by row" },
+  "config.kesehatan.cek.policies_using_true": { default: "Tidak ada aturan akses yang membuka semua baris", en: "No access rule opens every row" },
+  "config.kesehatan.cek.secdef_without_search_path": { default: "Setiap fungsi berhak pemilik menetapkan jalur pencariannya", en: "Every owner-rights function pins its search path" },
+  "config.kesehatan.cek.functions_without_search_path": { default: "Setiap fungsi menetapkan jalur pencariannya", en: "Every function pins its search path" },
+  "config.kesehatan.cek.unclassified_client_rpcs": { default: "Setiap fungsi yang dapat dipanggil aplikasi sudah digolongkan", en: "Every app-callable function is classified" },
+  "config.kesehatan.cek.evidence_consumer_boundary_ok": { default: "Bukti mentah hanya dibaca oleh pembaca yang diizinkan", en: "Raw evidence is read only by its permitted readers" },
+  "config.kesehatan.cek.learner_rpcs_guarded_ok": { default: "Setiap fungsi peserta didik memeriksa kepemilikan", en: "Every learner function checks ownership" },
+  "config.kesehatan.cek.overloaded_client_rpcs": { default: "Setiap fungsi aplikasi hanya punya satu bentuk panggilan", en: "Every app-callable function has one signature" },
+  "config.kesehatan.cek.functions_executable_by_anon": { default: "Tidak ada fungsi yang dapat dijalankan tanpa masuk", en: "No function runs without signing in" },
+  "config.kesehatan.cek.undeclared_anon_functions": { default: "Tidak ada fungsi terbuka tanpa masuk yang tidak dinyatakan", en: "No undeclared function is open without signing in" },
+  "config.kesehatan.cek.anon_public_surface": { default: "Tepat satu permukaan publik: pemeriksaan sertifikat", en: "Exactly one public surface: certificate verification" },
+  "config.kesehatan.cek.client_readable_definer_views": { default: "Tidak ada tampilan berhak pemilik yang terbaca aplikasi", en: "No owner-rights view is readable by the app" },
+  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat dua alamat terbuka tanpa masuk: pemeriksaan sertifikat, dalam dua ejaannya", en: "Exactly two addresses open without signing in: certificate verification, in its two spellings" },
+  "config.kesehatan.cek.public_surface_ok": { default: "Permukaan publik sesuai yang dinyatakan", en: "The public surface matches its declaration" },
+  "config.kesehatan.cek.anon_table_grants": { default: "Tidak ada hak tabel bagi pengguna yang belum masuk", en: "No table grant to signed-out users" },
+  "config.kesehatan.cek.public_buckets": { default: "Tidak ada penyimpanan berkas yang publik", en: "No public storage bucket" },
+  "config.kesehatan.cek.client_storage_policies": { default: "Aplikasi tidak punya jalan langsung ke berkas tersimpan", en: "The app has no direct path to stored files" },
+  "config.kesehatan.cek.persons_institution_columns": { default: "Data orang tidak menyimpan sekolah di kolomnya sendiri", en: "Person records hold no school column of their own" },
+  "config.kesehatan.cek.audit_log_client_write_grants": { default: "Aplikasi tidak dapat menulis ke jejak audit", en: "The app cannot write to the audit trail" },
+  "config.kesehatan.cek.malformed_jalur": { default: "Setiap jalur kurikulum berbentuk benar", en: "Every curriculum path is well formed" },
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
   "config.placeholder": { default: "Bagian ini akan terisi pada tahap berikutnya.", en: "This section is filled in at a later phase." },
   "config.environment": { default: "Lingkungan", en: "Environment" },
@@ -2446,6 +2527,26 @@ const table: Table = {
   "galat.school_required": { default: "Pilih sekolah terlebih dahulu.", en: "Choose a school first." },
   "galat.rollover_done": { default: "Keanggotaan kelas yang dipindahkan ke tahun ajaran baru:", en: "Class memberships moved to the new academic year:" },
   "galat.template_saved": { default: "Metrik dalam templat laporan ini:", en: "Metrics in this report template:" },
+  // DAISY-18 (D-047): the key actions say what was done
+  "galat.role_granted": { default: "Peran diberikan.", en: "Role granted." },
+  "galat.role_revoked": { default: "Peran dicabut.", en: "Role revoked." },
+  "galat.transfer_requested": { default: "Perpindahan diajukan dan kini menunggu persetujuan dari pihak lain.", en: "Transfer requested; it now awaits authorization from the other side." },
+  "galat.transfer_authorized": { default: "Perpindahan disetujui dan tinggal dijalankan.", en: "Transfer authorized; it only remains to be executed." },
+  "galat.transfer_executed": { default: "Perpindahan dijalankan.", en: "Transfer executed." },
+  "galat.transfer_rejected": { default: "Perpindahan ditolak.", en: "Transfer rejected." },
+  "galat.flag_saved": { default: "Fitur disimpan.", en: "Feature saved." },
+  "galat.platform_setting_saved": { default: "Pengaturan platform disimpan.", en: "Platform setting saved." },
+  "galat.step_taken": { default: "Kursus ini maju ke langkah berikutnya.", en: "This course has moved on to its next step." },
+  "galat.check_run": { default: "Pemeriksaan isi selesai. Temuannya ada di bawah.", en: "The content check is done. Its findings are below." },
+  "galat.finding_acknowledged": { default: "Temuan itu sudah diakui.", en: "That finding has been acknowledged." },
+  "galat.revision_created": { default: "Salinan baru kursus ini dibuat, dan Anda sekarang melihatnya.", en: "A new copy of this course was made, and you are now looking at it." },
+  "galat.assignment_moved": { default: "Penugasan itu sekarang memakai terbitan ini.", en: "That assignment now uses this release." },
+  "galat.distribution_granted": { default: "Sekolah itu sekarang dapat memakai terbitan ini.", en: "That school may now use this release." },
+  "galat.distribution_withdrawn": { default: "Izin sekolah itu ditarik.", en: "That school’s permission was withdrawn." },
+  "galat.review_recorded": { default: "Tinjauan Anda dicatat.", en: "Your review was recorded." },
+  "galat.certificate_saved": { default: "Tata letak ini dipakai untuk sertifikat berikutnya.", en: "This layout will be used for the next certificates." },
+  "galat.quick_check_launched": { default: "Uji Cepat diluncurkan untuk kelas itu.", en: "The Quick Assessment was launched for that class." },
+  "galat.draft_created": { default: "Paket dibuat.", en: "Package created." },
   "studio.konten.kode.content_transition_invalid": { default: "Kursus ini sudah tidak berada di langkah itu, mungkin karena rekan baru saja mengambilnya. Muat ulang halaman untuk melihat langkah yang berlaku sekarang.", en: "This course is no longer at that step, perhaps because a colleague has just taken it. Reload the page to see the current step." },
   "studio.konten.kode.content_review_not_allowed": { default: "Menyetujui isi bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Setujui isi.", en: "Approving the content is not yours to do in this school. Ask someone named at the Approve the content step." },
   "studio.konten.kode.content_reviewer_required": { default: "Persetujuan belum tercatat atas nama Anda. Muat ulang halaman, lalu setujui sekali lagi.", en: "The approval was not recorded under your name. Reload the page and approve once more." },
@@ -2928,6 +3029,8 @@ const table: Table = {
   "mengajar.cepat.rv4": { default: "Murid yang tidak sempat mengerjakan tidak dicatat sebagai tidak mampu — tercatat belum mengumpulkan.", en: "A learner who does not get to it is not recorded as unable — only as not yet submitted." },
   "mengajar.cepat.akibat": { default: "Begitu disediakan, jendela mulai berjalan untuk semua murid dan murid bisa langsung mulai mengerjakan.", en: "The moment it is made available, the window starts for every learner and they can begin straight away." },
   "mengajar.cepat.komit": { default: "Sediakan Uji Cepat sekarang", en: "Make the Quick Assessment available now" },
+  "mengajar.cepat.ok": { default: "Uji Cepat disediakan untuk kelas ini.", en: "The Quick Assessment is now available to this class." },
+  "mengajar.sedia.ok": { default: "Materi disediakan untuk kelas ini.", en: "The material is now available to this class." },
   "mengajar.cepat.ubah": { default: "Ubah pengaturan", en: "Change settings" },
   "mengajar.cepat.hidup.eyebrow": { default: "Tersedia untuk kelas ini", en: "Available to this class" },
   "mengajar.cepat.hidup.judul": { default: "Uji Cepat sedang berjalan", en: "The Quick Assessment is open" },

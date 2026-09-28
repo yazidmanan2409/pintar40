@@ -7,6 +7,7 @@ import {
   acknowledgeFindingAction, createRevisionAction, moveReleaseAction, runValidationAction,
 } from "../../actions";
 import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Package detail — Publish Readiness (§5), freeze & publish (§6), release
@@ -109,8 +110,6 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
   return (
     <div className="grid gap-6">
-      {banner ? <p className={card}>{banner}</p> : null}
-
       <section className={card} id="paket">
         <h2 className="text-lg font-medium">{course.title}</h2>
         <p className="mt-1 text-sm text-ink-3">{course.subject} · {course.stage} · {course.grade_label}</p>
@@ -147,6 +146,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         </div>
       </section>
 
+      <HasilDi q={sp} bagian={["paket", "terbitan"]} kalimat={banner} />
+
       <LangkahTerbit
         locale={locale}
         course={courseId}
@@ -166,6 +167,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
             <span className="text-sm text-ink-2">{s("studio.paket.periksa_isi_arti")}</span>
           </form>
         ) : null}
+        <HasilDi q={sp} bagian="temuan" kalimat={banner} />
         {findings.length + coaching.length === 0 ? (
           <p className={card}>{s("studio.temuan.kosong")}</p>
         ) : (
@@ -188,12 +190,14 @@ export default async function Paket({ params, searchParams }: { params: Params; 
             <input type="hidden" name="course" value={courseId} />
             <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.revisi")}</TombolKirim>
           </form>
+          <HasilDi q={sp} bagian="revisi" kalimat={banner} />
         </section>
       ) : null}
 
       {can(inst, "CAN_ASSIGN_LEARNING") && (assignments ?? []).length > 0 && published.length > 1 ? (
         <section className={card} id="koreksi">
           <h3 className="text-lg font-medium">{s("studio.paket.tugaskan")}</h3>
+          <HasilDi q={sp} bagian="koreksi" kalimat={banner} />
           {(assignments ?? []).map((a) => (
             <form action={moveReleaseAction} key={a.id} className="mt-3 flex flex-wrap items-end gap-2">
               <input type="hidden" name="course" value={courseId} />

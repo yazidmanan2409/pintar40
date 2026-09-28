@@ -4,6 +4,7 @@ import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
@@ -32,8 +33,15 @@ export const dynamic = "force-dynamic";
  * would be a fact no row carries. The rows are therefore the material the
  * school actually released, with the window the assignment actually holds.
  */
-export default async function Kelas({ params }: { params: Promise<{ kelas: string }> }) {
+export default async function Kelas({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ kelas: string }>;
+  searchParams: Promise<{ sedia?: string }>;
+}) {
   const { kelas: id } = await params;
+  const { sedia } = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "educator", { locale });
 
@@ -158,6 +166,8 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
         <div className="pin-sec">
           <h2>{s("mengajar.materi.judul")}</h2>
           <p className="pin-sub">{s("mengajar.materi.sub")}</p>
+          {/* DAISY-18: "Sediakan" lands here, beside the material it made available */}
+          {sedia === "ok" ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")}</BarisHasil> : null}
           {tugas.length === 0 && terbit.length === 0 ? (
             <p className="pin-empty">{s("mengajar.materi.kosong")}</p>
           ) : (

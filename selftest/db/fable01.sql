@@ -7,6 +7,16 @@
 
 create schema if not exists selftest;
 
+-- BOB-19: what each schema-lint check must read is ONE list, shared with the
+-- Konfigurasi health card: src/lib/kesehatan-skema.json. psql reads it here, when
+-- this file is applied, from the repository root that every runner uses (npm
+-- scripts, selftest/run.ts, CI). A missing or empty file fails the load: '' is
+-- not jsonb. F01-T13 reads the table as the owner, before its role switch.
+\set harapan_skema `cat src/lib/kesehatan-skema.json`
+create table if not exists selftest.harapan_skema (v jsonb not null check (jsonb_typeof(v) = 'object'));
+truncate selftest.harapan_skema;
+insert into selftest.harapan_skema (v) values (:'harapan_skema'::jsonb);
+
 create or replace function selftest.as_user(p_email text) returns void
 language plpgsql set search_path = public, pg_temp as $$
 declare v_uid uuid;
@@ -94,7 +104,7 @@ declare
   a_dept uuid; a_prog uuid; a_coh5 uuid; a_cls5a uuid; a_coh6 uuid; a_cls6b uuid; b_prog uuid; b_cls uuid;
   p_aadmin uuid; p_adean uuid; p_ahod uuid; p_aguru uuid; p_as1 uuid; p_as2 uuid; p_badmin uuid; p_bs1 uuid;
   e_as1 uuid; e_as2 uuid;
-  n int; n2 int; b boolean; v_id uuid; v_t uuid; txt text; j jsonb; v_new_enr uuid;
+  n int; n2 int; b boolean; v_id uuid; v_t uuid; txt text; j jsonb; v_new_enr uuid; harapan jsonb;
   t0 timestamptz := clock_timestamp();
 begin
   -- ---------------------------------------------------------------- fixtures
@@ -314,42 +324,39 @@ begin
   test_id := 'F01-T12'; invariant := 'INV-21'; if ok then detail := 'seed paths refused without intent and in production'; end if; return next;
 
   -- F01-T13 INV-15/36/14 schema lint via the SYSTEM_ADMIN RPC
+  -- BOB-19: the expected values are src/lib/kesehatan-skema.json, loaded above
+  -- and read here as the owner, the one list the Konfigurasi health card also
+  -- judges by. Each check must read exactly its value. A key the lint does not
+  -- return fails, and an empty list fails. The notes below say why the values
+  -- are what they are.
+  perform selftest.as_owner();
+  select h.v into harapan from selftest.harapan_skema h;
   perform selftest.as_user('sysadmin@synthetic.pintar.test');
   j := public.platform_schema_lint();
   -- functions_without_search_path is new in 0035. The counter above it sees
   -- SECURITY DEFINER only, which is how sixteen SECURITY INVOKER functions
   -- drifted unpinned across two phases without this test noticing.
-  ok := (j->>'tables_without_rls')::int = 0 and (j->>'policies_using_true')::int = 0 and (j->>'secdef_without_search_path')::int = 0
-     and (j->>'functions_without_search_path')::int = 0
-     -- added in 0036: a client-reachable SECDEF RPC with no exposure class, and
-     -- the amended INV-20 raw-evidence grant boundary
-     and (j->>'unclassified_client_rpcs')::int = 0
-     and (j->>'evidence_consumer_boundary_ok')::boolean
-     -- added in 0037: a LEARNER RPC that never reaches an ownership check, and
-     -- a client-executable name carrying two signatures
-     and (j->>'learner_rpcs_guarded_ok')::boolean
-     and (j->>'overloaded_client_rpcs')::int = 0
-     -- CHANGED TWICE IN FABLE-04, and back. 0048 granted the public
-     -- verification projection to anon and this line asserted exactly 1;
-     -- 0051 revoked it, because a projection that reports validity without
-     -- checking a signature must not be an independent public answer. So the
-     -- FABLE-01 property holds again unchanged: anon executes NOTHING. Two
-     -- declared anon-reachable surfaces remain (the published view and the
-     -- verification route), and both spellings of the route's HTTP path are
-     -- counted separately so the pair is never folded away.
-     -- RESTATED BY D-032 (BOB-14): the published lesson view is no longer
-     -- public, so the verification route is the one declared surface, and no
-     -- client role reads a view that runs as its owner.
-     and (j->>'functions_executable_by_anon')::int = 0
-     and (j->>'undeclared_anon_functions')::int = 0
-     and (j->>'anon_public_surface')::int = 1
-     and (j->>'client_readable_definer_views')::int = 0
-     and (j->>'anon_reachable_http_paths')::int = 2
-     and (j->>'public_surface_ok')::boolean
-     and (j->>'anon_table_grants')::int = 0 and (j->>'public_buckets')::int = 0
-     and (j->>'client_storage_policies')::int = 0 and (j->>'persons_institution_columns')::int = 0
-     and (j->>'audit_log_client_write_grants')::int = 0 and (j->>'malformed_jalur')::int = 0;
-  test_id := 'F01-T13'; invariant := 'INV-14/15/36'; detail := j::text; return next;
+  -- added in 0036: a client-reachable SECDEF RPC with no exposure class, and
+  -- the amended INV-20 raw-evidence grant boundary
+  -- added in 0037: a LEARNER RPC that never reaches an ownership check, and
+  -- a client-executable name carrying two signatures
+  -- CHANGED TWICE IN FABLE-04, and back. 0048 granted the public
+  -- verification projection to anon and this line asserted exactly 1;
+  -- 0051 revoked it, because a projection that reports validity without
+  -- checking a signature must not be an independent public answer. So the
+  -- FABLE-01 property holds again unchanged: anon executes NOTHING. Two
+  -- declared anon-reachable surfaces remain (the published view and the
+  -- verification route), and both spellings of the route's HTTP path are
+  -- counted separately so the pair is never folded away.
+  -- RESTATED BY D-032 (BOB-14): the published lesson view is no longer
+  -- public, so the verification route is the one declared surface, and no
+  -- client role reads a view that runs as its owner.
+  select coalesce(bool_and(j -> e.key is not distinct from e.value), false),
+         string_agg(e.key, ', ' order by e.key) filter (where j -> e.key is distinct from e.value)
+    into ok, txt
+    from jsonb_each(harapan) e;
+  test_id := 'F01-T13'; invariant := 'INV-14/15/36';
+  detail := case when ok then j::text else 'not as expected: ' || coalesce(txt, 'no expected values') || '; ' || j::text end; return next;
   -- lint RPC is SYSTEM_ADMIN only
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
   ok := false; begin j := public.platform_schema_lint(); exception when others then ok := true; end;

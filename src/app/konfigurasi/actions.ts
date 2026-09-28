@@ -81,7 +81,7 @@ export async function transferRequestAction(fd: FormData): Promise<void> {
     p_reason: reason || null,
     p_consent: {},
   });
-  back("transfers", error ? ditolak("transfer_request", error) : { ok: true });
+  back("transfers", error ? ditolak("transfer_request", error) : { ok: true, kode: "TRANSFER_REQUESTED" });
 }
 
 export async function transferAuthorizeAction(fd: FormData): Promise<void> {
@@ -89,7 +89,7 @@ export async function transferAuthorizeAction(fd: FormData): Promise<void> {
   if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("transfer_authorize", { p_transfer: id, p_consent: {} });
-  back("transfers", error ? ditolak("transfer_authorize", error) : { ok: true });
+  back("transfers", error ? ditolak("transfer_authorize", error) : { ok: true, kode: "TRANSFER_AUTHORIZED" });
 }
 
 export async function transferExecuteAction(fd: FormData): Promise<void> {
@@ -97,7 +97,7 @@ export async function transferExecuteAction(fd: FormData): Promise<void> {
   if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("transfer_execute", { p_transfer: id });
-  back("transfers", error ? ditolak("transfer_execute", error) : { ok: true });
+  back("transfers", error ? ditolak("transfer_execute", error) : { ok: true, kode: "TRANSFER_EXECUTED" });
 }
 
 export async function transferRejectAction(fd: FormData): Promise<void> {
@@ -105,7 +105,7 @@ export async function transferRejectAction(fd: FormData): Promise<void> {
   if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("transfer_reject", { p_transfer: id, p_reason: str(fd, "reason") || null });
-  back("transfers", error ? ditolak("transfer_reject", error) : { ok: true });
+  back("transfers", error ? ditolak("transfer_reject", error) : { ok: true, kode: "TRANSFER_REJECTED" });
 }
 
 const GRANTABLE = new Set(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"]);
@@ -126,7 +126,7 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
     p_scope_node: role === "SYSTEM_ADMIN" ? null : scope,
     p_valid_until: `${until}T23:59:59+07:00`,
   });
-  back("roles", error ? ditolak("grant_role", error) : { ok: true });
+  back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" });
 }
 
 export async function revokeRoleAction(fd: FormData): Promise<void> {
@@ -134,7 +134,7 @@ export async function revokeRoleAction(fd: FormData): Promise<void> {
   if (!id) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("revoke_role", { p_assignment: id });
-  back("roles", error ? ditolak("revoke_role", error) : { ok: true });
+  back("roles", error ? ditolak("revoke_role", error) : { ok: true, kode: "ROLE_REVOKED" });
 }
 
 export async function setFlagAction(fd: FormData): Promise<void> {
@@ -149,7 +149,7 @@ export async function setFlagAction(fd: FormData): Promise<void> {
     .select("enabled");
   // F-05: an upsert RLS filtered to nothing reports no error; read back instead
   back("flags", error ? ditolak("feature_flags upsert", error)
-    : (data ?? []).length === 1 && data![0].enabled === enabled ? { ok: true } : { ok: false, kode: "ACTION_UNCHANGED" });
+    : (data ?? []).length === 1 && data![0].enabled === enabled ? { ok: true, kode: "FLAG_SAVED" } : { ok: false, kode: "ACTION_UNCHANGED" });
 }
 
 export async function setPlatformConfigAction(fd: FormData): Promise<void> {
@@ -161,7 +161,7 @@ export async function setPlatformConfigAction(fd: FormData): Promise<void> {
     .from("platform_config")
     .update({ value, updated_at: new Date().toISOString() }, { count: "exact" })
     .eq("key", key);
-  back("flags", error ? ditolak("platform_config update", error) : count ? { ok: true } : { ok: false, kode: "ACTION_UNCHANGED" });
+  back("flags", error ? ditolak("platform_config update", error) : count ? { ok: true, kode: "PLATFORM_SETTING_SAVED" } : { ok: false, kode: "ACTION_UNCHANGED" });
 }
 
 /**

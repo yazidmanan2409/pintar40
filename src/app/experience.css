@@ -2234,3 +2234,45 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-kelas-tanda { font-size: var(--type-meta); color: var(--ink-3); }
 .pin-kelas-isi { display: grid; gap: var(--space-3); padding: 0 var(--space-4) var(--space-4); min-width: 0; }
 .pin-kelas-isi > .pin-btn { justify-self: start; }
+
+/* ── DAISY-18 (D-047): PINTAR shows it heard you ─────────────────────────── */
+/* The loading shell: the brand, one sentence, the shape of a page. */
+.pin-memuat .pin-col { display: grid; gap: var(--space-4); padding-block: var(--space-6); }
+.pin-memuat-kata { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+.pin-memuat-bingkai { display: grid; gap: var(--space-4); }
+.pin-memuat-bentuk { display: grid; gap: var(--space-3); }
+.pin-memuat-bentuk span { display: block; height: 18px; border-radius: var(--radius-1); background: var(--surface-2); }
+.pin-memuat-bentuk span:nth-child(1) { width: 50%; height: 28px; }
+.pin-memuat-bentuk span:nth-child(2) { width: 100%; }
+.pin-memuat-bentuk span:nth-child(3) { width: 72%; }
+@media (prefers-reduced-motion: no-preference) {
+  .pin-memuat-bentuk span { animation: pin-denyut 1.2s ease-in-out infinite; }
+}
+@keyframes pin-denyut { 50% { opacity: 0.4; } }
+
+/* A menu link's working dot: no room at rest, so nothing shifts; still
+   drawn (not pulsing) under reduced motion. */
+.pin-tanda-tautan { display: inline-block; position: relative; width: 0; vertical-align: middle; }
+.pin-tanda-tautan-sibuk::after {
+  content: ""; position: absolute; left: 4px; top: -3px;
+  width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pin-tanda-tautan-sibuk::after { animation: pin-denyut 0.9s ease-in-out infinite; }
+}
+
+/* The result line of a save, next to its form. */
+.pin-hasil { margin-top: var(--space-2); }
+.pin-msg.pin-hasil-ok { background: var(--status-ok-soft); color: var(--status-ok); }
+.pin-msg.pin-hasil-gagal { background: var(--status-blocked-soft); color: var(--status-blocked); }
+.pin-msg.pin-hasil-netral { background: var(--surface-2); color: var(--ink-2); }
+
+/* ── BOB-19: the Konfigurasi health card, judged by F01-T13's own rule ───── */
+.pin-sehat { display: grid; gap: var(--space-1); justify-items: start; align-content: start; }
+.pin-sehat-label { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
+.pin-sehat-kata { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-sehat-gagal { margin: 0; font-size: var(--type-meta); color: var(--status-blocked); }
+.pin-sehat-tanda { margin: 0; padding: 2px var(--space-2); border-radius: var(--radius-1); font-size: var(--type-meta); }
+.pin-sehat-tanda.pin-ok { background: var(--status-ok-soft); color: var(--status-ok); }
+.pin-sehat-tanda.pin-perhatian { background: var(--status-blocked-soft); color: var(--status-blocked); }
+.pin-sehat-daftar { margin: 0; padding-left: var(--space-5); font-size: var(--type-meta); color: var(--ink-2); }

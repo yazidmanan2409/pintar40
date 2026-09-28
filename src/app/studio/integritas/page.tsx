@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { button, card, field, label, outcomeLine, s, short, studioInstitutions, when } from "../_lib";
 import { recordIntegrityReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Integrity review centre (§10).
@@ -43,7 +44,8 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
         <h2 className="text-lg font-medium">{s("studio.integritas.judul")}</h2>
         <p className="mt-1 text-sm text-ink-2">{s("studio.integritas.penjelasan")}</p>
       </div>
-      {banner ? <p className={card}>{banner}</p> : null}
+      {/* DAISY-18: one form per item; the answer heads the list it came from */}
+      <HasilDi q={sp} bagian="integritas" kalimat={banner} />
 
       {bySession.size === 0 ? (
         <p className={card}>{s("studio.integritas.kosong")}</p>

@@ -4,6 +4,7 @@ import {
   langkahBerikut, nada, type Keputusan,
 } from "@/lib/pimpinan-kontrak";
 import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 
 /**
  * ONE MANAGEMENT DECISION, AS SOMETHING A HUMAN CAN ACT ON.
@@ -37,12 +38,15 @@ export default function KartuKeputusan({
   aksi,
   locale = "id",
   galat = false,
+  tercatat = false,
 }: {
   keputusan: Keputusan;
   /** The server action that records a move. Absent on a read-only rendering. */
   aksi?: (formData: FormData) => void | Promise<void>;
   locale?: Locale;
   galat?: boolean;
+  /** DAISY-18: this card's move was just recorded. */
+  tercatat?: boolean;
 }) {
   const s = (key: string) => t(key as HleEvent, "staff", { locale });
   const rantai = RANTAI[k.keluarga];
@@ -100,9 +104,9 @@ export default function KartuKeputusan({
         ) : null}
 
         {galat ? (
-          <p className="pin-msg pin-msg-err" role="alert">
-            {s("pimpinan.aksi.gagal")}
-          </p>
+          <BarisHasil nada="gagal">{s("pimpinan.aksi.gagal")}</BarisHasil>
+        ) : tercatat ? (
+          <BarisHasil nada="ok">{s("pimpinan.aksi.tercatat")}</BarisHasil>
         ) : null}
 
         {aksi && berikut.includes("UNDER_REVIEW") ? (

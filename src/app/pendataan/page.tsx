@@ -7,6 +7,8 @@ import { bukaPendataanAksi, simpanKodeAksi } from "./actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
+import TandaTautan from "@/components/TandaTautan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BacaDanPetakan from "@/components/pendataan/BacaDanPetakan";
 
@@ -78,6 +80,7 @@ export default async function Pendataan({
                     aria-current={x.id === dipilih.id ? "true" : undefined}
                   >
                     {x.nama}
+                    <TandaTautan />
                   </Link>
                 </li>
               ))}
@@ -105,9 +108,7 @@ export default async function Pendataan({
               {/* SAID BEFORE THE FIRST ISSUANCE, which is the only time saying
                   it can help. */}
               <p className="pin-msg pin-msg-note">{s("pendataan.kode.peringatan")}</p>
-              {sp.galat === "kode" ? (
-                <p className="pin-msg pin-msg-err" role="alert">{s("pendataan.kode.gagal")}</p>
-              ) : null}
+              {sp.galat === "kode" ? <BarisHasil nada="gagal">{s("pendataan.kode.gagal")}</BarisHasil> : null}
               <form action={simpanKodeAksi} className="pin-form">
                 <input type="hidden" name="institusi" value={dipilih.id} />
                 <div className="pin-isian">

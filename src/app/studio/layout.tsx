@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TandaTautan from "@/components/TandaTautan";
 import { currentViewer } from "@/lib/auth";
 import { s, studioInstitutions } from "./_lib";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -71,7 +72,7 @@ export default async function StudioLayout({ children }: { children: React.React
         ) : null}
         <nav className="mt-4 flex flex-wrap gap-3 text-sm">
           {nav.map(([href, text]) => (
-            <Link key={href} href={href} className="text-ink-2 underline-offset-4 hover:underline">{text}</Link>
+            <Link key={href} href={href} className="text-ink-2 underline-offset-4 hover:underline">{text}<TandaTautan /></Link>
           ))}
         </nav>
       </header>
