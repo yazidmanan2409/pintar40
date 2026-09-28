@@ -39,13 +39,12 @@ This is the coordinator's working state, so a new session can pick up without th
 - The mail path at the pilot stage (Supabase's email rate limit on staging is 2/hour; Namecheap Stellar allows 50/hour, shared with production).
 
 **Next for the coordinator:**
-1. Read staging run 12 (BOB-22's acceptance) if the record below says pending.
-2. Gate BOB-23 when handed off: the hand-off's browser measurement, CI, one audit, merge, then staging J09.
-3. Gate LANA-02 when handed off: her three checks on her commit, then `staging-journey.yml` with `content_ref` = her sha and `chapter` = `SD5-Matematika-Bab2`, a read of a sample, then merge.
-4. Daisy: the reader walk against `ux/UX-POLISH-REGISTER.md` (UX-01…06), for the UI/UX POLISHED gate.
-5. Task 45 (perf seed through the intake path) and the C-07 staging reset. The tester package waits for the EDUCATOR PILOT gate.
+1. Gate BOB-23 when handed off: the hand-off's browser measurement, CI, one audit, merge, then staging J09.
+2. Gate LANA-02 when handed off: her three checks on her commit, then `staging-journey.yml` with `content_ref` = her sha and `chapter` = `SD5-Matematika-Bab2`, a read of a sample, then merge.
+3. Daisy: the reader walk against `ux/UX-POLISH-REGISTER.md` (UX-01…06), for the UI/UX POLISHED gate.
+4. Task 45 (perf seed through the intake path) and the C-07 staging reset. The tester package waits for the EDUCATOR PILOT gate.
 
-**Staging run 12 (BOB-22 acceptance, 36395986289):** RESULT_PENDING
+**Staging run 12 (BOB-22 acceptance, 36395986289, main `b1c55a1`): ACCEPTED.** J09 every lesson saved in full and read; J10 the post-test linked from the home, the assignment page and the last lesson; J11–J13 by clicking, results equal to the plan. Tally 15 PASS, 2 NOTE, 1 FAIL (J14), 2 BLOCKED (Q4, Q5), 1 NOT RUN (Q6); J14 and Q3–Q5 are the class's leftover Uji Cepat (C-07). J09's idle measurement shows BOB-23 on staging: 9 saves and about 40 page fetches in 8 s. **Checklist re-marked on `1f3b0f1`: 60 of 84 P0 PASS, 17 PARTIAL, 1 FAIL (U-PERF: BOB-23), 6 N-T; NO-GO.**
 
 ## Update: paused again 27 Sep, ~12:05 UTC (weekly usage at 94%, resets in about 9 h)
 
