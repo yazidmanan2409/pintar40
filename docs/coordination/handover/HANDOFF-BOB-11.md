@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-11 (lesson media play, M9 read side; checklist STU-11, ADM-10)
 
-**Head:** `HEAD_SHA`, on main `3b7f224` (merged first). It sits on BOB-10 (`7073ef3`) in the lane.
+**Head:** `92d74aa`, on main `3b7f224` (merged first). It sits on BOB-10 (`7073ef3`) in the lane.
 
 ## CHANGED
 
@@ -40,7 +40,7 @@ No other test was restated, weakened or skipped.
 
 ## CI
 
-I dispatched one run on `HEAD_SHA` and haven't waited on it; please read the result there.
+I dispatched one run on `92d74aa` and haven't waited on it; please read the result there.
 - **Local, before dispatch:** tsc and lint are clean (the two lint warnings are in files that aren't mine). A full run on a fresh database with all 121 migrations: 348 passed.
   - It first found two of my own slips, both fixed: BOB11-A01's `proves` didn't name its artefact for F06-S04, and `db-bob02-gates`' control count needed 6 → 7 for F11-P04.
   - The only other failure is F01-R07, which always fails locally.
@@ -68,4 +68,4 @@ None new. Studio's PDF link reuses `lesson.pdf`.
 
 ## READY
 
-Yes, once the run on `HEAD_SHA` is green.
+Yes, once the run on `92d74aa` is green.
