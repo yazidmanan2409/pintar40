@@ -58,7 +58,7 @@ declare
   src uuid; srcv uuid; course uuid; modul uuid; les uuid; tag text;
   ob1 uuid; ob2 uuid; rel uuid; defn uuid; la uuid; aa uuid;
   spec jsonb; entry jsonb; opt jsonb; it uuid; t text;
-  v_status text; v_blockers text[]; n int;
+  v_status text; v_blockers jsonb; n int;
   canon uuid; canon_rel uuid; canon_admin uuid; dist uuid;
   v_session uuid; r record; v_pos integer; v_elig record;
   v_persona_ids uuid[];
@@ -302,7 +302,7 @@ begin
   select status, blockers into v_status, v_blockers from public.publish_readiness(course);
   if v_status <> 'READY' then
     raise exception 'evaluation content is not publishable (%): % — fix the fixture, never the gate',
-      v_status, array_to_string(v_blockers, '; ');
+      v_status, v_blockers::text;
   end if;
 
   insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
