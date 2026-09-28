@@ -4692,7 +4692,11 @@ begin
       v_rows := jsonb_build_array(
         jsonb_build_object('display_name', 'Murid Baru Satu', 'node_id', c.cls_a),
         jsonb_build_object('display_name', 'Murid Baru Dua',  'node_id', c.cls_a),
-        jsonb_build_object('display_name', 'Guru Baru',       'node_id', c.cls_a, 'role', 'EDUCATOR'));
+        -- RESTATED FOR BOB-10 (M5b, interim; a changed requirement, recorded on
+        -- the board): this row was an EDUCATOR placed in cls_a, which recording
+        -- quietly made a student of that class. A staff row is refused at
+        -- validation now, and a teacher is recorded without a role or a place.
+        jsonb_build_object('display_name', 'Guru Baru'));
 
       -- AP/AQ/AR/AS. NOT MANAGEMENT, NOT TEACHING, NOT THE LEARNER.
       foreach v_who in array array['head of department', 'dean', 'educator', 'learner'] loop
