@@ -32,13 +32,20 @@ BOB11-A01 is end to end:
 5. A teacher of another school gets 403.
 6. `read-url` without `alih` still answers JSON with a 60-second URL.
 
-**Tests changed:** the migration-count tripwires moved from 120 to 121, with the reason. No other test was restated, weakened or skipped.
+**Tests changed:**
+- The migration-count tripwires moved from 120 to 121, with the reason.
+- `db-bob02-gates`' control moved from 6 to 7 green rows, because F11-P04 joins the suite.
+
+No other test was restated, weakened or skipped.
 
 ## CI
 
 I dispatched one run on `HEAD_SHA` and haven't waited on it; please read the result there.
-- **Local, before dispatch:** FULL_LOCAL
-- One run, no new job. BOB11-A01 runs in the existing app job.
+- **Local, before dispatch:** tsc and lint are clean (the two lint warnings are in files that aren't mine). A full run on a fresh database with all 121 migrations: 348 passed.
+  - It first found two of my own slips, both fixed: BOB11-A01's `proves` didn't name its artefact for F06-S04, and `db-bob02-gates`' control count needed 6 → 7 for F11-P04.
+  - The only other failure is F01-R07, which always fails locally.
+- All 80 plants prove their gates, including the new **bob02-11**: it removes the draft-or-review check, and F11-P04 goes red with `a DEAN of the school (no draft, no review) was let preview`.
+- One run, no new job. BOB11-A01 runs in the existing app job, and plant bob02-11 runs in the existing `db-bob02-gates` job.
 
 ## CONTRACT
 
