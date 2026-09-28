@@ -1,6 +1,11 @@
 # Bob → coordinator: BOB-17 (release blockers speak in codes, D-011; audit M7)
 
-**Head:** `HEAD_SHA`, on main (merged first), sitting on BOB-10 and BOB-11 in the lane.
+**Head:** `cf025b3`, with Integration 12 merged in (`f48da56` / `141362e`).
+
+**Merge conflicts, resolved as agreed:**
+- `selftest/app.test.ts`: BOB19-A01 and BOB11-A02 both kept.
+- Manifest version: 96 vs 97, now 98.
+- `galat-kontrak.ts`: merged cleanly.
 **The contract was published early**, at `7bc5a25`, so Daisy could build DAISY-16 against it: `src/lib/terbitan-kontrak.ts`, the "the blockers" section.
 
 ## CHANGED
@@ -71,8 +76,12 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-I dispatched one run on `HEAD_SHA`, after merging Integration 12 into the lane, and haven't waited on it; please read the result there. It covers BOB-17 on top of Integration 12, so BOB-17's gate can reuse it (D-043).
-- **Local, before dispatch:** FULL_LOCAL
+I dispatched one run, **ci #212**, on `cf025b3`, after merging Integration 12 into the lane, and haven't waited on it; please read the result there. It covers BOB-17 on top of Integration 12, so BOB-17's gate can reuse it (D-043).
+- **Local, before dispatch:** on the merged head `cf025b3`:
+  - **Full suite, fresh database:** 353 passed. F01-R07 fails, as it always does locally. 28 justified skips: the network tests, BOB11-A02 and BOB19-A01 among them.
+  - **Plants:** 81 of 81 proved their gate.
+  - **Shared red cases:** all 15 db-* red-case gates ran on one shared stack. Each exited 0, the schema digest stayed the same, and every recheck was 235 of 235.
+  - **Seed and history:** the migration history matches the repo (122 files), and the seeds and lifecycle load.
 - One run, no new job.
 
 ## CONTRACT
@@ -103,4 +112,4 @@ None. Noted for BOB-13, as you asked: `may_preview_lesson_media` and `may_read_l
 
 ## READY
 
-Yes, once the run on `HEAD_SHA` is green.
+Yes, once ci #212 on `cf025b3` is green.
