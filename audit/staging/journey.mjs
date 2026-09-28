@@ -283,21 +283,20 @@ async function tekan(page, label, name) {
   const f = await shot(page, `terbit-${name}${after ? "" : "-nothing-moved"}`);
   return { after, before, f };
 }
-// The reviewer's "Sudah saya tinjau", once per warning, as a person does it: each press reloads the page on its
-// own result line (?hasil=…#temuan) with that warning gone, and the next press is on that page
+// The reviewer's "Sudah saya tinjau", once per warning, as a person does it: press, see the result line, look again.
+// Each press's own redirect (?hasil=…#temuan) is let land and the database is asked whether the warning was taken,
+// before the page is opened afresh for the next one.
 async function tinjauSemua(page) {
-  let n = 0;
-  await lihat(page, `/studio/paket/${course}`);
-  const b = page.getByRole("button", { name: "Sudah saya tinjau", exact: true });
-  let stuck = 0;
-  for (let i = 0; i < 120; i++) {
-    const k = await b.count();
-    if (!k) break;
+  let n = 0, stuck = 0;
+  for (let i = 0; i < 120 && unack() > 0; i++) {
+    await lihat(page, `/studio/paket/${course}`);
+    const b = page.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+    if (!(await b.count())) break;
+    const n0 = unack();
     await b.first().click();
     await page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
-    await page.waitForFunction((k0) => document.querySelectorAll("form button[type=submit]").length > 0 &&
-      [...document.querySelectorAll("button")].filter((x) => x.textContent.trim() === "Sudah saya tinjau").length < k0, k, { timeout: SLOW }).catch(() => {});
-    if (await b.count() < k) { n++; stuck = 0; } else if (++stuck >= 3) break;
+    await page.waitForLoadState("load").catch(() => {});
+    if (await until(() => unack() < n0, 15000, 300)) { n++; stuck = 0; } else if (++stuck >= 3) break;
   }
   return n;
 }
