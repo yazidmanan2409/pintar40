@@ -88,8 +88,16 @@ None new. The page's existing labels are reused.
 
 ## QUESTIONS
 
-1. **Granting can make a person visible.** Unchanged by BOB-20, and D-048 keeps it: `role_assignments_guard` lets a school admin grant a role at their own school to any person id, even one they cannot see. That grant then makes the person visible to them, because they now hold a role there. It needs the id, which the admin cannot discover through PINTAR. Should a grant require the person to be one the admin can already see, for example one holding the school's number? That would be a change to the grant rules, so it is Yazid's call.
-2. **The school's number counts without a role.** A person keeps the school's institutional identity after their role is revoked, so a former teacher stays visible to the school's admin. So does a learner holding the number whose enrolment has ended. That matches "an institutional identity there" in D-048 (a). Say if former staff should drop out once they hold nothing at the school.
+None open. Both were answered on 28 Sep:
+
+1. **Granting a role to a person the admin cannot see: unchanged in BOB-20, and a separate follow-up.** The current behaviour is not the intended end state. Proposed ticket, for the board:
+   - **Title:** a school admin grants only to a person they may act upon.
+   - **Principle:** a school admin may grant a school-scoped role only to a person they are legitimately permitted to act upon for that school. Knowing or submitting an internal person id must not bypass that boundary.
+   - **Change:** `role_assignments_guard`, or `grant_role`, for a school-scoped grant by a school admin.
+   - **Red case:** a person the admin cannot see, or who is out of scope, submitted by direct id to `grant_role` for a node of the admin's school is refused, and does not become visible or actionable.
+   - **Plant:** the check removed, and that red case goes red.
+   - **Open design point for that ticket:** what "permitted to act upon" means for a person who is not yet the school's, such as a teacher moving from another school.
+2. **A former teacher holding the school's number stays visible: accepted for 4.0.** The institutional identity keeps the person identifiable to that school's admin after their role ends. That is identity, not a statement that they are current staff, and it grants no authority and no role. Historical identity is not hidden when a role ends. Distinguishing current, inactive and former staff belongs to a later staff-lifecycle design.
 
 ## READY
 
