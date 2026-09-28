@@ -51,10 +51,10 @@ No test was weakened, skipped or deleted.
 
 ## EXISTING DATA
 
-No rows change.
-- **On staging:** rows saved before this deploy are one short. A learner who read a lesson to its last page shows it as unread until they open that lesson again. They resume on the page before the one they reached. One "next" saves the full count, and the lesson then counts as read.
-- **Not rewritten:** a migration cannot tell an old row from a new one, and rewriting learners' progress is not a change to make silently.
-- **If staging's pilot learners need their past reading counted before the J09 re-run:** a one-off `+1` on staging's rows written before the deploy time would do it. That is your call, not a migration.
+No rows change, and none are patched.
+- **Production:** no `lesson_progress` rows (the coordinator's read-only count).
+- **Staging:** the old rows are earlier runs' test data, which D-050 does not allow altering to make a journey pass. The journey creates fresh students each run, so J09/J10 do not depend on them.
+- **If an old row is read again:** a learner who reached a last page before this deploy shows it as unread until they open that lesson again. One "next" then saves the full count.
 
 ## CONTRACT
 
