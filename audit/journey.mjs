@@ -670,7 +670,9 @@ let terbitBab = false;
 
 // the package page's own words from the step list on, for a record of what it said
 const kataLangkah = async (page) => { const t = await bodyText(page); const i = t.indexOf("Langkah menuju terbit"); return (i >= 0 ? t.slice(i) : t).slice(0, 320); };
-const siap = (c) => sql(`select status || ' | ' || coalesce(array_to_string(blockers, '; '), '') from public.publish_readiness('${c}')`).trim();
+// the blockers as text whatever their shape: a text[] of sentences before BOB-17, a jsonb list of codes after it
+// (the audit also runs against older releases, production's among them)
+const siap = (c) => sql(`select status || ' | ' || coalesce(blockers::text, '') from public.publish_readiness('${c}')`).trim();
 
 await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps (DAISY-06, BOB-03)", async (rec) => {
   const course = babSatu();
