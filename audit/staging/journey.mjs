@@ -110,7 +110,11 @@ async function newPage(who, viewport = { width: 1280, height: 900 }) {
 }
 // open a screen and wait until its heading is there; a first visit's tour is closed as "Lewati"
 async function lihat(page, path) {
-  await page.goto(`${APP}${path}`, { timeout: SLOW });
+  // a form's own redirect (?hasil=…) can still be arriving; opening a page over it is retried, not failed
+  for (let i = 0; ; i++) {
+    try { await page.goto(`${APP}${path}`, { timeout: SLOW }); break; }
+    catch (e) { if (i >= 3 || !/interrupted by another navigation/.test(String(e.message))) throw e; await page.waitForLoadState("load").catch(() => {}); }
+  }
   const want = path.split("?")[0].split("#")[0];
   await page.waitForURL((u) => u.pathname === want, { timeout: SLOW, waitUntil: "commit" });
   await page.locator("h1").first().waitFor({ state: "visible", timeout: SLOW });
@@ -145,8 +149,9 @@ await step("J01", "the admin gives the school its code on Pendataan (a school wi
   }
   rec.shots.push(await shot(A, "pendataan-kode"));
   if (!code) { rec.verdict = "FAIL"; return `no code was saved after trying ${tried.join(", ")}; the page says: ${(await text(A)).slice(0, 200)}`; }
-  const example = /Contoh nomor induk/.test(await text(A));
-  return `code ${code} saved (tried ${tried.join(", ")}); the page now shows an example number: ${example}`;
+  await lihat(A, "/pendataan");
+  const example = (await text(A)).match(/Contoh nomor induk\W*\w+/)?.[0] ?? "no example shown";
+  return `code ${code} saved (tried ${tried.join(", ")}); reopened, the page shows: "${example}"`;
 });
 
 let job = null;
@@ -286,6 +291,7 @@ async function tinjauSemua(page) {
     if (!(await b.count())) break;
     const n0 = unack();
     await b.first().click();
+    await page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
     await until(() => unack() < n0, 10000, 300);
     n++;
   }
@@ -309,7 +315,7 @@ await step("J05", "Studio to published with two people: the teacher prepares and
   if (offered.length) { rec.verdict = "FAIL"; rec.kind = "product"; }
   rec.page = A;
   const e0 = errors();
-  notes.push(`findings waiting: ${unack()} warnings, ${e0} errors`);
+  notes.push(`findings waiting when the reviewer arrives (before Setujui isi): ${unack()} warnings, ${e0} errors`);
   if (e0 > 0) { rec.verdict = "FAIL"; notes.push(`ERROR findings block publishing: ${readiness()}`); return notes.join("; "); }
   notes.push(`the admin reviewed ${await tinjauSemua(A)} warning(s) before approving`);
   rec.shots.push(await shot(A, "terbit-temuan-ditinjau"));
@@ -608,7 +614,8 @@ await step("J14", "the teacher reads the class evidence (Lihat bukti) and who ha
   const bukti = await text(G);
   const kumpul = [...bukti.matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/g)].map((m) => `${m[1]}/${m[2]}`);
   const n = names.length;
-  const full = kumpul.filter((k) => k === `${n}/${n}`).length;
+  // earlier runs' students stay in the class (their cards were never kept), so the roster can be larger than n
+  const full = kumpul.filter((k) => k.startsWith(`${n}/`)).length;
   // "who has handed in" is linked from Langkah (only while someone is still pending) and from a running Uji Cepat
   await lihat(G, `/mengajar/${KID}`);
   await G.locator(`a[href="/mengajar/${KID}/langkah"]`).first().click();
@@ -619,7 +626,7 @@ await step("J14", "the teacher reads the class evidence (Lihat bukti) and who ha
   const langkah = await text(G);
   const siapa = `Langkah: "${langkah.slice(0, 300)}"; a link to Siapa there: ${await G.locator(`a[href^="/mengajar/${KID}/siapa"]`).count()}`;
   if (full < 2) rec.verdict = "FAIL";
-  return `Mengumpulkan: ${JSON.stringify(kumpul)} (both tests ${n}/${n} expected); ${siapa}; the evidence page says: "${bukti.slice(0, 900)}"; the class page: "${kelasPage.slice(0, 200)}"`;
+  return `Mengumpulkan: ${JSON.stringify(kumpul)} (both tests ${n} handed in expected); ${siapa}; the evidence page says: "${bukti.slice(0, 900)}"; the class page: "${kelasPage.slice(0, 200)}"`;
 });
 
 // ---------------------------------------------------------------- the Question Bank (D-050), apart from the journey
