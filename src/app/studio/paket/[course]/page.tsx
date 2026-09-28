@@ -2,6 +2,8 @@ import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import LangkahTerbit from "@/components/studio/LangkahTerbit";
+import { format } from "@/lib/hle";
+import { kalimatHambatan, type Hambatan } from "@/lib/terbitan-kontrak";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../../_lib";
 import {
   acknowledgeFindingAction, createRevisionAction, moveReleaseAction, runValidationAction,
@@ -98,7 +100,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     ]);
 
   const state = (Array.isArray(stateRows) ? stateRows[0] : stateRows) as
-    | { surface_state: string; reasons: string[]; preview_lesson_id: string | null } | undefined;
+    | { surface_state: string; reasons: Hambatan[]; preview_lesson_id: string | null } | undefined;
 
   const banner = outcomeLine(sp);
   const published = (releases ?? []).filter((r) => r.status === "PUBLISHED");
@@ -133,7 +135,10 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           <>
             <p className="mt-4 text-sm font-medium">{s("studio.paket.alasan")}</p>
             <ul className="mt-1 list-disc pl-5 text-sm text-ink-2">
-              {state.reasons.map((r) => <li key={r}>{r}</li>)}
+              {/* BOB-17 (D-011): each reason is a blocker code; its line comes from the copy table */}
+              {state.reasons.map((r, i) => (
+                <li key={`${r.code}-${r.lesson_id ?? ""}-${r.pattern ?? ""}-${i}`}>{kalimatHambatan(r, s, (n) => format.number(n, locale))}</li>
+              ))}
             </ul>
           </>
         ) : null}

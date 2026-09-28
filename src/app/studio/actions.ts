@@ -9,7 +9,7 @@ import {
   type HasilPaket, type HitunganPaket, type KodePaket, type MasalahPaket, type MediaPaket,
 } from "@/lib/unggah-kontrak";
 import {
-  kodeGalatTerbitan, type HasilTerbitan, type KesiapanTerbit,
+  kodeGalatTerbitan, type Hambatan, type HasilTerbitan, type KesiapanTerbit,
 } from "@/lib/terbitan-kontrak";
 import {
   kodeGalat, kodeGalatKonten, queryHasil, rujukan, type HasilAksi, type KodeGalat, type KodeKonten,
@@ -165,7 +165,7 @@ async function kunciTerbitan(release: string | null): Promise<HasilTerbitan> {
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("freeze_release", { p_release: release });
   if (error || !data) return gagalTerbitan("freeze_release", error, release);
-  const r = data as { ok: boolean; readiness: KesiapanTerbit; blockers: string[] | null };
+  const r = data as { ok: boolean; readiness: KesiapanTerbit; blockers: Hambatan[] | null };
   revalidatePath("/studio", "layout");
   // a blocked course is not sealed: the result carries why, and the findings
   // the validators just wrote are on the package page
