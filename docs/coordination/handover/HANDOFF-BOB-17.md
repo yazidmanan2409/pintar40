@@ -1,6 +1,8 @@
 # Bob → coordinator: BOB-17 (release blockers speak in codes, D-011; audit M7)
 
-**Head:** `FIXED_HEAD`, with the gate finding fixed (below). ci #212 ran on `cf025b3`, which has Integration 12 (`f48da56` / `141362e`) merged in. As agreed, the fix gets no run of its own: Daisy merges this head, and her one run covers BOB-17, this fix and DAISY-16.
+**Head:** `FIXED_HEAD`, which carries the gate finding's fix and #212's fix, both below. It gets **its own run, `FIXED_RUN`**, because the hand-off changed materially. Daisy merges this head only when that run is green.
+
+**#212 on `cf025b3`: red, and what it did and did not prove.** 24 jobs were green, one was red (`red case · db-bob03-gates`), and **`selftest contract (strict, local stack)` was skipped**, because it waits on the red cases. So #212 ran no suite: BOB11-A02 has not yet run against real storage, and F12-P04 met a real Supabase database for the first time in that red job. `FIXED_RUN` is the first run of both.
 
 **Merge conflicts, resolved as agreed:**
 - `selftest/app.test.ts`: BOB19-A01 and BOB11-A02 both kept.
@@ -44,6 +46,12 @@
   - Green after it, with BOB11-A01 still green.
   - Locally this was rehearsed against my fake Supabase, which signs with the requested lifetime. CI's run against the real storage is the one that counts.
 
+**#212's red job: F12-P04 depended on the database's collation** (`9d763aa`).
+- **Reproduced exactly:** `cf025b3`, a fresh database with an `en-US` ICU collation, all migrations, the five seeds, then `plants.mjs run --gate=db-bob03-gates` gave `control for db-bob03-gates is already red before any defect: F12-P04`. The detail was `the walk met READINESS_AWAITING_REVIEW, …, READINESS_NO_RELEASE, READINESS_NOT_SEALED, …`: exactly the nine catalogue codes.
+- **The cause:** the test compared `array_agg(distinct x order by x)` with a literal written in C order. Under a linguistic collation, as on Supabase's stack, `_` weighs almost nothing, so `NO_RELEASE` sorts before `NOT_SEALED` and the arrays differed. My local databases were `C.UTF-8`, so it never showed here: not on Postgres 16, and not on a Postgres 17 I stood up to rule the version out.
+- **The fix:** the codes met are sorted in C order before the comparison. The product was never wrong; the test was.
+- **So it cannot hide again:** my local builds now create databases with an `en-US` ICU collation, as CI's stack sorts. This is the same lesson as the `fable05` fixture: an order a test did not state is one it cannot rely on.
+
 **Gate finding: `publish_readiness` is internal only** (`5aa9f2f`).
 - **The problem:** it is SECURITY DEFINER and asks no permission. It was granted to `authenticated` and registered STAFF with no requirement. Since BOB-17 its answer names lessons and their titles, so anyone signed in holding a course's id, a learner included, could read another school's draft lesson titles and finding counts.
 - **Who calls it:** no client. Its callers (`studio_package_state`, `freeze_release` and the publish trigger) are all SECURITY DEFINER and run as its owner, as do the seeds.
@@ -61,6 +69,7 @@
 | BOB11-A02 (app, gate review) | on the route before `bd77f35`: `a profile photo through alih=1 was signed for 3600 s, not 60` | a profile photo 60 s with and without `alih`; lesson media 3600 s with `alih`, 60 s without |
 | F05 fixture (`c1ffea2`) | on the shared stack after `db-task1-gates`: fable05 aborts, `the assessment definition does not belong to the enrolment's institution, and is not canonical content distributed to it` | 23 of 23; the recheck on that stack 235 of 235 |
 | F12-P05 (db, gate finding) | on today's grant: `4 problem(s): a learner calling publish_readiness on another school's course answered ok -- its lessons and findings were read; another school's administrator calling publish_readiness answered ok -- its lessons and findings were read; publish_readiness is executable by authenticated; publish_readiness is still offered to clients in client_rpc_registry` | both refused 42501; authenticated holds no execute; not registered; `studio_package_state` read and the freeze sealed; plant bob03-11 turns it red |
+| F12-P04 on a linguistic collation (`9d763aa`) | `cf025b3`, `en-US` database, CI's sequence: `control for db-bob03-gates is already red before any defect: F12-P04` (`the walk met … READINESS_NO_RELEASE, READINESS_NOT_SEALED …`) | the control green on the same sequence; F12-P04 green |
 | BOB17-K01 (static) | on the code before BOB-17: `the release contract has no blocker catalogue …; publish_readiness … still writes a sentence; studio_package_state … still writes a sentence; the Terbit step … shows a blocker other than through kalimatHambatan; the package page shows a reason other than through kalimatHambatan; src/app/studio/actions.ts still exports createReleaseAction; …` (all four actions) | pass |
 
 **BOB17-K01 in full:**
@@ -85,13 +94,13 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-I dispatched one run, **ci #212**, on `cf025b3`, after merging Integration 12 into the lane, and haven't waited on it; please read the result there. It covers BOB-17 on top of Integration 12, so BOB-17's gate can reuse it (D-043).
+**`FIXED_RUN` on `FIXED_HEAD`**, dispatched once and not waited on; please read the result there. It covers BOB-17 on top of Integration 12, the gate finding and #212's fix. Before it, ci #212 ran on `cf025b3` (see the head note above).
 - **Local, before dispatch:** on the merged head `cf025b3`:
   - **Full suite, fresh database:** 353 passed. F01-R07 fails, as it always does locally. 28 justified skips: the network tests, BOB11-A02 and BOB19-A01 among them.
   - **Plants:** 81 of 81 proved their gate.
   - **Shared red cases:** all 15 db-* red-case gates ran on one shared stack. Each exited 0, the schema digest stayed the same, and every recheck was 235 of 235.
   - **Seed and history:** the migration history matches the repo (122 files), and the seeds and lifecycle load.
-- **Local on the fixed head `FIXED_HEAD`** (no run of its own, as agreed): FIXED_LOCAL
+- **Local on the fixed head `FIXED_HEAD`, every database `en-US` ICU as on CI's stack:** FIXED_LOCAL
 - One run, no new job.
 
 ## CONTRACT
@@ -123,4 +132,4 @@ None. Noted for BOB-13, as you asked: `may_preview_lesson_media` and `may_read_l
 
 ## READY
 
-Yes: `FIXED_HEAD`, once ci #212 on `cf025b3` is green. Daisy's run on her merge of this head covers the fix.
+Yes: `FIXED_HEAD`, once `FIXED_RUN` is green. Daisy merges it only then.
