@@ -283,17 +283,21 @@ async function tekan(page, label, name) {
   const f = await shot(page, `terbit-${name}${after ? "" : "-nothing-moved"}`);
   return { after, before, f };
 }
+// The reviewer's "Sudah saya tinjau", once per warning, as a person does it: each press reloads the page on its
+// own result line (?hasil=…#temuan) with that warning gone, and the next press is on that page
 async function tinjauSemua(page) {
   let n = 0;
-  for (let i = 0; i < 80 && unack() > 0; i++) {
-    await lihat(page, `/studio/paket/${course}`);
-    const b = page.getByRole("button", { name: "Sudah saya tinjau", exact: true });
-    if (!(await b.count())) break;
-    const n0 = unack();
+  await lihat(page, `/studio/paket/${course}`);
+  const b = page.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+  let stuck = 0;
+  for (let i = 0; i < 120; i++) {
+    const k = await b.count();
+    if (!k) break;
     await b.first().click();
     await page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
-    await until(() => unack() < n0, 10000, 300);
-    n++;
+    await page.waitForFunction((k0) => document.querySelectorAll("form button[type=submit]").length > 0 &&
+      [...document.querySelectorAll("button")].filter((x) => x.textContent.trim() === "Sudah saya tinjau").length < k0, k, { timeout: SLOW }).catch(() => {});
+    if (await b.count() < k) { n++; stuck = 0; } else if (++stuck >= 3) break;
   }
   return n;
 }
@@ -315,7 +319,8 @@ await step("J05", "Studio to published with two people: the teacher prepares and
   if (offered.length) { rec.verdict = "FAIL"; rec.kind = "product"; }
   rec.page = A;
   const e0 = errors();
-  notes.push(`findings waiting when the reviewer arrives (before Setujui isi): ${unack()} warnings, ${e0} errors`);
+  const w0 = unack();
+  notes.push(`findings waiting when the reviewer arrives (before Setujui isi): ${w0} warnings, ${e0} errors`);
   if (e0 > 0) { rec.verdict = "FAIL"; notes.push(`ERROR findings block publishing: ${readiness()}`); return notes.join("; "); }
   notes.push(`the admin reviewed ${await tinjauSemua(A)} warning(s) before approving`);
   rec.shots.push(await shot(A, "terbit-temuan-ditinjau"));
@@ -328,7 +333,11 @@ await step("J05", "Studio to published with two people: the teacher prepares and
   const back = unack();
   notes.push(`after Kunci terbitan: ${back} warning(s) waiting again; readiness ${readiness()}`);
   if (back > 0) {
-    rec.findings = [`Kunci terbitan re-runs the question check and the ${back} warning(s) the admin had already reviewed come back unreviewed; Terbitkan waits until they are reviewed a second time`];
+    rec.findings = [w0 === 0
+      ? `the question check first runs at Kunci terbitan: the reviewer approved with no finding to see, then had ${back} warning(s) to review one by one before Terbitkan`
+      : `Kunci terbitan re-runs the question check: ${back} warning(s) wait again after the ${w0} reviewed before approval`];
+    const kinds = sql(`select string_agg(pattern_class || ' ' || n, ', ') from (select pattern_class, count(*) n from public.mcq_quality_findings where course_id = ${uuid(course)} and acknowledged_at is null group by 1) x`);
+    notes.push(`the warnings: ${kinds}`);
     notes.push(`the admin reviewed ${await tinjauSemua(A)} warning(s) again`);
   }
   const t = await tekan(A, "Terbitkan", "terbitkan");
