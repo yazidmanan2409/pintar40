@@ -28,6 +28,16 @@
 
 **The seeds.** `learning_cycle`, `official_bootstrap` and `human_evaluation` each check that their content is publishable before they release it. They held the blockers as `text[]`, so on a fresh database the seed stopped and every db suite after it aborted. My first full local run caught this, and it was fixed at `8b77f7b`. They now hold the jsonb list and print it if the content is not publishable. No fixture content changed.
 
+**A fixture, found by the shared-stack rehearsal.** When `canonical_package` in `fable05.sql` reuses an existing course, it took the module's definition with `limit 1` and no order. A school's QUICK paper on the same module, committed there by the FABLE-05 T1 suite, could come back first. F05 then started that school's paper as canonical content and aborted, and so did every recheck after `db-task1-gates`. CI never met it, because every job has a fresh stack. It now takes the canonical tenant's own definition, oldest first (`c1ffea2`). Red: that database aborts fable05. Green: 23 of 23, and the shared stack's recheck is 235 of 235. This matters for S2/S4 of the CI audit: a shared stack must not depend on the heap's order.
+
+**BOB-11 gate review, riding this run** (`bd77f35`):
+- `read-url` signs for an hour only lesson media redirected with `alih=1`.
+- A profile photo keeps 60 s, with or without `alih`. So does the JSON answer.
+- **BOB11-A02 (app)** reads the lifetime from the signed URL storage issued (its token's `exp - iat`), not from what the route says. It covers four cases: profile with `alih`, profile without, media with `alih`, media without.
+  - Red on the code before the fix: `a profile photo through alih=1 was signed for 3600 s, not 60`.
+  - Green after it, with BOB11-A01 still green.
+  - Locally this was rehearsed against my fake Supabase, which signs with the requested lifetime. CI's run against the real storage is the one that counts.
+
 **Deleted:** `createReleaseAction`, `freezeReleaseAction`, `publishReleaseAction` and `withdrawReleaseAction`, the four release form actions no page used. BOB07-K01 stays green.
 
 ## PROOF
@@ -35,6 +45,8 @@
 | test | red before | green after |
 |---|---|---|
 | F12-P04 (db) | on a database without the migration: `with every findings rule planted, readiness was BLOCKED with ["1 temuan ERROR pada teks siswa", "2 temuan WARNING pada teks siswa belum diakui", "1 temuan ERROR mutu soal", …, "mutu soal: POLA_UJI_GALAT (1 soal)", …]; a course in review with no release reads ACTION_REQUIRED: ["2 bagian isi menunggu persetujuan akademik", "paket ini belum memiliki terbitan"]; …` (6 problems) | every rule is its own code with its parameters; BLOCKED, then ACTION_REQUIRED, then READY and `[]` as the findings are acknowledged; the package walks through all five lifecycle codes; the nine codes met are exactly the catalogue's |
+| BOB11-A02 (app, gate review) | on the route before `bd77f35`: `a profile photo through alih=1 was signed for 3600 s, not 60` | a profile photo 60 s with and without `alih`; lesson media 3600 s with `alih`, 60 s without |
+| F05 fixture (`c1ffea2`) | on the shared stack after `db-task1-gates`: fable05 aborts, `the assessment definition does not belong to the enrolment's institution, and is not canonical content distributed to it` | 23 of 23; the recheck on that stack 235 of 235 |
 | BOB17-K01 (static) | on the code before BOB-17: `the release contract has no blocker catalogue …; publish_readiness … still writes a sentence; studio_package_state … still writes a sentence; the Terbit step … shows a blocker other than through kalimatHambatan; the package page shows a reason other than through kalimatHambatan; src/app/studio/actions.ts still exports createReleaseAction; …` (all four actions) | pass |
 
 **BOB17-K01 in full:**
@@ -53,6 +65,7 @@
 - **fable02, fable04, fable05, fable05t1:** `v_blockers` is jsonb. Three suites only print it on failure.
 - **`db-bob03-gates`' control:** 6 → 7 green rows.
 - **Tripwires:** 121 → 122.
+- **Manifest:** v95 → v96 (BOB11-A02).
 
 No test was weakened, skipped or deleted.
 
@@ -86,7 +99,7 @@ Sixteen keys: `studio.hambatan.*`, nine codes, four patterns and three general l
 
 ## QUESTIONS
 
-None.
+None. Noted for BOB-13, as you asked: `may_preview_lesson_media` and `may_read_lesson_media` scan every lesson's media for the path, and media playback will want an index on media paths at the capacity track's scale.
 
 ## READY
 
