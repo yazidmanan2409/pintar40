@@ -2544,4 +2544,85 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    // BOB-11 gate review: the hour is lesson media's only. A profile photo keeps
+    // 60 seconds with or without alih. Read from the signed URL storage issued
+    // (its token's exp - iat), not from what the route says about it.
+    id: "BOB11-A02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.supabaseServiceRoleKey), "no service-role key to place the objects, so this test would prove nothing")) {
+        return c.verdict("");
+      }
+      const murid = await signIn(ctx, PERSONA.cycleLearner);
+      const hdr = { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${murid.accessToken}` };
+      const rpc = async (nama: string, body: unknown) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${nama}`, {
+          method: "POST", headers: { ...hdr, "content-type": "application/json" }, body: JSON.stringify(body),
+        });
+        return r.ok ? ((await r.json()) as unknown) : null;
+      };
+      const taruh = async (jalur: string, jenis: string) => {
+        const r = await fetch(`${ctx.supabaseUrl}/storage/v1/object/assets/${jalur}`, {
+          method: "POST",
+          headers: { apikey: ctx.supabaseServiceRoleKey!, authorization: `Bearer ${ctx.supabaseServiceRoleKey!}`,
+                     "content-type": jenis, "x-upsert": "true" },
+          body: `BOB11-A02 ${Date.now()}`,
+        });
+        c.expect(r.ok, `placing ${jalur} failed (${r.status})`);
+      };
+      /** How long the signed URL storage issued stays valid, from its token. */
+      const umur = (url: string) => {
+        try {
+          const tok = new URL(url, ctx.supabaseUrl ?? undefined).searchParams.get("token") ?? "";
+          const p = JSON.parse(Buffer.from(tok.split(".")[1] ?? "", "base64url").toString()) as { iat?: number; exp?: number };
+          return typeof p.exp === "number" && typeof p.iat === "number" ? p.exp - p.iat : null;
+        } catch { return null; }
+      };
+      const lewatAlih = async (jalur: string) => {
+        const r = await get(`${base}/api/assets/read-url?path=${encodeURIComponent(jalur)}&alih=1`, { headers: { cookie: murid.cookie } });
+        const ke = r.headers.get("location") ?? "";
+        c.expect(r.status === 302 && ke !== "", `${jalur} with alih=1 answered ${r.status}, not a redirect`);
+        return ke ? umur(ke) : null;
+      };
+      const lewatJson = async (jalur: string) => {
+        const r = await get(`${base}/api/assets/read-url?path=${encodeURIComponent(jalur)}`, { headers: { cookie: murid.cookie } });
+        const j = r.status === 200 ? ((await r.json()) as { url?: string }) : {};
+        c.expect(typeof j.url === "string", `${jalur} without alih answered ${r.status}`);
+        return j.url ? umur(j.url) : null;
+      };
+
+      // the learner's own profile photo
+      const pr = await fetch(`${ctx.supabaseUrl}/rest/v1/my_profile?select=person_id`, { headers: hdr });
+      const orang = pr.ok ? ((await pr.json()) as Array<{ person_id: string }>)[0]?.person_id ?? "" : "";
+      if (!c.expect(orang !== "", "the seeded learner has no profile, so this test would prove nothing")) return c.verdict("");
+      const foto = `profile/${orang}/bob11-a02.jpg`;
+      await taruh(foto, "image/jpeg");
+
+      // the learner's own lesson audio, found through the contract
+      let media = "";
+      for (const a of ((await rpc("my_learning_assignments", {})) ?? []) as Array<{ learning_assignment_id: string }>) {
+        for (const l of ((await rpc("learner_lessons", { p_learning_assignment: a.learning_assignment_id })) ?? []) as
+          Array<{ media: Array<{ jenis: string; path: string }> | null }>) {
+          media ||= (l.media ?? []).find((x) => x.jenis === "audio")?.path ?? "";
+        }
+      }
+      if (!c.expect(media !== "", "the seeded learner has no lesson with an audio, so this test would prove nothing")) return c.verdict("");
+      await taruh(media, "audio/mpeg");
+
+      const fotoAlih = await lewatAlih(foto), fotoJson = await lewatJson(foto);
+      const mediaAlih = await lewatAlih(media), mediaJson = await lewatJson(media);
+      c.expect(fotoAlih === 60, `a profile photo through alih=1 was signed for ${fotoAlih} s, not 60`);
+      c.expect(fotoJson === 60, `a profile photo without alih was signed for ${fotoJson} s, not 60`);
+      c.expect(mediaAlih === 3600, `lesson media through alih=1 was signed for ${mediaAlih} s, not an hour`);
+      c.expect(mediaJson === 60, `lesson media without alih was signed for ${mediaJson} s, not 60`);
+      return c.verdict(
+        "through the running app's route /api/assets/read-url, the signed URL storage issued (its token's exp - iat) is " +
+        "valid for an hour only for lesson media with alih=1; the learner's own profile photo is signed for 60 seconds with " +
+        "and without alih, and lesson media without alih for 60 seconds",
+      );
+    },
+  },
 ];

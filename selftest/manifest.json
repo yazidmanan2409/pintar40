@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 95,
+  "version": 96,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1969,6 +1969,12 @@
       "id": "BOB11-A01",
       "runner": "app",
       "proves": "BOB-11 (M9; STU-11, ADM-10). Lesson media play: through the running app, the rendered lesson page of the learner's own lesson (src/app/belajar) carries an <audio> whose src, the route /api/assets/read-url with alih=1, answers 302 to a signed storage URL that returns the lesson's audio file; the lesson's author gets the same from the rendered Studio preview through may_preview_lesson_media; a teacher of another school is refused 403; and the route without alih still answers JSON with a 60-second URL.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB11-A02",
+      "runner": "app",
+      "proves": "BOB-11 gate review. The one-hour media link is lesson media's only: through the running app's route /api/assets/read-url, the signed URL storage issued, read from its token's exp - iat, is valid for 3600 seconds only for a lesson's audio with alih=1; the learner's own profile photo is signed for 60 seconds with and without alih, and lesson media without alih for 60 seconds.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
