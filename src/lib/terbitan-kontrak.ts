@@ -162,6 +162,9 @@ export function kunciPola(pola: string | null | undefined): HleEvent {
  * lookup) and `angka` (a number in the reader's locale).
  */
 export function kalimatHambatan(h: Hambatan, s: (k: HleEvent) => string, angka: (n: number) => string): string {
+  // DAISY-16: a code the catalogue does not know reads as the general line alone -- no count,
+  // pattern or lesson hung on a sentence that is not about them
+  if (!(KODE_HAMBATAN as readonly string[]).includes(h?.code)) return s("studio.hambatan.lain");
   const jumlah = typeof h.count === "number" ? `${angka(h.count)} ` : "";
   const pola = h.pattern !== undefined && h.pattern !== null ? ` (${s(kunciPola(h.pattern))})` : "";
   const pelajaran = h.lesson ? ` · ${s("studio.hambatan.pelajaran")} ${h.lesson}` : "";

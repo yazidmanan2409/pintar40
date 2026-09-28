@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 100,
+  "version": 101,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2162,6 +2162,11 @@
       ],
       "skip_justification": "needs the running application and the seeded, fully migrated Supabase stack: it signs in as the platform administrator and Alpha's school administrator, runs the schema lint through Konfigurasi and reads the runner's count of the app's Supabase calls. CI has both facilities, so it never skips there",
       "proves": "BOB-19 over real HTTP against the seeded, fully migrated local stack, read from the RENDERED html of /konfigurasi and /studio/paket and the runner's count of the app's Supabase calls (selftest/hitung-fetch.cjs): the platform administrator's health card, asked to check, reads \"Semua pemeriksaan lolos\" and never \"Perlu perhatian\" (today it reads \"Perlu perhatian\"); an ordinary load runs no lint (BOB-18 (b)) and offers the check; persons_awaiting_first_role is asked once for the platform administrator and never for Alpha's school administrator (today: asked and refused, 338 refusals in U-PERF's 30-session run), whose card says who runs the checks; a confirmed upload's return reads \"Tersimpan. Paket dibuat.\" as a status on its course page."
+    },
+    {
+      "id": "DAISY-16-HAMBATAN-01",
+      "runner": "static",
+      "proves": "DAISY-16 (with BOB-17, D-011): the Terbit step reads the blocker codes. From the copy table and the SOURCE files: every code in BOB-17's catalogue (KODE_HAMBATAN), every question pattern (POLA_MUTU_SOAL) and the general lines have words in both languages that speak of the course, never the package, and carry no code, ERROR, WARNING, pattern name or internal word; a line that sends the reader to a step (Periksa isi, Setujui isi, Buat terbitan, Kunci terbitan) names it by that step's exact title in the same language. Composed through kalimatHambatan as the step shows it, each code reads as its words with the lesson it names and a question's pattern in words; a planted unknown code, bare sentence and unknown pattern read as the general line, never themselves. The freeze action (src/app/studio/actions.ts) and the package page log an unknown code under a reference, and the Terbit step and the package page show the general line with that reference beside it, never a code."
     }
   ]
 }
