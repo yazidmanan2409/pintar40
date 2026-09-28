@@ -707,6 +707,28 @@ VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-20 (a school admin sees and names
 CHANGES_V21.append("Re-marked on 28 Sep against Integration 14 (c2e8e4b): a school admin sees and names their own staff (BOB-20, D-048); audit clean again.")
 
 
+# --- Integration 15 on main (28 Sep): BOB-21 (a school admin grants only to a person they may act upon, D-049) ---
+NOW.update({
+    "sha": "9062cbe",
+    "date": "28 Sep 2026",
+    "label": "Integration 15 (main)",
+    "evidence": ("Integration 15: BOB-21 (code 9062cbe, CI #216 on 78e642a, 26/26) on top of Integration 14 (c2e8e4b). Audit #34, run "
+                 "36378202736: 27 PASS, 1 NOTE (S1b), 0 FAIL. Staging: 124 migrations after this integration."),
+})
+CURRENT.update({
+    "X-01": ("PASS: structure, staff roles, cards and intake without SQL (S3-S12); a place that is not a Kelas or Tingkat and a staff row "
+             "are refused at intake with reasons (BOB-01, BOB-10); a school admin sees and names their own staff and finds a newly "
+             "recorded teacher in their own waiting list (BOB-20, D-048), and grants only to a person with a relationship with that "
+             "school (BOB-21, D-049: F10-G01, G02). A teacher moving from another school waits for the staff-link workflow (backlog, D-049); "
+             "the platform admin's grant covers it meanwhile."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 124; staging 124 after this integration.",
+})
+VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-21 (a school admin grants only to a person they may act upon, D-049): X-01; then BOB-12 with DAISY-13 before 1 Nov (CAP-01). ",
+                                  "Bob — BOB-12 with DAISY-13 before 1 Nov (CAP-01). ")
+CHANGES_V21.append("Re-marked on 28 Sep against Integration 15 (9062cbe): a school admin grants only to a person with a relationship with that school "
+                   "(BOB-21, D-049); X-01 PASS; audit clean again.")
+
+
 def as_dict():
     g = globals()
     return {
