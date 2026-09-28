@@ -2,6 +2,8 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import { kunciKodeTerbitan, type HasilTerbitan } from "@/lib/terbitan-kontrak";
 import {
@@ -81,9 +83,9 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
       <input type="hidden" name="langkah" value={l.kunci} />
       <input type="hidden" name="course" value={course} />
       {terbitan ? <input type="hidden" name="release" value={terbitan.id} /> : null}
-      <button type="submit" className="pin-btn pin-primary" disabled={sibuk}>
-        {sibuk ? s("studio.langkah.sibuk") : s(kunciSalinan(l.kunci, "tombol"))}
-      </button>
+      <TombolKirim className="pin-btn pin-primary" disabled={sibuk} sibuk={s("studio.langkah.sibuk")}>
+        {s(kunciSalinan(l.kunci, "tombol"))}
+      </TombolKirim>
     </form>
   );
 
@@ -91,7 +93,7 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
     <form action={advanceContentAction}>
       <input type="hidden" name="course" value={course} />
       <input type="hidden" name="to" value={l.jalan.isi} />
-      <button type="submit" className="pin-btn pin-primary">{s(kunciSalinan(l.kunci, "tombol"))}</button>
+      <TombolKirim className="pin-btn pin-primary" sibuk={s("studio.langkah.sibuk")}>{s(kunciSalinan(l.kunci, "tombol"))}</TombolKirim>
     </form>
   );
 
@@ -99,7 +101,7 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
     const h = gagal(langkah);
     if (!h || h.ok) return null;
     return (
-      <div className="pin-msg pin-msg-err" role="alert">
+      <BarisHasil nada="gagal">
         <p>{s(kunciKodeTerbitan(h.code))}{h.ref ? ` (${s("studio.unggah.rujukan")} ${h.ref})` : ""}</p>
         {h.hambatan && h.hambatan.length > 0 ? (
           <>
@@ -107,7 +109,7 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
             <ul>{h.hambatan.map((x) => <li key={x}>{x}</li>)}</ul>
           </>
         ) : null}
-      </div>
+      </BarisHasil>
     );
   };
 
@@ -160,9 +162,9 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
                       <span className="pin-meta">{s("studio.langkah.tarik.alasan")}</span>
                       <input className="pin-input" name="alasan" value={alasan} onChange={(e) => setAlasan(e.target.value)} required />
                     </label>
-                    <button type="submit" className="pin-btn" disabled={sibuk}>
-                      {sibuk ? s("studio.langkah.sibuk") : s("studio.paket.tarik")}
-                    </button>
+                    <TombolKirim className="pin-btn" disabled={sibuk} sibuk={s("studio.langkah.sibuk")}>
+                      {s("studio.paket.tarik")}
+                    </TombolKirim>
                   </form>
                 ) : null}
                 {pesanGagal("tarik")}

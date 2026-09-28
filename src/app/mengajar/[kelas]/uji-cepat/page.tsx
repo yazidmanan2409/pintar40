@@ -3,8 +3,10 @@ import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import { sediakanUjiCepat } from "../../actions";
+import BarisHasil from "@/components/BarisHasil";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
@@ -192,7 +194,7 @@ export default async function UjiCepat({
               <input type="hidden" name="soal" value={pilihSoal} />
               <input type="hidden" name="menit" value={pilihMenit} />
               <div className="pin-actions">
-                <button type="submit" className="pin-btn pin-primary">{s("mengajar.cepat.komit")}</button>
+                <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.menyediakan")}>{s("mengajar.cepat.komit")}</TombolKirim>
                 <Link className="pin-btn" href={`/mengajar/${id}/uji-cepat`}>{s("mengajar.cepat.ubah")}</Link>
               </div>
             </form>
@@ -217,7 +219,8 @@ export default async function UjiCepat({
           <p className="pin-intro">{s("mengajar.cepat.intro")}</p>
         </div>
 
-        {q.cepat === "gagal" ? <p className="pin-catatan">{s("mengajar.cepat.sudah_ada")}</p> : null}
+        {q.cepat === "gagal" ? <BarisHasil nada="gagal">{s("mengajar.cepat.sudah_ada")}</BarisHasil> : null}
+        {q.cepat === "ok" ? <BarisHasil nada="ok">{s("mengajar.cepat.ok")}</BarisHasil> : null}
 
         {bab.length === 0 ? (
           <p className="pin-empty">{s("mengajar.cepat.bab.kosong")}</p>

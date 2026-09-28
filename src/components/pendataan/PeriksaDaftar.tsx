@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import { kunciMasalah } from "@/lib/pendataan-kontrak";
+import BarisHasil from "@/components/BarisHasil";
 import type { HasilPeriksa } from "@/app/pendataan/actions";
 
 /**
@@ -64,11 +65,11 @@ export default function PeriksaDaftar({
       {/* The check could not run at all — which is not the same as rows being
           wrong, and does not tell the administrator to change their file. */}
       {hasil?.galat ? (
-        <p className="pin-msg pin-msg-err" role="alert">{s("pendataan.periksa.gagal")}</p>
+        <BarisHasil nada="gagal">{s("pendataan.periksa.gagal")}</BarisHasil>
       ) : null}
 
       {hasil && !hasil.galat && hasil.ok ? (
-        <p className="pin-msg pin-msg-note" role="status">{s("pendataan.periksa.bersih")}</p>
+        <BarisHasil nada="ok">{s("pendataan.periksa.bersih")}</BarisHasil>
       ) : null}
 
       {buruk.length > 0 ? (

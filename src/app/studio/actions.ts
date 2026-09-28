@@ -108,7 +108,7 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
   const { data: changed, error } = await supabase.from("courses").update(patch).eq("id", course).select("id");
   if (error) back(`/studio/paket/${course}`, "paket", ditolak("courses status", error, kodeGalatKonten(error)));
   if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", TIDAK_BERUBAH);
-  back(`/studio/paket/${course}`, "paket", { ok: true });
+  back(`/studio/paket/${course}`, "paket", { ok: true, kode: "STEP_TAKEN" });
 }
 
 export async function runValidationAction(fd: FormData): Promise<void> {
@@ -116,10 +116,10 @@ export async function runValidationAction(fd: FormData): Promise<void> {
   if (!course) back("/studio", "paket", TIDAK_DIKENALI);
   const supabase = await supabaseServer();
   const a = await supabase.rpc("validate_course_content", { p_course: course });
-  if (a.error) back(`/studio/paket/${course}`, "paket", ditolak("validate_course_content", a.error));
+  if (a.error) back(`/studio/paket/${course}`, "temuan", ditolak("validate_course_content", a.error));
   const b = await supabase.rpc("run_mcq_quality", { p_course: course });
-  if (b.error) back(`/studio/paket/${course}`, "paket", ditolak("run_mcq_quality", b.error));
-  back(`/studio/paket/${course}`, "paket", { ok: true });
+  if (b.error) back(`/studio/paket/${course}`, "temuan", ditolak("run_mcq_quality", b.error));
+  back(`/studio/paket/${course}`, "temuan", { ok: true, kode: "CHECK_RUN" });
 }
 
 export async function acknowledgeFindingAction(fd: FormData): Promise<void> {
@@ -131,7 +131,7 @@ export async function acknowledgeFindingAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("acknowledge_finding", {
     p_kind: kind, p_finding: finding, p_note: str(fd, "catatan") || null,
   });
-  back(`/studio/paket/${course}`, "temuan", error ? ditolak("acknowledge_finding", error) : { ok: true });
+  back(`/studio/paket/${course}`, "temuan", error ? ditolak("acknowledge_finding", error) : { ok: true, kode: "FINDING_ACKNOWLEDGED" });
 }
 
 // ---------------------------------------------------------------- releases
@@ -252,8 +252,8 @@ export async function createRevisionAction(fd: FormData): Promise<void> {
   if (!course) back("/studio", "paket", TIDAK_DIKENALI);
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("create_course_revision", { p_course: course });
-  if (error || !data) back(`/studio/paket/${course}`, "paket", ditolak("create_course_revision", error));
-  back(`/studio/paket/${data as string}`, "paket", { ok: true });
+  if (error || !data) back(`/studio/paket/${course}`, "revisi", ditolak("create_course_revision", error));
+  back(`/studio/paket/${data as string}`, "paket", { ok: true, kode: "REVISION_CREATED" });
 }
 
 export async function moveReleaseAction(fd: FormData): Promise<void> {
@@ -265,7 +265,7 @@ export async function moveReleaseAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("move_learning_assignment_release", {
     p_assignment: assignment, p_to_release: release, p_reason: str(fd, "alasan"),
   });
-  back(`/studio/paket/${course}`, "koreksi", error ? ditolak("move_learning_assignment_release", error) : { ok: true });
+  back(`/studio/paket/${course}`, "koreksi", error ? ditolak("move_learning_assignment_release", error) : { ok: true, kode: "ASSIGNMENT_MOVED" });
 }
 
 // ------------------------------------------------------------- distribution
@@ -278,7 +278,7 @@ export async function grantDistributionAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("grant_release_distribution", {
     p_release: release, p_institution: institution, p_reason: str(fd, "alasan") || null,
   });
-  back("/studio/kanonik", "izin", error ? ditolak("grant_release_distribution", error) : { ok: true });
+  back("/studio/kanonik", "izin", error ? ditolak("grant_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_GRANTED" });
 }
 
 export async function withdrawDistributionAction(fd: FormData): Promise<void> {
@@ -288,7 +288,7 @@ export async function withdrawDistributionAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("withdraw_release_distribution", {
     p_distribution: distribution, p_reason: str(fd, "alasan"),
   });
-  back("/studio/kanonik", "izin", error ? ditolak("withdraw_release_distribution", error) : { ok: true });
+  back("/studio/kanonik", "izin", error ? ditolak("withdraw_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_WITHDRAWN" });
 }
 
 // ----------------------------------------------------------------- ingestion
@@ -402,7 +402,8 @@ export async function structuredImportAction(fd: FormData): Promise<void> {
 
 export async function confirmMappingAction(fd: FormData): Promise<void> {
   const h = await konfirmasi(uuidOrNull(str(fd, "batch")));
-  if (h.ok && h.courses && h.courses[0]) redirect(`/studio/paket/${h.courses[0]}`);
+  // BOB-19 (coordinator, 28 Sep): the new course's page says the package was made
+  if (h.ok && h.courses && h.courses[0]) back(`/studio/paket/${h.courses[0]}`, "paket", { ok: true, kode: "DRAFT_CREATED" });
   back("/studio/unggah", "pertanyaan", ringkas(h));
 }
 
@@ -475,7 +476,7 @@ export async function recordIntegrityReviewAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("record_integrity_review", {
     p_signal: signal, p_decision: str(fd, "keputusan"), p_note: str(fd, "catatan") || null,
   });
-  back("/studio/integritas", "integritas", error ? ditolak("record_integrity_review", error) : { ok: true });
+  back("/studio/integritas", "integritas", error ? ditolak("record_integrity_review", error) : { ok: true, kode: "REVIEW_RECORDED" });
 }
 
 export async function recordQuestionHealthReviewAction(fd: FormData): Promise<void> {
@@ -485,7 +486,7 @@ export async function recordQuestionHealthReviewAction(fd: FormData): Promise<vo
   const { error } = await supabase.rpc("record_question_health_review", {
     p_item: item, p_decision: str(fd, "keputusan"), p_note: str(fd, "catatan") || null,
   });
-  back("/studio/bank", "kesehatan", error ? ditolak("record_question_health_review", error) : { ok: true });
+  back("/studio/bank", "kesehatan", error ? ditolak("record_question_health_review", error) : { ok: true, kode: "REVIEW_RECORDED" });
 }
 
 export async function saveCertificateTemplateAction(fd: FormData): Promise<void> {
@@ -499,7 +500,7 @@ export async function saveCertificateTemplateAction(fd: FormData): Promise<void>
     p_layout: str(fd, "tata_letak"),
     p_number_prefix: str(fd, "awalan"),
   });
-  back("/studio/sertifikat", "sertifikat", error ? ditolak("save_certificate_template", error) : { ok: true });
+  back("/studio/sertifikat", "sertifikat", error ? ditolak("save_certificate_template", error) : { ok: true, kode: "CERTIFICATE_SAVED" });
 }
 
 // ------------------------------------------------------------ quick assessment
@@ -523,5 +524,5 @@ export async function launchQuickAssessmentAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("launch_quick_assessment", {
     p_node: node, p_module: modul, p_item_count: items, p_minutes: minutes,
   });
-  back("/studio/kuis", "kuis", error ? ditolak("launch_quick_assessment", error) : { ok: true });
+  back("/studio/kuis", "kuis", error ? ditolak("launch_quick_assessment", error) : { ok: true, kode: "QUICK_CHECK_LAUNCHED" });
 }

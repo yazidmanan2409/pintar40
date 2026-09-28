@@ -5,6 +5,8 @@ import * as ajar from "@/lib/pengajar";
 import { sediakanMateri } from "../../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
@@ -55,7 +57,7 @@ export default async function Siapkan({
   // BOB-04 (D-008): a refused "Sediakan" comes back here with its code, and the
   // teacher reads what the lesson is missing -- never the database's words
   const galat = kodePenugasanDari(kode);
-  const tolakan = galat ? <p className="pin-intro" role="alert">{s(kunciKodePenugasan(galat))}</p> : null;
+  const tolakan = galat ? <BarisHasil nada="gagal">{s(kunciKodePenugasan(galat))}</BarisHasil> : null;
   if (!ctx) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
@@ -135,7 +137,6 @@ export default async function Siapkan({
       <main className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}/siapkan`}>← {s("mengajar.siap.kembali")}</Link>
         {lingkup}
-        {tolakan}
         <TahapKomitmen tahap={1} nama={langkah} locale={locale} />
 
         <div className="pin-head">
@@ -225,10 +226,12 @@ export default async function Siapkan({
                 </b>{" "}
                 {s("mengajar.siap.akibat.2")} {s("mengajar.siap.akibat.3")}
               </p>
+              {/* DAISY-18: a refused "Sediakan" answers at the button that sent it */}
+              {tolakan}
               <div className="pin-actions">
-                <button type="submit" className="pin-btn pin-primary">
+                <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.menyediakan")}>
                   {s("mengajar.siap.komit")} {dipilih.kursus} {s("mengajar.untuk")} {ctx.ini.nama}
-                </button>
+                </TombolKirim>
                 <Link className="pin-btn" href={`/mengajar/${id}/siapkan`}>
                   {s("mengajar.siap.kembali")}
                 </Link>

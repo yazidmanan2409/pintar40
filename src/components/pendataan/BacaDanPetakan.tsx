@@ -7,6 +7,7 @@ import {
   type Kisi, type Medan, type Pemetaan,
 } from "@/lib/pendataan-kontrak";
 import type { Tempat } from "@/lib/pendataan";
+import TombolKirim from "@/components/TombolKirim";
 
 /**
  * THE FILE, AND WHICH COLUMN IS WHICH. Nothing here provisions anything.
@@ -81,7 +82,7 @@ export default function BacaDanPetakan({
   // already-registered person is per row or not at all.
   const pilihanTetap: Partial<Record<Medan, Array<{ nilai: string; label: string }>>> = {
     node_id: tempat.map((x) => ({ nilai: x.id, label: x.nama })),
-    programme_id: tempat.map((x) => ({ nilai: x.id, label: x.nama })),
+    programme_id: tempat.filter((x) => x.program).map((x) => ({ nilai: x.program!, label: x.nama })),
     role: PERAN_PENDATAAN.map((r) => ({ nilai: r, label: t(`role.${r}` as HleEvent, "staff", { locale }) })),
   };
 
@@ -174,9 +175,9 @@ export default function BacaDanPetakan({
           <form action={aksi}>
             <input type="hidden" name="institusi" value={institusi} />
             <input type="hidden" name="baris" value={JSON.stringify(baris)} />
-            <button type="submit" className="pin-btn pin-go pin-data-btn" disabled={!siap}>
+            <TombolKirim className="pin-btn pin-go pin-data-btn" disabled={!siap} sibuk={s("tombol.memproses")}>
               {s("pendataan.peta.lanjut")}
-            </button>
+            </TombolKirim>
           </form>
         </section>
       ) : null}

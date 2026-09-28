@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import BarisHasil from "@/components/BarisHasil";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import {
   KUNCI_KIRIM, lengkap, sudahTercatat,
@@ -88,7 +89,7 @@ export default function LembarUmpanBalik({
     return (
       <section className="pin-sec" aria-labelledby="pin-ub-usai">
         <h2 id="pin-ub-usai">{s("umpanbalik.selesai.judul")}</h2>
-        <p className="pin-msg pin-msg-note" role="status">{s(KUNCI_KIRIM[sebab])}</p>
+        <BarisHasil nada="ok">{s(KUNCI_KIRIM[sebab])}</BarisHasil>
         <p className="pin-lede">{s("umpanbalik.selesai.arti")}</p>
       </section>
     );
@@ -98,7 +99,7 @@ export default function LembarUmpanBalik({
     return (
       <section className="pin-sec" aria-labelledby="pin-ub-usai">
         <h2 id="pin-ub-usai">{s("umpanbalik.form.judul")}</h2>
-        <p className="pin-msg pin-msg-note" role="status">{s(KUNCI_KIRIM[sebab])}</p>
+        <BarisHasil nada="netral">{s(KUNCI_KIRIM[sebab])}</BarisHasil>
       </section>
     );
   }
@@ -146,13 +147,13 @@ export default function LembarUmpanBalik({
       {/* The one complaint this form can make, and it is about completeness
           rather than about correctness: there is no wrong answer here. */}
       {ditegur && !siap ? (
-        <p className="pin-msg pin-msg-err" role="alert">{s("umpanbalik.form.belum_semua")}</p>
+        <BarisHasil nada="gagal">{s("umpanbalik.form.belum_semua")}</BarisHasil>
       ) : null}
 
       {/* An outcome that is neither done nor final: it did not send, or nothing
           is known. Either way the sheet is still below, still filled in. */}
       {sebab && !sudahTercatat(sebab) && !berakhir ? (
-        <p className="pin-msg pin-msg-note" role="status">{s(KUNCI_KIRIM[sebab])}</p>
+        <BarisHasil nada="netral">{s(KUNCI_KIRIM[sebab])}</BarisHasil>
       ) : null}
 
       <div className="pin-actions">

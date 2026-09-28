@@ -6,6 +6,8 @@ import { sekolahDitawarkan } from "@/components/sekolah";
 import PanelUnggah from "@/components/unggah/PanelUnggah";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { confirmMappingAction, easyUploadAction, structuredImportAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Content Factory (§2). Two paths, both landing at INGESTED and converging on
@@ -65,7 +67,6 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
   return (
     <div className="grid gap-6">
       <h2 className="text-lg font-medium">{s("studio.unggah.judul")}</h2>
-      {banner ? <p className={card}>{banner}</p> : null}
       <p className="text-sm text-ink-2">{s("studio.unggah.media_catatan")}</p>
 
       <section className={card} id="buku-kerja">
@@ -92,8 +93,9 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
             <input className={field} name="kontrak" placeholder="kontrak kemampuan" />
             <input className={field} name="permintaan" placeholder="id permintaan" />
           </div>
-          <button className={button} type="submit">{s("studio.unggah.buat_paket")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.buat_paket")}</TombolKirim>
         </form>
+        <HasilDi q={sp} bagian="mudah" kalimat={banner} />
       </section>
 
       <section className={card} id="terstruktur">
@@ -110,10 +112,14 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
             <input className={field} name="kontrak" placeholder="kontrak kemampuan" />
             <input className={field} name="permintaan" placeholder="id permintaan" />
           </div>
-          <button className={button} type="submit">{s("studio.unggah.buat_paket")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.buat_paket")}</TombolKirim>
         </form>
+        <HasilDi q={sp} bagian="terstruktur" kalimat={banner} />
       </section>
 
+      {/* DAISY-18: a workbook that was read, or a mapping confirmed, answers here
+          -- drawn whether or not questions are still open below. */}
+      <HasilDi q={sp} bagian="pertanyaan" kalimat={banner} />
       {pending.length > 0 ? (
         <section className="grid gap-2" id="pertanyaan">
           <h3 className="text-lg font-medium">{s("studio.unggah.pertanyaan")}</h3>
@@ -126,7 +132,7 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
               </ul>
               <form action={confirmMappingAction} className="mt-3">
                 <input type="hidden" name="batch" value={b.id} />
-                <button className={button} type="submit">{s("studio.unggah.konfirmasi")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.konfirmasi")}</TombolKirim>
               </form>
             </div>
           ))}

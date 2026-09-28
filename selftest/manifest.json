@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 89,
+  "version": 97,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -133,6 +133,24 @@
       "id": "F01-T19",
       "runner": "db",
       "proves": "INV-18 audit rows carry the running build SHA via the x-pintar-build request header; malformed values rejected",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T20",
+      "runner": "db",
+      "proves": "BOB-18 (D-046). assert_learner_rpcs_are_guarded, timed over this database's whole schema, answers within 2000 ms (26.9 s on staging's 344 functions before, one regular expression per pair of functions), and gives the same verdict on four planted LEARNER entry points: the one guarded two calls down passes; the unguarded one, the one naming session_is_mine and current_person_id only in comments, and the one using a longer word that begins with current_person_id are each named.",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T21",
+      "runner": "db",
+      "proves": "BOB-18 (D-046). studio_capabilities, the one call Studio makes for its capabilities, gives every synthetic persona exactly the schools and capabilities can_in_institution grants when asked about every school and each of the eight Studio capabilities, so moving the loop into the database changed no answer; anon cannot call it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
+    },
+    {
+      "id": "F01-T22",
+      "runner": "db",
+      "proves": "BOB-18 (D-046(e)). A grant is saved once: the platform admin's second identical grant_role (same person, role and place) is refused 23505 GRANT_ALREADY_ACTIVE and one grant stands; the same role in another place, again after a revoke, and again after an expired grant are each saved.",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
     },
     {
@@ -1020,7 +1038,7 @@
     {
       "id": "F06-P17",
       "runner": "db",
-      "proves": "WP5A identity and provisioning authority. PROVISIONING IS INSTITUTIONAL ADMINISTRATION, NOT SENIORITY: a head of department and a dean -- whom WP4 calls Management -- an educator and a learner are each refused both the namespace reservation and the import, because none of them holds CAN_PROVISION_PEOPLE at all. Namespace reservation is case-insensitive IN THE DATABASE and not merely in the function that upcases before writing: the unique index is asserted to be over upper(namespace) and a lowercase value is asserted unstorable, both here in the live gate rather than only in the migration's one-time block -- a plant that moved the index to namespace stayed green until this existed. OPENING, VALIDATING AND PREVIEWING AN IMPORT PROVISION NOTHING, counted across persons, institutional identities, accounts and auth users; the preview states zero accounts activated. AN UNCONFIRMED IMPORT REFUSES TO PROVISION and leaves nothing behind. Confirmed, it issues IDs in this school's canonical form and CREATES NO ACCOUNT AND NO AUTH USER. Row-level idempotency is asked at its source: requesting an identity a person already holds here returns that same one and mints nothing -- the import path alone never exercises this, because each of its rows is a different person, so a plant that removed the Person x Institution key stayed green until this asked directly. ANOTHER SCHOOL'S ADMINISTRATOR, who holds the capability over their own root, cannot reserve this namespace, open an import here, or read, confirm, advance or verify this job, and lists none of its jobs, rows or identities. Reservation, confirmation and completion each appear once on the audit record. Every row rolled back"
+      "proves": "WP5A identity and provisioning authority. PROVISIONING IS INSTITUTIONAL ADMINISTRATION, NOT SENIORITY: a head of department and a dean -- whom WP4 calls Management -- an educator and a learner are each refused both the namespace reservation and the import, because none of them holds CAN_PROVISION_PEOPLE at all. Namespace reservation is case-insensitive IN THE DATABASE and not merely in the function that upcases before writing: the unique index is asserted to be over upper(namespace) and a lowercase value is asserted unstorable, both here in the live gate rather than only in the migration's one-time block -- a plant that moved the index to namespace stayed green until this existed. OPENING, VALIDATING AND PREVIEWING AN IMPORT PROVISION NOTHING, counted across persons, institutional identities, accounts and auth users; the preview states zero accounts activated. AN UNCONFIRMED IMPORT REFUSES TO PROVISION and leaves nothing behind. Confirmed, it issues IDs in this school's canonical form and CREATES NO ACCOUNT AND NO AUTH USER. Row-level idempotency is asked at its source: requesting an identity a person already holds here returns that same one and mints nothing -- the import path alone never exercises this, because each of its rows is a different person, so a plant that removed the Person x Institution key stayed green until this asked directly. ANOTHER SCHOOL'S ADMINISTRATOR, who holds the capability over their own root, cannot reserve this namespace, open an import here, or read, confirm, advance or verify this job, and lists none of its jobs, rows or identities. Reservation, confirmation and completion each appear once on the audit record. Every row rolled back. Restated for BOB-10 (M5b interim): its three-row import records the teacher without a role or a place, since a staff row is now refused at validation."
     },
     {
       "id": "F06-P18",
@@ -1667,7 +1685,7 @@
     {
       "id": "F10-M01",
       "runner": "db",
-      "proves": "M5a. The intake places a learner only in an active Kelas or Tingkat, and says why. import_row_problems refuses a row with no role or role STUDENT whose place is a Bagian, the Jenjang, a Reguler, the school or a deactivated Kelas with 'a learner is placed in an active Kelas or Tingkat', accepts a Kelas and a Tingkat, leaves an EDUCATOR scoped to a Bagian alone, and import_validate reports the phrase against the row before anything is provisioned."
+      "proves": "M5a, and BOB-10 (M5b interim; restated, a changed requirement recorded on the board). The intake places a learner only in an active Kelas or Tingkat, and refuses a staff row before recording, each with a reason. import_row_problems refuses a row with no role or role STUDENT whose place is a Bagian, the Jenjang, a Reguler, the school or a deactivated Kelas with 'a learner is placed in an active Kelas or Tingkat', accepts a Kelas and a Tingkat, refuses an EDUCATOR at a Bagian or in a Kelas, a HEAD_OF_DEPARTMENT and a DEAN with 'a staff row is not recorded by the bulk intake yet', and import_validate reports each phrase against its row before anything is provisioned."
     },
     {
       "id": "F10-M02",
@@ -1770,6 +1788,11 @@
       "proves": "BOB-08 (e) under real concurrency: two admins' connections create a Bagian of the same name at once; the second waits on the per-school structure lock, reads the names again and is refused PR020 STRUCTURE_NAME_TAKEN, leaving one Bagian of that name."
     },
     {
+      "id": "F10-C04",
+      "runner": "db",
+      "proves": "BOB-18 (D-046(e)). Two real connections grant the same person the same role in the same Tingkat at once, as a double-pressed \"Berikan peran\" does: the second waits on the grant's advisory lock taken by the role_assignments trigger, reads the first's row and is refused 23505 GRANT_ALREADY_ACTIVE, and one grant stands."
+    },
+    {
       "id": "F11-P01",
       "runner": "db",
       "proves": "BOB-02 (D-007, D-008). The sample workbook becomes a real course in the chosen school, whole. Prepared and confirmed by the school's INSTITUTION_ADMIN, selftest/fixtures/bob02/contoh-pelajaran.xlsx as the converter turns it into a lesson package becomes one INGESTED course of that school authored by its confirmer: 2 chapters, 3 lessons with their text, 2 objectives, 5 questions -- 2 PRE_TEST and 2 POST_TEST in bank TEST, 1 practice in bank PRACTICE, a multi-answer question keeping both answers -- 12 options each with its reason, no parallel group spanning the pre-test and post-test (D-040: the sample was regrouped, and v1 kept as the source of the application copies), and image and audio (with transcript) at pelajaran/<school>/<batch>/<file>. A confirmation before the media are uploaded makes nothing and names each file MEDIA_NOT_UPLOADED; the batch records who confirmed; prepare and materialisation are audited once each; a second confirmation is PR030 PACKAGE_STATE_INVALID."
@@ -1793,6 +1816,11 @@
       "id": "F11-N03",
       "runner": "db",
       "proves": "BOB-02. may_upload_package_media grants a signed upload only for a file the package names, in the batch's own school, to someone who may draft there, while the batch awaits confirmation: an unnamed file, another school's id, a path without its batch, another school's admin and a DEAN are refused, and a materialised batch grants nothing."
+    },
+    {
+      "id": "F11-P04",
+      "runner": "db",
+      "proves": "BOB-11 (M9). may_preview_lesson_media lets a school's admin, a drafting teacher and a platform admin hear an unreleased course's audio, and refuses a DEAN of the school (no draft, no review), another school's admin and a path no lesson names; may_read_lesson_media still answers only a learner the course is assigned to."
     },
     {
       "id": "F11-P03",
@@ -1891,6 +1919,16 @@
       "proves": "BOB-06. The school's admin is refused, by the guard's own rule, editing, unmarking, revising, extending and removing PINTAR's standard class report, and refused by a missing grant writing the provisioning pass and calling the provisioner; an educator writes no template; no pass is open, and no client is granted the provisioner or the pass, which has no policies."
     },
     {
+      "id": "BOB09-K01",
+      "runner": "static",
+      "proves": "BOB-09 (D-006, M5). tempatSekolahDari in the source file src/lib/pendataan.ts and myScopesDari in src/lib/lingkup.ts, driven over one school's tree, offer only Bagian, Tingkat and Kelas -- never the school root, the hidden Jenjang or Reguler, nor a deactivated Kelas -- each labelled by its visible path and its year, so two Kelas named 1A in two years are told apart; the intake's Program choices are each Bagian carrying its hidden Reguler as the value, and the mapping screen offers them for programme_id."
+    },
+    {
+      "id": "BOB18-K01",
+      "runner": "static",
+      "proves": "BOB-18 (D-046). vercel.json sets the functions' region to sin1, beside both Supabase projects in ap-southeast-1; studioInstitutionsDari in the source file src/app/studio/_lib.ts, driven with a recording client, asks studio_capabilities once with the eight Studio capabilities and nothing else, offers only schools holding a capability, sorted by name, and none when the call fails; currentViewer and isSystemAdmin in src/lib/auth.ts, peranSaya in src/lib/tur-negara.ts and studioInstitutions are React per-request caches, and peranSaya takes the person from the viewer; viewerDari in src/lib/auth.ts, driven, makes no call without a session cookie and, with one, asks for the user and my_profile side by side."
+    },
+    {
       "id": "BOB08-K01",
       "runner": "static",
       "proves": "BOB-08 (d, g). The structure helper struktur() in the source file src/app/konfigurasi/actions.ts re-reads the list once on each path: before a refusal returns (it re-read only after a success) and after a success, as DAISY-05-STRUKTUR-01 also holds; lingkupPimpinanDari in src/lib/pimpinan.ts, driven with a revoked, an expired, a not-yet-begun and an active grant, offers only the active one's node in the Pimpinan picker."
@@ -1909,6 +1947,18 @@
       "id": "BOB07-R01",
       "runner": "app",
       "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB18-A01",
+      "runner": "app",
+      "proves": "BOB-18 (D-046). Counted through the running app (selftest/hitung-fetch.cjs), a Studio click asks studio_capabilities once and can_in_institution never; the Konfigurasi page in src/app/konfigurasi/page.tsx, including the page a saved grant returns to, runs platform_schema_lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at most twice, the profile read at most once, is_system_admin asked at most once and the viewer's own roles read at most once, a Studio page reading role_assignments for nothing else.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB11-A01",
+      "runner": "app",
+      "proves": "BOB-11 (M9; STU-11, ADM-10). Lesson media play: through the running app, the rendered lesson page of the learner's own lesson (src/app/belajar) carries an <audio> whose src, the route /api/assets/read-url with alih=1, answers 302 to a signed storage URL that returns the lesson's audio file; the lesson's author gets the same from the rendered Studio preview through may_preview_lesson_media; a teacher of another school is refused 403; and the route without alih still answers JSON with a 60-second URL.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
@@ -1970,7 +2020,7 @@
     {
       "id": "DAISY-06-TEMPLAT-01",
       "runner": "static",
-      "proves": "DAISY-06: the lesson workbook template is BOB-02's contract written out, checked against Bob's own reader and converter (no network). (a) The blank template OUTPUT by the browser writer is read by bacaBukuKerja: the guidance sheet then Kursus, Bab, Pelajaran, Soal, Pilihan in LEMBAR order, each data sheet exactly KOLOM's headers in KOLOM order and nothing else; bukuKerjaKePaket finds no missing sheet or column; the guidance states every column as the contract does and every BATAS_PAKET limit with its own number. (b) One filled row per sheet, written by the same writer, converts with no problem, choices becoming their codes and XML special characters, quotes and a line break coming back exactly. (c) Two builds are byte-identical; from the zip FILE, every entry is stored with the fixed timestamp and a CRC-32 equal to Node's zlib.crc32, every cell is an inline string, and every fixed list is a dropdown on its own column. From the SOURCE: neither the template nor the upload panel imports src/lib/xlsx.ts or a node: module, and the contract file they import brings in types only. DAISY-15: every column's format is read from the bytes (styles.xml's cellXfs and each data sheet's <col> style): every free-text column is Text (numFmtId 49, '@'), so what a teacher types stays as typed; every numbered column stays General, the numbered columns being exactly the fields the reader parses with nomor() in bukuKerjaKePaket; a dropdown column stays General; the header row keeps its heading style; and a control on known columns (Pertanyaan, Teks pilihan, Kode soal, Kelas, Kelompok paralel as Text; no No bab or No pelajaran as Text)."
+      "proves": "DAISY-06: the lesson workbook template is BOB-02's contract written out, checked against Bob's own reader and converter (no network). (a) The blank template OUTPUT by the browser writer is read by bacaBukuKerja: the guidance sheet then Kursus, Bab, Pelajaran, Soal, Pilihan in LEMBAR order, each data sheet exactly KOLOM's headers in KOLOM order and nothing else; bukuKerjaKePaket finds no missing sheet or column; the guidance states every column as the contract does and every BATAS_PAKET limit with its own number. (b) One filled row per sheet, written by the same writer, converts with no problem, choices becoming their codes and XML special characters, quotes and a line break coming back exactly. (c) Two builds are byte-identical; from the zip FILE, every entry is stored with the fixed timestamp and a CRC-32 equal to Node's zlib.crc32, every cell is an inline string, and every fixed list is a dropdown on its own column. From the SOURCE: neither the template nor the upload panel imports src/lib/xlsx.ts or a node: module, and the contract file they import brings in types only. DAISY-15: every column's format is read from the bytes (styles.xml's cellXfs and each data sheet's <col> style): every free-text column is Text (numFmtId 49, '@'), so what a teacher types stays as typed; every numbered column stays General, the numbered columns being exactly the fields the reader parses with nomor() in bukuKerjaKePaket; a dropdown column stays General; the header row keeps its heading style; and a control on known columns (Pertanyaan, Teks pilihan, Kode soal, Kelas, Kelompok paralel as Text; no No bab or No pelajaran as Text). The guidance also warns, in the Cara mengisi lines, that Excel shows a text cell over 255 characters as #### while its content stays whole and readable, naming Isi pelajaran, which is a Text column whose limit is over 255."
     },
     {
       "id": "DAISY-06-UNGGAH-01",
@@ -2056,6 +2106,41 @@
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator, head of department and dean and reads the rendered Konfigurasi, both summaries and Pimpinan against the seed. CI has both facilities, so it never skips there",
       "proves": "DAISY-07 over real HTTP against the seed. The RENDERED Konfigurasi of Alpha's school administrator has a Laporan section linking exactly one school summary, at a node read back (as the same reader) as that school's INSTITUTION node, and at least one class summary, each at a CLASS node of the same school. Following them, both summaries open with their title on a report the school has (never 'no figures to show you'), and a report with no figure yet says what will make one appear. A head of department and a dean, standing above the classes, get Pimpinan's class-by-class section: it lists classes, each summarised as having figures, none yet, or not theirs, or says there is none. From Pimpinan (DEA-03, X-12), the school summary is linked exactly when Pimpinan shows the reader a school figure, and Alpha's dean, standing at the school, has it; each class links its own summary exactly when its figures are the reader's. Following them as the same reader, each opens with its title on a report with at least one labelled figure, never 'no figures' and never a page of refusals. Read only."
+    },
+    {
+      "id": "DAISY-17-KIRIM-01",
+      "runner": "static",
+      "proves": "DAISY-17 (D-046(e)): a click that saves says so at once and saves once. Every <form action={…}> under src/app and src/components (43 today) submits through TombolKirim and has no plain submit button (a <button> without type=\"button\", or an <input type=\"submit\">); every TombolKirim carries its pending words (tombol.*, or the step's own studio.langkah.sibuk / config.struktur.sibuk); a planted plain button and a second untyped button are caught and a type=\"button\" cancel is not (the control). TombolKirim is a client component that reads its own form's useFormStatus and is disabled, aria-busy and worded from the submit until the answer; it holds a second submit of the same form that lands before the redraw (document capture listener, preventDefault + stopImmediatePropagation, cleared when pending turns false) and never acts in its own click; its pending words exist in both languages and read as work in progress. Aktivasi (fetch, not a form) says \"Mengaktifkan…\" on the pressed button and holds a second press. Same push: a staff refusal (tolak.arti, staff) no longer tells an adult to ask their teacher while a learner's still does, and the refusal page speaks in its reader's register; Konfigurasi offers Menambahkan orang only when sekolahPendataan() -- /pendataan's own admission -- is non-empty."
+    },
+    {
+      "id": "DAISY-17-KIRIM-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the Supabase project: it signs in as the platform administrator and Alpha's school administrator and reads /konfigurasi, /pendataan and /pimpinan against the seed. CI has both facilities, so it never skips there",
+      "proves": "DAISY-17's same-push fixes over real HTTP against the seed, read from the RENDERED html of /konfigurasi, /pendataan and /pimpinan: Konfigurasi offers Menambahkan orang (a link to /pendataan) exactly when /pendataan admits the same reader, asked of the platform administrator and of Alpha's school administrator; a school administrator refused Pimpinan reads the staff refusal sentence and not the learner's \"ask your teacher\"."
+    },
+    {
+      "id": "DAISY-18-DENGAR-01",
+      "runner": "static",
+      "proves": "DAISY-18 (D-047): PINTAR shows it heard you -- DAISY-17's Idle → Working → Success / Error as shared pieces, read from the SOURCE files. (1) Each main section (Konfigurasi, Studio, Mengajar, Pimpinan, Belajar, Aktivasi, Pendataan) has a loading.tsx file that is the one shared shell, MemuatHalaman, and nothing else -- the framed shell inside a section that draws its own layout (Studio), with no second header or <main>; every other loading.tsx is the shell too; it says \"Memuat halaman…\" once (role=\"status\") in the reader's language with its shape aria-hidden. (2) Every <Link> inside a <nav> and every place tab (TabTempat) carries TandaTautan, a client component drawing Next 16's useLinkStatus as a working dot that takes no room at rest. (3) Every section a Studio or Konfigurasi action returns to (parsed from each back() call) has its result line on that page -- Studio's HasilDi naming the section beside its form, Konfigurasi's result(section) under its form -- and the sentence reaches the screen only through BarisHasil (role=\"status\", scrolled into view when it appears); role=\"alert\" and the old error line are gone from src/app and src/components except four named non-results (the error page, sign-in, an unreadable structure, a run's live count); the listed result components answer in BarisHasil; a refused Sediakan answers at its button; a decision's answer sits on the card that was moved; Sediakan and Uji Cepat say they were done. (4) No Studio or Konfigurasi success returns a bare { ok: true }; every success code has its own sentence in both languages naming no code (Peran diberikan. / Peran dicabut.; the structure panel's <Kelas> ditambahkan.). Controls: a page-own loading screen, the full shell inside a frame, a bare menu link, an unplaced section and a planted alert line are each caught. Red on d6cde10: no section has a loading.tsx, no menu link carries TandaTautan, no BarisHasil exists."
+    },
+    {
+      "id": "BOB19-K01",
+      "runner": "static",
+      "proves": "BOB-19: the Konfigurasi health card tells the truth, read from the SOURCE files and the RENDERED card. (1) One rule, two readers: the expected lint values are one file, src/lib/kesehatan-skema.json; F01-T13's SOURCE in selftest/db/fable01.sql loads it and compares the lint key by key with no per-check literal left in its block; the card's rule (src/lib/kesehatan-skema.ts) imports the same file; Konfigurasi judges by nothing else and writes no card words itself. (2) Over the lint's real keys (read from the latest migration defining platform_schema_lint), a clean, fully migrated lint reads healthy where the old any-value-but-0 rule read it as a problem (the control); every expected check planted wrong is caught and named alone, and a missing one is caught. (3) RENDERED in both languages: clean reads \"Semua pemeriksaan lolos\", a planted value reads \"Perlu perhatian\" and names that check alone in words, a check that could not run gives its reference and a way to try again, not-yet-checked offers the check, a school administrator is told who runs it; every check has its name in both languages. (4) Same run: Konfigurasi asks persons_awaiting_first_role only for the platform administrator, and a confirmed upload returns to its course's page with \"Paket dibuat.\" (DRAFT_CREATED). Red on today's code: no shared list, the card judges by v === 0."
+    },
+    {
+      "id": "BOB19-A01",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application and the seeded, fully migrated Supabase stack: it signs in as the platform administrator and Alpha's school administrator, runs the schema lint through Konfigurasi and reads the runner's count of the app's Supabase calls. CI has both facilities, so it never skips there",
+      "proves": "BOB-19 over real HTTP against the seeded, fully migrated local stack, read from the RENDERED html of /konfigurasi and /studio/paket and the runner's count of the app's Supabase calls (selftest/hitung-fetch.cjs): the platform administrator's health card, asked to check, reads \"Semua pemeriksaan lolos\" and never \"Perlu perhatian\" (today it reads \"Perlu perhatian\"); an ordinary load runs no lint (BOB-18 (b)) and offers the check; persons_awaiting_first_role is asked once for the platform administrator and never for Alpha's school administrator (today: asked and refused, 338 refusals in U-PERF's 30-session run), whose card says who runs the checks; a confirmed upload's return reads \"Tersimpan. Paket dibuat.\" as a status on its course page."
     }
   ]
 }

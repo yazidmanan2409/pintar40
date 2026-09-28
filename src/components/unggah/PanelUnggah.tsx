@@ -13,6 +13,7 @@ import { konfirmasiPaketAksi, unggahBukuKerjaAksi } from "@/app/studio/actions";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { NAMA_BERKAS_TEMPLAT, templatPelajaran } from "./templat";
 import { lokasiMasalah } from "./lokasi";
+import BarisHasil from "@/components/BarisHasil";
 
 type Sekolah = { id: string; name: string };
 type StatusMedia = "belum" | "siap" | "naik" | "selesai" | "gagal";
@@ -278,14 +279,14 @@ export default function PanelUnggah({
           )}
           <div aria-live="polite">
             {simpan?.ok && (
-              <div className="pin-ung-hasil" role="status">
+              <BarisHasil nada="ok" kelas="pin-ung-hasil">
                 <p className="pin-ung-lolos">{s("studio.unggah.tersimpan")}</p>
                 <Hitungan counts={simpan.counts} locale={locale} />
                 <p className="pin-ung-tautan">
                   {simpan.courses?.[0] && <a className="pin-btn pin-primary" href={`/studio/paket/${simpan.courses[0]}`}>{s("studio.unggah.buka_kursus")}</a>}
                   <button type="button" className="pin-btn" onClick={() => { setBerkas(null); mulaiLagi(); }}>{s("studio.unggah.ulang")}</button>
                 </p>
-              </div>
+              </BarisHasil>
             )}
             {simpan && !simpan.ok && <HasilPeriksa hasil={simpan} locale={locale} />}
           </div>
@@ -316,15 +317,15 @@ function HasilPeriksa({ hasil, locale }: { hasil: HasilPaket; locale: Locale }) 
   const s = (k: HleEvent) => t(k, "staff", { locale });
   if (hasil.ok) {
     return (
-      <div className="pin-ung-hasil" role="status">
+      <BarisHasil nada="ok" kelas="pin-ung-hasil">
         <p className="pin-ung-lolos">{s("studio.unggah.lolos")}</p>
         <Hitungan counts={hasil.counts} locale={locale} />
-      </div>
+      </BarisHasil>
     );
   }
   const masalah = hasil.problems ?? [];
   return (
-    <div className="pin-ung-hasil pin-ung-gagal" role="alert">
+    <BarisHasil nada="gagal" kelas="pin-ung-hasil pin-ung-gagal">
       <p className="pin-ung-judul-masalah">
         {s(kunciKodePaket(hasil.code))}
         {hasil.ref ? ` ${s("studio.unggah.rujukan")} ${hasil.ref}` : ""}
@@ -348,6 +349,6 @@ function HasilPeriksa({ hasil, locale }: { hasil: HasilPaket; locale: Locale }) 
           )}
         </>
       )}
-    </div>
+    </BarisHasil>
   );
 }

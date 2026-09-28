@@ -6,6 +6,7 @@
  * evidence forwarded from the CI workflow's own jobs.
  */
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
 import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
@@ -2050,7 +2051,7 @@ export const appTests: SelfTest[] = [
         const panel = a >= 0 && b > a ? html.slice(a, b) : "";
         if (!c.expect(panel.length > 0, `${peran}: the page has no workbook section before the JSON forms`)) continue;
         const teks = visibleText(panel);
-        c.expect(!/role="alert"/.test(panel), `${peran}: the workbook section opens on a refusal: ${teks.slice(0, 200)}`);
+        c.expect(!/role="alert"|pin-hasil-gagal/.test(panel), `${peran}: the workbook section opens on a refusal: ${teks.slice(0, 200)}`);
         c.expect(teks.includes(t("studio.unggah.templat", "staff")), `${peran}: the template download is not offered`);
         for (const k of ["studio.unggah.langkah.periksa", "studio.unggah.langkah.media", "studio.unggah.langkah.simpan"] as const) {
           c.expect(teks.includes(t(k, "staff")), `${peran}: the step "${t(k, "staff")}" is missing`);
@@ -2149,7 +2150,9 @@ export const appTests: SelfTest[] = [
         if (!c.expect(r.status === 200, `${peran} ${jalan} → ${r.status}`)) continue;
         const nav = tabs(await r.text());
         c.expect(nav.length > 0, `${peran} ${jalan}: the page has no tabs`);
-        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>${t("nav.studio", "staff")}</a>`).test(nav), `${peran} ${jalan}: no Studio tab`);
+        // DAISY-18: a menu link carries its working dot, an empty span at rest
+        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>${t("nav.studio", "staff")}(?:<span aria-hidden="true" class="pin-tanda-tautan"></span>)?</a>`).test(nav),
+          `${peran} ${jalan}: no Studio tab`);
       }
       const dekan = await signIn(ctx, PERSONA.dean);
       const p = await get(`${base}/pimpinan`, { headers: { cookie: dekan.cookie } });
@@ -2324,6 +2327,285 @@ export const appTests: SelfTest[] = [
         "what will make one appear. A head of department and a dean get Pimpinan's class-by-class section, each class " +
         "summarised as having figures, none yet, or not theirs; from Pimpinan the dean opens the school summary, which is " +
         "linked exactly when a school figure is theirs, and each readable class opens its own summary, never a page of refusals",
+      );
+    },
+  },
+  {
+    id: "DAISY-17-KIRIM-02",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // DAISY-17's two same-push fixes, over real HTTP against the seed.
+      // Konfigurasi offers "Menambahkan orang" exactly when /pendataan admits
+      // the same reader -- asked of the platform administrator, whom it always
+      // refused, and of Alpha's school administrator, whom it admits. A staff
+      // reader refused a page reads the staff sentence, not "ask your teacher".
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const ditolak = visibleText(`<p>${t("pendataan.ditolak", "staff")}</p>`);
+      for (const [nama, orang] of [["SYSTEM_ADMIN", PERSONA.sysadmin], ["INSTITUTION_ADMIN", PERSONA.alphaAdmin]] as const) {
+        const sesi = await signIn(ctx, orang);
+        const k = await get(`${base}/konfigurasi`, { headers: { cookie: sesi.cookie } });
+        const html = await k.text();
+        c.expect(k.status === 200, `${nama} /konfigurasi → ${k.status}`);
+        const ditawarkan = /href="\/pendataan"/.test(html);
+        const p2 = await get(`${base}/pendataan`, { headers: { cookie: sesi.cookie } });
+        const diterima = p2.status === 200 && !visibleText(await p2.text()).includes(ditolak);
+        c.expect(ditawarkan === diterima, `${nama}: Konfigurasi ${ditawarkan ? "offers" : "does not offer"} Menambahkan orang, and /pendataan ${diterima ? "admits" : "refuses"} them`);
+        c.note(`${nama}: ${diterima ? "admitted, offered" : "refused, not offered"}`);
+      }
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const r = await get(`${base}/pimpinan`, { headers: { cookie: admin.cookie } });
+      const teks = visibleText(await r.text());
+      c.expect(teks.includes(t("tolak.arti", "staff")) && !teks.includes(t("tolak.arti", "learner")),
+        "a school administrator refused Pimpinan is told to ask their teacher");
+      return c.verdict(
+        "Konfigurasi offers Menambahkan orang exactly when /pendataan admits the same reader, for the platform " +
+        "administrator and for Alpha's school administrator; a school administrator refused Pimpinan reads the staff " +
+        "refusal, not \"ask your teacher\"",
+      );
+    },
+  },
+  {
+    // BOB-18 (D-046; perf/2026-09-27-staging-latency.md). What one click costs,
+    // counted: every call the app's server makes to Supabase while it answers
+    // one page, read from the runner's count (selftest/hitung-fetch.cjs).
+    // Studio asked 8 capabilities per school one after another and asked again
+    // for the page (62-141 calls a click); Konfigurasi ran the schema lint on
+    // every load; the sign-in check, profile and roles were read 2-10 times.
+    id: "BOB18-A01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.fetchLog), "the runner kept no count of the app's calls, so this test would prove nothing")) {
+        return c.verdict("");
+      }
+      const klik = async (cookie: string, jalan: string) => {
+        const awal = readFileSync(ctx.fetchLog!, "utf8").length;
+        const r = await get(`${base}${jalan}`, { headers: { cookie } });
+        const html = await r.text();
+        const baris = readFileSync(ctx.fetchLog!, "utf8").slice(awal).split("\n").filter(Boolean);
+        // the evidence, pass or fail: what this click cost, by path
+        const perJalan = new Map<string, number>();
+        for (const b of baris) perJalan.set(b.split(" ")[1], (perJalan.get(b.split(" ")[1]) ?? 0) + 1);
+        console.log(`  BOB18-A01 ${jalan} → ${r.status}: ${baris.length} Supabase calls; ` +
+          [...perJalan].sort((a, b) => b[1] - a[1]).map(([p, x]) => `${p.replace(/^\/rest\/v1\//, "")} ${x}`).join(", "));
+        const n = (path: string, kolom?: string) =>
+          baris.filter((b) => b.split(" ")[1] === path && (kolom === undefined || b.split(" ")[2] === `select=${kolom}`)).length;
+        return { status: r.status, html, total: baris.length, n };
+      };
+      const catatan: string[] = [];
+      const sekali = (peran: string, jalan: string, k: Awaited<ReturnType<typeof klik>>) => {
+        catatan.push(`${peran} ${jalan}: ${k.total} calls`);
+        c.expect(k.status === 200, `${peran} ${jalan} → ${k.status}`);
+        // proxy.ts checks the session for every request; the page asks once more
+        c.expect(k.n("/auth/v1/user") <= 2, `${peran} ${jalan} asked Auth for the user ${k.n("/auth/v1/user")} times`);
+        c.expect(k.n("/rest/v1/my_profile") <= 1, `${peran} ${jalan} read the profile ${k.n("/rest/v1/my_profile")} times`);
+        c.expect(k.n("/rest/v1/rpc/is_system_admin") <= 1, `${peran} ${jalan} asked is_system_admin ${k.n("/rest/v1/rpc/is_system_admin")} times`);
+        const peranku = k.n("/rest/v1/role_assignments", "role,valid_from,valid_until,revoked_at");
+        c.expect(peranku <= 1, `${peran} ${jalan} read the viewer's own roles ${peranku} times`);
+      };
+
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const guru = await signIn(ctx, PERSONA.alphaGuru);
+
+      // (c) Studio: one capability call, shared by the layout and the page
+      for (const [peran, sesi, jalan] of [
+        ["SYSTEM_ADMIN", sys, "/studio"], ["SYSTEM_ADMIN", sys, "/studio/tinjau"], ["INSTITUTION_ADMIN", admin, "/studio/unggah"],
+      ] as const) {
+        const k = await klik(sesi.cookie, jalan);
+        sekali(peran, jalan, k);
+        c.expect(k.n("/rest/v1/rpc/can_in_institution") === 0,
+          `${peran} ${jalan} asked can_in_institution ${k.n("/rest/v1/rpc/can_in_institution")} times, one call per capability per school`);
+        c.expect(k.n("/rest/v1/rpc/studio_capabilities") === 1,
+          `${peran} ${jalan} asked studio_capabilities ${k.n("/rest/v1/rpc/studio_capabilities")} times; expected once for the layout and the page together`);
+        // the capability read was the only other role_assignments read on a Studio page
+        c.expect(k.n("/rest/v1/role_assignments") <= 1, `${peran} ${jalan} read role_assignments ${k.n("/rest/v1/role_assignments")} times`);
+      }
+
+      // (b) Konfigurasi: the lint only when asked
+      for (const [peran, sesi] of [["SYSTEM_ADMIN", sys], ["INSTITUTION_ADMIN", admin]] as const) {
+        const k = await klik(sesi.cookie, "/konfigurasi");
+        sekali(peran, "/konfigurasi", k);
+        c.expect(k.n("/rest/v1/rpc/platform_schema_lint") === 0, `${peran} /konfigurasi ran the schema lint on an ordinary load`);
+      }
+      // (e) the page "Berikan peran" returns to once the grant is saved
+      const kembali = await klik(sys.cookie, "/konfigurasi?bagian=roles&hasil=ok");
+      sekali("SYSTEM_ADMIN", "/konfigurasi?bagian=roles&hasil=ok", kembali);
+      c.expect(kembali.n("/rest/v1/rpc/platform_schema_lint") === 0, "the page a saved grant returns to ran the schema lint");
+      const diminta = await klik(sys.cookie, "/konfigurasi?periksa=skema");
+      sekali("SYSTEM_ADMIN", "/konfigurasi?periksa=skema", diminta);
+      c.expect(diminta.n("/rest/v1/rpc/platform_schema_lint") === 1, `asked for, the schema lint ran ${diminta.n("/rest/v1/rpc/platform_schema_lint")} times`);
+      c.expect(!visibleText(diminta.html).includes(t("config.card.health.periksa", "staff")), "asked for, the health card still offers to run the checks");
+      const biasa = await klik(sys.cookie, "/konfigurasi");
+      c.expect(visibleText(biasa.html).includes(t("config.card.health.periksa", "staff")), "the platform admin is not offered the checks on Konfigurasi");
+
+      // (d) an ordinary page
+      for (const jalan of ["/", "/mengajar"]) sekali("EDUCATOR", jalan, await klik(guru.cookie, jalan));
+
+      c.note(catatan.join("; "));
+      return c.verdict(
+        "counted through the running app, a Studio click asks studio_capabilities once and can_in_institution never; Konfigurasi, " +
+        "including the page a saved grant returns to, runs the schema lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at " +
+        "most twice (the proxy's check and the page's), the profile read at most once, is_system_admin asked at most once and " +
+        "the viewer's own roles read at most once (a Studio page reads role_assignments for nothing else). Calls per click: " + catatan.join("; "),
+      );
+    },
+  },
+  {
+    // BOB-11 (M9; checklist STU-11, ADM-10). LESSON MEDIA PLAY. The player's
+    // <audio>/<video> pointed at /api/assets/read-url, which answered JSON, so
+    // nothing played. Driven end to end: a real object at the seeded lesson's
+    // path, the learner's own lesson page, the src it renders, and the bytes
+    // that src leads to; the author's Studio preview the same way; and a
+    // teacher of another school refused.
+    id: "BOB11-A01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.supabaseServiceRoleKey), "no service-role key to place the media object, so this test would prove nothing")) {
+        return c.verdict("");
+      }
+      const murid = await signIn(ctx, PERSONA.cycleLearner);
+      const rpc = async (sesi: Session, nama: string, body: unknown) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${nama}`, {
+          method: "POST",
+          headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sesi.accessToken}`, "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        return r.ok ? ((await r.json()) as unknown) : null;
+      };
+      // the learner's own lesson with an audio, found through the contract
+      let tugas = "", pelajaran = "", jalur = "";
+      for (const a of ((await rpc(murid, "my_learning_assignments", {})) ?? []) as Array<{ learning_assignment_id: string }>) {
+        for (const l of ((await rpc(murid, "learner_lessons", { p_learning_assignment: a.learning_assignment_id })) ?? []) as
+          Array<{ lesson_id: string; media: Array<{ jenis: string; path: string }> | null }>) {
+          const m = (l.media ?? []).find((x) => x.jenis === "audio");
+          if (m && !jalur) { tugas = a.learning_assignment_id; pelajaran = l.lesson_id; jalur = m.path; }
+        }
+      }
+      if (!c.expect(jalur !== "", "the seeded learner has no lesson with an audio, so this test would prove nothing")) return c.verdict("");
+
+      // a real object at that path, placed as the server places media
+      const isi = `ID3 BOB-11 ${Date.now()}`;
+      const put = await fetch(`${ctx.supabaseUrl}/storage/v1/object/assets/${jalur}`, {
+        method: "POST",
+        headers: { apikey: ctx.supabaseServiceRoleKey!, authorization: `Bearer ${ctx.supabaseServiceRoleKey!}`,
+                   "content-type": "audio/mpeg", "x-upsert": "true" },
+        body: isi,
+      });
+      c.expect(put.ok, `placing the audio at ${jalur} failed (${put.status})`);
+
+      const srcDari = (html: string, tag: string) =>
+        (new RegExp(`<${tag}\\b[^>]*\\bsrc="([^"]+)"`).exec(html)?.[1] ?? "").replace(/&amp;/g, "&");
+      const putar = async (siapa: string, cookie: string, src: string) => {
+        const r = await get(`${base}${src}`, { headers: { cookie } });
+        const ke = r.headers.get("location") ?? "";
+        c.expect(r.status === 302 && ke.startsWith(`${ctx.supabaseUrl}/storage/v1/object/sign/assets/`),
+          `${siapa}: the player's src answered ${r.status} ${ke ? "to " + ke.slice(0, 60) : "with no redirect"}, not the file`);
+        if (ke) {
+          const f = await fetch(ke);
+          c.expect(f.status === 200 && (await f.text()) === isi, `${siapa}: the signed URL did not return the lesson's audio (${f.status})`);
+        }
+      };
+
+      // 1. the learner hears it in the lesson
+      const hal = await get(`${base}/belajar/${tugas}/pelajaran/${pelajaran}`, { headers: { cookie: murid.cookie } });
+      const htmlMurid = await hal.text();
+      c.expect(hal.status === 200, `the learner's lesson → ${hal.status}`);
+      const src = srcDari(htmlMurid, "audio");
+      c.expect(src.startsWith("/api/assets/read-url?") && src.includes("alih=1"), `the lesson's <audio> src is ${JSON.stringify(src)}`);
+      if (src) await putar("the learner", murid.cookie, src);
+
+      // 2. the author previews it in Studio, before and after release alike
+      const guru = await signIn(ctx, PERSONA.cycleEducator);
+      const pra = await get(`${base}/studio/pratinjau/${pelajaran}`, { headers: { cookie: guru.cookie } });
+      const srcGuru = srcDari(await pra.text(), "audio");
+      c.expect(pra.status === 200 && srcGuru.includes("alih=1"), `the author's Studio preview → ${pra.status} with <audio> src ${JSON.stringify(srcGuru)}`);
+      if (srcGuru) await putar("the author in Studio", guru.cookie, srcGuru);
+
+      // 3. a teacher of another school is refused the same src, as a stranger is
+      const lain = await signIn(ctx, PERSONA.alphaGuru);
+      if (src) {
+        const r = await get(`${base}${src}`, { headers: { cookie: lain.cookie } });
+        c.expect(r.status === 403 && !r.headers.get("location"), `another school's teacher got ${r.status} for the lesson's audio`);
+      }
+      // 4. the JSON answer is unchanged for whoever reads it
+      if (src) {
+        const r = await get(`${base}${src.replace(/&alih=1/, "")}`, { headers: { cookie: murid.cookie } });
+        const j = r.status === 200 ? ((await r.json()) as { url?: string; expiresIn?: number }) : {};
+        c.expect(typeof j.url === "string" && j.expiresIn === 60, `without alih the route answered ${r.status} ${JSON.stringify(j).slice(0, 80)}`);
+      }
+      return c.verdict(
+        "through the running app, the learner's own lesson renders an <audio> whose src (read-url with alih=1) answers 302 " +
+        "to a signed storage URL returning the lesson's audio; the lesson's author gets the same from the Studio preview " +
+        "through may_preview_lesson_media; a teacher of another school is refused 403; and read-url without alih still " +
+        "answers JSON with a 60-second URL",
+      );
+    },
+  },
+  {
+    // BOB-19 over real HTTP against the seeded, fully migrated local stack. The
+    // platform administrator's health card, asked to check, reads healthy by
+    // the one rule F01-T13 uses; before, any value but 0 read "Perlu perhatian".
+    // The app's calls are read from the runner's count (selftest/hitung-fetch.cjs):
+    // the lint runs only when asked (BOB-18 (b)), and persons_awaiting_first_role
+    // is asked only for the platform administrator. A confirmed upload's return
+    // renders "Paket dibuat." on the course page.
+    id: "BOB19-A01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.fetchLog), "the runner kept no count of the app's calls, so this test would prove nothing")) {
+        return c.verdict("");
+      }
+      const klik = async (cookie: string, jalan: string) => {
+        const awal = readFileSync(ctx.fetchLog!, "utf8").length;
+        const r = await get(`${base}${jalan}`, { headers: { cookie } });
+        const html = await r.text();
+        const baris = readFileSync(ctx.fetchLog!, "utf8").slice(awal).split("\n").filter(Boolean);
+        return { status: r.status, html, n: (path: string) => baris.filter((b) => b.split(" ")[1] === path).length };
+      };
+      const s = (k: HleEvent) => t(k, "staff");
+      const kartu = (html: string) => {
+        const i = html.indexOf(`>${s("config.card.health")}<`);
+        return i < 0 ? "" : visibleText(html.slice(i, html.indexOf("</div>", i)));
+      };
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+
+      const periksa = await klik(sys.cookie, "/konfigurasi?periksa=skema");
+      const k1 = kartu(periksa.html);
+      c.expect(periksa.status === 200 && periksa.n("/rest/v1/rpc/platform_schema_lint") === 1, `SYSTEM_ADMIN /konfigurasi?periksa=skema → ${periksa.status}, lint asked ${periksa.n("/rest/v1/rpc/platform_schema_lint")} times`);
+      c.expect(k1.includes(s("config.kesehatan.sehat")) && !k1.includes(s("config.kesehatan.perhatian")),
+        `a clean, fully migrated database does not read healthy: ${k1.slice(0, 300)}`);
+
+      const biasa = await klik(sys.cookie, "/konfigurasi");
+      c.expect(biasa.status === 200 && biasa.n("/rest/v1/rpc/platform_schema_lint") === 0 && kartu(biasa.html).includes(s("config.card.health.periksa")),
+        "an ordinary Konfigurasi load runs the lint, or does not offer the check");
+      c.expect(biasa.n("/rest/v1/rpc/persons_awaiting_first_role") === 1, `the platform administrator's Konfigurasi asked persons_awaiting_first_role ${biasa.n("/rest/v1/rpc/persons_awaiting_first_role")} times`);
+      const sekolah = await klik(admin.cookie, "/konfigurasi");
+      c.expect(sekolah.status === 200 && sekolah.n("/rest/v1/rpc/persons_awaiting_first_role") === 0,
+        `the school administrator's Konfigurasi still asks persons_awaiting_first_role (${sekolah.n("/rest/v1/rpc/persons_awaiting_first_role")} times), which the database refuses`);
+      c.expect(kartu(sekolah.html).includes(s("config.kesehatan.bukan_admin")) && sekolah.n("/rest/v1/rpc/platform_schema_lint") === 0,
+        "the school administrator's card does not say who runs the checks");
+
+      const studio = await klik(sys.cookie, "/studio");
+      const kursus = /href="\/studio\/paket\/([0-9a-f-]{36})"/.exec(studio.html)?.[1];
+      if (c.expect(Boolean(kursus), "the platform administrator's Studio lists no course to return to")) {
+        const kembali = await klik(sys.cookie, `/studio/paket/${kursus}?bagian=paket&hasil=ok&kode=DRAFT_CREATED`);
+        c.expect(kembali.status === 200 && /role="status"/.test(kembali.html) && visibleText(kembali.html).includes(`${s("studio.hasil.ok")} Paket dibuat.`),
+          "a confirmed upload's return does not read \"Paket dibuat.\" on its course page");
+      }
+      return c.verdict(
+        "the platform administrator's RENDERED health card, asked to check the seeded, fully migrated stack, reads " +
+        "\"Semua pemeriksaan lolos\" and never \"Perlu perhatian\"; an ordinary Konfigurasi load runs no lint and offers the " +
+        "check; persons_awaiting_first_role is asked once for the platform administrator and never for Alpha's school " +
+        "administrator, whose card says who runs the checks; a confirmed upload's return reads \"Paket dibuat.\" as a status " +
+        "on its course page",
       );
     },
   },

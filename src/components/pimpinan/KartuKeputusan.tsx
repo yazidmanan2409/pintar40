@@ -3,6 +3,8 @@ import {
   HASIL_KUNCI, HASIL_SEMUA, KEADAAN_KUNCI, KELUARGA_KUNCI, RANTAI,
   langkahBerikut, nada, type Keputusan,
 } from "@/lib/pimpinan-kontrak";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 
 /**
  * ONE MANAGEMENT DECISION, AS SOMETHING A HUMAN CAN ACT ON.
@@ -36,12 +38,15 @@ export default function KartuKeputusan({
   aksi,
   locale = "id",
   galat = false,
+  tercatat = false,
 }: {
   keputusan: Keputusan;
   /** The server action that records a move. Absent on a read-only rendering. */
   aksi?: (formData: FormData) => void | Promise<void>;
   locale?: Locale;
   galat?: boolean;
+  /** DAISY-18: this card's move was just recorded. */
+  tercatat?: boolean;
 }) {
   const s = (key: string) => t(key as HleEvent, "staff", { locale });
   const rantai = RANTAI[k.keluarga];
@@ -99,18 +104,18 @@ export default function KartuKeputusan({
         ) : null}
 
         {galat ? (
-          <p className="pin-msg pin-msg-err" role="alert">
-            {s("pimpinan.aksi.gagal")}
-          </p>
+          <BarisHasil nada="gagal">{s("pimpinan.aksi.gagal")}</BarisHasil>
+        ) : tercatat ? (
+          <BarisHasil nada="ok">{s("pimpinan.aksi.tercatat")}</BarisHasil>
         ) : null}
 
         {aksi && berikut.includes("UNDER_REVIEW") ? (
           <form action={aksi} className="pin-kp-ambil">
             <input type="hidden" name="keputusan" value={k.id} />
             <input type="hidden" name="ke" value="UNDER_REVIEW" />
-            <button type="submit" className="pin-btn">
+            <TombolKirim className="pin-btn" sibuk={s("tombol.memproses")}>
               {s("pimpinan.aksi.ambil")}
-            </button>
+            </TombolKirim>
           </form>
         ) : null}
 
@@ -135,9 +140,9 @@ export default function KartuKeputusan({
               <label htmlFor={`catatan-${k.id}`}>{s("pimpinan.aksi.catatan")}</label>
               <textarea id={`catatan-${k.id}`} name="catatan" rows={2} />
             </div>
-            <button type="submit" className="pin-btn pin-go">
+            <TombolKirim className="pin-btn pin-go" sibuk={s("tombol.menyimpan")}>
               {s("pimpinan.aksi.putuskan")}
-            </button>
+            </TombolKirim>
           </form>
         ) : null}
       </section>

@@ -1,11 +1,11 @@
-# Bob: resume note (written 25 Sep, after BOB-07 and BOB-16)
+# Bob: resume note (updated 27 Sep, paused mid-BOB-18 at 94% weekly usage)
 
 This note is for a fresh session picking up Bob's lane. Read it first, then `docs/coordination/BOARD.md`, `DECISIONS.md` and `briefs/BOB.md`.
 
 ## Who, where, how
 - **Who.** I am **Bob**, the back-end builder. The coordinator (another session) gates, merges and releases; Yazid relays messages.
 - **Lane.** Work on `claude/quirky-meitner-a04smj` only, in repo `yazidmanan2409/pintar40`.
-- **State at pause.** The lane head is `ed89063` (BOB-07 and BOB-16, CI #195 green 26/26), and the coordinator is merging it in **Integration 9**.
+- **State at pause (27 Sep).** The lane head is the BOB-18 work-in-progress commit on top of main `c4b919f`. Underneath it are BOB-09 (`e3232ca`, handed off with CI dispatched) and BOB-18 (a)–(d) (`5acc7f8`, CI dispatched on it). See **BOB-18 at pause** below. The coordinator said: **don't dispatch CI until BOB-18 is finished.**
 - **Never:**
   - dispatch a production workflow;
   - edit a `.github/*-request.txt` or a `RELEASE_SHA`;
@@ -15,9 +15,11 @@ This note is for a fresh session picking up Bob's lane. Read it first, then `doc
   - rebase or force-push;
   - weaken, skip or delete a test. Restating one for a changed requirement is allowed, and must be named.
 
-## The queue (confirmed by the coordinator)
+## The queue (confirmed by the coordinator, D-046)
 1. **Merge `origin/main` first** (merge, not rebase; on a manifest `version` conflict, take the higher and add one).
-2. **BOB-08, BOB-09, BOB-10, BOB-11.** See the board rows. Hand each off before starting the next if the week's usage is tight.
+2. **Finish BOB-18, run one CI, hand off** (see **BOB-18 at pause**).
+   - **BOB-09** is already done and handed off at `e3232ca` (BOB09-K01; case 7 of `static-fable06-gates`). It rides in the lane under BOB-18. Its hand-off asked whether Daisy is content with the one-line Program change in `BacaDanPetakan.tsx`.
+   - Then **BOB-10 and BOB-11**, all before 5 Oct.
 3. **BOB-17 with DAISY-16** (one CI run).
    - `publish_readiness` and the release functions return each blocker as a code with details. One migration.
    - The test covers every readiness rule, fails on today's sentences, and a planted sentence never reaches the Terbit step.
@@ -32,6 +34,55 @@ This note is for a fresh session picking up Bob's lane. Read it first, then `doc
    - **Open questions** (coordinator): the cooldown numbers, the limits, and the "no wait given" wording (Daisy).
 5. **BOB-15 with DAISY-12** (support reports; due before 1 Nov; one CI run).
 6. **BOB-13** (before L2, 1 Dec, from the L1 run's figures).
+
+## BOB-18 at pause (PINTAR answers quickly, D-046)
+
+The evidence is `docs/coordination/perf/2026-09-27-staging-latency.md`, including its "Writes" section. The draft hand-off is `docs/coordination/handover/bob18/HANDOFF-BOB-18-draft.md`: update it, don't rewrite it.
+
+**Done:**
+- **(a)** Only the repo pin is mine: `vercel.json` `"regions": ["sin1"]`. Yazid set both projects to Singapore in Vercel's dashboard, and the coordinator's `perf-staging.yml` (`region` and `probe` modes) checks what is deployed. I removed my own `staging-region.yml` as a duplicate. BOB18-K01 checks the pin.
+- **(b)** Konfigurasi runs `platform_schema_lint` only on `?periksa=skema` (copy key `config.card.health.periksa`). `assert_learner_rpcs_are_guarded` now does one word-split per function plus a join, instead of one regex per pair: the same 606 edges, and 18.8 s → 60–80 ms. Tests: F01-T20 (red on the old body at 18.4 s), BOB18-A01.
+- **(c)** `studio_capabilities(text[])`: SECURITY INVOKER, and every answer is still `can_in_institution`. `studioInstitutions` is a React `cache`. Tests: F01-T21 (parity for every persona, anon refused), BOB18-K01, BOB18-A01.
+- **(d)** `currentViewer`, `isSystemAdmin` and `peranSaya` are React caches. `peranSaya` takes the person from the viewer instead of calling `current_person_id` again.
+- **(e) duplicate grant:** trigger `role_assignments_unique_active` / `refuse_duplicate_active_grant`. It takes an advisory lock on (person, role, scope) and refuses a standing identical grant with 23505 `GRANT_ALREADY_ACTIVE`, which the app shows as `ACTION_ALREADY_EXISTS`. Tests: F01-T22 (red without the trigger: "a second identical grant was saved; 2 standing grants") and F10-C04 (race; red without it).
+- **(e) quick saves:** the page a grant returns to no longer runs the lint (A01 checks `/konfigurasi?bagian=roles&hasil=ok`). Konfigurasi's templates, catalogue and awaiting-people reads now run in the main `Promise.all`.
+- **Migration:** all of it is in `20261013100000_pintar_answers_quickly.sql`. It is lane-only and unmerged, so it may still be corrected in place (D-026).
+- **The runner counts Supabase calls:** `selftest/hitung-fetch.cjs` is preloaded into the selftest's `next start` (`startApp` in `run.ts`, `ctx.fetchLog`). BOB18-A01 prints each click's breakdown.
+- **Tripwires** moved 118 → 119, with the reason.
+
+**Half-done (next step first):**
+1. **The viewer read.** I tried running `getUser` and `my_profile` side by side in `currentViewer`, then reverted it. It made an anonymous visitor read `my_profile` for nothing, and with Supabase down supabase-js retried that for about 7 s, so the selftest app never passed its start probe. Without it, `peranSaya` waits one extra round trip, because it now needs the viewer first: 1.41 s against 1.13 s on the class page at 277 ms per call, about +19 ms from Singapore.
+   - **Next:** read `supabase.auth.getSession()` first. It only reads the cookie, makes no call and decides nothing. With no session, return null; with one, run `getUser` and `my_profile` side by side.
+   - Then check that `next start` answers `/masuk` quickly with Supabase unreachable. The app runner's probe has a 2 s timeout.
+2. **Re-measure the write timings** after (1), using `docs/coordination/handover/bob18/`:
+   - start the fake: `LATENSI=277` or `19 node palsu-supabase.mjs`;
+   - build the app with `NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321`;
+   - run `node ukur-tulis.mjs <repo> <port> <label>`;
+   - for "before", use an old-code worktree (`git worktree add … e3232ca`, `cp -al node_modules`).
+   - **Last measured, fake with 3 schools, time for the page each save returns to (+1 write call):**
+
+     | write | before: old code, US | after: new code, Singapore |
+     |---|---|---|
+     | grant | 10.9 s | 0.16 s |
+     | structure step | 10.8 s | 0.15 s |
+     | Studio step | 8.7 s (66 calls) | 0.10 s (13 calls) |
+     | Sediakan | 1.1 s | about 0.10 s |
+
+   - In the database: `grant_role` 19 ms, `create_bagian` 4.5 ms.
+3. **Full local run, plants, commit, push, one `ci.yml` dispatch, hand-off.**
+   - Last full run at `419acdd`, before the revert: 341 passed, 0 failed; 8 app tests skipped only because of item 1's start-probe timeout. Plants 79/79.
+   - Before `419acdd`, the run at `5acc7f8` gave 345 passed, with only F01-R07 failing.
+   - **Stop the fake Supabase before a full run**, or the network tests run against it and fail for its data.
+4. **Coordinator's answers (27 Sep), to fold into the hand-off:**
+   - **The duplicate-grant rule is a BEFORE INSERT trigger, not an index or constraint.** Migration 119 applies over existing duplicates and never deletes or revokes a grant; I checked the file: no index, constraint, update or delete on `role_assignments`. Name the clean-up in the hand-off: staging's synthetic pair (Uji Kinerja Admin, `INSTITUTION_ADMIN` at `uji-kinerja`, twice) can be revoked by the synthetic admin if wanted. The coordinator checks production for duplicates (read-only) before the release.
+   - **Send BOB-09's hand-off together with BOB-18's.** It is saved as `docs/coordination/handover/bob18/HANDOFF-BOB-09.md`. BOB-09 has its own green run, CI #200 on `e3232ca`. BOB-18 (a)–(d) was green in CI #201 on `5acc7f8`. One CI run on the final BOB-18 head covers both (D-043).
+   - **Keep the modelled timings labelled as a model.** The U-PERF evidence is the coordinator's staging measurement after the merge.
+   - The viewer-read plan (the session cookie before any network call) is agreed.
+5. **Questions already in the draft:**
+   - the lane order (BOB-09 underneath);
+   - prefetch: about 21 `proxy.ts` session checks per page load;
+   - the health card's "Perlu perhatian" rule;
+   - revoke staging's existing double grant.
 
 ## Per-ticket process
 - **Commits.** Each message starts with the ticket id and ends with the Co-Authored-By and Claude-Session lines.

@@ -1,6 +1,9 @@
 import Link from "next/link";
+import TandaTautan from "@/components/TandaTautan";
 import { t, type HleEvent } from "@/lib/hle";
-import { kalimatHasil } from "@/lib/galat-kontrak";
+import { kalimatHasil, rujukan } from "@/lib/galat-kontrak";
+import { nilaiSkema } from "@/lib/kesehatan-skema";
+import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
@@ -16,6 +19,9 @@ import { peranSaya } from "@/lib/tur-negara";
 import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
 import PanelStruktur from "@/components/struktur/PanelStruktur";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
+import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 
 /**
@@ -54,7 +60,7 @@ type MetricDefinition = {
   deprecated: boolean;
 };
 
-type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string }>;
+type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
@@ -86,7 +92,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
 
   const [
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
-    { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint }, { data: env },
+    { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint, error: lintError }, { data: env },
+    { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
     supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
@@ -97,8 +104,37 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha").order("at", { ascending: false }).limit(50),
     supabase.from("feature_flags").select("key, institution_id, enabled, note").order("key"),
     supabase.from("platform_config").select("key, value"),
-    isSys ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null }),
+    // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
+    // on an ordinary load -- it reads the whole catalogue, and every sign-in of
+    // the platform admin lands here.
+    isSys && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null, error: null }),
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
+    // FINAL DELTA 2. The people the three sources above cannot reach: no active
+    // role, no enrolment, no transfer. The database decides who may ask and who
+    // may be seen, and it refuses everyone but the platform administrator. So
+    // only the platform administrator asks: the school administrator's asking
+    // was 338 refusals in U-PERF's 30-session run on staging. The refusal is
+    // still the database's; this only stops asking a question whose answer is
+    // known.
+    isSys === true ? supabase.rpc("persons_awaiting_first_role") : Promise.resolve({ data: [] }),
+    // W8-02. The institution's own templates, and the catalogue they may select
+    // from. Both are ordinary reads under this viewer's own RLS: the template
+    // rows are their school's, and the catalogue is PINTAR's, readable by anyone
+    // signed in and writable by nobody through this surface.
+    // BOB-18 (e): read beside everything above rather than after it, so the
+    // page a save returns to costs one round trip here instead of three.
+    Promise.all([
+      supabase.from("report_templates").select("id, institution_id, template_version, standard_report, title_key").order("title_key"),
+      supabase.from("report_template_metrics").select("template_id, metric_id, ordinal, visualization").order("ordinal"),
+      (async (): Promise<{ data: MetricDefinition[] }> => {
+        const liveCatalogue = (await supabase.rpc("current_metric_catalogue")).data as string | null;
+        if (!liveCatalogue) return { data: [] };
+        const { data } = await supabase.from("metric_definitions")
+          .select("metric_id, label_key, scope, allowed_visualizations, deprecated")
+          .eq("catalogue_version", liveCatalogue).eq("deprecated", false).order("metric_id");
+        return { data: (data ?? []) as MetricDefinition[] };
+      })(),
+    ]),
   ]);
 
   // DAISY-05. The school whose structure is shown: an active, real school the
@@ -114,27 +150,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ? supabase.from("org_nodes").select("id").eq("institution_id", sekolahStruktur.id).eq("kind", "INSTITUTION").limit(1).maybeSingle()
     : Promise.resolve({ data: null });
 
-  // FINAL DELTA 2. The people the three sources above cannot reach: no active
-  // role, no enrolment, no transfer. The database decides who may ask and who
-  // may be seen -- a non-SYSTEM_ADMIN is refused by the endpoint and gets an
-  // error rather than rows, which is why nothing here checks a role first.
-  const { data: awaiting } = await supabase.rpc("persons_awaiting_first_role");
   const awaitingPersons = (awaiting ?? []) as Array<{ person_id: string; display_name: string }>;
-
-  // W8-02. The institution's own templates, and the catalogue they may select
-  // from. Both are ordinary reads under this viewer's own RLS: the template
-  // rows are their school's, and the catalogue is PINTAR's, readable by anyone
-  // signed in and writable by nobody through this surface.
-  const liveCatalogue = (await supabase.rpc("current_metric_catalogue")).data as string | null;
-  const [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }] = await Promise.all([
-    supabase.from("report_templates").select("id, institution_id, template_version, standard_report, title_key").order("title_key"),
-    supabase.from("report_template_metrics").select("template_id, metric_id, ordinal, visualization").order("ordinal"),
-    liveCatalogue
-      ? supabase.from("metric_definitions")
-          .select("metric_id, label_key, scope, allowed_visualizations, deprecated")
-          .eq("catalogue_version", liveCatalogue).eq("deprecated", false).order("metric_id")
-      : Promise.resolve({ data: [] as MetricDefinition[] }),
-  ]);
 
   // Names for the people this viewer may see (RLS decides who that is).
   const personIds = Array.from(new Set([
@@ -149,9 +165,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const nodeName = new Map((nodes ?? []).map((n) => [n.id, `${n.name}`]));
 
   const activeClassCount = (nodes ?? []).filter((n) => n.kind === "CLASS" && n.is_active).length;
-  const lintOk = lint
-    ? Object.entries(lint as Record<string, unknown>).every(([k, v]) => k === "environment" || k === "migrations_applied" || v === 0)
-    : null;
+  // BOB-19: the card judges each check by the one rule F01-T13 uses
+  // (src/lib/kesehatan-skema), never "anything but 0 is a problem"
+  let kesehatan: KeadaanKesehatan;
+  if (isSys !== true) kesehatan = { jenis: "bukan_admin" };
+  else if (sp.periksa !== "skema") kesehatan = { jenis: "belum" };
+  else if (lintError || !lint || typeof lint !== "object") {
+    const ref = rujukan();
+    console.error(`[konfigurasi ${ref}] platform_schema_lint failed`, lintError?.code, lintError?.message);
+    kesehatan = { jenis: "gagal", rujukan: ref };
+  } else kesehatan = { jenis: "diperiksa", hasil: nilaiSkema(lint as Record<string, unknown>) };
   const configValue = (key: string) => (platformConfig ?? []).find((r) => r.key === key)?.value === true;
   const myInstitutions = (institutions ?? []).filter((i) => isSys || adminInstitutionIds.includes(i.id));
   const myInstitutionIds = myInstitutions.map((i) => i.id);
@@ -164,14 +187,20 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   }
   const rollNodes = (nodes ?? []).filter((n) => (n.kind === "COHORT" || n.kind === "CLASS") && n.academic_period_id);
 
+  // DAISY-18: the result sits under the form it answers, in the shared line.
   const result = (section: string) =>
     sp.bagian === section && sp.hasil ? (
-      <p className={`mt-3 inline-block rounded px-2 py-0.5 text-sm ${sp.hasil === "ok" ? "bg-ok-soft text-ok" : "bg-blocked-soft text-blocked"}`}>
+      <BarisHasil nada={sp.hasil === "ok" ? "ok" : "gagal"}>
         {kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" })}
-      </p>
+      </BarisHasil>
     ) : null;
 
-  const [struktur, locale, { data: akar }] = await Promise.all([bacaanStruktur, currentLocale(), bacaanAkar]);
+  // DAISY-17: "Menambahkan orang" is offered only to a reader /pendataan
+  // admits -- the same predicate it asks on arrival. A platform administrator
+  // holds no school's CAN_PROVISION_PEOPLE and was sent to a refusal.
+  const [struktur, locale, { data: akar }, bolehPendataan] = await Promise.all([
+    bacaanStruktur, currentLocale(), bacaanAkar, sekolahPendataan().then((x) => x.length > 0).catch(() => false),
+  ]);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   const sl = (event: HleEvent) => t(event, "staff", { locale });
 
@@ -207,9 +236,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           administrator's other places (D-010) after them. Every one of these
           asks its own gate on arrival; a link here decides nothing. */}
       <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label={t("nav.tempat", "staff", { locale: await currentLocale() })}>
-        <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}</Link>
-        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}</Link>
-        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}</Link>
+        {bolehPendataan ? <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}<TandaTautan /></Link> : null}
+        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}<TandaTautan /></Link>
+        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link>
         <TabTempat
           tempat={tempatDariPeran(peran)}
           kecuali={["/konfigurasi"]}
@@ -220,14 +249,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       </nav>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
-        <div className={card}>
-          <p className="text-sm text-ink-3">{s("config.card.health")}</p>
-          {lintOk === null ? <p className="mt-1 text-ink-2">—</p> : (
-            <p className={`mt-1 inline-block rounded px-2 py-0.5 ${lintOk ? "bg-ok-soft text-ok" : "bg-blocked-soft text-blocked"}`}>
-              {lintOk ? "Semua pemeriksaan lolos" : "Perlu perhatian"}
-            </p>
-          )}
-        </div>
+        <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />
         <div className={card}>
           <p className="text-sm text-ink-3">{s("config.card.cohorts")}</p>
           <p className="mt-1 text-ink-2">{activeClassCount}</p>
@@ -308,6 +330,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   {akar ? (
                     <Link href={`/dekan/ringkasan?simpul=${(akar as { id: string }).id}`} className={tautanTempat}>
                       {sl("config.laporan.sekolah")} · {sekolahStruktur.name}
+                      <TandaTautan />
                     </Link>
                   ) : null}
                   <span className="text-ink-3">{sl("config.laporan.kelas")}</span>
@@ -317,6 +340,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                         <li key={k.node_id}>
                           <Link href={`/edukator/ringkasan?kelas=${k.node_id}`} className={tautanTempat}>
                             {k.name}{k.academic_year ? ` (${k.academic_year})` : ""}
+                            <TandaTautan />
                           </Link>
                         </li>
                       ))}
@@ -389,7 +413,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       </label>
                     ))}
                   </div>
-                  <div><button className={button}>{s("config.action.rollover")}</button></div>
+                  <div><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.rollover")}</TombolKirim></div>
                 </form>
               );
             })}
@@ -411,15 +435,15 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   {(x.status === "REQUESTED" || x.status === "AUTHORIZED") && (
                     <div className="flex flex-wrap gap-2">
                       {x.status === "REQUESTED" && (
-                        <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><button className={button}>{s("config.action.authorize")}</button></form>
+                        <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
                       )}
                       {x.status === "AUTHORIZED" && (
-                        <form action={transferExecuteAction}><input type="hidden" name="transfer" value={x.id} /><button className={button}>{s("config.action.execute")}</button></form>
+                        <form action={transferExecuteAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.execute")}</TombolKirim></form>
                       )}
                       <form action={transferRejectAction} className="flex gap-1">
                         <input type="hidden" name="transfer" value={x.id} />
                         <input name="reason" className={field} placeholder={s("config.label.reason")} />
-                        <button className={button}>{s("config.action.reject")}</button>
+                        <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.reject")}</TombolKirim>
                       </form>
                     </div>
                   )}
@@ -443,7 +467,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.destination_programme")}<input name="to_programme" className={field} /></label>
               <label className={label}>{s("config.label.reason")}<input name="reason" className={field} /></label>
               <p className="text-xs text-ink-3 sm:col-span-2">{s("config.label.destination_help")}</p>
-              <div><button className={button}>{s("config.action.request_transfer")}</button></div>
+              <div><TombolKirim className={button} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
             </form>
             {result("transfers")}
           </section>
@@ -459,7 +483,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? short(a.scope_node_id) : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {a.valid_until.slice(0, 10)}</span>
                   </span>
                   {a.person_id !== viewer.personId && (
-                    <form action={revokeRoleAction}><input type="hidden" name="assignment" value={a.id} /><button className={button}>{s("config.action.revoke")}</button></form>
+                    <form action={revokeRoleAction}><input type="hidden" name="assignment" value={a.id} /><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.revoke")}</TombolKirim></form>
                   )}
                 </li>
               ))}
@@ -499,7 +523,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </select>
               </label>
               <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>
-              <div><button className={button}>{s("config.action.grant")}</button></div>
+              <div><TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
             </form>
             {result("roles")}
           </section>
@@ -539,7 +563,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       <input type="checkbox" name="value" defaultChecked={configValue(key)} />
                       {key === "maintenance_mode" ? s("config.label.maintenance") : s("config.label.registration_lock")}
                     </label>
-                    <button className={button}>{s("config.action.save")}</button>
+                    <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.save")}</TombolKirim>
                   </form>
                 ))}
               </div>
@@ -562,7 +586,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </label>
                 <label className={label}>{s("config.label.flag_key")}<input name="key" className={field} required pattern="[a-z][a-z0-9_.]{1,80}" /></label>
                 <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" name="enabled" />{s("config.label.enabled")}</label>
-                <button className={button}>{s("config.action.save")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.save")}</TombolKirim>
               </form>
             )}
             {result("flags")}
@@ -635,7 +659,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     </label>
                   ))}
                 </fieldset>
-                <button className={button}>{s("laporan.templat.simpan")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("laporan.templat.simpan")}</TombolKirim>
               </form>
             )}
             {result("intelligence")}

@@ -3,6 +3,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { saveDefinitionAction } from "../actions";
 import { kunciKode } from "@/lib/galat-kontrak";
+import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Assessment Definition builder (§10).
@@ -38,7 +40,6 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
   return (
     <div className="grid gap-6">
       <h2 className="text-lg font-medium">{s("studio.definisi.judul")}</h2>
-      {banner ? <p className={card}>{banner}</p> : null}
 
       <section className={card}>
         <h3 className="font-medium">{s("studio.definisi.batas")}</h3>
@@ -91,8 +92,9 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
           <input className={field} name="komposisi" placeholder='komposisi, mis. {"MUDAH":3,"SEDANG":2}' />
           <input className={field} name="kelulusan" placeholder='kelulusan, mis. {"mastery_min":0.6}' />
           <input type="hidden" name="definisi" value="" />
-          <button className={button} type="submit">{s("studio.definisi.simpan")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
         </form>
+        <HasilDi q={sp} bagian="definisi" kalimat={banner} />
       </section>
 
       <section className="grid gap-2">
@@ -105,7 +107,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                 <input type="hidden" name="definisi" value={d.id} />
                 <input className={field} name="judul" defaultValue={d.title} />
                 <input className={field} name="jumlah" type="number" defaultValue={d.item_count} />
-                <button className={button} type="submit">{s("studio.definisi.simpan")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
               </form>
             </li>
           ))}

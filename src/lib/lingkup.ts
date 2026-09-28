@@ -1,5 +1,6 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
+import { pilihanTempat, type SimpulPohon } from "@/lib/struktur-kontrak";
 
 /**
  * The scopes this ACCOUNT may see (UX-1 Slice 0, S0.6).
@@ -46,9 +47,21 @@ export type ScopeOption = {
 };
 
 export async function myScopes(): Promise<ScopeOption[]> {
-  const db = await supabaseServer();
-  const [nodes, classes] = await Promise.all([
-    db.from("org_nodes").select("id, name, kind").order("name"),
+  return myScopesDari(await supabaseServer());
+}
+
+/**
+ * `myScopes` over a given client (BOB-09: driven in selftest/bob09.test.ts).
+ *
+ * ONLY BAGIAN, TINGKAT AND KELAS, LABELLED BY PATH (D-006). The school root and
+ * the hidden Jenjang and Reguler are never offered; the label is the visible
+ * path and year from `pilihanTempat`, the same rule the intake uses.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function myScopesDari(db: any): Promise<ScopeOption[]> {
+  const [nodes, periods, classes] = await Promise.all([
+    db.from("org_nodes").select("id, name, kind, parent_id, jalur, academic_period_id, is_active").order("name"),
+    db.from("academic_periods").select("id, name"),
     db.from("classes").select("node_id, subject"),
   ]);
 
@@ -56,19 +69,19 @@ export async function myScopes(): Promise<ScopeOption[]> {
   for (const c of (classes.data ?? []) as Array<{ node_id: string; subject: string }>) {
     subject.set(String(c.node_id), String(c.subject));
   }
+  const year = new Map<string, string>();
+  for (const p of (periods.data ?? []) as Array<{ id: string; name: string }>) year.set(String(p.id), String(p.name));
 
-  const out: ScopeOption[] = [];
-  for (const n of (nodes.data ?? []) as Array<{ id: string; name: string; kind: string }>) {
-    const id = String(n.id);
-    const isClass = n.kind === "CLASS";
-    out.push({
-      id,
-      label: String(n.name),
+  return pilihanTempat((nodes.data ?? []) as SimpulPohon[], year).map((p) => {
+    const isClass = p.level === "KELAS";
+    return {
+      id: p.id,
+      label: p.label,
       kind: isClass ? "class" : "node",
-      ...(isClass && subject.has(id) ? { subject: subject.get(id) } : {}),
-    });
-  }
-  return out;
+      ...(isClass && subject.has(p.id) ? { subject: subject.get(p.id) } : {}),
+      path: p.jalur,
+    };
+  });
 }
 
 /**

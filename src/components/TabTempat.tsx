@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TandaTautan from "@/components/TandaTautan";
 import { t, type Locale, type Persona } from "@/lib/hle";
 import { daftarTempat, type Tempat } from "./tempat";
 
@@ -32,11 +33,13 @@ export default function TabTempat({
       {daftarTempat(tempat, kecuali, locale, persona).map(({ href, label }) => (
         <Link key={href} href={href} className={kelas}>
           {label}
+          <TandaTautan />
         </Link>
       ))}
       {studio ? (
         <Link href="/studio" className={kelas}>
           {t("nav.studio", persona, { locale })}
+          <TandaTautan />
         </Link>
       ) : null}
     </>

@@ -2,6 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type {
   HasilStruktur,
@@ -168,20 +170,16 @@ function Pesan({ jejak, apa, locale }: { jejak: Jejak; apa: Apa; locale: Locale 
   const s = (k: HleEvent) => t(k, "staff", { locale });
   if (jejak.hasil.ok) {
     return apa === "diubah" ? (
-      <p className="pin-str-pesan" role="status">
+      <BarisHasil nada="ok">
         {s("config.struktur.ok.diubah")} <strong>{jejak.nama}</strong>.
-      </p>
+      </BarisHasil>
     ) : (
-      <p className="pin-str-pesan" role="status">
+      <BarisHasil nada="ok">
         <strong>{jejak.nama}</strong> {s(apa === "dibuat" ? "config.struktur.ok.dibuat" : "config.struktur.ok.dinonaktifkan")}
-      </p>
+      </BarisHasil>
     );
   }
-  return (
-    <p className="pin-msg pin-msg-err" role="alert">
-      {kalimatGagal(jejak.hasil.code, jejak.hasil.ref, locale)}
-    </p>
-  );
+  return <BarisHasil nada="gagal">{kalimatGagal(jejak.hasil.code, jejak.hasil.ref, locale)}</BarisHasil>;
 }
 
 /** "Tambah Bagian / Tingkat / Kelas" under its parent. The name field stays filled after a refusal. */
@@ -245,9 +243,9 @@ function FormTambah({
             />
           </div>
         )}
-        <button type="submit" className="pin-btn pin-primary" disabled={sibuk}>
-          {sibuk ? s("config.struktur.sibuk") : s(KUNCI_TAMBAH[tingkatan])}
-        </button>
+        <TombolKirim className="pin-btn pin-primary" disabled={sibuk} sibuk={s("config.struktur.sibuk")}>
+          {s(KUNCI_TAMBAH[tingkatan])}
+        </TombolKirim>
       </form>
       {tahunIkut ? (
         <p className="pin-hint">
@@ -299,9 +297,9 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
               required
               autoComplete="off"
             />
-            <button type="submit" className="pin-btn pin-primary" disabled={sibukUbah}>
-              {sibukUbah ? s("config.struktur.sibuk") : s("config.struktur.simpan")}
-            </button>
+            <TombolKirim className="pin-btn pin-primary" disabled={sibukUbah} sibuk={s("config.struktur.sibuk")}>
+              {s("config.struktur.simpan")}
+            </TombolKirim>
             <button type="button" className="pin-btn" onClick={() => setMode("lihat")}>
               {s("config.struktur.batal")}
             </button>
@@ -364,9 +362,9 @@ export function KonfirmasiNonaktif({
       </p>
       <p className="pin-hint">{s("config.struktur.konfirmasi.arti")}</p>
       <div className="pin-str-tanya-aksi">
-        <button type="submit" className="pin-btn pin-str-bahaya" disabled={sibuk}>
-          {sibuk ? s("config.struktur.sibuk") : s("config.struktur.konfirmasi.ya")}
-        </button>
+        <TombolKirim className="pin-btn pin-str-bahaya" disabled={sibuk} sibuk={s("config.struktur.sibuk")}>
+          {s("config.struktur.konfirmasi.ya")}
+        </TombolKirim>
         <button type="button" className="pin-btn" onClick={batal}>
           {s("config.struktur.batal")}
         </button>

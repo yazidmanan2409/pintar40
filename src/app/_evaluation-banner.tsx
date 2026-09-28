@@ -2,6 +2,7 @@ import Link from "next/link";
 import { evaluationState } from "@/lib/evaluation";
 import { t } from "@/lib/hle";
 import { exitPersonaAction } from "./evaluasi/actions";
+import TombolKirim from "@/components/TombolKirim";
 
 const e = (k: Parameters<typeof t>[0]) => t(k, "staff");
 
@@ -25,7 +26,7 @@ export default async function EvaluationBanner() {
         <span className="ml-auto flex items-center gap-3">
           <Link href="/evaluasi">{e("evaluasi.ganti")}</Link>
           <form action={exitPersonaAction}>
-            <button className="underline">{e("evaluasi.keluar")}</button>
+            <TombolKirim className="underline" sibuk={e("tombol.memproses")}>{e("evaluasi.keluar")}</TombolKirim>
           </form>
         </span>
       </div>

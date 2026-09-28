@@ -8,6 +8,8 @@ import {
 } from "../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import PeriksaDaftar from "@/components/pendataan/PeriksaDaftar";
 import Penggerak from "@/components/pendataan/Penggerak";
@@ -96,9 +98,7 @@ export default async function SatuPendataan({
         {fase === "menunggu_konfirmasi" && pratinjau ? (
           <section className="pin-sec" aria-labelledby="pin-pratinjau">
             <h2 id="pin-pratinjau">{s("pendataan.pratinjau.judul")}</h2>
-            {sp.galat === "konfirmasi" ? (
-              <p className="pin-msg pin-msg-err" role="alert">{s("pendataan.konfirmasi.gagal")}</p>
-            ) : null}
+            {sp.galat === "konfirmasi" ? <BarisHasil nada="gagal">{s("pendataan.konfirmasi.gagal")}</BarisHasil> : null}
 
             {/* WP5A'S OWN NUMBERS. Nothing here is recomputed from the rows:
                 the preview is what a human is deciding on, so it has to be the
@@ -159,7 +159,7 @@ export default async function SatuPendataan({
                 it calls WP5A's confirmation rather than moving a flag here. */}
             <form action={konfirmasiAksi}>
               <input type="hidden" name="pekerjaan" value={pekerjaan} />
-              <button type="submit" className="pin-btn pin-go pin-data-btn">{s("pendataan.pratinjau.setuju")}</button>
+              <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
             </form>
           </section>
         ) : null}
@@ -170,9 +170,7 @@ export default async function SatuPendataan({
             <h2 id="pin-pilot">{s("pendataan.percontohan.judul")}</h2>
             <p className="pin-lede">{s("pendataan.percontohan.nyata")}</p>
             <p className="pin-mm">{s("pendataan.percontohan.arti")}</p>
-            {sp.galat === "percontohan" ? (
-              <p className="pin-msg pin-msg-err" role="alert">{s("pendataan.percontohan.gagal")}</p>
-            ) : null}
+            {sp.galat === "percontohan" ? <BarisHasil nada="gagal">{s("pendataan.percontohan.gagal")}</BarisHasil> : null}
 
             {/* THE CHECK IS ONLY REAL IF THERE IS SOMETHING TO CHECK. Each of
                 the fifty with the identity number PINTAR generated for them. */}
@@ -193,7 +191,7 @@ export default async function SatuPendataan({
 
             <form action={periksaPercontohanAksi}>
               <input type="hidden" name="pekerjaan" value={pekerjaan} />
-              <button type="submit" className="pin-btn pin-go pin-data-btn">{s("pendataan.percontohan.tanya")}</button>
+              <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memeriksa")}>{s("pendataan.percontohan.tanya")}</TombolKirim>
             </form>
           </section>
         ) : null}

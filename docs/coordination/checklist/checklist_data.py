@@ -571,6 +571,62 @@ CURRENT["U-PERF"] = CURRENT["U-PERF"].replace(" BOB-18.", " Writes: \"Berikan pe
 VERDICT_NOW = VERDICT_NOW.replace("Coordinator —", "Daisy — DAISY-17 (a click that saves says so at once and saves once: U-PERF). Coordinator —", 1)
 
 
+# --- Integration 11 on main (28 Sep): BOB-18 (PINTAR answers quickly), BOB-09 (pickers by path),
+#     DAISY-17 (a click that saves says so at once and saves once) ---
+NOW.update({
+    "sha": "b24a95b",
+    "date": "28 Sep 2026",
+    "label": "Integration 11 (main)",
+    "evidence": ("main b24a95b = Integration 11: BOB-18, BOB-09 and DAISY-17 on top of Integration 10 (6074833); the gate tree 3a89bc9 "
+                 "plus two perf-harness commits. CI #204 (26/26); audit #28, run 36358096830 (26 PASS, 1 NOTE, 1 FAIL: S8, BOB-10). "
+                 "The lanes' own runs: CI #200 (e3232ca), #202 (d6cde10), #203 (9295bd7). "
+                 "Before it: Integrations 5–10 (CI #181, #184, #186, #191, #196, #199). Staging: 119 migrations after this integration."),
+})
+CURRENT.update({
+    "ADM-07": ("PARTIAL: intake into a Kelas works (S9); a school-level place is refused at validation, with the reason in Indonesian (BOB-01). "
+               "The pickers now offer only Bagian, Tingkat and Kelas, labelled by path and year (BOB-09, BOB09-K01). Staff rows are still a trap (BOB-10)."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 119; staging 119 after this integration.",
+})
+CURRENT["U-PERF"] = ("NOT VERIFIED after the fixes. Before (27 Sep, staging, Singapore, a US runner, run 36358786975): admin sign-in to Konfigurasi "
+                     "3.1–4.8 s, teacher 2.6–2.9 s; clicks 0.7–2.3 s. Before Singapore: about 10 s to sign in, Studio 13–25 s, 406 Supabase requests "
+                     "in one session. BOB-18 (the unnecessary work removed) and DAISY-17 (a save acknowledged at once, saved once) are on main; "
+                     "the measurement after them, with request counts, and the 30-session run come next.")
+VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
+               "Bob — BOB-10 (intake trap: ADM-07, X-01), BOB-11 (media playback: STU-11, ADM-10), BOB-19 (the health card), "
+               "BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01). "
+               "Daisy — DAISY-18 (PINTAR shows it heard you, D-047: U-PERF). "
+               "Coordinator — U-PERF on staging after BOB-18 (timings, request counts, the 30-session run); extend the audit to answer the "
+               "pre-test and post-test and read the result (STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. Yazid — REL-08 and "
+               "REL-09 (Supabase settings, offline key copies). The live release (5b5b68d) stays as it is.")
+CHANGES_V21.append(
+    "Re-marked on 28 Sep against Integration 11 on main (b24a95b): BOB-18 removes the unnecessary work behind the slow pages "
+    "(the schema lint on every Konfigurasi load, 16 permission calls per Studio click, repeated reads) and refuses a duplicate grant "
+    "in the database; BOB-09's pickers offer only Bagian, Tingkat and Kelas, by path (ADM-07 still PARTIAL for BOB-10); DAISY-17 "
+    "acknowledges every save at once and saves it once. U-PERF waits for its measurement on staging.")
+
+
+# --- 28 Sep: U-PERF single session after BOB-18 (run 36359917724) ---
+CURRENT["U-PERF"] = ("PARTIAL: single session after BOB-18 passes (staging 87fedc9, a US runner, 3 repetitions, run 36359917724): "
+                     "the page usable 1.0–3.3 s after sign-in (3.3 s cold); clicks median 1.16 s, 27 of 27 under 3 s; a save shows "
+                     "\"Menyimpan…\" 2–4 ms after the click and its result after 1.8 s; no errors. Server calls per Studio click 27 → 6, its "
+                     "other pages 13 → 3 (perf/2026-09-27-staging-latency.md). Left: the 30-session, 10-minute run.")
+
+# --- 28 Sep: U-PERF, 30 active sessions for 10 minutes (run 36361820806) ---
+CURRENT["U-PERF"] = ("PASS on staging after BOB-18 (measured from US runners, so every click also carries the trip to Singapore). "
+                     "Single session (run 36359917724): the page usable 1.0–3.3 s after sign-in; clicks median 1.16 s, all under 3 s; a save shows "
+                     "\"Menyimpan…\" 2–4 ms after the click. 30 sessions for 10 minutes (run 36361820806): 2,429 clicks, 0 failed, 0 server errors, "
+                     "0 page errors, click p95 1.2–1.5 s, max 2.3 s; Supabase 0 5xx, 0 429, database p95 282 ms. Server calls per Studio click 27 → 6 "
+                     "(perf/2026-09-27-staging-latency.md).")
+CHANGES_V21.append("28 Sep: U-PERF passes: one session and 30 sessions for 10 minutes on staging after BOB-18, with no error.")
+VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
+               "Bob — BOB-10 (intake trap: ADM-07, X-01) and BOB-11 (media playback: STU-11, ADM-10), both at the Integration 12 gate; "
+               "then BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01). "
+               "Daisy — DAISY-18 at the Integration 12 gate (PINTAR shows it heard you, D-047); BOB-19 (the health card). "
+               "Coordinator — gate Integration 12; extend the audit to answer the pre-test and post-test and read the result "
+               "(STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key "
+               "copies). The live release (5b5b68d) stays as it is.")
+
+
 def as_dict():
     g = globals()
     return {

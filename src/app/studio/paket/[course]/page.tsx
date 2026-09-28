@@ -6,6 +6,8 @@ import { button, can, card, field, label, outcomeLine, s, studioInstitutions, wh
 import {
   acknowledgeFindingAction, createRevisionAction, moveReleaseAction, runValidationAction,
 } from "../../actions";
+import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Package detail — Publish Readiness (§5), freeze & publish (§6), release
@@ -55,7 +57,7 @@ function FindingCard({ f, courseId, kind, showAck }: {
             <span>{s("studio.paket.catatan")}</span>
             <input className={field} name="catatan" />
           </label>
-          <button className={button} type="submit">{s("studio.temuan.akui")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.temuan.akui")}</TombolKirim>
         </form>
       ) : null}
     </li>
@@ -108,8 +110,6 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
   return (
     <div className="grid gap-6">
-      {banner ? <p className={card}>{banner}</p> : null}
-
       <section className={card} id="paket">
         <h2 className="text-lg font-medium">{course.title}</h2>
         <p className="mt-1 text-sm text-ink-3">{course.subject} · {course.stage} · {course.grade_label}</p>
@@ -146,6 +146,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         </div>
       </section>
 
+      <HasilDi q={sp} bagian={["paket", "terbitan"]} kalimat={banner} />
+
       <LangkahTerbit
         locale={locale}
         course={courseId}
@@ -161,10 +163,11 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         {can(inst, "CAN_DRAFT") && !tersegel ? (
           <form action={runValidationAction} className="flex flex-wrap items-center gap-3">
             <input type="hidden" name="course" value={courseId} />
-            <button className={button} type="submit">{s("studio.paket.periksa_isi")}</button>
+            <TombolKirim className={button} sibuk={s("tombol.memeriksa")}>{s("studio.paket.periksa_isi")}</TombolKirim>
             <span className="text-sm text-ink-2">{s("studio.paket.periksa_isi_arti")}</span>
           </form>
         ) : null}
+        <HasilDi q={sp} bagian="temuan" kalimat={banner} />
         {findings.length + coaching.length === 0 ? (
           <p className={card}>{s("studio.temuan.kosong")}</p>
         ) : (
@@ -185,14 +188,16 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           <p className="mt-1 text-sm text-ink-2">{s("studio.paket.revisi_penjelasan")}</p>
           <form action={createRevisionAction} className="mt-3">
             <input type="hidden" name="course" value={courseId} />
-            <button className={button} type="submit">{s("studio.paket.revisi")}</button>
+            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.revisi")}</TombolKirim>
           </form>
+          <HasilDi q={sp} bagian="revisi" kalimat={banner} />
         </section>
       ) : null}
 
       {can(inst, "CAN_ASSIGN_LEARNING") && (assignments ?? []).length > 0 && published.length > 1 ? (
         <section className={card} id="koreksi">
           <h3 className="text-lg font-medium">{s("studio.paket.tugaskan")}</h3>
+          <HasilDi q={sp} bagian="koreksi" kalimat={banner} />
           {(assignments ?? []).map((a) => (
             <form action={moveReleaseAction} key={a.id} className="mt-3 flex flex-wrap items-end gap-2">
               <input type="hidden" name="course" value={courseId} />
@@ -210,7 +215,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                 <span>{s("studio.paket.koreksi_alasan")}</span>
                 <input className={field} name="alasan" required />
               </label>
-              <button className={button} type="submit">{s("studio.paket.tugaskan")}</button>
+              <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.paket.tugaskan")}</TombolKirim>
             </form>
           ))}
         </section>

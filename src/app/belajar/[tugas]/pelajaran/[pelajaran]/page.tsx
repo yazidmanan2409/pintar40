@@ -41,7 +41,8 @@ export default async function Pelajaran(
   const media = await Promise.all(
     (lesson.media ?? []).map(async (m) => {
       const { data } = await supabase.rpc("may_read_lesson_media", { p_path: m.path });
-      return { ...m, url: data === true ? `/api/assets/read-url?path=${encodeURIComponent(m.path)}` : null };
+      // BOB-11: `alih=1` answers with the file itself (a redirect), which a <video> or <audio> can play
+      return { ...m, url: data === true ? `/api/assets/read-url?path=${encodeURIComponent(m.path)}&alih=1` : null };
     }),
   );
 

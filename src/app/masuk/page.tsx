@@ -7,6 +7,7 @@ import MerekPintar from "@/components/MerekPintar";
 import LayarMasuk from "@/components/masuk/LayarMasuk";
 import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyataan";
 import FokusAwal from "@/components/masuk/FokusAwal";
+import TombolKirim from "@/components/TombolKirim";
 import { keluarDariSesi, lanjutkanSesi } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -76,10 +77,10 @@ export default async function Masuk({
               <div className="pin-stack">
                 <form action={lanjutkanSesi}>
                   <input type="hidden" name="lanjut" value={lanjut} />
-                  <button type="submit" className="pin-mbtn pin-mbtn-1">{s("auth.in_go")}</button>
+                  <TombolKirim className="pin-mbtn pin-mbtn-1" sibuk={s("tombol.memproses")}>{s("auth.in_go")}</TombolKirim>
                 </form>
                 <form action={keluarDariSesi}>
-                  <button type="submit" className="pin-mbtn pin-mbtn-2">{s("auth.in_out")}</button>
+                  <TombolKirim className="pin-mbtn pin-mbtn-2" sibuk={s("tombol.memproses")}>{s("auth.in_out")}</TombolKirim>
                 </form>
               </div>
             </div>

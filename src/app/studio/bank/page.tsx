@@ -2,6 +2,8 @@ import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, card, field, label, outcomeLine, s, short, studioInstitutions } from "../_lib";
 import { recordQuestionHealthReviewAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Content & Question Banks, and the Question Health surface (§8, §10).
@@ -35,7 +37,8 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   return (
     <div className="grid gap-4" id="kesehatan">
       <h2 className="text-lg font-medium">{s("studio.bank.judul")}</h2>
-      {banner ? <p className={card}>{banner}</p> : null}
+      {/* DAISY-18: one form per item; the answer heads the list it came from */}
+      <HasilDi q={sp} bagian="kesehatan" kalimat={banner} />
 
       {(items ?? []).length === 0 ? (
         <p className={card}>{s("studio.paket.kosong")}</p>
@@ -68,7 +71,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                       </select>
                     </label>
                     <input className={field} name="catatan" placeholder="catatan" />
-                    <button className={button} type="submit">{s("studio.integritas.catat")}</button>
+                    <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                   </form>
                 ) : null}
               </li>
