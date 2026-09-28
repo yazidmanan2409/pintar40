@@ -611,6 +611,21 @@ CURRENT["U-PERF"] = ("PARTIAL: single session after BOB-18 passes (staging 87fed
                      "\"Menyimpan…\" 2–4 ms after the click and its result after 1.8 s; no errors. Server calls per Studio click 27 → 6, its "
                      "other pages 13 → 3 (perf/2026-09-27-staging-latency.md). Left: the 30-session, 10-minute run.")
 
+# --- 28 Sep: U-PERF, 30 active sessions for 10 minutes (run 36361820806) ---
+CURRENT["U-PERF"] = ("PASS on staging after BOB-18 (measured from US runners, so every click also carries the trip to Singapore). "
+                     "Single session (run 36359917724): the page usable 1.0–3.3 s after sign-in; clicks median 1.16 s, all under 3 s; a save shows "
+                     "\"Menyimpan…\" 2–4 ms after the click. 30 sessions for 10 minutes (run 36361820806): 2,429 clicks, 0 failed, 0 server errors, "
+                     "0 page errors, click p95 1.2–1.5 s, max 2.3 s; Supabase 0 5xx, 0 429, database p95 282 ms. Server calls per Studio click 27 → 6 "
+                     "(perf/2026-09-27-staging-latency.md).")
+CHANGES_V21.append("28 Sep: U-PERF passes: one session and 30 sessions for 10 minutes on staging after BOB-18, with no error.")
+VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
+               "Bob — BOB-10 (intake trap: ADM-07, X-01) and BOB-11 (media playback: STU-11, ADM-10), both at the Integration 12 gate; "
+               "then BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01). "
+               "Daisy — DAISY-18 at the Integration 12 gate (PINTAR shows it heard you, D-047); BOB-19 (the health card). "
+               "Coordinator — gate Integration 12; extend the audit to answer the pre-test and post-test and read the result "
+               "(STU-06…STU-18, X-06…X-11), and walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key "
+               "copies). The live release (5b5b68d) stays as it is.")
+
 
 def as_dict():
     g = globals()
