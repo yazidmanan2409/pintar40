@@ -1,0 +1,93 @@
+# Bob → coordinator: BOB-17 (release blockers speak in codes, D-011; audit M7)
+
+**Head:** `HEAD_SHA`, on main (merged first), sitting on BOB-10 and BOB-11 in the lane.
+**The contract was published early**, at `7bc5a25`, so Daisy could build DAISY-16 against it: `src/lib/terbitan-kontrak.ts`, the "the blockers" section.
+
+## CHANGED
+
+**The catalogue** (`src/lib/terbitan-kontrak.ts`):
+- **`KODE_HAMBATAN`**: nine codes.
+  - `READINESS_TEXT_ERROR` and `READINESS_TEXT_WARNING`: unacknowledged findings in the learners' text, one blocker per lesson (count, lesson_id, lesson). lesson_id is absent for a finding about the course as a whole.
+  - `READINESS_ITEM_ERROR` and `READINESS_ITEM_WARNING`: question-quality findings, one per lesson and pattern (count, lesson_id, lesson, pattern).
+  - `READINESS_NOT_VALIDATED`, `READINESS_RETURNED` and `READINESS_AWAITING_REVIEW` (count), `READINESS_NO_RELEASE` and `READINESS_NOT_SEALED`: the package's own state.
+- **`HAMBATAN_MENAHAN`**: the three that block (TEXT_ERROR, ITEM_ERROR, RETURNED).
+- **`Hambatan`**: the shape `{code, count?, lesson_id?, lesson?, pattern?}`.
+- **`POLA_MUTU_SOAL`**: the four patterns `run_mcq_quality` names today. A new pattern shows the general pattern line.
+- **Copy helpers:** `kunciHambatan` and `kunciPola` give the copy keys; an unknown code or pattern gets the general line. `kalimatHambatan(h, s, angka)` composes one line: count, words, pattern and lesson. `kesiapanDari` makes the same BLOCKED / ACTION_REQUIRED / READY decision as the database.
+- **Copy:** `hle.ts` has one line per code and pattern, the general lines and `studio.hambatan.pelajaran`. The wording is mine, and Daisy owns it.
+
+**The database** (migration `20261016100000_release_blockers_speak_in_codes.sql`):
+- **`publish_readiness`** returns `(status, blockers jsonb)`. It decides BLOCKED by code, no longer by matching `%ERROR%` in its own sentences. The same findings, counted the same way, make the same decision; only the telling changed.
+- **`studio_package_state`** returns `reasons jsonb`. It is the findings blockers plus its five lifecycle codes, with the same checks and the same surface state as before.
+- **The publish trigger** (`enforce_release_publish_readiness`) reads the new shape. Its refusal is still PR040 `RELEASE_NOT_READY`, and its developer message now lists codes.
+- **`freeze_release`** is unchanged: it passes `to_jsonb(blockers)` straight through.
+
+**The screens.**
+- The Terbit step (`LangkahTerbit.tsx`, Daisy's) and the package page's reasons list each draw a blocker through `kalimatHambatan`. That is a one-line change in each, so the lane works on its own. DAISY-16 owns how they look.
+- The freeze action's `hambatan` is now `Hambatan[]`.
+
+**The seeds.** `learning_cycle`, `official_bootstrap` and `human_evaluation` each check that their content is publishable before they release it. They held the blockers as `text[]`, so on a fresh database the seed stopped and every db suite after it aborted. My first full local run caught this, and it was fixed at `8b77f7b`. They now hold the jsonb list and print it if the content is not publishable. No fixture content changed.
+
+**Deleted:** `createReleaseAction`, `freezeReleaseAction`, `publishReleaseAction` and `withdrawReleaseAction`, the four release form actions no page used. BOB07-K01 stays green.
+
+## PROOF
+
+| test | red before | green after |
+|---|---|---|
+| F12-P04 (db) | on a database without the migration: `with every findings rule planted, readiness was BLOCKED with ["1 temuan ERROR pada teks siswa", "2 temuan WARNING pada teks siswa belum diakui", "1 temuan ERROR mutu soal", …, "mutu soal: POLA_UJI_GALAT (1 soal)", …]; a course in review with no release reads ACTION_REQUIRED: ["2 bagian isi menunggu persetujuan akademik", "paket ini belum memiliki terbitan"]; …` (6 problems) | every rule is its own code with its parameters; BLOCKED, then ACTION_REQUIRED, then READY and `[]` as the findings are acknowledged; the package walks through all five lifecycle codes; the nine codes met are exactly the catalogue's |
+| BOB17-K01 (static) | on the code before BOB-17: `the release contract has no blocker catalogue …; publish_readiness … still writes a sentence; studio_package_state … still writes a sentence; the Terbit step … shows a blocker other than through kalimatHambatan; the package page shows a reason other than through kalimatHambatan; src/app/studio/actions.ts still exports createReleaseAction; …` (all four actions) | pass |
+
+**BOB17-K01 in full:**
+- The database's codes are exactly the catalogue's.
+- The codes that block are the ones the database blocks on.
+- Every code and pattern has its words in both languages, with no machinery words.
+- **A planted sentence never reaches the Terbit step:** `{code: "2 temuan ERROR pada teks siswa"}`, a bare string blocker and an unknown pattern each render as the copy table's line.
+- Both screens draw blockers through `kalimatHambatan`.
+- The four actions are gone.
+
+**New plant, bob03-10.** It puts "temuan ERROR pada teks siswa" back where the text-error code belongs; F12-P04 goes red for it, in the existing `db-bob03-gates` job.
+
+**Restated for the changed requirement (named):**
+- **F04-T15:** the blocker names its pattern as a parameter of its code, no longer inside the sentence "mutu soal: X".
+- **F05-T19:** the reasons are codes. What is shown beside a code's words (the lesson, the pattern) must carry no lifecycle enum or version string. A code such as `READINESS_NOT_VALIDATED` contains "VALIDATED", but the code itself is never shown.
+- **fable02, fable04, fable05, fable05t1:** `v_blockers` is jsonb. Three suites only print it on failure.
+- **`db-bob03-gates`' control:** 6 → 7 green rows.
+- **Tripwires:** 121 → 122.
+
+No test was weakened, skipped or deleted.
+
+## CI
+
+I dispatched one run on `HEAD_SHA` and haven't waited on it; please read the result there. It runs with DAISY-16 as the board says, or on its own if DAISY-16 isn't ready.
+- **Local, before dispatch:** FULL_LOCAL
+- One run, no new job.
+
+## CONTRACT
+
+- `publish_readiness(uuid) → (status text, blockers jsonb)`.
+- `studio_package_state(uuid) → (surface_state text, reasons jsonb, preview_lesson_id uuid)`.
+- `freeze_release` returns `blockers` as that jsonb list.
+- No PR0xx codes changed.
+- **For DAISY-16:** show each blocker with `kalimatHambatan`, or with your own layout from `kunciHambatan`, `kunciPola` and the parameters. Never show `code` or `pattern` themselves.
+
+## MIGRATIONS
+
+`20261016100000`, forward-only:
+- drops and recreates `publish_readiness` and `studio_package_state`, because a function's result type cannot be altered in place;
+- replaces the publish trigger's function;
+- updates the registry note for `studio_package_state`;
+- ends with terminal checks: no sentence left in either function, patterns still read from the findings, neither function anon-executable.
+
+No table, column or data changes.
+
+## COPY
+
+Sixteen keys: `studio.hambatan.*`, nine codes, four patterns and three general lines. The wording is mine; Daisy owns it.
+
+## QUESTIONS
+
+None.
+
+## READY
+
+Yes, once the run on `HEAD_SHA` is green.
