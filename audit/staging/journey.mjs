@@ -741,7 +741,7 @@ await step("Q5", "the teacher sees the Uji Cepat hand-in (count and who)", ["EDU
     await G.locator("h1").first().waitFor({ timeout: SLOW });
     rec.shots.push(await shot(G, "cepat-siapa"));
     const st = await text(G);
-    const sudah = st.split("Belum mengumpulkan")[0];
+    const sudah = st.split(/Belum mengumpulkan/i)[0];
     siapa = `Siapa: student 1 under "Sudah mengumpulkan": ${sudah.includes(names[0])}; students 2-5 named anywhere: ${names.slice(1).filter((x) => st.includes(x)).length}/4`;
     if (!sudah.includes(names[0])) rec.verdict = "FAIL";
   }
