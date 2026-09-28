@@ -96,13 +96,7 @@ None new. The page's existing labels are reused.
 
 None open. Both were answered on 28 Sep:
 
-1. **Granting a role to a person the admin cannot see: unchanged in BOB-20, and a separate follow-up.** The current behaviour is not the intended end state. Proposed ticket, for the board:
-   - **Title:** a school admin grants only to a person they may act upon.
-   - **Principle:** a school admin may grant a school-scoped role only to a person they are legitimately permitted to act upon for that school. Knowing or submitting an internal person id must not bypass that boundary.
-   - **Change:** `role_assignments_guard`, or `grant_role`, for a school-scoped grant by a school admin.
-   - **Red case:** a person the admin cannot see, or who is out of scope, submitted by direct id to `grant_role` for a node of the admin's school is refused, and does not become visible or actionable.
-   - **Plant:** the check removed, and that red case goes red.
-   - **Open design point for that ticket:** what "permitted to act upon" means for a person who is not yet the school's, such as a teacher moving from another school.
+1. **Granting a role to a person the admin cannot see: unchanged in BOB-20.** It is now **BOB-21** on the board (D-049): a school-scoped grant by a school admin needs the grantee to have a legitimate relationship with *that* school, asked per school. The red case is a School-B admin granting to a School-A-only teacher by id; a plant removes the check. BOB-21 is next for me, and BOB-20 does not widen into it.
 2. **A former teacher holding the school's number stays visible: accepted for 4.0.** The institutional identity keeps the person identifiable to that school's admin after their role ends. That is identity, not a statement that they are current staff, and it grants no authority and no role. Historical identity is not hidden when a role ends. Distinguishing current, inactive and former staff belongs to a later staff-lifecycle design.
 
 ## READY
