@@ -63,7 +63,7 @@ One key, `pendataan.masalah.staf`, in both languages; the wording is mine. Daisy
    - **Proposal, for M5b / M2, not done here** because it widens who can see whom:
      - let a school admin see a person who holds an institutional identity at their school, or a role there;
      - give that admin a school-scoped "awaiting a first role" list.
-   - This needs your decision, since it touches person visibility.
+   - **Yazid's call**, since it widens person visibility. Nothing in BOB-10 depends on it.
 2. **The mapping screen still offers EDUCATOR, HEAD_OF_DEPARTMENT and DEAN** as one-value choices for the role column (`PERAN_PENDATAAN`, read by Daisy's `BacaDanPetakan.tsx`). Chosen now, every row gets the new reason at "Periksa".
    - I left the list alone: whether to hide them until M5b, or keep them visible with the reason, is a screen decision for Daisy.
    - If they go, UX1-DATA-BERKAS-01 (`PERAN_PENDATAAN.length === 4`) needs restating in the same change.
