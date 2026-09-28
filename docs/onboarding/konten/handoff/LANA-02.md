@@ -15,8 +15,8 @@ Six text lessons in the book's subbab order:
 5. Bilangan Prima dan Faktorisasi Prima (Eratosthenes, pohon faktor)
 6. KPK dan FPB dengan Faktorisasi Prima; choosing KPK or FPB in a word problem; recap
 
-Each page explains one idea, works an example step by step, says why where it helps, and
-most end with a "Coba" and a way for the student to check it. "Pembagian berulang" (p. 82) is left
+Each page explains one idea, works an example step by step, and says why where it helps.
+Lessons 1, 2, 3 and 5 also have a "Coba" with a way for the student to check it. "Pembagian berulang" (p. 82) is left
 out on purpose: the book says to teach it only after the concept, as an optional technique.
 
 32 questions: 4 pre-test, 8 post-test, 20 practice. Answers A=9 B=8 C=8 D=7.
