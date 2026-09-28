@@ -301,7 +301,7 @@ declare
   f record; s uuid; c record; n int; n2 int; v_ok boolean; v_detail text;
   v_tok text; v_cert uuid; e record; v record; v_row record;
   v_before text; v_after text; v_pos int; v_inst uuid; v_sess uuid;
-  bad text; v_def2 uuid; v_course uuid; v_status text; v_blockers text[];
+  bad text; v_def2 uuid; v_course uuid; v_status text; v_blockers jsonb;
   v_demo uuid; v_enr uuid; v_taught uuid;
   t0 timestamptz := clock_timestamp();
 begin
@@ -888,9 +888,12 @@ begin
     end if;
     -- named, and named uniquely: a bank that trips all four would satisfy a
     -- "contains" assertion and prove nothing about which detector fired
-    if not exists (select 1 from unnest(v_blockers) b where b like 'mutu soal: ' || bad || '%') then
+    -- RESTATED FOR BOB-17 (D-011; a changed requirement): the blocker names the
+    -- pattern as a parameter of its code, not inside a sentence ("mutu soal: X")
+    if not exists (select 1 from jsonb_array_elements(v_blockers) b
+                    where b ->> 'code' in ('READINESS_ITEM_ERROR', 'READINESS_ITEM_WARNING') and b ->> 'pattern' = bad) then
       ok := false; detail := detail || format('%s was not named in the blockers (%s); ',
-                                              bad, array_to_string(v_blockers, ' | '));
+                                              bad, v_blockers::text);
     end if;
     select count(distinct mf.pattern_class) into n from public.mcq_quality_findings mf
      where mf.course_id = v_course and mf.acknowledged_at is null;
@@ -930,7 +933,7 @@ begin
     select p.status, p.blockers into v_status, v_blockers from public.publish_readiness(v_course) p;
     if v_status <> 'READY' then
       ok := false; detail := detail || format('%s did not clear to READY after the repair (%s: %s); ',
-                                              bad, v_status, array_to_string(v_blockers, ' | '));
+                                              bad, v_status, v_blockers::text);
     end if;
   end loop;
 

@@ -193,35 +193,6 @@ async function tarikTerbitan(release: string | null, alasan: string): Promise<Ha
   return { ok: true, release, status: "SUPERSEDED" };
 }
 
-/** A result, as the calm line today's page shows: the code's sentence, never the database's words. */
-function ringkasTerbitan(h: HasilTerbitan): HasilAksi {
-  return h.ok ? { ok: true } : { ok: false, kode: h.code, ref: h.ref };
-}
-
-export async function createReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await buatTerbitan(course);
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", ringkasTerbitan(h));
-}
-
-export async function freezeReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await kunciTerbitan(uuidOrNull(str(fd, "release")));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", ringkasTerbitan(h));
-}
-
-export async function publishReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await terbitkan(uuidOrNull(str(fd, "release")));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", ringkasTerbitan(h));
-}
-
-export async function withdrawReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await tarikTerbitan(uuidOrNull(str(fd, "release")), str(fd, "alasan"));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", ringkasTerbitan(h));
-}
-
 /**
  * THE TYPED CONTRACT (DAISY-06; src/lib/terbitan-kontrak.ts, LANGKAH_TERBITAN).
  * Each takes (prev, FormData) and resolves to a HasilTerbitan.
