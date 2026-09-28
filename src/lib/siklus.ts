@@ -47,7 +47,27 @@ export type Posisi = {
 
 const FINAL = "FINALIZED";
 
-/** A lesson counts as read when the learner reached its last position. */
+/**
+ * BOB-22. WHAT A SAVED POSITION MEANS: the number of pages the learner has
+ * reached, 1 to N (0: never opened). The player shows pages counted from 0, so
+ * the page on screen saves as its index + 1, a learner resumes on the page
+ * before the count, and a lesson is read when the count reaches its total -- the
+ * database's own rule too (lesson_progress_within_total: furthest <= total).
+ * The player saved the index itself, so the last page of N saved N-1 and no
+ * lesson ever counted as read. These three are the only places the meaning
+ * lives; LessonPlayer uses the first two, every reader the third.
+ */
+export function posisiTersimpan(halaman: number): number {
+  return Math.max(0, Math.floor(halaman)) + 1;
+}
+
+/** The page (counted from 0) a learner resumes on, from what was saved. */
+export function halamanMulai(posisi: number, jumlahHalaman: number): number {
+  const akhir = Math.max(0, jumlahHalaman - 1);
+  return Math.min(akhir, Math.max(0, Math.floor(Number.isFinite(posisi) ? posisi : 0) - 1));
+}
+
+/** A lesson counts as read when the learner reached its last page. */
 export function lessonRead(l: Pick<LessonEntry, "furthest_position" | "total_positions">): boolean {
   const total = l.total_positions ?? 0;
   return total > 0 && l.furthest_position >= total;
