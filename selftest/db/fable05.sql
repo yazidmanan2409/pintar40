@@ -89,7 +89,11 @@ begin
   if v_course is not null then
     select m.id into v_mod from public.modules m where m.course_id = v_course order by m.ordinal limit 1;
     select l.id into v_les from public.lessons l where l.module_id = v_mod order by l.ordinal limit 1;
-    select d.id into v_defn from public.assessment_definitions d where d.module_id = v_mod limit 1;
+    -- the canonical tenant's own definition: a school's quick paper on this
+    -- module (FABLE-05 T1, committed on a shared stack) is not the package's,
+    -- and without an order the heap decided which one came back
+    select d.id into v_defn from public.assessment_definitions d
+     where d.module_id = v_mod and d.institution_id = v_canon order by d.created_at, d.id limit 1;
       select r.id into v_rel from public.plp_releases r
      where r.course_id = v_course order by r.created_at limit 1;
     canon := v_canon; course := v_course; modul := v_mod; les := v_les; defn := v_defn; rel := v_rel;
