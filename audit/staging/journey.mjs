@@ -458,6 +458,24 @@ const sesi = (p, mode) => sql(`select s.status::text || ' ' || coalesce(round(r.
   where s.person_id = ${uuid(p)} and s.learning_assignment_id = ${uuid(tugas)} and s.mode::text = ${lit(mode)} order by s.created_at desc limit 1`);
 
 const S = await newPage("siswa1", { width: 820, height: 1180 });
+// From /belajar into this run's pre-test. The assignment's own page is linked
+// only from the next-action panel ("Buka"); every other card links straight to
+// its next step. A class that holds earlier runs' assignments can put one of
+// them in the panel, so this run's is opened from whichever of the two is there.
+async function bukaPemetaan(P) {
+  if (await P.locator(`a[href="/belajar/${tugas}"]`).count()) {
+    await P.locator(`a[href="/belajar/${tugas}"]`).first().click();
+    await P.waitForURL((u) => u.pathname === `/belajar/${tugas}`, { timeout: SLOW });
+    await P.locator("h1").first().waitFor({ timeout: SLOW });
+    const trail = await text(P, "ol.pin-jejak");
+    await P.locator("section.pin-lanjut").getByRole("link", { name: "Mulai", exact: true }).click();
+    await P.waitForURL((u) => u.pathname === `/belajar/${tugas}/pemetaan`, { timeout: SLOW });
+    return { via: "the next-action panel, then the assignment page", trail };
+  }
+  await P.locator(`a[href="/belajar/${tugas}/pemetaan"]`).first().click();
+  await P.waitForURL((u) => u.pathname === `/belajar/${tugas}/pemetaan`, { timeout: SLOW });
+  return { via: "its card in the list (the panel shows another assignment)", trail: "(not opened)" };
+}
 await step("J07", "student 1 signs in with the class card on /masuk and lands on /belajar with the lesson waiting", ["STU-01", "STU-02", "STU-03"], async (rec) => {
   rec.page = S;
   if (!cards[0] || !tugas) return blocked(rec, !cards[0] ? "no card" : "nothing assigned");
@@ -475,13 +493,7 @@ await step("J07", "student 1 signs in with the class card on /masuk and lands on
 await step("J08", "student 1 opens the lesson from the home, starts the pre-test and answers all of it (2 of 4 right, by plan)", ["STU-04", "STU-05", "STU-06", "STU-07", "STU-10", "X-06"], async (rec) => {
   rec.page = S;
   if (!tugas || !cards[0]) return blocked(rec, "J07 did not get in");
-  await S.locator(`a[href="/belajar/${tugas}"]`).first().click();
-  await S.waitForURL((u) => u.pathname === `/belajar/${tugas}`, { timeout: SLOW });
-  await S.locator("h1").first().waitFor({ timeout: SLOW });
-  rec.shots.push(await shot(S, "siswa1-tugas"));
-  const trail = await text(S, "ol.pin-jejak");
-  await S.locator("section.pin-lanjut").getByRole("link", { name: "Mulai", exact: true }).click();
-  await S.waitForURL((u) => u.pathname === `/belajar/${tugas}/pemetaan`, { timeout: SLOW });
+  const { via, trail } = await bukaPemetaan(S);
   await S.locator("h1").first().waitFor({ timeout: SLOW });
   rec.shots.push(await shot(S, "siswa1-orientasi"));
   const orient = await text(S);
@@ -493,7 +505,7 @@ await step("J08", "student 1 opens the lesson from the home, starts the pre-test
   rec.shots.push(await shot(S, "siswa1-peta"));
   const after = sesi(p, "PRE_TEST");
   if (!after.startsWith("FINALIZED") || r.unknown) rec.verdict = "FAIL";
-  return `trail: "${trail}"; orientation: "${orient.slice(0, 160)}"; session before pressing: ${before || "none"}; answered ${r.answered}, meant right ${r.right}, not in the key ${r.unknown}; now on ${new URL(S.url()).pathname}; session ${after}`;
+  return `opened from ${via}; trail: "${trail}"; orientation: "${orient.slice(0, 160)}"; session before pressing: ${before || "none"}; answered ${r.answered}, meant right ${r.right}, not in the key ${r.unknown}; now on ${new URL(S.url()).pathname}; session ${after}`;
 });
 
 const lessonRows = () => sql(`select string_agg(l.ordinal || ':' || coalesce(lp.furthest_position::text, '-') || '/' || coalesce(lp.total_positions::text, '-'), ' ' order by l.ordinal)
@@ -608,10 +620,7 @@ await step("J13", "students 2-5 sign in with their cards and take both tests to 
     rec.page = P;
     try {
       await masukKartu(P, cards[i]); await closeTour(P);
-      await P.locator(`a[href="/belajar/${tugas}"]`).first().click();
-      await P.waitForURL((u) => u.pathname === `/belajar/${tugas}`, { timeout: SLOW });
-      await P.locator("section.pin-lanjut").getByRole("link", { name: "Mulai", exact: true }).click();
-      await P.waitForURL((u) => u.pathname === `/belajar/${tugas}/pemetaan`, { timeout: SLOW });
+      await bukaPemetaan(P);
       await P.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
       const pre = await jawab(P, "pre", PLAN[i].pre);
       await P.getByRole("link", { name: "Buka pelajarannya" }).first().click();
