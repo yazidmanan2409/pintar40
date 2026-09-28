@@ -28,7 +28,7 @@
 
 **The seeds.** `learning_cycle`, `official_bootstrap` and `human_evaluation` each check that their content is publishable before they release it. They held the blockers as `text[]`, so on a fresh database the seed stopped and every db suite after it aborted. My first full local run caught this, and it was fixed at `8b77f7b`. They now hold the jsonb list and print it if the content is not publishable. No fixture content changed.
 
-**A fixture, found by the shared-stack rehearsal.** When `canonical_package` in `fable05.sql` reuses an existing course, it took the module's definition with `limit 1` and no order. A school's QUICK paper on the same module, committed there by the FABLE-05 T1 suite, could come back first. F05 then started that school's paper as canonical content and aborted, and so did every recheck after `db-task1-gates`. CI never met it, because every job has a fresh stack. It now takes the canonical tenant's own definition, oldest first (`c1ffea2`). Red: that database aborts fable05. Green: 23 of 23, and the shared stack's recheck is 235 of 235. This matters for S2/S4 of the CI audit: a shared stack must not depend on the heap's order.
+**A fixture, found by the shared-stack rehearsal.** When `canonical_package` in `fable05.sql` reuses an existing course, it took the module's definition with `limit 1` and no order. A school's QUICK paper on the same module, committed there by the FABLE-05 T1 suite, could come back first. F05 then started that school's paper as canonical content and aborted, and so did every recheck after `db-task1-gates`. CI never met it, because every job has a fresh stack. It now takes the canonical tenant's own definition, oldest first (`c1ffea2`). Red: that database aborts fable05. Green: 23 of 23, and the shared stack's recheck is 235 of 235. This is evidence for S2/S4 of the CI audit: suites that share a database expose ordering assumptions that fresh stacks hide, so a shared stack needs its fixtures to choose deterministically.
 
 **BOB-11 gate review, riding this run** (`bd77f35`):
 - `read-url` signs for an hour only lesson media redirected with `alih=1`.
@@ -71,7 +71,7 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-I dispatched one run on `HEAD_SHA` and haven't waited on it; please read the result there. It runs with DAISY-16 as the board says, or on its own if DAISY-16 isn't ready.
+I dispatched one run on `HEAD_SHA`, after merging Integration 12 into the lane, and haven't waited on it; please read the result there. It covers BOB-17 on top of Integration 12, so BOB-17's gate can reuse it (D-043).
 - **Local, before dispatch:** FULL_LOCAL
 - One run, no new job.
 
