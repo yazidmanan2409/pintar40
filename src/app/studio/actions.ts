@@ -9,6 +9,7 @@ import {
   type HasilPaket, type HitunganPaket, type KodePaket, type MasalahPaket, type MediaPaket,
 } from "@/lib/unggah-kontrak";
 import {
+  KODE_HAMBATAN,
   kodeGalatTerbitan, type Hambatan, type HasilTerbitan, type KesiapanTerbit,
 } from "@/lib/terbitan-kontrak";
 import {
@@ -169,7 +170,16 @@ async function kunciTerbitan(release: string | null): Promise<HasilTerbitan> {
   revalidatePath("/studio", "layout");
   // a blocked course is not sealed: the result carries why, and the findings
   // the validators just wrote are on the package page
-  if (!r.ok) return { ok: false, code: "RELEASE_NOT_READY", release, kesiapan: r.readiness, hambatan: r.blockers ?? [] };
+  if (!r.ok) {
+    // DAISY-16: a blocker code the catalogue does not know is logged under a
+    // reference the Terbit step shows beside the general line; the code itself
+    // never reaches the page
+    const hambatan = r.blockers ?? [];
+    const asing = hambatan.filter((x) => !(KODE_HAMBATAN as readonly string[]).includes(x?.code));
+    const ref = asing.length > 0 ? rujukan() : undefined;
+    if (ref) console.error(`[studio ${ref}] freeze_release returned blocker code(s) the catalogue does not know`, asing.map((x) => x?.code));
+    return { ok: false, code: "RELEASE_NOT_READY", release, kesiapan: r.readiness, hambatan, ref };
+  }
   return { ok: true, release, status: "FROZEN", kesiapan: r.readiness, hambatan: r.blockers ?? [] };
 }
 

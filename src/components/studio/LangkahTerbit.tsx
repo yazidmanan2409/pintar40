@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
-import { kalimatHambatan, kunciKodeTerbitan, type HasilTerbitan } from "@/lib/terbitan-kontrak";
+import { KODE_HAMBATAN, kalimatHambatan, kunciKodeTerbitan, type Hambatan, type HasilTerbitan } from "@/lib/terbitan-kontrak";
 import {
   advanceContentAction, buatTerbitanAksi, kunciTerbitanAksi, tarikTerbitanAksi, terbitkanAksi,
 } from "@/app/studio/actions";
@@ -97,17 +97,21 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
     </form>
   );
 
+  // DAISY-16: a blocker code the catalogue does not know shows the general
+  // line and the reference the server logged it under, never the code itself
+  const dikenal = (x: Hambatan) => (KODE_HAMBATAN as readonly string[]).includes(x?.code);
   const pesanGagal = (langkah: KunciLangkah | "tarik") => {
     const h = gagal(langkah);
     if (!h || h.ok) return null;
+    const rujukanDiBaris = !!h.ref && (h.hambatan ?? []).some((x) => !dikenal(x));
     return (
       <BarisHasil nada="gagal">
-        <p>{s(kunciKodeTerbitan(h.code))}{h.ref ? ` (${s("studio.unggah.rujukan")} ${h.ref})` : ""}</p>
+        <p>{s(kunciKodeTerbitan(h.code))}{h.ref && !rujukanDiBaris ? ` (${s("studio.unggah.rujukan")} ${h.ref})` : ""}</p>
         {h.hambatan && h.hambatan.length > 0 ? (
           <>
             <p className="pin-lt-hambatan">{s("studio.langkah.hambatan")}</p>
             {/* BOB-17 (D-011): each blocker is a code; its line comes from the copy table */}
-            <ul>{h.hambatan.map((x, i) => <li key={`${x.code}-${x.lesson_id ?? ""}-${x.pattern ?? ""}-${i}`}>{kalimatHambatan(x, s, (n) => format.number(n, locale))}</li>)}</ul>
+            <ul className="pin-lt-hambatan-daftar">{h.hambatan.map((x, i) => <li key={`${x?.code}-${x?.lesson_id ?? ""}-${x?.pattern ?? ""}-${i}`}>{kalimatHambatan(x, s, (n) => format.number(n, locale))}{rujukanDiBaris && !dikenal(x) ? ` (${s("galat.rujukan")}: ${h.ref})` : null}</li>)}</ul>
           </>
         ) : null}
       </BarisHasil>
