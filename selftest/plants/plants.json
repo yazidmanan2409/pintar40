@@ -27,8 +27,8 @@
     },
     "db-bob03-gates": {
       "suite": "selftest.run_fable12()",
-      "control_green": 7,
-      "what": "BOB-03's release path: a school's course approved, created, frozen and published by the people the capabilities name, the release authored by the course's author, readiness measured at the seal, the revision's next version, and every refusal's stable code; and releases changing only through their functions (D-041); and BOB-17's readiness codes (F12-P04)"
+      "control_green": 8,
+      "what": "BOB-03's release path: a school's course approved, created, frozen and published by the people the capabilities name, the release authored by the course's author, readiness measured at the seal, the revision's next version, and every refusal's stable code; and releases changing only through their functions (D-041); and BOB-17's readiness codes (F12-P04), publish_readiness internal only (F12-P05)"
     },
     "db-bob04-gates": {
       "suite": "selftest.run_fable13()",
@@ -461,6 +461,12 @@
       "gate": "db-bob03-gates",
       "expect_red": "F12-P04",
       "expect_detail": "temuan ERROR pada teks siswa"
+    },
+    {
+      "name": "bob03-11",
+      "gate": "db-bob03-gates",
+      "expect_red": "F12-P05",
+      "expect_detail": "a learner calling publish_readiness on another school's course answered ok"
     },
     {
       "name": "bob04-9",

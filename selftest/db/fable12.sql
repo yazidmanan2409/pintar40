@@ -546,6 +546,60 @@ begin
       v_probs := selftest.f11_note(v_probs, 'F12-P04', 'the test could not run: ' || left(sqlerrm, 200));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F12-P05  BOB-17 gate review: publish_readiness IS INTERNAL. It asks no
+    --          permission and its answer names lessons, so nobody signed in
+    --          calls it directly -- neither a learner nor another school's
+    --          staff -- while studio_package_state and freeze_release, which
+    --          ask their own permission and read it as its owner, still work
+    --          for the school's staff.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_user_uid(v_guru);
+      v_course := selftest.f12_course(v_a, selftest.f12_paket('Hak Baca Kesiapan ' || v_tag,
+        'Apa yang terjadi pada benda diam bila didorong?', 'Benda itu mulai bergerak', 'Benda itu tetap diam'));
+      -- a learner of another school, and another school's administrator
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      v_code := selftest.f12_code(format('select to_jsonb(p) from public.publish_readiness(%L) p', v_course));
+      perform selftest.as_user_uid(v_adm_b);
+      v_code2 := selftest.f12_code(format('select to_jsonb(p) from public.publish_readiness(%L) p', v_course));
+      perform selftest.as_owner();
+      if v_code is null or v_code not like '42501 %' then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'a learner calling publish_readiness on another school''s course answered '
+          || coalesce(v_code, 'ok -- its lessons and findings were read'));
+      end if;
+      if v_code2 is null or v_code2 not like '42501 %' then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'another school''s administrator calling publish_readiness answered '
+          || coalesce(v_code2, 'ok -- its lessons and findings were read'));
+      end if;
+      if has_function_privilege('authenticated', 'public.publish_readiness(uuid)', 'execute') then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'publish_readiness is executable by authenticated');
+      end if;
+      if exists (select 1 from public.client_rpc_registry g where g.function_name = 'publish_readiness') then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'publish_readiness is still offered to clients in client_rpc_registry');
+      end if;
+
+      -- the school's own staff: the package's state, then the whole release path
+      perform selftest.as_user_uid(v_adm);
+      select p.surface_state into v_state from public.studio_package_state(v_course) p;
+      if v_state is null then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'the school''s administrator could not read the package''s state');
+      end if;
+      perform selftest.as_user_uid(v_kajur);
+      perform selftest.f12_advance(v_course, 'APPROVED');
+      perform selftest.as_user_uid(v_adm);
+      v_rel := (public.create_release(v_course) ->> 'release')::uuid;
+      perform selftest.as_user_uid(v_kajur);
+      v := public.freeze_release(v_rel);
+      perform selftest.as_owner();
+      if (v ->> 'ok')::boolean is not true or not public.content_is_sealed(v_course) then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'the head of department''s freeze, which reads readiness inside, did not seal: ' || left(v::text, 160));
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f11_note(v_probs, 'F12-P05', 'the test could not run: ' || left(sqlerrm, 200));
+    end;
+
     raise exception 'F12_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -556,14 +610,15 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F12-P01', 'F12-P02', 'F12-P03', 'F12-N01', 'F12-N02', 'F12-N03', 'F12-P04'],
+      array['F12-P01', 'F12-P02', 'F12-P03', 'F12-N01', 'F12-N02', 'F12-N03', 'F12-P04', 'F12-P05'],
       array['BOB-03 -- a school''s course goes approve, create, freeze, publish, and the teacher sees it',
             'BOB-03 -- a correction is a revision whose release is the next minor version',
             'BOB-03 -- the release is the course''s: its author cannot freeze it',
             'BOB-03 -- every refusal on the release path is its stable code',
             'BOB-03 -- readiness is measured at the seal; a blocked course is not frozen',
             'BOB-03 -- releases change only through their functions (D-041)',
-            'BOB-17 -- every readiness rule is its own code with its parameters (D-011)'],
+            'BOB-17 -- every readiness rule is its own code with its parameters (D-011)',
+            'BOB-17 -- publish_readiness is internal: nobody signed in reads it directly'],
       array[
         format('a teacher''s package became a course; the head of department approved it; the school''s admin created '
           || 'release 1.0.0, authored by the teacher; the head of department froze it (approved by them, content hash '
@@ -591,7 +646,11 @@ begin
           || 'BLOCKED for an error, ACTION_REQUIRED for warnings alone, READY and [] once all were acknowledged; '
           || 'studio_package_state added READINESS_AWAITING_REVIEW and READINESS_NO_RELEASE in review, '
           || 'READINESS_NOT_SEALED once approved and released, READINESS_NOT_VALIDATED for a structured package and '
-          || 'READINESS_RETURNED (BLOCKED) for a returned question; the nine codes met are exactly the catalogue''s'
+          || 'READINESS_RETURNED (BLOCKED) for a returned question; the nine codes met are exactly the catalogue''s',
+        'a learner of another school and another school''s administrator calling publish_readiness on a school''s '
+          || 'draft course were each refused 42501 (no grant) and read nothing; authenticated holds no execute on it and '
+          || 'client_rpc_registry no longer offers it; the school''s administrator still read the package''s state '
+          || 'through studio_package_state, and the head of department''s freeze, which reads readiness inside, sealed the course'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

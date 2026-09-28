@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 98,
+  "version": 99,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1891,6 +1891,11 @@
       "id": "F12-P04",
       "runner": "db",
       "proves": "BOB-17 (D-011; M7). Every readiness rule is its own code with its parameters: with findings planted, publish_readiness answers READINESS_TEXT_ERROR and READINESS_TEXT_WARNING per lesson (and one for the course as a whole) and READINESS_ITEM_ERROR and READINESS_ITEM_WARNING per lesson and pattern, each with its count, lesson and pattern and no sentence, BLOCKED for an error, ACTION_REQUIRED for warnings alone and READY with [] once all are acknowledged; studio_package_state adds READINESS_AWAITING_REVIEW, READINESS_NO_RELEASE, READINESS_NOT_SEALED, READINESS_NOT_VALIDATED and READINESS_RETURNED (BLOCKED) as the package walks through those states; the nine codes met are exactly the catalogue's."
+    },
+    {
+      "id": "F12-P05",
+      "runner": "db",
+      "proves": "BOB-17 gate review. publish_readiness is internal: in the suite selftest/db/fable12.sql, a learner of another school and another school's administrator calling it directly on a school's draft course are each refused 42501 and read nothing; authenticated holds no execute on it and client_rpc_registry no longer offers it; the school's administrator still reads the package's state through studio_package_state, and the head of department's freeze, which reads readiness inside, seals the course."
     },
     {
       "id": "F13-N03",

@@ -85,8 +85,16 @@ begin
     else 'READY' end;
   return next;
 end $$;
-revoke all on function public.publish_readiness(uuid) from public, anon;
-grant execute on function public.publish_readiness(uuid) to authenticated;
+-- Internal only (BOB-17 gate review). It is SECURITY DEFINER and asks no
+-- permission, and its answer now names lessons and their titles: granted to
+-- authenticated, anyone signed in holding a course's id -- a learner included --
+-- could read another school's draft lesson titles and finding counts. No client
+-- calls it. Its callers are all SECURITY DEFINER and run as its owner:
+-- studio_package_state (which asks CAN_DRAFT or CAN_ASSIGN_LEARNING),
+-- freeze_release and the publish trigger; so are the seeds. As with
+-- finalize_session, an internal function leaves the client registry.
+revoke all on function public.publish_readiness(uuid) from public, anon, authenticated;
+delete from public.client_rpc_registry where function_name = 'publish_readiness';
 
 -- ---------------------------------------------------------------------------
 -- 2. The publish gate reads the codes. Its refusal is unchanged (PR040
@@ -231,5 +239,16 @@ begin
   if has_function_privilege('anon', 'public.publish_readiness(uuid)', 'execute')
      or has_function_privilege('anon', 'public.studio_package_state(uuid)', 'execute') then
     raise exception 'BOB-17: a readiness function became anon-executable';
+  end if;
+  -- publish_readiness is internal: no signed-in caller reaches it, and the
+  -- registry no longer offers it to a client
+  if has_function_privilege('authenticated', 'public.publish_readiness(uuid)', 'execute') then
+    raise exception 'BOB-17: publish_readiness is executable by authenticated';
+  end if;
+  if exists (select 1 from public.client_rpc_registry where function_name = 'publish_readiness') then
+    raise exception 'BOB-17: publish_readiness is still registered as a client function';
+  end if;
+  if not has_function_privilege('authenticated', 'public.studio_package_state(uuid)', 'execute') then
+    raise exception 'BOB-17: studio_package_state lost its grant';
   end if;
 end $$;
