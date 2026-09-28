@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { useSiap } from "./siap";
-import { sendMagicLink, type HasilKirim } from "@/app/masuk/actions";
-import { kirimKartu, kalimatKartu, menunggu, type GagalKartu } from "./kartu";
+import { sendMagicLink, signInWithCard, type HasilKirim } from "@/app/masuk/actions";
 
 /**
  * THE SIGN-IN SCREEN'S TWELVE INTERACTIVE STATES (S1–S12 of the handoff).
@@ -39,7 +38,7 @@ import { kirimKartu, kalimatKartu, menunggu, type GagalKartu } from "./kartu";
 type Layar =
   | { k: "email"; salah?: "bentuk" | "kirim"; sibuk?: boolean }
   | { k: "terkirim"; sibuk?: boolean }
-  | { k: "kartu"; gagal?: GagalKartu; sibuk?: boolean };
+  | { k: "kartu"; salah?: boolean; sibuk?: boolean };
 
 /** Where focus goes next. Named rather than implied; see the note above. */
 type Fokus = "judul" | "email" | "kirim" | "kartu" | null;
@@ -176,20 +175,14 @@ export default function LayarMasuk({
     pindahFokus("email");
   }
 
-  // DAISY-13: BOB-12's route answers with a code (./kartu.ts); the screen says
-  // what it means, and a wait is never told it does not match (M13).
   async function masukKartu(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     setLayar({ k: "kartu", sibuk: true });
-    const jawaban = await kirimKartu(fd);
-    if (jawaban.k === "masuk") {
-      // A whole-page load, so every server part reads the new session. The
-      // surface stays busy until it leaves.
-      window.location.assign(jawaban.tujuan);
-      return;
-    }
-    setLayar({ k: "kartu", gagal: jawaban });
+    await signInWithCard(fd);
+    // Reached only when the action returned instead of redirecting, which it
+    // does for every refusal and for nothing else.
+    setLayar({ k: "kartu", salah: true });
     // The first of the two fields, because the design does not know which one
     // was wrong and must not imply that it does.
     pindahFokus("kartu");
@@ -229,8 +222,6 @@ export default function LayarMasuk({
   }
 
   if (layar.k === "kartu") {
-    // Only a non-match marks the fields: a wait or an outage judged nothing typed.
-    const tidakCocok = layar.gagal?.kode === "CARD_NOT_MATCHED";
     return (
       <form className="pin-form" onSubmit={masukKartu} ref={formKartuRef} noValidate>
         <input type="hidden" name="lanjut" value={lanjut} />
@@ -242,7 +233,7 @@ export default function LayarMasuk({
         <p className="pin-lede-m">{s("auth.card_lede")}</p>
 
         <label className="pin-lbl" htmlFor="kartu">{s("auth.card_number")}</label>
-        <span className={tidakCocok ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
+        <span className={layar.salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
           <input
             id="kartu" name="kartu" ref={kartuRef}
             inputMode="numeric"
@@ -252,14 +243,14 @@ export default function LayarMasuk({
             autoComplete="off"
             placeholder="10 0000 0000"
             readOnly={layar.sibuk}
-            aria-invalid={tidakCocok ? "true" : undefined}
-            aria-describedby={layar.gagal ? "kartu-err" : undefined}
+            aria-invalid={layar.salah ? "true" : undefined}
+            aria-describedby={layar.salah ? "kartu-err" : undefined}
             required
           />
         </span>
 
         <label className="pin-lbl" htmlFor="pin">{s("auth.card_pin")}</label>
-        <span className={tidakCocok ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
+        <span className={layar.salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
           <input
             id="pin" name="pin"
             type={pinTampil ? "text" : "password"}
@@ -268,8 +259,8 @@ export default function LayarMasuk({
             /* BOTH fields carry it, pointing at ONE message. Marking only the
                PIN invalid tells a screen-reader user that the card number was
                accepted — precisely the fact the visible copy withholds. */
-            aria-invalid={tidakCocok ? "true" : undefined}
-            aria-describedby={layar.gagal ? "kartu-err" : undefined}
+            aria-invalid={layar.salah ? "true" : undefined}
+            aria-describedby={layar.salah ? "kartu-err" : undefined}
             required
           />
           {/* Controlled by the person and by nothing else: no timer re-masks
@@ -285,10 +276,8 @@ export default function LayarMasuk({
           </button>
         </span>
 
-        {layar.gagal ? (
-          <p className={menunggu(layar.gagal) ? "pin-msg pin-msg-note" : "pin-msg pin-msg-err"} role="alert" id="kartu-err">
-            {kalimatKartu(layar.gagal, s, locale)}
-          </p>
+        {layar.salah ? (
+          <p className="pin-msg pin-msg-err" role="alert" id="kartu-err">{s("auth.card_failed")}</p>
         ) : null}
 
         {catatan}

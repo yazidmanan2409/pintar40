@@ -194,18 +194,6 @@ export type HleEvent =
   | "auth.card_checking"
   | "auth.card_failed"
   | "auth.card_back"
-  // DAISY-13 (BOB-12 (c), M13): what the card route answers, in words
-  | "auth.card_sering"
-  | "auth.card_tanya_guru"
-  | "auth.card_ramai"
-  | "auth.card_tunggu"
-  | "auth.card_lalu_coba"
-  | "auth.card_tunggu_sebentar"
-  | "auth.card_muat_ulang"
-  | "auth.card_tidak_tersedia"
-  | "auth.card_tidak_tersedia_singkat"
-  | "auth.card_rujukan"
-  | "auth.card_putus"
   | "auth.foot"
   | "auth.say_h"
   | "auth.say_p"
@@ -1848,18 +1836,6 @@ const table: Table = {
   // the PIN mistyped; the screen does not know which and does not accuse.
   "auth.card_failed": { default: "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi.", en: "Not a match yet. Check the card number and the PIN, then try once more." },
   "auth.card_back": { default: "Masuk lewat email", en: "Sign in with email" },
-  // DAISY-13: a non-match stays auth.card_failed; a wait is never a non-match (M13)
-  "auth.card_sering": { default: "Nomor kartu ini sudah terlalu sering dicoba.", en: "This card number has been tried too many times." },
-  "auth.card_tanya_guru": { default: "Lupa PIN? Tanyakan kepada guru.", en: "Forgot the PIN? Ask the teacher." },
-  "auth.card_ramai": { default: "Sedang banyak yang masuk bersamaan.", en: "Many people are signing in at once." },
-  "auth.card_tunggu": { default: "Tunggu", en: "Wait" },
-  "auth.card_lalu_coba": { default: ", lalu coba lagi.", en: ", then try again." },
-  "auth.card_tunggu_sebentar": { default: "Tunggu sebentar, lalu coba lagi.", en: "Wait a moment, then try again." },
-  "auth.card_muat_ulang": { default: "Halaman ini perlu dimuat ulang. Muat ulang, lalu coba lagi.", en: "This page needs reloading. Reload it, then try again." },
-  "auth.card_tidak_tersedia": { default: "PINTAR sedang tidak dapat memeriksa kartu. Coba lagi sebentar lagi. Bila masih terjadi, sampaikan kode rujukan berikut kepada guru.", en: "PINTAR cannot check cards right now. Try again in a little while. If it keeps happening, give the teacher the reference that follows." },
-  "auth.card_tidak_tersedia_singkat": { default: "PINTAR sedang tidak dapat memeriksa kartu. Coba lagi sebentar lagi.", en: "PINTAR cannot check cards right now. Try again in a little while." },
-  "auth.card_rujukan": { default: "Kode rujukan", en: "Reference" },
-  "auth.card_putus": { default: "Belum tersambung ke PINTAR. Periksa sambungan internet, lalu coba lagi.", en: "Could not reach PINTAR. Check the internet connection, then try again." },
   "auth.foot": { default: "Pendidikan yang lebih adil, untuk lebih banyak kesempatan.", en: "Fairer education, for more opportunity." },
   // The newline is the designer's line break; the heading renders pre-line.
   "auth.say_h": { default: "Belajar dengan bukti.\nMemahami sebelum memutuskan.", en: "Learning with evidence.\nUnderstand before deciding." },
@@ -3192,16 +3168,6 @@ export const format = {
     }).format(value);
   },
   /** A day a human reads. `iso` is the stored issue instant; never re-derived. */
-  /**
-   * A wait a person reads (DAISY-13): seconds under a minute, else whole
-   * minutes rounded up, never shorter than the wait given. The unit's own
-   * plural in each language ("30 detik", "1 minute", "5 minutes").
-   */
-  durasi(detik: number, locale: Locale = "id"): string {
-    const menit = detik >= 60;
-    return new Intl.NumberFormat(LOCALE_TAG[locale], { style: "unit", unit: menit ? "minute" : "second", unitDisplay: "long" })
-      .format(menit ? Math.ceil(detik / 60) : Math.ceil(detik));
-  },
   date(iso: string, locale: Locale = "id"): string {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
