@@ -154,10 +154,16 @@ end $$;
 revoke all on function selftest.f10_concurrency_teardown() from public;
 
 -- A school, its admin, one Bagian and one Tingkat built through BOB-01's own
--- functions as that admin. Returns '<tingkat>|<admin auth uid>'.
+-- functions as that admin, and one of the school's staff to grant to.
+-- Returns '<tingkat>|<admin auth uid>|<staff person>'.
+-- RESTATED FOR BOB-21 (D-049, a changed requirement): the races granted a role
+-- to the oldest person in the database, who has no relationship with this
+-- school and is now refused GRANT_NO_SCHOOL_RELATIONSHIP before the race is
+-- reached. The grantee is now the school's own staff member (an active role at
+-- the school), one person reused across runs.
 create or replace function selftest.f10_concurrency_fixture()
 returns text language plpgsql security definer set search_path = public, pg_temp as $$
-declare v_tag text := substr(md5(random()::text), 1, 8); v_inst uuid; v_uid uuid; v_bag uuid; v_ting uuid;
+declare v_tag text := substr(md5(random()::text), 1, 8); v_inst uuid; v_uid uuid; v_bag uuid; v_ting uuid; v_staf uuid;
 begin
   perform selftest.f10_concurrency_teardown();
   perform set_config('app.seed_intent', 'synthetic', true);
@@ -171,7 +177,15 @@ begin
   v_ting := public.create_tingkat(v_bag, 'Tingkat Balapan', selftest.f10_tahun(0));
   perform set_config('request.jwt.claims', '', true);
   perform set_config('request.jwt.claim.sub', '', true);
-  return v_ting || '|' || v_uid;
+  select p.id into v_staf from public.persons p where p.display_name = 'selftest f10 conc staf' order by p.created_at limit 1;
+  if v_staf is null then
+    insert into public.persons (display_name) values ('selftest f10 conc staf') returning persons.id into v_staf;
+  end if;
+  perform set_config('app.seed_intent', 'synthetic', true);
+  insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+  values (v_staf, 'EDUCATOR', v_inst, now() - interval '1 day', now() + interval '30 days');
+  perform set_config('app.seed_intent', '', true);
+  return v_ting || '|' || v_uid || '|' || v_staf;
 end $$;
 revoke all on function selftest.f10_concurrency_fixture() from public;
 
@@ -212,6 +226,8 @@ declare
   -- BOB-20
   v20_t_a uuid; v20_n_a uuid; v20_t_b uuid; v20_n_b uuid; v20_sys uuid; v20_sys_p uuid; v20_murid uuid; v20_murid_p uuid;
   v20_t_a_p uuid; v20_t_b_p uuid; v20_per uuid; v20_seen uuid[]; v20_list uuid[];
+  -- BOB-21
+  v21_both uuid; v21_murid uuid; v21_murid_p uuid; v21_per uuid; v21_e1 jsonb; v21_e2 jsonb;
 begin
   perform selftest.as_owner();
   begin
@@ -1071,6 +1087,98 @@ begin
       v_probs := selftest.f10_note(v_probs, 'F10-V03', 'the test could not run: ' || left(sqlerrm, 150));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F10-G01..G03  BOB-21 (D-049): A SCHOOL-SCOPED GRANT NEEDS THE GRANT'S
+    --          OWN SCHOOL. School A's newly recorded teacher (A's number and,
+    --          since F10-V01, a role at A) belongs only to School A.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      -- an admin of both schools
+      v21_both := selftest.f10_user('f10-g-dua-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN', v_a);
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+      select a.person_id, 'INSTITUTION_ADMIN', v_b, now() - interval '1 day', now() + interval '365 days'
+        from public.accounts a where a.auth_user_id = v21_both;
+      perform set_config('app.seed_intent', '', true);
+      -- a learner of School B, enrolled and nothing else
+      v21_murid := selftest.f10_user('f10-g-murid-' || v_tag || '@local.invalid', null, null);
+      select a.person_id into v21_murid_p from public.accounts a where a.auth_user_id = v21_murid;
+      insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+      values (v_b, 'BOB-21 ' || v_tag, current_date - 30, current_date + 300) returning academic_periods.id into v21_per;
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+      values (v21_murid_p, v_b, v21_per, 'PENDING');
+
+      ---------------------------------------------------------------- F10-G01
+      perform selftest.as_user_uid(v_adm_b);
+      v21_e1 := selftest.f10_raised(format('select public.grant_role(%L::uuid, ''EDUCATOR'', %L::uuid, now() + interval ''30 days'')', v20_n_a, v_b));
+      v21_e2 := selftest.f10_raised(format('select public.grant_role(%L::uuid, ''EDUCATOR'', %L::uuid, now() + interval ''30 days'')', gen_random_uuid(), v_b));
+      if v21_e1 is null or v21_e1 ->> 'code' <> '42501' or v21_e1 ->> 'detail' is distinct from 'GRANT_NO_SCHOOL_RELATIONSHIP' then
+        v_probs := selftest.f10_note(v_probs, 'F10-G01', 'School B''s admin granted a School-B role to a School-A-only teacher by id: '
+          || coalesce(v21_e1::text, 'ok'));
+      end if;
+      if v21_e1 is distinct from v21_e2 then
+        v_probs := selftest.f10_note(v_probs, 'F10-G01', 'a person of another school and an id that does not exist are refused differently: '
+          || coalesce(v21_e1::text, 'ok') || ' / ' || coalesce(v21_e2::text, 'ok'));
+      end if;
+      if public.person_visible_to_me(v20_n_a) then
+        v_probs := selftest.f10_note(v_probs, 'F10-G01', 'the School-A teacher became visible to School B''s admin');
+      end if;
+      perform selftest.as_owner();
+      if exists (select 1 from public.role_assignments ra where ra.person_id = v20_n_a and ra.institution_id = v_b)
+         or exists (select 1 from public.institutional_identities ii where ii.person_id = v20_n_a and ii.institution_id = v_b)
+         or exists (select 1 from public.enrollments e where e.person_id = v20_n_a and e.institution_id = v_b) then
+        v_probs := selftest.f10_note(v_probs, 'F10-G01', 'the refused grant left the School-A teacher a School-B role, number or enrolment');
+      end if;
+
+      ---------------------------------------------------------------- F10-G02
+      perform selftest.as_user_uid(v21_both);
+      -- a role G01 did not try, so only the rule can refuse it
+      v21_e1 := selftest.f10_raised(format('select public.grant_role(%L::uuid, ''HEAD_OF_DEPARTMENT'', %L::uuid, now() + interval ''30 days'')', v20_n_a, v_b));
+      if v21_e1 is null or v21_e1 ->> 'detail' is distinct from 'GRANT_NO_SCHOOL_RELATIONSHIP' then
+        v_probs := selftest.f10_note(v_probs, 'F10-G02', 'an admin of both schools moved a School-A teacher to School B by granting: '
+          || coalesce(v21_e1::text, 'ok'));
+      end if;
+      v21_e1 := selftest.f10_raised(format('select public.grant_role(%L::uuid, ''EDUCATOR'', %L::uuid, now() + interval ''30 days'')', v20_n_b, v_a));
+      if v21_e1 is null or v21_e1 ->> 'detail' is distinct from 'GRANT_NO_SCHOOL_RELATIONSHIP' then
+        v_probs := selftest.f10_note(v_probs, 'F10-G02', 'an admin of both schools moved a School-B teacher to School A by granting: '
+          || coalesce(v21_e1::text, 'ok'));
+      end if;
+      perform selftest.as_owner();
+      if exists (select 1 from public.role_assignments ra
+                  where (ra.person_id = v20_n_a and ra.institution_id = v_b) or (ra.person_id = v20_n_b and ra.institution_id = v_a)) then
+        v_probs := selftest.f10_note(v_probs, 'F10-G02', 'a refused grant left a role at the other school');
+      end if;
+
+      ---------------------------------------------------------------- F10-G03
+      -- the school's own: a teacher with a role there, a teacher with only its
+      -- number, a learner with only an enrolment -- and the platform's path
+      perform selftest.as_user_uid(v_adm_b);
+      v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, ''HEAD_OF_DEPARTMENT'', %L::uuid, now() + interval ''30 days'')', v20_t_b_p, v_b));
+      if v_got <> 'ok' then
+        v_probs := selftest.f10_note(v_probs, 'F10-G03', 'School B''s admin could not grant to its own teacher who holds a role there: ' || v_got);
+      end if;
+      v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, ''EDUCATOR'', %L::uuid, now() + interval ''30 days'')', v20_n_b, v_b));
+      if v_got <> 'ok' then
+        v_probs := selftest.f10_note(v_probs, 'F10-G03', 'School B''s admin could not grant to the teacher it has just recorded: ' || v_got);
+      end if;
+      v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, ''EDUCATOR'', %L::uuid, now() + interval ''30 days'')', v21_murid_p, v_b));
+      if v_got <> 'ok' then
+        v_probs := selftest.f10_note(v_probs, 'F10-G03', 'School B''s admin could not grant to a person enrolled there: ' || v_got);
+      end if;
+      perform selftest.as_user_uid(v_sys);
+      v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, ''DEAN'', %L::uuid, now() + interval ''30 days'')', v20_n_a, v_b));
+      if v_got <> 'ok' then
+        v_probs := selftest.f10_note(v_probs, 'F10-G03', 'the platform administrator''s grant changed: ' || v_got);
+      end if;
+      perform selftest.as_owner();
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f10_note(v_probs, 'F10-G01', 'the test could not run: ' || left(sqlerrm, 150));
+      v_probs := selftest.f10_note(v_probs, 'F10-G02', 'the test could not run: ' || left(sqlerrm, 150));
+      v_probs := selftest.f10_note(v_probs, 'F10-G03', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
     raise exception 'F10_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -1082,7 +1190,7 @@ begin
   for r in
     select * from unnest(
       array['F10-S01','F10-S02','F10-S03','F10-S04','F10-S05','F10-S06','F10-M01','F10-M02',
-            'F10-S07','F10-S08','F10-S09','F10-S10','F10-V01','F10-V02','F10-V03'],
+            'F10-S07','F10-S08','F10-S09','F10-S10','F10-V01','F10-V02','F10-V03','F10-G01','F10-G02','F10-G03'],
       array['BOB-01 -- an Admin sekolah builds Bagian, Tingkat and Kelas',
             'BOB-01 -- an Admin platform builds them for any school',
             'BOB-01 -- everyone else at the school is refused',
@@ -1097,7 +1205,10 @@ begin
             'BOB-08 -- one way in, and staff below a Bagian',
             'BOB-20 -- a school''s admin sees and names the school''s own staff (D-048)',
             'BOB-20 -- another school''s staff, a platform person and a learner''s view stay closed',
-            'BOB-20 -- seeing a person grants no authority over them'],
+            'BOB-20 -- seeing a person grants no authority over them',
+            'BOB-21 -- a grant by id to another school''s teacher is refused and creates nothing (D-049)',
+            'BOB-21 -- an admin of two schools cannot move a teacher by granting',
+            'BOB-21 -- the school''s own people and the platform''s grant are unchanged'],
       array[
         format('as the school''s INSTITUTION_ADMIN, two Bagian, two Tingkat and three Kelas were built and '
             || 'listed with the parent the screen shows and the year (%s visible node(s)); the school has one hidden '
@@ -1147,7 +1258,15 @@ begin
           || 'school''s waiting list refused it; a learner of the school saw none of the school''s staff and was '
           || 'refused the waiting list',
         'the school''s admin was still refused a grant at another school''s node and a grant of INSTITUTION_ADMIN '
-          || 'or SYSTEM_ADMIN to a teacher it can see; no refused grant left a role behind'
+          || 'or SYSTEM_ADMIN to a teacher it can see; no refused grant left a role behind',
+        'School B''s admin granting a School-B role by internal id to a teacher who belongs only to School A was '
+          || 'refused 42501 GRANT_NO_SCHOOL_RELATIONSHIP, identically to an id that does not exist; no School-B role, '
+          || 'number or enrolment was created and the teacher stayed invisible to School B''s admin',
+        'an admin of both School A and School B was refused GRANT_NO_SCHOOL_RELATIONSHIP granting a School-B role to '
+          || 'a School-A-only teacher and a School-A role to a School-B-only teacher, and no role was left at either',
+        'School B''s admin still granted to its own teacher who holds a role there, to the teacher it has just '
+          || 'recorded (its number only) and to a person enrolled there (an enrolment only); the platform '
+          || 'administrator still granted a School-B role to the School-A teacher'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

@@ -17,8 +17,8 @@
     },
     "db-bob01-gates": {
       "suite": "selftest.run_fable10()",
-      "control_green": 15,
-      "what": "BOB-01's school structure functions (who may build a school's Bagian, Tingkat and Kelas, and every refusal's stable code) and the intake's M5a place and year rules; and BOB-08's structure integrity: nothing placed or granted in a deactivated place, a year near now, the national library not a school, and one way in; and BOB-20's staff visibility: a school's admin sees its own staff and waiting list, never another school's, a platform person or a learner's view, and seeing grants nothing"
+      "control_green": 18,
+      "what": "BOB-01's school structure functions (who may build a school's Bagian, Tingkat and Kelas, and every refusal's stable code) and the intake's M5a place and year rules; and BOB-08's structure integrity: nothing placed or granted in a deactivated place, a year near now, the national library not a school, and one way in; and BOB-20's staff visibility: a school's admin sees its own staff and waiting list, never another school's, a platform person or a learner's view, and seeing grants nothing; and BOB-21's grants: a school-scoped grant needs the grant's own school, never an id alone"
     },
     "db-bob02-gates": {
       "suite": "selftest.run_fable11()",
@@ -539,6 +539,9 @@
     { "name": "bob01-18", "gate": "db-bob01-gates", "expect_red": "F10-V02", "expect_detail": "another school's teacher is visible to this school's admin" },
     { "name": "bob01-19", "gate": "db-bob01-gates", "expect_red": "F10-V02", "expect_detail": "another school's waiting list answered this school's admin" },
     { "name": "bob01-20", "gate": "db-bob01-gates", "expect_red": "F10-V02", "expect_detail": "a learner of the school can see the school's staff" },
-    { "name": "bob01-21", "gate": "db-bob01-gates", "expect_red": "F10-V03", "expect_detail": "the school's admin granted a role at another school's node" }
+    { "name": "bob01-21", "gate": "db-bob01-gates", "expect_red": "F10-V03", "expect_detail": "the school's admin granted a role at another school's node" },
+    { "name": "bob01-22", "gate": "db-bob01-gates", "expect_red": "F10-G01", "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id" },
+    { "name": "bob01-23", "gate": "db-bob01-gates", "expect_red": "F10-G02", "expect_detail": "an admin of both schools moved a School-A teacher to School B by granting" },
+    { "name": "bob01-24", "gate": "db-bob01-gates", "expect_red": "F10-G01", "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id" }
   ]
 }

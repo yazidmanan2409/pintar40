@@ -221,7 +221,7 @@ jobs:
             db-r1-gates)
               echo "the six systemic-repair defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob01-gates)
-              echo "the twenty-one school-structure, intake and staff-visibility defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the twenty-four school-structure, intake, staff-visibility and grant defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob02-gates)
               echo "the eleven lesson-package and media-preview defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob03-gates)

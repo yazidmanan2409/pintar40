@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 102,
+  "version": 103,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1791,6 +1791,21 @@
       "id": "F10-V03",
       "runner": "db",
       "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, seeing grants nothing: the school's admin is still refused a grant at another school's node (INSTITUTION_ADMIN scope) and a grant of INSTITUTION_ADMIN or SYSTEM_ADMIN to a teacher it can see, and no refused grant leaves a role behind."
+    },
+    {
+      "id": "F10-G01",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, School B's INSTITUTION_ADMIN granting a School-B role through grant_role by internal id to a teacher who belongs only to School A is refused 42501 with DETAIL GRANT_NO_SCHOOL_RELATIONSHIP, identically (SQLSTATE, DETAIL and MESSAGE) to an id that does not exist; no School-B role, institutional identity or enrolment is created, and the teacher stays invisible to School B's admin."
+    },
+    {
+      "id": "F10-G02",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, an INSTITUTION_ADMIN of both School A and School B is refused GRANT_NO_SCHOOL_RELATIONSHIP granting a School-B role to a School-A-only teacher and a School-A role to a School-B-only teacher: the relationship is asked of the grant's own school, not of what the grantor can see, and no role is left at either school."
+    },
+    {
+      "id": "F10-G03",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, School B's admin still grants to its own teacher who holds a role there, to the teacher it has just recorded (its institutional identity only) and to a person enrolled there (an enrolment only), and the platform administrator still grants a School-B role to a School-A teacher."
     },
     {
       "id": "F10-C02",
