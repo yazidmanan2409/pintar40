@@ -75,3 +75,20 @@ export function alamatDariCookieSesi(cookies: ReadonlyArray<{ name: string; valu
   }
   return null;
 }
+
+/**
+ * BOB-23. THE COOKIES A WRITE WOULD ACTUALLY CHANGE. @supabase/ssr hands its
+ * session back to setAll on every request that restores it from the cookie,
+ * value unchanged. Written from a server action, that no-op write is a cookie
+ * mutation, and Next answers it by re-rendering the whole page
+ * (x-action-revalidated) -- which is what fed the lesson player's save loop.
+ * Keeps a cookie whose value differs from the request's (a refreshed session)
+ * and every deletion; drops the rest. The idle lifetime does not depend on
+ * the dropped writes: the proxy re-sends the session cookies with it on every
+ * signed-in request, a server action's included.
+ */
+export function cookieYangBerubah<T extends { name: string; value: string; options?: { maxAge?: number } }>(
+  cookiesToSet: ReadonlyArray<T>, nilaiSekarang: (name: string) => string | undefined,
+): T[] {
+  return cookiesToSet.filter((k) => k.options?.maxAge === 0 || !k.value || nilaiSekarang(k.name) !== k.value);
+}

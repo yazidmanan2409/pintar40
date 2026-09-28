@@ -67,6 +67,18 @@ export function halamanMulai(posisi: number, jumlahHalaman: number): number {
   return Math.min(akhir, Math.max(0, Math.floor(Number.isFinite(posisi) ? posisi : 0) - 1));
 }
 
+/**
+ * BOB-23. WHETHER A PAGE ON SCREEN IS SAVED: only when it reaches beyond what
+ * is already saved, and then as its count. `tersimpan` starts at the server's
+ * `startAt` and follows every save. Idle, a re-render, or going back saves
+ * nothing; each page newly reached saves once. The player ran its save on
+ * every render instead, and each save re-rendered the page.
+ */
+export function perluDisimpan(halaman: number, tersimpan: number): number | null {
+  const posisi = posisiTersimpan(halaman);
+  return posisi > (Number.isFinite(tersimpan) ? tersimpan : 0) ? posisi : null;
+}
+
 /** A lesson counts as read when the learner reached its last page. */
 export function lessonRead(l: Pick<LessonEntry, "furthest_position" | "total_positions">): boolean {
   const total = l.total_positions ?? 0;
