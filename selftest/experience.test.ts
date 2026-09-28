@@ -5154,15 +5154,34 @@ export const experienceTests: SelfTest[] = [
       c.expect(!ditawarkan.has("institutional_id") && !dibaca.has("institutional_id"),
         "the intake offers an institutional-ID column, which the identity doctrine forbids");
 
-      // 3. THE ROLES OFFERED ARE THE ROLES ACCEPTED. WP5A refuses two by name.
-      const ditolakDb = [...cek.matchAll(/v_role in \(([^)]*)\)/g)]
+      // 3. THE ROLES OFFERED ARE THE ROLES ACCEPTED, read from the row checker
+      //    as it stands today: the latest migration that defines
+      //    import_row_problems. WP5A refuses two by name. RESTATED FOR BOB-10
+      //    (M5b, interim): that migration also refuses every role other than
+      //    STUDENT ("a staff row is not recorded by the bulk intake yet"), so
+      //    the screen offers the learner alone. Offering EDUCATOR, HEAD_OF_
+      //    DEPARTMENT or DEAN would fail every row it was chosen for at
+      //    "Periksa". When M5b gives the intake a staff path and drops that
+      //    branch, this reads four accepted roles again.
+      const pemeriksa = walk(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql")).sort()
+        .map((f) => readFileSync(f, "utf8"))
+        .filter((x) => /create (?:or replace )?function public\.import_row_problems\s*\(/.test(x));
+      const cekKini = /create (?:or replace )?function public\.import_row_problems[\s\S]*?\$\$;/.exec(pemeriksa[pemeriksa.length - 1] ?? "")?.[0] ?? "";
+      c.expect(cekKini.length > 500, "the current row checker (import_row_problems) could not be read");
+      const ditolakDb = [...cekKini.matchAll(/v_role in \(([^)]*)\)/g)]
         .flatMap((m) => [...m[1].matchAll(/'([A-Z_]+)'/g)].map((x) => x[1]));
-      c.expect(ditolakDb.length === 2, `${ditolakDb.length} role(s) refused by bulk provisioning; expected 2`);
+      c.expect(ditolakDb.length === 2, `${ditolakDb.length} role(s) refused by name for bulk provisioning; expected 2`);
       for (const r of ditolakDb) {
         c.expect(!(PERAN_PENDATAAN as readonly string[]).includes(r),
-          `the mapping screen offers ${r}, which WP5A refuses for a bulk intake`);
+          `the mapping screen offers ${r}, which the row checker refuses for a bulk intake`);
       }
-      c.expect(PERAN_PENDATAAN.length === 4, `${PERAN_PENDATAAN.length} role(s) offered; expected 4`);
+      const hanyaMurid = /elsif v_role <> 'STUDENT' then[\s\S]{0,800}?'a staff row is not recorded by the bulk intake yet'/.test(cekKini);
+      const diterima = hanyaMurid ? ["STUDENT"] : ["STUDENT", "EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN"];
+      c.expect(JSON.stringify([...PERAN_PENDATAAN].sort()) === JSON.stringify([...diterima].sort()),
+        `the mapping screen offers ${PERAN_PENDATAAN.join(", ")}; the row checker accepts ${diterima.join(", ")}` +
+        (hanyaMurid ? " (BOB-10: every staff row is refused at \"Periksa\" until M5b)" : ""));
+      c.expect(kunciMasalah("a staff row is not recorded by the bulk intake yet") === "pendataan.masalah.staf",
+        "a staff row refused at \"Periksa\" has no sentence of its own");
 
       // 4. THE MAPPING PRODUCES ONE ROW PER ROW, AND DROPS NONE -- at every
       //    boundary the ruling names. A surface that silently skipped a bad row
@@ -5211,7 +5230,9 @@ export const experienceTests: SelfTest[] = [
         "mappable fields are compared AGAINST THE MIGRATION in both directions, so a field the surface " +
         "offers that WP5A ignores and a field WP5A reads that the surface hides are both red; there is " +
         "no institutional-ID column, because PINTAR decides all eleven characters. The roles offered " +
-        "exclude exactly the two WP5A refuses, read from its own check. One row in is one row out at 1, " +
+        "are exactly the roles the current row checker accepts, read from its own body: it refuses two " +
+        "by name and, since BOB-10 (M5b, interim), every staff role, so the screen offers the learner " +
+        "alone, and a staff row refused at \"Periksa\" has its own sentence. One row in is one row out at 1, " +
         "50, 100, 101 and 1,000, a nameless row is still sent so the database can report it, and an " +
         "empty value is omitted rather than sent as an empty string",
       );

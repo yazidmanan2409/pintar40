@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 97,
+  "version": 98,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1359,7 +1359,7 @@
       "id": "UX1-DATA-BERKAS-01",
       "runner": "static",
       "requires": [],
-      "proves": "the intake reads a spreadsheet as a spreadsheet and maps it to exactly the fields WP5A accepts. A quoted comma, a doubled quote, a newline inside a field, a byte-order mark and semicolon/tab/comma separators are all handled; a trailing newline is not counted as a person and a short row pads rather than reaching a payload as undefined. The five mappable fields are compared with the migration IN BOTH DIRECTIONS -- a field the surface offers that WP5A ignores and a field WP5A reads that the surface hides are both red -- and there is no institutional-ID column, because PINTAR decides all eleven characters. The roles offered exclude exactly the two the row checker refuses, read from its own body. One row in is one row out at 1, 50, 100, 101 and 1,000; a nameless row is still sent so the database can report it against its ordinal rather than being silently discarded; and an empty value is omitted rather than sent as an empty string, so payload and database agree on what absent means.",
+      "proves": "the intake reads a spreadsheet as a spreadsheet and maps it to exactly the fields WP5A accepts. A quoted comma, a doubled quote, a newline inside a field, a byte-order mark and semicolon/tab/comma separators are all handled; a trailing newline is not counted as a person and a short row pads rather than reaching a payload as undefined. The five mappable fields are compared with the migration IN BOTH DIRECTIONS -- a field the surface offers that WP5A ignores and a field WP5A reads that the surface hides are both red -- and there is no institutional-ID column, because PINTAR decides all eleven characters. The roles offered are exactly the roles the current row checker accepts, read from the SOURCE of the latest migration that defines import_row_problems: it refuses two by name and, restated for BOB-10 (M5b, interim), every staff role (EDUCATOR, HEAD_OF_DEPARTMENT, DEAN), so the mapping screen offers the learner alone until M5b, and a staff row refused at \"Periksa\" has its own sentence. One row in is one row out at 1, 50, 100, 101 and 1,000; a nameless row is still sent so the database can report it against its ordinal rather than being silently discarded; and an empty value is omitted rather than sent as an empty string, so payload and database agree on what absent means.",
       "how": "the WP5A migration parsed for the payload keys it reads and the roles it refuses; the pure parser and mapper driven over quoting, separator and boundary-size cases"
     },
     {
