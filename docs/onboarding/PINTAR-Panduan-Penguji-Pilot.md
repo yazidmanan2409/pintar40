@@ -1,4 +1,6 @@
-# PINTAR 4.0 · Panduan Singkat Penguji (uji coba internal, mulai 5 Oktober 2026)
+# PINTAR 4.0 · Panduan Singkat Penguji (pilot pendidik)
+
+> *Draf untuk tahap pilot pendidik (20–30 orang), sesudah persetujuan Yazid dan Dr Gladys (D-052). Belum dipakai; disesuaikan lagi sebelum pilot.*
 
 **Alamat uji:** https://staging.pintarselalu.com. Ini salinan uji PINTAR, bukan PINTAR yang dipakai sekolah. Semua yang Anda buat di sini boleh salah dan akan dihapus.
 

@@ -1,4 +1,4 @@
-# UX Polish Register (5 Oct internal test, D-050)
+# UX Polish Register (for the UI/UX POLISHED gate, D-052)
 
 Short, evidence-based and **non-blocking**: wording and small interaction problems a tester will meet, found while proving the staging journey (28 Sep) or by Daisy reading the same screens. Nothing here is a redesign. A problem that stops a person is a **defect** and goes to the board, not here.
 

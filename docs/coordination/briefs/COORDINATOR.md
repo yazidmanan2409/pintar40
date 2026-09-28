@@ -8,7 +8,7 @@ This is the coordinator's working state, so a new session can pick up without th
 - **Integration 10** is merged (main `2adce88`): DAISY-07, DAISY-15, the wording of BOB-07's messages, BOB-08.
   - CI #199 26/26; audit #27 26 PASS, 1 NOTE, 1 FAIL (S8).
   - Staging has 118 migrations.
-- **D-045:** testers start 5 Oct. The report form is ready but not yet shared (`TESTER-REPORT-FORM.md`).
+- **D-052 (supersedes D-045's date):** readiness is a sequence of gates (Engineering complete → UI/UX polished → Yazid → Gladys → educator pilot of 20–30); 5 Oct is tentative. Earlier: D-045, testers start 5 Oct. The report form is ready but not yet shared (`TESTER-REPORT-FORM.md`).
 - **GS-1** is fixed (Yazid's Google Sheets round trip). Checklist v2.1: 47 of 84 P0 PASS.
 - **U-PERF (D-046)** is a must-pass gate. The evidence is in `perf/2026-09-27-staging-latency.md`.
   - **BOB-18 goes first for Bob;** **DAISY-17 first for Daisy.**

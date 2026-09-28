@@ -730,16 +730,16 @@ CHANGES_V21.append("Re-marked on 28 Sep against Integration 15 (9062cbe): a scho
 
 
 
-# --- Staging journey for the 5 Oct internal test (D-050), 28 Sep: the learning journey on staging, and the scope change ---
-# D-050 takes video, audio and presentations out of the 5 Oct test. The rows that concern playback keep their text half and say
+# --- Staging journey for the first testing phases (D-050; readiness by gate, D-052), 28 Sep: the learning journey on staging, and the scope change ---
+# D-050 takes video, audio and presentations out of the first testing phases. The rows that concern playback keep their text half and say
 # the media half is out of scope for this round: never PASS on that account.
 CURRENT.update({
-    "STU-11": ("PARTIAL. Media half OUT OF SCOPE for the 5 Oct test (D-050): not tested, not PASS. Text half: walked on staging by the D-050 journey (results being written up)."),
-    "ADM-10": ("PARTIAL. Playback OUT OF SCOPE for the 5 Oct test (D-050): not tested, not PASS. Text, questions and media files exist "
+    "STU-11": ("PARTIAL. Media half OUT OF SCOPE for the first testing phases (D-050): not tested, not PASS. Text half: walked on staging by the D-050 journey (results being written up)."),
+    "ADM-10": ("PARTIAL. Playback OUT OF SCOPE for the first testing phases (D-050): not tested, not PASS. Text, questions and media files exist "
                "on staging after the teacher's own upload (staging journey J04: 6 lessons, 28 questions, 4 media files uploaded because "
                "Studio will not save the workbook without them)."),
 })
-CHANGES_V21.append("28 Sep (D-050): the 5 Oct internal test covers lessons and multiple-choice questions, not video, audio or presentations; "
+CHANGES_V21.append("28 Sep (D-050, D-052): the first testing phases cover lessons and multiple-choice questions, not video, audio or presentations; "
                    "STU-11's media half and ADM-10's playback are out of scope for it and stay unresolved, never PASS.")
 
 

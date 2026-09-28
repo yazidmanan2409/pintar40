@@ -1,4 +1,4 @@
-# Tester report form (D-037 step 1; staging tests from 5 Oct, D-045)
+# Tester report form (D-037 step 1; for the educator pilot, D-052)
 
 Chosen by Yazid on 27 Sep: a **Google Form**, so testers need no claude.ai account. Yazid builds the form from this page and shares its link with Gladys's team. Once a day he downloads the responses as a CSV (Responses → ⋮ → Download responses) and uploads it to the coordinator. The coordinator sorts every report within one working day, either into a BOARD ticket or with an answer. Chat is only for "I am stuck right now".
 

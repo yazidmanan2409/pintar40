@@ -15,7 +15,7 @@ One chapter = one workbook = one PINTAR course, handed off on its own. Do not st
 
 ## Read first (on `origin/main`)
 - `docs/coordination/README.md` §1–§4: roles, lanes, branches, the hand-off block. **Binding.**
-- `docs/coordination/DECISIONS.md`, especially **D-007** (the lesson workbook), **D-008** (pre-test and post-test on every lesson), **D-030** (package limits) and **D-050** (the 5 Oct test covers lessons and MCQs, not video, audio or presentations).
+- `docs/coordination/DECISIONS.md`, especially **D-007** (the lesson workbook), **D-008** (pre-test and post-test on every lesson), **D-030** (package limits) and **D-050** (the first testing phases cover lessons and MCQs, not video, audio or presentations) and **D-052** (readiness is a sequence of gates; 5 Oct is tentative, so quality comes before speed).
 - `docs/onboarding/konten/sd5_matematika_bab1.py`: how Bab 1 was built. Copy its approach.
 - `src/lib/unggah-kontrak.ts`, `KOLOM` and `BATAS_PAKET`: the exact column contract and limits Studio enforces. Read it; do not change it.
 

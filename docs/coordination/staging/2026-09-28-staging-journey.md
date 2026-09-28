@@ -1,4 +1,6 @@
-# Staging journey for the 5 Oct internal test (D-050), 28 Sep
+# Staging journey: lessons and MCQs end to end (D-050), 28 Sep
+
+**Where PINTAR is (D-052):** working toward **ENGINEERING COMPLETE**. 5 Oct is a tentative milestone, not a gate.
 
 **Question (Yazid, 28 Sep, scope corrected by D-050):** does the whole learning journey work on real staging, through PINTAR's own screens: school and content set-up → lesson prepared → pre-test MCQ → publish → assign to the synthetic class → a synthetic student signs in through the real student flow → opens the assigned learning → completes the pre-test → progresses through the lesson → completes the post-test → sees the result or next state → the educator sees the corresponding evidence? And, separately, do the MCQ Question Bank workflows intended for this phase work? Video, audio and presentations are out of scope.
 
@@ -48,11 +50,11 @@ Classes for anything not PASS: **P** product defect · **W/U** wording/UX · **S
 
 | # | Class | What | Where it goes |
 |---|---|---|---|
-| D1 | **P** | A lesson read to its last page never counts as read (0-based save vs a count rule), so no click leads to the post-test | **BOB-22**, 5 Oct blocker |
-| D2 | **S** (config) | Staging sends at most 2 sign-in emails per hour | Yazid: raise it before 5 Oct (see *Staging accounts*) |
+| D1 | **P** | A lesson read to its last page never counts as read (0-based save vs a count rule), so no click leads to the post-test | **BOB-22**: blocks ENGINEERING COMPLETE |
+| D2 | **S** (config) | Staging sends at most 2 sign-in emails per hour; behind it Namecheap Stellar allows 50 per hour per domain, shared with production | Educator-pilot readiness item (D-052): reassess for 20–30 people when the pilot approaches |
 | D3 | **S** (by design) | Class figures never appear in a synthetic school; not provable in Sekolah Uji Kinerja | Yazid: prove them another way (below) |
 | D4 | P (product gap) | Misconception codes cannot be registered anywhere, so every question warns at publish | Yazid decision, then Bob (board, Lana lane) |
-| D5 | P, *source only* | "Buat salinan untuk diperbaiki" does not copy a question's pre-test/post-test mark (`create_course_revision` predates `items.cycle_role`), so a corrected copy would lose its tests | Bob to confirm; not on the D-050 path |
+| D5 | **P** (proven from source) | "Buat salinan untuk diperbaiki" does not copy a question's pre-test/post-test mark (`create_course_revision`, last defined before `items.cycle_role` existed); the copy's tests then draw from every question, practice included | A 4.0 defect: belongs to ENGINEERING COMPLETE, whatever the date (D-052(e)) |
 | UX-01…06 | W/U | See `docs/coordination/ux/UX-POLISH-REGISTER.md` | Daisy (and Bob for UX-01) |
 | H1–H6 | H | Harness fixes in runs 1–8 | fixed |
 
@@ -72,32 +74,16 @@ Classes for anything not PASS: **P** product defect · **W/U** wording/UX · **S
 | Creating students | The school admin records them (Pendataan, a pasted list) and makes class cards (Aktivasi). The PIN is shown once; a lost card cannot be re-issued (ADM-08 is not built). |
 | Staff sign-in | By email link, valid one hour, to be opened in the same device and browser. **Staging sends at most 2 sign-in emails per hour for the whole project** (`rate_limit_email_sent = 2`, read by the workflow's `limits` mode, run 36382909677); a second email to the same address waits 60 s (`smtp_max_frequency`). Students sign in with cards and send no email. |
 
-## Tester readiness package
+## Readiness by gate (D-052)
 
-| Item | State |
-|---|---|
-| One-page tester brief in Bahasa Indonesia | Drafted: `docs/onboarding/PINTAR-Panduan-Penguji-5-Okt.md` (the D-050 sentence, sign-in, test data only, what to try by role, one problem per report, what to do when completely blocked). |
-| Report form | The Google Form exists (Yazid, 27 Sep; `TESTER-REPORT-FORM.md`); not yet sent to the testers (D-045: sent when PINTAR is ready). |
-| Accounts | Not provisioned (above). |
-| UX Polish Register | `docs/coordination/ux/UX-POLISH-REGISTER.md`. |
+| Gate | State | What stands before it |
+|---|---|---|
+| **ENGINEERING COMPLETE** | **Current gate, not yet reached** | **BOB-22** (students cannot reach the post-test by clicking). The revision-copy defect (D5). The 4.0 items still on the board. A decision on how misconception codes are registered (D4): the taxonomy, the class "misconceptions" figure and the question check already exist, but no screen or package can register a code, so the flow is incomplete. |
+| UI/UX POLISHED | Later | The UX Polish Register (UX-01…06, plus the late question check and one-by-one acknowledgements) and the terminology inventory, in the dedicated pass. |
+| YAZID GREEN LIGHT | Later | Yazid walks the complete experience. |
+| GLADYS GREEN LIGHT | Later | Only after Yazid's green light. |
+| EDUCATOR PILOT (20–30) | Later | Operational readiness is prepared then, not now: accounts and school set-up (staff are created by the platform admin one at a time today); mail capacity for 20–30 first sign-ins (Supabase's limit, Namecheap's 50/hour per domain shared with production); pilot classes of 5 or more students so class figures can appear; educators asked to launch Uji Cepat, the only way practice questions reach students; the tester brief (drafted, `docs/onboarding/PINTAR-Panduan-Penguji-Pilot.md`) and the report form. Class figures with official evidence are still NOT PROVEN (a synthetic school cannot show them, by design). |
 
-## Remaining blockers before 5 Oct
+**Technical (the journey works on staging):** yes, apart from BOB-22. Upload, the question check, two-person publishing, assignment, card sign-in, the pre-test, lessons, the post-test, scoring and results all work through the screens, and every result matched the answers given. The one break is that a student cannot get from the lessons to the post-test without typing its address.
 
-| # | Blocker | Owner | Size |
-|---|---|---|---|
-| 1 | **BOB-22:** a lesson never counts as read, so students cannot reach Uji Penguasaan by clicking | Bob; coordinator gates and re-runs the journey | small |
-| 2 | **Sign-in emails:** staging sends 2 per hour; ~150 staff testers need one each (and again on a new device) | Yazid: approve raising `rate_limit_email_sent` on staging and confirm the mail host's own hourly limit; the coordinator applies and reads it back | a setting |
-| 3 | **Tester accounts:** none exist; SD Zayd and SMA Zayd have no code, structure or people | Yazid and Gladys's team: the tester list by role and school; the platform admin creates each staff person and gives the first role | ~2 actions per staff tester |
-| 4 | **Content for testers:** SD Zayd's Bab 1 copy is an unpublished draft; SMA has none | Gladys's team (publishing is part of the test) or Lana's chapters as they pass the gate | — |
-| 5 | **Class figures not yet shown anywhere:** they need official evidence (a real school, 5+ students through both tests); the synthetic school cannot show them by design | Yazid: accept that testers will be the first to see them, or allow one check in a real school | decision |
-
-## Readiness
-
-**Technical (the journey works on staging):** yes, apart from one defect. Upload, the question check, two-person publishing, assignment, card sign-in, the pre-test, lessons, the post-test, scoring and results all work through the screens, and every result matched the answers given. The one break is BOB-22: without typing an address a student cannot get from the lessons to the post-test.
-
-**Tester-facing usability:** not yet. Beyond BOB-22, a tester will meet 33 one-by-one warning reviews per lesson (UX-01), a Bank Soal with nothing to act on (UX-02), an Uji Cepat titled Uji Penguasaan (UX-05), and an evidence page that counts only the pre-test (UX-06). None stops a tester, but each will be reported many times over; the brief warns about two of them.
-
-**Operationally (can 150 people start on 5 Oct):** **not ready today.** No tester account exists, staging sends two sign-in emails an hour, and the test schools are empty. All three are fixable this week (items 2–4 above) if the tester list arrives early enough for the platform admin to create the staff accounts.
-
-**Recommendation:** go for 5 Oct only if, by 2 Oct, BOB-22 is merged and the journey re-run green on staging, the email limit is raised and read back, and the tester accounts and school structure exist for at least the first cohort. Otherwise start with a smaller first cohort (Gladys's core team) on 5 Oct and widen once sign-in has held.
-
+**Tester-facing usability:** for the UI/UX pass, not a reason to hold engineering: 33 one-by-one warning reviews per lesson (UX-01), a Bank Soal with nothing to act on (UX-02), an Uji Cepat titled Uji Penguasaan (UX-05), an evidence page that counts only the pre-test (UX-06).
