@@ -662,6 +662,31 @@ CHANGES_V21.append(
     "and save says it was heard (DAISY-18), and the health card judges by F01-T13's own list (BOB-19).")
 
 
+# --- Integration 13 on main (28 Sep): BOB-17 (release blockers speak in codes), DAISY-16 (the Terbit step reads them) ---
+NOW.update({
+    "sha": "15bfc99",
+    "date": "28 Sep 2026",
+    "label": "Integration 13 (main)",
+    "evidence": ("Integration 13: BOB-17 (8f141d0, CI #213) with DAISY-16 and the mapping screen's roles, all in 15bfc99 (CI #214, 26/26, "
+                 "385 passed, 0 skipped), on top of Integration 12 (f48da56). Audit #32, run 36371551988: 27 PASS, 1 NOTE (S1b), 0 FAIL -- "
+                 "the first clean audit: Bab 1 through the seven Studio steps to publish, assigned to Kelas 1A, the student at its pre-test "
+                 "(S17-S19). Staging: 122 migrations after this integration."),
+})
+CURRENT.update({
+    "U-LOC": ("PASS: every server action and route answers with a code, never the database's words (BOB-07: BOB07-K01 walks src/app, "
+              "K02 the content refusals, R01 live); release blockers are codes (BOB-17) read in plain words in both languages, an "
+              "unknown one as a general line with a reference (DAISY-16: DAISY-16-HAMBATAN-01, audit #32 S17); PINTAR's own localized "
+              "404 (P3)."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 122; staging 122 after this integration.",
+})
+VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01); "
+                                  "M2, a school admin giving staff their roles (X-01), once Yazid decides whether a school admin may see their own staff (BOB-10 Q1). ",
+                                  "Bob — BOB-20 (a school admin sees and names their own staff, D-048) and BOB-21 (grants only to a person they may act upon): "
+                                  "X-01; then BOB-12 with DAISY-13 before 1 Nov (CAP-01). ")
+CHANGES_V21.append("Re-marked on 28 Sep against Integration 13 (15bfc99): release blockers are codes read in plain words (BOB-17, DAISY-16; U-LOC PASS); "
+                   "the audit ran clean for the first time (27 PASS, 1 NOTE, 0 FAIL), Studio to the student's pre-test included.")
+
+
 def as_dict():
     g = globals()
     return {
