@@ -58,6 +58,12 @@ For bob01-21, V03 now requires each refusal to be the rule's own ("lacks INSTITU
 
 **Tripwires:** 122 → 123. **Manifest:** v100.
 
+**Restated for the changed requirement (named):** **BOB19-K01** (Daisy's BOB-19 test; please pass this on to her).
+- **What it pinned:** Konfigurasi's non-admin branch to `Promise.resolve({ data: [] })`, and the bare name `persons_awaiting_first_role` to appear exactly once, which `persons_awaiting_first_role_at` also matches.
+- **What it requires now:** the platform's list is still asked only for the platform administrator (`isSys === true ? supabase.rpc("persons_awaiting_first_role") :`, the quoted name once). A school's list is asked only for each school the reader administers (`adminInstitutionIds.map(...)`).
+
+**Caught by my full local run** (`05bd52e`): F06-S01 (ADR-0021) named `person_visible_to_me`, because my `create or replace` did not revoke EXECUTE from PUBLIC in the same migration. Its ACL was already `postgres` and `authenticated` only; the lane-only migration now says so, corrected in place (D-026).
+
 No test was weakened, skipped or deleted.
 
 ## CI
@@ -75,7 +81,7 @@ No test was weakened, skipped or deleted.
 ## MIGRATIONS
 
 `20261017100000`, forward-only and additive:
-- replaces `person_visible_to_me`;
+- replaces `person_visible_to_me` (revoked from PUBLIC and anon, granted to authenticated, as before);
 - creates `persons_awaiting_first_role_at` and registers it;
 - updates the registry note for `person_visible_to_me`;
 - ends with terminal checks: the staff relations are read, a platform role is excluded, the function writes nothing, the new list is registered and not anon-executable, and the platform list keeps its gate.
