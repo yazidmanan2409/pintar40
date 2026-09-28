@@ -78,7 +78,7 @@ BOB-21 changes no rows: the guard runs on writes only.
 - **Still allowed:** each person holds a role at their school, which is itself a relationship, so a school admin can still grant them a further role there.
 - **What stops working:** if a seeded teacher's only role is revoked, their school admin can no longer re-grant it, because the school has no number for them. The platform administrator can. Recording the seeded staff through the intake (the school's number) would remove that gap. That is a seed change, not part of BOB-21.
 
-**On staging:** `staging-perf-seed.yml` has the synthetic school admin grant EDUCATOR to "Uji Kinerja Guru (sintetis)". That teacher was created on Gladys's screen as a new person with no school, so under BOB-21 that grant would be refused. The grant already exists on staging, and the workflow reuses what exists, so a re-run skips it. A fresh re-seed would need the teacher recorded in the school first (the intake gives the school's number), or granted by Gladys. The release audit's grants (`audit/journey.mjs`) are Gladys's, as SYSTEM_ADMIN, and are unaffected.
+**On staging:** `staging-perf-seed.yml` has the synthetic school admin grant EDUCATOR to "Uji Kinerja Guru (sintetis)". That teacher was created on Gladys's screen as a new person with no school, so under BOB-21 that grant would be refused. The grant already exists on staging, and the workflow reuses what exists, so a re-run skips it. A fresh re-seed would need the teacher recorded in the school first (the intake gives the school's number). **The coordinator owns that workflow and is changing it to do exactly that (28 Sep); no change on my side.** The release audit's grants (`audit/journey.mjs`) are Gladys's, as SYSTEM_ADMIN, and are unaffected.
 
 ## CONTRACT
 
