@@ -6,6 +6,7 @@
 - `selftest/app.test.ts`: BOB19-A01 and BOB11-A02 both kept.
 - Manifest version: 96 vs 97, now 98.
 - `galat-kontrak.ts`: merged cleanly.
+
 **The contract was published early**, at `7bc5a25`, so Daisy could build DAISY-16 against it: `src/lib/terbitan-kontrak.ts`, the "the blockers" section.
 
 ## CHANGED
@@ -70,7 +71,7 @@
 - **fable02, fable04, fable05, fable05t1:** `v_blockers` is jsonb. Three suites only print it on failure.
 - **`db-bob03-gates`' control:** 6 → 7 green rows.
 - **Tripwires:** 121 → 122.
-- **Manifest:** v95 → v96 (BOB11-A02).
+- **Manifest:** v95 → v96 for BOB11-A02, then v98 after merging main's v97.
 
 No test was weakened, skipped or deleted.
 
