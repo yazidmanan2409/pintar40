@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 93,
+  "version": 94,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1818,6 +1818,11 @@
       "proves": "BOB-02. may_upload_package_media grants a signed upload only for a file the package names, in the batch's own school, to someone who may draft there, while the batch awaits confirmation: an unnamed file, another school's id, a path without its batch, another school's admin and a DEAN are refused, and a materialised batch grants nothing."
     },
     {
+      "id": "F11-P04",
+      "runner": "db",
+      "proves": "BOB-11 (M9). may_preview_lesson_media lets a school's admin, a drafting teacher and a platform admin hear an unreleased course's audio, and refuses a DEAN of the school (no draft, no review), another school's admin and a path no lesson names; may_read_lesson_media still answers only a learner the course is assigned to."
+    },
+    {
       "id": "F11-P03",
       "runner": "db",
       "proves": "BOB-02. A save that fails inside lesson_package_materialise leaves nothing behind: confirm_ingest_batch answers PACKAGE_COULD_NOT_BE_SAVED, the batch is back at MAPPING_PROPOSED with the error recorded and no course written, and once the fault is gone a second confirmation of the same batch materialises the course."
@@ -1948,6 +1953,12 @@
       "id": "BOB18-A01",
       "runner": "app",
       "proves": "BOB-18 (D-046). Counted through the running app (selftest/hitung-fetch.cjs), a Studio click asks studio_capabilities once and can_in_institution never; the Konfigurasi page in src/app/konfigurasi/page.tsx, including the page a saved grant returns to, runs platform_schema_lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at most twice, the profile read at most once, is_system_admin asked at most once and the viewer's own roles read at most once, a Studio page reading role_assignments for nothing else.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB11-A01",
+      "runner": "app",
+      "proves": "BOB-11 (M9; STU-11, ADM-10). Lesson media play: through the running app, the learner's own lesson page in src/app/belajar renders an <audio> whose src, /api/assets/read-url with alih=1, answers 302 to a signed storage URL that returns the lesson's audio; the lesson's author gets the same from the Studio preview through may_preview_lesson_media; a teacher of another school is refused 403; and read-url without alih still answers JSON with a 60-second URL.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
