@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 99,
+  "version": 100,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1778,6 +1778,21 @@
       "proves": "BOB-08 (a, e): the school's admin, signed in, inserting and updating org_nodes and academic_periods directly is refused 42501; a Bagian with a role scoped at its hidden Reguler below it is STRUCTURE_HAS_STAFF."
     },
     {
+      "id": "F10-V01",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, a school's INSTITUTION_ADMIN sees its teacher who holds a role there and its newly recorded teacher who holds only the school's institutional identity, by person_visible_to_me and by name from persons, and finds the new one (not the one with a role) in persons_awaiting_first_role_at; given a first role, the new teacher leaves the list and stays visible."
+    },
+    {
+      "id": "F10-V02",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, a school's admin sees neither another school's staff (a teacher with a role and an identity there, a newly recorded teacher) nor a platform SYSTEM_ADMIN whose row names the school's node, by person_visible_to_me or by id from persons; its own waiting list names none of them and another school's refuses it; a learner of the school sees none of the school's staff and is refused the waiting list."
+    },
+    {
+      "id": "F10-V03",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, seeing grants nothing: the school's admin is still refused a grant at another school's node (INSTITUTION_ADMIN scope) and a grant of INSTITUTION_ADMIN or SYSTEM_ADMIN to a teacher it can see, and no refused grant leaves a role behind."
+    },
+    {
       "id": "F10-C02",
       "runner": "db",
       "proves": "BOB-08 (b) under real concurrency: two psql connections as the school's admin; the holder deactivates a Tingkat and holds its transaction open, and a concurrent grant_role there waits on the shared structure lock the place trigger takes, reads the Tingkat again and is refused PR020 STRUCTURE_PLACE_INACTIVE, leaving no role scoped there. The racer starts only once the holder is seen asleep holding the lock."
@@ -1980,6 +1995,12 @@
       "id": "BOB11-A02",
       "runner": "app",
       "proves": "BOB-11 gate review. The one-hour media link is lesson media's only: through the running app's route /api/assets/read-url, the signed URL storage issued, read from its token's exp - iat, is valid for 3600 seconds only for a lesson's audio with alih=1; the learner's own profile photo is signed for 60 seconds with and without alih, and lesson media without alih for 60 seconds.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB20-A01",
+      "runner": "app",
+      "proves": "BOB-20 (D-048). Through the running app, as a school's INSTITUTION_ADMIN: the rendered Konfigurasi page's grant list names the school's own teacher with the role, its person picker offers that teacher and the teacher the school has just recorded, and the page names no other school's staff; by direct id through PostgREST the admin reads the school's own staff from persons and person_visible_to_me and neither another school's teacher nor the platform administrator; persons_awaiting_first_role_at names the new teacher and another school's list answers nothing; the route /api/assets/read-url serves the school's own teacher's profile photo and refuses another school's teacher's with 403.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {

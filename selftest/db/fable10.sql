@@ -209,6 +209,9 @@ declare
   -- BOB-08
   s7_b uuid; s7_t uuid; s7_a uuid; s7_k uuid; s7_b2 uuid; s7_reg uuid; s7_enr uuid; s7_person uuid;
   s9_canon uuid; s10_b uuid; s10_reg uuid; m_inactive int := 0; m_window int := 0; m_canon int := 0; m_direct int := 0;
+  -- BOB-20
+  v20_t_a uuid; v20_n_a uuid; v20_t_b uuid; v20_n_b uuid; v20_sys uuid; v20_sys_p uuid; v20_murid uuid; v20_murid_p uuid;
+  v20_t_a_p uuid; v20_t_b_p uuid; v20_per uuid; v20_seen uuid[]; v20_list uuid[];
 begin
   perform selftest.as_owner();
   begin
@@ -923,6 +926,151 @@ begin
       v_probs := selftest.f10_note(v_probs, 'F10-S10', 'the test could not run: ' || left(sqlerrm, 150));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F10-V01..V03  BOB-20 (D-048): A SCHOOL ADMIN SEES AND NAMES THE SCHOOL'S
+    --          OWN STAFF -- a role held there, or the school's number -- and
+    --          finds a newly recorded teacher in the school's own waiting list;
+    --          never another school's staff, never a platform person, never
+    --          for a learner, and seeing grants nothing.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      perform set_config('app.seed_intent', 'synthetic', true);
+      update public.institutions i set namespace = (
+        select x from generate_series(1, 500) g, lateral (select upper(substr(md5(v_tag || i.id::text || g), 1, 3)) x) q
+         where x ~ '^[A-Z]{3}$' and not exists (select 1 from public.institutions t where upper(t.namespace) = q.x) limit 1)
+       where i.id in (v_a, v_b) and i.namespace is null;
+      perform set_config('app.seed_intent', '', true);
+      -- school A: a teacher holding a role there, and a newly recorded teacher
+      -- who holds only the school's number; school B: the same two
+      v20_t_a := selftest.f10_user('f10-v-guru-a-' || v_tag || '@local.invalid', 'EDUCATOR', v_a);
+      select a.person_id into v20_t_a_p from public.accounts a where a.auth_user_id = v20_t_a;
+      insert into public.persons (display_name) values ('Guru Baru A ' || v_tag) returning persons.id into v20_n_a;
+      perform public.issue_institutional_id(v20_n_a, v_a);
+      v20_t_b := selftest.f10_user('f10-v-guru-b-' || v_tag || '@local.invalid', 'EDUCATOR', v_b);
+      select a.person_id into v20_t_b_p from public.accounts a where a.auth_user_id = v20_t_b;
+      perform public.issue_institutional_id(v20_t_b_p, v_b);
+      insert into public.persons (display_name) values ('Guru Baru B ' || v_tag) returning persons.id into v20_n_b;
+      perform public.issue_institutional_id(v20_n_b, v_b);
+      -- a platform administrator whose own row names school A's node, and no identity there
+      v20_sys := selftest.f10_user('f10-v-sys-' || v_tag || '@local.invalid', 'SYSTEM_ADMIN', v_a);
+      select a.person_id into v20_sys_p from public.accounts a where a.auth_user_id = v20_sys;
+      -- a learner of school A
+      v20_murid := selftest.f10_user('f10-v-murid-' || v_tag || '@local.invalid', null, null);
+      select a.person_id into v20_murid_p from public.accounts a where a.auth_user_id = v20_murid;
+      insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+      values (v_a, 'BOB-20 ' || v_tag, current_date - 30, current_date + 300) returning academic_periods.id into v20_per;
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+      values (v20_murid_p, v_a, v20_per, 'PENDING');
+
+      ---------------------------------------------------------------- F10-V01
+      perform selftest.as_user_uid(v_adm_a);
+      if not public.person_visible_to_me(v20_t_a_p) then
+        v_probs := selftest.f10_note(v_probs, 'F10-V01', 'the school''s admin cannot see the school''s own teacher');
+      end if;
+      if not public.person_visible_to_me(v20_n_a) then
+        v_probs := selftest.f10_note(v_probs, 'F10-V01', 'the school''s admin cannot see the teacher the school has just recorded');
+      end if;
+      select array_agg(p.id) into v20_seen from public.persons p where p.id in (v20_t_a_p, v20_n_a);
+      if coalesce(cardinality(v20_seen), 0) <> 2 then
+        v_probs := selftest.f10_note(v_probs, 'F10-V01', format('the school''s admin reads %s of its 2 staff by name from persons', coalesce(cardinality(v20_seen), 0)));
+      end if;
+      begin
+        select array_agg(w.person_id) into v20_list from public.persons_awaiting_first_role_at(v_a) w;
+        if not (v20_n_a = any (coalesce(v20_list, '{}'))) then
+          v_probs := selftest.f10_note(v_probs, 'F10-V01', 'the newly recorded teacher is not in the school''s waiting list');
+        end if;
+        if v20_t_a_p = any (coalesce(v20_list, '{}')) then
+          v_probs := selftest.f10_note(v_probs, 'F10-V01', 'a teacher who holds a role there is in the school''s waiting list');
+        end if;
+        -- the first role, given as the school's admin may give it
+        perform public.grant_role(v20_n_a, 'EDUCATOR', v_a, now() + interval '30 days');
+        if v20_n_a = any (coalesce((select array_agg(w.person_id) from public.persons_awaiting_first_role_at(v_a) w), '{}')) then
+          v_probs := selftest.f10_note(v_probs, 'F10-V01', 'a teacher given a first role is still in the waiting list');
+        end if;
+        if not public.person_visible_to_me(v20_n_a) then
+          v_probs := selftest.f10_note(v_probs, 'F10-V01', 'a teacher given a first role stopped being visible');
+        end if;
+      exception when others then
+        v_probs := selftest.f10_note(v_probs, 'F10-V01', 'the school''s waiting list could not be read: ' || left(sqlerrm, 150));
+      end;
+      perform selftest.as_owner();
+
+      ---------------------------------------------------------------- F10-V02
+      perform selftest.as_user_uid(v_adm_a);
+      if public.person_visible_to_me(v20_t_b_p) then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', 'another school''s teacher is visible to this school''s admin');
+      end if;
+      if public.person_visible_to_me(v20_n_b) then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', 'another school''s newly recorded teacher is visible to this school''s admin');
+      end if;
+      if public.person_visible_to_me(v20_sys_p) then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', 'a platform administrator with no identity at the school is visible to its admin');
+      end if;
+      -- by list and by direct id
+      select count(*) into n from public.persons p where p.id in (v20_t_b_p, v20_n_b, v20_sys_p);
+      if n <> 0 then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', format('the school''s admin reads %s of another school''s staff or the platform administrator by id from persons', n));
+      end if;
+      select count(*) into n from public.persons p where p.display_name like '%' || v_tag and p.id in (v20_n_b);
+      if n <> 0 then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', 'another school''s teacher is on the school admin''s persons list');
+      end if;
+      begin
+        if exists (select 1 from public.persons_awaiting_first_role_at(v_a) w where w.person_id in (v20_n_b, v20_t_b_p, v20_sys_p)) then
+          v_probs := selftest.f10_note(v_probs, 'F10-V02', 'the school''s waiting list names someone of another school or the platform');
+        end if;
+      exception when others then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', 'the school''s own waiting list could not be read: ' || left(sqlerrm, 120));
+      end;
+      v_got := selftest.f10_code(format('select * from public.persons_awaiting_first_role_at(%L::uuid)', v_b));
+      if v_got = 'ok' or v_got like '42883 %' then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', 'another school''s waiting list answered this school''s admin: ' || v_got);
+      end if;
+      perform selftest.as_owner();
+      -- a learner of the school sees no staff and has no waiting list
+      perform selftest.as_user_uid(v20_murid);
+      if public.person_visible_to_me(v20_t_a_p) or public.person_visible_to_me(v20_n_a) then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', 'a learner of the school can see the school''s staff');
+      end if;
+      select count(*) into n from public.persons p where p.id in (v20_t_a_p, v20_n_a);
+      if n <> 0 then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', format('a learner of the school reads %s of its staff from persons', n));
+      end if;
+      v_got := selftest.f10_code(format('select * from public.persons_awaiting_first_role_at(%L::uuid)', v_a));
+      if v_got = 'ok' or v_got like '42883 %' then
+        v_probs := selftest.f10_note(v_probs, 'F10-V02', 'the school''s waiting list answered a learner: ' || v_got);
+      end if;
+      perform selftest.as_owner();
+
+      ---------------------------------------------------------------- F10-V03
+      perform selftest.as_user_uid(v_adm_a);
+      -- a role the other school's teacher does not hold yet, so only the scope can refuse it
+      v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, %L::public.app_role, %L::uuid, now() + interval ''30 days'')', v20_t_b_p, 'HEAD_OF_DEPARTMENT', v_b));
+      if v_got not like '%lacks INSTITUTION_ADMIN scope%' then
+        v_probs := selftest.f10_note(v_probs, 'F10-V03', 'the school''s admin granted a role at another school''s node: ' || v_got);
+      end if;
+      foreach v_label in array array['INSTITUTION_ADMIN', 'SYSTEM_ADMIN'] loop
+        v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, %L::public.app_role, %L::uuid, now() + interval ''30 days'')', v20_t_a_p, v_label, v_a));
+        if v_got not like '%only an active SYSTEM_ADMIN may grant%' then
+          v_probs := selftest.f10_note(v_probs, 'F10-V03', 'the school''s admin granted ' || v_label || ' to a teacher it can now see');
+        end if;
+      end loop;
+      perform selftest.as_owner();
+      if exists (select 1 from public.role_assignments ra
+                  where ra.person_id in (v20_t_a_p, v20_t_b_p) and ra.role in ('INSTITUTION_ADMIN', 'SYSTEM_ADMIN')) then
+        v_probs := selftest.f10_note(v_probs, 'F10-V03', 'a refused grant left a role behind');
+      end if;
+      if (select count(*) from public.role_assignments ra where ra.person_id = v20_t_b_p) <> 1 then
+        v_probs := selftest.f10_note(v_probs, 'F10-V03', 'another school''s teacher gained a role from this school''s admin');
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f10_note(v_probs, 'F10-V01', 'the test could not run: ' || left(sqlerrm, 150));
+      v_probs := selftest.f10_note(v_probs, 'F10-V02', 'the test could not run: ' || left(sqlerrm, 150));
+      v_probs := selftest.f10_note(v_probs, 'F10-V03', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
     raise exception 'F10_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -934,7 +1082,7 @@ begin
   for r in
     select * from unnest(
       array['F10-S01','F10-S02','F10-S03','F10-S04','F10-S05','F10-S06','F10-M01','F10-M02',
-            'F10-S07','F10-S08','F10-S09','F10-S10'],
+            'F10-S07','F10-S08','F10-S09','F10-S10','F10-V01','F10-V02','F10-V03'],
       array['BOB-01 -- an Admin sekolah builds Bagian, Tingkat and Kelas',
             'BOB-01 -- an Admin platform builds them for any school',
             'BOB-01 -- everyone else at the school is refused',
@@ -946,7 +1094,10 @@ begin
             'BOB-08 -- nobody is placed or granted a role in a deactivated place',
             'BOB-08 -- an academic year near now',
             'BOB-08 -- the national library is not a school',
-            'BOB-08 -- one way in, and staff below a Bagian'],
+            'BOB-08 -- one way in, and staff below a Bagian',
+            'BOB-20 -- a school''s admin sees and names the school''s own staff (D-048)',
+            'BOB-20 -- another school''s staff, a platform person and a learner''s view stay closed',
+            'BOB-20 -- seeing a person grants no authority over them'],
       array[
         format('as the school''s INSTITUTION_ADMIN, two Bagian, two Tingkat and three Kelas were built and '
             || 'listed with the parent the screen shows and the year (%s visible node(s)); the school has one hidden '
@@ -985,7 +1136,18 @@ begin
         format('a platform administrator''s create_bagian and school_structure on the canonical library were each '
             || 'STRUCTURE_NOT_A_SCHOOL (%s of 2), and nothing was built there', m_canon),
         format('signed in, the school''s admin inserting and updating org_nodes and academic_periods directly was '
-            || 'refused 42501 (%s of 4); a Bagian with a role scoped at its hidden Reguler was STRUCTURE_HAS_STAFF', m_direct)
+            || 'refused 42501 (%s of 4); a Bagian with a role scoped at its hidden Reguler was STRUCTURE_HAS_STAFF', m_direct),
+        'the school''s admin saw its teacher who holds a role there and its newly recorded teacher who holds only '
+          || 'the school''s number, read both by name from persons, and found the new one -- and not the teacher '
+          || 'with a role -- in persons_awaiting_first_role_at; once given a first role there, the new teacher left '
+          || 'the list and stayed visible',
+        'the school''s admin saw neither of another school''s staff (its teacher with a role and a number there, '
+          || 'its newly recorded teacher) nor a platform administrator whose row names the school''s node, by '
+          || 'person_visible_to_me or by id from persons; its own waiting list named none of them and another '
+          || 'school''s waiting list refused it; a learner of the school saw none of the school''s staff and was '
+          || 'refused the waiting list',
+        'the school''s admin was still refused a grant at another school''s node and a grant of INSTITUTION_ADMIN '
+          || 'or SYSTEM_ADMIN to a teacher it can see; no refused grant left a role behind'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;
