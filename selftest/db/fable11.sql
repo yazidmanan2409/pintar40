@@ -18,6 +18,8 @@
 --   F11-N02  only someone who may draft in the batch's school may prepare or
 --            confirm it; a foreign and an unknown batch answer alike; the
 --            platform library is not a school
+--   F11-P04  BOB-11: a school's staff who may draft or review preview the
+--            school's unpublished lesson media; nobody else does
 --   F11-N03  a media upload URL is granted only for a file the package names,
 --            in its own school, while the batch awaits confirmation
 --
@@ -115,7 +117,7 @@ declare
   v_a uuid; v_b uuid; v_kanon uuid; v_adm uuid; v_adm_b uuid; v_dean uuid; v_guru uuid; v_sys uuid; v_adm_p uuid;
   v_batch uuid; v_batch2 uuid; v_batch3 uuid; v_course uuid; v_path text; v_state text;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
-  m_whole int := 0; m_struct int := 0; m_codes int := 0; m_refused int := 0; m_media int := 0;
+  m_whole int := 0; m_struct int := 0; m_codes int := 0; m_refused int := 0; m_media int := 0; m_preview int := 0;
 begin
   perform selftest.as_owner();
   begin
@@ -556,6 +558,40 @@ begin
       v_probs := selftest.f11_note(v_probs, 'F11-N03', 'the test could not run: ' || left(sqlerrm, 150));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F11-P04  BOB-11 (M9): A SCHOOL'S STAFF PREVIEW ITS UNPUBLISHED MEDIA, and
+    --          nobody else does. P01's course is INGESTED, released to no one,
+    --          so no learner's assignment names its audio.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      v_path := format('pelajaran/%s/%s/penjelasan-senilai.mp3', v_a, v_batch);
+      for r in select * from unnest(
+          array[v_adm, v_guru, v_sys, v_dean, v_adm_b, v_adm],
+          array[v_path, v_path, v_path, v_path, v_path, format('pelajaran/%s/%s/tidak-disebut.mp3', v_a, v_batch)],
+          array[true, true, true, false, false, false],
+          array['the school''s admin', 'a drafting teacher of the school', 'a platform admin',
+                'a DEAN of the school (no draft, no review)', 'another school''s admin',
+                'the school''s admin, for a path no lesson names']
+        ) as t(who, pth, harap, label) loop
+        perform selftest.as_user_uid(r.who);
+        if public.may_preview_lesson_media(r.pth) is not distinct from r.harap then m_preview := m_preview + 1;
+        else
+          v_probs := selftest.f11_note(v_probs, 'F11-P04',
+            format('%s was %s', r.label, case when r.harap then 'refused a preview' else 'let preview' end));
+        end if;
+        perform selftest.as_owner();
+      end loop;
+      -- the learner's question is unchanged: nobody here is assigned the course
+      perform selftest.as_user_uid(v_adm);
+      if public.may_read_lesson_media(v_path) then
+        v_probs := selftest.f11_note(v_probs, 'F11-P04', 'the learner''s question now answers an unassigned admin');
+      end if;
+      perform selftest.as_owner();
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f11_note(v_probs, 'F11-P04', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
     raise exception 'F11_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -566,13 +602,14 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F11-P01', 'F11-P02', 'F11-P03', 'F11-N01', 'F11-N02', 'F11-N03'],
+      array['F11-P01', 'F11-P02', 'F11-P03', 'F11-N01', 'F11-N02', 'F11-N03', 'F11-P04'],
       array['BOB-02 -- the sample workbook becomes a real course in the chosen school, whole',
             'BOB-02 -- a structured package reaches its confirmation and materialises',
             'BOB-02 -- a failed save leaves the batch waiting and a second confirmation saves it',
             'BOB-02 -- a broken package comes back as codes at their row and writes nothing',
             'BOB-02 -- only a drafter in the batch''s school prepares or confirms it (M8)',
-            'BOB-02 -- a media upload is granted only for a named file of a waiting batch'],
+            'BOB-02 -- a media upload is granted only for a named file of a waiting batch',
+            'BOB-11 -- a school''s staff preview its unpublished media, and nobody else does'],
       array[
         'the sample workbook, prepared and confirmed by the school''s INSTITUTION_ADMIN, became one INGESTED course of '
           || 'that school authored by its confirmer, with 2 chapters, 3 lessons with their text, 2 objectives (Menerapkan '
@@ -597,7 +634,10 @@ begin
           || 'package for the platform library is PACKAGE_SCHOOL_NOT_ALLOWED (%s refusal(s))', m_refused),
         format('may_upload_package_media grants the school''s admin and a drafting teacher a file the package names, and '
           || 'refuses an unnamed file, another school''s id, a path without its batch, another school''s admin and a '
-          || 'DEAN; once the batch is materialised it grants nothing (%s of 8)', m_media)
+          || 'DEAN; once the batch is materialised it grants nothing (%s of 8)', m_media),
+        format('may_preview_lesson_media lets the school''s admin, a drafting teacher and a platform admin hear the '
+          || 'unreleased course''s audio, and refuses a DEAN of the school, another school''s admin and a path no lesson '
+          || 'names (%s of 6); may_read_lesson_media still answers only a learner the course is assigned to', m_preview)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

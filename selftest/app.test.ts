@@ -2451,4 +2451,97 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    // BOB-11 (M9; checklist STU-11, ADM-10). LESSON MEDIA PLAY. The player's
+    // <audio>/<video> pointed at /api/assets/read-url, which answered JSON, so
+    // nothing played. Driven end to end: a real object at the seeded lesson's
+    // path, the learner's own lesson page, the src it renders, and the bytes
+    // that src leads to; the author's Studio preview the same way; and a
+    // teacher of another school refused.
+    id: "BOB11-A01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.supabaseServiceRoleKey), "no service-role key to place the media object, so this test would prove nothing")) {
+        return c.verdict("");
+      }
+      const murid = await signIn(ctx, PERSONA.cycleLearner);
+      const rpc = async (sesi: Session, nama: string, body: unknown) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${nama}`, {
+          method: "POST",
+          headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sesi.accessToken}`, "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        return r.ok ? ((await r.json()) as unknown) : null;
+      };
+      // the learner's own lesson with an audio, found through the contract
+      let tugas = "", pelajaran = "", jalur = "";
+      for (const a of ((await rpc(murid, "my_learning_assignments", {})) ?? []) as Array<{ learning_assignment_id: string }>) {
+        for (const l of ((await rpc(murid, "learner_lessons", { p_learning_assignment: a.learning_assignment_id })) ?? []) as
+          Array<{ lesson_id: string; media: Array<{ jenis: string; path: string }> | null }>) {
+          const m = (l.media ?? []).find((x) => x.jenis === "audio");
+          if (m && !jalur) { tugas = a.learning_assignment_id; pelajaran = l.lesson_id; jalur = m.path; }
+        }
+      }
+      if (!c.expect(jalur !== "", "the seeded learner has no lesson with an audio, so this test would prove nothing")) return c.verdict("");
+
+      // a real object at that path, placed as the server places media
+      const isi = `ID3 BOB-11 ${Date.now()}`;
+      const put = await fetch(`${ctx.supabaseUrl}/storage/v1/object/assets/${jalur}`, {
+        method: "POST",
+        headers: { apikey: ctx.supabaseServiceRoleKey!, authorization: `Bearer ${ctx.supabaseServiceRoleKey!}`,
+                   "content-type": "audio/mpeg", "x-upsert": "true" },
+        body: isi,
+      });
+      c.expect(put.ok, `placing the audio at ${jalur} failed (${put.status})`);
+
+      const srcDari = (html: string, tag: string) =>
+        (new RegExp(`<${tag}\\b[^>]*\\bsrc="([^"]+)"`).exec(html)?.[1] ?? "").replace(/&amp;/g, "&");
+      const putar = async (siapa: string, cookie: string, src: string) => {
+        const r = await get(`${base}${src}`, { headers: { cookie } });
+        const ke = r.headers.get("location") ?? "";
+        c.expect(r.status === 302 && ke.startsWith(`${ctx.supabaseUrl}/storage/v1/object/sign/assets/`),
+          `${siapa}: the player's src answered ${r.status} ${ke ? "to " + ke.slice(0, 60) : "with no redirect"}, not the file`);
+        if (ke) {
+          const f = await fetch(ke);
+          c.expect(f.status === 200 && (await f.text()) === isi, `${siapa}: the signed URL did not return the lesson's audio (${f.status})`);
+        }
+      };
+
+      // 1. the learner hears it in the lesson
+      const hal = await get(`${base}/belajar/${tugas}/pelajaran/${pelajaran}`, { headers: { cookie: murid.cookie } });
+      const htmlMurid = await hal.text();
+      c.expect(hal.status === 200, `the learner's lesson → ${hal.status}`);
+      const src = srcDari(htmlMurid, "audio");
+      c.expect(src.startsWith("/api/assets/read-url?") && src.includes("alih=1"), `the lesson's <audio> src is ${JSON.stringify(src)}`);
+      if (src) await putar("the learner", murid.cookie, src);
+
+      // 2. the author previews it in Studio, before and after release alike
+      const guru = await signIn(ctx, PERSONA.cycleEducator);
+      const pra = await get(`${base}/studio/pratinjau/${pelajaran}`, { headers: { cookie: guru.cookie } });
+      const srcGuru = srcDari(await pra.text(), "audio");
+      c.expect(pra.status === 200 && srcGuru.includes("alih=1"), `the author's Studio preview → ${pra.status} with <audio> src ${JSON.stringify(srcGuru)}`);
+      if (srcGuru) await putar("the author in Studio", guru.cookie, srcGuru);
+
+      // 3. a teacher of another school is refused the same src, as a stranger is
+      const lain = await signIn(ctx, PERSONA.alphaGuru);
+      if (src) {
+        const r = await get(`${base}${src}`, { headers: { cookie: lain.cookie } });
+        c.expect(r.status === 403 && !r.headers.get("location"), `another school's teacher got ${r.status} for the lesson's audio`);
+      }
+      // 4. the JSON answer is unchanged for whoever reads it
+      if (src) {
+        const r = await get(`${base}${src.replace(/&alih=1/, "")}`, { headers: { cookie: murid.cookie } });
+        const j = r.status === 200 ? ((await r.json()) as { url?: string; expiresIn?: number }) : {};
+        c.expect(typeof j.url === "string" && j.expiresIn === 60, `without alih the route answered ${r.status} ${JSON.stringify(j).slice(0, 80)}`);
+      }
+      return c.verdict(
+        "through the running app, the learner's own lesson renders an <audio> whose src (read-url with alih=1) answers 302 " +
+        "to a signed storage URL returning the lesson's audio; the lesson's author gets the same from the Studio preview " +
+        "through may_preview_lesson_media; a teacher of another school is refused 403; and read-url without alih still " +
+        "answers JSON with a 60-second URL",
+      );
+    },
+  },
 ];

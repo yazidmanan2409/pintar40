@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 92,
+  "version": 94,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1038,7 +1038,7 @@
     {
       "id": "F06-P17",
       "runner": "db",
-      "proves": "WP5A identity and provisioning authority. PROVISIONING IS INSTITUTIONAL ADMINISTRATION, NOT SENIORITY: a head of department and a dean -- whom WP4 calls Management -- an educator and a learner are each refused both the namespace reservation and the import, because none of them holds CAN_PROVISION_PEOPLE at all. Namespace reservation is case-insensitive IN THE DATABASE and not merely in the function that upcases before writing: the unique index is asserted to be over upper(namespace) and a lowercase value is asserted unstorable, both here in the live gate rather than only in the migration's one-time block -- a plant that moved the index to namespace stayed green until this existed. OPENING, VALIDATING AND PREVIEWING AN IMPORT PROVISION NOTHING, counted across persons, institutional identities, accounts and auth users; the preview states zero accounts activated. AN UNCONFIRMED IMPORT REFUSES TO PROVISION and leaves nothing behind. Confirmed, it issues IDs in this school's canonical form and CREATES NO ACCOUNT AND NO AUTH USER. Row-level idempotency is asked at its source: requesting an identity a person already holds here returns that same one and mints nothing -- the import path alone never exercises this, because each of its rows is a different person, so a plant that removed the Person x Institution key stayed green until this asked directly. ANOTHER SCHOOL'S ADMINISTRATOR, who holds the capability over their own root, cannot reserve this namespace, open an import here, or read, confirm, advance or verify this job, and lists none of its jobs, rows or identities. Reservation, confirmation and completion each appear once on the audit record. Every row rolled back"
+      "proves": "WP5A identity and provisioning authority. PROVISIONING IS INSTITUTIONAL ADMINISTRATION, NOT SENIORITY: a head of department and a dean -- whom WP4 calls Management -- an educator and a learner are each refused both the namespace reservation and the import, because none of them holds CAN_PROVISION_PEOPLE at all. Namespace reservation is case-insensitive IN THE DATABASE and not merely in the function that upcases before writing: the unique index is asserted to be over upper(namespace) and a lowercase value is asserted unstorable, both here in the live gate rather than only in the migration's one-time block -- a plant that moved the index to namespace stayed green until this existed. OPENING, VALIDATING AND PREVIEWING AN IMPORT PROVISION NOTHING, counted across persons, institutional identities, accounts and auth users; the preview states zero accounts activated. AN UNCONFIRMED IMPORT REFUSES TO PROVISION and leaves nothing behind. Confirmed, it issues IDs in this school's canonical form and CREATES NO ACCOUNT AND NO AUTH USER. Row-level idempotency is asked at its source: requesting an identity a person already holds here returns that same one and mints nothing -- the import path alone never exercises this, because each of its rows is a different person, so a plant that removed the Person x Institution key stayed green until this asked directly. ANOTHER SCHOOL'S ADMINISTRATOR, who holds the capability over their own root, cannot reserve this namespace, open an import here, or read, confirm, advance or verify this job, and lists none of its jobs, rows or identities. Reservation, confirmation and completion each appear once on the audit record. Every row rolled back. Restated for BOB-10 (M5b interim): its three-row import records the teacher without a role or a place, since a staff row is now refused at validation."
     },
     {
       "id": "F06-P18",
@@ -1685,7 +1685,7 @@
     {
       "id": "F10-M01",
       "runner": "db",
-      "proves": "M5a. The intake places a learner only in an active Kelas or Tingkat, and says why. import_row_problems refuses a row with no role or role STUDENT whose place is a Bagian, the Jenjang, a Reguler, the school or a deactivated Kelas with 'a learner is placed in an active Kelas or Tingkat', accepts a Kelas and a Tingkat, leaves an EDUCATOR scoped to a Bagian alone, and import_validate reports the phrase against the row before anything is provisioned."
+      "proves": "M5a, and BOB-10 (M5b interim; restated, a changed requirement recorded on the board). The intake places a learner only in an active Kelas or Tingkat, and refuses a staff row before recording, each with a reason. import_row_problems refuses a row with no role or role STUDENT whose place is a Bagian, the Jenjang, a Reguler, the school or a deactivated Kelas with 'a learner is placed in an active Kelas or Tingkat', accepts a Kelas and a Tingkat, refuses an EDUCATOR at a Bagian or in a Kelas, a HEAD_OF_DEPARTMENT and a DEAN with 'a staff row is not recorded by the bulk intake yet', and import_validate reports each phrase against its row before anything is provisioned."
     },
     {
       "id": "F10-M02",
@@ -1818,6 +1818,11 @@
       "proves": "BOB-02. may_upload_package_media grants a signed upload only for a file the package names, in the batch's own school, to someone who may draft there, while the batch awaits confirmation: an unnamed file, another school's id, a path without its batch, another school's admin and a DEAN are refused, and a materialised batch grants nothing."
     },
     {
+      "id": "F11-P04",
+      "runner": "db",
+      "proves": "BOB-11 (M9). may_preview_lesson_media lets a school's admin, a drafting teacher and a platform admin hear an unreleased course's audio, and refuses a DEAN of the school (no draft, no review), another school's admin and a path no lesson names; may_read_lesson_media still answers only a learner the course is assigned to."
+    },
+    {
       "id": "F11-P03",
       "runner": "db",
       "proves": "BOB-02. A save that fails inside lesson_package_materialise leaves nothing behind: confirm_ingest_batch answers PACKAGE_COULD_NOT_BE_SAVED, the batch is back at MAPPING_PROPOSED with the error recorded and no course written, and once the fault is gone a second confirmation of the same batch materialises the course."
@@ -1948,6 +1953,12 @@
       "id": "BOB18-A01",
       "runner": "app",
       "proves": "BOB-18 (D-046). Counted through the running app (selftest/hitung-fetch.cjs), a Studio click asks studio_capabilities once and can_in_institution never; the Konfigurasi page in src/app/konfigurasi/page.tsx, including the page a saved grant returns to, runs platform_schema_lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at most twice, the profile read at most once, is_system_admin asked at most once and the viewer's own roles read at most once, a Studio page reading role_assignments for nothing else.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB11-A01",
+      "runner": "app",
+      "proves": "BOB-11 (M9; STU-11, ADM-10). Lesson media play: through the running app, the rendered lesson page of the learner's own lesson (src/app/belajar) carries an <audio> whose src, the route /api/assets/read-url with alih=1, answers 302 to a signed storage URL that returns the lesson's audio file; the lesson's author gets the same from the rendered Studio preview through may_preview_lesson_media; a teacher of another school is refused 403; and the route without alih still answers JSON with a 60-second URL.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {

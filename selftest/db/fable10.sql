@@ -682,19 +682,29 @@ begin
     -- ═══════════════════════════════════════════════════════════════════════
     begin
       perform selftest.f10_claims(v_actor);
+      -- RESTATED FOR BOB-10 (M5b, interim; a changed requirement, recorded on
+      -- the board): the last row, an EDUCATOR scoped to a Bagian, was accepted
+      -- here and then failed at recording. A staff row is now refused at
+      -- validation with its own phrase, and three more staff rows join it --
+      -- among them a teacher placed in a Kelas, the row that turned a teacher
+      -- into a student of the class. The learner rows are unchanged.
       for r in select * from unnest(
-          array[c_dep, c_dep, c_fac, c_prog, v_c, c_cls_off, c_cls, c_coh, c_cls, c_dep],
-          array[null, 'STUDENT', null, null, null, null, null, null, 'STUDENT', 'EDUCATOR'],
-          array[true, true, true, true, true, true, false, false, false, false],
+          array[c_dep, c_dep, c_fac, c_prog, v_c, c_cls_off, c_cls, c_coh, c_cls, c_dep, c_cls, c_dep, c_dep],
+          array[null, 'STUDENT', null, null, null, null, null, null, 'STUDENT', 'EDUCATOR', 'EDUCATOR',
+                'HEAD_OF_DEPARTMENT', 'DEAN'],
+          array[true, true, true, true, true, true, false, false, false, true, true, true, true],
           array['a learner placed in a Bagian', 'a STUDENT placed in a Bagian', 'a learner placed in the Jenjang',
                 'a learner placed in a Reguler', 'a learner placed in the school itself',
                 'a learner placed in a deactivated Kelas', 'a learner placed in a Kelas',
-                'a learner placed in a Tingkat', 'a STUDENT placed in a Kelas', 'an EDUCATOR scoped to a Bagian']
+                'a learner placed in a Tingkat', 'a STUDENT placed in a Kelas', 'an EDUCATOR scoped to a Bagian',
+                'an EDUCATOR placed in a Kelas', 'a HEAD_OF_DEPARTMENT scoped to a Bagian', 'a DEAN scoped to a Bagian']
         ) as t(node, role, refuse, label) loop
         v_prob := public.import_row_problems(v_c,
           jsonb_strip_nulls(jsonb_build_object('display_name', 'Murid Uji', 'node_id', r.node, 'role', r.role)));
         n := (select count(*) from jsonb_array_elements_text(v_prob) x
-               where x = 'a learner is placed in an active Kelas or Tingkat');
+               where x = case when r.role in ('EDUCATOR', 'HEAD_OF_DEPARTMENT', 'DEAN')
+                              then 'a staff row is not recorded by the bulk intake yet'
+                              else 'a learner is placed in an active Kelas or Tingkat' end);
         if r.refuse and n = 1 then m_place := m_place + 1;
         elsif not r.refuse and jsonb_array_length(v_prob) = 0 then m_place := m_place + 1;
         else
@@ -713,8 +723,18 @@ begin
         v_probs := selftest.f10_note(v_probs, 'F10-M01',
           'the intake''s check does not tell the administrator why the row was refused: ' || coalesce(v_out::text, 'nothing'));
       end if;
+      -- BOB-10: and a teacher placed in a Kelas is refused there too, as staff
+      v_job := public.import_open(v_c, jsonb_build_array(
+        jsonb_build_object('display_name', 'Guru Salah Jalur ' || v_tag, 'node_id', c_cls, 'role', 'EDUCATOR')));
+      v_out := public.import_validate(v_job);
+      if coalesce((v_out ->> 'ok')::boolean, true)
+         or not ((v_out -> 'rows' -> 0 -> 'problems') ? 'a staff row is not recorded by the bulk intake yet') then
+        v_probs := selftest.f10_note(v_probs, 'F10-M01',
+          'the intake''s check does not refuse a teacher placed in a Kelas as staff: ' || coalesce(v_out::text, 'nothing'));
+      end if;
       perform selftest.as_owner();
-      select count(*) into n from public.persons where display_name = 'Murid Salah Tempat ' || v_tag;
+      select count(*) into n from public.persons
+       where display_name in ('Murid Salah Tempat ' || v_tag, 'Guru Salah Jalur ' || v_tag);
       if n <> 0 then
         v_probs := selftest.f10_note(v_probs, 'F10-M01', 'a refused row provisioned a person');
       end if;
@@ -951,8 +971,9 @@ begin
             || 'Reguler with it, a refused deactivation changes nothing, and a deactivated name can be reused', m_codes),
         format('a learner (no role, or STUDENT) placed in a Bagian, the Jenjang, a Reguler, the school or a '
             || 'deactivated Kelas is refused with "a learner is placed in an active Kelas or Tingkat", while a '
-            || 'Kelas, a Tingkat and an EDUCATOR at a Bagian are not (%s of 10); the intake''s own check reports '
-            || 'the phrase against the row and provisions nobody', m_place),
+            || 'Kelas and a Tingkat are not; an EDUCATOR at a Bagian or in a Kelas, a HEAD_OF_DEPARTMENT and a DEAN '
+            || 'are refused with "a staff row is not recorded by the bulk intake yet" (BOB-10) (%s of 13); the '
+            || 'intake''s own check reports each phrase against its row and provisions nobody', m_place),
         format('with three academic years at the school, the newest carried by no place, learners placed in a '
             || '2026/2027 Kelas, a 2027/2028 Kelas and a 2026/2027 Tingkat were each enrolled and placed in that '
             || 'place''s own year (%s of 3), and the import completed', m_period),
