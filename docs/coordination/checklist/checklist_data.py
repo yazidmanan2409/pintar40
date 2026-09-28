@@ -627,6 +627,108 @@ VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
                "copies). The live release (5b5b68d) stays as it is.")
 
 
+# --- Integration 12 on main (28 Sep): BOB-10 (the intake refuses staff rows), BOB-11 (lesson media play),
+#     DAISY-18 (PINTAR shows it heard you, D-047), BOB-19 (the health card) ---
+NOW.update({
+    "sha": "f48da56",
+    "date": "28 Sep 2026",
+    "label": "Integration 12 (main)",
+    "evidence": ("main f48da56 = Integration 12: BOB-10 and BOB-11 (92d74aa) with DAISY-18 and BOB-19 (a60ba25; DAISY-13 held off) on top of "
+                 "Integration 11 (b24a95b). CI #210 (26/26); audit #30, run 36364515756 (26 PASS, 1 NOTE, 1 FAIL: S8, an outdated oracle -- both "
+                 "rows are now refused at validation with reasons and nobody is recorded, which is the requirement; restated). The lanes' own runs: "
+                 "CI #207, #208 (Bob), #206, #209 (Daisy). Staging: 121 migrations after this integration."),
+})
+CURRENT.update({
+    "ADM-07": ("PASS: intake into a Kelas works (S9); a place that is not a Kelas or Tingkat is refused at validation with a reason (BOB-01); "
+               "staff rows are refused at validation with a reason and never become students (BOB-10: F10-M01, CI #210; audit #30 S8 shows "
+               "both refusals and nobody recorded); pickers offer only Bagian, Tingkat and Kelas by path (BOB-09)."),
+    "STU-11": ("PARTIAL: lesson media now play: the lesson's <audio>/<video> link answers with the file after the same permission check "
+               "(BOB-11: BOB11-A01, CI #210, real storage). Left: the RUN walk on staging with SD 5 Bab 1 (its media are on staging)."),
+    "ADM-10": ("PARTIAL: text, questions and media exist (S14, S15c) and media play, for learners and in Studio's preview for the school's "
+               "own staff (BOB-11: F11-P04, BOB11-A01). Left: the RUN walk on staging with SD 5 Bab 1."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 121; staging 121 after this integration.",
+})
+CURRENT["U-PERF"] = CURRENT["U-PERF"] + (" Since Integration 12 a menu click also answers at once: a working mark on the link and a shared "
+                                          "loading screen within 100 ms (DAISY-18, D-047).")
+VERDICT_NOW = ("NO-GO. What stands between main and go-live, by owner: "
+               "Bob — BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01); "
+               "M2, a school admin giving staff their roles (X-01), once Yazid decides whether a school admin may see their own staff (BOB-10 Q1). "
+               "Coordinator — walk STU-11 and ADM-10 on staging with SD 5 Bab 1; extend the audit to answer the pre-test and post-test and read "
+               "the result (STU-06…STU-18, X-06…X-11); walk the RUN checks by hand. Yazid — REL-08 and REL-09 (Supabase settings, offline key "
+               "copies); BOB-10 Q1. The live release (5b5b68d) stays as it is.")
+CHANGES_V21.append(
+    "Re-marked on 28 Sep against Integration 12 on main (f48da56): the intake refuses staff rows with a reason (BOB-10; ADM-07 PASS), "
+    "lesson media play for learners and in Studio's preview (BOB-11; STU-11 and ADM-10 wait only for the walk on staging), every click "
+    "and save says it was heard (DAISY-18), and the health card judges by F01-T13's own list (BOB-19).")
+
+
+# --- Integration 13 on main (28 Sep): BOB-17 (release blockers speak in codes), DAISY-16 (the Terbit step reads them) ---
+NOW.update({
+    "sha": "15bfc99",
+    "date": "28 Sep 2026",
+    "label": "Integration 13 (main)",
+    "evidence": ("Integration 13: BOB-17 (8f141d0, CI #213) with DAISY-16 and the mapping screen's roles, all in 15bfc99 (CI #214, 26/26, "
+                 "385 passed, 0 skipped), on top of Integration 12 (f48da56). Audit #32, run 36371551988: 27 PASS, 1 NOTE (S1b), 0 FAIL -- "
+                 "the first clean audit: Bab 1 through the seven Studio steps to publish, assigned to Kelas 1A, the student at its pre-test "
+                 "(S17-S19). Staging: 122 migrations after this integration."),
+})
+CURRENT.update({
+    "U-LOC": ("PASS: every server action and route answers with a code, never the database's words (BOB-07: BOB07-K01 walks src/app, "
+              "K02 the content refusals, R01 live); release blockers are codes (BOB-17) read in plain words in both languages, an "
+              "unknown one as a general line with a reference (DAISY-16: DAISY-16-HAMBATAN-01, audit #32 S17); PINTAR's own localized "
+              "404 (P3)."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 122; staging 122 after this integration.",
+})
+VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-17 with Daisy's DAISY-16 (release blockers in codes: U-LOC), then BOB-12 with DAISY-13 before 1 Nov (CAP-01); "
+                                  "M2, a school admin giving staff their roles (X-01), once Yazid decides whether a school admin may see their own staff (BOB-10 Q1). ",
+                                  "Bob — BOB-20 (a school admin sees and names their own staff, D-048) and BOB-21 (grants only to a person they may act upon): "
+                                  "X-01; then BOB-12 with DAISY-13 before 1 Nov (CAP-01). ")
+CHANGES_V21.append("Re-marked on 28 Sep against Integration 13 (15bfc99): release blockers are codes read in plain words (BOB-17, DAISY-16; U-LOC PASS); "
+                   "the audit ran clean for the first time (27 PASS, 1 NOTE, 0 FAIL), Studio to the student's pre-test included.")
+
+
+# --- Integration 14 on main (28 Sep): BOB-20 (a school admin sees and names their own staff, D-048) ---
+NOW.update({
+    "sha": "c2e8e4b",
+    "date": "28 Sep 2026",
+    "label": "Integration 14 (main)",
+    "evidence": ("Integration 14: BOB-20 (c2e8e4b, CI #215, 26/26) on top of Integration 13 (15bfc99). Audit #33, run 36374922245: "
+                 "27 PASS, 1 NOTE (S1b), 0 FAIL. Staging: 123 migrations after this integration."),
+})
+CURRENT.update({
+    "X-01": ("PARTIAL: structure, staff roles, cards and intake without SQL (S3-S12); a place that is not a Kelas or Tingkat and a staff row "
+             "are refused at intake with reasons (BOB-01, BOB-10); a school admin now sees and names their own staff and finds a newly "
+             "recorded teacher in their own waiting list (BOB-20, D-048). Left: a school admin grants only to a person they may act upon "
+             "(BOB-21, D-049)."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 123; staging 123 after this integration.",
+})
+VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-20 (a school admin sees and names their own staff, D-048) and BOB-21 (grants only to a person they may act upon): X-01; ",
+                                  "Bob — BOB-21 (a school admin grants only to a person they may act upon, D-049): X-01; ")
+CHANGES_V21.append("Re-marked on 28 Sep against Integration 14 (c2e8e4b): a school admin sees and names their own staff (BOB-20, D-048); audit clean again.")
+
+
+# --- Integration 15 on main (28 Sep): BOB-21 (a school admin grants only to a person they may act upon, D-049) ---
+NOW.update({
+    "sha": "9062cbe",
+    "date": "28 Sep 2026",
+    "label": "Integration 15 (main)",
+    "evidence": ("Integration 15: BOB-21 (code 9062cbe, CI #216 on 78e642a, 26/26) on top of Integration 14 (c2e8e4b). Audit #34, run "
+                 "36378202736: 27 PASS, 1 NOTE (S1b), 0 FAIL. Staging: 124 migrations after this integration."),
+})
+CURRENT.update({
+    "X-01": ("PASS: structure, staff roles, cards and intake without SQL (S3-S12); a place that is not a Kelas or Tingkat and a staff row "
+             "are refused at intake with reasons (BOB-01, BOB-10); a school admin sees and names their own staff and finds a newly "
+             "recorded teacher in their own waiting list (BOB-20, D-048), and grants only to a person with a relationship with that "
+             "school (BOB-21, D-049: F10-G01, G02). A teacher moving from another school waits for the staff-link workflow (backlog, D-049); "
+             "the platform admin's grant covers it meanwhile."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main carries 124; staging 124 after this integration.",
+})
+VERDICT_NOW = VERDICT_NOW.replace("Bob — BOB-21 (a school admin grants only to a person they may act upon, D-049): X-01; then BOB-12 with DAISY-13 before 1 Nov (CAP-01). ",
+                                  "Bob — BOB-12 with DAISY-13 before 1 Nov (CAP-01). ")
+CHANGES_V21.append("Re-marked on 28 Sep against Integration 15 (9062cbe): a school admin grants only to a person with a relationship with that school "
+                   "(BOB-21, D-049); X-01 PASS; audit clean again.")
+
+
 def as_dict():
     g = globals()
     return {

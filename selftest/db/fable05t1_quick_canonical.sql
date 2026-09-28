@@ -189,7 +189,7 @@ language plpgsql set search_path = public, pg_temp as $$
 declare
   v_guru uuid; v_hod uuid; v_course uuid; v_mod uuid; v_les uuid; v_rel uuid;
   ob1 uuid; spec jsonb; entry jsonb; opt jsonb; it uuid; t text;
-  v_status text; v_blockers text[];
+  v_status text; v_blockers jsonb;
 begin
   v_guru := selftest.f05_actor('qac-own-guru@synthetic.pintar.test', 'EDUCATOR', p_institution);
   v_hod  := selftest.f05_actor('qac-own-hod@synthetic.pintar.test', 'HEAD_OF_DEPARTMENT', p_institution);
@@ -274,7 +274,7 @@ begin
   select pr.status, pr.blockers into v_status, v_blockers from public.publish_readiness(v_course) pr;
   if v_status <> 'READY' then
     raise exception 'the school-owned fixture is not publishable (%): % -- fix the fixture, never the gate',
-      v_status, array_to_string(v_blockers, '; ');
+      v_status, v_blockers::text;
   end if;
 
   -- the release exists and is NOT published: the ordinary mid-authoring state,

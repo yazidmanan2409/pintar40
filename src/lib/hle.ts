@@ -468,6 +468,22 @@ export type HleEvent =
   | "studio.langkah.dikembalikan"
   | "studio.langkah.sibuk"
   | "studio.langkah.hambatan"
+  | "studio.hambatan.readiness_text_error"
+  | "studio.hambatan.readiness_text_warning"
+  | "studio.hambatan.readiness_item_error"
+  | "studio.hambatan.readiness_item_warning"
+  | "studio.hambatan.readiness_not_validated"
+  | "studio.hambatan.readiness_returned"
+  | "studio.hambatan.readiness_awaiting_review"
+  | "studio.hambatan.readiness_no_release"
+  | "studio.hambatan.readiness_not_sealed"
+  | "studio.hambatan.lain"
+  | "studio.hambatan.pelajaran"
+  | "studio.hambatan.pola.answer_position_skew"
+  | "studio.hambatan.pola.correct_option_length_imbalance"
+  | "studio.hambatan.pola.implausible_distractor"
+  | "studio.hambatan.pola.stem_reveals_answer"
+  | "studio.hambatan.pola.lain"
   | "studio.langkah.susun.judul"
   | "studio.langkah.susun.arti"
   | "studio.langkah.susun.tombol"
@@ -2123,6 +2139,24 @@ const table: Table = {
   "studio.langkah.dikembalikan": { default: "Isi ini dikembalikan untuk diperbaiki. Perbaiki, lalu tandai sudah tersusun lagi.", en: "This content was returned for correction. Fix it, then mark it as put together again." },
   "studio.langkah.sibuk": { default: "Memproses…", en: "Working…" },
   "studio.langkah.hambatan": { default: "Yang menahan:", en: "What is holding it:" },
+  // BOB-17 (D-011): what holds a release, one line per blocker code (terbitan-kontrak.ts KODE_HAMBATAN).
+  // DAISY-16: worded as the steps are -- the course, never the package; each step by its exact title
+  "studio.hambatan.readiness_text_error": { default: "kesalahan pada teks pelajaran yang harus diperbaiki", en: "error(s) in the lesson text that must be fixed" },
+  "studio.hambatan.readiness_text_warning": { default: "catatan mutu pada teks pelajaran yang belum ditinjau", en: "quality note(s) on the lesson text not yet reviewed" },
+  "studio.hambatan.readiness_item_error": { default: "soal dengan kesalahan yang harus diperbaiki", en: "question(s) with an error that must be fixed" },
+  "studio.hambatan.readiness_item_warning": { default: "soal dengan catatan mutu yang belum ditinjau", en: "question(s) with a quality note not yet reviewed" },
+  "studio.hambatan.readiness_not_validated": { default: "bagian isi belum lolos langkah Periksa isi", en: "part(s) of the content not yet through Check the content" },
+  "studio.hambatan.readiness_returned": { default: "bagian isi dikembalikan dan harus diperbaiki", en: "part(s) of the content returned and to be fixed" },
+  "studio.hambatan.readiness_awaiting_review": { default: "bagian isi masih menunggu langkah Setujui isi", en: "part(s) of the content still waiting at Approve the content" },
+  "studio.hambatan.readiness_no_release": { default: "Kursus ini belum memiliki terbitan: mulai dari langkah Buat terbitan.", en: "This course has no release yet: start at Create the release." },
+  "studio.hambatan.readiness_not_sealed": { default: "Isi kursus belum dikunci pada langkah Kunci terbitan. Setelah dikunci, isinya tidak dapat diubah lagi.", en: "The course content is not locked yet at Lock the release. Once locked, it cannot be changed." },
+  "studio.hambatan.lain": { default: "Ada hal lain yang menahan terbitan ini.", en: "Something else is holding this release." },
+  "studio.hambatan.pelajaran": { default: "Pelajaran", en: "Lesson" },
+  "studio.hambatan.pola.answer_position_skew": { default: "jawaban benar menumpuk di posisi yang sama", en: "the correct answers bunch in one position" },
+  "studio.hambatan.pola.correct_option_length_imbalance": { default: "jawaban benar jauh lebih panjang daripada pilihan lain", en: "the correct answer is much longer than the other options" },
+  "studio.hambatan.pola.implausible_distractor": { default: "ada pengecoh yang tidak mungkin dipilih", en: "a wrong option no one would choose" },
+  "studio.hambatan.pola.stem_reveals_answer": { default: "pertanyaannya membocorkan jawaban", en: "the question gives its answer away" },
+  "studio.hambatan.pola.lain": { default: "catatan mutu soal lainnya", en: "another question-quality note" },
   "studio.langkah.susun.judul": { default: "Susun isi", en: "Put the content together" },
   "studio.langkah.susun.arti": { default: "Buku kerja sudah menjadi kursus, bab, pelajaran, dan soal. Lihat seperti siswa untuk memeriksa tampilannya, lalu tandai sudah tersusun.", en: "The workbook has become a course with chapters, lessons and questions. See it as a student to check how it looks, then mark it as put together." },
   "studio.langkah.susun.tombol": { default: "Tandai sudah tersusun", en: "Mark as put together" },

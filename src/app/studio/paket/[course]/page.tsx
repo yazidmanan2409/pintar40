@@ -2,6 +2,9 @@ import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import LangkahTerbit from "@/components/studio/LangkahTerbit";
+import { format, t, type HleEvent } from "@/lib/hle";
+import { KODE_HAMBATAN, kalimatHambatan, type Hambatan } from "@/lib/terbitan-kontrak";
+import { rujukan } from "@/lib/galat-kontrak";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../../_lib";
 import {
   acknowledgeFindingAction, createRevisionAction, moveReleaseAction, runValidationAction,
@@ -99,9 +102,17 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     ]);
 
   const state = (Array.isArray(stateRows) ? stateRows[0] : stateRows) as
-    | { surface_state: string; reasons: string[]; preview_lesson_id: string | null } | undefined;
+    | { surface_state: string; reasons: Hambatan[]; preview_lesson_id: string | null } | undefined;
 
   const banner = outcomeLine(sp);
+  // DAISY-16: a reason whose code the catalogue does not know shows the general
+  // line and a reference; the code goes to the server log under it, never to the page
+  const dikenal = (r: Hambatan) => (KODE_HAMBATAN as readonly string[]).includes(r?.code);
+  const asing = (state?.reasons ?? []).filter((r) => !dikenal(r));
+  const refAlasan = asing.length > 0 ? rujukan() : null;
+  // the reasons speak the reader's language, as the Terbit step below them does
+  const sl = (k: HleEvent) => t(k, "staff", { locale });
+  if (refAlasan) console.error(`[studio ${refAlasan}] studio_package_state returned blocker code(s) the catalogue does not know`, asing.map((r) => r?.code));
   const published = (releases ?? []).filter((r) => r.status === "PUBLISHED");
   const terakhir = (releases ?? []).at(-1) ?? null;
   const tersegel = terakhir !== null && !["INGESTED", "STRUCTURED", "VALIDATED", "IN_REVIEW", "APPROVED"].includes(terakhir.status);
@@ -130,9 +141,12 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
         {state && state.reasons.length > 0 ? (
           <>
-            <p className="mt-4 text-sm font-medium">{s("studio.paket.alasan")}</p>
+            <p className="mt-4 text-sm font-medium">{sl("studio.paket.alasan")}</p>
             <ul className="mt-1 list-disc pl-5 text-sm text-ink-2">
-              {state.reasons.map((r) => <li key={r}>{r}</li>)}
+              {/* BOB-17 (D-011): each reason is a blocker code; its line comes from the copy table */}
+              {state.reasons.map((r, i) => (
+                <li key={`${r?.code}-${r?.lesson_id ?? ""}-${r?.pattern ?? ""}-${i}`}>{kalimatHambatan(r, sl, (n) => format.number(n, locale))}{refAlasan && !dikenal(r) ? ` (${sl("galat.rujukan")}: ${refAlasan})` : null}</li>
+              ))}
             </ul>
           </>
         ) : null}

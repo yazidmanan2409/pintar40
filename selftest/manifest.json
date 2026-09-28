@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 97,
+  "version": 103,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -528,7 +528,7 @@
     {
       "id": "F04-T15",
       "runner": "db",
-      "proves": "INV-35 / doc 16 §4 — the four adversarial MCQ banks (correct option 2-3x longer, ~70% of answers in one position, an implausible distractor, the correct option copying stem wording) each make Publish Readiness report BLOCKED or ACTION_REQUIRED NAMING that pattern and no other, and each clears to READY only after the content itself is repaired; a clean control bank reaches READY unaided"
+      "proves": "INV-35 / doc 16 §4 — the four adversarial MCQ banks (correct option 2-3x longer, ~70% of answers in one position, an implausible distractor, the correct option copying stem wording) each make Publish Readiness report BLOCKED or ACTION_REQUIRED NAMING that pattern and no other, and each clears to READY only after the content itself is repaired; a clean control bank reaches READY unaided. Restated for BOB-17 (D-011): the blocker names its pattern as a parameter of its code (READINESS_ITEM_ERROR or READINESS_ITEM_WARNING), not inside a sentence."
     },
     {
       "id": "F04-T16",
@@ -677,7 +677,7 @@
     {
       "id": "F05-T19",
       "runner": "db",
-      "proves": "one calm surface state with plain-language reasons carrying no lifecycle enum or version string; no zero-count card; findings keep the four coaching fields",
+      "proves": "one calm surface state with plain-language reasons carrying no lifecycle enum or version string; no zero-count card; findings keep the four coaching fields. Restated for BOB-17 (D-011): the reasons are blocker codes, and the parameters shown beside a code's words (the lesson, the pattern) carry no lifecycle enum or version string.",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
@@ -1359,7 +1359,7 @@
       "id": "UX1-DATA-BERKAS-01",
       "runner": "static",
       "requires": [],
-      "proves": "the intake reads a spreadsheet as a spreadsheet and maps it to exactly the fields WP5A accepts. A quoted comma, a doubled quote, a newline inside a field, a byte-order mark and semicolon/tab/comma separators are all handled; a trailing newline is not counted as a person and a short row pads rather than reaching a payload as undefined. The five mappable fields are compared with the migration IN BOTH DIRECTIONS -- a field the surface offers that WP5A ignores and a field WP5A reads that the surface hides are both red -- and there is no institutional-ID column, because PINTAR decides all eleven characters. The roles offered exclude exactly the two the row checker refuses, read from its own body. One row in is one row out at 1, 50, 100, 101 and 1,000; a nameless row is still sent so the database can report it against its ordinal rather than being silently discarded; and an empty value is omitted rather than sent as an empty string, so payload and database agree on what absent means.",
+      "proves": "the intake reads a spreadsheet as a spreadsheet and maps it to exactly the fields WP5A accepts. A quoted comma, a doubled quote, a newline inside a field, a byte-order mark and semicolon/tab/comma separators are all handled; a trailing newline is not counted as a person and a short row pads rather than reaching a payload as undefined. The five mappable fields are compared with the migration IN BOTH DIRECTIONS -- a field the surface offers that WP5A ignores and a field WP5A reads that the surface hides are both red -- and there is no institutional-ID column, because PINTAR decides all eleven characters. The roles offered are exactly the roles the current row checker accepts, read from the SOURCE of the latest migration that defines import_row_problems: it refuses two by name and, restated for BOB-10 (M5b, interim), every staff role (EDUCATOR, HEAD_OF_DEPARTMENT, DEAN), so the mapping screen offers the learner alone until M5b, and a staff row refused at \"Periksa\" has its own sentence. One row in is one row out at 1, 50, 100, 101 and 1,000; a nameless row is still sent so the database can report it against its ordinal rather than being silently discarded; and an empty value is omitted rather than sent as an empty string, so payload and database agree on what absent means.",
       "how": "the WP5A migration parsed for the payload keys it reads and the roles it refuses; the pure parser and mapper driven over quoting, separator and boundary-size cases"
     },
     {
@@ -1778,6 +1778,36 @@
       "proves": "BOB-08 (a, e): the school's admin, signed in, inserting and updating org_nodes and academic_periods directly is refused 42501; a Bagian with a role scoped at its hidden Reguler below it is STRUCTURE_HAS_STAFF."
     },
     {
+      "id": "F10-V01",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, a school's INSTITUTION_ADMIN sees its teacher who holds a role there and its newly recorded teacher who holds only the school's institutional identity, by person_visible_to_me and by name from persons, and finds the new one (not the one with a role) in persons_awaiting_first_role_at; given a first role, the new teacher leaves the list and stays visible."
+    },
+    {
+      "id": "F10-V02",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, a school's admin sees neither another school's staff (a teacher with a role and an identity there, a newly recorded teacher) nor a platform SYSTEM_ADMIN whose row names the school's node, by person_visible_to_me or by id from persons; its own waiting list names none of them and another school's refuses it; a learner of the school sees none of the school's staff and is refused the waiting list."
+    },
+    {
+      "id": "F10-V03",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, seeing grants nothing: the school's admin is still refused a grant at another school's node (INSTITUTION_ADMIN scope) and a grant of INSTITUTION_ADMIN or SYSTEM_ADMIN to a teacher it can see, and no refused grant leaves a role behind."
+    },
+    {
+      "id": "F10-G01",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, School B's INSTITUTION_ADMIN granting a School-B role through grant_role by internal id to a teacher who belongs only to School A is refused 42501 with DETAIL GRANT_NO_SCHOOL_RELATIONSHIP, identically (SQLSTATE, DETAIL and MESSAGE) to an id that does not exist; no School-B role, institutional identity or enrolment is created, and the teacher stays invisible to School B's admin."
+    },
+    {
+      "id": "F10-G02",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, an INSTITUTION_ADMIN of both School A and School B is refused GRANT_NO_SCHOOL_RELATIONSHIP granting a School-B role to a School-A-only teacher and a School-A role to a School-B-only teacher: the relationship is asked of the grant's own school, not of what the grantor can see, and no role is left at either school."
+    },
+    {
+      "id": "F10-G03",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, School B's admin still grants to its own teacher who holds a role there, to the teacher it has just recorded (its institutional identity only) and to a person enrolled there (an enrolment only), and the platform administrator still grants a School-B role to a School-A teacher."
+    },
+    {
       "id": "F10-C02",
       "runner": "db",
       "proves": "BOB-08 (b) under real concurrency: two psql connections as the school's admin; the holder deactivates a Tingkat and holds its transaction open, and a concurrent grant_role there waits on the shared structure lock the place trigger takes, reads the Tingkat again and is refused PR020 STRUCTURE_PLACE_INACTIVE, leaving no role scoped there. The racer starts only once the holder is seen asleep holding the lock."
@@ -1888,6 +1918,16 @@
       "proves": "BOB-03 (D-041). Releases change only through their functions: a teacher's direct insert into plp_releases naming the head of department as author and an admin's direct update of a published release are both refused by the database (42501, no client grant), no write policy remains on plp_releases, and signed-in staff still read the school's releases."
     },
     {
+      "id": "F12-P04",
+      "runner": "db",
+      "proves": "BOB-17 (D-011; M7). Every readiness rule is its own code with its parameters: with findings planted, publish_readiness answers READINESS_TEXT_ERROR and READINESS_TEXT_WARNING per lesson (and one for the course as a whole) and READINESS_ITEM_ERROR and READINESS_ITEM_WARNING per lesson and pattern, each with its count, lesson and pattern and no sentence, BLOCKED for an error, ACTION_REQUIRED for warnings alone and READY with [] once all are acknowledged; studio_package_state adds READINESS_AWAITING_REVIEW, READINESS_NO_RELEASE, READINESS_NOT_SEALED, READINESS_NOT_VALIDATED and READINESS_RETURNED (BLOCKED) as the package walks through those states; the nine codes met are exactly the catalogue's."
+    },
+    {
+      "id": "F12-P05",
+      "runner": "db",
+      "proves": "BOB-17 gate review. publish_readiness is internal: in the suite selftest/db/fable12.sql, a learner of another school and another school's administrator calling it directly on a school's draft course are each refused 42501 and read nothing; authenticated holds no execute on it and client_rpc_registry no longer offers it; the school's administrator still reads the package's state through studio_package_state, and the head of department's freeze, which reads readiness inside, seals the course."
+    },
+    {
       "id": "F13-N03",
       "runner": "db",
       "proves": "BOB-04 (D-040). prepare_ingest_batch refuses a package whose two pre-test questions share their parallel groups with its two post-test questions: ok=false with ITEM_PARALLEL_CYCLE_MIXED and nothing else, at Soal rows 2, 3, 4 and 5 -- every question of those groups; the same package with separate groups prepares cleanly."
@@ -1929,6 +1969,11 @@
       "proves": "BOB-18 (D-046). vercel.json sets the functions' region to sin1, beside both Supabase projects in ap-southeast-1; studioInstitutionsDari in the source file src/app/studio/_lib.ts, driven with a recording client, asks studio_capabilities once with the eight Studio capabilities and nothing else, offers only schools holding a capability, sorted by name, and none when the call fails; currentViewer and isSystemAdmin in src/lib/auth.ts, peranSaya in src/lib/tur-negara.ts and studioInstitutions are React per-request caches, and peranSaya takes the person from the viewer; viewerDari in src/lib/auth.ts, driven, makes no call without a session cookie and, with one, asks for the user and my_profile side by side."
     },
     {
+      "id": "BOB17-K01",
+      "runner": "static",
+      "proves": "BOB-17 (D-011; M7). The codes publish_readiness and studio_package_state can return, read from the source file of their newest migration, are exactly KODE_HAMBATAN in src/lib/terbitan-kontrak.ts, neither function writes a sentence, and the codes that block are the ones the database blocks on; every code and pattern has its words in both languages naming no machinery; a planted sentence, a bare string and an unknown pattern each render through kalimatHambatan as the copy table's line, never themselves; the Terbit step (LangkahTerbit.tsx) and the package page draw every blocker through kalimatHambatan; and the four unused release form actions are gone from src/app/studio/actions.ts."
+    },
+    {
       "id": "BOB08-K01",
       "runner": "static",
       "proves": "BOB-08 (d, g). The structure helper struktur() in the source file src/app/konfigurasi/actions.ts re-reads the list once on each path: before a refusal returns (it re-read only after a success) and after a success, as DAISY-05-STRUKTUR-01 also holds; lingkupPimpinanDari in src/lib/pimpinan.ts, driven with a revoked, an expired, a not-yet-begun and an active grant, offers only the active one's node in the Pimpinan picker."
@@ -1959,6 +2004,18 @@
       "id": "BOB11-A01",
       "runner": "app",
       "proves": "BOB-11 (M9; STU-11, ADM-10). Lesson media play: through the running app, the rendered lesson page of the learner's own lesson (src/app/belajar) carries an <audio> whose src, the route /api/assets/read-url with alih=1, answers 302 to a signed storage URL that returns the lesson's audio file; the lesson's author gets the same from the rendered Studio preview through may_preview_lesson_media; a teacher of another school is refused 403; and the route without alih still answers JSON with a 60-second URL.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB11-A02",
+      "runner": "app",
+      "proves": "BOB-11 gate review. The one-hour media link is lesson media's only: through the running app's route /api/assets/read-url, the signed URL storage issued, read from its token's exp - iat, is valid for 3600 seconds only for a lesson's audio with alih=1; the learner's own profile photo is signed for 60 seconds with and without alih, and lesson media without alih for 60 seconds.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB20-A01",
+      "runner": "app",
+      "proves": "BOB-20 (D-048). Through the running app, as a school's INSTITUTION_ADMIN: the rendered Konfigurasi page's grant list names the school's own teacher with the role, its person picker offers that teacher and the teacher the school has just recorded, and the page names no other school's staff; by direct id through PostgREST the admin reads the school's own staff from persons and person_visible_to_me and neither another school's teacher nor the platform administrator; persons_awaiting_first_role_at names the new teacher and another school's list answers nothing; the route /api/assets/read-url serves the school's own teacher's profile photo and refuses another school's teacher's with 403.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
@@ -2141,6 +2198,11 @@
       ],
       "skip_justification": "needs the running application and the seeded, fully migrated Supabase stack: it signs in as the platform administrator and Alpha's school administrator, runs the schema lint through Konfigurasi and reads the runner's count of the app's Supabase calls. CI has both facilities, so it never skips there",
       "proves": "BOB-19 over real HTTP against the seeded, fully migrated local stack, read from the RENDERED html of /konfigurasi and /studio/paket and the runner's count of the app's Supabase calls (selftest/hitung-fetch.cjs): the platform administrator's health card, asked to check, reads \"Semua pemeriksaan lolos\" and never \"Perlu perhatian\" (today it reads \"Perlu perhatian\"); an ordinary load runs no lint (BOB-18 (b)) and offers the check; persons_awaiting_first_role is asked once for the platform administrator and never for Alpha's school administrator (today: asked and refused, 338 refusals in U-PERF's 30-session run), whose card says who runs the checks; a confirmed upload's return reads \"Tersimpan. Paket dibuat.\" as a status on its course page."
+    },
+    {
+      "id": "DAISY-16-HAMBATAN-01",
+      "runner": "static",
+      "proves": "DAISY-16 (with BOB-17, D-011): the Terbit step reads the blocker codes. From the copy table and the SOURCE files: every code in BOB-17's catalogue (KODE_HAMBATAN), every question pattern (POLA_MUTU_SOAL) and the general lines have words in both languages that speak of the course, never the package, and carry no code, ERROR, WARNING, pattern name or internal word; a line that sends the reader to a step (Periksa isi, Setujui isi, Buat terbitan, Kunci terbitan) names it by that step's exact title in the same language. Composed through kalimatHambatan as the step shows it, each code reads as its words with the lesson it names and a question's pattern in words; a planted unknown code, bare sentence and unknown pattern read as the general line, never themselves. The freeze action (src/app/studio/actions.ts) and the package page log an unknown code under a reference, and the Terbit step and the package page show the general line with that reference beside it, never a code."
     }
   ]
 }

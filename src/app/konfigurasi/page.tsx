@@ -110,13 +110,17 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     isSys && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null, error: null }),
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
     // FINAL DELTA 2. The people the three sources above cannot reach: no active
-    // role, no enrolment, no transfer. The database decides who may ask and who
-    // may be seen, and it refuses everyone but the platform administrator. So
-    // only the platform administrator asks: the school administrator's asking
-    // was 338 refusals in U-PERF's 30-session run on staging. The refusal is
-    // still the database's; this only stops asking a question whose answer is
-    // known.
-    isSys === true ? supabase.rpc("persons_awaiting_first_role") : Promise.resolve({ data: [] }),
+    // role, no enrolment, no transfer. The platform administrator asks the
+    // platform's list, which refuses everyone else (the school administrator's
+    // asking was 338 refusals in U-PERF's 30-session run on staging).
+    // BOB-20 (D-048): a school administrator asks each school they administer
+    // for its own list -- the people it has recorded who hold nothing there
+    // yet, such as a newly recorded teacher. The database decides again who
+    // may ask; a school it refuses simply adds nobody.
+    isSys === true
+      ? supabase.rpc("persons_awaiting_first_role")
+      : Promise.all(adminInstitutionIds.map((sekolah) => supabase.rpc("persons_awaiting_first_role_at", { p_institution: sekolah })))
+          .then((jawaban) => ({ data: jawaban.flatMap((j) => (j.data ?? []) as Array<{ person_id: string; display_name: string }>) })),
     // W8-02. The institution's own templates, and the catalogue they may select
     // from. Both are ordinary reads under this viewer's own RLS: the template
     // rows are their school's, and the catalogue is PINTAR's, readable by anyone
@@ -150,7 +154,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ? supabase.from("org_nodes").select("id").eq("institution_id", sekolahStruktur.id).eq("kind", "INSTITUTION").limit(1).maybeSingle()
     : Promise.resolve({ data: null });
 
-  const awaitingPersons = (awaiting ?? []) as Array<{ person_id: string; display_name: string }>;
+  const awaitingPersons = Array.from(new Map(((awaiting ?? []) as Array<{ person_id: string; display_name: string }>)
+    .map((p) => [p.person_id, p])).values());
 
   // Names for the people this viewer may see (RLS decides who that is).
   const personIds = Array.from(new Set([

@@ -234,7 +234,7 @@ declare
   v_enr uuid; v_sess uuid; v_rel2 uuid; v_pi uuid; v_class public.evidence_class; v_seed bigint;
   v_r1 uuid; v_r2 uuid; v_out text; v_res1 uuid; v_res2 uuid; v_res3 uuid;
   v_hes uuid; v_sig uuid; v_real uuid; v_real_enr uuid; v_osess uuid; v_ap uuid;
-  v_rel3 uuid; v_status text; v_blockers text[]; v_find uuid;
+  v_rel3 uuid; v_status text; v_blockers jsonb; v_find uuid;
   v_la uuid; v_aa uuid; v_rel4 uuid; v_batch uuid; v_map jsonb; v_node uuid;
   v_pre uuid; v_ie2 uuid; v_grp uuid; v_cohort uuid;
   v_frozen timestamptz; v_published timestamptz;
@@ -1261,7 +1261,8 @@ begin
   if v_status <> 'BLOCKED' then
     ok := false; detail := detail || format('readiness was %s with an ERROR finding; ', v_status);
   end if;
-  if array_length(v_blockers, 1) is null then
+  -- BOB-17: the blockers are codes (jsonb), no longer sentences
+  if jsonb_array_length(coalesce(v_blockers, '[]'::jsonb)) = 0 then
     ok := false; detail := detail || 'readiness reported no blocker; ';
   end if;
 

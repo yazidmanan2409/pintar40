@@ -39,7 +39,7 @@ declare
   o11 uuid; o12 uuid; o21 uuid; o22 uuid;
   rel uuid; def_pre uuid; def_post uuid; la uuid;
   it uuid; grp uuid; i int;
-  v_ready text; v_blockers text[];
+  v_ready text; v_blockers jsonb;
 begin
   select environment into v_env from public.platform_environment;
   if v_env = 'production' then raise exception 'seed refused: environment is production (INV-21)'; end if;
@@ -418,7 +418,7 @@ declare
   inst uuid; course uuid; modul uuid; rel uuid; def_pre uuid; def_post uuid;
   la uuid; aa_pre uuid; aa_post uuid; period uuid; cls uuid;
   p_guru uuid; p_hod uuid; p_admin uuid; u_hod uuid; u_admin uuid;
-  v_status text; v_blockers text[]; v_findings int; v_mcq int; t text;
+  v_status text; v_blockers jsonb; v_findings int; v_mcq int; t text;
 begin
   if current_setting('app.seed_intent', true) is distinct from 'synthetic' then
     raise exception 'seed refused: app.seed_intent must be ''synthetic'' (INV-21)';
@@ -495,7 +495,7 @@ begin
   select status, blockers into v_status, v_blockers from public.publish_readiness(course);
   if v_status <> 'READY' then
     raise exception 'fixture content is not publishable (% findings, % mcq): % — fix the fixture, never the gate',
-      v_findings, v_mcq, array_to_string(v_blockers, '; ');
+      v_findings, v_mcq, v_blockers::text;
   end if;
 
   -- ------------------------------------------------------------ release

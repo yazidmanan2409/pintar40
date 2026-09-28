@@ -9,7 +9,8 @@ import {
   type HasilPaket, type HitunganPaket, type KodePaket, type MasalahPaket, type MediaPaket,
 } from "@/lib/unggah-kontrak";
 import {
-  kodeGalatTerbitan, type HasilTerbitan, type KesiapanTerbit,
+  KODE_HAMBATAN,
+  kodeGalatTerbitan, type Hambatan, type HasilTerbitan, type KesiapanTerbit,
 } from "@/lib/terbitan-kontrak";
 import {
   kodeGalat, kodeGalatKonten, queryHasil, rujukan, type HasilAksi, type KodeGalat, type KodeKonten,
@@ -165,11 +166,20 @@ async function kunciTerbitan(release: string | null): Promise<HasilTerbitan> {
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("freeze_release", { p_release: release });
   if (error || !data) return gagalTerbitan("freeze_release", error, release);
-  const r = data as { ok: boolean; readiness: KesiapanTerbit; blockers: string[] | null };
+  const r = data as { ok: boolean; readiness: KesiapanTerbit; blockers: Hambatan[] | null };
   revalidatePath("/studio", "layout");
   // a blocked course is not sealed: the result carries why, and the findings
   // the validators just wrote are on the package page
-  if (!r.ok) return { ok: false, code: "RELEASE_NOT_READY", release, kesiapan: r.readiness, hambatan: r.blockers ?? [] };
+  if (!r.ok) {
+    // DAISY-16: a blocker code the catalogue does not know is logged under a
+    // reference the Terbit step shows beside the general line; the code itself
+    // never reaches the page
+    const hambatan = r.blockers ?? [];
+    const asing = hambatan.filter((x) => !(KODE_HAMBATAN as readonly string[]).includes(x?.code));
+    const ref = asing.length > 0 ? rujukan() : undefined;
+    if (ref) console.error(`[studio ${ref}] freeze_release returned blocker code(s) the catalogue does not know`, asing.map((x) => x?.code));
+    return { ok: false, code: "RELEASE_NOT_READY", release, kesiapan: r.readiness, hambatan, ref };
+  }
   return { ok: true, release, status: "FROZEN", kesiapan: r.readiness, hambatan: r.blockers ?? [] };
 }
 
@@ -191,35 +201,6 @@ async function tarikTerbitan(release: string | null, alasan: string): Promise<Ha
   revalidatePath("/studio", "layout");
   revalidatePath("/mengajar", "layout");
   return { ok: true, release, status: "SUPERSEDED" };
-}
-
-/** A result, as the calm line today's page shows: the code's sentence, never the database's words. */
-function ringkasTerbitan(h: HasilTerbitan): HasilAksi {
-  return h.ok ? { ok: true } : { ok: false, kode: h.code, ref: h.ref };
-}
-
-export async function createReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await buatTerbitan(course);
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", ringkasTerbitan(h));
-}
-
-export async function freezeReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await kunciTerbitan(uuidOrNull(str(fd, "release")));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", ringkasTerbitan(h));
-}
-
-export async function publishReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await terbitkan(uuidOrNull(str(fd, "release")));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", ringkasTerbitan(h));
-}
-
-export async function withdrawReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await tarikTerbitan(uuidOrNull(str(fd, "release")), str(fd, "alasan"));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", ringkasTerbitan(h));
 }
 
 /**

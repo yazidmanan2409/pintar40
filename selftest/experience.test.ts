@@ -1292,6 +1292,17 @@ export const experienceTests: SelfTest[] = [
       // MOVED 120 -> 121 for BOB-11, lesson media play (M9). 20261015100000
       // adds may_preview_lesson_media and its registry row; no column,
       // colour, mark or brand surface.
+      //
+      // MOVED 123 -> 124 for BOB-21, a grant needs the school (D-049).
+      // 20261018100000 replaces role_assignments_guard with one added check;
+      // no column, colour, mark or brand surface.
+      // MOVED 122 -> 123 for BOB-20, a school admin sees its own staff (D-048).
+      // 20261017100000 widens person_visible_to_me to the school's own staff and
+      // adds persons_awaiting_first_role_at; no column, colour, mark or brand surface.
+      // MOVED 121 -> 122 for BOB-17, release blockers speak in codes (D-011).
+      // 20261016100000 remakes publish_readiness and studio_package_state
+      // with jsonb blockers and replaces the publish trigger's function; no
+      // column, colour, mark or brand surface.
       // MOVED 116 -> 117 for BOB-06, every school has its standard reports
       // (B6b). 20261011100000 adds report_templates.is_standard (a boolean
       // marking PINTAR's own rows) and report_template_provisioning (txid,
@@ -1450,7 +1461,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 121, `${migrations.length} migrations; the frozen baseline has 121`);
+      c.expect(migrations.length === 124, `${migrations.length} migrations; the frozen baseline has 124`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3099,7 +3110,10 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 120 -> 121 for BOB-11's media preview
+      // from, not a claim about the tour. MOVED 123 -> 124 for BOB-21's grant check
+      // (20261018100000), not a tour RPC (D-024). MOVED 122 -> 123 for BOB-20's staff visibility
+      // (20261017100000), not a tour RPC (D-024). MOVED 121 -> 122 for BOB-17's readiness codes
+      // (20261016100000), not a tour RPC (D-024). MOVED 120 -> 121 for BOB-11's media preview
       // (20261015100000), not a tour RPC (D-024). MOVED 119 -> 120 for BOB-10's staff-row refusal
       // (20261014100000), not a tour RPC (D-024). MOVED 118 -> 119 for BOB-18's quick answers
       // (20261013100000), not a tour RPC (D-024). MOVED 117 -> 118 for BOB-08's structure
@@ -3152,7 +3166,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 121, `${migs.length} migrations; the baseline has 121`);
+      c.expect(migs.length === 124, `${migs.length} migrations; the baseline has 124`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -5154,15 +5168,34 @@ export const experienceTests: SelfTest[] = [
       c.expect(!ditawarkan.has("institutional_id") && !dibaca.has("institutional_id"),
         "the intake offers an institutional-ID column, which the identity doctrine forbids");
 
-      // 3. THE ROLES OFFERED ARE THE ROLES ACCEPTED. WP5A refuses two by name.
-      const ditolakDb = [...cek.matchAll(/v_role in \(([^)]*)\)/g)]
+      // 3. THE ROLES OFFERED ARE THE ROLES ACCEPTED, read from the row checker
+      //    as it stands today: the latest migration that defines
+      //    import_row_problems. WP5A refuses two by name. RESTATED FOR BOB-10
+      //    (M5b, interim): that migration also refuses every role other than
+      //    STUDENT ("a staff row is not recorded by the bulk intake yet"), so
+      //    the screen offers the learner alone. Offering EDUCATOR, HEAD_OF_
+      //    DEPARTMENT or DEAN would fail every row it was chosen for at
+      //    "Periksa". When M5b gives the intake a staff path and drops that
+      //    branch, this reads four accepted roles again.
+      const pemeriksa = walk(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql")).sort()
+        .map((f) => readFileSync(f, "utf8"))
+        .filter((x) => /create (?:or replace )?function public\.import_row_problems\s*\(/.test(x));
+      const cekKini = /create (?:or replace )?function public\.import_row_problems[\s\S]*?\$\$;/.exec(pemeriksa[pemeriksa.length - 1] ?? "")?.[0] ?? "";
+      c.expect(cekKini.length > 500, "the current row checker (import_row_problems) could not be read");
+      const ditolakDb = [...cekKini.matchAll(/v_role in \(([^)]*)\)/g)]
         .flatMap((m) => [...m[1].matchAll(/'([A-Z_]+)'/g)].map((x) => x[1]));
-      c.expect(ditolakDb.length === 2, `${ditolakDb.length} role(s) refused by bulk provisioning; expected 2`);
+      c.expect(ditolakDb.length === 2, `${ditolakDb.length} role(s) refused by name for bulk provisioning; expected 2`);
       for (const r of ditolakDb) {
         c.expect(!(PERAN_PENDATAAN as readonly string[]).includes(r),
-          `the mapping screen offers ${r}, which WP5A refuses for a bulk intake`);
+          `the mapping screen offers ${r}, which the row checker refuses for a bulk intake`);
       }
-      c.expect(PERAN_PENDATAAN.length === 4, `${PERAN_PENDATAAN.length} role(s) offered; expected 4`);
+      const hanyaMurid = /elsif v_role <> 'STUDENT' then[\s\S]{0,800}?'a staff row is not recorded by the bulk intake yet'/.test(cekKini);
+      const diterima = hanyaMurid ? ["STUDENT"] : ["STUDENT", "EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN"];
+      c.expect(JSON.stringify([...PERAN_PENDATAAN].sort()) === JSON.stringify([...diterima].sort()),
+        `the mapping screen offers ${PERAN_PENDATAAN.join(", ")}; the row checker accepts ${diterima.join(", ")}` +
+        (hanyaMurid ? " (BOB-10: every staff row is refused at \"Periksa\" until M5b)" : ""));
+      c.expect(kunciMasalah("a staff row is not recorded by the bulk intake yet") === "pendataan.masalah.staf",
+        "a staff row refused at \"Periksa\" has no sentence of its own");
 
       // 4. THE MAPPING PRODUCES ONE ROW PER ROW, AND DROPS NONE -- at every
       //    boundary the ruling names. A surface that silently skipped a bad row
@@ -5211,7 +5244,9 @@ export const experienceTests: SelfTest[] = [
         "mappable fields are compared AGAINST THE MIGRATION in both directions, so a field the surface " +
         "offers that WP5A ignores and a field WP5A reads that the surface hides are both red; there is " +
         "no institutional-ID column, because PINTAR decides all eleven characters. The roles offered " +
-        "exclude exactly the two WP5A refuses, read from its own check. One row in is one row out at 1, " +
+        "are exactly the roles the current row checker accepts, read from its own body: it refuses two " +
+        "by name and, since BOB-10 (M5b, interim), every staff role, so the screen offers the learner " +
+        "alone, and a staff row refused at \"Periksa\" has its own sentence. One row in is one row out at 1, " +
         "50, 100, 101 and 1,000, a nameless row is still sent so the database can report it, and an " +
         "empty value is omitted rather than sent as an empty string",
       );
@@ -10117,9 +10152,14 @@ export const experienceTests: SelfTest[] = [
        *    30-session run). A confirmed upload returns to its new course's page
        *    with "Paket dibuat.".
        */
-      c.expect(/isSys === true \? supabase\.rpc\("persons_awaiting_first_role"\) : Promise\.resolve\(\{ data: \[\] \}\)/.test(konf)
-        && (konf.match(/persons_awaiting_first_role/g) ?? []).length === 1,
-        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses");
+      // RESTATED FOR BOB-20 (D-048, a changed requirement): a school
+      // administrator now asks their own school's list,
+      // persons_awaiting_first_role_at, once per school they administer. The
+      // platform's list is still asked only for the platform administrator.
+      c.expect(/isSys === true\s*\?\s*supabase\.rpc\("persons_awaiting_first_role"\)\s*:/.test(konf)
+        && (konf.match(/"persons_awaiting_first_role"/g) ?? []).length === 1
+        && /adminInstitutionIds\.map\(\(sekolah\) => supabase\.rpc\("persons_awaiting_first_role_at", \{ p_institution: sekolah \}\)\)/.test(konf),
+        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses, or asks a school's list for a school the reader does not administer");
       const studio = code(baca("src", "app", "studio", "actions.ts"));
       c.expect(/if \(h\.ok && h\.courses && h\.courses\[0\]\) back\(`\/studio\/paket\/\$\{h\.courses\[0\]\}`, "paket", \{ ok: true, kode: "DRAFT_CREATED" \}\);/.test(studio)
         && (KODE_SUKSES as readonly string[]).includes("DRAFT_CREATED")
@@ -10136,6 +10176,124 @@ export const experienceTests: SelfTest[] = [
         "alone, a failed check gives its reference, not-yet-checked offers the check, a school administrator is told who runs " +
         "it. Konfigurasi asks persons_awaiting_first_role only for the platform administrator, and a confirmed upload returns " +
         "to its course with \"Paket dibuat.\"",
+      );
+    },
+  },
+  {
+    id: "DAISY-16-HAMBATAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? readFileSync(f, "utf8") : "";
+      };
+      /**
+       * DAISY-16 (with BOB-17, D-011): THE TERBIT STEP READS THE BLOCKER CODES.
+       * Each blocker from the catalogue reads in Indonesian and English, with
+       * the lesson it names. An unknown code shows the general line and a
+       * reference, never the code's text. No ERROR, WARNING or check name
+       * reaches the screen.
+       */
+      let kontrak: Record<string, unknown> | null = null;
+      try { kontrak = await import("../src/lib/terbitan-kontrak") as Record<string, unknown>; } catch { /* reported below */ }
+      const KODE = (kontrak?.KODE_HAMBATAN ?? []) as readonly string[];
+      const POLA = (kontrak?.POLA_MUTU_SOAL ?? []) as readonly string[];
+      const kalimat = kontrak?.kalimatHambatan as ((h: unknown, s: (k: HleEvent) => string, n: (x: number) => string) => string) | undefined;
+      if (!c.expect(KODE.length > 0 && POLA.length > 0 && typeof kalimat === "function",
+        "the release contract has no blocker catalogue to word (BOB-17's KODE_HAMBATAN, POLA_MUTU_SOAL, kalimatHambatan)")) {
+        return c.verdict("");
+      }
+
+      /**
+       * 1. THE WORDING, both languages, as the steps speak: the course, never
+       *    the package; no machinery (a code, ERROR, WARNING, a pattern's name,
+       *    an internal word); a line that sends the reader to a step names it
+       *    by that step's exact title in the same language.
+       */
+      const MESIN = /READINESS_|ERROR|WARNING|[A-Z]{3,}_[A-Z_]+|jsonb|uuid|lesson_id/;
+      const PAKET = /\bpaket\b|\bpackage\b/i;
+      const kunci = [...KODE.map((k) => `studio.hambatan.${k.toLowerCase()}`), "studio.hambatan.lain", "studio.hambatan.pelajaran",
+        ...POLA.map((p) => `studio.hambatan.pola.${p.toLowerCase()}`), "studio.hambatan.pola.lain"] as HleEvent[];
+      const LANGKAH_DISEBUT: Record<string, string> = {
+        readiness_not_validated: "studio.langkah.periksa.judul",
+        readiness_awaiting_review: "studio.langkah.setujui.judul",
+        readiness_no_release: "studio.langkah.buat.judul",
+        readiness_not_sealed: "studio.langkah.kunci.judul",
+      };
+      for (const locale of LOCALES) {
+        for (const k of kunci) {
+          const v = t(k, "staff", { locale });
+          c.expect(v !== TANPA_SALINAN && v.trim() !== "", `(${locale}) ${k} has no words`);
+          c.expect(!MESIN.test(v) && !PAKET.test(v), `(${locale}) ${k} names the machinery or the package: ${v}`);
+          c.expect(!INTERNAL_WORDS.some((w) => new RegExp(`\\b${w}\\b`).test(v)), `(${locale}) ${k} carries an internal word: ${v}`);
+        }
+        for (const [kode, langkah] of Object.entries(LANGKAH_DISEBUT)) {
+          const v = t(`studio.hambatan.${kode}` as HleEvent, "staff", { locale });
+          const judul = t(langkah as HleEvent, "staff", { locale });
+          c.expect(v.includes(judul), `(${locale}) the ${kode} line does not send the reader to "${judul}" by its exact title: ${v}`);
+        }
+      }
+
+      /**
+       * 2. THE LINES AS THE STEP SHOWS THEM, for every code in both languages:
+       *    the count, the words, the pattern's words and the lesson it names;
+       *    a finding about the whole course names no lesson. Planted: an
+       *    unknown code, a bare sentence and an unknown pattern each read as
+       *    the copy table's general line, never themselves.
+       */
+      for (const locale of LOCALES) {
+        const s = (k: HleEvent) => t(k, "staff", { locale });
+        const n = (x: number) => format.number(x, locale);
+        for (const kode of KODE) {
+          const dengan = kalimat!({ code: kode, count: 3, lesson_id: "l1", lesson: "Pecahan Senilai", pattern: kode.includes("ITEM") ? POLA[0] : null }, s, n);
+          c.expect(dengan.includes(s(`studio.hambatan.${kode.toLowerCase()}` as HleEvent)) && dengan.includes("Pecahan Senilai") && !MESIN.test(dengan.replace("Pecahan Senilai", "")),
+            `(${locale}) ${kode} does not read as its words with the lesson it names: ${dengan}`);
+          if (kode.includes("ITEM")) c.expect(dengan.includes(s(`studio.hambatan.pola.${POLA[0].toLowerCase()}` as HleEvent)), `(${locale}) ${kode} does not name its pattern in words`);
+        }
+        const lain = s("studio.hambatan.lain");
+        for (const tanam of [{ code: "READINESS_SOMETHING_NEW", count: 1, lesson: "Pecahan" }, { code: "2 temuan ERROR pada teks siswa" }, "mutu soal: X (1 soal)"] as unknown[]) {
+          const x = kalimat!(tanam, s, n);
+          c.expect(x === lain, `(${locale}) a planted blocker ${JSON.stringify(tanam)} reads "${x}", not the general line alone`);
+        }
+        const polaAsing = kalimat!({ code: "READINESS_ITEM_WARNING", count: 1, pattern: "POLA_BARU", lesson: "Pecahan" }, s, n);
+        c.expect(polaAsing.includes(s("studio.hambatan.pola.lain")) && !polaAsing.includes("POLA_BARU"), `(${locale}) an unknown pattern reads "${polaAsing}"`);
+      }
+
+      /**
+       * 3. AN UNKNOWN CODE CARRIES A REFERENCE. Wherever a blocker passes the
+       *    server -- the freeze action for the Terbit step, the package page
+       *    for its reasons -- a code the catalogue does not know is logged
+       *    under a reference, and the screen shows the general line with that
+       *    reference beside it. The code itself goes to the log only.
+       */
+      const aksi = code(baca("src", "app", "studio", "actions.ts"));
+      c.expect(/const asing = hambatan\.filter\(\(x\) => !\(KODE_HAMBATAN as readonly string\[\]\)\.includes\(x\?\.code\)\);/.test(aksi)
+        && /const ref = asing\.length > 0 \? rujukan\(\) : undefined;/.test(aksi)
+        && /console\.error\(`\[studio \$\{ref\}\] freeze_release returned blocker code\(s\) the catalogue does not know`/.test(aksi)
+        && /return \{ ok: false, code: "RELEASE_NOT_READY", release, kesiapan: r\.readiness, hambatan, ref \};/.test(aksi),
+        "the freeze action does not log an unknown blocker code under a reference");
+      const langkah = code(baca("src", "components", "studio", "LangkahTerbit.tsx"));
+      c.expect(/const dikenal = \(x: Hambatan\) => \(KODE_HAMBATAN as readonly string\[\]\)\.includes\(x\?\.code\);/.test(langkah)
+        && /\{kalimatHambatan\(x, s, \(n\) => format\.number\(n, locale\)\)\}\{rujukanDiBaris && !dikenal\(x\) \? ` \(\$\{s\("galat\.rujukan"\)\}: \$\{h\.ref\}\)` : null\}/.test(langkah)
+        && !/\{x\.code\}|\{x\.pattern\}/.test(langkah),
+        "the Terbit step does not show an unknown blocker's reference beside the general line, or shows a code");
+      const paket = code(baca("src", "app", "studio", "paket", "[course]", "page.tsx"));
+      c.expect(/const refAlasan = asing\.length > 0 \? rujukan\(\) : null;/.test(paket)
+        && /console\.error\(`\[studio \$\{refAlasan\}\] studio_package_state returned blocker code\(s\) the catalogue does not know`/.test(paket)
+        && /\{kalimatHambatan\(r, sl, \(n\) => format\.number\(n, locale\)\)\}\{refAlasan && !dikenal\(r\) \? ` \(\$\{sl\("galat\.rujukan"\)\}: \$\{refAlasan\}\)` : null\}/.test(paket)
+        && /const sl = \(k: HleEvent\) => t\(k, "staff", \{ locale \}\);/.test(paket)
+        && !/\{r\.code\}|\{r\.pattern\}/.test(paket),
+        "the package page does not log an unknown reason under a reference and show it, or shows a code");
+
+      return c.verdict(
+        `every blocker the catalogue names (${KODE.length} codes, ${POLA.length} patterns and the general lines) reads in both ` +
+        "languages as the steps speak: of the course, never the package; no code, ERROR, WARNING, pattern name or internal " +
+        "word; and a line that sends the reader to a step names it by that step's exact title. Composed as the Terbit step shows " +
+        "it, each code reads as its words with the lesson it names and a question's pattern in words; a planted unknown code, " +
+        "bare sentence and unknown pattern read as the copy table's general line, never themselves. From the SOURCE, an unknown " +
+        "code is logged under a reference by the freeze action and by the package page, and both screens show the general line " +
+        "with that reference beside it and never a code",
       );
     },
   },
