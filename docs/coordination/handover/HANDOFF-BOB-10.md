@@ -37,7 +37,7 @@ No test was weakened, skipped or deleted.
 I dispatched one run on `HEAD_SHA` and haven't waited on it; please read the result there.
 - **Local, before dispatch:** tsc and lint are clean. A full run on a fresh database with all 120 migrations: 347 passed, and F06-P17 failed on the first run, which led to its restatement. After that, F06 is 41 of 41. The only other failure is F01-R07, which always fails locally.
 - All 79 plants prove their gates.
-- The inline DB red cases, rehearsed as `ci.yml` has them: SHARED_RESULT
+- The inline DB red cases, rehearsed as `ci.yml` has them: all 15 `db-*` gates except `db-table-without-rls` (including `db-fable06-gates`, which runs F06-P17's suite) exit 0. After each gate the schema digest is unchanged and the DB suites are 233 of 233.
 - One run, no new job.
 
 ## CONTRACT
