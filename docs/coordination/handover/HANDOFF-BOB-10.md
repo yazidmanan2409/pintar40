@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-10 (the intake refuses staff rows at validation, M5b interim)
 
-**Head:** `HEAD_SHA`, on main `f03c3fc` (merged first; Integration 11, `b24a95b`, beneath it).
+**Head:** `7073ef3`, on main `f03c3fc` (merged first; Integration 11, `b24a95b`, beneath it).
 
 ## CHANGED
 
@@ -34,7 +34,7 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-I dispatched one run on `HEAD_SHA` and haven't waited on it; please read the result there.
+I dispatched one run on `7073ef3` and haven't waited on it; please read the result there.
 - **Local, before dispatch:** tsc and lint are clean. A full run on a fresh database with all 120 migrations: 347 passed, and F06-P17 failed on the first run, which led to its restatement. After that, F06 is 41 of 41. The only other failure is F01-R07, which always fails locally.
 - All 79 plants prove their gates.
 - The inline DB red cases, rehearsed as `ci.yml` has them: all 15 `db-*` gates except `db-table-without-rls` (including `db-fable06-gates`, which runs F06-P17's suite) exit 0. After each gate the schema digest is unchanged and the DB suites are 233 of 233.
@@ -70,4 +70,4 @@ One key, `pendataan.masalah.staf`, in both languages; the wording is mine. Daisy
 
 ## READY
 
-Yes, once the run on `HEAD_SHA` is green.
+Yes, once the run on `7073ef3` is green.
