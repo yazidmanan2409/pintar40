@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-21 (a school admin grants only to a person they may act upon; D-049)
 
-**Head:** `HEAD_SHA`, with `main` merged in first (`59208b8`, Integration 14; a fast-forward). **One run:** `RUN`.
+**Head:** `78e642a`, with `main` merged in first (`59208b8`, Integration 14; a fast-forward). The code is `9062cbe`; everything after it is this hand-off. **One run:** ci #216.
 
 ## CHANGED
 
@@ -57,8 +57,12 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-`RUN` on `HEAD_SHA`, dispatched once and not waited on; please read the result there.
-- **Local, before dispatch, every database with an `en-US` ICU collation:** FULL_LOCAL
+`ci #216` on `78e642a`, dispatched once and not waited on; please read the result there.
+- **Local, before dispatch, every database with an `en-US` ICU collation:** on `9062cbe`:
+  - **Plants:** 91 of 91 proved their gate on a copy taken straight after the seeds, and every control is green (`db-bob01-gates` 18 rows).
+  - **Full suite, fresh database:** 361 passed. F01-R07 fails, as it always does locally. 29 justified skips.
+  - **Shared red cases:** all 15 gates exited 0 on one shared stack, the schema digest stayed the same, and every recheck was 242 of 242.
+  - **Seed and history:** the migration history matches the repo (124 files).
 - One run, no new job.
 
 ## EXISTING DATA (point 5)
@@ -103,4 +107,4 @@ None.
 
 ## READY
 
-Yes, once `RUN` on `HEAD_SHA` is green.
+Yes, once `ci #216` on `78e642a` is green.
