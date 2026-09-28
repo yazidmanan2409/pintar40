@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-17 (release blockers speak in codes, D-011; audit M7)
 
-**Head:** `cf025b3`, with Integration 12 merged in (`f48da56` / `141362e`).
+**Head:** `FIXED_HEAD`, with the gate finding fixed (below). ci #212 ran on `cf025b3`, which has Integration 12 (`f48da56` / `141362e`) merged in. As agreed, the fix gets no run of its own: Daisy merges this head, and her one run covers BOB-17, this fix and DAISY-16.
 
 **Merge conflicts, resolved as agreed:**
 - `selftest/app.test.ts`: BOB19-A01 and BOB11-A02 both kept.
@@ -44,6 +44,13 @@
   - Green after it, with BOB11-A01 still green.
   - Locally this was rehearsed against my fake Supabase, which signs with the requested lifetime. CI's run against the real storage is the one that counts.
 
+**Gate finding: `publish_readiness` is internal only** (`5aa9f2f`).
+- **The problem:** it is SECURITY DEFINER and asks no permission. It was granted to `authenticated` and registered STAFF with no requirement. Since BOB-17 its answer names lessons and their titles, so anyone signed in holding a course's id, a learner included, could read another school's draft lesson titles and finding counts.
+- **Who calls it:** no client. Its callers (`studio_package_state`, `freeze_release` and the publish trigger) are all SECURITY DEFINER and run as its owner, as do the seeds.
+- **The fix:** the lane-only migration `20261016100000` is corrected in place (D-026; it has not reached main). Execute is revoked from `authenticated`, and its `client_rpc_registry` row is deleted, the convention for an internal function (as for `finalize_session` and `session_enforce_deadline`, `20260913160000`). Its terminal checks now refuse either coming back, and check that `studio_package_state` keeps its grant.
+- **The test, F12-P05:** a learner of another school and another school's administrator are each refused `42501`. The school's administrator still reads `studio_package_state`, and the head of department's freeze still seals the course.
+- **The plant, bob03-11:** it grants execute again, and F12-P05 goes red. The `db-bob03-gates` control moves 7 → 8, and the gate now proves eleven plants.
+
 **Deleted:** `createReleaseAction`, `freezeReleaseAction`, `publishReleaseAction` and `withdrawReleaseAction`, the four release form actions no page used. BOB07-K01 stays green.
 
 ## PROOF
@@ -53,6 +60,7 @@
 | F12-P04 (db) | on a database without the migration: `with every findings rule planted, readiness was BLOCKED with ["1 temuan ERROR pada teks siswa", "2 temuan WARNING pada teks siswa belum diakui", "1 temuan ERROR mutu soal", …, "mutu soal: POLA_UJI_GALAT (1 soal)", …]; a course in review with no release reads ACTION_REQUIRED: ["2 bagian isi menunggu persetujuan akademik", "paket ini belum memiliki terbitan"]; …` (6 problems) | every rule is its own code with its parameters; BLOCKED, then ACTION_REQUIRED, then READY and `[]` as the findings are acknowledged; the package walks through all five lifecycle codes; the nine codes met are exactly the catalogue's |
 | BOB11-A02 (app, gate review) | on the route before `bd77f35`: `a profile photo through alih=1 was signed for 3600 s, not 60` | a profile photo 60 s with and without `alih`; lesson media 3600 s with `alih`, 60 s without |
 | F05 fixture (`c1ffea2`) | on the shared stack after `db-task1-gates`: fable05 aborts, `the assessment definition does not belong to the enrolment's institution, and is not canonical content distributed to it` | 23 of 23; the recheck on that stack 235 of 235 |
+| F12-P05 (db, gate finding) | on today's grant: `4 problem(s): a learner calling publish_readiness on another school's course answered ok -- its lessons and findings were read; another school's administrator calling publish_readiness answered ok -- its lessons and findings were read; publish_readiness is executable by authenticated; publish_readiness is still offered to clients in client_rpc_registry` | both refused 42501; authenticated holds no execute; not registered; `studio_package_state` read and the freeze sealed; plant bob03-11 turns it red |
 | BOB17-K01 (static) | on the code before BOB-17: `the release contract has no blocker catalogue …; publish_readiness … still writes a sentence; studio_package_state … still writes a sentence; the Terbit step … shows a blocker other than through kalimatHambatan; the package page shows a reason other than through kalimatHambatan; src/app/studio/actions.ts still exports createReleaseAction; …` (all four actions) | pass |
 
 **BOB17-K01 in full:**
@@ -69,9 +77,9 @@
 - **F04-T15:** the blocker names its pattern as a parameter of its code, no longer inside the sentence "mutu soal: X".
 - **F05-T19:** the reasons are codes. What is shown beside a code's words (the lesson, the pattern) must carry no lifecycle enum or version string. A code such as `READINESS_NOT_VALIDATED` contains "VALIDATED", but the code itself is never shown.
 - **fable02, fable04, fable05, fable05t1:** `v_blockers` is jsonb. Three suites only print it on failure.
-- **`db-bob03-gates`' control:** 6 → 7 green rows.
+- **`db-bob03-gates`' control:** 6 → 7 green rows for F12-P04, then 8 for F12-P05.
 - **Tripwires:** 121 → 122.
-- **Manifest:** v95 → v96 for BOB11-A02, then v98 after merging main's v97.
+- **Manifest:** v95 → v96 for BOB11-A02, v98 after merging main's v97, then v99 for F12-P05.
 
 No test was weakened, skipped or deleted.
 
@@ -83,11 +91,12 @@ I dispatched one run, **ci #212**, on `cf025b3`, after merging Integration 12 in
   - **Plants:** 81 of 81 proved their gate.
   - **Shared red cases:** all 15 db-* red-case gates ran on one shared stack. Each exited 0, the schema digest stayed the same, and every recheck was 235 of 235.
   - **Seed and history:** the migration history matches the repo (122 files), and the seeds and lifecycle load.
+- **Local on the fixed head `FIXED_HEAD`** (no run of its own, as agreed): FIXED_LOCAL
 - One run, no new job.
 
 ## CONTRACT
 
-- `publish_readiness(uuid) → (status text, blockers jsonb)`.
+- `publish_readiness(uuid) → (status text, blockers jsonb)`, **internal only**: not granted to `authenticated` and not in `client_rpc_registry`. Clients read readiness through `studio_package_state` (CAN_DRAFT or CAN_ASSIGN_LEARNING) or `freeze_release`.
 - `studio_package_state(uuid) → (surface_state text, reasons jsonb, preview_lesson_id uuid)`.
 - `freeze_release` returns `blockers` as that jsonb list.
 - No PR0xx codes changed.
@@ -97,6 +106,7 @@ I dispatched one run, **ci #212**, on `cf025b3`, after merging Integration 12 in
 
 `20261016100000`, forward-only:
 - drops and recreates `publish_readiness` and `studio_package_state`, because a function's result type cannot be altered in place;
+- revokes `publish_readiness` from `authenticated` and removes it from `client_rpc_registry` (corrected in place for the gate finding; lane only, D-026);
 - replaces the publish trigger's function;
 - updates the registry note for `studio_package_state`;
 - ends with terminal checks: no sentence left in either function, patterns still read from the findings, neither function anon-executable.
@@ -113,4 +123,4 @@ None. Noted for BOB-13, as you asked: `may_preview_lesson_media` and `may_read_l
 
 ## READY
 
-Yes, once ci #212 on `cf025b3` is green.
+Yes: `FIXED_HEAD`, once ci #212 on `cf025b3` is green. Daisy's run on her merge of this head covers the fix.
