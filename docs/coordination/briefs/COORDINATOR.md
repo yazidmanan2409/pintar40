@@ -36,7 +36,7 @@ This is the coordinator's working state, so a new session can pick up without th
 - How misconception codes get registered (or declare them out of scope).
 - Whether educator testers author lessons.
 - How class figures get proven with official evidence.
-- The mail path at the pilot stage (Supabase's email rate limit on staging is 2/hour; Namecheap Stellar allows 50/hour, shared with production).
+- The mail path at the pilot stage (Supabase's email rate limit on staging is 2/hour; Namecheap Stellar allows 50/hour, shared with production). **Decided (D-053):** Stellar Business (10,000 per hour per domain) before external educator testing; PINTAR is not designed around 50/hour; Supabase Auth's `rate_limit_email_sent` is set separately before testing. Nothing changes now.
 
 **Next for the coordinator:**
 1. Gate BOB-23 when handed off: the hand-off's browser measurement, CI, one audit, merge, then staging J09.
