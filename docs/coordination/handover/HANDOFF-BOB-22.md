@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-22 (a lesson read to its last page counts as read)
 
-**Head:** `HEAD_SHA`, with `main` merged in first (`64181e8`; a fast-forward that already carries Integration 15). **One run:** `RUN`.
+**Head:** `190a955`, with `main` merged in: first `64181e8` (a fast-forward carrying Integration 15), then `1afae39`, the staging journey harness. That last merge touches only `audit/staging/journey.mjs`, which no selftest reads; it is lint-clean. The code is `d43043a`. **One run:** ci #217.
 
 ## CHANGED
 
@@ -45,8 +45,11 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-`RUN` on `HEAD_SHA`, dispatched once and not waited on; please read the result there.
-- **Local, before dispatch, every database with an `en-US` ICU collation:** FULL_LOCAL
+`ci #217` on `190a955`, dispatched once and not waited on; please read the result there.
+- **Local, before dispatch, every database with an `en-US` ICU collation:** on `d43043a`:
+  - **Plants:** 91 of 91 proved their gate on a copy taken straight after the seeds.
+  - **Full suite, fresh database:** 362 passed. F01-R07 fails, as it always does locally. 29 justified skips.
+  - **Shared red cases:** all 15 gates exited 0 on one shared stack, the schema digest stayed the same, and every recheck was 242 of 242.
 - One run, no new job.
 
 ## EXISTING DATA
@@ -70,4 +73,4 @@ None.
 
 ## READY
 
-Yes, once `RUN` on `HEAD_SHA` is green.
+Yes, once `ci #217` on `190a955` is green.
