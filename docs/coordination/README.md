@@ -24,6 +24,7 @@ this folder wins. Only the coordinator changes it.
 | **Claude, coordinator** (this session) | Coordinator, **release authority**, **gatekeeper**, keeper of canonical decisions | `docs/coordination/**`; the decisions log and the board; reviewing and merging into `main`; every production release, deploy and migration; production data operations; the audit harness (`audit/**`, `audit-journeys.yml`, `check-front-door.yml`); keeping Bob and Daisy in sync. | Build product features. The coordinator reviews and verifies; Bob and Daisy build. The exceptions are gate tooling and emergency fixes, which are recorded. |
 | **Bob**, the builder | Back end, data and platform | Everything behind the screen: database, authorization, server actions, API routes, library logic, tests, CI and deploy workflows. | UI components, page layout, styling, or wording, beyond what his ticket names. |
 | **Daisy**, the front end | Screens, wording and experience | Everything the user sees: pages, components, navigation, layout, CSS, accessibility, all copy in Bahasa Indonesia and English, and error pages. | Database, migrations, authorization, server-side logic, or workflows. |
+| **Lana**, lesson content (D-051) | Lesson author | Turns the textbook PDFs Yazid gives her into PINTAR lesson workbooks: lessons, MCQs, pre-test and post-test questions, proposed misconception codes. Brief: `briefs/LANA.md`. | Software of any kind; uploading to staging or production (the coordinator does both). |
 
 ## 2. Lanes: who may change which files
 
@@ -39,6 +40,7 @@ A change outside your lane needs a ticket that says so. If a ticket needs someth
 | `src/components/**`, `src/app/**/*.css`, `public/**` | **Daisy** |
 | `src/lib/hle.ts` (all UI copy), `src/lib/locale*.ts` | **Daisy** |
 | `docs/coordination/**`, `docs/audit/**`, `audit/**`, `.github/workflows/audit-journeys.yml`, `.github/workflows/check-front-door.yml`, every `.github/*-request.txt`, `RELEASE_SHA` in the deploy workflows | **Coordinator** |
+| `docs/onboarding/konten/**` (lesson workbooks, their generators and packages) | **Lana** (D-051); the checkers `ke-paket.ts` and `periksa_mutu.py` are the coordinator's |
 | `selftest/manifest.json`, `selftest/*.test.ts` | **Shared, append only.** Each lane adds its own test ids and bumps `version`. Never edit or remove another lane's test. If `version` conflicts on merge, take the higher number and add one. |
 
 **Copy rule (D-014).** Every word a user sees lives in `src/lib/hle.ts`. Bob may add keys his feature needs, with his best Indonesian and English. Daisy owns the final wording and may rewrite any key, but the key names Bob depends on stay the same.
@@ -55,6 +57,7 @@ A change outside your lane needs a ticket that says so. If a ticket needs someth
 | `claude/quirky-meitner-a04smj` | Bob's lane | Bob |
 | `ux-1/daisy-experience` | Daisy's lane | Daisy |
 | `claude/awesome-rubin-bqxp6p` | Coordinator's lane (gate tooling, audit, docs) | Coordinator |
+| Lana's session branch (named in her first hand-off) | Lana's lane: lesson content | Lana |
 
 Rules:
 1. **Before starting any ticket, merge the latest `origin/main` into your lane.** Use a merge, never a rebase, and never force-push.

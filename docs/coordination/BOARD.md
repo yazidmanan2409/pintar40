@@ -72,6 +72,17 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 | **DAISY-10** | **First name only for learners** (D-020) on /belajar and /. | privacy | — | No learner's full name on those screens; staff screens unchanged. | **MERGED** (Integration 7, `16cf657`). Gate 24 Sep on `f8f2992` inside Integration 7 (CI #186 25/25; the lane's own CI #185 was cancelled because one run on the combined tree gave the same evidence, D-043). Audit S11: /belajar greets "Halo, Ani", not the full name |
 | **DAISY-11** | **Studio tab by role** (D-021): Guru, Kepala departemen, Admin sekolah, Admin platform. | M3 | DAISY-03 | The tab appears for those roles; Studio still refuses a person without capability. | **MERGED** (Integration 7, `16cf657`). Gate 24 Sep on `f8f2992` inside Integration 7 (CI #186 25/25; the lane's own CI #185 was cancelled because one run on the combined tree gave the same evidence, D-043). The tab follows CAN_DRAFT in the latest capability map; audit S13 and S16 show Studio for the teacher and the head of department, and DAISY-11-STUDIO-02 shows none for the dean |
 
+## Lana — lesson content (lane: her session's branch; D-051), one chapter at a time
+
+**First job:** SD Kelas 5 Matematika, Bab 1–9, from the PDFs Yazid supplies. Brief: `briefs/LANA.md`. Each chapter: a generator with number assertions, the workbook, its package (through the app's own reader, `ke-paket.ts`), a clean question check (`periksa_mutu.py`: no ERROR), proposed misconception codes as CSV. **Gate:** the coordinator re-runs the checks, then runs the staging journey on the chapter (upload → publish → assign → student pre-test, lessons, post-test, result), reads a sample, merges to `main`.
+
+| # | Ticket | Acceptance | Status |
+|---|---|---|---|
+| **LANA-01** | **Bab 1: Bilangan Cacah sampai 100.000** — bring the existing workbook to the brief: checked against the PDF, text lessons only (lessons 5–6's media dropped, their needed text kept), proposed misconception codes. | Checks clean; staging journey green on it (apart from BOB-22 while open). | TODO (waits for the PDF) |
+| **LANA-02 … LANA-09** | **Bab 2 … Bab 9**, each from its PDF, each after the previous chapter's gate verdict. | Same. | TODO |
+
+**Open for Yazid (asked 28 Sep):** a distractor's misconception code must already be registered for the school (`misconception_taxonomy`, per school); no screen or package can register one, and none are seeded. Until codes can be registered, every question raises a "no misconception link" warning that the reviewer acknowledges one by one before publishing (UX-01). Lana prepares the codes per chapter; how they get registered (a platform library, per school, by whom) is a product decision, then a Bob ticket.
+
 ## Coordinator
 
 | # | Item | Status |
