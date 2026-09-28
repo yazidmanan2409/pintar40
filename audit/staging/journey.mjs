@@ -50,7 +50,7 @@ const uuid = (s) => { if (!/^[0-9a-f-]{36}$/.test(s ?? "")) throw new Error(`not
 
 const school = sql(`select id || '|' || is_synthetic from public.institutions where name = ${lit(SCHOOL)}`);
 const [SID, synth] = school.split("|");
-if (synth !== "t") throw new Error("the journey runs only in the synthetic school");
+if (synth !== "true") throw new Error("the journey runs only in the synthetic school");
 const KID = sql(`select id from public.org_nodes where institution_id = ${uuid(SID)} and kind = 'CLASS' and name = ${lit(KELAS)} and is_active`);
 
 // ---------------------------------------------------------------- the answer key (the workbook's own Benar column,
