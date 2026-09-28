@@ -1,0 +1,1806 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 2: KPK dan FPB",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "KPK dan FPB",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Kelipatan",
+       "summary": "Kelipatan sebuah bilangan didapat dengan terus menambahkan bilangan itu, atau dengan mengalikannya dengan 1, 2, 3, dan seterusnya.",
+       "body_markdown": "## Bermain tepuk kelipatan\n\nBayangkan kalian duduk melingkar dan menyebut bilangan bergantian: 1, 2, 3, 4, ... Setiap kali giliranmu jatuh pada bilangan **3, 6, 9, 12, ...**, kamu bertepuk tangan, bukan menyebut bilangannya.\n\nBilangan-bilangan itu disebut **kelipatan 3**.\n\n## Cara mendapatkan kelipatan\n\nAda dua cara yang hasilnya sama.\n\n**Cara 1, menambah terus.** Mulai dari 3, lalu tambahkan 3 setiap langkah:\n3, 3 + 3 = 6, 6 + 3 = 9, 9 + 3 = 12, 12 + 3 = 15, ...\n\n**Cara 2, tabel perkalian.** Kalikan 3 dengan 1, 2, 3, 4, 5, ...:\n3 × 1 = 3, 3 × 2 = 6, 3 × 3 = 9, 3 × 4 = 12, 3 × 5 = 15, ...\n\nKelipatan selalu **dimulai dari bilangan itu sendiri**, dan tidak ada habisnya.\n\n**Coba:** tuliskan sepuluh kelipatan 4 yang pertama.\n_Periksa: 4, 8, 12, 16, 20, 24, 28, 32, 36, 40._\n\n## Menandai kelipatan di tabel\n\nTulislah bilangan 1 sampai 50 dalam lima baris, sepuluh bilangan setiap baris. Lalu tandai kelipatan 3: 3, 6, 9, 12, dan seterusnya.\n\nPerhatikan bahwa tanda-tanda itu membentuk pola miring yang teratur, karena setiap tanda berjarak tepat 3 dari tanda sebelumnya.\n\n**Coba:** tandai kelipatan 9 pada tabel 1 sampai 100. Pola apa yang kamu lihat?\n_Periksa: 9, 18, 27, 36, ..., 90 membentuk garis miring. Setiap langkah, angka puluhannya naik 1 dan angka satuannya turun 1._\n\n## Apakah bilangan ini kelipatan?\n\nApakah 42 kelipatan 7? Bagilah: 42 : 7 = 6, **tanpa sisa**. Jadi 42 = 7 × 6, dan 42 adalah kelipatan 7.\n\nApakah 27 kelipatan 7? 27 : 7 = 3 sisa 6. Ada sisa, jadi 27 **bukan** kelipatan 7.\n\nHati-hati: angka 7 di belakang 27 atau 17 tidak membuatnya kelipatan 7. Yang menentukan adalah **pembagiannya habis atau tidak**.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 2._",
+       "objective": {
+        "statement": "Murid dapat menentukan kelipatan sebuah bilangan dan memeriksa apakah suatu bilangan merupakan kelipatannya.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan manakah yang merupakan kelipatan 7?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "27",
+           "is_correct": false,
+           "rationale": "27 berakhiran 7, tetapi 27 : 7 = 3 sisa 6. Kelipatan 7 dibagi 7 selalu habis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "42",
+           "is_correct": true,
+           "rationale": "Benar. 42 = 7 × 6, jadi 42 : 7 habis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "1",
+           "is_correct": false,
+           "rationale": "1 adalah faktor dari 7 (membagi habis 7), bukan kelipatannya. Kelipatan 7 dimulai dari 7."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "72",
+           "is_correct": false,
+           "rationale": "72 memuat angka 7, tetapi 72 : 7 = 10 sisa 2. Kelipatan ditentukan pembagian, bukan angkanya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kelipatan 9 yang terletak di antara 40 dan 60 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "49 dan 59",
+           "is_correct": false,
+           "rationale": "Bilangan yang berakhiran 9 belum tentu kelipatan 9: 49 : 9 = 5 sisa 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "45, 54, dan 63",
+           "is_correct": false,
+           "rationale": "45 dan 54 tepat, tetapi 63 lebih dari 60, jadi tidak di antara 40 dan 60."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "45 dan 54",
+           "is_correct": true,
+           "rationale": "Benar. 9 × 5 = 45 dan 9 × 6 = 54; 9 × 7 = 63 sudah lebih dari 60."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "42 dan 51",
+           "is_correct": false,
+           "rationale": "Dihitung dengan menambah 9 mulai dari 42, padahal 42 bukan kelipatan 9. Mulailah dari 9, 18, 27, ..."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "56 adalah kelipatan dari ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "56 berakhiran 6, tetapi 56 : 6 = 9 sisa 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "112",
+           "is_correct": false,
+           "rationale": "Terbalik: 112 adalah kelipatan 56, sedangkan 56 adalah faktor dari 112."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "5",
+           "is_correct": false,
+           "rationale": "56 diawali angka 5, tetapi 56 : 5 = 11 sisa 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "7",
+           "is_correct": true,
+           "rationale": "Benar. 7 × 8 = 56."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Kelipatan Persekutuan dan KPK",
+       "summary": "Kelipatan yang dimiliki bersama oleh dua bilangan atau lebih disebut kelipatan persekutuan; yang terkecil disebut KPK.",
+       "body_markdown": "## Kelipatan bersama\n\nTuliskan kelipatan 2 dan kelipatan 3:\n\n- Kelipatan 2: 2, 4, **6**, 8, 10, **12**, 14, 16, **18**, 20, ...\n- Kelipatan 3: 3, **6**, 9, **12**, 15, **18**, 21, ...\n\nBilangan 6, 12, dan 18 muncul di kedua daftar. Bilangan seperti ini disebut **kelipatan persekutuan** dari 2 dan 3. \"Persekutuan\" artinya dimiliki bersama.\n\n## KPK: yang paling kecil\n\nDari 6, 12, 18, ..., yang paling kecil adalah 6. Kelipatan persekutuan yang paling kecil disebut **Kelipatan Persekutuan Terkecil**, disingkat **KPK**. Jadi KPK dari 2 dan 3 adalah **6**.\n\nCara cepat mencari KPK dari 6 dan 8:\n\n1. Tulis kelipatan bilangan yang lebih besar: 8, 16, 24, ...\n2. Periksa satu per satu, apakah juga kelipatan 6. 8? Bukan. 16? Bukan. 24? Ya, 24 = 6 × 4.\n3. Jadi KPK dari 6 dan 8 adalah **24**.\n\nMengapa bukan 6 × 8 = 48? Karena 48 memang kelipatan persekutuan, tetapi bukan yang **terkecil**. 24 lebih kecil dan sudah memenuhi.\n\n## KPK tiga bilangan\n\nCarilah KPK dari 2, 3, dan 4.\n\n1. Kelipatan 4: 4, 8, 12, ...\n2. 4 bukan kelipatan 3. 8 juga bukan kelipatan 3.\n3. 12 adalah kelipatan 2, kelipatan 3, **dan** kelipatan 4.\n\nJadi KPK dari 2, 3, dan 4 adalah **12**. Ingat: bilangan itu harus kelipatan dari **ketiganya**, bukan hanya dua.\n\n## Memakai KPK: jadwal berlatih\n\nLukas berlatih renang setiap 5 hari sekali, Asep setiap 3 hari sekali. Pada 20 Agustus mereka berlatih bersama. Kapan paling cepat mereka berlatih bersama lagi?\n\n1. \"Bersama lagi\" berarti hari yang termasuk jadwal keduanya: kelipatan persekutuan.\n2. \"Paling cepat\" berarti yang terkecil: **KPK**. KPK dari 5 dan 3 adalah 15.\n3. 20 Agustus + 15 hari = \"tanggal 35\". Bulan Agustus hanya sampai tanggal 31, jadi 35 − 31 = 4. Tanggalnya **4 September**.\n\n**Coba:** Dinda les piano setiap 2 hari, Amelia setiap 5 hari. Mereka les bersama pada 14 Juli. Kapan paling cepat bersama lagi?\n_Periksa: KPK dari 2 dan 5 adalah 10, jadi 14 + 10 = 24 Juli._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 2._",
+       "objective": {
+        "statement": "Murid dapat menentukan kelipatan persekutuan dan KPK dari dua atau tiga bilangan, dan memakainya untuk masalah jadwal.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kelipatan persekutuan terkecil dari 4 dan 6 adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "24",
+           "is_correct": false,
+           "rationale": "4 × 6 = 24 memang kelipatan keduanya, tetapi 12 lebih kecil dan juga kelipatan keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "2",
+           "is_correct": false,
+           "rationale": "2 adalah faktor persekutuan terbesar (FPB) dari 4 dan 6. Kelipatan tidak lebih kecil dari bilangannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "12",
+           "is_correct": true,
+           "rationale": "Benar. Kelipatan 6: 6, 12. 6 bukan kelipatan 4, tetapi 12 kelipatan 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "48",
+           "is_correct": false,
+           "rationale": "48 kelipatan 4 dan 6, tetapi bukan yang terkecil. 12 dan 24 lebih kecil."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "KPK dari 8 dan 12 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "48",
+           "is_correct": false,
+           "rationale": "48 kelipatan 8 dan 12, tetapi bukan yang terkecil. 24 juga kelipatan keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "96",
+           "is_correct": false,
+           "rationale": "8 × 12 = 96 memang kelipatan keduanya, tetapi 24 lebih kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "24",
+           "is_correct": true,
+           "rationale": "Benar. Kelipatan 12: 12, 24. 12 bukan kelipatan 8, tetapi 24 = 8 × 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "4",
+           "is_correct": false,
+           "rationale": "4 adalah FPB dari 8 dan 12. KPK tidak mungkin lebih kecil dari bilangan-bilangannya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kelipatan persekutuan dari 3 dan 4 yang kurang dari 30 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "12 dan 24",
+           "is_correct": true,
+           "rationale": "Benar. 12 dan 24 adalah kelipatan 3 dan juga kelipatan 4; berikutnya 36, sudah lebih dari 30."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "12, 24, dan 36",
+           "is_correct": false,
+           "rationale": "36 memang kelipatan persekutuan, tetapi lebih dari 30."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "6 dan 12",
+           "is_correct": false,
+           "rationale": "6 kelipatan 3, tetapi bukan kelipatan 4. Kelipatan persekutuan harus kelipatan keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "3, 4, 12, dan 24",
+           "is_correct": false,
+           "rationale": "3 hanya kelipatan 3 dan 4 hanya kelipatan 4. Kelipatan persekutuan harus kelipatan keduanya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "KPK dari 6 dan 10 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "2",
+           "is_correct": false,
+           "rationale": "2 adalah FPB dari 6 dan 10. KPK tidak lebih kecil dari bilangan-bilangannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "30",
+           "is_correct": true,
+           "rationale": "Benar. Kelipatan 10: 10, 20, 30. 30 adalah kelipatan 6 yang pertama di daftar itu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "60",
+           "is_correct": false,
+           "rationale": "6 × 10 = 60 kelipatan keduanya, tetapi 30 lebih kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "120",
+           "is_correct": false,
+           "rationale": "120 kelipatan persekutuan, tetapi jauh dari yang terkecil."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "KPK dari 4, 6, dan 9 adalah ...",
+         "petunjuk": "Tulis kelipatan bilangan terbesar, lalu periksa setiap bilangan pada ketiganya.",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "12",
+           "is_correct": false,
+           "rationale": "12 kelipatan 4 dan 6, tetapi bukan kelipatan 9. Periksa ketiga bilangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "18",
+           "is_correct": false,
+           "rationale": "18 kelipatan 6 dan 9, tetapi bukan kelipatan 4. Periksa ketiga bilangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "216",
+           "is_correct": false,
+           "rationale": "4 × 6 × 9 = 216 kelipatan ketiganya, tetapi bukan yang terkecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "36",
+           "is_correct": true,
+           "rationale": "Benar. Kelipatan 9: 9, 18, 27, 36. 36 kelipatan 4 dan 6 juga."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dayu les tari setiap 3 hari sekali, Made les gamelan setiap 4 hari sekali. Pada 25 Juli mereka les bersamaan. Paling cepat, kapan mereka les bersamaan lagi?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "37 Juli",
+           "is_correct": false,
+           "rationale": "KPK-nya tepat (12 hari), tetapi Juli hanya sampai tanggal 31. Tanggalnya pindah ke Agustus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "6 Agustus",
+           "is_correct": true,
+           "rationale": "Benar. KPK dari 3 dan 4 adalah 12. 25 + 12 = 37, dan 37 − 31 = 6, jadi 6 Agustus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "7 Agustus",
+           "is_correct": false,
+           "rationale": "Juli dianggap 30 hari (37 − 30 = 7). Bulan Juli mempunyai 31 hari."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "26 Juli",
+           "is_correct": false,
+           "rationale": "Yang ditambahkan FPB dari 3 dan 4, yaitu 1. Bersamaan lagi memakai KPK."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Faktor",
+       "summary": "Faktor sebuah bilangan adalah bilangan yang membaginya habis, tanpa sisa.",
+       "body_markdown": "## Membagi tanpa sisa\n\nIbu guru punya 6 permen dan membagikannya sama banyak kepada 3 siswa. Setiap siswa mendapat 2 permen, dan tidak ada yang tersisa. Karena 6 : 3 habis, **3 adalah faktor dari 6**.\n\nBagaimana kalau dibagikan kepada 4 siswa? 6 : 4 = 1 sisa 2. Ada sisa, jadi **4 bukan faktor dari 6**.\n\nFaktor sebuah bilangan adalah bilangan yang **membagi habis** bilangan itu.\n\n## Mencari semua faktor dengan pasangan\n\nBayangkan selembar kertas sepanjang 12 petak yang dipotong-potong sama panjang tanpa sisa. Panjang potongan yang mungkin adalah faktor dari 12.\n\nCari pasangan perkalian yang hasilnya 12, mulai dari 1:\n\n1. 1 × 12 = 12\n2. 2 × 6 = 12\n3. 3 × 4 = 12\n4. 4 × 3 sudah ada (pasangan 3 × 4), jadi berhenti.\n\nFaktor dari 12 adalah **1, 2, 3, 4, 6, 12**.\n\nDengan cara yang sama, 18 = 1 × 18 = 2 × 9 = 3 × 6, jadi faktor dari 18 adalah **1, 2, 3, 6, 9, 18**.\n\n1 dan bilangan itu sendiri **selalu** termasuk faktor.\n\n**Coba:** tentukan semua faktor dari 28.\n_Periksa: 1 × 28, 2 × 14, 4 × 7. Faktornya 1, 2, 4, 7, 14, 28._\n\n## Faktor dan kelipatan itu berbeda\n\nKeduanya mudah tertukar. Bandingkan untuk bilangan 12:\n\n| | Faktor dari 12 | Kelipatan 12 |\n|---|---|---|\n| Artinya | membagi habis 12 | hasil 12 × 1, 12 × 2, ... |\n| Contoh | 1, 2, 3, 4, 6, 12 | 12, 24, 36, 48, ... |\n| Besarnya | tidak lebih dari 12 | tidak kurang dari 12 |\n| Banyaknya | ada batasnya | tidak ada habisnya |\n\nJadi 3 adalah **faktor** dari 12, dan 12 adalah **kelipatan** 3.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 2._",
+       "objective": {
+        "statement": "Murid dapat menentukan semua faktor sebuah bilangan dan membedakan faktor dari kelipatan.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Semua faktor dari 12 adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "12, 24, 36, 48",
+           "is_correct": false,
+           "rationale": "Ini kelipatan 12, hasil 12 × 1, 12 × 2, ... Faktor adalah bilangan yang membagi habis 12."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "1, 2, 3, 4, 5, 6, 12",
+           "is_correct": false,
+           "rationale": "5 bukan faktor dari 12: 12 : 5 = 2 sisa 2. Faktor harus membagi habis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "1, 2, 4, 6, 12",
+           "is_correct": false,
+           "rationale": "3 terlewat, padahal 3 × 4 = 12. Cari pasangan perkalian satu per satu: 1 × 12, 2 × 6, 3 × 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "1, 2, 3, 4, 6, 12",
+           "is_correct": true,
+           "rationale": "Benar. Pasangannya 1 × 12, 2 × 6, dan 3 × 4."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Semua faktor dari 45 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "1, 3, 5, 9, 15, 45",
+           "is_correct": true,
+           "rationale": "Benar. Pasangannya 1 × 45, 3 × 15, dan 5 × 9."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "45, 90, 135, 180",
+           "is_correct": false,
+           "rationale": "Ini kelipatan 45. Faktor adalah bilangan yang membagi habis 45."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "3, 5, 9, 15",
+           "is_correct": false,
+           "rationale": "1 dan 45 terlewat. Setiap bilangan mempunyai faktor 1 dan dirinya sendiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "1, 3, 5, 7, 9, 15, 45",
+           "is_correct": false,
+           "rationale": "7 bukan faktor: 45 : 7 = 6 sisa 3."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Semua faktor dari 30 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "1, 2, 3, 5, 6, 10, 15",
+           "is_correct": false,
+           "rationale": "30 sendiri terlewat. 1 × 30 = 30, jadi 30 juga faktornya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "30, 60, 90, 120",
+           "is_correct": false,
+           "rationale": "Ini kelipatan 30. Faktor adalah bilangan yang membagi habis 30."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "1, 2, 3, 5, 6, 10, 15, 30",
+           "is_correct": true,
+           "rationale": "Benar. Pasangannya 1 × 30, 2 × 15, 3 × 10, 5 × 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "1, 2, 3, 4, 5, 6, 10, 15, 30",
+           "is_correct": false,
+           "rationale": "4 bukan faktor dari 30: 30 : 4 = 7 sisa 2."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pak Rudi ingin membagikan 20 kue sama banyak tanpa sisa. Banyak anak yang mungkin menerima kue adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "3 anak",
+           "is_correct": false,
+           "rationale": "20 : 3 = 6 sisa 2. Ada kue yang tersisa, jadi 3 bukan faktor dari 20."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "5 anak",
+           "is_correct": true,
+           "rationale": "Benar. 20 : 5 = 4, setiap anak mendapat 4 kue tanpa sisa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "6 anak",
+           "is_correct": false,
+           "rationale": "20 : 6 = 3 sisa 2. Ada kue yang tersisa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "40 anak",
+           "is_correct": false,
+           "rationale": "40 adalah kelipatan 20, bukan faktornya. 20 kue tidak cukup untuk 40 anak."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Faktor Persekutuan dan FPB",
+       "summary": "Faktor yang dimiliki bersama oleh dua bilangan atau lebih disebut faktor persekutuan; yang terbesar disebut FPB.",
+       "body_markdown": "## Faktor bersama\n\n- Faktor dari 12: **1, 2, 3**, 4, **6**, 12\n- Faktor dari 18: **1, 2, 3, 6**, 9, 18\n\nBilangan 1, 2, 3, dan 6 ada di kedua daftar. Bilangan-bilangan ini disebut **faktor persekutuan** dari 12 dan 18.\n\nFaktor persekutuan hanya bilangan yang ada di **kedua** daftar. Bilangan 4 hanya faktor dari 12, jadi tidak termasuk.\n\n## FPB: yang paling besar\n\nDari 1, 2, 3, dan 6, yang paling besar adalah 6. Faktor persekutuan yang paling besar disebut **Faktor Persekutuan Terbesar**, disingkat **FPB**. Jadi FPB dari 12 dan 18 adalah **6**.\n\nContoh lain, 8 dan 20:\n\n1. Faktor dari 8: 1, 2, 4, 8.\n2. Faktor dari 20: 1, 2, 4, 5, 10, 20.\n3. Faktor persekutuan: 1, 2, 4.\n4. FPB dari 8 dan 20 adalah **4**.\n\n## FPB tiga bilangan, dan FPB yang bernilai 1\n\nUntuk 16, 24, dan 40, faktor persekutuannya harus ada di **ketiga** daftar: 1, 2, 4, 8. Jadi FPB-nya **8**.\n\nBagaimana dengan 9 dan 14? Faktor dari 9: 1, 3, 9. Faktor dari 14: 1, 2, 7, 14. Yang sama hanya 1, jadi FPB dari 9 dan 14 adalah **1**. FPB-nya tetap ada, yaitu 1, karena 1 adalah faktor dari setiap bilangan.\n\n## Memakai FPB: membuat paket\n\nUntuk ulang tahun, ada 36 susu kotak, 48 permen lolipop, dan 24 bungkus biskuit. Semuanya dibagi ke dalam paket dengan isi setiap paket sama, dan tidak ada yang tersisa. Paling banyak berapa paket yang bisa dibuat?\n\n1. Banyak paket harus membagi habis 36, 48, dan 24: faktor persekutuan.\n2. \"Paling banyak\" berarti yang terbesar: **FPB**. FPB dari 36, 48, dan 24 adalah 12.\n3. Jadi ada **12 paket**. Setiap paket berisi 36 : 12 = 3 susu, 48 : 12 = 4 permen, dan 24 : 12 = 2 biskuit.\n\nPerhatikan pertanyaannya: banyak **paket** adalah 12, sedangkan **isi** setiap paket adalah 3, 4, dan 2.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 2._",
+       "objective": {
+        "statement": "Murid dapat menentukan faktor persekutuan dan FPB dari dua atau tiga bilangan, dan memakainya untuk membagi barang sama banyak.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "FPB dari 32 dan 40 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "160",
+           "is_correct": false,
+           "rationale": "160 adalah KPK dari 32 dan 40. FPB tidak mungkin lebih besar dari bilangan-bilangannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "4",
+           "is_correct": false,
+           "rationale": "4 adalah faktor persekutuan, tetapi bukan yang terbesar. Faktor persekutuannya 1, 2, 4, 8."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "2",
+           "is_correct": false,
+           "rationale": "2 hanya faktor persekutuan pertama sesudah 1. Yang terbesar adalah 8."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "8",
+           "is_correct": true,
+           "rationale": "Benar. Faktor persekutuan 32 dan 40 adalah 1, 2, 4, 8, dan yang terbesar 8."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Faktor persekutuan dari 16 dan 24 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "2, 4, 8",
+           "is_correct": false,
+           "rationale": "1 terlewat. 1 adalah faktor dari setiap bilangan, jadi selalu termasuk faktor persekutuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "48, 96, 144",
+           "is_correct": false,
+           "rationale": "Ini kelipatan persekutuan dari 16 dan 24, bukan faktornya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "1, 2, 3, 4, 6, 8, 12, 16, 24",
+           "is_correct": false,
+           "rationale": "Ini semua faktor dari 16 atau 24, digabung. 3, 6, 12, dan 24 bukan faktor dari 16, dan 16 bukan faktor dari 24."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "1, 2, 4, 8",
+           "is_correct": true,
+           "rationale": "Benar. Faktor dari 16: 1, 2, 4, 8, 16. Faktor dari 24: 1, 2, 3, 4, 6, 8, 12, 24. Yang ada di keduanya 1, 2, 4, 8."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "FPB dari 18 dan 27 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "9",
+           "is_correct": true,
+           "rationale": "Benar. Faktor persekutuannya 1, 3, 9, dan yang terbesar 9."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "54",
+           "is_correct": false,
+           "rationale": "54 adalah KPK dari 18 dan 27. FPB tidak lebih besar dari bilangan-bilangannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "3 faktor persekutuan, tetapi bukan yang terbesar; 9 juga membagi habis keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "6 adalah faktor dari 18, tetapi bukan faktor dari 27 (27 : 6 = 4 sisa 3)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "FPB dari 12, 18, dan 30 adalah ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "180",
+           "is_correct": false,
+           "rationale": "180 adalah KPK dari ketiga bilangan itu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "6",
+           "is_correct": true,
+           "rationale": "Benar. Faktor persekutuan ketiganya 1, 2, 3, 6, dan yang terbesar 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "3 faktor persekutuan ketiganya, tetapi bukan yang terbesar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "12",
+           "is_correct": false,
+           "rationale": "12 adalah bilangan terkecil, tetapi 12 bukan faktor dari 18 dan 30."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kakak mempunyai 24 pensil dan 32 buku tulis. Semuanya dibagikan kepada beberapa anak sehingga setiap anak mendapat pensil sama banyak dan buku sama banyak. Paling banyak berapa anak yang dapat menerima?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "96 anak",
+           "is_correct": false,
+           "rationale": "96 adalah KPK dari 24 dan 32. Membagi barang sebanyak-banyaknya memakai FPB."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "4 anak",
+           "is_correct": false,
+           "rationale": "4 anak memang bisa (6 pensil dan 8 buku), tetapi bukan yang paling banyak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "8 anak",
+           "is_correct": true,
+           "rationale": "Benar. FPB dari 24 dan 32 adalah 8; setiap anak mendapat 3 pensil dan 4 buku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "3 anak",
+           "is_correct": false,
+           "rationale": "3 adalah banyak pensil untuk setiap anak (24 : 8), bukan banyak anaknya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pernyataan manakah yang tepat?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "FPB dari 20 dan 50 adalah 10.",
+           "is_correct": true,
+           "rationale": "Tepat. Faktor persekutuannya 1, 2, 5, 10, dan yang terbesar 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "FPB dari 20 dan 50 adalah 100.",
+           "is_correct": false,
+           "rationale": "100 adalah KPK dari 20 dan 50. FPB-nya 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "13 dan 21 tidak mempunyai FPB.",
+           "is_correct": false,
+           "rationale": "Faktor persekutuannya hanya 1, jadi FPB-nya 1. FPB selalu ada."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "KPK dari 20 dan 50 adalah 1.000.",
+           "is_correct": false,
+           "rationale": "1.000 = 20 × 50, kelipatan persekutuan tetapi bukan yang terkecil. KPK-nya 100."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Bilangan Prima dan Faktorisasi Prima",
+       "summary": "Bilangan prima tepat mempunyai dua faktor; setiap bilangan lain dapat ditulis sebagai perkalian bilangan prima.",
+       "body_markdown": "## Bilangan yang faktornya hanya dua\n\nPerhatikan banyak faktor bilangan 1 sampai 10:\n\n| Bilangan | Faktor | Banyak faktor |\n|---|---|---|\n| 1 | 1 | 1 |\n| 2 | 1, 2 | 2 |\n| 3 | 1, 3 | 2 |\n| 4 | 1, 2, 4 | 3 |\n| 5 | 1, 5 | 2 |\n| 6 | 1, 2, 3, 6 | 4 |\n| 7 | 1, 7 | 2 |\n| 8 | 1, 2, 4, 8 | 4 |\n| 9 | 1, 3, 9 | 3 |\n| 10 | 1, 2, 5, 10 | 4 |\n\nBilangan 2, 3, 5, dan 7 **tepat mempunyai dua faktor**: 1 dan bilangan itu sendiri. Bilangan seperti ini disebut **bilangan prima**.\n\n1 bukan bilangan prima, karena faktornya hanya satu.\n\n## Saringan Eratosthenes\n\nUntuk menemukan semua bilangan prima sampai 100, tulis bilangan 1 sampai 100, lalu:\n\n1. Coret 1.\n2. Lingkari 2, lalu coret semua kelipatan 2 yang lain (4, 6, 8, ...).\n3. Lingkari 3, lalu coret semua kelipatan 3 yang lain.\n4. Lakukan hal yang sama untuk 5 dan 7.\n5. Semua bilangan yang tidak tercoret adalah bilangan prima.\n\nHasilnya ada 25 bilangan prima di bawah 100:\n2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97.\n\n2 adalah satu-satunya bilangan prima yang genap. Tetapi tidak semua bilangan ganjil adalah prima: 9 = 3 × 3, 21 = 3 × 7, 51 = 3 × 17, dan 91 = 7 × 13.\n\n## Pohon faktor\n\nSetiap bilangan yang bukan prima dapat ditulis sebagai perkalian bilangan prima. Tulisan ini disebut **faktorisasi prima**. Kita mencarinya dengan **pohon faktor**.\n\nFaktorisasi prima dari 60:\n\n1. Bagi dengan bilangan prima terkecil yang membagi habis: 60 = 2 × 30.\n2. 30 belum prima. 30 = 2 × 15.\n3. 15 belum prima. 15 = 3 × 5.\n4. 3 dan 5 sudah prima, jadi berhenti.\n\nFaktorisasi prima dari 60 adalah **2 × 2 × 3 × 5**. Periksa: 2 × 2 × 3 × 5 = 60.\n\nMenulis 60 = 4 × 15 belum selesai, karena 4 dan 15 bukan bilangan prima.\n\n**Coba:** buat pohon faktor untuk 70.\n_Periksa: 70 = 2 × 35 dan 35 = 5 × 7, jadi 70 = 2 × 5 × 7._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 2._",
+       "objective": {
+        "statement": "Murid dapat menentukan bilangan prima di bawah 100 dan menuliskan faktorisasi prima sebuah bilangan dengan pohon faktor.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Manakah yang merupakan bilangan prima?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "1",
+           "is_correct": false,
+           "rationale": "1 hanya mempunyai satu faktor. Bilangan prima tepat mempunyai dua faktor."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "9",
+           "is_correct": false,
+           "rationale": "9 ganjil, tetapi 9 = 3 × 3, jadi faktornya 1, 3, 9. Tidak semua bilangan ganjil prima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "13",
+           "is_correct": true,
+           "rationale": "Benar. Faktor dari 13 hanya 1 dan 13."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "21",
+           "is_correct": false,
+           "rationale": "21 ganjil, tetapi 21 = 3 × 7, jadi faktornya lebih dari dua."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kelompok bilangan manakah yang semuanya bilangan prima?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "1, 13, 37, 59",
+           "is_correct": false,
+           "rationale": "1 bukan bilangan prima karena faktornya hanya satu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "3, 17, 51, 83",
+           "is_correct": false,
+           "rationale": "51 ganjil, tetapi 51 = 3 × 17, jadi bukan prima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "2, 29, 53, 71",
+           "is_correct": true,
+           "rationale": "Benar. Masing-masing hanya mempunyai faktor 1 dan dirinya sendiri. 2 adalah prima yang genap."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "7, 23, 41, 91",
+           "is_correct": false,
+           "rationale": "91 ganjil, tetapi 91 = 7 × 13, jadi bukan prima."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Faktorisasi prima dari 84 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "2 × 42",
+           "is_correct": false,
+           "rationale": "Pohon faktornya berhenti terlalu cepat: 42 belum prima (42 = 2 × 3 × 7)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "2 × 2 × 3 × 7",
+           "is_correct": true,
+           "rationale": "Benar. 84 = 2 × 42, 42 = 2 × 21, 21 = 3 × 7. Periksa: 2 × 2 × 3 × 7 = 84."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "2 × 2 × 3 × 7 × 1",
+           "is_correct": false,
+           "rationale": "1 ikut ditulis seolah bilangan prima. 1 bukan prima, jadi tidak termasuk faktorisasi prima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "2 × 3 × 7",
+           "is_correct": false,
+           "rationale": "Faktor 2 muncul dua kali tetapi hanya ditulis sekali. 2 × 3 × 7 = 42, bukan 84."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan prima di antara 20 dan 40 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "23, 29, 31, 37, 39",
+           "is_correct": false,
+           "rationale": "39 ganjil, tetapi 39 = 3 × 13, jadi bukan prima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "23, 29, 31, 37",
+           "is_correct": true,
+           "rationale": "Benar. Keempatnya hanya mempunyai faktor 1 dan dirinya sendiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "21, 23, 29, 31, 37",
+           "is_correct": false,
+           "rationale": "21 ganjil, tetapi 21 = 3 × 7, jadi bukan prima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "25, 27, 33, 35",
+           "is_correct": false,
+           "rationale": "Semuanya ganjil tetapi tidak ada yang prima: 25 = 5 × 5, 27 = 3 × 9, 33 = 3 × 11, 35 = 5 × 7."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Faktorisasi prima dari 72 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "2 × 2 × 2 × 3 × 3",
+           "is_correct": true,
+           "rationale": "Benar. 72 = 2 × 36 = 2 × 2 × 18 = 2 × 2 × 2 × 9 = 2 × 2 × 2 × 3 × 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "8 × 9",
+           "is_correct": false,
+           "rationale": "Hasil kalinya 72, tetapi 8 dan 9 belum prima. Pohon faktornya harus diteruskan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "2 × 2 × 3 × 3",
+           "is_correct": false,
+           "rationale": "Satu faktor 2 terlewat: 2 × 2 × 3 × 3 = 36, bukan 72."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "2 × 2 × 2 × 3 × 3 × 1",
+           "is_correct": false,
+           "rationale": "1 ikut ditulis seolah bilangan prima. 1 bukan prima, jadi tidak termasuk faktorisasi prima."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan yang faktorisasi primanya 2 × 3 × 3 × 7 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "126",
+           "is_correct": true,
+           "rationale": "Benar. 2 × 3 = 6, 6 × 3 = 18, 18 × 7 = 126."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "15",
+           "is_correct": false,
+           "rationale": "Faktor-faktornya dijumlahkan (2 + 3 + 3 + 7). Tanda × berarti dikalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "42",
+           "is_correct": false,
+           "rationale": "Faktor 3 hanya dihitung sekali: 2 × 3 × 7 = 42. Ada dua faktor 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "63",
+           "is_correct": false,
+           "rationale": "Faktor 2 terlewat: 3 × 3 × 7 = 63. Semua faktor harus dikalikan."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "KPK dan FPB dengan Faktorisasi Prima",
+       "summary": "KPK dan FPB dapat dicari dari faktorisasi prima, lalu dipakai untuk memecahkan masalah sehari-hari.",
+       "body_markdown": "## FPB dari faktorisasi prima\n\nCarilah FPB dari 42 dan 60.\n\n1. Tulis faktorisasi primanya: 42 = 2 × 3 × 7 dan 60 = 2 × 2 × 3 × 5.\n2. Pasangkan faktor prima yang ada di **keduanya**: satu 2 dan satu 3.\n3. Kalikan pasangan itu, masing-masing **sekali**: 2 × 3 = 6.\n\nFPB dari 42 dan 60 adalah **6**.\n\n## KPK dari faktorisasi prima\n\nCarilah KPK dari 42 dan 60.\n\n1. Ambil **semua** faktor prima yang muncul. Faktor yang berpasangan cukup ditulis sekali.\n2. Dari 60: 2 × 2 × 3 × 5. Dari 42 masih ada 7 yang belum ikut.\n3. KPK = 2 × 2 × 3 × 5 × 7 = **420**.\n\nPeriksa: 420 : 42 = 10 dan 420 : 60 = 7, keduanya habis.\n\n## Hati-hati dengan faktor yang sama\n\nAmbil 36 = 2 × 2 × 3 × 3 dan 108 = 2 × 2 × 3 × 3 × 3. Jawaban yang tepat: FPB = 36 dan KPK = 108.\n\n- Bila untuk KPK hanya faktor yang **berpasangan** yang dikalikan, hasilnya 2 × 2 × 3 × 3 = 36. Itu FPB, bukan KPK.\n- Bila untuk KPK **semua** faktor dari keduanya dikalikan, hasilnya 3.888, terlalu besar.\n- Bila untuk FPB pasangan ditulis **dua kali**, hasilnya 1.296, juga terlalu besar.\n\nIngat: pasangan cukup ditulis sekali. FPB memakai pasangannya saja; KPK memakai pasangannya ditambah semua sisanya.\n\n## Tiga bilangan\n\n24 = 2 × 2 × 2 × 3, 36 = 2 × 2 × 3 × 3, dan 60 = 2 × 2 × 3 × 5.\n\n- Faktor yang ada di ketiganya: 2 × 2 × 3, jadi **FPB = 12**.\n- KPK: 2 × 2 × 2 (dari 24) × 3 × 3 (dari 36) × 5 (dari 60) = **360**.\n\n## KPK atau FPB?\n\nBaca pertanyaannya dengan teliti.\n\n- **KPK** dipakai bila sesuatu terjadi berulang dan ditanyakan kapan **bersamaan lagi**, paling cepat.\n- **FPB** dipakai bila barang **dibagi rata** tanpa sisa dan ditanyakan **paling banyak** bagian atau kelompok.\n\nContoh FPB: 18 siswa laki-laki dan 12 siswa perempuan dibagi ke kelompok yang sama susunannya. FPB dari 18 dan 12 adalah 6, jadi paling banyak **6 kelompok**, masing-masing 3 laki-laki dan 2 perempuan.\n\nContoh KPK: tiga lampu lalu lintas menyala merah setiap 15, 24, dan 36 detik, dan menyala bersamaan pukul 15.30. KPK dari 15, 24, dan 36 adalah 360 detik = 6 menit. Mereka bersamaan lagi pukul **15.36**.\n\n## Rangkuman Bab 2\n\n- **Kelipatan**: hasil kali bilangan itu dengan 1, 2, 3, ... **Faktor**: bilangan yang membaginya habis.\n- **KPK**: kelipatan persekutuan yang terkecil. **FPB**: faktor persekutuan yang terbesar.\n- **Bilangan prima** tepat mempunyai dua faktor. 1 bukan bilangan prima.\n- **Faktorisasi prima** ditulis sampai semua faktornya prima.\n- Dengan faktorisasi prima: FPB dari pasangannya, KPK dari pasangannya ditambah semua sisanya.\n- Bersamaan lagi: **KPK**. Dibagi rata sebanyak-banyaknya: **FPB**.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 2._",
+       "objective": {
+        "statement": "Murid dapat menentukan KPK dan FPB dengan faktorisasi prima serta memilih KPK atau FPB untuk memecahkan masalah sehari-hari.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "28 = 2 × 2 × 7 dan 42 = 2 × 3 × 7. KPK dari 28 dan 42 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "14",
+           "is_correct": false,
+           "rationale": "Hanya pasangan faktor yang sama (2 dan 7) yang dikalikan; itu FPB. KPK juga memakai sisa faktornya (2 dan 3)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "588",
+           "is_correct": false,
+           "rationale": "Faktor 7 yang berpasangan ditulis dua kali: 2 × 2 × 3 × 7 × 7. Pasangan cukup ditulis sekali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "1.176",
+           "is_correct": false,
+           "rationale": "Semua faktor dari kedua bilangan dikalikan; hasilnya 28 × 42. Itu kelipatan persekutuan, tetapi bukan yang terkecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "84",
+           "is_correct": true,
+           "rationale": "Benar. Pasangan 2 dan 7 ditulis sekali, ditambah sisanya 2 dan 3: 2 × 2 × 3 × 7 = 84."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rina menyiram tanaman setiap 6 hari sekali dan memberi pupuk setiap 9 hari sekali. Pada 14 Maret ia melakukan keduanya. Paling cepat, kapan ia menyiram dan memberi pupuk bersamaan lagi?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "32 Maret",
+           "is_correct": false,
+           "rationale": "KPK-nya benar (18 hari), tetapi Maret hanya sampai tanggal 31. 32 − 31 = 1, jadi tanggal 1 bulan berikutnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "17 Maret",
+           "is_correct": false,
+           "rationale": "Yang ditambahkan FPB dari 6 dan 9, yaitu 3. Bersamaan lagi paling cepat memakai KPK."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "1 April",
+           "is_correct": true,
+           "rationale": "Benar. KPK dari 6 dan 9 adalah 18. 14 Maret + 18 hari = 1 April."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "18 Maret",
+           "is_correct": false,
+           "rationale": "18 adalah banyak hari sampai bersamaan lagi, bukan tanggalnya. 18 hari harus ditambahkan ke 14 Maret."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bu Sari mempunyai 30 jeruk dan 45 salak. Semua buah dimasukkan ke kantong sehingga setiap kantong berisi jeruk sama banyak dan salak sama banyak, dengan kantong sebanyak mungkin. Berapa isi setiap kantong?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "2 jeruk dan 3 salak",
+           "is_correct": true,
+           "rationale": "Benar. FPB dari 30 dan 45 adalah 15 kantong; setiap kantong berisi 30 : 15 = 2 jeruk dan 45 : 15 = 3 salak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "15 jeruk dan 15 salak",
+           "is_correct": false,
+           "rationale": "15 adalah banyak kantong (FPB dari 30 dan 45), bukan isinya. Isinya 30 : 15 dan 45 : 15."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "10 jeruk dan 15 salak",
+           "is_correct": false,
+           "rationale": "Buahnya dibagi ke 3 kantong, faktor persekutuan terkecil selain 1. Kantong sebanyak mungkin memakai FPB, yaitu 15."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "6 jeruk dan 9 salak",
+           "is_correct": false,
+           "rationale": "Buahnya dibagi ke 5 kantong. 5 memang faktor persekutuan, tetapi bukan yang terbesar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "42 = 2 × 3 × 7 dan 70 = 2 × 5 × 7. FPB dari 42 dan 70 adalah ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "14",
+           "is_correct": true,
+           "rationale": "Benar. Pasangannya 2 dan 7, jadi FPB = 2 × 7 = 14."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "2",
+           "is_correct": false,
+           "rationale": "Hanya pasangan 2 yang diambil. Pasangan 7 juga ada di kedua bilangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "210",
+           "is_correct": false,
+           "rationale": "210 adalah KPK dari 42 dan 70 (pasangan ditambah sisanya)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "196",
+           "is_correct": false,
+           "rationale": "Faktor yang sama dari kedua bilangan ditulis semuanya (2 × 7 × 2 × 7). Setiap pasangan cukup sekali."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "20 = 2 × 2 × 5 dan 36 = 2 × 2 × 3 × 3. KPK dari 20 dan 36 adalah ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "4",
+           "is_correct": false,
+           "rationale": "Hanya pasangan 2 × 2 yang dikalikan; itu FPB. KPK juga memakai 3 × 3 dan 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "720",
+           "is_correct": false,
+           "rationale": "Semua faktor dari kedua bilangan dikalikan, sehingga pasangan 2 × 2 terhitung dua kali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "30",
+           "is_correct": false,
+           "rationale": "Setiap faktor prima hanya ditulis sekali (2 × 3 × 5). 30 bukan kelipatan 20 maupun 36."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "180",
+           "is_correct": true,
+           "rationale": "Benar. Pasangan 2 × 2 ditulis sekali, ditambah sisanya 3 × 3 dan 5: 2 × 2 × 3 × 3 × 5 = 180."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "LT19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Masalah manakah yang diselesaikan dengan mencari KPK?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "Membagi 24 apel dan 36 jeruk ke kantong sebanyak mungkin dengan isi sama",
+           "is_correct": false,
+           "rationale": "Membagi rata sebanyak-banyaknya diselesaikan dengan FPB."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "Menentukan kapan dua bus yang datang berkala tiba bersamaan lagi",
+           "is_correct": true,
+           "rationale": "Tepat. Kejadian berulang yang ditanya kapan bersamaan lagi diselesaikan dengan KPK."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "Memotong dua pita 40 cm dan 60 cm menjadi potongan sama panjang yang terpanjang",
+           "is_correct": false,
+           "rationale": "Mencari panjang terpanjang yang membagi habis kedua pita diselesaikan dengan FPB."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "Membagi 18 siswa laki-laki dan 12 perempuan ke kelompok sebanyak mungkin",
+           "is_correct": false,
+           "rationale": "Membagi ke kelompok sebanyak-banyaknya dengan susunan sama diselesaikan dengan FPB."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 33
+         },
+         "ref": "LT20",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tiga lampu hias berkedip setiap 4 detik, 6 detik, dan 10 detik. Ketiganya berkedip bersamaan tepat pukul 20.00. Paling cepat, kapan ketiganya berkedip bersamaan lagi?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 126
+           },
+           "label": "A",
+           "body": "Pukul 20.01",
+           "is_correct": true,
+           "rationale": "Benar. KPK dari 4, 6, dan 10 adalah 60 detik = 1 menit, jadi pukul 20.01."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 127
+           },
+           "label": "B",
+           "body": "Pukul 20.60",
+           "is_correct": false,
+           "rationale": "KPK-nya tepat (60 detik), tetapi 60 detik adalah 1 menit, jadi pukul 20.01."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 128
+           },
+           "label": "C",
+           "body": "Pukul 20.04",
+           "is_correct": false,
+           "rationale": "Yang dipakai 4 × 6 × 10 = 240 detik (4 menit). Itu kelipatan persekutuan, tetapi bukan yang terkecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 129
+           },
+           "label": "D",
+           "body": "Pukul 20.00 lewat 12 detik",
+           "is_correct": false,
+           "rationale": "12 hanya KPK dari 4 dan 6. Lampu yang berkedip setiap 10 detik belum diperhitungkan."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
