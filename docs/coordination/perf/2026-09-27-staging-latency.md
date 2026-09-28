@@ -105,11 +105,30 @@ So after the link is clicked, about 10 s pass before the first screen, and about
 - **Prefetch sign-in checks (Bob's Q1), measured:** `proxy.ts` asks Auth for the user on every prefetched link, from the edge nearest the browser (IAD here). That is **6–10 checks per page view**, on top of the server calls above. Kept for now (the prefetch header can be forged). The concurrency run shows whether they matter under load.
 - **Harness notes:** the rename back was not timed correctly (its result matched the previous line; fixed for the next run), and its server calls fell into the teacher's sign-in window, so that window's count (45) is not used.
 
+## U-PERF: 30 active sessions for 10 minutes (28 Sep, 00:20–00:31 UTC)
+
+- **Run:** `perf · staging`, mode `sessions30`, run 36361820806, on staging serving `3b7f224` (after BOB-18). Three US runners, 10 sessions each: 15 as the synthetic school admin, 15 as the synthetic teacher, signed in over the first minute, then clicking through their menus with 3–8 s of reading between clicks for 10 minutes. One session also renamed the Bagian and renamed it back every fourth round.
+- **Result: no timeout and no error.** 3,004 steps and 2,429 menu clicks: **0 failed, 0 server errors (5xx) from PINTAR's pages, 0 errors in a page.**
+
+| | Shard 0 | Shard 1 | Shard 2 |
+|---|---|---|---|
+| Menu clicks | 825 | 829 | 775 |
+| Click p50 / p95 / max (ms) | 1,007 / 1,483 / 2,309 | 845 / 1,206 / 2,015 | 1,004 / 1,440 / 2,152 |
+| Clicks under 3 s | all | all | all |
+| Sign-ins p50 / max (ms), from the US runner, including making the session | 3,489 / 4,829 | 2,065 / 3,768 | 1,979 / 2,773 |
+
+- **Saves under load:** four renames, the result line after 1.39–1.47 s, and the name back as it was at the end.
+- **Supabase's side, same minutes:** 44,537 requests, **0 server errors, 0 rate-limit refusals (429)**. The database answered at p50 13 ms, p95 282 ms, max 1.4 s (edge logs, `response.origin_time`). No Postgres ERROR or FATAL lines.
+- **Two things to watch** (neither an error for the person):
+  - **Sign-in checks on prefetched links are 32% of all Supabase requests** (14,363 of 44,537: `proxy.ts` asking Auth for the user on every link the browser prefetches, from the edge nearest the browser). Harmless at 30 sessions; at the capacity track's scale (D-031) it is the first multiplier to remove, by checking the session without a network call. Backlog, after 5 Oct.
+  - **Konfigurasi asks `persons_awaiting_first_role` for every reader**, and the database refuses it for anyone but the platform admin: 338 refusals (400) in the run, one per school admin's Konfigurasi. Wasted work and log noise; the page should ask only the platform admin. Rides BOB-19's run (Daisy).
+- **Verdict against D-046(b):** single session and 30 sessions both meet every threshold. Measured from US runners, so each click also carries the trip to Singapore; people in Indonesia do not.
+
 ## Not the cause
 - **Supabase itself:** the same calls take about 19 ms from Singapore.
 - **The browser:** only 2 of 406 calls came from it.
 - **The database under load:** there was no test load.
 
 ## Not yet measured
-- **Concurrency** under expected internal-test use: needs staging test accounts and a runner script. It should be measured after the fixes, as the gate.
+- **Concurrency:** measured, above (30 sessions, 10 minutes, 28 Sep).
 - **Vercel cold starts:** their share can't be seen from Supabase's logs. The before and after run records `x-vercel-id` (edge and function region) and the time to first byte.
