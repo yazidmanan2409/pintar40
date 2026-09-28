@@ -22,8 +22,8 @@
     },
     "db-bob02-gates": {
       "suite": "selftest.run_fable11()",
-      "control_green": 6,
-      "what": "BOB-02's lesson package: the sample workbook materialised whole, the structured-package confirmation, a failed save that undoes its confirmation, coded problems, who may prepare or confirm, and media upload authority"
+      "control_green": 7,
+      "what": "BOB-02's lesson package: the sample workbook materialised whole, the structured-package confirmation, a failed save that undoes its confirmation, coded problems, who may prepare or confirm, and media upload authority; and BOB-11's staff preview of a school's unreleased media (F11-P04)"
     },
     "db-bob03-gates": {
       "suite": "selftest.run_fable12()",
@@ -347,6 +347,12 @@
       "gate": "db-bob02-gates",
       "expect_red": "F11-P03",
       "expect_detail": "after a failed save the batch is CONFIRMED"
+    },
+    {
+      "name": "bob02-11",
+      "gate": "db-bob02-gates",
+      "expect_red": "F11-P04",
+      "expect_detail": "a DEAN of the school (no draft, no review) was let preview"
     },
     {
       "name": "bob03-1",

@@ -1958,7 +1958,7 @@
     {
       "id": "BOB11-A01",
       "runner": "app",
-      "proves": "BOB-11 (M9; STU-11, ADM-10). Lesson media play: through the running app, the learner's own lesson page in src/app/belajar renders an <audio> whose src, /api/assets/read-url with alih=1, answers 302 to a signed storage URL that returns the lesson's audio; the lesson's author gets the same from the Studio preview through may_preview_lesson_media; a teacher of another school is refused 403; and read-url without alih still answers JSON with a 60-second URL.",
+      "proves": "BOB-11 (M9; STU-11, ADM-10). Lesson media play: through the running app, the rendered lesson page of the learner's own lesson (src/app/belajar) carries an <audio> whose src, the route /api/assets/read-url with alih=1, answers 302 to a signed storage URL that returns the lesson's audio file; the lesson's author gets the same from the rendered Studio preview through may_preview_lesson_media; a teacher of another school is refused 403; and the route without alih still answers JSON with a 60-second URL.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {
