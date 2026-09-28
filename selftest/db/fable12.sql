@@ -533,8 +533,10 @@ begin
       end if;
       perform selftest.as_owner();
 
-      -- every rule was met, and every code met is the catalogue's (terbitan-kontrak.ts KODE_HAMBATAN)
-      if (select array_agg(distinct x order by x) from unnest(v_seen) x) is distinct from array[
+      -- every rule was met, and every code met is the catalogue's (terbitan-kontrak.ts KODE_HAMBATAN).
+      -- Sorted in C order to match the literal: under a linguistic collation, as
+      -- on Supabase's stack, "_" weighs almost nothing and NO_RELEASE sorts before NOT_*.
+      if (select array_agg(x order by x collate "C") from (select distinct x from unnest(v_seen) x) d) is distinct from array[
           'READINESS_AWAITING_REVIEW', 'READINESS_ITEM_ERROR', 'READINESS_ITEM_WARNING', 'READINESS_NOT_SEALED',
           'READINESS_NOT_VALIDATED', 'READINESS_NO_RELEASE', 'READINESS_RETURNED', 'READINESS_TEXT_ERROR',
           'READINESS_TEXT_WARNING'] then
