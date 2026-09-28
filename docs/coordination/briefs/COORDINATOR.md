@@ -40,8 +40,10 @@ This is the coordinator's working state, so a new session can pick up without th
 
 - **Staff sign-in on shared school computers: Yazid decides on 29 Sep.** The discussion, evidence and blast radius are in `auth/2026-09-28-staff-signin-shared-computers.md`. In brief: email + password, a shared-computer idle sign-out with a "perangkat pribadi" option, and the PIN lock in 4.5. Six questions are listed there. The discussion was read-only: no tickets or decisions until he decides.
 
+- **Identity/login specification (Yazid, 28 Sep): architecture review done, awaiting his rulings.** See `auth/2026-09-28-identity-login-architecture-review.md`: current state, gap matrix, threat model, conflicts C1–C18, pilot boundary, Gates 0–8. Nothing is implemented until he approves. BOB-12 is a prerequisite and is still TODO.
+
 **Next for the coordinator:**
-0. Take Yazid's staff sign-in decision (the auth document), then record it and ticket it.
+0. Take Yazid's rulings on the identity/login review (C1–C18). Then record decisions, open tickets for Gates 0–8, and brief Bob and Daisy.
 1. Gate BOB-23 when handed off: the hand-off's browser measurement, CI, one audit, merge, then staging J09.
 2. Gate LANA-02 when handed off: her three checks on her commit, then `staging-journey.yml` with `content_ref` = her sha and `chapter` = `SD5-Matematika-Bab2`, a read of a sample, then merge.
 3. Daisy: the reader walk against `ux/UX-POLISH-REGISTER.md` (UX-01…06), for the UI/UX POLISHED gate.
