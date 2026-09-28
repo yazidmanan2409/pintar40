@@ -64,8 +64,15 @@ for (const c of JSON.parse(readFileSync(KEY_JSON, "utf8")).courses)
 const MEDIA = JSON.parse(readFileSync(KEY_JSON, "utf8")).courses.flatMap((c) => c.modules.flatMap((m) =>
   m.lessons.flatMap((l) => (l.media ?? []).map((x) => x.file))));
 
-// How many each student answers right: pre-test of 4, post-test of 8 (the workbook's marked questions)
-const PLAN = [{ pre: 2, post: 7 }, { pre: 1, post: 6 }, { pre: 0, post: 5 }, { pre: 3, post: 8 }, { pre: 2, post: 4 }];
+// The chapter's shape, from its own package: lessons, questions, and the questions marked for each test
+const PAKET = JSON.parse(readFileSync(KEY_JSON, "utf8")).courses[0];
+const LESSONS = PAKET.modules.flatMap((m) => m.lessons);
+const ITEMS = LESSONS.flatMap((l) => l.items ?? []);
+const N_PRE = ITEMS.filter((i) => i.use === "PRE_TEST").length;
+const N_POST = ITEMS.filter((i) => i.use === "POST_TEST").length;
+// How many each student answers right, as a share of each test (for 4 and 8 marked questions: 2/7, 1/6, 0/5, 3/8, 2/4)
+const PLAN = [[0.5, 0.875], [0.25, 0.75], [0, 0.625], [0.75, 1], [0.5, 0.5]]
+  .map(([a, b]) => ({ pre: Math.round(a * N_PRE), post: Math.round(b * N_POST) }));
 const names = PLAN.map((_, i) => `Siswa Uji ${TAG}-${i + 1} (sintetis)`);
 
 // ---------------------------------------------------------------- steps, evidence, secrets
@@ -274,7 +281,7 @@ await step("J04", "the teacher uploads SD 5 Matematika Bab 1 (workbook) in Studi
       (select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id = ${uuid(course)}) || ' questions; tests: ' ||
       coalesce((select string_agg(mode::text || ' ' || item_count, ', ' order by mode::text) from public.assessment_definitions where course_id = ${uuid(course)}), 'none')`);
   notes.push(`saved as a draft; course ${course.slice(0, 8)}: ${counts}`);
-  if (!/6 lessons, 28 questions/.test(counts) || !/POST_TEST 8/.test(counts) || !/PRE_TEST 4/.test(counts)) rec.verdict = "FAIL";
+  if (!counts.includes(`${LESSONS.length} lessons, ${ITEMS.length} questions`) || !counts.includes(`POST_TEST ${N_POST}`) || !counts.includes(`PRE_TEST ${N_PRE}`)) rec.verdict = "FAIL";
   return notes.join("; ");
 });
 
@@ -392,7 +399,7 @@ await step("J06", `the teacher assigns the published lesson to ${KELAS} (Mengaja
   if (!tugas) { rec.verdict = "FAIL"; return `nothing was assigned; the page: ${(await text(G)).slice(0, 300)}`; }
   const aa = sql(`select string_agg(d.mode::text || ' ' || d.item_count || ' soal ' || aa.status::text, ', ' order by d.mode::text)
     from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id where aa.learning_assignment_id = ${uuid(tugas)}`);
-  if (!/POST_TEST 8/.test(aa) || !/PRE_TEST 4/.test(aa)) rec.verdict = "FAIL";
+  if (!aa.includes(`POST_TEST ${N_POST} soal`) || !aa.includes(`PRE_TEST ${N_PRE} soal`)) rec.verdict = "FAIL";
   return `before committing, the page said: "${terima.slice(0, 260)}"; assigned until ${sampai}; tests: ${aa}; after Sediakan: ${new URL(G.url()).pathname}${new URL(G.url()).search}`;
 });
 
@@ -459,15 +466,16 @@ await step("J07", "student 1 signs in with the class card on /masuk and lands on
   rec.shots.push(await shot(S, "siswa1-belajar"));
   const h1 = norm(await S.locator("h1").first().innerText());
   const panel = await text(S, "section.pin-lanjut");
-  const link = await S.locator(`section.pin-lanjut a[href^="/belajar/${tugas}"]`).count();
+  const link = await S.locator(`a[href^="/belajar/${tugas}"]`).count();
+  const inPanel = await S.locator(`section.pin-lanjut a[href^="/belajar/${tugas}"]`).count();
   if (landed !== "/belajar" || !link) rec.verdict = "FAIL";
-  return `landed on ${landed}; tour shown and skipped: ${tour}; h1 "${h1}"; next-action panel: "${panel.slice(0, 160)}"; links to the assignment: ${link}`;
+  return `landed on ${landed}; tour shown and skipped: ${tour}; h1 "${h1}"; next-action panel: "${panel.slice(0, 160)}"; links to this run's assignment: ${link} (${inPanel} in the next-action panel)`;
 });
 
 await step("J08", "student 1 opens the lesson from the home, starts the pre-test and answers all of it (2 of 4 right, by plan)", ["STU-04", "STU-05", "STU-06", "STU-07", "STU-10", "X-06"], async (rec) => {
   rec.page = S;
   if (!tugas || !cards[0]) return blocked(rec, "J07 did not get in");
-  await S.locator(`section.pin-lanjut a[href="/belajar/${tugas}"]`).first().click();
+  await S.locator(`a[href="/belajar/${tugas}"]`).first().click();
   await S.waitForURL((u) => u.pathname === `/belajar/${tugas}`, { timeout: SLOW });
   await S.locator("h1").first().waitFor({ timeout: SLOW });
   rec.shots.push(await shot(S, "siswa1-tugas"));
@@ -569,10 +577,10 @@ async function hasil(page, plan) {
   const m = t.match(/Terjawab tepat (\d+) dari (\d+) soal/);
   const big = norm(await page.locator("p.pin-big2").first().innerText().catch(() => ""));
   const delta = t.match(/(\d+)\s*%\s*→\s*(\d+)\s*%/);
-  const want = { right: plan.post, of: 8, pct: Math.round((100 * plan.post) / 8), pre: Math.round((100 * plan.pre) / 4) };
+  const want = { right: plan.post, of: N_POST, pct: Math.round((100 * plan.post) / N_POST), pre: Math.round((100 * plan.pre) / N_PRE) };
   const ok = m && Number(m[1]) === want.right && Number(m[2]) === want.of && Math.abs(parseInt(big, 10) - want.pct) <= 1
     && (!delta || (Math.abs(Number(delta[1]) - want.pre) <= 1 && Math.abs(Number(delta[2]) - want.pct) <= 1));
-  return { ok, said: `${big}; "${m?.[0] ?? "no 'Terjawab tepat' line"}"; change ${delta ? `${delta[1]}% → ${delta[2]}%` : "not shown"}`, want: `${want.right}/8 = ${want.pct}%, pre ${want.pre}%`, t };
+  return { ok, said: `${big}; "${m?.[0] ?? "no 'Terjawab tepat' line"}"; change ${delta ? `${delta[1]}% → ${delta[2]}%` : "not shown"}`, want: `${want.right}/${N_POST} = ${want.pct}%, pre ${want.pre}%`, t };
 }
 await step("J12", "student 1 reads the result: the numbers match what was answered; review; what next", ["STU-15", "STU-16", "STU-17", "STU-18", "X-09"], async (rec) => {
   rec.page = S;
@@ -600,6 +608,8 @@ await step("J13", "students 2-5 sign in with their cards and take both tests to 
     rec.page = P;
     try {
       await masukKartu(P, cards[i]); await closeTour(P);
+      await P.locator(`a[href="/belajar/${tugas}"]`).first().click();
+      await P.waitForURL((u) => u.pathname === `/belajar/${tugas}`, { timeout: SLOW });
       await P.locator("section.pin-lanjut").getByRole("link", { name: "Mulai", exact: true }).click();
       await P.waitForURL((u) => u.pathname === `/belajar/${tugas}/pemetaan`, { timeout: SLOW });
       await P.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
@@ -756,7 +766,7 @@ await step("Q6", "question health (Head of Department)", ["HOD-06"], async (rec)
 
 await browser.close();
 const byVerdict = steps.reduce((m, s) => ((m[s.verdict] = (m[s.verdict] ?? 0) + 1), m), {});
-writeFileSync(join(OUT, "journey.json"), JSON.stringify({ tag: TAG, school: SID, kelas: KID, course, release, tugas, cepat, plan: PLAN, steps, seen }, null, 2));
+writeFileSync(join(OUT, "journey.json"), JSON.stringify({ tag: TAG, school: SID, kelas: KID, course, release, tugas, cepat, plan: PLAN, shape: { lessons: LESSONS.length, items: ITEMS.length, pre: N_PRE, post: N_POST }, steps, seen }, null, 2));
 log(`\nTALLY ${JSON.stringify(byVerdict)}; server 5xx ${seen.server5xx.length}; page errors ${seen.pageErrors.length}`);
 for (const e of [...seen.server5xx, ...seen.pageErrors].slice(0, 20)) log(`  ${JSON.stringify(e)}`);
 if (steps.some((s) => s.verdict === "FAIL")) process.exitCode = 1;
