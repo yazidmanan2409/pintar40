@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 103,
+  "version": 104,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1972,6 +1972,11 @@
       "id": "BOB17-K01",
       "runner": "static",
       "proves": "BOB-17 (D-011; M7). The codes publish_readiness and studio_package_state can return, read from the source file of their newest migration, are exactly KODE_HAMBATAN in src/lib/terbitan-kontrak.ts, neither function writes a sentence, and the codes that block are the ones the database blocks on; every code and pattern has its words in both languages naming no machinery; a planted sentence, a bare string and an unknown pattern each render through kalimatHambatan as the copy table's line, never themselves; the Terbit step (LangkahTerbit.tsx) and the package page draw every blocker through kalimatHambatan; and the four unused release form actions are gone from src/app/studio/actions.ts."
+    },
+    {
+      "id": "BOB22-K01",
+      "runner": "static",
+      "proves": "BOB-22. One meaning for a saved lesson position, pages reached (1 to N): in the source file src/lib/siklus.ts, a learner stepping through lessons of 1 to 8 pages and saving exactly what LessonPlayer saves (posisiTersimpan, the page's index + 1), the furthest kept, is read by lessonRead only once on the last page, never saves beyond the total, and resumes through halamanMulai on the page they were on; three lessons read to their last page put posisi at the Uji Penguasaan; src/app/belajar/_components/LessonPlayer.tsx saves and resumes through those two helpers."
     },
     {
       "id": "BOB08-K01",

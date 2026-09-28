@@ -22,6 +22,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { t } from "@/lib/hle";
+import { halamanMulai, posisiTersimpan } from "@/lib/siklus";
 
 export type LessonPlayerProps = {
   learningAssignmentId: string;
@@ -86,15 +87,17 @@ export default function LessonPlayer(props: LessonPlayerProps) {
   const [page, setPage] = useState(() => {
     let local = 0;
     try { local = Number(window.localStorage.getItem(localKey) ?? 0); } catch { /* unavailable */ }
-    // never resume behind what the server already recorded
-    return Math.min(pages.length - 1, Math.max(props.startAt, Number.isFinite(local) ? local : 0));
+    // never resume behind what the server already recorded. The server keeps
+    // a count of pages reached (BOB-22); this device keeps the page index.
+    return Math.min(pages.length - 1, Math.max(halamanMulai(props.startAt, pages.length), Number.isFinite(local) ? local : 0));
   });
   const [steps, setSteps] = useState(1);
 
   const record = useCallback((p: number) => {
     try { window.localStorage.setItem(localKey, String(Math.max(p, Number(window.localStorage.getItem(localKey) ?? 0)))); }
     catch { /* unavailable */ }
-    void props.saveProgress(props.learningAssignmentId, props.lessonId, p, pages.length);
+    // saved as pages reached (BOB-22): the last page of N saves N, which reads as read
+    void props.saveProgress(props.learningAssignmentId, props.lessonId, posisiTersimpan(p), pages.length);
   }, [localKey, pages.length, props]);
 
   useEffect(() => { record(page); }, [page, record]);
