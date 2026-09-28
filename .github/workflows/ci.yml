@@ -225,7 +225,7 @@ jobs:
             db-bob02-gates)
               echo "the eleven lesson-package and media-preview defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob03-gates)
-              echo "the nine release-path defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the eleven release-path and readiness-code defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob04-gates)
               echo "the nine learning-cycle defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob06-gates)
