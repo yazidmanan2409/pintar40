@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 98,
+  "version": 100,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -528,7 +528,7 @@
     {
       "id": "F04-T15",
       "runner": "db",
-      "proves": "INV-35 / doc 16 §4 — the four adversarial MCQ banks (correct option 2-3x longer, ~70% of answers in one position, an implausible distractor, the correct option copying stem wording) each make Publish Readiness report BLOCKED or ACTION_REQUIRED NAMING that pattern and no other, and each clears to READY only after the content itself is repaired; a clean control bank reaches READY unaided"
+      "proves": "INV-35 / doc 16 §4 — the four adversarial MCQ banks (correct option 2-3x longer, ~70% of answers in one position, an implausible distractor, the correct option copying stem wording) each make Publish Readiness report BLOCKED or ACTION_REQUIRED NAMING that pattern and no other, and each clears to READY only after the content itself is repaired; a clean control bank reaches READY unaided. Restated for BOB-17 (D-011): the blocker names its pattern as a parameter of its code (READINESS_ITEM_ERROR or READINESS_ITEM_WARNING), not inside a sentence."
     },
     {
       "id": "F04-T16",
@@ -677,7 +677,7 @@
     {
       "id": "F05-T19",
       "runner": "db",
-      "proves": "one calm surface state with plain-language reasons carrying no lifecycle enum or version string; no zero-count card; findings keep the four coaching fields",
+      "proves": "one calm surface state with plain-language reasons carrying no lifecycle enum or version string; no zero-count card; findings keep the four coaching fields. Restated for BOB-17 (D-011): the reasons are blocker codes, and the parameters shown beside a code's words (the lesson, the pattern) carry no lifecycle enum or version string.",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
@@ -1888,6 +1888,16 @@
       "proves": "BOB-03 (D-041). Releases change only through their functions: a teacher's direct insert into plp_releases naming the head of department as author and an admin's direct update of a published release are both refused by the database (42501, no client grant), no write policy remains on plp_releases, and signed-in staff still read the school's releases."
     },
     {
+      "id": "F12-P04",
+      "runner": "db",
+      "proves": "BOB-17 (D-011; M7). Every readiness rule is its own code with its parameters: with findings planted, publish_readiness answers READINESS_TEXT_ERROR and READINESS_TEXT_WARNING per lesson (and one for the course as a whole) and READINESS_ITEM_ERROR and READINESS_ITEM_WARNING per lesson and pattern, each with its count, lesson and pattern and no sentence, BLOCKED for an error, ACTION_REQUIRED for warnings alone and READY with [] once all are acknowledged; studio_package_state adds READINESS_AWAITING_REVIEW, READINESS_NO_RELEASE, READINESS_NOT_SEALED, READINESS_NOT_VALIDATED and READINESS_RETURNED (BLOCKED) as the package walks through those states; the nine codes met are exactly the catalogue's."
+    },
+    {
+      "id": "F12-P05",
+      "runner": "db",
+      "proves": "BOB-17 gate review. publish_readiness is internal: in the suite selftest/db/fable12.sql, a learner of another school and another school's administrator calling it directly on a school's draft course are each refused 42501 and read nothing; authenticated holds no execute on it and client_rpc_registry no longer offers it; the school's administrator still reads the package's state through studio_package_state, and the head of department's freeze, which reads readiness inside, seals the course."
+    },
+    {
       "id": "F13-N03",
       "runner": "db",
       "proves": "BOB-04 (D-040). prepare_ingest_batch refuses a package whose two pre-test questions share their parallel groups with its two post-test questions: ok=false with ITEM_PARALLEL_CYCLE_MIXED and nothing else, at Soal rows 2, 3, 4 and 5 -- every question of those groups; the same package with separate groups prepares cleanly."
@@ -1929,6 +1939,11 @@
       "proves": "BOB-18 (D-046). vercel.json sets the functions' region to sin1, beside both Supabase projects in ap-southeast-1; studioInstitutionsDari in the source file src/app/studio/_lib.ts, driven with a recording client, asks studio_capabilities once with the eight Studio capabilities and nothing else, offers only schools holding a capability, sorted by name, and none when the call fails; currentViewer and isSystemAdmin in src/lib/auth.ts, peranSaya in src/lib/tur-negara.ts and studioInstitutions are React per-request caches, and peranSaya takes the person from the viewer; viewerDari in src/lib/auth.ts, driven, makes no call without a session cookie and, with one, asks for the user and my_profile side by side."
     },
     {
+      "id": "BOB17-K01",
+      "runner": "static",
+      "proves": "BOB-17 (D-011; M7). The codes publish_readiness and studio_package_state can return, read from the source file of their newest migration, are exactly KODE_HAMBATAN in src/lib/terbitan-kontrak.ts, neither function writes a sentence, and the codes that block are the ones the database blocks on; every code and pattern has its words in both languages naming no machinery; a planted sentence, a bare string and an unknown pattern each render through kalimatHambatan as the copy table's line, never themselves; the Terbit step (LangkahTerbit.tsx) and the package page draw every blocker through kalimatHambatan; and the four unused release form actions are gone from src/app/studio/actions.ts."
+    },
+    {
       "id": "BOB08-K01",
       "runner": "static",
       "proves": "BOB-08 (d, g). The structure helper struktur() in the source file src/app/konfigurasi/actions.ts re-reads the list once on each path: before a refusal returns (it re-read only after a success) and after a success, as DAISY-05-STRUKTUR-01 also holds; lingkupPimpinanDari in src/lib/pimpinan.ts, driven with a revoked, an expired, a not-yet-begun and an active grant, offers only the active one's node in the Pimpinan picker."
@@ -1959,6 +1974,12 @@
       "id": "BOB11-A01",
       "runner": "app",
       "proves": "BOB-11 (M9; STU-11, ADM-10). Lesson media play: through the running app, the rendered lesson page of the learner's own lesson (src/app/belajar) carries an <audio> whose src, the route /api/assets/read-url with alih=1, answers 302 to a signed storage URL that returns the lesson's audio file; the lesson's author gets the same from the rendered Studio preview through may_preview_lesson_media; a teacher of another school is refused 403; and the route without alih still answers JSON with a 60-second URL.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB11-A02",
+      "runner": "app",
+      "proves": "BOB-11 gate review. The one-hour media link is lesson media's only: through the running app's route /api/assets/read-url, the signed URL storage issued, read from its token's exp - iat, is valid for 3600 seconds only for a lesson's audio with alih=1; the learner's own profile photo is signed for 60 seconds with and without alih, and lesson media without alih for 60 seconds.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {

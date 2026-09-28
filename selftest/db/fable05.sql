@@ -79,7 +79,7 @@ language plpgsql set search_path = public, pg_temp as $$
 declare
   v_canon uuid; v_guru uuid; v_admin uuid; v_course uuid; v_mod uuid; v_les uuid;
   v_defn uuid; v_rel uuid; ob1 uuid; ob2 uuid; spec jsonb; entry jsonb; opt jsonb;
-  it uuid; t text; v_status text; v_blockers text[]; tag text;
+  it uuid; t text; v_status text; v_blockers jsonb; tag text;
 begin
   select i.id into v_canon from public.institutions i where i.tenant_kind = 'PLATFORM_CANONICAL' limit 1;
   if v_canon is null then raise exception 'no PLATFORM_CANONICAL tenant exists'; end if;
@@ -89,7 +89,11 @@ begin
   if v_course is not null then
     select m.id into v_mod from public.modules m where m.course_id = v_course order by m.ordinal limit 1;
     select l.id into v_les from public.lessons l where l.module_id = v_mod order by l.ordinal limit 1;
-    select d.id into v_defn from public.assessment_definitions d where d.module_id = v_mod limit 1;
+    -- the canonical tenant's own definition: a school's quick paper on this
+    -- module (FABLE-05 T1, committed on a shared stack) is not the package's,
+    -- and without an order the heap decided which one came back
+    select d.id into v_defn from public.assessment_definitions d
+     where d.module_id = v_mod and d.institution_id = v_canon order by d.created_at, d.id limit 1;
       select r.id into v_rel from public.plp_releases r
      where r.course_id = v_course order by r.created_at limit 1;
     canon := v_canon; course := v_course; modul := v_mod; les := v_les; defn := v_defn; rel := v_rel;
@@ -220,7 +224,7 @@ begin
   select pr.status, pr.blockers into v_status, v_blockers from public.publish_readiness(v_course) pr;
   if v_status <> 'READY' then
     raise exception 'the canonical fixture is not publishable (%): % -- fix the fixture, never the gate',
-      v_status, array_to_string(v_blockers, '; ');
+      v_status, v_blockers::text;
   end if;
 
   perform selftest.as_user('kanonik-admin@pintar.test');
@@ -461,7 +465,7 @@ declare
   v_rev uuid; v_rel2 uuid; v_hash_before text; v_hash_after text;
   v_priv_a uuid; v_priv_b uuid; v_sess record; v_state record; v_lint jsonb;
   v_def2 uuid; v_new boolean; v_row record; v_brel uuid; v_item uuid;
-  v_guru uuid; v_admin uuid; v_status text; v_blockers text[];
+  v_guru uuid; v_admin uuid; v_status text; v_blockers jsonb;
   t0 timestamptz := clock_timestamp();
 begin
   perform selftest.as_owner();
@@ -1009,7 +1013,7 @@ begin
     if v_status <> 'READY' then
       ok := false;
       detail := detail || format('the revision is not publishable (%s): %s; ', v_status,
-                                 array_to_string(v_blockers, '; '));
+                                 v_blockers::text);
     end if;
     select a.person_id into v_guru from public.accounts a join auth.users u on u.id = a.auth_user_id
      where u.email = 'kanonik-penyusun@pintar.test';
@@ -1341,11 +1345,17 @@ begin
   if v_state.surface_state = 'READY' then
     ok := false; detail := detail || 'an unvalidated, unapproved, unsealed package read as READY; ';
   end if;
-  foreach r in array coalesce(v_state.reasons, '{}'::text[]) loop
-    if r ~ '(INGESTED|STRUCTURED|VALIDATED|VALIDATION_FAILED|IN_REVIEW|APPROVED|FROZEN|PUBLISHED|SUPERSEDED)'
-       or r ~ '[0-9]+\.[0-9]+\.[0-9]+' then
-      ok := false; detail := detail || format('a lifecycle enum or version string reached the surface: %s; ', r);
-    end if;
+  -- RESTATED FOR BOB-17 (D-011; a changed requirement): each reason is a code
+  -- with parameters, and the words on screen are the copy table's. So every
+  -- reason must be a coded object, and what is shown beside the code's words
+  -- -- the lesson's title, the pattern -- must carry no lifecycle enum or
+  -- version string. (A code such as READINESS_NOT_VALIDATED is not shown.)
+  for r in select e::text from jsonb_array_elements(coalesce(v_state.reasons, '[]'::jsonb)) e
+            where jsonb_typeof(e) <> 'object' or not (e ? 'code')
+               or coalesce(e ->> 'lesson', '') || ' ' || coalesce(e ->> 'pattern', '')
+                  ~ '(INGESTED|STRUCTURED|VALIDATED|VALIDATION_FAILED|IN_REVIEW|APPROVED|FROZEN|PUBLISHED|SUPERSEDED)'
+               or coalesce(e ->> 'lesson', '') || ' ' || coalesce(e ->> 'pattern', '') ~ '[0-9]+\.[0-9]+\.[0-9]+' loop
+    ok := false; detail := detail || format('a reason is not a code, or carries a lifecycle enum or version string: %s; ', r);
   end loop;
   select count(*) into n from public.studio_home() where count = 0;
   if n <> 0 then ok := false; detail := detail || format('%s zero-count card(s) rendered; ', n); end if;
@@ -1367,7 +1377,7 @@ begin
     ok := false; detail := detail || 'a finding no longer carries the four coaching fields; ';
   end if;
   test_id := 'F05-T19'; invariant := 'FABLE-05 §5 / §12 / INV-35';
-  if ok then detail := 'the package state is one of three surface words with plain-language reasons carrying no lifecycle enum or version string, the home renders no zero card, and both finding tables still carry the four coaching fields'; end if;
+  if ok then detail := 'the package state is one of three surface words with its reasons as blocker codes (BOB-17) whose shown parameters carry no lifecycle enum or version string, the home renders no zero card, and both finding tables still carry the four coaching fields'; end if;
   return next;
 
   -- =========================================================================

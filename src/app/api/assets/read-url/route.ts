@@ -56,9 +56,11 @@ export async function GET(request: NextRequest) {
 
   // A media element fetches in ranges for as long as the lesson is open, and
   // the browser keeps the URL it was redirected to; a 60-second URL would
-  // stop a video that is paused or sought after a minute. The JSON answer
-  // keeps its 60 seconds: whoever reads it fetches at once.
-  const umur = alih ? MEDIA_URL_SECONDS : 60;
+  // stop a video that is paused or sought after a minute. The hour is lesson
+  // media's only: a profile photo is an <img> fetched at once, so it keeps its
+  // 60 seconds with or without alih, and so does the JSON answer, which
+  // whoever reads it fetches at once.
+  const umur = alih && lesson ? MEDIA_URL_SECONDS : 60;
   const { data, error } = await supabaseService().storage.from("assets").createSignedUrl(path, umur);
   if (error || !data) return NextResponse.json({ error: "not_found" }, { status: 404 });
   if (alih) {

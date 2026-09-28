@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
-import { kunciKodeTerbitan, type HasilTerbitan } from "@/lib/terbitan-kontrak";
+import { kalimatHambatan, kunciKodeTerbitan, type HasilTerbitan } from "@/lib/terbitan-kontrak";
 import {
   advanceContentAction, buatTerbitanAksi, kunciTerbitanAksi, tarikTerbitanAksi, terbitkanAksi,
 } from "@/app/studio/actions";
@@ -106,7 +106,8 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
         {h.hambatan && h.hambatan.length > 0 ? (
           <>
             <p className="pin-lt-hambatan">{s("studio.langkah.hambatan")}</p>
-            <ul>{h.hambatan.map((x) => <li key={x}>{x}</li>)}</ul>
+            {/* BOB-17 (D-011): each blocker is a code; its line comes from the copy table */}
+            <ul>{h.hambatan.map((x, i) => <li key={`${x.code}-${x.lesson_id ?? ""}-${x.pattern ?? ""}-${i}`}>{kalimatHambatan(x, s, (n) => format.number(n, locale))}</li>)}</ul>
           </>
         ) : null}
       </BarisHasil>
