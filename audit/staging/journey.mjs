@@ -85,7 +85,8 @@ async function step(id, title, rows, fn) {
   try { rec.note = (await fn(rec)) ?? rec.note; }
   catch (e) {
     rec.verdict = "FAIL"; rec.kind ||= "unclassified";
-    rec.note = `${rec.note ? `${rec.note} | ` : ""}stopped: ${String(e.message || e).split("\n")[0].slice(0, 300)}`;
+    const at = rec.page ? ` (at ${new URL(rec.page.url()).pathname}${new URL(rec.page.url()).search})` : "";
+    rec.note = `${rec.note ? `${rec.note} | ` : ""}stopped: ${String(e.message || e).split("\n")[0].slice(0, 300)}${at}`;
     if (rec.page) rec.shots.push(await shot(rec.page, `${id}-stopped`));
   }
   rec.ms = Date.now() - t0;
@@ -224,8 +225,18 @@ await step("J03", "the admin makes a class card for each student (Aktivasi → B
 });
 
 let course = null;
+let release = null;
+let reused = null;
+if (process.env.REUSE_PUBLISHED === "true") {
+  reused = sql(`select c.id || '|' || r.id from public.courses c join public.plp_releases r on r.course_id = c.id
+    where c.institution_id = ${uuid(SID)} and r.status = 'PUBLISHED'
+      and not exists (select 1 from public.learning_assignments la where la.plp_release_id = r.id)
+    order by r.published_at desc nulls last limit 1`) || null;
+  if (reused) [course] = reused.split("|");
+}
 await step("J04", "the teacher uploads SD 5 Matematika Bab 1 (workbook) in Studio: check, media, save", ["ADM-09", "X-02"], async (rec) => {
   rec.page = G;
+  if (reused) { rec.verdict = "NOTE"; return `REUSED: course ${course.slice(0, 8)}, uploaded and published by an earlier run of this journey (reuse_published); not uploaded again`; }
   await lihat(G, "/studio/unggah");
   const sel = G.locator("#ung-sekolah");
   await sel.waitFor({ state: "visible", timeout: SLOW });
@@ -300,9 +311,12 @@ async function tinjauSemua(page) {
   }
   return n;
 }
-let release = null;
 await step("J05", "Studio to published with two people: the teacher prepares and submits; the admin reviews findings, approves, locks, publishes", ["ADM-11", "ADM-12", "X-03", "X-04"], async (rec) => {
   if (!course) return blocked(rec, "J04 saved no course");
+  if (reused) {
+    release = reused.split("|")[1];
+    rec.verdict = "NOTE"; return `REUSED: release ${release.slice(0, 8)} already PUBLISHED by an earlier run (state ${keadaan()}); not published again`;
+  }
   const notes = [`start ${keadaan()}`];
   for (const [label, name] of [["Tandai sudah tersusun", "susun"], ["Tandai lolos pemeriksaan", "periksa"], ["Ajukan untuk ditinjau", "ajukan"]]) {
     rec.page = G;
@@ -353,7 +367,9 @@ await step("J06", `the teacher assigns the published lesson to ${KELAS} (Mengaja
   rec.page = G;
   if (!release) return blocked(rec, "J05 published nothing");
   await lihat(G, "/mengajar");
-  const k = G.locator('a[href^="/mengajar/"]').filter({ hasText: KELAS }).first();
+  const links = await G.locator(`a[href^="/mengajar/${KID}"]`).evaluateAll((as) => as.map((a) => `${a.getAttribute("href")} "${a.textContent.trim().slice(0, 40)}"`));
+  const k = G.locator(`a[href="/mengajar/${KID}"], a[href^="/mengajar/${KID}?"]`).first();
+  if (!(await k.count())) { rec.verdict = "FAIL"; return `no link to the class itself on /mengajar; links there into the class: ${JSON.stringify(links)}`; }
   await k.click();
   await G.waitForURL((u) => u.pathname === `/mengajar/${KID}`, { timeout: SLOW });
   await closeTour(G);
