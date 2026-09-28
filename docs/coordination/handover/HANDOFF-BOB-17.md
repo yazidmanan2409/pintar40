@@ -1,8 +1,8 @@
 # Bob → coordinator: BOB-17 (release blockers speak in codes, D-011; audit M7)
 
-**Head:** `FIXED_HEAD`, which carries the gate finding's fix and #212's fix, both below. It gets **its own run, `FIXED_RUN`**, because the hand-off changed materially. Daisy merges this head only when that run is green.
+**Head:** `8f141d0`, which carries the gate finding's fix and #212's fix, both below; its last commit is docs only. It gets **its own run, `ci #213`**, because the hand-off changed materially. Daisy merges this head only when that run is green.
 
-**#212 on `cf025b3`: red, and what it did and did not prove.** 24 jobs were green, one was red (`red case · db-bob03-gates`), and **`selftest contract (strict, local stack)` was skipped**, because it waits on the red cases. So #212 ran no suite: BOB11-A02 has not yet run against real storage, and F12-P04 met a real Supabase database for the first time in that red job. `FIXED_RUN` is the first run of both.
+**#212 on `cf025b3`: red, and what it did and did not prove.** 24 jobs were green, one was red (`red case · db-bob03-gates`), and **`selftest contract (strict, local stack)` was skipped**, because it waits on the red cases. So #212 ran no suite: BOB11-A02 has not yet run against real storage, and F12-P04 met a real Supabase database for the first time in that red job. `ci #213` is the first run of both.
 
 **Merge conflicts, resolved as agreed:**
 - `selftest/app.test.ts`: BOB19-A01 and BOB11-A02 both kept.
@@ -94,13 +94,17 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-**`FIXED_RUN` on `FIXED_HEAD`**, dispatched once and not waited on; please read the result there. It covers BOB-17 on top of Integration 12, the gate finding and #212's fix. Before it, ci #212 ran on `cf025b3` (see the head note above).
+**`ci #213` on `8f141d0`**, dispatched once and not waited on; please read the result there. It covers BOB-17 on top of Integration 12, the gate finding and #212's fix. Before it, ci #212 ran on `cf025b3` (see the head note above).
 - **Local, before dispatch:** on the merged head `cf025b3`:
   - **Full suite, fresh database:** 353 passed. F01-R07 fails, as it always does locally. 28 justified skips: the network tests, BOB11-A02 and BOB19-A01 among them.
   - **Plants:** 81 of 81 proved their gate.
   - **Shared red cases:** all 15 db-* red-case gates ran on one shared stack. Each exited 0, the schema digest stayed the same, and every recheck was 235 of 235.
   - **Seed and history:** the migration history matches the repo (122 files), and the seeds and lifecycle load.
-- **Local on the fixed head `FIXED_HEAD`, every database `en-US` ICU as on CI's stack:** FIXED_LOCAL
+- **Local on the fixed head `8f141d0`, every database `en-US` ICU as on CI's stack:** 
+  - **Plants:** 82 of 82 proved their gate, on a copy taken straight after the seeds, as CI's plant jobs are. Every gate's control is green, `db-bob03-gates` with 8 rows.
+  - **Full suite, fresh database:** 354 passed. F01-R07 fails, as it always does locally. 28 justified skips.
+  - **Shared red cases:** all 15 gates exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 236 of 236.
+  - **Seed and history:** the migration history matches the repo (122 files).
 - One run, no new job.
 
 ## CONTRACT
@@ -132,4 +136,4 @@ None. Noted for BOB-13, as you asked: `may_preview_lesson_media` and `may_read_l
 
 ## READY
 
-Yes: `FIXED_HEAD`, once `FIXED_RUN` is green. Daisy merges it only then.
+Yes: `8f141d0`, once `ci #213` is green. Daisy merges it only then.
