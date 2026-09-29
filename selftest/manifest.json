@@ -2001,7 +2001,7 @@
     {
       "id": "BOB12-K02",
       "runner": "static",
-      "proves": "BOB-12 (a): the real Supabase client driven through fetchBerpenerus (src/lib/auth-forwarding.ts) with a recording fetch sends the secret key and sb-forwarded-for only on POST /auth/v1/token (password, refresh_token) and POST /auth/v1/verify; no data request, lookalike path, other method, grant or host carries the key; a forged sb-forwarded-for or x-forwarded-for is never believed, the address is x-real-ip only; and src/proxy.ts refreshes through it while src/lib/supabase/service.ts never does."
+      "proves": "BOB-12 (a): the real Supabase client driven through fetchBerpenerus (the source file src/lib/auth-forwarding.ts) with a recording fetch sends the secret key and sb-forwarded-for only on POST /auth/v1/token (password, refresh_token) and POST /auth/v1/verify; no data request, lookalike path, other method, grant or host carries the key; a forged sb-forwarded-for or x-forwarded-for is never believed, the address is x-real-ip only; and src/proxy.ts refreshes through it while src/lib/supabase/service.ts never does."
     },
     {
       "id": "F15-P01",
