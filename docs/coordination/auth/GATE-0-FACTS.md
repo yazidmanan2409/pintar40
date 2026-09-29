@@ -1,6 +1,6 @@
 # Identity Gate 0: external facts (C-09)
 
-**Status: Gate 0 DONE (29 Sep).** Automated reads done; M1–M5 satisfied. Two items are carried forward, not open: M6 goes into BOB-25's acceptance (after its first staging send), and the Stellar Business upgrade is readiness-triggered: before broader real-user rollout, after the testing stage (D-053 as amended 29 Sep). M7 is optional (§3).
+**Status: Gate 0 DONE (29 Sep).** Automated reads done; M1–M5 satisfied. M6 goes into BOB-25's acceptance (after its first staging send). M7 is optional (§3). **Email capacity is CLOSED (Yazid, 29 Sep): Yazid upgrades the mail plan when PINTAR is ready. It is not an open item, a blocker or a question, and no lane or report raises it with him again.**
 
 **Sources, all read-only:**
 - `identity-facts.yml` runs 36500989135 and 36501186293: Supabase Auth settings, allow-listed and non-secret; template bodies hashed, never printed; DNS via `dig` on a GitHub runner.
