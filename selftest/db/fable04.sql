@@ -303,6 +303,7 @@ declare
   v_before text; v_after text; v_pos int; v_inst uuid; v_sess uuid;
   bad text; v_def2 uuid; v_course uuid; v_status text; v_blockers jsonb;
   v_demo uuid; v_enr uuid; v_taught uuid;
+  v_judul_cepat text;  -- BOB-33 (F04-T04c)
   t0 timestamptz := clock_timestamp();
 begin
   perform selftest.as_owner();
@@ -471,6 +472,53 @@ begin
   test_id := 'F04-T04'; invariant := 'doc 07 §5 / INV-12';
   if ok then detail := 'an in-scope educator launches in one call at the TEST tier and a second launch in the same minute succeeds with its own title (0049); '
     || 'a DEAN, an out-of-scope educator and an out-of-bounds size are each refused'; end if;
+  return next;
+
+  -- =========================================================================
+  -- F04-T04c BOB-33: an Uji Cepat is dated in Jakarta time, in numbers. The
+  -- two launches above are titled by quick_assessment_label(now()); a launch at
+  -- 23:30 UTC carries the next day's Jakarta date; no month name appears in any
+  -- month; and no client can call the helper.
+  -- =========================================================================
+  ok := true; detail := '';
+  -- the titles, judged against Jakarta time computed here, not by the helper
+  v_judul_cepat := 'Uji Cepat — ' || to_char(now() at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI');
+  if v_cert is not null then
+    select title into v_after from public.assessment_definitions where id = v_cert;
+    if v_after is distinct from v_judul_cepat then
+      ok := false; detail := detail || format('a launch now is titled «%s», expected «%s» (Jakarta time, numeric date); ', v_after, v_judul_cepat);
+    end if;
+    if v_after ~ '(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)' then
+      ok := false; detail := detail || 'the title carries an English month name; ';
+    end if;
+  else
+    ok := false; detail := detail || 'F04-T04 launched nothing to read the title of; ';
+  end if;
+  if v_def2 is not null
+     and (select title from public.assessment_definitions where id = v_def2) is distinct from v_judul_cepat || ' (2)' then
+    ok := false; detail := detail || 'the second launch in the minute is not the same label with (2); ';
+  end if;
+  -- and the helper that makes the moment testable
+  begin
+    v_before := public.quick_assessment_label('2026-09-29 23:30:00+00'::timestamptz);
+    if v_before is distinct from '2026-09-30 06:30' then
+      ok := false; detail := detail || format('a launch at 23:30 UTC is labelled %s, expected 2026-09-30 06:30 (Jakarta); ', v_before);
+    end if;
+    select string_agg(x, ', ') into bad from (
+      select public.quick_assessment_label(make_timestamptz(2026, m, 15, 12, 0, 0, 'UTC')) x
+        from generate_series(1, 12) m) q where x !~ '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$';
+    if bad is not null then ok := false; detail := detail || 'a label carries more than the numeric date and time: ' || bad || '; '; end if;
+    if has_function_privilege('anon', 'public.quick_assessment_label(timestamptz)', 'EXECUTE')
+       or has_function_privilege('authenticated', 'public.quick_assessment_label(timestamptz)', 'EXECUTE') then
+      ok := false; detail := detail || 'a client can call quick_assessment_label; ';
+    end if;
+  exception when others then
+    ok := false; detail := detail || 'no label for a given moment (quick_assessment_label): ' || left(sqlerrm, 100) || '; ';
+  end;
+  test_id := 'F04-T04c'; invariant := 'BOB-33';
+  if ok then detail := 'a quick assessment launched now is titled Uji Cepat — <Jakarta YYYY-MM-DD HH24:MI>, and the second in the '
+    || 'minute the same with (2); a launch at 23:30 UTC reads the next day, 2026-09-30 06:30; no month of the year carries a '
+    || 'name; and neither anon nor authenticated can call quick_assessment_label'; end if;
   return next;
 
   -- =========================================================================

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 111,
+  "version": 112,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -474,6 +474,11 @@
       "id": "F04-T04",
       "runner": "db",
       "proves": "doc 07 §5 / INV-12 — an in-scope educator launches a Quick Assessment in one capability-gated call at the TEST tier; a DEAN, an out-of-scope educator and an out-of-bounds size are refused"
+    },
+    {
+      "id": "F04-T04c",
+      "runner": "db",
+      "proves": "BOB-33: launch_quick_assessment (migration 20261020100000) titles a quick assessment 'Uji Cepat — ' || quick_assessment_label(now()), the moment in Asia/Jakarta as YYYY-MM-DD HH24:MI, and the second launch in the minute the same with (2); a launch at 23:30 UTC reads the next day's Jakarta date; no month of the year carries a name; neither anon nor authenticated can call the helper."
     },
     {
       "id": "F04-T05",
