@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 110,
+  "version": 112,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1981,7 +1981,7 @@
     {
       "id": "BOB23-K01",
       "runner": "static",
-      "proves": "BOB-23 (D-031). In the source file src/lib/siklus.ts, perluDisimpan driven through every render a lesson sees saves a new 5-page lesson exactly once per page newly reached (1, 2, 3, 4, 5) -- none for idle re-renders, none going back -- and saves nothing idle on a lesson already saved; in src/lib/sesi.ts, cookieYangBerubah keeps a changed session cookie and a deletion and drops an unchanged one; src/app/belajar/_components/LessonPlayer.tsx keys its save effect on [page] alone through perluDisimpan, and saveLessonProgress in src/app/belajar/actions.ts writes only a changed session, so a save no longer re-renders the page."
+      "proves": "BOB-23 (D-031). In the source file src/lib/siklus.ts, perluDisimpan driven through every render a lesson sees saves a new 5-page lesson exactly once per page newly reached (1, 2, 3, 4, 5) -- none for idle re-renders, none going back -- and saves nothing idle on a lesson already saved; in src/lib/sesi.ts, cookieYangBerubah keeps a changed session cookie and a deletion and drops an unchanged one; src/app/belajar/_components/LessonPlayer.tsx keys its save effect on [page] alone through perluDisimpan, and saveLessonProgress in src/app/belajar/actions.ts writes only a changed session, as a guard (the redraw was the proxy's re-send, whose throttle BOB23-K02 proves)."
     },
     {
       "id": "BOB23-K02",
@@ -2002,6 +2002,11 @@
       "id": "BOB12-K02",
       "runner": "static",
       "proves": "BOB-12 (a): the real Supabase client driven through fetchBerpenerus (the source file src/lib/auth-forwarding.ts) with a recording fetch sends the secret key and sb-forwarded-for only on POST /auth/v1/token (password, refresh_token) and POST /auth/v1/verify; no data request, lookalike path, other method, grant or host carries the key; a forged sb-forwarded-for or x-forwarded-for is never believed, the address is x-real-ip only; and src/proxy.ts refreshes through it while src/lib/supabase/service.ts never does."
+    },
+    {
+      "id": "BOB32-K01",
+      "runner": "static",
+      "proves": "BOB-32 (UX-03's server half, D-011): every refusal launch_quick_assessment raises, read from the migration that defines it, is read by src/lib/ujicepat-kontrak.ts to its code (QUICK_BANK_TOO_SMALL, QUICK_COUNT_OUT_OF_RANGE, QUICK_MINUTES_OUT_OF_RANGE, QUICK_NOT_ALLOWED, QUICK_NOT_FOUND, else QUICK_FAILED); a reworded refusal fails; the page's reader drops a forged code or reference; and the source of sediakanUjiCepat in src/app/mengajar/actions.ts passes ?cepat=gagal&kode=, with a logged reference only for QUICK_FAILED."
     },
     {
       "id": "F15-P01",
@@ -2289,6 +2294,16 @@
       "id": "DAISY-26-MENGAJAR-01",
       "runner": "static",
       "proves": "DAISY-26 (UI/UX POLISHED, D-052), the teacher's register rows UX-03, UX-06, UX-20 and UX-32. (1) UX-03: from the SOURCE of the Uji Cepat page, the configure stage, which renders only when no Uji Cepat is running, shows a refused launch as mengajar.cepat.gagal and never mengajar.cepat.sudah_ada, and the running stage, where it is true, shows sudah_ada; the new line in both languages says nothing changed, names no cause and no reference it does not have, and carries no internal word (today the configure stage says one is running). (2) UX-06: RENDERED in a child process, «Keadaan hari ini» (KeadaanHariIni) with both tests of a lesson open, five of 25 each, names both with their own counts, the Pemetaan Awal first; its selection is every open test, soonest to close first, the Pemetaan Awal first on a tie and one that never closes last, else the latest closed one, else the empty line; from the SOURCE, «Lihat bukti» hands it every assessment and keeps no single focus test (today it counts one). (3) UX-20: the class page and Siapkan show no release version number, only the date, whose line now starts with a capital. (4) UX-32: the Jumlah soal hint is composed as «Antara 3 dan 20 soal.» / «Between 3 and 20 items.» and no line tells a teacher who set the bound"
+    },
+    {
+      "id": "POLISH2-STUDIO-01",
+      "runner": "static",
+      "proves": "Polish batch 2 (UI/UX POLISHED, D-052), the Studio register rows, read from the SOURCE and the copy table. (1) UX-02: Bank Soal says once, at the top, in both languages, what the page is for and that a question is changed by a corrected workbook in Buat Paket (named by the tab's own word); no «Belum cukup bukti» under every question, no database id shown (the short id stays on each row as data-soal, for the staging journey's school check), no word outside the copy table (today every question reads «Belum cukup bukti…» beside an 8-character id). (2) UX-04: Aturan Penilaian and Sertifikat label their school picker «Sekolah», as Buat Paket does, never «Peran & akses». (3) UX-12: the two JSON forms sit in one closed disclosure below the workbook that opens when one of them has just answered, each with its own checking button (neither says it makes a package), with no server/browser note and no field label outside the copy table. (4) UX-14: the findings section is headed «Temuan» / Findings, the name both steps (Periksa isi, Setujui isi) send the reader to, in each language (today it is headed «Masalah»). (5) UX-16: the form that moves a class's assignment to another release is headed «Pindahkan penugasan ke terbitan lain», its picker «Terbitan tujuan», its button «Pindahkan», and each form names the class it moves"
+    },
+    {
+      "id": "POLISH2-ADMIN-01",
+      "runner": "static",
+      "proves": "Polish batch 2 (UI/UX POLISHED, D-052), the administrator's register rows. (1) UX-07: the school's code is «Kode sekolah» / School code and no Pendataan line calls it an institution code. (2) UX-11: the sign-in address is this environment's own (NEXT_PUBLIC_APP_URL's host plus /masuk; nothing that is not a web address becomes one); RENDERED in a child process with and without an address, a card's and an email account's results send the person to that address, or to «halaman Masuk PINTAR» when there is none, never to the path /masuk; no copy line sends anyone to «halaman /masuk»; the activation page's introduction ends the same way (today every one says «halaman /masuk»). (3) UX-30: Konfigurasi's menu offers only sections that exist, each leading to its section on the page; the three that only said «Bagian ini akan terisi pada tahap berikutnya.» are gone, with their line"
     }
   ]
 }

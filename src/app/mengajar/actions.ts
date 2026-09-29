@@ -5,6 +5,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
 import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
 import { batasHari } from "@/lib/hle";
+import { kodeUjiCepat } from "@/lib/ujicepat-kontrak";
+import { rujukan } from "@/lib/galat-kontrak";
 
 /**
  * THE EDUCATOR'S COMMITMENTS — every write the Slice-3 surface can make, and
@@ -121,6 +123,14 @@ export async function sediakanUjiCepat(formData: FormData): Promise<void> {
     p_item_count: soal,
     p_minutes: menit,
   });
-  if (error) ke(kelasId, "/uji-cepat?cepat=gagal");
+  // BOB-32 (UX-03, D-011): the refusal's cause as a code, so the page can say
+  // which it was; one nobody named also carries a reference, logged here.
+  if (error) {
+    const kode = kodeUjiCepat(error);
+    if (kode !== "QUICK_FAILED") ke(kelasId, `/uji-cepat?cepat=gagal&kode=${kode}`);
+    const ref = rujukan();
+    console.error(`[uji-cepat ${ref}] launch_quick_assessment failed`, error.code, error.message);
+    ke(kelasId, `/uji-cepat?cepat=gagal&kode=${kode}&ref=${ref}`);
+  }
   ke(kelasId, "/uji-cepat?cepat=ok");
 }

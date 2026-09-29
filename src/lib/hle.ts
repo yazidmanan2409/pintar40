@@ -227,9 +227,6 @@ export type HleEvent =
   | "auth.not_yet"
   | "config.title"
   | "config.section.system"
-  | "config.section.content"
-  | "config.section.assessment"
-  | "config.section.certificates"
   | "config.section.intelligence"
   | "laporan.templat.judul"
   | "laporan.templat.institusi"
@@ -276,7 +273,6 @@ export type HleEvent =
   | "config.kesehatan.cek.audit_log_client_write_grants"
   | "config.kesehatan.cek.malformed_jalur"
   | "config.card.cohorts"
-  | "config.placeholder"
   | "config.environment"
   | "config.refused"
   | "config.section.rollover"
@@ -527,6 +523,11 @@ export type HleEvent =
   | "studio.paket.periksa_isi_arti"
   | "studio.paket.catatan"
   | "studio.paket.koreksi_alasan"
+  | "studio.paket.pindah.judul"
+  | "studio.paket.pindah.tujuan"
+  | "studio.paket.pindah.sekarang"
+  | "studio.paket.pindah.tombol"
+  | "studio.sekolah"
   | "role.STUDENT"
   | "role.EDUCATOR"
   | "role.HEAD_OF_DEPARTMENT"
@@ -732,13 +733,12 @@ export type HleEvent =
   | "studio.paket.kunci_peringatan"
   | "studio.paket.terbitkan"
   | "studio.paket.tarik"
-  | "studio.paket.tugaskan"
   | "studio.paket.terbit_bukan_tugas"
   | "studio.paket.revisi"
   | "studio.paket.revisi_penjelasan"
   | "studio.paket.kosong"
+  | "studio.temuan.judul"
   | "studio.temuan.lokasi"
-  | "studio.temuan.masalah"
   | "studio.temuan.mengapa"
   | "studio.temuan.cara"
   | "studio.temuan.akui"
@@ -748,12 +748,9 @@ export type HleEvent =
   | "studio.unggah.mudah_penjelasan"
   | "studio.unggah.terstruktur"
   | "studio.unggah.terstruktur_penjelasan"
-  | "studio.unggah.buat_paket"
-  | "studio.unggah.buat_penilaian"
   | "studio.unggah.buat_video"
   | "studio.unggah.pertanyaan"
   | "studio.unggah.konfirmasi"
-  | "studio.unggah.media_catatan"
   | "studio.templat.judul"
   | "studio.templat.cara.1"
   | "studio.templat.cara.2"
@@ -830,6 +827,13 @@ export type HleEvent =
   | "studio.unggah.ulang"
   | "studio.unggah.rujukan"
   | "studio.unggah.json_judul"
+  | "studio.unggah.json_arti"
+  | "studio.unggah.isi_json"
+  | "studio.unggah.periksa_mudah"
+  | "studio.unggah.periksa_terstruktur"
+  | "studio.unggah.produsen"
+  | "studio.unggah.kontrak"
+  | "studio.unggah.permintaan"
   | "studio.tinjau.judul"
   | "studio.tinjau.kosong"
   | "studio.tinjau.penulis"
@@ -857,8 +861,8 @@ export type HleEvent =
   | "studio.sertifikat.identitas"
   | "studio.sertifikat.simpan"
   | "studio.bank.judul"
+  | "studio.bank.intro"
   | "studio.bank.kesehatan"
-  | "studio.bank.belum_cukup"
   | "studio.bank.prediksi"
   | "studio.bank.empiris"
   | "studio.bank.akui_ok"
@@ -1273,6 +1277,8 @@ export type HleEvent =
   | "aktivasi.eyebrow"
   | "aktivasi.judul"
   | "aktivasi.intro"
+  | "aktivasi.intro.buka"
+  | "aktivasi.halaman_masuk"
   | "aktivasi.kosong"
   | "aktivasi.surel"
   | "aktivasi.dengan_surel"
@@ -1284,11 +1290,14 @@ export type HleEvent =
   | "aktivasi.baru.nama"
   | "aktivasi.baru.tombol"
   | "aktivasi.baru.ok"
+  | "aktivasi.baru.ok.lalu"
   // DAISY-09 (D-019): what each activation made, that PINTAR sent nothing, and
   // each failure as its own sentence
   | "aktivasi.surel_dibuat"
   | "aktivasi.surel_arti"
+  | "aktivasi.surel_arti.lalu"
   | "aktivasi.kartu_arti"
+  | "aktivasi.kartu_arti.lalu"
   | "aktivasi.galat.nama"
   | "aktivasi.galat.surel"
   | "aktivasi.galat.ditolak"
@@ -1614,8 +1623,9 @@ const table: Table = {
   // mean something -- that 000001-000999 are staff, say -- and they do not.
   "pendataan.nomor.arti": { default: "Nomor induk menandai seseorang di sekolah ini. Nomor itu tidak menyatakan apakah orangnya murid, guru, atau pimpinan.", en: "An identity number marks a person at this school. It does not say whether that person is a student, a teacher or management." },
 
-  "pendataan.kode.judul": { default: "Kode institusi", en: "Institution code" },
-  "pendataan.kode.belum": { default: "Sekolah ini belum punya kode institusi.", en: "This school does not have an institution code yet." },
+  // polish batch 2 (UX-07): the page speaks of a school, so its code is the school's
+  "pendataan.kode.judul": { default: "Kode sekolah", en: "School code" },
+  "pendataan.kode.belum": { default: "Sekolah ini belum punya kode.", en: "This school does not have a code yet." },
   "pendataan.kode.arti": { default: "Kode ini menjadi bagian dari nomor induk yang dibuat PINTAR untuk setiap orang di sekolah ini.", en: "This code becomes part of the identity number PINTAR creates for each person at this school." },
   "pendataan.kode.bentuk": { default: "Tiga huruf atau angka.", en: "Three letters or digits." },
   "pendataan.kode.contoh": { default: "Contoh nomor induk", en: "Example identity number" },
@@ -1914,9 +1924,6 @@ const table: Table = {
   "auth.not_yet": { default: "Halaman ini belum tersedia untuk akun Anda.", en: "This page is not available to your account yet." },
   "config.title": { default: "Konfigurasi", en: "Configuration" },
   "config.section.system": { default: "Sistem & Konfigurasi", en: "System & Configuration" },
-  "config.section.content": { default: "Konten & Bank Soal", en: "Content & Item Bank" },
-  "config.section.assessment": { default: "Mesin Asesmen", en: "Assessment Engine" },
-  "config.section.certificates": { default: "Sertifikat & Audit", en: "Certificates & Audit" },
   "config.section.intelligence": { default: "Inteligensi & Laporan", en: "Intelligence & Reports" },
   "laporan.templat.judul": { default: "Templat laporan", en: "Report templates" },
   "laporan.templat.institusi": { default: "Institusi", en: "Institution" },
@@ -1966,7 +1973,6 @@ const table: Table = {
   "config.kesehatan.cek.audit_log_client_write_grants": { default: "Aplikasi tidak dapat menulis ke jejak audit", en: "The app cannot write to the audit trail" },
   "config.kesehatan.cek.malformed_jalur": { default: "Setiap jalur kurikulum berbentuk benar", en: "Every curriculum path is well formed" },
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
-  "config.placeholder": { default: "Bagian ini akan terisi pada tahap berikutnya.", en: "This section is filled in at a later phase." },
   "config.environment": { default: "Lingkungan", en: "Environment" },
   "config.refused": { default: "Halaman ini hanya untuk pengelola sistem.", en: "This page is for system administrators only." },
   "config.section.rollover": { default: "Pergantian tahun ajaran", en: "Academic-year rollover" },
@@ -2224,6 +2230,13 @@ const table: Table = {
   "studio.paket.periksa_isi_arti": { default: "PINTAR memeriksa pelajaran dan soalnya. Temuannya muncul di sini; langkah Kunci terbitan memeriksa sekali lagi.", en: "PINTAR checks the lessons and questions. Its findings appear here; the Lock the release step checks once more." },
   "studio.paket.catatan": { default: "Catatan (boleh kosong)", en: "Note (optional)" },
   "studio.paket.koreksi_alasan": { default: "Alasan pemindahan", en: "Reason for the move" },
+  // polish batch 2 (UX-16): the form moves an assignment that exists; it says so, and which class it moves
+  "studio.paket.pindah.judul": { default: "Pindahkan penugasan ke terbitan lain", en: "Move an assignment to another release" },
+  "studio.paket.pindah.tujuan": { default: "Terbitan tujuan", en: "Release to move to" },
+  "studio.paket.pindah.sekarang": { default: "sekarang di terbitan", en: "now on the release of" },
+  "studio.paket.pindah.tombol": { default: "Pindahkan", en: "Move" },
+  // polish batch 2 (UX-04): a school picker is labelled as one
+  "studio.sekolah": { default: "Sekolah", en: "School" },
   // WP5B. Bulk intake offers four roles and needs a telling for each; this is
   // the one the configuration surface never had to name, because a learner is
   // not somebody an administrator grants a role to one at a time.
@@ -2461,13 +2474,13 @@ const table: Table = {
   "studio.paket.kunci_peringatan": { default: "Setelah dikunci, isi paket ini tidak dapat diubah lagi. Perbaikan berikutnya dibuat sebagai salinan baru.", en: "Once locked, this package's content cannot be changed again. A later correction is made as a new copy." },
   "studio.paket.terbitkan": { default: "Terbitkan", en: "Publish" },
   "studio.paket.tarik": { default: "Tarik dari peredaran", en: "Withdraw from circulation" },
-  "studio.paket.tugaskan": { default: "Tugaskan ke kelas", en: "Assign to a class" },
   "studio.paket.terbit_bukan_tugas": { default: "Menerbitkan belum menugaskan. Siswa baru melihatnya setelah Anda menugaskannya ke kelas.", en: "Publishing is not assigning. Students see it only once you have assigned it to a class." },
   "studio.paket.revisi": { default: "Buat salinan untuk diperbaiki", en: "Make a copy to correct" },
   "studio.paket.revisi_penjelasan": { default: "Paket asli tetap utuh beserta seluruh catatan pengerjaan siswa. Salinan baru bisa Anda sunting bebas.", en: "The original package stays whole, with every record of student work. The new copy is yours to edit freely." },
   "studio.paket.kosong": { default: "Belum ada paket di sini.", en: "There is nothing here yet." },
+  // polish batch 2 (UX-14): the section is named what both steps call it
+  "studio.temuan.judul": { default: "Temuan", en: "Findings" },
   "studio.temuan.lokasi": { default: "Lokasi", en: "Where" },
-  "studio.temuan.masalah": { default: "Masalah", en: "The problem" },
   "studio.temuan.mengapa": { default: "Mengapa penting", en: "Why it matters" },
   "studio.temuan.cara": { default: "Cara memperbaiki", en: "How to fix it" },
   "studio.temuan.akui": { default: "Sudah saya tinjau", en: "I have reviewed this" },
@@ -2477,12 +2490,9 @@ const table: Table = {
   "studio.unggah.mudah_penjelasan": { default: "Tempel paket JSON dari sistem lain. PINTAR memeriksanya dan menanyakan yang belum pasti sebelum menyimpan apa pun.", en: "Paste a JSON package from another system. PINTAR checks it and asks about anything unclear before it saves anything." },
   "studio.unggah.terstruktur": { default: "Paket Terstruktur", en: "Structured package" },
   "studio.unggah.terstruktur_penjelasan": { default: "Untuk paket yang sudah dibuat mesin dalam format baku.", en: "For packages a machine has already produced in a standard format." },
-  "studio.unggah.buat_paket": { default: "Buat Paket Pembelajaran", en: "Create a Learning Package" },
-  "studio.unggah.buat_penilaian": { default: "Buat Penilaian", en: "Create an Assessment" },
   "studio.unggah.buat_video": { default: "Buat Video", en: "Create a Video" },
   "studio.unggah.pertanyaan": { default: "Yang perlu Anda pastikan", en: "What we need you to confirm" },
   "studio.unggah.konfirmasi": { default: "Konfirmasi", en: "Confirm" },
-  "studio.unggah.media_catatan": { default: "Berkas media diunggah melalui server PINTAR, bukan langsung dari peramban.", en: "Media files are uploaded through the PINTAR server, not straight from the browser." },
   // DAISY-06: the workbook template's guidance sheet and the upload panel.
   "studio.templat.judul": { default: "Templat pelajaran PINTAR: cara mengisi", en: "PINTAR lesson template: how to fill it in" },
   "studio.templat.cara.1": { default: "Satu buku kerja berisi satu kursus. Isi lima lembar berikutnya: Kursus, Bab, Pelajaran, Soal, dan Pilihan.", en: "One workbook holds one course. Fill in the next five sheets: Kursus, Bab, Pelajaran, Soal and Pilihan." },
@@ -2560,7 +2570,15 @@ const table: Table = {
   "studio.unggah.buka_kursus": { default: "Buka kursus", en: "Open the course" },
   "studio.unggah.ulang": { default: "Unggah buku kerja lain", en: "Upload another workbook" },
   "studio.unggah.rujukan": { default: "Rujukan:", en: "Reference:" },
-  "studio.unggah.json_judul": { default: "Paket dari sistem lain (JSON)", en: "Packages from another system (JSON)" },
+  // polish batch 2 (UX-12): the two JSON forms sit in one closed disclosure below the workbook, each with its own button
+  "studio.unggah.json_judul": { default: "Untuk sistem lain: paket JSON", en: "For other systems: JSON packages" },
+  "studio.unggah.json_arti": { default: "Untuk paket yang dibuat sistem lain. Guru dan sekolah memakai buku kerja di atas.", en: "For packages another system produces. Teachers and schools use the workbook above." },
+  "studio.unggah.isi_json": { default: "Isi paket (JSON)", en: "Package content (JSON)" },
+  "studio.unggah.periksa_mudah": { default: "Periksa paket JSON", en: "Check the JSON package" },
+  "studio.unggah.periksa_terstruktur": { default: "Periksa paket terstruktur", en: "Check the structured package" },
+  "studio.unggah.produsen": { default: "Sistem pengirim", en: "Sending system" },
+  "studio.unggah.kontrak": { default: "Kontrak kemampuan", en: "Capability contract" },
+  "studio.unggah.permintaan": { default: "Nomor permintaan", en: "Request ID" },
   "studio.tinjau.judul": { default: "Antrean Tinjauan", en: "Review Queue" },
   "studio.tinjau.kosong": { default: "Tidak ada yang menunggu tinjauan Anda.", en: "Nothing is waiting on your review." },
   "studio.tinjau.penulis": { default: "Penyusun", en: "Author" },
@@ -2588,8 +2606,9 @@ const table: Table = {
   "studio.sertifikat.identitas": { default: "Sertifikat menampilkan nama pemegang saja.", en: "The certificate shows the holder's name only." },
   "studio.sertifikat.simpan": { default: "Simpan", en: "Save" },
   "studio.bank.judul": { default: "Bank Soal", en: "Item Bank" },
+  // polish batch 2 (UX-02): what the page is for in this phase, said once, instead of a line under every question
+  "studio.bank.intro": { default: "Soal-soal di bank sekolah Anda. Angka dari pengerjaan siswa baru muncul setelah cukup siswa menjawab sebuah soal; bila angka itu menandai soal, peninjau mencatat keputusannya di sini. Untuk mengubah soal, unggah buku kerja yang sudah diperbaiki di Buat Paket.", en: "The questions in your school's bank. Figures from student work appear only once enough students have answered a question; when they flag one, a reviewer records the decision here. To change a question, upload a corrected workbook in Create a package." },
   "studio.bank.kesehatan": { default: "Kesehatan soal", en: "Item health" },
-  "studio.bank.belum_cukup": { default: "Belum cukup bukti untuk menilai soal ini.", en: "Not enough evidence to judge this item yet." },
   "studio.bank.prediksi": { default: "Perkiraan penyusun", en: "The author's estimate" },
   "studio.bank.empiris": { default: "Dari pengerjaan siswa", en: "From student work" },
   "studio.bank.akui_ok": { default: "Sudah ditinjau, soal ini wajar", en: "Reviewed — this item is sound" },
@@ -2655,7 +2674,11 @@ const table: Table = {
   "aktivasi.ditolak": { default: "Halaman ini untuk pengelola data sekolah.", en: "This page is for the people who manage a school's records." },
   "aktivasi.eyebrow": { default: "Akun", en: "Accounts" },
   "aktivasi.judul": { default: "Aktifkan akun", en: "Activate accounts" },
-  "aktivasi.intro": { default: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih caranya untuk masing-masing: dengan alamat surel, atau dengan kartu kelas dan PIN. PINTAR tidak mengirim surel atau pesan apa pun. Setelah akun dibuat, minta orangnya membuka halaman /masuk.", en: "People your school has recorded who cannot sign in yet. Choose how each one signs in: with an email address, or with a classroom card and PIN. PINTAR sends no email or message of any kind. Once the account is made, ask the person to open the /masuk page." },
+  // polish batch 2 (UX-11): each sentence stops where the sign-in address goes; the screen puts the
+  // environment's own address there (src/components/aktivasi/alamat.ts), or «halaman Masuk PINTAR» when it has none
+  "aktivasi.intro": { default: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih caranya untuk masing-masing: dengan alamat surel, atau dengan kartu kelas dan PIN. PINTAR tidak mengirim surel atau pesan apa pun.", en: "People your school has recorded who cannot sign in yet. Choose how each one signs in: with an email address, or with a classroom card and PIN. PINTAR sends no email or message of any kind." },
+  "aktivasi.intro.buka": { default: "Setelah akun dibuat, minta orangnya membuka", en: "Once the account is made, ask the person to open" },
+  "aktivasi.halaman_masuk": { default: "halaman Masuk PINTAR", en: "PINTAR's sign-in page" },
   "aktivasi.kosong": { default: "Semua orang yang sudah didata sudah bisa masuk.", en: "Everyone who has been recorded can already sign in." },
   "aktivasi.surel": { default: "Alamat surel", en: "Email address" },
   "aktivasi.dengan_surel": { default: "Aktifkan dengan surel", en: "Activate with email address" },
@@ -2666,10 +2689,13 @@ const table: Table = {
   "aktivasi.baru.arti": { default: "Untuk pengelola pertama sebuah sekolah. Setelah dibuat, beri peran di Konfigurasi.", en: "For a school's first administrator. Once created, give them a role in Configuration." },
   "aktivasi.baru.nama": { default: "Nama", en: "Name" },
   "aktivasi.baru.tombol": { default: "Buat dan aktifkan", en: "Create and activate" },
-  "aktivasi.baru.ok": { default: "PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka halaman /masuk di PINTAR, lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu. Setelah itu, beri perannya di Konfigurasi.", en: "PINTAR has not emailed this person. Ask them to open the /masuk page in PINTAR and type this email address. The sign-in link is sent then. Next, give them a role in Configuration." },
+  "aktivasi.baru.ok": { default: "PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka", en: "PINTAR has not emailed this person. Ask them to open" },
+  "aktivasi.baru.ok.lalu": { default: ", lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu. Setelah itu, beri perannya di Konfigurasi.", en: " and type this email address. The sign-in link is sent then. Next, give them a role in Configuration." },
   "aktivasi.surel_dibuat": { default: "Akun dibuat untuk alamat", en: "Account made for the address" },
-  "aktivasi.surel_arti": { default: "PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka halaman /masuk di PINTAR, lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu.", en: "PINTAR has not emailed this person. Ask them to open the /masuk page in PINTAR and type this email address. The sign-in link is sent then." },
-  "aktivasi.kartu_arti": { default: "PINTAR tidak mengirim apa pun. Berikan nomor kartu dan PIN ini kepada orangnya. Di halaman /masuk ia memilih “Gunakan kartu kelas”, lalu mengetik keduanya.", en: "PINTAR has not sent anything. Give this card number and PIN to the person. On the /masuk page they choose “Use a class card” and type both." },
+  "aktivasi.surel_arti": { default: "PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka", en: "PINTAR has not emailed this person. Ask them to open" },
+  "aktivasi.surel_arti.lalu": { default: ", lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu.", en: " and type this email address. The sign-in link is sent then." },
+  "aktivasi.kartu_arti": { default: "PINTAR tidak mengirim apa pun. Berikan nomor kartu dan PIN ini kepada orangnya. Di", en: "PINTAR has not sent anything. Give this card number and PIN to the person. On" },
+  "aktivasi.kartu_arti.lalu": { default: " ia memilih “Gunakan kartu kelas”, lalu mengetik keduanya.", en: " they choose “Use a class card” and type both." },
   "aktivasi.galat.nama": { default: "Tulis nama orangnya dulu.", en: "Write the person's name first." },
   "aktivasi.galat.surel": { default: "Alamat surel ini belum lengkap. Contoh: nama@sekolah.sch.id", en: "This email address isn't complete. Example: name@school.sch.id" },
   "aktivasi.galat.ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Orang ini mungkin sudah punya akun, atau bukan dari sekolah yang Anda kelola. Muat ulang halaman ini untuk melihat daftar terbaru.", en: "PINTAR refused, and nothing was made. This person may already have an account, or may not belong to a school you manage. Reload this page to see the current list." },
