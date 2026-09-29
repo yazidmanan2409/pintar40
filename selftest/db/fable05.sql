@@ -484,10 +484,93 @@ begin
 end $$;
 revoke all on function selftest.f05_fresh_assignment(text, uuid, uuid, uuid, uuid, uuid) from public;
 
+-- BOB-35, F05-C01: a published v1.1 of the canonical course, distributed to
+-- School A, as the move's target. The one run_fable05 leaves behind is reused;
+-- a later suite may have reset the canonical package (f05_reset removes
+-- revision courses), so otherwise the revision is made and walked to PUBLISHED
+-- exactly as F05-T14's setup does, by the people who hold each capability.
+create or replace function selftest.f05_published_revision(p_course uuid, p_canon uuid, p_rel uuid, p_school uuid)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_rev uuid; v_rel2 uuid; v_admin uuid; v_guru uuid; t2 text; v_status text; v_blockers jsonb;
+begin
+  select r.id into v_rel2 from public.plp_releases r join public.courses c on c.id = r.course_id
+   where c.supersedes_course_id = p_course and r.status = 'PUBLISHED'
+   order by r.created_at desc limit 1;
+  if v_rel2 is not null then
+    if not public.release_is_distributed_to(v_rel2, p_school) then
+      perform selftest.as_user('kanonik-admin@pintar.test');
+      perform public.grant_release_distribution(v_rel2, p_school, 'f05-c01 v1.1');
+      perform selftest.as_owner();
+    end if;
+    return v_rel2;
+  end if;
+  select c.id into v_rev from public.courses c where c.supersedes_course_id = p_course
+     and not exists (select 1 from public.plp_releases r where r.course_id = c.id)
+   order by c.created_at desc limit 1;
+  if v_rev is null then
+    perform selftest.as_user('kanonik-penyusun@pintar.test');
+    v_rev := public.create_course_revision(p_course);
+    perform selftest.as_owner();
+  end if;
+  perform selftest.as_user('kanonik-penyusun@pintar.test');
+  foreach t2 in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+    update public.items i set status = t2::public.content_status from public.lessons l, public.modules m
+     where i.lesson_id = l.id and l.module_id = m.id and m.course_id = v_rev and i.status::text <> t2;
+    update public.lessons l set status = t2::public.content_status from public.modules m
+     where l.module_id = m.id and m.course_id = v_rev and l.status::text <> t2;
+    update public.modules set status = t2::public.content_status where course_id = v_rev and status::text <> t2;
+    update public.courses set status = t2::public.content_status where id = v_rev and status::text <> t2;
+    update public.assessment_definitions set status = t2::public.content_status
+     where (course_id = v_rev or module_id in (select id from public.modules where course_id = v_rev)) and status::text <> t2;
+  end loop;
+  perform selftest.as_user('kanonik-admin@pintar.test');
+  select public.current_person_id() into v_admin;
+  update public.items i set status = 'APPROVED', reviewed_by_person_id = v_admin
+    from public.lessons l, public.modules m
+   where i.lesson_id = l.id and l.module_id = m.id and m.course_id = v_rev;
+  update public.lessons l set status = 'APPROVED', reviewed_by_person_id = v_admin
+    from public.modules m where l.module_id = m.id and m.course_id = v_rev;
+  update public.modules set status = 'APPROVED', reviewed_by_person_id = v_admin where course_id = v_rev;
+  update public.courses set status = 'APPROVED', reviewed_by_person_id = v_admin where id = v_rev;
+  update public.assessment_definitions set status = 'APPROVED', reviewed_by_person_id = v_admin
+   where course_id = v_rev or module_id in (select id from public.modules where course_id = v_rev);
+  perform selftest.as_owner();
+  perform selftest.as_draft_author();
+  perform public.validate_course_content(v_rev);
+  perform selftest.as_owner();
+  perform selftest.as_draft_author();
+  perform public.run_mcq_quality(v_rev);
+  perform selftest.as_owner();
+  select pr.status, pr.blockers into v_status, v_blockers from public.publish_readiness(v_rev) pr;
+  if v_status <> 'READY' then raise exception 'the v1.1 revision is not publishable (%): %', v_status, v_blockers; end if;
+  select a.person_id into v_guru from public.accounts a join auth.users u on u.id = a.auth_user_id
+   where u.email = 'kanonik-penyusun@pintar.test';
+  perform selftest.as_user('kanonik-admin@pintar.test');
+  perform selftest.as_release_writer();
+  insert into public.plp_releases (institution_id, course_id, version_label, supersedes_release_id, author_person_id)
+  values (p_canon, v_rev, '1.1.0', p_rel, v_guru) returning id into v_rel2;
+  perform selftest.as_signed_in();
+  foreach t2 in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
+    perform selftest.as_release_writer();
+    update public.plp_releases set status = t2::public.content_status where id = v_rel2;
+    perform selftest.as_signed_in();
+  end loop;
+  perform selftest.as_release_writer();
+  update public.plp_releases set status = 'APPROVED', reviewed_by_person_id = v_admin where id = v_rel2;
+  perform selftest.as_signed_in();
+  perform selftest.as_release_writer();
+  update public.plp_releases set status = 'FROZEN' where id = v_rel2;
+  perform selftest.as_signed_in();
+  perform public.publish_release(v_rel2);
+  perform public.grant_release_distribution(v_rel2, p_school, 'f05-c01 v1.1');
+  perform selftest.as_owner();
+  return v_rel2;
+end $$;
+revoke all on function selftest.f05_published_revision(uuid, uuid, uuid, uuid) from public;
+
 -- BOB-35, F05-C01 (driven from run.ts): a start racing a move needs two
 -- real connections, so the pieces are COMMITTED. The canonical v1.0 release
--- and its v1.1 revision are the ones run_fable05 leaves behind (it runs
--- first); a fresh assignment of v1.0 to School A's class, and a learner who
+-- and a published v1.1 revision (f05_published_revision); a fresh assignment of v1.0 to School A's class, and a learner who
 -- joins the class for this race alone. Returns
 -- '<learning assignment>|<assessment assignment>|<v1.1 release>|<admin uid>|<learner uid>'.
 -- f05_reset clears the assignment and the session on the next run.
@@ -502,10 +585,13 @@ begin
     join public.enrollments e on e.id = m.enrollment_id join public.accounts ac on ac.person_id = e.person_id
     join auth.users u on u.id = ac.auth_user_id
    where u.email = 'alpha-siswa-1@synthetic.pintar.test' and m.valid_to is null limit 1;
-  select r.id into v_rel2 from public.plp_releases r join public.courses c on c.id = r.course_id
-   where c.supersedes_course_id = p.course and r.status = 'PUBLISHED' and public.release_is_distributed_to(r.id, v_a)
-   order by r.created_at desc limit 1;
-  if v_rel2 is null then raise exception 'no published v1.1 revision distributed to School A: run fable05 first'; end if;
+  -- a later suite may have withdrawn School A's grant of v1.0 (QAC-T03 does)
+  if not public.release_is_distributed_to(p.rel, v_a) then
+    perform selftest.as_user('kanonik-admin@pintar.test');
+    perform public.grant_release_distribution(p.rel, v_a, 'f05-c01 v1.0');
+    perform selftest.as_owner();
+  end if;
+  v_rel2 := selftest.f05_published_revision(p.course, p.canon, p.rel, v_a);
   select fa.la, fa.aa into v_la, v_aa
     from selftest.f05_fresh_assignment('alpha-admin@synthetic.pintar.test', v_a, v_node, p.rel, p.course, p.defn) fa;
   select u.id into v_admin from auth.users u where u.email = 'alpha-admin@synthetic.pintar.test';
