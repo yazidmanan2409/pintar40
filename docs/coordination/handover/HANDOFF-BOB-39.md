@@ -1,8 +1,10 @@
+READY FOR GATE: CI #239 (run 36575178181) green on 651b160a0907d967469617efdfa11fec097eb755
+
 # Bob → coordinator: BOB-39 («Diteruskan ke pihak sekolah» reaches the decision queue)
 
-**SHA:** `10ba1c7`, its own commit, and `5eb779b` (the tests for your gate questions), on top of BOB-38.
-- **Manifest:** F06-P22 and BOB39-K01. The lane's manifest is v122 with 432 ids.
-- **CI:** CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a`, carrying BOB-38 and BOB-39.
+**SHA:** `10ba1c7`, its own commit; `5eb779b` (the tests for your gate questions); and `651b160` (F06-P22 made self-contained after CI #238). They sit on top of BOB-38.
+- **Manifest:** F06-P22 and BOB39-K01. The lane's manifest is v125 with 437 ids.
+- **CI:** CI #239 (run `36575178181`, https://github.com/yazidmanan2409/pintar40/actions/runs/36575178181) on `651b160a0907d967469617efdfa11fec097eb755`, green. It is the one run for BOB-38 to BOB-41. CI #238 was red on F06-P22's helper, as explained under CI.
 - Post-login review #2, approved for 4.0 correction (D-061).
 
 ## CHANGED
@@ -52,13 +54,25 @@
   - F05-T20 (review decisions are never verdicts; one audit row; no signal mutated) is unchanged and green.
 - **Plants:** a new gate `db-bob39-gates` (`run_fable06`, control 34). Plant bob39-1 (the referral call removed) turns F06-P22 red: `a referral through the review left 0 AWAITING_REVIEW decision(s)`.
 - **Restated for the changed requirement:** the migration tripwires move 129 → 130, with the reason beside them. There is no table, column or mark.
-- **Local, on `5eb779b`:** every database with an `en-US` ICU collation and Supabase's default privileges emulated: full suite 400 passed, 0 failed, 31 justified skips (the one unjustified skip, UX1-PIMPINAN-AKSES-01, needs network, as before); plants 124 of 124 on a copy taken straight after the seeds (db-bob39-gates among them); shared red cases, all 20 gates exited 0 with the schema digest the same and every recheck 257 of 257. After merging `main` `559b739` (content documents only) as `29c1857`, the static suite reran: 147 passed, 0 failed.
+- **Local, on `651b160`** (main `4df914a` merged; every database with an `en-US` ICU collation and Supabase's default privileges emulated):
+  - full suite: 405 passed, 0 failed, 31 justified skips; the one unjustified skip, UX1-PIMPINAN-AKSES-01, needs network, as before;
+  - plants: 124 of 124 proved their gates on a copy taken straight after the seeds;
+  - shared red cases: all 20 gates exited 0, with the schema digest the same and every recheck 258 of 258.
+- **CI's way, on fresh stacks that load no selftest file until each job loads `selftest/db/fable0*.sql`:**
+  - `fable06.sql` on `d34a3ce` gave CI #238's exact line, `F06-P22 | f | the probe itself failed: function selftest.f11_user(text, unknown, uuid) does not exist`;
+  - on `651b160`, `run_fable06()` gave 35 of 35 rows green, F06-P22 among them;
+  - `red case · db-fable06-gates`, run from `ci.yml`: every one of its 13 planted defects turned its own test red;
+  - `red case · db-tour-gates`, run from `ci.yml`: 37 rows green before planting, and each of its 8 planted defects turned its own test red;
+  - `db-bob39-gates`: 34 green rows before planting, and bob39-1 turned F06-P22 red for its own reason;
+  - `fable06.sql` truly alone cannot load: it refuses without fable01 and fable04, and fable04 refuses without fable03, so the job's `fable0*` set is the smallest set it runs in.
 
 ## CI
-- **CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a`**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these two hand-offs. That commit is docs only; the code is at `29c1857`, with `main` `559b739` merged in.
-- It is the first of the two runs for BOB-38 to BOB-41, as directed, and carries BOB-38 and BOB-39.
-- The red-case matrix gains `db-bob39-gates`.
-- I don't poll it.
+- **CI #239 (run `36575178181`, https://github.com/yazidmanan2409/pintar40/actions/runs/36575178181), green, 31 of 31 jobs.** It was a `workflow_dispatch` on `claude/quirky-meitner-a04smj` at `651b160a0907d967469617efdfa11fec097eb755`, with `main` `4df914a` merged in. It is the one run for BOB-38 to BOB-41, and I watched it to the end.
+- **It replaces CI #238** (run `36566019037`, on `e9cff4a`), which was red.
+  - `red case · db-fable06-gates` and `red case · db-tour-gates` both stopped on `F06-P22 | f | the probe itself failed: function selftest.f11_user(text, unknown, uuid) does not exist`.
+  - **The cause:** F06-P22 (BOB-39's test) made its second Head of Department with `selftest.f11_user`, defined in `fable11.sql`. Those two jobs load only `selftest/db/fable0*.sql`. My local proof loaded `fable0*` and `fable1*` together, which hid it: the same kind of problem as F05-C01 at BOB-24.
+  - **The fix is `651b160`.** F06-P22 now makes that person with fable06's own `selftest.f06p10_person` and a HEAD_OF_DEPARTMENT role at the other department, the way `wp2_school` makes its people. What it asserts is unchanged. No other helper that fable06 calls is defined outside `fable0*.sql`.
+- The red-case matrix includes `db-bob24-gates`, `db-bob35-gates`, `db-bob36-gates` and `db-bob39-gates`.
 
 ## CONTRACT
 `record_integrity_review(signal, 'REFERRED_TO_INSTITUTION', note)` now also creates the INTEGRITY_REFERRAL decision; its refusals are `refer_integrity_signal`'s. There is no new client RPC.
@@ -76,12 +90,12 @@ No metric or grading change.
 None of mine. With Yazid, as you ruled: whether referral authority should follow review authority (school-wide) rather than the class scope `refer_integrity_signal` has had since 24 Sep. BOB-39 does not change it. Out of scope, as ruled: the review page's context and its first-signal-only form (review #7).
 
 ## READY
-Yes, in the run with BOB-38.
+Yes. All four go to your gate together, on CI #239.
 
 ---
 ### Summary (ready to paste)
 ```
-BOB-39 (10ba1c7, tests 5eb779b), ready for the gate in CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a` with BOB-38.
+BOB-39 (10ba1c7, tests 5eb779b, self-contained 651b160), ready for the gate in CI #239 (run 36575178181) on 651b160, with BOB-38 to BOB-41.
 Migration 20261024100000: record_integrity_review, on REFERRED_TO_INSTITUTION, raises the INTEGRITY_REFERRAL decision
 through refer_integrity_signal in the same transaction (the note becomes raised_note), so /pimpinan's «Keputusan» fills.
 The referral's own rules hold: idempotent while open, and it needs CAN_REVIEW_INTEGRITY over the signal's class,
