@@ -1142,8 +1142,14 @@ export type HleEvent =
   | "mengajar.cepat.hidup.menit"
   | "mengajar.cepat.hidup.catatan"
   | "mengajar.cepat.hidup.siapa"
-  | "mengajar.cepat.sudah_ada"
-  | "mengajar.cepat.gagal"
+  | "mengajar.cepat.tolak.awal"
+  | "mengajar.cepat.tolak.bank"
+  | "mengajar.cepat.tolak.jumlah"
+  | "mengajar.cepat.tolak.menit"
+  | "mengajar.cepat.tolak.izin"
+  | "mengajar.cepat.tolak.tidak_ada"
+  | "mengajar.cepat.tolak.umum"
+  | "mengajar.cepat.atau"
   | "mengajar.bukti.eyebrow"
   | "mengajar.bukti.judul"
   | "mengajar.bukti.intro"
@@ -3154,9 +3160,16 @@ const table: Table = {
   "mengajar.cepat.hidup.menit": { default: "menit lagi", en: "min left" },
   "mengajar.cepat.hidup.catatan": { default: "Angka di atas adalah hitungan, bukan penilaian. Yang belum mengumpulkan mungkin belum membuka PINTAR.", en: "The numbers above are counts, not judgments. Those who have not submitted may simply not have opened PINTAR." },
   "mengajar.cepat.hidup.siapa": { default: "Lihat siapa yang sudah mengumpulkan", en: "See who has submitted" },
-  "mengajar.cepat.sudah_ada": { default: "Sudah ada Uji Cepat yang berjalan di kelas ini. Tunggu jendelanya berakhir sebelum menyediakan yang berikutnya.", en: "A Quick Assessment is already open in this class. Wait for its window to end before making another available." },
-  // DAISY-26 (UX-03): any other refusal. It names no cause it cannot know (the action passes none yet), says nothing changed, and what to try
-  "mengajar.cepat.gagal": { default: "Uji Cepat belum disediakan, dan tidak ada yang berubah di kelas ini. Coba lagi dengan jumlah soal lebih sedikit atau bab lain. Bila tetap belum bisa, sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "The Quick Assessment was not made available, and nothing has changed in this class. Try again with fewer items or another chapter. If it still does not work, tell whoever looks after PINTAR at your school." },
+  // DAISY-27 (UX-03, with BOB-32): why an Uji Cepat was not made available, one sentence per code
+  // (src/components/mengajar/tolakUjiCepat.ts). «Sudah ada Uji Cepat yang berjalan» is retired: it was never the cause
+  "mengajar.cepat.tolak.awal": { default: "Uji Cepat belum disediakan.", en: "The Quick Assessment was not made available." },
+  "mengajar.cepat.tolak.bank": { default: "Bab itu belum punya cukup soal untuk jumlah yang dipilih. Pilih jumlah soal yang lebih sedikit, atau bab lain.", en: "That chapter does not have enough questions for the number chosen. Choose fewer items, or another chapter." },
+  "mengajar.cepat.tolak.jumlah": { default: "Jumlah soal harus antara", en: "The number of items must be between" },
+  "mengajar.cepat.tolak.menit": { default: "Waktu pengerjaan itu tidak bisa dipakai. Pilih", en: "That time window cannot be used. Choose" },
+  "mengajar.cepat.tolak.izin": { default: "Anda tidak dapat menyediakan Uji Cepat untuk kelas ini dengan bab itu. Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en: "You cannot make a Quick Assessment available for this class with that chapter. If you think this is a mistake, ask whoever looks after PINTAR at your school." },
+  "mengajar.cepat.tolak.tidak_ada": { default: "Kelas atau bab itu tidak ditemukan. Muat ulang halaman ini, lalu pilih lagi.", en: "That class or chapter was not found. Reload this page, then choose again." },
+  "mengajar.cepat.tolak.umum": { default: "Ada kendala di PINTAR. Coba sekali lagi. Bila masih terjadi, sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "Something went wrong in PINTAR. Try once more. If it happens again, tell whoever looks after PINTAR at your school." },
+  "mengajar.cepat.atau": { default: "atau", en: "or" },
   "mengajar.bukti.eyebrow": { default: "Bukti", en: "Evidence" },
   "mengajar.bukti.judul": { default: "Apa yang sudah bisa disimpulkan", en: "What can be concluded so far" },
   "mengajar.bukti.intro": { default: "PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum.", en: "PINTAR only concludes when the official evidence is enough. Not yet enough does not mean bad — it means not yet." },

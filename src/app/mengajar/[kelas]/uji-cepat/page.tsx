@@ -10,6 +10,8 @@ import TombolKirim from "@/components/TombolKirim";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
+import { bacaGagalUjiCepat } from "@/lib/ujicepat-kontrak";
+import { kalimatTolakUjiCepat } from "@/components/mengajar/tolakUjiCepat";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +55,7 @@ export default async function UjiCepat({
   searchParams,
 }: {
   params: Promise<{ kelas: string }>;
-  searchParams: Promise<{ tahap?: string; bab?: string; soal?: string; menit?: string; cepat?: string }>;
+  searchParams: Promise<{ tahap?: string; bab?: string; soal?: string; menit?: string; cepat?: string; kode?: string; ref?: string }>;
 }) {
   const { kelas: id } = await params;
   const q = await searchParams;
@@ -72,6 +74,20 @@ export default async function UjiCepat({
     ajar.faktaKelas(id),
   ]);
   const hidup = buka.find((b) => b.adHoc) ?? null;
+
+  const soalMin = batas?.soalMin ?? 3;
+  const soalMax = batas?.soalMax ?? 20;
+  // DAISY-27 (UX-03, with BOB-32): the launch's answer, said in whichever
+  // stage renders. A refusal is read through BOB-32's contract (a code it
+  // knows, a reference of the right shape, nothing else) and said by its own
+  // sentence. A success lands on the running stage, since the Uji Cepat is
+  // then running, so its line is drawn there too.
+  const gagal = bacaGagalUjiCepat(q);
+  const barisHasil = gagal ? (
+    <BarisHasil nada="gagal">{kalimatTolakUjiCepat(gagal, s, locale, { soalMin, soalMax, menit: ajar.JENDELA_MENIT })}</BarisHasil>
+  ) : q.cepat === "ok" ? (
+    <BarisHasil nada="ok">{s("mengajar.cepat.ok")}</BarisHasil>
+  ) : null;
 
   const lingkup = (
     <BarisLingkup
@@ -102,9 +118,7 @@ export default async function UjiCepat({
           <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
           {lingkup}
           <TahapKomitmen tahap={2} nama={langkah} locale={locale} />
-          {/* DAISY-26 (UX-03): a refused launch lands here only when one is
-              already running, so this is the one place that line is true. */}
-          {q.cepat === "gagal" ? <BarisHasil nada="gagal">{s("mengajar.cepat.sudah_ada")}</BarisHasil> : null}
+          {barisHasil}
           <div className="pin-hidup">
             <p className="pin-eyebrow">{s("mengajar.cepat.hidup.eyebrow")}</p>
             <h1>{s("mengajar.cepat.hidup.judul")}</h1>
@@ -149,8 +163,6 @@ export default async function UjiCepat({
   const kursus = [...new Set(tugas.filter((x) => x.status === "ACTIVE").map((x) => x.courseId))];
   const bab = (await Promise.all(kursus.map((c) => ajar.bab(c)))).flat();
 
-  const soalMin = batas?.soalMin ?? 3;
-  const soalMax = batas?.soalMax ?? 20;
   const pilihBab = q.bab && bab.some((b) => b.id === q.bab) ? q.bab : bab[0]?.id;
   const pilihSoal = Math.min(Math.max(Number(q.soal) || soalMin, soalMin), soalMax);
   const pilihMenit = ajar.JENDELA_MENIT.includes(Number(q.menit) as never)
@@ -222,12 +234,7 @@ export default async function UjiCepat({
           <p className="pin-intro">{s("mengajar.cepat.intro")}</p>
         </div>
 
-        {/* DAISY-26 (UX-03): this stage renders only when no Uji Cepat is
-            running, so a refusal here had another cause. It used to say one
-            was already running. The action does not yet pass the cause (see
-            the hand-off), so the line says what is true and what to try. */}
-        {q.cepat === "gagal" ? <BarisHasil nada="gagal">{s("mengajar.cepat.gagal")}</BarisHasil> : null}
-        {q.cepat === "ok" ? <BarisHasil nada="ok">{s("mengajar.cepat.ok")}</BarisHasil> : null}
+        {barisHasil}
 
         {bab.length === 0 ? (
           <p className="pin-empty">{s("mengajar.cepat.bab.kosong")}</p>
