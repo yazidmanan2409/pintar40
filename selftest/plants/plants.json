@@ -54,6 +54,11 @@
       "suite": "selftest.run_fable05()",
       "control_green": 23,
       "what": "BOB-35's provenance: a session records a release of its definition's course or none is opened; a corrected-release move carries the cycle's PRE_TEST and POST_TEST to the target's own definitions or is refused, and is refused once any learner has started"
+    },
+    "db-bob36-gates": {
+      "suite": "selftest.run_bob36()",
+      "control_green": 1,
+      "what": "BOB-36's Uji Cepat rules: once a session cites an ad-hoc definition, its twelve interpretive fields and its status are fixed for every role, the owner included, while its title and an unsat definition stay editable"
     }
   },
   "plants": [
@@ -629,6 +634,9 @@
     { "name": "bob35-1", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a session citing v1.1's release with v1.0's definition was inserted" },
     { "name": "bob35-2", "gate": "db-bob35-gates", "expect_red": "F05-T14", "expect_detail": "the cycle's POST_TEST assignment still names the v1.0 definition" },
     { "name": "bob35-3", "gate": "db-bob35-gates", "expect_red": "F05-T14", "expect_detail": "a release was moved after a learner had started under the assignment" },
-    { "name": "bob35-4", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a move to a release with no cycle definition was accepted" }
+    { "name": "bob35-4", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a move to a release with no cycle definition was accepted" },
+    { "name": "bob36-1", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "an edit after the sitting changed the finished session's verdict from true to false" },
+    { "name": "bob36-2", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: mode, bank_type" },
+    { "name": "bob36-3", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "the owner rewrote a sat Uji Cepat's passing_rules" }
   ]
 }
