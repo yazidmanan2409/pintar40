@@ -2348,7 +2348,8 @@ const table: Table = {
   // DAISY-26 (UX-27): the page counts «soal», so these do too
   "hasil.safety.ok": { default: "Semua soal penting sudah dijawab dengan tepat.", en: "You answered every important question correctly." },
   "hasil.safety.missed": { default: "Ada soal penting yang belum tepat. Mari kita lihat bersama.", en: "An important question is not right yet. Let us look at it together." },
-  "hasil.domain": { default: "Per bagian", en: "By section" },
+  // POLISH3 (UX-26): each row is now a learning objective, named by its statement; «bagian» is also the school's structure unit (D-006)
+  "hasil.domain": { default: "Per tujuan pembelajaran", en: "By learning objective" },
   "hasil.review": { default: "Tinjau kembali", en: "Look back over it" },
   "hasil.review.open": { default: "Buka pembahasan", en: "Open the explanation" },
   "hasil.answer_yours": { default: "Jawaban Anda", en: "Your answer" },
