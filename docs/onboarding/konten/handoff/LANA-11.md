@@ -60,13 +60,13 @@ that are consistent and leave the contradiction out:
 
 ## Every fact is traced
 
-- **The fact table.** `FAKTA` holds **122 facts**, each with its page (pp. 70-125) and the
+- **The fact table.** `FAKTA` holds **120 facts**, each with its page (pp. 70-125) and the
   book's own words.
 - **Every option names its fact.** Every option of every question names the fact it rests on,
   and the generator checks that the option's content words appear in that fact's quotation. The
   check rejected 12 of my first option wordings until they used the book's words.
 - **Quotations checked against the book.** `--kutipan` checks every quotation against the
-  book's extracted text. **121 of 122 are found.** The one not found is Gambar 2.44, the height
+  book's extracted text. **119 of 120 are found.** The one not found is Gambar 2.44, the height
   zones, whose labels the PDF text lays out out of order; the generator allows only that one.
 - **What is computed and asserted:**
   - the sago areas: 5,2 < 5,5 < 6,5 juta ha;
@@ -105,9 +105,9 @@ that are consistent and leave the contradiction out:
 $ python3 docs/onboarding/konten/sma11_geografi_bab2.py --kutipan <book text>
 SMA11-Geografi-Bab2.xlsx: lessons 7 (34 pages), questions 30 (pre 4, post 8, practice 18), answers A=8 B=7 C=8 D=7
 SMA11-Geografi-Bab2-miskonsepsi.csv: 14 codes
-facts traced: 122 (pages 70-125)
-quotations found in the book's text: 121 of 122; figures read by eye: zona_suhu
-assertions passed: 858          (857 without --kutipan)
+facts traced: 120 (pages 70-125)
+quotations found in the book's text: 119 of 120; figures read by eye: zona_suhu
+assertions passed: 856          (855 without --kutipan)
 
 $ npx tsx docs/onboarding/konten/ke-paket.ts docs/onboarding/konten/SMA11-Geografi-Bab2.xlsx docs/onboarding/konten/SMA11-Geografi-Bab2.paket.json
 docs/onboarding/konten/SMA11-Geografi-Bab2.paket.json: media none
@@ -163,11 +163,27 @@ I checked these against the page images. None is copied into the workbook.
     - "ulir" among the critical plants (p. 81), while Gambar 2.11 shows ulin;
     - "Gunung Louser" (p. 122).
 
+## Round 2 (coordinator's review)
+
+- **Melati** (p. 70) is no longer given as "flora endemik Jawa". Lesson 1 keeps the definition
+  without an example, PB1's stem is now general ("Suatu tumbuhan disebut flora endemik suatu
+  daerah karena …", same key), and the fact is removed from `FAKTA`.
+- **Cendawan** is no longer a mesophyta example: lesson 6, PB7's rationale and the humidity model
+  keep only anggrek.
+- **Oceanik's endemics** (kiwi and sphenodon) are dropped from lesson 4, which keeps "faunanya
+  hampir sama dengan wilayah Australian". The kiwi facts are removed from `FAKTA`.
+- **LT4:** the distractor "1.252 jenis" (the wrong unit for rhinos) is now "24 ekor", the number of
+  smuggled kakatua jambul kuning (p. 80, traced as `kakatua_24`).
+
 ## Questions for the coordinator
 
-None. Four claims look doubtful from outside the book, and I left them out of every question, as
-agreed for Bab 1:
+None. Seven claims look doubtful from outside the book, and I left them out of every question and
+lesson, as agreed for Bab 1. The first three were raised in the coordinator's review:
 
+- melati as "flora endemik Jawa" (p. 70);
+- cendawan as a mesophyta example (p. 111): a fungus is not a plant;
+- kiwi and sphenodon as endemics of the Oceanik region (p. 100): both live only in New Zealand,
+  which the book puts in the Australian region;
 - penguins in the Arctic (p. 87);
 - Parangkusumo placed in Jawa Tengah (p. 111);
 - kuskus called "kanguru pohon" (p. 108);

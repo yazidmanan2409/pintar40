@@ -60,7 +60,6 @@ def fakta(id_, hal, kutipan):
 # A. Keragaman flora dan fauna Indonesia (pp. 70-82)
 fakta("flora_def", 70, "Istilah flora berasal dari bahasa latin yang berarti alam tumbuhan.")
 fakta("flora_endemik", 70, "Flora endemik suatu daerah adalah jenis tumbuhan tertentu yang tidak dijumpai di wilayah lain.")
-fakta("melati", 70, "Contohnya bunga melati yang merupakan flora endemik Jawa.")
 fakta("fauna_def", 70, "Kata fauna berasal dari bahasa latin yang berarti alam hewan.")
 fakta("fauna_endemik", 70, "Fauna endemik adalah hewan yang hanya ditemukan di wilayah tertentu dan tidak dapat ditemukan di daerah lain.")
 fakta("endemik_contoh", 71, "Contohnya burung Cendrawasih dan Badak. Jenis burung itu merupakan endemik asli Papua, sedangkan badak bercula satu merupakan endemik Ujung Kulon, pulau Jawa.")
@@ -85,6 +84,7 @@ fakta("daftar_merah", 81, "Sebanyak 1.252 jenis tumbuhan Indonesia masuk dalam d
 fakta("harimau_400", 81, "harimau Sumatra populasinya diperkirakan kurang dari 400 ekor")
 fakta("harimau_14", 82, "tidak kurang 14 ekor mati terbunuh oleh pemburu yang hanya ingin memperoleh keuntungan dari penjualan hewan buruannya.")
 fakta("badak_50", 82, "Saat ini, badak bercula satu yang dilindungi di Ujung Kulon berjumlah sekitar 50 ekor.")
+fakta("kakatua_24", 80, "Contohnya kasus penyelundupan 24 kakatua jambul kuning.")
 fakta("pesut_50", 82, "Demikian juga pesut Mahakam yang hanya berjumlah sekitar 50 ekor.")
 # B.1 Bioma (pp. 83-89)
 fakta("bioma_def", 83, "Bioma biasanya diklasifikasikan berdasarkan vegetasi yang dominan dalam suatu wilayah regional yang luas.")
@@ -122,7 +122,6 @@ fakta("oriental_endemik", 98, "Komodo yang hanya dapat ditemukan di Pulau Komodo
 fakta("australian", 98, "Wilayah Australian Wilayah ini mencakup kawasan Australia, Selandia Baru, Irian, Maluku, dan pulau- pulau sekitarnya.")
 fakta("australian_fauna", 99, "Beberapa hewan khas wilayah ini adalah kanguru, burung kiwi, koala, cocor bebek")
 fakta("oceanik", 100, "Wilayah Oceanik Fauna di wilayah ini tersebar di kawasan kepulauan di Samudra Pasifik.")
-fakta("oceanik_endemik", 100, "Fauna endemik wilayah Oceanik adalah kiwi dan sphenodon.")
 fakta("antartik", 100, "wilayah ini mencakup Kawasan Kutub Selatan. Daerah persebarannya meliputi benua Antartika dan pulau-pulau kecil di sekitarnya.")
 fakta("tundra_fauna", 87, "Mamalia lain yang dapat hidup di tundra adalah beruang kutub, kelinci kutub, dan lemur.")
 # C. Sebaran flora dan fauna di Indonesia (pp. 101-109)
@@ -142,7 +141,6 @@ fakta("fauna_barat_mamalia", 106, "Mamalia: gajah, badak bercula satu, tapir, ru
 fakta("fauna_tengah", 107, "Wilayah fauna Indonesia tengah juga disebut fauna Kepulauan Wallacea. Region ini terdiri atas Pulau Sulawesi dan kepulauan sekitarnya. Kepulauan Nusa Tenggara, Pulau Timor, dan Kepulauan Maluku. Di Kawasan ini terdapat hewan khas yang hanya dapat dijumpai di Indonesia, yaitu anoa, babi rusa, dan biawak komodo.")
 fakta("fauna_timur", 108, "Wilayah fauna Indonesia Timur disebut juga fauna Dangkalan Sahul. Fauna di wilayah ini menyebar di kepulauan Papua dan pulau-pulau kecil sekitarnya.")
 fakta("fauna_timur_mamalia", 108, "Mamalia: kanguru, wallaby, nokdiak (landak Irian), opposum layang")
-fakta("kiwi_timur", 109, "Burung terdiri atas nuri, raja udang, cendrawasih, kasuari, kiwi dan namdur.")
 fakta("cendrawasih", 109, "Ada sekitar 42 jenis burung cenderawasih, 30 di antaranya berada di Indonesia.")
 # D. Faktor sebaran (pp. 110-113)
 fakta("faktor", 110, "Ada beberapa faktor yang mempengaruhi persebaran flora dan fauna di Indonesia, yaitu iklim (suhu, kelembapan, udara, curah hujan), tanah, dan pengaruh aktivitas manusia, hewan serta tumbuh-tumbuhan")
@@ -241,7 +239,7 @@ HEWAN_ID = {"barat": ["gajah", "badak bercula satu", "orangutan", "banteng", "ta
 cek(all(norm(t) in norm(FAKTA["fauna_" + k + ("_mamalia" if k != "tengah" else "")][1]) for k, v in HEWAN_ID.items() for t in v))
 
 # Plants by the humidity they need (pp. 111-112).
-KELEMBAPAN = {"xerophyta": ["kaktus"], "mesophyta": ["anggrek", "cendawan"], "hygrophyta": ["teratai", "eceng gondok", "selada air"],
+KELEMBAPAN = {"xerophyta": ["kaktus"], "mesophyta": ["anggrek"], "hygrophyta": ["teratai", "eceng gondok", "selada air"],
               "tropophyta": ["jati", "eukaliptus"]}
 cek(all(norm(t) in norm(FAKTA[k][1] + (FAKTA["tropophyta_contoh"][1] if k == "tropophyta" else "")) for k, v in KELEMBAPAN.items() for t in v))
 
@@ -272,7 +270,7 @@ PELAJARAN = [
 - **Flora** berasal dari bahasa Latin yang berarti alam tumbuhan, yaitu sekelompok tanaman atau tumbuhan.
 - **Fauna** berasal dari bahasa Latin yang berarti alam hewan, yaitu segala jenis hewan yang hidup di dunia.
 
-**Flora endemik** adalah jenis tumbuhan yang tidak dijumpai di wilayah lain, misalnya bunga melati, flora endemik Jawa. Setiap daerah mempunyai iklim, cuaca, dan tanah yang berbeda, sehingga tumbuhannya pun khas.
+**Flora endemik** adalah jenis tumbuhan tertentu yang tidak dijumpai di wilayah lain. Setiap daerah mempunyai iklim, cuaca, dan tanah yang berbeda, sehingga tumbuhannya pun khas.
 
 **Fauna endemik** adalah hewan yang hanya ditemukan di wilayah tertentu. Persebarannya alami, tanpa campur tangan manusia. Contohnya:
 - burung cendrawasih, endemik asli Papua;
@@ -409,7 +407,7 @@ Pada tahun 1876, **Alfred Russel Wallace** membagi persebaran fauna dunia menjad
 
 ## Oceanik dan Antartik
 
-**Oceanik** tersebar di kepulauan Samudra Pasifik. Faunanya hampir sama dengan wilayah Australian; fauna endemiknya kiwi dan sphenodon.
+**Oceanik** tersebar di kepulauan Samudra Pasifik. Faunanya hampir sama dengan wilayah Australian.
 
 **Antartik** mencakup Kutub Selatan: benua Antartika dan pulau-pulau kecil di sekitarnya. Faunanya antara lain penguin kaisar, anjing laut Weddell, paus biru, dan krill.
 
@@ -481,7 +479,7 @@ Contohnya apel, yang tumbuh subur di tempat sejuk: beberapa kecamatan di Kota Ba
 
 Tumbuhan dapat dikelompokkan menurut kelembapan tempat tumbuhnya:
 - **Xerophyta**: tahan di lingkungan kering, contohnya kaktus.
-- **Mesophyta**: cocok di lingkungan lembap tetapi tidak basah, contohnya anggrek dan cendawan.
+- **Mesophyta**: cocok di lingkungan lembap tetapi tidak basah, contohnya anggrek.
 - **Hygrophyta**: cocok di kawasan basah, contohnya teratai, eceng gondok, dan selada air.
 - **Tropophyta**: dapat beradaptasi di musim hujan dan musim kemarau, contohnya jati dan eukaliptus.
 
@@ -661,7 +659,7 @@ soal("PA4", 7, "Taman Safari Bogor termasuk pelestarian flora dan fauna dengan m
 ], guna="Pemetaan awal")
 
 # ── Cek penguasaan (post-test): every lesson; no book assessment item (pp. 127-134), no lesson example.
-soal("PB1", 1, "Bunga melati disebut flora endemik Jawa karena ...", "C", [
+soal("PB1", 1, "Suatu tumbuhan disebut flora endemik suatu daerah karena ...", "C", [
     ("jenis tumbuhan itu tidak dijumpai di wilayah lain", True, "Tepat. Flora endemik suatu daerah tidak dijumpai di wilayah lain.", "", "flora_endemik"),
     ("berasal dari bahasa latin yang berarti alam tumbuhan", False, "Ini arti kata flora, bukan alasan disebut endemik.", "SMA11-G-B2-01", "flora_def"),
     ("banyak tanaman dari Timur Tengah dipindahkan ke Indonesia", False, "Ini contoh pengaruh manusia, seperti kurma; tumbuhan endemik tersebar secara alami.", "SMA11-G-B2-01", "manusia_kurma"),
@@ -701,7 +699,7 @@ soal("PB6", 6, "Kota P di ketinggian 300 m bersuhu 24 °C. Menurut buku, suhu tu
     ("14 °C", False, "Penurunannya dihitung 1 °C setiap 100 m. Menurut buku sekitar 0,5 °C.", "SMA11-G-B2-12", "=lapse"),
 ], guna="Cek penguasaan", sulit="Sedang")
 soal("PB7", 6, "Tumbuhan yang cocok hidup di lingkungan lembap tetapi tidak basah digolongkan sebagai ...", "D", [
-    ("mesophyta", True, "Tepat. Contohnya anggrek dan cendawan.", "", "mesophyta"),
+    ("mesophyta", True, "Tepat. Contohnya anggrek.", "", "mesophyta"),
     ("xerophyta", False, "Xerophyta tahan di lingkungan kering, seperti kaktus.", "SMA11-G-B2-11", "xerophyta"),
     ("hygrophyta", False, "Hygrophyta cocok hidup di kawasan basah, seperti teratai.", "SMA11-G-B2-11", "hygrophyta"),
     ("tropophyta", False, "Tropophyta dapat beradaptasi di musim hujan dan musim kemarau.", "SMA11-G-B2-11", "tropophyta"),
@@ -738,7 +736,7 @@ soal("LT4", 2, "Menurut buku, badak bercula satu yang dilindungi di Ujung Kulon 
     ("sekitar 50 ekor", True, "Benar. Pesut Mahakam juga hanya sekitar 50 ekor.", "", "badak_50"),
     ("kurang dari 400 ekor", False, "Ini perkiraan populasi harimau Sumatra.", "SMA11-G-B2-04", "harimau_400"),
     ("14 ekor", False, "Ini jumlah harimau Sumatra yang mati dibunuh pemburu setiap bulan.", "SMA11-G-B2-04", "harimau_14"),
-    ("1.252 jenis", False, "Ini jumlah jenis tumbuhan Indonesia dalam daftar merah.", "SMA11-G-B2-04", "daftar_merah"),
+    ("24 ekor", False, "24 adalah jumlah kakatua jambul kuning dalam kasus penyelundupan, bukan jumlah badak.", "SMA11-G-B2-04", "kakatua_24"),
 ])
 soal("LT5", 2, "Bagaimana curah hujan dan iklim di wilayah barat Indonesia pada umumnya?", "A", [
     ("curah hujan tinggi dan beriklim basah", True, "Tepat. Wilayah timur bercurah hujan lebih rendah.", "", "barat_timur"),
