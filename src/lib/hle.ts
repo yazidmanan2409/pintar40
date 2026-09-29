@@ -2347,7 +2347,8 @@ const table: Table = {
   "siklus.berikutnya": { default: "Apa berikutnya", en: "What next" },
   "siklus.terbuka_kini": { default: "Yang terbuka untuk Anda sekarang.", en: "What is open to you now." },
   "siklus.habis.judul": { default: "Tidak ada lagi yang menunggu", en: "Nothing else is waiting" },
-  "siklus.habis.isi": { default: "Semua yang ditugaskan sudah selesai. Kami akan memberi tahu ketika ada yang baru.", en: "Everything assigned to you is finished. We will let you know when something new arrives." },
+  // DAISY-25 (D-019): PINTAR sends a learner no notification and cannot know whether more is coming, so the line says where new work would appear, and nothing more
+  "siklus.habis.isi": { default: "Semua yang ditugaskan sudah selesai. Materi baru, jika ada, akan muncul di halaman Belajar.", en: "Everything assigned to you is finished. Anything new will appear on your Learning page." },
   "siklus.lihat_sertifikat": { default: "Lihat sertifikat", en: "See the certificate" },
 
   "sync.offline": { default: "Sedang luring. Jawaban Anda disimpan dan dikirim saat tersambung lagi.", en: "You are offline. Your answers are saved and sent once you are back on." },

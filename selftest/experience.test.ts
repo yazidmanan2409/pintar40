@@ -10297,4 +10297,153 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "DAISY-25-TEKS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? readFileSync(f, "utf8") : "";
+      };
+      /**
+       * DAISY-25 (UX-23, UX-28 and UX-29 of the reader walk): THREE LINES THAT
+       * SAID SOMETHING UNTRUE. The Pemetaan Awal opened with the Uji
+       * Penguasaan's line. Every topic on «Lihat bukti» read "—", because the
+       * content's domain names were looked up as copy keys. And the end of a
+       * cycle promised a notification PINTAR never sends.
+       *
+       * Both components are RENDERED, as the pages render them, in a child
+       * process: the runner itself runs under the react-server condition,
+       * where react-dom/server is not available.
+       */
+      const TOPIK = ["Pecahan Senilai", "Operasi Hitung & Urutan <Bilangan>", "kesiapan.perlu_review"];
+      const KASUS_O = LOCALES.flatMap((locale) => (["PEMETAAN", "PENGUASAAN"] as const).map((mode) => ({
+        locale, mode, eyebrow: "Matematika · Bab 2", judul: "Judul", mulai: null, kembali: { href: "/belajar", label: "Kembali" },
+        orientasi: { mode: mode === "PEMETAAN" ? "PRE_TEST" : "POST_TEST", title: "Judul", item_count: 12, allows_pause: true,
+          hesitation_window_seconds: null, opens_at: null, closes_at: null, attempt_limit: 1, attempts_used: 0 },
+      })));
+      const KASUS_B = [
+        ...LOCALES.flatMap((locale) => TOPIK.map((label) => ({ label, count: 73, total: 100, locale }))),
+        ...LOCALES.map((locale) => ({ tierKey: "kesiapan.siap_sertifikasi", count: 4, total: 9, locale })),
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const mo = await import("file://" + process.cwd() + "/src/components/siklus/OrientasiAsesmen.tsx");' +
+        '  const mb = await import("file://" + process.cwd() + "/src/components/bukti/BarisKesiapan.tsx");' +
+        "  const O = mo.default?.default ?? mo.default;" +
+        "  const B = mb.default?.default ?? mb.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify({" +
+        "    o: JSON.parse(process.env.KASUS_O).map((k) => renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(O, k))))," +
+        "    b: JSON.parse(process.env.KASUS_B).map((k) => renderToStaticMarkup(h(B, k))) }));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8",
+        env: { ...process.env, KASUS_O: JSON.stringify(KASUS_O), KASUS_B: JSON.stringify(KASUS_B) },
+      });
+      let html: { o: string[]; b: string[] } = { o: [], b: [] };
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      const teks = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#x27;/g, "'")
+        .replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+      const dirender = c.expect(anak.status === 0 && html.o.length === KASUS_O.length && html.b.length === KASUS_B.length,
+        `the orientation and the topic row could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`);
+
+      /**
+       * 1. EACH ASSESSMENT OPENS WITH ITS OWN LINE. The Pemetaan Awal's
+       *    orientation shows `pretest.intro` and never `posttest.intro`; the
+       *    Uji Penguasaan's shows `posttest.intro` and never `pretest.intro`,
+       *    in both languages. The two lines differ in both languages, so the
+       *    check can tell them apart. From the SOURCE, the surface that shows
+       *    the orientation hands it the mode it was given, and the Pemetaan
+       *    Awal's page gives PEMETAAN.
+       */
+      for (const locale of LOCALES) {
+        const pre = t("pretest.intro", "learner", { locale });
+        const post = t("posttest.intro", "learner", { locale });
+        c.expect(pre !== TANPA_SALINAN && post !== TANPA_SALINAN && pre !== post,
+          `(${locale}) pretest.intro and posttest.intro are not two different lines: "${pre}" / "${post}"`);
+      }
+      if (dirender) {
+        KASUS_O.forEach((k, i) => {
+          const intro = /<p class="pin-intro">([\s\S]*?)<\/p>/.exec(html.o[i])?.[1] ?? "";
+          const benar = t(k.mode === "PEMETAAN" ? "pretest.intro" : "posttest.intro", "learner", { locale: k.locale });
+          const lain = t(k.mode === "PEMETAAN" ? "posttest.intro" : "pretest.intro", "learner", { locale: k.locale });
+          const x = teks(html.o[i]);
+          c.expect(teks(intro) === benar && !x.includes(lain),
+            `(${k.locale}) the ${k.mode === "PEMETAAN" ? "Pemetaan Awal" : "Uji Penguasaan"} orientation opens with "${teks(intro)}", not "${benar}"`);
+        });
+      }
+      const permukaan = code(baca("src", "app", "belajar", "_components", "PermukaanAsesmen.tsx"));
+      c.expect(/<OrientasiAsesmen\b[^>]*\bmode=\{mode\}/.test(permukaan),
+        "PermukaanAsesmen does not hand the orientation the mode it was given");
+      c.expect(/<PermukaanAsesmen\b[^>]*\bmode="PEMETAAN"/.test(code(baca("src", "app", "belajar", "[tugas]", "pemetaan", "page.tsx")))
+        && /<PermukaanAsesmen\b[^>]*\bmode="PENGUASAAN"/.test(code(baca("src", "app", "belajar", "[tugas]", "penguasaan", "page.tsx"))),
+        "the Pemetaan Awal and Uji Penguasaan pages do not each give their own mode");
+
+      /**
+       * 2. A TOPIC IS NAMED BY THE CONTENT. A topic row shows the domain's name
+       *    exactly as the content gives it, never "—" and never a copy
+       *    lookup: planted, a domain whose name happens to be a copy key reads
+       *    as that name, not as the copy key's words. The readiness rows still
+       *    read their tier's words. From the SOURCE, «Lihat bukti» passes each
+       *    topic's name as the row's label and never as a copy key.
+       */
+      if (dirender) {
+        KASUS_B.forEach((k, i) => {
+          const nama = teks(/<span>([\s\S]*?)<\/span>/.exec(html.b[i])?.[1] ?? "");
+          if ("label" in k) {
+            c.expect(nama === k.label && nama !== TANPA_SALINAN,
+              `(${k.locale}) the topic "${k.label}" reads "${nama}"`);
+            if (k.label === "kesiapan.perlu_review") {
+              c.expect(!teks(html.b[i]).includes(t("kesiapan.perlu_review", "educator", { locale: k.locale })),
+                `(${k.locale}) a topic named like a copy key was looked up in the copy table`);
+            }
+          } else {
+            const kata = t("kesiapan.siap_sertifikasi", "educator", { locale: k.locale });
+            c.expect(nama === kata && kata !== TANPA_SALINAN, `(${k.locale}) the readiness tier reads "${nama}", not "${kata}"`);
+          }
+          c.expect(teks(html.b[i]).includes(format.number(k.count, k.locale)), `(${k.locale}) the row does not show its number`);
+        });
+      }
+      const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
+      c.expect(/bagian\.map\(\(\[nama, nilai\]\) => \(\s*<BarisKesiapan\b[^>]*\blabel=\{nama\}/.test(bukti)
+        && !/tierKey=\{nama\}/.test(bukti),
+        "«Lihat bukti» does not pass each topic's own name as the row's label, or still looks it up as a copy key");
+
+      /**
+       * 3. THE END OF A CYCLE SAYS ONLY WHAT IS TRUE (D-019). PINTAR sends a
+       *    learner no notification, so no line a learner or the public reads
+       *    promises one. «Tidak ada lagi yang menunggu» says where new work
+       *    appears instead: the Learning page, by the name the menu gives it,
+       *    in both languages. Planted, the line it replaced is caught.
+       */
+      const JANJI = /\bkami akan (memberi ?tahu|mengabari|menghubungi)|\b(diberi ?tahu|dikabari)\b|\bnotifikasi\b|\bpemberitahuan\b|\blet you know\b|\bnotif(y|ied|ication)s?\b|\bwe(?: will|'ll) (?:tell|email|message|contact) you\b/i;
+      c.expect(JANJI.test("Semua yang ditugaskan sudah selesai. Kami akan memberi tahu ketika ada yang baru.")
+        && JANJI.test("Everything assigned to you is finished. We will let you know when something new arrives."),
+        "the planted promise (the line DAISY-25 replaced) is not caught");
+      const berjanji = renderAll().filter((r) => (r.persona === "learner" || r.persona === "public") && JANJI.test(r.text));
+      c.expect(berjanji.length === 0,
+        `a learner or public line promises a notification PINTAR never sends: ${berjanji.slice(0, 3).map((r) => `${r.event} (${r.locale}) "${r.text}"`).join("; ")}`);
+      const habis = telling("siklus.habis.isi");
+      c.expect(!!habis?.default && !!habis?.en && habis.default !== habis.en, "«Tidak ada lagi yang menunggu» does not have its line in both languages");
+      for (const locale of LOCALES) {
+        const x = t("siklus.habis.isi", "learner", { locale });
+        c.expect(x.includes(t("nav.belajar", "learner", { locale })) && INTERNAL_WORDS.every((w) => !x.includes(w)),
+          `(${locale}) the end of a cycle does not send the learner to the page the menu calls "${t("nav.belajar", "learner", { locale })}": "${x}"`);
+      }
+
+      return c.verdict(
+        "rendered in both languages, the Pemetaan Awal's orientation opens with pretest.intro and the Uji Penguasaan's with " +
+        "posttest.intro, never each other's, and the pages hand the orientation their own mode; a topic row on «Lihat bukti» " +
+        "shows the domain's own name as the content gives it (a planted name that is also a copy key included), never \"—\" or a " +
+        "copy lookup, while a readiness row still reads its tier's words; and no learner or public line promises a " +
+        "notification, the end of a cycle naming the Learning page by the menu's word in both languages",
+      );
+    },
+  },
 ];
