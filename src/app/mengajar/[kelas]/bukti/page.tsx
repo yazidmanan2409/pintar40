@@ -6,7 +6,7 @@ import { actionText, omissionText } from "../../../_intel";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
-import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan } from "@/components/bukti";
+import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni } from "@/components/bukti";
 
 export const dynamic = "force-dynamic";
 
@@ -58,15 +58,6 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
     ajar.bukti(id, ctx.ini.institusi),
     ajar.minimumMetrik(),
   ]);
-
-  // The assessment the class is closest to finishing: the one still open with
-  // the nearest close, else the one that closed most recently.
-  const urut = [...asesmen].sort((a, b) => {
-    if (a.keadaan !== b.keadaan) return a.keadaan === "OPEN" ? -1 : 1;
-    return String(a.ditutup ?? "").localeCompare(String(b.ditutup ?? "")) * (a.keadaan === "OPEN" ? 1 : -1);
-  });
-  const fokus = urut[0] ?? null;
-  const belum = fokus ? Math.max(0, fakta.murid.length - fokus.mengumpulkan) : 0;
 
   const byId = new Map(ajar.METRIK_KELAS.map((m, i) => [m, amplop[i]]));
   const paham = byId.get("class.comprehension");
@@ -134,30 +125,9 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
         <div className="pin-sec">
           <h2>{s("mengajar.bukti.keadaan")}</h2>
-          {!fokus ? (
-            <p className="pin-empty">{s("mengajar.bukti.kosong")}</p>
-          ) : (
-            <dl className="pin-facts">
-              <div>
-                <dt>{s("mengajar.bukti.kumpul")}</dt>
-                <dd className="pin-num">
-                  {format.number(fokus.mengumpulkan, locale)} / {format.number(fakta.murid.length, locale)}
-                  <small>{fokus.judul}</small>
-                </dd>
-              </div>
-              <div>
-                <dt>{s("mengajar.bukti.jendela")}</dt>
-                <dd>{fokus.ditutup ? format.date(fokus.ditutup, locale) : "—"}</dd>
-              </div>
-              <div>
-                <dt>{s("mengajar.bukti.belum")}</dt>
-                <dd className="pin-num">
-                  {format.number(belum, locale)}
-                  <small>{s("mengajar.bukti.murid")}</small>
-                </dd>
-              </div>
-            </dl>
-          )}
+          {/* DAISY-26 (UX-06): every open test of the class, each with its own
+              counts, rather than one "focus" test standing for all of them. */}
+          <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} />
         </div>
 
         <div className="pin-sec">

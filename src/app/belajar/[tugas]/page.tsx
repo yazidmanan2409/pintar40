@@ -9,6 +9,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import JejakSiklus from "@/components/siklus/JejakSiklus";
 import PetaBacaan from "@/components/siklus/PetaBacaan";
+import { labelTujuan } from "@/components/siklus/aksi";
 
 export const dynamic = "force-dynamic";
 
@@ -47,16 +48,29 @@ export default async function Tugas({ params }: { params: Promise<{ tugas: strin
   // map set the order; this follows it rather than inventing a second one.
   const berikutnya = lessons.find((l) => !lessonRead(l));
 
+  // DAISY-26 (UX-21): the button says the step it opens (`labelTujuan`), and
+  // «Lanjutkan» only when that step's session is already open.
   const aksi: { href: string; labelKey: HleEvent } | null = (() => {
     switch (p.langkah) {
-      case "PEMETAAN": return { href: `/belajar/${tugas}/pemetaan`, labelKey: "siklus.mulai" };
+      case "PEMETAAN":
+        return {
+          href: `/belajar/${tugas}/pemetaan`,
+          labelKey: labelTujuan("PEMETAAN", { berjalan: Boolean(state.pre_session && state.pre_status !== "FINALIZED") }),
+        };
       case "PETA":
       case "PELAJARAN":
         return berikutnya
-          ? { href: `/belajar/${tugas}/pelajaran/${berikutnya.lesson_id}`, labelKey: "siklus.lanjutkan" }
+          ? {
+              href: `/belajar/${tugas}/pelajaran/${berikutnya.lesson_id}`,
+              labelKey: labelTujuan("PELAJARAN", { belumMembaca: p.pelajaranSelesai === 0 }),
+            }
           : null;
-      case "PENGUASAAN": return { href: `/belajar/${tugas}/penguasaan`, labelKey: "siklus.mulai" };
-      case "HASIL": return { href: `/belajar/${tugas}/hasil`, labelKey: "siklus.buka" };
+      case "PENGUASAAN":
+        return {
+          href: `/belajar/${tugas}/penguasaan`,
+          labelKey: labelTujuan("PENGUASAAN", { berjalan: Boolean(state.post_session && state.post_status !== "FINALIZED") }),
+        };
+      case "HASIL": return { href: `/belajar/${tugas}/hasil`, labelKey: labelTujuan("HASIL") };
     }
   })();
 

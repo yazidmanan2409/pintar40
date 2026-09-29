@@ -401,30 +401,30 @@ function Beranda({ locale }: { locale: Locale }) {
         </div>
 
         <section className="pin-lanjut">
-          <p className="pin-eyebrow">{s("siklus.lanjutkan", locale)}</p>
+          <p className="pin-eyebrow">{s("siklus.panel.eyebrow", locale)}</p>
           <p className="pin-where">{COURSE[l].mat}</p>
           <h2>{s("siklus.di.pelajaran", locale)} — {n(3)} {s("siklus.dari", locale)} {n(5)} {s("siklus.selesai_n", locale)}</h2>
           <JejakSiklus posisi={pMat} locale={locale} />
           <div className="pin-actions">
-            <a className="pin-btn pin-primary" href="#">{s("siklus.lanjutkan", locale)}</a>
-            <a className="pin-btn" href="#">{s("siklus.buka", locale)}</a>
+            <a className="pin-btn pin-primary" href="#">{s("siklus.aksi.pelajaran", locale)}</a>
+            <a className="pin-btn" href="#">{s("siklus.lihat_langkah", locale)}</a>
           </div>
         </section>
 
         <section className="pin-sec">
-          <h2>{s("siklus.perhatian", locale)}</h2>
+          <h2>{s("siklus.siap.judul", locale)}</h2>
           <div className="pin-perhatian">
             <span className="pin-what">{CHAP[l].c2}</span>
-            <span className="pin-why">{s("siklus.di.penguasaan", locale)}</span>
-            <div className="pin-actions"><a className="pin-btn" href="#">{s("siklus.mulai", locale)}</a></div>
+            <span className="pin-why">{s("siklus.siap.arti", locale)}</span>
+            <div className="pin-actions"><a className="pin-btn" href="#">{s("siklus.aksi.penguasaan", locale)}</a></div>
           </div>
         </section>
 
         <section className="pin-sec">
           <h2>{s("siklus.milik_anda", locale)}</h2>
-          <KartuTugas tugas={mat} posisi={pMat} locale={locale} aksi={{ href: "#", labelKey: "siklus.lanjutkan" }} />
-          <KartuTugas tugas={geo} posisi={pGeo} locale={locale} aksi={{ href: "#", labelKey: "siklus.mulai" }} />
-          <KartuTugas tugas={fis} posisi={pFis} locale={locale} aksi={{ href: "#", labelKey: "siklus.buka" }} />
+          <KartuTugas tugas={mat} posisi={pMat} locale={locale} aksi={{ href: "#", labelKey: "siklus.aksi.pelajaran" }} />
+          <KartuTugas tugas={geo} posisi={pGeo} locale={locale} aksi={{ href: "#", labelKey: "siklus.aksi.penguasaan" }} />
+          <KartuTugas tugas={fis} posisi={pFis} locale={locale} aksi={{ href: "#", labelKey: "siklus.aksi.hasil" }} />
         </section>
 
         <section className="pin-sec">
@@ -478,7 +478,7 @@ function Tugas({ locale }: { locale: Locale }) {
           <p className="pin-eyebrow">{s("siklus.sekarang", locale)}</p>
           <h2>{s("siklus.di.pelajaran", locale)} — {n(3)} {s("siklus.dari", locale)} {n(5)} {s("siklus.selesai_n", locale)}</h2>
           <p className="pin-sub">{s("map.intro", locale)}</p>
-          <div className="pin-actions"><a className="pin-btn pin-primary" href="#">{s("siklus.lanjutkan", locale)}</a></div>
+          <div className="pin-actions"><a className="pin-btn pin-primary" href="#">{s("siklus.aksi.pelajaran", locale)}</a></div>
         </section>
         <section className="pin-sec">
           <h2>{s("siklus.peta_anda", locale)}</h2>
