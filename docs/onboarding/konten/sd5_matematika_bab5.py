@@ -134,7 +134,7 @@ BAB = [(1, "Luas Daerah Bangun Datar")]
 PELAJARAN = [
     dict(no=1, judul="Apakah Luas Daerah Itu?",
          ringkasan="Luas daerah adalah ukuran besar kecilnya daerah yang dibatasi sebuah bangun datar, dihitung dengan banyaknya persegi satuan yang menutupinya.",
-         tujuan="Murid dapat mengenali masalah yang melibatkan luas daerah dan menghitung luas dengan persegi satuan.",
+         tujuan="Kalian dapat mengenali masalah yang melibatkan luas daerah dan menghitung luas dengan persegi satuan.",
          bloom="Memahami",
          isi=f"""## Memasang ubin
 
@@ -169,7 +169,7 @@ Hati-hati: petak yang tidak utuh tetap harus dihitung, tetapi setengah petak ber
 {SUMBER}"""),
     dict(no=2, judul="Luas Persegi Panjang dan Persegi",
          ringkasan="Luas persegi panjang adalah panjang dikali lebar; persegi adalah persegi panjang yang panjang dan lebarnya sama.",
-         tujuan="Murid dapat menghitung luas persegi panjang dan persegi, serta mencari sisi yang belum diketahui dari luasnya.",
+         tujuan="Kalian dapat menghitung luas persegi panjang dan persegi, serta mencari sisi yang belum diketahui dari luasnya.",
          bloom="Menerapkan",
          isi=f"""## Menemukan pola
 
@@ -215,7 +215,7 @@ Luas = panjang × 8, jadi panjang = 72 : 8 = **9 m**. Periksa: 9 × 8 = 72.
 {SUMBER}"""),
     dict(no=3, judul="Luas Segitiga dan Jajargenjang",
          ringkasan="Segitiga dan jajargenjang dapat dipotong dan disusun ulang menjadi persegi panjang, sehingga luasnya dapat dihitung dari alas dan tingginya.",
-         tujuan="Murid dapat menghitung luas segitiga dan jajargenjang dengan alas dan tinggi.",
+         tujuan="Kalian dapat menghitung luas segitiga dan jajargenjang dengan alas dan tinggi.",
          bloom="Menerapkan",
          isi=f"""## Jajargenjang menjadi persegi panjang
 
@@ -227,9 +227,9 @@ Luas = 8 × 5 = **40 cm²**.
 
 **Luas jajargenjang = alas × tinggi**
 
-## Tinggi, bukan sisi miring
+## Tinggi, bukan sisi samping
 
-Pada jajargenjang tadi, sisi miringnya 6 cm. Sisi miring **bukan** tinggi: sisi miring lebih panjang daripada jarak tegak lurusnya.
+Pada jajargenjang tadi, sisi sampingnya 6 cm. Sisi samping **bukan** tinggi: sisi samping lebih panjang daripada jarak tegak lurusnya.
 
 8 × 6 = 48 cm² terlalu besar. Yang dikalikan dengan alas adalah tingginya, 5 cm.
 
@@ -255,7 +255,7 @@ _Periksa: 1/2 × 7 × 4 = 14 cm²._
 {SUMBER}"""),
     dict(no=4, judul="Luas Trapesium, Belah Ketupat, dan Layang-Layang",
          ringkasan="Trapesium dihitung dari kedua sisi sejajar dan tingginya; belah ketupat dan layang-layang dari kedua diagonalnya.",
-         tujuan="Murid dapat menghitung luas trapesium, belah ketupat, dan layang-layang.",
+         tujuan="Kalian dapat menghitung luas trapesium, belah ketupat, dan layang-layang.",
          bloom="Menerapkan",
          isi=f"""## Trapesium
 
@@ -267,7 +267,7 @@ Luas = 16 × 2 = **32 cm²**.
 
 **Luas trapesium = 1/2 × (sisi sejajar 1 + sisi sejajar 2) × tinggi**
 
-Kedua sisi sejajar **dijumlahkan** dulu, baru dikali tinggi dan dibagi dua.
+Kedua sisi sejajar **dijumlahkan** dahulu, baru dikali tinggi dan dibagi dua.
 
 ## Belah ketupat
 
@@ -304,7 +304,7 @@ Untuk kedua bangun ini, yang dipakai adalah **diagonal**, bukan sisi.
 {SUMBER}"""),
     dict(no=5, judul="Luas Bangun Gabungan",
          ringkasan="Luas bangun gabungan dihitung dengan membaginya menjadi bangun-bangun yang dikenal, atau dengan mengurangkan bagian yang tidak termasuk.",
-         tujuan="Murid dapat menguraikan bangun gabungan dan menghitung luasnya dengan menjumlahkan atau mengurangkan luas bangun penyusunnya.",
+         tujuan="Kalian dapat menguraikan bangun gabungan dan menghitung luasnya dengan menjumlahkan atau mengurangkan luas bangun penyusunnya.",
          bloom="Menganalisis",
          isi=f"""## Membagi menjadi bangun yang dikenal
 
@@ -346,7 +346,7 @@ Luas = (6 × 6) + (1/2 × 6 × 4) = 36 + 12 = **48 cm²**.
 {SUMBER}"""),
     dict(no=6, judul="Hubungan Keliling dan Luas",
          ringkasan="Bangun-bangun dengan keliling yang sama dapat mempunyai luas yang berbeda, dan sebaliknya.",
-         tujuan="Murid dapat membandingkan keliling dan luas persegi panjang dan menentukan ukuran dengan luas terbesar bila kelilingnya diketahui.",
+         tujuan="Kalian dapat membandingkan keliling dan luas persegi panjang dan menentukan ukuran dengan luas terbesar bila kelilingnya diketahui.",
          bloom="Menganalisis",
          isi=f"""## Kawat 24 cm
 
@@ -382,7 +382,7 @@ Luasnya **sama**, tetapi kelilingnya **berbeda**. Jadi dari luas saja kita tidak
 
 - **Luas** adalah banyaknya persegi satuan yang menutupi daerah; satuannya cm² atau m².
 - Persegi panjang: panjang × lebar. Persegi: sisi × sisi.
-- Jajargenjang: alas × tinggi. Segitiga: 1/2 × alas × tinggi. Tinggi selalu diukur tegak lurus, bukan sisi miring.
+- Jajargenjang: alas × tinggi. Segitiga: 1/2 × alas × tinggi. Tinggi selalu diukur tegak lurus; sisi samping jajargenjang dan sisi miring segitiga bukan tinggi.
 - Trapesium: 1/2 × (jumlah sisi sejajar) × tinggi. Belah ketupat dan layang-layang: 1/2 × diagonal 1 × diagonal 2.
 - Bangun gabungan: bagi menjadi bangun yang dikenal, atau kurangkan bagian yang tidak termasuk.
 - Keliling yang sama tidak berarti luas yang sama.
@@ -466,7 +466,7 @@ def soal(ref, pel, tanya, jawab, pilihan, guna="", sulit="Mudah", petunjuk=""):
 
 # ── Pemetaan awal (pre-test): what luas measures, counting unit squares, a square, a triangle.
 soal("PA1", 1, "Manakah yang dihitung dengan luas daerah?", "C", [
-    ("Banyak ubin untuk menutup lantai kamar", True, "Tepat. Ubin menutup seluruh daerah lantai, jadi yang dihitung luas.", ""),
+    ("Banyak ubin untuk menutup lantai kamar", True, "Benar. Ubin menutup seluruh daerah lantai, jadi yang dihitung luas.", ""),
     ("Panjang pagar di sekeliling kebun", False, "Pagar mengikuti tepi kebun. Itu keliling, bukan luas.", "SD5-M-B5-01"),
     ("Panjang pita untuk tepi bingkai foto", False, "Pita dipasang di tepi. Itu keliling, bukan luas.", "SD5-M-B5-01"),
     ("Jarak berlari satu kali mengelilingi lapangan", False, "Berlari mengelilingi lapangan menyusuri tepinya. Itu keliling.", "SD5-M-B5-01"),
@@ -475,7 +475,7 @@ cek(6 * 4 == 24 and 6 + 4 == 10 and 2 * (6 + 4) == 20 and 2 * 6 + 2 * 4 - 4 == 1
 soal("PA2", 1, "Lantai teras dipasangi ubin 1 m × 1 m sebanyak 6 baris, dan setiap baris berisi 4 ubin. Berapa luas lantai teras?", "A", [
     ("24 m²", True, "Benar. 6 baris × 4 ubin = 24 ubin, masing-masing 1 m².", ""),
     ("10 m²", False, "Banyak baris dan banyak ubin setiap baris dijumlahkan. Setiap baris berisi 4 ubin, jadi dikalikan.", "SD5-M-B5-01"),
-    ("20 m²", False, "Ini keliling teras, 2 × (6 + 4). Luas menghitung semua ubin di dalamnya.", "SD5-M-B5-01"),
+    ("20 m²", False, "Ini keliling teras, (2 × 6) + (2 × 4). Luas menghitung semua ubin di dalamnya.", "SD5-M-B5-01"),
     ("16 m²", False, "Hanya ubin di tepi yang dihitung. Ubin di bagian dalam juga menutupi lantai.", "SD5-M-B5-01"),
 ], guna="Pemetaan awal")
 cek(7 * 7 == 49 and 4 * 7 == 28 and 2 * 7 == 14 and 3 * 7 == 21)
@@ -497,7 +497,7 @@ soal("PA4", 3, "Sebuah segitiga mempunyai alas 10 cm dan tinggi 6 cm. Berapa lua
 cek(13 * 7 == 91 and 2 * (13 + 7) == 40 and 13 + 7 == 20 and 7 * 7 == 49)
 soal("PB1", 2, "Sebuah kebun sayur berbentuk persegi panjang dengan panjang 13 m dan lebar 7 m. Berapa luas kebun itu?", "C", [
     ("91 m²", True, "Benar. 13 × 7 = 91 m².", ""),
-    ("40 m²", False, "Ini keliling kebun, 2 × (13 + 7). Luas adalah panjang × lebar.", "SD5-M-B5-01"),
+    ("40 m²", False, "Ini keliling kebun, (2 × 13) + (2 × 7). Luas adalah panjang × lebar.", "SD5-M-B5-01"),
     ("20 m²", False, "Panjang dan lebar dijumlahkan. Luas didapat dengan mengalikan.", "SD5-M-B5-01"),
     ("49 m²", False, "Lebar dikali lebar (7 × 7). Yang dikalikan adalah panjang dan lebar.", "SD5-M-B5-11"),
 ], guna="Cek penguasaan")
@@ -510,17 +510,17 @@ soal("PB2", 3, "Sebuah segitiga mempunyai alas 14 cm dan tinggi 9 cm. Sisi mirin
 ], guna="Cek penguasaan", sulit="Sedang")
 cek(12 * 7 == 84 and 12 * 9 == 108 and 12 * 7 // 2 == 42)
 cek(2 * (12 + 7) == 38)
-soal("PB3", 3, "Sebuah jajargenjang mempunyai alas 12 cm, tinggi 7 cm, dan sisi miring 9 cm. Berapa luasnya?", "D", [
+soal("PB3", 3, "Sebuah jajargenjang mempunyai alas 12 cm, tinggi 7 cm, dan sisi samping 9 cm. Berapa luasnya?", "D", [
     ("84 cm²", True, "Benar. Luas jajargenjang = alas × tinggi = 12 × 7 = 84 cm².", ""),
     ("108 cm²", False, "Sisi miring 9 cm dipakai sebagai tinggi. Tinggi adalah jarak tegak lurus, 7 cm.", "SD5-M-B5-03"),
     ("42 cm²", False, "Dikali setengah seperti segitiga. Jajargenjang disusun ulang menjadi persegi panjang utuh, tanpa setengah.", "SD5-M-B5-02"),
-    ("38 cm²", False, "Ini keliling bila tinggi dianggap sisi, 2 × (12 + 7). Luas adalah alas × tinggi.", "SD5-M-B5-01"),
+    ("38 cm²", False, "Ini keliling bila tinggi dianggap sisi, (2 × 12) + (2 × 7). Luas adalah alas × tinggi.", "SD5-M-B5-01"),
 ], guna="Cek penguasaan", sulit="Sedang")
 cek(trapesium(10, 6, 5) == 40 and (10 + 6) * 5 == 80 and 10 * 6 * 5 == 300 and segitiga(10, 5) == 25)
 soal("PB4", 4, "Sebuah trapesium mempunyai sisi sejajar 10 cm dan 6 cm, dengan tinggi 5 cm. Berapa luasnya?", "B", [
     ("40 cm²", True, "Benar. 1/2 × (10 + 6) × 5 = 1/2 × 16 × 5 = 40 cm².", ""),
     ("80 cm²", False, "Setengahnya terlupa: (10 + 6) × 5 adalah luas dua trapesium.", "SD5-M-B5-02"),
-    ("300 cm²", False, "Kedua sisi sejajar dan tingginya dikalikan semuanya. Sisi sejajar dijumlahkan dulu.", "SD5-M-B5-05"),
+    ("300 cm²", False, "Kedua sisi sejajar dan tingginya dikalikan semuanya. Sisi sejajar dijumlahkan dahulu.", "SD5-M-B5-05"),
     ("25 cm²", False, "Hanya sisi sejajar 10 cm yang dipakai. Kedua sisi sejajar harus dijumlahkan.", "SD5-M-B5-05"),
 ], guna="Cek penguasaan", sulit="Sedang")
 cek(diagonal(16, 10) == 80 and 16 * 10 == 160 and 16 + 10 == 26 and SETENGAH * 16 * SETENGAH * 10 == 40)
@@ -544,10 +544,10 @@ soal("PB7", 5, "Sebuah kolam berukuran 10 m × 4 m dikelilingi jalan selebar 1 m
     ("15 m²", False, "Lebar jalan hanya ditambahkan sekali (11 × 5). Jalan ada di kedua sisi, jadi setiap ukuran bertambah 2 m.", "SD5-M-B5-07"),
     ("72 m²", False, "Ini luas daerah luar seluruhnya. Kolamnya bukan jalan dan harus dikurangkan.", "SD5-M-B5-10"),
     ("28 m²", False, "Keliling kolam dikali lebar jalan (28 × 1). Keempat pojok jalan (masing-masing 1 m²) terlewat.", "SD5-M-B5-06"),
-], guna="Cek penguasaan", sulit="Sulit", petunjuk="Hitung dulu ukuran daerah luar, termasuk jalan di kedua sisi.")
+], guna="Cek penguasaan", sulit="Sulit", petunjuk="Hitung dahulu ukuran daerah luar, termasuk jalan di kedua sisi.")
 UKURAN36, TERLUAS36 = persegi_panjang_terluas(36)
 cek(TERLUAS36 == 81 == 9 * 9 and max(p * l for p, l in UKURAN36 if p != l) == 80 == 10 * 8 and 18 * 18 == 324 and 17 * 1 == 17)
-soal("PB8", 6, "Pak Tani mempunyai tali 36 m untuk membatasi kebun berbentuk persegi panjang. Berapa luas kebun terbesar yang dapat ia buat, bila panjang dan lebarnya bilangan bulat meter?", "B", [
+soal("PB8", 6, "Pak Tani mempunyai tali 36 m untuk membatasi kebun berbentuk persegi panjang. Berapa luas kebun terbesar yang dapat ia buat, bila panjang dan lebarnya bilangan cacah meter?", "B", [
     ("81 m²", True, "Benar. Panjang + lebar = 18 m. Yang paling luas 9 m × 9 m = 81 m²; persegi juga persegi panjang.", ""),
     ("80 m²", False, "10 m × 8 m dipilih karena persegi dianggap bukan persegi panjang. 9 m × 9 m boleh dan lebih luas.", "SD5-M-B5-09"),
     ("324 m²", False, "Setengah keliling (18 m) dipakai sebagai sisi. 18 m adalah panjang dan lebar bersama.", "SD5-M-B5-13"),
@@ -572,7 +572,7 @@ soal("LT2", 1, "Sebuah rumah mempunyai dua kamar tidur, masing-masing 3 m × 3 m
 cek(25 * 12 == 300 and 2 * (25 + 12) == 74 and 25 + 12 == 37 and 12 * 12 == 144)
 soal("LT3", 2, "Sebuah lapangan bulu tangkis mini berukuran 25 m × 12 m. Berapa luasnya?", "A", [
     ("300 m²", True, "Benar. 25 × 12 = 300 m².", ""),
-    ("74 m²", False, "Ini keliling lapangan, 2 × (25 + 12).", "SD5-M-B5-01"),
+    ("74 m²", False, "Ini keliling lapangan, (2 × 25) + (2 × 12).", "SD5-M-B5-01"),
     ("37 m²", False, "Panjang dan lebar dijumlahkan. Luas didapat dengan mengalikan.", "SD5-M-B5-01"),
     ("144 m²", False, "Lebar dikali lebar (12 × 12). Yang dikalikan panjang dan lebar.", "SD5-M-B5-11"),
 ])
@@ -605,17 +605,17 @@ soal("LT7", 3, "Sebuah segitiga siku-siku mempunyai alas 8 cm, tinggi 6 cm, dan 
     ("48 cm²", False, "Setengahnya terlupa: 8 × 6 adalah luas dua segitiga.", "SD5-M-B5-02"),
 ], sulit="Sedang")
 cek(15 * 8 == 120 and 15 * 10 == 150 and 15 * 8 // 2 == 60 and 2 * (15 + 10) == 50)
-soal("LT8", 3, "Sebuah jajargenjang mempunyai alas 15 cm, tinggi 8 cm, dan sisi miring 10 cm. Berapa luasnya?", "D", [
+soal("LT8", 3, "Sebuah jajargenjang mempunyai alas 15 cm, tinggi 8 cm, dan sisi samping 10 cm. Berapa luasnya?", "D", [
     ("120 cm²", True, "Benar. 15 × 8 = 120 cm².", ""),
     ("150 cm²", False, "Sisi miring dipakai sebagai tinggi. Tingginya 8 cm.", "SD5-M-B5-03"),
     ("60 cm²", False, "Dikali setengah seperti segitiga. Jajargenjang tidak memakai setengah.", "SD5-M-B5-02"),
-    ("50 cm²", False, "Ini keliling jajargenjang, 2 × (15 + 10). Luas adalah alas × tinggi.", "SD5-M-B5-01"),
+    ("50 cm²", False, "Ini keliling jajargenjang, (2 × 15) + (2 × 10). Luas adalah alas × tinggi.", "SD5-M-B5-01"),
 ], sulit="Sedang")
 cek(trapesium(7, 13, 6) == 60 and (7 + 13) * 6 == 120 and 7 * 13 * 6 == 546 and segitiga(13, 6) == 39)
 soal("LT9", 4, "Sebuah trapesium mempunyai sisi sejajar 7 cm dan 13 cm, dengan tinggi 6 cm. Berapa luasnya?", "A", [
     ("60 cm²", True, "Benar. 1/2 × (7 + 13) × 6 = 1/2 × 20 × 6 = 60 cm².", ""),
     ("120 cm²", False, "Setengahnya terlupa.", "SD5-M-B5-02"),
-    ("546 cm²", False, "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dulu.", "SD5-M-B5-05"),
+    ("546 cm²", False, "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dahulu.", "SD5-M-B5-05"),
     ("39 cm²", False, "Hanya sisi sejajar 13 cm yang dipakai. Kedua sisi sejajar dijumlahkan.", "SD5-M-B5-05"),
 ])
 cek(diagonal(12, 9) == 54 and 12 * 9 == 108 and 12 + 9 == 21 and SETENGAH * 12 * SETENGAH * 9 == 27)
@@ -636,7 +636,7 @@ cek(trapesium(40, 60, 25) == 1_250 and (40 + 60) * 25 == 2_500 and 40 * 60 * 25 
 soal("LT12", 4, "Sawah Pak Budi berbentuk trapesium. Sisi sejajarnya 40 m dan 60 m, dan jarak antara kedua sisi itu 25 m. Berapa luas sawahnya?", "D", [
     ("1.250 m²", True, "Benar. 1/2 × (40 + 60) × 25 = 1/2 × 100 × 25 = 1.250 m².", ""),
     ("2.500 m²", False, "Setengahnya terlupa.", "SD5-M-B5-02"),
-    ("60.000 m²", False, "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dulu.", "SD5-M-B5-05"),
+    ("60.000 m²", False, "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dahulu.", "SD5-M-B5-05"),
     ("750 m²", False, "Hanya sisi 60 m yang dipakai. Kedua sisi sejajar dijumlahkan.", "SD5-M-B5-05"),
 ], sulit="Sedang")
 cek(10 * 8 + segitiga(10, 6) == 110 and 10 * 8 + 10 * 6 == 140 and 10 * 8 == 80 and segitiga(10, 6) == 30)
@@ -663,7 +663,7 @@ soal("LT15", 5, "Sebuah papan berbentuk huruf U. Mulai dari pojok kiri atas, tep
 ], sulit="Sulit")
 cek(6 * 6 > 8 * 4 and 2 * (6 + 6) == 2 * (8 + 4) == 24 and (36, 32) == (6 * 6, 8 * 4))
 soal("LT16", 6, "Persegi panjang P berukuran 8 cm × 4 cm dan persegi Q bersisi 6 cm. Keliling keduanya 24 cm. Pernyataan manakah yang tepat?", "B", [
-    ("Q lebih luas: 36 cm² dibanding 32 cm²", True, "Tepat. Keliling sama, tetapi luas Q = 36 cm² dan luas P = 32 cm².", ""),
+    ("Q lebih luas: 36 cm² dibanding 32 cm²", True, "Benar. Keliling sama, tetapi luas Q = 36 cm² dan luas P = 32 cm².", ""),
     ("Luasnya sama karena kelilingnya sama", False, "Keliling yang sama tidak berarti luas yang sama: 36 cm² dan 32 cm².", "SD5-M-B5-08"),
     ("P lebih luas karena lebih panjang", False, "P memang lebih panjang, tetapi juga lebih kurus. Luasnya 32 cm², lebih kecil dari 36 cm².", "SD5-M-B5-08"),
     ("Tidak dapat dibandingkan karena Q persegi", False, "Persegi juga persegi panjang, dan luas keduanya dapat dihitung lalu dibandingkan.", "SD5-M-B5-09"),
@@ -677,7 +677,7 @@ soal("LT17", 6, "Tiga persegi panjang mempunyai luas yang sama, 36 cm²: 3 cm ×
 ], sulit="Sedang")
 UKURAN32, TERLUAS32 = persegi_panjang_terluas(32)
 cek(TERLUAS32 == 64 == 8 * 8 and 9 * 7 == 63 and 16 * 16 == 256 and 15 * 1 == 15)
-soal("LT18", 6, "Kawat sepanjang 32 cm dibentuk menjadi persegi panjang dengan ukuran bilangan bulat sentimeter. Berapa luas terbesar yang dapat dibuat?", "C", [
+soal("LT18", 6, "Kawat sepanjang 32 cm dibentuk menjadi persegi panjang dengan ukuran bilangan cacah sentimeter. Berapa luas terbesar yang dapat dibuat?", "C", [
     ("64 cm²", True, "Benar. Panjang + lebar = 16 cm; yang paling luas 8 cm × 8 cm = 64 cm².", ""),
     ("63 cm²", False, "9 cm × 7 cm dipilih karena persegi dianggap bukan persegi panjang. 8 cm × 8 cm boleh dan lebih luas.", "SD5-M-B5-09"),
     ("256 cm²", False, "Setengah keliling (16 cm) dipakai sebagai sisi. 16 cm adalah panjang dan lebar bersama.", "SD5-M-B5-13"),

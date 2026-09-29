@@ -111,7 +111,7 @@ BAB = [(1, "Sudut")]
 PELAJARAN = [
     dict(no=1, judul="Sudut Siku-Siku",
          ringkasan="Sudut siku-siku seperti pojok bingkai atau pojok buku; kita dapat memeriksanya dengan kertas yang dilipat.",
-         tujuan="Murid dapat menemukan sudut siku-siku di sekitarnya dan memeriksanya dengan alat sederhana.",
+         tujuan="Kalian dapat menemukan sudut siku-siku di sekitarnya dan memeriksanya dengan alat sederhana.",
          bloom="Memahami",
          isi=f"""## Pojok bingkai
 
@@ -121,7 +121,7 @@ Tukang kayu memakai **penggaris siku-siku** untuk memastikan pojok bingkai yang 
 
 ## Membuat alat pemeriksa
 
-Kamu dapat membuat alat seperti penggaris siku-siku dari selembar kertas bekas:
+Kalian dapat membuat alat seperti penggaris siku-siku dari selembar kertas bekas:
 
 1. Lipat kertas menjadi dua.
 2. Lipat sekali lagi sehingga garis lipatan pertama bertemu dengan dirinya sendiri.
@@ -145,7 +145,7 @@ _Periksa: 4, satu di setiap pojok._
 {SUMBER}"""),
     dict(no=2, judul="Pengertian dan Jenis Sudut",
          ringkasan="Sudut dibentuk oleh dua kaki sudut yang bertemu di satu titik sudut; sudut lancip lebih kecil dan sudut tumpul lebih besar dari sudut siku-siku.",
-         tujuan="Murid dapat menyebutkan bagian-bagian sudut dan mengelompokkan sudut menjadi lancip, siku-siku, dan tumpul.",
+         tujuan="Kalian dapat menyebutkan bagian-bagian sudut dan mengelompokkan sudut menjadi lancip, siku-siku, dan tumpul.",
          bloom="Memahami",
          isi=f"""## Bagian-bagian sudut
 
@@ -160,7 +160,7 @@ Pojok meja yang tajam adalah sudut: ada dua tepi lurus yang bertemu di satu titi
 
 Pojok kotak pensil yang **membulat** bukan sudut. Di situ tidak ada dua garis lurus yang bertemu tepat di satu titik; tepinya melengkung.
 
-Jadi tidak semua pojok adalah sudut. Periksa dulu: adakah dua kaki lurus dan satu titik sudut?
+Jadi tidak semua pojok adalah sudut. Periksa dahulu: adakah dua kaki lurus dan satu titik sudut?
 
 ## Lancip, siku-siku, tumpul
 
@@ -186,7 +186,7 @@ _Periksa: lancip, lebih kecil dari pukul 03.00._
 {SUMBER}"""),
     dict(no=3, judul="Mengukur Sudut dengan Busur Derajat",
          ringkasan="Besar sudut diukur dalam derajat dengan busur derajat; yang dibaca adalah skala yang dimulai dari 0 pada salah satu kaki sudut.",
-         tujuan="Murid dapat mengukur besar sudut dengan busur derajat dan membaca skalanya dengan tepat.",
+         tujuan="Kalian dapat mengukur besar sudut dengan busur derajat dan membaca skalanya dengan tepat.",
          bloom="Menerapkan",
          isi=f"""## Satuan derajat
 
@@ -211,7 +211,7 @@ Busur mempunyai dua deret angka: skala dalam dan skala luar. Keduanya berjalan b
 
 Mana yang dibaca? Yang **0-nya berada di kaki pertama**. Bila kaki pertama ada di angka 0 skala dalam dan kaki kedua melewati 50 (dalam) dan 130 (luar), sudutnya **50°**.
 
-Periksa dengan jenisnya: sudut itu tampak lebih kecil dari siku-siku, jadi lancip, dan 50° memang lancip. Bila kamu membaca 130°, itu tumpul, tidak cocok.
+Periksa dengan jenisnya: sudut itu tampak lebih kecil dari siku-siku, jadi lancip, dan 50° memang lancip. Bila kalian membaca 130°, itu tumpul, tidak cocok.
 
 ## Posisi busur
 
@@ -220,7 +220,7 @@ Busur tidak harus selalu mendatar. Putar busurnya mengikuti arah kaki sudut, sam
 {SUMBER}"""),
     dict(no=4, judul="Jenis Sudut Menurut Besarnya dan Membandingkan Sudut",
          ringkasan="Sudut dikelompokkan menurut besarnya dalam derajat; besar sudut ditentukan oleh bukaannya, bukan oleh panjang kakinya.",
-         tujuan="Murid dapat menentukan jenis sudut dari besarnya, menghitung sudut refleks, dan membandingkan besar sudut.",
+         tujuan="Kalian dapat menentukan jenis sudut dari besarnya, menghitung sudut refleks, dan membandingkan besar sudut.",
          bloom="Menerapkan",
          isi=f"""## Jenis sudut menurut besarnya
 
@@ -254,12 +254,12 @@ Begitu juga dua sudut yang sama besar, misalnya 40°, tetap sama besar walaupun 
 
 ## Mengurutkan
 
-Urutkan 95°, 180°, 45°, dan 270° dari yang terkecil: **45°, 95°, 180°, 270°**. Lancip, tumpul, lurus, lalu refleks.
+Urutkan 95°, 180°, 45°, dan 270° dari yang terkecil: **45°; 95°; 180°; 270°**. Lancip, tumpul, lurus, lalu refleks.
 
 {SUMBER}"""),
     dict(no=5, judul="Sudut pada Jam",
          ringkasan="Jarak antara dua angka yang berdekatan pada jam adalah 30°; jarum pendek ikut bergerak saat menit berjalan.",
-         tujuan="Murid dapat menghitung besar sudut yang dibentuk jarum jam pada waktu tertentu.",
+         tujuan="Kalian dapat menghitung besar sudut yang dibentuk jarum jam pada waktu tertentu.",
          bloom="Menerapkan",
          isi=f"""## Setiap angka 30°
 
@@ -289,7 +289,7 @@ _Periksa: dari angka 1 ke 6 ada 5 langkah (150°), jarum pendek sudah maju 15° 
 {SUMBER}"""),
     dict(no=6, judul="Melukis Sudut dan Memecahkan Masalah",
          ringkasan="Sudut dilukis dengan busur derajat; sudut-sudut di sekeliling satu titik berjumlah 360° dan sudut-sudut pada garis lurus berjumlah 180°.",
-         tujuan="Murid dapat melukis sudut dengan besar tertentu dan memecahkan masalah dengan sudut di sekeliling satu titik.",
+         tujuan="Kalian dapat melukis sudut dengan besar tertentu dan memecahkan masalah dengan sudut di sekeliling satu titik.",
          bloom="Menerapkan",
          isi=f"""## Langkah melukis sudut
 
@@ -300,7 +300,7 @@ Melukis sudut 120°:
 3. Cari skala yang angka **0**-nya ada di garis itu. Ikuti skala itu sampai angka 120, lalu beri titik.
 4. Hubungkan titik sudut dengan titik tadi. Itulah kaki kedua.
 
-Periksa: 120° harus tumpul. Bila yang terlukis lancip, kamu membaca skala yang lain dan melukis 60°.
+Periksa: 120° harus tumpul. Bila yang terlukis lancip, kalian membaca skala yang lain dan melukis 60°.
 
 ## Arah bebas
 
@@ -391,7 +391,7 @@ def soal(ref, pel, tanya, jawab, pilihan, guna="", sulit="Mudah", petunjuk=""):
 
 # ── Pemetaan awal (pre-test): a right angle around us, the kinds, a clock, comparing.
 soal("PA1", 1, "Pojok manakah yang membentuk sudut siku-siku?", "B", [
-    ("Pojok halaman buku", True, "Tepat. Pojok buku seperti pojok bingkai: siku-siku.", ""),
+    ("Pojok halaman buku", True, "Benar. Pojok buku seperti pojok bingkai: siku-siku.", ""),
     ("Ujung gunting yang terbuka sedikit", False, "Gunting yang terbuka sedikit membentuk sudut yang lebih kecil dari siku-siku, yaitu lancip.", "SD5-M-B6-03"),
     ("Kipas yang terbuka lebar", False, "Kipas yang terbuka lebar membentuk sudut yang lebih besar dari siku-siku, yaitu tumpul.", "SD5-M-B6-03"),
     ("Pojok kotak pensil yang membulat", False, "Pojok yang membulat tidak mempunyai dua kaki lurus yang bertemu di satu titik, jadi bukan sudut.", "SD5-M-B6-02"),
@@ -410,7 +410,7 @@ soal("PA3", 5, "Pada pukul 09.00, jarum pendek dan jarum panjang jam membentuk s
     ("lurus", False, "Sudut lurus terbentuk bila kedua jarum berseberangan, misalnya pukul 06.00.", "SD5-M-B6-09"),
 ], guna="Pemetaan awal")
 soal("PA4", 4, "Sudut A mempunyai kaki sepanjang 10 cm dan sudut B kaki sepanjang 3 cm. Keduanya dibuka tepat sebesar sudut siku-siku. Manakah yang lebih besar?", "C", [
-    ("Sama besar", True, "Tepat. Keduanya dibuka sebesar sudut siku-siku; panjang kaki tidak memengaruhi besar sudut.", ""),
+    ("Sama besar", True, "Benar. Keduanya dibuka sebesar sudut siku-siku; panjang kaki tidak memengaruhi besar sudut.", ""),
     ("Sudut A, karena kakinya lebih panjang", False, "Kaki yang panjang membuat ujungnya lebih berjauhan, tetapi bukaannya tetap sama.", "SD5-M-B6-05"),
     ("Sudut B, karena kakinya lebih pendek", False, "Kaki yang pendek tidak membuat bukaan lebih kecil atau lebih besar.", "SD5-M-B6-05"),
     ("Tidak dapat dibandingkan", False, "Besar sudut dapat dibandingkan dari bukaannya, walaupun panjang kakinya berbeda.", "SD5-M-B6-05"),
@@ -461,7 +461,7 @@ soal("PB6", 6, "Dua sudut bersama-sama membentuk sudut lurus. Salah satunya 128�
 ], guna="Cek penguasaan", sulit="Sedang")
 cek(70 > 65 and 70 - 65 == 5)
 soal("PB7", 4, "Sudut P besarnya 70° dengan kaki sepanjang 2 cm. Sudut Q besarnya 65° dengan kaki sepanjang 8 cm. Pernyataan manakah yang tepat?", "A", [
-    ("P lebih besar 5° daripada Q", True, "Tepat. 70° − 65° = 5°. Panjang kaki tidak memengaruhi besar sudut.", ""),
+    ("P lebih besar 5° daripada Q", True, "Benar. 70° − 65° = 5°. Panjang kaki tidak memengaruhi besar sudut.", ""),
     ("Q lebih besar karena kakinya lebih panjang", False, "Kaki yang panjang tidak membuat sudut lebih besar. Yang dibandingkan besar bukaannya: 70° dan 65°.", "SD5-M-B6-05"),
     ("Sama besar karena keduanya lancip", False, "Keduanya memang lancip, tetapi besarnya berbeda: 70° dan 65°.", "SD5-M-B6-03"),
     ("Tidak dapat dibandingkan karena kakinya berbeda", False, "Sudut dapat dibandingkan dari besarnya walaupun panjang kakinya berbeda.", "SD5-M-B6-05"),
@@ -481,14 +481,14 @@ soal("LT1", 1, "Sebuah buku diletakkan miring di atas meja. Pojok buku itu membe
     ("tumpul, karena bukunya miring", False, "Memiringkan buku tidak mengubah besar pojoknya.", "SD5-M-B6-01"),
     ("bukan sudut, karena tidak ada sisi yang mendatar", False, "Sudut tidak harus mempunyai kaki yang mendatar. Pojok buku tetap mempunyai dua kaki lurus dan titik sudut.", "SD5-M-B6-01"),
 ])
-soal("LT2", 1, "Bangun manakah yang mempunyai tepat 2 sudut yang besarnya 90°?", "A", [
-    ("Trapesium siku-siku", True, "Tepat. Trapesium siku-siku mempunyai 2 sudut 90° di sisi tegaknya.", ""),
+soal("LT2", 1, "Bangun manakah yang dapat mempunyai tepat 2 sudut yang besarnya 90°?", "A", [
+    ("Trapesium siku-siku", True, "Benar. Trapesium siku-siku yang sisi sejajarnya hanya sepasang mempunyai tepat 2 sudut 90°, di kedua ujung sisi tegaknya.", ""),
     ("Persegi panjang", False, "Persegi panjang mempunyai 4 sudut siku-siku, satu di setiap pojok.", "SD5-M-B6-03"),
     ("Segitiga sama sisi", False, "Semua sudut segitiga sama sisi lancip; tidak ada yang siku-siku.", "SD5-M-B6-03"),
     ("Jajargenjang yang miring", False, "Sisi jajargenjang yang miring membentuk dua sudut lancip dan dua sudut tumpul, tidak ada yang siku-siku.", "SD5-M-B6-03"),
 ], sulit="Sedang")
 soal("LT3", 2, "Pojok manakah yang merupakan sudut?", "D", [
-    ("Pojok meja persegi yang tajam", True, "Tepat. Dua tepi lurus meja bertemu di satu titik.", ""),
+    ("Pojok meja persegi yang tajam", True, "Benar. Dua tepi lurus meja bertemu di satu titik.", ""),
     ("Pojok kotak pensil yang membulat", False, "Tepinya melengkung; tidak ada dua kaki lurus yang bertemu di satu titik.", "SD5-M-B6-02"),
     ("Tepi piring yang melengkung", False, "Tepi piring melengkung, tidak ada kaki lurus maupun titik sudut.", "SD5-M-B6-02"),
     ("Ujung penghapus yang membulat", False, "Ujung yang membulat tidak mempunyai titik sudut.", "SD5-M-B6-02"),
@@ -508,7 +508,7 @@ soal("LT5", 3, "Kaki pertama sebuah sudut berimpit dengan garis dasar busur di a
     ("320°", False, "Ini refleks dari 40°, dan 40° pun dibaca pada skala yang lain.", "SD5-M-B6-08"),
 ], sulit="Sedang")
 soal("LT6", 3, "Langkah pertama mengukur sudut dengan busur derajat adalah ...", "C", [
-    ("meletakkan titik pusat busur tepat di titik sudut", True, "Tepat. Titik pusat busur harus berada di titik sudut, baru garis dasarnya diimpitkan dengan satu kaki.", ""),
+    ("meletakkan titik pusat busur tepat di titik sudut", True, "Benar. Titik pusat busur harus berada di titik sudut, baru garis dasarnya diimpitkan dengan satu kaki.", ""),
     ("meletakkan angka 90 busur di salah satu kaki", False, "Yang diimpitkan dengan kaki adalah garis dasar (angka 0), bukan angka 90.", "SD5-M-B6-04"),
     ("mengukur panjang kedua kaki sudut dengan penggaris", False, "Panjang kaki tidak diperlukan; besar sudut tidak bergantung padanya.", "SD5-M-B6-05"),
     ("memutar gambar sampai satu kaki mendatar", False, "Busurnya yang diputar mengikuti kaki sudut; gambarnya tidak perlu diputar.", "SD5-M-B6-01"),
@@ -556,20 +556,20 @@ soal("LT12", 5, "Berapa besar sudut terkecil yang dibentuk jarum jam pada pukul 
 ], sulit="Sulit")
 cek(sudut_jam(6) == 180 and sudut_jam(3) == 90 and sudut_jam(12) == 0 and sudut_jam(9) == 90)
 soal("LT13", 5, "Pada pukul berapa jarum jam membentuk sudut lurus?", "A", [
-    ("06.00", True, "Tepat. Jarum panjang di angka 12 dan jarum pendek di angka 6, berseberangan: 180°.", ""),
+    ("06.00", True, "Benar. Jarum panjang di angka 12 dan jarum pendek di angka 6, berseberangan: 180°.", ""),
     ("03.00", False, "Pukul 03.00 membentuk sudut siku-siku (90°), bukan sudut lurus.", "SD5-M-B6-09"),
     ("12.00", False, "Pukul 12.00 kedua jarum berimpit: sudut nol.", "SD5-M-B6-09"),
     ("09.00", False, "Pukul 09.00 membentuk sudut siku-siku (90°).", "SD5-M-B6-09"),
 ])
 soal("LT14", 6, "Rani akan melukis sudut 120°. Titik pusat busur sudah di ujung garis dan garis dasarnya sudah berimpit dengan garis itu. Apa langkah berikutnya?", "D", [
-    ("Memberi titik di angka 120 pada skala yang 0-nya di garis itu", True, "Tepat. Skala yang dimulai dari 0 pada garis itulah yang menunjukkan 120° yang benar.", ""),
+    ("Memberi titik di angka 120 pada skala yang 0-nya di garis itu", True, "Benar. Skala yang dimulai dari 0 pada garis itulah yang menunjukkan 120° yang benar.", ""),
     ("Memberi titik di angka 120 pada skala mana saja, dalam atau luar", False, "Bila skala yang lain dipakai, yang terlukis 60° (180° − 120°), sudut lancip.", "SD5-M-B6-04"),
     ("Memberi titik di angka 60 karena 60 + 120 = 180", False, "Angka 60 pada skala yang benar menghasilkan sudut 60°, bukan 120°.", "SD5-M-B6-04"),
     ("Memutar kertas sampai garisnya mendatar", False, "Garis tidak harus mendatar; busurnya sudah mengikuti arah garis.", "SD5-M-B6-01"),
 ], sulit="Sedang")
 cek(180 - 120 == 60 and jenis(60) == "lancip" and jenis(120) == "tumpul")
 soal("LT15", 6, "Dodi ingin melukis sudut 120°, tetapi sudut yang terlukis ternyata lancip. Apa yang kemungkinan terjadi?", "C", [
-    ("Ia membaca skala yang 0-nya tidak di garis pertama", True, "Tepat. Pada skala yang lain, angka 120 berada di tempat 60° yang sebenarnya, jadi yang dilukis 60°.", ""),
+    ("Ia membaca skala yang 0-nya tidak di garis pertama", True, "Benar. Pada skala yang lain, angka 120 berada di tempat 60° yang sebenarnya, jadi yang dilukis 60°.", ""),
     ("Kaki sudut yang ia gambar terlalu pendek", False, "Panjang kaki tidak memengaruhi besar sudut.", "SD5-M-B6-05"),
     ("Garis pertamanya tidak mendatar", False, "Garis pertama boleh miring; besar sudut tidak berubah karena arahnya.", "SD5-M-B6-01"),
     ("Busur yang ia pakai lebih kecil dari busur temannya", False, "Busur kecil dan besar menunjukkan derajat yang sama.", "SD5-M-B6-05"),
@@ -590,7 +590,7 @@ soal("LT17", 6, "Ubin segi enam beraturan mempunyai sudut 120° di setiap pojok.
 ], sulit="Sedang")
 cek(sudut_jam(2, 30) == 105 and jarum_pendek_diam(2, 30) == 120 and 120 - 15 == 105 and 360 - 105 == 255)
 soal("LT18", 5, "Nina menghitung sudut jarum jam pada pukul 02.30 sebagai berikut: dari angka 2 ke angka 6 ada 4 langkah, jadi 4 × 30° = 120°. Mengapa jawabannya belum tepat?", "C", [
-    ("Jarum pendek sudah maju 15°, jadi 105°", True, "Tepat. Setengah jam kemudian jarum pendek berada di tengah angka 2 dan 3, sehingga sudutnya 120° − 15° = 105°.", ""),
+    ("Jarum pendek sudah maju 15°, jadi 105°", True, "Benar. Setengah jam kemudian jarum pendek berada di tengah angka 2 dan 3, sehingga sudutnya 120° − 15° = 105°.", ""),
     ("Satu langkah angka jam seharusnya 60°", False, "Satu langkah angka jam memang 30° (360° : 12). Langkah Nina sudah tepat di bagian ini.", "SD5-M-B6-07"),
     ("Yang ditanyakan sudut refleksnya, 255°", False, "Yang biasa ditanyakan sudut terkecil. Kekurangan Nina ada pada posisi jarum pendek.", "SD5-M-B6-08"),
     ("Jarum panjang pada pukul 02.30 berada di angka 3", False, "Pada menit ke-30 jarum panjang berada di angka 6, sudah tepat.", "SD5-M-B6-06"),

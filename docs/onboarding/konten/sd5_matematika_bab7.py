@@ -183,7 +183,7 @@ BAB = [(1, "Membandingkan Ciri-Ciri Bangun Datar")]
 PELAJARAN = [
     dict(no=1, judul="Syarat Tiga Ruas Garis Membentuk Segitiga",
          ringkasan="Tiga ruas garis dapat membentuk segitiga bila jumlah panjang dua sisi mana pun lebih dari panjang sisi ketiga.",
-         tujuan="Murid dapat memeriksa apakah tiga ruas garis dengan panjang tertentu dapat membentuk segitiga.",
+         tujuan="Kalian dapat memeriksa apakah tiga ruas garis dengan panjang tertentu dapat membentuk segitiga.",
          bloom="Menganalisis",
          isi=f"""## Tiga sedotan dan seutas tali
 
@@ -234,13 +234,13 @@ _Periksa: 4 + 5 = 9, kurang dari 10. Tidak dapat dibuat segitiga._
 {SUMBER}"""),
     dict(no=2, judul="Segitiga Menurut Besar Sudutnya",
          ringkasan="Menurut besar sudutnya, segitiga dapat berupa segitiga lancip, segitiga siku-siku, atau segitiga tumpul.",
-         tujuan="Murid dapat membandingkan segitiga lancip, siku-siku, dan tumpul dari besar sudut-sudutnya.",
+         tujuan="Kalian dapat membandingkan segitiga lancip, siku-siku, dan tumpul dari besar sudut-sudutnya.",
          bloom="Memahami",
          isi=f"""## Mengingat jenis sudut
 
-Di Bab 6 kamu sudah mengenal jenis sudut:
+Di Bab 6 kalian sudah mengenal jenis sudut:
 
-- **sudut lancip**: kurang dari 90°;
+- **sudut lancip**: lebih dari 0° dan kurang dari 90°;
 - **sudut siku-siku**: tepat 90°;
 - **sudut tumpul**: lebih dari 90° dan kurang dari 180°.
 
@@ -275,7 +275,7 @@ _Periksa: ada satu sudut siku-siku, jadi segitiga siku-siku._
 {SUMBER}"""),
     dict(no=3, judul="Jumlah Sudut-Sudut dalam Segitiga",
          ringkasan="Jumlah ketiga sudut dalam setiap segitiga adalah 180°, sehingga sudut ketiga dapat dihitung dari dua sudut yang diketahui.",
-         tujuan="Murid dapat menemukan bahwa jumlah sudut dalam segitiga 180° dan memakainya untuk menghitung sudut yang belum diketahui.",
+         tujuan="Kalian dapat menemukan bahwa jumlah sudut dalam segitiga 180° dan memakainya untuk menghitung sudut yang belum diketahui.",
          bloom="Menerapkan",
          isi=f"""## Percobaan Asep
 
@@ -313,7 +313,7 @@ _Periksa: 180° − 60° − 60° = 60°. Ketiga sudutnya sama besar._
 {SUMBER}"""),
     dict(no=4, judul="Segitiga Menurut Panjang Sisinya",
          ringkasan="Menurut panjang sisinya, segitiga dapat berupa segitiga sama kaki, sama sisi, atau sembarang; segitiga sama sisi juga termasuk segitiga sama kaki.",
-         tujuan="Murid dapat membandingkan ciri-ciri segitiga sama kaki, sama sisi, dan sembarang, termasuk sisi, sudut, dan simetrinya.",
+         tujuan="Kalian dapat membandingkan ciri-ciri segitiga sama kaki, sama sisi, dan sembarang, termasuk sisi, sudut, dan simetrinya.",
          bloom="Menganalisis",
          isi=f"""## Segitiga sama kaki
 
@@ -362,7 +362,7 @@ Sebaliknya tidak selalu. Segitiga dengan sisi 5 cm, 5 cm, dan 3 cm adalah segiti
 {SUMBER}"""),
     dict(no=5, judul="Trapesium dan Jajargenjang",
          ringkasan="Trapesium adalah segi empat yang mempunyai setidaknya sepasang sisi sejajar; jajargenjang termasuk trapesium, tetapi bukan trapesium sama kaki.",
-         tujuan="Murid dapat membandingkan ciri-ciri trapesium dan jajargenjang serta menjelaskan mengapa jajargenjang termasuk trapesium.",
+         tujuan="Kalian dapat membandingkan ciri-ciri trapesium dan jajargenjang serta menjelaskan mengapa jajargenjang termasuk trapesium.",
          bloom="Menganalisis",
          isi=f"""## Segi empat
 
@@ -370,11 +370,11 @@ Sebaliknya tidak selalu. Segitiga dengan sisi 5 cm, 5 cm, dan 3 cm adalah segiti
 
 ## Trapesium
 
-Di kelas IV kamu belajar bahwa trapesium mempunyai sepasang sisi sejajar. Di bab ini kita memakai pengertian berikut:
+Di kelas IV kalian belajar bahwa trapesium mempunyai sepasang sisi sejajar. Di bab ini kita memakai pengertian berikut:
 
 **Trapesium adalah segi empat yang mempunyai setidaknya sepasang sisi sejajar.**
 
-Ada juga buku yang memakai "tepat sepasang". Kedua pengertian itu sama-sama mempunyai alasan yang kuat, dan kelak kamu akan mempelajari bedanya. Di bab ini kita bersepakat memakai "setidaknya sepasang".
+Ada juga buku yang memakai "tepat sepasang". Kedua pengertian itu sama-sama mempunyai alasan yang kuat, dan kelak kalian akan mempelajari bedanya. Di bab ini kita bersepakat memakai "setidaknya sepasang".
 
 Cara memeriksa dua sisi sejajar: tarik garis tegak lurus dari sisi yang satu ke sisi yang lain di dua tempat. Bila kedua jaraknya sama, sisi-sisi itu sejajar.
 
@@ -408,7 +408,7 @@ Kaki-kaki jajargenjang memang sama panjang, tetapi itu belum cukup.
 {SUMBER}"""),
     dict(no=6, judul="Persegi Panjang, Belah Ketupat, dan Persegi",
          ringkasan="Persegi panjang dan belah ketupat termasuk jajargenjang, dan persegi termasuk keduanya; setiap bangun yang lebih khusus mempunyai ciri tambahan.",
-         tujuan="Murid dapat menggolongkan persegi panjang, belah ketupat, dan persegi dengan membandingkan ciri-cirinya, dan menyebutkan ciri yang harus ditambahkan.",
+         tujuan="Kalian dapat menggolongkan persegi panjang, belah ketupat, dan persegi dengan membandingkan ciri-cirinya, dan menyebutkan ciri yang harus ditambahkan.",
          bloom="Menganalisis",
          isi=f"""## Arah menggolongkan
 
@@ -454,7 +454,7 @@ _Periksa: tidak. Sisi-sisi persegi panjang yang berurutan tidak harus sama panja
 {SUMBER}"""),
     dict(no=7, judul="Layang-Layang dan Belah Ketupat",
          ringkasan="Layang-layang adalah segi empat yang salah satu diagonalnya merupakan sumbu simetri; belah ketupat termasuk layang-layang.",
-         tujuan="Murid dapat membandingkan ciri-ciri layang-layang dan belah ketupat serta merangkum hubungan antarbangun datar di bab ini.",
+         tujuan="Kalian dapat membandingkan ciri-ciri layang-layang dan belah ketupat serta merangkum hubungan antarbangun datar di bab ini.",
          bloom="Mengevaluasi",
          isi=f"""## Ciri-ciri layang-layang
 
@@ -583,7 +583,7 @@ def soal(ref, pel, tanya, jawab, pilihan, guna="", sulit="Mudah", petunjuk=""):
 # ── Pemetaan awal (pre-test): the triangle rule, a missing angle, naming by sides, classifying.
 cek(bisa_segitiga(6, 7, 9) and not bisa_segitiga(3, 4, 9) and not bisa_segitiga(5, 5, 10) and not bisa_segitiga(2, 8, 12))
 soal("PA1", 1, "Tiga ruas garis manakah yang dapat dirangkai menjadi segitiga?", "B", [
-    ("6 cm, 7 cm, dan 9 cm", True, "Tepat. 6 + 7 = 13, lebih dari 9.", ""),
+    ("6 cm, 7 cm, dan 9 cm", True, "Benar. 6 + 7 = 13, lebih dari 9.", ""),
     ("3 cm, 4 cm, dan 9 cm", False, "3 + 4 = 7, kurang dari 9. Kedua ruas garis pendek tidak dapat bertemu.", "SD5-M-B7-01"),
     ("5 cm, 5 cm, dan 10 cm", False, "5 + 5 = 10, hanya sama dengan 10. Kedua ruas garis berbaring lurus di atas yang panjang.", "SD5-M-B7-02"),
     ("2 cm, 8 cm, dan 12 cm", False, "2 + 8 = 10, kurang dari 12. Tidak semua tiga ruas garis dapat membentuk segitiga.", "SD5-M-B7-01"),
@@ -597,7 +597,7 @@ soal("PA2", 3, "Dua sudut sebuah segitiga besarnya 40° dan 85°. Berapa besar s
 ], guna="Pemetaan awal")
 cek(jenis_sisi(7, 7, 4) == "sama kaki" and bisa_segitiga(7, 7, 4))
 soal("PA3", 4, "Panjang sisi-sisi sebuah segitiga 7 cm, 7 cm, dan 4 cm. Segitiga itu termasuk ...", "A", [
-    ("segitiga sama kaki", True, "Tepat. Ada dua sisi yang sama panjang, 7 cm dan 7 cm.", ""),
+    ("segitiga sama kaki", True, "Benar. Ada dua sisi yang sama panjang, 7 cm dan 7 cm.", ""),
     ("segitiga sama sisi", False, "Segitiga sama sisi memerlukan ketiga sisi sama panjang. Sisi 4 cm berbeda.", "SD5-M-B7-07"),
     ("segitiga sembarang", False, "Segitiga sembarang tidak mempunyai sisi yang sama panjang, padahal di sini ada dua sisi 7 cm.", "SD5-M-B7-07"),
     ("bukan segitiga, karena tidak dapat dibentuk", False, "4 + 7 = 11, lebih dari 7, jadi segitiga ini dapat dibentuk.", "SD5-M-B7-01"),
@@ -605,7 +605,7 @@ soal("PA3", 4, "Panjang sisi-sisi sebuah segitiga 7 cm, 7 cm, dan 4 cm. Segitiga
 cek(termasuk("persegi panjang", "jajargenjang") and not termasuk("persegi panjang", "belah ketupat")
     and not termasuk("persegi panjang", "persegi") and not termasuk("persegi panjang", "layang-layang"))
 soal("PA4", 6, "Persegi panjang dapat digolongkan juga sebagai ...", "C", [
-    ("jajargenjang", True, "Tepat. Semua ciri jajargenjang dimiliki persegi panjang: sisi berhadapan sejajar dan sama panjang, sudut berhadapan sama besar.", ""),
+    ("jajargenjang", True, "Benar. Semua ciri jajargenjang dimiliki persegi panjang: sisi berhadapan sejajar dan sama panjang, sudut berhadapan sama besar.", ""),
     ("belah ketupat", False, "Belah ketupat memerlukan keempat sisi sama panjang. Sisi-sisi persegi panjang yang berurutan tidak harus sama.", "SD5-M-B7-08"),
     ("persegi", False, "Arahnya terbalik: persegilah yang termasuk persegi panjang, bukan sebaliknya.", "SD5-M-B7-08"),
     ("layang-layang", False, "Diagonal persegi panjang tidak harus berpotongan tegak lurus dan tidak harus menjadi sumbu simetri.", "SD5-M-B7-08"),
@@ -629,7 +629,7 @@ soal("PB2", 3, "Sebuah segitiga siku-siku mempunyai sudut lancip 38°. Berapa be
 ], guna="Cek penguasaan", sulit="Sedang")
 cek(sudut_ketiga(20, 48) == 112 and jenis_sudut([20, 48, 112]) == "tumpul")
 soal("PB3", 2, "Dua sudut sebuah segitiga besarnya 20° dan 48°. Segitiga itu termasuk segitiga ...", "D", [
-    ("tumpul", True, "Tepat. Sudut ketiganya 180° − 20° − 48° = 112°, sudut tumpul.", ""),
+    ("tumpul", True, "Benar. Sudut ketiganya 180° − 20° − 48° = 112°, sudut tumpul.", ""),
     ("lancip", False, "Hanya dua sudut yang diketahui yang dilihat. Sudut ketiganya 112°, tumpul.", "SD5-M-B7-04"),
     ("siku-siku", False, "Sudut ketiga dianggap 90°. Hitunglah: 180° − 20° − 48° = 112°.", "SD5-M-B7-04"),
     ("sama kaki", False, "Nama sama kaki berasal dari sisi yang sama panjang. Ketiga sudutnya (20°, 48°, 112°) berbeda.", "SD5-M-B7-07"),
@@ -643,7 +643,7 @@ soal("PB4", 4, "Pada sebuah segitiga sama kaki, sudut yang diapit kedua kakinya 
 ], guna="Cek penguasaan", sulit="Sedang", petunjuk="Dua sudut yang lain sama besar, dan ketiga sudut berjumlah 180°.")
 cek(jenis_sisi(6, 6, 6) == "sama sisi" and SIMETRI_LIPAT["segitiga sama sisi"] == 3)
 soal("PB5", 4, "Panjang sisi-sisi sebuah segitiga 6 cm, 6 cm, dan 6 cm. Nama manakah yang tepat untuknya?", "A", [
-    ("Segitiga sama sisi, dan juga segitiga sama kaki", True, "Tepat. Semua ciri segitiga sama kaki ada pada segitiga sama sisi, jadi keduanya tepat.", ""),
+    ("Segitiga sama sisi, dan juga segitiga sama kaki", True, "Benar. Semua ciri segitiga sama kaki ada pada segitiga sama sisi, jadi keduanya tepat.", ""),
     ("Hanya segitiga sama sisi, tidak boleh sama kaki", False, "Segitiga sama sisi mempunyai setidaknya 2 sisi sama panjang, jadi ia juga segitiga sama kaki.", "SD5-M-B7-08"),
     ("Hanya segitiga sama kaki, karena dua sisinya 6 cm", False, "Ketiga sisinya sama panjang, jadi ia segitiga sama sisi juga.", "SD5-M-B7-07"),
     ("Segitiga siku-siku sama kaki dengan sisi 6 cm", False, "Ketiga sudutnya 60°, tidak ada yang siku-siku.", "SD5-M-B7-04"),
@@ -651,7 +651,7 @@ soal("PB5", 4, "Panjang sisi-sisi sebuah segitiga 6 cm, 6 cm, dan 6 cm. Nama man
 cek(termasuk("jajargenjang", "trapesium") and not termasuk("jajargenjang", "trapesium sama kaki")
     and not termasuk("jajargenjang", "persegi panjang") and not termasuk("jajargenjang", "belah ketupat"))
 soal("PB6", 5, "Jajargenjang dapat digolongkan juga sebagai ...", "C", [
-    ("trapesium", True, "Tepat. Jajargenjang mempunyai setidaknya sepasang sisi sejajar.", ""),
+    ("trapesium", True, "Benar. Jajargenjang mempunyai setidaknya sepasang sisi sejajar.", ""),
     ("trapesium sama kaki", False, "Trapesium sama kaki mempunyai 1 sumbu simetri, sedangkan jajargenjang tidak mempunyai sumbu simetri.", "SD5-M-B7-10"),
     ("persegi panjang", False, "Arahnya terbalik: persegi panjanglah yang termasuk jajargenjang. Jajargenjang tidak harus mempunyai sudut siku-siku.", "SD5-M-B7-08"),
     ("belah ketupat", False, "Arahnya terbalik: belah ketupatlah yang termasuk jajargenjang. Sisi jajargenjang tidak harus sama semua.", "SD5-M-B7-08"),
@@ -659,7 +659,7 @@ soal("PB6", 5, "Jajargenjang dapat digolongkan juga sebagai ...", "C", [
 cek(menjadi("jajargenjang", {"sisi_semua_sama"}) == "belah ketupat" and not termasuk("belah ketupat", "persegi")
     and not termasuk("belah ketupat", "persegi panjang") and not termasuk("belah ketupat", "trapesium sama kaki"))
 soal("PB7", 6, "Sebuah jajargenjang ternyata mempunyai empat sisi yang sama panjang. Bangun itu dapat disebut ...", "D", [
-    ("belah ketupat", True, "Tepat. Jajargenjang yang keempat sisinya sama panjang adalah belah ketupat.", ""),
+    ("belah ketupat", True, "Benar. Jajargenjang yang keempat sisinya sama panjang adalah belah ketupat.", ""),
     ("persegi", False, "Persegi juga memerlukan sudut siku-siku. Belum ada keterangan tentang sudutnya.", "SD5-M-B7-09"),
     ("persegi panjang", False, "Persegi panjang memerlukan sudut siku-siku, bukan sisi yang sama semua.", "SD5-M-B7-09"),
     ("trapesium sama kaki", False, "Jajargenjang tidak pernah menjadi trapesium sama kaki: ia tidak mempunyai sumbu simetri seperti trapesium sama kaki.", "SD5-M-B7-10"),
@@ -667,7 +667,7 @@ soal("PB7", 6, "Sebuah jajargenjang ternyata mempunyai empat sisi yang sama panj
 cek(termasuk("layang-layang", "layang-layang") and not termasuk("layang-layang", "belah ketupat")
     and not termasuk("layang-layang", "jajargenjang") and not termasuk("layang-layang", "persegi"))
 soal("PB8", 7, "Sebuah segi empat mempunyai dua pasang sisi berurutan yang sama panjang, dan hanya satu diagonalnya yang merupakan sumbu simetri. Bangun itu adalah ...", "B", [
-    ("layang-layang, bukan belah ketupat", True, "Tepat. Belah ketupat memerlukan kedua diagonalnya menjadi sumbu simetri.", ""),
+    ("layang-layang, bukan belah ketupat", True, "Benar. Belah ketupat memerlukan kedua diagonalnya menjadi sumbu simetri.", ""),
     ("belah ketupat, karena sisinya berpasangan", False, "Hanya satu diagonal yang menjadi sumbu simetri, jadi bangun ini belum belah ketupat.", "SD5-M-B7-09"),
     ("jajargenjang, karena sisinya berpasangan", False, "Pada jajargenjang, sisi yang sama panjang adalah sisi berhadapan, bukan berurutan, dan tidak ada sumbu simetri.", "SD5-M-B7-09"),
     ("persegi, karena ada sumbu simetri", False, "Persegi mempunyai 4 sumbu simetri, bukan satu.", "SD5-M-B7-11"),
@@ -676,13 +676,13 @@ soal("PB8", 7, "Sebuah segi empat mempunyai dua pasang sisi berurutan yang sama 
 # ── Latihan (practice), by lesson.
 cek(not bisa_segitiga(3, 5, 8) and 3 + 5 == 8 and 5 + 8 > 3)
 soal("LT1", 1, "Dapatkah sedotan 3 cm, 5 cm, dan 8 cm dirangkai menjadi segitiga?", "A", [
-    ("Tidak, karena 3 + 5 = 8, tidak lebih dari 8", True, "Tepat. Jumlah dua sisi harus lebih dari sisi ketiga, tidak cukup sama dengan.", ""),
+    ("Tidak, karena 3 + 5 = 8, tidak lebih dari 8", True, "Benar. Jumlah dua sisi harus lebih dari sisi ketiga, tidak cukup sama dengan.", ""),
     ("Ya, karena 3 + 5 sudah sama panjang dengan sedotan 8 cm", False, "Sama dengan belum cukup. Kedua sedotan pendek hanya berbaring lurus di atas sedotan 8 cm.", "SD5-M-B7-02"),
     ("Ya, karena ada tiga sedotan", False, "Tidak semua tiga sedotan dapat membentuk segitiga; panjangnya harus diperiksa.", "SD5-M-B7-01"),
     ("Ya, karena 5 + 8 lebih dari 3", False, "Pasangan yang memuat sisi terpanjang selalu lebih. Yang harus diperiksa 3 + 5 terhadap 8.", "SD5-M-B7-03"),
 ])
 cek(bisa_segitiga(6, 10, 15) and not bisa_segitiga(6, 10, 16) and not bisa_segitiga(6, 10, 17) and not bisa_segitiga(6, 10, 4))
-soal("LT2", 1, "Dua sisi sebuah segitiga 6 cm dan 10 cm. Panjang sisi ketiga berupa bilangan bulat. Berapa panjang terbesar yang mungkin?", "D", [
+soal("LT2", 1, "Dua sisi sebuah segitiga 6 cm dan 10 cm. Panjang sisi ketiga berupa bilangan cacah. Berapa panjang terbesar yang mungkin?", "D", [
     ("15 cm", True, "Benar. 6 + 10 = 16, jadi sisi ketiga harus kurang dari 16 cm; yang terbesar 15 cm.", ""),
     ("16 cm", False, "6 + 10 = 16, hanya sama dengan 16. Sisi ketiga harus kurang dari jumlah itu.", "SD5-M-B7-02"),
     ("17 cm", False, "Yang diperiksa hanya 17 + 6 > 10. Pasangan 6 + 10 = 16 kurang dari 17.", "SD5-M-B7-03"),
@@ -697,7 +697,7 @@ soal("LT3", 2, "Segitiga yang salah satu sudutnya 90° disebut segitiga ...", "B
 ])
 cek(jenis_sudut([30, 110, 40]) == "tumpul")
 soal("LT4", 2, "Segitiga PQR mempunyai sudut P = 30°, sudut Q = 110°, dan sudut R = 40°. Segitiga itu termasuk segitiga ...", "C", [
-    ("tumpul", True, "Tepat. Sudut Q = 110° adalah sudut tumpul.", ""),
+    ("tumpul", True, "Benar. Sudut Q = 110° adalah sudut tumpul.", ""),
     ("lancip", False, "Dua sudut lancip belum cukup. Ada satu sudut tumpul, 110°.", "SD5-M-B7-04"),
     ("siku-siku", False, "Tidak ada sudut yang tepat 90°.", "SD5-M-B7-04"),
     ("sembarang", False, "Sembarang adalah nama menurut sisi. Yang ditanyakan dari sudut-sudutnya.", "SD5-M-B7-07"),
@@ -710,7 +710,7 @@ soal("LT5", 3, "Jumlah ketiga sudut dalam sebuah segitiga adalah ...", "A", [
 ])
 cek(90 + 90 == 180 and sudut_ketiga(90, 90) == 0)
 soal("LT6", 3, "Mengapa sebuah segitiga tidak dapat mempunyai dua sudut siku-siku?", "D", [
-    ("Karena 90° + 90° sudah 180°, tak tersisa untuk sudut ketiga", True, "Tepat. Sudut ketiga menjadi 0°, jadi tidak ada segitiga.", ""),
+    ("Karena 90° + 90° sudah 180°, tak tersisa untuk sudut ketiga", True, "Benar. Sudut ketiga menjadi 0°, jadi tidak ada segitiga.", ""),
     ("Karena sudut siku-siku hanya boleh ada pada segi empat", False, "Segitiga siku-siku mempunyai satu sudut siku-siku. Yang tidak mungkin adalah dua.", "SD5-M-B7-04"),
     ("Karena segitiga harus mempunyai satu sudut tumpul", False, "Segitiga lancip dan siku-siku tidak mempunyai sudut tumpul.", "SD5-M-B7-04"),
     ("Dapat saja, asalkan ketiga sisi segitiga itu dibuat cukup panjang", False, "Panjang sisi tidak mengubah jumlah sudut, yang selalu 180°.", "SD5-M-B7-05"),
@@ -725,7 +725,7 @@ soal("LT7", 3, "Dua sudut sebuah segitiga besarnya 45° dan 72°. Berapa besar s
 soal("LT8", 4, "Berapa banyak simetri lipat segitiga sama sisi?", "C", [
     ("3 simetri lipat", True, "Benar. Segitiga sama sisi dapat dilipat tepat di tiga cara.", ""),
     ("1 simetri lipat", False, "1 simetri lipat adalah milik segitiga sama kaki yang tidak sama sisi.", "SD5-M-B7-11"),
-    ("tidak ada simetri lipat", False, "Yang tidak mempunyai simetri lipat adalah segitiga sembarang.", "SD5-M-B7-11"),
+    ("Tidak ada simetri lipat", False, "Yang tidak mempunyai simetri lipat adalah segitiga sembarang.", "SD5-M-B7-11"),
     ("6 simetri lipat", False, "Tiga sisi dan tiga sudut dihitung terpisah. Setiap garis lipat melalui satu pojok dan tengah sisi di depannya.", "SD5-M-B7-11"),
 ])
 cek(180 // 3 == 60)
@@ -737,7 +737,7 @@ soal("LT9", 4, "Setiap sudut segitiga sama sisi besarnya ...", "A", [
 ])
 cek(SIMETRI_LIPAT["segitiga sama kaki"] == 1)
 soal("LT10", 4, "Sebuah segitiga siku-siku mempunyai dua sisi yang sama panjang. Nama yang paling lengkap untuknya adalah segitiga ...", "D", [
-    ("siku-siku sama kaki", True, "Tepat. Nama menurut sudut dan nama menurut sisi dipakai bersama.", ""),
+    ("siku-siku sama kaki", True, "Benar. Nama menurut sudut dan nama menurut sisi dipakai bersama.", ""),
     ("siku-siku sama sisi", False, "Segitiga sama sisi sudutnya 60° semua, jadi tidak dapat siku-siku.", "SD5-M-B7-07"),
     ("tumpul sama kaki", False, "Segitiga ini mempunyai sudut siku-siku, bukan sudut tumpul.", "SD5-M-B7-04"),
     ("siku-siku sembarang", False, "Segitiga sembarang tidak mempunyai sisi yang sama panjang, padahal di sini ada dua.", "SD5-M-B7-07"),
@@ -752,18 +752,18 @@ cek(SIMETRI_LIPAT["trapesium sama kaki"] == 1)
 soal("LT12", 5, "Berapa banyak sumbu simetri trapesium sama kaki?", "A", [
     ("1 sumbu simetri", True, "Benar. Garis lipatnya melalui tengah kedua sisi yang sejajar.", ""),
     ("2 sumbu simetri", False, "2 sumbu simetri adalah milik persegi panjang dan belah ketupat.", "SD5-M-B7-11"),
-    ("tidak ada sumbu simetri", False, "Yang tidak mempunyai sumbu simetri adalah trapesium sembarang dan jajargenjang.", "SD5-M-B7-11"),
+    ("Tidak ada sumbu simetri", False, "Yang tidak mempunyai sumbu simetri adalah trapesium sembarang dan jajargenjang.", "SD5-M-B7-11"),
     ("4 sumbu simetri", False, "4 sumbu simetri adalah milik persegi.", "SD5-M-B7-11"),
 ])
 soal("LT13", 5, "Kaki-kaki jajargenjang sama panjang. Mengapa jajargenjang tetap bukan trapesium sama kaki?", "C", [
-    ("Karena jajargenjang tidak mempunyai sumbu simetri", True, "Tepat. Trapesium sama kaki mempunyai 1 sumbu simetri dan sudut alas yang sama besar.", ""),
+    ("Karena jajargenjang tidak mempunyai sumbu simetri", True, "Benar. Trapesium sama kaki mempunyai 1 sumbu simetri dan sudut alas yang sama besar.", ""),
     ("Karena jajargenjang tidak mempunyai sisi yang sejajar", False, "Jajargenjang mempunyai dua pasang sisi sejajar.", "SD5-M-B7-10"),
     ("Karena jajargenjang bukan segi empat", False, "Jajargenjang dibatasi empat sisi, jadi segi empat.", "SD5-M-B7-10"),
     ("Karena trapesium hanya boleh mempunyai sepasang sisi sejajar", False, "Di bab ini trapesium mempunyai setidaknya sepasang sisi sejajar, jadi jajargenjang tetap trapesium.", "SD5-M-B7-10"),
 ], sulit="Sedang")
 cek(CIRI["persegi panjang"] <= CIRI["persegi"] and termasuk("persegi", "persegi panjang") and not termasuk("persegi panjang", "persegi"))
 soal("LT14", 6, "Andi memeriksa bahwa semua ciri persegi panjang dimiliki oleh persegi. Kesimpulan manakah yang tepat?", "D", [
-    ("Persegi dapat digolongkan sebagai persegi panjang", True, "Tepat. Bila semua ciri A dimiliki B, B adalah A. Di sini B adalah persegi.", ""),
+    ("Persegi dapat digolongkan sebagai persegi panjang", True, "Benar. Bila semua ciri A dimiliki B, B adalah A. Di sini B adalah persegi.", ""),
     ("Persegi panjang dapat digolongkan sebagai persegi", False, "Arahnya terbalik. Sisi-sisi persegi panjang yang berurutan tidak harus sama panjang.", "SD5-M-B7-08"),
     ("Persegi dan persegi panjang adalah bangun yang sama persis", False, "Persegi mempunyai ciri tambahan: sisi-sisi berurutan sama panjang.", "SD5-M-B7-09"),
     ("Persegi bukan persegi panjang karena sisinya sama", False, "Sisi yang sama semua tidak menghapus ciri persegi panjang; persegi tetap memiliki semuanya.", "SD5-M-B7-08"),
@@ -771,14 +771,14 @@ soal("LT14", 6, "Andi memeriksa bahwa semua ciri persegi panjang dimiliki oleh p
 cek(menjadi("jajargenjang", {"siku1"}) == "persegi panjang" and menjadi("jajargenjang", {"sisi_semua_sama"}) == "belah ketupat"
     and {"sisi_hadap_sama", "sejajar1"} <= CIRI["jajargenjang"])
 soal("LT15", 6, "Ciri apa yang harus ditambahkan pada jajargenjang agar menjadi persegi panjang?", "B", [
-    ("Salah satu sudutnya siku-siku", True, "Tepat. Bila satu sudut siku-siku, keempat sudutnya ikut siku-siku.", ""),
+    ("Salah satu sudutnya siku-siku", True, "Benar. Bila satu sudut siku-siku, keempat sudutnya ikut siku-siku.", ""),
     ("Sisi-sisi yang berhadapan sama panjang", False, "Ciri ini sudah dimiliki jajargenjang.", "SD5-M-B7-09"),
     ("Keempat sisinya sama panjang", False, "Ciri ini membuat jajargenjang menjadi belah ketupat, bukan persegi panjang.", "SD5-M-B7-09"),
     ("Mempunyai sepasang sisi yang sejajar", False, "Jajargenjang sudah mempunyai dua pasang sisi sejajar.", "SD5-M-B7-09"),
 ])
 cek("siku_semua" in tutup(JAJARGENJANG | {"siku1"}))
 soal("LT16", 6, "Empat sedotan dirangkai menjadi jajargenjang. Lalu satu sudutnya diubah menjadi siku-siku. Bagaimana sudut-sudut yang lain?", "C", [
-    ("Semuanya ikut menjadi siku-siku", True, "Tepat. Bangunnya menjadi persegi panjang.", ""),
+    ("Semuanya ikut menjadi siku-siku", True, "Benar. Bangunnya menjadi persegi panjang.", ""),
     ("Tetap dua lancip dan dua tumpul", False, "Sudut-sudut berhadapan pada jajargenjang sama besar, jadi sudut di depan sudut siku-siku itu juga siku-siku, dan dua sudut lainnya menyusul.", "SD5-M-B7-04"),
     ("Hanya sudut di depannya yang ikut siku-siku", False, "Dua sudut lainnya pun menjadi siku-siku. Coba dengan sedotan: bangunnya menjadi persegi panjang, yang keempat sudutnya siku-siku.", "SD5-M-B7-04"),
     ("Semuanya menjadi tumpul", False, "Sudut yang diubah sudah siku-siku, bukan tumpul. Sudut di depannya sama besar dengannya, jadi juga siku-siku.", "SD5-M-B7-04"),
@@ -788,19 +788,19 @@ soal("LT17", 7, "Berapa banyak sumbu simetri belah ketupat?", "A", [
     ("2, yaitu kedua diagonalnya", True, "Benar. Belah ketupat dapat dilipat tepat menurut kedua diagonalnya.", ""),
     ("4, seperti persegi", False, "Persegi mempunyai 4 karena sudutnya siku-siku. Belah ketupat hanya 2.", "SD5-M-B7-11"),
     ("1, seperti layang-layang", False, "Layang-layang hanya mempunyai 1. Pada belah ketupat kedua diagonalnya sumbu simetri.", "SD5-M-B7-11"),
-    ("tidak ada, seperti jajargenjang", False, "Jajargenjang tidak mempunyai sumbu simetri, tetapi belah ketupat mempunyai 2.", "SD5-M-B7-11"),
+    ("Tidak ada, seperti jajargenjang", False, "Jajargenjang tidak mempunyai sumbu simetri, tetapi belah ketupat mempunyai 2.", "SD5-M-B7-11"),
 ])
 cek(menjadi("layang-layang", {"diag_simetri2"}) == "belah ketupat" and menjadi("layang-layang", {"siku1"}) != "belah ketupat"
     and {"sisi_urut_2pasang", "diag_tegak"} <= CIRI["layang-layang"])
 soal("LT18", 7, "Ciri apa yang harus ditambahkan pada layang-layang agar menjadi belah ketupat?", "D", [
-    ("Kedua diagonalnya merupakan sumbu simetri", True, "Tepat. Belah ketupat adalah layang-layang yang semua diagonalnya sumbu simetri.", ""),
+    ("Kedua diagonalnya merupakan sumbu simetri", True, "Benar. Belah ketupat adalah layang-layang yang semua diagonalnya sumbu simetri.", ""),
     ("Salah satu sudutnya siku-siku", False, "Sudut siku-siku adalah ciri tambahan dari belah ketupat ke persegi.", "SD5-M-B7-09"),
     ("Dua pasang sisi berurutan sama panjang", False, "Ciri ini sudah dimiliki layang-layang.", "SD5-M-B7-09"),
     ("Diagonal-diagonalnya berpotongan saling tegak lurus", False, "Diagonal layang-layang sudah berpotongan tegak lurus.", "SD5-M-B7-09"),
 ], sulit="Sedang")
 cek(not termasuk("layang-layang", "jajargenjang") and all(termasuk(n, "jajargenjang") for n in ("persegi", "persegi panjang", "belah ketupat")))
 soal("LT19", 7, "Bangun manakah yang tidak dapat digolongkan sebagai jajargenjang?", "B", [
-    ("Layang-layang", True, "Tepat. Sisi-sisi layang-layang yang sama panjang berurutan, dan sisinya tidak harus sejajar.", ""),
+    ("Layang-layang", True, "Benar. Sisi-sisi layang-layang yang sama panjang berurutan, dan sisinya tidak harus sejajar.", ""),
     ("Persegi", False, "Persegi mempunyai semua ciri jajargenjang, jadi termasuk jajargenjang.", "SD5-M-B7-08"),
     ("Persegi panjang", False, "Persegi panjang adalah jajargenjang yang sudutnya siku-siku.", "SD5-M-B7-08"),
     ("Belah ketupat", False, "Belah ketupat mempunyai semua ciri jajargenjang, jadi termasuk jajargenjang.", "SD5-M-B7-08"),

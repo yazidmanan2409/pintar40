@@ -1,4 +1,4 @@
-# SD Kelas 5, Matematika, Bab 9 "Bilangan Cacah Sampai 1.000.000", as a PINTAR lesson workbook
+# SD Kelas 5, Matematika, Bab 9 "Bilangan Cacah sampai 1.000.000", as a PINTAR lesson workbook
 # in the D-007 template (sheets Kursus, Bab, Pelajaran, Soal, Pilihan; the column contract is
 # KOLOM in src/lib/unggah-kontrak.ts). Built the way Bab 1-8 were (all passed).
 #
@@ -169,26 +169,26 @@ SUMBER = ("_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Ke
           "Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._")
 
 KURSUS = {
-    "Judul kursus*": "Matematika Kelas 5 · Bab 9: Bilangan Cacah Sampai 1.000.000",
+    "Judul kursus*": "Matematika Kelas 5 · Bab 9: Bilangan Cacah sampai 1.000.000",
     "Mata pelajaran*": "Matematika",
     "Jenjang*": "SD",
     "Kelas*": "Kelas 5",
     "Konteks": "Akademik",
 }
 
-BAB = [(1, "Bilangan Cacah Sampai 1.000.000")]
+BAB = [(1, "Bilangan Cacah sampai 1.000.000")]
 
 TABEL_TEMPAT = "\n".join(
     f"| {nama} | {titik(n)} | " + " | ".join(str(n)) + " |" for nama, n in PRODUK.items())
 
 PELAJARAN = [
-    dict(no=1, judul="Membaca dan Menulis Bilangan Sampai 1.000.000",
+    dict(no=1, judul="Membaca dan Menulis Bilangan sampai 1.000.000",
          ringkasan="Bilangan enam angka dibaca per kelompok tiga angka: kelompok ribuan dahulu dengan kata ribu, lalu kelompok sisanya.",
-         tujuan="Murid dapat membaca dan menulis bilangan cacah sampai 1.000.000.",
+         tujuan="Kalian dapat membaca dan menulis bilangan cacah sampai 1.000.000.",
          bloom="Memahami",
          isi=f"""## Harga sebuah lemari
 
-Nisa dan Ibu membeli lemari di Jepara, Jawa Tengah, kota yang terkenal dengan mebel berukir. Harga lemari yang dipilih Nisa **Rp979.875,00**.
+Nisa dan Ibu membeli lemari di Jepara, Jawa Tengah, kota yang terkenal dengan mebel berukir. Harga lemari yang dipilih Nisa **Rp979.875**.
 
 Bilangan seperti ini sering kita temui pada harga, nota, atau jumlah penduduk. Bagaimana membacanya?
 
@@ -232,7 +232,7 @@ _Periksa: 345.675._
 {SUMBER}"""),
     dict(no=2, judul="Nilai Tempat",
          ringkasan="Setiap angka dalam bilangan mempunyai tempat (satuan sampai ratus ribuan) dan nilai: angka itu dikalikan dengan nilai tempatnya.",
-         tujuan="Murid dapat menentukan nilai tempat dan nilai angka pada bilangan cacah sampai 1.000.000.",
+         tujuan="Kalian dapat menentukan nilai tempat dan nilai angka pada bilangan cacah sampai 1.000.000.",
          bloom="Memahami",
          isi=f"""## Enam tempat
 
@@ -275,15 +275,15 @@ _Periksa: angka 8 di ratus ribuan, jadi 800.000._
 {SUMBER}"""),
     dict(no=3, judul="Membandingkan Bilangan",
          ringkasan="Bandingkan banyak angkanya dahulu; bila sama, bandingkan angka demi angka mulai dari yang paling kiri.",
-         tujuan="Murid dapat membandingkan dua bilangan cacah sampai 1.000.000 dengan tanda <, >, atau =.",
+         tujuan="Kalian dapat membandingkan dua bilangan cacah sampai 1.000.000 dengan tanda <, >, atau =.",
          bloom="Menerapkan",
          isi=f"""## Tiga tanda
 
-- **<** berarti kurang dari: 445.000 < 545.000.
-- **>** berarti lebih dari: 876.000 > 867.000.
-- **=** berarti sama dengan: 126.789 = 126.789.
+- **<** artinya lebih kecil dari: 445.000 < 545.000.
+- **>** artinya lebih besar dari: 876.000 > 867.000.
+- **=** artinya sama dengan: 126.789 = 126.789.
 
-Ujung yang terbuka menghadap bilangan yang lebih besar.
+Ujung lancip tanda selalu menunjuk ke bilangan yang lebih kecil.
 
 ## Langkah 1: banyak angkanya
 
@@ -316,7 +316,7 @@ _Periksa: <, karena pada puluhan 2 < 5._
 {SUMBER}"""),
     dict(no=4, judul="Mengurutkan Bilangan dan Pola Bilangan",
          ringkasan="Mengurutkan berarti membandingkan beberapa bilangan sekaligus; pada pola bilangan, selisih dua bilangan yang berurutan selalu sama.",
-         tujuan="Murid dapat mengurutkan bilangan cacah sampai 1.000.000 dan melanjutkan pola bilangan.",
+         tujuan="Kalian dapat mengurutkan bilangan cacah sampai 1.000.000 dan melanjutkan pola bilangan.",
          bloom="Menerapkan",
          isi=f"""## Dari yang termurah
 
@@ -355,7 +355,7 @@ _Periksa: bertambah 200.000, jadi 900.000._
 {SUMBER}"""),
     dict(no=5, judul="Komposisi dan Dekomposisi Bilangan",
          ringkasan="Menyusun bilangan dari nilai-nilai tempatnya (komposisi) dan menguraikan bilangan menjadi nilai-nilai tempatnya (dekomposisi); uang pecahan membantu.",
-         tujuan="Murid dapat menyusun dan menguraikan bilangan cacah sampai 1.000.000, termasuk dengan pecahan uang.",
+         tujuan="Kalian dapat menyusun dan menguraikan bilangan cacah sampai 1.000.000, termasuk dengan pecahan uang.",
          bloom="Menerapkan",
          isi=f"""## Menguraikan bilangan
 
@@ -399,9 +399,9 @@ Satu jumlah uang dapat disusun dengan berbagai cara. Rp250.000 dapat berupa:
 _Periksa: 500.000 + 50.000 + 300 + 3._
 
 {SUMBER}"""),
-    dict(no=6, judul="Memecahkan Masalah dengan Bilangan Sampai 1.000.000",
+    dict(no=6, judul="Memecahkan Masalah dengan Bilangan sampai 1.000.000",
          ringkasan="Pada soal cerita, tentukan dahulu yang ditanyakan, pilih operasinya, lalu hitung dengan teliti, termasuk saat meminjam.",
-         tujuan="Murid dapat memecahkan masalah sehari-hari yang berkaitan dengan bilangan sampai 1.000.000.",
+         tujuan="Kalian dapat memecahkan masalah sehari-hari yang berkaitan dengan bilangan sampai 1.000.000.",
          bloom="Menerapkan",
          isi=f"""## Uangnya kurang berapa?
 
@@ -428,7 +428,7 @@ Periksa: 234.600 + 15.400 = 250.000. Cocok.
 3. Ratusan: 10 − 4 = 6. Ribuan: 9 − 5 = 4. Puluh ribuan: 4 − 1 = 3. Ratus ribuan: 2.
 4. Hasilnya 234.600.
 
-Jangan mengurangkan angka yang kecil dari yang besar di setiap kolom (misalnya 4 − 0 pada ratusan). Cara itu tidak meminjam dan memberi hasil yang keliru.
+Jangan mengurangkan angka yang kecil dari yang besar di setiap tempat (misalnya 4 − 0 pada ratusan). Cara itu tidak meminjam dan memberi hasil yang keliru.
 
 ## Mana yang lebih banyak?
 
@@ -520,7 +520,7 @@ N = 406250
 cek(int(str(N).replace("0", "", 1)) == 46250 and terbilang(46250) == "empat puluh enam ribu dua ratus lima puluh" and terbilang(406025) == "empat ratus enam ribu dua puluh lima"
     and baca_ribu_ganda(N) == "empat ratus ribu enam ribu dua ratus lima puluh")
 soal("PA1", 1, "Bilangan 406.250 dibaca ...", "B", [
-    (terbilang(N), True, "Tepat. Kelompok kiri 406 (empat ratus enam) ribu, kelompok kanan 250 (dua ratus lima puluh).", ""),
+    (terbilang(N), True, "Benar. Kelompok kiri 406 (empat ratus enam) ribu, kelompok kanan 250 (dua ratus lima puluh).", ""),
     (terbilang(46250), False, "Ini bacaan 46.250; angka 0 di puluh ribuan terlewat, sehingga 4 bergeser ke puluh ribuan.", "SD5-M-B9-02"),
     (baca_ribu_ganda(N), False, "Kata ribu diucapkan dua kali. Kelompok 406 dibaca utuh, lalu satu kali ribu.", "SD5-M-B9-01"),
     (terbilang(406025), False, "Ini bacaan 406.025. Kelompok kanan adalah 250, dua ratus lima puluh.", "SD5-M-B9-03"),
@@ -534,10 +534,10 @@ soal("PA2", 2, "Pada bilangan 583.194, angka 8 menempati nilai tempat ...", "D",
 ], guna="Pemetaan awal")
 cek(99870 < 100200 and lebih_besar_angka_depan(99870, 100200))
 soal("PA3", 3, "Pernyataan manakah yang tepat tentang 99.870 dan 100.200?", "A", [
-    ("99.870 < 100.200", True, "Tepat. 99.870 mempunyai lima angka, 100.200 enam angka, jadi 99.870 lebih kecil.", ""),
+    ("99.870 < 100.200", True, "Benar. 99.870 mempunyai lima angka, 100.200 enam angka, jadi 99.870 lebih kecil.", ""),
     ("99.870 > 100.200", False, "Angka pertama 9 dianggap menentukan. Hitung dahulu banyak angkanya: lima dan enam.", "SD5-M-B9-06"),
     ("99.870 = 100.200", False, "Kedua bilangan berbeda; 100.200 lebih besar.", "SD5-M-B9-06"),
-    ("tidak dapat dibandingkan", False, "Bilangan dengan banyak angka berbeda tetap dapat dibandingkan: yang angkanya lebih banyak lebih besar.", "SD5-M-B9-06"),
+    ("Tidak dapat dibandingkan", False, "Bilangan dengan banyak angka berbeda tetap dapat dibandingkan: yang angkanya lebih banyak lebih besar.", "SD5-M-B9-06"),
 ], guna="Pemetaan awal")
 K = 3 * 100000 + 5 * 10000 + 2 * 100 + 7
 cek(K == 350207 and tanpa_nol(K) == 3527 and 3 * 100000 + 5 * 10000 + 2 * 10 + 7 * 100 == 350720 and 3 * 10000 + 5 * 1000 + 2 * 100 + 7 == 35207)
@@ -559,14 +559,14 @@ soal("PB1", 1, "Bilangan \"enam ratus delapan ribu empat puluh\" ditulis ...", "
 cek(nilai_angka(472315, "puluh ribuan") == 70000 and nilai_tempat(472315, 7) == ["puluh ribuan"])
 soal("PB2", 2, "Berapa nilai angka 7 pada bilangan 472.315?", "A", [
     ("70.000", True, "Benar. Angka 7 di puluh ribuan: 7 × 10.000 = 70.000.", ""),
-    ("puluh ribuan", False, "Ini nama tempat angka 7. Yang ditanyakan nilainya: 7 × 10.000.", "SD5-M-B9-04"),
+    ("Puluh ribuan", False, "Ini nama tempat angka 7. Yang ditanyakan nilainya: 7 × 10.000.", "SD5-M-B9-04"),
     ("7.000", False, "Angka 7 dianggap di ribuan. Ribuan ditempati angka 2.", "SD5-M-B9-03"),
     ("700.000", False, "Angka 7 dianggap di ratus ribuan. Ratus ribuan ditempati angka 4.", "SD5-M-B9-03"),
 ], guna="Cek penguasaan", sulit="Sedang")
 A_, B_ = 806591, 806519
 cek(A_ > B_ and not lebih_besar_dari_belakang(A_, B_) and sorted(str(A_)) == sorted(str(B_)) and 95910 < B_)
 soal("PB3", 3, "Pernyataan manakah yang tepat?", "D", [
-    ("806.591 > 806.519", True, "Tepat. Ratus ribuan sampai ratusan sama; pada puluhan 9 > 1.", ""),
+    ("806.591 > 806.519", True, "Benar. Ratus ribuan sampai ratusan sama; pada puluhan 9 > 1.", ""),
     ("806.591 < 806.519", False, "Yang dibandingkan angka satuannya (1 dan 9). Mulailah dari kiri; puluhanlah yang pertama berbeda.", "SD5-M-B9-05"),
     ("806.591 = 806.519", False, "Angka-angkanya sama, tetapi tempatnya berbeda, jadi nilainya berbeda.", "SD5-M-B9-03"),
     ("95.910 > 806.519", False, "Angka pertama 9 dianggap menentukan. 95.910 hanya mempunyai lima angka.", "SD5-M-B9-06"),
@@ -576,7 +576,7 @@ NAIK = sorted(DAFTAR)
 DARI_BELAKANG = sorted(DAFTAR, key=lambda n: str(n)[::-1])
 cek(NAIK == [504089, 540083, 540812, 548005] and DARI_BELAKANG != NAIK and DARI_BELAKANG != NAIK[::-1])
 soal("PB4", 4, "Urutan 540.812; 504.089; 548.005; 540.083 dari yang terkecil adalah ...", "B", [
-    ("; ".join(titik(n) for n in NAIK), True, "Tepat. Puluh ribuan 0 paling kecil (504.089); lalu 540.083 dan 540.812 dibedakan di ratusan.", ""),
+    ("; ".join(titik(n) for n in NAIK), True, "Benar. Puluh ribuan 0 paling kecil (504.089); lalu 540.083 dan 540.812 dibedakan di ratusan.", ""),
     ("; ".join(titik(n) for n in NAIK[::-1]), False, "Ini urutan dari yang terbesar.", "SD5-M-B9-07"),
     ("; ".join(titik(n) for n in DARI_BELAKANG), False, "Bilangan diurutkan dari angka belakangnya. Mulailah dari angka paling kiri.", "SD5-M-B9-05"),
     ("; ".join(titik(n) for n in [504089, 540812, 540083, 548005]), False, "540.812 dan 540.083 tertukar: pada ratusan 0 < 8, jadi 540.083 lebih kecil.", "SD5-M-B9-03"),
@@ -610,15 +610,15 @@ cek(875000 - 628500 == 246500 and 875000 + 628500 == 1503500 and kurang_terbalik
 soal("PB8", 6, "Harga sepeda Rp875.000. Doni sudah menabung Rp628.500. Berapa lagi yang harus ditabung Doni?", "B", [
     ("Rp246.500", True, "Benar. 875.000 − 628.500 = 246.500. Periksa: 628.500 + 246.500 = 875.000.", ""),
     ("Rp1.503.500", False, "Kedua bilangan dijumlahkan. Kekurangan dicari dengan pengurangan.", "SD5-M-B9-10"),
-    ("Rp253.500", False, "Di setiap kolom angka kecil dikurangkan dari angka besar, tanpa meminjam.", "SD5-M-B9-10"),
+    ("Rp253.500", False, "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam.", "SD5-M-B9-10"),
     ("Rp247.500", False, "Pinjaman dari ribuan tidak dikurangkan. Periksa: 628.500 + 247.500 = 876.000.", "SD5-M-B9-10"),
-], guna="Cek penguasaan", sulit="Sulit", petunjuk="Periksa jawabanmu dengan menjumlahkannya kembali dengan tabungan Doni.")
+], guna="Cek penguasaan", sulit="Sulit", petunjuk="Periksa jawaban kalian dengan menjumlahkannya kembali dengan tabungan Doni.")
 
 # ── Latihan (practice), by lesson.
 cek(terbilang(320018) == "tiga ratus dua puluh ribu delapan belas" and terbilang(302018) == "tiga ratus dua ribu delapan belas"
     and terbilang(3218) == "tiga ribu dua ratus delapan belas" and terbilang(320080) == "tiga ratus dua puluh ribu delapan puluh")
 soal("LT1", 1, "Bilangan 320.018 dibaca ...", "A", [
-    (terbilang(320018), True, "Tepat. 320 ribu dan 018, yaitu delapan belas.", ""),
+    (terbilang(320018), True, "Benar. 320 ribu dan 018, yaitu delapan belas.", ""),
     (terbilang(320080), False, "Ini bacaan 320.080. Kelompok kanan 018: delapan belas.", "SD5-M-B9-03"),
     (terbilang(3218), False, "Ini bacaan 3.218; semua angka 0 terlewat.", "SD5-M-B9-02"),
     (terbilang(302018), False, "Ini bacaan 302.018. Kelompok kiri 320: tiga ratus dua puluh.", "SD5-M-B9-03"),
@@ -647,27 +647,27 @@ cek(nilai_angka(158203, "puluh ribuan") == 50000)
 soal("LT5", 2, "Berapa nilai angka 5 pada bilangan 158.203?", "A", [
     ("50.000", True, "Benar. 5 di puluh ribuan: 5 × 10.000 = 50.000.", ""),
     ("5.000", False, "Angka 5 dianggap di ribuan. Ribuan ditempati angka 8.", "SD5-M-B9-03"),
-    ("puluh ribuan", False, "Ini nama tempat angka 5. Yang ditanyakan nilainya: 5 × 10.000.", "SD5-M-B9-04"),
+    ("Puluh ribuan", False, "Ini nama tempat angka 5. Yang ditanyakan nilainya: 5 × 10.000.", "SD5-M-B9-04"),
     ("500.000", False, "Angka 5 dianggap di ratus ribuan. Ratus ribuan ditempati angka 1.", "SD5-M-B9-03"),
 ])
 PILIH = [452108, 245108, 154208, 128504]
 cek([n for n in PILIH if nilai_tempat(n, 4) == ["ratus ribuan"]] == [452108]
     and [nilai_tempat(n, 4) for n in PILIH[1:]] == [["puluh ribuan"], ["ribuan"], ["satuan"]])
 soal("LT6", 2, "Pada bilangan manakah angka 4 bernilai 400.000?", "C", [
-    ("452.108", True, "Tepat. Angka 4 di ratus ribuan.", ""),
+    ("452.108", True, "Benar. Angka 4 di ratus ribuan.", ""),
     ("245.108", False, "Angka 4 di puluh ribuan, bernilai 40.000.", "SD5-M-B9-03"),
     ("154.208", False, "Angka 4 di ribuan, bernilai 4.000.", "SD5-M-B9-03"),
     ("128.504", False, "Angka 4 di satuan, bernilai 4.", "SD5-M-B9-03"),
 ], sulit="Sedang")
 cek(700009 > 699999 and not lebih_besar_dari_belakang(700009, 699999))
 soal("LT7", 3, "Pernyataan manakah yang tepat tentang 700.009 dan 699.999?", "B", [
-    ("700.009 > 699.999", True, "Tepat. Ratus ribuan 7 > 6, jadi 700.009 lebih besar.", ""),
+    ("700.009 > 699.999", True, "Benar. Ratus ribuan 7 > 6, jadi 700.009 lebih besar.", ""),
     ("700.009 < 699.999", False, "Yang dibandingkan angka-angka belakangnya (banyak 9 pada 699.999). Mulailah dari kiri: 7 > 6.", "SD5-M-B9-05"),
     ("700.009 = 699.999", False, "Kedua bilangan berbeda; ratus ribuannya 7 dan 6.", "SD5-M-B9-05"),
-    ("tidak dapat dibandingkan", False, "Keduanya mempunyai enam angka dan dapat dibandingkan dari kiri.", "SD5-M-B9-05"),
+    ("Tidak dapat dibandingkan", False, "Keduanya mempunyai enam angka dan dapat dibandingkan dari kiri.", "SD5-M-B9-05"),
 ])
 soal("LT8", 3, "Dua bilangan enam angka dibandingkan mulai dari ...", "D", [
-    ("angka paling kiri, yaitu ratus ribuan", True, "Tepat. Angka paling kiri bernilai paling besar.", ""),
+    ("angka paling kiri, yaitu ratus ribuan", True, "Benar. Angka paling kiri bernilai paling besar.", ""),
     ("angka paling kanan, yaitu satuan", False, "Satuan bernilai paling kecil, jadi tidak menentukan bila angka di kirinya berbeda.", "SD5-M-B9-05"),
     ("angka yang paling besar di setiap bilangan", False, "Yang dibandingkan angka pada tempat yang sama, mulai dari kiri.", "SD5-M-B9-05"),
     ("jumlah semua angka pada setiap bilangan", False, "Jumlah angka tidak menentukan: 900.000 (jumlah 9) lebih besar dari 199.999 (jumlah 46).", "SD5-M-B9-06"),
@@ -704,7 +704,7 @@ soal("LT12", 5, "Bentuk uraian 680.090 adalah ...", "B", [
 ])
 cek(2 * 100000 + 5 * 10000 == 250000 and 2 * 100000 + 5 * 1000 == 205000 and 25 * 1000 == 25000 and 5 * 50000 + 2 * 10000 == 270000)
 soal("LT13", 5, "Susunan uang manakah yang nilainya Rp250.000?", "C", [
-    ("2 lembar seratus ribuan dan 5 lembar sepuluh ribuan", True, "Tepat. 200.000 + 50.000 = 250.000.", ""),
+    ("2 lembar seratus ribuan dan 5 lembar sepuluh ribuan", True, "Benar. 200.000 + 50.000 = 250.000.", ""),
     ("2 lembar seratus ribuan dan 5 lembar seribuan", False, "5 lembar seribuan hanya 5.000, jadi jumlahnya 205.000.", "SD5-M-B9-09"),
     ("25 lembar seribuan", False, "25 lembar seribuan hanya 25.000.", "SD5-M-B9-09"),
     ("5 lembar lima puluh ribuan dan 2 lembar sepuluh ribuan", False, "5 × 50.000 sudah 250.000; ditambah 20.000 menjadi 270.000.", "SD5-M-B9-09"),
@@ -714,7 +714,7 @@ cek(PUNYA == 295000 and 320000 - PUNYA == 25000 and 320000 + PUNYA == 615000 and
 soal("LT14", 6, "Harga tas Rp320.000. Rina mempunyai 2 lembar seratus ribuan, 9 lembar sepuluh ribuan, dan 5 lembar seribuan. Berapa kekurangan uang Rina?", "A", [
     ("Rp25.000", True, "Benar. Uang Rina 295.000; 320.000 − 295.000 = 25.000.", ""),
     ("Rp615.000", False, "Harga dan uang dijumlahkan. Kekurangan dicari dengan pengurangan.", "SD5-M-B9-10"),
-    ("Rp175.000", False, "Di setiap kolom angka kecil dikurangkan dari angka besar, tanpa meminjam.", "SD5-M-B9-10"),
+    ("Rp175.000", False, "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam.", "SD5-M-B9-10"),
     ("Rp295.000", False, "Ini uang yang dimiliki Rina. Yang ditanyakan kekurangannya.", "SD5-M-B9-10"),
 ], sulit="Sedang")
 cek(500000 - 62300 == 437700 and 500000 + 62300 == 562300 and 500000 - 62300 + 10000 == 447700)
@@ -728,7 +728,7 @@ cek(450570 - 405750 == 44820 and 450570 + 405750 == 856320 and kurang_terbalik(4
 soal("LT16", 6, "Kelompok A mengumpulkan dana Rp405.750, kelompok B Rp450.570. Berapa selisih dana kedua kelompok?", "B", [
     ("Rp44.820", True, "Benar. 450.570 − 405.750 = 44.820.", ""),
     ("Rp856.320", False, "Kedua dana dijumlahkan. Selisih dicari dengan pengurangan.", "SD5-M-B9-10"),
-    ("Rp55.220", False, "Di setiap kolom angka kecil dikurangkan dari angka besar, tanpa meminjam.", "SD5-M-B9-10"),
+    ("Rp55.220", False, "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam.", "SD5-M-B9-10"),
     ("Rp450.570", False, "Ini dana yang lebih banyak. Yang ditanyakan selisihnya.", "SD5-M-B9-10"),
 ], sulit="Sulit")
 
