@@ -70,13 +70,13 @@ The Pengayaan game and the Eksplorasi activities are not used as question source
   - Contoh 1-9;
   - Contoh 9's 0,4771, 0,0212 and 22,5, rounded from Python's log10;
   - PB7's ²log 3 × ³log 16 = 4, checked in floating point.
-- **Assertions:** 3.345 with `--kutipan` (3.344 without). Most of them are the notation check.
-- **FAKTA.** It holds 30 facts (pp. 4-33), each with its page and the book's words. Every
+- **Assertions:** 3.351 with `--kutipan` (3.350 without). Most of them are the notation check.
+- **FAKTA.** It holds 32 facts (pp. 4-33), each with its page and the book's words. Every
   option names the fact it rests on; computed options mark it with «=». `--kutipan` finds
-  **30 of 30** quotations in the book's text.
+  **32 of 32** quotations in the book's text.
 - **Formulas** were read from the page images, which I rendered at 110 dpi. The text layer loses
   superscripts and fraction layout, so formulas are proven by computation, not by quote.
-- **Six facts are kept only as the book-error record** (`REKAMAN`). No question may rest on them.
+- **Eight facts are kept only as the book-error record** (`REKAMAN`). No question may rest on them.
 
 ## Questions
 
@@ -113,9 +113,9 @@ options, A–D.
 $ python3 docs/onboarding/konten/sma10_matematika_bab1.py --kutipan <book text>
 SMA10-Matematika-Bab1.xlsx: lessons 7 (33 pages), questions 32 (pre 4, post 8, practice 20), answers A=8 B=8 C=8 D=8
 SMA10-Matematika-Bab1-miskonsepsi.csv: 15 codes
-facts traced: 30 (pages 4-33)
-quotations found in the book's text: 30 of 30; figures read by eye: none
-assertions passed: 3345          (3344 without --kutipan)
+facts traced: 32 (pages 4-33)
+quotations found in the book's text: 32 of 32; figures read by eye: none
+assertions passed: 3351          (3350 without --kutipan)
 
 $ npx tsx docs/onboarding/konten/ke-paket.ts docs/onboarding/konten/SMA10-Matematika-Bab1.xlsx docs/onboarding/konten/SMA10-Matematika-Bab1.paket.json
 docs/onboarding/konten/SMA10-Matematika-Bab1.paket.json: media none
@@ -168,8 +168,29 @@ None is copied into the workbook; `DILUAR` markers assert that the wording is ab
    - The conclusion «Arif membutuhkan waktu 22,5 tahun» reads a solution of 3 = 1,05ᵗ as a
      time, although the interest is added once a year.
    The lesson says only that the value of t satisfying the equation is about 22,5.
-10. **Uji Kompetensi 1c (p. 26):** it states «p ≠ 0, q ≠ 0» for (p + q)/(√p − √q). It needs
+10. **p. 18, the decay function:** «n bilangan real tak nol» lets n be negative, and
+    f(x) = n × aˣ then increases. The lesson's decay definition says «n bilangan real positif».
+    The general definition in lesson 3 keeps n ≠ 0, as the book does.
+11. **p. 30, sifat 8:** ᵃlog c = ᵃlog b × ᵇlog c needs b ≠ 1, which the listed conditions do not
+    require. The lesson states it inline: «dengan b ≠ 1». The generator asserts that every
+    occurrence of ᵇlog c carries the condition.
+12. **Uji Kompetensi 1c (p. 26):** it states «p ≠ 0, q ≠ 0» for (p + q)/(√p − √q). It needs
     p, q > 0 and p ≠ q.
+
+## Round 2 (coordinator's review)
+
+- **Sifat 8** now reads «8. ᵃlog c = ᵃlog b × ᵇlog c, dengan b ≠ 1.» (book error 11).
+- **The decay definition** (lesson 4) takes «n bilangan real positif» (book error 10). Lesson 3's
+  general definition keeps n ≠ 0, and LT7 stands.
+- **Contoh 9 answers its own question.** Interest is added once a year:
+  - 1,05²² ≈ 2,93 < 3 ≤ 1,05²³ ≈ 3,07;
+  - so the savings first reach three times their start at the end of year 23.
+  This is asserted with exact fractions. t ≈ 22,5 stays as the solution of the equation.
+- **Contoh 4** states its question («Berapa banyak bakteri setelah 10 jam?») before the steps.
+- **PB5 B's rationale** now reads «… tetapi hasilnya belum dibagi penyebut baru, √5 × √5 = 5.»
+- **Kept out, and asserted.** Both new book errors are added to `REKAMAN`, with DILUAR markers
+  («0 < a < 1, n bilangan real tak nol», «Arif membutuhkan waktu 22,5»).
+- Keys, answer positions and misconception codes are unchanged.
 
 ## Questions for the coordinator
 

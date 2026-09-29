@@ -89,8 +89,10 @@ fakta("bakteri_baru", 14, "Pada jam ke-5 berapa banyak bakteri baru yang tumbuh?
 fakta("meluruh", 21, "Setelah 30 menit, banyak dosis obat yang meluruh adalah")
 fakta("hiv", 17, "Pada tahun 2015 kasus positif HIV-AIDS berjumlah sekitar 36 juta jiwa.")
 fakta("bunga_05", 32, "berlaku: 9.000.000 = 3 .000.000(1 + 0, 5)t")
+fakta("peluruhan_n", 18, "Fungsi peluruhan eksponen dapat dituliskan sebagai")
+fakta("sifat8_b", 30, "8. alog c =alog b× blogc")
 fakta("latihan26", 33, "Latihan  2.6  1. Sederhanakan bentuk akar berikut ini.")
-REKAMAN = {"eksponenial", "bakteri_baru", "meluruh", "hiv", "bunga_05", "latihan26"}
+REKAMAN = {"peluruhan_n", "sifat8_b", "eksponenial", "bakteri_baru", "meluruh", "hiv", "bunga_05", "latihan26"}
 GAMBAR = set()
 
 # ── What can be computed (every number the lessons use) ──
@@ -125,6 +127,8 @@ cek(16 * 8 == 128 == 2 ** 7)                                                    
 L3, L105 = math.log10(3), math.log10(1.05)
 cek(desimal(L3, 4) == "0,4771" and desimal(L105, 4) == "0,0212" and desimal(0.4771 / 0.0212, 1) == "22,5")   # Contoh 9
 cek(abs(1.05 ** (L3 / L105) - 3) < 1e-9)
+cek(F(105, 100) ** 22 < 3 <= F(105, 100) ** 23)                                     # Contoh 9: year 23
+cek(desimal(float(F(105, 100) ** 22), 2) == "2,93" and desimal(float(F(105, 100) ** 23), 2) == "3,07")
 # BOOK INCONSISTENCIES (checked here, kept out of lessons and questions):
 # p. 28: f(5,5) = 2.000 × 45,25 = 90.509, but 2.000 × 45,25 = 90.500 (and 2^{5,5} ≈ 45,2548).
 cek(2000 * F(4525, 100) == 90500 != 90509 and round(2 ** 5.5, 4) == 45.2548)
@@ -296,7 +300,7 @@ Modelnya f(x) = 30 × 2ˣ. Jam ke-5 adalah fase ke-10, karena setiap jam ada 2 f
 
 ## Contoh 4: mencari bilangan pokok
 
-Banyak bakteri setelah 2 jam 8.000, dan setelah 4 jam 32.000. Misalkan x_{{0}} banyak bakteri mula-mula dan a hasil pembelahan setiap jam, sehingga x_{{t}} = aᵗ · x_{{0}}.
+Banyak bakteri setelah 2 jam 8.000, dan setelah 4 jam 32.000. Berapa banyak bakteri setelah 10 jam? Misalkan x_{{0}} banyak bakteri mula-mula dan a hasil pembelahan setiap jam, sehingga x_{{t}} = aᵗ · x_{{0}}.
 
 1. x_{{4}} : x_{{2}} = 32.000 : 8.000, jadi a² = 4 dan a = 2.
 2. 8.000 = 2² · x_{{0}} = 4 · x_{{0}}, jadi x_{{0}} = 2.000.
@@ -313,7 +317,7 @@ Fungsi eksponensial tidak hanya menggambarkan pertumbuhan. Fungsi eksponensial j
 
 Fungsi peluruhan eksponen dituliskan
 
-f(x) = n × aˣ, dengan 0 < a < 1, n bilangan real tak nol, dan x sebarang bilangan real.
+f(x) = n × aˣ, dengan 0 < a < 1, n bilangan real positif, dan x sebarang bilangan real.
 
 ## Contoh 5: dosis obat
 
@@ -451,7 +455,7 @@ Yang dikalikan atau dibagi adalah numerusnya; hasil logaritmanya dijumlahkan ata
 ## Sifat 7 dan 8
 
 7. ᵃlog b = ᵐlog b / ᵐlog a
-8. ᵃlog c = ᵃlog b × ᵇlog c
+8. ᵃlog c = ᵃlog b × ᵇlog c, dengan b ≠ 1.
 
 ## Contoh 7: membuktikan sifat 4
 
@@ -471,7 +475,12 @@ Misalkan ᵃlog b = m dan ᵃlog c = n. Maka b = aᵐ dan c = aⁿ.
 2. log 3 = log 1,05ᵗ = t × log 1,05.
 3. t = log 3 / log 1,05 ≈ 0,4771 / 0,0212 ≈ 22,5.
 
-Nilai t yang memenuhi persamaan itu kira-kira 22,5.
+Nilai t yang memenuhi persamaan itu kira-kira 22,5. Bunga ditambahkan sekali setahun, jadi periksa tahun-tahun bulat:
+
+- t = 22 → 1,05²² ≈ 2,93, belum tiga kali lipat
+- t = 23 → 1,05²³ ≈ 3,07, sudah lebih dari tiga kali lipat
+
+Jadi tabungan Arif pertama kali mencapai tiga kali lipat pada akhir tahun ke-23.
 
 ## Rangkuman Bab 1
 
@@ -487,7 +496,7 @@ Nilai t yang memenuhi persamaan itu kira-kira 22,5.
 # Statements that are false or doubtful outside the book, or book errors, stay out of the lessons.
 DILUAR = ("90.509", "45,25", "HIV", "36 juta", "bakteri baru", "22,5 tahun", "(1 + 0,5)", "yang meluruh adalah",
           "Eksponenial", "Eksplorasi 2", "Latihan 2", "a ≠ 0 dan n bilangan bulat positif: a^{", "p/n bilangan", "dan dan",
-          "1 / ᵇlog a")
+          "1 / ᵇlog a", "0 < a < 1, n bilangan real tak nol", "Arif membutuhkan waktu 22,5")
 for _p in PELAJARAN:
     cek(3 <= _p["isi"].count("\n## ") + _p["isi"].startswith("## ") <= 6, f"lesson {_p['no']}: 3-6 pages")
     cek(_p["isi"].rstrip().endswith(SUMBER), f"lesson {_p['no']}: attribution last")
@@ -512,6 +521,9 @@ def notasi(teks, dimana):
     cek(not re.search(r"(?<=[\s(=])-(?=\d)", teks), f"{dimana}: hyphen as minus")
 
 
+# p. 30 lets b = 1 in sifat 8; wherever ᵇlog c appears, the lesson states b ≠ 1.
+cek(all(_p["isi"].count("× ᵇlog c") == _p["isi"].count("× ᵇlog c, dengan b ≠ 1") for _p in PELAJARAN))
+cek(sum(_p["isi"].count("× ᵇlog c, dengan b ≠ 1") for _p in PELAJARAN) == 1)
 for _p in PELAJARAN:
     notasi(_p["isi"], f"lesson {_p['no']}")
     notasi(_p["ringkasan"], f"lesson {_p['no']} ringkasan")
@@ -653,7 +665,7 @@ soal("PB4", 4, "Kadar suatu zat dalam darah 243 mg. Setiap jam, kadarnya tinggal
 cek(F(10, 5) == 2 and 10 * 5 ** 0 == 10 and F(10, 2) == 5)
 soal("PB5", 5, "Bentuk rasional dari 10/√5 adalah ...", "A", [
     ("2√5", True, "Benar. 10/√5 × √5/√5 = 10√5/5 = 2√5.", "", "=merasionalkan"),
-    ("10√5", False, "Pembilang sudah dikalikan √5, tetapi penyebutnya, √5 × √5 = 5, lupa membagi.", "SMA10-M-B1-13", "=merasionalkan"),
+    ("10√5", False, "Pembilang sudah dikalikan √5, tetapi hasilnya belum dibagi penyebut baru, √5 × √5 = 5.", "SMA10-M-B1-13", "=merasionalkan"),
     ("5√5", False, "Penyebutnya dianggap 2, seolah √5 × √5 = 2. Nilainya 5, jadi 10√5/5.", "SMA10-M-B1-13", "=merasionalkan"),
     ("2", False, "√5 di pembilang terlewat. 10√5/5 = 2√5, bukan 2.", "SMA10-M-B1-13", "=merasionalkan"),
 ], guna="Cek penguasaan", sulit="Sedang")
