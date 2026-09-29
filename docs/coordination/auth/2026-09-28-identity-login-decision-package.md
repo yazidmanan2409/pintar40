@@ -1,5 +1,7 @@
 # PINTAR 4.0 identity/login: decision package (C1–C18)
 
+> **Historical input, superseded 29 Sep by the canonical specification `IDENTITY-4.0.md` (D-054 to D-058).** Kept as evidence; where it differs, the specification wins.
+
 **Status: PROPOSED, for Yazid's rulings.** Nothing is implemented, ticketed, configured or recorded as a decision.
 - Basis: `2026-09-28-identity-login-architecture-review.md` (main `52f312f`).
 - New evidence: one read-only count query each on production and staging (28 Sep).

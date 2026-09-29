@@ -1,5 +1,7 @@
 # PINTAR 4.0: identity, registration, login, session and recovery. Architecture review
 
+> **Historical input, superseded 29 Sep by the canonical specification `IDENTITY-4.0.md` (D-054 to D-058).** Kept as evidence; where it differs, the specification wins.
+
 **Status: REVIEW ONLY, awaiting Yazid's rulings. No code, migration, setting, ticket or decision has been changed.**
 - Evidence: the repository at `main` `d200387`, and staging's hosted Auth settings read on 28 Sep (run 36382909677).
 - Companion: `2026-09-28-staff-signin-shared-computers.md` (yesterday's blast radius).

@@ -1,5 +1,7 @@
 # Staff sign-in on shared school computers: investigation, 28 Sep 2026
 
+> **Historical input, superseded 29 Sep by the canonical specification `IDENTITY-4.0.md` (D-054 to D-058).** Kept as evidence; where it differs, the specification wins.
+
 **Status: for Yazid's decision on 29 Sep. Nothing has been changed.** No tickets and no decision-log entries yet. All three investigations below were read-only (source, migrations, selftests, workflows, and staging's Auth settings read through the `limits` mode of `staging-journey.yml`, run 36382909677).
 
 **The problem (Yazid).** School computers are shared by students and educators, and shared computers may not have email set up. How do people sign in easily, and what happens when someone forgets to sign out? This has to balance security, ease of use and experience.

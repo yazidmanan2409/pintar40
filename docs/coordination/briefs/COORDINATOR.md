@@ -40,10 +40,10 @@ This is the coordinator's working state, so a new session can pick up without th
 
 - **Staff sign-in on shared school computers: Yazid decides on 29 Sep.** The discussion, evidence and blast radius are in `auth/2026-09-28-staff-signin-shared-computers.md`. In brief: email + password, a shared-computer idle sign-out with a "perangkat pribadi" option, and the PIN lock in 4.5. Six questions are listed there. The discussion was read-only: no tickets or decisions until he decides.
 
-- **Identity/login specification (Yazid, 28 Sep): architecture review done, awaiting his rulings.** See `auth/2026-09-28-identity-login-architecture-review.md`: current state, gap matrix, threat model, conflicts C1–C18, pilot boundary, Gates 0–8. Nothing is implemented until he approves. BOB-12 is a prerequisite and is still TODO.
+- **Identity 4.0 FROZEN (29 Sep): D-054 to D-058, spec `auth/IDENTITY-4.0.md`.** Gate 0 automated facts done (`auth/GATE-0-FACTS.md`); Yazid's manual evidence M1–M7 outstanding. Tickets on the board: C-09 to C-11, BOB-24 to BOB-29, DAISY-19 to DAISY-24; BOB-12 is Gate 1. Bob: BOB-23 → BOB-12 → the identity gates. Daisy's identity work starts at DAISY-19 after C-09. Production release only at Gate 8; never passwords without recovery.
 
 **Next for the coordinator:**
-0. Take Yazid's rulings on the identity/login review (C1–C18). Then record decisions, open tickets for Gates 0–8, and brief Bob and Daisy.
+0. Identity: finish C-09 with Yazid's evidence M1–M7; gate each identity ticket in the order of `auth/IDENTITY-4.0.md` §9. Brief Bob at BOB-12's start (Gate 1 reconciliation) and Daisy at DAISY-19.
 1. Gate BOB-23 when handed off: the hand-off's browser measurement, CI, one audit, merge, then staging J09.
 2. Gate LANA-02 when handed off: her three checks on her commit, then `staging-journey.yml` with `content_ref` = her sha and `chapter` = `SD5-Matematika-Bab2`, a read of a sample, then merge.
 3. Daisy: the reader walk against `ux/UX-POLISH-REGISTER.md` (UX-01…06), for the UI/UX POLISHED gate.
