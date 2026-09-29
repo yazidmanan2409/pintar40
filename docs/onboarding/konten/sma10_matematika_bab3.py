@@ -388,7 +388,7 @@ Istilah co- pada cosinus, cosecan, dan cotangen berkaitan dengan komplemen sudut
          bloom="Menerapkan",
          isi="""## Sudut 30° dan 60°
 
-Sudut istimewa adalah sudut-sudut yang nilai perbandingan trigonometrinya dapat ditentukan secara eksak.
+Sudut 30°, 45°, dan 60° disebut **sudut istimewa**, karena nilai perbandingan trigonometrinya dapat ditentukan secara eksak dari segitiga sederhana.
 
 Gambar segitiga sama sisi dengan panjang setiap sisi 2 satuan; semua sudutnya 60°. Belah dua dengan garis tinggi. Setiap bagian adalah segitiga siku-siku dengan sudut 30° dan 60°, sisi miring 2, sisi terpendek 1, dan tinggi √(2² − 1²) = √3.
 
@@ -474,6 +474,7 @@ _L5 = PELAJARAN[4]["isi"]
 for _t in ("sin 30° = 1/2", "cos 30° = √3/2", "tan 30° = 1/√3 = √3/3", "sin 60° = √3/2", "cos 60° = 1/2",
            "tan 60° = √3/1 = √3", "sin 45° = 1/√2 = √2/2", "cos 45° = √2/2", "tan 45° = 1/1 = 1"):
     cek(_t in _L5, _t)
+cek("Sudut 30°, 45°, dan 60° disebut **sudut istimewa**" in _L5 and "Sudut istimewa adalah sudut-sudut" not in _L5)
 
 # ── Misconceptions: the book has no Miskonsepsi section; these come from the distractors.
 MISKONSEPSI = {
