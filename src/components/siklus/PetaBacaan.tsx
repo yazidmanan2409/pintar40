@@ -1,5 +1,6 @@
 import { t, type Locale } from "@/lib/hle";
 import type { ReadingMapCard } from "@/lib/assessment-engine/types";
+import { TeksBaris } from "@/components/teks/Teks";
 
 /**
  * THE READING MAP. One card per competency, in the order the database ranked
@@ -32,8 +33,8 @@ export default function PetaBacaan({ kartu, locale }: { kartu: readonly ReadingM
       {kartu.map((k, i) => (
         <div key={`${k.kode}-${k.peringkat}`} className={`pin-kartu${i === mulai ? " pin-now" : ""}`}>
           <span className="pin-tier">{t(TIER_KEY[k.tingkat], "learner", { locale })}</span>
-          <span className="pin-claim">{k.pernyataan}</span>
-          <span className="pin-why">{k.alasan}</span>
+          <span className="pin-claim"><TeksBaris teks={k.pernyataan} /></span>
+          <span className="pin-why"><TeksBaris teks={k.alasan} /></span>
         </div>
       ))}
     </div>

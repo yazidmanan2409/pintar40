@@ -1,0 +1,1805 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas X · Bab 2: Barisan dan Deret",
+   "subject": "Matematika",
+   "stage": "SMA",
+   "grade_label": "Kelas X",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Barisan dan Deret",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Barisan Aritmetika",
+       "summary": "Barisan aritmetika adalah barisan yang selisih dua suku berurutannya selalu tetap; suku ke-n dihitung dengan U_{n} = a + (n − 1)b.",
+       "body_markdown": "## Barisan bilangan\n\nSebuah meja segi empat dikelilingi 4 kursi. Jika beberapa meja disatukan memanjang, banyak kursinya:\n\n- 1 meja → 4 kursi\n- 2 meja → 6 kursi\n- 3 meja → 8 kursi\n- 4 meja → 10 kursi\n\nBilangan 4, 6, 8, 10, … disusun berdasarkan aturan tertentu. Pola bilangan seperti ini disebut **barisan bilangan**. Setiap bilangannya disebut suku: suku ke-1 ditulis U_{1}, suku ke-2 ditulis U_{2}, dan suku ke-n ditulis U_{n}. Bentuk umumnya U_{1}, U_{2}, U_{3}, …, U_{n}.\n\n## Barisan aritmetika\n\nPada barisan 4, 6, 8, 10, selisih dua suku yang berdekatan selalu 2:\n\n- U_{2} − U_{1} = 6 − 4 = 2\n- U_{3} − U_{2} = 8 − 6 = 2\n- U_{4} − U_{3} = 10 − 8 = 2\n\nBarisan dengan beda atau selisih antara dua suku berurutan yang selalu tetap disebut **barisan aritmetika**. Bedanya dilambangkan dengan b:\n\nb = U_{n} − U_{n−1}\n\nBeda dapat bernilai negatif. Pada barisan 30, 25, 20, … bedanya 25 − 30 = −5.\n\n## Rumus suku ke-n\n\nDi sebuah gedung pertunjukan, baris ke-1 berisi 20 kursi, dan setiap baris berikutnya bertambah 4 kursi: 20, 24, 28, 32, 36, … Berapa kursi pada baris ke-15?\n\n- baris ke-2 → 20 + (1 × 4) = 24\n- baris ke-3 → 20 + (2 × 4) = 28\n- baris ke-5 → 20 + (4 × 4) = 36\n- baris ke-15 → 20 + (14 × 4) = 76\n\nSuku pertama ditambah beda sebanyak (n − 1) kali. Jadi rumus suku ke-n barisan aritmetika adalah\n\nU_{n} = a + (n − 1)b\n\ndengan a suku pertama, b beda, dan n nomor suku. Baris ke-15 berisi **76** kursi.\n\nKembali ke meja tadi. Berapa meja yang perlu disatukan agar 20 orang dapat makan bersama? U_{n} = 4 + (n − 1) × 2 = 2n + 2, dan 2n + 2 = 20 memberi 2n = 18, jadi n = 9. Perlu **9** meja.\n\n## Contoh 1 dan Contoh 2\n\n**Contoh 1.** Suku ke-3 suatu barisan aritmetika adalah 9 dan suku ke-6 adalah 18. Tentukan rumus suku ke-n.\n\n1. U_{6} − U_{3} = (a + 5b) − (a + 2b) = 3b, jadi 3b = 18 − 9 = 9 dan b = 3.\n2. U_{3} = a + 2b = 9, jadi a = 9 − 6 = 3.\n3. U_{n} = 3 + (n − 1) × 3 = **3n**.\n\n**Contoh 2.** Rudi menabung setiap bulan, dan kenaikan nominal tabungannya antarbulan tetap. Pada bulan ke-5 ia menabung Rp70.000 dan pada bulan ke-9 Rp90.000. (a) Berapa selisih nominal tabungan antarbulan? (b) Berapa uang yang ditabung Rudi pertama kali?\n\n1. U_{5} = a + 4b = 70.000 dan U_{9} = a + 8b = 90.000.\n2. Kurangkan kedua persamaan: 4b = 20.000, jadi b = 5.000.\n3. a + 4 × 5.000 = 70.000, jadi a = 50.000.\n\nJadi (a) selisihnya **Rp5.000** setiap bulan, dan (b) Rudi pertama kali menabung **Rp50.000**.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 2._",
+       "objective": {
+        "statement": "Kamu dapat mengenali barisan aritmetika, menentukan bedanya, dan menghitung suku ke-n.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Beda barisan aritmetika 7, 11, 15, 19, … adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "4",
+           "is_correct": true,
+           "rationale": "Benar. b = U_{2} − U_{1} = 11 − 7 = 4, dan selisih suku-suku berikutnya juga 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "−4",
+           "is_correct": false,
+           "rationale": "Suku sebelum dikurangi suku sesudah (7 − 11). Beda dihitung U_{2} − U_{1} = 11 − 7 = 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "7",
+           "is_correct": false,
+           "rationale": "Itu suku pertama. Beda adalah selisih dua suku berurutan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "23",
+           "is_correct": false,
+           "rationale": "Itu suku berikutnya (19 + 4). Yang ditanya bedanya, yaitu 4."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Suku ke-20 barisan aritmetika 5, 9, 13, 17, … adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "85",
+           "is_correct": false,
+           "rationale": "Beda ditambahkan 20 kali (5 + 20 × 4). Dari U_{1} ke U_{20} hanya ada 19 langkah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "81",
+           "is_correct": true,
+           "rationale": "Benar. a = 5, b = 4, jadi U_{20} = 5 + (20 − 1) × 4 = 5 + 76 = 81."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "80",
+           "is_correct": false,
+           "rationale": "Nomor suku dikalikan beda saja (20 × 4). Suku pertama 5 juga harus diperhitungkan: U_{20} = 5 + 19 × 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "77",
+           "is_correct": false,
+           "rationale": "Itu U_{19} = 5 + 18 × 4. Untuk U_{20}, beda ditambahkan 19 kali."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Baris pertama sebuah tribun berisi 18 kursi, dan setiap baris berikutnya berisi 3 kursi lebih banyak. Baris ke berapa yang berisi 60 kursi?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "14",
+           "is_correct": false,
+           "rationale": "Itu nilai n − 1. Nomor barisnya n = 14 + 1 = 15."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "20",
+           "is_correct": false,
+           "rationale": "60 dibagi beda (60 : 3). Suku pertama 18 belum diperhitungkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "42",
+           "is_correct": false,
+           "rationale": "Itu selisih kursinya (60 − 18), bukan nomor baris. Selisih itu masih dibagi beda 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "15",
+           "is_correct": true,
+           "rationale": "Benar. 18 + (n − 1) × 3 = 60, jadi (n − 1) × 3 = 42, n − 1 = 14, dan n = 15."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Beda barisan aritmetika 20, 17, 14, … adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "Suku sebelum dikurangi suku sesudah (20 − 17). Beda = U_{2} − U_{1} = −3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "11",
+           "is_correct": false,
+           "rationale": "Itu suku berikutnya (14 − 3). Yang ditanya bedanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "−6",
+           "is_correct": false,
+           "rationale": "Itu selisih U_{3} dan U_{1} (14 − 20). Beda dihitung dari dua suku yang berdekatan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "−3",
+           "is_correct": true,
+           "rationale": "Benar. b = 17 − 20 = −3. Barisannya turun, jadi bedanya negatif."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Barisan manakah yang merupakan barisan aritmetika?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "3, 6, 12, 24",
+           "is_correct": false,
+           "rationale": "Selisihnya 3, 6, 12 (tidak tetap). Barisan ini dikalikan 2, jadi barisan geometri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "3, 7, 11, 15",
+           "is_correct": true,
+           "rationale": "Benar. Selisih dua suku berurutan selalu 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "1, 4, 9, 16",
+           "is_correct": false,
+           "rationale": "Selisihnya 3, 5, 7 (tidak tetap)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "1, 3, 6, 10",
+           "is_correct": false,
+           "rationale": "Selisihnya 2, 3, 4 (tidak tetap)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rumus suku ke-n suatu barisan adalah U_{n} = 4n − 1. Nilai U_{12} adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "47",
+           "is_correct": true,
+           "rationale": "Benar. U_{12} = 4 × 12 − 1 = 48 − 1 = 47."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "48",
+           "is_correct": false,
+           "rationale": "Bagian −1 terlupa. U_{12} = 4 × 12 − 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "43",
+           "is_correct": false,
+           "rationale": "Itu U_{11} = 4 × 11 − 1. Ganti n dengan 12."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "51",
+           "is_correct": false,
+           "rationale": "Itu U_{13} = 4 × 13 − 1. Ganti n dengan 12."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Suku pertama suatu barisan aritmetika 10 dan bedanya −2. Rumus suku ke-n barisan itu adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "U_{n} = 10 − 2n",
+           "is_correct": false,
+           "rationale": "n − 1 diganti n. Periksa: rumus ini memberi U_{1} = 8, padahal U_{1} = 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "U_{n} = 8 + 2n",
+           "is_correct": false,
+           "rationale": "Tanda beda terbalik (b = 2). Barisannya turun, jadi bedanya −2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "U_{n} = 12 − 2n",
+           "is_correct": true,
+           "rationale": "Benar. U_{n} = 10 + (n − 1)(−2) = 10 − 2n + 2 = 12 − 2n. Periksa: U_{1} = 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "U_{n} = 10n − 2",
+           "is_correct": false,
+           "rationale": "Suku pertama dikalikan n dan beda ditambahkan sekali. U_{n} = a + (n − 1)b."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Barisan Geometri",
+       "summary": "Barisan geometri adalah barisan yang rasio dua suku berurutannya selalu tetap; suku ke-n dihitung dengan U_{n} = a × r^{n−1}.",
+       "body_markdown": "## Pengali yang tetap\n\nLima anak berbagi sebuah kue. Anak pertama mengambil setengah kue dan memberikan sisanya kepada anak kedua. Anak kedua mengambil setengah dari yang diterimanya dan memberikan sisanya kepada anak ketiga, dan seterusnya. Bagian kue yang diambil:\n\n- anak ke-1 → 1/2\n- anak ke-2 → 1/4\n- anak ke-3 → 1/8\n\nPerbandingan kue yang diambil dengan kue yang diterima selalu setengah.\n\nContoh lain: selembar kertas dilipat menjadi dua bagian sama besar, lalu dilipat lagi, dan seterusnya.\n\n- 1 kali lipat → 2 bagian\n- 2 kali lipat → 4 bagian\n- 3 kali lipat → 8 bagian\n- 4 kali lipat → 16 bagian\n\nDi sini pengalinya tetap: 4 : 2 = 8 : 4 = 16 : 8 = 2.\n\n## Barisan geometri\n\nBarisan dengan rasio antara dua suku berurutan yang selalu tetap disebut **barisan geometri**. Rasionya dilambangkan dengan r dan dicari dengan membagi dua suku yang berurutan:\n\nr = U_{n}/U_{n−1}\n\nBandingkan: pada barisan aritmetika, suku berikutnya diperoleh dengan **menambahkan** beda; pada barisan geometri, dengan **mengalikan** rasio.\n\n## Rumus suku ke-n\n\nDalam waktu dua jam, satu sel bakteri membelah menjadi 3. Mula-mula ada 2 sel. Berapa sel setelah 20 jam?\n\n- U_{1} = 2 (mula-mula)\n- U_{2} = 2 × 3 = 6 (setelah 2 jam)\n- U_{3} = 2 × 3² = 18 (setelah 4 jam)\n- U_{4} = 2 × 3³ = 54 (setelah 6 jam)\n\nSuku pertama dikalikan rasio sebanyak (n − 1) kali. Jadi rumus suku ke-n barisan geometri adalah\n\nU_{n} = a × r^{n−1}\n\ndengan a suku pertama, r rasio, dan n nomor suku.\n\nDalam 20 jam terjadi 20 : 2 = 10 kali pembelahan. Karena U_{1} adalah keadaan mula-mula, keadaan setelah 10 kali pembelahan adalah suku ke-11: U_{11} = 2 × 3¹⁰ = **118.098** sel.\n\n## Contoh 3 dan Contoh 4\n\n**Contoh 3.** Suku pertama suatu barisan geometri adalah 4 dan suku ke-4 adalah 108. Tentukan rasionya.\n\n1. U_{4} = a × r³, jadi 4 × r³ = 108.\n2. r³ = 108 : 4 = 27, jadi r = ∛27 = **3**.\n\n**Contoh 4.** Seutas tali dipotong menjadi 5 bagian yang panjangnya membentuk barisan geometri. Potongan terpendek 16 cm dan terpanjang 81 cm. Berapa panjang potongan ketiga?\n\n1. a = 16 dan U_{5} = 16 × r⁴ = 81, jadi r⁴ = 81/16.\n2. Semua panjang positif, jadi r = 3/2.\n3. U_{3} = 16 × (3/2)² = 16 × 9/4 = **36 cm**.\n\n## Coba pikirkan\n\nSeorang teman berkata: jika rasio suatu barisan geometri negatif, semua sukunya negatif. Periksa pendapat itu dengan barisan 1, −2, 4, −8, …\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 2._",
+       "objective": {
+        "statement": "Kamu dapat mengenali barisan geometri, menentukan rasionya, dan menghitung suku ke-n.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rasio barisan geometri 3, 6, 12, 24, … adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "Itu selisih 6 − 3, bukan hasil bagi. Selisihnya pun tidak tetap (6, lalu 12). Rasio adalah hasil bagi dua suku berurutan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "1/2",
+           "is_correct": false,
+           "rationale": "Pembagiannya terbalik (3/6). Rasio = suku sesudah dibagi suku sebelum."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "2",
+           "is_correct": true,
+           "rationale": "Benar. r = U_{2}/U_{1} = 6/3 = 2, dan 12/6 = 24/12 = 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "48",
+           "is_correct": false,
+           "rationale": "Itu suku berikutnya (24 × 2). Yang ditanya rasionya, yaitu 2."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Suku ke-6 barisan geometri 2, 6, 18, … adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "486",
+           "is_correct": true,
+           "rationale": "Benar. a = 2, r = 3, jadi U_{6} = 2 × 3⁵ = 2 × 243 = 486."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "1.458",
+           "is_correct": false,
+           "rationale": "Rasio dikalikan 6 kali (2 × 3⁶). Dari U_{1} ke U_{6} hanya ada 5 langkah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "729",
+           "is_correct": false,
+           "rationale": "Suku pertama tidak dipakai sebagai pengali (3⁶). U_{6} = a × r⁵ = 2 × 3⁵."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "22",
+           "is_correct": false,
+           "rationale": "Barisan dianggap aritmetika dengan beda 4 (2 + 5 × 4). Suku-sukunya dikalikan 3, bukan ditambah 4."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Barisan manakah yang merupakan barisan geometri?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "3, −6, 12, −24",
+           "is_correct": true,
+           "rationale": "Benar. Setiap suku dikalikan −2: −6 : 3 = 12 : (−6) = −2. Rasio boleh negatif."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "−3, −6, −9, −12",
+           "is_correct": false,
+           "rationale": "Selisihnya tetap −3, jadi ini barisan aritmetika. Hasil baginya 2, lalu 3/2 (tidak tetap)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "3, 6, 9, 12",
+           "is_correct": false,
+           "rationale": "Selisihnya tetap 3, jadi ini barisan aritmetika. Hasil baginya 2, lalu 3/2 (tidak tetap)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "3, 6, 12, 21",
+           "is_correct": false,
+           "rationale": "Hasil baginya 2, 2, lalu 7/4 (tidak tetap)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rumus suku ke-n suatu barisan geometri adalah U_{n} = 5 × 2^{n−1}. Nilai U_{4} adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "80",
+           "is_correct": false,
+           "rationale": "Pangkatnya n, bukan n − 1 (5 × 2⁴). Pangkatnya 4 − 1 = 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "1.000",
+           "is_correct": false,
+           "rationale": "Suku pertama ikut dipangkatkan ((5 × 2)³). Hanya 2 yang dipangkatkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "11",
+           "is_correct": false,
+           "rationale": "Rumusnya dibaca sebagai barisan aritmetika (5 + 3 × 2). Rasio 2 dikalikan, bukan ditambahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "40",
+           "is_correct": true,
+           "rationale": "Benar. U_{4} = 5 × 2³ = 5 × 8 = 40."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Beberapa anak berbagi kue. Setiap anak mengambil setengah dari kue yang diterimanya dan memberikan sisanya kepada anak berikutnya. Anak pertama menerima kue utuh. Bagian kue yang diambil anak keempat adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "1/8",
+           "is_correct": false,
+           "rationale": "Itu bagian anak ketiga. Bagian anak keempat setengahnya lagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "1/32",
+           "is_correct": false,
+           "rationale": "Itu bagian anak kelima: rasio dikalikan satu kali terlalu banyak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "1/16",
+           "is_correct": true,
+           "rationale": "Benar. Bagian yang diambil 1/2, 1/4, 1/8, 1/16: barisan geometri dengan r = 1/2, jadi U_{4} = 1/2 × (1/2)³ = 1/16."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "15/16",
+           "is_correct": false,
+           "rationale": "Itu jumlah bagian empat anak (1/2 + 1/4 + 1/8 + 1/16). Yang ditanya bagian anak keempat saja."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Mula-mula ada 3 sel. Setiap jam, setiap sel membelah menjadi 2. Banyak sel setelah 5 jam adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "48",
+           "is_correct": false,
+           "rationale": "Itu U_{5} = 3 × 2⁴, keadaan setelah 4 jam. Setelah 5 jam sudah terjadi 5 kali pembelahan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "96",
+           "is_correct": true,
+           "rationale": "Benar. U_{1} = 3 adalah keadaan mula-mula; setelah 5 kali pembelahan kita sampai di U_{6} = 3 × 2⁵ = 96."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "13",
+           "is_correct": false,
+           "rationale": "Banyak sel dianggap bertambah 2 setiap jam (3 + 5 × 2). Setiap sel membelah, jadi banyaknya dikali 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "243",
+           "is_correct": false,
+           "rationale": "Suku pertama dipakai sebagai rasio (3⁵). a = 3 dan r = 2."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Deret Aritmetika",
+       "summary": "Deret aritmetika adalah jumlah suku-suku barisan aritmetika; jumlah n suku pertamanya S_{n} = n/2 × (a + U_{n}).",
+       "body_markdown": "## Dari barisan ke deret\n\nDalam satu kelompok, setiap pasangan berjabat tangan tepat satu kali. Banyak jabat tangannya:\n\n- 2 orang → 1\n- 3 orang → 1 + 2 = 3\n- 4 orang → 1 + 2 + 3 = 6\n- 5 orang → 1 + 2 + 3 + 4 = 10\n\nBanyak jabat tangan itu adalah penjumlahan suku-suku sebuah barisan. **Deret bilangan** adalah jumlah suku-suku penyusun barisan bilangan. Tidak semua deret termasuk salah satu jenis tertentu; misalnya 1 + 4 + 9 + 16 + … bukan deret aritmetika dan bukan deret geometri. Bab ini mempelajari dua jenis deret, yaitu deret aritmetika dan deret geometri.\n\n**Deret aritmetika** adalah deret yang diperoleh dari menjumlahkan suku-suku barisan aritmetika: U_{1} + U_{2} + U_{3} + … + U_{n}. Jumlah n suku pertamanya ditulis S_{n}.\n\n## Cara Gauss\n\nCarl Friedrich Gauss (1777–1855) adalah seorang matematikawan Jerman. Sebuah cerita terkenal menyebutkan bahwa semasa sekolah ia menjumlahkan 1 + 2 + 3 + … + 100 dengan cepat. Caranya: ia mengelompokkan suku-suku yang jumlahnya sama.\n\n(1 + 100) + (2 + 99) + (3 + 98) + … + (50 + 51)\n\nAda 50 pasang, dan setiap pasang berjumlah 101. Jadi jumlahnya 50 × 101 = **5.050**.\n\n## Rumus jumlah n suku pertama\n\nTulis S_{n} dua kali, sekali dari depan dan sekali dari belakang:\n\n- S_{n} = a + (a + b) + … + (a + (n − 1)b)\n- S_{n} = (a + (n − 1)b) + (a + (n − 2)b) + … + a\n\nJumlahkan kedua baris. Setiap pasangan suku yang sejajar berjumlah 2a + (n − 1)b, dan ada n pasangan:\n\n2S_{n} = n × (2a + (n − 1)b)\n\nJadi rumus jumlah n suku pertama deret aritmetika adalah\n\nS_{n} = n/2 × (2a + (n − 1)b) atau S_{n} = n/2 × (a + U_{n})\n\nPeriksa dengan cara Gauss: S_{100} = 100/2 × (1 + 100) = 50 × 101 = 5.050. Hasilnya sama.\n\n## Contoh 5\n\nDiketahui deret 13 + 16 + 19 + 22 + … Berapa jumlah 30 suku pertamanya?\n\n1. a = 13, b = 16 − 13 = 3, dan n = 30.\n2. S_{30} = 30/2 × (2 × 13 + (30 − 1) × 3) = 15 × (26 + 87) = 15 × 113.\n3. Jadi S_{30} = **1.695**.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 2._",
+       "objective": {
+        "statement": "Kamu dapat membedakan barisan dan deret serta menghitung jumlah n suku pertama deret aritmetika.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Hasil 1 + 2 + 3 + … + 10 adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "50",
+           "is_correct": false,
+           "rationale": "Banyak pasangan dikalikan suku terakhir (5 × 10). Setiap pasang berjumlah 1 + 10 = 11."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "55",
+           "is_correct": true,
+           "rationale": "Benar. Pasangkan (1 + 10) + (2 + 9) + … + (5 + 6): ada 5 pasang yang masing-masing berjumlah 11, jadi 5 × 11 = 55."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "110",
+           "is_correct": false,
+           "rationale": "10 × 11 belum dibagi 2. Setiap suku dihitung dua kali, jadi hasilnya dibagi 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "45",
+           "is_correct": false,
+           "rationale": "Suku 10 terlewat (1 + 2 + … + 9 = 45)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kaleng disusun bertingkat: 3 kaleng di tingkat paling atas, dan setiap tingkat di bawahnya berisi 2 kaleng lebih banyak. Susunan itu terdiri atas 12 tingkat. Banyak seluruh kaleng adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "25",
+           "is_correct": false,
+           "rationale": "Itu banyak kaleng di tingkat ke-12 saja. Yang ditanya jumlah seluruh tingkat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "336",
+           "is_correct": false,
+           "rationale": "12 × (3 + 25) belum dibagi 2. S_{n} = n/2 × (a + U_{n})."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "168",
+           "is_correct": true,
+           "rationale": "Benar. U_{12} = 3 + 11 × 2 = 25, jadi S_{12} = 12/2 × (3 + 25) = 6 × 28 = 168."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "180",
+           "is_correct": false,
+           "rationale": "Pada 2a + (n − 1)b, n − 1 diganti n (6 × (6 + 12 × 2)). Seharusnya 6 × (6 + 11 × 2) = 168."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Deret aritmetika adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "jumlah suku-suku barisan aritmetika",
+           "is_correct": true,
+           "rationale": "Benar. Deret aritmetika diperoleh dari menjumlahkan suku-suku pada barisan aritmetika."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "barisan yang selisih dua suku berurutannya tetap",
+           "is_correct": false,
+           "rationale": "Itu pengertian barisan aritmetika. Deret adalah jumlah suku-sukunya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "jumlah suku-suku barisan geometri",
+           "is_correct": false,
+           "rationale": "Itu deret geometri. Deret aritmetika berasal dari barisan aritmetika."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "hasil kali suku-suku barisan aritmetika",
+           "is_correct": false,
+           "rationale": "Deret adalah jumlah, bukan hasil kali, suku-suku barisan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jumlah 20 suku pertama deret 3 + 7 + 11 + … adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "79",
+           "is_correct": false,
+           "rationale": "Itu U_{20} = 3 + 19 × 4, suku ke-20 saja. Yang ditanya jumlah 20 suku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "1.640",
+           "is_correct": false,
+           "rationale": "20 × 82 belum dibagi 2. S_{n} = n/2 × (2a + (n − 1)b)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "860",
+           "is_correct": false,
+           "rationale": "n − 1 diganti n (10 × (6 + 20 × 4)). Seharusnya 10 × (6 + 19 × 4)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "820",
+           "is_correct": true,
+           "rationale": "Benar. S_{20} = 20/2 × (2 × 3 + 19 × 4) = 10 × 82 = 820."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Hasil 2 + 4 + 6 + … + 60 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "1.860",
+           "is_correct": false,
+           "rationale": "30 × 62 belum dibagi 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "62",
+           "is_correct": false,
+           "rationale": "Itu hanya a + U_{n} (2 + 60). Hasil itu masih dikalikan n/2 = 15."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "930",
+           "is_correct": true,
+           "rationale": "Benar. Ada 30 suku (60 = 2 + (n − 1) × 2 memberi n = 30), jadi S_{30} = 30/2 × (2 + 60) = 15 × 62 = 930."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "870",
+           "is_correct": false,
+           "rationale": "Banyak suku dihitung 29 ((60 − 2) : 2), lalu dipakai 29/2 × 60. Banyak sukunya (60 − 2) : 2 + 1 = 30."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Deret Geometri",
+       "summary": "Deret geometri adalah jumlah suku-suku barisan geometri; untuk r ≠ 1, S_{n} = a(rⁿ − 1)/(r − 1).",
+       "body_markdown": "## Deret geometri\n\nDeret geometri diperoleh dari menjumlahkan suku-suku barisan geometri:\n\na + ar + ar² + … + ar^{n−1}\n\nContoh: 5 + 15 + 45 + 135 adalah deret geometri dengan a = 5 dan r = 3. Jumlahnya 200.\n\n## Rumus jumlah n suku pertama\n\nTulis S_{n}, lalu kalikan dengan r:\n\n- S_{n} = a + ar + ar² + … + ar^{n−1}\n- rS_{n} = ar + ar² + … + ar^{n−1} + arⁿ\n\nKurangkan baris pertama dari baris kedua. Suku-suku di tengah saling menghapus:\n\nrS_{n} − S_{n} = arⁿ − a, jadi (r − 1)S_{n} = a(rⁿ − 1).\n\nJadi rumus jumlah n suku pertama deret geometri adalah\n\nS_{n} = a(rⁿ − 1)/(r − 1) atau S_{n} = a(1 − rⁿ)/(1 − r), untuk r ≠ 1\n\nKedua bentuk memberi hasil yang sama. Periksa: S_{4} = 5 × (3⁴ − 1)/(3 − 1) = 5 × 80/2 = 200.\n\n## Bagaimana jika r = 1?\n\nJika r = 1, penyebut r − 1 bernilai 0, jadi rumus di atas tidak dapat dipakai. Semua sukunya sama dengan a, sehingga S_{n} = a + a + … + a = n × a.\n\nContoh: 7 + 7 + 7 + 7 = 4 × 7 = 28.\n\n## Contoh 6\n\nHasil produksi sebuah perusahaan sepeda pada tahun 2020 meningkat setiap bulan dan membentuk barisan geometri. Produksi bulan Januari 120 unit dan produksi bulan April 3.240 unit. Berapa total hasil produksi sampai bulan Mei?\n\n1. a = 120 dan U_{4} = 120 × r³ = 3.240, jadi r³ = 27 dan r = 3.\n2. Januari sampai Mei ada 5 bulan: S_{5} = 120 × (3⁵ − 1)/(3 − 1) = 120 × 242/2 = 120 × 121.\n3. Jadi total produksinya **14.520** unit.\n\nPeriksa dengan menjumlahkan: 120 + 360 + 1.080 + 3.240 + 9.720 = 14.520.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 2._",
+       "objective": {
+        "statement": "Kamu dapat menghitung jumlah n suku pertama deret geometri dan memakainya dalam masalah sehari-hari.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada minggu pertama Sinta menyisihkan Rp2.000. Setiap minggu berikutnya ia menyisihkan dua kali lipat dari minggu sebelumnya. Jumlah uang yang ia sisihkan selama 6 minggu adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "Rp64.000",
+           "is_correct": false,
+           "rationale": "Itu uang yang disisihkan pada minggu ke-6 saja (2.000 × 2⁵). Yang ditanya jumlah enam minggu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "Rp128.000",
+           "is_correct": false,
+           "rationale": "Pada rⁿ − 1, bagian −1 terlupa (2.000 × 2⁶). S_{6} = 2.000 × (64 − 1)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "Rp126.000",
+           "is_correct": true,
+           "rationale": "Benar. a = 2.000, r = 2, jadi S_{6} = 2.000 × (2⁶ − 1)/(2 − 1) = 2.000 × 63 = 126.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "Rp12.000",
+           "is_correct": false,
+           "rationale": "Uangnya dianggap tetap 2.000 setiap minggu (6 × 2.000). Setiap minggu uangnya dikali 2."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Suku pertama suatu deret geometri 3 dan rasionya 2. Jumlah 5 suku pertamanya adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "48",
+           "is_correct": false,
+           "rationale": "Itu U_{5} = 3 × 2⁴, suku ke-5 saja. Yang ditanya jumlah 5 suku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "93",
+           "is_correct": true,
+           "rationale": "Benar. S_{5} = 3 × (2⁵ − 1)/(2 − 1) = 3 × 31 = 93. Periksa: 3 + 6 + 12 + 24 + 48 = 93."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "96",
+           "is_correct": false,
+           "rationale": "Pada 2⁵ − 1, bagian −1 terlupa (3 × 2⁵)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "35",
+           "is_correct": false,
+           "rationale": "Rasio 2 dipakai sebagai beda: 3 + 5 + 7 + 9 + 11 = 35. Suku-suku deret geometri dikalikan 2."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jumlah 10 suku pertama deret 5 + 5 + 5 + … adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "50",
+           "is_correct": true,
+           "rationale": "Benar. Rasionya 1, jadi semua suku sama dengan 5 dan S_{10} = 10 × 5 = 50."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "5",
+           "is_correct": false,
+           "rationale": "Itu satu suku saja. Ada 10 suku yang masing-masing 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "0",
+           "is_correct": false,
+           "rationale": "Pembilang 5 × (1¹⁰ − 1) = 0 dianggap hasilnya, padahal penyebut r − 1 juga 0. Rumus itu hanya berlaku untuk r ≠ 1; untuk r = 1, S_{n} = n × a."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "10",
+           "is_correct": false,
+           "rationale": "Itu banyak sukunya. Setiap suku bernilai 5, jadi jumlahnya 10 × 5."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Deret geometri 5 + 10 + 20 + … berjumlah 315. Banyak suku deret itu adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "5",
+           "is_correct": false,
+           "rationale": "Itu pangkat pada suku terakhir, 5 × 2⁵ = 160. Pangkatnya n − 1, jadi n = 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "63",
+           "is_correct": false,
+           "rationale": "Itu nilai 2ⁿ − 1 (315 : 5). Masih dicari n sehingga 2ⁿ = 64."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "64",
+           "is_correct": false,
+           "rationale": "Itu nilai 2ⁿ. Banyak sukunya n, dan 2⁶ = 64."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "6",
+           "is_correct": true,
+           "rationale": "Benar. 5 × (2ⁿ − 1)/(2 − 1) = 315, jadi 2ⁿ − 1 = 63, 2ⁿ = 64, dan n = 6."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Deret Geometri Tak Hingga",
+       "summary": "Deret geometri tak hingga konvergen jika |r| < 1, dan jumlahnya S_{∞} = a/(1 − r); jika |r| ≥ 1, deretnya divergen.",
+       "body_markdown": "## Memotong kertas\n\nSelembar kertas dipotong menjadi dua bagian sama besar. Satu potongan dipotong lagi menjadi dua, dan seterusnya. Besar potongan-potongannya 1/2, 1/4, 1/8, 1/16, … dari kertas awal. Jika potongan-potongan itu dikumpulkan:\n\n- 1 potongan → 1/2\n- 2 potongan → 1/2 + 1/4 = 3/4\n- 3 potongan → 3/4 + 1/8 = 7/8\n- 4 potongan → 7/8 + 1/16 = 15/16\n\nBagian yang belum terkumpul sama dengan potongan terakhir, dan bagian itu makin kecil. Jumlahnya makin dekat ke 1, yaitu kertas utuh.\n\n## Konvergen dan divergen\n\n**Deret geometri tak hingga** adalah deret geometri yang memiliki banyak sekali suku (tak terhingga banyaknya). Ada dua jenis:\n\n- **Deret geometri konvergen** memiliki |r| < 1, dan jumlah deretnya menuju ke suatu nilai tertentu. Konvergen artinya menuju ke suatu nilai tertentu.\n- **Deret geometri divergen** memiliki |r| ≥ 1, dan jumlahnya tidak menuju ke suatu nilai tertentu:\n  - jika |r| > 1, suku-sukunya makin jauh dari 0;\n  - jika r = 1, misalnya 3 + 3 + 3 + …, jumlahnya terus bertambah: 3, 6, 9, 12, …;\n  - jika r = −1, misalnya 1 − 1 + 1 − 1 + …, jumlah sementaranya 1, 0, 1, 0, … berganti-ganti dan tidak menuju satu nilai.\n\nContoh: 1/2 + 1/4 + 1/8 + … konvergen (r = 1/2), sedangkan 1 + 3 + 9 + 27 + … divergen (r = 3).\n\n## Rumus jumlah deret konvergen\n\nMisalkan S = a + ar + ar² + ar³ + … dengan |r| < 1.\n\n- rS = ar + ar² + ar³ + …\n- S − rS = a, jadi (1 − r)S = a.\n\nS_{∞} = a/(1 − r), untuk |r| < 1\n\nMengapa hanya untuk |r| < 1? Pada S_{n} = a(1 − rⁿ)/(1 − r), jika |r| < 1 maka rⁿ makin dekat ke 0 ketika n makin besar, sehingga S_{n} makin dekat ke a/(1 − r).\n\nPeriksa dengan kertas tadi: a = 1/2 dan r = 1/2, jadi S_{∞} = (1/2)/(1 − 1/2) = (1/2)/(1/2) = **1**, yaitu kertas utuh.\n\n## Contoh: rasio negatif\n\nTentukan jumlah deret 10 − 5 + 5/2 − 5/4 + …\n\n1. a = 10 dan r = −5 : 10 = −1/2. Karena |r| = 1/2 < 1, deretnya konvergen.\n2. S_{∞} = 10/(1 − (−1/2)) = 10/(3/2) = **20/3**.\n\nSuku-sukunya berganti tanda (10, −5, 5/2, −5/4, …), tetapi makin dekat ke 0, dan jumlahnya menuju 20/3.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 2._",
+       "objective": {
+        "statement": "Kamu dapat menentukan apakah deret geometri tak hingga konvergen atau divergen dan menghitung jumlah deret yang konvergen.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jumlah deret geometri tak hingga 18 + 6 + 2 + … adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "27",
+           "is_correct": true,
+           "rationale": "Benar. a = 18, r = 6/18 = 1/3, dan |r| < 1, jadi S_{∞} = 18/(1 − 1/3) = 18/(2/3) = 27."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "26",
+           "is_correct": false,
+           "rationale": "Hanya tiga suku yang dijumlahkan (18 + 6 + 2). Deretnya tidak berhenti, jadi dipakai S_{∞} = a/(1 − r)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "13,5",
+           "is_correct": false,
+           "rationale": "Dipakai a/(1 + r) = 18/(4/3). Rumusnya S_{∞} = a/(1 − r)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "54",
+           "is_correct": false,
+           "rationale": "Dipakai a/r = 18/(1/3). Rumusnya S_{∞} = a/(1 − r)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Deret geometri tak hingga dengan rasio r mempunyai jumlah yang menuju ke suatu nilai tertentu (konvergen) jika ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "r > 1 atau r < −1",
+           "is_correct": false,
+           "rationale": "Itu |r| > 1, yang membuat deret divergen: suku-sukunya makin jauh dari 0."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "−1 < r < 1",
+           "is_correct": true,
+           "rationale": "Benar. Deret geometri konvergen memiliki |r| < 1, yaitu −1 < r < 1; untuk nilai itu rⁿ makin dekat ke 0."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "r > 0",
+           "is_correct": false,
+           "rationale": "Tanda rasio tidak menentukan. Deret 1 + 2 + 4 + … memiliki r = 2 > 0, tetapi divergen."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "r = 1",
+           "is_correct": false,
+           "rationale": "Jika r = 1, semua suku sama dengan a, dan jumlahnya n × a tidak menuju suatu nilai tertentu (untuk a ≠ 0), jadi deretnya divergen."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Deret geometri tak hingga manakah yang konvergen?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "1 + 2 + 4 + …",
+           "is_correct": false,
+           "rationale": "r = 2 dan |r| > 1, jadi deretnya divergen."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "3 + 3 + 3 + …",
+           "is_correct": false,
+           "rationale": "r = 1. Jumlahnya terus bertambah 3 (3, 6, 9, …), jadi deretnya divergen."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "8 + 4 + 2 + …",
+           "is_correct": true,
+           "rationale": "Benar. r = 4/8 = 1/2, dan |r| < 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "2 − 6 + 18 − …",
+           "is_correct": false,
+           "rationale": "r = −3 dan |r| = 3 > 1, jadi deretnya divergen. Tanda yang berganti tidak membuatnya konvergen."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jumlah deret geometri tak hingga 12 + 3 + 3/4 + … adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "15,75",
+           "is_correct": false,
+           "rationale": "Hanya tiga suku yang dijumlahkan (12 + 3 + 0,75). Deretnya tidak berhenti."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "16",
+           "is_correct": true,
+           "rationale": "Benar. a = 12, r = 3/12 = 1/4, jadi S_{∞} = 12/(1 − 1/4) = 12/(3/4) = 16."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "9,6",
+           "is_correct": false,
+           "rationale": "Dipakai a/(1 + r) = 12/(5/4). Rumusnya S_{∞} = a/(1 − r)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "48",
+           "is_correct": false,
+           "rationale": "Dipakai a/r = 12/(1/4). Rumusnya S_{∞} = a/(1 − r)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Suku pertama suatu deret geometri tak hingga 20 dan jumlahnya 25. Rasio deret itu adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "1/5",
+           "is_correct": true,
+           "rationale": "Benar. 20/(1 − r) = 25, jadi 1 − r = 20/25 = 4/5 dan r = 1/5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "4/5",
+           "is_correct": false,
+           "rationale": "Itu nilai 1 − r. Rasionya r = 1 − 4/5 = 1/5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "5",
+           "is_correct": false,
+           "rationale": "Itu selisih 25 − 20. Lagi pula, deret dengan r = 5 divergen."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "5/4",
+           "is_correct": false,
+           "rationale": "Jumlah dibagi suku pertama (25/20). Deret dengan |r| > 1 divergen dan tidak mempunyai jumlah."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Bunga Tunggal dan Bunga Majemuk",
+       "summary": "Nilai uang dengan bunga tunggal membentuk barisan aritmetika; nilai uang dengan bunga majemuk membentuk barisan geometri.",
+       "body_markdown": "## Bunga simpanan dan bunga pinjaman\n\nJika kamu menabung di bank, kamu mendapat bunga. Jika kamu meminjam uang dari bank, bank mengenakan bunga. Menurut Otoritas Jasa Keuangan, **bunga simpanan** adalah balas jasa dari bank kepada nasabah atas jasa nasabah menyimpan uangnya di bank. **Bunga pinjaman** adalah balas jasa yang ditetapkan bank kepada peminjam atas pinjaman yang didapatkannya.\n\nAda dua jenis bunga, yaitu bunga tunggal dan bunga majemuk.\n\n## Bunga tunggal\n\n**Bunga tunggal** adalah bunga yang besarnya hanya ditentukan oleh pokok uangnya. Berapa pun lamanya uang disimpan, bunganya hanya bergantung pada nilai pokok.\n\nAngga menabung Rp1.000.000 dengan bunga tunggal 5% per tahun. Bunga setiap tahun 5% × 1.000.000 = 50.000.\n\n- tahun ke-1 → 1.000.000 + 50.000 = 1.050.000\n- tahun ke-2 → 1.050.000 + 50.000 = 1.100.000\n- tahun ke-3 → 1.100.000 + 50.000 = 1.150.000\n- tahun ke-4 → 1.150.000 + 50.000 = 1.200.000\n\nNilai uangnya membentuk **barisan aritmetika** dengan U_{1} = 1.050.000 dan b = 50.000. Nilai uang setelah n tahun:\n\nU_{n} = 1.050.000 + (n − 1) × 50.000\n\n## Bunga majemuk\n\nDalam perhitungan **bunga majemuk**, bunga yang didapat dalam periode sebelumnya dimasukkan ke pokok tabungan. Bunga periode berikutnya dihitung dengan nilai pokok tabungan yang baru.\n\nMisalkan tabungan Angga berbunga majemuk 5% per tahun:\n\n- tahun ke-1 → bunga 5% × 1.000.000 = 50.000, tabungan 1.050.000\n- tahun ke-2 → bunga 5% × 1.050.000 = 52.500, tabungan 1.102.500\n- tahun ke-3 → bunga 5% × 1.102.500 = 55.125, tabungan 1.157.625\n\nSetiap tahun tabungannya dikalikan 1 + 5% = 1,05. Nilai uangnya membentuk **barisan geometri** dengan U_{1} = 1.050.000 dan r = 1,05. Nilai uang setelah n tahun:\n\nU_{n} = 1.050.000 × 1,05^{n−1}\n\nSetelah 3 tahun, bunga majemuk memberi Rp1.157.625, lebih banyak daripada bunga tunggal, Rp1.150.000.\n\n## Rangkuman Bab 2\n\n- Barisan aritmetika: b = U_{n} − U_{n−1} dan U_{n} = a + (n − 1)b.\n- Barisan geometri: r = U_{n}/U_{n−1} dan U_{n} = a × r^{n−1}.\n- Deret aritmetika: S_{n} = n/2 × (2a + (n − 1)b) = n/2 × (a + U_{n}).\n- Deret geometri: S_{n} = a(rⁿ − 1)/(r − 1) untuk r ≠ 1; deret tak hingga konvergen jika |r| < 1, dengan S_{∞} = a/(1 − r).\n- Bunga tunggal membentuk barisan aritmetika; bunga majemuk membentuk barisan geometri.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 2._",
+       "objective": {
+        "statement": "Kamu dapat membedakan bunga tunggal dan bunga majemuk serta menghitung nilai uang dengan barisan aritmetika dan barisan geometri.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dina menabung Rp200.000 dengan bunga tunggal 10% per tahun. Besar bunga yang ia terima setiap tahun adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "Rp220.000",
+           "is_correct": false,
+           "rationale": "Itu nilai tabungan setelah satu tahun (200.000 + 20.000). Yang ditanya besar bunganya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "Rp2.000",
+           "is_correct": false,
+           "rationale": "Itu 1% dari 200.000. 10% dari 200.000 adalah 20.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "Rp180.000",
+           "is_correct": false,
+           "rationale": "Bunga dikurangkan dari pokok. Bunga simpanan diterima penabung, jadi tabungannya bertambah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "Rp20.000",
+           "is_correct": true,
+           "rationale": "Benar. Bunga = 10% × 200.000 = 20.000, dan pada bunga tunggal besarnya sama setiap tahun."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pak Budi menabung Rp4.000.000 dengan bunga majemuk 10% per tahun. Nilai tabungannya setelah 2 tahun adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "Rp4.800.000",
+           "is_correct": false,
+           "rationale": "Bunga tahun ke-2 dihitung dari pokok awal (2 × 400.000). Pada bunga majemuk, bunga tahun ke-2 dihitung dari 4.400.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "Rp4.400.000",
+           "is_correct": false,
+           "rationale": "Itu nilai tabungan setelah 1 tahun. Masih ada satu tahun lagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "Rp840.000",
+           "is_correct": false,
+           "rationale": "Itu besar seluruh bunganya (4.840.000 − 4.000.000). Yang ditanya nilai tabungannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "Rp4.840.000",
+           "is_correct": true,
+           "rationale": "Benar. Tahun ke-1: 4.000.000 × 1,1 = 4.400.000. Tahun ke-2: 4.400.000 × 1,1 = 4.840.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bunga tunggal adalah bunga yang ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "periode berikutnya dihitung dari pokok ditambah bunga sebelumnya",
+           "is_correct": false,
+           "rationale": "Itu bunga majemuk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "besarnya bertambah setiap tahun",
+           "is_correct": false,
+           "rationale": "Yang bertambah setiap tahun adalah bunga majemuk. Bunga tunggal besarnya sama setiap tahun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "dibayar nasabah kepada bank atas simpanannya",
+           "is_correct": false,
+           "rationale": "Bunga simpanan dibayar bank kepada nasabah, bukan sebaliknya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "besarnya hanya ditentukan oleh pokok uangnya",
+           "is_correct": true,
+           "rationale": "Benar. Berapa pun lamanya uang disimpan, bunga tunggal hanya bergantung pada nilai pokok."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "LT19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Uang Rp5.000.000 disimpan dengan bunga tunggal 6% per tahun. Nilai uang itu setelah 3 tahun adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "Rp5.955.080",
+           "is_correct": false,
+           "rationale": "Itu dihitung dengan bunga majemuk (5.000.000 × 1,06³). Pada bunga tunggal, bunga selalu dihitung dari pokok 5.000.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "Rp5.300.000",
+           "is_correct": false,
+           "rationale": "Itu nilai uang setelah 1 tahun. Masih ada dua tahun lagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "Rp5.900.000",
+           "is_correct": true,
+           "rationale": "Benar. Bunga setiap tahun 6% × 5.000.000 = 300.000, jadi setelah 3 tahun 5.000.000 + 3 × 300.000 = 5.900.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "Rp900.000",
+           "is_correct": false,
+           "rationale": "Itu besar seluruh bunganya (3 × 300.000). Yang ditanya nilai uangnya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 33
+         },
+         "ref": "LT20",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tabungan dengan bunga majemuk 5% per tahun bernilai 1.050.000; 1.102.500; 1.157.625; … pada akhir tahun ke-1, ke-2, dan ke-3. Nilai-nilai itu membentuk ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 126
+           },
+           "label": "A",
+           "body": "barisan aritmetika dengan b = 52.500",
+           "is_correct": false,
+           "rationale": "Selisihnya 52.500, lalu 55.125 (tidak tetap). Yang tetap adalah pengalinya, 1,05."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 127
+           },
+           "label": "B",
+           "body": "barisan geometri dengan r = 1,05",
+           "is_correct": true,
+           "rationale": "Benar. 1.102.500 : 1.050.000 = 1.157.625 : 1.102.500 = 1,05."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 128
+           },
+           "label": "C",
+           "body": "barisan aritmetika dengan b = 50.000",
+           "is_correct": false,
+           "rationale": "Itu bunga tunggal dari pokok 1.000.000. Pada bunga majemuk, bunganya bertambah setiap tahun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 129
+           },
+           "label": "D",
+           "body": "barisan geometri dengan r = 0,05",
+           "is_correct": false,
+           "rationale": "0,05 adalah suku bunganya. Setiap tahun tabungan dikalikan 1 + 0,05 = 1,05."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

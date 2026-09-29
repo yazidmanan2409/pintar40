@@ -1,5 +1,6 @@
 import { t, format, type Locale } from "@/lib/hle";
 import type { Outcome, ReadingMapCard } from "@/lib/assessment-engine/types";
+import { TeksBaris } from "@/components/teks/Teks";
 
 /**
  * POLISH3 (UX-26): HOW IT WENT, OBJECTIVE BY OBJECTIVE, EACH BY ITS NAME.
@@ -35,7 +36,7 @@ export default function PerTujuan({
       <div className="pin-domain">
         {baris.map(([kode, d]) => (
           <div className="pin-drow" key={kode} data-tujuan={kode}>
-            <span>{nama.get(kode) ?? kode}</span>
+            <span><TeksBaris teks={nama.get(kode) ?? kode} /></span>
             <span className="pin-cnt pin-num">
               {format.number(d.benar, locale)}/{format.number(d.total, locale)}
             </span>

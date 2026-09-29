@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 119,
+  "version": 120,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2389,6 +2389,11 @@
       "id": "POLISH3-PENDATAAN-01",
       "runner": "static",
       "proves": "Polish batch 3 (UI/UX POLISHED, D-052), register row UX-08: one press approves and records in Pendataan. (1) The note (src/components/pendataan/niatMencatat.ts) is written by the approving press, taken once, by that job's driver only, ignored when stale or dated ahead, and kept in memory, never in storage that outlives the tab (§10). (2) RENDERED in a child process: the driver (Penggerak) drawn straight after «Ya, catat orang-orang ini» or «Sudah saya periksa, lanjutkan sisanya» shows its pause button from the first frame, in both languages, and not «berhenti di tengah jalan»; with no note, another job's note, or on a job that has recorded some, it waits for its own button as before, and says it stopped part-way only while not recording. (3) From the SOURCE, both approving forms stay plain forms with TombolKirim, their job field (IsianSetuju) writing the note on its own form's submit; the driver's one effect starts only on a taken note for a job the database lets run (bolehLanjut); the page no longer says «berhenti di tengah jalan» by itself. (4) Both approving buttons still say recording follows, and the driver's own start button remains as the fallback"
+    },
+    {
+      "id": "DAISY-30-TEKS-01",
+      "runner": "static",
+      "proves": "DAISY-30: learner text renders its own markup, through one shared renderer (src/components/teks/Teks.tsx), React elements only. (1) RENDERED in a child process: the lesson player with a real SD5 lesson («Faktor», SD5 Matematika Bab 2) on every page shows no ** and no table pipes, draws its table as a table and its nine bold phrases bold; the lesson player raises an SMA X a^{m/n} as <sup>; every lesson of every package in docs/onboarding/konten renders with no ** or |--- left and no paragraph starting with a pipe, every table and table row accounted for, and no rendered line keeps an _…_ pair or a leading \"- \" with every italic line (116) and every list line, nested ones included, accounted for; the lesson player shows «Faktor»'s «Periksa» and «Diadaptasi» lines in italic; marks left open, tally marks and a pipe in a sentence stay literal, «_Periksa…_» is italic with bold and ^{…} inside, while x_{0} stays a subscript and a snake_case word, a lone _ and __dunder__ stay literal, a planted <b> is escaped, _{…} is a subscript and nested braces hold; SMA X Matematika Bab 1's forms as written (a^{(m+p)/n}, 2^{1/2 + 1/4}, 3^{2x−1}, log_{10}, bold beside powers) are one <sup>/<sub> each, and Unicode powers and roots (2⁶, aᵐ, ²log, √ ∛ ∜ ⁿ√) are left as they are; single lines stay lines, \"- \" lines are one list, and an indented \"- \" line is an item under the one above (Geografi Bab 4's Sungai Tohor list). (2) From the SOURCE: the lesson player (pages, worked example), the lesson's summary, the item screen (stem, stimulus, options, help), the result screen (stem, answer, rationale), the reading map, the result's objective rows, Studio's preview and Bank Soal all draw authored text through the renderer; no file in src uses dangerouslySetInnerHTML (a planted one is caught), and package.json carries no markdown or maths library"
     }
   ]
 }
