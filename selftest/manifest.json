@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 106,
+  "version": 107,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1987,6 +1987,11 @@
       "id": "BOB23-K02",
       "runner": "static",
       "proves": "BOB-23, D-009 kept: throttle, not skip. perluGeserSesi in the source file src/lib/sesi.ts keeps a classroom card signed in through three hours of server actions every 30 s with no page request (three times its 60-minute limit) while re-sending the session at most once per JEDA_GESER_AKSI (5 minutes), where a proxy that skips actions loses it at the limit; an email account over a day likewise; a page request always re-sends; src/proxy.ts asks it on server actions, always re-sends a session it has just refreshed, and records each re-send."
+    },
+    {
+      "id": "BOB23-K03",
+      "runner": "static",
+      "proves": "BOB-23 round 2 (X-08 kept). In the source file src/lib/siklus.ts, menjadiDibaca driven through every render a lesson sees refreshes a 5-page lesson read to its last page exactly once, on the save that makes it read, and never when paging over a lesson already read or after a failed last-page save; src/app/belajar/_components/LessonPlayer.tsx has one refresh, behind menjadiDibaca on the save's own result, and saveLessonProgress answers with the server's furthest count."
     },
     {
       "id": "BOB08-K01",
