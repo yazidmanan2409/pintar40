@@ -49,6 +49,11 @@
       "suite": "selftest.run_fable16()",
       "control_green": 6,
       "what": "BOB-24's identity foundation: a PINTAR ID random, well-formed, distinct and immutable, read as ruled; usernames under C9 with reserved names, claimed once, never renamed but by the platform admin's audited correction; a blocklisted, bcrypt-hashed personal PIN set once; set-up state for staff EMAIL accounts only; the recovery ladder 1 h, 4 h, suspended, decaying but never lifting a suspension, restored only with a new PIN; the tables and recovery functions nobody's but the routes'"
+    },
+    "db-bob35-gates": {
+      "suite": "selftest.run_fable05()",
+      "control_green": 23,
+      "what": "BOB-35's provenance: a session records a release of its definition's course or none is opened; a corrected-release move carries the cycle's PRE_TEST and POST_TEST to the target's own definitions or is refused, and is refused once any learner has started"
     }
   },
   "plants": [
@@ -620,6 +625,10 @@
     { "name": "bob24-11", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "authenticated holds a grant on person_pins" },
     { "name": "bob24-12", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "a client can call public.recovery_attempt(text,text)" },
     { "name": "bob24-13", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "a teacher ran select public.security_events(10) (success)" },
-    { "name": "bob24-14", "gate": "db-bob24-gates", "expect_red": "F16-S01", "expect_detail": "set-up completed with no PIN" }
+    { "name": "bob24-14", "gate": "db-bob24-gates", "expect_red": "F16-S01", "expect_detail": "set-up completed with no PIN" },
+    { "name": "bob35-1", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a session citing v1.1's release with v1.0's definition was inserted" },
+    { "name": "bob35-2", "gate": "db-bob35-gates", "expect_red": "F05-T14", "expect_detail": "the cycle's POST_TEST assignment still names the v1.0 definition" },
+    { "name": "bob35-3", "gate": "db-bob35-gates", "expect_red": "F05-T14", "expect_detail": "a release was moved after a learner had started under the assignment" },
+    { "name": "bob35-4", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a move to a release with no cycle definition was accepted" }
   ]
 }

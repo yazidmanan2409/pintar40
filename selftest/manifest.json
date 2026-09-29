@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 116,
+  "version": 117,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -652,8 +652,13 @@
     {
       "id": "F05-T14",
       "runner": "db",
-      "proves": "release correction across the lineage moves the not-started set and the assignment's course, leaves completed evidence on v1.0, writes one move row, and refuses an automatic move",
+      "proves": "RESTATED FOR BOB-35 (c), a changed requirement: a release move once a learner has started under the assignment is refused RELEASE_MOVE_STARTED (migration 20261022100000) and changes nothing, while a correction across the lineage before anyone starts, measured in selftest/db/fable05.sql, moves the assignment, its course and its cycle's POST_TEST definition to the target's own (release_cycle_definition), writes one move row with nobody left in place and an audit line naming the cycle, refuses an automatic move, and refuses a distributed release from outside the lineage",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T14b",
+      "runner": "db",
+      "proves": "BOB-35 (INV-04, INV-29), migration 20261022100000 measured in selftest/db/fable05.sql: after a v1.0 -> v1.1 move made before anyone started, a learner's session records v1.1's release, v1.1's definition and only v1.1's presented items, so certificate_prepare cites what was sat; a session inserted with v1.1's release and v1.0's definition is refused PR060 SESSION_RELEASE_MISMATCH by assessment_sessions_release_is_its_course; a move to a release with no approved cycle definition is refused RELEASE_MOVE_NO_CYCLE_DEFINITION; the closure query finds no session whose recorded release's course is not its items' course; and every session, presented item, result and certificate from before is unchanged."
     },
     {
       "id": "F05-T15",

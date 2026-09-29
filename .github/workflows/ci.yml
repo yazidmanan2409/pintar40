@@ -172,7 +172,8 @@ jobs:
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
-               db-bob06-gates, db-bob12-gates, db-bob24-gates]
+               db-bob06-gates, db-bob12-gates, db-bob24-gates,
+               db-bob35-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -234,6 +235,8 @@ jobs:
               echo "the nine card-cooldown defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob24-gates)
               echo "the fourteen identity-foundation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob35-gates)
+              echo "the four session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1761,6 +1764,19 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob24.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob24-gates
+
+      # BOB-35's gates: a session records a release of its definition's course,
+      # a corrected-release move carries the cycle or is refused, and never
+      # once a learner has started. Same harness, same four proofs, on F05.
+      - name: Local stack (session-provenance gates)
+        if: matrix.case == 'db-bob35-gates'
+        id: gatesBob35
+        uses: ./.github/actions/local-stack
+      - name: Each planted session-provenance defect must turn its own F05 test red
+        if: matrix.case == 'db-bob35-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob35.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob35-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'
