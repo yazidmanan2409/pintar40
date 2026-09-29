@@ -39,7 +39,7 @@ jobs:
           d = json.load(urllib.request.urlopen(req, timeout=30))
           PREFIXES = ("password_", "mailer_", "sessions_", "rate_limit_", "smtp_", "security_", "refresh_token_",
                       "mfa_", "external_email_enabled", "disable_signup", "site_url", "uri_allow_list", "jwt_exp")
-          SECRET = ("pass", "secret", "key", "hmac", "token_hash")
+          SECRET = ("secret", "_key", "hmac", "token_hash")
           for k in sorted(d):
               if not k.startswith(PREFIXES):
                   continue
@@ -49,7 +49,7 @@ jobs:
                   print(f"{k:58} len={len(s)} sha256={hashlib.sha256(s.encode()).hexdigest()[:12]}"
                         f" token={'{{ .Token }}' in s} link={'ConfirmationURL' in s} says_supabase={'supabase' in s.lower()}")
                   continue
-              if any(x in k for x in SECRET) and not k.startswith("password_"):
+              if k == "smtp_pass" or any(x in k for x in SECRET) and not isinstance(v, bool):
                   print(f"{k:58} <present: {v is not None and v != ''}>")
                   continue
               print(f"{k:58} {v!r}")
@@ -72,7 +72,7 @@ jobs:
           d = json.load(urllib.request.urlopen(req, timeout=30))
           PREFIXES = ("password_", "mailer_", "sessions_", "rate_limit_", "smtp_", "security_", "refresh_token_",
                       "mfa_", "external_email_enabled", "disable_signup", "site_url", "uri_allow_list", "jwt_exp")
-          SECRET = ("pass", "secret", "key", "hmac", "token_hash")
+          SECRET = ("secret", "_key", "hmac", "token_hash")
           for k in sorted(d):
               if not k.startswith(PREFIXES):
                   continue
@@ -82,7 +82,7 @@ jobs:
                   print(f"{k:58} len={len(s)} sha256={hashlib.sha256(s.encode()).hexdigest()[:12]}"
                         f" token={'{{ .Token }}' in s} link={'ConfirmationURL' in s} says_supabase={'supabase' in s.lower()}")
                   continue
-              if any(x in k for x in SECRET) and not k.startswith("password_"):
+              if k == "smtp_pass" or any(x in k for x in SECRET) and not isinstance(v, bool):
                   print(f"{k:58} <present: {v is not None and v != ''}>")
                   continue
               print(f"{k:58} {v!r}")
