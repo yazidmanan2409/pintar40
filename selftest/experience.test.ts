@@ -11341,4 +11341,277 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+
+  {
+    id: "POLISH3-HASIL-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? code(readFileSync(f, "utf8")) : "";
+      };
+      /**
+       * POLISH3 (UX-26): THE LEARNER'S RESULT NAMES EACH ROW. «Per bagian»
+       * listed each learning objective by its code («B1P1», «MTK5-P1»). The
+       * name is the objective's statement, which the learner can already read
+       * through the reading map of their own session.
+       *
+       * 1. RENDERED, in a child process, in both languages: each row reads
+       *    its statement (or its lesson's title when the statement is empty)
+       *    with its count, and no code shows. With no name to be found (no
+       *    map, or one code carrying two statements) the row keeps its code;
+       *    with no rows there is no section.
+       */
+      const PER = { B1P1: { benar: 3, total: 4, penguasaan: 0.75 }, B1P2: { benar: 1, total: 2, penguasaan: 0.5 } };
+      const PETA = [
+        { kode: "B1P1", pernyataan: "Menentukan pecahan senilai dengan mengali atau membagi.", pelajaran: "Pecahan" },
+        { kode: "B1P2", pernyataan: "  ", pelajaran: "Desimal" },
+      ];
+      const KASUS = [
+        ...LOCALES.map((locale) => ({ perDomain: PER, peta: PETA, locale })),
+        { perDomain: PER, peta: [], locale: "id" },
+        { perDomain: { X1: { benar: 2, total: 2, penguasaan: 1 } }, peta: [{ kode: "X1", pernyataan: "Satu.", pelajaran: "A" }, { kode: "X1", pernyataan: "Dua.", pelajaran: "B" }], locale: "id" },
+        { perDomain: {}, peta: PETA, locale: "id" },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/siklus/PerTujuan.tsx");' +
+        "  const PerTujuan = m.default?.default ?? m.default;" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_TUJUAN).map((k) => renderToStaticMarkup(h(PerTujuan, k)))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_TUJUAN: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      const terlihat = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+      if (c.expect(anak.status === 0 && html.length === KASUS.length,
+        `the learner's result rows could not be rendered by name (src/components/siklus/PerTujuan.tsx): ${(anak.stderr || "").split("\n").slice(0, 2).join(" ")}`)) {
+        LOCALES.forEach((locale, n) => {
+          const x = terlihat(html[n]);
+          c.expect(x.includes(t("hasil.domain", "learner", { locale })), `(${locale}) the rows' heading is missing`);
+          c.expect(x.includes(PETA[0].pernyataan) && x.includes("Desimal"), `(${locale}) a row is not named by its objective: ${x}`);
+          c.expect(/\b3\/4\b/.test(x) && /\b1\/2\b/.test(x), `(${locale}) a row lost its count: ${x}`);
+          c.expect(!/B1P1|B1P2/.test(x), `(${locale}) a row still shows its objective code: ${x}`);
+        });
+        const tanpaPeta = terlihat(html[LOCALES.length]);
+        c.expect(/B1P1/.test(tanpaPeta) && /B1P2/.test(tanpaPeta) && /3\/4/.test(tanpaPeta),
+          "with no name to be found, a row disappears rather than keeping its code");
+        const dua = terlihat(html[LOCALES.length + 1]);
+        c.expect(/X1/.test(dua) && !/Satu\.|Dua\./.test(dua), "a code carrying two statements is named by one of them");
+        c.expect(html[LOCALES.length + 2] === "", "a result with no rows still draws the section");
+        // the control: a planted code in the visible text is caught
+        c.expect(/B1P1|B1P2/.test(terlihat('<span data-tujuan="B1P1">B1P1</span>')), "the control: a planted code is not caught");
+      }
+
+      /**
+       * 2. THE PAGE READS THE NAMES FROM THE LEARNER'S OWN SESSION, in the
+       *    same round of reads, and draws the rows through PerTujuan only.
+       */
+      const hal = baca("src", "app", "belajar", "[tugas]", "hasil", "page.tsx");
+      c.expect(/Promise\.all\(\[[\s\S]*engine\.readingMap\(db, state\.post_session\)[\s\S]*?\]\)/.test(hal)
+        && /<PerTujuan perDomain=\{outcome\.per_domain\} peta=\{peta\} locale=\{locale\} \/>/.test(hal),
+        "the result page does not name its rows from the learner's own reading map");
+      c.expect(!/<span>\{code\}<\/span>/.test(hal) && !/per_domain \?\? \{\}\)\.map/.test(hal),
+        "the result page still draws the rows by their code");
+
+      /**
+       * 3. THE NAMES AND THE COUNTS ARE KEYED ALIKE, and the learner may read
+       *    the names. The latest evaluate_session keys per_domain by the
+       *    objective's code; the latest reading_map returns that code with the
+       *    statement; and the RPC registry lists reading_map for a LEARNER.
+       */
+      const mig = join(repoRoot, "supabase", "migrations");
+      const terakhir = (fn: string) => {
+        const kepala = `create (?:or replace )?function public\\.${fn}\\(`;
+        const f = readdirSync(mig).filter((x) => x.endsWith(".sql")).sort()
+          .filter((x) => new RegExp(kepala, "i").test(readFileSync(join(mig, x), "utf8"))).pop();
+        if (!f) return "";
+        const s = readFileSync(join(mig, f), "utf8");
+        const semua = [...s.matchAll(new RegExp(kepala, "gi"))];
+        return s.slice(semua[semua.length - 1].index!).slice(0, 5000);
+      };
+      c.expect(/jsonb_object_agg\(d\.code,/.test(terakhir("evaluate_session")), "the result's per-objective counts are no longer keyed by the objective's code");
+      c.expect(/r\.code, r\.statement/.test(terakhir("reading_map")), "the reading map no longer returns the objective's code with its statement");
+      c.expect(readdirSync(mig).some((x) => /\('reading_map',\s*'LEARNER'/.test(readFileSync(join(mig, x), "utf8"))),
+        "the reading map is not registered for a learner");
+
+      /** 4. THE HEADING SAYS WHAT THE ROWS ARE, and not «bagian» (D-006). */
+      for (const locale of LOCALES) {
+        const h = t("hasil.domain", "learner", { locale });
+        c.expect(h !== TANPA_SALINAN && !/bagian|section/i.test(h), `(${locale}) the rows' heading is "${h}"`);
+      }
+      c.expect(/tujuan pembelajaran/i.test(t("hasil.domain", "learner", { locale: "id" }))
+        && /learning objective/i.test(t("hasil.domain", "learner", { locale: "en" })),
+        "the heading does not say the rows are learning objectives");
+
+      return c.verdict(
+        "the learner's result names every row by its learning objective's statement (or its lesson's title when the " +
+        "statement is empty), rendered in both languages with its count and no code showing (a planted code is caught); " +
+        "with no name to be found, or one code carrying two statements, the row keeps its code, and no rows draw no section; " +
+        "the page reads the names from the learner's own reading map in the same round of reads, the counts and the names " +
+        "are keyed by the same objective code in the latest migrations, the map is registered for a learner, and the " +
+        "heading reads «Per tujuan pembelajaran» / \"By learning objective\" rather than «Per bagian»",
+      );
+    },
+  },
+
+  {
+    id: "POLISH3-PENDATAAN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? code(readFileSync(f, "utf8")) : "";
+      };
+      /**
+       * POLISH3 (UX-08): ONE PRESS APPROVES AND RECORDS. «Ya, catat
+       * orang-orang ini» (and, after the first fifty, «Sudah saya periksa,
+       * lanjutkan sisanya») approved, and a second button, «Mulai mencatat» /
+       * «Lanjutkan», started the recording. The approving press now leaves a
+       * note the driver takes once, on arriving from that press. Nothing starts
+       * because a page opened (§10).
+       *
+       * 1. THE NOTE: written by a press, taken once, by that job's driver
+       *    only, and ignored once stale; held in memory, never in storage
+       *    that outlives the tab.
+       */
+      let niat: Record<string, unknown> | null = null;
+      try { niat = await import("../src/components/pendataan/niatMencatat") as Record<string, unknown>; } catch { /* reported below */ }
+      const catat = niat?.catatNiat as ((p: string, k?: number) => void) | undefined;
+      const ada = niat?.adaNiat as ((p: string, k?: number) => boolean) | undefined;
+      const ambil = niat?.ambilNiat as ((p: string, k?: number) => boolean) | undefined;
+      const W = niat?.NIAT_BERLAKU_MS as number | undefined;
+      if (c.expect(typeof catat === "function" && typeof ada === "function" && typeof ambil === "function"
+        && typeof W === "number" && W > 0 && W <= 10 * 60 * 1000,
+        "the approving press leaves no note for the recording to start from (src/components/pendataan/niatMencatat.ts)")) {
+        const t0 = 1_900_000_000_000;
+        c.expect(!ada!("uji-a", t0), "a job has a note before anyone pressed");
+        catat!("uji-a", t0);
+        c.expect(ada!("uji-a", t0 + 1000) && ada!("uji-a", t0 + 1000), "looking at the note takes it");
+        c.expect(!ambil!("uji-b", t0 + 1000), "another job's driver takes this job's note");
+        c.expect(ambil!("uji-a", t0 + 1000), "the job's driver does not find the note its approval left");
+        c.expect(!ambil!("uji-a", t0 + 1001) && !ada!("uji-a", t0 + 1001), "the note is taken more than once");
+        catat!("uji-c", t0);
+        c.expect(!ambil!("uji-c", t0 + W!) && !ada!("uji-c", t0), "a stale note starts the recording, or survives being refused");
+        catat!("uji-d", t0);
+        c.expect(!ada!("uji-d", t0 - 1), "a note dated after now counts");
+        ambil!("uji-d", t0);
+      }
+      const niatSrc = baca("src", "components", "pendataan", "niatMencatat.ts");
+      c.expect(niatSrc !== "" && !/localStorage|sessionStorage|indexedDB|document\.cookie/.test(niatSrc),
+        "the note is kept somewhere that outlives the tab");
+
+      /**
+       * 2. RENDERED: the driver drawn after an approval is already recording
+       *    (its pause button, not its start button) and does not say it
+       *    stopped; without the note, or with another job's, it waits for its
+       *    button as before; and a job that has recorded some says it stopped
+       *    part-way only while it is not recording.
+       */
+      const K = (x: Record<string, unknown>) => ({
+        job_id: "job-1", institution_id: "i", state: "IMPORTING", total: 120, completed: 0, remaining: 120, failed: 0,
+        pilot_required: true, pilot_size: 50, pilot_completed: 0, pilot_verified: false, pilot_verified_at: null,
+        confirmed_at: "2026-09-29T00:00:00Z", completed_at: null, failure_reason: null, ...x,
+      });
+      const baru = K({});
+      const sisa = K({ state: "REMAINDER_IMPORTING", completed: 50, remaining: 70, pilot_completed: 50, pilot_verified: true });
+      const KASUS = [
+        { awal: baru, niat: null, locale: "id" },
+        { awal: baru, niat: "job-1", locale: "id" },
+        { awal: sisa, niat: null, locale: "id" },
+        { awal: sisa, niat: "job-1", locale: "id" },
+        { awal: baru, niat: "job-lain", locale: "id" },
+        { awal: baru, niat: "job-1", locale: "en" },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/pendataan/Penggerak.tsx");' +
+        '  const n = await import("file://" + process.cwd() + "/src/components/pendataan/niatMencatat.ts");' +
+        "  const Penggerak = m.default?.default ?? m.default;" +
+        "  const N = n.catatNiat ? n : n.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  const kosong = async () => null;" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_NIAT).map((k) => {" +
+        "    if (k.niat) N.catatNiat(k.niat);" +
+        "    const x = renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }," +
+        "      h(Penggerak, { awal: k.awal, pekerjaan: k.awal.job_id, majukan: kosong, bacaUlang: kosong, locale: k.locale })));" +
+        "    N.ambilNiat(\"job-1\"); N.ambilNiat(\"job-lain\");" +
+        "    return x;" +
+        "  })));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_NIAT: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      const esc = (x: string) => x.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+      if (c.expect(anak.status === 0 && html.length === KASUS.length,
+        `the recording driver could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 2).join(" ")}`)) {
+        const s = (k: HleEvent, locale: "id" | "en" = "id") => t(k, "staff", { locale });
+        const tombol = (x: string, k: HleEvent, locale: "id" | "en" = "id") => x.includes(`>${esc(s(k, locale))}</button>`);
+        const berhenti = (x: string, locale: "id" | "en" = "id") => x.includes(esc(s("pendataan.maju.terputus", locale)));
+        const [tanpa, setuju, sisaTanpa, sisaSetuju, lain, en] = html;
+        c.expect(tombol(tanpa, "pendataan.maju.mulai") && !tombol(tanpa, "pendataan.maju.jeda") && !berhenti(tanpa),
+          "with no approval just pressed, the driver does not wait for «Mulai mencatat» as before");
+        c.expect(tombol(setuju, "pendataan.maju.jeda") && !tombol(setuju, "pendataan.maju.mulai") && !berhenti(setuju),
+          "straight after «Ya, catat orang-orang ini» the driver still waits for a second press («Mulai mencatat»)");
+        c.expect(tombol(sisaTanpa, "pendataan.maju.lanjut") && berhenti(sisaTanpa),
+          "a job that has recorded some and is not recording does not say it stopped part-way, with its «Lanjutkan»");
+        c.expect(tombol(sisaSetuju, "pendataan.maju.jeda") && !tombol(sisaSetuju, "pendataan.maju.lanjut") && !berhenti(sisaSetuju),
+          "straight after «Sudah saya periksa, lanjutkan sisanya» the driver waits for «Lanjutkan», or says it stopped while it records");
+        c.expect(tombol(lain, "pendataan.maju.mulai") && !tombol(lain, "pendataan.maju.jeda"),
+          "another job's approval starts this job's recording");
+        c.expect(tombol(en, "pendataan.maju.jeda", "en") && !tombol(en, "pendataan.maju.mulai", "en"),
+          "(en) straight after the approval the driver still waits for a second press");
+      }
+
+      /**
+       * 3. FROM THE SOURCE: both approving forms stay plain forms with
+       *    TombolKirim, their job field being the one that writes the note on
+       *    its own form's submit; the driver's one effect starts only on a
+       *    taken note and a job the database lets run, and it is the only
+       *    caller besides the button; the page no longer says «berhenti di
+       *    tengah jalan» by itself.
+       */
+      const hal = baca("src", "app", "pendataan", "[pekerjaan]", "page.tsx");
+      for (const aksi of ["konfirmasiAksi", "periksaPercontohanAksi"]) {
+        c.expect(new RegExp(`<form action=\\{${aksi}\\}>\\s*<IsianSetuju pekerjaan=\\{pekerjaan\\} \\/>\\s*<TombolKirim`).test(hal),
+          `the ${aksi} form does not carry its press into the recording`);
+      }
+      c.expect(!/pendataan\.maju\.terputus/.test(hal), "the page says the job stopped part-way whether or not it is recording");
+      const isian = baca("src", "components", "pendataan", "IsianSetuju.tsx");
+      c.expect(/const form = isian\.current\?\.form;/.test(isian) && /form\.addEventListener\("submit", catat\)/.test(isian)
+        && /const catat = \(\) => catatNiat\(pekerjaan\);/.test(isian) && /type="hidden" name="pekerjaan"/.test(isian),
+        "the approving form's job field does not leave the note when its form is submitted");
+      const pg = baca("src", "components", "pendataan", "Penggerak.tsx");
+      c.expect((pg.match(/useEffect\(/g) ?? []).length === 1
+        && /useEffect\(\(\) => \{\s*if \(ambilNiat\(pekerjaan\) && bolehLanjut\(awal\)\) void jalankan\(\);/.test(pg)
+        && (pg.match(/\bjalankan\b/g) ?? []).length === 3 && /onClick=\{jalankan\}/.test(pg),
+        "the driver starts on something other than its button or a taken approval note");
+      c.expect(/\{!jalan && \(putus \|\| bisaDilanjutkan\(kini\)\) \?/.test(pg),
+        "the driver says the job stopped part-way while it is recording");
+
+      /** 4. THE PRESSES SAY WHAT NOW HAPPENS, and the fallback button stays. */
+      c.expect(/catat/i.test(t("pendataan.pratinjau.setuju", "staff", { locale: "id" })) && /record/i.test(t("pendataan.pratinjau.setuju", "staff", { locale: "en" }))
+        && /lanjutkan/i.test(t("pendataan.percontohan.tanya", "staff", { locale: "id" })) && /continue/i.test(t("pendataan.percontohan.tanya", "staff", { locale: "en" })),
+        "an approving button no longer says that recording follows");
+      c.expect(LOCALES.every((locale) => t("pendataan.maju.mulai", "staff", { locale }) !== TANPA_SALINAN),
+        "the driver's own start button, the fallback without script, lost its words");
+
+      return c.verdict(
+        "one press approves and records: «Ya, catat orang-orang ini» and «Sudah saya periksa, lanjutkan sisanya» leave a " +
+        "note that the job's driver takes once, on arriving from that press, and starts (rendered: its pause button from " +
+        "the first frame, in both languages, and no «berhenti di tengah jalan» while it records); without the note, with " +
+        "another job's, or with a stale one it waits for its own button as before; the note is taken once, by that job " +
+        "only, and lives in memory, never in storage that outlives the tab (§10); both forms stay plain forms with " +
+        "TombolKirim, and the driver's one effect starts only on a taken note for a job the database lets run",
+      );
+    },
+  },
 ];
