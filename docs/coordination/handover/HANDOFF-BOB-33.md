@@ -1,6 +1,9 @@
 # Bob → coordinator: BOB-33 (a quick assessment is dated in Jakarta time, in numbers)
 
-**SHA:** `646a29c`, on top of BOB-32 (`3f6cd69`, ci #227). **Manifest:** v112. **No CI run of my own.** As ruled, it goes into one integration run with DAISY-27.
+**SHA:** `2d04baf`, with `main` `6078919` (Integration 16: BOB-32 and DAISY-28) merged in as `5eb1870`.
+- **The code:** `646a29c`, plus `2d04baf`, the gate's one fix: the migration's closing check now asserts all 12 refusal sentences.
+- **Manifest:** v113. Both sides were at 112. Every entry is kept: main's 411 ids and F04-T04c, 412 in all. You set the final number at integration.
+- **No CI run of my own.** As ruled, it goes into one integration run with DAISY-27.
 
 ## CHANGED
 
@@ -23,7 +26,7 @@
 - **The terminal block checks:**
   - the 23:30 UTC label;
   - the new label call in the function, with no month pattern left;
-  - 11 of 0090's 12 refusal sentences (the EXAM-tier guard is not in its list; BOB32-K01 reads all 12);
+  - all 12 of 0090's refusal sentences, the EXAM-tier guard included (added in `2d04baf` at the gate's request). With that guard removed from the function body, the migration refuses to apply: `BOB-33: a refusal of launch_quick_assessment was lost: the QUICK mode policy reaches the EXAM tier; …`;
   - both boundaries;
   - the helper's and the function's grants.
 
@@ -41,10 +44,10 @@
 
 **Restated for the changed requirement:** UX1-BRAND-02 and UX1-TUR-ORANG-01, the migration tripwires, move 125 → 126, with the reason beside them. There is no table, column or mark, and no tour RPC.
 
-**Local, every database with an `en-US` ICU collation, on `646a29c`:**
-- **Full suite, fresh database, clean build:** 378 passed, 0 failed, 31 justified skips. F04-T04c, F04-T04, BOB32-K01, F06-S01 and both tripwires passed. One unjustified skip: UX1-PIMPINAN-AKSES-01 (network), as before this change.
-- **Plants:** 100 of 100 proved their gate on a copy taken straight after the seeds.
-- **Shared red cases:** all 16 gates exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 247 of 247 (one more db row than before: F04-T04c).
+**Local, every database with an `en-US` ICU collation, on `2d04baf` (re-run after the fix):**
+- **Full suite, fresh database, clean build:** LOCAL_FULL
+- **Plants:** LOCAL_PLANTS
+- **Shared red cases:** LOCAL_SHARED
 
 ## CI
 None of my own, as ruled: BOB-33 joins DAISY-27 in one integration run.
