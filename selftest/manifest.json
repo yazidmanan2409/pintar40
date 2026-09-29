@@ -1735,7 +1735,7 @@
     {
       "id": "DAISY-04-TIDAK-ADA-01",
       "runner": "app",
-      "proves": "DAISY-04 (D-011): an address that leads nowhere gets PINTAR's own not-found page. The RENDERED html of two public paths that lead nowhere -- /masuk/kartu (audit N12) and a path under /verifikasi/ -- is fetched anonymously over HTTP in Indonesian and English: each answers 404, carries PINTAR's heading in the chosen language, declares that language on <html>, offers the way back, and never shows Next's English default."
+      "proves": "DAISY-04 (D-011): an address that leads nowhere gets PINTAR's own not-found page. The RENDERED html of two public paths that lead nowhere -- two paths under the public prefix /verifikasi/ (not /masuk/kartu any more: it is BOB-12's card route, DAISY-13) -- is fetched anonymously over HTTP in Indonesian and English: each answers 404, carries PINTAR's heading in the chosen language, declares that language on <html>, offers the way back, and never shows Next's English default."
     },
     {
       "id": "DAISY-04-KUNCI-01",
