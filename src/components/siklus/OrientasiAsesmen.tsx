@@ -33,6 +33,7 @@ import type { Orientation } from "@/lib/assessment-engine/types";
 export default function OrientasiAsesmen({
   orientasi,
   locale,
+  mode,
   eyebrow,
   judul,
   mulai,
@@ -40,6 +41,12 @@ export default function OrientasiAsesmen({
 }: {
   orientasi: Orientation;
   locale: Locale;
+  /**
+   * DAISY-25: which assessment this introduces. The Pemetaan Awal is not a test
+   * of the learner, and says so (`pretest.intro`); the Uji Penguasaan has its
+   * own line (`posttest.intro`). It used to show the post-test's line for both.
+   */
+  mode: "PEMETAAN" | "PENGUASAAN";
   /** Course and chapter — where this assessment sits. */
   eyebrow: string;
   /** What this assessment is called to a learner. */
@@ -62,7 +69,7 @@ export default function OrientasiAsesmen({
       <div className="pin-head">
         <p className="pin-eyebrow">{eyebrow}</p>
         <h1 className="pin-h1">{judul}</h1>
-        <p className="pin-intro">{s("posttest.intro")}</p>
+        <p className="pin-intro">{s(mode === "PEMETAAN" ? "pretest.intro" : "posttest.intro")}</p>
       </div>
 
       <div className="pin-orient">

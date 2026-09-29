@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 106,
+  "version": 107,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2223,6 +2223,11 @@
       "id": "DAISY-16-HAMBATAN-01",
       "runner": "static",
       "proves": "DAISY-16 (with BOB-17, D-011): the Terbit step reads the blocker codes. From the copy table and the SOURCE files: every code in BOB-17's catalogue (KODE_HAMBATAN), every question pattern (POLA_MUTU_SOAL) and the general lines have words in both languages that speak of the course, never the package, and carry no code, ERROR, WARNING, pattern name or internal word; a line that sends the reader to a step (Periksa isi, Setujui isi, Buat terbitan, Kunci terbitan) names it by that step's exact title in the same language. Composed through kalimatHambatan as the step shows it, each code reads as its words with the lesson it names and a question's pattern in words; a planted unknown code, bare sentence and unknown pattern read as the general line, never themselves. The freeze action (src/app/studio/actions.ts) and the package page log an unknown code under a reference, and the Terbit step and the package page show the general line with that reference beside it, never a code."
+    },
+    {
+      "id": "DAISY-25-TEKS-01",
+      "runner": "static",
+      "proves": "DAISY-25 (UX-23, UX-28, UX-29; D-014, D-019): three lines that said something untrue. RENDERED in a child process as the pages render them, in both languages: (1) the Pemetaan Awal's orientation (OrientasiAsesmen, mode PEMETAAN) opens with pretest.intro and never posttest.intro, and the Uji Penguasaan's with posttest.intro and never pretest.intro; the two lines differ in both languages; from the SOURCE, PermukaanAsesmen hands the orientation its mode and the pemetaan and penguasaan pages each give their own (today every orientation opens with posttest.intro). (2) A topic row on «Lihat bukti» (BarisKesiapan with a label) shows the domain's name exactly as the content gives it, never the dash and never a copy lookup: planted, a domain named like a copy key (kesiapan.perlu_review) reads as that name, not the key's words; a readiness row still reads its tier's words; from the SOURCE, the topic loop passes label={nama} and no tierKey={nama} (today every topic reads the dash). (3) No learner or public line in the copy table promises a notification (a planted copy of the replaced line is caught), and siklus.habis.isi has both languages and names the Learning page by nav.belajar's word, with no internal word"
     }
   ]
 }

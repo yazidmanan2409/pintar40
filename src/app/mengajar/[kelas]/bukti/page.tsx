@@ -180,7 +180,7 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
                 {bagian.map(([nama, nilai]) => (
                   <BarisKesiapan
                     key={nama}
-                    tierKey={nama}
+                    label={nama}
                     count={Math.round(Number(nilai) * 100)}
                     total={100}
                     locale={locale}

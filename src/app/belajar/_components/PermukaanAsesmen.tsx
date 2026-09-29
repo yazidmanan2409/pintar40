@@ -83,6 +83,7 @@ export default async function PermukaanAsesmen({
           <OrientasiAsesmen
             orientasi={orientasi}
             locale={locale}
+            mode={mode}
             eyebrow={eyebrow}
             judul={s(mode === "PEMETAAN" ? "pretest.title" : "posttest.title")}
             mulai={

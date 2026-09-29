@@ -8,7 +8,9 @@
 
 **How:** `staging · learning journey (D-050)` (`.github/workflows/staging-journey.yml`, `audit/staging/journey.mjs`), dispatch only, from `main`. Every action is a click on PINTAR's own screens. Staging's database is only read, in read-only transactions, to confirm what the screens claim. Each student answers to a plan (how many right), so the result pages are checked against numbers known in advance.
 
-**Evidence runs** (`staging · learning journey (D-050)`, all on 28 Sep, staging serving the commit under test):
+**Screenshots:** each run saves them as the `staging-journey` artifact. Sessions cannot download it, because the environment's network policy blocks GitHub's artifact storage host. **Yazid, 29 Sep:** leave that blocked, and revisit only if screenshots become required evidence the workflow cannot give. The evidence is each step's recorded text in the run log.
+
+**Evidence runs** (`staging · learning journey (D-050)`, 28 Sep and after, staging serving the commit under test):
 
 | Run | What it proves |
 |---|---|
