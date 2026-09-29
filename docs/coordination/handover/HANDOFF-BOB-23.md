@@ -2,6 +2,41 @@
 
 **Head:** `c2df328`, with `main` merged in: `3b6a134` (the identity 4.0 freeze, D-054 to D-059), then `f6e0b3e` (the board, docs only). The code is `1749206`. **One run:** ci #218.
 
+## ROUND 2 (29 Sep): the last lesson's Uji Penguasaan link, kept (X-08)
+
+**Head:** `R2_HEAD`, with `main` merged in (`a9372c1`, a fast-forward). The code is `0d756a0`. **One run:** `R2_RUN`. Round 1, below, is unchanged.
+
+**What staging run 13 found:**
+- With the redraw stream gone, the last page of the last lesson no longer showed the link to Uji Penguasaan.
+- `semuaDibaca` (`pelajaran/[pelajaran]/page.tsx`) is decided when the page renders, and the per-save redraw was what had been refreshing it.
+- **My own rehearsal missed it:** my browser script reloaded the last lesson's page before looking for the link. The reload re-rendered the page on the server, which the live flow no longer does. This round's rehearsal never reloads.
+
+**The fix (a):**
+- `menjadiDibaca(hasil, total)` in `src/lib/siklus.ts`: the save's result is ok and the server's furthest count (which `saveLessonProgress` already returns) reaches the total.
+- `LessonPlayer` calls `router.refresh()` once, on that save's own result, and on no other save.
+- The effect is still keyed on `[page]`, so the refresh can't start a loop. That is one redraw per lesson made read, never one per page.
+- The player can't tell which lesson is the last, so each lesson refreshes once when it becomes read. Only on the last lesson does that refresh reveal the link.
+
+**The test (b): BOB23-K03 (static).** It drives the refresh decision through every render a lesson sees.
+- **Red on round 1's code:** `there is no read-transition decision: src/lib/siklus.ts has no menjadiDibaca; reading a 5-page lesson to its last page, with re-renders and going back, refreshed the page 0 time(s); expected once, on the last page; opening a 1-page lesson refreshed the page 0 time(s); …; the player refreshes other than once, on the save that makes the lesson read`.
+- **Green now:** exactly one refresh, on the last page's save. None paging over a lesson already read, none after a failed last-page save, and one for a 1-page lesson. The player's only refresh sits behind `menjadiDibaca`.
+- **BOB23-K01 and BOB23-K02** stay green on both codes.
+
+**Rehearsed in a browser, as J09 now runs it.** The learner pages quickly through every lesson and stays on the last lesson's last page without a reload. Then two 8 s windows:
+
+| | window 1 | window 2 | Uji Penguasaan link on the page |
+|---|---|---|---|
+| round 1 (`a9372c1`) | 0 requests | 0 requests | **absent** (staging run 13 reproduced) |
+| **round 2** | 0 requests | 0 requests | **present** |
+
+The local stand-in answers without latency, so no queued saves spill into window 1. On staging they did (4 POSTs), which is why J09's second window is the one that decides.
+
+**Local, before dispatch, English collation throughout:** R2_LOCAL
+
+**Staging acceptance (c):** J09 PASS on the two-window check (no server action in the second 8 s), with the link shown without a reload; J13 still matches the plan.
+
+**Manifest:** v106.
+
 ## CHANGED
 
 **1. One save per page newly reached** (acceptance 1 and 2):
