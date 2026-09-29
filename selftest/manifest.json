@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 104,
+  "version": 105,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1977,6 +1977,16 @@
       "id": "BOB22-K01",
       "runner": "static",
       "proves": "BOB-22. One meaning for a saved lesson position, pages reached (1 to N): in the source file src/lib/siklus.ts, a learner stepping through lessons of 1 to 8 pages and saving exactly what LessonPlayer saves (posisiTersimpan, the page's index + 1), the furthest kept, is read by lessonRead only once on the last page, never saves beyond the total, and resumes through halamanMulai on the page they were on; three lessons read to their last page put posisi at the Uji Penguasaan; src/app/belajar/_components/LessonPlayer.tsx saves and resumes through those two helpers."
+    },
+    {
+      "id": "BOB23-K01",
+      "runner": "static",
+      "proves": "BOB-23 (D-031). In the source file src/lib/siklus.ts, perluDisimpan driven through every render a lesson sees saves a new 5-page lesson exactly once per page newly reached (1, 2, 3, 4, 5) -- none for idle re-renders, none going back -- and saves nothing idle on a lesson already saved; in src/lib/sesi.ts, cookieYangBerubah keeps a changed session cookie and a deletion and drops an unchanged one; src/app/belajar/_components/LessonPlayer.tsx keys its save effect on [page] alone through perluDisimpan, and saveLessonProgress in src/app/belajar/actions.ts writes only a changed session, so a save no longer re-renders the page."
+    },
+    {
+      "id": "BOB23-K02",
+      "runner": "static",
+      "proves": "BOB-23, D-009 kept: throttle, not skip. perluGeserSesi in the source file src/lib/sesi.ts keeps a classroom card signed in through three hours of server actions every 30 s with no page request (three times its 60-minute limit) while re-sending the session at most once per JEDA_GESER_AKSI (5 minutes), where a proxy that skips actions loses it at the limit; an email account over a day likewise; a page request always re-sends; src/proxy.ts asks it on server actions, always re-sends a session it has just refreshed, and records each re-send."
     },
     {
       "id": "BOB08-K01",

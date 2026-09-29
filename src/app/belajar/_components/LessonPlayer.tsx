@@ -20,9 +20,9 @@
  * which the data layer already requires (FABLE-02 §6's CHECK), so there is
  * never a track here without one.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/hle";
-import { halamanMulai, posisiTersimpan } from "@/lib/siklus";
+import { halamanMulai, perluDisimpan } from "@/lib/siklus";
 
 export type LessonPlayerProps = {
   learningAssignmentId: string;
@@ -93,14 +93,30 @@ export default function LessonPlayer(props: LessonPlayerProps) {
   });
   const [steps, setSteps] = useState(1);
 
-  const record = useCallback((p: number) => {
-    try { window.localStorage.setItem(localKey, String(Math.max(p, Number(window.localStorage.getItem(localKey) ?? 0)))); }
-    catch { /* unavailable */ }
-    // saved as pages reached (BOB-22): the last page of N saves N, which reads as read
-    void props.saveProgress(props.learningAssignmentId, props.lessonId, posisiTersimpan(p), pages.length);
-  }, [localKey, pages.length, props]);
+  // BOB-23: ONE SAVE PER PAGE NEWLY REACHED. The save ran in an effect that
+  // depended on the whole props object; each save re-rendered the page, the
+  // new props re-ran the effect, and a learner reading one page saved about
+  // twenty times a second. Now the effect depends on the page alone, reads
+  // the save function and ids through a ref, and saves only beyond what is
+  // already saved (the server's startAt, then each save) -- as pages reached
+  // (BOB-22), so the last page of N saves N.
+  const simpan = useRef({ save: props.saveProgress, tugas: props.learningAssignmentId, pelajaran: props.lessonId,
+    total: pages.length, kunci: localKey });
+  useEffect(() => {
+    simpan.current = { save: props.saveProgress, tugas: props.learningAssignmentId, pelajaran: props.lessonId,
+      total: pages.length, kunci: localKey };
+  });
+  const tersimpan = useRef(props.startAt);
 
-  useEffect(() => { record(page); }, [page, record]);
+  useEffect(() => {
+    const { save, tugas, pelajaran, total, kunci } = simpan.current;
+    try { window.localStorage.setItem(kunci, String(Math.max(page, Number(window.localStorage.getItem(kunci) ?? 0)))); }
+    catch { /* unavailable */ }
+    const posisi = perluDisimpan(page, tersimpan.current);
+    if (posisi === null) return;
+    tersimpan.current = posisi;
+    void save(tugas, pelajaran, posisi, total);
+  }, [page]);
 
   const example = props.workedExamples[0];
   const langkah = example?.langkah ?? [];

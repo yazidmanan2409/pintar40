@@ -75,3 +75,42 @@ export function alamatDariCookieSesi(cookies: ReadonlyArray<{ name: string; valu
   }
   return null;
 }
+
+/**
+ * BOB-23. THE COOKIES A WRITE WOULD ACTUALLY CHANGE. @supabase/ssr hands its
+ * session back to setAll on every request that restores it from the cookie,
+ * value unchanged. Written from a server action, that no-op write is a cookie
+ * mutation, and Next answers it by re-rendering the whole page
+ * (x-action-revalidated) -- which is what fed the lesson player's save loop.
+ * Keeps a cookie whose value differs from the request's (a refreshed session)
+ * and every deletion; drops the rest. The idle lifetime does not depend on
+ * the dropped writes: the proxy re-sends the session cookies with it on every
+ * signed-in request, a server action's included.
+ */
+export function cookieYangBerubah<T extends { name: string; value: string; options?: { maxAge?: number } }>(
+  cookiesToSet: ReadonlyArray<T>, nilaiSekarang: (name: string) => string | undefined,
+): T[] {
+  return cookiesToSet.filter((k) => k.options?.maxAge === 0 || !k.value || nilaiSekarang(k.name) !== k.value);
+}
+
+/**
+ * BOB-23 (D-009 kept). WHEN THE PROXY RE-SENDS THE SESSION ON A SERVER ACTION.
+ * Re-sending the auth cookies with their lifetime is what slides the idle
+ * limit, and on a server action every cookie written makes Next re-render the
+ * whole page. So a page request always re-sends (it renders anyway), and an
+ * action re-sends only once JEDA_GESER_AKSI has passed since the last re-send,
+ * which a companion cookie records. Continuous action-only work -- lesson
+ * saves, answer sync -- keeps a card's session alive: the lifetime left never
+ * falls below its limit minus the interval. At most one redraw per interval,
+ * never one per save. The one place the cookie lifetime is decided (Gate 6's
+ * heartbeat, D-055, belongs here too).
+ */
+export const COOKIE_GESER = "pintar-sesi-geser";
+export const JEDA_GESER_AKSI = 5 * 60;
+
+export function perluGeserSesi(p: { aksi: boolean; sekarang: number; terakhir: string | undefined; umur: number }): boolean {
+  if (!p.aksi) return true;
+  const t = Number(p.terakhir);
+  if (!p.terakhir || !Number.isFinite(t) || t > p.sekarang) return true;
+  return p.sekarang - t >= Math.min(JEDA_GESER_AKSI, Math.floor(p.umur / 4));
+}
