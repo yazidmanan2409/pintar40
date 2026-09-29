@@ -11614,4 +11614,223 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+
+  {
+    id: "DAISY-30-TEKS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? code(readFileSync(f, "utf8")) : "";
+      };
+      /**
+       * DAISY-30: LEARNER TEXT RENDERS ITS OWN MARKUP. The lesson player drew
+       * every line as a plain <p> and the item screens drew stems and options
+       * as plain text, so every SD5 and Geografi lesson showed **bold** as
+       * asterisks and SD5's tables as pipes. SMA X Matematika writes powers
+       * Unicode cannot, as ^{…}. One shared renderer (src/components/teks/
+       * Teks.tsx) now draws **bold**, "- " lists, pipe tables and ^{…}/_{…},
+       * as React elements only.
+       *
+       * 1. RENDERED, in a child process:
+       *    (a) the LESSON PLAYER with a real SD5 lesson («Faktor», SD5
+       *        Matematika Bab 2), every page: no ** or table pipes left, its
+       *        table drawn, its nine bold phrases bold;
+       *    (b) the lesson player with an SMA X line, a^{m/n}: a <sup>;
+       *    (c) every lesson of every package in docs/onboarding/konten: no **
+       *        left, no |--- left, no paragraph that starts with a pipe, no
+       *        line that keeps an _…_ pair or a leading "- "; every table and
+       *        table row, every italic line and every list line (nested ones
+       *        included) accounted for;
+       *    (d) the inline renderer: marks left open, the pipes that are not
+       *        tables and a planted <b> stay literal (the tag escaped);
+       *        «_Periksa…_» is italic (with bold and ^{…} inside it), while
+       *        x_{0} stays a subscript and a snake_case word, a lone "_" and
+       *        __dunder__ stay literal;
+       *    (e) lines stay lines, "- " lines become one list, and an indented
+       *        "- " line is an item under the one above.
+       */
+      const SMAX = "Untuk a > 0 dan n > 0, a^{m/n} = (a^{1/n})^{m}.";
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const fs = await import("node:fs");' +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const lp = await import("file://" + process.cwd() + "/src/app/belajar/_components/LessonPlayer.tsx");' +
+        "  const LessonPlayer = lp.default?.default ?? lp.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  const pemain = (body, startAt) => renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(LessonPlayer, {" +
+        '    learningAssignmentId: "t", lessonId: "l", title: "x", bodyMarkdown: body, workedExamples: [], media: [], startAt,' +
+        "    saveProgress: async () => ({ ok: true }) })));" +
+        '  const dir = process.cwd() + "/docs/onboarding/konten/";' +
+        '  const paket = fs.readdirSync(dir).filter((f) => f.endsWith(".paket.json")).sort()' +
+        '    .map((f) => ({ f, lessons: JSON.parse(fs.readFileSync(dir + f, "utf8")).courses.flatMap((c) => c.modules).flatMap((m) => m.lessons) }));' +
+        '  const faktor = paket.find((p) => p.f === "SD5-Matematika-Bab2.paket.json").lessons.find((l) => l.title === "Faktor").body_markdown;' +
+        '  const halaman = faktor.split("\\n").filter((b) => b.startsWith("## ")).length;' +
+        "  const out = { halaman, faktor: Array.from({ length: halaman }, (_, k) => pemain(faktor, k + 1))," +
+        '    smax: pemain("## Pangkat pecahan\\n" + process.env.SMAX, 1), korpus: [], baris: [], blok: "" };' +
+        "  let t = null;" +
+        '  try { t = await import("file://" + process.cwd() + "/src/components/teks/Teks.tsx"); } catch (e) { out.galat = String(e); }' +
+        "  if (t) {" +
+        "    const T = t.default?.default ? t.default : t;" +
+        "    const TeksBlok = T.default ?? t.default, TeksBaris = T.TeksBaris ?? t.TeksBaris;" +
+        "    for (const p of paket) for (const l of p.lessons) out.korpus.push({ f: p.f, judul: l.title, md: l.body_markdown, html: renderToStaticMarkup(h(TeksBlok, { teks: l.body_markdown })) });" +
+        "    out.baris = JSON.parse(process.env.BARIS).map((s) => renderToStaticMarkup(h(TeksBaris, { teks: s })));" +
+        '    out.blok = renderToStaticMarkup(h(TeksBlok, { teks: "Akibatnya:\\n- satu\\n- **dua**\\n  - dua a\\n  - dua b\\n██ 6\\n███ 8" }));' +
+        "  }" +
+        "  process.stdout.write(JSON.stringify(out));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", maxBuffer: 64 * 1024 * 1024,
+        env: { ...process.env, SMAX, BARIS: JSON.stringify([
+          SMAX, "**tebal", "^{ tanpa tutup", "Turus ||||/ |||", "979.875 → **979** | **875**", "_Periksa: 1 × 28._",
+          "Isi <b>tebal</b> & <script>x</script>", "**>** artinya lebih besar", "H_{2}O", "x^{2^{3}}",
+          // SMA X Matematika Bab 1 as Lana writes it (the coordinator's list, 29 Sep): spaces, parentheses
+          // and operators inside the braces, a log base, and Unicode powers and roots that are text already
+          "a^{(m+p)/n}", "2^{1/2 + 1/4}", "3^{2x−1} = 27", "log_{10} 100 = 2", "2⁶, aᵐ, ²log 8, √2, ∛8, ∜16, ⁿ√a",
+          "**Sifat:** a^{m} × a^{n} = a^{m+n}",
+          // italic, and what must not become italic (the coordinator's rule, 29 Sep)
+          "x_{0} + y_{1}", "nilai_akhir dan data_set", "isi _ di sini", "__init__", "(_catatan_)", "_**Coba:** a^{2}_",
+        ]) },
+      });
+      type Hasil = { halaman: number; faktor: string[]; smax: string; korpus: { f: string; judul: string; md: string; html: string }[]; baris: string[]; blok: string; galat?: string };
+      let o: Hasil | null = null;
+      try { o = JSON.parse(anak.stdout) as Hasil; } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && o !== null, `the lesson player could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 2).join(" ")}`)) {
+        const x = o!;
+        // (a) the lesson player, a real SD5 lesson, every page
+        const semua = x.faktor.join("\n");
+        c.expect(x.halaman === 3 && x.faktor.length === 3, `«Faktor» was expected to have 3 pages, not ${x.halaman}`);
+        c.expect(!semua.includes("**"), "the lesson player still shows ** around bold words in «Faktor» (SD5 Matematika Bab 2)");
+        c.expect(!/\|-{3}/.test(semua) && !/<p[^>]*>\s*\|/.test(semua), "the lesson player still shows the table's pipes in «Faktor»");
+        c.expect((semua.match(/<table>/g) ?? []).length === 1 && /<th scope="col">Faktor dari 12<\/th>/.test(semua)
+          && (semua.match(/<tr>/g) ?? []).length === 5, "the lesson player does not draw «Faktor»'s table as a table (a head and four rows)");
+        c.expect((semua.match(/<strong>/g) ?? []).length === 9, `«Faktor» has nine bold phrases; the player drew ${(semua.match(/<strong>/g) ?? []).length}`);
+        c.expect(/<em>Periksa: /.test(semua) && /<em>Diadaptasi dari /.test(semua) && !/>_|_</.test(semua),
+          "the lesson player still shows «Faktor»'s «_Periksa…_» and «_Diadaptasi…_» lines with their underscores");
+        // (b) an SMA X line
+        c.expect(/a<sup>m\/n<\/sup> = \(a<sup>1\/n<\/sup>\)<sup>m<\/sup>/.test(x.smax) && !x.smax.includes("^{"),
+          "the lesson player does not raise a^{m/n} (SMA X Matematika) as a superscript");
+        if (c.expect(!x.galat && x.korpus.length > 0, `there is no shared renderer (src/components/teks/Teks.tsx): ${x.galat ?? ""}`)) {
+          // (c) every lesson of every package
+          let tabel = 0, pemisah = 0, tr = 0, baris = 0, em = 0, miring = 0, li = 0, daftar = 0, anak = 0, sarang = 0;
+          // A rendered line: the text of each block (p, li, td, th, h3) with its inline tags dropped.
+          const barisTampil = (x: string) => x.split(/<\/?(?:p|li|td|th|h3|ul|table|thead|tbody|tr|div|article)\b[^>]*>/)
+            .map((t) => t.replace(/<[^>]+>/g, "")).filter((t) => t.trim() !== "");
+          const SISA_MIRING = /(^|[\s(])_[^\s{_][^_]*[^\s_]_(?=$|[\s\p{P}])/u;
+          const SISA_DAFTAR = /^\s*- /;
+          c.expect(barisTampil('<p class="pin-lp">_Periksa: 1._</p>').some((t) => SISA_MIRING.test(t))
+            && barisTampil('<p class="pin-lp">  - fisik: kanal</p>').some((t) => SISA_DAFTAR.test(t)),
+            "the control: a planted _…_ line or leading \"- \" is not caught");
+          for (const l of x.korpus) {
+            const di = `${l.f} «${l.judul}»`;
+            c.expect(!l.html.includes("**"), `${di}: ** left in the rendered lesson`);
+            c.expect(!/\|-{3}/.test(l.html) && !/<p[^>]*>\s*\|/.test(l.html), `${di}: table pipes left in the rendered lesson`);
+            const tampil = barisTampil(l.html);
+            const sisaM = tampil.find((t) => SISA_MIRING.test(t)), sisaD = tampil.find((t) => SISA_DAFTAR.test(t));
+            c.expect(!sisaM, `${di}: a line keeps its _…_: ${sisaM}`);
+            c.expect(!sisaD, `${di}: a line keeps a leading "- ": ${sisaD}`);
+            tabel += (l.html.match(/<table>/g) ?? []).length;
+            tr += (l.html.match(/<tr>/g) ?? []).length;
+            pemisah += (l.md.match(/^\|[\s|:-]*-{3}[\s|:-]*$/gm) ?? []).length;
+            baris += (l.md.match(/^\|/gm) ?? []).length;
+            const nEm = (l.html.match(/<em>/g) ?? []).length, nMiring = (l.md.match(/^[ \t]*_[^\s{_].*[^\s_]_[ \t]*$/gm) ?? []).length;
+            c.expect(nEm === nMiring, `${di}: ${nMiring} italic lines are written, ${nEm} drawn`);
+            em += nEm; miring += nMiring;
+            li += (l.html.match(/<li>/g) ?? []).length;
+            daftar += (l.md.match(/^[ \t]*- /gm) ?? []).length;
+            anak += (l.md.match(/^[ \t]+- /gm) ?? []).length;
+            sarang += (l.html.match(/<li>[^]*?<ul class="pin-tdaftar">/g) ?? []).length;
+          }
+          c.expect(miring >= 100 && em === miring, `${miring} italic lines are written in the packages, ${em} drawn`);
+          c.expect(li === daftar && daftar >= 400, `${daftar} list lines are written in the packages, ${li} items drawn`);
+          c.expect(anak >= 4 && sarang >= 1, `${anak} indented list lines are written, ${sarang} nested lists drawn`);
+          c.expect(x.korpus.length >= 70, `only ${x.korpus.length} lessons were read from docs/onboarding/konten`);
+          c.expect(tabel === pemisah && tabel >= 20, `${pemisah} tables are written in the packages, ${tabel} drawn`);
+          c.expect(tr + pemisah === baris, `${baris} table lines are written, ${tr} rows drawn beside ${pemisah} separators`);
+          // (d) inline: marks, what stays literal, and escaping
+          const [smax, terbuka, sup, turus, sisip, periksa, tag, lebih, air, bersarang] = x.baris;
+          c.expect(/a<sup>m\/n<\/sup>/.test(smax), "a stem's a^{m/n} is not a superscript");
+          c.expect(terbuka === "**tebal" && sup === "^{ tanpa tutup", "a mark left open is not drawn literally");
+          c.expect(turus === "Turus ||||/ |||" && sisip === "979.875 → <strong>979</strong> | <strong>875</strong>",
+            "tally marks or a pipe inside a sentence are not left as text");
+          c.expect(periksa === "<em>Periksa: 1 × 28.</em>", `«_Periksa…_» is not italic: ${periksa}`);
+          c.expect(tag === "Isi &lt;b&gt;tebal&lt;/b&gt; &amp; &lt;script&gt;x&lt;/script&gt;", `a tag in the text is not shown as text: ${tag}`);
+          c.expect(lebih === "<strong>&gt;</strong> artinya lebih besar", "a bold > is not escaped");
+          c.expect(air === "H<sub>2</sub>O" && bersarang === "x<sup>2<sup>3</sup></sup>", "_{…} is not a subscript, or nested braces break");
+          // SMA X Bab 1's own forms
+          const [pecahan, jumlah, linear, basis, unicode, sifat] = x.baris.slice(10);
+          c.expect(pecahan === "a<sup>(m+p)/n</sup>" && jumlah === "2<sup>1/2 + 1/4</sup>" && linear === "3<sup>2x−1</sup> = 27",
+            `an SMA X power with spaces, parentheses or operators is not one superscript: ${pecahan} | ${jumlah} | ${linear}`);
+          c.expect(basis === "log<sub>10</sub> 100 = 2", `an SMA X log base is not a subscript: ${basis}`);
+          c.expect(unicode === "2⁶, aᵐ, ²log 8, √2, ∛8, ∜16, ⁿ√a", `Unicode powers and roots are changed: ${unicode}`);
+          c.expect(sifat === "<strong>Sifat:</strong> a<sup>m</sup> × a<sup>n</sup> = a<sup>m+n</sup>", `bold and powers on one line: ${sifat}`);
+          // italic, and what stays as it is
+          const [indeks, ular, tunggal, dunder, kurung, dalam] = x.baris.slice(16);
+          c.expect(indeks === "x<sub>0</sub> + y<sub>1</sub>", `x_{0} is no longer a subscript: ${indeks}`);
+          c.expect(ular === "nilai_akhir dan data_set", `a snake_case word is not left literal: ${ular}`);
+          c.expect(tunggal === "isi _ di sini" && dunder === "__init__", `a lone "_" or __dunder__ is not left literal: ${tunggal} | ${dunder}`);
+          c.expect(kurung === "(<em>catatan</em>)" && dalam === "<em><strong>Coba:</strong> a<sup>2</sup></em>",
+            `italic after «(», or bold and ^{…} inside italic, is wrong: ${kurung} | ${dalam}`);
+          // (e) lines stay lines, and "- " lines are one list
+          c.expect(x.blok === '<p class="pin-lp">Akibatnya:</p><ul class="pin-tdaftar"><li>satu</li><li><strong>dua</strong><ul class="pin-tdaftar"><li>dua a</li><li>dua b</li></ul></li></ul><p class="pin-lp">██ 6</p><p class="pin-lp">███ 8</p>',
+            `lines are merged, a list is not one list, or an indented "- " line is not an item under the one above: ${x.blok}`);
+        }
+      }
+
+      /**
+       * 2. FROM THE SOURCE: every place a learner reads authored text draws it
+       *    through the renderer (the lesson player and its worked example, the
+       *    lesson's summary, the item's stem, stimulus, options and help, the
+       *    result's stem, answer and rationale, the reading map, the result's
+       *    objective rows), and so do Studio's preview and Bank Soal. No
+       *    dangerouslySetInnerHTML anywhere in src, and no markdown or maths
+       *    library in package.json.
+       */
+      const lp = baca("src", "app", "belajar", "_components", "LessonPlayer.tsx");
+      c.expect(/<TeksBlok teks=\{pages\[page\]\.join\("\\n"\)\} sisip=\{sisipVisual\} \/>/.test(lp) && !/renderBlock/.test(lp)
+        && /<TeksBaris teks=\{s\} \/>/.test(lp) && /<TeksBaris teks=\{example\?\.judul\} \/>/.test(lp),
+        "the lesson player does not draw its pages and worked example through the shared renderer");
+      const ip = baca("src", "app", "belajar", "_components", "ItemPlayer.tsx");
+      for (const [apa, re] of [["stem", /<h2 className="pin-stem"><TeksBaris teks=\{current\.item\.stem\} \/><\/h2>/],
+        ["stimulus", /<TeksBaris teks=\{current\.item\.stimulus\} \/>/], ["options", /<span><TeksBaris teks=\{o\.teks\} \/><\/span>/],
+        ["help", /<span><TeksBaris teks=\{l\.isi\} \/><\/span>/]] as const) {
+        c.expect(re.test(ip), `the item screen draws its ${apa} as plain text`);
+      }
+      const hasil = baca("src", "app", "belajar", "[tugas]", "hasil", "page.tsx");
+      c.expect(["r.stem", "r.jawaban_teks", "r.alasan", "r.arah"].every((v) => hasil.includes(`<TeksBaris teks={${v}} />`)),
+        "the result screen draws a stem, an answer or a rationale as plain text");
+      c.expect(/<TeksBaris teks=\{k\.pernyataan\} \/>/.test(baca("src", "components", "siklus", "PetaBacaan.tsx"))
+        && /<TeksBaris teks=\{nama\.get\(kode\) \?\? kode\} \/>/.test(baca("src", "components", "siklus", "PerTujuan.tsx"))
+        && /<TeksBaris teks=\{lesson\.ringkasan\} \/>/.test(baca("src", "app", "belajar", "[tugas]", "pelajaran", "[pelajaran]", "page.tsx")),
+        "the reading map, the result's objective rows or the lesson's summary draw authored text as plain text");
+      const pr = baca("src", "app", "studio", "pratinjau", "[pelajaran]", "page.tsx");
+      c.expect(/<TeksBlok teks=\{body\} \/>/.test(pr) && !/whitespace-pre-wrap text-sm">\{body\}/.test(pr)
+        && /<TeksBaris teks=\{i\.stem\} \/>/.test(baca("src", "app", "studio", "bank", "page.tsx")),
+        "Studio's preview or Bank Soal does not draw the text as the learner reads it");
+      const berkas = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f));
+      const html = berkas.filter((f) => /dangerouslySetInnerHTML/.test(code(readFileSync(f, "utf8"))));
+      c.expect(html.length === 0, `text is set as HTML: ${html.map((f) => relative(repoRoot, f)).join(", ")}`);
+      c.expect(/dangerouslySetInnerHTML/.test(code("const x = <p dangerouslySetInnerHTML={{ __html: s }} />;")), "the control: a planted innerHTML is not caught");
+      const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
+      const lib = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies }).filter((d) => /markdown|marked|remark|rehype|micromark|mdx|showdown|katex|mathjax|sanitize|dompurify/i.test(d));
+      c.expect(lib.length === 0, `a markup library was added: ${lib.join(", ")}`);
+
+      return c.verdict(
+        "learner text renders its own markup through one shared renderer, as React elements only: the lesson player " +
+        "draws a real SD5 lesson («Faktor») on every page with no ** or table pipes left, its table as a table and its " +
+        "nine bold phrases bold, and an SMA X a^{m/n} as a superscript; every lesson of every package renders with no ** " +
+        "or table pipes left and every table and row accounted for; marks left open, tally marks and a pipe in a sentence " +
+        "stay literal and a planted tag is escaped; «_Periksa…_» and «_Diadaptasi…_» are italic in every lesson (bold and " +
+        "^{…} inside), while x_{0}, snake_case, a lone _ and __dunder__ stay as they are; lines stay lines, \"- \" lines are " +
+        "one list and indented ones nest, no lesson line keeps an _…_ pair or a leading \"- \", every italic and list line " +
+        "counted; SMA X " +
+        "Bab 1's forms (a^{(m+p)/n}, 2^{1/2 + 1/4}, 3^{2x−1}, log_{10}) are one <sup> or <sub> each, with Unicode powers and " +
+        "roots untouched; every " +
+        "learner surface (lesson, summary, worked example, stem, stimulus, options, help, result, reading map) and " +
+        "Studio's preview and Bank Soal use it; nothing in src sets HTML and no markup library was added",
+      );
+    },
+  },
 ];
