@@ -126,11 +126,11 @@ BAB = [(1, "KPK dan FPB")]
 PELAJARAN = [
     dict(no=1, judul="Kelipatan",
          ringkasan="Kelipatan sebuah bilangan didapat dengan terus menambahkan bilangan itu, atau dengan mengalikannya dengan 1, 2, 3, dan seterusnya.",
-         tujuan="Murid dapat menentukan kelipatan sebuah bilangan dan memeriksa apakah suatu bilangan merupakan kelipatannya.",
+         tujuan="Kalian dapat menentukan kelipatan sebuah bilangan dan memeriksa apakah suatu bilangan merupakan kelipatannya.",
          bloom="Memahami",
          isi=f"""## Bermain tepuk kelipatan
 
-Bayangkan kalian duduk melingkar dan menyebut bilangan bergantian: 1, 2, 3, 4, ... Setiap kali giliranmu jatuh pada bilangan **3, 6, 9, 12, ...**, kamu bertepuk tangan, bukan menyebut bilangannya.
+Bayangkan kalian duduk melingkar dan menyebut bilangan bergantian: 1, 2, 3, 4, ... Setiap kali giliran kalian jatuh pada bilangan **3, 6, 9, 12, ...**, kalian bertepuk tangan, bukan menyebut bilangannya.
 
 Bilangan-bilangan itu disebut **kelipatan 3**.
 
@@ -155,7 +155,7 @@ Tulislah bilangan 1 sampai 50 dalam lima baris, sepuluh bilangan setiap baris. L
 
 Perhatikan bahwa tanda-tanda itu membentuk pola miring yang teratur, karena setiap tanda berjarak tepat 3 dari tanda sebelumnya.
 
-**Coba:** tandai kelipatan 9 pada tabel 1 sampai 100. Pola apa yang kamu lihat?
+**Coba:** tandai kelipatan 9 pada tabel 1 sampai 100. Pola apa yang kalian lihat?
 _Periksa: 9, 18, 27, 36, ..., 90 membentuk garis miring. Setiap langkah, angka puluhannya naik 1 dan angka satuannya turun 1._
 
 ## Apakah bilangan ini kelipatan?
@@ -169,7 +169,7 @@ Hati-hati: angka 7 di belakang 27 atau 17 tidak membuatnya kelipatan 7. Yang men
 {SUMBER}"""),
     dict(no=2, judul="Kelipatan Persekutuan dan KPK",
          ringkasan="Kelipatan yang dimiliki bersama oleh dua bilangan atau lebih disebut kelipatan persekutuan; yang terkecil disebut KPK.",
-         tujuan="Murid dapat menentukan kelipatan persekutuan dan KPK dari dua atau tiga bilangan, dan memakainya untuk masalah jadwal.",
+         tujuan="Kalian dapat menentukan kelipatan persekutuan dan KPK dari dua atau tiga bilangan, dan memakainya untuk masalah jadwal.",
          bloom="Menerapkan",
          isi=f"""## Kelipatan bersama
 
@@ -216,7 +216,7 @@ _Periksa: KPK dari 2 dan 5 adalah 10, jadi 14 + 10 = 24 Juli._
 {SUMBER}"""),
     dict(no=3, judul="Faktor",
          ringkasan="Faktor sebuah bilangan adalah bilangan yang membaginya habis, tanpa sisa.",
-         tujuan="Murid dapat menentukan semua faktor sebuah bilangan dan membedakan faktor dari kelipatan.",
+         tujuan="Kalian dapat menentukan semua faktor sebuah bilangan dan membedakan faktor dari kelipatan.",
          bloom="Memahami",
          isi=f"""## Membagi tanpa sisa
 
@@ -262,7 +262,7 @@ Jadi 3 adalah **faktor** dari 12, dan 12 adalah **kelipatan** 3.
 {SUMBER}"""),
     dict(no=4, judul="Faktor Persekutuan dan FPB",
          ringkasan="Faktor yang dimiliki bersama oleh dua bilangan atau lebih disebut faktor persekutuan; yang terbesar disebut FPB.",
-         tujuan="Murid dapat menentukan faktor persekutuan dan FPB dari dua atau tiga bilangan, dan memakainya untuk membagi barang sama banyak.",
+         tujuan="Kalian dapat menentukan faktor persekutuan dan FPB dari dua atau tiga bilangan, dan memakainya untuk membagi barang sama banyak.",
          bloom="Menerapkan",
          isi=f"""## Faktor bersama
 
@@ -303,7 +303,7 @@ Perhatikan pertanyaannya: banyak **paket** adalah 12, sedangkan **isi** setiap p
 {SUMBER}"""),
     dict(no=5, judul="Bilangan Prima dan Faktorisasi Prima",
          ringkasan="Bilangan prima tepat mempunyai dua faktor; setiap bilangan lain dapat ditulis sebagai perkalian bilangan prima.",
-         tujuan="Murid dapat menentukan bilangan prima di bawah 100 dan menuliskan faktorisasi prima sebuah bilangan dengan pohon faktor.",
+         tujuan="Kalian dapat menentukan bilangan prima di bawah 100 dan menuliskan faktorisasi prima sebuah bilangan dengan pohon faktor.",
          bloom="Menerapkan",
          isi=f"""## Bilangan yang faktornya hanya dua
 
@@ -362,7 +362,7 @@ _Periksa: 70 = 2 × 35 dan 35 = 5 × 7, jadi 70 = 2 × 5 × 7._
 {SUMBER}"""),
     dict(no=6, judul="KPK dan FPB dengan Faktorisasi Prima",
          ringkasan="KPK dan FPB dapat dicari dari faktorisasi prima, lalu dipakai untuk memecahkan masalah sehari-hari.",
-         tujuan="Murid dapat menentukan KPK dan FPB dengan faktorisasi prima serta memilih KPK atau FPB untuk memecahkan masalah sehari-hari.",
+         tujuan="Kalian dapat menentukan KPK dan FPB dengan faktorisasi prima serta memilih KPK atau FPB untuk memecahkan masalah sehari-hari.",
          bloom="Menganalisis",
          isi=f"""## FPB dari faktorisasi prima
 
@@ -690,7 +690,7 @@ soal("LT12", 4, "Kakak mempunyai 24 pensil dan 32 buku tulis. Semuanya dibagikan
 ], sulit="Sedang")
 cek(fpb(20, 50) == 10 and kpk(20, 50) == 100 and fpb(13, 21) == 1 and 20 * 50 == 1_000)
 soal("LT13", 4, "Pernyataan manakah yang tepat?", [
-    ("FPB dari 20 dan 50 adalah 10.", True, "Tepat. Faktor persekutuannya 1, 2, 5, 10, dan yang terbesar 10.", ""),
+    ("FPB dari 20 dan 50 adalah 10.", True, "Benar. Faktor persekutuannya 1, 2, 5, 10, dan yang terbesar 10.", ""),
     ("FPB dari 20 dan 50 adalah 100.", False, "100 adalah KPK dari 20 dan 50. FPB-nya 10.", "SD5-M-B2-02"),
     ("13 dan 21 tidak mempunyai FPB.", False, "Faktor persekutuannya hanya 1, jadi FPB-nya 1. FPB selalu ada.", "SD5-M-B2-14"),
     ("KPK dari 20 dan 50 adalah 1.000.", False, "1.000 = 20 × 50, kelipatan persekutuan tetapi bukan yang terkecil. KPK-nya 100.", "SD5-M-B2-03"),
@@ -732,7 +732,7 @@ soal("LT18", 6, "20 = 2 × 2 × 5 dan 36 = 2 × 2 × 3 × 3. KPK dari 20 dan 36 
 ], sulit="Sedang")
 soal("LT19", 6, "Masalah manakah yang diselesaikan dengan mencari KPK?", [
     ("Membagi 24 apel dan 36 jeruk ke kantong sebanyak mungkin dengan isi sama", False, "Membagi rata sebanyak-banyaknya diselesaikan dengan FPB.", "SD5-M-B2-02"),
-    ("Menentukan kapan dua bus yang datang berkala tiba bersamaan lagi", True, "Tepat. Kejadian berulang yang ditanya kapan bersamaan lagi diselesaikan dengan KPK.", ""),
+    ("Menentukan kapan dua bus yang datang berkala tiba bersamaan lagi", True, "Benar. Kejadian berulang yang ditanya kapan bersamaan lagi diselesaikan dengan KPK.", ""),
     ("Memotong dua pita 40 cm dan 60 cm menjadi potongan sama panjang yang terpanjang", False, "Mencari panjang terpanjang yang membagi habis kedua pita diselesaikan dengan FPB.", "SD5-M-B2-02"),
     ("Membagi 18 siswa laki-laki dan 12 perempuan ke kelompok sebanyak mungkin", False, "Membagi ke kelompok sebanyak-banyaknya dengan susunan sama diselesaikan dengan FPB.", "SD5-M-B2-02"),
 ], sulit="Sedang")
