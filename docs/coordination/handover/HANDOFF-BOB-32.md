@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-32 (Uji Cepat says why a launch was refused; UX-03's server half)
 
-**Head:** `HEAD_SHA`, with `main` `cfd5342` (DAISY-13 GATE PASS) merged in as `6fa0162`. **Code:** `c23a07c`. **One run:** ci #CI_RUN.
+**Head:** `1ecb995`, with `main` `cfd5342` (DAISY-13 GATE PASS) merged in as `6fa0162`. **Code:** `c23a07c`. **Manifest:** v111. **One run:** ci #227.
 **Also on the lane:** `fc78f52`, the revert of BOB-30's `8bb741f` (ruling A: CLOSED, not needed). Before BOB-32, the lane's diff against `main` was empty.
 
 ## CHANGED
@@ -45,11 +45,11 @@
 The true claim: the save writes only a changed session **as a guard**; the redraw was the proxy's re-send, which BOB23-K02's throttle fixed.
 
 ## CI
-[ci #CI_RUN](CI_URL) on `HEAD_SHA`, dispatched once and not waited on.
+[ci #227](https://github.com/yazidmanan2409/pintar40/actions/runs/36532032234) on `1ecb995`, dispatched once and not waited on.
 - **Local, before dispatch, every database with an `en-US` ICU collation, on `c23a07c`:**
-  - **Full suite, fresh database, clean build:** LOCAL_FULL
-  - **Plants:** LOCAL_PLANTS
-  - **Shared red cases:** LOCAL_SHARED
+  - **Full suite, fresh database, clean build:** 377 passed, 0 failed, 31 justified skips. BOB32-K01, BOB23-K01 and F01-R07 passed. One unjustified skip: UX1-PIMPINAN-AKSES-01 (network), as before this change.
+  - **Plants:** 100 of 100 proved their gate on a copy taken straight after the seeds.
+  - **Shared red cases:** all 16 gates exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 246 of 246.
 
 ## CONTRACT
 - New: `?cepat=gagal&kode=<KodeUjiCepat>[&ref=…]` from `sediakanUjiCepat`, read by `bacaGagalUjiCepat`.
@@ -65,8 +65,9 @@ None. **For Daisy:** the page (`src/app/mengajar/[kelas]/uji-cepat/page.tsx`) st
 - for `QUICK_FAILED`, the general line with the reference.
 
 ## QUESTIONS
+*(Both answered 29 Sep: the title date is **BOB-33**, next; the page wiring is Daisy's **DAISY-27**, importing `KODE_UJI_CEPAT` and `bacaGagalUjiCepat` from `src/lib/ujicepat-kontrak.ts`, which has no `server-only` import, as `kartu-kontrak.ts`.)*
 1. **The optional title date (not done).** The Uji Cepat title is `'Uji Cepat — ' || to_char(now(), 'DD Mon YYYY HH24:MI')`. The month is an English abbreviation. The time is in the database session's time zone, which is UTC by default on Supabase, so a teacher in WIB who launches at 07:15 would see `00:15`. Fixing either means redefining `launch_quick_assessment` in a new migration. I kept it out of this small ticket; shall I take it as its own?
 2. **The page half:** is it Daisy's, as the ticket reads?
 
 ## READY
-Yes, once ci #CI_RUN on `HEAD_SHA` is green.
+Yes, once ci #227 on `1ecb995` is green.
