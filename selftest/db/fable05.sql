@@ -484,6 +484,47 @@ begin
 end $$;
 revoke all on function selftest.f05_fresh_assignment(text, uuid, uuid, uuid, uuid, uuid) from public;
 
+-- BOB-35, F05-C01 (driven from run.ts): a start racing a move needs two
+-- real connections, so the pieces are COMMITTED. The canonical v1.0 release
+-- and its v1.1 revision are the ones run_fable05 leaves behind (it runs
+-- first); a fresh assignment of v1.0 to School A's class, and a learner who
+-- joins the class for this race alone. Returns
+-- '<learning assignment>|<assessment assignment>|<v1.1 release>|<admin uid>|<learner uid>'.
+-- f05_reset clears the assignment and the session on the next run.
+create or replace function selftest.f05_race_fixture()
+returns text language plpgsql set search_path = public, pg_temp as $$
+declare p record; v_a uuid; v_node uuid; v_rel2 uuid; v_la uuid; v_aa uuid; v_admin uuid;
+        v_uid uuid := gen_random_uuid(); v_p uuid; v_e uuid; v_per uuid; v_prog uuid;
+begin
+  select * into p from selftest.canonical_package();
+  select i.id into v_a from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
+  select m.node_id, e.programme_id into v_node, v_prog from public.memberships m
+    join public.enrollments e on e.id = m.enrollment_id join public.accounts ac on ac.person_id = e.person_id
+    join auth.users u on u.id = ac.auth_user_id
+   where u.email = 'alpha-siswa-1@synthetic.pintar.test' and m.valid_to is null limit 1;
+  select r.id into v_rel2 from public.plp_releases r join public.courses c on c.id = r.course_id
+   where c.supersedes_course_id = p.course and r.status = 'PUBLISHED' and public.release_is_distributed_to(r.id, v_a)
+   order by r.created_at desc limit 1;
+  if v_rel2 is null then raise exception 'no published v1.1 revision distributed to School A: run fable05 first'; end if;
+  select fa.la, fa.aa into v_la, v_aa
+    from selftest.f05_fresh_assignment('alpha-admin@synthetic.pintar.test', v_a, v_node, p.rel, p.course, p.defn) fa;
+  select u.id into v_admin from auth.users u where u.email = 'alpha-admin@synthetic.pintar.test';
+  perform set_config('app.seed_intent', 'synthetic', true);
+  insert into auth.users (id, instance_id, aud, role, email, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+                          created_at, updated_at, confirmation_token, recovery_token, email_change_token_new, email_change)
+  values (v_uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+          'f05-c01-murid-' || substr(md5(random()::text), 1, 8) || '@synthetic.pintar.test', now(),
+          '{"provider":"email","providers":["email"]}', '{"display_name":"Murid Balapan C01"}', now(), now(), '', '', '', '');
+  select a.person_id into v_p from public.accounts a where a.auth_user_id = v_uid;
+  select n.academic_period_id into v_per from public.org_nodes n where n.id = v_node;
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  values (v_p, v_a, v_per, v_prog, 'ACTIVE') returning id into v_e;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_e, v_node, v_per);
+  perform set_config('app.seed_intent', '', true);
+  return v_la || '|' || v_aa || '|' || v_rel2 || '|' || v_admin || '|' || v_uid;
+end $$;
+revoke all on function selftest.f05_race_fixture() from public;
+
 -- BOB-35: everything already recorded under a learning assignment -- its
 -- sessions, their presented items, results and certificates -- as one digest,
 -- so a test can show a move rewrote none of it.
@@ -1309,6 +1350,38 @@ begin
           ok := false; detail := detail || format('the mixed session was refused for another reason: %s; ', left(sqlerrm, 100));
         end if;
       end;
+      -- the root check itself, where no assignment row can catch it: a session
+      -- outside any assignment (the path an Uji Cepat takes) with v1.1's
+      -- release and v1.0's definition
+      begin
+        insert into public.assessment_sessions
+        select (jsonb_populate_record(null::public.assessment_sessions,
+          to_jsonb(ss) || jsonb_build_object('id', gen_random_uuid(), 'assessment_definition_id', p.defn,
+                                             'learning_assignment_id', null, 'assessment_assignment_id', null))).*
+          from public.assessment_sessions ss where ss.id = v_s3;
+        ok := false; detail := detail || 'a session outside any assignment citing v1.1''s release with v1.0''s definition was inserted; ';
+      exception when others then
+        get stacked diagnostics v_det = pg_exception_detail;
+        if v_det is distinct from 'SESSION_RELEASE_MISMATCH' then
+          ok := false; detail := detail || format('the unassigned mixed session was refused for another reason: %s; ', left(sqlerrm, 100));
+        end if;
+      end;
+      -- and a start that raced the move: a session that agrees with itself (v1.0's
+      -- release, v1.0's definition) but cites the release its assignment has
+      -- since moved from is refused too, on the assignment's current row
+      begin
+        insert into public.assessment_sessions
+        select (jsonb_populate_record(null::public.assessment_sessions,
+          to_jsonb(ss) || jsonb_build_object('id', gen_random_uuid(), 'plp_release_id', p.rel,
+                                             'assessment_definition_id', p.defn))).*
+          from public.assessment_sessions ss where ss.id = v_s3;
+        ok := false; detail := detail || 'a session citing the release its assignment moved from was inserted; ';
+      exception when others then
+        get stacked diagnostics v_det = pg_exception_detail;
+        if v_det is distinct from 'SESSION_RELEASE_MISMATCH' then
+          ok := false; detail := detail || format('the stale session was refused for another reason: %s; ', left(sqlerrm, 100));
+        end if;
+      end;
     end if;
     -- (b): a target release with no approved cycle definition refuses the move,
     -- and the assignment stays where it was. v1.1's POST_TEST definition is
@@ -1375,7 +1448,7 @@ begin
     end if;
   end;
   test_id := 'F05-T14b'; invariant := 'BOB-35 / INV-04 / INV-29';
-  if ok then detail := 'after the v1.0 -> v1.1 move a learner sat v1.1: the release the session records, the definition it was assembled from and every presented item are one course, so a certificate cites the content that was sat; a session inserted with v1.1''s release and v1.0''s definition was refused SESSION_RELEASE_MISMATCH; a move to a release with no cycle definition was refused RELEASE_MOVE_NO_CYCLE_DEFINITION; no session in the database records a release whose course is not its items''; and every session, presented item, result and certificate from before is byte-for-byte unchanged'; end if;
+  if ok then detail := 'after the v1.0 -> v1.1 move a learner sat v1.1: the release the session records, the definition it was assembled from and every presented item are one course, so a certificate cites the content that was sat; a session inserted with v1.1''s release and v1.0''s definition (under the assignment or outside any), and one that agrees with itself but cites the release its assignment moved from, were each refused SESSION_RELEASE_MISMATCH; a move to a release with no cycle definition was refused RELEASE_MOVE_NO_CYCLE_DEFINITION; no session in the database records a release whose course is not its items''; and every session, presented item, result and certificate from before is byte-for-byte unchanged'; end if;
   return next;
 
   -- =========================================================================

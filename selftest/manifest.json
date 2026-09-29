@@ -663,7 +663,12 @@
     {
       "id": "F05-T14b",
       "runner": "db",
-      "proves": "BOB-35 (INV-04, INV-29), migration 20261022100000 measured in selftest/db/fable05.sql: after a v1.0 -> v1.1 move made before anyone started, a learner's session records v1.1's release, v1.1's definition and only v1.1's presented items, so certificate_prepare cites what was sat; a session inserted with v1.1's release and v1.0's definition is refused PR060 SESSION_RELEASE_MISMATCH by assessment_sessions_release_is_its_course; a move to a release with no approved cycle definition is refused RELEASE_MOVE_NO_CYCLE_DEFINITION; the closure query finds no session whose recorded release's course is not its items' course; and every session, presented item, result and certificate from before is unchanged."
+      "proves": "BOB-35 (INV-04, INV-29), migration 20261022100000 measured in selftest/db/fable05.sql: after a v1.0 -> v1.1 move made before anyone started, a learner's session records v1.1's release, v1.1's definition and only v1.1's presented items, so certificate_prepare cites what was sat; a session inserted with v1.1's release and v1.0's definition (under the assignment or outside any), and one that agrees with itself but cites the release its assignment moved from, are each refused PR060 SESSION_RELEASE_MISMATCH by assessment_sessions_release_is_its_course; a move to a release with no approved cycle definition is refused RELEASE_MOVE_NO_CYCLE_DEFINITION; the closure query finds no session whose recorded release's course is not its items' course; and every session, presented item, result and certificate from before is unchanged."
+    },
+    {
+      "id": "F05-C01",
+      "runner": "db",
+      "proves": "BOB-35 (c) under real concurrency (runMoveStartRace in selftest/run.ts, fixture selftest.f05_race_fixture): a release move holds its transaction open after locking the learning assignment and finding no session, a learner calls start_learning_session against it meanwhile, then the move commits; assessment_sessions_release_is_its_course (migration 20261022100000) makes the start wait on the move (FOR KEY SHARE) and refuses it SESSION_RELEASE_MISMATCH, or it cites the new release, and no session under the moved assignment cites the release it moved from."
     },
     {
       "id": "F05-T15",

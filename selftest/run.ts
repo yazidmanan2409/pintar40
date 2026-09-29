@@ -209,6 +209,7 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.some((x) => /^F10-C0[1234]$/.test(x))) out.push(...(await runStructureConcurrency(dbUrl, only)));
   if (!only || only.includes("F15-C01")) out.push(await runCardConcurrency(dbUrl));
   if (!only || only.some((x) => /^F16-C0[123]$/.test(x))) out.push(...(await runIdentityConcurrency(dbUrl, only)));
+  if (!only || only.includes("F05-C01")) out.push(await runMoveStartRace(dbUrl));
   return out;
 }
 
@@ -386,6 +387,81 @@ async function runIdentityConcurrency(dbUrl: string, only: string[] | null | und
         "the ladder stands at level 1, and the audit holds 2 wrongs and exactly 1 lock"));
   }
   return out;
+}
+
+/**
+ * F05-C01 — BOB-35 (c) under real concurrency: a start racing a release move.
+ *
+ * start_learning_session reads its assignment with plain SELECTs, so a learner
+ * who starts while a move is in flight reads the release the move is about to
+ * replace. The move holds its transaction open (pg_sleep) after locking the
+ * learning assignment and finding no session; the learner starts meanwhile;
+ * then the move commits. The start must either be refused
+ * (SESSION_RELEASE_MISMATCH, its retry starts on the new release) or cite the
+ * new release, and no session on the old release may exist under the moved
+ * assignment: a learner's pre-test and post-test never come from two releases.
+ */
+async function runMoveStartRace(dbUrl: string): Promise<Outcome> {
+  const id = "F05-C01";
+  const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+  const race = (sql: string) =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8");
+      p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d));
+      p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+  const asleep = async (marker: string): Promise<boolean> => {
+    for (let i = 0; i < 200; i++) {
+      const r = psql(`select count(*) from pg_stat_activity where wait_event = 'PgSleep' and query like '%${marker}%' and pid <> pg_backend_pid()`);
+      if (Number(r.stdout.trim()) >= 1) return true;
+      await new Promise((ok) => setTimeout(ok, 100));
+    }
+    return false;
+  };
+  const fixture = psql("select selftest.f05_race_fixture()");
+  const [la, aa, baru, admin, murid] = fixture.stdout.trim().split("|");
+  if (fixture.status !== 0 || !murid) {
+    return { id, runner: "db", status: "FAIL", detail: `fixture failed: ${(fixture.stderr.trim() || fixture.stdout.trim()).split("\n").pop()}` };
+  }
+  const sebagai = (uid: string) =>
+    `select set_config('request.jwt.claim.sub','${uid}',true); ` +
+    `select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true); set local role authenticated;`;
+  const marker = "pg_sleep(1.735)";
+  const mover = race(`begin; ${sebagai(admin)} select public.move_learning_assignment_release('${la}', '${baru}', 'f05-c01 balapan'); ` +
+    `select ${marker}; commit;`);
+  const problems: string[] = [];
+  if (!(await asleep(marker))) {
+    await mover;
+    return { id, runner: "db", status: "FAIL", detail: "the move never held its transaction open within 20 s" };
+  }
+  const [m, st] = await Promise.all([mover, race(`begin; ${sebagai(murid)} select public.start_learning_session('${aa}'); commit;`)]);
+  if (m.code !== 0) problems.push(`the move did not commit (${m.out.slice(0, 120)})`);
+  const sisa = psql(`select count(s.id) filter (where s.plp_release_id <> la.plp_release_id) || '|' || count(s.id) || '|' || ` +
+    `(la.plp_release_id = '${baru}')::text from public.learning_assignments la ` +
+    `left join public.assessment_sessions s on s.learning_assignment_id = la.id where la.id = '${la}' group by la.plp_release_id`).stdout.trim();
+  const [lama, semua, pindah] = sisa.split("|");
+  if (pindah !== "true") problems.push("the assignment did not move to the new release");
+  if (lama !== "0") problems.push(`${lama} session(s) under the moved assignment cite the release it moved from (a pre-test and post-test could come from two releases)`);
+  let hasil: string;
+  if (st.code === 0) {
+    hasil = "the racing start was admitted on the new release";
+    if (semua !== "1") problems.push(`the admitted start left ${semua} session(s), expected 1`);
+  } else if (/SESSION_RELEASE_MISMATCH|moved to another release while this attempt was starting/.test(st.out)) {
+    hasil = "the racing start waited on the move and was refused SESSION_RELEASE_MISMATCH";
+    if (semua !== "0") problems.push(`the refused start left ${semua} session(s)`);
+  } else {
+    hasil = "";
+    problems.push(`the racing start failed for another reason (${st.out.slice(0, 140)})`);
+  }
+  return problems.length
+    ? { id, runner: "db", status: "FAIL", detail: problems.join("; ") }
+    : { id, runner: "db", status: "PASS", detail:
+        `a move held its transaction open after finding no session; a learner started against the assignment meanwhile; ${hasil}; ` +
+        "after the move committed no session under the assignment cites the release it moved from" };
 }
 
 /**

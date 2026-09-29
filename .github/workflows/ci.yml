@@ -236,7 +236,7 @@ jobs:
             db-bob24-gates)
               echo "the fourteen identity-foundation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob35-gates)
-              echo "the four session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the five session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the three Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac

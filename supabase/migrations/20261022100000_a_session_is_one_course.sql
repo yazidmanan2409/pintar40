@@ -17,7 +17,9 @@
 -- THE CORRECTION, as ruled (coordinator, 29 Sep), and nothing else:
 --  (a) AT THE ROOT. A new session whose plp_release_id is not a release of its
 --      definition's course (or its module's course) is refused, PR060
---      SESSION_RELEASE_MISMATCH. INSERT only: existing rows are never
+--      SESSION_RELEASE_MISMATCH; and one under a learning assignment must still
+--      match that assignment's release and definition once it holds the
+--      assignment's row (a start racing a move). INSERT only: existing rows are never
 --      re-validated or rewritten, and every path that opens a session (the
 --      learning cycle, Uji Cepat, any later one) is held by it.
 --  (b) THE MOVE CARRIES THE CYCLE. In the same transaction the cycle's PRE_TEST
@@ -44,9 +46,25 @@
 -- neither the metric catalogue version nor engine_version moves.
 
 -- ────────────────────────────────────────────────────────── (a) at the root
+--
+-- AND UNDER CONCURRENCY (the gate's finding, corrected in place under D-026).
+-- start_learning_session reads its learning assignment and assessment
+-- assignment with plain SELECTs, so a start that read them before a move
+-- committed would insert a session on the release and definition the move is
+-- replacing, one that agrees with itself and so passes the check above. A
+-- session that names a learning assignment therefore takes FOR KEY SHARE on
+-- it: the lightest lock that waits for the move's FOR UPDATE, and one that
+-- concurrent starts share. It then re-reads the assignment's CURRENT release
+-- and its assessment assignment's CURRENT definition (this function is
+-- VOLATILE, so under READ COMMITTED each read sees a committed move) and
+-- refuses a session that no longer matches them, SESSION_RELEASE_MISMATCH;
+-- the learner's retry starts on the new release. In the other order the start
+-- holds the lock, the move waits, sees the session and refuses
+-- RELEASE_MOVE_STARTED. The cost on the start path (D-031) is one shared row
+-- lock and two primary-key reads per session.
 create function public.enforce_session_release_is_its_course() returns trigger
-language plpgsql security definer set search_path = public, pg_temp as $$
-declare v_def_course uuid; v_rel_course uuid;
+language plpgsql volatile security definer set search_path = public, pg_temp as $$
+declare v_def_course uuid; v_rel_course uuid; v_la_release uuid; v_aa_definition uuid;
 begin
   select coalesce(d.course_id, m.course_id) into v_def_course
     from public.assessment_definitions d
@@ -56,6 +74,19 @@ begin
   if v_def_course is null or v_rel_course is null or v_def_course <> v_rel_course then
     raise exception using errcode = 'PR060', detail = 'SESSION_RELEASE_MISMATCH',
       message = 'a session records a release of the course its definition draws from, or none is opened (INV-04, INV-29)';
+  end if;
+  if new.learning_assignment_id is not null then
+    perform 1 from public.learning_assignments la where la.id = new.learning_assignment_id for key share;
+    select la.plp_release_id into v_la_release from public.learning_assignments la where la.id = new.learning_assignment_id;
+    if new.assessment_assignment_id is not null then
+      select aa.assessment_definition_id into v_aa_definition
+        from public.assessment_assignments aa where aa.id = new.assessment_assignment_id;
+    end if;
+    if v_la_release is distinct from new.plp_release_id
+       or (new.assessment_assignment_id is not null and v_aa_definition is distinct from new.assessment_definition_id) then
+      raise exception using errcode = 'PR060', detail = 'SESSION_RELEASE_MISMATCH',
+        message = 'the assignment moved to another release while this attempt was starting: start again (INV-04, INV-24)';
+    end if;
   end if;
   return new;
 end $$;
@@ -110,8 +141,10 @@ begin
   end if;
 
   -- BOB-35 (c): ONCE THE CYCLE HAS STARTED, NO MOVE. A learner's pre-test and
-  -- post-test never come from two releases. The row lock makes a start and a
-  -- move that race each other take turns.
+  -- post-test never come from two releases. This row lock is what a starting
+  -- session's FOR KEY SHARE (assessment_sessions_release_is_its_course) waits
+  -- on: a start that raced the move is refused there, and a start that got the
+  -- lock first is a session this check then sees.
   perform 1 from public.learning_assignments where id = p_assignment for update;
   if exists (select 1 from public.assessment_sessions s
               where s.learning_assignment_id = p_assignment
