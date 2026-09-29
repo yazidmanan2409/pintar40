@@ -952,10 +952,20 @@ begin
     begin
       perform selftest.as_owner();
       perform set_config('app.seed_intent', 'synthetic', true);
-      update public.institutions i set namespace = (
-        select x from generate_series(1, 500) g, lateral (select upper(substr(md5(v_tag || i.id::text || g), 1, 3)) x) q
-         where x ~ '^[A-Z]{3}$' and not exists (select 1 from public.institutions t where upper(t.namespace) = q.x) limit 1)
-       where i.id in (v_a, v_b) and i.namespace is null;
+      -- BOB-31: one school at a time, so the second sees the first's code (one
+      -- UPDATE for both judged each against the table before the statement, and
+      -- could give both the same one); A-Z drawn, not md5 hex (only A-F there)
+      declare v31_s uuid; v31_ns text;
+      begin
+        foreach v31_s in array array[v_a, v_b] loop
+          continue when (select i.namespace from public.institutions i where i.id = v31_s) is not null;
+          for g in 1..500 loop
+            v31_ns := chr(65 + floor(random() * 26)::int) || chr(65 + floor(random() * 26)::int) || chr(65 + floor(random() * 26)::int);
+            exit when not exists (select 1 from public.institutions t where upper(t.namespace) = v31_ns);
+          end loop;
+          update public.institutions set namespace = v31_ns where institutions.id = v31_s;
+        end loop;
+      end;
       perform set_config('app.seed_intent', '', true);
       -- school A: a teacher holding a role there, and a newly recorded teacher
       -- who holds only the school's number; school B: the same two
