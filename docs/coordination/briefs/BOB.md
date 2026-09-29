@@ -34,6 +34,7 @@ The **coordinator** is Claude in another session. It is PINTAR's release authori
 5. Server code returns **stable error codes**, never raw database text (D-011).
 6. Push, and wait for CI to go **green on that exact commit**.
 7. End with the hand-off block from README §4, filled in completely, including **CONTRACT** for anything Daisy builds on.
+8. **D-060 (version discipline):** if your migration changes the meaning of a metric calculation, a metric source view or `evidence_readiness`, publish a new metric catalogue version. If it changes grading or paper assembly, bump `engine_version`. Say which (or why neither) in the hand-off.
 
 ## Your tickets, in order (details and acceptance criteria are in BOARD.md)
 1. **BOB-01: school structure functions** (D-006). Bagian, Tingkat and Kelas, with hidden Jenjang and Reguler nodes created automatically. This is **the most urgent**: it unblocks Daisy's DAISY-05 and ends operator-built classes.

@@ -29,7 +29,7 @@
        "summary": "Data dicatat dengan turus agar tidak ada yang terlewat atau terhitung dua kali; banyaknya setiap data disebut frekuensi.",
        "body_markdown": "## Data membantu memutuskan\n\nAnggi berjualan donat. Ia mencatat banyak donat yang terjual setiap hari:\n\n| Hari | Cokelat | Keju | Stroberi | Kacang |\n|---|---|---|---|---|\n| Senin | 3 | 6 | 4 | 4 |\n| Selasa | 4 | 4 | 6 | 3 |\n| Rabu | 5 | 3 | 4 | 2 |\n| Kamis | 5 | 4 | 5 | 1 |\n| Jumat | 6 | 3 | 3 | 0 |\n| Sabtu | 7 | 5 | 4 | 0 |\n\nDari catatan itu terlihat bahwa donat kacang makin sedikit terjual, dari 4 pada hari Senin sampai tidak ada yang terjual pada hari Jumat dan Sabtu. Donat cokelat justru makin banyak terjual.\n\nCatatan seperti ini disebut **data**. Data membantu Anggi memutuskan: membuat lebih banyak donat cokelat dan lebih sedikit donat kacang.\n\n## Mencatat dengan turus\n\nKelas V SD Pancasila ditanya sayuran kesukaannya. Setiap jawaban dicatat dengan satu garis. Garis-garis ini disebut **turus**.\n\nTurus dibuat dalam kelompok lima: empat garis tegak, lalu garis kelima dibuat **miring** melintang. Dengan begitu kita dapat menghitung lima-lima, tanpa menghitung garis satu per satu.\n\nContoh: ||||/ || berarti satu kelompok lima dan dua garis lagi, yaitu 5 + 2 = **7**.\n\n## Frekuensi\n\nBanyaknya suatu data muncul disebut **frekuensi**. Hasil pencatatan sayuran kesukaan:\n\n- Bayam: ||||/ ||  (7)\n- Kangkung: ||||/ |  (6)\n- Wortel: ||||/ |||  (8)\n- Tomat: ||||/ |  (6)\n- Buncis: ||||  (4)\n- Sawi: ||||/  (5)\n- Kol: |||  (3)\n\nFrekuensi bayam 7: ada 7 anak yang menyukai bayam. Perhatikan bedanya: \"bayam\" adalah datanya, 7 adalah frekuensinya.\n\n## Agar tidak ada yang terlewat\n\nKesalahan yang paling sering terjadi saat mencatat adalah ada jawaban yang terlewat atau terhitung dua kali. Caranya menghindari:\n\n1. Coret setiap jawaban yang sudah dibuatkan turus.\n2. Setelah selesai, jumlahkan semua frekuensi.\n3. Bandingkan dengan banyak anak yang ditanya. Di sini 7 + 6 + 8 + 6 + 4 + 5 + 3 = 39, jadi harus ada 39 jawaban.\n\n**Coba:** turus ||||/ ||||/ | menunjukkan frekuensi berapa?\n_Periksa: 5 + 5 + 1 = 11._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
        "objective": {
-        "statement": "Murid dapat mengumpulkan data sederhana dari sekitarnya, mencatatnya dengan turus, dan menentukan frekuensinya.",
+        "statement": "Kalian dapat mengumpulkan data sederhana dari sekitarnya, mencatatnya dengan turus, dan menentukan frekuensinya.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -158,7 +158,7 @@
            "label": "A",
            "body": "Agar mudah dihitung lima-lima",
            "is_correct": true,
-           "rationale": "Tepat. Setiap kelompok bernilai 5, jadi kita dapat menghitung 5, 10, 15, dan seterusnya."
+           "rationale": "Benar. Setiap kelompok bernilai 5, jadi kita dapat menghitung 5, 10, 15, dan seterusnya."
           },
           {
            "_row": {
@@ -240,7 +240,7 @@
            "label": "D",
            "body": "banyaknya suatu data muncul",
            "is_correct": true,
-           "rationale": "Tepat. Misalnya 7 anak menyukai bayam: frekuensi bayam 7."
+           "rationale": "Benar. Misalnya 7 anak menyukai bayam: frekuensi bayam 7."
           }
          ]
         },
@@ -308,7 +308,7 @@
        "summary": "Tabel frekuensi memuat daftar data dan frekuensinya; dari tabel itu kita dapat mencari yang terbanyak, yang tersedikit, dan jumlahnya.",
        "body_markdown": "## Tabel frekuensi\n\n**Tabel frekuensi** adalah tabel yang memuat daftar semua data yang diamati beserta frekuensinya.\n\n| Nama sayuran | Frekuensi |\n|---|---|\n| Bayam | 7 |\n| Kangkung | 6 |\n| Wortel | 8 |\n| Tomat | 6 |\n| Buncis | 4 |\n| Sawi | 5 |\n| Kol | 3 |\n\nMembaca data dari tabel lebih mudah daripada dari catatan yang masih berupa daftar panjang.\n\n## Memeriksa pernyataan\n\nTiga anak membaca tabel sayuran itu:\n\n- Nisa: \"Sayuran yang paling banyak disukai adalah wortel.\" Tepat, frekuensi wortel 8, yang terbesar.\n- Lukas: \"Yang menyukai tomat lebih banyak daripada yang menyukai bayam.\" Kurang tepat: tomat 6, bayam 7.\n- Asep: \"Sayuran yang paling sedikit disukai adalah buncis.\" Kurang tepat: buncis 4, tetapi kol hanya 3.\n\nSelalu periksa pernyataan dengan angka pada tabel.\n\n## Nilai dan frekuensi\n\nTabel ini memuat nilai ulangan satu kelas:\n\n| Nilai | Frekuensi |\n|---|---|\n| 40 | 2 |\n| 50 | 1 |\n| 60 | 5 |\n| 70 | 6 |\n| 80 | 7 |\n| 90 | 3 |\n| 100 | 1 |\n\nKolom kiri adalah **nilai** (datanya). Kolom kanan adalah **frekuensi** (banyak siswa yang mendapat nilai itu).\n\n- Nilai tertinggi adalah **100**, diperoleh oleh **1** siswa.\n- Nilai yang paling banyak diperoleh adalah **80**, oleh 7 siswa. Jawabannya 80 (nilainya), bukan 7.\n\n## Menghitung dari tabel\n\n- Banyak siswa seluruhnya: jumlahkan frekuensinya, 2 + 1 + 5 + 6 + 7 + 3 + 1 = **25** siswa.\n- Bila siswa yang nilainya kurang dari 70 mengikuti remedi, banyaknya 2 + 1 + 5 = **8** siswa. Nilai 70 tidak ikut, karena 70 tidak kurang dari 70.\n\n**Coba:** berapa siswa yang nilainya 80 atau lebih?\n_Periksa: 7 + 3 + 1 = 11 siswa._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
        "objective": {
-        "statement": "Murid dapat menyajikan data dalam tabel frekuensi dan membaca informasi dari tabel itu.",
+        "statement": "Kalian dapat menyajikan data dalam tabel frekuensi dan membaca informasi dari tabel itu.",
         "bloom": "ANALYSE"
        },
        "media": [],
@@ -482,7 +482,7 @@
        "summary": "Piktogram menyajikan data dengan gambar; kunci menyatakan nilai satu gambar, dan bagian gambar mewakili bagian nilai itu.",
        "body_markdown": "## Satu gambar mewakili beberapa\n\nPiktogram menyajikan data dengan gambar. Satu gambar tidak harus mewakili satu benda. Bila datanya besar, satu gambar dapat mewakili 2, 4, 10, atau lebih.\n\nNilai satu gambar ditulis pada **kunci**. Tanpa kunci, piktogram tidak dapat dibaca.\n\n## Menentukan banyak gambar\n\nPenjualan kue apem selama enam hari: Senin 40, Selasa 35, Rabu 30, Kamis 37, Jumat 27, Sabtu 29.\n\nKuncinya: ● mewakili **4 kue apem**.\n\nSenin: 40 : 4 = **10 gambar** utuh.\n\n## Bagian gambar\n\nBila pembagiannya bersisa, sisanya digambar sebagai bagian gambar:\n\n- Selasa 35: 8 gambar utuh = 32, sisa 3 dari 4, jadi **tiga perempat gambar** (◕).\n- Rabu 30: 7 gambar utuh = 28, sisa 2 dari 4, jadi **setengah gambar** (◐).\n- Kamis 37: 9 gambar utuh = 36, sisa 1 dari 4, jadi **seperempat gambar** (◔).\n\nBila Kamis digambar 9 gambar utuh saja, piktogram itu hanya menunjukkan 36 kue, kurang satu.\n\n## Piktogram penjualan kue apem\n\nSenin: ● ● ● ● ● ● ● ● ● ●\nSelasa: ● ● ● ● ● ● ● ● ◕\nRabu: ● ● ● ● ● ● ● ◐\nKamis: ● ● ● ● ● ● ● ● ● ◔\nJumat: ● ● ● ● ● ● ◕\nSabtu: ● ● ● ● ● ● ● ◔\n\nKunci: ● mewakili 4 kue apem. ◕ = 3 kue, ◐ = 2 kue, ◔ = 1 kue.\n\n## Yang harus diperhatikan\n\n- Piktogram memerlukan **judul**, **keterangan** setiap baris, dan **kunci**.\n- Semua gambar dibuat **sama besar**, karena mewakili nilai yang sama. Gambar yang lebih besar akan tampak seperti nilai yang lebih banyak.\n- Pilih kunci yang memudahkan. Untuk 40 kue, kunci 4 memberi 10 gambar; kunci 1 akan memberi 40 gambar.\n\n**Coba:** berapa banyak kue apem yang terjual selama enam hari?\n_Periksa: 40 + 35 + 30 + 37 + 27 + 29 = 198 kue._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
        "objective": {
-        "statement": "Murid dapat membuat piktogram dengan kunci yang tepat, termasuk memakai bagian gambar.",
+        "statement": "Kalian dapat membuat piktogram dengan kunci yang tepat, termasuk memakai bagian gambar.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -506,7 +506,7 @@
            "label": "A",
            "body": "2 gambar utuh dan setengah gambar",
            "is_correct": true,
-           "rationale": "Tepat. 2 gambar = 16 buku, sisanya 4 dari 8, yaitu setengah gambar."
+           "rationale": "Benar. 2 gambar = 16 buku, sisanya 4 dari 8, yaitu setengah gambar."
           },
           {
            "_row": {
@@ -588,7 +588,7 @@
            "label": "D",
            "body": "3 gambar utuh dan setengah gambar",
            "is_correct": true,
-           "rationale": "Tepat. 3 gambar = 30, sisa 5 dari 10 adalah setengah gambar."
+           "rationale": "Benar. 3 gambar = 30, sisa 5 dari 10 adalah setengah gambar."
           }
          ]
         },
@@ -620,7 +620,7 @@
            "label": "B",
            "body": "Pembaca dapat mengira data Senin lebih banyak",
            "is_correct": true,
-           "rationale": "Tepat. Gambar yang mewakili nilai sama harus sama besar agar tidak menyesatkan."
+           "rationale": "Benar. Gambar yang mewakili nilai sama harus sama besar agar tidak menyesatkan."
           },
           {
            "_row": {
@@ -682,7 +682,7 @@
            "label": "C",
            "body": "Kunci yang menyatakan nilai satu gambar",
            "is_correct": true,
-           "rationale": "Tepat. Tanpa kunci, pembaca tidak tahu satu gambar mewakili berapa."
+           "rationale": "Benar. Tanpa kunci, pembaca tidak tahu satu gambar mewakili berapa."
           },
           {
            "_row": {
@@ -708,7 +708,7 @@
        "summary": "Untuk membaca piktogram, lihat kuncinya dahulu, lalu kalikan banyak gambar dengan nilai satu gambar.",
        "body_markdown": "## Lihat kuncinya dahulu\n\nPiktogram hasil panen tomat Pak Chandra selama lima minggu:\n\nMinggu ke-1: ● ● ● ● ●\nMinggu ke-2: ● ● ● ● ● ● ●\nMinggu ke-3: ● ● ● ● ● ● ● ● ● ●\nMinggu ke-4: ● ● ● ● ● ●\nMinggu ke-5: ● ●\n\nKunci: ● mewakili **2 kg** tomat.\n\nMinggu ke-1 ada 5 gambar. Hasilnya bukan 5 kg, tetapi 5 × 2 kg = **10 kg**.\n\n## Membaca setiap baris\n\n| Minggu | Banyak gambar | Hasil panen |\n|---|---|---|\n| 1 | 5 | 5 × 2 = 10 kg |\n| 2 | 7 | 7 × 2 = 14 kg |\n| 3 | 10 | 10 × 2 = 20 kg |\n| 4 | 6 | 6 × 2 = 12 kg |\n| 5 | 2 | 2 × 2 = 4 kg |\n\nJumlah hasil panen selama lima minggu: 10 + 14 + 20 + 12 + 4 = **60 kg**.\n\n## Naik dan turun\n\n- Minggu ke-2 naik 4 kg (dari 10 ke 14), minggu ke-3 naik 6 kg (dari 14 ke 20).\n- Minggu ke-4 turun 8 kg (dari 20 ke 12), minggu ke-5 turun lagi 8 kg (dari 12 ke 4).\n\nKenaikan dan penurunan adalah **selisih** dua minggu yang berurutan, bukan hasil minggu itu sendiri.\n\n## Selisih tertinggi dan terendah\n\nHasil tertinggi 20 kg (minggu ke-3), terendah 4 kg (minggu ke-5). Selisihnya 20 − 4 = **16 kg**.\n\nCara lain: selisih banyak gambarnya 10 − 2 = 8 gambar, lalu 8 × 2 kg = 16 kg. Kedua cara memberi hasil yang sama.\n\n**Coba:** berapa hasil panen minggu ke-2 dan minggu ke-4 bersama-sama?\n_Periksa: 14 + 12 = 26 kg._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
        "objective": {
-        "statement": "Murid dapat membaca data dari piktogram dan menganalisis kenaikan, penurunan, jumlah, dan selisihnya.",
+        "statement": "Kalian dapat membaca data dari piktogram dan menganalisis kenaikan, penurunan, jumlah, dan selisihnya.",
         "bloom": "ANALYSE"
        },
        "media": [],
@@ -1040,7 +1040,7 @@
        "summary": "Diagram batang menyajikan data dengan batang; nilainya dibaca dari skala pada sumbu, jadi nilai setiap langkah skala harus diketahui.",
        "body_markdown": "## Diagram batang\n\nCara siswa kelas V SD Pancasila berangkat ke sekolah, sebagai diagram batang (setiap █ mewakili 1 siswa):\n\n██████ 6 (Jalan kaki)\n████████ 8 (Naik sepeda)\n████ 4 (Angkutan umum)\n██████ 6 (Diantar orang tua)\n\nBatang yang paling panjang menunjukkan data yang paling banyak: **naik sepeda**. Untuk mencari yang terbanyak atau tersedikit, cukup bandingkan panjang batangnya.\n\nBila batangnya berdiri tegak, diagramnya disebut **diagram batang vertikal**. Bila batangnya mendatar, seperti di atas, disebut **diagram batang horizontal**. Datanya sama; hanya arah batangnya yang berbeda.\n\n## Skala\n\nPada sumbu diagram batang ada angka-angka **skala**. Angka ditulis tepat pada garisnya, bukan di antara dua garis, dan jarak antargaris selalu sama.\n\nDiagram perolehan medali emas Indonesia di SEA Games memakai angka 0, 20, 40, 60, 80. Di antara dua angka ada 4 garis tipis, jadi dari 0 ke 20 ada 5 langkah. Setiap langkah bernilai 20 : 5 = **4** medali.\n\nBatang tahun 2017 berhenti tepat di tengah antara garis 36 dan garis 40. Nilainya **38**.\n\n## Membaca diagram medali\n\nPerolehan medali emas: 2013 sebanyak 65, 2015 sebanyak 47, 2017 sebanyak 38, 2019 sebanyak 72, 2021 sebanyak 69.\n\n- Paling banyak pada tahun 2019, paling sedikit pada tahun 2017.\n- Dari 2013 ke 2015 turun 65 − 47 = 18 medali; dari 2015 ke 2017 turun 47 − 38 = 9 medali.\n\n## Diagram batang horizontal\n\nHasil panen lele Pak Bajuri: kolam 1 sebanyak 32 kg, kolam 2 sebanyak 28 kg, kolam 3 sebanyak 21 kg, kolam 4 sebanyak 16 kg, kolam 5 sebanyak 25 kg.\n\n- Batang terpanjang: kolam 1.\n- Jumlah seluruhnya: 32 + 28 + 21 + 16 + 25 = **122 kg**.\n- Seperempat dari jumlah itu: 122 : 4 = 30,5 kg. Kolam 1 dan kolam 4 bersama-sama menghasilkan 32 + 16 = 48 kg, lebih dari seperempat hasil panen.\n\n## Kesalahan yang sering terjadi\n\n- Angka skala ditulis di antara garis, sehingga nilainya terbaca meleset.\n- Jarak skala tidak sama, misalnya angka pada sumbu langsung ditulis 4, 6, 7, 8 mengikuti datanya.\n- Diagram tanpa judul dan tanpa keterangan pada sumbu-sumbunya.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
        "objective": {
-        "statement": "Murid dapat membuat dan membaca diagram batang vertikal dan horizontal dengan memperhatikan skalanya.",
+        "statement": "Kalian dapat membuat dan membaca diagram batang vertikal dan horizontal dengan memperhatikan skalanya.",
         "bloom": "ANALYSE"
        },
        "media": [],
@@ -1170,7 +1170,7 @@
            "label": "A",
            "body": "Kamis, selisih 22 orang",
            "is_correct": true,
-           "rationale": "Tepat. Terendah Kamis 28, tertinggi Selasa 50: 50 − 28 = 22."
+           "rationale": "Benar. Terendah Kamis 28, tertinggi Selasa 50: 50 − 28 = 22."
           },
           {
            "_row": {
@@ -1275,7 +1275,7 @@
            "label": "A",
            "body": "Ya, karena 30 kg lebih dari 24,75 kg",
            "is_correct": true,
-           "rationale": "Tepat. Seluruhnya 99 kg; seperempatnya 99 : 4 = 24,75 kg."
+           "rationale": "Benar. Seluruhnya 99 kg; seperempatnya 99 : 4 = 24,75 kg."
           },
           {
            "_row": {
@@ -1357,7 +1357,7 @@
            "label": "D",
            "body": "Arah batangnya: tegak atau mendatar",
            "is_correct": true,
-           "rationale": "Tepat. Datanya boleh sama; hanya arah batangnya yang berbeda."
+           "rationale": "Benar. Datanya boleh sama; hanya arah batangnya yang berbeda."
           }
          ]
         }
@@ -1373,7 +1373,7 @@
        "summary": "Dua diagram hanya dapat dibandingkan dari tinggi batangnya bila skalanya sama; diagram batang ganda menyajikan dua data berdampingan dengan satu skala.",
        "body_markdown": "## Tinggi batang saja belum cukup\n\nPak Guru menunjukkan dua diagram: banyak siswa laki-laki dan banyak siswa perempuan kelas V dari tahun 2017 sampai 2021. Asep berkata, \"Setiap tahun siswa perempuan lebih banyak, karena batangnya lebih tinggi.\"\n\nPerhatikan skalanya. Diagram siswa laki-laki memakai angka 0, 10, 20, 30, sedangkan diagram siswa perempuan memakai angka 0, 2, 4, sampai 18. Skalanya berbeda, jadi tinggi batang kedua diagram **tidak dapat langsung dibandingkan**.\n\n## Data sebenarnya\n\n| Tahun | Laki-laki | Perempuan |\n|---|---|---|\n| 2017 | 14 | 10 |\n| 2018 | 11 | 13 |\n| 2019 | 16 | 12 |\n| 2020 | 12 | 16 |\n| 2021 | 15 | 14 |\n\nPada tahun 2017, 2019, dan 2021 siswa laki-laki justru lebih banyak. Pendapat Asep kurang tepat.\n\n## Diagram batang ganda\n\nKedua data dapat digabung dalam satu diagram dengan **satu skala**. Batang laki-laki dan perempuan setiap tahun diletakkan berdampingan (setiap █ mewakili 1 siswa):\n\n██████████████ 14 (2017, laki-laki)\n██████████ 10 (2017, perempuan)\n███████████ 11 (2018, laki-laki)\n█████████████ 13 (2018, perempuan)\n████████████████ 16 (2019, laki-laki)\n████████████ 12 (2019, perempuan)\n████████████ 12 (2020, laki-laki)\n████████████████ 16 (2020, perempuan)\n███████████████ 15 (2021, laki-laki)\n██████████████ 14 (2021, perempuan)\n\nSekarang kedua batang dapat langsung dibandingkan.\n\n## Membaca diagram batang ganda\n\n- Selisih laki-laki dan perempuan tahun 2019: 16 − 12 = **4** siswa.\n- Tidak ada tahun yang banyak siswa laki-lakinya sama dengan siswa perempuan.\n- Jumlah siswa terbanyak pada tahun 2021: 15 + 14 = **29** siswa.\n\n## Kapan tidak digabung\n\nDua data sebaiknya tidak digabung bila nilainya berbeda sangat jauh. Misalnya siswa laki-laki kelas V satu kecamatan ratusan, sedangkan siswa perempuan satu sekolah hanya belasan. Batang yang belasan akan menjadi sangat pendek dan sulit dibaca.\n\n## Rangkuman Bab 8\n\n- Data dicatat dengan turus; banyaknya suatu data muncul disebut frekuensi.\n- Tabel frekuensi: daftar data dan frekuensinya. Bedakan nilai data dan frekuensinya.\n- Piktogram: lihat kuncinya dahulu; bagian gambar mewakili bagian nilai; gambar dibuat sama besar.\n- Diagram batang: perhatikan nilai setiap langkah skala.\n- Dua diagram dibandingkan dari tinggi batangnya hanya bila skalanya sama.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
        "objective": {
-        "statement": "Murid dapat membandingkan data pada dua diagram batang dengan memperhatikan skala dan membaca diagram batang ganda.",
+        "statement": "Kalian dapat membandingkan data pada dua diagram batang dengan memperhatikan skala dan membaca diagram batang ganda.",
         "bloom": "EVALUATE"
        },
        "media": [],
@@ -1407,7 +1407,7 @@
            "label": "B",
            "body": "Batang di diagram A",
            "is_correct": true,
-           "rationale": "Tepat. Di A nilainya 3 × 10 = 30, di B hanya 5 × 2 = 10."
+           "rationale": "Benar. Di A nilainya 3 × 10 = 30, di B hanya 5 × 2 = 10."
           },
           {
            "_row": {
@@ -1448,7 +1448,7 @@
             "row": 46
            },
            "label": "A",
-           "body": "Tepat; batang kelas B memang lebih tinggi daripada kelas A",
+           "body": "tepat; batang kelas B memang lebih tinggi daripada kelas A",
            "is_correct": false,
            "rationale": "Tinggi batang hanya dapat dibandingkan bila skalanya sama."
           },
@@ -1458,7 +1458,7 @@
             "row": 47
            },
            "label": "B",
-           "body": "Tepat; kelas B 18, kelas A hanya 8",
+           "body": "tepat; kelas B 18, kelas A hanya 8",
            "is_correct": false,
            "rationale": "Kelas A dibaca dengan skala 2 milik diagram B (4 × 2 = 8). Skala kelas A adalah 5: 4 × 5 = 20."
           },
@@ -1468,9 +1468,9 @@
             "row": 48
            },
            "label": "C",
-           "body": "Kurang tepat; kelas A 20, kelas B 18",
+           "body": "kurang tepat; kelas A 20, kelas B 18",
            "is_correct": true,
-           "rationale": "Tepat. 4 × 5 = 20 dan 9 × 2 = 18. Skalanya berbeda, jadi tinggi batang tidak dapat langsung dibandingkan."
+           "rationale": "Benar. 4 × 5 = 20 dan 9 × 2 = 18. Skalanya berbeda, jadi tinggi batang tidak dapat langsung dibandingkan."
           },
           {
            "_row": {
@@ -1478,7 +1478,7 @@
             "row": 49
            },
            "label": "D",
-           "body": "Kurang tepat; keduanya sama, 20",
+           "body": "kurang tepat; keduanya sama, 20",
            "is_correct": false,
            "rationale": "Kelas B: 9 × 2 = 18, bukan 20."
           }
@@ -1574,7 +1574,7 @@
            "label": "C",
            "body": "Agar tinggi batang menunjukkan nilai yang sama",
            "is_correct": true,
-           "rationale": "Tepat. Dengan skala yang sama, batang yang lebih tinggi pasti bernilai lebih besar."
+           "rationale": "Benar. Dengan skala yang sama, batang yang lebih tinggi pasti bernilai lebih besar."
           },
           {
            "_row": {
@@ -1606,7 +1606,7 @@
            "label": "A",
            "body": "Bila nilainya berbeda sangat jauh, ratusan dan belasan",
            "is_correct": true,
-           "rationale": "Tepat. Batang yang belasan akan sangat pendek dan sulit dibaca."
+           "rationale": "Benar. Batang yang belasan akan sangat pendek dan sulit dibaca."
           },
           {
            "_row": {

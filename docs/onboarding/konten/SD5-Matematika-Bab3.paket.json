@@ -27,9 +27,9 @@
        "ordinal": "1",
        "title": "Pecahan, Pecahan Senilai, dan Pecahan Campuran",
        "summary": "Mengingat kembali arti pecahan, pecahan yang senilai, cara menyederhanakan, dan pecahan campuran.",
-       "body_markdown": "## Arti pecahan\n\nSebatang cokelat dibagi menjadi 8 bagian yang sama besar. Rani makan 5 bagian.\n\n[[visual:pecahan|5/8]]\n\nBagian yang dimakan Rani ditulis **5/8** dan dibaca lima per delapan.\n\n- Angka bawah, **penyebut** (8), menunjukkan menjadi berapa bagian sama besar sesuatu dibagi.\n- Angka atas, **pembilang** (5), menunjukkan berapa bagian yang diambil.\n\n**Coba:** berapa bagian cokelat yang tersisa?\n_Periksa: 3 dari 8 bagian, yaitu 3/8._\n\n## Pecahan senilai\n\nPerhatikan tiga batang yang sama panjang ini.\n\n[[visual:pecahan|1/2]]\n\n[[visual:pecahan|2/4]]\n\n[[visual:pecahan|4/8]]\n\nBagian yang diarsir sama panjang, jadi 1/2 = 2/4 = 4/8. Pecahan seperti ini disebut **pecahan senilai**.\n\nUntuk membuat pecahan senilai, kalikan pembilang **dan** penyebut dengan bilangan yang **sama**:\n\n3/4 = (3 × 2)/(4 × 2) = 6/8\n\nMengapa boleh? Setiap bagian dipotong menjadi 2, jadi banyak bagian dan banyak yang diambil sama-sama menjadi dua kali lipat. Besar arsirannya tidak berubah.\n\nMenambahkan angka yang sama (misalnya 3/4 menjadi 5/6) **tidak** menghasilkan pecahan senilai.\n\n## Menyederhanakan pecahan\n\nMenyederhanakan berarti membagi pembilang dan penyebut dengan bilangan yang sama sampai tidak bisa dibagi lagi. Pakailah **FPB** yang kamu pelajari di Bab 2.\n\nSederhanakan 12/18:\n\n1. FPB dari 12 dan 18 adalah 6.\n2. 12 : 6 = 2 dan 18 : 6 = 3.\n3. Jadi 12/18 = **2/3**.\n\n## Pecahan campuran\n\nPita sepanjang 2 meter lebih 1/4 meter ditulis **2 1/4** meter, dibaca dua satu per empat. Artinya 2 + 1/4. Pecahan seperti ini disebut **pecahan campuran**.\n\n**Dari campuran ke pecahan biasa.** 2 1/4 = ?/4\n\n1. Setiap 1 utuh sama dengan 4/4, jadi 2 utuh = 8/4.\n2. Tambahkan 1/4: 8/4 + 1/4 = 9/4.\n\nCara singkatnya: (2 × 4 + 1)/4 = **9/4**.\n\n**Dari pecahan biasa ke campuran.** 7/3 = ?\n\n1. 7 : 3 = 2 sisa 1.\n2. Hasil bagi (2) menjadi bilangan utuh, sisanya (1) menjadi pembilang.\n3. Jadi 7/3 = **2 1/3**.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
+       "body_markdown": "## Arti pecahan\n\nSebatang cokelat dibagi menjadi 8 bagian yang sama besar. Rani makan 5 bagian.\n\n[[visual:pecahan|5/8]]\n\nBagian yang dimakan Rani ditulis **5/8** dan dibaca lima per delapan.\n\n- Angka bawah, **penyebut** (8), menunjukkan menjadi berapa bagian sama besar sesuatu dibagi.\n- Angka atas, **pembilang** (5), menunjukkan berapa bagian yang diambil.\n\n**Coba:** berapa bagian cokelat yang tersisa?\n_Periksa: 3 dari 8 bagian, yaitu 3/8._\n\n## Pecahan senilai\n\nPerhatikan tiga batang yang sama panjang ini.\n\n[[visual:pecahan|1/2]]\n\n[[visual:pecahan|2/4]]\n\n[[visual:pecahan|4/8]]\n\nBagian yang diarsir sama panjang, jadi 1/2 = 2/4 = 4/8. Pecahan seperti ini disebut **pecahan senilai**.\n\nUntuk membuat pecahan senilai, kalikan pembilang **dan** penyebut dengan bilangan yang **sama**:\n\n3/4 = (3 × 2)/(4 × 2) = 6/8\n\nMengapa boleh? Setiap bagian dipotong menjadi 2, jadi banyak bagian dan banyak yang diambil sama-sama menjadi dua kali lipat. Besar arsirannya tidak berubah.\n\nMenambahkan angka yang sama (misalnya 3/4 menjadi 5/6) **tidak** menghasilkan pecahan senilai.\n\n## Menyederhanakan pecahan\n\nMenyederhanakan berarti membagi pembilang dan penyebut dengan bilangan yang sama sampai tidak bisa dibagi lagi. Pakailah **FPB** yang kalian pelajari di Bab 2.\n\nSederhanakan 12/18:\n\n1. FPB dari 12 dan 18 adalah 6.\n2. 12 : 6 = 2 dan 18 : 6 = 3.\n3. Jadi 12/18 = **2/3**.\n\n## Pecahan campuran\n\nPita sepanjang 2 meter lebih 1/4 meter ditulis **2 1/4** meter, dibaca dua satu per empat. Artinya 2 + 1/4. Pecahan seperti ini disebut **pecahan campuran**.\n\n**Dari campuran ke pecahan biasa.** 2 1/4 = ?/4\n\n1. Setiap 1 utuh sama dengan 4/4, jadi 2 utuh = 8/4.\n2. Tambahkan 1/4: 8/4 + 1/4 = 9/4.\n\nCara singkatnya: (2 × 4 + 1)/4 = **9/4**.\n\n**Dari pecahan biasa ke campuran.** 7/3 = ?\n\n1. 7 : 3 = 2 sisa 1.\n2. Hasil bagi (2) menjadi bilangan utuh, sisanya (1) menjadi pembilang.\n3. Jadi 7/3 = **2 1/3**.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
        "objective": {
-        "statement": "Murid dapat menentukan pecahan senilai, menyederhanakan pecahan, dan mengubah pecahan biasa menjadi pecahan campuran atau sebaliknya.",
+        "statement": "Kalian dapat menentukan pecahan senilai, menyederhanakan pecahan, dan mengubah pecahan biasa menjadi pecahan campuran atau sebaliknya.",
         "bloom": "UNDERSTAND"
        },
        "media": [],
@@ -357,10 +357,10 @@
        },
        "ordinal": "2",
        "title": "Membandingkan dan Mengurutkan Pecahan",
-       "summary": "Pecahan dibandingkan dengan melihat penyebutnya dulu; bila penyebutnya berbeda, samakan dulu dengan KPK.",
-       "body_markdown": "## Penyebut sama\n\nBila penyebutnya sama, ukuran setiap bagian sama. Tinggal bandingkan **pembilangnya**.\n\n3/7 < 5/7, karena 3 bagian lebih sedikit dari 5 bagian yang sama besar.\n\n## Pembilang 1, penyebut berbeda\n\nMana yang lebih besar, 1/4 atau 1/8?\n\n[[visual:pecahan|1/4]]\n\n[[visual:pecahan|1/8]]\n\nMakin besar penyebutnya, makin **kecil** setiap bagiannya, karena sesuatu dibagi menjadi lebih banyak potongan. Jadi **1/4 > 1/8**.\n\nHati-hati: penyebut yang besar tidak berarti pecahannya besar.\n\n## Penyebut berbeda: samakan dulu\n\nBandingkan 2/3 dan 3/4.\n\n1. Cari penyebut yang sama. KPK dari 3 dan 4 adalah 12.\n2. Ubah kedua pecahan: 2/3 = (2 × 4)/(3 × 4) = 8/12, dan 3/4 = (3 × 3)/(4 × 3) = 9/12.\n3. Bandingkan pembilangnya: 8 < 9.\n\nJadi **2/3 < 3/4**.\n\nIngat: saat penyebut diubah, pembilang **juga** harus dikali dengan bilangan yang sama. Bila hanya penyebutnya yang diubah, nilai pecahannya berubah.\n\n## Pecahan campuran dan mengurutkan\n\nTiga potong pita panjangnya 2 1/2 m, 2 1/4 m, dan 2 2/5 m. Urutkan dari yang **terpendek**.\n\n1. Bandingkan bilangan utuhnya dulu. Ketiganya 2, jadi lihat pecahannya.\n2. Samakan penyebut 2, 4, dan 5. KPK-nya 20: 1/2 = 10/20, 1/4 = 5/20, 2/5 = 8/20.\n3. Urutkan pembilangnya: 5 < 8 < 10.\n\nUrutan dari terpendek: **2 1/4 m, 2 2/5 m, 2 1/2 m**.\n\nBila bilangan utuhnya berbeda, bilangan utuh itulah yang menentukan. 3 1/8 lebih besar dari 2 7/8, walaupun 1/8 lebih kecil dari 7/8.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
+       "summary": "Pecahan dibandingkan dengan melihat penyebutnya dahulu; bila penyebutnya berbeda, samakan dahulu dengan KPK.",
+       "body_markdown": "## Penyebut sama\n\nBila penyebutnya sama, ukuran setiap bagian sama. Tinggal bandingkan **pembilangnya**.\n\n3/7 < 5/7, karena 3 bagian lebih sedikit dari 5 bagian yang sama besar.\n\n## Pembilang 1, penyebut berbeda\n\nMana yang lebih besar, 1/4 atau 1/8?\n\n[[visual:pecahan|1/4]]\n\n[[visual:pecahan|1/8]]\n\nMakin besar penyebutnya, makin **kecil** setiap bagiannya, karena sesuatu dibagi menjadi lebih banyak potongan. Jadi **1/4 > 1/8**.\n\nHati-hati: penyebut yang besar tidak berarti pecahannya besar.\n\n## Penyebut berbeda: samakan dahulu\n\nBandingkan 2/3 dan 3/4.\n\n1. Cari penyebut yang sama. KPK dari 3 dan 4 adalah 12.\n2. Ubah kedua pecahan: 2/3 = (2 × 4)/(3 × 4) = 8/12, dan 3/4 = (3 × 3)/(4 × 3) = 9/12.\n3. Bandingkan pembilangnya: 8 < 9.\n\nJadi **2/3 < 3/4**.\n\nIngat: saat penyebut diubah, pembilang **juga** harus dikali dengan bilangan yang sama. Bila hanya penyebutnya yang diubah, nilai pecahannya berubah.\n\n## Pecahan campuran dan mengurutkan\n\nTiga potong pita panjangnya 2 1/2 m, 2 1/4 m, dan 2 2/5 m. Urutkan dari yang **terpendek**.\n\n1. Bandingkan bilangan utuhnya dahulu. Ketiganya 2, jadi lihat pecahannya.\n2. Samakan penyebut 2, 4, dan 5. KPK-nya 20: 1/2 = 10/20, 1/4 = 5/20, 2/5 = 8/20.\n3. Urutkan pembilangnya: 5 < 8 < 10.\n\nUrutan dari terpendek: **2 1/4 m; 2 2/5 m; 2 1/2 m**.\n\nBila bilangan utuhnya berbeda, bilangan utuh itulah yang menentukan. 3 1/8 lebih besar dari 2 7/8, walaupun 1/8 lebih kecil dari 7/8.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
        "objective": {
-        "statement": "Murid dapat membandingkan dan mengurutkan pecahan biasa dan pecahan campuran.",
+        "statement": "Kalian dapat membandingkan dan mengurutkan pecahan biasa dan pecahan campuran.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -437,7 +437,7 @@
            "label": "A",
            "body": "5/6 < 7/9, karena 5 < 7",
            "is_correct": false,
-           "rationale": "Hanya pembilangnya yang dibandingkan, padahal penyebutnya berbeda. Samakan penyebut dulu."
+           "rationale": "Hanya pembilangnya yang dibandingkan, padahal penyebutnya berbeda. Samakan penyebut dahulu."
           },
           {
            "_row": {
@@ -584,7 +584,7 @@
          "ref": "LT6",
          "item_type": "MCQ_SINGLE",
          "stem": "Urutan 2/3, 3/4, dan 5/8 dari yang terkecil adalah ...",
-         "petunjuk": "Samakan dulu ketiga penyebutnya dengan KPK dari 3, 4, dan 8.",
+         "petunjuk": "Samakan dahulu ketiga penyebutnya dengan KPK dari 3, 4, dan 8.",
          "difficulty": "0.5",
          "options": [
           {
@@ -615,7 +615,7 @@
            "label": "C",
            "body": "2/3; 3/4; 5/8",
            "is_correct": false,
-           "rationale": "Diurutkan dari pembilangnya (2, 3, 5), padahal penyebutnya berbeda. Samakan penyebut dulu."
+           "rationale": "Diurutkan dari pembilangnya (2, 3, 5), padahal penyebutnya berbeda. Samakan penyebut dahulu."
           },
           {
            "_row": {
@@ -691,9 +691,9 @@
        "ordinal": "3",
        "title": "Penjumlahan Pecahan",
        "summary": "Pecahan dijumlahkan dengan menjumlahkan pembilangnya, setelah penyebutnya sama.",
-       "body_markdown": "## Penyebut sama\n\nHitung 2/7 + 3/7.\n\nAda 2 bagian ditambah 3 bagian, dan setiap bagian berukuran 1/7. Jadi hasilnya 5 bagian berukuran 1/7:\n\n2/7 + 3/7 = (2 + 3)/7 = **5/7**\n\n[[visual:pecahan|5/7]]\n\nPenyebutnya **tidak** dijumlahkan. Penyebut menunjukkan ukuran bagian, dan ukuran itu tidak berubah. Kalau ditulis 5/14, setiap bagian seolah menjadi lebih kecil, padahal tidak ada yang dipotong lagi.\n\n## Penyebut berbeda\n\nHitung 1/4 + 2/3. Bagian berukuran 1/4 dan 1/3 tidak bisa langsung dijumlahkan, jadi samakan dulu ukurannya.\n\n1. KPK dari 4 dan 3 adalah 12.\n2. 1/4 = 3/12 dan 2/3 = 8/12.\n3. Jumlahkan pembilangnya: 3/12 + 8/12 = **11/12**.\n\n## Sederhanakan hasilnya\n\nHitung 1/6 + 1/3.\n\n1. KPK dari 6 dan 3 adalah 6, jadi 1/3 = 2/6.\n2. 1/6 + 2/6 = 3/6.\n3. Sederhanakan dengan FPB 3: 3/6 = **1/2**.\n\nKadang hasilnya satu utuh: 3/8 + 5/8 = 8/8 = **1**.\n\n## Soal cerita\n\nAyah mengecat 1/4 pagar pada pagi hari dan 2/3 pagar pada sore hari. Berapa bagian pagar yang sudah dicat?\n\n\"Pagi dan sore\" digabung, jadi dijumlahkan: 1/4 + 2/3 = 3/12 + 8/12 = **11/12** bagian pagar.\n\n**Coba:** berapa bagian pagar yang belum dicat?\n_Periksa: 1 − 11/12 = 12/12 − 11/12 = 1/12._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
+       "body_markdown": "## Penyebut sama\n\nHitung 2/7 + 3/7.\n\nAda 2 bagian ditambah 3 bagian, dan setiap bagian berukuran 1/7. Jadi hasilnya 5 bagian berukuran 1/7:\n\n2/7 + 3/7 = (2 + 3)/7 = **5/7**\n\n[[visual:pecahan|5/7]]\n\nPenyebutnya **tidak** dijumlahkan. Penyebut menunjukkan ukuran bagian, dan ukuran itu tidak berubah. Kalau ditulis 5/14, setiap bagian seolah menjadi lebih kecil, padahal tidak ada yang dipotong lagi.\n\n## Penyebut berbeda\n\nHitung 1/4 + 2/3. Bagian berukuran 1/4 dan 1/3 tidak bisa langsung dijumlahkan, jadi samakan dahulu ukurannya.\n\n1. KPK dari 4 dan 3 adalah 12.\n2. 1/4 = 3/12 dan 2/3 = 8/12.\n3. Jumlahkan pembilangnya: 3/12 + 8/12 = **11/12**.\n\n## Sederhanakan hasilnya\n\nHitung 1/6 + 1/3.\n\n1. KPK dari 6 dan 3 adalah 6, jadi 1/3 = 2/6.\n2. 1/6 + 2/6 = 3/6.\n3. Sederhanakan dengan FPB 3: 3/6 = **1/2**.\n\nKadang hasilnya satu utuh: 3/8 + 5/8 = 8/8 = **1**.\n\n## Soal cerita\n\nAyah mengecat 1/4 pagar pada pagi hari dan 2/3 pagar pada sore hari. Berapa bagian pagar yang sudah dicat?\n\n\"Pagi dan sore\" digabung, jadi dijumlahkan: 1/4 + 2/3 = 3/12 + 8/12 = **11/12** bagian pagar.\n\n**Coba:** berapa bagian pagar yang belum dicat?\n_Periksa: 1 − 11/12 = 12/12 − 11/12 = 1/12._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
        "objective": {
-        "statement": "Murid dapat menjumlahkan pecahan berpenyebut sama dan berpenyebut berbeda, lalu menyederhanakan hasilnya.",
+        "statement": "Kalian dapat menjumlahkan pecahan berpenyebut sama dan berpenyebut berbeda, lalu menyederhanakan hasilnya.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -770,7 +770,7 @@
            "label": "A",
            "body": "4/11",
            "is_correct": false,
-           "rationale": "Pembilang dijumlahkan dengan pembilang, penyebut dengan penyebut. Samakan penyebut dulu."
+           "rationale": "Pembilang dijumlahkan dengan pembilang, penyebut dengan penyebut. Samakan penyebut dahulu."
           },
           {
            "_row": {
@@ -874,7 +874,7 @@
            "label": "A",
            "body": "4/10",
            "is_correct": false,
-           "rationale": "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Samakan penyebut dulu."
+           "rationale": "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Samakan penyebut dahulu."
           },
           {
            "_row": {
@@ -1022,9 +1022,9 @@
        "ordinal": "4",
        "title": "Penjumlahan Pecahan Campuran",
        "summary": "Pecahan campuran dijumlahkan dengan menjumlahkan bilangan utuh dan pecahannya; pecahan yang lebih dari 1 dijadikan bilangan utuh.",
-       "body_markdown": "## Utuh dengan utuh, pecahan dengan pecahan\n\nHitung 1 1/5 + 2 3/5.\n\n1. Jumlahkan bilangan utuhnya: 1 + 2 = 3.\n2. Jumlahkan pecahannya: 1/5 + 3/5 = 4/5.\n3. Gabungkan: **3 4/5**.\n\n## Bila pecahannya lebih dari 1\n\nHitung 1 5/6 + 2 1/3.\n\n1. Bilangan utuh: 1 + 2 = 3.\n2. Pecahan: samakan penyebut, 1/3 = 2/6. Lalu 5/6 + 2/6 = 7/6.\n3. 7/6 lebih dari 1: 7/6 = 1 1/6.\n4. Gabungkan: 3 + 1 1/6 = **4 1/6**.\n\nJangan lupa langkah 3. Satu utuh yang muncul dari pecahan harus ditambahkan ke bilangan utuhnya, seperti menyimpan pada penjumlahan bersusun.\n\n## Cara lain: ubah dulu ke pecahan biasa\n\n1 5/6 = 11/6 dan 2 1/3 = 7/3 = 14/6.\n\n11/6 + 14/6 = 25/6. 25 : 6 = 4 sisa 1, jadi 25/6 = **4 1/6**. Hasilnya sama.\n\nPilih cara yang menurutmu paling mudah, lalu periksa dengan cara yang lain.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
+       "body_markdown": "## Utuh dengan utuh, pecahan dengan pecahan\n\nHitung 1 1/5 + 2 3/5.\n\n1. Jumlahkan bilangan utuhnya: 1 + 2 = 3.\n2. Jumlahkan pecahannya: 1/5 + 3/5 = 4/5.\n3. Gabungkan: **3 4/5**.\n\n## Bila pecahannya lebih dari 1\n\nHitung 1 5/6 + 2 1/3.\n\n1. Bilangan utuh: 1 + 2 = 3.\n2. Pecahan: samakan penyebut, 1/3 = 2/6. Lalu 5/6 + 2/6 = 7/6.\n3. 7/6 lebih dari 1: 7/6 = 1 1/6.\n4. Gabungkan: 3 + 1 1/6 = **4 1/6**.\n\nJangan lupa langkah 3. Satu utuh yang muncul dari pecahan harus ditambahkan ke bilangan utuhnya, seperti menyimpan pada penjumlahan bersusun.\n\n## Cara lain: ubah dahulu ke pecahan biasa\n\n1 5/6 = 11/6 dan 2 1/3 = 7/3 = 14/6.\n\n11/6 + 14/6 = 25/6. 25 : 6 = 4 sisa 1, jadi 25/6 = **4 1/6**. Hasilnya sama.\n\nPilih cara yang menurut kalian paling mudah, lalu periksa dengan cara yang lain.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
        "objective": {
-        "statement": "Murid dapat menjumlahkan pecahan campuran, termasuk bila jumlah pecahannya lebih dari 1.",
+        "statement": "Kalian dapat menjumlahkan pecahan campuran, termasuk bila jumlah pecahannya lebih dari 1.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -1198,7 +1198,7 @@
        "summary": "Pecahan dikurangkan dengan mengurangkan pembilangnya, setelah penyebutnya sama.",
        "body_markdown": "## Penyebut sama\n\nHitung 5/7 − 2/7.\n\nDari 5 bagian berukuran 1/7, diambil 2 bagian. Tersisa 3 bagian:\n\n5/7 − 2/7 = (5 − 2)/7 = **3/7**\n\nSeperti pada penjumlahan, penyebutnya **tidak** dikurangkan. Ukuran bagiannya tetap 1/7.\n\n## Penyebut berbeda\n\nHitung 2/3 − 1/4.\n\n1. KPK dari 3 dan 4 adalah 12.\n2. 2/3 = 8/12 dan 1/4 = 3/12.\n3. Kurangkan pembilangnya: 8/12 − 3/12 = **5/12**.\n\nPeriksa dengan penjumlahan: 5/12 + 3/12 = 8/12 = 2/3. Cocok.\n\n## Penjumlahan dan pengurangan itu mirip\n\nLangkahnya sama:\n\n1. Samakan penyebut dengan KPK.\n2. Ubah pembilang dengan pengali yang sama.\n3. Jumlahkan atau kurangkan **pembilangnya saja**.\n4. Sederhanakan hasilnya.\n\nYang berbeda hanya langkah 3: menambah atau mengurangi. Karena itu, baca soalnya: kata **sisa** dan **selisih** berarti mengurangi.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
        "objective": {
-        "statement": "Murid dapat mengurangkan pecahan berpenyebut sama dan berpenyebut berbeda.",
+        "statement": "Kalian dapat mengurangkan pecahan berpenyebut sama dan berpenyebut berbeda.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -1222,7 +1222,7 @@
            "label": "A",
            "body": "4/2",
            "is_correct": false,
-           "rationale": "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut, (5 − 1)/(6 − 4). Samakan penyebut dulu."
+           "rationale": "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut, (5 − 1)/(6 − 4). Samakan penyebut dahulu."
           },
           {
            "_row": {
@@ -1370,9 +1370,9 @@
        "ordinal": "6",
        "title": "Pengurangan Pecahan Campuran dan Soal Cerita",
        "summary": "Pengurangan pecahan campuran kadang perlu meminjam 1 utuh; soal cerita diselesaikan dengan memilih operasi yang tepat.",
-       "body_markdown": "## Meminjam 1 utuh\n\nHitung 3 1/3 − 1 2/3.\n\nPecahan 1/3 lebih kecil dari 2/3, jadi 1/3 − 2/3 tidak bisa langsung dihitung.\n\n1. Pinjam 1 dari bilangan utuh: 3 1/3 = 2 + 1 + 1/3 = 2 + 3/3 + 1/3 = **2 4/3**.\n2. Sekarang kurangkan: bilangan utuh 2 − 1 = 1, pecahan 4/3 − 2/3 = 2/3.\n3. Hasilnya **1 2/3**.\n\nPerhatikan: setelah meminjam, bilangan utuhnya berkurang satu (dari 3 menjadi 2). Jangan membalik pengurangannya menjadi 2/3 − 1/3.\n\n## Bilangan utuh dikurangi pecahan\n\nHitung 3 − 1/4.\n\n1. Pinjam 1 utuh dan tulis sebagai 4/4: 3 = 2 4/4.\n2. 2 4/4 − 1/4 = **2 3/4**.\n\n## Soal cerita satu langkah\n\nPita Nia panjangnya 2 1/2 m. Sepanjang 3/4 m dipakai untuk bando. Berapa sisa pitanya?\n\n1. Ditanyakan **sisa**, jadi dikurangi.\n2. Samakan penyebut: 2 1/2 = 2 2/4.\n3. 2/4 lebih kecil dari 3/4, jadi pinjam 1 utuh: 2 2/4 = 1 6/4.\n4. 1 6/4 − 3/4 = **1 3/4** m.\n\n## Soal cerita dua langkah\n\nIbu membeli 4 kg beras. Ia memakai 1 1/2 kg pada hari Senin dan 3/4 kg pada hari Selasa. Berapa sisa berasnya?\n\n1. Jumlah yang dipakai: 1 1/2 + 3/4 = 1 2/4 + 3/4 = 1 5/4 = 2 1/4 kg.\n2. Sisa: 4 − 2 1/4 = 3 4/4 − 2 1/4 = **1 3/4** kg.\n\nHasil langkah 1 (2 1/4 kg) bukan jawabannya. Itu baru beras yang dipakai.\n\n## Rangkuman Bab 3\n\n- **Pecahan senilai** didapat dengan mengali atau membagi pembilang dan penyebut dengan bilangan yang sama.\n- **Membandingkan**: samakan penyebut dengan KPK, lalu bandingkan pembilangnya. Pada pecahan campuran, bilangan utuhnya dilihat lebih dulu.\n- **Menjumlah dan mengurang**: samakan penyebut, lalu hitung pembilangnya saja. Penyebutnya tetap.\n- Pecahan campuran: bila jumlah pecahannya lebih dari 1, jadikan bilangan utuh. Bila pecahannya kurang untuk dikurangi, pinjam 1 utuh.\n- Sederhanakan hasil akhirnya dengan FPB.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
+       "body_markdown": "## Meminjam 1 utuh\n\nHitung 3 1/3 − 1 2/3.\n\nPecahan 1/3 lebih kecil dari 2/3, jadi 1/3 − 2/3 tidak bisa langsung dihitung.\n\n1. Pinjam 1 dari bilangan utuh: 3 1/3 = 2 + 1 + 1/3 = 2 + 3/3 + 1/3 = **2 4/3**.\n2. Sekarang kurangkan: bilangan utuh 2 − 1 = 1, pecahan 4/3 − 2/3 = 2/3.\n3. Hasilnya **1 2/3**.\n\nPerhatikan: setelah meminjam, bilangan utuhnya berkurang satu (dari 3 menjadi 2). Jangan membalik pengurangannya menjadi 2/3 − 1/3.\n\n## Bilangan utuh dikurangi pecahan\n\nHitung 3 − 1/4.\n\n1. Pinjam 1 utuh dan tulis sebagai 4/4: 3 = 2 4/4.\n2. 2 4/4 − 1/4 = **2 3/4**.\n\n## Soal cerita satu langkah\n\nPita Nia panjangnya 2 1/2 m. Sepanjang 3/4 m dipakai untuk bando. Berapa sisa pitanya?\n\n1. Ditanyakan **sisa**, jadi dikurangi.\n2. Samakan penyebut: 2 1/2 = 2 2/4.\n3. 2/4 lebih kecil dari 3/4, jadi pinjam 1 utuh: 2 2/4 = 1 6/4.\n4. 1 6/4 − 3/4 = **1 3/4** m.\n\n## Soal cerita dua langkah\n\nIbu membeli 4 kg beras. Ia memakai 1 1/2 kg pada hari Senin dan 3/4 kg pada hari Selasa. Berapa sisa berasnya?\n\n1. Jumlah yang dipakai: 1 1/2 + 3/4 = 1 2/4 + 3/4 = 1 5/4 = 2 1/4 kg.\n2. Sisa: 4 − 2 1/4 = 3 4/4 − 2 1/4 = **1 3/4** kg.\n\nHasil langkah 1 (2 1/4 kg) bukan jawabannya. Itu baru beras yang dipakai.\n\n## Rangkuman Bab 3\n\n- **Pecahan senilai** didapat dengan mengali atau membagi pembilang dan penyebut dengan bilangan yang sama.\n- **Membandingkan**: samakan penyebut dengan KPK, lalu bandingkan pembilangnya. Pada pecahan campuran, bilangan utuhnya dilihat lebih dahulu.\n- **Menjumlah dan mengurang**: samakan penyebut, lalu hitung pembilangnya saja. Penyebutnya tetap.\n- Pecahan campuran: bila jumlah pecahannya lebih dari 1, jadikan bilangan utuh. Bila pecahannya kurang untuk dikurangi, pinjam 1 utuh.\n- Sederhanakan hasil akhirnya dengan FPB.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 3._",
        "objective": {
-        "statement": "Murid dapat mengurangkan pecahan campuran dan memecahkan masalah sehari-hari dengan penjumlahan dan pengurangan pecahan.",
+        "statement": "Kalian dapat mengurangkan pecahan campuran dan memecahkan masalah sehari-hari dengan penjumlahan dan pengurangan pecahan.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -1544,7 +1544,7 @@
          "ref": "LT16",
          "item_type": "MCQ_SINGLE",
          "stem": "3 1/4 − 1 1/2 = ...",
-         "petunjuk": "Samakan penyebutnya dulu, lalu periksa apakah pecahan pertama cukup untuk dikurangi.",
+         "petunjuk": "Samakan penyebutnya dahulu, lalu periksa apakah pecahan pertama cukup untuk dikurangi.",
          "difficulty": "0.5",
          "options": [
           {
@@ -1679,7 +1679,7 @@
            "label": "C",
            "body": "1/2 + 1/3 = 5/6",
            "is_correct": true,
-           "rationale": "Tepat. 3/6 + 2/6 = 5/6."
+           "rationale": "Benar. 3/6 + 2/6 = 5/6."
           },
           {
            "_row": {

@@ -119,7 +119,7 @@ BAB = [(1, "Bilangan Cacah sampai 100.000")]
 PELAJARAN = [
     dict(no=1, judul="Membaca, Menulis, dan Nilai Tempat",
          ringkasan="Bilangan sampai 100.000 dibaca per kelompok ribuan, dan setiap angka bernilai sesuai tempatnya.",
-         tujuan="Murid dapat membaca, menulis, dan menentukan nilai tempat bilangan cacah sampai 100.000.",
+         tujuan="Kalian dapat membaca, menulis, dan menentukan nilai tempat bilangan cacah sampai 100.000.",
          bloom="Memahami",
          isi=f"""## Bilangan lima angka di sekitar kita
 
@@ -128,9 +128,9 @@ Coba perhatikan harga di toko, jumlah penduduk, atau jarak antarkota. Banyak yan
 - Harga sebotol jus mangga **Rp6.375**. Bilangan ini punya empat angka.
 - Penduduk Kecamatan Kayu Tanam ada **26.932** jiwa. Bilangan ini punya lima angka.
 
-Di bab ini kamu belajar bilangan sampai **100.000** (seratus ribu). Bilangan 100.000 sendiri punya enam angka.
+Di bab ini kalian belajar bilangan sampai **100.000** (seratus ribu). Bilangan 100.000 sendiri punya enam angka.
 
-**Coba:** cari satu bilangan lima angka di rumahmu, misalnya di struk belanja atau kemasan makanan.
+**Coba:** cari satu bilangan lima angka di rumah kalian, misalnya di struk belanja atau kemasan makanan.
 
 ## Nilai tempat
 
@@ -195,7 +195,7 @@ _Periksa: 20.040. Tidak ada ratusan dan satuan, jadi kedua tempat itu diisi 0._
 {SUMBER}"""),
     dict(no=2, judul="Membandingkan dan Mengurutkan",
          ringkasan="Dua bilangan dibandingkan mulai dari angka paling kiri; dengan cara itu beberapa bilangan juga dapat diurutkan.",
-         tujuan="Murid dapat membandingkan dan mengurutkan bilangan cacah sampai 100.000.",
+         tujuan="Kalian dapat membandingkan dan mengurutkan bilangan cacah sampai 100.000.",
          bloom="Menerapkan",
          isi=f"""## Tiga tanda
 
@@ -240,11 +240,11 @@ Tiga mainan dijual dengan harga Rp45.500 (robot), Rp42.000 (boneka), dan Rp38.50
 2. Sisanya 45.500 dan 42.000. Puluh ribuannya sama, lalu di ribuan 2 lebih kecil dari 5. Jadi **Rp42.000** berikutnya.
 3. Terakhir **Rp45.500**.
 
-Urutan dari termurah: Rp38.500, Rp42.000, Rp45.500. Urutan dari **termahal** adalah kebalikannya.
+Urutan dari termurah: Rp38.500; Rp42.000; Rp45.500. Urutan dari **termahal** adalah kebalikannya.
 
 ## Pola bilangan
 
-Perhatikan 85.350, 85.400, 85.450, ...
+Perhatikan 85.350; 85.400; 85.450; ...
 
 1. Cari selisih dua bilangan yang berdekatan: 85.400 − 85.350 = 50.
 2. Periksa pasangan berikutnya: 85.450 − 85.400 = 50. Sama, jadi polanya **bertambah 50**.
@@ -256,13 +256,13 @@ _Periksa: 85.550._
 {SUMBER}"""),
     dict(no=3, judul="Komposisi dan Dekomposisi",
          ringkasan="Menyusun bilangan dari bagian-bagiannya dan menguraikannya kembali, misalnya dengan uang.",
-         tujuan="Murid dapat menyusun (komposisi) dan menguraikan (dekomposisi) bilangan cacah sampai 100.000, termasuk jumlah uang.",
+         tujuan="Kalian dapat menyusun (komposisi) dan menguraikan (dekomposisi) bilangan cacah sampai 100.000, termasuk jumlah uang.",
          bloom="Menerapkan",
          isi=f"""## Menyusun bilangan (komposisi)
 
 **Komposisi** berarti menyusun beberapa bagian menjadi satu bilangan.
 
-Kamu punya 3 lembar uang sepuluh ribuan dan 4 lembar seribuan. Berapa jumlahnya?
+Kalian punya 3 lembar uang sepuluh ribuan dan 4 lembar seribuan. Berapa jumlahnya?
 
 1. 3 lembar sepuluh ribuan: 3 × 10.000 = 30.000
 2. 4 lembar seribuan: 4 × 1.000 = 4.000
@@ -308,7 +308,7 @@ Jadi ada **2 cara**. Setiap kali selesai, jumlahkan lagi semua lembarnya untuk m
 {SUMBER}"""),
     dict(no=4, judul="Operasi Hitung Bilangan sampai 100.000",
          ringkasan="Menjumlah, mengurang, mengali, dan membagi bilangan sampai 100.000 dengan langkah yang teratur, lalu memeriksa hasilnya.",
-         tujuan="Murid dapat menghitung penjumlahan, pengurangan, perkalian, dan pembagian bilangan cacah sampai 100.000.",
+         tujuan="Kalian dapat menghitung penjumlahan, pengurangan, perkalian, dan pembagian bilangan cacah sampai 100.000.",
          bloom="Menerapkan",
          isi=f"""## Penjumlahan bersusun
 
@@ -364,7 +364,7 @@ Hitung 67.032 : 147.
 
 Hasilnya **456**.
 
-## Periksa jawabanmu
+## Periksa jawaban kalian
 
 Setiap operasi punya "kebalikan" untuk memeriksa:
 
@@ -376,14 +376,14 @@ Bila hasil pemeriksaannya tidak cocok, pasti ada langkah yang keliru. Ulangi dar
 {SUMBER}"""),
     dict(no=5, judul="Memecahkan Masalah Sehari-hari",
          ringkasan="Memilih operasi yang tepat untuk soal cerita tentang uang dan belanja, termasuk soal yang perlu dua langkah.",
-         tujuan="Murid dapat memecahkan masalah sehari-hari yang berkaitan dengan bilangan cacah sampai 100.000.",
+         tujuan="Kalian dapat memecahkan masalah sehari-hari yang berkaitan dengan bilangan cacah sampai 100.000.",
          bloom="Menerapkan",
          isi=f"""## Empat langkah soal cerita
 
 1. **Baca** soalnya dua kali. Apa yang diketahui? Apa yang ditanyakan?
 2. **Pilih operasinya.** Digabung atau dibeli bersama: tambah. Sisa atau selisih: kurang. Beberapa kali yang sama: kali. Dibagi sama rata: bagi.
 3. **Hitung** dengan teliti.
-4. **Periksa**: apakah jawabanmu menjawab pertanyaannya, dan apakah masuk akal?
+4. **Periksa**: apakah jawaban kalian menjawab pertanyaannya, dan apakah masuk akal?
 
 ## Satu langkah: mencari sisa
 
@@ -417,7 +417,7 @@ Perhatikan pertanyaannya: sisa **masing-masing**, bukan sisa berdua. Hasil langk
 - Bandingkan bilangan mulai dari angka **paling kiri**.
 - Komposisi menyusun bilangan dari bagian-bagiannya; dekomposisi menguraikannya, dan sering ada lebih dari satu cara.
 - Saat menjumlah, jangan lupa **menyimpan**; saat mengurang, jangan lupa **meminjam**.
-- Pada soal cerita, tentukan dulu apa yang **ditanyakan**, lalu pilih operasinya.
+- Pada soal cerita, tentukan dahulu apa yang **ditanyakan**, lalu pilih operasinya.
 
 {SUMBER}"""),
 ]
@@ -592,16 +592,16 @@ soal("PB8", 5, "Dina dan Rafi masing-masing membawa Rp40.000. Mereka membeli sat
     ("Rp9.000", True, "Benar. Masing-masing membayar 62.000 : 2 = 31.000, jadi sisanya 40.000 − 31.000 = 9.000.", ""),
     ("Rp18.000", False, "Itu sisa uang mereka berdua (80.000 − 62.000). Yang ditanyakan sisa masing-masing.", "SD5-M-B1-13"),
     ("Rp31.000", False, "Itu bagian yang dibayar masing-masing, hasil langkah pertama. Sisanya masih harus dihitung.", "SD5-M-B1-14"),
-    ("Rp22.000", False, "Harga hadiah dikurangi uang satu orang (62.000 − 40.000). Harga hadiah dibagi dua dulu, baru dikurangkan dari 40.000.", "SD5-M-B1-10"),
+    ("Rp22.000", False, "Harga hadiah dikurangi uang satu orang (62.000 − 40.000). Harga hadiah dibagi dua dahulu, baru dikurangkan dari 40.000.", "SD5-M-B1-10"),
 ], guna="Cek penguasaan", sulit="Sulit")
 
 # ── Latihan (practice), by lesson, from direct use toward a little more reasoning.
 cek(15_000 + 590 == 15_590)
 soal("LT1", 1, "Harga sebuah tas Rp15.590. Cara membacanya ...", [
-    ("Seratus lima puluh lima ribu sembilan puluh rupiah", False, "Titiknya digeser: itu 155.090. Di depan titik hanya ada 15.", "SD5-M-B1-02"),
-    ("Lima belas ribu lima sembilan puluh rupiah", False, "Kata ratus terlupa: 5 di tempat ratusan dibaca lima ratus.", "SD5-M-B1-01"),
-    ("Lima belas ribu lima ratus sembilan rupiah", False, "90 dibaca sembilan, seolah 9 ada di satuan. 9 ada di puluhan, jadi dibaca sembilan puluh.", "SD5-M-B1-04"),
-    ("Lima belas ribu lima ratus sembilan puluh rupiah", True, "Benar. 15 di depan titik dibaca lima belas ribu, lalu 590 dibaca lima ratus sembilan puluh.", ""),
+    ("seratus lima puluh lima ribu sembilan puluh rupiah", False, "Titiknya digeser: itu 155.090. Di depan titik hanya ada 15.", "SD5-M-B1-02"),
+    ("lima belas ribu lima sembilan puluh rupiah", False, "Kata ratus terlupa: 5 di tempat ratusan dibaca lima ratus.", "SD5-M-B1-01"),
+    ("lima belas ribu lima ratus sembilan rupiah", False, "90 dibaca sembilan, seolah 9 ada di satuan. 9 ada di puluhan, jadi dibaca sembilan puluh.", "SD5-M-B1-04"),
+    ("lima belas ribu lima ratus sembilan puluh rupiah", True, "Benar. 15 di depan titik dibaca lima belas ribu, lalu 590 dibaca lima ratus sembilan puluh.", ""),
 ])
 cek(str(56_786)[2] == "7")
 soal("LT2", 1, "Pada bilangan 56.786, angka 7 bernilai ...", [
@@ -609,7 +609,7 @@ soal("LT2", 1, "Pada bilangan 56.786, angka 7 bernilai ...", [
     ("70", False, "Tempat dihitung satu kurang: 70 adalah nilai 7 di puluhan. Puluhannya di sini 8.", "SD5-M-B1-04"),
     ("700", True, "Benar. 7 ada di tempat ratusan (angka pertama sesudah titik), jadi nilainya 700.", ""),
     ("7.000", False, "7.000 adalah nilai 7 di ribuan. Angka di depan titik di sini 6, bukan 7.", "SD5-M-B1-04"),
-], petunjuk="Tentukan dulu tempat angka 7, lalu tuliskan nilainya.")
+], petunjuk="Tentukan dahulu tempat angka 7, lalu tuliskan nilainya.")
 cek(4 * 10_000 + 0 * 1_000 + 7 * 100 + 5 * 10 + 1 == 40_751)
 soal("LT3", 1, "Bilangan yang terdiri atas 4 puluh ribuan, 0 ribuan, 7 ratusan, 5 puluhan, dan 1 satuan adalah ...", [
     ("4.751", False, "0 ribuan tidak ditulis, sehingga 4 bergeser dari puluh ribuan ke ribuan.", "SD5-M-B1-03"),
@@ -632,14 +632,14 @@ soal("LT5", 2, "Tanda yang tepat untuk 86.567 ... 86.576 adalah ...", [
     (TAK, False, "Dua bilangan cacah selalu dapat dibandingkan, walaupun angka-angkanya sama.", "SD5-M-B1-07"),
 ], sulit="Sedang", petunjuk="Mulailah dari angka paling kiri, lalu geser ke kanan sampai menemukan angka yang berbeda.")
 cek(16_500 - 15_500 == 1_000 and 17_500 + 1_000 == 18_500)
-soal("LT6", 2, "Lanjutkan polanya: 15.500, 16.500, 17.500, ...", [
+soal("LT6", 2, "Lanjutkan polanya: 15.500; 16.500; 17.500; ...", [
     ("17.600", False, "Lompatannya ditebak 100. Hitung selisihnya: 16.500 − 15.500 = 1.000.", "SD5-M-B1-15"),
     ("18.000", False, "Lompatannya dibuat 500. Setiap langkah bertambah 1.000.", "SD5-M-B1-15"),
     ("18.500", True, "Benar. Setiap langkah bertambah 1.000: 17.500 + 1.000 = 18.500.", ""),
     ("27.500", False, "Lompatannya dibuat 10.000, seolah angka di puluh ribuan yang berubah. Yang berubah angka ribuan.", "SD5-M-B1-15"),
 ])
 cek(50_000 - 30_000 == 20_000 and 70_000 + 20_000 == 90_000 and 70_000 + 10_000 == 80_000 and 70_000 + 2_000 == 72_000)
-soal("LT7", 2, "Lanjutkan polanya: 30.000, 50.000, 70.000, ...", [
+soal("LT7", 2, "Lanjutkan polanya: 30.000; 50.000; 70.000; ...", [
     ("90.000", True, "Benar. Selisihnya 50.000 − 30.000 = 20.000, jadi 70.000 + 20.000 = 90.000.", ""),
     ("80.000", False, "Lompatannya dianggap 10.000, padahal dari 30.000 ke 50.000 bertambah 20.000.", "SD5-M-B1-15"),
     ("72.000", False, "Yang ditambahkan 2.000, seolah angka 2 dari selisih ada di ribuan. Selisihnya 20.000.", "SD5-M-B1-05"),
