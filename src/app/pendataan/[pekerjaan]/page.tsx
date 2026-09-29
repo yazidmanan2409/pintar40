@@ -2,7 +2,7 @@ import Link from "next/link";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as data from "@/lib/pendataan";
-import { AKUN_AKTIF, bisaDilanjutkan, bolehLanjut, percontohanMenunggu, tahap } from "@/lib/pendataan-kontrak";
+import { AKUN_AKTIF, bolehLanjut, percontohanMenunggu, tahap } from "@/lib/pendataan-kontrak";
 import {
   kemajuanAksi, konfirmasiAksi, majukanAksi, periksaAksi, periksaPercontohanAksi,
 } from "../actions";
@@ -13,6 +13,7 @@ import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import PeriksaDaftar from "@/components/pendataan/PeriksaDaftar";
 import Penggerak from "@/components/pendataan/Penggerak";
+import IsianSetuju from "@/components/pendataan/IsianSetuju";
 
 export const dynamic = "force-dynamic";
 
@@ -156,9 +157,10 @@ export default async function SatuPendataan({
 
             <p className="pin-mm">{s("pendataan.pratinjau.tanya")}</p>
             {/* A PLAIN FORM. The consequential act needs no script to work, and
-                it calls WP5A's confirmation rather than moving a flag here. */}
+                it calls WP5A's confirmation rather than moving a flag here.
+                UX-08: its press also starts the recording (IsianSetuju). */}
             <form action={konfirmasiAksi}>
-              <input type="hidden" name="pekerjaan" value={pekerjaan} />
+              <IsianSetuju pekerjaan={pekerjaan} />
               <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
             </form>
           </section>
@@ -189,27 +191,25 @@ export default async function SatuPendataan({
               {s("pendataan.percontohan.sisa")}
             </p>
 
+            {/* UX-08: «lanjutkan sisanya» continues the recording itself. */}
             <form action={periksaPercontohanAksi}>
-              <input type="hidden" name="pekerjaan" value={pekerjaan} />
+              <IsianSetuju pekerjaan={pekerjaan} />
               <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memeriksa")}>{s("pendataan.percontohan.tanya")}</TombolKirim>
             </form>
           </section>
         ) : null}
 
         {/* ── PROVISIONING, OR WAITING TO BE CONTINUED ──────────────────── */}
+        {/* The driver says itself whether the job stopped part-way: only it
+            knows whether it is running now (UX-08). */}
         {bolehLanjut(kemajuan) ? (
-          <>
-            {bisaDilanjutkan(kemajuan) ? (
-              <p className="pin-msg pin-msg-note">{s("pendataan.maju.terputus")}</p>
-            ) : null}
-            <Penggerak
-              awal={kemajuan}
-              pekerjaan={pekerjaan}
-              majukan={majukanAksi}
-              bacaUlang={kemajuanAksi}
-              locale={locale}
-            />
-          </>
+          <Penggerak
+            awal={kemajuan}
+            pekerjaan={pekerjaan}
+            majukan={majukanAksi}
+            bacaUlang={kemajuanAksi}
+            locale={locale}
+          />
         ) : null}
 
         {kemajuan.pilot_verified && fase !== "periksa_percontohan" ? (

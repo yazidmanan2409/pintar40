@@ -135,16 +135,17 @@ This is the coordinator's working state, so a new session can pick up without th
 ## How a gate runs
 
 1. **Build the gate branch** in a worktree of `main`: `gate/integration-N` = `main` + the lanes' hand-off commits (merge or cherry-pick; resolve the manifest version).
-2. **Check it locally:** `npx tsc --noEmit`, eslint, and the targeted selftests for the tickets. A local Supabase stack cannot start here (the proxy blocks the ghcr images), so SQL is checked against Postgres 16 stubs.
-3. **Dispatch one CI run and one audit run:**
+2. **D-060 at the diff read:** for any migration touching a `calc_*` body, a metric source view, `evidence_readiness`, grading or paper assembly, confirm the hand-off bumped the catalogue or engine version, or says why not.
+3. **Check it locally:** `npx tsc --noEmit`, eslint, and the targeted selftests for the tickets. A local Supabase stack cannot start here (the proxy blocks the ghcr images), so SQL is checked against Postgres 16 stubs.
+4. **Dispatch one CI run and one audit run:**
    - CI: `ci.yml` via `workflow_dispatch` on `gate/integration-N`.
    - Audit: `audit-journeys.yml` dispatched **from the coordinator lane** (the up-to-date harness lives there, not on `main`), with input `ref` set to the **full commit sha** of the gate.
-4. **Read the audit from job B's log** ("Gladys's path from an empty production-like database"): its `TALLY` line and each step's line. Job conclusions stay green even when steps fail.
-5. **If both are green, merge:**
+5. **Read the audit from job B's log** ("Gladys's path from an empty production-like database"): its `TALLY` line and each step's line. Job conclusions stay green even when steps fail.
+6. **If both are green, merge:**
    - Fast-forward `main` to the gate.
    - Put the board and checklist commit on top with `[skip ci]`, and push both together. The newest commit carries `[skip ci]`, so `main` does not run CI again; CI would otherwise run on push to `main`, except for paths under `docs/coordination/**` and the other excluded docs folders.
    - Then merge `main` into the coordinator lane. For coordination files, `main`'s copy wins.
-6. **If the gate carries migrations,** dispatch `staging.yml` ("staging · database and sign-in"). Lesson imports go through `staging-import-lesson.yml` (`replace_unreleased` defaults to false).
+7. **If the gate carries migrations,** dispatch `staging.yml` ("staging · database and sign-in"). Lesson imports go through `staging-import-lesson.yml` (`replace_unreleased` defaults to false).
 
 ### Audit harness notes (`audit/journey.mjs`, on the coordinator lane)
 

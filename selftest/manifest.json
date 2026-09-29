@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 114,
+  "version": 115,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2314,6 +2314,16 @@
       "id": "DAISY-27-TOLAK-01",
       "runner": "static",
       "proves": "DAISY-27 (UX-03's page half, with BOB-32; D-011, D-014): why an Uji Cepat was not made available. (1) Every one of BOB-32's codes (KODE_UJI_CEPAT, src/lib/ujicepat-kontrak.ts) has its own sentence (src/components/mengajar/tolakUjiCepat.ts, kalimatTolakUjiCepat) in both languages, led by «Uji Cepat belum disediakan.», naming no code or machinery and carrying no internal word (a planted code in a sentence is caught); the count's refusal gives the page's own question range (a different range when the page reads another) and the window's gives the windows the page offers; QUICK_FAILED and a code nobody knows get the app's general line (galat.action_failed) with «Kode rujukan: ‹ref›» only when there is a reference, and a named cause never carries one. (2) The address is read through BOB-32's bacaGagalUjiCepat: ?cepat=gagal&kode= is read; a forged code and reference come back as nothing and reach the page only as the general line. (3) From the SOURCE: the page reads the refusal through bacaGagalUjiCepat and says it by kalimatTolakUjiCepat with the range it reads and the windows it offers, and names no code; the sentences take the codes' type from the contract and keep no list of their own; «Sudah ada Uji Cepat yang berjalan» is gone from the page and the copy table (today every refusal said it, or, since DAISY-26, one general line)."
+    },
+    {
+      "id": "POLISH3-HASIL-01",
+      "runner": "static",
+      "proves": "Polish batch 3 (UI/UX POLISHED, D-052), register row UX-26: the learner's result names each row by its learning objective. (1) RENDERED in a child process in both languages (src/components/siklus/PerTujuan.tsx): each row reads its objective's statement, or its lesson's title when the statement is empty, with its count, and no objective code («B1P1») shows (a planted code is caught); with no name to be found (no map, or one code carrying two statements) the row keeps its code, and a result with no rows draws no section. (2) From the SOURCE, the result page reads the names from the learner's own reading map (engine.readingMap on the post-test session) in the same Promise.all and draws the rows only through PerTujuan. (3) From the latest migrations, evaluate_session keys per_domain by the objective's code, reading_map returns that code with the statement, and the RPC registry lists reading_map for a LEARNER, so no server change is needed. (4) The heading reads «Per tujuan pembelajaran» / \"By learning objective\", not «Per bagian» (Bagian is a structure unit, D-006)"
+    },
+    {
+      "id": "POLISH3-PENDATAAN-01",
+      "runner": "static",
+      "proves": "Polish batch 3 (UI/UX POLISHED, D-052), register row UX-08: one press approves and records in Pendataan. (1) The note (src/components/pendataan/niatMencatat.ts) is written by the approving press, taken once, by that job's driver only, ignored when stale or dated ahead, and kept in memory, never in storage that outlives the tab (§10). (2) RENDERED in a child process: the driver (Penggerak) drawn straight after «Ya, catat orang-orang ini» or «Sudah saya periksa, lanjutkan sisanya» shows its pause button from the first frame, in both languages, and not «berhenti di tengah jalan»; with no note, another job's note, or on a job that has recorded some, it waits for its own button as before, and says it stopped part-way only while not recording. (3) From the SOURCE, both approving forms stay plain forms with TombolKirim, their job field (IsianSetuju) writing the note on its own form's submit; the driver's one effect starts only on a taken note for a job the database lets run (bolehLanjut); the page no longer says «berhenti di tengah jalan» by itself. (4) Both approving buttons still say recording follows, and the driver's own start button remains as the fallback"
     }
   ]
 }
