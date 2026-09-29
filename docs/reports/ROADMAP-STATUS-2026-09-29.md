@@ -159,7 +159,7 @@ Most of these need walking rather than building. They are the coordinator's, on 
 **At the pause (29 Sep):**
 - **Lana:** stopped after LANA-21's CONTENT PASS. SMA X Matematika is complete, and nothing is left on her lane.
 - **Bob:** {{BOB_PAUSE}}
-- **Daisy:** {{DAISY_PAUSE}}
+- **Daisy:** stopped after DAISY-31's gate (CI #237 30/30, audit #49; merged and on `main` at `4df914a`). Nothing is left on her lane.
 - **Coordinator:** {{COORD_PAUSE}}
 
 **Resume order:**
