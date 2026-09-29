@@ -1298,6 +1298,11 @@ export const experienceTests: SelfTest[] = [
       // 20261024100000 replaces record_integrity_review's body and one
       // registry note; no table, no column, no colour, mark or brand surface.
       //
+      // MOVED 130 -> 131 for BOB-37, per-topic mastery can show. 20261025100000
+      // publishes metric catalogue MC-3 (MC-2's rows copied forward, D-060) and
+      // replaces two calculator bodies; no table, no column, no colour, mark or
+      // brand surface.
+      //
       // MOVED 128 -> 129 for BOB-36, a launched Uji Cepat keeps its rules.
       // 20261023100000 adds one trigger function; no table, no column, no
       // colour, mark or brand surface.
@@ -1491,7 +1496,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 130, `${migrations.length} migrations; the frozen baseline has 130`);
+      c.expect(migrations.length === 131, `${migrations.length} migrations; the frozen baseline has 131`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3140,7 +3145,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 129 -> 130 for BOB-39's integrity referral
+      // from, not a claim about the tour. MOVED 130 -> 131 for BOB-37's per-topic mastery
+      // (20261025100000), not a tour RPC (D-024). MOVED 129 -> 130 for BOB-39's integrity referral
       // (20261024100000), not a tour RPC (D-024). MOVED 128 -> 129 for BOB-36's Uji Cepat rules
       // (20261023100000), not a tour RPC (D-024). MOVED 127 -> 128 for BOB-35's session provenance
       // (20261022100000), not a tour RPC (D-024). MOVED 126 -> 127 for BOB-24's identity foundation
@@ -3202,7 +3208,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 130, `${migs.length} migrations; the baseline has 130`);
+      c.expect(migs.length === 131, `${migs.length} migrations; the baseline has 131`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

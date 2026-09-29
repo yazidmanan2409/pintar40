@@ -173,7 +173,7 @@ jobs:
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
                db-bob06-gates, db-bob12-gates, db-bob24-gates,
-               db-bob35-gates, db-bob36-gates, db-bob39-gates]
+               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -239,6 +239,8 @@ jobs:
               echo "the five session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob39-gates)
               echo "the integrity-referral defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
+            db-bob37-gates)
+              echo "the three per-topic mastery defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
@@ -1802,6 +1804,17 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob39.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob39-gates
+
+      # BOB-37's gate: per-topic mastery reads the recorded per-objective objects.
+      - name: Local stack (per-topic mastery gate)
+        if: matrix.case == 'db-bob37-gates'
+        id: gatesBob37
+        uses: ./.github/actions/local-stack
+      - name: Each planted per-topic mastery defect must turn F06-P23 red
+        if: matrix.case == 'db-bob37-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob37.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob37-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

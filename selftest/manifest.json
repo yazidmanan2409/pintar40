@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 125,
+  "version": 126,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2032,6 +2032,11 @@
       "id": "F06-P22",
       "runner": "db",
       "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it."
+    },
+    {
+      "id": "F06-P23",
+      "runner": "db",
+      "proves": "BOB-37 (EDU-12, X-10), migration 20261025100000 measured in selftest/db/fable06.sql: five learners in a class of their own sit the Cek penguasaan and their results hold the scoring's own {benar, total, penguasaan} objects; class.topic_mastery, asked through metric_evaluate by the Head of Department over the class, shows each objective's average recorded penguasaan (0.55 and 0.625 over five learners, not the pooled benar/total), and four learners are below its unchanged minimum of 5; calc_institution_competency_outcomes holds the same averages with their learner counts inside the school's boundary, and the evaluator counts them against the unchanged minimum of 10; the live catalogue is MC-3, MC-2 copied forward with every definition, minimum sample and audience identical (D-060)."
     },
     {
       "id": "BOB39-K01",
