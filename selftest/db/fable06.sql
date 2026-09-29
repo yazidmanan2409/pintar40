@@ -6174,9 +6174,15 @@ begin
         if n_aud <> 1 then bad := bad || array['a NO_CONCERN review outside the reviewer''s department is no longer recorded']; end if;
       end;
 
-      -- a Head of Department over the other department does not see it
-      v_hod_b := selftest.f11_user('f06-p22-hod-b-' || substr(md5(random()::text), 1, 6) || '@synthetic.pintar.test',
-                                   'HEAD_OF_DEPARTMENT', c.dept_b);
+      -- a Head of Department over the other department does not see it. Made
+      -- the way wp2_school makes its people (fable06's own helper), so this
+      -- file stands alone, as the red-case jobs load it.
+      v_hod_b := selftest.f06p10_person('f06-p22-hod-b-' || substr(md5(random()::text), 1, 6));
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until)
+      select a.person_id, 'HEAD_OF_DEPARTMENT', c.dept_b, now() + interval '1 year'
+        from public.accounts a where a.auth_user_id = v_hod_b;
+      perform set_config('app.seed_intent', '', true);
       perform selftest.as_user_uid(v_hod_b);
       select count(*) into n from public.management_decisions m where m.source_id = c.signal_a;
       perform selftest.as_owner();
