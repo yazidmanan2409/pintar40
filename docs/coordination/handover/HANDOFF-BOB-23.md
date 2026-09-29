@@ -44,7 +44,7 @@ The local stand-in answers without latency, so no queued saves spill into window
 
 **Staging acceptance (c):** J09 PASS on the two-window check (no server action in the second 8 s), with the link shown without a reload; J13 still matches the plan.
 
-**Manifest:** v106.
+**Manifest:** v107 (106 on both sides before the merge; DAISY-25-TEKS-01 and BOB23-K03 both kept).
 
 ## CHANGED
 
