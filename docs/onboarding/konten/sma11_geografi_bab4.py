@@ -310,8 +310,8 @@ Pemanasan global terjadi perlahan, melalui proses yang panjang.
 
 - **Karbon dioksida (CO₂)**: dari pembakaran bahan bakar fosil (batu bara, minyak bumi, gas alam), aktivitas industri, pembakaran hutan, dan perubahan penggunaan lahan.
 - **Metana (CH₄)**: lebih kuat daripada CO₂, tetapi jumlahnya lebih sedikit. Sumbernya produksi dan transportasi gas alam, produksi peternakan, dan pembuangan sampah organik.
-- **Nitrogen oksida (N₂O)**: dari pertanian, industri, dan pembakaran bahan bakar fosil. Sumber utamanya penggunaan pupuk sintetis dalam pertanian.
-- **Uap air (H₂O)**: tidak dihasilkan langsung oleh manusia, tetapi kadarnya dipengaruhi perubahan penggunaan lahan, polusi udara, dan industri.
+- **Nitrous oksida (N₂O)**: dari pertanian, industri, dan pembakaran bahan bakar fosil. Sumber utamanya penggunaan pupuk sintetis dalam pertanian.
+- **Uap air (H₂O)**: tidak dihasilkan langsung oleh manusia.
 - **Gas lain** dalam jumlah kecil, misalnya hydrofluorocarbon (HFC) yang dipakai dalam refrigerasi dan pendinginan.
 
 ## Peran manusia
@@ -428,7 +428,7 @@ Menurut buku, wilayah yang berisiko tsunami tinggi antara lain Sumatra bagian se
 Tanda-tandanya: getaran gempa kecil, suhu meningkat, tumbuhan di lereng gunung layu, binatang bermigrasi, mata air mengering, dan sering terdengar suara gemuruh.
 
 Dampaknya:
-- udara tercemar abu vulkanik, seperti sulfur dioksida, nitrogen dioksida, dan hidrogen sulfida;
+- udara tercemar abu vulkanik dan gas vulkanik, seperti sulfur dioksida, nitrogen dioksida, dan hidrogen sulfida;
 - aktivitas lumpuh, ekosistem rusak, dan bangunan hancur;
 - penyakit seperti ISPA;
 - batu yang dimuntahkan dapat dimanfaatkan sebagai bahan bangunan.
@@ -486,7 +486,7 @@ Tujuannya:
 
 **Tsunami:**
 - menanam mangrove (bakau) di sepanjang pantai untuk menghambat gelombang;
-- membekali pengetahuan tentang gempa yang berpotensi tsunami: pusatnya di laut dangkal (0–30 km), kekuatannya paling rendah 6,5 SR, dengan sesar naik atau turun;
+- membekali pengetahuan tentang gempa yang berpotensi tsunami: pusatnya di laut dangkal (0–30 km) dan sesarnya naik atau turun;
 - sistem peringatan dini dan pemantauan berkala.
 
 **Gunung berapi:**
@@ -583,7 +583,7 @@ Tiga bentuk adaptasi tanah longsor:
 # Statements that are false or doubtful outside the book (see the hand-off) stay out of the lessons.
 DILUAR = ("dipantulkan", "pantulan", "gas cairan", "4.5", "4,5", "227.900", "karbon monoksida", "paling banyak",
           "paling melimpah", "8 bulan", "5,9", "6,8", "Berry", "floodway", "1.367", "2000 pulau", "salinitas", "EPA",
-          "Pencemaran udara meningkat", "3 jenis", "Karhutla terutama", "Ancamannya tinggi di sebagian", "terperangkap", "kaktus", "eduanya dipicu", "34 jiwa", "7,4", "tenggara Banda", "tiga jenis kerentanan", "keadaan rata-rata udara", "Banyuwangi",
+          "Pencemaran udara meningkat", "3 jenis", "Karhutla terutama", "Ancamannya tinggi di sebagian", "terperangkap", "kaktus", "6,5", "paling rendah", "kadarnya dipengaruhi", "nitrogen oksida", "Nitrogen oksida", "tercemar abu vulkanik, seperti", "eduanya dipicu", "34 jiwa", "7,4", "tenggara Banda", "tiga jenis kerentanan", "keadaan rata-rata udara", "Banyuwangi",
           "Pangandaran", "Merapi", "gegabah", "Aceh", "hilang tak terlihat")
 for _p in PELAJARAN:
     cek(3 <= _p["isi"].count("\n## ") + _p["isi"].startswith("## ") <= 6, f"lesson {_p['no']}: 3-6 pages")
@@ -680,7 +680,7 @@ def soal(ref, pel, tanya, jawab, pilihan, guna="", sulit="Mudah", petunjuk=""):
 # ── Pemetaan awal (pre-test): greenhouse gases, kerentanan, flood, adaptation.
 soal("PA1", 2, "Menurut buku, kelompok berikut yang seluruhnya termasuk gas rumah kaca adalah ...", "A", [
     ("karbon dioksida, metana, dan uap air", True, "Tepat. Nitrous oksida juga termasuk gas rumah kaca.", "", "grk_jenis"),
-    ("sulfur dioksida, nitrogen dioksida, dan hidrogen sulfida", False, "Ini gas dari abu vulkanik yang mencemari udara saat gunung meletus.", "SMA11-G-B4-03", "abu"),
+    ("sulfur dioksida, nitrogen dioksida, dan hidrogen sulfida", False, "Ini gas vulkanik yang mencemari udara saat gunung meletus.", "SMA11-G-B4-03", "abu"),
     ("lahar, bom, dan awan panas", False, "Ini material erupsi gunung berapi, bukan gas rumah kaca.", "SMA11-G-B4-03", "erupsi"),
     ("debu vulkanik dan lapili", False, "Ini material erupsi gunung berapi, bukan gas rumah kaca.", "SMA11-G-B4-03", "erupsi"),
 ], guna="Pemetaan awal")
@@ -712,7 +712,7 @@ soal("PB1", 1, "Menurut buku, iklim berbeda dengan cuaca. Iklim ...", "B", [
 ], guna="Cek penguasaan", sulit="Sedang")
 soal("PB2", 2, "Menurut buku, metana dihasilkan dari aktivitas manusia seperti ...", "D", [
     ("produksi peternakan dan pembuangan sampah organik", True, "Tepat. Juga dari produksi dan transportasi gas alam.", "", "metana"),
-    ("penggunaan pupuk sintetis dalam pertanian", False, "Ini sumber utama nitrogen oksida (N₂O).", "SMA11-G-B4-03", "n2o"),
+    ("penggunaan pupuk sintetis dalam pertanian", False, "Ini sumber utama nitrous oksida (N₂O).", "SMA11-G-B4-03", "n2o"),
     ("refrigerasi dan pendinginan", False, "Di sini dipakai hydrofluorocarbon (HFC).", "SMA11-G-B4-03", "hfc"),
     ("aktivitas industri, pembakaran hutan, dan perubahan penggunaan lahan", False, "Ini sumber karbon dioksida (CO₂).", "SMA11-G-B4-03", "co2_sumber"),
 ], guna="Cek penguasaan", sulit="Sedang")
@@ -780,7 +780,7 @@ soal("L4", 2, "Menurut buku, gas rumah kaca seperti karbon dioksida, metana, dan
     ("dihasilkan dari pembakaran bahan bakar fosil", False, "Ini sumber karbon dioksida, bukan cara gas rumah kaca menaikkan suhu.", "SMA11-G-B4-04", "co2_sumber"),
     ("pertumbuhan awan Cumulonimbus akibat intensifnya pemanasan", False, "Ini proses terjadinya angin puting beliung.", "SMA11-G-B4-04", "puting"),
 ])
-soal("L5", 2, "Menurut buku, sumber utama emisi nitrogen oksida (N₂O) adalah ...", "A", [
+soal("L5", 2, "Menurut buku, sumber utama emisi nitrous oksida (N₂O) adalah ...", "A", [
     ("penggunaan pupuk sintetis dalam pertanian", True, "Tepat. N₂O juga dihasilkan industri dan pembakaran bahan bakar fosil.", "", "n2o"),
     ("produksi dan transportasi gas alam", False, "Ini salah satu sumber metana.", "SMA11-G-B4-03", "metana"),
     ("refrigerasi dan pendinginan", False, "Di sini dipakai hydrofluorocarbon (HFC).", "SMA11-G-B4-03", "hfc"),

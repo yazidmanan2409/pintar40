@@ -146,6 +146,22 @@ None is copied into the workbook.
      legend), "Kalimatan Barat", "Bronto er al.".
    - p. 252: the Refleksi asks about "materi bab I".
 
+## Round 2 (coordinator's review)
+
+- **Tsunami mitigation (lesson 6).** The line keeps the shallow-sea centre (0–30 km) and the
+  rising or falling fault, and drops "kekuatannya paling rendah 6,5 SR": it is a rule of thumb,
+  not a floor, and p. 216's 5,9 contradicts it (book error 2).
+- **N₂O is named one way throughout.** "Nitrous oksida", the book's own words on p. 201, is now
+  used in the gas list, under sources, in L5's stem, and in PB2's and PA1's rationales.
+  "Nitrogen oksida" is avoided because it usually means the NOx of Bab 3's acid rain.
+- **Water vapour.** Lesson 2 keeps only "tidak dihasilkan langsung oleh manusia".
+- **Volcano impacts (lesson 5).** "udara tercemar abu vulkanik dan gas vulkanik, seperti sulfur
+  dioksida, nitrogen dioksida, dan hidrogen sulfida". PA1's rationale for B says "gas vulkanik".
+- **Kept out, and asserted.** `DILUAR` now also holds "6,5", "paling rendah", "kadarnya
+  dipengaruhi", "nitrogen oksida" and "tercemar abu vulkanik, seperti".
+- Keys, answer positions and assertion counts are unchanged: 922 with `--kutipan`, 921
+  without.
+
 ## Questions for the coordinator
 
 None. These statements look false or doubtful from outside the book. I left them out of every
@@ -187,6 +203,12 @@ lesson and question, as agreed for Bab 1-3:
   - karhutla "terutama … Kalimantan, Sumatra, dan Jawa" (p. 226);
   - in a drought all plants die "kecuali pohon jati dan kaktus", and drought "meningkatkan polusi"
     (p. 224).
+- **Raised in the coordinator's review:**
+  - 6,5 SR as a hard minimum for tsunamis (p. 231);
+  - N₂O called both "nitrous oksida" (p. 201) and "nitrogen oksida" (pp. 202-203);
+  - water vapour's level "dipengaruhi perubahan penggunaan lahan, polusi udara, dan industri"
+    (p. 203);
+  - SO₂, NO₂ and H₂S listed as "abu vulkanik" (p. 218).
 - **Adaptation:**
   - "Berry John (1980)" (p. 239). The three landslide strategies are kept, without the name;
   - floodway or sudetan counted as "adaptasi budaya" (p. 240).
