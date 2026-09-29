@@ -1,0 +1,1702 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 4: Keliling Bangun Datar",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Keliling Bangun Datar",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Apakah Keliling Itu?",
+       "summary": "Keliling adalah panjang jalan yang menyusuri semua tepi sebuah bangun satu kali sampai kembali ke titik awal.",
+       "body_markdown": "## Berlari 300 meter\n\nPak Guru meminta anak-anak berlari sejauh 300 m di lapangan sepak bola yang panjangnya 100 m dan lebarnya 50 m. Setelah berlari, mereka harus kembali ke tempat semula untuk melapor.\n\n- Nisa berlari bolak-balik di sisi panjang: 100 + 100 + 100 = 300 m. Tetapi ia berhenti di ujung lapangan yang lain, jauh dari Pak Guru.\n- Lukas berlari bolak-balik di sisi pendek enam kali: 6 × 50 = 300 m.\n- Asep menyusuri **semua tepi** lapangan satu kali: 100 + 50 + 100 + 50 = 300 m, dan ia tiba kembali di tempat semula.\n\nRute Asep disebut **mengelilingi** lapangan.\n\n## Arti keliling\n\nAsep berangkat dari satu titik, menyusuri tepi lapangan, dan berhenti di titik yang sama. Setiap sisi dilewati **tepat satu kali**. Panjang rute itu adalah **keliling** lapangan.\n\n**Keliling bangun datar adalah jumlah panjang semua sisinya.**\n\nKeliling lapangan = 100 + 50 + 100 + 50 = **300 m**.\n\nBolak-balik di satu sisi, atau melintasi tengah lapangan, bukan keliling.\n\n## Menghitung keliling\n\nSebuah persegi mempunyai empat sisi yang masing-masing 4 cm.\nKeliling = 4 + 4 + 4 + 4 = **16 cm**.\n\nSebuah segi empat mempunyai sisi 5 cm, 4 cm, 5 cm, dan 5 cm.\nKeliling = 5 + 4 + 5 + 5 = **19 cm**.\n\nKeliling adalah panjang, jadi satuannya cm atau m, sama dengan satuan sisinya.\n\n## Keliling di sekitar kita\n\nKita menghitung keliling bila yang diukur adalah **tepi**:\n\n- panjang pagar yang mengelilingi kebun,\n- panjang kayu untuk bingkai foto,\n- panjang pita untuk menghias tepi kado,\n- panjang benteng yang mengelilingi Keraton Yogyakarta.\n\nBila yang ditanyakan berapa ubin untuk **menutup** lantai, itu bukan keliling, tetapi luas.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 4._",
+       "objective": {
+        "statement": "Murid dapat mengenali masalah yang melibatkan keliling dan menghitung keliling sebagai jumlah panjang semua sisi.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Taman berbentuk persegi panjang dengan panjang 30 m dan lebar 20 m. Rani berjalan mengelilingi taman itu satu kali. Berapa jauh ia berjalan?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "50 m",
+           "is_correct": false,
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi lainnya terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "600 m",
+           "is_correct": false,
+           "rationale": "Panjang dan lebar dikalikan. Itu luas taman, bukan panjang jalan di tepinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "100 m",
+           "is_correct": true,
+           "rationale": "Benar. 30 + 20 + 30 + 20 = 100 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "200 m",
+           "is_correct": false,
+           "rationale": "Keliling dihitung dua kali. Rani berjalan satu kali putaran."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Manakah yang dihitung dengan keliling?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "Banyak ubin untuk menutup lantai kelas",
+           "is_correct": false,
+           "rationale": "Ubin menutup seluruh bagian dalam lantai. Itu luas, bukan keliling."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "Panjang pita untuk menghias tepi bingkai foto",
+           "is_correct": true,
+           "rationale": "Tepat. Pita dipasang di sepanjang tepi, jadi yang dihitung keliling bingkai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "Banyak cat untuk mengecat seluruh permukaan meja",
+           "is_correct": false,
+           "rationale": "Cat menutup seluruh permukaan meja. Itu luas, bukan keliling."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "Panjang tali dari ujung ke ujung satu sisi lapangan",
+           "is_correct": false,
+           "rationale": "Itu hanya satu sisi. Keliling menyusuri semua sisi sampai kembali ke titik awal."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dodi berlari mengelilingi lapangan yang panjangnya 60 m dan lebarnya 40 m sebanyak 2 kali. Berapa jauh Dodi berlari?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "200 m",
+           "is_correct": false,
+           "rationale": "Itu satu putaran. Dodi berlari 2 kali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "400 m",
+           "is_correct": true,
+           "rationale": "Benar. Satu putaran 60 + 40 + 60 + 40 = 200 m, jadi 2 putaran 400 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "100 m",
+           "is_correct": false,
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan, dan hanya untuk satu putaran."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "4.800 m",
+           "is_correct": false,
+           "rationale": "Panjang dikali lebar (luas), lalu dikali 2. Berlari mengelilingi berarti menjumlahkan sisi-sisinya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rute manakah yang panjangnya sama dengan keliling lapangan?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "Berlari bolak-balik di sepanjang satu sisi lapangan",
+           "is_correct": false,
+           "rationale": "Bolak-balik di satu sisi melewati sisi yang sama berulang kali; sisi lainnya tidak dilewati."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "Berlari melintasi tengah lapangan dari sudut ke sudut",
+           "is_correct": false,
+           "rationale": "Bagian tengah bukan tepi lapangan. Keliling hanya menyusuri tepinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "Menyusuri dua sisi lapangan, lalu berhenti",
+           "is_correct": false,
+           "rationale": "Baru dua sisi yang dilewati. Keliling menyusuri semua sisi sampai kembali ke titik awal."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "Menyusuri semua tepi satu kali sampai kembali ke awal",
+           "is_correct": true,
+           "rationale": "Tepat. Keliling melewati setiap sisi tepat satu kali dan kembali ke titik awal."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Keliling Segitiga",
+       "summary": "Keliling segitiga adalah jumlah ketiga sisinya; sisi yang sama panjang dapat dihitung dengan perkalian.",
+       "body_markdown": "## Segitiga sembarang\n\nPada segitiga sembarang, ketiga sisinya berbeda panjang. Jumlahkan saja ketiganya.\n\nSegitiga dengan sisi 3 cm, 5 cm, dan 6 cm:\nKeliling = 3 + 5 + 6 = **14 cm**.\n\n**Keliling = sisi pertama + sisi kedua + sisi ketiga**\n\n## Segitiga sama sisi\n\nKetiga sisi segitiga sama sisi sama panjang. Bila sisinya 5 cm:\n\nKeliling = 5 + 5 + 5 = 15 cm.\n\nMenjumlahkan tiga bilangan yang sama sama dengan mengalikannya dengan 3:\nKeliling = 3 × 5 = **15 cm**.\n\n**Keliling = 3 × panjang sisi**\n\n**Coba:** segitiga sama sisi dengan sisi 6 cm.\n_Periksa: 3 × 6 = 18 cm._\n\n## Segitiga sama kaki\n\nSegitiga sama kaki mempunyai **dua** sisi yang sama panjang (kaki) dan satu sisi lain (alas).\n\nKaki 6 cm dan alas 4 cm:\n\n1. Dua kaki: 2 × 6 = 12.\n2. Tambah alas: 12 + 4 = 16.\n3. Keliling = **16 cm**.\n\n**Keliling = (2 × panjang kaki) + panjang alas**\n\nHati-hati memilih sisi mana yang dikali 2: yang dikali 2 adalah sisi yang **ada dua**, yaitu kakinya.\n\n## Mencari sisi dari keliling\n\nKeliling segitiga sama sisi 27 cm. Berapa panjang sisinya?\n\nKeliling = 3 × sisi, jadi sisi = 27 : 3 = **9 cm**. Periksa: 3 × 9 = 27.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 4._",
+       "objective": {
+        "statement": "Murid dapat menghitung keliling segitiga sembarang, segitiga sama sisi, dan segitiga sama kaki.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga mempunyai sisi 7 cm, 9 cm, dan 11 cm. Berapa kelilingnya?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "27 cm",
+           "is_correct": true,
+           "rationale": "Benar. 7 + 9 + 11 = 27 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "18 cm",
+           "is_correct": false,
+           "rationale": "Hanya dua sisi yang dijumlahkan (7 + 11); sisi 9 cm terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "21 cm",
+           "is_correct": false,
+           "rationale": "Sisi 7 cm dikali 3, seolah ketiga sisinya sama panjang. Sisinya berbeda, jadi dijumlahkan satu per satu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "33 cm",
+           "is_correct": false,
+           "rationale": "Sisi 11 cm dikali 3, seolah segitiga sama sisi. Sisinya berbeda panjang."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga sama kaki mempunyai kaki 9 cm dan alas 5 cm. Berapa kelilingnya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "19 cm",
+           "is_correct": false,
+           "rationale": "Alas yang dikali 2 (2 × 5 + 9). Yang ada dua adalah kakinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "23 cm",
+           "is_correct": true,
+           "rationale": "Benar. Dua kaki 2 × 9 = 18, ditambah alas 5: 18 + 5 = 23 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "14 cm",
+           "is_correct": false,
+           "rationale": "Hanya satu kaki dan alas yang dijumlahkan; kaki yang lain terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "27 cm",
+           "is_correct": false,
+           "rationale": "Kaki dikali 3, seolah segitiga sama sisi. Alasnya berbeda panjang."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga sembarang mempunyai sisi 8 cm, 12 cm, dan 15 cm. Berapa kelilingnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "35 cm",
+           "is_correct": true,
+           "rationale": "Benar. 8 + 12 + 15 = 35 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "20 cm",
+           "is_correct": false,
+           "rationale": "Hanya dua sisi yang dijumlahkan; sisi 15 cm terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "24 cm",
+           "is_correct": false,
+           "rationale": "Sisi 8 cm dikali 3, seolah ketiga sisinya sama. Pada segitiga sembarang, sisinya dijumlahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "45 cm",
+           "is_correct": false,
+           "rationale": "Sisi 15 cm dikali 3, seolah ketiga sisinya sama. Sisinya berbeda panjang."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah rambu lalu lintas berbentuk segitiga sama sisi dengan sisi 11 dm. Berapa kelilingnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "22 dm",
+           "is_correct": false,
+           "rationale": "Dikali 2. Segitiga mempunyai 3 sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "121 dm",
+           "is_correct": false,
+           "rationale": "Sisi dikali dirinya sendiri (11 × 11). Pengalinya banyak sisi, yaitu 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "33 dm",
+           "is_correct": true,
+           "rationale": "Benar. Ketiga sisinya sama: 3 × 11 = 33 dm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "44 dm",
+           "is_correct": false,
+           "rationale": "Dikali 4, seperti persegi. Segitiga mempunyai 3 sisi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Keliling sebuah segitiga sama kaki 30 cm dan alasnya 8 cm. Berapa panjang setiap kakinya?",
+         "petunjuk": "Kurangi keliling dengan alasnya dulu. Sisanya adalah panjang dua kaki.",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "22 cm",
+           "is_correct": false,
+           "rationale": "22 cm adalah panjang kedua kaki bersama, hasil langkah pertama. Satu kaki = 22 : 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "11 cm",
+           "is_correct": true,
+           "rationale": "Benar. Dua kaki = 30 − 8 = 22 cm, jadi satu kaki = 22 : 2 = 11 cm. Periksa: 11 + 11 + 8 = 30."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "10 cm",
+           "is_correct": false,
+           "rationale": "Keliling dibagi 3, seolah ketiga sisinya sama. Alasnya berbeda, 8 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "15 cm",
+           "is_correct": false,
+           "rationale": "Keliling dibagi 2 tanpa mengurangi alasnya lebih dulu."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Keliling Persegi Panjang, Jajargenjang, dan Layang-Layang",
+       "summary": "Ketiga bangun ini mempunyai dua pasang sisi yang sama panjang, jadi kelilingnya dua kali sisi yang satu ditambah dua kali sisi yang lain.",
+       "body_markdown": "## Persegi panjang\n\nSisi-sisi yang berhadapan pada persegi panjang sama panjang. Persegi panjang dengan panjang 5 cm dan lebar 3 cm mempunyai sisi 5, 3, 5, dan 3 cm.\n\n1. Keliling = 5 + 3 + 5 + 3.\n2. Kelompokkan yang sama: (5 + 5) + (3 + 3) = (2 × 5) + (2 × 3).\n3. = 10 + 6 = **16 cm**.\n\n**Keliling = (2 × panjang) + (2 × lebar)**\n\nPada gambar biasanya hanya panjang dan lebar yang ditulis. Dua sisi lainnya tidak ditulis karena sudah pasti sama. Jangan sampai terlewat.\n\n## Jajargenjang\n\nSisi-sisi yang berhadapan pada jajargenjang juga sama panjang. Jajargenjang dengan sisi alas 5 cm dan sisi samping 3 cm:\n\nKeliling = (2 × 5) + (2 × 3) = 10 + 6 = **16 cm**.\n\n**Keliling = (2 × sisi alas) + (2 × sisi samping)**\n\n## Layang-layang\n\nLayang-layang juga mempunyai dua pasang sisi yang sama panjang, tetapi letaknya **berdampingan**, bukan berhadapan: dua sisi pendek bertemu di satu ujung, dan dua sisi panjang bertemu di ujung yang lain.\n\nLayang-layang dengan sisi pendek 3 cm dan sisi panjang 7 cm:\n\nKeliling = 3 + 3 + 7 + 7 = (2 × 3) + (2 × 7) = 6 + 14 = **20 cm**.\n\n**Keliling = (2 × sisi pendek) + (2 × sisi panjang)**\n\n## Satu pola untuk tiga bangun\n\nKetiga bangun mempunyai **dua pasang** sisi yang sama panjang, jadi rumusnya berpola sama:\n\n(2 × sisi yang satu) + (2 × sisi yang lain)\n\nBanyaknya sisi yang sama panjang menjadi pengalinya.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 4._",
+       "objective": {
+        "statement": "Murid dapat menghitung keliling persegi panjang, jajargenjang, dan layang-layang.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Papan tulis berbentuk persegi panjang dengan panjang 16 dm dan lebar 9 dm. Berapa keliling papan tulis itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "25 dm",
+           "is_correct": false,
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi yang berhadapan terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "144 dm",
+           "is_correct": false,
+           "rationale": "Panjang dikali lebar. Itu luas papan tulis, bukan kelilingnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "100 dm",
+           "is_correct": false,
+           "rationale": "Keliling dihitung dua kali: (2 × 16) + (2 × 9) sudah memuat keempat sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "50 dm",
+           "is_correct": true,
+           "rationale": "Benar. (2 × 16) + (2 × 9) = 32 + 18 = 50 dm."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah jajargenjang mempunyai sisi alas 12 cm dan sisi samping 7 cm. Berapa kelilingnya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "38 cm",
+           "is_correct": true,
+           "rationale": "Benar. Sisi yang berhadapan sama panjang: (2 × 12) + (2 × 7) = 24 + 14 = 38 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "19 cm",
+           "is_correct": false,
+           "rationale": "Hanya sisi alas dan sisi samping yang dijumlahkan; dua sisi di seberangnya terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "84 cm",
+           "is_correct": false,
+           "rationale": "Kedua sisi dikalikan. Keliling adalah jumlah panjang sisinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "48 cm",
+           "is_correct": false,
+           "rationale": "Sisi alas dikali 4, seolah keempat sisinya sama. Sisi samping lebih pendek."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kebun berbentuk persegi panjang, 25 m × 12 m, akan dipagari di sekelilingnya. Bagian selebar 3 m dibiarkan terbuka untuk pintu. Berapa meter pagar yang diperlukan?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "71 m",
+           "is_correct": true,
+           "rationale": "Benar. Keliling (2 × 25) + (2 × 12) = 74 m, dikurangi pintu 3 m = 71 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "74 m",
+           "is_correct": false,
+           "rationale": "Itu keliling seluruh kebun. Pintu selebar 3 m tidak dipagari."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "297 m",
+           "is_correct": false,
+           "rationale": "Panjang dikali lebar (luas) lalu dikurangi 3. Pagar mengikuti tepi kebun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "34 m",
+           "is_correct": false,
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan (25 + 12 − 3); dua sisi lainnya terlewat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah meja berbentuk persegi panjang dengan panjang 18 dm dan lebar 7 dm. Berapa keliling meja itu?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "25 dm",
+           "is_correct": false,
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi di seberangnya terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "126 dm",
+           "is_correct": false,
+           "rationale": "Panjang dikali lebar. Itu luas meja."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "50 dm",
+           "is_correct": true,
+           "rationale": "Benar. (2 × 18) + (2 × 7) = 36 + 14 = 50 dm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "43 dm",
+           "is_correct": false,
+           "rationale": "Panjang dikali 2, tetapi lebar hanya dihitung sekali. Ada dua sisi lebar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah layang-layang mempunyai sisi pendek 5 dm dan sisi panjang 9 dm. Berapa panjang bingkai bambu yang mengelilinginya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "28 dm",
+           "is_correct": true,
+           "rationale": "Benar. Ada dua sisi pendek dan dua sisi panjang: (2 × 5) + (2 × 9) = 10 + 18 = 28 dm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "14 dm",
+           "is_correct": false,
+           "rationale": "Hanya satu sisi pendek dan satu sisi panjang yang dijumlahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "45 dm",
+           "is_correct": false,
+           "rationale": "Kedua sisi dikalikan. Keliling adalah jumlah sisinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "20 dm",
+           "is_correct": false,
+           "rationale": "Sisi pendek dikali 4, seolah keempat sisinya sama. Dua sisinya lebih panjang."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Keliling sebuah persegi panjang 40 cm dan panjangnya 12 cm. Berapa lebarnya?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "28 cm",
+           "is_correct": false,
+           "rationale": "Keliling hanya dikurangi satu panjang. Persegi panjang mempunyai dua sisi panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "16 cm",
+           "is_correct": false,
+           "rationale": "16 cm adalah panjang kedua lebar bersama. Satu lebar = 16 : 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "10 cm",
+           "is_correct": false,
+           "rationale": "Keliling dibagi 4, seolah persegi. Panjang dan lebarnya berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "8 cm",
+           "is_correct": true,
+           "rationale": "Benar. Dua panjang = 24 cm, jadi dua lebar = 40 − 24 = 16 cm, dan satu lebar = 8 cm."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Ayah membuat 3 bingkai foto berbentuk persegi panjang, masing-masing 25 cm × 18 cm. Berapa panjang kayu yang diperlukan untuk ketiga bingkai?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "86 cm",
+           "is_correct": false,
+           "rationale": "Itu kayu untuk satu bingkai. Ayah membuat 3 bingkai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "258 cm",
+           "is_correct": true,
+           "rationale": "Benar. Satu bingkai (2 × 25) + (2 × 18) = 86 cm, jadi tiga bingkai 3 × 86 = 258 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "129 cm",
+           "is_correct": false,
+           "rationale": "Setiap bingkai hanya dihitung panjang + lebar; dua sisi lainnya terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "450 cm",
+           "is_correct": false,
+           "rationale": "Panjang dikali lebar (luas satu bingkai). Kayu bingkai mengikuti tepinya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Taman berbentuk persegi panjang, 20 m × 15 m. Di sepanjang tepinya ditanam pohon setiap 5 m, mulai dari satu pojok sampai kembali ke pojok itu. Berapa banyak pohon yang ditanam?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "15 pohon",
+           "is_correct": false,
+           "rationale": "Ditambah satu seperti menanam di sepanjang garis lurus. Pada tepi yang tertutup, titik akhir sama dengan titik awal."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "70 pohon",
+           "is_correct": false,
+           "rationale": "70 adalah keliling taman dalam meter, bukan banyak pohon. Pohon ditanam setiap 5 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "14 pohon",
+           "is_correct": true,
+           "rationale": "Benar. Keliling 70 m, dan 70 : 5 = 14. Pohon terakhir akan jatuh di pojok awal yang sudah ada pohonnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "60 pohon",
+           "is_correct": false,
+           "rationale": "Yang dibagi 5 adalah luas taman (300). Pohon ditanam di tepi, jadi yang dibagi keliling."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Keliling Persegi, Belah Ketupat, Trapesium, dan Segi Empat Sembarang",
+       "summary": "Persegi dan belah ketupat mempunyai empat sisi sama panjang; trapesium dan segi empat sembarang dihitung dengan menjumlahkan keempat sisinya.",
+       "body_markdown": "## Persegi\n\nKeempat sisi persegi sama panjang. Persegi dengan sisi 3 cm:\n\nKeliling = 3 + 3 + 3 + 3 = 4 × 3 = **12 cm**.\n\n**Keliling = 4 × panjang sisi**\n\n## Belah ketupat\n\nKeempat sisi belah ketupat juga sama panjang, walaupun bentuknya miring. Jadi kelilingnya dihitung seperti persegi.\n\nBelah ketupat dengan sisi 3 cm: Keliling = 4 × 3 = **12 cm**.\n\n**Keliling = 4 × panjang sisi**\n\n## Trapesium dan segi empat sembarang\n\nPada trapesium dan segi empat sembarang, sisi-sisinya biasanya tidak sama panjang. Tidak ada pengali, jadi **jumlahkan keempat sisinya satu per satu**.\n\nTrapesium dengan sisi 4 cm, 2 cm, 5 cm, dan 3 cm:\nKeliling = 4 + 2 + 5 + 3 = **14 cm**.\n\n**Keliling = sisi 1 + sisi 2 + sisi 3 + sisi 4**\n\n## Kapan boleh mengalikan?\n\nPerkalian hanya boleh dipakai untuk sisi yang **benar-benar sama panjang**.\n\n| Bangun | Sisi yang sama | Keliling |\n|---|---|---|\n| Persegi, belah ketupat | keempatnya | 4 × sisi |\n| Persegi panjang, jajargenjang, layang-layang | dua pasang | (2 × sisi satu) + (2 × sisi lain) |\n| Trapesium, segi empat sembarang | biasanya tidak ada | jumlahkan keempat sisi |\n\n**Coba:** trapesium dengan sisi 10 cm, 6 cm, 5 cm, dan 5 cm. Bolehkah ditulis 4 × 10?\n_Periksa: tidak, sisinya tidak sama panjang. Keliling = 10 + 6 + 5 + 5 = 26 cm._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 4._",
+       "objective": {
+        "statement": "Murid dapat menghitung keliling persegi, belah ketupat, trapesium, dan segi empat sembarang.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah persegi mempunyai sisi 6 cm. Berapa kelilingnya?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "36 cm",
+           "is_correct": false,
+           "rationale": "Sisi dikali sisi (6 × 6). Itu luas persegi, bukan kelilingnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "12 cm",
+           "is_correct": false,
+           "rationale": "Sisi dikali 2. Persegi mempunyai 4 sisi, jadi dikali 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "18 cm",
+           "is_correct": false,
+           "rationale": "Sisi dikali 3, seperti segitiga sama sisi. Persegi mempunyai 4 sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "24 cm",
+           "is_correct": true,
+           "rationale": "Benar. Persegi mempunyai 4 sisi sama panjang: 4 × 6 = 24 cm."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah trapesium mempunyai sisi sejajar 14 cm dan 8 cm. Kedua sisi miringnya sama panjang, yaitu 5 cm. Berapa keliling trapesium itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "27 cm",
+           "is_correct": false,
+           "rationale": "Sisi miring hanya dihitung satu. Ada dua sisi miring yang masing-masing 5 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "56 cm",
+           "is_correct": false,
+           "rationale": "Sisi 14 cm dikali 4, seolah keempat sisinya sama. Sisi trapesium berbeda-beda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "32 cm",
+           "is_correct": true,
+           "rationale": "Benar. 14 + 8 + 5 + 5 = 32 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "22 cm",
+           "is_correct": false,
+           "rationale": "Hanya dua sisi sejajar yang dijumlahkan; kedua sisi miring terlewat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah persegi mempunyai sisi 13 cm. Berapa kelilingnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "26 cm",
+           "is_correct": false,
+           "rationale": "Dikali 2. Persegi mempunyai 4 sisi sama panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "52 cm",
+           "is_correct": true,
+           "rationale": "Benar. 4 × 13 = 52 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "169 cm",
+           "is_correct": false,
+           "rationale": "Sisi dikali sisi. Itu luas persegi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "39 cm",
+           "is_correct": false,
+           "rationale": "Dikali 3, seperti segitiga sama sisi. Persegi mempunyai 4 sisi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Taplak meja berbentuk belah ketupat dengan sisi 45 cm. Ibu ingin memasang renda di seluruh tepinya. Berapa panjang renda yang diperlukan?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "90 cm",
+           "is_correct": false,
+           "rationale": "Dikali 2. Belah ketupat mempunyai 4 sisi sama panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "2.025 cm",
+           "is_correct": false,
+           "rationale": "Sisi dikali sisi. Renda dipasang di tepi, jadi yang dihitung keliling."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "180 cm",
+           "is_correct": true,
+           "rationale": "Benar. Keempat sisi belah ketupat sama panjang: 4 × 45 = 180 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "135 cm",
+           "is_correct": false,
+           "rationale": "Dikali 3; ada satu sisi yang terlewat. Belah ketupat mempunyai 4 sisi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segi empat sembarang mempunyai sisi 6 cm, 9 cm, 4 cm, dan 11 cm. Berapa kelilingnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "24 cm",
+           "is_correct": false,
+           "rationale": "Sisi pertama dikali 4, seolah persegi. Sisi-sisinya berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "44 cm",
+           "is_correct": false,
+           "rationale": "Sisi terpanjang dikali 4. Sisi-sisinya berbeda, jadi dijumlahkan satu per satu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "19 cm",
+           "is_correct": false,
+           "rationale": "Sisi 11 cm terlewat. Segi empat mempunyai 4 sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "30 cm",
+           "is_correct": true,
+           "rationale": "Benar. Sisinya berbeda-beda, jadi dijumlahkan: 6 + 9 + 4 + 11 = 30 cm."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Keliling Segi Banyak Beraturan",
+       "summary": "Pada segi banyak beraturan semua sisi sama panjang, jadi kelilingnya adalah banyak sisi dikali panjang satu sisi.",
+       "body_markdown": "## Segi lima beraturan\n\nSegi lima beraturan mempunyai **5 sisi** yang sama panjang. Bila setiap sisinya 3 cm:\n\nKeliling = 3 + 3 + 3 + 3 + 3 = 5 × 3 = **15 cm**.\n\n## Segi enam dan segi delapan beraturan\n\nSegi enam beraturan mempunyai 6 sisi sama panjang. Sisi 3 cm:\nKeliling = 6 × 3 = **18 cm**.\n\nSegi delapan beraturan mempunyai 8 sisi sama panjang. Sisi 4 cm:\nKeliling = 8 × 4 = **32 cm**.\n\n## Polanya\n\n| Bangun beraturan | Banyak sisi | Keliling |\n|---|---|---|\n| Persegi | 4 | 4 × panjang sisi |\n| Segi lima | 5 | 5 × panjang sisi |\n| Segi enam | 6 | 6 × panjang sisi |\n| Segi delapan | 8 | 8 × panjang sisi |\n\n**Keliling segi banyak beraturan = banyak sisi × panjang satu sisi**\n\nNama bangunnya memberi tahu pengalinya: segi **enam** berarti dikali **6**.\n\nBila sisinya **tidak** sama panjang, pola ini tidak berlaku: jumlahkan semua sisinya satu per satu.\n\n## Mencari panjang sisi\n\nKeliling segi delapan beraturan 56 cm. Berapa panjang sisinya?\n\nKeliling = 8 × sisi, jadi sisi = 56 : 8 = **7 cm**. Periksa: 8 × 7 = 56.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 4._",
+       "objective": {
+        "statement": "Murid dapat menghitung keliling segi lima, segi enam, dan segi delapan beraturan.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah ubin berbentuk segi enam beraturan dengan panjang sisi 7 cm. Berapa keliling ubin itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "35 cm",
+           "is_correct": false,
+           "rationale": "Dikali 5, seperti segi lima. Segi enam mempunyai 6 sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "56 cm",
+           "is_correct": false,
+           "rationale": "Dikali 8, seperti segi delapan. Segi enam mempunyai 6 sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "49 cm",
+           "is_correct": false,
+           "rationale": "Sisi dikali dirinya sendiri (7 × 7). Pengalinya adalah banyak sisi, yaitu 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "42 cm",
+           "is_correct": true,
+           "rationale": "Benar. Segi enam beraturan mempunyai 6 sisi sama panjang: 6 × 7 = 42 cm."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Keliling sebuah segi lima beraturan 45 cm. Berapa panjang setiap sisinya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "225 cm",
+           "is_correct": false,
+           "rationale": "Keliling dikali 5. Satu sisi pasti lebih pendek dari kelilingnya, jadi dibagi 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "9 cm",
+           "is_correct": true,
+           "rationale": "Benar. Keliling = 5 × sisi, jadi sisi = 45 : 5 = 9 cm. Periksa: 5 × 9 = 45."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "40 cm",
+           "is_correct": false,
+           "rationale": "Keliling dikurangi 5. Keliling = 5 × sisi, jadi sisi didapat dengan membagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "15 cm",
+           "is_correct": false,
+           "rationale": "Dibagi 3, seperti segitiga sama sisi. Segi lima mempunyai 5 sisi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah rambu berhenti berbentuk segi delapan beraturan dengan sisi 6 dm. Berapa kelilingnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "48 dm",
+           "is_correct": true,
+           "rationale": "Benar. Segi delapan beraturan mempunyai 8 sisi: 8 × 6 = 48 dm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "36 dm",
+           "is_correct": false,
+           "rationale": "Dikali 6, seperti segi enam. Segi delapan mempunyai 8 sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "30 dm",
+           "is_correct": false,
+           "rationale": "Dikali 5, seperti segi lima. Segi delapan mempunyai 8 sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "24 dm",
+           "is_correct": false,
+           "rationale": "Dikali 4, seperti persegi. Segi delapan mempunyai 8 sisi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Keliling sebuah segi enam beraturan 54 cm. Berapa panjang setiap sisinya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "324 cm",
+           "is_correct": false,
+           "rationale": "Keliling dikali 6. Satu sisi pasti lebih pendek dari keliling, jadi dibagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "48 cm",
+           "is_correct": false,
+           "rationale": "Keliling dikurangi 6. Keliling = 6 × sisi, jadi sisi didapat dengan membagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "9 cm",
+           "is_correct": true,
+           "rationale": "Benar. Sisi = 54 : 6 = 9 cm. Periksa: 6 × 9 = 54."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "27 cm",
+           "is_correct": false,
+           "rationale": "Dibagi 2. Segi enam mempunyai 6 sisi, jadi dibagi 6."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Keliling Bangun Gabungan",
+       "summary": "Keliling bangun gabungan adalah jumlah panjang sisi-sisi terluarnya; sisi yang belum tertulis dicari dari sisi di seberangnya.",
+       "body_markdown": "## Hanya tepi terluar\n\nDenah sebuah rumah terdiri atas dua ruangan: ruang A berukuran 8 m × 3 m, dan ruang B berukuran 3 m × 4 m tepat di bawah ujung kiri ruang A. Dinding di antara kedua ruangan ada di **dalam** rumah.\n\nBerapa panjang dinding terluar rumah itu? Bayangkan kamu berjalan menyusuri tepi luarnya, mulai dari pojok kiri atas:\n\nke kanan 8 m, ke bawah 3 m, ke kiri 5 m, ke bawah 4 m, ke kiri 3 m, lalu naik 7 m kembali ke titik awal.\n\nKeliling = 8 + 3 + 5 + 4 + 3 + 7 = **30 m**.\n\nMenjumlahkan keliling kedua ruangan, 22 + 14 = 36 m, **tidak** tepat: dinding di dalam rumah ikut terhitung dua kali.\n\n## Mencari sisi yang belum tertulis\n\nSering ada sisi yang panjangnya tidak tertulis. Carilah dari sisi di seberangnya.\n\nPada rumah tadi, anggap hanya tertulis: atas 8 m, kanan 3 m, bawah ruang B 3 m, dan kiri 7 m.\n\n1. Sisi mendatar ke kiri harus sama dengan sisi atas: 8 = ... + 3, jadi sisi mendatar di tengah = 8 − 3 = **5 m**.\n2. Sisi tegak ke bawah harus sama dengan sisi kiri: 7 = 3 + ..., jadi sisi tegak ruang B = 7 − 3 = **4 m**.\n\nSekarang semua sisi terluar diketahui, dan kelilingnya 30 m.\n\n## Cara cepat: persegi panjang pelingkup\n\nPada rumah tadi, semua sisi mendatar yang \"ke kiri\" jumlahnya sama dengan sisi atas (5 + 3 = 8), dan semua sisi tegak yang \"ke bawah\" sama dengan sisi kiri (3 + 4 = 7). Jadi kelilingnya sama dengan keliling persegi panjang 8 m × 7 m yang melingkupinya:\n\nKeliling = (2 × 8) + (2 × 7) = **30 m**.\n\nCara ini hanya berlaku bila tepinya seperti tangga, tanpa **lekukan** ke dalam.\n\n## Bila ada lekukan\n\nSebuah bangun berbentuk huruf U. Mulai dari pojok kiri atas: ke kanan 2 m, ke bawah 2 m, ke kanan 3 m, ke atas 2 m, ke kanan 2 m, ke bawah 5 m, ke kiri 7 m, dan naik 5 m.\n\nKeliling = 2 + 2 + 3 + 2 + 2 + 5 + 7 + 5 = **28 m**.\n\nPersegi panjang pelingkupnya 7 m × 5 m, kelilingnya 24 m. Hasil itu kurang 4 m, karena dua dinding lekukan (masing-masing 2 m) tidak ikut terhitung. Bila ada lekukan, jumlahkan semua sisi satu per satu.\n\n## Rangkuman Bab 4\n\n- **Keliling** adalah jumlah panjang semua sisi terluar, dilewati tepat satu kali.\n- Segitiga sama sisi: 3 × sisi. Segitiga sama kaki: (2 × kaki) + alas.\n- Persegi panjang, jajargenjang, layang-layang: (2 × sisi satu) + (2 × sisi lain).\n- Persegi, belah ketupat: 4 × sisi. Segi banyak beraturan: banyak sisi × panjang sisi.\n- Trapesium, segi empat sembarang, dan bangun lain yang sisinya berbeda: jumlahkan semua sisinya.\n- Bangun gabungan: hanya sisi terluar; cari sisi yang belum tertulis dari sisi di seberangnya.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 4._",
+       "objective": {
+        "statement": "Murid dapat menguraikan bangun gabungan dan menghitung kelilingnya dari sisi-sisi terluarnya.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kebun Pak Tani berbentuk huruf L. Mulai dari pojok kiri atas, tepinya: ke kanan 10 m, ke bawah 4 m, ke kiri 6 m, ke bawah 5 m, ke kiri 4 m, lalu naik lurus kembali ke titik awal. Berapa keliling kebun itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "29 m",
+           "is_correct": false,
+           "rationale": "Sisi terakhir yang naik kembali tidak dihitung. Panjangnya 4 + 5 = 9 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "46 m",
+           "is_correct": false,
+           "rationale": "Keliling dua persegi panjang penyusunnya (28 + 18) dijumlahkan; sisi di dalam kebun ikut terhitung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "38 m",
+           "is_correct": true,
+           "rationale": "Benar. Sisi terakhir naik 4 + 5 = 9 m, jadi 10 + 4 + 6 + 5 + 4 + 9 = 38 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "60 m",
+           "is_correct": false,
+           "rationale": "Itu luas kebun (40 + 20). Keliling adalah panjang tepinya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Gambar rumah dibuat dari sebuah persegi bersisi 6 cm dengan segitiga sama sisi bersisi 6 cm di atasnya sebagai atap. Berapa keliling gambar rumah itu?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "42 cm",
+           "is_correct": false,
+           "rationale": "Keliling persegi (24) dan keliling segitiga (18) dijumlahkan; sisi di antara keduanya terhitung dua kali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "30 cm",
+           "is_correct": true,
+           "rationale": "Benar. Tepi terluarnya 3 sisi persegi dan 2 sisi atap: 5 × 6 = 30 cm. Sisi di antara dinding dan atap ada di dalam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "36 cm",
+           "is_correct": false,
+           "rationale": "Sisi di antara dinding dan atap ikut dihitung. Sisi itu ada di dalam gambar, bukan di tepi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "24 cm",
+           "is_correct": false,
+           "rationale": "Hanya keliling persegi yang dihitung; dua sisi atap terlewat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Mulai dari pojok kiri atas, tepi sebuah lantai: ke kanan 7 m, ke bawah 3 m, ke kanan 5 m, ke bawah 6 m, lalu lurus ke kiri dan naik kembali ke titik awal. Berapa keliling lantai itu?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "21 m",
+           "is_correct": false,
+           "rationale": "Dua sisi yang tidak tertulis (bawah dan kiri) tidak dihitung. Panjangnya bisa dicari dari sisi seberangnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "93 m",
+           "is_correct": false,
+           "rationale": "Itu luas lantai (21 + 72). Keliling adalah panjang tepinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "30 m",
+           "is_correct": false,
+           "rationale": "Sisi kiri 9 m sudah dicari, tetapi sisi bawah 12 m belum ikut dijumlahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "42 m",
+           "is_correct": true,
+           "rationale": "Benar. Sisi bawah 7 + 5 = 12 m dan sisi kiri 3 + 6 = 9 m, jadi 7 + 3 + 5 + 6 + 12 + 9 = 42 m."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah kolam berbentuk huruf U. Mulai dari pojok kiri atas, tepinya: ke kanan 3 m, ke bawah 3 m, ke kanan 4 m, ke atas 3 m, ke kanan 3 m, ke bawah 6 m, ke kiri 10 m, lalu naik 6 m. Berapa keliling kolam itu?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "38 m",
+           "is_correct": true,
+           "rationale": "Benar. 3 + 3 + 4 + 3 + 3 + 6 + 10 + 6 = 38 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "32 m",
+           "is_correct": false,
+           "rationale": "Dihitung dengan persegi panjang pelingkup 10 m × 6 m. Kolam ini mempunyai lekukan, jadi dua dinding lekukan (3 m dan 3 m) tidak terhitung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "48 m",
+           "is_correct": false,
+           "rationale": "Itu luas kolam. Keliling adalah panjang tepinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "35 m",
+           "is_correct": false,
+           "rationale": "Hanya satu dinding lekukan yang ditambahkan ke keliling pelingkup. Lekukan mempunyai dua dinding."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
