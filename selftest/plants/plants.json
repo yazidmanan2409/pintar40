@@ -39,9 +39,68 @@
       "suite": "selftest.run_fable14()",
       "control_green": 3,
       "what": "BOB-06's standard reports: every school carries PINTAR's class and school reports from creation, in the standard assembly, and PINTAR's rows and the provisioning pass are nobody else's"
+    },
+    "db-bob12-gates": {
+      "suite": "selftest.run_fable15()",
+      "control_green": 3,
+      "what": "BOB-12's card cooldown: 5 free attempts in 15 minutes, then 30 s doubling to a 5-minute cap, forgotten after 15 minutes, never a lock; a sign-in clears it and an attempt Auth never judged counts for nothing; the table and both functions are the sign-in route's alone (service_role)"
     }
   },
   "plants": [
+    {
+      "name": "bob12-1",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-P01",
+      "expect_detail": "the 6th attempt within 15 minutes waits 0 s"
+    },
+    {
+      "name": "bob12-2",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-P01",
+      "expect_detail": "expected 300"
+    },
+    {
+      "name": "bob12-3",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-P01",
+      "expect_detail": "five attempts 16 minutes old still counted"
+    },
+    {
+      "name": "bob12-4",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-P01",
+      "expect_detail": "a waiting attempt was recorded"
+    },
+    {
+      "name": "bob12-5",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-P02",
+      "expect_detail": "a sign-in did not clear the card's record"
+    },
+    {
+      "name": "bob12-6",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-P02",
+      "expect_detail": "unjudged attempts were kept"
+    },
+    {
+      "name": "bob12-7",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-N01",
+      "expect_detail": "anon can call the card cooldown"
+    },
+    {
+      "name": "bob12-8",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-N01",
+      "expect_detail": "authenticated holds a grant on card_signin_cooldowns"
+    },
+    {
+      "name": "bob12-9",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-P02",
+      "expect_detail": "judged attempt(s) went ahead before the card waited"
+    },
     {
       "name": "wp7-a",
       "gate": "db-wp7-gates",

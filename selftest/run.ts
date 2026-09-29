@@ -16,6 +16,7 @@
  *   app    selftest/app.test.ts (production-mode `next start`, plus the
  *          Supabase project's HTTP surface when reachable)
  */
+import { createHash } from "node:crypto";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -143,6 +144,7 @@ const DB_RUNNERS = [
   { file: "fable12.sql", fn: "selftest.run_fable12()", done: "F12-DONE", emits: ["F12-"] },
   { file: "fable13.sql", fn: "selftest.run_fable13()", done: "F13-DONE", emits: ["F13-"] },
   { file: "fable14.sql", fn: "selftest.run_fable14()", done: "F14-DONE", emits: ["F14-"] },
+  { file: "fable15.sql", fn: "selftest.run_fable15()", done: "F15-DONE", emits: ["F15-"] },
 ] as const;
 
 /**
@@ -204,7 +206,54 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.includes("F07-C01")) out.push(await runFeedbackConcurrency(dbUrl));
   if (!only || only.includes("F09-C01")) out.push(runSignupOnAFreshConnection(dbUrl));
   if (!only || only.some((x) => /^F10-C0[1234]$/.test(x))) out.push(...(await runStructureConcurrency(dbUrl, only)));
+  if (!only || only.includes("F15-C01")) out.push(await runCardConcurrency(dbUrl));
   return out;
+}
+
+/**
+ * F15-C01 — BOB-12 (b): twenty guesses at one card at the same moment.
+ *
+ * A check that reads the count and then records the attempt would let every
+ * parallel guess read "fewer than 5" and all twenty reach Auth. So twenty real
+ * connections call card_signin_attempt for one card key at once, as the sign-in
+ * route does (service_role): exactly 5 may go ahead, the other 15 are told to
+ * wait about 30 s, and the card's row holds exactly 5 attempts. A sign-in then
+ * clears it. The row is removed afterwards.
+ */
+async function runCardConcurrency(dbUrl: string): Promise<Outcome> {
+  const kunci = createHash("sha256").update(`f15-c01|${Date.now()}|${Math.random()}`).digest("hex");
+  const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+  const satu = () =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c",
+        `set role service_role; select public.card_signin_attempt('${kunci}')`, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8");
+      p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d));
+      p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+  const semua = await Promise.all(Array.from({ length: 20 }, satu));
+  const tersimpan = psql(`select coalesce((select cardinality(percobaan) from public.card_signin_cooldowns where kunci = '${kunci}'), -1)`).stdout.trim();
+  const selesai = psql(`set role service_role; select public.card_signin_settle('${kunci}', 'MASUK'); reset role; ` +
+    `select count(*) from public.card_signin_cooldowns where kunci = '${kunci}'`).stdout.trim().split("\n").pop();
+  psql(`delete from public.card_signin_cooldowns where kunci = '${kunci}'`);
+  const problems: string[] = [];
+  const gagal = semua.filter((r) => r.code !== 0 || !/^\d+$/.test(r.out.split("\n").pop() ?? ""));
+  if (gagal.length) problems.push(`${gagal.length} attempt(s) failed: ${gagal[0].out.slice(0, 120)}`);
+  const jawab = semua.map((r) => Number(r.out.split("\n").pop()));
+  const maju = jawab.filter((v) => v === 0).length;
+  const tunggu = jawab.filter((v) => v > 0);
+  if (maju !== 5) problems.push(`${maju} of 20 simultaneous attempts went ahead to Auth; exactly 5 may`);
+  if (tunggu.some((v) => v < 28 || v > 30)) problems.push(`the waits were ${[...new Set(tunggu)].join(", ")} s; each should be about 30`);
+  if (tersimpan !== "5") problems.push(`the card's row holds ${tersimpan} attempt(s), expected 5`);
+  if (selesai !== "0") problems.push("a sign-in after the race did not clear the card's record");
+  return problems.length
+    ? { id: "F15-C01", runner: "db", status: "FAIL", detail: problems.join("; ") }
+    : { id: "F15-C01", runner: "db", status: "PASS", detail:
+        `20 connections called card_signin_attempt for one card at the same moment: exactly 5 went ahead, the other 15 were told to ` +
+        `wait ${Math.min(...tunggu)}-${Math.max(...tunggu)} s, the card's row holds exactly 5 attempts, and a sign-in then cleared it` };
 }
 
 /**

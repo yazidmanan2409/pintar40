@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { useSiap } from "./siap";
-import { sendMagicLink, signInWithCard, type HasilKirim } from "@/app/masuk/actions";
+import { sendMagicLink, type HasilKirim } from "@/app/masuk/actions";
 
 /**
  * THE SIGN-IN SCREEN'S TWELVE INTERACTIVE STATES (S1–S12 of the handoff).
@@ -179,9 +179,14 @@ export default function LayarMasuk({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     setLayar({ k: "kartu", sibuk: true });
-    await signInWithCard(fd);
-    // Reached only when the action returned instead of redirecting, which it
-    // does for every refusal and for nothing else.
+    // BOB-12's route (POST /masuk/kartu). DAISY-13 reads each of its codes;
+    // until then every refusal is shown as it was.
+    const r = await fetch("/masuk/kartu", { method: "POST", body: fd, headers: { accept: "application/json" } }).catch(() => null);
+    const body = (await r?.json().catch(() => null)) as { ok?: boolean; tujuan?: unknown } | null;
+    if (r?.ok && body?.ok === true && typeof body.tujuan === "string" && body.tujuan.startsWith("/") && !body.tujuan.startsWith("//")) {
+      window.location.assign(body.tujuan);
+      return;
+    }
     setLayar({ k: "kartu", salah: true });
     // The first of the two fields, because the design does not know which one
     // was wrong and must not imply that it does.

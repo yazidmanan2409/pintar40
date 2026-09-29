@@ -172,7 +172,7 @@ jobs:
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
-               db-bob06-gates]
+               db-bob06-gates, db-bob12-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -230,6 +230,8 @@ jobs:
               echo "the nine learning-cycle defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob06-gates)
               echo "the six standard-report defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob12-gates)
+              echo "the nine card-cooldown defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1727,6 +1729,20 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob06.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob06-gates
+
+      # BOB-12's gates: a class card waits after failures (5 free in 15 minutes,
+      # then 30 s doubling to a 5-minute cap), a sign-in clears it, an attempt
+      # Auth never judged counts for nothing, and the cooldown is the sign-in
+      # route's alone. Same harness, same four proofs, on F15.
+      - name: Local stack (card-cooldown gates)
+        if: matrix.case == 'db-bob12-gates'
+        id: gatesBob12
+        uses: ./.github/actions/local-stack
+      - name: Each planted card-cooldown defect must turn its own F15 test red
+        if: matrix.case == 'db-bob12-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob12.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob12-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

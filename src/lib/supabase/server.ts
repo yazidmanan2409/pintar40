@@ -8,10 +8,11 @@ import { alamatDariCookieSesi, adalahCookieSesi, cookieYangBerubah, umurSesi } f
  * user's session cookie). Every read/write goes through RLS. This is the
  * default client for pages and route handlers.
  */
-export async function supabaseServer(opsi: { tulisJikaBerubah?: boolean } = {}) {
+export async function supabaseServer(opsi: { tulisJikaBerubah?: boolean; fetch?: typeof fetch } = {}) {
   const cookieStore = await cookies();
   return createServerClient(publicSupabaseUrl(), publicSupabaseAnonKey(), {
-    global: { headers: buildHeaders() },
+    // BOB-12: the card sign-in passes fetchBerpenerus (src/lib/auth-forwarding.ts)
+    global: opsi.fetch ? { headers: buildHeaders(), fetch: opsi.fetch } : { headers: buildHeaders() },
     cookies: {
       getAll() {
         return cookieStore.getAll();

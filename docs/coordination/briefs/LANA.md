@@ -13,6 +13,37 @@ One chapter = one workbook = one PINTAR course, handed off on its own. Do not st
 | LANA-01 | Bab 1: Bilangan Cacah sampai 100.000. **A workbook already exists** (`docs/onboarding/konten/SD5-Matematika-Bab1.xlsx`, made from its generator `sd5_matematika_bab1.py`). Study it first: it is the house style. Then check it against your PDF and bring it to this brief: correct anything the PDF shows is wrong, add the proposed misconception codes (below), and **drop its two media lessons** (5 and 6: video, audio, infographic), keeping any text in them that the chapter needs as ordinary text lessons. |
 | LANA-02 … LANA-09 | Bab 2 … Bab 9, each from its PDF. |
 
+## Your second job: SMA Kelas XI Geografi, Bab 1 to Bab 4 (Yazid, 29 Sep)
+
+Same method, same checks, same hand-off, one chapter at a time, each after the previous verdict. Yazid gives you each chapter's PDF.
+
+| Ticket | Chapter |
+|---|---|
+| LANA-10 | Geografi Bab 1: Posisi Strategis Indonesia, Potensi Sumber Daya Alam, dan Pengaruhnya Terhadap Kehidupan (66 pages) |
+| LANA-11 … LANA-13 | Geografi Bab 2 … Bab 4, each from its PDF |
+
+**The source is different.** It is the student book, not a teacher's guide: *Geografi untuk SMA/MA Kelas XI (Edisi Revisi)*, Budi Handoyo and Nisa Maulia, Kemendikbudristek 2024 (take the ISBN from the PDF's first page). It has **no answer keys**, so:
+- Every key is yours, and every question must be answerable from the book's own text. Cite the page in the generator for each fact a question uses.
+- Take no fact from outside the book. Invent no statistic. A dated figure keeps the book's date («Pada tahun 2022, …»).
+
+**What changes from mathematics**
+
+- **Files:** `sma11_geografi_babN.py`, `SMA11-Geografi-BabN.xlsx`, `.paket.json`, `-miskonsepsi.csv`, and `handoff/LANA-1x.md`.
+- **Kursus row:** title `Geografi Kelas XI · Bab N: <judul bab>`; Mata pelajaran `Geografi`; Jenjang `SMA`; Kelas `Kelas XI`. The attribution line names this book.
+- **Lessons** follow the chapter's own sections. Bab 1: A.1 astronomis, A.2 geografis, A.3 geologis, B.1 pengertian dan klasifikasi SDA, B.2 potensi dan sebaran (split into two lessons if long), B.3 pengelolaan berkelanjutan.
+- **Voice:** address the student as the book does («kalian»), the same throughout the course.
+- **Maps, photos and diagrams cannot be shown** (D-050; the player draws only fraction bars). Put what a figure shows into words: coordinates, neighbours, directions, «di sebelah utara …». Write a table as one fact per line (`Batas utara: Pulau We, 6°08' LU`). The player shows each line as a paragraph, so a Markdown table would show its pipes.
+- **The book's Aktivitas** (local observation and group projects) do not become questions. At most one short «Coba pikirkan» page per lesson, with no key.
+- **Questions:** Pilihan ganda with one answer and four options A–D, as before (the book uses five, A–E).
+  - The book's Pilihan Ganda Kompleks, matching and essays become single-answer questions only where exactly one option is right; otherwise leave them out.
+  - The post-test never reuses a book assessment question (Bab 1: pp. 57–63) or a lesson example with the wording or answer barely changed.
+- **"Every number is proven" becomes "every fact is traced."**
+  - The generator holds a table of the facts the chapter uses, each with its page (boundaries and coordinates, plates, resource classes, locations of deposits…).
+  - Every key and every distractor is drawn from it. A distractor is a real fact that answers a different question (Pulau Rote is the southern boundary, so it is a fine wrong answer for the northern).
+  - Assert what can be asserted: the latitude and longitude spans agree with the boundary points; a classification is checked against a feature model, as in Bab 7 (renewable or not, biotic or abiotic).
+- **Misconception codes:** `SMA11-G-B1-01` and so on.
+- **Same rules otherwise:** 4 pre-test, 8 post-test, 12–20 practice; the quality check, the doctrine lexicon, `ke-paket.ts`, and book errors listed in the hand-off.
+
 ## Read first (on `origin/main`)
 - `docs/coordination/README.md` §1–§4: roles, lanes, branches, the hand-off block. **Binding.**
 - `docs/coordination/DECISIONS.md`, especially **D-007** (the lesson workbook), **D-008** (pre-test and post-test on every lesson), **D-030** (package limits) and **D-050** (the first testing phases cover lessons and MCQs, not video, audio or presentations) and **D-052** (readiness is a sequence of gates; 5 Oct is tentative, so quality comes before speed).
