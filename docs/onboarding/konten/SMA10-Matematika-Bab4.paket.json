@@ -230,7 +230,7 @@
            "label": "C",
            "body": "6",
            "is_correct": false,
-           "rationale": "Ruas kanan dikurangkan (7 − 1) sambil ruas kiri dijumlahkan. Jumlahkan kedua ruas: 2x = 8."
+           "rationale": "Hasil 7 − 1 = 6 langsung dianggap nilai x. Jumlahkan kedua persamaan: 2x = 8, jadi x = 4."
           },
           {
            "_row": {
