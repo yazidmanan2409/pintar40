@@ -4,7 +4,12 @@
 
 ## ROUND 2 (29 Sep): the last lesson's Uji Penguasaan link, kept (X-08)
 
-**Head:** `R2_HEAD`, with `main` merged in (`a9372c1`, a fast-forward). The code is `0d756a0`. **One run:** `R2_RUN`. Round 1, below, is unchanged.
+**Head:** `ebd671c`, with `main` merged in: `a9372c1` (a fast-forward), then `d471a4e` (DAISY-25 and LANA-03).
+- **The manifest:** both sides had moved to 106, so it is 107, with both new entries kept: DAISY-25-TEKS-01 and BOB23-K03.
+- **The code:** `0d756a0`.
+- **One run:** ci #220.
+
+Round 1, below, is unchanged.
 
 **What staging run 13 found:**
 - With the redraw stream gone, the last page of the last lesson no longer showed the link to Uji Penguasaan.
@@ -35,7 +40,7 @@ The local stand-in answers without latency, so no queued saves spill into window
 - **Plants:** 91 of 91 proved their gate on a copy taken straight after the seeds.
 - **Full suite, fresh database:** 365 passed. F01-R07 fails, as it always does locally. 29 justified skips.
 - **Shared red cases:** all 15 gates exited 0 on one shared stack, the schema digest stayed the same, and every recheck was 242 of 242.
-- **After DAISY-25's merge:** the full suite again on the merged head (below).
+- **On the merged head `ebd671c`, after DAISY-25:** typecheck clean; full suite 366 passed, DAISY-25-TEKS-01 among them. F01-R07 fails, as it always does locally.
 
 **Staging acceptance (c):** J09 PASS on the two-window check (no server action in the second 8 s), with the link shown without a reload; J13 still matches the plan.
 
