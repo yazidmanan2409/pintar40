@@ -173,7 +173,7 @@ jobs:
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
                db-bob06-gates, db-bob12-gates, db-bob24-gates,
-               db-bob35-gates, db-bob36-gates]
+               db-bob35-gates, db-bob36-gates, db-bob39-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -237,6 +237,8 @@ jobs:
               echo "the fourteen identity-foundation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob35-gates)
               echo "the five session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob39-gates)
+              echo "the integrity-referral defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
@@ -1789,6 +1791,17 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob36.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob36-gates
+
+      # BOB-39's gate: «Diteruskan ke pihak sekolah» reaches the decision queue.
+      - name: Local stack (integrity-referral gate)
+        if: matrix.case == 'db-bob39-gates'
+        id: gatesBob39
+        uses: ./.github/actions/local-stack
+      - name: The planted integrity-referral defect must turn F06-P22 red
+        if: matrix.case == 'db-bob39-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob39.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob39-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

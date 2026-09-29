@@ -613,6 +613,16 @@ export type SatuHal = {
  * course wins over a class that has never had it, because a continuation is a
  * decision somebody is already waiting on and a first assignment is not.
  *
+ * BOB-40 (post-login review #3, D-061) — IT FITS THE CLASS. It
+ * proposed any published release the class did not have, comparing nothing,
+ * so a Grade 5 teacher could be told an SMA course came first. Classes carry no
+ * subject or grade; courses do. So a (class, release) pair is a candidate only
+ * when the class already holds an assignment whose course has the release's
+ * course's subject, stage and grade_label (the next release of a lineage the
+ * class takes included). A class with no assignment gets no course suggestion:
+ * its first material comes through «Siapkan materi», which lists every
+ * published release, unchanged. The order among candidates is as it was.
+ *
  * NOT A CHAPTER. The reviewed concept named one ("Bab 4 is published but not
  * yet available to 10A"), and PINTAR does not release chapters: `plp_releases`
  * is per COURSE and the chapters are `modules` inside it. So the sentence names
@@ -622,21 +632,29 @@ export type SatuHal = {
  * ABSENT WHEN THERE IS NOTHING. There is no "you're all caught up" card with an
  * illustration; there is one quiet line, or there is a decision.
  */
-export async function satuHal(kelas: KelasMengajar[]): Promise<SatuHal | null> {
-  if (kelas.length === 0) return null;
-  const institusi = kelas[0].institusi;
-  const [terbit, semua] = await Promise.all([
-    terbitan(institusi),
-    Promise.all(kelas.map(async (k) => ({ k, t: await penugasan(k.id) }))),
-  ]);
-  if (terbit.length === 0) return null;
+export type KunciKursus = { subject: string | null; stage: string | null; grade_label: string | null };
 
+/** BOB-40: the choice itself, over rows already read, so it can be driven as it stands. */
+export function pilihSatuHal(
+  kelas: Array<{ id: string; nama: string }>,
+  terbit: Array<{ id: string; courseId: string; kursus: string; terbitPada: string | null }>,
+  tugas: Map<string, Array<{ releaseId: string; courseId: string }>>,
+  kunci: Map<string, KunciKursus>,
+): SatuHal | null {
+  const sidik = (courseId: string) => {
+    const k = kunci.get(courseId);
+    return k ? JSON.stringify([k.subject ?? "", k.stage ?? "", k.grade_label ?? ""]) : null;
+  };
   const kandidat: SatuHal[] = [];
-  for (const { k, t } of semua) {
+  for (const k of kelas) {
+    const t = tugas.get(k.id) ?? [];
     const punyaTerbitan = new Set(t.map((x) => x.releaseId));
     const punyaKursus = new Set(t.map((x) => x.courseId));
+    const cocok = new Set(t.map((x) => sidik(x.courseId)).filter((x): x is string => x !== null));
     for (const r of terbit) {
       if (punyaTerbitan.has(r.id)) continue;
+      const sr = sidik(r.courseId);
+      if (sr === null || !cocok.has(sr)) continue;
       kandidat.push({
         kelasId: k.id,
         kelasNama: k.nama,
@@ -654,6 +672,29 @@ export async function satuHal(kelas: KelasMengajar[]): Promise<SatuHal | null> {
     return String(b.terbitPada ?? "").localeCompare(String(a.terbitPada ?? ""));
   });
   return kandidat[0];
+}
+
+export async function satuHal(kelas: KelasMengajar[]): Promise<SatuHal | null> {
+  if (kelas.length === 0) return null;
+  const institusi = kelas[0].institusi;
+  const [terbit, semua] = await Promise.all([
+    terbitan(institusi),
+    Promise.all(kelas.map(async (k) => ({ k, t: await penugasan(k.id) }))),
+  ]);
+  if (terbit.length === 0) return null;
+
+  // the subject, stage and grade of every course in play, in one read
+  const kursusIds = [...new Set([...terbit.map((r) => r.courseId), ...semua.flatMap(({ t }) => t.map((x) => x.courseId))])];
+  const c = await db();
+  const { data } = await c.from("courses").select("id, subject, stage, grade_label").in("id", kursusIds);
+  const kunci = new Map(rows<KunciKursus & { id: string }>(data).map((r) => [r.id, r]));
+
+  return pilihSatuHal(
+    semua.map(({ k }) => ({ id: k.id, nama: k.nama })),
+    terbit,
+    new Map(semua.map(({ k, t }) => [k.id, t])),
+    kunci,
+  );
 }
 
 /**

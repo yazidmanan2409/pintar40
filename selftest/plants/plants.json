@@ -50,9 +50,14 @@
       "control_green": 6,
       "what": "BOB-24's identity foundation: a PINTAR ID random, well-formed, distinct and immutable, read as ruled; usernames under C9 with reserved names, claimed once, never renamed but by the platform admin's audited correction; a blocklisted, bcrypt-hashed personal PIN set once; set-up state for staff EMAIL accounts only; the recovery ladder 1 h, 4 h, suspended, decaying but never lifting a suspension, restored only with a new PIN; the tables and recovery functions nobody's but the routes'"
     },
+    "db-bob39-gates": {
+      "suite": "selftest.run_fable06()",
+      "control_green": 34,
+      "what": "BOB-39's referral: «Diteruskan ke pihak sekolah» in the Studio's integrity review raises the INTEGRITY_REFERRAL decision in the same transaction, so the Head of Department's /pimpinan queue shows it"
+    },
     "db-bob35-gates": {
       "suite": "selftest.run_fable05()",
-      "control_green": 23,
+      "control_green": 24,
       "what": "BOB-35's provenance: a session records a release of its definition's course or none is opened; a corrected-release move carries the cycle's PRE_TEST and POST_TEST to the target's own definitions or is refused, and is refused once any learner has started"
     },
     "db-bob36-gates": {
@@ -639,6 +644,7 @@
     { "name": "bob36-1", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "an edit after the sitting changed the finished session's verdict from true to false" },
     { "name": "bob36-2", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: mode, bank_type" },
     { "name": "bob36-3", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "the owner rewrote a sat Uji Cepat's passing_rules" },
-    { "name": "bob36-4", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: module_id, course_id" }
+    { "name": "bob36-4", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: module_id, course_id" },
+    { "name": "bob39-1", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "a referral through the review left 0 AWAITING_REVIEW decision(s)" }
   ]
 }

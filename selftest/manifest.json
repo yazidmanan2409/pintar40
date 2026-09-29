@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 122,
+  "version": 125,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2027,6 +2027,36 @@
       "id": "BOB32-K01",
       "runner": "static",
       "proves": "BOB-32 (UX-03's server half, D-011): every refusal launch_quick_assessment raises, read from the migration that defines it, is read by src/lib/ujicepat-kontrak.ts to its code (QUICK_BANK_TOO_SMALL, QUICK_COUNT_OUT_OF_RANGE, QUICK_MINUTES_OUT_OF_RANGE, QUICK_NOT_ALLOWED, QUICK_NOT_FOUND, else QUICK_FAILED); a reworded refusal fails; the page's reader drops a forged code or reference; and the source of sediakanUjiCepat in src/app/mengajar/actions.ts passes ?cepat=gagal&kode=, with a logged reference only for QUICK_FAILED."
+    },
+    {
+      "id": "F06-P22",
+      "runner": "db",
+      "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it."
+    },
+    {
+      "id": "BOB39-K01",
+      "runner": "static",
+      "proves": "BOB-39: refer_integrity_signal's refusal, read from migration 20260924110000, maps through kodeGalat (src/lib/galat-kontrak.ts) to the existing ACTION_NOT_ALLOWED, and the Studio's integrity review action in src/app/studio/actions.ts passes every refusal through ditolak, so a referral refused because the reviewer's role does not reach the signal's class shows an existing sentence, never the database's words."
+    },
+    {
+      "id": "BOB40-K01",
+      "runner": "static",
+      "proves": "BOB-40 (post-login review #3, D-061): pilihSatuHal in the source file src/lib/pengajar.ts, executed over a school with Matematika SD 5, SD 1, SMA 10 and Bahasa Indonesia SD 5 published, offers a Grade 5 class holding Matematika SD 5 only releases of that subject, stage and grade (its own course's next release first, then its lineage's next course) and never another grade's or subject's course; nothing is suggested when nothing fits or the class holds no assignment; satuHal reads subject, stage and grade_label and chooses through it; the landing's card and quiet line are unchanged."
+    },
+    {
+      "id": "BOB41-K01",
+      "runner": "static",
+      "proves": "BOB-41 (post-login review #6, D-061): pilihanTinjauan in the source file src/lib/kesehatan-soal.ts, executed at six states, offers exactly the reviewer's transitions that question_health_transitions (read from migration 20260912200213) allows: UNDER_REVIEW at SIGNAL_RAISED, ACKNOWLEDGED_OK or ACTION_TAKEN at UNDER_REVIEW, nothing elsewhere; src/app/studio/bank/page.tsx draws its form from those, lists every item at SIGNAL_RAISED or UNDER_REVIEW in the reviewer's schools whatever its age besides the latest 40, reads health for exactly the items shown, and uses the existing copy."
+    },
+    {
+      "id": "F05-T20b",
+      "runner": "db",
+      "proves": "BOB-41, measured in selftest/db/fable05.sql: record_question_health_review and the question_health guard are unchanged; from SIGNAL_RAISED, ACKNOWLEDGED_OK and ACTION_TAKEN are refused and UNDER_REVIEW is taken, UNDER_REVIEW twice is refused, from UNDER_REVIEW both ACKNOWLEDGED_OK and ACTION_TAKEN conclude the review, and both return to OBSERVING."
+    },
+    {
+      "id": "BOB38-K01",
+      "runner": "static",
+      "proves": "BOB-38 (post-login review #1, D-061): tukarKode in the source file src/app/auth/callback/actions.ts answers { ok: true, tujuan } with tujuanMasuk's destination instead of redirecting (a server action's redirect rejects the caller's promise); sesudahTukar in src/lib/tukar-kontrak.ts, executed, sends a success to its destination and every refusal to S14; TukarTautan leaves with location.replace on success, so S14 never renders and the used callback leaves history; S14 still shows at once for a missing code or an error parameter, and «Minta tautan baru» still starts clean."
     },
     {
       "id": "BOB34-K01",
