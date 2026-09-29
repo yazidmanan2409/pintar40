@@ -94,7 +94,7 @@ fakta("contoh3", 48, "Jadi, rasio barisan geometri tersebut adalah 3.")
 fakta("contoh4", 48, "Jadi, panjang tali pada potongan ketiga adalah 36 cm.")
 # B. Deret (pp. 51-61)
 fakta("jabat_tangan", 51, "Setiap pasangan berjabat tangan tepat satu kali.")
-fakta("deret_def", 52, "Jadi, deret bilangan adalah jumlah suku-suku penyusun barisan bilangan. Deret bilangan, terdiri atas deret aritmetika dan deret geometri.")
+fakta("deret_def", 52, "Jadi, deret bilangan adalah jumlah suku-suku penyusun barisan bilangan.")
 fakta("gauss", 52, "Ia mengelompokkan suku-suku pada deret tersebut sehingga memiliki nilai yang sama ketika dijumlahkan.")
 fakta("deret_aritmetika", 53, "Deret aritmetika adalah suatu deret yang diperoleh dari menjumlahkan suku-suku pada barisan aritmetika.")
 fakta("sn_aritmetika", 55, "Rumus untuk menghitung jumlah suku-suku deret aritmetika adalah")
@@ -124,8 +124,9 @@ fakta("bakteri_n10", 47, "Dalam 20 jam, terjadi pembelahan sebanyak 20 jam : 2 j
 fakta("eksplorasi29", 66, "Tentukan bentuk umum untuk nilai uang setelah disimpan  tahun. U1 = . . .")
 fakta("lingkaran", 64, "luas lingkaran terbesar adalah 1.368 cm2 dan luas lingkaran terkecil adalah 154 cm2.")
 fakta("covid", 56, "Berikut data yang dihimpun dari Gugus Covid-19 kota tersebut.")
+fakta("dua_jenis", 52, "Deret bilangan, terdiri atas deret aritmetika dan deret geometri.")
 REKAMAN = {"tabel_50", "rn_positif", "divergen_besar", "gauss_usia", "gauss_5050", "ratio", "bakteri_n10",
-           "eksplorasi29", "lingkaran", "covid"}
+           "eksplorasi29", "lingkaran", "covid", "dua_jenis"}
 GAMBAR = set()
 
 
@@ -371,7 +372,7 @@ Dalam satu kelompok, setiap pasangan berjabat tangan tepat satu kali. Banyak jab
 - 4 orang → 1 + 2 + 3 = 6
 - 5 orang → 1 + 2 + 3 + 4 = 10
 
-Banyak jabat tangan itu adalah penjumlahan suku-suku sebuah barisan. **Deret bilangan** adalah jumlah suku-suku penyusun barisan bilangan. Deret bilangan terdiri atas deret aritmetika dan deret geometri.
+Banyak jabat tangan itu adalah penjumlahan suku-suku sebuah barisan. **Deret bilangan** adalah jumlah suku-suku penyusun barisan bilangan. Tidak semua deret termasuk salah satu jenis tertentu; misalnya 1 + 4 + 9 + 16 + … bukan deret aritmetika dan bukan deret geometri. Bab ini mempelajari dua jenis deret, yaitu deret aritmetika dan deret geometri.
 
 **Deret aritmetika** adalah deret yang diperoleh dari menjumlahkan suku-suku barisan aritmetika: U_{1} + U_{2} + U_{3} + … + U_{n}. Jumlah n suku pertamanya ditulis S_{n}.
 
@@ -456,7 +457,7 @@ Periksa dengan menjumlahkan: 120 + 360 + 1.080 + 3.240 + 9.720 = 14.520.
 
 """ + SUMBER),
     dict(no=5, judul="Deret Geometri Tak Hingga",
-         ringkasan="Deret geometri tak hingga konvergen jika |r| < 1, dan jumlahnya S_{∞} = a/(1 − r); jika |r| > 1, deretnya divergen.",
+         ringkasan="Deret geometri tak hingga konvergen jika |r| < 1, dan jumlahnya S_{∞} = a/(1 − r); jika |r| ≥ 1, deretnya divergen.",
          tujuan="Kamu dapat menentukan apakah deret geometri tak hingga konvergen atau divergen dan menghitung jumlah deret yang konvergen.",
          bloom="Menganalisis",
          isi="""## Memotong kertas
@@ -475,7 +476,10 @@ Bagian yang belum terkumpul sama dengan potongan terakhir, dan bagian itu makin 
 **Deret geometri tak hingga** adalah deret geometri yang memiliki banyak sekali suku (tak terhingga banyaknya). Ada dua jenis:
 
 - **Deret geometri konvergen** memiliki |r| < 1, dan jumlah deretnya menuju ke suatu nilai tertentu. Konvergen artinya menuju ke suatu nilai tertentu.
-- **Deret geometri divergen** memiliki |r| > 1. Suku-sukunya makin jauh dari 0, sehingga jumlahnya tidak menuju ke suatu nilai tertentu.
+- **Deret geometri divergen** memiliki |r| ≥ 1, dan jumlahnya tidak menuju ke suatu nilai tertentu:
+  - jika |r| > 1, suku-sukunya makin jauh dari 0;
+  - jika r = 1, misalnya 3 + 3 + 3 + …, jumlahnya terus bertambah: 3, 6, 9, 12, …;
+  - jika r = −1, misalnya 1 − 1 + 1 − 1 + …, jumlah sementaranya 1, 0, 1, 0, … berganti-ganti dan tidak menuju satu nilai.
 
 Contoh: 1/2 + 1/4 + 1/8 + … konvergen (r = 1/2), sedangkan 1 + 3 + 9 + 27 + … divergen (r = 3).
 
@@ -556,7 +560,8 @@ Setelah 3 tahun, bunga majemuk memberi Rp1.157.625, lebih banyak daripada bunga 
 
 # Statements that are false or doubtful outside the book, or book errors, stay out of the lessons.
 DILUAR = ("berusia 10 tahun", "kelas 4 SD", "selalu merupakan bilangan positif", "±∞", "50%", "1.368", "ratio",
-          "Covid", "39.366", "50.50", "makin lama makin besar", "U_{10} = 2 × 3⁹")
+          "Covid", "39.366", "50.50", "makin lama makin besar", "U_{10} = 2 × 3⁹",
+          "terdiri atas deret aritmetika dan deret geometri", "memiliki |r| > 1.")
 for _p in PELAJARAN:
     cek(3 <= _p["isi"].count("\n## ") + _p["isi"].startswith("## ") <= 6, f"lesson {_p['no']}: 3-6 pages")
     cek(_p["isi"].rstrip().endswith(SUMBER), f"lesson {_p['no']}: attribution last")
@@ -564,6 +569,16 @@ for _p in PELAJARAN:
     cek(not any(w in _p["isi"] for w in DILUAR), f"lesson {_p['no']}: {[w for w in DILUAR if w in _p['isi']]}")
     notasi(_p["isi"], f"lesson {_p['no']}")
     notasi(_p["ringkasan"], f"lesson {_p['no']} ringkasan")
+# Divergence covers |r| = 1 (p. 61 names only |r| > 1): the lesson classifies r = 1 and r = −1.
+_L5 = PELAJARAN[4]["isi"]
+cek("**Deret geometri divergen** memiliki |r| ≥ 1" in _L5 and "jika r = 1, misalnya 3 + 3 + 3 + …" in _L5
+    and "jika r = −1, misalnya 1 − 1 + 1 − 1 + …" in _L5 and "jika |r| ≥ 1, deretnya divergen" in PELAJARAN[4]["ringkasan"])
+cek(_L5.count("makin jauh dari 0") == _L5.count("jika |r| > 1, suku-sukunya makin jauh dari 0") == 1)
+cek([sg(3, 1, n) for n in (1, 2, 3, 4)] == [3, 6, 9, 12] and [sg(1, -1, n) for n in (1, 2, 3, 4)] == [1, 0, 1, 0])
+cek(all(sg(1, -1, n) in (0, 1) for n in range(1, 50)) and sg(3, 1, 1000) == 3000)
+# p. 52 says every series is arithmetic or geometric; 1 + 4 + 9 + 16 is neither.
+cek(len({4 - 1, 9 - 4, 16 - 9}) > 1 and len({F(4, 1), F(9, 4), F(16, 9)}) > 1)
+cek("Bab ini mempelajari dua jenis deret" in PELAJARAN[2]["isi"])
 # Every formula with a denominator that can vanish states its condition next to it.
 cek(sum(_p["isi"].count("S_{n} = a(1 − rⁿ)/(1 − r), untuk r ≠ 1") for _p in PELAJARAN) == 1)
 cek(sum(_p["isi"].count("S_{∞} = a/(1 − r), untuk |r| < 1") for _p in PELAJARAN) == 1)
@@ -721,9 +736,9 @@ soal("PB7", 6, "Pak Budi menabung Rp4.000.000 dengan bunga majemuk 10% per tahun
 ], guna="Cek penguasaan", sulit="Sedang")
 soal("PB8", 5, "Deret geometri tak hingga dengan rasio r mempunyai jumlah yang menuju ke suatu nilai tertentu (konvergen) jika ...", "B", [
     ("−1 < r < 1", True, "Benar. Deret geometri konvergen memiliki |r| < 1, yaitu −1 < r < 1; untuk nilai itu rⁿ makin dekat ke 0.", "", "=konvergen"),
-    ("r > 1 atau r < −1", False, "Itu |r| > 1, syarat deret geometri divergen: suku-sukunya makin jauh dari 0.", "SMA10-M-B2-10", "=divergen"),
+    ("r > 1 atau r < −1", False, "Itu |r| > 1, yang membuat deret divergen: suku-sukunya makin jauh dari 0.", "SMA10-M-B2-10", "=divergen"),
     ("r > 0", False, "Tanda rasio tidak menentukan. Deret 1 + 2 + 4 + … memiliki r = 2 > 0, tetapi divergen.", "SMA10-M-B2-10", "=konvergen"),
-    ("r = 1", False, "Jika r = 1, semua suku sama dengan a, dan jumlahnya n × a terus bertambah (untuk a > 0).", "SMA10-M-B2-10", "=r_satu"),
+    ("r = 1", False, "Jika r = 1, semua suku sama dengan a, dan jumlahnya n × a tidak menuju suatu nilai tertentu (untuk a ≠ 0), jadi deretnya divergen.", "SMA10-M-B2-10", "=r_satu"),
 ], guna="Cek penguasaan", sulit="Sedang")
 
 # ── Latihan (practice), by lesson.
@@ -828,7 +843,7 @@ cek(abs(F(4, 8)) < 1 and F(2, 1) > 1 and F(3, 3) == 1 and abs(F(-6, 2)) > 1)
 soal("LT15", 5, "Deret geometri tak hingga manakah yang konvergen?", "C", [
     ("8 + 4 + 2 + …", True, "Benar. r = 4/8 = 1/2, dan |r| < 1.", "", "=konvergen"),
     ("1 + 2 + 4 + …", False, "r = 2 dan |r| > 1, jadi deretnya divergen.", "SMA10-M-B2-10", "=divergen"),
-    ("3 + 3 + 3 + …", False, "r = 1. Jumlahnya terus bertambah 3, jadi tidak menuju suatu nilai tertentu.", "SMA10-M-B2-10", "=konvergen"),
+    ("3 + 3 + 3 + …", False, "r = 1. Jumlahnya terus bertambah 3 (3, 6, 9, …), jadi deretnya divergen.", "SMA10-M-B2-10", "=konvergen"),
     ("2 − 6 + 18 − …", False, "r = −3 dan |r| = 3 > 1, jadi deretnya divergen. Tanda yang berganti tidak membuatnya konvergen.", "SMA10-M-B2-10", "=divergen"),
 ])
 cek(F(12) / (1 - F(1, 4)) == 16 and 12 + 3 + F(3, 4) == F(63, 4) and F(12) / (1 + F(1, 4)) == F(48, 5) and F(12) / F(1, 4) == 48)

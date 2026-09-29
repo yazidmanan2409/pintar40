@@ -65,13 +65,13 @@ options are therefore written «−1 < r < 1» and «r > 1 atau r < −1».
   - The helpers `ua`/`sa`/`ug`/`sg` compute U_{n} and S_{n}.
   - Every sum is added term by term and checked against both of the book's formulas, so the
     formulas themselves are proven on every use.
-- **Assertions:** 3.380 with `--kutipan` (3.379 without).
-- **FAKTA.** It holds 46 facts (pp. 38-66), each with its page and the book's words. Every
+- **Assertions:** 3.440 with `--kutipan` (3.439 without), after round 2.
+- **FAKTA.** It holds 47 facts (pp. 38-66), each with its page and the book's words. Every
   option names the fact it rests on; computed options mark it with «=». `--kutipan` finds
-  **46 of 46** quotations in the book's text.
+  **47 of 47** quotations in the book's text.
 - **Formulas** were read from the page images (pp. 41, 47, 54-57, 61). The text layer loses
   subscripts, superscripts and fractions.
-- **Ten facts are kept only as the book-error record** (`REKAMAN`). No question may rest on them.
+- **Eleven facts are kept only as the book-error record** (`REKAMAN`). No question may rest on them.
 
 ## Questions
 
@@ -151,8 +151,8 @@ None is copied into the workbook; `DILUAR` markers assert that the wording is ab
 4. **p. 61, divergent series:** «Sₙ makin lama makin besar … Dikatakan nilai Sₙ = ±∞».
    - For r < −1 the partial sums swing in sign: 1, −1, 3, −5 for r = −2 (asserted).
    - r = ±1 falls under neither heading.
-   - The lesson says only that the sum does not tend to a fixed value, and answers the book's own
-     «Apa yang terjadi jika r = 1?» separately.
+   - The lesson classifies divergence as |r| ≥ 1, with r = 1 and r = −1 worked (round 2), and
+     answers the book's own «Apa yang terjadi jika r = 1?» in lesson 4.
 5. **p. 52, Gauss:** «Ketika duduk di kelas 4 SD … yang saat itu masih berusia 10 tahun». The
    anecdote is traditional and its details vary between sources. The lesson keeps the method,
    told as «sebuah cerita terkenal», with no class or age.
@@ -166,12 +166,44 @@ None is copied into the workbook; `DILUAR` markers assert that the wording is ab
 10. **p. 56, Eksplorasi 2.6:** the Covid-19 table (4, 12, 36, 108, 324 patients in
     January-May 2020) is presented as data «dari Gugus Covid-19 kota tersebut». It is plainly
     hypothetical. It is kept out, and so are Latihan 2.5 no. 8's Covid figures.
+11. **p. 52:** «Deret bilangan, terdiri atas deret aritmetika dan deret geometri» claims that
+    every series is one or the other; 1 + 4 + 9 + 16 + … is neither (asserted). Added in round 2.
 
 Checked and consistent (no error):
 - Latihan 2.3 no. 2 gives n = 7.
 - Latihan 2.3 no. 3 gives n = 7 and Y = 96.
 - Uji Kompetensi 4 gives 638.
 - Uji Kompetensi 5 gives S = 1.
+
+## Round 2 (coordinator's review)
+
+- **Divergence includes |r| = 1 (lesson 5).** The divergent case now reads «memiliki |r| ≥ 1, dan
+  jumlahnya tidak menuju ke suatu nilai tertentu», with three sub-cases:
+  - |r| > 1: «suku-sukunya makin jauh dari 0», now said for this case only;
+  - r = 1: 3 + 3 + 3 + … with partial sums 3, 6, 9, 12, …;
+  - r = −1: 1 − 1 + 1 − 1 + … with partial sums 1, 0, 1, 0, …, which tend to no single value.
+  The summary reads «jika |r| ≥ 1, deretnya divergen».
+- **Asserted:**
+  - the divergence line covers r = 1 and r = −1;
+  - «makin jauh dari 0» appears only under |r| > 1;
+  - the partial sums of both examples are computed;
+  - the book's «memiliki |r| > 1.» is a DILUAR marker.
+- **Rationales:**
+  - PB8 «r > 1 atau r < −1» now reads «Itu |r| > 1, yang membuat deret divergen: suku-sukunya
+    makin jauh dari 0.»
+  - PB8 «r = 1» now ends «… tidak menuju suatu nilai tertentu (untuk a ≠ 0), jadi deretnya
+    divergen.»
+  - LT15 «3 + 3 + 3 + …» now ends «(3, 6, 9, …), jadi deretnya divergen.»
+- **Not every series is one of the two (lesson 3).** The sentence was the book's own (p. 52).
+  - The lesson now says: «Tidak semua deret termasuk salah satu jenis tertentu; misalnya
+    1 + 4 + 9 + 16 + … bukan deret aritmetika dan bukan deret geometri. Bab ini mempelajari dua
+    jenis deret, yaitu deret aritmetika dan deret geometri.»
+  - The book's sentence is moved out of the `deret_def` fact into a new record fact `dua_jenis`
+    (book error 11). DILUAR marker: «terdiri atas deret aritmetika dan deret geometri».
+- Keys, answer positions, misconception codes and page counts are unchanged.
+- periksa_mutu with the CSV: 0 ERROR, 0 WARNING.
+- The package rebuilds byte-identically.
+- The regression and lint are unchanged.
 
 ## Questions for the coordinator
 
