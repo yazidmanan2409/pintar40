@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-23 (the lesson player saves in a loop while a learner reads; D-031)
 
-**Head:** `HEAD_SHA`, with `main` merged in first (`3b6a134`: the identity 4.0 freeze, D-054 to D-059). The code is `04cf8c1`. **One run:** `RUN`.
+**Head:** `c2df328`, with `main` merged in: `3b6a134` (the identity 4.0 freeze, D-054 to D-059), then `f6e0b3e` (the board, docs only). The code is `1749206`. **One run:** ci #218.
 
 ## CHANGED
 
@@ -63,8 +63,12 @@ No test was weakened, skipped or deleted.
 
 ## CI
 
-`RUN` on `HEAD_SHA`, dispatched once and not waited on; please read the result there.
-- **Local, before dispatch, every database with an `en-US` ICU collation:** FULL_LOCAL
+ci #218 on `c2df328`, dispatched once and not waited on; please read the result there.
+- **Local, before dispatch, every database with an `en-US` ICU collation:** 
+  - **Plants:** 91 of 91 proved their gate on a copy taken straight after the seeds (on `04cf8c1`; nothing since touches the database).
+  - **Shared red cases:** all 15 gates exited 0 on one shared stack, the schema digest stayed the same, and every recheck was 242 of 242.
+  - **Full suite, fresh database, on the final code `1749206`:** 364 passed. F01-R07 fails, as it always does locally. 29 justified skips, BOB05-R01 among them.
+  - **Seed and history:** the migration history matches the repo (124 files).
 - One run, no new job.
 
 **Staging acceptance (point 5):** after merge and deploy, J09's 8 s recording on the last page must show no server-action stream.
@@ -96,4 +100,4 @@ None.
 
 ## READY
 
-Yes, once `RUN` on `HEAD_SHA` is green.
+Yes, once ci #218 on `c2df328` is green.
