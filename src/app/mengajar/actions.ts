@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
 import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
 import { batasHari } from "@/lib/hle";
-import { kodeUjiCepat } from "@/lib/ujicepat-kontrak";
+import { alamatTolakUjiCepat, kodeUjiCepat } from "@/lib/ujicepat-kontrak";
 import { rujukan } from "@/lib/galat-kontrak";
 
 /**
@@ -125,12 +125,15 @@ export async function sediakanUjiCepat(formData: FormData): Promise<void> {
   });
   // BOB-32 (UX-03, D-011): the refusal's cause as a code, so the page can say
   // which it was; one nobody named also carries a reference, logged here.
+  // BOB-34: and the teacher's own choices, as they sent them, so the form
+  // reopens with them instead of resetting.
   if (error) {
     const kode = kodeUjiCepat(error);
-    if (kode !== "QUICK_FAILED") ke(kelasId, `/uji-cepat?cepat=gagal&kode=${kode}`);
+    const pilihan = { bab, soal: bersih(formData.get("soal")), menit: bersih(formData.get("menit")) };
+    if (kode !== "QUICK_FAILED") ke(kelasId, alamatTolakUjiCepat(kode, pilihan));
     const ref = rujukan();
     console.error(`[uji-cepat ${ref}] launch_quick_assessment failed`, error.code, error.message);
-    ke(kelasId, `/uji-cepat?cepat=gagal&kode=${kode}&ref=${ref}`);
+    ke(kelasId, alamatTolakUjiCepat(kode, pilihan, ref));
   }
   ke(kelasId, "/uji-cepat?cepat=ok");
 }

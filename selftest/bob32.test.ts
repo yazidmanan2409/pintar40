@@ -111,7 +111,11 @@ export const bob32Tests: SelfTest[] = [
       const fn = /export async function sediakanUjiCepat[\s\S]*?\n\}/.exec(aksi)?.[0] ?? "";
       c.expect(/const kode = kodeUjiCepat\(error\)/.test(fn), "sediakanUjiCepat does not read the refusal's code");
       c.expect(!/cepat=gagal["'`]/.test(fn), "sediakanUjiCepat still sends a refusal to ?cepat=gagal with no code");
-      c.expect(/cepat=gagal&kode=\$\{kode\}`/.test(fn) && /cepat=gagal&kode=\$\{kode\}&ref=\$\{ref\}`/.test(fn),
+      // RESTATED FOR BOB-34 (a changed requirement): the address is built by
+      // alamatTolakUjiCepat (it also carries the teacher's choices), which
+      // BOB34-K01 drives; the same two calls are asked for, with and without ref.
+      c.expect((/cepat=gagal&kode=\$\{kode\}`/.test(fn) && /cepat=gagal&kode=\$\{kode\}&ref=\$\{ref\}`/.test(fn))
+          || (/alamatTolakUjiCepat\(kode, pilihan\)/.test(fn) && /alamatTolakUjiCepat\(kode, pilihan, ref\)/.test(fn)),
         "sediakanUjiCepat does not pass the code, and the reference with the catch-all");
       c.expect(/if \(kode !== "QUICK_FAILED"\)/.test(fn) && /const ref = rujukan\(\);\s*console\.error\(/.test(fn),
         "an unnamed refusal is not logged under a reference, or a named one is given a reference it does not need");

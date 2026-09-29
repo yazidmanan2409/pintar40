@@ -58,3 +58,22 @@ export function bacaGagalUjiCepat(q: { cepat?: string; kode?: string; ref?: stri
   const ref = q.ref && /^[A-Z0-9]{6}$/.test(q.ref) ? q.ref : null;
   return { kode, ref };
 }
+
+/**
+ * BOB-34: where a refused launch goes. The code (and, for QUICK_FAILED, the
+ * reference), and the teacher's own choices as they sent them, so the page's
+ * form reopens with the chapter, count and time they picked rather than
+ * resetting, even when the sentence asks for fewer questions. The page reads
+ * and validates `bab`, `soal` and `menit` itself; no stage parameter, so it
+ * lands on the form, where the choice is changed.
+ */
+export function alamatTolakUjiCepat(
+  kode: KodeUjiCepat,
+  pilihan: { bab: string; soal: string; menit: string },
+  ref?: string | null,
+): string {
+  const q = new URLSearchParams({ cepat: "gagal", kode });
+  if (ref) q.set("ref", ref);
+  for (const k of ["bab", "soal", "menit"] as const) if (pilihan[k]) q.set(k, pilihan[k]);
+  return `/uji-cepat?${q.toString()}`;
+}

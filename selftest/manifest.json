@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 114,
+  "version": 115,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2012,6 +2012,11 @@
       "id": "BOB32-K01",
       "runner": "static",
       "proves": "BOB-32 (UX-03's server half, D-011): every refusal launch_quick_assessment raises, read from the migration that defines it, is read by src/lib/ujicepat-kontrak.ts to its code (QUICK_BANK_TOO_SMALL, QUICK_COUNT_OUT_OF_RANGE, QUICK_MINUTES_OUT_OF_RANGE, QUICK_NOT_ALLOWED, QUICK_NOT_FOUND, else QUICK_FAILED); a reworded refusal fails; the page's reader drops a forged code or reference; and the source of sediakanUjiCepat in src/app/mengajar/actions.ts passes ?cepat=gagal&kode=, with a logged reference only for QUICK_FAILED."
+    },
+    {
+      "id": "BOB34-K01",
+      "runner": "static",
+      "proves": "BOB-34 (UX-03): alamatTolakUjiCepat in the source file src/lib/ujicepat-kontrak.ts sends a refused launch to /uji-cepat?cepat=gagal&kode=… with bab, soal and menit exactly as sent (encoded, never overriding the code), the reference only for QUICK_FAILED, and no stage; sediakanUjiCepat in src/app/mengajar/actions.ts builds both refusal addresses from the teacher's choices as sent; and the page reads and validates them to reopen its form."
     },
     {
       "id": "F15-P01",
