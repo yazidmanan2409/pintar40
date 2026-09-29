@@ -135,6 +135,11 @@ Namecheap moves the hosting account to another server for the upgrade (new IP an
 | DKIM | `default._domainkey`, RSA 2048, published |
 | DMARC | `v=DMARC1; p=none;` |
 
+**Scheduled (Yazid, 30 Sep):** Yazid is requesting the move from Namecheap for Tuesday 30 Sep 2026, 14:00 WIB (07:00 UTC), or the earliest afternoon slot after that.
+- By 12:00 WIB, Yazid lowers the TTL of `A @`, `A mail` and `TXT @` (SPF) to 1 minute.
+- After the move, he updates those three records to the new IP (the SPF record's `ip4` only). No other record changes.
+- The coordinator keeps staging runs that send email out of the window. After the move, the coordinator re-reads the records below, and Yazid signs in once on staging and once on production. Then BOB-25 is free to start (D-062(b)).
+
 **After:** the same read once the move is done. The expected result:
 - both A records hold the new IP;
 - the certificate on 465 still names `pintarselalu.com`;
