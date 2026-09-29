@@ -1,24 +1,16 @@
-# Bob → coordinator: BOB-24 (identity Gate 2: the identity foundation, DB only), with BOB-34
+# Bob → coordinator: BOB-24 (identity Gate 2: the identity foundation, DB only)
 
-**SHA:** `8a44044` (code), with `main` `73c0be5` (Integration 17) merged in as `d823bc9`.
-- **BOB-34:** `7445c1b`, its own commit. It rides this run, as ruled.
-- **BOB-24:** `9d4a2c7`, then two commits on top:
-  - `a31a1a8`: the two standing assertions the first full proof found red (see PROOF);
-  - `8a44044`: your 29 Sep rulings on the six questions.
-- **Manifest:** v116. BOB-34 took 115 and BOB-24 took 116. main's 413 ids are all kept, plus BOB34-K01 and nine F16 ids: 423 in all. You set the final number.
-- **One `ci.yml` run:** CI #230 (run `36544435566`), dispatched on `a2fdaae` (the code at `8a44044`, plus hand-off docs only).
+**SHA:** the lane head is `9bad5e5`, with `main` `ffcd7dc` (DAISY-29) merged in as `9bad5e5`. BOB-24's commits:
+- **`9d4a2c7`:** the migration, the suite, the plants and the tripwires.
+- **`a31a1a8`:** the two standing assertions the first full proof found red (see PROOF).
+- **`8a44044`:** your 29 Sep rulings on the six questions.
+- **`8ac8959`:** CI #230's finding, the helpers revoked from `service_role` too (see CI).
+
+**Manifest:** the lane's is v119 with 427 ids, as you directed at the merge.
+
+**CI:** the lane-head run named in the next commit. It is the one run for the lane head, carrying BOB-24's fix, BOB-34, BOB-35 and BOB-36. BOB-34 has its own hand-off, `HANDOFF-BOB-34.md`.
 
 ## CHANGED
-
-### BOB-34: a refused Uji Cepat keeps the teacher's choices (`7445c1b`)
-- **`alamatTolakUjiCepat(kode, pilihan, ref?)`** in `src/lib/ujicepat-kontrak.ts` builds the refusal address:
-  - `/uji-cepat?cepat=gagal&kode=…[&ref=…]`, followed by `bab`, `soal` and `menit` exactly as the teacher sent them;
-  - encoded with `URLSearchParams`, so a value containing `&`, `=`, `?` or `#` comes back whole and cannot override the code;
-  - an empty choice is left out.
-- **`sediakanUjiCepat`** (`src/app/mengajar/actions.ts`) builds both refusal addresses from `{ bab, soal, menit }` as sent: the named codes, and the QUICK_FAILED catch-all with its reference.
-- **No stage parameter.** The page's own links show that without `tahap` the page opens its form. It already reads `q.bab`, `q.soal` and `q.menit` and validates each (`pilihBab`, `pilihSoal`, `pilihMenit`), so the form reopens with the teacher's choices. The page is unchanged; it is Daisy's.
-- **BOB34-K01** (static) is new.
-- **BOB32-K01 is restated for the changed requirement.** Its wiring check accepts either the old template literals or the two `alamatTolakUjiCepat(kode, pilihan[, ref])` calls. Nothing else in it changed.
 
 ### BOB-24: one migration, `20261021100000_an_identity_foundation.sql` (the 127th)
 1. **The PINTAR ID, `persons.pintar_id`** (D-054 (d), D-059).
@@ -90,7 +82,6 @@ F16-C01  20 of 20 connections failed; 0 of 1000 inserts returned a PINTAR ID
 F16-C02  fixture failed
 F16-C03  no fresh typed ID could be drawn
 ```
-**BOB34-K01 on today's action:** `there is no refusal address that keeps the choices: src/lib/ujicepat-kontrak.ts has no alamatTolakUjiCepat; sediakanUjiCepat does not keep the chapter, count and time as the teacher sent them; a refusal of sediakanUjiCepat does not carry the teacher's choices back to the form`.
 
 **Plants: new gate `db-bob24-gates`** (suite `run_fable16`, control 6 green), 14 plants, each red for its declared reason:
 
@@ -119,18 +110,40 @@ The `ci.yml` red-case matrix gains `db-bob24-gates`, with the same harness and f
 - **`assert_engine_takes_no_identity` (F03-T10, F04-T14, F06-P08):** a LEARNER function may take no identity-like argument, and `claim_username(p_username)` matched "user". The parameter is now `p_name`, in `correct_username` too.
 - **F06-N02:** its probe expects a platform-admin refusal to name SYSTEM_ADMIN. The three 42501 messages now end "(SYSTEM_ADMIN)".
 
-**Local, every database with an `en-US` ICU collation, on `8a44044`:**
-- **Full suite, fresh database, clean build:** 391 passed, 0 failed, 31 justified skips.
-  - Passed: all nine F16 ids, BOB34-K01, BOB32-K01, F03-T10, F04-T14, F06-N02, F06-P08, F06-S01, and both tripwires (UX1-BRAND-02 and UX1-TUR-ORANG-01, at 127).
-  - One unjustified skip, UX1-PIMPINAN-AKSES-01 (network), as in BOB-33's proof.
-- **Plants:** 114 of 114 proved their gate on a copy taken straight after the seeds. That is the 100 before, plus the 14 new `bob24-*`.
-- **Shared red cases:** all 17 gates, `db-bob24-gates` included, exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 254 of 254.
+**Local, on the lane head `9bad5e5`:** every database is built with an `en-US` ICU collation, and with Supabase's default privileges emulated (see BOB-24's CI section):
+- **Full suite, fresh database, clean build:** 395 passed, 0 failed, 31 justified skips. The one unjustified skip is UX1-PIMPINAN-AKSES-01 (network), as in every proof before.
+  - F16-I01..N01, F16-C01..C03, BOB34-K01, BOB32-K01, F05-T14, F05-T14b, F04-T04, F04-T04c, F04-T04d, F06-N02, F06-P19..P21 and F06-S01 all passed.
+  - Both migration tripwires passed at 129.
+- **Plants:** 121 of 121 proved their gate on a copy taken straight after the seeds. That includes db-bob24-gates 14, db-bob35-gates 4 and db-bob36-gates 3.
+- **Shared red cases:** all 19 gates exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 256 of 256.
 
 ## CI
-- **CI #230**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at `a2fdaae`: https://github.com/yazidmanan2409/pintar40/actions/runs/36544435566
-- It carries BOB-24 and BOB-34 together, as ruled, with `main` `73c0be5` merged in.
-- The red-case matrix gains `db-bob24-gates`.
-- I don't poll it: you read the run at the gate.
+**CI #230** (run `36544435566`, on `a2fdaae`) was **red in one job**: the red case `db-bob24-gates` stopped at its control, `already red before any defect: F16-N01`. The strict selftest contract was then skipped, so F16 had not yet run green in CI.
+
+**Cause:**
+- The migration revoked the internal helpers from `public`, `anon` and `authenticated`, but not from `service_role`.
+- On a Supabase stack, the default privileges grant every new function to `service_role`, and 0001 (`foundation_base`, lines 17–22) takes that back only from `anon` and `authenticated`.
+- F16-N01 holds six helpers to nobody: `pin_matches`, `pintar_id_new`, `pintar_id_canonical`, `username_rejection`, `pin_weakness` and `recovery_restore_core`.
+- My local shim does not grant those defaults, so the local proof was green.
+
+**Fix (`8ac8959`, in place under D-026; the migration is unmerged):**
+- Every helper revoke now names `service_role` too.
+- The four route functions keep their `service_role` grants, as ruled.
+- Nothing calls a helper as `service_role`; the routes reach them as their owner.
+
+**Reproduced:** a database built with Supabase's default privileges emulated shows F16-N01 red with exactly those six (`service_role can call public.pin_matches(uuid,text); … public.recovery_restore_core(uuid,text,text)`), then green after the fix.
+
+**The local proof now emulates them.** Every database is built with `alter default privileges for role postgres in schema public grant all on functions, tables to anon, authenticated, service_role` before the migrations, as the Supabase image does. The remaining differences from CI:
+- the server is Postgres 16.13, where CI's stack runs 17;
+- the Supabase roles and the `auth` and `storage` schemas are shims;
+- there is no GoTrue, PostgREST or Storage service, so the network tests are skipped: 31 justified skips, plus UX1-PIMPINAN-AKSES-01.
+
+**BOB-35/36's red-case controls, re-checked the same way:** `db-bob35-gates` and `db-bob36-gates` prove 4/4 and 3/3 on the emulated database.
+
+**The run for the lane head:** - **the lane-head run named in the next commit**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these four hand-offs. That commit is docs only; the code is at `9bad5e5`.
+- It is the one run for BOB-24's fix, BOB-34, BOB-35 and BOB-36, as directed.
+- The red-case matrix carries `db-bob24-gates`, `db-bob35-gates` and `db-bob36-gates`.
+- I don't poll it: you read it at the gate.
 
 ## CONTRACT
 For Gate 3, the routes and Daisy's pages. All refusals are SQLSTATE PR040 with the code in DETAIL, except 42501.
@@ -153,13 +166,13 @@ For Gate 3, the routes and Daisy's pages. All refusals are SQLSTATE PR040 with t
   - USERNAME_EMAIL_SHAPE, USERNAME_LENGTH, USERNAME_CHARACTERS, USERNAME_NUMBER, USERNAME_START, USERNAME_ID_SHAPE, USERNAME_RESERVED, USERNAME_ALREADY_SET, USERNAME_TAKEN and USERNAME_FIXED;
   - PIN_FORMAT, PIN_REPEATED, PIN_SEQUENCE, PIN_PATTERN, PIN_KEYPAD, PIN_YEAR, PIN_COMMON, PIN_ALREADY_SET and PIN_REUSED;
   - SETUP_INCOMPLETE and REASON_REQUIRED.
-- **BOB-34:** the Uji Cepat refusal address adds `bab`, `soal` and `menit`, as sent. The page reads them as before.
 
 ## MIGRATIONS
-`20261021100000`, additive: six tables, one column with a backfill, triggers, functions and registry rows. It is lane-only and unmerged, and was corrected in place under D-026 three times:
+`20261021100000`, additive: six tables, one column with a backfill, triggers, functions and registry rows. It is lane-only and unmerged, and was corrected in place under D-026 four times:
 - the clock is read after the row lock is taken;
 - the parameter is now `p_name`, and the admin refusals name SYSTEM_ADMIN;
-- the rulings. It applies in one transaction (`psql -1`) and through the Supabase CLI.
+- the rulings;
+- the helpers are revoked from `service_role` (CI #230). It applies in one transaction (`psql -1`) and through the Supabase CLI.
 
 ## COPY
 None in this change. The codes above will need sentences in `hle.ts` when Gate 3's pages use them. Ruling 3's copy, suggesting the person add a character to an ID-shaped name, is Gate 3's. That copy is Daisy's (D-014).
@@ -178,25 +191,23 @@ None open. Your six rulings of 29 Sep are applied in `8a44044`:
 **D-060:** identity only, so the metric catalogue version and `engine_version` are unchanged, as you ruled. Nothing here assembles, draws or scores a paper.
 
 ## READY
-Yes, for the one `ci.yml` run with BOB-34, gated together.
+Yes, for the one run on the lane head (the lane-head run named in the next commit), gated with BOB-34, BOB-35 and BOB-36 as one integration.
 
 ---
 ### Summary (ready to paste)
 ```
-BOB-24 (identity Gate 2, DB only) with BOB-34, ready for the gate.
-Code at 8a44044; main 73c0be5 merged. Manifest v116 (you set the final). One ci.yml run: CI #230 (run 36544435566) on a2fdaae.
-- BOB-34 (7445c1b): a refused Uji Cepat carries bab, soal and menit as sent; the page reopens its form.
-- BOB-24: migration 20261021100000 adds:
+BOB-24 (identity Gate 2, DB only), ready for the gate in the lane head's run (the lane-head run named in the next commit), with BOB-34, BOB-35 and BOB-36.
+Lane head 9bad5e5; main ffcd7dc merged; manifest v119, 427 ids.
+- Migration 20261021100000:
   - PINTAR ID on persons (random, immutable, normalised input);
   - usernames (C9 + rulings 2 and 3);
   - a bcrypt personal PIN (the IDENTITY-4.0 top-50);
   - set-up state (staff EMAIL only);
-  - code counters (address-agnostic, ruling 1);
+  - code counters (address-agnostic);
   - the recovery ladder (1 h, then 4 h, then suspended; restore forces a new PIN).
-  RLS on, no grants; route functions are service_role only; 7 client RPCs.
-- Tests: fable16 F16-I01..N01, and F16-C01..C03 concurrency (C03 found the clock read before the lock; fixed).
-  Plants: gate db-bob24-gates, 14 plants. Tripwires 126 -> 127.
-- Local: suite 391/0; plants 114/114; shared 17 gates, recheck 254/254.
+- CI #230 was red at db-bob24-gates' control (F16-N01): on Supabase, service_role holds every new function by default.
+  Fixed at 8ac8959 (helpers revoked from service_role too); reproduced and re-proved with Supabase's default privileges emulated.
+- Tests: fable16 F16-I01..N01, F16-C01..C03; gate db-bob24-gates, 14 plants.
+- Local: suite 395/0 (31 justified skips, plus UX1-PIMPINAN-AKSES-01); plants 121/121; shared 19 gates, recheck 256/256; Supabase default privileges emulated.
 - D-060: identity only; catalogue and engine_version unchanged.
-- Questions: none open; your six rulings are applied at 8a44044.
 ```
