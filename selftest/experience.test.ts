@@ -10907,29 +10907,22 @@ export const experienceTests: SelfTest[] = [
        */
 
       /**
-       * 1. UX-03: A REFUSAL SAYS ONLY WHAT IS TRUE. The configure stage
-       *    renders only when no Uji Cepat is running, so a refusal shown there
-       *    had another cause: it says the Quick Assessment was not made
-       *    available and nothing changed, and never that one is running. The
-       *    running stage, where that is true, says it. From the SOURCE, and
-       *    the copy in both languages.
+       * 1. UX-03: A REFUSAL SAYS ONLY WHAT IS TRUE. RESTATED FOR DAISY-27 (a
+       *    changed requirement): BOB-32 now passes the refusal's cause, so the
+       *    page says each cause in its own sentence (DAISY-27-TOLAK-01 reads
+       *    every one). What stays here: whichever stage renders, running or
+       *    configure, says the launch's answer, and «Sudah ada Uji Cepat yang
+       *    berjalan» is said nowhere, since the database lets several run.
        */
       const cepat = code(baca("src", "app", "mengajar", "[kelas]", "uji-cepat", "page.tsx"));
       const iHidup = cepat.indexOf("if (hidup) {");
       const iAtur = cepat.indexOf("const kursus =");
       const hidupBlok = iHidup >= 0 && iAtur > iHidup ? cepat.slice(iHidup, iAtur) : "";
       const aturBlok = iAtur >= 0 ? cepat.slice(iAtur) : "";
-      c.expect(/q\.cepat === "gagal" \? <BarisHasil nada="gagal">\{s\("mengajar\.cepat\.sudah_ada"\)\}<\/BarisHasil>/.test(hidupBlok),
-        "the running stage does not say a launch was refused because one is running");
-      c.expect(/q\.cepat === "gagal" \? <BarisHasil nada="gagal">\{s\("mengajar\.cepat\.gagal"\)\}<\/BarisHasil>/.test(aturBlok)
-        && !/mengajar\.cepat\.sudah_ada/.test(aturBlok),
-        "the configure stage, where none is running, still says one is running, or does not say the launch failed");
-      for (const locale of LOCALES) {
-        const x = t("mengajar.cepat.gagal", "educator", { locale });
-        c.expect(x !== TANPA_SALINAN && (locale === "id" ? /tidak ada yang berubah/ : /nothing has changed/).test(x)
-          && !/sudah ada|berjalan|already open|running|rujukan|reference/i.test(x) && INTERNAL_WORDS.every((w) => !x.includes(w)),
-          `(${locale}) the refusal line reads "${x}"`);
-      }
+      c.expect(/\{barisHasil\}/.test(hidupBlok) && /\{barisHasil\}/.test(aturBlok) && !/mengajar\.cepat\.sudah_ada/.test(cepat),
+        "a stage does not say the launch's answer, or a refusal still says one is already running");
+      c.expect(t("mengajar.cepat.sudah_ada" as HleEvent, "educator") === TANPA_SALINAN,
+        "the copy table still has «Sudah ada Uji Cepat yang berjalan»");
 
       /**
        * 2. UX-06: EVERY OPEN TEST IS COUNTED. «Keadaan hari ini» shows one
@@ -11009,8 +11002,8 @@ export const experienceTests: SelfTest[] = [
       }
 
       return c.verdict(
-        "a refused Uji Cepat says it was not made available and nothing changed, in both languages, wherever none is " +
-        "running, and says one is running only on the running stage; rendered, «Keadaan hari ini» shows every open test with " +
+        "whichever Uji Cepat stage renders says the launch's answer, and none says one is already running (the cause of " +
+        "each refusal is DAISY-27's); rendered, «Keadaan hari ini» shows every open test with " +
         "its own name and counts (both tests of a lesson, five of 25 each), soonest first with the Pemetaan Awal first on a " +
         "tie, else the latest closed one, else the empty line; the class page and Siapkan know a release by its date, with " +
         "no version number; and the Jumlah soal hint reads «Antara 3 dan 20 soal.» with no line saying who set the bound",
@@ -11228,6 +11221,123 @@ export const experienceTests: SelfTest[] = [
         "card's and an email account's results send the person to that address, or to «halaman Masuk PINTAR» when there is " +
         "none, never to the path /masuk, and no copy line does; the activation page's introduction ends the same way; and " +
         "Konfigurasi's menu offers only sections that exist, each leading to its section on the page",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "DAISY-27-TOLAK-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? code(readFileSync(f, "utf8")) : "";
+      };
+      /**
+       * DAISY-27 (UX-03's page half, with BOB-32): WHY AN UJI CEPAT WAS NOT
+       * MADE AVAILABLE. The page said «Sudah ada Uji Cepat yang berjalan…»,
+       * which is never the cause: the database lets several run in one class.
+       * BOB-32 passes the cause as a code (src/lib/ujicepat-kontrak.ts); the
+       * page reads it through that contract and says each one.
+       */
+      let kontrak: Record<string, unknown> | null = null;
+      try { kontrak = await import("../src/lib/ujicepat-kontrak") as Record<string, unknown>; } catch { /* reported below */ }
+      let modul: Record<string, unknown> | null = null;
+      try { modul = await import("../src/components/mengajar/tolakUjiCepat") as Record<string, unknown>; } catch { /* reported below */ }
+      const KODE = (kontrak?.KODE_UJI_CEPAT ?? []) as readonly string[];
+      type Gagal = { kode: string | null; ref: string | null };
+      const bacaGagal = kontrak?.bacaGagalUjiCepat as ((q: Record<string, string>) => Gagal | null) | undefined;
+      const kalimat = modul?.kalimatTolakUjiCepat as
+        ((g: Gagal, s: (k: HleEvent) => string, l: "id" | "en", b: { soalMin: number; soalMax: number; menit: readonly number[] }) => string) | undefined;
+      const ada = c.expect(KODE.length >= 6 && typeof bacaGagal === "function" && typeof kalimat === "function",
+        "there is no sentence for an Uji Cepat refusal by its code (src/components/mengajar/tolakUjiCepat.ts, kalimatTolakUjiCepat), or no BOB-32 contract to read it from");
+
+      /**
+       * 1. EVERY CODE HAS ITS OWN SENTENCE, in both languages, led by «Uji
+       *    Cepat belum disediakan.», naming no code and no machinery. The
+       *    count and the window say what to choose, with the range the page
+       *    knows (and a different range when the page knows a different one).
+       *    QUICK_FAILED and a code nobody knows get the app's general line,
+       *    with the reference only when there is one; a named cause never
+       *    carries one. Planted, a sentence with a code in it is caught.
+       */
+      const BATAS = { soalMin: 3, soalMax: 20, menit: [10, 15, 30] as const };
+      const MESIN = /QUICK_|CAN_[A-Z]|\bP0001\b|\b42501\b|INV-\d|\bmodule\b|\btier\b|drawable|\bnull\b/;
+      c.expect(MESIN.test("Uji Cepat belum disediakan. QUICK_BANK_TOO_SMALL"), "the planted code in a sentence is not caught");
+      if (ada) {
+        for (const locale of LOCALES) {
+          const s = (k: HleEvent) => t(k, "educator", { locale });
+          const n = (x: number) => format.number(x, locale);
+          const awal = s("mengajar.cepat.tolak.awal");
+          const per: Record<string, string> = Object.fromEntries(KODE.map((k) => [k, kalimat!({ kode: k, ref: null }, s, locale, BATAS)]));
+          for (const [k, x] of Object.entries(per)) {
+            c.expect(awal !== TANPA_SALINAN && x.startsWith(`${awal} `) && x.length > awal.length + 12 && !x.includes(TANPA_SALINAN)
+              && !MESIN.test(x) && INTERNAL_WORDS.every((w) => !x.includes(w)),
+              `(${locale}) ${k} reads "${x}"`);
+          }
+          c.expect(new Set(Object.values(per)).size === KODE.length, `(${locale}) two codes share a sentence: ${JSON.stringify(per)}`);
+          c.expect(per.QUICK_COUNT_OUT_OF_RANGE?.includes(n(3)) && per.QUICK_COUNT_OUT_OF_RANGE.includes(n(20)),
+            `(${locale}) the count's refusal does not give the range: "${per.QUICK_COUNT_OUT_OF_RANGE}"`);
+          const lain = kalimat!({ kode: "QUICK_COUNT_OUT_OF_RANGE", ref: null }, s, locale, { soalMin: 5, soalMax: 12, menit: [10] });
+          c.expect(lain.includes(`${n(5)} `) && lain.includes(`${n(12)}.`) && !lain.includes(n(20)), `(${locale}) the count's range is not the page's own: "${lain}"`);
+          c.expect(BATAS.menit.every((m) => per.QUICK_MINUTES_OUT_OF_RANGE?.includes(n(m))),
+            `(${locale}) the window's refusal does not offer the page's windows: "${per.QUICK_MINUTES_OUT_OF_RANGE}"`);
+          const umumRef = kalimat!({ kode: "QUICK_FAILED", ref: "AB12CD" }, s, locale, BATAS);
+          c.expect(umumRef === `${awal} ${s("galat.action_failed")} ${s("galat.rujukan")}: AB12CD.`,
+            `(${locale}) a refusal nobody named, with its reference, reads "${umumRef}"`);
+          c.expect(!per.QUICK_FAILED.includes(s("galat.rujukan")) && per.QUICK_FAILED === kalimat!({ kode: null, ref: null }, s, locale, BATAS),
+            `(${locale}) the general line without a reference names one, or a code nobody knows reads otherwise`);
+          c.expect(!kalimat!({ kode: "QUICK_BANK_TOO_SMALL", ref: "AB12CD" }, s, locale, BATAS).includes("AB12CD"),
+            `(${locale}) a named cause carries a reference`);
+        }
+      }
+
+      /**
+       * 2. THE ADDRESS IS READ THROUGH BOB-32'S CONTRACT, TRUSTING NOTHING.
+       *    A code the contract does not know and a reference of the wrong
+       *    shape come back as nothing, so what someone types into the address
+       *    reaches the page only as the general line.
+       */
+      if (ada) {
+        const s = (k: HleEvent) => t(k, "educator", { locale: "id" });
+        c.expect(bacaGagal!({ cepat: "ok" }) === null
+          && JSON.stringify(bacaGagal!({ cepat: "gagal", kode: "QUICK_BANK_TOO_SMALL" })) === JSON.stringify({ kode: "QUICK_BANK_TOO_SMALL", ref: null }),
+          "the refusal is not read from ?cepat=gagal&kode=");
+        const palsu = bacaGagal!({ cepat: "gagal", kode: "<b>Sudah ada</b>", ref: "<script>" });
+        const x = palsu ? kalimat!(palsu, s, "id", BATAS) : "";
+        c.expect(x === `${s("mengajar.cepat.tolak.awal")} ${s("mengajar.cepat.tolak.umum")}` && !/<|Sudah ada|script/.test(x),
+          `a forged code and reference reach the page: "${x}"`);
+      }
+
+      /**
+       * 3. FROM THE SOURCE. The page reads the refusal through BOB-32's
+       *    reader and says it by kalimatTolakUjiCepat, with the question range
+       *    it reads and the windows it offers; the sentences take the codes'
+       *    type from the contract and keep no list of their own; the page
+       *    names no code. «Sudah ada Uji Cepat yang berjalan» is gone from the
+       *    page and the copy table.
+       */
+      const hal = baca("src", "app", "mengajar", "[kelas]", "uji-cepat", "page.tsx");
+      c.expect(/import \{ bacaGagalUjiCepat \} from "@\/lib\/ujicepat-kontrak";/.test(hal) && /const gagal = bacaGagalUjiCepat\(q\);/.test(hal)
+        && /kalimatTolakUjiCepat\(gagal, s, locale, \{ soalMin, soalMax, menit: ajar\.JENDELA_MENIT \}\)/.test(hal)
+        && !/"QUICK_[A-Z_]+"/.test(hal),
+        "the page does not read the refusal through BOB-32's contract and say it by its code");
+      const modSrc = baca("src", "components", "mengajar", "tolakUjiCepat.ts");
+      c.expect(/import type \{ KodeUjiCepat \} from "@\/lib\/ujicepat-kontrak";/.test(modSrc) && !/\[\s*"QUICK_/.test(modSrc),
+        "the sentences keep their own list of the codes rather than the contract's");
+      c.expect(!/sudah_ada/.test(hal) && t("mengajar.cepat.sudah_ada" as HleEvent, "educator") === TANPA_SALINAN
+        && renderAll().every((r) => !/Sudah ada Uji Cepat yang berjalan|already open in this class/i.test(r.text)),
+        "«Sudah ada Uji Cepat yang berjalan» is not retired");
+
+      return c.verdict(
+        `every one of BOB-32's ${KODE.length} codes has its own sentence in both languages, led by «Uji Cepat belum ` +
+        "disediakan.», naming no code or machinery (a planted code is caught): the count and the window say what to choose " +
+        "with the page's own range and windows, and QUICK_FAILED or a code nobody knows gets the app's general line with " +
+        "the reference only when there is one; a forged code and reference in the address reach the page only as the " +
+        "general line; the page reads the refusal through BOB-32's reader and names no code, the sentences keep no list " +
+        "of codes of their own, and «Sudah ada Uji Cepat yang berjalan» is gone from the page and the copy table",
       );
     },
   },

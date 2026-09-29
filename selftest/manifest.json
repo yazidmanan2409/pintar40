@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 113,
+  "version": 114,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2298,7 +2298,7 @@
     {
       "id": "DAISY-26-MENGAJAR-01",
       "runner": "static",
-      "proves": "DAISY-26 (UI/UX POLISHED, D-052), the teacher's register rows UX-03, UX-06, UX-20 and UX-32. (1) UX-03: from the SOURCE of the Uji Cepat page, the configure stage, which renders only when no Uji Cepat is running, shows a refused launch as mengajar.cepat.gagal and never mengajar.cepat.sudah_ada, and the running stage, where it is true, shows sudah_ada; the new line in both languages says nothing changed, names no cause and no reference it does not have, and carries no internal word (today the configure stage says one is running). (2) UX-06: RENDERED in a child process, «Keadaan hari ini» (KeadaanHariIni) with both tests of a lesson open, five of 25 each, names both with their own counts, the Pemetaan Awal first; its selection is every open test, soonest to close first, the Pemetaan Awal first on a tie and one that never closes last, else the latest closed one, else the empty line; from the SOURCE, «Lihat bukti» hands it every assessment and keeps no single focus test (today it counts one). (3) UX-20: the class page and Siapkan show no release version number, only the date, whose line now starts with a capital. (4) UX-32: the Jumlah soal hint is composed as «Antara 3 dan 20 soal.» / «Between 3 and 20 items.» and no line tells a teacher who set the bound"
+      "proves": "DAISY-26 (UI/UX POLISHED, D-052), the teacher's register rows UX-03, UX-06, UX-20 and UX-32. (1) UX-03, restated for DAISY-27: from the SOURCE of the Uji Cepat page, whichever stage renders (running or configure) says the launch's answer, and «Sudah ada Uji Cepat yang berjalan» is said nowhere and is gone from the copy table (the database lets several run in one class); each refusal's own sentence is DAISY-27-TOLAK-01's. (2) UX-06: RENDERED in a child process, «Keadaan hari ini» (KeadaanHariIni) with both tests of a lesson open, five of 25 each, names both with their own counts, the Pemetaan Awal first; its selection is every open test, soonest to close first, the Pemetaan Awal first on a tie and one that never closes last, else the latest closed one, else the empty line; from the SOURCE, «Lihat bukti» hands it every assessment and keeps no single focus test (today it counts one). (3) UX-20: the class page and Siapkan show no release version number, only the date, whose line now starts with a capital. (4) UX-32: the Jumlah soal hint is composed as «Antara 3 dan 20 soal.» / «Between 3 and 20 items.» and no line tells a teacher who set the bound"
     },
     {
       "id": "POLISH2-STUDIO-01",
@@ -2309,6 +2309,11 @@
       "id": "POLISH2-ADMIN-01",
       "runner": "static",
       "proves": "Polish batch 2 (UI/UX POLISHED, D-052), the administrator's register rows. (1) UX-07: the school's code is «Kode sekolah» / School code and no Pendataan line calls it an institution code. (2) UX-11: the sign-in address is this environment's own (NEXT_PUBLIC_APP_URL's host plus /masuk; nothing that is not a web address becomes one); RENDERED in a child process with and without an address, a card's and an email account's results send the person to that address, or to «halaman Masuk PINTAR» when there is none, never to the path /masuk; no copy line sends anyone to «halaman /masuk»; the activation page's introduction ends the same way (today every one says «halaman /masuk»). (3) UX-30: Konfigurasi's menu offers only sections that exist, each leading to its section on the page; the three that only said «Bagian ini akan terisi pada tahap berikutnya.» are gone, with their line"
+    },
+    {
+      "id": "DAISY-27-TOLAK-01",
+      "runner": "static",
+      "proves": "DAISY-27 (UX-03's page half, with BOB-32; D-011, D-014): why an Uji Cepat was not made available. (1) Every one of BOB-32's codes (KODE_UJI_CEPAT, src/lib/ujicepat-kontrak.ts) has its own sentence (src/components/mengajar/tolakUjiCepat.ts, kalimatTolakUjiCepat) in both languages, led by «Uji Cepat belum disediakan.», naming no code or machinery and carrying no internal word (a planted code in a sentence is caught); the count's refusal gives the page's own question range (a different range when the page reads another) and the window's gives the windows the page offers; QUICK_FAILED and a code nobody knows get the app's general line (galat.action_failed) with «Kode rujukan: ‹ref›» only when there is a reference, and a named cause never carries one. (2) The address is read through BOB-32's bacaGagalUjiCepat: ?cepat=gagal&kode= is read; a forged code and reference come back as nothing and reach the page only as the general line. (3) From the SOURCE: the page reads the refusal through bacaGagalUjiCepat and says it by kalimatTolakUjiCepat with the range it reads and the windows it offers, and names no code; the sentences take the codes' type from the contract and keep no list of their own; «Sudah ada Uji Cepat yang berjalan» is gone from the page and the copy table (today every refusal said it, or, since DAISY-26, one general line)."
     }
   ]
 }
