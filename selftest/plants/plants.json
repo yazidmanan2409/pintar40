@@ -57,7 +57,7 @@
     },
     "db-bob35-gates": {
       "suite": "selftest.run_fable05()",
-      "control_green": 23,
+      "control_green": 24,
       "what": "BOB-35's provenance: a session records a release of its definition's course or none is opened; a corrected-release move carries the cycle's PRE_TEST and POST_TEST to the target's own definitions or is refused, and is refused once any learner has started"
     },
     "db-bob36-gates": {

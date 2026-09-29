@@ -1853,6 +1853,71 @@ begin
   return next;
 
   -- =========================================================================
+  -- F05-T20b BOB-41: THE DATABASE STILL DECIDES A QUESTION-HEALTH REVIEW. The
+  -- page now offers only what is legal from an item's state; the rules
+  -- themselves are unchanged: an illegal transition is refused, a review is
+  -- taken up and then concluded, and a concluded one returns to OBSERVING.
+  -- Two of the bootstrap school's items (School A carries none), walked as the
+  -- admin who reviews them; undone.
+  -- =========================================================================
+  ok := true; detail := '';
+  declare v_i1 uuid; v_i2 uuid; v_det2 text; v_boot uuid;
+  begin
+    select i.id into v_boot from public.institutions i where i.slug = 'pintar-bootstrap-official';
+    select i.id into v_i1 from public.items i
+     where i.institution_id = v_boot and not exists (select 1 from public.question_health h where h.item_id = i.id)
+     order by i.created_at, i.id limit 1;
+    select i.id into v_i2 from public.items i
+     where i.institution_id = v_boot and i.id <> v_i1 and not exists (select 1 from public.question_health h where h.item_id = i.id)
+     order by i.created_at, i.id limit 1;
+    if v_i1 is null or v_i2 is null then
+      ok := false; detail := detail || 'the bootstrap school has no two items without a health record to walk; ';
+    else
+      insert into public.question_health (item_id, institution_id) values (v_i1, v_boot), (v_i2, v_boot);
+      update public.question_health set state = 'OBSERVING' where item_id in (v_i1, v_i2);
+      update public.question_health set state = 'SIGNAL_RAISED' where item_id in (v_i1, v_i2);
+      perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+      -- illegal from SIGNAL_RAISED: concluding before taking it up
+      foreach v_det2 in array array['ACKNOWLEDGED_OK', 'ACTION_TAKEN'] loop
+        begin
+          perform public.record_question_health_review(v_i1, v_det2::public.question_health_state, 'terlalu cepat');
+          ok := false; detail := detail || format('SIGNAL_RAISED -> %s was accepted; ', v_det2);
+        exception when others then
+          if sqlerrm !~ 'does not move from' then
+            ok := false; detail := detail || format('SIGNAL_RAISED -> %s was refused for another reason: %s; ', v_det2, left(sqlerrm, 80));
+          end if;
+        end;
+      end loop;
+      -- taken up, then concluded both ways
+      perform public.record_question_health_review(v_i1, 'UNDER_REVIEW', 'diambil');
+      perform public.record_question_health_review(v_i2, 'UNDER_REVIEW', 'diambil');
+      begin
+        perform public.record_question_health_review(v_i1, 'UNDER_REVIEW', 'dua kali');
+        ok := false; detail := detail || 'UNDER_REVIEW -> UNDER_REVIEW was accepted; ';
+      exception when others then null; end;
+      perform public.record_question_health_review(v_i1, 'ACKNOWLEDGED_OK', 'wajar');
+      perform public.record_question_health_review(v_i2, 'ACTION_TAKEN', 'diperbaiki');
+      perform selftest.as_owner();
+      if (select count(*) from public.question_health h where (h.item_id = v_i1 and h.state = 'ACKNOWLEDGED_OK')
+             or (h.item_id = v_i2 and h.state = 'ACTION_TAKEN')) <> 2 then
+        ok := false; detail := detail || 'a review taken up could not be concluded; ';
+      end if;
+      -- watching resumes, unchanged
+      update public.question_health set state = 'OBSERVING' where item_id in (v_i1, v_i2);
+      if (select count(*) from public.question_health h where h.item_id in (v_i1, v_i2) and h.state = 'OBSERVING') <> 2 then
+        ok := false; detail := detail || 'ACKNOWLEDGED_OK / ACTION_TAKEN -> OBSERVING no longer holds; ';
+      end if;
+      raise exception 'F05_T20B_UNDO';
+    end if;
+  exception when others then
+    perform selftest.as_owner();
+    if sqlerrm <> 'F05_T20B_UNDO' then ok := false; detail := detail || 'the test could not run: ' || left(sqlerrm, 150) || '; '; end if;
+  end;
+  test_id := 'F05-T20b'; invariant := 'BOB-41 / question_health_transitions';
+  if ok then detail := 'the database still decides a question-health review: from SIGNAL_RAISED, ACKNOWLEDGED_OK and ACTION_TAKEN are refused and UNDER_REVIEW is taken; UNDER_REVIEW twice is refused; from UNDER_REVIEW both ACKNOWLEDGED_OK and ACTION_TAKEN conclude it; and both return to OBSERVING, unchanged'; end if;
+  return next;
+
+  -- =========================================================================
   -- F05-T21 the counters §11 fixes, re-measured
   -- =========================================================================
   ok := true; detail := '';
