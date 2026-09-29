@@ -6149,6 +6149,31 @@ begin
       select count(*) into n from public.management_decisions m where m.source_id = c.signal_a;
       if n <> 1 then bad := bad || array[format('a second referral of the same open signal left %s decision(s)', n)]; end if;
 
+      -- no review without its referral: a Head of Department whose department
+      -- the signal's class is not in may see the signal (the Studio lists them
+      -- school-wide) but its referral is refused whole, review included
+      declare v_sig_b uuid; n_aud int;
+      begin
+        insert into public.integrity_signals (session_id, institution_id, category)
+        values (c.sess_b, c.inst, 'NAVIGATION') returning integrity_signals.id into v_sig_b;
+        v_caught := false;
+        perform selftest.as_user_uid(c.hod_u);
+        begin perform public.record_integrity_review(v_sig_b, 'REFERRED_TO_INSTITUTION', 'departemen lain');
+        exception when others then v_caught := true; end;
+        perform public.record_integrity_review(v_sig_b, 'NO_CONCERN', 'hanya dilihat');
+        perform selftest.as_owner();
+        select count(*) into n from public.management_decisions m where m.source_id = v_sig_b;
+        select count(*) into n_aud from public.audit_log l
+         where l.action = 'INTEGRITY_SIGNAL_REVIEWED' and l.target_id = v_sig_b::text and l.summary ->> 'decision' = 'REFERRED_TO_INSTITUTION';
+        if not v_caught or n <> 0 or n_aud <> 0 then
+          bad := bad || array[format('a referral outside the reviewer''s department was %s, leaving %s decision(s) and %s review row(s)',
+                                     case when v_caught then 'refused' else 'accepted' end, n, n_aud)];
+        end if;
+        select count(*) into n_aud from public.audit_log l
+         where l.action = 'INTEGRITY_SIGNAL_REVIEWED' and l.target_id = v_sig_b::text and l.summary ->> 'decision' = 'NO_CONCERN';
+        if n_aud <> 1 then bad := bad || array['a NO_CONCERN review outside the reviewer''s department is no longer recorded']; end if;
+      end;
+
       -- a Head of Department over the other department does not see it
       v_hod_b := selftest.f11_user('f06-p22-hod-b-' || substr(md5(random()::text), 1, 6) || '@synthetic.pintar.test',
                                    'HEAD_OF_DEPARTMENT', c.dept_b);
@@ -6195,7 +6220,9 @@ begin
         || 'AWAITING_REVIEW INTEGRITY_REFERRAL on the signal''s class, with the reviewer''s note as its raised_note, beside the '
         || 'review''s own audit row, and it shows in that Head of Department''s decision queue (read through RLS as /pimpinan '
         || 'reads it); NO_CONCERN and DISCUSSED_WITH_LEARNER created nothing; a second referral of the open signal is the same '
-        || 'decision; a Head of Department over the other department does not see it; a teacher is still refused the review; '
+        || 'decision; a referral of a signal outside the reviewer''s department is refused whole, leaving no decision and no '
+        || 'review row, while NO_CONCERN there is still recorded; a Head of Department over the other department does not see it; '
+        || 'a teacher is still refused the review; '
         || 'and «Saya yang menangani» and «Catat keputusan» take it up and decide it. Every row rolled back';
     end if;
     return next;
