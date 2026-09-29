@@ -8,7 +8,7 @@
 
 **Manifest:** the lane's is v119 with 427 ids, as you directed at the merge.
 
-**CI:** the lane-head run named in the next commit. It is the one run for the lane head, carrying BOB-24's fix, BOB-34, BOB-35 and BOB-36. BOB-34 has its own hand-off, `HANDOFF-BOB-34.md`.
+**CI:** CI #235 (run `36551388380`, https://github.com/yazidmanan2409/pintar40/actions/runs/36551388380) on `d4e4ce6`. It is the one run for the lane head, carrying BOB-24's fix, BOB-34, BOB-35 and BOB-36. BOB-34 has its own hand-off, `HANDOFF-BOB-34.md`.
 
 ## CHANGED
 
@@ -140,7 +140,7 @@ The `ci.yml` red-case matrix gains `db-bob24-gates`, with the same harness and f
 
 **BOB-35/36's red-case controls, re-checked the same way:** `db-bob35-gates` and `db-bob36-gates` prove 4/4 and 3/3 on the emulated database.
 
-**The run for the lane head:** - **the lane-head run named in the next commit**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these four hand-offs. That commit is docs only; the code is at `9bad5e5`.
+**The run for the lane head:** - **CI #235 (run `36551388380`, https://github.com/yazidmanan2409/pintar40/actions/runs/36551388380) on `d4e4ce6`**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these four hand-offs. That commit is docs only; the code is at `9bad5e5`.
 - It is the one run for BOB-24's fix, BOB-34, BOB-35 and BOB-36, as directed.
 - The red-case matrix carries `db-bob24-gates`, `db-bob35-gates` and `db-bob36-gates`.
 - I don't poll it: you read it at the gate.
@@ -191,12 +191,12 @@ None open. Your six rulings of 29 Sep are applied in `8a44044`:
 **D-060:** identity only, so the metric catalogue version and `engine_version` are unchanged, as you ruled. Nothing here assembles, draws or scores a paper.
 
 ## READY
-Yes, for the one run on the lane head (the lane-head run named in the next commit), gated with BOB-34, BOB-35 and BOB-36 as one integration.
+Yes, for the one run on the lane head (CI #235 (run `36551388380`, https://github.com/yazidmanan2409/pintar40/actions/runs/36551388380) on `d4e4ce6`), gated with BOB-34, BOB-35 and BOB-36 as one integration.
 
 ---
 ### Summary (ready to paste)
 ```
-BOB-24 (identity Gate 2, DB only), ready for the gate in the lane head's run (the lane-head run named in the next commit), with BOB-34, BOB-35 and BOB-36.
+BOB-24 (identity Gate 2, DB only), ready for the gate in the lane head's run (CI #235 (run `36551388380`, https://github.com/yazidmanan2409/pintar40/actions/runs/36551388380) on `d4e4ce6`), with BOB-34, BOB-35 and BOB-36.
 Lane head 9bad5e5; main ffcd7dc merged; manifest v119, 427 ids.
 - Migration 20261021100000:
   - PINTAR ID on persons (random, immutable, normalised input);
