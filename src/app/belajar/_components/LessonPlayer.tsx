@@ -21,8 +21,9 @@
  * never a track here without one.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { t } from "@/lib/hle";
-import { halamanMulai, perluDisimpan } from "@/lib/siklus";
+import { halamanMulai, menjadiDibaca, perluDisimpan } from "@/lib/siklus";
 
 export type LessonPlayerProps = {
   learningAssignmentId: string;
@@ -33,7 +34,7 @@ export type LessonPlayerProps = {
   media: Array<{ jenis: string; path: string; transcript?: string; url?: string | null }>;
   startAt: number;
   saveProgress: (learningAssignmentId: string, lessonId: string, position: number, total: number)
-    => Promise<{ ok: boolean }>;
+    => Promise<{ ok: boolean; furthest?: number }>;
 };
 
 /** `[[visual:pecahan|3/8]]` → a drawn diagram. Unknown directives render as text. */
@@ -100,22 +101,26 @@ export default function LessonPlayer(props: LessonPlayerProps) {
   // the save function and ids through a ref, and saves only beyond what is
   // already saved (the server's startAt, then each save) -- as pages reached
   // (BOB-22), so the last page of N saves N.
+  // Round 2: the save that makes the lesson read (N of N) asks the page for
+  // one refresh, so its closing action -- the Uji Penguasaan link once every
+  // lesson is read -- is decided again. That save only, never one per page.
+  const router = useRouter();
   const simpan = useRef({ save: props.saveProgress, tugas: props.learningAssignmentId, pelajaran: props.lessonId,
-    total: pages.length, kunci: localKey });
+    total: pages.length, kunci: localKey, segarkan: () => router.refresh() });
   useEffect(() => {
     simpan.current = { save: props.saveProgress, tugas: props.learningAssignmentId, pelajaran: props.lessonId,
-      total: pages.length, kunci: localKey };
+      total: pages.length, kunci: localKey, segarkan: () => router.refresh() };
   });
   const tersimpan = useRef(props.startAt);
 
   useEffect(() => {
-    const { save, tugas, pelajaran, total, kunci } = simpan.current;
+    const { save, tugas, pelajaran, total, kunci, segarkan } = simpan.current;
     try { window.localStorage.setItem(kunci, String(Math.max(page, Number(window.localStorage.getItem(kunci) ?? 0)))); }
     catch { /* unavailable */ }
     const posisi = perluDisimpan(page, tersimpan.current);
     if (posisi === null) return;
     tersimpan.current = posisi;
-    void save(tugas, pelajaran, posisi, total);
+    void save(tugas, pelajaran, posisi, total).then((hasil) => { if (menjadiDibaca(hasil, total)) segarkan(); }, () => {});
   }, [page]);
 
   const example = props.workedExamples[0];

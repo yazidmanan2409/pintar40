@@ -174,4 +174,68 @@ export const bob23Tests: SelfTest[] = [
       );
     },
   },
+  {
+    // BOB-23 round 2 (X-08 kept): the save that makes a lesson read -- its
+    // last page, N of N -- refreshes the page once, so its closing action (the
+    // Uji Penguasaan link, decided at render) appears without a reload; no
+    // other save does. Staging run 13 lost the link: the redraw BOB-23 removed
+    // was what had been refreshing it.
+    id: "BOB23-K03",
+    run: async (ctx) => {
+      const c = new Checks();
+      const siklus = (await import("../src/lib/siklus")) as Record<string, unknown>;
+      type Hasil = { ok: boolean; furthest?: number };
+      c.expect(typeof siklus.menjadiDibaca === "function", "there is no read-transition decision: src/lib/siklus.ts has no menjadiDibaca");
+      // without it, the player before round 2: it never refreshed
+      const segarkan = (siklus.menjadiDibaca as ((h: Hasil, t: number) => boolean) | undefined) ?? (() => false);
+      const putuskan = siklus.perluDisimpan as (h: number, t: number) => number | null;
+      const mulai = siklus.halamanMulai as (p: number, n: number) => number;
+
+      /** Every render asks; the server keeps the furthest and answers with it, or fails on the pages in `gagal`. */
+      const jalankan = (n: number, startAt: number, langkah: Array<"render" | "maju" | "mundur">, gagal: number[] = []) => {
+        let halaman = mulai(startAt, n), tersimpan = startAt, server = startAt, segar = 0;
+        for (const k of ["render" as const, ...langkah]) {
+          if (k === "maju") halaman = Math.min(n - 1, halaman + 1);
+          if (k === "mundur") halaman = Math.max(0, halaman - 1);
+          const p = putuskan(halaman, tersimpan);
+          if (p === null) continue;
+          tersimpan = p;
+          const hasil: Hasil = gagal.includes(p) ? { ok: false } : { ok: true, furthest: (server = Math.max(server, p)) };
+          if (segarkan(hasil, n)) segar++;
+        }
+        return segar;
+      };
+      const ulang = <T,>(x: T, kali: number): T[] => Array.from({ length: kali }, () => x);
+      const baca5 = [...ulang<"render">("render", 10), ...[1, 2, 3, 4].flatMap(() => ["maju" as const, ...ulang<"render">("render", 5)]),
+        ...ulang<"mundur">("mundur", 2), ...ulang<"render">("render", 10)];
+      const a = jalankan(5, 0, baca5);
+      c.expect(a === 1, `reading a 5-page lesson to its last page, with re-renders and going back, refreshed the page ${a} time(s); expected once, on the last page`);
+      const b = jalankan(5, 5, [...ulang<"mundur">("mundur", 4), ...ulang<"maju">("maju", 4), ...ulang<"render">("render", 20)]);
+      c.expect(b === 0, `paging over a lesson already read refreshed the page ${b} time(s)`);
+      const d = jalankan(3, 0, ["maju", "maju", ...ulang<"render">("render", 20)], [3]);
+      c.expect(d === 0, `a last-page save that failed refreshed the page ${d} time(s)`);
+      const e = jalankan(1, 0, ulang<"render">("render", 20));
+      c.expect(e === 1, `opening a 1-page lesson refreshed the page ${e} time(s); expected once`);
+      c.expect(!segarkan({ ok: true, furthest: 2 }, 3) && !segarkan({ ok: true, furthest: 3 }, 0), "a save short of the total, or of an empty lesson, reads as read");
+
+      // the wiring: one refresh, only behind menjadiDibaca, on the save's own result
+      const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+      const pemutar = buang(readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "_components", "LessonPlayer.tsx"), "utf8"));
+      c.expect((pemutar.match(/router\.refresh\(\)/g) ?? []).length === 2 && /segarkan: \(\) => router\.refresh\(\)/.test(pemutar),
+        "the player does not ask the router for a refresh through the save's ref");
+      c.expect(/void save\(tugas, pelajaran, posisi, total\)\.then\(\(hasil\) => \{ if \(menjadiDibaca\(hasil, total\)\) segarkan\(\); \}/.test(pemutar)
+          && (pemutar.match(/segarkan\(\)/g) ?? []).length === 1,
+        "the player refreshes other than once, on the save that makes the lesson read");
+      const aksi = buang(readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "actions.ts"), "utf8"));
+      c.expect(/export async function saveLessonProgress[\s\S]*?furthest: await engine\.recordProgress\(/.test(aksi),
+        "saveLessonProgress does not answer with the server's furthest count");
+
+      return c.verdict(
+        "driven through every render a lesson sees, a 5-page lesson read to its last page -- with re-renders and going " +
+          "back -- refreshes the page exactly once, on the save that makes it read; paging over a lesson already read, " +
+          "and a last-page save that failed, refresh nothing; a 1-page lesson refreshes once; the player's only refresh is " +
+          "behind menjadiDibaca on the save's own result, and saveLessonProgress answers with the server's furthest count",
+      );
+    },
+  },
 ];
