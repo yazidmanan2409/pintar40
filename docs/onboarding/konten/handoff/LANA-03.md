@@ -41,8 +41,11 @@ is never the strictly longest.
   carrying), subtracting (biasa and campuran with borrowing), and a one-step and a two-step word
   problem. It uses fresh fractions: no post-test problem is one a lesson works through, and no
   post-test answer is one of the book's Uji Kompetensi keys.
-- **No distractor equals the answer in value.** The generator asserts this for every numeric
-  question, so a distractor can never be, say, 4/8 when the answer is 1/2.
+- **No distractor equals the answer in value, except in form questions.** The generator asserts
+  this for every question that asks for a value, so a distractor can never be, say, 4/8 when the
+  answer is 1/2. The exceptions are the two form questions: LT2 (simplest form: 9/12 and 6/8 equal
+  3/4 but are not simplest) and LT4 (mixed number: 1 7/4 equals 2 3/4 but is not a proper mixed
+  number). There the form is what is asked. (Corrected after the gate, 29 Sep.)
 - **Workbook cells are text**, so Excel cannot turn 3/8 into a date.
 - **Misconception codes: 14**, SD5-M-B3-01…14. Codes 02 and 06 are the book's own (pp. 104, 107,
   109). The workbook's Kode miskonsepsi column is empty.
