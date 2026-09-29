@@ -64,7 +64,8 @@ fakta("ekologi", 141, "Ilmu yang mempelajari lingkungan disebut ekologi, ilmu an
 fakta("etika", 141, "Etika lingkungan merupakan nilai-nilai keseimbangan dalam kehidupan manusia dalam interaksi terhadap lingkungan hidupnya, yang terdiri atas aspek abiotik, biotik, dan budaya")
 fakta("jenis_lingkungan", 141, "Lingkungan hidup dibagi menjadi beberapa bagian, yaitu lingkungan biotik, abiotik, dan sosial budaya.")
 fakta("biotik", 141, "Unsur biotik atau hayati adalah unsur lingkungan hidup yang terdiri dari manusia, hewan, tumbuhan, dan organisme kecil yang tidak terlihat.")
-fakta("produsen", 142, "Produsen adalah makhluk hidup yang mampu mengubah zat anorganik menjadi zat organik. Peran produsen hanya dapat dilakukan oleh tumbuhan yang berklorofil dengan cara fotosintesis, seperti tumbuhan hijau, alga, dan lumut.")
+fakta("produsen", 142, "Produsen adalah makhluk hidup yang mampu mengubah zat anorganik menjadi zat organik.")
+fakta("produsen_contoh", 142, "tumbuhan yang berklorofil dengan cara fotosintesis, seperti tumbuhan hijau, alga, dan lumut.")
 fakta("konsumen", 142, "Konsumen adalah organisme yang tidak dapat membuat makanannya sendiri dan bergantung kepada organisme lain, seperti manusia dan hewan.")
 fakta("pengurai", 142, "Pengurai merupakan organisme yang mendapatkan energi dari menguraikan bahan organik dari organisme mati, seperti bakteri, jamur, dan cacing tanah.")
 fakta("abiotik", 142, "Contoh lingkungan abiotik adalah air, tanah, udara, cahaya matahari, kelembapan udara, suhu, dan iklim.")
@@ -78,6 +79,7 @@ fakta("buatan_contoh", 146, "Contoh lingkungan buatan termasuk jalan, sekolah, t
 # A.2-A.3 Manfaat dan kualitas lingkungan (pp. 147-151)
 fakta("mikroorganisme", 147, "Mikroorganisme diperlukan untuk menguraikan sisa-sisa makhluk hidup yang sudah mati. Sisa-sisa tersebut diproses oleh mikroorganisme menjadi tanah yang subur.")
 fakta("penyedia_sda", 147, "Contoh sumber daya alam di lingkungan hidup adalah gas alam dan minyak bumi.")
+fakta("oksigen", 147, "Setiap makhluk hidup membutuhkan oksigen untuk bernapas.")
 fakta("penyedia_tanah", 147, "Bagi tumbuhan, tanah berfungsi sebagai tempat hidup. Bagi manusia, tanah berfungsi sebagai tempat berkebun, berladang, bahkan mendirikan rumah.")
 fakta("daya_dukung", 148, "Daya dukung lingkungan adalah ukuran kemampuan suatu lingkungan untuk mendukung kelompok atau populasi dari berbagai jenis makhluk hidup tertentu untuk hidup dalam lingkungan tertentu.")
 fakta("iklh", 149, "Dasar penilaian IKLH di Indonesia menggunakan tiga indikator utama, yaitu Indeks Kualitas Air (IKA), Indeks Kualitas Udara (IKU), dan Kualitas Lahan (IKL)")
@@ -88,7 +90,6 @@ fakta("gunung_api", 151, "Ada kalanya aktivitas gunung api mengeluarkan gas yang
 fakta("iptek", 151, "Masyarakat yang menguasai ilmu pengetahuan dan teknologi akan mampu merespons dan meningkatkan kualitas lingkungan.")
 fakta("tradisi", 151, "Pada umumnya, masyarakat memiliki nilai-nilai tradisi dalam menjaga kualitas lingkungan. Misal, apabila seorang anggota masyarakat menebang satu pohon, mereka harus mengganti 10 pohon serupa.")
 # A.4 Masalah lingkungan dan upaya (pp. 152-158)
-fakta("global_warming", 152, "Gas tersebut mengakibatkan radiasi matahari yang tidak dapat sepenuhnya dilepaskan ke atmosfer, tetapi dipantulkan kembali ke bumi sehingga menyebabkan pemanasan suhu bumi")
 fakta("gw_dampak", 152, "Peningkatan suhu ini dapat menyebabkan lapisan es di kutub mencair dan permukaan air laut naik.")
 fakta("gw_musim", 152, "pemanasan global juga mengubah pola alami musim dan curah hujan hingga perubahan cuaca yang berdampak pada produksi pertanian dan kehutanan.")
 fakta("cfc", 152, "Salah satu penyebab penipisan lapisan ozon adalah polusi gas klorin dan bromida yang ditemukan di Chloro Fluoro Carbon (CFC).")
@@ -218,7 +219,7 @@ def rasio(laki, perempuan):
 cek(rasio(13666, 13354) == 102)
 
 # Classifications from the book's own lists.
-BIOTIK = {"produsen": ["tumbuhan hijau", "alga", "lumut"], "konsumen": ["manusia", "hewan"], "pengurai": ["bakteri", "jamur", "cacing tanah"]}
+BIOTIK = {"produsen_contoh": ["tumbuhan hijau", "alga", "lumut"], "konsumen": ["manusia", "hewan"], "pengurai": ["bakteri", "jamur", "cacing tanah"]}
 cek(all(norm(x) in norm(FAKTA[k][1]) for k, v in BIOTIK.items() for x in v))
 KOMPONEN = {"abiotik": ["air", "tanah", "udara", "cahaya matahari"], "budaya": ["bangunan", "karya seni"]}
 cek(all(norm(x) in norm(FAKTA[k][1]) for k, v in KOMPONEN.items() for x in v))
@@ -308,7 +309,7 @@ Untuk menjaganya, **daya dukung lingkungan** harus diperhatikan. Daya dukung lin
 Kualitas lingkungan dapat diukur dengan **IKLH**. Di Indonesia, IKLH memakai tiga indikator utama:
 - Indeks Kualitas Air (IKA);
 - Indeks Kualitas Udara (IKU);
-- Kualitas Lahan (IKL).
+- Indeks Kualitas Lahan (IKL).
 
 Menurut KLHK (2021), IKLH Indonesia naik dari 66,55 pada tahun 2019 menjadi 70,27 pada tahun 2020, yaitu naik 70,27 − 66,55 = **3,72 poin**. Nilai 70,27 itu melampaui target RPJMN sebesar 68,71.
 
@@ -334,14 +335,14 @@ Kualitas lingkungan dapat turun dan membaik kembali. Faktor-faktornya:
          bloom="Menganalisis",
          isi=f"""## Pemanasan global
 
-**Pemanasan global** terjadi akibat efek gas rumah kaca. Gas itu membuat radiasi matahari tidak dapat sepenuhnya dilepaskan ke atmosfer, tetapi dipantulkan kembali ke bumi, sehingga suhu bumi naik.
+**Pemanasan global** terjadi akibat efek gas rumah kaca, sehingga suhu bumi naik.
 
 Akibatnya:
 - lapisan es di kutub mencair dan permukaan air laut naik;
 - pola musim dan curah hujan berubah, sehingga produksi pertanian dan kehutanan terganggu;
 - kebakaran hutan makin mungkin terjadi karena kemarau yang panjang.
 
-Penipisan lapisan ozon, yang melindungi bumi dari radiasi berbahaya, salah satunya disebabkan polusi gas klorin dan bromida dalam CFC (Chloro Fluoro Carbon).
+Penipisan lapisan ozon, yang melindungi bumi dari radiasi berbahaya, salah satunya disebabkan polusi gas klorin dari CFC (Chloro Fluoro Carbon).
 
 ## Pencemaran udara dan air
 
@@ -557,6 +558,7 @@ for _p in PELAJARAN:
     cek(_p["isi"].rstrip().endswith(SUMBER), f"lesson {_p['no']}: attribution last")
     cek("\n|" not in _p["isi"], f"lesson {_p['no']}: no Markdown table")
     cek("permukaan matahari" not in _p["isi"] and "107 jiwa" not in _p["isi"] and "1.49%" not in _p["isi"], f"lesson {_p['no']}: a book error kept out")
+    cek(not any(w in _p["isi"] for w in ("dipantulkan", "bromida", "hanya dapat dilakukan")), f"lesson {_p['no']}: a doubtful claim kept out")
 
 # ── Misconceptions: the book has no Miskonsepsi section; these come from the distractors.
 MISKONSEPSI = {
@@ -615,6 +617,10 @@ STOP = {"karena", "yaitu", "adalah", "dengan", "sebagai", "termasuk", "bukan", "
         "sekitar", "tempat"}
 
 
+# An option may correct the book's spelling; the word is then checked in the book's spelling.
+EJAAN = {"persentase": "presentase"}      # p. 171
+
+
 def kata_isi(teks):
     return [w for w in re.findall(r"[0-9a-zA-Z,.%°'’-]+", teks) if len(norm(w)) >= 5 and norm(w) not in {norm(s) for s in STOP}]
 
@@ -632,7 +638,7 @@ def soal(ref, pel, tanya, jawab, pilihan, guna="", sulit="Mudah", petunjuk=""):
             cek(fid[1:] in FAKTA, f"{ref}: {fid}")
             continue
         cek(fid in FAKTA, f"{ref}: unknown fact {fid}")
-        luput = [w for w in kata_isi(teks) if norm(w) not in norm(FAKTA[fid][1])]
+        luput = [w for w in kata_isi(teks) if norm(EJAAN.get(w, w)) not in norm(FAKTA[fid][1])]
         cek(not luput, f"{ref}: {luput} of '{teks}' is not in fact {fid}")
     cek(len({p[0] for p in pilihan}) == 4, f"{ref}: four different options")
     i = "ABCD".index(jawab)
@@ -650,7 +656,7 @@ soal("PA1", 1, "Bakteri, jamur, dan cacing tanah dalam ekosistem berperan sebaga
 soal("PA2", 3, "Air hujan yang memiliki pH lebih kecil dari 5,6 dan mengandung sulfur dioksida serta oksida nitrogen disebut ...", "D", [
     ("hujan asam", True, "Tepat. Hujan asam adalah salah satu dampak pencemaran udara.", "", "hujan_asam"),
     ("pemanasan global", False, "Pemanasan global adalah naiknya suhu bumi karena gas rumah kaca.", "SMA11-G-B3-07", "gw_musim"),
-    ("penipisan lapisan ozon", False, "Penipisan lapisan ozon antara lain disebabkan gas klorin dan bromida dalam CFC.", "SMA11-G-B3-07", "cfc"),
+    ("penipisan lapisan ozon", False, "Penipisan lapisan ozon antara lain disebabkan gas klorin dari CFC.", "SMA11-G-B3-07", "cfc"),
     ("pencemaran air", False, "Pencemaran air terjadi akibat industri, permukiman, dan teknologi yang kurang ramah lingkungan.", "SMA11-G-B3-07", "air"),
 ], guna="Pemetaan awal")
 cek(alami(180, 65) == 115 and 180 + 65 == 245 and alami(65, 180) == -115)
@@ -668,11 +674,11 @@ soal("PA4", 7, "Salah satu tujuan transmigrasi adalah ...", "C", [
 ], guna="Pemetaan awal")
 
 # ── Cek penguasaan (post-test): every lesson; no book assessment item (pp. 185-191), no lesson example.
-soal("PB1", 1, "Dalam ekosistem, peran produsen hanya dapat dilakukan oleh ...", "C", [
-    ("tumbuhan yang berklorofil", True, "Tepat. Dengan fotosintesis, tumbuhan berklorofil mengubah zat anorganik menjadi zat organik.", "", "produsen"),
+soal("PB1", 1, "Dalam ekosistem, peran produsen dapat dilakukan oleh ...", "C", [
+    ("tumbuhan yang berklorofil", True, "Tepat. Dengan fotosintesis, tumbuhan berklorofil mengubah zat anorganik menjadi zat organik.", "", "produsen_contoh"),
     ("bakteri, jamur, dan cacing tanah", False, "Mereka adalah pengurai, yang menguraikan bahan organik dari organisme mati.", "SMA11-G-B3-01", "pengurai"),
     ("manusia dan hewan", False, "Manusia dan hewan adalah konsumen, karena tidak dapat membuat makanannya sendiri.", "SMA11-G-B3-01", "konsumen"),
-    ("organisme kecil yang tidak terlihat", False, "Organisme kecil termasuk unsur biotik, tetapi tidak disebut sebagai pelaku peran produsen.", "SMA11-G-B3-01", "biotik"),
+    ("air, tanah, udara, dan cahaya matahari", False, "Ini lingkungan abiotik, yaitu benda tak hidup, sehingga tidak dapat berperan sebagai produsen.", "SMA11-G-B3-02", "abiotik"),
 ], guna="Cek penguasaan", sulit="Sedang")
 soal("PB2", 2, "Tiga indikator utama dasar penilaian IKLH di Indonesia adalah ...", "A", [
     ("kualitas air, kualitas udara, dan kualitas lahan", True, "Tepat. Ketiganya disingkat IKA, IKU, dan IKL.", "", "iklh"),
@@ -732,11 +738,11 @@ cek(set(KOMPONEN["abiotik"]) == {"air", "tanah", "udara", "cahaya matahari"})
 soal("L2", 1, "Kelompok berikut yang seluruhnya termasuk lingkungan abiotik adalah ...", "C", [
     ("air, tanah, udara, dan cahaya matahari", True, "Tepat. Semuanya benda tak hidup yang memengaruhi kehidupan.", "", "abiotik"),
     ("bangunan, karya seni, dan sistem kepercayaan", False, "Ini lingkungan budaya, hasil daya cipta manusia.", "SMA11-G-B3-02", "budaya"),
-    ("tumbuhan hijau, alga, dan lumut", False, "Ini makhluk hidup (produsen), jadi termasuk unsur biotik.", "SMA11-G-B3-02", "produsen"),
+    ("tumbuhan hijau, alga, dan lumut", False, "Ini makhluk hidup (produsen), jadi termasuk unsur biotik.", "SMA11-G-B3-02", "produsen_contoh"),
     ("bakteri, jamur, dan cacing tanah", False, "Ini makhluk hidup (pengurai), jadi termasuk unsur biotik.", "SMA11-G-B3-02", "pengurai"),
 ])
 soal("L3", 1, "Danau, laut, rawa, dan sungai termasuk ...", "B", [
-    ("lingkungan hidup air", True, "Tepat. Ketiganya bagian dari lingkungan alami.", "", "alami_air_darat"),
+    ("lingkungan hidup air", True, "Tepat. Keempatnya bagian dari lingkungan alami.", "", "alami_air_darat"),
     ("lingkungan hidup darat", False, "Lingkungan hidup darat terdiri atas bukit, gunung, hutan, lembah, dan padang rumput.", "SMA11-G-B3-03", "alami_air_darat"),
     ("lingkungan buatan", False, "Lingkungan buatan dibuat manusia, misalnya jalan, sekolah, dan taman.", "SMA11-G-B3-03", "buatan"),
     ("lingkungan sosial", False, "Lingkungan sosial adalah lingkungan antarmanusia atau antarkelompok.", "SMA11-G-B3-02", "sosial"),
@@ -745,7 +751,7 @@ soal("L4", 2, "Salah satu manfaat lingkungan adalah menyediakan mikroorganisme, 
     ("menguraikan sisa makhluk hidup yang mati", True, "Tepat. Sisa-sisa itu diproses menjadi tanah yang subur.", "", "mikroorganisme"),
     ("tempat berkebun, berladang, dan mendirikan rumah", False, "Ini manfaat tanah bagi manusia.", "SMA11-G-B3-04", "penyedia_tanah"),
     ("sumber daya alam seperti gas alam dan minyak bumi", False, "Ini manfaat lingkungan sebagai penyedia sumber daya alam.", "SMA11-G-B3-04", "penyedia_sda"),
-    ("mengubah zat anorganik menjadi zat organik", False, "Ini peran produsen, yaitu tumbuhan berklorofil.", "SMA11-G-B3-01", "produsen"),
+    ("oksigen untuk bernapas bagi makhluk hidup", False, "Ini manfaat lingkungan sebagai penyedia oksigen, bukan manfaat mikroorganisme.", "SMA11-G-B3-04", "oksigen"),
 ])
 soal("L5", 2, "IKLH Indonesia tahun 2019 sebesar 66,55 dan tahun 2020 sebesar 70,27. Kenaikannya adalah ...", "A", [
     ("3,72 poin", True, "Benar. 70,27 − 66,55 = 3,72 poin.", "", "iklh_2020"),
@@ -759,11 +765,11 @@ soal("L6", 2, "Di suatu desa, warga yang menebang satu pohon harus mengganti 10 
     ("aktivitas gunung api", False, "Ini faktor alam.", "SMA11-G-B3-06", "gunung_api"),
     ("erosi yang menurunkan daya dukung", False, "Ini faktor alam.", "SMA11-G-B3-06", "erosi"),
 ])
-soal("L7", 3, "Menurut buku, bagaimana gas rumah kaca menyebabkan pemanasan global?", "B", [
-    ("radiasi matahari dipantulkan kembali ke bumi", True, "Tepat. Radiasi tidak dapat sepenuhnya dilepaskan ke atmosfer, sehingga suhu bumi naik.", "", "global_warming"),
-    ("polusi gas klorin dan bromida dari CFC", False, "Ini penyebab penipisan lapisan ozon.", "SMA11-G-B3-07", "cfc"),
-    ("lapisan es di kutub mencair", False, "Ini akibat pemanasan global, bukan cara terjadinya.", "SMA11-G-B3-07", "gw_dampak"),
-    ("air hujan mengandung sulfur dioksida dan oksida nitrogen", False, "Ini ciri hujan asam.", "SMA11-G-B3-07", "hujan_asam"),
+soal("L7", 3, "Menurut buku, salah satu akibat pemanasan global adalah ...", "B", [
+    ("lapisan es di kutub mencair dan permukaan air laut naik", True, "Tepat. Pemanasan global juga mengubah pola musim dan curah hujan.", "", "gw_dampak"),
+    ("air hujan mengandung sulfur dioksida dan oksida nitrogen", False, "Ini ciri hujan asam, dampak pencemaran udara.", "SMA11-G-B3-07", "hujan_asam"),
+    ("kontaminasi logam berat", False, "Ini salah satu penyebab pencemaran tanah.", "SMA11-G-B3-07", "tanah_cemar"),
+    ("gas-gas beracun dari letusan gunung berapi di dasar laut", False, "Ini faktor alami penyebab kerusakan laut.", "SMA11-G-B3-07", "laut_faktor"),
 ])
 soal("L8", 3, "Contoh faktor nonalami yang menyebabkan kerusakan pantai dan laut adalah ...", "D", [
     ("membuang sampah sembarangan", True, "Tepat. Faktor nonalami bersumber dari aktivitas manusia.", "", "laut_faktor"),
@@ -772,7 +778,7 @@ soal("L8", 3, "Contoh faktor nonalami yang menyebabkan kerusakan pantai dan laut
     ("tanaman penutup tanah", False, "Ini upaya mengatasi pemanasan global.", "SMA11-G-B3-08", "upaya_gw"),
 ])
 soal("L9", 3, "Salah satu penyebab penipisan lapisan ozon adalah ...", "A", [
-    ("polusi gas klorin dan bromida dalam CFC", True, "Tepat. Lapisan ozon melindungi bumi dari radiasi berbahaya.", "", "cfc"),
+    ("polusi gas klorin dari CFC", True, "Tepat. Lapisan ozon melindungi bumi dari radiasi berbahaya.", "", "cfc"),
     ("pembakaran bahan bakar fosil", False, "Menurut buku, ini penyebab pencemaran udara.", "SMA11-G-B3-07", "udara"),
     ("penggunaan bahan pestisida atau bahan industri lainnya", False, "Ini penyebab pencemaran tanah.", "SMA11-G-B3-07", "tanah_cemar"),
     ("industri dan permukiman", False, "Ini penyebab pencemaran air.", "SMA11-G-B3-07", "air"),
@@ -821,7 +827,7 @@ soal("L15", 5, "Menurut BPS, pulau yang pada tahun 2020 menjadi rumah bagi 56,10
 cek(Fraction(7072, 100) > 50)
 soal("L16", 5, "Indonesia disebut berada dalam era bonus demografi karena ...", "A", [
     ("usia produktif lebih tinggi dibandingkan usia tidak produktif", True, "Tepat. Penduduk usia produktif tahun 2020 sebesar 70,72%.", "", "bonus"),
-    ("jumlah presentase penduduk usia 60 tahun ke atas lebih dari 10%", False, "Ini ciri era ageing population, yang sedang dituju Indonesia.", "SMA11-G-B3-11", "ageing"),
+    ("jumlah persentase penduduk usia 60 tahun ke atas lebih dari 10%", False, "Ini ciri era ageing population, yang sedang dituju Indonesia.", "SMA11-G-B3-11", "ageing"),
     ("rasio jenis kelamin tertinggi pada usia 0–9 tahun", False, "Ini keterangan rasio jenis kelamin menurut umur.", "SMA11-G-B3-11", "rasio_umur"),
     ("tingkat kelahiran yang rendah", False, "Ini ciri piramida tua.", "SMA11-G-B3-13", "piramida_tua"),
 ])
@@ -862,6 +868,10 @@ for s in S:
     h = "ABCD"[[p[1] for p in s["pilihan"]].index(True)]
     HURUF[h] = HURUF.get(h, 0) + 1
 cek(set(HURUF) == set("ABCD") and max(HURUF.values()) * 2 <= len(S) and max(HURUF.values()) - min(HURUF.values()) <= 3, HURUF)
+# The doubtful claims of round 2 stay out of every question: the greenhouse "reflection", bromine
+# in CFCs, and producers being "only" green plants.
+_teks = " ".join(s["tanya"] + " " + " ".join(p[0] + " " + p[2] for p in s["pilihan"]) for s in S)
+cek(not any(w in _teks for w in ("dipantulkan", "bromida", "hanya dapat dilakukan")))
 # No question rests on a fact kept only for the book-error record.
 cek(not any(p[4].lstrip("=") == "fotosintesis_matahari" for s in S for p in s["pilihan"]))
 

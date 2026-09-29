@@ -52,12 +52,14 @@ jiwa" or "1.49%" (items 1-3 below), and that no question rests on the error-reco
 
 ## Every fact is traced
 
-- **The fact table.** `FAKTA` holds **102 facts**, each with its page (pp. 140-184) and the book's
+- **The fact table.** `FAKTA` holds **103 facts**, each with its page (pp. 140-184) and the book's
   own words. One fact (`fotosintesis_matahari`) is kept only as the record of error 1.
 - **Every option names its fact**, and the generator checks the option's content words against
   that fact's quotation. The check rejected one wording ("pemanasan global" against the
   mechanism quote), which now rests on the book's own sentence about pemanasan global (p. 152).
-- **Quotations checked against the book.** `--kutipan` finds **102 of 102** in the book's text.
+  One option corrects the book's spelling ("persentase" for p. 171's "presentase"); `EJAAN` maps
+  it back for the check.
+- **Quotations checked against the book.** `--kutipan` finds **103 of 103** in the book's text.
 - **What is computed and asserted:**
   - IKLH: 70,27 − 66,55 = 3,72, above the target 68,71; the two other differences (1,56, 2,16)
     that serve as distractors;
@@ -96,9 +98,9 @@ jiwa" or "1.49%" (items 1-3 below), and that no question rests on the error-reco
 $ python3 docs/onboarding/konten/sma11_geografi_bab3.py --kutipan <book text>
 SMA11-Geografi-Bab3.xlsx: lessons 7 (32 pages), questions 31 (pre 4, post 8, practice 19), answers A=8 B=8 C=8 D=7
 SMA11-Geografi-Bab3-miskonsepsi.csv: 15 codes
-facts traced: 102 (pages 140-184)
-quotations found in the book's text: 102 of 102; figures read by eye: none
-assertions passed: 857          (856 without --kutipan)
+facts traced: 103 (pages 140-184)
+quotations found in the book's text: 103 of 103; figures read by eye: none
+assertions passed: 866          (865 without --kutipan)
 
 $ npx tsx docs/onboarding/konten/ke-paket.ts docs/onboarding/konten/SMA11-Geografi-Bab3.xlsx docs/onboarding/konten/SMA11-Geografi-Bab3.paket.json
 docs/onboarding/konten/SMA11-Geografi-Bab3.paket.json: media none
@@ -135,10 +137,37 @@ None is copied into the workbook.
 7. **Assessment item 4:** a table of UHH is used to infer stillbirths, which it does not show.
 8. **Typos:** "piramina" and "Pirimida" in figure captions; "defortasi"; a stray "z" on p. 164.
 
+## Round 2 (coordinator's review)
+
+- **Greenhouse mechanism.** Lesson 3 now says only that pemanasan global comes from the effect of
+  greenhouse gases and raises the Earth's temperature, followed by its effects. The "reflected back
+  to Earth" sentence is gone, and so is its fact. L7 is replaced by a traced question on an effect
+  of pemanasan global (key: lapisan es di kutub mencair dan permukaan air laut naik, `gw_dampak`),
+  still at B.
+- **CFC.** Lesson 3, L9's key and PA2's rationale now say "gas klorin dari CFC"; bromine is gone.
+- **PB1.** The stem drops "hanya" ("peran produsen dapat dilakukan oleh …"), with the same key.
+  D is now an abiotic group (air, tanah, udara, dan cahaya matahari). The producer fact is split so
+  that no traced quotation says "hanya".
+- **The generator asserts** that no lesson and no question contains "dipantulkan", "bromida" or
+  "hanya dapat dilakukan".
+- **Nits:**
+  - L4's distractor C is now "oksigen untuk bernapas bagi makhluk hidup" (traced to p. 147,
+    `oksigen`).
+  - L3's rationale says "Keempatnya".
+  - L16 says "persentase".
+  - Lesson 2 says "Indeks Kualitas Lahan (IKL)".
+- Answer positions are unchanged: A=8, B=8, C=8, D=7.
+
 ## Questions for the coordinator
 
-None. Three claims look doubtful from outside the book, and I left them out of every question and
-lesson, as agreed for Bab 1 and 2:
+None. Six claims look doubtful from outside the book, and I left them out of every question and
+lesson, as agreed for Bab 1 and 2. The first three were raised in the coordinator's review:
+
+- that greenhouse gases reflect solar radiation back to the Earth (p. 152). They absorb the heat
+  the Earth gives off;
+- "gas klorin dan bromida" in CFCs (p. 152). CFCs carry chlorine; bromine comes from halons;
+- that the producer role "hanya dapat dilakukan oleh tumbuhan yang berklorofil" (p. 142); alga and
+  phytoplankton are producers too;
 
 - greenhouse gases thinning the ozone layer, and CO listed as a greenhouse gas (p. 152);
 - "Pada tahun 2010 … akan meningkat 150%" for ocean acidity (p. 155);

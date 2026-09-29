@@ -94,7 +94,7 @@
          },
          "ref": "PB1",
          "item_type": "MCQ_SINGLE",
-         "stem": "Dalam ekosistem, peran produsen hanya dapat dilakukan oleh ...",
+         "stem": "Dalam ekosistem, peran produsen dapat dilakukan oleh ...",
          "use": "POST_TEST",
          "difficulty": "0.5",
          "options": [
@@ -134,9 +134,9 @@
             "row": 21
            },
            "label": "D",
-           "body": "organisme kecil yang tidak terlihat",
+           "body": "air, tanah, udara, dan cahaya matahari",
            "is_correct": false,
-           "rationale": "Organisme kecil termasuk unsur biotik, tetapi tidak disebut sebagai pelaku peran produsen."
+           "rationale": "Ini lingkungan abiotik, yaitu benda tak hidup, sehingga tidak dapat berperan sebagai produsen."
           }
          ]
         },
@@ -272,7 +272,7 @@
            "label": "B",
            "body": "lingkungan hidup air",
            "is_correct": true,
-           "rationale": "Tepat. Ketiganya bagian dari lingkungan alami."
+           "rationale": "Tepat. Keempatnya bagian dari lingkungan alami."
           },
           {
            "_row": {
@@ -306,7 +306,7 @@
        "ordinal": "2",
        "title": "Manfaat dan Kualitas Lingkungan",
        "summary": "Lingkungan menjadi tempat hidup dan penyedia kebutuhan; kualitasnya diukur, antara lain, dengan Indeks Kualitas Lingkungan Hidup (IKLH) dan dipengaruhi faktor alam serta sosial budaya.",
-       "body_markdown": "## Manfaat lingkungan\n\nManfaat unsur lingkungan hidup bagi manusia:\n- tempat hidup dan tempat berinteraksi sosial;\n- penghasil pangan, yaitu makanan dan air;\n- penyedia sumber daya alam, misalnya gas alam dan minyak bumi;\n- penyedia mikroorganisme, yang menguraikan sisa makhluk hidup yang mati menjadi tanah yang subur;\n- penyedia oksigen untuk bernapas;\n- penyedia tanah: tempat hidup tumbuhan, dan tempat manusia berkebun, berladang, dan mendirikan rumah.\n\n## Kualitas dan daya dukung lingkungan\n\nKualitas lingkungan ditandai dengan suasana yang membuat orang nyaman tinggal di tempatnya sendiri dan dapat memenuhi berbagai kebutuhan hidupnya.\n\nUntuk menjaganya, **daya dukung lingkungan** harus diperhatikan. Daya dukung lingkungan adalah ukuran kemampuan suatu lingkungan untuk mendukung populasi makhluk hidup tertentu, misalnya sawah, hutan, sungai, kota, atau kawasan industri.\n\n## Indeks Kualitas Lingkungan Hidup\n\nKualitas lingkungan dapat diukur dengan **IKLH**. Di Indonesia, IKLH memakai tiga indikator utama:\n- Indeks Kualitas Air (IKA);\n- Indeks Kualitas Udara (IKU);\n- Kualitas Lahan (IKL).\n\nMenurut KLHK (2021), IKLH Indonesia naik dari 66,55 pada tahun 2019 menjadi 70,27 pada tahun 2020, yaitu naik 70,27 − 66,55 = **3,72 poin**. Nilai 70,27 itu melampaui target RPJMN sebesar 68,71.\n\n## Faktor yang memengaruhi kualitas lingkungan\n\nKualitas lingkungan dapat turun dan membaik kembali. Faktor-faktornya:\n\n**Faktor alam:**\n- iklim dan perubahan cuaca yang ekstrem dapat menghambat aktivitas manusia;\n- kesuburan tanah menaikkan nilai daya dukung daerah agraris;\n- erosi dapat menurunkan daya dukung lingkungan;\n- aktivitas gunung api dapat mengeluarkan gas berbahaya.\n\n**Faktor sosial budaya:**\n- penguasaan ilmu pengetahuan dan teknologi;\n- tradisi masyarakat setempat, misalnya: menebang satu pohon harus diganti 10 pohon serupa;\n- cara berpikir masyarakat: memandang lingkungan sebagai sesuatu yang dapat dieksploitasi terus-menerus berisiko merusak lingkungan.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "body_markdown": "## Manfaat lingkungan\n\nManfaat unsur lingkungan hidup bagi manusia:\n- tempat hidup dan tempat berinteraksi sosial;\n- penghasil pangan, yaitu makanan dan air;\n- penyedia sumber daya alam, misalnya gas alam dan minyak bumi;\n- penyedia mikroorganisme, yang menguraikan sisa makhluk hidup yang mati menjadi tanah yang subur;\n- penyedia oksigen untuk bernapas;\n- penyedia tanah: tempat hidup tumbuhan, dan tempat manusia berkebun, berladang, dan mendirikan rumah.\n\n## Kualitas dan daya dukung lingkungan\n\nKualitas lingkungan ditandai dengan suasana yang membuat orang nyaman tinggal di tempatnya sendiri dan dapat memenuhi berbagai kebutuhan hidupnya.\n\nUntuk menjaganya, **daya dukung lingkungan** harus diperhatikan. Daya dukung lingkungan adalah ukuran kemampuan suatu lingkungan untuk mendukung populasi makhluk hidup tertentu, misalnya sawah, hutan, sungai, kota, atau kawasan industri.\n\n## Indeks Kualitas Lingkungan Hidup\n\nKualitas lingkungan dapat diukur dengan **IKLH**. Di Indonesia, IKLH memakai tiga indikator utama:\n- Indeks Kualitas Air (IKA);\n- Indeks Kualitas Udara (IKU);\n- Indeks Kualitas Lahan (IKL).\n\nMenurut KLHK (2021), IKLH Indonesia naik dari 66,55 pada tahun 2019 menjadi 70,27 pada tahun 2020, yaitu naik 70,27 − 66,55 = **3,72 poin**. Nilai 70,27 itu melampaui target RPJMN sebesar 68,71.\n\n## Faktor yang memengaruhi kualitas lingkungan\n\nKualitas lingkungan dapat turun dan membaik kembali. Faktor-faktornya:\n\n**Faktor alam:**\n- iklim dan perubahan cuaca yang ekstrem dapat menghambat aktivitas manusia;\n- kesuburan tanah menaikkan nilai daya dukung daerah agraris;\n- erosi dapat menurunkan daya dukung lingkungan;\n- aktivitas gunung api dapat mengeluarkan gas berbahaya.\n\n**Faktor sosial budaya:**\n- penguasaan ilmu pengetahuan dan teknologi;\n- tradisi masyarakat setempat, misalnya: menebang satu pohon harus diganti 10 pohon serupa;\n- cara berpikir masyarakat: memandang lingkungan sebagai sesuatu yang dapat dieksploitasi terus-menerus berisiko merusak lingkungan.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
        "objective": {
         "statement": "Kalian dapat menjelaskan manfaat lingkungan, pengertian daya dukung dan IKLH, serta faktor-faktor yang memengaruhi kualitas lingkungan.",
         "bloom": "ANALYSE"
@@ -402,9 +402,9 @@
             "row": 64
            },
            "label": "C",
-           "body": "mengubah zat anorganik menjadi zat organik",
+           "body": "oksigen untuk bernapas bagi makhluk hidup",
            "is_correct": false,
-           "rationale": "Ini peran produsen, yaitu tumbuhan berklorofil."
+           "rationale": "Ini manfaat lingkungan sebagai penyedia oksigen, bukan manfaat mikroorganisme."
           },
           {
            "_row": {
@@ -532,7 +532,7 @@
        "ordinal": "3",
        "title": "Masalah Lingkungan dan Upaya Mengatasinya",
        "summary": "Pemanasan global, pencemaran udara, air, laut, dan tanah, serta pertambahan penduduk adalah masalah lingkungan yang diatasi dengan upaya pelestarian yang sesuai.",
-       "body_markdown": "## Pemanasan global\n\n**Pemanasan global** terjadi akibat efek gas rumah kaca. Gas itu membuat radiasi matahari tidak dapat sepenuhnya dilepaskan ke atmosfer, tetapi dipantulkan kembali ke bumi, sehingga suhu bumi naik.\n\nAkibatnya:\n- lapisan es di kutub mencair dan permukaan air laut naik;\n- pola musim dan curah hujan berubah, sehingga produksi pertanian dan kehutanan terganggu;\n- kebakaran hutan makin mungkin terjadi karena kemarau yang panjang.\n\nPenipisan lapisan ozon, yang melindungi bumi dari radiasi berbahaya, salah satunya disebabkan polusi gas klorin dan bromida dalam CFC (Chloro Fluoro Carbon).\n\n## Pencemaran udara dan air\n\n**Pencemaran udara** disebabkan pembakaran bahan bakar fosil, terutama oleh kendaraan bermotor, industri, dan kebakaran hutan. Pencemaran udara dapat menimbulkan **hujan asam**: air hujan dengan pH lebih kecil dari 5,6 yang mengandung sulfur dioksida dan oksida nitrogen. Hujan asam merusak kesehatan, bangunan, danau, hutan, dan tanaman.\n\n**Pencemaran air** sering terjadi akibat industri, permukiman, dan teknologi yang kurang ramah lingkungan, misalnya logam berat, tumpahan minyak, pestisida, dan deterjen. Contohnya pencemaran Sungai Citarum, dari Kabupaten Bandung sampai Kabupaten Bekasi, pada tahun 2018.\n\n## Pencemaran laut, tanah, dan pengaruh penduduk\n\n**Pantai dan laut.** Kerusakannya disebabkan faktor alami, seperti letusan gunung berapi di dasar laut yang menghasilkan gas beracun, dan faktor nonalami (antropogenik), seperti membuang sampah sembarangan.\n\n**Tanah.** Pencemaran tanah terjadi akibat pestisida dan bahan industri yang tidak mudah terurai, logam berat, pupuk yang berlebihan, dan limbah domestik.\n\n**Penduduk.** Pertambahan penduduk menaikkan kebutuhan lahan bangunan dan konsumsi air, makanan, dan bahan bakar, sehingga memengaruhi daya dukung lingkungan.\n\n## Upaya mengelola lingkungan\n\n- **Pemanasan global:** meningkatkan tutupan hutan dengan tanaman penutup tanah untuk mengurangi CO₂.\n- **Udara:** menanam pohon, mengurangi emisi gas sisa pembakaran, dan menghindari bahan kimia perusak ozon.\n- **Air:** membuang limbah industri, kimia, dan radioaktif dengan tepat, dan meminimalkan polusi plastik.\n- **Laut dan pantai:** melestarikan hutan bakau dan terumbu karang, dan tidak memakai bahan peledak atau pukat harimau.\n- **Tanah:** reboisasi hutan yang gundul, dan membuat terasering atau sengkedan di lahan miring untuk menahan erosi.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "body_markdown": "## Pemanasan global\n\n**Pemanasan global** terjadi akibat efek gas rumah kaca, sehingga suhu bumi naik.\n\nAkibatnya:\n- lapisan es di kutub mencair dan permukaan air laut naik;\n- pola musim dan curah hujan berubah, sehingga produksi pertanian dan kehutanan terganggu;\n- kebakaran hutan makin mungkin terjadi karena kemarau yang panjang.\n\nPenipisan lapisan ozon, yang melindungi bumi dari radiasi berbahaya, salah satunya disebabkan polusi gas klorin dari CFC (Chloro Fluoro Carbon).\n\n## Pencemaran udara dan air\n\n**Pencemaran udara** disebabkan pembakaran bahan bakar fosil, terutama oleh kendaraan bermotor, industri, dan kebakaran hutan. Pencemaran udara dapat menimbulkan **hujan asam**: air hujan dengan pH lebih kecil dari 5,6 yang mengandung sulfur dioksida dan oksida nitrogen. Hujan asam merusak kesehatan, bangunan, danau, hutan, dan tanaman.\n\n**Pencemaran air** sering terjadi akibat industri, permukiman, dan teknologi yang kurang ramah lingkungan, misalnya logam berat, tumpahan minyak, pestisida, dan deterjen. Contohnya pencemaran Sungai Citarum, dari Kabupaten Bandung sampai Kabupaten Bekasi, pada tahun 2018.\n\n## Pencemaran laut, tanah, dan pengaruh penduduk\n\n**Pantai dan laut.** Kerusakannya disebabkan faktor alami, seperti letusan gunung berapi di dasar laut yang menghasilkan gas beracun, dan faktor nonalami (antropogenik), seperti membuang sampah sembarangan.\n\n**Tanah.** Pencemaran tanah terjadi akibat pestisida dan bahan industri yang tidak mudah terurai, logam berat, pupuk yang berlebihan, dan limbah domestik.\n\n**Penduduk.** Pertambahan penduduk menaikkan kebutuhan lahan bangunan dan konsumsi air, makanan, dan bahan bakar, sehingga memengaruhi daya dukung lingkungan.\n\n## Upaya mengelola lingkungan\n\n- **Pemanasan global:** meningkatkan tutupan hutan dengan tanaman penutup tanah untuk mengurangi CO₂.\n- **Udara:** menanam pohon, mengurangi emisi gas sisa pembakaran, dan menghindari bahan kimia perusak ozon.\n- **Air:** membuang limbah industri, kimia, dan radioaktif dengan tepat, dan meminimalkan polusi plastik.\n- **Laut dan pantai:** melestarikan hutan bakau dan terumbu karang, dan tidak memakai bahan peledak atau pukat harimau.\n- **Tanah:** reboisasi hutan yang gundul, dan membuat terasering atau sengkedan di lahan miring untuk menahan erosi.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
        "objective": {
         "statement": "Kalian dapat menganalisis masalah-masalah lingkungan beserta penyebabnya dan upaya mengatasinya.",
         "bloom": "ANALYSE"
@@ -568,7 +568,7 @@
            "label": "B",
            "body": "penipisan lapisan ozon",
            "is_correct": false,
-           "rationale": "Penipisan lapisan ozon antara lain disebabkan gas klorin dan bromida dalam CFC."
+           "rationale": "Penipisan lapisan ozon antara lain disebabkan gas klorin dari CFC."
           },
           {
            "_row": {
@@ -652,7 +652,7 @@
          },
          "ref": "L7",
          "item_type": "MCQ_SINGLE",
-         "stem": "Menurut buku, bagaimana gas rumah kaca menyebabkan pemanasan global?",
+         "stem": "Menurut buku, salah satu akibat pemanasan global adalah ...",
          "difficulty": "0.3",
          "options": [
           {
@@ -661,9 +661,9 @@
             "row": 74
            },
            "label": "A",
-           "body": "polusi gas klorin dan bromida dari CFC",
+           "body": "air hujan mengandung sulfur dioksida dan oksida nitrogen",
            "is_correct": false,
-           "rationale": "Ini penyebab penipisan lapisan ozon."
+           "rationale": "Ini ciri hujan asam, dampak pencemaran udara."
           },
           {
            "_row": {
@@ -671,9 +671,9 @@
             "row": 75
            },
            "label": "B",
-           "body": "radiasi matahari dipantulkan kembali ke bumi",
+           "body": "lapisan es di kutub mencair dan permukaan air laut naik",
            "is_correct": true,
-           "rationale": "Tepat. Radiasi tidak dapat sepenuhnya dilepaskan ke atmosfer, sehingga suhu bumi naik."
+           "rationale": "Tepat. Pemanasan global juga mengubah pola musim dan curah hujan."
           },
           {
            "_row": {
@@ -681,9 +681,9 @@
             "row": 76
            },
            "label": "C",
-           "body": "lapisan es di kutub mencair",
+           "body": "kontaminasi logam berat",
            "is_correct": false,
-           "rationale": "Ini akibat pemanasan global, bukan cara terjadinya."
+           "rationale": "Ini salah satu penyebab pencemaran tanah."
           },
           {
            "_row": {
@@ -691,9 +691,9 @@
             "row": 77
            },
            "label": "D",
-           "body": "air hujan mengandung sulfur dioksida dan oksida nitrogen",
+           "body": "gas-gas beracun dari letusan gunung berapi di dasar laut",
            "is_correct": false,
-           "rationale": "Ini ciri hujan asam."
+           "rationale": "Ini faktor alami penyebab kerusakan laut."
           }
          ]
         },
@@ -765,7 +765,7 @@
             "row": 82
            },
            "label": "A",
-           "body": "polusi gas klorin dan bromida dalam CFC",
+           "body": "polusi gas klorin dari CFC",
            "is_correct": true,
            "rationale": "Tepat. Lapisan ozon melindungi bumi dari radiasi berbahaya."
           },
@@ -1385,7 +1385,7 @@
             "row": 111
            },
            "label": "B",
-           "body": "jumlah presentase penduduk usia 60 tahun ke atas lebih dari 10%",
+           "body": "jumlah persentase penduduk usia 60 tahun ke atas lebih dari 10%",
            "is_correct": false,
            "rationale": "Ini ciri era ageing population, yang sedang dituju Indonesia."
           },
