@@ -77,14 +77,15 @@
   - offers "Masuk ke PINTAR" and recovery with the PIN, which uses **exactly** the typed-ID recovery (same function, counters, lockout, suspension, audit and notifications).
 - No second policy for QR.
 
-## 6. Email roles (frozen, values to be confirmed at Gate 0)
+## 6. Email roles (frozen; values confirmed at Gate 0, 29 Sep)
 
 | Role | Value |
 |---|---|
-| Security recipient and initial email-operations owner | `admin_gt@pintarselalu.com` |
-| FROM (what users see) | A branded PINTAR identity, e.g. "Tim PINTAR <…@pintarselalu.com>". The address is confirmed at Gate 0 against the sending configuration. |
-| Reply-To / support | Confirmed at Gate 0. It is not the security recipient unless Yazid says so. |
-| SMTP authentication mailbox | Confirmed at Gate 0 (a technical mailbox; never shown to users). |
+| FROM (what users see) | **Tim PINTAR <noreply@pintarselalu.com>** (staging: "Tim PINTAR (Staging)") |
+| Reply-To / public contact | **info@pintarselalu.com** |
+| Security recipient and initial email-operations owner (C7) | **admin_gt@pintarselalu.com** |
+| SMTP authentication mailbox | noreply@pintarselalu.com (technical; never shown to users) |
+| Reserved for future security operations | security@pintarselalu.com (exists; unused in 4.0) |
 
 ## 7. Timings (frozen)
 

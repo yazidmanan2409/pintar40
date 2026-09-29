@@ -1,6 +1,6 @@
 # Identity Gate 0: external facts (C-09)
 
-**Status: automated reads DONE (29 Sep); manual evidence from Yazid OUTSTANDING (§3).**
+**Status: automated reads DONE (29 Sep); M3 and M4 SATISFIED (29 Sep); M1, M2, M5 and M6 OUTSTANDING (M7 optional) (§3).**
 
 **Sources, all read-only:**
 - `identity-facts.yml` runs 36500989135 and 36501186293: Supabase Auth settings, allow-listed and non-secret; template bodies hashed, never printed; DNS via `dig` on a GitHub runner.
@@ -67,8 +67,11 @@ Nothing was written anywhere.
 |---|---|---|
 | Security recipient and initial email-operations owner | `admin_gt@pintarselalu.com` | Frozen (D-057(b)) |
 | SMTP authentication mailbox | `noreply@pintarselalu.com` | Established (Supabase SMTP); the same for the app path |
-| FROM (what users see) | Proposed: **"Tim PINTAR" `<noreply@pintarselalu.com>`** (staging: "Tim PINTAR (Staging)") | Yazid to confirm (§3) |
-| Reply-To / support | **Not yet set.** Replies to `noreply@` go nowhere useful | Yazid to name (§3) |
+| FROM (what users see) | **Tim PINTAR <noreply@pintarselalu.com>** (staging: "Tim PINTAR (Staging)", same address, so a staging message is never mistaken for production) | **Confirmed by Yazid 29 Sep (M3)** |
+| Reply-To / public contact | **info@pintarselalu.com** | **Confirmed by Yazid 29 Sep (M4)**; no separate support mailbox for the 4.0 pilot |
+| Reserved for future security operations | security@pintarselalu.com (exists) | Not used in 4.0; C7's recipient stays `admin_gt@` unless decided later |
+
+All four mailboxes exist in Namecheap cPanel (Email Accounts screen, 29 Sep, supplied by Yazid). **Operational note:** `noreply@` has a 50 MB quota. Bounces and stray replies land there, so the email-operations owner should check it periodically; it is not the Reply-To.
 
 ## 3. Manual evidence still required from Yazid
 
@@ -76,8 +79,8 @@ Nothing was written anywhere.
 |---|---|---|---|---|
 | M1 | Namecheap plan today and the **Stellar Business** upgrade date (D-053) | 150-tester volume: Stellar's 50/h is too low for a group activation (≈60 emails in 10 min) | Namecheap dashboard screenshot showing the plan and date | 2E (walk); 8 |
 | M2 | Stellar Business per-mailbox limits (per hour, recipients per message) | Capacity | Namecheap documentation link or a support-chat screenshot | 8 |
-| M3 | FROM display name and address | What users see | Your answer: e.g. "Tim PINTAR <noreply@pintarselalu.com>" | 2E |
-| M4 | Reply-To / support address | Where replies go | Your answer (e.g. `admin_gt@pintarselalu.com` for the pilot, or a support mailbox) | 2E |
+| M3 | FROM display name and address | What users see | **SATISFIED 29 Sep:** Tim PINTAR <noreply@pintarselalu.com> (subject to the 2E sending and deliverability evidence) | 2E |
+| M4 | Reply-To / support address | Where replies go | **SATISFIED 29 Sep:** info@pintarselalu.com (no separate support mailbox for 4.0; security@ reserved) | 2E |
 | M5 | SMTP credentials for the app path, **added by you as Vercel environment variables** (staging first; names come from BOB-25's contract). Never pasted in chat | Sending | Vercel screenshot showing the variable **names** present (values hidden) | 2E |
 | M6 | Two real inboxes for deliverability proof (one Gmail, one Outlook) | SPF, DKIM and DMARC = PASS in reality | After BOB-25's first staging send: the "Show original" / message-header screenshots | 2E |
 | M7 | (Optional) DMARC reporting address | Visibility of spoofing and delivery | DNS change by you; the next facts run shows it | 7 |
