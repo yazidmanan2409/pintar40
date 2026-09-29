@@ -87,6 +87,8 @@
 | SMTP authentication mailbox | noreply@pintarselalu.com (technical; never shown to users) |
 | Reserved for future security operations | security@pintarselalu.com (exists; unused in 4.0) |
 
+The SMTP settings and the four Vercel variable names are in `GATE-0-FACTS.md` §2.
+
 ## 7. Timings (frozen)
 
 | Situation | Behaviour |

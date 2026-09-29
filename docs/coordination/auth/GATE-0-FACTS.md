@@ -1,6 +1,6 @@
 # Identity Gate 0: external facts (C-09)
 
-**Status: automated reads DONE (29 Sep); M3 and M4 SATISFIED (29 Sep); M1, M2, M5 and M6 OUTSTANDING (M7 optional) (§3).**
+**Status: automated reads DONE (29 Sep); M3 and M4 SATISFIED (29 Sep); M5 settings CONFIRMED and variable names fixed (29 Sep), variables awaited in Vercel; M1, M2 and M6 OUTSTANDING (M7 optional) (§3).**
 
 **Sources, all read-only:**
 - `identity-facts.yml` runs 36500989135 and 36501186293: Supabase Auth settings, allow-listed and non-secret; template bodies hashed, never printed; DNS via `dig` on a GitHub runner.
@@ -61,6 +61,36 @@ Nothing was written anywhere.
 - **Supabase's own emails** are not used by PINTAR's flows. Their templates get a minimal Bahasa Indonesia fallback only for dashboard-initiated emails (break-glass).
 - **Still to prove in BOB-25:** that Vercel functions can reach port 465, and PASS results in a real inbox.
 
+**Vercel variables (BOB-25's contract, fixed 29 Sep)**
+
+The SMTP settings Yazid read from cPanel on 29 Sep are the ones Supabase already uses: host `pintarselalu.com`, port 465, SSL/TLS, authentication required, user `noreply@pintarselalu.com`. BOB-25's sending module reads exactly these four variables. Nothing else configures SMTP.
+
+| Variable | Value | Vercel type |
+|---|---|---|
+| `PINTAR_SMTP_HOST` | `pintarselalu.com` | plain |
+| `PINTAR_SMTP_PORT` | `465` | plain |
+| `PINTAR_SMTP_USER` | `noreply@pintarselalu.com` | plain |
+| `PINTAR_SMTP_PASSWORD` | the `noreply@` mailbox password. Yazid enters it; it never appears in chat, the repository or a screenshot | **Sensitive** |
+
+- **Where the variables go.**
+  - First in `pintar40-staging`, **Production** environment only. That environment serves `staging.pintarselalu.com`, and the project builds nothing else. The variables are not set in Preview or Development.
+  - In `pintar40` (production) only at the Gate 8 release, also Production only. The four names then join the deploy workflow's required-variable check.
+- **Why the names have no prefix.** They follow every other runtime variable inside an environment's own Vercel project (`CARD_PEPPER`, `SUPABASE_SERVICE_ROLE_KEY`; D-044(a)). The code reads one name everywhere, and each Vercel project is its environment's store. `PINTAR_SMTP_PASSWORD` is also the name of the existing GitHub secret for this mailbox.
+- **No other SMTP settings.**
+  - There is no TLS switch. Port 465 means TLS from the first byte, with the certificate checked.
+  - An unencrypted connection is allowed only to a local sink (`127.0.0.1` / `localhost`: Mailpit in CI and local runs). Any other combination is refused before connecting.
+  - There are no fallback values. A missing variable stops the send with an error (FABLE-01).
+- **FROM and Reply-To are fixed in code, not variables.**
+  - The FROM address is `PINTAR_SMTP_USER`, so the two cannot diverge.
+  - The display name is "Tim PINTAR". Every origin other than `https://app.pintarselalu.com` (read from `NEXT_PUBLIC_APP_URL`) gets "Tim PINTAR (Staging)" and the test line in the body (DAISY-19 ruling 3), so no environment except production can look like production.
+  - Reply-To is `info@pintarselalu.com`.
+- **Server only.**
+  - The variables never take a `NEXT_PUBLIC_` name.
+  - The server sending module is the only reader.
+  - BOB-25's bundle scan proves they are absent from the browser bundle.
+- **One credential is shared.** Staging sends from the same mailbox as production (M3), as staging's Supabase SMTP already does (`staging.yml`). So the staging project holds that mailbox's password. This is recorded here; Gate 0 does not reopen it.
+- **No redeploy is needed now.** Nothing reads these variables until BOB-25 merges, and that merge's deploy picks them up.
+
 **Email roles**
 
 | Role | Value | Status |
@@ -81,7 +111,7 @@ All four mailboxes exist in Namecheap cPanel (Email Accounts screen, 29 Sep, sup
 | M2 | Stellar Business per-mailbox limits (per hour, recipients per message) | Capacity | Namecheap documentation link or a support-chat screenshot | 8 |
 | M3 | FROM display name and address | What users see | **SATISFIED 29 Sep:** Tim PINTAR <noreply@pintarselalu.com> (subject to the 2E sending and deliverability evidence) | 2E |
 | M4 | Reply-To / support address | Where replies go | **SATISFIED 29 Sep:** info@pintarselalu.com (no separate support mailbox for 4.0; security@ reserved) | 2E |
-| M5 | SMTP credentials for the app path, **added by you as Vercel environment variables** (staging first; names come from BOB-25's contract). Never pasted in chat | Sending | Vercel screenshot showing the variable **names** present (values hidden) | 2E |
+| M5 | SMTP credentials for the app path, **added by you as Vercel environment variables**. Never pasted in chat | Sending | **Settings CONFIRMED 29 Sep** from cPanel; identical to Supabase's. **Names fixed 29 Sep** (§2). Outstanding: the four variables in `pintar40-staging` (Production), shown by a Vercel screenshot of the **names** only (values hidden) | 2E |
 | M6 | Two real inboxes for deliverability proof (one Gmail, one Outlook) | SPF, DKIM and DMARC = PASS in reality | After BOB-25's first staging send: the "Show original" / message-header screenshots | 2E |
 | M7 | (Optional) DMARC reporting address | Visibility of spoofing and delivery | DNS change by you; the next facts run shows it | 7 |
 | M8 | Supabase settings changes, done through workflows when each gate needs them (staging), and at the release (production): code length and expiry, password policy, leaked-password check, password-change safeguards, MFA enrolment off, IP forwarding (BOB-12) | Rulings and gaps above | No evidence now; each change is read back by `identity-facts.yml` after it is made | 1, 3, 8 |
