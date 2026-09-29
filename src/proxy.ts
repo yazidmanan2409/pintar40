@@ -87,7 +87,11 @@ export async function proxy(request: NextRequest) {
         if (tulis && !tulis.value) continue; // a deletion stays a deletion
         response.cookies.set(k.name, tulis?.value ?? k.value, { ...DEFAULT_COOKIE_OPTIONS, maxAge: umur });
       }
-      response.cookies.set(COOKIE_GESER, String(sekarang), { ...DEFAULT_COOKIE_OPTIONS, maxAge: umur });
+      // Only the proxy reads it: httpOnly, Lax, Secure wherever the app is served over HTTPS.
+      // Tampering is harmless: deleted, it only costs extra re-sends; forged to "just now",
+      // it only lets this person's own session lapse sooner; it extends nothing.
+      response.cookies.set(COOKIE_GESER, String(sekarang), {
+        path: "/", sameSite: "lax", httpOnly: true, secure: request.nextUrl.protocol === "https:", maxAge: umur });
     }
   }
   // /api/dev/* is decided by its own handler: a plain 404 outside development

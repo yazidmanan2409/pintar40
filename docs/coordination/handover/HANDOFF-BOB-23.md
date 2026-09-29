@@ -72,7 +72,14 @@ No test was weakened, skipped or deleted.
 ## CONTRACT
 
 - No RPC or route changed.
-- **New cookie:** `pintar-sesi-geser`, the time of the last session re-send. It carries the session's own lifetime and holds no secret.
+- **New cookie:** `pintar-sesi-geser`, the time (in seconds) of the last session re-send.
+  - **Flags:** `httpOnly`, `SameSite=Lax`, path `/`, `Secure` whenever the request arrived over HTTPS (staging and production), and the session's own Max-Age. BOB23-K02 asserts each of these. Secure is tied to the protocol because a browser drops a Secure cookie sent over plain HTTP.
+  - **Tampering is harmless.** Only the proxy reads it, and it only decides whether to re-send.
+    - **Deleted:** the next action re-sends, which costs only an extra redraw.
+    - **Forged into the future, or garbage:** it counts as missing and re-sends.
+    - **Forged to "just now" over and over:** it only stops the re-sends that keep this person's own session alive, so their own device signs out sooner.
+    - **It extends nothing:** a session lives no longer than the account's own limit (the Max-Age re-sent is always `umurSesi`), and Auth's own inactivity backstop still applies.
+    - **It holds no secret, and grants no access.
 - `supabaseServer()` gains an optional `{ tulisJikaBerubah }`; the default is unchanged.
 
 ## MIGRATIONS / COPY
@@ -81,7 +88,7 @@ None.
 
 ## QUESTIONS
 
-1. **Answer sync still redraws on every answer.** `submitAnswer` and the other in-page student actions use the default client, which writes the session back unchanged. So each answer still redraws the assessment page; the throttle removed only the proxy's share. Giving `belajar/actions.ts`'s `db()` `{ tulisJikaBerubah: true }` would remove it.
+1. **Answer sync still redraws on every answer. Answered: this is BOB-30 on the board, after BOB-12 and before BOB-24.** Details: `submitAnswer` and the other in-page student actions use the default client, which writes the session back unchanged. So each answer still redraws the assessment page; the throttle removed only the proxy's share. Giving `belajar/actions.ts`'s `db()` `{ tulisJikaBerubah: true }` would remove it.
    - The item player updates from each action's result and navigates explicitly, so it does not rely on that redraw.
    - I have not verified the assistance flows, and it is beyond the lesson player, so I left it out of BOB-23.
    - Do you want it as a small follow-up, with the same idle and answer-count measurement?

@@ -159,8 +159,11 @@ export const bob23Tests: SelfTest[] = [
         "src/proxy.ts does not ask perluGeserSesi on a server action");
       c.expect(/disegarkan \|\| perluGeserSesi/.test(proxy) && /const disegarkan = \[\.\.\.baru\.keys\(\)\]\.some\(adalahCookieSesi\)/.test(proxy),
         "src/proxy.ts can skip the re-send of a session it has just refreshed (which would keep the library's 400-day lifetime)");
-      c.expect(/response\.cookies\.set\(COOKIE_GESER, String\(sekarang\), \{ \.\.\.DEFAULT_COOKIE_OPTIONS, maxAge: umur \}\)/.test(proxy),
-        "src/proxy.ts does not record when it last re-sent the session");
+      const penanda = /response\.cookies\.set\(COOKIE_GESER, String\(sekarang\), \{([^}]*)\}\)/.exec(proxy)?.[1] ?? "";
+      c.expect(penanda !== "", "src/proxy.ts does not record when it last re-sent the session");
+      c.expect(/httpOnly: true/.test(penanda) && /sameSite: "lax"/.test(penanda) && /secure: request\.nextUrl\.protocol === "https:"/.test(penanda)
+          && /maxAge: umur/.test(penanda) && /path: "\/"/.test(penanda),
+        `the re-send marker is not httpOnly, Lax and Secure over HTTPS with the session's lifetime: {${penanda.trim()}}`);
 
       return c.verdict(
         `a classroom card doing only server actions every 30 s for three hours (three times its 60-minute limit) stays ` +
