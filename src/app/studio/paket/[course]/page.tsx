@@ -119,6 +119,16 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const findings = ((mcq ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
   const coaching = ((coach ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
 
+  // Polish batch 2 (UX-16): each move form names the class it moves, and where
+  // it is now. The names are read only when the move section is on the page.
+  const bolehPindah = can(inst, "CAN_ASSIGN_LEARNING") && (assignments ?? []).length > 0 && published.length > 1;
+  const kelasIds = bolehPindah ? [...new Set((assignments ?? []).map((a) => a.node_id as string))] : [];
+  const { data: kelasRows } = kelasIds.length > 0
+    ? await supabase.from("org_nodes").select("id, name").in("id", kelasIds)
+    : { data: [] as Array<{ id: string; name: string }> };
+  const namaKelas = new Map(((kelasRows ?? []) as Array<{ id: string; name: string }>).map((k) => [k.id, k.name]));
+  const sekarangDi = (rilis: string) => (releases ?? []).find((r) => r.id === rilis)?.published_at as string | null | undefined;
+
   return (
     <div className="grid gap-6">
       <section className={card} id="paket">
@@ -173,7 +183,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
       />
 
       <section className="grid gap-2" id="temuan">
-        <h3 className="text-lg font-medium">{s("studio.temuan.masalah")}</h3>
+        {/* Polish batch 2 (UX-14): named «Temuan», as both steps above call it */}
+        <h3 className="text-lg font-medium">{s("studio.temuan.judul")}</h3>
         {can(inst, "CAN_DRAFT") && !tersegel ? (
           <form action={runValidationAction} className="flex flex-wrap items-center gap-3">
             <input type="hidden" name="course" value={courseId} />
@@ -208,16 +219,24 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         </section>
       ) : null}
 
-      {can(inst, "CAN_ASSIGN_LEARNING") && (assignments ?? []).length > 0 && published.length > 1 ? (
+      {bolehPindah ? (
         <section className={card} id="koreksi">
-          <h3 className="text-lg font-medium">{s("studio.paket.tugaskan")}</h3>
+          {/* Polish batch 2 (UX-16): this moves an assignment that exists, and
+              each form says which class it moves and where that class is now. */}
+          <h3 className="text-lg font-medium">{s("studio.paket.pindah.judul")}</h3>
           <HasilDi q={sp} bagian="koreksi" kalimat={banner} />
           {(assignments ?? []).map((a) => (
             <form action={moveReleaseAction} key={a.id} className="mt-3 flex flex-wrap items-end gap-2">
               <input type="hidden" name="course" value={courseId} />
               <input type="hidden" name="assignment" value={a.id} />
+              <p className="w-full text-sm text-ink-2">
+                {namaKelas.get(a.node_id as string) ?? "—"}
+                {sekarangDi(a.plp_release_id as string)
+                  ? ` · ${s("studio.paket.pindah.sekarang")} ${when(sekarangDi(a.plp_release_id as string) ?? null)}`
+                  : ""}
+              </p>
               <label className={label}>
-                <span>{s("studio.paket.terbitkan")}</span>
+                <span>{s("studio.paket.pindah.tujuan")}</span>
                 <select className={field} name="release" defaultValue="">
                   <option value="" disabled>—</option>
                   {published.filter((r) => r.id !== a.plp_release_id).map((r) => (
@@ -229,7 +248,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                 <span>{s("studio.paket.koreksi_alasan")}</span>
                 <input className={field} name="alasan" required />
               </label>
-              <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.paket.tugaskan")}</TombolKirim>
+              <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.paket.pindah.tombol")}</TombolKirim>
             </form>
           ))}
         </section>

@@ -214,8 +214,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ["laporan", s("config.laporan.judul")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
     ["roles", s("config.section.roles")], ["audit", s("config.section.audit")], ["flags", s("config.section.flags")],
-    ["content", s("config.section.content")], ["assessment", s("config.section.assessment")],
-    ["certificates", s("config.section.certificates")], ["intelligence", s("config.section.intelligence")],
+    // Polish batch 2 (UX-30): no menu item for a section that does not exist yet
+    ["intelligence", s("config.section.intelligence")],
   ];
 
   return (
@@ -669,14 +669,6 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             )}
             {result("intelligence")}
           </section>
-
-          {/* Placeholders for later phases — nothing faked */}
-          {(["content", "assessment", "certificates"] as const).map((key) => (
-            <section key={key} id={key} className={card}>
-              <h2 className="font-medium">{s(`config.section.${key}` as HleEvent)}</h2>
-              <p className="mt-2 text-sm text-ink-3">{s("config.placeholder")}</p>
-            </section>
-          ))}
         </div>
       </div>
     </main>

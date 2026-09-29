@@ -64,10 +64,22 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
     </label>
   );
 
+  // Polish batch 2 (UX-12): what another system sends with its package. These
+  // stay for integrators, labelled in the copy table rather than in the page.
+  const bidangSistem = (
+    <div className="flex flex-wrap gap-2">
+      {(["produsen", "kontrak", "permintaan"] as const).map((nama) => (
+        <input key={nama} className={field} name={nama}
+          placeholder={s(`studio.unggah.${nama}`)} aria-label={s(`studio.unggah.${nama}`)} />
+      ))}
+    </div>
+  );
+  // A JSON form's answer lands inside the disclosure, so it opens to show it.
+  const sistemLainTerbuka = sp.bagian === "mudah" || sp.bagian === "terstruktur";
+
   return (
     <div className="grid gap-6">
       <h2 className="text-lg font-medium">{s("studio.unggah.judul")}</h2>
-      <p className="text-sm text-ink-2">{s("studio.unggah.media_catatan")}</p>
 
       <section className={card} id="buku-kerja">
         <h3 className="font-medium">{t("studio.unggah.buku.judul", "staff", { locale })}</h3>
@@ -77,45 +89,43 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
         </div>
       </section>
 
-      <h3 className="text-lg font-medium">{s("studio.unggah.json_judul")}</h3>
+      {/* Polish batch 2 (UX-12): the two JSON forms are for packages another
+          system produces, so they wait in one closed disclosure below the
+          workbook, each form with its own button. */}
+      <details className="grid gap-4" id="sistem-lain" open={sistemLainTerbuka}>
+        <summary className="cursor-pointer text-lg font-medium">{s("studio.unggah.json_judul")}</summary>
+        <p className="mt-2 text-sm text-ink-2">{s("studio.unggah.json_arti")}</p>
 
-      <section className={card} id="mudah">
-        <h3 className="font-medium">{s("studio.unggah.mudah")}</h3>
-        <p className="mt-1 text-sm text-ink-2">{s("studio.unggah.mudah_penjelasan")}</p>
-        <form action={easyUploadAction} className="mt-3 grid gap-2">
-          {institutionField}
-          <label className={label}>
-            <span>{s("studio.unggah.buat_paket")}</span>
-            <textarea className={field} name="isi" rows={6} defaultValue="{}" />
-          </label>
-          <div className="flex flex-wrap gap-2">
-            <input className={field} name="produsen" placeholder="produsen" />
-            <input className={field} name="kontrak" placeholder="kontrak kemampuan" />
-            <input className={field} name="permintaan" placeholder="id permintaan" />
-          </div>
-          <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.buat_paket")}</TombolKirim>
-        </form>
-        <HasilDi q={sp} bagian="mudah" kalimat={banner} />
-      </section>
+        <section className={`${card} mt-4`} id="mudah">
+          <h3 className="font-medium">{s("studio.unggah.mudah")}</h3>
+          <p className="mt-1 text-sm text-ink-2">{s("studio.unggah.mudah_penjelasan")}</p>
+          <form action={easyUploadAction} className="mt-3 grid gap-2">
+            {institutionField}
+            <label className={label}>
+              <span>{s("studio.unggah.isi_json")}</span>
+              <textarea className={field} name="isi" rows={6} defaultValue="{}" />
+            </label>
+            {bidangSistem}
+            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.periksa_mudah")}</TombolKirim>
+          </form>
+          <HasilDi q={sp} bagian="mudah" kalimat={banner} />
+        </section>
 
-      <section className={card} id="terstruktur">
-        <h3 className="font-medium">{s("studio.unggah.terstruktur")}</h3>
-        <p className="mt-1 text-sm text-ink-2">{s("studio.unggah.terstruktur_penjelasan")}</p>
-        <form action={structuredImportAction} className="mt-3 grid gap-2">
-          {institutionField}
-          <label className={label}>
-            <span>{s("studio.unggah.buat_penilaian")}</span>
-            <textarea className={field} name="isi" rows={6} defaultValue="{}" />
-          </label>
-          <div className="flex flex-wrap gap-2">
-            <input className={field} name="produsen" placeholder="produsen" />
-            <input className={field} name="kontrak" placeholder="kontrak kemampuan" />
-            <input className={field} name="permintaan" placeholder="id permintaan" />
-          </div>
-          <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.buat_paket")}</TombolKirim>
-        </form>
-        <HasilDi q={sp} bagian="terstruktur" kalimat={banner} />
-      </section>
+        <section className={`${card} mt-4`} id="terstruktur">
+          <h3 className="font-medium">{s("studio.unggah.terstruktur")}</h3>
+          <p className="mt-1 text-sm text-ink-2">{s("studio.unggah.terstruktur_penjelasan")}</p>
+          <form action={structuredImportAction} className="mt-3 grid gap-2">
+            {institutionField}
+            <label className={label}>
+              <span>{s("studio.unggah.isi_json")}</span>
+              <textarea className={field} name="isi" rows={6} defaultValue="{}" />
+            </label>
+            {bidangSistem}
+            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.periksa_terstruktur")}</TombolKirim>
+          </form>
+          <HasilDi q={sp} bagian="terstruktur" kalimat={banner} />
+        </section>
+      </details>
 
       {/* DAISY-18: a workbook that was read, or a mapping confirmed, answers here
           -- drawn whether or not questions are still open below. */}

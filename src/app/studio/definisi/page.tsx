@@ -56,7 +56,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
       <section className={card} id="definisi">
         <form action={saveDefinitionAction} className="grid gap-2">
           <label className={label}>
-            <span>{s("config.section.roles")}</span>
+            {/* Polish batch 2 (UX-04): a school picker, labelled as one */}
+            <span>{s("studio.sekolah")}</span>
             <select className={field} name="institution" defaultValue={institutions[0]?.id ?? ""} required>
               {institutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
             </select>
