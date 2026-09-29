@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 110,
+  "version": 109,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2002,11 +2002,6 @@
       "id": "BOB12-K02",
       "runner": "static",
       "proves": "BOB-12 (a): the real Supabase client driven through fetchBerpenerus (the source file src/lib/auth-forwarding.ts) with a recording fetch sends the secret key and sb-forwarded-for only on POST /auth/v1/token (password, refresh_token) and POST /auth/v1/verify; no data request, lookalike path, other method, grant or host carries the key; a forged sb-forwarded-for or x-forwarded-for is never believed, the address is x-real-ip only; and src/proxy.ts refreshes through it while src/lib/supabase/service.ts never does."
-    },
-    {
-      "id": "BOB30-K01",
-      "runner": "static",
-      "proves": "BOB-30 (D-031, CAP-02). In the source file src/app/belajar/actions.ts, db() opens the caller's client with tulisJikaBerubah, so a learner action writes the session cookie only when it changed and no longer redraws its page; every action src/app/belajar/_components/ItemPlayer.tsx is handed, the lesson save and the start reach it, and no exported action opens a client without it; the player asks for no redraw, takes the server's answers and sequence once at mount, and shows an answer from its own acknowledgement."
     },
     {
       "id": "F15-P01",

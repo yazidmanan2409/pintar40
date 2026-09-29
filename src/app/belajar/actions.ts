@@ -11,16 +11,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import type { LearnerAnswer } from "@/lib/assessment-engine";
 
-/**
- * BOB-30 (D-031): every learner action here is answered in place -- the player
- * takes its state from the action's own result and never from a re-render -- so
- * the session cookie is written back only if it changed. Writing it unchanged
- * made Next redraw the whole assessment page for every answer (the paper, the
- * answers so far and the session state read again), as the lesson save did
- * before BOB-23.
- */
 async function db() {
-  return (await supabaseServer({ tulisJikaBerubah: true })) as unknown as engine.EngineClient;
+  return (await supabaseServer()) as unknown as engine.EngineClient;
 }
 
 export async function startSession(assessmentAssignmentId: string) {
