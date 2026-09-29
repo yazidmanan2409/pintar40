@@ -470,10 +470,10 @@ begin
 end $$;
 
 -- Claim the caller's username, once.
-create or replace function public.claim_username(p_username text)
+create or replace function public.claim_username(p_name text)
 returns text
 language plpgsql security definer set search_path = public, pg_temp as $$
-declare v_person uuid := public.identitas_staf_saya(); v_u text := lower(btrim(coalesce(p_username, ''))); v_tolak text;
+declare v_person uuid := public.identitas_staf_saya(); v_u text := lower(btrim(coalesce(p_name, ''))); v_tolak text;
 begin
   if exists (select 1 from public.person_usernames u where u.person_id = v_person) then
     raise exception using errcode = 'PR040', detail = 'USERNAME_ALREADY_SET', message = 'this person already has a username';
@@ -551,13 +551,13 @@ begin
 end $$;
 
 -- ═══════════════════════════════════════════ the platform admin's functions
-create or replace function public.correct_username(p_person uuid, p_username text, p_reason text)
+create or replace function public.correct_username(p_person uuid, p_name text, p_reason text)
 returns text
 language plpgsql security definer set search_path = public, pg_temp as $$
-declare v_u text := lower(btrim(coalesce(p_username, ''))); v_lama text; v_tolak text;
+declare v_u text := lower(btrim(coalesce(p_name, ''))); v_lama text; v_tolak text;
 begin
   if not public.is_system_admin() then
-    raise exception using errcode = '42501', message = 'correcting a username requires the platform administrator';
+    raise exception using errcode = '42501', message = 'correcting a username requires the platform administrator (SYSTEM_ADMIN)';
   end if;
   if coalesce(btrim(p_reason), '') = '' then
     raise exception using errcode = 'PR040', detail = 'REASON_REQUIRED', message = 'a correction states its reason';
@@ -589,7 +589,7 @@ returns void
 language plpgsql security definer set search_path = public, pg_temp as $$
 begin
   if not public.is_system_admin() then
-    raise exception using errcode = '42501', message = 'resetting recovery requires the platform administrator';
+    raise exception using errcode = '42501', message = 'resetting recovery requires the platform administrator (SYSTEM_ADMIN)';
   end if;
   if coalesce(btrim(p_reason), '') = '' then
     raise exception using errcode = 'PR040', detail = 'REASON_REQUIRED', message = 'a reset states its reason';
@@ -603,7 +603,7 @@ returns table (at timestamptz, action text, target_table text, target_id text, s
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 begin
   if not public.is_system_admin() then
-    raise exception using errcode = '42501', message = 'the security record is the platform administrator''s';
+    raise exception using errcode = '42501', message = 'the security record is the platform administrator''s (SYSTEM_ADMIN)';
   end if;
   return query
     select l.at, l.action, l.target_table, l.target_id, l.summary
