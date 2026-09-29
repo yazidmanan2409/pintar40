@@ -249,7 +249,7 @@ PELAJARAN = [
 
 ax² + bx + c = 0
 
-dengan a, b, dan c bilangan real dan a ≠ 0. Persamaan itu tetap persamaan kuadrat jika b atau c atau keduanya sama dengan nol, misalnya x² − 16 = 0 atau 2x² − 18x = 0. Persamaan kuadrat adalah polinom dengan pangkat tertinggi 2.
+dengan a, b, dan c bilangan real dan a ≠ 0. Persamaan itu tetap persamaan kuadrat jika b atau c atau keduanya sama dengan nol, misalnya x² − 16 = 0 atau 2x² − 18x = 0. Ruas kiri persamaan kuadrat adalah polinom dengan pangkat tertinggi 2.
 
 Penyelesaian persamaan kuadrat disebut **akar-akar** persamaan kuadrat.
 
@@ -289,7 +289,7 @@ Ubin aljabar x², x, dan 1 untuk x² + 3x + 2 dapat disusun menjadi persegi panj
 
 x² + 3x + 2 = 0 dapat dinyatakan dalam (x + 1)(x + 2) = 0
 
-Hasil kali dua bilangan bernilai nol jika sedikitnya satu bilangan itu nol: x + 1 = 0 atau x + 2 = 0. Akar-akarnya **x = −1 dan x = −2**.
+Jika hasil kali dua bilangan sama dengan nol, maka sedikitnya satu bilangan itu nol. Jadi x + 1 = 0 atau x + 2 = 0. Akar-akarnya **x = −1 dan x = −2**.
 
 Secara umum, jika x_{1} dan x_{2} akar-akarnya, maka ax² + bx + c = a(x − x_{1})(x − x_{2}).
 
@@ -335,10 +335,10 @@ Jadi pada x² + bx, bilangan yang perlu ditambahkan adalah (b/2)².
 Pada gambar luas, x² + 14x adalah persegi x × x dan dua persegi panjang 7 × x. Untuk melengkapinya menjadi persegi, tambahkan persegi 7 × 7 = 49 di kedua ruas:
 
 1. x² + 14x + 49 = 32 + 49, jadi (x + 7)² = 81.
-2. x + 7 = 9 atau x + 7 = −9.
+2. Ada dua bilangan yang kuadratnya 81, yaitu 9 dan −9, jadi x + 7 = 9 atau x + 7 = −9.
 3. Akar-akarnya **x = 2 dan x = −16**.
 
-Ingat: akar kuadrat dari 81 adalah 9 **dan** −9, karena keduanya jika dikuadratkan menghasilkan 81.
+Ingat: √81 = 9, tetapi persamaan (x + 7)² = 81 dipenuhi oleh x + 7 = 9 dan juga oleh x + 7 = −9.
 
 ## Contoh: x² + 4x + 2 = 0
 
@@ -502,6 +502,11 @@ for _p in PELAJARAN:
     cek(not re.search(r"\bsalah\b", _p["isi"]), f"lesson {_p['no']}: «salah»")
     notasi(_p["isi"], f"lesson {_p['no']}")
     notasi(_p["ringkasan"], f"lesson {_p['no']} ringkasan")
+# Round 2: the zero-product rule in the direction the step uses; √81 = 9 kept, both square roots named.
+cek("Jika hasil kali dua bilangan sama dengan nol, maka sedikitnya satu bilangan itu nol" in PELAJARAN[1]["isi"]
+    and "bernilai nol jika sedikitnya" not in PELAJARAN[1]["isi"])
+cek("akar kuadrat dari 81 adalah 9 **dan** −9" not in PELAJARAN[2]["isi"] and "√81 = 9" in PELAJARAN[2]["isi"]
+    and 9 ** 2 == (-9) ** 2 == 81 and math.isqrt(81) == 9)
 # The product of the roots is c/a (p. 146 prints −c/a); lesson 4 states it once.
 cek(sum(_p["isi"].count("x_{1} × x_{2} = c/a") for _p in PELAJARAN) == 2)
 
@@ -718,12 +723,13 @@ soal("LT7", 2, "Diketahui 2 adalah akar persamaan x² + bx − 10 = 0. Nilai b a
     ("5", False, "Hanya −10 yang dipindahkan (2b = 10), padahal 4 juga harus dikurangkan: 2b = 10 − 4.", "SMA10-M-B5-14", "=contoh_b"),
     ("−5", False, "Itu akar yang lain (2 × (−5) = −10), bukan b.", "SMA10-M-B5-10", "=contoh_b"),
 ])
-cek(akar(2, -7, 3) == [F(1, 2), 3] and akar(1, -4, 3) == [1, 3] and 6 * 1 == 2 * 3 and 6 + 1 == 7)
+cek(akar(2, -7, 3) == [F(1, 2), 3] and akar(1, -4, 3) == [1, 3] and (-6) * (-1) == 2 * 3 and (-6) + (-1) == -7
+    and all(nilai(2, -7, 3, x) == 2 * x * x - 6 * x - x + 3 for x in range(-5, 6)) and nilai(2, -7, 3, -6) != 0 and nilai(2, -7, 3, -1) != 0)
 soal("LT8", 2, "Akar-akar persamaan 2x² − 7x + 3 = 0 adalah ...", "C", [
     ("1/2 dan 3", True, "Benar. 2x² − 7x + 3 = (2x − 1)(x − 3) = 0, jadi x = 1/2 atau x = 3.", "", "=kali_ac"),
     ("−1/2 dan −3", False, "Tandanya terbalik. 2x − 1 = 0 berarti x = 1/2.", "SMA10-M-B5-02", "=kali_ac"),
     ("1 dan 3", False, "Koefisien 2 diabaikan: (x − 1)(x − 3) = x² − 4x + 3.", "SMA10-M-B5-04", "=kali_ac"),
-    ("6 dan 1", False, "Itu dua bilangan pemecah suku tengah (6 × 1 = 2 × 3 dan 6 + 1 = 7), bukan akar-akarnya.", "SMA10-M-B5-03", "=kali_ac"),
+    ("−6 dan −1", False, "Itu dua bilangan pemecah suku tengah, karena (−6) × (−1) = 2 × 3 dan (−6) + (−1) = −7; keduanya bukan akar-akarnya.", "SMA10-M-B5-03", "=kali_ac"),
 ])
 cek(F(8, 2) ** 2 == 16 and 8 ** 2 == 64 and F(8, 2) == 4)
 soal("LT9", 3, "Pada x² + 8x = −5, bilangan yang ditambahkan di kedua ruas agar ruas kiri menjadi kuadrat sempurna adalah ...", "A", [

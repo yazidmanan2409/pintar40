@@ -211,3 +211,35 @@ Checked and consistent (no error):
   sides of 3x and four sides of y, so 6x + 4y = 96. The book gives no answer.
   - The lesson states this reading, and the result is 288 m².
   - No question rests on it; PB8 is a different, wall-side fence.
+
+## Round 2 (coordinator's review)
+
+1. **Lesson 2, the zero-product rule, is now stated in the direction the step uses:** «Jika hasil
+   kali dua bilangan sama dengan nol, maka sedikitnya satu bilangan itu nol. Jadi x + 1 = 0 atau
+   x + 2 = 0.» An assertion checks the new sentence and the absence of the old converse.
+2. **Lesson 3, square roots:**
+   - Step 2 now reads «Ada dua bilangan yang kuadratnya 81, yaitu 9 dan −9, jadi x + 7 = 9 atau
+     x + 7 = −9.»
+   - The note reads «Ingat: √81 = 9, tetapi persamaan (x + 7)² = 81 dipenuhi oleh x + 7 = 9 dan
+     juga oleh x + 7 = −9.»
+   - Asserted: the old sentence is absent, «√81 = 9» is present, 9² = (−9)² = 81 and
+     isqrt(81) = 9.
+3. **LT8 D, the signed pair:**
+   - The rationale now reads «Itu dua bilangan pemecah suku tengah, karena (−6) × (−1) = 2 × 3 dan
+     (−6) + (−1) = −7; keduanya bukan akar-akarnya.»
+   - So that the option names the same pair as its rationale, the option text changed too, from
+     «6 dan 1» to «−6 dan −1». Say if you would rather keep «6 dan 1» with a rationale about the
+     dropped signs.
+   - Asserted: (−6)(−1) = 2 × 3, (−6) + (−1) = −7, the split 2x² − 6x − x + 3 equals 2x² − 7x + 3
+     for x from −5 to 5, and neither −6 nor −1 is a root.
+   - The key and the answer position are unchanged.
+4. **Optional point, taken:** lesson 1 now says «Ruas kiri persamaan kuadrat adalah polinom dengan
+   pangkat tertinggi 2.»
+
+**Gate after round 2:**
+- Bab 5: 3.379 assertions with `--kutipan` (3.378 without), 47 of 48 quotations.
+- periksa_mutu is 0/0 with the CSV, and the package rebuilds byte-identically.
+- Against `3c94b6c`, the package differs only in lessons 1, 2 and 3 and LT8 D (option and
+  rationale).
+- The Bab 4 LT2 correction rides along unchanged.
+- The regression is unchanged; lint shows 0 errors and the 2 old warnings.
