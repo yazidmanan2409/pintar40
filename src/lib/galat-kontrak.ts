@@ -33,6 +33,20 @@ export const KODE_GALAT = [
 ] as const;
 
 /**
+ * DAISY-31 (BOB-35): THE TWO REFUSALS A RELEASE MOVE CAN MEET, from Studio's
+ * «Koreksi» (`move_learning_assignment_release`). The session/release
+ * invariant raises them as SQLSTATE PR060 with the code in DETAIL:
+ * - RELEASE_MOVE_STARTED: a learner has already started the assignment, so a
+ *   correction is a new assignment (INV-24);
+ * - RELEASE_MOVE_NO_CYCLE_DEFINITION: the target release has no pre-test and
+ *   post-test for the cycle to move with.
+ * PR060's other refusal (SESSION_RELEASE_MISMATCH) and PR061's
+ * (QUICK_RULES_FIXED) are not a reader's to act on: they stay ACTION_FAILED,
+ * with a reference, whatever their message says.
+ */
+export const KODE_PINDAH = ["RELEASE_MOVE_STARTED", "RELEASE_MOVE_NO_CYCLE_DEFINITION"] as const;
+
+/**
  * A content step (Studio steps 1–4, `advanceContentAction`): each refusal
  * `enforce_content_status` can raise, named. `kodeGalatKonten` reads them from
  * the database's message, which carries no code of its own; BOB07-K02 reads
@@ -80,7 +94,9 @@ export const KODE_SUKSES = [
   "DRAFT_CREATED",
 ] as const;
 
-export type KodeGalat = (typeof KODE_GALAT)[number];
+export type KodePindah = (typeof KODE_PINDAH)[number];
+/** What `kodeGalat` answers: any action's codes, and a release move's two (DAISY-31). */
+export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah;
 export type KodeKonten = (typeof KODE_KONTEN)[number];
 export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
@@ -107,6 +123,10 @@ export function kodeGalat(e: GalatDb): KodeGalat {
   const state = e?.code ?? "";
   const pesan = e?.message ?? "";
   if (state === "PR020" && e?.details === "STRUCTURE_PLACE_INACTIVE") return "ACTION_PLACE_INACTIVE";
+  // DAISY-31: a release move's two refusals by their DETAIL; every other PR060
+  // and PR061 is ACTION_FAILED before any message pattern can reword it
+  if (state === "PR060" && (KODE_PINDAH as readonly string[]).includes(e?.details ?? "")) return e!.details as KodePindah;
+  if (state === "PR060" || state === "PR061") return "ACTION_FAILED";
   if (state === "42501" || /permission denied|\brequires CAN_[A-Z_]+|\bnot allowed\b|\bmay not\b|\bonly (?:a|an|the) [A-Z_]+/i.test(pesan)) {
     return "ACTION_NOT_ALLOWED";
   }
@@ -148,7 +168,7 @@ export function rujukan(): string {
 }
 
 const SEMUA_KODE = new Set<string>([
-  ...KODE_GALAT, ...KODE_KONTEN, ...KODE_ISIAN, ...KODE_SUKSES,
+  ...KODE_GALAT, ...KODE_PINDAH, ...KODE_KONTEN, ...KODE_ISIAN, ...KODE_SUKSES,
   ...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED",
   ...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED",
 ]);
@@ -159,6 +179,8 @@ export function kunciKode(kode: string): HleEvent {
   // the definition's two outcomes already had their sentences
   if (kode === "DEFINITION_NEW_VERSION") return "studio.definisi.versi_baru";
   if (kode === "DEFINITION_KEPT") return "studio.definisi.tetap";
+  // a release move's refusals are the release's own family of sentences
+  if ((KODE_PINDAH as readonly string[]).includes(kode)) return `studio.terbitan.kode.${kode.toLowerCase()}` as HleEvent;
   if (kode.startsWith("RELEASE_")) return kunciKodeTerbitan(kode as KodeTerbitan);
   if (kode.startsWith("PACKAGE_")) return kunciKodePaket(kode as KodePaket);
   if (kode.startsWith("CONTENT_")) return `studio.konten.kode.${kode.toLowerCase()}` as HleEvent;

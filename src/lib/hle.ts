@@ -433,6 +433,8 @@ export type HleEvent =
   | "studio.paket.kode.package_input_invalid"
   | "studio.paket.kode.package_failed"
   | "studio.terbitan.kode.release_not_allowed"
+  | "studio.terbitan.kode.release_move_started"
+  | "studio.terbitan.kode.release_move_no_cycle_definition"
   | "studio.terbitan.kode.release_publish_not_allowed"
   | "studio.terbitan.kode.release_school_not_allowed"
   | "studio.terbitan.kode.release_course_not_approved"
@@ -2145,6 +2147,9 @@ const table: Table = {
   "studio.paket.kode.package_has_problems": { default: "Paket ini belum bisa diterima. Perbaiki baris yang disebut lalu unggah lagi.", en: "This package cannot be accepted yet. Fix the rows listed and upload again." },
   "studio.paket.kode.package_input_invalid": { default: "Pilih sekolah dan berkasnya dulu.", en: "Choose the school and the file first." },
   "studio.paket.kode.package_failed": { default: "Unggahan belum berhasil. Coba lagi sebentar lagi.", en: "The upload did not go through. Try again in a moment." },
+  // DAISY-31 (BOB-35): Studio's «Koreksi» refused, by its two causes; the second names the tests by the titles learners see
+  "studio.terbitan.kode.release_move_started": { default: "Penugasan ini tidak bisa dipindahkan: sudah ada siswa yang mulai mengerjakannya. Untuk memakai terbitan lain, buat penugasan baru.", en: "This assignment cannot be moved: a student has already started it. To use another release, make a new assignment." },
+  "studio.terbitan.kode.release_move_no_cycle_definition": { default: "Terbitan tujuan belum punya Pemetaan Awal dan Uji Penguasaan, jadi penugasan tidak bisa dipindahkan ke sana. Pilih terbitan lain.", en: "The target release has no Initial Mapping and Mastery Check yet, so the assignment cannot be moved there. Choose another release." },
   "studio.terbitan.kode.release_not_allowed": { default: "Anda tidak berwenang membuat atau mengunci terbitan di sekolah ini.", en: "You are not allowed to create or lock releases in this school." },
   "studio.terbitan.kode.release_publish_not_allowed": { default: "Anda tidak berwenang menerbitkan atau menarik terbitan di sekolah ini.", en: "You are not allowed to publish or withdraw releases in this school." },
   "studio.terbitan.kode.release_school_not_allowed": { default: "Terbitan dibuat dari kursus sekolah, bukan dari pustaka nasional.", en: "A release is made from a school's course, not from the national library." },
