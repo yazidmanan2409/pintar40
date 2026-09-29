@@ -131,6 +131,15 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 - **Coordinator:** gate everything in flight. Bring `main` up to date with every passed code merge, and with the content they carry. Leave the board showing exactly what is done, what is open, and the order to resume in. Then give Yazid the pause summary. 
 Nothing is left on a lane unpushed or ungated. The resume order is the queue below.
 
+**AMENDED (Yazid, 29 Sep ~13:05): Bob proceeds overnight.**
+- **Bob:** the D-061 set first. Make F06-P22 self-contained, then run ONE CI for BOB-38 to BOB-41 and write four hand-offs. Then BOB-37, with one CI and a hand-off. Then stop; BOB-25 waits for Yazid, because the mail server is about to move and Gate 2E's acceptance needs his inboxes.
+- **Daisy:** docs only. Refresh the terminology inventory to `main` `4df914a`, and record post-login findings #4, #5 and #7–#12 in the UX register as UX-33 onward. No code, no CI.
+- **Lana:** stays paused.
+- **The asynchronous loop (Yazid asleep):**
+  - A hand-off's first line reads `READY FOR GATE: CI #<n> (run <id>) green on <full sha>`.
+  - The coordinator checks the lanes on scheduled check-ins, gates, and writes each verdict (GATE PASS, or FIX ROUND with its findings) in the ticket's row here.
+  - Bob and Daisy read their verdicts from this file on `origin/claude/awesome-rubin-bqxp6p`.
+
 **Queue fit:**
 - **Bob:** BOB-23 DONE (accepted, run 14) → BOB-12 with BOB-31 (GATE PASS 29 Sep; staging acceptance pending) → BOB-30 (CLOSED, not needed: measured 0 redraws per answer on `main`) → BOB-32 and BOB-33 (GATE PASS 29 Sep) → BOB-24 with BOB-34, BOB-35 and BOB-36 (**GATE PASS 29 Sep**, CI #236, audit #47) → **BOB-38 to BOB-41** (post-login review #1, #2, #3, #6; approved 29 Sep; block Engineering Complete, D-061; at most two CI runs) → BOB-37 (per-topic mastery) → BOB-25 (2E) → BOB-26 (3) → BOB-27 (4) → BOB-28 (5) and BOB-29 (6), whose dependencies allow them in either order. BOB-15 and BOB-13 follow the identity gates unless Yazid orders otherwise.
 - **Daisy:** reader walk DONE 29 Sep (UX-07 to UX-32 in the register) → DAISY-25 and DAISY-26 (GATE PASS 29 Sep) → DAISY-13 with BOB-12 (GATE PASS 29 Sep; staging acceptance with BOB-12's). → DAISY-28 (polish batch 2, GATE PASS 29 Sep) → DAISY-27 (GATE PASS 29 Sep, with BOB-33) → DAISY-29 (polish batch 3; GATE PASS 29 Sep) → **DAISY-30** (the shared learner-text renderer; GATE PASS 29 Sep) → DAISY-31 (the release move's two refusals; **GATE PASS 29 Sep**). **Paused.** On resume: DAISY-19's wiring with BOB-25, DAISY-20 with BOB-26's contract, then the UI/UX POLISHED pass. DAISY-19 is accepted as a prototype; its wiring waits for BOB-25, and DAISY-20 for BOB-26's contract.
