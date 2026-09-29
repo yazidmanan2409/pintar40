@@ -9,6 +9,7 @@ import KakiPintar from "@/components/KakiPintar";
 import TombolKirim from "@/components/TombolKirim";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import OrientasiAsesmen from "@/components/siklus/OrientasiAsesmen";
+import { kunciNamaAsesmen } from "@/components/siklus/aksi";
 import ItemPlayer from "./ItemPlayer";
 
 /**
@@ -73,6 +74,11 @@ export default async function PermukaanAsesmen({
     if (!orientasi) {
       return <HalamanPenolakan locale={locale} backHref={kembali.href} backKey={kembali.key} />;
     }
+    // DAISY-26 (UX-05): the assessment is called by its own kind, so an Uji
+    // Cepat is never titled with the Uji Penguasaan whose player it borrows. A
+    // kind with no product name shows its own title.
+    const namaKunci = kunciNamaAsesmen(orientasi.mode);
+    const nama = namaKunci ? s(namaKunci) : orientasi.title;
     return (
       <>
         <CangkangPengalaman locale={locale} current="belajar" />
@@ -85,13 +91,13 @@ export default async function PermukaanAsesmen({
             locale={locale}
             mode={mode}
             eyebrow={eyebrow}
-            judul={s(mode === "PEMETAAN" ? "pretest.title" : "posttest.title")}
+            judul={nama}
             mulai={
               <form action={mulaiAsesmen}>
                 <input type="hidden" name="penugasan" value={penugasan} />
                 <input type="hidden" name="kembali" value={diriHref} />
                 <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.memulai")}>
-                  {s("cycle.open")} {s(mode === "PEMETAAN" ? "pretest.title" : "posttest.title")}
+                  {s("cycle.open")} {nama}
                 </TombolKirim>
               </form>
             }

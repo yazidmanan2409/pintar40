@@ -1,0 +1,1772 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 7: Membandingkan Ciri-Ciri Bangun Datar",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Membandingkan Ciri-Ciri Bangun Datar",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Syarat Tiga Ruas Garis Membentuk Segitiga",
+       "summary": "Tiga ruas garis dapat membentuk segitiga bila jumlah panjang dua sisi mana pun lebih dari panjang sisi ketiga.",
+       "body_markdown": "## Tiga sedotan dan seutas tali\n\nSegitiga adalah bangun datar yang dibatasi tiga sisi. Apakah sembarang tiga ruas garis pasti dapat dirangkai menjadi segitiga?\n\nAyo coba: masukkan seutas tali ke dalam tiga sedotan, lalu ikat kedua ujung tali. Inilah hasil percobaan dengan lima kelompok sedotan:\n\n| No. | Panjang sedotan (cm) | Membentuk segitiga? |\n|---|---|---|\n| 1 | 5, 6, 7 | Bisa |\n| 2 | 4, 6, 6 | Bisa |\n| 3 | 5, 4, 12 | Tidak bisa |\n| 4 | 10, 5, 15 | Tidak bisa |\n| 5 | 5, 12, 13 | Bisa |\n\nJadi, tidak semua kelompok tiga sedotan dapat dibuat segitiga.\n\n## Perhatikan jumlahnya\n\nJumlahkan dua sedotan yang lebih pendek, lalu bandingkan dengan sedotan yang terpanjang:\n\n- Nomor 1: 5 + 6 = 11, lebih dari 7. Bisa.\n- Nomor 3: 5 + 4 = 9, kurang dari 12. Kedua sedotan pendek tidak sampai untuk bertemu.\n- Nomor 4: 10 + 5 = 15, sama dengan 15. Tidak bisa juga.\n- Nomor 5: 5 + 12 = 17, lebih dari 13. Bisa.\n\n## Syaratnya\n\nTiga ruas garis dapat membentuk segitiga bila **jumlah panjang dua sisi mana pun lebih dari panjang sisi ketiga**.\n\nCara cepat memeriksanya:\n\n1. Cari sisi yang terpanjang.\n2. Jumlahkan dua sisi yang lain.\n3. Bila jumlahnya **lebih dari** sisi terpanjang, segitiga dapat dibuat.\n\nMenjumlahkan sisi terpanjang dengan sisi lain tidak memberi tahu apa-apa: hasilnya selalu lebih dari sisi yang tersisa. Yang harus diperiksa adalah dua sisi yang lebih pendek.\n\n## Sama dengan belum cukup\n\nPada kelompok nomor 4, sedotan 10 cm dan 5 cm bersama-sama tepat 15 cm. Keduanya hanya dapat berbaring lurus di atas sedotan 15 cm, tanpa ujung yang terangkat. Tidak ada pojok ketiga, jadi tidak ada segitiga.\n\nJumlah dua sisi harus **lebih dari** sisi ketiga, tidak cukup sama dengan.\n\n**Coba:** sedotan 4 cm, 5 cm, dan 10 cm.\n_Periksa: 4 + 5 = 9, kurang dari 10. Tidak dapat dibuat segitiga._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "objective": {
+        "statement": "Murid dapat memeriksa apakah tiga ruas garis dengan panjang tertentu dapat membentuk segitiga.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tiga ruas garis manakah yang dapat dirangkai menjadi segitiga?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "3 cm, 4 cm, dan 9 cm",
+           "is_correct": false,
+           "rationale": "3 + 4 = 7, kurang dari 9. Kedua ruas garis pendek tidak dapat bertemu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "6 cm, 7 cm, dan 9 cm",
+           "is_correct": true,
+           "rationale": "Tepat. 6 + 7 = 13, lebih dari 9."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "5 cm, 5 cm, dan 10 cm",
+           "is_correct": false,
+           "rationale": "5 + 5 = 10, hanya sama dengan 10. Kedua ruas garis berbaring lurus di atas yang panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "2 cm, 8 cm, dan 12 cm",
+           "is_correct": false,
+           "rationale": "2 + 8 = 10, kurang dari 12. Tidak semua tiga ruas garis dapat membentuk segitiga."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rina mempunyai dua sedotan, 4 cm dan 9 cm. Sedotan ketiga manakah yang dapat melengkapinya menjadi segitiga?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "5 cm",
+           "is_correct": false,
+           "rationale": "4 + 5 = 9, hanya sama dengan 9, belum lebih. Kedua sedotan pendek berbaring lurus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "3 cm",
+           "is_correct": false,
+           "rationale": "4 + 3 = 7, kurang dari 9. Tidak semua panjang dapat dipakai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "7 cm",
+           "is_correct": true,
+           "rationale": "Benar. 4 + 7 = 11, lebih dari 9, dan 4 + 9 = 13, lebih dari 7."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "14 cm",
+           "is_correct": false,
+           "rationale": "Yang diperiksa hanya 14 + 4 > 9. Pasangan 4 + 9 = 13 kurang dari 14."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dapatkah sedotan 3 cm, 5 cm, dan 8 cm dirangkai menjadi segitiga?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "Tidak, karena 3 + 5 = 8, tidak lebih dari 8",
+           "is_correct": true,
+           "rationale": "Tepat. Jumlah dua sisi harus lebih dari sisi ketiga, tidak cukup sama dengan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "Ya, karena 3 + 5 sudah sama panjang dengan sedotan 8 cm",
+           "is_correct": false,
+           "rationale": "Sama dengan belum cukup. Kedua sedotan pendek hanya berbaring lurus di atas sedotan 8 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "Ya, karena ada tiga sedotan",
+           "is_correct": false,
+           "rationale": "Tidak semua tiga sedotan dapat membentuk segitiga; panjangnya harus diperiksa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "Ya, karena 5 + 8 lebih dari 3",
+           "is_correct": false,
+           "rationale": "Pasangan yang memuat sisi terpanjang selalu lebih. Yang harus diperiksa 3 + 5 terhadap 8."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua sisi sebuah segitiga 6 cm dan 10 cm. Panjang sisi ketiga berupa bilangan bulat. Berapa panjang terbesar yang mungkin?",
+         "petunjuk": "Jumlah dua sisi yang diketahui harus lebih dari sisi ketiga.",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "16 cm",
+           "is_correct": false,
+           "rationale": "6 + 10 = 16, hanya sama dengan 16. Sisi ketiga harus kurang dari jumlah itu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "17 cm",
+           "is_correct": false,
+           "rationale": "Yang diperiksa hanya 17 + 6 > 10. Pasangan 6 + 10 = 16 kurang dari 17."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "4 cm",
+           "is_correct": false,
+           "rationale": "Yang ditanyakan panjang terbesar. Lagi pula 6 + 4 = 10 hanya sama dengan 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "15 cm",
+           "is_correct": true,
+           "rationale": "Benar. 6 + 10 = 16, jadi sisi ketiga harus kurang dari 16 cm; yang terbesar 15 cm."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Segitiga Menurut Besar Sudutnya",
+       "summary": "Menurut besar sudutnya, segitiga dapat berupa segitiga lancip, segitiga siku-siku, atau segitiga tumpul.",
+       "body_markdown": "## Mengingat jenis sudut\n\nDi Bab 6 kamu sudah mengenal jenis sudut:\n\n- **sudut lancip**: kurang dari 90°;\n- **sudut siku-siku**: tepat 90°;\n- **sudut tumpul**: lebih dari 90° dan kurang dari 180°.\n\nSudut dalam segitiga dapat diperiksa dengan sudut siku-siku dari lipatan kertas.\n\n## Segitiga lancip\n\nSebuah segitiga yang **ketiga sudutnya lancip** disebut **segitiga lancip**.\n\nPeriksa ketiga sudutnya satu per satu. Bila semuanya lebih kecil dari pojok lipatan kertas, segitiga itu lancip.\n\n## Segitiga siku-siku dan segitiga tumpul\n\n- Segitiga yang salah satu sudutnya siku-siku disebut **segitiga siku-siku**.\n- Segitiga yang salah satu sudutnya tumpul disebut **segitiga tumpul**.\n\nPada segitiga siku-siku hanya **satu** sudut yang siku-siku; dua sudut lainnya lancip. Pada segitiga tumpul pun hanya **satu** sudut yang tumpul; dua sudut lainnya lancip.\n\n## Periksa ketiga sudutnya\n\nSebuah segitiga mempunyai sudut 35°, 40°, dan 105°.\n\n1. 35° lancip.\n2. 40° lancip.\n3. 105° tumpul.\n\nAda satu sudut tumpul, jadi segitiga itu **segitiga tumpul**. Dua sudut lancip tidak membuatnya segitiga lancip; syarat segitiga lancip adalah **ketiga** sudutnya lancip.\n\n**Coba:** sudut 90°, 60°, dan 30°.\n_Periksa: ada satu sudut siku-siku, jadi segitiga siku-siku._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "objective": {
+        "statement": "Murid dapat membandingkan segitiga lancip, siku-siku, dan tumpul dari besar sudut-sudutnya.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua sudut sebuah segitiga besarnya 20° dan 48°. Segitiga itu termasuk segitiga ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "lancip",
+           "is_correct": false,
+           "rationale": "Hanya dua sudut yang diketahui yang dilihat. Sudut ketiganya 112°, tumpul."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "siku-siku",
+           "is_correct": false,
+           "rationale": "Sudut ketiga dianggap 90°. Hitunglah: 180° − 20° − 48° = 112°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "sama kaki",
+           "is_correct": false,
+           "rationale": "Nama sama kaki berasal dari sisi yang sama panjang. Ketiga sudutnya (20°, 48°, 112°) berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "tumpul",
+           "is_correct": true,
+           "rationale": "Tepat. Sudut ketiganya 180° − 20° − 48° = 112°, sudut tumpul."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Segitiga yang salah satu sudutnya 90° disebut segitiga ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "lancip",
+           "is_correct": false,
+           "rationale": "Dua sudut lainnya memang lancip, tetapi segitiga lancip memerlukan ketiga sudutnya lancip."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "siku-siku",
+           "is_correct": true,
+           "rationale": "Benar. Satu sudut siku-siku sudah cukup."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "tumpul",
+           "is_correct": false,
+           "rationale": "Sudut 90° tepat siku-siku, bukan tumpul. Sudut tumpul lebih dari 90°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "sama kaki",
+           "is_correct": false,
+           "rationale": "Nama sama kaki berasal dari sisi, bukan dari sudut 90°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Segitiga PQR mempunyai sudut P = 30°, sudut Q = 110°, dan sudut R = 40°. Segitiga itu termasuk segitiga ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "lancip",
+           "is_correct": false,
+           "rationale": "Dua sudut lancip belum cukup. Ada satu sudut tumpul, 110°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "siku-siku",
+           "is_correct": false,
+           "rationale": "Tidak ada sudut yang tepat 90°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "tumpul",
+           "is_correct": true,
+           "rationale": "Tepat. Sudut Q = 110° adalah sudut tumpul."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "sembarang",
+           "is_correct": false,
+           "rationale": "Sembarang adalah nama menurut sisi. Yang ditanyakan dari sudut-sudutnya."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Jumlah Sudut-Sudut dalam Segitiga",
+       "summary": "Jumlah ketiga sudut dalam setiap segitiga adalah 180°, sehingga sudut ketiga dapat dihitung dari dua sudut yang diketahui.",
+       "body_markdown": "## Percobaan Asep\n\nAsep menggambar segitiga lancip pada kertas dan memberi tanda pada ketiga sudutnya. Ia memotong ketiga pojok itu, lalu mengimpitkan potongannya rapat-rapat, berdampingan di satu titik.\n\nKetiga pojok itu membentuk **sudut lurus**, yaitu garis lurus. Sudut lurus besarnya **180°**.\n\n## Percobaan Lukas\n\nLukas menggambar segitiga tumpul, lalu membuat dua segitiga lagi yang bentuk dan ukurannya sama. Ia mengimpitkan tiga sudut yang berbeda dari ketiga segitiga itu di satu titik.\n\nHasilnya juga garis lurus, 180°.\n\nJadi, **jumlah sudut-sudut dalam segitiga adalah 180°**, untuk segitiga lancip, siku-siku, maupun tumpul.\n\n## Mencari sudut ketiga\n\nDua sudut sebuah segitiga besarnya 30° dan 80°. Berapa sudut ketiga?\n\n1. Jumlahkan sudut yang diketahui: 30° + 80° = 110°.\n2. Kurangkan dari 180°: 180° − 110° = **70°**.\n3. Periksa: 30° + 80° + 70° = 180°. Cocok.\n\nJawabannya sudut ketiga, 70°, bukan jumlah 110°.\n\n## Mengapa hanya satu yang siku-siku?\n\nAndaikan sebuah segitiga mempunyai dua sudut siku-siku. Maka 90° + 90° = 180°, dan untuk sudut ketiga tersisa 180° − 180° = 0°. Tidak ada sudut ketiga, jadi segitiga itu tidak mungkin ada.\n\nDengan cara yang sama, dua sudut tumpul sudah lebih dari 180°. Karena itu segitiga hanya dapat mempunyai **paling banyak satu** sudut siku-siku atau satu sudut tumpul.\n\n**Coba:** dua sudut segitiga 60° dan 60°.\n_Periksa: 180° − 60° − 60° = 60°. Ketiga sudutnya sama besar._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "objective": {
+        "statement": "Murid dapat menemukan bahwa jumlah sudut dalam segitiga 180° dan memakainya untuk menghitung sudut yang belum diketahui.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua sudut sebuah segitiga besarnya 40° dan 85°. Berapa besar sudut ketiganya?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "125°",
+           "is_correct": false,
+           "rationale": "Ini jumlah kedua sudut yang diketahui. Yang ditanyakan sudut ketiga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "235°",
+           "is_correct": false,
+           "rationale": "Dikurangkan dari 360°. Jumlah sudut dalam segitiga 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "140°",
+           "is_correct": false,
+           "rationale": "Hanya 40° yang dikurangkan dari 180°; sudut 85° terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "55°",
+           "is_correct": true,
+           "rationale": "Benar. 180° − 40° − 85° = 55°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga siku-siku mempunyai sudut lancip 38°. Berapa besar sudut lancip yang lain?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "52°",
+           "is_correct": true,
+           "rationale": "Benar. 180° − 90° − 38° = 52°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "142°",
+           "is_correct": false,
+           "rationale": "Hanya 38° yang dikurangkan dari 180°; sudut siku-siku 90° terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "38°",
+           "is_correct": false,
+           "rationale": "Kedua sudut lancip dianggap sama besar. Itu hanya pada segitiga siku-siku sama kaki."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "128°",
+           "is_correct": false,
+           "rationale": "Ini jumlah 90° dan 38°. Yang ditanyakan sudut yang tersisa."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jumlah ketiga sudut dalam sebuah segitiga adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "180°",
+           "is_correct": true,
+           "rationale": "Benar. Ketiga pojok yang diimpitkan membentuk garis lurus, 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "360°",
+           "is_correct": false,
+           "rationale": "360° adalah satu putaran penuh. Ketiga pojok segitiga hanya membentuk garis lurus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "90°",
+           "is_correct": false,
+           "rationale": "90° adalah satu sudut siku-siku. Ketiga sudut bersama-sama 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "270°",
+           "is_correct": false,
+           "rationale": "Setiap sudut dianggap siku-siku (3 × 90°). Sudut segitiga tidak semuanya siku-siku."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Mengapa sebuah segitiga tidak dapat mempunyai dua sudut siku-siku?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "Karena sudut siku-siku hanya boleh ada pada segi empat",
+           "is_correct": false,
+           "rationale": "Segitiga siku-siku mempunyai satu sudut siku-siku. Yang tidak mungkin adalah dua."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "Karena segitiga harus mempunyai satu sudut tumpul",
+           "is_correct": false,
+           "rationale": "Segitiga lancip dan siku-siku tidak mempunyai sudut tumpul."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "Dapat saja, asalkan ketiga sisi segitiga itu dibuat cukup panjang",
+           "is_correct": false,
+           "rationale": "Panjang sisi tidak mengubah jumlah sudut, yang selalu 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "Karena 90° + 90° sudah 180°, tak tersisa untuk sudut ketiga",
+           "is_correct": true,
+           "rationale": "Tepat. Sudut ketiga menjadi 0°, jadi tidak ada segitiga."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua sudut sebuah segitiga besarnya 45° dan 72°. Berapa besar sudut ketiga?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "117°",
+           "is_correct": false,
+           "rationale": "Ini jumlah kedua sudut yang diketahui. Yang ditanyakan sudut ketiga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "63°",
+           "is_correct": true,
+           "rationale": "Benar. 180° − 45° − 72° = 63°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "243°",
+           "is_correct": false,
+           "rationale": "Dikurangkan dari 360°. Jumlah sudut dalam segitiga 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "135°",
+           "is_correct": false,
+           "rationale": "Hanya 45° yang dikurangkan dari 180°; sudut 72° terlewat."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Segitiga Menurut Panjang Sisinya",
+       "summary": "Menurut panjang sisinya, segitiga dapat berupa segitiga sama kaki, sama sisi, atau sembarang; segitiga sama sisi juga termasuk segitiga sama kaki.",
+       "body_markdown": "## Segitiga sama kaki\n\nImpitkan sisi-sisi sebuah model segitiga dari kertas satu sama lain. Bila ada **dua sisi** yang tepat berimpit, keduanya sama panjang. Kedua sisi itu disebut **kaki**, dan segitiganya disebut **segitiga sama kaki**.\n\nCiri-ciri segitiga sama kaki:\n\n- setidaknya 2 sisi sama panjang;\n- setidaknya 2 sudut sama besar, yaitu sudut yang menghadap kedua kaki;\n- 1 simetri lipat dan 1 simetri putar.\n\nSegitiga sama kaki dapat juga siku-siku (**segitiga siku-siku sama kaki**) atau tumpul (**segitiga tumpul sama kaki**). Nama menurut sudut dan nama menurut sisi dipakai bersama.\n\n## Menghitung sudut segitiga sama kaki\n\nPada segitiga siku-siku sama kaki, sudut siku-sikunya diapit oleh kedua kaki. Dua sudut yang lain sama besar.\n\n1. Sisa untuk dua sudut itu: 180° − 90° = 90°.\n2. Bagi dua: 90° : 2 = **45°** masing-masing.\n\nPada segitiga tumpul sama kaki yang sudut di antara kedua kakinya 100°: 180° − 100° = 80°, dan 80° : 2 = **40°** masing-masing.\n\n## Segitiga sama sisi\n\nBila **ketiga sisi** tepat berimpit satu sama lain, ketiganya sama panjang. Segitiga itu disebut **segitiga sama sisi**.\n\n- Ketiga sudutnya sama besar: 180° : 3 = **60°**.\n- Mempunyai 3 simetri lipat dan 3 simetri putar.\n\n## Segitiga sembarang\n\nSegitiga yang panjang sisi-sisinya berbeda satu sama lain disebut **segitiga sembarang**.\n\n- Tidak ada sisi yang sama panjang dan tidak ada sudut yang sama besar.\n- Tidak mempunyai simetri lipat.\n- Simetri putarnya 1: ia hanya menempati bingkainya kembali setelah diputar satu putaran penuh.\n\n## Sama sisi juga sama kaki\n\nAturan menggolongkan bangun: **bila semua ciri bangun A dimiliki bangun B, bangun B dapat disebut bangun A juga.**\n\nSegitiga sama sisi mempunyai setidaknya 2 sisi sama panjang, setidaknya 2 sudut sama besar, setidaknya 1 simetri lipat, dan setidaknya 1 simetri putar. Semua ciri segitiga sama kaki ada padanya, jadi **segitiga sama sisi juga segitiga sama kaki**.\n\nSebaliknya tidak selalu. Segitiga dengan sisi 5 cm, 5 cm, dan 3 cm adalah segitiga sama kaki, tetapi ketiga sisinya tidak sama panjang, jadi bukan segitiga sama sisi.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "objective": {
+        "statement": "Murid dapat membandingkan ciri-ciri segitiga sama kaki, sama sisi, dan sembarang, termasuk sisi, sudut, dan simetrinya.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Panjang sisi-sisi sebuah segitiga 7 cm, 7 cm, dan 4 cm. Segitiga itu termasuk ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "segitiga sama kaki",
+           "is_correct": true,
+           "rationale": "Tepat. Ada dua sisi yang sama panjang, 7 cm dan 7 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "segitiga sama sisi",
+           "is_correct": false,
+           "rationale": "Segitiga sama sisi memerlukan ketiga sisi sama panjang. Sisi 4 cm berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "segitiga sembarang",
+           "is_correct": false,
+           "rationale": "Segitiga sembarang tidak mempunyai sisi yang sama panjang, padahal di sini ada dua sisi 7 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "bukan segitiga, karena tidak dapat dibentuk",
+           "is_correct": false,
+           "rationale": "4 + 7 = 11, lebih dari 7, jadi segitiga ini dapat dibentuk."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada sebuah segitiga sama kaki, sudut yang diapit kedua kakinya besarnya 50°. Berapa besar setiap sudut yang lain?",
+         "petunjuk": "Dua sudut yang lain sama besar, dan ketiga sudut berjumlah 180°.",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "130°",
+           "is_correct": false,
+           "rationale": "130° adalah sisa untuk dua sudut bersama-sama. Masih harus dibagi dua."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "65°",
+           "is_correct": true,
+           "rationale": "Benar. 180° − 50° = 130°, dibagi dua sama besar: 65°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "50°",
+           "is_correct": false,
+           "rationale": "Ketiga sudut dianggap sama besar. Itu hanya pada segitiga sama sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "25°",
+           "is_correct": false,
+           "rationale": "50° yang dibagi dua. Yang dibagi dua adalah sisanya, 180° − 50° = 130°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Panjang sisi-sisi sebuah segitiga 6 cm, 6 cm, dan 6 cm. Nama manakah yang tepat untuknya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "Segitiga sama sisi, dan juga segitiga sama kaki",
+           "is_correct": true,
+           "rationale": "Tepat. Semua ciri segitiga sama kaki ada pada segitiga sama sisi, jadi keduanya tepat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "Hanya segitiga sama sisi, tidak boleh sama kaki",
+           "is_correct": false,
+           "rationale": "Segitiga sama sisi mempunyai setidaknya 2 sisi sama panjang, jadi ia juga segitiga sama kaki."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "Hanya segitiga sama kaki, karena dua sisinya 6 cm",
+           "is_correct": false,
+           "rationale": "Ketiga sisinya sama panjang, jadi ia segitiga sama sisi juga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "Segitiga siku-siku sama kaki dengan sisi 6 cm",
+           "is_correct": false,
+           "rationale": "Ketiga sudutnya 60°, tidak ada yang siku-siku."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa banyak simetri lipat segitiga sama sisi?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "1 simetri lipat",
+           "is_correct": false,
+           "rationale": "1 simetri lipat adalah milik segitiga sama kaki yang tidak sama sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "tidak ada simetri lipat",
+           "is_correct": false,
+           "rationale": "Yang tidak mempunyai simetri lipat adalah segitiga sembarang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "3 simetri lipat",
+           "is_correct": true,
+           "rationale": "Benar. Segitiga sama sisi dapat dilipat tepat di tiga cara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "6 simetri lipat",
+           "is_correct": false,
+           "rationale": "Tiga sisi dan tiga sudut dihitung terpisah. Setiap garis lipat melalui satu pojok dan tengah sisi di depannya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Setiap sudut segitiga sama sisi besarnya ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "60°",
+           "is_correct": true,
+           "rationale": "Benar. Ketiga sudutnya sama besar: 180° : 3 = 60°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "90°",
+           "is_correct": false,
+           "rationale": "Segitiga sama sisi tidak mempunyai sudut siku-siku; 3 × 90° = 270°, lebih dari 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "180°",
+           "is_correct": false,
+           "rationale": "180° adalah jumlah ketiga sudut. Setiap sudut sepertiganya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "120°",
+           "is_correct": false,
+           "rationale": "360° dibagi tiga. Jumlah sudut segitiga 180°, bukan 360°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga siku-siku mempunyai dua sisi yang sama panjang. Nama yang paling lengkap untuknya adalah segitiga ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "siku-siku sama sisi",
+           "is_correct": false,
+           "rationale": "Segitiga sama sisi sudutnya 60° semua, jadi tidak dapat siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "tumpul sama kaki",
+           "is_correct": false,
+           "rationale": "Segitiga ini mempunyai sudut siku-siku, bukan sudut tumpul."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "siku-siku sembarang",
+           "is_correct": false,
+           "rationale": "Segitiga sembarang tidak mempunyai sisi yang sama panjang, padahal di sini ada dua."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "siku-siku sama kaki",
+           "is_correct": true,
+           "rationale": "Tepat. Nama menurut sudut dan nama menurut sisi dipakai bersama."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Trapesium dan Jajargenjang",
+       "summary": "Trapesium adalah segi empat yang mempunyai setidaknya sepasang sisi sejajar; jajargenjang termasuk trapesium, tetapi bukan trapesium sama kaki.",
+       "body_markdown": "## Segi empat\n\n**Segi empat** adalah bangun datar yang dibatasi oleh empat sisi. Trapesium, jajargenjang, persegi panjang, belah ketupat, persegi, dan layang-layang semuanya segi empat.\n\n## Trapesium\n\nDi kelas IV kamu belajar bahwa trapesium mempunyai sepasang sisi sejajar. Di bab ini kita memakai pengertian berikut:\n\n**Trapesium adalah segi empat yang mempunyai setidaknya sepasang sisi sejajar.**\n\nAda juga buku yang memakai \"tepat sepasang\". Kedua pengertian itu sama-sama mempunyai alasan yang kuat, dan kelak kamu akan mempelajari bedanya. Di bab ini kita bersepakat memakai \"setidaknya sepasang\".\n\nCara memeriksa dua sisi sejajar: tarik garis tegak lurus dari sisi yang satu ke sisi yang lain di dua tempat. Bila kedua jaraknya sama, sisi-sisi itu sejajar.\n\n## Trapesium siku-siku dan trapesium sama kaki\n\n- **Trapesium siku-siku** adalah trapesium yang salah satu sudutnya siku-siku.\n- **Trapesium sama kaki** adalah trapesium yang mempunyai **1 simetri lipat**. Kedua kakinya sama panjang, dan sudut-sudut pada alasnya sama besar.\n\nTrapesium yang tidak siku-siku dan tidak sama kaki disebut **trapesium sembarang**. Ia tidak mempunyai sumbu simetri.\n\n## Jajargenjang\n\nCiri-ciri jajargenjang:\n\n- sisi-sisi yang berhadapan sejajar (dua pasang);\n- sisi-sisi yang berhadapan sama panjang;\n- sudut-sudut yang berhadapan sama besar;\n- tidak mempunyai sumbu simetri.\n\n## Jajargenjang adalah trapesium\n\nJajargenjang mempunyai setidaknya sepasang sisi sejajar; bahkan dua pasang. Jadi **jajargenjang termasuk trapesium**, yaitu trapesium yang kaki-kakinya juga sejajar.\n\nNamun jajargenjang **bukan trapesium sama kaki**:\n\n- trapesium sama kaki mempunyai 1 sumbu simetri, sedangkan jajargenjang tidak mempunyai sumbu simetri;\n- sudut-sudut pada alas trapesium sama kaki sama besar, sedangkan sudut-sudut pada alas jajargenjang tidak.\n\nKaki-kaki jajargenjang memang sama panjang, tetapi itu belum cukup.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "objective": {
+        "statement": "Murid dapat membandingkan ciri-ciri trapesium dan jajargenjang serta menjelaskan mengapa jajargenjang termasuk trapesium.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jajargenjang dapat digolongkan juga sebagai ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "trapesium sama kaki",
+           "is_correct": false,
+           "rationale": "Trapesium sama kaki mempunyai 1 sumbu simetri, sedangkan jajargenjang tidak mempunyai sumbu simetri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "persegi panjang",
+           "is_correct": false,
+           "rationale": "Arahnya terbalik: persegi panjanglah yang termasuk jajargenjang. Jajargenjang tidak harus mempunyai sudut siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "trapesium",
+           "is_correct": true,
+           "rationale": "Tepat. Jajargenjang mempunyai setidaknya sepasang sisi sejajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "belah ketupat",
+           "is_correct": false,
+           "rationale": "Arahnya terbalik: belah ketupatlah yang termasuk jajargenjang. Sisi jajargenjang tidak harus sama semua."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut pengertian di bab ini, trapesium adalah segi empat yang mempunyai ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "tepat sepasang sisi sejajar, tidak lebih",
+           "is_correct": false,
+           "rationale": "Itu pengertian yang dipakai di kelas IV dan di sebagian buku. Di bab ini kita bersepakat memakai setidaknya sepasang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "setidaknya sepasang sisi sejajar",
+           "is_correct": true,
+           "rationale": "Benar. Di bab ini kita memakai pengertian setidaknya sepasang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "dua pasang sisi berhadapan yang sejajar",
+           "is_correct": false,
+           "rationale": "Itu ciri jajargenjang. Trapesium cukup mempunyai satu pasang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "dua pasang sisi berurutan sama panjang",
+           "is_correct": false,
+           "rationale": "Itu ciri layang-layang, bukan trapesium."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa banyak sumbu simetri trapesium sama kaki?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "1 sumbu simetri",
+           "is_correct": true,
+           "rationale": "Benar. Garis lipatnya melalui tengah kedua sisi yang sejajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "2 sumbu simetri",
+           "is_correct": false,
+           "rationale": "2 sumbu simetri adalah milik persegi panjang dan belah ketupat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "tidak ada sumbu simetri",
+           "is_correct": false,
+           "rationale": "Yang tidak mempunyai sumbu simetri adalah trapesium sembarang dan jajargenjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "4 sumbu simetri",
+           "is_correct": false,
+           "rationale": "4 sumbu simetri adalah milik persegi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kaki-kaki jajargenjang sama panjang. Mengapa jajargenjang tetap bukan trapesium sama kaki?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "Karena jajargenjang tidak mempunyai sisi yang sejajar",
+           "is_correct": false,
+           "rationale": "Jajargenjang mempunyai dua pasang sisi sejajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "Karena jajargenjang bukan segi empat",
+           "is_correct": false,
+           "rationale": "Jajargenjang dibatasi empat sisi, jadi segi empat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "Karena jajargenjang tidak mempunyai sumbu simetri",
+           "is_correct": true,
+           "rationale": "Tepat. Trapesium sama kaki mempunyai 1 sumbu simetri dan sudut alas yang sama besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "Karena trapesium hanya boleh mempunyai sepasang sisi sejajar",
+           "is_correct": false,
+           "rationale": "Di bab ini trapesium mempunyai setidaknya sepasang sisi sejajar, jadi jajargenjang tetap trapesium."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Persegi Panjang, Belah Ketupat, dan Persegi",
+       "summary": "Persegi panjang dan belah ketupat termasuk jajargenjang, dan persegi termasuk keduanya; setiap bangun yang lebih khusus mempunyai ciri tambahan.",
+       "body_markdown": "## Arah menggolongkan\n\nIngat aturannya: **bila semua ciri bangun A dimiliki bangun B, bangun B dapat disebut bangun A.**\n\nPerhatikan arahnya. Yang diperiksa adalah ciri-ciri A. Bila semuanya ada pada B, kesimpulannya \"B adalah A\", bukan \"A adalah B\".\n\n## Persegi panjang dan jajargenjang\n\nPeriksa ciri-ciri jajargenjang pada persegi panjang:\n\n- sisi-sisi berhadapan sejajar? Ya.\n- sisi-sisi berhadapan sama panjang? Ya.\n- sudut-sudut berhadapan sama besar? Ya.\n\nSemua ciri jajargenjang dimiliki persegi panjang, jadi **persegi panjang termasuk jajargenjang**.\n\nRangkailah dua pasang sedotan yang sama panjang menjadi jajargenjang. Bila satu sudutnya diubah menjadi siku-siku, sudut-sudut yang lain ikut menjadi siku-siku, dan terbentuklah persegi panjang. Jadi **persegi panjang adalah jajargenjang yang salah satu sudutnya siku-siku**.\n\n## Belah ketupat dan jajargenjang\n\nCiri-ciri belah ketupat: keempat sisinya sama panjang, sisi-sisi berhadapan sejajar, sudut-sudut berhadapan sama besar, kedua diagonalnya saling membagi dua sama panjang dan berpotongan tegak lurus, dan kedua diagonalnya merupakan sumbu simetri.\n\nSemua ciri jajargenjang ada pada belah ketupat, jadi **belah ketupat termasuk jajargenjang**.\n\nSebaliknya tidak: jajargenjang tidak harus mempunyai empat sisi yang sama panjang, dan diagonalnya tidak harus tegak lurus. Jadi sembarang jajargenjang belum tentu belah ketupat.\n\n## Persegi dan belah ketupat\n\nPersegi mempunyai semua ciri belah ketupat: keempat sisinya sama panjang, sudut berhadapan sama besar, diagonalnya tegak lurus dan menjadi sumbu simetri. Jadi **persegi termasuk belah ketupat**.\n\nApa yang harus ditambahkan pada belah ketupat agar menjadi persegi? **Salah satu sudutnya harus siku-siku.**\n\n## Persegi dan persegi panjang\n\nPersegi juga mempunyai semua ciri persegi panjang: sisi berhadapan sejajar dan sama panjang, semua sudutnya siku-siku, diagonalnya saling membagi dua sama panjang. Jadi **persegi termasuk persegi panjang**.\n\nYang harus ditambahkan pada persegi panjang agar menjadi persegi: **sisi-sisi yang berurutan harus sama panjang**.\n\n**Coba:** apakah setiap persegi panjang adalah persegi?\n_Periksa: tidak. Sisi-sisi persegi panjang yang berurutan tidak harus sama panjang._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "objective": {
+        "statement": "Murid dapat menggolongkan persegi panjang, belah ketupat, dan persegi dengan membandingkan ciri-cirinya, dan menyebutkan ciri yang harus ditambahkan.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Persegi panjang dapat digolongkan juga sebagai ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "belah ketupat",
+           "is_correct": false,
+           "rationale": "Belah ketupat memerlukan keempat sisi sama panjang. Sisi-sisi persegi panjang yang berurutan tidak harus sama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "persegi",
+           "is_correct": false,
+           "rationale": "Arahnya terbalik: persegilah yang termasuk persegi panjang, bukan sebaliknya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "jajargenjang",
+           "is_correct": true,
+           "rationale": "Tepat. Semua ciri jajargenjang dimiliki persegi panjang: sisi berhadapan sejajar dan sama panjang, sudut berhadapan sama besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "layang-layang",
+           "is_correct": false,
+           "rationale": "Diagonal persegi panjang tidak harus berpotongan tegak lurus dan tidak harus menjadi sumbu simetri."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah jajargenjang ternyata mempunyai empat sisi yang sama panjang. Bangun itu dapat disebut ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "persegi",
+           "is_correct": false,
+           "rationale": "Persegi juga memerlukan sudut siku-siku. Belum ada keterangan tentang sudutnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "persegi panjang",
+           "is_correct": false,
+           "rationale": "Persegi panjang memerlukan sudut siku-siku, bukan sisi yang sama semua."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "trapesium sama kaki",
+           "is_correct": false,
+           "rationale": "Jajargenjang tidak pernah menjadi trapesium sama kaki: ia tidak mempunyai sumbu simetri seperti trapesium sama kaki."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "belah ketupat",
+           "is_correct": true,
+           "rationale": "Tepat. Jajargenjang yang keempat sisinya sama panjang adalah belah ketupat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Andi memeriksa bahwa semua ciri persegi panjang dimiliki oleh persegi. Kesimpulan manakah yang tepat?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "Persegi panjang dapat digolongkan sebagai persegi",
+           "is_correct": false,
+           "rationale": "Arahnya terbalik. Sisi-sisi persegi panjang yang berurutan tidak harus sama panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "Persegi dan persegi panjang adalah bangun yang sama persis",
+           "is_correct": false,
+           "rationale": "Persegi mempunyai ciri tambahan: sisi-sisi berurutan sama panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "Persegi bukan persegi panjang karena sisinya sama",
+           "is_correct": false,
+           "rationale": "Sisi yang sama semua tidak menghapus ciri persegi panjang; persegi tetap memiliki semuanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "Persegi dapat digolongkan sebagai persegi panjang",
+           "is_correct": true,
+           "rationale": "Tepat. Bila semua ciri A dimiliki B, B adalah A. Di sini B adalah persegi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Ciri apa yang harus ditambahkan pada jajargenjang agar menjadi persegi panjang?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "Sisi-sisi yang berhadapan sama panjang",
+           "is_correct": false,
+           "rationale": "Ciri ini sudah dimiliki jajargenjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "Salah satu sudutnya siku-siku",
+           "is_correct": true,
+           "rationale": "Tepat. Bila satu sudut siku-siku, keempat sudutnya ikut siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "Keempat sisinya sama panjang",
+           "is_correct": false,
+           "rationale": "Ciri ini membuat jajargenjang menjadi belah ketupat, bukan persegi panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "Mempunyai sepasang sisi yang sejajar",
+           "is_correct": false,
+           "rationale": "Jajargenjang sudah mempunyai dua pasang sisi sejajar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Empat sedotan dirangkai menjadi jajargenjang. Lalu satu sudutnya diubah menjadi siku-siku. Bagaimana sudut-sudut yang lain?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "Tetap dua lancip dan dua tumpul",
+           "is_correct": false,
+           "rationale": "Sudut-sudut berhadapan pada jajargenjang sama besar, jadi sudut di depan sudut siku-siku itu juga siku-siku, dan dua sudut lainnya menyusul."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "Hanya sudut di depannya yang ikut siku-siku",
+           "is_correct": false,
+           "rationale": "Dua sudut lainnya pun menjadi siku-siku. Coba dengan sedotan: bangunnya menjadi persegi panjang, yang keempat sudutnya siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "Semuanya ikut menjadi siku-siku",
+           "is_correct": true,
+           "rationale": "Tepat. Bangunnya menjadi persegi panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "Semuanya menjadi tumpul",
+           "is_correct": false,
+           "rationale": "Sudut yang diubah sudah siku-siku, bukan tumpul. Sudut di depannya sama besar dengannya, jadi juga siku-siku."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 8
+       },
+       "ordinal": "7",
+       "title": "Layang-Layang dan Belah Ketupat",
+       "summary": "Layang-layang adalah segi empat yang salah satu diagonalnya merupakan sumbu simetri; belah ketupat termasuk layang-layang.",
+       "body_markdown": "## Ciri-ciri layang-layang\n\nLipat sebuah layang-layang ABCD menurut salah satu diagonalnya. Kedua bagiannya tepat berimpit, jadi diagonal itu adalah **sumbu simetri**.\n\nCiri-ciri layang-layang:\n\n- ada 2 pasang sisi berurutan yang sama panjang;\n- ada sepasang sudut berhadapan yang sama besar;\n- diagonal-diagonalnya berpotongan tegak lurus;\n- salah satu diagonalnya merupakan sumbu simetri.\n\n**Layang-layang adalah segi empat yang salah satu diagonalnya merupakan sumbu simetri.**\n\n## Belah ketupat juga layang-layang\n\nPeriksa ciri-ciri layang-layang pada belah ketupat:\n\n- 2 pasang sisi berurutan sama panjang? Ya, keempat sisinya sama panjang.\n- sepasang sudut berhadapan sama besar? Ya, bahkan dua pasang.\n- diagonal berpotongan tegak lurus? Ya.\n- salah satu diagonal merupakan sumbu simetri? Ya, bahkan keduanya.\n\nSemua ciri layang-layang dimiliki belah ketupat, jadi **belah ketupat termasuk layang-layang**.\n\n## Yang ditambahkan\n\nPada layang-layang hanya satu diagonal yang menjadi sumbu simetri. Bila **kedua diagonalnya** menjadi sumbu simetri, layang-layang itu menjadi belah ketupat.\n\n**Belah ketupat adalah layang-layang yang semua diagonalnya merupakan sumbu simetri.**\n\nKarena itu, tidak setiap layang-layang adalah belah ketupat.\n\n## Banyak sumbu simetri\n\n| Bangun | Sumbu simetri |\n|---|---|\n| Segitiga sama kaki | 1 |\n| Segitiga sama sisi | 3 |\n| Segitiga sembarang | 0 |\n| Trapesium sama kaki | 1 |\n| Jajargenjang | 0 |\n| Persegi panjang | 2 |\n| Belah ketupat | 2 (kedua diagonalnya) |\n| Persegi | 4 |\n| Layang-layang | 1 (satu diagonalnya) |\n\n## Rangkuman Bab 7\n\n- Tiga ruas garis membentuk segitiga bila jumlah dua sisi mana pun **lebih dari** sisi ketiga.\n- Menurut sudutnya: segitiga lancip, siku-siku, tumpul. Jumlah ketiga sudut 180°, jadi paling banyak satu sudut siku-siku atau tumpul.\n- Menurut sisinya: segitiga sama kaki, sama sisi, sembarang. Segitiga sama sisi juga segitiga sama kaki.\n- Bila semua ciri A dimiliki B, B dapat disebut A.\n- Jajargenjang termasuk trapesium, tetapi bukan trapesium sama kaki.\n- Persegi panjang dan belah ketupat termasuk jajargenjang; persegi termasuk keduanya.\n- Belah ketupat termasuk layang-layang.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "objective": {
+        "statement": "Murid dapat membandingkan ciri-ciri layang-layang dan belah ketupat serta merangkum hubungan antarbangun datar di bab ini.",
+        "bloom": "EVALUATE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segi empat mempunyai dua pasang sisi berurutan yang sama panjang, dan hanya satu diagonalnya yang merupakan sumbu simetri. Bangun itu adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "belah ketupat, karena sisinya berpasangan",
+           "is_correct": false,
+           "rationale": "Hanya satu diagonal yang menjadi sumbu simetri, jadi bangun ini belum belah ketupat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "layang-layang, bukan belah ketupat",
+           "is_correct": true,
+           "rationale": "Tepat. Belah ketupat memerlukan kedua diagonalnya menjadi sumbu simetri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "jajargenjang, karena sisinya berpasangan",
+           "is_correct": false,
+           "rationale": "Pada jajargenjang, sisi yang sama panjang adalah sisi berhadapan, bukan berurutan, dan tidak ada sumbu simetri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "persegi, karena ada sumbu simetri",
+           "is_correct": false,
+           "rationale": "Persegi mempunyai 4 sumbu simetri, bukan satu."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa banyak sumbu simetri belah ketupat?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "2, yaitu kedua diagonalnya",
+           "is_correct": true,
+           "rationale": "Benar. Belah ketupat dapat dilipat tepat menurut kedua diagonalnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "4, seperti persegi",
+           "is_correct": false,
+           "rationale": "Persegi mempunyai 4 karena sudutnya siku-siku. Belah ketupat hanya 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "1, seperti layang-layang",
+           "is_correct": false,
+           "rationale": "Layang-layang hanya mempunyai 1. Pada belah ketupat kedua diagonalnya sumbu simetri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "tidak ada, seperti jajargenjang",
+           "is_correct": false,
+           "rationale": "Jajargenjang tidak mempunyai sumbu simetri, tetapi belah ketupat mempunyai 2."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Ciri apa yang harus ditambahkan pada layang-layang agar menjadi belah ketupat?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "Salah satu sudutnya siku-siku",
+           "is_correct": false,
+           "rationale": "Sudut siku-siku adalah ciri tambahan dari belah ketupat ke persegi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "Dua pasang sisi berurutan sama panjang",
+           "is_correct": false,
+           "rationale": "Ciri ini sudah dimiliki layang-layang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "Diagonal-diagonalnya berpotongan saling tegak lurus",
+           "is_correct": false,
+           "rationale": "Diagonal layang-layang sudah berpotongan tegak lurus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "Kedua diagonalnya merupakan sumbu simetri",
+           "is_correct": true,
+           "rationale": "Tepat. Belah ketupat adalah layang-layang yang semua diagonalnya sumbu simetri."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "LT19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bangun manakah yang tidak dapat digolongkan sebagai jajargenjang?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "Persegi",
+           "is_correct": false,
+           "rationale": "Persegi mempunyai semua ciri jajargenjang, jadi termasuk jajargenjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "Layang-layang",
+           "is_correct": true,
+           "rationale": "Tepat. Sisi-sisi layang-layang yang sama panjang berurutan, dan sisinya tidak harus sejajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "Persegi panjang",
+           "is_correct": false,
+           "rationale": "Persegi panjang adalah jajargenjang yang sudutnya siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "Belah ketupat",
+           "is_correct": false,
+           "rationale": "Belah ketupat mempunyai semua ciri jajargenjang, jadi termasuk jajargenjang."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

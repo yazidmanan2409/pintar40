@@ -108,8 +108,8 @@ export default async function Siapkan({
               {calon.map((r) => (
                 <Link key={r.id} className="pin-row" href={`/mengajar/${id}/siapkan?terbitan=${r.id}`}>
                   <span className="pin-title">{r.kursus}</span>
+                  {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                   <span className="pin-rowmeta">
-                    <span>{s("mengajar.siap.terbitan")} {r.versi}</span>
                     {r.terbitPada ? (
                       <span>{s("mengajar.siap.diterbitkan")} {format.date(r.terbitPada, locale)}</span>
                     ) : null}
@@ -151,9 +151,9 @@ export default async function Siapkan({
             <span className="pin-pill pin-neutral">{s("mengajar.status.belum")}</span>
           </div>
           <p className="pin-meta">
-            {s("mengajar.siap.terbitan")} {dipilih.versi}
-            {dipilih.terbitPada ? ` · ${s("mengajar.siap.diterbitkan")} ${format.date(dipilih.terbitPada, locale)}` : ""}
-            {` · ${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
+            {/* DAISY-26 (UX-20): no version number; the date says which release */}
+            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${format.date(dipilih.terbitPada, locale)} · ` : ""}
+            {`${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
             {` · ${format.number(isi.soal, locale)} ${s("mengajar.siap.soal")}`}
           </p>
           <ol className="pin-terima">

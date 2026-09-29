@@ -191,10 +191,8 @@ export default async function Kelas({
                     href={`/mengajar/${id}/siapkan?terbitan=${r.id}`}
                   >
                     <span className="pin-title">{r.kursus}</span>
+                    {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                     <span className="pin-rowmeta">
-                      <span>
-                        {s("mengajar.siap.terbitan")} {r.versi}
-                      </span>
                       {r.terbitPada ? (
                         <span>
                           {s("mengajar.siap.diterbitkan")} {format.date(r.terbitPada, locale)}

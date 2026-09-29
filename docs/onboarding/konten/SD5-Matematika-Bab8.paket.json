@@ -1,0 +1,1650 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 8: Data",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Data",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Mengumpulkan Data dengan Turus",
+       "summary": "Data dicatat dengan turus agar tidak ada yang terlewat atau terhitung dua kali; banyaknya setiap data disebut frekuensi.",
+       "body_markdown": "## Data membantu memutuskan\n\nAnggi berjualan donat. Ia mencatat banyak donat yang terjual setiap hari:\n\n| Hari | Cokelat | Keju | Stroberi | Kacang |\n|---|---|---|---|---|\n| Senin | 3 | 6 | 4 | 4 |\n| Selasa | 4 | 4 | 6 | 3 |\n| Rabu | 5 | 3 | 4 | 2 |\n| Kamis | 5 | 4 | 5 | 1 |\n| Jumat | 6 | 3 | 3 | 0 |\n| Sabtu | 7 | 5 | 4 | 0 |\n\nDari catatan itu terlihat bahwa donat kacang makin sedikit terjual, dari 4 pada hari Senin sampai tidak ada yang terjual pada hari Jumat dan Sabtu. Donat cokelat justru makin banyak terjual.\n\nCatatan seperti ini disebut **data**. Data membantu Anggi memutuskan: membuat lebih banyak donat cokelat dan lebih sedikit donat kacang.\n\n## Mencatat dengan turus\n\nKelas V SD Pancasila ditanya sayuran kesukaannya. Setiap jawaban dicatat dengan satu garis. Garis-garis ini disebut **turus**.\n\nTurus dibuat dalam kelompok lima: empat garis tegak, lalu garis kelima dibuat **miring** melintang. Dengan begitu kita dapat menghitung lima-lima, tanpa menghitung garis satu per satu.\n\nContoh: ||||/ || berarti satu kelompok lima dan dua garis lagi, yaitu 5 + 2 = **7**.\n\n## Frekuensi\n\nBanyaknya suatu data muncul disebut **frekuensi**. Hasil pencatatan sayuran kesukaan:\n\n- Bayam: ||||/ ||  (7)\n- Kangkung: ||||/ |  (6)\n- Wortel: ||||/ |||  (8)\n- Tomat: ||||/ |  (6)\n- Buncis: ||||  (4)\n- Sawi: ||||/  (5)\n- Kol: |||  (3)\n\nFrekuensi bayam 7: ada 7 anak yang menyukai bayam. Perhatikan bedanya: \"bayam\" adalah datanya, 7 adalah frekuensinya.\n\n## Agar tidak ada yang terlewat\n\nKesalahan yang paling sering terjadi saat mencatat adalah ada jawaban yang terlewat atau terhitung dua kali. Caranya menghindari:\n\n1. Coret setiap jawaban yang sudah dibuatkan turus.\n2. Setelah selesai, jumlahkan semua frekuensi.\n3. Bandingkan dengan banyak anak yang ditanya. Di sini 7 + 6 + 8 + 6 + 4 + 5 + 3 = 39, jadi harus ada 39 jawaban.\n\n**Coba:** turus ||||/ ||||/ | menunjukkan frekuensi berapa?\n_Periksa: 5 + 5 + 1 = 11._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
+       "objective": {
+        "statement": "Murid dapat mengumpulkan data sederhana dari sekitarnya, mencatatnya dengan turus, dan menentukan frekuensinya.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Turus ||||/ ||| terdiri atas satu kelompok lengkap (empat garis tegak dan satu garis miring) dan 3 garis tegak. Frekuensinya adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "7",
+           "is_correct": false,
+           "rationale": "Kelompok lengkap dihitung 4; garis miringnya terlewat. Satu kelompok bernilai 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "Hanya garis tegak yang terpisah yang dihitung; kelompok lima terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "8",
+           "is_correct": true,
+           "rationale": "Benar. Satu kelompok lengkap bernilai 5, ditambah 3: 5 + 3 = 8."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "2",
+           "is_correct": false,
+           "rationale": "Yang dihitung banyak kelompoknya (satu kelompok dan satu kelompok kecil), bukan banyak garisnya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Andi mencatat turus: dua kelompok lengkap (masing-masing empat garis tegak dan satu garis miring), lalu 4 garis tegak. Berapa frekuensinya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "12",
+           "is_correct": false,
+           "rationale": "Setiap kelompok lengkap dihitung 4; garis miringnya terlewat. Satu kelompok bernilai 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "Setiap kelompok dihitung 1: 1 + 1 + 4. Satu kelompok lengkap bernilai 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "10",
+           "is_correct": false,
+           "rationale": "Hanya kedua kelompok lengkap yang dihitung; 4 garis terakhir terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "14",
+           "is_correct": true,
+           "rationale": "Benar. 5 + 5 + 4 = 14."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Mengapa garis kelima pada turus dibuat miring melintang?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "Agar mudah dihitung lima-lima",
+           "is_correct": true,
+           "rationale": "Tepat. Setiap kelompok bernilai 5, jadi kita dapat menghitung 5, 10, 15, dan seterusnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "Agar garis kelima tidak ikut dihitung",
+           "is_correct": false,
+           "rationale": "Garis miring justru ikut dihitung; ia adalah garis kelima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "Karena garis kelima mewakili 10 data",
+           "is_correct": false,
+           "rationale": "Setiap garis, termasuk yang miring, mewakili satu data."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "Agar turusnya terlihat lebih rapi saja",
+           "is_correct": false,
+           "rationale": "Kerapian bukan tujuannya; garis miring menandai kelompok lima agar mudah dihitung."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Frekuensi adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "nilai data yang paling besar",
+           "is_correct": false,
+           "rationale": "Itu nilai tertinggi, bukan frekuensi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "garis-garis yang dipakai untuk mencatat",
+           "is_correct": false,
+           "rationale": "Itu turus. Frekuensi adalah bilangan hasil menghitung turus itu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "banyaknya jenis data yang dicatat",
+           "is_correct": false,
+           "rationale": "Banyak jenis data berbeda dengan frekuensi setiap data."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "banyaknya suatu data muncul",
+           "is_correct": true,
+           "rationale": "Tepat. Misalnya 7 anak menyukai bayam: frekuensi bayam 7."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Ukuran sepatu 10 anak: 34, 35, 34, 36, 35, 34, 37, 35, 34, 36. Berapa frekuensi ukuran 34?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "Ada satu data 34 yang terlewat. Coret setiap data yang sudah dihitung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "4",
+           "is_correct": true,
+           "rationale": "Benar. Ukuran 34 muncul 4 kali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "5",
+           "is_correct": false,
+           "rationale": "Ada data yang terhitung dua kali. Coret setiap data yang sudah dihitung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "34",
+           "is_correct": false,
+           "rationale": "Ini nilai datanya (ukuran sepatu), bukan berapa kali ukuran itu muncul."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Membaca Tabel Frekuensi",
+       "summary": "Tabel frekuensi memuat daftar data dan frekuensinya; dari tabel itu kita dapat mencari yang terbanyak, yang tersedikit, dan jumlahnya.",
+       "body_markdown": "## Tabel frekuensi\n\n**Tabel frekuensi** adalah tabel yang memuat daftar semua data yang diamati beserta frekuensinya.\n\n| Nama sayuran | Frekuensi |\n|---|---|\n| Bayam | 7 |\n| Kangkung | 6 |\n| Wortel | 8 |\n| Tomat | 6 |\n| Buncis | 4 |\n| Sawi | 5 |\n| Kol | 3 |\n\nMembaca data dari tabel lebih mudah daripada dari catatan yang masih berupa daftar panjang.\n\n## Memeriksa pernyataan\n\nTiga anak membaca tabel sayuran itu:\n\n- Nisa: \"Sayuran yang paling banyak disukai adalah wortel.\" Tepat, frekuensi wortel 8, yang terbesar.\n- Lukas: \"Yang menyukai tomat lebih banyak daripada yang menyukai bayam.\" Kurang tepat: tomat 6, bayam 7.\n- Asep: \"Sayuran yang paling sedikit disukai adalah buncis.\" Kurang tepat: buncis 4, tetapi kol hanya 3.\n\nSelalu periksa pernyataan dengan angka pada tabel.\n\n## Nilai dan frekuensi\n\nTabel ini memuat nilai ulangan satu kelas:\n\n| Nilai | Frekuensi |\n|---|---|\n| 40 | 2 |\n| 50 | 1 |\n| 60 | 5 |\n| 70 | 6 |\n| 80 | 7 |\n| 90 | 3 |\n| 100 | 1 |\n\nKolom kiri adalah **nilai** (datanya). Kolom kanan adalah **frekuensi** (banyak siswa yang mendapat nilai itu).\n\n- Nilai tertinggi adalah **100**, diperoleh oleh **1** siswa.\n- Nilai yang paling banyak diperoleh adalah **80**, oleh 7 siswa. Jawabannya 80 (nilainya), bukan 7.\n\n## Menghitung dari tabel\n\n- Banyak siswa seluruhnya: jumlahkan frekuensinya, 2 + 1 + 5 + 6 + 7 + 3 + 1 = **25** siswa.\n- Bila siswa yang nilainya kurang dari 70 mengikuti remedi, banyaknya 2 + 1 + 5 = **8** siswa. Nilai 70 tidak ikut, karena 70 tidak kurang dari 70.\n\n**Coba:** berapa siswa yang nilainya 80 atau lebih?\n_Periksa: 7 + 3 + 1 = 11 siswa._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
+       "objective": {
+        "statement": "Murid dapat menyajikan data dalam tabel frekuensi dan membaca informasi dari tabel itu.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tabel frekuensi warna kesukaan siswa: merah 9, biru 13, hijau 7, kuning 6. Berapa siswa yang ditanya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "4",
+           "is_correct": false,
+           "rationale": "Ini banyak jenis warna, bukan banyak siswa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "35",
+           "is_correct": true,
+           "rationale": "Benar. Jumlahkan semua frekuensi: 9 + 13 + 7 + 6 = 35."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "13",
+           "is_correct": false,
+           "rationale": "Ini frekuensi warna yang paling banyak disukai. Yang ditanyakan jumlah seluruh siswa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "28",
+           "is_correct": false,
+           "rationale": "Frekuensi hijau (7) terlewat. Semua frekuensi harus dijumlahkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tabel nilai ulangan: nilai 60 ada 3 siswa, 70 ada 5 siswa, 80 ada 8 siswa, 90 ada 4 siswa, 100 ada 2 siswa. Berapa siswa yang nilainya kurang dari 80?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "Hanya nilai 60 yang dihitung; nilai 70 juga kurang dari 80."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "16",
+           "is_correct": false,
+           "rationale": "Nilai 80 ikut dihitung. Kurang dari 80 tidak termasuk 80."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "8",
+           "is_correct": true,
+           "rationale": "Benar. Nilai 60 dan 70: 3 + 5 = 8 siswa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "130",
+           "is_correct": false,
+           "rationale": "Yang dijumlahkan nilainya (60 + 70). Yang dihitung banyak siswanya, yaitu frekuensinya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dari tabel nilai ulangan yang sama (60: 3 siswa, 70: 5, 80: 8, 90: 4, 100: 2), nilai berapa yang paling banyak diperoleh siswa?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "80",
+           "is_correct": true,
+           "rationale": "Benar. Nilai 80 diperoleh oleh 8 siswa, frekuensi terbesar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "8",
+           "is_correct": false,
+           "rationale": "Ini frekuensinya. Yang ditanyakan nilainya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "100",
+           "is_correct": false,
+           "rationale": "100 adalah nilai tertinggi, tetapi hanya diperoleh 2 siswa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "22",
+           "is_correct": false,
+           "rationale": "Ini banyak siswa seluruhnya."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Membuat Piktogram",
+       "summary": "Piktogram menyajikan data dengan gambar; kunci menyatakan nilai satu gambar, dan bagian gambar mewakili bagian nilai itu.",
+       "body_markdown": "## Satu gambar mewakili beberapa\n\nPiktogram menyajikan data dengan gambar. Satu gambar tidak harus mewakili satu benda. Bila datanya besar, satu gambar dapat mewakili 2, 4, 10, atau lebih.\n\nNilai satu gambar ditulis pada **kunci**. Tanpa kunci, piktogram tidak dapat dibaca.\n\n## Menentukan banyak gambar\n\nPenjualan kue apem selama enam hari: Senin 40, Selasa 35, Rabu 30, Kamis 37, Jumat 27, Sabtu 29.\n\nKuncinya: ● mewakili **4 kue apem**.\n\nSenin: 40 : 4 = **10 gambar** utuh.\n\n## Bagian gambar\n\nBila pembagiannya bersisa, sisanya digambar sebagai bagian gambar:\n\n- Selasa 35: 8 gambar utuh = 32, sisa 3 dari 4, jadi **tiga perempat gambar** (◕).\n- Rabu 30: 7 gambar utuh = 28, sisa 2 dari 4, jadi **setengah gambar** (◐).\n- Kamis 37: 9 gambar utuh = 36, sisa 1 dari 4, jadi **seperempat gambar** (◔).\n\nBila Kamis digambar 9 gambar utuh saja, piktogram itu hanya menunjukkan 36 kue, kurang satu.\n\n## Piktogram penjualan kue apem\n\nSenin: ● ● ● ● ● ● ● ● ● ●\nSelasa: ● ● ● ● ● ● ● ● ◕\nRabu: ● ● ● ● ● ● ● ◐\nKamis: ● ● ● ● ● ● ● ● ● ◔\nJumat: ● ● ● ● ● ● ◕\nSabtu: ● ● ● ● ● ● ● ◔\n\nKunci: ● mewakili 4 kue apem. ◕ = 3 kue, ◐ = 2 kue, ◔ = 1 kue.\n\n## Yang harus diperhatikan\n\n- Piktogram memerlukan **judul**, **keterangan** setiap baris, dan **kunci**.\n- Semua gambar dibuat **sama besar**, karena mewakili nilai yang sama. Gambar yang lebih besar akan tampak seperti nilai yang lebih banyak.\n- Pilih kunci yang memudahkan. Untuk 40 kue, kunci 4 memberi 10 gambar; kunci 1 akan memberi 40 gambar.\n\n**Coba:** berapa banyak kue apem yang terjual selama enam hari?\n_Periksa: 40 + 35 + 30 + 37 + 27 + 29 = 198 kue._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
+       "objective": {
+        "statement": "Murid dapat membuat piktogram dengan kunci yang tepat, termasuk memakai bagian gambar.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Satu gambar buku pada piktogram mewakili 8 buku. Perpustakaan meminjamkan 20 buku pada hari Selasa. Bagaimana baris Selasa digambar?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "2 gambar utuh dan setengah gambar",
+           "is_correct": true,
+           "rationale": "Tepat. 2 gambar = 16 buku, sisanya 4 dari 8, yaitu setengah gambar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "20 gambar buku",
+           "is_correct": false,
+           "rationale": "Satu gambar mewakili 8 buku, bukan 1. 20 gambar berarti 160 buku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "2 gambar utuh dan seperempat gambar",
+           "is_correct": false,
+           "rationale": "Sisa 4 buku dari 8 adalah setengah, bukan seperempat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "3 gambar utuh",
+           "is_correct": false,
+           "rationale": "3 gambar mewakili 24 buku, lebih dari 20."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Satu gambar mewakili 10 pengunjung. Bagaimana menggambar 35 pengunjung?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "35 gambar utuh",
+           "is_correct": false,
+           "rationale": "Satu gambar mewakili 10, bukan 1. 35 gambar berarti 350 pengunjung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "4 gambar utuh",
+           "is_correct": false,
+           "rationale": "4 gambar mewakili 40, lebih dari 35."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "3 gambar utuh dan seperempat gambar",
+           "is_correct": false,
+           "rationale": "Sisa 5 dari 10 adalah setengah, bukan seperempat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "3 gambar utuh dan setengah gambar",
+           "is_correct": true,
+           "rationale": "Tepat. 3 gambar = 30, sisa 5 dari 10 adalah setengah gambar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rudi membuat piktogram. Gambar pada baris Senin ia buat lebih besar daripada gambar pada baris Selasa, padahal kuncinya sama. Apa akibatnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "Tidak ada akibatnya, asal banyak gambarnya benar",
+           "is_correct": false,
+           "rationale": "Gambar yang lebih besar tampak lebih banyak, sehingga pembaca dapat keliru."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "Pembaca dapat mengira data Senin lebih banyak",
+           "is_correct": true,
+           "rationale": "Tepat. Gambar yang mewakili nilai sama harus sama besar agar tidak menyesatkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "Setiap gambar Senin bernilai lebih dari kuncinya",
+           "is_correct": false,
+           "rationale": "Kuncinya tetap sama; hanya tampilannya yang menyesatkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "Piktogram tidak lagi memerlukan kunci",
+           "is_correct": false,
+           "rationale": "Kunci tetap diperlukan untuk membaca nilai setiap gambar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bagian manakah yang harus ada pada piktogram agar nilainya dapat dibaca?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "Warna yang berbeda di setiap baris",
+           "is_correct": false,
+           "rationale": "Warna boleh saja, tetapi tidak menyatakan nilai. Yang diperlukan adalah kunci."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "Satu gambar untuk setiap satu benda",
+           "is_correct": false,
+           "rationale": "Satu gambar boleh mewakili banyak benda, asal kuncinya ditulis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "Kunci yang menyatakan nilai satu gambar",
+           "is_correct": true,
+           "rationale": "Tepat. Tanpa kunci, pembaca tidak tahu satu gambar mewakili berapa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "Gambar yang semakin besar untuk data yang besar",
+           "is_correct": false,
+           "rationale": "Gambar harus sama besar; besar data ditunjukkan oleh banyak gambar."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Membaca dan Menganalisis Piktogram",
+       "summary": "Untuk membaca piktogram, lihat kuncinya dahulu, lalu kalikan banyak gambar dengan nilai satu gambar.",
+       "body_markdown": "## Lihat kuncinya dahulu\n\nPiktogram hasil panen tomat Pak Chandra selama lima minggu:\n\nMinggu ke-1: ● ● ● ● ●\nMinggu ke-2: ● ● ● ● ● ● ●\nMinggu ke-3: ● ● ● ● ● ● ● ● ● ●\nMinggu ke-4: ● ● ● ● ● ●\nMinggu ke-5: ● ●\n\nKunci: ● mewakili **2 kg** tomat.\n\nMinggu ke-1 ada 5 gambar. Hasilnya bukan 5 kg, tetapi 5 × 2 kg = **10 kg**.\n\n## Membaca setiap baris\n\n| Minggu | Banyak gambar | Hasil panen |\n|---|---|---|\n| 1 | 5 | 5 × 2 = 10 kg |\n| 2 | 7 | 7 × 2 = 14 kg |\n| 3 | 10 | 10 × 2 = 20 kg |\n| 4 | 6 | 6 × 2 = 12 kg |\n| 5 | 2 | 2 × 2 = 4 kg |\n\nJumlah hasil panen selama lima minggu: 10 + 14 + 20 + 12 + 4 = **60 kg**.\n\n## Naik dan turun\n\n- Minggu ke-2 naik 4 kg (dari 10 ke 14), minggu ke-3 naik 6 kg (dari 14 ke 20).\n- Minggu ke-4 turun 8 kg (dari 20 ke 12), minggu ke-5 turun lagi 8 kg (dari 12 ke 4).\n\nKenaikan dan penurunan adalah **selisih** dua minggu yang berurutan, bukan hasil minggu itu sendiri.\n\n## Selisih tertinggi dan terendah\n\nHasil tertinggi 20 kg (minggu ke-3), terendah 4 kg (minggu ke-5). Selisihnya 20 − 4 = **16 kg**.\n\nCara lain: selisih banyak gambarnya 10 − 2 = 8 gambar, lalu 8 × 2 kg = 16 kg. Kedua cara memberi hasil yang sama.\n\n**Coba:** berapa hasil panen minggu ke-2 dan minggu ke-4 bersama-sama?\n_Periksa: 14 + 12 = 26 kg._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
+       "objective": {
+        "statement": "Murid dapat membaca data dari piktogram dan menganalisis kenaikan, penurunan, jumlah, dan selisihnya.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada sebuah piktogram, satu gambar mewakili 5 buku. Baris kelas VA memuat 6 gambar. Berapa buku yang dibaca kelas VA?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "30",
+           "is_correct": true,
+           "rationale": "Benar. 6 gambar × 5 buku = 30 buku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "Ini banyak gambarnya. Setiap gambar mewakili 5 buku, jadi harus dikalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "11",
+           "is_correct": false,
+           "rationale": "Banyak gambar ditambah nilai kunci. Seharusnya dikalikan: 6 × 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "5",
+           "is_correct": false,
+           "rationale": "Ini nilai satu gambar pada kunci, bukan nilai seluruh baris."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada piktogram hasil panen, satu gambar mewakili 6 kg. Baris minggu ke-3 memuat 4 gambar utuh dan setengah gambar. Berapa hasil panen minggu ke-3?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "24 kg",
+           "is_correct": false,
+           "rationale": "Setengah gambar terlewat. Setengah gambar mewakili 3 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "30 kg",
+           "is_correct": false,
+           "rationale": "Setengah gambar dihitung sebagai satu gambar penuh."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "27 kg",
+           "is_correct": true,
+           "rationale": "Benar. 4 × 6 kg = 24 kg, setengah gambar = 3 kg, jadi 27 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "25 kg",
+           "is_correct": false,
+           "rationale": "Setengah gambar dihitung 1 kg. Setengah gambar mewakili setengah dari 6 kg."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Piktogram hasil panen jagung, satu gambar mewakili 3 kg: minggu ke-1 ada 3 gambar, minggu ke-2 ada 8 gambar, minggu ke-3 ada 6 gambar, minggu ke-4 ada 1 gambar. Berapa selisih hasil tertinggi dan terendah?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "7 kg",
+           "is_correct": false,
+           "rationale": "Ini selisih banyak gambarnya. Kalikan dengan 3 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "24 kg",
+           "is_correct": false,
+           "rationale": "Ini hasil tertinggi saja. Yang ditanyakan selisihnya dengan hasil terendah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "27 kg",
+           "is_correct": false,
+           "rationale": "Tertinggi dan terendah dijumlahkan. Selisih berarti dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "21 kg",
+           "is_correct": true,
+           "rationale": "Benar. Tertinggi 8 × 3 = 24 kg, terendah 1 × 3 = 3 kg, selisihnya 21 kg."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada piktogram hasil panen, satu gambar mewakili 2 kg. Baris minggu ke-2 memuat 7 gambar. Berapa hasil panen minggu ke-2?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "14 kg",
+           "is_correct": true,
+           "rationale": "Benar. 7 × 2 kg = 14 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "7 kg",
+           "is_correct": false,
+           "rationale": "Ini banyak gambarnya. Setiap gambar mewakili 2 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "9 kg",
+           "is_correct": false,
+           "rationale": "Banyak gambar ditambah 2. Seharusnya dikalikan: 7 × 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "12 kg",
+           "is_correct": false,
+           "rationale": "Hanya 6 gambar yang terhitung. Hitung ulang gambarnya: ada 7."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Satu gambar mewakili 4 kue. Baris hari Rabu memuat 8 gambar utuh dan seperempat gambar. Berapa kue yang terjual hari Rabu?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "32",
+           "is_correct": false,
+           "rationale": "Seperempat gambar terlewat. Ia mewakili 1 kue."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "34",
+           "is_correct": false,
+           "rationale": "Seperempat gambar dihitung 2 kue, seperti setengah gambar. Seperempat dari 4 adalah 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "36",
+           "is_correct": false,
+           "rationale": "Seperempat gambar dihitung sebagai satu gambar penuh."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "33",
+           "is_correct": true,
+           "rationale": "Benar. 8 × 4 = 32, seperempat gambar = 1 kue, jadi 33."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Satu gambar mewakili 5 kg. Minggu ke-1 ada 3 gambar, minggu ke-2 ada 6 gambar. Berapa kenaikan hasil panen dari minggu ke-1 ke minggu ke-2?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "3 kg",
+           "is_correct": false,
+           "rationale": "Ini selisih banyak gambarnya. Kalikan dengan 5 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "15 kg",
+           "is_correct": true,
+           "rationale": "Benar. 6 × 5 − 3 × 5 = 30 − 15 = 15 kg, atau (6 − 3) × 5 = 15 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "45 kg",
+           "is_correct": false,
+           "rationale": "Kedua minggu dijumlahkan. Kenaikan adalah selisihnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "30 kg",
+           "is_correct": false,
+           "rationale": "Ini hasil minggu ke-2 saja. Kenaikan adalah selisih kedua minggu."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Diagram Batang dan Skalanya",
+       "summary": "Diagram batang menyajikan data dengan batang; nilainya dibaca dari skala pada sumbu, jadi nilai setiap langkah skala harus diketahui.",
+       "body_markdown": "## Diagram batang\n\nCara siswa kelas V SD Pancasila berangkat ke sekolah, sebagai diagram batang (setiap █ mewakili 1 siswa):\n\n██████ 6 (Jalan kaki)\n████████ 8 (Naik sepeda)\n████ 4 (Angkutan umum)\n██████ 6 (Diantar orang tua)\n\nBatang yang paling panjang menunjukkan data yang paling banyak: **naik sepeda**. Untuk mencari yang terbanyak atau tersedikit, cukup bandingkan panjang batangnya.\n\nBila batangnya berdiri tegak, diagramnya disebut **diagram batang vertikal**. Bila batangnya mendatar, seperti di atas, disebut **diagram batang horizontal**. Datanya sama; hanya arah batangnya yang berbeda.\n\n## Skala\n\nPada sumbu diagram batang ada angka-angka **skala**. Angka ditulis tepat pada garisnya, bukan di antara dua garis, dan jarak antargaris selalu sama.\n\nDiagram perolehan medali emas Indonesia di SEA Games memakai angka 0, 20, 40, 60, 80. Di antara dua angka ada 4 garis tipis, jadi dari 0 ke 20 ada 5 langkah. Setiap langkah bernilai 20 : 5 = **4** medali.\n\nBatang tahun 2017 berhenti tepat di tengah antara garis 36 dan garis 40. Nilainya **38**.\n\n## Membaca diagram medali\n\nPerolehan medali emas: 2013 sebanyak 65, 2015 sebanyak 47, 2017 sebanyak 38, 2019 sebanyak 72, 2021 sebanyak 69.\n\n- Paling banyak pada tahun 2019, paling sedikit pada tahun 2017.\n- Dari 2013 ke 2015 turun 65 − 47 = 18 medali; dari 2015 ke 2017 turun 47 − 38 = 9 medali.\n\n## Diagram batang horizontal\n\nHasil panen lele Pak Bajuri: kolam 1 sebanyak 32 kg, kolam 2 sebanyak 28 kg, kolam 3 sebanyak 21 kg, kolam 4 sebanyak 16 kg, kolam 5 sebanyak 25 kg.\n\n- Batang terpanjang: kolam 1.\n- Jumlah seluruhnya: 32 + 28 + 21 + 16 + 25 = **122 kg**.\n- Seperempat dari jumlah itu: 122 : 4 = 30,5 kg. Kolam 1 dan kolam 4 bersama-sama menghasilkan 32 + 16 = 48 kg, lebih dari seperempat hasil panen.\n\n## Kesalahan yang sering terjadi\n\n- Angka skala ditulis di antara garis, sehingga nilainya terbaca meleset.\n- Jarak skala tidak sama, misalnya angka pada sumbu langsung ditulis 4, 6, 7, 8 mengikuti datanya.\n- Diagram tanpa judul dan tanpa keterangan pada sumbu-sumbunya.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
+       "objective": {
+        "statement": "Murid dapat membuat dan membaca diagram batang vertikal dan horizontal dengan memperhatikan skalanya.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Angka skala sebuah diagram batang adalah 0, 10, 20, 30, 40, 50. Ujung sebuah batang berada tepat di tengah antara garis 40 dan garis 50. Berapa nilai batang itu?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "41",
+           "is_correct": false,
+           "rationale": "Setiap bagian di atas 40 dianggap bernilai 1. Jarak dari 40 ke 50 adalah 10, jadi tengahnya 45."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "50",
+           "is_correct": false,
+           "rationale": "Batang dibaca ke garis di atasnya. Ujungnya belum sampai 50."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "40",
+           "is_correct": false,
+           "rationale": "Batang dibaca ke garis di bawahnya. Ujungnya sudah melewati 40."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "45",
+           "is_correct": true,
+           "rationale": "Benar. Di tengah antara 40 dan 50 adalah 45."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada sebuah diagram batang, angka skalanya 0, 4, 8, 12, sampai 32. Batang hari Kamis berhenti tepat di tengah antara garis 28 dan garis 32. Berapa nilainya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "29",
+           "is_correct": false,
+           "rationale": "Bagian di atas 28 dianggap bernilai 1. Tengah dari langkah 4 adalah 2, jadi 28 + 2 = 30."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "30",
+           "is_correct": true,
+           "rationale": "Benar. Setiap langkah bernilai 4; di tengah antara 28 dan 32 adalah 30."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "32",
+           "is_correct": false,
+           "rationale": "Batang dibaca ke garis di atasnya. Ujungnya belum sampai 32."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "28",
+           "is_correct": false,
+           "rationale": "Batang dibaca ke garis di bawahnya. Ujungnya sudah melewati 28."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diagram batang pengunjung pameran: Senin 35, Selasa 50, Rabu 42, Kamis 28 orang. Hari manakah pengunjungnya paling sedikit, dan berapa selisihnya dengan hari yang paling banyak?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "Kamis, selisih 22 orang",
+           "is_correct": true,
+           "rationale": "Tepat. Terendah Kamis 28, tertinggi Selasa 50: 50 − 28 = 22."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "Selasa, selisih 22 orang",
+           "is_correct": false,
+           "rationale": "Selasa adalah hari yang paling banyak (batang terpanjang), bukan paling sedikit."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "Kamis, selisih 78 orang",
+           "is_correct": false,
+           "rationale": "50 dan 28 dijumlahkan. Selisih berarti dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "Kamis, selisih 7 orang",
+           "is_correct": false,
+           "rationale": "Kamis dibandingkan dengan Senin (35 − 28), bukan dengan hari yang paling banyak."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Angka skala sebuah diagram batang: 0, 20, 40, 60, 80. Di antara dua angka ada 4 garis tipis, sehingga ada 5 langkah yang sama. Sebuah batang berhenti tepat di garis tipis kedua di atas 60. Berapa nilainya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "62",
+           "is_correct": false,
+           "rationale": "Setiap langkah dianggap 1. Dari 60 ke 80 ada 5 langkah, jadi setiap langkah 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "80",
+           "is_correct": false,
+           "rationale": "Setiap langkah dianggap 10. Dari 60 ke 80 ada 5 langkah, bukan 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "68",
+           "is_correct": true,
+           "rationale": "Benar. Setiap langkah 20 : 5 = 4, jadi 60 + 2 × 4 = 68."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "64",
+           "is_correct": false,
+           "rationale": "Hanya satu langkah yang dihitung. Batang berhenti di garis tipis kedua."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diagram batang horizontal hasil panen ikan: kolam 1 sebanyak 30 kg, kolam 2 sebanyak 24 kg, kolam 3 sebanyak 18 kg, kolam 4 sebanyak 27 kg. Apakah hasil kolam 1 lebih dari seperempat hasil seluruhnya?",
+         "petunjuk": "Jumlahkan dahulu semua hasilnya, lalu bagi 4.",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "Ya, karena 30 kg lebih dari 24,75 kg",
+           "is_correct": true,
+           "rationale": "Tepat. Seluruhnya 99 kg; seperempatnya 99 : 4 = 24,75 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "Tidak, karena 30 kg kurang dari 99 kg",
+           "is_correct": false,
+           "rationale": "Yang dibandingkan seperempat dari jumlahnya, bukan jumlahnya sendiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "Tidak, karena seperempatnya 33 kg",
+           "is_correct": false,
+           "rationale": "99 dibagi 3. Seperempat berarti dibagi 4: 24,75 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "Tidak, karena kolam 1 batangnya paling pendek",
+           "is_correct": false,
+           "rationale": "Batang kolam 1 justru paling panjang; batang terpendek adalah kolam 3."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Apa perbedaan diagram batang vertikal dan diagram batang horizontal?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "Diagram horizontal tidak memerlukan skala",
+           "is_correct": false,
+           "rationale": "Keduanya memerlukan skala pada sumbunya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "Diagram horizontal hanya untuk data yang kecil",
+           "is_correct": false,
+           "rationale": "Kedua jenis dapat dipakai untuk data besar maupun kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "Pada diagram vertikal, batang terpendek bernilai terbesar",
+           "is_correct": false,
+           "rationale": "Pada kedua jenis, batang yang paling panjang bernilai paling besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "Arah batangnya: tegak atau mendatar",
+           "is_correct": true,
+           "rationale": "Tepat. Datanya boleh sama; hanya arah batangnya yang berbeda."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Diagram Batang Ganda dan Membandingkan Diagram",
+       "summary": "Dua diagram hanya dapat dibandingkan dari tinggi batangnya bila skalanya sama; diagram batang ganda menyajikan dua data berdampingan dengan satu skala.",
+       "body_markdown": "## Tinggi batang saja belum cukup\n\nPak Guru menunjukkan dua diagram: banyak siswa laki-laki dan banyak siswa perempuan kelas V dari tahun 2017 sampai 2021. Asep berkata, \"Setiap tahun siswa perempuan lebih banyak, karena batangnya lebih tinggi.\"\n\nPerhatikan skalanya. Diagram siswa laki-laki memakai angka 0, 10, 20, 30, sedangkan diagram siswa perempuan memakai angka 0, 2, 4, sampai 18. Skalanya berbeda, jadi tinggi batang kedua diagram **tidak dapat langsung dibandingkan**.\n\n## Data sebenarnya\n\n| Tahun | Laki-laki | Perempuan |\n|---|---|---|\n| 2017 | 14 | 10 |\n| 2018 | 11 | 13 |\n| 2019 | 16 | 12 |\n| 2020 | 12 | 16 |\n| 2021 | 15 | 14 |\n\nPada tahun 2017, 2019, dan 2021 siswa laki-laki justru lebih banyak. Pendapat Asep kurang tepat.\n\n## Diagram batang ganda\n\nKedua data dapat digabung dalam satu diagram dengan **satu skala**. Batang laki-laki dan perempuan setiap tahun diletakkan berdampingan (setiap █ mewakili 1 siswa):\n\n██████████████ 14 (2017, laki-laki)\n██████████ 10 (2017, perempuan)\n███████████ 11 (2018, laki-laki)\n█████████████ 13 (2018, perempuan)\n████████████████ 16 (2019, laki-laki)\n████████████ 12 (2019, perempuan)\n████████████ 12 (2020, laki-laki)\n████████████████ 16 (2020, perempuan)\n███████████████ 15 (2021, laki-laki)\n██████████████ 14 (2021, perempuan)\n\nSekarang kedua batang dapat langsung dibandingkan.\n\n## Membaca diagram batang ganda\n\n- Selisih laki-laki dan perempuan tahun 2019: 16 − 12 = **4** siswa.\n- Tidak ada tahun yang banyak siswa laki-lakinya sama dengan siswa perempuan.\n- Jumlah siswa terbanyak pada tahun 2021: 15 + 14 = **29** siswa.\n\n## Kapan tidak digabung\n\nDua data sebaiknya tidak digabung bila nilainya berbeda sangat jauh. Misalnya siswa laki-laki kelas V satu kecamatan ratusan, sedangkan siswa perempuan satu sekolah hanya belasan. Batang yang belasan akan menjadi sangat pendek dan sulit dibaca.\n\n## Rangkuman Bab 8\n\n- Data dicatat dengan turus; banyaknya suatu data muncul disebut frekuensi.\n- Tabel frekuensi: daftar data dan frekuensinya. Bedakan nilai data dan frekuensinya.\n- Piktogram: lihat kuncinya dahulu; bagian gambar mewakili bagian nilai; gambar dibuat sama besar.\n- Diagram batang: perhatikan nilai setiap langkah skala.\n- Dua diagram dibandingkan dari tinggi batangnya hanya bila skalanya sama.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 8._",
+       "objective": {
+        "statement": "Murid dapat membandingkan data pada dua diagram batang dengan memperhatikan skala dan membaca diagram batang ganda.",
+        "bloom": "EVALUATE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diagram A memakai skala 10 untuk setiap garis, diagram B memakai skala 2 untuk setiap garis. Batang Senin di diagram A setinggi 3 garis, di diagram B setinggi 5 garis. Batang Senin manakah yang nilainya lebih besar?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "Batang di diagram B, karena lebih tinggi",
+           "is_correct": false,
+           "rationale": "Tinggi batang hanya dapat dibandingkan bila skalanya sama. Hitung nilainya: A 30, B 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "Batang di diagram A",
+           "is_correct": true,
+           "rationale": "Tepat. Di A nilainya 3 × 10 = 30, di B hanya 5 × 2 = 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "Keduanya sama besar",
+           "is_correct": false,
+           "rationale": "Nilainya berbeda: A 3 × 10 = 30, B 5 × 2 = 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "Tidak dapat dibandingkan sama sekali",
+           "is_correct": false,
+           "rationale": "Dapat dibandingkan setelah nilai setiap batang dibaca dari skalanya masing-masing."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diagram kelas A memakai skala 5 untuk setiap garis, diagram kelas B memakai skala 2. Batang Januari kelas A setinggi 4 garis, kelas B setinggi 9 garis. Rina berkata, \"Kelas B lebih banyak karena batangnya lebih tinggi.\" Tanggapan yang tepat adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "Tepat; batang kelas B memang lebih tinggi daripada kelas A",
+           "is_correct": false,
+           "rationale": "Tinggi batang hanya dapat dibandingkan bila skalanya sama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "Tepat; kelas B 18, kelas A hanya 8",
+           "is_correct": false,
+           "rationale": "Kelas A dibaca dengan skala 2 milik diagram B (4 × 2 = 8). Skala kelas A adalah 5: 4 × 5 = 20."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "Kurang tepat; kelas A 20, kelas B 18",
+           "is_correct": true,
+           "rationale": "Tepat. 4 × 5 = 20 dan 9 × 2 = 18. Skalanya berbeda, jadi tinggi batang tidak dapat langsung dibandingkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "Kurang tepat; keduanya sama, 20",
+           "is_correct": false,
+           "rationale": "Kelas B: 9 × 2 = 18, bukan 20."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diagram batang ganda siswa laki-laki dan perempuan: 2020 (12 dan 14), 2021 (16 dan 11), 2022 (13 dan 13), 2023 (15 dan 18). Pada tahun berapa selisih laki-laki dan perempuan paling besar?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "2023",
+           "is_correct": false,
+           "rationale": "Tahun 2023 mempunyai batang paling tinggi (18), tetapi selisihnya hanya 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "2021",
+           "is_correct": true,
+           "rationale": "Benar. Selisihnya 16 − 11 = 5, yang terbesar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "2022",
+           "is_correct": false,
+           "rationale": "Pada 2022 selisihnya 0, yang paling kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "2020",
+           "is_correct": false,
+           "rationale": "Selisih 2020 hanya 14 − 12 = 2."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Mengapa dua diagram batang yang akan dibandingkan dari tinggi batangnya harus memakai skala yang sama?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "Agar kedua diagram terlihat lebih menarik bagi pembacanya",
+           "is_correct": false,
+           "rationale": "Tampilan bukan alasannya; skala berbeda membuat tinggi batang menyesatkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "Agar semua batang menjadi sama tinggi",
+           "is_correct": false,
+           "rationale": "Skala yang sama tidak membuat batang sama tinggi; nilainya tetap berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "Agar tinggi batang menunjukkan nilai yang sama",
+           "is_correct": true,
+           "rationale": "Tepat. Dengan skala yang sama, batang yang lebih tinggi pasti bernilai lebih besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "Agar diagram tidak memerlukan judul lagi",
+           "is_correct": false,
+           "rationale": "Judul tetap diperlukan pada setiap diagram."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kapan dua data sebaiknya tidak digabung dalam satu diagram batang ganda?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "Bila nilainya berbeda sangat jauh, ratusan dan belasan",
+           "is_correct": true,
+           "rationale": "Tepat. Batang yang belasan akan sangat pendek dan sulit dibaca."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "Bila kedua data mencatat tahun-tahun yang sama",
+           "is_correct": false,
+           "rationale": "Tahun yang sama justru memudahkan penggabungan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "Bila kedua data memakai satuan yang sama, yaitu banyak siswa",
+           "is_correct": false,
+           "rationale": "Satuan yang sama tidak menjadi masalah; yang perlu diperhatikan besar nilainya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "Bila kedua data sudah memakai skala yang sama",
+           "is_correct": false,
+           "rationale": "Skala yang sama justru syarat agar batangnya dapat dibandingkan."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

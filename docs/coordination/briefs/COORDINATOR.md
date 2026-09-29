@@ -36,14 +36,14 @@ This is the coordinator's working state, so a new session can pick up without th
 - How misconception codes get registered (or declare them out of scope).
 - Whether educator testers author lessons.
 - How class figures get proven with official evidence.
-- The mail path at the pilot stage (Supabase's email rate limit on staging is 2/hour; Namecheap Stellar allows 50/hour, shared with production). **Decided (D-053, amended 29 Sep):** Stellar Business (10,000 per hour per domain) is **readiness-triggered**: after the testing stage, before broader real-user rollout. **The pilot runs on Stellar's 50/hour for the whole domain.** When the pilot plan is written (tester readiness package), group activations are scheduled at about 20 educators per hour, and staging's real sends are kept to proofs. PINTAR is not designed around 50/hour; Supabase Auth's `rate_limit_email_sent` is set separately before testing.
+- **Email capacity is CLOSED (Yazid, 29 Sep): Yazid upgrades the mail plan when PINTAR is ready. It is not an open item, a blocker or a question, and no lane or report raises it with him again.** (D-053 as amended.)
 
 - **Staff sign-in on shared school computers: Yazid decides on 29 Sep.** The discussion, evidence and blast radius are in `auth/2026-09-28-staff-signin-shared-computers.md`. In brief: email + password, a shared-computer idle sign-out with a "perangkat pribadi" option, and the PIN lock in 4.5. Six questions are listed there. The discussion was read-only: no tickets or decisions until he decides.
 
 - **Identity 4.0 FROZEN (29 Sep): D-054 to D-058, spec `auth/IDENTITY-4.0.md`.** Gate 0 automated facts done (`auth/GATE-0-FACTS.md`); Yazid's manual evidence M1–M7 outstanding. Tickets on the board: C-09 to C-11, BOB-24 to BOB-29, DAISY-19 to DAISY-24; BOB-12 is Gate 1. Bob: BOB-23 → BOB-12 → the identity gates. Daisy's identity work starts at DAISY-19 after C-09. Production release only at Gate 8; never passwords without recovery.
 
 **Next for the coordinator:**
-0. Identity: finish C-09 with Yazid's evidence M1–M7; gate each identity ticket in the order of `auth/IDENTITY-4.0.md` §9. Brief Bob at BOB-12's start (Gate 1 reconciliation) and Daisy at DAISY-19.
+0. Identity: C-09 is DONE (M6 goes into BOB-25's acceptance); gate each identity ticket in the order of `auth/IDENTITY-4.0.md` §9. Brief Bob at BOB-12's start (Gate 1 reconciliation) and Daisy at DAISY-19.
 1. Gate BOB-23 when handed off: the hand-off's browser measurement, CI, one audit, merge, then staging J09.
 2. Gate LANA-02 when handed off: her three checks on her commit, then `staging-journey.yml` with `content_ref` = her sha and `chapter` = `SD5-Matematika-Bab2`, a read of a sample, then merge.
 3. Daisy: the reader walk against `ux/UX-POLISH-REGISTER.md` (UX-01…06), for the UI/UX POLISHED gate.

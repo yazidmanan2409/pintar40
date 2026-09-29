@@ -10459,4 +10459,335 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "DAISY-26-BELAJAR-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? readFileSync(f, "utf8") : "";
+      };
+      const teks = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#x27;/g, "'")
+        .replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+      /**
+       * DAISY-26, the learner's rows of the polish register (UX-05, UX-21,
+       * UX-22, UX-24, UX-27): what the learning home, the assignment page, an
+       * Uji Cepat's orientation, the question player and the result say.
+       */
+      let aksiMod: Record<string, unknown> | null = null;
+      try { aksiMod = await import("../src/components/siklus/aksi") as Record<string, unknown>; } catch { /* reported below */ }
+      const labelTujuan = aksiMod?.labelTujuan as ((t: string, k?: { berjalan?: boolean; belumMembaca?: boolean }) => HleEvent) | undefined;
+      const kunciNama = aksiMod?.kunciNamaAsesmen as ((j: string | null) => HleEvent | null) | undefined;
+      const adaAksi = c.expect(typeof labelTujuan === "function" && typeof kunciNama === "function",
+        "there is no one rule naming a step's button and an assessment's kind (src/components/siklus/aksi.ts: labelTujuan, kunciNamaAsesmen)");
+      const GENERIK: Record<string, string[]> = { id: ["Mulai", "Buka", "Lanjutkan"], en: ["Start", "Open", "Continue"] };
+
+      /**
+       * 1. UX-21: A BUTTON IS NAMED FOR WHERE IT GOES. Every step's button,
+       *    in both languages, says the step and is never a bare «Mulai»,
+       *    «Buka» or «Lanjutkan»: the Pemetaan Awal and the Uji Penguasaan by
+       *    name, «Lanjutkan» only for a session already open, the lessons
+       *    «Mulai» until one is read. The five destinations read differently.
+       */
+      if (adaAksi) {
+        const KASUS: Array<[string, { berjalan?: boolean; belumMembaca?: boolean }]> = [
+          ["PEMETAAN", {}], ["PEMETAAN", { berjalan: true }], ["PETA", {}], ["PELAJARAN", {}], ["PELAJARAN", { belumMembaca: true }],
+          ["PENGUASAAN", {}], ["PENGUASAAN", { berjalan: true }], ["HASIL", {}],
+        ];
+        for (const locale of LOCALES) {
+          const kata = KASUS.map(([l, k]) => t(labelTujuan!(l, k), "learner", { locale }));
+          KASUS.forEach(([l, k], i) => {
+            c.expect(kata[i] !== TANPA_SALINAN && !GENERIK[locale].includes(kata[i]),
+              `(${locale}) the ${l}${k.berjalan ? " (open)" : ""}${k.belumMembaca ? " (unread)" : ""} button reads "${kata[i]}"`);
+          });
+          const pre = t("pretest.title", "learner", { locale });
+          const post = t("posttest.title", "learner", { locale });
+          c.expect(kata[0].includes(pre) && kata[1].includes(pre) && kata[5].includes(post) && kata[6].includes(post),
+            `(${locale}) a test's button does not name its test: ${kata[0]} / ${kata[1]} / ${kata[5]} / ${kata[6]}`);
+          c.expect(kata[0] !== kata[1] && kata[5] !== kata[6] && kata[3] !== kata[4],
+            `(${locale}) starting and continuing read the same`);
+          const lima = [kata[0], kata[2], kata[3], kata[5], kata[7]];
+          c.expect(new Set(lima).size === 5, `(${locale}) two destinations share a button: ${lima.join(" / ")}`);
+        }
+      }
+
+      /**
+       *    RENDERED, the home panel (PanelLanjut) in both languages: the
+       *    eyebrow names the panel and is no button's word; the second button
+       *    opens the assignment's page as «Lihat semua langkah» and is absent
+       *    when the first already goes there. From the SOURCE, the home and
+       *    the assignment page name every button through labelTujuan, the
+       *    home's lessons open at the next unread lesson, and its cards take
+       *    the same actions.
+       */
+      const posisi = (langkah: string, indeks: number, selesai = 0) => ({ langkah, indeks, pelajaranSelesai: selesai, pelajaranTotal: 5, selesai: false });
+      const PANEL = adaAksi ? LOCALES.flatMap((locale) => [
+        { posisi: posisi("PELAJARAN", 2, 3), aksi: { href: "/belajar/t1/pelajaran/l4", labelKey: labelTujuan!("PELAJARAN") } },
+        { posisi: posisi("PELAJARAN", 2, 3), aksi: { href: "/belajar/t1", labelKey: labelTujuan!("PELAJARAN") } },
+        { posisi: posisi("PEMETAAN", 0), aksi: { href: "/belajar/t1/pemetaan", labelKey: labelTujuan!("PEMETAAN") } },
+        { posisi: posisi("HASIL", 4, 5), aksi: { href: "/belajar/t1/hasil", labelKey: labelTujuan!("HASIL") } },
+      ].map((k) => ({ ...k, subjek: "Matematika", judul: "Bab 2: Pecahan", ringkasan: "/belajar/t1", locale, persona: "learner" }))) : [];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/siklus/PanelLanjut.tsx");' +
+        "  const P = m.default?.default ?? m.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_PANEL).map((k) =>" +
+        "    renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(P, k))))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_PANEL: JSON.stringify(PANEL) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(adaAksi && anak.status === 0 && html.length === PANEL.length,
+        `the home panel could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        PANEL.forEach((k, i) => {
+          const locale = k.locale as "id" | "en";
+          const tautan = [...html[i].matchAll(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: m[1], kata: teks(m[2]) }));
+          const alis = teks(/<p class="pin-eyebrow">([\s\S]*?)<\/p>/.exec(html[i])?.[1] ?? "");
+          const utama = t(k.aksi.labelKey, "learner", { locale });
+          const sama = k.aksi.href === k.ringkasan;
+          c.expect(tautan[0]?.href === k.aksi.href && tautan[0]?.kata === utama,
+            `(${locale}) the panel's first button is "${tautan[0]?.kata}" to ${tautan[0]?.href}, not "${utama}" to ${k.aksi.href}`);
+          c.expect(sama ? tautan.length === 1
+            : tautan.length === 2 && tautan[1].href === k.ringkasan && tautan[1].kata === t("siklus.lihat_langkah", "learner", { locale }),
+            `(${locale}) ${sama ? "a second button opens the page the first already opens" : "the second button does not open the assignment's page as «Lihat semua langkah»"}: ${JSON.stringify(tautan)}`);
+          c.expect(alis !== "" && alis !== TANPA_SALINAN && !GENERIK[locale].includes(alis) && tautan.every((x) => x.kata !== alis),
+            `(${locale}) the panel's eyebrow "${alis}" is a button's word`);
+        });
+      }
+      const beranda = code(baca("src", "app", "belajar", "page.tsx"));
+      const tugasHal = code(baca("src", "app", "belajar", "[tugas]", "page.tsx"));
+      c.expect(/const label = labelTujuan\(k\.posisi\.langkah, \{ berjalan: k\.berjalan \}\);/.test(beranda)
+        && (beranda.match(/labelKey: label\b/g) ?? []).length === 5
+        && /\/belajar\/\$\{id\}\/pelajaran\/\$\{l\}/.test(beranda)
+        && /<PanelLanjut\b[^>]*\baksi=\{aksi\(utama\)\}[^>]*\bringkasan=\{`\/belajar\/\$\{utama\.tugas\.learning_assignment_id\}`\}/.test(beranda)
+        && /<KartuTugas\b[^>]*\baksi=\{aksi\(k\)\}/.test(beranda)
+        && !/labelKey: "siklus\./.test(beranda),
+        "the learning home does not name every step's button through labelTujuan, open the lessons at the next unread one, or hand the panel and the cards those actions");
+      c.expect(["PEMETAAN", "PELAJARAN", "PENGUASAAN", "HASIL"].every((l) => tugasHal.includes(`labelTujuan("${l}"`))
+        && !/labelKey: "siklus\./.test(tugasHal),
+        "the assignment page does not name its button through labelTujuan");
+      const panelSrc = code(baca("src", "components", "siklus", "PanelLanjut.tsx"));
+      c.expect(/\{aksi\?\.href !== ringkasan \? \(/.test(panelSrc) && !/siklus\.buka|siklus\.lanjutkan/.test(panelSrc),
+        "the home panel does not drop its second button when both go to the same page");
+
+      /**
+       * 2. UX-22: THE READY LIST IS NOT A PROBLEM. The section of cycles whose
+       *    Uji Penguasaan is ready is headed with that, in both languages, and
+       *    each row says why (every lesson is read) rather than repeating the
+       *    heading. No word the home shows reads «Perlu perhatian».
+       */
+      for (const locale of LOCALES) {
+        const judul = t("siklus.siap.judul", "learner", { locale });
+        const arti = t("siklus.siap.arti", "learner", { locale });
+        c.expect(judul.includes(t("posttest.title", "learner", { locale })) && arti !== TANPA_SALINAN && arti !== judul,
+          `(${locale}) the ready section reads "${judul}" / "${arti}"`);
+      }
+      c.expect(/<h2>\{s\("siklus\.siap\.judul"\)\}<\/h2>/.test(beranda) && /s\("siklus\.siap\.arti"\)/.test(beranda)
+        && /\{s\(labelTujuan\("PENGUASAAN"\)\)\}/.test(beranda),
+        "the learning home's ready section is not headed, explained and buttoned as the ready list");
+      const kunciBeranda = [...new Set([...beranda.matchAll(/s\("([a-z0-9_.]+)"\)/g)].map((m) => m[1]))];
+      const perhatian = kunciBeranda.filter((k) => LOCALES.some((locale) => /^(Perlu perhatian|Needs attention)$/.test(t(k as HleEvent, "learner", { locale }))));
+      c.expect(perhatian.length === 0, `the learning home still says «Perlu perhatian»: ${perhatian.join(", ")}`);
+
+      /**
+       * 3. UX-05: AN UJI CEPAT IS CALLED AN UJI CEPAT. The orientation names
+       *    the assessment by its own kind: QUICK is «Uji Cepat» / «Quick
+       *    Assessment» (the 0090 ruling), the cycle's two tests keep their
+       *    names, and a kind with no product name shows its own title. From
+       *    the SOURCE, the title and the start button both use that name.
+       */
+      if (adaAksi) {
+        const cepat = kunciNama!("QUICK");
+        c.expect(cepat !== null && t(cepat, "learner", { locale: "id" }) === "Uji Cepat" && t(cepat, "learner", { locale: "en" }) === "Quick Assessment",
+          `a Quick Assessment is called "${cepat ? t(cepat, "learner", { locale: "id" }) : "(nothing)"}"`);
+        c.expect(kunciNama!("PRE_TEST") === "pretest.title" && kunciNama!("POST_TEST") === "posttest.title" && kunciNama!("PRACTICE") === null && kunciNama!(null) === null,
+          "the cycle's tests lost their names, or a kind with no product name borrows one");
+      }
+      const permukaan = code(baca("src", "app", "belajar", "_components", "PermukaanAsesmen.tsx"));
+      c.expect(/const namaKunci = kunciNamaAsesmen\(orientasi\.mode\);/.test(permukaan)
+        && /const nama = namaKunci \? s\(namaKunci\) : orientasi\.title;/.test(permukaan)
+        && /judul=\{nama\}/.test(permukaan) && /\{s\("cycle\.open"\)\} \{nama\}/.test(permukaan)
+        && !/"pretest\.title" : "posttest\.title"/.test(permukaan),
+        "the orientation's title and start button do not name the assessment by its own kind");
+
+      /**
+       * 4. UX-24: THE BUTTON SAVES AN ANSWER. «Kunci jawaban» is also "the
+       *    answer key". The button says it saves, in the same word as the
+       *    «Tersimpan» it turns into, in both languages; and no line a learner
+       *    reads, the tour included, speaks of locking an answer. Planted,
+       *    the old line is caught.
+       */
+      const KUNCI = /\bkunci jawaban\b|\bdikunci\b|lalu kunci\b|\block it in\b|\blocked answers?\b/i;
+      c.expect(KUNCI.test("Kunci jawaban ini") && KUNCI.test("Pilih jawaban, lalu kunci. Jawaban yang sudah dikunci tersimpan."),
+        "the planted locking words are not caught");
+      c.expect(/simpan/i.test(t("posttest.confirm", "learner", { locale: "id" })) && /simpan/i.test(t("posttest.confirmed", "learner", { locale: "id" }))
+        && /\bsave\b/i.test(t("posttest.confirm", "learner", { locale: "en" })) && /\bsaved\b/i.test(t("posttest.confirmed", "learner", { locale: "en" })),
+        `the answer's button reads "${t("posttest.confirm", "learner", { locale: "id" })}" / "${t("posttest.confirm", "learner", { locale: "en" })}", not a save that becomes «Tersimpan»`);
+      const mengunci = renderAll().filter((r) => (r.persona === "learner" || r.persona === "public") && KUNCI.test(r.text));
+      c.expect(mengunci.length === 0,
+        `a learner line speaks of locking an answer: ${mengunci.slice(0, 3).map((r) => `${r.event} (${r.locale}) "${r.text.slice(0, 80)}"`).join("; ")}`);
+
+      /**
+       * 5. UX-27: THE RESULT COUNTS «SOAL». The safety lines say «soal» /
+       *    "question" as the rest of the page does, never «butir» / "item",
+       *    and the chapter's bar is its target, not an «Ambang» / "threshold".
+       */
+      for (const k of ["hasil.safety.ok", "hasil.safety.missed"] as const) {
+        const id = t(k, "learner", { locale: "id" });
+        const en = t(k, "learner", { locale: "en" });
+        c.expect(/\bsoal\b/.test(id) && !/\bbutir\b/i.test(id) && /\bquestion\b/.test(en) && !/\bitem\b/i.test(en),
+          `${k} reads "${id}" / "${en}"`);
+      }
+      c.expect(!/ambang/i.test(t("siklus.ambang", "learner", { locale: "id" })) && !/threshold/i.test(t("siklus.ambang", "learner", { locale: "en" })),
+        `the chapter's bar reads "${t("siklus.ambang", "learner", { locale: "id" })}" / "${t("siklus.ambang", "learner", { locale: "en" })}"`);
+
+      return c.verdict(
+        "every step's button, in both languages, names where it goes and is never a bare Mulai, Buka or Lanjutkan (the two " +
+        "tests by name, Lanjutkan only for an open session); rendered, the home panel's eyebrow is no button's word and its " +
+        "second button opens the assignment's page as «Lihat semua langkah», only when the first goes elsewhere; the home " +
+        "and the assignment page name their buttons through that one rule and the lessons open at the next unread one; the " +
+        "ready list is headed as ready, each row saying why, and nothing on the home reads «Perlu perhatian»; a Quick " +
+        "Assessment's orientation and start button say Uji Cepat; the answer's button saves and becomes «Tersimpan», with no " +
+        "learner line, the tour included, speaking of locking (planted, caught); and the result says soal and a target",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "DAISY-26-MENGAJAR-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? readFileSync(f, "utf8") : "";
+      };
+      const teks = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#x27;/g, "'")
+        .replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+      /**
+       * DAISY-26, the teacher's rows of the polish register (UX-03, UX-06,
+       * UX-20, UX-32): what the Uji Cepat page, «Lihat bukti», the class page
+       * and Siapkan say.
+       */
+
+      /**
+       * 1. UX-03: A REFUSAL SAYS ONLY WHAT IS TRUE. The configure stage
+       *    renders only when no Uji Cepat is running, so a refusal shown there
+       *    had another cause: it says the Quick Assessment was not made
+       *    available and nothing changed, and never that one is running. The
+       *    running stage, where that is true, says it. From the SOURCE, and
+       *    the copy in both languages.
+       */
+      const cepat = code(baca("src", "app", "mengajar", "[kelas]", "uji-cepat", "page.tsx"));
+      const iHidup = cepat.indexOf("if (hidup) {");
+      const iAtur = cepat.indexOf("const kursus =");
+      const hidupBlok = iHidup >= 0 && iAtur > iHidup ? cepat.slice(iHidup, iAtur) : "";
+      const aturBlok = iAtur >= 0 ? cepat.slice(iAtur) : "";
+      c.expect(/q\.cepat === "gagal" \? <BarisHasil nada="gagal">\{s\("mengajar\.cepat\.sudah_ada"\)\}<\/BarisHasil>/.test(hidupBlok),
+        "the running stage does not say a launch was refused because one is running");
+      c.expect(/q\.cepat === "gagal" \? <BarisHasil nada="gagal">\{s\("mengajar\.cepat\.gagal"\)\}<\/BarisHasil>/.test(aturBlok)
+        && !/mengajar\.cepat\.sudah_ada/.test(aturBlok),
+        "the configure stage, where none is running, still says one is running, or does not say the launch failed");
+      for (const locale of LOCALES) {
+        const x = t("mengajar.cepat.gagal", "educator", { locale });
+        c.expect(x !== TANPA_SALINAN && (locale === "id" ? /tidak ada yang berubah/ : /nothing has changed/).test(x)
+          && !/sudah ada|berjalan|already open|running|rujukan|reference/i.test(x) && INTERNAL_WORDS.every((w) => !x.includes(w)),
+          `(${locale}) the refusal line reads "${x}"`);
+      }
+
+      /**
+       * 2. UX-06: EVERY OPEN TEST IS COUNTED. «Keadaan hari ini» shows one
+       *    block per test still open, soonest to close first and the
+       *    Pemetaan Awal before the Uji Penguasaan when they close together,
+       *    or the most recently closed one when none is open. RENDERED, as the
+       *    staging case: both tests of a lesson open, five of 25 in each, and
+       *    both named with their own counts. From the SOURCE, the page hands
+       *    it every assessment and keeps no single "focus".
+       */
+      const A = (id: string, judul: string, keadaan: string, mode: string, ditutup: string | null, mengumpulkan: number) =>
+        ({ id, judul, keadaan, mode, ditutup, mengumpulkan });
+      const HARI = [
+        { asesmen: [A("q", "Uji Cepat — 20 Sep", "CLOSED", "QUICK", "2026-09-20T10:00:00+07:00", 9),
+          A("post", "Cek penguasaan", "OPEN", "POST_TEST", "2026-10-01T23:59:59+07:00", 5),
+          A("pre", "Pemetaan awal", "OPEN", "PRE_TEST", "2026-10-01T23:59:59+07:00", 5),
+          A("lama", "Tanpa batas", "OPEN", "STANDALONE", null, 1)], murid: 25, locale: "id" },
+        { asesmen: [A("a", "Pertama", "CLOSED", "PRE_TEST", "2026-09-10T10:00:00+07:00", 3),
+          A("b", "Terakhir", "CLOSED", "POST_TEST", "2026-09-20T10:00:00+07:00", 4)], murid: 25, locale: "en" },
+        { asesmen: [], murid: 25, locale: "id" },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/bukti/KeadaanHariIni.tsx");' +
+        "  const K = m.default?.default ?? m.default;" +
+        "  const pilih = m.keadaanHariIni ?? m.default?.keadaanHariIni;" +
+        "  const kasus = JSON.parse(process.env.KASUS_HARI);" +
+        "  process.stdout.write(JSON.stringify({ html: kasus.map((k) => renderToStaticMarkup(h(K, k))), pilih: kasus.map((k) => pilih(k.asesmen).map((a) => a.id)) }));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_HARI: JSON.stringify(HARI) },
+      });
+      let hasil: { html: string[]; pilih: string[][] } = { html: [], pilih: [] };
+      try { hasil = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && hasil.html.length === HARI.length,
+        `«Keadaan hari ini» could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        c.expect(JSON.stringify(hasil.pilih) === JSON.stringify([["pre", "post", "lama"], ["b"], []]),
+          `the tests shown are ${JSON.stringify(hasil.pilih)}: every open one, soonest first and the Pemetaan Awal first on a tie, else the latest closed`);
+        const x = teks(hasil.html[0]);
+        c.expect(x.includes("Pemetaan awal") && x.includes("Cek penguasaan") && x.indexOf("Pemetaan awal") < x.indexOf("Cek penguasaan")
+          && (x.match(/5 \/ 25/g) ?? []).length === 2 && !x.includes("Uji Cepat — 20 Sep"),
+          `with both tests of a lesson open, «Keadaan hari ini» reads: ${x.slice(0, 240)}`);
+        c.expect(teks(hasil.html[2]) === t("mengajar.bukti.kosong", "educator", { locale: "id" }),
+          "with nothing open or finished, «Keadaan hari ini» does not say so");
+      }
+      const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
+      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\} \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
+        "«Lihat bukti» still shows one focus test rather than every open one");
+
+      /**
+       * 3. UX-20: A RELEASE IS KNOWN BY ITS DATE. Neither the class page nor
+       *    Siapkan shows a teacher the release's version number; the date,
+       *    which now starts the line, says which release.
+       */
+      for (const f of [["src", "app", "mengajar", "[kelas]", "page.tsx"], ["src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"]]) {
+        const src = code(baca(...f));
+        c.expect(src.length > 0 && !/\.versi\b/.test(src) && !/mengajar\.siap\.terbitan/.test(src) && /mengajar\.siap\.diterbitkan/.test(src),
+          `${f.slice(2).join("/")} still shows a release's version number, or no longer its date`);
+      }
+      c.expect(/^[A-Z]/.test(t("mengajar.siap.diterbitkan", "educator", { locale: "id" })) && /^[A-Z]/.test(t("mengajar.siap.diterbitkan", "educator", { locale: "en" })),
+        "the release's date line, which now starts the line, does not start with a capital");
+
+      /**
+       * 4. UX-32: THE RANGE IS THE TEACHER'S CHOICE. Under «Jumlah soal» the
+       *    hint reads «Antara 3 dan 20 soal.», in both languages, and nothing
+       *    about who set the bound. From the SOURCE and the copy.
+       */
+      c.expect(/\{s\("mengajar\.cepat\.jumlah\.antara"\)\} \{format\.number\(soalMin, locale\)\} \{s\("mengajar\.cepat\.jumlah\.dan"\)\}/.test(cepat)
+        && /\{format\.number\(soalMax, locale\)\} \{s\("mengajar\.siap\.soal"\)\}\./.test(cepat) && !/jumlah\.arti/.test(cepat),
+        "the Jumlah soal hint is not «Antara ‹min› dan ‹max› soal.»");
+      const mesin = renderAll().filter((r) => /ditetapkan platform|set by the platform/i.test(r.text));
+      c.expect(mesin.length === 0, `a line still tells a teacher who set a bound: ${mesin.slice(0, 2).map((r) => r.event).join(", ")}`);
+      for (const locale of LOCALES) {
+        const kalimat = `${t("mengajar.cepat.jumlah.antara", "educator", { locale })} 3 ${t("mengajar.cepat.jumlah.dan", "educator", { locale })} 20 ${t("mengajar.siap.soal", "educator", { locale })}.`;
+        c.expect(kalimat === (locale === "id" ? "Antara 3 dan 20 soal." : "Between 3 and 20 items."), `(${locale}) the hint reads "${kalimat}"`);
+      }
+
+      return c.verdict(
+        "a refused Uji Cepat says it was not made available and nothing changed, in both languages, wherever none is " +
+        "running, and says one is running only on the running stage; rendered, «Keadaan hari ini» shows every open test with " +
+        "its own name and counts (both tests of a lesson, five of 25 each), soonest first with the Pemetaan Awal first on a " +
+        "tie, else the latest closed one, else the empty line; the class page and Siapkan know a release by its date, with " +
+        "no version number; and the Jumlah soal hint reads «Antara 3 dan 20 soal.» with no line saying who set the bound",
+      );
+    },
+  },
 ];

@@ -573,6 +573,7 @@ export type HleEvent =
   | "lesson.saved"
   | "posttest.title"
   | "posttest.intro"
+  | "ujicepat.title"
   | "posttest.elapsed"
   | "posttest.pause"
   | "posttest.resume"
@@ -614,12 +615,20 @@ export type HleEvent =
   | "siklus.halo"
   | "siklus.beranda"
   | "siklus.hari_ini"
-  | "siklus.lanjutkan"
-  | "siklus.perhatian"
+  | "siklus.panel.eyebrow"
+  | "siklus.lihat_langkah"
+  | "siklus.aksi.pemetaan"
+  | "siklus.aksi.pemetaan_lanjut"
+  | "siklus.aksi.pelajaran_mulai"
+  | "siklus.aksi.pelajaran"
+  | "siklus.aksi.penguasaan"
+  | "siklus.aksi.penguasaan_lanjut"
+  | "siklus.aksi.hasil"
+  | "siklus.siap.judul"
+  | "siklus.siap.arti"
   | "siklus.milik_anda"
   | "siklus.terbuka"
   | "siklus.buka"
-  | "siklus.mulai"
   | "siklus.di.pemetaan"
   | "siklus.di.peta"
   | "siklus.di.pelajaran"
@@ -1054,7 +1063,6 @@ export type HleEvent =
   | "mengajar.siap.intro"
   | "mengajar.siap.pilih"
   | "mengajar.siap.pilih.kosong"
-  | "mengajar.siap.terbitan"
   | "mengajar.siap.diterbitkan"
   | "mengajar.siap.pelajaran"
   | "mengajar.siap.soal"
@@ -1094,7 +1102,8 @@ export type HleEvent =
   | "mengajar.cepat.bab.arti"
   | "mengajar.cepat.bab.kosong"
   | "mengajar.cepat.jumlah"
-  | "mengajar.cepat.jumlah.arti"
+  | "mengajar.cepat.jumlah.antara"
+  | "mengajar.cepat.jumlah.dan"
   | "mengajar.cepat.jendela"
   | "mengajar.cepat.jendela.arti"
   | "mengajar.cepat.menit"
@@ -1118,6 +1127,7 @@ export type HleEvent =
   | "mengajar.cepat.hidup.catatan"
   | "mengajar.cepat.hidup.siapa"
   | "mengajar.cepat.sudah_ada"
+  | "mengajar.cepat.gagal"
   | "mengajar.bukti.eyebrow"
   | "mengajar.bukti.judul"
   | "mengajar.bukti.intro"
@@ -2261,6 +2271,8 @@ const table: Table = {
   "lesson.saved": { default: "Posisi bacaan tersimpan.", en: "Your place is saved." },
 
   "posttest.title": { default: "Uji Penguasaan", en: "Mastery Check" },
+  // DAISY-26 (UX-05): a teacher's Quick Assessment is called what the product calls it (0090), never the Uji Penguasaan whose player it borrows
+  "ujicepat.title": { default: "Uji Cepat", en: "Quick Assessment" },
   "posttest.intro": { default: "Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi.", en: "Work through it calmly. You can flag a question and come back to it." },
   "posttest.elapsed": { default: "Waktu berjalan", en: "Time elapsed" },
   "posttest.pause": { default: "Simpan & Jeda", en: "Save & pause" },
@@ -2270,7 +2282,8 @@ const table: Table = {
   "posttest.navigator": { default: "Daftar soal", en: "Question list" },
   "posttest.answered": { default: "Sudah dijawab", en: "Answered" },
   "posttest.unanswered": { default: "Belum dijawab", en: "Not answered" },
-  "posttest.confirm": { default: "Kunci jawaban ini", en: "Confirm this answer" },
+  // DAISY-26 (UX-24): «kunci jawaban» is also "the answer key"; the button saves the answer, and then reads «Tersimpan»
+  "posttest.confirm": { default: "Simpan jawaban ini", en: "Save this answer" },
   "posttest.confirmed": { default: "Tersimpan", en: "Saved" },
   "posttest.submit": { default: "Kumpulkan", en: "Submit" },
   "posttest.submit_confirm": { default: "Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah.", en: "Submit now? Once submitted, answers cannot be changed." },
@@ -2288,8 +2301,9 @@ const table: Table = {
 
   "hasil.title": { default: "Hasil", en: "Result" },
   "hasil.mastery": { default: "Penguasaan", en: "Mastery" },
-  "hasil.safety.ok": { default: "Semua butir penting sudah dijawab dengan tepat.", en: "You answered every important item correctly." },
-  "hasil.safety.missed": { default: "Ada butir penting yang belum tepat. Mari kita lihat bersama.", en: "An important item is not right yet. Let us look at it together." },
+  // DAISY-26 (UX-27): the page counts «soal», so these do too
+  "hasil.safety.ok": { default: "Semua soal penting sudah dijawab dengan tepat.", en: "You answered every important question correctly." },
+  "hasil.safety.missed": { default: "Ada soal penting yang belum tepat. Mari kita lihat bersama.", en: "An important question is not right yet. Let us look at it together." },
   "hasil.domain": { default: "Per bagian", en: "By section" },
   "hasil.review": { default: "Tinjau kembali", en: "Look back over it" },
   "hasil.review.open": { default: "Buka pembahasan", en: "Open the explanation" },
@@ -2307,12 +2321,22 @@ const table: Table = {
   "siklus.halo": { default: "Halo", en: "Hello" },
   "siklus.beranda": { default: "Beranda", en: "Home" },
   "siklus.hari_ini": { default: "Ini yang sedang berjalan hari ini.", en: "Here is what is under way for you today." },
-  "siklus.lanjutkan": { default: "Lanjutkan", en: "Continue" },
-  "siklus.perhatian": { default: "Perlu perhatian", en: "Needs attention" },
+  // DAISY-26 (UX-21): the panel is named for what it holds; its buttons are named for where they go (src/components/siklus/aksi.ts)
+  "siklus.panel.eyebrow": { default: "Langkah berikutnya", en: "Your next step" },
+  "siklus.lihat_langkah": { default: "Lihat semua langkah", en: "See all the steps" },
+  "siklus.aksi.pemetaan": { default: "Mulai Pemetaan Awal", en: "Start the Initial Mapping" },
+  "siklus.aksi.pemetaan_lanjut": { default: "Lanjutkan Pemetaan Awal", en: "Continue the Initial Mapping" },
+  "siklus.aksi.pelajaran_mulai": { default: "Mulai pelajaran", en: "Start the lessons" },
+  "siklus.aksi.pelajaran": { default: "Lanjutkan pelajaran", en: "Continue the lessons" },
+  "siklus.aksi.penguasaan": { default: "Mulai Uji Penguasaan", en: "Start the Mastery Check" },
+  "siklus.aksi.penguasaan_lanjut": { default: "Lanjutkan Uji Penguasaan", en: "Continue the Mastery Check" },
+  "siklus.aksi.hasil": { default: "Lihat hasil", en: "See the result" },
+  // DAISY-26 (UX-22): what the section holds, not «Perlu perhatian», which read as a problem; each row says why it is ready
+  "siklus.siap.judul": { default: "Siap untuk Uji Penguasaan", en: "Ready for the Mastery Check" },
+  "siklus.siap.arti": { default: "Semua pelajaran sudah dibaca.", en: "Every lesson has been read." },
   "siklus.milik_anda": { default: "Pembelajaran Anda", en: "Your learning" },
   "siklus.terbuka": { default: "Bisa dikerjakan sekarang", en: "You can do these now" },
   "siklus.buka": { default: "Buka", en: "Open" },
-  "siklus.mulai": { default: "Mulai", en: "Start" },
   "siklus.di.pemetaan": { default: "Mulai dari Pemetaan Awal", en: "Begin with the Initial Mapping" },
   "siklus.di.peta": { default: "Peta bacaan sudah siap", en: "The reading map is ready" },
   "siklus.di.pelajaran": { default: "Sedang di Pelajaran", en: "You are at Lessons" },
@@ -2342,7 +2366,8 @@ const table: Table = {
   "siklus.catatan.judul": { default: "Tentang catatan sesi", en: "About session records" },
   "siklus.catatan.isi": { default: "Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis.", en: "During the assessment, certain session activity may be recorded to support process integrity. These records are observations and do not automatically determine your result." },
   "siklus.nanti": { default: "Nanti saja", en: "Not now" },
-  "siklus.ambang": { default: "Ambang untuk bab ini", en: "The threshold for this chapter is" },
+  // DAISY-26 (UX-27): «Ambang» is hard for a primary-school reader; the mastery bar is the chapter's target, not a pass mark
+  "siklus.ambang": { default: "Target untuk bab ini:", en: "The target for this chapter:" },
   "siklus.tepat_dari": { default: "Terjawab tepat", en: "You answered" },
   "siklus.setelah": { default: "Setelah bab ini", en: "After this chapter" },
   "siklus.berikutnya": { default: "Apa berikutnya", en: "What next" },
@@ -2677,7 +2702,8 @@ const table: Table = {
   "tur.nt.3.judul": { default: "Tempat membaca dan menonton", en: "Where you read and watch" },
   "tur.nt.3.isi": { default: "Peta Bacaan menunjukkan bagian yang perlu dibaca lebih dulu, beserta alasannya. Pelajaran dibuka dari sana, dan posisi baca tersimpan.", en: "The Reading Map shows which part to read first, and why. Lessons open from there, and your place is saved." },
   "tur.nt.4.judul": { default: "Saat mengerjakan soal", en: "While you answer" },
-  "tur.nt.4.isi": { default: "Pilih satu jawaban, lalu kunci. Jawaban yang sudah dikunci tersimpan. Bila perlu, tombol bantuan kecil bisa muncul — memakainya tidak mengurangi apa pun.", en: "Choose one answer, then lock it in. Locked answers are saved. If it is needed, a small help button may appear — using it never takes anything away." },
+  // DAISY-26 (UX-24): the tour says what the button says, «Simpan jawaban ini»
+  "tur.nt.4.isi": { default: "Pilih satu jawaban, lalu simpan. Jawaban yang sudah Anda simpan tercatat. Bila perlu, tombol bantuan kecil bisa muncul — memakainya tidak mengurangi apa pun.", en: "Choose one answer, then save it. The answers you save are recorded. If it is needed, a small help button may appear — using it never takes anything away." },
   "tur.nt.5.judul": { default: "Hasil setiap materi", en: "Results for each assignment" },
   "tur.nt.5.isi": { default: "Hasil adalah langkah terakhir: penguasaan, bagian yang perlu diulang, dan perubahan sejak Pemetaan Awal. Perbandingannya selalu dengan diri sendiri.", en: "Results are the last step: mastery, what to revisit, and what has changed since the Initial Mapping. The comparison is always with yourself." },
   "tur.nt.6.judul": { default: "Sertifikat", en: "Certificates" },
@@ -2711,7 +2737,7 @@ const table: Table = {
   "tur.sm.3.judul": { default: "Tempat belajar", en: "Where you learn" },
   "tur.sm.3.isi": { default: "Peta Bacaan menunjukkan bagian yang perlu dibaca lebih dulu, beserta alasannya. Pelajaran dibuka dari sana, dan posisi baca tersimpan.", en: "The Reading Map shows which part to read first, and why. Lessons open from there, and your place is saved." },
   "tur.sm.4.judul": { default: "Mengerjakan penilaian", en: "Taking an assessment" },
-  "tur.sm.4.isi": { default: "Pilih jawaban, lalu kunci. Jawaban yang sudah dikunci tersimpan. Uji Cepat yang dibuka guru juga muncul di halaman Belajar.", en: "Choose an answer, then lock it in. Locked answers are saved. Quick Assessments your teacher opens also appear on the Learning page." },
+  "tur.sm.4.isi": { default: "Pilih jawaban, lalu simpan. Jawaban yang sudah Anda simpan tercatat. Uji Cepat yang dibuka guru juga muncul di halaman Belajar.", en: "Choose an answer, then save it. The answers you save are recorded. Quick Assessments your teacher opens also appear on the Learning page." },
   "tur.sm.5.judul": { default: "Melihat hasil", en: "Seeing results" },
   "tur.sm.5.isi": { default: "Hasil ada di langkah terakhir setiap materi: penguasaan, bagian yang perlu diulang, dan perubahan sejak Pemetaan Awal. Dibandingkan dengan diri sendiri, bukan dengan orang lain.", en: "Results are the last step of every assignment: mastery, what to revisit, and how you've changed since the Initial Mapping. Compared with yourself, never with others." },
   "tur.sm.6.judul": { default: "Sertifikat", en: "Certificates" },
@@ -2997,8 +3023,8 @@ const table: Table = {
   "mengajar.siap.intro": { default: "Belum ada yang berubah untuk murid. Semua di bawah ini baru berlaku setelah Anda menekan tombol sediakan di bagian akhir.", en: "Nothing has changed for learners yet. Everything below only takes effect after you press the make-available button at the end." },
   "mengajar.siap.pilih": { default: "Pilih materi yang akan disediakan", en: "Choose the material to make available" },
   "mengajar.siap.pilih.kosong": { default: "Belum ada materi terbitan sekolah yang bisa disediakan untuk kelas ini.", en: "The school has published no material that can be made available to this class yet." },
-  "mengajar.siap.terbitan": { default: "Terbitan", en: "Release" },
-  "mengajar.siap.diterbitkan": { default: "diterbitkan sekolah", en: "published by the school" },
+  // DAISY-26 (UX-20): a release is known by its date, which now starts the line; the version number is gone
+  "mengajar.siap.diterbitkan": { default: "Diterbitkan sekolah", en: "Published by the school" },
   "mengajar.siap.pelajaran": { default: "pelajaran", en: "lessons" },
   "mengajar.siap.soal": { default: "soal", en: "items" },
   "mengajar.siap.terima": { default: "Yang akan diterima murid", en: "What learners receive" },
@@ -3052,7 +3078,9 @@ const table: Table = {
   "mengajar.cepat.bab.arti": { default: "Soal diambil dari terbitan yang sudah diterbitkan sekolah untuk bab ini.", en: "Items come from the release the school has published for this chapter." },
   "mengajar.cepat.bab.kosong": { default: "Belum ada bab yang disediakan untuk kelas ini, jadi belum ada soal yang bisa diambil.", en: "No chapter has been made available to this class yet, so there are no items to draw from." },
   "mengajar.cepat.jumlah": { default: "Jumlah soal", en: "Number of items" },
-  "mengajar.cepat.jumlah.arti": { default: "Batas ini ditetapkan platform, bukan oleh halaman ini.", en: "This bound is set by the platform, not by this page." },
+  // DAISY-26 (UX-32): the range as the teacher's choice, «Antara 3 dan 20 soal.», not the machinery behind it
+  "mengajar.cepat.jumlah.antara": { default: "Antara", en: "Between" },
+  "mengajar.cepat.jumlah.dan": { default: "dan", en: "and" },
   "mengajar.cepat.jendela": { default: "Jendela", en: "Window" },
   "mengajar.cepat.jendela.arti": { default: "Berhitung sejak disediakan. Tiap murid mendapat satu kesempatan.", en: "Counted from the moment it is made available. Each learner gets one attempt." },
   "mengajar.cepat.menit": { default: "menit", en: "min" },
@@ -3076,6 +3104,8 @@ const table: Table = {
   "mengajar.cepat.hidup.catatan": { default: "Angka di atas adalah hitungan, bukan penilaian. Yang belum mengumpulkan mungkin belum membuka PINTAR.", en: "The numbers above are counts, not judgments. Those who have not submitted may simply not have opened PINTAR." },
   "mengajar.cepat.hidup.siapa": { default: "Lihat siapa yang sudah mengumpulkan", en: "See who has submitted" },
   "mengajar.cepat.sudah_ada": { default: "Sudah ada Uji Cepat yang berjalan di kelas ini. Tunggu jendelanya berakhir sebelum menyediakan yang berikutnya.", en: "A Quick Assessment is already open in this class. Wait for its window to end before making another available." },
+  // DAISY-26 (UX-03): any other refusal. It names no cause it cannot know (the action passes none yet), says nothing changed, and what to try
+  "mengajar.cepat.gagal": { default: "Uji Cepat belum disediakan, dan tidak ada yang berubah di kelas ini. Coba lagi dengan jumlah soal lebih sedikit atau bab lain. Bila tetap belum bisa, sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "The Quick Assessment was not made available, and nothing has changed in this class. Try again with fewer items or another chapter. If it still does not work, tell whoever looks after PINTAR at your school." },
   "mengajar.bukti.eyebrow": { default: "Bukti", en: "Evidence" },
   "mengajar.bukti.judul": { default: "Apa yang sudah bisa disimpulkan", en: "What can be concluded so far" },
   "mengajar.bukti.intro": { default: "PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum.", en: "PINTAR only concludes when the official evidence is enough. Not yet enough does not mean bad — it means not yet." },
