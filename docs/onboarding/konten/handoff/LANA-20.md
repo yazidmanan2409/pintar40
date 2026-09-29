@@ -187,3 +187,24 @@ Checked and consistent (no error):
 ## Questions for the coordinator
 
 None.
+
+## Round 2 (coordinator's review)
+
+1. **The LT6 stem** now reads «Kelas A terdiri atas 40 siswa dan kelas B atas 25 siswa. Mengapa hasil
+   ulangan kedua kelas sebaiknya dibandingkan dengan frekuensi relatif?» The options and the key
+   are unchanged.
+2. **Lesson 3, the uses of the mode:**
+   - It now reads «Modus cocok untuk data kualitatif, misalnya merek atau warna yang paling banyak
+     dipilih. Modus juga berguna untuk data kuantitatif seperti ukuran sepatu, jika yang penting
+     adalah ukuran yang paling laku.»
+   - This matches lesson 1's line between quantitative and categorical data.
+   - Asserted: the new wording is present, and «data kualitatif, misalnya ukuran sepatu» is gone.
+3. **Optional, taken:** lesson 6's example now says «pada bulan-bulan panas», as PB8 does. An
+   assertion checks that no lesson contains «musim panas».
+
+**Gate after round 2:**
+- 3.358 assertions with `--kutipan` (3.357 without), 49 of 49 quotations.
+- periksa_mutu is 0/0 with the CSV, and the package rebuilds byte-identically.
+- Against `9d7feb9`, the package differs in exactly three fields: the bodies of lessons 3 and 6
+  and the LT6 stem.
+- The regression is unchanged; lint shows 0 errors and the 2 old warnings.

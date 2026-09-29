@@ -341,7 +341,7 @@ Dua siswa lain menambahkan 20 dan 22 baju. Dengan 12 data, mean menjadi 102 : 12
 
 Mean naik paling banyak, karena mean memakai semua nilai dan terpengaruh oleh data yang sangat berbeda (**pencilan**). Median berubah sedikit, dan modus tidak berubah.
 
-- Modus cocok untuk data kualitatif, misalnya ukuran sepatu yang paling laku.
+- Modus cocok untuk data kualitatif, misalnya merek atau warna yang paling banyak dipilih. Modus juga berguna untuk data kuantitatif seperti ukuran sepatu, jika yang penting adalah ukuran yang paling laku.
 - Median cocok untuk data kuantitatif yang mempunyai pencilan.
 - Mean memakai seluruh data, tetapi terpengaruh oleh pencilan.
 
@@ -458,7 +458,7 @@ Korelasi **kuat** jika titik-titiknya sangat dekat dengan sebuah garis lurus, da
 
 Tidak semua korelasi menunjukkan hubungan sebab-akibat. Data Bima saja belum membuktikan bahwa membaca buku **menyebabkan** nilai naik; mungkin ada hal lain, misalnya Bima juga makin rajin belajar. Teman Bima yang membaca buku sama banyaknya bisa saja mendapat nilai jauh berbeda.
 
-Contoh lain: di sebuah kota, penjualan es krim dan jumlah orang yang berenang sama-sama naik pada musim panas. Keduanya berkorelasi positif, tetapi es krim tidak menyebabkan orang berenang; keduanya dipengaruhi cuaca.
+Contoh lain: di sebuah kota, penjualan es krim dan jumlah orang yang berenang sama-sama naik pada bulan-bulan panas. Keduanya berkorelasi positif, tetapi es krim tidak menyebabkan orang berenang; keduanya dipengaruhi cuaca.
 
 ## Rangkuman Bab 6
 
@@ -485,6 +485,11 @@ for _p in PELAJARAN:
     cek(not re.search(r"\b[Ss]alah\b", _p["isi"]), f"lesson {_p['no']}: «salah»")
     notasi(_p["isi"], f"lesson {_p['no']}")
     notasi(_p["ringkasan"], f"lesson {_p['no']} ringkasan")
+# Round 2: shoe size is quantitative; the qualitative example is merek or warna; no «musim panas».
+cek("Modus cocok untuk data kualitatif, misalnya merek atau warna" in PELAJARAN[2]["isi"]
+    and "data kualitatif, misalnya ukuran sepatu" not in PELAJARAN[2]["isi"]
+    and "Modus juga berguna untuk data kuantitatif seperti ukuran sepatu" in PELAJARAN[2]["isi"])
+cek(not any("musim panas" in _p["isi"] for _p in PELAJARAN))
 # The value lines of Bima's data in lesson 6 are the data of Tabel 6.8.
 cek(all(v in NILAI_B for v in (50, 58, 60, 70, 80, 85)) and dict(zip(BUKU_B, NILAI_B))[0] == 50)
 cek(sorted(y for x, y in zip(BUKU_B, NILAI_B) if x == 2) == [58, 60] and dict(zip(BUKU_B, NILAI_B))[7] == 85)
@@ -686,7 +691,7 @@ soal("LT5", 2, "Pada sebuah histogram, 16% siswa mendapat nilai antara 70 dan 75
     ("184", False, "16 dikurangkan dari 200. 16% masih dikalikan dengan 200.", "SMA10-M-B6-04", "=enam_belas"),
     ("3,2", False, "16% dikalikan 20, bukan 200.", "SMA10-M-B6-04", "=enam_belas"),
 ])
-soal("LT6", 2, "Kelas A terdiri atas 40 siswa dan kelas B atas 25 siswa. Mengapa hasil ulangannya lebih baik dibandingkan dengan frekuensi relatif?", "D", [
+soal("LT6", 2, "Kelas A terdiri atas 40 siswa dan kelas B atas 25 siswa. Mengapa hasil ulangan kedua kelas sebaiknya dibandingkan dengan frekuensi relatif?", "D", [
     ("karena banyak siswa kedua kelas berbeda", True, "Benar. Dengan persentase, kelas yang berbeda banyak siswanya dapat dibandingkan secara adil.", "", "relatif_banding"),
     ("karena frekuensi relatif selalu lebih besar", False, "Frekuensi relatif tidak lebih besar; ia hanya menyatakan bagian dari seluruh data.", "SMA10-M-B6-04", "relatif_banding"),
     ("karena histogram tidak dapat memakai frekuensi", False, "Histogram dapat memakai frekuensi maupun frekuensi relatif.", "SMA10-M-B6-04", "frek_relatif"),
