@@ -6,7 +6,7 @@
   - `a31a1a8`: the two standing assertions the first full proof found red (see PROOF);
   - `8a44044`: your 29 Sep rulings on the six questions.
 - **Manifest:** v116. BOB-34 took 115 and BOB-24 took 116. main's 413 ids are all kept, plus BOB34-K01 and nine F16 ids: 423 in all. You set the final number.
-- **One `ci.yml` run:** @@CI@@.
+- **One `ci.yml` run:** CI #230 (run `36544435566`), dispatched on `a2fdaae` (the code at `8a44044`, plus hand-off docs only).
 
 ## CHANGED
 
@@ -127,7 +127,10 @@ The `ci.yml` red-case matrix gains `db-bob24-gates`, with the same harness and f
 - **Shared red cases:** all 17 gates, `db-bob24-gates` included, exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 254 of 254.
 
 ## CI
-@@CIDETAIL@@
+- **CI #230**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at `a2fdaae`: https://github.com/yazidmanan2409/pintar40/actions/runs/36544435566
+- It carries BOB-24 and BOB-34 together, as ruled, with `main` `73c0be5` merged in.
+- The red-case matrix gains `db-bob24-gates`.
+- I don't poll it: you read the run at the gate.
 
 ## CONTRACT
 For Gate 3, the routes and Daisy's pages. All refusals are SQLSTATE PR040 with the code in DETAIL, except 42501.
@@ -181,7 +184,7 @@ Yes, for the one `ci.yml` run with BOB-34, gated together.
 ### Summary (ready to paste)
 ```
 BOB-24 (identity Gate 2, DB only) with BOB-34, ready for the gate.
-Code at 8a44044; main 73c0be5 merged. Manifest v116 (you set the final). One ci.yml run: see CI.
+Code at 8a44044; main 73c0be5 merged. Manifest v116 (you set the final). One ci.yml run: CI #230 (run 36544435566) on a2fdaae.
 - BOB-34 (7445c1b): a refused Uji Cepat carries bab, soal and menit as sent; the page reopens its form.
 - BOB-24: migration 20261021100000 adds:
   - PINTAR ID on persons (random, immutable, normalised input);
