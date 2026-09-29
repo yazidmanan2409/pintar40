@@ -30,7 +30,7 @@ Six text lessons, 23 pages:
 5. Pengurangan Pecahan (subbab C)
 6. Pengurangan Pecahan Campuran dan Soal Cerita (subbab C), with the recap
 
-The lessons use the player's fraction bar, `[[visual:pecahan|a/b]]`, eight times, all proper
+The lessons use the player's fraction bar, `[[visual:pecahan|a/b]]`, seven times, all proper
 fractions as the player requires. Simplifying uses FPB and making denominators equal uses KPK,
 both from Bab 2.
 
