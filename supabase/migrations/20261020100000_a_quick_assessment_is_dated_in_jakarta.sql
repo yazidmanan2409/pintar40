@@ -205,12 +205,13 @@ begin
   if v_src !~ 'public\.quick_assessment_label\(now\(\)\)' or v_src ~ 'Mon YYYY' then
     raise exception 'BOB-33: launch_quick_assessment does not label with quick_assessment_label(now())';
   end if;
-  -- nothing else in the function moved: every refusal sentence of 0090 is here
+  -- nothing else in the function moved: all 12 refusal sentences of 0090 are here
   foreach v_lama in array array[
     'no person in this session', 'unknown class %', 'a quick assessment is launched for a class or cohort, not a %',
     'launching a quick assessment requires CAN_QUICK_ASSESSMENT over this class', 'unknown module %',
     'that module belongs to another institution (INV-13)', 'a quick assessment carries between 3 and 20 questions, not %',
     'a quick assessment runs between 5 and 60 minutes, not %', 'QUICK has no mode policy row',
+    'the QUICK mode policy reaches the EXAM tier; that is an INV-12 violation, not a configuration',
     'too many quick assessments launched in this minute for this institution',
     'this module has % drawable question(s) at the % tier; a % question quick assessment cannot be filled'] loop
     if position(v_lama in v_src) = 0 then
