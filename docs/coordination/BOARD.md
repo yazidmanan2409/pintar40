@@ -126,7 +126,7 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 
 **PAUSE PLAN (Yazid, 29 Sep). IN EFFECT from LANA-21's CONTENT PASS (29 Sep).** The team pauses once Lana's SMA X Matematika Bab 7 (LANA-21) has passed and everything found along the way is in order. Nobody stops mid-ticket; each lane stops at its next clean boundary: 
 - **Lana:** LANA-20 (Bab 6), then LANA-21 (Bab 7), each through its gate (and any round 2). Stop after LANA-21's CONTENT PASS. **STOPPED 29 Sep:** LANA-21 CONTENT PASS on round 1; SMA X Matematika Bab 1–7 complete; nothing on the lane unpushed. 
-- **Bob:** the BOB-24/34/35/36 gate, then BOB-38 to BOB-41 in their two CI runs. After LANA-21 passes, finish the ticket or CI pair in flight, get it gated, and start nothing new. 
+- **Bob:** the BOB-24/34/35/36 gate, then BOB-38 to BOB-41 in their two CI runs. After LANA-21 passes, finish the ticket or CI pair in flight, get it gated, and start nothing new. **Coordinator's call at LANA-21's pass (29 Sep):** Bob's stopping point is the whole D-061 set: BOB-38 and BOB-39 (pushed, `10ba1c7`), then BOB-40 (already built, parked outside the tree) and BOB-41 (page only), each pair in its own CI run and gate. A built ticket left in scratch is not a clean boundary, and the four together close D-061. Then stop; BOB-37 is the first ticket on resume. 
 - **Daisy:** DAISY-31 once BOB-35 passes, through its gate. Then stop. 
 - **Coordinator:** gate everything in flight. Bring `main` up to date with every passed code merge, and with the content they carry. Leave the board showing exactly what is done, what is open, and the order to resume in. Then give Yazid the pause summary. 
 Nothing is left on a lane unpushed or ungated. The resume order is the queue below.
