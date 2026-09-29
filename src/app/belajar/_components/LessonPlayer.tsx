@@ -24,6 +24,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/hle";
 import { halamanMulai, menjadiDibaca, perluDisimpan } from "@/lib/siklus";
+import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
 
 export type LessonPlayerProps = {
   learningAssignmentId: string;
@@ -60,12 +61,15 @@ function Visual({ spec }: { spec: string }) {
   return <p className="pin-meta">{spec}</p>;
 }
 
-function renderBlock(line: string, key: number) {
+/**
+ * DAISY-30: a page's lines are drawn by the shared renderer (TeksBlok), which
+ * reads the lesson's own marks (**bold**, "- " lists, pipe tables, ^{…}/_{…})
+ * and keeps a line a line. The one directive only the player knows, a drawn
+ * diagram, is handed back to it here.
+ */
+function sisipVisual(line: string) {
   const visual = /^\[\[visual:(.+)\]\]$/.exec(line.trim());
-  if (visual) return <Visual key={key} spec={visual[1]} />;
-  if (line.startsWith("## ")) return <h3 key={key} className="pin-lh3">{line.slice(3)}</h3>;
-  if (line.trim() === "") return null;
-  return <p key={key} className="pin-lp">{line}</p>;
+  return visual ? <Visual spec={visual[1]} /> : null;
 }
 
 export default function LessonPlayer(props: LessonPlayerProps) {
@@ -128,7 +132,7 @@ export default function LessonPlayer(props: LessonPlayerProps) {
 
   return (
     <div>
-      <article className="pin-prose">{pages[page].map(renderBlock)}</article>
+      <article className="pin-prose"><TeksBlok teks={pages[page].join("\n")} sisip={sisipVisual} /></article>
 
       <p className="pin-lpos">
         <span>{t("lesson.page_of", "learner")} {page + 1}/{pages.length}</span>
@@ -153,10 +157,10 @@ export default function LessonPlayer(props: LessonPlayerProps) {
 
       {langkah.length > 0 && (
         <section className="pin-contoh">
-          <h3 className="pin-lh3">{example?.judul}</h3>
+          <h3 className="pin-lh3"><TeksBaris teks={example?.judul} /></h3>
           <ol className="pin-steps">
             {langkah.slice(0, steps).map((s, i) => (
-              <li key={i} className="pin-langkah"><span className="pin-n">{i + 1}</span><span>{s}</span></li>
+              <li key={i} className="pin-langkah"><span className="pin-n">{i + 1}</span><span><TeksBaris teks={s} /></span></li>
             ))}
           </ol>
           {steps < langkah.length ? (

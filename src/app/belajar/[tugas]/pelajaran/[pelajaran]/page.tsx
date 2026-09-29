@@ -9,6 +9,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import LessonPlayer from "../../../_components/LessonPlayer";
 import { saveLessonProgress } from "../../../actions";
+import { TeksBaris } from "@/components/teks/Teks";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +65,7 @@ export default async function Pelajaran(
             {format.number(all.length, locale)} · {lesson.modul}
           </p>
           <h1 className="pin-h1">{lesson.judul}</h1>
-          {lesson.ringkasan ? <p className="pin-intro">{lesson.ringkasan}</p> : null}
+          {lesson.ringkasan ? <p className="pin-intro"><TeksBaris teks={lesson.ringkasan} /></p> : null}
           {lesson.halaman ? (
             <p className="pin-meta">
               {s("map.page")} {lesson.halaman}

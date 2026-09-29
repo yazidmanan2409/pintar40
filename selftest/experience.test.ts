@@ -11614,4 +11614,169 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+
+  {
+    id: "DAISY-30-TEKS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? code(readFileSync(f, "utf8")) : "";
+      };
+      /**
+       * DAISY-30: LEARNER TEXT RENDERS ITS OWN MARKUP. The lesson player drew
+       * every line as a plain <p> and the item screens drew stems and options
+       * as plain text, so every SD5 and Geografi lesson showed **bold** as
+       * asterisks and SD5's tables as pipes. SMA X Matematika writes powers
+       * Unicode cannot, as ^{…}. One shared renderer (src/components/teks/
+       * Teks.tsx) now draws **bold**, "- " lists, pipe tables and ^{…}/_{…},
+       * as React elements only.
+       *
+       * 1. RENDERED, in a child process:
+       *    (a) the LESSON PLAYER with a real SD5 lesson («Faktor», SD5
+       *        Matematika Bab 2), every page: no ** or table pipes left, its
+       *        table drawn, its nine bold phrases bold;
+       *    (b) the lesson player with an SMA X line, a^{m/n}: a <sup>;
+       *    (c) every lesson of every package in docs/onboarding/konten: no **
+       *        left, no |--- left, no paragraph that starts with a pipe, and
+       *        every table and table row accounted for;
+       *    (d) the inline renderer on the marks left open, the pipes that are
+       *        not tables, «_Periksa…_», and a planted <b>: all literal, and
+       *        the tag escaped;
+       *    (e) lines stay lines, and "- " lines become one list.
+       */
+      const SMAX = "Untuk a > 0 dan n > 0, a^{m/n} = (a^{1/n})^{m}.";
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const fs = await import("node:fs");' +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const lp = await import("file://" + process.cwd() + "/src/app/belajar/_components/LessonPlayer.tsx");' +
+        "  const LessonPlayer = lp.default?.default ?? lp.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  const pemain = (body, startAt) => renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(LessonPlayer, {" +
+        '    learningAssignmentId: "t", lessonId: "l", title: "x", bodyMarkdown: body, workedExamples: [], media: [], startAt,' +
+        "    saveProgress: async () => ({ ok: true }) })));" +
+        '  const dir = process.cwd() + "/docs/onboarding/konten/";' +
+        '  const paket = fs.readdirSync(dir).filter((f) => f.endsWith(".paket.json")).sort()' +
+        '    .map((f) => ({ f, lessons: JSON.parse(fs.readFileSync(dir + f, "utf8")).courses.flatMap((c) => c.modules).flatMap((m) => m.lessons) }));' +
+        '  const faktor = paket.find((p) => p.f === "SD5-Matematika-Bab2.paket.json").lessons.find((l) => l.title === "Faktor").body_markdown;' +
+        '  const halaman = faktor.split("\\n").filter((b) => b.startsWith("## ")).length;' +
+        "  const out = { halaman, faktor: Array.from({ length: halaman }, (_, k) => pemain(faktor, k + 1))," +
+        '    smax: pemain("## Pangkat pecahan\\n" + process.env.SMAX, 1), korpus: [], baris: [], blok: "" };' +
+        "  let t = null;" +
+        '  try { t = await import("file://" + process.cwd() + "/src/components/teks/Teks.tsx"); } catch (e) { out.galat = String(e); }' +
+        "  if (t) {" +
+        "    const T = t.default?.default ? t.default : t;" +
+        "    const TeksBlok = T.default ?? t.default, TeksBaris = T.TeksBaris ?? t.TeksBaris;" +
+        "    for (const p of paket) for (const l of p.lessons) out.korpus.push({ f: p.f, judul: l.title, md: l.body_markdown, html: renderToStaticMarkup(h(TeksBlok, { teks: l.body_markdown })) });" +
+        "    out.baris = JSON.parse(process.env.BARIS).map((s) => renderToStaticMarkup(h(TeksBaris, { teks: s })));" +
+        '    out.blok = renderToStaticMarkup(h(TeksBlok, { teks: "Akibatnya:\\n- satu\\n- **dua**\\n██ 6\\n███ 8" }));' +
+        "  }" +
+        "  process.stdout.write(JSON.stringify(out));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", maxBuffer: 64 * 1024 * 1024,
+        env: { ...process.env, SMAX, BARIS: JSON.stringify([
+          SMAX, "**tebal", "^{ tanpa tutup", "Turus ||||/ |||", "979.875 → **979** | **875**", "_Periksa: 1 × 28._",
+          "Isi <b>tebal</b> & <script>x</script>", "**>** artinya lebih besar", "H_{2}O", "x^{2^{3}}",
+        ]) },
+      });
+      type Hasil = { halaman: number; faktor: string[]; smax: string; korpus: { f: string; judul: string; md: string; html: string }[]; baris: string[]; blok: string; galat?: string };
+      let o: Hasil | null = null;
+      try { o = JSON.parse(anak.stdout) as Hasil; } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && o !== null, `the lesson player could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 2).join(" ")}`)) {
+        const x = o!;
+        // (a) the lesson player, a real SD5 lesson, every page
+        const semua = x.faktor.join("\n");
+        c.expect(x.halaman === 3 && x.faktor.length === 3, `«Faktor» was expected to have 3 pages, not ${x.halaman}`);
+        c.expect(!semua.includes("**"), "the lesson player still shows ** around bold words in «Faktor» (SD5 Matematika Bab 2)");
+        c.expect(!/\|-{3}/.test(semua) && !/<p[^>]*>\s*\|/.test(semua), "the lesson player still shows the table's pipes in «Faktor»");
+        c.expect((semua.match(/<table>/g) ?? []).length === 1 && /<th scope="col">Faktor dari 12<\/th>/.test(semua)
+          && (semua.match(/<tr>/g) ?? []).length === 5, "the lesson player does not draw «Faktor»'s table as a table (a head and four rows)");
+        c.expect((semua.match(/<strong>/g) ?? []).length === 9, `«Faktor» has nine bold phrases; the player drew ${(semua.match(/<strong>/g) ?? []).length}`);
+        // (b) an SMA X line
+        c.expect(/a<sup>m\/n<\/sup> = \(a<sup>1\/n<\/sup>\)<sup>m<\/sup>/.test(x.smax) && !x.smax.includes("^{"),
+          "the lesson player does not raise a^{m/n} (SMA X Matematika) as a superscript");
+        if (c.expect(!x.galat && x.korpus.length > 0, `there is no shared renderer (src/components/teks/Teks.tsx): ${x.galat ?? ""}`)) {
+          // (c) every lesson of every package
+          let tabel = 0, pemisah = 0, tr = 0, baris = 0;
+          for (const l of x.korpus) {
+            const di = `${l.f} «${l.judul}»`;
+            c.expect(!l.html.includes("**"), `${di}: ** left in the rendered lesson`);
+            c.expect(!/\|-{3}/.test(l.html) && !/<p[^>]*>\s*\|/.test(l.html), `${di}: table pipes left in the rendered lesson`);
+            tabel += (l.html.match(/<table>/g) ?? []).length;
+            tr += (l.html.match(/<tr>/g) ?? []).length;
+            pemisah += (l.md.match(/^\|[\s|:-]*-{3}[\s|:-]*$/gm) ?? []).length;
+            baris += (l.md.match(/^\|/gm) ?? []).length;
+          }
+          c.expect(x.korpus.length >= 70, `only ${x.korpus.length} lessons were read from docs/onboarding/konten`);
+          c.expect(tabel === pemisah && tabel >= 20, `${pemisah} tables are written in the packages, ${tabel} drawn`);
+          c.expect(tr + pemisah === baris, `${baris} table lines are written, ${tr} rows drawn beside ${pemisah} separators`);
+          // (d) inline: marks, what stays literal, and escaping
+          const [smax, terbuka, sup, turus, sisip, periksa, tag, lebih, air, bersarang] = x.baris;
+          c.expect(/a<sup>m\/n<\/sup>/.test(smax), "a stem's a^{m/n} is not a superscript");
+          c.expect(terbuka === "**tebal" && sup === "^{ tanpa tutup", "a mark left open is not drawn literally");
+          c.expect(turus === "Turus ||||/ |||" && sisip === "979.875 → <strong>979</strong> | <strong>875</strong>",
+            "tally marks or a pipe inside a sentence are not left as text");
+          c.expect(periksa === "_Periksa: 1 × 28._", "«_Periksa…_» is read as a subscript or changed");
+          c.expect(tag === "Isi &lt;b&gt;tebal&lt;/b&gt; &amp; &lt;script&gt;x&lt;/script&gt;", `a tag in the text is not shown as text: ${tag}`);
+          c.expect(lebih === "<strong>&gt;</strong> artinya lebih besar", "a bold > is not escaped");
+          c.expect(air === "H<sub>2</sub>O" && bersarang === "x<sup>2<sup>3</sup></sup>", "_{…} is not a subscript, or nested braces break");
+          // (e) lines stay lines, and "- " lines are one list
+          c.expect(x.blok === '<p class="pin-lp">Akibatnya:</p><ul class="pin-tdaftar"><li>satu</li><li><strong>dua</strong></li></ul><p class="pin-lp">██ 6</p><p class="pin-lp">███ 8</p>',
+            `lines are merged, or a list is not one list: ${x.blok}`);
+        }
+      }
+
+      /**
+       * 2. FROM THE SOURCE: every place a learner reads authored text draws it
+       *    through the renderer (the lesson player and its worked example, the
+       *    lesson's summary, the item's stem, stimulus, options and help, the
+       *    result's stem, answer and rationale, the reading map, the result's
+       *    objective rows), and so do Studio's preview and Bank Soal. No
+       *    dangerouslySetInnerHTML anywhere in src, and no markdown or maths
+       *    library in package.json.
+       */
+      const lp = baca("src", "app", "belajar", "_components", "LessonPlayer.tsx");
+      c.expect(/<TeksBlok teks=\{pages\[page\]\.join\("\\n"\)\} sisip=\{sisipVisual\} \/>/.test(lp) && !/renderBlock/.test(lp)
+        && /<TeksBaris teks=\{s\} \/>/.test(lp) && /<TeksBaris teks=\{example\?\.judul\} \/>/.test(lp),
+        "the lesson player does not draw its pages and worked example through the shared renderer");
+      const ip = baca("src", "app", "belajar", "_components", "ItemPlayer.tsx");
+      for (const [apa, re] of [["stem", /<h2 className="pin-stem"><TeksBaris teks=\{current\.item\.stem\} \/><\/h2>/],
+        ["stimulus", /<TeksBaris teks=\{current\.item\.stimulus\} \/>/], ["options", /<span><TeksBaris teks=\{o\.teks\} \/><\/span>/],
+        ["help", /<span><TeksBaris teks=\{l\.isi\} \/><\/span>/]] as const) {
+        c.expect(re.test(ip), `the item screen draws its ${apa} as plain text`);
+      }
+      const hasil = baca("src", "app", "belajar", "[tugas]", "hasil", "page.tsx");
+      c.expect(["r.stem", "r.jawaban_teks", "r.alasan", "r.arah"].every((v) => hasil.includes(`<TeksBaris teks={${v}} />`)),
+        "the result screen draws a stem, an answer or a rationale as plain text");
+      c.expect(/<TeksBaris teks=\{k\.pernyataan\} \/>/.test(baca("src", "components", "siklus", "PetaBacaan.tsx"))
+        && /<TeksBaris teks=\{nama\.get\(kode\) \?\? kode\} \/>/.test(baca("src", "components", "siklus", "PerTujuan.tsx"))
+        && /<TeksBaris teks=\{lesson\.ringkasan\} \/>/.test(baca("src", "app", "belajar", "[tugas]", "pelajaran", "[pelajaran]", "page.tsx")),
+        "the reading map, the result's objective rows or the lesson's summary draw authored text as plain text");
+      const pr = baca("src", "app", "studio", "pratinjau", "[pelajaran]", "page.tsx");
+      c.expect(/<TeksBlok teks=\{body\} \/>/.test(pr) && !/whitespace-pre-wrap text-sm">\{body\}/.test(pr)
+        && /<TeksBaris teks=\{i\.stem\} \/>/.test(baca("src", "app", "studio", "bank", "page.tsx")),
+        "Studio's preview or Bank Soal does not draw the text as the learner reads it");
+      const berkas = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f));
+      const html = berkas.filter((f) => /dangerouslySetInnerHTML/.test(code(readFileSync(f, "utf8"))));
+      c.expect(html.length === 0, `text is set as HTML: ${html.map((f) => relative(repoRoot, f)).join(", ")}`);
+      c.expect(/dangerouslySetInnerHTML/.test(code("const x = <p dangerouslySetInnerHTML={{ __html: s }} />;")), "the control: a planted innerHTML is not caught");
+      const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
+      const lib = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies }).filter((d) => /markdown|marked|remark|rehype|micromark|mdx|showdown|katex|mathjax|sanitize|dompurify/i.test(d));
+      c.expect(lib.length === 0, `a markup library was added: ${lib.join(", ")}`);
+
+      return c.verdict(
+        "learner text renders its own markup through one shared renderer, as React elements only: the lesson player " +
+        "draws a real SD5 lesson («Faktor») on every page with no ** or table pipes left, its table as a table and its " +
+        "nine bold phrases bold, and an SMA X a^{m/n} as a superscript; every lesson of every package renders with no ** " +
+        "or table pipes left and every table and row accounted for; marks left open, tally marks, a pipe in a sentence " +
+        "and «_Periksa…_» stay literal, a planted tag is escaped, lines stay lines and \"- \" lines are one list; every " +
+        "learner surface (lesson, summary, worked example, stem, stimulus, options, help, result, reading map) and " +
+        "Studio's preview and Bank Soal use it; nothing in src sets HTML and no markup library was added",
+      );
+    },
+  },
 ];

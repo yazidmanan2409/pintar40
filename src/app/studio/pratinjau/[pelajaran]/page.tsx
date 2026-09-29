@@ -1,6 +1,7 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { t } from "@/lib/hle";
 import { card, s } from "../../_lib";
+import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
 
 /**
  * Preview — the learner view, sanitized (§5).
@@ -66,14 +67,15 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
     <article className="grid gap-4">
       <header>
         <h2 className="text-xl font-medium">{title}</h2>
-        {summary ? <p className="mt-1 text-sm text-ink-2">{summary}</p> : null}
+        {summary ? <p className="mt-1 text-sm text-ink-2"><TeksBaris teks={summary} /></p> : null}
       </header>
       {objectives.length > 0 ? (
         <ul className="grid gap-1 text-sm text-ink-2">
-          {objectives.map((o) => <li key={o.code}>{o.code} — {o.statement}</li>)}
+          {objectives.map((o) => <li key={o.code}>{o.code} — <TeksBaris teks={o.statement} /></li>)}
         </ul>
       ) : null}
-      {body ? <div className={card}><p className="whitespace-pre-wrap text-sm">{body}</p></div> : null}
+      {/* DAISY-30: the body as the learner reads it, marks and all (TeksBlok) */}
+      {body ? <div className={card}><div className="pin-prose text-sm"><TeksBlok teks={body} /></div></div> : null}
       {media.filter((m) => m.url).map((m) => (
         <div key={m.path} className={card}>
           {m.jenis === "video" ? <video controls preload="metadata" src={m.url!} className="w-full" /> : null}

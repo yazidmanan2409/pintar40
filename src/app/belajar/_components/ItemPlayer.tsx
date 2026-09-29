@@ -30,6 +30,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
+import { TeksBaris } from "@/components/teks/Teks";
 
 type Answer = { posisi: number } | { posisi: number[] };
 /** One answer the learner took and the server has not yet acknowledged. */
@@ -545,9 +546,9 @@ export default function ItemPlayer(props: ItemPlayerProps) {
         <>
           {/* ------------------------------------------------------- the item */}
           <article className="pin-soal">
-            <h2 className="pin-stem">{current.item.stem}</h2>
+            <h2 className="pin-stem"><TeksBaris teks={current.item.stem} /></h2>
             {current.item.stimulus && (
-              <p className="pin-stimulus">{current.item.stimulus}</p>
+              <p className="pin-stimulus"><TeksBaris teks={current.item.stimulus} /></p>
             )}
 
             <ul className="pin-opsi">
@@ -564,7 +565,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                     className="pin-op"
                   >
                     <span className="pin-k">{String.fromCharCode(64 + o.posisi)}</span>
-                    <span>{o.teks}</span>
+                    <span><TeksBaris teks={o.teks} /></span>
                   </button>
                 </li>
               ))}
@@ -598,7 +599,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
               {opened.map((l) => (
                 <p key={l.level}>
                   <span className="pin-lvl">{t(`assist.level.${l.kode}` as HleEvent, "learner")}</span>
-                  <span>{l.isi}</span>
+                  <span><TeksBaris teks={l.isi} /></span>
                 </p>
               ))}
               <div className="pin-actions">

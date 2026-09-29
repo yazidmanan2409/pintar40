@@ -4,6 +4,7 @@ import { button, card, field, label, outcomeLine, s, short, studioInstitutions }
 import { recordQuestionHealthReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import { TeksBaris } from "@/components/teks/Teks";
 
 /**
  * Content & Question Banks, and the Question Health surface (§8, §10).
@@ -57,7 +58,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
               // The short id is not shown; it stays on the row as data-soal, for
               // the staging journey's check of which school's questions are listed
               <li key={i.id} className={card} data-soal={short(i.id)}>
-                <p className="font-medium">{i.stem}</p>
+                <p className="font-medium"><TeksBaris teks={i.stem} /></p>
                 <p className="mt-1 text-sm text-ink-3">{enumLabel("bank", i.bank_type)}</p>
                 <p className="mt-2 text-sm text-ink-2 tabular-nums">
                   {s("studio.bank.prediksi")}: {i.predicted_difficulty ?? "—"}

@@ -696,6 +696,14 @@
 .pin-prose > * + * { margin-top: var(--space-4); }
 .pin-lp { margin: 0; }
 .pin-lh3 { font-size: var(--type-course); font-weight: var(--weight-strong); margin: 0; }
+/* DAISY-30: a lesson's own list and table (TeksBlok). The table scrolls inside
+   its frame, never the page: SD5's place-value table has eight columns, and a
+   320px screen must still hold the page still. Figures line up in columns. */
+.pin-tdaftar { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+.pin-ttabel { max-width: 100%; overflow-x: auto; }
+.pin-ttabel table { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: var(--type-meta); }
+.pin-ttabel th, .pin-ttabel td { border: 1px solid var(--line); padding: var(--space-2) var(--space-3); text-align: left; vertical-align: top; }
+.pin-ttabel th { font-weight: var(--weight-strong); background: var(--surface-2); }
 .pin-lmedia { width: 100%; max-width: 360px; border-radius: var(--radius-1); margin: var(--space-4) 0; }
 /* Reading position: dots rather than a bar, because a page of a lesson is a
    place and not a percentage. */

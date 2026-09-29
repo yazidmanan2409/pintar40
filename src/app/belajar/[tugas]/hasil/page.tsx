@@ -7,6 +7,7 @@ import * as engine from "@/lib/assessment-engine";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import PerTujuan from "@/components/siklus/PerTujuan";
+import { TeksBaris } from "@/components/teks/Teks";
 
 export const dynamic = "force-dynamic";
 
@@ -106,21 +107,21 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
               >
                 <summary className="pin-ihead">
                   <span className="pin-pos">{format.number(r.posisi, locale)}</span>
-                  <span className="pin-q">{r.stem}</span>
+                  <span className="pin-q"><TeksBaris teks={r.stem} /></span>
                   <span className={`pin-pill ${r.benar ? "pin-ok" : "pin-neutral"}`}>
                     {r.benar ? s("hasil.answer_right") : s("hasil.answer_notyet")}
                   </span>
                 </summary>
                 {r.jawaban_teks ? (
                   <span className="pin-mine">
-                    {s("hasil.answer_yours")}: {r.jawaban_teks}
+                    {s("hasil.answer_yours")}: <TeksBaris teks={r.jawaban_teks} />
                   </span>
                 ) : null}
                 {r.alasan || r.arah ? (
                   <span className="pin-why">
-                    {r.alasan}
+                    <TeksBaris teks={r.alasan} />
                     {r.alasan && r.arah ? " " : ""}
-                    {r.arah}
+                    <TeksBaris teks={r.arah} />
                   </span>
                 ) : null}
               </details>
