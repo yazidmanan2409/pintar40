@@ -5,7 +5,7 @@
     "sheet": "Kursus",
     "row": 2
    },
-   "title": "Matematika Kelas 5 · Bab 9: Bilangan Cacah Sampai 1.000.000",
+   "title": "Matematika Kelas 5 · Bab 9: Bilangan Cacah sampai 1.000.000",
    "subject": "Matematika",
    "stage": "SD",
    "grade_label": "Kelas 5",
@@ -17,7 +17,7 @@
       "row": 2
      },
      "ordinal": "1",
-     "title": "Bilangan Cacah Sampai 1.000.000",
+     "title": "Bilangan Cacah sampai 1.000.000",
      "lessons": [
       {
        "_row": {
@@ -25,11 +25,11 @@
         "row": 2
        },
        "ordinal": "1",
-       "title": "Membaca dan Menulis Bilangan Sampai 1.000.000",
+       "title": "Membaca dan Menulis Bilangan sampai 1.000.000",
        "summary": "Bilangan enam angka dibaca per kelompok tiga angka: kelompok ribuan dahulu dengan kata ribu, lalu kelompok sisanya.",
-       "body_markdown": "## Harga sebuah lemari\n\nNisa dan Ibu membeli lemari di Jepara, Jawa Tengah, kota yang terkenal dengan mebel berukir. Harga lemari yang dipilih Nisa **Rp979.875,00**.\n\nBilangan seperti ini sering kita temui pada harga, nota, atau jumlah penduduk. Bagaimana membacanya?\n\n## Kelompok tiga angka\n\nTitik memisahkan bilangan menjadi kelompok tiga angka, dihitung dari kanan:\n\n979.875 → **979** | **875**\n\n1. Baca kelompok kiri seperti bilangan ratusan biasa, lalu tambahkan kata **ribu**: sembilan ratus tujuh puluh sembilan ribu.\n2. Baca kelompok kanan: delapan ratus tujuh puluh lima.\n\nJadi 979.875 dibaca **sembilan ratus tujuh puluh sembilan ribu delapan ratus tujuh puluh lima**.\n\nKata \"ribu\" hanya diucapkan **satu kali**, sesudah kelompok kiri. Membaca 296.575 sebagai \"dua ratus ribu sembilan puluh enam ribu ...\" tidak tepat; yang tepat **dua ratus sembilan puluh enam ribu lima ratus tujuh puluh lima**.\n\n## Angka nol\n\nAngka nol tidak diucapkan, tetapi tempatnya tetap ada.\n\n- 550.303 dibaca lima ratus lima puluh ribu tiga ratus tiga.\n- 406.250 dibaca empat ratus enam ribu dua ratus lima puluh.\n\nWaktu menulis dari kata-kata, setiap kelompok harus tetap tiga angka. \"Lima ratus lima puluh ribu tiga ratus tiga\" ditulis 550.**303**, bukan 550.33.\n\n## Menulis dari kata-kata\n\nTulis \"seratus empat puluh sembilan ribu enam ratus empat puluh satu\":\n\n1. Yang sebelum \"ribu\": seratus empat puluh sembilan → 149.\n2. Yang sesudah \"ribu\": enam ratus empat puluh satu → 641.\n3. Gabungkan: **149.641**.\n\n## Satu juta\n\nSesudah 999.999 datang **1.000.000**, dibaca **satu juta** atau sejuta. Bilangan ini mempunyai tujuh angka: satu angka 1 dan enam angka 0.\n\n**Coba:** tulislah \"tiga ratus empat puluh lima ribu enam ratus tujuh puluh lima\".\n_Periksa: 345.675._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "body_markdown": "## Harga sebuah lemari\n\nNisa dan Ibu membeli lemari di Jepara, Jawa Tengah, kota yang terkenal dengan mebel berukir. Harga lemari yang dipilih Nisa **Rp979.875**.\n\nBilangan seperti ini sering kita temui pada harga, nota, atau jumlah penduduk. Bagaimana membacanya?\n\n## Kelompok tiga angka\n\nTitik memisahkan bilangan menjadi kelompok tiga angka, dihitung dari kanan:\n\n979.875 → **979** | **875**\n\n1. Baca kelompok kiri seperti bilangan ratusan biasa, lalu tambahkan kata **ribu**: sembilan ratus tujuh puluh sembilan ribu.\n2. Baca kelompok kanan: delapan ratus tujuh puluh lima.\n\nJadi 979.875 dibaca **sembilan ratus tujuh puluh sembilan ribu delapan ratus tujuh puluh lima**.\n\nKata \"ribu\" hanya diucapkan **satu kali**, sesudah kelompok kiri. Membaca 296.575 sebagai \"dua ratus ribu sembilan puluh enam ribu ...\" tidak tepat; yang tepat **dua ratus sembilan puluh enam ribu lima ratus tujuh puluh lima**.\n\n## Angka nol\n\nAngka nol tidak diucapkan, tetapi tempatnya tetap ada.\n\n- 550.303 dibaca lima ratus lima puluh ribu tiga ratus tiga.\n- 406.250 dibaca empat ratus enam ribu dua ratus lima puluh.\n\nWaktu menulis dari kata-kata, setiap kelompok harus tetap tiga angka. \"Lima ratus lima puluh ribu tiga ratus tiga\" ditulis 550.**303**, bukan 550.33.\n\n## Menulis dari kata-kata\n\nTulis \"seratus empat puluh sembilan ribu enam ratus empat puluh satu\":\n\n1. Yang sebelum \"ribu\": seratus empat puluh sembilan → 149.\n2. Yang sesudah \"ribu\": enam ratus empat puluh satu → 641.\n3. Gabungkan: **149.641**.\n\n## Satu juta\n\nSesudah 999.999 datang **1.000.000**, dibaca **satu juta** atau sejuta. Bilangan ini mempunyai tujuh angka: satu angka 1 dan enam angka 0.\n\n**Coba:** tulislah \"tiga ratus empat puluh lima ribu enam ratus tujuh puluh lima\".\n_Periksa: 345.675._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
        "objective": {
-        "statement": "Murid dapat membaca dan menulis bilangan cacah sampai 1.000.000.",
+        "statement": "Kalian dapat membaca dan menulis bilangan cacah sampai 1.000.000.",
         "bloom": "UNDERSTAND"
        },
        "media": [],
@@ -63,7 +63,7 @@
            "label": "B",
            "body": "empat ratus enam ribu dua ratus lima puluh",
            "is_correct": true,
-           "rationale": "Tepat. Kelompok kiri 406 (empat ratus enam) ribu, kelompok kanan 250 (dua ratus lima puluh)."
+           "rationale": "Benar. Kelompok kiri 406 (empat ratus enam) ribu, kelompok kanan 250 (dua ratus lima puluh)."
           },
           {
            "_row": {
@@ -158,7 +158,7 @@
            "label": "A",
            "body": "tiga ratus dua puluh ribu delapan belas",
            "is_correct": true,
-           "rationale": "Tepat. 320 ribu dan 018, yaitu delapan belas."
+           "rationale": "Benar. 320 ribu dan 018, yaitu delapan belas."
           },
           {
            "_row": {
@@ -308,7 +308,7 @@
        "summary": "Setiap angka dalam bilangan mempunyai tempat (satuan sampai ratus ribuan) dan nilai: angka itu dikalikan dengan nilai tempatnya.",
        "body_markdown": "## Enam tempat\n\nBilangan enam angka mempunyai enam tempat. Dari kiri ke kanan:\n\n**ratus ribuan, puluh ribuan, ribuan, ratusan, puluhan, satuan**\n\nHarga beberapa barang di toko komputer:\n\n| Barang | Harga (Rp) | Ratus ribuan | Puluh ribuan | Ribuan | Ratusan | Puluhan | Satuan |\n|---|---|---|---|---|---|---|---|\n| Speaker aktif | 296.575 | 2 | 9 | 6 | 5 | 7 | 5 |\n| Mouse | 179.500 | 1 | 7 | 9 | 5 | 0 | 0 |\n| Hardisk eksternal | 834.759 | 8 | 3 | 4 | 7 | 5 | 9 |\n| Headset | 159.899 | 1 | 5 | 9 | 8 | 9 | 9 |\n| Kabel USB | 132.795 | 1 | 3 | 2 | 7 | 9 | 5 |\n\n## Tempat sebuah angka\n\nDi mana angka 9 pada harga speaker aktif, 296.575? Angka 9 berada di tempat **puluh ribuan**.\n\nPada harga headset, 159.899, angka 9 muncul tiga kali: di tempat ribuan, puluhan, dan satuan. Angka yang sama dapat menempati tempat yang berbeda.\n\n## Nilai sebuah angka\n\n**Nilai** angka adalah angka itu dikalikan dengan nilai tempatnya.\n\n- Pada 296.575, angka 9 di puluh ribuan: nilainya 9 × 10.000 = **90.000**.\n- Pada 159.899, angka 9 di ribuan bernilai 9.000, di puluhan bernilai 90, di satuan bernilai 9.\n\nBedakan tiga hal ini: **angkanya** (9), **tempatnya** (puluh ribuan), dan **nilainya** (90.000).\n\n## Nilai tempat berlipat sepuluh\n\nSetiap tempat bernilai sepuluh kali tempat di sebelah kanannya:\n\n1 → 10 → 100 → 1.000 → 10.000 → 100.000 → 1.000.000\n\nKarena itu, memindahkan sebuah angka satu tempat ke kiri membuat nilainya sepuluh kali lebih besar.\n\n**Coba:** berapa nilai angka 8 pada 834.759?\n_Periksa: angka 8 di ratus ribuan, jadi 800.000._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
        "objective": {
-        "statement": "Murid dapat menentukan nilai tempat dan nilai angka pada bilangan cacah sampai 1.000.000.",
+        "statement": "Kalian dapat menentukan nilai tempat dan nilai angka pada bilangan cacah sampai 1.000.000.",
         "bloom": "UNDERSTAND"
        },
        "media": [],
@@ -393,7 +393,7 @@
             "row": 23
            },
            "label": "B",
-           "body": "puluh ribuan",
+           "body": "Puluh ribuan",
            "is_correct": false,
            "rationale": "Ini nama tempat angka 7. Yang ditanyakan nilainya: 7 × 10.000."
           },
@@ -507,7 +507,7 @@
             "row": 68
            },
            "label": "C",
-           "body": "puluh ribuan",
+           "body": "Puluh ribuan",
            "is_correct": false,
            "rationale": "Ini nama tempat angka 5. Yang ditanyakan nilainya: 5 × 10.000."
           },
@@ -561,7 +561,7 @@
            "label": "C",
            "body": "452.108",
            "is_correct": true,
-           "rationale": "Tepat. Angka 4 di ratus ribuan."
+           "rationale": "Benar. Angka 4 di ratus ribuan."
           },
           {
            "_row": {
@@ -585,9 +585,9 @@
        "ordinal": "3",
        "title": "Membandingkan Bilangan",
        "summary": "Bandingkan banyak angkanya dahulu; bila sama, bandingkan angka demi angka mulai dari yang paling kiri.",
-       "body_markdown": "## Tiga tanda\n\n- **<** berarti kurang dari: 445.000 < 545.000.\n- **>** berarti lebih dari: 876.000 > 867.000.\n- **=** berarti sama dengan: 126.789 = 126.789.\n\nUjung yang terbuka menghadap bilangan yang lebih besar.\n\n## Langkah 1: banyak angkanya\n\nBilangan yang angkanya lebih banyak selalu lebih besar.\n\n99.999 mempunyai lima angka, 100.000 mempunyai enam angka. Jadi 99.999 < 100.000, walaupun angka pertamanya 9 dan angka pertama 100.000 hanya 1.\n\n## Langkah 2: dari kiri\n\nBila banyak angkanya sama, bandingkan angka demi angka **mulai dari kiri** (ratus ribuan), sampai menemukan angka yang berbeda.\n\n657.000 dan 675.000:\n\n1. Ratus ribuan: 6 dan 6, sama.\n2. Puluh ribuan: 5 dan 7, berbeda. 5 < 7.\n\nJadi 657.000 < 675.000. Angka-angka sesudahnya tidak perlu diperiksa lagi.\n\n## Jangan mulai dari belakang\n\n876.987 dan 876.789: ratus ribuan, puluh ribuan, dan ribuan sama (8, 7, 6). Pada ratusan, 9 > 7. Jadi **876.987 > 876.789**.\n\nBila dibandingkan dari belakang, angka satuannya 7 dan 9, seolah-olah 876.789 yang lebih besar. Angka belakang bernilai paling kecil, jadi tidak menentukan.\n\nBegitu pula 900.052 > 900.025: yang menentukan adalah puluhan, 5 > 2.\n\n**Coba:** 900.025 ... 900.052, tanda apa yang tepat?\n_Periksa: <, karena pada puluhan 2 < 5._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "body_markdown": "## Tiga tanda\n\n- **<** artinya lebih kecil dari: 445.000 < 545.000.\n- **>** artinya lebih besar dari: 876.000 > 867.000.\n- **=** artinya sama dengan: 126.789 = 126.789.\n\nUjung lancip tanda selalu menunjuk ke bilangan yang lebih kecil.\n\n## Langkah 1: banyak angkanya\n\nBilangan yang angkanya lebih banyak selalu lebih besar.\n\n99.999 mempunyai lima angka, 100.000 mempunyai enam angka. Jadi 99.999 < 100.000, walaupun angka pertamanya 9 dan angka pertama 100.000 hanya 1.\n\n## Langkah 2: dari kiri\n\nBila banyak angkanya sama, bandingkan angka demi angka **mulai dari kiri** (ratus ribuan), sampai menemukan angka yang berbeda.\n\n657.000 dan 675.000:\n\n1. Ratus ribuan: 6 dan 6, sama.\n2. Puluh ribuan: 5 dan 7, berbeda. 5 < 7.\n\nJadi 657.000 < 675.000. Angka-angka sesudahnya tidak perlu diperiksa lagi.\n\n## Jangan mulai dari belakang\n\n876.987 dan 876.789: ratus ribuan, puluh ribuan, dan ribuan sama (8, 7, 6). Pada ratusan, 9 > 7. Jadi **876.987 > 876.789**.\n\nBila dibandingkan dari belakang, angka satuannya 7 dan 9, seolah-olah 876.789 yang lebih besar. Angka belakang bernilai paling kecil, jadi tidak menentukan.\n\nBegitu pula 900.052 > 900.025: yang menentukan adalah puluhan, 5 > 2.\n\n**Coba:** 900.025 ... 900.052, tanda apa yang tepat?\n_Periksa: <, karena pada puluhan 2 < 5._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
        "objective": {
-        "statement": "Murid dapat membandingkan dua bilangan cacah sampai 1.000.000 dengan tanda <, >, atau =.",
+        "statement": "Kalian dapat membandingkan dua bilangan cacah sampai 1.000.000 dengan tanda <, >, atau =.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -611,7 +611,7 @@
            "label": "A",
            "body": "99.870 < 100.200",
            "is_correct": true,
-           "rationale": "Tepat. 99.870 mempunyai lima angka, 100.200 enam angka, jadi 99.870 lebih kecil."
+           "rationale": "Benar. 99.870 mempunyai lima angka, 100.200 enam angka, jadi 99.870 lebih kecil."
           },
           {
            "_row": {
@@ -639,7 +639,7 @@
             "row": 13
            },
            "label": "D",
-           "body": "tidak dapat dibandingkan",
+           "body": "Tidak dapat dibandingkan",
            "is_correct": false,
            "rationale": "Bilangan dengan banyak angka berbeda tetap dapat dibandingkan: yang angkanya lebih banyak lebih besar."
           }
@@ -694,7 +694,7 @@
            "label": "D",
            "body": "806.591 > 806.519",
            "is_correct": true,
-           "rationale": "Tepat. Ratus ribuan sampai ratusan sama; pada puluhan 9 > 1."
+           "rationale": "Benar. Ratus ribuan sampai ratusan sama; pada puluhan 9 > 1."
           }
          ]
         },
@@ -726,7 +726,7 @@
            "label": "B",
            "body": "700.009 > 699.999",
            "is_correct": true,
-           "rationale": "Tepat. Ratus ribuan 7 > 6, jadi 700.009 lebih besar."
+           "rationale": "Benar. Ratus ribuan 7 > 6, jadi 700.009 lebih besar."
           },
           {
            "_row": {
@@ -744,7 +744,7 @@
             "row": 77
            },
            "label": "D",
-           "body": "tidak dapat dibandingkan",
+           "body": "Tidak dapat dibandingkan",
            "is_correct": false,
            "rationale": "Keduanya mempunyai enam angka dan dapat dibandingkan dari kiri."
           }
@@ -798,7 +798,7 @@
            "label": "D",
            "body": "angka paling kiri, yaitu ratus ribuan",
            "is_correct": true,
-           "rationale": "Tepat. Angka paling kiri bernilai paling besar."
+           "rationale": "Benar. Angka paling kiri bernilai paling besar."
           }
          ]
         }
@@ -814,7 +814,7 @@
        "summary": "Mengurutkan berarti membandingkan beberapa bilangan sekaligus; pada pola bilangan, selisih dua bilangan yang berurutan selalu sama.",
        "body_markdown": "## Dari yang termurah\n\nUrutkan harga barang dari yang termurah: Rp296.575, Rp179.500, Rp834.759, Rp159.899, Rp132.795.\n\n1. Semua mempunyai enam angka. Lihat ratus ribuannya: 2, 1, 8, 1, 1.\n2. Yang ratus ribuannya 1 ada tiga: 179.500, 159.899, 132.795. Bandingkan puluh ribuannya: 7, 5, 3.\n3. Urutannya: **132.795; 159.899; 179.500; 296.575; 834.759**.\n\nTermurah kabel USB (Rp132.795), termahal hardisk eksternal (Rp834.759).\n\n## Naik atau turun\n\n- Urutan **naik**: dari yang terkecil ke yang terbesar.\n- Urutan **turun**: dari yang terbesar ke yang terkecil.\n\nBaca pertanyaannya dengan teliti, lalu periksa bilangan pertama: pada urutan naik, bilangan pertama harus yang terkecil.\n\n## Pola bilangan\n\n978.500; 979.500; 980.500; ...\n\nSelisih dua bilangan yang berurutan: 979.500 − 978.500 = 1.000. Setiap langkah bertambah 1.000, jadi berikutnya **981.500**, lalu 982.500.\n\nPerhatikan loncatan dari 979.500 ke 980.500: angka ribuan 9 menjadi 0, dan puluh ribuan bertambah satu.\n\n## Pola dengan langkah kecil\n\n462.350; 462.370; 462.390; ...\n\nSetiap langkah bertambah 20, jadi berikutnya **462.410**, lalu 462.430. Yang berubah hanya puluhan dan ratusan.\n\n**Coba:** pola 300.000; 500.000; 700.000; ... Berapa bilangan berikutnya?\n_Periksa: bertambah 200.000, jadi 900.000._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
        "objective": {
-        "statement": "Murid dapat mengurutkan bilangan cacah sampai 1.000.000 dan melanjutkan pola bilangan.",
+        "statement": "Kalian dapat mengurutkan bilangan cacah sampai 1.000.000 dan melanjutkan pola bilangan.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -848,7 +848,7 @@
            "label": "B",
            "body": "504.089; 540.083; 540.812; 548.005",
            "is_correct": true,
-           "rationale": "Tepat. Puluh ribuan 0 paling kecil (504.089); lalu 540.083 dan 540.812 dibedakan di ratusan."
+           "rationale": "Benar. Puluh ribuan 0 paling kecil (504.089); lalu 540.083 dan 540.812 dibedakan di ratusan."
           },
           {
            "_row": {
@@ -1041,7 +1041,7 @@
        "summary": "Menyusun bilangan dari nilai-nilai tempatnya (komposisi) dan menguraikan bilangan menjadi nilai-nilai tempatnya (dekomposisi); uang pecahan membantu.",
        "body_markdown": "## Menguraikan bilangan\n\n**Dekomposisi** berarti menguraikan bilangan menurut nilai tempatnya.\n\n678.987 = 600.000 + 70.000 + 8.000 + 900 + 80 + 7\n\nArtinya 678.987 terdiri atas 6 ratus ribuan, 7 puluh ribuan, 8 ribuan, 9 ratusan, 8 puluhan, dan 7 satuan.\n\n## Menyusun bilangan\n\n**Komposisi** berarti menyusun bilangan dari bagian-bagiannya.\n\n2 ratus ribuan, 3 ribuan, 3 puluhan, dan 5 satuan:\n\n| Ratus ribuan | Puluh ribuan | Ribuan | Ratusan | Puluhan | Satuan |\n|---|---|---|---|---|---|\n| 2 | 0 | 3 | 0 | 3 | 5 |\n\nHasilnya **203.035**. Tempat yang kosong diisi 0. Hati-hati: bukan 203.305, karena 3 puluhan berada di tempat puluhan, bukan ratusan.\n\n## Dengan uang pecahan\n\nIbu mempunyai 4 lembar seratus ribuan, 4 lembar sepuluh ribuan, dan 3 lembar seribuan.\n\n- 4 × 100.000 = 400.000\n- 4 × 10.000 = 40.000\n- 3 × 1.000 = 3.000\n\nJumlahnya **Rp443.000**. Banyak lembar (4, 4, 3) bukan nilai uangnya; setiap lembar dikalikan dengan nilainya.\n\n## Banyak cara\n\nSatu jumlah uang dapat disusun dengan berbagai cara. Rp250.000 dapat berupa:\n\n- 2 lembar seratus ribuan dan 1 lembar lima puluh ribuan;\n- 2 lembar seratus ribuan dan 5 lembar sepuluh ribuan;\n- 5 lembar lima puluh ribuan.\n\n**Coba:** uraikan 550.303.\n_Periksa: 500.000 + 50.000 + 300 + 3._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
        "objective": {
-        "statement": "Murid dapat menyusun dan menguraikan bilangan cacah sampai 1.000.000, termasuk dengan pecahan uang.",
+        "statement": "Kalian dapat menyusun dan menguraikan bilangan cacah sampai 1.000.000, termasuk dengan pecahan uang.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -1347,7 +1347,7 @@
            "label": "C",
            "body": "2 lembar seratus ribuan dan 5 lembar sepuluh ribuan",
            "is_correct": true,
-           "rationale": "Tepat. 200.000 + 50.000 = 250.000."
+           "rationale": "Benar. 200.000 + 50.000 = 250.000."
           },
           {
            "_row": {
@@ -1369,11 +1369,11 @@
         "row": 7
        },
        "ordinal": "6",
-       "title": "Memecahkan Masalah dengan Bilangan Sampai 1.000.000",
+       "title": "Memecahkan Masalah dengan Bilangan sampai 1.000.000",
        "summary": "Pada soal cerita, tentukan dahulu yang ditanyakan, pilih operasinya, lalu hitung dengan teliti, termasuk saat meminjam.",
-       "body_markdown": "## Uangnya kurang berapa?\n\nIbu akan membeli seragam seharga Rp450.000. Uang Ibu Rp443.000 (4 lembar seratus ribuan, 4 lembar sepuluh ribuan, 3 lembar seribuan).\n\n1. Yang ditanyakan: kekurangannya.\n2. Operasinya: pengurangan, harga dikurangi uang yang ada.\n3. 450.000 − 443.000 = **Rp7.000**.\n\n## Harga dari kembalian\n\nNisa membawa Rp250.000 untuk membeli buku dan menerima kembalian Rp15.400.\n\nHarga buku = uang yang dibayarkan − kembalian = 250.000 − 15.400 = **Rp234.600**.\n\nPeriksa: 234.600 + 15.400 = 250.000. Cocok.\n\n## Meminjam dengan teliti\n\n250.000 − 15.400, dihitung dari kanan:\n\n1. Satuan dan puluhan: 0 − 0 = 0.\n2. Ratusan: 0 − 4 tidak bisa. Pinjam dari tempat di kirinya. Ribuan juga 0, jadi pinjaman diambil dari puluh ribuan: 5 menjadi 4, ribuan menjadi 9, ratusan menjadi 10.\n3. Ratusan: 10 − 4 = 6. Ribuan: 9 − 5 = 4. Puluh ribuan: 4 − 1 = 3. Ratus ribuan: 2.\n4. Hasilnya 234.600.\n\nJangan mengurangkan angka yang kecil dari yang besar di setiap kolom (misalnya 4 − 0 pada ratusan). Cara itu tidak meminjam dan memberi hasil yang keliru.\n\n## Mana yang lebih banyak?\n\nKelompok Yohana mengumpulkan Rp345.600, kelompok Komang Rp354.500.\n\nRatus ribuannya sama (3). Puluh ribuannya 4 dan 5. Jadi dana kelompok Komang, **Rp354.500**, lebih banyak. Selisihnya 354.500 − 345.600 = Rp8.900.\n\n## Rangkuman Bab 9\n\n- Bilangan dibaca per kelompok tiga angka; kata \"ribu\" diucapkan sekali. Angka nol tetap menempati tempatnya.\n- Nilai angka = angka × nilai tempatnya. Setiap tempat bernilai sepuluh kali tempat di kanannya.\n- Membandingkan: banyak angka dahulu, lalu angka demi angka dari kiri.\n- Pola bilangan: cari selisih yang tetap.\n- Komposisi dan dekomposisi: tempat yang kosong diisi 0; banyak lembar uang dikalikan dengan nilainya.\n- Soal cerita: tentukan yang ditanyakan, pilih operasi, periksa kembali.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "body_markdown": "## Uangnya kurang berapa?\n\nIbu akan membeli seragam seharga Rp450.000. Uang Ibu Rp443.000 (4 lembar seratus ribuan, 4 lembar sepuluh ribuan, 3 lembar seribuan).\n\n1. Yang ditanyakan: kekurangannya.\n2. Operasinya: pengurangan, harga dikurangi uang yang ada.\n3. 450.000 − 443.000 = **Rp7.000**.\n\n## Harga dari kembalian\n\nNisa membawa Rp250.000 untuk membeli buku dan menerima kembalian Rp15.400.\n\nHarga buku = uang yang dibayarkan − kembalian = 250.000 − 15.400 = **Rp234.600**.\n\nPeriksa: 234.600 + 15.400 = 250.000. Cocok.\n\n## Meminjam dengan teliti\n\n250.000 − 15.400, dihitung dari kanan:\n\n1. Satuan dan puluhan: 0 − 0 = 0.\n2. Ratusan: 0 − 4 tidak bisa. Pinjam dari tempat di kirinya. Ribuan juga 0, jadi pinjaman diambil dari puluh ribuan: 5 menjadi 4, ribuan menjadi 9, ratusan menjadi 10.\n3. Ratusan: 10 − 4 = 6. Ribuan: 9 − 5 = 4. Puluh ribuan: 4 − 1 = 3. Ratus ribuan: 2.\n4. Hasilnya 234.600.\n\nJangan mengurangkan angka yang kecil dari yang besar di setiap tempat (misalnya 4 − 0 pada ratusan). Cara itu tidak meminjam dan memberi hasil yang keliru.\n\n## Mana yang lebih banyak?\n\nKelompok Yohana mengumpulkan Rp345.600, kelompok Komang Rp354.500.\n\nRatus ribuannya sama (3). Puluh ribuannya 4 dan 5. Jadi dana kelompok Komang, **Rp354.500**, lebih banyak. Selisihnya 354.500 − 345.600 = Rp8.900.\n\n## Rangkuman Bab 9\n\n- Bilangan dibaca per kelompok tiga angka; kata \"ribu\" diucapkan sekali. Angka nol tetap menempati tempatnya.\n- Nilai angka = angka × nilai tempatnya. Setiap tempat bernilai sepuluh kali tempat di kanannya.\n- Membandingkan: banyak angka dahulu, lalu angka demi angka dari kiri.\n- Pola bilangan: cari selisih yang tetap.\n- Komposisi dan dekomposisi: tempat yang kosong diisi 0; banyak lembar uang dikalikan dengan nilainya.\n- Soal cerita: tentukan yang ditanyakan, pilih operasi, periksa kembali.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
        "objective": {
-        "statement": "Murid dapat memecahkan masalah sehari-hari yang berkaitan dengan bilangan sampai 1.000.000.",
+        "statement": "Kalian dapat memecahkan masalah sehari-hari yang berkaitan dengan bilangan sampai 1.000.000.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -1386,7 +1386,7 @@
          "ref": "PB8",
          "item_type": "MCQ_SINGLE",
          "stem": "Harga sepeda Rp875.000. Doni sudah menabung Rp628.500. Berapa lagi yang harus ditabung Doni?",
-         "petunjuk": "Periksa jawabanmu dengan menjumlahkannya kembali dengan tabungan Doni.",
+         "petunjuk": "Periksa jawaban kalian dengan menjumlahkannya kembali dengan tabungan Doni.",
          "use": "POST_TEST",
          "difficulty": "0.7",
          "options": [
@@ -1418,7 +1418,7 @@
            "label": "C",
            "body": "Rp253.500",
            "is_correct": false,
-           "rationale": "Di setiap kolom angka kecil dikurangkan dari angka besar, tanpa meminjam."
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
           },
           {
            "_row": {
@@ -1470,7 +1470,7 @@
            "label": "C",
            "body": "Rp175.000",
            "is_correct": false,
-           "rationale": "Di setiap kolom angka kecil dikurangkan dari angka besar, tanpa meminjam."
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
           },
           {
            "_row": {
@@ -1574,7 +1574,7 @@
            "label": "C",
            "body": "Rp55.220",
            "is_correct": false,
-           "rationale": "Di setiap kolom angka kecil dikurangkan dari angka besar, tanpa meminjam."
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
           },
           {
            "_row": {

@@ -29,7 +29,7 @@
        "summary": "Tiga ruas garis dapat membentuk segitiga bila jumlah panjang dua sisi mana pun lebih dari panjang sisi ketiga.",
        "body_markdown": "## Tiga sedotan dan seutas tali\n\nSegitiga adalah bangun datar yang dibatasi tiga sisi. Apakah sembarang tiga ruas garis pasti dapat dirangkai menjadi segitiga?\n\nAyo coba: masukkan seutas tali ke dalam tiga sedotan, lalu ikat kedua ujung tali. Inilah hasil percobaan dengan lima kelompok sedotan:\n\n| No. | Panjang sedotan (cm) | Membentuk segitiga? |\n|---|---|---|\n| 1 | 5, 6, 7 | Bisa |\n| 2 | 4, 6, 6 | Bisa |\n| 3 | 5, 4, 12 | Tidak bisa |\n| 4 | 10, 5, 15 | Tidak bisa |\n| 5 | 5, 12, 13 | Bisa |\n\nJadi, tidak semua kelompok tiga sedotan dapat dibuat segitiga.\n\n## Perhatikan jumlahnya\n\nJumlahkan dua sedotan yang lebih pendek, lalu bandingkan dengan sedotan yang terpanjang:\n\n- Nomor 1: 5 + 6 = 11, lebih dari 7. Bisa.\n- Nomor 3: 5 + 4 = 9, kurang dari 12. Kedua sedotan pendek tidak sampai untuk bertemu.\n- Nomor 4: 10 + 5 = 15, sama dengan 15. Tidak bisa juga.\n- Nomor 5: 5 + 12 = 17, lebih dari 13. Bisa.\n\n## Syaratnya\n\nTiga ruas garis dapat membentuk segitiga bila **jumlah panjang dua sisi mana pun lebih dari panjang sisi ketiga**.\n\nCara cepat memeriksanya:\n\n1. Cari sisi yang terpanjang.\n2. Jumlahkan dua sisi yang lain.\n3. Bila jumlahnya **lebih dari** sisi terpanjang, segitiga dapat dibuat.\n\nMenjumlahkan sisi terpanjang dengan sisi lain tidak memberi tahu apa-apa: hasilnya selalu lebih dari sisi yang tersisa. Yang harus diperiksa adalah dua sisi yang lebih pendek.\n\n## Sama dengan belum cukup\n\nPada kelompok nomor 4, sedotan 10 cm dan 5 cm bersama-sama tepat 15 cm. Keduanya hanya dapat berbaring lurus di atas sedotan 15 cm, tanpa ujung yang terangkat. Tidak ada pojok ketiga, jadi tidak ada segitiga.\n\nJumlah dua sisi harus **lebih dari** sisi ketiga, tidak cukup sama dengan.\n\n**Coba:** sedotan 4 cm, 5 cm, dan 10 cm.\n_Periksa: 4 + 5 = 9, kurang dari 10. Tidak dapat dibuat segitiga._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
        "objective": {
-        "statement": "Murid dapat memeriksa apakah tiga ruas garis dengan panjang tertentu dapat membentuk segitiga.",
+        "statement": "Kalian dapat memeriksa apakah tiga ruas garis dengan panjang tertentu dapat membentuk segitiga.",
         "bloom": "ANALYSE"
        },
        "media": [],
@@ -63,7 +63,7 @@
            "label": "B",
            "body": "6 cm, 7 cm, dan 9 cm",
            "is_correct": true,
-           "rationale": "Tepat. 6 + 7 = 13, lebih dari 9."
+           "rationale": "Benar. 6 + 7 = 13, lebih dari 9."
           },
           {
            "_row": {
@@ -158,7 +158,7 @@
            "label": "A",
            "body": "Tidak, karena 3 + 5 = 8, tidak lebih dari 8",
            "is_correct": true,
-           "rationale": "Tepat. Jumlah dua sisi harus lebih dari sisi ketiga, tidak cukup sama dengan."
+           "rationale": "Benar. Jumlah dua sisi harus lebih dari sisi ketiga, tidak cukup sama dengan."
           },
           {
            "_row": {
@@ -199,7 +199,7 @@
          },
          "ref": "LT2",
          "item_type": "MCQ_SINGLE",
-         "stem": "Dua sisi sebuah segitiga 6 cm dan 10 cm. Panjang sisi ketiga berupa bilangan bulat. Berapa panjang terbesar yang mungkin?",
+         "stem": "Dua sisi sebuah segitiga 6 cm dan 10 cm. Panjang sisi ketiga berupa bilangan cacah. Berapa panjang terbesar yang mungkin?",
          "petunjuk": "Jumlah dua sisi yang diketahui harus lebih dari sisi ketiga.",
          "difficulty": "0.7",
          "options": [
@@ -255,9 +255,9 @@
        "ordinal": "2",
        "title": "Segitiga Menurut Besar Sudutnya",
        "summary": "Menurut besar sudutnya, segitiga dapat berupa segitiga lancip, segitiga siku-siku, atau segitiga tumpul.",
-       "body_markdown": "## Mengingat jenis sudut\n\nDi Bab 6 kamu sudah mengenal jenis sudut:\n\n- **sudut lancip**: kurang dari 90°;\n- **sudut siku-siku**: tepat 90°;\n- **sudut tumpul**: lebih dari 90° dan kurang dari 180°.\n\nSudut dalam segitiga dapat diperiksa dengan sudut siku-siku dari lipatan kertas.\n\n## Segitiga lancip\n\nSebuah segitiga yang **ketiga sudutnya lancip** disebut **segitiga lancip**.\n\nPeriksa ketiga sudutnya satu per satu. Bila semuanya lebih kecil dari pojok lipatan kertas, segitiga itu lancip.\n\n## Segitiga siku-siku dan segitiga tumpul\n\n- Segitiga yang salah satu sudutnya siku-siku disebut **segitiga siku-siku**.\n- Segitiga yang salah satu sudutnya tumpul disebut **segitiga tumpul**.\n\nPada segitiga siku-siku hanya **satu** sudut yang siku-siku; dua sudut lainnya lancip. Pada segitiga tumpul pun hanya **satu** sudut yang tumpul; dua sudut lainnya lancip.\n\n## Periksa ketiga sudutnya\n\nSebuah segitiga mempunyai sudut 35°, 40°, dan 105°.\n\n1. 35° lancip.\n2. 40° lancip.\n3. 105° tumpul.\n\nAda satu sudut tumpul, jadi segitiga itu **segitiga tumpul**. Dua sudut lancip tidak membuatnya segitiga lancip; syarat segitiga lancip adalah **ketiga** sudutnya lancip.\n\n**Coba:** sudut 90°, 60°, dan 30°.\n_Periksa: ada satu sudut siku-siku, jadi segitiga siku-siku._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "body_markdown": "## Mengingat jenis sudut\n\nDi Bab 6 kalian sudah mengenal jenis sudut:\n\n- **sudut lancip**: lebih dari 0° dan kurang dari 90°;\n- **sudut siku-siku**: tepat 90°;\n- **sudut tumpul**: lebih dari 90° dan kurang dari 180°.\n\nSudut dalam segitiga dapat diperiksa dengan sudut siku-siku dari lipatan kertas.\n\n## Segitiga lancip\n\nSebuah segitiga yang **ketiga sudutnya lancip** disebut **segitiga lancip**.\n\nPeriksa ketiga sudutnya satu per satu. Bila semuanya lebih kecil dari pojok lipatan kertas, segitiga itu lancip.\n\n## Segitiga siku-siku dan segitiga tumpul\n\n- Segitiga yang salah satu sudutnya siku-siku disebut **segitiga siku-siku**.\n- Segitiga yang salah satu sudutnya tumpul disebut **segitiga tumpul**.\n\nPada segitiga siku-siku hanya **satu** sudut yang siku-siku; dua sudut lainnya lancip. Pada segitiga tumpul pun hanya **satu** sudut yang tumpul; dua sudut lainnya lancip.\n\n## Periksa ketiga sudutnya\n\nSebuah segitiga mempunyai sudut 35°, 40°, dan 105°.\n\n1. 35° lancip.\n2. 40° lancip.\n3. 105° tumpul.\n\nAda satu sudut tumpul, jadi segitiga itu **segitiga tumpul**. Dua sudut lancip tidak membuatnya segitiga lancip; syarat segitiga lancip adalah **ketiga** sudutnya lancip.\n\n**Coba:** sudut 90°, 60°, dan 30°.\n_Periksa: ada satu sudut siku-siku, jadi segitiga siku-siku._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
        "objective": {
-        "statement": "Murid dapat membandingkan segitiga lancip, siku-siku, dan tumpul dari besar sudut-sudutnya.",
+        "statement": "Kalian dapat membandingkan segitiga lancip, siku-siku, dan tumpul dari besar sudut-sudutnya.",
         "bloom": "UNDERSTAND"
        },
        "media": [],
@@ -311,7 +311,7 @@
            "label": "D",
            "body": "tumpul",
            "is_correct": true,
-           "rationale": "Tepat. Sudut ketiganya 180° − 20° − 48° = 112°, sudut tumpul."
+           "rationale": "Benar. Sudut ketiganya 180° − 20° − 48° = 112°, sudut tumpul."
           }
          ]
         },
@@ -405,7 +405,7 @@
            "label": "C",
            "body": "tumpul",
            "is_correct": true,
-           "rationale": "Tepat. Sudut Q = 110° adalah sudut tumpul."
+           "rationale": "Benar. Sudut Q = 110° adalah sudut tumpul."
           },
           {
            "_row": {
@@ -431,7 +431,7 @@
        "summary": "Jumlah ketiga sudut dalam setiap segitiga adalah 180°, sehingga sudut ketiga dapat dihitung dari dua sudut yang diketahui.",
        "body_markdown": "## Percobaan Asep\n\nAsep menggambar segitiga lancip pada kertas dan memberi tanda pada ketiga sudutnya. Ia memotong ketiga pojok itu, lalu mengimpitkan potongannya rapat-rapat, berdampingan di satu titik.\n\nKetiga pojok itu membentuk **sudut lurus**, yaitu garis lurus. Sudut lurus besarnya **180°**.\n\n## Percobaan Lukas\n\nLukas menggambar segitiga tumpul, lalu membuat dua segitiga lagi yang bentuk dan ukurannya sama. Ia mengimpitkan tiga sudut yang berbeda dari ketiga segitiga itu di satu titik.\n\nHasilnya juga garis lurus, 180°.\n\nJadi, **jumlah sudut-sudut dalam segitiga adalah 180°**, untuk segitiga lancip, siku-siku, maupun tumpul.\n\n## Mencari sudut ketiga\n\nDua sudut sebuah segitiga besarnya 30° dan 80°. Berapa sudut ketiga?\n\n1. Jumlahkan sudut yang diketahui: 30° + 80° = 110°.\n2. Kurangkan dari 180°: 180° − 110° = **70°**.\n3. Periksa: 30° + 80° + 70° = 180°. Cocok.\n\nJawabannya sudut ketiga, 70°, bukan jumlah 110°.\n\n## Mengapa hanya satu yang siku-siku?\n\nAndaikan sebuah segitiga mempunyai dua sudut siku-siku. Maka 90° + 90° = 180°, dan untuk sudut ketiga tersisa 180° − 180° = 0°. Tidak ada sudut ketiga, jadi segitiga itu tidak mungkin ada.\n\nDengan cara yang sama, dua sudut tumpul sudah lebih dari 180°. Karena itu segitiga hanya dapat mempunyai **paling banyak satu** sudut siku-siku atau satu sudut tumpul.\n\n**Coba:** dua sudut segitiga 60° dan 60°.\n_Periksa: 180° − 60° − 60° = 60°. Ketiga sudutnya sama besar._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
        "objective": {
-        "statement": "Murid dapat menemukan bahwa jumlah sudut dalam segitiga 180° dan memakainya untuk menghitung sudut yang belum diketahui.",
+        "statement": "Kalian dapat menemukan bahwa jumlah sudut dalam segitiga 180° dan memakainya untuk menghitung sudut yang belum diketahui.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -642,7 +642,7 @@
            "label": "D",
            "body": "Karena 90° + 90° sudah 180°, tak tersisa untuk sudut ketiga",
            "is_correct": true,
-           "rationale": "Tepat. Sudut ketiga menjadi 0°, jadi tidak ada segitiga."
+           "rationale": "Benar. Sudut ketiga menjadi 0°, jadi tidak ada segitiga."
           }
          ]
         },
@@ -710,7 +710,7 @@
        "summary": "Menurut panjang sisinya, segitiga dapat berupa segitiga sama kaki, sama sisi, atau sembarang; segitiga sama sisi juga termasuk segitiga sama kaki.",
        "body_markdown": "## Segitiga sama kaki\n\nImpitkan sisi-sisi sebuah model segitiga dari kertas satu sama lain. Bila ada **dua sisi** yang tepat berimpit, keduanya sama panjang. Kedua sisi itu disebut **kaki**, dan segitiganya disebut **segitiga sama kaki**.\n\nCiri-ciri segitiga sama kaki:\n\n- setidaknya 2 sisi sama panjang;\n- setidaknya 2 sudut sama besar, yaitu sudut yang menghadap kedua kaki;\n- 1 simetri lipat dan 1 simetri putar.\n\nSegitiga sama kaki dapat juga siku-siku (**segitiga siku-siku sama kaki**) atau tumpul (**segitiga tumpul sama kaki**). Nama menurut sudut dan nama menurut sisi dipakai bersama.\n\n## Menghitung sudut segitiga sama kaki\n\nPada segitiga siku-siku sama kaki, sudut siku-sikunya diapit oleh kedua kaki. Dua sudut yang lain sama besar.\n\n1. Sisa untuk dua sudut itu: 180° − 90° = 90°.\n2. Bagi dua: 90° : 2 = **45°** masing-masing.\n\nPada segitiga tumpul sama kaki yang sudut di antara kedua kakinya 100°: 180° − 100° = 80°, dan 80° : 2 = **40°** masing-masing.\n\n## Segitiga sama sisi\n\nBila **ketiga sisi** tepat berimpit satu sama lain, ketiganya sama panjang. Segitiga itu disebut **segitiga sama sisi**.\n\n- Ketiga sudutnya sama besar: 180° : 3 = **60°**.\n- Mempunyai 3 simetri lipat dan 3 simetri putar.\n\n## Segitiga sembarang\n\nSegitiga yang panjang sisi-sisinya berbeda satu sama lain disebut **segitiga sembarang**.\n\n- Tidak ada sisi yang sama panjang dan tidak ada sudut yang sama besar.\n- Tidak mempunyai simetri lipat.\n- Simetri putarnya 1: ia hanya menempati bingkainya kembali setelah diputar satu putaran penuh.\n\n## Sama sisi juga sama kaki\n\nAturan menggolongkan bangun: **bila semua ciri bangun A dimiliki bangun B, bangun B dapat disebut bangun A juga.**\n\nSegitiga sama sisi mempunyai setidaknya 2 sisi sama panjang, setidaknya 2 sudut sama besar, setidaknya 1 simetri lipat, dan setidaknya 1 simetri putar. Semua ciri segitiga sama kaki ada padanya, jadi **segitiga sama sisi juga segitiga sama kaki**.\n\nSebaliknya tidak selalu. Segitiga dengan sisi 5 cm, 5 cm, dan 3 cm adalah segitiga sama kaki, tetapi ketiga sisinya tidak sama panjang, jadi bukan segitiga sama sisi.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
        "objective": {
-        "statement": "Murid dapat membandingkan ciri-ciri segitiga sama kaki, sama sisi, dan sembarang, termasuk sisi, sudut, dan simetrinya.",
+        "statement": "Kalian dapat membandingkan ciri-ciri segitiga sama kaki, sama sisi, dan sembarang, termasuk sisi, sudut, dan simetrinya.",
         "bloom": "ANALYSE"
        },
        "media": [],
@@ -734,7 +734,7 @@
            "label": "A",
            "body": "segitiga sama kaki",
            "is_correct": true,
-           "rationale": "Tepat. Ada dua sisi yang sama panjang, 7 cm dan 7 cm."
+           "rationale": "Benar. Ada dua sisi yang sama panjang, 7 cm dan 7 cm."
           },
           {
            "_row": {
@@ -841,7 +841,7 @@
            "label": "A",
            "body": "Segitiga sama sisi, dan juga segitiga sama kaki",
            "is_correct": true,
-           "rationale": "Tepat. Semua ciri segitiga sama kaki ada pada segitiga sama sisi, jadi keduanya tepat."
+           "rationale": "Benar. Semua ciri segitiga sama kaki ada pada segitiga sama sisi, jadi keduanya tepat."
           },
           {
            "_row": {
@@ -901,7 +901,7 @@
             "row": 79
            },
            "label": "B",
-           "body": "tidak ada simetri lipat",
+           "body": "Tidak ada simetri lipat",
            "is_correct": false,
            "rationale": "Yang tidak mempunyai simetri lipat adalah segitiga sembarang."
           },
@@ -1027,7 +1027,7 @@
            "label": "D",
            "body": "siku-siku sama kaki",
            "is_correct": true,
-           "rationale": "Tepat. Nama menurut sudut dan nama menurut sisi dipakai bersama."
+           "rationale": "Benar. Nama menurut sudut dan nama menurut sisi dipakai bersama."
           }
          ]
         }
@@ -1041,9 +1041,9 @@
        "ordinal": "5",
        "title": "Trapesium dan Jajargenjang",
        "summary": "Trapesium adalah segi empat yang mempunyai setidaknya sepasang sisi sejajar; jajargenjang termasuk trapesium, tetapi bukan trapesium sama kaki.",
-       "body_markdown": "## Segi empat\n\n**Segi empat** adalah bangun datar yang dibatasi oleh empat sisi. Trapesium, jajargenjang, persegi panjang, belah ketupat, persegi, dan layang-layang semuanya segi empat.\n\n## Trapesium\n\nDi kelas IV kamu belajar bahwa trapesium mempunyai sepasang sisi sejajar. Di bab ini kita memakai pengertian berikut:\n\n**Trapesium adalah segi empat yang mempunyai setidaknya sepasang sisi sejajar.**\n\nAda juga buku yang memakai \"tepat sepasang\". Kedua pengertian itu sama-sama mempunyai alasan yang kuat, dan kelak kamu akan mempelajari bedanya. Di bab ini kita bersepakat memakai \"setidaknya sepasang\".\n\nCara memeriksa dua sisi sejajar: tarik garis tegak lurus dari sisi yang satu ke sisi yang lain di dua tempat. Bila kedua jaraknya sama, sisi-sisi itu sejajar.\n\n## Trapesium siku-siku dan trapesium sama kaki\n\n- **Trapesium siku-siku** adalah trapesium yang salah satu sudutnya siku-siku.\n- **Trapesium sama kaki** adalah trapesium yang mempunyai **1 simetri lipat**. Kedua kakinya sama panjang, dan sudut-sudut pada alasnya sama besar.\n\nTrapesium yang tidak siku-siku dan tidak sama kaki disebut **trapesium sembarang**. Ia tidak mempunyai sumbu simetri.\n\n## Jajargenjang\n\nCiri-ciri jajargenjang:\n\n- sisi-sisi yang berhadapan sejajar (dua pasang);\n- sisi-sisi yang berhadapan sama panjang;\n- sudut-sudut yang berhadapan sama besar;\n- tidak mempunyai sumbu simetri.\n\n## Jajargenjang adalah trapesium\n\nJajargenjang mempunyai setidaknya sepasang sisi sejajar; bahkan dua pasang. Jadi **jajargenjang termasuk trapesium**, yaitu trapesium yang kaki-kakinya juga sejajar.\n\nNamun jajargenjang **bukan trapesium sama kaki**:\n\n- trapesium sama kaki mempunyai 1 sumbu simetri, sedangkan jajargenjang tidak mempunyai sumbu simetri;\n- sudut-sudut pada alas trapesium sama kaki sama besar, sedangkan sudut-sudut pada alas jajargenjang tidak.\n\nKaki-kaki jajargenjang memang sama panjang, tetapi itu belum cukup.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
+       "body_markdown": "## Segi empat\n\n**Segi empat** adalah bangun datar yang dibatasi oleh empat sisi. Trapesium, jajargenjang, persegi panjang, belah ketupat, persegi, dan layang-layang semuanya segi empat.\n\n## Trapesium\n\nDi kelas IV kalian belajar bahwa trapesium mempunyai sepasang sisi sejajar. Di bab ini kita memakai pengertian berikut:\n\n**Trapesium adalah segi empat yang mempunyai setidaknya sepasang sisi sejajar.**\n\nAda juga buku yang memakai \"tepat sepasang\". Kedua pengertian itu sama-sama mempunyai alasan yang kuat, dan kelak kalian akan mempelajari bedanya. Di bab ini kita bersepakat memakai \"setidaknya sepasang\".\n\nCara memeriksa dua sisi sejajar: tarik garis tegak lurus dari sisi yang satu ke sisi yang lain di dua tempat. Bila kedua jaraknya sama, sisi-sisi itu sejajar.\n\n## Trapesium siku-siku dan trapesium sama kaki\n\n- **Trapesium siku-siku** adalah trapesium yang salah satu sudutnya siku-siku.\n- **Trapesium sama kaki** adalah trapesium yang mempunyai **1 simetri lipat**. Kedua kakinya sama panjang, dan sudut-sudut pada alasnya sama besar.\n\nTrapesium yang tidak siku-siku dan tidak sama kaki disebut **trapesium sembarang**. Ia tidak mempunyai sumbu simetri.\n\n## Jajargenjang\n\nCiri-ciri jajargenjang:\n\n- sisi-sisi yang berhadapan sejajar (dua pasang);\n- sisi-sisi yang berhadapan sama panjang;\n- sudut-sudut yang berhadapan sama besar;\n- tidak mempunyai sumbu simetri.\n\n## Jajargenjang adalah trapesium\n\nJajargenjang mempunyai setidaknya sepasang sisi sejajar; bahkan dua pasang. Jadi **jajargenjang termasuk trapesium**, yaitu trapesium yang kaki-kakinya juga sejajar.\n\nNamun jajargenjang **bukan trapesium sama kaki**:\n\n- trapesium sama kaki mempunyai 1 sumbu simetri, sedangkan jajargenjang tidak mempunyai sumbu simetri;\n- sudut-sudut pada alas trapesium sama kaki sama besar, sedangkan sudut-sudut pada alas jajargenjang tidak.\n\nKaki-kaki jajargenjang memang sama panjang, tetapi itu belum cukup.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
        "objective": {
-        "statement": "Murid dapat membandingkan ciri-ciri trapesium dan jajargenjang serta menjelaskan mengapa jajargenjang termasuk trapesium.",
+        "statement": "Kalian dapat membandingkan ciri-ciri trapesium dan jajargenjang serta menjelaskan mengapa jajargenjang termasuk trapesium.",
         "bloom": "ANALYSE"
        },
        "media": [],
@@ -1087,7 +1087,7 @@
            "label": "C",
            "body": "trapesium",
            "is_correct": true,
-           "rationale": "Tepat. Jajargenjang mempunyai setidaknya sepasang sisi sejajar."
+           "rationale": "Benar. Jajargenjang mempunyai setidaknya sepasang sisi sejajar."
           },
           {
            "_row": {
@@ -1189,7 +1189,7 @@
             "row": 96
            },
            "label": "C",
-           "body": "tidak ada sumbu simetri",
+           "body": "Tidak ada sumbu simetri",
            "is_correct": false,
            "rationale": "Yang tidak mempunyai sumbu simetri adalah trapesium sembarang dan jajargenjang."
           },
@@ -1243,7 +1243,7 @@
            "label": "C",
            "body": "Karena jajargenjang tidak mempunyai sumbu simetri",
            "is_correct": true,
-           "rationale": "Tepat. Trapesium sama kaki mempunyai 1 sumbu simetri dan sudut alas yang sama besar."
+           "rationale": "Benar. Trapesium sama kaki mempunyai 1 sumbu simetri dan sudut alas yang sama besar."
           },
           {
            "_row": {
@@ -1269,7 +1269,7 @@
        "summary": "Persegi panjang dan belah ketupat termasuk jajargenjang, dan persegi termasuk keduanya; setiap bangun yang lebih khusus mempunyai ciri tambahan.",
        "body_markdown": "## Arah menggolongkan\n\nIngat aturannya: **bila semua ciri bangun A dimiliki bangun B, bangun B dapat disebut bangun A.**\n\nPerhatikan arahnya. Yang diperiksa adalah ciri-ciri A. Bila semuanya ada pada B, kesimpulannya \"B adalah A\", bukan \"A adalah B\".\n\n## Persegi panjang dan jajargenjang\n\nPeriksa ciri-ciri jajargenjang pada persegi panjang:\n\n- sisi-sisi berhadapan sejajar? Ya.\n- sisi-sisi berhadapan sama panjang? Ya.\n- sudut-sudut berhadapan sama besar? Ya.\n\nSemua ciri jajargenjang dimiliki persegi panjang, jadi **persegi panjang termasuk jajargenjang**.\n\nRangkailah dua pasang sedotan yang sama panjang menjadi jajargenjang. Bila satu sudutnya diubah menjadi siku-siku, sudut-sudut yang lain ikut menjadi siku-siku, dan terbentuklah persegi panjang. Jadi **persegi panjang adalah jajargenjang yang salah satu sudutnya siku-siku**.\n\n## Belah ketupat dan jajargenjang\n\nCiri-ciri belah ketupat: keempat sisinya sama panjang, sisi-sisi berhadapan sejajar, sudut-sudut berhadapan sama besar, kedua diagonalnya saling membagi dua sama panjang dan berpotongan tegak lurus, dan kedua diagonalnya merupakan sumbu simetri.\n\nSemua ciri jajargenjang ada pada belah ketupat, jadi **belah ketupat termasuk jajargenjang**.\n\nSebaliknya tidak: jajargenjang tidak harus mempunyai empat sisi yang sama panjang, dan diagonalnya tidak harus tegak lurus. Jadi sembarang jajargenjang belum tentu belah ketupat.\n\n## Persegi dan belah ketupat\n\nPersegi mempunyai semua ciri belah ketupat: keempat sisinya sama panjang, sudut berhadapan sama besar, diagonalnya tegak lurus dan menjadi sumbu simetri. Jadi **persegi termasuk belah ketupat**.\n\nApa yang harus ditambahkan pada belah ketupat agar menjadi persegi? **Salah satu sudutnya harus siku-siku.**\n\n## Persegi dan persegi panjang\n\nPersegi juga mempunyai semua ciri persegi panjang: sisi berhadapan sejajar dan sama panjang, semua sudutnya siku-siku, diagonalnya saling membagi dua sama panjang. Jadi **persegi termasuk persegi panjang**.\n\nYang harus ditambahkan pada persegi panjang agar menjadi persegi: **sisi-sisi yang berurutan harus sama panjang**.\n\n**Coba:** apakah setiap persegi panjang adalah persegi?\n_Periksa: tidak. Sisi-sisi persegi panjang yang berurutan tidak harus sama panjang._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
        "objective": {
-        "statement": "Murid dapat menggolongkan persegi panjang, belah ketupat, dan persegi dengan membandingkan ciri-cirinya, dan menyebutkan ciri yang harus ditambahkan.",
+        "statement": "Kalian dapat menggolongkan persegi panjang, belah ketupat, dan persegi dengan membandingkan ciri-cirinya, dan menyebutkan ciri yang harus ditambahkan.",
         "bloom": "ANALYSE"
        },
        "media": [],
@@ -1313,7 +1313,7 @@
            "label": "C",
            "body": "jajargenjang",
            "is_correct": true,
-           "rationale": "Tepat. Semua ciri jajargenjang dimiliki persegi panjang: sisi berhadapan sejajar dan sama panjang, sudut berhadapan sama besar."
+           "rationale": "Benar. Semua ciri jajargenjang dimiliki persegi panjang: sisi berhadapan sejajar dan sama panjang, sudut berhadapan sama besar."
           },
           {
            "_row": {
@@ -1376,7 +1376,7 @@
            "label": "D",
            "body": "belah ketupat",
            "is_correct": true,
-           "rationale": "Tepat. Jajargenjang yang keempat sisinya sama panjang adalah belah ketupat."
+           "rationale": "Benar. Jajargenjang yang keempat sisinya sama panjang adalah belah ketupat."
           }
          ]
         },
@@ -1428,7 +1428,7 @@
            "label": "D",
            "body": "Persegi dapat digolongkan sebagai persegi panjang",
            "is_correct": true,
-           "rationale": "Tepat. Bila semua ciri A dimiliki B, B adalah A. Di sini B adalah persegi."
+           "rationale": "Benar. Bila semua ciri A dimiliki B, B adalah A. Di sini B adalah persegi."
           }
          ]
         },
@@ -1460,7 +1460,7 @@
            "label": "B",
            "body": "Salah satu sudutnya siku-siku",
            "is_correct": true,
-           "rationale": "Tepat. Bila satu sudut siku-siku, keempat sudutnya ikut siku-siku."
+           "rationale": "Benar. Bila satu sudut siku-siku, keempat sudutnya ikut siku-siku."
           },
           {
            "_row": {
@@ -1522,7 +1522,7 @@
            "label": "C",
            "body": "Semuanya ikut menjadi siku-siku",
            "is_correct": true,
-           "rationale": "Tepat. Bangunnya menjadi persegi panjang."
+           "rationale": "Benar. Bangunnya menjadi persegi panjang."
           },
           {
            "_row": {
@@ -1548,7 +1548,7 @@
        "summary": "Layang-layang adalah segi empat yang salah satu diagonalnya merupakan sumbu simetri; belah ketupat termasuk layang-layang.",
        "body_markdown": "## Ciri-ciri layang-layang\n\nLipat sebuah layang-layang ABCD menurut salah satu diagonalnya. Kedua bagiannya tepat berimpit, jadi diagonal itu adalah **sumbu simetri**.\n\nCiri-ciri layang-layang:\n\n- ada 2 pasang sisi berurutan yang sama panjang;\n- ada sepasang sudut berhadapan yang sama besar;\n- diagonal-diagonalnya berpotongan tegak lurus;\n- salah satu diagonalnya merupakan sumbu simetri.\n\n**Layang-layang adalah segi empat yang salah satu diagonalnya merupakan sumbu simetri.**\n\n## Belah ketupat juga layang-layang\n\nPeriksa ciri-ciri layang-layang pada belah ketupat:\n\n- 2 pasang sisi berurutan sama panjang? Ya, keempat sisinya sama panjang.\n- sepasang sudut berhadapan sama besar? Ya, bahkan dua pasang.\n- diagonal berpotongan tegak lurus? Ya.\n- salah satu diagonal merupakan sumbu simetri? Ya, bahkan keduanya.\n\nSemua ciri layang-layang dimiliki belah ketupat, jadi **belah ketupat termasuk layang-layang**.\n\n## Yang ditambahkan\n\nPada layang-layang hanya satu diagonal yang menjadi sumbu simetri. Bila **kedua diagonalnya** menjadi sumbu simetri, layang-layang itu menjadi belah ketupat.\n\n**Belah ketupat adalah layang-layang yang semua diagonalnya merupakan sumbu simetri.**\n\nKarena itu, tidak setiap layang-layang adalah belah ketupat.\n\n## Banyak sumbu simetri\n\n| Bangun | Sumbu simetri |\n|---|---|\n| Segitiga sama kaki | 1 |\n| Segitiga sama sisi | 3 |\n| Segitiga sembarang | 0 |\n| Trapesium sama kaki | 1 |\n| Jajargenjang | 0 |\n| Persegi panjang | 2 |\n| Belah ketupat | 2 (kedua diagonalnya) |\n| Persegi | 4 |\n| Layang-layang | 1 (satu diagonalnya) |\n\n## Rangkuman Bab 7\n\n- Tiga ruas garis membentuk segitiga bila jumlah dua sisi mana pun **lebih dari** sisi ketiga.\n- Menurut sudutnya: segitiga lancip, siku-siku, tumpul. Jumlah ketiga sudut 180°, jadi paling banyak satu sudut siku-siku atau tumpul.\n- Menurut sisinya: segitiga sama kaki, sama sisi, sembarang. Segitiga sama sisi juga segitiga sama kaki.\n- Bila semua ciri A dimiliki B, B dapat disebut A.\n- Jajargenjang termasuk trapesium, tetapi bukan trapesium sama kaki.\n- Persegi panjang dan belah ketupat termasuk jajargenjang; persegi termasuk keduanya.\n- Belah ketupat termasuk layang-layang.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 7._",
        "objective": {
-        "statement": "Murid dapat membandingkan ciri-ciri layang-layang dan belah ketupat serta merangkum hubungan antarbangun datar di bab ini.",
+        "statement": "Kalian dapat membandingkan ciri-ciri layang-layang dan belah ketupat serta merangkum hubungan antarbangun datar di bab ini.",
         "bloom": "EVALUATE"
        },
        "media": [],
@@ -1582,7 +1582,7 @@
            "label": "B",
            "body": "layang-layang, bukan belah ketupat",
            "is_correct": true,
-           "rationale": "Tepat. Belah ketupat memerlukan kedua diagonalnya menjadi sumbu simetri."
+           "rationale": "Benar. Belah ketupat memerlukan kedua diagonalnya menjadi sumbu simetri."
           },
           {
            "_row": {
@@ -1652,7 +1652,7 @@
             "row": 117
            },
            "label": "D",
-           "body": "tidak ada, seperti jajargenjang",
+           "body": "Tidak ada, seperti jajargenjang",
            "is_correct": false,
            "rationale": "Jajargenjang tidak mempunyai sumbu simetri, tetapi belah ketupat mempunyai 2."
           }
@@ -1706,7 +1706,7 @@
            "label": "D",
            "body": "Kedua diagonalnya merupakan sumbu simetri",
            "is_correct": true,
-           "rationale": "Tepat. Belah ketupat adalah layang-layang yang semua diagonalnya sumbu simetri."
+           "rationale": "Benar. Belah ketupat adalah layang-layang yang semua diagonalnya sumbu simetri."
           }
          ]
         },
@@ -1738,7 +1738,7 @@
            "label": "B",
            "body": "Layang-layang",
            "is_correct": true,
-           "rationale": "Tepat. Sisi-sisi layang-layang yang sama panjang berurutan, dan sisinya tidak harus sejajar."
+           "rationale": "Benar. Sisi-sisi layang-layang yang sama panjang berurutan, dan sisinya tidak harus sejajar."
           },
           {
            "_row": {

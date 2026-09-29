@@ -6,6 +6,7 @@ import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import PerTujuan from "@/components/siklus/PerTujuan";
 
 export const dynamic = "force-dynamic";
 
@@ -35,11 +36,15 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 
-  const [outcome, review, delta, mine] = await Promise.all([
+  const [outcome, review, delta, mine, peta] = await Promise.all([
     engine.outcome(db, state.post_session),
     engine.review(db, state.post_session),
     engine.delta(db, tugas),
     engine.myAssignments(db).then((a) => a.find((x) => x.learning_assignment_id === tugas)),
+    // UX-26: the objectives' names, from this learner's own session. Only
+    // names hang on it, so a failed read leaves the rows on their codes
+    // rather than the result unreadable.
+    engine.readingMap(db, state.post_session).catch(() => []),
   ]);
   if (!outcome) notFound();
 
@@ -83,22 +88,9 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
           </div>
         ) : null}
 
-        {/* The observation: how it went, section by section. */}
-        {Object.keys(outcome.per_domain ?? {}).length > 0 ? (
-          <section className="pin-sec">
-            <h2>{s("hasil.domain")}</h2>
-            <div className="pin-domain">
-              {Object.entries(outcome.per_domain ?? {}).map(([code, d]) => (
-                <div className="pin-drow" key={code}>
-                  <span>{code}</span>
-                  <span className="pin-cnt pin-num">
-                    {format.number(d.benar, locale)}/{format.number(d.total, locale)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
+        {/* The observation: how it went, objective by objective, each by its
+            name (UX-26). */}
+        <PerTujuan perDomain={outcome.per_domain} peta={peta} locale={locale} />
 
         {/* The evidence: the items themselves. A wrong safety-critical item is
             pinned open — it is the one thing on this page a learner must not

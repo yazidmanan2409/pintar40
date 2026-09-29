@@ -119,7 +119,7 @@ BAB = [(1, "Keliling Bangun Datar")]
 PELAJARAN = [
     dict(no=1, judul="Apakah Keliling Itu?",
          ringkasan="Keliling adalah panjang jalan yang menyusuri semua tepi sebuah bangun satu kali sampai kembali ke titik awal.",
-         tujuan="Murid dapat mengenali masalah yang melibatkan keliling dan menghitung keliling sebagai jumlah panjang semua sisi.",
+         tujuan="Kalian dapat mengenali masalah yang melibatkan keliling dan menghitung keliling sebagai jumlah panjang semua sisi.",
          bloom="Memahami",
          isi=f"""## Berlari 300 meter
 
@@ -165,7 +165,7 @@ Bila yang ditanyakan berapa ubin untuk **menutup** lantai, itu bukan keliling, t
 {SUMBER}"""),
     dict(no=2, judul="Keliling Segitiga",
          ringkasan="Keliling segitiga adalah jumlah ketiga sisinya; sisi yang sama panjang dapat dihitung dengan perkalian.",
-         tujuan="Murid dapat menghitung keliling segitiga sembarang, segitiga sama sisi, dan segitiga sama kaki.",
+         tujuan="Kalian dapat menghitung keliling segitiga sembarang, segitiga sama sisi, dan segitiga sama kaki.",
          bloom="Menerapkan",
          isi=f"""## Segitiga sembarang
 
@@ -192,7 +192,7 @@ _Periksa: 3 × 6 = 18 cm._
 
 ## Segitiga sama kaki
 
-Segitiga sama kaki mempunyai **dua** sisi yang sama panjang (kaki) dan satu sisi lain (alas).
+Segitiga sama kaki mempunyai setidaknya **dua** sisi yang sama panjang, yaitu kakinya. Sisi ketiga disebut alas.
 
 Kaki 6 cm dan alas 4 cm:
 
@@ -213,7 +213,7 @@ Keliling = 3 × sisi, jadi sisi = 27 : 3 = **9 cm**. Periksa: 3 × 9 = 27.
 {SUMBER}"""),
     dict(no=3, judul="Keliling Persegi Panjang, Jajargenjang, dan Layang-Layang",
          ringkasan="Ketiga bangun ini mempunyai dua pasang sisi yang sama panjang, jadi kelilingnya dua kali sisi yang satu ditambah dua kali sisi yang lain.",
-         tujuan="Murid dapat menghitung keliling persegi panjang, jajargenjang, dan layang-layang.",
+         tujuan="Kalian dapat menghitung keliling persegi panjang, jajargenjang, dan layang-layang.",
          bloom="Menerapkan",
          isi=f"""## Persegi panjang
 
@@ -237,7 +237,7 @@ Keliling = (2 × 5) + (2 × 3) = 10 + 6 = **16 cm**.
 
 ## Layang-layang
 
-Layang-layang juga mempunyai dua pasang sisi yang sama panjang, tetapi letaknya **berdampingan**, bukan berhadapan: dua sisi pendek bertemu di satu ujung, dan dua sisi panjang bertemu di ujung yang lain.
+Layang-layang juga mempunyai dua pasang sisi yang sama panjang, tetapi letaknya **berurutan**, bukan berhadapan: dua sisi pendek bertemu di satu ujung, dan dua sisi panjang bertemu di ujung yang lain.
 
 Layang-layang dengan sisi pendek 3 cm dan sisi panjang 7 cm:
 
@@ -256,7 +256,7 @@ Banyaknya sisi yang sama panjang menjadi pengalinya.
 {SUMBER}"""),
     dict(no=4, judul="Keliling Persegi, Belah Ketupat, Trapesium, dan Segi Empat Sembarang",
          ringkasan="Persegi dan belah ketupat mempunyai empat sisi sama panjang; trapesium dan segi empat sembarang dihitung dengan menjumlahkan keempat sisinya.",
-         tujuan="Murid dapat menghitung keliling persegi, belah ketupat, trapesium, dan segi empat sembarang.",
+         tujuan="Kalian dapat menghitung keliling persegi, belah ketupat, trapesium, dan segi empat sembarang.",
          bloom="Menerapkan",
          isi=f"""## Persegi
 
@@ -299,7 +299,7 @@ _Periksa: tidak, sisinya tidak sama panjang. Keliling = 10 + 6 + 5 + 5 = 26 cm._
 {SUMBER}"""),
     dict(no=5, judul="Keliling Segi Banyak Beraturan",
          ringkasan="Pada segi banyak beraturan semua sisi sama panjang, jadi kelilingnya adalah banyak sisi dikali panjang satu sisi.",
-         tujuan="Murid dapat menghitung keliling segi lima, segi enam, dan segi delapan beraturan.",
+         tujuan="Kalian dapat menghitung keliling segi lima, segi enam, dan segi delapan beraturan.",
          bloom="Menerapkan",
          isi=f"""## Segi lima beraturan
 
@@ -339,13 +339,13 @@ Keliling = 8 × sisi, jadi sisi = 56 : 8 = **7 cm**. Periksa: 8 × 7 = 56.
 {SUMBER}"""),
     dict(no=6, judul="Keliling Bangun Gabungan",
          ringkasan="Keliling bangun gabungan adalah jumlah panjang sisi-sisi terluarnya; sisi yang belum tertulis dicari dari sisi di seberangnya.",
-         tujuan="Murid dapat menguraikan bangun gabungan dan menghitung kelilingnya dari sisi-sisi terluarnya.",
+         tujuan="Kalian dapat menguraikan bangun gabungan dan menghitung kelilingnya dari sisi-sisi terluarnya.",
          bloom="Menganalisis",
          isi=f"""## Hanya tepi terluar
 
 Denah sebuah rumah terdiri atas dua ruangan: ruang A berukuran 8 m × 3 m, dan ruang B berukuran 3 m × 4 m tepat di bawah ujung kiri ruang A. Dinding di antara kedua ruangan ada di **dalam** rumah.
 
-Berapa panjang dinding terluar rumah itu? Bayangkan kamu berjalan menyusuri tepi luarnya, mulai dari pojok kiri atas:
+Berapa panjang dinding terluar rumah itu? Bayangkan kalian berjalan menyusuri tepi luarnya, mulai dari pojok kiri atas:
 
 ke kanan 8 m, ke bawah 3 m, ke kiri 5 m, ke bawah 4 m, ke kiri 3 m, lalu naik 7 m kembali ke titik awal.
 
@@ -486,7 +486,7 @@ soal("PA3", 4, "Sebuah persegi mempunyai sisi 6 cm. Berapa kelilingnya?", "D", [
     ("18 cm", False, "Sisi dikali 3, seperti segitiga sama sisi. Persegi mempunyai 4 sisi.", "SD5-M-B4-04"),
 ], guna="Pemetaan awal")
 soal("PA4", 1, "Manakah yang dihitung dengan keliling?", "B", [
-    ("Panjang pita untuk menghias tepi bingkai foto", True, "Tepat. Pita dipasang di sepanjang tepi, jadi yang dihitung keliling bingkai.", ""),
+    ("Panjang pita untuk menghias tepi bingkai foto", True, "Benar. Pita dipasang di sepanjang tepi, jadi yang dihitung keliling bingkai.", ""),
     ("Banyak ubin untuk menutup lantai kelas", False, "Ubin menutup seluruh bagian dalam lantai. Itu luas, bukan keliling.", "SD5-M-B4-03"),
     ("Banyak cat untuk mengecat seluruh permukaan meja", False, "Cat menutup seluruh permukaan meja. Itu luas, bukan keliling.", "SD5-M-B4-03"),
     ("Panjang tali dari ujung ke ujung satu sisi lapangan", False, "Itu hanya satu sisi. Keliling menyusuri semua sisi sampai kembali ke titik awal.", "SD5-M-B4-02"),
@@ -561,7 +561,7 @@ soal("LT1", 1, "Dodi berlari mengelilingi lapangan yang panjangnya 60 m dan leba
     ("4.800 m", False, "Panjang dikali lebar (luas), lalu dikali 2. Berlari mengelilingi berarti menjumlahkan sisi-sisinya.", "SD5-M-B4-03"),
 ], sulit="Sedang")
 soal("LT2", 1, "Rute manakah yang panjangnya sama dengan keliling lapangan?", "D", [
-    ("Menyusuri semua tepi satu kali sampai kembali ke awal", True, "Tepat. Keliling melewati setiap sisi tepat satu kali dan kembali ke titik awal.", ""),
+    ("Menyusuri semua tepi satu kali sampai kembali ke awal", True, "Benar. Keliling melewati setiap sisi tepat satu kali dan kembali ke titik awal.", ""),
     ("Berlari bolak-balik di sepanjang satu sisi lapangan", False, "Bolak-balik di satu sisi melewati sisi yang sama berulang kali; sisi lainnya tidak dilewati.", "SD5-M-B4-10"),
     ("Berlari melintasi tengah lapangan dari sudut ke sudut", False, "Bagian tengah bukan tepi lapangan. Keliling hanya menyusuri tepinya.", "SD5-M-B4-01"),
     ("Menyusuri dua sisi lapangan, lalu berhenti", False, "Baru dua sisi yang dilewati. Keliling menyusuri semua sisi sampai kembali ke titik awal.", "SD5-M-B4-02"),
@@ -585,8 +585,8 @@ soal("LT5", 2, "Keliling sebuah segitiga sama kaki 30 cm dan alasnya 8 cm. Berap
     ("11 cm", True, "Benar. Dua kaki = 30 − 8 = 22 cm, jadi satu kaki = 22 : 2 = 11 cm. Periksa: 11 + 11 + 8 = 30.", ""),
     ("22 cm", False, "22 cm adalah panjang kedua kaki bersama, hasil langkah pertama. Satu kaki = 22 : 2.", "SD5-M-B4-09"),
     ("10 cm", False, "Keliling dibagi 3, seolah ketiga sisinya sama. Alasnya berbeda, 8 cm.", "SD5-M-B4-06"),
-    ("15 cm", False, "Keliling dibagi 2 tanpa mengurangi alasnya lebih dulu.", "SD5-M-B4-02"),
-], sulit="Sulit", petunjuk="Kurangi keliling dengan alasnya dulu. Sisanya adalah panjang dua kaki.")
+    ("15 cm", False, "Keliling dibagi 2 tanpa mengurangi alasnya lebih dahulu.", "SD5-M-B4-02"),
+], sulit="Sulit", petunjuk="Kurangi keliling dengan alasnya dahulu. Sisanya adalah panjang dua kaki.")
 cek(2 * 18 + 2 * 7 == 50 and 18 + 7 == 25 and 18 * 7 == 126 and 2 * 18 + 7 == 43)
 soal("LT6", 3, "Sebuah meja berbentuk persegi panjang dengan panjang 18 dm dan lebar 7 dm. Berapa keliling meja itu?", "C", [
     ("50 dm", True, "Benar. (2 × 18) + (2 × 7) = 36 + 14 = 50 dm.", ""),

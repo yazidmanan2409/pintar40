@@ -27,9 +27,9 @@
        "ordinal": "1",
        "title": "Sudut Siku-Siku",
        "summary": "Sudut siku-siku seperti pojok bingkai atau pojok buku; kita dapat memeriksanya dengan kertas yang dilipat.",
-       "body_markdown": "## Pojok bingkai\n\nPerhatikan pojok bingkai foto, pojok buku, atau pojok jendela. Pojok-pojok itu membentuk **sudut siku-siku**.\n\nTukang kayu memakai **penggaris siku-siku** untuk memastikan pojok bingkai yang dibuatnya benar-benar siku-siku.\n\n## Membuat alat pemeriksa\n\nKamu dapat membuat alat seperti penggaris siku-siku dari selembar kertas bekas:\n\n1. Lipat kertas menjadi dua.\n2. Lipat sekali lagi sehingga garis lipatan pertama bertemu dengan dirinya sendiri.\n3. Pojok yang terbentuk di tengah lipatan adalah sudut siku-siku.\n\nUntuk memeriksa sebuah pojok, tempelkan pojok kertas itu. Satu sisi kertas harus **berimpit** tepat dengan satu tepi benda.\n\n- Bila tepi yang lain juga berimpit, pojok itu siku-siku.\n- Bila tepi yang lain masuk ke dalam kertas, sudutnya lebih kecil dari siku-siku.\n- Bila tepi yang lain berada di luar kertas, sudutnya lebih besar dari siku-siku.\n\n## Posisinya boleh apa saja\n\nSudut siku-siku tidak harus mempunyai satu sisi yang mendatar. Pojok buku yang diletakkan miring di atas meja tetap siku-siku. Pojok ubin yang dilihat dari samping juga tetap siku-siku.\n\nYang menentukan hanyalah besar bukaannya, bukan arahnya.\n\n**Coba:** berapa sudut siku-siku pada sebuah persegi panjang?\n_Periksa: 4, satu di setiap pojok._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "body_markdown": "## Pojok bingkai\n\nPerhatikan pojok bingkai foto, pojok buku, atau pojok jendela. Pojok-pojok itu membentuk **sudut siku-siku**.\n\nTukang kayu memakai **penggaris siku-siku** untuk memastikan pojok bingkai yang dibuatnya benar-benar siku-siku.\n\n## Membuat alat pemeriksa\n\nKalian dapat membuat alat seperti penggaris siku-siku dari selembar kertas bekas:\n\n1. Lipat kertas menjadi dua.\n2. Lipat sekali lagi sehingga garis lipatan pertama bertemu dengan dirinya sendiri.\n3. Pojok yang terbentuk di tengah lipatan adalah sudut siku-siku.\n\nUntuk memeriksa sebuah pojok, tempelkan pojok kertas itu. Satu sisi kertas harus **berimpit** tepat dengan satu tepi benda.\n\n- Bila tepi yang lain juga berimpit, pojok itu siku-siku.\n- Bila tepi yang lain masuk ke dalam kertas, sudutnya lebih kecil dari siku-siku.\n- Bila tepi yang lain berada di luar kertas, sudutnya lebih besar dari siku-siku.\n\n## Posisinya boleh apa saja\n\nSudut siku-siku tidak harus mempunyai satu sisi yang mendatar. Pojok buku yang diletakkan miring di atas meja tetap siku-siku. Pojok ubin yang dilihat dari samping juga tetap siku-siku.\n\nYang menentukan hanyalah besar bukaannya, bukan arahnya.\n\n**Coba:** berapa sudut siku-siku pada sebuah persegi panjang?\n_Periksa: 4, satu di setiap pojok._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
        "objective": {
-        "statement": "Murid dapat menemukan sudut siku-siku di sekitarnya dan memeriksanya dengan alat sederhana.",
+        "statement": "Kalian dapat menemukan sudut siku-siku di sekitarnya dan memeriksanya dengan alat sederhana.",
         "bloom": "UNDERSTAND"
        },
        "media": [],
@@ -63,7 +63,7 @@
            "label": "B",
            "body": "Pojok halaman buku",
            "is_correct": true,
-           "rationale": "Tepat. Pojok buku seperti pojok bingkai: siku-siku."
+           "rationale": "Benar. Pojok buku seperti pojok bingkai: siku-siku."
           },
           {
            "_row": {
@@ -146,7 +146,7 @@
          },
          "ref": "LT2",
          "item_type": "MCQ_SINGLE",
-         "stem": "Bangun manakah yang mempunyai tepat 2 sudut yang besarnya 90°?",
+         "stem": "Bangun manakah yang dapat mempunyai tepat 2 sudut yang besarnya 90°?",
          "difficulty": "0.5",
          "options": [
           {
@@ -157,7 +157,7 @@
            "label": "A",
            "body": "Trapesium siku-siku",
            "is_correct": true,
-           "rationale": "Tepat. Trapesium siku-siku mempunyai 2 sudut 90° di sisi tegaknya."
+           "rationale": "Benar. Trapesium siku-siku yang sisi sejajarnya hanya sepasang mempunyai tepat 2 sudut 90°, di kedua ujung sisi tegaknya."
           },
           {
            "_row": {
@@ -201,9 +201,9 @@
        "ordinal": "2",
        "title": "Pengertian dan Jenis Sudut",
        "summary": "Sudut dibentuk oleh dua kaki sudut yang bertemu di satu titik sudut; sudut lancip lebih kecil dan sudut tumpul lebih besar dari sudut siku-siku.",
-       "body_markdown": "## Bagian-bagian sudut\n\nSebuah **sudut** dibentuk oleh dua garis lurus yang bertemu di satu titik.\n\n- Kedua garis lurus itu disebut **kaki sudut**.\n- Titik tempat keduanya bertemu disebut **titik sudut**.\n\nPojok meja yang tajam adalah sudut: ada dua tepi lurus yang bertemu di satu titik.\n\n## Pojok yang bukan sudut\n\nPojok kotak pensil yang **membulat** bukan sudut. Di situ tidak ada dua garis lurus yang bertemu tepat di satu titik; tepinya melengkung.\n\nJadi tidak semua pojok adalah sudut. Periksa dulu: adakah dua kaki lurus dan satu titik sudut?\n\n## Lancip, siku-siku, tumpul\n\nBandingkan sebuah sudut dengan sudut siku-siku:\n\n| Jenis | Dibandingkan dengan sudut siku-siku | Contoh |\n|---|---|---|\n| Sudut lancip | lebih kecil | gunting yang terbuka sedikit |\n| Sudut siku-siku | sama | pojok jendela |\n| Sudut tumpul | lebih besar | kipas yang terbuka lebar |\n\n## Sudut pada jarum jam\n\nJarum pendek dan jarum panjang jam juga membentuk sudut. Titik sudutnya adalah poros di tengah jam.\n\n- Pukul 03.00: siku-siku.\n- Pukul 11.00: lebih kecil dari siku-siku, jadi **lancip**.\n- Pukul 08.00: lebih besar dari siku-siku, jadi **tumpul**.\n\n**Coba:** pukul 01.00 membentuk sudut apa?\n_Periksa: lancip, lebih kecil dari pukul 03.00._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "body_markdown": "## Bagian-bagian sudut\n\nSebuah **sudut** dibentuk oleh dua garis lurus yang bertemu di satu titik.\n\n- Kedua garis lurus itu disebut **kaki sudut**.\n- Titik tempat keduanya bertemu disebut **titik sudut**.\n\nPojok meja yang tajam adalah sudut: ada dua tepi lurus yang bertemu di satu titik.\n\n## Pojok yang bukan sudut\n\nPojok kotak pensil yang **membulat** bukan sudut. Di situ tidak ada dua garis lurus yang bertemu tepat di satu titik; tepinya melengkung.\n\nJadi tidak semua pojok adalah sudut. Periksa dahulu: adakah dua kaki lurus dan satu titik sudut?\n\n## Lancip, siku-siku, tumpul\n\nBandingkan sebuah sudut dengan sudut siku-siku:\n\n| Jenis | Dibandingkan dengan sudut siku-siku | Contoh |\n|---|---|---|\n| Sudut lancip | lebih kecil | gunting yang terbuka sedikit |\n| Sudut siku-siku | sama | pojok jendela |\n| Sudut tumpul | lebih besar | kipas yang terbuka lebar |\n\n## Sudut pada jarum jam\n\nJarum pendek dan jarum panjang jam juga membentuk sudut. Titik sudutnya adalah poros di tengah jam.\n\n- Pukul 03.00: siku-siku.\n- Pukul 11.00: lebih kecil dari siku-siku, jadi **lancip**.\n- Pukul 08.00: lebih besar dari siku-siku, jadi **tumpul**.\n\n**Coba:** pukul 01.00 membentuk sudut apa?\n_Periksa: lancip, lebih kecil dari pukul 03.00._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
        "objective": {
-        "statement": "Murid dapat menyebutkan bagian-bagian sudut dan mengelompokkan sudut menjadi lancip, siku-siku, dan tumpul.",
+        "statement": "Kalian dapat menyebutkan bagian-bagian sudut dan mengelompokkan sudut menjadi lancip, siku-siku, dan tumpul.",
         "bloom": "UNDERSTAND"
        },
        "media": [],
@@ -309,7 +309,7 @@
            "label": "D",
            "body": "Pojok meja persegi yang tajam",
            "is_correct": true,
-           "rationale": "Tepat. Dua tepi lurus meja bertemu di satu titik."
+           "rationale": "Benar. Dua tepi lurus meja bertemu di satu titik."
           }
          ]
         },
@@ -375,9 +375,9 @@
        "ordinal": "3",
        "title": "Mengukur Sudut dengan Busur Derajat",
        "summary": "Besar sudut diukur dalam derajat dengan busur derajat; yang dibaca adalah skala yang dimulai dari 0 pada salah satu kaki sudut.",
-       "body_markdown": "## Satuan derajat\n\nBesar sudut diukur dalam **derajat**, ditulis dengan tanda °.\n\n- Satu putaran penuh besarnya **360°**.\n- Setengah putaran (sudut lurus) besarnya **180°**.\n- Seperempat putaran (sudut siku-siku) besarnya **90°**.\n\nAlat untuk mengukurnya disebut **busur derajat**. Busur berbentuk setengah lingkaran, dengan angka 0 sampai 180.\n\n## Langkah mengukur\n\n1. Letakkan **titik pusat** busur tepat di titik sudut.\n2. Impitkan **garis dasar** busur dengan salah satu kaki sudut.\n3. Lihat skala yang angka **0**-nya ada di kaki itu.\n4. Ikuti skala itu sampai kaki sudut yang lain, lalu baca angkanya.\n\n## Dua skala\n\nBusur mempunyai dua deret angka: skala dalam dan skala luar. Keduanya berjalan berlawanan arah. Di tempat skala dalam menunjukkan 50, skala luar menunjukkan 130, karena 50 + 130 = 180.\n\nMana yang dibaca? Yang **0-nya berada di kaki pertama**. Bila kaki pertama ada di angka 0 skala dalam dan kaki kedua melewati 50 (dalam) dan 130 (luar), sudutnya **50°**.\n\nPeriksa dengan jenisnya: sudut itu tampak lebih kecil dari siku-siku, jadi lancip, dan 50° memang lancip. Bila kamu membaca 130°, itu tumpul, tidak cocok.\n\n## Posisi busur\n\nBusur tidak harus selalu mendatar. Putar busurnya mengikuti arah kaki sudut, sampai garis dasarnya berimpit dengan salah satu kaki.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "body_markdown": "## Satuan derajat\n\nBesar sudut diukur dalam **derajat**, ditulis dengan tanda °.\n\n- Satu putaran penuh besarnya **360°**.\n- Setengah putaran (sudut lurus) besarnya **180°**.\n- Seperempat putaran (sudut siku-siku) besarnya **90°**.\n\nAlat untuk mengukurnya disebut **busur derajat**. Busur berbentuk setengah lingkaran, dengan angka 0 sampai 180.\n\n## Langkah mengukur\n\n1. Letakkan **titik pusat** busur tepat di titik sudut.\n2. Impitkan **garis dasar** busur dengan salah satu kaki sudut.\n3. Lihat skala yang angka **0**-nya ada di kaki itu.\n4. Ikuti skala itu sampai kaki sudut yang lain, lalu baca angkanya.\n\n## Dua skala\n\nBusur mempunyai dua deret angka: skala dalam dan skala luar. Keduanya berjalan berlawanan arah. Di tempat skala dalam menunjukkan 50, skala luar menunjukkan 130, karena 50 + 130 = 180.\n\nMana yang dibaca? Yang **0-nya berada di kaki pertama**. Bila kaki pertama ada di angka 0 skala dalam dan kaki kedua melewati 50 (dalam) dan 130 (luar), sudutnya **50°**.\n\nPeriksa dengan jenisnya: sudut itu tampak lebih kecil dari siku-siku, jadi lancip, dan 50° memang lancip. Bila kalian membaca 130°, itu tumpul, tidak cocok.\n\n## Posisi busur\n\nBusur tidak harus selalu mendatar. Putar busurnya mengikuti arah kaki sudut, sampai garis dasarnya berimpit dengan salah satu kaki.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
        "objective": {
-        "statement": "Murid dapat mengukur besar sudut dengan busur derajat dan membaca skalanya dengan tepat.",
+        "statement": "Kalian dapat mengukur besar sudut dengan busur derajat dan membaca skalanya dengan tepat.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -525,7 +525,7 @@
            "label": "C",
            "body": "meletakkan titik pusat busur tepat di titik sudut",
            "is_correct": true,
-           "rationale": "Tepat. Titik pusat busur harus berada di titik sudut, baru garis dasarnya diimpitkan dengan satu kaki."
+           "rationale": "Benar. Titik pusat busur harus berada di titik sudut, baru garis dasarnya diimpitkan dengan satu kaki."
           },
           {
            "_row": {
@@ -601,9 +601,9 @@
        "ordinal": "4",
        "title": "Jenis Sudut Menurut Besarnya dan Membandingkan Sudut",
        "summary": "Sudut dikelompokkan menurut besarnya dalam derajat; besar sudut ditentukan oleh bukaannya, bukan oleh panjang kakinya.",
-       "body_markdown": "## Jenis sudut menurut besarnya\n\n| Jenis | Besar |\n|---|---|\n| Sudut nol | 0° |\n| Sudut lancip | lebih dari 0° dan kurang dari 90° |\n| Sudut siku-siku | tepat 90° |\n| Sudut tumpul | lebih dari 90° dan kurang dari 180° |\n| Sudut lurus | tepat 180° |\n| Sudut refleks | lebih dari 180° dan kurang dari 360° |\n| Satu putaran | 360° |\n\nPerhatikan batasnya: 90° adalah siku-siku, bukan lancip dan bukan tumpul. 180° adalah sudut lurus, bukan tumpul.\n\n## Sudut refleks\n\nDua kaki sudut selalu membentuk dua sudut: bagian yang kecil dan bagian yang besar di baliknya. Keduanya bersama-sama membentuk satu putaran, 360°.\n\nBila bagian yang kecil 120°, bagian yang besar adalah 360° − 120° = **240°**. Sudut 240° disebut sudut **refleks**.\n\nBusur hanya sampai 180°, jadi sudut refleks dihitung dengan mengurangkan dari 360°.\n\n## Membandingkan sudut\n\nTari pakarena dari Sulawesi Selatan memakai kipas. Kipas yang terbuka paling lebar adalah kipas yang **sudutnya paling besar**.\n\nPanjang bilah kipas tidak menentukan besar sudut. Kipas kecil yang dibuka 120° lebih lebar bukaannya daripada kipas besar yang dibuka 90°.\n\nBegitu juga dua sudut yang sama besar, misalnya 40°, tetap sama besar walaupun kaki yang satu 10 cm dan yang lain 3 cm. Jarak antara ujung-ujung kakinya memang berbeda, tetapi bukaannya sama.\n\n## Mengurutkan\n\nUrutkan 95°, 180°, 45°, dan 270° dari yang terkecil: **45°, 95°, 180°, 270°**. Lancip, tumpul, lurus, lalu refleks.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "body_markdown": "## Jenis sudut menurut besarnya\n\n| Jenis | Besar |\n|---|---|\n| Sudut nol | 0° |\n| Sudut lancip | lebih dari 0° dan kurang dari 90° |\n| Sudut siku-siku | tepat 90° |\n| Sudut tumpul | lebih dari 90° dan kurang dari 180° |\n| Sudut lurus | tepat 180° |\n| Sudut refleks | lebih dari 180° dan kurang dari 360° |\n| Satu putaran | 360° |\n\nPerhatikan batasnya: 90° adalah siku-siku, bukan lancip dan bukan tumpul. 180° adalah sudut lurus, bukan tumpul.\n\n## Sudut refleks\n\nDua kaki sudut selalu membentuk dua sudut: bagian yang kecil dan bagian yang besar di baliknya. Keduanya bersama-sama membentuk satu putaran, 360°.\n\nBila bagian yang kecil 120°, bagian yang besar adalah 360° − 120° = **240°**. Sudut 240° disebut sudut **refleks**.\n\nBusur hanya sampai 180°, jadi sudut refleks dihitung dengan mengurangkan dari 360°.\n\n## Membandingkan sudut\n\nTari pakarena dari Sulawesi Selatan memakai kipas. Kipas yang terbuka paling lebar adalah kipas yang **sudutnya paling besar**.\n\nPanjang bilah kipas tidak menentukan besar sudut. Kipas kecil yang dibuka 120° lebih lebar bukaannya daripada kipas besar yang dibuka 90°.\n\nBegitu juga dua sudut yang sama besar, misalnya 40°, tetap sama besar walaupun kaki yang satu 10 cm dan yang lain 3 cm. Jarak antara ujung-ujung kakinya memang berbeda, tetapi bukaannya sama.\n\n## Mengurutkan\n\nUrutkan 95°, 180°, 45°, dan 270° dari yang terkecil: **45°; 95°; 180°; 270°**. Lancip, tumpul, lurus, lalu refleks.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
        "objective": {
-        "statement": "Murid dapat menentukan jenis sudut dari besarnya, menghitung sudut refleks, dan membandingkan besar sudut.",
+        "statement": "Kalian dapat menentukan jenis sudut dari besarnya, menghitung sudut refleks, dan membandingkan besar sudut.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -647,7 +647,7 @@
            "label": "C",
            "body": "Sama besar",
            "is_correct": true,
-           "rationale": "Tepat. Keduanya dibuka sebesar sudut siku-siku; panjang kaki tidak memengaruhi besar sudut."
+           "rationale": "Benar. Keduanya dibuka sebesar sudut siku-siku; panjang kaki tidak memengaruhi besar sudut."
           },
           {
            "_row": {
@@ -786,7 +786,7 @@
            "label": "A",
            "body": "P lebih besar 5° daripada Q",
            "is_correct": true,
-           "rationale": "Tepat. 70° − 65° = 5°. Panjang kaki tidak memengaruhi besar sudut."
+           "rationale": "Benar. 70° − 65° = 5°. Panjang kaki tidak memengaruhi besar sudut."
           },
           {
            "_row": {
@@ -988,7 +988,7 @@
        "summary": "Jarak antara dua angka yang berdekatan pada jam adalah 30°; jarum pendek ikut bergerak saat menit berjalan.",
        "body_markdown": "## Setiap angka 30°\n\nAngka 1 sampai 12 pada jam membagi satu putaran penuh (360°) menjadi 12 bagian yang sama. Jadi dari satu angka ke angka berikutnya besarnya **360° : 12 = 30°**.\n\nPukul 04.00: jarum panjang di angka 12, jarum pendek di angka 4. Ada 4 langkah angka di antaranya: 4 × 30° = **120°**.\n\n## Sudut terkecil\n\nDari jarum yang satu ke jarum yang lain dapat dihitung ke dua arah. Yang biasa ditanyakan adalah **sudut terkecil**.\n\nPukul 10.00: dari angka 10 ke angka 12 ada 2 langkah, 2 × 30° = **60°**. Arah yang lain, 10 langkah, memberi 300°. Itu sudut refleksnya, bukan sudut terkecil.\n\n## Jarum pendek ikut bergerak\n\nPada pukul 04.30, jarum panjang di angka 6. Jarum pendek **tidak** tepat di angka 4: setengah jam sudah lewat, jadi ia berada di tengah-tengah angka 4 dan 5.\n\n1. Dari angka 4 ke angka 6 ada 2 langkah: 60°.\n2. Jarum pendek sudah maju setengah langkah (15°) ke arah angka 6.\n3. Jadi sudutnya 60° − 15° = **45°**.\n\nBila jarum pendek dianggap tetap di angka 4, hasilnya 60°, terlalu besar.\n\n**Coba:** pukul 01.30.\n_Periksa: dari angka 1 ke 6 ada 5 langkah (150°), jarum pendek sudah maju 15° ke arah angka 6, jadi 150° − 15° = 135°._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
        "objective": {
-        "statement": "Murid dapat menghitung besar sudut yang dibentuk jarum jam pada waktu tertentu.",
+        "statement": "Kalian dapat menghitung besar sudut yang dibentuk jarum jam pada waktu tertentu.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -1275,7 +1275,7 @@
            "label": "A",
            "body": "06.00",
            "is_correct": true,
-           "rationale": "Tepat. Jarum panjang di angka 12 dan jarum pendek di angka 6, berseberangan: 180°."
+           "rationale": "Benar. Jarum panjang di angka 12 dan jarum pendek di angka 6, berseberangan: 180°."
           },
           {
            "_row": {
@@ -1347,7 +1347,7 @@
            "label": "C",
            "body": "Jarum pendek sudah maju 15°, jadi 105°",
            "is_correct": true,
-           "rationale": "Tepat. Setengah jam kemudian jarum pendek berada di tengah angka 2 dan 3, sehingga sudutnya 120° − 15° = 105°."
+           "rationale": "Benar. Setengah jam kemudian jarum pendek berada di tengah angka 2 dan 3, sehingga sudutnya 120° − 15° = 105°."
           },
           {
            "_row": {
@@ -1371,9 +1371,9 @@
        "ordinal": "6",
        "title": "Melukis Sudut dan Memecahkan Masalah",
        "summary": "Sudut dilukis dengan busur derajat; sudut-sudut di sekeliling satu titik berjumlah 360° dan sudut-sudut pada garis lurus berjumlah 180°.",
-       "body_markdown": "## Langkah melukis sudut\n\nMelukis sudut 120°:\n\n1. Gambar satu garis lurus sebagai kaki pertama. Salah satu ujungnya akan menjadi titik sudut.\n2. Letakkan titik pusat busur di ujung itu, dan impitkan garis dasar busur dengan garisnya.\n3. Cari skala yang angka **0**-nya ada di garis itu. Ikuti skala itu sampai angka 120, lalu beri titik.\n4. Hubungkan titik sudut dengan titik tadi. Itulah kaki kedua.\n\nPeriksa: 120° harus tumpul. Bila yang terlukis lancip, kamu membaca skala yang lain dan melukis 60°.\n\n## Arah bebas\n\nKaki pertama tidak harus mendatar. Garisnya boleh miring ke mana saja; putar busurnya mengikuti garis itu. Besar sudutnya tetap sama.\n\n## Sudut di sekeliling satu titik\n\nSudut-sudut yang mengelilingi satu titik tanpa celah dan tanpa tumpang tindih berjumlah **360°**.\n\nTukang keramik memasang satu ubin persegi (sudutnya 90°) dan dua ubin segi lima beraturan (sudutnya 108°) di satu titik. Berapa besar celah yang tersisa?\n\n360° − 90° − 108° − 108° = **54°**. Celah itu dapat diisi dengan potongan ubin yang sudutnya 54°.\n\n## Sudut pada garis lurus\n\nSudut-sudut yang bersama-sama membentuk garis lurus berjumlah **180°**. Bila satu bagiannya 35°, bagian yang lain 180° − 35° = **145°**.\n\n## Rangkuman Bab 6\n\n- **Sudut** dibentuk oleh dua kaki lurus yang bertemu di titik sudut. Pojok yang membulat bukan sudut.\n- Lancip < 90° = siku-siku < tumpul < 180° = lurus < refleks < 360° = satu putaran.\n- Mengukur dan melukis: titik pusat busur di titik sudut, baca skala yang 0-nya di kaki pertama, lalu periksa jenisnya.\n- Besar sudut ditentukan oleh bukaannya, bukan panjang kakinya.\n- Pada jam, satu angka = 30°; jarum pendek ikut bergerak.\n- Di sekeliling satu titik 360°; pada garis lurus 180°.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "body_markdown": "## Langkah melukis sudut\n\nMelukis sudut 120°:\n\n1. Gambar satu garis lurus sebagai kaki pertama. Salah satu ujungnya akan menjadi titik sudut.\n2. Letakkan titik pusat busur di ujung itu, dan impitkan garis dasar busur dengan garisnya.\n3. Cari skala yang angka **0**-nya ada di garis itu. Ikuti skala itu sampai angka 120, lalu beri titik.\n4. Hubungkan titik sudut dengan titik tadi. Itulah kaki kedua.\n\nPeriksa: 120° harus tumpul. Bila yang terlukis lancip, kalian membaca skala yang lain dan melukis 60°.\n\n## Arah bebas\n\nKaki pertama tidak harus mendatar. Garisnya boleh miring ke mana saja; putar busurnya mengikuti garis itu. Besar sudutnya tetap sama.\n\n## Sudut di sekeliling satu titik\n\nSudut-sudut yang mengelilingi satu titik tanpa celah dan tanpa tumpang tindih berjumlah **360°**.\n\nTukang keramik memasang satu ubin persegi (sudutnya 90°) dan dua ubin segi lima beraturan (sudutnya 108°) di satu titik. Berapa besar celah yang tersisa?\n\n360° − 90° − 108° − 108° = **54°**. Celah itu dapat diisi dengan potongan ubin yang sudutnya 54°.\n\n## Sudut pada garis lurus\n\nSudut-sudut yang bersama-sama membentuk garis lurus berjumlah **180°**. Bila satu bagiannya 35°, bagian yang lain 180° − 35° = **145°**.\n\n## Rangkuman Bab 6\n\n- **Sudut** dibentuk oleh dua kaki lurus yang bertemu di titik sudut. Pojok yang membulat bukan sudut.\n- Lancip < 90° = siku-siku < tumpul < 180° = lurus < refleks < 360° = satu putaran.\n- Mengukur dan melukis: titik pusat busur di titik sudut, baca skala yang 0-nya di kaki pertama, lalu periksa jenisnya.\n- Besar sudut ditentukan oleh bukaannya, bukan panjang kakinya.\n- Pada jam, satu angka = 30°; jarum pendek ikut bergerak.\n- Di sekeliling satu titik 360°; pada garis lurus 180°.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
        "objective": {
-        "statement": "Murid dapat melukis sudut dengan besar tertentu dan memecahkan masalah dengan sudut di sekeliling satu titik.",
+        "statement": "Kalian dapat melukis sudut dengan besar tertentu dan memecahkan masalah dengan sudut di sekeliling satu titik.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -1532,7 +1532,7 @@
            "label": "D",
            "body": "Memberi titik di angka 120 pada skala yang 0-nya di garis itu",
            "is_correct": true,
-           "rationale": "Tepat. Skala yang dimulai dari 0 pada garis itulah yang menunjukkan 120° yang benar."
+           "rationale": "Benar. Skala yang dimulai dari 0 pada garis itulah yang menunjukkan 120° yang benar."
           }
          ]
         },
@@ -1574,7 +1574,7 @@
            "label": "C",
            "body": "Ia membaca skala yang 0-nya tidak di garis pertama",
            "is_correct": true,
-           "rationale": "Tepat. Pada skala yang lain, angka 120 berada di tempat 60° yang sebenarnya, jadi yang dilukis 60°."
+           "rationale": "Benar. Pada skala yang lain, angka 120 berada di tempat 60° yang sebenarnya, jadi yang dilukis 60°."
           },
           {
            "_row": {

@@ -115,7 +115,7 @@ BAB = [(1, "Bilangan Pecahan")]
 PELAJARAN = [
     dict(no=1, judul="Pecahan, Pecahan Senilai, dan Pecahan Campuran",
          ringkasan="Mengingat kembali arti pecahan, pecahan yang senilai, cara menyederhanakan, dan pecahan campuran.",
-         tujuan="Murid dapat menentukan pecahan senilai, menyederhanakan pecahan, dan mengubah pecahan biasa menjadi pecahan campuran atau sebaliknya.",
+         tujuan="Kalian dapat menentukan pecahan senilai, menyederhanakan pecahan, dan mengubah pecahan biasa menjadi pecahan campuran atau sebaliknya.",
          bloom="Memahami",
          isi=f"""## Arti pecahan
 
@@ -153,7 +153,7 @@ Menambahkan angka yang sama (misalnya 3/4 menjadi 5/6) **tidak** menghasilkan pe
 
 ## Menyederhanakan pecahan
 
-Menyederhanakan berarti membagi pembilang dan penyebut dengan bilangan yang sama sampai tidak bisa dibagi lagi. Pakailah **FPB** yang kamu pelajari di Bab 2.
+Menyederhanakan berarti membagi pembilang dan penyebut dengan bilangan yang sama sampai tidak bisa dibagi lagi. Pakailah **FPB** yang kalian pelajari di Bab 2.
 
 Sederhanakan 12/18:
 
@@ -180,8 +180,8 @@ Cara singkatnya: (2 × 4 + 1)/4 = **9/4**.
 
 {SUMBER}"""),
     dict(no=2, judul="Membandingkan dan Mengurutkan Pecahan",
-         ringkasan="Pecahan dibandingkan dengan melihat penyebutnya dulu; bila penyebutnya berbeda, samakan dulu dengan KPK.",
-         tujuan="Murid dapat membandingkan dan mengurutkan pecahan biasa dan pecahan campuran.",
+         ringkasan="Pecahan dibandingkan dengan melihat penyebutnya dahulu; bila penyebutnya berbeda, samakan dahulu dengan KPK.",
+         tujuan="Kalian dapat membandingkan dan mengurutkan pecahan biasa dan pecahan campuran.",
          bloom="Menerapkan",
          isi=f"""## Penyebut sama
 
@@ -201,7 +201,7 @@ Makin besar penyebutnya, makin **kecil** setiap bagiannya, karena sesuatu dibagi
 
 Hati-hati: penyebut yang besar tidak berarti pecahannya besar.
 
-## Penyebut berbeda: samakan dulu
+## Penyebut berbeda: samakan dahulu
 
 Bandingkan 2/3 dan 3/4.
 
@@ -217,18 +217,18 @@ Ingat: saat penyebut diubah, pembilang **juga** harus dikali dengan bilangan yan
 
 Tiga potong pita panjangnya 2 1/2 m, 2 1/4 m, dan 2 2/5 m. Urutkan dari yang **terpendek**.
 
-1. Bandingkan bilangan utuhnya dulu. Ketiganya 2, jadi lihat pecahannya.
+1. Bandingkan bilangan utuhnya dahulu. Ketiganya 2, jadi lihat pecahannya.
 2. Samakan penyebut 2, 4, dan 5. KPK-nya 20: 1/2 = 10/20, 1/4 = 5/20, 2/5 = 8/20.
 3. Urutkan pembilangnya: 5 < 8 < 10.
 
-Urutan dari terpendek: **2 1/4 m, 2 2/5 m, 2 1/2 m**.
+Urutan dari terpendek: **2 1/4 m; 2 2/5 m; 2 1/2 m**.
 
 Bila bilangan utuhnya berbeda, bilangan utuh itulah yang menentukan. 3 1/8 lebih besar dari 2 7/8, walaupun 1/8 lebih kecil dari 7/8.
 
 {SUMBER}"""),
     dict(no=3, judul="Penjumlahan Pecahan",
          ringkasan="Pecahan dijumlahkan dengan menjumlahkan pembilangnya, setelah penyebutnya sama.",
-         tujuan="Murid dapat menjumlahkan pecahan berpenyebut sama dan berpenyebut berbeda, lalu menyederhanakan hasilnya.",
+         tujuan="Kalian dapat menjumlahkan pecahan berpenyebut sama dan berpenyebut berbeda, lalu menyederhanakan hasilnya.",
          bloom="Menerapkan",
          isi=f"""## Penyebut sama
 
@@ -244,7 +244,7 @@ Penyebutnya **tidak** dijumlahkan. Penyebut menunjukkan ukuran bagian, dan ukura
 
 ## Penyebut berbeda
 
-Hitung 1/4 + 2/3. Bagian berukuran 1/4 dan 1/3 tidak bisa langsung dijumlahkan, jadi samakan dulu ukurannya.
+Hitung 1/4 + 2/3. Bagian berukuran 1/4 dan 1/3 tidak bisa langsung dijumlahkan, jadi samakan dahulu ukurannya.
 
 1. KPK dari 4 dan 3 adalah 12.
 2. 1/4 = 3/12 dan 2/3 = 8/12.
@@ -272,7 +272,7 @@ _Periksa: 1 − 11/12 = 12/12 − 11/12 = 1/12._
 {SUMBER}"""),
     dict(no=4, judul="Penjumlahan Pecahan Campuran",
          ringkasan="Pecahan campuran dijumlahkan dengan menjumlahkan bilangan utuh dan pecahannya; pecahan yang lebih dari 1 dijadikan bilangan utuh.",
-         tujuan="Murid dapat menjumlahkan pecahan campuran, termasuk bila jumlah pecahannya lebih dari 1.",
+         tujuan="Kalian dapat menjumlahkan pecahan campuran, termasuk bila jumlah pecahannya lebih dari 1.",
          bloom="Menerapkan",
          isi=f"""## Utuh dengan utuh, pecahan dengan pecahan
 
@@ -293,18 +293,18 @@ Hitung 1 5/6 + 2 1/3.
 
 Jangan lupa langkah 3. Satu utuh yang muncul dari pecahan harus ditambahkan ke bilangan utuhnya, seperti menyimpan pada penjumlahan bersusun.
 
-## Cara lain: ubah dulu ke pecahan biasa
+## Cara lain: ubah dahulu ke pecahan biasa
 
 1 5/6 = 11/6 dan 2 1/3 = 7/3 = 14/6.
 
 11/6 + 14/6 = 25/6. 25 : 6 = 4 sisa 1, jadi 25/6 = **4 1/6**. Hasilnya sama.
 
-Pilih cara yang menurutmu paling mudah, lalu periksa dengan cara yang lain.
+Pilih cara yang menurut kalian paling mudah, lalu periksa dengan cara yang lain.
 
 {SUMBER}"""),
     dict(no=5, judul="Pengurangan Pecahan",
          ringkasan="Pecahan dikurangkan dengan mengurangkan pembilangnya, setelah penyebutnya sama.",
-         tujuan="Murid dapat mengurangkan pecahan berpenyebut sama dan berpenyebut berbeda.",
+         tujuan="Kalian dapat mengurangkan pecahan berpenyebut sama dan berpenyebut berbeda.",
          bloom="Menerapkan",
          isi=f"""## Penyebut sama
 
@@ -340,7 +340,7 @@ Yang berbeda hanya langkah 3: menambah atau mengurangi. Karena itu, baca soalnya
 {SUMBER}"""),
     dict(no=6, judul="Pengurangan Pecahan Campuran dan Soal Cerita",
          ringkasan="Pengurangan pecahan campuran kadang perlu meminjam 1 utuh; soal cerita diselesaikan dengan memilih operasi yang tepat.",
-         tujuan="Murid dapat mengurangkan pecahan campuran dan memecahkan masalah sehari-hari dengan penjumlahan dan pengurangan pecahan.",
+         tujuan="Kalian dapat mengurangkan pecahan campuran dan memecahkan masalah sehari-hari dengan penjumlahan dan pengurangan pecahan.",
          bloom="Menerapkan",
          isi=f"""## Meminjam 1 utuh
 
@@ -382,7 +382,7 @@ Hasil langkah 1 (2 1/4 kg) bukan jawabannya. Itu baru beras yang dipakai.
 ## Rangkuman Bab 3
 
 - **Pecahan senilai** didapat dengan mengali atau membagi pembilang dan penyebut dengan bilangan yang sama.
-- **Membandingkan**: samakan penyebut dengan KPK, lalu bandingkan pembilangnya. Pada pecahan campuran, bilangan utuhnya dilihat lebih dulu.
+- **Membandingkan**: samakan penyebut dengan KPK, lalu bandingkan pembilangnya. Pada pecahan campuran, bilangan utuhnya dilihat lebih dahulu.
 - **Menjumlah dan mengurang**: samakan penyebut, lalu hitung pembilangnya saja. Penyebutnya tetap.
 - Pecahan campuran: bila jumlah pecahannya lebih dari 1, jadikan bilangan utuh. Bila pecahannya kurang untuk dikurangi, pinjam 1 utuh.
 - Sederhanakan hasil akhirnya dengan FPB.
@@ -504,7 +504,7 @@ soal("PA4", 3, "3/10 + 4/10 = ...", "C", [
 cek(P("5/6") == P("15/18") and P("7/9") == P("14/18") and P("5/6") > P("7/9"))
 soal("PB1", 2, "Pernyataan yang tepat tentang 5/6 dan 7/9 adalah ...", "C", [
     ("5/6 > 7/9, karena 15/18 > 14/18", True, "Benar. KPK dari 6 dan 9 adalah 18; 5/6 = 15/18 dan 7/9 = 14/18.", ""),
-    ("5/6 < 7/9, karena 5 < 7", False, "Hanya pembilangnya yang dibandingkan, padahal penyebutnya berbeda. Samakan penyebut dulu.", "SD5-M-B3-04"),
+    ("5/6 < 7/9, karena 5 < 7", False, "Hanya pembilangnya yang dibandingkan, padahal penyebutnya berbeda. Samakan penyebut dahulu.", "SD5-M-B3-04"),
     ("5/6 < 7/9, karena 5/18 < 7/18", False, "Penyebut sudah disamakan menjadi 18, tetapi pembilangnya tidak ikut dikali (5 × 3 dan 7 × 2).", "SD5-M-B3-02"),
     ("5/6 < 7/9, karena penyebut 9 lebih besar", False, "Penyebut yang lebih besar tidak membuat pecahan lebih besar; ukuran bagiannya justru lebih kecil.", "SD5-M-B3-03"),
 ], guna="Cek penguasaan", sulit="Sedang")
@@ -522,7 +522,7 @@ nilai_beda("PB3", "17/24", "4/11", "4/24", "17/48")
 cek(9 + 8 == 17 and 24 + 24 == 48)
 soal("PB3", 3, "3/8 + 1/3 = ...", "D", [
     ("17/24", True, "Benar. KPK dari 8 dan 3 adalah 24; 3/8 = 9/24 dan 1/3 = 8/24, jadi 9/24 + 8/24 = 17/24.", ""),
-    ("4/11", False, "Pembilang dijumlahkan dengan pembilang, penyebut dengan penyebut. Samakan penyebut dulu.", "SD5-M-B3-01"),
+    ("4/11", False, "Pembilang dijumlahkan dengan pembilang, penyebut dengan penyebut. Samakan penyebut dahulu.", "SD5-M-B3-01"),
     ("4/24", False, "Penyebutnya sudah 24, tetapi pembilangnya tidak ikut dikali: 3 × 3 = 9 dan 1 × 8 = 8.", "SD5-M-B3-02"),
     ("17/48", False, "Penyebutnya sudah disamakan menjadi 24, lalu ikut dijumlahkan (24 + 24). Penyebut tetap 24.", "SD5-M-B3-01"),
 ], guna="Cek penguasaan", sulit="Sedang")
@@ -540,7 +540,7 @@ cek(P("5/6") - P("1/4") == P("7/12") and tanpa_samakan("5/6", "1/4", kurang) == 
 nilai_beda("PB5", "7/12", "4/2", "4/12", "1 1/12")
 soal("PB5", 5, "5/6 − 1/4 = ...", "C", [
     ("7/12", True, "Benar. KPK dari 6 dan 4 adalah 12; 10/12 − 3/12 = 7/12.", ""),
-    ("4/2", False, "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut, (5 − 1)/(6 − 4). Samakan penyebut dulu.", "SD5-M-B3-01"),
+    ("4/2", False, "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut, (5 − 1)/(6 − 4). Samakan penyebut dahulu.", "SD5-M-B3-01"),
     ("4/12", False, "Penyebutnya sudah 12, tetapi pembilangnya tidak ikut dikali: 5 × 2 = 10 dan 1 × 3 = 3.", "SD5-M-B3-02"),
     ("1 1/12", False, "Ini hasil penjumlahan 10/12 + 3/12. Tanda − berarti dikurangkan.", "SD5-M-B3-12"),
 ], guna="Cek penguasaan", sulit="Sedang")
@@ -612,9 +612,9 @@ cek(sorted([P("2/3"), P("3/4"), P("5/8")]) == [P("5/8"), P("2/3"), P("3/4")] and
 soal("LT6", 2, "Urutan 2/3, 3/4, dan 5/8 dari yang terkecil adalah ...", "B", [
     ("5/8; 2/3; 3/4", True, "Benar. Dengan penyebut 24: 5/8 = 15/24, 2/3 = 16/24, 3/4 = 18/24.", ""),
     ("3/4; 2/3; 5/8", False, "Ini urutan dari yang terbesar. Yang diminta dari yang terkecil.", "SD5-M-B3-13"),
-    ("2/3; 3/4; 5/8", False, "Diurutkan dari pembilangnya (2, 3, 5), padahal penyebutnya berbeda. Samakan penyebut dulu.", "SD5-M-B3-04"),
+    ("2/3; 3/4; 5/8", False, "Diurutkan dari pembilangnya (2, 3, 5), padahal penyebutnya berbeda. Samakan penyebut dahulu.", "SD5-M-B3-04"),
     ("5/8; 3/4; 2/3", False, "Diurutkan dari penyebutnya: penyebut besar dianggap kecil. Setelah disamakan, 2/3 = 16/24 lebih kecil dari 3/4 = 18/24.", "SD5-M-B3-03"),
-], sulit="Sedang", petunjuk="Samakan dulu ketiga penyebutnya dengan KPK dari 3, 4, dan 8.")
+], sulit="Sedang", petunjuk="Samakan dahulu ketiga penyebutnya dengan KPK dari 3, 4, dan 8.")
 cek(sorted([P("1 3/4"), P("2 1/6"), P("1 2/3")]) == [P("1 2/3"), P("1 3/4"), P("2 1/6")] and P("2/3") == P("8/12") and P("3/4") == P("9/12"))
 cek(sorted([P("3/4"), P("1/6"), P("2/3")]) == [P("1/6"), P("2/3"), P("3/4")])
 soal("LT7", 2, "Urutan tali 1 3/4 m, 2 1/6 m, dan 1 2/3 m dari yang terpendek adalah ...", "D", [
@@ -636,7 +636,7 @@ cek(P("1/6") + P("3/4") == P("11/12") and tanpa_samakan("1/6", "3/4", tambah) ==
 nilai_beda("LT9", "11/12", "4/10", "4/12", "10/12")
 soal("LT9", 3, "1/6 + 3/4 = ...", "C", [
     ("11/12", True, "Benar. KPK dari 6 dan 4 adalah 12; 1/6 = 2/12 dan 3/4 = 9/12, jadi 2/12 + 9/12 = 11/12.", ""),
-    ("4/10", False, "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Samakan penyebut dulu.", "SD5-M-B3-01"),
+    ("4/10", False, "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Samakan penyebut dahulu.", "SD5-M-B3-01"),
     ("4/12", False, "Penyebutnya sudah 12, tetapi kedua pembilangnya tidak ikut dikali.", "SD5-M-B3-02"),
     ("10/12", False, "3/4 sudah diubah menjadi 9/12, tetapi 1/6 tidak: pembilangnya harus dikali 2 menjadi 2/12.", "SD5-M-B3-02"),
 ])
@@ -701,7 +701,7 @@ soal("LT16", 6, "3 1/4 − 1 1/2 = ...", "A", [
     ("2 1/4", False, "Pecahannya dibalik menjadi 2/4 − 1/4 supaya tidak perlu meminjam. 1/4 lebih kecil dari 2/4, jadi pinjam 1 utuh.", "SD5-M-B3-08"),
     ("2 3/4", False, "Sudah meminjam 1 utuh (5/4 − 2/4 = 3/4), tetapi bilangan utuhnya tidak dikurangi satu: 2 − 1 = 1.", "SD5-M-B3-08"),
     ("4 3/4", False, "Ini hasil penjumlahan. Tanda − berarti dikurangkan.", "SD5-M-B3-12"),
-], sulit="Sedang", petunjuk="Samakan penyebutnya dulu, lalu periksa apakah pecahan pertama cukup untuk dikurangi.")
+], sulit="Sedang", petunjuk="Samakan penyebutnya dahulu, lalu periksa apakah pecahan pertama cukup untuk dikurangi.")
 cek(2 - P("3/4") == P("1 1/4") and 2 + P("3/4") == P("2 3/4") and P("1/4") != P("1 1/4") and P("1 3/4") != P("1 1/4"))
 soal("LT17", 6, "Sebuah botol berisi 2 liter air. Sebanyak 3/4 liter diminum. Berapa liter air yang tersisa?", "B", [
     ("1 1/4 liter", True, "Benar. 2 = 1 4/4, jadi 1 4/4 − 3/4 = 1 1/4 liter.", ""),
@@ -711,7 +711,7 @@ soal("LT17", 6, "Sebuah botol berisi 2 liter air. Sebanyak 3/4 liter diminum. Be
 ])
 cek(P("1/2") + P("1/3") == P("5/6") and tanpa_samakan("1/2", "1/3", tambah) == "2/5" and P("3/4") < P("5/6") and P("2 1/3") == P("7/3"))
 soal("LT18", 6, "Pernyataan manakah yang tepat?", "C", [
-    ("1/2 + 1/3 = 5/6", True, "Tepat. 3/6 + 2/6 = 5/6.", ""),
+    ("1/2 + 1/3 = 5/6", True, "Benar. 3/6 + 2/6 = 5/6.", ""),
     ("1/2 + 1/3 = 2/5", False, "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Hasilnya 5/6.", "SD5-M-B3-01"),
     ("3/4 > 5/6, karena penyebut 4 lebih kecil", False, "Penyebut yang lebih kecil tidak menentukan bila pembilangnya berbeda. 3/4 = 9/12 < 5/6 = 10/12.", "SD5-M-B3-03"),
     ("2 1/3 = 3/3", False, "Bilangan utuh 2 hanya dijumlahkan dengan pembilang. 2 utuh = 6/3, jadi 2 1/3 = 7/3.", "SD5-M-B3-06"),

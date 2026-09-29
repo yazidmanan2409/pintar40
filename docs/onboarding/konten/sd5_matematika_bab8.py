@@ -178,7 +178,7 @@ cek(PIKTO_APEM.count("●") == sum(v // 4 for v in APEM.values()) and "◕" in P
 PELAJARAN = [
     dict(no=1, judul="Mengumpulkan Data dengan Turus",
          ringkasan="Data dicatat dengan turus agar tidak ada yang terlewat atau terhitung dua kali; banyaknya setiap data disebut frekuensi.",
-         tujuan="Murid dapat mengumpulkan data sederhana dari sekitarnya, mencatatnya dengan turus, dan menentukan frekuensinya.",
+         tujuan="Kalian dapat mengumpulkan data sederhana dari sekitarnya, mencatatnya dengan turus, dan menentukan frekuensinya.",
          bloom="Menerapkan",
          isi=f"""## Data membantu memutuskan
 
@@ -222,7 +222,7 @@ _Periksa: 5 + 5 + 1 = 11._
 {SUMBER}"""),
     dict(no=2, judul="Membaca Tabel Frekuensi",
          ringkasan="Tabel frekuensi memuat daftar data dan frekuensinya; dari tabel itu kita dapat mencari yang terbanyak, yang tersedikit, dan jumlahnya.",
-         tujuan="Murid dapat menyajikan data dalam tabel frekuensi dan membaca informasi dari tabel itu.",
+         tujuan="Kalian dapat menyajikan data dalam tabel frekuensi dan membaca informasi dari tabel itu.",
          bloom="Menganalisis",
          isi=f"""## Tabel frekuensi
 
@@ -268,7 +268,7 @@ _Periksa: 7 + 3 + 1 = 11 siswa._
 {SUMBER}"""),
     dict(no=3, judul="Membuat Piktogram",
          ringkasan="Piktogram menyajikan data dengan gambar; kunci menyatakan nilai satu gambar, dan bagian gambar mewakili bagian nilai itu.",
-         tujuan="Murid dapat membuat piktogram dengan kunci yang tepat, termasuk memakai bagian gambar.",
+         tujuan="Kalian dapat membuat piktogram dengan kunci yang tepat, termasuk memakai bagian gambar.",
          bloom="Menerapkan",
          isi=f"""## Satu gambar mewakili beberapa
 
@@ -312,7 +312,7 @@ _Periksa: 40 + 35 + 30 + 37 + 27 + 29 = 198 kue._
 {SUMBER}"""),
     dict(no=4, judul="Membaca dan Menganalisis Piktogram",
          ringkasan="Untuk membaca piktogram, lihat kuncinya dahulu, lalu kalikan banyak gambar dengan nilai satu gambar.",
-         tujuan="Murid dapat membaca data dari piktogram dan menganalisis kenaikan, penurunan, jumlah, dan selisihnya.",
+         tujuan="Kalian dapat membaca data dari piktogram dan menganalisis kenaikan, penurunan, jumlah, dan selisihnya.",
          bloom="Menganalisis",
          isi=f"""## Lihat kuncinya dahulu
 
@@ -351,7 +351,7 @@ _Periksa: 14 + 12 = 26 kg._
 {SUMBER}"""),
     dict(no=5, judul="Diagram Batang dan Skalanya",
          ringkasan="Diagram batang menyajikan data dengan batang; nilainya dibaca dari skala pada sumbu, jadi nilai setiap langkah skala harus diketahui.",
-         tujuan="Murid dapat membuat dan membaca diagram batang vertikal dan horizontal dengan memperhatikan skalanya.",
+         tujuan="Kalian dapat membuat dan membaca diagram batang vertikal dan horizontal dengan memperhatikan skalanya.",
          bloom="Menganalisis",
          isi=f"""## Diagram batang
 
@@ -395,7 +395,7 @@ Hasil panen lele Pak Bajuri: kolam 1 sebanyak 32 kg, kolam 2 sebanyak 28 kg, kol
 {SUMBER}"""),
     dict(no=6, judul="Diagram Batang Ganda dan Membandingkan Diagram",
          ringkasan="Dua diagram hanya dapat dibandingkan dari tinggi batangnya bila skalanya sama; diagram batang ganda menyajikan dua data berdampingan dengan satu skala.",
-         tujuan="Murid dapat membandingkan data pada dua diagram batang dengan memperhatikan skala dan membaca diagram batang ganda.",
+         tujuan="Kalian dapat membandingkan data pada dua diagram batang dengan memperhatikan skala dan membaca diagram batang ganda.",
          bloom="Mengevaluasi",
          isi=f"""## Tinggi batang saja belum cukup
 
@@ -533,7 +533,7 @@ soal("PA3", 5, "Angka skala sebuah diagram batang adalah 0, 10, 20, 30, 40, 50. 
 ], guna="Pemetaan awal")
 cek(3 * 10 > 5 * 2)
 soal("PA4", 6, "Diagram A memakai skala 10 untuk setiap garis, diagram B memakai skala 2 untuk setiap garis. Batang Senin di diagram A setinggi 3 garis, di diagram B setinggi 5 garis. Batang Senin manakah yang nilainya lebih besar?", "B", [
-    ("Batang di diagram A", True, "Tepat. Di A nilainya 3 × 10 = 30, di B hanya 5 × 2 = 10.", ""),
+    ("Batang di diagram A", True, "Benar. Di A nilainya 3 × 10 = 30, di B hanya 5 × 2 = 10.", ""),
     ("Batang di diagram B, karena lebih tinggi", False, "Tinggi batang hanya dapat dibandingkan bila skalanya sama. Hitung nilainya: A 30, B 10.", "SD5-M-B8-08"),
     ("Keduanya sama besar", False, "Nilainya berbeda: A 3 × 10 = 30, B 5 × 2 = 10.", "SD5-M-B8-06"),
     ("Tidak dapat dibandingkan sama sekali", False, "Dapat dibandingkan setelah nilai setiap batang dibaca dari skalanya masing-masing.", "SD5-M-B8-08"),
@@ -557,7 +557,7 @@ soal("PB2", 1, "Andi mencatat turus: dua kelompok lengkap (masing-masing empat g
 ], guna="Cek penguasaan", sulit="Sedang")
 cek(gambar(20, 8) == (2, Fraction(1, 2)) and gambar(20, 8) != (2, Fraction(1, 4)) and 3 * 8 == 24 != 20)
 soal("PB3", 3, "Satu gambar buku pada piktogram mewakili 8 buku. Perpustakaan meminjamkan 20 buku pada hari Selasa. Bagaimana baris Selasa digambar?", "A", [
-    ("2 gambar utuh dan setengah gambar", True, "Tepat. 2 gambar = 16 buku, sisanya 4 dari 8, yaitu setengah gambar.", ""),
+    ("2 gambar utuh dan setengah gambar", True, "Benar. 2 gambar = 16 buku, sisanya 4 dari 8, yaitu setengah gambar.", ""),
     ("20 gambar buku", False, "Satu gambar mewakili 8 buku, bukan 1. 20 gambar berarti 160 buku.", "SD5-M-B8-04"),
     ("2 gambar utuh dan seperempat gambar", False, "Sisa 4 buku dari 8 adalah setengah, bukan seperempat.", "SD5-M-B8-03"),
     ("3 gambar utuh", False, "3 gambar mewakili 24 buku, lebih dari 20.", "SD5-M-B8-03"),
@@ -588,28 +588,28 @@ KUNJUNG = {"Senin": 35, "Selasa": 50, "Rabu": 42, "Kamis": 28}
 cek(min(KUNJUNG, key=KUNJUNG.get) == "Kamis" and max(KUNJUNG.values()) - min(KUNJUNG.values()) == 22
     and max(KUNJUNG.values()) + min(KUNJUNG.values()) == 78)
 soal("PB7", 5, "Diagram batang pengunjung pameran: Senin 35, Selasa 50, Rabu 42, Kamis 28 orang. Hari manakah pengunjungnya paling sedikit, dan berapa selisihnya dengan hari yang paling banyak?", "A", [
-    ("Kamis, selisih 22 orang", True, "Tepat. Terendah Kamis 28, tertinggi Selasa 50: 50 − 28 = 22.", ""),
+    ("Kamis, selisih 22 orang", True, "Benar. Terendah Kamis 28, tertinggi Selasa 50: 50 − 28 = 22.", ""),
     ("Selasa, selisih 22 orang", False, "Selasa adalah hari yang paling banyak (batang terpanjang), bukan paling sedikit.", "SD5-M-B8-12"),
     ("Kamis, selisih 78 orang", False, "50 dan 28 dijumlahkan. Selisih berarti dikurangkan.", "SD5-M-B8-10"),
     ("Kamis, selisih 7 orang", False, "Kamis dibandingkan dengan Senin (35 − 28), bukan dengan hari yang paling banyak.", "SD5-M-B8-10"),
 ], guna="Cek penguasaan", sulit="Sedang")
 cek(4 * 5 == 20 and 9 * 2 == 18 and 20 > 18 and 4 * 2 == 8)
 soal("PB8", 6, "Diagram kelas A memakai skala 5 untuk setiap garis, diagram kelas B memakai skala 2. Batang Januari kelas A setinggi 4 garis, kelas B setinggi 9 garis. Rina berkata, \"Kelas B lebih banyak karena batangnya lebih tinggi.\" Tanggapan yang tepat adalah ...", "C", [
-    ("Kurang tepat; kelas A 20, kelas B 18", True, "Tepat. 4 × 5 = 20 dan 9 × 2 = 18. Skalanya berbeda, jadi tinggi batang tidak dapat langsung dibandingkan.", ""),
-    ("Tepat; batang kelas B memang lebih tinggi daripada kelas A", False, "Tinggi batang hanya dapat dibandingkan bila skalanya sama.", "SD5-M-B8-08"),
-    ("Tepat; kelas B 18, kelas A hanya 8", False, "Kelas A dibaca dengan skala 2 milik diagram B (4 × 2 = 8). Skala kelas A adalah 5: 4 × 5 = 20.", "SD5-M-B8-06"),
-    ("Kurang tepat; keduanya sama, 20", False, "Kelas B: 9 × 2 = 18, bukan 20.", "SD5-M-B8-06"),
+    ("kurang tepat; kelas A 20, kelas B 18", True, "Benar. 4 × 5 = 20 dan 9 × 2 = 18. Skalanya berbeda, jadi tinggi batang tidak dapat langsung dibandingkan.", ""),
+    ("tepat; batang kelas B memang lebih tinggi daripada kelas A", False, "Tinggi batang hanya dapat dibandingkan bila skalanya sama.", "SD5-M-B8-08"),
+    ("tepat; kelas B 18, kelas A hanya 8", False, "Kelas A dibaca dengan skala 2 milik diagram B (4 × 2 = 8). Skala kelas A adalah 5: 4 × 5 = 20.", "SD5-M-B8-06"),
+    ("kurang tepat; keduanya sama, 20", False, "Kelas B: 9 × 2 = 18, bukan 20.", "SD5-M-B8-06"),
 ], guna="Cek penguasaan", sulit="Sulit")
 
 # ── Latihan (practice), by lesson.
 soal("LT1", 1, "Mengapa garis kelima pada turus dibuat miring melintang?", "A", [
-    ("Agar mudah dihitung lima-lima", True, "Tepat. Setiap kelompok bernilai 5, jadi kita dapat menghitung 5, 10, 15, dan seterusnya.", ""),
+    ("Agar mudah dihitung lima-lima", True, "Benar. Setiap kelompok bernilai 5, jadi kita dapat menghitung 5, 10, 15, dan seterusnya.", ""),
     ("Agar garis kelima tidak ikut dihitung", False, "Garis miring justru ikut dihitung; ia adalah garis kelima.", "SD5-M-B8-11"),
     ("Karena garis kelima mewakili 10 data", False, "Setiap garis, termasuk yang miring, mewakili satu data.", "SD5-M-B8-11"),
     ("Agar turusnya terlihat lebih rapi saja", False, "Kerapian bukan tujuannya; garis miring menandai kelompok lima agar mudah dihitung.", "SD5-M-B8-09"),
 ])
 soal("LT2", 1, "Frekuensi adalah ...", "D", [
-    ("banyaknya suatu data muncul", True, "Tepat. Misalnya 7 anak menyukai bayam: frekuensi bayam 7.", ""),
+    ("banyaknya suatu data muncul", True, "Benar. Misalnya 7 anak menyukai bayam: frekuensi bayam 7.", ""),
     ("nilai data yang paling besar", False, "Itu nilai tertinggi, bukan frekuensi.", "SD5-M-B8-13"),
     ("garis-garis yang dipakai untuk mencatat", False, "Itu turus. Frekuensi adalah bilangan hasil menghitung turus itu.", "SD5-M-B8-11"),
     ("banyaknya jenis data yang dicatat", False, "Banyak jenis data berbeda dengan frekuensi setiap data.", "SD5-M-B8-13"),
@@ -639,19 +639,19 @@ soal("LT5", 2, "Dari tabel nilai ulangan yang sama (60: 3 siswa, 70: 5, 80: 8, 9
 ])
 cek(gambar(35, 10) == (3, Fraction(1, 2)))
 soal("LT6", 3, "Satu gambar mewakili 10 pengunjung. Bagaimana menggambar 35 pengunjung?", "D", [
-    ("3 gambar utuh dan setengah gambar", True, "Tepat. 3 gambar = 30, sisa 5 dari 10 adalah setengah gambar.", ""),
+    ("3 gambar utuh dan setengah gambar", True, "Benar. 3 gambar = 30, sisa 5 dari 10 adalah setengah gambar.", ""),
     ("35 gambar utuh", False, "Satu gambar mewakili 10, bukan 1. 35 gambar berarti 350 pengunjung.", "SD5-M-B8-04"),
     ("4 gambar utuh", False, "4 gambar mewakili 40, lebih dari 35.", "SD5-M-B8-03"),
     ("3 gambar utuh dan seperempat gambar", False, "Sisa 5 dari 10 adalah setengah, bukan seperempat.", "SD5-M-B8-03"),
 ])
 soal("LT7", 3, "Rudi membuat piktogram. Gambar pada baris Senin ia buat lebih besar daripada gambar pada baris Selasa, padahal kuncinya sama. Apa akibatnya?", "B", [
-    ("Pembaca dapat mengira data Senin lebih banyak", True, "Tepat. Gambar yang mewakili nilai sama harus sama besar agar tidak menyesatkan.", ""),
+    ("Pembaca dapat mengira data Senin lebih banyak", True, "Benar. Gambar yang mewakili nilai sama harus sama besar agar tidak menyesatkan.", ""),
     ("Tidak ada akibatnya, asal banyak gambarnya benar", False, "Gambar yang lebih besar tampak lebih banyak, sehingga pembaca dapat keliru.", "SD5-M-B8-05"),
     ("Setiap gambar Senin bernilai lebih dari kuncinya", False, "Kuncinya tetap sama; hanya tampilannya yang menyesatkan.", "SD5-M-B8-05"),
     ("Piktogram tidak lagi memerlukan kunci", False, "Kunci tetap diperlukan untuk membaca nilai setiap gambar.", "SD5-M-B8-09"),
 ], sulit="Sedang")
 soal("LT8", 3, "Bagian manakah yang harus ada pada piktogram agar nilainya dapat dibaca?", "C", [
-    ("Kunci yang menyatakan nilai satu gambar", True, "Tepat. Tanpa kunci, pembaca tidak tahu satu gambar mewakili berapa.", ""),
+    ("Kunci yang menyatakan nilai satu gambar", True, "Benar. Tanpa kunci, pembaca tidak tahu satu gambar mewakili berapa.", ""),
     ("Warna yang berbeda di setiap baris", False, "Warna boleh saja, tetapi tidak menyatakan nilai. Yang diperlukan adalah kunci.", "SD5-M-B8-09"),
     ("Satu gambar untuk setiap satu benda", False, "Satu gambar boleh mewakili banyak benda, asal kuncinya ditulis.", "SD5-M-B8-04"),
     ("Gambar yang semakin besar untuk data yang besar", False, "Gambar harus sama besar; besar data ditunjukkan oleh banyak gambar.", "SD5-M-B8-05"),
@@ -687,13 +687,13 @@ soal("LT12", 5, "Angka skala sebuah diagram batang: 0, 20, 40, 60, 80. Di antara
 KOLAM = [30, 24, 18, 27]
 cek(sum(KOLAM) == 99 and Fraction(99, 4) == Fraction(2475, 100) and KOLAM[0] > Fraction(99, 4) and 99 // 3 == 33 and KOLAM[0] < 33)
 soal("LT13", 5, "Diagram batang horizontal hasil panen ikan: kolam 1 sebanyak 30 kg, kolam 2 sebanyak 24 kg, kolam 3 sebanyak 18 kg, kolam 4 sebanyak 27 kg. Apakah hasil kolam 1 lebih dari seperempat hasil seluruhnya?", "A", [
-    ("Ya, karena 30 kg lebih dari 24,75 kg", True, "Tepat. Seluruhnya 99 kg; seperempatnya 99 : 4 = 24,75 kg.", ""),
+    ("Ya, karena 30 kg lebih dari 24,75 kg", True, "Benar. Seluruhnya 99 kg; seperempatnya 99 : 4 = 24,75 kg.", ""),
     ("Tidak, karena 30 kg kurang dari 99 kg", False, "Yang dibandingkan seperempat dari jumlahnya, bukan jumlahnya sendiri.", "SD5-M-B8-10"),
     ("Tidak, karena seperempatnya 33 kg", False, "99 dibagi 3. Seperempat berarti dibagi 4: 24,75 kg.", "SD5-M-B8-10"),
     ("Tidak, karena kolam 1 batangnya paling pendek", False, "Batang kolam 1 justru paling panjang; batang terpendek adalah kolam 3.", "SD5-M-B8-12"),
 ], sulit="Sulit", petunjuk="Jumlahkan dahulu semua hasilnya, lalu bagi 4.")
 soal("LT14", 5, "Apa perbedaan diagram batang vertikal dan diagram batang horizontal?", "D", [
-    ("Arah batangnya: tegak atau mendatar", True, "Tepat. Datanya boleh sama; hanya arah batangnya yang berbeda.", ""),
+    ("Arah batangnya: tegak atau mendatar", True, "Benar. Datanya boleh sama; hanya arah batangnya yang berbeda.", ""),
     ("Diagram horizontal tidak memerlukan skala", False, "Keduanya memerlukan skala pada sumbunya.", "SD5-M-B8-09"),
     ("Diagram horizontal hanya untuk data yang kecil", False, "Kedua jenis dapat dipakai untuk data besar maupun kecil.", "SD5-M-B8-07"),
     ("Pada diagram vertikal, batang terpendek bernilai terbesar", False, "Pada kedua jenis, batang yang paling panjang bernilai paling besar.", "SD5-M-B8-12"),
@@ -708,13 +708,13 @@ soal("LT15", 6, "Diagram batang ganda siswa laki-laki dan perempuan: 2020 (12 da
     ("2020", False, "Selisih 2020 hanya 14 − 12 = 2.", "SD5-M-B8-10"),
 ], sulit="Sedang")
 soal("LT16", 6, "Mengapa dua diagram batang yang akan dibandingkan dari tinggi batangnya harus memakai skala yang sama?", "C", [
-    ("Agar tinggi batang menunjukkan nilai yang sama", True, "Tepat. Dengan skala yang sama, batang yang lebih tinggi pasti bernilai lebih besar.", ""),
+    ("Agar tinggi batang menunjukkan nilai yang sama", True, "Benar. Dengan skala yang sama, batang yang lebih tinggi pasti bernilai lebih besar.", ""),
     ("Agar kedua diagram terlihat lebih menarik bagi pembacanya", False, "Tampilan bukan alasannya; skala berbeda membuat tinggi batang menyesatkan.", "SD5-M-B8-08"),
     ("Agar semua batang menjadi sama tinggi", False, "Skala yang sama tidak membuat batang sama tinggi; nilainya tetap berbeda.", "SD5-M-B8-08"),
     ("Agar diagram tidak memerlukan judul lagi", False, "Judul tetap diperlukan pada setiap diagram.", "SD5-M-B8-09"),
 ])
 soal("LT17", 6, "Kapan dua data sebaiknya tidak digabung dalam satu diagram batang ganda?", "A", [
-    ("Bila nilainya berbeda sangat jauh, ratusan dan belasan", True, "Tepat. Batang yang belasan akan sangat pendek dan sulit dibaca.", ""),
+    ("Bila nilainya berbeda sangat jauh, ratusan dan belasan", True, "Benar. Batang yang belasan akan sangat pendek dan sulit dibaca.", ""),
     ("Bila kedua data mencatat tahun-tahun yang sama", False, "Tahun yang sama justru memudahkan penggabungan.", "SD5-M-B8-07"),
     ("Bila kedua data memakai satuan yang sama, yaitu banyak siswa", False, "Satuan yang sama tidak menjadi masalah; yang perlu diperhatikan besar nilainya.", "SD5-M-B8-07"),
     ("Bila kedua data sudah memakai skala yang sama", False, "Skala yang sama justru syarat agar batangnya dapat dibandingkan.", "SD5-M-B8-08"),
