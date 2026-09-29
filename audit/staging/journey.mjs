@@ -512,7 +512,7 @@ const lessonRows = () => sql(`select string_agg(l.ordinal || ':' || coalesce(lp.
   from public.lessons l join public.modules m on m.id = l.module_id
   left join public.lesson_progress lp on lp.lesson_id = l.id and lp.person_id = ${uuid(person(names[0]))}
   where m.course_id = ${uuid(course)}`);
-await step("J09", "student 1 reads every lesson to its last page, from the reading map, by clicking", ["STU-11", "X-07"], async (rec) => {
+await step("J09", "student 1 reads every lesson to its last page, from the reading map, by clicking; the last lesson then links to Uji Penguasaan; nothing streams while reading", ["STU-11", "X-07", "X-08", "U-PERF"], async (rec) => {
   rec.page = S;
   if (!tugas || !new URL(S.url()).pathname.endsWith("/peta")) return blocked(rec, "the student is not on the reading map");
   await S.getByRole("link", { name: "Buka pelajarannya" }).first().click();
@@ -541,20 +541,30 @@ await step("J09", "student 1 reads every lesson to its last page, from the readi
   }
   // D-031: what the lesson page asks of the server while the student only reads. The seeded-world audit's
   // lesson page never reaches network idle (#34, #35); one save per page turned is expected, not a stream.
-  const idle = {};
-  const onReq = (r) => { const k = `${r.method()} ${new URL(r.url()).pathname}${r.headers()["next-action"] ? " (server action)" : ""}`; idle[k] = (idle[k] ?? 0) + 1; };
+  // TWO WINDOWS (run 13): Next sends server actions one at a time, so the saves queued by turning the last
+  // lesson's pages quickly can still be going out in the first 8 s. The second 8 s tells a queue that has
+  // drained (nothing) from a stream (anything); only the second window decides.
+  const idle = [{}, {}];
+  let w = 0;
+  const onReq = (r) => { const k = `${r.method()} ${new URL(r.url()).pathname}${r.headers()["next-action"] ? " (server action)" : ""}`; idle[w][k] = (idle[w][k] ?? 0) + 1; };
   S.on("request", onReq);
   await S.waitForTimeout(8000);
+  w = 1;
+  await S.waitForTimeout(8000);
   S.off("request", onReq);
+  const stream = Object.entries(idle[1]).filter(([k]) => k.endsWith("(server action)")).reduce((n, [, v]) => n + v, 0);
   const last = await text(S);
+  // BOB-22's acceptance: once every lesson is read, the last lesson links to Uji Penguasaan, on the page the
+  // student is on (no reload). Read after the saves have drained.
   const postLink = await S.locator(`a[href="/belajar/${tugas}/penguasaan"]`).count();
   const rows = lessonRows();
   const allRead = rows.split(" ").every((r) => { const [f, t] = r.split(":")[1].split("/"); return t !== "-" && Number(f) >= Number(t); });
   rec.lessons = rows;
-  if (!allRead) { rec.verdict = "FAIL"; rec.kind = "product"; }
+  if (!allRead || !postLink || stream > 0) { rec.verdict = "FAIL"; rec.kind = "product"; }
   return `read ${read.length} lessons: ${read.join("; ")}; on the last lesson, a link to Uji Penguasaan: ${postLink > 0}; ` +
     `saved reading positions (lesson:furthest/total): ${rows}; every lesson counts as read: ${allRead}; ` +
-    `requests while the student reads the last page for 8 s without clicking: ${JSON.stringify(idle)}; the last page says: "${last.slice(-220)}"`;
+    `requests while the student reads the last page without clicking, 0-8 s: ${JSON.stringify(idle[0])}; 8-16 s: ${JSON.stringify(idle[1])} ` +
+    `(server actions in the second window: ${stream}); the last page says: "${last.slice(-220)}"`;
 });
 
 await step("J10", "after reading everything, the student can reach the post-test by clicking (home, lesson page, trail)", ["STU-13"], async (rec) => {

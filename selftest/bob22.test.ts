@@ -66,7 +66,13 @@ export const bob22Tests: SelfTest[] = [
       // 4. the player saves and resumes through these two, and nothing else
       const pemutar = readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "_components", "LessonPlayer.tsx"), "utf8")
         .replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
-      c.expect(/props\.saveProgress\([^;]*posisiTersimpan\(p\)\s*,\s*pages\.length\)/.test(pemutar),
+      // RESTATED FOR BOB-23 (a changed requirement): the player no longer calls
+      // saveProgress with posisiTersimpan(p) itself; it saves what perluDisimpan
+      // decides, which must be that same count whenever it saves.
+      const putuskan = siklus.perluDisimpan as ((h: number, t: number) => number | null) | undefined;
+      c.expect((/props\.saveProgress\([^;]*posisiTersimpan\(p\)\s*,\s*pages\.length\)/.test(pemutar)
+          || (/perluDisimpan\(page, tersimpan\.current\)/.test(pemutar) && typeof putuskan === "function"
+              && [0, 1, 4, 9].every((h) => putuskan(h, 0) === simpan(h) && putuskan(h, simpan(h)) === null))),
         "LessonPlayer does not save the page as posisiTersimpan(page)");
       c.expect(/halamanMulai\(props\.startAt,\s*pages\.length\)/.test(pemutar) && !/Math\.max\(props\.startAt\b/.test(pemutar),
         "LessonPlayer resumes from startAt without halamanMulai");

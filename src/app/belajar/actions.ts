@@ -117,7 +117,11 @@ export async function saveLessonProgress(
   learningAssignmentId: string, lessonId: string, position: number, total: number,
 ) {
   try {
-    return { ok: true as const, furthest: await engine.recordProgress(await db(), learningAssignmentId, lessonId, position, total) };
+    // BOB-23: a page turn saves and nothing else. The session is written back
+    // only if it changed, so the save does not re-render the lesson page (nine
+    // Supabase calls, and a new round of props for the player).
+    const klien = (await supabaseServer({ tulisJikaBerubah: true })) as unknown as engine.EngineClient;
+    return { ok: true as const, furthest: await engine.recordProgress(klien, learningAssignmentId, lessonId, position, total) };
   } catch (e) {
     return { ok: false as const, message: (e as Error).message };
   }
