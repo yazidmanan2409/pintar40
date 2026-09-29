@@ -47,7 +47,7 @@ export const bob41Tests: SelfTest[] = [
       c.expect(/const pilihan = pilihanTinjauan\(h\?\.state\);/.test(hal) && /\{pilihan\.map\(\(p\) => \(/.test(hal),
         "the form's decisions are not the ones legal from the item's state");
       c.expect(/\.in\("state", \[\.\.\.SEDANG_DITINJAU\]\)\.in\("institution_id", mayReview\.map\(\(m\) => m\.id\)\)/.test(hal)
-          && /const items = \[\.\.\.baru, \.\.\.\(\(lama \?\? \[\]\) as Soal\[\]\)\];/.test(hal),
+          && /const items = \[\.\.\.baru, \.\.\.\(lama \?\? \[\]\)\];/.test(hal),
         "an item waiting on a reviewer that is older than the latest 40 is not listed");
       c.expect(!/\.limit\(200\)/.test(hal) && /\.in\("item_id", items\.map\(\(i\) => i\.id\)\)/.test(hal),
         "health is read from the first 200 rows rather than for the items shown");

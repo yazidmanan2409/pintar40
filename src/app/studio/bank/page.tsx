@@ -44,10 +44,6 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   const mayReview = institutions.filter((i) => i.capabilities.includes("CAN_REVIEW_QUESTION_HEALTH"));
 
   const kolom = "id, stem, bank_type, predicted_difficulty, empirical_difficulty, empirical_discrimination, empirical_evidence_count, institution_id, supersedes_item_id";
-  type Soal = {
-    id: string; stem: string; bank_type: string; predicted_difficulty: number | null; empirical_difficulty: number | null;
-    empirical_discrimination: number | null; empirical_evidence_count: number | null; institution_id: string; supersedes_item_id: string | null;
-  };
   type Sehat = { item_id: string; state: string; evidence_count: number };
   const [{ data: terbaru }, { data: menunggu }] = await Promise.all([
     supabase.from("items").select(kolom).order("created_at", { ascending: false }).limit(40),
@@ -57,13 +53,13 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
           .in("state", [...SEDANG_DITINJAU]).in("institution_id", mayReview.map((m) => m.id))
       : Promise.resolve({ data: [] }),
   ]);
-  const baru = (terbaru ?? []) as Soal[];
+  const baru = terbaru ?? [];
   const dilihat = new Set(baru.map((i) => i.id));
   const lamaIds = ((menunggu ?? []) as Sehat[]).map((h) => h.item_id).filter((id) => !dilihat.has(id));
   const { data: lama } = lamaIds.length
     ? await supabase.from("items").select(kolom).in("id", lamaIds).order("created_at", { ascending: false })
     : { data: [] };
-  const items = [...baru, ...((lama ?? []) as Soal[])];
+  const items = [...baru, ...(lama ?? [])];
   // health for exactly the items shown
   const { data: health } = items.length
     ? await supabase.from("question_health").select("item_id, state, evidence_count, note").in("item_id", items.map((i) => i.id))
