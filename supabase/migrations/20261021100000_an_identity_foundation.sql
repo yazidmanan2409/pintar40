@@ -620,18 +620,21 @@ begin
 end $$;
 
 -- ═══════════════════════════════════════════════════════════════ surfaces
-revoke all on function public.pintar_id_new() from public, anon, authenticated;
-revoke all on function public.pintar_id_canonical(text) from public, anon, authenticated;
-revoke all on function public.persons_pintar_id_guard() from public, anon, authenticated;
-revoke all on function public.username_rejection(text) from public, anon, authenticated;
-revoke all on function public.person_usernames_guard() from public, anon, authenticated;
-revoke all on function public.pin_weakness(text) from public, anon, authenticated;
-revoke all on function public.pin_matches(uuid, text) from public, anon, authenticated;
-revoke all on function public.adalah_persona(uuid) from public, anon, authenticated;
-revoke all on function public.accounts_setup_row() from public, anon, authenticated;
-revoke all on function public.personas_leave_setup() from public, anon, authenticated;
-revoke all on function public.recovery_restore_core(uuid, text, text) from public, anon, authenticated;
-revoke all on function public.identitas_staf_saya() from public, anon, authenticated;
+-- The helpers are nobody's, service_role included: on Supabase the default
+-- privileges grant every new function to service_role, and 0001 takes that
+-- back only from anon and authenticated (CI #230 found it).
+revoke all on function public.pintar_id_new() from public, anon, authenticated, service_role;
+revoke all on function public.pintar_id_canonical(text) from public, anon, authenticated, service_role;
+revoke all on function public.persons_pintar_id_guard() from public, anon, authenticated, service_role;
+revoke all on function public.username_rejection(text) from public, anon, authenticated, service_role;
+revoke all on function public.person_usernames_guard() from public, anon, authenticated, service_role;
+revoke all on function public.pin_weakness(text) from public, anon, authenticated, service_role;
+revoke all on function public.pin_matches(uuid, text) from public, anon, authenticated, service_role;
+revoke all on function public.adalah_persona(uuid) from public, anon, authenticated, service_role;
+revoke all on function public.accounts_setup_row() from public, anon, authenticated, service_role;
+revoke all on function public.personas_leave_setup() from public, anon, authenticated, service_role;
+revoke all on function public.recovery_restore_core(uuid, text, text) from public, anon, authenticated, service_role;
+revoke all on function public.identitas_staf_saya() from public, anon, authenticated, service_role;
 
 revoke all on function public.identity_attempt(text, text) from public, anon, authenticated;
 revoke all on function public.identity_attempt_settle(text, text, text) from public, anon, authenticated;
