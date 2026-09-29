@@ -11681,6 +11681,10 @@ export const experienceTests: SelfTest[] = [
         env: { ...process.env, SMAX, BARIS: JSON.stringify([
           SMAX, "**tebal", "^{ tanpa tutup", "Turus ||||/ |||", "979.875 → **979** | **875**", "_Periksa: 1 × 28._",
           "Isi <b>tebal</b> & <script>x</script>", "**>** artinya lebih besar", "H_{2}O", "x^{2^{3}}",
+          // SMA X Matematika Bab 1 as Lana writes it (the coordinator's list, 29 Sep): spaces, parentheses
+          // and operators inside the braces, a log base, and Unicode powers and roots that are text already
+          "a^{(m+p)/n}", "2^{1/2 + 1/4}", "3^{2x−1} = 27", "log_{10} 100 = 2", "2⁶, aᵐ, ²log 8, √2, ∛8, ∜16, ⁿ√a",
+          "**Sifat:** a^{m} × a^{n} = a^{m+n}",
         ]) },
       });
       type Hasil = { halaman: number; faktor: string[]; smax: string; korpus: { f: string; judul: string; md: string; html: string }[]; baris: string[]; blok: string; galat?: string };
@@ -11724,6 +11728,13 @@ export const experienceTests: SelfTest[] = [
           c.expect(tag === "Isi &lt;b&gt;tebal&lt;/b&gt; &amp; &lt;script&gt;x&lt;/script&gt;", `a tag in the text is not shown as text: ${tag}`);
           c.expect(lebih === "<strong>&gt;</strong> artinya lebih besar", "a bold > is not escaped");
           c.expect(air === "H<sub>2</sub>O" && bersarang === "x<sup>2<sup>3</sup></sup>", "_{…} is not a subscript, or nested braces break");
+          // SMA X Bab 1's own forms
+          const [pecahan, jumlah, linear, basis, unicode, sifat] = x.baris.slice(10);
+          c.expect(pecahan === "a<sup>(m+p)/n</sup>" && jumlah === "2<sup>1/2 + 1/4</sup>" && linear === "3<sup>2x−1</sup> = 27",
+            `an SMA X power with spaces, parentheses or operators is not one superscript: ${pecahan} | ${jumlah} | ${linear}`);
+          c.expect(basis === "log<sub>10</sub> 100 = 2", `an SMA X log base is not a subscript: ${basis}`);
+          c.expect(unicode === "2⁶, aᵐ, ²log 8, √2, ∛8, ∜16, ⁿ√a", `Unicode powers and roots are changed: ${unicode}`);
+          c.expect(sifat === "<strong>Sifat:</strong> a<sup>m</sup> × a<sup>n</sup> = a<sup>m+n</sup>", `bold and powers on one line: ${sifat}`);
           // (e) lines stay lines, and "- " lines are one list
           c.expect(x.blok === '<p class="pin-lp">Akibatnya:</p><ul class="pin-tdaftar"><li>satu</li><li><strong>dua</strong></li></ul><p class="pin-lp">██ 6</p><p class="pin-lp">███ 8</p>',
             `lines are merged, or a list is not one list: ${x.blok}`);
@@ -11773,7 +11784,9 @@ export const experienceTests: SelfTest[] = [
         "draws a real SD5 lesson («Faktor») on every page with no ** or table pipes left, its table as a table and its " +
         "nine bold phrases bold, and an SMA X a^{m/n} as a superscript; every lesson of every package renders with no ** " +
         "or table pipes left and every table and row accounted for; marks left open, tally marks, a pipe in a sentence " +
-        "and «_Periksa…_» stay literal, a planted tag is escaped, lines stay lines and \"- \" lines are one list; every " +
+        "and «_Periksa…_» stay literal, a planted tag is escaped, lines stay lines and \"- \" lines are one list; SMA X " +
+        "Bab 1's forms (a^{(m+p)/n}, 2^{1/2 + 1/4}, 3^{2x−1}, log_{10}) are one <sup> or <sub> each, with Unicode powers and " +
+        "roots untouched; every " +
         "learner surface (lesson, summary, worked example, stem, stimulus, options, help, result, reading map) and " +
         "Studio's preview and Bank Soal use it; nothing in src sets HTML and no markup library was added",
       );
