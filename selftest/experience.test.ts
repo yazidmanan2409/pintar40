@@ -11858,4 +11858,146 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+
+  {
+    id: "DAISY-31-PINDAH-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      /**
+       * DAISY-31 (BOB-35): Studio's «Koreksi» refused a move because a learner
+       * had already started the assignment, and said only the general
+       * «Ada kendala…» line with a reference. It now says why, in its own
+       * sentence: «…: sudah ada siswa yang mulai mengerjakannya. Untuk memakai
+       * terbitan lain, buat penugasan baru.»
+       */
+      const c = await cekPindah(repoRoot, "RELEASE_MOVE_STARTED", {
+        id: [/: sudah ada siswa yang mulai mengerjakannya\./, /Untuk memakai terbitan lain, buat penugasan baru\./],
+        en: [/: a student has already started it\./, /To use another release, make a new assignment\./],
+      });
+      return c.verdict(
+        "PR060 RELEASE_MOVE_STARTED, raised by the move when any learner has started, is named by the contract from its " +
+        "state and DETAIL (not by its message, and not under another state); it has its own sentence in both languages, " +
+        "naming no code, that says a student has started and a new assignment is the way; «Koreksi»'s line reads «Belum " +
+        "tersimpan.» and that sentence, with no reference; and PR060's other refusal, PR061's and an unknown DETAIL stay " +
+        "ACTION_FAILED, whose line carries its reference",
+      );
+    },
+  },
+
+  {
+    id: "DAISY-31-PINDAH-02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      /**
+       * DAISY-31 (BOB-35): the move refused because the target release has
+       * no pre-test and post-test for the cycle to move with. «Koreksi» now
+       * says so, naming both by the titles learners see.
+       */
+      const awal = (l: "id" | "en") => new RegExp(t("pretest.title", "learner", { locale: l }).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      const akhir = (l: "id" | "en") => new RegExp(t("posttest.title", "learner", { locale: l }).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      const c = await cekPindah(repoRoot, "RELEASE_MOVE_NO_CYCLE_DEFINITION", {
+        id: [/^Terbitan tujuan belum punya /, awal("id"), akhir("id"), /Pilih terbitan lain\.$/],
+        en: [/^The target release has no /, awal("en"), akhir("en"), /Choose another release\.$/],
+      });
+      return c.verdict(
+        "PR060 RELEASE_MOVE_NO_CYCLE_DEFINITION, raised when the target release has no approved definition for the " +
+        "cycle, is named by the contract from its state and DETAIL; it has its own sentence in both languages, naming no " +
+        "code, that names «Pemetaan Awal» and «Uji Penguasaan» by the titles learners see and says to choose another " +
+        "release; «Koreksi»'s line reads «Belum tersimpan.» and that sentence, with no reference; and PR060's other " +
+        "refusal, PR061's and an unknown DETAIL stay ACTION_FAILED, whose line carries its reference",
+      );
+    },
+  },
 ];
+
+/**
+ * DAISY-31: one of Studio «Koreksi»'s two move refusals, from the database's
+ * raise to the line under the form. Declared after the list and hoisted, so
+ * DAISY-31-PINDAH-01 and -02 each run it for their own code.
+ *
+ * 1. THE DATABASE: the latest migration that raises it does so as PR060 with
+ *    the code in DETAIL; its message is read from there.
+ * 2. THE CONTRACT (galat-kontrak.ts) names it from that state and DETAIL, and
+ *    not by its message: under another state the same DETAIL is not it.
+ * 3. ITS OWN SENTENCE, in both languages: not the general line, naming no code
+ *    or machinery, different from the other code's, and saying what it must.
+ * 4. UNDER THE FORM: the query «Koreksi» sends back, read by the page's own
+ *    reader, is «Belum tersimpan.» and that sentence, with no reference.
+ * 5. FROM THE SOURCE: «Koreksi» passes the move's refusal to `ditolak`, whose
+ *    default is kodeGalat, and a refusal nobody named carries a reference.
+ * 6. THE OTHERS STAY ACTION_FAILED with a reference: SESSION_RELEASE_MISMATCH
+ *    (PR060, both of its messages), QUICK_RULES_FIXED (PR061) and an unknown
+ *    DETAIL; the failed line shows «Kode rujukan».
+ */
+async function cekPindah(
+  repoRoot: string,
+  kode: "RELEASE_MOVE_STARTED" | "RELEASE_MOVE_NO_CYCLE_DEFINITION",
+  ciri: { id: RegExp[]; en: RegExp[] },
+): Promise<Checks> {
+  const c = new Checks();
+  let g: Record<string, unknown> | null = null;
+  try { g = await import("../src/lib/galat-kontrak") as Record<string, unknown>; } catch { /* reported below */ }
+  type Db = { code?: string; details?: string; message?: string };
+  const kodeGalat = g?.kodeGalat as ((e: Db) => string) | undefined;
+  const kunciKode = g?.kunciKode as ((k: string) => HleEvent) | undefined;
+  const queryHasil = g?.queryHasil as ((bagian: string, h: { ok: false; kode: string; ref?: string }) => URLSearchParams) | undefined;
+  const kalimatHasil = g?.kalimatHasil as ((q: Record<string, string>, s: (k: HleEvent) => string, awal: { ok: HleEvent; gagal: HleEvent }) => string | null) | undefined;
+  const PINDAH = ((g?.KODE_PINDAH ?? []) as readonly string[]);
+  if (!c.expect(typeof kodeGalat === "function" && typeof kunciKode === "function" && typeof queryHasil === "function"
+    && typeof kalimatHasil === "function", "the result contract (src/lib/galat-kontrak.ts) could not be read")) return c;
+
+  // 1. the database's own raise, and its message
+  const mig = join(repoRoot, "supabase", "migrations");
+  const sql = readdirSync(mig).filter((f) => f.endsWith(".sql")).sort().map((f) => readFileSync(join(mig, f), "utf8"));
+  const pesanDari = (state: string, detail: string) => sql.flatMap((s) => [...s.matchAll(
+    new RegExp(`raise exception using errcode = '${state}', detail = '${detail}',\\s*message = (?:format\\()?'([^']*)'`, "g"))].map((m) => m[1]));
+  const pesan = pesanDari("PR060", kode).pop();
+  c.expect(pesan !== undefined, `no migration raises ${kode} as PR060 with the code in DETAIL`);
+
+  // 2. named from state and DETAIL, not from the message
+  const dibaca = kodeGalat!({ code: "PR060", details: kode, message: pesan });
+  c.expect(PINDAH.includes(kode) && dibaca === kode, `PR060 ${kode} is not named by the contract: it reads as ${dibaca}`);
+  c.expect(kodeGalat!({ code: "PR040", details: kode, message: pesan }) !== kode && kodeGalat!({ code: "P0001", message: pesan }) !== kode,
+    `${kode} is read from something other than PR060 and its DETAIL`);
+
+  // 3. its own sentence
+  const kunci = kunciKode!(kode);
+  const lain = PINDAH.find((k) => k !== kode);
+  for (const locale of LOCALES) {
+    const s = (k: HleEvent) => t(k, "staff", { locale });
+    const x = s(kunci);
+    c.expect(kunci !== "galat.action_failed" && x !== TANPA_SALINAN, `(${locale}) ${kode} has no sentence of its own (${kunci})`);
+    c.expect(!/[A-Z]{2,}_[A-Z_]+|PR06\d|\b(?:detail|errcode|INV-\d+)\b/i.test(x), `(${locale}) ${kode}'s sentence names a code or machinery: ${x}`);
+    for (const w of INTERNAL_WORDS) c.expect(!new RegExp(`\\b${w}\\b`, "i").test(x), `(${locale}) ${kode}'s sentence uses the internal word "${w}"`);
+    for (const re of ciri[locale as "id" | "en"]) c.expect(re.test(x), `(${locale}) ${kode}'s sentence does not say ${re}: ${x}`);
+    if (lain) c.expect(x !== s(kunciKode!(lain)), `(${locale}) the two move refusals share one sentence`);
+
+    // 4. under the form
+    const q = Object.fromEntries(queryHasil!("koreksi", { ok: false, kode }).entries());
+    const baris = kalimatHasil!(q, s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" });
+    c.expect(baris === `${s("studio.hasil.gagal")} ${x}`, `(${locale}) «Koreksi» does not answer ${kode} with its sentence: ${baris}`);
+    c.expect(!baris?.includes(s("galat.rujukan")), `(${locale}) a named move refusal carries a reference`);
+  }
+
+  // 5. from the source
+  const aksi = code(readFileSync(join(repoRoot, "src", "app", "studio", "actions.ts"), "utf8"));
+  c.expect(/ditolak\("move_learning_assignment_release", error\)/.test(aksi)
+    && /function ditolak\([^)]*kode: KodeGalat \| KodeKonten = kodeGalat\(error\)\)/.test(aksi)
+    && /if \(kode !== "ACTION_FAILED"\) return \{ ok: false, kode \};\s*const ref = rujukan\(\);/.test(aksi),
+    "«Koreksi» no longer passes the move's refusal to ditolak, or a refusal nobody named loses its reference");
+
+  // 6. the others stay ACTION_FAILED, with a reference
+  const lainnya: Db[] = [
+    ...pesanDari("PR060", "SESSION_RELEASE_MISMATCH").map((message) => ({ code: "PR060", details: "SESSION_RELEASE_MISMATCH", message })),
+    ...pesanDari("PR061", "QUICK_RULES_FIXED").map((message) => ({ code: "PR061", details: "QUICK_RULES_FIXED", message })),
+    { code: "PR060", details: "RELEASE_MOVE_SOMETHING_NEW", message: "a learner may not do this" },
+    { code: "PR061", details: kode, message: "not found" },
+  ];
+  c.expect(lainnya.length >= 5, `only ${lainnya.length - 2} of the other PR060/PR061 raises were found in the migrations`);
+  for (const e of lainnya) c.expect(kodeGalat!(e) === "ACTION_FAILED", `${e.code} ${e.details} reads as ${kodeGalat!(e)}, not ACTION_FAILED`);
+  const s = (k: HleEvent) => t(k, "staff", { locale: "id" });
+  const gagal = kalimatHasil!(Object.fromEntries(queryHasil!("koreksi", { ok: false, kode: "ACTION_FAILED", ref: "AB12CD" }).entries()),
+    s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" });
+  c.expect(gagal?.endsWith(`${s("galat.rujukan")}: AB12CD.`) === true, `a refusal nobody named does not show its reference: ${gagal}`);
+  return c;
+}

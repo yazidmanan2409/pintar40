@@ -1,0 +1,1805 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas X · Bab 7: Peluang",
+   "subject": "Matematika",
+   "stage": "SMA",
+   "grade_label": "Kelas X",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Peluang",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Ruang Sampel dan Peluang",
+       "summary": "Peluang suatu kejadian adalah bilangan dari 0 sampai 1; jika semua hasil sama kemungkinannya, P(A) = n(A) : n(S).",
+       "body_markdown": "## Apa itu peluang\n\n**Peluang** adalah ukuran kemungkinan suatu kejadian akan terjadi (atau tidak terjadi).\n\n- Kejadian yang tidak mungkin terjadi mempunyai peluang 0.\n- Kejadian yang pasti terjadi mempunyai peluang 1.\n- Peluang selalu bernilai dari 0 sampai 1, termasuk 0 dan 1. Peluang ditulis sebagai pecahan, desimal, atau persen.\n\n## Ruang sampel\n\n**Ruang sampel** S adalah himpunan semua hasil yang mungkin dari suatu percobaan. Setiap anggotanya disebut **titik sampel**, dan banyaknya anggota S ditulis n(S).\n\n- Sebuah dadu dilempar: S = {1, 2, 3, 4, 5, 6}, n(S) = 6.\n- Dua keping uang logam dilempar: S = {GG, GA, AG, AA}, n(S) = 4.\n- Dadu merah dan dadu putih dilempar: setiap hasil adalah pasangan (merah, putih), misalnya (3, 2). Hasil (3, 2) berbeda dengan (2, 3), karena dadunya dapat dibedakan. Ada 6 × 6 = 36 hasil.\n\n## Menghitung peluang\n\nJika semua hasil sama kemungkinannya, seperti pada dadu yang adil, peluang kejadian A adalah\n\nP(A) = n(A) : n(S)\n\ndengan n(A) banyaknya hasil dalam kejadian A.\n\n**Contoh.** Sebuah dadu dilempar. Berapa peluang muncul bilangan genap? Hasil genapnya 2, 4, dan 6, jadi P(genap) = 3/6 = **1/2**.\n\n**Contoh.** Dua dadu dilempar. Berapa peluang jumlahnya 11? Hasilnya (5, 6) dan (6, 5), jadi P = 2/36 = **1/18**.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 7._",
+       "objective": {
+        "statement": "Kamu dapat menentukan ruang sampel dan menghitung peluang kejadian dengan hasil-hasil yang sama kemungkinannya.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu dilempar. Peluang muncul bilangan genap adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "1/2",
+           "is_correct": true,
+           "rationale": "Benar. Ada 3 bilangan genap (2, 4, 6) dari 6 hasil: 3/6 = 1/2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "1/3",
+           "is_correct": false,
+           "rationale": "Hanya dua bilangan genap yang terhitung (2/6). Bilangan genapnya 2, 4, dan 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "Itu banyaknya hasil genap. Peluang = 3 : 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "1/6",
+           "is_correct": false,
+           "rationale": "Itu peluang satu angka tertentu, misalnya angka 6."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah kantong berisi 3 bola merah, 5 bola biru, dan 2 bola hijau. Satu bola diambil secara acak. Peluang yang terambil bukan bola biru adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "3/10",
+           "is_correct": false,
+           "rationale": "Hanya bola merah yang dihitung. Bola hijau juga bukan biru."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "1/5",
+           "is_correct": false,
+           "rationale": "Hanya bola hijau yang dihitung. Bola merah juga bukan biru."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "1/2",
+           "is_correct": true,
+           "rationale": "Benar. Ada 3 + 2 = 5 bola yang bukan biru dari 10 bola: 5/10 = 1/2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "1",
+           "is_correct": false,
+           "rationale": "Banyak bola bukan biru dibagi banyak bola biru (5 : 5). Pembaginya banyak seluruh bola, 10."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Manakah yang tidak mungkin menjadi nilai sebuah peluang?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "0",
+           "is_correct": false,
+           "rationale": "Peluang 0 berarti kejadian tidak mungkin terjadi; nilai ini mungkin."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "1",
+           "is_correct": false,
+           "rationale": "Peluang 1 berarti kejadian pasti terjadi; nilai ini mungkin."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "0,5",
+           "is_correct": false,
+           "rationale": "0,5 berada di antara 0 dan 1; nilai ini mungkin."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "1,2",
+           "is_correct": true,
+           "rationale": "Benar. Peluang selalu dari 0 sampai 1, jadi 1,2 tidak mungkin."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu merah dan sebuah dadu putih dilempar bersamaan. Banyaknya titik sampel adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "12",
+           "is_correct": false,
+           "rationale": "Banyaknya sisi dijumlahkan (6 + 6). Pasangannya dihitung dengan 6 × 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "36",
+           "is_correct": true,
+           "rationale": "Benar. Setiap angka dadu merah dapat berpasangan dengan setiap angka dadu putih: 6 × 6 = 36."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "21",
+           "is_correct": false,
+           "rationale": "Pasangan seperti (2, 3) dan (3, 2) dianggap sama. Dadunya berbeda warna, jadi keduanya hasil yang berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "Itu banyaknya hasil satu dadu saja."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada pelemparan dadu merah dan dadu putih, hasil (3, 2) dan (2, 3) adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "dua hasil yang berbeda",
+           "is_correct": true,
+           "rationale": "Benar. (3, 2) berarti merah 3 dan putih 2, sedangkan (2, 3) berarti merah 2 dan putih 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "hasil yang sama",
+           "is_correct": false,
+           "rationale": "Angkanya sama, tetapi dadu yang menunjukkannya berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "hanya satu yang boleh dihitung",
+           "is_correct": false,
+           "rationale": "Keduanya titik sampel dan keduanya dihitung dalam 36 hasil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "tidak termasuk ruang sampel",
+           "is_correct": false,
+           "rationale": "Keduanya termasuk ruang sampel, yang memuat semua 36 pasangan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu dilempar. Peluang muncul bilangan prima adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "2/3",
+           "is_correct": false,
+           "rationale": "1 ikut dihitung (4/6). 1 bukan bilangan prima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "1/3",
+           "is_correct": false,
+           "rationale": "2 terlewat (hanya 3 dan 5). 2 adalah bilangan prima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "1/2",
+           "is_correct": true,
+           "rationale": "Benar. Bilangan prima pada dadu adalah 2, 3, dan 5: 3/6 = 1/2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "1/6",
+           "is_correct": false,
+           "rationale": "Hanya satu bilangan prima yang dihitung."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Distribusi Peluang",
+       "summary": "Distribusi peluang mendaftar semua hasil yang mungkin beserta peluangnya; jumlah semua peluangnya 1.",
+       "body_markdown": "## Jumlah dua dadu\n\n**Distribusi peluang** adalah daftar semua hasil yang mungkin dari suatu situasi acak beserta peluang terjadinya masing-masing. Untuk jumlah angka dua dadu (dari 36 hasil):\n\n- jumlah 2 → 1/36\n- jumlah 3 → 2/36\n- jumlah 4 → 3/36\n- jumlah 5 → 4/36\n- jumlah 6 → 5/36\n- jumlah 7 → 6/36\n- jumlah 8 → 5/36\n- jumlah 9 → 4/36\n- jumlah 10 → 3/36\n- jumlah 11 → 2/36\n- jumlah 12 → 1/36\n\nJumlah semua peluangnya 36/36 = 1. Jumlah yang paling mungkin adalah 7.\n\n## Hasil yang tidak sama kemungkinannya\n\nAda 11 jumlah yang mungkin (2 sampai 12), tetapi peluang jumlah 7 **bukan** 1/11. Jumlah-jumlah itu tidak sama kemungkinannya: jumlah 7 dapat terjadi dengan 6 cara, sedangkan jumlah 2 hanya dengan 1 cara, (1, 1). Peluang dihitung dari 36 hasil yang sama kemungkinannya.\n\n## Memakai distribusi\n\n- P(jumlah setidaknya 9) = (4 + 3 + 2 + 1)/36 = 10/36 = **5/18**\n- P(jumlah tidak lebih dari 9) = 1 − P(jumlah 10, 11, atau 12) = 1 − 6/36 = **5/6**\n\nCara kedua memakai kenyataan bahwa jumlah semua peluang adalah 1.\n\n## Dua uang logam\n\nUntuk banyaknya gambar (G) pada dua uang logam, dari S = {GG, GA, AG, AA}:\n\n- 0 gambar → 1/4\n- 1 gambar → 2/4 = 1/2\n- 2 gambar → 1/4\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 7._",
+       "objective": {
+        "statement": "Kamu dapat menyusun dan memakai distribusi peluang, misalnya untuk jumlah dua dadu.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua dadu dilempar. Peluang jumlah kedua angkanya 7 adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "1/12",
+           "is_correct": false,
+           "rationale": "Hanya (1, 6), (2, 5), (3, 4) yang dihitung. (6, 1), (5, 2), (4, 3) adalah hasil yang berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "7/36",
+           "is_correct": false,
+           "rationale": "Jumlah 7 dipakai sebagai banyaknya hasil. Banyaknya pasangan berjumlah 7 adalah 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "1/6",
+           "is_correct": true,
+           "rationale": "Benar. Ada 6 pasangan berjumlah 7 dari 36: (1, 6), (2, 5), (3, 4), (4, 3), (5, 2), (6, 1). 6/36 = 1/6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "1/11",
+           "is_correct": false,
+           "rationale": "Jumlah 2 sampai 12 tidak sama kemungkinannya, jadi peluangnya tidak dapat dihitung dari 11 jumlah itu."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua dadu dilempar. Peluang jumlah kedua angkanya setidaknya 10 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "1/6",
+           "is_correct": true,
+           "rationale": "Benar. Jumlah 10, 11, dan 12 dapat terjadi dengan 3 + 2 + 1 = 6 cara: 6/36 = 1/6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "5/36",
+           "is_correct": false,
+           "rationale": "Jumlah 12, yaitu (6, 6), terlewat: yang dihitung hanya 3 + 2 cara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "1/12",
+           "is_correct": false,
+           "rationale": "Itu peluang jumlah 10 saja (3/36). «Setidaknya 10» juga mencakup 11 dan 12."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "3/11",
+           "is_correct": false,
+           "rationale": "Tiga jumlah dari 11 jumlah yang mungkin dianggap sama kemungkinannya, padahal tidak."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua dadu dilempar. Peluang jumlah kedua angkanya 2 atau 3 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "1/36",
+           "is_correct": false,
+           "rationale": "Itu peluang jumlah 2 saja."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "1/12",
+           "is_correct": true,
+           "rationale": "Benar. Jumlah 2: (1, 1); jumlah 3: (1, 2) dan (2, 1). Jadi 3/36 = 1/12."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "2/11",
+           "is_correct": false,
+           "rationale": "Dua jumlah dari 11 jumlah dianggap sama kemungkinannya, padahal tidak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "1/18",
+           "is_correct": false,
+           "rationale": "Itu peluang jumlah 3 saja."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jumlah semua peluang dalam sebuah distribusi peluang adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "36",
+           "is_correct": false,
+           "rationale": "Itu banyaknya hasil dua dadu, bukan jumlah peluangnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "0",
+           "is_correct": false,
+           "rationale": "Setiap peluang tidak negatif dan sedikitnya satu hasil pasti terjadi, jadi jumlahnya 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "11",
+           "is_correct": false,
+           "rationale": "Itu banyaknya jumlah yang mungkin pada dua dadu, bukan jumlah peluangnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "1",
+           "is_correct": true,
+           "rationale": "Benar. Distribusi peluang memuat semua hasil yang mungkin, jadi jumlah peluangnya 1."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua uang logam dilempar. Peluang muncul tepat satu gambar adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "1/3",
+           "is_correct": false,
+           "rationale": "GG, satu G, dan AA dianggap sama kemungkinannya. Satu G dapat terjadi dengan dua cara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "1/4",
+           "is_correct": false,
+           "rationale": "Hanya GA yang dihitung; AG juga memuat tepat satu gambar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "1/2",
+           "is_correct": true,
+           "rationale": "Benar. Tepat satu gambar: GA atau AG, 2 dari 4 hasil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "3/4",
+           "is_correct": false,
+           "rationale": "Itu peluang setidaknya satu gambar; GG memuat dua gambar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada pelemparan dua dadu, jumlah yang paling mungkin muncul adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "7",
+           "is_correct": true,
+           "rationale": "Benar. Jumlah 7 dapat terjadi dengan 6 cara, lebih banyak daripada jumlah lainnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "12",
+           "is_correct": false,
+           "rationale": "Jumlah 12 hanya dapat terjadi dengan 1 cara, (6, 6)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "2",
+           "is_correct": false,
+           "rationale": "Jumlah 2 hanya dapat terjadi dengan 1 cara, (1, 1)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "6 dan 8",
+           "is_correct": false,
+           "rationale": "Masing-masing dapat terjadi dengan 5 cara, satu cara lebih sedikit daripada jumlah 7."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Frekuensi Relatif dan Frekuensi Harapan",
+       "summary": "Frekuensi relatif adalah peluang dari hasil percobaan; frekuensi harapan adalah peluang dikali banyaknya percobaan.",
+       "body_markdown": "## Frekuensi relatif\n\nSecara teoretis, peluang muncul angka genap pada sebuah dadu adalah 3/6 = 1/2. Dalam percobaan, hasilnya dapat berbeda. Misalnya dadu dilempar 20 kali dan angka genap muncul 8 kali.\n\n**Frekuensi relatif** adalah peluang dari hasil percobaan:\n\nfrekuensi relatif = banyak kejadian yang diinginkan : banyak percobaan = 8/20 = 2/5 = 0,4\n\nMakin banyak percobaan yang dilakukan, frekuensi relatif makin mendekati peluang teoretis.\n\n## Frekuensi harapan\n\n**Frekuensi harapan** adalah berapa kali suatu hasil diharapkan muncul:\n\nfrekuensi harapan = peluang × banyak percobaan\n\n**Contoh.** Sebuah dadu dilempar 200 kali. Berapa kali angka genap diharapkan muncul?\n\n- Dengan peluang teoretis 1/2: 1/2 × 200 = **100 kali**.\n- Dengan frekuensi relatif percobaan tadi, 0,4: 0,4 × 200 = 80 kali.\n\n## Harapan, bukan kepastian\n\nFrekuensi harapan adalah perkiraan, bukan jaminan. Jika dadu dilempar 200 kali, angka genap mungkin muncul 97 kali atau 104 kali; yang diharapkan sekitar 100 kali.\n\nFrekuensi harapan juga tidak harus bilangan bulat. Contoh: angka 6 pada 60 lemparan dadu diharapkan muncul 1/6 × 60 = 10 kali, sedangkan pada 50 lemparan diharapkan 50/6 ≈ 8,3 kali.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 7._",
+       "objective": {
+        "statement": "Kamu dapat membedakan peluang teoretis dan frekuensi relatif serta menghitung frekuensi harapan.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu yang adil dilempar 240 kali. Frekuensi harapan muncul angka 6 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "200",
+           "is_correct": false,
+           "rationale": "Itu frekuensi harapan muncul angka selain 6 (240 − 40)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "Itu angka mata dadunya, bukan berapa kali ia diharapkan muncul."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "80",
+           "is_correct": false,
+           "rationale": "Dipakai peluang 2/6, misalnya angka 5 atau 6. Peluang angka 6 adalah 1/6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "40",
+           "is_correct": true,
+           "rationale": "Benar. Frekuensi harapan = peluang × banyak percobaan = 1/6 × 240 = 40 kali."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah uang logam dilempar 50 kali dan gambar muncul 28 kali. Frekuensi relatif muncul gambar adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "0,5",
+           "is_correct": false,
+           "rationale": "Itu peluang teoretisnya. Frekuensi relatif dihitung dari hasil percobaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "0,56",
+           "is_correct": true,
+           "rationale": "Benar. Frekuensi relatif = 28 : 50 = 0,56."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "28",
+           "is_correct": false,
+           "rationale": "Itu banyaknya gambar muncul. Masih dibagi banyak percobaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "0,44",
+           "is_correct": false,
+           "rationale": "Itu frekuensi relatif angka (22 : 50), bukan gambar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Peluang sebuah kejadian adalah 0,3. Jika percobaannya dilakukan 50 kali, frekuensi harapannya adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "15",
+           "is_correct": true,
+           "rationale": "Benar. 0,3 × 50 = 15 kali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "0,3",
+           "is_correct": false,
+           "rationale": "Itu peluangnya. Masih dikalikan dengan banyak percobaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "35",
+           "is_correct": false,
+           "rationale": "Itu frekuensi harapan kejadian itu tidak terjadi (50 − 15)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "0,3 dikalikan 10, bukan 50."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Makin banyak percobaan yang dilakukan, frekuensi relatif suatu kejadian ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "makin menjauhi peluang teoretis",
+           "is_correct": false,
+           "rationale": "Kebalikannya: percobaan yang lebih banyak membuat hasilnya makin mendekati peluang teoretis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "selalu sama dengan peluang teoretis",
+           "is_correct": false,
+           "rationale": "Frekuensi relatif dapat berbeda dari peluang teoretis, misalnya 8/20 untuk angka genap."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "makin mendekati peluang teoretis",
+           "is_correct": true,
+           "rationale": "Benar. Dengan makin banyak percobaan, frekuensi relatif makin mendekati peluang teoretis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "makin besar",
+           "is_correct": false,
+           "rationale": "Frekuensi relatif tidak selalu naik; ia makin mendekati peluang teoretis."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu dilempar 60 kali dan angka 3 muncul 12 kali. Frekuensi relatif muncul angka 3 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "1/6",
+           "is_correct": false,
+           "rationale": "Itu peluang teoretisnya. Frekuensi relatif dihitung dari hasil percobaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "12",
+           "is_correct": false,
+           "rationale": "Itu banyaknya angka 3 muncul. Masih dibagi 60."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "4/5",
+           "is_correct": false,
+           "rationale": "Itu frekuensi relatif muncul angka selain 3 (48 : 60)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "1/5",
+           "is_correct": true,
+           "rationale": "Benar. 12 : 60 = 1/5."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Frekuensi harapan angka genap pada 200 lemparan dadu adalah 100. Artinya, angka genap akan muncul ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "tepat 100 kali, karena 1/2 × 200 = 100 pasti terjadi",
+           "is_correct": false,
+           "rationale": "1/2 × 200 = 100 adalah harapan; hasil sebenarnya dapat berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "sekitar 100 kali, tetapi tidak dijamin tepat 100",
+           "is_correct": true,
+           "rationale": "Benar. Frekuensi harapan adalah perkiraan; hasil sebenarnya mungkin berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "100 kali atau lebih",
+           "is_correct": false,
+           "rationale": "Hasil sebenarnya dapat juga kurang dari 100."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "kurang dari 100 kali",
+           "is_correct": false,
+           "rationale": "Hasil sebenarnya dapat juga 100 atau lebih."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Kejadian Saling Lepas",
+       "summary": "Dua kejadian saling lepas jika tidak mungkin terjadi pada hasil yang sama; peluang A atau B adalah P(A) + P(B).",
+       "body_markdown": "## Arti kata «atau»\n\nDalam matematika, «A atau B» berarti A terjadi, B terjadi, atau keduanya terjadi. Misalnya, kejadian «siswa naik sepeda atau motor» mencakup siswa yang hanya naik sepeda, yang hanya naik motor, dan yang dapat memakai keduanya.\n\n## Saling lepas\n\nDua kejadian **saling lepas** jika keduanya tidak mungkin terjadi pada hasil yang sama. Pada diagram Venn, lingkaran A dan B tidak beririsan, jadi P(A ∩ B) = 0.\n\n- Dua dadu: «jumlah 7» dan «dua angka sama» saling lepas, karena dua angka sama selalu berjumlah genap.\n- Dua dadu: «jumlah 8» dan «dua angka sama» tidak saling lepas, karena (4, 4) memenuhi keduanya.\n\n## Aturan penjumlahan untuk kejadian saling lepas\n\nJika A dan B saling lepas, maka\n\nP(A ∪ B) = P(A) + P(B)\n\n**Contoh.** Dua dadu dilempar. Berapa peluang jumlahnya 7 atau kedua angkanya sama?\n\n1. P(jumlah 7) = 6/36 dan P(dua angka sama) = 6/36.\n2. Kedua kejadian saling lepas, jadi P = 6/36 + 6/36 = 12/36 = **1/3**.\n\n**Contoh.** Peluang jumlah 3 atau 4: 2/36 + 3/36 = **5/36**.\n\n## Periksa dahulu\n\nSebelum menjumlahkan, periksa apakah ada hasil yang termasuk kedua kejadian. Contoh: «muncul angka 2 pada setidaknya satu dadu» (11 hasil) dan «jumlahnya 2» (hanya (1, 1)) saling lepas, karena (1, 1) tidak memuat angka 2. Jadi peluangnya 11/36 + 1/36 = 12/36 = **1/3**.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 7._",
+       "objective": {
+        "statement": "Kamu dapat mengenali kejadian saling lepas dan memakai aturan penjumlahannya.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua dadu dilempar. Pasangan kejadian manakah yang saling lepas?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "jumlah 8 dan dua angka sama",
+           "is_correct": false,
+           "rationale": "(4, 4) memenuhi keduanya, jadi tidak saling lepas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "jumlah 7 dan dua angka sama",
+           "is_correct": true,
+           "rationale": "Benar. Dua angka yang sama selalu berjumlah genap, jadi tidak mungkin berjumlah 7."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "jumlah 12 dan muncul angka 6",
+           "is_correct": false,
+           "rationale": "(6, 6) memenuhi keduanya, jadi tidak saling lepas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "jumlah genap dan dua angka sama",
+           "is_correct": false,
+           "rationale": "Setiap hasil dengan dua angka sama berjumlah genap, jadi keduanya dapat terjadi bersamaan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua dadu dilempar. Peluang jumlah kedua angkanya 3 atau 11 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "1/18",
+           "is_correct": false,
+           "rationale": "Itu peluang salah satu jumlah saja (2/36). «Atau» menjumlahkan kedua peluang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "1/9",
+           "is_correct": true,
+           "rationale": "Benar. Kedua kejadian saling lepas: 2/36 + 2/36 = 4/36 = 1/9."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "1/324",
+           "is_correct": false,
+           "rationale": "Kedua peluang dikalikan. Untuk «atau» pada kejadian saling lepas, peluangnya dijumlahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "2/11",
+           "is_correct": false,
+           "rationale": "Dua jumlah dari 11 jumlah dianggap sama kemungkinannya, padahal tidak."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua kejadian disebut saling lepas jika keduanya ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "selalu terjadi bersamaan",
+           "is_correct": false,
+           "rationale": "Kebalikannya: kejadian saling lepas tidak dapat terjadi bersamaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "peluangnya sama besar",
+           "is_correct": false,
+           "rationale": "Besar peluang tidak menentukan saling lepas atau tidaknya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "tidak mungkin terjadi pada hasil yang sama",
+           "is_correct": true,
+           "rationale": "Benar. Saling lepas berarti tidak ada hasil yang memenuhi keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "yang satu tidak memengaruhi peluang yang lain",
+           "is_correct": false,
+           "rationale": "Itu pengertian kejadian saling bebas, bukan saling lepas."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu dilempar. Pasangan kejadian manakah yang saling lepas?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "angka 1 dan angka genap",
+           "is_correct": true,
+           "rationale": "Benar. 1 bukan bilangan genap, jadi keduanya tidak dapat terjadi bersamaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "angka genap dan angka lebih dari 3",
+           "is_correct": false,
+           "rationale": "4 dan 6 memenuhi keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "angka prima dan angka ganjil",
+           "is_correct": false,
+           "rationale": "3 dan 5 memenuhi keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "angka kurang dari 3 dan angka genap",
+           "is_correct": false,
+           "rationale": "2 memenuhi keduanya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu dilempar. Peluang muncul angka 1 atau angka 6 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "1/36",
+           "is_correct": false,
+           "rationale": "Kedua peluang dikalikan. Untuk «atau» pada kejadian saling lepas, peluangnya dijumlahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "1/3",
+           "is_correct": true,
+           "rationale": "Benar. Kedua kejadian saling lepas: 1/6 + 1/6 = 2/6 = 1/3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "1/6",
+           "is_correct": false,
+           "rationale": "Itu peluang satu angka saja."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "1/12",
+           "is_correct": false,
+           "rationale": "Dua hasil dibagi 24, seolah ada 24 hasil. Ruang sampelnya hanya 6."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Kejadian Tidak Saling Lepas",
+       "summary": "Jika A dan B dapat terjadi bersamaan, P(A ∪ B) = P(A) + P(B) − P(A ∩ B), supaya irisannya tidak terhitung dua kali.",
+       "body_markdown": "## Irisan terhitung dua kali\n\nJika A dan B dapat terjadi pada hasil yang sama, lingkaran A dan B pada diagram Venn beririsan. Saat P(A) dan P(B) dijumlahkan, hasil-hasil di irisan A ∩ B terhitung dua kali. Karena itu irisannya dikurangkan satu kali.\n\n## Aturan penjumlahan\n\nP(A ∪ B) = P(A) + P(B) − P(A ∩ B)\n\nJika A dan B saling lepas, P(A ∩ B) = 0 dan aturan ini menjadi P(A) + P(B).\n\n## Contoh: dua dadu\n\nDua dadu dilempar. Berapa peluang kedua angkanya sama atau jumlahnya 8?\n\n1. P(dua angka sama) = 6/36: (1, 1), (2, 2), …, (6, 6).\n2. P(jumlah 8) = 5/36: (2, 6), (3, 5), (4, 4), (5, 3), (6, 2).\n3. P(keduanya) = 1/36: hanya (4, 4).\n4. P = 6/36 + 5/36 − 1/36 = 10/36 = **5/18**.\n\nJika irisannya tidak dikurangkan, hasilnya 11/36, karena (4, 4) terhitung dua kali.\n\n## Contoh: satu dadu\n\nSebuah dadu dilempar. Berapa peluang muncul angka genap atau angka lebih dari 3?\n\n1. Genap: {2, 4, 6}, lebih dari 3: {4, 5, 6}, keduanya: {4, 6}.\n2. P = 3/6 + 3/6 − 2/6 = 4/6 = **2/3**. Periksa: hasilnya {2, 4, 5, 6}, empat dari enam.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 7._",
+       "objective": {
+        "statement": "Kamu dapat memakai aturan penjumlahan untuk dua kejadian yang tidak saling lepas.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diketahui P(A) = 0,5, P(B) = 0,4, dan P(A ∩ B) = 0,2. Nilai P(A ∪ B) adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "0,9",
+           "is_correct": false,
+           "rationale": "P(A ∩ B) belum dikurangkan, padahal A dan B tidak saling lepas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "0,2",
+           "is_correct": false,
+           "rationale": "Itu P(A ∩ B), peluang A dan B terjadi bersamaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "1,1",
+           "is_correct": false,
+           "rationale": "P(A ∩ B) ditambahkan, bukan dikurangkan. Peluang juga tidak mungkin lebih dari 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "0,7",
+           "is_correct": true,
+           "rationale": "Benar. P(A ∪ B) = 0,5 + 0,4 − 0,2 = 0,7."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua dadu dilempar. Peluang kedua angkanya sama atau jumlahnya 10 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "2/9",
+           "is_correct": true,
+           "rationale": "Benar. 6/36 + 3/36 − 1/36 = 8/36 = 2/9. Irisannya (5, 5)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "1/4",
+           "is_correct": false,
+           "rationale": "Irisan (5, 5) tidak dikurangkan: 6/36 + 3/36 = 9/36."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "1/36",
+           "is_correct": false,
+           "rationale": "Itu peluang keduanya terjadi, yaitu (5, 5) saja."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "7/36",
+           "is_correct": false,
+           "rationale": "Irisan dikurangkan dua kali: (6 + 3 − 2)/36. Irisan dikurangkan satu kali."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Aturan penjumlahan untuk dua kejadian A dan B yang tidak saling lepas adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "P(A ∪ B) = P(A) + P(B)",
+           "is_correct": false,
+           "rationale": "Itu hanya berlaku jika A dan B saling lepas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "P(A ∪ B) = P(A) × P(B)",
+           "is_correct": false,
+           "rationale": "Perkalian dipakai untuk «dan» pada kejadian saling bebas, bukan untuk «atau»."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "P(A ∪ B) = P(A) + P(B) + P(A ∩ B)",
+           "is_correct": false,
+           "rationale": "Irisannya dikurangkan, bukan ditambahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "P(A ∪ B) = P(A) + P(B) − P(A ∩ B)",
+           "is_correct": true,
+           "rationale": "Benar. Irisannya dikurangkan satu kali karena terhitung dua kali."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu dilempar. Peluang muncul angka genap atau angka lebih dari 3 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "1",
+           "is_correct": false,
+           "rationale": "Irisan {4, 6} tidak dikurangkan: 3/6 + 3/6 = 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "1/3",
+           "is_correct": false,
+           "rationale": "Itu peluang irisannya, {4, 6}."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "1/2",
+           "is_correct": false,
+           "rationale": "Itu peluang angka genap saja."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "2/3",
+           "is_correct": true,
+           "rationale": "Benar. 3/6 + 3/6 − 2/6 = 4/6 = 2/3; hasilnya {2, 4, 5, 6}."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Mengapa P(A ∩ B) dikurangkan dalam aturan penjumlahan untuk kejadian yang tidak saling lepas?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "karena jumlah P(A) dan P(B) harus lebih kecil dari 1",
+           "is_correct": false,
+           "rationale": "Jumlah P(A) dan P(B) boleh lebih dari 1; yang dikurangkan adalah bagian yang terhitung dua kali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "karena hasil di irisan terhitung dua kali",
+           "is_correct": true,
+           "rationale": "Benar. Hasil di irisan termasuk A dan juga B, jadi terhitung pada P(A) dan pada P(B)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "karena A dan B saling bebas",
+           "is_correct": false,
+           "rationale": "Aturan penjumlahan tidak memerlukan kejadian saling bebas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "karena irisan selalu kosong",
+           "is_correct": false,
+           "rationale": "Jika irisannya kosong, kejadiannya saling lepas dan tidak ada yang dikurangkan."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Kejadian Saling Bebas dan Aturan Perkalian",
+       "summary": "Dua kejadian saling bebas jika yang satu tidak memengaruhi peluang yang lain; peluang keduanya terjadi adalah P(A) × P(B).",
+       "body_markdown": "## Saling bebas\n\nDua kejadian **saling bebas** jika terjadinya kejadian yang satu tidak memengaruhi peluang kejadian yang lain. Contoh: hasil lemparan pertama sebuah dadu tidak memengaruhi hasil lemparan kedua.\n\nUntuk kejadian saling bebas berlaku **aturan perkalian**:\n\nP(A dan B) = P(A) × P(B)\n\nKedua kejadian boleh terjadi berurutan (koin pertama lalu koin kedua) atau bersamaan (dua koin dilempar sekaligus).\n\n## Contoh: dobel pada lemparan kedua\n\nSepasang dadu dilempar dua kali. Berapa peluang lemparan pertama tidak dobel (angka tidak sama) dan lemparan kedua dobel?\n\n1. P(tidak dobel) = 30/36 = 5/6 dan P(dobel) = 6/36 = 1/6.\n2. Kedua lemparan saling bebas, jadi P = 5/6 × 1/6 = **5/36**.\n\nDengan model luas: dari 36 × 36 = 1.296 pasangan hasil, ada 30 × 6 = 180 yang memenuhi, dan 180/1.296 = 5/36.\n\n## Tidak saling bebas\n\nSebuah tas berisi 5 bola merah dan 7 bola biru. Dua bola diambil satu per satu.\n\n- **Dengan pengembalian:** bola pertama dikembalikan, jadi peluang bola kedua tidak berubah. P(merah lalu biru) = 5/12 × 7/12 = 35/144.\n- **Tanpa pengembalian:** setelah bola merah diambil, tinggal 11 bola, 7 di antaranya biru. Kejadiannya tidak saling bebas, dan P(merah lalu biru) = 5/12 × 7/11 = 35/132.\n\n## Rangkuman Bab 7\n\n- P(A) = n(A) : n(S) untuk hasil yang sama kemungkinannya; 0 ≤ P(A) ≤ 1.\n- Distribusi peluang: semua hasil beserta peluangnya; jumlahnya 1.\n- Frekuensi relatif = banyak kejadian : banyak percobaan; frekuensi harapan = peluang × banyak percobaan, sebuah perkiraan.\n- Saling lepas: P(A ∪ B) = P(A) + P(B). Tidak saling lepas: P(A ∪ B) = P(A) + P(B) − P(A ∩ B).\n- Saling bebas: P(A dan B) = P(A) × P(B).\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 7._",
+       "objective": {
+        "statement": "Kamu dapat mengenali kejadian saling bebas dan memakai aturan perkalian.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua uang logam dilempar. Peluang keduanya muncul gambar adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "1/2",
+           "is_correct": false,
+           "rationale": "Itu peluang untuk satu uang logam saja."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "1/3",
+           "is_correct": false,
+           "rationale": "GG, satu G, dan AA dianggap tiga hasil yang sama kemungkinannya. Satu G dapat terjadi dengan dua cara, GA dan AG."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "3/4",
+           "is_correct": false,
+           "rationale": "Itu peluang setidaknya satu gambar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "1/4",
+           "is_correct": true,
+           "rationale": "Benar. Kedua lemparan saling bebas: 1/2 × 1/2 = 1/4. Dari GG, GA, AG, AA hanya GG yang memenuhi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah dadu dan sebuah uang logam dilempar bersamaan. Peluang muncul angka 6 pada dadu dan gambar pada uang logam adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "2/3",
+           "is_correct": false,
+           "rationale": "Kedua peluang dijumlahkan. Untuk «dan» pada kejadian saling bebas, peluangnya dikalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "1/6",
+           "is_correct": false,
+           "rationale": "Itu peluang angka 6 saja; syarat gambar belum diperhitungkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "1/12",
+           "is_correct": true,
+           "rationale": "Benar. Kedua kejadian saling bebas: 1/6 × 1/2 = 1/12."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "7/12",
+           "is_correct": false,
+           "rationale": "Itu peluang angka 6 atau gambar (1/6 + 1/2 − 1/12). Yang ditanya keduanya terjadi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "LT19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah uang logam dilempar tiga kali. Peluang ketiganya muncul gambar adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "1/8",
+           "is_correct": true,
+           "rationale": "Benar. Lemparan saling bebas: 1/2 × 1/2 × 1/2 = 1/8."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "1/6",
+           "is_correct": false,
+           "rationale": "Banyaknya hasil dijumlahkan (2 + 2 + 2). Ruang sampelnya 2 × 2 × 2 = 8."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "3/8",
+           "is_correct": false,
+           "rationale": "Itu peluang tepat dua gambar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "1/2",
+           "is_correct": false,
+           "rationale": "Itu peluang satu lemparan saja. Ketiga lemparan harus gambar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 33
+         },
+         "ref": "LT20",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua bola diambil satu per satu dari sebuah tas tanpa mengembalikan bola pertama. Kejadian pada pengambilan pertama dan kedua ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 126
+           },
+           "label": "A",
+           "body": "saling bebas, karena bolanya sama",
+           "is_correct": false,
+           "rationale": "Tanpa pengembalian, peluang pengambilan kedua bergantung pada hasil pertama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 127
+           },
+           "label": "B",
+           "body": "saling lepas, karena bola berbeda",
+           "is_correct": false,
+           "rationale": "Saling lepas membicarakan dua kejadian pada satu hasil; yang ditanya apakah pengambilan pertama memengaruhi yang kedua."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 128
+           },
+           "label": "C",
+           "body": "tidak saling bebas, karena isi tas berubah",
+           "is_correct": true,
+           "rationale": "Benar. Setelah bola pertama diambil, banyak dan warna bola di tas berubah, jadi peluang pengambilan kedua ikut berubah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 129
+           },
+           "label": "D",
+           "body": "saling bebas, karena diambil satu per satu",
+           "is_correct": false,
+           "rationale": "Diambil satu per satu tidak cukup; tanpa pengembalian, isi tas berubah."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

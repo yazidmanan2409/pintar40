@@ -99,3 +99,20 @@ jobs:
                    "TXT default._domainkey.pintarselalu.com" "TXT staging.pintarselalu.com"; do
             echo "== $q"; dig +short $q || true
           done
+      # The Stellar -> Stellar Business upgrade moves the account to another server
+      # (new IP and hostname). Both Supabase projects send sign-in email through
+      # pintarselalu.com:465, so these are read before and after the move.
+      - name: Hosting records and the SMTP endpoint (before/after a server move)
+        run: |
+          set -u
+          command -v dig >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq dnsutils >/dev/null)
+          for q in "NS pintarselalu.com" "A pintarselalu.com" "A mail.pintarselalu.com" \
+                   "CNAME app.pintarselalu.com" "CNAME staging.pintarselalu.com"; do
+            echo "== $q"; dig +short $q || true
+          done
+          echo "== TLS certificate on pintarselalu.com:465"
+          echo | timeout 20 openssl s_client -connect pintarselalu.com:465 -servername pintarselalu.com 2>/dev/null \
+            | openssl x509 -noout -subject -issuer -enddate -ext subjectAltName 2>/dev/null || echo "no certificate read"
+          echo "== SMTP greeting on pintarselalu.com:465 (no login)"
+          printf 'QUIT\r\n' | timeout 20 openssl s_client -connect pintarselalu.com:465 -servername pintarselalu.com -quiet 2>/dev/null \
+            | head -2 || echo "no greeting"

@@ -116,3 +116,28 @@ All four mailboxes exist in Namecheap cPanel (Email Accounts screen, 29 Sep, sup
 | M6 | Two real inboxes for deliverability proof (one Gmail, one Outlook) | SPF, DKIM and DMARC = PASS in reality | **HELD by design until BOB-25's first staging send** (29 Sep). Yazid then provides one controlled Gmail inbox and one controlled Outlook/Hotmail inbox. The addresses are referred to by label only and never committed. Evidence: the "Show original" / message-header screenshots. Part of BOB-25's acceptance | 2E (BOB-25 acceptance) |
 | M7 | (Optional) DMARC reporting address | Visibility of spoofing and delivery | DNS change by you; the next facts run shows it | 7 |
 | M8 | Supabase settings changes, done through workflows when each gate needs them (staging), and at the release (production): code length and expiry, password policy, leaked-password check, password-change safeguards, MFA enrolment off, IP forwarding (BOB-12) | Rulings and gaps above | No evidence now; each change is read back by `identity-facts.yml` after it is made | 1, 3, 8 |
+
+## 4. The Stellar Business server move: before and after
+
+Namecheap moves the hosting account to another server for the upgrade (new IP and hostname). Both Supabase projects send every sign-in email through `pintarselalu.com:465` as `noreply@pintarselalu.com`, and PINTAR's own sending (BOB-25) will use the same endpoint. So the move changes where sign-in email leaves from, and the records below are read before and after it (`identity-facts.yml`, job `dns`, read-only).
+
+**Before: 29 Sep, 12:06 UTC** (run 36565943463):
+
+| Record | Value |
+|---|---|
+| Nameservers | `pdns1.registrar-servers.com`, `pdns2.registrar-servers.com`: Namecheap PremiumDNS, **not** the hosting nameservers. Namecheap does not update these records after the move; Yazid does. |
+| A `pintarselalu.com` | `209.74.67.49` |
+| A `mail.pintarselalu.com` | `209.74.67.49` (the MX target) |
+| CNAME `app.pintarselalu.com` / `staging.pintarselalu.com` | Vercel (`vercel-dns-017.com`); the move does not touch them |
+| TLS on `pintarselalu.com:465` | CN `pintarselalu.com`, SAN `pintarselalu.com`, `www.pintarselalu.com`; SSL.com TLS Issuing RSA CA R1; valid until 17 Feb 2027 |
+| SMTP greeting | `220-server902.web-hosting.com ESMTP Exim 4.100.1` |
+| SPF | `v=spf1 +mx +a +ip4:209.74.67.49 +include:spf.web-hosting.com ~all` |
+| DKIM | `default._domainkey`, RSA 2048, published |
+| DMARC | `v=DMARC1; p=none;` |
+
+**After:** the same read once the move is done. The expected result:
+- both A records hold the new IP;
+- the certificate on 465 still names `pintarselalu.com`;
+- the greeting names the new server;
+- SPF's `ip4` is the new IP;
+- the DKIM key matches what cPanel signs with.
