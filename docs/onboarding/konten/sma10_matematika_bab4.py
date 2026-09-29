@@ -577,11 +577,14 @@ soal("LT1", 1, "Penyelesaian sebuah sistem persamaan linear adalah nilai yang ..
     ("sama untuk setiap variabel", False, "Nilai setiap variabel boleh berbeda, seperti buku Rp2.000 dan pensil Rp4.000.", "SMA10-M-B4-02", "solusi"),
 ])
 cek(selesaikan([[1, 1], [1, -1]], [7, 1]) == [4, 3] and 7 - 1 == 6)
+# The 6 is 7 − 1 taken as x; the rationale says so and gives the real sum (2x = 8).
+LT2_C = "Hasil 7 − 1 = 6 langsung dianggap nilai x. Jumlahkan kedua persamaan: 2x = 8, jadi x = 4."
+cek(7 - 1 == 6 != 4 and 7 + 1 == 8 and F(8, 2) == 4 and "7 − 1 = 6 langsung dianggap nilai x" in LT2_C and "sambil ruas kiri" not in LT2_C)
 soal("LT2", 1, "Diketahui x + y = 7 dan x − y = 1. Nilai x adalah ...", "D", [
     ("4", True, "Benar. Jumlahkan kedua persamaan: 2x = 8, jadi x = 4 (dan y = 3).", "", "=eliminasi"),
     ("3", False, "Itu nilai y.", "SMA10-M-B4-02", "=eliminasi"),
     ("8", False, "Itu nilai 2x. Masih dibagi 2.", "SMA10-M-B4-01", "=eliminasi"),
-    ("6", False, "Ruas kanan dikurangkan (7 − 1) sambil ruas kiri dijumlahkan. Jumlahkan kedua ruas: 2x = 8.", "SMA10-M-B4-01", "=eliminasi"),
+    ("6", False, LT2_C, "SMA10-M-B4-01", "=eliminasi"),
 ])
 cek(selesaikan([[-2, 1], [1, 1]], [0, 12]) == [4, 8] and 12 // 2 == 6 and 2 * 12 == 24)
 soal("LT3", 1, "Diketahui y = 2x dan x + y = 12. Nilai y adalah ...", "A", [
