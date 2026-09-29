@@ -31,7 +31,11 @@
 
 The local stand-in answers without latency, so no queued saves spill into window 1. On staging they did (4 POSTs), which is why J09's second window is the one that decides.
 
-**Local, before dispatch, English collation throughout:** R2_LOCAL
+**Local, before dispatch, English collation throughout:** on `0d756a0`:
+- **Plants:** 91 of 91 proved their gate on a copy taken straight after the seeds.
+- **Full suite, fresh database:** 365 passed. F01-R07 fails, as it always does locally. 29 justified skips.
+- **Shared red cases:** all 15 gates exited 0 on one shared stack, the schema digest stayed the same, and every recheck was 242 of 242.
+- **After DAISY-25's merge:** the full suite again on the merged head (below).
 
 **Staging acceptance (c):** J09 PASS on the two-window check (no server action in the second 8 s), with the link shown without a reload; J13 still matches the plan.
 
