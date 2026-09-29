@@ -27,6 +27,7 @@
 -- A wrong PIN is left recorded.
 --
 -- NOT A CLIENT ENTRY POINT. The table has RLS on, no policies and no grants.
+-- The route itself is declared in public_surface_registry, below.
 -- The two functions are executable by service_role only, and the route calls
 -- them from under src/app/api/ (F01-S03), exactly as assume_persona: the
 -- anonymous principal still executes nothing (FABLE-01, FABLE-04). Neither is
@@ -114,6 +115,21 @@ grant execute on function public.card_signin_attempt(text) to service_role;
 grant execute on function public.card_signin_settle(text, text) to service_role;
 
 -- ---------------------------------------------------------------------------
+-- The sign-in route is an anonymous surface, declared as one (design approval
+-- (A)): the public path, and the handler it is rewritten to, as its child --
+-- the same shape as the certificate verification route and its endpoint.
+-- ---------------------------------------------------------------------------
+insert into public.public_surface_registry (surface, kind, object, note, parent) values
+  ('card_signin', 'ROUTE', '/masuk/kartu',
+   'BOB-12: the class card''s sign-in. POST only, same origin only (Origin or Sec-Fetch-Site); GET answers 303 /masuk. '
+   || 'Answers in codes (CARD_NOT_MATCHED, CARD_COOLDOWN, CARD_RATE_LIMITED, CARD_REQUEST_REFUSED, CARD_UNAVAILABLE), '
+   || 'never whether a card exists. Listed in the proxy''s PUBLIC_PATHS.', null),
+  ('card_signin_api', 'ENDPOINT', '/api/masuk/kartu',
+   'The handler /masuk/kartu is rewritten to (next.config.ts). It holds the service-role client (F01-S03 permits it under '
+   || 'src/app/api/) for card_signin_attempt and card_signin_settle only; anon executes neither. Signed out, the proxy '
+   || 'refuses this spelling itself: the one public door is /masuk/kartu.', 'card_signin');
+
+-- ---------------------------------------------------------------------------
 -- Terminal verification.
 -- ---------------------------------------------------------------------------
 do $$
@@ -142,5 +158,10 @@ begin
   if not has_function_privilege('service_role', 'public.card_signin_attempt(text)', 'execute')
      or not has_function_privilege('service_role', 'public.card_signin_settle(text, text)', 'execute') then
     raise exception 'BOB-12: the sign-in route cannot call the card cooldown';
+  end if;
+  if not exists (select 1 from public.public_surface_registry where surface = 'card_signin' and kind = 'ROUTE' and object = '/masuk/kartu')
+     or not exists (select 1 from public.public_surface_registry where surface = 'card_signin_api' and kind = 'ENDPOINT'
+                     and object = '/api/masuk/kartu' and parent = 'card_signin') then
+    raise exception 'BOB-12: the card sign-in route and its rewrite target are not declared public surfaces';
   end if;
 end $$;

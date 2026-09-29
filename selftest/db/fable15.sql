@@ -189,6 +189,20 @@ begin
       if selftest.f15_jumlah(k) <> 0 then
         v_probs := selftest.f11_note(v_probs, 'F15-P02', format('unjudged attempts were kept: %s', selftest.f15_jumlah(k)));
       end if;
+      -- repeated unavailability never lets more than 5 JUDGED attempts through in
+      -- the window: two unjudged (taken back) around every judged one, until the card waits
+      perform selftest.f15_selesai(k, 'MASUK');
+      n := 0; w := 0;
+      for i in 1..60 loop
+        v := selftest.f15_coba(k);
+        exit when v > 0;
+        if i % 3 = 0 then n := n + 1; else perform selftest.f15_selesai(k, 'TIDAK_DINILAI'); w := w + 1; end if;
+      end loop;
+      if n <> 5 or v <= 0 then
+        v_probs := selftest.f11_note(v_probs, 'F15-P02', format('with %s unjudged attempts taken back between them, %s judged attempt(s) went ahead before the card waited %s s; exactly 5 may',
+          w, n, v));
+      end if;
+      perform selftest.f15_selesai(k, 'MASUK');
       -- a wrong PIN stays counted: nothing is settled for it
       for i in 1..3 loop perform selftest.f15_coba(k); end loop;
       if selftest.f15_jumlah(k) <> 3 then
@@ -250,26 +264,38 @@ begin
       if exists (select 1 from public.client_rpc_registry where function_name in ('card_signin_attempt', 'card_signin_settle')) then
         v_probs := selftest.f11_note(v_probs, 'F15-N01', 'the card cooldown is registered as a client RPC');
       end if;
-      -- a signed-in client and a visitor are refused, by the database
+      -- a signed-in client and a visitor are refused both functions, by the database
       k := selftest.f15_kunci('n01-' || v_tag);
-      perform selftest.as_user((select u.email from auth.users u order by u.created_at limit 1));
-      v_err := selftest.f11_raised(format('select public.card_signin_attempt(%L)', k));
-      perform selftest.as_owner();
-      if v_err is null or v_err ->> 'code' <> '42501' then
-        v_probs := selftest.f11_note(v_probs, 'F15-N01', 'a signed-in client called card_signin_attempt');
-      else m_refused := m_refused + 1; end if;
-      perform selftest.as_anon();
-      v_err := selftest.f11_raised(format('select public.card_signin_settle(%L, %L)', k, 'MASUK'));
-      perform selftest.as_owner();
-      if v_err is null or v_err ->> 'code' <> '42501' then
-        v_probs := selftest.f11_note(v_probs, 'F15-N01', 'a visitor called card_signin_settle');
-      else m_refused := m_refused + 1; end if;
+      for r in select * from (values ('authenticated', format('select public.card_signin_attempt(%L)', k)),
+                                     ('authenticated', format('select public.card_signin_settle(%L, %L)', k, 'MASUK')),
+                                     ('anon', format('select public.card_signin_attempt(%L)', k)),
+                                     ('anon', format('select public.card_signin_settle(%L, %L)', k, 'TIDAK_DINILAI'))) t(peran, q) loop
+        if r.peran = 'authenticated' then
+          perform selftest.as_user((select u.email from auth.users u order by u.created_at limit 1));
+        else
+          perform selftest.as_anon();
+        end if;
+        v_err := selftest.f11_raised(r.q);
+        perform selftest.as_owner();
+        if v_err is null or v_err ->> 'code' <> '42501' then
+          v_probs := selftest.f11_note(v_probs, 'F15-N01', format('%s ran %s', case r.peran when 'anon' then 'a visitor' else 'a signed-in client' end,
+            substring(r.q from 'card_signin_[a-z]+')));
+        else m_refused := m_refused + 1; end if;
+      end loop;
       perform selftest.as_anon();
       v_err := selftest.f11_raised('select count(*) from public.card_signin_cooldowns');
       perform selftest.as_owner();
       if v_err is null then
         v_probs := selftest.f11_note(v_probs, 'F15-N01', 'a visitor read card_signin_cooldowns');
       else m_refused := m_refused + 1; end if;
+      -- the route is a declared public surface, and so is the handler it is rewritten to
+      if not exists (select 1 from public.public_surface_registry where surface = 'card_signin' and kind = 'ROUTE' and object = '/masuk/kartu')
+         or not exists (select 1 from public.public_surface_registry where kind = 'ENDPOINT' and object = '/api/masuk/kartu' and parent = 'card_signin') then
+        v_probs := selftest.f11_note(v_probs, 'F15-N01', 'the card sign-in route or its rewrite target is not in public_surface_registry');
+      end if;
+      if not (select a.ok from public.assert_public_surface() a) then
+        v_probs := selftest.f11_note(v_probs, 'F15-N01', 'assert_public_surface fails: ' || (select left(a.detail, 150) from public.assert_public_surface() a));
+      end if;
       -- a card number is not a key
       v_err := selftest.f11_raised($q$insert into public.card_signin_cooldowns (kunci) values ('7001')$q$);
       if v_err is null or v_err ->> 'code' <> '23514' then
@@ -297,12 +323,12 @@ begin
           || 'attempts the next waits 30, 60, 120, 240, 300 and 300 s after the last; a wait served lets one attempt through and the '
           || 'next waits the next step; attempts older than 15 minutes are forgotten; 301 s after the last attempt a card is never '
           || 'held; and one card''s count is not another''s',
-        format('a sign-in clears the card''s record and the card goes ahead; eight attempts each unjudged by Auth and taken back '
+        format('a sign-in clears the card''s record and the card goes ahead; with two unjudged attempts taken back around each judged one, exactly 5 judged attempts go ahead before the card waits; eight attempts each unjudged by Auth and taken back '
           || 'never wait and leave nothing counted; three non-matches stay counted; %s refusal(s): a card number, an upper-case, '
           || 'long or empty key, no key and an unknown outcome are refused 22023 and change nothing', m_p02),
         format('card_signin_cooldowns has RLS on, no policies and no grant for anon, authenticated or service_role; card_signin_attempt '
           || 'and card_signin_settle execute for service_role only, not for public, anon or authenticated, and are no client RPC; a '
-          || 'signed-in client and a visitor are refused 42501 and a visitor cannot read the table; a card number is refused as a key (23514): %s refusal(s)', m_refused - m_p02)
+          || 'signed-in client and a visitor are each refused both functions (42501) and a visitor cannot read the table; the route and its rewrite target are declared public surfaces and assert_public_surface holds; a card number is refused as a key (23514): %s refusal(s)', m_refused - m_p02)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

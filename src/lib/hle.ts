@@ -1919,9 +1919,10 @@ const table: Table = {
   "config.kesehatan.cek.overloaded_client_rpcs": { default: "Setiap fungsi aplikasi hanya punya satu bentuk panggilan", en: "Every app-callable function has one signature" },
   "config.kesehatan.cek.functions_executable_by_anon": { default: "Tidak ada fungsi yang dapat dijalankan tanpa masuk", en: "No function runs without signing in" },
   "config.kesehatan.cek.undeclared_anon_functions": { default: "Tidak ada fungsi terbuka tanpa masuk yang tidak dinyatakan", en: "No undeclared function is open without signing in" },
-  "config.kesehatan.cek.anon_public_surface": { default: "Tepat satu permukaan publik: pemeriksaan sertifikat", en: "Exactly one public surface: certificate verification" },
+  // BOB-12: the class card's sign-in is the second declared public surface (words for Daisy to confirm, D-014)
+  "config.kesehatan.cek.anon_public_surface": { default: "Tepat dua permukaan publik: pemeriksaan sertifikat dan masuk dengan kartu kelas", en: "Exactly two public surfaces: certificate verification and class-card sign-in" },
   "config.kesehatan.cek.client_readable_definer_views": { default: "Tidak ada tampilan berhak pemilik yang terbaca aplikasi", en: "No owner-rights view is readable by the app" },
-  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat dua alamat terbuka tanpa masuk: pemeriksaan sertifikat, dalam dua ejaannya", en: "Exactly two addresses open without signing in: certificate verification, in its two spellings" },
+  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat empat alamat publik yang dinyatakan: pemeriksaan sertifikat dan masuk dengan kartu kelas, masing-masing dengan alamat di baliknya", en: "Exactly four declared public addresses: certificate verification and class-card sign-in, each with the address behind it" },
   "config.kesehatan.cek.public_surface_ok": { default: "Permukaan publik sesuai yang dinyatakan", en: "The public surface matches its declaration" },
   "config.kesehatan.cek.anon_table_grants": { default: "Tidak ada hak tabel bagi pengguna yang belum masuk", en: "No table grant to signed-out users" },
   "config.kesehatan.cek.public_buckets": { default: "Tidak ada penyimpanan berkas yang publik", en: "No public storage bucket" },

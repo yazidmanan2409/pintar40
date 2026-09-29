@@ -23,13 +23,20 @@ export async function GET() {
   return new NextResponse(null, { status: 303, headers: { location: "/masuk", "cache-control": "no-store" } });
 }
 
+/** Auth that has not answered by then is treated as unreachable (and the attempt taken back). */
+const BATAS_AUTH_MS = 10_000;
+
 export async function POST(request: NextRequest) {
   const origin = asalSendiri(request.headers, process.env.NEXT_PUBLIC_APP_URL ?? null);
   const fd = origin ? await request.formData().catch(() => null) : null;
-  // Auth's own wait, when its answer carries one
+  // The service-role client, this request's alone, for the cooldown's two calls
+  // and nothing else (design approval (A)).
+  const layanan = supabaseService();
+  // Auth's own wait, when its answer carries one; and a bound on how long it may take
   let jeda: string | null = null;
   const rekam: typeof fetch = async (input, init) => {
-    const r = await fetch(input, init);
+    const batas = AbortSignal.timeout(BATAS_AUTH_MS);
+    const r = await fetch(input, { ...init, signal: init?.signal ? AbortSignal.any([init.signal, batas]) : batas });
     if (r.status === 429) jeda = r.headers.get("retry-after");
     return r;
   };
@@ -37,12 +44,12 @@ export async function POST(request: NextRequest) {
     { origin, kartu: fd?.get("kartu"), pin: fd?.get("pin"), lanjut: fd?.get("lanjut") ?? null },
     {
       catat: async (kunci) => {
-        const { data, error } = await supabaseService().rpc("card_signin_attempt", { p_kunci: kunci });
+        const { data, error } = await layanan.rpc("card_signin_attempt", { p_kunci: kunci });
         if (error || typeof data !== "number") throw new Error(error?.code ?? "no answer");
         return data;
       },
       selesaikan: async (kunci, hasil) => {
-        const { error } = await supabaseService().rpc("card_signin_settle", { p_kunci: kunci, p_hasil: hasil });
+        const { error } = await layanan.rpc("card_signin_settle", { p_kunci: kunci, p_hasil: hasil });
         if (error) throw new Error(error.code ?? "refused");
       },
       masuk: async (email, password) => {

@@ -2893,9 +2893,15 @@ export const appTests: SelfTest[] = [
         c.expect(tunggu.r.headers.getSetCookie().every((k) => !/^sb-[^=]+-auth-token/.test(k)),
           "a card in its cooldown was signed in with its own PIN: Auth was asked");
 
-        // another site, and a browser landing here
+        // another site, a cross-site POST as a browser marks it, and a browser landing here
         const asing = await kirim("2468", "https://contoh.example");
         c.expect(asing.r.status === 403 && asing.body?.code === "CARD_REQUEST_REFUSED", `another site's request → ${asing.r.status} ${JSON.stringify(asing.body)}`);
+        const fdSilang = new FormData();
+        fdSilang.set("kartu", "7001"); fdSilang.set("pin", "2468");
+        const silang = await get(`${base}/masuk/kartu`, { method: "POST", body: fdSilang, headers: { "sec-fetch-site": "cross-site", accept: "application/json" } });
+        const silangBody = (await silang.json().catch(() => null)) as Record<string, unknown> | null;
+        c.expect(silang.status === 403 && silangBody?.code === "CARD_REQUEST_REFUSED" && silang.headers.getSetCookie().every((k) => !/^sb-[^=]+-auth-token/.test(k)),
+          `a cross-site POST (Sec-Fetch-Site: cross-site, no Origin) → ${silang.status} ${JSON.stringify(silangBody)}`);
         const lihat = await get(`${base}/masuk/kartu`);
         c.expect(lihat.status === 303 && lihat.headers.get("location") === "/masuk", `GET /masuk/kartu → ${lihat.status} ${lihat.headers.get("location")}`);
       } finally {
@@ -2905,7 +2911,7 @@ export const appTests: SelfTest[] = [
         "against the running route with live Auth: card 7001 with a wrong PIN → 401 CARD_NOT_MATCHED, no session, one attempt " +
           "counted; with its own PIN → 200 with the learner's home, session cookies of 3600 s and the record cleared, and the home " +
           "answers 200 with them; with five recent failures → 429 CARD_COOLDOWN and a matching Retry-After, no session (Auth not " +
-          "asked); another site's request → 403 CARD_REQUEST_REFUSED; GET → 303 /masuk",
+          "asked); another site's request and a cross-site POST → 403 CARD_REQUEST_REFUSED with no session; GET → 303 /masuk",
       );
     },
   },

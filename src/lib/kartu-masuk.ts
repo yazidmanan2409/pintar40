@@ -17,9 +17,10 @@ import { STATUS_KARTU, type JawabanRuteKartu, type KodeKartuRute } from "@/lib/k
  *     CARD_COOLDOWN, and Auth is not asked. Every number typed is counted,
  *     existing or not.
  *  4. Auth judges the card and PIN. A match signs in and clears the card's
- *     record; a non-match of any kind is the one CARD_NOT_MATCHED. Auth's own
- *     rate limit is CARD_RATE_LIMITED and an unreachable Auth is
- *     CARD_UNAVAILABLE; neither judged the PIN, so the attempt is taken back.
+ *     record; a non-match of any kind is the one CARD_NOT_MATCHED, and counts.
+ *     Auth's own rate limit is CARD_RATE_LIMITED and an unreachable Auth is
+ *     CARD_UNAVAILABLE; only those, which judged no PIN, are taken back
+ *     (jenisGalatAuth).
  */
 
 export type GalatAuth = { status?: number; code?: string; name?: string };
@@ -62,13 +63,21 @@ export function detikJeda(v: string | null | undefined): number | null {
 }
 
 /**
- * Same origin: the `Origin` header is PINTAR's own configured origin, or the
- * origin the request was addressed to (the rule Next applies to server
- * actions). No Origin at all is refused: every browser sends one on a POST.
+ * Same origin, by the two signals a browser sets and a page cannot choose. A
+ * route handler, unlike the server action it replaces, gets no origin check
+ * from Next, so this is it:
+ *  - `Sec-Fetch-Site`, when sent, must be `same-origin` (a cross-site or
+ *    same-site POST, or one the person did not start from a page, is refused);
+ *  - `Origin`, when sent, must be PINTAR's configured origin or the origin the
+ *    request was addressed to (the rule Next applies to server actions);
+ *  - with neither, the request is refused: every browser sends at least one.
  */
 export function asalSendiri(headers: Headers, asalAplikasi: string | null): boolean {
+  const situs = headers.get("sec-fetch-site")?.trim().toLowerCase();
+  if (situs && situs !== "same-origin") return false;
   const origin = headers.get("origin");
-  if (!origin || origin === "null") return false;
+  if (!origin) return situs === "same-origin";
+  if (origin === "null") return false;
   const izin = new Set<string>();
   if (asalAplikasi) {
     try { izin.add(new URL(asalAplikasi).origin); } catch { /* not configured */ }
@@ -81,11 +90,20 @@ export function asalSendiri(headers: Headers, asalAplikasi: string | null): bool
   return izin.has(origin);
 }
 
-/** Auth's refusal, by what it says about the PIN: judged (a non-match), or not judged at all. */
-export function jenisGalatAuth(e: GalatAuth): "TIDAK_COCOK" | "DIBATASI" | "TIDAK_TERSEDIA" {
-  if (e.status === 429 || e.code === "over_request_rate_limit") return "DIBATASI";
-  if (e.name === "AuthRetryableFetchError" || !e.status || e.status >= 500) return "TIDAK_TERSEDIA";
-  return "TIDAK_COCOK";
+/**
+ * Auth's refusal, read for two things: what the person is told, and whether
+ * the attempt is taken back. ONLY an answer that says nothing about the card
+ * or PIN is taken back: Auth's own rate limit (429), Auth failing (5xx), and
+ * the request never answered (a network failure or this route's timeout, both
+ * AuthRetryableFetchError). Any other refusal counts: a 4xx is a judgement of
+ * the credential, and an error that fits none of these is counted too, since
+ * nothing shows the PIN went unjudged.
+ */
+export function jenisGalatAuth(e: GalatAuth): { jenis: "TIDAK_COCOK" | "DIBATASI" | "TIDAK_TERSEDIA"; ambilKembali: boolean } {
+  if (e.status === 429 || e.code === "over_request_rate_limit") return { jenis: "DIBATASI", ambilKembali: true };
+  if (e.name === "AuthRetryableFetchError" || (e.status !== undefined && e.status >= 500)) return { jenis: "TIDAK_TERSEDIA", ambilKembali: true };
+  if (e.status !== undefined && e.status >= 400) return { jenis: "TIDAK_COCOK", ambilKembali: false };
+  return { jenis: "TIDAK_TERSEDIA", ambilKembali: false };
 }
 
 export async function masukDenganKartu(
@@ -112,14 +130,17 @@ export async function masukDenganKartu(
   try {
     jawaban = await alat.masuk(cardEmail(kartu), deriveCardSecret(kartu, pin));
   } catch (e) {
-    jawaban = { error: { name: "AuthRetryableFetchError", code: e instanceof Error ? e.message : "unknown" } };
+    // thrown, not answered: nothing shows Auth left the PIN unjudged, so it counts
+    jawaban = { error: { name: "Unexpected", code: e instanceof Error ? e.message : "unknown" } };
   }
 
   if (jawaban.error) {
-    const jenis = jenisGalatAuth(jawaban.error);
+    const { jenis, ambilKembali } = jenisGalatAuth(jawaban.error);
     if (jenis === "TIDAK_COCOK") return gagal("CARD_NOT_MATCHED");
-    await alat.selesaikan(kunci, "TIDAK_DINILAI").catch((e) =>
-      alat.catatGalat(rujukan(), `an unjudged attempt was not taken back: ${e instanceof Error ? e.message : "unknown"}`));
+    if (ambilKembali) {
+      await alat.selesaikan(kunci, "TIDAK_DINILAI").catch((e) =>
+        alat.catatGalat(rujukan(), `an unjudged attempt was not taken back: ${e instanceof Error ? e.message : "unknown"}`));
+    }
     if (jenis === "DIBATASI") {
       const detik = detikJeda(jawaban.jeda);
       return gagal("CARD_RATE_LIMITED", detik ? { tunggu: detik } : {});

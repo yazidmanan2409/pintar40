@@ -1996,7 +1996,7 @@
     {
       "id": "BOB12-K01",
       "runner": "static",
-      "proves": "BOB-12 (identity Gate 1): the class card's sign-in, POST /masuk/kartu (next.config.ts rewrites it to src/app/api/masuk/kartu/route.ts), decided in src/lib/kartu-masuk.ts and driven here with every outside call recorded: a foreign or missing Origin 403 CARD_REQUEST_REFUSED and an empty card 401 CARD_NOT_MATCHED with nothing asked; the card's cooldown asked before Auth, a wait 429 CARD_COOLDOWN with Retry-After and Auth not asked; a wrong PIN and a card nobody holds one identical 401; Auth's limit 429 CARD_RATE_LIMITED with no invented wait and the attempt taken back; unreachable 503 CARD_UNAVAILABLE with a logged reference; a match signs in with the server-derived secret and clears the record; and no server action in src/ signs in with a password (signInWithCard deleted)."
+      "proves": "BOB-12 (identity Gate 1): the class card's sign-in, POST /masuk/kartu (next.config.ts rewrites it to src/app/api/masuk/kartu/route.ts), decided in src/lib/kartu-masuk.ts and driven here with every outside call recorded: a foreign or missing Origin, or a Sec-Fetch-Site other than same-origin (a cross-site POST), 403 CARD_REQUEST_REFUSED and an empty card 401 CARD_NOT_MATCHED with nothing asked; the card's cooldown asked before Auth, a wait 429 CARD_COOLDOWN with Retry-After and Auth not asked; a wrong PIN and a card nobody holds one identical 401; Auth's limit 429 CARD_RATE_LIMITED with no invented wait; only Auth's 429, a 5xx, a network failure or a timeout is taken back, while every 4xx, an unexplained error and a throw count; unreachable 503 CARD_UNAVAILABLE with a logged reference; a match signs in with the server-derived secret and clears the record; the route's source makes one service-role client per request, used for card_signin_attempt and card_signin_settle only, and bounds Auth's answer by a timeout; and no server action in src/ signs in with a password (signInWithCard deleted)."
     },
     {
       "id": "BOB12-K02",
@@ -2011,12 +2011,12 @@
     {
       "id": "F15-P02",
       "runner": "db",
-      "proves": "BOB-12 (b), card_signin_settle in selftest/db/fable15.sql: a sign-in clears the card's record, an attempt Auth never judged (its own limit, or unreachable) is taken back so a busy morning never counts against a card, a non-match stays counted, and only a 64-hex card key and a known outcome are accepted (22023)."
+      "proves": "BOB-12 (b), card_signin_settle in selftest/db/fable15.sql: a sign-in clears the card's record, an attempt Auth never judged (its own limit, or unreachable) is taken back so a busy morning never counts against a card, yet with unjudged attempts taken back around them exactly 5 judged attempts go ahead before the card waits, a non-match stays counted, and only a 64-hex card key and a known outcome are accepted (22023)."
     },
     {
       "id": "F15-N01",
       "runner": "db",
-      "proves": "BOB-12 (b), measured in selftest/db/fable15.sql: card_signin_cooldowns has RLS on, no policies and no grants; card_signin_attempt and card_signin_settle execute for service_role only (never public, anon or authenticated) and are no client RPC, so the anonymous principal still executes nothing; a signed-in client and a visitor are refused 42501; a card number is refused as a key."
+      "proves": "BOB-12 (b), measured in selftest/db/fable15.sql: card_signin_cooldowns has RLS on, no policies and no grants; card_signin_attempt and card_signin_settle execute for service_role only (never public, anon or authenticated) and are no client RPC, so the anonymous principal still executes nothing; a signed-in client and a visitor are each refused both functions (42501); /masuk/kartu and its rewrite target /api/masuk/kartu are declared in public_surface_registry and assert_public_surface holds; a card number is refused as a key."
     },
     {
       "id": "F15-C01",
@@ -2027,7 +2027,7 @@
       "id": "BOB12-A01",
       "runner": "app",
       "skip_justification": "needs live Supabase Auth; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack, and the route was rehearsed locally against a stand-in (HANDOFF-BOB-12)",
-      "proves": "BOB-12 against the running route (src/app/api/masuk/kartu/route.ts at POST /masuk/kartu) with live Auth: card 7001's wrong PIN 401 CARD_NOT_MATCHED with no session and one attempt counted; its own PIN 200 with the learner's home, 3600 s session cookies and the record cleared; five recent failures 429 CARD_COOLDOWN with a matching Retry-After and no session; another site 403 CARD_REQUEST_REFUSED; GET 303 /masuk."
+      "proves": "BOB-12 against the running route (src/app/api/masuk/kartu/route.ts at POST /masuk/kartu) with live Auth: card 7001's wrong PIN 401 CARD_NOT_MATCHED with no session and one attempt counted; its own PIN 200 with the learner's home, 3600 s session cookies and the record cleared; five recent failures 429 CARD_COOLDOWN with a matching Retry-After and no session; another site's Origin and a cross-site POST (Sec-Fetch-Site) 403 CARD_REQUEST_REFUSED with no session; GET 303 /masuk."
     },
     {
       "id": "BOB08-K01",

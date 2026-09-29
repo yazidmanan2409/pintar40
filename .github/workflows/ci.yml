@@ -231,7 +231,7 @@ jobs:
             db-bob06-gates)
               echo "the six standard-report defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob12-gates)
-              echo "the eight card-cooldown defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the nine card-cooldown defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'

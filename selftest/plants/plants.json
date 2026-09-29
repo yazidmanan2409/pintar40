@@ -96,6 +96,12 @@
       "expect_detail": "authenticated holds a grant on card_signin_cooldowns"
     },
     {
+      "name": "bob12-9",
+      "gate": "db-bob12-gates",
+      "expect_red": "F15-P02",
+      "expect_detail": "judged attempt(s) went ahead before the card waited"
+    },
+    {
       "name": "wp7-a",
       "gate": "db-wp7-gates",
       "expect_red": "F07-P11",

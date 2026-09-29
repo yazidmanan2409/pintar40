@@ -79,6 +79,16 @@ export const bob12Tests: SelfTest[] = [
       c.expect(/status:\s*303[^}]*location:\s*["']\/masuk["']/.test(rute), "GET /masuk/kartu does not send the browser to /masuk (303)");
       c.expect(/const origin = asalSendiri\(request\.headers,/.test(rute) && /masukDenganKartu\(\s*\{\s*origin,/.test(rute),
         "the route does not decide same-origin from the request's own headers");
+      // approval (A): one service-role client per request, for the cooldown's two calls only
+      const diPOST = rute.slice(rute.indexOf("export async function POST"));
+      const layananDipakai = [...rute.matchAll(/\blayanan\.([a-zA-Z]+)\(\s*["']?([a-z_]*)/g)].map((m) => `${m[1]}:${m[2]}`);
+      c.expect((rute.match(/supabaseService\(\)/g) ?? []).length === 1 && /const layanan = supabaseService\(\);/.test(diPOST),
+        "the service-role client is not made once, inside the request's own handler");
+      c.expect(JSON.stringify(layananDipakai.sort()) === JSON.stringify(["rpc:card_signin_attempt", "rpc:card_signin_settle"]),
+        `the service-role client is used for more than the cooldown's record and settle: ${layananDipakai.join(", ")}`);
+      c.expect(!/supabase\/service|supabaseService/.test(baca("src/lib/kartu-masuk.ts")), "the decision module reaches the service-role client");
+      c.expect(/AbortSignal\.timeout\(BATAS_AUTH_MS\)/.test(rute) && /fetchBerpenerus\(alamatKlien\(request\.headers\), rekam\)/.test(rute),
+        "Auth's answer is not bounded by a timeout, so a hung Auth hangs the student's sign-in");
       // no other server action signs anyone in with a password
       const semua: string[] = [];
       const jalan = (d: string) => {
@@ -110,7 +120,7 @@ export const bob12Tests: SelfTest[] = [
         c.expect(typeof kunciJeda === "function", "src/lib/card.ts has no kunciJedaKartu: the cooldown has no key");
 
         type Catatan = { catat: string[]; selesai: string[]; masuk: { email: string; sandi: string }[]; log: string[] };
-        const coba = async (masukan: object, perilaku: { tunggu?: number | "gagal"; auth?: object | null; jeda?: string | null }) => {
+        const coba = async (masukan: object, perilaku: { tunggu?: number | "gagal"; auth?: object | null; jeda?: string | null; lempar?: boolean }) => {
           const cat: Catatan = { catat: [], selesai: [], masuk: [], log: [] };
           const h = await masuk({ origin: true, kartu: "7001", pin: "2468", lanjut: "/belajar", ...masukan }, {
             catat: async (k: string) => {
@@ -121,6 +131,7 @@ export const bob12Tests: SelfTest[] = [
             selesaikan: async (k: string, hasil: string) => { cat.selesai.push(`${hasil}:${k}`); },
             masuk: async (email: string, sandi: string) => {
               cat.masuk.push({ email, sandi });
+              if (perilaku.lempar) throw new Error("unexpected");
               return { error: perilaku.auth ?? null, jeda: perilaku.jeda ?? null };
             },
             tujuan: async (l: unknown) => (l === "/belajar" ? "/belajar" : "/beranda-peran"),
@@ -182,6 +193,32 @@ export const bob12Tests: SelfTest[] = [
           c.expect(r.cat.log.some((l) => l.startsWith(ref)), `${apa}: the reference ${ref} is not in the server log`);
           c.expect(!r.cat.log.some((l) => l.includes("7001") || l.includes("2468")), `${apa}: the log carries the card number or PIN`);
         }
+        // approval (B): ONLY an answer that says nothing about the credential is taken back
+        for (const [apa, e] of [
+          ["Auth's rate limit", { status: 429, code: "over_request_rate_limit", name: "AuthApiError" }],
+          ["Auth failing (500)", { status: 500, code: "unexpected_failure", name: "AuthApiError" }],
+          ["Auth's gateway timing out (504)", { status: 504, name: "AuthRetryableFetchError" }],
+          ["no answer (network failure or this route's timeout)", { status: 0, name: "AuthRetryableFetchError" }],
+        ] as const) {
+          const r = await coba({}, { auth: e });
+          c.expect(r.cat.selesai.length === 1 && r.cat.selesai[0].startsWith("TIDAK_DINILAI:"),
+            `${apa} judged no PIN, but the attempt was ${r.cat.selesai.join(",") || "kept"}`);
+        }
+        for (const [apa, e] of [
+          ["a wrong PIN", { status: 400, code: "invalid_credentials", name: "AuthApiError" }],
+          ["an unconfirmed account", { status: 400, code: "email_not_confirmed", name: "AuthApiError" }],
+          ["a banned account", { status: 400, code: "user_banned", name: "AuthApiError" }],
+          ["a 401", { status: 401, name: "AuthApiError" }],
+          ["a 403", { status: 403, name: "AuthApiError" }],
+          ["a 422", { status: 422, code: "validation_failed", name: "AuthApiError" }],
+          ["an error that says nothing of itself", { name: "AuthUnknownError" }],
+        ] as const) {
+          const r = await coba({}, { auth: e });
+          c.expect(r.cat.selesai.length === 0, `${apa} was taken back: a judged attempt must always count`);
+        }
+        const dilempar = await coba({}, { lempar: true });
+        c.expect(dilempar.h.status === 503 && dilempar.cat.selesai.length === 0,
+          `a sign-in that threw → ${dilempar.h.status}, taken back ${dilempar.cat.selesai.length} time(s): nothing shows the PIN went unjudged`);
         const dbMati = await coba({}, { tunggu: "gagal" });
         c.expect(dbMati.cat.masuk.length === 0, "Auth was asked although the card's cooldown could not be");
         // 7. a match: signed in as the card's own address with the derived secret, the record cleared
@@ -212,15 +249,30 @@ export const bob12Tests: SelfTest[] = [
       c.expect(!asalSendiri(h({ origin: "null", host: "app.pintarselalu.com" }), "https://app.pintarselalu.com"), "an opaque (null) origin is accepted");
       c.expect(!asalSendiri(h({ origin: "https://app.pintarselalu.com.contoh.example", host: "app.pintarselalu.com" }), "https://app.pintarselalu.com"),
         "a lookalike origin is accepted");
+      const APP = "https://app.pintarselalu.com";
+      c.expect(!asalSendiri(h({ origin: "https://contoh.example", "sec-fetch-site": "cross-site", host: "app.pintarselalu.com" }), APP),
+        "a cross-site POST (foreign Origin, Sec-Fetch-Site cross-site) is accepted");
+      c.expect(!asalSendiri(h({ "sec-fetch-site": "cross-site", host: "app.pintarselalu.com" }), APP), "a cross-site POST with no Origin is accepted");
+      c.expect(!asalSendiri(h({ origin: APP, "sec-fetch-site": "cross-site", host: "app.pintarselalu.com" }), APP),
+        "Sec-Fetch-Site cross-site is overruled by a matching Origin");
+      c.expect(!asalSendiri(h({ origin: APP, "sec-fetch-site": "same-site", host: "app.pintarselalu.com" }), APP), "a same-site (sibling subdomain) POST is accepted");
+      c.expect(!asalSendiri(h({ "sec-fetch-site": "none", host: "app.pintarselalu.com" }), APP), "a POST no page started (Sec-Fetch-Site none) is accepted");
+      c.expect(asalSendiri(h({ "sec-fetch-site": "same-origin", host: "app.pintarselalu.com" }), APP), "a same-origin POST that sends only Sec-Fetch-Site is refused");
+      c.expect(asalSendiri(h({ origin: APP, "sec-fetch-site": "same-origin", host: "app.pintarselalu.com" }), APP), "a same-origin POST with both signals is refused");
+      c.expect(!asalSendiri(h({ origin: "https://contoh.example", "sec-fetch-site": "same-origin", host: "app.pintarselalu.com" }), APP),
+        "a foreign Origin is accepted because Sec-Fetch-Site says same-origin");
 
       return c.verdict(
         "POST /masuk/kartu (next.config.ts rewrites it to src/app/api/masuk/kartu/route.ts) answers every case with its code: " +
           "a foreign or missing Origin 403 CARD_REQUEST_REFUSED and an empty or absurd card 401 CARD_NOT_MATCHED, both with nothing " +
-          "asked; the card's cooldown asked first, a wait 429 CARD_COOLDOWN with Retry-After and Auth not asked; a wrong PIN, a card " +
+          "asked, same origin decided by Origin and Sec-Fetch-Site (a cross-site, same-site or page-less POST refused); the card's " +
+          "cooldown asked first, a wait 429 CARD_COOLDOWN with Retry-After and Auth not asked; a wrong PIN, a card " +
           "nobody holds and an account that cannot sign in one and the same 401 CARD_NOT_MATCHED, counted; Auth's own limit 429 " +
-          "CARD_RATE_LIMITED, its wait only when Auth gave one, the attempt taken back; Auth or the database unreachable 503 " +
+          "CARD_RATE_LIMITED, its wait only when Auth gave one; only Auth's 429, a 5xx, a network failure or a timeout is taken " +
+          "back, and every 4xx, an unexplained error and a throw count; Auth or the database unreachable 503 " +
           "CARD_UNAVAILABLE with a logged reference and no card or PIN in the log; a match signs in as the card's address with the " +
-          "server-derived secret and clears the record; the key is an HMAC of the card number under the pepper; and no server action " +
+          "server-derived secret and clears the record; the key is an HMAC of the card number under the pepper; the service-role " +
+          "client is made once per request for the cooldown's two calls only, and Auth's answer is time-bounded; and no server action " +
           "signs anyone in with a password (signInWithCard is gone)",
       );
     },
