@@ -2026,6 +2026,7 @@
     {
       "id": "BOB12-A01",
       "runner": "app",
+      "skip_justification": "needs live Supabase Auth; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack, and the route was rehearsed locally against a stand-in (HANDOFF-BOB-12)",
       "proves": "BOB-12 against the running route (src/app/api/masuk/kartu/route.ts at POST /masuk/kartu) with live Auth: card 7001's wrong PIN 401 CARD_NOT_MATCHED with no session and one attempt counted; its own PIN 200 with the learner's home, 3600 s session cookies and the record cleared; five recent failures 429 CARD_COOLDOWN with a matching Retry-After and no session; another site 403 CARD_REQUEST_REFUSED; GET 303 /masuk."
     },
     {
