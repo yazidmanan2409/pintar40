@@ -42,9 +42,9 @@
 **Restated for the changed requirement:** UX1-BRAND-02 and UX1-TUR-ORANG-01, the migration tripwires, move 125 → 126, with the reason beside them. There is no table, column or mark, and no tour RPC.
 
 **Local, every database with an `en-US` ICU collation, on `646a29c`:**
-- **Full suite, fresh database, clean build:** LOCAL_FULL
-- **Plants:** LOCAL_PLANTS
-- **Shared red cases:** LOCAL_SHARED
+- **Full suite, fresh database, clean build:** 378 passed, 0 failed, 31 justified skips. F04-T04c, F04-T04, BOB32-K01, F06-S01 and both tripwires passed. One unjustified skip: UX1-PIMPINAN-AKSES-01 (network), as before this change.
+- **Plants:** 100 of 100 proved their gate on a copy taken straight after the seeds.
+- **Shared red cases:** all 16 gates exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 247 of 247 (one more db row than before: F04-T04c).
 
 ## CI
 None of my own, as ruled: BOB-33 joins DAISY-27 in one integration run.
