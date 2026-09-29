@@ -14,6 +14,11 @@ import HasilDi from "@/components/HasilDi";
  * borrowing a number from somewhere. Nothing on this page computes a
  * statistic, and nothing here states that a question is "too easy" or "wrong":
  * a reviewer sees the evidence and records what they decided.
+ *
+ * Polish batch 2 (UX-02): what the page is for in this phase is said once, at
+ * the top, with how a question is changed (a corrected workbook). A question
+ * with no evidence yet shows nothing in its place, rather than "not enough
+ * evidence" under every row, and no database id is shown.
  */
 type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
@@ -37,6 +42,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   return (
     <div className="grid gap-4" id="kesehatan">
       <h2 className="text-lg font-medium">{s("studio.bank.judul")}</h2>
+      <p className="text-sm text-ink-2">{s("studio.bank.intro")}</p>
       {/* DAISY-18: one form per item; the answer heads the list it came from */}
       <HasilDi q={sp} bagian="kesehatan" kalimat={banner} />
 
@@ -48,17 +54,19 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
             const h = healthByItem.get(i.id);
             const hasEmpirical = i.empirical_difficulty !== null && i.empirical_evidence_count !== null;
             return (
-              <li key={i.id} className={card}>
+              // The short id is not shown; it stays on the row as data-soal, for
+              // the staging journey's check of which school's questions are listed
+              <li key={i.id} className={card} data-soal={short(i.id)}>
                 <p className="font-medium">{i.stem}</p>
-                <p className="mt-1 text-sm text-ink-3">{enumLabel("bank", i.bank_type)} · {short(i.id)}</p>
+                <p className="mt-1 text-sm text-ink-3">{enumLabel("bank", i.bank_type)}</p>
                 <p className="mt-2 text-sm text-ink-2 tabular-nums">
                   {s("studio.bank.prediksi")}: {i.predicted_difficulty ?? "—"}
                 </p>
-                <p className="mt-1 text-sm text-ink-2">
-                  {hasEmpirical
-                    ? `${s("studio.bank.empiris")}: ${i.empirical_difficulty} · ${i.empirical_evidence_count}`
-                    : s("studio.bank.belum_cukup")}
-                </p>
+                {hasEmpirical ? (
+                  <p className="mt-1 text-sm text-ink-2">
+                    {s("studio.bank.empiris")}: {i.empirical_difficulty} · {i.empirical_evidence_count}
+                  </p>
+                ) : null}
                 {h && h.state === "SIGNAL_RAISED" && mayReview.some((m) => m.id === i.institution_id) ? (
                   <form action={recordQuestionHealthReviewAction} className="mt-3 flex flex-wrap items-end gap-2">
                     <input type="hidden" name="soal" value={i.id} />
@@ -70,7 +78,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                         <option value="ACTION_TAKEN">{s("studio.bank.tindakan")}</option>
                       </select>
                     </label>
-                    <input className={field} name="catatan" placeholder="catatan" />
+                    <input className={field} name="catatan" placeholder={s("studio.paket.catatan")} aria-label={s("studio.paket.catatan")} />
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                   </form>
                 ) : null}
