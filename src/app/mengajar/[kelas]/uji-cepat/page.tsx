@@ -102,6 +102,9 @@ export default async function UjiCepat({
           <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
           {lingkup}
           <TahapKomitmen tahap={2} nama={langkah} locale={locale} />
+          {/* DAISY-26 (UX-03): a refused launch lands here only when one is
+              already running, so this is the one place that line is true. */}
+          {q.cepat === "gagal" ? <BarisHasil nada="gagal">{s("mengajar.cepat.sudah_ada")}</BarisHasil> : null}
           <div className="pin-hidup">
             <p className="pin-eyebrow">{s("mengajar.cepat.hidup.eyebrow")}</p>
             <h1>{s("mengajar.cepat.hidup.judul")}</h1>
@@ -219,7 +222,11 @@ export default async function UjiCepat({
           <p className="pin-intro">{s("mengajar.cepat.intro")}</p>
         </div>
 
-        {q.cepat === "gagal" ? <BarisHasil nada="gagal">{s("mengajar.cepat.sudah_ada")}</BarisHasil> : null}
+        {/* DAISY-26 (UX-03): this stage renders only when no Uji Cepat is
+            running, so a refusal here had another cause. It used to say one
+            was already running. The action does not yet pass the cause (see
+            the hand-off), so the line says what is true and what to try. */}
+        {q.cepat === "gagal" ? <BarisHasil nada="gagal">{s("mengajar.cepat.gagal")}</BarisHasil> : null}
         {q.cepat === "ok" ? <BarisHasil nada="ok">{s("mengajar.cepat.ok")}</BarisHasil> : null}
 
         {bab.length === 0 ? (
@@ -246,9 +253,10 @@ export default async function UjiCepat({
                 className="pin-input" id="pin-soal" type="number" name="soal"
                 min={soalMin} max={soalMax} defaultValue={pilihSoal}
               />
+              {/* DAISY-26 (UX-32): the range, as what the teacher may choose */}
               <p className="pin-hint">
-                {format.number(soalMin, locale)}–{format.number(soalMax, locale)}.{" "}
-                {s("mengajar.cepat.jumlah.arti")}
+                {s("mengajar.cepat.jumlah.antara")} {format.number(soalMin, locale)} {s("mengajar.cepat.jumlah.dan")}{" "}
+                {format.number(soalMax, locale)} {s("mengajar.siap.soal")}.
               </p>
             </div>
 

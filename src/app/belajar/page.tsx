@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
-import { posisi, peringkat, statusKey, type Kandidat } from "@/lib/siklus";
+import { posisi, peringkat, lessonRead, type Kandidat } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import Tur from "@/components/tur/Tur";
@@ -14,9 +14,10 @@ import { bolehTampilOtomatis, varianBelajar, TUR_BELAJAR } from "@/lib/tur";
 import { keadaanTur, peranSaya } from "@/lib/tur-negara";
 import { konteksPembelajaran } from "@/lib/pembelajaran";
 import * as ub from "@/lib/umpanbalik";
-import JejakSiklus from "@/components/siklus/JejakSiklus";
 import { namaSapaan } from "@/components/sesi";
 import KartuTugas from "@/components/siklus/KartuTugas";
+import PanelLanjut from "@/components/siklus/PanelLanjut";
+import { labelTujuan } from "@/components/siklus/aksi";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,7 @@ export const dynamic = "force-dynamic";
  * in `src/lib/siklus.ts` from cycle state and lesson progress rather than from
  * list position, and everything below it is quiet.
  *
- * FOUR SECTIONS, AND TWO OF THEM VANISH. "Perlu perhatian" and "Bisa
+ * FOUR SECTIONS, AND TWO OF THEM VANISH. "Siap untuk Uji Penguasaan" and "Bisa
  * dikerjakan sekarang" are absent entirely when there is nothing in them —
  * honest absence, never an empty container explaining that it is empty. The
  * home of a learner with nothing to do is short, and that is the correct
@@ -92,6 +93,11 @@ export default async function Belajar({
 
   const tugas = await engine.myAssignments(db);
 
+  // DAISY-26 (UX-21): the next unread lesson of each assignment, in the order
+  // the reading map set, so «Lanjutkan pelajaran» opens that lesson rather than
+  // the page a second button also opens.
+  const berikutnya = new Map<string, string>();
+
   // One round of reads per assignment, then the ranking. The cycle state says
   // where the learner is; the lessons say how far through the reading they
   // are. Both are needed before anything can be called "next".
@@ -101,6 +107,8 @@ export default async function Belajar({
         engine.cycleState(db, a.learning_assignment_id),
         engine.lessons(db, a.learning_assignment_id),
       ]);
+      const belum = lessons.find((l) => !lessonRead(l));
+      if (belum) berikutnya.set(a.learning_assignment_id, belum.lesson_id);
       return {
         tugas: a,
         posisi: posisi(state, lessons),
@@ -161,21 +169,29 @@ export default async function Belajar({
     ujiCepatBerjalan: terbuka.some((a) => a.mode === "QUICK"),
   });
 
-  /** Where a step actually leads, and what the button for it says. */
+  /**
+   * Where a step actually leads, and what the button for it says: the step by
+   * name (`labelTujuan`, DAISY-26 UX-21). Lessons open at the next unread one.
+   */
   function aksi(k: Kandidat): { href: string; labelKey: HleEvent } | null {
     const id = k.tugas.learning_assignment_id;
+    const label = labelTujuan(k.posisi.langkah, { berjalan: k.berjalan });
     switch (k.posisi.langkah) {
-      case "PEMETAAN": return { href: `/belajar/${id}/pemetaan`, labelKey: "siklus.mulai" };
-      case "PETA": return { href: `/belajar/${id}/peta`, labelKey: "siklus.lihat_peta" };
-      case "PELAJARAN": return { href: `/belajar/${id}`, labelKey: "siklus.lanjutkan" };
-      case "PENGUASAAN": return { href: `/belajar/${id}/penguasaan`, labelKey: "siklus.mulai" };
-      case "HASIL": return { href: `/belajar/${id}/hasil`, labelKey: "siklus.buka" };
+      case "PEMETAAN": return { href: `/belajar/${id}/pemetaan`, labelKey: label };
+      case "PETA": return { href: `/belajar/${id}/peta`, labelKey: label };
+      case "PELAJARAN": {
+        const l = berikutnya.get(id);
+        return { href: l ? `/belajar/${id}/pelajaran/${l}` : `/belajar/${id}`, labelKey: label };
+      }
+      case "PENGUASAAN": return { href: `/belajar/${id}/penguasaan`, labelKey: label };
+      case "HASIL": return { href: `/belajar/${id}/hasil`, labelKey: label };
     }
   }
 
-  // "Perlu perhatian": a cycle whose Mastery Check is the next thing and whose
-  // reading is already done. It is not a deadline warning — PINTAR does not
-  // have the learner's calendar — it is "this one is ready for you".
+  // "Siap untuk Uji Penguasaan": a cycle whose Mastery Check is the next thing
+  // and whose reading is already done. It is not a deadline warning — PINTAR
+  // does not have the learner's calendar — it is "this one is ready for you".
+  // DAISY-26 (UX-22): it was headed «Perlu perhatian», which read as a problem.
   const perhatian = sisa.filter(
     (k) => k.posisi.langkah === "PENGUASAAN" && !k.berjalan && k.posisi.pelajaranTotal > 0,
   );
@@ -206,44 +222,27 @@ export default async function Belajar({
         {/* THE ONE THING. The only element on this page standing on the primary
             ground, because there is only ever one of it. */}
         {utama ? (
-          <section className="pin-lanjut">
-            <p className="pin-eyebrow">{s("siklus.lanjutkan")}</p>
-            <p className="pin-where">
-              {utama.tugas.subject} · {utama.tugas.title}
-            </p>
-            <h2>
-              {s(statusKey(utama.posisi) as HleEvent)}
-              {utama.posisi.langkah === "PELAJARAN" && utama.posisi.pelajaranTotal > 0
-                ? ` — ${format.number(utama.posisi.pelajaranSelesai, locale)} ${s("siklus.dari")} ${format.number(utama.posisi.pelajaranTotal, locale)} ${s("siklus.selesai_n")}`
-                : ""}
-            </h2>
-            <JejakSiklus posisi={utama.posisi} locale={locale} />
-            <div className="pin-actions">
-              {(() => {
-                const a = aksi(utama);
-                return a ? (
-                  <Link className="pin-btn pin-primary" href={a.href}>
-                    {s(a.labelKey)}
-                  </Link>
-                ) : null;
-              })()}
-              <Link className="pin-btn" href={`/belajar/${utama.tugas.learning_assignment_id}`}>
-                {s("siklus.buka")}
-              </Link>
-            </div>
-          </section>
+          <PanelLanjut
+            subjek={utama.tugas.subject}
+            judul={utama.tugas.title}
+            posisi={utama.posisi}
+            aksi={aksi(utama)}
+            ringkasan={`/belajar/${utama.tugas.learning_assignment_id}`}
+            locale={locale}
+            persona={persona}
+          />
         ) : null}
 
         {perhatian.length > 0 ? (
           <section className="pin-sec">
-            <h2>{s("siklus.perhatian")}</h2>
+            <h2>{s("siklus.siap.judul")}</h2>
             {perhatian.map((k) => (
               <div className="pin-perhatian" key={k.tugas.learning_assignment_id}>
                 <span className="pin-what">{k.tugas.title}</span>
-                <span className="pin-why">{s("siklus.di.penguasaan")}</span>
+                <span className="pin-why">{s("siklus.siap.arti")}</span>
                 <div className="pin-actions">
                   <Link className="pin-btn" href={`/belajar/${k.tugas.learning_assignment_id}/penguasaan`}>
-                    {s("siklus.mulai")}
+                    {s(labelTujuan("PENGUASAAN"))}
                   </Link>
                 </div>
               </div>
