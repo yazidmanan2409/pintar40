@@ -506,6 +506,7 @@ function Mulai({ locale }: { locale: Locale }) {
         <OrientasiAsesmen
           orientasi={orientasi}
           locale={locale}
+          mode="PENGUASAAN"
           eyebrow={`${SUBJ[l].geo} · ${CHAP[l].c2}`}
           judul={s("posttest.title", locale)}
           mulai={<button type="button" className="pin-btn pin-primary">{s("cycle.open", locale)} {s("posttest.title", locale)}</button>}
