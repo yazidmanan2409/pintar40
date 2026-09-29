@@ -145,6 +145,7 @@ const DB_RUNNERS = [
   { file: "fable13.sql", fn: "selftest.run_fable13()", done: "F13-DONE", emits: ["F13-"] },
   { file: "fable14.sql", fn: "selftest.run_fable14()", done: "F14-DONE", emits: ["F14-"] },
   { file: "fable15.sql", fn: "selftest.run_fable15()", done: "F15-DONE", emits: ["F15-"] },
+  { file: "fable16.sql", fn: "selftest.run_fable16()", done: "F16-DONE", emits: ["F16-"] },
 ] as const;
 
 /**
@@ -207,6 +208,7 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.includes("F09-C01")) out.push(runSignupOnAFreshConnection(dbUrl));
   if (!only || only.some((x) => /^F10-C0[1234]$/.test(x))) out.push(...(await runStructureConcurrency(dbUrl, only)));
   if (!only || only.includes("F15-C01")) out.push(await runCardConcurrency(dbUrl));
+  if (!only || only.some((x) => /^F16-C0[123]$/.test(x))) out.push(...(await runIdentityConcurrency(dbUrl, only)));
   return out;
 }
 
@@ -254,6 +256,136 @@ async function runCardConcurrency(dbUrl: string): Promise<Outcome> {
     : { id: "F15-C01", runner: "db", status: "PASS", detail:
         `20 connections called card_signin_attempt for one card at the same moment: exactly 5 went ahead, the other 15 were told to ` +
         `wait ${Math.min(...tunggu)}-${Math.max(...tunggu)} s, the card's row holds exactly 5 attempts, and a sign-in then cleared it` };
+}
+
+/**
+ * F16-C01..C03 — BOB-24, the identity foundation under real concurrency.
+ *
+ *   F16-C01  twenty connections each insert fifty persons inside a transaction
+ *            they hold open together, then roll back: the thousand PINTAR IDs
+ *            drawn side by side are all well-formed and distinct, no insert
+ *            fails, and nothing is left behind.
+ *   F16-C02  two staff people claim the same username at the same moment: the
+ *            holder's claim is in, the other waits on it and is refused
+ *            USERNAME_TAKEN, and one row holds the name.
+ *   F16-C03  twenty wrong PINs for one typed ID at the same moment (as the
+ *            recovery route, service_role): the ladder's row lock takes them one
+ *            at a time, so exactly two are judged WRONG and one locks the ID for
+ *            an hour, the rest are told it is locked, the ladder stands at level
+ *            1, and the audit holds two wrongs and exactly one lock.
+ */
+async function runIdentityConcurrency(dbUrl: string, only: string[] | null | undefined): Promise<Outcome[]> {
+  const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+  const race = (sql: string) =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8");
+      p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d));
+      p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+  const asleep = async (marker: string, n = 1): Promise<boolean> => {
+    for (let i = 0; i < 200; i++) {
+      const r = psql(`select count(*) from pg_stat_activity where wait_event = 'PgSleep' and query like '%${marker}%' and pid <> pg_backend_pid()`);
+      if (Number(r.stdout.trim()) >= n) return true;
+      await new Promise((ok) => setTimeout(ok, 100));
+    }
+    return false;
+  };
+  const want = (id: string) => !only || only.includes(id);
+  const out: Outcome[] = [];
+  const hasil = (id: string, problems: string[], pass: string): Outcome =>
+    problems.length ? { id, runner: "db", status: "FAIL", detail: problems.join("; ") } : { id, runner: "db", status: "PASS", detail: pass };
+
+  if (want("F16-C01")) {
+    const tag = `selftest f16 c01 ${Date.now().toString(36)}`;
+    const semua = await Promise.all(Array.from({ length: 20 }, () =>
+      race(`begin; insert into public.persons (display_name) select '${tag}' from generate_series(1, 50) returning 'ID:' || pintar_id; ` +
+        `select pg_sleep(1.5); rollback;`)));
+    const problems: string[] = [];
+    const gagal = semua.filter((r) => r.code !== 0);
+    if (gagal.length) problems.push(`${gagal.length} of 20 connections failed: ${gagal[0].out.split("\n").pop()?.slice(0, 120)}`);
+    const ids = semua.flatMap((r) => r.out.split("\n").filter((l) => l.startsWith("ID:")).map((l) => l.slice(3)));
+    const buruk = ids.filter((x) => !/^[0-9A-HJKMNP-TV-Z]{8}$/.test(x));
+    if (ids.length !== 1000) problems.push(`${ids.length} of 1000 inserts returned a PINTAR ID`);
+    if (buruk.length) problems.push(`${buruk.length} ID(s) fall outside the alphabet, e.g. ${buruk[0]}`);
+    if (new Set(ids).size !== ids.length) problems.push(`${ids.length - new Set(ids).size} ID(s) were drawn twice`);
+    const tinggal = psql(`select count(*) from public.persons where display_name = '${tag}'`).stdout.trim();
+    if (tinggal !== "0") problems.push(`${tinggal} person(s) were left behind`);
+    out.push(hasil("F16-C01", problems,
+      `20 connections each inserted 50 persons in a transaction held open together, then rolled back: all ${ids.length} PINTAR IDs ` +
+        "drawn side by side are well-formed and distinct, no insert failed, and nothing was left behind"));
+  }
+
+  if (want("F16-C02")) {
+    const teardown = () => psql("select selftest.f16_concurrency_teardown()");
+    const problems: string[] = [];
+    const fixture = psql("select selftest.f16_concurrency_fixture()");
+    const [a, b] = fixture.stdout.trim().split("|");
+    if (fixture.status !== 0 || !a || !b) {
+      problems.push(`fixture failed: ${(fixture.stderr.trim() || fixture.stdout.trim()).split("\n").pop()}`);
+    } else {
+      const nama = `balap.${Date.now().toString(36)}`;
+      const sebagai = (uid: string) =>
+        `select set_config('request.jwt.claim.sub','${uid}',true); ` +
+        `select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true); set local role authenticated;`;
+      const marker = "pg_sleep(1.617)";
+      const holder = race(`begin; ${sebagai(a)} select public.claim_username('${nama}'); select ${marker}; commit;`);
+      if (!(await asleep(marker))) {
+        await holder;
+        problems.push("the holder never held its transaction open within 20 s");
+      } else {
+        const [h, r] = await Promise.all([holder, race(`begin; ${sebagai(b)} select public.claim_username('${nama.toUpperCase()}'); commit;`)]);
+        const baris = psql(`select count(*) from public.person_usernames where username = '${nama}'`).stdout.trim();
+        if (h.code !== 0 || !h.out.split("\n").includes(nama)) problems.push(`the holder's claim did not go in (${h.out.slice(0, 90)})`);
+        if (r.code === 0) problems.push("the concurrent claim of the same name was accepted");
+        else if (!/USERNAME_TAKEN/.test(r.out) && !/that username is taken/.test(r.out)) {
+          problems.push(`the concurrent claim failed for the wrong reason (${r.out.slice(0, 120)})`);
+        }
+        if (baris !== "1") problems.push(`${baris} row(s) hold the name`);
+      }
+    }
+    teardown();
+    out.push(hasil("F16-C02", problems,
+      "two staff people claimed the same username at once (the second in capitals); the holder's claim went in, the other " +
+        "waited on its uncommitted row and was refused PR040 USERNAME_TAKEN, and one row holds the name"));
+  }
+
+  if (want("F16-C03")) {
+    const problems: string[] = [];
+    let id = "";
+    for (let i = 0; i < 5 && !id; i++) {
+      id = psql("select x from (select public.pintar_id_new() x) q where not exists (select 1 from public.persons p where p.pintar_id = x) " +
+        "and not exists (select 1 from public.recovery_ladder l where l.typed_id = x) " +
+        "and not exists (select 1 from public.audit_log a where a.target_id = x)").stdout.trim();
+    }
+    if (!id) problems.push("no fresh typed ID could be drawn");
+    else {
+      const semua = await Promise.all(Array.from({ length: 20 }, () =>
+        race(`set role service_role; select outcome || ':' || coalesce(wait_seconds::text, '') from public.recovery_attempt('${id}', '1357')`)));
+      const gagal = semua.filter((r) => r.code !== 0);
+      if (gagal.length) problems.push(`${gagal.length} attempt(s) failed: ${gagal[0].out.slice(0, 120)}`);
+      const jawab = semua.map((r) => r.out.split("\n").pop() ?? "");
+      const salah = jawab.filter((x) => x === "WRONG:").length;
+      const kunci = jawab.filter((x) => /^LOCKED:\d+$/.test(x));
+      if (salah !== 2 || kunci.length !== 18) problems.push(`the answers were ${[...new Set(jawab)].map((x) => `${x} x${jawab.filter((y) => y === x).length}`).join(", ")}; expected WRONG x2 and LOCKED x18`);
+      const detik = kunci.map((x) => Number(x.split(":")[1]));
+      if (detik.some((s) => s < 3540 || s > 3600)) problems.push(`the locks were for ${[...new Set(detik)].join(", ")} s; each should be about an hour`);
+      const tangga = psql(`select level || '|' || failures || '|' || (locked_until > now() + interval '59 minutes')::text from public.recovery_ladder where typed_id = '${id}'`).stdout.trim();
+      if (tangga !== "1|0|true") problems.push(`the ladder stands at ${tangga || "nothing"} (level|failures|locked an hour), expected 1|0|true`);
+      const jejak = psql(`select count(*) filter (where action = 'identity.recovery_pin_wrong') || '|' || count(*) filter (where action = 'identity.recovery_locked') ` +
+        `from public.audit_log where target_id = '${id}'`).stdout.trim();
+      if (jejak !== "2|1") problems.push(`the audit holds ${jejak.replace("|", " wrong(s) and ")} lock(s), expected 2 and exactly 1`);
+      psql(`delete from public.recovery_ladder where typed_id = '${id}'`);
+    }
+    out.push(hasil("F16-C03", problems,
+      "20 wrong PINs for one typed ID arrived at the same moment as the recovery route makes them: the ladder's row lock took them " +
+        "one at a time, so exactly 2 were judged WRONG and one locked the ID for an hour, the other 17 were told it is locked, " +
+        "the ladder stands at level 1, and the audit holds 2 wrongs and exactly 1 lock"));
+  }
+  return out;
 }
 
 /**

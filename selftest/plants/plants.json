@@ -44,6 +44,11 @@
       "suite": "selftest.run_fable15()",
       "control_green": 3,
       "what": "BOB-12's card cooldown: 5 free attempts in 15 minutes, then 30 s doubling to a 5-minute cap, forgotten after 15 minutes, never a lock; a sign-in clears it and an attempt Auth never judged counts for nothing; the table and both functions are the sign-in route's alone (service_role)"
+    },
+    "db-bob24-gates": {
+      "suite": "selftest.run_fable16()",
+      "control_green": 6,
+      "what": "BOB-24's identity foundation: a PINTAR ID random, well-formed, distinct and immutable, read as ruled; usernames under C9 with reserved names, claimed once, never renamed but by the platform admin's audited correction; a blocklisted, bcrypt-hashed personal PIN set once; set-up state for staff EMAIL accounts only; the recovery ladder 1 h, 4 h, suspended, decaying but never lifting a suspension, restored only with a new PIN; the tables and recovery functions nobody's but the routes'"
     }
   },
   "plants": [
@@ -601,6 +606,20 @@
     { "name": "bob01-21", "gate": "db-bob01-gates", "expect_red": "F10-V03", "expect_detail": "the school's admin granted a role at another school's node" },
     { "name": "bob01-22", "gate": "db-bob01-gates", "expect_red": "F10-G01", "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id" },
     { "name": "bob01-23", "gate": "db-bob01-gates", "expect_red": "F10-G02", "expect_detail": "an admin of both schools moved a School-A teacher to School B by granting" },
-    { "name": "bob01-24", "gate": "db-bob01-gates", "expect_red": "F10-G01", "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id" }
+    { "name": "bob01-24", "gate": "db-bob01-gates", "expect_red": "F10-G01", "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id" },
+    { "name": "bob24-1", "gate": "db-bob24-gates", "expect_red": "F16-I01", "expect_detail": "changing a PINTAR ID was answered with success" },
+    { "name": "bob24-2", "gate": "db-bob24-gates", "expect_red": "F16-I01", "expect_detail": "'o1il-ooOO' is read as nothing, expected 01110000" },
+    { "name": "bob24-3", "gate": "db-bob24-gates", "expect_red": "F16-U01", "expect_detail": "'admin' is answered allowed, expected USERNAME_RESERVED" },
+    { "name": "bob24-4", "gate": "db-bob24-gates", "expect_red": "F16-U01", "expect_detail": "a username was renamed (success)" },
+    { "name": "bob24-5", "gate": "db-bob24-gates", "expect_red": "F16-U01", "expect_detail": "a teacher corrected another person's username" },
+    { "name": "bob24-6", "gate": "db-bob24-gates", "expect_red": "F16-P01", "expect_detail": "PIN 8901 is answered allowed, expected PIN_SEQUENCE" },
+    { "name": "bob24-7", "gate": "db-bob24-gates", "expect_red": "F16-P01", "expect_detail": "a second PIN was answered with success" },
+    { "name": "bob24-8", "gate": "db-bob24-gates", "expect_red": "F16-R01", "expect_detail": "the level-0 lock does not hold the ID for an hour" },
+    { "name": "bob24-9", "gate": "db-bob24-gates", "expect_red": "F16-R01", "expect_detail": "a suspension 400 days old answered WRONG: time lifted it" },
+    { "name": "bob24-10", "gate": "db-bob24-gates", "expect_red": "F16-R01", "expect_detail": "the platform admin's reset did not force a new PIN" },
+    { "name": "bob24-11", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "authenticated holds a grant on person_pins" },
+    { "name": "bob24-12", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "a client can call public.recovery_attempt(text,text)" },
+    { "name": "bob24-13", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "a teacher ran select public.security_events(10) (success)" },
+    { "name": "bob24-14", "gate": "db-bob24-gates", "expect_red": "F16-S01", "expect_detail": "set-up completed with no PIN" }
   ]
 }

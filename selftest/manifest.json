@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 115,
+  "version": 116,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2037,6 +2037,51 @@
       "id": "F15-C01",
       "runner": "db",
       "proves": "BOB-12 (b) under real concurrency (runCardConcurrency in selftest/run.ts): 20 connections calling card_signin_attempt for one card at the same moment let exactly 5 through to Auth and tell the other 15 to wait about 30 s, the card's row holds exactly 5 attempts, and a sign-in then clears it."
+    },
+    {
+      "id": "F16-I01",
+      "runner": "db",
+      "proves": "BOB-24 (D-054, D-059), the PINTAR ID in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: every person holds one, 8 Crockford characters and distinct; pintar_id_canonical reads it case-insensitively, ignoring spaces and hyphens, O as 0 and I or L as 1, and refuses any other shape; a thousand fresh IDs stay in the alphabet; a new person is given one; changing or clearing it is refused PINTAR_ID_IMMUTABLE and an ordinary edit leaves it; pintar_id_new takes nothing about anyone and draws on gen_random_bytes; and there is no card-edition table."
+    },
+    {
+      "id": "F16-U01",
+      "runner": "db",
+      "proves": "BOB-24 (C9), usernames in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: username_rejection refuses each shape by its own code (length, characters, a number, the start, an ID shape, a reserved name or prefix, an email) and allows ordinary names in lowercase; claim_username lets a staff person claim one once (USERNAME_ALREADY_SET), refuses a taken name (USERNAME_TAKEN) and a reserved one, and refuses a class card and an evaluation persona IDENTITY_NOT_ELIGIBLE; a rename or delete is refused USERNAME_FIXED even for the owner; correct_username is the platform admin's only, needs a reason and is audited with from, to and reason."
+    },
+    {
+      "id": "F16-P01",
+      "runner": "db",
+      "proves": "BOB-24 (D-056), the personal PIN in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: pin_weakness refuses repeated, sequential (wrapping), ABAB and AABB, keypad-line, year (1950-2030) and common PINs and a non-4-digit one, and allows ordinary ones; set_my_pin refuses a weak PIN by its code and a second PIN PIN_ALREADY_SET; the stored value is a cost-10 bcrypt hash that never contains the PIN; pin_matches tells the PIN from another and one person from another; only pin_matches and set_my_pin read the hash and neither returns text; and no audit row carries a PIN or a hash."
+    },
+    {
+      "id": "F16-S01",
+      "runner": "db",
+      "proves": "BOB-24, the set-up state in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: every staff EMAIL account has an account_setup row and no class card or persona has one; a new staff account is REQUIRED, complete_my_setup refuses SETUP_INCOMPLETE without a username and a PIN and completes with both, audited identity.setup_completed; a card and a persona read NOT_APPLICABLE from my_setup_state."
+    },
+    {
+      "id": "F16-R01",
+      "runner": "db",
+      "proves": "BOB-24 (D-056), recovery_attempt and the code counters in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: at level 0 two wrong PINs are WRONG and the third LOCKED for 3600 s, identically for an ID nobody holds; a lock judges nothing, not even the right PIN; three more lock for 14400 s, three more SUSPEND; a suspension 400 days old still holds and the suspended PIN matches nothing; recovery_restore returns the ladder to 0 and forces a new PIN, and the old one answers WRONG and is refused PIN_REUSED; success resets the count; 30 clean days decay level 1; admin_reset_recovery needs a reason, forces a new PIN and is audited, and a teacher cannot call it; a malformed ID counts nothing; identity_attempt lets 5 code tries through within 15 minutes and then asks about 30 s, identity_attempt_settle takes an unjudged try back and clears the record on a right code; and each step is audited."
+    },
+    {
+      "id": "F16-N01",
+      "runner": "db",
+      "proves": "BOB-24, storage and surfaces of migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery_attempt, recovery_restore, identity_attempt and identity_attempt_settle execute for service_role only and are no client RPC; pin_matches, the ID generator and normaliser and the rule functions execute for nobody; the seven client functions are in client_rpc_registry, the platform admin's as SYSTEM_ADMIN; a teacher and a visitor are refused 42501 by the database; and security_events gives the platform admin identity events only."
+    },
+    {
+      "id": "F16-C01",
+      "runner": "db",
+      "proves": "BOB-24 under real concurrency (runIdentityConcurrency in selftest/run.ts): 20 connections each insert 50 persons in transactions held open together and rolled back; the 1000 PINTAR IDs drawn side by side by persons_pintar_id_guard are well-formed and distinct, no insert fails, and nothing is left behind."
+    },
+    {
+      "id": "F16-C02",
+      "runner": "db",
+      "proves": "BOB-24 under real concurrency (runIdentityConcurrency in selftest/run.ts): two staff people claim one username with claim_username at the same moment; the holder's claim goes in, the other waits on its uncommitted row and is refused PR040 USERNAME_TAKEN, and one row of person_usernames holds the name."
+    },
+    {
+      "id": "F16-C03",
+      "runner": "db",
+      "proves": "BOB-24 under real concurrency (runIdentityConcurrency in selftest/run.ts): 20 wrong PINs for one typed ID reach recovery_attempt at the same moment as service_role; the ladder's row lock takes them one at a time: exactly 2 WRONG and one lock for an hour, 17 told it is locked, recovery_ladder at level 1, and the audit holds 2 wrongs and exactly 1 lock."
     },
     {
       "id": "BOB12-A01",
