@@ -701,7 +701,10 @@ await step("J14", "the teacher reads the class evidence (Lihat bukti) and who ha
 async function bank(page, who) {
   await lihat(page, "/studio/bank");
   const t = await text(page);
-  const ids = [...t.matchAll(/\b([0-9a-f]{8})\b/g)].map((m) => m[1]);
+  // Since polish batch 2 (UX-02) the short id is not shown; it stays on each row
+  // as data-soal. An older build still prints it in the row's text.
+  const perBaris = (await page.locator("main li[data-soal]").evaluateAll((els) => els.map((e) => e.getAttribute("data-soal")))).filter((x) => /^[0-9a-f]{8}$/.test(x ?? ""));
+  const ids = perBaris.length > 0 ? perBaris : [...t.matchAll(/\b([0-9a-f]{8})\b/g)].map((m) => m[1]);
   const mine = new Set(sql(`select string_agg(left(id::text, 8), ' ') from public.items where institution_id = ${uuid(SID)}`).split(" "));
   const thisCourse = new Set(sql(`select string_agg(left(i.id::text, 8), ' ') from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id = ${uuid(course)}`).split(" "));
   const shown = page.locator("main li");
