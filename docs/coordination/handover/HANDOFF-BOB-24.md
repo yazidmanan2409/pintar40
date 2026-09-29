@@ -1,8 +1,10 @@
 # Bob → coordinator: BOB-24 (identity Gate 2: the identity foundation, DB only), with BOB-34
 
-**SHA:** `@@SHA@@`, with `main` `73c0be5` (Integration 17) merged in as `d823bc9`.
+**SHA:** `8a44044` (code), with `main` `73c0be5` (Integration 17) merged in as `d823bc9`.
 - **BOB-34:** `7445c1b`, its own commit. It rides this run, as ruled.
-- **BOB-24:** `9d4a2c7`.
+- **BOB-24:** `9d4a2c7`, then two commits on top:
+  - `a31a1a8`: the two standing assertions the first full proof found red (see PROOF);
+  - `8a44044`: your 29 Sep rulings on the six questions.
 - **Manifest:** v116. BOB-34 took 115 and BOB-24 took 116. main's 413 ids are all kept, plus BOB34-K01 and nine F16 ids: 423 in all. You set the final number.
 - **One `ci.yml` run:** @@CI@@.
 
@@ -27,12 +29,14 @@
    - **`pintar_id_canonical(text)`** reads typed input case-insensitively, ignores spaces and hyphens, and reads O as 0 and I or L as 1. Any other shape reads as nothing.
    - **No card-edition table.**
 2. **Usernames, `person_usernames`** (C9).
-   - **`username_rejection`** returns one code per rule: USERNAME_EMAIL_SHAPE, _LENGTH (4–20), _CHARACTERS (`a-z 0-9 . _`), _NUMBER, _START (a letter), _ID_SHAPE (anything that reads as a PINTAR ID) or _RESERVED (a list, plus the prefixes pintar, admin, root, system, support, security, official and resmi).
-   - **`claim_username`** takes a name once per person (USERNAME_ALREADY_SET) and stores it in lowercase. A taken name is refused USERNAME_TAKEN, including in a race. Only a staff person with an EMAIL account who is not a persona may claim; anyone else gets IDENTITY_NOT_ELIGIBLE.
+   - **`username_rejection`** returns one code per rule: USERNAME_EMAIL_SHAPE, _LENGTH (4–20), _CHARACTERS (`a-z 0-9 . _`), _NUMBER, _START (a letter), _ID_SHAPE or _RESERVED.
+     - **ID shape, as ruled:** exactly 8 characters, all in the alphabet after the ID's own normalisation. «hendra12» and «rootbeer» are refused; «hendra123» and «hendra.12» pass.
+     - **Reserved, as ruled:** an exact name from the list (`pintar` included), or one of the prefixes pintar, admin, root, system, support, security, official or resmi **followed by `.` or `_`**. «pintaryanti» passes.
+   - **`claim_username(p_name)`** takes a name once per person (USERNAME_ALREADY_SET) and stores it in lowercase. A taken name is refused USERNAME_TAKEN, including in a race. Only a staff person with an EMAIL account who is not a persona may claim; anyone else gets IDENTITY_NOT_ELIGIBLE.
    - **No rename or delete:** the guard refuses USERNAME_FIXED.
    - **`correct_username(person, name, reason)`** is the platform admin's only (42501). It needs a reason (REASON_REQUIRED) and is audited `identity.username_corrected` with from, to and reason.
 3. **The personal PIN, `person_pins` and `person_pins_retired`** (D-056 (a)).
-   - **`pin_weakness`** refuses: not 4 digits, one digit repeated, a run up or down (wrapping, 8901), ABAB or AABB, a keypad line, a year from 1950 to 2030, or a common PIN.
+   - **`pin_weakness`** refuses every IDENTITY-4.0 §3 category: not 4 digits, one digit repeated, a run up or down (wrapping, 8901), ABAB or AABB, a keypad line, a year from 1950 to 2030, or the spec's top-50 list. The list holds exactly fifty, among them 0000, 1111, 1234 and 4321, as frozen.
    - **Storage:** bcrypt, cost 10.
    - **`set_my_pin`** sets the PIN once (PIN_ALREADY_SET), or again only when a new one is required. A current or retired PIN is refused PIN_REUSED. Each change is audited `identity.pin_set` with `replaced` and no PIN or hash.
    - **`pin_matches(person, pin)`** is internal and executes for nobody. It returns only a boolean. It does the same hashing work when the person has no PIN, and a PIN awaiting reset matches nothing.
@@ -43,6 +47,7 @@
    - **`complete_my_setup()`** refuses SETUP_INCOMPLETE until a username and a usable PIN are in place, and is audited.
 5. **Code counters, `identity_attempts`** (scope CODE_VERIFY, keyed by the route's 64-hex hash of the address).
    - **`identity_attempt`:** 5 attempts free within 15 minutes, then 30 s doubling to a 300 s cap. It is the card cooldown's rule and uses its row lock.
+   - **As ruled (C2, C3):** it counts every submitted address hash and never asks whether the address exists, so it answers an existing and a non-existent address alike. The route, in Gate 3, must pass every hash.
    - **`identity_attempt_settle`:** OK clears the record, and NOT_JUDGED takes the last attempt back.
 6. **The recovery ladder, `recovery_ladder`** (D-056 (c)–(e)). `recovery_attempt(typed_id, pin)` returns (outcome, wait_seconds, person_id):
    - **The steps:** at level 0, the 3rd wrong PIN gives LOCKED for 1 h. At level 1, the 3rd wrong gives LOCKED for 4 h. At level 2, the 3rd wrong gives SUSPENDED, and the PIN is set to reset_required.
@@ -58,6 +63,9 @@
    - **`recovery_attempt`, `recovery_restore`, `identity_attempt` and `identity_attempt_settle`:** execute for service_role only, and none is a client RPC.
    - **Helpers** (`pin_matches`, the ID generator and normaliser, the rule functions, `recovery_restore_core`): no execute for anyone.
    - **The seven client functions** are granted to authenticated and registered. The anon principal still executes nothing.
+     - The four self-service ones (`claim_username`, `set_my_pin`, `my_setup_state`, `complete_my_setup`) are LEARNER exposure, as ruled, each noted "self-service identity, the caller's own".
+     - They refuse a class card and an evaluation persona (C13, C17): the mutating three with IDENTITY_NOT_ELIGIBLE, and `my_setup_state` reads NOT_APPLICABLE.
+     - The platform admin's three are STAFF / SYSTEM_ADMIN and refuse with 42501 naming SYSTEM_ADMIN.
    - **A terminal verification block.** The lint came back clean after applying: `unclassified_client_rpcs` 0 and `learner_rpcs_guarded_ok` true.
 
 ## PROOF
@@ -107,8 +115,16 @@ The `ci.yml` red-case matrix gains `db-bob24-gates`, with the same harness and f
 
 **Restated for the changed requirement:** UX1-BRAND-02 and UX1-TUR-ORANG-01, the migration tripwires, move 126 → 127, with the reason beside them. The migration adds six tables and one column, `persons.pintar_id`; every column is an identifier, a hash, a state, a counter or a time. There is no colour, mark, logo or brand column, and no tour RPC.
 
-**Local, every database with an `en-US` ICU collation, on `9d4a2c7`:**
-@@LOCAL@@
+**The first full proof, on `9d4a2c7`, found two standing assertions red.** Both were caused by the migration and are fixed in `a31a1a8`:
+- **`assert_engine_takes_no_identity` (F03-T10, F04-T14, F06-P08):** a LEARNER function may take no identity-like argument, and `claim_username(p_username)` matched "user". The parameter is now `p_name`, in `correct_username` too.
+- **F06-N02:** its probe expects a platform-admin refusal to name SYSTEM_ADMIN. The three 42501 messages now end "(SYSTEM_ADMIN)".
+
+**Local, every database with an `en-US` ICU collation, on `8a44044`:**
+- **Full suite, fresh database, clean build:** 391 passed, 0 failed, 31 justified skips.
+  - Passed: all nine F16 ids, BOB34-K01, BOB32-K01, F03-T10, F04-T14, F06-N02, F06-P08, F06-S01, and both tripwires (UX1-BRAND-02 and UX1-TUR-ORANG-01, at 127).
+  - One unjustified skip, UX1-PIMPINAN-AKSES-01 (network), as in BOB-33's proof.
+- **Plants:** 114 of 114 proved their gate on a copy taken straight after the seeds. That is the 100 before, plus the 14 new `bob24-*`.
+- **Shared red cases:** all 17 gates, `db-bob24-gates` included, exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 254 of 254.
 
 ## CI
 @@CIDETAIL@@
@@ -137,22 +153,47 @@ For Gate 3, the routes and Daisy's pages. All refusals are SQLSTATE PR040 with t
 - **BOB-34:** the Uji Cepat refusal address adds `bab`, `soal` and `menit`, as sent. The page reads them as before.
 
 ## MIGRATIONS
-`20261021100000`, additive: six tables, one column with a backfill, triggers, functions and registry rows. It is lane-only and unmerged; it was corrected in place once (D-026), to read the clock after the row lock. It applies in one transaction (`psql -1`) and through the Supabase CLI.
+`20261021100000`, additive: six tables, one column with a backfill, triggers, functions and registry rows. It is lane-only and unmerged, and was corrected in place under D-026 three times:
+- the clock is read after the row lock is taken;
+- the parameter is now `p_name`, and the admin refusals name SYSTEM_ADMIN;
+- the rulings. It applies in one transaction (`psql -1`) and through the Supabase CLI.
 
 ## COPY
-None in this change. The codes above will need sentences in `hle.ts` when Gate 3's pages use them. That copy is Daisy's (D-014).
+None in this change. The codes above will need sentences in `hle.ts` when Gate 3's pages use them. Ruling 3's copy, suggesting the person add a character to an ID-shaped name, is Gate 3's. That copy is Daisy's (D-014).
 
 ## QUESTIONS
-1. **Code-counter numbers.** `identity_attempt` uses the card's rule: 5 free within 15 minutes, then 30 s doubling to 300 s. Is that right for email codes, or should it be stricter?
-2. **The reserved list and prefixes.** Is the list in `username_rejection` right? It includes common roles (guru, siswa, kepsek, …) and the prefixes pintar, admin, root, system, support, security, official and resmi. Note that a prefix also refuses ordinary names such as «pintaryanti» and «rootbeer».
-3. **ID-shaped usernames.** Any 8-character name that reads as a PINTAR ID is refused USERNAME_ID_SHAPE, so a username can never be mistaken for an ID at the one sign-in box. This refuses ordinary names such as «hendra12» (8 characters, all in the alphabet). Keep it, or refuse only names that are not also plausible words?
-4. **Registry exposure.** `claim_username`, `set_my_pin`, `my_setup_state` and `complete_my_setup` are registered as **LEARNER** exposure. L3-F02 requires a mutating STAFF endpoint to declare an authorization kind, and none of the existing kinds means "the caller's own identity". The functions themselves refuse anyone but a staff EMAIL person. Accept LEARNER, or add a SELF kind in a later ticket?
-5. **The PIN keypad and common lists.** They are in `pin_weakness`, with 30 keypad lines and 60 common PINs. Are they sufficient, or is there a list you want?
-6. **The username resolver** (username → person for sign-in) is deferred to Gate 3 with the route. Confirm.
+None open. Your six rulings of 29 Sep are applied in `8a44044`:
+1. **Email-code limits:** kept, and the counter never asks whether the address exists. R01 checks this.
+2. **Reserved names:** exact matches, and prefixes only before a separator.
+3. **ID-shaped usernames:** refused exactly as ruled.
+4. **LEARNER exposure:** noted, with card and persona refusals tested.
+5. **PIN list:** trimmed to the spec's top-50. The ten entries dropped are all caught by the run, ABAB or AABB rules, so no PIN's answer changes.
+6. **Username lookup:** left to Gate 3.
+
+**Red on `a31a1a8`'s migration** for the new checks: `'pintaryanti' is answered USERNAME_RESERVED, expected allowed`; `the common list holds 60 PIN(s), not IDENTITY-4.0's top-50 with 0000, 1111, 1234 and 4321`; `a self-service identity function is not registered as LEARNER, the caller's own`.
+
+**D-060:** identity only, so the metric catalogue version and `engine_version` are unchanged, as you ruled. Nothing here assembles, draws or scores a paper.
 
 ## READY
-@@READY@@
+Yes, for the one `ci.yml` run with BOB-34, gated together.
 
 ---
 ### Summary (ready to paste)
-@@PASTE@@
+```
+BOB-24 (identity Gate 2, DB only) with BOB-34, ready for the gate.
+Code at 8a44044; main 73c0be5 merged. Manifest v116 (you set the final). One ci.yml run: see CI.
+- BOB-34 (7445c1b): a refused Uji Cepat carries bab, soal and menit as sent; the page reopens its form.
+- BOB-24: migration 20261021100000 adds:
+  - PINTAR ID on persons (random, immutable, normalised input);
+  - usernames (C9 + rulings 2 and 3);
+  - a bcrypt personal PIN (the IDENTITY-4.0 top-50);
+  - set-up state (staff EMAIL only);
+  - code counters (address-agnostic, ruling 1);
+  - the recovery ladder (1 h, then 4 h, then suspended; restore forces a new PIN).
+  RLS on, no grants; route functions are service_role only; 7 client RPCs.
+- Tests: fable16 F16-I01..N01, and F16-C01..C03 concurrency (C03 found the clock read before the lock; fixed).
+  Plants: gate db-bob24-gates, 14 plants. Tripwires 126 -> 127.
+- Local: suite 391/0; plants 114/114; shared 17 gates, recheck 254/254.
+- D-060: identity only; catalogue and engine_version unchanged.
+- Questions: none open; your six rulings are applied at 8a44044.
+```
