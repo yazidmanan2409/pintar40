@@ -1984,6 +1984,11 @@
       "proves": "BOB-23 (D-031). In the source file src/lib/siklus.ts, perluDisimpan driven through every render a lesson sees saves a new 5-page lesson exactly once per page newly reached (1, 2, 3, 4, 5) -- none for idle re-renders, none going back -- and saves nothing idle on a lesson already saved; in src/lib/sesi.ts, cookieYangBerubah keeps a changed session cookie and a deletion and drops an unchanged one; src/app/belajar/_components/LessonPlayer.tsx keys its save effect on [page] alone through perluDisimpan, and saveLessonProgress in src/app/belajar/actions.ts writes only a changed session, so a save no longer re-renders the page."
     },
     {
+      "id": "BOB23-K02",
+      "runner": "static",
+      "proves": "BOB-23, D-009 kept: throttle, not skip. perluGeserSesi in the source file src/lib/sesi.ts keeps a classroom card signed in through three hours of server actions every 30 s with no page request (three times its 60-minute limit) while re-sending the session at most once per JEDA_GESER_AKSI (5 minutes), where a proxy that skips actions loses it at the limit; an email account over a day likewise; a page request always re-sends; src/proxy.ts asks it on server actions, always re-sends a session it has just refreshed, and records each re-send."
+    },
+    {
       "id": "BOB08-K01",
       "runner": "static",
       "proves": "BOB-08 (d, g). The structure helper struktur() in the source file src/app/konfigurasi/actions.ts re-reads the list once on each path: before a refusal returns (it re-read only after a success) and after a success, as DAISY-05-STRUKTUR-01 also holds; lingkupPimpinanDari in src/lib/pimpinan.ts, driven with a revoked, an expired, a not-yet-begun and an active grant, offers only the active one's node in the Pimpinan picker."

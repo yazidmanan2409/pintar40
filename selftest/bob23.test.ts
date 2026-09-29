@@ -105,4 +105,70 @@ export const bob23Tests: SelfTest[] = [
       );
     },
   },
+  {
+    // BOB-23, D-009 kept: THROTTLE, NOT SKIP. On a server action the proxy
+    // re-sends the session (which slides the idle limit, and on an action
+    // redraws the page) at most once per JEDA_GESER_AKSI; a page request always
+    // re-sends. Continuous action-only work longer than a card's limit must
+    // keep the session alive -- and a rule that skips actions must not.
+    id: "BOB23-K02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const sesi = (await import("../src/lib/sesi")) as Record<string, unknown>;
+      type Putus = (p: { aksi: boolean; sekarang: number; terakhir: string | undefined; umur: number }) => boolean;
+      c.expect(typeof sesi.perluGeserSesi === "function", "there is no re-send decision: src/lib/sesi.ts has no perluGeserSesi");
+      // without it, the proxy's rule before BOB-23: every signed-in request re-sends
+      const putuskan: Putus = (sesi.perluGeserSesi as Putus | undefined) ?? (() => true);
+      const jeda = (sesi.JEDA_GESER_AKSI as number | undefined) ?? 300;
+
+      /** Sign in with a page request at 0, then an action every `tiap` s for `lama` s, and nothing else. */
+      const jalani = (umur: number, tiap: number, lama: number, putus: Putus) => {
+        let kedaluwarsa = umur, terakhir = "0", kirim = 1, mati: number | null = null;
+        for (let t = tiap; t <= lama; t += tiap) {
+          if (t >= kedaluwarsa) { mati = t; break; }
+          if (putus({ aksi: true, sekarang: t, terakhir, umur })) { kedaluwarsa = t + umur; terakhir = String(t); kirim++; }
+        }
+        return { mati, kirim };
+      };
+      const KARTU = 3600, EMAIL = 604800;
+      // 1. a card, three hours of lesson saves and answer sync every 30 s, no page request
+      const kartu = jalani(KARTU, 30, 3 * 3600, putuskan);
+      c.expect(kartu.mati === null, `a card's session doing only server actions every 30 s died at ${kartu.mati} s`);
+      const batas = Math.ceil((3 * 3600) / jeda) + 1;
+      c.expect(kartu.kirim <= batas,
+        `three hours of actions every 30 s re-sent the card's session ${kartu.kirim} time(s): a redraw each time; at most ${batas} (one per ${jeda} s)`);
+      c.expect(jeda <= 5 * 60, `the interval is ${jeda} s; one redraw every few minutes means at most 5 minutes`);
+      // 2. the control: a proxy that skips actions lets that session expire mid-lesson
+      const lewati = jalani(KARTU, 30, 3 * 3600, (p) => !p.aksi);
+      c.expect(lewati.mati !== null && lewati.mati <= KARTU + 30,
+        `the control failed: a proxy that never re-sends on an action kept the session alive (${lewati.mati})`);
+      // 3. an email account over a day, and the page request and odd marker cases
+      const email = jalani(EMAIL, 30, 24 * 3600, putuskan);
+      c.expect(email.mati === null && email.kirim <= Math.ceil((24 * 3600) / jeda) + 1,
+        `a day of email-account actions: died at ${email.mati}, ${email.kirim} re-send(s)`);
+      c.expect(putuskan({ aksi: false, sekarang: 10, terakhir: "9", umur: KARTU }), "a page request did not re-send the session");
+      for (const aneh of [undefined, "", "bukan-angka", "999999999999"]) {
+        c.expect(putuskan({ aksi: true, sekarang: 1000, terakhir: aneh, umur: KARTU }),
+          `an action with the marker ${JSON.stringify(aneh)} did not re-send (a missing or impossible marker must slide)`);
+      }
+      c.expect(!putuskan({ aksi: true, sekarang: 1000, terakhir: "990", umur: KARTU }), "an action 10 s after the last re-send re-sent again");
+
+      // 4. the proxy: the decision on actions, the marker written, a refresh always re-sent
+      const proxy = readFileSync(join(ctx.repoRoot, "src", "proxy.ts"), "utf8").replace(/\/\/[^\n]*/g, "");
+      c.expect(/perluGeserSesi\(\{ aksi: Boolean\(request\.headers\.get\("next-action"\)\)/.test(proxy),
+        "src/proxy.ts does not ask perluGeserSesi on a server action");
+      c.expect(/disegarkan \|\| perluGeserSesi/.test(proxy) && /const disegarkan = \[\.\.\.baru\.keys\(\)\]\.some\(adalahCookieSesi\)/.test(proxy),
+        "src/proxy.ts can skip the re-send of a session it has just refreshed (which would keep the library's 400-day lifetime)");
+      c.expect(/response\.cookies\.set\(COOKIE_GESER, String\(sekarang\), \{ \.\.\.DEFAULT_COOKIE_OPTIONS, maxAge: umur \}\)/.test(proxy),
+        "src/proxy.ts does not record when it last re-sent the session");
+
+      return c.verdict(
+        `a classroom card doing only server actions every 30 s for three hours (three times its 60-minute limit) stays ` +
+          `signed in with ${kartu.kirim} re-send(s), at most one per ${jeda} s, while a proxy that skips actions loses it at ` +
+          `${lewati.mati} s; an email account over a day likewise; a page request always re-sends, a missing or impossible ` +
+          "marker re-sends, an action 10 s after the last does not; src/proxy.ts asks perluGeserSesi on actions, always " +
+          "re-sends a session it has just refreshed, and records the re-send",
+      );
+    },
+  },
 ];
