@@ -99,6 +99,17 @@ jobs:
           if g:
               print(f'Guru grant already in place: {g}')
           else:
+              # D-049 / BOB-21: a school admin grants only to a person who already has a relationship with THIS
+              # school (its number, a role or a learner enrolment there). A teacher made elsewhere has none, and
+              # the grant would be refused (42501 GRANT_NO_SCHOOL_RELATIONSHIP). Stop with the reason instead of
+              # working around it: the legitimate path for a fresh reset is the school's intake (which issues the
+              # school's number) and account activation before the grant -- built with the staging reset (C-07).
+              linked = any(call(f'{base}/rest/v1/{t}?person_id=eq.{guru}&institution_id=eq.{inst}{f}&select=person_id&limit=1', headers=svc)[1]
+                           for t, f in (('institutional_identities', ''), ('role_assignments', '&revoked_at=is.null'), ('enrollments', '')))
+              if not linked:
+                  print('::error::the synthetic teacher has no relationship with the synthetic school (no number, role or enrolment there), '
+                        'so its admin may not grant them Guru (D-049). Record the teacher through the school\'s intake first (C-07 re-seed).')
+                  sys.exit(1)
               gid = rpc('grant_role', {'p_person': guru, 'p_role': 'EDUCATOR', 'p_scope_node': kelas, 'p_valid_until': '2027-06-30T16:59:59Z'})
               print(f'Guru granted at Kelas Uji Kinerja A: {gid}')
           print('READY: the synthetic school has Bagian, Tingkat and Kelas Uji Kinerja A; the synthetic teacher is Guru there.')

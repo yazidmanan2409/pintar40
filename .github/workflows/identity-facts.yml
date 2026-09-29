@@ -1,0 +1,101 @@
+name: "identity · Gate 0 facts (read-only)"
+
+# Gate 0 of the identity work (D-058): the facts that cannot be read from the
+# repository. READ-ONLY. Nothing is written to Supabase, Vercel or DNS.
+#
+# - Supabase Auth settings for staging and production: only an allow-list of
+#   non-secret keys is printed. Email template bodies are never printed, only
+#   their length, a short hash and which placeholders they carry, so that
+#   "default or edited" can be decided.
+# - The mail domain's public records (SPF, DMARC, DKIM, MX) through `dig` on
+#   the runner (the coordinator's sandbox cannot resolve them: egress 403).
+#
+# The production read runs only from main (D-004).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+
+jobs:
+  auth-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Staging Auth settings (allow-listed, non-secret)
+        env:
+          REF: ${{ env.STAGING_SUPABASE_PROJECT_REF }}
+          TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, urllib.request
+          req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{os.environ['REF']}/config/auth",
+                                       headers={"Authorization": "Bearer " + os.environ["TOKEN"]})
+          d = json.load(urllib.request.urlopen(req, timeout=30))
+          PREFIXES = ("password_", "mailer_", "sessions_", "rate_limit_", "smtp_", "security_", "refresh_token_",
+                      "mfa_", "external_email_enabled", "disable_signup", "site_url", "uri_allow_list", "jwt_exp")
+          SECRET = ("secret", "_key", "hmac", "token_hash")
+          for k in sorted(d):
+              if not k.startswith(PREFIXES):
+                  continue
+              v = d.get(k)
+              if k.endswith("_content"):
+                  s = v or ""
+                  print(f"{k:58} len={len(s)} sha256={hashlib.sha256(s.encode()).hexdigest()[:12]}"
+                        f" token={'{{ .Token }}' in s} link={'ConfirmationURL' in s} says_supabase={'supabase' in s.lower()}")
+                  continue
+              if k == "smtp_pass" or any(x in k for x in SECRET) and not isinstance(v, bool):
+                  print(f"{k:58} <present: {v is not None and v != ''}>")
+                  continue
+              print(f"{k:58} {v!r}")
+          PY
+
+  auth-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Production Auth settings (allow-listed, non-secret)
+        env:
+          REF: ${{ env.PRODUCTION_SUPABASE_PROJECT_REF }}
+          TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, urllib.request
+          req = urllib.request.Request(f"https://api.supabase.com/v1/projects/{os.environ['REF']}/config/auth",
+                                       headers={"Authorization": "Bearer " + os.environ["TOKEN"]})
+          d = json.load(urllib.request.urlopen(req, timeout=30))
+          PREFIXES = ("password_", "mailer_", "sessions_", "rate_limit_", "smtp_", "security_", "refresh_token_",
+                      "mfa_", "external_email_enabled", "disable_signup", "site_url", "uri_allow_list", "jwt_exp")
+          SECRET = ("secret", "_key", "hmac", "token_hash")
+          for k in sorted(d):
+              if not k.startswith(PREFIXES):
+                  continue
+              v = d.get(k)
+              if k.endswith("_content"):
+                  s = v or ""
+                  print(f"{k:58} len={len(s)} sha256={hashlib.sha256(s.encode()).hexdigest()[:12]}"
+                        f" token={'{{ .Token }}' in s} link={'ConfirmationURL' in s} says_supabase={'supabase' in s.lower()}")
+                  continue
+              if k == "smtp_pass" or any(x in k for x in SECRET) and not isinstance(v, bool):
+                  print(f"{k:58} <present: {v is not None and v != ''}>")
+                  continue
+              print(f"{k:58} {v!r}")
+          PY
+
+  dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mail domain records (public DNS)
+        run: |
+          set -u
+          command -v dig >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq dnsutils >/dev/null)
+          for q in "TXT pintarselalu.com" "TXT _dmarc.pintarselalu.com" "MX pintarselalu.com" \
+                   "TXT default._domainkey.pintarselalu.com" "TXT staging.pintarselalu.com"; do
+            echo "== $q"; dig +short $q || true
+          done

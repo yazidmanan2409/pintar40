@@ -1293,6 +1293,12 @@ export const experienceTests: SelfTest[] = [
       // adds may_preview_lesson_media and its registry row; no column,
       // colour, mark or brand surface.
       //
+      // MOVED 123 -> 124 for BOB-21, a grant needs the school (D-049).
+      // 20261018100000 replaces role_assignments_guard with one added check;
+      // no column, colour, mark or brand surface.
+      // MOVED 122 -> 123 for BOB-20, a school admin sees its own staff (D-048).
+      // 20261017100000 widens person_visible_to_me to the school's own staff and
+      // adds persons_awaiting_first_role_at; no column, colour, mark or brand surface.
       // MOVED 121 -> 122 for BOB-17, release blockers speak in codes (D-011).
       // 20261016100000 remakes publish_readiness and studio_package_state
       // with jsonb blockers and replaces the publish trigger's function; no
@@ -1455,7 +1461,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 122, `${migrations.length} migrations; the frozen baseline has 122`);
+      c.expect(migrations.length === 124, `${migrations.length} migrations; the frozen baseline has 124`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3104,7 +3110,9 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 121 -> 122 for BOB-17's readiness codes
+      // from, not a claim about the tour. MOVED 123 -> 124 for BOB-21's grant check
+      // (20261018100000), not a tour RPC (D-024). MOVED 122 -> 123 for BOB-20's staff visibility
+      // (20261017100000), not a tour RPC (D-024). MOVED 121 -> 122 for BOB-17's readiness codes
       // (20261016100000), not a tour RPC (D-024). MOVED 120 -> 121 for BOB-11's media preview
       // (20261015100000), not a tour RPC (D-024). MOVED 119 -> 120 for BOB-10's staff-row refusal
       // (20261014100000), not a tour RPC (D-024). MOVED 118 -> 119 for BOB-18's quick answers
@@ -3158,7 +3166,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 122, `${migs.length} migrations; the baseline has 122`);
+      c.expect(migs.length === 124, `${migs.length} migrations; the baseline has 124`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -10144,9 +10152,14 @@ export const experienceTests: SelfTest[] = [
        *    30-session run). A confirmed upload returns to its new course's page
        *    with "Paket dibuat.".
        */
-      c.expect(/isSys === true \? supabase\.rpc\("persons_awaiting_first_role"\) : Promise\.resolve\(\{ data: \[\] \}\)/.test(konf)
-        && (konf.match(/persons_awaiting_first_role/g) ?? []).length === 1,
-        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses");
+      // RESTATED FOR BOB-20 (D-048, a changed requirement): a school
+      // administrator now asks their own school's list,
+      // persons_awaiting_first_role_at, once per school they administer. The
+      // platform's list is still asked only for the platform administrator.
+      c.expect(/isSys === true\s*\?\s*supabase\.rpc\("persons_awaiting_first_role"\)\s*:/.test(konf)
+        && (konf.match(/"persons_awaiting_first_role"/g) ?? []).length === 1
+        && /adminInstitutionIds\.map\(\(sekolah\) => supabase\.rpc\("persons_awaiting_first_role_at", \{ p_institution: sekolah \}\)\)/.test(konf),
+        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses, or asks a school's list for a school the reader does not administer");
       const studio = code(baca("src", "app", "studio", "actions.ts"));
       c.expect(/if \(h\.ok && h\.courses && h\.courses\[0\]\) back\(`\/studio\/paket\/\$\{h\.courses\[0\]\}`, "paket", \{ ok: true, kode: "DRAFT_CREATED" \}\);/.test(studio)
         && (KODE_SUKSES as readonly string[]).includes("DRAFT_CREATED")

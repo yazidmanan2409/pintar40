@@ -1,0 +1,87 @@
+# Identity Gate 0: external facts (C-09)
+
+**Status: automated reads DONE (29 Sep); M3 and M4 SATISFIED (29 Sep); M1, M2, M5 and M6 OUTSTANDING (M7 optional) (§3).**
+
+**Sources, all read-only:**
+- `identity-facts.yml` runs 36500989135 and 36501186293: Supabase Auth settings, allow-listed and non-secret; template bodies hashed, never printed; DNS via `dig` on a GitHub runner.
+- One batched SQL read per project.
+- The Supabase MCP organisation read.
+
+Nothing was written anywhere.
+
+## 1. Established facts
+
+**Platform**
+
+| Fact | Staging | Production | Consequence |
+|---|---|---|---|
+| Supabase plan | **Pro** (organisation ZAYD, both projects) | same | Leaked-password check, session time-box and inactivity limit are all available (C18) |
+| Postgres | 17.6 | 17.6 | — |
+| `pgcrypto` | installed | installed | bcrypt for the PIN (BOB-24) |
+| `pg_cron` / `pg_net` | available, not installed | same | Server-side ending of abandoned sessions possible (BOB-29) |
+| `postgres` may DELETE `auth.sessions` | yes | yes | A session can be ended on the server even if its browser never returns (BOB-29) |
+| PostgREST pre-request hook | none configured (`authenticator`: statement and lock timeouts only) | same | To be proven in the BOB-29 prototype before relying on it |
+
+**Accounts** (28 Sep)
+
+| Fact | Staging | Production | Consequence |
+|---|---|---|---|
+| Accounts | 3 EMAIL (all with roles), 50 synthetic CLASSROOM_CARD, 0 personas | 1 person, 1 EMAIL (sole SYSTEM_ADMIN), 0 cards, 0 personas, 0 sessions | Transition: C10, break-glass for the sole admin |
+
+**Supabase Auth settings**
+
+| Fact | Staging | Production | Consequence |
+|---|---|---|---|
+| Sign-up | `disable_signup` true | true | Kept (C1) |
+| Code length / life | `mailer_otp_length` **8**, `mailer_otp_exp` **3600** | same | Set to **6** and **600 s** (Gate 3 settings) |
+| Password policy | min length **6**, no required characters, `password_hibp_enabled` **false** | same | Set the Gate 3 policy; turn the leaked-password check on (Pro) |
+| **Password change** | `security_update_password_require_current_password` **false**, `…require_reauthentication` **false** (production read; staging identical on every visible key) | same | **Gap:** once passwords exist, an unattended session could change the password. Gate 3 must close it (passwords set only by PINTAR's server routes after code or PIN; the direct change requires the current password) |
+| MFA | TOTP enrol and verify **on**; phone and WebAuthn off | same | Unused by PINTAR; turn enrolment off at Gate 3 (no unused credential surface) |
+| CAPTCHA | off | off | Not required by the rulings |
+| Client-address forwarding | `security_sb_forwarded_for_enabled` **false** | false | BOB-12 (Gate 1) |
+| Sessions | `sessions_timebox` 0, `sessions_inactivity_timeout` 0, `single_per_user` false, refresh rotation on (reuse 10 s), `jwt_exp` 3600 | same | Personal ~7 days kept by cookie (D-055); a server backstop is available |
+| Email limits | `rate_limit_email_sent` 2/h, `smtp_max_frequency` 60 s, `rate_limit_otp` 30, `rate_limit_verify` 30 | same | With the C8 path, PINTAR's own limits govern user emails (BOB-25) |
+| **Email templates** | **All Supabase defaults, English.** No custom subject or body (e.g. "Your sign-in link", "Reset your password"); password-changed notification off | same | Today's sign-in email is Supabase's default. Under C8 PINTAR sends its own; Supabase's templates are branded only as a fallback (dashboard break-glass) |
+| SMTP | `pintarselalu.com:465`, user and admin email `noreply@pintarselalu.com`, sender "PINTAR Staging" | same, sender "PINTAR"; `site_url` `https://app.pintarselalu.com` | The SMTP authentication mailbox already exists and works for Supabase |
+
+**Mail domain (`pintarselalu.com`)**
+
+| Record | Value | Consequence |
+|---|---|---|
+| SPF | `v=spf1 +mx +a +ip4:209.74.67.49 +include:spf.web-hosting.com ~all` | Namecheap's servers are authorised |
+| DKIM | `default._domainkey` published (RSA 2048) | Namecheap/cPanel signing is set up |
+| DMARC | `v=DMARC1; p=none;` (no reporting address) | Monitor-only. **Recommended:** add `rua=mailto:admin_gt@pintarselalu.com` for reports (Yazid's DNS; optional) |
+| MX | `mail.pintarselalu.com` | Mail is hosted at Namecheap |
+
+## 2. Sending architecture (C8, fixed at Gate 0)
+
+- **Path.** PINTAR's server sends through Namecheap SMTP (`pintarselalu.com:465`, SSL), authenticated as the existing mailbox `noreply@pintarselalu.com`. This is the same mailbox and host Supabase already uses, so SPF (the `include:spf.web-hosting.com`) and DKIM (the `default` selector) apply.
+- **Codes.** Supabase issues activation and recovery codes through admin `generate_link` (`email_otp`) inside `src/app/api/` only, and PINTAR's email carries them. `verifyOtp` checks them.
+- **Limits.** PINTAR's own per-address and global limits apply to every send (BOB-25).
+- **Supabase's own emails** are not used by PINTAR's flows. Their templates get a minimal Bahasa Indonesia fallback only for dashboard-initiated emails (break-glass).
+- **Still to prove in BOB-25:** that Vercel functions can reach port 465, and PASS results in a real inbox.
+
+**Email roles**
+
+| Role | Value | Status |
+|---|---|---|
+| Security recipient and initial email-operations owner | `admin_gt@pintarselalu.com` | Frozen (D-057(b)) |
+| SMTP authentication mailbox | `noreply@pintarselalu.com` | Established (Supabase SMTP); the same for the app path |
+| FROM (what users see) | **Tim PINTAR <noreply@pintarselalu.com>** (staging: "Tim PINTAR (Staging)", same address, so a staging message is never mistaken for production) | **Confirmed by Yazid 29 Sep (M3)** |
+| Reply-To / public contact | **info@pintarselalu.com** | **Confirmed by Yazid 29 Sep (M4)**; no separate support mailbox for the 4.0 pilot |
+| Reserved for future security operations | security@pintarselalu.com (exists) | Not used in 4.0; C7's recipient stays `admin_gt@` unless decided later |
+
+All four mailboxes exist in Namecheap cPanel (Email Accounts screen, 29 Sep, supplied by Yazid). **Operational note:** `noreply@` has a 50 MB quota. Bounces and stray replies land there, so the email-operations owner should check it periodically; it is not the Reply-To.
+
+## 3. Manual evidence still required from Yazid
+
+| # | Fact needed | Why | Evidence to capture | Blocks |
+|---|---|---|---|---|
+| M1 | Namecheap plan today and the **Stellar Business** upgrade date (D-053) | 150-tester volume: Stellar's 50/h is too low for a group activation (≈60 emails in 10 min) | Namecheap dashboard screenshot showing the plan and date | 2E (walk); 8 |
+| M2 | Stellar Business per-mailbox limits (per hour, recipients per message) | Capacity | Namecheap documentation link or a support-chat screenshot | 8 |
+| M3 | FROM display name and address | What users see | **SATISFIED 29 Sep:** Tim PINTAR <noreply@pintarselalu.com> (subject to the 2E sending and deliverability evidence) | 2E |
+| M4 | Reply-To / support address | Where replies go | **SATISFIED 29 Sep:** info@pintarselalu.com (no separate support mailbox for 4.0; security@ reserved) | 2E |
+| M5 | SMTP credentials for the app path, **added by you as Vercel environment variables** (staging first; names come from BOB-25's contract). Never pasted in chat | Sending | Vercel screenshot showing the variable **names** present (values hidden) | 2E |
+| M6 | Two real inboxes for deliverability proof (one Gmail, one Outlook) | SPF, DKIM and DMARC = PASS in reality | After BOB-25's first staging send: the "Show original" / message-header screenshots | 2E |
+| M7 | (Optional) DMARC reporting address | Visibility of spoofing and delivery | DNS change by you; the next facts run shows it | 7 |
+| M8 | Supabase settings changes, done through workflows when each gate needs them (staging), and at the release (production): code length and expiry, password policy, leaked-password check, password-change safeguards, MFA enrolment off, IP forwarding (BOB-12) | Rulings and gaps above | No evidence now; each change is read back by `identity-facts.yml` after it is made | 1, 3, 8 |

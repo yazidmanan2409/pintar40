@@ -2690,4 +2690,129 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  {
+    // BOB-20 (D-048). A school admin sees and names the school's own staff, and
+    // finds a newly recorded teacher, through the running app; another
+    // school's staff and the platform administrator stay closed, by list, by
+    // direct id and by profile photo. A DECLARED EXCEPTION to the black-box
+    // rule, as F09-C02's: the two schools' staff are built through the
+    // database owner (facility `db`), because no seed holds a school's
+    // recorded teacher with no role; everything asserted is read as the
+    // Alpha administrator through the app and PostgREST.
+    id: "BOB20-A01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const db = process.env.SUPABASE_DB_URL!;
+      if (!c.expect(Boolean(ctx.supabaseServiceRoleKey), "no service-role key to place the photos, so this test would prove nothing")) {
+        return c.verdict("");
+      }
+      const psql = (...sql: string[]) => {
+        const r = spawnSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", "-At", ...sql.flatMap((q) => ["-c", q]), db], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql: ${(r.stderr || "").trim().split("\n").pop()}`);
+        return r.stdout.trim();
+      };
+      const seeding = (q: string) =>
+        psql("begin", "select set_config('app.seed_intent', 'synthetic', true)", q, "commit")
+          .split("\n").filter((l) => l !== "synthetic").join("\n");
+      const tag = Date.now().toString(36).slice(-6);
+      const sekolah = (nama: string) => {
+        const id = seeding(`insert into public.institutions (name, slug, is_synthetic, is_active) values ('${nama} ${tag}', '${nama.toLowerCase().replace(/\s+/g, "-")}-${tag}', true, true) returning id`);
+        psql("update public.institutions set namespace = (select x from generate_series(1, 500) g, " +
+          `lateral (select upper(substr(md5('${tag}${id}' || g), 1, 3)) x) q ` +
+          "where x ~ '^[A-Z]{3}$' and not exists (select 1 from public.institutions t where upper(t.namespace) = q.x) limit 1) " +
+          `where id = '${id}'`);
+        return id;
+      };
+      const orang = (nama: string, di: string, peran?: string) => {
+        const id = psql(`insert into public.persons (display_name) values ('${nama}') returning id`);
+        psql(`select public.issue_institutional_id('${id}', '${di}')`);
+        if (peran) {
+          seeding("insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until) " +
+            `values ('${id}', '${peran}', '${di}', now() - interval '1 day', now() + interval '30 days')`);
+        }
+        return id;
+      };
+      const S = sekolah("Sekolah Staf"), O = sekolah("Sekolah Lain");
+      const namaGuru = `Guru Tetap ${tag}`, namaBaru = `Guru Baru ${tag}`, namaLain = `Guru Sekolah Lain ${tag}`, namaLainBaru = `Guru Baru Lain ${tag}`;
+      seeding("insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until) " +
+        `select a.person_id, 'INSTITUTION_ADMIN', '${S}', now() - interval '1 day', now() + interval '30 days' ` +
+        `from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${PERSONA.alphaAdmin.email}'`);
+      const guru = orang(namaGuru, S, "EDUCATOR");
+      const baru = orang(namaBaru, S);
+      const lain = orang(namaLain, O, "EDUCATOR");
+      orang(namaLainBaru, O);
+      const platform = psql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${PERSONA.sysadmin.email}'`);
+      try {
+        // the two photos, placed as the server places them
+        for (const p of [guru, lain]) {
+          const r = await fetch(`${ctx.supabaseUrl}/storage/v1/object/assets/profile/${p}/foto.jpg`, {
+            method: "POST",
+            headers: { apikey: ctx.supabaseServiceRoleKey!, authorization: `Bearer ${ctx.supabaseServiceRoleKey!}`, "content-type": "image/jpeg", "x-upsert": "true" },
+            body: `BOB20-A01 ${tag}`,
+          });
+          c.expect(r.ok, `placing a profile photo failed (${r.status})`);
+        }
+        const admin = await signIn(ctx, PERSONA.alphaAdmin);
+        const hdr = { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${admin.accessToken}` };
+        const rpc = async (nama: string, body: unknown) => {
+          const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${nama}`, { method: "POST", headers: { ...hdr, "content-type": "application/json" }, body: JSON.stringify(body) });
+          return { status: r.status, data: r.ok ? ((await r.json()) as unknown) : null };
+        };
+
+        // 1. Konfigurasi names the school's own teacher in the grant list and
+        //    offers the newly recorded one in the person picker
+        const hal = await get(`${base}/konfigurasi?sekolah=${S}`, { headers: { cookie: admin.cookie } });
+        const html = await hal.text();
+        const teks = visibleText(html);
+        c.expect(hal.status === 200, `the school admin's /konfigurasi → ${hal.status}`);
+        c.expect(teks.includes(`${namaGuru} · ${t("role.EDUCATOR" as HleEvent, "staff")}`),
+          "the grant list does not name the school's own teacher (it shows an ID)");
+        c.expect(html.includes(`>${namaGuru}</option>`), "the person picker does not offer the school's own teacher");
+        c.expect(html.includes(`>${namaBaru}</option>`), "the person picker does not offer the teacher the school has just recorded");
+        c.expect(!teks.includes(namaLain) && !teks.includes(namaLainBaru), "the school admin's Konfigurasi names another school's staff");
+
+        // 2. by direct id: the school's own staff yes; another school's and the platform administrator no
+        const baca = async (id: string) => {
+          const r = await fetch(`${ctx.supabaseUrl}/rest/v1/persons?select=id,display_name&id=eq.${id}`, { headers: hdr });
+          return r.ok ? ((await r.json()) as unknown[]).length : -1;
+        };
+        c.expect(await baca(guru) === 1 && await baca(baru) === 1, "the school admin cannot read the school's own staff by id from persons");
+        c.expect(await baca(lain) === 0, "the school admin reads another school's teacher by id from persons");
+        c.expect(await baca(platform) === 0, "the school admin reads the platform administrator by id from persons");
+        const lihat = async (id: string) => (await rpc("person_visible_to_me", { p_person: id })).data;
+        c.expect(await lihat(guru) === true && await lihat(baru) === true, "person_visible_to_me does not answer yes for the school's own staff");
+        c.expect(await lihat(lain) === false && await lihat(platform) === false,
+          "person_visible_to_me answers yes for another school's teacher or the platform administrator");
+
+        // 3. the school's own waiting list, and not another school's
+        const daftar = await rpc("persons_awaiting_first_role_at", { p_institution: S });
+        const ids = ((daftar.data ?? []) as Array<{ person_id: string }>).map((x) => x.person_id);
+        c.expect(daftar.status === 200 && ids.includes(baru) && !ids.includes(guru),
+          `the school's waiting list → ${daftar.status}, ${ids.includes(baru) ? "with" : "without"} the new teacher`);
+        const asing = await rpc("persons_awaiting_first_role_at", { p_institution: O });
+        c.expect(asing.status !== 200 || ((asing.data ?? []) as unknown[]).length === 0,
+          `another school's waiting list answered the school admin (${asing.status})`);
+
+        // 4. a profile photo through read-url: the school's own teacher's, and not another school's
+        const foto = async (id: string) => (await get(`${base}/api/assets/read-url?path=profile/${id}/foto.jpg`, { headers: { cookie: admin.cookie } })).status;
+        const fGuru = await foto(guru), fLain = await foto(lain);
+        c.expect(fGuru === 200, `the school's own teacher's photo → ${fGuru}`);
+        c.expect(fLain === 403, `another school's teacher's photo → ${fLain}, expected 403`);
+      } finally {
+        seeding("update public.role_assignments set revoked_at = now() where role = 'INSTITUTION_ADMIN' " +
+          `and scope_node_id = '${S}' and revoked_at is null`);
+      }
+      return c.verdict(
+        "as a school's INSTITUTION_ADMIN, through the running app: Konfigurasi's grant list names the school's own " +
+          "teacher with the role, the person picker offers that teacher and the teacher the school has just recorded, " +
+          "and nothing on the page names another school's staff; by direct id the school admin reads the school's own " +
+          "staff from persons and person_visible_to_me, and neither another school's teacher nor the platform " +
+          "administrator; persons_awaiting_first_role_at names the new teacher and not the one holding a role, and " +
+          "another school's list answers nothing; read-url serves the school's own teacher's profile photo and refuses " +
+          "another school's teacher's with 403",
+      );
+    },
+  },
 ];

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 101,
+  "version": 104,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1778,6 +1778,36 @@
       "proves": "BOB-08 (a, e): the school's admin, signed in, inserting and updating org_nodes and academic_periods directly is refused 42501; a Bagian with a role scoped at its hidden Reguler below it is STRUCTURE_HAS_STAFF."
     },
     {
+      "id": "F10-V01",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, a school's INSTITUTION_ADMIN sees its teacher who holds a role there and its newly recorded teacher who holds only the school's institutional identity, by person_visible_to_me and by name from persons, and finds the new one (not the one with a role) in persons_awaiting_first_role_at; given a first role, the new teacher leaves the list and stays visible."
+    },
+    {
+      "id": "F10-V02",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, a school's admin sees neither another school's staff (a teacher with a role and an identity there, a newly recorded teacher) nor a platform SYSTEM_ADMIN whose row names the school's node, by person_visible_to_me or by id from persons; its own waiting list names none of them and another school's refuses it; a learner of the school sees none of the school's staff and is refused the waiting list."
+    },
+    {
+      "id": "F10-V03",
+      "runner": "db",
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, seeing grants nothing: the school's admin is still refused a grant at another school's node (INSTITUTION_ADMIN scope) and a grant of INSTITUTION_ADMIN or SYSTEM_ADMIN to a teacher it can see, and no refused grant leaves a role behind."
+    },
+    {
+      "id": "F10-G01",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, School B's INSTITUTION_ADMIN granting a School-B role through grant_role by internal id to a teacher who belongs only to School A is refused 42501 with DETAIL GRANT_NO_SCHOOL_RELATIONSHIP, identically (SQLSTATE, DETAIL and MESSAGE) to an id that does not exist; no School-B role, institutional identity or enrolment is created, and the teacher stays invisible to School B's admin."
+    },
+    {
+      "id": "F10-G02",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, an INSTITUTION_ADMIN of both School A and School B is refused GRANT_NO_SCHOOL_RELATIONSHIP granting a School-B role to a School-A-only teacher and a School-A role to a School-B-only teacher: the relationship is asked of the grant's own school, not of what the grantor can see, and no role is left at either school."
+    },
+    {
+      "id": "F10-G03",
+      "runner": "db",
+      "proves": "BOB-21 (D-049). In the suite selftest/db/fable10.sql, School B's admin still grants to its own teacher who holds a role there, to the teacher it has just recorded (its institutional identity only) and to a person enrolled there (an enrolment only), and the platform administrator still grants a School-B role to a School-A teacher."
+    },
+    {
       "id": "F10-C02",
       "runner": "db",
       "proves": "BOB-08 (b) under real concurrency: two psql connections as the school's admin; the holder deactivates a Tingkat and holds its transaction open, and a concurrent grant_role there waits on the shared structure lock the place trigger takes, reads the Tingkat again and is refused PR020 STRUCTURE_PLACE_INACTIVE, leaving no role scoped there. The racer starts only once the holder is seen asleep holding the lock."
@@ -1944,6 +1974,11 @@
       "proves": "BOB-17 (D-011; M7). The codes publish_readiness and studio_package_state can return, read from the source file of their newest migration, are exactly KODE_HAMBATAN in src/lib/terbitan-kontrak.ts, neither function writes a sentence, and the codes that block are the ones the database blocks on; every code and pattern has its words in both languages naming no machinery; a planted sentence, a bare string and an unknown pattern each render through kalimatHambatan as the copy table's line, never themselves; the Terbit step (LangkahTerbit.tsx) and the package page draw every blocker through kalimatHambatan; and the four unused release form actions are gone from src/app/studio/actions.ts."
     },
     {
+      "id": "BOB22-K01",
+      "runner": "static",
+      "proves": "BOB-22. One meaning for a saved lesson position, pages reached (1 to N): in the source file src/lib/siklus.ts, a learner stepping through lessons of 1 to 8 pages and saving exactly what LessonPlayer saves (posisiTersimpan, the page's index + 1), the furthest kept, is read by lessonRead only once on the last page, never saves beyond the total, and resumes through halamanMulai on the page they were on; three lessons read to their last page put posisi at the Uji Penguasaan; src/app/belajar/_components/LessonPlayer.tsx saves and resumes through those two helpers."
+    },
+    {
       "id": "BOB08-K01",
       "runner": "static",
       "proves": "BOB-08 (d, g). The structure helper struktur() in the source file src/app/konfigurasi/actions.ts re-reads the list once on each path: before a refusal returns (it re-read only after a success) and after a success, as DAISY-05-STRUKTUR-01 also holds; lingkupPimpinanDari in src/lib/pimpinan.ts, driven with a revoked, an expired, a not-yet-begun and an active grant, offers only the active one's node in the Pimpinan picker."
@@ -1980,6 +2015,12 @@
       "id": "BOB11-A02",
       "runner": "app",
       "proves": "BOB-11 gate review. The one-hour media link is lesson media's only: through the running app's route /api/assets/read-url, the signed URL storage issued, read from its token's exp - iat, is valid for 3600 seconds only for a lesson's audio with alih=1; the learner's own profile photo is signed for 60 seconds with and without alih, and lesson media without alih for 60 seconds.",
+      "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
+    },
+    {
+      "id": "BOB20-A01",
+      "runner": "app",
+      "proves": "BOB-20 (D-048). Through the running app, as a school's INSTITUTION_ADMIN: the rendered Konfigurasi page's grant list names the school's own teacher with the role, its person picker offers that teacher and the teacher the school has just recorded, and the page names no other school's staff; by direct id through PostgREST the admin reads the school's own staff from persons and person_visible_to_me and neither another school's teacher nor the platform administrator; persons_awaiting_first_role_at names the new teacher and another school's list answers nothing; the route /api/assets/read-url serves the school's own teacher's profile photo and refuses another school's teacher's with 403.",
       "skip_justification": "needs network to the Supabase project; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack (checkpoint §6)"
     },
     {

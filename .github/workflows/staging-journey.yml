@@ -1,0 +1,173 @@
+# Staging: the 5 Oct learning journey through PINTAR's own screens (D-050; Yazid, 28 Sep).
+#
+# WHAT IT DOES
+#   In the synthetic school only, as its synthetic admin and teacher, with five synthetic students the admin
+#   records and activates on the way: school code, intake, class cards, the teacher's workbook upload of
+#   SD 5 Matematika Bab 1, the seven Studio steps to published (two people), assignment to the class, each
+#   student's pre-test, lessons, post-test and result (answered to a plan, so the numbers are checked), the
+#   teacher's evidence, Bank Soal, and an Uji Cepat drawn from the bank (audit/staging/journey.mjs).
+#   PASS/FAIL per step in the log and the step summary; screenshots and journey.json as an artifact.
+#
+# WHAT IT NEVER TOUCHES
+#   Production (staging's ref, origin and database URL only). Real people: synthetic accounts only,
+#   labelled (sintetis), removed by the staging reset (D-046(c)). The database is read, in read-only
+#   transactions; every write is a press of one of PINTAR's buttons. Card numbers and PINs are masked in the
+#   log and blanked in screenshots. Media are uploaded because Studio will not save the workbook without
+#   them; playing them is out of scope (D-050).
+#
+# WHEN IT RUNS
+#   By hand only, from main. Each run adds five students and one course to the synthetic school.
+name: staging · learning journey (D-050)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "journey: the whole learning journey; limits: read staging's sign-in limits that matter for 150 testers (read-only)"
+        type: choice
+        options: [journey, limits]
+        default: journey
+      content_ref:
+        description: "journey: the commit to take the chapter from (a content lane's hand-off); empty = this run's commit"
+        type: string
+        default: ""
+      chapter:
+        description: "journey: the chapter's file stem under docs/onboarding/konten"
+        type: string
+        default: SD5-Matematika-Bab1
+      reuse_published:
+        description: "journey: continue from a lesson an earlier run published and nobody has assigned yet, instead of uploading and publishing again"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+  ADMIN_EMAIL: uji-kinerja-admin@example.co
+  GURU_EMAIL: uji-kinerja-guru@example.com
+
+jobs:
+  limits:
+    if: github.ref == 'refs/heads/main' && inputs.mode == 'limits'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Staging's sign-in limits (read-only; no secret value is printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/config/auth',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          d = json.load(urllib.request.urlopen(req, timeout=30))
+          for k in sorted(d):
+              if k.startswith('rate_limit_') or k in ('smtp_max_frequency', 'mailer_otp_exp', 'jwt_exp', 'sessions_timebox',
+                                                     'sessions_inactivity_timeout', 'sessions_single_per_user', 'refresh_token_rotation_enabled',
+                                                     'security_refresh_token_reuse_interval', 'disable_signup', 'site_url', 'smtp_host', 'smtp_sender_name'):
+                  print(f'{k:40} {d.get(k)!r}')
+          PY
+
+  journey:
+    if: github.ref == 'refs/heads/main' && inputs.mode != 'limits'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          ref: media/sd5-matematika-bab1
+          path: media-branch
+
+      - name: The chapter under test (read-only checkout)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.content_ref || github.sha }}
+          path: content
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/staging
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+
+      - name: Staging's keys (masked) and database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          keys = json.load(urllib.request.urlopen(req, timeout=30))
+          for name, var in (('service_role', 'SERVICE_KEY'), ('anon', 'ANON_KEY')):
+              k = next(k['api_key'] for k in keys if k.get('name') == name and (k.get('api_key') or '').startswith('eyJ'))
+              print('::add-mask::' + k, file=sys.stderr, flush=True)
+              print(f'{var}={k}')
+          print(f'SUPABASE_URL=https://{ref}.supabase.co')
+          PY
+
+      - name: Which build staging is serving (read-only; waits up to 8 minutes for this commit's build)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          # a push to main rebuilds staging; a journey that starts while the build is switching over can meet
+          # pages and actions from two builds at once, so it starts once staging serves this commit
+          import json, os, time, urllib.request
+          def get(path):
+              req = urllib.request.Request('https://api.vercel.com' + path, headers={'Authorization': 'Bearer ' + os.environ['VERCEL_TOKEN']})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.load(r)
+          p = get('/v9/projects/pintar40-staging')
+          want = os.environ['GITHUB_SHA']
+          for i in range(49):
+              d = get(f'/v6/deployments?projectId={p["id"]}&limit=1&state=READY&target=production').get('deployments', [])
+              sha = ((d[0].get('meta') or {}).get('githubCommitSha') or '') if d else ''
+              if sha == want:
+                  break
+              time.sleep(10)
+          print(f'staging serves {sha[:7] or "?"}' + ('' if sha == want else f' (not {want[:7]} after 8 minutes; the journey runs anyway)'))
+          PY
+
+      - name: The journey
+        working-directory: audit/staging
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          WORKBOOK: ${{ github.workspace }}/content/docs/onboarding/konten/${{ inputs.chapter }}.xlsx
+          KEY_JSON: ${{ github.workspace }}/content/docs/onboarding/konten/${{ inputs.chapter }}.paket.json
+          MEDIA_DIR: ${{ github.workspace }}/media-branch/media
+          OUT_DIR: ${{ github.workspace }}/out
+          RUN_TAG: ${{ github.run_number }}
+          REUSE_PUBLISHED: ${{ inputs.reuse_published }}
+        run: node journey.mjs
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: staging-journey
+          path: out/
+          if-no-files-found: ignore

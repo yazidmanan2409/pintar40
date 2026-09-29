@@ -264,8 +264,9 @@ async function runStructureConcurrency(dbUrl: string, only: string[] | null | un
       pass: "the holder deactivated a Tingkat and held its transaction open; the concurrent create_kelas under it waited " +
         "on the per-school structure lock, read the Tingkat again and was refused PR020 STRUCTURE_PARENT_INACTIVE" },
     { id: "F10-C02", holder: (t: string) => `select public.deactivate_school_node('${t}'::uuid)`,
-      // to someone else: a self-grant is refused whatever the place (INV-16)
-      racer: (t: string, uid: string) => `select public.grant_role((select p.id from public.persons p where p.id <> (select a.person_id from public.accounts a where a.auth_user_id = '${uid}') order by p.created_at limit 1), 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
+      // to the school's own staff member: a self-grant is refused whatever the place
+      // (INV-16), and since BOB-21 a person the school does not have is refused first
+      racer: (t: string, _uid: string, staf: string) => `select public.grant_role('${staf}'::uuid, 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
       code: "STRUCTURE_PLACE_INACTIVE", went: "a role was granted in a Tingkat being deactivated",
       verdict: (t: string) => `select (count(*) = 0)::text || '|no role is scoped to the deactivated Tingkat' from public.role_assignments where scope_node_id = '${t}'::uuid`,
       held: (t: string, out: string) => out.includes(t),
@@ -279,8 +280,8 @@ async function runStructureConcurrency(dbUrl: string, only: string[] | null | un
       pass: "two admins' connections created a Bagian of the same name at once; the second waited on the per-school " +
         "structure lock, read the names again and was refused PR020 STRUCTURE_NAME_TAKEN" },
     // BOB-18 (e): "Berikan peran" pressed twice while the first was saving
-    { id: "F10-C04", holder: (t: string, uid: string) => `select public.grant_role((select p.id from public.persons p where p.id <> (select a.person_id from public.accounts a where a.auth_user_id = '${uid}') order by p.created_at limit 1), 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
-      racer: (t: string, uid: string) => `select public.grant_role((select p.id from public.persons p where p.id <> (select a.person_id from public.accounts a where a.auth_user_id = '${uid}') order by p.created_at limit 1), 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
+    { id: "F10-C04", holder: (t: string, _uid: string, staf: string) => `select public.grant_role('${staf}'::uuid, 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
+      racer: (t: string, _uid: string, staf: string) => `select public.grant_role('${staf}'::uuid, 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,
       code: "GRANT_ALREADY_ACTIVE", went: "a second identical grant was saved beside the first",
       verdict: (t: string) => `select (count(*) = 1)::text || '|one EDUCATOR grant stands in the Tingkat' from public.role_assignments where scope_node_id = '${t}'::uuid and role = 'EDUCATOR' and revoked_at is null`,
       held: (_t: string, out: string) => /^[0-9a-f-]{36}$/m.test(out),
@@ -294,15 +295,15 @@ async function runStructureConcurrency(dbUrl: string, only: string[] | null | un
     const fail = (detail: string): Outcome => { teardown(); return { id: k.id, runner: "db", status: "FAIL", detail }; };
     const fixture = psql("select selftest.f10_concurrency_fixture()");
     if (fixture.status !== 0) { out.push(fail(`fixture failed: ${fixture.stderr.trim().split("\n").pop()}`)); continue; }
-    const [tingkat, uid] = fixture.stdout.trim().split("|");
-    if (!tingkat || !uid) { out.push(fail(`fixture returned nothing usable: ${fixture.stdout.trim()}`)); continue; }
+    const [tingkat, uid, staf] = fixture.stdout.trim().split("|");
+    if (!tingkat || !uid || !staf) { out.push(fail(`fixture returned nothing usable: ${fixture.stdout.trim()}`)); continue; }
     const claim =
       `select set_config('request.jwt.claim.sub','${uid}',true);` +
       ` select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true);`;
     const marker = `pg_sleep(1.3${k.id.slice(-1)}7)`;
-    const holder = race(`begin; ${claim} ${k.holder(tingkat, uid)}; select ${marker}; commit;`);
+    const holder = race(`begin; ${claim} ${k.holder(tingkat, uid, staf)}; select ${marker}; commit;`);
     if (!(await asleep(marker))) { await holder; out.push(fail("the holder never held its transaction open within 20 s")); continue; }
-    const [a, b] = await Promise.all([holder, race(`begin; ${claim} ${k.racer(tingkat, uid)}; commit;`)]);
+    const [a, b] = await Promise.all([holder, race(`begin; ${claim} ${k.racer(tingkat, uid, staf)}; commit;`)]);
     const verdict = psql(k.verdict(tingkat)).stdout.trim();
     teardown();
     const problems: string[] = [];
