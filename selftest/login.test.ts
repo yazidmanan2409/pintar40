@@ -331,13 +331,21 @@ export const loginTests: SelfTest[] = [
       );
 
       // The card path is a different mechanism and must stay one.
-      c.expect(/signInWithPassword\s*\(/.test(src), "the classroom-card path no longer uses signInWithPassword");
-      const cardFn = /export async function signInWithCard[\s\S]*?\n\}/.exec(src);
-      c.expect(!!cardFn && !/shouldCreateUser|signUp\(/.test(cardFn[0]), "the classroom-card path acquired signup behaviour");
-      c.expect(/deriveCardSecret\s*\(/.test(src), "the classroom-card path no longer derives its credential server-side; the PIN must never be the password");
+      // RESTATED FOR BOB-12 (a changed requirement): the card no longer signs in
+      // through a server action here. It signs in through POST /masuk/kartu
+      // (src/app/api/masuk/kartu/route.ts, deciding in src/lib/kartu-masuk.ts),
+      // and the action is deleted (design condition 3), so the same three
+      // properties are asked of that path, and its absence of this file.
+      const tanpaKomentar = (f: string) => readFileSync(join(ctx.repoRoot, f), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+      const rute = tanpaKomentar("src/app/api/masuk/kartu/route.ts");
+      const inti = tanpaKomentar("src/lib/kartu-masuk.ts");
+      c.expect(/signInWithPassword\s*\(/.test(rute), "the classroom-card path no longer uses signInWithPassword");
+      c.expect(!/shouldCreateUser|signUp\(|admin\.createUser/.test(rute + inti), "the classroom-card path acquired signup behaviour");
+      c.expect(/deriveCardSecret\s*\(/.test(inti), "the classroom-card path no longer derives its credential server-side; the PIN must never be the password");
+      c.expect(!/signInWithCard|signInWithPassword/.test(src), "the sign-in actions still sign a card in, walking around the card's cooldown");
 
       return c.verdict(
-        "magic-link authentication carries shouldCreateUser: false, so an unknown address cannot become an auth user and therefore cannot become a PINTAR person or account through on_auth_user_created -- the Supabase default is true, so the flag's absence was the defect. No signup, invite or admin-create call exists in the sign-in actions. The refusal that means 'no such provisioned identity' is folded into the ordinary outcome and matched on a stable error code, so a known and an unknown address are indistinguishable at the public contract, and no database pre-check rebuilds that oracle a round-trip earlier. The classroom-card path is untouched: still signInWithPassword over a server-derived secret, with no signup behaviour and the PIN still not the password",
+        "magic-link authentication carries shouldCreateUser: false, so an unknown address cannot become an auth user and therefore cannot become a PINTAR person or account through on_auth_user_created -- the Supabase default is true, so the flag's absence was the defect. No signup, invite or admin-create call exists in the sign-in actions. The refusal that means 'no such provisioned identity' is folded into the ordinary outcome and matched on a stable error code, so a known and an unknown address are indistinguishable at the public contract, and no database pre-check rebuilds that oracle a round-trip earlier. The classroom-card path (BOB-12's route, no longer a server action) is still signInWithPassword over a server-derived secret, with no signup behaviour and the PIN still not the password",
       );
     },
   },

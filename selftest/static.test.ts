@@ -25,6 +25,7 @@ import { bob18Tests } from "./bob18.test";
 import { bob17Tests } from "./bob17.test";
 import { bob22Tests } from "./bob22.test";
 import { bob23Tests } from "./bob23.test";
+import { bob12Tests } from "./bob12.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -120,7 +121,9 @@ export const staticTests: SelfTest[] = [
       if (!c.expect(existsSync(staticDir), ".next/static missing — production build required before the static runner")) {
         return c.verdict("");
       }
-      const forbidden = ["SUPABASE_SERVICE_ROLE_KEY", "service_role", "CARD_PEPPER", "supabaseService", "deriveCardSecret"];
+      const forbidden = ["SUPABASE_SERVICE_ROLE_KEY", "service_role", "CARD_PEPPER", "supabaseService", "deriveCardSecret",
+        // BOB-12: the Auth forwarding key is a secret API key (service-role strength)
+        "SUPABASE_AUTH_FORWARDING_KEY"];
       const jwtLike = /eyJ[A-Za-z0-9_-]{10,}\.(eyJ[A-Za-z0-9_-]{10,})\./g;
       let scanned = 0;
       for (const f of walk(staticDir).filter((f) => /\.(js|mjs|json|txt)$/.test(f))) {
@@ -167,6 +170,13 @@ export const staticTests: SelfTest[] = [
             /^\s*import\s+["']server-only["']/m.test(text),
             `${rel} reads a certificate signing key without the server-only guard`,
           );
+        }
+        // BOB-12 (design condition 1): the Auth forwarding key has one reader,
+        // a server-only module, and it is not env.ts (client components import it).
+        if (/SUPABASE_AUTH_FORWARDING_KEY/.test(code(text))) {
+          c.expect(rel === join("src", "lib", "auth-forwarding.ts"),
+            `${rel} names the Auth forwarding key; only src/lib/auth-forwarding.ts may`);
+          c.expect(/^\s*import\s+["']server-only["']/m.test(text), `${rel} reads the Auth forwarding key without the server-only guard`);
         }
         if (/from\s+["']@\/lib\/supabase\/service["']/.test(text)) {
           c.expect(/^src[\\/]app[\\/]api[\\/]/.test(rel), `${rel} imports the service-role client outside src/app/api/`);
@@ -1877,4 +1887,5 @@ export const staticTests: SelfTest[] = [
   ...bob17Tests,
   ...bob22Tests,
   ...bob23Tests,
+  ...bob12Tests,
 ];

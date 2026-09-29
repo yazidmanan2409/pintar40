@@ -1293,6 +1293,10 @@ export const experienceTests: SelfTest[] = [
       // adds may_preview_lesson_media and its registry row; no column,
       // colour, mark or brand surface.
       //
+      // MOVED 124 -> 125 for BOB-12, a card waits after failures (D-058).
+      // 20261019100000 creates ONE table -- card_signin_cooldowns, whose columns
+      // are kunci (an HMAC key), percobaan (attempt times) and diperbarui -- and
+      // two service-role functions; no column, colour, mark or brand surface.
       // MOVED 123 -> 124 for BOB-21, a grant needs the school (D-049).
       // 20261018100000 replaces role_assignments_guard with one added check;
       // no column, colour, mark or brand surface.
@@ -1461,7 +1465,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 124, `${migrations.length} migrations; the frozen baseline has 124`);
+      c.expect(migrations.length === 125, `${migrations.length} migrations; the frozen baseline has 125`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3110,7 +3114,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 123 -> 124 for BOB-21's grant check
+      // from, not a claim about the tour. MOVED 124 -> 125 for BOB-12's card cooldown
+      // (20261019100000), not a tour RPC (D-024). MOVED 123 -> 124 for BOB-21's grant check
       // (20261018100000), not a tour RPC (D-024). MOVED 122 -> 123 for BOB-20's staff visibility
       // (20261017100000), not a tour RPC (D-024). MOVED 121 -> 122 for BOB-17's readiness codes
       // (20261016100000), not a tour RPC (D-024). MOVED 120 -> 121 for BOB-11's media preview
@@ -3166,7 +3171,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 124, `${migs.length} migrations; the baseline has 124`);
+      c.expect(migs.length === 125, `${migs.length} migrations; the baseline has 125`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -4237,7 +4242,15 @@ export const experienceTests: SelfTest[] = [
       //    accessibility tree. Marking only the PIN invalid tells a
       //    screen-reader user the card number was accepted — precisely the
       //    fact the visible copy is written to withhold.
-      c.expect(/if \(error\) return "gagal";/.test(aksi), "the card path no longer collapses every refusal to one value");
+      // RESTATED FOR BOB-12 (a changed requirement): the card no longer signs in
+      // through a server action here but through POST /masuk/kartu, whose one
+      // non-match code is the collapse (DAISY-13 restates this line again for
+      // its screen). No code names the card or the PIN.
+      const kodeKartu = Object.keys((await import("../src/lib/kartu-kontrak")).STATUS_KARTU);
+      const intiKartu = code(readFileSync(join(repoRoot, "src", "lib", "kartu-masuk.ts"), "utf8"));
+      c.expect(kodeKartu.filter((k) => /MATCH/.test(k)).length === 1 && !kodeKartu.some((k) => /PIN|NUMBER|NOMOR|UNKNOWN|EXIST/.test(k))
+          && /if \(jenis === "TIDAK_COCOK"\) return gagal\("CARD_NOT_MATCHED"\);/.test(intiKartu),
+        "the card path no longer collapses every refusal to one value");
       const invalid = [...layar.matchAll(/aria-invalid=\{layar\.salah \? "true" : undefined\}/g)].length;
       c.expect(invalid === 2, `${invalid} card field(s) marked invalid; both must be, or the tree names the wrong one`);
       const described = [...layar.matchAll(/aria-describedby=\{layar\.salah \? "kartu-err" : undefined\}/g)].length;
