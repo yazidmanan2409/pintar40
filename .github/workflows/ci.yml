@@ -172,7 +172,8 @@ jobs:
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
-               db-bob06-gates, db-bob12-gates]
+               db-bob06-gates, db-bob12-gates, db-bob24-gates,
+               db-bob35-gates, db-bob36-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -232,6 +233,12 @@ jobs:
               echo "the six standard-report defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob12-gates)
               echo "the nine card-cooldown defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob24-gates)
+              echo "the fourteen identity-foundation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob35-gates)
+              echo "the five session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob36-gates)
+              echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -1743,6 +1750,45 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob12.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob12-gates
+
+      # BOB-24's gates: the PINTAR ID never changes and is read as ruled, a
+      # username is claimed once and never renamed but by the platform admin,
+      # the PIN is blocklisted and set once, set-up needs both, the recovery
+      # ladder locks 1 h, then 4 h, then suspends for good, a restore forces a
+      # new PIN, and the tables and recovery functions are nobody's but the
+      # routes'. Same harness, same four proofs, on F16.
+      - name: Local stack (identity-foundation gates)
+        if: matrix.case == 'db-bob24-gates'
+        id: gatesBob24
+        uses: ./.github/actions/local-stack
+      - name: Each planted identity-foundation defect must turn its own F16 test red
+        if: matrix.case == 'db-bob24-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob24.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob24-gates
+
+      # BOB-35's gates: a session records a release of its definition's course,
+      # a corrected-release move carries the cycle or is refused, and never
+      # once a learner has started. BOB-36's: a sat Uji Cepat keeps its rules.
+      # Same harness, same four proofs, on F05 and F04.
+      - name: Local stack (session-provenance gates)
+        if: matrix.case == 'db-bob35-gates'
+        id: gatesBob35
+        uses: ./.github/actions/local-stack
+      - name: Each planted session-provenance defect must turn its own F05 test red
+        if: matrix.case == 'db-bob35-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob35.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob35-gates
+      - name: Local stack (Uji Cepat rule gates)
+        if: matrix.case == 'db-bob36-gates'
+        id: gatesBob36
+        uses: ./.github/actions/local-stack
+      - name: Each planted Uji Cepat rule defect must turn its own F04 test red
+        if: matrix.case == 'db-bob36-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob36.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob36-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

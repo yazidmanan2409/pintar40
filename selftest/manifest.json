@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 116,
+  "version": 120,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -476,6 +476,11 @@
       "proves": "doc 07 §5 / INV-12 — an in-scope educator launches a Quick Assessment in one capability-gated call at the TEST tier; a DEAN, an out-of-scope educator and an out-of-bounds size are refused"
     },
     {
+      "id": "F04-T04d",
+      "runner": "db",
+      "proves": "BOB-36 (INV-29), the trigger assessment_definitions_quick_rules_fixed of migration 20261023100000, measured in selftest/db/fable04.sql (selftest.f04_quick_rules): once a learner has sat a launched Uji Cepat, its teacher's direct edits of passing_rules (which moved a finished verdict from true to false before) and of mode, bank_type, item_count, difficulty_mix, safety_critical_minimum, shuffle_policy, hesitation_window_seconds, allows_pause, offline_tolerant, late_sync_grace_seconds and attempt_limit, of its status, and of where it was sat (module_id, course_id), are each refused PR061 QUICK_RULES_FIXED, the owner's too; deleting it is refused by the sessions' foreign key; the finished session and result are unchanged; the title can still be corrected and an Uji Cepat nobody has sat is still editable."
+    },
+    {
       "id": "F04-T04c",
       "runner": "db",
       "proves": "BOB-33: launch_quick_assessment (migration 20261020100000) titles a quick assessment 'Uji Cepat — ' || quick_assessment_label(now()), the moment in Asia/Jakarta as YYYY-MM-DD HH24:MI, and the second launch in the minute the same with (2); a launch at 23:30 UTC reads the next day's Jakarta date; no month of the year carries a name; neither anon nor authenticated can call the helper."
@@ -652,8 +657,18 @@
     {
       "id": "F05-T14",
       "runner": "db",
-      "proves": "release correction across the lineage moves the not-started set and the assignment's course, leaves completed evidence on v1.0, writes one move row, and refuses an automatic move",
+      "proves": "RESTATED FOR BOB-35 (c), a changed requirement: a release move once a learner has started under the assignment is refused RELEASE_MOVE_STARTED (migration 20261022100000) and changes nothing, while a correction across the lineage before anyone starts, measured in selftest/db/fable05.sql, moves the assignment, its course and its cycle's POST_TEST definition to the target's own (release_cycle_definition), writes one move row with nobody left in place and an audit line naming the cycle, refuses an automatic move, and refuses a distributed release from outside the lineage",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the FABLE-05 suite builds its own canonical package through the ordinary lifecycle, so it needs the schema and the synthetic personas but nothing seeded for it"
+    },
+    {
+      "id": "F05-T14b",
+      "runner": "db",
+      "proves": "BOB-35 (INV-04, INV-29), migration 20261022100000 measured in selftest/db/fable05.sql: after a v1.0 -> v1.1 move made before anyone started, a learner's session records v1.1's release, v1.1's definition and only v1.1's presented items, so certificate_prepare cites what was sat; a session inserted with v1.1's release and v1.0's definition (under the assignment or outside any), and one that agrees with itself but cites the release its assignment moved from, are each refused PR060 SESSION_RELEASE_MISMATCH by assessment_sessions_release_is_its_course; a move to a release with no approved cycle definition is refused RELEASE_MOVE_NO_CYCLE_DEFINITION; the closure query finds no session whose recorded release's course is not its items' course; and every session, presented item, result and certificate from before is unchanged."
+    },
+    {
+      "id": "F05-C01",
+      "runner": "db",
+      "proves": "BOB-35 (c) under real concurrency (runMoveStartRace in selftest/run.ts, fixture selftest.f05_race_fixture): a release move holds its transaction open after locking the learning assignment and finding no session, a learner calls start_learning_session against it meanwhile, then the move commits; assessment_sessions_release_is_its_course (migration 20261022100000) makes the start wait on the move (FOR KEY SHARE) and refuses it SESSION_RELEASE_MISMATCH, or it cites the new release, and no session under the moved assignment cites the release it moved from."
     },
     {
       "id": "F05-T15",
@@ -2014,6 +2029,11 @@
       "proves": "BOB-32 (UX-03's server half, D-011): every refusal launch_quick_assessment raises, read from the migration that defines it, is read by src/lib/ujicepat-kontrak.ts to its code (QUICK_BANK_TOO_SMALL, QUICK_COUNT_OUT_OF_RANGE, QUICK_MINUTES_OUT_OF_RANGE, QUICK_NOT_ALLOWED, QUICK_NOT_FOUND, else QUICK_FAILED); a reworded refusal fails; the page's reader drops a forged code or reference; and the source of sediakanUjiCepat in src/app/mengajar/actions.ts passes ?cepat=gagal&kode=, with a logged reference only for QUICK_FAILED."
     },
     {
+      "id": "BOB34-K01",
+      "runner": "static",
+      "proves": "BOB-34 (UX-03): alamatTolakUjiCepat in the source file src/lib/ujicepat-kontrak.ts sends a refused launch to /uji-cepat?cepat=gagal&kode=… with bab, soal and menit exactly as sent (encoded, never overriding the code), the reference only for QUICK_FAILED, and no stage; sediakanUjiCepat in src/app/mengajar/actions.ts builds both refusal addresses from the teacher's choices as sent; and the page reads and validates them to reopen its form."
+    },
+    {
       "id": "F15-P01",
       "runner": "db",
       "proves": "BOB-12 (b), the card's cooldown in migration 20261019100000 (card_signin_attempt), measured in selftest/db/fable15.sql: 5 attempts within 15 minutes are free, then each waits 30 s after the one before, then 60, 120, 240 and at most 300 s; a waiting attempt is not recorded; attempts older than 15 minutes are forgotten; it is never a lock; one card's count is not another's."
@@ -2032,6 +2052,51 @@
       "id": "F15-C01",
       "runner": "db",
       "proves": "BOB-12 (b) under real concurrency (runCardConcurrency in selftest/run.ts): 20 connections calling card_signin_attempt for one card at the same moment let exactly 5 through to Auth and tell the other 15 to wait about 30 s, the card's row holds exactly 5 attempts, and a sign-in then clears it."
+    },
+    {
+      "id": "F16-I01",
+      "runner": "db",
+      "proves": "BOB-24 (D-054, D-059), the PINTAR ID in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: every person holds one, 8 Crockford characters and distinct; pintar_id_canonical reads it case-insensitively, ignoring spaces and hyphens, O as 0 and I or L as 1, and refuses any other shape; a thousand fresh IDs stay in the alphabet; a new person is given one; changing or clearing it is refused PINTAR_ID_IMMUTABLE and an ordinary edit leaves it; pintar_id_new takes nothing about anyone and draws on gen_random_bytes; and there is no card-edition table."
+    },
+    {
+      "id": "F16-U01",
+      "runner": "db",
+      "proves": "BOB-24 (C9), usernames in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: username_rejection refuses each shape by its own code (length, characters, a number, the start, an ID shape of exactly 8 alphabet characters, a reserved name or a reserved prefix followed by a separator, an email) and allows ordinary names in lowercase, pintaryanti, hendra123 and hendra.12 among them; claim_username lets a staff person claim one once (USERNAME_ALREADY_SET), refuses a taken name (USERNAME_TAKEN) and a reserved one, and refuses a class card and an evaluation persona IDENTITY_NOT_ELIGIBLE (C13, C17); a rename or delete is refused USERNAME_FIXED even for the owner; correct_username is the platform admin's only, needs a reason and is audited with from, to and reason."
+    },
+    {
+      "id": "F16-P01",
+      "runner": "db",
+      "proves": "BOB-24 (D-056), the personal PIN in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: pin_weakness refuses repeated, sequential (wrapping), ABAB and AABB, keypad-line, year (1950-2030) and common PINs and a non-4-digit one, and allows ordinary ones; the common list is IDENTITY-4.0's top-50 exactly; set_my_pin refuses a weak PIN by its code and a second PIN PIN_ALREADY_SET; the stored value is a cost-10 bcrypt hash that never contains the PIN; pin_matches tells the PIN from another and one person from another; only pin_matches and set_my_pin read the hash and neither returns text; and no audit row carries a PIN or a hash."
+    },
+    {
+      "id": "F16-S01",
+      "runner": "db",
+      "proves": "BOB-24, the set-up state in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: every staff EMAIL account has an account_setup row and no class card or persona has one; a new staff account is REQUIRED, complete_my_setup refuses SETUP_INCOMPLETE without a username and a PIN and completes with both, audited identity.setup_completed; a card and a persona read NOT_APPLICABLE from my_setup_state and are refused set_my_pin and complete_my_setup IDENTITY_NOT_ELIGIBLE (C13, C17)."
+    },
+    {
+      "id": "F16-R01",
+      "runner": "db",
+      "proves": "BOB-24 (D-056), recovery_attempt and the code counters in migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: at level 0 two wrong PINs are WRONG and the third LOCKED for 3600 s, identically for an ID nobody holds; a lock judges nothing, not even the right PIN; three more lock for 14400 s, three more SUSPEND; a suspension 400 days old still holds and the suspended PIN matches nothing; recovery_restore returns the ladder to 0 and forces a new PIN, and the old one answers WRONG and is refused PIN_REUSED; success resets the count; 30 clean days decay level 1; admin_reset_recovery needs a reason, forces a new PIN and is audited, and a teacher cannot call it; a malformed ID counts nothing; identity_attempt, which never asks whether the address exists, lets 5 code tries for any address hash through within 15 minutes and then asks about 30 s, identity_attempt_settle takes an unjudged try back and clears the record on a right code; and each step is audited."
+    },
+    {
+      "id": "F16-N01",
+      "runner": "db",
+      "proves": "BOB-24, storage and surfaces of migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery_attempt, recovery_restore, identity_attempt and identity_attempt_settle execute for service_role only and are no client RPC; pin_matches, the ID generator and normaliser and the rule functions execute for nobody; the seven client functions are in client_rpc_registry, the four self-service ones as LEARNER noted as the caller's own and the platform admin's as SYSTEM_ADMIN; a teacher and a visitor are refused 42501 by the database; and security_events gives the platform admin identity events only."
+    },
+    {
+      "id": "F16-C01",
+      "runner": "db",
+      "proves": "BOB-24 under real concurrency (runIdentityConcurrency in selftest/run.ts): 20 connections each insert 50 persons in transactions held open together and rolled back; the 1000 PINTAR IDs drawn side by side by persons_pintar_id_guard are well-formed and distinct, no insert fails, and nothing is left behind."
+    },
+    {
+      "id": "F16-C02",
+      "runner": "db",
+      "proves": "BOB-24 under real concurrency (runIdentityConcurrency in selftest/run.ts): two staff people claim one username with claim_username at the same moment; the holder's claim goes in, the other waits on its uncommitted row and is refused PR040 USERNAME_TAKEN, and one row of person_usernames holds the name."
+    },
+    {
+      "id": "F16-C03",
+      "runner": "db",
+      "proves": "BOB-24 under real concurrency (runIdentityConcurrency in selftest/run.ts): 20 wrong PINs for one typed ID reach recovery_attempt at the same moment as service_role; the ladder's row lock takes them one at a time: exactly 2 WRONG and one lock for an hour, 17 told it is locked, recovery_ladder at level 1, and the audit holds 2 wrongs and exactly 1 lock."
     },
     {
       "id": "BOB12-A01",

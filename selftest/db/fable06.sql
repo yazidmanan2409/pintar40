@@ -634,21 +634,65 @@ end $$;
 revoke all on function selftest.wp6_pd(uuid,uuid,uuid,uuid) from public;
 grant execute on function selftest.wp6_pd(uuid,uuid,uuid,uuid) to authenticated;
 
+-- BOB-35: the definition a copied session cites when it is pointed at another
+-- release. A session records a release of its definition's course, or none is
+-- opened (SESSION_RELEASE_MISMATCH), so a copy onto another course's release
+-- cites a definition of THAT course: the template's own when it already is
+-- one, else the template's definition copied field for field into the
+-- release's course, made once per course and reused.
+create or replace function selftest.wp6_definition_for(p_template uuid, p_release uuid, out def uuid, out ver int)
+language plpgsql set search_path = public, pg_temp as $$
+declare v_course uuid;
+begin
+  select r.course_id into v_course from public.plp_releases r where r.id = p_release;
+  select d.id, d.version into def, ver
+    from public.assessment_sessions s
+    join public.assessment_definitions d on d.id = s.assessment_definition_id
+    left join public.modules m on m.id = d.module_id
+   where s.id = p_template and coalesce(d.course_id, m.course_id) = v_course;
+  if def is not null then return; end if;
+  select d.id, d.version into def, ver from public.assessment_definitions d
+   where d.course_id = v_course and d.title = 'wp6 copied definition' order by d.created_at limit 1;
+  if def is not null then return; end if;
+  insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type, item_count,
+    safety_critical_minimum, difficulty_mix, passing_rules, attempt_limit, allows_pause, offline_tolerant,
+    late_sync_grace_seconds, hesitation_window_seconds, shuffle_policy, author_person_id)
+  select r.institution_id, v_course, 'wp6 copied definition', d.mode, d.bank_type, d.item_count,
+         d.safety_critical_minimum, d.difficulty_mix, d.passing_rules, d.attempt_limit, d.allows_pause, d.offline_tolerant,
+         d.late_sync_grace_seconds, d.hesitation_window_seconds, d.shuffle_policy, d.author_person_id
+    from public.assessment_sessions s
+    join public.assessment_definitions d on d.id = s.assessment_definition_id
+    join public.plp_releases r on r.id = p_release
+   where s.id = p_template
+  returning id, version into def, ver;
+end $$;
+revoke all on function selftest.wp6_definition_for(uuid, uuid) from public;
+grant execute on function selftest.wp6_definition_for(uuid, uuid) to authenticated;
+
 -- One FINALIZED professional-development session with a result, for the
 -- educator, copied from a real session's provenance but pointed at the PD
 -- release so its course says what it is.
+--
+-- RESTATED FOR BOB-35 (a changed requirement): the copy kept the template's
+-- definition, which belongs to another course than the PD release, and a
+-- session whose release is not its definition's course is now refused at
+-- insert (SESSION_RELEASE_MISMATCH). It now cites wp6_definition_for's
+-- definition of the PD release's own course, the template's copied field for
+-- field, so the provenance is one course and every figure the tests read is
+-- what it was.
 create or replace function selftest.wp6_pd_session(
   p_template uuid, p_person uuid, p_enrolment uuid, p_release uuid)
 returns uuid language plpgsql set search_path = public, pg_temp as $$
-declare v_new uuid := gen_random_uuid();
+declare v_new uuid := gen_random_uuid(); v_def uuid; v_ver int;
 begin
+  select f.def, f.ver into v_def, v_ver from selftest.wp6_definition_for(p_template, p_release) f;
   insert into public.assessment_sessions
     (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
      plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
      scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
      started_at, submitted_at, finalized_at, deadline_extended_count)
   select v_new, p_person, s.institution_id, p_enrolment, s.academic_period_id, null, null,
-         p_release, s.assessment_definition_id, s.assessment_definition_version, s.engine_version,
+         p_release, v_def, v_ver, s.engine_version,
          s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED', s.shuffle_seed,
          s.started_at, s.submitted_at, s.finalized_at, 0
     from public.assessment_sessions s where s.id = p_template;
@@ -688,8 +732,14 @@ grant execute on function selftest.wp6_counts(uuid,uuid) to authenticated;
 create or replace function selftest.wp6_evidence_session(
   p_template uuid, p_person uuid, p_class uuid, p_release uuid)
 returns uuid language plpgsql set search_path = public, pg_temp as $$
-declare v_new uuid := gen_random_uuid(); v_enr uuid;
+declare v_new uuid := gen_random_uuid(); v_enr uuid; v_def uuid; v_ver int;
 begin
+  -- RESTATED FOR BOB-35 (a changed requirement): pointed at another release,
+  -- the copy cites a definition of that release's course (wp6_definition_for),
+  -- or its insert would be refused SESSION_RELEASE_MISMATCH
+  if p_release is not null then
+    select f.def, f.ver into v_def, v_ver from selftest.wp6_definition_for(p_template, p_release) f;
+  end if;
   select e.id into v_enr from public.enrollments e
     join public.assessment_sessions s on s.institution_id = e.institution_id
    where s.id = p_template and e.person_id = p_person order by e.created_at desc limit 1;
@@ -700,7 +750,7 @@ begin
      started_at, submitted_at, finalized_at, deadline_extended_count)
   select v_new, p_person, s.institution_id, coalesce(v_enr, s.enrollment_id), s.academic_period_id,
          p_class, null, coalesce(p_release, s.plp_release_id),
-         s.assessment_definition_id, s.assessment_definition_version, s.engine_version,
+         coalesce(v_def, s.assessment_definition_id), coalesce(v_ver, s.assessment_definition_version), s.engine_version,
          s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED',
          s.shuffle_seed, s.started_at, s.submitted_at, s.finalized_at, 0
     from public.assessment_sessions s where s.id = p_template;
