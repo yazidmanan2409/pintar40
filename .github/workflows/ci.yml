@@ -238,7 +238,7 @@ jobs:
             db-bob35-gates)
               echo "the five session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob36-gates)
-              echo "the three Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'

@@ -638,6 +638,7 @@
     { "name": "bob35-5", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a session citing the release its assignment moved from was inserted" },
     { "name": "bob36-1", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "an edit after the sitting changed the finished session's verdict from true to false" },
     { "name": "bob36-2", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: mode, bank_type" },
-    { "name": "bob36-3", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "the owner rewrote a sat Uji Cepat's passing_rules" }
+    { "name": "bob36-3", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "the owner rewrote a sat Uji Cepat's passing_rules" },
+    { "name": "bob36-4", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: module_id, course_id" }
   ]
 }

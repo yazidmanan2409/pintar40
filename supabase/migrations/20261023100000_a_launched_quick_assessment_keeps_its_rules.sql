@@ -23,6 +23,13 @@
 -- late_sync_grace_seconds, attempt_limit) is refused, PR061
 -- QUICK_RULES_FIXED, for every role including the owner.
 --
+-- AND WHERE IT WAS SAT (the gate's addition, corrected in place under D-026):
+-- course_id and module_id are held too. The taught-content freeze exempts
+-- ad-hoc rows, so a sat Uji Cepat could otherwise be pointed at another
+-- chapter or course in place, moving its sessions to another course in the
+-- evidence: the historical interpretation the invariant names. (Turning
+-- is_ad_hoc to false is already refused by the freeze.)
+--
 -- THE STATUS CHANGES THAT LEGITIMATELY CONTINUE: NONE. An Uji Cepat is created
 -- at INGESTED by launch_quick_assessment and no product path moves it on: the
 -- Studio's status steps select `is_ad_hoc = false`, and nothing else writes an
@@ -51,7 +58,8 @@ begin
   v_new := to_jsonb(new); v_old := to_jsonb(old);
   foreach v_col in array array['mode', 'bank_type', 'item_count', 'difficulty_mix', 'safety_critical_minimum',
                                'passing_rules', 'shuffle_policy', 'hesitation_window_seconds', 'allows_pause',
-                               'offline_tolerant', 'late_sync_grace_seconds', 'attempt_limit', 'status'] loop
+                               'offline_tolerant', 'late_sync_grace_seconds', 'attempt_limit', 'status',
+                               'course_id', 'module_id'] loop
     if (v_new -> v_col) is distinct from (v_old -> v_col) then
       raise exception using errcode = 'PR061', detail = 'QUICK_RULES_FIXED',
         message = format('assessment_definitions.%s of an Uji Cepat is fixed once a session cites it (INV-29): launch a new one', v_col);
@@ -73,6 +81,8 @@ begin
                                'offline_tolerant', 'late_sync_grace_seconds', 'attempt_limit']) f
    where position(quote_literal(f) in v) > 0;
   if n <> 12 then raise exception 'BOB-36: % of the twelve interpretive fields are held', n; end if;
+  select count(*) into n from unnest(array['status', 'course_id', 'module_id']) f where position(quote_literal(f) in v) > 0;
+  if n <> 3 then raise exception 'BOB-36: status, course_id and module_id are not all held (% of 3)', n; end if;
   if not exists (select 1 from pg_trigger t where t.tgrelid = 'public.assessment_definitions'::regclass
                   and t.tgname = 'assessment_definitions_quick_rules_fixed' and not t.tgisinternal) then
     raise exception 'BOB-36: the trigger is missing';

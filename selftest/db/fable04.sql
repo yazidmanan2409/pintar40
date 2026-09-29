@@ -305,7 +305,7 @@ begin
   ok := true; detail := '';
   declare
     v_q record; v_s uuid; v_lulus1 jsonb; v_lulus2 jsonb; v_rows int; v_field text; v_set text;
-    v_through text := ''; v_other text := ''; v_q2 record; v_hist1 text; v_hist2 text; v_det text;
+    v_through text := ''; v_other text := ''; v_q2 record; v_hist1 text; v_hist2 text; v_det text; v_mod2 uuid;
   begin
     perform selftest.as_user('boot-guru@bootstrap.pintar.test');
     select * into v_q from public.launch_quick_assessment(v_inst, p_modul, 3, 20);
@@ -341,10 +341,18 @@ begin
         coalesce(v_lulus1 ->> 'lulus', 'none'), coalesce(v_lulus2 ->> 'lulus', 'none'));
     end if;
 
+    -- another chapter of the same school to point it at: made here as the
+    -- owner (the bootstrap school has one), and undone with the rest
+    insert into public.courses (institution_id, subject, stage, grade_label, title)
+    select m0.institution_id, 'Matematika', 'SD', '5', 'F04-T04d bab lain' from public.modules m0 where m0.id = p_modul
+    returning id into v_mod2;
+    insert into public.modules (course_id, institution_id, ordinal, title)
+    select v_mod2, c.institution_id, 1, 'F04-T04d bab lain' from public.courses c where c.id = v_mod2
+    returning id into v_mod2;
     -- every other interpretive field, one at a time, each in its own undo
     foreach v_field in array array['mode','bank_type','item_count','difficulty_mix','safety_critical_minimum',
                                    'shuffle_policy','hesitation_window_seconds','allows_pause','offline_tolerant',
-                                   'late_sync_grace_seconds','attempt_limit','status'] loop
+                                   'late_sync_grace_seconds','attempt_limit','status','module_id','course_id'] loop
       v_set := case v_field
         when 'mode' then 'mode = ''POST_TEST'''
         when 'bank_type' then 'bank_type = case when bank_type = ''PRACTICE'' then ''TEST''::public.bank_type else ''PRACTICE''::public.bank_type end'
@@ -358,7 +366,10 @@ begin
         when 'late_sync_grace_seconds' then 'late_sync_grace_seconds = late_sync_grace_seconds + 1'
         when 'attempt_limit' then 'attempt_limit = coalesce(attempt_limit, 1) + 1'
         -- no product path moves an Uji Cepat's status, so none continues once it is sat
-        when 'status' then 'status = ''STRUCTURED''' end;
+        when 'status' then 'status = ''STRUCTURED'''
+        -- where it was sat: another chapter of the same school, or the course itself
+        when 'module_id' then format('module_id = %L', v_mod2)
+        when 'course_id' then format('course_id = (select m.course_id from public.modules m where m.id = %L), module_id = null', p_modul) end;
       perform selftest.as_user('boot-guru@bootstrap.pintar.test');
       begin
         execute format('update public.assessment_definitions set %s where id = %L', v_set, v_q.assessment_definition_id);
@@ -449,7 +460,8 @@ begin
   if ok then detail := 'once a learner had sat a launched Uji Cepat, its teacher''s direct edits of passing_rules and of the other eleven '
     || 'interpretive fields (mode, bank_type, item_count, difficulty_mix, safety_critical_minimum, shuffle_policy, '
     || 'hesitation_window_seconds, allows_pause, offline_tolerant, late_sync_grace_seconds, attempt_limit) and of its status '
-    || '(no status change continues once sat) were each refused PR061 QUICK_RULES_FIXED, the owner''s too; deleting it is refused '
+    || '(no status change continues once sat), and of where it was sat (module_id, course_id) were each refused PR061 '
+    || 'QUICK_RULES_FIXED, the owner''s too; deleting it is refused '
     || 'by the sessions'' foreign key; the finished verdict stayed as it was and the session and its result are unchanged; the '
     || 'title can still be corrected and an Uji Cepat nobody has sat is still editable'; end if;
   return next;
@@ -702,7 +714,8 @@ begin
   if ok then detail := 'once a learner had sat a launched Uji Cepat, its teacher''s direct edits of passing_rules and of the other eleven '
     || 'interpretive fields (mode, bank_type, item_count, difficulty_mix, safety_critical_minimum, shuffle_policy, '
     || 'hesitation_window_seconds, allows_pause, offline_tolerant, late_sync_grace_seconds, attempt_limit) and of its status '
-    || '(no status change continues once sat) were each refused PR061 QUICK_RULES_FIXED, the owner''s too; deleting it is refused '
+    || '(no status change continues once sat), and of where it was sat (module_id, course_id) were each refused PR061 '
+    || 'QUICK_RULES_FIXED, the owner''s too; deleting it is refused '
     || 'by the sessions'' foreign key; the finished verdict stayed as it was and the session and its result are unchanged; the '
     || 'title can still be corrected and an Uji Cepat nobody has sat is still editable'; end if;
   return next;

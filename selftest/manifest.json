@@ -478,7 +478,7 @@
     {
       "id": "F04-T04d",
       "runner": "db",
-      "proves": "BOB-36 (INV-29), the trigger assessment_definitions_quick_rules_fixed of migration 20261023100000, measured in selftest/db/fable04.sql (selftest.f04_quick_rules): once a learner has sat a launched Uji Cepat, its teacher's direct edits of passing_rules (which moved a finished verdict from true to false before) and of mode, bank_type, item_count, difficulty_mix, safety_critical_minimum, shuffle_policy, hesitation_window_seconds, allows_pause, offline_tolerant, late_sync_grace_seconds and attempt_limit, and of its status, are each refused PR061 QUICK_RULES_FIXED, the owner's too; deleting it is refused by the sessions' foreign key; the finished session and result are unchanged; the title can still be corrected and an Uji Cepat nobody has sat is still editable."
+      "proves": "BOB-36 (INV-29), the trigger assessment_definitions_quick_rules_fixed of migration 20261023100000, measured in selftest/db/fable04.sql (selftest.f04_quick_rules): once a learner has sat a launched Uji Cepat, its teacher's direct edits of passing_rules (which moved a finished verdict from true to false before) and of mode, bank_type, item_count, difficulty_mix, safety_critical_minimum, shuffle_policy, hesitation_window_seconds, allows_pause, offline_tolerant, late_sync_grace_seconds and attempt_limit, of its status, and of where it was sat (module_id, course_id), are each refused PR061 QUICK_RULES_FIXED, the owner's too; deleting it is refused by the sessions' foreign key; the finished session and result are unchanged; the title can still be corrected and an Uji Cepat nobody has sat is still editable."
     },
     {
       "id": "F04-T04c",
