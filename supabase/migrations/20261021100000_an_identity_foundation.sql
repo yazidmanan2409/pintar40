@@ -117,6 +117,11 @@ alter table public.person_usernames enable row level security;
 revoke all on table public.person_usernames from public, anon, authenticated, service_role;
 
 -- Why a username is refused (C9), or null. Input is taken as lowercase.
+-- As ruled 29 Sep: a reserved word refuses as the whole name, and a reserved
+-- prefix only when a separator follows it (pintar.x, admin_x), so «pintaryanti»
+-- is a name. A name that reads as a PINTAR ID (exactly 8 characters, all in
+-- the alphabet after the ID's own normalisation) is refused, so «hendra12» is
+-- and «hendra123» and «hendra.12» are not.
 create or replace function public.username_rejection(p text)
 returns text
 language plpgsql immutable set search_path = public, pg_temp as $$
@@ -129,13 +134,13 @@ begin
   if u !~ '^[a-z]' then return 'USERNAME_START'; end if;
   if public.pintar_id_canonical(u) is not null then return 'USERNAME_ID_SHAPE'; end if;
   if u = any (array[
-       'admin', 'administrator', 'root', 'system', 'sysadmin', 'superuser', 'support', 'help', 'bantuan', 'info',
+       'pintar', 'admin', 'administrator', 'root', 'system', 'sysadmin', 'superuser', 'support', 'help', 'bantuan', 'info',
        'security', 'keamanan', 'noreply', 'no_reply', 'no.reply', 'postmaster', 'webmaster', 'abuse', 'mail', 'email',
        'official', 'resmi', 'staff', 'staf', 'team', 'tim', 'moderator', 'owner', 'founder', 'pendiri', 'guru',
        'teacher', 'dosen', 'murid', 'siswa', 'student', 'sekolah', 'school', 'kepala', 'kepsek', 'dekan', 'rektor',
        'masuk', 'keluar', 'login', 'logout', 'daftar', 'register', 'akun', 'account', 'kartu', 'card', 'test', 'tester',
        'null', 'undefined', 'anonymous', 'anon', 'service', 'service_role', 'authenticated', 'api', 'www', 'id']::text[])
-     or u ~ '^(pintar|admin|root|system|support|security|official|resmi)' then
+     or u ~ '^(pintar|admin|root|system|support|security|official|resmi)[._]' then
     return 'USERNAME_RESERVED';
   end if;
   return null;
@@ -195,11 +200,12 @@ begin
     return 'PIN_KEYPAD';
   end if;
   if p::int between 1950 and 2030 then return 'PIN_YEAR'; end if;
+  -- IDENTITY-4.0 §3's top-50 (the spec is frozen: fifty, no more)
   if p = any (array['0000', '1111', '1234', '4321', '1212', '7777', '1004', '2000', '4444', '2222', '6969', '9999',
                     '3333', '5555', '6666', '1122', '1313', '8888', '2001', '1010', '0123', '1231', '1230', '1221',
                     '2121', '0101', '0707', '0911', '1225', '5683', '0007', '0070', '2323', '4545', '5150', '0001',
                     '0002', '1000', '1001', '2002', '9000', '0110', '7007', '0420', '2112', '1024', '3141', '1123',
-                    '8520', '2345', '5678', '6789', '9876', '0987', '1414', '1515', '0808', '0606', '1100', '1199']::text[]) then
+                    '8520', '2345']::text[]) then
     return 'PIN_COMMON';
   end if;
   return null;
@@ -652,10 +658,10 @@ grant execute on function public.admin_reset_recovery(uuid, text) to authenticat
 grant execute on function public.security_events(integer) to authenticated;
 
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
-  ('claim_username', 'LEARNER', 'BOB-24: the caller claims their own username, once (C9): canonical lowercase, validated, reserved names refused, a taken name refused USERNAME_TAKEN; only a staff person with an EMAIL account, never a persona. No rename.', null, null),
-  ('set_my_pin', 'LEARNER', 'BOB-24: the caller sets their own 4-digit personal PIN, the first time or when a new one is required; the blocklist refuses common and trivial PINs; a replaced PIN is never used again; nothing returns the hash.', null, null),
-  ('my_setup_state', 'LEARNER', 'BOB-24: the caller''s own set-up state: REQUIRED, COMPLETE or NOT_APPLICABLE (a class card, a persona).', null, null),
-  ('complete_my_setup', 'LEARNER', 'BOB-24: the caller marks their own set-up COMPLETE once a username and a PIN are in place (the password is Auth''s; Gate 3 calls this after it).', null, null),
+  ('claim_username', 'LEARNER', 'BOB-24, self-service identity, the caller''s own: the caller claims their own username, once (C9): canonical lowercase, validated, reserved names refused, a taken name refused USERNAME_TAKEN; only a staff person with an EMAIL account, never a persona. No rename.', null, null),
+  ('set_my_pin', 'LEARNER', 'BOB-24, self-service identity, the caller''s own: the caller sets their own 4-digit personal PIN, the first time or when a new one is required; the blocklist refuses common and trivial PINs; a replaced PIN is never used again; nothing returns the hash.', null, null),
+  ('my_setup_state', 'LEARNER', 'BOB-24, self-service identity, the caller''s own: the caller''s own set-up state: REQUIRED, COMPLETE or NOT_APPLICABLE (a class card, a persona).', null, null),
+  ('complete_my_setup', 'LEARNER', 'BOB-24, self-service identity, the caller''s own: the caller marks their own set-up COMPLETE once a username and a PIN are in place (the password is Auth''s; Gate 3 calls this after it).', null, null),
   ('correct_username', 'STAFF', 'BOB-24: the platform administrator corrects a person''s username, with a stated reason, audited (from, to, reason). Refuses everyone else.', 'SYSTEM_ADMIN', null),
   ('admin_reset_recovery', 'STAFF', 'BOB-24: the platform administrator restores a person''s PIN recovery with a stated reason, audited; forces a new PIN. Refuses everyone else.', 'SYSTEM_ADMIN', null),
   ('security_events', 'STAFF', 'BOB-24: the identity security and recovery record (audit actions identity.*), newest first. The platform administrator''s only.', 'SYSTEM_ADMIN', null);

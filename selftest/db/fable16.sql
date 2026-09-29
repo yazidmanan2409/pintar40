@@ -175,7 +175,12 @@ begin
                                      ('9budi', 'USERNAME_START'), ('hendra12', 'USERNAME_ID_SHAPE'), ('a14cd7st', 'USERNAME_ID_SHAPE'),
                                      ('admin', 'USERNAME_RESERVED'), ('pintar.guru', 'USERNAME_RESERVED'), ('support_1', 'USERNAME_RESERVED'),
                                      ('noreply', 'USERNAME_RESERVED'), ('budi@sekolah.id', 'USERNAME_EMAIL_SHAPE'),
-                                     ('budi.santoso', null), ('Budi_S', null), ('guru.matematika', null), ('ibu_ani', null)) t(u, harap) loop
+                                     ('budi.santoso', null), ('Budi_S', null), ('guru.matematika', null), ('ibu_ani', null),
+                                     -- as ruled 29 Sep: a reserved prefix refuses only before a separator;
+                                     -- an ID shape is exactly 8 alphabet characters after normalisation
+                                     ('pintar', 'USERNAME_RESERVED'), ('admin_sekolah', 'USERNAME_RESERVED'), ('resmi.guru', 'USERNAME_RESERVED'),
+                                     ('pintaryanti', null), ('rootbeers', null), ('systemika', null), ('rootbeer', 'USERNAME_ID_SHAPE'),
+                                     ('hendra123', null), ('hendra.12', null)) t(u, harap) loop
         v := public.username_rejection(r.u);
         if v is distinct from r.harap then
           v_probs := selftest.f11_note(v_probs, 'F16-U01', format('%L is answered %s, expected %s', r.u, coalesce(v, 'allowed'), coalesce(r.harap, 'allowed')));
@@ -203,6 +208,8 @@ begin
         perform selftest.as_user(v_card);
         k := selftest.f16_kode_tolak('select public.claim_username(''kartu.' || v_tag || ''')');
         if k is distinct from 'IDENTITY_NOT_ELIGIBLE' then v_probs := selftest.f11_note(v_probs, 'F16-U01', format('a class card claimed a username (%s)', coalesce(k, 'success'))); end if;
+      else
+        v_probs := selftest.f11_note(v_probs, 'F16-U01', 'no class card to test the exclusion with');
       end if;
       if v_persona is not null then
         perform selftest.as_user(v_persona);
@@ -256,6 +263,15 @@ begin
           v_probs := selftest.f11_note(v_probs, 'F16-P01', format('PIN %s is answered %s, expected %s', r.p, coalesce(v, 'allowed'), coalesce(r.harap, 'allowed')));
         end if;
       end loop;
+      -- IDENTITY-4.0 §3's list is a top-50, frozen: exactly fifty, the four it names among them
+      declare v_def text := pg_get_functiondef('public.pin_weakness(text)'::regprocedure); v_daftar text;
+      begin
+        v_daftar := substr(v_def, position('return ''PIN_YEAR''' in v_def), position('return ''PIN_COMMON''' in v_def) - position('return ''PIN_YEAR''' in v_def));
+        select count(*) into n from regexp_matches(v_daftar, '''[0-9]{4}''', 'g');
+        if n <> 50 or v_daftar !~ '''0000''' or v_daftar !~ '''1111''' or v_daftar !~ '''1234''' or v_daftar !~ '''4321''' then
+          v_probs := selftest.f11_note(v_probs, 'F16-P01', format('the common list holds %s PIN(s), not IDENTITY-4.0''s top-50 with 0000, 1111, 1234 and 4321', n));
+        end if;
+      end;
       perform selftest.as_user(v_ea);
       k := selftest.f16_kode_tolak('select public.set_my_pin(''1234'')');
       if k is distinct from 'PIN_SEQUENCE' then v_probs := selftest.f11_note(v_probs, 'F16-P01', format('a trivial PIN was answered %s', coalesce(k, 'with success'))); end if;
@@ -313,14 +329,31 @@ begin
       if v is distinct from 'COMPLETE' or public.my_setup_state() is distinct from 'COMPLETE' then
         v_probs := selftest.f11_note(v_probs, 'F16-S01', 'a username and a PIN did not complete set-up');
       end if;
-      if v_card is not null then
-        perform selftest.as_user(v_card);
-        if public.my_setup_state() is distinct from 'NOT_APPLICABLE' then v_probs := selftest.f11_note(v_probs, 'F16-S01', 'a class card is in the set-up flow'); end if;
-      end if;
-      if v_persona is not null then
-        perform selftest.as_user(v_persona);
-        if public.my_setup_state() is distinct from 'NOT_APPLICABLE' then v_probs := selftest.f11_note(v_probs, 'F16-S01', 'an evaluation persona is in the set-up flow'); end if;
-      end if;
+      -- C13, C17: the self-service identity functions are the caller's own, and
+      -- a class card or an evaluation persona has none of it
+      declare v_siapa text; v_nama text;
+      begin
+        foreach v_siapa in array array[coalesce(v_card, ''), coalesce(v_persona, '')] loop
+          v_nama := case when v_siapa = v_card then 'a class card' else 'an evaluation persona' end;
+          if v_siapa = '' then
+            v_probs := selftest.f11_note(v_probs, 'F16-S01', 'no class card or evaluation persona to test the exclusion with');
+            continue;
+          end if;
+          perform selftest.as_user(v_siapa);
+          if public.my_setup_state() is distinct from 'NOT_APPLICABLE' then
+            v_probs := selftest.f11_note(v_probs, 'F16-S01', v_nama || ' is in the set-up flow');
+          end if;
+          k := selftest.f16_kode_tolak('select public.set_my_pin(''7394'')');
+          if k is distinct from 'IDENTITY_NOT_ELIGIBLE' then
+            v_probs := selftest.f11_note(v_probs, 'F16-S01', format('%s set a personal PIN (%s)', v_nama, coalesce(k, 'success')));
+          end if;
+          k := selftest.f16_kode_tolak('select public.complete_my_setup()');
+          if k is distinct from 'IDENTITY_NOT_ELIGIBLE' then
+            v_probs := selftest.f11_note(v_probs, 'F16-S01', format('%s completed a set-up (%s)', v_nama, coalesce(k, 'success')));
+          end if;
+          perform selftest.as_owner();
+        end loop;
+      end;
       perform selftest.as_owner();
       if not exists (select 1 from public.audit_log l where l.action = 'identity.setup_completed' and l.target_id = v_pb::text) then
         v_probs := selftest.f11_note(v_probs, 'F16-S01', 'completing set-up was not audited');
@@ -454,6 +487,12 @@ begin
         v_probs := selftest.f11_note(v_probs, 'F16-R01', 'a malformed ID was answered ' || v_hasil.outcome);
       end if;
       -- the code counters: 5 free within 15 minutes, then a wait; OK clears; NOT_JUDGED takes back
+      -- ruled 29 Sep (C2, C3): every submitted address hash counts, existing or not, and alike --
+      -- the counter never asks whether the address belongs to anyone
+      if pg_get_functiondef('public.identity_attempt(text,text)'::regprocedure) ~* '(auth\.users|accounts|persons|email)'
+         or pg_get_functiondef('public.identity_attempt_settle(text,text,text)'::regprocedure) ~* '(auth\.users|accounts|persons|email)' then
+        v_probs := selftest.f11_note(v_probs, 'F16-R01', 'the code counter looks up whether the address exists');
+      end if;
       k := encode(sha256(convert_to('f16-kode|' || v_tag, 'UTF8')), 'hex');
       v_urut := array[]::text[];
       for i in 1..6 loop v_urut := v_urut || selftest.f16_kode(k)::text; end loop;
@@ -520,6 +559,10 @@ begin
           v_probs := selftest.f11_note(v_probs, 'F16-N01', v || ' is not registered');
         end if;
       end loop;
+      if exists (select 1 from public.client_rpc_registry g where g.function_name in ('claim_username', 'set_my_pin', 'my_setup_state', 'complete_my_setup')
+                  and (g.exposure <> 'LEARNER' or g.note !~ 'self-service identity, the caller''s own')) then
+        v_probs := selftest.f11_note(v_probs, 'F16-N01', 'a self-service identity function is not registered as LEARNER, the caller''s own');
+      end if;
       if exists (select 1 from public.client_rpc_registry g where g.function_name in ('correct_username', 'admin_reset_recovery', 'security_events')
                   and g.authorization_kind is distinct from 'SYSTEM_ADMIN') then
         v_probs := selftest.f11_note(v_probs, 'F16-N01', 'a platform-admin function is not declared SYSTEM_ADMIN');
@@ -568,28 +611,30 @@ begin
           || 'and hyphens ignored and O->0, I/L->1, a U or a wrong length refused; 1000 fresh IDs stay in the alphabet; a person '
           || 'made now is given one; changing or clearing it is refused PINTAR_ID_IMMUTABLE and an ordinary edit keeps it; the '
           || 'generator takes no argument and draws gen_random_bytes only; there is no card-edition table',
-        'C9''s rules refuse each shape by its own code (length, characters, a number, the start, an ID shape, a reserved name, '
-          || 'an email) and allow ordinary names in lowercase; a staff person claims one once (USERNAME_ALREADY_SET), a taken or '
+        'C9''s rules refuse each shape by its own code (length, characters, a number, the start, an ID shape of exactly 8 alphabet '
+          || 'characters, a reserved name or a reserved prefix before a separator, an email) and allow ordinary names in '
+          || 'lowercase, pintaryanti, hendra123 and hendra.12 among them; a staff person claims one once (USERNAME_ALREADY_SET), a taken or '
           || 'reserved name is refused, a class card and an evaluation persona are IDENTITY_NOT_ELIGIBLE; a rename or delete is '
           || 'refused USERNAME_FIXED even for the owner; a teacher cannot correct, the platform admin must state a reason, and '
           || 'the correction is audited with from, to and reason',
-        'the blocklist refuses repeated digits, runs (wrapping), ABAB and AABB, keypad lines, years 1950-2030, the common list '
-          || 'and anything but 4 digits, and allows ordinary PINs; a trivial PIN is refused, one PIN is set once, stored as a '
+        'the blocklist refuses repeated digits, runs (wrapping), ABAB and AABB, keypad lines, years 1950-2030, IDENTITY-4.0''s '
+          || 'top-50 exactly and anything but 4 digits, and allows ordinary PINs; a trivial PIN is refused, one PIN is set once, stored as a '
           || 'bcrypt cost-10 hash that is not the PIN; the check tells the PIN from another and one person from another; only '
           || 'pin_matches (boolean) and set_my_pin (void) read the hash; no audit row carries a PIN or a hash',
         'every staff EMAIL account has a set-up state and no class card or persona has one; a new staff account is REQUIRED, '
           || 'refuses to complete without a username and a PIN, and completes with both, audited; a card and a persona read '
-          || 'NOT_APPLICABLE',
+          || 'NOT_APPLICABLE and are refused a PIN and a set-up, IDENTITY_NOT_ELIGIBLE (C13, C17)',
         'at level 0 two wrong PINs are WRONG and the third LOCKED for 3600 s, identically for an ID nobody holds; a lock judges '
           || 'nothing, not even the right PIN; then 3 wrong lock for 14400 s, then 3 wrong SUSPEND; a suspension 400 days old '
           || 'still holds and the suspended PIN matches nothing; the email-recovery restore sets the ladder to 0 and forces a new '
           || 'PIN (the old one answers WRONG and cannot be set again, PIN_REUSED), the new one recovers; success resets the count; '
           || '30 clean days decay level 1; the platform admin''s reset needs a reason, forces a new PIN and is audited; a teacher '
           || 'cannot reset; each step is audited; a malformed ID counts nothing; the code counters give 5 free attempts then '
-          || 'about 30 s, take an unjudged attempt back and clear on a right code',
+          || 'about 30 s for any address hash without asking whether it exists, take an unjudged attempt back and clear on a right code',
         'the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery and '
           || 'the code counters are service_role''s only and no client RPC; the PIN check, the ID generator and normaliser and '
-          || 'the rule functions are nobody''s; the seven client functions are registered, the platform admin''s as SYSTEM_ADMIN; '
+          || 'the rule functions are nobody''s; the seven client functions are registered, the four self-service ones as LEARNER, the '
+          || 'caller''s own, and the platform admin''s as SYSTEM_ADMIN; '
           || 'a teacher and a visitor are refused 42501 by the database; the platform admin reads identity events only'
       ]) as t(tid, tarea, tdetail)
   loop
