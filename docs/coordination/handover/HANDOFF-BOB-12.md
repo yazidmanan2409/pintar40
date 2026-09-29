@@ -1,6 +1,6 @@
 # Bob → coordinator: BOB-12 (a school's morning sign-in; identity Gate 1, D-058)
 
-**Head:** `HEAD_SHA`, with `main` `b346144` (LANA-04) merged in as `c751350`. **One run:** ci #CI_RUN.
+**Head:** `e5c2b1c`, with `main` merged in twice: `b346144` (LANA-04) as `c751350` before the work, then `1c52bea` (LANA-05 and 06, the board) as `e5c2b1c`. That last merge adds content under `docs/` and one change to `audit/staging/journey.mjs`, which no selftest reads; it is lint-clean. The code is `861efd0` (BOB-31 is `70afa3e`). **One run:** ci #222.
 **Gated with DAISY-13** (D-043): this lane carries only a minimal card-form change so it stands alone; see INTEGRATION.
 
 ## CHANGED
@@ -140,11 +140,11 @@ Migration `20261019100000_a_card_waits_after_failures.sql`, the 125th.
 - **UX1-BRAND-02 and UX1-TUR-ORANG-01:** the migration tripwires move 124 → 125, with the reason written beside them. The new table is `card_signin_cooldowns (kunci, percobaan, diperbarui)`: no mark or brand column, and no tour RPC.
 
 ## CI
-`ci #CI_RUN` on `HEAD_SHA`, dispatched once and not waited on; please read the result there.
-- **Local, before dispatch, every database with an `en-US` ICU collation, on `9dee93e`:**
-  - **Full suite, fresh database:** LOCAL_FULL. F01-R07 passed on this build.
-  - **Plants:** LOCAL_PLANTS proved their gate on a copy taken straight after the seeds.
-  - **Shared red cases:** LOCAL_SHARED.
+[ci #222](https://github.com/yazidmanan2409/pintar40/actions/runs/36523143629) on `e5c2b1c`, dispatched once and not waited on; please read the result there.
+- **Local, before dispatch, every database with an `en-US` ICU collation, on `70afa3e`** (BOB-12 and BOB-31; `861efd0` after it only adds BOB12-A01's local skip reason):
+  - **Full suite, fresh database:** 373 passed, 0 failed, 29 justified skips. Two tests skipped for want of network: UX1-PIMPINAN-AKSES-01 (as before this change) and BOB12-A01, which now carries its reason. F01-R07 passed on this build.
+  - **Plants:** 99 of 99 proved their gate on a copy taken straight after the seeds (the 91 before, plus bob12-1 to bob12-8).
+  - **Shared red cases:** all 16 gates, `db-bob12-gates` included, exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 246 of 246.
 - The one new job is the `db-bob12-gates` red case.
 
 ## CONTRACT
@@ -202,4 +202,4 @@ F10-V01, V02 and V03 still assert exactly what they did. The plants that go thro
 3. **Confirm the `x-real-ip` citation** (Vercel request headers), which I could not re-read from this session.
 
 ## READY
-Yes, once `ci #CI_RUN` on `HEAD_SHA` is green, to be gated with DAISY-13.
+Yes, once ci #222 on `e5c2b1c` is green, to be gated with DAISY-13. BOB-31 rides in it.
