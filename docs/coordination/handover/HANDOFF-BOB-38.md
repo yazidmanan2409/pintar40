@@ -2,7 +2,7 @@
 
 **SHA:** `c088f58`, its own commit, and `6f3bfda` (the test for your gate question). They sit on top of the lane head that carried BOB-24, 34, 35 and 36 (CI #236).
 - **Manifest:** BOB38-K01. The lane's manifest is v122 with 432 ids.
-- **CI:** the run named in the next commit. It is the first of the two runs for BOB-38 to BOB-41, carrying BOB-38 and BOB-39.
+- **CI:** CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a`. It is the first of the two runs for BOB-38 to BOB-41, carrying BOB-38 and BOB-39.
 - Post-login review #1, approved for 4.0 correction (D-061).
 
 ## CHANGED
@@ -42,7 +42,7 @@ BOB38-K01 asserts each step. It also executes `sesudahTukar` over six hostile sh
 - **Local, on `5eb779b`:** every database with an `en-US` ICU collation and Supabase's default privileges emulated: full suite 400 passed, 0 failed, 31 justified skips (the one unjustified skip, UX1-PIMPINAN-AKSES-01, needs network, as before); plants 124 of 124 on a copy taken straight after the seeds (db-bob39-gates among them); shared red cases, all 20 gates exited 0 with the schema digest the same and every recheck 257 of 257. After merging `main` `559b739` (content documents only) as `29c1857`, the static suite reran: 147 passed, 0 failed.
 
 ## CI
-- **the run named in the next commit**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these two hand-offs. That commit is docs only; the code is at `29c1857`, with `main` `559b739` merged in.
+- **CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a`**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these two hand-offs. That commit is docs only; the code is at `29c1857`, with `main` `559b739` merged in.
 - It is the first of the two runs for BOB-38 to BOB-41, as directed, and carries BOB-38 and BOB-39.
 - The red-case matrix gains `db-bob39-gates`.
 - I don't poll it.
@@ -68,7 +68,7 @@ Yes, in the run with BOB-39.
 ---
 ### Summary (ready to paste)
 ```
-BOB-38 (c088f58, test 6f3bfda), ready for the gate in the run named in the next commit with BOB-39.
+BOB-38 (c088f58, test 6f3bfda), ready for the gate in CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a` with BOB-39.
 tukarKode answers { ok: true, tujuan } instead of redirecting (a server action's redirect rejected the page's promise into
 S14 on every success); TukarTautan decides through sesudahTukar and leaves with location.replace, so S14 never renders on
 success and the used callback leaves history. Refusals still show S14; «Minta tautan baru» still starts clean; lanjut still wins.

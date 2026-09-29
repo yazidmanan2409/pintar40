@@ -2,7 +2,7 @@
 
 **SHA:** `10ba1c7`, its own commit, and `5eb779b` (the tests for your gate questions), on top of BOB-38.
 - **Manifest:** F06-P22 and BOB39-K01. The lane's manifest is v122 with 432 ids.
-- **CI:** the run named in the next commit, carrying BOB-38 and BOB-39.
+- **CI:** CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a`, carrying BOB-38 and BOB-39.
 - Post-login review #2, approved for 4.0 correction (D-061).
 
 ## CHANGED
@@ -55,7 +55,7 @@
 - **Local, on `5eb779b`:** every database with an `en-US` ICU collation and Supabase's default privileges emulated: full suite 400 passed, 0 failed, 31 justified skips (the one unjustified skip, UX1-PIMPINAN-AKSES-01, needs network, as before); plants 124 of 124 on a copy taken straight after the seeds (db-bob39-gates among them); shared red cases, all 20 gates exited 0 with the schema digest the same and every recheck 257 of 257. After merging `main` `559b739` (content documents only) as `29c1857`, the static suite reran: 147 passed, 0 failed.
 
 ## CI
-- **the run named in the next commit**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these two hand-offs. That commit is docs only; the code is at `29c1857`, with `main` `559b739` merged in.
+- **CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a`**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these two hand-offs. That commit is docs only; the code is at `29c1857`, with `main` `559b739` merged in.
 - It is the first of the two runs for BOB-38 to BOB-41, as directed, and carries BOB-38 and BOB-39.
 - The red-case matrix gains `db-bob39-gates`.
 - I don't poll it.
@@ -81,7 +81,7 @@ Yes, in the run with BOB-38.
 ---
 ### Summary (ready to paste)
 ```
-BOB-39 (10ba1c7, tests 5eb779b), ready for the gate in the run named in the next commit with BOB-38.
+BOB-39 (10ba1c7, tests 5eb779b), ready for the gate in CI #238 (run `36566019037`, https://github.com/yazidmanan2409/pintar40/actions/runs/36566019037) on `e9cff4a` with BOB-38.
 Migration 20261024100000: record_integrity_review, on REFERRED_TO_INSTITUTION, raises the INTEGRITY_REFERRAL decision
 through refer_integrity_signal in the same transaction (the note becomes raised_note), so /pimpinan's «Keputusan» fills.
 The referral's own rules hold: idempotent while open, and it needs CAN_REVIEW_INTEGRITY over the signal's class,
