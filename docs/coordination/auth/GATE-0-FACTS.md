@@ -1,6 +1,6 @@
 # Identity Gate 0: external facts (C-09)
 
-**Status: automated reads DONE (29 Sep); M3 and M4 SATISFIED (29 Sep); M5 SATISFIED (29 Sep); M1, M2 and M6 OUTSTANDING (M7 optional) (§3).**
+**Status: Gate 0 DONE (29 Sep).** Automated reads done; M1–M5 satisfied. Two items are carried forward, not open: M6 goes into BOB-25's acceptance (after its first staging send), and the Stellar Business upgrade is a precondition of external educator testing (D-053). M7 is optional (§3).
 
 **Sources, all read-only:**
 - `identity-facts.yml` runs 36500989135 and 36501186293: Supabase Auth settings, allow-listed and non-secret; template bodies hashed, never printed; DNS via `dig` on a GitHub runner.
@@ -58,6 +58,7 @@ Nothing was written anywhere.
 - **Path.** PINTAR's server sends through Namecheap SMTP (`pintarselalu.com:465`, SSL), authenticated as the existing mailbox `noreply@pintarselalu.com`. This is the same mailbox and host Supabase already uses, so SPF (the `include:spf.web-hosting.com`) and DKIM (the `default` selector) apply.
 - **Codes.** Supabase issues activation and recovery codes through admin `generate_link` (`email_otp`) inside `src/app/api/` only, and PINTAR's email carries them. `verifyOtp` checks them.
 - **Limits.** PINTAR's own per-address and global limits apply to every send (BOB-25).
+- **Until the Stellar Business upgrade, the domain's 50 per hour is one shared budget:** staging, production, Supabase's own emails and any mail sent from cPanel all count against it. BOB-25's staging proof is a handful of single messages, well within it. PINTAR's limits are not designed around 50 (D-053(b)); volume waits for the upgrade.
 - **Supabase's own emails** are not used by PINTAR's flows. Their templates get a minimal Bahasa Indonesia fallback only for dashboard-initiated emails (break-glass).
 - **Still to prove in BOB-25:** that Vercel functions can reach port 465, and PASS results in a real inbox.
 
@@ -107,11 +108,11 @@ All four mailboxes exist in Namecheap cPanel (Email Accounts screen, 29 Sep, sup
 
 | # | Fact needed | Why | Evidence to capture | Blocks |
 |---|---|---|---|---|
-| M1 | Namecheap plan today and the **Stellar Business** upgrade date (D-053) | 150-tester volume: Stellar's 50/h is too low for a group activation (≈60 emails in 10 min) | Namecheap dashboard screenshot showing the plan and date | 2E (walk); 8 |
-| M2 | Stellar Business per-mailbox limits (per hour, recipients per message) | Capacity | Namecheap documentation link or a support-chat screenshot | 8 |
+| M1 | Namecheap plan today and the **Stellar Business** upgrade date (D-053) | 150-tester volume: Stellar's 50/h is too low for a group activation (≈60 emails in 10 min) | **SATISFIED 29 Sep (plan today).** <br>• **Plan:** Namecheap account screenshot: `pintarselalu.com` on **Stellar** shared hosting (cPanel mail, not Private Email), ACTIVE, auto-renew ON. The date shown, 2 Nov 2026, is the renewal date, not an upgrade date. <br>• **Limit that applies today:** Stellar's published **50 outgoing emails per hour per domain**. <br>• **Upgrade date:** not committed. Yazid upgrades before rollout volume needs more than Stellar (D-053), and the upgrade is a **precondition of external educator testing**. Its evidence is a Namecheap screenshot at the time. | pilot volume (not 2E) |
+| M2 | Stellar Business per-mailbox limits (per hour, recipients per message) | Capacity | **SATISFIED.** Namecheap's published Stellar Business limit is **10,000 outgoing emails per hour per domain**: Yazid's screenshot of the plan, 28 Sep, recorded in D-053(a); confirmed 29 Sep. | — |
 | M3 | FROM display name and address | What users see | **SATISFIED 29 Sep:** Tim PINTAR <noreply@pintarselalu.com> (subject to the 2E sending and deliverability evidence) | 2E |
 | M4 | Reply-To / support address | Where replies go | **SATISFIED 29 Sep:** info@pintarselalu.com (no separate support mailbox for 4.0; security@ reserved) | 2E |
 | M5 | SMTP credentials for the app path, **added by you as Vercel environment variables**. Never pasted in chat | Sending | **SATISFIED 29 Sep.** Settings confirmed from cPanel, identical to Supabase's; names fixed (§2). Yazid added the four to `pintar40-staging`, **Production only**; the password never passed through chat or the repository. Vercel screenshot (names only, values hidden): `PINTAR_SMTP_HOST`, `PINTAR_SMTP_PORT`, `PINTAR_SMTP_USER`, `PINTAR_SMTP_PASSWORD`, each marked with the lock icon (sensitive), target Production. No redeploy (none needed). Still to prove in BOB-25: a Vercel function reaches port 465 with them | 2E |
-| M6 | Two real inboxes for deliverability proof (one Gmail, one Outlook) | SPF, DKIM and DMARC = PASS in reality | After BOB-25's first staging send: the "Show original" / message-header screenshots | 2E |
+| M6 | Two real inboxes for deliverability proof (one Gmail, one Outlook) | SPF, DKIM and DMARC = PASS in reality | **HELD by design until BOB-25's first staging send** (29 Sep). Yazid then provides one controlled Gmail inbox and one controlled Outlook/Hotmail inbox. The addresses are referred to by label only and never committed. Evidence: the "Show original" / message-header screenshots. Part of BOB-25's acceptance | 2E (BOB-25 acceptance) |
 | M7 | (Optional) DMARC reporting address | Visibility of spoofing and delivery | DNS change by you; the next facts run shows it | 7 |
 | M8 | Supabase settings changes, done through workflows when each gate needs them (staging), and at the release (production): code length and expiry, password policy, leaked-password check, password-change safeguards, MFA enrolment off, IP forwarding (BOB-12) | Rulings and gaps above | No evidence now; each change is read back by `identity-facts.yml` after it is made | 1, 3, 8 |
