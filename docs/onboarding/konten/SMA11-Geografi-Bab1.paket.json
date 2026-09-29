@@ -1,0 +1,1770 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Geografi Kelas XI · Bab 1: Posisi Strategis Indonesia, Potensi Sumber Daya Alam, dan Pengaruhnya Terhadap Kehidupan",
+   "subject": "Geografi",
+   "stage": "SMA",
+   "grade_label": "Kelas XI",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Posisi Strategis Indonesia, Potensi Sumber Daya Alam, dan Pengaruhnya Terhadap Kehidupan",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Letak Astronomis Indonesia",
+       "summary": "Letak astronomis adalah letak menurut garis lintang dan garis bujur; letak ini memengaruhi iklim, pembagian zona waktu, dan kekayaan flora dan fauna Indonesia.",
+       "body_markdown": "## Letak menurut lintang dan bujur\n\nLetak Indonesia berdasarkan garis lintang dan garis bujur disebut **letak astronomis** atau letak absolut.\n\nIndonesia berada di antara **6° LU – 11° LS** dan **95° BT – 141° BT**.\n\nTitik-titik batasnya:\n- Utara, 6° 08' LU: Pulau We, pulau paling utara di Provinsi Nanggroe Aceh Darussalam.\n- Selatan, 11° 15' LS: Pulau Rote, pulau paling selatan di Provinsi Nusa Tenggara Timur.\n- Barat, 95° 45' BT: Pulau Beureuh, pulau paling barat di Provinsi Nanggroe Aceh Darussalam.\n- Timur, 141° 05' BT: Sungai Fly, di Kota Merauke, Provinsi Papua.\n\n## Pengaruh terhadap iklim\n\nLetak astronomis memengaruhi iklim karena setiap wilayah menerima intensitas sinar matahari yang berbeda.\n\nMenurut pembagian iklim matahari, iklim tropis berada di antara 23½° LU dan 23½° LS. Iklim subtropis berada sampai 35°, iklim sedang sampai 66½°, dan iklim dingin sampai kutub (90°). Seluruh wilayah Indonesia, dari 6° LU sampai 11° LS, berada di dalam jalur tropis.\n\nAkibatnya:\n- Indonesia beriklim tropis: rata-rata bersuhu panas dan kelembapan udaranya tinggi.\n- Penyinaran matahari berlangsung sepanjang tahun, sekitar 12 jam sehari, sehingga suhu udara tinggi (lebih dari 18 °C).\n- Indonesia memiliki hutan hujan tropis yang luas dengan berbagai jenis flora dan fauna.\n\n## Pembagian zona waktu\n\nBumi berotasi 360° dalam 24 jam, jadi 360° : 24 = **15° setiap jam**. Setiap 15° bujur, waktunya berbeda 1 jam.\n\nWilayah Indonesia terbentang dari 95° 45' BT sampai 141° 05' BT, lebih dari 45° bujur, yaitu tiga kali 15°. Keputusan Presiden Nomor 41 Tahun 1987 menetapkan **tiga zona waktu**:\n- WIB (Waktu Indonesia Barat), GMT + 7.\n- WITA (Waktu Indonesia Tengah), GMT + 8.\n- WIT (Waktu Indonesia Timur), GMT + 9.\n\nSemakin ke timur, jamnya semakin besar. Saat pukul 07.00 WIB, di wilayah WITA pukul 08.00 dan di wilayah WIT pukul 09.00.\n\n## Provinsi di setiap zona\n\nMenurut peta pembagian daerah waktu:\n- WIB: Aceh, Banten, Bengkulu, DKI Jakarta, Daerah Istimewa Yogyakarta, Jambi, Jawa Barat, Jawa Tengah, Jawa Timur, Kalimantan Barat, Kalimantan Tengah, Kepulauan Bangka Belitung, Kepulauan Riau, Lampung, Riau, Sumatra Barat, Sumatra Selatan, Sumatra Utara.\n- WITA: Bali, Gorontalo, Kalimantan Selatan, Kalimantan Timur, Kalimantan Utara, Nusa Tenggara Barat, Nusa Tenggara Timur, Sulawesi Barat, Sulawesi Selatan, Sulawesi Tengah, Sulawesi Tenggara, Sulawesi Utara.\n- WIT: Maluku, Maluku Utara, Papua, Papua Barat.\n\nPerhatikan Kalimantan: Kalimantan Barat dan Kalimantan Tengah memakai WIB, sedangkan Kalimantan Selatan, Kalimantan Timur, dan Kalimantan Utara memakai WITA.\n\n## Keuntungan letak astronomis\n\n- Hutan hujan tropis yang luas menyuplai oksigen untuk mengurangi pemanasan global.\n- Hutan itu menjadi habitat ideal bagi flora dan fauna yang beragam.\n- Tersedia lahan pertanian dan perkebunan untuk menghasilkan berbagai komoditas pangan.\n\n**Coba:** saat pukul 10.00 di Kalimantan Barat, pukul berapa di Bali?\n_Periksa: Kalimantan Barat WIB, Bali WITA; WITA satu jam lebih besar, jadi pukul 11.00._\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab I._",
+       "objective": {
+        "statement": "Kalian dapat menyebutkan letak astronomis dan batas-batas Indonesia serta menjelaskan pengaruhnya terhadap iklim dan zona waktu.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pulau yang menjadi batas wilayah paling utara Indonesia adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "Pulau Rote",
+           "is_correct": false,
+           "rationale": "Pulau Rote (11° 15' LS) adalah batas paling selatan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "Pulau We",
+           "is_correct": true,
+           "rationale": "Tepat. Pulau We, pada 6° 08' LU, adalah pulau paling utara di Aceh."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "Pulau Beureuh",
+           "is_correct": false,
+           "rationale": "Pulau Beureuh (95° 45' BT) adalah batas paling barat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "Sungai Fly",
+           "is_correct": false,
+           "rationale": "Sungai Fly (141° 05' BT) adalah batas paling timur."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Saat pukul 08.00 di DKI Jakarta, pukul berapa di Provinsi Papua?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "06.00",
+           "is_correct": false,
+           "rationale": "Selisihnya dikurangkan. Wilayah yang lebih timur jamnya lebih besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "09.00",
+           "is_correct": false,
+           "rationale": "Papua dianggap WITA. Menurut peta pembagian waktu, Papua memakai WIT."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "10.00",
+           "is_correct": true,
+           "rationale": "Benar. Jakarta WIB (GMT + 7), Papua WIT (GMT + 9): dua jam lebih besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "11.00",
+           "is_correct": false,
+           "rationale": "Selisihnya dianggap tiga jam karena ada tiga zona. Dari WIB ke WIT hanya dua langkah."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pulau Rote, batas paling selatan Indonesia, terletak pada ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "11° 15' LS",
+           "is_correct": true,
+           "rationale": "Benar. Pulau Rote berada pada 11° 15' LS, di Nusa Tenggara Timur."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "6° 08' LU",
+           "is_correct": false,
+           "rationale": "Ini letak Pulau We, batas paling utara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "95° 45' BT",
+           "is_correct": false,
+           "rationale": "Ini letak Pulau Beureuh, batas paling barat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "141° 05' BT",
+           "is_correct": false,
+           "rationale": "Ini letak Sungai Fly, batas paling timur."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Mengapa seluruh wilayah Indonesia beriklim tropis?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "Karena terletak di antara dua benua dan dua samudra",
+           "is_correct": false,
+           "rationale": "Ini letak geografis, yang memengaruhi musim dan lalu lintas dunia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "Karena dilalui dua jalur pegunungan muda dunia",
+           "is_correct": false,
+           "rationale": "Ini letak geologis, yang memengaruhi gunung api dan topografi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "Karena seluruhnya berada di antara 23½° LU dan 23½° LS",
+           "is_correct": true,
+           "rationale": "Tepat. Indonesia (6° LU – 11° LS) berada di dalam jalur iklim tropis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "Karena berada di antara 95° Bujur Timur dan 141° Bujur Timur",
+           "is_correct": false,
+           "rationale": "Bujur menentukan pembagian zona waktu, bukan jalur iklim."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Provinsi manakah yang memakai WITA?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "Kalimantan Barat",
+           "is_correct": false,
+           "rationale": "Kalimantan Barat memakai WIB, berbeda dengan Kalimantan Selatan, Timur, dan Utara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "Maluku",
+           "is_correct": false,
+           "rationale": "Maluku memakai WIT."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "Jawa Timur",
+           "is_correct": false,
+           "rationale": "Seluruh Pulau Jawa memakai WIB."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "Bali",
+           "is_correct": true,
+           "rationale": "Benar. Bali termasuk wilayah WITA (GMT + 8)."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Letak Geografis Indonesia",
+       "summary": "Secara geografis Indonesia terletak di antara dua benua dan dua samudra; letak ini menentukan musim dan menempatkan Indonesia di jalur silang pelayaran dunia.",
+       "body_markdown": "## Di antara dua benua dan dua samudra\n\nSecara geografis, Indonesia terletak di antara:\n- dua benua: **Asia** (di utara) dan **Australia** (di selatan);\n- dua samudra: **Samudra Pasifik** dan **Samudra Hindia**.\n\n## Pengaruh terhadap musim\n\nIndonesia mempunyai dua musim, musim hujan dan musim kemarau. Keduanya terjadi karena angin muson.\n\n- **Angin muson barat laut** bersifat basah dan membawa banyak uap air laut, sehingga mendatangkan **musim hujan**.\n- **Angin muson tenggara** bersifat kering, sehingga mendatangkan **musim kemarau**.\n\nPada peta pergerakan angin, kedua angin ini digambarkan sebagai muson barat dan muson timur yang bergerak berlawanan arah melintasi kepulauan Indonesia.\n\n## Di persimpangan lalu lintas dunia\n\nLetak di antara dua benua dan dua samudra menempatkan Indonesia pada **jalur silang** lalu lintas pelayaran dan perdagangan dunia.\n\n- Posisi silang ini memungkinkan masuknya pengaruh peradaban dan kebudayaan dari negara lain, dalam perdagangan, teknologi, persenjataan, dan bidang lain.\n- Posisi ini juga mendorong potensi Indonesia sebagai **poros maritim dunia**.\n\n## Keuntungan letak geografis\n\n- **Lintas perdagangan internasional.** Indonesia dilalui Selat Sunda dan Selat Karimata, jalur pelayaran dunia yang ramai.\n- **Negara agraris.** Dua angin muson memberi musim hujan dan kemarau, iklim yang cocok untuk berbagai tanaman.\n- **Tanah yang subur.** Curah hujan yang menyebar dari kategori kering sampai sangat basah membantu menciptakan tanah yang subur.\n- **Keberagaman budaya.** Banyak kapal negara luar singgah di Indonesia, sehingga terjadi akulturasi budaya dan suku bangsa.\n\n**Coba pikirkan:** di daerah kalian, musim apa yang datang ketika angin bertiup dari arah tenggara? Bandingkan dengan pengalaman kalian sehari-hari.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab I._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan letak geografis Indonesia serta pengaruhnya terhadap iklim, lalu lintas dunia, ekonomi, dan budaya.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Musim kemarau di Indonesia terjadi karena ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "angin muson barat laut yang mengandung banyak uap air laut",
+           "is_correct": false,
+           "rationale": "Angin muson barat laut bersifat basah dan mendatangkan musim hujan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "angin muson tenggara yang bersifat kering",
+           "is_correct": true,
+           "rationale": "Tepat. Angin muson tenggara bersifat kering sehingga mendatangkan musim kemarau."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "penyinaran matahari sepanjang tahun sekitar 12 jam",
+           "is_correct": false,
+           "rationale": "Penyinaran 12 jam adalah pengaruh letak astronomis terhadap suhu, bukan penyebab musim kemarau."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "dataran tinggi yang beriklim subtropis atau sedang",
+           "is_correct": false,
+           "rationale": "Iklim dataran tinggi adalah pengaruh topografi, bukan penyebab musim kemarau."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua selat di Indonesia yang disebut sebagai jalur pelayaran dunia yang ramai adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "Samudra Pasifik dan Samudra Hindia",
+           "is_correct": false,
+           "rationale": "Keduanya samudra yang mengapit Indonesia, bukan selat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "Dangkalan Sunda dan Dangkalan Sahul",
+           "is_correct": false,
+           "rationale": "Keduanya dangkalan dalam letak geologis, bukan selat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "Sirkum Mediterania dan Sirkum Pasifik",
+           "is_correct": false,
+           "rationale": "Keduanya jalur pegunungan muda, bukan selat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "Selat Sunda dan Selat Karimata",
+           "is_correct": true,
+           "rationale": "Tepat. Kedua selat ini menghubungkan Indonesia dengan perairan dunia."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Secara geografis, Indonesia terletak di antara ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "Lempeng Eurasia, Lempeng Indo-Australia, dan Lempeng Pasifik",
+           "is_correct": false,
+           "rationale": "Ketiga lempeng ini termasuk letak geologis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "Benua Asia dan Australia serta Samudra Pasifik dan Hindia",
+           "is_correct": true,
+           "rationale": "Tepat. Dua benua dan dua samudra."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "Sirkum Mediterania dan Sirkum Pasifik",
+           "is_correct": false,
+           "rationale": "Kedua jalur pegunungan muda ini termasuk letak geologis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "6° LU – 11° LS dan 95° BT – 141° BT",
+           "is_correct": false,
+           "rationale": "Ini letak astronomis, menurut garis lintang dan bujur."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut letak geografisnya, apa yang menjadikan Indonesia negara agraris?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "Dilalui dua angin muson yang mengakibatkan dua musim",
+           "is_correct": true,
+           "rationale": "Tepat. Musim hujan dan musim kemarau menjadikan cuaca dan iklim yang cocok untuk pertanian."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "Berada pada jalur silang lalu lintas pelayaran dan perdagangan dunia",
+           "is_correct": false,
+           "rationale": "Ini keuntungan di bidang perdagangan, bukan penyebab negara agraris."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "Banyak kapal negara luar singgah sehingga terjadi akulturasi budaya",
+           "is_correct": false,
+           "rationale": "Ini keuntungan di bidang budaya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "Ada 127 gunung berapi aktif",
+           "is_correct": false,
+           "rationale": "Gunung api adalah pengaruh letak geologis, bukan letak geografis."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Letak Geologis Indonesia",
+       "summary": "Secara geologis Indonesia dilalui dua jalur pegunungan muda, berada di pertemuan tiga lempeng, dan mencakup dua dangkalan; letak ini membentuk gunung api, topografi yang beragam, dan gempa bumi.",
+       "body_markdown": "## Letak menurut struktur batuan\n\n**Letak geologis** adalah letak suatu negara berdasarkan struktur batu-batuan di dalam bumi. Secara geologis, Indonesia:\n- dilalui **dua jalur pegunungan muda**: Sirkum Mediterania dan Sirkum Pasifik;\n- berada di pertemuan **tiga lempeng**: Lempeng Eurasia, Lempeng Indo-Australia, dan Lempeng Pasifik;\n- mencakup **dua dangkalan**: Dangkalan (Paparan) Sunda dan Dangkalan (Paparan) Sahul.\n\n## Paparan Sunda dan Paparan Sahul\n\n- **Paparan Sunda** berhubungan langsung dengan Benua Asia. Paparan ini meliputi Semenanjung Malaysia, Sumatra, Kalimantan, Jawa, Madura, Bali, dan pulau-pulau kecil di sekitarnya.\n- **Paparan Sahul** terletak di Indonesia bagian timur.\n\n## Busur dalam dan busur luar\n\nKedua jalur pegunungan muda membentuk dua busur di Indonesia.\n\n- **Busur dalam** (inner arc) bersifat **aktif** atau vulkanik. Busur ini memanjang dari Bukit Barisan di Sumatra ke Jawa, Bali, Nusa Tenggara, sampai Maluku, membentuk jalur gunung api. Ada 127 gunung berapi aktif, antara lain Krakatau, Merapi, Bromo, Semeru, Agung, dan Rinjani.\n- **Busur luar** (outer arc) bersifat **tidak aktif**. Busur ini muncul sebagai Pulau Simeulue, Nias, Enggano, dan Kepulauan Mentawai, lalu memanjang di dasar laut pantai barat Sumatra sampai selatan Jawa, dan muncul kembali sebagai Pulau Sawu, Rote, Timor, Babar, Kepulauan Kei, Pulau Seram, dan Pulau Buru.\n\n## Topografi dan iklim\n\nLetak geologis membuat topografi Indonesia kompleks: dataran rendah, dataran tinggi, gunung, dan pegunungan.\n\nTopografi yang beragam membuat iklimnya pun beragam:\n- dataran rendah beriklim tropis, rata-rata suhunya hangat;\n- dataran tinggi, gunung, dan pegunungan beriklim subtropis atau sedang, suhunya sejuk atau dingin.\n\nKeragaman iklim ini memunculkan beragam budi daya pertanian dan wisata.\n\n## Gempa bumi\n\n- Dari tahun 2009 sampai 2019 tercatat 71.628 kejadian gempa. Rata-ratanya 6.512 kali setahun, 543 kali sebulan, dan 18 kali sehari.\n- Provinsi dengan gempa terbanyak adalah Maluku, diikuti Sulawesi Tengah, Maluku Utara, Nusa Tenggara Barat, dan Nusa Tenggara Timur.\n- Kalimantan termasuk wilayah yang jarang mengalami gempa bumi.\n- Menurut data BNPB tahun 2020, tercatat 29 kejadian gempa bumi di Indonesia.\n\n**Coba:** 71.628 kejadian dalam 11 tahun (2009 sampai 2019). Berapa rata-ratanya setahun?\n_Periksa: 71.628 : 11 ≈ 6.512 kejadian._\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab I._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan letak geologis Indonesia dan pengaruhnya terhadap gunung api, topografi, iklim, dan gempa bumi.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dangkalan yang berhubungan langsung dengan Benua Asia adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "Paparan Sahul",
+           "is_correct": false,
+           "rationale": "Paparan Sahul terletak di Indonesia bagian timur."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "Sirkum Mediterania",
+           "is_correct": false,
+           "rationale": "Sirkum Mediterania adalah jalur pegunungan muda, bukan dangkalan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "Lempeng Eurasia",
+           "is_correct": false,
+           "rationale": "Lempeng Eurasia adalah salah satu dari tiga lempeng, bukan dangkalan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "Paparan Sunda",
+           "is_correct": true,
+           "rationale": "Tepat. Paparan Sunda berhubungan langsung dengan Benua Asia, meliputi Sumatra, Kalimantan, Jawa, dan Bali."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pulau manakah yang merupakan bagian pegunungan busur luar yang tidak aktif?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "Pulau Bali",
+           "is_correct": false,
+           "rationale": "Bali berada pada busur dalam yang aktif (vulkanik)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "Pulau Jawa",
+           "is_correct": false,
+           "rationale": "Jawa berada pada busur dalam yang aktif, dengan gunung seperti Merapi, Bromo, dan Semeru."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "Pulau Nias",
+           "is_correct": true,
+           "rationale": "Tepat. Busur luar muncul sebagai Pulau Simeulue, Nias, Enggano, dan Kepulauan Mentawai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "Pulau Madura",
+           "is_correct": false,
+           "rationale": "Madura disebut buku sebagai bagian Paparan Sunda, bukan busur luar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut buku, provinsi dengan kejadian gempa bumi terbanyak adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "Sulawesi Tengah",
+           "is_correct": false,
+           "rationale": "Sulawesi Tengah berada di urutan kedua."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "Nusa Tenggara Timur",
+           "is_correct": false,
+           "rationale": "Nusa Tenggara Timur berada di urutan kelima."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "Kalimantan",
+           "is_correct": false,
+           "rationale": "Kalimantan justru termasuk yang jarang mengalami gempa bumi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "Maluku",
+           "is_correct": true,
+           "rationale": "Benar. Maluku diikuti Sulawesi Tengah, Maluku Utara, Nusa Tenggara Barat, dan Nusa Tenggara Timur."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dari tahun 2009 sampai 2019, rata-rata kejadian gempa di Indonesia setiap hari adalah ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "543 kejadian",
+           "is_correct": false,
+           "rationale": "Ini rata-rata setiap bulan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "18 kejadian",
+           "is_correct": true,
+           "rationale": "Benar. Rata-rata 6.512 kali setahun, 543 kali sebulan, dan 18 kali sehari."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "6.512 kejadian",
+           "is_correct": false,
+           "rationale": "Ini rata-rata setiap tahun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "29 kejadian",
+           "is_correct": false,
+           "rationale": "Ini jumlah gempa menurut data BNPB tahun 2020, bukan rata-rata harian 2009 sampai 2019."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bagaimana iklim di dataran tinggi, gunung, dan pegunungan Indonesia?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "Tropis dengan rata-rata suhu yang hangat",
+           "is_correct": false,
+           "rationale": "Ini iklim dataran rendah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "Tropis dengan kelembapan udara yang tinggi",
+           "is_correct": false,
+           "rationale": "Ini gambaran umum iklim Indonesia karena letak astronomisnya, bukan iklim khusus dataran tinggi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "Subtropis atau sedang, sejuk atau dingin",
+           "is_correct": true,
+           "rationale": "Tepat. Topografi yang beragam membuat iklim bervariasi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "Kering karena angin muson tenggara",
+           "is_correct": false,
+           "rationale": "Angin muson tenggara mendatangkan musim kemarau di seluruh Indonesia, bukan iklim khusus dataran tinggi."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Pengertian dan Klasifikasi Sumber Daya Alam",
+       "summary": "Sumber daya alam dapat dikelompokkan menurut jenisnya (hayati dan nonhayati), sifatnya (dapat dan tidak dapat diperbarui), dan potensinya (materi, energi, dan ruang).",
+       "body_markdown": "## Pengertian\n\nSegala sesuatu di alam yang dapat dimanfaatkan untuk memenuhi kebutuhan dan kesejahteraan manusia disebut **sumber daya alam** (SDA).\n\nSDA dapat dikelompokkan dengan tiga cara: menurut **jenis**, **sifat**, dan **potensinya**. Satu SDA dapat masuk ke tiga kelompok sekaligus, satu dari setiap cara.\n\n## Menurut jenisnya\n\n- **SDA nonhayati (abiotik)**: SDA fisik yang berbentuk benda mati. Contohnya mineral, batuan, udara, air, dan tanah. Sebagian dapat diperbarui (air dan udara), sebagian tidak (mineral).\n- **SDA hayati (biotik)**: makhluk hidup, yaitu tumbuhan dan hewan. Contohnya tanaman pertanian, hewan liar, pakan ternak, hutan, dan hewan peliharaan.\n\nSDA hayati dapat terus beregenerasi selama kondisi lingkungan tetap baik. Karena itu SDA hayati termasuk SDA yang dapat diperbarui.\n\n## Menurut sifatnya\n\n- **Dapat diperbarui** (renewable resources): mampu beregenerasi. Bila persediaannya habis, dalam waktu singkat dapat diproduksi kembali. Contohnya air, energi matahari, dan angin (abiotik), serta hewan dan tumbuhan (biotik).\n- **Tidak dapat diperbarui** (unrenewable resources): akan habis dan tidak tersedia lagi setelah dipakai selama kurun waktu tertentu. Contohnya batu bara, nikel, bijih besi, gas alam cair (LPG), minyak bumi, dan emas.\n\n## Menurut potensinya\n\n- **SDA materi**: dimanfaatkan bentuk fisiknya, seperti kayu, emas, besi, dan batu.\n- **SDA energi**: dimanfaatkan energinya, seperti energi pasang surut, sinar matahari, gas bumi, dan minyak bumi.\n- **SDA ruang**: berbentuk ruang, dipakai untuk tempat tinggal dan beraktivitas, seperti ruang dataran, pesisir, sabana, dan pegunungan.\n\n**Coba:** kelompokkan emas menurut sifat dan potensinya.\n_Periksa: tidak dapat diperbarui, dan SDA materi (dimanfaatkan bentuk fisiknya)._\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab I._",
+       "objective": {
+        "statement": "Kalian dapat mengelompokkan sumber daya alam menurut jenis, sifat, dan potensinya beserta contohnya.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut potensinya, sumber daya alam manakah yang dimanfaatkan energinya?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "gas bumi",
+           "is_correct": true,
+           "rationale": "Tepat. Gas bumi termasuk SDA energi, bersama energi pasang surut, sinar matahari, dan minyak bumi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "kayu",
+           "is_correct": false,
+           "rationale": "Kayu dimanfaatkan bentuk fisiknya, jadi termasuk SDA materi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "emas",
+           "is_correct": false,
+           "rationale": "Emas dimanfaatkan bentuk fisiknya, jadi termasuk SDA materi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "ruang pesisir",
+           "is_correct": false,
+           "rationale": "Ruang pesisir dipakai untuk tempat tinggal dan beraktivitas, jadi termasuk SDA ruang."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Manakah yang termasuk SDA nonhayati yang dapat diperbarui?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "mineral",
+           "is_correct": false,
+           "rationale": "Mineral memang nonhayati, tetapi tidak dapat diperbarui."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "air",
+           "is_correct": true,
+           "rationale": "Tepat. Air adalah benda mati (abiotik) dan termasuk SDA yang dapat diperbarui."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "hewan peliharaan",
+           "is_correct": false,
+           "rationale": "Hewan peliharaan dapat diperbarui, tetapi termasuk SDA hayati (makhluk hidup)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "emas",
+           "is_correct": false,
+           "rationale": "Emas nonhayati, tetapi termasuk SDA yang tidak dapat diperbarui."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "SDA hayati termasuk SDA yang dapat diperbarui karena ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "dapat terus meregenerasi selama lingkungan baik",
+           "is_correct": true,
+           "rationale": "Tepat. Tumbuhan dan hewan dapat terus berkembang biak dan berproduksi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "berbentuk benda mati di lingkungan kita",
+           "is_correct": false,
+           "rationale": "Ini ciri SDA nonhayati (abiotik)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "akan habis setelah dipakai selama kurun waktu tertentu",
+           "is_correct": false,
+           "rationale": "Ini ciri SDA yang tidak dapat diperbarui."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "dapat dimanfaatkan bentuk fisiknya",
+           "is_correct": false,
+           "rationale": "Ini ciri SDA materi, pengelompokan menurut potensi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut potensinya, sinar matahari termasuk SDA ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "materi",
+           "is_correct": false,
+           "rationale": "SDA materi dimanfaatkan bentuk fisiknya, seperti kayu, emas, besi, dan batu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "ruang",
+           "is_correct": false,
+           "rationale": "SDA ruang dipakai untuk tempat tinggal dan beraktivitas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "hayati",
+           "is_correct": false,
+           "rationale": "Hayati adalah pengelompokan menurut jenis (makhluk hidup); sinar matahari bukan makhluk hidup."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "energi",
+           "is_correct": true,
+           "rationale": "Benar. Yang dimanfaatkan dari sinar matahari adalah energinya."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Potensi Hutan dan Laut Indonesia",
+       "summary": "Indonesia memiliki hutan tropis terluas di dunia setelah Brazil dan laut yang luas dengan mangrove, perikanan, dan terumbu karang terluas di dunia.",
+       "body_markdown": "## Hutan\n\nIndonesia adalah salah satu negara dengan **hutan tropis terluas di dunia setelah Brazil**. Hutan tidak hanya menghasilkan kayu, tetapi juga menyediakan udara yang kaya oksigen, air tawar yang jernih, dan plasma nutfah untuk bahan obat-obatan.\n\nMenurut data BPS (databoks, 2023), tutupan hutan Indonesia seluas 101,22 juta hektare:\n- Papua 32,9 juta hektare, yang terluas;\n- Kalimantan 28,5 juta hektare;\n- Sumatra 16 juta hektare;\n- Sulawesi 11,6 juta hektare;\n- Maluku 6,8 juta hektare;\n- Bali-Nusa Tenggara 2,7 juta hektare;\n- Jawa 1,6 juta hektare, yang tersempit.\n\n## Hutan menurut fungsinya\n\n- **Hutan konservasi**: fungsi pokoknya pengawetan keanekaragaman tumbuhan dan satwa beserta ekosistemnya. Termasuk di dalamnya kawasan suaka alam, kawasan pelestarian alam, dan taman buru (kawasan untuk wisata berburu).\n- **Hutan lindung**: fungsi pokoknya melindungi sistem penyangga kehidupan, yaitu mengatur tata air, mencegah banjir, mengendalikan erosi, mencegah intrusi air laut, dan memelihara kesuburan tanah.\n- **Hutan produksi**: fungsinya memproduksi hasil hutan seperti kayu, rotan, dan gaharu.\n\n## Laut\n\nSebagian besar wilayah Indonesia berupa laut seluas 5,9 juta km², dengan garis pantai sepanjang 95.161 km (Arianto, 2020). Dua pertiga wilayah Indonesia adalah lautan, dan garis pantainya terpanjang kedua di dunia setelah Kanada.\n\nPotensi SDA laut ada dua jenis:\n- dapat diperbarui: potensi kelautan, hutan mangrove, dan potensi bioteknologi;\n- tidak dapat diperbarui: tambang dasar laut seperti aluminium, mangan, tembaga, dan timah.\n\n## Mangrove dan perikanan\n\n**Hutan mangrove** tumbuh di sepanjang pantai (estuari) daerah tropis yang dipengaruhi pasang surut air laut. Mangrove terbesar di Indonesia ada di Papua. Fungsinya:\n- ekologis: mencegah erosi dan abrasi, mengolah limbah beracun;\n- ekonomis: sumber kayu, tempat wisata, bahan bangunan;\n- biologis: sumber plasma nutfah, tempat pemijahan dan perkembangbiakan ikan, kerang, kepiting, dan burung.\n\n**Perikanan:** ikan pelagis besar, tuna, dan cakalang banyak ditemukan di Indonesia bagian timur; ikan pelagis kecil di bagian barat. Bandeng dan udang banyak dibudidayakan masyarakat pesisir.\n\n## Terumbu karang\n\nTerumbu karang terluas di dunia ada di Indonesia, dengan 590 jenis karang, 2.500 jenis moluska, 1.500 jenis udang-udangan, dan 2.500 jenis ikan.\n\nFungsinya:\n- ekologis: benteng pelindung pesisir dan pencegah abrasi dari gelombang laut;\n- ekonomi: pendapatan keluarga melalui pariwisata;\n- ketahanan pangan: makanan tambahan yang mengandung protein.\n\nTerumbu karang banyak tersebar di Indonesia bagian tengah dan timur (Papua, Sulawesi, Lombok, Bali), juga di pantai barat dan ujung Sumatra serta Kepulauan Riau.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab I._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan potensi dan sebaran sumber daya hutan dan laut Indonesia.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Hutan yang fungsi pokoknya mengatur tata air, mencegah banjir, dan mencegah intrusi air laut disebut ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "hutan konservasi",
+           "is_correct": false,
+           "rationale": "Fungsi pokok hutan konservasi adalah pengawetan keanekaragaman tumbuhan dan satwa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "hutan produksi",
+           "is_correct": false,
+           "rationale": "Hutan produksi berfungsi memproduksi hasil hutan seperti kayu, rotan, dan gaharu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "taman buru",
+           "is_correct": false,
+           "rationale": "Taman buru adalah kawasan hutan untuk wisata berburu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "hutan lindung",
+           "is_correct": true,
+           "rationale": "Tepat. Hutan lindung melindungi sistem penyangga kehidupan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut data BPS (databoks, 2023), wilayah dengan tutupan hutan terluas di Indonesia adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "Kalimantan",
+           "is_correct": false,
+           "rationale": "Kalimantan di urutan kedua, 28,5 juta hektare."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "Sumatra",
+           "is_correct": false,
+           "rationale": "Sumatra di urutan ketiga, 16 juta hektare."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "Papua",
+           "is_correct": true,
+           "rationale": "Benar. Papua memiliki tutupan hutan 32,9 juta hektare."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "Jawa",
+           "is_correct": false,
+           "rationale": "Jawa justru yang tersempit, 1,6 juta hektare."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Secara ekonomis, hutan mangrove dapat dimanfaatkan sebagai ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "mencegah erosi dan abrasi air laut",
+           "is_correct": false,
+           "rationale": "Ini fungsi ekologis mangrove."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "sumber penghasil kayu dan tempat wisata",
+           "is_correct": true,
+           "rationale": "Tepat. Juga sebagai bahan bangunan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "tempat pemijahan dan perkembangbiakan ikan",
+           "is_correct": false,
+           "rationale": "Ini fungsi biologis mangrove."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "sumber plasma nutfah",
+           "is_correct": false,
+           "rationale": "Ini fungsi biologis mangrove."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Terumbu karang sebagai benteng pelindung pesisir dari gelombang laut menjalankan fungsi ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "ekologis",
+           "is_correct": true,
+           "rationale": "Benar. Benteng pesisir dan pencegahan abrasi adalah fungsi ekologis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "ekonomi",
+           "is_correct": false,
+           "rationale": "Fungsi ekonomi terumbu karang adalah pendapatan keluarga melalui pariwisata."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "ketahanan pangan",
+           "is_correct": false,
+           "rationale": "Fungsi ketahanan pangan adalah makanan tambahan yang mengandung protein."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "biologis",
+           "is_correct": false,
+           "rationale": "Fungsi biologis disebut buku untuk mangrove, misalnya tempat pemijahan ikan."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Potensi dan Sebaran Bahan Tambang",
+       "summary": "Bahan galian dibagi dalam golongan A, B, dan C; Indonesia kaya minyak bumi, gas bumi, batu bara, nikel, bijih besi, bauksit, emas, tembaga, dan timah yang tersebar di berbagai wilayah.",
+       "body_markdown": "## Pertambangan dan golongan bahan galian\n\n**Pertambangan** adalah kegiatan mengambil endapan bahan galian yang berharga dan bernilai ekonomis dari dalam kulit bumi, baik secara mekanis maupun manual.\n\nBahan galian dibagi dalam tiga golongan:\n- **Golongan A**: untuk pertahanan, keamanan, dan perekonomian negara, seperti minyak bumi, batu bara, dan gas alam.\n- **Golongan B**: strategis untuk menjamin kepentingan hidup orang banyak, seperti besi, mangan, dan tembaga.\n- **Golongan C**: bukan golongan A atau B, dan mudah didapat, seperti marmer, pasir, dan pasir kuarsa.\n\n## Minyak bumi dan gas bumi\n\n**Minyak bumi.** Menurut teori organik, minyak bumi terbentuk dari pelapukan dan penguraian mikroorganisme laut jutaan tahun lalu dalam batuan berpori secara anaerob. Menurut teori anorganik, minyak bumi berasal dari reaksi karbit dengan air yang menghasilkan asetilen.\n- Produksi tahun 2023 sekitar 605 ribu barel per hari, sedangkan kebutuhan konsumsi lebih dari 1,3 juta barel. Kekurangannya diimpor, terutama dari kawasan Timur Tengah.\n- Sebarannya antara lain di Sumatra (Riau, Sumatra Selatan), Jawa (Cepu, Cilacap, Wonokromo), Kalimantan (Tarakan, Balikpapan), Maluku (Seram), dan Papua (Klamono, Sorong, Babo).\n\n**Gas bumi** berasal dari fosil tanaman, hewan, dan mikroorganisme yang tersimpan di bawah tanah selama ribuan sampai jutaan tahun.\n- 85% cadangan gas bumi berada di wilayah timur Indonesia. Cadangan terbesar ada di Natuna, Papua, Maluku, dan Kalimantan.\n- CNG banyak dipakai untuk gas industri, LNG sebagai bahan bakar, dan LPG untuk memasak di rumah tangga.\n\n## Batu bara\n\nBatu bara terbentuk dari fosil tumbuhan yang tertimbun dalam cekungan berisi air selama jutaan tahun, tanpa oksigen (anaerob).\n- Batu bara banyak dihasilkan di Sumatra dan Kalimantan; sebagian kecil di Sulawesi, Maluku, dan Papua.\n- Cadangannya peringkat ke-4 di Asia Pasifik, setelah Australia, Cina, dan India.\n- Produksinya terus naik: 461.087.221 ton (2017), 557.983.706 ton (2018), 616.154.054 ton (2019), dan 775 juta ton (2023).\n\n## Nikel, bijih besi, dan bauksit\n\n- **Nikel.** Produksi nikel Indonesia tertinggi di dunia, 1,6 juta metrik ton, atau 48,48% dari produksi nikel dunia (diperkirakan 3,3 juta metrik ton pada 2022). Cadangan nikel Indonesia dan Australia masing-masing 21% dari cadangan global. Tambang nikel ada di Halmahera Timur (Maluku Utara), Morowali (Sulawesi Tengah), Pulau Obi (Maluku Utara), dan Pulau Gag (Raja Ampat).\n- **Bijih besi.** Sumber dayanya sekitar 1 miliar ton. Penambangan skala besar banyak dilakukan di Kalimantan Selatan.\n- **Bauksit** adalah bijih utama untuk memproduksi logam aluminium. Kalimantan Barat menghasilkan 66,77% produksi nasional; Kepulauan Riau berpotensi sekitar 180,97 juta ton; Sigembir di Bangka Belitung termasuk daerah produksi terbesar.\n\n## Emas, tembaga, dan timah\n\n- **Emas** terbentuk karena proses magmatisme. Pada 2023 cadangan emas Indonesia 2.600 metrik ton, atau 4,4% dari cadangan dunia (59.000 metrik ton), terbesar keenam di dunia. Penghasil terbesar adalah Papua, dengan produksi 60 ton pada 2022.\n- **Tembaga.** Penghasil terbesar berada di Mimika, Papua (PT Freeport Indonesia).\n- **Timah.** Cadangan timah Indonesia terbesar kedua setelah Cina. Penghasil timah terbesar adalah Provinsi Kepulauan Bangka Belitung; penghasil lainnya Riau, Kepulauan Riau, dan Kalimantan Barat.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab I._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan golongan bahan galian serta potensi dan sebaran bahan tambang utama di Indonesia.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Provinsi yang menghasilkan 66,77% produksi bauksit nasional adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "Kalimantan Barat",
+           "is_correct": true,
+           "rationale": "Tepat. Contohnya Kabupaten Sanggau dan Tayan dengan cadangan besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "Kepulauan Riau",
+           "is_correct": false,
+           "rationale": "Kepulauan Riau berpotensi bauksit sekitar 180,97 juta ton, tetapi bukan penghasil 66,77%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "Bangka Belitung",
+           "is_correct": false,
+           "rationale": "Sigembir di Bangka Belitung termasuk daerah produksi bauksit terbesar, tetapi bukan 66,77% produksi nasional."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "Kalimantan Selatan",
+           "is_correct": false,
+           "rationale": "Kalimantan Selatan dikenal sebagai daerah penambangan bijih besi skala besar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bahan galian golongan C, yang mudah didapatkan, contohnya ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "minyak bumi, batu bara, dan gas alam",
+           "is_correct": false,
+           "rationale": "Ini golongan A, untuk pertahanan, keamanan, dan perekonomian negara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "besi, mangan, dan tembaga",
+           "is_correct": false,
+           "rationale": "Ini golongan B, strategis untuk kepentingan hidup orang banyak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "alumunium, mangan, tembaga, dan timah di dasar laut",
+           "is_correct": false,
+           "rationale": "Ini contoh tambang dasar laut yang tidak dapat diperbarui, bukan golongan C."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "marmer, pasir, dan pasir kuarsa",
+           "is_correct": true,
+           "rationale": "Benar. Golongan C bukan golongan A atau B dan mudah didapatkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut teori organik, minyak bumi terbentuk dari ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "reaksi karbit dengan air yang menghasilkan asetilen",
+           "is_correct": false,
+           "rationale": "Ini teori anorganik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "fosil tumbuhan yang tertimbun pada cekungan berisi air",
+           "is_correct": false,
+           "rationale": "Ini proses terbentuknya batu bara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "penguraian mikroorganisme laut secara anaerob",
+           "is_correct": true,
+           "rationale": "Tepat. Prosesnya terjadi dalam batuan berpori selama jutaan tahun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "proses magmatisme",
+           "is_correct": false,
+           "rationale": "Ini proses terbentuknya emas."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Produksi nikel Indonesia, yang tertinggi di dunia, menyumbang berapa persen produksi nikel dunia?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "21%",
+           "is_correct": false,
+           "rationale": "21% adalah bagian Indonesia dari cadangan nikel global, bukan produksi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "48,48%",
+           "is_correct": true,
+           "rationale": "Benar. 1,6 juta dari 3,3 juta metrik ton."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "4,4%",
+           "is_correct": false,
+           "rationale": "4,4% adalah bagian cadangan emas Indonesia dari cadangan emas dunia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "66,77%",
+           "is_correct": false,
+           "rationale": "66,77% adalah bagian Kalimantan Barat dari produksi bauksit nasional."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Wilayah penghasil timah terbesar di Indonesia adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "Kepulauan Bangka Belitung",
+           "is_correct": true,
+           "rationale": "Benar. Di sana berada PT Timah Tbk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "Mimika, Papua",
+           "is_correct": false,
+           "rationale": "Mimika adalah penghasil tembaga terbesar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "Halmahera Timur di Maluku Utara",
+           "is_correct": false,
+           "rationale": "Halmahera Timur adalah lokasi tambang nikel."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "Kalimantan Selatan",
+           "is_correct": false,
+           "rationale": "Kalimantan Selatan adalah daerah penambangan bijih besi skala besar."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 8
+       },
+       "ordinal": "7",
+       "title": "Pengelolaan Sumber Daya Alam yang Berkelanjutan",
+       "summary": "Sumber daya alam dikelola dengan prinsip berkelanjutan di bidang kehutanan, pertanian, pertambangan, industri, kelautan, dan pariwisata.",
+       "body_markdown": "## Kehutanan dan pertanian\n\n**Kehutanan berkelanjutan.** Hutan penting secara hidrologis, klimatologis, litologis, dan sebagai persediaan kayu. Prinsip pengelolaannya antara lain:\n- kebijakan yang memadukan ekologi dan ekonomi;\n- kebijakan untuk menekan jumlah produksi agar SDA tetap ada untuk masa depan;\n- pendekatan multidisiplin dalam perencanaan wilayah dan tata guna lahan;\n- kegiatan inventarisasi, perencanaan, implementasi, dan pengawasan.\n\n**Pertanian berkelanjutan.** Produksi pertanian ditingkatkan dengan dua cara:\n- **intensifikasi**: cara modern dan produktif, seperti benih unggul, pemeliharaan yang baik, pemupukan yang tepat, dan pemberantasan hama terpadu;\n- **ekstensifikasi**: memperluas lahan, seperti membuka lahan baru melalui program transmigrasi.\n\n## Pertambangan dan industri\n\n**Pertambangan berkelanjutan** memerhatikan dampak ekonomi, kesehatan, sosial, dan lingkungan; melibatkan perempuan, masyarakat lokal, dan masyarakat adat; serta menaati hukum dan etika bisnis. Bekas tambang dipulihkan, misalnya dengan reboisasi.\n\n**Industri berkelanjutan** terwujud bila ada kombinasi yang seimbang antara faktor ekonomi, sosial, dan lingkungan. Hambatan negara berkembang antara lain pemanfaatan SDA yang belum optimal dan kurangnya dukungan pemerintah terhadap pembangunan berkelanjutan.\n\n## Kelautan berkelanjutan\n\nProduksi kelautan dapat menurun karena kesalahan pengelolaan ikan. Kegiatan pengelolaan perikanan:\n- melestarikan anak ikan: melarang menangkap ikan yang belum dewasa, dengan ukuran jaring yang ditentukan;\n- sistem kuota: menentukan bagian perairan yang boleh diambil ikannya pada musim tertentu;\n- menutup musim penangkapan: agar jumlah induk ikan tidak berkurang dan pemijahan tidak terganggu;\n- menutup daerah perikanan: melarang menangkap ikan di daerah pemijahan dan pembesaran, terutama yang populasinya menurun.\n\n## Pariwisata berkelanjutan\n\nManfaat pariwisata berkelanjutan:\n- keseimbangan dan kelestarian lingkungan budaya dan alam setempat;\n- meningkatnya rasa peduli masyarakat terhadap lingkungan;\n- meningkatnya devisa negara dari wisatawan asing;\n- meluasnya lapangan kerja;\n- meningkatnya pendapatan masyarakat dan pajak daerah, sehingga pendapatan asli daerah meningkat;\n- pembangunan daerah yang menunjang pariwisata.\n\n## Rangkuman Bab 1\n\n- Letak astronomis (6° LU – 11° LS, 95° BT – 141° BT) membuat Indonesia beriklim tropis dan memiliki tiga zona waktu.\n- Letak geografis (dua benua, dua samudra) memberi dua musim dan posisi silang lalu lintas dunia.\n- Letak geologis (dua jalur pegunungan, tiga lempeng, dua dangkalan) memberi gunung api, topografi beragam, dan gempa bumi.\n- SDA dikelompokkan menurut jenis, sifat, dan potensinya.\n- Hutan, laut, dan bahan tambang Indonesia sangat kaya dan tersebar luas.\n- SDA harus dikelola secara berkelanjutan agar dapat dimanfaatkan dalam jangka waktu yang lama.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab I._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan prinsip dan cara pengelolaan sumber daya alam yang berkelanjutan di berbagai bidang.",
+        "bloom": "EVALUATE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Peningkatan produksi pertanian dengan cara memperluas lahan disebut ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "intensifikasi pertanian",
+           "is_correct": false,
+           "rationale": "Intensifikasi meningkatkan produksi dengan cara modern di lahan yang ada, seperti benih unggul dan pemupukan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "reboisasi",
+           "is_correct": false,
+           "rationale": "Reboisasi adalah penanaman kembali, misalnya di area bekas tambang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "ekstensifikasi",
+           "is_correct": true,
+           "rationale": "Tepat. Ekstensifikasi memperluas lahan, misalnya membuka lahan baru melalui transmigrasi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "sistem kuota",
+           "is_correct": false,
+           "rationale": "Sistem kuota adalah cara pengelolaan perikanan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dalam pengelolaan perikanan berkelanjutan, menutup musim penangkapan bertujuan ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "agar jumlah induk ikan tidak berkurang",
+           "is_correct": true,
+           "rationale": "Tepat. Juga agar waktu pemijahan dan pembesaran anak ikan tidak terganggu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "menentukan bagian perairan yang boleh diambil ikannya pada musim tertentu",
+           "is_correct": false,
+           "rationale": "Ini sistem kuota."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "larangan penangkapan anak ikan dengan ukuran jaring yang ditentukan",
+           "is_correct": false,
+           "rationale": "Ini cara melestarikan anak ikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "larangan menangkap ikan di daerah pemijahan dan pembesaran ikan",
+           "is_correct": false,
+           "rationale": "Ini menutup daerah perikanan, bukan menutup musim."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Contoh intensifikasi pertanian adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "pembukaan lahan pertanian baru melalui program transmigrasi",
+           "is_correct": false,
+           "rationale": "Ini ekstensifikasi, memperluas lahan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "kegiatan inventarisasi, perencanaan, implementasi, dan pengawasan",
+           "is_correct": false,
+           "rationale": "Ini aktivitas pengelolaan hutan berkelanjutan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "benih unggul, pemupukan tepat, dan pemberantasan hama",
+           "is_correct": true,
+           "rationale": "Tepat. Intensifikasi meningkatkan produksi dengan cara modern dan produktif."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "sistem kuota dengan menentukan bagian perairan",
+           "is_correct": false,
+           "rationale": "Ini cara pengelolaan perikanan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "LT19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Industri berkelanjutan akan terwujud apabila ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "pendapatan masyarakat dan penerimaan pajak bagi pemerintah daerah meningkat",
+           "is_correct": false,
+           "rationale": "Ini manfaat pariwisata berkelanjutan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "terdapat kombinasi yang seimbang dari ketiga faktor yang terpengaruh",
+           "is_correct": true,
+           "rationale": "Tepat. Ketiga faktor itu adalah ekonomi, sosial, dan lingkungan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "kegiatan inventarisasi, perencanaan, implementasi, dan pengawasan hutan",
+           "is_correct": false,
+           "rationale": "Ini aktivitas pengelolaan hutan berkelanjutan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "sistem kuota perairan disertai kontrol yang baik",
+           "is_correct": false,
+           "rationale": "Ini cara pengelolaan perikanan."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
