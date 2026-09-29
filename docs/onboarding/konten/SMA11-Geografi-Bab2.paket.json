@@ -1,0 +1,1718 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Geografi Kelas XI · Bab 2: Keragaman Hayati Indonesia dan Dunia",
+   "subject": "Geografi",
+   "stage": "SMA",
+   "grade_label": "Kelas XI",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Keragaman Hayati Indonesia dan Dunia",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Pengertian dan Arti Penting Flora dan Fauna",
+       "summary": "Flora adalah alam tumbuhan dan fauna alam hewan; flora dan fauna endemik hanya ada di wilayah tertentu, dan keduanya penting bagi pangan, kesehatan, ekonomi, dan keseimbangan ekosistem.",
+       "body_markdown": "## Flora, fauna, dan endemik\n\n- **Flora** berasal dari bahasa Latin yang berarti alam tumbuhan, yaitu sekelompok tanaman atau tumbuhan.\n- **Fauna** berasal dari bahasa Latin yang berarti alam hewan, yaitu segala jenis hewan yang hidup di dunia.\n\n**Flora endemik** adalah jenis tumbuhan yang tidak dijumpai di wilayah lain, misalnya bunga melati, flora endemik Jawa. Setiap daerah mempunyai iklim, cuaca, dan tanah yang berbeda, sehingga tumbuhannya pun khas.\n\n**Fauna endemik** adalah hewan yang hanya ditemukan di wilayah tertentu. Persebarannya alami, tanpa campur tangan manusia. Contohnya:\n- burung cendrawasih, endemik asli Papua;\n- badak bercula satu, endemik Ujung Kulon, Pulau Jawa.\n\n## Sumber bahan makanan\n\nFlora dan fauna bermanfaat di bidang pangan, kesehatan, ilmu pengetahuan, keseimbangan lingkungan, pariwisata, dan ekonomi.\n\n- **Padi** cocok dibudidayakan di Indonesia yang beriklim tropis. Lumbung padi nasional antara lain Jawa Barat, Jawa Tengah, Jawa Timur, Sumatra, Sulawesi Selatan, dan Sumatra Selatan (BPS, 2021).\n- **Sagu** adalah makanan pokok di Indonesia bagian timur, seperti Nusa Tenggara, Maluku, dan Papua. Menurut UP4B (2014), luas sagu dunia 6,5 juta ha; Indonesia memiliki 5,5 juta ha, dan 5,2 juta ha di antaranya berada di Papua dan Papua Barat.\n- Jagung, singkong, ubi jalar, dan kentang ditanam sebagai makanan pokok maupun tambahan.\n\n## Kesehatan dan ekonomi\n\n**Kesehatan.** Menurut catatan WHO, sekitar 20.000 spesies tumbuhan dipakai penduduk dunia sebagai obat. Di Indonesia ada sekitar 1.260 spesies tumbuhan yang secara pasti diketahui berkhasiat obat. Banyak yang ditanam sebagai TOGA (tanaman obat keluarga), seperti jahe, kunyit, sambiloto, temulawak, dan kumis kucing. Eukaliptus adalah bahan utama minyak kayu putih.\n\n**Ekonomi.** Kayu khas Indonesia antara lain jati, mahoni, dan gaharu. Kayu jati sangat diandalkan dalam industri mebel dan harganya mahal karena perlu berusia puluhan tahun.\n\n## Keseimbangan ekosistem\n\nSetiap hewan dan tumbuhan berperan dalam rantai makanan: sebagai konsumen, predator, pengurai, dan sebagainya.\n\nContohnya **harimau**, predator karnivora yang memburu hewan pemakan tumbuhan. Harimau berperan sebagai pengontrol jumlah populasi hewan pemakan tumbuhan.\n\nBila hewan pemakan tumbuhan bertambah drastis, hutan terus dimakan dan tidak dapat beregenerasi. Hutan kehilangan kemampuannya menghasilkan oksigen, dan hewan ternak kekurangan pakan.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab II._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan pengertian flora, fauna, dan endemik serta arti penting flora dan fauna bagi kehidupan.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Badak bercula satu merupakan fauna endemik ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "Pulau Papua",
+           "is_correct": false,
+           "rationale": "Papua adalah asal burung cendrawasih."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "Ujung Kulon, Pulau Jawa",
+           "is_correct": true,
+           "rationale": "Tepat. Badak bercula satu tidak dapat ditemukan di daerah lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "Pulau Komodo dan pulau-pulau kecil di sekitarnya",
+           "is_correct": false,
+           "rationale": "Pulau Komodo dan sekitarnya adalah tempat hidup biawak komodo."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "Pulau Sulawesi",
+           "is_correct": false,
+           "rationale": "Sulawesi adalah tempat hidup anoa."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bunga melati disebut flora endemik Jawa karena ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "berasal dari bahasa latin yang berarti alam tumbuhan",
+           "is_correct": false,
+           "rationale": "Ini arti kata flora, bukan alasan disebut endemik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "banyak tanaman dari Timur Tengah dipindahkan ke Indonesia",
+           "is_correct": false,
+           "rationale": "Ini contoh pengaruh manusia, seperti kurma; tumbuhan endemik tersebar secara alami."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "jenis tumbuhan itu tidak dijumpai di wilayah lain",
+           "is_correct": true,
+           "rationale": "Tepat. Flora endemik suatu daerah tidak dijumpai di wilayah lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "tanaman yang cocok dibudidayakan di Indonesia yang beriklim tropis",
+           "is_correct": false,
+           "rationale": "Ini keterangan tentang padi, bukan pengertian endemik."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Harimau, sebagai predator karnivora, berperan dalam keseimbangan ekosistem sebagai ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "pengontrol populasi hewan pemakan tumbuhan",
+           "is_correct": true,
+           "rationale": "Tepat. Tanpa harimau, hewan pemakan tumbuhan dapat bertambah drastis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "bahan utama untuk minyak kayu putih",
+           "is_correct": false,
+           "rationale": "Ini manfaat eukaliptus di bidang kesehatan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "kayu yang sangat diandalkan dalam industri mebel",
+           "is_correct": false,
+           "rationale": "Ini manfaat ekonomi kayu jati."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "makanan pokok di Indonesia bagian timur",
+           "is_correct": false,
+           "rationale": "Ini manfaat sagu sebagai sumber pangan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa spesies tumbuhan di Indonesia yang secara pasti diketahui berkhasiat sebagai obat?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "sekitar 20.000 spesies",
+           "is_correct": false,
+           "rationale": "Ini jumlah tumbuhan yang dipakai penduduk dunia sebagai obat menurut WHO."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "1.252 jenis",
+           "is_correct": false,
+           "rationale": "Ini jumlah jenis tumbuhan Indonesia dalam daftar merah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "sekitar 1.260 spesies",
+           "is_correct": true,
+           "rationale": "Benar. Banyak yang ditanam sebagai TOGA."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "4.000 jenis",
+           "is_correct": false,
+           "rationale": "Ini jumlah jenis tanaman anggrek di Indonesia."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Ragam dan Permasalahan Flora Fauna Indonesia",
+       "summary": "Indonesia memiliki ragam flora dan fauna yang sangat tinggi, tetapi sebagian menghadapi eksploitasi berlebihan dan ancaman kepunahan.",
+       "body_markdown": "## Negara kepulauan yang beragam\n\nIndonesia adalah negara kepulauan yang luas, beriklim tropis, dan bertopografi bervariasi. Luasnya sekitar 9 juta km², dengan lebih dari 17 ribu pulau.\n\nCurah hujannya pun berbeda:\n- wilayah barat umumnya bercurah hujan tinggi dan beriklim basah;\n- wilayah timur bercurah hujan lebih rendah dan beriklim lebih kering.\n\nVariasi curah hujan, suhu, dan tanah membuat keragaman flora dan faunanya tinggi, bahkan lebih tinggi daripada Amerika Selatan dan Afrika yang juga beriklim tropis. Jenis flora Indonesia lebih dari 10% jenis tumbuhan di seluruh dunia.\n\n## Jumlah spesies\n\nTanaman di Indonesia (LIPI, 2014):\n- Paku-pakuan: 4.000 spesies.\n- Rotan: 322 spesies.\n- Pohon meranti: 400 spesies.\n- Pohon bambu: 122 jenis.\n- Tanaman anggrek: 4.000 jenis.\n\nFauna di Indonesia (LIPI, 2014):\n- Pisces (ikan): 4.000 jenis.\n- Aves (burung): 1.600 jenis.\n- Mamalia: 500 jenis.\n- Reptilia dan amfibi: 1.000 jenis.\n- Insecta (serangga): 200.000 jenis, yang terbanyak.\n\n## Eksploitasi berlebihan\n\n**Eksploitasi berlebihan** (overeksploitasi) adalah pengambilan sumber daya terbarukan sampai sumber daya itu berkurang. Contohnya pada tanaman obat liar, padang rumput, cadangan ikan, hutan, dan cadangan air.\n\nTumbuhan dan hewan yang indah dan langka diburu kolektor. Contohnya penyelundupan kakatua jambul kuning dari Papua ke Surabaya yang berhasil digagalkan.\n\n## Ancaman kepunahan\n\nJumlah flora dan fauna Indonesia terus menyusut, terutama karena **pertumbuhan penduduk yang begitu cepat**: permukiman mengurangi lahan, industri merusak lingkungan, dan hutan ditebang tanpa perhitungan.\n\n- Sebanyak 1.252 jenis tumbuhan Indonesia masuk daftar merah sebagai flora yang akan punah. Jenis yang kritis antara lain tengkawang dan plalar.\n- Populasi harimau Sumatra diperkirakan kurang dari 400 ekor (DLHK DIY, 2019), dan setiap bulan tidak kurang dari 14 ekor dibunuh pemburu.\n- Badak bercula satu di Ujung Kulon tinggal sekitar 50 ekor, dan pesut Mahakam sekitar 50 ekor.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab II._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan keragaman flora dan fauna Indonesia serta permasalahan yang dihadapinya.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut buku, jumlah flora dan fauna Indonesia dari tahun ke tahun semakin menyusut terutama karena ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "pertumbuhan penduduk yang begitu cepat",
+           "is_correct": true,
+           "rationale": "Tepat. Permukiman, industri, dan penebangan hutan mengurangi habitat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "tanah yang memiliki tingkat keasaman tinggi",
+           "is_correct": false,
+           "rationale": "Tanah asam adalah alasan jati tidak tumbuh maksimal di Kalimantan dan Sumatra."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "perbedaan suhu siang dan malam yang sangat tinggi",
+           "is_correct": false,
+           "rationale": "Ini ciri bioma gurun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "curah hujan lebih rendah dan beriklim lebih kering",
+           "is_correct": false,
+           "rationale": "Ini ciri iklim wilayah timur Indonesia, bukan penyebab menyusutnya flora dan fauna."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut LIPI (2014), kelompok fauna Indonesia dengan jumlah jenis terbanyak adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "Pisces (ikan), 4.000",
+           "is_correct": false,
+           "rationale": "Ikan 4.000 jenis, jauh lebih sedikit daripada serangga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "Serangga, 200.000",
+           "is_correct": true,
+           "rationale": "Benar. Jauh lebih banyak daripada kelompok lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "Aves (burung), 1.600",
+           "is_correct": false,
+           "rationale": "Burung 1.600 jenis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "Mamalia, 500",
+           "is_correct": false,
+           "rationale": "Mamalia justru yang paling sedikit, 500 jenis."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut buku, badak bercula satu yang dilindungi di Ujung Kulon saat ini berjumlah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "kurang dari 400 ekor",
+           "is_correct": false,
+           "rationale": "Ini perkiraan populasi harimau Sumatra."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "14 ekor",
+           "is_correct": false,
+           "rationale": "Ini jumlah harimau Sumatra yang mati dibunuh pemburu setiap bulan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "1.252 jenis",
+           "is_correct": false,
+           "rationale": "Ini jumlah jenis tumbuhan Indonesia dalam daftar merah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "sekitar 50 ekor",
+           "is_correct": true,
+           "rationale": "Benar. Pesut Mahakam juga hanya sekitar 50 ekor."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bagaimana curah hujan dan iklim di wilayah barat Indonesia pada umumnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "curah hujan tinggi dan beriklim basah",
+           "is_correct": true,
+           "rationale": "Tepat. Wilayah timur bercurah hujan lebih rendah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "curah hujan lebih rendah dan beriklim lebih kering",
+           "is_correct": false,
+           "rationale": "Ini ciri wilayah timur Indonesia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "kelembapan tinggi dan suhu rata-rata 25 °C",
+           "is_correct": false,
+           "rationale": "Ini ciri bioma hutan tropis secara umum."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "beriklim sedang dengan curah hujan rendah",
+           "is_correct": false,
+           "rationale": "Ini ciri daerah hutan gugur."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Persebaran Bioma Dunia",
+       "summary": "Bioma dikelompokkan menurut vegetasi yang dominan; padang rumput, gurun, tundra, hutan tropis, hutan gugur, dan taiga masing-masing mempunyai iklim dan tumbuhan yang khas.",
+       "body_markdown": "## Apa itu bioma\n\n**Bioma** diklasifikasikan berdasarkan vegetasi yang dominan di suatu wilayah yang luas. Parameternya adalah iklim (suhu dan curah hujan), tanah, dan kondisi geologi.\n\n## Padang rumput\n\nPadang rumput terbentang dari daerah tropika sampai subtropika. Curah hujannya umumnya 250–500 mm/tahun dan tidak teratur, sehingga tumbuhan sulit mengambil air. Tumbuhan yang dapat menyesuaikan diri adalah rumput.\n\n- **Prairie**: di daerah dengan curah hujan yang berimbang dengan musim panas.\n- **Stepa**: terdiri atas rumput-rumput pendek yang diselingi semak belukar.\n- **Sabana**: tanahnya tidak basah dan kering saat kemarau; didominasi rumput dan akasia yang diselingi pohon tinggi.\n\n## Gurun dan tundra\n\n**Gurun.** Curah hujan sekitar 250 mm/tahun atau kurang. Perbedaan suhu siang dan malam (amplitudo harian) sangat tinggi. Tumbuhannya berdaun kecil seperti duri atau tidak berdaun, dan berakar panjang.\n\n**Tundra.** Hanya terdapat di belahan bumi utara, kebanyakan di sekitar kutub utara. Tidak ada pohon tinggi, hanya tanaman pendek seperti semak, dan banyak lumut: sphagnum (lumut gambut) dan lichenes (lumut kerak). Hewannya berbulu tebal, seperti beruang kutub dan rusa kutub.\n\n## Hutan tropis\n\nHutan basah tropika cukup air sepanjang tahun. Pohon utamanya setinggi 20–40 meter dengan kanopi lebat, sehingga dasar hutan gelap. Kelembapannya tinggi dan suhu rata-ratanya 25 °C.\n\nTumbuhan khasnya liana dan epifit: contoh liana adalah **rotan**, contoh epifit adalah **anggrek**.\n\n## Hutan gugur dan taiga\n\n**Hutan gugur** berada di daerah beriklim sedang dengan curah hujan 750–1.000 mm/tahun dan empat musim: semi, panas, gugur, dan dingin.\n\n**Taiga** adalah hutan pohon pinus yang daunnya seperti jarum, misalnya konifer seperti spruce, alder, birch, dan juniper. Taiga banyak terdapat di belahan bumi utara (Siberia Utara, Rusia, Kanada Tengah dan Utara), dengan masa pertumbuhan 3 sampai 6 bulan pada musim panas.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab II._",
+       "objective": {
+        "statement": "Kalian dapat membedakan ciri-ciri bioma padang rumput, gurun, tundra, hutan tropis, hutan gugur, dan taiga.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bioma yang hanya terdapat di belahan bumi utara, di sekitar kutub utara, tanpa pohon tinggi dan dengan banyak lumut adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "taiga",
+           "is_correct": false,
+           "rationale": "Taiga juga di belahan bumi utara, tetapi berupa hutan pohon pinus berdaun jarum."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "gurun",
+           "is_correct": false,
+           "rationale": "Gurun bercurah hujan sekitar 250 mm/tahun atau kurang, dengan tumbuhan berdaun kecil seperti duri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "sabana",
+           "is_correct": false,
+           "rationale": "Sabana didominasi rumput dan akasia yang diselingi pohon tinggi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "tundra",
+           "is_correct": true,
+           "rationale": "Tepat. Lumutnya antara lain sphagnum dan lichenes."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah bioma bercurah hujan sekitar 250 mm/tahun atau kurang, dan perbedaan suhu siang dan malamnya sangat tinggi. Bioma itu adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "padang rumput",
+           "is_correct": false,
+           "rationale": "Curah hujan padang rumput umumnya 250–500 mm/tahun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "hutan gugur",
+           "is_correct": false,
+           "rationale": "Hutan gugur bercurah hujan 750 sampai 1.000 mm/tahun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "hutan tropis",
+           "is_correct": false,
+           "rationale": "Hutan tropis memiliki kelembapan tinggi dan suhu rata-rata 25 °C."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "gurun",
+           "is_correct": true,
+           "rationale": "Tepat. Amplitudo harian gurun sangat tinggi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Di hutan basah tropika, anggrek merupakan contoh tumbuhan ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "liana, seperti rotan",
+           "is_correct": false,
+           "rationale": "Rotan memang contoh liana, tetapi anggrek bukan liana."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "daunnya berbentuk seperti jarum",
+           "is_correct": false,
+           "rationale": "Daun seperti jarum adalah ciri pohon pinus di taiga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "epifit",
+           "is_correct": true,
+           "rationale": "Benar. Sedangkan contoh liana adalah rotan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "berdaun kecil seperti duri",
+           "is_correct": false,
+           "rationale": "Ini ciri tumbuhan gurun."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Vegetasi yang mendominasi sabana adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "rumput-rumput pendek diselingi oleh semak belukar",
+           "is_correct": false,
+           "rationale": "Ini ciri stepa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "rumput dan akasia diselingi dengan pohon tinggi",
+           "is_correct": true,
+           "rationale": "Tepat. Tanah sabana tidak basah dan kering saat kemarau."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "tanaman pendek seperti semak dan banyak lumut",
+           "is_correct": false,
+           "rationale": "Ini ciri tundra."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "hutan pohon pinus yang daunnya berbentuk seperti jarum",
+           "is_correct": false,
+           "rationale": "Ini ciri taiga."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Wilayah Fauna Dunia Menurut Wallace",
+       "summary": "Pada tahun 1876 Alfred Russel Wallace membagi persebaran fauna dunia menjadi delapan wilayah, masing-masing dengan hewan khasnya.",
+       "body_markdown": "## Delapan wilayah\n\nPada tahun 1876, **Alfred Russel Wallace** membagi persebaran fauna dunia menjadi **8 wilayah**: Ethiopian, Palearktik, Oriental, Australian, Neotropikal, Nearktik, Oceanik, dan Antartik.\n\n## Ethiopian dan Palearktik\n\n**Ethiopian** meliputi seluruh benua Afrika, Madagaskar, dan sebagian daratan Arab. Fauna khas Afrika misalnya gajah, singa, citah, dan hyena. Gurun Sahara menjadi pembatas alami antara Ethiopian dan Palearktik.\n\n**Palearktik** adalah zona dengan kawasan paling luas: hampir seluruh Eropa, Rusia, daerah dekat Kutub Utara sampai Pegunungan Himalaya, Kepulauan Inggris sampai Jepang, dan Afrika paling utara. Fauna yang bertahan di lingkungan aslinya antara lain panda di Cina dan unta di Afrika Utara.\n\n## Nearktik dan Neotropikal\n\n**Nearktik** meliputi Amerika Serikat, Amerika Utara dekat kutub utara, dan Greenland. Hewannya antara lain bison, karibu, beruang cokelat, dan rakun.\n\n**Neotropikal** meliputi Amerika Tengah, Amerika Selatan, dan sebagian besar Meksiko. Hewan endemiknya antara lain ikan piranha dan belut listrik di Sungai Amazon, serta llama.\n\n## Oriental dan Australian\n\n**Oriental** meliputi India, Indochina (Kamboja, Laos, Vietnam), dan Indomalayan (Malaysia, Sumatra, Jawa, Kalimantan, Filipina). Fauna Indonesia yang termasuk wilayah ini hanya di Indonesia bagian barat. Hewan khasnya harimau, orangutan, gibbon, rusa, banteng, dan badak bercula satu.\n\n**Australian** meliputi Australia, Selandia Baru, Irian, Maluku, dan pulau-pulau sekitarnya. Hewan khasnya kanguru, koala, dan cocor bebek (mamalia bertelur), serta burung cendrawasih dan kasuari.\n\n## Oceanik dan Antartik\n\n**Oceanik** tersebar di kepulauan Samudra Pasifik. Faunanya hampir sama dengan wilayah Australian; fauna endemiknya kiwi dan sphenodon.\n\n**Antartik** mencakup Kutub Selatan: benua Antartika dan pulau-pulau kecil di sekitarnya. Faunanya antara lain penguin kaisar, anjing laut Weddell, paus biru, dan krill.\n\n**Coba pikirkan:** mengapa iklim, melalui tumbuhan, ikut menentukan hewan apa yang dapat hidup di suatu wilayah?\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab II._",
+       "objective": {
+        "statement": "Kalian dapat menyebutkan delapan wilayah fauna dunia menurut Wallace beserta cakupan dan hewan khasnya.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Wilayah fauna dunia menurut Wallace yang meliputi Amerika Tengah, Amerika Selatan, dan sebagian besar Meksiko adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "Nearktik",
+           "is_correct": false,
+           "rationale": "Nearktik meliputi Amerika Serikat, Amerika Utara dekat kutub utara, dan Greenland."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "Neotropikal",
+           "is_correct": true,
+           "rationale": "Tepat. Hewan endemiknya antara lain piranha dan belut listrik di Sungai Amazon."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "Zona Palearktik",
+           "is_correct": false,
+           "rationale": "Palearktik adalah zona yang paling luas, meliputi hampir seluruh Eropa dan Rusia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "Ethiopian",
+           "is_correct": false,
+           "rationale": "Ethiopian meliputi benua Afrika, Madagaskar, dan sebagian daratan Arab."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut Alfred Russel Wallace (1876), persebaran fauna dunia dibagi menjadi berapa wilayah?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "3 wilayah",
+           "is_correct": false,
+           "rationale": "Tiga wilayah adalah pembagian fauna Indonesia (barat, tengah, timur)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "4 wilayah",
+           "is_correct": false,
+           "rationale": "Empat wilayah adalah pembagian flora Indonesia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "30 wilayah",
+           "is_correct": false,
+           "rationale": "30 adalah jumlah jenis burung cenderawasih yang berada di Indonesia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "8 wilayah",
+           "is_correct": true,
+           "rationale": "Benar. Ethiopian, Palearktik, Oriental, Australian, Neotropikal, Nearktik, Oceanik, dan Antartik."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Wilayah fauna dunia yang meliputi India, Indochina, serta Indomalayan (termasuk Sumatra, Jawa, dan Kalimantan) adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "Oriental",
+           "is_correct": true,
+           "rationale": "Benar. Hewan khasnya antara lain harimau, orangutan, dan badak bercula satu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "Australian",
+           "is_correct": false,
+           "rationale": "Australian meliputi Australia, Selandia Baru, Irian, dan Maluku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "Palearktik",
+           "is_correct": false,
+           "rationale": "Palearktik meliputi hampir seluruh Eropa dan Rusia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "Oceanik",
+           "is_correct": false,
+           "rationale": "Oceanik tersebar di kepulauan Samudra Pasifik."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Hewan khas wilayah Palearktik yang tetap bertahan di lingkungan aslinya adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "piranha di sungai Amazon",
+           "is_correct": false,
+           "rationale": "Piranha adalah hewan endemik wilayah Neotropikal."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "kanguru dan koala",
+           "is_correct": false,
+           "rationale": "Keduanya hewan khas wilayah Australian."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "panda di Cina",
+           "is_correct": true,
+           "rationale": "Benar. Juga unta di Afrika Utara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "gajah, singa, dan citah",
+           "is_correct": false,
+           "rationale": "Ini fauna khas wilayah Ethiopian di Afrika."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Sebaran Flora dan Fauna di Indonesia",
+       "summary": "Flora Indonesia terbagi menjadi empat wilayah dan fauna menjadi tiga wilayah, yang dibatasi Garis Wallace dan Garis Weber.",
+       "body_markdown": "## Garis Wallace dan Garis Weber\n\n- **Garis Wallace**, dibuat oleh Alfred Russel Wallace dari Inggris, adalah garis khayal yang memisahkan fauna Indonesia bagian barat (asiatis) dari fauna Indonesia tengah (peralihan).\n- **Garis Weber**, dibuat oleh Max Wilhelm Carl Weber, profesor zoologi dari Belanda, memisahkan fauna Indonesia tengah (peralihan) dari fauna Indonesia timur (australis).\n\nPada peta, Garis Wallace melintas di antara Kalimantan dan Sulawesi, lalu di antara Bali dan Nusa Tenggara. Garis Weber berada di sebelah timur Sulawesi, di antara Kepulauan Wallacea dan Papua.\n\n## Empat wilayah flora\n\n- **Flora Sumatra-Kalimantan.** Iklim hujan tropis yang lembap; didominasi hutan hujan tropis yang rapat. Flora khasnya kayu meranti, damar, dan berbagai anggrek.\n- **Flora Jawa-Bali.** Jawa bagian barat lebih basah daripada bagian timur. Hutan hujan tropis ada di Jawa Barat (Ujung Kulon, Cibodas, Pananjung). Utara Jawa adalah hutan muson tropis yang meranggas saat kemarau, dengan jati sebagai flora khas yang endemik di Jawa. Jawa Timur bagian timur dan Bali didominasi sabana tropis.\n- **Flora Kepulauan Wallacea** (Sulawesi, Nusa Tenggara, Timor, Maluku). Iklimnya lebih kering: sabana dan stepa di Nusa Tenggara, hutan pegunungan di Sulawesi, hutan campuran dengan rempah-rempah (pala, cengkih, kayu manis) di Maluku.\n- **Flora Papua.** Hutan hujan tropis bercorak Australia Utara, dengan flora khas eukaliptus.\n\n## Fauna Indonesia barat\n\nMeliputi Sumatra, Jawa, Bali, Kalimantan, dan pulau-pulau kecil di sekitarnya, disebut wilayah **Fauna Dangkalan Sunda**. Coraknya sama dengan fauna oriental.\n\n- Mamalia: gajah, badak bercula satu, tapir, rusa, banteng, orangutan, macan, kancil.\n- Reptil: buaya, biawak, bunglon; burung: elang, jalak, merak; juga pesut Sungai Mahakam.\n\n## Fauna Indonesia tengah\n\nDisebut juga fauna **Kepulauan Wallacea**: Sulawesi dan sekitarnya, Nusa Tenggara, Timor, dan Kepulauan Maluku.\n\nDi kawasan ini ada hewan khas yang hanya dijumpai di Indonesia: **anoa, babi rusa, dan biawak komodo**. Hewan lainnya antara lain tarsius, kuskus, maleo, rangkong, kakatua, dan nuri.\n\n## Fauna Indonesia timur\n\nDisebut juga fauna **Dangkalan Sahul**, tersebar di Papua dan pulau-pulau kecil sekitarnya. Hewannya mirip fauna Australia, sehingga disebut Zona Australis.\n\n- Mamalia: kanguru, wallaby, nokdiak (landak Irian), oposum layang.\n- Burung: nuri, cendrawasih, kasuari, namdur. Dari sekitar 42 jenis burung cenderawasih, 30 berada di Indonesia.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab II._",
+       "objective": {
+        "statement": "Kalian dapat menganalisis sebaran flora dan fauna di Indonesia bagian barat, tengah, dan timur.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Wilayah fauna Indonesia timur, di Papua dan pulau-pulau sekitarnya, disebut juga fauna ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "Dangkalan Sahul",
+           "is_correct": true,
+           "rationale": "Tepat. Hewannya mirip fauna Australia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "Dangkalan Sunda",
+           "is_correct": false,
+           "rationale": "Dangkalan Sunda adalah wilayah fauna Indonesia barat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "Kepulauan Wallacea",
+           "is_correct": false,
+           "rationale": "Kepulauan Wallacea adalah wilayah fauna Indonesia tengah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "Zona oriental",
+           "is_correct": false,
+           "rationale": "Zona oriental mencakup Indonesia bagian barat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Garis khayal yang memisahkan fauna Indonesia bagian barat (asiatis) dari fauna Indonesia tengah (peralihan) disebut ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "Garis Weber",
+           "is_correct": false,
+           "rationale": "Garis Weber memisahkan fauna tengah (peralihan) dari fauna timur (australis)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "Gurun Sahara",
+           "is_correct": false,
+           "rationale": "Gurun Sahara adalah pembatas alami antara wilayah Ethiopian dan Palearktik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "Garis Wallace",
+           "is_correct": true,
+           "rationale": "Tepat. Garis ini dibuat oleh Alfred Russel Wallace."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "Dangkalan Sahul",
+           "is_correct": false,
+           "rationale": "Dangkalan Sahul adalah nama wilayah fauna Indonesia timur, bukan garis batas."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Hewan khas Kepulauan Wallacea yang hanya dapat dijumpai di Indonesia adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "orangutan",
+           "is_correct": false,
+           "rationale": "Orangutan termasuk fauna Indonesia barat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "anoa",
+           "is_correct": true,
+           "rationale": "Benar. Juga babi rusa dan biawak komodo."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "kanguru",
+           "is_correct": false,
+           "rationale": "Kanguru termasuk fauna Indonesia timur (Dangkalan Sahul)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "gajah",
+           "is_correct": false,
+           "rationale": "Gajah termasuk fauna Indonesia barat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Vegetasi Papua bercorak Australia Utara dengan flora khas ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "kayu meranti dan damar",
+           "is_correct": false,
+           "rationale": "Ini flora khas Sumatra dan Kalimantan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "pohon jati",
+           "is_correct": false,
+           "rationale": "Jati adalah flora khas hutan muson tropis di Jawa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "pala dan cengkih",
+           "is_correct": false,
+           "rationale": "Ini rempah-rempah di hutan campuran Maluku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "eukaliptus",
+           "is_correct": true,
+           "rationale": "Benar. Berbeda dengan wilayah Indonesia bagian barat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jenis vegetasi yang mendominasi Jawa Timur bagian timur dan Pulau Bali adalah ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "sabana tropis",
+           "is_correct": true,
+           "rationale": "Benar. Makin ke timur, iklim Jawa makin kering."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "hutan hujan tropis",
+           "is_correct": false,
+           "rationale": "Hutan hujan tropis sebagian besar tersebar di Jawa Barat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "hutan pegunungan",
+           "is_correct": false,
+           "rationale": "Hutan pegunungan disebut untuk sekitar Sulawesi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "hutan campuran rempah-rempah",
+           "is_correct": false,
+           "rationale": "Hutan campuran dengan rempah-rempah ada di Maluku."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Faktor yang Memengaruhi Sebaran Flora dan Fauna",
+       "summary": "Sebaran flora dan fauna dipengaruhi iklim (suhu, kelembapan, curah hujan), tanah, serta manusia, hewan, dan tumbuhan.",
+       "body_markdown": "## Suhu dan ketinggian\n\nFaktor yang memengaruhi sebaran flora dan fauna adalah **iklim** (suhu, kelembapan, curah hujan), **tanah**, serta aktivitas **manusia, hewan, dan tumbuhan**.\n\nSuhu dipengaruhi penyinaran matahari dan ketinggian tempat. Semakin tinggi suatu tempat, semakin dingin suhunya: **setiap naik 100 meter, suhu turun sekitar 0,5 °C**.\n\nContoh: sebuah tempat di ketinggian 0 m bersuhu 27 °C. Di ketinggian 800 m, suhunya turun 8 × 0,5 °C = 4 °C, menjadi sekitar 23 °C.\n\n## Zona ketinggian dan tanaman\n\nMenurut gambar distribusi suhu dan jenis tanaman:\n- Daerah panas, 0–600 m (23,3–22 °C): padi, tebu, karet, kelapa.\n- Daerah sedang, 600–1.500 m (22–17,1 °C): tembakau, kopi, cokelat, padi.\n- Daerah sejuk, 1.500–2.500 m (17,1–11,1 °C): hutan tanaman industri, sayuran, kopi, teh, kina.\n- Daerah dingin, di atas 2.500 m (di bawah 11 °C): tidak ada tanaman budi daya.\n\nContohnya apel, yang tumbuh subur di tempat sejuk: beberapa kecamatan di Kota Batu dan Kabupaten Malang, di atas 600 m, menjadi penghasil apel.\n\n## Kelembapan udara\n\nTumbuhan dapat dikelompokkan menurut kelembapan tempat tumbuhnya:\n- **Xerophyta**: tahan di lingkungan kering, contohnya kaktus.\n- **Mesophyta**: cocok di lingkungan lembap tetapi tidak basah, contohnya anggrek dan cendawan.\n- **Hygrophyta**: cocok di kawasan basah, contohnya teratai, eceng gondok, dan selada air.\n- **Tropophyta**: dapat beradaptasi di musim hujan dan musim kemarau, contohnya jati dan eukaliptus.\n\n## Curah hujan dan tanah\n\n**Curah hujan.** Wilayah bercurah hujan tinggi mempunyai tanaman yang lebih beragam. Hutan tropis tumbuh di kawasan bercurah hujan 1.000–2.000 mm dan bersuhu 20–30 °C; padang rumput stepa berkembang di wilayah bercurah hujan 200–1.000 mm.\n\n**Tanah.** Jenis tanah menentukan tumbuhan yang dapat hidup. Di Jawa bagian selatan dan utara banyak tumbuh hutan jati karena tanahnya berkapur; di Nusa Tenggara banyak sabana karena sedikitnya curah hujan.\n\n## Manusia, hewan, dan tumbuhan\n\n- **Manusia** memindahkan tumbuhan, misalnya kurma dari Timur Tengah ke Indonesia.\n- **Hewan** menyebarkan biji: kalong memindahkan biji durian, serangga membantu penyerbukan.\n- **Tumbuhan** berperan menyuburkan tanah, sehingga tanaman lain dapat tumbuh.\n\n**Coba:** tempat A di ketinggian 200 m bersuhu 25 °C. Berapa perkiraan suhu di tempat B yang berketinggian 1.000 m?\n_Periksa: naik 800 m, suhu turun 8 × 0,5 °C = 4 °C, jadi sekitar 21 °C._\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab II._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan pengaruh iklim, tanah, dan makhluk hidup terhadap sebaran flora dan fauna.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kota P di ketinggian 300 m bersuhu 24 °C. Menurut buku, suhu turun sekitar 0,5 °C setiap naik 100 meter. Berapa perkiraan suhu di Desa Q yang berketinggian 1.300 m?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "19 °C",
+           "is_correct": true,
+           "rationale": "Benar. Naik 1.000 m, jadi turun 10 × 0,5 °C = 5 °C: 24 − 5 = 19 °C."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "29 °C",
+           "is_correct": false,
+           "rationale": "Suhu ditambahkan. Semakin tinggi suatu tempat, suhunya semakin dingin."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "17,5 °C",
+           "is_correct": false,
+           "rationale": "Yang dipakai ketinggian Desa Q seluruhnya (1.300 m). Hitung dari selisih ketinggian: 1.300 − 300 = 1.000 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "14 °C",
+           "is_correct": false,
+           "rationale": "Penurunannya dihitung 1 °C setiap 100 m. Menurut buku sekitar 0,5 °C."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tumbuhan yang cocok hidup di lingkungan lembap tetapi tidak basah digolongkan sebagai ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "xerophyta",
+           "is_correct": false,
+           "rationale": "Xerophyta tahan di lingkungan kering, seperti kaktus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "hygrophyta",
+           "is_correct": false,
+           "rationale": "Hygrophyta cocok hidup di kawasan basah, seperti teratai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "tropophyta",
+           "is_correct": false,
+           "rationale": "Tropophyta dapat beradaptasi di musim hujan dan musim kemarau."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "mesophyta",
+           "is_correct": true,
+           "rationale": "Tepat. Contohnya anggrek dan cendawan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Teratai, eceng gondok, dan selada air cocok hidup di kawasan basah. Tumbuhan ini tergolong ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "xerophyta",
+           "is_correct": false,
+           "rationale": "Xerophyta tahan di lingkungan kering, seperti kaktus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "mesophyta",
+           "is_correct": false,
+           "rationale": "Mesophyta cocok di lingkungan lembap tetapi tidak basah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "hygrophyta",
+           "is_correct": true,
+           "rationale": "Benar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "tropophyta",
+           "is_correct": false,
+           "rationale": "Tropophyta beradaptasi di musim hujan dan musim kemarau, seperti jati."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kalong yang memindahkan biji durian adalah contoh faktor sebaran flora berupa ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "manusia",
+           "is_correct": false,
+           "rationale": "Contoh pengaruh manusia adalah memindahkan kurma dari Timur Tengah ke Indonesia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "hewan",
+           "is_correct": true,
+           "rationale": "Benar. Hewan juga membantu penyerbukan dan penyebaran biji."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "tumbuhan",
+           "is_correct": false,
+           "rationale": "Tumbuhan berperan menyuburkan tanah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "tanah",
+           "is_correct": false,
+           "rationale": "Contoh pengaruh tanah adalah hutan jati di tanah berkapur."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut gambar distribusi suhu dan jenis tanaman, teh dan kina ditanam di daerah ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "panas, 0–600 m",
+           "is_correct": false,
+           "rationale": "Daerah panas ditanami padi, tebu, karet, dan kelapa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "sedang, 600–1500 m",
+           "is_correct": false,
+           "rationale": "Daerah sedang ditanami tembakau, kopi, cokelat, dan padi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "dingin, di atas 2500 m",
+           "is_correct": false,
+           "rationale": "Di daerah dingin tidak ada tanaman budi daya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "sejuk, 1.500–2.500 m",
+           "is_correct": true,
+           "rationale": "Benar. Suhunya 17,1–11,1 °C."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 8
+       },
+       "ordinal": "7",
+       "title": "Manfaat dan Pelestarian Flora dan Fauna",
+       "summary": "Keanekaragaman hayati bermanfaat bagi ekonomi, kesehatan, sosial, dan ekologi, sehingga harus dilestarikan melalui konservasi in situ dan ex situ.",
+       "body_markdown": "## Manfaat keanekaragaman hayati\n\n- Indonesia menduduki urutan ketujuh dalam kekayaan flora berbunga, dengan lebih dari 25 ribu tumbuhan berbunga.\n- Indonesia memiliki kekayaan jenis mamalia dan kupu-kupu swallowtail terbanyak di dunia.\n- **Ekonomi**: di beberapa negara berkembang, keanekaragaman flora dan fauna menyumbang sekitar 32% GDP. Ada 7.000 jenis ikan laut dan ikan tawar yang menjadi sumber protein pertama masyarakat Indonesia.\n- **Kesehatan**: tumbuhan dan hewan menjadi bahan obat tradisional dan modern.\n- **Sosial**: penyedia lapangan pekerjaan, pembentuk budaya setempat, dan jati diri masyarakat.\n- **Ekologis**: tumbuhan menghasilkan oksigen dan menyaring polutan udara; mikroorganisme tanah memperbaiki kesuburan tanah.\n\n## Pengelolaan berkelanjutan\n\nPengelolaan keanekaragaman hayati memerlukan strategi nasional agar semua pihak melakukan perlindungan, pengawetan, dan pemanfaatan berkelanjutan.\n\nSalah satunya pengelolaan **bioregional**: kawasan daratan dan perairan yang batasnya didasarkan pada batas geografis kelompok masyarakat dan sistem ekologis tertentu. Selain itu, investasi nasional dapat diarahkan pada ekowisata berbasis sains dan bioprospeksi.\n\n## Konservasi\n\nMenurut Undang-Undang No. 5 Tahun 1990, **konservasi** adalah upaya pelestarian sumber daya alam hayati secara berkelanjutan.\n\nTiga tujuan konservasi:\n1. Menjamin kelestarian fungsi ekosistem sebagai penyangga kehidupan.\n2. Mencegah kepunahan spesies akibat kerusakan habitat dan pemanfaatan yang tidak terkendali.\n3. Menyediakan sumber plasma nutfah atau keanekaragaman genetika.\n\n## Metode in situ\n\n**In situ** adalah pelestarian yang dilakukan langsung di habitat asli flora dan fauna. Cara ini melindungi populasi dan komunitas alami di habitat aslinya.\n- **Cagar alam**: contohnya Cagar Alam Maninjau dan Cagar Alam Pulau Sempu.\n- **Taman nasional**: tempat luas di darat atau laut yang dilindungi pemerintah untuk penelitian, pendidikan, pelestarian, dan pariwisata. Contohnya Taman Nasional Komodo, Ujung Kulon, Kerinci, dan Tengger.\n- **Hutan lindung**: hutan yang ditetapkan pemerintah untuk dilindungi karena ekosistemnya penting bagi keseimbangan lingkungan.\n\n## Metode ex situ\n\n**Ex situ** adalah pelestarian di luar habitat asli, dilakukan saat habitat aslinya rusak parah. Tantangannya adalah membuat lingkungan yang mirip habitat asal.\n- **Taman hutan raya**: mengoleksi flora dan fauna asli atau dari tempat lain, contohnya Taman Hutan Raya Cut Nyak Dien dan Bukit Barisan.\n- **Taman safari**: lingkungan buatan yang persis dengan tempat asal satwa, contohnya Taman Safari Bogor dan Taman Safari Prigen.\n- **Kebun binatang**: lingkungan buatan, tetapi setiap spesies dipisahkan dalam kandang.\n\n## Peran masyarakat\n\nMasyarakat adat dan lokal ikut mengelola konservasi dengan kearifan lokal, antara lain melalui **AKKM** (Areal Konservasi Kelola Masyarakat): areal yang dikelola dengan fungsi konservasi oleh masyarakat adat atau lokal dalam satu kesatuan ekosistem. Negara menyediakan mekanisme pengakuan untuk melindunginya.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab II._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan manfaat keanekaragaman hayati serta membedakan metode pelestarian in situ dan ex situ.",
+        "bloom": "EVALUATE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Taman Safari Bogor termasuk pelestarian flora dan fauna dengan metode ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "in situ",
+           "is_correct": false,
+           "rationale": "In situ dilakukan langsung di habitat asli flora dan fauna."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "cagar alam",
+           "is_correct": false,
+           "rationale": "Cagar alam adalah salah satu bentuk pelestarian in situ, bukan nama metodenya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "ex situ",
+           "is_correct": true,
+           "rationale": "Tepat. Taman safari membuat lingkungan buatan di luar habitat asli."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "bioregional",
+           "is_correct": false,
+           "rationale": "Bioregional adalah cara pengelolaan kawasan berdasarkan batas masyarakat dan sistem ekologis."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut buku, metode ex situ dilakukan ketika ...",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "melindungi populasi dan komunitas alami di habitat aslinya",
+           "is_correct": false,
+           "rationale": "Ini tujuan metode in situ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "habitat asli flora dan fauna mengalami kerusakan yang parah",
+           "is_correct": true,
+           "rationale": "Tepat. Tantangannya membuat lingkungan yang mirip habitat asal."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "menyediakan sumber plasma nutfah atau keanekaragaman genetika",
+           "is_correct": false,
+           "rationale": "Ini salah satu tujuan konservasi secara umum, bukan syarat metode ex situ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "areal dikelola masyarakat adat dalam suatu kesatuan ekosistem",
+           "is_correct": false,
+           "rationale": "Ini AKKM, areal konservasi yang dikelola masyarakat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Salah satu tujuan konservasi adalah ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "mencegah kepunahan spesies karena kerusakan habitat",
+           "is_correct": true,
+           "rationale": "Tepat. Juga akibat pemanfaatan yang tidak terkendali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "mengembangkan ekowisata berbasis sains dan bioprospeksi",
+           "is_correct": false,
+           "rationale": "Ini salah satu bentuk investasi nasional dalam pemanfaatan biodiversitas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "membuat lingkungan buatan yang persis dengan tempat asal",
+           "is_correct": false,
+           "rationale": "Ini cara kerja taman safari, salah satu bentuk ex situ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "mengoleksi flora dan fauna yang berasal dari tempat lain",
+           "is_correct": false,
+           "rationale": "Ini fungsi taman hutan raya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Manakah yang merupakan pelestarian in situ?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "Taman Safari Prigen",
+           "is_correct": false,
+           "rationale": "Taman safari adalah pelestarian ex situ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "Taman Hutan Raya Cut Nyak Dien",
+           "is_correct": false,
+           "rationale": "Taman hutan raya adalah pelestarian ex situ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "Taman Nasional Komodo",
+           "is_correct": true,
+           "rationale": "Benar. Taman nasional melindungi flora dan fauna di habitat aslinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "Kebun binatang",
+           "is_correct": false,
+           "rationale": "Kebun binatang adalah pelestarian ex situ."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
