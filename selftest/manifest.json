@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 121,
+  "version": 122,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2027,6 +2027,11 @@
       "id": "BOB32-K01",
       "runner": "static",
       "proves": "BOB-32 (UX-03's server half, D-011): every refusal launch_quick_assessment raises, read from the migration that defines it, is read by src/lib/ujicepat-kontrak.ts to its code (QUICK_BANK_TOO_SMALL, QUICK_COUNT_OUT_OF_RANGE, QUICK_MINUTES_OUT_OF_RANGE, QUICK_NOT_ALLOWED, QUICK_NOT_FOUND, else QUICK_FAILED); a reworded refusal fails; the page's reader drops a forged code or reference; and the source of sediakanUjiCepat in src/app/mengajar/actions.ts passes ?cepat=gagal&kode=, with a logged reference only for QUICK_FAILED."
+    },
+    {
+      "id": "F06-P22",
+      "runner": "db",
+      "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it."
     },
     {
       "id": "BOB38-K01",

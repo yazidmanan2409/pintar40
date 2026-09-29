@@ -6097,6 +6097,110 @@ begin
     return next;
   end;
 
+  -- =========================================================================
+  -- F06-P22 -- BOB-39 (post-login review #2, D-061): «DITERUSKAN KE PIHAK
+  -- SEKOLAH» REACHES THE DECISION QUEUE. The Studio's integrity review records
+  -- REFERRED_TO_INSTITUTION through record_integrity_review, which created
+  -- nothing, so /pimpinan's «Keputusan» could never fill. The review now raises
+  -- the INTEGRITY_REFERRAL decision through refer_integrity_signal in the same
+  -- transaction. Counted here through the same RLS-bounded read /pimpinan's
+  -- keputusanSaya makes. Every row rolled back.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; n int; n2 int; v_d uuid; v_hod_b uuid; v_caught boolean;
+  begin
+    begin
+      perform selftest.as_owner();
+      select * into c from selftest.wp2_school();
+
+      -- the two reviews that are not referrals create nothing
+      perform selftest.as_user_uid(c.hod_u);
+      perform public.record_integrity_review(c.signal_a, 'NO_CONCERN', 'sudah dilihat');
+      perform public.record_integrity_review(c.signal_a, 'DISCUSSED_WITH_LEARNER', 'sudah dibicarakan');
+      perform selftest.as_owner();
+      select count(*) into n from public.management_decisions m where m.source_id = c.signal_a;
+      if n <> 0 then bad := bad || array[format('NO_CONCERN or DISCUSSED_WITH_LEARNER created %s decision(s)', n)]; end if;
+
+      -- the referral, as the Studio records it
+      perform selftest.as_user_uid(c.hod_u);
+      perform public.record_integrity_review(c.signal_a, 'REFERRED_TO_INSTITUTION', 'perlu dibahas pimpinan');
+      perform selftest.as_owner();
+      select count(*), min(m.id::text)::uuid into n, v_d from public.management_decisions m
+       where m.family = 'INTEGRITY_REFERRAL' and m.source_table = 'integrity_signals' and m.source_id = c.signal_a
+         and m.state = 'AWAITING_REVIEW' and m.scope_node_id = c.cls_a and m.raised_note = 'perlu dibahas pimpinan'
+         and m.raised_by_person_id = c.hod;
+      if n <> 1 then
+        bad := bad || array[format('a referral through the review left %s AWAITING_REVIEW decision(s) on the signal''s class with the reviewer''s note, expected 1', n)];
+      end if;
+      select count(*) into n from public.audit_log l
+       where l.action = 'INTEGRITY_SIGNAL_REVIEWED' and l.target_id = c.signal_a::text and l.summary ->> 'decision' = 'REFERRED_TO_INSTITUTION';
+      if n <> 1 then bad := bad || array[format('the referral''s review wrote %s audit row(s), expected 1', n)]; end if;
+
+      -- on that Head of Department's /pimpinan: the queue read, through RLS
+      perform selftest.as_user_uid(c.hod_u);
+      select count(*) into n from public.management_decisions m where m.state <> 'DECIDED' and m.source_id = c.signal_a;
+      perform selftest.as_owner();
+      if n <> 1 then bad := bad || array[format('the Head of Department''s decision queue shows %s referral(s), expected 1', n)]; end if;
+
+      -- a second referral of the same open signal is the same decision
+      perform selftest.as_user_uid(c.hod_u);
+      perform public.record_integrity_review(c.signal_a, 'REFERRED_TO_INSTITUTION', 'sekali lagi');
+      perform selftest.as_owner();
+      select count(*) into n from public.management_decisions m where m.source_id = c.signal_a;
+      if n <> 1 then bad := bad || array[format('a second referral of the same open signal left %s decision(s)', n)]; end if;
+
+      -- a Head of Department over the other department does not see it
+      v_hod_b := selftest.f11_user('f06-p22-hod-b-' || substr(md5(random()::text), 1, 6) || '@synthetic.pintar.test',
+                                   'HEAD_OF_DEPARTMENT', c.dept_b);
+      perform selftest.as_user_uid(v_hod_b);
+      select count(*) into n from public.management_decisions m where m.source_id = c.signal_a;
+      perform selftest.as_owner();
+      if n <> 0 then bad := bad || array['a Head of Department over another department sees the referral']; end if;
+
+      -- the review's capability is unchanged: a teacher records nothing and raises nothing
+      v_caught := false;
+      perform selftest.as_user_uid(c.edu_u);
+      begin perform public.record_integrity_review(c.signal_a, 'REFERRED_TO_INSTITUTION', 'bukan wewenang');
+      exception when others then v_caught := true; end;
+      perform selftest.as_owner();
+      if not v_caught then bad := bad || array['a teacher without CAN_REVIEW_INTEGRITY recorded a referral']; end if;
+
+      -- «Saya yang menangani» and «Catat keputusan» work on it unchanged
+      perform selftest.as_user_uid(c.hod_u);
+      begin
+        perform public.advance_management_decision(v_d, 'UNDER_REVIEW', null, null);
+        select count(*) into n2 from public.management_decisions m where m.id = v_d and m.state = 'UNDER_REVIEW';
+        if n2 <> 1 then bad := bad || array['«Saya yang menangani» did not take the referral up']; end if;
+        perform public.advance_management_decision(v_d, 'DECIDED', (enum_range(null::public.management_decision_outcome))[1], 'diputuskan');
+        select count(*) into n2 from public.management_decisions m where m.id = v_d and m.state = 'DECIDED';
+        if n2 <> 1 then bad := bad || array['«Catat keputusan» did not record a decision on the referral']; end if;
+      exception when others then
+        bad := bad || array['the referral could not be taken up or decided: ' || left(sqlerrm, 120)];
+      end;
+      perform selftest.as_owner();
+
+      raise exception 'F06_P22_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'F06_P22_UNDO' then v_why := 'the probe itself failed: ' || left(sqlerrm, 220); end if;
+    end;
+
+    id := 'F06-P22'; area := 'BOB-39 -- a referral reaches the decision queue';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'a Head of Department recording «Diteruskan ke pihak sekolah» in the Studio''s integrity review raised one '
+        || 'AWAITING_REVIEW INTEGRITY_REFERRAL on the signal''s class, with the reviewer''s note as its raised_note, beside the '
+        || 'review''s own audit row, and it shows in that Head of Department''s decision queue (read through RLS as /pimpinan '
+        || 'reads it); NO_CONCERN and DISCUSSED_WITH_LEARNER created nothing; a second referral of the open signal is the same '
+        || 'decision; a Head of Department over the other department does not see it; a teacher is still refused the review; '
+        || 'and «Saya yang menangani» and «Catat keputusan» take it up and decide it. Every row rolled back';
+    end if;
+    return next;
+  end;
+
   perform selftest.f06_purge();
   perform selftest.purge_certificates();
   id := 'F06-DONE'; area := 'suite'; ok := true; detail := 'FABLE-06 suite complete';
