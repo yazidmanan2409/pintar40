@@ -1,5 +1,6 @@
 import { createServerClient, DEFAULT_COOKIE_OPTIONS } from "@supabase/ssr";
 import { adalahCookieSesi, COOKIE_GESER, perluGeserSesi, umurSesi } from "@/lib/sesi";
+import { alamatKlien, fetchBerpenerus } from "@/lib/auth-forwarding";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
@@ -47,6 +48,8 @@ export async function proxy(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      // BOB-12 (a): a refresh reaches Auth as the student's own address, not the server's
+      global: { fetch: fetchBerpenerus(alamatKlien(request.headers)) },
       cookies: {
         getAll() {
           return request.cookies.getAll();
