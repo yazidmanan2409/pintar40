@@ -124,6 +124,13 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 
 **Canonical specification: `auth/IDENTITY-4.0.md`.** Each gate needs a bounded ticket, owner, dependencies, acceptance evidence, tests, an audit, and **PASS** before dependent work advances. Everything is proven on **staging**. **One controlled production release** comes at Gate 8, and password sign-in never reaches production without recovery (D-058(b)).
 
+**PAUSE PLAN (Yazid, 29 Sep).** The team pauses once Lana's SMA X Matematika Bab 7 (LANA-21) has passed and everything found along the way is in order. Nobody stops mid-ticket; each lane stops at its next clean boundary: 
+- **Lana:** LANA-20 (Bab 6), then LANA-21 (Bab 7), each through its gate (and any round 2). Stop after LANA-21's CONTENT PASS. 
+- **Bob:** the BOB-24/34/35/36 gate, then BOB-38 to BOB-41 in their two CI runs. After LANA-21 passes, finish the ticket or CI pair in flight, get it gated, and start nothing new. 
+- **Daisy:** DAISY-31 once BOB-35 passes, through its gate. Then stop. 
+- **Coordinator:** gate everything in flight. Bring `main` up to date with every passed code merge, and with the content they carry. Leave the board showing exactly what is done, what is open, and the order to resume in. Then give Yazid the pause summary. 
+Nothing is left on a lane unpushed or ungated. The resume order is the queue below.
+
 **Queue fit:**
 - **Bob:** BOB-23 DONE (accepted, run 14) → BOB-12 with BOB-31 (GATE PASS 29 Sep; staging acceptance pending) → BOB-30 (CLOSED, not needed: measured 0 redraws per answer on `main`) → BOB-32 and BOB-33 (GATE PASS 29 Sep) → **BOB-24** (Gate 2; fix round after CI #230) with BOB-34, **BOB-35 and BOB-36** (4.0 reproducibility defects; **authorized 29 Sep**; built), all in **one CI run on the lane head** → **BOB-38 to BOB-41** (post-login review #1, #2, #3, #6; approved 29 Sep; block Engineering Complete, D-061; at most two CI runs) → BOB-37 (per-topic mastery) → BOB-25 (2E) → BOB-26 (3) → BOB-27 (4) → BOB-28 (5) and BOB-29 (6), whose dependencies allow them in either order. BOB-15 and BOB-13 follow the identity gates unless Yazid orders otherwise.
 - **Daisy:** reader walk DONE 29 Sep (UX-07 to UX-32 in the register) → DAISY-25 and DAISY-26 (GATE PASS 29 Sep) → DAISY-13 with BOB-12 (GATE PASS 29 Sep; staging acceptance with BOB-12's). → DAISY-28 (polish batch 2, GATE PASS 29 Sep) → DAISY-27 (GATE PASS 29 Sep, with BOB-33) → DAISY-29 (polish batch 3; GATE PASS 29 Sep) → **DAISY-30** (the shared learner-text renderer; GATE PASS 29 Sep) → DAISY-31 (the release move's two refusals, after BOB-35's gate). DAISY-19 is accepted as a prototype; its wiring waits for BOB-25, and DAISY-20 for BOB-26's contract.
