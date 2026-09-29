@@ -104,7 +104,7 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 
 **Queue fit:**
 - **Bob:** **BOB-23 round 2** (the last lesson's link, run 13) → **BOB-12 (Gate 1)** → BOB-30 → BOB-24 (Gate 2) → BOB-25 (2E) → BOB-26 (3) → BOB-27 (4) → BOB-28 (5) and BOB-29 (6), whose dependencies allow them in either order. BOB-15 and BOB-13 follow the identity gates unless Yazid orders otherwise.
-- **Daisy:** reader walk delivered 29 Sep (UX-07 to UX-32, into the register once committed) → **DAISY-25** → DAISY-13 with BOB-12. DAISY-19 is accepted as a prototype; its wiring waits for BOB-25, and DAISY-20 for BOB-26's contract.
+- **Daisy:** reader walk DONE 29 Sep (UX-07 to UX-32 in the register) → **DAISY-25** (CI #219 running on `b5e1940`) → DAISY-13 with BOB-12. DAISY-19 is accepted as a prototype; its wiring waits for BOB-25, and DAISY-20 for BOB-26's contract.
 - **Lana:** not involved.
 
 | # | Ticket | Fixes | Depends on | Acceptance (tests red without the change, green with it) | Status |
