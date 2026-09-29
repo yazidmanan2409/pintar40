@@ -6,6 +6,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormAktivasi from "@/components/aktivasi/FormAktivasi";
+import { KeMasuk } from "@/components/aktivasi/HasilAktivasi";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,8 @@ export default async function Aktivasi() {
         <div className="pin-head">
           <p className="pin-eyebrow">{s("aktivasi.eyebrow")}</p>
           <h1 className="pin-h1">{s("aktivasi.judul")}</h1>
-          <p className="pin-intro">{s("aktivasi.intro")}</p>
+          {/* Polish batch 2 (UX-11): the sign-in address, not the path /masuk */}
+          <p className="pin-intro">{s("aktivasi.intro")} <KeMasuk s={s} sebelum="aktivasi.intro.buka" /></p>
         </div>
         <FormAktivasi locale={locale} orang={orang} adminSistem={adminSistem} />
         <KakiPintar />

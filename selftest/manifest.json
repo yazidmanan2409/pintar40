@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 112,
+  "version": 113,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2299,6 +2299,16 @@
       "id": "DAISY-26-MENGAJAR-01",
       "runner": "static",
       "proves": "DAISY-26 (UI/UX POLISHED, D-052), the teacher's register rows UX-03, UX-06, UX-20 and UX-32. (1) UX-03: from the SOURCE of the Uji Cepat page, the configure stage, which renders only when no Uji Cepat is running, shows a refused launch as mengajar.cepat.gagal and never mengajar.cepat.sudah_ada, and the running stage, where it is true, shows sudah_ada; the new line in both languages says nothing changed, names no cause and no reference it does not have, and carries no internal word (today the configure stage says one is running). (2) UX-06: RENDERED in a child process, «Keadaan hari ini» (KeadaanHariIni) with both tests of a lesson open, five of 25 each, names both with their own counts, the Pemetaan Awal first; its selection is every open test, soonest to close first, the Pemetaan Awal first on a tie and one that never closes last, else the latest closed one, else the empty line; from the SOURCE, «Lihat bukti» hands it every assessment and keeps no single focus test (today it counts one). (3) UX-20: the class page and Siapkan show no release version number, only the date, whose line now starts with a capital. (4) UX-32: the Jumlah soal hint is composed as «Antara 3 dan 20 soal.» / «Between 3 and 20 items.» and no line tells a teacher who set the bound"
+    },
+    {
+      "id": "POLISH2-STUDIO-01",
+      "runner": "static",
+      "proves": "Polish batch 2 (UI/UX POLISHED, D-052), the Studio register rows, read from the SOURCE and the copy table. (1) UX-02: Bank Soal says once, at the top, in both languages, what the page is for and that a question is changed by a corrected workbook in Buat Paket (named by the tab's own word); no «Belum cukup bukti» under every question, no database id shown (the short id stays on each row as data-soal, for the staging journey's school check), no word outside the copy table (today every question reads «Belum cukup bukti…» beside an 8-character id). (2) UX-04: Aturan Penilaian and Sertifikat label their school picker «Sekolah», as Buat Paket does, never «Peran & akses». (3) UX-12: the two JSON forms sit in one closed disclosure below the workbook that opens when one of them has just answered, each with its own checking button (neither says it makes a package), with no server/browser note and no field label outside the copy table. (4) UX-14: the findings section is headed «Temuan» / Findings, the name both steps (Periksa isi, Setujui isi) send the reader to, in each language (today it is headed «Masalah»). (5) UX-16: the form that moves a class's assignment to another release is headed «Pindahkan penugasan ke terbitan lain», its picker «Terbitan tujuan», its button «Pindahkan», and each form names the class it moves"
+    },
+    {
+      "id": "POLISH2-ADMIN-01",
+      "runner": "static",
+      "proves": "Polish batch 2 (UI/UX POLISHED, D-052), the administrator's register rows. (1) UX-07: the school's code is «Kode sekolah» / School code and no Pendataan line calls it an institution code. (2) UX-11: the sign-in address is this environment's own (NEXT_PUBLIC_APP_URL's host plus /masuk; nothing that is not a web address becomes one); RENDERED in a child process with and without an address, a card's and an email account's results send the person to that address, or to «halaman Masuk PINTAR» when there is none, never to the path /masuk; no copy line sends anyone to «halaman /masuk»; the activation page's introduction ends the same way (today every one says «halaman /masuk»). (3) UX-30: Konfigurasi's menu offers only sections that exist, each leading to its section on the page; the three that only said «Bagian ini akan terisi pada tahap berikutnya.» are gone, with their line"
     }
   ]
 }

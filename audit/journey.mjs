@@ -514,6 +514,10 @@ async function kirimPaket(schoolText, isi, forgedId = null) {
   const newest = () => sql(`select coalesce((select id::text from public.ingest_batches order by created_at desc, id desc limit 1), '')`).trim();
   const sebelum = newest();
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
+  // Since polish batch 2 (UX-12) the two JSON forms wait in a closed disclosure
+  // below the workbook, as a person finds them; open it the way they would.
+  const lain = g.locator("details#sistem-lain");
+  if (await lain.count() && !(await lain.evaluate((d) => d.open))) await lain.locator("summary").click();
   const form = g.locator("form").filter({ has: g.locator('textarea[name="isi"]') }).nth(1);
   const sel = form.locator("select").first();
   let chosen = false;

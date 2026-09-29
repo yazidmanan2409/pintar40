@@ -7141,9 +7141,15 @@ export const experienceTests: SelfTest[] = [
         "the activation route now sends mail itself -- this message's premise has changed; re-read it",
       );
       for (const loc of LOCALES) {
+        // RESTATED FOR POLISH BATCH 2 (UX-11, a changed requirement): the
+        // sentence no longer names the path /masuk. It stops where the sign-in
+        // address goes, and HasilAktivasi puts the environment's own address
+        // there (DAISY-09-AKTIVASI-01 and POLISH2-ADMIN-01 render it).
         const ok = t("aktivasi.baru.ok", "staff", { locale: loc });
-        c.expect(ok.includes("/masuk"), `aktivasi.baru.ok (${loc}) does not send the person to /masuk`);
-        c.expect(!/sekarang bisa masuk|can now sign in/i.test(ok), `aktivasi.baru.ok (${loc}) still says the person can now sign in`);
+        const lalu = t("aktivasi.baru.ok.lalu", "staff", { locale: loc });
+        c.expect(/(membuka|to open)$/.test(ok) && lalu !== TANPA_SALINAN && lalu.trim() !== "",
+          `aktivasi.baru.ok (${loc}) no longer stops where the sign-in address goes`);
+        c.expect(!/sekarang bisa masuk|can now sign in/i.test(ok + lalu), `aktivasi.baru.ok (${loc}) still says the person can now sign in`);
       }
       c.expect(/tidak mengirim surel/.test(t("aktivasi.baru.ok", "staff", { locale: "id" })), "aktivasi.baru.ok (id) does not say no email was sent");
       c.expect(/not emailed/.test(t("aktivasi.baru.ok", "staff", { locale: "en" })), "aktivasi.baru.ok (en) does not say no email was sent");
@@ -8799,15 +8805,27 @@ export const experienceTests: SelfTest[] = [
        *    the page's introduction, an email account, a card, and a new person.
        *    The card sentence names the /masuk button by its own copy.
        */
+      //    RESTATED FOR POLISH BATCH 2 (UX-11, a changed requirement): the
+      //    person is sent to the environment's sign-in ADDRESS, not the path
+      //    /masuk. Each sentence is composed as KeMasuk composes it, with a
+      //    stand-in address, and read whole.
       const TIDAK_DIKIRIM: Record<string, RegExp> = { id: /tidak mengirim/, en: /has not (emailed|sent)|sends no/ };
+      const CONTOH_ALAMAT = "app.contoh.sch.id/masuk";
       for (const locale of LOCALES) {
-        for (const k of ["aktivasi.intro", "aktivasi.surel_arti", "aktivasi.kartu_arti", "aktivasi.baru.ok"] as const) {
-          const x = t(k, "staff", { locale });
-          c.expect(x.includes("/masuk") && TIDAK_DIKIRIM[locale].test(x), `${k} (${locale}) does not say nothing was sent and to use /masuk: "${x}"`);
+        const st = (k: HleEvent) => t(k, "staff", { locale });
+        const kalimat: Array<[string, string]> = [
+          ["aktivasi.intro", `${st("aktivasi.intro")} ${st("aktivasi.intro.buka")} ${CONTOH_ALAMAT}.`],
+          ["aktivasi.surel_arti", `${st("aktivasi.surel_arti")} ${CONTOH_ALAMAT}${st("aktivasi.surel_arti.lalu")}`],
+          ["aktivasi.kartu_arti", `${st("aktivasi.kartu_arti")} ${CONTOH_ALAMAT}${st("aktivasi.kartu_arti.lalu")}`],
+          ["aktivasi.baru.ok", `${st("aktivasi.baru.ok")} ${CONTOH_ALAMAT}${st("aktivasi.baru.ok.lalu")}`],
+        ];
+        for (const [k, x] of kalimat) {
+          c.expect(TIDAK_DIKIRIM[locale].test(x) && !x.includes(TANPA_SALINAN) && !/(^|[\s(])\/masuk\b/.test(x),
+            `${k} (${locale}) does not say nothing was sent and where to sign in: "${x}"`);
           c.expect(!/sekarang bisa masuk|can now sign in/i.test(x), `${k} (${locale}) says the person can now sign in`);
         }
-        c.expect(t("aktivasi.kartu_arti", "staff", { locale }).includes(`“${t("auth.card_go", "public", { locale })}”`),
-          `aktivasi.kartu_arti (${locale}) does not name the /masuk card button as /masuk shows it`);
+        c.expect(st("aktivasi.kartu_arti.lalu").includes(`“${t("auth.card_go", "public", { locale })}”`),
+          `aktivasi.kartu_arti (${locale}) does not name the sign-in page's card button as that page shows it`);
       }
 
       /**
@@ -8885,8 +8903,11 @@ export const experienceTests: SelfTest[] = [
         "  out.push(renderToStaticMarkup(h(Form, JSON.parse(process.env.FORM_AKT))));" +
         "  process.stdout.write(JSON.stringify(out));" +
         "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
-        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_AKT: JSON.stringify(KASUS), FORM_AKT: JSON.stringify(FORM) },
+        cwd: repoRoot, encoding: "utf8",
+        // polish batch 2 (UX-11): the sentences name this environment's sign-in address
+        env: { ...process.env, NEXT_PUBLIC_APP_URL: "https://app.contoh.sch.id", KASUS_AKT: JSON.stringify(KASUS), FORM_AKT: JSON.stringify(FORM) },
       });
+      const alamatDi = '<strong class="pin-num">app.contoh.sch.id/masuk</strong>';
       let html: string[] = [];
       try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
       const bersih = (x: string) => x.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
@@ -8899,11 +8920,13 @@ export const experienceTests: SelfTest[] = [
             // DAISY-18: through the shared result line, keeping the card's own look
             c.expect(/^<div class="pin-akt-hasil pin-hasil-ok" role="status">/.test(x), `${label}: not announced as a status`);
             if (k.mode === "CLASSROOM_CARD") {
-              c.expect(x.includes(s("aktivasi.kartu_dibuat")) && x.includes(">7001234567<") && x.includes(">482913<") && x.includes(s("aktivasi.kartu_arti")),
-                `${label}: the card, its PIN or where to use them is missing`);
+              c.expect(x.includes(s("aktivasi.kartu_dibuat")) && x.includes(">7001234567<") && x.includes(">482913<")
+                && x.includes(`${s("aktivasi.kartu_arti")} ${alamatDi}${s("aktivasi.kartu_arti.lalu")}`),
+                `${label}: the card, its PIN or where to use them (the environment's sign-in address) is missing`);
             } else {
               c.expect(x.includes(`${s("aktivasi.surel_dibuat")} <strong>${k.surel}</strong>`), `${label}: the address the account was made for is not named`);
-              c.expect(x.includes(s(k.mode === "NEW_PERSON" ? "aktivasi.baru.ok" : "aktivasi.surel_arti")), `${label}: the no-email, go-to-/masuk sentence is missing`);
+              const [awal, akhir] = k.mode === "NEW_PERSON" ? ["aktivasi.baru.ok", "aktivasi.baru.ok.lalu"] as const : ["aktivasi.surel_arti", "aktivasi.surel_arti.lalu"] as const;
+              c.expect(x.includes(`${s(awal)} ${alamatDi}${s(akhir)}`), `${label}: the no-email sentence with the sign-in address is missing`);
               if (k.mode === "NEW_PERSON") c.expect(x.includes(`<strong>${k.nama}</strong>`), `${label}: the new person is not named`);
             }
           } else {
@@ -8931,7 +8954,9 @@ export const experienceTests: SelfTest[] = [
       c.expect(!/\.detail\b/.test(form + code(readFileSync(join(repoRoot, "src", "components", "aktivasi", "HasilAktivasi.tsx"), "utf8"))),
         "the route's detail -- the server's own text -- is read by the form or its outcome");
       c.expect(!/router\.refresh|useRouter/.test(form), "a success still refreshes the list and takes its message off the screen");
-      c.expect(/<p className="pin-intro">\{s\("aktivasi\.intro"\)\}<\/p>/.test(code(readFileSync(join(repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"))),
+      // RESTATED FOR POLISH BATCH 2 (UX-11): the introduction ends with the
+      // sign-in address, composed by KeMasuk as the results are
+      c.expect(/<p className="pin-intro">\{s\("aktivasi\.intro"\)\} <KeMasuk s=\{s\} sebelum="aktivasi\.intro\.buka" \/><\/p>/.test(code(readFileSync(join(repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"))),
         "the activation page does not open with the corrected introduction");
 
       return c.verdict(
@@ -10989,6 +11014,220 @@ export const experienceTests: SelfTest[] = [
         "its own name and counts (both tests of a lesson, five of 25 each), soonest first with the Pemetaan Awal first on a " +
         "tie, else the latest closed one, else the empty line; the class page and Siapkan know a release by its date, with " +
         "no version number; and the Jumlah soal hint reads «Antara 3 dan 20 soal.» with no line saying who set the bound",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "POLISH2-STUDIO-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? code(readFileSync(f, "utf8")) : "";
+      };
+      /**
+       * POLISH BATCH 2, the Studio rows of the register (UX-02, UX-04, UX-12,
+       * UX-14, UX-16), read from the SOURCE and the copy table: Studio's pages
+       * read the database as they render, so they are not rendered here.
+       */
+
+      /**
+       * 1. UX-02: BANK SOAL SAYS ONCE WHAT IT IS FOR. One line at the top says
+       *    what the page is in this phase and that a question is changed by
+       *    a corrected workbook in Buat Paket (named by the tab's own word, in
+       *    both languages). No «Belum cukup bukti» under every question, no
+       *    database id, and no word outside the copy table.
+       */
+      const bank = baca("src", "app", "studio", "bank", "page.tsx");
+      c.expect(/<p className="text-sm text-ink-2">\{s\("studio\.bank\.intro"\)\}<\/p>/.test(bank)
+        && !/studio\.bank\.belum_cukup/.test(bank) && !/placeholder="/.test(bank)
+        && (bank.match(/\bshort\(/g) ?? []).length === 1 && /<li key=\{i\.id\} className=\{card\} data-soal=\{short\(i\.id\)\}>/.test(bank),
+        "Bank Soal does not say once what it is for, still says «Belum cukup bukti» under every question, shows a database id, or keeps a word outside the copy table");
+      for (const locale of LOCALES) {
+        const intro = t("studio.bank.intro", "staff", { locale });
+        c.expect(intro.includes(t("studio.nav.unggah", "staff", { locale })) && (locale === "id" ? /buku kerja/ : /workbook/).test(intro),
+          `(${locale}) the Bank Soal line does not say a question is changed by a workbook in ${t("studio.nav.unggah", "staff", { locale })}: "${intro}"`);
+      }
+
+      /**
+       * 2. UX-04: A SCHOOL PICKER IS LABELLED «SEKOLAH», on Aturan Penilaian
+       *    and on Sertifikat, as on Buat Paket; never «Peran & akses».
+       */
+      for (const f of [["src", "app", "studio", "definisi", "page.tsx"], ["src", "app", "studio", "sertifikat", "page.tsx"]]) {
+        const src = baca(...f);
+        c.expect(/<span>\{s\("studio\.sekolah"\)\}<\/span>\s*<select className=\{field\} name="institution"/.test(src) && !/config\.section\.roles/.test(src),
+          `${f.slice(2).join("/")}: the school picker is not labelled «Sekolah»`);
+      }
+      for (const locale of LOCALES) {
+        c.expect(t("studio.sekolah", "staff", { locale }) === t("studio.unggah.sekolah", "staff", { locale }),
+          `(${locale}) Studio's school pickers are not labelled alike`);
+      }
+
+      /**
+       * 3. UX-12: THE JSON FORMS WAIT FOR THOSE WHO NEED THEM. Both sit in one
+       *    closed disclosure below the workbook, which opens when one of them
+       *    has just answered; each has its own button, and neither says it
+       *    makes a package (both only check and ask). No server/browser note,
+       *    and no field label outside the copy table.
+       */
+      const unggah = baca("src", "app", "studio", "unggah", "page.tsx");
+      const [iBuku, iD, iM, iT, iE] = ['id="buku-kerja"', "<details", 'id="mudah"', 'id="terstruktur"', "</details>"].map((x) => unggah.indexOf(x));
+      c.expect(iBuku >= 0 && iBuku < iD && iD < iM && iM < iT && iT < iE
+        && /<details className="grid gap-4" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
+        && /const sistemLainTerbuka = sp\.bagian === "mudah" \|\| sp\.bagian === "terstruktur";/.test(unggah),
+        "the JSON forms are not in one closed disclosure below the workbook that opens for their own answer");
+      c.expect(/\{s\("studio\.unggah\.periksa_mudah"\)\}<\/TombolKirim>/.test(unggah) && /\{s\("studio\.unggah\.periksa_terstruktur"\)\}<\/TombolKirim>/.test(unggah)
+        && !/placeholder="/.test(unggah) && !/studio\.unggah\.media_catatan|studio\.unggah\.buat_paket/.test(unggah),
+        "the JSON forms do not have a button each, or a field label or the server/browser note is still on the page");
+      for (const locale of LOCALES) {
+        const st = (k: HleEvent) => t(k, "staff", { locale });
+        const [a, b] = [st("studio.unggah.periksa_mudah"), st("studio.unggah.periksa_terstruktur")];
+        c.expect(a !== b && a !== st("studio.unggah.judul") && b !== st("studio.unggah.judul") && ![a, b].includes(TANPA_SALINAN),
+          `(${locale}) the JSON forms' buttons read "${a}" and "${b}"`);
+      }
+
+      /**
+       * 4. UX-14: THE FINDINGS SECTION IS CALLED WHAT THE STEPS CALL IT. Both
+       *    steps that send the reader to it name it by the section's own
+       *    heading, in each language.
+       */
+      const paket = baca("src", "app", "studio", "paket", "[course]", "page.tsx");
+      c.expect(/<h3 className="text-lg font-medium">\{s\("studio\.temuan\.judul"\)\}<\/h3>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
+        "the findings section is not headed with its own name");
+      for (const locale of LOCALES) {
+        const judul = t("studio.temuan.judul", "staff", { locale });
+        const bagian = locale === "id" ? `bagian ${judul}` : `${judul} section`;
+        for (const k of ["studio.langkah.periksa.arti", "studio.langkah.setujui.arti"] as const) {
+          c.expect(judul !== TANPA_SALINAN && t(k, "staff", { locale }).includes(bagian), `(${locale}) ${k} does not send the reader to «${bagian}»`);
+        }
+      }
+
+      /**
+       * 5. UX-16: MOVING AN ASSIGNMENT SAYS SO. The form is headed as a move,
+       *    its picker names the release to move to, its button says «Pindahkan»,
+       *    and each form names the class it moves.
+       */
+      c.expect(/<h3 className="text-lg font-medium">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h3>/.test(paket)
+        && /<span>\{s\("studio\.paket\.pindah\.tujuan"\)\}<\/span>/.test(paket)
+        && /\{s\("studio\.paket\.pindah\.tombol"\)\}<\/TombolKirim>/.test(paket)
+        && /\{namaKelas\.get\(a\.node_id as string\) \?\? "—"\}/.test(paket) && !/studio\.paket\.tugaskan/.test(paket),
+        "the move form is not headed, labelled and buttoned as a move, or does not name the class it moves");
+      for (const locale of LOCALES) {
+        const st = (k: HleEvent) => t(k, "staff", { locale });
+        c.expect((locale === "id" ? /^Pindahkan/ : /^Move/).test(st("studio.paket.pindah.judul")) && (locale === "id" ? /^Pindahkan$/ : /^Move$/).test(st("studio.paket.pindah.tombol")),
+          `(${locale}) the move form reads "${st("studio.paket.pindah.judul")}" / "${st("studio.paket.pindah.tombol")}"`);
+      }
+
+      return c.verdict(
+        "Bank Soal says once, in both languages, what it is for and that a question is changed by a workbook in Buat Paket, " +
+        "with no «Belum cukup bukti» under every question and no database id; Aturan Penilaian and Sertifikat label their " +
+        "school picker «Sekolah» as Buat Paket does; the two JSON forms sit in one closed disclosure below the workbook that " +
+        "opens for their own answer, each with its own checking button and no server/browser note; the findings section is " +
+        "headed «Temuan» / Findings, the name both steps send the reader to; and the move form is headed, labelled and " +
+        "buttoned as a move and names the class it moves",
+      );
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  {
+    id: "POLISH2-ADMIN-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => {
+        const f = join(repoRoot, ...p);
+        return existsSync(f) ? code(readFileSync(f, "utf8")) : "";
+      };
+      /**
+       * POLISH BATCH 2, the administrator's rows of the register (UX-07,
+       * UX-11, UX-30).
+       */
+
+      /**
+       * 1. UX-07: THE SCHOOL'S CODE IS THE SCHOOL'S. On a page that speaks of
+       *    a school, the code is «Kode sekolah» / "School code", and no
+       *    Pendataan line calls it an institution code.
+       */
+      c.expect(t("pendataan.kode.judul", "staff", { locale: "id" }) === "Kode sekolah" && t("pendataan.kode.judul", "staff", { locale: "en" }) === "School code",
+        `the school's code is called "${t("pendataan.kode.judul", "staff", { locale: "id" })}" / "${t("pendataan.kode.judul", "staff", { locale: "en" })}"`);
+      const institusi = renderAll().filter((r) => r.event.startsWith("pendataan.") && /kode institusi|institution code/i.test(r.text));
+      c.expect(institusi.length === 0, `a Pendataan line still says institution code: ${[...new Set(institusi.map((r) => r.event))].join(", ")}`);
+
+      /**
+       * 2. UX-11: THE PERSON IS SENT TO AN ADDRESS, NOT A PATH. The sign-in
+       *    address is this environment's own (NEXT_PUBLIC_APP_URL without its
+       *    scheme, plus /masuk), and «halaman Masuk PINTAR» when there is
+       *    none. RENDERED, a card and an email account, with and without an
+       *    address: the address is shown, or the page's name, and the bare
+       *    path /masuk never is. No line in the copy table sends anyone to
+       *    «halaman /masuk». From the SOURCE, the page's introduction ends the
+       *    same way.
+       */
+      let alamatMasuk: ((a?: string) => string | null) | undefined;
+      try { alamatMasuk = (await import("../src/components/aktivasi/alamat")).alamatMasuk; } catch { /* reported below */ }
+      c.expect(typeof alamatMasuk === "function" && alamatMasuk("https://app.pintarselalu.com") === "app.pintarselalu.com/masuk"
+        && alamatMasuk("https://staging.pintarselalu.com/") === "staging.pintarselalu.com/masuk"
+        && alamatMasuk("") === null && alamatMasuk("javascript:alert(1)") === null && alamatMasuk("bukan alamat") === null,
+        "the sign-in address is not the environment's own host plus /masuk, or something that is not a web address becomes one");
+      const KASUS = [
+        { locale: "id", mode: "CLASSROOM_CARD", jawaban: { ok: true, card: "7001234567", pin: "482913" } },
+        { locale: "en", mode: "EMAIL", jawaban: { ok: true, mode: "EMAIL" }, surel: "guru@sekolah.sch.id" },
+      ];
+      const render = (asal: string | null) => {
+        const env: NodeJS.ProcessEnv = { ...process.env, KASUS_P2: JSON.stringify(KASUS) };
+        if (asal) env.NEXT_PUBLIC_APP_URL = asal; else delete env.NEXT_PUBLIC_APP_URL;
+        const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+          "(async () => {" +
+          '  const { createElement: h } = await import("react");' +
+          '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+          '  const a = await import("file://" + process.cwd() + "/src/components/aktivasi/HasilAktivasi.tsx");' +
+          "  const Hasil = a.default?.default ?? a.default;" +
+          "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_P2).map((k) => renderToStaticMarkup(h(Hasil, k)))));" +
+          "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], { cwd: repoRoot, encoding: "utf8", env });
+        let html: string[] = [];
+        try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+        c.expect(anak.status === 0 && html.length === KASUS.length, `the activation results could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`);
+        return html.map((x) => x.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&"));
+      };
+      const denganAlamat = render("https://app.pintarselalu.com");
+      const tanpaAlamat = render(null);
+      KASUS.forEach((k, n) => {
+        const nama = t("aktivasi.halaman_masuk", "staff", { locale: k.locale as "id" | "en" });
+        const a = denganAlamat[n] ?? "", b = tanpaAlamat[n] ?? "";
+        c.expect(a.includes('<strong class="pin-num">app.pintarselalu.com/masuk</strong>') && !a.replace("app.pintarselalu.com/masuk", "").includes("/masuk"),
+          `${k.mode} (${k.locale}): with an address, the result does not send the person to it: ${a.slice(0, 200)}`);
+        c.expect(b.includes(nama) && !b.includes("/masuk"),
+          `${k.mode} (${k.locale}): with no address, the result does not name «${nama}»: ${b.slice(0, 200)}`);
+      });
+      const jalur = renderAll().filter((r) => /halaman \/masuk|\/masuk page/i.test(r.text));
+      c.expect(jalur.length === 0, `a line still sends someone to the path /masuk: ${[...new Set(jalur.map((r) => r.event))].join(", ")}`);
+      c.expect(/<p className="pin-intro">\{s\("aktivasi\.intro"\)\} <KeMasuk s=\{s\} sebelum="aktivasi\.intro\.buka" \/><\/p>/.test(baca("src", "app", "aktivasi", "page.tsx")),
+        "the activation page's introduction does not end with the sign-in address");
+
+      /**
+       * 3. UX-30: KONFIGURASI OFFERS ONLY WHAT EXISTS. No menu item for a
+       *    section that only says it will come later, no such section, and
+       *    every menu item leads to a section on the page.
+       */
+      const konf = baca("src", "app", "konfigurasi", "page.tsx");
+      const menu = [...(/const nav: Array<\[string, string\]> = \[([\s\S]*?)\n\s*\];/.exec(konf)?.[1] ?? "").matchAll(/\["([a-z]+)", s\(/g)].map((m) => m[1]);
+      c.expect(menu.length >= 5 && !menu.some((x) => ["content", "assessment", "certificates"].includes(x)),
+        `the Konfigurasi menu still offers a section that does not exist yet: ${menu.join(", ")}`);
+      const tanpaTujuan = menu.filter((x) => !konf.includes(`id="${x}"`));
+      c.expect(tanpaTujuan.length === 0, `a Konfigurasi menu item leads nowhere: ${tanpaTujuan.join(", ")}`);
+      c.expect(!/config\.placeholder/.test(konf) && !/terisi pada tahap berikutnya|filled in at a later phase/i.test(renderAll().map((r) => r.text).join("\n")),
+        "a section that only says it will come later is still on the page, or its line is still in the copy table");
+
+      return c.verdict(
+        "the school's code is «Kode sekolah» / School code and no Pendataan line calls it an institution code; the sign-in " +
+        "address is this environment's own host plus /masuk (and nothing that is not a web address becomes one); rendered, a " +
+        "card's and an email account's results send the person to that address, or to «halaman Masuk PINTAR» when there is " +
+        "none, never to the path /masuk, and no copy line does; the activation page's introduction ends the same way; and " +
+        "Konfigurasi's menu offers only sections that exist, each leading to its section on the page",
       );
     },
   },
