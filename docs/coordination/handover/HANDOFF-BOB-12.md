@@ -189,9 +189,9 @@ Migration `20261019100000_a_card_waits_after_failures.sql`, the 125th.
 ## CI
 [ci #CI_RUN](CI_URL) on `HEAD_SHA`, dispatched once and not waited on; please read the result there.
 - **Local, before dispatch, every database with an `en-US` ICU collation, on `3623725`:**
-  - **Full suite, fresh database, clean build:** LOCAL_FULL
-  - **Plants:** LOCAL_PLANTS
-  - **Shared red cases:** LOCAL_SHARED
+  - **Full suite, fresh database, clean build:** 373 passed, 0 failed, 30 justified skips. BOB12-A01 is among the justified: it needs live Auth and runs in CI. One unjustified skip is UX1-PIMPINAN-AKSES-01 (network), as before this change. F01-R07 passed.
+  - **Plants:** 100 of 100 proved their gate on a copy taken straight after the seeds (the 91 before, plus bob12-1 to bob12-9).
+  - **Shared red cases:** all 16 gates, `db-bob12-gates` included, exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 246 of 246.
 - The one new job is the `db-bob12-gates` red case, now 9 plants.
 
 ## CONTRACT
