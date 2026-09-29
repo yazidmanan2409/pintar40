@@ -1,6 +1,6 @@
 # Identity Gate 0: external facts (C-09)
 
-**Status: automated reads DONE (29 Sep); M3 and M4 SATISFIED (29 Sep); M5 settings CONFIRMED and variable names fixed (29 Sep), variables awaited in Vercel; M1, M2 and M6 OUTSTANDING (M7 optional) (§3).**
+**Status: automated reads DONE (29 Sep); M3 and M4 SATISFIED (29 Sep); M5 SATISFIED (29 Sep); M1, M2 and M6 OUTSTANDING (M7 optional) (§3).**
 
 **Sources, all read-only:**
 - `identity-facts.yml` runs 36500989135 and 36501186293: Supabase Auth settings, allow-listed and non-secret; template bodies hashed, never printed; DNS via `dig` on a GitHub runner.
@@ -111,7 +111,7 @@ All four mailboxes exist in Namecheap cPanel (Email Accounts screen, 29 Sep, sup
 | M2 | Stellar Business per-mailbox limits (per hour, recipients per message) | Capacity | Namecheap documentation link or a support-chat screenshot | 8 |
 | M3 | FROM display name and address | What users see | **SATISFIED 29 Sep:** Tim PINTAR <noreply@pintarselalu.com> (subject to the 2E sending and deliverability evidence) | 2E |
 | M4 | Reply-To / support address | Where replies go | **SATISFIED 29 Sep:** info@pintarselalu.com (no separate support mailbox for 4.0; security@ reserved) | 2E |
-| M5 | SMTP credentials for the app path, **added by you as Vercel environment variables**. Never pasted in chat | Sending | **Settings CONFIRMED 29 Sep** from cPanel; identical to Supabase's. **Names fixed 29 Sep** (§2). Outstanding: the four variables in `pintar40-staging` (Production), shown by a Vercel screenshot of the **names** only (values hidden) | 2E |
+| M5 | SMTP credentials for the app path, **added by you as Vercel environment variables**. Never pasted in chat | Sending | **SATISFIED 29 Sep.** Settings confirmed from cPanel, identical to Supabase's; names fixed (§2). Yazid added the four to `pintar40-staging`, **Production only**; the password never passed through chat or the repository. Vercel screenshot (names only, values hidden): `PINTAR_SMTP_HOST`, `PINTAR_SMTP_PORT`, `PINTAR_SMTP_USER`, `PINTAR_SMTP_PASSWORD`, each marked with the lock icon (sensitive), target Production. No redeploy (none needed). Still to prove in BOB-25: a Vercel function reaches port 465 with them | 2E |
 | M6 | Two real inboxes for deliverability proof (one Gmail, one Outlook) | SPF, DKIM and DMARC = PASS in reality | After BOB-25's first staging send: the "Show original" / message-header screenshots | 2E |
 | M7 | (Optional) DMARC reporting address | Visibility of spoofing and delivery | DNS change by you; the next facts run shows it | 7 |
 | M8 | Supabase settings changes, done through workflows when each gate needs them (staging), and at the release (production): code length and expiry, password policy, leaked-password check, password-change safeguards, MFA enrolment off, IP forwarding (BOB-12) | Rulings and gaps above | No evidence now; each change is read back by `identity-facts.yml` after it is made | 1, 3, 8 |
