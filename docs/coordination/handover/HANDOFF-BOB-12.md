@@ -1,6 +1,16 @@
 # Bob → coordinator: BOB-12 (a school's morning sign-in; identity Gate 1, D-058)
 
-**Head:** `HEAD_SHA`, with `main` merged in twice: `b346144` (LANA-04) as `c751350` before the work, then `1c52bea` (LANA-05 and 06, the board) as `e5c2b1c`. That last merge adds content under `docs/` and one change to `audit/staging/journey.mjs`, which no selftest reads; it is lint-clean. The code is `3623725`, which meets the two approvals' conditions (see ROUND 2 below). BOB-31 is `70afa3e`. **One run:** ci #CI_RUN. ci #222 on `e5c2b1c` was cancelled as soon as the approvals arrived: it no longer tested the head.
+**Head:** `8a3eb6a`, with `main` merged in three times:
+- `b346144` (LANA-04) as `c751350`, before the work;
+- `1c52bea` (LANA-05 and 06, the board) as `e5c2b1c`: content under `docs/`, and one change to `audit/staging/journey.mjs`, which no selftest reads (lint-clean);
+- `7a9bf8e` (**DAISY-26**) as `8a3eb6a`, with no textual conflict.
+
+**Manifest:** both sides were at 108, so it is **109**, with every entry kept: main's 399 ids and BOB-12's seven, 406 in all. `hle.ts` keeps Daisy's keys and my two health-card sentences, still marked for her.
+
+**Code:** `3623725`, which meets both approvals' conditions (see ROUND 2 below). BOB-31 is its own commit, `70afa3e`.
+
+**One run:** ci #224. ci #222 on `e5c2b1c` was cancelled as soon as the approvals arrived, because it no longer tested the head.
+
 **Gated with DAISY-13** (D-043): this lane carries only a minimal card-form change so it stands alone; see INTEGRATION.
 
 ## ROUND 2: the approvals' conditions (29 Sep)
@@ -187,11 +197,15 @@ Migration `20261019100000_a_card_waits_after_failures.sql`, the 125th.
 - **UX1-BRAND-02 and UX1-TUR-ORANG-01:** the migration tripwires move 124 → 125, with the reason written beside them. The new table is `card_signin_cooldowns (kunci, percobaan, diperbarui)`: no mark or brand column, and no tour RPC.
 
 ## CI
-[ci #CI_RUN](CI_URL) on `HEAD_SHA`, dispatched once and not waited on; please read the result there.
+[ci #224](https://github.com/yazidmanan2409/pintar40/actions/runs/36525443544) on `8a3eb6a`, dispatched once and not waited on; please read the result there.
 - **Local, before dispatch, every database with an `en-US` ICU collation, on `3623725`:**
   - **Full suite, fresh database, clean build:** 373 passed, 0 failed, 30 justified skips. BOB12-A01 is among the justified: it needs live Auth and runs in CI. One unjustified skip is UX1-PIMPINAN-AKSES-01 (network), as before this change. F01-R07 passed.
   - **Plants:** 100 of 100 proved their gate on a copy taken straight after the seeds (the 91 before, plus bob12-1 to bob12-9).
   - **Shared red cases:** all 16 gates, `db-bob12-gates` included, exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 246 of 246.
+- **On the merged head `8a3eb6a`** (DAISY-26 changes only pages, components, `experience.css`, `hle.ts`, the experience tests and the manifest; nothing under `supabase/`, `selftest/db/`, `selftest/plants/`, `scripts/` or `src/app/api/`, so the database proof above still holds):
+  - typecheck and lint clean;
+  - a clean production build;
+  - every static and app test: 136 passed, 0 failed. That includes DAISY-26-BELAJAR-01 and -MENGAJAR-01, F01-S03, F06-S04, UX1-MASUK-PRIVASI-01, L2-KONTRAK-01, both tripwires, BOB12-K01 and BOB12-K02.
 - The one new job is the `db-bob12-gates` red case, now 9 plants.
 
 ## CONTRACT
@@ -259,4 +273,4 @@ F10-V01, V02 and V03 still assert exactly what they did. The plants that go thro
 2. None else. The approvals' conditions are met as described in ROUND 2.
 
 ## READY
-Yes, once ci #CI_RUN on `HEAD_SHA` is green, to be gated with DAISY-13. BOB-31 rides in it. Staging acceptance (C) follows the settings.
+Yes, once ci #224 on `8a3eb6a` is green, to be gated with DAISY-13. BOB-31 rides in it. Staging acceptance (C) follows the settings.
