@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 109,
+  "version": 110,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2239,6 +2239,21 @@
       "id": "DAISY-18-DENGAR-01",
       "runner": "static",
       "proves": "DAISY-18 (D-047): PINTAR shows it heard you -- DAISY-17's Idle → Working → Success / Error as shared pieces, read from the SOURCE files. (1) Each main section (Konfigurasi, Studio, Mengajar, Pimpinan, Belajar, Aktivasi, Pendataan) has a loading.tsx file that is the one shared shell, MemuatHalaman, and nothing else -- the framed shell inside a section that draws its own layout (Studio), with no second header or <main>; every other loading.tsx is the shell too; it says \"Memuat halaman…\" once (role=\"status\") in the reader's language with its shape aria-hidden. (2) Every <Link> inside a <nav> and every place tab (TabTempat) carries TandaTautan, a client component drawing Next 16's useLinkStatus as a working dot that takes no room at rest. (3) Every section a Studio or Konfigurasi action returns to (parsed from each back() call) has its result line on that page -- Studio's HasilDi naming the section beside its form, Konfigurasi's result(section) under its form -- and the sentence reaches the screen only through BarisHasil (role=\"status\", scrolled into view when it appears); role=\"alert\" and the old error line are gone from src/app and src/components except four named non-results (the error page, sign-in, an unreadable structure, a run's live count); the listed result components answer in BarisHasil; a refused Sediakan answers at its button; a decision's answer sits on the card that was moved; Sediakan and Uji Cepat say they were done. (4) No Studio or Konfigurasi success returns a bare { ok: true }; every success code has its own sentence in both languages naming no code (Peran diberikan. / Peran dicabut.; the structure panel's <Kelas> ditambahkan.). Controls: a page-own loading screen, the full shell inside a frame, a bare menu link, an unplaced section and a planted alert line are each caught. Red on d6cde10: no section has a loading.tsx, no menu link carries TandaTautan, no BarisHasil exists."
+    },
+    {
+      "id": "DAISY-13-KARTU-01",
+      "runner": "static",
+      "proves": "DAISY-13 (BOB-12 (c), audit M13): the card screen reads BOB-12's published answer from POST /masuk/kartu. Read: a known code wins, else its status (401 non-match, 429 rate limit, 403 refused, 503 unavailable, anything else 'could not reach PINTAR'); a wait is the route's own (the body's tunggu, else Retry-After), never invented and never outside 1..3600 s, and only on the two waits; a reference must be six capitals or digits; a destination must be inside PINTAR (no //, no other scheme); nothing else the route sends (message, error) is kept. Words, both languages: a non-match is exactly auth.card_failed ('Belum cocok'); a cooldown and a rate limit say wait and try again with the route's wait in the reader's units when given ('Tunggu 30 detik, lalu coba lagi.', 'Wait 5 minutes, then try again.') and 'sebentar' when not, and never that the card does not match (the non-match sentence is the control); a cooldown adds who to ask about a forgotten PIN; an outage gives its reference only when it has one; nothing names a code, a status or the machinery; only the two waits are drawn as a note. Screen: the card form is posted as it is to /masuk/kartu by the one fetch, the page leaves only for a signed-in answer's destination, the result is said in the one card message, signInWithCard is no longer called and the card path reads no .message/.error/.details. BOB-12's route is on the head (31c576d): the screen reads the route's own published codes (src/lib/kartu-kontrak.ts, STATUS_KARTU) rather than a copy; the route's decision (src/lib/kartu-masuk.ts) answers exactly those five; each has a sentence of its own in both languages, never the 'could not reach PINTAR' kept for an answer outside the contract; and the form and the route agree on the fields kartu, pin and lanjut. The health card counts the card's door: Konfigurasi's two public-surface checks (config.kesehatan.cek.anon_public_surface, .anon_reachable_http_paths; BOB-12's declaration, the words confirmed and the second replaced by DAISY-13) say the counts src/lib/kesehatan-skema.json expects, in both languages, and the addresses sentence names every surface the surface sentence names; a planted sentence one short is caught."
+    },
+    {
+      "id": "DAISY-13-KARTU-02",
+      "runner": "app",
+      "requires": [
+        "app",
+        "network"
+      ],
+      "skip_justification": "needs the running application with BOB-12's card route and the Supabase project it asks: it posts the card form to POST /masuk/kartu. CI has both facilities (and, gated with BOB-12, the route), so it never skips there",
+      "proves": "DAISY-13 against BOB-12's running route (gated together, D-043). The card form's own request (kartu, pin, lanjut), from PINTAR's own origin, for a fresh random card number nobody holds, is answered 401 with code CARD_NOT_MATCHED, and the screen's own reader (bacaJawabanKartu) reads it as the one non-match with no wait; the same request with another site's Origin is answered 403 and read as CARD_REQUEST_REFUSED. A fresh number each run, so no seeded card's cooldown is touched."
     },
     {
       "id": "BOB19-K01",
