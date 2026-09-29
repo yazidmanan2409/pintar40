@@ -1,5 +1,5 @@
 import "server-only";
-import { createHash } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
 import { cardPepper } from "@/lib/env";
 import { domainKartu } from "@/lib/sesi";
 
@@ -18,4 +18,14 @@ export function deriveCardSecret(cardNumber: string, pin: string): string {
  */
 export function cardEmail(cardNumber: string): string {
   return `card-${cardNumber}@${domainKartu()}`;
+}
+
+/**
+ * BOB-12 (b): the key a card's failed attempts are counted under. An HMAC of
+ * the card number with the same pepper, under its own label, so the database
+ * never sees a card number and nobody without the pepper can compute or clear
+ * another card's record. Any number typed is keyed the same way, existing or not.
+ */
+export function kunciJedaKartu(cardNumber: string): string {
+  return createHmac("sha256", cardPepper()).update(`jeda-kartu|${cardNumber}`).digest("hex");
 }

@@ -433,7 +433,8 @@ async function jawab(page, mode, right) {
     await opts.nth(idx).click();
     await page.waitForFunction(([n]) => document.querySelectorAll("ul.pin-opsi button.pin-op")[n]?.getAttribute("aria-pressed") === "true", [idx], { timeout: SLOW });
     if (formal) {
-      await page.getByRole("button", { name: "Kunci jawaban ini", exact: true }).click();
+      // «Kunci jawaban ini» until DAISY-26 (UX-24), «Simpan jawaban ini» after
+      await page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ }).click();
       await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW });
     } else {
       await page.waitForTimeout(400);
@@ -468,7 +469,8 @@ async function bukaPemetaan(P) {
     await P.waitForURL((u) => u.pathname === `/belajar/${tugas}`, { timeout: SLOW });
     await P.locator("h1").first().waitFor({ timeout: SLOW });
     const trail = await text(P, "ol.pin-jejak");
-    await P.locator("section.pin-lanjut").getByRole("link", { name: "Mulai", exact: true }).click();
+    // by address, not by word: «Mulai» until DAISY-26 (UX-21), «Mulai Pemetaan Awal» after
+    await P.locator(`section.pin-lanjut a[href="/belajar/${tugas}/pemetaan"]`).first().click();
     await P.waitForURL((u) => u.pathname === `/belajar/${tugas}/pemetaan`, { timeout: SLOW });
     return { via: "the next-action panel, then the assignment page", trail };
   }

@@ -79,6 +79,19 @@ export function perluDisimpan(halaman: number, tersimpan: number): number | null
   return posisi > (Number.isFinite(tersimpan) ? tersimpan : 0) ? posisi : null;
 }
 
+/**
+ * BOB-23 round 2. WHETHER A SAVE HAS JUST MADE THE LESSON READ: its result is
+ * ok and the server's furthest count reaches the total. The page's closing
+ * action (Uji Penguasaan, once every lesson is read) is decided when the page
+ * renders, and a save no longer redraws the page -- so on exactly this save,
+ * and no other, the player asks for one refresh. perluDisimpan already
+ * guarantees the save is the one that crossed: it saves only beyond what was
+ * saved.
+ */
+export function menjadiDibaca(hasil: { ok: boolean; furthest?: number } | null | undefined, total: number): boolean {
+  return Boolean(hasil?.ok) && total > 0 && (hasil?.furthest ?? 0) >= total;
+}
+
 /** A lesson counts as read when the learner reached its last page. */
 export function lessonRead(l: Pick<LessonEntry, "furthest_position" | "total_positions">): boolean {
   const total = l.total_positions ?? 0;

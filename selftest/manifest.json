@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 107,
+  "version": 109,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1735,7 +1735,7 @@
     {
       "id": "DAISY-04-TIDAK-ADA-01",
       "runner": "app",
-      "proves": "DAISY-04 (D-011): an address that leads nowhere gets PINTAR's own not-found page. The RENDERED html of two public paths that lead nowhere -- /masuk/kartu (audit N12) and a path under /verifikasi/ -- is fetched anonymously over HTTP in Indonesian and English: each answers 404, carries PINTAR's heading in the chosen language, declares that language on <html>, offers the way back, and never shows Next's English default."
+      "proves": "DAISY-04 (D-011): an address that leads nowhere gets PINTAR's own not-found page. The RENDERED html of two public paths that lead nowhere -- two paths under the public prefix /verifikasi/ (not /masuk/kartu any more: it is BOB-12's card route, DAISY-13) -- is fetched anonymously over HTTP in Indonesian and English: each answers 404, carries PINTAR's heading in the chosen language, declares that language on <html>, offers the way back, and never shows Next's English default."
     },
     {
       "id": "DAISY-04-KUNCI-01",
@@ -1987,6 +1987,47 @@
       "id": "BOB23-K02",
       "runner": "static",
       "proves": "BOB-23, D-009 kept: throttle, not skip. perluGeserSesi in the source file src/lib/sesi.ts keeps a classroom card signed in through three hours of server actions every 30 s with no page request (three times its 60-minute limit) while re-sending the session at most once per JEDA_GESER_AKSI (5 minutes), where a proxy that skips actions loses it at the limit; an email account over a day likewise; a page request always re-sends; src/proxy.ts asks it on server actions, always re-sends a session it has just refreshed, and records each re-send."
+    },
+    {
+      "id": "BOB23-K03",
+      "runner": "static",
+      "proves": "BOB-23 round 2 (X-08 kept). In the source file src/lib/siklus.ts, menjadiDibaca driven through every render a lesson sees refreshes a 5-page lesson read to its last page exactly once, on the save that makes it read, and never when paging over a lesson already read or after a failed last-page save; src/app/belajar/_components/LessonPlayer.tsx has one refresh, behind menjadiDibaca on the save's own result, and saveLessonProgress answers with the server's furthest count."
+    },
+    {
+      "id": "BOB12-K01",
+      "runner": "static",
+      "proves": "BOB-12 (identity Gate 1): the class card's sign-in, POST /masuk/kartu (next.config.ts rewrites it to src/app/api/masuk/kartu/route.ts), decided in src/lib/kartu-masuk.ts and driven here with every outside call recorded: a foreign or missing Origin, or a Sec-Fetch-Site other than same-origin (a cross-site POST), 403 CARD_REQUEST_REFUSED and an empty card 401 CARD_NOT_MATCHED with nothing asked; the card's cooldown asked before Auth, a wait 429 CARD_COOLDOWN with Retry-After and Auth not asked; a wrong PIN and a card nobody holds one identical 401; Auth's limit 429 CARD_RATE_LIMITED with no invented wait; only Auth's 429, a 5xx, a network failure or a timeout is taken back, while every 4xx, an unexplained error and a throw count; unreachable 503 CARD_UNAVAILABLE with a logged reference; a match signs in with the server-derived secret and clears the record; the route's source makes one service-role client per request, used for card_signin_attempt and card_signin_settle only, and bounds Auth's answer by a timeout; and no server action in src/ signs in with a password (signInWithCard deleted)."
+    },
+    {
+      "id": "BOB12-K02",
+      "runner": "static",
+      "proves": "BOB-12 (a): the real Supabase client driven through fetchBerpenerus (the source file src/lib/auth-forwarding.ts) with a recording fetch sends the secret key and sb-forwarded-for only on POST /auth/v1/token (password, refresh_token) and POST /auth/v1/verify; no data request, lookalike path, other method, grant or host carries the key; a forged sb-forwarded-for or x-forwarded-for is never believed, the address is x-real-ip only; and src/proxy.ts refreshes through it while src/lib/supabase/service.ts never does."
+    },
+    {
+      "id": "F15-P01",
+      "runner": "db",
+      "proves": "BOB-12 (b), the card's cooldown in migration 20261019100000 (card_signin_attempt), measured in selftest/db/fable15.sql: 5 attempts within 15 minutes are free, then each waits 30 s after the one before, then 60, 120, 240 and at most 300 s; a waiting attempt is not recorded; attempts older than 15 minutes are forgotten; it is never a lock; one card's count is not another's."
+    },
+    {
+      "id": "F15-P02",
+      "runner": "db",
+      "proves": "BOB-12 (b), card_signin_settle in selftest/db/fable15.sql: a sign-in clears the card's record, an attempt Auth never judged (its own limit, or unreachable) is taken back so a busy morning never counts against a card, yet with unjudged attempts taken back around them exactly 5 judged attempts go ahead before the card waits, a non-match stays counted, and only a 64-hex card key and a known outcome are accepted (22023)."
+    },
+    {
+      "id": "F15-N01",
+      "runner": "db",
+      "proves": "BOB-12 (b), measured in selftest/db/fable15.sql: card_signin_cooldowns has RLS on, no policies and no grants; card_signin_attempt and card_signin_settle execute for service_role only (never public, anon or authenticated) and are no client RPC, so the anonymous principal still executes nothing; a signed-in client and a visitor are each refused both functions (42501); /masuk/kartu and its rewrite target /api/masuk/kartu are declared in public_surface_registry and assert_public_surface holds; a card number is refused as a key."
+    },
+    {
+      "id": "F15-C01",
+      "runner": "db",
+      "proves": "BOB-12 (b) under real concurrency (runCardConcurrency in selftest/run.ts): 20 connections calling card_signin_attempt for one card at the same moment let exactly 5 through to Auth and tell the other 15 to wait about 30 s, the card's row holds exactly 5 attempts, and a sign-in then clears it."
+    },
+    {
+      "id": "BOB12-A01",
+      "runner": "app",
+      "skip_justification": "needs live Supabase Auth; this session's egress policy denies *.supabase.co and Docker is unavailable — runs in CI against the local stack, and the route was rehearsed locally against a stand-in (HANDOFF-BOB-12)",
+      "proves": "BOB-12 against the running route (src/app/api/masuk/kartu/route.ts at POST /masuk/kartu) with live Auth: card 7001's wrong PIN 401 CARD_NOT_MATCHED with no session and one attempt counted; its own PIN 200 with the learner's home, 3600 s session cookies and the record cleared; five recent failures 429 CARD_COOLDOWN with a matching Retry-After and no session; another site's Origin and a cross-site POST (Sec-Fetch-Site) 403 CARD_REQUEST_REFUSED with no session; GET 303 /masuk."
     },
     {
       "id": "BOB08-K01",

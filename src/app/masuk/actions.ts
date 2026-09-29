@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { keluarPerangkatIni } from "@/lib/keluar";
 import { currentViewer } from "@/lib/auth";
-import { cardEmail, deriveCardSecret } from "@/lib/card";
 import { appUrl } from "@/lib/env";
 import { berandaPeran } from "@/lib/beranda";
 import { tujuanInternal } from "@/lib/tujuan";
@@ -104,29 +103,10 @@ function terlaluSering(error: { code?: string; status?: number }): boolean {
   return error.status === 429;
 }
 
-/** What the card path reports back. Exactly one failure, for every refusal. */
-export type HasilKartu = "gagal";
-
-export async function signInWithCard(formData: FormData): Promise<HasilKartu> {
-  const card = String(formData.get("kartu") ?? "").replace(/\D/g, "");
-  const pin = String(formData.get("pin") ?? "").replace(/\D/g, "");
-  // L-1. A server action is reachable by a caller that never rendered the
-  // form, so the hidden field is untrusted input however it was drawn.
-  const raw = formData.get("lanjut");
-  if (!card || !pin) return "gagal";
-  const supabase = await supabaseServer();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: cardEmail(card),
-    password: deriveCardSecret(card, pin),
-  });
-  // ONE FAILURE FOR EVERY REFUSAL, and the collapse happens here rather than in
-  // the screen so there is nothing for a later caller to un-collapse. A missing
-  // card and a mistyped PIN are the same `invalid_credentials` at the layer
-  // (verification task 4), and even if they ever stopped being, this function
-  // returns the same value for both.
-  if (error) return "gagal";
-  redirect(await tujuanMasuk(raw));
-}
+// BOB-12: the class card signs in through POST /masuk/kartu
+// (src/app/api/masuk/kartu/route.ts), which counts every card's failed
+// attempts before Auth is asked. The server action that did it before is gone:
+// an action is a public endpoint, and it would have walked around that count.
 
 /**
  * Where a newly signed-in person goes.

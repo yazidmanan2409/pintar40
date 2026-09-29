@@ -844,12 +844,17 @@ await step("P2", "PUB-02: a stranger cannot sign themselves up", async (rec) => 
 await step("P3", "U-LOC: an unknown page shows PINTAR's own localized page, not a framework default", async (rec) => {
   const pc = await ctx();
   const p = await pc.newPage();
-  const resp = await p.goto(`${APP}/masuk/kartu`, { waitUntil: "networkidle" });
+  // A path no release will ever build. It used to be /masuk/kartu, which was unknown until BOB-12 built it
+  // (a GET there now redirects to /masuk, recorded below as BOB-12's own behaviour).
+  const resp = await p.goto(`${APP}/halaman-yang-tidak-ada-${Date.now()}`, { waitUntil: "networkidle" });
   rec.shots.push(await shot(p, "unknown-page"));
   const txt = await bodyText(p);
   const frameworkDefault = /This page could not be found|Application error/i.test(txt);
+  // An anonymous visitor on a path outside the proxy's public list is sent to /masuk (200); signed in, it is PINTAR's 404.
   if (frameworkDefault) rec.verdict = "FAIL";
-  return `HTTP ${resp?.status()} | framework default page: ${frameworkDefault} | text: ${txt.slice(0, 120)}`;
+  const kartu = await p.goto(`${APP}/masuk/kartu`, { waitUntil: "networkidle" });
+  const kartuDi = new URL(p.url()).pathname;
+  return `HTTP ${resp?.status()} | framework default page: ${frameworkDefault} | text: ${txt.slice(0, 120)} | GET /masuk/kartu ends at ${kartuDi} (HTTP ${kartu?.status()})`;
 });
 
 await browser.close();

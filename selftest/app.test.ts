@@ -178,6 +178,24 @@ function productionDerivation(card: string, pin: string): string {
   return r.stdout.trim();
 }
 
+/**
+ * BOB-12: the key the card sign-in route counts a card's attempts under, from
+ * the production module in a child process for the same reason as above.
+ */
+function productionCooldownKey(card: string): string {
+  const script =
+    'import("file://" + process.cwd() + "/src/lib/card.ts").then((m) => {' +
+    "  const f = m.kunciJedaKartu ?? m.default?.kunciJedaKartu;" +
+    `  process.stdout.write(f(${JSON.stringify(card)}));` +
+    "})";
+  const r = spawnSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "-e", script], {
+    encoding: "utf8",
+    env: process.env,
+  });
+  if (r.status !== 0) throw new Error(`production cooldown key failed: ${(r.stderr || "").trim().split("\n").pop()}`);
+  return r.stdout.trim();
+}
+
 async function get(url: string, init: RequestInit = {}) {
   return fetch(url, { redirect: "manual", ...init });
 }
@@ -1920,13 +1938,14 @@ export const appTests: SelfTest[] = [
       /**
        * DAISY-04 (D-011): AN ADDRESS THAT LEADS NOWHERE GETS PINTAR'S PAGE, not
        * Next's English "404: This page could not be found". Asked over HTTP, as
-       * an anonymous visitor, on two public paths that lead nowhere -- one of
-       * them /masuk/kartu, which the proxy lists as public and which has no page
-       * (audit N12) -- in both languages.
+       * an anonymous visitor, on two public paths that lead nowhere, in both
+       * languages. Both are under /verifikasi/, the public prefix: /masuk/kartu,
+       * which this used to ask (audit N12), is BOB-12's card route now and
+       * answers a GET with a redirect to /masuk (DAISY-13).
        */
       const base = ctx.appUrl!;
       let dilihat = 0;
-      for (const path of ["/masuk/kartu", "/verifikasi/tidak/ada"]) {
+      for (const path of ["/verifikasi/tidak/ada", "/verifikasi/a/b/c"]) {
         for (const locale of ["id", "en"] as const) {
           const res = await get(`${base}${path}`, { headers: { cookie: `pintar-lang=${locale}` } });
           const raw = await res.text();
@@ -1942,8 +1961,8 @@ export const appTests: SelfTest[] = [
       }
       return c.verdict(
         `an anonymous visitor to an address that leads nowhere gets a 404 carrying PINTAR's own page in the language ` +
-        `they chose, never Next's English default, with a way back (${dilihat} requests: /masuk/kartu and a path ` +
-        `under /verifikasi/, in Indonesian and English)`,
+        `they chose, never Next's English default, with a way back (${dilihat} requests: two paths under ` +
+        `/verifikasi/, in Indonesian and English)`,
       );
     },
   },
@@ -2812,6 +2831,87 @@ export const appTests: SelfTest[] = [
           "administrator; persons_awaiting_first_role_at names the new teacher and not the one holding a role, and " +
           "another school's list answers nothing; read-url serves the school's own teacher's profile photo and refuses " +
           "another school's teacher's with 403",
+      );
+    },
+  },
+  {
+    // BOB-12 (identity Gate 1): the class card signs in through the running
+    // route, POST /masuk/kartu, with live Auth -- the card's own sign-in, the
+    // one non-match, the cooldown read before Auth is asked, and the GET.
+    // Two Auth sign-ins only: the cooldown is primed through the database, as
+    // five earlier failures would leave it, so the suite stays inside Auth's
+    // own per-address limit.
+    id: "BOB12-A01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const db = process.env.SUPABASE_DB_URL!;
+      const psql = (sql: string) => {
+        const r = spawnSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", "-At", "-c", sql, db], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql: ${(r.stderr || "").trim().split("\n").pop()}`);
+        return r.stdout.trim();
+      };
+      const kunci = productionCooldownKey("7001");
+      const tercatat = () => psql(`select coalesce((select cardinality(percobaan) from public.card_signin_cooldowns where kunci = '${kunci}'), -1)`);
+      const kirim = async (pin: string, origin = new URL(base).origin) => {
+        const fd = new FormData();
+        fd.set("kartu", "7001"); fd.set("pin", pin); fd.set("lanjut", "");
+        const r = await get(`${base}/masuk/kartu`, { method: "POST", body: fd, headers: { origin, accept: "application/json" } });
+        return { r, body: (await r.json().catch(() => null)) as Record<string, unknown> | null };
+      };
+      psql(`delete from public.card_signin_cooldowns where kunci = '${kunci}'`);
+      try {
+        // a wrong PIN: the one non-match, counted against the card
+        const salah = await kirim("1357");
+        c.expect(salah.r.status === 401 && salah.body?.code === "CARD_NOT_MATCHED" && salah.r.headers.get("cache-control")?.includes("no-store") === true,
+          `a wrong PIN → ${salah.r.status} ${JSON.stringify(salah.body)}`);
+        c.expect(salah.r.headers.getSetCookie().every((k) => !/^sb-[^=]+-auth-token/.test(k)), "a wrong PIN set a session cookie");
+        c.expect(tercatat() === "1", `a wrong PIN left ${tercatat()} attempt(s) counted, expected 1`);
+
+        // the card's own PIN: signed in with a card's lifetime, sent to the learner's home, the record cleared
+        const benar = await kirim("2468");
+        const kue = benar.r.headers.getSetCookie().filter((k) => /^sb-[^=]+-auth-token(\.\d+)?=/.test(k));
+        c.expect(benar.r.status === 200 && benar.body?.ok === true && typeof benar.body?.tujuan === "string",
+          `the card's own PIN → ${benar.r.status} ${JSON.stringify(benar.body)}`);
+        c.expect(kue.length > 0 && kue.every((k) => /Max-Age=3600/i.test(k)),
+          `the sign-in's session cookies: ${kue.length} with Max-Age ${kue.map((k) => /Max-Age=(\d+)/i.exec(k)?.[1]).join(",")}, expected 3600`);
+        c.expect(tercatat() === "-1", `a sign-in left the card's record (${tercatat()} attempt(s))`);
+        if (typeof benar.body?.tujuan === "string" && kue.length) {
+          const cookie = kue.map((k) => k.split(";")[0]).join("; ");
+          const rumah = await get(`${base}${benar.body.tujuan}`, { headers: { cookie } });
+          c.expect(rumah.status === 200 && benar.body.tujuan === "/belajar",
+            `the card went to ${benar.body.tujuan}, which answered ${rumah.status}; expected the learner's home /belajar`);
+        }
+
+        // five failures already in the window: the sixth waits, and Auth is not asked
+        psql(`set role service_role; select public.card_signin_attempt('${kunci}') from generate_series(1, 5)`);
+        const tunggu = await kirim("2468");
+        const ra = Number(tunggu.r.headers.get("retry-after"));
+        c.expect(tunggu.r.status === 429 && tunggu.body?.code === "CARD_COOLDOWN" && Number(tunggu.body?.tunggu) === ra && ra >= 1 && ra <= 30,
+          `a card with five recent failures → ${tunggu.r.status} ${JSON.stringify(tunggu.body)} Retry-After ${tunggu.r.headers.get("retry-after")}`);
+        c.expect(tunggu.r.headers.getSetCookie().every((k) => !/^sb-[^=]+-auth-token/.test(k)),
+          "a card in its cooldown was signed in with its own PIN: Auth was asked");
+
+        // another site, a cross-site POST as a browser marks it, and a browser landing here
+        const asing = await kirim("2468", "https://contoh.example");
+        c.expect(asing.r.status === 403 && asing.body?.code === "CARD_REQUEST_REFUSED", `another site's request → ${asing.r.status} ${JSON.stringify(asing.body)}`);
+        const fdSilang = new FormData();
+        fdSilang.set("kartu", "7001"); fdSilang.set("pin", "2468");
+        const silang = await get(`${base}/masuk/kartu`, { method: "POST", body: fdSilang, headers: { "sec-fetch-site": "cross-site", accept: "application/json" } });
+        const silangBody = (await silang.json().catch(() => null)) as Record<string, unknown> | null;
+        c.expect(silang.status === 403 && silangBody?.code === "CARD_REQUEST_REFUSED" && silang.headers.getSetCookie().every((k) => !/^sb-[^=]+-auth-token/.test(k)),
+          `a cross-site POST (Sec-Fetch-Site: cross-site, no Origin) → ${silang.status} ${JSON.stringify(silangBody)}`);
+        const lihat = await get(`${base}/masuk/kartu`);
+        c.expect(lihat.status === 303 && lihat.headers.get("location") === "/masuk", `GET /masuk/kartu → ${lihat.status} ${lihat.headers.get("location")}`);
+      } finally {
+        psql(`delete from public.card_signin_cooldowns where kunci = '${kunci}'`);
+      }
+      return c.verdict(
+        "against the running route with live Auth: card 7001 with a wrong PIN → 401 CARD_NOT_MATCHED, no session, one attempt " +
+          "counted; with its own PIN → 200 with the learner's home, session cookies of 3600 s and the record cleared, and the home " +
+          "answers 200 with them; with five recent failures → 429 CARD_COOLDOWN and a matching Retry-After, no session (Auth not " +
+          "asked); another site's request and a cross-site POST → 403 CARD_REQUEST_REFUSED with no session; GET → 303 /masuk",
       );
     },
   },
