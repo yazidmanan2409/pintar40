@@ -153,11 +153,29 @@ const ctx = () => browser.newContext({ viewport: { width: 1280, height: 900 }, l
 const gladysCtx = await ctx();
 const g = await gladysCtx.newPage();
 
+// BOB-38 (post-login review finding #1): a successful exchange must never show S14,
+// «Tautan ini sudah tidak berlaku», not even for the moment before the page moves on.
+// The observer is installed only on /auth/ pages, so it costs nothing later in the walk.
+const s14Terlihat = [];
+await g.exposeFunction("__s14", (path) => s14Terlihat.push(path));
+await g.addInitScript(() => {
+  if (!location.pathname.startsWith("/auth/")) return;
+  let lapor = false;
+  const periksa = () => {
+    if (lapor || !/Tautan ini sudah tidak berlaku/.test(document.body?.innerText ?? "")) return;
+    lapor = true;
+    window.__s14?.(location.pathname);
+  };
+  new MutationObserver(periksa).observe(document, { subtree: true, childList: true, characterData: true });
+  document.addEventListener("DOMContentLoaded", periksa);
+});
+
 await step("S1", "Gladys signs in with the email link (same browser)", async (rec) => {
   const r = await magicSignIn(g, GLADYS);
   rec.shots.push(await shot(g, "gladys-after-signin"));
   if (!["/konfigurasi", "/"].includes(r.landed)) rec.verdict = "FAIL";
-  return `landed on ${r.landed}; email subject "${r.subject}"`;
+  if (s14Terlihat.length) rec.verdict = "FAIL";
+  return `landed on ${r.landed}; email subject "${r.subject}"; S14 shown on the way: ${s14Terlihat.length ? `yes, at ${s14Terlihat.join(", ")}` : "no"}`;
 });
 
 await step("S1b", "the same link opened in a different browser", async (rec) => {
