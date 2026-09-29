@@ -1,0 +1,1770 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Geografi Kelas XI · Bab 3: Lingkungan dan Kependudukan",
+   "subject": "Geografi",
+   "stage": "SMA",
+   "grade_label": "Kelas XI",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Lingkungan dan Kependudukan",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Lingkungan Hidup dan Ekosistem",
+       "summary": "Lingkungan hidup terdiri atas unsur biotik, abiotik, dan sosial budaya yang saling memengaruhi, dan dapat berupa lingkungan alami atau buatan.",
+       "body_markdown": "## Lingkungan, ekologi, dan etika\n\n**Lingkungan hidup** adalah kesatuan ruang dengan segala benda, daya, keadaan, dan makhluk hidup, termasuk manusia dan perilakunya (UU No. 32 Tahun 2009).\n\n- **Ekologi** adalah ilmu yang mempelajari lingkungan, yaitu hubungan antara makhluk hidup dan lingkungannya.\n- **Ekosistem** adalah komunitas tumbuhan dan hewan bersama unsur tak hidup di lingkungannya.\n- **Etika lingkungan** adalah nilai-nilai keseimbangan dalam interaksi manusia dengan lingkungan hidupnya, yang terdiri atas aspek abiotik, biotik, dan budaya.\n\n## Lingkungan biotik\n\nLingkungan hidup dibagi menjadi lingkungan **biotik**, **abiotik**, dan **sosial budaya**.\n\nUnsur biotik (hayati) terdiri atas manusia, hewan, tumbuhan, dan organisme kecil. Menurut perannya:\n- **Produsen**: mengubah zat anorganik menjadi zat organik melalui fotosintesis, seperti tumbuhan hijau, alga, dan lumut.\n- **Konsumen**: tidak dapat membuat makanannya sendiri dan bergantung pada organisme lain, seperti manusia dan hewan.\n- **Pengurai**: mendapat energi dengan menguraikan bahan organik dari organisme mati, seperti bakteri, jamur, dan cacing tanah.\n\n## Lingkungan abiotik dan sosial budaya\n\n**Abiotik** adalah unsur benda mati yang ikut memengaruhi kehidupan: air, tanah, udara, cahaya matahari, kelembapan udara, suhu, dan iklim. Iklim adalah keadaan rata-rata cuaca di wilayah yang sangat luas dalam jangka waktu yang lama.\n\n**Sosial budaya:**\n- lingkungan sosial adalah lingkungan antarmanusia atau antarkelompok, termasuk norma, aturan, dan adat istiadat;\n- lingkungan budaya adalah hasil daya cipta manusia, seperti bangunan, karya seni, sistem kepercayaan, dan kelembagaan sosial.\n\nKetiga unsur itu saling memengaruhi, dan manusia adalah agen perubahan yang dominan di alam.\n\n## Lingkungan alami dan buatan\n\n- **Lingkungan alami** berfungsi secara dinamis tanpa campur tangan manusia. Lingkungan hidup air: danau, laut, rawa, dan sungai. Lingkungan hidup darat: bukit, gunung, hutan, lembah, dan padang rumput.\n- **Lingkungan buatan** dibuat manusia secara sadar dengan teknologi untuk memenuhi kebutuhannya, contohnya jalan, sekolah, taman, dan kawasan industri.\n\n**Coba pikirkan:** lingkungan apa saja di sekitar sekolah kalian yang termasuk lingkungan buatan?\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan pengertian lingkungan hidup, ekosistem, dan etika lingkungan serta membedakan jenis-jenis lingkungan hidup.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bakteri, jamur, dan cacing tanah dalam ekosistem berperan sebagai ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "produsen",
+           "is_correct": false,
+           "rationale": "Produsen mengubah zat anorganik menjadi zat organik, seperti tumbuhan hijau, alga, dan lumut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "pengurai",
+           "is_correct": true,
+           "rationale": "Tepat. Pengurai mendapat energi dengan menguraikan bahan organik dari organisme mati."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "konsumen",
+           "is_correct": false,
+           "rationale": "Konsumen tidak dapat membuat makanannya sendiri, seperti manusia dan hewan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "lingkungan abiotik",
+           "is_correct": false,
+           "rationale": "Bakteri, jamur, dan cacing tanah adalah makhluk hidup, jadi termasuk unsur biotik."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dalam ekosistem, peran produsen dapat dilakukan oleh ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "bakteri, jamur, dan cacing tanah",
+           "is_correct": false,
+           "rationale": "Mereka adalah pengurai, yang menguraikan bahan organik dari organisme mati."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "manusia dan hewan",
+           "is_correct": false,
+           "rationale": "Manusia dan hewan adalah konsumen, karena tidak dapat membuat makanannya sendiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "tumbuhan yang berklorofil",
+           "is_correct": true,
+           "rationale": "Tepat. Dengan fotosintesis, tumbuhan berklorofil mengubah zat anorganik menjadi zat organik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "air, tanah, udara, dan cahaya matahari",
+           "is_correct": false,
+           "rationale": "Ini lingkungan abiotik, yaitu benda tak hidup, sehingga tidak dapat berperan sebagai produsen."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "L1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Manusia dan hewan berperan sebagai konsumen dalam ekosistem karena ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "tidak dapat membuat makanannya sendiri",
+           "is_correct": true,
+           "rationale": "Tepat. Konsumen bergantung kepada organisme lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "mampu mengubah zat anorganik menjadi zat organik",
+           "is_correct": false,
+           "rationale": "Ini peran produsen."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "mendapatkan energi dari menguraikan bahan organik",
+           "is_correct": false,
+           "rationale": "Ini peran pengurai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "berfungsi secara dinamis tanpa campur tangan manusia",
+           "is_correct": false,
+           "rationale": "Ini ciri lingkungan alami, bukan peran makhluk hidup."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "L2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kelompok berikut yang seluruhnya termasuk lingkungan abiotik adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "bangunan, karya seni, dan sistem kepercayaan",
+           "is_correct": false,
+           "rationale": "Ini lingkungan budaya, hasil daya cipta manusia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "tumbuhan hijau, alga, dan lumut",
+           "is_correct": false,
+           "rationale": "Ini makhluk hidup (produsen), jadi termasuk unsur biotik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "air, tanah, udara, dan cahaya matahari",
+           "is_correct": true,
+           "rationale": "Tepat. Semuanya benda tak hidup yang memengaruhi kehidupan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "bakteri, jamur, dan cacing tanah",
+           "is_correct": false,
+           "rationale": "Ini makhluk hidup (pengurai), jadi termasuk unsur biotik."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "L3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Danau, laut, rawa, dan sungai termasuk ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "lingkungan hidup darat",
+           "is_correct": false,
+           "rationale": "Lingkungan hidup darat terdiri atas bukit, gunung, hutan, lembah, dan padang rumput."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "lingkungan hidup air",
+           "is_correct": true,
+           "rationale": "Tepat. Keempatnya bagian dari lingkungan alami."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "lingkungan buatan",
+           "is_correct": false,
+           "rationale": "Lingkungan buatan dibuat manusia, misalnya jalan, sekolah, dan taman."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "lingkungan sosial",
+           "is_correct": false,
+           "rationale": "Lingkungan sosial adalah lingkungan antarmanusia atau antarkelompok."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Manfaat dan Kualitas Lingkungan",
+       "summary": "Lingkungan menjadi tempat hidup dan penyedia kebutuhan; kualitasnya diukur, antara lain, dengan Indeks Kualitas Lingkungan Hidup (IKLH) dan dipengaruhi faktor alam serta sosial budaya.",
+       "body_markdown": "## Manfaat lingkungan\n\nManfaat unsur lingkungan hidup bagi manusia:\n- tempat hidup dan tempat berinteraksi sosial;\n- penghasil pangan, yaitu makanan dan air;\n- penyedia sumber daya alam, misalnya gas alam dan minyak bumi;\n- penyedia mikroorganisme, yang menguraikan sisa makhluk hidup yang mati menjadi tanah yang subur;\n- penyedia oksigen untuk bernapas;\n- penyedia tanah: tempat hidup tumbuhan, dan tempat manusia berkebun, berladang, dan mendirikan rumah.\n\n## Kualitas dan daya dukung lingkungan\n\nKualitas lingkungan ditandai dengan suasana yang membuat orang nyaman tinggal di tempatnya sendiri dan dapat memenuhi berbagai kebutuhan hidupnya.\n\nUntuk menjaganya, **daya dukung lingkungan** harus diperhatikan. Daya dukung lingkungan adalah ukuran kemampuan suatu lingkungan untuk mendukung populasi makhluk hidup tertentu, misalnya sawah, hutan, sungai, kota, atau kawasan industri.\n\n## Indeks Kualitas Lingkungan Hidup\n\nKualitas lingkungan dapat diukur dengan **IKLH**. Di Indonesia, IKLH memakai tiga indikator utama:\n- Indeks Kualitas Air (IKA);\n- Indeks Kualitas Udara (IKU);\n- Indeks Kualitas Lahan (IKL).\n\nMenurut KLHK (2021), IKLH Indonesia naik dari 66,55 pada tahun 2019 menjadi 70,27 pada tahun 2020, yaitu naik 70,27 − 66,55 = **3,72 poin**. Nilai 70,27 itu melampaui target RPJMN sebesar 68,71.\n\n## Faktor yang memengaruhi kualitas lingkungan\n\nKualitas lingkungan dapat turun dan membaik kembali. Faktor-faktornya:\n\n**Faktor alam:**\n- iklim dan perubahan cuaca yang ekstrem dapat menghambat aktivitas manusia;\n- kesuburan tanah menaikkan nilai daya dukung daerah agraris;\n- erosi dapat menurunkan daya dukung lingkungan;\n- aktivitas gunung api dapat mengeluarkan gas berbahaya.\n\n**Faktor sosial budaya:**\n- penguasaan ilmu pengetahuan dan teknologi;\n- tradisi masyarakat setempat, misalnya: menebang satu pohon harus diganti 10 pohon serupa;\n- cara berpikir masyarakat: memandang lingkungan sebagai sesuatu yang dapat dieksploitasi terus-menerus berisiko merusak lingkungan.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan manfaat lingkungan, pengertian daya dukung dan IKLH, serta faktor-faktor yang memengaruhi kualitas lingkungan.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tiga indikator utama dasar penilaian IKLH di Indonesia adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "kualitas air, kualitas udara, dan kualitas lahan",
+           "is_correct": true,
+           "rationale": "Tepat. Ketiganya disingkat IKA, IKU, dan IKL."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "kesehatan, pendidikan, dan kesejahteraan penduduk",
+           "is_correct": false,
+           "rationale": "Ini indikator kualitas SDM, yang diringkas dalam Indeks Pembangunan Manusia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "jumlah, komposisi, distribusi, dan karakteristik penduduk",
+           "is_correct": false,
+           "rationale": "Ini data yang disediakan sensus penduduk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "kesehatan dan gizi masyarakat, kecerdasan dan mental",
+           "is_correct": false,
+           "rationale": "Ini aspek fisik dan nonfisik kualitas SDM."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "L4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Salah satu manfaat lingkungan adalah menyediakan mikroorganisme, yang berguna untuk ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "tempat berkebun, berladang, dan mendirikan rumah",
+           "is_correct": false,
+           "rationale": "Ini manfaat tanah bagi manusia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "sumber daya alam seperti gas alam dan minyak bumi",
+           "is_correct": false,
+           "rationale": "Ini manfaat lingkungan sebagai penyedia sumber daya alam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "oksigen untuk bernapas bagi makhluk hidup",
+           "is_correct": false,
+           "rationale": "Ini manfaat lingkungan sebagai penyedia oksigen, bukan manfaat mikroorganisme."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "menguraikan sisa makhluk hidup yang mati",
+           "is_correct": true,
+           "rationale": "Tepat. Sisa-sisa itu diproses menjadi tanah yang subur."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "L5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "IKLH Indonesia tahun 2019 sebesar 66,55 dan tahun 2020 sebesar 70,27. Kenaikannya adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "3,72 poin",
+           "is_correct": true,
+           "rationale": "Benar. 70,27 − 66,55 = 3,72 poin."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "68,71 poin",
+           "is_correct": false,
+           "rationale": "68,71 adalah target RPJMN, bukan kenaikannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "1,56 poin",
+           "is_correct": false,
+           "rationale": "Ini selisih nilai 2020 dengan target RPJMN (70,27 − 68,71)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "2,16 poin",
+           "is_correct": false,
+           "rationale": "Ini selisih target RPJMN dengan nilai 2019 (68,71 − 66,55)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "L6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Di suatu desa, warga yang menebang satu pohon harus mengganti 10 pohon serupa. Faktor yang memengaruhi kualitas lingkungan di desa itu adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "ilmu pengetahuan dan teknologi",
+           "is_correct": false,
+           "rationale": "Ini faktor sosial budaya yang lain: kemampuan merespons dan meningkatkan kualitas lingkungan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "aktivitas gunung api",
+           "is_correct": false,
+           "rationale": "Ini faktor alam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "nilai-nilai tradisi masyarakat",
+           "is_correct": true,
+           "rationale": "Tepat. Tradisi termasuk faktor sosial budaya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "erosi yang menurunkan daya dukung",
+           "is_correct": false,
+           "rationale": "Ini faktor alam."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Masalah Lingkungan dan Upaya Mengatasinya",
+       "summary": "Pemanasan global, pencemaran udara, air, laut, dan tanah, serta pertambahan penduduk adalah masalah lingkungan yang diatasi dengan upaya pelestarian yang sesuai.",
+       "body_markdown": "## Pemanasan global\n\n**Pemanasan global** terjadi akibat efek gas rumah kaca, sehingga suhu bumi naik.\n\nAkibatnya:\n- lapisan es di kutub mencair dan permukaan air laut naik;\n- pola musim dan curah hujan berubah, sehingga produksi pertanian dan kehutanan terganggu;\n- kebakaran hutan makin mungkin terjadi karena kemarau yang panjang.\n\nPenipisan lapisan ozon, yang melindungi bumi dari radiasi berbahaya, salah satunya disebabkan polusi gas klorin dari CFC (Chloro Fluoro Carbon).\n\n## Pencemaran udara dan air\n\n**Pencemaran udara** disebabkan pembakaran bahan bakar fosil, terutama oleh kendaraan bermotor, industri, dan kebakaran hutan. Pencemaran udara dapat menimbulkan **hujan asam**: air hujan dengan pH lebih kecil dari 5,6 yang mengandung sulfur dioksida dan oksida nitrogen. Hujan asam merusak kesehatan, bangunan, danau, hutan, dan tanaman.\n\n**Pencemaran air** sering terjadi akibat industri, permukiman, dan teknologi yang kurang ramah lingkungan, misalnya logam berat, tumpahan minyak, pestisida, dan deterjen. Contohnya pencemaran Sungai Citarum, dari Kabupaten Bandung sampai Kabupaten Bekasi, pada tahun 2018.\n\n## Pencemaran laut, tanah, dan pengaruh penduduk\n\n**Pantai dan laut.** Kerusakannya disebabkan faktor alami, seperti letusan gunung berapi di dasar laut yang menghasilkan gas beracun, dan faktor nonalami (antropogenik), seperti membuang sampah sembarangan.\n\n**Tanah.** Pencemaran tanah terjadi akibat pestisida dan bahan industri yang tidak mudah terurai, logam berat, pupuk yang berlebihan, dan limbah domestik.\n\n**Penduduk.** Pertambahan penduduk menaikkan kebutuhan lahan bangunan dan konsumsi air, makanan, dan bahan bakar, sehingga memengaruhi daya dukung lingkungan.\n\n## Upaya mengelola lingkungan\n\n- **Pemanasan global:** meningkatkan tutupan hutan dengan tanaman penutup tanah untuk mengurangi CO₂.\n- **Udara:** menanam pohon, mengurangi emisi gas sisa pembakaran, dan menghindari bahan kimia perusak ozon.\n- **Air:** membuang limbah industri, kimia, dan radioaktif dengan tepat, dan meminimalkan polusi plastik.\n- **Laut dan pantai:** melestarikan hutan bakau dan terumbu karang, dan tidak memakai bahan peledak atau pukat harimau.\n- **Tanah:** reboisasi hutan yang gundul, dan membuat terasering atau sengkedan di lahan miring untuk menahan erosi.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "objective": {
+        "statement": "Kalian dapat menganalisis masalah-masalah lingkungan beserta penyebabnya dan upaya mengatasinya.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Air hujan yang memiliki pH lebih kecil dari 5,6 dan mengandung sulfur dioksida serta oksida nitrogen disebut ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "pemanasan global",
+           "is_correct": false,
+           "rationale": "Pemanasan global adalah naiknya suhu bumi karena gas rumah kaca."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "penipisan lapisan ozon",
+           "is_correct": false,
+           "rationale": "Penipisan lapisan ozon antara lain disebabkan gas klorin dari CFC."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "pencemaran air",
+           "is_correct": false,
+           "rationale": "Pencemaran air terjadi akibat industri, permukiman, dan teknologi yang kurang ramah lingkungan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "hujan asam",
+           "is_correct": true,
+           "rationale": "Tepat. Hujan asam adalah salah satu dampak pencemaran udara."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Upaya yang tepat untuk melestarikan tanah pada lahan yang miring adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "melestarikan hutan bakau dan terumbu karang",
+           "is_correct": false,
+           "rationale": "Ini upaya mengatasi permasalahan laut dan pantai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "pengurangan emisi pembuangan gas sisa pembakaran",
+           "is_correct": false,
+           "rationale": "Ini upaya pelestarian udara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "meminimalkan polusi plastik",
+           "is_correct": false,
+           "rationale": "Ini cara mengatasi masalah lingkungan air."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "pembuatan terasering atau sengkedan",
+           "is_correct": true,
+           "rationale": "Tepat. Terasering atau sengkedan menahan erosi di lahan miring."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "L7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut buku, salah satu akibat pemanasan global adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "air hujan mengandung sulfur dioksida dan oksida nitrogen",
+           "is_correct": false,
+           "rationale": "Ini ciri hujan asam, dampak pencemaran udara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "lapisan es di kutub mencair dan permukaan air laut naik",
+           "is_correct": true,
+           "rationale": "Tepat. Pemanasan global juga mengubah pola musim dan curah hujan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "kontaminasi logam berat",
+           "is_correct": false,
+           "rationale": "Ini salah satu penyebab pencemaran tanah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "gas-gas beracun dari letusan gunung berapi di dasar laut",
+           "is_correct": false,
+           "rationale": "Ini faktor alami penyebab kerusakan laut."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "L8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Contoh faktor nonalami yang menyebabkan kerusakan pantai dan laut adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "letusan gunung berapi di dasar laut",
+           "is_correct": false,
+           "rationale": "Ini faktor alami, yang bersumber dari alam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "melestarikan hutan bakau di sekitar pantai",
+           "is_correct": false,
+           "rationale": "Ini upaya mengatasi permasalahan laut dan pantai, bukan penyebabnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "tanaman penutup tanah",
+           "is_correct": false,
+           "rationale": "Ini upaya mengatasi pemanasan global."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "membuang sampah sembarangan",
+           "is_correct": true,
+           "rationale": "Tepat. Faktor nonalami bersumber dari aktivitas manusia."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "L9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Salah satu penyebab penipisan lapisan ozon adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "polusi gas klorin dari CFC",
+           "is_correct": true,
+           "rationale": "Tepat. Lapisan ozon melindungi bumi dari radiasi berbahaya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "pembakaran bahan bakar fosil",
+           "is_correct": false,
+           "rationale": "Menurut buku, ini penyebab pencemaran udara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "penggunaan bahan pestisida atau bahan industri lainnya",
+           "is_correct": false,
+           "rationale": "Ini penyebab pencemaran tanah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "industri dan permukiman",
+           "is_correct": false,
+           "rationale": "Ini penyebab pencemaran air."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Dinamika dan Pertumbuhan Penduduk",
+       "summary": "Jumlah penduduk berubah karena kelahiran, kematian, dan perpindahan; pertumbuhannya dihitung dengan rumus alami, nonalami, dan total, dan datanya dikumpulkan melalui sensus, registrasi, dan survei.",
+       "body_markdown": "## Penduduk dan pertumbuhannya\n\n**Penduduk** adalah orang yang bertempat tinggal di suatu daerah selama enam bulan atau lebih, atau kurang dari enam bulan tetapi bertujuan menetap.\n\n- **Dunia.** PBB memperkirakan populasi dunia 9,7 miliar pada tahun 2050 dan 10,9 miliar pada tahun 2100. Sejak Perang Dunia Kedua, populasi bertambah satu miliar setiap 12 sampai 15 tahun.\n- **Indonesia.** Menurut BPS (2021), pertumbuhan penduduk Indonesia termasuk kategori **sedang**, karena berkisar 1–2% per tahun. Salah satu penyebabnya adalah angka kelahiran yang tinggi dan angka kematian yang rendah.\n\n## Tiga rumus pertumbuhan\n\n- **Pertumbuhan alami:** P = L − M (lahir dikurangi mati).\n- **Pertumbuhan nonalami** (karena migrasi): P = I − E. Imigrasi adalah perpindahan penduduk dari luar daerah untuk menetap; emigrasi adalah perpindahan penduduk keluar daerah untuk menetap.\n- **Pertumbuhan total:** P = (L − M) + (I − E).\n\n## Contoh menghitung\n\nDalam setahun, sebuah kabupaten mencatat 2.400 kelahiran, 900 kematian, 350 imigran, dan 600 emigran.\n\n1. Pertumbuhan alami: 2.400 − 900 = 1.500.\n2. Pertumbuhan nonalami: 350 − 600 = −250 (lebih banyak yang keluar).\n3. Pertumbuhan total: 1.500 + (−250) = **1.250 jiwa**.\n\nPerhatikan tanda negatif: bila emigran lebih banyak daripada imigran, migrasi mengurangi jumlah penduduk.\n\n## Sensus penduduk\n\nSensus penduduk menyediakan data tentang jumlah, komposisi, distribusi, dan karakteristik penduduk. Di Indonesia, sensus sudah dilaksanakan 7 kali: 1961, 1971, 1980, 1990, 2000, 2010, dan 2020.\n\nMenurut orang yang dicacah:\n- **de facto**: semua orang yang ditemui petugas ketika sensus;\n- **de jure**: semua orang yang benar-benar tercatat dan tinggal di suatu wilayah, umumnya sesuai KTP.\n\nMenurut cara pengisian:\n- **canvasser**: petugas mendatangi tempat tinggal penduduk dan mengisi daftar pertanyaan (datanya lebih lengkap, tetapi lama);\n- **householder**: daftar pertanyaan diisi penduduk sendiri (lebih cepat, tetapi kebenaran datanya kurang terjamin).\n\n## Registrasi dan survei\n\n- **Registrasi penduduk** adalah pencatatan identitas dan kondisi penduduk secara terus-menerus oleh pemerintah, mulai dari desa atau kelurahan: kelahiran, kematian, perkawinan, perceraian, dan perpindahan.\n- **Survei penduduk** tidak menghitung seluruh penduduk, tetapi menarik sampel yang mewakili. Informasinya lebih terbatas cakupannya, tetapi lebih luas dan mendalam.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "objective": {
+        "statement": "Kalian dapat menghitung pertumbuhan penduduk dan membedakan cara pengumpulan data kependudukan.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dalam setahun, sebuah desa mencatat 180 kelahiran dan 65 kematian. Pertumbuhan penduduk alaminya adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "115 jiwa",
+           "is_correct": true,
+           "rationale": "Benar. P = L − M = 180 − 65 = 115 jiwa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "245 jiwa",
+           "is_correct": false,
+           "rationale": "Kelahiran dan kematian dijumlahkan. Kematian mengurangi penduduk, jadi dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "−115 jiwa",
+           "is_correct": false,
+           "rationale": "Pengurangannya terbalik (M − L). Rumusnya P = L − M."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "180 jiwa",
+           "is_correct": false,
+           "rationale": "Ini hanya jumlah kelahiran; kematiannya belum dikurangkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dalam setahun, sebuah kecamatan mencatat 1.340 kelahiran, 430 kematian, 210 imigran, dan 380 emigran. Pertumbuhan penduduk totalnya adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "910 jiwa",
+           "is_correct": false,
+           "rationale": "Ini baru pertumbuhan alami (L − M). Migrasinya (I − E) belum dihitung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "740 jiwa",
+           "is_correct": true,
+           "rationale": "Benar. P = (L − M) + (I − E) = (1.340 − 430) + (210 − 380) = 910 + (−170) = 740 jiwa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "1.080 jiwa",
+           "is_correct": false,
+           "rationale": "Tanda migrasi terbalik: I − E = 210 − 380 = −170, jadi mengurangi, bukan menambah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "1.500 jiwa",
+           "is_correct": false,
+           "rationale": "Imigran dan emigran sama-sama ditambahkan. Emigran keluar dari daerah, jadi dikurangkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "L10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dalam setahun, 320 orang pindah masuk ke sebuah kota untuk menetap (imigran) dan 450 orang pindah keluar untuk menetap (emigran). Pertumbuhan penduduk nonalaminya adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "130 jiwa",
+           "is_correct": false,
+           "rationale": "Pengurangannya terbalik (E − I). Rumusnya P = I − E."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "770 jiwa",
+           "is_correct": false,
+           "rationale": "Imigran dan emigran dijumlahkan. Emigran dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "−130 jiwa",
+           "is_correct": true,
+           "rationale": "Benar. P = I − E = 320 − 450 = −130. Penduduknya berkurang karena migrasi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "−450 jiwa",
+           "is_correct": false,
+           "rationale": "Hanya emigran yang dihitung; 320 imigran belum ditambahkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "L11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sensus yang mencacah semua orang yang benar-benar tercatat dan bertempat tinggal di suatu wilayah, umumnya sesuai KTP, disebut sensus ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "de facto",
+           "is_correct": false,
+           "rationale": "Sensus de facto mencacah semua orang yang ditemui petugas ketika sensus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "de jure",
+           "is_correct": true,
+           "rationale": "Tepat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "canvasser",
+           "is_correct": false,
+           "rationale": "Canvasser adalah cara pengisian: petugas mendatangi penduduk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "householder",
+           "is_correct": false,
+           "rationale": "Householder adalah cara pengisian: penduduk mengisi sendiri."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "L12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dalam sensus dengan metode canvasser, ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "petugas mendatangi penduduk dan mengisi daftar pertanyaan",
+           "is_correct": true,
+           "rationale": "Tepat. Datanya lebih lengkap, tetapi prosesnya lama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "pengisian daftar pertanyaan dilakukan oleh penduduk sendiri",
+           "is_correct": false,
+           "rationale": "Ini metode householder."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "pencacahan semua orang yang ditemui oleh petugas",
+           "is_correct": false,
+           "rationale": "Ini sensus de facto."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "tidak menghitung seluruh responden, melainkan penarikan sampel",
+           "is_correct": false,
+           "rationale": "Ini survei penduduk, bukan sensus."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "L13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Cara menjaring data penduduk dengan menarik sampel, tanpa menghitung seluruh penduduk, disebut ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "sensus penduduk",
+           "is_correct": false,
+           "rationale": "Sensus mencacah penduduk untuk menyediakan data jumlah, komposisi, distribusi, dan karakteristiknya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "registrasi penduduk",
+           "is_correct": false,
+           "rationale": "Registrasi adalah pencatatan terus-menerus oleh pemerintah, mulai dari desa atau kelurahan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "sensus de facto",
+           "is_correct": false,
+           "rationale": "Sensus de facto mencacah semua orang yang ditemui petugas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "survei penduduk",
+           "is_correct": true,
+           "rationale": "Tepat. Cakupannya lebih terbatas, tetapi informasinya lebih mendalam."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Sumber Daya Manusia dan Komposisi Penduduk",
+       "summary": "Penduduk adalah sumber daya pembangunan; distribusi, komposisi umur, generasi, rasio jenis kelamin, dan bentuk piramida menggambarkan kuantitas penduduk.",
+       "body_markdown": "## Sumber daya manusia\n\n- **Secara mikro**, SDM adalah individu yang bekerja dan menjadi anggota suatu perusahaan atau institusi.\n- **Secara makro**, SDM adalah penduduk suatu negara yang sudah memasuki usia angkatan kerja, baik yang sudah maupun belum bekerja.\n\n**Kuantitas** SDM menyangkut jumlahnya; **kualitas** SDM menyangkut mutunya:\n- aspek fisik: kesehatan dan gizi;\n- aspek nonfisik: kecerdasan dan mental.\n\nDalam pembangunan, kualitas lebih dipentingkan daripada kuantitas.\n\n## Distribusi penduduk\n\nMenurut BPS, sebaran penduduk Indonesia tahun 2020:\n- Jawa: 151,59 juta jiwa atau 56,10%, padahal luas wilayahnya hanya sekitar tujuh persen dari seluruh Indonesia.\n- Sumatra: 58,56 juta jiwa atau 21,68%.\n- Sulawesi: 7,36%.\n- Kalimantan: 6,15%.\n- Bali dan Nusa Tenggara: 5,54%.\n- Maluku dan Papua: 3,17%.\n\nJumlah keenam bagian itu 100%.\n\n## Komposisi umur dan generasi\n\n- Penduduk usia produktif (15–64 tahun) naik dari 53,39% pada tahun 1971 menjadi 70,72% pada tahun 2020. Karena usia produktif jauh lebih banyak daripada usia tidak produktif, Indonesia berada dalam era **bonus demografi**.\n- Menurut sensus 2020, Generasi Z sebesar 27,94% dan Generasi Milenial 25,87% dari penduduk.\n- Penduduk lanjut usia (60 tahun ke atas) naik dari 7,59% (2010) menjadi 9,87% (2020). Indonesia menuju era **ageing population**, yang ditandai penduduk berusia 60 tahun ke atas lebih dari 10%.\n\n## Rasio jenis kelamin\n\n**Rasio jenis kelamin** adalah banyak laki-laki untuk setiap 100 perempuan.\n\nSensus 2020: laki-laki 136,66 juta jiwa, perempuan 133,54 juta jiwa.\n1. Bagi: 136,66 : 133,54 ≈ 1,02.\n2. Kalikan 100: rasionya **102**, artinya ada 102 laki-laki untuk setiap 100 perempuan.\n\nRasio tertinggi pada usia 0–9 tahun (107) dan terendah pada usia 75 tahun ke atas (79). Hanya dua provinsi yang laki-lakinya lebih sedikit daripada perempuan: Sulawesi Selatan dan DI Yogyakarta.\n\n## Tiga jenis piramida penduduk\n\n- **Piramida muda (ekspansif):** dasar lebar dan puncak sempit; kelahiran dan kematian tinggi; misalnya Nigeria, Uganda, dan sebagian besar Afrika Sub-Sahara.\n- **Piramida tua (kontraktif):** dasar sempit dan puncak lebar; kelahiran dan kematian rendah, harapan hidup tinggi; misalnya Jepang, Jerman, dan Italia.\n- **Piramida stasioner (stabil):** dasar dan puncak relatif seimbang; misalnya Amerika Serikat, Australia, dan beberapa negara Eropa Barat.\n\nIndonesia tahun 2020 (sekitar 270,2 juta jiwa): usia 0–14 tahun sekitar 23,33%, 15–64 tahun sekitar 70,72%, dan 65 tahun ke atas sekitar 5,95%. Piramidanya sedang bertransisi dari ekspansif menuju lebih stasioner.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan konsep SDM dan menganalisis distribusi serta komposisi penduduk Indonesia.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Piramida penduduk yang dasarnya sempit dan puncaknya lebar menunjukkan ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "tingkat kelahiran rendah dan harapan hidup tinggi",
+           "is_correct": true,
+           "rationale": "Tepat. Ini piramida tua, seperti di Jepang, Jerman, dan Italia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "tingkat kelahiran tinggi dan banyak bayi lahir",
+           "is_correct": false,
+           "rationale": "Ini ciri piramida muda, yang dasarnya lebar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "tingkat kelahiran dan kematian relatif seimbang",
+           "is_correct": false,
+           "rationale": "Ini ciri piramida stasioner, yang dasar dan puncaknya relatif seimbang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "fertilitas tinggi dan kemajuan kesehatan belum merata",
+           "is_correct": false,
+           "rationale": "Ini ciri negara berpiramida muda, seperti Nigeria dan Uganda."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Secara makro, sumber daya manusia (SDM) adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "individu yang bekerja dan menjadi anggota suatu perusahaan",
+           "is_correct": false,
+           "rationale": "Ini pengertian SDM secara mikro."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "jumlah sumber daya manusia",
+           "is_correct": false,
+           "rationale": "Ini pengertian kuantitas SDM."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "mutu sumber daya manusia yang menyangkut kemampuan fisik dan non fisik",
+           "is_correct": false,
+           "rationale": "Ini pengertian kualitas SDM."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "penduduk suatu negara yang sudah memasuki usia angkatan kerja",
+           "is_correct": true,
+           "rationale": "Tepat. Baik yang sudah maupun belum bekerja."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "L14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah kabupaten berpenduduk 48.300 laki-laki dan 46.000 perempuan. Rasio jenis kelaminnya adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "95",
+           "is_correct": false,
+           "rationale": "Pembagiannya terbalik (perempuan : laki-laki). Rasio jenis kelamin adalah laki-laki untuk setiap 100 perempuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "2.300",
+           "is_correct": false,
+           "rationale": "Ini selisih laki-laki dan perempuan, bukan rasio."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "105",
+           "is_correct": true,
+           "rationale": "Benar. 48.300 : 46.000 = 1,05, dikali 100 = 105 laki-laki untuk setiap 100 perempuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "51",
+           "is_correct": false,
+           "rationale": "Ini persentase laki-laki dari seluruh penduduk (sekitar 51%), bukan rasio."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "L15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut BPS, pulau yang pada tahun 2020 menjadi rumah bagi 56,10% penduduk Indonesia adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "Pulau Sumatra",
+           "is_correct": false,
+           "rationale": "Penduduk Sumatra 21,68%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "Pulau Jawa",
+           "is_correct": true,
+           "rationale": "Tepat. Padahal luasnya hanya sekitar tujuh persen wilayah Indonesia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "Pulau Sulawesi",
+           "is_correct": false,
+           "rationale": "Penduduk Sulawesi 7,36%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "Pulau Kalimantan",
+           "is_correct": false,
+           "rationale": "Penduduk Kalimantan 6,15%."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "L16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Indonesia disebut berada dalam era bonus demografi karena ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "usia produktif lebih tinggi dibandingkan usia tidak produktif",
+           "is_correct": true,
+           "rationale": "Tepat. Penduduk usia produktif tahun 2020 sebesar 70,72%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "jumlah persentase penduduk usia 60 tahun ke atas lebih dari 10%",
+           "is_correct": false,
+           "rationale": "Ini ciri era ageing population, yang sedang dituju Indonesia."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "rasio jenis kelamin tertinggi pada usia 0–9 tahun",
+           "is_correct": false,
+           "rationale": "Ini keterangan rasio jenis kelamin menurut umur."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "tingkat kelahiran yang rendah",
+           "is_correct": false,
+           "rationale": "Ini ciri piramida tua."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Kualitas dan Pengembangan Sumber Daya Manusia",
+       "summary": "Kualitas penduduk dilihat dari kesehatan, pendidikan, dan kesejahteraan, dan ditingkatkan melalui kebijakan kesehatan, pendidikan, dan pengembangan SDM.",
+       "body_markdown": "## Indikator kualitas penduduk\n\nKualitas SDM menunjukkan tingkat kesejahteraan penduduk suatu negara. Indikatornya adalah **kesehatan, pendidikan, dan kesejahteraan** penduduk, yang biasa diringkas dalam **Indeks Pembangunan Manusia (IPM)**.\n\nMenurut UU No. 52 Tahun 2009, kualitas penduduk adalah kondisi penduduk dalam aspek fisik dan nonfisik, antara lain derajat kesehatan, pendidikan, pekerjaan, dan produktivitas.\n\n## Kebijakan meningkatkan kualitas\n\nMenurut Mulyadi (2003):\n- kesehatan: menyebarkan budaya hidup sehat dan memperluas pelayanan kesehatan, terutama di daerah terpencil;\n- pendidikan: diarahkan pada pembangunan ekonomi masa mendatang;\n- penduduk miskin: memberi keterampilan praktis, mendorong sikap kerja produktif, dan semangat kemandirian;\n- laju pertumbuhan: ditekan dengan keluarga berencana, dan kepadatan disebarkan melalui transmigrasi.\n\n## Kesehatan dan pendidikan\n\n**Kesehatan.** Menurut UU No. 36 Tahun 2009, kesehatan adalah kondisi sehat secara fisik, mental, spiritual, dan sosial yang memungkinkan orang hidup produktif. Kualitas kesehatan dapat dilihat dari **Angka Harapan Hidup (AHH)**, yaitu rata-rata perkiraan tahun yang dapat ditempuh seseorang selama hidupnya.\n\n**Pendidikan.** Manfaatnya bagi pembangunan ekonomi:\n- menciptakan tenaga kerja yang lebih produktif;\n- kesempatan kerja yang lebih luas;\n- kelompok pemimpin yang terdidik;\n- program pelatihan yang menurunkan angka buta huruf.\n\n## Pengembangan SDM\n\n**Pengembangan SDM** adalah proses meningkatkan pengetahuan, keterampilan, dan kapasitas semua penduduk. Manfaatnya dalam organisasi:\n- meminimalkan kinerja yang buruk;\n- meningkatkan produktivitas;\n- meningkatkan fleksibilitas angkatan kerja, karena pegawai dengan keterampilan beragam mudah beradaptasi;\n- meningkatkan komitmen pegawai;\n- mengurangi **turn over** (pergantian pegawai) dan ketidakhadiran.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "objective": {
+        "statement": "Kalian dapat menjelaskan indikator kualitas penduduk serta cara meningkatkan dan mengembangkan kualitas SDM.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Salah satu manfaat pendidikan bagi pembangunan ekonomi adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "penyebaran budaya hidup sehat",
+           "is_correct": false,
+           "rationale": "Ini kebijakan pembangunan kesehatan menurut Mulyadi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "mendistribusikan kepadatan penduduk melalui transmigrasi",
+           "is_correct": false,
+           "rationale": "Ini kebijakan untuk persebaran penduduk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "menciptakan tenaga kerja yang lebih produktif",
+           "is_correct": true,
+           "rationale": "Tepat. Pengetahuan dan keahlian tenaga kerja bertambah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "pencatatan identitas penduduk secara terus menerus",
+           "is_correct": false,
+           "rationale": "Ini pengertian registrasi penduduk."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "L17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut Mulyadi (2003), peningkatan kualitas bagi penduduk miskin dicapai antara lain dengan ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "gerakan keluarga berencana dan transmigrasi",
+           "is_correct": false,
+           "rationale": "Ini kebijakan untuk laju pertumbuhan dan kepadatan penduduk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "perluasan jangkauan pelayanan kesehatan masyarakat",
+           "is_correct": false,
+           "rationale": "Ini kebijakan pembangunan kesehatan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "memberikan keterampilan praktis",
+           "is_correct": true,
+           "rationale": "Tepat. Juga dengan mendorong sikap kerja yang produktif dan semangat kemandirian."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "intensifikasi, ekstensifikasi, dan diversifikasi",
+           "is_correct": false,
+           "rationale": "Ini cara meningkatkan hasil pertanian."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "L18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Proses pergantian pegawai pada sebuah perusahaan, atas inisiatif pribadi atau keputusan pimpinan, disebut ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "pengembangan sumber daya manusia",
+           "is_correct": false,
+           "rationale": "Ini proses peningkatan pengetahuan, keterampilan, dan kapasitas penduduk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "angka harapan hidup",
+           "is_correct": false,
+           "rationale": "Ini rata-rata perkiraan tahun yang dapat ditempuh seseorang selama hidupnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "Indeks Pembangunan Manusia",
+           "is_correct": false,
+           "rationale": "Ini ukuran kualitas penduduk dari aspek kesehatan, pendidikan, dan kesejahteraan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "turn over",
+           "is_correct": true,
+           "rationale": "Tepat. Pengembangan SDM dapat mengurangi turn over."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 8
+       },
+       "ordinal": "7",
+       "title": "Masalah Kependudukan dan Upaya Mengatasinya",
+       "summary": "Jumlah yang besar, pertumbuhan yang cepat, persebaran yang tidak merata, dan kualitas yang belum tinggi diatasi dengan KB, pelayanan kesehatan, transmigrasi, pendidikan, dan peningkatan produksi pertanian.",
+       "body_markdown": "## Empat masalah kependudukan\n\n- **Jumlah penduduk yang besar**, lebih dari 270,2 juta jiwa: sulit menjamin kebutuhan hidup rakyat, seperti lapangan kerja, kesehatan, fasilitas umum, pangan, dan lahan.\n- **Pertumbuhan yang cepat**: bila tidak seimbang dengan daya dukung lingkungan, muncul masalah lingkungan, ekonomi, dan sosial.\n- **Persebaran yang tidak merata**: penduduk memusat di Jawa, sehingga lahan pertanian makin sempit karena dijadikan permukiman dan industri, sedangkan pulau lain kekurangan SDM.\n- **Kualitas yang belum tinggi**, misalnya status gizi balita (SSGI 2022) yang masih termasuk rendah.\n\n## Laju pertumbuhan penduduk\n\nLaju pertumbuhan penduduk Indonesia (Tabel 3.1):\n- 1961–1971: 2,10%.\n- 1971–1980: 2,31%, yang tertinggi.\n- 1980–1990: 1,98%.\n- 1990–2000: 1,44%.\n- 2000–2010: 1,49%.\n- 2010–2020: 1,25%, yang terendah.\n\nLaju ini masih relatif tinggi dibandingkan negara maju seperti Belanda (0,3%), Inggris (0,1%), dan Finlandia (0,2%).\n\n## Keluarga berencana dan kesehatan\n\n- **Program Keluarga Berencana** menekan laju pertumbuhan penduduk.\n- **Pelayanan kesehatan** meningkatkan derajat kesehatan dan gizi masyarakat, dengan pelayanan yang lebih dekat, bermutu, dan terjangkau.\n\n## Transmigrasi\n\nTransmigrasi menyebarkan dan meratakan penduduk. Tujuannya meningkatkan kesejahteraan, pemerataan pembangunan, memperluas lapangan kerja, serta memperkokoh persatuan dan kesatuan bangsa.\n\nSelama lima tahun terakhir (menurut buku) ada 637.943 kepala keluarga transmigran: 251.755 transmigran umum dan 386.188 transmigran swakarsa. Transmigran swakarsa lebih banyak (386.188 − 251.755) : 251.755 ≈ 53,40% daripada transmigran umum.\n\n## Pendidikan dan pertanian\n\n- **Pendidikan dan keterampilan** ditingkatkan agar lahir tenaga terampil dan wiraswasta yang menciptakan lapangan kerja baru, khususnya di luar Jawa.\n- **Produksi pertanian** ditingkatkan melalui intensifikasi, ekstensifikasi, dan diversifikasi.\n\n## Rangkuman Bab 3\n\n- Lingkungan hidup: biotik (produsen, konsumen, pengurai), abiotik, dan sosial budaya; alami atau buatan.\n- Kualitas lingkungan diukur dengan IKLH dan dipengaruhi faktor alam serta sosial budaya.\n- Masalah lingkungan: pemanasan global dan pencemaran udara, air, laut, dan tanah.\n- Pertumbuhan penduduk: P = (L − M) + (I − E). Data dikumpulkan dengan sensus, registrasi, dan survei.\n- Indonesia berada dalam era bonus demografi dan menuju ageing population.\n- Masalah kependudukan diatasi dengan KB, kesehatan, transmigrasi, pendidikan, dan pertanian.\n\n_Diadaptasi dari Geografi untuk SMA/MA Kelas XI (Edisi Revisi), Budi Handoyo dan Nisa Maulia, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2024, Bab III._",
+       "objective": {
+        "statement": "Kalian dapat menganalisis masalah kependudukan Indonesia dan upaya mengatasinya.",
+        "bloom": "EVALUATE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Salah satu tujuan transmigrasi adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "mengurangi laju pertumbuhan penduduk",
+           "is_correct": false,
+           "rationale": "Menurut Mulyadi, laju pertumbuhan dikurangi dengan keluarga berencana; transmigrasi menyebarkan kepadatan penduduk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "peningkatan hasil pertanian",
+           "is_correct": false,
+           "rationale": "Hasil pertanian ditingkatkan melalui intensifikasi, ekstensifikasi, dan diversifikasi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "memperluas lapangan kerja",
+           "is_correct": true,
+           "rationale": "Tepat. Transmigrasi juga bertujuan meningkatkan kesejahteraan dan pemerataan pembangunan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "penyebaran budaya hidup sehat",
+           "is_correct": false,
+           "rationale": "Ini kebijakan di bidang kesehatan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut Tabel 3.1, laju pertumbuhan penduduk Indonesia paling tinggi terjadi pada periode ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "1961–1971",
+           "is_correct": false,
+           "rationale": "Laju periode ini 2,10%, lebih rendah dari 2,31%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "1971–1980",
+           "is_correct": true,
+           "rationale": "Tepat. Lajunya 2,31% per tahun."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "2000–2010",
+           "is_correct": false,
+           "rationale": "Laju periode ini 1,49%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "2010–2020",
+           "is_correct": false,
+           "rationale": "Periode ini justru yang terendah, 1,25%."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "L19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Di antara negara maju yang disebut buku, negara yang laju pertumbuhan penduduknya paling rendah adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "Belanda",
+           "is_correct": false,
+           "rationale": "Laju pertumbuhan Belanda 0,3%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "Inggris",
+           "is_correct": true,
+           "rationale": "Tepat. Laju pertumbuhan Inggris hanya 0,1%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "Finlandia",
+           "is_correct": false,
+           "rationale": "Laju pertumbuhan Finlandia 0,2%."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "Jepang",
+           "is_correct": false,
+           "rationale": "Jepang disebut sebagai contoh negara berpiramida tua; laju pertumbuhannya tidak disebut buku."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
