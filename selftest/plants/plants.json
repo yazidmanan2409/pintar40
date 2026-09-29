@@ -52,8 +52,13 @@
     },
     "db-bob39-gates": {
       "suite": "selftest.run_fable06()",
-      "control_green": 34,
+      "control_green": 35,
       "what": "BOB-39's referral: «Diteruskan ke pihak sekolah» in the Studio's integrity review raises the INTEGRITY_REFERRAL decision in the same transaction, so the Head of Department's /pimpinan queue shows it"
+    },
+    "db-bob37-gates": {
+      "suite": "selftest.run_fable06()",
+      "control_green": 35,
+      "what": "BOB-37's per-topic mastery: class.topic_mastery and institution.competency_outcomes average each learner's recorded penguasaan from the {benar, total, penguasaan} objects the scoring writes, so the teacher's «Penguasaan per bagian» and the school's competency outcomes can show"
     },
     "db-bob35-gates": {
       "suite": "selftest.run_fable05()",
@@ -645,6 +650,9 @@
     { "name": "bob36-2", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: mode, bank_type" },
     { "name": "bob36-3", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "the owner rewrote a sat Uji Cepat's passing_rules" },
     { "name": "bob36-4", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: module_id, course_id" },
-    { "name": "bob39-1", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "a referral through the review left 0 AWAITING_REVIEW decision(s)" }
+    { "name": "bob39-1", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "a referral through the review left 0 AWAITING_REVIEW decision(s)" },
+    { "name": "bob37-1", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery did not show for five learners" },
+    { "name": "bob37-2", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the school's competency outcomes hold nothing for the two objectives" },
+    { "name": "bob37-3", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery is {\"BOB37-A\": 0.5000" }
   ]
 }

@@ -531,6 +531,46 @@ end $$;
 revoke all on function selftest.wp2_session(uuid,uuid,uuid,uuid,uuid) from public;
 grant execute on function selftest.wp2_session(uuid,uuid,uuid,uuid,uuid) to authenticated;
 
+-- BOB-37's learner: one more person in a class, with a FINALIZED Cek penguasaan
+-- copied from a real one, whose result carries the per-objective objects the
+-- scoring writes (`{benar, total, penguasaan}`, 20260913091500) exactly as
+-- given. The person is enrolled in the template's programme and made a member
+-- of the class, as wp2_school does, so the boundary sees them where they sit.
+create or replace function selftest.bob37_learner(
+  p_template uuid, p_class uuid, p_name text, p_per_domain jsonb)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare s record; v_person uuid; v_e uuid; v_new uuid := gen_random_uuid();
+begin
+  select x.institution_id, x.academic_period_id, x.cohort_node_id, e.programme_id into s
+    from public.assessment_sessions x join public.enrollments e on e.id = x.enrollment_id
+   where x.id = p_template;
+  insert into public.persons (display_name) values (p_name) returning persons.id into v_person;
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  values (v_person, s.institution_id, s.academic_period_id, s.programme_id, 'ACTIVE') returning enrollments.id into v_e;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_e, p_class, s.academic_period_id);
+  insert into public.assessment_sessions
+    (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
+     plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
+     scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
+     started_at, submitted_at, finalized_at, deadline_extended_count)
+  select v_new, v_person, x.institution_id, v_e, x.academic_period_id, p_class, x.cohort_node_id,
+         x.plp_release_id, x.assessment_definition_id, x.assessment_definition_version, x.engine_version,
+         x.scoring_policy_version, x.evidence_channel, x.evidence_class, x.mode, 'CREATED', x.shuffle_seed,
+         x.started_at, x.submitted_at, x.finalized_at, 0
+    from public.assessment_sessions x where x.id = p_template;
+  update public.assessment_sessions set status='IN_PROGRESS' where id=v_new;
+  update public.assessment_sessions set status='SUBMITTED'   where id=v_new;
+  update public.assessment_sessions set status='FINALIZED'   where id=v_new;
+  insert into public.assessment_results
+    (id, session_id, institution_id, person_id, evidence_class, engine_version, scoring_policy_version,
+     mastery, per_domain, safety_gate_passed, delta_inputs, computed_at)
+  select gen_random_uuid(), v_new, r.institution_id, v_person, r.evidence_class, r.engine_version,
+         r.scoring_policy_version, r.mastery, p_per_domain, r.safety_gate_passed, r.delta_inputs, now()
+    from public.assessment_results r where r.session_id = p_template limit 1;
+  return v_new;
+end $$;
+revoke all on function selftest.bob37_learner(uuid,uuid,text,jsonb) from public;
+
 -- One R6 cell: how many of a named session's results can this reader see?
 create or replace function selftest.r6_case(
   p_label text, p_reader uuid, p_session uuid, p_expect int)
@@ -6230,6 +6270,141 @@ begin
         || 'review row, while NO_CONCERN there is still recorded; a Head of Department over the other department does not see it; '
         || 'a teacher is still refused the review; '
         || 'and «Saya yang menangani» and «Catat keputusan» take it up and decide it. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P23 -- BOB-37: PER-TOPIC MASTERY CAN SHOW. `per_domain` holds one
+  -- object per objective, `{benar, total, penguasaan}` (the scoring's own shape,
+  -- 20260913091500), and calc_class_topic_mastery and
+  -- calc_institution_competency_outcomes kept only values whose JSON type is a
+  -- number, so both answered nothing whatever the class had sat. Five learners
+  -- in a class of their own sit the Cek penguasaan with two objectives used
+  -- nowhere else, so every figure below is exact. The class figure is asked
+  -- the way the teacher's «Penguasaan per bagian» asks it (metric_evaluate, as
+  -- the Head of Department over that class); the school's figure is read from
+  -- its calculator inside the school's bound boundary, because its minimum
+  -- sample (10) is above five learners, and the evaluator is asked too, for
+  -- what it has. D-060: the figures come from catalogue MC-3, a copy of MC-2
+  -- with nothing else changed. Every row rolled back.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; v_cls uuid; v_coh uuid; v jsonb; x jsonb;
+    v_cat text;
+  begin
+    begin
+      perform selftest.as_owner();
+      select * into c from selftest.wp2_school();
+      select s.cohort_node_id into v_coh from public.assessment_sessions s where s.id = c.sess_a;
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      select c.inst, v_coh, 'CLASS', 'Kelas BOB-37', n.academic_period_id from public.org_nodes n where n.id = v_coh
+      returning org_nodes.id into v_cls;
+
+      -- A: 1, 0.5, 0, 0.25, 1 -> 0.55 over five (pooled benar/total would be 6/12 = 0.5);
+      -- B (four sat it): 1, 0.5, 0.75, 0.25 -> 0.625
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 1',
+        '{"BOB37-A": {"benar": 2, "total": 2, "penguasaan": 1.0000}, "BOB37-B": {"benar": 4, "total": 4, "penguasaan": 1.0000}}');
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 2',
+        '{"BOB37-A": {"benar": 1, "total": 2, "penguasaan": 0.5000}, "BOB37-B": {"benar": 2, "total": 4, "penguasaan": 0.5000}}');
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 3',
+        '{"BOB37-A": {"benar": 0, "total": 2, "penguasaan": 0.0000}, "BOB37-B": {"benar": 3, "total": 4, "penguasaan": 0.7500}}');
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 4',
+        '{"BOB37-A": {"benar": 1, "total": 4, "penguasaan": 0.2500}}');
+
+      -- the minimum sample is unchanged: four learners are below it
+      perform selftest.as_user_uid(c.hod_u);
+      v := public.metric_evaluate('class.topic_mastery', v_cls, c.inst, null);
+      perform selftest.as_owner();
+      if v ->> 'status' is distinct from 'below_minimum' or (v ->> 'needed')::int is distinct from 5
+         or (v ->> 'have')::int is distinct from 4 then
+        bad := bad || array[format('four learners should be below the minimum of 5 with 4 counted, the teacher''s figure said %s', v)];
+      end if;
+
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 5',
+        '{"BOB37-A": {"benar": 2, "total": 2, "penguasaan": 1.0000}, "BOB37-B": {"benar": 1, "total": 4, "penguasaan": 0.2500}}');
+
+      -- the teacher's «Penguasaan per bagian», as the evaluator answers it
+      perform selftest.as_user_uid(c.hod_u);
+      v := public.metric_evaluate('class.topic_mastery', v_cls, c.inst, null);
+      perform selftest.as_owner();
+      if v ->> 'status' is distinct from 'ok' then
+        bad := bad || array[format('the class''s per-topic mastery did not show for five learners: %s', v)];
+      elsif (v -> 'value') is distinct from '{"BOB37-A": 0.5500, "BOB37-B": 0.6250}'::jsonb
+            or (v ->> 'sample')::int is distinct from 5 then
+        bad := bad || array[format('the class''s per-topic mastery is %s over %s, expected {"BOB37-A": 0.55, "BOB37-B": 0.625} over 5',
+                                   v -> 'value', v -> 'sample')];
+      end if;
+
+      -- the school's competency outcomes, from its calculator inside the school's boundary
+      v_cat := public.current_metric_catalogue();
+      perform set_config('pintar.metric_boundary_node', c.inst::text, true);
+      v := public.calc_institution_competency_outcomes(c.inst, c.inst, v_cat);
+      perform set_config('pintar.metric_boundary_node', '', true);
+      select jsonb_agg(e order by e ->> 'competency') into x
+        from jsonb_array_elements(coalesce(v -> 'value', '[]'::jsonb)) e
+       where e ->> 'competency' like 'BOB37-%';
+      if x is distinct from '[{"competency": "BOB37-A", "mean_score": 0.5500, "learners": 5},
+                               {"competency": "BOB37-B", "mean_score": 0.6250, "learners": 4}]'::jsonb then
+        bad := bad || array[format('the school''s competency outcomes hold %s for the two objectives, expected BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4',
+                                   coalesce(x::text, 'nothing'))];
+      end if;
+      -- and the evaluator counts them against the school's unchanged minimum
+      perform selftest.as_user_uid(c.adm_u);
+      v := public.metric_evaluate('institution.competency_outcomes', c.inst, c.inst, null);
+      perform selftest.as_owner();
+      if v ->> 'status' is distinct from 'below_minimum' or (v ->> 'needed')::int is distinct from 10
+         or coalesce((v ->> 'have')::int, 0) < 5 then
+        bad := bad || array[format('the school''s competency outcomes should count at least the five learners against the minimum of 10, they said %s', v)];
+      end if;
+
+      -- D-060: the live catalogue is MC-3, and MC-3 is MC-2 copied forward with nothing else changed
+      if v_cat is distinct from 'MC-3' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-3', coalesce(v_cat, 'none'))];
+      else
+        if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-3') d3
+                    full join (select * from public.metric_definitions where catalogue_version = 'MC-2') d2
+                      on d2.metric_id = d3.metric_id
+                   where (d3.metric_id is null or d2.metric_id is null
+                          or (d3.label_key, d3.meaning_key, d3.scope, d3.evidence_class, d3.minimum_sample,
+                              d3.allowed_visualizations, d3.allowed_audiences, d3.calculation_key, d3.deprecated,
+                              d3.deprecation_note_key)
+                             is distinct from
+                             (d2.label_key, d2.meaning_key, d2.scope, d2.evidence_class, d2.minimum_sample,
+                              d2.allowed_visualizations, d2.allowed_audiences, d2.calculation_key, d2.deprecated,
+                              d2.deprecation_note_key))) then
+          bad := bad || array['MC-3''s metric definitions are not MC-2''s, column by column (minimum sample and audiences included)'];
+        end if;
+        if (select count(*) from public.readiness_tiers where catalogue_version = 'MC-3')
+             <> (select count(*) from public.readiness_tiers where catalogue_version = 'MC-2')
+           or (select count(*) from public.question_health_thresholds where catalogue_version = 'MC-3')
+             <> (select count(*) from public.question_health_thresholds where catalogue_version = 'MC-2')
+           or (select count(*) from public.metric_sources where catalogue_version = 'MC-3')
+             <> (select count(*) from public.metric_sources where catalogue_version = 'MC-2') then
+          bad := bad || array['MC-3 did not carry MC-2''s readiness tiers, question-health thresholds and sources forward'];
+        end if;
+      end if;
+
+      raise exception 'F06_P23_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      perform set_config('pintar.metric_boundary_node', '', true);
+      if sqlerrm <> 'F06_P23_UNDO' then v_why := 'the probe itself failed: ' || left(sqlerrm, 220); end if;
+    end;
+
+    id := 'F06-P23'; area := 'BOB-37 -- per-topic mastery can show';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'five learners in a class of their own sat the Cek penguasaan and their results hold the scoring''s own '
+        || '{benar, total, penguasaan} objects: the teacher''s «Penguasaan per bagian» (class.topic_mastery, asked through '
+        || 'metric_evaluate by the Head of Department over the class) shows BOB37-A 0.55 and BOB37-B 0.625 over five learners, '
+        || 'the average of each learner''s recorded penguasaan (not the pooled benar/total, 0.5); with four learners it is below the unchanged minimum of 5; the '
+        || 'school''s competency outcomes hold BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4, and the evaluator counts them against '
+        || 'the unchanged minimum of 10; and the live catalogue is MC-3, MC-2 copied forward with every definition, minimum '
+        || 'sample and audience identical (D-060). Every row rolled back';
     end if;
     return next;
   end;
