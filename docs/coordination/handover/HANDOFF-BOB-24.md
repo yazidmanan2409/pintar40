@@ -1,14 +1,14 @@
 # Bob → coordinator: BOB-24 (identity Gate 2: the identity foundation, DB only)
 
-**SHA:** the lane head is `9bad5e5`, with `main` `ffcd7dc` (DAISY-29) merged in as `9bad5e5`. BOB-24's commits:
+**SHA:** the lane head is `c0d82c3`. `main` `9e72564` (DAISY-30) came in as `de588a4`, and `ffcd7dc` (DAISY-29) came in earlier as `9bad5e5`. BOB-24's commits:
 - **`9d4a2c7`:** the migration, the suite, the plants and the tripwires.
 - **`a31a1a8`:** the two standing assertions the first full proof found red (see PROOF).
 - **`8a44044`:** your 29 Sep rulings on the six questions.
 - **`8ac8959`:** CI #230's finding, the helpers revoked from `service_role` too (see CI).
 
-**Manifest:** the lane's is v119 with 427 ids, as you directed at the merge.
+**Manifest:** the lane's is v120 with 429 ids (the union with `main`'s DAISY-30-TEKS-01), as you directed at the merge.
 
-**CI:** CI #235 (run `36551388380`, https://github.com/yazidmanan2409/pintar40/actions/runs/36551388380) on `d4e4ce6`. It is the one run for the lane head, carrying BOB-24's fix, BOB-34, BOB-35 and BOB-36. BOB-34 has its own hand-off, `HANDOFF-BOB-34.md`.
+**CI:** the lane-head run named in the next commit. It is the one run for the lane head, carrying BOB-24's fix, BOB-34, BOB-35 and BOB-36. BOB-34 has its own hand-off, `HANDOFF-BOB-34.md`.
 
 ## CHANGED
 
@@ -110,12 +110,13 @@ The `ci.yml` red-case matrix gains `db-bob24-gates`, with the same harness and f
 - **`assert_engine_takes_no_identity` (F03-T10, F04-T14, F06-P08):** a LEARNER function may take no identity-like argument, and `claim_username(p_username)` matched "user". The parameter is now `p_name`, in `correct_username` too.
 - **F06-N02:** its probe expects a platform-admin refusal to name SYSTEM_ADMIN. The three 42501 messages now end "(SYSTEM_ADMIN)".
 
-**Local, on the lane head `9bad5e5`:** every database is built with an `en-US` ICU collation, and with Supabase's default privileges emulated (see BOB-24's CI section):
-- **Full suite, fresh database, clean build:** 395 passed, 0 failed, 31 justified skips. The one unjustified skip is UX1-PIMPINAN-AKSES-01 (network), as in every proof before.
-  - F16-I01..N01, F16-C01..C03, BOB34-K01, BOB32-K01, F05-T14, F05-T14b, F04-T04, F04-T04c, F04-T04d, F06-N02, F06-P19..P21 and F06-S01 all passed.
+**Local, on the lane head `c0d82c3`:** every database is built with an `en-US` ICU collation, and with Supabase's default privileges emulated (see BOB-24's CI section):
+- **Full suite, fresh database, clean build:** 397 passed, 0 failed, 31 justified skips. The one unjustified skip is UX1-PIMPINAN-AKSES-01 (network), as in every proof before.
+  - F16-I01..N01, F16-C01..C03, F05-C01, BOB34-K01, BOB32-K01, F05-T14, F05-T14b, F04-T04, F04-T04c, F04-T04d, F06-N02, F06-P19..P21, F06-S01 and DAISY-30-TEKS-01 all passed.
   - Both migration tripwires passed at 129.
-- **Plants:** 121 of 121 proved their gate on a copy taken straight after the seeds. That includes db-bob24-gates 14, db-bob35-gates 4 and db-bob36-gates 3.
+- **Plants:** 123 of 123 proved their gate on a copy taken straight after the seeds. That includes db-bob24-gates 14, db-bob35-gates 5 and db-bob36-gates 4.
 - **Shared red cases:** all 19 gates exited 0 on one shared stack. The schema digest stayed the same, and every recheck was 256 of 256.
+- **BOB-35's closure query over the proof database:** 0 of 8 committed sessions with items.
 
 ## CI
 **CI #230** (run `36544435566`, on `a2fdaae`) was **red in one job**: the red case `db-bob24-gates` stopped at its control, `already red before any defect: F16-N01`. The strict selftest contract was then skipped, so F16 had not yet run green in CI.
@@ -140,7 +141,9 @@ The `ci.yml` red-case matrix gains `db-bob24-gates`, with the same harness and f
 
 **BOB-35/36's red-case controls, re-checked the same way:** `db-bob35-gates` and `db-bob36-gates` prove 4/4 and 3/3 on the emulated database.
 
-**The run for the lane head:** - **CI #235 (run `36551388380`, https://github.com/yazidmanan2409/pintar40/actions/runs/36551388380) on `d4e4ce6`**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these four hand-offs. That commit is docs only; the code is at `9bad5e5`.
+**The run for the lane head:**
+- **the lane-head run named in the next commit**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these hand-offs. That commit is docs only; the code is at `c0d82c3`.
+- **The previous run, CI #235** (run `36551388380`, on `d4e4ce6`, code `9bad5e5`), was **green**. It is superseded by the gate's fix round for BOB-35 (`91d0cb6`) and BOB-36 (`ec0f65c`), and by the DAISY-30 merge.
 - It is the one run for BOB-24's fix, BOB-34, BOB-35 and BOB-36, as directed.
 - The red-case matrix carries `db-bob24-gates`, `db-bob35-gates` and `db-bob36-gates`.
 - I don't poll it: you read it at the gate.
@@ -191,13 +194,13 @@ None open. Your six rulings of 29 Sep are applied in `8a44044`:
 **D-060:** identity only, so the metric catalogue version and `engine_version` are unchanged, as you ruled. Nothing here assembles, draws or scores a paper.
 
 ## READY
-Yes, for the one run on the lane head (CI #235 (run `36551388380`, https://github.com/yazidmanan2409/pintar40/actions/runs/36551388380) on `d4e4ce6`), gated with BOB-34, BOB-35 and BOB-36 as one integration.
+Yes, for the one run on the lane head (the lane-head run named in the next commit), gated with BOB-34, BOB-35 and BOB-36 as one integration.
 
 ---
 ### Summary (ready to paste)
 ```
-BOB-24 (identity Gate 2, DB only), ready for the gate in the lane head's run (CI #235 (run `36551388380`, https://github.com/yazidmanan2409/pintar40/actions/runs/36551388380) on `d4e4ce6`), with BOB-34, BOB-35 and BOB-36.
-Lane head 9bad5e5; main ffcd7dc merged; manifest v119, 427 ids.
+BOB-24 (identity Gate 2, DB only), ready for the gate in the lane head's run (the lane-head run named in the next commit), with BOB-34, BOB-35 and BOB-36.
+Lane head c0d82c3; main 9e72564 merged; manifest v120, 429 ids.
 - Migration 20261021100000:
   - PINTAR ID on persons (random, immutable, normalised input);
   - usernames (C9 + rulings 2 and 3);
@@ -208,6 +211,6 @@ Lane head 9bad5e5; main ffcd7dc merged; manifest v119, 427 ids.
 - CI #230 was red at db-bob24-gates' control (F16-N01): on Supabase, service_role holds every new function by default.
   Fixed at 8ac8959 (helpers revoked from service_role too); reproduced and re-proved with Supabase's default privileges emulated.
 - Tests: fable16 F16-I01..N01, F16-C01..C03; gate db-bob24-gates, 14 plants.
-- Local: suite 395/0 (31 justified skips, plus UX1-PIMPINAN-AKSES-01); plants 121/121; shared 19 gates, recheck 256/256; Supabase default privileges emulated.
+- Local: suite 397/0 (31 justified skips, plus UX1-PIMPINAN-AKSES-01); plants 123/123; shared 19 gates, recheck 256/256; Supabase default privileges emulated.
 - D-060: identity only; catalogue and engine_version unchanged.
 ```
