@@ -743,6 +743,70 @@ CHANGES_V21.append("28 Sep (D-050, D-052): the first testing phases cover lesson
                    "STU-11's media half and ADM-10's playback are out of scope for it and stay unresolved, never PASS.")
 
 
+# --- 28 Sep, later: main after BOB-22 and LANA-01, marked on the staging journey (D-050) ---
+# Staging journey runs 7 (36385162363), 11 (36393140655) and 12 (36395986289, main b1c55a1, BOB-22's acceptance): every step a click on
+# PINTAR's own screens in Sekolah Uji Kinerja (sintetis); students answer to a plan, so each result is checked against a number known in
+# advance; staging's database only read. Report: staging/2026-09-28-staging-journey.md.
+NOW.update({
+    "sha": "1f3b0f1",
+    "date": "28 Sep 2026",
+    "label": "main after BOB-22 and LANA-01",
+    "evidence": ("BOB-22 (code d43043a, CI #217 on 190a955, 26/26; audit #35, run 36394439020: B 27 PASS, 1 NOTE; A as #34) and LANA-01 "
+                 "(SD 5 Matematika Bab 1, text only) on main. Staging journey run 12 (36395986289) on b1c55a1: 15 PASS, 2 NOTE, 1 FAIL (J14, "
+                 "a class's leftover test activity), 2 BLOCKED (Q4, Q5, the same), 1 NOT RUN (Q6); five students through pre-test, every "
+                 "lesson, post-test and result by clicking, each result equal to the planned answers. Staging: 124 migrations."),
+})
+CURRENT.update({
+    "STU-04": ("PASS on staging: the assignment page shows the trail and the chapter (run 7, J08); opening it and its orientation starts "
+               "nothing (\"session before pressing: none\", read from the database)."),
+    "STU-06": ("PASS: only the press on \"Mulai Pemetaan Awal\" creates the session (staging J08: none before the press, FINALIZED after); "
+               "exactly once and the offline outbox are selftests (R1); a pre-test not prepared is refused in words (audit A)."),
+    "STU-07": ("PARTIAL: one player, answers counted exactly (five students' results equal their planned answers, staging J08, J11, J13); "
+               "changing an answer and reloading mid-test are not yet driven on staging (selftests cover the R1 outbox)."),
+    "STU-10": ("PASS on the online path: 4 of 4 answered and finalized, the score equal to the plan (staging J08, J13); offline is STU-09."),
+    "STU-11": ("PARTIAL. Media half OUT OF SCOPE for the first testing phases (D-050): not tested, not PASS. Text half PASS on staging "
+               "since BOB-22: five lessons read to their last page by clicking, every position saved in full (5/5, 5/5, 4/4, 5/5, 4/4) "
+               "and every lesson read (run 12, J09); the resume point is BOB22-K01. Open: the page saves in a loop while it is open "
+               "(BOB-23, see U-PERF)."),
+    "STU-13": ("PASS on staging since BOB-22: after reading, the home (\"Siap untuk Uji Penguasaan\", 2 links), the assignment page and "
+               "the last lesson link to the post-test (run 12, J10); J11 opened it from a link. Never a 404 (BOB04-K01)."),
+    "STU-14": "PASS on staging: five students completed the post-test by clicking; each result equals the planned answers (run 12, J11, J13).",
+    "STU-15": ("PASS on staging: the page says 88% with \"Terjawab tepat 7 dari 8 soal\", the growth 50% → 88%, the questions to "
+               "review; no rank, class average or other learner (run 12, J12)."),
+    "STU-18": "PASS on staging: \"Apa berikutnya\" after the result lists what is open next (run 12, J12).",
+    "EDU-09": ("PARTIAL: participation shows without judgment (\"Mengumpulkan 5 / 25 · Pemetaan awal\", who has not handed in, run 7, "
+               "J14), but the page shows one activity at a time and counts only the pre-test (UX-06); with another activity open it shows "
+               "that one instead (run 12). Integrity and Question Health stay off the teacher's pages (selftests)."),
+    "EDU-12": ("PARTIAL: insufficiency is explicit and nothing is fabricated: every figure says \"Belum ada bukti yang memenuhi syarat "
+               "(0/5)\" and what would make it appear (staging J14). Figures from sufficient official evidence are NOT PROVEN: a "
+               "synthetic school's evidence is never official (decision open with Yazid)."),
+    "ADM-15": "PASS on staging: pre-test → every lesson → post-test → result, by clicking, for five students (run 12, J08–J13).",
+    "X-06": "PASS on staging: orientation → the press → 4 answers → FINALIZED at the planned score (run 12, J08; J13 for four more).",
+    "X-07": ("PARTIAL: the text material loads and progress persists (run 12, J09: every lesson saved in full); media out of scope for "
+             "the first testing phases (D-050); the save loop is BOB-23."),
+    "X-08": "PASS on staging: the post-test is offered by a link and completes for five students (run 12, J10, J11, J13).",
+    "X-09": ("PARTIAL: the result is clear and honest (run 12, J12); the certificate state after finishing a chapter is not yet walked."),
+    "X-10": ("PARTIAL: the teacher sees who has handed in, without judgment (run 7, J14); class figures from official evidence are "
+             "NOT PROVEN on staging (synthetic school), as EDU-12."),
+    "U-PERF": ("FAIL (was PASS): the lesson page repeats a request while it is open: its player saves again every time a save re-renders "
+               "the page (BOB-23). Staging run 12, J09: 9 saves and about 40 page fetches in 8 s of reading one page; locally about 20 "
+               "saves a second, 9 Supabase calls each (Bob's measurement, before and after BOB-22). The criterion's \"no pathological "
+               "repeated requests\" does not hold. Everything else measured stands: after BOB-18, 30 sessions for 10 minutes, 2,429 "
+               "clicks, 0 failed, click p95 1.2–1.5 s (runs 36359917724, 36361820806); those journeys did not hold a lesson page open."),
+})
+VERDICT_NOW = ("NO-GO. Gate (D-052): working toward ENGINEERING COMPLETE. What stands between main and go-live, by owner: "
+               "Bob — BOB-23 (the lesson page's save loop: U-PERF, D-031), then BOB-12 with DAISY-13 before 1 Nov (CAP-01). "
+               "Daisy — the reader walk for UI/UX POLISHED, then DAISY-13 with BOB-12. "
+               "Coordinator — drive STU-07 (change an answer, reload) and STU-09 (network loss) on staging; X-05's ineligible learner; "
+               "X-09's certificate state; HOD-03 and DEA-02; the C-07 staging reset; the RUN checks by hand. "
+               "Yazid — REL-08 and REL-09 (Supabase settings, offline key copies); BOB-10 Q1; how class figures are proven with official "
+               "evidence (EDU-12, X-10); how misconception codes are registered. The live release (5b5b68d) stays as it is; it carries "
+               "the save loop too, not met there (no lesson has been opened in production).")
+CHANGES_V21.append("Re-marked on 28 Sep against main 1f3b0f1 (BOB-22, LANA-01) with the D-050 staging journey (runs 7, 11, 12): the student's "
+                   "path from pre-test through every lesson to post-test and result passes by clicking; U-PERF back to FAIL on the lesson "
+                   "page's save loop (BOB-23).")
+
+
 def as_dict():
     g = globals()
     return {

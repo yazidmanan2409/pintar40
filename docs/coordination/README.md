@@ -39,7 +39,9 @@ A change outside your lane needs a ticket that says so. If a ticket needs someth
 | `src/app/**/page.tsx`, `layout.tsx`, `error.tsx`, `not-found.tsx`, `loading.tsx`, `global-error.tsx` | **Daisy** |
 | `src/components/**`, `src/app/**/*.css`, `public/**` | **Daisy** |
 | `src/lib/hle.ts` (all UI copy), `src/lib/locale*.ts` | **Daisy** |
-| `docs/coordination/**`, `docs/audit/**`, `audit/**`, `.github/workflows/audit-journeys.yml`, `.github/workflows/check-front-door.yml`, every `.github/*-request.txt`, `RELEASE_SHA` in the deploy workflows | **Coordinator** |
+| `docs/coordination/**`, `docs/audit/**`, `audit/**`, `.github/workflows/audit-journeys.yml`, `.github/workflows/check-front-door.yml`, `.github/workflows/staging-journey.yml`, `.github/workflows/identity-facts.yml`, every `.github/*-request.txt`, `RELEASE_SHA` in the deploy workflows | **Coordinator** |
+| Identity email (D-057): the sending module, send limits, send log and secrets | **Bob** (BOB-25; paths set in his contract) |
+| Identity email templates: wording, layout, the Digital Card | **Daisy** (DAISY-19 to DAISY-24) |
 | `docs/onboarding/konten/**` (lesson workbooks, their generators and packages, and the question checker `periksa_mutu.py`) | **Lana** (D-051); the coordinator calibrates the checker against Studio and owns `ke-paket.ts` |
 | `selftest/manifest.json`, `selftest/*.test.ts` | **Shared, append only.** Each lane adds its own test ids and bumps `version`. Never edit or remove another lane's test. If `version` conflicts on merge, take the higher number and add one. |
 
