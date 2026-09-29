@@ -44,6 +44,46 @@ Same method, same checks, same hand-off, one chapter at a time, each after the p
 - **Misconception codes:** `SMA11-G-B1-01` and so on.
 - **Same rules otherwise:** 4 pre-test, 8 post-test, 12–20 practice; the quality check, the doctrine lexicon, `ke-paket.ts`, and book errors listed in the hand-off.
 
+## Your third job: SMA Kelas X Matematika, Bab 1 to Bab 7 (Yazid, 29 Sep)
+
+Same gate, same hand-off, one chapter at a time, each after the previous verdict. Yazid gives you each chapter's PDF.
+
+| Ticket | Chapter |
+|---|---|
+| LANA-15 | Matematika X Bab 1: Eksponen (34 pages) |
+| LANA-16 … LANA-21 | Matematika X Bab 2 … Bab 7, each from its PDF |
+
+**The source** is the student book *Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi)*, Dicky Susanto dkk., Kemendikbudristek 2023, ISBN 978-623-118-558-7. Its Contoh have worked «Alternatif Penyelesaian», but Latihan and Uji Kompetensi have **no keys**. So every key is yours, and every key is **computed and asserted** in the generator, as in SD5.
+
+**Method: SD5's and Geografi's together**
+- **Every number is proven:** every value in a lesson, key or distractor is computed in Python and asserted.
+- **Every definition and property is traced:** a `FAKTA` table with the page and the book's words. `--kutipan` checks prose quotes against the book's text.
+- **Formulas are read from the page image, not the extracted text.** The PDF text loses superscripts and fraction layout (Bab 1's 2⁶ extracts as «26»). A formula is proven by computation, not by quote.
+- **Read the lessons and questions for anything false outside the book.** Keep it out, with DILUAR markers asserted absent, as in Geografi.
+
+**Notation (the player shows plain text today; DAISY-30 will render the markers below)**
+- `×` for multiplication, `:` for division, decimal comma, thousands point, the book's minus sign.
+- **Integer exponents** as Unicode superscripts: `2⁶`, `a⁻³`, `10⁻²`.
+- **Exponents Unicode cannot write** (fractions, expressions) as `^{…}`: `a^{m/n}`, `2^{x+1}`. **Subscripts** as `_{…}`: `U_{n}`. Every `^` and `_` is in brace form, and the generator asserts the braces balance and no bare `^` remains. This is the only markup beyond `## ` headings and `**bold**`.
+- **Roots:** `√`, `∛`, `∜`, with the radicand in parentheses when it is longer than one symbol: `√(2x)`, `∛27`.
+- **No LaTeX, no HTML, no tables.** Graphs and tables become lines, one fact per line: `x = 2 → f(x) = 4`.
+
+**What changes**
+- **Files:** `sma10_matematika_babN.py`, `SMA10-Matematika-BabN.xlsx`, `.paket.json`, `-miskonsepsi.csv`, `handoff/LANA-1x.md`.
+- **Kursus row:** `Matematika Kelas X · Bab N: <judul bab>`; Mata pelajaran `Matematika`; Jenjang `SMA`; Kelas `Kelas X`. The attribution line names this book.
+- **Voice:** this book addresses the student as «kamu». Follow it, the same throughout this course.
+- **Lessons** follow the chapter's own sections. Bab 1:
+  - A Definisi Eksponen; B Sifat-Sifat Eksponen; C Fungsi Eksponensial; D Bentuk Akar;
+  - then the **Logaritma** part the book places after the Uji Kompetensi, with its own Contoh 7–9 and Latihan, as the chapter's last lesson(s).
+
+  The Pengayaan game and the Eksplorasi activities do not become questions (at most one «Coba pikirkan» page per lesson).
+- **Questions:**
+  - 4 pre-test, 8 post-test (mostly Sedang), 12–20 practice; single answer, four options A–D;
+  - answer positions balanced; the correct option never strictly the longest; `periksa_mutu` 0/0 with the CSV;
+  - the post-test never reuses a Contoh, Latihan or Uji Kompetensi item with the numbers barely changed.
+- **Misconception codes:** `SMA10-M-B1-01` and so on, in the CSV only.
+- **Book errors in the hand-off,** as before. For example, Bab 1 numbers its Eksplorasi and Latihan «2.x».
+
 ## Read first (on `origin/main`)
 - `docs/coordination/README.md` §1–§4: roles, lanes, branches, the hand-off block. **Binding.**
 - `docs/coordination/DECISIONS.md`, especially **D-007** (the lesson workbook), **D-008** (pre-test and post-test on every lesson), **D-030** (package limits) and **D-050** (the first testing phases cover lessons and MCQs, not video, audio or presentations) and **D-052** (readiness is a sequence of gates; 5 Oct is tentative, so quality comes before speed).
