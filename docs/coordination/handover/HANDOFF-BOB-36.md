@@ -2,7 +2,7 @@
 
 **SHA:** `ae7d9a5`, its own commit, and the gate's addition `ec0f65c`. The lane head is `c0d82c3`. `main` `9e72564` (DAISY-30) came in as `de588a4`, and `ffcd7dc` (DAISY-29) came in earlier as `9bad5e5`.
 - **Manifest:** F04-T04d (new). The lane's manifest is v120 with 429 ids (the union with `main`'s DAISY-30-TEKS-01), as you directed at the merge.
-- **CI:** the lane-head run named in the next commit. It is the one run for the lane head, carrying BOB-24's fix, BOB-34, BOB-35 and BOB-36, and you gate the four as one integration with one audit.
+- **CI:** CI #236 (run `36558480818`, https://github.com/yazidmanan2409/pintar40/actions/runs/36558480818) on `3862dae`. It is the one run for the lane head, carrying BOB-24's fix, BOB-34, BOB-35 and BOB-36, and you gate the four as one integration with one audit.
 - **Built** after BOB-24's first run was dispatched, exactly to your ruling of 29 Sep.
 
 ## CHANGED
@@ -71,7 +71,7 @@ F04-T04d  an edit after the sitting changed the finished session's verdict from 
 - **BOB-35's closure query over the proof database:** 0 of 8 committed sessions with items.
 
 ## CI
-- **the lane-head run named in the next commit**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these hand-offs. That commit is docs only; the code is at `c0d82c3`.
+- **CI #236 (run `36558480818`, https://github.com/yazidmanan2409/pintar40/actions/runs/36558480818) on `3862dae`**, `workflow_dispatch` on `claude/quirky-meitner-a04smj` at the commit carrying these hand-offs. That commit is docs only; the code is at `c0d82c3`.
 - **The previous run, CI #235** (run `36551388380`, on `d4e4ce6`, code `9bad5e5`), was **green**. It is superseded by the gate's fix round for BOB-35 (`91d0cb6`) and BOB-36 (`ec0f65c`), and by the DAISY-30 merge.
 - It is the one run for BOB-24's fix, BOB-34, BOB-35 and BOB-36, as directed.
 - The red-case matrix carries `db-bob24-gates`, `db-bob35-gates` and `db-bob36-gates`.
@@ -96,7 +96,7 @@ Yes, in the one run on the lane head, gated with BOB-24, BOB-34 and BOB-35.
 ---
 ### Summary (ready to paste)
 ```
-BOB-36 (ae7d9a5 + addition ec0f65c), ready for the gate in the lane head's run (the lane-head run named in the next commit) with BOB-24, BOB-34 and BOB-35.
+BOB-36 (ae7d9a5 + addition ec0f65c), ready for the gate in the lane head's run (CI #236 (run `36558480818`, https://github.com/yazidmanan2409/pintar40/actions/runs/36558480818) on `3862dae`) with BOB-24, BOB-34 and BOB-35.
 Migration 20261023100000: once a session cites an Uji Cepat, its 12 INV-29 fields are fixed for every role, the owner
 included (PR061 QUICK_RULES_FIXED), its status too (no status change continues), and where it was sat
 (course_id, module_id). The title and an unsat
