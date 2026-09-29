@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 110,
+  "version": 111,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1981,7 +1981,7 @@
     {
       "id": "BOB23-K01",
       "runner": "static",
-      "proves": "BOB-23 (D-031). In the source file src/lib/siklus.ts, perluDisimpan driven through every render a lesson sees saves a new 5-page lesson exactly once per page newly reached (1, 2, 3, 4, 5) -- none for idle re-renders, none going back -- and saves nothing idle on a lesson already saved; in src/lib/sesi.ts, cookieYangBerubah keeps a changed session cookie and a deletion and drops an unchanged one; src/app/belajar/_components/LessonPlayer.tsx keys its save effect on [page] alone through perluDisimpan, and saveLessonProgress in src/app/belajar/actions.ts writes only a changed session, so a save no longer re-renders the page."
+      "proves": "BOB-23 (D-031). In the source file src/lib/siklus.ts, perluDisimpan driven through every render a lesson sees saves a new 5-page lesson exactly once per page newly reached (1, 2, 3, 4, 5) -- none for idle re-renders, none going back -- and saves nothing idle on a lesson already saved; in src/lib/sesi.ts, cookieYangBerubah keeps a changed session cookie and a deletion and drops an unchanged one; src/app/belajar/_components/LessonPlayer.tsx keys its save effect on [page] alone through perluDisimpan, and saveLessonProgress in src/app/belajar/actions.ts writes only a changed session, as a guard (the redraw was the proxy's re-send, whose throttle BOB23-K02 proves)."
     },
     {
       "id": "BOB23-K02",
@@ -2002,6 +2002,11 @@
       "id": "BOB12-K02",
       "runner": "static",
       "proves": "BOB-12 (a): the real Supabase client driven through fetchBerpenerus (the source file src/lib/auth-forwarding.ts) with a recording fetch sends the secret key and sb-forwarded-for only on POST /auth/v1/token (password, refresh_token) and POST /auth/v1/verify; no data request, lookalike path, other method, grant or host carries the key; a forged sb-forwarded-for or x-forwarded-for is never believed, the address is x-real-ip only; and src/proxy.ts refreshes through it while src/lib/supabase/service.ts never does."
+    },
+    {
+      "id": "BOB32-K01",
+      "runner": "static",
+      "proves": "BOB-32 (UX-03's server half, D-011): every refusal launch_quick_assessment raises, read from the migration that defines it, is read by src/lib/ujicepat-kontrak.ts to its code (QUICK_BANK_TOO_SMALL, QUICK_COUNT_OUT_OF_RANGE, QUICK_MINUTES_OUT_OF_RANGE, QUICK_NOT_ALLOWED, QUICK_NOT_FOUND, else QUICK_FAILED); a reworded refusal fails; the page's reader drops a forged code or reference; and the source of sediakanUjiCepat in src/app/mengajar/actions.ts passes ?cepat=gagal&kode=, with a logged reference only for QUICK_FAILED."
     },
     {
       "id": "F15-P01",

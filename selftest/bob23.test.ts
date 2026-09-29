@@ -1,15 +1,18 @@
 /**
  * BOB-23 (D-031, hot path) -- THE LESSON PLAYER SAVES ONCE PER PAGE NEWLY
  * REACHED. Its save ran in an effect that depended on the whole props object;
- * every save wrote the session cookie back unchanged, Next re-rendered the page
- * for it (x-action-revalidated), the player got new props, and the effect saved
- * again: about 20 saves and 180 Supabase calls a second while a learner read
- * one page (measured before and after BOB-22; the hand-off has the numbers).
+ * every save's response re-sent the session cookies (the proxy's sliding
+ * lifetime, BOB-05), Next re-rendered the page for it (x-action-revalidated),
+ * the player got new props, and the effect saved again: about 20 saves and 180
+ * Supabase calls a second while a learner read one page (measured before and
+ * after BOB-22; the hand-off has the numbers).
  *
  * The decision is now a pure function (perluDisimpan in src/lib/siklus.ts) that
  * this drives through every render a lesson sees; the effect is keyed on the
- * page alone; and the save action writes a session cookie only when it changed
- * (cookieYangBerubah in src/lib/sesi.ts), so a save no longer re-renders.
+ * page alone. The redraw's writer was the proxy's re-send, and its throttle
+ * (BOB23-K02) is the fix that mattered. The save action also writes a session
+ * cookie only when it changed (cookieYangBerubah in src/lib/sesi.ts), as a
+ * guard: measured under BOB-30, PINTAR's clients never re-save an unchanged one.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -94,7 +97,7 @@ export const bob23Tests: SelfTest[] = [
       const aksi = buang(readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "actions.ts"), "utf8"));
       const simpanAksi = /export async function saveLessonProgress[\s\S]*?\n\}/.exec(aksi)?.[0] ?? "";
       c.expect(/supabaseServer\(\{ tulisJikaBerubah: true \}\)/.test(simpanAksi),
-        "saveLessonProgress writes the session cookie back unchanged, so each save re-renders the lesson page");
+        "saveLessonProgress no longer opens its client with the guard that writes only a changed session");
 
       return c.verdict(
         "driven through every render a lesson sees, perluDisimpan saves a new 5-page lesson exactly 1, 2, 3, 4, 5 -- " +
