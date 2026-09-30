@@ -838,6 +838,222 @@ await step("S19", "the student finds Bab 1 and reaches its pre-test (B4)", async
   return `/belajar offers ${href}; /belajar/${tugas}/pemetaan → HTTP ${res?.status()}${refused ? " (the refusal page)" : ""}; open from ${bukaSejak}: ${txt.slice(0, 200)}`;
 });
 
+// ───────────────────────────── D-064: class figures from official evidence, in a real school
+// Five students of Kelas 1A take Bab 1's pre-test and post-test to a plan (how many they get right),
+// so every figure the teacher and the head of department then read has a value known in advance.
+// SD Zayd is a real school (is_synthetic false) on a stack in production posture, so these sessions
+// are OFFICIAL evidence, the only kind a class figure counts. Staging's school is synthetic and can
+// never show them (staging report, D3); D-064 moves this proof here. The students follow the staging
+// journey's plan and helpers (audit/staging/journey.mjs, J07–J14). They open each test by its address:
+// reaching the tests by clicking is proven on staging (J08, J10, J11), and this proof is the figures.
+const SLOW = 30000;
+const norm = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
+async function tutupTur(page) {
+  const kartuTur = page.locator('.pin-tur-kartu[role="dialog"]');
+  if (!(await kartuTur.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false))) return false;
+  await kartuTur.locator("button.pin-tur-x").last().click();
+  await kartuTur.waitFor({ state: "detached", timeout: SLOW });
+  return true;
+}
+// the answer key and the test sizes, from the chapter S15c imported
+const KUNCI = new Map();
+const SOAL = { pre: 0, post: 0 };
+{
+  const f = new URL("./fixtures/sd5-matematika-bab1.paket.json", import.meta.url);
+  if (existsSync(f)) {
+    for (const c of JSON.parse(readFileSync(f, "utf8")).courses)
+      for (const m of c.modules) for (const l of m.lessons) for (const it of l.items ?? []) {
+        KUNCI.set(norm(it.stem), { right: new Set(it.options.filter((o) => o.is_correct).map((o) => norm(o.body))),
+                                   wrong: new Set(it.options.filter((o) => !o.is_correct).map((o) => norm(o.body))) });
+        if (it.use === "PRE_TEST") SOAL.pre++;
+        if (it.use === "POST_TEST") SOAL.post++;
+      }
+  }
+}
+// how many each student gets right: the staging journey's plan, so the two proofs read side by side
+const RENCANA = [[0.5, 0.875], [0.25, 0.75], [0, 0.625], [0.75, 1], [0.5, 0.5]]
+  .map(([p, q]) => ({ pre: Math.round(p * SOAL.pre), post: Math.round(q * SOAL.post) }));
+const MURID = ["Ani Murid", "Budi Murid", "Citra Murid", "Dodi Murid", "Eka Murid"];
+// what the figures must then say: comprehension is the mean post-test mastery; net gain the mean of
+// post minus pre over the students with both (calc_class_comprehension, calc_class_net_gain)
+const HARAP = SOAL.pre && SOAL.post ? {
+  paham: RENCANA.reduce((n, r) => n + r.post / SOAL.post, 0) / RENCANA.length,
+  naik: RENCANA.reduce((n, r) => n + r.post / SOAL.post - r.pre / SOAL.pre, 0) / RENCANA.length,
+} : null;
+const persen = (v) => new Intl.NumberFormat("id-ID", { style: "percent", maximumFractionDigits: 0 }).format(v);
+const kelasSatuA = () => sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1A' and is_active limit 1`).trim();
+const tugasBab = () => sql(`select id from public.learning_assignments where course_id='${babSatu()}' order by created_at desc limit 1`).trim();
+
+// Answer every question, `right` of them correctly, and finish (the staging journey's `jawab`).
+const teksPilihan = (b) => b.locator("span").nth(1).innerText().then(norm);
+async function jawab(page, mode, right) {
+  const formal = mode === "post";
+  const done = [];
+  for (let i = 0; i < 40; i++) {
+    const stemEl = page.locator("h2.pin-stem").first();
+    await stemEl.waitFor({ state: "visible", timeout: SLOW });
+    const raw = await stemEl.innerText();
+    const k = KUNCI.get(norm(raw));
+    const opts = page.locator("ul.pin-opsi button.pin-op");
+    const texts = [];
+    for (let j = 0; j < await opts.count(); j++) texts.push(await teksPilihan(opts.nth(j)));
+    const wantRight = done.filter((d) => d.right).length < right;
+    let idx = k ? texts.findIndex((t) => (wantRight ? k.right : k.wrong).has(t)) : -1;
+    if (idx < 0) idx = 0;
+    await opts.nth(idx).click();
+    await page.waitForFunction(([n]) => document.querySelectorAll("ul.pin-opsi button.pin-op")[n]?.getAttribute("aria-pressed") === "true", [idx], { timeout: SLOW });
+    if (formal) {
+      await page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ }).click();
+      await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW });
+    } else {
+      await page.waitForTimeout(400);
+    }
+    done.push({ known: Boolean(k), right: Boolean(k) && wantRight && k.right.has(texts[idx]) });
+    const next = page.getByRole("button", { name: "Berikutnya", exact: true });
+    if (await next.count()) {
+      await next.click();
+      await page.waitForFunction((prev) => document.querySelector("h2.pin-stem")?.innerText !== prev, raw, { timeout: SLOW });
+      continue;
+    }
+    await page.getByRole("button", { name: formal ? "Kumpulkan" : "Selesaikan pemetaan", exact: true }).click();
+    await page.waitForURL((u) => u.pathname.endsWith(formal ? "/hasil" : "/peta") || u.pathname === "/belajar", { timeout: 60000 });
+    break;
+  }
+  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length };
+}
+
+const kartuKelas = [];
+await step("S20", "four more students join Kelas 1A, and the school admin makes each a class card (as S9, S10)", async (rec) => {
+  if (!card || !adminApi) { rec.verdict = "BLOCKED"; return !card ? "no card for Ani (S10)" : "no school admin session"; }
+  kartuKelas.push({ nama: MURID[0], ...card });
+  const rows = MURID.slice(2).map((display_name) => ({ display_name, node_id: ids.klass, role: "STUDENT" }));
+  const job = await adminApi.rpc("import_open", { p_institution: ids.sd, p_rows: rows });
+  if (job.error) throw new Error(job.error.message);
+  const log = [];
+  for (const fn of ["import_validate", "import_confirm"]) {
+    const r = await adminApi.rpc(fn, { p_job: job.data });
+    if (r.error) log.push(`${fn}: ${r.error.message}`);
+  }
+  for (let i = 0; i < 4; i++) {
+    const adv = await adminApi.rpc("import_advance", { p_job: job.data, p_max_rows: 50 });
+    if (adv.error && /pilot/i.test(adv.error.message)) {
+      const vp = await adminApi.rpc("import_verify_pilot", { p_job: job.data });
+      if (vp.error) log.push(`verify_pilot: ${vp.error.message}`);
+    }
+  }
+  const waiting = (await adminApi.rpc("persons_awaiting_account")).data ?? [];
+  for (const nama of MURID.slice(1)) {
+    const p = waiting.find((x) => x.display_name === nama);
+    if (!p) { log.push(`${nama}: not waiting for an account`); continue; }
+    const r = await a.request.post(`${APP}/api/akun/aktivasi`, { data: { mode: "CLASSROOM_CARD", person_id: p.person_id } });
+    const body = await r.json().catch(() => null);
+    if (body?.ok) kartuKelas.push({ nama, number: body.card, pin: body.pin });
+    else log.push(`${nama}: HTTP ${r.status()} ${body?.code ?? ""}`);
+  }
+  const enrolled = sql(`select count(distinct e.person_id) from public.memberships m join public.enrollments e on e.id = m.enrollment_id where m.node_id='${ids.klass}' and m.valid_to is null`).trim();
+  if (kartuKelas.length < MURID.length) rec.verdict = "FAIL";
+  return `enrolled in Kelas 1A: ${enrolled}; class cards: ${kartuKelas.length} of ${MURID.length} (numbers and PINs not recorded)${log.length ? `; ${log.join("; ")}` : ""}`;
+});
+
+await step("S21", "five students take Bab 1's pre-test and post-test to plan; each result page says what was answered", async (rec) => {
+  if (!terbitBab || !HARAP) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "the chapter fixture is absent"; }
+  if (kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return `only ${kartuKelas.length} class cards (S20)`; }
+  const tugas = tugasBab();
+  const out = [];
+  for (let i = 0; i < MURID.length; i++) {
+    const k = kartuKelas[i];
+    const plan = RENCANA[i];
+    const sc = await ctx();
+    const s = await sc.newPage();
+    try {
+      await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+      await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+      await s.locator("#kartu").fill(k.number);
+      await s.locator("#pin").fill(k.pin);
+      await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+      await s.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+      await s.goto(`${APP}/belajar/${tugas}/pemetaan`, { waitUntil: "networkidle" });
+      await tutupTur(s);
+      await s.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
+      const pre = await jawab(s, "pre", plan.pre);
+      await s.goto(`${APP}/belajar/${tugas}/penguasaan`, { waitUntil: "networkidle" });
+      await tutupTur(s);
+      await s.getByRole("button", { name: "Mulai Uji Penguasaan", exact: true }).click();
+      const post = await jawab(s, "post", plan.post);
+      await s.locator("h1").first().waitFor({ timeout: SLOW });
+      const t = await bodyText(s);
+      const m = t.match(/Terjawab tepat (\d+) dari (\d+) soal/);
+      const ok = m && Number(m[1]) === plan.post && Number(m[2]) === SOAL.post && !pre.unknown && !post.unknown;
+      if (!ok) rec.verdict = "FAIL";
+      if (i === 0) rec.shots.push(await shot(s, "d064-murid1-hasil"));
+      out.push(`${k.nama}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}; the page says "${m?.[0] ?? "no 'Terjawab tepat' line"}"${ok ? "" : " MISMATCH"}`);
+    } catch (e) {
+      rec.verdict = "FAIL";
+      rec.shots.push(await shot(s, `d064-murid${i + 1}-berhenti`));
+      out.push(`${k.nama}: stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`);
+    }
+    await sc.close();
+  }
+  const kelas = sql(`select coalesce(string_agg(x, ', ' order by x), 'none') from (
+      select s.mode::text || ' ' || public.effective_evidence_class(s.id)::text || ' ' || s.status::text || ' x' || count(*) x
+        from public.assessment_sessions s where s.learning_assignment_id='${tugas}'
+       group by s.mode, public.effective_evidence_class(s.id), s.status) q`).trim();
+  const resmi = Number(sql(`select count(*) from public.assessment_sessions s where s.learning_assignment_id='${tugas}'
+      and s.mode='POST_TEST' and s.status='FINALIZED' and public.effective_evidence_class(s.id)='OFFICIAL'`).trim());
+  if (resmi < MURID.length) rec.verdict = "FAIL";
+  return `${out.join("; ")} | this assignment's sessions: ${kelas}`;
+});
+
+await step("S22", "the teacher reads the class figures from official evidence on Lihat bukti (EDU-12, X-10)", async (rec) => {
+  if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
+  const kelas = kelasSatuA();
+  const tc = await ctx();
+  const t = await tc.newPage();
+  await magicSignIn(t, people.guru.email);
+  await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+  await tutupTur(t);
+  rec.shots.push(await shot(t, "d064-guru-bukti"));
+  const txt = await bodyText(t);
+  const simpulan = norm(await t.locator("main .pin-sec").nth(1).innerText().catch(() => ""));
+  const pahamTeks = persen(HARAP.paham);
+  const naikTeks = `${HARAP.naik > 0 ? "+" : ""}${Math.round(HARAP.naik * 100)} poin`;
+  const absen = (simpulan.match(/Belum ada bukti yang memenuhi syarat untuk angka ini\./g) ?? []).length;
+  const kumpul = [...txt.matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/gi)].map((m) => `${m[1]}/${m[2]}`);
+  const bagian = simpulan.includes("Penguasaan per bagian");
+  if (!simpulan.includes(pahamTeks) || !simpulan.includes(naikTeks)) rec.verdict = "FAIL";
+  await tc.close();
+  return `expected comprehension ${pahamTeks} and net gain ${naikTeks} (from the plan); on the page: comprehension ${simpulan.includes(pahamTeks)}, ` +
+    `net gain ${simpulan.includes(naikTeks)}, mastery by part shown ${bagian}; figures still absent: ${absen} (misconceptions need registered codes, D-063); ` +
+    `Mengumpulkan ${JSON.stringify(kumpul)}; the figures section says: "${simpulan.slice(0, 700)}"`;
+});
+
+await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan (HOD-09, X-10)", async (rec) => {
+  if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
+  const hc = await ctx();
+  const h = await hc.newPage();
+  await magicSignIn(h, people.kaprodi.email);
+  await h.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+  await tutupTur(h);
+  const kelasBukti = h.locator("details.pin-kelas-bukti").filter({ has: h.locator("summary", { hasText: "Kelas 1A" }) }).first();
+  if (!(await kelasBukti.count())) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(h, "d064-kaprodi-pimpinan"));
+    const t0 = await bodyText(h);
+    await hc.close();
+    return `no Kelas 1A in the class-by-class section; the page says: ${t0.slice(0, 400)}`;
+  }
+  const tanda = norm(await kelasBukti.locator("summary").innerText());
+  await kelasBukti.locator("summary").click();
+  rec.shots.push(await shot(h, "d064-kaprodi-pimpinan"));
+  const isi = norm(await kelasBukti.innerText());
+  const pahamTeks = persen(HARAP.paham);
+  const naikTeks = persen(HARAP.naik);
+  if (!/Ada angka/.test(tanda) || !isi.includes(pahamTeks)) rec.verdict = "FAIL";
+  await hc.close();
+  return `Kelas 1A: "${tanda}"; expected comprehension ${pahamTeks} (and net gain as ${naikTeks}); comprehension shown ${isi.includes(pahamTeks)}, ` +
+    `net gain shown ${isi.includes(naikTeks)}; the class's figures say: "${isi.slice(0, 500)}"`;
+});
+
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
   const tok = `acak${Date.now()}`;
   const api = await fetch(`${APP}/api/verifikasi/${tok}`, { redirect: "manual" });
