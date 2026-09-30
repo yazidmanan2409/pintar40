@@ -1027,7 +1027,7 @@ await step("S22", "the teacher reads the class figures from official evidence on
     `Mengumpulkan ${JSON.stringify(kumpul)}; the figures section says: "${simpulan.slice(0, 700)}"`;
 });
 
-await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan (HOD-03, X-10)", async (rec) => {
+await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan (HOD-09, X-10)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const hc = await ctx();
   const h = await hc.newPage();
