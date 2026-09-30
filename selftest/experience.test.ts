@@ -2369,6 +2369,11 @@ export const experienceTests: SelfTest[] = [
       //    ITSELF. `mode_policy` decides whether a QUICK result can reach a
       //    certificate; the copy must agree with that row, so the row is parsed
       //    here. If a migration ever flips it, this test says the copy must move.
+      //    RE-POINTED FOR DAISY-39 (D-082(d), BOB-50): THE LIVE POLICY, not the
+      //    first one. The row's value is its insert in 20260914093000, then
+      //    every later migration that sets QUICK's `certifies`, in order; BOB-50
+      //    (20261031100000) sets it false. The branch that applies is inverted
+      //    accordingly: the copy may not claim certificate eligibility.
       const policy = readFileSync(join(mig, "20260914093000_mode_policy_quick_assessment_integrity.sql"), "utf8");
       const kolom = /create table public\.mode_policy \(([\s\S]*?)\n\);/.exec(policy)?.[1] ?? "";
       const urutan = [...kolom.matchAll(/^\s{2}(\w+)\s+/gm)].map((m) => m[1]);
@@ -2376,11 +2381,21 @@ export const experienceTests: SelfTest[] = [
       c.expect(iCert > 0, "mode_policy no longer has a certifies column");
       const barisQuick = /\n  \('QUICK',([^)]*)\)/.exec(policy)?.[1] ?? "";
       const nilai = barisQuick.split(",").map((x) => x.trim());
-      const certifies = nilai[iCert - 1];
-      c.expect(certifies === "true" || certifies === "false", `could not read QUICK.certifies (${certifies})`);
+      let certifies = nilai[iCert - 1];
+      c.expect(certifies === "true" || certifies === "false", `could not read QUICK.certifies at its insert (${certifies})`);
+      const pengubah: string[] = [];
+      for (const f of readdirSync(mig).filter((f) => f.endsWith(".sql") && f > "20260914093000").sort()) {
+        const sql = readFileSync(join(mig, f), "utf8").replace(/--[^\n]*/g, "");
+        for (const m of sql.matchAll(/update public\.mode_policy\s+set ([\s\S]*?)\swhere mode = 'QUICK'/g)) {
+          const v = /certifies\s*=\s*(true|false)/.exec(m[1])?.[1];
+          if (v) { certifies = v; pengubah.push(f); }
+        }
+      }
+      c.expect(pengubah.includes("20261031100000_a_quick_assessment_does_not_certify.sql"), "BOB-50's change to QUICK.certifies is not read");
 
-      const kunciCepat = [...hle.matchAll(/"(mengajar\.cepat\.[a-z0-9_.]+|mengajar\.langkah\.f5w)":\s*\{([^}]*)\}/g)];
-      c.expect(kunciCepat.length >= 20, `only ${kunciCepat.length} quick-assessment copy strings found`);
+      // the copy an educator or a tour reads about an Uji Cepat
+      const kunciCepat = [...hle.matchAll(/"(mengajar\.cepat\.[a-z0-9_.]+|mengajar\.langkah\.f5w|tur\.pg\.4\.isi)":\s*\{([^}]*)\}/g)];
+      c.expect(kunciCepat.length >= 21, `only ${kunciCepat.length} quick-assessment copy strings found`);
       const semuaCepat = kunciCepat.map((m) => m[2]).join(" ");
 
       const MENYANGKAL = [
@@ -2391,6 +2406,15 @@ export const experienceTests: SelfTest[] = [
         /not a judgment of the learner/i, /not a learner grade/i,
         /hasilnya untuk Anda\b/i, /the result is for you\b/i,
       ];
+      // what claims a result reaches a certificate
+      const KLAIM = [
+        /kelayakan sertifikat/i, /certificate eligibility/i, /menuju sertifikat/i, /toward(s)? a certificate/i,
+        /Uji Cepat saja/i, /a single Quick Assessment/i, /satu Uji Cepat/i, /one Quick Assessment/i,
+        /penerbitan dilakukan sekolah/i, /the school issues/i,
+      ];
+      // the control: the sentence the policy change made false is caught
+      c.expect(KLAIM.some((r) => r.test("Hasilnya tercatat sebagai bukti pembelajaran dan dapat dipakai saat menentukan kelayakan sertifikat.")),
+        "the claim sweep does not catch the old sentence");
       if (certifies === "true") {
         for (const bad of MENYANGKAL) {
           c.expect(!bad.test(semuaCepat),
@@ -2407,6 +2431,17 @@ export const experienceTests: SelfTest[] = [
         for (const bad of [/mendapat sertifikat/i, /earns a certificate/i, /gets a certificate/i]) {
           c.expect(!bad.test(semuaCepat), `the copy implies one quick assessment earns a certificate: ${bad}`);
         }
+      } else {
+        // QUICK DOES NOT CERTIFY (D-082(d)): no line claims or hedges a way
+        // to a certificate, each language says plainly that an Uji Cepat does
+        // not issue one, and the result is still called learning evidence --
+        // the ruling changes the certificate, not what the evidence is
+        for (const r of KLAIM) c.expect(!r.test(semuaCepat), `QUICK does not certify, but the copy still says: ${r}`);
+        c.expect(/Uji Cepat tidak menerbitkan sertifikat/.test(semuaCepat) && /a Quick Assessment does not issue a certificate/i.test(semuaCepat),
+          "the copy does not say plainly, in both languages, that an Uji Cepat does not issue a certificate");
+        c.expect(/bukti (pembelajaran|belajar)/i.test(semuaCepat) && /learning evidence/i.test(semuaCepat),
+          "the copy no longer says the result is learning evidence");
+        for (const bad of MENYANGKAL) c.expect(!bad.test(semuaCepat), `the copy denies the result is evidence: ${bad}`);
       }
 
       // 3. AND IT PROMISES NO PER-ITEM RESULT, because there is no read path.
@@ -2415,13 +2450,14 @@ export const experienceTests: SelfTest[] = [
       }
       c.expect(!/metric_evaluate/.test(cepat), "the quick assessment screen asks for a metric");
 
-      c.note(`QUICK.certifies=${certifies}, bounds 3-20 single attempt, presets ${preset.join("/")} inside ${lo}-${hi}, ${kunciCepat.length} copy strings`);
+      c.note(`QUICK.certifies=${certifies} (live, after ${pengubah.join(", ") || "its insert"}), bounds 3-20 single attempt, presets ${preset.join("/")} inside ${lo}-${hi}, ${kunciCepat.length} copy strings`);
       return c.verdict(
         "the quick assessment reads its item bounds from assessment_definition_bounds rather than restating them, offers " +
-        "three windows inside the launcher's own range, and tells the truth about the result: mode_policy's QUICK row is " +
-        "PARSED here and the copy is required to agree with it — it may not deny that the result can reach certificate " +
-        "evidence while the contract says it can, may not claim one quick assessment earns a certificate, and may not " +
-        "promise a per-item result an educator has no read path to",
+        "three windows inside the launcher's own range, and tells the truth about the result: mode_policy's LIVE QUICK row " +
+        "(its insert, then every later migration that sets it) is PARSED here and the copy is required to agree with it -- " +
+        "with QUICK not certifying (D-082(d)), no line claims or hedges a way to certificate eligibility (the old sentence " +
+        "is the planted control), each language says plainly that an Uji Cepat does not issue a certificate, the result is " +
+        "still learning evidence, and no per-item result is promised that an educator has no read path to",
       );
     },
   },
