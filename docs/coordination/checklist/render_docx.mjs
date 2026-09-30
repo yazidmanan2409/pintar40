@@ -199,7 +199,7 @@ add(h1("Appendix A — sources"));
 d.SOURCES.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
 add(h1("Appendix B — what changed from the 24 September draft"));
 d.CHANGES_FROM_DRAFT.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
-add(h1("Appendix C — what changed in v2.1"));
+add(h1("Appendix C — what changed in v2.1 and v2.2"));
 d.CHANGES_V21.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
 
 const doc = new Document({
@@ -225,7 +225,7 @@ const doc = new Document({
       default: new Footer({ children: [new Paragraph({
         alignment: AlignmentType.RIGHT,
         children: [
-          new TextRun({ text: "PINTAR 4.0 · End-to-end user flow & release checklist v2.1 · page ", font: FONT, size: 15, color: MUTED }),
+          new TextRun({ text: "PINTAR 4.0 · End-to-end user flow & release checklist v2.2 · page ", font: FONT, size: 15, color: MUTED }),
           new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 15, color: MUTED }),
           new TextRun({ text: " of ", font: FONT, size: 15, color: MUTED }),
           new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 15, color: MUTED }),

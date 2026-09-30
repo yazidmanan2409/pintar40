@@ -852,6 +852,69 @@ CHANGES_V21.append("30 Sep (Yazid, on the coordinator's review): REL-08 correcte
                    "policy; each clause names evidence that can prove it (the settings read proves settings only); production deliverability "
                    "(SPF, DKIM, DMARC on PINTAR's sender path) added to (i); REL-07's facts moved to REL-07.")
 
+
+# --- 30 Sep: v2.2, re-marked on main daa5721 (BOB-23 to BOB-41, DAISY-25 to DAISY-31, LANA content) ---
+# Evidence: CI #240 (32/32, strict contract) on BOB-37's code; audit #52 (run 36654696632, harness ee58961 on app daa5721):
+# B 31 PASS, 1 NOTE (S1b), A green, with D-064's five-student proof (S20-S23); staging serving daa5721 with 131 migrations
+# (staging run #24) and staging journeys 13-16; identity-facts run 36653019569 (REL-07, REL-08). Production is unchanged (5b5b68d).
+META["version"] = "v2.2 — 30 September 2026 (status on main daa5721; v2 of 24 Sep kept as the baseline)"
+NOW.update({
+    "sha": "daa5721",
+    "date": "30 Sep 2026",
+    "label": "main after BOB-37 and BOB-38 to BOB-41",
+    "evidence": ("main daa5721: CI #240 (32/32, strict selftest contract) on BOB-37's code 0fd83f7, merged byte-identical. Audit #52 "
+                 "(run 36654696632): B 31 PASS, 1 NOTE (S1b), A green; S20-S23 prove class figures from official evidence in a real school "
+                 "(D-064). Staging serves daa5721 with 131 migrations (run #24). Staging journeys 13-16 (runs 36506604371, 36521226487, "
+                 "36525100378, 36652183575): run 16 PASS 16, NOTE 2, BLOCKED 2 (Q4-Q5, BOB-42), NOT RUN 1; 5xx 0. identity-facts run "
+                 "36653019569 for REL-07 and REL-08."),
+})
+CURRENT.update({
+    "STU-11": ("PARTIAL. Media half OUT OF SCOPE for the first testing phases (D-050): not tested, not PASS. Text half PASS on staging: "
+               "every lesson read to its last page by clicking, every position saved in full and every lesson read, and nothing repeats "
+               "while a lesson is open since BOB-23 (runs 14-16; run 16: the seven lessons of SMA X Bab 1)."),
+    "X-07": ("PARTIAL: the text material loads and progress persists (runs 14-16, J09), and the save loop is gone (BOB-23); media out "
+             "of scope for the first testing phases (D-050)."),
+    "EDU-07": ("FAIL (P1): the launch works (staging runs 7 and 15: Atur → Tinjau → Sediakan, «Uji Cepat sedang berjalan»), but once its "
+               "window passes nothing ends it, so the class's teacher can never launch a second one (run 16, Q3). BOB-42, a 4.0 "
+               "correction (D-067)."),
+    "EDU-08": ("PASS on staging: the student found the Uji Cepat under «Bisa dikerjakan sekarang», took it and handed it in, and the "
+               "teacher's count moved (run 15, Q4-Q5). Runs 13, 14 and 16 could not launch one (BOB-42)."),
+    "EDU-09": ("PARTIAL: each open test is counted on its own since DAISY-26 (UX-06): run 16 shows this chapter's pre-test and post-test "
+               "each at «5 / 70», with who has not handed in; no integrity or Question Health on the teacher's pages (selftests). Open: "
+               "«Keadaan hari ini» still lists a Uji Cepat whose window has passed (BOB-42, D-067)."),
+    "EDU-12": ("PASS on the audit stack (D-064): with five students' official evidence, Lihat bukti reads «Pemahaman 75%» and «+35 poin», "
+               "exactly the plan's values, and shows mastery by part; the misconception figure stays absent and says why (no codes yet, "
+               "D-063). Insufficiency stays explicit where evidence is not official (staging J14, by design). Audit #52, S21-S22."),
+    "X-10": ("PASS: the teacher sees who has handed in, without judgment (staging J14; audit S22 «5 / 5»), and the class figures from "
+             "official evidence equal the plan (audit #52, S22, D-064). Staging stays synthetic by design."),
+    "HOD-09": ("PASS, now with figures: Pimpinan's «Per kelas» shows Kelas 1A «Ada angka»: Peserta 5, Pemahaman 75%, the net gain 35% "
+               "(audit #52, S23); each class answers for itself and an absent figure says why (BOB-06, DAISY-07)."),
+    "U-PERF": ("PASS (again): the lesson page's save loop is gone since BOB-23 (accepted on staging run 14; runs 15 and 16: nothing in the "
+               "second idle window, J09). The rest stands from 28 Sep, after BOB-18: the page usable 1.0-3.3 s after sign-in, clicks median "
+               "1.16 s and all under 3 s (run 36359917724); 30 sessions for 10 minutes, 2,429 clicks, 0 failed, click p95 1.2-1.5 s (run "
+               "36361820806); a menu click answers within 100 ms (DAISY-18). Those runs did not hold a lesson page open; BOB-23's "
+               "acceptance covers that page."),
+    "STU-01": ("PASS: the email link and the class card sign in on every audit (S1, S11), the card through BOB-12's route since DAISY-13 "
+               "(audit #52: S11 and five more in S21); staging J07 and J13. The route's staging acceptance waits for the forwarding key "
+               "(D-062(c))."),
+    "REL-01": "PASS for main daa5721's code (CI #240, 32/32 on 0fd83f7; merged byte-identical); recorded per release.",
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main and staging carry 131 (staging run #24).",
+})
+VERDICT_NOW = ("NO-GO. Gate (D-052): working toward ENGINEERING COMPLETE. main daa5721 is on staging (131 migrations); production still "
+               "runs 5b5b68d (111). What stands between main and go-live, by owner: "
+               "Yazid — the Stellar Business move and the post-move mail check, which release Gate 2E (D-062(b)); the forwarding key at "
+               "staging acceptance (D-062(c)); placing D-063's tickets; REL-09's recovery copies before the first production card or "
+               "certificate (D-066). "
+               "Bob (paused until Gate 2E is released) — BOB-25 (Gate 2E), then the identity gates (BOB-26 onward, REL-08); BOB-42 (the Uji "
+               "Cepat that never ends, D-067); D-063's misconception migration once placed; before 1 Nov BOB-15 with DAISY-12 (REL-13) and "
+               "BOB-13. "
+               "Daisy (paused) — the identity screens for Gates 3-7, D-063's template sheet once placed, DAISY-12. "
+               "Coordinator — BOB-12's and DAISY-13's staging acceptance with the forwarding key; STU-07 (change an answer, reload) and STU-09 "
+               "(network loss); X-05's ineligible learner; X-09's certificate state; HOD-03's review queue; DEA-02's school summary; REL-08 "
+               "at each identity gate; the C-07 reset script.")
+CHANGES_V21.append("30 Sep, v2.2: re-marked on main daa5721. EDU-12 and X-10 PASS on the audit stack (D-064, audit #52); U-PERF PASS again "
+                   "(BOB-23); EDU-07 FAIL (P1) on the Uji Cepat that never ends (BOB-42, D-067); EDU-08 PASS (run 15).")
+
 def as_dict():
     g = globals()
     return {
