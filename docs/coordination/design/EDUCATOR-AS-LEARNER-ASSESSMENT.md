@@ -1,6 +1,6 @@
 # Educator as learner: architecture and implementation assessment
 
-**Status:** READ-ONLY assessment, 30 Sep 2026, for Yazid and ChatGPT to rule on. Nothing has been implemented or ticketed. Bob, Daisy and Lana stay paused until Gate 2E.
+**Status:** READ-ONLY assessment, 30 Sep 2026. **§6 RULED the same day (D-069).** Ticket set proposed for approval in `EDUCATOR-AS-LEARNER-TICKETS.md`. Nothing has been implemented. Bob, Daisy and Lana stay paused until Gate 2E.
 
 **Question:** what is the smallest safe PINTAR 4.0 change that demonstrates this journey: an existing Guru → enrolled in professional learning → reads the Bab 1 lessons → Bab 1 assessment → result → Bab 2 → assessment → completion?
 

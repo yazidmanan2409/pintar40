@@ -58,6 +58,8 @@
 | Admin workspaces | **Konfigurasi · Pendataan** | | | **Pengaturan** (real settings only) |
 | Homes and places | **Belajar · Mengajar · Pimpinan · Konfigurasi · Pendataan · Sertifikat · Halaman awal · Studio**; «Perjalanan belajar» where the learning cycle needs a destination name | the doors on `/` stay first-person sentences («Saya mau belajar» …) | «Kelas» as the teacher's home tab; Studio's «Beranda» | |
 
+**Note 30 Sep (D-069(k)):** «Peserta» also names a participant in professional learning, the context in which «Murid» does not apply (a Guru learning through PINTAR stays a Guru). The Learner row is otherwise unchanged; it is not a mechanical replacement of «Murid». Daisy owns the final copy.
+
 ## 2. Semantic and context rules
 
 1. **One meaning, one stable name.** Not one word everywhere. A word that also has an ordinary meaning keeps it; «bagian dari», «bagian akhir» and «paket ini» stay.

@@ -1,6 +1,6 @@
 # Educator learning: audience and pedagogical standard
 
-**Status:** set by Yazid, 30 Sep 2026.
+**Status:** set by Yazid, 30 Sep 2026; the visual and experience rule added the same day (D-069(g)).
 
 **Applies to** all content written for educators learning through PINTAR. It starts with the two-chapter «Strategi Pembelajaran» demo (internal test and demonstration content only).
 
@@ -132,6 +132,32 @@ The educator gets the same fundamental quality of PINTAR learning that students 
 - the ability to stop and continue later.
 
 The **content** experience must clearly communicate: *"PINTAR understands that I am an educator."* The educator is a learner here, and is not treated as a child.
+
+## Visual and experience rule (Yazid, 30 Sep; D-069(g))
+
+Educator professional learning must look like professional learning. Same PINTAR design DNA; different learner context.
+
+**Do not use:**
+
+- comics, cartoons or mascots;
+- childish illustrations, sticker graphics or classroom clip-art;
+- childish visual metaphors;
+- decorative imagery merely to fill space;
+- gamification: XP, streaks, badges for ordinary completion;
+- exaggerated celebration, confetti, fake applause (including applause sound).
+
+> **PINTAR acknowledges. PINTAR does not perform.**
+
+**Suitable, where useful:**
+
+- diagrams, frameworks, process flows and conceptual models;
+- restrained information graphics;
+- professional photography where justified;
+- excellent typography and hierarchy.
+
+If a concept does not need a visual, do not add one.
+
+The content must not feel as though it was adapted from an SD learning experience. Where it fits, prefer: concept → why it matters → classroom situation → professional judgement → application.
 
 ---
 
