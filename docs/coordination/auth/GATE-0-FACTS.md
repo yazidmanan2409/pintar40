@@ -148,3 +148,23 @@ Namecheap moves the hosting account to another server for the upgrade (new IP an
 - the greeting names the new server;
 - SPF's `ip4` is the new IP;
 - the DKIM key matches what cPanel signs with.
+
+**After: 30 Sep, 08:09 UTC** (run 36687916727, `identity-facts.yml` from the coordinator branch; Namecheap reported the transfer complete, Yazid updated the three records at 1-minute TTL):
+
+| Record | Before (29 Sep) | After (30 Sep) | Verdict |
+|---|---|---|---|
+| A `pintarselalu.com` | `209.74.67.49` | `209.74.67.60` | **new IP, as expected** |
+| A `mail.pintarselalu.com` | `209.74.67.49` | `209.74.67.60` | **new IP, as expected** |
+| SPF | `… +ip4:209.74.67.49 …` | `v=spf1 +mx +a +ip4:209.74.67.60 +include:spf.web-hosting.com ~all` | **only the `ip4` changed** |
+| Nameservers | PremiumDNS `pdns1/pdns2.registrar-servers.com` | the same | unchanged (Namecheap's suggestion to move to its hosting nameservers is not taken) |
+| MX | `0 mail.pintarselalu.com.` | the same | unchanged |
+| DMARC | `v=DMARC1; p=none;` | the same | unchanged |
+| DKIM `default._domainkey` | RSA 2048 | **byte-identical published key** | unchanged |
+| CNAME `app` / `staging` | Vercel | the same | unchanged |
+| TLS on `pintarselalu.com:465` | CN `pintarselalu.com`, SSL.com TLS Issuing RSA CA R1, until 17 Feb 2027 | **the same certificate** | the certificate moved with the account |
+| SMTP greeting | `220-server902.web-hosting.com ESMTP Exim 4.100.1` | `220-business902.web-hosting.com ESMTP Exim 4.100.1` | **new server, as expected** |
+| Staging Supabase SMTP (allow-listed, no secret) | `pintarselalu.com:465`, `noreply@pintarselalu.com` | the same; password present | unchanged; staging's sign-in email now leaves through the new server |
+
+- **Yazid's mail test (30 Sep, 14:58 WIB):** `info@pintarselalu.com` sent to Gmail and received the reply; both arrived in the inbox.
+- **Still to confirm:** that the new server signs with the private key matching the published DKIM record. The DNS read proves only the published half. The proof is one signed message showing `dkim=pass` (with `spf=pass` and `dmarc=pass`) in Gmail's «Show original». Yazid's sign-in emails below serve as that message.
+- **Then, per D-062(b):** Yazid signs in once on staging and once on production; each sign-in email must arrive. That releases Gate 2E.
