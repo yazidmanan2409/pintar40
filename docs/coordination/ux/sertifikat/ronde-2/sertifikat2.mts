@@ -10,7 +10,10 @@
  *   ACHIEVEMENT  the name (dominant), «telah menuntaskan», the course; centred. The course's
  *                middle dot stays with the subject: a line never starts «· Bab 5»
  *   RECORD       Predikat, Tanggal terbit, Nomor sertifikat: one restrained block,
- *                centred on the page's axis, labels meeting values at a gutter
+ *                centred on the page's axis, labels meeting values at a gutter. The
+ *                number is one indivisible display value (Yazid, 30 Sep): it never
+ *                breaks, not even at «/»; when space is tight the layout adapts, then
+ *                the type, never the identifier (ukuranNomor)
  *   THE LINE     the card's warm gold, at the card's proportion (176 of 297 mm)
  *   ISSUER       the band in the learning context's accent: «Diterbitkan oleh», the school
  *   VERIFICATION a quiet group at the foot: «Periksa keaslian», its sentence, the
@@ -35,7 +38,7 @@ export const A4 = { w: 210, h: 297 } as const;
  * row ends this far above the line. `verifikasi`: the verification group's top.
  */
 export const TATA = { tepi: 20, atas: 22, sisiPita: 10, garis: 176, pita: 34, rekamBawah: 16, verifikasi: 236 } as const;
-export const GARIS_MM = 0.75; // the card's width, pending its physical proof (D-074(12)); not frozen here
+export const GARIS_MM = 0.75; // the card's width: approved for the physical proof (Yazid, 30 Sep); frozen only if the print works beside the card family
 export const QR_MM = 26; // the symbol, modules only
 export const KOLOM_TEKS = 92; // the verification text column: holds the 16-character stress link grouped, at 9 pt, on one line (89.5 mm)
 export const CELAH_QR = 12; // between the text and the QR's modules
@@ -70,6 +73,7 @@ export function css(akar: string, statis?: string): string {
 .s2 .abs { position: absolute; }
 ${Object.entries(GAYA).map(([k, g]) => `.s2 .t-${k} { ${gayaCss(g)} }`).join("\n")}
 .s2 .t-nama, .s2 .t-kursus, .s2 .t-sekolah { overflow-wrap: break-word; text-wrap: balance; }
+/* the number and the link are single values: no break anywhere in them, «/» included */
 .s2 .t-nomor, .s2 .t-tautan { white-space: nowrap; }
 .s2 .t-arti { text-wrap: pretty; }
 `;
@@ -112,6 +116,22 @@ export type Opsi = {
 const mm = (v: number) => `${+v.toFixed(3)}mm`;
 const abuWarna = (w: Warna): Warna => Object.fromEntries(Object.entries(w).map(([k, v]) => [k, v.startsWith("#") ? abuHex(v) : v])) as Warna;
 
+/**
+ * THE NUMBER NEVER BREAKS (Yazid's ruling 2, 30 Sep): «A14CD7ST/00001» is one
+ * indivisible display value, in every case. When space is tight, first the
+ * layout adapts: the record's value column is `1fr` with the number as its
+ * minimum, so a longer number moves the axis to the left instead of wrapping.
+ * Past what the record can hold beside its labels, the type steps down the
+ * ladder (12 pt body → 10.5 pt meta → 9.75 pt fine). Plex Mono is monospaced, so
+ * the width is exact: characters × (0.6 em advance + 0.02 em tracking).
+ */
+export const NOMOR_MUAT_MM = A4.w - 2 * TATA.tepi - 8 - 42; // beside «NOMOR SERTIFIKAT» (≈ 38 mm) and the 8 mm gutter
+export const lebarNomorMm = (n: string, pt: number) => n.length * (0.6 + 0.02) * pt * (25.4 / 72);
+export function ukuranNomor(n: string): number {
+  for (const pt of [12, 10.5, 9.75]) if (lebarNomorMm(n, pt) <= NOMOR_MUAT_MM) return pt;
+  return 9.75; // no identifier of the proposed form comes near this; the layout checks would report it
+}
+
 /** «A14CD7ST/00001» → «A14C D7ST/00001» (the ID's 4 + 4 display form, IDENTITY-4.0 §4). */
 export const nomor44 = (n: string) => n.replace(/^([0-9A-Z]{4})([0-9A-Z]{4})\//, "$1 $2/");
 /** the token in groups of four, with hyphens (Crockford Base32 ignores them) */
@@ -131,12 +151,13 @@ export function sertifikat(d: Data, k: Kata, o: Opsi = {}): string {
   const tautan = o.tokenKelompok ? tautanKelompok(d.tautan) : d.tautan;
 
   // THE RECORD: three rows, labels right-aligned to the page's axis, values left-aligned from it
-  const baris = (label: string, nilaiHtml: string, kelas: string) =>
-    `<p class="t-label" style="text-align:${o.rekamKiri ? "left" : "right"};color:${w.tinta3}">${esc(label)}</p><p class="${kelas}" style="color:${w.tinta}">${nilaiHtml}</p>`;
+  const baris = (label: string, nilaiHtml: string, kelas: string, gaya = "") =>
+    `<p class="t-label" style="text-align:${o.rekamKiri ? "left" : "right"};color:${w.tinta3}">${esc(label)}</p><p class="${kelas}" style="color:${w.tinta};${gaya}">${nilaiHtml}</p>`;
+  const ptNomor = ukuranNomor(nomor);
   const celah = o.nomorCelah ? d.nomor.match(/^([0-9A-Z]{4})([0-9A-Z]{4}\/.*)$/) : null;
   const nomorHtml = celah ? `${esc(celah[1])}<span style="margin-left:0.5em">${esc(celah[2])}</span>` : esc(nomor);
   const rekam = `<div class="abs s2-rekam" style="left:${mm(tepi)};width:${mm(lebar)};bottom:${mm(A4.h - garis + g / 2 + rekamBawah)};display:grid;grid-template-columns:${o.rekamKiri ? "54mm 1fr" : "1fr 1fr"};column-gap:8mm;row-gap:5mm;align-items:baseline">
-${baris(k.predikat, esc(d.predikat), "t-nilai")}${baris(k.tanggal, esc(d.tanggal), "t-nilai")}${baris(k.nomor, nomorHtml, "t-nomor")}</div>`;
+${baris(k.predikat, esc(d.predikat), "t-nilai")}${baris(k.tanggal, esc(d.tanggal), "t-nilai")}${baris(k.nomor, nomorHtml, "t-nomor", ptNomor < GAYA.nomor.pt ? `font-size:${ptNomor}pt` : "")}</div>`;
 
   // THE ACHIEVEMENT: centred between the header and the record, and never closer to either than 10 mm
   const pencapaian = `<div class="abs s2-capaian" style="left:${mm(tepi)};width:${mm(lebar)};top:${mm(atas + 14)};bottom:${mm(A4.h - garis + g / 2 + rekamBawah + 30)};display:flex;flex-direction:column;justify-content:center;text-align:center">

@@ -13,9 +13,10 @@
  * render/laporan.txt. It exits non-zero if a check fails.
  *
  * Samples only: every person, school, number and token is invented. The links
- * have the proposed form, https://verifikasi.pintarselalu.com/<token>; that host
- * does not resolve today (its set-up is a production change for Yazid, D-039),
- * and when it does, these invented tokens will read as not found.
+ * take the canonical verification domain Yazid approved on 30 Sep,
+ * https://verifikasi.pintarselalu.com/<token>. It does not resolve until it is
+ * set up (a production change); when it does, these invented tokens will read
+ * as not found.
  */
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -123,6 +124,18 @@ const SAMPEL: Record<string, S.Data> = {
 };
 for (const [k, d] of Object.entries(SAMPEL)) if (!NOMOR_RE.test(d.nomor)) throw new Error(`${k}: not a number of the proposed form: ${d.nomor}`);
 const A = SAMPEL.akademik, P = SAMPEL.profesional;
+/**
+ * THE NUMBER NEVER BREAKS (Yazid's ruling 2): Yazid's own example, then two
+ * lengths beyond any real form of the number, to prove what adapts when space
+ * is tight: at 40 characters the layout (the axis moves), at 55 the type (a step
+ * down the ladder). The identifier stays one line, exactly as stored.
+ */
+const NOMOR_STRES = [
+  { kode: "contoh", nama: "Yazid's example", nomor: "123456XW/00001" },
+  { kode: "40", nama: "40 characters (beyond the format)", nomor: "A14CD7STQ8ZB2D0SM4TQ9VXC7Q2Z0D9K/0000001" },
+  { kode: "55", nama: "55 characters (beyond the format)", nomor: "A14CD7STQ8ZB2D0SM4TQ9VXC7Q2Z0D9KB8K5S1GX2ZNV07YD/000001" },
+] as const;
+for (const n of NOMOR_STRES) if (!/^[0-9A-HJKMNP-TV-Z]+\/\d+$/.test(n.nomor) || n.nomor.length !== (n.kode === "contoh" ? 14 : Number(n.kode))) throw new Error(`stress number ${n.kode} is malformed`);
 const sr = (d: S.Data, o: S.Opsi = {}) => S.sertifikat(d, KATA, o);
 /** a sheet with another QR variant (the study pages): the same certificate, another symbol */
 const denganQr = (d: S.Data, q: Qr): S.Data => ({ ...d, isiQr: q.isi, matriks: q.matriks });
@@ -221,16 +234,20 @@ await lembarPng(sr(A, { kertas: "" }), "A-sertifikat-akademik-cetak.png", 150);
   await potret(halaman("C", `<div class="lembar" style="width:${3 * 120 + 2 * 8}mm">
 <h1>C · Stress: a long name, a long course, a long school, the number, a 16-character token</h1>
 <p class="sub">Nothing shrinks and nothing is cut. The name, the course and the school wrap and balance their lines; the achievement block re-centres in its space; the record, the line, the band and the verification group keep their places, so every certificate has the same skeleton. The number is a fixed 14 characters in any case. The 16-character link is one line (44 characters, ${f1(44 * 0.6 * 9 * 25.4 / 72)} mm of the ${S.KOLOM_TEKS} mm column).</p>
-<div class="baris">${kolom(SAMPEL.panjang, "Long.", "The card's longest name, a long course and the card's long school, the 16-character token and its symbol.")}${kolom(SAMPEL.pendek, "Short.", "A one-word name: the block centres, nothing drifts to fill the space.")}${kolom(SAMPEL.ekstrem, "Beyond realistic (a probe).", "Round 1's limit-finder: three-line name, three-line course, two-line school. Reported, not a target.")}</div></div>`),
+<div class="baris">${kolom(SAMPEL.panjang, "Long.", "The card's longest name, a long course and the card's long school, the 16-character token and its symbol.")}${kolom(SAMPEL.pendek, "Short.", "A one-word name: the block centres, nothing drifts to fill the space.")}${kolom(SAMPEL.ekstrem, "Beyond realistic (a probe).", "Round 1's limit-finder: three-line name, three-line course, two-line school. Reported, not a target.")}</div>
+<h2>The number never breaks (Yazid, 30 Sep): one indivisible value, no break at «/», whatever its length</h2>
+<p class="sub" style="margin-bottom:4mm">The record at actual size. When space is tight the layout adapts first (the value column takes the number's own width and the axis moves left), then the type steps down the app's ladder (12 → 10.5 → 9.75 pt); the identifier itself never breaks and never changes. The last two are longer than any real number, to prove the rule.</p>
+<div class="baris" style="gap:8mm">${[{ nama: "As proposed", nomor: A.nomor }, { nama: "Yazid's example", nomor: NOMOR_STRES[0].nomor }, { nama: "Beyond the format", nomor: NOMOR_STRES[1].nomor }, { nama: "Beyond the format", nomor: NOMOR_STRES[2].nomor }].map((n) => `<div style="width:180mm"><div class="bayang" style="width:180mm;height:38mm;overflow:hidden;position:relative;background:${W.kertas}"><div style="position:absolute;left:-15mm;top:-125mm">${sr({ ...A, nomor: n.nomor })}</div></div><p class="ket"><b>${S.esc(n.nama)}</b> · ${n.nomor.length} characters · ${S.ukuranNomor(n.nomor)} pt${S.lebarNomorMm(n.nomor, S.GAYA.nomor.pt) > S.A4.w / 2 - S.TATA.tepi - 4 ? " · the axis moved left" : ""}${S.ukuranNomor(n.nomor) < S.GAYA.nomor.pt ? " · the type stepped down" : ""}. The page's text margin is 5 mm inside each edge of this view.</p></div>`).join("")}</div></div>`),
     "C-stres.png", { lebar: Math.ceil(mmPx(3 * 120 + 2 * 8 + 16)), skala: 2 });
 }
 
 // ════════════════════════════════════════════════════════════════════════════
 // Layout checks, on every sheet in the round
 // ════════════════════════════════════════════════════════════════════════════
-type Uji = { nama: string; html: string; probe?: boolean };
+type Uji = { nama: string; html: string; probe?: boolean; nomor?: string };
 const SEMUA: Uji[] = [
-  { nama: "A academic", html: sr(A) }, { nama: "B professional", html: sr(P) },
+  { nama: "A academic", html: sr(A), nomor: A.nomor }, { nama: "B professional", html: sr(P), nomor: P.nomor },
+  ...NOMOR_STRES.map((n) => ({ nama: `C number, ${n.nama}`, html: sr({ ...A, nomor: n.nomor }), nomor: n.nomor })),
   { nama: "C long", html: sr(SAMPEL.panjang) }, { nama: "C short", html: sr(SAMPEL.pendek) },
   { nama: "C beyond realistic (probe)", html: sr(SAMPEL.ekstrem), probe: true },
   { nama: "A greyscale", html: sr(A, { abu: true }) },
@@ -240,7 +257,7 @@ const SEMUA: Uji[] = [
 ];
 const hasilLetak = await (async () => {
   const f = join(KERJA, "cek.html");
-  writeFileSync(f, halaman("cek", `<div style="display:flex;flex-wrap:wrap;gap:10mm;padding:10mm">${SEMUA.map((x) => `<div data-nama="${S.esc(x.nama)}" data-probe="${x.probe ? 1 : 0}">${x.html}</div>`).join("")}</div>`));
+  writeFileSync(f, halaman("cek", `<div style="display:flex;flex-wrap:wrap;gap:10mm;padding:10mm">${SEMUA.map((x) => `<div data-nama="${S.esc(x.nama)}" data-probe="${x.probe ? 1 : 0}"${x.nomor ? ` data-nomor="${S.esc(x.nomor)}"` : ""}>${x.html}</div>`).join("")}</div>`));
   const ctx = await browser.newContext({ viewport: { width: 1800, height: 1200 } });
   const p = await ctx.newPage();
   await p.addInitScript("window.__name = (f) => f"); // tsx keeps function names with a helper the page does not have
@@ -283,6 +300,10 @@ const hasilLetak = await (async () => {
       bungkus.querySelectorAll(".s2-rekam p").forEach((el) => { const h = el as HTMLElement; if (h.getBoundingClientRect().height / parseFloat(getComputedStyle(h).lineHeight) > 1.5) keluh(`«${h.textContent}» wraps in the record`); });
       const nomor = tinta(q(".t-nomor"));
       if (nomor.x1 > 190) keluh("the number runs past the column");
+      // ruling 2: the number is one indivisible value, shown exactly as stored, on one line
+      const elNomor = q(".t-nomor") as HTMLElement;
+      if (bungkus.dataset.nomor && elNomor.textContent !== bungkus.dataset.nomor) keluh(`the number reads «${elNomor.textContent}», not «${bungkus.dataset.nomor}»`);
+      if (hitung(".t-nomor") !== 1) keluh("the number breaks");
       // 5 · the line and the band: no word crosses them; the school stays inside the band
       bungkus.querySelectorAll(".s2 p").forEach((el) => {
         const b = tinta(el);
@@ -308,7 +329,7 @@ const hasilLetak = await (async () => {
       const periksa = tinta(q(".s2-periksa"));
       if (periksa.y0 - pitaBawah < 12) keluh(`the verification group is ${(periksa.y0 - pitaBawah).toFixed(1)} mm below the band`);
       baris[nama] = { nama: hitung(".t-nama"), kursus: hitung(".t-kursus"), sekolah: hitung(".t-sekolah"), arti: hitung(".t-arti") };
-      jarak[nama] = { namaKeKepala: nama_.y0 - kepalaBawah, kursusKeRekam: rekam.y0 - kursus.y1, rekamKeGaris: garis - rekam.y1, tautanMm: link.x1 - link.x0, kaki: 297 - Math.max(zona.y1, periksa.y1) };
+      jarak[nama] = { namaKeKepala: nama_.y0 - kepalaBawah, kursusKeRekam: rekam.y0 - kursus.y1, rekamKeGaris: garis - rekam.y1, tautanMm: link.x1 - link.x0, kaki: 297 - Math.max(zona.y1, periksa.y1), nomorKiri: nomor.x0, nomorMm: nomor.x1 - nomor.x0, nomorPt: parseFloat(getComputedStyle(elNomor).fontSize) * 0.75 };
     });
     return { masalah, catatan, baris, jarak };
   }, { px: 96 / 25.4, garis: S.TATA.garis, tenang: S.TENANG, qrMm: S.QR_MM, pitaAtas: S.TATA.garis, pitaBawah: S.TATA.garis + S.TATA.pita, kolom: S.KOLOM_TEKS });
@@ -324,6 +345,11 @@ catat("  lines (name / course / school / verification sentence) and spaces (mm):
 for (const [n, b] of Object.entries(hasilLetak.baris as Record<string, Record<string, number>>)) {
   const j = hasilLetak.jarak[n];
   catat(`    ${n}: ${b.nama} / ${b.kursus} / ${b.sekolah} / ${b.arti}; name ${f1(j.namaKeKepala)} below the header, course ${f1(j.kursusKeRekam)} above the record, record ${f1(j.rekamKeGaris)} above the line, link ${f1(j.tautanMm)} mm long, foot ${f1(j.kaki)} mm clear`);
+}
+catat(`  THE NUMBER NEVER BREAKS (ruling 2): one line, exactly as stored, in every sheet above. What adapts when space is tight (the value column starts at ${f1(S.A4.w / 2 + 4)} mm on the axis):`);
+for (const n of [{ nama: "A academic", nomor: A.nomor }, ...NOMOR_STRES.map((x) => ({ nama: `C number, ${x.nama}`, nomor: x.nomor }))]) {
+  const j = (hasilLetak.jarak as Record<string, Record<string, number>>)[n.nama];
+  catat(`    ${n.nomor} (${n.nomor.length} characters): ${f2(j.nomorPt)} pt, ${f1(j.nomorMm)} mm wide, starting at ${f1(j.nomorKiri)} mm${j.nomorKiri < S.A4.w / 2 + 3.9 ? " (the axis moved left)" : ""}${j.nomorPt < S.GAYA.nomor.pt ? " (the type stepped down the ladder)" : ""}`);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -359,7 +385,7 @@ const sampul = `<div class="a4" style="position:relative;width:210mm;height:297m
 <p style="margin:1mm 0 0;font:400 7.5pt 'Plus Jakarta Sans';color:${W.tinta2}">The QR's modules fill exactly this square at 100%.</p>
 <p style="margin:8mm 0 2mm;font:600 8.5pt 'Plus Jakarta Sans'">Isi · contents</p>
 <ol style="margin:0;padding-left:5mm;font:400 8.5pt/1.6 'Plus Jakarta Sans'" start="2">${HALAMAN.map((h) => `<li>${S.esc(h.judul)}</li>`).join("")}</ol>
-<p style="margin:8mm 0 0;font:400 7.5pt/1.5 'Plus Jakarta Sans';color:${W.tinta2}">Halaman 2–${JUMLAH} adalah sertifikat persis seperti tercetak, tanpa catatan apa pun di lembarnya. Semua nama, sekolah, nomor dan token di sini contoh rekaan. QR membuka verifikasi.pintarselalu.com, yang belum aktif (D-039); bila aktif, token rekaan ini akan terbaca «tidak ditemukan». Uji: pindai QR dengan ponsel dari jarak 20–40 cm; bacakan nomornya kepada orang lain dan minta ia mengetiknya; ketik tautannya di ponsel.</p></div></div>`;
+<p style="margin:8mm 0 0;font:400 7.5pt/1.5 'Plus Jakarta Sans';color:${W.tinta2}">Halaman 2–${JUMLAH} adalah sertifikat persis seperti tercetak, tanpa catatan apa pun di lembarnya. Semua nama, sekolah, nomor dan token di sini contoh rekaan. QR membuka verifikasi.pintarselalu.com, domain verifikasi PINTAR yang disetujui; alamat ini terbuka setelah domainnya disiapkan, dan token rekaan ini akan terbaca «tidak ditemukan». Uji: pindai QR dengan ponsel dari jarak 20–40 cm; bacakan nomornya kepada orang lain dan minta ia mengetiknya; ketik tautannya di ponsel.</p></div></div>`;
 const htmlA4 = halaman("Sertifikat PINTAR · putaran 2 · A4 100%", `<div style="zoom:10">${sampul}${HALAMAN.map((h) => `<div class="a4" style="width:210mm;height:297mm;overflow:hidden;background:#fff;page-break-after:always">${h.html}</div>`).join("")}</div>`,
   `@page { size: A4; margin: 0; } body { background: #fff; } .a4:last-child { page-break-after: auto; }`, KERJA);
 const PDF = join(RENDER, "E-A4-100persen-tanpa-sesuaikan.pdf");
@@ -674,9 +700,9 @@ ${baris("r1-v5", QR_R1)}${baris("byte-m", QR["byte-m"])}${baris("an-m", QR["an-m
     ["Header", "«SERTIFIKAT PENGUASAAN» alone, 10.5 pt; «PINTAR SELALU» a 7 pt colophon at the foot", "«SERTIFIKAT PENGUASAAN» upper-left in the accent, «PINTAR SELALU» upper-right in PINTAR green, both 12 pt capitals, in type", "Decided (D-074, D-076): the pair names what the paper is and whose system proves it, at one level, before the name."],
     ["Achievement", "Name, «telah menuntaskan», course and Predikat sat on the line and grew upward", "Name 33 pt, «telah menuntaskan» 12 pt, course 16.5 pt, centred in the space between the header and the record", "The name dominates; the course stays directly under the statement; a long name or course re-centres instead of climbing."],
     ["Record", "Predikat under the course; date and number at the foot, left", "Predikat, Tanggal terbit, Nomor sertifikat as one block of three rows, labels meeting values at the axis, 16 mm above the line", "Decided: one restrained record block. Labels right-aligned to the axis keep the block centred whatever the value lengths."],
-    ["Number", "PINTAR/SMP-CAHAYA-KALIANDRA/2026/00042: carries the school's slug and the year, up to 70 characters, broken over two lines", "A14CD7ST/00001: the holder's PINTAR ID and their sequence, 14 characters, unbroken, Plex Mono 12 pt", "The proposal (brief §1): nothing mutable in the number. Unbroken, it is the one string a reader can search and copy (F)."],
+    ["Number", "PINTAR/SMP-CAHAYA-KALIANDRA/2026/00042: carries the school's slug and the year, up to 70 characters, broken over two lines", "A14CD7ST/00001: the holder's PINTAR ID and their sequence, 14 characters, Plex Mono 12 pt, one indivisible value that never breaks", "Nothing mutable in the number. Unbroken, it is the one string a reader can search and copy (F). Approved 30 Sep, for students too (C17)."],
     ["Band", "Inset 12 mm, 5 mm padding, label and school left-aligned, school 12.75 pt", "Inset 10 mm, 34 mm tall, «Diterbitkan oleh» 9 pt capitals over the school at 16.5 pt, centred", "The issuer gets the weight Yazid's band gives it; the inset keeps it whole on every printer (D)."],
-    ["Gold line", "0.75 mm at 176 mm, on the band's top edge", "Unchanged: 0.75 mm at 176 mm, the card's proportion", "Its width follows the card's physical proof; not frozen here."],
+    ["Gold line", "0.75 mm at 176 mm, on the band's top edge", "Unchanged: 0.75 mm at 176 mm, the card's proportion", "Approved for the physical proof (30 Sep); frozen if the print works beside the card family."],
     ["Verification", "Three columns at the foot: facts, text, QR", "One centred group: «Periksa keaslian», its sentence, the printed link; the QR beside it in its quiet zone", "Decided: a quiet verification area, the QR in generous clear space."],
     ["Link", "https://…/verifikasi/ + 43 characters: 83 characters on two lines", "verifikasi.pintarselalu.com/K7M4QX9P2HDT: 40 characters, one line, no protocol", "The proposal (brief §2): a PINTAR-owned, typeable link; the QR holds the full https link."],
     ["QR", "Byte, version 5-M, 37 modules of 0.70 mm", `Uppercase alphanumeric, version ${QR[PILIHAN].versi}-Q, 33 modules of ${f2(modulMm(QR[PILIHAN]))} mm, same 26 mm`, "Bigger modules and 25% recovery at the same size: it reads from further away and through more blur than round 1's, and through a stain at least as large (F)."],
@@ -686,10 +712,10 @@ ${baris("r1-v5", QR_R1)}${baris("byte-m", QR["byte-m"])}${baris("an-m", QR["an-m
     ["«DI TERBITKAN OLEH»", "«Diterbitkan oleh», one word, as verifikasi.institusi (a slip, per the brief)"],
     ["«Matematika . Bab 4»", "«Matematika · Bab 4», the app's middle dot, kept with the subject at a line break"],
     ["The number and link placeholders", "The proposed forms, A14CD7ST/00001 and verifikasi.pintarselalu.com/<token>"],
-    ["The band to the paper's edge", `Inset ${S.TATA.sisiPita} mm: an office printer cannot print the edge, so a full-bleed band ends in an accidental sliver (D)`],
-    ["The school in capitals", "The school as recorded: MTs, SMPIT and long names keep their own casing and fit two lines"],
-    ["A gold rule about 2.3 mm", `${S.GARIS_MM} mm, the card's; its final width follows the card's physical proof`],
-    ["Record labels in a left column", "Labels right-aligned to the axis, values from it: the block stays centred"],
+    ["The band to the paper's edge", `Inset ${S.TATA.sisiPita} mm: an office printer cannot print the edge, so a full-bleed band ends in an accidental sliver (D). Approved 30 Sep`],
+    ["The school in capitals", "The school as recorded: typography makes the hierarchy, not a change to the data. Approved 30 Sep"],
+    ["A gold rule about 2.3 mm", `${S.GARIS_MM} mm, the card's: approved for the physical proof, frozen if the print works beside the card family`],
+    ["Record labels in a left column", "Labels right-aligned to the axis, values from it: the block stays centred. Approved 30 Sep"],
   ];
   await potret(halaman("H", `<div class="lembar" style="width:${3 * 95 + 2 * 10 + 4}mm">
 <h1>H · What changed from round 1</h1>

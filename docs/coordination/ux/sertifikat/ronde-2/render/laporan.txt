@@ -15,11 +15,14 @@ CONTRAST (WCAG 2.x; text 4.5:1). In print the paper is the stock (white); on scr
   the gold line (non-text): against white 2.59:1, against plum 2.52:1, against sage 2.38:1. It is structure, not information; nothing depends on seeing it.
   plum and sage in greyscale: #5E5E5E and #616161 (1.05:1 between them): in a monochrome print the band no longer tells the two apart. The words do: a professional-learning course title begins «Pengembangan Profesi ·».
 
-LAYOUT CHECKS on 16 sheets (margins 12 mm for words, 10 mm for the band; the header apart; the achievement inside its space, 14 mm from the header and the record; every record value on one line; nothing across the line; the school inside the band; the link on one line inside its column; the QR's quiet zone 4 modules and clear; the foot clear): all pass
+LAYOUT CHECKS on 19 sheets (margins 12 mm for words, 10 mm for the band; the header apart; the achievement inside its space, 14 mm from the header and the record; every record value on one line; nothing across the line; the school inside the band; the link on one line inside its column; the QR's quiet zone 4 modules and clear; the foot clear): all pass
   (probe) C beyond realistic (probe): the course ends 10.9 mm above the record
   lines (name / course / school / verification sentence) and spaces (mm):
     A academic: 1 / 1 / 1 / 3; name 38.1 below the header, course 34.0 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.9 mm clear
     B professional: 1 / 2 / 1 / 3; name 34.4 below the header, course 30.4 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.9 mm clear
+    C number, Yazid's example: 1 / 1 / 1 / 3; name 38.1 below the header, course 34.0 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.9 mm clear
+    C number, 40 characters (beyond the format): 1 / 1 / 1 / 3; name 38.1 below the header, course 34.0 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.9 mm clear
+    C number, 55 characters (beyond the format): 1 / 1 / 1 / 3; name 38.1 below the header, course 35.0 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.9 mm clear
     C long: 2 / 3 / 2 / 3; name 24.7 below the header, course 20.6 above the record, record 16.4 above the line, link 83.8 mm long, foot 31.9 mm clear
     C short: 1 / 1 / 1 / 3; name 38.1 below the header, course 34.0 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.9 mm clear
     C beyond realistic (probe): 3 / 4 / 2 / 3; name 14.9 below the header, course 10.9 above the record, record 16.4 above the line, link 83.8 mm long, foot 31.9 mm clear
@@ -34,6 +37,11 @@ LAYOUT CHECKS on 16 sheets (margins 12 mm for words, 10 mm for the band; the hea
     QR byte-m-16: 1 / 1 / 1 / 3; name 38.1 below the header, course 34.0 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.9 mm clear
     QR an-m-16: 1 / 1 / 1 / 3; name 38.1 below the header, course 34.0 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.4 mm clear
     QR an-q-16: 1 / 1 / 1 / 3; name 38.1 below the header, course 34.0 above the record, record 16.4 above the line, link 76.2 mm long, foot 31.9 mm clear
+  THE NUMBER NEVER BREAKS (ruling 2): one line, exactly as stored, in every sheet above. What adapts when space is tight (the value column starts at 109.0 mm on the axis):
+    7Q2Z0D9K/00001 (14 characters): 12.00 pt, 36.7 mm wide, starting at 109.0 mm
+    123456XW/00001 (14 characters): 12.00 pt, 36.7 mm wide, starting at 109.0 mm
+    A14CD7STQ8ZB2D0SM4TQ9VXC7Q2Z0D9K/0000001 (40 characters): 12.00 pt, 105.0 mm wide, starting at 85.0 mm (the axis moved left)
+    A14CD7STQ8ZB2D0SM4TQ9VXC7Q2Z0D9KB8K5S1GX2ZNV07YD/000001 (55 characters): 9.75 pt, 117.3 mm wide, starting at 72.7 mm (the axis moved left) (the type stepped down the ladder)
 
 E · PDF: 12 pages, set to 210 × 297 mm. Fonts embedded: Type0 AAAAAA+PlusJakartaSans-SemiBold, Type0 BAAAAA+PlusJakartaSans-Regular, Type0 CAAAAA+IBMPlexMono-Medium. Made with «Background graphics» off.
   page 2 A · akademik (usulan): gold line 190.00 × 0.750 mm, centre 176.00 mm; band 190.00 × 34.00 mm at x 10.00; QR 26.00 mm at (143.99, 236.00)

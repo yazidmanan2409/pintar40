@@ -2,13 +2,29 @@
 
 **Design only (D-076).** Nothing here is application code: no `src/` change, no `hle.ts` key, no migration, no CI. Round 1 (`../`, `dd292f6`) is left as it was, for comparison.
 
+**Status, 30 Sep: Yazid has ruled on every question this round raised (below). The design closes pending the physical proof.** There is no round 3.
+
+## Yazid's rulings, 30 Sep
+
+| | Ruling | What it settles here |
+|---|---|---|
+| 1 | **Keep «telah menuntaskan». Frozen.** «menyelesaikan» only says the learner finished something; «menguasai» claims more than needed; «menuntaskan» fits the certificate and the mastery context. | §4. The copy is `sertifikat.diberikan`, as it stands. |
+| 2 | **The number prints unbroken: one indivisible display value** (`123456XW/00001`). No line break around the `/`, including long-ID and stress cases. If space becomes tight, typography and layout adapt; the identifier does not break. | §3. The grammar never breaks it, and says what adapts: first the record's axis, then the type, down the ladder (`ukuranNomor`). Proved to 55 characters (C). |
+| 3 | **The 10 mm inset band: approved.** Deliberately inset, not pseudo-full-bleed with an accidental printer-dependent white edge. | §1. |
+| 4 | **The school's name as recorded, not forced into capitals: approved.** Typography makes the hierarchy, not a change to the data: «SMP Cahaya Kaliandra». | §1. |
+| 5 | **The record's labels meeting at the page's axis: approved.** A stronger invisible structure, with no lines or boxes. | §1. |
+| 6 | **The 0.75 mm gold line: approved for the physical proof, not yet frozen.** Print it at 100%; if it works beside the ID-card family, it freezes. Screen mock-ups do not set physical dimensions. | §6. |
+| 7 | **The physical-proof protocol: approved.** Print E at 100%; scan pages 2–10 on iPhone and Android and check the uppercase links resolve; page 11 must survive the human fallback: read aloud, typed by someone else. | §9. |
+| 8 | **`verifikasi.pintarselalu.com` is the canonical public verification domain,** under the opaque-token architecture. It gives verification a durable PINTAR-owned home instead of exposing application routing. D-039 is to be updated to match, so no canonical evidence conflicts. | §2. Recording it in D-039 is the Second Eye's. |
+| 9 | **C17: a student's academic certificate may show their PINTAR ID.** With the number's form it necessarily does: `<PINTAR ID>/<certificate sequence>`. C17's "students don't get a PINTAR card" does not hide their PINTAR identity; the ID is an identity and reference attribute, the card only one representation of it. **The ID is never the public verification credential:** the QR and the link keep the separate opaque token. | §3. |
+
 - **Brief:** `docs/coordination/briefs/DAISY-SERTIFIKAT-ROUND-2.md`, Yazid's draft revised by the coordinator (D-076), with Yazid's reference image. The image travels with the brief and is not committed; H shows it beside the two rounds.
 - **The direction:** Yazid's revised Modern composition, refined and not redesigned. Achievement → Issuer → Verification.
 - **Since then:** D-078 says certificate design is done and the next step is its truth contract (BOB-48, DAISY-36). This round is the refinement DAISY-36 implements once it is reviewed and accepted.
 - **Samples:** every person, school, number and token is invented. The people and schools are the card's (`kartu-pintar/ronde-2`), so the samples agree person by person:
   - Ratna Dewi Kusumawardani holds the card's sample ID **A14CD7ST**, so her professional-learning certificate is `A14CD7ST/00001`.
   - Bagas Saputra (Yazid's reference sample) holds his own card ID **7Q2Z0D9K**. Giving him A14CD7ST would make card and certificate disagree, the opposite of the brief's aim.
-- **The QRs** hold the proposed form, `https://verifikasi.pintarselalu.com/<token>`. That host does not resolve today; setting it up is a production change for Yazid (D-039). When it does resolve, these invented tokens will read as not found.
+- **The QRs** hold `https://verifikasi.pintarselalu.com/<token>`, the canonical verification domain (ruling 8). It resolves once it is set up; then these invented tokens read as not found.
 
 ## Contents
 
@@ -83,7 +99,7 @@ H shows these on one page.
 | 10 · QR | Byte 5-M, 37 modules of 0.70 mm | Uppercase alphanumeric 4-Q, 33 modules of 0.79 mm, the same 26 mm | §2: bigger modules and 25% recovery at the same size. |
 | 11 · Type | Three print-only 7 pt sizes | Every size a step of the app's ladder; the smallest is the eyebrow, 9 pt (12 px) | One type system with the screen. Nothing on the paper is smaller than anything the app sets. |
 
-**Against the reference.** Its slips are corrected, as the brief lists, plus refinements Yazid can overrule one by one:
+**Against the reference.** Its slips are corrected, as the brief lists, plus refinements, each now ruled: the band inset, the school as recorded and the labels at the axis approved (rulings 3–5); the 0.75 mm line approved for the physical proof (ruling 6):
 
 | The reference | Round 2 | Why |
 |---|---|---|
@@ -113,11 +129,11 @@ H shows these on one page.
 
 The record, line, band and verification group never move. Only the achievement block re-centres. So every certificate has the same skeleton, whatever the lengths (C).
 
-**The layout checks** run on 16 sheets, and all pass:
+**The layout checks** run on 19 sheets (the number's three stress sheets included), and all pass:
 - every word at least 12 mm from each edge, the band 10 mm;
 - the header's two words apart, each on one line;
 - the achievement inside its space, 14 mm clear of the header and the record;
-- every record value on one line;
+- every record value on one line, and the number exactly as stored (ruling 2);
 - nothing crosses the line, and the school stays inside the band;
 - the link on one line inside its column;
 - the QR's quiet zone 4 modules and clear.
@@ -186,12 +202,29 @@ Notes on the table:
 | A cleaner sheet | The link: 83 characters over two lines → 40 on one. The number: up to 70 characters over two lines → 14 on one. |
 | A shorter payload and a less dense QR | 83 → 48 characters; 37 → 33 modules; each module 12% larger. |
 | Easier scanning | Every limit is better than round 1 (table), and the recovery rises from 15% to 25%. |
-| A PINTAR-owned destination | `verifikasi.pintarselalu.com`, pending its set-up (D-039, Yazid's). |
+| A PINTAR-owned destination | `verifikasi.pintarselalu.com`, approved as the canonical verification domain (ruling 8). It resolves once it is set up. |
 | Practical manual typing | 12 characters after a memorable host. Crockford is case-insensitive and has no I, L, O or U, so the characters people confuse most cannot occur. The pairs that remain are in §3. |
 
 ## 3. The number
 
-**The proposal:** `A14CD7ST/00001`, the holder's PINTAR ID, a slash, and that person's certificate sequence. The design relies only on it being 14 characters, uppercase and fixed. The sequence and its concurrency, the change to the signed record, and C17 are not the design's to settle.
+**The number:** `A14CD7ST/00001`, the holder's PINTAR ID, a slash, and that person's certificate sequence.
+- **Approved (ruling 2): it prints unbroken, as one indivisible display value.**
+- **It shows on students' academic certificates too (ruling 9, C17).** The ID there is a reference, never the verification credential: the QR and the link carry only the opaque token.
+- The sequence and its concurrency, and the change to the signed record, stay with Bob.
+
+**What adapts when space is tight (ruling 2).** The grammar never breaks the number, not even at «/» (`white-space: nowrap`), and never changes it. When space is tight:
+1. **The layout adapts first.** The record's value column is `1fr` with the number's own width as its minimum, so a longer number moves the axis to the left instead of wrapping.
+2. **Then the type.** Past what the record can hold beside «NOMOR SERTIFIKAT» (120 mm), the number steps down the app's ladder: 12 pt → 10.5 pt → 9.75 pt. Plex Mono is monospaced, so `ukuranNomor` works it out exactly from the character count.
+
+Proved in the layout checks and on C. In every sheet the number is one line, reads exactly as stored, and stays inside the margins:
+
+| Number | Characters | Set at | Width | What adapted |
+|---|---|---|---|---|
+| `7Q2Z0D9K/00001`, `A14CD7ST/00001`, Yazid's `123456XW/00001` | 14 | 12 pt | 36.7 mm | nothing: the value starts at the axis (109 mm) |
+| 40 characters (beyond the format) | 40 | 12 pt | 105 mm | the axis moved left, to 85 mm |
+| 55 characters (beyond the format) | 55 | 9.75 pt | 117.3 mm | the axis moved left, to 72.7 mm, and the type stepped down |
+
+The evidence behind the ruling:
 
 **Reading, dictating, typing: tested in three forms** (F):
 
@@ -207,7 +240,7 @@ What the forms mean for a reader:
 - **Dictating.** People chunk an 8-character code by themselves («A-satu-empat-C, D-tujuh-S-T, garis miring, nol-nol-nol-nol-satu»), so printed spaces add little to reading aloud.
 - **Typing.** A person types what they see, so a printed space arrives in any search box, and a search matches it only if it ignores spaces as ID entry does (IDENTITY-4.0 §4).
 
-**Recommendation: print the number unbroken, exactly as stored.**
+**Approved (ruling 2): print the number unbroken, exactly as stored.**
 - IDENTITY-4.0 §4 displays the *ID* 4+4, as the card does, for reading at a sign-in.
 - The certificate's number is a different object: a record label people copy, search and quote.
 - If Yazid prefers the card's 4+4 for consistency:
@@ -251,10 +284,10 @@ What the certificate proves: an official result on the Uji Penguasaan reached th
 | «dinyatakan tuntas dalam» | declared *tuntas* in | Accurate, but a report card's passive voice. It puts the institution before the learner, where the sheet puts the person first. |
 | «telah memenuhi standar penguasaan» | met the mastery standard | Exact, but bureaucratic and long; the heading already says Penguasaan. |
 
-**Recommendation: keep «telah menuntaskan».**
+**Frozen (ruling 1): «telah menuntaskan».**
 - It is the one verb that says what the certificate proves, in the words schools already use for it.
 - It works for professional learning too. «Ratna Dewi Kusumawardani telah menuntaskan Pengembangan Profesi · Merancang Asesmen Formatif di Kelas» reads as a teacher completing a course to its standard (*menuntaskan pelatihan*).
-- **Yazid decides.**
+- Yazid's words: «menyelesaikan» merely says the learner finished something; «menguasai» makes a stronger claim than needed; «menuntaskan» fits the certificate and the mastery context.
 
 A note for DAISY-36's copy: the English telling of `sertifikat.diberikan` is "has completed", which underclaims in the same way as «menyelesaikan». The renders are in Bahasa Indonesia, and no key changes this round.
 
@@ -287,7 +320,7 @@ All hold in greyscale.
 - 0.75 mm, the card's, at 176 mm (the card's proportion), lying on the band's top edge.
 - It is structure, not information: 2.59:1 against white, 2.52:1 against plum, 2.38:1 against sage.
 - It prints in every simulation (D), and prints with «Background graphics» off (E, G).
-- **Its width follows the card's physical proof (D-074(12)); it is not frozen here.** One constant in the grammar, `GARIS_MM`, carries it.
+- **Approved for the physical proof, not yet frozen (ruling 6).** Print it at 100%; if it works beside the ID-card family, it freezes. Screen mock-ups do not set physical dimensions. One constant in the grammar, `GARIS_MM`, carries it.
 
 ## 7. Printing, and the fix for today's print
 
@@ -345,26 +378,31 @@ These went to the Second Eye for classification, and to Bob where an engineering
 
 ## 9. What stays open
 
-**FOR YAZID**
-1. **The wording** (§4): recommendation, keep «telah menuntaskan».
-2. **The number** (§3): recommendation, print it unbroken.
-3. **The refinements to your reference**, each yours to overrule: the band inset 10 mm, the school as recorded rather than in capitals, the record labels meeting at the axis, the 0.75 mm line.
-4. **The physical proofs**, to be printed from E at 100% on the school printers you have in mind:
-   - the certificate, the band's inset against page 12's full bleed, and the line;
-   - the QRs on pages 2–10, scanned with an iPhone camera and an Android camera, including that both open the **uppercase** link;
-   - page 11 read aloud and typed by a colleague.
-5. **The verification host** `verifikasi.pintarselalu.com` (D-039).
-6. **C17:** whether a student's academic certificate may show their PINTAR ID. The design holds any 14-character label if not.
+Everything Yazid was asked is ruled (above). What remains is the physical proof and the work that follows acceptance.
+
+**The physical proof (ruling 7).** It closes the design.
+1. **Print E at 100%** («Ukuran sebenarnya», no «Sesuaikan dengan halaman») on the printers schools will use. Check:
+   - the certificate;
+   - the band's inset against page 12's full bleed;
+   - **the 0.75 mm gold line beside the ID-card family.** If it works, it freezes (ruling 6).
+2. **Scan pages 2–10** with an iPhone camera and an Android camera.
+   - Each phone must recognise the link and offer to open it, the **uppercase** alphanumeric symbols included.
+   - **"Resolves correctly" needs `verifikasi.pintarselalu.com` to answer.** Until it is set up (a production change, ruling 8), a scan proves recognition and the exact link, not the landing. So the resolving half waits for the domain, or for a stand-in host that answers the same path.
+3. **Page 11, the human fallback.** One person reads the number and the link aloud; another types them. Both must arrive exactly: the number as stored, and the link opening the verification page once the domain answers.
+
+**For the Second Eye**
+1. Record the nine rulings.
+2. Update D-039 for the canonical verification domain (ruling 8).
 
 **For Bob**
 1. The token's final length. The design holds 12 or 16 characters in the same symbol and on one line.
 2. The route accepts the uppercase token path. Hyphen grouping only if the route strips hyphens; not proposed.
 3. The app's encoder (`src/lib/qr.ts`) gains alphanumeric mode and level Q.
-4. The number's sequence, its concurrency, and the signed record's change.
-5. Any search on the number ignores spaces and case, as ID entry does, whichever form is printed.
+4. The number's sequence, its concurrency, and the signed record's change. The ID in the number is never the verification credential (ruling 9).
+5. Any search on the number ignores spaces and case, as ID entry does.
 
 **For DAISY-36 (the implementation, after acceptance)**
-1. The sheet from this grammar.
+1. The sheet from this grammar, the number's no-break rule included (`ukuranNomor`).
 2. The print fix (`cetak-usulan.css`), checked in Firefox and Safari and on the real route.
 3. The certificate page's title (the PDF's file name).
 4. The not-eligible state.
