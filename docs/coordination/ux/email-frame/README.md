@@ -17,21 +17,21 @@
 | Ruling 3 | Every staging email carries a slim test line at the top of both bodies: «Email uji dari PINTAR versi uji coba.» (attention tones, AA). Production never does | `email.bingkai.uji` |
 | Ruling 4 | «password» throughout, as the frame already said | — |
 | Refusals | The frame refuses what the sending module would refuse (an empty subject, one with a line break), and draws only https links, plus plain http to a local origin (the sink, BOB-25 §3) | `tautanAman` |
-| Delivery test | `UJI_PENGIRIMAN`, Gate 2E's delivery proof, in the frame: `templatUjiPengiriman`. BOB-25's sending module can use it in place of its placeholder (`susun: (k) => templatUjiPengiriman({}, k)`); that send to the M6 inboxes is DAISY-19's real-client render | `src/components/email/uji.ts` |
+| Delivery test | `UJI_PENGIRIMAN`, Gate 2E's delivery proof, in the frame: `templatUjiPengiriman`, a `Templat<{ waktu }>`. The route's send time («Dikirim», `email.uji.dikirim`) is a row, so each arrival can be told from the last. BOB-25's sending module now sends it: `src/app/api/_email/uji.ts` re-exports it in place of the placeholder, and the route is unchanged (D-079: Bob owns the pipe, Daisy owns the email). It stays a test email, sent only to the inbox a platform admin names. Its send to the M6 inboxes is DAISY-19's real-client render | `src/components/email/uji.ts`, `src/app/api/_email/uji.ts` |
 
 **The logo's colour, found and fixed.** The app's logo (`pintar-selalu-logo.png`) carries an embedded Apple «Display» colour profile, which browsers apply. A plain resize dropped it and turned the dark band grey-teal. The email logo is therefore converted through that profile to plain sRGB, with no profile left in the file, so every client shows the original's colours without needing colour management. Against the prototype's renders, only 540 anti-aliased logo pixels differ (mean channel difference 1.3 of 255).
 
 **Evidence.**
 - **Selftests, static** (in `selftest/email.test.ts`, listed in the manifest):
   - `DAISY-19-EMAIL-01` pins the prototype's structure checks, the static scan with its planted control, the words' source, AA contrast in light and dark, the palette against the token set, and the plain-text rules.
-  - `DAISY-19-EMAIL-02` pins the four rulings, the Templat shape and the refusals.
+  - `DAISY-19-EMAIL-02` pins the four rulings, the Templat shape and the refusals, and that the sending module's `UJI_PENGIRIMAN` is this framed template (a re-export that holds no email of its own) with the send time in both bodies.
   - Planted regressions went red and came back green: a staging line on production, an ink colour off its token, a footer sentence written in the module.
 - **Renders:** `buat-wiring.mts` → `render-wiring/`.
   - The prototype's samples through the wired frame, at the prototype's sizes and modes, compared pixel by pixel with `render/`. Every difference lies inside the logo, and with images blocked the render is identical.
   - The samples on staging, with the test line.
   - The delivery test, staging and production, at 600 and 320 px, light and dark; its HTML and plain text are in `uji-pengiriman-*.html` / `.txt`.
   - Every 320 px render: no sideways scroll, smallest text 13 px, button 48 px.
-- **Still to come:** the real Gmail and Outlook renders, from the M6 inboxes after BOB-25's first staging send.
+- **Still to come:** the real Gmail and Outlook renders, from the M6 inboxes after the first staging send (BOB-25's staging acceptance, pending Yazid's send). That send now carries the frame.
 
 | File | What it is |
 |---|---|

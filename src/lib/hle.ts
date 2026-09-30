@@ -1328,6 +1328,7 @@ export type HleEvent =
   | "email.uji.pratinjau"
   | "email.uji.judul"
   | "email.uji.isi"
+  | "email.uji.dikirim"
   | "email.uji.tenang"
   | "email.uji.alasan";
 
@@ -2748,6 +2749,7 @@ const table: Table = {
   "email.uji.pratinjau": { default: "Email ini memastikan email dari PINTAR sampai ke kotak masuk Anda.", en: "This email checks that email from PINTAR reaches your inbox." },
   "email.uji.judul": { default: "Uji pengiriman email", en: "Email delivery test" },
   "email.uji.isi": { default: "Email ini dikirim untuk memastikan email dari PINTAR sampai ke kotak masuk Anda dan tampil dengan benar.", en: "This email was sent to check that email from PINTAR reaches your inbox and displays correctly." },
+  "email.uji.dikirim": { default: "Dikirim", en: "Sent" },
   "email.uji.tenang": { default: "Tidak ada yang perlu Anda lakukan.", en: "There is nothing you need to do." },
   "email.uji.alasan": { default: "Anda menerima email ini karena Admin platform PINTAR sedang menguji pengiriman email.", en: "You are receiving this email because PINTAR's Admin platform is testing email delivery." },
   "sync.sesi_ditutup": { default: "Asesmen ini sudah ditutup, jadi jawaban terakhir tidak lagi dapat dikirim.", en: "This assessment is already closed, so the last answer could not be sent." },

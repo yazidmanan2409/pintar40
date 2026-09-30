@@ -32,6 +32,8 @@ import { templatUjiPengiriman } from "../src/components/email/uji";
 const PRODUKSI: KonteksEmail = { asal: "https://app.pintarselalu.com", staging: false };
 const STAGING: KonteksEmail = { asal: "https://staging.pintarselalu.com", staging: true };
 const LOKAL: KonteksEmail = { asal: "http://127.0.0.1:3000", staging: true };
+/** the proof route's own shape for its send time (src/app/api/email/uji/route.ts) */
+const WAKTU = "2026-09-30 03:12 UTC";
 
 /** The prototype's two samples: they exercise every block. Not final copy. */
 const CONTOH: Record<string, Email> = {
@@ -130,9 +132,9 @@ export const emailTests: SelfTest[] = [
       const c = new Checks();
       const hasil = [
         ...Object.entries(CONTOH).flatMap(([n, e]) => [PRODUKSI, STAGING].map((k) => ({ nama: `${n} (${k.staging ? "staging" : "production"})`, e: bingkaiEmail(e, k), pratinjau: e.pratinjau, lokal: false }))),
-        { nama: "the delivery test (production)", e: templatUjiPengiriman({}, PRODUKSI), pratinjau: t("email.uji.pratinjau", "public"), lokal: false },
-        { nama: "the delivery test (staging)", e: templatUjiPengiriman({}, STAGING), pratinjau: t("email.uji.pratinjau", "public"), lokal: false },
-        { nama: "the delivery test (the local sink)", e: templatUjiPengiriman({}, LOKAL), pratinjau: t("email.uji.pratinjau", "public"), lokal: true },
+        { nama: "the delivery test (production)", e: templatUjiPengiriman({ waktu: WAKTU }, PRODUKSI), pratinjau: t("email.uji.pratinjau", "public"), lokal: false },
+        { nama: "the delivery test (staging)", e: templatUjiPengiriman({ waktu: WAKTU }, STAGING), pratinjau: t("email.uji.pratinjau", "public"), lokal: false },
+        { nama: "the delivery test (the local sink)", e: templatUjiPengiriman({ waktu: WAKTU }, LOKAL), pratinjau: t("email.uji.pratinjau", "public"), lokal: true },
       ];
 
       // 1. STRUCTURE: email-client-safe, in Bahasa Indonesia, one heading
@@ -238,15 +240,25 @@ export const emailTests: SelfTest[] = [
 
       // 1. A TEMPLATE IS BOB-25's Templat: data and context in, a finished
       //    email out, the subject one non-empty line, both bodies present
-      const uji: Templat<Record<string, never>> = templatUjiPengiriman;
+      const uji: Templat<{ waktu: string }> = templatUjiPengiriman;
       for (const k of [PRODUKSI, STAGING, LOKAL]) {
-        const e = uji({}, k);
+        const e = uji({ waktu: WAKTU }, k);
         c.expect(e.subjek.trim().length > 0 && !/[\r\n]/.test(e.subjek), `the delivery test's subject is not one line (${k.asal})`);
         c.expect(e.html.length > 1000 && e.teks.length > 100, `the delivery test is missing a body (${k.asal})`);
         c.expect(e.subjek === t("email.uji.subjek", "public") && e.html.includes(t("email.uji.judul", "public")) &&
           e.teks.includes(t("email.uji.isi", "public").slice(0, 40)), `the delivery test does not say its own copy (${k.asal})`);
         c.expect(e.html.includes(t("email.uji.alasan", "public")), `the delivery test does not give its own reason (${k.asal})`);
+        c.expect(e.html.includes(`>${WAKTU}</td>`) && e.teks.includes(`${t("email.uji.dikirim", "public")}: ${WAKTU}`),
+          `the delivery test does not show its send time as a row in both bodies (${k.asal})`);
       }
+      // the sending module sends THIS email (D-079): its proof template is a re-export of the framed one,
+      // with no email of its own, and the route still takes it from there
+      const modul = readFileSync(join(repoRoot, "src", "app", "api", "_email", "uji.ts"), "utf8");
+      const rute = readFileSync(join(repoRoot, "src", "app", "api", "email", "uji", "route.ts"), "utf8");
+      c.expect(/export \{ templatUjiPengiriman \} from "@\/components\/email\/uji";/.test(modul) && !/html|<p|subjek|Templat</.test(modul.replace(/\/\*[\s\S]*?\*\//g, "")),
+        "the sending module's UJI_PENGIRIMAN is not the framed template (src/app/api/_email/uji.ts)");
+      c.expect(/import \{ templatUjiPengiriman \} from "\.\.\/\.\.\/_email\/uji";/.test(rute) && /jenis: "UJI_PENGIRIMAN"/.test(rute),
+        "the proof route no longer sends UJI_PENGIRIMAN through the sending module's template");
       // the sending module's contract (templat.ts) is what this module imports
       const src = readFileSync(join(repoRoot, "src", "components", "email", "uji.ts"), "utf8");
       c.expect(/from "@\/lib\/email\/templat"/.test(src) && /: Templat</.test(src), "the delivery test is not typed as BOB-25's Templat");
@@ -257,7 +269,7 @@ export const emailTests: SelfTest[] = [
       c.expect(logoEmail(STAGING) === `https://staging.pintarselalu.com${BERKAS_LOGO}`, `staging's logo is ${logoEmail(STAGING)}`);
       c.expect(logoEmail(PRODUKSI) === `https://app.pintarselalu.com${BERKAS_LOGO}`, `production's logo is ${logoEmail(PRODUKSI)}`);
       c.expect(logoEmail({ asal: "https://staging.pintarselalu.com/", staging: true }) === `https://staging.pintarselalu.com${BERKAS_LOGO}`, "a trailing slash doubles the path");
-      c.expect(uji({}, STAGING).html.includes(`src="https://staging.pintarselalu.com${BERKAS_LOGO}"`) && !uji({}, STAGING).html.includes("app.pintarselalu.com/brand"),
+      c.expect(uji({ waktu: WAKTU }, STAGING).html.includes(`src="https://staging.pintarselalu.com${BERKAS_LOGO}"`) && !uji({ waktu: WAKTU }, STAGING).html.includes("app.pintarselalu.com/brand"),
         "a staging email loads a logo that is not staging's");
       const berkas = join(repoRoot, "public", BERKAS_LOGO);
       if (c.expect(existsSync(berkas), `${BERKAS_LOGO} is not in public/`)) {
@@ -295,7 +307,8 @@ export const emailTests: SelfTest[] = [
 
       return c.verdict(
         "templatUjiPengiriman is BOB-25's Templat (src/lib/email/templat.ts) and returns a one-line subject and both bodies in " +
-        "its own copy table words; nothing in src/components/email reads configuration or sends; the logo is " +
+        "its own copy table words, its send time as a row; the sending module's UJI_PENGIRIMAN (src/app/api/_email/uji.ts, the proof " +
+        "route's import) is this framed template and holds no email of its own; nothing in src/components/email reads configuration or sends; the logo is " +
         `${BERKAS_LOGO} on the environment's own origin (208 × 116 PNG, small), never production's on staging; every staging ` +
         "email carries the test line at the top of both bodies and no production email does; a code arrives spaced or not " +
         "and is shown «482 913» (4 + 4 for eight digits); a subject with a line break, an empty subject, a non-https link " +

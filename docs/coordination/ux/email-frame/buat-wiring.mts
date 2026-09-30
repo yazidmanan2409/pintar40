@@ -99,7 +99,7 @@ for (const [nama, varian] of Object.entries(SEPERTI_PROTOTIPE)) {
   writeFileSync(join(KELUAR, `${nama}-staging.txt`), s.teks);
 }
 for (const [k, n] of [[STAGING, "staging"], [PRODUKSI, "produksi"]] as const) {
-  const e = templatUjiPengiriman({}, k);
+  const e = templatUjiPengiriman({ waktu: "2026-09-30 03:12 UTC" }, k);
   for (const v of [{ nama: "600-terang", lebar: 600 }, { nama: "320-terang", lebar: 320 }, { nama: "320-gelap", lebar: 320, gelap: true }]) kerja.push({ berkas: `uji-pengiriman-${n}-${v.nama}.png`, html: e.html, v });
   writeFileSync(join(KELUAR, `uji-pengiriman-${n}.html`), e.html.replaceAll(asal, "https://app.pintarselalu.com"));
   writeFileSync(join(KELUAR, `uji-pengiriman-${n}.txt`), e.teks);
