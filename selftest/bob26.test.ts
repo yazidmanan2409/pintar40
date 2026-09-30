@@ -426,7 +426,7 @@ export const bob26Tests: SelfTest[] = [
       }
       // change the canonical value: the email's validity follows it
       const { bacaPengaturan } = await import("../src/lib/pengaturan-auth");
-      const { templatKode } = await import("../src/lib/email/templat-identitas");
+      const { templatKode } = await import("../src/components/email/identitas");
       const konteks = { asal: "https://app.pintarselalu.com", staging: false };
       for (const detik of [600, 900, 300]) {
         const p = bacaPengaturan({ settings: { ...(kanonik.settings as Record<string, unknown>), mailer_otp_exp: detik } as never });
@@ -438,7 +438,7 @@ export const bob26Tests: SelfTest[] = [
       const kirim = tanpaKomentar(baca("src/app/api/_email/identitas.ts")), inti = tanpaKomentar(baca("src/lib/aktivasi.ts"));
       c.expect(/berlakuMenit:\s*PENGATURAN\.berlakuMenit/.test(kirim) && /berlakuMenit:\s*PENGATURAN\.berlakuMenit/.test(inti),
         "the code email or the code screen does not take its validity from the canonical setting");
-      c.expect(!/berlaku[^`\n]{0,20}\b\d+\s*menit/.test(tanpaKomentar(baca("src/lib/email/templat-identitas.ts"))),
+      c.expect(!/berlaku[^`\n]{0,20}\b\d+\s*menit/.test(tanpaKomentar(baca("src/components/email/identitas.ts"))),
         "a validity is typed into the code email");
       // the workflows: written from the file, read back, drift fails
       const staging = baca(".github/workflows/staging.yml"), facts = baca(".github/workflows/identity-facts.yml");

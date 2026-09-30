@@ -4,7 +4,7 @@ READY FOR REVIEW: BOB-26 contract (for DAISY-20)
 
 Published **before the build**, so DAISY-20 can start. The paths, fields, codes and data shapes below are what the server will answer. If the build has to change one, it is changed here first and the hand-off names it. **The pages, copy and email content are Daisy's.** Bob supplies the routes, the data and the send, never markup or copy (D-079(a)).
 
-**Changed during the build (named here first):** the code check's door is `/aktifkan/periksa`, not `/aktifkan/verifikasi`. INV-38 keeps the word *verifikasi* for the one certificate verification route (F04-S01).
+**Changed during the build (named here first; accepted with two corrections, board):** the code check's door is `/aktifkan/periksa`, not `/aktifkan/verifikasi`. INV-38 keeps the word *verifikasi* for the one certificate verification route (F04-S01). Per the gate's correction (a), the two templates live beside DAISY-19's frame in `src/components/email/identitas.ts` and import it, and the data shapes stay in `src/lib/email/identitas.ts`.
 
 Sources: `auth/IDENTITY-4.0.md` (C1, C3, C9, C10, C13, C14, C17), D-054, D-057(d), D-077, D-079 and its addendum, the BOB-26 row, and BOB-24 and BOB-25 as merged (`7727c8e`).
 
@@ -238,7 +238,7 @@ type DataEmailKartu = DataKartu & { tautanAkun: string };                    // 
 - `berlakuMenit` is **the canonical value**, never a number in the template.
 - **Until DAISY-20's templates exist,** the server renders these through **DAISY-19's wired frame** (`bingkaiEmail` in `src/components/email/bingkai.ts`, on `main` since `dd70802`). The code email uses the frame prototype's own sample wording; the card email has the fewest words a card needs.
   - Those words are placeholders for Daisy to replace; the hand-off lists them.
-  - DAISY-20 replaces `src/lib/email/templat-identitas.ts` (the two templates) whole. Only `src/app/api/_email/identitas.ts` imports it.
+  - DAISY-20 replaces `src/components/email/identitas.ts` (the two templates) whole. Only `src/app/api/_email/identitas.ts` imports it.
 
 **The one canonical setting (D-079 addendum): `supabase/auth-identitas.json`.** One file holds Gate 3's Auth settings: code length and validity (`mailer_otp_length` 6, `mailer_otp_exp` 600), the password policy, the leaked-password check, the direct-change safeguards, and TOTP enrolment off. From it:
 - the app reads `berlakuMenit` (`mailer_otp_exp / 60`) and `aturanPassword` (`src/lib/pengaturan-auth.ts`);
@@ -252,7 +252,7 @@ Change the canonical value and the email's «berlaku selama N menit» changes wi
 type AturanPassword = { panjangMin: number; karakterWajib: ("HURUF_KECIL" | "HURUF_BESAR" | "ANGKA" | "SIMBOL")[]; cekBocor: boolean; panjangMaks: 72 };
 ```
 
-The Gate 3 password policy proposed here is **minimum 8 characters, no required character kinds, and the leaked-password check on** (NIST SP 800-63B's shape). **FOR YAZID:** the Gate 0 facts left the Gate 3 policy unset. This is one value in the canonical file; changing it changes the server, the screen's rules and the staging setting together.
+The Gate 3 password policy is **approved (D-082(a))**: at least 8 characters, no mandatory character-class recipe, and the leaked-password check on. The check is written on its own, and only if the plan provides it (Pro, GATE-0-FACTS), then read back. It is one value in the canonical file; changing it changes the server, the screen's rules and the staging setting together. Applying the settings to production is Yazid's approval at C-11.
 
 ## 6. The database (for completeness; Daisy needs none of it directly)
 

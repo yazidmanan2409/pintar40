@@ -230,6 +230,18 @@ jobs:
             "https://api.supabase.com/v1/projects/${STAGING_SUPABASE_PROJECT_REF}/config/auth")
           echo "PATCH (identity settings) -> HTTP $CODE"
           test "$CODE" = "200" || { echo "::error::the identity settings write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+          # the leaked-password check, on its own: on only if the plan provides it (D-082(a))
+          python3 scripts/auth-identitas-banding.py --body-hibp > /tmp/body.json
+          CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
+            -H "Authorization: Bearer ${STAGING_SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
+            "https://api.supabase.com/v1/projects/${STAGING_SUPABASE_PROJECT_REF}/config/auth")
+          echo "PATCH (leaked-password check) -> HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::warning::the plan did not accept the leaked-password check; it stays off"
+            python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"
+            touch /tmp/hibp-unavailable
+          fi
 
       - name: Sign-in boundary and email — read back and assert
         if: ${{ always() && !cancelled() }}
@@ -258,7 +270,7 @@ jobs:
           if bad: print('::error::not as written: ' + ', '.join(bad)); sys.exit(1)
           PY
           # BOB-26: and Gate 3's identity settings, against the canonical file
-          python3 scripts/auth-identitas-banding.py /tmp/after.json staging
+          python3 scripts/auth-identitas-banding.py /tmp/after.json staging $( [ -f /tmp/hibp-unavailable ] && echo --hibp-unavailable )
 
 
       - name: Verify — the live sign-in round trip and the front door (no email is sent)

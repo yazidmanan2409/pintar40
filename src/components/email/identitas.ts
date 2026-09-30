@@ -1,6 +1,6 @@
 import type { Templat } from "@/lib/email/templat";
 import type { DataEmailKartu, DataEmailKode } from "@/lib/email/identitas";
-import { bingkaiEmail } from "@/components/email/bingkai";
+import { bingkaiEmail } from "./bingkai";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
 
 /**
@@ -16,7 +16,7 @@ import { tampilPintarId } from "@/lib/aktivasi-kontrak";
  *   - The card email has the fewest words a card needs, and no design of its
  *     own (the card's block is DAISY-24's).
  * Every word here is a placeholder for Daisy to replace, and the hand-off lists
- * them. DAISY-20 replaces this file whole; only src/app/api/_email/identitas.ts
+ * them. DAISY-20 replaces this file whole, beside her frame; only src/app/api/_email/identitas.ts
  * imports it.
  */
 

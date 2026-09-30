@@ -3,7 +3,7 @@ import type { DataKartu } from "@/lib/aktivasi-kontrak";
 /**
  * BOB-26 (D-079(a)): THE DATA GATE 3'S EMAILS CARRY. Bob's half of each email:
  * the shape and the values, never markup or copy. The templates that render
- * them are src/lib/email/templat-identitas.ts (DAISY-20's), each a Templat<D>
+ * them are src/components/email/identitas.ts (DAISY-20's), each a Templat<D>
  * of src/lib/email/templat.ts.
  */
 

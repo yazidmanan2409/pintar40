@@ -1,7 +1,7 @@
 import "server-only";
 import { supabaseService } from "@/lib/supabase/service";
 import { PENGATURAN } from "@/lib/pengaturan-auth";
-import { templatKartu, templatKode } from "@/lib/email/templat-identitas";
+import { templatKartu, templatKode } from "@/components/email/identitas";
 import type { DataKartu, PeranKartu } from "@/lib/aktivasi-kontrak";
 import { hashAlamat, kirimEmail, normalisasiAlamat, type HasilKirim } from "./kirim";
 import { terbitkanKodeEmail } from "./kode";
