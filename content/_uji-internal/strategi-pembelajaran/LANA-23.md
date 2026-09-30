@@ -220,3 +220,54 @@ None is copied into the workbook; `DILUAR` markers assert that the wording is ab
    - Lesson 7 uses only what p. 28 holds: method as part of strategy, and the six criteria.
    - If there is a further page, please send it and I will add it.
 2. **The p. 1 race example is left out entirely.** Please confirm that is right for the demo.
+
+## Round 2 (coordinator's review of `dc4e6f3`)
+
+1. **A 10-word verbatim run in lesson 6.** The scan's text layer joins «diambilkapan», so the old
+   check missed the run.
+   - The run check now compares with spaces, punctuation and the scan's page breaks removed, and
+     matches a run wherever its letters appear consecutively in the book.
+   - Lesson 6 now reads «tes baku yang boleh ditempuh kapan pun peserta didik siap, kolokium, atau
+     portofolio».
+   - The new check also found a 9-word run in lesson 3 («… sering disebut inkuiri, induktif,
+     pemecahan masalah, pengambilan …»), which is within the limit. I rephrased it anyway
+     («dikenal juga dengan nama …»).
+   - The longest shared run is now 8 words, an ordinary phrase: «bila peserta didik perlu mengingat
+     materi dengan cepat».
+   - Bab 1 is not changed. Under the new comparison its longest run is still 9 words, the
+     attributed UU definition.
+2. **No count in lesson 7.**
+   - The heading is now «Kriteria pemilihan», and the list is bulleted, not numbered.
+   - The summary says «sejumlah kriteria»; the objective says «kriteria pemilihan yang disebut bab
+     ini».
+   - An assertion checks that lesson 7 contains neither «enam» nor «keenam».
+   - It holds only what p. 28 holds.
+3. **PB7's key** is now «memakai strategi interaktif: kelompok kecil menelaah fotokopi kedua iklan
+   dan saling menanggapi penilaiannya».
+   - The reuse check now covers every post-test option as well as every stem: no 8-word run may
+     be shared with any lesson.
+   - The key is still at D, and its fact is still `kriteria_a`.
+4. **PB1 C** is now a diagnosis a teacher might really make: «satu guru tidak cukup untuk 38
+   peserta didik, sehingga yang dibutuhkan terutama team teaching».
+   - The chapter rules it out (`klasikal`, p. 2): a klasikal class of about 35–45 is taught by one
+     teacher.
+   - The problem is the assumption of equal ability, not the number of teachers.
+5. **PA4** now asks «Kriteria pemilihan mana yang paling jelas tidak terpenuhi …».
+
+**Optional, taken:** LT6's stem now says «apa yang mereka amati dan alami selama kunjungan itu».
+
+**Your answers:**
+- Section G stays with what p. 28 holds, with no count. Whether p. 82 continues the list is for
+  Yazid.
+- Leaving out the race example is confirmed.
+
+**Gate after round 2:**
+- 6.447 assertions with `--kutipan` (6.445 without); 152 of 155 quotations found (3 read by eye).
+- The longest verbatim run is 8 words.
+- periksa_mutu is 0 ERROR, with the 20 acknowledged WEAK_MISCONCEPTION_LINKAGE warnings.
+- The package rebuilds byte-identically.
+- Against `dc4e6f3`, the package differs in exactly ten fields:
+  - the bodies of lessons 3, 6 and 7, and lesson 7's summary and objective;
+  - the PA4 and LT6 stems;
+  - the PB1 C text and Alasan;
+  - the PB7 D text.

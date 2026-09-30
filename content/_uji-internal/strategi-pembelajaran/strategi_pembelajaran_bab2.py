@@ -383,7 +383,7 @@ Menurut fase-fase di atas, masalahnya muncul di antara fase 2 dan 3. Guru dapat 
                 ("Situasi di kelas", ["scaffolding", "tl_tanya", "tl_tunggu", "tl_cocok"])],
          isi="""## Pengertian
 
-Strategi tidak langsung sering disebut inkuiri, induktif, pemecahan masalah, pengambilan keputusan, atau penemuan. Strategi ini berpusat pada peserta didik, tetapi dapat saling melengkapi dengan strategi langsung. Peserta didik terlibat tinggi dalam mengamati, menyelidiki, menarik inferensi dari data, dan membentuk hipotesis. Guru tidak lagi berceramah, tetapi menjadi fasilitator, pendukung, dan narasumber. Strategi ini memerlukan bahan cetak, noncetak, dan sumber manusia.
+Strategi tidak langsung dikenal juga dengan nama inkuiri, induktif, pemecahan masalah, pengambilan keputusan, atau penemuan. Strategi ini berpusat pada peserta didik, tetapi dapat saling melengkapi dengan strategi langsung. Peserta didik terlibat tinggi dalam mengamati, menyelidiki, menarik inferensi dari data, dan membentuk hipotesis. Guru tidak lagi berceramah, tetapi menjadi fasilitator, pendukung, dan narasumber. Strategi ini memerlukan bahan cetak, noncetak, dan sumber manusia.
 
 ## Kapan strategi ini cocok
 
@@ -532,7 +532,7 @@ Penentuan strategi belajar mandiri mencakup tujuan, cara penyajian, media, biaya
 
 ## Kegiatan dan bukti penguasaan
 
-Idealnya peserta didik belajar di tempat, pada waktu, dan dengan cara yang dipilihnya sendiri; seberapa jauh ini mungkin bergantung pada kondisi peserta didik dan mutu bahan. Pada bentuk idealnya, belajar mandiri tidak dibatasi waktu dan menekankan penguasaan. Penguasaan dapat dibuktikan melalui tes mandiri, tes baku yang dapat diambil kapan saja, tes kolokium, dan portofolio.
+Idealnya peserta didik belajar di tempat, pada waktu, dan dengan cara yang dipilihnya sendiri; seberapa jauh ini mungkin bergantung pada kondisi peserta didik dan mutu bahan. Pada bentuk idealnya, belajar mandiri tidak dibatasi waktu dan menekankan penguasaan. Penguasaan dapat dibuktikan melalui tes mandiri, tes baku yang boleh ditempuh kapan pun peserta didik siap, kolokium, atau portofolio.
 
 Materi psikomotor lebih sulit dikembangkan untuk belajar mandiri, terutama bila hanya memakai satu medium seperti bahan cetak.
 
@@ -544,11 +544,11 @@ Menurut bab ini, yang perlu diperiksa lebih dulu adalah mutu bahan dan waktu yan
 
 """ + SUMBER),
     dict(no=7, judul=UJI + "Memilih Strategi Pembelajaran yang Tepat",
-         ringkasan="Strategi dipilih dengan enam kriteria, dimulai dari kesesuaian dengan tujuan; metode adalah bagian strategi dan dapat divariasikan.",
-         tujuan="Anda dapat memilih dan memadukan strategi untuk suatu pertemuan dengan menimbang keenam kriteria pemilihan.",
+         ringkasan="Strategi dipilih dengan sejumlah kriteria, dimulai dari kesesuaian dengan tujuan; metode adalah bagian strategi dan dapat divariasikan.",
+         tujuan="Anda dapat memilih dan memadukan strategi untuk suatu pertemuan dengan menimbang kriteria pemilihan yang disebut bab ini.",
          bloom="Mengevaluasi",
          jejak=[("Metode sebagai bagian dari strategi", ["metode_bagian", "tidak_setiap", "kaku", "variatif"]),
-                ("Enam kriteria pemilihan", ["kriteria_a", "kriteria_b", "kriteria_c", "kriteria_d", "kriteria_f"]),
+                ("Kriteria pemilihan", ["kriteria_a", "kriteria_b", "kriteria_c", "kriteria_d", "kriteria_f"]),
                 ("Menimbang dengan pelajaran sebelumnya", ["kriteria_b", "langsung_def", "tl_cocok", "tl_cepat", "langsung_lemah",
                                                           "int_argumen", "kriteria_f"]),
                 ("Situasi di kelas", ["kriteria_a", "kriteria_c", "kriteria_d", "langsung_tahap", "tl_cocok", "int_bentuk2", "langsung_kombinasi"])],
@@ -556,16 +556,16 @@ Menurut bab ini, yang perlu diperiksa lebih dulu adalah mutu bahan dan waktu yan
 
 Metode adalah bagian dari strategi: cara menyajikan, menguraikan, memberi contoh, dan memberi latihan. Tidak setiap metode sesuai untuk setiap tujuan. Bab ini mencatat bahwa guru kadang terpaku pada satu atau dua metode. Metode dapat dikembangkan dari pengalaman dan dipakai secara bervariasi, tidak monoton.
 
-## Enam kriteria pemilihan
+## Kriteria pemilihan
 
 Dalam memilih strategi, guru mengacu pada kriteria berikut:
 
-1. kesesuaian dengan tujuan atau kompetensi;
-2. kesesuaian dengan jenis pengetahuan yang akan dipelajari;
-3. kesesuaian dengan sasaran, yaitu kemampuan awal, latar belakang dan status sosial, serta perbedaan kepribadian peserta didik;
-4. biaya;
-5. kemampuan strategi melayani kelompok atau individu;
-6. karakteristik strategi, yaitu kelebihan dan kelemahannya.
+- kesesuaian dengan tujuan atau kompetensi;
+- kesesuaian dengan jenis pengetahuan yang akan dipelajari;
+- kesesuaian dengan sasaran, yaitu kemampuan awal, latar belakang dan status sosial, serta perbedaan kepribadian peserta didik;
+- biaya;
+- kemampuan strategi melayani kelompok atau individu;
+- karakteristik strategi, yaitu kelebihan dan kelemahannya.
 
 ## Menimbang dengan pelajaran sebelumnya
 
@@ -611,6 +611,8 @@ cek(KURSUS["Judul kursus*"].startswith(UJI) and all(b[1].startswith(UJI) for b i
 # Naming: the book's «Empirik» throughout, and Bab 1's «melalui pengalaman» named exactly once, in lesson 1.
 cek(sum(p[b].count("melalui pengalaman") for p in PELAJARAN for b in ("judul", "ringkasan", "tujuan", "isi")) == 1)
 cek("melalui pengalaman" in PELAJARAN[0]["isi"] and "Empirik" in PELAJARAN[4]["judul"])
+# The scan ends at criterion f (p. 28) and the list may continue on p. 82: lesson 7 gives no count.
+cek(not any(re.search(r"\b(ke)?enam\b", PELAJARAN[6][b_], re.I) for b_ in ("judul", "ringkasan", "tujuan", "isi")))
 
 # ── Questions.
 S = []
@@ -672,7 +674,7 @@ soal("PA3", 4, "Setelah menayangkan video gunung meletus, seorang guru meminta t
     ("tahap penyelidikan", False, "Penyelidikan adalah mengumpulkan dan menganalisis data untuk menjawab pertanyaan yang sudah dipilih.", "penyelidikan"),
     ("tahap pengetahuan awal", False, "Pengetahuan awal menggali pendapat peserta didik sebelum eksplorasi, sebagai tolok ukur pembanding.", "pengetahuan_awal"),
 ], guna=PA, sulit="Mudah")
-soal("PA4", 7, "Seorang guru ingin peserta didiknya dapat menulis surat lamaran kerja dengan format baku. Ia tertarik memakai debat karena kelasnya aktif berpendapat. Kriteria pemilihan mana yang paling tidak terpenuhi oleh pilihan ini?", "D", [
+soal("PA4", 7, "Seorang guru ingin peserta didiknya dapat menulis surat lamaran kerja dengan format baku. Ia tertarik memakai debat karena kelasnya aktif berpendapat. Kriteria pemilihan mana yang paling jelas tidak terpenuhi oleh pilihan ini?", "D", [
     ("kesesuaian strategi dengan tujuan atau kompetensi", True, "Debat melatih argumentasi, sedangkan tujuannya menulis surat dengan format baku; kriteria pertama adalah kesesuaian dengan tujuan.", "kriteria_a"),
     ("kesesuaian strategi dengan sasaran, yaitu karakteristik peserta didik", False, "Kelas yang aktif berpendapat justru cocok dengan debat; yang tidak cocok adalah tujuannya.", "kriteria_c"),
     ("biaya yang diperlukan untuk menjalankan strategi", False, "Debat hampir tidak memerlukan biaya; biaya bukan masalah di sini.", "kriteria_d"),
@@ -683,7 +685,7 @@ soal("PA4", 7, "Seorang guru ingin peserta didiknya dapat menulis surat lamaran 
 soal("PB1", 1, "Seorang guru kelas IV mengajar 38 peserta didik yang kemampuan membacanya sangat beragam. Selama ini ia memakai satu lembar kerja dan satu tempo untuk semua, dan kelompok yang lambat makin tertinggal. Apa yang paling tepat menjelaskan keadaan ini?", "B", [
     ("pembelajaran klasikal mengandaikan kemampuan yang relatif setara, padahal kemampuan kelas ini berbeda-beda", True, "Pembelajaran klasikal dirancang untuk peserta didik yang diasumsikan setara usia dan kemampuannya, dengan format yang sama untuk semua.", "klasikal"),
     ("kelompok yang lambat kurang terbiasa belajar mandiri, sehingga tidak dapat mengikuti lembar kerja yang sama dengan temannya", False, "Masalahnya ada pada pengaturan peserta didik: satu format untuk kemampuan yang berbeda, bukan pada kebiasaan belajar mandiri.", "individual"),
-    ("jumlah 38 peserta didik terlalu kecil untuk pembelajaran klasikal yang efektif", False, "Bab ini menyebut kelas klasikal sekitar 35–45 orang; ukurannya wajar, yang tidak sesuai adalah asumsi kesetaraan kemampuan.", "klasikal"),
+    ("satu guru tidak cukup untuk 38 peserta didik, sehingga yang dibutuhkan terutama team teaching", False, "Kelas klasikal sekitar 35–45 orang memang diajar seorang guru; yang tidak sesuai adalah asumsi kesetaraan kemampuan, bukan jumlah gurunya.", "klasikal"),
     ("pembelajaran tatap muka kurang cocok untuk kelas dengan kemampuan membaca yang beragam", False, "Tatap muka menggolongkan hubungan guru dan peserta didik, bukan cara mengatur peserta didik dengan kemampuan berbeda.", "tatap_muka"),
 ], guna=PB, sulit="Sedang")
 soal("PB2", 2, "Seorang guru Fisika memakai pembelajaran langsung sepanjang semester. Nilai tes prosedur peserta didik baik, tetapi mereka kesulitan ketika diminta berdiskusi dan menilai argumen teman. Apa yang paling tepat ia lakukan?", "C", [
@@ -717,7 +719,7 @@ soal("PB6", 6, "Seorang guru SMK memakai modul cetak untuk belajar mandiri tenta
     ("menambah soal tes tertulis tentang langkah menjahit agar penguasaannya terukur", False, "Tes tertulis sudah menunjukkan pemahaman langkah; yang belum terbukti adalah keterampilannya, misalnya lewat portofolio hasil jahitan.", "bukti"),
 ], guna=PB, sulit="Sedang")
 soal("PB7", 7, "Seorang guru Bahasa Indonesia kelas VIII ingin peserta didiknya dapat membandingkan dua iklan produk dan menilai mana yang menyesatkan. Kelasnya berisi 32 peserta didik, dan sekolah tidak menyediakan dana tambahan. Strategi mana yang paling tepat ia pilih?", "D", [
-    ("memakai strategi tidak langsung atau interaktif dalam kelompok kecil, dengan salinan cetak kedua iklan", True, "Menilai dan menyimpulkan adalah kemampuan berpikir yang cocok dengan strategi tidak langsung atau interaktif; bahan cetak memenuhi kriteria biaya.", "kriteria_a"),
+    ("memakai strategi interaktif: kelompok kecil menelaah fotokopi kedua iklan dan saling menanggapi penilaiannya", True, "Menilai dan menyimpulkan adalah kemampuan berpikir yang cocok dengan strategi tidak langsung atau interaktif; bahan cetak memenuhi kriteria biaya.", "kriteria_a"),
     ("memakai strategi langsung, karena ceramah paling mudah dikendalikan untuk 32 peserta didik", False, "Pembelajaran langsung memang mudah dikendalikan, tetapi lemah untuk pemikiran kritis yang dituju pertemuan ini.", "langsung_lemah"),
     ("memakai belajar mandiri dengan modul, agar setiap peserta didik bekerja sesuai kecepatannya", False, "Menilai iklan yang berbeda memerlukan saling menanggapi argumen, yang dilatih strategi interaktif, bukan modul perorangan.", "int_argumen"),
     ("memakai strategi empirik dengan kunjungan ke pusat perbelanjaan, agar peserta didik mengamati iklan langsung", False, "Kunjungan memerlukan biaya yang tidak tersedia; kriteria biaya termasuk dalam pemilihan strategi.", "kriteria_d"),
@@ -760,7 +762,7 @@ soal("LT5", 4, "Pertanyaan peserta didik yang terkumpul di papan banyak, dan seb
     ("mengganti pertanyaan peserta didik dengan pertanyaan yang sudah ia siapkan", False, "Pertanyaan peserta didik adalah inti strategi ini dan memperlihatkan kemampuan awal mereka.", "int_awal"),
     ("menunda pertanyaan yang tidak berkaitan sampai akhir pelajaran dan melanjutkan penjelasan", False, "Pertanyaan dipilih sebelum penyelidikan, karena penyelidikan dilakukan untuk menjawabnya.", "penyelidikan"),
 ], sulit="Mudah")
-soal("LT6", 5, "Setelah kunjungan ke pasar tradisional, peserta didik menulis catatan tentang apa yang mereka amati dan mengapa pedagang bertindak seperti itu. Kegiatan ini berada pada tahap ...", "D", [
+soal("LT6", 5, "Setelah kunjungan ke pasar tradisional, peserta didik menulis catatan tentang apa yang mereka amati dan alami selama kunjungan itu. Kegiatan ini berada pada tahap ...", "D", [
     ("observasi reflektif", True, "Pengalaman yang sudah dialami direfleksikan: peserta didik berusaha memahami apa yang terjadi.", "emp_refleksi"),
     ("pengalaman konkret", False, "Kunjungannya adalah pengalaman konkret; menulis tentang apa yang terjadi adalah tahap sesudahnya.", "stimulus"),
     ("konseptualisasi abstrak", False, "Konseptualisasi merumuskan prinsip dari hasil refleksi; di sini peserta didik baru memahami apa yang terjadi.", "emp_konsep"),
@@ -819,6 +821,8 @@ def runs(teks, n):
 LESSON_RUNS = set().union(*(runs(p["isi"], 8) for p in PELAJARAN))
 for s in POST:
     cek(not runs(s["tanya"], 8) & LESSON_RUNS, f"{s['ref']}: stem reuses a lesson's wording")
+    for q in s["pilihan"]:
+        cek(not runs(q[0], 8) & LESSON_RUNS, f"{s['ref']}: option «{q[0]}» reuses a lesson's wording")
 
 VERBATIM_MAKS = 9     # no run of 10 or more words of learner text appears in the book
 
@@ -844,12 +848,17 @@ def periksa_kutipan(paths):
         else:
             gambar.append(fid)
     cek(set(gambar) <= GAMBAR, f"quotations not in the book: {set(gambar) - GAMBAR}")
-    # The longest run of words that learner text shares with the book.
-    bw = kata(teks)
+    # The longest run of words that learner text shares with the book. The comparison ignores
+    # spaces, punctuation and the scan's page breaks, because the scan's text layer joins words
+    # («diambilkapan») and splits them («bahan- bahan»); a run is a match when its letters appear
+    # consecutively anywhere in the book.
+    buku_rapat = norm(re.sub(r"=== PDF page \d+ ===", "", teks))
     terpanjang, dimana = 0, ""
     for n in range(4, 40):
-        buku_n = {" ".join(bw[i:i + n]) for i in range(len(bw) - n + 1)}
-        kena = [(d, r) for d, t in teks_pembelajar() for r in runs(t, n) if r in buku_n]
+        kena = []
+        for d, t in teks_pembelajar():
+            w = kata(t)
+            kena += [(d, " ".join(w[i:i + n])) for i in range(len(w) - n + 1) if "".join(w[i:i + n]) in buku_rapat]
         if not kena:
             break
         terpanjang, dimana = n, kena[0]
