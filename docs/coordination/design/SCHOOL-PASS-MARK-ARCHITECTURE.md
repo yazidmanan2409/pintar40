@@ -67,10 +67,10 @@ Read-only; nothing is implemented. It builds on `design/PASS-MARK-AND-GRADE-SEMA
    - `session_outcome` and `certificate_eligibility` take `pass_mark_applied` from the session;
    - sessions from before the change fall back to their definition version's `mastery_min`, which is equally immutable;
    - both compute the one rule from one sealed number. This also ends the review's F7 drift.
-5. **Resolution, done once at step 2:**
+5. **Resolution, done once at step 2 (as ruled, Q3):**
    - the school's active setting for the lesson;
-   - else the lesson's own default (the definition's `mastery_min`, 0.6 today; see Q3);
-   - else none. "No invented pass mark": no verdict and no certificate, as today.
+   - else none: Sediakan and the Uji Cepat launch are **refused** until the school sets it. There is no fallback to the definition's 0.6 for a new assignment;
+   - sessions from before BOB-49 keep their definition version's `mastery_min` (step 4), as historical evidence, never as school policy.
 
 **Not changed:**
 - canonical content, releases, definitions, `release_distributions`;
@@ -82,6 +82,8 @@ A certificate's signed payload already carries `score` and `passed`. Adding the 
 **D-060:** the grading rule does not change, so there is no engine bump. Only where the number comes from changes, and every historical outcome keeps its sealed value. No metric changes meaning.
 
 ## 6. Open questions (not inferred)
+
+**Answered in D-081, 30 Sep:** Q1 per school and lesson, never per class, and the assignment snapshots it; Q2 the school admin (INSTITUTION_ADMIN), audited, with no new department authority; Q3 explicit, with no silent 60% default; Q4 a whole number 0–100. (a) is answered by D-078's amendment: the predikat is descriptive and its bands are unchanged. (b) and F1 stay open for Yazid. The questions as asked:
 
 - **Q1: Granularity.** Per lesson for the **whole school** (the ruling's wording), or may it differ **per class or assignment**? The design seals per assignment either way; the setting table is per school and lesson.
 - **Q2: Who in the school sets it?** The school admin (Admin sekolah), the head of department (Kepala departemen), or the teacher when providing the lesson? Also, is it audited and shown to leaders?
@@ -102,4 +104,4 @@ A certificate's signed payload already carries `score` and `passed`. Adding the 
 
 **Daisy:** the setting on a school screen, the words, and the target shown as today.
 
-It fits BOB-48's slot (after Gate 6), with (4)'s eligibility reading the sealed mark. Nothing starts until Yazid and Dr Gladys answer Q1–Q4.
+It fits BOB-48's slot (after Gate 6), with (4)'s eligibility reading the sealed mark. **Opened 30 Sep as BOB-49 and DAISY-38** (the board rows are the scope; BOB-48(4) is superseded).
