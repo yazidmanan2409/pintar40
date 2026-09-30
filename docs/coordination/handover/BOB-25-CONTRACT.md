@@ -1,6 +1,6 @@
 # BOB-25 contract: PINTAR's email path (Gate 2E)
 
-Published 30 Sep, ahead of the build, so DAISY-19 can wire the frame against it. **The template interface below is fixed.** The rest describes the sending module Bob is building; its hand-off confirms it or names any change.
+Published 30 Sep, ahead of the build, so DAISY-19 can wire the frame against it. **The template interface below is fixed.** The sending module is built as described here (`48f791a`), confirmed in `HANDOFF-BOB-25.md`.
 
 ## 1. The template interface (for Daisy): `src/lib/email/templat.ts`
 
@@ -55,7 +55,7 @@ kirimEmail({ ke, jenis, susun }: {
   ke: string;                                        // one address
   jenis: JenisEmail;
   susun: (konteks: KonteksEmail) => EmailJadi;       // usually (k) => templatX(data, k)
-}): Promise<HasilKirim>
+}, catatan?: CatatanKirim): Promise<HasilKirim>      // catatan: the send log; production omits it (the service-role RPCs), a test passes the same SQL functions another way
 
 type HasilKirim =
   | { terkirim: true;  rujukan: string }                                   // the send log row
