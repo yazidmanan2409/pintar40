@@ -231,14 +231,24 @@ RELEASE = [
     ("REL-06", "The external front-door check says FRONT DOOR OK.", "P0", "PASS: run 35935767367."),
     ("REL-07", "Auth: sign-up disabled; site_url is the origin; a single callback.", "P0", "PASS (deploy 013 read-back)."),
     ("REL-08", "Authentication email and settings (restated 30 Sep, D-065; the 24 Sep wording tested Supabase's default-email path, which D-057 retired). "
-               "(i) Capacity: every identity email (activation code, resend, recovery, password changed, Digital Card, security notices) goes "
-               "through PINTAR's own path (BOB-25) with its per-address and global limits enforced, a refused send reported as not sent, and the "
-               "mail host's hourly capacity recorded; Supabase's own email limit governs only the break-glass fallback. "
+               "(i) Sending, capacity and deliverability: every identity email (activation code, resend, recovery, password changed, Digital Card, "
+               "security notices) goes through PINTAR's own sender path (BOB-25) with its per-address and global limits enforced and a refused send "
+               "reported as not sent; the mail host's hourly capacity is recorded; production mail from that path passes SPF, DKIM and DMARC. "
+               "Supabase's own email limit governs only the break-glass fallback. Evidence: BOB-25's gate tests (limits and refusals, red then green) "
+               "and its staging send; at Gate 8, a send from production through the same path to the M6 inboxes, whose received headers show SPF, "
+               "DKIM and DMARC = PASS; the domain's published records (identity-facts.yml, DNS job); the host's plan and hourly limit from the "
+               "host's own record (M1). "
                "(ii) Settings: the Gate 3 password policy (BOB-26) with the leaked-password check on; a direct password change needs the current "
-               "password; TOTP enrolment off; email codes 6 digits, valid 10 minutes. "
-               "(iii) Templates: Supabase's own templates carry a minimal Bahasa Indonesia break-glass fallback; the emails people receive are PINTAR's. "
-               "Verified by the coordinator with the read-only identity-facts.yml (staging; production from main). Production settings change "
-               "only at Gate 8, with Yazid's approval (D-039).", "P0", "NOT VERIFIED: Yazid, in the Supabase dashboard (against the 24 Sep wording)."),
+               "password; TOTP enrolment off; email codes 6 digits, valid 10 minutes. The policy must not prevent PINTAR's existing class-card "
+               "credential mechanism from creating or authenticating card accounts; that mechanism is not changed here. Evidence: the settings read "
+               "back by identity-facts.yml (staging; production from main), which proves these Supabase settings only; class-card compatibility by "
+               "Supabase's actual behaviour on staging once the Gate 3 policy is set (a new card made and signed in, an existing card signed in), "
+               "observed rather than assumed, including whether admin-created credentials are subject to the policy. "
+               "(iii) Templates: Supabase's own templates carry a minimal Bahasa Indonesia break-glass fallback; the emails people receive are "
+               "PINTAR's. Evidence: the approved fallback texts, reviewed in the repository; identity-facts.yml showing each deployed template custom "
+               "and with the approved file's hash (which proves it is the approved file, not its language); PINTAR's own emails as received from "
+               "the (i) sends. "
+               "Production settings change only at Gate 8, with Yazid's approval (D-039).", "P0", "NOT VERIFIED: Yazid, in the Supabase dashboard (against the 24 Sep wording)."),
     ("REL-09", "Before the first production class card or certificate is issued, the intended production CARD_PEPPER and CERT_SECRET_KEY_V1 "
                "are set and verified offline recovery copies exist (D-066). CARD_PEPPER is never changed once cards exist, except through an "
                "explicit reissuance procedure; when a newer certificate key version is introduced, the earlier versions' verification material "
@@ -823,18 +833,24 @@ CHANGES_V21.append("Re-marked on 28 Sep against main 1f3b0f1 (BOB-22, LANA-01) w
 # The read is allow-listed and non-secret: template bodies only hashed, the SMTP password only "present". Staging and production
 # are identical on every key below except site_url, the callback and the sender name ("PINTAR Staging" / "PINTAR").
 CURRENT.update({
-    "REL-08": ("N-I on the restated check, as planned for Gates 2E, 3 and 8 (read 30 Sep, run 36653019569, staging and production). (i) PINTAR's own path is "
-               "BOB-25, held until the Stellar Business move and the post-move mail check (D-062(b)); today Supabase sends, at "
-               "rate_limit_email_sent 2 per hour. (ii) Gate 3 (BOB-26) sets it; today: minimum length 6, no required characters, "
-               "leaked-password check off, a direct change without the current password allowed, TOTP enrolment on, codes 8 digits "
-               "valid 60 minutes. (iii) Every template is Supabase's English default (no custom subject or body). Holding: "
-               "sign-up disabled, one callback per project, SMTP through pintarselalu.com:465 from noreply@ (password present)."),
+    "REL-08": ("N-I on the restated check, as planned for Gates 2E, 3 and 8. Observations, not requirements (30 Sep; identity-facts run "
+               "36653019569, staging and production identical): (i) PINTAR's sender path is BOB-25, held until the Stellar Business move and "
+               "the post-move mail check (D-062(b)); today Supabase sends, at rate_limit_email_sent 2 per hour, through SMTP pintarselalu.com:465 "
+               "from noreply@ (password present). The domain publishes SPF (~all), a DKIM key (selector default) and DMARC p=none; no send from "
+               "PINTAR's path exists yet to show a PASS. (ii) Gate 3 (BOB-26) sets it; today: minimum length 6, no required characters, "
+               "leaked-password check off, a direct change without the current password allowed, TOTP enrolment on, codes 8 digits valid "
+               "60 minutes. (iii) Every template is Supabase's English default (no custom subject or body)."),
+    "REL-07": ("PASS (unchanged), read again 30 Sep (identity-facts run 36653019569): sign-up disabled on both projects; site_url is each "
+               "project's origin (https://staging.pintarselalu.com, https://app.pintarselalu.com); one callback each (<origin>/auth/callback*)."),
     "REL-09": ("NOT VERIFIED: Yazid (board C-11), before the first production card or certificate (D-066). Production has 0 cards "
                "today, so nothing is yet bound to the current values."),
 })
 CHANGES_V21.append("30 Sep (D-065, D-066): REL-08 restated to the PINTAR-controlled authentication email (D-057) and verified by the "
                    "coordinator through the read-only identity-facts.yml, not a dashboard look; REL-09 now says when the copies must exist "
                    "(before the first production card or certificate) and that neither secret may be lost or silently replaced.")
+CHANGES_V21.append("30 Sep (Yazid, on the coordinator's review): REL-08 corrected: class cards must stay creatable and usable under the Gate 3 "
+                   "policy; each clause names evidence that can prove it (the settings read proves settings only); production deliverability "
+                   "(SPF, DKIM, DMARC on PINTAR's sender path) added to (i); REL-07's facts moved to REL-07.")
 
 def as_dict():
     g = globals()
