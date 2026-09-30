@@ -390,7 +390,7 @@ const ATAS = 26.5;
 const barisY = (r: number) => ATAS + r * (K.UKURAN.tinggi + CELAH);
 const TANDA = { jarak: 3, panjang: 3.5, tebal: 0.1 };
 const garisHitam = (x0: number, y0: number, w: number, h: number) => `<div style="position:absolute;left:${x0}mm;top:${y0}mm;width:${w}mm;height:${h}mm;background:#000"></div>`;
-function tandaPotong(x: number, y: number, w = K.UKURAN.lebar, h = K.UKURAN.tinggi): string {
+function tandaPotong(x: number, y: number, w: number = K.UKURAN.lebar, h: number = K.UKURAN.tinggi): string {
   const { jarak: j, panjang: p, tebal: t } = TANDA;
   let s = "";
   for (const [cx, sx] of [[x, -1], [x + w, 1]] as const) {

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 126,
+  "version": 128,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2439,6 +2439,16 @@
       "id": "DAISY-31-PINDAH-02",
       "runner": "static",
       "proves": "DAISY-31 (BOB-35): Studio «Koreksi» says its second move refusal in its own words. (1) The latest migration raises RELEASE_MOVE_NO_CYCLE_DEFINITION as SQLSTATE PR060 with the code in DETAIL (when the target release has no approved definition for the cycle). (2) The result contract names it from that state and DETAIL, and not under another state or from the message alone. (3) Its sentence, in both languages, is its own, names no code or machinery, names «Pemetaan Awal» and «Uji Penguasaan» by the titles learners see (pretest.title, posttest.title) and ends «Pilih terbitan lain.» / \"Choose another release.\". (4) «Koreksi»'s line is «Belum tersimpan.» and that sentence, with no reference. (5) From the SOURCE, the move's refusal goes through ditolak and kodeGalat. (6) PR060's other refusal, PR061's and an unknown DETAIL stay ACTION_FAILED, with a reference"
+    },
+    {
+      "id": "DAISY-19-EMAIL-01",
+      "runner": "static",
+      "proves": "DAISY-19 (Gate 2E, D-057(a)): the PINTAR email frame, moved from the accepted prototype to src/components/email/bingkai.ts. (1) Every rendering (the prototype's two samples, production and staging, and the delivery test on production, staging and the local sink) is email-client safe: every table role=\"presentation\", exactly one <h1>, lang=\"id\" on <html> and on the article wrapper, no <script>, external stylesheet, @import or @font-face, a 600 px maximum with a fixed 600 px table for Outlook, https or mailto links and images only (plain http only on the local sink), alt on every image. (2) No developer or Supabase word, and no INTERNAL_WORDS entry, is visible in the HTML text, alt/title/aria-label, the plain text, the subject or the preview; a planted «Kode OTP dari Supabase» heading is caught. (3) Every word of the frame and the delivery test is an email.* key in the copy table in both languages (D-014), none is written in src/components/email, the footer carries the PIN warning, the question line, the sender and the default or the email's own reason, and the button's copy-the-address line is the copy table's. (4) Every text pair is WCAG AA in light and dark, the staging line included. (5) The light palette equals the token set (surface-2, surface-1, ink-1..3, pintar-primary, -ink, -soft, status-attention and -info with their soft grounds); the hairline is --line laid on white; only the code box's border has no token. (6) Plain-text lines stay within 72 characters (URLs excepted) and the PIN warning sits under a \"--\" footer"
+    },
+    {
+      "id": "DAISY-19-EMAIL-02",
+      "runner": "static",
+      "proves": "DAISY-19 wired to BOB-25's template interface (src/lib/email/templat.ts). (1) templatUjiPengiriman is a Templat: for production, staging and the local sink it returns a one-line non-empty subject and both bodies in its own copy-table words and reason; src/components/email reads no configuration and sends nothing. (2) Ruling 2: the logo is /brand/pintar-email-logo.png on the environment's own origin (staging's on staging, never production's), a trailing slash does not double the path, and the file is a 208 × 116 PNG under 20 KB. (3) Ruling 3: every staging email carries the test line (email.bingkai.uji) at the top of both bodies, before the heading, and no production email does. (4) Ruling 1: a six-digit code arriving spaced or not is shown «482 913», eight digits 4 + 4, anything else as given, in both bodies. (5) Refused before a send: a subject with a line break, an empty subject, a non-https link (plain http, javascript:, protocol-relative, a space) and a plain-http origin that is not the local sink; the local sink's origin is accepted"
     }
   ]
 }

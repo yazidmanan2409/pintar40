@@ -442,7 +442,7 @@ const PDF = join(RENDER, "J-A4-100persen.pdf");
   }, { px: 96 / 25.4, garis: S.TATA.garis, tenang: S.TENANG, qrMm: S.QR_MM });
   catat("");
   catat(`LAYOUT CHECKS on ${semua.length} sheets (all three directions × two contexts, four stress cases each, photo, logo, photo with the longest text, Classic with the band, version 6):`);
-  const nyata = hasil.masalah.filter((m) => !m.includes("(probe)")), batas = hasil.masalah.filter((m) => m.includes("(probe)"));
+  const nyata = hasil.masalah.filter((m: string) => !m.includes("(probe)")), batas = hasil.masalah.filter((m: string) => m.includes("(probe)"));
   catat(`  print margin (all ink ≥ 10 mm from the edge; the band ≥ 12 mm), statement ≥ 10 mm above the line and ≥ 5 mm clear of heading/photo/logo, issuer ≥ 10 mm above the record, record ≥ 4 mm above the colophon, nothing in the QR's 4-module quiet zone, no text across the line: ${nyata.length ? `${nyata.length} PROBLEM(S)` : `all pass on the ${semua.filter((x) => !x.uji).length} sheets that count`}`);
   for (const m of nyata) catat(`    ${m}`);
   catat(`  PROBES (reported, not counted; they find the limits): ${batas.length ? batas.join("; ") : "none reached"}`);
@@ -452,8 +452,9 @@ const PDF = join(RENDER, "J-A4-100persen.pdf");
   // required words, once each; forbidden words, never
   const WAJIB = [KATA.jenis.toUpperCase(), KATA.diberikan, KATA.predikat.toUpperCase(), KATA.tanggal.toUpperCase(), KATA.nomor.toUpperCase(), KATA.penerbit.toUpperCase(), KATA.periksa, KATA.arti, "PINTAR SELALU"];
   const TERLARANG = ["skor", "nilai", "score", "tanda tangan", "ttd", "stempel", "cap", "segel", "resmi", "official", "sah", "identitas", "diverifikasi oleh", "didukung", "bekerja sama", "powered"];
-  let kurang = 0, kena: string[] = [];
-  for (const [nama, tx] of Object.entries(hasil.teks)) {
+  let kurang = 0;
+  const kena: string[] = [];
+  for (const [nama, tx] of Object.entries(hasil.teks) as Array<[string, string]>) {
     for (const w of WAJIB) { const n = tx.split(w).length - 1; if (n !== 1) { kurang++; catat(`    ${nama}: «${w}» appears ${n} times`); } }
     const angka = tx.match(/\d+([.,]\d+)?\s*%|0[.,]\d{2}/g);
     if (angka) kena.push(`${nama}: a score-like number ${angka.join(", ")}`);
