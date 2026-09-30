@@ -544,11 +544,11 @@ Menurut bab ini, yang perlu diperiksa lebih dulu adalah mutu bahan dan waktu yan
 
 """ + SUMBER),
     dict(no=7, judul=UJI + "Memilih Strategi Pembelajaran yang Tepat",
-         ringkasan="Strategi dipilih dengan sejumlah kriteria, dimulai dari kesesuaian dengan tujuan; metode adalah bagian strategi dan dapat divariasikan.",
-         tujuan="Anda dapat memilih dan memadukan strategi untuk suatu pertemuan dengan menimbang kriteria pemilihan yang disebut bab ini.",
+         ringkasan="Strategi dipilih dengan enam kriteria, dimulai dari kesesuaian dengan tujuan; metode adalah bagian strategi dan dapat divariasikan.",
+         tujuan="Anda dapat memilih dan memadukan strategi untuk suatu pertemuan dengan menimbang enam kriteria pemilihan.",
          bloom="Mengevaluasi",
          jejak=[("Metode sebagai bagian dari strategi", ["metode_bagian", "tidak_setiap", "kaku", "variatif"]),
-                ("Kriteria pemilihan", ["kriteria_a", "kriteria_b", "kriteria_c", "kriteria_d", "kriteria_f"]),
+                ("Enam kriteria pemilihan", ["kriteria_a", "kriteria_b", "kriteria_c", "kriteria_d", "kriteria_f"]),
                 ("Menimbang dengan pelajaran sebelumnya", ["kriteria_b", "langsung_def", "tl_cocok", "tl_cepat", "langsung_lemah",
                                                           "int_argumen", "kriteria_f"]),
                 ("Situasi di kelas", ["kriteria_a", "kriteria_c", "kriteria_d", "langsung_tahap", "tl_cocok", "int_bentuk2", "langsung_kombinasi"])],
@@ -556,16 +556,16 @@ Menurut bab ini, yang perlu diperiksa lebih dulu adalah mutu bahan dan waktu yan
 
 Metode adalah bagian dari strategi: cara menyajikan, menguraikan, memberi contoh, dan memberi latihan. Tidak setiap metode sesuai untuk setiap tujuan. Bab ini mencatat bahwa guru kadang terpaku pada satu atau dua metode. Metode dapat dikembangkan dari pengalaman dan dipakai secara bervariasi, tidak monoton.
 
-## Kriteria pemilihan
+## Enam kriteria pemilihan
 
-Dalam memilih strategi, guru mengacu pada kriteria berikut:
+Dalam memilih strategi, guru mengacu pada enam kriteria berikut:
 
-- kesesuaian dengan tujuan atau kompetensi;
-- kesesuaian dengan jenis pengetahuan yang akan dipelajari;
-- kesesuaian dengan sasaran, yaitu kemampuan awal, latar belakang dan status sosial, serta perbedaan kepribadian peserta didik;
-- biaya;
-- kemampuan strategi melayani kelompok atau individu;
-- karakteristik strategi, yaitu kelebihan dan kelemahannya.
+1. kesesuaian dengan tujuan atau kompetensi;
+2. kesesuaian dengan jenis pengetahuan yang akan dipelajari;
+3. kesesuaian dengan sasaran, yaitu kemampuan awal, latar belakang dan status sosial, serta perbedaan kepribadian peserta didik;
+4. biaya;
+5. kemampuan strategi melayani kelompok atau individu;
+6. karakteristik strategi, yaitu kelebihan dan kelemahannya.
 
 ## Menimbang dengan pelajaran sebelumnya
 
@@ -611,8 +611,8 @@ cek(KURSUS["Judul kursus*"].startswith(UJI) and all(b[1].startswith(UJI) for b i
 # Naming: the book's «Empirik» throughout, and Bab 1's «melalui pengalaman» named exactly once, in lesson 1.
 cek(sum(p[b].count("melalui pengalaman") for p in PELAJARAN for b in ("judul", "ringkasan", "tujuan", "isi")) == 1)
 cek("melalui pengalaman" in PELAJARAN[0]["isi"] and "Empirik" in PELAJARAN[4]["judul"])
-# The scan ends at criterion f (p. 28) and the list may continue on p. 82: lesson 7 gives no count.
-cek(not any(re.search(r"\b(ke)?enam\b", PELAJARAN[6][b_], re.I) for b_ in ("judul", "ringkasan", "tujuan", "isi")))
+# The fuller manuscript (52 pages) shows section G ends at criterion f and Bab III follows: six criteria.
+cek("enam kriteria" in PELAJARAN[6]["isi"])
 
 # ── Questions.
 S = []

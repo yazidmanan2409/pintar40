@@ -271,3 +271,12 @@ None is copied into the workbook; `DILUAR` markers assert that the wording is ab
   - the PA4 and LT6 stems;
   - the PB1 C text and Alasan;
   - the PB7 D text.
+
+## After the pass: section G closed (Yazid)
+
+Yazid sent the fuller manuscript (52 pages). Its pp. 1–28 are identical to the Bab 2 scan, section
+G ends at criterion f, and Bab III starts on p. 29. This is a demonstration, so the manuscript is
+enough.
+- Lesson 7 names «enam kriteria» again, and the list is numbered.
+- The check that forbade a count is replaced by one that requires «enam kriteria».
+- Nothing else changed.
