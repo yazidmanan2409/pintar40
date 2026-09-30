@@ -13,7 +13,8 @@ import { detailPr040, mulaiWizard, tidakTersedia } from "../_wizard";
  * Auth's admin endpoint. The database's guard on auth.users consumes the
  * permit and records the step on the set-up row, in the hash's own
  * transaction. Without a permit, no session can set or change a password.
- * The password is never logged or echoed.
+ * Auth then ends every session of the person, so the route signs them back in
+ * with the new password. The password is never logged or echoed.
  */
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,15 @@ export async function POST(request: NextRequest) {
     return tidakTersedia("the password permit could not be given", galatIzin.code);
   }
   const { error } = await layanan.auth.admin.updateUserById(w.userId, { password });
-  if (!error) return jawab({ status: 200, body: { ok: true } });
+  if (!error) {
+    // Auth ends EVERY session of a person whose password its admin endpoint sets,
+    // this wizard's included (and any other device's, which is right). So the
+    // person is signed straight back in here with the password just set; the
+    // new session's cookies replace the ended one's on this response.
+    const { error: galatMasuk } = await w.supabase.auth.signInWithPassword({ email: w.email, password });
+    if (galatMasuk) return tidakTersedia("the new password did not sign the person back in", galatMasuk.code ?? String(galatMasuk.status ?? ""));
+    return jawab({ status: 200, body: { ok: true } });
+  }
   if (error.code === "weak_password") {
     const alasan = ((error as { reasons?: string[] }).reasons ?? []).map((r) => ALASAN_AUTH[r]).filter(Boolean);
     return jawab({ status: 422, body: { ok: false, code: "PASSWORD_LEMAH", alasan: alasan.length ? [...new Set(alasan)] : ["PANJANG"] } });

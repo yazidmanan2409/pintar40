@@ -60,6 +60,11 @@
       "control_green": 3,
       "what": "BOB-25's send log and limits: email_send_reserve refuses by each scope and counts what it should, a send settles once, and no client role reaches the log"
     },
+    "db-bob26-gates": {
+      "suite": "selftest.run_fable18()",
+      "control_green": 10,
+      "what": "BOB-26's activation: nobody renames themselves at the table, a password needs a permit, a code goes only to an unfinished set-up, set-up needs the name, the correction is the platform admin's, the name step closes, and an import's names are its own school's"
+    },
     "db-bob37-gates": {
       "suite": "selftest.run_fable06()",
       "control_green": 35,
@@ -663,6 +668,13 @@
     { "name": "bob25-2", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "three of them refused by the host, was answered" },
     { "name": "bob25-3", "gate": "db-bob25-gates", "expect_red": "F17-L02", "expect_detail": "a settled send was settled a second time" },
     { "name": "bob25-4", "gate": "db-bob25-gates", "expect_red": "F17-N01", "expect_detail": "authenticated may reserve or settle a send" },
-    { "name": "bob25-5", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "a second code to the same address within a minute was answered" }
+    { "name": "bob25-5", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "a second code to the same address within a minute was answered" },
+    { "name": "bob26-1", "gate": "db-bob26-gates", "expect_red": "F18-N01", "expect_detail": "renamed themselves «Ironman» straight at the table" },
+    { "name": "bob26-2", "gate": "db-bob26-gates", "expect_red": "F18-P01", "expect_detail": "Auth wrote a password with no permit" },
+    { "name": "bob26-3", "gate": "db-bob26-gates", "expect_red": "F18-L01", "expect_detail": "would be sent a code (only a REQUIRED email account is)" },
+    { "name": "bob26-4", "gate": "db-bob26-gates", "expect_red": "F18-S01", "expect_detail": "set-up completed before the name was confirmed" },
+    { "name": "bob26-5", "gate": "db-bob26-gates", "expect_red": "F18-N03", "expect_detail": "corrected a name" },
+    { "name": "bob26-6", "gate": "db-bob26-gates", "expect_red": "F18-N02", "expect_detail": "the name could be corrected a second time" },
+    { "name": "bob26-7", "gate": "db-bob26-gates", "expect_red": "F18-I01", "expect_detail": "another school's admin read the names" }
   ]
 }

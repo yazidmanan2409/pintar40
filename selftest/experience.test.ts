@@ -10250,7 +10250,13 @@ export const experienceTests: SelfTest[] = [
        */
       let skema: Record<string, unknown> = {};
       try { skema = JSON.parse(readFileSync(join(repoRoot, "src", "lib", "kesehatan-skema.json"), "utf8")); } catch { /* reported below */ }
-      const ANGKA: Record<string, string[]> = { id: ["nol", "satu", "dua", "tiga", "empat", "lima", "enam"], en: ["zero", "one", "two", "three", "four", "five", "six"] };
+      // RESTATED FOR BOB-26 (Gate 3 adds three declared doors: 5 surfaces, 10
+      // addresses): the number words run to ten, and the surface list may be
+      // a series («a, b, dan c»), each name still required in the addresses
+      // sentence. The check itself is unchanged.
+      const ANGKA: Record<string, string[]> = {
+        id: ["nol", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh"],
+        en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"] };
       const katakan = (kalimat: string, n: unknown, locale: string) =>
         typeof n === "number" && new RegExp(`^(Tepat|Exactly) ${ANGKA[locale][n]}\\b`).test(kalimat);
       c.expect(!katakan("Tepat tiga permukaan publik: pemeriksaan sertifikat dan masuk dengan kartu kelas", 2, "id"),
@@ -10260,7 +10266,7 @@ export const experienceTests: SelfTest[] = [
         const alamat = t("config.kesehatan.cek.anon_reachable_http_paths", "staff", { locale });
         c.expect(katakan(permukaan, skema.anon_public_surface, locale) && katakan(alamat, skema.anon_reachable_http_paths, locale),
           `(${locale}) the health card's public-surface sentences do not say the lint's counts (${String(skema.anon_public_surface)}, ${String(skema.anon_reachable_http_paths)}): "${permukaan}" / "${alamat}"`);
-        const nama = (permukaan.split(": ")[1] ?? "").split(locale === "id" ? " dan " : " and ");
+        const nama = (permukaan.split(": ")[1] ?? "").split(locale === "id" ? /,? dan |, / : /,? and |, /);
         c.expect(nama.length === skema.anon_public_surface && nama.every((x) => x.trim() !== "" && alamat.includes(x.trim())),
           `(${locale}) the addresses sentence does not name each public surface: ${JSON.stringify(nama)} / "${alamat}"`);
       }

@@ -236,9 +236,9 @@ type DataEmailKartu = DataKartu & { tautanAkun: string };                    // 
 
 - `kode` arrives as issued (6 digits). The template spaces it for reading («482 913»), as the frame's code block does.
 - `berlakuMenit` is **the canonical value**, never a number in the template.
-- **Until DAISY-20's templates exist,** the server renders these through **DAISY-19's accepted frame** (`bingkaiEmail`, copied unchanged to `src/lib/email/bingkai.ts` from `docs/coordination/ux/email-frame/bingkai.mts`), with the frame's own sample wording for the code email and the fewest words the card email needs.
+- **Until DAISY-20's templates exist,** the server renders these through **DAISY-19's wired frame** (`bingkaiEmail` in `src/components/email/bingkai.ts`, on `main` since `dd70802`). The code email uses the frame prototype's own sample wording; the card email has the fewest words a card needs.
   - Those words are placeholders for Daisy to replace; the hand-off lists them.
-  - DAISY-20 replaces `src/lib/email/templat-identitas.ts` (the two templates) and may move the frame when she wires DAISY-19. Nothing else imports them.
+  - DAISY-20 replaces `src/lib/email/templat-identitas.ts` (the two templates) whole. Only `src/app/api/_email/identitas.ts` imports it.
 
 **The one canonical setting (D-079 addendum): `supabase/auth-identitas.json`.** One file holds Gate 3's Auth settings: code length and validity (`mailer_otp_length` 6, `mailer_otp_exp` 600), the password policy, the leaked-password check, the direct-change safeguards, and TOTP enrolment off. From it:
 - the app reads `berlakuMenit` (`mailer_otp_exp / 60`) and `aturanPassword` (`src/lib/pengaturan-auth.ts`);

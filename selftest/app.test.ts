@@ -11,6 +11,7 @@ import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
 import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
 import { bacaJawabanKartu } from "../src/components/masuk/kartu";
+import { bob26AppTests } from "./bob26.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -2953,4 +2954,6 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  // BOB-26 (Gate 3): activation and password sign-in, through the running app
+  ...bob26AppTests,
 ];

@@ -173,7 +173,8 @@ jobs:
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
                db-bob06-gates, db-bob12-gates, db-bob24-gates,
-               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates, db-bob25-gates]
+               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates, db-bob25-gates,
+               db-bob26-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -243,6 +244,8 @@ jobs:
               echo "the three per-topic mastery defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob25-gates)
               echo "the five send-log and limit defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob26-gates)
+              echo "the seven activation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
@@ -1835,6 +1838,15 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob25.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob25-gates
+      - name: Local stack (activation gate)
+        if: matrix.case == 'db-bob26-gates'
+        id: gatesBob26
+        uses: ./.github/actions/local-stack
+      - name: Each planted activation defect must turn its own F18 test red
+        if: matrix.case == 'db-bob26-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob26.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob26-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'

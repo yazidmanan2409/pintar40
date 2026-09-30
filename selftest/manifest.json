@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 128,
+  "version": 130,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -121,7 +121,7 @@
     {
       "id": "F01-T17",
       "runner": "db",
-      "proves": "doc 05 own-profile update only",
+      "proves": "doc 05 own-profile update only, restated for BOB-26 (D-077(2), migration 20261030100000): the photo is the person's own; the name is governed identity data and a direct update of it is refused",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
     },
     {
@@ -2509,6 +2509,100 @@
       "id": "DAISY-19-EMAIL-02",
       "runner": "static",
       "proves": "DAISY-19 wired to BOB-25's template interface (src/lib/email/templat.ts). (1) templatUjiPengiriman is a Templat: for production, staging and the local sink it returns a one-line non-empty subject and both bodies in its own copy-table words and reason, with the route's send time as a row in both bodies; the sending module's UJI_PENGIRIMAN (src/app/api/_email/uji.ts, which the proof route imports) is a re-export of this framed template and holds no email of its own (D-079); src/components/email reads no configuration and sends nothing. (2) Ruling 2: the logo is /brand/pintar-email-logo.png on the environment's own origin (staging's on staging, never production's), a trailing slash does not double the path, and the file is a 208 × 116 PNG under 20 KB. (3) Ruling 3: every staging email carries the test line (email.bingkai.uji) at the top of both bodies, before the heading, and no production email does. (4) Ruling 1: a six-digit code arriving spaced or not is shown «482 913», eight digits 4 + 4, anything else as given, in both bodies. (5) Refused before a send: a subject with a line break, an empty subject, a non-https link (plain http, javascript:, protocol-relative, a space) and a plain-http origin that is not the local sink; the local sink's origin is accepted"
+    },
+    {
+      "id": "F18-N01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: the Ironman test's database half (D-077(4)): Bagas Saputra (activated, a Guru), a Murid on a class card and a Guru each run UPDATE persons SET display_name = 'Ironman' on their own row as themselves and are refused by the privileges (the revoked display_name grant); no name changes.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-N02",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: confirm_my_name, the one confirmation at activation (D-077(1)): the registered name is corrected once and confirmed, audited with the old name, the new name and who; a second correction, the step after set-up, an empty name and a control character are refused by their own codes; a class card has no name step.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-N03",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: correct_person_name, the platform admin's governed correction (D-077(3)): with a reason, audited from, to, reason and who; a school admin, a Guru, the person, a class card and a learner are refused 42501.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-N04",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: INV-30 under a correction: a certificate issued before correct_person_name keeps name_as_issued and its row is byte-identical; one issued after reads the corrected name.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-N05",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: my_identity_card and my_setup_progress read the corrected current name, the PINTAR ID and the current role and school (D-059); a learner gets no card and no PINTAR ID (C17).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-P01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: the password write permit: the trigger pintar_password_write_guard on auth.users refuses a new password hash written by Auth's own role without a permit; password_write_permit is single-use, one minute, for a REQUIRED email account only, records the wizard's step and is audited without the hash.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-S01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: my_setup_progress reports exactly the steps done, and complete_my_setup needs the username, the password, the PIN and the name's confirmation.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-L01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: the signed-out lookups: activation_code_target names only a REQUIRED email account; signin_resolve maps an email or a username to the account's address and a class card or unknown name to nothing; identity_attempt's PASSWORD_SIGNIN scope holds a sixth attempt and a success clears it; email_resend_seconds is the limit's; email_send_would_allow is read-only.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-I01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: import_preview_names returns every name of an import job, in order, paged, with the new-person mark and the role, to the job's own school admin only (D-077(4)).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-A01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261030100000 measured in selftest/db/fable18.sql: access: no client role reaches activation_code_target, signin_resolve, password_write_permit, email_send_would_allow, email_resend_seconds or the permit table; anon reaches no signed-in identity function; the permit table has RLS and no policy.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "BOB26-A01",
+      "runner": "app",
+      "proves": "BOB-26 (Gate 3), selftest/bob26.test.ts over the running app (each route executes against Auth, PostgREST and the Mailpit sink): POST /aktifkan/kode, /aktifkan/periksa, /api/aktifkan/* and /masuk/password, the journey from «Orang baru» to the Guru's home: the code with its canonical validity, typed spaced; the proxy's hold; username, password, PIN and D-077's name step with their refusals; the card email; sign-in by username and by email.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "BOB26-A02",
+      "runner": "app",
+      "proves": "BOB-26, selftest/bob26.test.ts, each route executes against the running app: /aktifkan/kode answers a stranger, a finished Guru and a class card identically and sends nothing to them or makes no Auth user; /masuk/password answers a wrong password and an unknown username with one code, no sooner than LANTAI_GAGAL_MS, medians within 150 ms; the PASSWORD_SIGNIN and CODE_VERIFY counters hold a sixth try with Retry-After.",
+      "skip_justification": "needs the running app, the local stack and the Mailpit sink"
+    },
+    {
+      "id": "BOB26-A03",
+      "runner": "app",
+      "proves": "BOB-26, selftest/bob26.test.ts: the Gate 0 finding closed by the password write permit (migration 20261030100000): a signed-in session's own PUT /auth/v1/user password change is refused and does not take; the Ironman test through PostgREST: the Guru's PATCH of display_name to «Ironman» is refused, the photo stays theirs.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
+    },
+    {
+      "id": "BOB26-A04",
+      "runner": "app",
+      "proves": "BOB-26 (D-079), selftest/bob26.test.ts, the route executes against the running app and the send log: with the address's hourly limit used up, /api/aktifkan/selesai completes the set-up and answers BELUM_TERKIRIM without sending; /api/akun/kartu/kirim sends the card once the limit has passed.",
+      "skip_justification": "needs the running app, the local stack and the Mailpit sink"
+    },
+    {
+      "id": "BOB26-K01",
+      "runner": "static",
+      "proves": "BOB-26, the source file src/lib/aktivasi.ts executes with its tools replaced (selftest/bob26.test.ts): mintaKode answers alike whether activation_code_target finds an account and sends only after the answer; angkaKode reads «482 913»; masukPassword sends an unknown name to Auth as ALAMAT_TIADA and waits for the floor; kunciIdentitas keeps the two counters apart."
+    },
+    {
+      "id": "BOB26-S01",
+      "runner": "static",
+      "proves": "BOB-26 (D-079 addendum), selftest/bob26.test.ts: supabase/config.toml equals supabase/auth-identitas.json; templatKode's «berlaku N menit» follows mailer_otp_exp (600, 900, 300); no validity is typed in src; staging.yml writes and reads back the file and identity-facts.yml fails on drift (scripts/auth-identitas-banding.py)."
     }
   ]
 }

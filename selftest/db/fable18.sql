@@ -55,7 +55,7 @@ create or replace function selftest.f18_note(p jsonb, p_id text, p_problem text)
 returns jsonb language sql immutable as $$
   select jsonb_set(coalesce(p, '{}'::jsonb), array[p_id], coalesce(p -> p_id, '[]'::jsonb) || to_jsonb(p_problem))
 $$;
-revoke all on function selftest.f18_note(jsonb, text, text) from public;
+grant execute on function selftest.f18_note(jsonb, text, text) to authenticated, anon;
 
 -- The refusal's code: PR040's DETAIL, else the SQLSTATE; NULL when it ran.
 create or replace function selftest.f18_kode(p_sql text)
@@ -86,8 +86,11 @@ begin
     select ra.scope_node_id, ra.institution_id into v_node, v_inst from public.role_assignments ra
       join public.accounts a on a.person_id = ra.person_id join auth.users u on u.id = a.auth_user_id
      where u.email = 'alpha-guru@synthetic.pintar.test' and ra.role = 'EDUCATOR' limit 1;
+    -- a fixture grant, the way selftest.f11_user makes one
+    perform set_config('app.seed_intent', 'synthetic', true);
     insert into public.role_assignments (person_id, role, scope_node_id, institution_id, valid_from, valid_until)
     values (v_person, 'EDUCATOR', v_node, v_inst, now() - interval '1 day', now() + interval '365 days');
+    perform set_config('app.seed_intent', '', true);
   end if;
   return v_uid;
 end $$;
@@ -198,6 +201,9 @@ begin
                     where a.auth_user_id = v_bagas and s.password_set_at is not null) then
       v_probs := selftest.f18_note(v_probs, 'F18-P01', 'the permitted write did not record the wizard''s password step');
     end if;
+    -- (a failure above is noted; the step is recorded here so the rest can still be asked)
+    update public.account_setup s set password_set_at = coalesce(s.password_set_at, now())
+      from public.accounts a where a.id = s.account_id and a.auth_user_id = v_bagas;
     if exists (select 1 from public.password_write_permits p where p.auth_user_id = v_bagas) then
       v_probs := selftest.f18_note(v_probs, 'F18-P01', 'the permit was not consumed');
     end if;
@@ -247,15 +253,19 @@ begin
     k := selftest.f18_kode(format('select public.confirm_my_name(%L)', '   '));
     if k is distinct from 'NAME_INVALID' then v_probs := selftest.f18_note(v_probs, 'F18-N02', 'an empty name was taken'); end if;
     -- «Ubah nama», then «Sudah benar»
-    v_nama := public.confirm_my_name('  Bagas   Saputra ');
+    begin v_nama := public.confirm_my_name('  Bagas   Saputra ');
+    exception when others then v_nama := 'refused: ' || sqlerrm; end;
     if v_nama is distinct from 'Bagas Saputra' then v_probs := selftest.f18_note(v_probs, 'F18-N02', 'the correction did not come back as kept: ' || coalesce(v_nama, 'nothing')); end if;
     k := selftest.f18_kode(format('select public.confirm_my_name(%L)', 'Bagas Lagi'));
     if k is distinct from 'NAME_ALREADY_CONFIRMED' then v_probs := selftest.f18_note(v_probs, 'F18-N02', 'the name could be corrected a second time'); end if;
-    if public.complete_my_setup() is distinct from 'COMPLETE' then v_probs := selftest.f18_note(v_probs, 'F18-S01', 'all four steps did not complete set-up'); end if;
+    begin k := public.complete_my_setup(); exception when others then k := sqlerrm; end;
+    if k is distinct from 'COMPLETE' or public.my_setup_state() <> 'COMPLETE' then
+      v_probs := selftest.f18_note(v_probs, 'F18-S01', 'all four steps did not complete set-up');
+    end if;
     k := selftest.f18_kode('select public.confirm_my_name(null)');
     if k is distinct from 'SETUP_COMPLETE' then v_probs := selftest.f18_note(v_probs, 'F18-N02', 'the name step was open after set-up'); end if;
     perform selftest.as_owner();
-    if (select display_name from public.persons where id = v_pb) is distinct from 'Bagas Saputra' then
+    if (select display_name from public.persons p0 where p0.id = v_pb) is distinct from 'Bagas Saputra' then
       v_probs := selftest.f18_note(v_probs, 'F18-N02', 'the corrected name is not the person''s');
     end if;
     if not exists (select 1 from public.audit_log l where l.action = 'identity.name_corrected_at_activation' and l.target_id = v_pb::text
@@ -278,7 +288,7 @@ begin
     foreach v in array array[v_email, 'card-7001@cards.synthetic.pintar.test', 'alpha-guru@synthetic.pintar.test'] loop
       perform selftest.as_user(v);
       begin
-        update public.persons set display_name = 'Ironman' where id = public.current_person_id();
+        update public.persons p0 set display_name = 'Ironman' where p0.id = public.current_person_id();
         get diagnostics n = row_count;
         perform selftest.as_owner();
         v_probs := selftest.f18_note(v_probs, 'F18-N01', format('%s renamed themselves «Ironman» straight at the table (%s row)', v, n));
@@ -286,17 +296,17 @@ begin
         perform selftest.as_owner();
       end;
     end loop;
-    if exists (select 1 from public.persons where id in (v_pb, v_card, v_guru) and display_name = 'Ironman') then
+    if exists (select 1 from public.persons p0 where p0.id in (v_pb, v_card, v_guru) and display_name = 'Ironman') then
       v_probs := selftest.f18_note(v_probs, 'F18-N01', 'a name reads «Ironman»');
     end if;
-    if (select display_name from public.persons where id = v_pb) is distinct from 'Bagas Saputra' then
+    if (select display_name from public.persons p0 where p0.id = v_pb) is distinct from 'Bagas Saputra' then
       v_probs := selftest.f18_note(v_probs, 'F18-N01', 'Bagas''s confirmed name changed');
     end if;
 
     -- ═══════════════════════════════════════════════ F18-N04 before the correction: a certificate
     select a.person_id into v_psiswa from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'boot-siswa@bootstrap.pintar.test';
     -- the bootstrap learner, registered as «Bagas Saputra» for this test (rolled back)
-    update public.persons set display_name = 'Bagas Saputra' where id = v_psiswa;
+    update public.persons p0 set display_name = 'Bagas Saputra' where p0.id = v_psiswa;
     perform selftest.purge_certificates();
     v_sess := selftest.boot_attempt(true);
     perform selftest.as_owner();
@@ -334,17 +344,20 @@ begin
     end if;
 
     -- ═══════════════════════════════════════════════ F18-N04 after it
-    if (select s.name_as_issued from public.certificates c join public.certificate_identity_snapshots s on s.id = c.identity_snapshot_id
+    if (select s.name_as_issued from public.certificates c join public.certificate_identity_snapshots s on s.id = c.snapshot_id
          where c.id = v_cert1) is distinct from 'Bagas Saputra' then
       v_probs := selftest.f18_note(v_probs, 'F18-N04', 'the certificate issued before the correction no longer reads «Bagas Saputra»');
     end if;
     if (select md5(row(c.*)::text) from public.certificates c where c.id = v_cert1) is distinct from v_hash1 then
       v_probs := selftest.f18_note(v_probs, 'F18-N04', 'the certificate issued before the correction was rewritten');
     end if;
+    -- the first certificate is proven unchanged above; the bootstrap learner's
+    -- attempts are then cleared (fable04's own harness) so a second can be issued
+    perform selftest.purge_certificates();
     v_sess := selftest.boot_attempt(true);
     perform selftest.as_owner();
     select c.certificate_id into v_cert2 from public.certificate_prepare(v_sess, 1::smallint) c;
-    if (select s.name_as_issued from public.certificates c join public.certificate_identity_snapshots s on s.id = c.identity_snapshot_id
+    if (select s.name_as_issued from public.certificates c join public.certificate_identity_snapshots s on s.id = c.snapshot_id
          where c.id = v_cert2) is distinct from 'Bagas Saputra Wijaya' then
       v_probs := selftest.f18_note(v_probs, 'F18-N04', 'a certificate issued after the correction does not read the corrected name');
     end if;
@@ -352,7 +365,7 @@ begin
     -- ═══════════════════════════════════════════════ F18-N05 the current identity
     perform selftest.as_user(v_email);
     j := public.my_identity_card();
-    if j ->> 'name' <> 'Bagas Saputra Wijaya' or j ->> 'pintar_id' is distinct from (select pintar_id from public.persons where id = v_pb)
+    if j ->> 'name' <> 'Bagas Saputra Wijaya' or j ->> 'pintar_id' is distinct from (select pintar_id from public.persons p0 where p0.id = v_pb)
        or jsonb_array_length(j -> 'contexts') <> 1 or j -> 'contexts' -> 0 ->> 'role' <> 'EDUCATOR' or j -> 'contexts' -> 0 ->> 'institution' is null then
       v_probs := selftest.f18_note(v_probs, 'F18-N05', 'the card''s data is not the corrected name, the PINTAR ID and the current role and school: ' || j::text);
     end if;
