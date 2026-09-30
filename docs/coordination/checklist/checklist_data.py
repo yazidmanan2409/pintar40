@@ -230,8 +230,19 @@ RELEASE = [
     ("REL-05", "Every functional step of the deploy is green: front door, closed verification 404, activation refusal, Auth boundary.", "P0", "PASS: deploy 013."),
     ("REL-06", "The external front-door check says FRONT DOOR OK.", "P0", "PASS: run 35935767367."),
     ("REL-07", "Auth: sign-up disabled; site_url is the origin; a single callback.", "P0", "PASS (deploy 013 read-back)."),
-    ("REL-08", "Supabase settings: the email rate limit fits a school's morning; the password policy allows class cards; the magic-link email is Indonesian and names the same-device rule.", "P0", "NOT VERIFIED: Yazid, in the Supabase dashboard."),
-    ("REL-09", "Offline copies of CARD_PEPPER and CERT_SECRET_KEY_V1 exist.", "P0", "NOT VERIFIED: Yazid."),
+    ("REL-08", "Authentication email and settings (restated 30 Sep, D-065; the 24 Sep wording tested Supabase's default-email path, which D-057 retired). "
+               "(i) Capacity: every identity email (activation code, resend, recovery, password changed, Digital Card, security notices) goes "
+               "through PINTAR's own path (BOB-25) with its per-address and global limits enforced, a refused send reported as not sent, and the "
+               "mail host's hourly capacity recorded; Supabase's own email limit governs only the break-glass fallback. "
+               "(ii) Settings: the Gate 3 password policy (BOB-26) with the leaked-password check on; a direct password change needs the current "
+               "password; TOTP enrolment off; email codes 6 digits, valid 10 minutes. "
+               "(iii) Templates: Supabase's own templates carry a minimal Bahasa Indonesia break-glass fallback; the emails people receive are PINTAR's. "
+               "Verified by the coordinator with the read-only identity-facts.yml (staging; production from main). Production settings change "
+               "only at Gate 8, with Yazid's approval (D-039).", "P0", "NOT VERIFIED: Yazid, in the Supabase dashboard (against the 24 Sep wording)."),
+    ("REL-09", "Before the first production class card or certificate is issued, the intended production CARD_PEPPER and CERT_SECRET_KEY_V1 "
+               "are set and verified offline recovery copies exist (D-066). CARD_PEPPER is never changed once cards exist, except through an "
+               "explicit reissuance procedure; when a newer certificate key version is introduced, the earlier versions' verification material "
+               "is kept.", "P0", "NOT VERIFIED: Yazid."),
     ("REL-10", "A rollback point is recorded and the release is logged in RELEASES.md.", "P0", "PASS for 5b5b68d (rollback c358f58)."),
     ("REL-11", "No test data exists in production; production data changed only through audited steps (D-013, D-017).", "P0", "PASS: 1 person, 1 account, 2 schools, all recorded."),
     ("REL-13", "Support is live before 1 Nov: 'Laporkan masalah' works for staff; tier 1 (school admins, Gladys's team) and tier 2 (coordinator) are named; a report that stops a class is answered the same school day (D-037).", "P0 (1 Nov)", "N-I: BOB-15, DAISY-12; interim form for staging tests (C-07)."),
@@ -806,6 +817,24 @@ CHANGES_V21.append("Re-marked on 28 Sep against main 1f3b0f1 (BOB-22, LANA-01) w
                    "path from pre-test through every lesson to post-test and result passes by clicking; U-PERF back to FAIL on the lesson "
                    "page's save loop (BOB-23).")
 
+
+
+# --- 30 Sep: REL-08 restated (D-065) and REL-09 (D-066); settings read by identity-facts.yml run 36653019569 from main daa5721 ---
+# The read is allow-listed and non-secret: template bodies only hashed, the SMTP password only "present". Staging and production
+# are identical on every key below except site_url, the callback and the sender name ("PINTAR Staging" / "PINTAR").
+CURRENT.update({
+    "REL-08": ("N-I on the restated check, as planned for Gates 2E, 3 and 8 (read 30 Sep, run 36653019569, staging and production). (i) PINTAR's own path is "
+               "BOB-25, held until the Stellar Business move and the post-move mail check (D-062(b)); today Supabase sends, at "
+               "rate_limit_email_sent 2 per hour. (ii) Gate 3 (BOB-26) sets it; today: minimum length 6, no required characters, "
+               "leaked-password check off, a direct change without the current password allowed, TOTP enrolment on, codes 8 digits "
+               "valid 60 minutes. (iii) Every template is Supabase's English default (no custom subject or body). Holding: "
+               "sign-up disabled, one callback per project, SMTP through pintarselalu.com:465 from noreply@ (password present)."),
+    "REL-09": ("NOT VERIFIED: Yazid (board C-11), before the first production card or certificate (D-066). Production has 0 cards "
+               "today, so nothing is yet bound to the current values."),
+})
+CHANGES_V21.append("30 Sep (D-065, D-066): REL-08 restated to the PINTAR-controlled authentication email (D-057) and verified by the "
+                   "coordinator through the read-only identity-facts.yml, not a dashboard look; REL-09 now says when the copies must exist "
+                   "(before the first production card or certificate) and that neither secret may be lost or silently replaced.")
 
 def as_dict():
     g = globals()
