@@ -1,6 +1,6 @@
 # Educator as learner: ticket set
 
-**Status: PROPOSED, for Yazid's approval.** Prepared 30 Sep 2026 from D-069, the rulings on `EDUCATOR-AS-LEARNER-ASSESSMENT.md` §6.
+**Status: PROPOSED, for Yazid's approval. Every decision is now ruled (D-069, D-070); the set has no open question.** Prepared 30 Sep 2026 from D-069, the rulings on `EDUCATOR-AS-LEARNER-ASSESSMENT.md` §6, and updated the same day with D-070, the rulings on the six questions in §8.
 
 - Nothing is implemented.
 - No ticket is open on the board yet; the IDs below are reserved.
@@ -9,6 +9,7 @@
 
 **Basis:**
 - **D-069** (a)–(m): purpose and invariant, visibility, integrity, place, demo route, home, content, senior roles, certificate, roadmap, terminology, the metric hard gate, acceptance.
+- **D-070** (a)–(f): the six questions of §8 (DR-1 to DR-6).
 - D-068 (Terminology v1) and its D-069(k) note.
 - D-060 (version discipline).
 - D-047 (interaction states).
@@ -33,7 +34,7 @@ References are `path:line`. M = `supabase/migrations/`, S = `src/`, T = `selftes
 | 8. Certificate | (i): existing engine; proven in Venue 1; verification page unchanged |
 | 9. Roadmap | (j): a bounded 4.0 capability; after Gate 2E; nothing reordered |
 
-All nine are ruled. Preparing the tickets exposed six narrower questions that the rulings do not settle. They are in §8, and each ticket names the one it waits on.
+All nine are ruled. Preparing the tickets exposed six narrower questions that the rulings did not settle; Yazid ruled all six the same day (D-070, summarised in §8).
 
 ---
 
@@ -43,16 +44,16 @@ All nine are ruled. Preparing the tickets exposed six narrower questions that th
 |---|---|---|
 | R1 | **Staff see individual PD scores (rulings 1B–1D).** PINTAR's doctrine is that a number reaches a staff screen only through the metric catalogue (S/lib/pengajar.ts:33-39; migration 0072). Teachers today see no individual score even for students. The catalogue admits a PD row only to its owner (`row_in_learning_context`, M/20260927100000:84-98). | No product conflict. BOB-47 routes the ruled audiences' PD scores through the catalogue's `learner.result`. That publishes a new catalogue version (D-060(a)); every academic calculator stays byte-identical. The facilitator will see a Guru-participant's score, which no teacher sees for a Murid. That asymmetry is the ruling's, stated here so it is seen. |
 | R2 | **Ruling 3 supersedes the code's statement that "an organizational node carries no context of its own"** (M/20260930100000:105-111; M/20261001100000:125-131). | BOB-43 adds the fact. The academic-only feedback refusal stays as it is and remains correct. |
-| R3 | The assessment's "safe default" (Management sees nothing) is superseded. HoD and Dean now see results (1C, 1D), but not in Management decision screens (1G). | Where they see them is **DR-1**. |
+| R3 | The assessment's "safe default" (Management sees nothing) is superseded. HoD and Dean now see results (1C, 1D), but not in Management decision screens (1G). | **Ruled (D-070(a)):** one read-only professional-learning record per PD Kelas (BOB-47, DAISY-34). |
 | R4 | Today the Kepala departemen and Admin sekolah read answers and integrity signals school-wide (CAN_REVIEW_INTEGRITY), and every Guru reads sessions and lesson progress school-wide (CAN_ASSIGN_LEARNING). | BOB-46 narrows **PD rows only**. Academic access is unchanged and proven unchanged. |
 | R5 | **Admin sekolah: "flag any operational need for more".** Checked: transfers use the enrolment only, and Pendataan and Konfigurasi read none of this. | No need found; nothing flagged. |
 | R6 | **Facilitator answers: "raise a conflict with an essential workflow".** Checked: EDUCATOR holds no CAN_REVIEW_INTEGRITY, and no teacher surface reads `responses`. Teachers mark no answers in 4.0. | No conflict; the facilitator gets no answers. |
 | R7 | **The Dekan lacks CAN_VIEW_LEARNER_RESULT** (M/20260926100000:143-162). | BOB-47 gives the Dekan PD scores through its audience-checked read and the catalogue. It does **not** broaden RLS on academic results. |
 | R8 | **Integrity and Admin platform (rulings 1H and 2).** | School roles see no PD signal. Admin platform keeps its existing read and the existing review outcomes, **except referral**, which is refused for PD for everyone. This is my reading of "retain only legitimate existing access"; say if you want Admin platform's Studio «Integritas» to omit PD signals too. |
-| R9 | **«Peserta».** Terminology v1 defines it as "participants in a measurement". D-069(k) extends it to the professional-learning participant. | Recorded as a note on D-068 and in the freeze package §1. Both meanings are "those taking part". They could meet on one screen only if a PD Kelas's figures page is shown (see DR-1). |
+| R9 | **«Peserta».** Terminology v1 defines it as "participants in a measurement". D-069(k) extends it to the professional-learning participant. | Recorded as a note on D-068 and in the freeze package §1. Both meanings are "those taking part". The professional-learning record (D-070(a)) shows no figures. The one place both could meet is the PD Kelas's existing «Lihat bukti» page, whose academic figures are empty by design there; how that page presents is judged in DAISY-35 (5). |
 | R10 | **UX1-AJAR-KONTEKS-01** fails if any `src` file names the learning context (T/experience.test.ts:5868-5881). | Staff surfaces receive a *semantic kind* from the database, never the context itself. The Konfigurasi Bagian form is the one place that must express the choice. If that cannot be done without naming it, the guard is re-scoped to learner surfaces by a coordinator record in the gate, never evaded by renaming (stop condition in BOB-43 and DAISY-32). |
-| R11 | **Only one chapter was supplied.** The files are the front matter with the table of contents (10 pages) and **Bab 1 «Pendahuluan»** (22 pages). Bab II «Klasifikasi dan Pemilihan Strategi Pembelajaran» is not among them. | **DR-4.** |
-| R12 | **"Removed after the demo" meets append-only evidence.** Sealed content and the walk's evidence cannot be deleted through the product (INV-28; content freeze). | **DR-5.** |
+| R11 | **Only one chapter was supplied.** The files are the front matter with the table of contents (10 pages) and **Bab 1 «Pendahuluan»** (22 pages). Bab II «Klasifikasi dan Pemilihan Strategi Pembelajaran» was not among them. | **Ruled (D-070(d)):** Yazid supplied Bab II (28 pages, sections A–G). |
+| R12 | **"Removed after the demo" meets append-only evidence.** Sealed content and the walk's evidence cannot be deleted through the product (INV-28; content freeze). | **Ruled (D-070(e)):** branch copy deleted; staging releases withdrawn; the sealed text and evidence stay in the synthetic school. |
 | R13 | **Lana's normal gate merges to `main`.** D-069(g) forbids it here. | LANA-22/23 pass on her branch and are never merged. The staging upload uses the workbook from her branch. |
 | R14 | **The assessment's C1–C7 map onto these tickets:** C1 → BOB-44; C2 → BOB-43; C3 and C5 → BOB-45; C4 → BOB-46 and BOB-47; C6 → DAISY-33 (the invariant part) and DAISY-35 (polish); C7 → each ticket's red cases plus C-12. | C4 is split into "close by default" and "open exactly to the ruled audiences". This separates the RLS risk from the catalogue change, and lets BOB-46 proceed without any open decision. |
 | R15 | **Signing in on the staging walk.** Synthetic addresses get no mail. | The walk signs in the way staging runs do at that time: a server-made session today, a password once identity Gate 3 has landed. The walk sends no email. |
@@ -116,16 +117,16 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 2. **Objective:** one authorised database action that places an existing person as a participant in a professional-learning Kelas. It creates no person, no account and no institutional number.
 3. **Scope:**
    - **Caller:** holds CAN_PROVISION_PEOPLE at the Kelas's school (Admin sekolah; Admin platform).
-   - **Person:** visible to the caller, and meets **DR-3**.
+   - **Person:** visible to the caller, and **currently holds a staff role at the school** (D-070(c)): an unrevoked role assignment within its validity, scoped inside that school (Guru, Kepala departemen, Dekan or Admin sekolah). The condition is checked when the person is placed; a membership already in place is not removed if the role later lapses, so evidence is never orphaned.
    - **Place:** an active Kelas or Tingkat in a professional-learning place (BOB-43), with an academic period.
    - **Enrolment:** reuse the person's enrolment for that school and period; otherwise create one. It is **ACTIVE** if the person has an account, and **PENDING** otherwise, so activation keeps its meaning (M/20261005120000:85-89). Reusing avoids the newest-enrolment pitfall (M/20260929100000:125-127).
    - **Membership:** one open membership; a second for the same place is refused.
    - **Audit:** one audit row.
-   - **Membership rule per DR-3,** enforced on `memberships` so that it also covers the student intake and the INSTITUTION_ADMIN direct-insert policy (M/20260912004431:320-331).
-   - **Two reads for the form:** the PD places the caller may enrol into, and the persons eligible under DR-3.
-4. **Non-scope:** ending or withdrawing a PD enrolment; bulk enrolment; transfer; the form (DAISY-32); any role condition beyond DR-3's ruling.
+   - **The same rule enforced on `memberships`** (D-070(c)): no membership in a professional-learning place for a person without a current staff role at the school. It therefore also covers the student intake and the INSTITUTION_ADMIN direct-insert policy (M/20260912004431:320-331).
+   - **Two reads for the form:** the PD places the caller may enrol into, and the persons eligible under D-070(c).
+4. **Non-scope:** ending or withdrawing a PD enrolment; bulk enrolment; transfer; the form (DAISY-32); any condition beyond D-070(c).
 5. **Rulings:** D-069(a), (e), (f), (h); D-054 (no duplicate person).
-6. **Likely touched:** a new function and its grants; a membership trigger (per DR-3); `audit_log`.
+6. **Likely touched:** a new function and its grants; a membership trigger (D-070(c)); `audit_log`.
 7. **Migration:** one function and one trigger; no schema change.
 8. **RLS:** none added. The function carries its own checks. The existing direct-insert policies stay, and are bounded by the membership trigger.
 9. **Terminology/UI:** refusal codes, for DAISY-32 and DAISY-33.
@@ -137,14 +138,13 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 11. **Red cases:**
     - A Guru with an account gets an ACTIVE enrolment and a membership, and no new person, account or number is created.
     - A person without an account gets PENDING, which becomes ACTIVE on activation.
-    - These are refused: an academic Kelas; another school's person; a caller without CAN_PROVISION_PEOPLE (Guru, Kepala departemen, Dekan); a duplicate membership; the DR-3 case.
+    - These are refused: an academic Kelas; another school's person; a caller without CAN_PROVISION_PEOPLE (Guru, Kepala departemen, Dekan); a duplicate membership; a person with no current staff role (a Murid), whether through C1, the intake or a direct insert.
     - An existing enrolment for the same period is reused.
 12. **Regression suites:** activation (M/20261005120000); the intake (F11, including "already holds an institutional identity"); the identity F-series; D-054 checks; F06-P19; UX1-AJAR-BELAJAR-01.
 13. **Acceptance evidence:** CI; red cases red then green; one audit run; zero new persons, accounts or numbers asserted in the test.
-14. **Dependency/order:** after BOB-43. Needs DR-3.
+14. **Dependency/order:** after BOB-43.
 15. **Owner:** Bob.
 16. **Stop conditions (Yazid):**
-    - DR-3 is unruled;
     - reusing an enrolment would change an existing student's enrolment;
     - the activation trigger would need to change.
 
@@ -155,7 +155,7 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 3. **Scope:**
    - **One kind per membership.** Derived from BOB-43's fact and returned as a semantic value (for example LEARNER or PROFESSIONAL_PARTICIPANT; the names are Bob's) by the reads the staff surfaces use.
    - **Teacher surfaces:** the Kelas roster and headcount (`faktaKelas`, `ringkasKelas`, S/lib/pengajar.ts:172-192, 580-594), and the denominators and names of `berjalan` and `siapa` (:360-436).
-   - **Management lists:** «Murid pada bagian ini» (`daftarMurid`, S/lib/pimpinan.ts:412-440) lists academic learners only. The placement in `management_learner_detail` (M/20260925100000:256-263) lists academic placements only. Where HoD and Dekan see PD participants instead is **DR-1**.
+   - **Management lists:** «Murid pada bagian ini» (`daftarMurid`, S/lib/pimpinan.ts:412-440) lists academic learners only. The placement in `management_learner_detail` (M/20260925100000:256-263) lists academic placements only. HoD and Dekan see PD participants on the professional-learning record instead (D-070(a); BOB-47, DAISY-34).
    - **Konfigurasi's transfer picker** (S/app/konfigurasi/page.tsx:101, 463-466) lists academic enrolments only.
    - **The briefing:** `advance_briefing` counts academic POST_TEST participants only (M/20260918180000:180-183).
 4. **Non-scope:** wording (DAISY-33); PD evidence reads (BOB-46/47); any change to what a student roster contains.
@@ -179,7 +179,7 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 15. **Owner:** Bob.
 16. **Stop conditions (Yazid):**
     - any academic roster output changes for a school with no PD place;
-    - a surface would need to decide where HoD and Dekan see participants (DR-1).
+    - a surface would need PD participants in a «Murid» list after all.
 
 #### BOB-46 · Professional-learning evidence is closed by default at the database (C4, part 1; ruling 2)
 
@@ -236,7 +236,7 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
      - progress (lessons done / total), except to Admin sekolah;
      - Pemetaan Awal and Uji Penguasaan status;
      - result (mastery, predikat, passed), to the facilitator, the responsible Kepala departemen and the Dekan only;
-     - completion, per **DR-2**;
+     - completion: the package's Uji Penguasaan has been finished, whatever the outcome (D-070(b));
      - the participant kind.
    - **Who may call it:**
      - the facilitator: a Guru whose scope covers that Kelas;
@@ -273,11 +273,10 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
     - `learner.result` for every academic student is unchanged for every audience.
 12. **Regression suites:** F06-P08; MC-3; BOB-37's tests; `management_learner_detail` tests; audit job B figures.
 13. **Acceptance evidence:** CI; red cases red then green; the catalogue version named in the hand-off (D-060(d)); one audit run; hard gate.
-14. **Dependency/order:** after BOB-43 and BOB-46. Needs DR-2. DR-1 decides only its caller.
+14. **Dependency/order:** after BOB-43 and BOB-46. Its caller is DAISY-34 (D-070(a)).
 15. **Owner:** Bob.
 16. **Stop conditions (Yazid):**
     - admitting PD results to these audiences would change any academic calculator's sources or readings;
-    - DR-2 is unruled;
     - the Dekan's access could only be given by broadening RLS on academic results.
 
 ### ENGINEERING: Daisy (functional screens on Bob's contracts)
@@ -304,11 +303,10 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
     - a double submit sends once.
 12. **Regression suites:** Konfigurasi; UX1 suites; DAISY-17's form-behaviour tests.
 13. **Acceptance evidence:** CI; screenshots at 320 px and desktop; the audit run with Bob's batch.
-14. **Dependency/order:** on BOB-43's and BOB-44's contracts; the picker's population needs DR-3.
+14. **Dependency/order:** on BOB-43's and BOB-44's contracts. The picker lists only persons who hold a current staff role at the school (D-070(c)), from BOB-44's read.
 15. **Owner:** Daisy.
 16. **Stop conditions (Yazid):**
     - the form cannot be built without naming the context in `src` beyond Konfigurasi (R10);
-    - DR-3 is unruled.
 
 #### DAISY-33 · «Murid» or «Peserta» on staff screens, from the returned meaning
 
@@ -347,27 +345,28 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 
 #### DAISY-34 · Where the ruled audiences see professional learning
 
-1. **ID:** DAISY-34 (proposed). **Waits on DR-1.**
-2. **Objective:** present BOB-47's record to the facilitator, the responsible Kepala departemen, the Dekan and Admin sekolah, as DR-1 rules.
+1. **ID:** DAISY-34 (proposed).
+2. **Objective:** present BOB-47's record to the facilitator, the responsible Kepala departemen, the Dekan and Admin sekolah, as D-070(a) rules.
 3. **Scope:**
-   - As DR-1 rules: participants, progress, completion and result, in the columns each audience is allowed.
+   - **One read-only professional-learning record per PD Kelas** (D-070(a)): participants × Bab, with progress, test status, completion and result, in the columns each audience is allowed. Admin sekolah sees no progress and no result; completion means finished, whatever the outcome (D-070(b)).
+   - **Entry points:** the facilitator reaches it from their Kelas; the responsible Kepala departemen, the Dekan and Admin sekolah from their existing home, as a link to the record, never inside the decision queue or the figures.
    - Never answers or integrity; never in a Management decision screen; «Peserta» wording.
 4. **Non-scope:** figures for a PD Kelas; export; Admin platform analytics.
 5. **Rulings:** D-069(b), (k).
-6. **Likely touched:** per DR-1.
+6. **Likely touched:** one new read-only route; a link from the facilitator's Kelas page and from each audience's home; `S/lib/hle.ts`; tests.
 7. **Migration:** none.
 8. **RLS:** none (reads BOB-47).
 9. **Terminology/UI:** Terminology v1, «Peserta»; D-047.
 10. **Invariants:** a column appears only if BOB-47 returned it to that reader.
 11. **Red cases:** every audience in §2 F of the assessment, shown exactly its columns, and every other role refused.
-12. **Regression suites:** the surfaces DR-1 touches.
+12. **Regression suites:** the facilitator's Kelas page; the `/pimpinan` home and decision queue (unchanged); the Admin sekolah home; UX1 suites.
 13. **Acceptance evidence:**
     - CI;
     - screenshots per audience;
     - C-12 P5.
-14. **Dependency/order:** after BOB-47; needs DR-1 and DR-2.
+14. **Dependency/order:** after BOB-47.
 15. **Owner:** Daisy.
-16. **Stop conditions (Yazid):** everything until DR-1 is ruled.
+16. **Stop conditions (Yazid):** an entry point could only be placed inside a Management decision screen (D-069(b)G); an audience would need a column D-069(b) does not give it.
 
 ### UI/UX POLISHED: Daisy
 
@@ -380,6 +379,7 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
    - (2) `/belajar`'s refusal pages pass the educator persona, so the existing staff line of `tolak.arti` shows (S/lib/hle.ts:1831-1832; `HalamanPenolakan.tsx:26`).
    - (3) A Guru who also holds a senior role gets an adult learner shell and no child tour (S/lib/tur.ts:215-218; S/lib/pembelajaran.ts:33-41; ruling 7).
    - (4) The hint button's emoji is judged under the design spec.
+   - (5) How a PD Kelas presents its existing «Lihat bukti» page to the facilitator: its academic figures are empty by design there, and the professional-learning record is the page that matters (D-070(a)). Presentation only; no figure is added or computed.
 4. **Non-scope:**
    - the identity model (ruling 7);
    - the certificate or verification page (ruling 8);
@@ -452,9 +452,9 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 
 #### LANA-23 · [UJI INTERNAL] Strategi Pembelajaran — Bab 2
 
-1. **ID:** LANA-23 (proposed). **Waits on DR-4.** Its source chapter was not supplied.
+1. **ID:** LANA-23 (proposed). Source supplied by Yazid (D-070(d)).
 2. **Objective:** the second demo package, with the same form and standard as LANA-22.
-3. **Scope:** §6, once DR-4 decides the source.
+3. **Scope:** exact package in §6.
 4. **Non-scope:** as LANA-22.
 5. **Rulings:** as LANA-22.
 6. **Likely touched:** as LANA-22.
@@ -465,9 +465,9 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 11. **Red cases:** as LANA-22.
 12. **Regression suites:** as LANA-22.
 13. **Acceptance evidence:** as LANA-22.
-14. **Dependency/order:** after LANA-22's verdict, and needs DR-4.
+14. **Dependency/order:** after LANA-22's verdict.
 15. **Owner:** Lana.
-16. **Stop conditions (Yazid):** DR-4 is unruled; plus LANA-22's.
+16. **Stop conditions (Yazid):** as LANA-22.
 
 ### AUDIT / ACCEPTANCE: Second Eye
 
@@ -504,7 +504,7 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
     - the run id and its step table;
     - the before/after JSON;
     - the result filed on the board (as C-03 and D-064).
-14. **Dependency/order:** after BOB-43–47 and DAISY-32–34 are on `main`. If DR-1 is (c), P5 is proven by database reads only.
+14. **Dependency/order:** after BOB-43–47 and DAISY-32–34 are on `main`.
 15. **Owner:** Second Eye.
 16. **Stop conditions (Yazid):**
     - a hard-gate failure: nothing further merges until its root cause is found;
@@ -513,7 +513,7 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 #### C-13 · Venue 2: Yazid's walk-through on staging, and the demo's close
 
 1. **ID:** C-13 (proposed).
-2. **Objective:** show the educator's full experience with Lana's two packages on real staging, then close the demo as DR-5 rules.
+2. **Objective:** show the educator's full experience with Lana's two packages on real staging, then close the demo as D-070(e) rules.
 3. **Scope:**
    - **Place:** «Sekolah Uji Kinerja (sintetis)».
    - **Setup:**
@@ -526,7 +526,7 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
      3. Bab 2: the same four steps.
      4. Back to «Kelas»: teaching is intact.
    - **Screens:** every screen captured at desktop and 320 px. No certificate: the evidence is synthetic (INV-20). No email is sent.
-   - **Close:** per DR-5.
+   - **Close (D-070(e)):** after Yazid has seen the walk, both releases are withdrawn on staging (no longer assignable); Lana deletes the package from her branch unless rights have been obtained; the sealed text and the walk's evidence stay in the synthetic school. No purge.
 4. **Non-scope:**
    - certificates;
    - production;
@@ -558,7 +558,6 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
 15. **Owner:** Second Eye (Yazid may walk it himself).
 16. **Stop conditions (Yazid):**
     - any hard-gate doubt from C-12;
-    - DR-5 unruled at close.
 
 ---
 
@@ -574,7 +573,7 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
    │ BOB-25 → BOB-26 → BOB-27  │ DAISY-19 wiring → DAISY-20  │ LANA-22 (Bab 1)  │
    │ → BOB-28 / BOB-29         │ → UI/UX POLISHED pass       │   │              │
    │ → BOB-42, BOB-15 where    │   (DAISY-21…24 with their   │ LANA-23 (Bab 2)  │
-   │   already placed          │    identity gates)          │   ◄── DR-4       │
+   │   already placed          │    identity gates)          │                  │
    │ (BOB-13 keeps its own     │                             │                  │
    │  trigger: the L1 figures) │                             │                  │
    └─────────────┬─────────────┴──────────────┬──────────────┴────────┬─────────┘
@@ -582,10 +581,10 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
              BOB-43                           │                       │
       ┌────────┼─────────┐                    │                       │
    BOB-44   BOB-45    BOB-46                  │                       │
-   ◄─DR-3      │         │                    │                       │
-      │        │      BOB-47 ◄── DR-2         │                       │
       │        │         │                    │                       │
-   DAISY-32 DAISY-33  DAISY-34 ◄── DR-1       │                       │
+      │        │      BOB-47                  │                       │
+      │        │         │                    │                       │
+   DAISY-32 DAISY-33  DAISY-34                │                       │
       └────────┴─────────┴────────────────────┘                       │
                   │                                                   │
       Integration A: BOB-43–46 + DAISY-32, 33   (one CI, one audit)   │
@@ -593,12 +592,12 @@ Every ticket follows the fields asked for. "Hard gate" means D-069(l): academic 
                   │                                                   │
                C-12 (Venue 1, hard gate) ─────────────────┐           │
                                                           ▼           ▼
-                                        C-13 (Venue 2: staging walk; close per DR-5)
+                                        C-13 (Venue 2: staging walk; close per D-070(e))
 
    UI/UX POLISHED: DAISY-35, inside the pass, after DAISY-32/33 have merged.
 ```
 
-If DR-1 and DR-2 are ruled before Integration A is ready, the two integrations can be one.
+With DR-1 and DR-2 ruled, the two integrations can be one if BOB-47 and DAISY-34 are ready with the rest.
 
 ---
 
@@ -610,10 +609,10 @@ If DR-1 and DR-2 are ruled before Integration A is ready, the two integrations c
   - BOB-42 and BOB-15, in the positions Yazid has given them.
 
   BOB-13 is unaffected: it keeps its own trigger (the L1 run's figures, before L2). When those figures exist, BOB-13 goes first. D-063's tickets, when Yazid places them, are placed by him relative to this package.
-- **Daisy.** DAISY-32 and DAISY-33 start when their Bob contracts are published. They never interrupt an identity-gate screen ticket. DAISY-34 starts after BOB-47 and DR-1. DAISY-35 is part of the UI/UX POLISHED pass.
-- **Lana.** LANA-22 can start at Gate 2E's release, since her queue is empty and the ticket touches no code. LANA-23 follows LANA-22's verdict and DR-4.
+- **Daisy.** DAISY-32 and DAISY-33 start when their Bob contracts are published. They never interrupt an identity-gate screen ticket. DAISY-34 starts after BOB-47. DAISY-35 is part of the UI/UX POLISHED pass.
+- **Lana.** LANA-22 can start at Gate 2E's release, since her queue is empty and the ticket touches no code. LANA-23 follows LANA-22's verdict.
 - **Second Eye.** C-12 is written and run when the engineering is on `main`. C-13 follows C-12 PASS and both CONTENT PASSes.
-- **Whether ENGINEERING COMPLETE waits for this package** is DR-6.
+- **ENGINEERING COMPLETE includes this package** (D-070(f)): it is declared only after BOB-43 to BOB-47 and C-12 have passed. DAISY-35 is part of the one UI/UX POLISHED pass.
 
 **UI/UX POLISHED:** DAISY-35 only; DAISY-33's roster wording is not polish, because it protects the invariant (ruling 7's test). The polish pass also reviews DAISY-32, 33 and 34's new screens with everything else.
 
@@ -643,7 +642,7 @@ If DR-1 and DR-2 are ruled before Integration A is ready, the two integrations c
   - Mostly scenario, application and judgement questions («Seorang guru menghadapi…», «Pada akhir pembelajaran, guru menemukan…»). Recall only where necessary.
   - Plausible, professionally credible distractors; no answer-length bias; no praise.
   - The pass mark stays the package default (mastery 0.6). There is no new configuration.
-- **Branch.** Committed on Lana's branch only; never merged; removed after the demo per DR-5 unless rights are obtained.
+- **Branch.** Committed on Lana's branch only; never merged; removed after the demo per D-070(e) unless rights are obtained.
 - **Gate.** CONTENT PASS by the coordinator, on her branch, as §3 LANA-22 describes.
 
 **LANA-22: Bab 1 «Pendahuluan»** (source: the supplied scan, 22 pages). Five lessons, one per section of the chapter:
@@ -658,7 +657,21 @@ If DR-1 and DR-2 are ruled before Integration A is ready, the two integrations c
 
 Lana may merge two sections into one lesson if that serves the educator better; she records the choice.
 
-**LANA-23: Bab 2.** The source depends on DR-4. The book's own Bab II is «Klasifikasi dan Pemilihan Strategi Pembelajaran». It is in the table of contents, but its pages were not supplied.
+**LANA-23: Bab 2 «Klasifikasi dan Pemilihan Strategi Pembelajaran»** (source: the scan Yazid supplied, 28 pages; D-070(d)). Proposed lessons, one per section of the chapter:
+
+| Lesson | Book section |
+|---|---|
+| 1 | A. Klasifikasi Strategi Pembelajaran (by how teacher and students are organised; by how the message is processed) |
+| 2 | B. Strategi Pembelajaran Langsung (meaning, strengths and limits, stages) |
+| 3 | C. Strategi Pembelajaran Tidak Langsung |
+| 4 | D. Strategi Pembelajaran Interaktif (basis, characteristics, stages, strengths) |
+| 5 | E. Strategi Pembelajaran Empirik (concept, cycle and stages) |
+| 6 | F. Strategi Pembelajaran Mandiri (concept, framework, strategy, activities, material) |
+| 7 | G. Memilih Strategi Pembelajaran yang Tepat (the bases for choosing) |
+
+Bab 2 is longer than Bab 1. Lana may merge sections (for example B with C) where that serves an educator with limited time; she records the choice. Section G, choosing a strategy, suits the scenario and judgement questions the standard prefers.
+
+**Source files.** Yazid gives Lana the three scans (front matter, Bab 1, Bab 2) in her session, as with her earlier chapters. They are not committed to the repository.
 
 ---
 
@@ -717,80 +730,26 @@ For each integration:
 
 ---
 
-## 8. Decisions required from Yazid
+## 8. Decisions: all ruled (D-070, 30 Sep)
 
-Each question below came out of preparing the tickets. None is chosen here. Each ticket that depends on one names it.
+The six questions preparing the tickets raised, with Yazid's rulings. The options he chose between are in this file's history (commit `9779a7f`).
 
-### DR-1 · Where do the ruled audiences see professional learning?
+| # | Question | Ruling | Effect on the tickets |
+|---|---|---|---|
+| DR-1 | Where the ruled audiences see professional learning | **A:** one read-only professional-learning record per PD Kelas; the facilitator from their Kelas, the others from their existing home | DAISY-34 has a defined scope; BOB-45 keeps PD participants out of «Murid» lists |
+| DR-2 | What "completion" means | **A:** the Uji Penguasaan has been finished, whatever the outcome | BOB-47 returns completion without a result to Admin sekolah |
+| DR-3 | Who may be enrolled into a professional-learning place | **B:** only a person who currently holds a staff role at the school, enforced on memberships | BOB-44's person rule and membership trigger; DAISY-32's picker |
+| DR-4 | The source of Bab 2 | **A:** Yazid supplied Bab II | LANA-23 unblocked (§6) |
+| DR-5 | "Removed after the demo" on staging | **A:** branch copy deleted; releases withdrawn; sealed text and evidence stay in the synthetic school | C-13's close |
+| DR-6 | Does ENGINEERING COMPLETE include the package | **A:** yes | §5; DAISY-35 joins the one UI/UX POLISHED pass |
 
-**Why it matters.**
-- Rulings 1B–1E let the facilitator, the responsible Kepala departemen, the Dekan and Admin sekolah see participation, progress, completion and (for the first three) results.
-- The demo should let leadership *see* this.
-- Ruling 1G keeps PD out of Management decision screens.
-- Teachers see no individual scores today, and /pimpinan's per-person record («Catatan murid») sits inside the Management experience.
-
-| Option | What it means | Consequences |
-|---|---|---|
-| (a) | One read-only «Pengembangan Guru» record per PD Kelas: participants × Bab, with progress, test status, completion and score, in the columns each audience is allowed. The facilitator reaches it from their Kelas; the Kepala departemen, Dekan and Admin sekolah from their existing home. | One new screen (DAISY-34) on BOB-47. Nothing enters Management decision screens. The leadership story is on screen. |
-| (b) | Extend existing screens: the facilitator's Kelas page gains scores; /pimpinan's roster and «Catatan murid» gain a PD section. | No new page. PD then appears inside the Management experience, which needs your ruling that the per-person record is not a "decision screen". «Catatan murid» needs a participant form. |
-| (c) | Capability only in 4.0: enforced in the database and proven in Venue 1 by direct reads, with no staff screen; the leadership view comes later. | Smallest. The "leadership can see" part of the story is not shown in the demo. DAISY-34 is dropped. |
-
-### DR-2 · What does "completion" mean?
-
-**Why it matters.** Admin sekolah may see completion but not results. If completion means "passed", Admin sekolah learns the outcome.
-
-| Option | What it means | Consequences |
-|---|---|---|
-| (a) | The package's Uji Penguasaan has been finished, whatever the outcome | Admin sekolah cannot infer a result; "completed" can include "not passed" |
-| (b) | Passed: mastery at or above the pass mark (the certificate's condition) | Admin sekolah effectively sees pass or fail |
-| (c) | (a) for Admin sekolah; (b) for the audiences who see results | One word with two meanings on different screens, which Terminology v1 tries to avoid |
-
-### DR-3 · Who may be enrolled into a professional-learning place?
-
-**Why it matters.** The invariant says role does not decide *whether* someone may learn. But a PD place is for educators, and today nothing stops a Murid being placed there, whether by C1, by the student intake or by the admin's direct-insert policy. A Murid placed there would have their evidence counted as PD, invisible to academic figures.
-
-| Option | What it means | Consequences |
-|---|---|---|
-| (a) | Any existing person at the school, at the admin's judgement. The student intake may not place anyone into a PD place, since it creates new persons. | Keeps the invariant literally. Placing a Murid by mistake stays possible. |
-| (b) | Only a person who currently holds a staff role at the school, enforced on memberships (covers C1, the intake and direct writes) | Prevents that. It is a role condition on *which* learning, not on learning itself. Someone whose staff role has lapsed cannot be enrolled. |
-| (c) | (a), plus a warning in the form when the person holds no staff role | A screen-only guard, not enforced in the database |
-
-### DR-4 · The source of Bab 2
-
-**Why it matters.** Only the front matter with the table of contents, and Bab 1 «Pendahuluan», were supplied. Ruling 6 approves a close adaptation of "the supplied two chapters".
-
-| Option | What it means | Consequences |
-|---|---|---|
-| (a) | You supply the scan of Bab II «Klasifikasi dan Pemilihan Strategi Pembelajaran», on the same internal-only terms | Matches the ruling as written; LANA-23 waits for the file |
-| (b) | The two packages are two halves of Bab 1 (sections A–C and D–E) | No new source needed, but the package titles differ from ruling 6's «Bab 1» / «Bab 2» |
-| (c) | Lana writes Bab 2 as original PINTAR content from the chapter's title, citing the book | No adaptation of unseen text. It is original work, so it takes longer to check. |
-
-### DR-5 · What "removed after the demo" means on staging
-
-**Why it matters.** Lana's branch copy can be deleted. But once uploaded, published and used on staging, the sealed content and the walk's evidence are protected against deletion by design (content freeze; append-only evidence, INV-28).
-
-| Option | What it means | Consequences |
-|---|---|---|
-| (a) | Delete from Lana's branch. On staging, withdraw both releases so they can no longer be assigned; the sealed text and the walk's evidence stay in the synthetic school. | The text remains in the staging database (synthetic school only; not distributed, not assignable) |
-| (b) | As (a), plus a one-off guarded purge of the synthetic school's PD rows on staging, approved by you | The only full removal. It deliberately bypasses staging's append-only guards and may trip standing assertions. |
-| (c) | Keep everything until the rights question is settled | Defers the question |
-
-### DR-6 · Does ENGINEERING COMPLETE include this package?
-
-**Why it matters.**
-- D-052's sequence runs ENGINEERING COMPLETE → UI/UX POLISHED → …, and every readiness report names the gate.
-- The package sits after the identity gates in Bob's queue, while Daisy's UI/UX POLISHED pass is planned right after DAISY-20.
-
-| Option | What it means | Consequences |
-|---|---|---|
-| (a) | Yes | ENGINEERING COMPLETE is declared only after BOB-43–47 and C-12. DAISY-35 joins the one polish pass. |
-| (b) | No | ENGINEERING COMPLETE closes on its existing list. The package follows. DAISY-35 and the review of the new screens go into a later polish batch, before EDUCATOR PILOT, or not required for it (say which). |
+**One reading of DR-3, stated so it can be corrected:** "currently holds a staff role" is checked when the person is placed. If the role lapses later, the existing membership and its evidence stay; only new placements are refused.
 
 ---
 
 ## 9. Confirmation
 
-- **NO IMPLEMENTATION PERFORMED.** Documentation only: D-069, notes on D-068 and in the freeze package, the content standard's visual rule, the assessment's status line, this file, the board note, and the Namecheap window in GATE-0-FACTS §4. No application code, database, migration, RLS, application string, content, staging data or production data was changed.
+- **NO IMPLEMENTATION PERFORMED.** Documentation only: D-069 and D-070, notes on D-068 and in the freeze package, the content standard's visual rule, the assessment's status line, this file, the board note, and the Namecheap window in GATE-0-FACTS §4. No application code, database, migration, RLS, application string, content, staging data or production data was changed.
 - **BOB PAUSED.**
 - **DAISY PAUSED.**
 - **LANA PAUSED.**
