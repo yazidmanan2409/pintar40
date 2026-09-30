@@ -1,0 +1,25 @@
+{
+  "_": "BOB-26 (D-079 addendum, Gate 0 findings): THE ONE canonical source of Gate 3's Supabase Auth settings. The app reads the code's validity and the password rules from here (src/lib/pengaturan-auth.ts); staging.yml writes these keys to staging and reads them back; identity-facts.yml fails when a project's deployed value differs; supabase/config.toml carries the same values for the local and CI stack, and a static test fails if they drift. Change a value here and everything follows it. production_applied becomes true in the release commit that applies them to production (C-11); until then production's differences are reported, not failed.",
+  "production_applied": false,
+  "settings": {
+    "mailer_otp_length": 6,
+    "mailer_otp_exp": 600,
+    "password_min_length": 8,
+    "password_required_characters": "",
+    "password_hibp_enabled": true,
+    "security_update_password_require_reauthentication": true,
+    "security_update_password_require_current_password": true,
+    "mfa_totp_enroll_enabled": false
+  },
+  "config_toml": {
+    "_": "Where each setting lives in supabase/config.toml. The last two have no key there (the CLI does not map them); PINTAR's own guard (the password write permit, migration 20261030100000) refuses a direct change on every stack regardless.",
+    "mailer_otp_length": "auth.email.otp_length",
+    "mailer_otp_exp": "auth.email.otp_expiry",
+    "password_min_length": "auth.minimum_password_length",
+    "password_required_characters": "auth.password_requirements",
+    "security_update_password_require_reauthentication": "auth.email.secure_password_change",
+    "mfa_totp_enroll_enabled": "auth.mfa.totp.enroll_enabled",
+    "password_hibp_enabled": null,
+    "security_update_password_require_current_password": null
+  }
+}

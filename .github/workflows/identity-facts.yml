@@ -11,6 +11,11 @@ name: "identity · Gate 0 facts (read-only)"
 #   the runner (the coordinator's sandbox cannot resolve them: egress 403).
 #
 # The production read runs only from main (D-004).
+#
+# BOB-26 (D-079 addendum): each project's Gate 3 Auth settings are also compared
+# with the ONE canonical source, supabase/auth-identitas.json. Staging FAILS on
+# any difference. Production fails once the file's production_applied is true
+# (the release commit, C-11), and until then reports its differences only.
 
 on:
   workflow_dispatch:
@@ -26,6 +31,16 @@ jobs:
   auth-staging:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - name: Staging Gate 3 settings against supabase/auth-identitas.json (BOB-26)
+        env:
+          REF: ${{ env.STAGING_SUPABASE_PROJECT_REF }}
+          TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -sS -f -H "Authorization: Bearer $TOKEN" "https://api.supabase.com/v1/projects/$REF/config/auth" > /tmp/auth.json
+          python3 scripts/auth-identitas-banding.py /tmp/auth.json staging
+          rm -f /tmp/auth.json
       - name: Staging Auth settings (allow-listed, non-secret)
         env:
           REF: ${{ env.STAGING_SUPABASE_PROJECT_REF }}
@@ -59,6 +74,20 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - name: Production Gate 3 settings against supabase/auth-identitas.json (BOB-26)
+        env:
+          REF: ${{ env.PRODUCTION_SUPABASE_PROJECT_REF }}
+          TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -sS -f -H "Authorization: Bearer $TOKEN" "https://api.supabase.com/v1/projects/$REF/config/auth" > /tmp/auth.json
+          if python3 -c "import json,sys;sys.exit(0 if json.load(open('supabase/auth-identitas.json'))['production_applied'] else 1)"; then
+            python3 scripts/auth-identitas-banding.py /tmp/auth.json production
+          else
+            python3 scripts/auth-identitas-banding.py /tmp/auth.json production --report-only
+          fi
+          rm -f /tmp/auth.json
       - name: Production Auth settings (allow-listed, non-secret)
         env:
           REF: ${{ env.PRODUCTION_SUPABASE_PROJECT_REF }}

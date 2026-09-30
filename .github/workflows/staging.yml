@@ -8,7 +8,8 @@
 #   2. Sets staging's sign-in boundary and email in one write, then reads it
 #      back and asserts it: site_url is the staging origin, the one callback
 #      is allowed, sign-up is off, and mail goes through PINTAR's own sender
-#      under the name "PINTAR Staging".
+#      under the name "PINTAR Staging". BOB-26: also Gate 3's identity
+#      settings, written from and asserted against supabase/auth-identitas.json.
 #   3. Only when dispatched with `initialise`, and only after Gladys has been
 #      bootstrapped on staging by hand: the database's environment is set to
 #      production with sample data off (D-038: real schools and official
@@ -39,6 +40,7 @@ on:
       - main
     paths:
       - "supabase/migrations/**"
+      - "supabase/auth-identitas.json"
       - ".github/workflows/staging.yml"
   workflow_dispatch:
     inputs:
@@ -211,6 +213,24 @@ jobs:
           echo "PATCH (email) -> HTTP $CODE"
           test "$CODE" = "200" || { echo "::error::the email write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
 
+      # BOB-26 (Gate 3, D-079 addendum): the Auth settings Gate 3 needs, from
+      # the ONE canonical source, supabase/auth-identitas.json: codes of 6
+      # digits valid 10 minutes, the password policy and the leaked-password
+      # check, the direct-change safeguards, TOTP enrolment off. Written as the
+      # file says, then read back with the file (the step after this one).
+      - name: Identity settings — write (Gate 3, from supabase/auth-identitas.json)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 scripts/auth-identitas-banding.py --body > /tmp/body.json
+          CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
+            -H "Authorization: Bearer ${STAGING_SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
+            "https://api.supabase.com/v1/projects/${STAGING_SUPABASE_PROJECT_REF}/config/auth")
+          echo "PATCH (identity settings) -> HTTP $CODE"
+          test "$CODE" = "200" || { echo "::error::the identity settings write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+
       - name: Sign-in boundary and email — read back and assert
         if: ${{ always() && !cancelled() }}
         env:
@@ -237,6 +257,8 @@ jobs:
           print('smtp_pass          (never read, never printed)')
           if bad: print('::error::not as written: ' + ', '.join(bad)); sys.exit(1)
           PY
+          # BOB-26: and Gate 3's identity settings, against the canonical file
+          python3 scripts/auth-identitas-banding.py /tmp/after.json staging
 
 
       - name: Verify — the live sign-in round trip and the front door (no email is sent)

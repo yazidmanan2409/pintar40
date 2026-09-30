@@ -903,7 +903,14 @@ export const staticTests: SelfTest[] = [
         .flatMap((m) => [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
       const prefixes = [...proxy.matchAll(/PUBLIC_PREFIXES = \[([^\]]*)\]/g)]
         .flatMap((m) => [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
-      const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/auth/callback", "/keluar"];
+      // RESTATED FOR BOB-26 (Gate 3, a changed requirement): activation starts
+      // signed out, so /aktifkan and its two POST-only doors are anonymous, and
+      // so is the password sign-in's door. Each door is declared in
+      // public_surface_registry with its rewrite target as its child (the card
+      // route's shape), which the registry check below also asks; nothing else
+      // joined the list.
+      const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
+                             "/aktifkan/periksa", "/auth/callback", "/keluar"];
       c.expect(
         JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
         `the anonymous path list changed: ${JSON.stringify(paths)}`,
@@ -932,8 +939,16 @@ export const staticTests: SelfTest[] = [
           `${r} is reachable without a session`,
         );
       }
+      // BOB-26: every POST door on the list is a declared surface, with the
+      // handler it is rewritten to as its child, in the migrations themselves.
+      const migTeks = readdirSync(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"))
+        .map((f) => readFileSync(join(repoRoot, "supabase", "migrations", f), "utf8")).join("\n");
+      for (const pintu of ["/masuk/kartu", "/masuk/password", "/aktifkan/kode", "/aktifkan/periksa"]) {
+        c.expect(new RegExp(`'ROUTE',\\s*'${pintu}'`).test(migTeks) && new RegExp(`'ENDPOINT',\\s*'/api${pintu}'`).test(migTeks),
+          `${pintu} is anonymous but not declared in public_surface_registry with /api${pintu} as its child`);
+      }
       c.note(`${routes.length} routes, ${studio.length} in Studio, ${paths.length + prefixes.length} anonymous`);
-      return c.verdict("the anonymous surface did not grow and every Studio route sits behind the proxy");
+      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three, each registered with its handler) and every Studio route sits behind the proxy");
     },
   },
   {

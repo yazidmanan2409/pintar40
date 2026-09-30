@@ -4,6 +4,8 @@ READY FOR REVIEW: BOB-26 contract (for DAISY-20)
 
 Published **before the build**, so DAISY-20 can start. The paths, fields, codes and data shapes below are what the server will answer. If the build has to change one, it is changed here first and the hand-off names it. **The pages, copy and email content are Daisy's.** Bob supplies the routes, the data and the send, never markup or copy (D-079(a)).
 
+**Changed during the build (named here first):** the code check's door is `/aktifkan/periksa`, not `/aktifkan/verifikasi`. INV-38 keeps the word *verifikasi* for the one certificate verification route (F04-S01).
+
 Sources: `auth/IDENTITY-4.0.md` (C1, C3, C9, C10, C13, C14, C17), D-054, D-057(d), D-077, D-079 and its addendum, the BOB-26 row, and BOB-24 and BOB-25 as merged (`7727c8e`).
 
 ## 0. The rules every route keeps
@@ -20,7 +22,7 @@ Sources: `auth/IDENTITY-4.0.md` (C1, C3, C9, C10, C13, C14, C17), D-054, D-057(d
 |---|---|---|---|
 | `/aktifkan` | page (**Daisy**) | «Aktifkan akun PINTAR Anda». Signed out: email → code. Signed in with set-up REQUIRED: the wizard. | A **public path** in the proxy, because it starts signed out. The page decides by its own session read (`GET /api/aktifkan/keadaan`). |
 | `POST /aktifkan/kode` | signed out | Ask for a code | Public door, rewritten to `/api/aktifkan/kode` (the card route's pattern) |
-| `POST /aktifkan/verifikasi` | signed out | Type the code; a match signs in | Public door, rewritten to `/api/aktifkan/verifikasi` |
+| `POST /aktifkan/periksa` | signed out | Type the code; a match signs in | Public door, rewritten to `/api/aktifkan/periksa` |
 | `POST /masuk/password` | signed out | Sign in with email **or** username, and password | Public door, rewritten to `/api/masuk/password` |
 | `GET /api/aktifkan/keadaan` | signed in | Where the wizard stands | |
 | `POST /api/aktifkan/username` | signed in, REQUIRED | Claim the username | |
@@ -61,7 +63,7 @@ Fields:
 - **`berlakuMenit`:** how long the code is valid. It is read from the **one canonical setting** (§5), the same one that sets Auth's `mailer_otp_exp`. The screen may say «berlaku selama 10 menit» from it; never type the number.
 - **When the send is refused** (a limit, or the host), the answer is still the same 200. That is the D2 fold: the answer says what the screen always says («jika alamat ini terdaftar…»). It never says "sent" for this address in particular, and it can never separate a real address from an unknown one.
 
-### 2.2 `POST /aktifkan/verifikasi`: type the code
+### 2.2 `POST /aktifkan/periksa`: type the code
 
 Fields: `email` and `kode`.
 - The code is digits only on the server: «482 913», «482913», and «482-913» pasted, are the same.

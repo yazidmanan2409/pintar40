@@ -1,5 +1,7 @@
 import { createServerClient, DEFAULT_COOKIE_OPTIONS } from "@supabase/ssr";
-import { adalahCookieSesi, COOKIE_GESER, perluGeserSesi, umurSesi } from "@/lib/sesi";
+import { adalahAlamatKartu, adalahCookieSesi, COOKIE_GESER, perluGeserSesi, umurSesi } from "@/lib/sesi";
+import { COOKIE_SIAP, jalurBebasSaatAktivasi, nilaiSiap, siapTersimpan } from "@/lib/penahan-aktivasi";
+import { HALAMAN_AKTIVASI } from "@/lib/aktivasi-kontrak";
 import { alamatKlien, fetchBerpenerus } from "@/lib/auth-forwarding";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -13,8 +15,14 @@ import { NextResponse, type NextRequest } from "next/server";
  * Public in Phase 1: "/", "/masuk", auth callback. Everything else requires
  * a session. Dev-only routes are additionally gated by NODE_ENV in their
  * handlers (INV-21).
+ *
+ * BOB-26 (Gate 3): "Aktifkan akun PINTAR Anda" starts signed out, so
+ * /aktifkan is public, and so are its two doors and the password sign-in's,
+ * each POST-only and rewritten to its handler (next.config.ts), each declared
+ * in public_surface_registry, as /masuk/kartu is.
  */
-const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/auth/callback", "/keluar"]);
+const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
+                              "/aktifkan/periksa", "/auth/callback", "/keluar"]);
 // INV-38: exactly one public certificate verification surface. Both entries
 // below ARE that one surface — the route a QR code points at, and the data
 // endpoint that route reads. `public_surface_registry` records the second as
@@ -101,6 +109,28 @@ export async function proxy(request: NextRequest) {
   // (FABLE-01 §11) — a 401 here would reveal that the namespace exists.
   const isDevNamespace = path === "/api/dev" || path.startsWith("/api/dev/");
   const isPublic = PUBLIC_PATHS.has(path) || PUBLIC_PREFIXES.some((p) => path.startsWith(p)) || isDevNamespace || path.startsWith("/_next") || path === "/favicon.ico";
+
+  // BOB-26: THE HOLD. A signed-in email account whose set-up is REQUIRED goes
+  // to the wizard and nowhere else (src/lib/penahan-aktivasi.ts). A class card
+  // has no set-up and is never asked about. Unreadable, the state holds
+  // nothing: the hold is a journey, not an authority, and every page's own
+  // checks stand either way.
+  if (user && !adalahAlamatKartu(user.email) && !isPublic && !jalurBebasSaatAktivasi(path)
+      && !siapTersimpan(user.id, request.cookies.get(COOKIE_SIAP)?.value)) {
+    const { data: keadaan, error } = await supabase.rpc("my_setup_state");
+    if (!error && keadaan === "REQUIRED") {
+      const tahan = path.startsWith("/api/")
+        ? NextResponse.json({ error: "setup_required" }, { status: 403, headers: { "cache-control": "no-store" } })
+        : NextResponse.redirect(new URL(HALAMAN_AKTIVASI, request.url));
+      for (const k of response.cookies.getAll()) tahan.cookies.set(k);
+      return tahan;
+    }
+    const nilai = !error && (keadaan === "COMPLETE" || keadaan === "NOT_APPLICABLE") ? nilaiSiap(user.id) : null;
+    if (nilai) {
+      response.cookies.set(COOKIE_SIAP, nilai, {
+        path: "/", sameSite: "lax", httpOnly: true, secure: request.nextUrl.protocol === "https:", maxAge: umurSesi(user.email) });
+    }
+  }
 
   if (!user && !isPublic) {
     if (path.startsWith("/api/")) {

@@ -325,9 +325,22 @@ begin
       k := selftest.f16_kode_tolak('select public.complete_my_setup()');
       if k is distinct from 'SETUP_INCOMPLETE' then v_probs := selftest.f11_note(v_probs, 'F16-S01', 'set-up completed with no PIN'); end if;
       perform public.set_my_pin('2817');
+      -- RESTATED FOR BOB-26 (Gate 3, a changed requirement): completion now
+      -- also needs the password, written through the activation permit, and
+      -- the name's one confirmation (D-077). A username and a PIN alone no
+      -- longer complete a set-up; with all four, it completes.
+      k := selftest.f16_kode_tolak('select public.complete_my_setup()');
+      if k is distinct from 'SETUP_INCOMPLETE' then v_probs := selftest.f11_note(v_probs, 'F16-S01', 'set-up completed with no password and no confirmed name'); end if;
+      perform selftest.as_owner();
+      perform public.password_write_permit((select u.id from auth.users u where u.email = v_eb), 'ACTIVATION');
+      update auth.users u set encrypted_password = extensions.crypt('f16-' || v_tag, extensions.gen_salt('bf', 4)) where u.email = v_eb;
+      perform selftest.as_user(v_eb);
+      k := selftest.f16_kode_tolak('select public.complete_my_setup()');
+      if k is distinct from 'SETUP_INCOMPLETE' then v_probs := selftest.f11_note(v_probs, 'F16-S01', 'set-up completed with no confirmed name'); end if;
+      perform public.confirm_my_name(null);
       v := public.complete_my_setup();
       if v is distinct from 'COMPLETE' or public.my_setup_state() is distinct from 'COMPLETE' then
-        v_probs := selftest.f11_note(v_probs, 'F16-S01', 'a username and a PIN did not complete set-up');
+        v_probs := selftest.f11_note(v_probs, 'F16-S01', 'a username, a PIN, a password and a confirmed name did not complete set-up');
       end if;
       -- C13, C17: the self-service identity functions are the caller's own, and
       -- a class card or an evaluation persona has none of it

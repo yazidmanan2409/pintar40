@@ -1899,6 +1899,13 @@ jobs:
           # Not a secret: a CI-only signing key, exactly as CARD_PEPPER above.
           # The certificates it signs exist for the length of one job.
           CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus
+          # BOB-26: the app's own sends (activation codes, the card) go to the
+          # Mailpit sink above and nowhere else. Not secrets: the sink accepts
+          # any login, and loopback is the only plain connection allowed.
+          PINTAR_SMTP_HOST: 127.0.0.1
+          PINTAR_SMTP_PORT: "54325"
+          PINTAR_SMTP_USER: noreply@pintarselalu.test
+          PINTAR_SMTP_PASSWORD: sink-accepts-any
           PINTAR_BUILD_SHA: ${{ github.sha }}
           SELFTEST_APP_PORT: 3999
           SELFTEST_CI_UPSTREAM: >-
