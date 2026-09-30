@@ -1,0 +1,141 @@
+SAMPLES: every person, school, number and link is invented. Words from src/lib/hle.ts (id), except «Diterbitkan oleh» (verifikasi.institusi, a PROPOSAL on the certificate).
+QR: sample link 84 characters -> version 5-M (37 modules); production link 83 characters (app.pintarselalu.com) -> the same version; version 5-M holds 84 bytes, so 2 more characters of host move it to version 6. Longer-host sample 95 characters -> version 6.
+
+CONTRAST (WCAG 2.x; small text 4.5:1, the name and course are large text but held to 4.5:1 too). Paper: white in print, #FBFAF7 on screen
+  name, course, predikat, date, number, school (ink): #1F2A33 on #FFFFFF = 14.61:1
+  «telah menuntaskan», verification sentence, link (ink-2): #4E5A64 on #FFFFFF = 7.07:1
+  labels (ink-3, 7 pt capitals): #5F6A73 on #FFFFFF = 5.53:1
+  «PINTAR SELALU» colophon (PINTAR green): #245F55 on #FFFFFF = 7.39:1
+  QR modules (PINTAR green) on paper: #245F55 on #FFFFFF = 7.39:1
+  QR modules on the soft-green tile (study): #245F55 on #E3EFEC = 6.27:1
+  heading, academic accent: #725471 on #FFFFFF = 6.52:1
+  heading, professional accent: #446A4B on #FFFFFF = 6.16:1
+  Modern band: school and label (paper) on the academic accent: #FBFAF7 on #725471 = 6.24:1
+  Modern band: school and label (paper) on the professional accent: #FBFAF7 on #446A4B = 5.90:1
+  labels (ink-3) on screen paper: #5F6A73 on #FBFAF7 = 5.30:1
+  the gold line (structure, not text): #C09C4F on white 2.59:1; on the academic accent 2.52:1; on the professional 2.38:1
+  greyscale: paper #FFFFFF, gold #A1A1A1, academic #5E5E5E, professional #616161, PINTAR green #565656: the two accents are one grey by design (the accent carries no information)
+
+COLOUR DISTANCES (OKLab / CIEDE2000; normal | deuteranopia | protanopia)
+  academic plum / professional sage: 0.1244 / 33 | 0.0580 / 19 | 0.0855 / 24.8
+  academic plum / PINTAR green: 0.1251 / 35.1 | 0.0499 / 8.1 | 0.0465 / 13.7
+  academic plum / gold: 0.2635 / 46.2 | 0.2677 / 42.1 | 0.2589 / 43.7
+  professional sage / PINTAR green: 0.0551 / 9.9 | 0.0575 / 12.3 | 0.0512 / 10.6
+  professional sage / gold: 0.2437 / 34.2 | 0.2425 / 29.6 | 0.1959 / 24.2
+  PINTAR green / gold: 0.2954 / 42 | 0.2974 / 40.5 | 0.2438 / 33.1
+  NOTE: the professional sage and the QR's PINTAR green are 0.0551 apart (OKLab): two different greens on one professional certificate (README §G).
+
+PRINT SHIFT (sRGB -> MuPDF's built-in CMYK profile -> sRGB; an estimate)
+  #725471: CMYK 57/71/36/15 -> #745471, dE2000 0.61
+  #446A4B: CMYK 73/38/77/25 -> #466A4B, dE2000 0.47
+  #C09C4F: CMYK 25/36/82/2 -> #C29C4E, dE2000 0.59
+  #245F55: CMYK 84/43/65/29 -> #265F55, dE2000 0.27
+  #1F2A33: CMYK 81/69/57/61 -> #212B33, dE2000 0.68
+  #4E5A64: CMYK 70/56/47/24 -> #505A64, dE2000 0.92
+  #5F6A73: CMYK 64/51/44/16 -> #616A72, dE2000 0.85
+  #FBFAF7: CMYK 1/2/2/0 -> #FBF9F7, dE2000 0.84
+
+THE GOLD LINE AT A DISTANCE (peak OKLab difference the line makes, row by row across it, at the eye's resolution at each distance; about 0.02 just noticeable, 0.05 plainly visible)
+  Modern 0.5 mm: 0.5 m 0.2781, 1 m 0.1694, 2 m 0.1157, 4 m 0.0647
+  Modern 0.75 mm: 0.5 m 0.2781, 1 m 0.2635, 2 m 0.1258, 4 m 0.1105
+  Modern 1 mm: 0.5 m 0.3083, 1 m 0.3083, 2 m 0.1577, 4 m 0.1324
+  Modern 1.5 mm: 0.5 m 0.3083, 1 m 0.3083, 2 m 0.2234, 4 m 0.2015
+  Modern greyscale 0.5 mm: 0.5 m 0.2605, 1 m 0.1255, 2 m 0.059, 4 m 0.0589
+  Modern greyscale 0.75 mm: 0.5 m 0.2605, 1 m 0.2271, 2 m 0.1071, 4 m 0.091
+  Modern greyscale 1 mm: 0.5 m 0.291, 1 m 0.291, 2 m 0.1081, 4 m 0.1213
+  Modern greyscale 1.5 mm: 0.5 m 0.291, 1 m 0.291, 2 m 0.204, 4 m 0.1862
+  Minimal 0.5 mm: 0.5 m 0.3083, 1 m 0.3083, 2 m 0.252, 4 m 0.0672
+  Minimal 0.75 mm: 0.5 m 0.3083, 1 m 0.3083, 2 m 0.256, 4 m 0.1344
+  Minimal 1 mm: 0.5 m 0.3083, 1 m 0.3083, 2 m 0.3083, 4 m 0.1324
+  Minimal 1.5 mm: 0.5 m 0.3083, 1 m 0.3083, 2 m 0.3083, 4 m 0.2015
+  Minimal greyscale 0.5 mm: 0.5 m 0.291, 1 m 0.291, 2 m 0.235, 4 m 0.0613
+  Minimal greyscale 0.75 mm: 0.5 m 0.291, 1 m 0.291, 2 m 0.2388, 4 m 0.1233
+  Minimal greyscale 1 mm: 0.5 m 0.291, 1 m 0.291, 2 m 0.291, 4 m 0.1213
+  Minimal greyscale 1.5 mm: 0.5 m 0.291, 1 m 0.291, 2 m 0.291, 4 m 0.1862
+
+LAYOUT CHECKS on 33 sheets (all three directions × two contexts, four stress cases each, photo, logo, photo with the longest text, Classic with the band, version 6):
+  print margin (all ink ≥ 10 mm from the edge; the band ≥ 12 mm), statement ≥ 10 mm above the line and ≥ 5 mm clear of heading/photo/logo, issuer ≥ 10 mm above the record, record ≥ 4 mm above the colophon, nothing in the QR's 4-module quiet zone, no text across the line: all pass on the 29 sheets that count
+  PROBES (reported, not counted; they find the limits): Classic photo, long (probe): «Ni Luh Putu Ayu Kart» within 5 mm of .sr-foto; Classic photo, beyond realistic (probe): the statement ends 1.4 mm above the line; Classic photo, beyond realistic (probe): «Raden Mas Muhammad R» within 5 mm of .sr-foto; Modern photo, beyond realistic (probe): «Raden Mas Muhammad R» within 5 mm of .sr-foto; Minimal photo, beyond realistic (probe): «Raden Mas Muhammad R» within 5 mm of .sr-foto
+  lines: name 1–3 (limit 3); course 1–4; school 1–2; number 2–4
+  required, exactly once on every sheet (heading, «telah menuntaskan», Predikat, Tanggal terbit, Nomor sertifikat, Diterbitkan oleh, Periksa keaslian and its sentence, «PINTAR SELALU»): all present, once
+  absent (score, signature, stamp or seal words, «resmi/official/sah», identity claims, co-issuer verbs; a photo except in Version B): none found
+    control (planted «resmi … skor … tanda tangan»): caught skor, tanda tangan, resmi
+
+PDF: 15 pages, set to 210 × 297 mm. Fonts embedded: Type0 AAAAAA+PlusJakartaSans-SemiBold, Type0 BAAAAA+PlusJakartaSans-Regular, Type0 CAAAAA+IBMPlexMono-Medium. Made with «Background graphics» off.
+  page 2 Modern · akademik (usulan): gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 3 Modern · pengembangan profesi: gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 4 Classic · akademik: gold line 162.00 × 0.750 mm, centre 176.00 mm; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 5 Minimal · akademik: gold line 162.00 × 0.750 mm, centre 176.00 mm; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 6 Classic · pengembangan profesi: gold line 162.00 × 0.750 mm, centre 176.00 mm; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 7 Minimal · pengembangan profesi: gold line 162.00 × 0.750 mm, centre 176.00 mm; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 8 Modern · teks panjang: gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 9 Modern · melampaui kenyataan: gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 26.17 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 10 Modern · nama satu kata: gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 11 Modern · versi B, dengan foto (contoh): gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 12 Modern · dengan logo sekolah (contoh): gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 13 Modern · skala abu-abu: gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 14 Kajian QR · modul di atas ubin hijau muda: gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.703 mm, right edge 186.00 mm
+  page 15 Kajian QR · tautan versi 6: gold line 186.00 × 0.750 mm, centre 176.00 mm; band 185.98 × 20.53 mm at x 12.01; QR 26.00 mm, module 0.634 mm, right edge 185.99 mm
+
+QR DECODE TESTS from the PDF at 300 dpi (zxing-cpp and OpenCV; PASS = the exact link came back). Symbol 26 mm; module 0.703 mm at version 5, 0.634 mm at version 6
+  modern-a Modern · akademik (usulan) (QR crop): zxing 8/8, opencv 8/8
+      zxing limits: down to 45 dpi; blur up to sigma 4.25 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+      opencv limits: down to 80 dpi; blur up to sigma 2 px at 300 dpi; contrast down to 0.05; tilt up to 50 deg
+  modern-a·sheet Modern · akademik (usulan) (the whole sheet): zxing 8/8, opencv 6/8
+      blurred (sigma 2.5 px at 300 dpi): zxing PASS, opencv FAIL
+      all combined + noise + JPEG: zxing PASS, opencv FAIL
+  modern-p Modern · pengembangan profesi (QR crop): zxing 8/8, opencv 8/8
+      zxing limits: down to 45 dpi; blur up to sigma 4.25 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+      opencv limits: down to 80 dpi; blur up to sigma 2 px at 300 dpi; contrast down to 0.05; tilt up to 50 deg
+  modern-p·sheet Modern · pengembangan profesi (the whole sheet): zxing 8/8, opencv 6/8
+      blurred (sigma 2.5 px at 300 dpi): zxing PASS, opencv FAIL
+      all combined + noise + JPEG: zxing PASS, opencv FAIL
+  classic-a Classic · akademik (QR crop): zxing 8/8, opencv 8/8
+      zxing limits: down to 45 dpi; blur up to sigma 4.25 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+      opencv limits: down to 80 dpi; blur up to sigma 2 px at 300 dpi; contrast down to 0.05; tilt up to 50 deg
+  classic-a·sheet Classic · akademik (the whole sheet): zxing 8/8, opencv 6/8
+      blurred (sigma 2.5 px at 300 dpi): zxing PASS, opencv FAIL
+      all combined + noise + JPEG: zxing PASS, opencv FAIL
+  minimal-a Minimal · akademik (QR crop): zxing 8/8, opencv 8/8
+      zxing limits: down to 45 dpi; blur up to sigma 4.25 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+      opencv limits: down to 80 dpi; blur up to sigma 2 px at 300 dpi; contrast down to 0.05; tilt up to 50 deg
+  minimal-a·sheet Minimal · akademik (the whole sheet): zxing 8/8, opencv 6/8
+      blurred (sigma 2.5 px at 300 dpi): zxing PASS, opencv FAIL
+      all combined + noise + JPEG: zxing PASS, opencv FAIL
+  modern-abu Modern · skala abu-abu (QR crop): zxing 8/8, opencv 7/8
+      downscaled to 100 dpi: zxing PASS, opencv FAIL
+      zxing limits: down to 45 dpi; blur up to sigma 4.25 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+      opencv limits: down to 105 dpi; blur up to sigma 2 px at 300 dpi; contrast down to 0.05; tilt up to 50 deg
+  modern-abu·sheet Modern · skala abu-abu (the whole sheet): zxing 8/8, opencv 7/8
+      blurred (sigma 2.5 px at 300 dpi): zxing PASS, opencv FAIL
+  ubin Kajian QR · modul di atas ubin hijau muda (QR crop): zxing 8/8, opencv 7/8
+      downscaled to 100 dpi: zxing PASS, opencv FAIL
+      zxing limits: down to 50 dpi; blur up to sigma 4.25 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+      opencv limits: down to 105 dpi; blur up to sigma 2 px at 300 dpi; contrast down to 0.05; tilt up to 50 deg
+  ubin·sheet Kajian QR · modul di atas ubin hijau muda (the whole sheet): zxing 8/8, opencv 7/8
+      blurred (sigma 2.5 px at 300 dpi): zxing PASS, opencv FAIL
+  versi-6 Kajian QR · tautan versi 6 (QR crop): zxing 8/8, opencv 7/8
+      downscaled to 100 dpi: zxing PASS, opencv FAIL
+      zxing limits: down to 50 dpi; blur up to sigma 3.75 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+      opencv limits: down to 160 dpi; blur up to sigma 3 px at 300 dpi; contrast down to 0.05; tilt up to 50 deg
+  versi-6·sheet Kajian QR · tautan versi 6 (the whole sheet): zxing 8/8, opencv 5/8
+      downscaled to 150 dpi: zxing PASS, opencv FAIL
+      downscaled to 100 dpi: zxing PASS, opencv FAIL
+      all combined + noise + JPEG: zxing PASS, opencv FAIL
+
+PRINT SIMULATIONS from the PDF (300 dpi; an estimate, not a proof: the real test is printing J)
+  Modern · academic · office colour print: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · academic · monochrome laser: QR modules 50 on 254 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · academic · toner-saving (55% density): QR modules 142 on 254 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · academic · A4 on F4, top-left: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · academic · A4 on F4, centred: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · professional · office colour print: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · professional · monochrome laser: QR modules 50 on 254 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · professional · toner-saving (55% density): QR modules 142 on 254 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · professional · A4 on F4, top-left: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Modern · professional · A4 on F4, centred: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Minimal · academic · office colour print: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Minimal · academic · monochrome laser: QR modules 50 on 254 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Minimal · academic · toner-saving (55% density): QR modules 142 on 254 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Minimal · academic · A4 on F4, top-left: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)
+  Minimal · academic · A4 on F4, centred: QR modules 46 on 255 (0-255); decoded by both in 4/4 tests (300 dpi zo, 150 dpi zo, blur 1.5 px zo, whole page, 150 dpi zo)

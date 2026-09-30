@@ -2,7 +2,36 @@
 
 **Gate 2E, D-057(a).** This is the one frame shared by all six identity emails: the activation code, the resend, password recovery, password changed, the PINTAR Digital Card, and security notices. Each email's own wording comes later, in DAISY-20 to DAISY-24.
 
-**Status: static prototype.** Nothing in the app imports it yet. It is wired to BOB-25's template-rendering interface once Bob publishes that contract; see "Wiring" below. No ci.yml run was made or is needed until then.
+**Status: wired, 30 Sep** (prototype accepted 29 Sep). The frame now lives in `src/components/email/`, on BOB-25's template interface (`src/lib/email/templat.ts`, published at `2bcbed8`). This folder keeps the accepted prototype as it was, for comparison. `bingkai.mts` here is not imported by the app; the card round scripts still use it for their email mock-ups.
+
+## Wired (30 Sep)
+
+**What moved, and what changed.** The frame moved unchanged in behaviour. The changes are the gate's four rulings and the wiring itself:
+
+| | Change | Where |
+|---|---|---|
+| Words | The frame's words (`KATA`) are now copy-table keys `email.bingkai.*`, in both languages; emails render Bahasa Indonesia (D-014). Proper nouns are not words: the company (`BADAN_HUKUM`), the address and the domain are the frame's constants, the same strings as the app footer, and never copy-table keys (UX1-S1-KAKI-01) | `src/lib/hle.ts`, `bingkai.ts` |
+| The interface | `bingkaiEmail(email, konteks)` takes BOB-25's `KonteksEmail` and returns its `EmailJadi`. A template is its own blocks plus one call to the frame, so it is a `Templat<D>` | `src/components/email/bingkai.ts` |
+| Ruling 1 | A code is shown grouped: 6 digits as «482 913», 8 as 4 + 4; it may arrive spaced or not. Accepting both forms is the code screen's job (DAISY-20, BOB-26) | `tampilKode` |
+| Ruling 2 | Each environment loads its own **small email logo**, `${asal}/brand/pintar-email-logo.png` (208 × 116, shown at 104 × 58, 10 KB instead of the 29 KB app logo). The frame builds it from `konteks.asal`, so a template cannot get it wrong | `public/brand/pintar-email-logo.png` |
+| Ruling 3 | Every staging email carries a slim test line at the top of both bodies: «Email uji dari PINTAR versi uji coba.» (attention tones, AA). Production never does | `email.bingkai.uji` |
+| Ruling 4 | «password» throughout, as the frame already said | — |
+| Refusals | The frame refuses what the sending module would refuse (an empty subject, one with a line break), and draws only https links, plus plain http to a local origin (the sink, BOB-25 §3) | `tautanAman` |
+| Delivery test | `UJI_PENGIRIMAN`, Gate 2E's delivery proof, in the frame: `templatUjiPengiriman`, a `Templat<{ waktu }>`. The route's send time («Dikirim», `email.uji.dikirim`) is a row, so each arrival can be told from the last. BOB-25's sending module now sends it: `src/app/api/_email/uji.ts` re-exports it in place of the placeholder, and the route is unchanged (D-079: Bob owns the pipe, Daisy owns the email). It stays a test email, sent only to the inbox a platform admin names. Its send to the M6 inboxes is DAISY-19's real-client render | `src/components/email/uji.ts`, `src/app/api/_email/uji.ts` |
+
+**The logo's colour, found and fixed.** The app's logo (`pintar-selalu-logo.png`) carries an embedded Apple «Display» colour profile, which browsers apply. A plain resize dropped it and turned the dark band grey-teal. The email logo is therefore converted through that profile to plain sRGB, with no profile left in the file, so every client shows the original's colours without needing colour management. Against the prototype's renders, only 540 anti-aliased logo pixels differ (mean channel difference 1.3 of 255).
+
+**Evidence.**
+- **Selftests, static** (in `selftest/email.test.ts`, listed in the manifest):
+  - `DAISY-19-EMAIL-01` pins the prototype's structure checks, the static scan with its planted control, the words' source, AA contrast in light and dark, the palette against the token set, and the plain-text rules.
+  - `DAISY-19-EMAIL-02` pins the four rulings, the Templat shape and the refusals, and that the sending module's `UJI_PENGIRIMAN` is this framed template (a re-export that holds no email of its own) with the send time in both bodies.
+  - Planted regressions went red and came back green: a staging line on production, an ink colour off its token, a footer sentence written in the module.
+- **Renders:** `buat-wiring.mts` → `render-wiring/`.
+  - The prototype's samples through the wired frame, at the prototype's sizes and modes, compared pixel by pixel with `render/`. Every difference lies inside the logo, and with images blocked the render is identical.
+  - The samples on staging, with the test line.
+  - The delivery test, staging and production, at 600 and 320 px, light and dark; its HTML and plain text are in `uji-pengiriman-*.html` / `.txt`.
+  - Every 320 px render: no sideways scroll, smallest text 13 px, button 48 px.
+- **Still to come:** the real Gmail and Outlook renders, from the M6 inboxes after the first staging send (BOB-25's staging acceptance, pending Yazid's send). That send now carries the frame.
 
 | File | What it is |
 |---|---|
@@ -102,7 +131,7 @@ Result: **0 hits** in both samples. The control, with "OTP" and "Supabase" plant
 | `contoh-kode-600-tanpa-gambar.png` | images blocked (Outlook's default): the alt text carries the PINTAR wordmark. The broken-image icon is Chromium's own; Outlook draws its own placeholder |
 | `contoh-pemberitahuan-600-terang.png`, `-320-terang.png`, `-320-gelap.png` | the second sample: detail rows, the attention note, and the full-width button on mobile with the copy-the-address fallback |
 
-## Wiring (when BOB-25 publishes its contract)
+## Wiring plan (as written at the prototype; done 30 Sep, see "Wired" above)
 
 1. Move `bingkai.mts` to `src/components/email/` (Daisy's lane), unchanged in behaviour.
 2. Move the frame's own words (`KATA`) into `src/lib/hle.ts` as `email.bingkai.*` (D-014). Emails render Bahasa Indonesia only.
@@ -110,7 +139,7 @@ Result: **0 hits** in both samples. The control, with "OTP" and "Supabase" plant
 4. Adapt the call to BOB-25's interface: a template's data in → `{ subject, html, text }` out. The sending module sets FROM and Reply-To, and uses the staging FROM on staging.
 5. DAISY-20 to DAISY-24 supply each email's content as blocks.
 
-## Questions for the gate
+## Questions for the gate (ruled 29 Sep; applied in the wiring)
 
 1. **Code grouping.** The sample shows «482 913» (3 + 3) for readability. If people type or paste it with the space, the code screen (DAISY-20) and verification (BOB-26) should accept it with or without the space. Otherwise the frame shows it ungrouped. Which one?
 2. **The logo URL.** It is `https://app.pintarselalu.com/brand/pintar-selalu-logo.png` (the app's own asset, 766 × 429, 29 KB). Should staging emails load it from production or from staging, and do we want a smaller email-only copy?

@@ -1,0 +1,671 @@
+[
+ {
+  "kode": "p1-back",
+  "nama": "Belakang \u00b7 sama untuk semua peran (tile crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 55,
+    "blur_px": 3.5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 130,
+    "blur_px": 2.5,
+    "kontras": 0.05,
+    "miring": 50.0
+   }
+  }
+ },
+ {
+  "kode": "p1-back\u00b7card",
+  "nama": "Belakang \u00b7 sama untuk semua peran (the whole back)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "p2-fold",
+  "nama": "Lipat: potong di tanda luar, lipat ke belakang di tanda tengah, balik ke samping. (tile crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 60,
+    "blur_px": 3.75,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 80,
+    "blur_px": 2.25,
+    "kontras": 0.05,
+    "miring": 50.0
+   }
+  }
+ },
+ {
+  "kode": "p2-fold\u00b7card",
+  "nama": "Lipat: potong di tanda luar, lipat ke belakang di tanda tengah, balik ke samping. (the whole back)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "p2-fold-grey",
+  "nama": "Lipat, skala abu-abu. (tile crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 55,
+    "blur_px": 3.5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 80,
+    "blur_px": 1.75,
+    "kontras": 0.05,
+    "miring": 50.0
+   }
+  }
+ },
+ {
+  "kode": "p2-fold-grey\u00b7card",
+  "nama": "Lipat, skala abu-abu. (the whole back)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "p3-back",
+  "nama": "Belakang (untuk uji pindai) (tile crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 55,
+    "blur_px": 3.5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 130,
+    "blur_px": 2.5,
+    "kontras": 0.05,
+    "miring": 50.0
+   }
+  }
+ },
+ {
+  "kode": "p3-back\u00b7card",
+  "nama": "Belakang (untuk uji pindai) (the whole back)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "p3-back-0.50",
+  "nama": "Belakang, garis 0,50 mm (untuk uji pindai) (tile crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 55,
+    "blur_px": 3.5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 90,
+    "blur_px": 2.75,
+    "kontras": 0.05,
+    "miring": 50.0
+   }
+  }
+ },
+ {
+  "kode": "p3-back-0.50\u00b7card",
+  "nama": "Belakang, garis 0,50 mm (untuk uji pindai) (the whole back)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "p4-back-grey",
+  "nama": "Belakang \u00b7 skala abu-abu (tile crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 55,
+    "blur_px": 3.5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 130,
+    "blur_px": 1.5,
+    "kontras": 0.05,
+    "miring": 50.0
+   }
+  }
+ },
+ {
+  "kode": "p4-back-grey\u00b7card",
+  "nama": "Belakang \u00b7 skala abu-abu (the whole back)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "screen",
+  "nama": "email 320 px, light, the whole screenshot (2x)",
+  "uji": [
+   {
+    "nama": "screen render as sent",
+    "zxing": true,
+    "opencv": true
+   }
+  ]
+ },
+ {
+  "kode": "screen",
+  "nama": "email 600 px, dark, the whole screenshot (2x)",
+  "uji": [
+   {
+    "nama": "screen render as sent",
+    "zxing": true,
+    "opencv": true
+   }
+  ]
+ },
+ {
+  "kode": "screen",
+  "nama": "phone 390 px, the whole screenshot (2x)",
+  "uji": [
+   {
+    "nama": "screen render as sent",
+    "zxing": true,
+    "opencv": true
+   }
+  ]
+ }
+]
