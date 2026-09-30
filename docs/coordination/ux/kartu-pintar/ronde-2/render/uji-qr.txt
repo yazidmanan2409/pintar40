@@ -1,0 +1,126 @@
+p1-back Belakang · sama untuk semua peran (tile crop)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv FAIL
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+  zxing limits: every scale down to 55 dpi; blur up to sigma 3.5 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+  opencv limits: every scale down to 130 dpi; blur up to sigma 2.5 px at 300 dpi; contrast down to 0.05; tilt up to 50.0 deg
+p1-back·card Belakang · sama untuk semua peran (the whole back)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv FAIL
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv PASS
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+p2-fold Lipat: potong di tanda luar, lipat ke belakang di tanda tengah, balik ke samping. (tile crop)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv FAIL
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv PASS
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv PASS
+  zxing limits: every scale down to 60 dpi; blur up to sigma 3.75 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+  opencv limits: every scale down to 80 dpi; blur up to sigma 2.25 px at 300 dpi; contrast down to 0.05; tilt up to 50.0 deg
+p2-fold·card Lipat: potong di tanda luar, lipat ke belakang di tanda tengah, balik ke samping. (the whole back)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv PASS
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+p2-fold-grey Lipat, skala abu-abu. (tile crop)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv PASS
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv PASS
+  zxing limits: every scale down to 55 dpi; blur up to sigma 3.5 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+  opencv limits: every scale down to 80 dpi; blur up to sigma 1.75 px at 300 dpi; contrast down to 0.05; tilt up to 50.0 deg
+p2-fold-grey·card Lipat, skala abu-abu. (the whole back)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv FAIL
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+p3-back Belakang (untuk uji pindai) (tile crop)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv FAIL
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+  zxing limits: every scale down to 55 dpi; blur up to sigma 3.5 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+  opencv limits: every scale down to 130 dpi; blur up to sigma 2.5 px at 300 dpi; contrast down to 0.05; tilt up to 50.0 deg
+p3-back·card Belakang (untuk uji pindai) (the whole back)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv FAIL
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv PASS
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+p3-back-0.50 Belakang, garis 0,50 mm (untuk uji pindai) (tile crop)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv PASS
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+  zxing limits: every scale down to 55 dpi; blur up to sigma 3.5 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+  opencv limits: every scale down to 90 dpi; blur up to sigma 2.75 px at 300 dpi; contrast down to 0.05; tilt up to 50.0 deg
+p3-back-0.50·card Belakang, garis 0,50 mm (untuk uji pindai) (the whole back)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv PASS
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+p4-back-grey Belakang · skala abu-abu (tile crop)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv PASS
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv FAIL
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv PASS
+  zxing limits: every scale down to 55 dpi; blur up to sigma 3.5 px at 300 dpi; contrast down to 0.15; tilt up to 72.5 deg
+  opencv limits: every scale down to 130 dpi; blur up to sigma 1.5 px at 300 dpi; contrast down to 0.05; tilt up to 50.0 deg
+p4-back-grey·card Belakang · skala abu-abu (the whole back)
+  300 dpi, actual size                     zxing PASS   opencv PASS
+  downscaled to 150 dpi                    zxing PASS   opencv PASS
+  downscaled to 100 dpi                    zxing PASS   opencv FAIL
+  blurred (sigma 1.5 px at 300 dpi)        zxing PASS   opencv PASS
+  blurred (sigma 2.5 px at 300 dpi)        zxing PASS   opencv PASS
+  angled (25 deg tilt, 8 deg turn)         zxing PASS   opencv PASS
+  low contrast (35% left)                  zxing PASS   opencv PASS
+  all combined + noise + JPEG              zxing PASS   opencv FAIL
+screen email 320 px, light, the whole screenshot (2x)
+  screen render as sent                    zxing PASS   opencv PASS
+screen email 600 px, dark, the whole screenshot (2x)
+  screen render as sent                    zxing PASS   opencv PASS
+screen phone 390 px, the whole screenshot (2x)
+  screen render as sent                    zxing PASS   opencv PASS

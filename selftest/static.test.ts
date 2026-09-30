@@ -11,6 +11,7 @@ import { join, relative, basename } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
+import { emailTests } from "./email.test";
 import { loginTests } from "./login.test";
 import { strukturTests } from "./struktur.test";
 import { unggahTests } from "./unggah.test";
@@ -33,6 +34,7 @@ import { bob39Tests } from "./bob39.test";
 import { bob40Tests } from "./bob40.test";
 import { bob41Tests } from "./bob41.test";
 import { bob25Tests } from "./bob25.test";
+import { bob42Tests } from "./bob42.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -1886,6 +1888,7 @@ export const staticTests: SelfTest[] = [
   // file so that every line this session wrote is reviewable in one place, and
   // no case that existed at the frozen baseline is touched by appending them.
   ...experienceTests,
+  ...emailTests,
   // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:
   // appended in their own file, so nothing that existed at the baseline is
   // edited to make room for them.
@@ -1914,4 +1917,5 @@ export const staticTests: SelfTest[] = [
   ...bob40Tests,
   ...bob41Tests,
   ...bob25Tests,
+  ...bob42Tests,
 ];

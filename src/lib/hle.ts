@@ -1313,7 +1313,23 @@ export type HleEvent =
   | "aktivasi.galat.dipakai"
   | "aktivasi.galat.kartu"
   | "aktivasi.galat.sesi"
-  | "aktivasi.galat.jaringan";
+  | "aktivasi.galat.jaringan"
+  // DAISY-19 (D-057(a)): the email frame's own words, and Gate 2E's delivery
+  // test. Emails render Bahasa Indonesia only; the English half keeps the table
+  // whole (UX1-S0-HLE-01) and says the same thing.
+  | "email.bingkai.merek"
+  | "email.bingkai.alasan"
+  | "email.bingkai.tidak_pernah"
+  | "email.bingkai.tanya"
+  | "email.bingkai.cadangan"
+  | "email.bingkai.uji"
+  | "email.uji.subjek"
+  | "email.uji.pratinjau"
+  | "email.uji.judul"
+  | "email.uji.isi"
+  | "email.uji.dikirim"
+  | "email.uji.tenang"
+  | "email.uji.alasan";
 
 /**
  * One key's telling, in both languages.
@@ -2716,6 +2732,24 @@ const table: Table = {
   "aktivasi.galat.kartu": { default: "Kartu belum bisa dibuat, dan tidak ada yang tersimpan. Coba lagi.", en: "The card could not be made, and nothing was saved. Try again." },
   "aktivasi.galat.sesi": { default: "Sesi Anda sudah berakhir, dan tidak ada yang dibuat. Masuk lagi, lalu ulangi.", en: "Your session has ended, and nothing was made. Sign in again, then repeat this." },
   "aktivasi.galat.jaringan": { default: "PINTAR belum bisa dihubungi. Periksa sambungan internet, lalu coba lagi.", en: "PINTAR could not be reached. Check the internet connection, then try again." },
+
+  // ─────────────────────────── DAISY-19 · the email frame (src/components/email)
+  // The frame's words, moved from the prototype's KATA (docs/coordination/ux/
+  // email-frame/bingkai.mts) unchanged, plus the staging line (ruling 3) and
+  // the delivery test Gate 2E sends once (BOB-25, UJI_PENGIRIMAN).
+  "email.bingkai.merek": { default: "PINTAR", en: "PINTAR" },
+  "email.bingkai.alasan": { default: "Anda menerima email ini karena alamat ini terhubung dengan akun PINTAR.", en: "You are receiving this email because this address is linked to a PINTAR account." },
+  "email.bingkai.tidak_pernah": { default: "PINTAR tidak pernah meminta PIN atau password lewat email.", en: "PINTAR never asks for a PIN or password by email." },
+  "email.bingkai.tanya": { default: "Ada pertanyaan? Tulis ke", en: "Questions? Write to" },
+  "email.bingkai.cadangan": { default: "Jika tombol tidak bisa dibuka, salin alamat ini ke peramban Anda:", en: "If the button does not open, copy this address into your browser:" },
+  "email.bingkai.uji": { default: "Email uji dari PINTAR versi uji coba.", en: "A test email from PINTAR's test version." },
+  "email.uji.subjek": { default: "Uji pengiriman email PINTAR", en: "PINTAR email delivery test" },
+  "email.uji.pratinjau": { default: "Email ini memastikan email dari PINTAR sampai ke kotak masuk Anda.", en: "This email checks that email from PINTAR reaches your inbox." },
+  "email.uji.judul": { default: "Uji pengiriman email", en: "Email delivery test" },
+  "email.uji.isi": { default: "Email ini dikirim untuk memastikan email dari PINTAR sampai ke kotak masuk Anda dan tampil dengan benar.", en: "This email was sent to check that email from PINTAR reaches your inbox and displays correctly." },
+  "email.uji.dikirim": { default: "Dikirim", en: "Sent" },
+  "email.uji.tenang": { default: "Tidak ada yang perlu Anda lakukan.", en: "There is nothing you need to do." },
+  "email.uji.alasan": { default: "Anda menerima email ini karena Admin platform PINTAR sedang menguji pengiriman email.", en: "You are receiving this email because PINTAR's Admin platform is testing email delivery." },
   "sync.sesi_ditutup": { default: "Asesmen ini sudah ditutup, jadi jawaban terakhir tidak lagi dapat dikirim.", en: "This assessment is already closed, so the last answer could not be sent." },
 
   // ═══════════════════════════ UX-1 · the role-based first-login tour (r2.1).
