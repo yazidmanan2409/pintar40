@@ -104,7 +104,7 @@ export default function MintaKode({ locale }: { locale: Locale }) {
     pindahFokus("kode");
   }
 
-  async function verifikasi(e: React.FormEvent<HTMLFormElement>) {
+  async function periksaKode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (layar.k !== "kode") return;
     const kode = hanyaAngka(String(new FormData(e.currentTarget).get("kode") ?? ""));
@@ -117,7 +117,7 @@ export default function MintaKode({ locale }: { locale: Locale }) {
     const fd = new FormData();
     fd.set("email", alamat.current);
     fd.set("kode", kode);
-    const r = await kirim<"verifikasi", { tujuan: string }>("verifikasi", fd);
+    const r = await kirim<"periksa", { tujuan: string }>("periksa", fd);
     if (r.ok) {
       // a whole-page load, so every part reads the new session; busy until it leaves
       window.location.assign(tujuanAman(r.tujuan));
@@ -137,7 +137,7 @@ export default function MintaKode({ locale }: { locale: Locale }) {
   if (layar.k === "kode") {
     const salah = Boolean(layar.pesan?.salah);
     return (
-      <form className="pin-form" onSubmit={verifikasi} noValidate>
+      <form className="pin-form" onSubmit={periksaKode} noValidate>
         <span className="pin-disc pin-disc-primary" aria-hidden="true">✉</span>
         <h1 className="pin-mh1" tabIndex={-1} ref={judulRef}>{s("aktifkan.kode_judul")}</h1>
         <p className="pin-lede-m">{s("aktifkan.kode_terkirim")}</p>

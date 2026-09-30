@@ -30,9 +30,9 @@ export default function AkunSaya({ locale }: { locale: Locale }) {
 
   useEffect(() => {
     let batal = false;
-    void kirim<"kartu", DataKartu>("kartu").then((r) => {
+    void kirim<"kartu", { kartu: DataKartu }>("kartu").then((r) => {
       if (batal) return;
-      if (r.ok) setMuat({ k: "ada", kartu: { nama: r.nama, pintarId: r.pintarId, tautanId: r.tautanId, konteks: r.konteks ?? [] } });
+      if (r.ok) setMuat({ k: "ada", kartu: { ...r.kartu, konteks: r.kartu.konteks ?? [] } });
       else setMuat({ k: "gagal", teks: `${s("akun.gagal_muat")} ${r.ref ? `${s("auth.card_rujukan")}: ${r.ref}.` : ""}`.trim() });
     });
     return () => { batal = true; };

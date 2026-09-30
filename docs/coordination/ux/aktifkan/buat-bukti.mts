@@ -67,10 +67,10 @@ const keadaan = (berikutnya: string, staf = true) => [200, {
   langkah: { username: berikutnya === "USERNAME" ? null : "nadia.putri", password: !["USERNAME", "PASSWORD"].includes(berikutnya), pin: ["NAMA", "SELESAI"].includes(berikutnya), nama: { nama: "Nadia Putri Maharani", dikonfirmasi: berikutnya === "SELESAI" } },
   staf, pintarId: staf ? "A14CD7ST" : null, aturanPassword: ATURAN, berlakuMenit: 10,
 }] as [number, unknown];
-const KARTU = [200, {
-  ok: true, nama: "Nadia Putri Maharani", pintarId: "A14CD7ST", tautanId: "https://app.contoh.sch.id/id/A14CD7ST",
+const KARTU = [200, { ok: true, kartu: {
+  nama: "Nadia Putri Maharani", pintarId: "A14CD7ST", tautanId: "https://app.contoh.sch.id/id/A14CD7ST",
   konteks: [{ peran: "EDUCATOR", institusi: "SMA Negeri 1 Contoh" }, { peran: "INSTITUTION_ADMIN", institusi: "SMA Negeri 1 Contoh" }],
-}] as [number, unknown];
+} }] as [number, unknown];
 const NAMA = Array.from({ length: 600 }, (_, i) => ({ baris: i + 1, nama: ["Aditya Pratama", "Siti Nurhaliza Rahmawati", "Muhammad Rizky Ramadhan Saputra", "Ni Luh Putu Ayu Kartika Dewi"][i % 4] + ` ${i + 1}`, peran: i % 25 === 0 ? "EDUCATOR" : "STUDENT", baru: i % 9 !== 0 }));
 
 type Langkah = { isi?: [string, string]; tekan?: string; tekanKata?: HleEvent; tunggu?: string; fokusJudul?: boolean };
@@ -82,7 +82,7 @@ const SKENARIO: Skenario[] = [
   { nama: "02-kode", layar: "tamu", jawab: { "/aktifkan/kode": [[200, { ok: true, kirimUlangDalam: 60, berlakuMenit: 10 }]] },
     langkah: [{ isi: ["#email", "nadia.putri@sman1contoh.sch.id"] }, { tekan: "button[type=submit]", tunggu: "#kode", fokusJudul: true }],
     periksa: (s, locale) => [`${s("aktifkan.berlaku")} ${format.durasi(600, locale)}${s("aktifkan.berlaku_lalu")}`, s("aktifkan.kirim_ulang_dalam")] },
-  { nama: "03-kode-tidak-cocok", layar: "tamu", jawab: { "/aktifkan/kode": [[200, { ok: true, kirimUlangDalam: 60, berlakuMenit: 10 }]], "/aktifkan/verifikasi": [[400, { ok: false, code: "KODE_TIDAK_COCOK" }]] },
+  { nama: "03-kode-tidak-cocok", layar: "tamu", jawab: { "/aktifkan/kode": [[200, { ok: true, kirimUlangDalam: 60, berlakuMenit: 10 }]], "/aktifkan/periksa": [[400, { ok: false, code: "KODE_TIDAK_COCOK" }]] },
     langkah: [{ isi: ["#email", "nadia.putri@sman1contoh.sch.id"] }, { tekan: "button[type=submit]", tunggu: "#kode" }, { isi: ["#kode", "482 913"] }, { tekan: "button[type=submit]", tunggu: "#kode-err" }],
     periksa: (s) => [s("aktifkan.kode_salah")] },
   { nama: "04-username", layar: "wizard", jawab: { "/api/aktifkan/keadaan": [keadaan("USERNAME")] }, langkah: [{ tunggu: "#username" }],
@@ -175,7 +175,7 @@ for (const sk of SKENARIO) {
       for (const x of sk.periksa?.((k) => S(k, locale), locale) ?? []) if (!teks.includes(x.replace(/\s+/g, " ").toLowerCase())) masalah.push(`does not say «${x}»`);
       // the code as typed is sent as digits (3), and a confirmation sends what it showed
       if (sk.nama === "03-kode-tidak-cocok") {
-        const kirim = await page.evaluate(() => window.__PERMINTAAN.filter((p) => p.jalur === "/aktifkan/verifikasi").map((p) => p.isian.kode));
+        const kirim = await page.evaluate(() => window.__PERMINTAAN.filter((p) => p.jalur === "/aktifkan/periksa").map((p) => p.isian.kode));
         if (kirim[0] !== "482913") masalah.push(`«482 913» was sent as ${JSON.stringify(kirim)}`);
       }
       if (sk.nama === "14-orang-baru-periksa") {

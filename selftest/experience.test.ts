@@ -1311,6 +1311,16 @@ export const experienceTests: SelfTest[] = [
       // adds the send log and the send limits (two tables, two service-role
       // functions); no colour, mark or brand surface.
       //
+      // MOVED 132 -> 133 for BOB-26, a person activates their own account.
+      // 20261030100000 adds one table (password_write_permits), two set-up
+      // columns (password_set_at, name_confirmed_at), the identity functions and
+      // a trigger on auth.users; no colour, mark or brand surface.
+      //
+      // MOVED 133 -> 134 for BOB-50, a single Uji Cepat does not certify.
+      // 20261031100000 changes one mode_policy row (QUICK certifies = false)
+      // and re-emits its lint; no table, no column, no colour, mark or brand
+      // surface.
+      //
       // MOVED 128 -> 129 for BOB-36, a launched Uji Cepat keeps its rules.
       // 20261023100000 adds one trigger function; no table, no column, no
       // colour, mark or brand surface.
@@ -1504,7 +1514,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 132, `${migrations.length} migrations; the frozen baseline has 132`);
+      c.expect(migrations.length === 134, `${migrations.length} migrations; the frozen baseline has 134`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3153,7 +3163,9 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 131 -> 132 for BOB-25's send log
+      // from, not a claim about the tour. MOVED 133 -> 134 for BOB-50's Uji Cepat
+      // certificate rule (20261031100000), not a tour RPC (D-024). MOVED 132 -> 133 for BOB-26's activation
+      // (20261030100000), not a tour RPC (D-024). MOVED 131 -> 132 for BOB-25's send log
       // (20261026100000), not a tour RPC (D-024). MOVED 130 -> 131 for BOB-37's per-topic mastery
       // (20261025100000), not a tour RPC (D-024). MOVED 129 -> 130 for BOB-39's integrity referral
       // (20261024100000), not a tour RPC (D-024). MOVED 128 -> 129 for BOB-36's Uji Cepat rules
@@ -3217,7 +3229,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 132, `${migs.length} migrations; the baseline has 132`);
+      c.expect(migs.length === 134, `${migs.length} migrations; the baseline has 134`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -10299,7 +10311,13 @@ export const experienceTests: SelfTest[] = [
        */
       let skema: Record<string, unknown> = {};
       try { skema = JSON.parse(readFileSync(join(repoRoot, "src", "lib", "kesehatan-skema.json"), "utf8")); } catch { /* reported below */ }
-      const ANGKA: Record<string, string[]> = { id: ["nol", "satu", "dua", "tiga", "empat", "lima", "enam"], en: ["zero", "one", "two", "three", "four", "five", "six"] };
+      // RESTATED FOR BOB-26 (Gate 3 adds three declared doors: 5 surfaces, 10
+      // addresses): the number words run to ten, and the surface list may be
+      // a series («a, b, dan c»), each name still required in the addresses
+      // sentence. The check itself is unchanged.
+      const ANGKA: Record<string, string[]> = {
+        id: ["nol", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh"],
+        en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"] };
       const katakan = (kalimat: string, n: unknown, locale: string) =>
         typeof n === "number" && new RegExp(`^(Tepat|Exactly) ${ANGKA[locale][n]}\\b`).test(kalimat);
       c.expect(!katakan("Tepat tiga permukaan publik: pemeriksaan sertifikat dan masuk dengan kartu kelas", 2, "id"),
@@ -10309,7 +10327,7 @@ export const experienceTests: SelfTest[] = [
         const alamat = t("config.kesehatan.cek.anon_reachable_http_paths", "staff", { locale });
         c.expect(katakan(permukaan, skema.anon_public_surface, locale) && katakan(alamat, skema.anon_reachable_http_paths, locale),
           `(${locale}) the health card's public-surface sentences do not say the lint's counts (${String(skema.anon_public_surface)}, ${String(skema.anon_reachable_http_paths)}): "${permukaan}" / "${alamat}"`);
-        const nama = (permukaan.split(": ")[1] ?? "").split(locale === "id" ? " dan " : " and ");
+        const nama = (permukaan.split(": ")[1] ?? "").split(locale === "id" ? /,? dan |, / : /,? and |, /);
         c.expect(nama.length === skema.anon_public_surface && nama.every((x) => x.trim() !== "" && alamat.includes(x.trim())),
           `(${locale}) the addresses sentence does not name each public surface: ${JSON.stringify(nama)} / "${alamat}"`);
       }

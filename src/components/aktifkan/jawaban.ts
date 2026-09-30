@@ -1,25 +1,29 @@
 import { format, type HleEvent, type Locale } from "@/lib/hle";
-import { JALUR, STATUS, LANGKAH, type AlasanPassword, type KodeRute, type Langkah, type Rute } from "./kontrak";
+import {
+  bacaJawabanKartu, bacaJawabanKirimKartu, bacaJawabanMasukPassword, bacaJawabanMintaKode, bacaJawabanNama,
+  bacaJawabanPassword, bacaJawabanPin, bacaJawabanSelesai, bacaJawabanUsername, bacaJawabanVerifikasi,
+  STATUS_WIZARD,
+} from "@/lib/aktivasi-kontrak";
+import { JALUR, type AlasanPassword, type KodeRute, type Langkah, type Rute } from "./kontrak";
 
 /**
  * WHAT BOB-26's ROUTES ANSWER, READ ONCE (DAISY-20).
  *
  * Every activation, sign-in and card request goes through `kirim`, and every
- * answer through `baca`. The screens never read a status, a body or an error's
- * text themselves (D-011): they get either the route's success body or one
- * refusal — a code from the contract (./kontrak.ts), a wait when the route
- * gave one, a reference when the server failed — and say it with `kalimat`.
+ * answer body through the CONTRACT'S OWN READER for that route
+ * (`src/lib/aktivasi-kontrak.ts`): a route's success shape, or one of its own
+ * codes, and anything else is its general unavailable answer. The screens
+ * never read a status, a body or an error's text themselves (D-011): they get
+ * the success body, or one refusal -- a code, a wait when the route gave one,
+ * a reference when the server failed -- and say it with `kalimat`.
  *
- * A KNOWN CODE WINS; a body without one is read by its status, so a code the
- * contract gains still lands on the right family of sentence; anything else,
- * a dropped connection included, is PUTUS: "could not reach PINTAR".
+ * Two things are the screen's, not the body's: an answer that never arrived
+ * (a dropped connection) is PUTUS, "could not reach PINTAR"; and a wait the
+ * body did not carry is taken from `Retry-After`, never invented.
  *
  * NOTHING HERE CAN TELL ONE ADDRESS FROM ANOTHER. The contract answers every
  * signed-out request the same way for an address or username that exists and
- * one that does not (§0), and the readers keep only what the answer carries:
- * no code is invented from timing, and no wait is invented at all. A wait is
- * the route's own `tunggu` (or `Retry-After`), which is counted identically
- * whether or not the account exists (§2.2, §2.3).
+ * one that does not (§0), and this keeps only what the answer carries.
  */
 
 export type Gagal<R extends Rute> = {
@@ -40,48 +44,79 @@ function detik(v: unknown): number | null {
   return Number.isFinite(n) && n >= 1 && n <= 86_400 ? Math.ceil(n) : null;
 }
 
-/** A route's answer as a screen needs it. Pure. */
-export function baca<R extends Rute, T extends object>(
-  rute: R,
-  status: number,
-  body: unknown,
-  jedaHeader: string | null = null,
-): Jawaban<R, T> {
-  const b = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
-  if (status >= 200 && status < 300 && b.ok === true) return b as { ok: true } & T;
-  const peta = STATUS[rute] as Record<string, number>;
-  const dariKode = typeof b.code === "string" && b.code in peta ? b.code : null;
-  const dariStatus = Object.keys(peta).find((k) => peta[k] === status) ?? null;
-  const kode = (dariKode ?? dariStatus ?? "PUTUS") as KodeRute<R> | "PUTUS";
+type Dibaca = { ok: boolean; code?: string; tunggu?: number; ref?: string; alasan?: AlasanPassword[]; kurang?: Langkah[] };
+
+/**
+ * `GET /api/aktifkan/keadaan` is the one route the contract ships no reader
+ * for; this reads it by the contract's own rules (the wizard's codes, a
+ * six-character reference, anything else unavailable).
+ */
+function bacaKeadaan(isi: unknown): Dibaca {
+  const o = (isi && typeof isi === "object" ? isi : {}) as Record<string, unknown>;
+  if (o.ok === true && ["REQUIRED", "COMPLETE", "NOT_APPLICABLE"].includes(String(o.keadaan))
+    && typeof o.berlakuMenit === "number" && typeof o.staf === "boolean" && !!o.aturanPassword) return o as Dibaca;
+  if (o.ok === false && typeof o.code === "string" && o.code in STATUS_WIZARD) {
+    return { ok: false, code: o.code, ...(typeof o.ref === "string" && /^[A-Z0-9]{6}$/.test(o.ref) ? { ref: o.ref } : {}) };
+  }
+  return { ok: false, code: "LAYANAN_TIDAK_TERSEDIA" };
+}
+
+/** The contract's reader for each route. */
+const PEMBACA: { [R in Rute]: (isi: unknown) => Dibaca } = {
+  kode: bacaJawabanMintaKode,
+  periksa: bacaJawabanVerifikasi,
+  masukPassword: bacaJawabanMasukPassword,
+  keadaan: bacaKeadaan,
+  username: bacaJawabanUsername,
+  password: bacaJawabanPassword,
+  pin: bacaJawabanPin,
+  nama: bacaJawabanNama,
+  selesai: bacaJawabanSelesai,
+  kartu: bacaJawabanKartu,
+  kirimKartu: bacaJawabanKirimKartu,
+};
+
+/**
+ * A route's answer as a screen needs it. Pure. `null` is no answer at all.
+ */
+export function baca<R extends Rute, T extends object>(rute: R, body: unknown | null, jedaHeader: string | null = null): Jawaban<R, T> {
+  if (body === null) return { ok: false, kode: "PUTUS", tunggu: null, ref: null, alasan: [], kurang: [] };
+  const j = PEMBACA[rute](body);
+  if (j.ok) return j as unknown as { ok: true } & T;
+  const kode = j.code as KodeRute<R>;
   const menunggu = /TUNGGU|DIBATASI/.test(kode);
   return {
     ok: false,
     kode,
-    tunggu: menunggu ? detik(b.tunggu) ?? detik(jedaHeader) : null,
-    ref: kode === "LAYANAN_TIDAK_TERSEDIA" && typeof b.ref === "string" && /^[A-Za-z0-9-]{4,40}$/.test(b.ref) ? b.ref : null,
-    alasan: Array.isArray(b.alasan) ? (b.alasan.filter((a) => a === "PANJANG" || a === "BOCOR" || a === "KARAKTER") as AlasanPassword[]) : [],
-    kurang: Array.isArray(b.kurang) ? LANGKAH.filter((l) => (b.kurang as unknown[]).includes(l)) : [],
+    tunggu: menunggu ? detik(j.tunggu) ?? detik(jedaHeader) : null,
+    // a reference is shown only when the server failed (§0), whatever else rides along
+    ref: kode === "LAYANAN_TIDAK_TERSEDIA" ? j.ref ?? null : null,
+    alasan: j.alasan ?? [],
+    kurang: j.kurang ?? [],
   };
 }
 
 /**
  * The one request: to PINTAR's own route, same origin, never cached. A form
  * is POSTed as it is (the contract takes form data, §0); no form is a GET.
+ * A body that is not JSON is no body, which the contract's reader answers as
+ * unavailable; a request that never came back is PUTUS.
  */
 export async function kirim<R extends Rute, T extends object>(rute: R, fd?: FormData): Promise<Jawaban<R, T>> {
+  let r: Response;
   try {
-    const r = await fetch(JALUR[rute], {
+    r = await fetch(JALUR[rute], {
       method: fd ? "POST" : "GET",
       body: fd,
       headers: { accept: "application/json" },
       cache: "no-store",
       credentials: "same-origin",
     });
-    const body = await r.json().catch(() => null);
-    return baca<R, T>(rute, r.status, body, r.headers.get("retry-after"));
   } catch {
-    return baca<R, T>(rute, 0, null);
+    return baca<R, T>(rute, null);
   }
+  const body = await r.json().catch(() => ({}));
+  return baca<R, T>(rute, body, r.headers.get("retry-after"));
 }
 
 /** A place inside PINTAR, or PINTAR's front door: never another site. */
@@ -107,10 +142,8 @@ export function hanyaAngka(v: string): string {
   return v.replace(/\D+/g, "");
 }
 
-/** A PINTAR ID in its display form, 4 + 4 (IDENTITY-4.0 §4): «A14C D7ST». */
-export function id44(id: string): string {
-  return /^[0-9A-Z]{8}$/.test(id) ? `${id.slice(0, 4)} ${id.slice(4)}` : id;
-}
+/** A PINTAR ID in its display form, 4 + 4 (IDENTITY-4.0 §4): «A14C D7ST». The contract's own. */
+export { tampilPintarId as id44 } from "@/lib/aktivasi-kontrak";
 
 // ─────────────────────────────────────────────────────────── the sentences
 type S = (k: HleEvent) => string;

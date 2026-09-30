@@ -29,3 +29,14 @@ export function cardEmail(cardNumber: string): string {
 export function kunciJedaKartu(cardNumber: string): string {
   return createHmac("sha256", cardPepper()).update(`jeda-kartu|${cardNumber}`).digest("hex");
 }
+
+/**
+ * BOB-26: the keys Gate 3's attempts are counted under (BOB-24's
+ * identity_attempts), made the card's way: an HMAC with the same pepper under
+ * a label of its own, so the database never sees an address or a username and
+ * nobody without the pepper can compute or clear another's record. Anything
+ * typed is keyed the same way, existing or not.
+ */
+export function kunciIdentitas(label: "kode-alamat" | "masuk-password", nilai: string): string {
+  return createHmac("sha256", cardPepper()).update(`${label}|${nilai}`).digest("hex");
+}

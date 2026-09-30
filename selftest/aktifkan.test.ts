@@ -122,7 +122,7 @@ export const aktifkanTests: SelfTest[] = [
         const peta = STATUS[r] as Record<string, number>;
         for (const [kode, status] of Object.entries(peta)) {
           jumlah++;
-          const g = baca(r, status, { ok: false, code: kode, tunggu: 45, ref: "PTR-7F3A", alasan: ["PANJANG", "BOCOR"], message: "duplicate key value violates unique constraint" });
+          const g = baca(r, { ok: false, code: kode, tunggu: 45, ref: "7F3A9K", alasan: ["PANJANG", "BOCOR"], message: "duplicate key value violates unique constraint" });
           c.expect(!g.ok && (g as Gagal<Rute>).kode === kode, `${r} ${status} ${kode} is not read back as itself`);
           for (const locale of LOCALES) {
             const s = (k: HleEvent) => t(k, "public", { locale });
@@ -139,53 +139,64 @@ export const aktifkanTests: SelfTest[] = [
         const s = (k: HleEvent) => t(k, "public", { locale });
         for (const [r, awalan] of [["username", "USERNAME_"], ["pin", "PIN_"]] as const) {
           const kode = Object.keys(STATUS[r]).filter((k) => k.startsWith(awalan));
-          const kal = new Set(kode.map((k) => kalimat(baca(r, (STATUS[r] as Record<string, number>)[k], { ok: false, code: k }) as Gagal<Rute>, s, locale)));
+          const kal = new Set(kode.map((k) => kalimat(baca(r, { ok: false, code: k }) as Gagal<Rute>, s, locale)));
           c.expect(kode.length >= 7 && kal.size === kode.length, `${r} (${locale}): ${kode.length} refusals read as ${kal.size} sentence(s)`);
         }
       }
 
-      // 2. HOW AN ANSWER IS READ (BOB-26 §0): a known code wins over the
-      //    status; an unknown code falls back to the status; nothing at all,
-      //    or a status the route never gives, is «not reached».
-      c.expect(baca("kode", 200, { ok: true, kirimUlangDalam: 60, berlakuMenit: 10 }).ok === true, "a 200 with ok:true is not read as success");
-      c.expect((baca("kode", 500, { ok: false, code: "EMAIL_TIDAK_SAH" }) as Gagal<"kode">).kode === "EMAIL_TIDAK_SAH", "a known code does not win over the status");
-      c.expect((baca("kode", 400, { ok: false, code: "SESUATU_BARU" }) as Gagal<"kode">).kode === "EMAIL_TIDAK_SAH", "an unknown code is not read by its status");
-      c.expect((baca("kode", 418, { ok: false }) as Gagal<"kode">).kode === "PUTUS" && (baca("kode", 0, null) as Gagal<"kode">).kode === "PUTUS",
-        "no answer, or a status the route never gives, is not «not reached»");
-      c.expect((baca("verifikasi", 200, { ok: false, code: "KODE_TIDAK_COCOK" }) as Gagal<"verifikasi">).kode === "KODE_TIDAK_COCOK",
-        "a 200 that says ok:false is taken as success");
+      // 2. HOW AN ANSWER IS READ. RESTATED AT THE JOINT GATE: bodies go
+      //    through the contract's own reader for each route
+      //    (src/lib/aktivasi-kontrak.ts): the route's success shape, one of
+      //    its own codes, or else its general unavailable answer. An answer
+      //    that never arrived is «not reached».
+      c.expect(baca("kode", { ok: true, kirimUlangDalam: 60, berlakuMenit: 10 }).ok === true, "a success body is not read as success");
+      c.expect(baca("kode", { ok: true }).ok === false, "a success body without the route's fields is taken as success");
+      c.expect((baca("kode", { ok: false, code: "EMAIL_TIDAK_SAH" }) as Gagal<"kode">).kode === "EMAIL_TIDAK_SAH", "a route's own code is not read as itself");
+      c.expect((baca("kode", { ok: false, code: "SESUATU_BARU" }) as Gagal<"kode">).kode === "LAYANAN_TIDAK_TERSEDIA"
+        && (baca("kode", { ok: false, code: "KODE_TIDAK_COCOK" }) as Gagal<"kode">).kode === "LAYANAN_TIDAK_TERSEDIA"
+        && (baca("kode", {}) as Gagal<"kode">).kode === "LAYANAN_TIDAK_TERSEDIA",
+        "a code the route does not give, another route's code, or no body, is not the unavailable answer");
+      c.expect((baca("kode", null) as Gagal<"kode">).kode === "PUTUS", "no answer at all is not «not reached»");
+      c.expect((baca("periksa", { ok: false, code: "KODE_TIDAK_COCOK" }) as Gagal<"periksa">).kode === "KODE_TIDAK_COCOK",
+        "the code check's refusal is not read");
+      c.expect((baca("keadaan", { ok: true, keadaan: "REQUIRED", berikutnya: "PIN", langkah: null, staf: false, pintarId: null, aturanPassword: {}, berlakuMenit: 10 }) as { ok: boolean }).ok
+        && (baca("keadaan", { ok: true }) as Gagal<"keadaan">).kode === "LAYANAN_TIDAK_TERSEDIA"
+        && (baca("keadaan", { ok: false, code: "BELUM_MASUK" }) as Gagal<"keadaan">).kode === "BELUM_MASUK",
+        "the wizard's state is not read by the contract's rules");
       for (const locale of LOCALES) {
         const s = (k: HleEvent) => t(k, "public", { locale });
-        c.expect(kalimat(baca("kode", 0, null) as Gagal<"kode">, s, locale) === s("auth.card_putus"), `(${locale}) no answer is not told as a lost connection`);
+        c.expect(kalimat(baca("kode", null) as Gagal<"kode">, s, locale) === s("auth.card_putus"), `(${locale}) no answer is not told as a lost connection`);
       }
 
       // 3. A WAIT IS THE ROUTE'S OWN, NEVER INVENTED. From the body, else
       //    from Retry-After; «a moment» when neither says; never on an answer
       //    that is not a wait; and a wait is a note, not a judgement.
-      const tunggu = (b: Record<string, unknown>, h: string | null = null) => (baca("verifikasi", 429, { ok: false, ...b }, h) as Gagal<"verifikasi">).tunggu;
+      const tunggu = (b: Record<string, unknown>, h: string | null = null) => (baca("periksa", { ok: false, ...b }, h) as Gagal<"periksa">).tunggu;
       c.expect(tunggu({ code: "KODE_TUNGGU", tunggu: 45 }) === 45 && tunggu({ code: "KODE_TUNGGU" }, "120") === 120 && tunggu({ code: "KODE_TUNGGU" }) === null,
         "the wait is not the body's, then Retry-After's, then none");
       c.expect(tunggu({ code: "KODE_TUNGGU", tunggu: "lama" }) === null && tunggu({ code: "KODE_TUNGGU", tunggu: -5 }) === null && tunggu({ code: "KODE_TUNGGU", tunggu: 999999 }) === null,
         "a wait that is not a sensible number of seconds is shown");
-      c.expect((baca("verifikasi", 400, { ok: false, code: "KODE_TIDAK_COCOK", tunggu: 45 }) as Gagal<"verifikasi">).tunggu === null, "a wait is read on an answer that is not a wait");
+      c.expect((baca("periksa", { ok: false, code: "KODE_TIDAK_COCOK", tunggu: 45 }) as Gagal<"periksa">).tunggu === null, "a wait is read on an answer that is not a wait");
       c.expect(menunggu({ kode: "KODE_TUNGGU" }) && menunggu({ kode: "MASUK_DIBATASI" }) && !menunggu({ kode: "KODE_TIDAK_COCOK" }), "a wait and a refusal are not told apart");
       for (const locale of LOCALES) {
         const s = (k: HleEvent) => t(k, "public", { locale });
-        const a = kalimat(baca("verifikasi", 429, { ok: false, code: "KODE_TUNGGU", tunggu: 45 }) as Gagal<"verifikasi">, s, locale);
-        const b = kalimat(baca("masukPassword", 429, { ok: false, code: "MASUK_TUNGGU" }) as Gagal<"masukPassword">, s, locale);
+        const a = kalimat(baca("periksa", { ok: false, code: "KODE_TUNGGU", tunggu: 45 }) as Gagal<"periksa">, s, locale);
+        const b = kalimat(baca("masukPassword", { ok: false, code: "MASUK_TUNGGU" }) as Gagal<"masukPassword">, s, locale);
         c.expect(a.includes(format.durasi(45, locale)) && a.startsWith(s("aktifkan.kode_sering")), `(${locale}) the code's wait does not say the route's 45 seconds: «${a}»`);
         c.expect(b.includes(s("auth.card_tunggu_sebentar")) && !/\d/.test(b), `(${locale}) a wait with no duration invents one: «${b}»`);
       }
 
       // 4. A REFERENCE ONLY WHEN THE SERVER FAILED, and only a reference
-      const ref = (b: Record<string, unknown>, st = 503) => (baca("kode", st, { ok: false, ...b }) as Gagal<"kode">).ref;
-      c.expect(ref({ code: "LAYANAN_TIDAK_TERSEDIA", ref: "PTR-7F3A" }) === "PTR-7F3A", "the server's reference is lost");
-      c.expect(ref({ code: "EMAIL_TIDAK_SAH", ref: "PTR-7F3A" }, 400) === null && ref({ code: "LAYANAN_TIDAK_TERSEDIA", ref: "<b>x</b> y" }) === null,
+      //    (the contract's six characters, RESTATED AT THE JOINT GATE)
+      const ref = (b: Record<string, unknown>) => (baca("kode", { ok: false, ...b }) as Gagal<"kode">).ref;
+      c.expect(ref({ code: "LAYANAN_TIDAK_TERSEDIA", ref: "7F3A9K" }) === "7F3A9K", "the server's reference is lost");
+      c.expect(ref({ code: "EMAIL_TIDAK_SAH", ref: "7F3A9K" }) === null && ref({ code: "LAYANAN_TIDAK_TERSEDIA", ref: "<b>x</b> y" }) === null
+        && ref({ code: "LAYANAN_TIDAK_TERSEDIA", ref: "PTR-7F3A" }) === null,
         "a reference is shown on an answer that is not a failure, or something that is not a reference is");
       for (const locale of LOCALES) {
         const s = (k: HleEvent) => t(k, "public", { locale });
-        const x = kalimat(baca("kode", 503, { ok: false, code: "LAYANAN_TIDAK_TERSEDIA", ref: "PTR-7F3A" }) as Gagal<"kode">, s, locale);
-        c.expect(x.includes("PTR-7F3A") && x.includes(s("aktifkan.rujukan_arti")), `(${locale}) the reference is not given with what to do with it`);
+        const x = kalimat(baca("kode", { ok: false, code: "LAYANAN_TIDAK_TERSEDIA", ref: "7F3A9K" }) as Gagal<"kode">, s, locale);
+        c.expect(x.includes("7F3A9K") && x.includes(s("aktifkan.rujukan_arti")), `(${locale}) the reference is not given with what to do with it`);
         c.expect(/yang mengurus PINTAR di sekolah Anda|looks after PINTAR at your school/.test(s("aktifkan.rujukan_arti")),
           `(${locale}) the help line does not name who looks after PINTAR at the school (Terminology v1)`);
       }
@@ -193,7 +204,7 @@ export const aktifkanTests: SelfTest[] = [
       // 5. PASSWORD_LEMAH says each reason the route gave, in its order
       for (const locale of LOCALES) {
         const s = (k: HleEvent) => t(k, "public", { locale });
-        const x = kalimat(baca("password", 422, { ok: false, code: "PASSWORD_LEMAH", alasan: ["PANJANG", "BOCOR", "LAIN"] }) as Gagal<"password">, s, locale);
+        const x = kalimat(baca("password", { ok: false, code: "PASSWORD_LEMAH", alasan: ["PANJANG", "BOCOR", "LAIN"] }) as Gagal<"password">, s, locale);
         c.expect(x === `${s("aktifkan.kode.PASSWORD_LEMAH.PANJANG")} ${s("aktifkan.kode.PASSWORD_LEMAH.BOCOR")}`, `(${locale}) a weak password's reasons are not said in order: «${x}»`);
       }
 
@@ -208,10 +219,11 @@ export const aktifkanTests: SelfTest[] = [
 
       c.note(`${jumlah} code(s) over ${rute.length} route(s)`);
       return c.verdict(
-        "every code BOB-26's contract names, on every route, is read back as itself (a known code over its status, an unknown one by " +
-        "its status, no answer as «not reached») and said as a plain sentence in both languages with no code word, no internal word " +
+        "every code BOB-26's contract names, on every route, is read back as itself through the contract's own reader for that route " +
+        "(a success only with the route's fields, another route's code or none as the unavailable answer, no answer as «not reached») " +
+        "and said as a plain sentence in both languages with no code word, no internal word " +
         "and none of the server's own text; each username and PIN refusal reads differently; a wait is the route's own (body, then " +
-        "Retry-After) and «a moment» when it gave none, never on a refusal; a reference only on a server failure, with who to give it " +
+        "Retry-After) and «a moment» when it gave none, never on a refusal; a reference (six characters) only on a server failure, with who to give it " +
         "to; a weak password gives each reason in order; «482 913» is the code as typed or pasted; the ID shows 4 + 4; a destination " +
         "never leaves PINTAR",
       );
@@ -382,7 +394,7 @@ export const aktifkanTests: SelfTest[] = [
       const tanya = berkas.flatMap((f) => [...code(baca1(repoRoot, "src", "components", "aktifkan", f)).matchAll(/kirim<"kartu"/g)].map(() => f));
       c.expect(tanya.length === 2 && tanya.includes("AkunSaya.tsx") && tanya.includes("WizardAktivasi.tsx"), `the card is requested from ${tanya.join(", ")}`);
       const wiz = code(baca1(repoRoot, "src", "components", "aktifkan", "WizardAktivasi.tsx"));
-      c.expect(/if \(keadaan\.staf\) \{\s*const k = await kirim<"kartu", DataKartu>\("kartu"\);/.test(wiz) && /status: keadaan\.staf \? r\.kartu : "TIDAK_ADA"/.test(wiz),
+      c.expect(/if \(keadaan\.staf\) \{\s*const k = await kirim<"kartu", \{ kartu: DataKartu \}>\("kartu"\);/.test(wiz) && /status: keadaan\.staf \? r\.kartu : "TIDAK_ADA"/.test(wiz),
         "the wizard asks for a card, or reports one, for an account that is not staff");
 
       // 3. RENDERED: the welcome a learner-only account gets shows no ID, no
@@ -589,9 +601,20 @@ export const aktifkanTests: SelfTest[] = [
       const hal = code(baca1(repoRoot, "src", "app", "aktifkan", "page.tsx"));
       c.expect(/viewer \? <WizardAktivasi locale=\{locale\} \/> : <MintaKode locale=\{locale\} \/>/.test(hal), "/aktifkan does not choose between the email and the wizard by the session");
       c.expect(/href="\/aktifkan"/.test(masuk) && /s\("auth\.aktifkan_go"\)/.test(masuk), "«Masuk ke PINTAR» does not lead to «Aktifkan akun»");
+      // RESTATED AT THE JOINT GATE: the contract is BOB-26's own file, and
+      // the screens' module restates no code, status or shape -- it re-exports
+      // them and adds only the paths, the code check's at /aktifkan/periksa
+      // (INV-38 keeps «verifikasi» for the certificate route)
       const kontrak = code(baca1(repoRoot, "src", "components", "aktifkan", "kontrak.ts"));
-      c.expect(/export const TAUTAN_MASUK_CADANGAN = true;/.test(kontrak) || existsSync(join(repoRoot, "src", "lib", "aktivasi-kontrak.ts")),
-        "the email-link fallback switch is neither the transcription's nor BOB-26's");
+      c.expect(existsSync(join(repoRoot, "src", "lib", "aktivasi-kontrak.ts")) && /from "@\/lib\/aktivasi-kontrak";/.test(kontrak)
+        && /TAUTAN_MASUK_CADANGAN/.test(kontrak) && !/\b[A-Z_]{4,}:\s*\d{3}\b/.test(kontrak) && !/export type (KeadaanAktivasi|DataKartu|AturanPassword) =/.test(kontrak),
+        "the screens' contract module restates the contract instead of importing BOB-26's");
+      c.expect(/periksa: "\/aktifkan\/periksa"/.test(kontrak) && !/verifikasi"/.test(kontrak) && /kirim<"periksa", \{ tujuan: string \}>\("periksa", fd\)/.test(minta),
+        "the code is not checked at /aktifkan/periksa");
+      const jaw2 = code(baca1(repoRoot, "src", "components", "aktifkan", "jawaban.ts"));
+      c.expect(["bacaJawabanMintaKode", "bacaJawabanVerifikasi", "bacaJawabanMasukPassword", "bacaJawabanUsername", "bacaJawabanPassword",
+        "bacaJawabanPin", "bacaJawabanNama", "bacaJawabanSelesai", "bacaJawabanKartu", "bacaJawabanKirimKartu"].every((f) => new RegExp(`: ${f},`).test(jaw2)),
+        "a route's answer is read by something other than the contract's own reader");
 
       return c.verdict(
         "every DAISY-20 request is jawaban.ts's one fetch to the contract's path, no-store and same-origin, and no screen reads a " +

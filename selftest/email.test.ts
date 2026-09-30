@@ -35,9 +35,13 @@ import {
   bingkaiEmail, tampilKode, tautanAman, logoEmail, BERKAS_LOGO, WARNA, KONTAK, RANAH, BADAN_HUKUM, type Email,
 } from "../src/components/email/bingkai";
 import { templatUjiPengiriman } from "../src/components/email/uji";
-import { templatKodeAktivasi, templatKodeUlang } from "../src/components/email/kode";
-import { templatKartuDigital } from "../src/components/email/kartu";
-import type { DataEmailKartu, DataEmailKode } from "../src/components/aktifkan/kontrak";
+import { templatKode, templatKartu } from "../src/components/email/identitas";
+import type { DataEmailKartu, DataEmailKode } from "../src/lib/email/identitas";
+
+// the two code emails, as BOB-26's send asks for them (src/app/api/_email/identitas.ts)
+const templatKodeAktivasi: Templat<DataEmailKode> = (d, k) => templatKode({ ...d, ulang: false }, k);
+const templatKodeUlang: Templat<DataEmailKode> = (d, k) => templatKode({ ...d, ulang: true }, k);
+const templatKartuDigital: Templat<DataEmailKartu> = templatKartu;
 
 const PRODUKSI: KonteksEmail = { asal: "https://app.pintarselalu.com", staging: false };
 const STAGING: KonteksEmail = { asal: "https://staging.pintarselalu.com", staging: true };
@@ -183,7 +187,7 @@ export const emailTests: SelfTest[] = [
       c.expect(kunci.length >= 13, `only ${kunci.length} email key(s) in the copy table`);
       // every module in src/components/email, so a new template is held to it the day it is added
       const berkasEmail = readdirSync(join(repoRoot, "src", "components", "email")).filter((f) => /\.tsx?$/.test(f));
-      c.expect(["bingkai.ts", "uji.ts", "kode.ts", "kartu.ts"].every((f) => berkasEmail.includes(f)), `the email modules are not where this test reads them: ${berkasEmail.join(", ")}`);
+      c.expect(["bingkai.ts", "uji.ts", "identitas.ts"].every((f) => berkasEmail.includes(f)), `the email modules are not where this test reads them: ${berkasEmail.join(", ")}`);
       // comments are not words a reader sees: the rule is about what the modules write
       const sumber = berkasEmail.map((f) => readFileSync(join(repoRoot, "src", "components", "email", f), "utf8")
         .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")).join("\n");
@@ -393,7 +397,8 @@ export const emailTests: SelfTest[] = [
         c.expect(!/\d/.test(row.default) && !/\d/.test(row.en ?? ""), `${k} types a number itself: «${row.default}»`);
         c.expect(!/segera|soon|immediately/i.test(`${row.default} ${row.en}`), `${k} says «segera» instead of a real duration`);
       }
-      const srcKode = readFileSync(join(repoRoot, "src", "components", "email", "kode.ts"), "utf8");
+      // one module holds both (BOB-26's correction (a)): src/components/email/identitas.ts
+      const srcKode = readFileSync(join(repoRoot, "src", "components", "email", "identitas.ts"), "utf8");
       c.expect(/format\.durasi\(data\.berlakuMenit \* 60, "id"\)/.test(srcKode), "the code email's duration is not read from its data");
 
       // 3. THE CODE, GROUPED, and the greeting only when there is a name
@@ -420,14 +425,15 @@ export const emailTests: SelfTest[] = [
 
       // 5. THE SOURCES: typed as BOB-25's Templat, reading BOB-26's data
       //    shapes, sending nothing
-      const srcKartu = readFileSync(join(repoRoot, "src", "components", "email", "kartu.ts"), "utf8");
-      for (const [nama, src] of [["kode.ts", srcKode], ["kartu.ts", srcKartu]] as const) {
-        c.expect(/from "@\/lib\/email\/templat"/.test(src) && /: Templat<DataEmail(Kode|Kartu)>/.test(src), `${nama} is not typed as BOB-25's Templat over BOB-26's data`);
-        c.expect(!/process\.env|server-only|nodemailer|kirimEmail|fetch\(/.test(src), `${nama} reads configuration or sends`);
-      }
+      c.expect(/from "@\/lib\/email\/templat"/.test(srcKode) && /from "@\/lib\/email\/identitas"/.test(srcKode)
+        && /export const templatKode: Templat<DataEmailKode & \{ ulang: boolean \}>/.test(srcKode) && /export const templatKartu: Templat<DataEmailKartu>/.test(srcKode),
+        "identitas.ts's templates are not BOB-25's Templat over BOB-26's data shapes, under the names BOB-26's send imports");
+      c.expect(!/process\.env|server-only|nodemailer|kirimEmail|fetch\(/.test(srcKode), "identitas.ts reads configuration or sends");
+      const kirimSrc = readFileSync(join(repoRoot, "src", "app", "api", "_email", "identitas.ts"), "utf8");
+      c.expect(/import \{ templatKartu, templatKode \} from "@\/components\/email\/identitas";/.test(kirimSrc), "BOB-26's send does not render these templates");
 
       return c.verdict(
-        "the activation code and its resend (src/components/email/kode.ts) and the PINTAR Card (kartu.ts) are BOB-25's Templat " +
+        "the activation code and its resend and the PINTAR Card (src/components/email/identitas.ts, which BOB-26's send renders) are BOB-25's Templat " +
         "over BOB-26 §5's data, each in its own copy table words; the code emails say the real duration from berlakuMenit " +
         "(10, and planted 7 and 60, each exactly once) and no email.kode or email.kartu line types a number or says «segera»; " +
         "the code is shown «482 913» in both bodies and the greeting names the person only when there is a name; the card " +

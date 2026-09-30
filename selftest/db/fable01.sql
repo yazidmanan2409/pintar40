@@ -393,15 +393,29 @@ begin
   test_id := 'F01-T16'; invariant := 'doc 02 Account'; ok := (n = 1 and n2 = 1); detail := format('card account=%s profile=%s', n, n2); return next;
 
   -- F01-T17 own profile update only
+  -- RESTATED FOR BOB-26 (D-077(2), Yazid 30 Sep: "unrestricted self-edit is a
+  -- defect: close it"). The name is governed identity data now, so a learner's
+  -- own update of it is REFUSED (the column grant is gone), where it used to be
+  -- asserted as allowed. What stays the learner's own is the photo; another
+  -- person's row and anonymized_at stay out of reach, as before. The governed
+  -- paths (activation's one confirmation, the platform admin's correction) are
+  -- F18's, with the Ironman test.
   ok := true; detail := '';
   perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
-  update public.persons set display_name = 'Siswa Alpha Satu (sintetis, diubah)' where id = p_as1; get diagnostics n = row_count;
-  if n <> 1 then ok := false; detail := detail || 'own update failed; '; end if;
-  update public.persons set display_name = 'x' where id = p_as2; get diagnostics n = row_count;
+  begin
+    update public.persons set display_name = 'Siswa Alpha Satu (sintetis, diubah)' where id = p_as1;
+    ok := false; detail := detail || 'a learner still changed their own name directly; ';
+  exception when insufficient_privilege then null; end;
+  update public.persons set photo_path = photo_path where id = p_as1; get diagnostics n = row_count;
+  if n <> 1 then ok := false; detail := detail || 'own photo update failed; '; end if;
+  update public.persons set photo_path = photo_path where id = p_as2; get diagnostics n = row_count;
   if n <> 0 then ok := false; detail := detail || 'updated another person; '; end if;
   begin update public.persons set anonymized_at = now() where id = p_as1; ok := false; detail := detail || 'learner set anonymized_at; '; exception when others then null; end;
   perform selftest.as_owner();
-  test_id := 'F01-T17'; invariant := 'doc 05 profile'; if ok then detail := 'own display_name only'; end if; return next;
+  if (select display_name from public.persons where id = p_as1) is distinct from 'Siswa Alpha Satu (sintetis)' then
+    ok := false; detail := detail || 'the learner''s name changed; ';
+  end if;
+  test_id := 'F01-T17'; invariant := 'doc 05 profile'; if ok then detail := 'own photo only; the name is governed (D-077), a direct update refused'; end if; return next;
 
   -- F01-T18 feature flags & platform config authority
   ok := true; detail := '';

@@ -72,8 +72,8 @@ export default function WizardAktivasi({ locale }: { locale: Locale }) {
     // C17: only staff have a card, and only staff are shown one
     let kartu: DataKartu | null = null;
     if (keadaan.staf) {
-      const k = await kirim<"kartu", DataKartu>("kartu");
-      if (k.ok) kartu = { nama: k.nama, pintarId: k.pintarId, tautanId: k.tautanId, konteks: k.konteks ?? [] };
+      const k = await kirim<"kartu", { kartu: DataKartu }>("kartu");
+      if (k.ok) kartu = { ...k.kartu, konteks: k.kartu.konteks ?? [] };
     }
     setTahap({ k: "selamat", kartu, status: keadaan.staf ? r.kartu : "TIDAK_ADA", tujuan: tujuanAman(r.tujuan) });
     setFokus((n) => n + 1);
@@ -171,7 +171,7 @@ export default function WizardAktivasi({ locale }: { locale: Locale }) {
       }} />
     );
   } else {
-    const nama = tahap.keadaan.langkah.nama.nama;
+    const nama = tahap.keadaan.langkah?.nama.nama ?? "";
     isi = (
       <LangkahNama {...umum} nama={nama} ubah={tahap.ubahNama}
         onBenar={() => void langkah("nama", {})}

@@ -173,7 +173,8 @@ jobs:
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
                db-bob06-gates, db-bob12-gates, db-bob24-gates,
-               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates, db-bob25-gates]
+               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates, db-bob25-gates,
+               db-bob26-gates, db-bob50-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -243,6 +244,10 @@ jobs:
               echo "the three per-topic mastery defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob25-gates)
               echo "the five send-log and limit defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob26-gates)
+              echo "the eight activation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob50-gates)
+              echo "the four Uji Cepat certificate defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
@@ -1835,6 +1840,26 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob25.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob25-gates
+      - name: Local stack (activation gate)
+        if: matrix.case == 'db-bob26-gates'
+        id: gatesBob26
+        uses: ./.github/actions/local-stack
+      - name: Each planted activation defect must turn its own F18 test red
+        if: matrix.case == 'db-bob26-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob26.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob26-gates
+
+      # BOB-50's gate: a single Uji Cepat does not issue a certificate (D-082(d)).
+      - name: Local stack (Uji Cepat certificate gate)
+        if: matrix.case == 'db-bob50-gates'
+        id: gatesBob50
+        uses: ./.github/actions/local-stack
+      - name: Each planted Uji Cepat certificate defect must turn its own F19 test red
+        if: matrix.case == 'db-bob50-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob50.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob50-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'
@@ -1899,6 +1924,13 @@ jobs:
           # Not a secret: a CI-only signing key, exactly as CARD_PEPPER above.
           # The certificates it signs exist for the length of one job.
           CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus
+          # BOB-26: the app's own sends (activation codes, the card) go to the
+          # Mailpit sink above and nowhere else. Not secrets: the sink accepts
+          # any login, and loopback is the only plain connection allowed.
+          PINTAR_SMTP_HOST: 127.0.0.1
+          PINTAR_SMTP_PORT: "54325"
+          PINTAR_SMTP_USER: noreply@pintarselalu.test
+          PINTAR_SMTP_PASSWORD: sink-accepts-any
           PINTAR_BUILD_SHA: ${{ github.sha }}
           SELFTEST_APP_PORT: 3999
           SELFTEST_CI_UPSTREAM: >-
