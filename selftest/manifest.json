@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 127,
+  "version": 128,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2088,6 +2088,15 @@
       ],
       "proves": "BOB-25 part (5), src/app/api/_email/kode.ts executes against CI's local stack: terbitkanKodeEmail asks Auth's admin generate_link for an existing user's email_otp, and the code verifies (verifyOtp); an unknown id and an address issue nothing and no Auth user is created; the production path (the service-role RPCs) reserves, sends into the sink and logs SENT without the code.",
       "skip_justification": "needs the local Supabase stack (Auth and PostgREST) as well as the database and the Mailpit sink; this session has no Docker, CI has all three and runs it strictly"
+    },
+    {
+      "id": "BOB42-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "BOB-42 (D-067): in the database, in one rolled-back transaction, the teacher launches an Uji Cepat, a learner finishes it, and the teacher launches a second in the same class, every read made as the teacher through RLS; then src/lib/pengajar.ts's pilihBerjalan executes over those rows: running while its window is open, nothing running a minute after it (the Uji Cepat page then draws Atur), the second alone running after it is launched, the first kept CLOSED with its hand-in and its sessions and results unchanged; keadaanHariIni (src/components/bukti/KeadaanHariIni.tsx) presents only open windows, and the one that closed when none is; keadaanEfektif closes exactly at closes_at; berjalan's source chooses through it with the real clock.",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
       "id": "BOB39-K01",
