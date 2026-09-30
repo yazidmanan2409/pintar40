@@ -1,9 +1,9 @@
 # Educator as learner: ticket set
 
-**Status: PROPOSED, for Yazid's approval. Every decision is now ruled (D-069, D-070); the set has no open question.** Prepared 30 Sep 2026 from D-069, the rulings on `EDUCATOR-AS-LEARNER-ASSESSMENT.md` §6, and updated the same day with D-070, the rulings on the six questions in §8.
+**Status: APPROVED by Yazid, 30 Sep 2026. Rows opened on the board** (section *Educator as learner*). Every decision is ruled (D-069, D-070, including clarifications (g)–(i)); the set has no open question. Prepared 30 Sep 2026 from D-069, the rulings on `EDUCATOR-AS-LEARNER-ASSESSMENT.md` §6, and updated the same day with D-070, the rulings on the six questions in §8.
 
 - Nothing is implemented.
-- No ticket is open on the board yet; the IDs below are reserved.
+- The rows are open on the board as TODO; nothing starts before Gate 2E, and each lane takes them only after every item already in its queue.
 - Bob, Daisy and Lana stay paused until Gate 2E is released.
 - The gate order is unchanged.
 
@@ -49,7 +49,7 @@ All nine are ruled. Preparing the tickets exposed six narrower questions that th
 | R5 | **Admin sekolah: "flag any operational need for more".** Checked: transfers use the enrolment only, and Pendataan and Konfigurasi read none of this. | No need found; nothing flagged. |
 | R6 | **Facilitator answers: "raise a conflict with an essential workflow".** Checked: EDUCATOR holds no CAN_REVIEW_INTEGRITY, and no teacher surface reads `responses`. Teachers mark no answers in 4.0. | No conflict; the facilitator gets no answers. |
 | R7 | **The Dekan lacks CAN_VIEW_LEARNER_RESULT** (M/20260926100000:143-162). | BOB-47 gives the Dekan PD scores through its audience-checked read and the catalogue. It does **not** broaden RLS on academic results. |
-| R8 | **Integrity and Admin platform (rulings 1H and 2).** | School roles see no PD signal. Admin platform keeps its existing read and the existing review outcomes, **except referral**, which is refused for PD for everyone. This is my reading of "retain only legitimate existing access"; say if you want Admin platform's Studio «Integritas» to omit PD signals too. |
+| R8 | **Integrity and Admin platform (rulings 1H and 2).** | School roles see no PD signal. Admin platform keeps its existing read and the existing review outcomes, **except referral**, which is refused for PD for everyone. Confirmed by Yazid (D-070(i)). |
 | R9 | **«Peserta».** Terminology v1 defines it as "participants in a measurement". D-069(k) extends it to the professional-learning participant. | Recorded as a note on D-068 and in the freeze package §1. Both meanings are "those taking part". The professional-learning record (D-070(a)) shows no figures. The one place both could meet is the PD Kelas's existing «Lihat bukti» page, whose academic figures are empty by design there; how that page presents is judged in DAISY-35 (5). |
 | R10 | **UX1-AJAR-KONTEKS-01** fails if any `src` file names the learning context (T/experience.test.ts:5868-5881). | Staff surfaces receive a *semantic kind* from the database, never the context itself. The Konfigurasi Bagian form is the one place that must express the choice. If that cannot be done without naming it, the guard is re-scoped to learner surfaces by a coordinator record in the gate, never evaded by renaming (stop condition in BOB-43 and DAISY-32). |
 | R11 | **Only one chapter was supplied.** The files are the front matter with the table of contents (10 pages) and **Bab 1 «Pendahuluan»** (22 pages). Bab II «Klasifikasi dan Pemilihan Strategi Pembelajaran» was not among them. | **Ruled (D-070(d)):** Yazid supplied Bab II (28 pages, sections A–G). |
@@ -743,13 +743,13 @@ The six questions preparing the tickets raised, with Yazid's rulings. The option
 | DR-5 | "Removed after the demo" on staging | **A:** branch copy deleted; releases withdrawn; sealed text and evidence stay in the synthetic school | C-13's close |
 | DR-6 | Does ENGINEERING COMPLETE include the package | **A:** yes | §5; DAISY-35 joins the one UI/UX POLISHED pass |
 
-**One reading of DR-3, stated so it can be corrected:** "currently holds a staff role" is checked when the person is placed. If the role lapses later, the existing membership and its evidence stay; only new placements are refused.
+**Clarifications confirmed with the approval (D-070(g)–(i)):** (g) DR-3's staff-role condition is checked when a person is placed; if the role lapses later, the existing membership and its evidence stay, and only new placements are refused. (h) A PD Kelas keeps its ordinary «Lihat bukti» page, empty of academic figures by design; its presentation is DAISY-35 (5). (i) Admin platform keeps its existing read of PD integrity signals and cannot refer them (R8).
 
 ---
 
 ## 9. Confirmation
 
-- **NO IMPLEMENTATION PERFORMED.** Documentation only: D-069 and D-070, notes on D-068 and in the freeze package, the content standard's visual rule, the assessment's status line, this file, the board note, and the Namecheap window in GATE-0-FACTS §4. No application code, database, migration, RLS, application string, content, staging data or production data was changed.
+- **NO IMPLEMENTATION PERFORMED.** Documentation only: D-069 and D-070 (with (g)–(i)), the board rows (TODO, after Gate 2E), notes on D-068 and in the freeze package, the content standard's visual rule, the assessment's status line, this file, the board note, and the Namecheap window in GATE-0-FACTS §4. No application code, database, migration, RLS, application string, content, staging data or production data was changed.
 - **BOB PAUSED.**
 - **DAISY PAUSED.**
 - **LANA PAUSED.**
