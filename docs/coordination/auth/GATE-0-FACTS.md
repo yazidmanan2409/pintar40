@@ -175,3 +175,11 @@ Namecheap moves the hosting account to another server for the upgrade (new IP an
   3. Also update Vercel's `PINTAR_SMTP_PASSWORD` if it is already set there.
   4. Do not retry the sign-in until then: each failed attempt is a failed SMTP login, and repeated ones can make the new server block Supabase's sending address.
   5. Then retry both sign-ins, and check «Show original».
+- **Fixed by Yazid, 30 Sep ~08:20 UTC:** a new password for `noreply@pintarselalu.com`, set in cPanel and entered in both Supabase projects and in Vercel (`PINTAR_SMTP_PASSWORD`, staging project; nothing reads it until BOB-25).
+- **Sign-ins after the fix: both PASS** (Auth logs, read-only):
+  - **Staging:** `/otp` 200 at 08:24:32, `/verify` 303 at 08:25:12, `/token` 200 at 08:25:13.
+  - **Production:** `/otp` 200 at 08:25:58, `/verify` 303 at 08:26:34, `/token` 200 at 08:26:36.
+
+  Both emails left through the new server and arrived.
+- **Production pages were slow after sign-in (Yazid had to refresh). Known, and already fixed on `main`:** `platform_schema_lint` returned 500 (statement timeout, 57014) on each platform-admin Konfigurasi load, 08:26:57–08:27:51. Production still runs `5b5b68d`, which runs the lint on every load. BOB-18 (D-046) made it run only when an operator asks, and that reaches production with the next controlled release (C-11). Nothing to change now.
+- **Remaining before Gate 2E is recorded as released:** the DKIM signing proof. The sign-in emails went to a `pintarselalu.com` mailbox, a local delivery that verifies nothing. Gmail's «Show original» of the 14:58 `info@` test email (the same server and signing key) should read SPF, DKIM and DMARC PASS.
