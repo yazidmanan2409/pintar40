@@ -2075,7 +2075,7 @@
         "db",
         "mailsink"
       ],
-      "proves": "BOB-25, real sends into the Mailpit sink logged by the database's own email_send_reserve/email_send_settle: a send arrives with FROM, Reply-To, the normalised address and both parts, logged SENT 250; the minute's limit refuses a second code before the host is asked; the host's 451 (Mailpit chaos) is reported DITOLAK_SERVER, never as sent, logged REFUSED_BY_HOST 451, and the same address is sent once the minute has passed; no listener is GAGAL_KIRIM, logged FAILED; a missing variable, an unencrypted connection to a non-local host and a subject carrying a header are refused before anything is counted; the send log and the console hold no address, code or password.",
+      "proves": "BOB-25, the module src/app/api/_email/kirim.ts executes real sends into the Mailpit sink, with the migration's email_send_reserve/email_send_settle logging them: a send arrives with FROM, Reply-To, the normalised address and both parts, logged SENT 250; the minute's limit refuses a second code before the host is asked; the host's 451 (Mailpit chaos) is reported DITOLAK_SERVER, never as sent, logged REFUSED_BY_HOST 451, and the same address is sent once the minute has passed; no listener is GAGAL_KIRIM, logged FAILED; a missing variable, an unencrypted connection to a non-local host and a subject carrying a header are refused before anything is counted; the send log and the console hold no address, code or password.",
       "skip_justification": "needs a Postgres with the migrations applied and the Mailpit sink; CI's strict job starts both and runs it strictly"
     },
     {
@@ -2086,7 +2086,7 @@
         "db",
         "mailsink"
       ],
-      "proves": "BOB-25 part (5): terbitkanKodeEmail asks Auth's admin generate_link for an existing user's email_otp, and the code verifies (verifyOtp); an unknown id and an address issue nothing and no Auth user is created; the production path (the service-role RPCs) reserves, sends into the sink and logs SENT without the code.",
+      "proves": "BOB-25 part (5), src/app/api/_email/kode.ts executes against CI's local stack: terbitkanKodeEmail asks Auth's admin generate_link for an existing user's email_otp, and the code verifies (verifyOtp); an unknown id and an address issue nothing and no Auth user is created; the production path (the service-role RPCs) reserves, sends into the sink and logs SENT without the code.",
       "skip_justification": "needs the local Supabase stack (Auth and PostgREST) as well as the database and the Mailpit sink; this session has no Docker, CI has all three and runs it strictly"
     },
     {

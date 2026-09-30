@@ -29,11 +29,13 @@ const MESIN_INI = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
 
 export type KodeGalatPengaturan = "VARIABEL_HILANG" | "NILAI_TIDAK_SAH" | "KONEKSI_TIDAK_AMAN";
 
-/** A configuration error. Its message names the variable, never a value. */
+/** A configuration error. It names the variable (`variabel`, and in its message), never a value. */
 export class GalatPengaturanEmail extends Error {
+  readonly variabel: string;
   constructor(readonly kode: KodeGalatPengaturan, pesan: string) {
     super(pesan);
     this.name = "GalatPengaturanEmail";
+    this.variabel = /^(PINTAR_SMTP_[A-Z]+|NEXT_PUBLIC_APP_URL)\b/.exec(pesan)?.[1] ?? "";
   }
 }
 

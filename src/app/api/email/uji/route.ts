@@ -19,7 +19,8 @@ export const runtime = "nodejs";
  * anyone signed out. Anyone else gets 403 and nothing is sent or counted.
  *
  * THE ANSWER says whether the email was sent, and why not. Only a platform
- * admin reads it, so a configuration error names the variable, never a value.
+ * admin reads it: a configuration error answers its code and the variable's
+ * name, never an error message or a value.
  */
 export async function POST(request: NextRequest) {
   const asal = request.headers.get("origin");
@@ -48,10 +49,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(hasil, { status: hasil.terkirim ? 200 : 502 });
   } catch (e) {
     if (e instanceof GalatPengaturanEmail) {
-      return NextResponse.json({ terkirim: false, galat: e.kode, pesan: e.message }, { status: 503 });
+      // the code and which variable, both fixed strings; never a message or a value
+      return NextResponse.json({ terkirim: false, galat: e.kode, variabel: e.variabel }, { status: 503 });
     }
     if (e instanceof GalatEmail) {
-      return NextResponse.json({ terkirim: false, galat: "PERMINTAAN_TIDAK_SAH", pesan: e.message }, { status: 400 });
+      return NextResponse.json({ terkirim: false, galat: "PERMINTAAN_TIDAK_SAH" }, { status: 400 });
     }
     return NextResponse.json({ terkirim: false, galat: "GAGAL" }, { status: 500 });
   }

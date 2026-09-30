@@ -127,7 +127,7 @@ export const bob25Tests: SelfTest[] = [
       for (const nama of Object.keys(dasar)) {
         for (const kosong of [undefined, ""]) {
           const r = baca({ ...dasar, [nama]: kosong });
-          c.expect(r.galat?.kode === "VARIABEL_HILANG" && r.galat.message.includes(nama),
+          c.expect(r.galat?.kode === "VARIABEL_HILANG" && r.galat.message.includes(nama) && (r.galat as { variabel?: string }).variabel === nama,
             `${nama} ${kosong === undefined ? "missing" : "empty"} was answered ${JSON.stringify(r.ok ? { ...r.ok, password: "(redacted)" } : r.galat?.message)}, not refused by name`);
         }
       }
