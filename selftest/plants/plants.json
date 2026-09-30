@@ -55,6 +55,11 @@
       "control_green": 35,
       "what": "BOB-39's referral: «Diteruskan ke pihak sekolah» in the Studio's integrity review raises the INTEGRITY_REFERRAL decision in the same transaction, so the Head of Department's /pimpinan queue shows it"
     },
+    "db-bob25-gates": {
+      "suite": "selftest.run_fable17()",
+      "control_green": 3,
+      "what": "BOB-25's send log and limits: email_send_reserve refuses by each scope and counts what it should, a send settles once, and no client role reaches the log"
+    },
     "db-bob37-gates": {
       "suite": "selftest.run_fable06()",
       "control_green": 35,
@@ -653,6 +658,11 @@
     { "name": "bob39-1", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "a referral through the review left 0 AWAITING_REVIEW decision(s)" },
     { "name": "bob37-1", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery did not show for five learners" },
     { "name": "bob37-2", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the school's competency outcomes hold nothing for the two objectives" },
-    { "name": "bob37-3", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery is {\"BOB37-A\": 0.5000" }
+    { "name": "bob37-3", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery is {\"BOB37-A\": 0.5000" },
+    { "name": "bob25-1", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "one slot under the ceiling, after refusals, was still refused" },
+    { "name": "bob25-2", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "three of them refused by the host, was answered" },
+    { "name": "bob25-3", "gate": "db-bob25-gates", "expect_red": "F17-L02", "expect_detail": "a settled send was settled a second time" },
+    { "name": "bob25-4", "gate": "db-bob25-gates", "expect_red": "F17-N01", "expect_detail": "authenticated may reserve or settle a send" },
+    { "name": "bob25-5", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "a second code to the same address within a minute was answered" }
   ]
 }
