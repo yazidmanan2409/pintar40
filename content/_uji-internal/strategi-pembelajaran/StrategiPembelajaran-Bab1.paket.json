@@ -1,0 +1,1164 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "[UJI INTERNAL] Strategi Pembelajaran — Bab 1: Pendahuluan",
+   "subject": "Pengembangan Kompetensi",
+   "stage": "Guru",
+   "grade_label": "Guru",
+   "konteks": "Pengembangan profesi",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "[UJI INTERNAL] Pendahuluan",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "[UJI INTERNAL] Pengertian Strategi Pembelajaran",
+       "summary": "Strategi pembelajaran adalah rencana rangkaian kegiatan untuk mencapai tujuan tertentu; tujuan dirumuskan lebih dulu.",
+       "body_markdown": "**UJI INTERNAL / MATERI PERAGAAN — TIDAK UNTUK DISTRIBUSI PRODUKSI**\n\nSumber: Dr. Siti Nurhasanah, M.Pd; Dr. (Cdt) Agus Jayadi, M.Pd; Dr. Rika Sa'diyah, M.Pd; Syafrimen, M.Ed, Ph.D. *Strategi Pembelajaran*. Jakarta: Penerbit EDU PUSTAKA, 2019, Cetakan Pertama. ISBN 978-623-90461-7-0. Bab I «Pendahuluan», hlm. 1–36. Materi ini adalah adaptasi dekat untuk peragaan internal.\n\n## Dari strategi ke strategi pembelajaran\n\nIstilah strategi berasal dari dunia militer; kata Yunani *stratēgos* berarti komandan militer. Sebelum bertindak, seorang komandan menimbang jumlah dan mutu pasukannya serta memperhitungkan faktor dari dalam dan dari luar. Baru sesudah itu ia menyusun tindakan.\n\nDari akar itu, bab ini merumuskan strategi sebagai pola yang sengaja direncanakan dan ditetapkan untuk melakukan suatu tindakan. Dalam pendidikan, **strategi pembelajaran** adalah perencanaan yang memuat rangkaian kegiatan yang dirancang untuk mencapai tujuan pendidikan tertentu.\n\n## Pembelajaran, bukan sekadar pengajaran\n\nUndang-Undang No. 20 Tahun 2003 merumuskan pembelajaran sebagai proses interaksi peserta didik dengan pendidik dan sumber belajar dalam suatu lingkungan belajar. Pembelajaran dan pengajaran bermakna mirip, tetapi konotasinya berbeda:\n\n- **Pengajaran** berkesan pekerjaan satu pihak, yaitu guru.\n- **Pembelajaran** menyiratkan interaksi guru dengan peserta didik. Belajar adalah kegiatan primer; mengajar adalah kegiatan sekunder yang mengupayakan agar belajar berlangsung optimal.\n\nKegiatan pembelajaran melibatkan beberapa komponen:\n\n- **peserta didik** dan **guru**;\n- **tujuan**: pernyataan perubahan perilaku (kognitif, afektif, psikomotorik) yang diharapkan sesudah pembelajaran;\n- **materi**: fakta, prinsip, dan konsep yang dibutuhkan untuk mencapai tujuan;\n- **metode**: cara teratur agar peserta didik memperoleh informasi yang mereka butuhkan;\n- **media**: bahan, dengan atau tanpa peralatan, untuk menyajikan informasi;\n- **evaluasi**: cara menilai proses dan hasilnya.\n\n## Dua ciri yang perlu Anda cermati\n\nPara ahli yang dirangkum bab ini memberi tekanan yang berbeda. Kemp menekankan kegiatan guru dan peserta didik agar tujuan tercapai secara efektif dan efisien. Dick dan Carey menambahkan bahwa strategi tidak terbatas pada prosedur, tetapi juga mencakup pengaturan materi. Gerlach dan Ely menyebut sifat, lingkup, dan urutan kegiatan yang memberi pengalaman belajar.\n\nDari rumusan-rumusan itu, bab ini menarik dua ciri:\n\n1. Strategi adalah **rencana tindakan**, termasuk penggunaan metode dan pemanfaatan sumber daya. Pada tahap ini strategi masih berupa rencana kerja; ia belum sampai pada tindakan.\n2. Strategi disusun **untuk mencapai tujuan**. Karena itu, sebelum menentukan strategi, rumuskan dulu tujuan yang jelas dan dapat diukur keberhasilannya. Bab ini menyebut tujuan sebagai roh pelaksanaan strategi.\n\n## Situasi di kelas\n\nSeorang guru IPA SMP sudah menyiapkan tayangan yang menarik dan lembar kerja untuk topik fotosintesis. Ketika ditanya apa yang harus dapat dilakukan peserta didik di akhir pertemuan, ia belum dapat menjawab dengan pasti.\n\nMenurut bab ini, bahan itu belum menjadi strategi yang utuh, karena semua keputusan strategi diarahkan pada tujuan. Langkah yang tepat adalah merumuskan tujuan yang terukur lebih dulu, lalu menilai apakah tayangan dan lembar kerja benar-benar melayani tujuan itu. Keputusan tentang strategi yang paling tepat untuk kelas dan mata pelajaran Anda tetap ada di tangan Anda.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab I. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat membedakan pembelajaran dari pengajaran dan menilai apakah suatu rencana sudah memenuhi dua ciri strategi pembelajaran.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru baru menyusun rencana untuk pertemuan pertamanya. Menurut pengertian strategi pembelajaran dalam bab ini, apa yang perlu ia rumuskan sebelum menentukan strategi?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "daftar metode mengajar yang paling ia kuasai dan paling sering ia pakai",
+           "is_correct": false,
+           "rationale": "Metode dipakai untuk mewujudkan strategi yang sudah ditetapkan, jadi dipilih sesudah strategi, bukan sebelumnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "tujuan pembelajaran yang jelas dan dapat diukur keberhasilannya",
+           "is_correct": true,
+           "rationale": "Bab ini menyebut tujuan sebagai roh strategi: arah semua keputusan strategi adalah tujuan, jadi tujuan dirumuskan lebih dulu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "media pembelajaran dan alat peraga yang tersedia di sekolah",
+           "is_correct": false,
+           "rationale": "Media memang komponen pembelajaran, tetapi pilihannya mengikuti tujuan; tanpa tujuan, tidak ada dasar untuk memilih media."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "urutan bab dalam buku teks yang dipakai sekolah",
+           "is_correct": false,
+           "rationale": "Urutan buku teks berkaitan dengan materi; strategi ditentukan oleh sifat tujuan pembelajaran."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang wakil kepala sekolah menerima dokumen «strategi pembelajaran» dari seorang guru. Dokumen itu berisi urutan kegiatan, metode, dan sumber belajar yang akan dipakai, tetapi belum dilaksanakan di kelas. Bagaimana dokumen itu dinilai menurut pengertian strategi dalam bab ini?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "belum dapat disebut strategi, karena strategi baru terbentuk setelah kegiatan berlangsung di kelas",
+           "is_correct": false,
+           "rationale": "Bab ini menegaskan kebalikannya: penyusunan strategi baru sampai pada rencana kerja, belum pada tindakan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "kurang tepat, karena strategi hanya berisi metode dan tidak memuat sumber belajar",
+           "is_correct": false,
+           "rationale": "Strategi justru mencakup penggunaan metode dan pemanfaatan berbagai sumber daya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "sesuai, karena strategi memang masih rencana tindakan; yang perlu dicek adalah kejelasan tujuannya",
+           "is_correct": true,
+           "rationale": "Strategi adalah rencana tindakan yang belum sampai pada pelaksanaan, dan tujuannya harus jelas serta terukur."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "sudah cukup asalkan tujuan tidak dimasukkan, karena tujuan ditetapkan terpisah dari strategi",
+           "is_correct": false,
+           "rationale": "Tujuan adalah arah semua keputusan strategi dan harus dirumuskan sebelum strategi ditentukan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut bab ini, apa perbedaan pokok antara «pengajaran» dan «pembelajaran»?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "pembelajaran hanya berlaku di sekolah, sedangkan pengajaran berlangsung sepanjang hayat",
+           "is_correct": false,
+           "rationale": "Bab ini justru merumuskan pembelajaran sebagai interaksi dengan pendidik dan sumber belajar dalam suatu lingkungan belajar, tidak terbatas pada sekolah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "keduanya sama persis; istilah pembelajaran hanya lebih baru dipakai",
+           "is_correct": false,
+           "rationale": "Keduanya bermakna mirip, tetapi konotasinya berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "pengajaran berpusat pada kegiatan peserta didik, sedangkan pembelajaran pada penyampaian materi oleh guru",
+           "is_correct": false,
+           "rationale": "Pernyataan ini membalik keduanya: pengajaran yang berkesan kerja satu pihak, yaitu guru."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "pembelajaran menekankan interaksi guru dan peserta didik; pengajaran berkesan kerja guru saja",
+           "is_correct": true,
+           "rationale": "Bab ini menyatakan pengajaran berkesan pekerjaan satu pihak, sedangkan pembelajaran menyiratkan interaksi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru menulis: «Setelah praktikum, peserta didik dapat menyusun laporan pengamatan dengan format yang disepakati.» Dalam komponen kegiatan pembelajaran, rumusan ini termasuk ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "tujuan, karena menyatakan perubahan perilaku yang diharapkan",
+           "is_correct": true,
+           "rationale": "Tujuan adalah pernyataan perubahan perilaku yang diharapkan terjadi sesudah pembelajaran."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "materi pelajaran, karena menyebut isi yang harus dipelajari",
+           "is_correct": false,
+           "rationale": "Materi berupa fakta, prinsip, dan konsep; rumusan ini menyatakan kemampuan yang diharapkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "metode, karena menyebut cara peserta didik memperoleh informasi",
+           "is_correct": false,
+           "rationale": "Metode adalah cara teratur memberi kesempatan memperoleh informasi; rumusan ini menyatakan hasil yang dituju."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "evaluasi, karena menyebut hasil yang akan dinilai di akhir",
+           "is_correct": false,
+           "rationale": "Evaluasi adalah cara menilai proses dan hasil; rumusan ini menyatakan apa yang dituju, bukan cara menilainya."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "[UJI INTERNAL] Jenis-Jenis Strategi Pembelajaran",
+       "summary": "Setiap strategi memuat empat unsur; bab ini mengelompokkan strategi menjadi langsung, tidak langsung, interaktif, melalui pengalaman, dan mandiri.",
+       "body_markdown": "## Empat unsur setiap strategi\n\nBab ini mengambil empat unsur strategi dari Newman dan Logan, lalu menerapkannya pada pembelajaran:\n\n1. menetapkan tujuan secara rinci, yaitu perubahan perilaku dan pribadi peserta didik yang dituju;\n2. memilih pendekatan pembelajaran yang dipandang paling efektif;\n3. menetapkan langkah, prosedur, metode, dan teknik pembelajaran;\n4. menetapkan kriteria dan batas minimum keberhasilan.\n\nStrategi masih bersifat konseptual: ia berisi keputusan yang akan diambil. Untuk melaksanakannya, guru memakai metode tertentu.\n\n## Cara mengelompokkan strategi\n\nRowntree membedakan strategi ekspositori dan penemuan (*exposition-discovery*), serta strategi kelompok dan individual (*group-individual*). Menurut cara penyajian dan pengolahannya, strategi juga dapat bersifat induktif atau deduktif.\n\nBab ini kemudian memakai klasifikasi Saskatchewan (1991) yang membagi strategi menjadi lima kelompok:\n\n- **Langsung.** Berpusat pada guru dan paling sering dipakai; mencakup ceramah, pertanyaan didaktik, pengajaran eksplisit, praktik dan latihan, serta demonstrasi. Efektif untuk memperluas informasi atau mengembangkan keterampilan langkah demi langkah.\n- **Tidak langsung.** Peserta didik terlibat tinggi dalam mengamati, menyelidiki, menarik inferensi dari data, atau membentuk hipotesis. Guru tidak lagi berceramah, tetapi menjadi fasilitator, pendukung, dan narasumber; ia merancang lingkungan belajar dan, bila mungkin, memberi umpan balik selama penyelidikan. Strategi ini memerlukan bahan cetak, noncetak, dan sumber manusia.\n- **Interaktif.** Diskusi dan saling berbagi antarpeserta didik, dalam bentuk diskusi kelas, diskusi kelompok kecil atau tugas kelompok, dan kerja berpasangan.\n- **Melalui pengalaman.** Urutan induktif, berpusat pada peserta didik, dan berorientasi aktivitas; yang ditekankan adalah proses belajar, bukan hasilnya. Dapat dipakai di dalam kelas, misalnya simulasi, maupun di luar kelas, misalnya observasi.\n- **Mandiri.** Membangun inisiatif, kemandirian, dan peningkatan diri. Fokusnya perencanaan belajar oleh peserta didik sendiri dengan bantuan guru; dapat juga dilakukan bersama teman atau dalam kelompok kecil.\n\nBab 2 buku ini membahas kelima kelompok tersebut lebih rinci.\n\n## Situasi di kelas\n\nSeorang guru Biologi SMA mempunyai dua tujuan pada minggu yang sama. Pertama, peserta didik dapat memakai mikroskop dengan urutan langkah yang aman. Kedua, peserta didik dapat merumuskan dugaan tentang pengaruh cahaya terhadap pertumbuhan kecambah dari data pengamatan mereka sendiri.\n\nTujuan pertama adalah keterampilan langkah demi langkah, sehingga strategi langsung, misalnya demonstrasi lalu praktik dan latihan, sesuai. Tujuan kedua menuntut peserta didik menarik inferensi dan membentuk hipotesis dari data, sehingga strategi tidak langsung lebih sesuai; peran Anda bergeser menjadi perancang lingkungan belajar dan pemberi umpan balik.\n\nPilihan strategi mengikuti sifat tujuan, bukan kebiasaan. Dalam satu minggu Anda dapat memakai strategi yang berbeda untuk tujuan yang berbeda, asalkan kriteria keberhasilan masing-masing sudah ditetapkan sejak awal.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab I. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat mengenali unsur sebuah strategi dan memilih kelompok strategi yang sesuai dengan sifat tujuan pembelajaran.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru ingin peserta didik menguasai cara memakai neraca laboratorium, langkah demi langkah, dalam waktu singkat. Kelompok strategi mana yang paling sesuai menurut klasifikasi dalam bab ini?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "strategi belajar mandiri",
+           "is_correct": false,
+           "rationale": "Belajar mandiri menekankan inisiatif dan perencanaan belajar oleh peserta didik sendiri, bukan penguasaan prosedur yang cepat dan terpandu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "strategi pembelajaran interaktif",
+           "is_correct": false,
+           "rationale": "Strategi interaktif berupa diskusi dan saling berbagi; ia tidak diarahkan pada latihan urutan langkah suatu prosedur."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "strategi pembelajaran langsung",
+           "is_correct": true,
+           "rationale": "Strategi langsung efektif untuk mengembangkan keterampilan langkah demi langkah, misalnya melalui demonstrasi lalu praktik dan latihan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "strategi belajar melalui pengalaman",
+           "is_correct": false,
+           "rationale": "Strategi ini menekankan proses belajar yang induktif, bukan penguasaan prosedur yang cepat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru IPS ingin peserta didik menyusun dugaan sendiri tentang penyebab kemacetan di sekitar sekolah, berdasarkan data lalu lintas yang mereka kumpulkan. Peran guru mana yang paling sesuai dengan strategi yang cocok untuk tujuan ini?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "fasilitator yang merancang lingkungan belajar dan memberi umpan balik selama penyelidikan",
+           "is_correct": true,
+           "rationale": "Tujuannya menarik inferensi dan membentuk hipotesis dari data, yaitu strategi tidak langsung; di sini guru menjadi fasilitator dan perancang lingkungan belajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "penceramah yang menjelaskan penyebab kemacetan secara runtut sebelum pengamatan dimulai",
+           "is_correct": false,
+           "rationale": "Ini peran dalam strategi langsung, yang efektif untuk memperluas informasi; dugaan peserta didik tidak lagi lahir dari data mereka."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "pengamat yang membiarkan peserta didik bekerja tanpa rancangan kegiatan dan tanpa umpan balik",
+           "is_correct": false,
+           "rationale": "Dalam strategi tidak langsung guru tetap merancang lingkungan belajar dan, bila mungkin, memberi umpan balik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "moderator debat yang membagi kelas menjadi pihak pro dan kontra sejak awal pelajaran",
+           "is_correct": false,
+           "rationale": "Debat adalah bentuk interaktif untuk saling menanggapi gagasan; tujuan ini menuntut inferensi dari data yang dikumpulkan sendiri."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru meminta peserta didik kelas XI menyusun sendiri rencana belajar untuk proyek individu selama satu bulan, dengan konsultasi berkala kepadanya. Strategi yang ia pakai adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "pembelajaran langsung",
+           "is_correct": false,
+           "rationale": "Strategi langsung berpusat pada guru; di sini peserta didik yang menyusun rencana belajarnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "belajar mandiri",
+           "is_correct": true,
+           "rationale": "Belajar mandiri berfokus pada perencanaan belajar oleh peserta didik sendiri dengan bantuan guru."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "pembelajaran interaktif",
+           "is_correct": false,
+           "rationale": "Strategi interaktif berupa diskusi dan saling berbagi antarpeserta didik; proyek ini individual."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "belajar melalui pengalaman",
+           "is_correct": false,
+           "rationale": "Strategi ini menekankan urutan induktif dan proses; ciri utama situasi ini adalah perencanaan belajar oleh peserta didik sendiri."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru sudah menetapkan tujuan, memilih pendekatan, dan menyusun langkah-langkah pembelajaran. Unsur strategi mana yang menurut bab ini masih belum ada?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "pemilihan media yang paling menarik bagi peserta didik",
+           "is_correct": false,
+           "rationale": "Media adalah komponen pembelajaran, tetapi tidak termasuk empat unsur strategi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "rumusan visi sekolah sebagai induk semua tujuan",
+           "is_correct": false,
+           "rationale": "Tujuan yang lebih tinggi memang berjenjang di atas tujuan pembelajaran, tetapi merumuskannya bukan unsur strategi pembelajaran; unsur yang belum ada adalah ukuran keberhasilan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "kriteria dan batas minimum keberhasilan",
+           "is_correct": true,
+           "rationale": "Unsur keempat strategi adalah menetapkan kriteria dan batas minimum ukuran keberhasilan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "taktik pribadi guru dalam menyampaikan materi",
+           "is_correct": false,
+           "rationale": "Taktik adalah gaya pribadi dalam melaksanakan metode, bukan unsur strategi."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "[UJI INTERNAL] Sasaran Kegiatan Pembelajaran",
+       "summary": "Tujuan pembelajaran berjenjang; belajar-mengajar adalah sistem yang komponennya saling bergantung, dan guru perlu memahami peserta didiknya.",
+       "body_markdown": "## Tujuan yang berjenjang\n\nSetiap kegiatan belajar-mengajar mempunyai sasaran atau tujuan. Tujuan itu bertahap dan berjenjang: dari yang paling operasional dan konkret, yaitu tujuan pembelajaran khusus, ke tujuan pembelajaran umum, tujuan kurikuler, dan tujuan nasional, sampai tujuan yang bersifat universal.\n\nTujuan yang Anda tulis untuk satu pertemuan berada di jenjang paling konkret dari rangkaian itu.\n\n## Belajar-mengajar sebagai sistem\n\nBab ini memandang belajar-mengajar sebagai sistem instruksional, yaitu seperangkat komponen yang saling bergantung untuk mencapai tujuan. Komponennya antara lain tujuan, bahan ajar, peserta didik, guru, metode dan pendekatan, situasi, serta evaluasi kemajuan belajar.\n\nAgar tujuan tercapai, semua komponen harus diorganisasikan dengan baik sehingga saling bekerja sama. Karena komponen-komponen itu saling bergantung, satu komponen yang tidak selaras dapat melemahkan yang lain.\n\n## Peran guru dan pemahaman tentang peserta didik\n\nDalam sistem itu guru berperan sebagai pengajar dan pembimbing, penghubung sekolah dengan masyarakat, administrator, dan peran lain. Karena itu wajar bila guru memahami berbagai aspek pribadi peserta didiknya. Bab ini menyebut dua belas aspek, yang dapat dikelompokkan sebagai berikut:\n\n- kecerdasan dan bakat khusus, serta prestasi sejak awal sekolah;\n- perkembangan jasmani dan kesehatan, kecenderungan emosi, dan karakter;\n- sikap dan minat belajar, cita-cita, kebiasaan belajar dan bekerja, serta hobi dan penggunaan waktu luang;\n- hubungan sosial di sekolah dan di rumah, latar belakang keluarga, dan lingkungan tempat tinggal;\n- sifat khusus dan kesulitan belajar.\n\nPemahaman ini dapat diperoleh melalui evaluasi. Guru juga berkewajiban melaporkan perkembangan hasil belajar kepada kepala sekolah, orang tua, dan instansi terkait.\n\n## Situasi di kelas\n\nSeorang guru kelas V memperhatikan bahwa tiga peserta didik yang biasanya aktif kini sering tidak menyelesaikan tugas. Ia sempat berencana mengganti metode untuk seluruh kelas.\n\nSebelum mengubah strategi, bab ini mengarahkan Anda untuk memahami dulu peserta didik yang bersangkutan: kebiasaan belajarnya, hubungan sosialnya, keadaan keluarganya, dan kemungkinan kesulitan belajar tertentu. Evaluasi dapat menjadi jalannya. Informasi itu kemudian menjadi masukan bagi komponen lain dalam sistem, termasuk pilihan metode dan bentuk evaluasi berikutnya.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab I. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat menilai keselarasan komponen pembelajaran dan menentukan informasi tentang peserta didik yang perlu dipahami sebelum memilih strategi.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru Bahasa Inggris SMP menerima kelas baru di tengah tahun ajaran dan ingin segera menentukan strategi untuk kelas itu. Menurut bab ini, apa yang sebaiknya ia lakukan lebih dulu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "memakai strategi yang paling berhasil di kelas lamanya, tanpa penyesuaian apa pun",
+           "is_correct": false,
+           "rationale": "Strategi mengikuti tujuan dan kondisi saat ini; kelas baru dengan peserta didik yang belum dikenal memerlukan penyesuaian."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "menunggu hasil ujian akhir semester sebelum mulai mengenal peserta didiknya",
+           "is_correct": false,
+           "rationale": "Evaluasi memang sarana untuk memahami peserta didik, tetapi pemahaman itu dibutuhkan sebelum strategi dipilih, bukan di akhir semester."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "meminta laporan wali kelas lama dan menjadikannya satu-satunya dasar keputusan tentang kelas itu",
+           "is_correct": false,
+           "rationale": "Laporan dapat membantu, tetapi bab ini menyebut dua belas aspek pribadi peserta didik yang perlu dipahami guru sendiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "memahami aspek pribadi peserta didik, seperti minat, kebiasaan belajar, dan kesulitan belajarnya",
+           "is_correct": true,
+           "rationale": "Bab ini menyebut pemahaman atas aspek pribadi peserta didik sebagai bagian wajar dari peran guru, dan evaluasi sebagai jalan untuk itu."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru sudah merumuskan tujuan yang baik dan memilih metode diskusi kelompok. Namun ruang kelasnya tidak memungkinkan kelompok duduk bersama, dan tes akhirnya hanya menguji hafalan. Menurut pandangan belajar-mengajar sebagai sistem, apa yang terjadi?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "tidak ada kendala berarti, karena tujuan yang dirumuskan dengan baik sudah menjamin hasilnya",
+           "is_correct": false,
+           "rationale": "Tujuan hanya satu komponen; tanpa komponen lain yang selaras, tujuan yang baik pun sulit tercapai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "komponen-komponennya tidak saling mendukung, sehingga tujuan sulit tercapai meski rumusannya baik",
+           "is_correct": true,
+           "rationale": "Komponen sistem saling bergantung dan harus diorganisasikan agar bekerja sama; situasi dan evaluasi di sini tidak selaras dengan tujuan dan metode."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "cukup mengganti metode diskusi, karena evaluasi bukan bagian dari sistem pembelajaran",
+           "is_correct": false,
+           "rationale": "Bab ini memasukkan evaluasi kemajuan belajar sebagai komponen sistem."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "hanya ruang kelas yang perlu diubah, karena tes hafalan tetap cocok untuk tujuan apa pun yang dirumuskan",
+           "is_correct": false,
+           "rationale": "Keberhasilan strategi dinilai dari tercapainya tujuan dengan tes yang mengacu pada kriteria, bukan tes hafalan untuk semua tujuan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru mata pelajaran melihat bahwa seorang peserta didik yang dulu aktif kini sering diam di kelas. Langkah mana yang paling sejalan dengan bab ini?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "memahami aspek pribadinya, seperti hubungan sosial dan latar belakang keluarga, melalui evaluasi",
+           "is_correct": true,
+           "rationale": "Guru wajar memahami aspek pribadi peserta didik, termasuk hubungan sosial dan latar belakang keluarga, dan evaluasi dapat menjadi jalannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "langsung melaporkannya kepada orang tua dan kepala sekolah sebelum memahami keadaan peserta didik itu",
+           "is_correct": false,
+           "rationale": "Guru memang melaporkan perkembangan hasil belajar kepada orang tua, tetapi langkah pertama adalah memahami peserta didik itu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "memindahkannya ke kelompok lain tanpa mencari tahu penyebab perubahan sikapnya",
+           "is_correct": false,
+           "rationale": "Memindahkan kelompok tanpa memahami penyebabnya melewatkan aspek pribadi yang disebut bab ini."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "menganggap perubahan itu wajar dan tidak perlu ditindaklanjuti sama sekali",
+           "is_correct": false,
+           "rationale": "Guru juga berperan sebagai pembimbing, sehingga perubahan seperti ini perlu dipahami."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "[UJI INTERNAL] Tahapan Kegiatan Pembelajaran",
+       "summary": "Kegiatan pembelajaran terdiri atas tahap awal, inti, serta penilaian dan tindak lanjut yang membentuk satu rangkaian terpadu.",
+       "body_markdown": "## Tiga tahap\n\nBab ini membagi kegiatan pembelajaran menjadi tiga tahap pokok: pra-instruksional (awal), instruksional (inti), serta penilaian dan tindak lanjut. Ketiganya membentuk satu rangkaian terpadu. Guru mengatur waktu dan kegiatan secara fleksibel agar peserta didik menerima rangkaian itu secara utuh. Menurut bab ini, kemampuan tersebut mudah dikuasai secara teori, tetapi tidak semudah itu dalam praktik; ia diperoleh melalui latihan dan kebiasaan yang terencana.\n\n## Tahap awal\n\nTahap awal bertujuan menghidupkan kembali tanggapan peserta didik terhadap materi yang sudah diterima dan menumbuhkan kondisi belajar untuk pelajaran hari itu. Bab ini menyamakannya dengan pemanasan dalam olahraga. Upaya yang disebutkan:\n\n- menciptakan suasana yang membuat peserta didik tidak tegang, kaku, atau takut;\n- memeriksa kehadiran, misalnya dengan menanyakan kepada yang hadir siapa yang tidak hadir dan apa alasannya;\n- menumbuhkan kesiapan belajar, termasuk membantu menyiapkan sumber belajar dan memakai media yang sesuai dengan tujuan dan minat peserta didik;\n- membangun suasana demokratis agar peserta didik berani bertanya, menjawab, dan berpendapat;\n- bertanya tentang materi sebelumnya bila materi baru bergantung padanya;\n- memperlihatkan manfaat materi bagi kehidupan peserta didik;\n- meminta peserta didik menceritakan pengalaman yang berkaitan dengan materi.\n\n## Tahap inti\n\nKegiatan inti adalah kegiatan pokok peserta didik untuk mempelajari materi yang telah direncanakan, yaitu interaksi mereka dengan lingkungan belajar. Guru adalah bagian dari lingkungan itu: ia memfasilitasi, tidak mendominasi. Langkahnya:\n\n1. Sampaikan tujuan pertemuan, atau setidaknya garis besar materi dan kemampuan yang dituju.\n2. Sampaikan alternatif kegiatan belajar yang akan ditempuh, karena teknik belajar peserta didik memengaruhi efektivitas dan efisiensi belajarnya.\n3. Bahas materi dengan mengutamakan aktivitas peserta didik; guru lebih banyak menjadi fasilitator dan pembimbing.\n4. Minta peserta didik merumuskan kesimpulan di bawah bimbingan Anda. Kesimpulan menguatkan hasil belajar; ia singkat, jelas, tidak keluar dari topik, dan tidak memakan banyak waktu.\n\nBab ini juga mengutip PP No. 19 Tahun 2005 yang meminta proses pembelajaran berlangsung interaktif, inspiratif, menyenangkan, menantang, dan memotivasi peserta didik untuk aktif. Buku ini terbit tahun 2019; periksa rumusan standar proses yang berlaku saat ini.\n\n## Tahap penilaian dan tindak lanjut\n\nTahap akhir tidak sekadar menutup pelajaran. Tujuannya mengetahui tingkat keberhasilan tahap inti, dan tindak lanjutnya harus berdasarkan proses dan hasil belajar. Kegiatannya antara lain menilai hasil, memberi tugas di luar jam pelajaran, memberi motivasi dan bimbingan, menyampaikan alternatif kegiatan belajar, dan menyusun program pengayaan atau perbaikan, perorangan maupun kelompok.\n\nSesudah tes formatif dan umpan balik, peserta didik yang hasilnya baik dapat meneruskan ke bagian berikutnya atau mendalami bahan tambahan. Peserta didik yang hasilnya belum memadai mempelajari ulang isi pelajaran dengan bahan yang sama atau berbeda, dengan petunjuk dari guru.\n\n## Situasi di kelas\n\nSeorang guru Matematika SMA sering kehabisan waktu: penjelasannya memakan hampir seluruh jam, lalu ia menutup kelas dengan merangkum sendiri. Bab ini memberi dua pertimbangan. Pertama, kegiatan inti adalah kegiatan peserta didik, sehingga porsi penjelasan dapat dipangkas untuk memberi ruang bagi aktivitas mereka. Kedua, kesimpulan dirumuskan peserta didik dengan bimbingan guru, dan tahap akhir perlu menyisakan waktu untuk penilaian singkat yang menjadi dasar tindak lanjut.\n\nUntuk pertemuan Anda berikutnya, perkirakan berapa bagian waktu yang dipakai peserta didik untuk beraktivitas, dan siapa yang merumuskan kesimpulan.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab I. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat merancang kegiatan awal, inti, dan akhir pembelajaran serta menentukan tindak lanjut berdasarkan hasil penilaian.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Di awal pertemuan, seorang guru bertanya kepada peserta didik tentang materi minggu lalu yang menjadi dasar topik hari ini. Kegiatan ini termasuk tahap apa?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "tahap pra-instruksional (awal pembelajaran)",
+           "is_correct": true,
+           "rationale": "Tahap awal menghidupkan kembali tanggapan peserta didik terhadap materi yang sudah diterima; bertanya tentang materi sebelumnya termasuk upayanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "tahap instruksional (kegiatan inti)",
+           "is_correct": false,
+           "rationale": "Kegiatan inti adalah saat peserta didik mempelajari materi baru yang direncanakan; kegiatan ini mendahuluinya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "tahap penilaian dan tindak lanjut",
+           "is_correct": false,
+           "rationale": "Tahap akhir menilai keberhasilan tahap inti pertemuan itu; pertanyaan ini diajukan sebelum materi baru dimulai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "tahap desain pembelajaran sebelum kelas dimulai",
+           "is_correct": false,
+           "rationale": "Desain adalah perencanaan sebelum pembelajaran berlangsung, bukan bagian dari tiga tahap kegiatan di kelas."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada akhir pembelajaran, tes formatif menunjukkan sekitar sepertiga peserta didik belum mencapai tujuan, sedangkan yang lain sudah. Menurut bab ini, tindak lanjut mana yang paling tepat?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "mengulang seluruh materi untuk semua peserta didik agar seluruh kelas tetap bergerak bersama-sama",
+           "is_correct": false,
+           "rationale": "Peserta didik yang sudah mencapai tujuan dapat meneruskan ke bagian berikutnya atau mendalami bahan tambahan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "perbaikan dengan bahan yang sama atau berbeda bagi yang belum tuntas, pengayaan bagi yang sudah",
+           "is_correct": true,
+           "rationale": "Tindak lanjut berdasar pada hasil belajar: yang hasilnya baik meneruskan atau mendalami, yang belum mengulang dengan bahan yang sama atau berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "melanjutkan ke materi berikutnya untuk semua, karena sebagian besar kelas sudah tuntas",
+           "is_correct": false,
+           "rationale": "Peserta didik yang hasilnya belum memadai perlu mengulang isi pelajaran; tindak lanjut ditentukan oleh hasil tiap peserta didik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "memberi nilai tambahan kepada yang belum tuntas agar rata-rata kelas naik",
+           "is_correct": false,
+           "rationale": "Penilaian dimaksudkan untuk mengetahui tingkat keberhasilan pembelajaran; nilai tambahan tidak menutup tujuan yang belum tercapai."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru memulai kegiatan inti dengan langsung membagikan lembar kerja, tanpa menjelaskan apa yang akan dipelajari dan bagaimana peserta didik akan bekerja. Banyak peserta didik kebingungan. Menurut langkah kegiatan inti dalam bab ini, apa yang terlewat?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "memeriksa kehadiran, karena kebingungan menunjukkan banyak peserta didik yang tidak hadir sebelumnya",
+           "is_correct": false,
+           "rationale": "Pemeriksaan kehadiran termasuk tahap awal dan tidak menjelaskan kebingungan tentang apa dan bagaimana mereka belajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "menyimpulkan pelajaran lebih dulu, agar peserta didik tahu hasil akhirnya sebelum kegiatan dimulai",
+           "is_correct": false,
+           "rationale": "Kesimpulan dirumuskan peserta didik di akhir, di bawah bimbingan guru, sebagai penguatan hasil belajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "menyampaikan tujuan atau garis besar kemampuan, serta alternatif kegiatan belajar yang akan ditempuh",
+           "is_correct": true,
+           "rationale": "Bab ini menyebut penyampaian tujuan sebagai kegiatan paling awal, diikuti penyampaian kegiatan belajar yang akan ditempuh."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "menjelaskan seluruh materi lebih dulu, karena lembar kerja hanya cocok dipakai sesudah ceramah panjang",
+           "is_correct": false,
+           "rationale": "Guru dalam kegiatan inti tidak mendominasi; pembahasan materi mengutamakan aktivitas peserta didik."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru Ekonomi SMA membuka pelajaran tentang anggaran pribadi dengan mengaitkannya pada cara peserta didik mengatur uang saku mereka. Upaya pra-instruksional ini terutama bertujuan ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "memeriksa kesiapan fasilitas belajar sebelum kegiatan inti dimulai",
+           "is_correct": false,
+           "rationale": "Menyiapkan fasilitas adalah upaya kesiapan yang lain; di sini guru mengaitkan materi dengan kehidupan peserta didik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "menilai hasil belajar pertemuan sebelumnya secara menyeluruh",
+           "is_correct": false,
+           "rationale": "Penilaian hasil belajar termasuk tahap akhir, bukan pembukaan seperti ini."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "menyampaikan kesimpulan pelajaran kepada peserta didik lebih awal agar mereka tahu arah pelajaran",
+           "is_correct": false,
+           "rationale": "Kesimpulan dirumuskan peserta didik di akhir kegiatan inti, di bawah bimbingan guru."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "memperlihatkan manfaat materi agar peserta didik termotivasi mengikuti pelajaran",
+           "is_correct": true,
+           "rationale": "Peserta didik termotivasi bila melihat manfaat yang diperoleh dari menguasai materi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pernyataan mana yang paling tepat tentang hubungan ketiga tahap kegiatan pembelajaran?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "setiap tahap berdiri sendiri, sehingga dapat dirancang tanpa melihat tahap lain",
+           "is_correct": false,
+           "rationale": "Ketiga tahap tidak terpisahkan satu sama lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "ketiganya satu rangkaian terpadu; waktunya diatur fleksibel sesuai keadaan kelas",
+           "is_correct": true,
+           "rationale": "Bab ini menyebut ketiga tahap sebagai rangkaian terpadu yang tidak terpisahkan, dengan waktu dan kegiatan yang diatur fleksibel."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "tahap penilaian boleh dilewati bila waktu habis, karena kegiatan inti sudah selesai",
+           "is_correct": false,
+           "rationale": "Tahap akhir diperlukan untuk mengetahui keberhasilan tahap inti dan menentukan tindak lanjut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "lama setiap tahap harus sama persis agar pembelajaran tetap seimbang",
+           "is_correct": false,
+           "rationale": "Guru mengatur waktu dan kegiatan secara fleksibel, bukan dengan porsi yang sama."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "[UJI INTERNAL] Istilah dalam Strategi Pembelajaran",
+       "summary": "Pendekatan, strategi, metode, teknik, dan taktik tersusun dari yang paling umum ke yang paling spesifik; desain disusun sesudah strategi ditetapkan.",
+       "body_markdown": "## Istilah yang sering tertukar\n\nPendekatan, strategi, metode, teknik, dan taktik sering dipakai bergantian. Bab ini menyusunnya dalam satu hierarki yang dibingkai oleh model pembelajaran, dari yang paling umum ke yang paling spesifik:\n\n1. **Pendekatan**: titik tolak atau sudut pandang terhadap proses pembelajaran. Killen membedakan pendekatan yang berpusat pada guru, yang menurunkan strategi langsung, deduktif, atau ekspositori, dan pendekatan yang berpusat pada peserta didik, yang menurunkan strategi penemuan (*discovery*), inkuiri, dan induktif.\n2. **Strategi**: rencana rangkaian kegiatan untuk mencapai tujuan (pelajaran 1).\n3. **Metode**: cara mewujudkan strategi dalam kegiatan yang nyata dan praktis. Satu strategi dapat dilaksanakan dengan berbagai metode, misalnya ceramah, demonstrasi, diskusi, simulasi, laboratorium, pengalaman lapangan, curah pendapat, debat, dan simposium.\n4. **Teknik**: cara spesifik melaksanakan suatu metode sesuai kondisi kelas. Ceramah di kelas besar memerlukan teknik yang berbeda dari ceramah di kelas kecil; diskusi di kelas yang aktif berbeda tekniknya dari diskusi di kelas yang pasif.\n5. **Taktik**: gaya pribadi guru dalam melaksanakan metode atau teknik, sesuai kemampuan, pengalaman, dan kepribadiannya. Dua guru dengan metode yang sama dapat sangat berbeda taktiknya.\n\n## Model dan desain pembelajaran\n\nJoyce dan Weil mengelompokkan model pembelajaran menjadi empat: interaksi sosial, pengolahan informasi, personal-humanistik, dan modifikasi tingkah laku. Model adalah rencana atau pola untuk merancang pembelajaran tatap muka, baik di kelas maupun dalam tutorial, dan untuk membentuk bahan ajar. Dalam praktik, istilah model sering disamakan dengan strategi. Bab ini juga menegaskan bahwa guru yang memahami konsep dasar pembelajaran dapat mengembangkan model sendiri yang sesuai dengan kondisi nyata di tempat kerjanya.\n\n**Desain pembelajaran** berbeda lagi. Bab ini memakai analogi membangun rumah: strategi memilih tipe rumah, misalnya joglo, rumah gadang, atau rumah modern; desain menetapkan cetak birunya, termasuk bahan, urutan langkah, dan kriteria penyelesaian. Desain disusun sesudah strategi ditetapkan.\n\n## Metode dan strategi: perbedaan tekanan\n\nTabel yang dikutip bab ini dari Abdul Majid menonjolkan beberapa perbedaan:\n\n- Pilihan metode lebih ditentukan oleh sifat mata pelajaran; pilihan strategi oleh sifat tujuan pembelajaran.\n- Keberhasilan strategi dinilai dari tercapainya tujuan, dengan tes yang mengacu pada kriteria.\n- Strategi fleksibel dan selalu dapat dimodifikasi agar tujuan tercapai sebaik mungkin dalam kondisi saat ini.\n- Strategi lebih menyeluruh: ia dapat memakai berbagai metode, teknik, dan alat bantu untuk mengorganisasikan lingkungan belajar.\n\n## Situasi di kelas\n\nDua guru Bahasa Indonesia di sekolah yang sama memakai strategi interaktif dengan metode diskusi. Kelas pertama berisi 36 peserta didik yang cenderung pasif; kelas kedua 24 peserta didik yang aktif. Metodenya tetap diskusi, tetapi tekniknya berbeda: di kelas pertama guru dapat memulai dengan diskusi berpasangan sebelum diskusi kelas, sedangkan di kelas kedua guru dapat langsung membuka diskusi kelompok. Perbedaan yang lahir dari kondisi kelas inilah yang disebut teknik.\n\nBila masing-masing guru kemudian membawa gaya pribadinya, misalnya humor atau penguasaan alat digital, perbedaan itu termasuk taktik. Saat merencanakan, Anda dapat memisahkan ketiga keputusan itu: metode mengikuti strategi, teknik mengikuti kondisi kelas, dan taktik mengikuti kekuatan pribadi Anda.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab I. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat menempatkan suatu keputusan mengajar pada tingkat yang tepat: pendekatan, strategi, metode, teknik, taktik, atau desain.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Menurut hierarki istilah dalam bab ini, urutan mana yang bergerak dari yang paling umum ke yang paling spesifik?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "strategi → pendekatan → metode → teknik dan taktik",
+           "is_correct": false,
+           "rationale": "Pendekatan adalah sudut pandang yang menurunkan strategi, jadi ia berada di atas strategi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "pendekatan → metode → strategi → teknik dan taktik",
+           "is_correct": false,
+           "rationale": "Metode dipakai untuk mewujudkan strategi, jadi metode berada di bawah strategi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "metode → strategi → pendekatan → teknik dan taktik",
+           "is_correct": false,
+           "rationale": "Urutan ini membalik tiga tingkat teratas; pendekatan adalah yang paling umum."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "pendekatan → strategi → metode → teknik dan taktik",
+           "is_correct": true,
+           "rationale": "Diagram bab ini menempatkan pendekatan di atas strategi, lalu metode, lalu teknik dan taktik."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua guru mengajar di dua kelas paralel yang setara, tiap kelas berisi 32 peserta didik yang aktif, dengan metode diskusi yang sama. Guru pertama sering membuka diskusi dengan cerita dari pengalamannya sendiri; guru kedua memakai papan tulis digital karena ia sangat menguasainya. Perbedaan ini paling tepat disebut perbedaan ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "taktik pembelajaran, karena bersumber dari gaya pribadi masing-masing guru",
+           "is_correct": true,
+           "rationale": "Taktik adalah gaya individual guru dalam melaksanakan metode, sesuai kemampuan, pengalaman, dan kepribadiannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "teknik pembelajaran, karena kondisi kedua kelas menuntut cara yang berbeda",
+           "is_correct": false,
+           "rationale": "Teknik berbeda bila kondisi kelas berbeda, misalnya aktif dan pasif; kedua kelas ini setara."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "metode pembelajaran, karena cerita dan papan digital adalah dua metode",
+           "is_correct": false,
+           "rationale": "Metode keduanya sama, yaitu diskusi; cerita dan papan digital adalah cara pribadi melaksanakannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "strategi pembelajaran, karena kedua guru tentu menetapkan tujuan yang berbeda",
+           "is_correct": false,
+           "rationale": "Tidak ada perbedaan tujuan dalam situasi ini, dan strategi ditentukan oleh sifat tujuan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru sudah memutuskan memakai strategi pembelajaran tidak langsung untuk topik ekosistem. Kini ia menentukan cara konkret yang akan dipakai di kelas untuk mewujudkan strategi itu. Keputusan ini berada pada tingkat ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "pendekatan, karena pendekatan menjabarkan strategi menjadi kegiatan",
+           "is_correct": false,
+           "rationale": "Pendekatan berada di atas strategi: ia adalah sudut pandang yang menurunkan strategi, bukan penjabarannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "taktik, karena setiap cara konkret di kelas adalah gaya pribadi guru",
+           "is_correct": false,
+           "rationale": "Taktik adalah gaya individual dalam melaksanakan metode atau teknik; cara konkret untuk mewujudkan strategi adalah metode."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "model, karena model adalah tingkat yang paling konkret dalam hierarki",
+           "is_correct": false,
+           "rationale": "Model membingkai seluruh hierarki; tingkat paling spesifik adalah teknik dan taktik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "metode, misalnya observasi lapangan atau diskusi kelompok",
+           "is_correct": true,
+           "rationale": "Metode adalah cara mewujudkan strategi dalam kegiatan nyata, dan satu strategi dapat dilaksanakan dengan berbagai metode."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah tim guru sudah sepakat memakai strategi berbasis penyelidikan untuk satu semester. Kini mereka menyusun urutan langkah, bahan, dan kriteria penyelesaian untuk setiap pertemuan. Kegiatan ini disebut ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "pendekatan pembelajaran",
+           "is_correct": false,
+           "rationale": "Pendekatan adalah sudut pandang yang mendahului strategi, bukan penyusunan rincian sesudahnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "model pembelajaran",
+           "is_correct": false,
+           "rationale": "Model adalah pola umum yang membingkai hierarki; rincian langkah sesudah strategi dipilih disebut desain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "desain pembelajaran",
+           "is_correct": true,
+           "rationale": "Desain menetapkan cetak biru, bahan, urutan langkah, dan kriteria penyelesaian sesudah strategi ditetapkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "taktik pembelajaran",
+           "is_correct": false,
+           "rationale": "Taktik adalah gaya pribadi seorang guru, bukan rancangan bersama sebuah tim."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
