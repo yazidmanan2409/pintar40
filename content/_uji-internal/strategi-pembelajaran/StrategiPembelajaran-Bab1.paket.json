@@ -114,9 +114,9 @@
             "row": 19
            },
            "label": "B",
-           "body": "kurang tepat, karena strategi hanya berisi metode dan tidak memuat sumber belajar",
+           "body": "perlu dirapikan dulu, karena sumber belajar termasuk media dan sebaiknya dipisahkan dari strategi",
            "is_correct": false,
-           "rationale": "Strategi justru mencakup penggunaan metode dan pemanfaatan berbagai sumber daya."
+           "rationale": "Bab ini memasukkan penggunaan metode dan pemanfaatan berbagai sumber daya ke dalam strategi itu sendiri."
           },
           {
            "_row": {
@@ -156,9 +156,9 @@
             "row": 50
            },
            "label": "A",
-           "body": "pembelajaran hanya berlaku di sekolah, sedangkan pengajaran berlangsung sepanjang hayat",
+           "body": "pembelajaran menekankan hasil yang dikuasai peserta didik, sedangkan pengajaran menekankan proses di kelas",
            "is_correct": false,
-           "rationale": "Bab ini justru merumuskan pembelajaran sebagai interaksi dengan pendidik dan sumber belajar dalam suatu lingkungan belajar, tidak terbatas pada sekolah."
+           "rationale": "Bab ini membedakan keduanya dari pihak yang terlibat: pengajaran berkesan kerja guru saja, pembelajaran menyiratkan interaksi guru dan peserta didik."
           },
           {
            "_row": {
@@ -166,7 +166,7 @@
             "row": 51
            },
            "label": "B",
-           "body": "keduanya sama persis; istilah pembelajaran hanya lebih baru dipakai",
+           "body": "keduanya bermakna sama; pembelajaran adalah sebutan yang lebih baru untuk pengajaran",
            "is_correct": false,
            "rationale": "Keduanya bermakna mirip, tetapi konotasinya berbeda."
           },
@@ -505,9 +505,9 @@
             "row": 26
            },
            "label": "A",
-           "body": "memakai strategi yang paling berhasil di kelas lamanya, tanpa penyesuaian apa pun",
+           "body": "memakai strategi yang berhasil di kelas lamanya, lalu menyesuaikannya setelah beberapa pertemuan",
            "is_correct": false,
-           "rationale": "Strategi mengikuti tujuan dan kondisi saat ini; kelas baru dengan peserta didik yang belum dikenal memerlukan penyesuaian."
+           "rationale": "Strategi memang dapat dimodifikasi, tetapi bab ini meminta guru memahami aspek pribadi peserta didiknya lebih dulu; strategi kelas lama dipilih untuk peserta didik lain."
           },
           {
            "_row": {
@@ -525,9 +525,9 @@
             "row": 28
            },
            "label": "C",
-           "body": "meminta laporan wali kelas lama dan menjadikannya satu-satunya dasar keputusan tentang kelas itu",
+           "body": "memakai nilai rapor semester lalu sebagai dasar utama memilih strategi untuk kelas itu",
            "is_correct": false,
-           "rationale": "Laporan dapat membantu, tetapi bab ini menyebut dua belas aspek pribadi peserta didik yang perlu dipahami guru sendiri."
+           "rationale": "Prestasi hanyalah satu dari dua belas aspek yang disebut bab ini; minat, kebiasaan belajar, dan kesulitan belajar tidak tampak dari nilai rapor."
           },
           {
            "_row": {
@@ -558,9 +558,9 @@
             "row": 46
            },
            "label": "A",
-           "body": "tidak ada kendala berarti, karena tujuan yang dirumuskan dengan baik sudah menjamin hasilnya",
+           "body": "metodenya perlu diganti ceramah agar sesuai dengan ruang kelas, sedangkan tujuan dan tesnya tetap",
            "is_correct": false,
-           "rationale": "Tujuan hanya satu komponen; tanpa komponen lain yang selaras, tujuan yang baik pun sulit tercapai."
+           "rationale": "Mengganti satu komponen tidak menyelaraskan sistem: tes hafalan tetap tidak mengukur tujuan, dan semua komponen harus diorganisasikan agar bekerja sama."
           },
           {
            "_row": {
@@ -578,9 +578,9 @@
             "row": 48
            },
            "label": "C",
-           "body": "cukup mengganti metode diskusi, karena evaluasi bukan bagian dari sistem pembelajaran",
+           "body": "tujuannya perlu dirumuskan ulang menjadi hafalan agar selaras dengan tes akhir yang sudah ada",
            "is_correct": false,
-           "rationale": "Bab ini memasukkan evaluasi kemajuan belajar sebagai komponen sistem."
+           "rationale": "Tujuan adalah arah semua keputusan dan dirumuskan lebih dulu; evaluasi yang harus mengukur tercapainya tujuan, bukan sebaliknya."
           },
           {
            "_row": {
@@ -588,9 +588,9 @@
             "row": 49
            },
            "label": "D",
-           "body": "hanya ruang kelas yang perlu diubah, karena tes hafalan tetap cocok untuk tujuan apa pun yang dirumuskan",
+           "body": "tempat duduk ditata ulang agar diskusi berjalan, dan tes akhirnya diperbaiki pada semester berikutnya",
            "is_correct": false,
-           "rationale": "Keberhasilan strategi dinilai dari tercapainya tujuan dengan tes yang mengacu pada kriteria, bukan tes hafalan untuk semua tujuan."
+           "rationale": "Evaluasi adalah komponen sistem saat ini juga; keberhasilan dinilai dengan tes yang mengacu pada kriteria tujuan, jadi tes hafalan tidak mengukur tujuan pertemuan ini."
           }
          ]
         },
@@ -640,9 +640,9 @@
             "row": 69
            },
            "label": "D",
-           "body": "menganggap perubahan itu wajar dan tidak perlu ditindaklanjuti sama sekali",
+           "body": "menunggu beberapa minggu dulu, karena perubahan sikap remaja sering hilang dengan sendirinya",
            "is_correct": false,
-           "rationale": "Guru juga berperan sebagai pembimbing, sehingga perubahan seperti ini perlu dipahami."
+           "rationale": "Guru juga berperan sebagai pembimbing; bab ini mengarahkan guru untuk memahami aspek pribadi peserta didik, bukan menunggu."
           }
          ]
         }
@@ -763,9 +763,9 @@
             "row": 33
            },
            "label": "D",
-           "body": "memberi nilai tambahan kepada yang belum tuntas agar rata-rata kelas naik",
+           "body": "memberi tes ulang yang sama kepada yang belum tuntas, tanpa pembelajaran ulang lebih dulu",
            "is_correct": false,
-           "rationale": "Penilaian dimaksudkan untuk mengetahui tingkat keberhasilan pembelajaran; nilai tambahan tidak menutup tujuan yang belum tercapai."
+           "rationale": "Menurut bab ini, peserta didik yang hasilnya belum memadai perlu mempelajari ulang isi pelajaran, dengan bahan yang sama atau berbeda, sebelum dinilai lagi."
           }
          ]
         },
@@ -786,9 +786,9 @@
             "row": 42
            },
            "label": "A",
-           "body": "memeriksa kehadiran, karena kebingungan menunjukkan banyak peserta didik yang tidak hadir sebelumnya",
+           "body": "memperlihatkan manfaat materi bagi kehidupan peserta didik sebelum lembar kerja dibagikan",
            "is_correct": false,
-           "rationale": "Pemeriksaan kehadiran termasuk tahap awal dan tidak menjelaskan kebingungan tentang apa dan bagaimana mereka belajar."
+           "rationale": "Memperlihatkan manfaat adalah upaya tahap awal untuk memotivasi; ia tidak memberi tahu peserta didik apa yang akan dipelajari dan bagaimana mereka bekerja."
           },
           {
            "_row": {
@@ -796,9 +796,9 @@
             "row": 43
            },
            "label": "B",
-           "body": "menyimpulkan pelajaran lebih dulu, agar peserta didik tahu hasil akhirnya sebelum kegiatan dimulai",
+           "body": "bertanya tentang materi minggu lalu sebelum kegiatan inti, untuk mengaitkannya dengan lembar kerja hari ini",
            "is_correct": false,
-           "rationale": "Kesimpulan dirumuskan peserta didik di akhir, di bawah bimbingan guru, sebagai penguatan hasil belajar."
+           "rationale": "Bertanya tentang materi sebelumnya adalah upaya tahap awal; ia tidak menyampaikan tujuan dan cara kerja yang menjadi langkah pertama kegiatan inti."
           },
           {
            "_row": {
@@ -816,9 +816,9 @@
             "row": 45
            },
            "label": "D",
-           "body": "menjelaskan seluruh materi lebih dulu, karena lembar kerja hanya cocok dipakai sesudah ceramah panjang",
+           "body": "menjelaskan seluruh materi lebih dulu, lalu membagikan lembar kerja sebagai latihan penguatan",
            "is_correct": false,
-           "rationale": "Guru dalam kegiatan inti tidak mendominasi; pembahasan materi mengutamakan aktivitas peserta didik."
+           "rationale": "Guru dalam kegiatan inti tidak mendominasi; pembahasan materi mengutamakan aktivitas peserta didik, dan tujuan tetap perlu disampaikan lebih dulu."
           }
          ]
         },
@@ -890,9 +890,9 @@
             "row": 74
            },
            "label": "A",
-           "body": "setiap tahap berdiri sendiri, sehingga dapat dirancang tanpa melihat tahap lain",
+           "body": "tahap inti adalah pembelajaran yang sesungguhnya; tahap awal dan akhir bersifat pelengkap",
            "is_correct": false,
-           "rationale": "Ketiga tahap tidak terpisahkan satu sama lain."
+           "rationale": "Bab ini menyebut ketiga tahap sebagai satu rangkaian terpadu yang tidak terpisahkan; tahap awal pun memengaruhi keberhasilan peserta didik."
           },
           {
            "_row": {
@@ -920,9 +920,9 @@
             "row": 77
            },
            "label": "D",
-           "body": "lama setiap tahap harus sama persis agar pembelajaran tetap seimbang",
+           "body": "pembagian waktu tiap tahap ditetapkan di RPP dan tidak diubah selama pelajaran berlangsung",
            "is_correct": false,
-           "rationale": "Guru mengatur waktu dan kegiatan secara fleksibel, bukan dengan porsi yang sama."
+           "rationale": "Guru dituntut mengatur waktu dan kegiatan secara fleksibel sesuai jalannya pembelajaran."
           }
          ]
         }
@@ -1043,9 +1043,9 @@
             "row": 37
            },
            "label": "D",
-           "body": "strategi pembelajaran, karena kedua guru tentu menetapkan tujuan yang berbeda",
+           "body": "strategi pembelajaran, karena cara membuka diskusi mencerminkan rencana tindakan guru",
            "is_correct": false,
-           "rationale": "Tidak ada perbedaan tujuan dalam situasi ini, dan strategi ditentukan oleh sifat tujuan."
+           "rationale": "Strategi ditentukan oleh sifat tujuan, dan tujuan kedua kelas tidak berbeda; cara pribadi melaksanakan metode yang sama adalah taktik."
           }
          ]
         },

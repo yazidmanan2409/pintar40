@@ -503,6 +503,9 @@ cek(KURSUS["Judul kursus*"].startswith(UJI) and all(b[1].startswith(UJI) for b i
 
 # ── Questions.
 S = []
+# Absolutes an educator rules out without the chapter; no distractor may carry one the key lacks.
+MUTLAK = [r"apa pun", r"satu-satunya", r"sama persis", r"sama sekali", r"\bhanya\b", r"\bselalu\b", r"\bpasti\b",
+          r"\btentu\b", r"tidak perlu", r"\bmenjamin\b"]
 
 
 def soal(ref, pel, tanya, jawab, pilihan, guna="", sulit="Mudah", petunjuk=""):
@@ -526,6 +529,8 @@ def soal(ref, pel, tanya, jawab, pilihan, guna="", sulit="Mudah", petunjuk=""):
     for token in {t for t in kunci.lower().split(" ") if len(t) >= 6}:
         cek(not (token in tanya.lower() and not any(token in d.lower() for d in pengecoh)),
             f"{ref}: STEM_REVEALS_ANSWER '{token}'")
+    for pola in MUTLAK:
+        cek(not any(re.search(pola, d) for d in pengecoh) or re.search(pola, kunci), f"{ref}: a distractor carries the absolute {pola}")
     rata = sum(len(p[0]) for p in pilihan) / 4
     cek(all(len(d) * 3 >= rata for d in pengecoh), f"{ref}: IMPLAUSIBLE_DISTRACTOR")
     cek(len(kunci) <= 2 * max(len(d) for d in pengecoh), f"{ref}: CORRECT_OPTION_LENGTH_IMBALANCE")
@@ -567,7 +572,7 @@ soal("PA4", 5, "Menurut hierarki istilah dalam bab ini, urutan mana yang bergera
 soal("PB1", 1, "Seorang wakil kepala sekolah menerima dokumen «strategi pembelajaran» dari seorang guru. Dokumen itu berisi urutan kegiatan, metode, dan sumber belajar yang akan dipakai, tetapi belum dilaksanakan di kelas. Bagaimana dokumen itu dinilai menurut pengertian strategi dalam bab ini?", "C", [
     ("sesuai, karena strategi memang masih rencana tindakan; yang perlu dicek adalah kejelasan tujuannya", True, "Strategi adalah rencana tindakan yang belum sampai pada pelaksanaan, dan tujuannya harus jelas serta terukur.", "belum_tindakan"),
     ("belum dapat disebut strategi, karena strategi baru terbentuk setelah kegiatan berlangsung di kelas", False, "Bab ini menegaskan kebalikannya: penyusunan strategi baru sampai pada rencana kerja, belum pada tindakan.", "belum_tindakan"),
-    ("kurang tepat, karena strategi hanya berisi metode dan tidak memuat sumber belajar", False, "Strategi justru mencakup penggunaan metode dan pemanfaatan berbagai sumber daya.", "dua_ciri"),
+    ("perlu dirapikan dulu, karena sumber belajar termasuk media dan sebaiknya dipisahkan dari strategi", False, "Bab ini memasukkan penggunaan metode dan pemanfaatan berbagai sumber daya ke dalam strategi itu sendiri.", "dua_ciri"),
     ("sudah cukup asalkan tujuan tidak dimasukkan, karena tujuan ditetapkan terpisah dari strategi", False, "Tujuan adalah arah semua keputusan strategi dan harus dirumuskan sebelum strategi ditentukan.", "roh"),
 ], guna=PB, sulit="Sedang")
 soal("PB2", 2, "Seorang guru IPS ingin peserta didik menyusun dugaan sendiri tentang penyebab kemacetan di sekitar sekolah, berdasarkan data lalu lintas yang mereka kumpulkan. Peran guru mana yang paling sesuai dengan strategi yang cocok untuk tujuan ini?", "A", [
@@ -578,21 +583,21 @@ soal("PB2", 2, "Seorang guru IPS ingin peserta didik menyusun dugaan sendiri ten
 ], guna=PB, sulit="Sedang")
 soal("PB3", 3, "Seorang guru Bahasa Inggris SMP menerima kelas baru di tengah tahun ajaran dan ingin segera menentukan strategi untuk kelas itu. Menurut bab ini, apa yang sebaiknya ia lakukan lebih dulu?", "D", [
     ("memahami aspek pribadi peserta didik, seperti minat, kebiasaan belajar, dan kesulitan belajarnya", True, "Bab ini menyebut pemahaman atas aspek pribadi peserta didik sebagai bagian wajar dari peran guru, dan evaluasi sebagai jalan untuk itu.", "aspek_2"),
-    ("memakai strategi yang paling berhasil di kelas lamanya, tanpa penyesuaian apa pun", False, "Strategi mengikuti tujuan dan kondisi saat ini; kelas baru dengan peserta didik yang belum dikenal memerlukan penyesuaian.", "modifikasi"),
+    ("memakai strategi yang berhasil di kelas lamanya, lalu menyesuaikannya setelah beberapa pertemuan", False, "Strategi memang dapat dimodifikasi, tetapi bab ini meminta guru memahami aspek pribadi peserta didiknya lebih dulu; strategi kelas lama dipilih untuk peserta didik lain.", "aspek_1"),
     ("menunggu hasil ujian akhir semester sebelum mulai mengenal peserta didiknya", False, "Evaluasi memang sarana untuk memahami peserta didik, tetapi pemahaman itu dibutuhkan sebelum strategi dipilih, bukan di akhir semester.", "evaluasi_pahami"),
-    ("meminta laporan wali kelas lama dan menjadikannya satu-satunya dasar keputusan tentang kelas itu", False, "Laporan dapat membantu, tetapi bab ini menyebut dua belas aspek pribadi peserta didik yang perlu dipahami guru sendiri.", "aspek_3"),
+    ("memakai nilai rapor semester lalu sebagai dasar utama memilih strategi untuk kelas itu", False, "Prestasi hanyalah satu dari dua belas aspek yang disebut bab ini; minat, kebiasaan belajar, dan kesulitan belajar tidak tampak dari nilai rapor.", "aspek_3"),
 ], guna=PB, sulit="Sedang")
 soal("PB4", 4, "Pada akhir pembelajaran, tes formatif menunjukkan sekitar sepertiga peserta didik belum mencapai tujuan, sedangkan yang lain sudah. Menurut bab ini, tindak lanjut mana yang paling tepat?", "B", [
     ("perbaikan dengan bahan yang sama atau berbeda bagi yang belum tuntas, pengayaan bagi yang sudah", True, "Tindak lanjut berdasar pada hasil belajar: yang hasilnya baik meneruskan atau mendalami, yang belum mengulang dengan bahan yang sama atau berbeda.", "formatif_kurang"),
     ("mengulang seluruh materi untuk semua peserta didik agar seluruh kelas tetap bergerak bersama-sama", False, "Peserta didik yang sudah mencapai tujuan dapat meneruskan ke bagian berikutnya atau mendalami bahan tambahan.", "formatif_baik"),
     ("melanjutkan ke materi berikutnya untuk semua, karena sebagian besar kelas sudah tuntas", False, "Peserta didik yang hasilnya belum memadai perlu mengulang isi pelajaran; tindak lanjut ditentukan oleh hasil tiap peserta didik.", "tindak_dasar"),
-    ("memberi nilai tambahan kepada yang belum tuntas agar rata-rata kelas naik", False, "Penilaian dimaksudkan untuk mengetahui tingkat keberhasilan pembelajaran; nilai tambahan tidak menutup tujuan yang belum tercapai.", "akhir_tujuan"),
+    ("memberi tes ulang yang sama kepada yang belum tuntas, tanpa pembelajaran ulang lebih dulu", False, "Menurut bab ini, peserta didik yang hasilnya belum memadai perlu mempelajari ulang isi pelajaran, dengan bahan yang sama atau berbeda, sebelum dinilai lagi.", "formatif_kurang"),
 ], guna=PB, sulit="Sedang")
 soal("PB5", 5, "Dua guru mengajar di dua kelas paralel yang setara, tiap kelas berisi 32 peserta didik yang aktif, dengan metode diskusi yang sama. Guru pertama sering membuka diskusi dengan cerita dari pengalamannya sendiri; guru kedua memakai papan tulis digital karena ia sangat menguasainya. Perbedaan ini paling tepat disebut perbedaan ...", "A", [
     ("taktik pembelajaran, karena bersumber dari gaya pribadi masing-masing guru", True, "Taktik adalah gaya individual guru dalam melaksanakan metode, sesuai kemampuan, pengalaman, dan kepribadiannya.", "kekhasan"),
     ("teknik pembelajaran, karena kondisi kedua kelas menuntut cara yang berbeda", False, "Teknik berbeda bila kondisi kelas berbeda, misalnya aktif dan pasif; kedua kelas ini setara.", "teknik_diskusi"),
     ("metode pembelajaran, karena cerita dan papan digital adalah dua metode", False, "Metode keduanya sama, yaitu diskusi; cerita dan papan digital adalah cara pribadi melaksanakannya.", "metode"),
-    ("strategi pembelajaran, karena kedua guru tentu menetapkan tujuan yang berbeda", False, "Tidak ada perbedaan tujuan dalam situasi ini, dan strategi ditentukan oleh sifat tujuan.", "sifat_tujuan"),
+    ("strategi pembelajaran, karena cara membuka diskusi mencerminkan rencana tindakan guru", False, "Strategi ditentukan oleh sifat tujuan, dan tujuan kedua kelas tidak berbeda; cara pribadi melaksanakan metode yang sama adalah taktik.", "sifat_tujuan"),
 ], guna=PB, sulit="Sedang")
 soal("PB6", 5, "Seorang guru sudah memutuskan memakai strategi pembelajaran tidak langsung untuk topik ekosistem. Kini ia menentukan cara konkret yang akan dipakai di kelas untuk mewujudkan strategi itu. Keputusan ini berada pada tingkat ...", "D", [
     ("metode, misalnya observasi lapangan atau diskusi kelompok", True, "Metode adalah cara mewujudkan strategi dalam kegiatan nyata, dan satu strategi dapat dilaksanakan dengan berbagai metode.", "metode_nyata"),
@@ -602,22 +607,22 @@ soal("PB6", 5, "Seorang guru sudah memutuskan memakai strategi pembelajaran tida
 ], guna=PB, sulit="Sedang")
 soal("PB7", 4, "Seorang guru memulai kegiatan inti dengan langsung membagikan lembar kerja, tanpa menjelaskan apa yang akan dipelajari dan bagaimana peserta didik akan bekerja. Banyak peserta didik kebingungan. Menurut langkah kegiatan inti dalam bab ini, apa yang terlewat?", "C", [
     ("menyampaikan tujuan atau garis besar kemampuan, serta alternatif kegiatan belajar yang akan ditempuh", True, "Bab ini menyebut penyampaian tujuan sebagai kegiatan paling awal, diikuti penyampaian kegiatan belajar yang akan ditempuh.", "beri_tujuan"),
-    ("memeriksa kehadiran, karena kebingungan menunjukkan banyak peserta didik yang tidak hadir sebelumnya", False, "Pemeriksaan kehadiran termasuk tahap awal dan tidak menjelaskan kebingungan tentang apa dan bagaimana mereka belajar.", "kehadiran"),
-    ("menyimpulkan pelajaran lebih dulu, agar peserta didik tahu hasil akhirnya sebelum kegiatan dimulai", False, "Kesimpulan dirumuskan peserta didik di akhir, di bawah bimbingan guru, sebagai penguatan hasil belajar.", "simpul"),
-    ("menjelaskan seluruh materi lebih dulu, karena lembar kerja hanya cocok dipakai sesudah ceramah panjang", False, "Guru dalam kegiatan inti tidak mendominasi; pembahasan materi mengutamakan aktivitas peserta didik.", "tidak_dominasi"),
+    ("memperlihatkan manfaat materi bagi kehidupan peserta didik sebelum lembar kerja dibagikan", False, "Memperlihatkan manfaat adalah upaya tahap awal untuk memotivasi; ia tidak memberi tahu peserta didik apa yang akan dipelajari dan bagaimana mereka bekerja.", "manfaat"),
+    ("bertanya tentang materi minggu lalu sebelum kegiatan inti, untuk mengaitkannya dengan lembar kerja hari ini", False, "Bertanya tentang materi sebelumnya adalah upaya tahap awal; ia tidak menyampaikan tujuan dan cara kerja yang menjadi langkah pertama kegiatan inti.", "materi_lalu"),
+    ("menjelaskan seluruh materi lebih dulu, lalu membagikan lembar kerja sebagai latihan penguatan", False, "Guru dalam kegiatan inti tidak mendominasi; pembahasan materi mengutamakan aktivitas peserta didik, dan tujuan tetap perlu disampaikan lebih dulu.", "tidak_dominasi"),
 ], guna=PB, sulit="Sedang")
 soal("PB8", 3, "Seorang guru sudah merumuskan tujuan yang baik dan memilih metode diskusi kelompok. Namun ruang kelasnya tidak memungkinkan kelompok duduk bersama, dan tes akhirnya hanya menguji hafalan. Menurut pandangan belajar-mengajar sebagai sistem, apa yang terjadi?", "B", [
     ("komponen-komponennya tidak saling mendukung, sehingga tujuan sulit tercapai meski rumusannya baik", True, "Komponen sistem saling bergantung dan harus diorganisasikan agar bekerja sama; situasi dan evaluasi di sini tidak selaras dengan tujuan dan metode.", "organisasi"),
-    ("tidak ada kendala berarti, karena tujuan yang dirumuskan dengan baik sudah menjamin hasilnya", False, "Tujuan hanya satu komponen; tanpa komponen lain yang selaras, tujuan yang baik pun sulit tercapai.", "sistem"),
-    ("cukup mengganti metode diskusi, karena evaluasi bukan bagian dari sistem pembelajaran", False, "Bab ini memasukkan evaluasi kemajuan belajar sebagai komponen sistem.", "sistem_komp"),
-    ("hanya ruang kelas yang perlu diubah, karena tes hafalan tetap cocok untuk tujuan apa pun yang dirumuskan", False, "Keberhasilan strategi dinilai dari tercapainya tujuan dengan tes yang mengacu pada kriteria, bukan tes hafalan untuk semua tujuan.", "kriteria_tes"),
+    ("metodenya perlu diganti ceramah agar sesuai dengan ruang kelas, sedangkan tujuan dan tesnya tetap", False, "Mengganti satu komponen tidak menyelaraskan sistem: tes hafalan tetap tidak mengukur tujuan, dan semua komponen harus diorganisasikan agar bekerja sama.", "organisasi"),
+    ("tujuannya perlu dirumuskan ulang menjadi hafalan agar selaras dengan tes akhir yang sudah ada", False, "Tujuan adalah arah semua keputusan dan dirumuskan lebih dulu; evaluasi yang harus mengukur tercapainya tujuan, bukan sebaliknya.", "roh"),
+    ("tempat duduk ditata ulang agar diskusi berjalan, dan tes akhirnya diperbaiki pada semester berikutnya", False, "Evaluasi adalah komponen sistem saat ini juga; keberhasilan dinilai dengan tes yang mengacu pada kriteria tujuan, jadi tes hafalan tidak mengukur tujuan pertemuan ini.", "kriteria_tes"),
 ], guna=PB, sulit="Sulit")
 
 # ── Latihan (practice), one or two per lesson.
 soal("LT1", 1, "Menurut bab ini, apa perbedaan pokok antara «pengajaran» dan «pembelajaran»?", "D", [
     ("pembelajaran menekankan interaksi guru dan peserta didik; pengajaran berkesan kerja guru saja", True, "Bab ini menyatakan pengajaran berkesan pekerjaan satu pihak, sedangkan pembelajaran menyiratkan interaksi.", "satu_pihak"),
-    ("pembelajaran hanya berlaku di sekolah, sedangkan pengajaran berlangsung sepanjang hayat", False, "Bab ini justru merumuskan pembelajaran sebagai interaksi dengan pendidik dan sumber belajar dalam suatu lingkungan belajar, tidak terbatas pada sekolah.", "uu"),
-    ("keduanya sama persis; istilah pembelajaran hanya lebih baru dipakai", False, "Keduanya bermakna mirip, tetapi konotasinya berbeda.", "konotasi"),
+    ("pembelajaran menekankan hasil yang dikuasai peserta didik, sedangkan pengajaran menekankan proses di kelas", False, "Bab ini membedakan keduanya dari pihak yang terlibat: pengajaran berkesan kerja guru saja, pembelajaran menyiratkan interaksi guru dan peserta didik.", "satu_pihak"),
+    ("keduanya bermakna sama; pembelajaran adalah sebutan yang lebih baru untuk pengajaran", False, "Keduanya bermakna mirip, tetapi konotasinya berbeda.", "konotasi"),
     ("pengajaran berpusat pada kegiatan peserta didik, sedangkan pembelajaran pada penyampaian materi oleh guru", False, "Pernyataan ini membalik keduanya: pengajaran yang berkesan kerja satu pihak, yaitu guru.", "satu_pihak"),
 ], sulit="Mudah")
 soal("LT2", 1, "Seorang guru menulis: «Setelah praktikum, peserta didik dapat menyusun laporan pengamatan dengan format yang disepakati.» Dalam komponen kegiatan pembelajaran, rumusan ini termasuk ...", "A", [
@@ -642,7 +647,7 @@ soal("LT5", 3, "Seorang guru mata pelajaran melihat bahwa seorang peserta didik 
     ("memahami aspek pribadinya, seperti hubungan sosial dan latar belakang keluarga, melalui evaluasi", True, "Guru wajar memahami aspek pribadi peserta didik, termasuk hubungan sosial dan latar belakang keluarga, dan evaluasi dapat menjadi jalannya.", "aspek_3"),
     ("langsung melaporkannya kepada orang tua dan kepala sekolah sebelum memahami keadaan peserta didik itu", False, "Guru memang melaporkan perkembangan hasil belajar kepada orang tua, tetapi langkah pertama adalah memahami peserta didik itu.", "lapor"),
     ("memindahkannya ke kelompok lain tanpa mencari tahu penyebab perubahan sikapnya", False, "Memindahkan kelompok tanpa memahami penyebabnya melewatkan aspek pribadi yang disebut bab ini.", "aspek_1"),
-    ("menganggap perubahan itu wajar dan tidak perlu ditindaklanjuti sama sekali", False, "Guru juga berperan sebagai pembimbing, sehingga perubahan seperti ini perlu dipahami.", "peran"),
+    ("menunggu beberapa minggu dulu, karena perubahan sikap remaja sering hilang dengan sendirinya", False, "Guru juga berperan sebagai pembimbing; bab ini mengarahkan guru untuk memahami aspek pribadi peserta didik, bukan menunggu.", "peran"),
 ], sulit="Mudah")
 soal("LT6", 4, "Seorang guru Ekonomi SMA membuka pelajaran tentang anggaran pribadi dengan mengaitkannya pada cara peserta didik mengatur uang saku mereka. Upaya pra-instruksional ini terutama bertujuan ...", "D", [
     ("memperlihatkan manfaat materi agar peserta didik termotivasi mengikuti pelajaran", True, "Peserta didik termotivasi bila melihat manfaat yang diperoleh dari menguasai materi.", "manfaat"),
@@ -652,9 +657,9 @@ soal("LT6", 4, "Seorang guru Ekonomi SMA membuka pelajaran tentang anggaran prib
 ], sulit="Mudah")
 soal("LT7", 4, "Pernyataan mana yang paling tepat tentang hubungan ketiga tahap kegiatan pembelajaran?", "B", [
     ("ketiganya satu rangkaian terpadu; waktunya diatur fleksibel sesuai keadaan kelas", True, "Bab ini menyebut ketiga tahap sebagai rangkaian terpadu yang tidak terpisahkan, dengan waktu dan kegiatan yang diatur fleksibel.", "terpadu"),
-    ("setiap tahap berdiri sendiri, sehingga dapat dirancang tanpa melihat tahap lain", False, "Ketiga tahap tidak terpisahkan satu sama lain.", "terpadu"),
+    ("tahap inti adalah pembelajaran yang sesungguhnya; tahap awal dan akhir bersifat pelengkap", False, "Bab ini menyebut ketiga tahap sebagai satu rangkaian terpadu yang tidak terpisahkan; tahap awal pun memengaruhi keberhasilan peserta didik.", "terpadu"),
     ("tahap penilaian boleh dilewati bila waktu habis, karena kegiatan inti sudah selesai", False, "Tahap akhir diperlukan untuk mengetahui keberhasilan tahap inti dan menentukan tindak lanjut.", "akhir_tujuan"),
-    ("lama setiap tahap harus sama persis agar pembelajaran tetap seimbang", False, "Guru mengatur waktu dan kegiatan secara fleksibel, bukan dengan porsi yang sama.", "fleksibel"),
+    ("pembagian waktu tiap tahap ditetapkan di RPP dan tidak diubah selama pelajaran berlangsung", False, "Guru dituntut mengatur waktu dan kegiatan secara fleksibel sesuai jalannya pembelajaran.", "fleksibel"),
 ], sulit="Sedang")
 soal("LT8", 5, "Sebuah tim guru sudah sepakat memakai strategi berbasis penyelidikan untuk satu semester. Kini mereka menyusun urutan langkah, bahan, dan kriteria penyelesaian untuk setiap pertemuan. Kegiatan ini disebut ...", "C", [
     ("desain pembelajaran", True, "Desain menetapkan cetak biru, bahan, urutan langkah, dan kriteria penyelesaian sesudah strategi ditetapkan.", "rumah"),

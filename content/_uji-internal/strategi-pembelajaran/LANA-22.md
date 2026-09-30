@@ -188,3 +188,55 @@ None is copied into the workbook; `DILUAR` markers assert that the wording is ab
    - Keep that sentence, or drop it?
 2. **Page citations.** They refer to the manuscript scan, not the print, which is what I had; the
    Daftar Isi mapping is above. Is that enough for the gate, or do you want the print pages?
+
+## Round 2 (coordinator's review of `29f1094`)
+
+**What stayed:** stems, keys and answer positions are unchanged (A=5, B=5, C=5, D=5). Every new
+option names its fact and has its own Alasan.
+
+**Required: eight Uji Penguasaan distractors rewritten.** Each is now a move a teacher might really
+make, which the chapter rules out.
+
+| Option | Now | Ruled out by |
+|---|---|---|
+| PB3 A | Reuse the old class's strategy and adjust it after a few meetings | `aspek_1`: understand the learners first |
+| PB3 C | Choose the strategy mainly from last semester's report grades | `aspek_3`: achievement is one aspect of twelve |
+| PB4 D | Give those below target the same test again, without re-teaching | `formatif_kurang`: they re-study first |
+| PB7 A | Show the material's use before handing out the worksheet | `manfaat`: an opening move; it does not say what or how |
+| PB7 B | Ask about last week's material to link it to the worksheet | `materi_lalu`: an opening move; it does not state the aim |
+| PB8 A | Switch the method to lecture to fit the room; keep the goal and test | `organisasi`: one component changed, the test still misses the goal |
+| PB8 C | Rewrite the goal as recall to match the existing test | `roh`: the goal comes first; evaluation measures it |
+| PB8 D | Rearrange the seats now and fix the test next semester | `kriteria_tes`: evaluation is a component now |
+
+PB8, the only Sulit item, now asks the reader to choose between four single-component fixes and
+the system view.
+
+**Optional, taken: the absolute check.**
+- `MUTLAK` lists 10 absolutes: «apa pun», «satu-satunya», «sama persis», «sama sekali», «hanya»,
+  «selalu», «pasti», «tentu», «tidak perlu» and «menjamin».
+- The generator asserts that no distractor carries one of them unless the key also does.
+- The check flagged four more options, which I rewrote the same way:
+  - PB1 B: sources belong in a separate part of the plan (`dua_ciri`);
+  - PB5 D: the way discussions open reflects each teacher's plan, so it is strategy
+    (`sifat_tujuan`);
+  - PB7 D: explain everything first, then use the worksheet as reinforcement (`tidak_dominasi`);
+  - LT1 A: pembelajaran is about outcomes and pengajaran about process (`satu_pihak`).
+
+**Optional, taken: the Latihan options.**
+- LT1 B: «keduanya bermakna sama; pembelajaran adalah sebutan yang lebih baru untuk pengajaran».
+- LT5 D: wait a few weeks, since changes in teenagers often pass on their own.
+- LT7 A: the core stage is the real lesson, and the opening and closing are extras.
+- LT7 D: the time for each stage is fixed in the RPP and not changed during the lesson.
+
+**Your answers:**
+- Lesson 4's sentence stays exactly as written.
+- Scan pages stand.
+
+**Gate after round 2:**
+- 6.155 assertions with `--kutipan` (6.153 without); 134 of 135 quotations found (`hierarki` read
+  by eye).
+- Verbatim is still at most 9 words.
+- periksa_mutu is 0 ERROR, with the 20 acknowledged WEAK_MISCONCEPTION_LINKAGE warnings.
+- The package rebuilds byte-identically.
+- Against `29f1094`, the package differs in exactly the 16 options listed above, in their text and
+  their Alasan. No other field changed.
