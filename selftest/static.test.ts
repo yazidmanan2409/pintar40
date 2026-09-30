@@ -13,6 +13,7 @@ import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { emailTests } from "./email.test";
 import { aktifkanTests } from "./aktifkan.test";
+import { daisy40Tests } from "./daisy40.test";
 import { loginTests } from "./login.test";
 import { strukturTests } from "./struktur.test";
 import { unggahTests } from "./unggah.test";
@@ -1891,6 +1892,7 @@ export const staticTests: SelfTest[] = [
   ...experienceTests,
   ...emailTests,
   ...aktifkanTests,
+  ...daisy40Tests,
   // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:
   // appended in their own file, so nothing that existed at the baseline is
   // edited to make room for them.

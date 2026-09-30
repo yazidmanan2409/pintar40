@@ -2539,6 +2539,11 @@
       "id": "DAISY-20-ALUR-01",
       "runner": "static",
       "proves": "DAISY-20 wiring on BOB-26's contract: every request is jawaban.ts's single fetch to the contract's path, no-store and same-origin, and no activation or sign-in screen reads a server message; the code screen's «berlaku selama N menit» is format.durasi of the route's berlakuMenit and its resend countdown the route's kirimUlangDalam, on the first code and on a resend, with the resend held while it runs and no number typed (D-079 addendum); the code is sent as digits from a field that takes «482 913»; every signed-in destination is narrowed to PINTAR; the code screen says «jika alamat ini terdaftar» for every address and nothing branches on an account existing (D2); /aktifkan chooses the email screen or the wizard by the session; «Masuk ke PINTAR» leads to «Aktifkan akun» (D-019 amended); the email-link fallback switch is the contract's"
+    },
+    {
+      "id": "DAISY-40-SERTIFIKAT-01",
+      "runner": "static",
+      "proves": "DAISY-40: the learner's certificate list opens each certificate. A row finds its learning assignment through its session by petaSesi (src/components/sertifikat/asalSertifikat.ts), the inverse of the certificate page's own read: each assignment's my_cycle_state post_session, mapped back to that assignment. So the row shows the assignment's subject, grade and title and links to /belajar/<assignment>/sertifikat, which reads the same session. An assignment with no post session, a session no assignment reports and a second claim on a session change nothing; a row that finds no assignment is drawn as a non-link row. The page builds the map from engine.cycleState(...).post_session, looks rows up by row.session_id, has exactly one link (the found assignment's page) and no /belajar/<session id> fallback; the certificate page still finds its session by my_cycle_state's post_session; the list still reads certificates only through myCertificates. The control, the old map keyed by learning_assignment_id and looked up by session_id, finds nothing: the defect"
     }
   ]
 }

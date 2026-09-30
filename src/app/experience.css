@@ -201,6 +201,9 @@
 }
 .pin-row:first-child { border-top: 0; }
 .pin-row:hover { background: var(--surface-0); text-decoration: none; }
+/* DAISY-40: a certificate with no page to open is a row, not a link. */
+.pin-row.pin-row-diam { cursor: default; }
+.pin-row.pin-row-diam:hover { background: none; }
 .pin-row .pin-eyebrow { grid-column: 1; }
 .pin-row .pin-title {
   grid-column: 1; font-size: var(--type-card); font-weight: var(--weight-strong);
