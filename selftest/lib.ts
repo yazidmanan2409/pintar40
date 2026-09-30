@@ -9,7 +9,7 @@
  * skips.
  */
 
-export type Facility = "db" | "app" | "network" | "ci";
+export type Facility = "db" | "app" | "network" | "ci" | "mailsink";
 
 export type Verdict = { ok: boolean; detail: string };
 
