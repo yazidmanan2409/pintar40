@@ -139,6 +139,7 @@ Namecheap moves the hosting account to another server for the upgrade (new IP an
 - By 12:00 WIB, Yazid lowers the TTL of `A @`, `A mail` and `TXT @` (SPF) to 1 minute.
 - After the move, he updates those three records to the new IP (the SPF record's `ip4` only). No other record changes.
 - **Confirmed by Namecheap (relayed by Yazid, 30 Sep, 04:41 UTC):** the plan change is scheduled for **30 Sep 2026, 14:00 WIB (07:00 UTC)**, and the migration takes **about 4 hours** (to about 18:00 WIB, 11:00 UTC). Namecheap will write when it starts and when it is complete, with further instructions.
+- **30 Sep, during the window (Yazid's Namecheap screen):** the hosting subscription for `pintarselalu.com` already reads **Stellar Business, ACTIVE** (auto-renew on, expires 2 Nov 2026), while the server migration is still in progress. The plan label is the billing change only; the move is complete only when Namecheap says so and the after-read below passes.
 - The coordinator keeps staging runs that send email out of the window: **no email-sending staging run from 07:00 UTC until the after-read below has passed**, not only the first hour. After the move, the coordinator re-reads the records below, and Yazid signs in once on staging and once on production. Then BOB-25 is free to start (D-062(b)).
 
 **After:** the same read once the move is done. The expected result:
