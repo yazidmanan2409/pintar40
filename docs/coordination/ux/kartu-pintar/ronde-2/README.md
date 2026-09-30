@@ -46,50 +46,45 @@ The last run ended **"all checks passed"** in about a minute.
 | C | [`C-garis-emas.png`](render/C-garis-emas.png) | The gold line at 0.50, 0.75 and 1.00 mm. In print: colour, greyscale and a simulated office print. On screen: 440, 358 and 266 px cards at 1× and 2×. Measured. |
 | D | [`D-tipografi.png`](render/D-tipografi.png) | The type specification. The «PINTAR SELALU» treatment. The front header and back instruction side by side. Look-alike characters. |
 | E | [`E-qr-ubin.png`](render/E-qr-ubin.png) | The refined tile, with its geometry and every decode and stress result. |
-| F | [`F-kasus-uji.png`](render/F-kasus-uji.png) | The stress cases, Admin platform, several roles (colour options labelled undecided), and roles at two schools. |
+| F | [`F-kasus-uji.png`](render/F-kasus-uji.png) | The stress cases, Admin platform, several roles and roles at two schools. Drawn before the rulings: its «undecided» labels are now settled in §10. |
 | G | [`G-uji-pengenalan.png`](render/G-uji-pengenalan.png) | The recognition test: as they are; «PINTAR SELALU» covered; among seven other cards with every brand name covered; the back with «PINTAR» covered. |
 | H | [`H-email-600-terang.png`](render/H-email-600-terang.png), [`-600-gelap`](render/H-email-600-gelap.png), [`-320-terang`](render/H-email-320-terang.png), [`-320-gelap`](render/H-email-320-gelap.png), [`H-ponsel-390.png`](render/H-ponsel-390.png) | The card in the DAISY-19 email frame, and on a phone in Akun saya (a context mock; that screen is DAISY-20's). |
 | I | [`I-A4-100persen.pdf`](render/I-A4-100persen.pdf) | **The print proof**, four A4 pages at 100% with crop marks. Previews: [`-halaman-1`](render/I-A4-halaman-1.png), [`-2`](render/I-A4-halaman-2.png), [`-3`](render/I-A4-halaman-3.png), [`-4`](render/I-A4-halaman-4.png). |
 | J, K | this README | Every decision and measurement; the recommendation. |
 
-## K. Recommendation: what could be frozen, and what needs Yazid
+## K. Status after Yazid's rulings (30 Sep)
 
-**Freezing is Yazid's decision.** This is the evidence for it, sorted.
+**Yazid ruled on every round 2 question** (relayed 30 Sep; to be recorded by the Second Eye, not yet in `DECISIONS.md` at `af2d308`). The renders were not redrawn: this README records the rulings, and each section below notes where a render shows an option that has since been ruled out.
 
-**Ready to freeze for DAISY-24, in my view:**
-
-1. **The grammar**, as refined:
-    - paper upper field, the warm-gold line, family colour below;
-    - on the front, above the line: «PINTAR SELALU», the name, the PINTAR ID;
-    - on the front, below the line: role and school;
-    - on the back, the same line at the same height: the tile above; the instruction and URL below.
-2. **The geometry:**
-    - CR80, 3 mm safe margin, 6 mm text margin, 2 mm bleed;
-    - the line's centre 32 mm from the top on both faces;
-    - the tile from 3.6 mm to 2 mm above the line.
-3. **The typography**: two families, four sizes, three weights (§8).
-4. **The QR tile** as built: the app's own symbol, level M, the full quiet zone inside the tile, the ID below it. Physical phone tests on page 3 still to come.
-5. **The line at 0.75 mm.**
-
-**Needs Yazid** (each is a product or brand decision, not refinement):
-
-| # | Question | Evidence and recommendation |
+| # | Question | Ruling |
 |---|---|---|
-| 1 | **The family colours** | The proposed set meets the separation target (every pair ≥ 0.0567), at the cost of more colour than round 1 (chroma about 0.06 instead of 0.05). It moves Murid to plum, the one free hue, and the olive alternative shows the other choice (§4). |
-| 2 | **The warm-gold colour** `#C09C4F` | A new colour, recorded as a candidate, not a token (§3). |
-| 3 | **Which name the card carries** | The front says «PINTAR SELALU»; the back, the app and the emails say «PINTAR» (§2). Flagged, not changed. |
-| 4 | **Several roles: the card's colour** | (a) the role held longest, or (b) one shared neutral. Finding: (b) collides with Admin platform's colour at this lightness (§10). |
-| 5 | **Several roles: the order** | Proposed: alphabetical by Terminology v1 names, following `src/lib/pengajar.ts:193`. Not seniority, and not `display_role`. |
-| 6 | **Roles at two schools** | (i) one line per role with its school, or (ii) roles then schools. (ii) loses which role is where (§10). |
-| 7 | **The QR instruction wording** | Unchanged: «Pindai untuk membuka halaman masuk PINTAR.» (§7). |
-| 8 | **Colour-blind readers** | At one lightness, two pairs meet under simulated deuteranopia (§4). The role is always written. |
+| 1 | The family colours | **Approved: the proposed palette, with plum Murid** (§4). |
+| 2 | The warm-gold colour | **`#C09C4F` approved as the PINTAR artifact-signature candidate.** It belongs to the identity and artifact language only. It is **not** a general-purpose UI accent; the certificate exploration can show whether it deserves wider status (§3). |
+| 3 | Which name the card carries | **«PINTAR SELALU» on the card**, physical and digital: the formal artifact identity. The product language stays «PINTAR». Nothing in the app or the emails is to be changed to «PINTAR SELALU» (§2). |
+| 4 | Several roles: the colour | **The family colour of the first role in the alphabetically ordered list of roles shown.** This is a deterministic presentation rule only. It does not indicate a primary role, seniority, authority, permission, importance or precedence. It is not tenure and not `display_role`. No neutral seventh colour (§10). |
+| 5 | Several roles: the order | **Alphabetical**, by the Terminology v1 names. Chosen solely because it is deterministic and non-hierarchical. **Any apparent seniority that results from the Indonesian role names is coincidental and must not be read, or documented, as precedence** (§10). |
+| 6 | Roles at two schools | **One role with its school per line** (option (i)) (§10). |
+| 6a | More than two role and school pairs | **The 4.0 card is proven for up to two current role and school pairs.** With more, the card must not shrink its type below the approved minimum, truncate, or silently leave a role out. That state is an unresolved presentation exception, returned for product handling if it is ever met (§10). |
+| 7 | The QR instruction | **Approved as it stands:** «Pindai untuk membuka halaman masuk PINTAR.» (§7). |
+| 8 | Colour-blind readers | **Accepted, under the existing redundancy rule.** Colour never carries role meaning alone: the role is always written. The palette is not distorted to chase six-way separation under every colour-vision simulation (§4). |
+| 9 | The QR geometry | **Not frozen merely because it fits.** Acceptance principle: the QR design that survives realistic physical use wins, even if the visually preferred version does not. If 0.598 mm modules scan reliably on the printed CR80 with ordinary phones, keep them; if not, give the QR more space (§7). |
 
-**What the Second Eye asked about hidden decisions.** Nothing here changes identity behaviour:
+**Ready to freeze now:**
+- the family grammar: paper upper field, the line, family colour below; above the line «PINTAR SELALU», the name and the PINTAR ID; below it the role(s) and school(s); the back as drawn;
+- the geometry, except the two elements that wait for the physical proof below: CR80, 3 mm safe margin, 6 mm text margin, 2 mm bleed, the line at 32 mm on both faces;
+- the typography (§8);
+- the palette (ruling 1).
+
+**Candidates pending the physical proof** (print it, hold it, scan it, inspect it; then freeze):
+- **the 0.75 mm ochre line**: page 2 of the A4 proof;
+- **the round 2 QR geometry** (0.598 mm modules in the tile): pages 1 and 3, scanned with ordinary phones in ordinary light.
+
+**No hidden decisions.** Nothing here changes identity behaviour:
 - no new data on the card;
 - no hierarchy;
 - the ID, QR and link behave as IDENTITY-4.0 §4–5 says.
 
-Three items look like refinement but are product decisions, and so are listed above rather than applied: the multi-role colour, the multi-role order, and the two-schools layout. Where I made a choice anyway to draw them (alphabetical order; the Guru colour in the two-schools case), the render labels it **undecided**.
+The multi-role colour, the order and the two-schools layout were product decisions; they were drawn as options, and Yazid has now ruled them.
 
 ## 1. The direction, refined
 
@@ -120,13 +115,13 @@ Yazid's mock-up was kept as the concept. Refinements:
   - The back's instruction says «…halaman masuk PINTAR.», and the URL joins the two («pintarselalu.com»).
   - The app and the emails call the product «PINTAR» (Kartu PINTAR, Masuk ke PINTAR, Tim PINTAR), while the app's logo block reads PINTAR SELALU.
   - A reader will most likely take them as one brand, but **the card carries two names for it.** The email makes this visible: the logo, the card's header and the heading «Kartu PINTAR Anda» sit together.
-  - Which name the card carries is Yazid's.
+  - **Ruled (30 Sep):** the card carries «PINTAR SELALU», the formal artifact identity. The product language stays «PINTAR», including the back's instruction. Nothing in the app or the emails changes.
 
 ## 3. The warm-gold line
 
 **Purpose:** recognition and structural continuity. It is identical on every family, at the same height on both faces, and independent of role. It is not decoration or prestige.
 
-**The colour** (a candidate, not a frozen token): **`#C09C4F`**, an ochre at OKLCH 0.711 / 0.105 / 85°.
+**The colour: `#C09C4F`**, an ochre at OKLCH 0.711 / 0.105 / 85°. **Ruled (30 Sep):** approved as the PINTAR artifact-signature candidate, for the identity and artifact language only. It is not a general-purpose UI accent.
 
 - **Chosen by lightness, not taste.** It sits at the midpoint between the paper and the family colours:
   - 2.48:1 against the paper;
@@ -154,7 +149,7 @@ Yazid's mock-up was kept as the concept. Refinements:
   - On a 1× screen both blend into the edge they sit on. They show as a warm seam (0.099: above noticeable, but not a clean line).
   - At 2× and above, as on almost every phone, every width is a clean line.
   - Only 1.00 mm survives 1× cleanly; that is not enough reason to print a stripe.
-- **Recommendation: 0.75 mm.**
+- **Recommendation: 0.75 mm. Ruled (30 Sep):** 0.75 mm for the CR80 card, as a candidate pending the physical proof (page 2).
 
 ## 4. Family colours
 
@@ -202,12 +197,12 @@ Yazid's mock-up was kept as the concept. Refinements:
 
 **What the numbers mean:**
 - **Normal vision:** the smallest pair is 0.0567, above the 0.056 target. Every round 1 collision is gone (Murid/Dekan 0.024 → 0.059; Guru/Kepala departemen 0.029 → 0.065).
-- **Deuteranopia:** at one lightness, red-green colour blindness leaves only the blue-yellow axis. Two pairs meet (Murid/Kepala departemen 0.008, Guru/Admin sekolah 0.009). This cannot be solved at one lightness, only by giving up equal lightness, which reopens the ladder. The role is always written, so no one loses the information (D-059: colour is supplementary).
+- **Deuteranopia:** at one lightness, red-green colour blindness leaves only the blue-yellow axis. Two pairs meet (Murid/Kepala departemen 0.008, Guru/Admin sekolah 0.009). This cannot be solved at one lightness, only by giving up equal lightness, which reopens the ladder. The role is always written, so no one loses the information (D-059: colour is supplementary). **Ruled (30 Sep): accepted, under the existing redundancy rule.** The palette is not distorted to chase six-way separation under every colour-vision simulation.
 - **Protanopia:** the smallest pair is 0.028.
 
 **The cost, stated plainly.** The family is more colourful than round 1: chroma about 0.06 instead of 0.05. No proposed colour reads as the "premium" edition: same lightness, similar chroma, and no violet, gold or red on a senior role.
 
-**The olive alternative** (A, bottom row) keeps Murid in the green-yellow arc (`#67612F` olive). The rest are re-solved (smallest pair 0.0574). It avoids the plum, but the olive reads khaki and heavier. Murid's colour is the one free choice; it is Yazid's.
+**The olive alternative** (A, bottom row) keeps Murid in the green-yellow arc (`#67612F` olive). The rest are re-solved (smallest pair 0.0574). It avoids the plum, but the olive reads khaki and heavier. Murid's colour was the one free choice. **Ruled (30 Sep): the proposed palette, with plum Murid, is approved.**
 
 **Print shift** (MuPDF's built-in CMYK profile, an estimate): every proposed colour round-trips with ΔE2000 ≤ 0.83. Printer risks:
 - The slate (`#5E6062`, CMYK 62/53/51/23) and the clay (`#7A5648`) are four-ink colours that drift with grey balance.
@@ -275,9 +270,9 @@ Round 1's back was clean but anonymous. The smallest change that makes it PINTAR
 - move the line to about 33.5 mm on both faces (module about 0.64 mm; the lower field narrows to about 20 mm); or
 - move the ID beside the tile.
 
-The recommended treatment stays as built until those tests.
+**Ruled (30 Sep): the QR geometry is not frozen merely because it fits.** The design that survives realistic physical use wins, even if the visually preferred version does not. If 0.598 mm scans reliably on the printed CR80 with ordinary phones, it stays; if not, the QR gets more space (one of the options above).
 
-**Meaning.** The instruction says what happens: a page opens and the person signs in there. `/id/<PINTAR ID>` is the way into sign-in and recovery, not verification of the person. No "verify", "authentic" or "scan to check" appears anywhere. The wording «Pindai untuk membuka halaman masuk PINTAR.» is unchanged; no better one was found. It is Yazid's decision.
+**Meaning.** The instruction says what happens: a page opens and the person signs in there. `/id/<PINTAR ID>` is the way into sign-in and recovery, not verification of the person. No "verify", "authentic" or "scan to check" appears anywhere. The wording «Pindai untuk membuka halaman masuk PINTAR.» is unchanged; no better one was found. **Ruled (30 Sep): approved as it stands.**
 
 ## 8. Typography
 
@@ -307,28 +302,35 @@ PINTAR's own typefaces, both SIL OFL 1.1: licensed for print and embedding. The 
 
 «Admin platform», with no second line. The space stays empty; nothing is invented (F, and page 3).
 
-## 10. Several roles: still a product question
+## 10. Several roles: ruled (30 Sep)
 
-**One person, one PINTAR ID, one card, the current roles listed** («Guru · Kepala departemen»). This is the current direction, not a new ruling.
+**One person, one PINTAR ID, one card.** If the person holds several current roles, all of them may be written on the card, each paired with its school where necessary.
 
-**The order of the roles:** alphabetical by the Terminology v1 names (a proposal).
-- It follows the app's own rule for listing people: «Alphabetical, and that is the only order. There is no ranking to offer» (`src/lib/pengajar.ts:193`).
-- It is not seniority.
-- It is not the app's `display_role`, which is «the highest role assignment» (`src/lib/pembelajaran.ts:21-22`). That must not set the order or the colour.
+**The order: alphabetical by the Terminology v1 names.**
+- Chosen solely because it is deterministic and non-hierarchical. It follows the app's own rule for listing people: «Alphabetical, and that is the only order. There is no ranking to offer» (`src/lib/pengajar.ts:193`).
+- **Any apparent seniority that results from the Indonesian role names is coincidental and must not be read, or documented, as precedence.** «Dekan» comes before «Guru», and «Admin …» first, only because of the alphabet.
+- It is not seniority. It is not the app's `display_role`, which is «the highest role assignment» (`src/lib/pembelajaran.ts:21-22`).
 
-**The colour: UNDECIDED.** Shown as the Second Eye named the options:
-- **(a) The colour of the role held longest.** The dates are never on the card.
-- **(b) One shared neutral for any card with several roles.**
-  - **Finding:** at this lightness the neutral is already Admin platform's slate.
-  - A multi-role card would therefore look like an Admin platform card.
-  - A distinct neutral needs another lightness, which reopens the ladder.
-  - So (b) needs Admin platform to move off the centre, or it is not viable.
+**The colour: the family colour of the first role in the alphabetical list shown.**
+- It is a deterministic presentation rule only. It does not indicate a primary role, seniority, authority, permission, importance or precedence.
+- Examples: «Guru · Kepala departemen» takes the Guru colour; «Dekan · Guru» takes the Dekan colour. Each only because that role comes first alphabetically.
+- The card is current state: if the roles change, the order and the colour may change with the current chapter.
+- Not used: tenure (an invisible historical fact), a neutral seventh colour (it would collide with Admin platform's slate at this lightness), `display_role`.
+- **In the render** (F, several roles): (a) happens to show the ruled result for «Guru · Kepala departemen» (the Guru colour), for a different reason. (b), the shared neutral, is not used. The renders were not redrawn.
 
-**Roles at two schools: UNDECIDED.**
-- **(i)** One line per role with its school. Unambiguous.
-- **(ii)** The roles, then the schools. Shorter, but it no longer says which role is at which school.
-- Both are drawn in the Guru colour only because the colour question is open.
-- One card per school would give one person two cards with the same ID. That is an identity-architecture question, not drawn.
+**Roles at two schools: one role with its school per line.** For example:
+
+```
+Guru · SMP Cahaya Kaliandra
+Kepala departemen · SMA Bukit Asri Kaliandra
+```
+
+- Identity optimises for unambiguous meaning, not for saving a line. The second render, (ii), roles then schools, is not used.
+- The colour follows the same rule: the first role alphabetically.
+
+**Capacity.** The 4.0 card is proven for **up to two current role and school pairs**.
+- The lower field holds about four lines at 8 pt, so two pairs fit even when both school names wrap.
+- With more than two pairs, the card must not shrink its type below the approved physical minimum, truncate, or silently leave a role out. That state is an unresolved presentation exception, returned for product handling if it is ever met.
 
 ## 11. The recognition test (G)
 
