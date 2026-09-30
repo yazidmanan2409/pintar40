@@ -101,7 +101,11 @@ create or replace function selftest.f18_tulis_sandi(p_uid uuid, p_hash text)
 returns void language plpgsql set search_path = public, pg_temp as $$
 begin
   reset role;
-  set local role supabase_auth_admin;
+  -- Auth's own role where it can write auth.users (every Supabase stack, where
+  -- it owns the table); a bare shim database without that grant writes as the owner
+  if has_table_privilege('supabase_auth_admin', 'auth.users', 'update') then
+    set local role supabase_auth_admin;
+  end if;
   update auth.users set encrypted_password = p_hash where id = p_uid;
   reset role;
 end $$;
@@ -279,6 +283,11 @@ begin
     if public.confirm_my_name(null) is distinct from 'Nama Lain Uji' then
       v_probs := selftest.f18_note(v_probs, 'F18-N02', '«Sudah benar» changed the name');
     end if;
+    -- and the password is needed: username, PIN and name, but no password
+    perform public.claim_username('lain.' || v_tag);
+    perform public.set_my_pin('7394');
+    k := selftest.f18_kode('select public.complete_my_setup()');
+    if k is distinct from 'SETUP_INCOMPLETE' then v_probs := selftest.f18_note(v_probs, 'F18-S01', 'set-up completed with no password'); end if;
     perform selftest.as_user('card-7001@cards.synthetic.pintar.test');
     k := selftest.f18_kode(format('select public.confirm_my_name(%L)', 'Ironman'));
     if k is distinct from 'IDENTITY_NOT_ELIGIBLE' then v_probs := selftest.f18_note(v_probs, 'F18-N02', 'a class card has a name step: ' || coalesce(k, 'renamed')); end if;
@@ -469,7 +478,7 @@ begin
           || 'minute, is only for a REQUIRED email account (not a completed Guru, not a class card), records the wizard''s step, and '
           || 'is audited without the hash; clearing a hash passes'
         when 'F18-S01' then 'the wizard''s state reports exactly the steps done (password yes; username, PIN and name no; staff with a PINTAR ID); '
-          || 'set-up refuses to complete before the name is confirmed, and completes with all four'
+          || 'set-up refuses to complete before the name is confirmed and without a password, and completes with all four'
         when 'F18-L01' then 'a code is for a REQUIRED email account only (any case and spacing), never a completed Guru, a class card, a '
           || 'persona or nobody; an email and a username resolve to the account''s address, a class card and an unknown name to nothing; '
           || 'five sign-in attempts are free, a sixth is held and a success clears it; the resend countdown is the limit''s; the read-only '

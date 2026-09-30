@@ -245,7 +245,7 @@ jobs:
             db-bob25-gates)
               echo "the five send-log and limit defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob26-gates)
-              echo "the seven activation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the eight activation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac

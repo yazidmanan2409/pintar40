@@ -675,6 +675,7 @@
     { "name": "bob26-4", "gate": "db-bob26-gates", "expect_red": "F18-S01", "expect_detail": "set-up completed before the name was confirmed" },
     { "name": "bob26-5", "gate": "db-bob26-gates", "expect_red": "F18-N03", "expect_detail": "corrected a name" },
     { "name": "bob26-6", "gate": "db-bob26-gates", "expect_red": "F18-N02", "expect_detail": "the name could be corrected a second time" },
-    { "name": "bob26-7", "gate": "db-bob26-gates", "expect_red": "F18-I01", "expect_detail": "another school's admin read the names" }
+    { "name": "bob26-7", "gate": "db-bob26-gates", "expect_red": "F18-I01", "expect_detail": "another school's admin read the names" },
+    { "name": "bob26-8", "gate": "db-bob26-gates", "expect_red": "F18-S01", "expect_detail": "set-up completed with no password" }
   ]
 }
