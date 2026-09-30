@@ -1,0 +1,744 @@
+[
+ {
+  "kode": "modern-a",
+  "nama": "Modern · akademik (usulan) (QR crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 45,
+    "blur_px": 4.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 80,
+    "blur_px": 2,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "modern-a·sheet",
+  "nama": "Modern · akademik (usulan) (the whole sheet)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "modern-p",
+  "nama": "Modern · pengembangan profesi (QR crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 45,
+    "blur_px": 4.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 80,
+    "blur_px": 2,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "modern-p·sheet",
+  "nama": "Modern · pengembangan profesi (the whole sheet)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "classic-a",
+  "nama": "Classic · akademik (QR crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 45,
+    "blur_px": 4.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 80,
+    "blur_px": 2,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "classic-a·sheet",
+  "nama": "Classic · akademik (the whole sheet)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "minimal-a",
+  "nama": "Minimal · akademik (QR crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 45,
+    "blur_px": 4.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 80,
+    "blur_px": 2,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "minimal-a·sheet",
+  "nama": "Minimal · akademik (the whole sheet)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ },
+ {
+  "kode": "modern-abu",
+  "nama": "Modern · skala abu-abu (QR crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 45,
+    "blur_px": 4.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 105,
+    "blur_px": 2,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "modern-abu·sheet",
+  "nama": "Modern · skala abu-abu (the whole sheet)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ]
+ },
+ {
+  "kode": "ubin",
+  "nama": "Kajian QR · modul di atas ubin hijau muda (QR crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 50,
+    "blur_px": 4.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 105,
+    "blur_px": 2,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "ubin·sheet",
+  "nama": "Kajian QR · modul di atas ubin hijau muda (the whole sheet)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ]
+ },
+ {
+  "kode": "versi-6",
+  "nama": "Kajian QR · tautan versi 6 (QR crop)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 50,
+    "blur_px": 3.75,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 160,
+    "blur_px": 3,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "versi-6·sheet",
+  "nama": "Kajian QR · tautan versi 6 (the whole sheet)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": false
+   }
+  ]
+ }
+]
