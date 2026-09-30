@@ -18,7 +18,7 @@
 | 8 | **`verifikasi.pintarselalu.com` is the canonical public verification domain,** under the opaque-token architecture. It gives verification a durable PINTAR-owned home instead of exposing application routing. D-039 is to be updated to match, so no canonical evidence conflicts. | §2. Recording it in D-039 is the Second Eye's. |
 | 9 | **C17: a student's academic certificate may show their PINTAR ID.** With the number's form it necessarily does: `<PINTAR ID>/<certificate sequence>`. C17's "students don't get a PINTAR card" does not hide their PINTAR identity; the ID is an identity and reference attribute, the card only one representation of it. **The ID is never the public verification credential:** the QR and the link keep the separate opaque token. | §3. |
 
-- **Brief:** `docs/coordination/briefs/DAISY-SERTIFIKAT-ROUND-2.md`, Yazid's draft revised by the coordinator (D-076), with Yazid's reference image. The image travels with the brief and is not committed; H shows it beside the two rounds.
+- **Brief:** `docs/coordination/briefs/DAISY-SERTIFIKAT-ROUND-2.md`, Yazid's draft revised by the coordinator (D-076), with Yazid's reference image. The image travels with the brief and never enters the repository, not even as a thumbnail (D-082(b)): H compares round 1 with round 2 only.
 - **The direction:** Yazid's revised Modern composition, refined and not redesigned. Achievement → Issuer → Verification.
 - **Since then:** D-078 says certificate design is done and the next step is its truth contract (BOB-48, DAISY-36). This round is the refinement DAISY-36 implements once it is reviewed and accepted.
 - **Samples:** every person, school, number and token is invented. The people and schools are the card's (`kartu-pintar/ronde-2`), so the samples agree person by person:
@@ -41,14 +41,14 @@
 **Run** from the repository root, with a Python that has `../requirements.txt` (round 1's, unchanged):
 
 ```bash
-KARTU_PY=/path/to/python REF=/path/to/yazids-reference.png npx tsx docs/coordination/ux/sertifikat/ronde-2/buat-ronde2.mts
+KARTU_PY=/path/to/python npx tsx docs/coordination/ux/sertifikat/ronde-2/buat-ronde2.mts
 # G: the review harness first (a server-only shim may be needed, see ../README.md)
 node claude/tools/render-screens/stylesheet.mjs "$OUT"
 npx tsx claude/tools/render-screens/screens.tsx "$OUT"
 KARTU_PY=/path/to/python npx tsx docs/coordination/ux/sertifikat/ronde-2/cetak-bukti.mts "$OUT"
 ```
 
-`REF` is optional. Without it, H shows a labelled blank where the reference goes.
+The script never reads Yazid's reference image (D-082(b)); H is round 1 against round 2, and the table «Against the reference» describes the reference in words.
 
 ## Deliverables
 
@@ -61,7 +61,7 @@ KARTU_PY=/path/to/python npx tsx docs/coordination/ux/sertifikat/ronde-2/cetak-b
 | E | The A4 PDF at 100%: a cover marked «Cetak pada 100% … Jangan pilih "Sesuaikan dengan halaman"», with a scale check, then one certificate per page | `render/E-A4-100persen-tanpa-sesuaikan.pdf` (12 pages) |
 | F | The verification detail: the QR at actual size with decode, stress and damage results, the printed link, the number | `render/F-verifikasi-detail.png` |
 | G | The print proof: today's page before and after the fix, four ways, as PDFs and a board | `render/G-*.pdf`, `G-cetak-sebelum-sesudah.png`, `G-laporan.txt` |
-| H | One page: what changed from round 1, and against the reference | `render/H-sebelum-sesudah.png` |
+| H | One page: what changed from round 1 (round 1 beside round 2), and against the reference in words | `render/H-sebelum-sesudah.png` |
 | I | This README | |
 
 **E's pages:**

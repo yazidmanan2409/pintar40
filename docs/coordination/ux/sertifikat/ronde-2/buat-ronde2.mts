@@ -686,15 +686,13 @@ ${baris("r1-v5", QR_R1)}${baris("byte-m", QR["byte-m"])}${baris("an-m", QR["an-m
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// H · Before and after: round 1's Modern (dd292f6), Yazid's reference, round 2
+// H · Before and after: round 1's Modern (dd292f6) against round 2. Yazid's
+//     reference image is not shown (D-082(b)) and is never read by this script:
+//     it never enters the repository, not even as a thumbnail.
 // ════════════════════════════════════════════════════════════════════════════
 {
   // round 1's own sample and grammar, as it was
   const r1 = R1.sertifikat("MODERN", { sekolah: "SMP Cahaya Kaliandra", nama: "Bagas Saputra", kursus: "Matematika · Bab 4: Sistem Persamaan Linear", predikat: "Sangat Baik", tanggal: TGL, nomor: "PINTAR/SMP-CAHAYA-KALIANDRA/2026/00042", url: R1_URL, matriks: R1_M, konteks: "ACADEMIC" }, KATA);
-  // Yazid's reference image travels with his brief and is not in the repository (REF: its path, when at hand)
-  const ref = process.env.REF && existsSync(process.env.REF)
-    ? `<img class="bayang" src="file://${process.env.REF}" style="width:95mm;height:${(95 * 297) / 210}mm;object-fit:fill;display:block">`
-    : `<div class="bayang" style="width:95mm;height:${(95 * 297) / 210}mm;background:#fff;display:flex;align-items:center;justify-content:center"><p class="ket">Yazid's reference (with the brief; not in the repository)</p></div>`;
   const PERUBAHAN: Array<[string, string, string, string]> = [
     ["Axis", "Left-aligned on a 24 mm margin", "One centred axis on a 20 mm margin", "Yazid's composition. A centred sheet reads as a certificate at first glance."],
     ["Header", "«SERTIFIKAT PENGUASAAN» alone, 10.5 pt; «PINTAR SELALU» a 7 pt colophon at the foot", "«SERTIFIKAT PENGUASAAN» upper-left in the accent, «PINTAR SELALU» upper-right in PINTAR green, both 12 pt capitals, in type", "Decided (D-074, D-076): the pair names what the paper is and whose system proves it, at one level, before the name."],
@@ -719,11 +717,10 @@ ${baris("r1-v5", QR_R1)}${baris("byte-m", QR["byte-m"])}${baris("an-m", QR["an-m
   ];
   await potret(halaman("H", `<div class="lembar" style="width:${3 * 95 + 2 * 10 + 4}mm">
 <h1>H · What changed from round 1</h1>
-<p class="sub">Left: round 1's Modern as it was (dd292f6). Middle: Yazid's reference, the direction. Right: this round, the reference refined. Same person, same school, same course; the number and link take the proposed forms.</p>
+<p class="sub">Left: round 1's Modern as it was (dd292f6). Right: this round, Yazid's reference composition refined. Same person, same school, same course; the number and link take the proposed forms.</p>
 <div class="baris" style="gap:10mm">
-<div style="width:95mm">${kecil(r1, 95)}<p class="ket"><b>Round 1 · Modern</b></p></div>
-<div style="width:95mm">${ref}<p class="ket"><b>Yazid's reference</b> (30 Sep): values and sample text approximate</p></div>
-<div style="width:95mm">${kecil(sr(A), 95)}<p class="ket"><b>Round 2</b>: the proposal</p></div></div>
+<div style="width:140mm">${kecil(r1, 140)}<p class="ket"><b>Round 1 · Modern</b></p></div>
+<div style="width:140mm">${kecil(sr(A), 140)}<p class="ket"><b>Round 2</b>: the proposal</p></div></div>
 <table class="spek" style="width:100%"><tr><th></th><th style="width:26%">Round 1</th><th style="width:30%">Round 2</th><th>Why</th></tr>
 ${PERUBAHAN.map(([a, b, c, d], i) => `<tr><td><b>${i + 1} · ${a}</b></td><td>${S.esc(b)}</td><td>${S.esc(c)}</td><td>${S.esc(d)}</td></tr>`).join("")}</table>
 <h2 style="margin-top:6mm">Against the reference: its slips corrected, and the refinements</h2>
