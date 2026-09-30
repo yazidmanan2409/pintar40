@@ -173,7 +173,7 @@ jobs:
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
                db-bob06-gates, db-bob12-gates, db-bob24-gates,
-               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates]
+               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates, db-bob25-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -241,6 +241,8 @@ jobs:
               echo "the integrity-referral defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
             db-bob37-gates)
               echo "the three per-topic mastery defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob25-gates)
+              echo "the five send-log and limit defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
@@ -1823,6 +1825,17 @@ jobs:
           DB_URL: ${{ steps.gatesBob37.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob37-gates
 
+      # BOB-25's gate: the send log and the send limits.
+      - name: Local stack (send log and limits gate)
+        if: matrix.case == 'db-bob25-gates'
+        id: gatesBob25
+        uses: ./.github/actions/local-stack
+      - name: Each planted send-log or limit defect must turn its own F17 test red
+        if: matrix.case == 'db-bob25-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob25.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob25-gates
+
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'
         env:
@@ -1865,6 +1878,15 @@ jobs:
       - run: npm ci
       - id: stack
         uses: ./.github/actions/local-stack
+      # BOB-25: every CI send goes to this sink and nowhere else. Its chaos API
+      # lets BOB25-S01 make the host refuse a send (451) and prove it is
+      # reported as not sent. Loopback only; SMTP 54325, API 54324, as locally.
+      - name: Mailpit sink (BOB-25)
+        run: |
+          docker run -d --name mailpit -p 127.0.0.1:54325:1025 -p 127.0.0.1:54324:8025 axllent/mailpit:v1.31.3 \
+            --enable-chaos --smtp-auth-accept-any --smtp-auth-allow-insecure --disable-version-check
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:54324/api/v1/info >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:54324/api/v1/info >/dev/null
       - name: Build against the local stack and run the whole manifest
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ steps.stack.outputs.api-url }}
