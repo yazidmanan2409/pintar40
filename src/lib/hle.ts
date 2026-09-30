@@ -1321,7 +1321,6 @@ export type HleEvent =
   | "email.bingkai.alasan"
   | "email.bingkai.tidak_pernah"
   | "email.bingkai.tanya"
-  | "email.bingkai.badan"
   | "email.bingkai.cadangan"
   | "email.bingkai.uji"
   | "email.uji.subjek"
@@ -2742,7 +2741,6 @@ const table: Table = {
   "email.bingkai.alasan": { default: "Anda menerima email ini karena alamat ini terhubung dengan akun PINTAR.", en: "You are receiving this email because this address is linked to a PINTAR account." },
   "email.bingkai.tidak_pernah": { default: "PINTAR tidak pernah meminta PIN atau password lewat email.", en: "PINTAR never asks for a PIN or password by email." },
   "email.bingkai.tanya": { default: "Ada pertanyaan? Tulis ke", en: "Questions? Write to" },
-  "email.bingkai.badan": { default: "PT ZAYD PINTAR SELALU", en: "PT ZAYD PINTAR SELALU" },
   "email.bingkai.cadangan": { default: "Jika tombol tidak bisa dibuka, salin alamat ini ke peramban Anda:", en: "If the button does not open, copy this address into your browser:" },
   "email.bingkai.uji": { default: "Email uji dari PINTAR versi uji coba.", en: "A test email from PINTAR's test version." },
   "email.uji.subjek": { default: "Uji pengiriman email PINTAR", en: "PINTAR email delivery test" },

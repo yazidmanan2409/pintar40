@@ -25,7 +25,7 @@ import { Checks, type SelfTest } from "./lib";
 import { t, allKeys, telling, INTERNAL_WORDS, type HleEvent } from "../src/lib/hle";
 import type { KonteksEmail, Templat } from "../src/lib/email/templat";
 import {
-  bingkaiEmail, tampilKode, tautanAman, logoEmail, BERKAS_LOGO, WARNA, KONTAK, type Email,
+  bingkaiEmail, tampilKode, tautanAman, logoEmail, BERKAS_LOGO, WARNA, KONTAK, RANAH, BADAN_HUKUM, type Email,
 } from "../src/components/email/bingkai";
 import { templatUjiPengiriman } from "../src/components/email/uji";
 
@@ -162,9 +162,12 @@ export const emailTests: SelfTest[] = [
         if (row.default.length > 8) c.expect(!sumber.includes(row.default), `src/components/email writes «${row.default}» itself instead of reading ${k}`);
       }
       const html = hasil[0].e.html; // the code sample, which passes its own reason
-      for (const k of ["email.bingkai.tidak_pernah", "email.bingkai.tanya", "email.bingkai.badan"] as HleEvent[]) {
+      for (const k of ["email.bingkai.tidak_pernah", "email.bingkai.tanya"] as HleEvent[]) {
         c.expect(html.includes(t(k, "public")), `the footer does not carry ${k}`);
       }
+      // the company is a proper noun: the frame's constant, the footer's string, never a copy-table key (UX1-S1-KAKI-01)
+      c.expect(html.includes(BADAN_HUKUM) && hasil[0].e.teks.includes(BADAN_HUKUM), "the footer does not name the company");
+      c.expect(!kunci.some((k) => [BADAN_HUKUM, KONTAK, RANAH].includes(telling(k as HleEvent).default)), "an email key carries a proper noun");
       c.expect(html.includes(CONTOH.kode.alasan!), "an email's own reason does not reach the footer");
       c.expect(hasil[2].e.html.includes(t("email.bingkai.alasan", "public")), "an email without its own reason does not get the frame's default");
       c.expect(hasil[2].e.html.includes(t("email.bingkai.cadangan", "public")), "the button's copy-the-address line is not the copy table's");

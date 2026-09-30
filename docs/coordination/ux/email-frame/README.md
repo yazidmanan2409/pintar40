@@ -10,7 +10,7 @@
 
 | | Change | Where |
 |---|---|---|
-| Words | The frame's words (`KATA`) are now copy-table keys `email.bingkai.*`, in both languages; emails render Bahasa Indonesia (D-014) | `src/lib/hle.ts` |
+| Words | The frame's words (`KATA`) are now copy-table keys `email.bingkai.*`, in both languages; emails render Bahasa Indonesia (D-014). Proper nouns are not words: the company (`BADAN_HUKUM`), the address and the domain are the frame's constants, the same strings as the app footer, and never copy-table keys (UX1-S1-KAKI-01) | `src/lib/hle.ts`, `bingkai.ts` |
 | The interface | `bingkaiEmail(email, konteks)` takes BOB-25's `KonteksEmail` and returns its `EmailJadi`. A template is its own blocks plus one call to the frame, so it is a `Templat<D>` | `src/components/email/bingkai.ts` |
 | Ruling 1 | A code is shown grouped: 6 digits as «482 913», 8 as 4 + 4; it may arrive spaced or not. Accepting both forms is the code screen's job (DAISY-20, BOB-26) | `tampilKode` |
 | Ruling 2 | Each environment loads its own **small email logo**, `${asal}/brand/pintar-email-logo.png` (208 × 116, shown at 104 × 58, 10 KB instead of the 29 KB app logo). The frame builds it from `konteks.asal`, so a template cannot get it wrong | `public/brand/pintar-email-logo.png` |

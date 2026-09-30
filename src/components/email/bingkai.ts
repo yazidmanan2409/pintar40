@@ -84,7 +84,12 @@ export type Email = {
 /** Emails are Bahasa Indonesia only. */
 export const kata = (k: HleEvent) => t(k, "public", { locale: "id" });
 
-/** Fixed at Gate 0 (M4): where to write. Addresses, not words. */
+/**
+ * Fixed at Gate 0 (M4): who and where to write. Proper nouns, not words: the
+ * same strings in every language, so they are constants and never copy-table
+ * keys (UX1-S1-KAKI-01), exactly as the app footer (KakiPintar) holds them.
+ */
+export const BADAN_HUKUM = "PT ZAYD PINTAR SELALU";
 export const KONTAK = "info@pintarselalu.com";
 export const RANAH = "pintarselalu.com";
 /** The small email logo in public/brand/ (ruling 2): 208 × 116, shown at 104 × 58. */
@@ -256,7 +261,7 @@ ${e.isi.map(blokHtml).join("\n")}
 <p style="margin:0 0 8px 0;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">${esc(alasan)}</p>
 <p style="margin:0 0 8px 0;font-family:${HURUF};font-size:13px;line-height:20px;font-weight:600;color:${T.tinta3};">${esc(kata("email.bingkai.tidak_pernah"))}</p>
 <p style="margin:0 0 8px 0;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">${esc(kata("email.bingkai.tanya"))} <a class="pin-tautan" href="mailto:${KONTAK}" style="color:${T.utama};text-decoration:underline;">${KONTAK}</a>.</p>
-<p style="margin:0;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">${esc(kata("email.bingkai.badan"))} · <a class="pin-tautan" href="https://${RANAH}" target="_blank" style="color:${T.utama};text-decoration:underline;">${RANAH}</a></p>
+<p style="margin:0;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">${esc(BADAN_HUKUM)} · <a class="pin-tautan" href="https://${RANAH}" target="_blank" style="color:${T.utama};text-decoration:underline;">${RANAH}</a></p>
 </td></tr>
 </table>
 <!--[if mso]></td></tr></table><![endif]-->
@@ -299,7 +304,7 @@ function teksBiasa(e: Email, alasan: string, konteks: KonteksEmail): string {
   }
   bagian.push(
     "--", bungkus(alasan), bungkus(kata("email.bingkai.tidak_pernah")),
-    `${kata("email.bingkai.tanya")} ${KONTAK}.`, `${kata("email.bingkai.badan")} · ${RANAH}`, "",
+    `${kata("email.bingkai.tanya")} ${KONTAK}.`, `${BADAN_HUKUM} · ${RANAH}`, "",
   );
   return bagian.join("\n");
 }
