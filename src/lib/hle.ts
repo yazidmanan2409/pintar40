@@ -1303,6 +1303,7 @@ export type HleEvent =
   | "emailuji.galat.alamat"
   | "emailuji.galat.sesi"
   | "emailuji.galat.ditolak"
+  | "emailuji.galat.asal"
   | "emailuji.galat.umum"
   | "emailuji.galat.jaringan"
   | "aktivasi.ditolak"
@@ -2746,6 +2747,7 @@ const table: Table = {
   "emailuji.galat.alamat": { default: "Tulis alamat email yang lengkap, misalnya nama@sekolah.sch.id.", en: "Enter a complete email address, for example name@school.sch.id." },
   "emailuji.galat.sesi": { default: "Sesi Anda sudah berakhir. Masuk lagi, lalu kirim ulang.", en: "Your session has ended. Sign in again, then send it again." },
   "emailuji.galat.ditolak": { default: "Hanya admin platform yang dapat mengirim email uji.", en: "Only the platform administrator can send a test email." },
+  "emailuji.galat.asal": { default: "Belum terkirim: permintaan ini tidak datang dari halaman PINTAR di alamat ini. Buka halaman ini lagi dari alamat PINTAR, lalu kirim ulang.", en: "Not sent: this request did not come from a PINTAR page at this address. Open this page again from PINTAR's address, then send it again." },
   "emailuji.galat.umum": { default: "Belum terkirim: terjadi kesalahan di PINTAR. Coba lagi sebentar lagi.", en: "Not sent: something went wrong in PINTAR. Try again in a moment." },
   "emailuji.galat.jaringan": { default: "Permintaan tidak sampai ke PINTAR. Periksa sambungan internet, lalu coba lagi.", en: "The request did not reach PINTAR. Check the internet connection, then try again." },
   "aktivasi.ditolak": { default: "Halaman ini untuk pengelola data sekolah.", en: "This page is for the people who manage a school's records." },

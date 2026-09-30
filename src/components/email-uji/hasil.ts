@@ -67,9 +67,9 @@ export function bacaHasilUji(status: number | null, jawaban: unknown, namaSah: r
       return nama ? { nada: "gagal", kunci: "emailuji.pengaturan.tidak_aman", variabel: nama } : { nada: "gagal", kunci: "emailuji.pengaturan.umum" };
     case "PERMINTAAN_TIDAK_SAH": return { nada: "gagal", kunci: "emailuji.galat.alamat" };
     case "BELUM_MASUK": return { nada: "gagal", kunci: "emailuji.galat.sesi" };
-    case "BUKAN_ADMIN_PLATFORM":
-    case "BUKAN_ASAL_SAMA":
-      return { nada: "gagal", kunci: "emailuji.galat.ditolak" };
+    case "BUKAN_ADMIN_PLATFORM": return { nada: "gagal", kunci: "emailuji.galat.ditolak" };
+    // the press did not come from a PINTAR page at the address the route is addressed by
+    case "BUKAN_ASAL_SAMA": return { nada: "gagal", kunci: "emailuji.galat.asal" };
   }
   return { nada: "gagal", kunci: "emailuji.galat.umum" };
 }

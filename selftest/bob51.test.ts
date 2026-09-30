@@ -191,11 +191,15 @@ export const bob51Tests: SelfTest[] = [
           kunci.add(h.kunci);
         }
       }
+      const perKode = new Map<string, HleEvent>();
       for (const g of galatRute.filter((x) => x !== "GAGAL")) {
         const h = bacaHasilUji(400, { terkirim: false, galat: g }, NAMA);
         c.expect(h.kunci !== "emailuji.galat.umum", `the route's code ${g} has no sentence of its own`);
+        perKode.set(g, h.kunci);
         kunci.add(h.kunci);
       }
+      // a refused origin is not told as «only the platform admin»: the two are different faults
+      c.expect(new Set(perKode.values()).size === perKode.size, `two of the route's codes share one sentence (${JSON.stringify(Object.fromEntries(perKode))})`);
       kunci.add(bacaHasilUji(500, { terkirim: false, galat: "GAGAL" }, NAMA).kunci);
       const tanpa = bacaHasilUji(null, null, NAMA);
       c.expect(tanpa.kunci === "emailuji.galat.jaringan", `no answer reads ${JSON.stringify(tanpa)}`);
