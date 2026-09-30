@@ -6,7 +6,7 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 
 **`main` is at:** Integration 15 (BOB-21; code `9062cbe`, CI #216 (26/26); audit #34, run 36378202736: 27 PASS, 1 NOTE, 0 FAIL). Before it: Integration 14 (`c2e8e4b`), Integration 13 (`15bfc99`). **Production release:** `5b5b68d` (see `RELEASES.md`). **Release checklist v2.1:** see RELEASE-CHECKLIST.md.
 
-> **GATE 2E RELEASED, 30 Sep (D-062(b)).** The Stellar Business move is verified (`auth/GATE-0-FACTS.md` §4). The pause ends and the lanes resume in the order below, with prompts in `briefs/RESUME-2026-09-30.md`. Bob: BOB-25 first. Daisy: finish the certificate exploration (D-073), then DAISY-19's wiring as soon as BOB-25's interface exists, then DAISY-20. Lana: LANA-22.
+> **GATE 2E RELEASED, 30 Sep (D-062(b); D-075: Bob resumes, Daisy finishes the certificate exploration then resumes, Lana resumes once the scans are supplied; gate order unchanged; no new scope).** The Stellar Business move is verified (`auth/GATE-0-FACTS.md` §4). The pause ends and the lanes resume in the order below, with prompts in `briefs/RESUME-2026-09-30.md`. Bob: BOB-25 first. Daisy: finish the certificate exploration (D-073), then DAISY-19's wiring as soon as BOB-25's interface exists, then DAISY-20. Lana: LANA-22.
 
 > **Email capacity is CLOSED (Yazid, 29 Sep): Yazid upgrades the mail plan when PINTAR is ready. It is not an open item, a blocker or a question, and no lane or report raises it with him again.**
 
