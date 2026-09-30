@@ -168,3 +168,10 @@ Namecheap moves the hosting account to another server for the upgrade (new IP an
 - **Yazid's mail test (30 Sep, 14:58 WIB):** `info@pintarselalu.com` sent to Gmail and received the reply; both arrived in the inbox.
 - **Still to confirm:** that the new server signs with the private key matching the published DKIM record. The DNS read proves only the published half. The proof is one signed message showing `dkim=pass` (with `spf=pass` and `dmarc=pass`) in Gmail's «Show original». Yazid's sign-in emails below serve as that message.
 - **Then, per D-062(b):** Yazid signs in once on staging and once on production; each sign-in email must arrive. That releases Gate 2E.
+- **First sign-in attempts, 30 Sep 08:11 UTC (production) and 08:12 UTC (staging): FAILED.** Both screens showed «Tautan belum bisa dikirim sekarang» (`auth.err_send`, which the app shows only when the send itself fails). Both projects' Auth logs (read-only) give the same cause: the new server refused Supabase's SMTP login, `535 "Incorrect authentication data"` (`/otp`, `unexpected_failure`). The mailbox `noreply@pintarselalu.com` either did not move with the account or no longer has the password Supabase holds. `info@` works because Yazid used it through webmail, not through an SMTP login with the old password. **Gate 2E is not released.**
+- **The fix, all by Yazid; no password passes through the coordinator:**
+  1. In the new cPanel, check that `noreply@pintarselalu.com` exists. Create it if it is missing, or set a new password if it is there.
+  2. Enter that password in both Supabase projects' SMTP settings (staging and production). Host, port and user stay as they are.
+  3. Also update Vercel's `PINTAR_SMTP_PASSWORD` if it is already set there.
+  4. Do not retry the sign-in until then: each failed attempt is a failed SMTP login, and repeated ones can make the new server block Supabase's sending address.
+  5. Then retry both sign-ins, and check «Show original».
