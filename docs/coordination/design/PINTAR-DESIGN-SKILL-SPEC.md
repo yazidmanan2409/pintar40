@@ -15,6 +15,14 @@
 
 ---
 
+## Why this matters (Yazid, 30 Sep 2026)
+
+> "We've spent a lot of time in the architecture — robust, stable, working as designed and intended. The UI/UX is the face. First impression counts. So Daisy has an extremely important role to play. All the effort, man-hours and sweat to develop the architecture will count for nothing if the UI/UX is not intuitive, natural, consistent. Daisy needs to understand this. Naturally, I'll be providing my feedback as we polish the UI/UX."
+
+Every rigorous thing underneath PINTAR reaches a teacher, a student or a head of department only through a screen, and people judge PINTAR by that screen. The rules below exist to serve that one purpose: a PINTAR that feels intuitive, natural and consistent the first time someone opens it, and every time after.
+
+---
+
 ## 0. How to read this: evidence tiers
 
 Every rule carries a tag for the tier of evidence behind it.
@@ -412,6 +420,10 @@ Once frozen, v1 becomes this section's dictionary.
 2. **The terminology inventory**, as evidence only (§8), and Terminology v1 once frozen.
 3. **The decisions and board rows** tagged in this document.
 4. **The release checklist's universal checks:** U-NAV, U-AUTH, U-TRUTH, U-LOC, U-EMPTY, U-DEVICE, U-CONTEXT, U-AUDIT, U-PRIV, U-RECOVER, U-ERR and U-PERF.
+5. **Yazid's feedback during the polish** ("I'll be providing my feedback as we polish the UI/UX", 30 Sep). It is recorded so that nothing is lost and nothing is quietly generalised:
+    - a ruling goes into `DECISIONS.md`;
+    - an observation about a screen becomes a register row with "Yazid" as its evidence, his words and the screen it concerns;
+    - where one comment could apply more widely, Daisy asks rather than assumes.
 
 ## 17. The self-review checklist (before a screen is declared ready)
 
