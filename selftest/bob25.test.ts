@@ -128,7 +128,7 @@ export const bob25Tests: SelfTest[] = [
         for (const kosong of [undefined, ""]) {
           const r = baca({ ...dasar, [nama]: kosong });
           c.expect(r.galat?.kode === "VARIABEL_HILANG" && r.galat.message.includes(nama),
-            `${nama} ${kosong === undefined ? "missing" : "empty"} was answered ${JSON.stringify(r.ok ?? r.galat?.message)}, not refused by name`);
+            `${nama} ${kosong === undefined ? "missing" : "empty"} was answered ${JSON.stringify(r.ok ? { ...r.ok, password: "(redacted)" } : r.galat?.message)}, not refused by name`);
         }
       }
       // TLS on 465, plain only to this machine, anything else refused before connecting
