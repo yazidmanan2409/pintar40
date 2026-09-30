@@ -44,6 +44,12 @@ export type ItemPlayerProps = {
   /** Highest client_seq the server has per presented item. */
   seqs: Record<string, number>;
   mode: "PEMETAAN" | "PENGUASAAN";
+  /**
+   * BOB-50 (D-082(d)): whether this session is the cycle's Uji Penguasaan
+   * (assessment mode POST_TEST), the one sitting that asks for a certificate.
+   * An Uji Cepat borrows the PENGUASAAN treatment but never certifies.
+   */
+  memintaSertifikat: boolean;
   stage: string | null;
   allowsPause: boolean;
   startedAt: string | null;
@@ -154,7 +160,7 @@ function sameAnswer(a: Answer | undefined, b: Answer): boolean {
 }
 
 export default function ItemPlayer(props: ItemPlayerProps) {
-  const { sessionId, paper, mode, stage, allowsPause, actions, finishHref } = props;
+  const { sessionId, paper, mode, stage, allowsPause, actions, finishHref, memintaSertifikat } = props;
   const router = useRouter();
   const formal = mode === "PENGUASAAN";
 
@@ -323,8 +329,9 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       if (r.ok || r.code === "PR002") {
         // doc 04 §7: the system issues a certificate for a certifying pass. Asked
         // at once, never awaited: the results view must not wait on issuance,
-        // and the certificate page asks again on every load.
-        if (formal) {
+        // and the certificate page asks again on every load. BOB-50 (D-082(d)):
+        // only the cycle's Uji Penguasaan asks; an Uji Cepat never does.
+        if (memintaSertifikat) {
           void fetch("/api/certificates/issue", {
             method: "POST", keepalive: true, headers: { "content-type": "application/json" },
             body: JSON.stringify({ session_id: sessionId }),
@@ -337,7 +344,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     } finally {
       setFinishing(false);
     }
-  }, [actions, finishHref, finishing, flush, formal, paper, router, sessionId]);
+  }, [actions, finishHref, finishing, flush, memintaSertifikat, paper, router, sessionId]);
 
   // ---------------------------------------- integrity observations (F-09)
   /*

@@ -174,7 +174,7 @@ jobs:
                db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
                db-bob06-gates, db-bob12-gates, db-bob24-gates,
                db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates, db-bob25-gates,
-               db-bob26-gates]
+               db-bob26-gates, db-bob50-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -246,6 +246,8 @@ jobs:
               echo "the five send-log and limit defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob26-gates)
               echo "the eight activation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob50-gates)
+              echo "the three Uji Cepat certificate defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
@@ -1847,6 +1849,17 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob26.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob26-gates
+
+      # BOB-50's gate: a single Uji Cepat does not issue a certificate (D-082(d)).
+      - name: Local stack (Uji Cepat certificate gate)
+        if: matrix.case == 'db-bob50-gates'
+        id: gatesBob50
+        uses: ./.github/actions/local-stack
+      - name: Each planted Uji Cepat certificate defect must turn its own F19 test red
+        if: matrix.case == 'db-bob50-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob50.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob50-gates
 
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'
