@@ -1,0 +1,1198 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "[UJI INTERNAL] Strategi Pembelajaran — Bab 2: Klasifikasi dan Pemilihan Strategi Pembelajaran",
+   "subject": "Pengembangan Kompetensi",
+   "stage": "Guru",
+   "grade_label": "Guru",
+   "konteks": "Pengembangan profesi",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "[UJI INTERNAL] Klasifikasi dan Pemilihan Strategi Pembelajaran",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "[UJI INTERNAL] Klasifikasi Strategi Pembelajaran",
+       "summary": "Strategi pembelajaran dapat dikelompokkan menurut beberapa dasar: pengaturan guru dan peserta didik, pengolahan pesan, dan lima kelompok Saskatchewan.",
+       "body_markdown": "**UJI INTERNAL / MATERI PERAGAAN — TIDAK UNTUK DISTRIBUSI PRODUKSI**\n\nSumber: Dr. Siti Nurhasanah, M.Pd; Dr. (Cdt) Agus Jayadi, M.Pd; Dr. Rika Sa'diyah, M.Pd; Syafrimen, M.Ed, Ph.D. *Strategi Pembelajaran*. Jakarta: Penerbit EDU PUSTAKA, 2019, Cetakan Pertama. ISBN 978-623-90461-7-0. Bab II «Klasifikasi dan Pemilihan Strategi Pembelajaran», hlm. 37–82. Materi ini adalah adaptasi dekat untuk peragaan internal.\n\n## Dasar klasifikasi\n\nMengelompokkan strategi memerlukan dasar, yaitu kriteria atau titik tolak pengelompokan. Satu strategi dapat digolongkan secara berbeda menurut dasar yang dipakai. Mengutip Raka Joni, bab ini menyebut empat sudut pandang: pengaturan guru dan peserta didik, pengolahan pesan, struktur peristiwa belajar-mengajar, dan tujuan belajar. Dua yang pertama diuraikan di bawah ini.\n\n## Pengaturan guru dan peserta didik\n\n- **Pengaturan guru**: diajar oleh seorang guru, atau oleh tim yang terdiri atas lebih dari satu guru (*team teaching*).\n- **Hubungan guru dan peserta didik**: tatap muka, ketika guru dan peserta didik berada dalam satu ruang dan berkomunikasi langsung; atau jarak jauh, ketika interaksi berlangsung melalui media atau teknologi.\n- **Pengaturan peserta didik**: individual, ketika setiap peserta didik belajar sesuai kemampuannya sendiri; kelompok kecil, sekitar 4–7 orang yang berdiskusi atau mengerjakan tugas; dan klasikal, sekitar 35–45 orang yang dianggap setara usia dan kemampuannya, lalu diajar dengan format yang sama untuk semua.\n\n## Pengolahan pesan\n\nDari **peran** guru dan peserta didik dalam mengolah pesan:\n\n- **Ekspositorik**: berorientasi pada guru. Guru mengolah pesan menjadi «barang jadi», lalu menyampaikannya. Guru menyusun program, memberi informasi, menyediakan fasilitas, membimbing, dan menilai; peserta didik menerima informasi dan menyelesaikan tugas.\n- **Heuristik**: peserta didik terlibat aktif mengolah pesan. Tujuannya kemampuan intelektual, berpikir kritis, dan pemecahan masalah. Guru menciptakan suasana berpikir agar peserta didik berani menjelajah dan menemukan.\n\nDari **proses** pengolahan pesan:\n\n- **Deduktif**: dari yang umum ke yang khusus. Guru mengemukakan generalisasi, menjelaskan konsep, lalu peserta didik mencari data.\n- **Induktif**: dari yang khusus ke yang umum. Peserta didik mulai dari data atau peristiwa khusus, menyusun konsep, merumuskan generalisasi, menerapkannya pada data baru, lalu menarik kesimpulan lanjut.\n\n## Lima kelompok strategi\n\nBab ini juga memakai klasifikasi Saskatchewan Education (1991) yang membagi strategi menjadi lima: langsung, tidak langsung, interaktif, empirik, dan mandiri. Kelompok empirik adalah yang di Bab 1 disebut strategi «melalui pengalaman». Pelajaran 2–6 membahas kelimanya satu per satu, dan pelajaran 7 membahas cara memilih di antaranya.\n\n## Situasi di kelas\n\nSeorang guru Fisika SMA mengajar 36 peserta didik. Ia membuka pelajaran dengan menjelaskan hukum Archimedes lalu memberi contoh soal; setelah itu kelompok berlima mengukur benda di air dan merumuskan sendiri polanya.\n\nBagian pertama dapat digolongkan sebagai klasikal, ekspositorik, dan deduktif. Bagian kedua adalah kelompok kecil, heuristik, dan induktif. Satu pertemuan dapat digolongkan menurut beberapa dasar sekaligus. Dengan menyebut dasarnya, Anda tahu keputusan mana yang sedang Anda ambil: cara mengatur peserta didik, siapa yang mengolah pesan, atau arah penalarannya.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab II. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat menggolongkan suatu rencana pembelajaran menurut dasar klasifikasi yang tepat dan menyadari keputusan apa yang sedang Anda ambil.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru menjelaskan bahwa semua isi pelajarannya sudah ia olah menjadi rangkuman jadi, lalu ia sampaikan, dan peserta didik mencatat serta mengerjakan tugas. Dari segi peran guru dan peserta didik dalam mengolah pesan, strategi ini termasuk ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "strategi ekspositorik",
+           "is_correct": true,
+           "rationale": "Pada strategi ekspositorik guru mengolah pesan menjadi barang jadi lalu menyampaikannya; peserta didik menerima dan menyelesaikan tugas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "strategi heuristik",
+           "is_correct": false,
+           "rationale": "Strategi heuristik menuntut peserta didik aktif mengolah pesan sendiri; di sini guru yang mengolahnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "strategi deduktif",
+           "is_correct": false,
+           "rationale": "Deduktif menggolongkan arah penalaran, dari umum ke khusus; pertanyaannya tentang siapa yang mengolah pesan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "strategi pembelajaran klasikal",
+           "is_correct": false,
+           "rationale": "Klasikal menggolongkan pengaturan peserta didik dalam kelas; pertanyaannya tentang peran dalam mengolah pesan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru kelas IV mengajar 38 peserta didik yang kemampuan membacanya sangat beragam. Selama ini ia memakai satu lembar kerja dan satu tempo untuk semua, dan kelompok yang lambat makin tertinggal. Apa yang paling tepat menjelaskan keadaan ini?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "kelompok yang lambat kurang terbiasa belajar mandiri, sehingga tidak dapat mengikuti lembar kerja yang sama dengan temannya",
+           "is_correct": false,
+           "rationale": "Masalahnya ada pada pengaturan peserta didik: satu format untuk kemampuan yang berbeda, bukan pada kebiasaan belajar mandiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "pembelajaran klasikal mengandaikan kemampuan yang relatif setara, padahal kemampuan kelas ini berbeda-beda",
+           "is_correct": true,
+           "rationale": "Pembelajaran klasikal dirancang untuk peserta didik yang diasumsikan setara usia dan kemampuannya, dengan format yang sama untuk semua."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "jumlah 38 peserta didik terlalu kecil untuk pembelajaran klasikal yang efektif",
+           "is_correct": false,
+           "rationale": "Bab ini menyebut kelas klasikal sekitar 35–45 orang; ukurannya wajar, yang tidak sesuai adalah asumsi kesetaraan kemampuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "pembelajaran tatap muka kurang cocok untuk kelas dengan kemampuan membaca yang beragam",
+           "is_correct": false,
+           "rationale": "Tatap muka menggolongkan hubungan guru dan peserta didik, bukan cara mengatur peserta didik dengan kemampuan berbeda."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru Geografi menunjukkan data curah hujan lima kota, meminta peserta didik mencari polanya, lalu bersama-sama merumuskan generalisasi. Dari segi proses pengolahan pesan, strategi ini ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "deduktif, karena guru yang menyiapkan data sejak awal",
+           "is_correct": false,
+           "rationale": "Deduktif dimulai dari generalisasi yang dikemukakan guru; di sini generalisasi dirumuskan di akhir."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "ekspositorik, karena data sudah disiapkan oleh guru",
+           "is_correct": false,
+           "rationale": "Ekspositorik menggolongkan peran dalam mengolah pesan; yang ditanya adalah arah prosesnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "induktif, karena bergerak dari data khusus ke generalisasi",
+           "is_correct": true,
+           "rationale": "Strategi induktif bergerak dari data atau fakta khusus menuju konsep dan generalisasi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "klasikal, karena seluruh kelas merumuskan generalisasi bersama",
+           "is_correct": false,
+           "rationale": "Klasikal menggolongkan pengaturan peserta didik; yang ditanya adalah arah prosesnya."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "[UJI INTERNAL] Strategi Pembelajaran Langsung",
+       "summary": "Pembelajaran langsung berpusat pada guru, berjalan dalam lima fase, dan kuat untuk pengetahuan prosedural dan deklaratif yang terstruktur.",
+       "body_markdown": "## Pengertian\n\nPembelajaran langsung dirancang untuk dua jenis pengetahuan yang terstruktur baik dan dapat dipelajari selangkah demi selangkah: pengetahuan prosedural (cara melakukan sesuatu) dan pengetahuan deklaratif (fakta, konsep, prinsip, generalisasi). Strategi ini berpusat pada guru, tetapi tetap harus menjamin keterlibatan peserta didik. Guru menyajikan materi dalam format terstruktur, mengarahkan kegiatan, dan menguji keterampilan melalui latihan terbimbing. Pembelajaran langsung biasanya deduktif dan efektif untuk membangun keterampilan tahap demi tahap.\n\nTujuannya dirumuskan spesifik dan berorientasi pada peserta didik, dengan kondisi penilaian dan kriteria keberhasilan yang jelas.\n\n## Lima fase\n\n1. **Menyampaikan tujuan dan menyiapkan peserta didik.** Menarik dan memusatkan perhatian serta memotivasi. Tujuan dapat ditulis di papan bersama tahapan pelajaran dan alokasi waktunya.\n2. **Mendemonstrasikan pengetahuan dan keterampilan.** Kuncinya penyajian sejelas mungkin: langkah-langkah kecil, contoh, pemodelan, dan penjelasan ulang untuk bagian yang sulit.\n3. **Membimbing pelatihan.** Peserta didik berlatih; guru memantau, bertanya untuk menilai pemahaman, dan mengoreksi kesalahan konsep.\n4. **Mengecek pemahaman dan memberi umpan balik.** Misalnya dengan kuis singkat dan tinjauan, lalu mengulang keterampilan bila perlu.\n5. **Latihan lanjutan dan penerapan.** Tugas mandiri, dengan perhatian pada situasi yang lebih kompleks dan kehidupan sehari-hari.\n\nStrategi ini memerlukan ruang yang tenang, penerangan cukup, dan media yang sesuai.\n\n## Kelebihan dan keterbatasan\n\nKelebihan yang disebut bab ini:\n\n- guru mengendalikan isi dan urutan informasi, sehingga fokus pada apa yang harus dicapai terjaga;\n- dapat efektif di kelas besar maupun kecil;\n- efektif untuk konsep dan keterampilan eksplisit bagi peserta didik berprestasi rendah;\n- ceramah membantu peserta didik yang kurang suka membaca atau belum terampil menafsirkan informasi;\n- peserta didik yang belum mampu mengarahkan dirinya sendiri tetap dapat berprestasi.\n\nKeterbatasannya:\n\n- sulit melayani perbedaan kemampuan, pengetahuan awal, dan gaya belajar;\n- kesempatan terlibat aktif sedikit, sehingga keterampilan sosial dan interpersonal sulit berkembang;\n- keberhasilannya bergantung pada kesiapan, kepercayaan diri, dan gaya komunikasi guru.\n\nKelemahan utamanya ada pada pengembangan pemikiran kritis, hubungan interpersonal, dan belajar kelompok. Karena itu bab ini menganjurkan agar pembelajaran langsung dipadukan dengan strategi lain.\n\n## Situasi di kelas\n\nSeorang guru Matematika SMP mengajarkan cara melukis segitiga dengan jangka. Setelah demonstrasi, separuh kelas keliru pada langkah yang sama saat latihan.\n\nMenurut fase-fase di atas, masalahnya muncul di antara fase 2 dan 3. Guru dapat memecah langkah itu menjadi langkah yang lebih kecil, menjelaskannya ulang, lalu kembali berkeliling sambil bertanya selama latihan terbimbing. Latihan mandiri baru diberikan setelah pemahaman dicek. Bila tujuan berikutnya adalah menalar mengapa lukisan itu benar, Anda dapat beralih ke strategi yang melibatkan diskusi.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab II. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat menyusun pembelajaran langsung dalam lima fase dan menilai kapan strategi ini perlu dipadukan dengan strategi lain.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Setelah mendemonstrasikan cara menyusun tabel distribusi frekuensi, seorang guru meminta peserta didik mengerjakan dua soal serupa sementara ia berkeliling, bertanya, dan mengoreksi langkah yang keliru. Fase pembelajaran langsung ini adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "mengecek pemahaman dan memberi umpan balik",
+           "is_correct": false,
+           "rationale": "Fase keempat mengecek kemampuan, misalnya dengan kuis dan tinjauan, setelah latihan terbimbing selesai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "membimbing pelatihan",
+           "is_correct": true,
+           "rationale": "Pada fase ini peserta didik berlatih sementara guru memantau, bertanya untuk menilai pemahaman, dan mengoreksi kesalahan konsep."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "latihan lanjutan dan penerapan",
+           "is_correct": false,
+           "rationale": "Latihan lanjutan berupa tugas mandiri dan penerapan pada situasi yang lebih kompleks, bukan latihan yang dipantau langsung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "mendemonstrasikan pengetahuan dan keterampilan",
+           "is_correct": false,
+           "rationale": "Demonstrasi sudah selesai; sekarang peserta didik sendiri yang berlatih."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru Fisika memakai pembelajaran langsung sepanjang semester. Nilai tes prosedur peserta didik baik, tetapi mereka kesulitan ketika diminta berdiskusi dan menilai argumen teman. Apa yang paling tepat ia lakukan?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "menambah fase latihan terbimbing agar keterampilan berdiskusi terlatih langkah demi langkah",
+           "is_correct": false,
+           "rationale": "Latihan terbimbing tetap berada dalam pembelajaran langsung, yang lemah justru untuk pemikiran kritis dan hubungan interpersonal."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "memperpanjang demonstrasi agar contoh argumen yang baik terlihat lebih jelas oleh peserta didik",
+           "is_correct": false,
+           "rationale": "Demonstrasi yang lebih panjang menambah porsi guru; keterampilan sosial sulit berkembang bila kesempatan terlibat aktif sedikit."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "memadukan pembelajaran langsung dengan strategi lain yang melatih berpikir kritis dan kerja kelompok",
+           "is_correct": true,
+           "rationale": "Kelemahan utama pembelajaran langsung ada pada pemikiran kritis dan belajar kelompok, sehingga bab ini menganjurkan perpaduan dengan strategi lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "mengganti pembelajaran langsung sepenuhnya dengan penemuan, termasuk untuk prosedur yang sudah berjalan baik",
+           "is_correct": false,
+           "rationale": "Pembelajaran langsung efektif untuk pengetahuan prosedural; bab ini menganjurkan perpaduan, bukan penggantian."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru menyusun pembelajaran langsung untuk keterampilan menulis kalimat efektif dengan urutan: latihan di rumah, demonstrasi di kelas, lalu kuis. Apa yang paling tepat ia lakukan terhadap rancangan ini?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "menyusun ulang: tujuan di awal, demonstrasi, latihan terbimbing, kuis dan umpan balik, lalu latihan lanjutan",
+           "is_correct": true,
+           "rationale": "Pembelajaran langsung berjalan dalam lima fase berurutan: tujuan, demonstrasi, latihan terbimbing, pengecekan pemahaman, dan latihan lanjutan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "memindahkan latihan di rumah ke bagian akhir, karena fase-fase lainnya sudah lengkap dan urutannya sudah tepat",
+           "is_correct": false,
+           "rationale": "Memindahkan latihan saja masih melewatkan fase penyampaian tujuan dan latihan terbimbing."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "menyusun demonstrasi kedua sebagai pengganti latihan terbimbing agar contoh lebih jelas",
+           "is_correct": false,
+           "rationale": "Latihan terbimbing adalah fase tersendiri tempat guru memantau dan mengoreksi; demonstrasi tambahan tidak menggantikannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "mengganti kuis dengan diskusi kelompok agar peserta didik lebih aktif",
+           "is_correct": false,
+           "rationale": "Kuis adalah bagian fase pengecekan pemahaman; masalah rancangan ini adalah fase yang hilang dan urutannya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Mengapa pembelajaran langsung sering tepat bagi peserta didik yang belum mampu mengarahkan belajarnya sendiri?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "guru menyesuaikan penjelasan dengan gaya belajar setiap peserta didik",
+           "is_correct": false,
+           "rationale": "Bab ini justru mencatat bahwa pembelajaran langsung sulit melayani perbedaan kemampuan dan gaya belajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "peserta didik banyak terlibat aktif dalam kelompok, sehingga terbiasa bekerja sama",
+           "is_correct": false,
+           "rationale": "Pembelajaran langsung memberi sedikit kesempatan terlibat aktif, sehingga keterampilan sosial sulit berkembang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "peserta didik cukup mendengarkan ceramah, tanpa perlu latihan terbimbing",
+           "is_correct": false,
+           "rationale": "Latihan terbimbing adalah fase ketiga pembelajaran langsung, tempat guru memantau dan mengoreksi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "guru mengendalikan isi dan urutan, sehingga fokus pada tujuan tetap terjaga",
+           "is_correct": true,
+           "rationale": "Bab ini menyebut kendali guru atas isi dan urutan sebagai kelebihan, dan peserta didik yang belum mengarahkan diri tetap dapat berprestasi."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "[UJI INTERNAL] Strategi Pembelajaran Tidak Langsung",
+       "summary": "Strategi tidak langsung berpusat pada peserta didik yang menyelidiki masalah, dengan guru sebagai fasilitator; ia memerlukan waktu dan tidak cocok untuk hafalan cepat.",
+       "body_markdown": "## Pengertian\n\nStrategi tidak langsung sering disebut inkuiri, induktif, pemecahan masalah, pengambilan keputusan, atau penemuan. Strategi ini berpusat pada peserta didik, tetapi dapat saling melengkapi dengan strategi langsung. Peserta didik terlibat tinggi dalam mengamati, menyelidiki, menarik inferensi dari data, dan membentuk hipotesis. Guru tidak lagi berceramah, tetapi menjadi fasilitator, pendukung, dan narasumber. Strategi ini memerlukan bahan cetak, noncetak, dan sumber manusia.\n\n## Kapan strategi ini cocok\n\nMengutip Robertson dan Lang, bab ini menyebut strategi tidak langsung cocok bila:\n\n- hasil belajar yang dituju berupa kemampuan berpikir, sikap, dan nilai;\n- proses sama pentingnya dengan hasil;\n- peserta didik perlu menyelidiki atau menemukan sesuatu;\n- masalahnya terbuka, dengan lebih dari satu solusi;\n- pembelajaran diarahkan pada pemahaman pribadi yang bertahan lama, pengambilan keputusan, atau kemampuan belajar sepanjang hayat.\n\nSebelum memakai strategi ini, periksa apakah tujuan pertemuan Anda termasuk di antaranya. Model yang termasuk di dalamnya antara lain inkuiri, pemecahan masalah, penelitian tindakan, penemuan, investigasi, eksplorasi, dan eksperimen.\n\n## Cara guru memfasilitasi\n\nBahan utama disajikan sebagai masalah. Guru membantu secara tidak langsung, melalui *scaffolding*:\n\n- pertanyaan yang tidak mengarahkan pada satu jawaban, agar gagasan muncul dari peserta didik;\n- menangkap inti jawaban peserta didik untuk membantu mereka melihat masalah lebih teliti;\n- isyarat (*hints*) dan masalah pembanding;\n- waktu tunggu agar peserta didik sempat berpikir.\n\nInteraksi di kelas bersifat multiarah.\n\n## Kelebihan dan kekurangan\n\nStrategi ini mendorong rasa ingin tahu, kemampuan mencari alternatif dan memecahkan masalah, kreativitas, keterampilan interpersonal, dan pemahaman yang lebih baik. Kekurangannya: memerlukan waktu panjang, hasilnya sulit diprediksi, dan tidak cocok bila peserta didik perlu mengingat materi dengan cepat.\n\n## Situasi di kelas\n\nSeorang guru Geografi SMA meminta kelompok merumuskan cara mengurangi banjir di kampung sekitar sekolah. Setelah sepuluh menit, satu kelompok masih buntu.\n\nGuru tidak memberikan jawabannya. Ia bertanya, «Air dari mana saja yang masuk ke saluran itu?», lalu memberi waktu tunggu. Pertanyaan itu adalah isyarat yang membuka jalan tanpa menutup penyelidikan. Ketika kelompok-kelompok kemudian mengusulkan solusi yang berbeda, guru tidak memilih satu jawaban yang dianggap benar: masalahnya terbuka, sehingga setiap usulan ditimbang dari data dan alasannya.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab II. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat menilai kapan strategi tidak langsung tepat dipakai dan memfasilitasi penyelidikan tanpa memberikan jawabannya.",
+        "bloom": "EVALUATE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua minggu sebelum ujian, seorang guru Biologi harus memastikan peserta didik mengingat banyak istilah sistem pencernaan. Ia sedang memakai strategi penemuan untuk topik itu. Apa yang paling tepat ia lakukan?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "melanjutkan penemuan dan menambah waktu tunggu agar peserta didik menemukan sendiri setiap istilah yang akan diujikan",
+           "is_correct": false,
+           "rationale": "Waktu tunggu adalah teknik fasilitasi yang baik, tetapi strategi ini tetap tidak cocok untuk mengingat materi dengan cepat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "memakai isyarat yang lebih banyak agar penemuan setiap istilah berlangsung lebih cepat",
+           "is_correct": false,
+           "rationale": "Isyarat membantu penyelidikan, tetapi tidak mengubah sifat strategi yang memerlukan waktu panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "membagi kelas menjadi kelompok penyelidikan, masing-masing menemukan sebagian istilah",
+           "is_correct": false,
+           "rationale": "Membagi istilah ke kelompok tetap memakai penemuan untuk tujuan mengingat cepat, yang tidak cocok dengan strategi ini."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "memakai penjelasan langsung untuk istilah itu, dan menyisakan penemuan untuk pertanyaan yang menuntut penalaran",
+           "is_correct": true,
+           "rationale": "Strategi tidak langsung memerlukan waktu panjang dan tidak cocok bila materi perlu diingat dengan cepat; kedua strategi dapat saling melengkapi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dalam pembelajaran pemecahan masalah, sebuah kelompok buntu selama sepuluh menit. Apa yang paling tepat dilakukan guru?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "mengajukan pertanyaan atau isyarat yang membantu mereka melihat persoalannya lebih teliti",
+           "is_correct": true,
+           "rationale": "Scaffolding berupa pertanyaan, isyarat, dan masalah pembanding membantu tanpa memberikan jawabannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "memberikan langkah-langkah penyelesaiannya agar waktu pelajaran yang tersisa tidak terbuang",
+           "is_correct": false,
+           "rationale": "Memberikan langkah penyelesaian menutup penyelidikan; bantuan dalam strategi ini bersifat tidak langsung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "memindahkan anggota kelompok itu ke kelompok yang sudah berhasil",
+           "is_correct": false,
+           "rationale": "Kelompok yang buntu perlu dibantu melihat masalahnya, bukan dibubarkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "membiarkan mereka bekerja tanpa bantuan agar tetap mandiri",
+           "is_correct": false,
+           "rationale": "Guru tetap memfasilitasi, antara lain dengan pertanyaan dan isyarat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tujuan mana yang paling cocok dicapai dengan strategi tidak langsung?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "peserta didik menghafal nama dan lambang dua puluh unsur kimia pertama",
+           "is_correct": false,
+           "rationale": "Strategi tidak langsung tidak cocok bila materi perlu diingat dengan cepat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "peserta didik merumuskan beberapa alternatif solusi untuk masalah sampah di sekolah",
+           "is_correct": true,
+           "rationale": "Strategi ini cocok untuk masalah terbuka dan pengambilan keputusan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "peserta didik mengikuti prosedur keselamatan laboratorium dengan urutan yang benar",
+           "is_correct": false,
+           "rationale": "Prosedur yang terstruktur cocok dengan pembelajaran langsung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "peserta didik mengetahui tanggal-tanggal penting di sekitar peristiwa Proklamasi Kemerdekaan",
+           "is_correct": false,
+           "rationale": "Pengetahuan deklaratif seperti ini lebih cocok dengan pembelajaran langsung."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "[UJI INTERNAL] Strategi Pembelajaran Interaktif",
+       "summary": "Strategi interaktif bertumpu pada diskusi dan pertanyaan peserta didik, berjalan dalam tujuh tahap, dan bergantung pada kecakapan guru mengelola dinamika kelompok.",
+       "body_markdown": "## Pengertian\n\nStrategi interaktif bertumpu pada diskusi dan saling berbagi antarpeserta didik. Melalui diskusi, peserta didik menanggapi gagasan, pengalaman, dan pengetahuan guru maupun teman, lalu mencari cara berpikir alternatif. Bentuknya diskusi kelas, diskusi kelompok kecil atau tugas kelompok, dan kerja berpasangan.\n\nBab ini menempatkan strategi interaktif dalam pandangan konstruktivis: pembelajaran dirancang agar peserta didik mau bertanya, lalu menemukan jawabannya sendiri. Guru dapat berperan sebagai motivator, fasilitator, mediator, pembimbing, evaluator, dan pembaru, di samping sebagai pengajar.\n\n## Ciri dan peran pertanyaan\n\nCiri pembelajaran interaktif antara lain:\n\n- kegiatan klasikal, kelompok, dan perseorangan yang bervariasi;\n- keterlibatan pikiran dan perasaan peserta didik yang tinggi;\n- komunikasi banyak arah;\n- suasana fleksibel, demokratis, dan menantang, tetapi tetap terkendali oleh tujuan.\n\nPertanyaan peserta didik memperlihatkan kemampuan awal mereka. Pertanyaan dalam pembelajaran bertujuan meningkatkan tingkat berpikir, mengecek pemahaman, dan meningkatkan partisipasi. Pola yang dituju adalah komunikasi multiarah: guru dengan peserta didik, dan peserta didik dengan peserta didik. Di kelas yang kemampuannya beragam, pola ini sulit tercapai, karena interaksi cenderung terjadi antara guru dan peserta didik yang pandai.\n\n## Tujuh tahap\n\nMengikuti Faire dan Cosgrove:\n\n1. **Persiapan**: guru menyiapkan sumber, alat, dan media.\n2. **Pengetahuan awal**: guru menyajikan masalah dan menanyakan pendapat peserta didik; jawaban ini menjadi tolok ukur pembanding.\n3. **Kegiatan eksplorasi**: demonstrasi, video, atau gambar untuk memancing rasa ingin tahu.\n4. **Pertanyaan peserta didik**: kelompok menulis pertanyaan; guru mengajak kelas memilih yang berkaitan dengan topik dan dapat diselidiki.\n5. **Penyelidikan**: peserta didik mengumpulkan, mengorganisasikan, dan menganalisis data.\n6. **Pengetahuan akhir**: peserta didik membandingkan apa yang kini mereka ketahui dengan pengetahuan awalnya.\n7. **Refleksi**: peserta didik menimbang apa yang dipelajari dan boleh mengajukan pertanyaan susulan; guru memberi penguatan dan meluruskan pemahaman yang keliru.\n\nSaat bertanya, guru memberi kesempatan untuk mendiskusikan jawaban dan menjadi «dinding pemantul» bagi jawaban peserta didik.\n\n## Kelebihan dan kekurangan\n\nPeserta didik belajar merumuskan pertanyaan dan mencari jawabannya lewat pengamatan, belajar dari teman, serta menyusun argumen yang rasional. Kekurangannya: keberhasilan strategi ini sangat bergantung pada kecakapan guru mengelola dinamika kelompok.\n\n## Situasi di kelas\n\nSeorang guru IPA kelas IX memperlihatkan telur yang tenggelam di air tawar tetapi mengapung di air garam. Pertanyaan kelompok berdatangan, sebagian tidak berkaitan dengan topik. Guru menulis semuanya di papan, lalu bersama kelas memilih pertanyaan yang dapat diselidiki dengan alat yang tersedia.\n\nSebelum penyelidikan, guru sudah mencatat dugaan awal tiap kelompok. Setelah kelompok mengukur kadar garam dan mencatat hasilnya, ia meminta mereka membandingkan temuan itu dengan dugaan awalnya, lalu menutup dengan refleksi dan pertanyaan susulan. Dengan urutan ini Anda dapat melihat seberapa jauh pemahaman peserta didik bergeser.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab II. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat menjalankan tahap-tahap pembelajaran interaktif dan menjaga agar interaksi di kelas benar-benar multiarah.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Setelah menayangkan video gunung meletus, seorang guru meminta tiap kelompok menuliskan hal yang ingin mereka ketahui tentang video itu, lalu bersama kelas memilih mana yang dapat diselidiki. Tahap pembelajaran interaktif ini adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "tahap kegiatan eksplorasi dengan demonstrasi",
+           "is_correct": false,
+           "rationale": "Tayangan video adalah kegiatan eksplorasi; menulis dan memilih pertanyaan adalah tahap sesudahnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "tahap penyelidikan",
+           "is_correct": false,
+           "rationale": "Penyelidikan adalah mengumpulkan dan menganalisis data untuk menjawab pertanyaan yang sudah dipilih."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "tahap pertanyaan peserta didik",
+           "is_correct": true,
+           "rationale": "Pada tahap ini kelompok menulis pertanyaan, lalu guru mengajak kelas memilih yang berkaitan dengan topik dan dapat diselidiki."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "tahap pengetahuan awal",
+           "is_correct": false,
+           "rationale": "Pengetahuan awal menggali pendapat peserta didik sebelum eksplorasi, sebagai tolok ukur pembanding."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dalam diskusi kelas, seorang guru melihat bahwa yang bertanya dan menjawab selalu empat peserta didik yang nilainya tertinggi, sedangkan yang lain diam. Menurut bab ini, apa yang paling tepat menjelaskan keadaan itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "interaksinya hanya antara guru dan peserta didik yang pandai, belum multiarah",
+           "is_correct": true,
+           "rationale": "Bab ini mencatat bahwa di kelas berkemampuan campuran interaksi cenderung terjadi antara siswa pandai dan guru, padahal pola yang dituju adalah multiarah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "strategi interaktif memang kurang cocok untuk kelas yang kemampuannya beragam",
+           "is_correct": false,
+           "rationale": "Bab ini tidak menolak strategi interaktif untuk kelas campuran; ia menunjukkan pola interaksi yang perlu diperluas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "diskusi kelas belum termasuk strategi interaktif; yang interaktif adalah kerja kelompok kecil",
+           "is_correct": false,
+           "rationale": "Diskusi kelas termasuk bentuk strategi interaktif, di samping kelompok kecil dan kerja berpasangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "kelas itu sudah interaktif, karena tanya jawab guru dan peserta didik berjalan lancar",
+           "is_correct": false,
+           "rationale": "Pola optimal mencakup interaksi antarpeserta didik juga; tanya jawab dengan segelintir peserta didik belum multiarah."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pertanyaan peserta didik yang terkumpul di papan banyak, dan sebagian tidak berkaitan dengan topik. Apa yang paling tepat dilakukan guru?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "menjawab sendiri semua pertanyaan itu satu per satu agar tidak ada satu pun pertanyaan yang terabaikan",
+           "is_correct": false,
+           "rationale": "Pembelajaran interaktif dirancang agar peserta didik menemukan jawabannya sendiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "mengganti pertanyaan peserta didik dengan pertanyaan yang sudah ia siapkan",
+           "is_correct": false,
+           "rationale": "Pertanyaan peserta didik adalah inti strategi ini dan memperlihatkan kemampuan awal mereka."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "mengajak peserta didik memilih pertanyaan yang berkaitan dan dapat dijawab melalui penyelidikan",
+           "is_correct": true,
+           "rationale": "Guru mengarahkan peserta didik memilih pertanyaan yang berkaitan dengan topik dan dapat diselidiki."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "menunda pertanyaan yang tidak berkaitan sampai akhir pelajaran dan melanjutkan penjelasan",
+           "is_correct": false,
+           "rationale": "Pertanyaan dipilih sebelum penyelidikan, karena penyelidikan dilakukan untuk menjawabnya."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "[UJI INTERNAL] Strategi Pembelajaran Empirik",
+       "summary": "Strategi empirik membangun pengetahuan dari pengalaman melalui siklus Kolb: pengalaman konkret, refleksi, konseptualisasi, dan penerapan.",
+       "body_markdown": "## Pengertian\n\nStrategi empirik memakai urutan induktif, berpusat pada peserta didik, dan berorientasi pada aktivitas. Tekanannya pada proses belajar, bukan pada hasil belajar. Strategi ini dapat dipakai di dalam kelas, misalnya melalui simulasi, maupun di luar kelas, misalnya melalui observasi. Hasil belajar tumbuh dari peserta didik yang bekerja dan mengalami, bukan dari pemindahan pengetahuan guru kepada peserta didik.\n\n## Dasar dari Kolb\n\nDasar strategi ini adalah *Experiential Learning Theory* yang dikembangkan David Kolb sekitar awal 1980-an. Dalam teori ini pengalaman memegang peran utama dalam belajar. Pembelajaran empirik bertujuan mengubah struktur kognitif, mengubah sikap, dan memperluas keterampilan peserta didik. Mutunya tampak dari keterlibatan pribadi peserta didik, inisiatifnya, evaluasi oleh peserta didik sendiri, dan kesan yang membekas.\n\n## Siklus empat tahap\n\n1. **Pengalaman konkret** (merasakan): peserta didik diberi rangsangan untuk melakukan suatu aktivitas, di dalam atau di luar kelas, sendiri atau berkelompok.\n2. **Observasi reflektif** (mengamati): pengalaman itu direfleksikan secara individu; peserta didik berusaha memahami apa yang terjadi.\n3. **Konseptualisasi abstrak** (berpikir): refleksi menjadi dasar untuk memahami prinsip di balik pengalaman.\n4. **Penerapan atau eksperimen aktif** (berbuat): konsep diterapkan dan diuji pada situasi baru.\n\nPengalaman dan refleksi adalah tahap menemukan (*finding out*); konseptualisasi dan penerapan adalah tahap bertindak (*taking action*). Hasil penerapan membawa peserta didik ke pengalaman konkret berikutnya, sehingga siklus berulang.\n\n## Situasi di kelas\n\nSeorang guru Ekonomi SMA mengadakan simulasi pasar: sebagian peserta didik menjadi penjual, sebagian pembeli, dengan persediaan barang yang berubah tiap babak. Sesudahnya, ia tidak langsung menjelaskan permintaan dan penawaran. Ia meminta setiap peserta didik menuliskan apa yang terjadi pada harga dan mengapa, lalu kelas merumuskan konsepnya dari catatan itu. Pada pertemuan berikutnya, konsep itu diterapkan untuk menentukan harga di bazar sekolah.\n\nTahap yang paling mudah terlewat adalah refleksi. Tanpa refleksi, pengalaman tinggal menjadi kegiatan yang menyenangkan, dan konsepnya kembali disampaikan guru. Saat merancang kegiatan empirik, sediakan waktu refleksi dalam jadwal Anda sejak awal.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab II. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat merancang pembelajaran empirik yang melalui keempat tahap siklus Kolb, termasuk tahap refleksi.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru IPA mengajak peserta didik mencatat suhu air yang dipanaskan setiap dua menit. Setelah percobaan selesai, ia langsung menjelaskan konsep kalor, lalu memberi soal latihan. Menurut siklus Kolb, apa yang paling tepat ia lakukan pada kesempatan berikutnya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "mengadakan percobaan kedua segera, agar pengalaman konkret peserta didik bertambah",
+           "is_correct": false,
+           "rationale": "Pengalaman kedua tanpa refleksi tetap melewatkan tahap yang menjadi dasar konseptualisasi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "memberi waktu bagi peserta didik untuk merefleksikan apa yang mereka amati dalam percobaan sebelum konsep dirumuskan",
+           "is_correct": true,
+           "rationale": "Siklus Kolb bergerak dari pengalaman konkret ke refleksi, lalu ke konseptualisasi; di sini refleksi terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "memberi tes hafalan istilah kalor, agar hasil belajar percobaan dapat diukur",
+           "is_correct": false,
+           "rationale": "Strategi empirik menekankan proses belajar, bukan hasil hafalan; tes ini tidak mengisi tahap yang hilang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "menjelaskan konsep lebih rinci sebelum percobaan dimulai, agar peserta didik tahu apa yang harus mereka amati dan catat",
+           "is_correct": false,
+           "rationale": "Strategi empirik memakai urutan induktif: pengalaman lebih dulu, konsep sesudahnya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Setelah kunjungan ke pasar tradisional, peserta didik menulis catatan tentang apa yang mereka amati dan mengapa pedagang bertindak seperti itu. Kegiatan ini berada pada tahap ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "pengalaman konkret",
+           "is_correct": false,
+           "rationale": "Kunjungannya adalah pengalaman konkret; menulis tentang apa yang terjadi adalah tahap sesudahnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "konseptualisasi abstrak",
+           "is_correct": false,
+           "rationale": "Konseptualisasi merumuskan prinsip dari hasil refleksi; di sini peserta didik baru memahami apa yang terjadi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "penerapan atau eksperimen aktif",
+           "is_correct": false,
+           "rationale": "Penerapan menguji konsep pada situasi baru; belum ada konsep yang diterapkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "observasi reflektif",
+           "is_correct": true,
+           "rationale": "Pengalaman yang sudah dialami direfleksikan: peserta didik berusaha memahami apa yang terjadi."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "[UJI INTERNAL] Strategi Pembelajaran Mandiri",
+       "summary": "Belajar mandiri memberi peserta didik kendali atas bahan dan kemajuan belajarnya; mutunya ditentukan oleh bahan ajar, waktu, dan cara membuktikan penguasaan.",
+       "body_markdown": "## Konsep dasar\n\nBelajar mandiri adalah pengaturan program belajar yang memungkinkan setiap peserta didik memilih atau menentukan bahan dan kemajuan belajarnya sendiri. Tujuannya membangun inisiatif, kemandirian, dan peningkatan diri, dengan fokus pada perencanaan belajar oleh peserta didik dan bantuan guru. Belajar mandiri dapat juga dilakukan bersama teman atau dalam kelompok kecil.\n\nBab ini menyebut belajar mandiri sebagai cara mengatasi kelemahan pengajaran klasikal: setiap peserta didik dapat maju sesuai kecepatannya. Bentuk yang banyak dipakai adalah modul, yang berprinsip belajar dengan langkah pendek:\n\n- bahan dipecah menjadi unit-unit kecil;\n- peserta didik dirangsang aktif, misalnya dengan tugas atau pertanyaan;\n- materi disajikan bertahap dan berkesinambungan;\n- rasa berhasil mendorong peserta didik untuk terus belajar.\n\n## Yang dapat Anda kendalikan\n\nPenentuan strategi belajar mandiri mencakup tujuan, cara penyajian, media, biaya, waktu dan jadwal, prosedur kegiatan, serta instrumen penilaian. Dua hal yang dapat dikendalikan penyelenggara adalah:\n\n- **waktu yang diberikan**, yang dapat ketat atau luwes;\n- **kualitas bahan ajar**, dengan empat ukuran: kesesuaian dengan peserta didik, daya tarik, efektivitas, dan efisiensi.\n\n## Kegiatan dan bukti penguasaan\n\nIdealnya peserta didik belajar di tempat, pada waktu, dan dengan cara yang dipilihnya sendiri; seberapa jauh ini mungkin bergantung pada kondisi peserta didik dan mutu bahan. Pada bentuk idealnya, belajar mandiri tidak dibatasi waktu dan menekankan penguasaan. Penguasaan dapat dibuktikan melalui tes mandiri, tes baku yang dapat diambil kapan saja, tes kolokium, dan portofolio.\n\nMateri psikomotor lebih sulit dikembangkan untuk belajar mandiri, terutama bila hanya memakai satu medium seperti bahan cetak.\n\n## Situasi di kelas\n\nSeorang guru memberi modul pengayaan kepada peserta didik kelas X. Setelah seminggu, sebagian besar berhenti di unit kedua, yang panjang dan padat.\n\nMenurut bab ini, yang perlu diperiksa lebih dulu adalah mutu bahan dan waktu yang diberikan. Unit itu dapat dipecah menjadi langkah pendek dengan pertanyaan di tiap langkah, batas waktunya dibuat luwes, dan tes mandiri di akhir unit memberi peserta didik bukti bahwa mereka berhasil. Bila modul itu juga memuat keterampilan praktik, bahan cetak saja tidak cukup.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab II. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat merancang belajar mandiri dengan bahan berlangkah pendek, waktu yang sesuai, dan bukti penguasaan yang tepat.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru SMK memakai modul cetak untuk belajar mandiri tentang teknik menjahit kampuh. Tes tertulis menunjukkan peserta didik memahami langkah-langkahnya, tetapi banyak hasil jahitan mereka belum rapi. Apa yang paling tepat ia lakukan?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "menambah halaman penjelasan di modul agar setiap langkah diuraikan lebih lengkap",
+           "is_correct": false,
+           "rationale": "Penjelasan tertulis yang lebih panjang tetap satu medium cetak, yang lemah untuk materi psikomotor."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "menetapkan tenggat yang lebih ketat agar peserta didik lebih disiplin berlatih",
+           "is_correct": false,
+           "rationale": "Belajar mandiri menekankan penguasaan, bukan batas waktu; tenggat tidak memperbaiki keterampilan tangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "melengkapi modul dengan demonstrasi atau video dan praktik yang ia pantau",
+           "is_correct": true,
+           "rationale": "Materi psikomotor sulit dikembangkan bila hanya memakai satu medium seperti bahan cetak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "menambah soal tes tertulis tentang langkah menjahit agar penguasaannya terukur",
+           "is_correct": false,
+           "rationale": "Tes tertulis sudah menunjukkan pemahaman langkah; yang belum terbukti adalah keterampilannya, misalnya lewat portofolio hasil jahitan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru memakai modul untuk belajar mandiri. Cara mana yang paling sesuai untuk membuktikan penguasaan peserta didik?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "tes sendiri di akhir tiap unit dan portofolio hasil kerja",
+           "is_correct": true,
+           "rationale": "Penguasaan dalam belajar mandiri dapat dibuktikan melalui tes mandiri, tes baku yang dapat diambil kapan saja, kolokium, dan portofolio."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "satu ujian tertulis serentak pada tanggal yang sama untuk seluruh kelas",
+           "is_correct": false,
+           "rationale": "Belajar mandiri menekankan penguasaan dan kemajuan masing-masing, sehingga tes dapat diambil kapan saja."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "lamanya waktu yang dipakai peserta didik untuk menyelesaikan modul",
+           "is_correct": false,
+           "rationale": "Belajar mandiri tidak dibatasi waktu; lamanya belajar bukan bukti penguasaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "nilai rata-rata kelas pada ulangan harian bersama",
+           "is_correct": false,
+           "rationale": "Rata-rata kelas tidak memperlihatkan penguasaan tiap peserta didik atas unit yang ia pelajari."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 8
+       },
+       "ordinal": "7",
+       "title": "[UJI INTERNAL] Memilih Strategi Pembelajaran yang Tepat",
+       "summary": "Strategi dipilih dengan enam kriteria, dimulai dari kesesuaian dengan tujuan; metode adalah bagian strategi dan dapat divariasikan.",
+       "body_markdown": "## Metode sebagai bagian dari strategi\n\nMetode adalah bagian dari strategi: cara menyajikan, menguraikan, memberi contoh, dan memberi latihan. Tidak setiap metode sesuai untuk setiap tujuan. Bab ini mencatat bahwa guru kadang terpaku pada satu atau dua metode. Metode dapat dikembangkan dari pengalaman dan dipakai secara bervariasi, tidak monoton.\n\n## Enam kriteria pemilihan\n\nDalam memilih strategi, guru mengacu pada kriteria berikut:\n\n1. kesesuaian dengan tujuan atau kompetensi;\n2. kesesuaian dengan jenis pengetahuan yang akan dipelajari;\n3. kesesuaian dengan sasaran, yaitu kemampuan awal, latar belakang dan status sosial, serta perbedaan kepribadian peserta didik;\n4. biaya;\n5. kemampuan strategi melayani kelompok atau individu;\n6. karakteristik strategi, yaitu kelebihan dan kelemahannya.\n\n## Menimbang dengan pelajaran sebelumnya\n\nKriteria itu menjadi tajam bila dipadukan dengan pelajaran 2–6:\n\n- Pengetahuan prosedural dan deklaratif yang terstruktur cocok dengan strategi langsung.\n- Tujuan berupa kemampuan berpikir, sikap, nilai, atau masalah terbuka cocok dengan strategi tidak langsung, kecuali bila materi harus diingat dengan cepat.\n- Kelemahan satu strategi dapat ditutup strategi lain. Misalnya, strategi langsung lemah dalam berpikir kritis dan kerja kelompok, sedangkan strategi interaktif melatih argumen.\n\n## Situasi di kelas\n\nSeorang guru Sejarah SMA mengajar 40 peserta didik tanpa proyektor. Tujuan pertemuannya ada dua: peserta didik dapat mengurutkan peristiwa sekitar Proklamasi, dan dapat menilai dua kesaksian yang berbeda tentang peristiwa yang sama.\n\nUntuk tujuan pertama, strategi langsung yang singkat sudah memadai. Untuk tujuan kedua, ia memilih strategi tidak langsung atau interaktif dalam kelompok kecil dengan salinan cetak kedua kesaksian itu: sesuai tujuan, sesuai sasaran, dan murah. Dua strategi dalam satu pertemuan adalah hasil pemilihan yang disengaja, bukan kompromi. Saat Anda merancang pertemuan, mulailah dari tujuan, lalu timbang kriteria lainnya.\n\n_Diadaptasi dari Strategi Pembelajaran, Siti Nurhasanah dkk., Penerbit EDU PUSTAKA, 2019, Bab II. Materi uji internal, bukan untuk distribusi._",
+       "objective": {
+        "statement": "Anda dapat memilih dan memadukan strategi untuk suatu pertemuan dengan menimbang keenam kriteria pemilihan.",
+        "bloom": "EVALUATE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru ingin peserta didiknya dapat menulis surat lamaran kerja dengan format baku. Ia tertarik memakai debat karena kelasnya aktif berpendapat. Kriteria pemilihan mana yang paling tidak terpenuhi oleh pilihan ini?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "kesesuaian strategi dengan sasaran, yaitu karakteristik peserta didik",
+           "is_correct": false,
+           "rationale": "Kelas yang aktif berpendapat justru cocok dengan debat; yang tidak cocok adalah tujuannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "biaya yang diperlukan untuk menjalankan strategi",
+           "is_correct": false,
+           "rationale": "Debat hampir tidak memerlukan biaya; biaya bukan masalah di sini."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "karakteristik strategi, yaitu kelebihan dan kelemahannya",
+           "is_correct": false,
+           "rationale": "Kelebihan debat nyata; masalahnya bukan kelemahan debat, tetapi debat tidak diarahkan pada tujuan pertemuan ini."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "kesesuaian strategi dengan tujuan atau kompetensi",
+           "is_correct": true,
+           "rationale": "Debat melatih argumentasi, sedangkan tujuannya menulis surat dengan format baku; kriteria pertama adalah kesesuaian dengan tujuan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru Bahasa Indonesia kelas VIII ingin peserta didiknya dapat membandingkan dua iklan produk dan menilai mana yang menyesatkan. Kelasnya berisi 32 peserta didik, dan sekolah tidak menyediakan dana tambahan. Strategi mana yang paling tepat ia pilih?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "memakai strategi langsung, karena ceramah paling mudah dikendalikan untuk 32 peserta didik",
+           "is_correct": false,
+           "rationale": "Pembelajaran langsung memang mudah dikendalikan, tetapi lemah untuk pemikiran kritis yang dituju pertemuan ini."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "memakai belajar mandiri dengan modul, agar setiap peserta didik bekerja sesuai kecepatannya",
+           "is_correct": false,
+           "rationale": "Menilai iklan yang berbeda memerlukan saling menanggapi argumen, yang dilatih strategi interaktif, bukan modul perorangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "memakai strategi empirik dengan kunjungan ke pusat perbelanjaan, agar peserta didik mengamati iklan langsung",
+           "is_correct": false,
+           "rationale": "Kunjungan memerlukan biaya yang tidak tersedia; kriteria biaya termasuk dalam pemilihan strategi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "memakai strategi tidak langsung atau interaktif dalam kelompok kecil, dengan salinan cetak kedua iklan",
+           "is_correct": true,
+           "rationale": "Menilai dan menyimpulkan adalah kemampuan berpikir yang cocok dengan strategi tidak langsung atau interaktif; bahan cetak memenuhi kriteria biaya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seorang guru memilih pembelajaran berbasis proyek yang memerlukan bahan praktik mahal untuk 40 peserta didik, padahal dana sekolah terbatas. Kriteria pemilihan mana yang paling perlu ia tinjau ulang?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "kesesuaian dengan tujuan",
+           "is_correct": false,
+           "rationale": "Tidak ada keterangan bahwa proyek itu tidak sesuai dengan tujuan; yang tidak terpenuhi adalah dananya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "biaya",
+           "is_correct": true,
+           "rationale": "Biaya termasuk kriteria pemilihan strategi, dan di sini dana tidak mencukupi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "kesesuaian dengan jenis pengetahuan",
+           "is_correct": false,
+           "rationale": "Tidak ada keterangan tentang jenis pengetahuan yang tidak cocok; kendalanya dana."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "karakteristik strategi",
+           "is_correct": false,
+           "rationale": "Kelebihan dan kelemahan proyek tidak menjadi soal di sini; kendalanya dana."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

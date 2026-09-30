@@ -24,9 +24,14 @@ What that means for this folder:
 | `StrategiPembelajaran-Bab1.xlsx` | The workbook it writes, in the D-007 template. |
 | `StrategiPembelajaran-Bab1.paket.json` | The package, built by `docs/onboarding/konten/ke-paket.ts`. |
 | `StrategiPembelajaran-Bab1-jejak.md` | The page trace: every lesson section and every option, and the pages they rest on. |
-| `LANA-22.md` | The hand-off. |
+| `LANA-22.md` | The hand-off for Bab 1. |
+| `strategi_pembelajaran_bab2.py` | Generator for Bab 2 (LANA-23), with the same method and checks. |
+| `StrategiPembelajaran-Bab2.xlsx`, `.paket.json`, `-jejak.md` | Its workbook, package and page trace. |
+| `LANA-23.md` | The hand-off for Bab 2. |
 
 To rebuild and check:
+
+Bab 2 is rebuilt the same way, with `bab2` in place of `bab1`.
 
 ```
 python3 content/_uji-internal/strategi-pembelajaran/strategi_pembelajaran_bab1.py [--kutipan bab1.txt,depan.txt]
