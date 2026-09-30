@@ -12,6 +12,7 @@ import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { emailTests } from "./email.test";
+import { aktifkanTests } from "./aktifkan.test";
 import { loginTests } from "./login.test";
 import { strukturTests } from "./struktur.test";
 import { unggahTests } from "./unggah.test";
@@ -1888,6 +1889,7 @@ export const staticTests: SelfTest[] = [
   // no case that existed at the frozen baseline is touched by appending them.
   ...experienceTests,
   ...emailTests,
+  ...aktifkanTests,
   // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:
   // appended in their own file, so nothing that existed at the baseline is
   // edited to make room for them.

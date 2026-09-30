@@ -115,6 +115,11 @@ const ROUTE_INVENTORY = [
   // F-01. Account activation — the step after the intake — is a static route
   // like the intake's own entry, so its rendered output is swept too.
   "/aktivasi",
+  // DAISY-20 (Gate 3). «Aktifkan akun PINTAR Anda» is served signed out and
+  // Akun saya signed in; both render server answers through the copy table,
+  // so both are swept like every other page.
+  "/aktifkan",
+  "/akun",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };

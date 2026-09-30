@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { isianKurang, type JawabanAktivasi, type ModeAktivasi } from "./hasil";
 import HasilAktivasi from "./HasilAktivasi";
@@ -23,6 +23,12 @@ type Hasil = { mode: ModeAktivasi; jawaban: JawabanAktivasi | null; surel?: stri
  * took the person -- and the only word of success -- off the screen. A refused
  * or failed press is one plain sentence (HasilAktivasi), and a missing name or
  * an incomplete address is told before anything is sent.
+ *
+ * D-077(2): A NEW PERSON'S NAME IS CONFIRMED BEFORE THE PERSON IS CREATED.
+ * «Buat dan aktifkan» sends nothing: it shows the name as it will be recorded,
+ * large, with the address, and only «Sudah benar, buat dan aktifkan» sends.
+ * «Ubah» goes back to the fields with what was typed. What is sent is exactly
+ * what was shown.
  */
 export default function FormAktivasi({ locale, orang, adminSistem }: {
   locale: Locale; orang: Orang[]; adminSistem: boolean;
@@ -36,15 +42,47 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
   const [sibuk, setSibuk] = useState<string | null>(null);
   const berjalan = useRef(false);
   const [baru, setBaru] = useState({ nama: "", surel: "" });
+  const [periksa, setPeriksa] = useState<{ nama: string; surel: string } | null>(null);
+  const [fokus, setFokus] = useState<"periksa" | "nama" | null>(null);
+  const periksaRef = useRef<HTMLHeadingElement>(null);
+  const namaBaruRef = useRef<HTMLInputElement>(null);
 
-  async function kirim(key: string, mode: ModeAktivasi, body: Record<string, string>, isian: { nama?: string; surel?: string }) {
-    const cegah = isianKurang(mode, isian);
+  useEffect(() => {
+    if (fokus === "periksa") periksaRef.current?.focus();
+    else if (fokus === "nama") namaBaruRef.current?.focus();
+  }, [fokus]);
+
+  function tandai(key: string, cegah: HleEvent | null) {
     setKurang((x) => {
       const y = { ...x };
       if (cegah) y[key] = cegah;
       else delete y[key];
       return y;
     });
+  }
+
+  /** «Buat dan aktifkan» for a new person: the check, and nothing sent (D-077(2)). */
+  function periksaBaru() {
+    const cegah = isianKurang("NEW_PERSON", baru);
+    tandai("baru", cegah);
+    if (cegah) return;
+    setHasil((h) => {
+      const y = { ...h };
+      delete y.baru;
+      return y;
+    });
+    setPeriksa({ nama: baru.nama.trim(), surel: baru.surel.trim() });
+    setFokus("periksa");
+  }
+
+  function ubahBaru() {
+    setPeriksa(null);
+    setFokus("nama");
+  }
+
+  async function kirim(key: string, mode: ModeAktivasi, body: Record<string, string>, isian: { nama?: string; surel?: string }) {
+    const cegah = isianKurang(mode, isian);
+    tandai(key, cegah);
     if (cegah || berjalan.current) return;
     berjalan.current = true;
     setSibuk(`${key}:${mode}`);
@@ -62,7 +100,11 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
       setSibuk(null);
     }
     setHasil((h) => ({ ...h, [key]: { mode, jawaban, surel: isian.surel?.trim(), nama: isian.nama?.trim() } }));
-    if (jawaban?.ok && key === "baru") setBaru({ nama: "", surel: "" });
+    if (key === "baru") {
+      if (jawaban?.ok) setBaru({ nama: "", surel: "" });
+      setPeriksa(null);
+      setFokus("nama");
+    }
   }
 
   return (
@@ -115,21 +157,40 @@ export default function FormAktivasi({ locale, orang, adminSistem }: {
         <section className="pin-akt-orang pin-akt-baru">
           <h2>{s("aktivasi.baru.judul")}</h2>
           <p className="pin-meta">{s("aktivasi.baru.arti")}</p>
-          <div className="pin-actions">
-            <label className="pin-akt-isian">
-              <span className="pin-meta">{s("aktivasi.baru.nama")}</span>
-              <input className="pin-input" value={baru.nama} onChange={(e) => setBaru((b) => ({ ...b, nama: e.target.value }))} />
-            </label>
-            <label className="pin-akt-isian">
-              <span className="pin-meta">{s("aktivasi.surel")}</span>
-              <input className="pin-input" type="email" value={baru.surel} onChange={(e) => setBaru((b) => ({ ...b, surel: e.target.value }))} />
-            </label>
-            <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
-              aria-busy={sibuk === "baru:NEW_PERSON" ? "true" : undefined}
-              onClick={() => void kirim("baru", "NEW_PERSON", { display_name: baru.nama.trim(), email: baru.surel.trim() }, baru)}>
-              {sibuk === "baru:NEW_PERSON" ? s("tombol.mengaktifkan") : s("aktivasi.baru.tombol")}
-            </button>
-          </div>
+          {periksa ? (
+            <div className="pin-akt-periksa" role="group" aria-labelledby="pin-akt-periksa">
+              <h3 id="pin-akt-periksa" ref={periksaRef} tabIndex={-1}>{s("aktivasi.baru.periksa_judul")}</h3>
+              <p className="pin-akt-nama">{periksa.nama}</p>
+              <p className="pin-meta">{s("aktivasi.surel")}: <strong>{periksa.surel}</strong></p>
+              <p className="pin-meta">{s("aktivasi.baru.periksa_arti")}</p>
+              <div className="pin-actions">
+                <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
+                  aria-busy={sibuk === "baru:NEW_PERSON" ? "true" : undefined}
+                  onClick={() => void kirim("baru", "NEW_PERSON", { display_name: periksa.nama, email: periksa.surel }, periksa)}>
+                  {sibuk === "baru:NEW_PERSON" ? s("tombol.mengaktifkan") : s("aktivasi.baru.benar")}
+                </button>
+                <button type="button" className="pin-btn" disabled={sibuk !== null} onClick={ubahBaru}>
+                  {s("aktivasi.baru.ubah")}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pin-actions">
+              <label className="pin-akt-isian">
+                <span className="pin-meta">{s("aktivasi.baru.nama")}</span>
+                <input ref={namaBaruRef} className="pin-input" value={baru.nama} autoComplete="off"
+                  onChange={(e) => setBaru((b) => ({ ...b, nama: e.target.value }))} />
+              </label>
+              <label className="pin-akt-isian">
+                <span className="pin-meta">{s("aktivasi.surel")}</span>
+                <input className="pin-input" type="email" value={baru.surel} autoComplete="off"
+                  onChange={(e) => setBaru((b) => ({ ...b, surel: e.target.value }))} />
+              </label>
+              <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null} onClick={periksaBaru}>
+                {s("aktivasi.baru.tombol")}
+              </button>
+            </div>
+          )}
           {kurang.baru ? (
             <BarisHasil nada="gagal">{s(kurang.baru)}</BarisHasil>
           ) : hasil.baru ? (

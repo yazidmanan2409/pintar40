@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 128,
+  "version": 129,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2500,6 +2500,36 @@
       "id": "DAISY-19-EMAIL-02",
       "runner": "static",
       "proves": "DAISY-19 wired to BOB-25's template interface (src/lib/email/templat.ts). (1) templatUjiPengiriman is a Templat: for production, staging and the local sink it returns a one-line non-empty subject and both bodies in its own copy-table words and reason, with the route's send time as a row in both bodies; the sending module's UJI_PENGIRIMAN (src/app/api/_email/uji.ts, which the proof route imports) is a re-export of this framed template and holds no email of its own (D-079); src/components/email reads no configuration and sends nothing. (2) Ruling 2: the logo is /brand/pintar-email-logo.png on the environment's own origin (staging's on staging, never production's), a trailing slash does not double the path, and the file is a 208 × 116 PNG under 20 KB. (3) Ruling 3: every staging email carries the test line (email.bingkai.uji) at the top of both bodies, before the heading, and no production email does. (4) Ruling 1: a six-digit code arriving spaced or not is shown «482 913», eight digits 4 + 4, anything else as given, in both bodies. (5) Refused before a send: a subject with a line break, an empty subject, a non-https link (plain http, javascript:, protocol-relative, a space) and a plain-http origin that is not the local sink; the local sink's origin is accepted"
+    },
+    {
+      "id": "DAISY-20-EMAIL-01",
+      "runner": "static",
+      "proves": "DAISY-20 × BOB-26 §5 (D-079 and its addendum): the identity emails in src/components/email on the DAISY-19 frame. (1) templatKodeAktivasi and templatKodeUlang are BOB-25's Templat over BOB-26's DataEmailKode, each with its own subject, heading and body from the copy table, the reason, and what to do if the code was not asked for. (2) The real duration comes from the data: rendered at berlakuMenit 10 and planted at 7 and 60, each email says exactly format.durasi of that value and no other; no email.kode or email.kartu line types a number or says «segera»; the source reads data.berlakuMenit. (3) The code is shown «482 913» in both bodies; the greeting names the person only when there is a name. (4) templatKartuDigital shows the name, the PINTAR ID 4 + 4, each context line as the data gives it (role · school; the platform role alone; a planted change shows, D-059), the way to Akun saya, and that the ID is not a secret. (5) Both modules are typed as Templat over BOB-26's data and read no configuration and send nothing. DAISY-19-EMAIL-01 also holds all three to the frame's structure, word, contrast and plain-text checks, and reads every module in src/components/email"
+    },
+    {
+      "id": "DAISY-20-KODE-01",
+      "runner": "static",
+      "proves": "DAISY-20 on BOB-26's contract (§0–§4): every code on each of the 11 routes is read back as itself by jawaban.ts's reader (a known code over its status, an unknown code by its status, no answer or an unknown status as «not reached», a 200 with ok:false not as success) and said as a plain sentence in both languages with no code word, no INTERNAL_WORDS entry and none of the server's own text (planted on every answer); every username and PIN refusal reads differently; a wait is the route's own (body, then Retry-After), «a moment» when it gave none, never on a refusal, and a note rather than a judgement; a reference only on LAYANAN_TIDAK_TERSEDIA and only a reference, with «yang mengurus PINTAR di sekolah Anda» (Terminology v1); PASSWORD_LEMAH says each reason in order; «482 913», «482-913» and «482913» are one code; the ID shows 4 + 4; a destination never leaves PINTAR; the address check agrees with the sign-in screen's"
+    },
+    {
+      "id": "DAISY-20-LAYAR-01",
+      "runner": "static",
+      "proves": "DAISY-20: the activation screens RENDERED in both languages (username, password with today's and planted rules, PIN, the name viewed and changing, the welcome with the card sent and not sent, a stop, the email screen, the wizard and Akun saya loading, the identity block): «Langkah N dari 4» in the journey's order with a focusable heading; every field labelled; username, new-password (twice), numeric four-digit PIN and one-time-code filling; the password rules shown before typing and following the canonical setting (8 and the leak check; a planted 12 with two kinds and no leak check changes the screen); one labelled pressed-state reveal per secret; a judged field aria-invalid and described by its alert, none before anything is judged; a form whose script has not started held with auth.belum_siap; the welcome with the name, the ID 4 + 4, a labelled QR, where the card went, the data's role · school lines and «Masuk ke PINTAR» to the route's home; no code word, internal word or empty key on any screen; every key used declared in both languages; no pre-sign-in activation line types a duration or says «segera»"
+    },
+    {
+      "id": "DAISY-20-C17-01",
+      "runner": "static",
+      "proves": "DAISY-20, C17: no PINTAR-ID screen reaches a learner. /akun returns the refusal page for a reader with no staff role before drawing AkunSaya, the only component that requests the card besides the wizard's welcome, which asks inside `if (keadaan.staf)` and reports TIDAK_ADA otherwise; STUDENT is not in PERAN_STAF; RENDERED in both languages, a learner-only account's welcome has no ID, no QR and no card word; the «Akun saya» door is drawn only with the staff-only strip name (S15); no wizard step, intake name-list or approval line mentions a card or a PINTAR ID"
+    },
+    {
+      "id": "DAISY-20-NAMA-01",
+      "runner": "static",
+      "proves": "DAISY-20, D-077. (1) The wizard's name step RENDERED in both languages: the name whole in its large line, the once-only line before «Sudah benar» (the submit, first) and «Ubah nama» (a button); changing opens one labelled field holding the name, with «Batal»; «Sudah benar» sends no name, a correction sends the normalised name alone (BOB-26 §3.5). (2) «Orang baru»: «Buat dan aktifkan» checks with isianKurang and sends nothing; the only NEW_PERSON request is «Sudah benar, buat dan aktifkan» with exactly the name and address shown; «Ubah» goes back; rendered, no confirmation shows before a press. (3) The intake: DaftarNama draws all 1234 planted rows in order in a labelled, keyboard-scrollable region, marks the already-registered ones, never mentions a card (C17); kumpulkanNama reads import_preview_names page by page and returns the whole list, two exact full pages and an empty intake correctly, and null on a refusal, a malformed row, rows out of order, a read that never ends or a thrown read; the page offers its one approval only under a complete list as long as WP5A's row_count, and otherwise says the list could not be read"
+    },
+    {
+      "id": "DAISY-20-ALUR-01",
+      "runner": "static",
+      "proves": "DAISY-20 wiring on BOB-26's contract: every request is jawaban.ts's single fetch to the contract's path, no-store and same-origin, and no activation or sign-in screen reads a server message; the code screen's «berlaku selama N menit» is format.durasi of the route's berlakuMenit and its resend countdown the route's kirimUlangDalam, on the first code and on a resend, with the resend held while it runs and no number typed (D-079 addendum); the code is sent as digits from a field that takes «482 913»; every signed-in destination is narrowed to PINTAR; the code screen says «jika alamat ini terdaftar» for every address and nothing branches on an account existing (D2); /aktifkan chooses the email screen or the wizard by the session; «Masuk ke PINTAR» leads to «Aktifkan akun» (D-019 amended); the email-link fallback switch is the contract's"
     }
   ]
 }

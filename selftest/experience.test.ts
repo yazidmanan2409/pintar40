@@ -295,6 +295,10 @@ const RESET_SURFACES = [
   // F-01 account activation. Built on the token set, the pendataan shell and
   // the shared pin-* classes from the start, so it joins the re-set list.
   "src/app/aktivasi/page.tsx",
+  // DAISY-20 (Gate 3): «Aktifkan akun PINTAR Anda» on the sign-in page's
+  // stage, and Akun saya in the reader's own shell. Built on the token set.
+  "src/app/aktifkan/page.tsx",
+  "src/app/akun/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -4112,12 +4116,18 @@ export const experienceTests: SelfTest[] = [
       ].filter((f) => /\.tsx?$/.test(f));
       c.expect(files.length >= 8, `only ${files.length} sign-in file(s) found`);
 
-      // 1. THE SCREEN OFFERS THE TWO DOORS THAT EXIST AND NOT ONE MORE. A
+      // 1. THE SCREEN OFFERS THE DOORS THAT EXIST AND NOT ONE MORE. A
       //    sign-in screen that offers a door which is not there is worse than
       //    one that offers fewer doors: the person tries it, it fails, and they
       //    conclude the system is broken rather than that they misread it.
+      //    RESTATED FOR DAISY-20 (D-054(a), a changed requirement): the
+      //    password door exists now (email or username, and password, through
+      //    BOB-26's route), so it leaves the absent list and is held to exactly
+      //    one field below. Registration and self-service recovery are still
+      //    absent: «Lupa password?» opens the email link, the fallback door
+      //    (TAUTAN_MASUK_CADANGAN) until recovery ships.
       const TIDAK_ADA: Array<[RegExp, string]> = [
-        [/type=["']password["']/, "a password field"],
+        [/type=["']password["']/, "a second password field"],
         [/signUp|resetPasswordForEmail|updateUser\(/, "registration or password recovery"],
         [/signInWithOAuth|\bgoogle\b|\bmicrosoft\b|\bapple\b|\boauth\b/i, "social sign-in"],
         [/\bsso\b|\bsaml\b|webauthn|passkey/i, "SSO or a passkey"],
@@ -4128,7 +4138,8 @@ export const experienceTests: SelfTest[] = [
         // The PIN is the one masked field, and it is a transcription from a
         // card rather than a password somebody chose.
         const src = code(readFileSync(join(repoRoot, f), "utf8"))
-          .replace(/type=\{pinTampil \? "text" : "password"\}/g, " ");
+          .replace(/type=\{pinTampil \? "text" : "password"\}/g, " ")
+          .replace(/type=\{pwTampil \? "text" : "password"\}/g, " ");
         for (const [re, apa] of TIDAK_ADA) {
           const m = re.exec(src);
           c.expect(m === null, `${f} offers ${apa}: ${m?.[0]}`);
@@ -4136,6 +4147,18 @@ export const experienceTests: SelfTest[] = [
       }
       c.expect(TIDAK_ADA.some(([re]) => re.test('<input type="password" name="sandi" />')),
         "the absent-door sweep does not catch a password field");
+      // The password door, once: one masked field besides the card's PIN,
+      // filled as the current password, sent only through the contract's
+      // route; and the email link offered only behind the fallback switch.
+      const layarPw = code(readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8"));
+      c.expect((layarPw.match(/type=\{pwTampil \? "text" : "password"\}/g) ?? []).length === 1
+        && /autoComplete="current-password"/.test(layarPw) && /name="identitas"/.test(layarPw),
+        "the password door is not one email-or-username field and one current-password field");
+      c.expect(/kirimRute<"masukPassword", \{ tujuan: string \}>\("masukPassword", fd\)/.test(layarPw)
+        && !/fetch\(/.test(layarPw),
+        "the password door reaches the server other than through BOB-26's route");
+      c.expect(/\{TAUTAN_MASUK_CADANGAN \? \(/.test(layarPw) && /s\("auth\.pw_lupa"\)/.test(layarPw),
+        "the email link is offered without the fallback switch, or «Lupa password?» is gone while it is on");
       c.expect(TIDAK_ADA.some(([re]) => re.test("await supabase.auth.signUp({ email });")),
         "the absent-door sweep does not catch a registration call");
 
@@ -4252,7 +4275,9 @@ export const experienceTests: SelfTest[] = [
       c.note(`${files.length} sign-in file(s), ${TIDAK_ADA.length} absent door(s), ` +
         `${gerbang} control(s) gated on client readiness, 2 plants caught`);
       return c.verdict(
-        "the sign-in screen offers exactly the two doors the contract has: no password field, no registration, no " +
+        "the sign-in screen offers exactly the doors the contract has (D-054): one email-or-username and password " +
+        "door through BOB-26's route, the class card, and the email link behind «Lupa password?» only while the " +
+        "fallback switch is on; no second password field, no registration, no self-service " +
         "recovery, no social sign-in, no SSO, no passkey, no institution or role picker and no remember-me appear " +
         "in any of its source files — both sweeps watched on plants — `?peran=` is neither branched on nor rendered " +
         "for a persona the screen has not met and never survives the authentication boundary, L-2's " +
@@ -4464,8 +4489,18 @@ export const experienceTests: SelfTest[] = [
         "comparing it against a printed card is a small cruelty");
 
       // 3. FOCUS DESTINATIONS ARE DECLARED IN ONE PLACE, not scattered.
-      c.expect(/type Fokus = "judul" \| "email" \| "kirim" \| "kartu" \| null;/.test(layar),
+      //    RESTATED FOR DAISY-20 (D-054(a), a changed requirement): the
+      //    password surface is the door now, so its first field joins the set,
+      //    and both of its refusals -- nothing typed, and no match -- send focus
+      //    there, because the answer does not say which field was wrong. Its
+      //    reveal is the same labelled toggle as the PIN's.
+      c.expect(/type Fokus = "judul" \| "identitas" \| "email" \| "kirim" \| "kartu" \| null;/.test(layar),
         "the focus destinations are not declared as one set");
+      c.expect(/setLayar\(\{ k: "password", kosong: true \}\);\s*\n\s*pindahFokus\("identitas"\);/.test(layar)
+        && /setLayar\(\{ k: "password", gagal: jawaban \}\);[\s\S]{0,120}pindahFokus\("identitas"\);/.test(layar),
+        "a password refusal does not send focus to the first field");
+      c.expect(/aria-pressed=\{pwTampil\}/.test(layar) && /aria-label=\{s\(pwTampil \? "auth\.pw_hide" : "auth\.pw_show"\)\}/.test(layar),
+        "the password reveal is not a labelled pressed-state toggle");
       for (const [dari, ke] of [["bentuk", "email"], ["kirim", "kirim"]] as const) {
         c.expect(new RegExp(`salah: "${dari}"[\\s\\S]{0,80}pindahFokus\\("${ke}"\\)`).test(layar),
           `the ${dari} error does not send focus to ${ke}`);
@@ -7187,7 +7222,9 @@ export const experienceTests: SelfTest[] = [
           `aktivasi.baru.ok (${loc}) no longer stops where the sign-in address goes`);
         c.expect(!/sekarang bisa masuk|can now sign in/i.test(ok + lalu), `aktivasi.baru.ok (${loc}) still says the person can now sign in`);
       }
-      c.expect(/tidak mengirim surel/.test(t("aktivasi.baru.ok", "staff", { locale: "id" })), "aktivasi.baru.ok (id) does not say no email was sent");
+      // RESTATED FOR DAISY-20 (D-068, Terminology v1: «email», not «surel»):
+      // the same promise, in the frozen word.
+      c.expect(/tidak mengirim email/.test(t("aktivasi.baru.ok", "staff", { locale: "id" })), "aktivasi.baru.ok (id) does not say no email was sent");
       c.expect(/not emailed/.test(t("aktivasi.baru.ok", "staff", { locale: "en" })), "aktivasi.baru.ok (en) does not say no email was sent");
       // DAISY-09 moved the drawing of each outcome into HasilAktivasi; the
       // form hands it the new person's answer, and it draws aktivasi.baru.ok
@@ -8845,18 +8882,23 @@ export const experienceTests: SelfTest[] = [
       //    person is sent to the environment's sign-in ADDRESS, not the path
       //    /masuk. Each sentence is composed as KeMasuk composes it, with a
       //    stand-in address, and read whole.
+      //    RESTATED FOR DAISY-20 (D-019 amended by D-054, a changed
+      //    requirement): an email account and a new person are sent to
+      //    «Aktifkan akun PINTAR Anda» (the environment's /aktifkan address),
+      //    where their code is sent; a card is still used at /masuk.
       const TIDAK_DIKIRIM: Record<string, RegExp> = { id: /tidak mengirim/, en: /has not (emailed|sent)|sends no/ };
       const CONTOH_ALAMAT = "app.contoh.sch.id/masuk";
+      const CONTOH_AKTIFKAN = "app.contoh.sch.id/aktifkan";
       for (const locale of LOCALES) {
         const st = (k: HleEvent) => t(k, "staff", { locale });
         const kalimat: Array<[string, string]> = [
-          ["aktivasi.intro", `${st("aktivasi.intro")} ${st("aktivasi.intro.buka")} ${CONTOH_ALAMAT}.`],
-          ["aktivasi.surel_arti", `${st("aktivasi.surel_arti")} ${CONTOH_ALAMAT}${st("aktivasi.surel_arti.lalu")}`],
+          ["aktivasi.intro", `${st("aktivasi.intro")} ${st("aktivasi.intro.buka")} ${CONTOH_AKTIFKAN}.`],
+          ["aktivasi.surel_arti", `${st("aktivasi.surel_arti")} ${CONTOH_AKTIFKAN}${st("aktivasi.surel_arti.lalu")}`],
           ["aktivasi.kartu_arti", `${st("aktivasi.kartu_arti")} ${CONTOH_ALAMAT}${st("aktivasi.kartu_arti.lalu")}`],
-          ["aktivasi.baru.ok", `${st("aktivasi.baru.ok")} ${CONTOH_ALAMAT}${st("aktivasi.baru.ok.lalu")}`],
+          ["aktivasi.baru.ok", `${st("aktivasi.baru.ok")} ${CONTOH_AKTIFKAN}${st("aktivasi.baru.ok.lalu")}`],
         ];
         for (const [k, x] of kalimat) {
-          c.expect(TIDAK_DIKIRIM[locale].test(x) && !x.includes(TANPA_SALINAN) && !/(^|[\s(])\/masuk\b/.test(x),
+          c.expect(TIDAK_DIKIRIM[locale].test(x) && !x.includes(TANPA_SALINAN) && !/(^|[\s(])\/(masuk|aktifkan)\b/.test(x),
             `${k} (${locale}) does not say nothing was sent and where to sign in: "${x}"`);
           c.expect(!/sekarang bisa masuk|can now sign in/i.test(x), `${k} (${locale}) says the person can now sign in`);
         }
@@ -8944,6 +8986,7 @@ export const experienceTests: SelfTest[] = [
         env: { ...process.env, NEXT_PUBLIC_APP_URL: "https://app.contoh.sch.id", KASUS_AKT: JSON.stringify(KASUS), FORM_AKT: JSON.stringify(FORM) },
       });
       const alamatDi = '<strong class="pin-num">app.contoh.sch.id/masuk</strong>';
+      const aktifkanDi = '<strong class="pin-num">app.contoh.sch.id/aktifkan</strong>';
       let html: string[] = [];
       try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
       const bersih = (x: string) => x.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
@@ -8962,7 +9005,8 @@ export const experienceTests: SelfTest[] = [
             } else {
               c.expect(x.includes(`${s("aktivasi.surel_dibuat")} <strong>${k.surel}</strong>`), `${label}: the address the account was made for is not named`);
               const [awal, akhir] = k.mode === "NEW_PERSON" ? ["aktivasi.baru.ok", "aktivasi.baru.ok.lalu"] as const : ["aktivasi.surel_arti", "aktivasi.surel_arti.lalu"] as const;
-              c.expect(x.includes(`${s(awal)} ${alamatDi}${s(akhir)}`), `${label}: the no-email sentence with the sign-in address is missing`);
+              c.expect(x.includes(`${s(awal)} ${aktifkanDi}${s(akhir)}`) && !x.includes("/masuk"),
+                `${label}: the no-email sentence with the activation address is missing, or it sends the person to /masuk`);
               if (k.mode === "NEW_PERSON") c.expect(x.includes(`<strong>${k.nama}</strong>`), `${label}: the new person is not named`);
             }
           } else {
@@ -8992,13 +9036,16 @@ export const experienceTests: SelfTest[] = [
       c.expect(!/router\.refresh|useRouter/.test(form), "a success still refreshes the list and takes its message off the screen");
       // RESTATED FOR POLISH BATCH 2 (UX-11): the introduction ends with the
       // sign-in address, composed by KeMasuk as the results are
-      c.expect(/<p className="pin-intro">\{s\("aktivasi\.intro"\)\} <KeMasuk s=\{s\} sebelum="aktivasi\.intro\.buka" \/><\/p>/.test(code(readFileSync(join(repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"))),
+      // RESTATED FOR DAISY-20 (D-019 amended): it ends with the activation
+      // address, composed by KeAktifkan as the email results are
+      c.expect(/<p className="pin-intro">\{s\("aktivasi\.intro"\)\} <KeAktifkan s=\{s\} sebelum="aktivasi\.intro\.buka" \/><\/p>/.test(code(readFileSync(join(repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"))),
         "the activation page does not open with the corrected introduction");
 
       return c.verdict(
         "D-019: the activation route is re-read and sends no mail; no activation sentence in either language promises an email " +
         "(the old introduction is the planted control); the introduction, an email account, a card and a new person each say " +
-        "nothing was sent and send the person to /masuk, and the card names /masuk's own button. Every failure the route can " +
+        "nothing was sent; an email account and a new person are sent to the activation address, where the code is sent " +
+        "(D-019 amended), and a card to /masuk, naming its own button. Every failure the route can " +
         "answer, and no answer, is its own plain sentence per path, never the server's text; a missing name or address is told " +
         "before sending with /masuk's own check. Each outcome is RENDERED in both languages where it was asked, and the form " +
         "no longer refreshes its message away",
@@ -10034,9 +10081,17 @@ export const experienceTests: SelfTest[] = [
        * its errors tied to their fields), a structure that could not be READ,
        * and the live count of a run in progress.
        */
+      // RESTATED FOR DAISY-20 (D-054(a), a changed requirement): sign-in gains
+      // its password door, whose one refusal line is tied to both its fields
+      // (4 on /masuk), and «Aktifkan akun PINTAR Anda» is the same kind of
+      // screen -- each refusal the sentence for the field it judged, never a
+      // save's answer: the email and the code (MintaKode, 2) and the one line
+      // of each wizard step (Langkah, 1).
       const DIIZINKAN: Record<string, number> = {
         "src/components/HalamanGalat.tsx": 1,
-        "src/components/masuk/LayarMasuk.tsx": 3,
+        "src/components/masuk/LayarMasuk.tsx": 4,
+        "src/components/aktifkan/MintaKode.tsx": 2,
+        "src/components/aktifkan/Langkah.tsx": 1,
         "src/components/struktur/PanelStruktur.tsx": 1,
         "src/components/pendataan/Penggerak.tsx": 1,
       };
@@ -11196,12 +11251,25 @@ export const experienceTests: SelfTest[] = [
        *    «halaman /masuk». From the SOURCE, the page's introduction ends the
        *    same way.
        */
+      //    RESTATED FOR DAISY-20 (D-019 amended by D-054): the same rule for
+      //    the second page. An email account starts at «Aktifkan akun PINTAR
+      //    Anda», so its result names the environment's /aktifkan address (or
+      //    «halaman Aktifkan akun PINTAR»); a card's still names /masuk.
       let alamatMasuk: ((a?: string) => string | null) | undefined;
-      try { alamatMasuk = (await import("../src/components/aktivasi/alamat")).alamatMasuk; } catch { /* reported below */ }
+      let alamatAktifkan: ((a?: string) => string | null) | undefined;
+      try {
+        const m = await import("../src/components/aktivasi/alamat");
+        alamatMasuk = m.alamatMasuk;
+        alamatAktifkan = m.alamatAktifkan;
+      } catch { /* reported below */ }
       c.expect(typeof alamatMasuk === "function" && alamatMasuk("https://app.pintarselalu.com") === "app.pintarselalu.com/masuk"
         && alamatMasuk("https://staging.pintarselalu.com/") === "staging.pintarselalu.com/masuk"
         && alamatMasuk("") === null && alamatMasuk("javascript:alert(1)") === null && alamatMasuk("bukan alamat") === null,
         "the sign-in address is not the environment's own host plus /masuk, or something that is not a web address becomes one");
+      c.expect(typeof alamatAktifkan === "function" && alamatAktifkan("https://app.pintarselalu.com") === "app.pintarselalu.com/aktifkan"
+        && alamatAktifkan("https://staging.pintarselalu.com/") === "staging.pintarselalu.com/aktifkan"
+        && alamatAktifkan("") === null && alamatAktifkan("javascript:alert(1)") === null && alamatAktifkan("bukan alamat") === null,
+        "the activation address is not the environment's own host plus /aktifkan, or something that is not a web address becomes one");
       const KASUS = [
         { locale: "id", mode: "CLASSROOM_CARD", jawaban: { ok: true, card: "7001234567", pin: "482913" } },
         { locale: "en", mode: "EMAIL", jawaban: { ok: true, mode: "EMAIL" }, surel: "guru@sekolah.sch.id" },
@@ -11225,17 +11293,19 @@ export const experienceTests: SelfTest[] = [
       const denganAlamat = render("https://app.pintarselalu.com");
       const tanpaAlamat = render(null);
       KASUS.forEach((k, n) => {
-        const nama = t("aktivasi.halaman_masuk", "staff", { locale: k.locale as "id" | "en" });
+        const jalur = k.mode === "CLASSROOM_CARD" ? "/masuk" : "/aktifkan";
+        const nama = t(k.mode === "CLASSROOM_CARD" ? "aktivasi.halaman_masuk" : "aktivasi.halaman_aktifkan", "staff", { locale: k.locale as "id" | "en" });
         const a = denganAlamat[n] ?? "", b = tanpaAlamat[n] ?? "";
-        c.expect(a.includes('<strong class="pin-num">app.pintarselalu.com/masuk</strong>') && !a.replace("app.pintarselalu.com/masuk", "").includes("/masuk"),
-          `${k.mode} (${k.locale}): with an address, the result does not send the person to it: ${a.slice(0, 200)}`);
-        c.expect(b.includes(nama) && !b.includes("/masuk"),
+        const alamat = `app.pintarselalu.com${jalur}`;
+        c.expect(a.includes(`<strong class="pin-num">${alamat}</strong>`) && !/\/(masuk|aktifkan)\b/.test(a.replace(alamat, "")),
+          `${k.mode} (${k.locale}): with an address, the result does not send the person to ${jalur} there: ${a.slice(0, 200)}`);
+        c.expect(b.includes(nama) && !/\/(masuk|aktifkan)\b/.test(b),
           `${k.mode} (${k.locale}): with no address, the result does not name «${nama}»: ${b.slice(0, 200)}`);
       });
-      const jalur = renderAll().filter((r) => /halaman \/masuk|\/masuk page/i.test(r.text));
-      c.expect(jalur.length === 0, `a line still sends someone to the path /masuk: ${[...new Set(jalur.map((r) => r.event))].join(", ")}`);
-      c.expect(/<p className="pin-intro">\{s\("aktivasi\.intro"\)\} <KeMasuk s=\{s\} sebelum="aktivasi\.intro\.buka" \/><\/p>/.test(baca("src", "app", "aktivasi", "page.tsx")),
-        "the activation page's introduction does not end with the sign-in address");
+      const jalur = renderAll().filter((r) => /halaman \/(masuk|aktifkan)|\/(masuk|aktifkan) page/i.test(r.text));
+      c.expect(jalur.length === 0, `a line still sends someone to a bare path: ${[...new Set(jalur.map((r) => r.event))].join(", ")}`);
+      c.expect(/<p className="pin-intro">\{s\("aktivasi\.intro"\)\} <KeAktifkan s=\{s\} sebelum="aktivasi\.intro\.buka" \/><\/p>/.test(baca("src", "app", "aktivasi", "page.tsx")),
+        "the activation page's introduction does not end with the activation address");
 
       /**
        * 3. UX-30: KONFIGURASI OFFERS ONLY WHAT EXISTS. No menu item for a
@@ -11253,9 +11323,10 @@ export const experienceTests: SelfTest[] = [
 
       return c.verdict(
         "the school's code is «Kode sekolah» / School code and no Pendataan line calls it an institution code; the sign-in " +
-        "address is this environment's own host plus /masuk (and nothing that is not a web address becomes one); rendered, a " +
-        "card's and an email account's results send the person to that address, or to «halaman Masuk PINTAR» when there is " +
-        "none, never to the path /masuk, and no copy line does; the activation page's introduction ends the same way; and " +
+        "and activation addresses are this environment's own host plus /masuk and /aktifkan (and nothing that is not a web " +
+        "address becomes one); rendered, a card's result sends the person to the sign-in address and an email account's to " +
+        "the activation address (D-019 amended), or name the page when there is none, never a bare path, and no copy line " +
+        "does; the activation page's introduction ends with the activation address; and " +
         "Konfigurasi's menu offers only sections that exist, each leading to its section on the page",
       );
     },

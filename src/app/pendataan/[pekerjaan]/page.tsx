@@ -14,6 +14,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import PeriksaDaftar from "@/components/pendataan/PeriksaDaftar";
 import Penggerak from "@/components/pendataan/Penggerak";
 import IsianSetuju from "@/components/pendataan/IsianSetuju";
+import DaftarNama from "@/components/pendataan/DaftarNama";
+import { semuaNama } from "../nama";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +78,11 @@ export default async function SatuPendataan({
     ? await data.barisPekerjaan(pekerjaan, { keadaan: "FAILED" })
     : [];
   const pratinjau = fase === "menunggu_konfirmasi" ? await data.pratinjau(pekerjaan) : null;
+  // D-077(3): the approval is given on every name, or not offered. The list
+  // must be complete (`semuaNama` is null otherwise) and as long as WP5A's
+  // own count of rows.
+  const nama = pratinjau ? await semuaNama(pekerjaan) : null;
+  const namaLengkap = nama !== null && nama.length === Number(pratinjau?.row_count ?? -1);
 
   return (
     <>
@@ -155,14 +162,23 @@ export default async function SatuPendataan({
               <p className="pin-msg pin-msg-note">{s("pendataan.percontohan.arti")}</p>
             ) : null}
 
-            <p className="pin-mm">{s("pendataan.pratinjau.tanya")}</p>
-            {/* A PLAIN FORM. The consequential act needs no script to work, and
-                it calls WP5A's confirmation rather than moving a flag here.
-                UX-08: its press also starts the recording (IsianSetuju). */}
-            <form action={konfirmasiAksi}>
-              <IsianSetuju pekerjaan={pekerjaan} />
-              <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
-            </form>
+            {/* D-077(3): EVERY NAME, THEN ONE APPROVAL. With no complete
+                list there is nothing to approve on, so no form is drawn. */}
+            {namaLengkap ? (
+              <>
+                <DaftarNama locale={locale} nama={nama!} />
+                <p className="pin-mm">{s("pendataan.pratinjau.tanya")}</p>
+                {/* A PLAIN FORM. The consequential act needs no script to work, and
+                    it calls WP5A's confirmation rather than moving a flag here.
+                    UX-08: its press also starts the recording (IsianSetuju). */}
+                <form action={konfirmasiAksi}>
+                  <IsianSetuju pekerjaan={pekerjaan} />
+                  <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
+                </form>
+              </>
+            ) : (
+              <BarisHasil nada="gagal">{s("pendataan.nama.gagal")}</BarisHasil>
+            )}
           </section>
         ) : null}
 
