@@ -1,6 +1,6 @@
 # DAISY — PINTAR CERTIFICATE: ROUND 2 REFINEMENT
 
-**Drafted by Yazid, 30 Sep 2026, after his review of Round 1 (`dd292f6`); revised by the coordinator.** Yazid sends it with his reference image (a revised Modern composition), which is not committed. Decisions: D-076 once sent.
+**The brief as sent to Daisy by Yazid, 30 Sep 2026,** with his reference image (a revised Modern composition, not committed). Drafted by Yazid after his review of Round 1 (`dd292f6`) and revised by the coordinator. Decision: D-076.
 
 ---
 
