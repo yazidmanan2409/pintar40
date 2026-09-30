@@ -99,12 +99,19 @@ revoke all on function selftest.f18_daftar(text, text, boolean) from public;
 -- Auth writing a password hash, as Auth's own role writes it
 create or replace function selftest.f18_tulis_sandi(p_uid uuid, p_hash text)
 returns void language plpgsql set search_path = public, pg_temp as $$
+declare v_tabel oid;
 begin
   reset role;
-  -- Auth's own role where it can write auth.users (every Supabase stack, where
-  -- it owns the table); a bare shim database without that grant writes as the owner
-  if has_table_privilege('supabase_auth_admin', 'auth.users', 'update') then
+  v_tabel := 'auth.users'::regclass;
+  -- As Auth's own role where this login may become it and it can write
+  -- auth.users; otherwise as this login. The guard under test is a trigger, so
+  -- it fires for either writer (Auth's real path is BOB26-A03, over HTTP).
+  begin
     set local role supabase_auth_admin;
+  exception when others then null;
+  end;
+  if not (has_schema_privilege(current_user, 'auth', 'usage') and has_table_privilege(current_user, v_tabel, 'update')) then
+    reset role;
   end if;
   update auth.users set encrypted_password = p_hash where id = p_uid;
   reset role;
