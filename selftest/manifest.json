@@ -2090,6 +2090,15 @@
       "skip_justification": "needs the local Supabase stack (Auth and PostgREST) as well as the database and the Mailpit sink; this session has no Docker, CI has all three and runs it strictly"
     },
     {
+      "id": "BOB42-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "BOB-42 (D-067): in the database, in one rolled-back transaction, the teacher launches an Uji Cepat, a learner finishes it, and the teacher launches a second in the same class, every read made as the teacher through RLS; then src/lib/pengajar.ts's pilihBerjalan executes over those rows: running while its window is open, nothing running a minute after it (the Uji Cepat page then draws Atur), the second alone running after it is launched, the first kept CLOSED with its hand-in and its sessions and results unchanged; keadaanHariIni (src/components/bukti/KeadaanHariIni.tsx) presents only open windows, and the one that closed when none is; keadaanEfektif closes exactly at closes_at; berjalan's source chooses through it with the real clock.",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "BOB39-K01",
       "runner": "static",
       "proves": "BOB-39: refer_integrity_signal's refusal, read from migration 20260924110000, maps through kodeGalat (src/lib/galat-kontrak.ts) to the existing ACTION_NOT_ALLOWED, and the Studio's integrity review action in src/app/studio/actions.ts passes every refusal through ditolak, so a referral refused because the reviewer's role does not reach the signal's class shows an existing sentence, never the database's words."

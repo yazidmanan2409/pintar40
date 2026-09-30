@@ -333,7 +333,7 @@ export async function instrumen(courseId: string): Promise<Array<{
 export type Berjalan = {
   id: string;
   nodeId: string;
-  /** OPEN or CLOSED, as the assignment carries it. Never rendered as a word. */
+  /** OPEN or CLOSED, in effect: an OPEN assignment whose window has passed is CLOSED (BOB-42). Never rendered as a word. */
   keadaan: string;
   judul: string;
   mode: string;
@@ -349,42 +349,38 @@ export type Berjalan = {
   mulai: number;
 };
 
+/** One assessment assignment as `berjalan` reads it. */
+export type BarisTugasAsesmen = {
+  id: string; node_id: string; status: string; opens_at: string | null; closes_at: string | null;
+  definition: { title: string; mode: string; item_count: number; is_ad_hoc: boolean } | null;
+};
+/** One session as `berjalan` reads it: whose, of which assignment, how far. */
+export type BarisSesiAsesmen = { assessment_assignment_id: string; person_id: string; status: string };
+
 /**
- * The assessments open in one or more classes, with their submission counts.
- *
- * `assessment_sessions_select` is `can_in_institution('CAN_ASSIGN_LEARNING')`,
- * so the database would return every class in the school. The query is narrowed
- * to the selected nodes, and every surface that renders these numbers says they
- * are counts rather than a measure of anybody.
+ * BOB-42 (D-067): THE WINDOW DECIDES. Nothing moves an assignment from OPEN to
+ * CLOSED when its `closes_at` passes (there is no job, by design), so an OPEN
+ * assignment whose window has passed is CLOSED for every reader here. Learners
+ * were never affected: `my_open_assessments` already reads the window.
  */
-export async function berjalan(
-  nodeIds: string[],
-  keadaan: string[] = ["OPEN"],
-): Promise<Berjalan[]> {
-  if (nodeIds.length === 0) return [];
-  const c = await db();
-  const { data } = await c
-    .from("assessment_assignments")
-    .select("id, node_id, status, opens_at, closes_at, definition:assessment_definitions(title, mode, item_count, is_ad_hoc)")
-    .in("node_id", nodeIds)
-    .in("status", keadaan);
+export function keadaanEfektif(status: string, ditutup: string | null, sekarang: number): string {
+  return status === "OPEN" && ditutup !== null && Date.parse(ditutup) <= sekarang ? "CLOSED" : status;
+}
 
-  type Baris = {
-    id: string; node_id: string; status: string; opens_at: string | null; closes_at: string | null;
-    definition: { title: string; mode: string; item_count: number; is_ad_hoc: boolean } | null;
-  };
-  const buka = rows<Baris>(data);
-  if (buka.length === 0) return [];
-
-  const { data: sesi } = await c
-    .from("assessment_sessions")
-    .select("assessment_assignment_id, person_id, status")
-    .in("assessment_assignment_id", buka.map((b) => b.id));
-
-  type Sesi = { assessment_assignment_id: string; person_id: string; status: string };
+/**
+ * The assignments in the states asked for, each in its effective state, with
+ * its counts. Pure over the rows already read, so a test drives it with a
+ * clock of its own.
+ */
+export function pilihBerjalan(
+  baris: readonly BarisTugasAsesmen[],
+  sesi: readonly BarisSesiAsesmen[],
+  keadaan: readonly string[],
+  sekarang: number,
+): Berjalan[] {
   const kumpul = new Map<string, Set<string>>();
   const mulai = new Map<string, Set<string>>();
-  for (const s of rows<Sesi>(sesi)) {
+  for (const s of sesi) {
     const a = s.assessment_assignment_id;
     if (!mulai.has(a)) mulai.set(a, new Set());
     mulai.get(a)!.add(s.person_id);
@@ -393,23 +389,61 @@ export async function berjalan(
       kumpul.get(a)!.add(s.person_id);
     }
   }
+  return baris
+    .map((b) => ({ b, efektif: keadaanEfektif(b.status, b.closes_at, sekarang) }))
+    .filter(({ efektif }) => keadaan.includes(efektif))
+    .map(({ b, efektif }) => ({
+      id: b.id,
+      nodeId: b.node_id,
+      keadaan: efektif,
+      judul: b.definition?.title ?? "",
+      mode: b.definition?.mode ?? "",
+      soal: b.definition?.item_count ?? 0,
+      dibuka: b.opens_at,
+      ditutup: b.closes_at,
+      sisaMenit: b.closes_at
+        ? Math.max(0, Math.round((Date.parse(b.closes_at) - sekarang) / 60_000))
+        : null,
+      adHoc: Boolean(b.definition?.is_ad_hoc),
+      mengumpulkan: kumpul.get(b.id)?.size ?? 0,
+      mulai: mulai.get(b.id)?.size ?? 0,
+    }));
+}
 
-  return buka.map((b) => ({
-    id: b.id,
-    nodeId: b.node_id,
-    keadaan: b.status,
-    judul: b.definition?.title ?? "",
-    mode: b.definition?.mode ?? "",
-    soal: b.definition?.item_count ?? 0,
-    dibuka: b.opens_at,
-    ditutup: b.closes_at,
-    sisaMenit: b.closes_at
-      ? Math.max(0, Math.round((Date.parse(b.closes_at) - Date.now()) / 60_000))
-      : null,
-    adHoc: Boolean(b.definition?.is_ad_hoc),
-    mengumpulkan: kumpul.get(b.id)?.size ?? 0,
-    mulai: mulai.get(b.id)?.size ?? 0,
-  }));
+/**
+ * The assessments open in one or more classes, with their submission counts.
+ *
+ * `assessment_sessions_select` is `can_in_institution('CAN_ASSIGN_LEARNING')`,
+ * so the database would return every class in the school. The query is narrowed
+ * to the selected nodes, and every surface that renders these numbers says they
+ * are counts rather than a measure of anybody.
+ *
+ * BOB-42: each assignment is returned in its EFFECTIVE state (keadaanEfektif).
+ * Asking for CLOSED therefore also reads the OPEN rows, since one whose window
+ * has passed is closed; asking for OPEN alone returns only windows still open.
+ */
+export async function berjalan(
+  nodeIds: string[],
+  keadaan: string[] = ["OPEN"],
+): Promise<Berjalan[]> {
+  if (nodeIds.length === 0) return [];
+  const c = await db();
+  const tersimpan = keadaan.includes("CLOSED") ? [...new Set([...keadaan, "OPEN"])] : keadaan;
+  const { data } = await c
+    .from("assessment_assignments")
+    .select("id, node_id, status, opens_at, closes_at, definition:assessment_definitions(title, mode, item_count, is_ad_hoc)")
+    .in("node_id", nodeIds)
+    .in("status", tersimpan);
+
+  const buka = rows<BarisTugasAsesmen>(data);
+  if (buka.length === 0) return [];
+
+  const { data: sesi } = await c
+    .from("assessment_sessions")
+    .select("assessment_assignment_id, person_id, status")
+    .in("assessment_assignment_id", buka.map((b) => b.id));
+
+  return pilihBerjalan(buka, rows<BarisSesiAsesmen>(sesi), keadaan, Date.now());
 }
 
 /** Who in this class has submitted one assessment, and who has not yet. */
