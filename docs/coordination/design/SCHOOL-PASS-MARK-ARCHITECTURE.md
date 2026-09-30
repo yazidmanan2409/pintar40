@@ -1,6 +1,13 @@
 # The school's minimum passing mark (D-081): architecture trace and the smallest adjustment
 
-**For Yazid and Dr Gladys, 30 Sep 2026.** Read-only; nothing is implemented. It builds on `design/PASS-MARK-AND-GRADE-SEMANTICS-REVIEW.md` (the code and document traces, with file and line references) and is checked at source.
+**For Yazid and Dr Gladys, 30 Sep 2026.** **Ruled the same day:** Q1–Q4 are answered in D-081, and D-078 is amended. The build is BOB-49 and DAISY-38. As ruled:
+- per school and lesson;
+- set by the school admin;
+- explicit, with no 60% fallback for new configuration;
+- a whole-number 0–100%;
+- the predikat is descriptive, and its bands are unchanged.
+
+Read-only; nothing is implemented. It builds on `design/PASS-MARK-AND-GRADE-SEMANTICS-REVIEW.md` (the code and document traces, with file and line references) and is checked at source.
 
 ## 1. Where the pass mark lives today
 
