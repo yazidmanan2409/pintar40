@@ -295,6 +295,8 @@ const RESET_SURFACES = [
   // F-01 account activation. Built on the token set, the pendataan shell and
   // the shared pin-* classes from the start, so it joins the re-set list.
   "src/app/aktivasi/page.tsx",
+  // BOB-51: the platform admin's «Kirim email uji», on the same shell and pin-* classes as Aktivasi.
+  "src/app/konfigurasi/email-uji/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */

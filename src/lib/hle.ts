@@ -1281,6 +1281,30 @@ export type HleEvent =
   | "sync.belum_tersimpan"
   | "sync.belum_terkirim"
   | "sync.sesi_ditutup"
+  | "emailuji.ditolak"
+  | "emailuji.eyebrow"
+  | "emailuji.judul"
+  | "emailuji.intro"
+  | "emailuji.ke"
+  | "emailuji.tombol"
+  | "emailuji.mengirim"
+  | "emailuji.terkirim"
+  | "emailuji.periksa"
+  | "emailuji.rujukan"
+  | "emailuji.alasan.batas_alamat"
+  | "emailuji.alasan.batas_umum"
+  | "emailuji.alasan.ditolak_server"
+  | "emailuji.alasan.gagal_kirim"
+  | "emailuji.pengaturan.hilang"
+  | "emailuji.pengaturan.tidak_sah"
+  | "emailuji.pengaturan.tidak_aman"
+  | "emailuji.pengaturan.umum"
+  | "emailuji.pengaturan.nama"
+  | "emailuji.galat.alamat"
+  | "emailuji.galat.sesi"
+  | "emailuji.galat.ditolak"
+  | "emailuji.galat.umum"
+  | "emailuji.galat.jaringan"
   | "aktivasi.ditolak"
   | "aktivasi.eyebrow"
   | "aktivasi.judul"
@@ -2699,6 +2723,31 @@ const table: Table = {
   "sync.belum_terkirim": { default: "Belum tersambung. Jawaban Anda tetap tersimpan di perangkat ini; coba lagi saat tersambung.", en: "Not connected yet. Your answers stay saved on this device; try again once you are connected." },
   // F-01. The step after the intake: a provisioned person becomes someone
   // who can sign in. Plain words; the card PIN is shown once and said so.
+  // BOB-51: «Kirim email uji», the platform admin's delivery proof (Daisy's words at the polish pass)
+  "emailuji.ditolak": { default: "Halaman ini hanya untuk admin platform.", en: "This page is for the platform administrator only." },
+  "emailuji.eyebrow": { default: "Email", en: "Email" },
+  "emailuji.judul": { default: "Kirim email uji", en: "Send a test email" },
+  "emailuji.intro": { default: "Kirim satu email uji ke kotak masuk yang Anda pilih, untuk memastikan email PINTAR sampai. Email ini melewati jalur dan batas pengiriman yang sama dengan email PINTAR lainnya.", en: "Send one test email to an inbox you choose, to check that PINTAR's email arrives. It takes the same path and the same sending limits as every other PINTAR email." },
+  "emailuji.ke": { default: "Alamat email tujuan", en: "Send to this email address" },
+  "emailuji.tombol": { default: "Kirim email uji", en: "Send test email" },
+  "emailuji.mengirim": { default: "Mengirim…", en: "Sending…" },
+  "emailuji.terkirim": { default: "Email uji terkirim ke", en: "The test email was sent to" },
+  "emailuji.periksa": { default: "Periksa kotak masuk alamat itu, termasuk folder spam.", en: "Check that inbox, including the spam folder." },
+  "emailuji.rujukan": { default: "Rujukan:", en: "Reference:" },
+  "emailuji.alasan.batas_alamat": { default: "Belum terkirim: alamat ini sudah menerima cukup banyak email dari PINTAR dalam waktu dekat. Coba lagi nanti.", en: "Not sent: this address has had enough email from PINTAR for now. Try again later." },
+  "emailuji.alasan.batas_umum": { default: "Belum terkirim: PINTAR sudah mencapai batas pengirimannya untuk saat ini. Coba lagi nanti.", en: "Not sent: PINTAR has reached its sending limit for now. Try again later." },
+  "emailuji.alasan.ditolak_server": { default: "Belum terkirim: server email menolak pesan ini.", en: "Not sent: the email server refused this message." },
+  "emailuji.alasan.gagal_kirim": { default: "Belum terkirim: PINTAR tidak dapat tersambung ke server email.", en: "Not sent: PINTAR could not connect to the email server." },
+  "emailuji.pengaturan.hilang": { default: "Belum terkirim: sebuah pengaturan email belum diisi.", en: "Not sent: an email setting has not been filled in." },
+  "emailuji.pengaturan.tidak_sah": { default: "Belum terkirim: sebuah pengaturan email isinya tidak sah.", en: "Not sent: an email setting does not hold a valid value." },
+  "emailuji.pengaturan.tidak_aman": { default: "Belum terkirim: pengaturan email tidak memakai sambungan yang aman.", en: "Not sent: the email settings do not use a secure connection." },
+  "emailuji.pengaturan.umum": { default: "Belum terkirim: pengaturan email di server belum lengkap.", en: "Not sent: the email settings on the server are incomplete." },
+  "emailuji.pengaturan.nama": { default: "Pengaturan yang perlu diperbaiki:", en: "The setting to fix:" },
+  "emailuji.galat.alamat": { default: "Tulis alamat email yang lengkap, misalnya nama@sekolah.sch.id.", en: "Enter a complete email address, for example name@school.sch.id." },
+  "emailuji.galat.sesi": { default: "Sesi Anda sudah berakhir. Masuk lagi, lalu kirim ulang.", en: "Your session has ended. Sign in again, then send it again." },
+  "emailuji.galat.ditolak": { default: "Hanya admin platform yang dapat mengirim email uji.", en: "Only the platform administrator can send a test email." },
+  "emailuji.galat.umum": { default: "Belum terkirim: terjadi kesalahan di PINTAR. Coba lagi sebentar lagi.", en: "Not sent: something went wrong in PINTAR. Try again in a moment." },
+  "emailuji.galat.jaringan": { default: "Permintaan tidak sampai ke PINTAR. Periksa sambungan internet, lalu coba lagi.", en: "The request did not reach PINTAR. Check the internet connection, then try again." },
   "aktivasi.ditolak": { default: "Halaman ini untuk pengelola data sekolah.", en: "This page is for the people who manage a school's records." },
   "aktivasi.eyebrow": { default: "Akun", en: "Accounts" },
   "aktivasi.judul": { default: "Aktifkan akun", en: "Activate accounts" },

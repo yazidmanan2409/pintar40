@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 131,
+  "version": 132,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2638,6 +2638,17 @@
       "id": "BOB50-S01",
       "runner": "static",
       "proves": "BOB-50 (D-082(d)), the source files src/app/belajar/_components/ItemPlayer.tsx and PermukaanAsesmen.tsx: the player asks for a certificate from one place, only when memintaSertifikat is set, which the surface sets only for a POST_TEST session; migration 20261031100000 sets QUICK certifies = false and refuses to apply over an unsigned Uji Cepat certificate."
+    },
+    {
+      "id": "BOB51-A01",
+      "runner": "app",
+      "proves": "BOB-51 (D-057, REL-08), selftest/bob51.test.ts: the page /konfigurasi/email-uji and the route POST /api/email/uji execute against the running app: Konfigurasi links the page for the platform admin only; the page shows the platform admin the form and a school administrator the refusal; one press sends the proof into the mail sink and reads «terkirim» with its reference (send log SENT); a second within the minute reads the address limit; a school administrator's press is refused (403) and nothing more is sent.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the mail sink"
+    },
+    {
+      "id": "BOB51-S01",
+      "runner": "static",
+      "proves": "BOB-51 (D-057, REL-08), the source files src/components/email-uji/hasil.ts and FormEmailUji.tsx, src/app/konfigurasi/email-uji/page.tsx and src/app/konfigurasi/page.tsx: every answer POST /api/email/uji can give (read out of the route and the sending module) has its own sentence in both languages; a setting is shown by name only, one the sending module reads, never a value; the form makes one request, to the route, with the inbox alone; the page asks is_system_admin and refuses anyone else; Konfigurasi links it for the platform admin alone."
     }
   ]
 }
