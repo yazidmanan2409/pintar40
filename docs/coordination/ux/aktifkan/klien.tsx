@@ -7,6 +7,7 @@
  * decides anything the components do.
  */
 import { createRoot } from "react-dom/client";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { t, type Locale } from "@/lib/hle";
 import MerekPintar from "@/components/MerekPintar";
@@ -63,8 +64,8 @@ function Cangkang({ children }: { children: ReactNode }) {
       <header className="pin-top pin-shell">
         <MerekPintar />
         <nav className="pin-tabs" aria-label={s("app.name")}>
-          <a href="/pendataan" aria-current="page">{s("nav.pendataan")}</a>
-          <a href="/aktivasi">{s("nav.aktivasi")}</a>
+          <Link href="/pendataan" aria-current="page">{s("nav.pendataan")}</Link>
+          <Link href="/aktivasi">{s("nav.aktivasi")}</Link>
         </nav>
         <span className="pin-spacer" />
         <PengalihBahasa locale={L} />

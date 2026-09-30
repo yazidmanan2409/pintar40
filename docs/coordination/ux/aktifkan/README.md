@@ -12,8 +12,8 @@ fonts and the mark (as Next serves `public/`), and drives each state in the
 pre-installed Chromium. `fetch` answers as BOB-26's contract
 (`src/lib/aktivasi-kontrak.ts`, BOB-26 as built; the code check at `/aktifkan/periksa`) says the routes will. Nothing else about the server is
 assumed. Two modules stand in for what only runs inside Next:
-`tiruan-navigasi.ts` (the language control's router) and `tiruan-aksi-masuk.ts`
-(the sign-in screen's server action).
+`tiruan-navigasi.ts` (the language control's router), `tiruan-tautan.tsx` (a link,
+as an anchor) and `tiruan-aksi-masuk.ts` (the sign-in screen's server action).
 
 **16 states × 2 languages × 2 widths (320 × 640, 1280 × 900) = 64 checks.**
 Each check verifies the following:

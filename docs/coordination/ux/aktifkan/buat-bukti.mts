@@ -46,7 +46,7 @@ const { chromium } = createRequire(import.meta.url)(join(execSync("npm root -g")
 const css = await postcss([tailwind()]).process(readFileSync("src/app/globals.css", "utf8"), { from: "src/app/globals.css", to: undefined });
 writeFileSync(join(KERJA, "pintar.css"), css.css);
 for (const aset of ["fonts", "brand"]) if (existsSync(join("public", aset))) cpSync(join("public", aset), join(KERJA, aset), { recursive: true });
-const TIRUAN: Record<string, string> = { "next/navigation": "tiruan-navigasi.ts", "@/app/masuk/actions": "tiruan-aksi-masuk.ts" };
+const TIRUAN: Record<string, string> = { "next/navigation": "tiruan-navigasi.ts", "next/link": "tiruan-tautan.tsx", "@/app/masuk/actions": "tiruan-aksi-masuk.ts" };
 await build({
   entryPoints: [join(DIR, "klien.tsx")],
   bundle: true, format: "iife", platform: "browser", target: "es2022", jsx: "automatic", minify: true,
@@ -55,7 +55,7 @@ await build({
   banner: { js: "var process = { env: {} };" },
   plugins: [{
     name: "tiruan",
-    setup(b) { b.onResolve({ filter: /^(next\/navigation|@\/app\/masuk\/actions)$/ }, (a) => ({ path: join(DIR, TIRUAN[a.path]) })); },
+    setup(b) { b.onResolve({ filter: /^(next\/navigation|next\/link|@\/app\/masuk\/actions)$/ }, (a) => ({ path: join(DIR, TIRUAN[a.path]) })); },
   }],
 });
 const AXE = readFileSync("node_modules/axe-core/axe.min.js", "utf8");
