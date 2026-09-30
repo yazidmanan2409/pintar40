@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 126,
+  "version": 127,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -12,7 +12,8 @@
     "db": "SUPABASE_DB_URL set and psql available",
     "app": "always (the runner builds and starts the app itself)",
     "network": "NEXT_PUBLIC_SUPABASE_URL reachable with NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    "ci": "GITHUB_ACTIONS=true; upstream job results in SELFTEST_CI_UPSTREAM"
+    "ci": "GITHUB_ACTIONS=true; upstream job results in SELFTEST_CI_UPSTREAM",
+    "mailsink": "the Mailpit sink answering on 127.0.0.1:54324 (API) and :54325 (SMTP); CI starts it, locally `mailpit --smtp 127.0.0.1:54325 --listen 127.0.0.1:54324 --enable-chaos --smtp-auth-accept-any --smtp-auth-allow-insecure`"
   },
   "tests": [
     {
@@ -2037,6 +2038,56 @@
       "id": "F06-P23",
       "runner": "db",
       "proves": "BOB-37 (EDU-12, X-10), migration 20261025100000 measured in selftest/db/fable06.sql: five learners in a class of their own sit the Cek penguasaan and their results hold the scoring's own {benar, total, penguasaan} objects; class.topic_mastery, asked through metric_evaluate by the Head of Department over the class, shows each objective's average recorded penguasaan (0.55 and 0.625 over five learners, not the pooled benar/total), and four learners are below its unchanged minimum of 5; calc_institution_competency_outcomes holds the same averages with their learner counts inside the school's boundary, and the evaluator counts them against the unchanged minimum of 10; the live catalogue is MC-3, MC-2 copied forward with every definition, minimum sample and audience identical (D-060)."
+    },
+    {
+      "id": "F17-L01",
+      "runner": "db",
+      "proves": "BOB-25 (Gate 2E), migration 20261026100000 measured in selftest/db/fable17.sql: email_send_reserve refuses a second email of a kind to one address within a minute (ADDRESS_KIND), a seventh to one address within an hour (ADDRESS) and any send with the hour at the global maximum (GLOBAL), each logged REFUSED_LIMIT with its scope; a refusal counts for nothing, a send the host refused counts, and once a window has passed the same address goes again.",
+      "skip_justification": "needs a reachable Postgres with the migrations applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F17-L02",
+      "runner": "db",
+      "proves": "BOB-25: a send settles once, only as SENT, REFUSED_BY_HOST or FAILED; the send log takes a lower-case SHA-256 and one of the seven kinds, never an address; its eight columns hold no address, code, PIN, password or message.",
+      "skip_justification": "needs a reachable Postgres with the migrations applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F17-N01",
+      "runner": "db",
+      "proves": "BOB-25: both email tables have RLS and no policy; anon and authenticated hold no privilege on them and may neither reserve nor settle a send, refused by the privileges as a signed-in platform admin and as a stranger; service_role reserves and settles.",
+      "skip_justification": "needs a reachable Postgres with the migrations applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F17-C01",
+      "runner": "db",
+      "proves": "BOB-25, driven from run.ts: eleven reservations for one kind and address at the same moment, the first held open 1.5 s as a slow send: email_send_reserve's one lock lets exactly one through and refuses the ten that arrived meanwhile by ADDRESS_KIND, so two simultaneous requests can never both send a code.",
+      "skip_justification": "needs a reachable Postgres with the migrations applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "BOB25-K01",
+      "runner": "static",
+      "proves": "BOB-25 (GATE-0-FACTS §2), src/app/api/_email/pengaturan.ts executed: exactly PINTAR_SMTP_HOST, PORT, USER and PASSWORD, each required with no fallback and never echoed; port 465 is TLS from the first byte, a plain connection only to 127.0.0.1/localhost/::1, anything else refused before connecting; FROM is the SMTP user as «Tim PINTAR», «Tim PINTAR (Staging)» on every origin but https://app.pintarselalu.com; Reply-To info@pintarselalu.com. From source: the transport checks the certificate against the host and reads no file or URL; nothing logs an address, a reply or a message; code issuing reads an existing user by id before generate_link and can create none; the proof route checks the origin and a platform admin before sending."
+    },
+    {
+      "id": "BOB25-S01",
+      "runner": "static",
+      "requires": [
+        "db",
+        "mailsink"
+      ],
+      "proves": "BOB-25, the module src/app/api/_email/kirim.ts executes real sends into the Mailpit sink, with the migration's email_send_reserve/email_send_settle logging them: a send arrives with FROM, Reply-To, the normalised address and both parts, logged SENT 250; the minute's limit refuses a second code before the host is asked; the host's 451 (Mailpit chaos) is reported DITOLAK_SERVER, never as sent, logged REFUSED_BY_HOST 451, and the same address is sent once the minute has passed; no listener is GAGAL_KIRIM, logged FAILED; a missing variable, an unencrypted connection to a non-local host and a subject carrying a header are refused before anything is counted; the send log and the console hold no address, code or password.",
+      "skip_justification": "needs a Postgres with the migrations applied and the Mailpit sink; CI's strict job starts both and runs it strictly"
+    },
+    {
+      "id": "BOB25-A01",
+      "runner": "static",
+      "requires": [
+        "network",
+        "db",
+        "mailsink"
+      ],
+      "proves": "BOB-25 part (5), src/app/api/_email/kode.ts executes against CI's local stack: terbitkanKodeEmail asks Auth's admin generate_link for an existing user's email_otp, and the code verifies (verifyOtp); an unknown id and an address issue nothing and no Auth user is created; the production path (the service-role RPCs) reserves, sends into the sink and logs SENT without the code.",
+      "skip_justification": "needs the local Supabase stack (Auth and PostgREST) as well as the database and the Mailpit sink; this session has no Docker, CI has all three and runs it strictly"
     },
     {
       "id": "BOB39-K01",

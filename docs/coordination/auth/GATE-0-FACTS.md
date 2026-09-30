@@ -138,7 +138,9 @@ Namecheap moves the hosting account to another server for the upgrade (new IP an
 **Scheduled (Yazid, 30 Sep):** Yazid is requesting the move from Namecheap for Tuesday 30 Sep 2026, 14:00 WIB (07:00 UTC), or the earliest afternoon slot after that.
 - By 12:00 WIB, Yazid lowers the TTL of `A @`, `A mail` and `TXT @` (SPF) to 1 minute.
 - After the move, he updates those three records to the new IP (the SPF record's `ip4` only). No other record changes.
-- The coordinator keeps staging runs that send email out of the window. After the move, the coordinator re-reads the records below, and Yazid signs in once on staging and once on production. Then BOB-25 is free to start (D-062(b)).
+- **Confirmed by Namecheap (relayed by Yazid, 30 Sep, 04:41 UTC):** the plan change is scheduled for **30 Sep 2026, 14:00 WIB (07:00 UTC)**, and the migration takes **about 4 hours** (to about 18:00 WIB, 11:00 UTC). Namecheap will write when it starts and when it is complete, with further instructions.
+- **30 Sep, during the window (Yazid's Namecheap screen):** the hosting subscription for `pintarselalu.com` already reads **Stellar Business, ACTIVE** (auto-renew on, expires 2 Nov 2026), while the server migration is still in progress. The plan label is the billing change only; the move is complete only when Namecheap says so and the after-read below passes.
+- The coordinator keeps staging runs that send email out of the window: **no email-sending staging run from 07:00 UTC until the after-read below has passed**, not only the first hour. After the move, the coordinator re-reads the records below, and Yazid signs in once on staging and once on production. Then BOB-25 is free to start (D-062(b)).
 
 **After:** the same read once the move is done. The expected result:
 - both A records hold the new IP;
@@ -146,3 +148,39 @@ Namecheap moves the hosting account to another server for the upgrade (new IP an
 - the greeting names the new server;
 - SPF's `ip4` is the new IP;
 - the DKIM key matches what cPanel signs with.
+
+**After: 30 Sep, 08:09 UTC** (run 36687916727, `identity-facts.yml` from the coordinator branch; Namecheap reported the transfer complete, Yazid updated the three records at 1-minute TTL):
+
+| Record | Before (29 Sep) | After (30 Sep) | Verdict |
+|---|---|---|---|
+| A `pintarselalu.com` | `209.74.67.49` | `209.74.67.60` | **new IP, as expected** |
+| A `mail.pintarselalu.com` | `209.74.67.49` | `209.74.67.60` | **new IP, as expected** |
+| SPF | `… +ip4:209.74.67.49 …` | `v=spf1 +mx +a +ip4:209.74.67.60 +include:spf.web-hosting.com ~all` | **only the `ip4` changed** |
+| Nameservers | PremiumDNS `pdns1/pdns2.registrar-servers.com` | the same | unchanged (Namecheap's suggestion to move to its hosting nameservers is not taken) |
+| MX | `0 mail.pintarselalu.com.` | the same | unchanged |
+| DMARC | `v=DMARC1; p=none;` | the same | unchanged |
+| DKIM `default._domainkey` | RSA 2048 | **byte-identical published key** | unchanged |
+| CNAME `app` / `staging` | Vercel | the same | unchanged |
+| TLS on `pintarselalu.com:465` | CN `pintarselalu.com`, SSL.com TLS Issuing RSA CA R1, until 17 Feb 2027 | **the same certificate** | the certificate moved with the account |
+| SMTP greeting | `220-server902.web-hosting.com ESMTP Exim 4.100.1` | `220-business902.web-hosting.com ESMTP Exim 4.100.1` | **new server, as expected** |
+| Staging Supabase SMTP (allow-listed, no secret) | `pintarselalu.com:465`, `noreply@pintarselalu.com` | the same; password present | unchanged; staging's sign-in email now leaves through the new server |
+
+- **Yazid's mail test (30 Sep, 14:58 WIB):** `info@pintarselalu.com` sent to Gmail and received the reply; both arrived in the inbox.
+- **Still to confirm:** that the new server signs with the private key matching the published DKIM record. The DNS read proves only the published half. The proof is one signed message showing `dkim=pass` (with `spf=pass` and `dmarc=pass`) in Gmail's «Show original». Yazid's sign-in emails below serve as that message.
+- **Then, per D-062(b):** Yazid signs in once on staging and once on production; each sign-in email must arrive. That releases Gate 2E.
+- **First sign-in attempts, 30 Sep 08:11 UTC (production) and 08:12 UTC (staging): FAILED.** Both screens showed «Tautan belum bisa dikirim sekarang» (`auth.err_send`, which the app shows only when the send itself fails). Both projects' Auth logs (read-only) give the same cause: the new server refused Supabase's SMTP login, `535 "Incorrect authentication data"` (`/otp`, `unexpected_failure`). The mailbox `noreply@pintarselalu.com` either did not move with the account or no longer has the password Supabase holds. `info@` works because Yazid used it through webmail, not through an SMTP login with the old password. **Gate 2E is not released.**
+- **The fix, all by Yazid; no password passes through the coordinator:**
+  1. In the new cPanel, check that `noreply@pintarselalu.com` exists. Create it if it is missing, or set a new password if it is there.
+  2. Enter that password in both Supabase projects' SMTP settings (staging and production). Host, port and user stay as they are.
+  3. Also update Vercel's `PINTAR_SMTP_PASSWORD` if it is already set there.
+  4. Do not retry the sign-in until then: each failed attempt is a failed SMTP login, and repeated ones can make the new server block Supabase's sending address.
+  5. Then retry both sign-ins, and check «Show original».
+- **Fixed by Yazid, 30 Sep ~08:20 UTC:** a new password for `noreply@pintarselalu.com`, set in cPanel and entered in both Supabase projects and in Vercel (`PINTAR_SMTP_PASSWORD`, staging project; nothing reads it until BOB-25).
+- **Sign-ins after the fix: both PASS** (Auth logs, read-only):
+  - **Staging:** `/otp` 200 at 08:24:32, `/verify` 303 at 08:25:12, `/token` 200 at 08:25:13.
+  - **Production:** `/otp` 200 at 08:25:58, `/verify` 303 at 08:26:34, `/token` 200 at 08:26:36.
+
+  Both emails left through the new server and arrived.
+- **Production pages were slow after sign-in (Yazid had to refresh). Known, and already fixed on `main`:** `platform_schema_lint` returned 500 (statement timeout, 57014) on each platform-admin Konfigurasi load, 08:26:57–08:27:51. Production still runs `5b5b68d`, which runs the lint on every load. BOB-18 (D-046) made it run only when an operator asks, and that reaches production with the next controlled release (C-11). Nothing to change now.
+- **DKIM signing proven, 30 Sep:** Gmail's «Show original» of the 14:58 `info@` test email reads **SPF PASS** (209.74.67.60), **DKIM PASS** (`d=pintarselalu.com; s=default`, `dkim=pass header.i=@pintarselalu.com`) and **DMARC PASS**. It was delivered from `business902-1.web-hosting.com [209.74.67.60]` over TLS 1.3 in 4 seconds. The new server signs with the key published in DNS.
+- **GATE 2E RELEASED, 30 Sep 2026, ~08:35 UTC (D-062(b) satisfied):** the move is complete, the after-read passed, both sign-ins passed, and DKIM is proven. BOB-25 is free to start, and the lanes resume in their queue order.

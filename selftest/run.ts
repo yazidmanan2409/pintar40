@@ -117,6 +117,16 @@ async function probeNetwork(url: string | undefined, anon: string | undefined): 
   }
 }
 
+/** BOB-25: the Mailpit sink every CI and local send goes to (SMTP 127.0.0.1:54325, API :54324). */
+async function probeMailSink(): Promise<boolean> {
+  try {
+    const r = await fetch("http://127.0.0.1:54324/api/v1/info", { signal: AbortSignal.timeout(3000) });
+    return r.ok;
+  } catch {
+    return false;
+  }
+}
+
 function hasPsql(): boolean {
   return spawnSync("psql", ["--version"], { stdio: "ignore" }).status === 0;
 }
@@ -146,6 +156,7 @@ const DB_RUNNERS = [
   { file: "fable14.sql", fn: "selftest.run_fable14()", done: "F14-DONE", emits: ["F14-"] },
   { file: "fable15.sql", fn: "selftest.run_fable15()", done: "F15-DONE", emits: ["F15-"] },
   { file: "fable16.sql", fn: "selftest.run_fable16()", done: "F16-DONE", emits: ["F16-"] },
+  { file: "fable17.sql", fn: "selftest.run_fable17()", done: "F17-DONE", emits: ["F17-"] },
 ] as const;
 
 /**
@@ -209,6 +220,7 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.some((x) => /^F10-C0[1234]$/.test(x))) out.push(...(await runStructureConcurrency(dbUrl, only)));
   if (!only || only.includes("F15-C01")) out.push(await runCardConcurrency(dbUrl));
   if (!only || only.some((x) => /^F16-C0[123]$/.test(x))) out.push(...(await runIdentityConcurrency(dbUrl, only)));
+  if (!only || only.includes("F17-C01")) out.push(await runEmailConcurrency(dbUrl));
   if (!only || only.includes("F05-C01")) out.push(await runMoveStartRace(dbUrl));
   return out;
 }
@@ -257,6 +269,52 @@ async function runCardConcurrency(dbUrl: string): Promise<Outcome> {
     : { id: "F15-C01", runner: "db", status: "PASS", detail:
         `20 connections called card_signin_attempt for one card at the same moment: exactly 5 went ahead, the other 15 were told to ` +
         `wait ${Math.min(...tunggu)}-${Math.max(...tunggu)} s, the card's row holds exactly 5 attempts, and a sign-in then cleared it` };
+}
+
+/**
+ * F17-C01 — BOB-25: two requests for the same email at the same moment. The
+ * first reservation holds its row uncommitted (a slow send); ten more for the
+ * same kind and address arrive while it does. email_send_reserve's one lock
+ * makes them wait and then count it, so exactly one is allowed and ten are
+ * refused by ADDRESS_KIND. Without the lock each would read "no send yet" and
+ * be allowed: eleven codes for one address in the same second.
+ */
+async function runEmailConcurrency(dbUrl: string): Promise<Outcome> {
+  const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { encoding: "utf8" });
+  const race = (sql: string) =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8");
+      p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d));
+      p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+  const tag = `f17-c01-${Date.now().toString(36)}`;
+  const h = createHash("sha256").update(`${tag}@local.invalid`).digest("hex");
+  const problems: string[] = [];
+  const first = race(`begin; select public.email_send_reserve('KODE_AKTIVASI', '${h}') ->> 'allowed'; select pg_sleep(1.5); commit;`);
+  let holding = false;
+  for (let i = 0; i < 100 && !holding; i++) {
+    const r = psql(`select count(*) from pg_stat_activity where wait_event = 'PgSleep' and query like '%${h}%' and pid <> pg_backend_pid()`);
+    holding = Number(r.stdout.trim()) >= 1;
+    if (!holding) await new Promise((ok) => setTimeout(ok, 50));
+  }
+  if (!holding) problems.push("the first reservation never reached its held-open send");
+  const rest = await Promise.all(Array.from({ length: 10 }, () =>
+    race(`select public.email_send_reserve('KODE_AKTIVASI', '${h}') ->> 'allowed'`)));
+  const firstOut = await first;
+  const answers = [firstOut, ...rest].map((r) => (r.code === 0 ? r.out.split("\n").filter((l) => l === "true" || l === "false").pop() : `error: ${r.out.split("\n").pop()}`));
+  const allowed = answers.filter((a) => a === "true").length;
+  if (answers.some((a) => a?.startsWith("error"))) problems.push(`a reservation failed: ${answers.find((a) => a?.startsWith("error"))}`);
+  if (allowed !== 1) problems.push(`${allowed} of 11 simultaneous reservations for one kind and address were allowed, expected 1`);
+  const rows = psql(`select outcome || ':' || coalesce(limit_scope, '-') || ':' || count(*) from public.email_send_log where recipient_hash = '${h}' group by outcome, limit_scope order by outcome`).stdout.trim();
+  if (rows !== "PENDING:-:1\nREFUSED_LIMIT:ADDRESS_KIND:10") problems.push(`the log holds [${rows.replace(/\n/g, ", ")}], expected one PENDING and ten ADDRESS_KIND refusals`);
+  psql(`delete from public.email_send_log where recipient_hash = '${h}'`);
+  return problems.length
+    ? { id: "F17-C01", runner: "db", status: "FAIL", detail: problems.join("; ") }
+    : { id: "F17-C01", runner: "db", status: "PASS", detail: "eleven reservations for one kind and address at the same moment, the first held open 1.5 s: exactly one was allowed, and the ten that arrived meanwhile waited on the lock and were refused by ADDRESS_KIND; the log holds one PENDING and ten refusals" };
 }
 
 /**
@@ -869,6 +927,7 @@ async function main() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (await probeNetwork(supabaseUrl, anon)) facilities.add("network");
+  if (await probeMailSink()) facilities.add("mailsink");
   let ciUpstream: Record<string, string> | null = null;
   if (process.env.GITHUB_ACTIONS === "true") {
     facilities.add("ci");
