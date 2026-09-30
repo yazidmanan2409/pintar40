@@ -2607,7 +2607,7 @@
     {
       "id": "F19-Q01",
       "runner": "db",
-      "proves": "BOB-50 (D-082(d)), migration 20261031100000 measured in selftest/db/fable19.sql: a finished, all-correct Uji Cepat (QUICK session) is not certificate-eligible because its mode does not certify; certificate_prepare prepares nothing and no certificate row exists for it.",
+      "proves": "BOB-50 (D-082(d)), migration 20261031100000 measured in selftest/db/fable19.sql: a finished, all-correct Uji Cepat (QUICK session; started under the old policy, finished under the new) is not certificate-eligible because its mode does not certify; certificate_prepare raises for it and no certificate row exists for it.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
@@ -2620,6 +2620,12 @@
       "id": "F19-Q03",
       "runner": "db",
       "proves": "BOB-50 (D-082(d)), migration 20261031100000 measured in selftest/db/fable19.sql: mode_policy: QUICK does not certify while POST_TEST, TEST, EXAM, STANDALONE and PAPER still do; the change is audited; assert_mode_policy_complete passes and names QUICK if it certifies again.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F19-Q04",
+      "runner": "db",
+      "proves": "BOB-50 (D-082(d)), migration 20261031100000 measured in selftest/db/fable19.sql: an Uji Cepat in progress when the policy changes finishes with the same verdict: started while QUICK certified and finished after, its session_outcome is a pass and identical under either policy (session_outcome does not read mode_policy).",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

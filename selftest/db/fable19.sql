@@ -5,14 +5,18 @@
 -- fable04.sql (the bootstrap fixture, its certified attempt and the paper
 -- helper). Never applied as a migration; never present in production.
 --
---   F19-Q01  a finished Uji Cepat, all correct, on the bootstrap school: not
+--   F19-Q01  a finished Uji Cepat, all correct, on the bootstrap school (started
+--            under the old policy, finished under the new): not
 --            certificate-eligible (its mode does not certify), certificate_prepare
---            prepares nothing, and no certificate row exists for it
+--            raises for it, and no certificate row exists for it
 --   F19-Q02  the cycle's Uji Penguasaan still certifies: the same learner's
 --            POST_TEST attempt is eligible and a certificate is prepared
 --   F19-Q03  the policy and its lint: QUICK does not certify, the change is
 --            audited, and the lint passes; flip QUICK back to certifying and the
 --            lint names it
+--   F19-Q04  an Uji Cepat in progress when the policy changes finishes with the
+--            same verdict: started while QUICK certified and finished after, its
+--            session_outcome is a pass, identical under either policy
 --
 -- EVERY ROW IS ROLLED BACK. The suite works in its own subtransaction, notes
 -- problems per id, raises a sentinel to undo everything, then emits.
@@ -40,7 +44,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_probs jsonb := '{}'::jsonb; v_fatal text := ''; f record; v_kelas uuid; q record; v_s uuid; v_post uuid;
-  e record; n int; v_ok boolean; v_detail text; v_prep int;
+  e record; n int; v_ok boolean; v_detail text; v_prep int; v_raised text; v_o1 jsonb; v_o2 jsonb; v_pol boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -53,9 +57,19 @@ begin
     select * into q from public.launch_quick_assessment(v_kelas, f.modul, 3, 20);
     perform selftest.as_owner();
     perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+    -- the sitting starts under the policy before D-082(d) (QUICK certifying)
+    -- and finishes under the policy the migrations left (v_pol)
+    perform selftest.as_owner();
+    select m.certifies into v_pol from public.mode_policy m where m.mode = 'QUICK';
+    update public.mode_policy set certifies = true where mode = 'QUICK';
+    perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
     v_s := public.start_learning_session(q.assessment_assignment_id);
     perform selftest.answer_paper(v_s, true);
+    perform selftest.as_owner();
+    update public.mode_policy set certifies = v_pol where mode = 'QUICK';
+    perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
     perform public.finish_my_session(v_s);
+    v_o1 := public.session_outcome(v_s);
     perform selftest.as_owner();
     if (select ss.mode::text from public.assessment_sessions ss where ss.id = v_s) is distinct from 'QUICK' then
       v_probs := selftest.f19_note(v_probs, 'F19-Q01', 'the fixture''s Uji Cepat session is not a QUICK session');
@@ -66,11 +80,32 @@ begin
     elsif e.reason !~ 'does not certify' then
       v_probs := selftest.f19_note(v_probs, 'F19-Q01', 'the Uji Cepat was refused, but not because its mode does not certify: ' || coalesce(e.reason, ''));
     end if;
+    v_raised := null;
     begin
       select count(*) into v_prep from public.certificate_prepare(v_s, 1::smallint);
-    exception when others then v_prep := 0;
+    exception when others then v_prep := 0; v_raised := sqlerrm;
     end;
-    if v_prep > 0 then v_probs := selftest.f19_note(v_probs, 'F19-Q01', 'certificate_prepare prepared a certificate for an Uji Cepat'); end if;
+    if v_prep > 0 then v_probs := selftest.f19_note(v_probs, 'F19-Q01', 'certificate_prepare prepared a certificate for an Uji Cepat');
+    elsif v_raised is null then v_probs := selftest.f19_note(v_probs, 'F19-Q01', 'certificate_prepare did not refuse an Uji Cepat');
+    elsif v_raised !~ 'does not certify' then
+      v_probs := selftest.f19_note(v_probs, 'F19-Q01', 'certificate_prepare refused the Uji Cepat, but not because its mode does not certify: ' || left(v_raised, 160));
+    end if;
+
+    -- ═══════════════════════════════════════════ F19-Q04 the verdict is the sitting's
+    update public.mode_policy set certifies = true where mode = 'QUICK';
+    perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+    v_o2 := public.session_outcome(v_s);
+    perform selftest.as_owner();
+    update public.mode_policy set certifies = v_pol where mode = 'QUICK';
+    if (select ss.status::text from public.assessment_sessions ss where ss.id = v_s) not in ('SUBMITTED', 'FINALIZED') then
+      v_probs := selftest.f19_note(v_probs, 'F19-Q04', 'the Uji Cepat in progress did not finish (status ' || coalesce((select ss.status::text from public.assessment_sessions ss where ss.id = v_s), '?') || ')');
+    end if;
+    if v_o1 is null or not coalesce((v_o1 ->> 'lulus')::boolean, false) then
+      v_probs := selftest.f19_note(v_probs, 'F19-Q04', 'the all-correct Uji Cepat finished after the change is not a pass: ' || coalesce(v_o1::text, 'no outcome'));
+    end if;
+    if v_o1 is distinct from v_o2 then
+      v_probs := selftest.f19_note(v_probs, 'F19-Q04', 'the Uji Cepat''s verdict depends on the certificate policy: ' || coalesce(v_o1::text, 'null') || ' with QUICK not certifying, ' || coalesce(v_o2::text, 'null') || ' with it certifying');
+    end if;
     select count(*) into n from public.certificates c where c.session_id = v_s;
     if n > 0 then v_probs := selftest.f19_note(v_probs, 'F19-Q01', format('%s certificate row(s) exist for an Uji Cepat', n)); end if;
 
@@ -121,7 +156,8 @@ begin
   for id, area in values
     ('F19-Q01', 'BOB-50 -- a single Uji Cepat issues no certificate'),
     ('F19-Q02', 'BOB-50 -- the cycle''s Uji Penguasaan still certifies'),
-    ('F19-Q03', 'BOB-50 -- the policy and its lint') loop
+    ('F19-Q03', 'BOB-50 -- the policy and its lint'),
+    ('F19-Q04', 'BOB-50 -- an Uji Cepat in progress keeps its verdict') loop
     if v_fatal <> '' then ok := false; detail := v_fatal;
     elsif v_probs ? id then
       ok := false;
@@ -130,8 +166,9 @@ begin
     else
       ok := true;
       detail := case id
-        when 'F19-Q01' then 'the bootstrap teacher launched an Uji Cepat and the learner finished it all correct: certificate_eligibility refuses it '
-          || 'because its mode does not certify, certificate_prepare prepares nothing and no certificate row exists. Every row rolled back'
+        when 'F19-Q01' then 'the bootstrap teacher launched an Uji Cepat; the learner started it while QUICK still certified and finished it all correct after: '
+          || 'certificate_eligibility refuses it because its mode does not certify, certificate_prepare raises for the same reason and no certificate row exists. Every row rolled back'
+        when 'F19-Q04' then 'the Uji Cepat started before the change and finished after it finished, a pass, and its session_outcome is identical with QUICK certifying or not'
         when 'F19-Q02' then 'the same learner''s all-correct Uji Penguasaan (POST_TEST) is eligible and a certificate is prepared for it'
         else 'QUICK does not certify while POST_TEST, TEST, EXAM, STANDALONE and PAPER still do; the change is audited as D-082(d); '
           || 'assert_mode_policy_complete passes, and with QUICK certifying again it names QUICK'

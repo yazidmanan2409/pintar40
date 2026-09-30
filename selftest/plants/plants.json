@@ -82,8 +82,8 @@
     },
     "db-bob50-gates": {
       "suite": "selftest.run_fable19()",
-      "control_green": 3,
-      "what": "BOB-50's certificate rule (D-082(d)): a single Uji Cepat is not eligible and nothing is prepared for it, the cycle's Uji Penguasaan still certifies, and the mode policy lint names QUICK if it certifies again"
+      "control_green": 4,
+      "what": "BOB-50's certificate rule (D-082(d)): a single Uji Cepat is not eligible and nothing is prepared for it, the cycle's Uji Penguasaan still certifies, and the mode policy lint names QUICK if it certifies again; an Uji Cepat in progress keeps its verdict"
     }
   },
   "plants": [
@@ -684,6 +684,7 @@
     { "name": "bob26-8", "gate": "db-bob26-gates", "expect_red": "F18-S01", "expect_detail": "set-up completed with no password" },
     { "name": "bob50-1", "gate": "db-bob50-gates", "expect_red": "F19-Q01", "expect_detail": "a finished Uji Cepat is certificate-eligible" },
     { "name": "bob50-2", "gate": "db-bob50-gates", "expect_red": "F19-Q03", "expect_detail": "with QUICK certifying again the lint did not name it" },
-    { "name": "bob50-3", "gate": "db-bob50-gates", "expect_red": "F19-Q02", "expect_detail": "is not eligible" }
+    { "name": "bob50-3", "gate": "db-bob50-gates", "expect_red": "F19-Q02", "expect_detail": "is not eligible" },
+    { "name": "bob50-4", "gate": "db-bob50-gates", "expect_red": "F19-Q04", "expect_detail": "depends on the certificate policy" }
   ]
 }
