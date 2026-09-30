@@ -1,6 +1,6 @@
 # PINTAR Terminology v1: change-impact list (draft, no implementation)
 
-**Status: draft for Yazid's review. Nothing is implemented.** No string, key, copy-table row (`src/lib/hle.ts`), template, seed or code was changed. This list maps the proposal onto the real strings, as step 1 of the proposal's process asks.
+**Superseded: the frozen PINTAR Terminology v1 is `TERMINOLOGY-V1-FREEZE-PACKAGE.md` (D-068, 30 Sep).** Kept as the record of how it was reached. **Status: draft for Yazid's review. Nothing is implemented.** No string, key, copy-table row (`src/lib/hle.ts`), template, seed or code was changed. This list maps the proposal onto the real strings, as step 1 of the proposal's process asks.
 
 - **Evidence base:** Daisy's inventory `ux/PINTAR-4.0-TERMINOLOGY-INVENTORY.md`, taken at `main` `4df914a` (29 Sep). Exact texts were checked against `src/lib/hle.ts` where a line is cited.
 - **Rules applied:** only those in `ux/TERMINOLOGY-V1-PROPOSAL.md` (§2 dictionary, §3 distinctions and content boundary, §4 priorities, §5 navigation grammar). **The proposal is not canonical.** D-006, D-007, D-008, D-010, D-014 and D-015 stay in force until Yazid freezes v1.

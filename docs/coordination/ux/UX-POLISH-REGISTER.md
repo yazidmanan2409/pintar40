@@ -2,7 +2,7 @@
 
 **UX-07 to UX-32:** Daisy's reader walk, 29 Sep (`handover/HANDOFF-DAISY-WALK.md`). All are source-level readings at `f6e0b3e`, because the staging screenshots cannot be downloaded from sessions. UX-23, UX-28 and UX-29 moved to the board as **DAISY-25**. Four rows wait for the terminology review's word choices: UX-10, UX-13, UX-18 and UX-19.
 
-**UX-41 to UX-47:** from the Terminology v1 review, 30 Sep (`TERMINOLOGY-V1-FREEZE-PACKAGE.md` §5): rendering, persona, information-architecture and technical-display items that are not terminology. Terminology v1 is proposed, not frozen. Once implemented, it resolves UX-10, UX-13 and UX-18; UX-19 (the assigning verbs) stays open.
+**UX-41 to UX-47:** from the Terminology v1 review, 30 Sep (`TERMINOLOGY-V1-FREEZE-PACKAGE.md` §5): rendering, persona, information-architecture and technical-display items that are not terminology. Terminology v1 is frozen (D-068) and not yet implemented. Once implemented, it resolves UX-10, UX-13 and UX-18; UX-19 (the assigning verbs) stays open.
 
 **UX-33 to UX-40:** the post-login 60-second review, 29 Sep (`docs/reports/POST-LOGIN-60S-UX-REVIEW-2026-09-29.md` §6, findings #4, #5 and #7 to #12, one row each), for the UI/UX POLISHED pass (D-061). Each row cites the review's section and the code reference the review gives, checked against `4df914a` where it names a line. The review's other findings (#1, #2, #3, #6) are not rows here.
 

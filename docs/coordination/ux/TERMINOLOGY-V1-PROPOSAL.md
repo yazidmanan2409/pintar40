@@ -1,6 +1,6 @@
 # PINTAR Terminology v1: proposal
 
-**Status: PROPOSED by Yazid, 30 Sep 2026. Not canonical.** Nothing here changes a string. It becomes PINTAR Terminology v1 only when Yazid freezes it after the change-impact review. Until then, the canonical rules stay:
+**Superseded: the frozen PINTAR Terminology v1 is `TERMINOLOGY-V1-FREEZE-PACKAGE.md` (D-068, 30 Sep).** Kept as the record of how it was reached. **Status: PROPOSED by Yazid, 30 Sep 2026. Not canonical.** Nothing here changes a string. It becomes PINTAR Terminology v1 only when Yazid freezes it after the change-impact review. Until then, the canonical rules stay:
 
 - D-014: all words live in `src/lib/hle.ts`, and Daisy owns the wording;
 - D-006, D-007, D-008, D-010 and D-015, below.

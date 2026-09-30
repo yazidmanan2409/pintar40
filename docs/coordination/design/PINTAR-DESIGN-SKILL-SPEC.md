@@ -234,13 +234,75 @@ The source of truth is the token file, **S** `src/app/globals.css` (token set v2
 - DAISY-31: "one sentence… saying what happened and what to do instead".
 - DAISY-26: "learner copy never speaks of pass or fail" (UX-27).
 
-**Terminology v1 (PROPOSED, not canonical).** Yazid's proposal of 30 Sep, `ux/TERMINOLOGY-V1-PROPOSAL.md`, is pending its change-impact review and freeze. Until it is frozen:
+**PINTAR Terminology v1 (R, D-068, frozen 30 Sep 2026).** The full record: `ux/TERMINOLOGY-V1-FREEZE-PACKAGE.md`. It holds the approved change set, the exceptions kept on purpose, and the UI/UX items that are not terminology (UX-41 to UX-47). The strings change during UI/UX POLISHED; until then the screens still show today's words. The inventory stays evidence only.
 
-- Daisy uses the terms the canonical rulings above fix.
-- She treats the inventory (`ux/PINTAR-4.0-TERMINOLOGY-INVENTORY.md`) as evidence only; it "decides nothing".
-- **She raises a term that does not work on a real screen rather than inventing another.**
+### Terminology v1: the governing principle
 
-Once frozen, v1 becomes this section's dictionary.
+> **Consistency means one meaning has a stable name. It does not mean one word must be used mechanically in every context.**
+>
+> Preserve natural Bahasa Indonesia. Full canonical terms establish identity and resolve ambiguity. Natural short forms may be used once the context is clear.
+
+**The rule Daisy is given:** these are PINTAR's words. Use them consistently. If they don't work on a real screen, raise the problem; don't quietly invent another word.
+
+### Terminology v1: the dictionary
+
+| Concept | Canonical term | Also right (short form or context) | Replace (when it means this concept) | Keep distinct from |
+|---|---|---|---|---|
+| School | **Sekolah** | «untuk sekolah secara keseluruhan» where the whole school is meant | institusi (ordinary UI) | the structure unit Tingkat |
+| Learner | **Murid** | | siswa, peserta didik | **Peserta** (participants in a measurement) |
+| Teacher | **Guru** | | pengajar, pendidik, edukator | |
+| Leadership (umbrella) | **Pimpinan** | | | |
+| Roles | **Murid · Guru · Kepala departemen · Dekan · Admin sekolah · Admin platform** (where the formal role matters to understanding or authorization) | in a help or recovery context, «yang mengurus PINTAR di sekolah Anda»; a human description where the person has no role yet, e.g. «pengelola pertama sebuah sekolah» | kepala program, pengelola sistem, administrator sekolah, pengelola data sekolah, staf pengelola isi | |
+| Person / account | **Orang** / **Akun** | address the person («Anda») where the data-model distinction does not help | | each other |
+| Structure | **Bagian · Tingkat · Kelas** (capitalised, structural) | ordinary lowercase «bagian» ("part": bagian dari, bagian akhir) | | |
+| A leader's scope, shared copy | **lingkup** («lingkup yang Anda pimpin», «lingkup ini») | «Bagian» where only a Kepala departemen's Bagian is meant | «bagian sekolah» as a scope shared with Dekan | |
+| Studio object | **Paket Pembelajaran** | **paket** once the context is clear; the package's title | kursus (Studio object) | materi |
+| Contents of a package | **isi** (Susun isi · Periksa isi · Setujui isi) | | | |
+| Learning material | **Materi** (incl. «menyusun materi», «Materi Uji Cepat») | | bahan | Paket Pembelajaran |
+| Workbook / import format | **Kursus** (the sheet, the import structure, «Buka kursus» right after import) · **Paket Terstruktur** (JSON) | | | Paket Pembelajaran |
+| Curriculum | **kurikulum** (sekolah, akademik) | | | |
+| Chapter · lesson · reading | **Bab · Pelajaran · Bacaan** (Peta Bacaan, posisi bacaan, bagian bacaan) | | | |
+| Assessment item | **Soal** | | butir (rewrite the sentence where a swap reads badly) | **Pertanyaan**: the wording inside a soal, or a question asked of people (feedback) |
+| Assessment (generic) | **asesmen** (Aturan Asesmen, asesmen resmi) | | penilaian, **only** where it means the assessment object | penilaian = evaluation or judgement («bukan penilaian») |
+| PRE_TEST · POST_TEST · QUICK · STANDALONE · PAPER (shown) | **Pemetaan Awal · Uji Penguasaan · Uji Cepat · Asesmen Mandiri · Tes di Kertas** | **pemetaan** once the context is clear | Penilaian awal/akhir/cepat/mandiri, Lembar kertas | the workbook marks below |
+| Workbook marks (authoring contract) | **Pemetaan awal · Cek penguasaan** (D-008) | | | the names learners see |
+| Other modes | **Tes · Ujian · Latihan · Peragaan publik** | | | |
+| Publish · release · approve | **Terbitkan · Terbitan · Setujui / Persetujuan** | | | |
+| Save · loading | **Simpan / Tersimpan · Memuat…** (page, data) **· Sedang…** (an operation) | | | selesai |
+| Check · review | **Periksa** (checking) · **Tinjau** (human review) | | | |
+| Evidence family | **Bukti · Hasil · Laporan · Ringkasan · Angka** (distinct concepts) | | | each other |
+| Readiness | **Kesiapan · Siap · Belum siap** | | | |
+| Feedback | **Umpan balik · Putaran umpan balik** | **Putaran** once the context is clear | | |
+| Sign in / out | **Masuk · Keluar** | **Keluar dari peragaan** where it does not sign out | | |
+| Email | **Email** | | surel | |
+| Admin workspaces | **Konfigurasi · Pendataan** | | | **Pengaturan** (real settings only) |
+| Homes and places | **Belajar · Mengajar · Pimpinan · Konfigurasi · Pendataan · Sertifikat · Halaman awal · Studio**; «Perjalanan belajar» where the learning cycle needs a destination name | the doors on `/` stay first-person sentences («Saya mau belajar» …) | «Kelas» as the teacher's home tab; Studio's «Beranda» | |
+
+### Terminology v1: semantic and context rules
+
+1. **One meaning, one stable name.** Not one word everywhere. A word that also has an ordinary meaning keeps it; «bagian dari», «bagian akhir» and «paket ini» stay.
+2. **Full term, then short form.** Use the full canonical term to introduce a concept, in headings, at a boundary, or where it would be ambiguous. Use the natural short form after that.
+3. **Name the role only when the reader needs it.**
+    - **Formal permission context:** *Admin sekolah* (the canonical role name), where the role matters to the reader's understanding or authorization.
+    - **Help and recovery context:** «yang mengurus PINTAR di sekolah Anda».
+    - **A person with no role yet:** a human description.
+4. **Refusals explain the problem and the next action; they do not recite RBAC.** For example: «Anda tidak memiliki akses ke Studio.»
+5. **Don't expose the data model.** Where orang vs akun doesn't matter to the reader, speak to the person.
+6. **The authoring contract may differ from what learners see.** The workbook marks stay «Pemetaan awal» / «Cek penguasaan»; learners meet «Pemetaan Awal» / «Uji Penguasaan».
+7. **Don't force one noun across two authorities.** Copy shared by Kepala departemen and Dekan says «lingkup», not «bagian sekolah».
+8. **Substitute only when the meaning survives.** Otherwise rewrite the sentence (e.g. «butir» → «soal»).
+9. **Technical and diagnostic language stays precise** (the schema-health lines).
+10. **Data is not terminology.** Seed and display names are left alone. An evaluation persona takes the canonical role name where it represents a role.
+11. **Capitalisation:** the structural Bagian · Tingkat · Kelas, the assessment names, Paket Pembelajaran, and the role names as written in §1.
+12. **Navigation grammar:**
+    - A destination is a short noun or name.
+    - A heading may be a human question or purpose.
+    - An action is a verb plus its object.
+    - «Kembali» names its destination only where that is ambiguous.
+    - A doorway on `/` may be a first-person sentence.
+    - A creation destination may keep an action name («Buat Paket»).
+    - The same label in two places is fine when it is the same concept (Sertifikat, Uji Cepat) or an action (Lihat seperti murid).
+13. **Not every language problem is terminology.** Rendering, persona, information-architecture and technical-display issues go to the UX polish register (the package's §5; §16 here), not into this dictionary.
 
 **Inherited voice (I, not re-ratified for 4.0).** The 4.0 guards above already enforce some of these. The rest carry weight but are not rulings:
 
@@ -417,7 +479,7 @@ Once frozen, v1 becomes this section's dictionary.
     - no empty placeholders;
     - language parity;
     - context before a decision.
-2. **The terminology inventory**, as evidence only (§8), and Terminology v1 once frozen.
+2. **PINTAR Terminology v1** (D-068, §8), and the terminology inventory as evidence only.
 3. **The decisions and board rows** tagged in this document.
 4. **The release checklist's universal checks:** U-NAV, U-AUTH, U-TRUTH, U-LOC, U-EMPTY, U-DEVICE, U-CONTEXT, U-AUDIT, U-PRIV, U-RECOVER, U-ERR and U-PERF.
 5. **Yazid's feedback during the polish** ("I'll be providing my feedback as we polish the UI/UX", 30 Sep). It is recorded so that nothing is lost and nothing is quietly generalised:
@@ -438,7 +500,7 @@ Each item points to its evidence. The skill reports each as yes, no or not appli
 7. **Cards (§7):** any PINTAR ID card within D-059: calm, one family, context in text, colour grants nothing.
 8. **Words (§8):**
     - every string in `hle.ts`, in both languages, and actually shown in the reader's language;
-    - canonical terms used; no internal words; «Anda»;
+    - Terminology v1 terms and rules used (§8); no internal words; «Anda»;
     - no promise the system does not keep;
     - a term that does not fit is raised, not invented.
 9. **States (§9):** empty, insufficient evidence, loading, success, warning and error each designed for this screen and checked against §9.
@@ -467,14 +529,14 @@ Each item points to its evidence. The skill reports each as yes, no or not appli
     - Terbitkan → Menerbitkan… → Diterbitkan
 
     D-047's pattern is canonical. These word triples are not.
-4. **Terminology v1 and its navigation grammar:**
+4. **RULED 30 Sep (D-068), now §8.** Kept for the record: **Terminology v1 and its navigation grammar:**
     - navigation is a short noun;
     - a heading may be a human question or purpose;
     - an action is a verb plus its object;
     - «Kembali» names its destination only when that is ambiguous.
 
-    PROPOSED (`ux/TERMINOLOGY-V1-PROPOSAL.md`). It becomes canonical when Yazid freezes it after the change-impact review.
-5. **Preserve PINTAR's plain Bahasa.** "Murid. Guru. Sekolah. Soal. Materi." (Yazid's judgement in the proposal.)
+    Frozen as D-068 on 30 Sep, after the change-impact review.
+5. **RULED 30 Sep (D-068), now §8's governing principle.** Kept for the record: **Preserve PINTAR's plain Bahasa.** "Murid. Guru. Sekolah. Soal. Materi." (Yazid's judgement in the proposal.)
 6. **60-second comprehension as a formal standard** (§3). Today it is a review lens.
 7. **"Mature conventions, not invented patterns" as a general principle** (§5). Today it is stated in code comments and practised, but not ruled.
 8. **Tablet as a required review width** (§15). Today only phone and desktop appear in ticket criteria.

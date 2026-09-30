@@ -1,6 +1,6 @@
-# PINTAR Terminology v1: proposed freeze package
+# PINTAR Terminology v1
 
-**Status: PROPOSED FOR FREEZE. Awaiting Yazid's final approval. Not canonical, and nothing is implemented.**
+**Status: FROZEN, 30 Sep 2026, by Yazid (D-068). PINTAR Terminology v1 is canonical.** Nothing is implemented yet: application strings change during UI/UX POLISHED (D-052).
 
 **Built from:**
 
@@ -8,9 +8,9 @@
 - the change-impact list, `TERMINOLOGY-V1-CHANGE-IMPACT.md` (187 rows);
 - Yazid's 24 rulings of 30 Sep on that list's open questions (§8).
 
-**After approval:**
+**Now that it is frozen:**
 
-- This package becomes PINTAR Terminology v1, and the dictionary in `design/PINTAR-DESIGN-SKILL-SPEC.md` §8.
+- This is PINTAR Terminology v1, and the dictionary in `design/PINTAR-DESIGN-SKILL-SPEC.md` §8.
 - Daisy applies the change set during UI/UX POLISHED. Strings held in migrations or seeds (§3) need Bob.
 - Nothing is applied before then.
 
@@ -32,7 +32,7 @@
 | Learner | **Murid** | | siswa, peserta didik | **Peserta** (participants in a measurement) |
 | Teacher | **Guru** | | pengajar, pendidik, edukator | |
 | Leadership (umbrella) | **Pimpinan** | | | |
-| Roles | **Murid · Guru · Kepala departemen · Dekan · Admin sekolah · Admin platform** | a human description where the reader may not know the role, e.g. «yang mengurus PINTAR di sekolah Anda», «pengelola pertama sebuah sekolah» (no role yet) | kepala program, pengelola sistem, administrator sekolah, pengelola data sekolah, staf pengelola isi | |
+| Roles | **Murid · Guru · Kepala departemen · Dekan · Admin sekolah · Admin platform** (where the formal role matters to understanding or authorization) | in a help or recovery context, «yang mengurus PINTAR di sekolah Anda»; a human description where the person has no role yet, e.g. «pengelola pertama sebuah sekolah» | kepala program, pengelola sistem, administrator sekolah, pengelola data sekolah, staf pengelola isi | |
 | Person / account | **Orang** / **Akun** | address the person («Anda») where the data-model distinction does not help | | each other |
 | Structure | **Bagian · Tingkat · Kelas** (capitalised, structural) | ordinary lowercase «bagian» ("part": bagian dari, bagian akhir) | | |
 | A leader's scope, shared copy | **lingkup** («lingkup yang Anda pimpin», «lingkup ini») | «Bagian» where only a Kepala departemen's Bagian is meant | «bagian sekolah» as a scope shared with Dekan | |
@@ -62,7 +62,10 @@
 
 1. **One meaning, one stable name.** Not one word everywhere. A word that also has an ordinary meaning keeps it; «bagian dari», «bagian akhir» and «paket ini» stay.
 2. **Full term, then short form.** Use the full canonical term to introduce a concept, in headings, at a boundary, or where it would be ambiguous. Use the natural short form after that.
-3. **Name the role only when the reader needs it.** Use the canonical role name where a role is actually meant. Use a human description where the reader may not know the formal role, or the person does not hold it yet.
+3. **Name the role only when the reader needs it.**
+    - **Formal permission context:** *Admin sekolah* (the canonical role name), where the role matters to the reader's understanding or authorization.
+    - **Help and recovery context:** «yang mengurus PINTAR di sekolah Anda».
+    - **A person with no role yet:** a human description.
 4. **Refusals explain the problem and the next action; they do not recite RBAC.** For example: «Anda tidak memiliki akses ke Studio.»
 5. **Don't expose the data model.** Where orang vs akun doesn't matter to the reader, speak to the person.
 6. **The authoring contract may differ from what learners see.** The workbook marks stay «Pemetaan awal» / «Cek penguasaan»; learners meet «Pemetaan Awal» / «Uji Penguasaan».
@@ -117,13 +120,14 @@ Row IDs are the change-impact list's. The disposition follows Yazid's rulings (�
 
 ### B. Role names
 
-- **Approved as drafted:** B3, B6, B7, B8, B9, B10, B15.
+- **Approved as drafted:** B3, B6, B7, B8, B9, B15.
 - **Approved, modified:**
     - **B1** `config.refused` → «Halaman ini hanya untuk Admin sekolah atau Admin platform.» Aligned with ruling 5's «atau». It corrects a false sentence.
     - **B2** `pimpinan.ditolak` → «Halaman ini untuk Kepala departemen dan Dekan, dalam lingkup yang mereka pimpin.» (ruling 19)
     - **B4** `aktivasi.ditolak` → «Halaman ini untuk Admin sekolah atau Admin platform.» (ruling 5)
     - **B5** `studio.refused` «Halaman ini untuk staf pengelola isi. Akun Anda belum memiliki akses ke Studio.» → «Anda tidak memiliki akses ke Studio.» (ruling 5). The next-action sentence comes from the shared refusal page.
     - **B14** `laporan.templat.tak_berwenang` → «Menyusun templat laporan memerlukan wewenang Admin sekolah atau Admin platform.» (ruling 7). Verified: `CAN_MANAGE_REPORT_TEMPLATES` is held by INSTITUTION_ADMIN and SYSTEM_ADMIN only (`role_capabilities`, migration 20260926100000).
+    - **B10** `entry.kosong` → «…Hubungi yang mengurus PINTAR di sekolah Anda.» (Yazid's final ruling on §7.7). With C32, the whole line reads «Anda belum terhubung dengan kelas atau tugas apa pun. Hubungi yang mengurus PINTAR di sekolah Anda.»
     - **B16** evaluation personas `Penelaah & Penerbit` → «Kepala departemen», `Pimpinan Sekolah` → «Dekan» (ruling 7). This also corrects an inaccuracy: a Kepala departemen does not hold CAN_PUBLISH (HOD-10).
 - **Retained:**
     - B11 «pengelola sekolah» and B12 «yang mengurus PINTAR di sekolah Anda» (ruling 6);
@@ -278,7 +282,7 @@ Of the change-impact list's 187 rows:
 
 **UX-19 is not resolved by v1:** three verbs for assigning (Tugaskan / Siapkan / Sediakan). None of the rulings decides it, so it stays in the register.
 
-## 6. Canonical decisions whose wording v1 supersedes
+## 6. Canonical decisions whose wording v1 supersedes (applied in `DECISIONS.md`, 30 Sep)
 
 | Decision | Today | Amendment proposed with the freeze |
 |---|---|---|
@@ -289,9 +293,9 @@ Of the change-impact list's 187 rows:
 | D-006 | "Screens show only Bagian, Tingkat and Kelas" | **No change.** A clarifying note: lowercase «bagian» in its ordinary sense is not the structure unit; shared leadership copy says «lingkup» |
 | D-015 | "Uji Cepat" everywhere | **No change.** A3 restores it on the Studio definitions page |
 
-## 7. Points applied by the coordinator's reading (please confirm or adjust)
+## 7. Points applied by the coordinator's reading: ruled 30 Sep (D-068)
 
-These follow from the rulings but were not stated word for word:
+These followed from the rulings but were not stated word for word. Yazid ruled on each:
 
 1. «atau» rather than «dan» in B1 (matching ruling 5's B4).
 2. «lingkup» wording in B2 and the 13 scope strings (ruling 19's «lingkup yang Anda pimpin», extended to «lingkup ini»).
@@ -299,9 +303,11 @@ These follow from the rulings but were not stated word for word:
 4. Short form «paket» for D1–D23, with the full term only in D10, D16 and D22.
 5. The learner's «Beranda» back link → «Belajar» (from "reserve Belajar for learner home").
 6. The refusal back button → «Ke halaman awal» (from "`/`: Halaman awal").
-7. B10 keeps «Hubungi Admin sekolah Anda» on `/` (capitalised), rather than switching to «yang mengurus PINTAR di sekolah Anda». Ruling 6 could be read either way here.
+7. **Adjusted:** B10 on `/` reads «Hubungi yang mengurus PINTAR di sekolah Anda». `/` is the human doorway into PINTAR. *Admin sekolah* is kept for contexts where the formal role matters to understanding or authorization.
 
-**STOP. Not frozen.** Terminology v1 becomes canonical only when Yazid approves this package, with any adjustments, recorded as a D- entry.
+Points 1–6: **confirmed** as written.
+
+**Frozen 30 Sep 2026 (D-068).**
 
 ---
 
