@@ -240,3 +240,37 @@ the system view.
 - The package rebuilds byte-identically.
 - Against `29f1094`, the package differs in exactly the 16 options listed above, in their text and
   their Alasan. No other field changed.
+
+## Round 3 (coordinator's review of `ed60337`, PB8)
+
+**Required: PB8 now asks for an action, and all four options are actions.**
+- The stem now ends «… apa yang paling tepat ia lakukan?».
+- The new key, at position B: «menyelaraskan ruang dan tes dengan tujuan dan metode sebelum
+  mengajar, karena komponennya saling bergantung».
+  - Its fact is still `organisasi`.
+  - Its Alasan: the components depend on each other and must be organised to work together, so
+    the room and the evaluation are brought into line with the goal and the method before the
+    lesson runs.
+- **Distractors:** the three from round 2 are kept.
+  - D gained one word, «agar diskusi **dapat** berjalan», so the key is not strictly the longest
+    (both are 107 characters). Its meaning and its Alasan are unchanged.
+- PB8 is still Sulit.
+
+**Optional, taken:**
+- **PB3 A's Alasan** now says «bab ini mengarahkan guru untuk memahami …», as lesson 3 does, where
+  it had said «meminta».
+- **LT1 B:** p. 4 opens with «Istilah "pembelajaran" sama dengan … "pengajaran"», which partly
+  supports the old distractor. LT1 B is now «pembelajaran adalah kegiatan primer guru, sedangkan
+  pengajaran adalah kegiatan sekunder peserta didik».
+  - The chapter rules it out on p. 4 (`primer`): belajar is the primary activity and mengajar the
+    secondary one, and the real difference is interaction.
+  - It is not a claim the book half-supports.
+
+**Gate after round 3:**
+- 6.158 assertions with `--kutipan` (6.156 without); 134 of 135 quotations found (`hierarki` read
+  by eye).
+- Verbatim is still at most 9 words.
+- periksa_mutu is 0 ERROR, with the 20 acknowledged WEAK_MISCONCEPTION_LINKAGE warnings.
+- The package rebuilds byte-identically.
+- Against `ed60337`, the package differs in exactly seven fields: the PB8 stem, the PB8 B text and
+  Alasan, the PB8 D text, the PB3 A Alasan, and the LT1 B text and Alasan.

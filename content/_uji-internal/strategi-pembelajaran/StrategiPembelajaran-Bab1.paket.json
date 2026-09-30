@@ -166,9 +166,9 @@
             "row": 51
            },
            "label": "B",
-           "body": "keduanya bermakna sama; pembelajaran adalah sebutan yang lebih baru untuk pengajaran",
+           "body": "pembelajaran adalah kegiatan primer guru, sedangkan pengajaran adalah kegiatan sekunder peserta didik",
            "is_correct": false,
-           "rationale": "Keduanya bermakna mirip, tetapi konotasinya berbeda."
+           "rationale": "Bab ini menyebut belajar sebagai kegiatan primer dan mengajar sebagai kegiatan sekunder yang mengupayakan agar belajar terjadi; pernyataan ini membaliknya dan melewatkan pembeda pokoknya, yaitu interaksi."
           },
           {
            "_row": {
@@ -507,7 +507,7 @@
            "label": "A",
            "body": "memakai strategi yang berhasil di kelas lamanya, lalu menyesuaikannya setelah beberapa pertemuan",
            "is_correct": false,
-           "rationale": "Strategi memang dapat dimodifikasi, tetapi bab ini meminta guru memahami aspek pribadi peserta didiknya lebih dulu; strategi kelas lama dipilih untuk peserta didik lain."
+           "rationale": "Strategi memang dapat dimodifikasi, tetapi bab ini mengarahkan guru untuk memahami aspek pribadi peserta didiknya lebih dulu; strategi kelas lama dipilih untuk peserta didik lain."
           },
           {
            "_row": {
@@ -548,7 +548,7 @@
          },
          "ref": "PB8",
          "item_type": "MCQ_SINGLE",
-         "stem": "Seorang guru sudah merumuskan tujuan yang baik dan memilih metode diskusi kelompok. Namun ruang kelasnya tidak memungkinkan kelompok duduk bersama, dan tes akhirnya hanya menguji hafalan. Menurut pandangan belajar-mengajar sebagai sistem, apa yang terjadi?",
+         "stem": "Seorang guru sudah merumuskan tujuan yang baik dan memilih metode diskusi kelompok. Namun ruang kelasnya tidak memungkinkan kelompok duduk bersama, dan tes akhirnya hanya menguji hafalan. Menurut pandangan belajar-mengajar sebagai sistem, apa yang paling tepat ia lakukan?",
          "use": "POST_TEST",
          "difficulty": "0.7",
          "options": [
@@ -568,9 +568,9 @@
             "row": 47
            },
            "label": "B",
-           "body": "komponen-komponennya tidak saling mendukung, sehingga tujuan sulit tercapai meski rumusannya baik",
+           "body": "menyelaraskan ruang dan tes dengan tujuan dan metode sebelum mengajar, karena komponennya saling bergantung",
            "is_correct": true,
-           "rationale": "Komponen sistem saling bergantung dan harus diorganisasikan agar bekerja sama; situasi dan evaluasi di sini tidak selaras dengan tujuan dan metode."
+           "rationale": "Komponen sistem saling bergantung dan harus diorganisasikan agar bekerja sama; ruang kelas dan evaluasi perlu diselaraskan dengan tujuan dan metode sebelum pembelajaran berlangsung."
           },
           {
            "_row": {
@@ -588,7 +588,7 @@
             "row": 49
            },
            "label": "D",
-           "body": "tempat duduk ditata ulang agar diskusi berjalan, dan tes akhirnya diperbaiki pada semester berikutnya",
+           "body": "tempat duduk ditata ulang agar diskusi dapat berjalan, dan tes akhirnya diperbaiki pada semester berikutnya",
            "is_correct": false,
            "rationale": "Evaluasi adalah komponen sistem saat ini juga; keberhasilan dinilai dengan tes yang mengacu pada kriteria tujuan, jadi tes hafalan tidak mengukur tujuan pertemuan ini."
           }
