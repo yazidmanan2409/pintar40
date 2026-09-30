@@ -1,0 +1,22 @@
+320 px contoh-kode-320-terang.png: page width 320 px, smallest text 13 px, button none, <style> 1, card padding 18px
+320 px contoh-kode-320-gelap.png: page width 320 px, smallest text 13 px, button none, <style> 1, card padding 18px
+320 px contoh-kode-320-tanpa-style.png: page width 320 px, smallest text 13 px, button none, <style> 0, card padding 32px
+320 px contoh-kode-staging-320-gelap.png: page width 320 px, smallest text 13 px, button none, <style> 1, card padding 18px
+320 px contoh-pemberitahuan-320-terang.png: page width 320 px, smallest text 13 px, button 48, <style> 1, card padding 18px
+320 px contoh-pemberitahuan-320-gelap.png: page width 320 px, smallest text 13 px, button 48, <style> 1, card padding 18px
+320 px contoh-pemberitahuan-staging-320-gelap.png: page width 320 px, smallest text 13 px, button 48, <style> 1, card padding 18px
+320 px uji-pengiriman-staging-320-terang.png: page width 320 px, smallest text 13 px, button none, <style> 1, card padding 18px
+320 px uji-pengiriman-staging-320-gelap.png: page width 320 px, smallest text 13 px, button none, <style> 1, card padding 18px
+320 px uji-pengiriman-produksi-320-terang.png: page width 320 px, smallest text 13 px, button none, <style> 1, card padding 18px
+320 px uji-pengiriman-produksi-320-gelap.png: page width 320 px, smallest text 13 px, button none, <style> 1, card padding 18px
+
+THE MOVE: the wired frame (production context) against the accepted prototype renders, pixel by pixel (a pixel differs when any channel moves by more than 8)
+  contoh-kode-600-terang.png: 540 of 480000 pixels differ, all inside x 24–109, y 35–78 (the logo, and only the logo)
+  contoh-kode-320-terang.png: 540 of 271040 pixels differ, all inside x 20–105, y 23–66 (the logo, and only the logo)
+  contoh-kode-600-gelap.png: 540 of 480000 pixels differ, all inside x 24–109, y 35–78 (the logo, and only the logo)
+  contoh-kode-320-gelap.png: 540 of 271040 pixels differ, all inside x 20–105, y 23–66 (the logo, and only the logo)
+  contoh-kode-320-tanpa-style.png: 540 of 280000 pixels differ, all inside x 24–109, y 35–78 (the logo, and only the logo)
+  contoh-kode-600-tanpa-gambar.png: 0 of 480000 pixels differ (identical)
+  contoh-pemberitahuan-600-terang.png: 540 of 480000 pixels differ, all inside x 24–109, y 35–78 (the logo, and only the logo)
+  contoh-pemberitahuan-320-terang.png: 540 of 336000 pixels differ, all inside x 20–105, y 23–66 (the logo, and only the logo)
+  contoh-pemberitahuan-320-gelap.png: 540 of 336000 pixels differ, all inside x 20–105, y 23–66 (the logo, and only the logo)
