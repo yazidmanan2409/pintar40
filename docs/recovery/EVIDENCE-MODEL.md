@@ -43,6 +43,9 @@
   - Until then, DEPLOYED can be claimed only with an equivalent recorded read. Today none exists for the app's commit.
 - **Universal rows** (navigation, truthfulness, language, and others) cannot be proven by examples. They are TESTED only when a test covers the rule, not a sample.
 - **Partly tested.** A row is TESTED only when its whole expected behaviour was run. Otherwise it stays BUILT, with the tested part named.
+- **Clicking (K3, 1 Oct).** A Level 2 slice and the Golden School reach each page by clicking from the previous one.
+  - In Level 3, a typed URL is a bypass and therefore a FAIL.
+  - In Level 2, a typed URL must be declared, and the step it replaces cannot prove the connection.
 
 ## 4. Test levels (implemented in Phase 2)
 

@@ -10,7 +10,7 @@
 
 - **One measure of progress:** can PINTAR's users complete the connected journey?
 - **This is not an MVP and not a rebuild.**
-  - The full agreed 4.0 scope stays, as `PINTAR-4.0-SCOPE-INVENTORY.md` lists it.
+  - The full agreed 4.0 scope stays, as `PINTAR-4.0-SCOPE-INVENTORY.md` lists it, including the owner rulings M1–M10 and T1–T4 (D-085).
   - The architecture, security work, features, migrations, history and the lanes' useful work are preserved.
 - **What moves back is knowledge, not code:** confidence, status, evidence, process, sequencing and the definition of done.
 - **Development is journey-driven, not ticket-driven.** Depth comes before breadth.

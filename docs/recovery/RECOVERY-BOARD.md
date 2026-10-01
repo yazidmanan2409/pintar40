@@ -8,6 +8,11 @@
 
 **Phase: 1 complete (stopped). Phase 2 is NOT authorised. No engineering work is active.**
 
+**Since 1 Oct (K4):**
+- The precise break for each human journey is in `PINTAR-4.0-JOURNEY-COVERAGE-CROSS-CHECK-2026-10-01.md` §7.
+- Its W1–W19 are defects against agreed scope, to be fixed in journey order in Phase 4.
+- D-085 (owner rulings M1–M10, T1–T4) adds lines to the inventory; they are listed in §12 of the inventory.
+
 **Evidence for every state below** (all on main `28d3015`):
 - CI #246 (run 36708706264);
 - audit #55 job B (run 36708709106).
@@ -20,7 +25,7 @@ Both ran on `f86ace7`, which is identical to `28d3015` outside `docs/coordinatio
 |---|---|---|---|---|---|
 | J1 Platform operation | Bob | Schools are born by hand-typed SQL; the C1 operator path does not exist | TESTED (sign-in, first admin); NOT BUILT (C1) | Phase 2 not authorised | Build the C1 script and workflow (Phase 2 tooling) |
 | J2 Identity | Bob | Staff sign in only by magic link through Supabase's mailer (2 per hour; "sent" even when not). Gate 3 is held on lanes; Gates 4–8 are not started | TESTED (the link and the card) | — | Phase 2: the C2 mailbox reader. Phase 4: Gate 3 lands through the journey gate |
-| J3 School setup | Daisy | A school admin cannot give the teacher a role (ADM-05/06). No pass-mark setting (D-081). No card re-issue (ADM-08) | TESTED (structure, intake, cards) | — | None until the Phase 3 baseline |
+| J3 School setup | Daisy | No signposted way for a school admin to add a teacher; an unsignposted route exists and has never been walked (K1). No pass-mark setting (D-081), card re-issue (ADM-08), whole-class cards (M7) or class move (M9) | TESTED (structure, intake, cards) | — | None until the Phase 3 baseline |
 | J4 Content | Daisy | The head of department's review queue has never been walked; media playback is untested | TESTED (upload, lifecycle, publish) | — | None until the baseline |
 | J5 Teaching | Daisy | Uji Cepat screens are not run on `main`. No Uji Cepat score screen (EDU-10). **DEFECT on `main`:** a single Uji Cepat can certify (D-082(d); the fix BOB-50 is held) | TESTED (prepare and assign) | — | None until the baseline |
 | J6 Learning | Bob | Lesson reading is not run on `main`'s code; offline and reload have never been run in a browser | TESTED (pre-test, post-test, result) | — | None until the baseline |

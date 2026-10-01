@@ -1,6 +1,6 @@
 # The Golden School contract
 
-**Accepted 1 October 2026 (D-084: C1, C2, C3).** Specification only. The implementation is Phase 2 work; the first honest run is Phase 3.
+**Accepted 1 October 2026 (D-084: C1, C2, C3; updated by D-085: M1, M2, M3, M7, T1).** Specification only. The implementation is Phase 2 work; the first honest run is Phase 3.
 
 The Golden School is PINTAR's primary integration truth. It is one deliberate school on staging that proves PINTAR works as PINTAR: one school, one admin, one teacher, one student, from the front door.
 
@@ -33,15 +33,17 @@ Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggere
 
 ## 3. The decisions
 
-**C1. School birth: PINTAR Operations creates a school.**
-- **The mechanism:** one reviewed, versioned script, run only through a dispatch-only workflow. Its inputs are the school's details.
-  - It creates the school exactly as the product expects one, and nothing else.
+**C1. School birth: PINTAR Operations creates a school (M1).**
+- **Who:** an authorised PINTAR Platform Administrator (D-085 M1).
+- **The mechanism:** a controlled, repeatable, versioned, audited process, run only through a dispatch-only workflow. Its inputs are the school's details.
+  - It establishes the minimum institutional foundation needed to hand PINTAR safely to the school's first administrator (M1), and nothing that normal school operation does.
+  - Exactly what the foundation holds is specified in Phase 2.
   - It writes the audit record D-013 requires.
 - **Who uses it:** the same mechanism serves real operations, the Golden School, and the school made for each human acceptance walk.
 - **What it replaces:** today's hand-written school birth (the audit harness's step W0, and the coordinator's SQL under D-013).
 - **No school self-registration (D-054(a)), and no school-creation screen in 4.0.**
 - **After the school exists, the product takes over:** the platform admin adds the first school admin in the app.
-- **On production:** a school's birth is a product decision Yazid approves. Who requests and runs it is MISSING REQUIREMENT M1 (`PHASE-1-STATUS.md`).
+- **On production:** a school's birth is a product decision Yazid approves; an authorised platform administrator runs it (M1). Hand-written production SQL is never the normal method.
 
 **C2. Staff sign-in: the real PINTAR sign-in, with a controlled staging test mailbox.**
 - **The mailbox:**
@@ -51,7 +53,7 @@ Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggere
 - **What happens to codes:** activation and recovery codes are actually received and consumed. Every later sign-in uses the password set during activation (D-054(b)).
 - **Never:** set an ordinary user's password behind the scenes, or use a service-role session as journey evidence.
 - **Before Gate 3 lands:** the run signs staff in through what `main` has, the magic link, via the same mailbox. It will probably go red at staff sign-in (Supabase's mailer sends 2 emails an hour). That red is honest.
-- **Students** sign in with the class card made in the run. The card and PIN are read from the screen that shows them once.
+- **Students** sign in with the class card and PIN, their one model (M2). The run issues the class set in one operation (M7) and reads each card from the printable set.
 
 **C3. Data policy: a fresh school instance per run, from one recipe.**
 - **Each Level 3 run creates a new instance through C1.** It is named after the run, in production posture, so that its evidence is OFFICIAL and certificates can be issued.
@@ -81,7 +83,7 @@ Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggere
 | GS-04 | The school admin builds the structure | J3.3 |
 | GS-05 | The school admin sets the lesson's minimum passing mark | J3.8 |
 | GS-06 | The school admin adds the teacher, the head of department and the dean, and gives their roles | J3.5 |
-| GS-07 | The school admin enrols the students and issues their class cards | J3.6, J3.7 |
+| GS-07 | The school admin enrols the students and issues the class's cards in one operation, as a printable class set (M7) | J3.6, J3.7 |
 | GS-08 | Content in: the chapter is uploaded to the school with its media | J4.1, J4.2 |
 | GS-09 | The head of department reviews and freezes it; the school admin publishes | J4.3–J4.5 |
 | GS-10 | The teacher activates, signs in and lands on Mengajar | J2 |
@@ -89,12 +91,12 @@ Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggere
 | GS-12 | The primary student signs in with the class card | J2.19 |
 | GS-13 | Pre-test: orientation → the explicit start → answers → finish | J6.5–J6.9 |
 | GS-14 | Every lesson is read to its last page, by clicking | J6.3 |
-| GS-15 | The post-test is reached by its link and completed; the result is read | J6.10, J6.11 |
+| GS-15 | The post-test is reached by its link and completed; the result says whether the mastery target was achieved (M3) | J6.10, J6.11, J6.15 |
 | GS-16 | The four other students sit both tests | (recipe) |
 | GS-17 | The teacher reads the class evidence; the head of department, the dean and the school admin read their reports | J7.1–J7.4 |
 | GS-18 | The primary student's certificate: eligible at the school's mark → issued → shown | J8.1–J8.3 |
 | GS-19 | An anonymous visitor verifies the certificate; a random token gives the private not-found | J8.6 |
-| GS-20 | Everyone signs out; on a shared device the next person never continues as the last | J2.9 |
+| GS-20 | On a shared device: the student's session locks when idle and resumes with their PIN (T1); «Bukan akun Anda?» switches safely; the next learner inherits no lesson position or state. Everyone signs out | J2.9, J2.20 |
 | GS-21 | Recovery: the school admin re-issues a lost card; a staff member recovers by email, then by PINTAR ID + PIN | J2.11, J2.12, J2.21 |
 
 - **The status headline** is the last step passed unaided, then "current break: GS-nn".

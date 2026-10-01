@@ -1,12 +1,13 @@
 # PINTAR 4.0 scope inventory
 
-**1 October 2026 (Phase 1; D-084).** This answers one question: **what exactly must PINTAR 4.0 do before we can say PINTAR 4.0 is complete?** It is not a new requirements exercise, and it is not an MVP.
+**1 October 2026 (Phase 1; D-084). Updated the same day with the owner rulings M1–M10 and T1–T4 (D-085; verbatim in `OWNER-RULINGS-M1-M10-T1-T4-2026-10-01.md`).** This answers one question: **what exactly must PINTAR 4.0 do before we can say PINTAR 4.0 is complete?** It is not a new requirements exercise, and it is not an MVP.
 
 **Sources, and only these:**
 - the canonical decisions D-001 to D-084 (`docs/coordination/DECISIONS.md`);
 - the release checklist rows, v2.3 (`docs/coordination/RELEASE-CHECKLIST.md`);
 - the frozen identity specification (`auth/IDENTITY-4.0.md`: C1–C18 and Gates 0–8);
-- the accepted rulings of 1 Oct (D-084).
+- the accepted rulings of 1 Oct (D-084);
+- the owner rulings M1–M10 and T1–T4 (D-085).
 
 **The original 4.0 specifications** (Experience, Core DB/Backend, Frontend, Continuity) are background evidence, not scope authority. The checklist itself treats them that way.
 
@@ -17,7 +18,7 @@
 
 **Gate column:**
 - **P0, P1, P2:** the checklist's levels (D-028): P0 blocks go-live; P1 is fixed or accepted in writing; P2 comes after go-live.
-- **EC:** a decision makes it part of ENGINEERING COMPLETE (D-052, C16).
+- **EC:** a decision makes it part of ENGINEERING COMPLETE (D-052, C16). Every line added or changed by D-085 is EC.
 - **POL:** the UI/UX POLISHED gate (D-052).
 - **REL:** a release condition, checked in Phase 8.
 
@@ -33,14 +34,15 @@
 
 | # | PINTAR 4.0 must | Source | Gate |
 |---|---|---|---|
-| J1.1 | Create a school through PINTAR Operations' scripted, versioned, audited operator path. No school self-registration; no creation screen in 4.0 | D-084 (C1); SYS-03; D-013; D-054(a) | P2 (SYS-03); every Golden School run depends on it |
+| J1.1 | Provision a new school by an authorised PINTAR Platform Administrator through a controlled, repeatable, versioned and audited process. It establishes the minimum institutional foundation needed to hand PINTAR safely to the school's first administrator; after handover the school runs itself. No public self-registration; no school-creation screen; never hand-written production SQL | D-085 (M1); D-084 (C1); SYS-03; D-013; D-054(a) | EC; every Golden School run depends on it |
 | J1.2 | Keep the first platform admin, bootstrapped once; appoint a second SYSTEM_ADMIN before 23 Sep 2027; only an active SYSTEM_ADMIN grants it, audited | D-001; SYS-04; SYS-08 | P0 / P1 |
 | J1.3 | Let the platform admin sign in, land on Konfigurasi and see the platform's state (health, environment, schools) | D-010; SYS-01; SYS-02 | P0 / P1 |
 | J1.4 | Let the platform admin create a school's first admin and give the role, audited | ADM-01; X-01; D-017 | P0 |
-| J1.5 | Distribute canonical content to a school by reference. A school sees only what it may use, and an import never writes into the national library | SYS-05; D-029 | P2 |
+| J1.5 | Prepare PINTAR standard content once, govern and version it centrally, and make the applicable release available to every relevant school. A school consumes the authorised central release, never an unrelated copy that can drift. A school sees only what it may use | D-085 (M6); SYS-05; D-029 as amended by M6 (conflict CF11) | EC (was P2 under SYS-05; conflict CF12) |
 | J1.6 | Keep platform-only controls restricted and audited; audit and feature flags discoverable | SYS-06; SYS-07 | P1 |
 | J1.7 | Give the sole production platform admin a documented, tested break-glass procedure before the production release | D-054(e); C10 | REL |
 | J1.8 | Keep evaluation personas out of identity (password, PIN, username, PINTAR ID, activation, device question), with the evaluation boundary assert passing | C13; REL-04 | P0 |
+| J1.9 | Keep the operational truth of every important staff and transactional email: requested → accepted for sending → sent or handed off → refused or failed, with stuck flows identifiable. Platform Operations can answer "what happened to this email?". What a user is told reflects what PINTAR knows; it never says sent when PINTAR's evidence says refused, throttled or failed. No inbox-delivery guarantee | D-085 (M8); D-057(b); X.3 | EC |
 
 ## J2. Identity: activation, sign-in, sessions, sign-out, recovery
 
@@ -64,9 +66,9 @@
 | J2.16 | Give every person a PINTAR ID. Staff see and use it, and only staff get a Digital Card in 4.0 | C17; D-059(a)(b)(g) | EC |
 | J2.17 | Apply the username rules, with no self-service change. A correction is an audited platform-admin operation | C9; D-077(e) | EC |
 | J2.18 | Show the resend countdown only on code screens, behaving the same whether or not the identity exists | C3 | EC |
-| J2.19 | Sign a student in with a class card and PIN. A wrong card, or a refusal under load, says what really happened | STU-01; D-031 (the card-limit risk); CAP-01; Gate 1 (BOB-12) | P0 |
-| J2.20 | End class-card sessions after 60 minutes idle; greet a learner by first name only on shared screens | D-009; D-020; STU-03; U-PRIV | P0 |
-| J2.21 | Let the school re-issue a lost card or PIN and correct a wrong email, without SQL | ADM-08; U-RECOVER | P1 |
+| J2.19 | Sign a student in with the PINTAR class card and PIN, the one normal student sign-in model. A recorded email gives a student no other sign-in method: no magic link, no email or password, no "choose how to sign in". A wrong card, or a refusal under load, says what really happened | D-085 (M2); STU-01 as amended by M2 (CF10); C17; D-031 (the card-limit risk); CAP-01; Gate 1 (BOB-12) | P0 |
+| J2.20 | Lock a student's session after a period of inactivity: the lock hides their information and keeps the session resumable with their PIN. After a substantially longer inactivity the session expires and needs the card and PIN again. «Bukan akun Anda?» lets another learner switch safely. The values are set and tested in implementation. Learning state is person-bound, never device-bound. Greet a learner by first name only on shared screens | D-085 (T1), revising D-009 and D-055(e)/C4 (CF14); D-020; STU-03; U-PRIV | P0 |
+| J2.21 | Let the school re-issue a lost card or PIN and correct a wrong email, without SQL. Student recovery is school-assisted and never depends on an email account | ADM-08; U-RECOVER; D-085 (M2) | P1 |
 
 ## J3. School setup (Admin sekolah)
 
@@ -78,11 +80,12 @@
 | J3.4 | Tie the structure to an academic year; roll the year over with history kept | ADM-04 (P1); ADM-21 (P2) | P1 / P2 |
 | J3.5 | Let the school admin add staff (person and account) and give or revoke the allowed roles: no self-grant, no escalation. They see and name their own staff and act only on people they may act upon | ADM-05; ADM-06; D-048; D-049 | P0 / P1 |
 | J3.6 | Enrol students into a Kelas. Other places are refused with a reason; staff never become students; the learner joins the Kelas's own year | ADM-07; D-026 | P0 |
-| J3.7 | Issue class cards | ADM-07; X-01 | P0 |
+| J3.7 | Issue PINTAR student cards for a whole class in one operation, with a practical printable class set (class selected → cards prepared → printable set → distribute). Individual issue and re-issue stay for exceptions (a new student, a replacement). Batch issue preserves each student's identity, credential security and audit. No student photo on the card; no card-production service | ADM-07; X-01; D-085 (M7, T4) | P0 |
 | J3.8 | Let the school admin set each lesson's minimum passing mark: a whole percentage, explicit and audited, with no 60% default. It is sealed on the assignment and the session | D-081 (Q1–Q4) | EC |
 | J3.9 | Compose report templates from approved metrics without changing their meaning | ADM-17 | P2 |
 | J3.10 | Transfer a student by request → authorization → execution | ADM-19 | P2 |
 | J3.11 | Leave a trace for every consequential action | ADM-20; U-AUDIT | P0 |
+| J3.12 | Move a student to another class in the same school. The same identity, no duplicate; current membership and future work follow the new class, and the old class no longer counts them as current; history keeps the context in which it happened and is never rewritten. Distinct from a transfer to another school (J3.10) | D-085 (M9) | EC |
 
 ## J4. Content (Studio)
 
@@ -98,6 +101,8 @@
 | J4.8 | Provide the MCQ Question Bank workflows | D-050(a) | EC |
 | J4.9 | Show Question Health signals as observations, with the human review recorded and able to be concluded | HOD-06; D-061 (#6) | P2; the #6 correction is EC |
 | J4.10 | Give misconception feedback. Packages carry their definitions, usable by several schools with no cross-tenant ownership and no code collision | D-063 | EC |
+| J4.11 | Keep two content origins, with the origin always clear: PINTAR standard content (central, J1.5) and school content (the school's supplementary and local material). A school adds its own lessons, questions and material without modifying the central release | D-085 (M6); D-029 | EC |
+| J4.12 | Correct published content forward. Used content is immutable; a correction is a new revision or release in the same lineage, never an unrelated course. Every revision keeps an auditable history (what changed, why, who made it, who reviewed or approved it, when) with a human-readable summary. Learning stays bound to the release actually experienced; new learning uses the current release; nothing is replaced under an active learning or assessment experience. Applies to both origins | D-085 (M10); D-041 | EC |
 
 ## J5. Teaching (Guru; head of department within scope)
 
@@ -106,14 +111,17 @@
 | J5.1 | Show the educator's home with one meaningful next action and honest empty states | EDU-02 | P1 |
 | J5.2 | State the teaching context (school, class, year) | EDU-03; U-CONTEXT | P0 |
 | J5.3 | Show only permitted classes; another class's address is refused | EDU-04 | P0 |
-| J5.4 | Prepare and assign a published lesson (Siapkan → Sediakan) to the right class, release and dates, enforced in WIB | EDU-05; EDU-06; ADM-13; X-05; D-042 | P0 |
-| J5.5 | Run Uji Cepat: launch with an explicit commit; refusals in their own words; an expired window never blocks a new one; the eligible learner finds and takes it | EDU-07; EDU-08; D-015; D-067 | P1 |
+| J5.4 | Prepare and assign a published lesson (Siapkan → Sediakan) to the right class, release and dates, enforced in WIB, from both the applicable PINTAR standard content and the school's own published content, with the origin clear | EDU-05; EDU-06; ADM-13; X-05; D-042; D-085 (M6) | P0 |
+| J5.5 | Run Uji Cepat as a fast formative check (about one minute): choose the question bank or topic → see the authorised questions → select them (the teacher controls which) → review → launch → students answer. Questions come from the authorised bank and content available to the teacher; no authoring in the flow. Refusals in their own words; an expired window never blocks a new one; the eligible learner finds and takes it | D-085 (T2); EDU-07; EDU-08; D-015; D-067 | P1 |
 | J5.6 | Show the Uji Cepat score where designed | EDU-10 | P1 |
 | J5.7 | Never let a single Uji Cepat issue a certificate | D-082(d) | EC (a DEFECT on `main` today) |
 | J5.8 | Show progress and participation without judgment, with no integrity or Question Health access for teachers | EDU-09 | P0 |
 | J5.9 | Extend a deadline with a reason and an audit trail, within scope | EDU-11 | P2 |
 | J5.10 | Suggest what next: assistive, and fitting the class's subject and grade | EDU-13; D-061 (#3) | P2; the #3 correction is EC |
 | J5.11 | Let a head of department assign and run Uji Cepat within their Bagian | HOD-08 | P1 |
+| J5.12 | Show the teacher which learners are below the mastery target, and let the teacher reassign existing learning material to selected learners who need support. No automatic adaptive remediation | D-085 (M3) | EC |
+| J5.13 | Give the teacher an individual learning view of a student within their teaching scope: progress, started or completed, assessment results, mastery status, the objectives the learner struggles with, and other evidence the role permits. An educational view, not a personal dossier; no restricted integrity or security information | D-085 (M4); for professional-learning Kelas see CF15 | EC |
+| J5.14 | After an assessment is submitted or closed, show the teacher question-level performance for the classes they teach, with drill-down to individual submitted answers within scope where needed. Never a live feed of answers during an active assessment. Distinct from Question Health and integrity evidence. For Uji Cepat, immediately after it closes | D-085 (M5); for professional-learning Kelas see CF15 | EC |
 
 ## J6. Learning and assessment (Murid)
 
@@ -133,6 +141,7 @@
 | J6.12 | Allow permitted feedback review only, showing no internals | STU-16 | P1 |
 | J6.13 | Say honestly "nothing more to do", or give the next expectation | STU-18 | P0 |
 | J6.14 | Switch every learner screen between ID and EN; content is never translated | STU-20 | P1 |
+| J6.15 | Keep completion and mastery as separate truths. Completing the post-test does not mean the mastery target was achieved; after the post-test the learner is told clearly whether it was. Below target, PINTAR directs the learner to relevant material for review and never implies mastery because the activities were completed. No unlimited post-test retries | D-085 (M3); the target is the sealed school mark (D-081, D-078 as amended; reading CF13) | EC |
 
 ## J7. Evidence and reporting
 
@@ -159,13 +168,14 @@
 | J8.5 | Support a certificate template and revocation; numbers never collide | ADM-18 | P1 |
 | J8.6 | Verify anonymously: a valid token shows the status first, then only the bounded facts. A random token gets the private not-found; eligible-but-not-issued exposes nothing; nothing leaks | PUB-03 to PUB-06 | P0 / P1 |
 | J8.7 | Establish the production card pepper and signing key, with verified offline copies, before the first production card or certificate. Keys are versioned | D-066; REL-09 | REL |
+| J8.8 | Carry no student photo on the certificate or the PINTAR class card. A student's profile may contain a profile photo; it never alters the identity or evidence meaning of a card or certificate | D-085 (T4) | EC (no photo); the profile photo is permitted (question G1) |
 
 ## J9. Educator as learner (a bounded 4.0 capability, D-069(j))
 
 | # | PINTAR 4.0 must | Source | Gate |
 |---|---|---|---|
 | J9.1 | Provide a professional-learning Bagian → Tingkat → Kelas in the school's own tenant. Academic and professional material can never cross | D-069(d)(f) | EC |
-| J9.2 | Enrol only an existing staff member, checked at placement | D-069(a); D-070(c)(g) | EC |
+| J9.2 | Enrol only an existing staff member, checked at placement. The authorised facilitator or education role enrols and assigns; management oversees; a person holding both roles may do both; no parallel management assignment mechanism | D-069(a); D-070(c)(g); D-085 (T3) | EC |
 | J9.3 | Call participants «Peserta», not «Murid» | D-069(k) | EC |
 | J9.4 | Enforce each audience's visibility at the database; one read-only professional-learning record per Kelas | D-069(b); D-070(a)(b) | EC |
 | J9.5 | Keep professional-learning integrity recorded but not surfaced to leadership; no HR judgement | D-069(c) | EC |
@@ -228,7 +238,17 @@ These are ENHANCEMENT if raised:
 - professional-learning evidence in management decision screens, or an HR, CPD or LMS role (D-069(b)(j));
 - a helpdesk product (reconsidered in 2027, D-037);
 - a detailed key rotation and revocation policy (after 4.0, D-066(d));
-- a pass at L5 (only the breaking point is recorded, D-031).
+- a pass at L5 (only the breaking point is recorded, D-031);
+- public school self-registration, a school-creation screen, and hand-written production SQL as normal provisioning (D-085 M1);
+- a student magic link, student email or password sign-in, or a "choose how to sign in" step (M2);
+- automatic adaptive remediation, and unlimited or unrestricted post-test retries (M3);
+- a live feed of answers during an active assessment (M5);
+- a specialised card-production service or design studio (M7);
+- a guarantee of inbox delivery by an external mail provider (M8);
+- a developer-style diff interface for content revisions (M10);
+- authoring or generating new questions inside the Uji Cepat flow (T2);
+- a second, parallel training-assignment mechanism for management (T3);
+- a student photo on the PINTAR class card or the certificate (T4).
 
 ## 11. Built on `main` with no scope source
 
@@ -238,6 +258,10 @@ These are ENHANCEMENT if raised:
 
 ## 12. Missing requirements
 
-**MISSING REQUIREMENT — OWNER RULING REQUIRED.**
-- **M1. Who PINTAR Operations is, on production.** C1 makes school birth an operator path. Someone must request a real school's birth and run it after Yazid's approval, and no source names who. Needed before Phase 8, not before Phase 2.
-- **M2. Students with email accounts, after the magic link goes.** STU-01 lets a student sign in by email link. C14 removes the everyday magic link, and IDENTITY-4.0 defines activation and password sign-in for staff, while students keep class cards (C17). Whether 4.0 has students with email accounts, and how they sign in after C14, is undecided. Needed before Gate 3 lands its C14 step.
+**None open.** D-085 (1 Oct) resolved them:
+- M1 (who provisions a school on production) and M2 (students with email accounts), from Phase 1;
+- M3–M10, from the journey coverage cross-check.
+
+Their lines are J1.1, J1.5, J1.9, J2.19–J2.21, J3.7, J3.12, J4.11, J4.12, J5.4, J5.5, J5.12–J5.14, J6.15, J8.8 and J9.2.
+
+**Readings that need the owner's confirmation** (they do not add scope) are listed in `PHASE-1-STATUS.md` §5: CF13, CF14 (point 2), CF15, and the open question G1.
