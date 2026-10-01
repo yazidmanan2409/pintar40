@@ -1680,7 +1680,9 @@ await step("S26c", "a student recorded in the Tingkat only is placed in one of i
   await a.waitForLoadState("networkidle");
   const baris = a.locator("#pindah li").filter({ hasText: nama }).first();
   if (!(await baris.count())) { rec.verdict = "FAIL"; return `${catat}; ${nama} is not listed under «${t1.t}»: ${norm(await a.locator("#pindah").innerText().catch(() => "")).slice(0, 200)}`; }
-  const opsiK = await baris.locator('select[name="kelas"] option').allTextContents();
+  // the destinations offered: every option but the disabled «Pindahkan ke kelas» prompt (value "")
+  const opsiK = (await baris.locator('select[name="kelas"] option').evaluateAll((os) => os.map((o) => ({ v: o.value, t: (o.textContent ?? "").trim() }))))
+    .filter((o) => o.v).map((o) => o.t);
   const keA = opsiK.find((o) => o.startsWith("Kelas 1A"));
   rec.shots.push(await shot(a, "adm-j09-dari-tingkat"));
   await baris.locator('select[name="kelas"]').selectOption({ label: keA });
