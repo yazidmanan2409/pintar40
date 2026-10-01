@@ -1073,6 +1073,7 @@ export type HleEvent =
   | "mengajar.sedia.kode.assign_pre_test_too_short"
   | "mengajar.sedia.kode.assign_post_test_too_short"
   | "mengajar.sedia.kode.assign_cycle_overlap"
+  | "mengajar.siap.asal.pintar" | "mengajar.siap.asal.sekolah"
   | "mengajar.sedia.kode.assign_pass_mark_missing" | "mengajar.sedia.batas" | "mengajar.sedia.batas_belum"
   | "mengajar.sedia.kode.assign_input_invalid"
   | "mengajar.sedia.kode.assign_failed"
@@ -3228,6 +3229,8 @@ const table: Table = {
   "mengajar.sedia.kode.assign_cycle_overlap": { default: "Soal Cek penguasaan berada di kelompok paralel yang sama dengan soal Pemetaan awal, sehingga tidak bisa dipakai. Pisahkan kelompoknya lalu terbitkan ulang.", en: "The Mastery Check questions share a parallel group with the Initial Mapping questions, so they cannot be used. Separate the groups and publish again." },
   "mengajar.sedia.kode.assign_pass_mark_missing": { default: "Batas ketuntasan pelajaran ini belum ditetapkan, jadi pelajaran ini belum bisa disediakan untuk kelas. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan.", en: "This lesson has no pass mark yet, so it cannot be given to a class. The school admin sets it in Configuration → Pass mark." },
   "mengajar.sedia.batas": { default: "Batas ketuntasan:", en: "Pass mark:" },
+  "mengajar.siap.asal.pintar": { default: "Materi PINTAR", en: "PINTAR material" },
+  "mengajar.siap.asal.sekolah": { default: "Materi sekolah", en: "School material" },
   "mengajar.sedia.batas_belum": { default: "Batas ketuntasan belum ditetapkan. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan; sampai itu, pelajaran ini belum bisa disediakan.", en: "No pass mark has been set. The school admin sets it in Configuration → Pass mark; until then this lesson cannot be given." },
   "mengajar.sedia.kode.assign_input_invalid": { default: "Kelas atau materi tidak dikenali.", en: "The class or material was not recognised." },
   "mengajar.sedia.kode.assign_failed": { default: "Materi belum berhasil disediakan. Coba lagi sebentar lagi.", en: "The material could not be made available. Try again in a moment." },

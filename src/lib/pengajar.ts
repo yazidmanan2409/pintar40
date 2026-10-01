@@ -217,6 +217,8 @@ export type Terbitan = {
   versi: string;
   terbitPada: string | null;
   pelajaran: number;
+  /** D-085 M6: the school's own material, or PINTAR's standard material distributed to the school */
+  asal: "SEKOLAH" | "PINTAR";
 };
 
 export type Penugasan = {
@@ -250,15 +252,49 @@ export async function terbitan(institusi: string): Promise<Terbitan[]> {
     id: string; course_id: string; version_label: string; published_at: string | null;
     course: { title: string; subject: string } | null;
   };
-  const out = rows<Baris>(data).map((r) => ({
+  const out: Terbitan[] = rows<Baris>(data).map((r) => ({
     id: r.id,
     courseId: r.course_id,
     kursus: r.course?.title ?? "",
     versi: r.version_label,
     terbitPada: r.published_at,
     pelajaran: 0,
+    asal: "SEKOLAH",
   }));
-  return out;
+  // D-085 M6: PINTAR's standard material is prepared once and distributed to the school; the teacher sees it beside
+  // the school's own, its origin said. `distributed_releases` answers the school's staff only (CAN_ASSIGN_LEARNING or
+  // CAN_DRAFT where it is distributed), and assign_release decides again whether it may be given.
+  const { data: dist } = await c.rpc("distributed_releases");
+  return [...out, ...pintarDariDistribusi(rows<Distribusi>(dist), institusi)];
+}
+
+type Distribusi = {
+  plp_release_id: string; version_label: string; published_at: string | null; course_id: string; course_title: string;
+  consuming_institution_id: string; distribution_status: string; supersedes_release_id: string | null;
+};
+
+/**
+ * M6: the standard releases a school may give now, from what `distributed_releases` returns: distributed to this
+ * school and ACTIVE, published, and the newest of their line (a release another listed release corrects is left out,
+ * so a corrected chapter is offered once). Pure, so a test drives it without a database.
+ */
+export function pintarDariDistribusi(dist: readonly Distribusi[], institusi: string): Terbitan[] {
+  const milik = dist.filter((d) => d.consuming_institution_id === institusi && d.distribution_status === "ACTIVE" && d.published_at);
+  const dikoreksi = new Set(milik.map((d) => d.supersedes_release_id).filter(Boolean));
+  const seen = new Set<string>();
+  return milik
+    .filter((d) => !dikoreksi.has(d.plp_release_id))
+    .filter((d) => (seen.has(d.plp_release_id) ? false : (seen.add(d.plp_release_id), true)))
+    .sort((a, b) => String(b.published_at).localeCompare(String(a.published_at)))
+    .map((d) => ({
+      id: d.plp_release_id,
+      courseId: d.course_id,
+      kursus: d.course_title,
+      versi: d.version_label,
+      terbitPada: d.published_at,
+      pelajaran: 0,
+      asal: "PINTAR" as const,
+    }));
 }
 
 /** What has already been made available to one class. */
@@ -313,7 +349,9 @@ export async function bab(courseId: string): Promise<Array<{ id: string; judul: 
 }
 
 /** How many lessons and how many questions a release carries. */
-export async function isiTerbitan(courseId: string): Promise<{ pelajaran: number; soal: number }> {
+export async function isiTerbitan(t: Pick<Terbitan, "id" | "courseId" | "asal">): Promise<{ pelajaran: number; soal: number }> {
+  if (t.asal === "PINTAR") return isiPintar(t.id);
+  const courseId = t.courseId;
   const c = await db();
   const { data: mods } = await c.from("modules").select("id").eq("course_id", courseId);
   const ids = rows<{ id: string }>(mods).map((m) => m.id);
@@ -326,10 +364,12 @@ export async function isiTerbitan(courseId: string): Promise<{ pelajaran: number
   return { pelajaran: les.count ?? 0, soal };
 }
 
+type Instrumen = { mode: string; judul: string; soal: number; percobaan: number | null };
+
 /** The cycle instruments a release carries: what a learner will actually receive. */
-export async function instrumen(courseId: string): Promise<Array<{
-  mode: string; judul: string; soal: number; percobaan: number | null;
-}>> {
+export async function instrumen(t: Pick<Terbitan, "id" | "courseId" | "asal">): Promise<Instrumen[]> {
+  if (t.asal === "PINTAR") return instrumenPintar(t.id);
+  const courseId = t.courseId;
   const c = await db();
   const { data } = await c
     .from("assessment_definitions")
@@ -341,6 +381,26 @@ export async function instrumen(courseId: string): Promise<Array<{
   return rows<Baris>(data)
     .map((d) => ({ mode: d.mode, judul: d.title, soal: d.item_count, percobaan: d.attempt_limit }))
     .sort((a, b) => (urut[a.mode] ?? 9) - (urut[b.mode] ?? 9));
+}
+
+// D-085 M6: a teacher's own row security cannot read a canonical course's modules or tests, so a PINTAR chapter is
+// read through the distribution gate: distributed_release_outline for its lessons, distributed_release_instruments
+// for the two tests assign_release will give (release_cycle_definition). Counts and titles; never an item.
+async function instrumenPintar(releaseId: string): Promise<Instrumen[]> {
+  const c = await db();
+  const { data } = await c.rpc("distributed_release_instruments", { p_release: releaseId });
+  type Baris = { mode: string; title: string; item_count: number; attempt_limit: number | null };
+  return rows<Baris>(data).map((d) => ({ mode: d.mode, judul: d.title, soal: d.item_count, percobaan: d.attempt_limit }));
+}
+
+async function isiPintar(releaseId: string): Promise<{ pelajaran: number; soal: number }> {
+  const c = await db();
+  const [{ data: garis }, alat] = await Promise.all([
+    c.rpc("distributed_release_outline", { p_release: releaseId }),
+    instrumenPintar(releaseId),
+  ]);
+  const pelajaran = new Set(rows<{ lesson_id: string | null }>(garis).map((g) => g.lesson_id).filter(Boolean)).size;
+  return { pelajaran, soal: alat.reduce((n, a) => n + (a.soal ?? 0), 0) };
 }
 
 // ═══════════════════════════════════════════════ 4. what is open right now

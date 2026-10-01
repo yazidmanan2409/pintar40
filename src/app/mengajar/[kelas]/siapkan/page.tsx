@@ -110,6 +110,8 @@ export default async function Siapkan({
               {calon.map((r) => (
                 <Link key={r.id} className="pin-row" href={`/mengajar/${id}/siapkan?terbitan=${r.id}`}>
                   <span className="pin-title">{r.kursus}</span>
+                  {/* D-085 M6: where the material comes from, said */}
+                  <span className="pin-asal" data-asal={r.asal}>{s(r.asal === "PINTAR" ? "mengajar.siap.asal.pintar" : "mengajar.siap.asal.sekolah")}</span>
                   {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                   <span className="pin-rowmeta">
                     {r.terbitPada ? (
@@ -130,8 +132,8 @@ export default async function Siapkan({
   // ──────────────────────────────── stage 2: review, then the one commitment
   // D-088(b), DAISY-38: the school's pass mark for this lesson, read-only; unset, the lesson cannot be given yet
   const [isi, alat, batas] = await Promise.all([
-    ajar.isiTerbitan(dipilih.courseId),
-    ajar.instrumen(dipilih.courseId),
+    ajar.isiTerbitan(dipilih),
+    ajar.instrumen(dipilih),
     supabaseServer().then((c) => batasPelajaran(c, ctx.ini.institusi, dipilih.courseId)),
   ]);
 
@@ -152,6 +154,7 @@ export default async function Siapkan({
         <div className="pin-paket">
           <div className="pin-prow">
             <h2>{dipilih.kursus}</h2>
+            <span className="pin-asal" data-asal={dipilih.asal}>{s(dipilih.asal === "PINTAR" ? "mengajar.siap.asal.pintar" : "mengajar.siap.asal.sekolah")}</span>
             <span className="pin-pill pin-neutral">{s("mengajar.status.belum")}</span>
           </div>
           <p className="pin-meta">

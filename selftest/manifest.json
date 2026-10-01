@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 155,
+  "version": 156,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2697,6 +2697,16 @@
       "id": "M3-K01",
       "runner": "static",
       "proves": "D-085 M3, W4: completion is not mastery and the learner is told which holds. Executes ketuntasan and bagianUlang (src/lib/siklus.ts): the target reached or not from the session's own verdict (the mark sealed on it), none for a Pemetaan Awal or an unsealed result; below target the objectives under the mark, lowest first, with their lessons. Rendered output: a finished chapter card reads «Selesai · target tercapai» or «Selesai · belum mencapai target». Reads the source of the result page, «Apa berikutnya», the home and the teacher's learner record; the copy table in id and en"
+    },
+    {
+      "id": "M6-S01",
+      "runner": "static",
+      "proves": "D-085 M6: a teacher sees PINTAR's standard material distributed to the school. In the database, rolled back (supabase/migrations/20261103100000): the school's teacher reads none of a distributed canonical course's modules or tests through row security, yet distributed_releases lists it and pintarDariDistribusi offers it once as «Materi PINTAR»; the outline gives its lesson and distributed_release_instruments exactly release_cycle_definition's tests (title, size, attempts); giving one with no Pemetaan Awal is refused ASSIGN_PRE_TEST_MISSING as a school chapter is; another school's teacher, the learner and, after withdrawal, the teacher read nothing; anon cannot call it; no item content is returned"
+    },
+    {
+      "id": "M6-K01",
+      "runner": "static",
+      "proves": "D-085 M6: origin made clear. Executes pintarDariDistribusi (src/lib/pengajar.ts): only this school's ACTIVE, published distributions, the newest of a corrected line, each once, newest first, labelled PINTAR. Reads the source of terbitan(), the PINTAR readers (distributed_release_outline, distributed_release_instruments) and «Siapkan materi» (the origin in the list and the review); the copy «Materi PINTAR» / «Materi sekolah» in id and en"
     }
   ]
 }

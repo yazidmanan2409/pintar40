@@ -2347,3 +2347,6 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-target p + p, .pin-target .pin-ulang-judul { margin-top: var(--space-2); }
 .pin-ulang-judul { margin: 0; font-weight: var(--weight-strong); }
 .pin-ulang { margin: var(--space-2) 0 0; padding-left: var(--space-5); display: grid; gap: 4px; }
+
+/* D-085 M6: the origin of a release on «Siapkan materi» — PINTAR's standard material or the school's own. */
+.pin-asal { font-size: var(--type-meta); color: var(--ink-3); }
