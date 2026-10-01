@@ -85,7 +85,7 @@ export const edu23Tests: SelfTest[] = [
 
       const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
       const page = buang(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", "[kelas]", "siapa", "page.tsx"), "utf8"));
-      const urut = ["sudah", "sedang", "belum"].map((x) => page.indexOf(`<DaftarMurid murid={${x}} locale={locale} />`));
+      const urut = ["sudah", "sedang", "belum"].map((x) => page.indexOf(`<DaftarMurid murid={${x}} locale={locale} kelas={id} />`));
       c.expect(/const \{ sudah, sedang, belum \} = await ajar\.siapa\(tugasId, fakta\.murid\);/.test(page) && urut.every((x, i) => x > 0 && (i === 0 || x > urut[i - 1])),
         "/siapa does not draw the three lists, handed in, started, not started, in that order");
       const lib = buang(readFileSync(join(ctx.repoRoot, "src", "lib", "pengajar.ts"), "utf8"));

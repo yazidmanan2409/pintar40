@@ -1068,6 +1068,13 @@ export type HleEvent =
   | "mengajar.materi.judul"
   | "mengajar.materi.sub"
   | "mengajar.materi.kosong"
+  | "mengajar.murid1.eyebrow"
+  | "mengajar.murid1.catatan"
+  | "mengajar.murid1.tugas"
+  | "mengajar.murid1.tugas_kosong"
+  | "mengajar.murid1.hasil"
+  | "mengajar.murid1.hasil_arti"
+  | "mengajar.murid1.hasil_kosong"
   | "mengajar.murid.judul"
   | "mengajar.murid.sub"
   | "mengajar.murid.kosong"
@@ -3132,6 +3139,13 @@ const table: Table = {
   "mengajar.materi.judul": { default: "Materi untuk kelas ini", en: "Material for this class" },
   "mengajar.materi.sub": { default: "Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah.", en: "Order follows the school's curriculum. Making material available is not the same as publishing it; the school publishes." },
   "mengajar.materi.kosong": { default: "Belum ada materi yang disediakan untuk kelas ini.", en: "No material has been made available to this class yet." },
+  "mengajar.murid1.eyebrow": { default: "Catatan belajar", en: "Learning record" },
+  "mengajar.murid1.catatan": { default: "Catatan belajar satu murid di kelas Anda, untuk mendukung belajarnya. Tidak dibandingkan dengan murid lain dan bukan peringkat.", en: "One learner's learning record in your class, to support their learning. It is not compared with other learners and is not a ranking." },
+  "mengajar.murid1.tugas": { default: "Penilaian di kelas ini", en: "Assessments in this class" },
+  "mengajar.murid1.tugas_kosong": { default: "Belum ada penilaian yang dibuka di kelas ini.", en: "No assessment has opened in this class yet." },
+  "mengajar.murid1.hasil": { default: "Hasil resmi", en: "Official results" },
+  "mengajar.murid1.hasil_arti": { default: "Penguasaan yang tercatat pada tiap penilaian yang sudah dinilai.", en: "The mastery recorded on each assessment that has been scored." },
+  "mengajar.murid1.hasil_kosong": { default: "Belum ada hasil resmi untuk murid ini.", en: "No official result for this learner yet." },
   "mengajar.murid.judul": { default: "Murid", en: "Learners" },
   "mengajar.murid.sub": { default: "Nama diurutkan abjad; tidak ada peringkat.", en: "Names in alphabetical order; there is no ranking." },
   "mengajar.murid.kosong": { default: "Belum ada murid terdaftar di kelas ini.", en: "No learner is enrolled in this class yet." },

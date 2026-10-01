@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { t, type Locale } from "@/lib/hle";
 
 /**
@@ -14,6 +15,10 @@ import { t, type Locale } from "@/lib/hle";
  * who has not, it renders TWO of these under two neutral headings, which says
  * the same fact without attaching it to anybody as a property.
  *
+ * M4 (D-085): given the class, each name opens that learner's record for the
+ * teacher (/mengajar/[kelas]/murid/[orang]); the link is the name itself, with
+ * nothing added beside it.
+ *
  * The names themselves are bounded by the database, not by this list:
  * `persons_select` goes through `person_visible_to_me()`, whose educator branch
  * is subtree containment, so a learner outside the educator's grants never
@@ -22,9 +27,12 @@ import { t, type Locale } from "@/lib/hle";
 export default function DaftarMurid({
   murid,
   locale = "id",
+  kelas,
 }: {
   murid: Array<{ id: string; nama: string }>;
   locale?: Locale;
+  /** The class, when each name should open that learner's record (M4). */
+  kelas?: string;
 }) {
   if (murid.length === 0) {
     return <p className="pin-empty">{t("mengajar.murid.kosong", "educator", { locale })}</p>;
@@ -32,7 +40,9 @@ export default function DaftarMurid({
   return (
     <ul className="pin-roster">
       {murid.map((m) => (
-        <li key={m.id}>{m.nama}</li>
+        <li key={m.id}>
+          {kelas ? <Link href={`/mengajar/${kelas}/murid/${m.id}`}>{m.nama}</Link> : m.nama}
+        </li>
       ))}
     </ul>
   );

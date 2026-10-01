@@ -287,6 +287,7 @@ const RESET_SURFACES = [
   "src/app/mengajar/[kelas]/bukti/page.tsx",
   "src/app/mengajar/[kelas]/langkah/page.tsx",
   "src/app/mengajar/[kelas]/siapa/page.tsx",
+  "src/app/mengajar/[kelas]/murid/[orang]/page.tsx",
   // UX-1 login. Re-set from the canonical login handoff against baseline
   // bff6897e; the sign-in screen and the magic-link callback are now Experience
   // surfaces and are linted as such.

@@ -498,6 +498,75 @@ export async function siapa(
   return pisahSiapa(roster, rows<{ person_id: string; status: string }>(data));
 }
 
+/**
+ * M4 (D-085): ONE LEARNER, FOR THE TEACHER WHO TEACHES THEM.
+ *
+ * Where one learner of this class stands on each of the class's assessments, by
+ * the same three states /siapa lists (pisahSiapa), and their official results
+ * as the catalogue gives an EDUCATOR standing over them: `learner.result` through
+ * `metric_evaluate`, which authorizes the reader over the learner itself
+ * (audience_over_learner). Nothing is computed here, and nothing about
+ * integrity, answers (M5) or other learners is read.
+ */
+export type KeadaanMurid = "sudah" | "sedang" | "belum";
+
+export function keadaanSatu(orang: string, sesi: ReadonlyArray<{ person_id: string; status: string }>): KeadaanMurid {
+  const p = pisahSiapa([{ id: orang, nama: "" }], sesi);
+  return p.sudah.length > 0 ? "sudah" : p.sedang.length > 0 ? "sedang" : "belum";
+}
+
+export type HasilResmi = { sesi: string; mode: string; penguasaan: number | null; judul: string | null };
+
+export type CatatanMurid = {
+  tugas: Array<{ id: string; judul: string; mode: string; keadaan: KeadaanMurid }>;
+  hasil: Amplop;
+  daftarHasil: HasilResmi[];
+};
+
+export async function catatanMurid(kelasId: string, institusi: string, orang: string): Promise<CatatanMurid> {
+  const c = await db();
+  const [{ data: amplop, error }, tugas] = await Promise.all([
+    c.rpc("metric_evaluate", { p_metric_id: "learner.result", p_node: orang, p_institution: institusi }),
+    berjalan([kelasId], ["OPEN", "CLOSED"]),
+  ]);
+  const hasil = (error ? { status: "unavailable" } : amplop ?? { status: "unavailable" }) as Amplop;
+  const { data: sesiData } = tugas.length > 0
+    ? await c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status")
+        .eq("person_id", orang).in("assessment_assignment_id", tugas.map((x) => x.id))
+    : { data: [] };
+  return susunCatatan(orang, tugas, rows<SesiMurid>(sesiData), hasil);
+}
+
+type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string };
+
+/** The record from what was read: pure, so a test drives exactly what the page shows. */
+export function susunCatatan(
+  orang: string,
+  tugas: ReadonlyArray<Pick<Berjalan, "id" | "judul" | "mode">>,
+  sesi: readonly SesiMurid[],
+  hasil: Amplop,
+): CatatanMurid {
+  const milikNya = sesi.filter((x) => x.person_id === orang);
+  const judulTugas = new Map(tugas.map((x) => [x.id, x.judul]));
+  const judulSesi = new Map(milikNya.map((x) => [x.id, judulTugas.get(x.assessment_assignment_id) ?? null]));
+  const nilai = hasil.status === "ok" && Array.isArray(hasil.value)
+    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown }>)
+    : [];
+  return {
+    tugas: tugas.map((x) => ({
+      id: x.id, judul: x.judul, mode: x.mode,
+      keadaan: keadaanSatu(orang, milikNya.filter((y) => y.assessment_assignment_id === x.id)),
+    })),
+    hasil,
+    daftarHasil: nilai.map((v) => ({
+      sesi: String(v.session_id ?? ""),
+      mode: String(v.mode ?? ""),
+      penguasaan: typeof v.mastery === "number" ? v.mastery : v.mastery == null ? null : Number(v.mastery),
+      judul: judulSesi.get(String(v.session_id ?? "")) ?? null,
+    })),
+  };
+}
+
 // ═══════════════════════════════════════════════════ 5. the quick assessment
 
 export type BatasUjiCepat = {

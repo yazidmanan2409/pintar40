@@ -209,7 +209,7 @@ export default async function Kelas({
               ? ` ${s("mengajar.fakta.berubah")} ${format.date(fakta.rosterBerubah, locale)}.`
               : ""}
           </p>
-          <DaftarMurid murid={fakta.murid} locale={locale} />
+          <DaftarMurid murid={fakta.murid} locale={locale} kelas={id} />
         </div>
 
         <KakiPintar />

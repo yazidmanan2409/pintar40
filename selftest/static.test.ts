@@ -38,6 +38,7 @@ import { w9bTests } from "./w9b.test";
 import { edu23Tests } from "./edu23.test";
 import { hod05Tests } from "./hod05.test";
 import { hod09Tests } from "./hod09.test";
+import { m4Tests } from "./m4.test";
 import { w16Tests } from "./w16.test";
 import { bob12Tests } from "./bob12.test";
 import { bob32Tests } from "./bob32.test";
@@ -1933,6 +1934,7 @@ export const staticTests: SelfTest[] = [
   ...edu23Tests,
   ...hod05Tests,
   ...hod09Tests,
+  ...m4Tests,
   ...w16Tests,
   ...bob23Tests,
   ...bob12Tests,

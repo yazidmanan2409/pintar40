@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 142,
+  "version": 143,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2574,6 +2574,11 @@
       "id": "HOD09-K01",
       "runner": "static",
       "proves": "HOD-J09: a report has a way back and can be printed. Renders AksiLaporan (rendered output): «← Kembali» and «Cetak laporan» in a row that does not print; its source returns to the page the reader came from, else their doors, and prints with the browser's print. The source of /edukator/ringkasan and /dekan/ringkasan draws it in the reader's language and keeps the signed-in strip off the paper."
+    },
+    {
+      "id": "M4-K01",
+      "runner": "static",
+      "proves": "M4 (D-085): a teacher's view of one learner in their class. Executes susunCatatan (src/lib/pengajar.ts): the learner's place on each class assessment (handed in, started, not attempted), each official result with its recorded mastery and nothing else, an absent result leaving the assessments. Renders DaftarMurid (rendered output): with the class, each name opens the learner's record. Source: the page refuses anyone not on the teacher's class roster, reads results only through the catalogue's learner.result (EDUCATOR in the migration), reads no answers or integrity; the class page and /siapa link the names."
     }
   ]
 }

@@ -961,7 +961,18 @@ await step("S20", "three more students join Kelas 1A, and the school admin makes
   // M7 (D-085): the rest of Kelas 1A's cards in one press on Aktivasi, read back from the printable class set
   await a.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
   const pilih = a.locator("section.pin-akt-kelas select");
-  if (!(await pilih.count())) { rec.verdict = "FAIL"; return `Aktivasi offers no whole-class issue: ${(await bodyText(a)).slice(0, 300)}`; }
+  if (!(await pilih.count())) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(a, "aktivasi-tanpa-kelas"));
+    // diagnosis only: the page's own reads, as the school admin's session, so the cause is named
+    const tunggu = await adminApi.rpc("persons_awaiting_account");
+    const simpul = await adminApi.from("org_nodes").select("id, name, kind, parent_id, jalur, academic_period_id, is_active").eq("institution_id", ids.sd);
+    const anggota = await adminApi.from("memberships").select("node_id, enrollment:enrollments(person_id, status)").eq("node_id", ids.klass).is("valid_to", null);
+    const sungguh = sql(`select count(*) from public.memberships m where m.node_id='${ids.klass}' and m.valid_to is null`).trim();
+    return `Aktivasi offers no whole-class issue. As the school admin: awaiting ${tunggu.error ? `error ${tunggu.error.message}` : (tunggu.data ?? []).length}` +
+      ` (${JSON.stringify((tunggu.data ?? []).map((x) => [x.display_name, x.institution_id === ids.sd]))}); org_nodes ${simpul.error ? `error ${simpul.error.message}` : `${(simpul.data ?? []).length} (${(simpul.data ?? []).map((n) => n.kind).join(",")})`}; ` +
+      `Kelas 1A memberships ${anggota.error ? `error ${anggota.error.message}` : JSON.stringify(anggota.data)} (in the database: ${sungguh}); the page: ${(await bodyText(a)).slice(0, 300)}`;
+  }
   const opsi = await pilih.locator("option").evaluateAll((os) => os.map((o) => ({ v: o.value, t: o.textContent ?? "" })));
   const kelas1A = opsi.find((o) => o.t.includes("Kelas 1A"));
   if (!kelas1A) { rec.verdict = "FAIL"; return `Kelas 1A is not offered: ${JSON.stringify(opsi.map((o) => o.t))}`; }
@@ -1089,13 +1100,28 @@ await step("S21b", "while the first student has the Uji Penguasaan open, the tea
     `${ok ? "" : ` (expected ${MURID[0]} started, ${MURID.slice(1).join(", ")} not attempted)`}`;
 });
 
-await step("S22", "the teacher reads the class figures from official evidence on Lihat bukti (EDU-12, X-10)", async (rec) => {
+await step("S22", "the teacher reaches Lihat bukti by clicking and reads the class figures from official evidence, then opens a student's record from the roster (EDU-12, X-10, EDU-J03, M4)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const kelas = kelasSatuA();
   const tc = await ctx();
   const t = await tc.newPage();
   await magicSignIn(t, people.guru.email);
-  await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+  // EDU-J03: by clicking, from the teacher's home: the class, then «Lihat bukti»
+  let jalan = "clicked /mengajar → Kelas 1A → «Lihat bukti»";
+  try {
+    await t.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+    await tutupTur(t);
+    await t.locator(`a[href="/mengajar/${kelas}"]`).first().click();
+    await t.waitForURL((u) => u.pathname === `/mengajar/${kelas}`, { timeout: SLOW });
+    await tutupTur(t);
+    await t.getByRole("link", { name: "Lihat bukti", exact: true }).first().click();
+    await t.waitForURL((u) => u.pathname === `/mengajar/${kelas}/bukti`, { timeout: SLOW });
+  } catch (e) {
+    rec.verdict = "FAIL";
+    jalan = `the click path stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
+    await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+  }
+  await t.locator("h1").first().waitFor({ timeout: SLOW });
   await tutupTur(t);
   rec.shots.push(await shot(t, "d064-guru-bukti"));
   const txt = await bodyText(t);
@@ -1106,8 +1132,27 @@ await step("S22", "the teacher reads the class figures from official evidence on
   const kumpul = [...txt.matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/gi)].map((m) => `${m[1]}/${m[2]}`);
   const bagian = simpulan.includes("Penguasaan per bagian");
   if (!simpulan.includes(pahamTeks) || !simpulan.includes(naikTeks)) rec.verdict = "FAIL";
+  // M4 (EDU-J04): from the class's roster, the teacher opens student 1's record
+  let catatan = "";
+  try {
+    await t.goto(`${APP}/mengajar/${kelas}`, { waitUntil: "networkidle" });
+    await t.getByRole("link", { name: MURID[0], exact: true }).first().click();
+    await t.waitForURL((u) => u.pathname.startsWith(`/mengajar/${kelas}/murid/`), { timeout: SLOW });
+    await t.locator("h1").first().waitFor({ timeout: SLOW });
+    rec.shots.push(await shot(t, "m4-guru-murid"));
+    const h1 = norm(await t.locator("h1").first().innerText());
+    const tugasM = norm(await t.locator('section[aria-labelledby="pin-murid-tugas"]').innerText().catch(() => ""));
+    const hasilM = norm(await t.locator('section[aria-labelledby="pin-murid-hasil"]').innerText().catch(() => ""));
+    const pre = persen(RENCANA[0].pre / SOAL.pre), post = persen(RENCANA[0].post / SOAL.post);
+    const ok = h1 === MURID[0] && (tugasM.match(/Sudah mengumpulkan/g) ?? []).length >= 2 && hasilM.includes(post);
+    if (!ok) rec.verdict = "FAIL";
+    catatan = `M4: ${MURID[0]}'s record: "${h1}"; assessments: "${tugasM.slice(0, 200)}"; results: "${hasilM.slice(0, 200)}" (expected the Uji Penguasaan at ${post}; Pemetaan Awal ${pre} shown ${hasilM.includes(pre)})`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    catatan = `M4: the record was not reached: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
+  }
   await tc.close();
-  return `expected comprehension ${pahamTeks} and net gain ${naikTeks} (from the plan); on the page: comprehension ${simpulan.includes(pahamTeks)}, ` +
+  return `${jalan}; ${catatan}; expected comprehension ${pahamTeks} and net gain ${naikTeks} (from the plan); on the page: comprehension ${simpulan.includes(pahamTeks)}, ` +
     `net gain ${simpulan.includes(naikTeks)}, mastery by part shown ${bagian}; figures still absent: ${absen} (misconceptions need registered codes, D-063); ` +
     `Mengumpulkan ${JSON.stringify(kumpul)}; the figures section says: "${simpulan.slice(0, 700)}"`;
 });
@@ -1184,6 +1229,35 @@ await step("S23", "the head of department reads Kelas 1A's figures beside the cl
   return `«Yang didukung bukti» says: "${bagianC.slice(0, 160)}"${kosongC ? " (NO FIGURES, while Kelas 1A has them: W10)" : ""}; the department's roster lists ${tercantum} of ${MURID.length} students; below the department: "${bawahDept.slice(0, 160)}"${tersembunyi ? " (HIDDEN LEVEL SHOWN: W11)" : ""}; ` +
     `${laporan} (HOD-J09); Kelas 1A: "${tanda}", size shown ${ukuran?.[1] ?? "no"} (expected ${MURID.length}: HOD-J05); expected comprehension ${pahamTeks} and net gain ${naikTeks}, as on «Lihat bukti»; comprehension shown ${isi.includes(pahamTeks)}, ` +
     `net gain shown ${isi.includes(naikTeks)}; the class's figures say: "${isi.slice(0, 500)}"`;
+});
+
+// ADM-J14: the school admin ends a role on Peran & akses (the revoke button, never clicked before), and the
+// head of department, signing in afresh, is refused Pimpinan. Last, because it takes S23's reader away.
+await step("S24", "the school admin revokes the head of department's role on Konfigurasi → Peran & akses; the head of department is then refused /pimpinan (ADM-J14)", async (rec) => {
+  await a.goto(`${APP}/konfigurasi#roles`, { waitUntil: "networkidle" });
+  const baris = a.locator("#roles li").filter({ hasText: "Kepala departemen" }).filter({ hasText: "Kelas Rendah" }).first();
+  if (!(await baris.count())) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(a, "adm-j14-peran"));
+    return `no «Kepala departemen · Kelas Rendah» row on Peran & akses: ${norm(await a.locator("#roles").innerText().catch(() => "")).slice(0, 300)}`;
+  }
+  await baris.getByRole("button", { name: "Cabut", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "adm-j14-dicabut"));
+  const u = new URL(a.url());
+  const masih = await a.locator("#roles li").filter({ hasText: "Kepala departemen" }).filter({ hasText: "Kelas Rendah" }).count();
+  const hc = await ctx();
+  const h = await hc.newPage();
+  await magicSignIn(h, people.kaprodi.email);
+  await h.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+  const ditolak = (await h.locator(".pin-refusal").count()) > 0;
+  rec.shots.push(await shot(h, "adm-j14-kaprodi-ditolak"));
+  const teks = norm(await bodyText(h)).slice(0, 200);
+  await hc.close();
+  if (u.searchParams.get("hasil") !== "ok" || masih > 0 || !ditolak) rec.verdict = "FAIL";
+  return `after «Cabut»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}; the row still listed ${masih > 0}; ` +
+    `the head of department on /pimpinan refused ${ditolak}: "${teks}"`;
 });
 
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
