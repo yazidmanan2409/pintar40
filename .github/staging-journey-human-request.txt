@@ -9,3 +9,4 @@ attempt:  005   (main d08f1b1 on staging: ADM-J06/J07 intake copy; the same jour
           003   W3 before-picture on main 28d3015: J13 student 4 read 7 of 8 (run 36831200188)
           002   PASS (run 36826806100)
           001   the setup's server-made teacher check started the 60 s window; the real request was refused 429 and the screen said "Periksa email Anda" by D2
+attempt 006: main 89c1d2d on staging (batches 3+4: M9, rollover fix, setup panel; 134 migrations, environment facts run 36933136726 GREEN), re-walked after the push
