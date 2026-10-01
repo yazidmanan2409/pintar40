@@ -1220,6 +1220,46 @@ await step("S21c", "one computer, two students: the first reads a lesson to its 
   }
 });
 
+// STU-J22, X-15-STU: after the last result, the student follows «Apa berikutnya» from the result page
+// and reads what PINTAR offers next: a certificate, other open work, or the honest end
+// («Tidak ada lagi yang menunggu»). Never clicked before.
+await step("S21d", "after the Uji Penguasaan's result, the student follows «Apa berikutnya» and reads what comes next (STU-J22, X-15-STU)", async (rec) => {
+  if (!terbitBab || kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "class cards missing (S20)"; }
+  const tugas = tugasBab();
+  const k = kartuKelas[MURID.length - 1];
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+    await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+    await s.locator("#kartu").fill(k.number);
+    await s.locator("#pin").fill(k.pin);
+    await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+    await s.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+    await s.goto(`${APP}/belajar/${tugas}/hasil`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    await s.getByRole("link", { name: /Apa berikutnya/ }).first().click();
+    await s.waitForURL((u) => u.pathname === `/belajar/${tugas}/lanjut`, { timeout: SLOW });
+    await s.locator("h1").first().waitFor({ timeout: SLOW });
+    const h1 = norm(await s.locator("h1").first().innerText());
+    const teks = norm(await s.locator("main").innerText().catch(() => ""));
+    const baris = await s.locator(".pin-next .pin-nrow").count();
+    const habis = /Tidak ada lagi yang menunggu/.test(teks);
+    const sertifikat = /Lihat sertifikat/.test(teks);
+    rec.shots.push(await shot(s, "stu-j22-apa-berikutnya"));
+    // the page offers a way on, or says honestly that nothing is waiting; it never leaves the student with neither
+    if (h1 !== "Apa berikutnya" || (baris === 0 && !habis)) rec.verdict = "FAIL";
+    await sc.close();
+    return `${k.nama} followed «Apa berikutnya» from the result: "${h1}"; ${baris} thing(s) offered${sertifikat ? " (a certificate among them)" : ""}; ` +
+      `the honest end shown ${habis}; the page says: "${teks.slice(0, 260)}"`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(s, "stu-j22-berhenti"));
+    await sc.close();
+    return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
+  }
+});
+
 await step("S22", "the teacher reaches Lihat bukti by clicking and reads the class figures from official evidence, then opens a student's record from the roster (EDU-12, X-10, EDU-J03, M4)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const kelas = kelasSatuA();
