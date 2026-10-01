@@ -69,10 +69,12 @@ export const edu23Tests: SelfTest[] = [
       if (c.expect(anak.status === 0 && html.length === 2, `«Keadaan hari ini» could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
         for (const [i, locale] of (["id", "en"] as const).entries()) {
           const tautan = [...html[i].matchAll(/<a href="([^"]+)">([^<]*)<\/a>/g)].map((m) => [m[1].replace(/&amp;/g, "&"), m[2].replace(/&#x27;/g, "'")]);
+          // D-088(k), M5: a test something has been handed in for also leads to its questions (/soal)
           c.expect(JSON.stringify(tautan) === JSON.stringify([
             ["/mengajar/k1a/siapa?penugasan=pre-1", t("mengajar.bukti.siapa", "educator", { locale })],
+            ["/mengajar/k1a/soal?penugasan=pre-1", t("mengajar.bukti.per_soal", "educator", { locale })],
             ["/mengajar/k1a/siapa?penugasan=post-1", t("mengajar.bukti.siapa", "educator", { locale })],
-          ]), `(${locale}) the tests' counts lead to ${JSON.stringify(tautan)}; expected each test to its own names on /siapa`);
+          ]), `(${locale}) the tests' counts lead to ${JSON.stringify(tautan)}; expected each test to its own names on /siapa, and the one with hand-ins to its questions on /soal`);
         }
       }
 

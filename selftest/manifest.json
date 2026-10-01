@@ -2647,7 +2647,7 @@
       "requires": [
         "db"
       ],
-      "proves": "D-088(h): a reviewer reads what they approve, and nobody else does. In the database, rolled back, under each reader's own row security (items_select, item_options_select: CAN_DRAFT in the school): the bootstrap course's head of department, administrator and teacher each read every question, option, key and reason; its learner and another school's teacher read none.",
+      "proves": "D-088(h): a reviewer reads what they approve, and nobody else does. In the database, rolled back, under each reader's own row security as the schema declares it (items_select, item_options_select: CAN_DRAFT in the school): the bootstrap course's head of department, administrator and teacher each read every question, option, key and reason; its learner and another school's teacher read none.",
       "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

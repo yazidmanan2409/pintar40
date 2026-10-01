@@ -288,6 +288,9 @@ const RESET_SURFACES = [
   "src/app/mengajar/[kelas]/langkah/page.tsx",
   "src/app/mengajar/[kelas]/siapa/page.tsx",
   "src/app/mengajar/[kelas]/murid/[orang]/page.tsx",
+  // D-088(k), M5: which questions the class found hard. Built on the token set
+  // and the shared pin-* classes from the start.
+  "src/app/mengajar/[kelas]/soal/page.tsx",
   // UX-1 login. Re-set from the canonical login handoff against baseline
   // bff6897e; the sign-in screen and the magic-link callback are now Experience
   // surfaces and are linted as such.
@@ -10727,8 +10730,9 @@ export const experienceTests: SelfTest[] = [
         });
       }
       const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
-      c.expect(/bagian\.map\(\(\[nama, nilai\]\) => \(\s*<BarisKesiapan\b[^>]*\blabel=\{nama\}/.test(bukti)
-        && !/tierKey=\{nama\}/.test(bukti),
+      // D-088(g) (MC-4): the row is the objective, and its name is the objective's statement (`competency`)
+      c.expect(/bagian\.map\(\((\w+)\) => \(\s*<BarisKesiapan\b[^>]*\blabel=\{\1\.competency\}/.test(bukti)
+        && !/tierKey=\{\w+\.(?:competency|code)\}/.test(bukti),
         "«Lihat bukti» does not pass each topic's own name as the row's label, or still looks it up as a copy key");
 
       /**
