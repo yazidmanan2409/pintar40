@@ -1063,10 +1063,11 @@ await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan 
   rec.shots.push(await shot(h, "d064-kaprodi-pimpinan"));
   const isi = norm(await kelasBukti.innerText());
   const pahamTeks = persen(HARAP.paham);
-  const naikTeks = persen(HARAP.naik);
-  if (!/Ada angka/.test(tanda) || !isi.includes(pahamTeks)) rec.verdict = "FAIL";
+  // W9: the net gain reads as «Lihat bukti» reads it (S22), not as a percentage
+  const naikTeks = `${HARAP.naik > 0 ? "+" : ""}${Math.round(HARAP.naik * 100)} poin`;
+  if (!/Ada angka/.test(tanda) || !isi.includes(pahamTeks) || !isi.includes(naikTeks)) rec.verdict = "FAIL";
   await hc.close();
-  return `Kelas 1A: "${tanda}"; expected comprehension ${pahamTeks} (and net gain as ${naikTeks}); comprehension shown ${isi.includes(pahamTeks)}, ` +
+  return `Kelas 1A: "${tanda}"; expected comprehension ${pahamTeks} and net gain ${naikTeks}, as on «Lihat bukti»; comprehension shown ${isi.includes(pahamTeks)}, ` +
     `net gain shown ${isi.includes(naikTeks)}; the class's figures say: "${isi.slice(0, 500)}"`;
 });
 

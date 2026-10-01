@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 134,
+  "version": 135,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2534,6 +2534,11 @@
       "id": "W16-K01",
       "runner": "static",
       "proves": "W16 (EDU-J16, EDU-J01): the teacher's view says what learners can see and what is waiting. Executes pilihBerjalan, keadaanEfektif, statusMateri and pilihKelasTanpaMateri (src/lib/pengajar.ts): an assessment opening tomorrow is not «Berjalan» today nor counted on «Lihat bukti»; material with a future «Mulai» reads «Dijadwalkan» in the copy table's both languages, never «Tersedia»; with published material the home names the first class that has none and proposes no course (BOB-40). The source of the class page reads statusMateri; the source of the home asks kelasTanpaMateri before saying nothing is waiting."
+    },
+    {
+      "id": "W9-K01",
+      "runner": "static",
+      "proves": "W9, the class's figures (HOD-J03, HOD-J09): one figure, one reading on every screen. Executes nilaiMetrik (src/lib/nilai-metrik.ts) in both languages: a net gain reads as «Lihat bukti» reads it (+35 poin; a negative one signed, no raw decimal) at class and school; a share reads as a percentage at 0 and 1 as well as between; a count as a count; a metric it does not name reads as before. The source of /pimpinan, of its class pages and of «Lihat bukti» reads nilaiMetrik and keeps no guess of its own. Not covered: how the report pages show cohorts and competencies."
     }
   ]
 }

@@ -7,6 +7,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni } from "@/components/bukti";
+import { nilaiMetrik } from "@/lib/nilai-metrik";
 
 export const dynamic = "force-dynamic";
 
@@ -133,10 +134,9 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
         <div className="pin-sec">
           <h2>{s("mengajar.bukti.simpulan")}</h2>
           <div className="pin-grid2">
-            {angka(paham, "class.comprehension", (v) => format.percent(v, locale))}
-            {angka(naik, "class.net_gain", (v) =>
-              `${v > 0 ? "+" : ""}${format.number(Math.round(v * 100), locale)} ${s("mengajar.bukti.poin")}`,
-            )}
+            {/* W9: the same reading as /pimpinan's, from one rule */}
+            {angka(paham, "class.comprehension", (v) => nilaiMetrik("class.comprehension", v, locale))}
+            {angka(naik, "class.net_gain", (v) => nilaiMetrik("class.net_gain", v, locale))}
           </div>
 
           {/* Mastery by part: an ORDER, not a verdict. The evaluator returns a

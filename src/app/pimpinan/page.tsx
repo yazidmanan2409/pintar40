@@ -2,6 +2,7 @@ import Link from "next/link";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
+import { nilaiMetrik } from "@/lib/nilai-metrik";
 import { menunggu, urutan } from "@/lib/pimpinan-kontrak";
 import { putuskanAksi } from "./actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
@@ -186,7 +187,7 @@ export default async function Pimpinan({
                   <AngkaTerkelola
                     key={e.metric_id ?? `angka-${i}`}
                     entry={e}
-                    value={nilai(e.value, locale)}
+                    value={nilaiMetrik(e.metric_id, e.value, locale)}
                     locale={locale}
                   />
                 ))}
@@ -234,7 +235,7 @@ export default async function Pimpinan({
                         {ada.length > 0 ? (
                           <div className="pin-grid2">
                             {ada.map((e, i) => (
-                              <AngkaTerkelola key={e.metric_id ?? `angka-${i}`} entry={e} value={nilai(e.value, locale)} locale={locale} />
+                              <AngkaTerkelola key={e.metric_id ?? `angka-${i}`} entry={e} value={nilaiMetrik(e.metric_id, e.value, locale)} locale={locale} />
                             ))}
                           </div>
                         ) : null}
@@ -282,26 +283,3 @@ export default async function Pimpinan({
   );
 }
 
-/**
- * A figure as a human reads it.
- *
- * DELIBERATELY NOT A FORMATTER PER METRIC. The catalogue declares what each
- * figure means and `AngkaBerdiri` renders the meaning beside it; what this needs
- * to do is render the VALUE without inventing a unit for it. A ratio between 0
- * and 1 is shown as a percentage because every ratio in this catalogue is one, a
- * whole number as a count, and anything structured — a distribution, a list —
- * is left to its own count of entries rather than being flattened into a number
- * that would mean nothing.
- */
-function nilai(value: unknown, locale: "id" | "en"): string {
-  if (typeof value === "number") {
-    return value > 0 && value <= 1 && !Number.isInteger(value)
-      ? format.percent(value, locale)
-      : format.number(value, locale);
-  }
-  if (Array.isArray(value)) return format.number(value.length, locale);
-  if (value !== null && typeof value === "object") {
-    return format.number(Object.keys(value as Record<string, unknown>).length, locale);
-  }
-  return "—";
-}
