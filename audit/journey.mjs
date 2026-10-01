@@ -1277,7 +1277,7 @@ await step("S22", "the teacher reaches Lihat bukti by clicking and reads the cla
     `Mengumpulkan ${JSON.stringify(kumpul)}; the figures section says: "${simpulan.slice(0, 700)}"`;
 });
 
-await step("S23", "the head of department reads Kelas 1A's figures beside the class's size on /pimpinan, opens and prints the class's report and comes back, and reads their department's roster (HOD-09, X-10, HOD-J05, HOD-J06, HOD-J09)", async (rec) => {
+await step("S23", "the head of department reads Kelas 1A's figures beside the class's size on /pimpinan, opens and prints the class's report and comes back, reads their department's roster and opens a learner's record from it (HOD-09, X-10, HOD-J05, HOD-J06, HOD-J09)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const hc = await ctx();
   const h = await hc.newPage();
@@ -1342,12 +1342,28 @@ await step("S23", "the head of department reads Kelas 1A's figures beside the cl
   } catch (e) {
     roster = `not reached: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
   }
+  // HOD-J06: from the department's roster, the head of department opens one learner's record by their name
+  let rekam = "";
+  try {
+    await h.getByRole("link", { name: MURID[0], exact: true }).first().click();
+    await h.waitForURL((u) => /\/murid\/[^/]+$/.test(u.pathname), { timeout: SLOW });
+    await h.locator("h1").first().waitFor({ timeout: SLOW });
+    const namaR = norm(await h.locator("h1").first().innerText());
+    const tempatR = norm(await h.locator("main dl").first().innerText().catch(() => ""));
+    const catatR = norm(await h.locator('section[aria-labelledby="pin-catatan"]').innerText().catch(() => ""));
+    rec.shots.push(await shot(h, "hod-j06-rincian-murid"));
+    if (namaR !== MURID[0] || !tempatR.includes("Kelas 1A")) rec.verdict = "FAIL";
+    rekam = `HOD-J06: ${MURID[0]}'s record opened from the roster: "${namaR}"; placement "${tempatR.slice(0, 120)}"; learning record: "${catatR.slice(0, 200)}"`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rekam = `HOD-J06: the record was not reached from the roster: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
+  }
   const tercantum = MURID.filter((n) => roster.includes(n)).length;
   const tersembunyi = /\b(Reguler|Jenjang)\b/.test(bawahDept);
   if (kosongC || tercantum < MURID.length || tersembunyi || !bawahDept.includes("Kelas 1A")) rec.verdict = "FAIL";
   await hc.close();
   return `«Yang didukung bukti» says: "${bagianC.slice(0, 160)}"${kosongC ? " (NO FIGURES, while Kelas 1A has them: W10)" : ""}; the department's roster lists ${tercantum} of ${MURID.length} students; below the department: "${bawahDept.slice(0, 160)}"${tersembunyi ? " (HIDDEN LEVEL SHOWN: W11)" : ""}; ` +
-    `${laporan} (HOD-J09); Kelas 1A: "${tanda}", size shown ${ukuran?.[1] ?? "no"} (expected ${MURID.length}: HOD-J05); expected comprehension ${pahamTeks} and net gain ${naikTeks}, as on «Lihat bukti»; comprehension shown ${isi.includes(pahamTeks)}, ` +
+    `${laporan} (HOD-J09); ${rekam}; Kelas 1A: "${tanda}", size shown ${ukuran?.[1] ?? "no"} (expected ${MURID.length}: HOD-J05); expected comprehension ${pahamTeks} and net gain ${naikTeks}, as on «Lihat bukti»; comprehension shown ${isi.includes(pahamTeks)}, ` +
     `net gain shown ${isi.includes(naikTeks)}; the class's figures say: "${isi.slice(0, 500)}"`;
 });
 
