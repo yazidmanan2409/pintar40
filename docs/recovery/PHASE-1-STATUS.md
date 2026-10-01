@@ -1,13 +1,13 @@
 # Phase 1 status
 
-**1 October 2026.** The Phase 0 and Phase 1 exit package for independent review (ChatGPT) and Yazid's acceptance.
+**1 October 2026.** The Phase 0 and Phase 1 exit package: reviewed by ChatGPT, accepted by Yazid.
 
 - **PHASE 0: COMPLETE.**
 - **PHASE 1: SCOPE CLOSED, 1 Oct.** Yazid approved O1 (D-086), after ChatGPT's review, with CF13–CF15 confirmed and G1 ruled. Yazid confirmed the same day that "O1 APPROVED" was his owner sign-off.
-- **PHASE 1 EXIT: OPEN.** The one-time owner access (§7) stays a Phase 1 exit requirement (Yazid, 1 Oct: not moved into Phase 2). Phase 1 closes when both §7 items are done and verified.
+- **PHASE 1: CLOSED, 1 Oct (03:11 UTC).** Every exit condition in the charter is met: the package was reviewed by ChatGPT and accepted by Yazid; the inventory was approved (O1, D-086); the one-time owner access is done (§7). Yazid kept that access as a Phase 1 requirement rather than moving it into Phase 2.
 - **Updated 1 Oct, after review.** The journey coverage cross-check (`PINTAR-4.0-JOURNEY-COVERAGE-CROSS-CHECK-2026-10-01.md`) and the owner rulings M1–M10 and T1–T4 (D-085) are applied; so are corrections K1–K4. §4.2 and §5–§6 reflect them.
-- **READY FOR INDEPENDENT PHASE-EXIT REVIEW: YES.**
-- Nothing in Phase 2 has started.
+- **PHASE 2: NOT STARTED, NOT AUTHORISED.** It starts only on Yazid's explicit approval, with Claude and ChatGPT agreeing that Phase 1 is sound (D-084).
+- **The closure is not a health statement** (D-086(g)). On `main`, 13 of 226 journey rows are connected by clicking; 41 supported rows are missing; 8 behave wrongly; nothing is DEPLOYED, JOURNEY-PROVEN or HUMAN-ACCEPTED. The lanes stay paused, and no held work was merged.
 
 ---
 
@@ -326,16 +326,26 @@ The detail follows. A row is TESTED only when its whole expected behaviour was r
 - **O3. The size of the first real deployment,** which sets L1 (the open item of D-083). Needed before Phase 7.
 - **Already open:** the readiness-tier words (D-082(e)), needed before UI/UX POLISHED.
 
-## 7. One-time owner actions: Phase 1 exit requirements (the complete list)
+## 7. One-time owner actions: Phase 1 exit requirements (DONE, 1 Oct)
 
-Both are done by Yazid in a web browser. No password passes through chat or the repository.
+Both were done by Yazid in a web browser. No password passed through chat or the repository.
 
-1. **The staging test mailbox (C2).**
-   - **Mailbox:** `goldenschool@pintarselalu.com`, created in Namecheap cPanel (Email Accounts). Plus-addressing gives each run a fresh address (`goldenschool+<run>@pintarselalu.com`).
-   - **Secret:** its password in GitHub as the repository secret `GS_MAILBOX_PASSWORD`. Host and ports are fixed in the repository: `pintarselalu.com`, IMAP 993, SMTP 465.
-   - **Verified by machine:** `.github/workflows/phase1-mailbox-check.yml`. It logs in, proves its search can fail (a token never sent is found 0 times), sends one email from the mailbox to a fresh plus-address, and reads it back. The coordinator runs it once Yazid reports the step done.
-2. **A GitHub Actions spending alert:** threshold alerts on the account's Actions budget (USD 100 since 1 Oct), emailed to Yazid. The amount and the stop-at-limit setting stay as they are.
-   - **Evidence:** GitHub billing settings cannot be read by the coordinator's tools, so the evidence is Yazid's screenshot of the budget with its alerts on.
+1. **The staging test mailbox (C2): DONE and machine-verified.**
+   - **Mailbox:** `goldenschool@pintarselalu.com`, created in Namecheap cPanel, 1 GB, unrestricted (Yazid's cPanel screenshot, 1 Oct). Plus-addressing gives each run a fresh address (`goldenschool+<tag>@pintarselalu.com`).
+   - **Secret:** its password is the repository secret `GS_MAILBOX_PASSWORD` (Yazid's GitHub screenshot: "Repository secret added", 1 Oct). Host and ports are fixed in the repository: `pintarselalu.com`, IMAP 993, SMTP 465.
+   - **Machine evidence: PASS.** Run `36809298057` of `.github/workflows/phase1-mailbox-check.yml`, on `4bd2c0f`, 1 Oct 03:10:50–03:11:18 UTC:
+     1. The IMAP login succeeded with the secret, over TLS on port 993.
+     2. **Controlled red:** a token never sent was found 0 times.
+     3. The host accepted one email for `goldenschool+p1checkf228aca869fa@pintarselalu.com`.
+     4. It was delivered, and its To header is that plus-address.
+   - **Observation for Phase 2's mailbox reader (not a defect):** cPanel files each plus-address in its own folder (`INBOX.<tag>`), so every run will create one folder. The reader must search every folder, as this check does, or the cPanel folder option must be switched off.
+   - **Run cost:** the check sent one email (of the domain's 50 per hour). It wrote nothing to staging, production, Supabase or Vercel.
+2. **A GitHub Actions spending alert: DONE, owner-attested.**
+   - **Evidence:** Yazid's screenshot of Settings → Billing and licensing → Budgets and alerts (1 Oct):
+     - **Included usage alerts: On.**
+     - The Actions budget is USD 100, with stop usage on and $0 spent so far this month.
+   - The coordinator's tools cannot read GitHub billing settings, so there is no machine evidence for this item.
+   - **Not visible on that screen:** whether the Actions budget's own threshold alerts are on. Those are the warnings before the USD 100 stop, which is what stopped CI without warning on 30 Sep. Turning them on is optional hardening, Yazid's call: on the Actions budget's "…" menu, choose **Edit**, tick **Receive budget threshold alerts**, then **Update budget**.
 
 **Only if Phase 2's first read-only check shows they are needed:**
 - a Vercel token that can read deployments, environment metadata and logs (if the existing `VERCEL_TOKEN` cannot);
@@ -356,4 +366,4 @@ Both are done by Yazid in a web browser. No password passes through chat or the 
 - GitHub Actions run lists and the logs of CI #246 and audit #55.
 - The session list (lane reachability).
 
-No write was made anywhere except the coordinator branch.
+**The one write outside the coordinator branch:** for the Phase 1 exit, run `36809298057` sent one test email from `goldenschool@pintarselalu.com` to itself, then read it back (§7). Nothing else was written outside the coordinator branch: not staging, production, Supabase, Vercel, `main` or the lanes.
