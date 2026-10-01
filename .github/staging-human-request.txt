@@ -6,5 +6,5 @@ prepares, through PINTAR's own operations by that school's existing synthetic
 admin: a teacher Yazid signs in to with the email link, and two students with
 class cards. Staging only; nothing in the product, sign-in or settings changes.
 
-attempt:  001
+attempt:  002   (001: main refuses a staff row in the intake; now a name-only row, then the role)
 teacher:  yazidmanan2904+guru@gmail.com   (Yazid's choice, 1 Oct)

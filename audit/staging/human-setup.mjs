@@ -86,7 +86,9 @@ let teacher = sql(`select a.person_id from public.accounts a join auth.users u o
 if (teacher) {
   say(`teacher: the account for ${TEACHER_EMAIL} already exists; reused`);
 } else {
-  const job = await record([{ display_name: TEACHER_NAME, node_id: KID, role: "EDUCATOR" }]);
+  // main refuses a staff row in the intake ("a staff row is not recorded by the bulk intake yet"); its
+  // supported route is a name-only row (recorded in the school, no place, no role), then the role (BOB-21).
+  const job = await record([{ display_name: TEACHER_NAME }]);
   const p = await awaiting(TEACHER_NAME);
   if (!p) throw new Error(`the teacher was not recorded (intake ${job}); row states: ${sql(`select string_agg(ordinal||':'||state::text, ',') from public.import_rows where job_id = ${uuid(job)}`)}`);
   await activate({ mode: "EMAIL", person_id: p.person_id ?? p.id, email: TEACHER_EMAIL });
