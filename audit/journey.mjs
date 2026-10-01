@@ -302,8 +302,15 @@ await step("S7b", "Gladys (platform admin) opens Struktur sekolah: which school 
 let adminApi;
 await step("S8", "intake with only the school's root as 'Tempat' (all a new school has)", async (rec) => {
   adminApi = await apiSession(people.sdAdmin.email);
-  const ns = await adminApi.rpc("reserve_institution_namespace", { p_institution: ids.sd, p_namespace: "SDZ" });
-  if (ns.error) throw new Error(`reserve code: ${ns.error.message}`);
+  // ADM-J08: the school's code is set on the Pendataan screen, by the school admin
+  await a.goto(`${APP}/pendataan`, { waitUntil: "networkidle" });
+  await tutupTur(a);
+  await a.locator("#pin-kode-isi").fill("SDZ");
+  await a.getByRole("button", { name: "Simpan kode", exact: true }).click();
+  await a.waitForURL((u) => u.pathname === "/pendataan", { timeout: SLOW });
+  await a.waitForLoadState("networkidle");
+  const ns = sql(`select coalesce(namespace, '') from public.institutions where id='${ids.sd}'`).trim();
+  if (ns !== "SDZ" || new URL(a.url()).searchParams.get("galat")) throw new Error(`the code was not saved on the screen: namespace «${ns}», ${a.url()}`);
   const rows = [{ display_name: "Ani Murid", node_id: ids.sd, role: "STUDENT" }, { display_name: "Pak Guru Tono", node_id: ids.sd, role: "EDUCATOR" }];
   const job = await adminApi.rpc("import_open", { p_institution: ids.sd, p_rows: rows });
   if (job.error) throw new Error(`open: ${job.error.message}`);
@@ -940,24 +947,52 @@ async function jawab(page, mode, right, { simpanTerakhir = true } = {}) {
 }
 
 const kartuKelas = [];
-await step("S20", "three more students join Kelas 1A, and the school admin makes the rest of the class's cards in one press, as a printable class set (M7)", async (rec) => {
+// ADM-J08: the Pendataan screen, as a school admin uses it with a list copied from a spreadsheet.
+async function catatLewatLayar(page, nama, shots) {
+  const jejak = [];
+  await page.goto(`${APP}/pendataan`, { waitUntil: "networkidle" });
+  await tutupTur(page);
+  await page.locator("#pin-tempel").fill(["nama", ...nama].join("\n"));
+  await page.locator("#pin-medan-node_id").waitFor({ timeout: SLOW });
+  const tempat = await page.locator("#pin-medan-node_id option").evaluateAll((os) => os.map((o) => ({ v: o.value, t: (o.textContent ?? "").trim() })));
+  const k1a = tempat.find((o) => o.v.startsWith("t:") && /Kelas 1A/.test(o.t));
+  if (!k1a) throw new Error(`Kelas 1A is not offered as a place: ${JSON.stringify(tempat.map((o) => o.t))}`);
+  await page.locator("#pin-medan-node_id").selectOption(k1a.v);
+  await page.locator("#pin-medan-role").selectOption("t:STUDENT");
+  jejak.push(`pasted ${nama.length} names; Tempat «${k1a.t}», Peran Murid for every row`);
+  shots.push(await shot(page, "pendataan-petakan"));
+  await page.getByRole("button", { name: "Lanjut ke pemeriksaan", exact: true }).click();
+  await page.waitForURL((u) => /^\/pendataan\/[^/]+$/.test(u.pathname), { timeout: SLOW });
+  await page.getByRole("button", { name: "Periksa daftar ini", exact: true }).click();
+  await page.getByRole("button", { name: "Ya, catat orang-orang ini", exact: true }).waitFor({ timeout: SLOW });
+  shots.push(await shot(page, "pendataan-pratinjau"));
+  jejak.push("«Periksa daftar ini» → the preview");
+  await page.getByRole("button", { name: "Ya, catat orang-orang ini", exact: true }).click();
+  for (let i = 0; i < 60; i++) {
+    await page.waitForLoadState("networkidle");
+    const teks = norm(await bodyText(page));
+    if (/· Selesai\b/.test(teks)) { jejak.push("«Selesai»"); break; }
+    for (const tombol of ["Sudah saya periksa, lanjutkan sisanya", "Mulai mencatat", "Lanjutkan"]) {
+      const b = page.getByRole("button", { name: tombol, exact: true });
+      if (await b.count() && await b.first().isEnabled()) { await b.first().click(); jejak.push(`«${tombol}»`); break; }
+    }
+    await page.waitForTimeout(1000);
+    if (i % 5 === 4) await page.reload({ waitUntil: "networkidle" });
+  }
+  shots.push(await shot(page, "pendataan-selesai"));
+  return jejak.join(" → ");
+}
+
+await step("S20", "the school admin records three more students in Kelas 1A on the Pendataan screen (ADM-J08), then makes the rest of the class's cards in one press, as a printable class set (M7)", async (rec) => {
   if (!card || !adminApi) { rec.verdict = "BLOCKED"; return !card ? "no card for Ani (S10)" : "no school admin session"; }
   kartuKelas.push({ nama: MURID[0], ...card });
-  const rows = MURID.slice(2).map((display_name) => ({ display_name, node_id: ids.klass, role: "STUDENT" }));
-  const job = await adminApi.rpc("import_open", { p_institution: ids.sd, p_rows: rows });
-  if (job.error) throw new Error(job.error.message);
-  const log = [];
-  for (const fn of ["import_validate", "import_confirm"]) {
-    const r = await adminApi.rpc(fn, { p_job: job.data });
-    if (r.error) log.push(`${fn}: ${r.error.message}`);
-  }
-  for (let i = 0; i < 4; i++) {
-    const adv = await adminApi.rpc("import_advance", { p_job: job.data, p_max_rows: 50 });
-    if (adv.error && /pilot/i.test(adv.error.message)) {
-      const vp = await adminApi.rpc("import_verify_pilot", { p_job: job.data });
-      if (vp.error) log.push(`verify_pilot: ${vp.error.message}`);
-    }
-  }
+  // ADM-J08: the school admin records the three on the Pendataan screen by hand: pastes the list from a
+  // spreadsheet, chooses Kelas 1A and Murid for every row, checks, confirms, and waits for «Selesai»
+  const log = [await catatLewatLayar(a, MURID.slice(2), (rec.shots))];
+  const tercatat = sql(`select count(*) from public.enrollments e join public.persons p on p.id = e.person_id
+     join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+    where e.institution_id='${ids.sd}' and m.node_id='${ids.klass}' and p.display_name in (${MURID.slice(2).map((n) => `'${n}'`).join(",")})`).trim();
+  if (Number(tercatat) !== 3) { rec.verdict = "FAIL"; return `${log.join(" | ")}; in Kelas 1A afterwards: ${tercatat} of 3`; }
   // M7 (D-085): the rest of Kelas 1A's cards in one press on Aktivasi, read back from the printable class set
   await a.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
   const pilih = a.locator("section.pin-akt-kelas select");
