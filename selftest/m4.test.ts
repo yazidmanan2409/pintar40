@@ -21,7 +21,7 @@ export const m4Tests: SelfTest[] = [
       const c = new Checks();
       const ajar = (await import("../src/lib/pengajar")) as Record<string, unknown> as {
         susunCatatan?: (orang: string, tugas: unknown[], sesi: unknown[], hasil: unknown) => {
-          tugas: Array<{ id: string; keadaan: string }>; daftarHasil: Array<{ sesi: string; judul: string | null; penguasaan: number | null; mode: string }>;
+          tugas: Array<{ id: string; keadaan: string }>; daftarHasil: Array<{ sesi: string; judul: string | null; penguasaan: number | null; mode: string; batas?: number | null }>;
         };
       };
       const susun = ajar.susunCatatan;
