@@ -1458,6 +1458,43 @@ await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas
     `1A's roster still names ${nama}: ${roster.includes(nama)}; «Mengumpulkan» on 1A's Lihat bukti: ${JSON.stringify(kumpul)} (expected ${sisa})`;
 });
 
+// ADM-J20: a setup mistake corrected on the Struktur sekolah screen, whose rename and deactivate had never
+// been clicked. The school admin tries to deactivate Kelas 1B while a student is in it (refused, with the
+// reason and the way on), then renames it.
+await step("S26", "the school admin corrects the structure on Struktur sekolah: deactivating a Kelas with a student in it is refused with the reason, and renaming it works (ADM-J20)", async (rec) => {
+  const satuB = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1B' limit 1`).trim();
+  if (!satuB) { rec.verdict = "BLOCKED"; return "no Kelas 1B (S25)"; }
+  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  const baris = () => a.locator("#struktur .pin-str-baris").filter({ has: a.locator("strong.pin-str-nama", { hasText: /^Kelas 1B$/ }) }).first();
+  if (!(await baris().count())) { rec.verdict = "FAIL"; return `Kelas 1B is not on Struktur sekolah: ${norm(await a.locator("#struktur").innerText().catch(() => "")).slice(0, 200)}`; }
+  // deactivate, with a student placed there: the question first, then the refusal with its reason
+  await baris().getByRole("button", { name: "Nonaktifkan", exact: true }).click();
+  const tanya = norm(await a.locator("#struktur form.pin-str-tanya").first().innerText().catch(() => ""));
+  await a.locator("#struktur form.pin-str-tanya").first().getByRole("button", { name: "Ya, nonaktifkan", exact: true }).click();
+  await a.waitForFunction(() => /Masih ada murid di sini/.test(document.querySelector("#struktur")?.textContent ?? ""), null, { timeout: SLOW }).catch(() => {});
+  const tolak = norm(await a.locator("#struktur").innerText().catch(() => ""));
+  const masihAktif = sql(`select is_active from public.org_nodes where id='${satuB}'`).trim() === "t";
+  rec.shots.push(await shot(a, "adm-j20-nonaktif-ditolak"));
+  // rename
+  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  await baris().getByRole("button", { name: "Ubah nama", exact: true }).click();
+  await a.locator(`#str-ubah-${satuB}`).fill("Kelas 1 Biru");
+  await a.locator("#struktur form.pin-str-ubah").first().getByRole("button", { name: "Simpan", exact: true }).click();
+  for (let i = 0; i < 30; i++) {
+    if (sql(`select name from public.org_nodes where id='${satuB}'`).trim() === "Kelas 1 Biru") break;
+    await a.waitForTimeout(500);
+  }
+  await a.waitForLoadState("networkidle");
+  const nama = sql(`select name from public.org_nodes where id='${satuB}'`).trim();
+  const layar = norm(await a.locator("#struktur").innerText().catch(() => ""));
+  rec.shots.push(await shot(a, "adm-j20-ubah-nama"));
+  const ok = /Nonaktifkan Kelas Kelas 1B\?|Kelas 1B\?/.test(tanya) && /Masih ada murid di sini\. Pindahkan mereka dulu\./.test(tolak) && masihAktif
+    && nama === "Kelas 1 Biru" && /Kelas 1 Biru/.test(layar);
+  if (!ok) rec.verdict = "FAIL";
+  return `the question: "${tanya.slice(0, 120)}"; after «Ya, nonaktifkan» with Eka placed there: the reason shown ${/Masih ada murid di sini/.test(tolak)}, still active ${masihAktif}; ` +
+    `renamed to "${nama}", shown on the screen ${/Kelas 1 Biru/.test(layar)}`;
+});
+
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
   const tok = `acak${Date.now()}`;
   const api = await fetch(`${APP}/api/verifikasi/${tok}`, { redirect: "manual" });
