@@ -15,6 +15,12 @@ on:
         description: "Commit or branch of the application to audit (the gate runs it on a candidate before release)"
         required: false
         default: "main"
+      plant:
+        description: "Controlled red (EVIDENCE-MODEL §5): plant one failure in the crawl or the journey, to prove the job turns red"
+        required: false
+        default: "none"
+        type: choice
+        options: [none, crawl, journey, both]
 
 permissions:
   contents: read
@@ -23,6 +29,8 @@ env:
   # The application under audit: the dispatched ref, else the release in production.
   RELEASE_SHA: ${{ inputs.ref || '5b5b68d4c77700976904fdee5a2fb52e46f8221e' }}
   APP_PORT: "3999"
+  # Any FAIL or BLOCKED step, or any broken page, turns its job red (D-087).
+  AUDIT_PLANT: ${{ inputs.plant || 'none' }}
 
 jobs:
   seeded-world:

@@ -1095,7 +1095,26 @@ await step("P3", "U-LOC: an unknown page shows PINTAR's own localized page, not 
   return `HTTP ${resp?.status()} | framework default page: ${frameworkDefault} | text: ${txt.slice(0, 120)} | GET /masuk/kartu ends at ${kartuDi} (HTTP ${kartu?.status()})`;
 });
 
+// The controlled red (EVIDENCE-MODEL §5): AUDIT_PLANT=journey adds one step
+// that fails, so a run can show once that this harness turns the job red.
+if (["journey", "both"].includes(process.env.AUDIT_PLANT)) {
+  await step("PLANT", "planted failure: proves the harness goes red", async (rec) => { rec.verdict = "FAIL"; return "AUDIT_PLANT=journey"; });
+}
+
 await browser.close();
 writeFileSync(join(OUT, "journey.json"), JSON.stringify({ ids, steps }, null, 2));
 const tally = steps.reduce((m, s) => ((m[s.verdict] = (m[s.verdict] ?? 0) + 1), m), {});
 console.log("TALLY", JSON.stringify(tally));
+
+// The harness can fail (D-087, Phase 2): any FAIL or BLOCKED step turns the
+// job red. A NOTE does not; it names something the candidate predates.
+const red = steps.filter((s) => s.verdict === "FAIL" || s.verdict === "BLOCKED");
+if (process.env.GITHUB_STEP_SUMMARY) {
+  const cell = (t) => String(t ?? "").replace(/\|/g, "\\|").replace(/\s+/g, " ").slice(0, 220);
+  const rows = steps.map((s) => `| ${s.verdict} | ${s.id} | ${cell(s.title)} | ${cell(s.observed)} |`);
+  writeFileSync(process.env.GITHUB_STEP_SUMMARY, [`### Journey B: ${red.length ? `RED, ${red.length} step(s) FAIL or BLOCKED` : "GREEN"}`, "", `Tally: ${JSON.stringify(tally)}`, "", "| Verdict | Step | Title | Observed |", "|---|---|---|---|", ...rows, ""].join("\n"), { flag: "a" });
+}
+if (red.length) {
+  console.log(`RED: ${red.map((s) => `${s.id} ${s.verdict}`).join(", ")}`);
+  process.exitCode = 1;
+}

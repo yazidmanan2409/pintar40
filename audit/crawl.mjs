@@ -160,3 +160,24 @@ for (const r of all) {
     if (x.error) console.log(`      nav-error: ${x.error}`);
   }
 }
+
+// The crawl can fail (D-087, Phase 2): a server error, the framework's error
+// page, a navigation error or an uncaught page error on any page turns the job
+// red. A refusal page is not a failure: it is the product refusing a role.
+const broken = [];
+for (const r of all) {
+  if (r.error) broken.push(`${r.persona}: ${r.error}`);
+  for (const x of r.pages) {
+    if (x.errorPage || (x.status ?? 0) >= 500 || x.error || x.consoleErrors.some((c) => c.text.startsWith("PAGEERROR")))
+      broken.push(`${r.persona} ${x.path} -> ${x.finalPath ?? "-"} (${x.error ?? (x.errorPage ? "error page" : x.status >= 500 ? `HTTP ${x.status}` : "page error")})`);
+  }
+}
+// The controlled red: AUDIT_PLANT=crawl adds one broken page.
+if (["crawl", "both"].includes(process.env.AUDIT_PLANT)) broken.push("PLANT: planted failure, proves the crawl goes red");
+if (process.env.GITHUB_STEP_SUMMARY) {
+  writeFileSync(process.env.GITHUB_STEP_SUMMARY, [`### Crawl A: ${broken.length ? `RED, ${broken.length} broken` : "GREEN"}`, "", ...all.map((r) => `- ${r.persona} (${r.role}): ${r.pages.length} pages${r.error ? `, ERROR ${r.error}` : ""}`), "", ...broken.map((b) => `- BROKEN ${b}`), ""].join("\n"), { flag: "a" });
+}
+if (broken.length) {
+  console.log(`\nRED: ${broken.length} broken\n  ${broken.join("\n  ")}`);
+  process.exitCode = 1;
+}
