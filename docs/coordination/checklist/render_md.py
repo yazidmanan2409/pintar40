@@ -183,7 +183,7 @@ def render():
     for t in d.CHANGES_FROM_DRAFT:
         w(f"- {t}")
     w("")
-    w("## Appendix C — what changed in v2.1 and v2.2")
+    w("## Appendix C — what changed in v2.1, v2.2 and v2.3")
     w("")
     for t in d.CHANGES_V21:
         w(f"- {t}")

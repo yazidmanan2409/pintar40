@@ -915,6 +915,65 @@ VERDICT_NOW = ("NO-GO. Gate (D-052): working toward ENGINEERING COMPLETE. main d
 CHANGES_V21.append("30 Sep, v2.2: re-marked on main daa5721. EDU-12 and X-10 PASS on the audit stack (D-064, audit #52); U-PERF PASS again "
                    "(BOB-23); EDU-07 FAIL (P1) on the Uji Cepat that never ends (BOB-42, D-067); EDU-08 PASS (run 15).")
 
+# --- 1 Oct: v2.3, status on main 28d3015 (BOB-25, DAISY-19, BOB-42 merged; BOB-26, BOB-50, DAISY-20 gated, held for the joint landing) ---
+# No P0 status changes: the work since v2.2 is the identity gates and code not yet walked on staging. Release rows and notes updated.
+META["version"] = "v2.3 — 1 October 2026 (status on main 28d3015; v2 of 24 Sep kept as the baseline)"
+NOW.update({
+    "sha": "28d3015",
+    "date": "1 Oct 2026",
+    "label": "main after BOB-25, DAISY-19 and BOB-42",
+    "evidence": ("main 28d3015: BOB-25 (CI #241, 33/33; audit #53, B 27 PASS, 1 NOTE), DAISY-19's wiring (CI #245; audit #54, B 31 PASS, "
+                 "1 NOTE) and BOB-42 (gate/bob42 f86ace7, CI #246; audit #55), each merged byte-identical. Staging serves 28d3015 with "
+                 "132 migrations (staging run #25). No staging journey since run 16. Gated and held for the joint landing: BOB-26 "
+                 "(CI #249, 34/34; audit #56) and BOB-50 (CI #250, 35/35), with DAISY-20 (CI #252 running). Production is unchanged."),
+})
+CURRENT.update({
+    "EDU-07": ("PARTIAL (P1): BOB-42 ends an Uji Cepat when its window ends (D-067), on main 28d3015 and staging (CI #246, audit #55). "
+               "The staging walk (launch, the window passes, a second launch) is not yet driven; run 16's Q3 failure predates the fix."),
+    "EDU-09": ("PARTIAL: each open test is counted on its own since DAISY-26 (UX-06): run 16 shows this chapter's pre-test and post-test "
+               "each at «5 / 70», with who has not handed in; no integrity or Question Health on the teacher's pages (selftests). "
+               "«Keadaan hari ini» listing an expired Uji Cepat is fixed by BOB-42 (on staging); the re-walk is pending."),
+    "X-09": ("PARTIAL: the result is clear and honest (run 12, J12); the certificate state after finishing a chapter is not yet walked. "
+             "Since v2.2: the certificate design is closed pending the physical proof (D-080); a single Uji Cepat no longer certifies "
+             "(D-082(d), BOB-50, held for the joint landing); the pass mark becomes the school's, sealed per attempt (D-081, BOB-49); "
+             "the certificate's historical truth is BOB-48; DAISY-36 implements the page."),
+    "ADM-05": ("PARTIAL: Gladys can (S3, S4). A school admin cannot give staff roles (M2, P1). No email is sent, and the copy now says "
+               "so (DAISY-01). Since v2.2: the name is confirmed before a person is created in «Orang baru», and the student import "
+               "shows every new name before one confirmation (D-077; DAISY-20 with BOB-26, held for the joint landing)."),
+    "U-RECOVER": ("FAIL: account corrections (finding M6 of 24 Sep). Since v2.2: a platform-admin name correction, audited, comes with "
+                  "BOB-26 (correct_person_name, D-077), held for the joint landing; password recovery is Gates 4 and 5 (BOB-27, "
+                  "BOB-28). BOB-26's guard refuses any password write without PINTAR's permit, so recovery runs only through PINTAR."),
+    "REL-01": ("PASS for main 28d3015's code: BOB-25 (CI #241), DAISY-19 (CI #245) and BOB-42 (CI #246 on gate/bob42), each merged "
+               "byte-identical; recorded per release."),
+    "REL-03": "PASS for the live release (production 111 = 5b5b68d). main and staging carry 132 (staging run #25).",
+    "REL-08": ("N-I, in progress, on the restated check (Gates 2E, 3 and 8). (i) PINTAR's own sender path, BOB-25, is on main and "
+               "staging. Its staging proof send is not yet made: the first attempt answered 503 NILAI_TIDAK_SAH for PINTAR_SMTP_HOST; "
+               "the value was corrected and redeployed (1 Oct); the send log has no row yet. BOB-51 gives the platform admin a button "
+               "for this proof. Supabase's own path: its SMTP password was stale on both projects (535, 30 Sep 19:05 WIB). Staging is "
+               "fixed (1 Oct); production is unconfirmed. (ii) Gate 3's settings come with BOB-26 (gated, held for the joint landing) "
+               "from one file, supabase/auth-identitas.json: codes of 6 digits valid 10 minutes; passwords of at least 8 with no required "
+               "kinds and the leaked-password check (D-082(a)); current password and reauthentication required; TOTP enrolment off. "
+               "staging.yml writes and reads them back; identity-facts.yml compares them. (iii) The code and card emails are DAISY-20's "
+               "on DAISY-19's frame (joint landing); Supabase's own templates stay the break-glass fallback."),
+})
+VERDICT_NOW = ("NO-GO. Gate (D-052): working toward ENGINEERING COMPLETE. main 28d3015 is on staging (132 migrations); production still "
+               "runs 5b5b68d (111). Gate 2E (BOB-25) is merged; Gate 3 (BOB-26 with DAISY-20) and BOB-50 land together next. "
+               "What stands between main and go-live, by owner: "
+               "Yazid — the production Supabase SMTP password (sign-in email there is unconfirmed since 30 Sep); the readiness tier "
+               "wording (D-082(e)); the card and certificate physical proofs; the forwarding key at staging acceptance (D-062(c)); REL-09's "
+               "recovery copies before the first production card or certificate (D-066); the GitHub Actions budget (raised to USD 100). "
+               "Bob — BOB-51 (the email proof button), then BOB-27 (Gate 4, recovery), BOB-28 and BOB-29 (Gates 5 and 6), then BOB-48 and "
+               "BOB-49 (certificate truth; the school's pass mark); D-063's migration once placed; before 1 Nov BOB-15 with DAISY-12 "
+               "(REL-13) and BOB-13 (CAP-01, CAP-02). "
+               "Daisy — DAISY-20's hand-off for the joint landing, then DAISY-39, DAISY-36 to DAISY-38, the readiness wording once ruled, "
+               "and DAISY-12. "
+               "Coordinator — the joint landing and staging's staff activation walk (ADM-05, the transition); a staging journey re-run "
+               "(EDU-07, EDU-09); M6 with BOB-51 (REL-08); STU-07 and STU-09; X-05's ineligible learner; X-09's certificate state; "
+               "HOD-03's review queue; DEA-02's school summary; the C-07 reset script.")
+CHANGES_V21.append("1 Oct, v2.3: status on main 28d3015 (BOB-25, DAISY-19, BOB-42). No P0 status changes. EDU-07 FAIL → PARTIAL (P1), "
+                   "fixed by BOB-42 and awaiting the staging walk; REL-01, REL-03 and REL-08 updated; notes on X-09, ADM-05 and U-RECOVER for "
+                   "D-076 to D-082 and the gated BOB-26, BOB-50 and DAISY-20.")
+
 def as_dict():
     g = globals()
     return {

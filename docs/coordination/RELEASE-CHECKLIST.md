@@ -1,6 +1,6 @@
 # PINTAR 4.0 — End-to-End User Flow & Release Checklist
 
-**v2.2 — 30 September 2026 (status on main daa5721; v2 of 24 Sep kept as the baseline).** Rendered from `docs/coordination/checklist/checklist_data.py`; edit there and re-render. The Word copy for Yazid comes from the same data.
+**v2.3 — 1 October 2026 (status on main 28d3015; v2 of 24 Sep kept as the baseline).** Rendered from `docs/coordination/checklist/checklist_data.py`; edit there and re-render. The Word copy for Yazid comes from the same data.
 
 | | |
 |---|---|
@@ -12,11 +12,11 @@
 
 > Calm on the surface. Rigorous underneath. One meaningful next action is obvious, while authorization, evidence and state transitions stay correct.
 
-## Status at a glance (main after BOB-37 and BOB-38 to BOB-41 `daa5721`, 30 Sep 2026)
+## Status at a glance (main after BOB-25, DAISY-19 and BOB-42 `28d3015`, 1 Oct 2026)
 
 P0 checks only; each must be PASS on the release candidate before any push to live. The baseline of 24 Sep 2026 (main `78b0f55`) is kept beside each row.
 
-**Evidence now:** main daa5721: CI #240 (32/32, strict selftest contract) on BOB-37's code 0fd83f7, merged byte-identical. Audit #52 (run 36654696632): B 31 PASS, 1 NOTE (S1b), A green; S20-S23 prove class figures from official evidence in a real school (D-064). Staging serves daa5721 with 131 migrations (run #24). Staging journeys 13-16 (runs 36506604371, 36521226487, 36525100378, 36652183575): run 16 PASS 16, NOTE 2, BLOCKED 2 (Q4-Q5, BOB-42), NOT RUN 1; 5xx 0. identity-facts run 36653019569 for REL-07 and REL-08.
+**Evidence now:** main 28d3015: BOB-25 (CI #241, 33/33; audit #53, B 27 PASS, 1 NOTE), DAISY-19's wiring (CI #245; audit #54, B 31 PASS, 1 NOTE) and BOB-42 (gate/bob42 f86ace7, CI #246; audit #55), each merged byte-identical. Staging serves 28d3015 with 132 migrations (staging run #25). No staging journey since run 16. Gated and held for the joint landing: BOB-26 (CI #249, 34/34; audit #56) and BOB-50 (CI #250, 35/35), with DAISY-20 (CI #252 running). Production is unchanged.
 
 | Section | P0 checks | PASS | PARTIAL | FAIL | BLOCKED | N-I | N-T | PASS at baseline |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -34,7 +34,7 @@ P0 checks only; each must be PASS on the release candidate before any push to li
 
 **Baseline, for comparison:** 13 PASS · 11 PARTIAL · 33 FAIL · 22 BLOCKED · 1 N-I · 3 N-T. **Evidence at baseline:** Audit journeys run 35952344955 (harness 39ad60e, app main 78b0f55): Gladys's path from an empty production-like database, 15 PASS · 5 FAIL · 1 BLOCKED · 1 note, with one operator (SQL) step (W1); the seeded-world crawl of 14 personas; the public probes P1–P3. Plus CI, selftests and read-only production checks, as cited per row.
 
-**Verdict now:** 63 of 84 P0 checks pass (baseline 13). NO-GO. Gate (D-052): working toward ENGINEERING COMPLETE. main daa5721 is on staging (131 migrations); production still runs 5b5b68d (111). What stands between main and go-live, by owner: Yazid — the Stellar Business move and the post-move mail check, which release Gate 2E (D-062(b)); the forwarding key at staging acceptance (D-062(c)); placing D-063's tickets; REL-09's recovery copies before the first production card or certificate (D-066). Bob (paused until Gate 2E is released) — BOB-25 (Gate 2E), then the identity gates (BOB-26 onward, REL-08); BOB-42 (the Uji Cepat that never ends, D-067); D-063's misconception migration once placed; before 1 Nov BOB-15 with DAISY-12 (REL-13) and BOB-13. Daisy (paused) — the identity screens for Gates 3-7, D-063's template sheet once placed, DAISY-12. Coordinator — BOB-12's and DAISY-13's staging acceptance with the forwarding key; STU-07 (change an answer, reload) and STU-09 (network loss); X-05's ineligible learner; X-09's certificate state; HOD-03's review queue; DEA-02's school summary; REL-08 at each identity gate; the C-07 reset script.
+**Verdict now:** 63 of 84 P0 checks pass (baseline 13). NO-GO. Gate (D-052): working toward ENGINEERING COMPLETE. main 28d3015 is on staging (132 migrations); production still runs 5b5b68d (111). Gate 2E (BOB-25) is merged; Gate 3 (BOB-26 with DAISY-20) and BOB-50 land together next. What stands between main and go-live, by owner: Yazid — the production Supabase SMTP password (sign-in email there is unconfirmed since 30 Sep); the readiness tier wording (D-082(e)); the card and certificate physical proofs; the forwarding key at staging acceptance (D-062(c)); REL-09's recovery copies before the first production card or certificate (D-066); the GitHub Actions budget (raised to USD 100). Bob — BOB-51 (the email proof button), then BOB-27 (Gate 4, recovery), BOB-28 and BOB-29 (Gates 5 and 6), then BOB-48 and BOB-49 (certificate truth; the school's pass mark); D-063's migration once placed; before 1 Nov BOB-15 with DAISY-12 (REL-13) and BOB-13 (CAP-01, CAP-02). Daisy — DAISY-20's hand-off for the joint landing, then DAISY-39, DAISY-36 to DAISY-38, the readiness wording once ruled, and DAISY-12. Coordinator — the joint landing and staging's staff activation walk (ADM-05, the transition); a staging journey re-run (EDU-07, EDU-09); M6 with BOB-51 (REL-08); STU-07 and STU-09; X-05's ineligible learner; X-09's certificate state; HOD-03's review queue; DEA-02's school summary; the C-07 reset script.
 
 ## 1. How to use this checklist
 
@@ -72,7 +72,7 @@ Landings follow D-010 as built. The older specification's three-door routes (/ke
 
 From sign-in to result and certificate state, on a shared tablet.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | STU-01 | Sign in by email link or class card. | The intended account gets in. A wrong or expired link gives a clear, localized way back, which names the same-device rule. | AUTO · RUN | P0 | **PASS**: email link and class card both sign in (journey S1, S11); the expired-link screen names the same-device rule (DAISY-01). Cross-device links fail by design (M1, P1). | **PASS**: the email link and the class card sign in on every audit (S1, S11), the card through BOB-12's route since DAISY-13 (audit #52: S11 and five more in S21); staging J07 and J13. The route's staging acceptance waits for the forwarding key (D-062(c)). |
 | STU-02 | Arrive after sign-in. | Lands on /belajar (D-010), not a generic page. | AUTO | P0 | **FAIL**: lands on / (journey S11). BOB-06, DAISY-03. | **PASS**: lands on /belajar (S11, BOB-06). |
@@ -99,7 +99,7 @@ From sign-in to result and certificate state, on a shared tablet.
 
 Prepare, assign, run Uji Cepat and read class evidence.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | EDU-01 | Sign in. | Lands on /mengajar (D-010), with no management or admin leakage. | AUTO | P0 | **FAIL**: lands on / (S13). BOB-06, DAISY-03. | **PASS**: lands on /mengajar (S13, BOB-06). |
 | EDU-02 | Educator home. | One meaningful next action; honest empty states. | RUN | P1 | **PARTIAL**: the empty state is clear; not walked with live work. | **PARTIAL** (unchanged) |
@@ -107,9 +107,9 @@ Prepare, assign, run Uji Cepat and read class evidence.
 | EDU-04 | Read the roster. | Only permitted classes; another class's address is refused. | AUTO · RUN | P0 | **PARTIAL**: the class shows (S13); the cross-class address is not re-walked. Scope is enforced server-side (selftests). | **PARTIAL** (unchanged) |
 | EDU-05 | Prepare learning. | Find a published lesson and prepare the assignment. | RUN | P0 | **FAIL**: 'Belum ada materi' (S13). BOB-02, BOB-03. | **PASS**: the teacher finds the published SD 5 Bab 1 on Siapkan and reviews it (S18). |
 | EDU-06 | Assign learning. | Bound to class, release and dates; the dates are enforced, in WIB. | RUN · CODE | P0 (dates P1) | **BLOCKED** by B3; the dates are not enforced (M10, P1). | **PASS**: assigning makes the learning assignment with both tests open, from 00:00:00 to 23:59:59 WIB of the chosen days at any hour (S18; DAISY-14-TANGGAL-01). |
-| EDU-07 | Launch Uji Cepat. | Atur → Tinjau → Tersedia with an explicit commit. | RUN | P1 | **BLOCKED**: no chapters or items exist (B2). | **FAIL** (P1): the launch works (staging runs 7 and 15: Atur → Tinjau → Sediakan, «Uji Cepat sedang berjalan»), but once its window passes nothing ends it, so the class's teacher can never launch a second one (run 16, Q3). BOB-42, a 4.0 correction (D-067). |
+| EDU-07 | Launch Uji Cepat. | Atur → Tinjau → Tersedia with an explicit commit. | RUN | P1 | **BLOCKED**: no chapters or items exist (B2). | **PARTIAL** (P1): BOB-42 ends an Uji Cepat when its window ends (D-067), on main 28d3015 and staging (CI #246, audit #55). The staging walk (launch, the window passes, a second launch) is not yet driven; run 16's Q3 failure predates the fix. |
 | EDU-08 | A learner finds the Uji Cepat. | An eligible learner can start it; non-response stays neutral. | RUN | P1 | **BLOCKED** | **PASS**: on staging: the student found the Uji Cepat under «Bisa dikerjakan sekarang», took it and handed it in, and the teacher's count moved (run 15, Q4-Q5). Runs 13, 14 and 16 could not launch one (BOB-42). |
-| EDU-09 | Monitor progress. | Participation and evidence, without judgment; no integrity or Question Health access. | RUN · CODE | P0 | **PARTIAL**: counts exist (code); not walked with live work. | **PARTIAL**: each open test is counted on its own since DAISY-26 (UX-06): run 16 shows this chapter's pre-test and post-test each at «5 / 70», with who has not handed in; no integrity or Question Health on the teacher's pages (selftests). Open: «Keadaan hari ini» still lists a Uji Cepat whose window has passed (BOB-42, D-067). |
+| EDU-09 | Monitor progress. | Participation and evidence, without judgment; no integrity or Question Health access. | RUN · CODE | P0 | **PARTIAL**: counts exist (code); not walked with live work. | **PARTIAL**: each open test is counted on its own since DAISY-26 (UX-06): run 16 shows this chapter's pre-test and post-test each at «5 / 70», with who has not handed in; no integrity or Question Health on the teacher's pages (selftests). «Keadaan hari ini» listing an expired Uji Cepat is fixed by BOB-42 (on staging); the re-walk is pending. |
 | EDU-10 | See the Uji Cepat result. | The score is visible where designed. | RUN | P1 | **FAIL**: no score screen for anyone (M12). | **FAIL** (unchanged) |
 | EDU-11 | Extend a deadline. | It works with a reason and an audit trail, within scope. | RUN | P2 | **N-T** | **N-T** (unchanged) |
 | EDU-12 | Read class evidence. | Evidence sufficiency is explicit; no fabricated zeros. | RUN | P0 | **BLOCKED**: no evidence yet (B3, B4). | **PASS**: on the audit stack (D-064): with five students' official evidence, Lihat bukti reads «Pemahaman 75%» and «+35 poin», exactly the plan's values, and shows mastery by part; the misconception figure stays absent and says why (no codes yet, D-063). Insufficiency stays explicit where evidence is not official (staging J14, by design). Audit #52, S21-S22. |
@@ -120,7 +120,7 @@ Prepare, assign, run Uji Cepat and read class evidence.
 
 Review and freeze sound work; read department evidence.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | HOD-01 | Sign in and land. | Lands on /pimpinan; /studio/tinjau is one click away. | AUTO | P0 | **FAIL**: lands on /; /pimpinan is not linked (M15). DAISY-03, BOB-06. | **PASS**: lands on /pimpinan (S16, BOB-06); Studio is a tab on it (DAISY-11). |
 | HOD-02 | See their scope. | The Bagian is shown; outside it is refused. | AUTO · RUN | P0 | **PARTIAL**: /pimpinan shows 'Kelas Rendah' (S16); the cross-scope address is not re-walked. | **PARTIAL** (unchanged) |
@@ -138,7 +138,7 @@ Review and freeze sound work; read department evidence.
 
 Read school evidence and reports; seniority grants no capability.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | DEA-01 | Sign in and land. | Lands on /pimpinan (D-010). | AUTO | P0 | **FAIL**: lands on /; /pimpinan is not linked (M15, crawl). | **PASS**: lands on /pimpinan (BOB06-R01, every role redirected home; CI #191). |
 | DEA-02 | School summary. | A few numbers, each with its standing. | RUN | P0 | **BLOCKED**: no evidence yet. | **N-T**: no evidence in the audit yet. |
@@ -152,13 +152,13 @@ Read school evidence and reports; seniority grants no capability.
 
 The journey Gladys and each school admin make first. Every step must work without SQL.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | ADM-01 | Receive the role; sign in. | Given by Gladys; lands on /konfigurasi. | AUTO | P0 | **PARTIAL**: the grant works (S4) and the admin signs in (S5), but lands on /. BOB-06. | **PASS**: the grant works (S4) and the school admin lands on /konfigurasi (S5, BOB-06). |
 | ADM-02 | What needs doing. | Home shows the remaining setup. | RUN | P1 | **N-I**: Konfigurasi is a set of sections, with no readiness list. | **N-I** (unchanged) |
 | ADM-03 | Build the school structure. | Create Bagian, Tingkat and Kelas on a screen; the hidden nodes are automatic; confirm before deactivating. | AUTO · RUN | P0 | **FAIL**: no screen. The backend is merged (BOB-01); the screen is DAISY-05. | **PASS**: Bagian, Tingkat and Kelas built on the Struktur sekolah screen, no SQL (S7, DAISY-05). |
 | ADM-04 | The academic year. | The current year exists and structure is tied to it. | CODE | P1 | **PARTIAL**: 2026/2027 exists for both schools; no screen for years (P2 for next year). | **PARTIAL** (unchanged) |
-| ADM-05 | Add staff. | Create the person and account, then give the role, with no later unexplained failure. | AUTO | P0 | **PARTIAL**: Gladys can (S3, S4). A school admin cannot give staff roles (M2, P1). No email is sent, and the copy now says so (DAISY-01). | **PARTIAL** (unchanged) |
+| ADM-05 | Add staff. | Create the person and account, then give the role, with no later unexplained failure. | AUTO | P0 | **PARTIAL**: Gladys can (S3, S4). A school admin cannot give staff roles (M2, P1). No email is sent, and the copy now says so (DAISY-01). | **PARTIAL**: Gladys can (S3, S4). A school admin cannot give staff roles (M2, P1). No email is sent, and the copy now says so (DAISY-01). Since v2.2: the name is confirmed before a person is created in «Orang baru», and the student import shows every new name before one confirmation (D-077; DAISY-20 with BOB-26, held for the joint landing). |
 | ADM-06 | Give and revoke staff roles. | Allowed roles only; no self-grant; no escalation. | AUTO · CODE | P1 | **FAIL** for the school admin (M2); PASS for Gladys. | **FAIL** (unchanged) |
 | ADM-07 | Add students. | Intake into a Kelas; places that are not a Kelas are refused with a reason; staff are never turned into students. | AUTO | P0 | **PARTIAL**: intake into a Kelas works (S9); a school-level place is now refused at validation, with the reason in Indonesian (BOB-01; S8 on this baseline). Staff rows are still a trap (BOB-10). Pickers show hidden nodes (BOB-09). | **PASS**: intake into a Kelas works (S9); a place that is not a Kelas or Tingkat is refused at validation with a reason (BOB-01); staff rows are refused at validation with a reason and never become students (BOB-10: F10-M01, CI #210; audit #30 S8 shows both refusals and nobody recorded); pickers offer only Bagian, Tingkat and Kelas by path (BOB-09). |
 | ADM-08 | Correct account mistakes. | Fix a wrong email; re-issue a lost card or PIN. | RUN | P1 | **N-I** (M6). | **N-I** (unchanged) |
@@ -181,7 +181,7 @@ The journey Gladys and each school admin make first. Every step must work withou
 
 Operate the platform. Today this is Gladys alone (D-001).
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | SYS-01 | Sign in and land. | Lands on /konfigurasi. | AUTO | P0 | **PARTIAL**: signs in (S1) but lands on /. BOB-06. | **PASS**: lands on /konfigurasi (S1, BOB-06). |
 | SYS-02 | Platform state. | Health, environment and schools, within platform scope. | RUN | P1 | **PARTIAL**: Konfigurasi shows system health and environment. | **PARTIAL** (unchanged) |
@@ -197,7 +197,7 @@ Operate the platform. Today this is Gladys alone (D-001).
 
 What a stranger can see and do, and what they must never learn.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | PUB-01 | Open /masuk as a stranger. | The page, logo and fonts load. | AUTO · PROD | P0 | **PASS**: F01-R08; front-door check this morning (run 35935767367). | **PASS** (unchanged) |
 | PUB-02 | Try to sign up. | Refused; no alternate path. | AUTO · PROD | P0 | **PASS**: disable_signup verified at deploy; harness probe P2. | **PASS** (unchanged) |
@@ -211,7 +211,7 @@ What a stranger can see and do, and what they must never learn.
 
 One lesson, end to end, through the app (D-005). Run it last, after the role journeys.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | X-01 | The admin prepares the school. | Structure, staff, students and roles, with no SQL or typed addresses. | AUTO · RUN | P0 | **FAIL**: structure needs SQL (B1). | **PASS**: structure, staff roles, cards and intake without SQL (S3-S12); a place that is not a Kelas or Tingkat and a staff row are refused at intake with reasons (BOB-01, BOB-10); a school admin sees and names their own staff and finds a newly recorded teacher in their own waiting list (BOB-20, D-048), and grants only to a person with a relationship with that school (BOB-21, D-049: F10-G01, G02). A teacher moving from another school waits for the staff-link workflow (backlog, D-049); the platform admin's grant covers it meanwhile. |
 | X-02 | Get a lesson into PINTAR. | The import succeeds, with problems per row. | AUTO · RUN | P0 | **FAIL** (B2). | **PASS**: the workbook upload (S14) and the real SD 5 Bab 1 whole (S15c). |
@@ -221,7 +221,7 @@ One lesson, end to end, through the app (D-005). Run it last, after the role jou
 | X-06 | Pre-test. | Orientation → start → answers → truthful finish. | AUTO · RUN | P0 | **FAIL** (B4). | **PASS**: on staging: orientation → the press → 4 answers → FINALIZED at the planned score (run 12, J08; J13 for four more). |
 | X-07 | Lesson. | The material loads and progress persists. | RUN | P0 | **BLOCKED** | **PARTIAL**: the text material loads and progress persists (runs 14-16, J09), and the save loop is gone (BOB-23); media out of scope for the first testing phases (D-050). |
 | X-08 | Post-test. | Exists and completes. | AUTO · RUN | P0 | **FAIL** (B4). | **PASS**: on staging: the post-test is offered by a link and completes for five students (run 12, J10, J11, J13). |
-| X-09 | Result and certificate state. | Clear and honest. | RUN | P0 | **BLOCKED** | **PARTIAL**: the result is clear and honest (run 12, J12); the certificate state after finishing a chapter is not yet walked. |
+| X-09 | Result and certificate state. | Clear and honest. | RUN | P0 | **BLOCKED** | **PARTIAL**: the result is clear and honest (run 12, J12); the certificate state after finishing a chapter is not yet walked. Since v2.2: the certificate design is closed pending the physical proof (D-080); a single Uji Cepat no longer certifies (D-082(d), BOB-50, held for the joint landing); the pass mark becomes the school's, sealed per attempt (D-081, BOB-49); the certificate's historical truth is BOB-48; DAISY-36 implements the page. |
 | X-10 | The educator reads evidence. | Visible, without judgment. | RUN | P0 | **BLOCKED** | **PASS**: the teacher sees who has handed in, without judgment (staging J14; audit S22 «5 / 5»), and the class figures from official evidence equal the plan (audit #52, S22, D-064). Staging stays synthetic by design. |
 | X-11 | The head of department reviews signals. | Observations stay observations. | RUN | P1 | **BLOCKED** | **N-T**: unblocked; not yet walked. |
 | X-12 | Dean and admin read reports. | The right scope, carrying their standing. | RUN | P0 | **FAIL** (B6). | **PASS**: the dean (Pimpinan) and the school admin (Konfigurasi → Laporan) each reach the reports of their own scope by clicking, and a figure they may not read is never linked (DAISY-07-LAPORAN-02, against the seeded school, CI #197 and #199 (26/26)). |
@@ -231,7 +231,7 @@ One lesson, end to end, through the app (D-005). Run it last, after the role jou
 
 Run on the staging project (D-036) with production's compute tier, never on production. Rows marked Onboarding block registrations beyond that point until they pass: 1,000 students by 1 Nov, 5,000 by 1 Dec.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (daa5721) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (28d3015) |
 |---|---|---|---|---|---|---|
 | CAP-01 | The 1 Nov morning: 1,000 students sign in with class cards within 10 minutes (L1, D-035). | Every valid card gets in; a refusal for load says so plainly, never 'wrong card or PIN'; no student is locked out by another school's traffic. | LOAD | P0 | **N-T**: no load harness or staging project yet (C-06). Risk found at review: sign-in and session refresh reach Supabase Auth from PINTAR's server, so all students share that address's limit (bursts of 30), and the card screen reports a 429 as a wrong PIN. BOB-12. | **N-T** (unchanged) |
 | CAP-02 | The 1 Nov cohort (1,000 students) sits a synchronized assessment (L1): start, answer, change answers, sync, lose and regain the network, submit, results, teachers open reports. | No answer lost or duplicated; server errors < 0.1%; answer save p95 < 1 s, p99 < 3 s; no pool exhaustion. | LOAD | P0 | **N-T**: needs BOB-04 (the assessment exists) and C-06. | **N-T** (unchanged) |
@@ -246,7 +246,7 @@ Run on the staging project (D-036) with production's compute tier, never on prod
 
 ## 12. Universal checks (every flow)
 
-| ID | Check | Gate | Baseline | Now (daa5721) |
+| ID | Check | Gate | Baseline | Now (28d3015) |
 |---|---|---|---|---|
 | U-NAV | Navigation: every intended screen is reachable by clicking. | P0 | **FAIL**: Aktivasi, Studio and Pimpinan are unlinked (M3, M15). | **PASS**: Aktivasi, Studio, Pimpinan (S2, DAISY-03, DAISY-11) and now the report pages (DAISY-07) are reached by clicking. |
 | U-AUTH | Authorization: a direct address outside role or scope fails closed; navigation is never the security boundary. | P0 | **PASS**: every destination refuses server-side (gate review of DAISY-02/03); RLS everywhere. | **PASS** (unchanged) |
@@ -257,7 +257,7 @@ Run on the staging project (D-036) with production's compute tier, never on prod
 | U-CONTEXT | The school, class or department is visible before any consequential action. | P0 | **PARTIAL**: yes on /mengajar; Studio defaults to the wrong school (M8). | **PASS**: the school is shown and preselected in Studio (S14); class, school and year on /mengajar (S13). |
 | U-AUDIT | Consequential actions leave a trace. | P0 | **PASS** (live database). | **PASS** (unchanged) |
 | U-PRIV | Privacy: no existence oracle; no keys or integrity internals for learners; no learner full name on shared screens (D-020). | P0 | **PARTIAL**: the greeting uses the full name; the staff strip could name a learner (caught at the gate, DAISY-02). | **PASS**: no learner full name on / or /belajar (DAISY-10-SAPA-02); no existence oracle (P1). |
-| U-RECOVER | Recovery without SQL where the product claims self-service. | P1 | **FAIL**: account corrections (M6). | **FAIL** (unchanged) |
+| U-RECOVER | Recovery without SQL where the product claims self-service. | P1 | **FAIL**: account corrections (M6). | **FAIL**: account corrections (finding M6 of 24 Sep). Since v2.2: a platform-admin name correction, audited, comes with BOB-26 (correct_person_name, D-077), held for the joint landing; password recovery is Gates 4 and 5 (BOB-27, BOB-28). BOB-26's guard refuses any password write without PINTAR's permit, so recovery runs only through PINTAR. |
 | U-ERR | Error pages are PINTAR's own and show a reference, never a stack trace. | P0 | **FAIL**: framework defaults (P3). DAISY-04. | **PASS**: PINTAR's own error and not-found pages with a reference (DAISY-04). |
 | U-PERF | Responsiveness on staging: sign-in acknowledges at once and reaches a usable first screen in 3 s or less (gate: under 5 s); a typical menu click takes 1.5 s or less, and 95% take under 3 s; no timeout or error with 30 active staff sessions for 10 minutes; no pathological repeated requests (request counts recorded); auth, RLS and permission decisions unchanged. A click that saves is acknowledged at once and cannot be submitted twice; representative writes are timed. | P0 | **NOT VERIFIED** (added 27 Sep, D-046). | **PASS** (again): the lesson page's save loop is gone since BOB-23 (accepted on staging run 14; runs 15 and 16: nothing in the second idle window, J09). The rest stands from 28 Sep, after BOB-18: the page usable 1.0-3.3 s after sign-in, clicks median 1.16 s and all under 3 s (run 36359917724); 30 sessions for 10 minutes, 2,429 clicks, 0 failed, click p95 1.2-1.5 s (run 36361820806); a menu click answers within 100 ms (DAISY-18). Those runs did not hold a lesson page open; BOB-23's acceptance covers that page. |
 
@@ -265,16 +265,16 @@ Run on the staging project (D-036) with production's compute tier, never on prod
 
 Run after the migrations and the deploy of the release candidate. None of them writes to production.
 
-| ID | Check | Gate | At baseline | Now (daa5721) |
+| ID | Check | Gate | At baseline | Now (28d3015) |
 |---|---|---|---|---|
-| REL-01 | CI is green on the exact release commit, strict selftest included. | P0 | **PASS** for the live release 5b5b68d (run 35850275026). | **PASS** for main daa5721's code (CI #240, 32/32 on 0fd83f7; merged byte-identical); recorded per release. |
+| REL-01 | CI is green on the exact release commit, strict selftest included. | P0 | **PASS** for the live release 5b5b68d (run 35850275026). | **PASS** for main 28d3015's code: BOB-25 (CI #241), DAISY-19 (CI #245) and BOB-42 (CI #246 on gate/bob42), each merged byte-identical; recorded per release. |
 | REL-02 | The audit journeys pass on the release candidate with zero operator (SQL) steps, and every P0 flow check above is PASS. | P0 | **FAIL**: on main 78b0f55 (this baseline). | **FAIL**: not every P0 check passes yet (see the summary). |
-| REL-03 | Migrations are applied to production before the app, in order; the count equals the repository's. | P0 | **PASS** for the live release: production 111 = release 5b5b68d. main has 112 (BOB-01), applied with the sprint 1 release. | **PASS** for the live release (production 111 = 5b5b68d). main and staging carry 131 (staging run #24). |
+| REL-03 | Migrations are applied to production before the app, in order; the count equals the repository's. | P0 | **PASS** for the live release: production 111 = release 5b5b68d. main has 112 (BOB-01), applied with the sprint 1 release. | **PASS** for the live release (production 111 = 5b5b68d). main and staging carry 132 (staging run #25). |
 | REL-04 | Launch readiness is 17/17, and every assert_* passes (including the evaluation boundary, canonical tenants and official bootstrap). | P0 | **PASS**: this morning, on production. | **PASS** (unchanged) |
 | REL-05 | Every functional step of the deploy is green: front door, closed verification 404, activation refusal, Auth boundary. | P0 | **PASS**: deploy 013. | **PASS** (unchanged) |
 | REL-06 | The external front-door check says FRONT DOOR OK. | P0 | **PASS**: run 35935767367. | **PASS** (unchanged) |
 | REL-07 | Auth: sign-up disabled; site_url is the origin; a single callback. | P0 | **PASS** (deploy 013 read-back). | **PASS** (unchanged), read again 30 Sep (identity-facts run 36653019569): sign-up disabled on both projects; site_url is each project's origin (https://staging.pintarselalu.com, https://app.pintarselalu.com); one callback each (<origin>/auth/callback*). |
-| REL-08 | Authentication email and settings (restated 30 Sep, D-065; the 24 Sep wording tested Supabase's default-email path, which D-057 retired). (i) Sending, capacity and deliverability: every identity email (activation code, resend, recovery, password changed, Digital Card, security notices) goes through PINTAR's own sender path (BOB-25) with its per-address and global limits enforced and a refused send reported as not sent; the mail host's hourly capacity is recorded; production mail from that path passes SPF, DKIM and DMARC. Supabase's own email limit governs only the break-glass fallback. Evidence: BOB-25's gate tests (limits and refusals, red then green) and its staging send; at Gate 8, a send from production through the same path to the M6 inboxes, whose received headers show SPF, DKIM and DMARC = PASS; the domain's published records (identity-facts.yml, DNS job); the host's plan and hourly limit from the host's own record (M1). (ii) Settings: the Gate 3 password policy (BOB-26) with the leaked-password check on; a direct password change needs the current password; TOTP enrolment off; email codes 6 digits, valid 10 minutes. The policy must not prevent PINTAR's existing class-card credential mechanism from creating or authenticating card accounts; that mechanism is not changed here. Evidence: the settings read back by identity-facts.yml (staging; production from main), which proves these Supabase settings only; class-card compatibility by Supabase's actual behaviour on staging once the Gate 3 policy is set (a new card made and signed in, an existing card signed in), observed rather than assumed, including whether admin-created credentials are subject to the policy. (iii) Templates: Supabase's own templates carry a minimal Bahasa Indonesia break-glass fallback; the emails people receive are PINTAR's. Evidence: the approved fallback texts, reviewed in the repository; identity-facts.yml showing each deployed template custom and with the approved file's hash (which proves it is the approved file, not its language); PINTAR's own emails as received from the (i) sends. Production settings change only at Gate 8, with Yazid's approval (D-039). | P0 | **NOT VERIFIED**: Yazid, in the Supabase dashboard (against the 24 Sep wording). | **N-I**: on the restated check, as planned for Gates 2E, 3 and 8. Observations, not requirements (30 Sep; identity-facts run 36653019569, staging and production identical): (i) PINTAR's sender path is BOB-25, held until the Stellar Business move and the post-move mail check (D-062(b)); today Supabase sends, at rate_limit_email_sent 2 per hour, through SMTP pintarselalu.com:465 from noreply@ (password present). The domain publishes SPF (~all), a DKIM key (selector default) and DMARC p=none; no send from PINTAR's path exists yet to show a PASS. (ii) Gate 3 (BOB-26) sets it; today: minimum length 6, no required characters, leaked-password check off, a direct change without the current password allowed, TOTP enrolment on, codes 8 digits valid 60 minutes. (iii) Every template is Supabase's English default (no custom subject or body). |
+| REL-08 | Authentication email and settings (restated 30 Sep, D-065; the 24 Sep wording tested Supabase's default-email path, which D-057 retired). (i) Sending, capacity and deliverability: every identity email (activation code, resend, recovery, password changed, Digital Card, security notices) goes through PINTAR's own sender path (BOB-25) with its per-address and global limits enforced and a refused send reported as not sent; the mail host's hourly capacity is recorded; production mail from that path passes SPF, DKIM and DMARC. Supabase's own email limit governs only the break-glass fallback. Evidence: BOB-25's gate tests (limits and refusals, red then green) and its staging send; at Gate 8, a send from production through the same path to the M6 inboxes, whose received headers show SPF, DKIM and DMARC = PASS; the domain's published records (identity-facts.yml, DNS job); the host's plan and hourly limit from the host's own record (M1). (ii) Settings: the Gate 3 password policy (BOB-26) with the leaked-password check on; a direct password change needs the current password; TOTP enrolment off; email codes 6 digits, valid 10 minutes. The policy must not prevent PINTAR's existing class-card credential mechanism from creating or authenticating card accounts; that mechanism is not changed here. Evidence: the settings read back by identity-facts.yml (staging; production from main), which proves these Supabase settings only; class-card compatibility by Supabase's actual behaviour on staging once the Gate 3 policy is set (a new card made and signed in, an existing card signed in), observed rather than assumed, including whether admin-created credentials are subject to the policy. (iii) Templates: Supabase's own templates carry a minimal Bahasa Indonesia break-glass fallback; the emails people receive are PINTAR's. Evidence: the approved fallback texts, reviewed in the repository; identity-facts.yml showing each deployed template custom and with the approved file's hash (which proves it is the approved file, not its language); PINTAR's own emails as received from the (i) sends. Production settings change only at Gate 8, with Yazid's approval (D-039). | P0 | **NOT VERIFIED**: Yazid, in the Supabase dashboard (against the 24 Sep wording). | **N-I**: , in progress, on the restated check (Gates 2E, 3 and 8). (i) PINTAR's own sender path, BOB-25, is on main and staging. Its staging proof send is not yet made: the first attempt answered 503 NILAI_TIDAK_SAH for PINTAR_SMTP_HOST; the value was corrected and redeployed (1 Oct); the send log has no row yet. BOB-51 gives the platform admin a button for this proof. Supabase's own path: its SMTP password was stale on both projects (535, 30 Sep 19:05 WIB). Staging is fixed (1 Oct); production is unconfirmed. (ii) Gate 3's settings come with BOB-26 (gated, held for the joint landing) from one file, supabase/auth-identitas.json: codes of 6 digits valid 10 minutes; passwords of at least 8 with no required kinds and the leaked-password check (D-082(a)); current password and reauthentication required; TOTP enrolment off. staging.yml writes and reads them back; identity-facts.yml compares them. (iii) The code and card emails are DAISY-20's on DAISY-19's frame (joint landing); Supabase's own templates stay the break-glass fallback. |
 | REL-09 | Before the first production class card or certificate is issued, the intended production CARD_PEPPER and CERT_SECRET_KEY_V1 are set and verified offline recovery copies exist (D-066). CARD_PEPPER is never changed once cards exist, except through an explicit reissuance procedure; when a newer certificate key version is introduced, the earlier versions' verification material is kept. | P0 | **NOT VERIFIED**: Yazid. | **NOT VERIFIED**: Yazid (board C-11), before the first production card or certificate (D-066). Production has 0 cards today, so nothing is yet bound to the current values. |
 | REL-10 | A rollback point is recorded and the release is logged in RELEASES.md. | P0 | **PASS** for 5b5b68d (rollback c358f58). | **PASS** (unchanged) |
 | REL-11 | No test data exists in production; production data changed only through audited steps (D-013, D-017). | P0 | **PASS**: 1 person, 1 account, 2 schools, all recorded. | **PASS** (unchanged) |
@@ -344,7 +344,7 @@ The acceptance scenario, in order: set up a school → add classes and people �
 - The known-findings list now maps each finding to its ticket and current state.
 - New section: capacity (D-031), 150 schools and 60,000 students, with load levels L1–L5 that gate onboarding.
 
-## Appendix C — what changed in v2.1 and v2.2
+## Appendix C — what changed in v2.1, v2.2 and v2.3
 
 - A 'Now' column beside every baseline, re-marked on 25 Sep against the Integration 8 candidate (7bbbd23): DAISY-06's Terbit step, BOB-05 and BOB-06 on top of main be34191.
 - The audit journey now carries D-005 end to end: S14 the workbook upload as Gladys does it; S17 the real SD 5 Bab 1 taken to Terbit by two people, with the content check's findings reviewed first; S18 the teacher assigns it; S19 the student reaches the pre-test.
@@ -366,3 +366,4 @@ The acceptance scenario, in order: set up a school → add classes and people �
 - 30 Sep (D-065, D-066): REL-08 restated to the PINTAR-controlled authentication email (D-057) and verified by the coordinator through the read-only identity-facts.yml, not a dashboard look; REL-09 now says when the copies must exist (before the first production card or certificate) and that neither secret may be lost or silently replaced.
 - 30 Sep (Yazid, on the coordinator's review): REL-08 corrected: class cards must stay creatable and usable under the Gate 3 policy; each clause names evidence that can prove it (the settings read proves settings only); production deliverability (SPF, DKIM, DMARC on PINTAR's sender path) added to (i); REL-07's facts moved to REL-07.
 - 30 Sep, v2.2: re-marked on main daa5721. EDU-12 and X-10 PASS on the audit stack (D-064, audit #52); U-PERF PASS again (BOB-23); EDU-07 FAIL (P1) on the Uji Cepat that never ends (BOB-42, D-067); EDU-08 PASS (run 15).
+- 1 Oct, v2.3: status on main 28d3015 (BOB-25, DAISY-19, BOB-42). No P0 status changes. EDU-07 FAIL → PARTIAL (P1), fixed by BOB-42 and awaiting the staging walk; REL-01, REL-03 and REL-08 updated; notes on X-09, ADM-05 and U-RECOVER for D-076 to D-082 and the gated BOB-26, BOB-50 and DAISY-20.
