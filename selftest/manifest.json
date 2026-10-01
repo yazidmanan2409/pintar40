@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 136,
+  "version": 137,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2544,6 +2544,11 @@
       "id": "W10-K01",
       "runner": "static",
       "proves": "W10 (HOD-J01, HOD-J06): a head of department over a department sees their classes. Executes daftarMuridDari (src/lib/pimpinan.ts) over a school's tree with a client that filters as PostgREST would: a department's roster lists its active classes' learners, each once and alphabetically, and nobody from another department, an inactive class or a withdrawn enrolment. The source of /pimpinan says the figures are counted per class (copy table, both languages) instead of «Belum ada angka…» when a class below has figures."
+    },
+    {
+      "id": "W11-K01",
+      "runner": "static",
+      "proves": "W11 (MGT-J05, D-006, D-027): from a node, management is offered only the parts a screen may show. Executes bagianDiBawah (src/lib/pimpinan.ts) and jenisTerlihat (src/lib/struktur-kontrak.ts, the intake's own map) over a branch as cabang returns it: a department offers its Tingkat and Kelas, never «Reguler» or itself; the school offers its Bagian and below, never «Jenjang», «Reguler» or itself. The source of /pimpinan/[simpul] reads bagianDiBawah."
     }
   ]
 }

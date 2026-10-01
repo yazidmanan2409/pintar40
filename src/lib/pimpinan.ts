@@ -5,6 +5,7 @@ import type { Envelope } from "@/components/bukti";
 import type {
   HasilKeputusan, KeadaanKeputusan, KeluargaKeputusan, Keputusan,
 } from "@/lib/pimpinan-kontrak";
+import { jenisTerlihat } from "@/lib/struktur-kontrak";
 
 /**
  * THE MANAGEMENT DATA LAYER — WP4.
@@ -186,6 +187,15 @@ export async function cabang(scopes: readonly string[]): Promise<SimpulPimpinan[
 }
 
 /** `cabang` over a given client (BOB-06: so the evidence planner can be driven in a test). */
+/**
+ * W11 (MGT-J05, D-006, D-027): WHERE A READER CAN GO FROM A NODE. The parts below
+ * it that a screen may show (Bagian, Tingkat, Kelas), never the node itself and
+ * never the hidden Jenjang or Reguler, which `cabang` returns with the rest.
+ */
+export function bagianDiBawah<T extends { id: string; kind: string }>(node: string, bawah: readonly T[]): T[] {
+  return bawah.filter((n) => n.id !== node && jenisTerlihat(n.kind));
+}
+
 export async function cabangDari(c: Db, scopes: readonly string[]): Promise<SimpulPimpinan[]> {
   if (scopes.length === 0) return [];
   const { data } = await c

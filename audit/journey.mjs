@@ -1071,9 +1071,12 @@ await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan,
   const bagianC = norm(await h.locator('section[aria-labelledby="pin-bukti"]').innerText().catch(() => ""));
   const kosongC = /Belum ada angka yang bisa ditampilkan/.test(bagianC);
   let roster = "";
+  let bawahDept = "";
   try {
     await h.getByRole("link", { name: "Lihat lebih rinci" }).first().click();
     await h.waitForURL((u) => /^\/pimpinan\/[^/]+$/.test(u.pathname), { timeout: SLOW });
+    // W11: the parts offered below the department are Tingkat and Kelas, never the hidden «Reguler» or «Jenjang»
+    bawahDept = norm(await h.locator('section[aria-labelledby="pin-bawah"]').innerText().catch(() => ""));
     await h.getByRole("link", { name: "Murid pada bagian ini" }).first().click();
     await h.waitForURL((u) => u.pathname.endsWith("/murid"), { timeout: SLOW });
     await h.locator("h1").first().waitFor({ timeout: SLOW });
@@ -1083,9 +1086,10 @@ await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan,
     roster = `not reached: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
   }
   const tercantum = MURID.filter((n) => roster.includes(n)).length;
-  if (kosongC || tercantum < MURID.length) rec.verdict = "FAIL";
+  const tersembunyi = /\b(Reguler|Jenjang)\b/.test(bawahDept);
+  if (kosongC || tercantum < MURID.length || tersembunyi || !bawahDept.includes("Kelas 1A")) rec.verdict = "FAIL";
   await hc.close();
-  return `«Yang didukung bukti» says: "${bagianC.slice(0, 160)}"${kosongC ? " (NO FIGURES, while Kelas 1A has them: W10)" : ""}; the department's roster lists ${tercantum} of ${MURID.length} students; ` +
+  return `«Yang didukung bukti» says: "${bagianC.slice(0, 160)}"${kosongC ? " (NO FIGURES, while Kelas 1A has them: W10)" : ""}; the department's roster lists ${tercantum} of ${MURID.length} students; below the department: "${bawahDept.slice(0, 160)}"${tersembunyi ? " (HIDDEN LEVEL SHOWN: W11)" : ""}; ` +
     `Kelas 1A: "${tanda}"; expected comprehension ${pahamTeks} and net gain ${naikTeks}, as on «Lihat bukti»; comprehension shown ${isi.includes(pahamTeks)}, ` +
     `net gain shown ${isi.includes(naikTeks)}; the class's figures say: "${isi.slice(0, 500)}"`;
 });

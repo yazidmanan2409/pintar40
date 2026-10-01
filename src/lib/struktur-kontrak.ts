@@ -101,6 +101,11 @@ const TINGKATAN_JENIS: Record<string, TingkatanStruktur> = {
   CLASS: "KELAS",
 };
 
+/** D-006: whether a node of this kind is one a screen may show (Bagian, Tingkat, Kelas); never Jenjang or Reguler. */
+export function jenisTerlihat(kind: string): boolean {
+  return Object.prototype.hasOwnProperty.call(TINGKATAN_JENIS, kind);
+}
+
 /**
  * BOB-09 — THE PLACES A PICKER OFFERS (D-006). Only Bagian, Tingkat and Kelas,
  * never the school root nor the hidden Jenjang or Reguler. Each is labelled by

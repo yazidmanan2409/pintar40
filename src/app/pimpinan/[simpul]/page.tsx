@@ -61,8 +61,8 @@ export default async function SimpulPimpinan({
   const angka = bukti.filter((e) => e.status === "ok");
   const absen = bukti.filter((e) => e.status !== "ok");
   // The node itself comes back from its own subtree; it is where the reader
-  // already is, not somewhere to go.
-  const lain = bawah.filter((n) => n.id !== node.id);
+  // already is, not somewhere to go. W11: nor are the hidden Jenjang and Reguler.
+  const lain = pim.bagianDiBawah(node.id, bawah);
 
   return (
     <>
