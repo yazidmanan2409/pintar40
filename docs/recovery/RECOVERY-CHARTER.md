@@ -70,7 +70,8 @@
   - the test levels;
   - the status model.
 - **Exit:** the Phase 1 package, reviewed by ChatGPT and accepted by Yazid; the inventory approved; the one-time owner access done.
-  - ***PHASE 1 CLOSED, 1 Oct.*** *The package was reviewed and the inventory approved (O1, D-086). The one-time owner access is done: the staging test mailbox passed its machine check (run 36809298057), and the Actions spending alert is on (owner's screenshot). See `PHASE-1-STATUS.md` §7. Phase 2 is not authorised.*
+  - ***PHASE 1 CLOSED, 1 Oct.*** *The package was reviewed and the inventory approved (O1, D-086). The one-time owner access is done: the staging test mailbox passed its machine check (run 36809298057), and the Actions spending alert is on (owner's screenshot). See `PHASE-1-STATUS.md` §7.*
+  - ***Phase 2 authorised, 1 Oct (D-087).***
 
 **Phase 2: Build trustworthy instruments.**
 - **The harness and the journeys:**

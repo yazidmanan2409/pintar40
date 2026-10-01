@@ -6,7 +6,7 @@
 - From Phase 2, states are generated from runs; until then they come from the Phase 1 walk-back (`PHASE-1-STATUS.md`).
 - A decision goes to `DECISIONS.md` only when a product or architecture ruling is needed.
 
-**Phase 1: CLOSED 1 Oct.** O1 was approved (D-086), and the one-time owner access is done and verified (`PHASE-1-STATUS.md` §7). **Phase 2 is NOT authorised; it needs Yazid's explicit approval.** No engineering work is active.
+**Phase 1: CLOSED 1 Oct.** O1 was approved (D-086), and the one-time owner access is done and verified (`PHASE-1-STATUS.md` §7). **Phase 2: AUTHORISED and ACTIVE (D-087, 1 Oct).** The coordinator is building the instruments.
 
 **Since 1 Oct (K4):**
 - The precise break for each human journey is in `PINTAR-4.0-JOURNEY-COVERAGE-CROSS-CHECK-2026-10-01.md` §7.
