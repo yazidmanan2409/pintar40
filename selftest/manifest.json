@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 149,
+  "version": 150,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2626,6 +2626,20 @@
       "id": "ADM09-K01",
       "runner": "static",
       "proves": "J3.6 (ADM-07, ADM-J09): the page's half of placing a Tingkat learner. Executes tujuanPindah (src/lib/pindah-kelas.ts): from a Tingkat only its own active Kelas, from a Kelas every other active Kelas of the year, from a Bagian nothing; executes asalPindah: every active Kelas and only the active Tingkat holding learners not yet in a Kelas. Executes kodeGalat (src/lib/galat-kontrak.ts): MOVE_ALREADY_IN_KELAS answered as itself; reads the copy table (id and en) for it, the two groups and the section's text. Reads the source of Konfigurasi: the place to start from in two groups, the destinations from the whole structure."
+    },
+    {
+      "id": "D088I-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "D-088(i): learner-level access follows the current placement. In the database, in one rolled-back transaction (supabase/migrations/20261030100000, audience_scope_over_learner and management_learner_detail): before a learner's move 5B's teacher reads her learner result (metric_evaluate learner.result) and Matematika's head of department opens her record; after the school admin moves her to a Kelas in another department, the former teacher is answered not_permitted and the former head of department is refused; the head of department of her new department reads the new Kelas as her placement now and 5B under placement_history with its year, end and MOVED.",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D088I-K01",
+      "runner": "static",
+      "proves": "D-088(i): the learner record shows places left as history, never as current. Reads the source of src/app/pimpinan/[simpul]/murid/[orang]/page.tsx: the placement now, and apart from it the earlier placements with year, end date and reason; reads the copy table (id and en) and the migration supabase/migrations/20261030100000 (open placements of a current enrolment; placement_history)."
     }
   ]
 }

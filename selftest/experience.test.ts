@@ -1312,6 +1312,11 @@ export const experienceTests: SelfTest[] = [
       // Kelas. 20261029100000 replaces move_learner_to_class's body; no table,
       // no column, no colour, mark or brand surface.
       //
+      // MOVED 135 -> 136 for D-088(i), learner-level access follows the current
+      // placement. 20261030100000 replaces audience_scope_over_learner's and
+      // management_learner_detail's bodies; no table, no column, no colour,
+      // mark or brand surface.
+      //
       // MOVED 132 -> 133 for M9 (D-085), a student moves class. 20261027100000
       // adds one invoker-rights function over memberships; no table, no
       // column, no colour, mark or brand surface.
@@ -1513,7 +1518,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 135, `${migrations.length} migrations; the frozen baseline has 135`);
+      c.expect(migrations.length === 136, `${migrations.length} migrations; the frozen baseline has 136`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3169,7 +3174,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 134 -> 135 for ADM-J09's Tingkat placement
+      // from, not a claim about the tour. MOVED 135 -> 136 for D-088(i)'s current-placement access
+      // (20261030100000), not a tour RPC (D-024). MOVED 134 -> 135 for ADM-J09's Tingkat placement
       // (20261029100000), not a tour RPC (D-024). MOVED 133 -> 134 for ADM-J19's rollover
       // (20261028100000), not a tour RPC (D-024). MOVED 132 -> 133 for M9's class move
       // (20261027100000), not a tour RPC (D-024). MOVED 131 -> 132 for BOB-25's send log
@@ -3236,7 +3242,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 135, `${migs.length} migrations; the baseline has 135`);
+      c.expect(migs.length === 136, `${migs.length} migrations; the baseline has 136`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

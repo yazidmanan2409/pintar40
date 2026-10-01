@@ -79,6 +79,8 @@ export type HleEvent =
   | "pimpinan.murid.judul" | "pimpinan.murid.sub" | "pimpinan.murid.kosong" | "pimpinan.murid.buka"
   | "pimpinan.rincian.judul" | "pimpinan.rincian.tercatat" | "pimpinan.rincian.status"
   | "pimpinan.rincian.periode" | "pimpinan.rincian.program" | "pimpinan.rincian.penempatan"
+  | "pimpinan.rincian.riwayat" | "pimpinan.rincian.sampai"
+  | "pimpinan.rincian.alasan.MOVED" | "pimpinan.rincian.alasan.PERIOD_ROLLOVER" | "pimpinan.rincian.alasan.ENROLLMENT_ENDED"
   | "pimpinan.rincian.catatan" | "pimpinan.rincian.belum" | "pimpinan.rincian.penguasaan"
   | "tindakan.ulangi" | "tindakan.fokus" | "tindakan.lanjut" | "tindakan.tunggu"
   | "verifikasi.judul"
@@ -1674,7 +1676,12 @@ const table: Table = {
   "pimpinan.rincian.status": { default: "Status pendaftaran", en: "Enrolment status" },
   "pimpinan.rincian.periode": { default: "Periode akademik", en: "Academic period" },
   "pimpinan.rincian.program": { default: "Program", en: "Programme" },
-  "pimpinan.rincian.penempatan": { default: "Penempatan", en: "Placement" },
+  "pimpinan.rincian.penempatan": { default: "Penempatan sekarang", en: "Placement now" },
+  "pimpinan.rincian.riwayat": { default: "Penempatan sebelumnya", en: "Earlier placements" },
+  "pimpinan.rincian.sampai": { default: "sampai", en: "until" },
+  "pimpinan.rincian.alasan.MOVED": { default: "pindah kelas", en: "moved class" },
+  "pimpinan.rincian.alasan.PERIOD_ROLLOVER": { default: "tahun ajaran berganti", en: "new school year" },
+  "pimpinan.rincian.alasan.ENROLLMENT_ENDED": { default: "tidak lagi bersekolah di sini", en: "no longer at this school" },
   "pimpinan.rincian.catatan": { default: "Catatan belajar", en: "Learning record" },
   "pimpinan.rincian.belum": { default: "Belum ada catatan belajar yang memenuhi syarat untuk murid ini.", en: "No qualifying learning record for this learner yet." },
   "pimpinan.rincian.penguasaan": { default: "Penguasaan", en: "Mastery" },

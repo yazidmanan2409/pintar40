@@ -482,6 +482,11 @@ export type RincianMurid = {
   academic_period: string | null;
   programme: string | null;
   placement: Array<{ node_id: string; kind: string; name: string }>;
+  /**
+   * D-088(i): the places the learner has left, each with its year, dates and why it ended. `placement` above is
+   * where the learner is now (open placements only); an ended one is never shown as current.
+   */
+  placement_history?: Array<{ node_id: string; kind: string; name: string; academic_year: string | null; from: string; until: string; reason: string | null }>;
   official_results: Array<{ mode?: string; mastery?: number | null; safety_gate_passed?: boolean | null }>;
   /** R5, carried by the record too, computed against the same governed minimum. */
   official_results_readiness?: string;

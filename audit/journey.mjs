@@ -1496,7 +1496,7 @@ await step("S24", "the school admin revokes the head of department's role on Kon
 // Konfigurasi → «Pindah kelas». They stay one person; their Bab 1 sessions stay
 // recorded in Kelas 1A; Kelas 1A's teacher no longer has them on the roster or
 // in «Mengumpulkan».
-await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas 1B on Konfigurasi → Pindah kelas; Kelas 1A's teacher no longer counts them, and what they did stays with Kelas 1A (M9, ADM-J13)", async (rec) => {
+await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas 1B on Konfigurasi → Pindah kelas; Kelas 1A's teacher no longer counts them or stands over them, and what they did stays with Kelas 1A (M9, ADM-J13, D-088(i))", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const kelas = kelasSatuA();
   const nama = MURID[4];
@@ -1504,6 +1504,14 @@ await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas
   await tambahDi(a, "kelas", "Kelas 1B");
   const satuB = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1B' and is_active limit 1`).trim();
   if (!satuB) { rec.verdict = "FAIL"; return "Kelas 1B could not be made on the Struktur sekolah screen"; }
+  // D-088(i): before the move, Kelas 1A's teacher stands over Eka (the governed read his own session makes)
+  const ekaId = sql(`select p.id from public.persons p join public.institutional_identities ii on ii.person_id = p.id where p.display_name='${nama}' and ii.institution_id='${ids.sd}' limit 1`).trim();
+  const budiApi = await apiSession(people.guru.email);
+  const bacaGuru = async () => {
+    const r = await budiApi.rpc("metric_evaluate", { p_metric_id: "learner.result", p_node: ekaId, p_institution: ids.sd });
+    return r.error ? `error ${r.error.code}` : (r.data?.status ?? "ok");
+  };
+  const guruSebelum = await bacaGuru();
   await a.goto(`${APP}/konfigurasi#pindah`, { waitUntil: "networkidle" });
   const dari = a.locator("#pin-pindah-dari");
   if (!(await dari.count())) {
@@ -1541,16 +1549,23 @@ await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas
   await tutupTur(t);
   rec.shots.push(await shot(t, "m9-guru-bukti"));
   const kumpul = [...(await bodyText(t)).matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/gi)].map((m) => `${m[1]}/${m[2]}`);
+  // D-088(i): after it, her former teacher no longer stands over her: her record under Kelas 1A is refused, and
+  // the governed read itself (his own session) answers not_permitted. What she did stays in 1A's figures.
+  await t.goto(`${APP}/mengajar/${kelas}/murid/${ekaId}`, { waitUntil: "networkidle" });
+  const halTolak = (await t.locator(".pin-refusal").count()) > 0;
+  const guruSesudah = await bacaGuru();
   await tc.close();
   const sisa = `${MURID.length - 1}/${MURID.length - 1}`;
   const ok = u.searchParams.get("hasil") === "ok" && u.searchParams.get("dari") === satuB && sesudah.includes(nama)
     && orang === "1" && tempat === "Kelas 1A:MOVED,Kelas 1B:open" && sesi === "Kelas 1A"
-    && roster.length > 0 && !roster.includes(nama) && kumpul.length > 0 && kumpul.every((k) => k === sisa);
+    && roster.length > 0 && !roster.includes(nama) && kumpul.length > 0 && kumpul.every((k) => k === sisa)
+    && guruSebelum !== "not_permitted" && guruSesudah === "not_permitted" && halTolak;
   if (!ok) rec.verdict = "FAIL";
   return `Kelas 1A on «Pindah kelas»: "${sebelum.slice(0, 120)}"; after «Pindahkan»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}, ` +
     `showing ${u.searchParams.get("dari") === satuB ? "Kelas 1B" : u.searchParams.get("dari")} with ${nama}: ${sesudah.includes(nama)}; ` +
     `persons named ${nama} at SD: ${orang}; Kelas placements: ${tempat}; sessions recorded in: ${sesi}; ` +
-    `1A's roster still names ${nama}: ${roster.includes(nama)}; «Mengumpulkan» on 1A's Lihat bukti: ${JSON.stringify(kumpul)} (expected ${sisa})`;
+    `1A's roster still names ${nama}: ${roster.includes(nama)}; «Mengumpulkan» on 1A's Lihat bukti: ${JSON.stringify(kumpul)} (expected ${sisa}); ` +
+    `D-088(i): 1A's teacher reading ${nama}'s result before the move: ${guruSebelum}, after: ${guruSesudah} (expected not_permitted); her record under 1A refused: ${halTolak}`;
 });
 
 // ADM-J20: a setup mistake corrected on the Struktur sekolah screen, whose rename and deactivate had never
