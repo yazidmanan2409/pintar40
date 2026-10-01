@@ -61,6 +61,8 @@ export default async function BerandaPengajar({
     ajar.berjalan(konteks.kelas.map((k) => k.id)),
   ]);
 
+  // W16: with no suggestion, a class that has no material at all while the school has published some
+  const baru = satu ? null : await ajar.kelasTanpaMateri(konteks.kelas);
   const sekarang = ajar.waktu();
   const nama = new Map(konteks.kelas.map((k) => [k.id, k.nama]));
 
@@ -131,6 +133,21 @@ export default async function BerandaPengajar({
               </Link>
               <Link className="pin-btn" href={`/mengajar/${satu.kelasId}`}>
                 {s("mengajar.aksi.lihat")} {satu.kelasNama}
+              </Link>
+            </div>
+          </div>
+        ) : baru ? (
+          <div className="pin-lanjut" data-tur="layak">
+            <p className="pin-where">{s("mengajar.layak.eyebrow")}</p>
+            <h2>
+              {s("mengajar.layak.kelas_baru")} {baru.kelasNama}
+            </h2>
+            <div className="pin-actions">
+              <Link className="pin-btn pin-primary" href={`/mengajar/${baru.kelasId}/siapkan`}>
+                {s("mengajar.siap.eyebrow")}
+              </Link>
+              <Link className="pin-btn" href={`/mengajar/${baru.kelasId}`}>
+                {s("mengajar.aksi.lihat")} {baru.kelasNama}
               </Link>
             </div>
           </div>

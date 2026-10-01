@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 133,
+  "version": 134,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2529,6 +2529,11 @@
       "id": "W8-K01",
       "runner": "static",
       "proves": "W8 (BD-08, EDU-J24): «Lihat bukti» counts three states, never two. Executes pilihBerjalan (src/lib/pengajar.ts) over the rows the page reads and renders KeadaanHariIni in both languages (rendered output): 25 learners with 5 handed in and 3 started and not handed in read «Mengumpulkan» 5 / 25, «Sudah mulai, belum mengumpulkan» 3 and «Belum mengerjakan» 17, not 20; hitungKeadaan's states add up to the class and stay non-negative; the source of the block no longer computes «Belum mengerjakan» as everyone who has not handed in."
+    },
+    {
+      "id": "W16-K01",
+      "runner": "static",
+      "proves": "W16 (EDU-J16, EDU-J01): the teacher's view says what learners can see and what is waiting. Executes pilihBerjalan, keadaanEfektif, statusMateri and pilihKelasTanpaMateri (src/lib/pengajar.ts): an assessment opening tomorrow is not «Berjalan» today nor counted on «Lihat bukti»; material with a future «Mulai» reads «Dijadwalkan» in the copy table's both languages, never «Tersedia»; with published material the home names the first class that has none and proposes no course (BOB-40). The source of the class page reads statusMateri; the source of the home asks kelasTanpaMateri before saying nothing is waiting."
     }
   ]
 }

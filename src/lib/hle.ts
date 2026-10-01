@@ -1040,6 +1040,7 @@ export type HleEvent =
   | "mengajar.beranda.intro"
   | "mengajar.layak.eyebrow"
   | "mengajar.layak.kosong"
+  | "mengajar.layak.kelas_baru"
   | "mengajar.layak.sebab"
   | "mengajar.layak.terbit"
   | "mengajar.aksi.siapkan"
@@ -1073,6 +1074,7 @@ export type HleEvent =
   | "mengajar.status.belum"
   | "mengajar.status.siap"
   | "mengajar.status.berjalan"
+  | "mengajar.status.dijadwalkan"
   | "mengajar.siap.langkah1"
   | "mengajar.siap.langkah2"
   | "mengajar.siap.langkah3"
@@ -3080,6 +3082,8 @@ const table: Table = {
   "mengajar.beranda.intro": { default: "Satu hal yang paling layak dikerjakan lebih dulu, lalu kelas dalam lingkup mengajar Anda.", en: "The one thing most worth doing first, then the classes in your teaching scope." },
   "mengajar.layak.eyebrow": { default: "Layak dikerjakan lebih dulu", en: "Worth doing first" },
   "mengajar.layak.kosong": { default: "Tidak ada yang menunggu keputusan Anda hari ini.", en: "Nothing is waiting on your decision today." },
+  // W16: a class with no material at all while the school has published some (no course is proposed: BOB-40)
+  "mengajar.layak.kelas_baru": { default: "Materi yang diterbitkan sekolah belum disediakan untuk", en: "The school's published material is not yet available to" },
   "mengajar.layak.sebab": { default: "Sudah diterbitkan sekolah dan bisa disediakan kapan pun Anda siap.", en: "Published by the school and can be made available whenever you are ready." },
   "mengajar.layak.terbit": { default: "sudah diterbitkan sekolah, tetapi belum disediakan untuk", en: "is published by the school, but is not yet available to" },
   "mengajar.aksi.siapkan": { default: "Siapkan", en: "Prepare" },
@@ -3113,6 +3117,8 @@ const table: Table = {
   "mengajar.status.belum": { default: "Belum disediakan", en: "Not yet available" },
   "mengajar.status.siap": { default: "Siap disediakan", en: "Ready to make available" },
   "mengajar.status.berjalan": { default: "Berjalan", en: "Open" },
+  // W16: made available with a future «Mulai»; learners cannot open it until then
+  "mengajar.status.dijadwalkan": { default: "Dijadwalkan", en: "Scheduled" },
   "mengajar.siap.langkah1": { default: "Pilih materi", en: "Choose material" },
   "mengajar.siap.langkah2": { default: "Tinjau yang akan diterima murid", en: "Review what learners receive" },
   "mengajar.siap.langkah3": { default: "Sediakan", en: "Make available" },

@@ -67,12 +67,6 @@ export default async function Kelas({
   const punya = new Set(tugas.map((x) => x.releaseId));
   const aktif = tugas.filter((x) => x.status === "ACTIVE" && !x.berakhir);
 
-  function status(x: ajar.Penugasan): HleEvent {
-    if (x.status !== "ACTIVE") return "mengajar.status.belum";
-    if (x.berakhir) return "mengajar.status.selesai";
-    return "mengajar.status.tersedia";
-  }
-
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
@@ -179,7 +173,7 @@ export default async function Kelas({
                     {x.mulai ? <span>{format.date(x.mulai, locale)}</span> : null}
                     {x.sampai ? <span>{format.date(x.sampai, locale)}</span> : null}
                   </span>
-                  <span className="pin-pill pin-neutral">{s(status(x))}</span>
+                  <span className="pin-pill pin-neutral">{s(ajar.statusMateri(x))}</span>
                 </div>
               ))}
               {terbit

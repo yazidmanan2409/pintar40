@@ -229,6 +229,8 @@ export type Penugasan = {
   sampai: string | null;
   /** The window has closed. Read here so no component consults a clock. */
   berakhir: boolean;
+  /** W16: the window has not opened yet (a future «Mulai»). */
+  belumMulai: boolean;
 };
 
 /** Published releases this school may teach, newest first. */
@@ -281,7 +283,20 @@ export async function penugasan(nodeId: string): Promise<Penugasan[]> {
     mulai: r.available_from,
     sampai: r.available_until,
     berakhir: Boolean(r.available_until && Date.parse(r.available_until) <= Date.now()),
+    belumMulai: Boolean(r.available_from && Date.parse(r.available_from) > Date.now()),
   }));
+}
+
+/**
+ * W16: THE STATUS A TEACHER READS FOR ONE CLASS'S MATERIAL. A future «Mulai» is
+ * «Dijadwalkan», never «Tersedia»: learners cannot open it until that day.
+ */
+export function statusMateri(x: Pick<Penugasan, "status" | "berakhir" | "belumMulai">):
+  "mengajar.status.belum" | "mengajar.status.selesai" | "mengajar.status.dijadwalkan" | "mengajar.status.tersedia" {
+  if (x.status !== "ACTIVE") return "mengajar.status.belum";
+  if (x.berakhir) return "mengajar.status.selesai";
+  if (x.belumMulai) return "mengajar.status.dijadwalkan";
+  return "mengajar.status.tersedia";
 }
 
 /** The chapters of one course, in curriculum order. */
@@ -363,7 +378,9 @@ export type BarisSesiAsesmen = { assessment_assignment_id: string; person_id: st
  * assignment whose window has passed is CLOSED for every reader here. Learners
  * were never affected: `my_open_assessments` already reads the window.
  */
-export function keadaanEfektif(status: string, ditutup: string | null, sekarang: number): string {
+export function keadaanEfektif(status: string, ditutup: string | null, sekarang: number, dibuka: string | null = null): string {
+  // W16: one whose window has not opened yet is not running either; learners cannot see it until then
+  if (status === "OPEN" && dibuka !== null && Date.parse(dibuka) > sekarang) return "SCHEDULED";
   return status === "OPEN" && ditutup !== null && Date.parse(ditutup) <= sekarang ? "CLOSED" : status;
 }
 
@@ -390,7 +407,7 @@ export function pilihBerjalan(
     }
   }
   return baris
-    .map((b) => ({ b, efektif: keadaanEfektif(b.status, b.closes_at, sekarang) }))
+    .map((b) => ({ b, efektif: keadaanEfektif(b.status, b.closes_at, sekarang, b.opens_at) }))
     .filter(({ efektif }) => keadaan.includes(efektif))
     .map(({ b, efektif }) => ({
       id: b.id,
@@ -728,6 +745,38 @@ export async function satuHal(kelas: KelasMengajar[]): Promise<SatuHal | null> {
     terbit,
     new Map(semua.map(({ k, t }) => [k.id, t])),
     kunci,
+  );
+}
+
+/**
+ * W16: WHEN THERE IS NO SUGGESTION, IS THERE STILL A CLASS WAITING? BOB-40
+ * suggests no course to a class with no assignment (nothing to fit it by), and
+ * the home then said «Tidak ada yang menunggu keputusan Anda hari ini.» even
+ * when the school had published material and a class had none. The first such
+ * class, in the order the home lists them, is named instead, and sent to
+ * «Siapkan materi», which lists every published release; no course is proposed.
+ */
+export function pilihKelasTanpaMateri(
+  kelas: Array<{ id: string; nama: string }>,
+  adaTerbitan: boolean,
+  punyaMateri: ReadonlySet<string>,
+): { kelasId: string; kelasNama: string } | null {
+  if (!adaTerbitan) return null;
+  const k = kelas.find((x) => !punyaMateri.has(x.id));
+  return k ? { kelasId: k.id, kelasNama: k.nama } : null;
+}
+
+export async function kelasTanpaMateri(kelas: KelasMengajar[]): Promise<{ kelasId: string; kelasNama: string } | null> {
+  if (kelas.length === 0) return null;
+  const c = await db();
+  const [terbit, tugas] = await Promise.all([
+    terbitan(kelas[0].institusi),
+    c.from("learning_assignments").select("node_id").in("node_id", kelas.map((k) => k.id)),
+  ]);
+  return pilihKelasTanpaMateri(
+    kelas.map((k) => ({ id: k.id, nama: k.nama })),
+    terbit.length > 0,
+    new Set(rows<{ node_id: string }>(tugas.data).map((r) => r.node_id)),
   );
 }
 
