@@ -16,10 +16,13 @@ import { Checks, type SelfTest } from "./lib";
 const KASUS = [
   { metric_id: "class.comprehension", value: 0.75 },
   { metric_id: "institution.net_gain", value: 0.35 },
-  { metric_id: "class.topic_mastery", value: { "Nilai tempat": 0.8, "Membandingkan": 0.625 } },
+  // D-088(g), MC-4: one row per objective, named by its statement
+  { metric_id: "class.topic_mastery", value: [
+    { objective_id: "o1", code: "B1P1", competency: "Nilai tempat", mean_score: 0.8, learners: 5 },
+    { objective_id: "o2", code: "B1P2", competency: "Membandingkan", mean_score: 0.625, learners: 4 }] },
   { metric_id: "class.readiness_distribution", value: { "kesiapan.siap": 3, "kesiapan.berkembang": 2 } },
   { metric_id: "institution.cohort_comparison", value: [{ cohort_node_id: "c1", learners: 5, mean_mastery: 0.75 }] },
-  { metric_id: "institution.competency_outcomes", value: [{ competency: "Nilai tempat", mean_score: 0.8, learners: 5 }] },
+  { metric_id: "institution.competency_outcomes", value: [{ objective_id: "o1", code: "B1P1", competency: "Nilai tempat", mean_score: 0.8, learners: 5 }] },
   { metric_id: "class.misconceptions", value: [{ code: "SD5-M-B1-01", label: "Nilai tempat tertukar", remediation: "Ulangi halaman 3." }] },
 ].map((e) => ({ status: "ok", ...e }));
 

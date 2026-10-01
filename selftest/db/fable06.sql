@@ -2925,7 +2925,10 @@ begin
       bad := bad || selftest.f06p12_metric('dean, metric route', v_dean_u, v_la, v_inst, v_cat, false);
       bad := bad || selftest.f06p12_metric('institution admin, metric route', v_adm_u, v_la, v_inst, v_cat, false);
 
-      -- THE PAYLOAD IS BOUNDED. Ten fields since R5, not nine: this tripwire
+      -- THE PAYLOAD IS BOUNDED. Eleven since D-088(i) (2 Oct): `placement_history`, the
+      -- places the learner has left, each with its year, dates and close reason, kept
+      -- apart from `placement` so an ended place is never shown as current; it carries
+      -- no result, no mastery and nothing outside the boundary. Ten fields since R5, not nine: this tripwire
       -- fired when `official_results_readiness` was added and the field was
       -- read before the number moved. It is the R5 answer for this consumer --
       -- whether the official-results list is empty because nothing qualifying
@@ -2937,7 +2940,7 @@ begin
       r := public.management_learner_detail(v_la, v_inst);
       select count(*) into n from jsonb_object_keys(r) k
        where k not in ('person_id','display_name','institution_id','enrolment_status',
-                       'academic_period','programme','placement','official_results',
+                       'academic_period','programme','placement','placement_history','official_results',
                        'official_results_readiness','catalogue_version');
       if n <> 0 then bad := bad || array[format('the payload carries %s undeclared field(s)', n)]; end if;
       if (r ->> 'official_results_readiness') is null then
@@ -6286,8 +6289,8 @@ begin
   -- the Head of Department over that class); the school's figure is read from
   -- its calculator inside the school's bound boundary, because its minimum
   -- sample (10) is above five learners, and the evaluator is asked too, for
-  -- what it has. D-060: the figures come from catalogue MC-3, a copy of MC-2
-  -- with nothing else changed. Every row rolled back.
+  -- what it has. D-060: the figures come from catalogue MC-4 (D-088(g)), a copy
+  -- of MC-3 that names each topic by its objective. Every row rolled back.
   -- =========================================================================
   declare
     c record; bad text[] := array[]::text[]; v_why text := ''; v_cls uuid; v_coh uuid; v jsonb; x jsonb;
@@ -6330,9 +6333,12 @@ begin
       perform selftest.as_owner();
       if v ->> 'status' is distinct from 'ok' then
         bad := bad || array[format('the class''s per-topic mastery did not show for five learners: %s', v)];
-      elsif (v -> 'value') is distinct from '{"BOB37-A": 0.5500, "BOB37-B": 0.6250}'::jsonb
+      -- D-088(g), MC-4: one row per objective, named by its statement; these synthetic codes have no objective in
+      -- the session's chapter, so each keeps its code as its name and is never merged or dropped
+      elsif (v -> 'value') is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "mean_score": 0.5500, "learners": 5},
+                                              {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "mean_score": 0.6250, "learners": 4}]'::jsonb
             or (v ->> 'sample')::int is distinct from 5 then
-        bad := bad || array[format('the class''s per-topic mastery is %s over %s, expected {"BOB37-A": 0.55, "BOB37-B": 0.625} over 5',
+        bad := bad || array[format('the class''s per-topic mastery is %s over %s, expected BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4, one row each',
                                    v -> 'value', v -> 'sample')];
       end if;
 
@@ -6344,8 +6350,8 @@ begin
       select jsonb_agg(e order by e ->> 'competency') into x
         from jsonb_array_elements(coalesce(v -> 'value', '[]'::jsonb)) e
        where e ->> 'competency' like 'BOB37-%';
-      if x is distinct from '[{"competency": "BOB37-A", "mean_score": 0.5500, "learners": 5},
-                               {"competency": "BOB37-B", "mean_score": 0.6250, "learners": 4}]'::jsonb then
+      if x is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "mean_score": 0.5500, "learners": 5},
+                               {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "mean_score": 0.6250, "learners": 4}]'::jsonb then
         bad := bad || array[format('the school''s competency outcomes hold %s for the two objectives, expected BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4',
                                    coalesce(x::text, 'nothing'))];
       end if;
@@ -6358,30 +6364,31 @@ begin
         bad := bad || array[format('the school''s competency outcomes should count at least the five learners against the minimum of 10, they said %s', v)];
       end if;
 
-      -- D-060: the live catalogue is MC-3, and MC-3 is MC-2 copied forward with nothing else changed
-      if v_cat is distinct from 'MC-3' then
-        bad := bad || array[format('the live metric catalogue is %s, not MC-3', coalesce(v_cat, 'none'))];
+      -- D-060: the live catalogue is MC-4 (D-088(g)), and MC-4 is MC-3 copied forward with every definition,
+      -- minimum sample and audience identical, its sources MC-3's plus the three content relations
+      if v_cat is distinct from 'MC-4' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-4', coalesce(v_cat, 'none'))];
       else
-        if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-3') d3
-                    full join (select * from public.metric_definitions where catalogue_version = 'MC-2') d2
-                      on d2.metric_id = d3.metric_id
-                   where (d3.metric_id is null or d2.metric_id is null
-                          or (d3.label_key, d3.meaning_key, d3.scope, d3.evidence_class, d3.minimum_sample,
-                              d3.allowed_visualizations, d3.allowed_audiences, d3.calculation_key, d3.deprecated,
-                              d3.deprecation_note_key)
+        if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-4') d4
+                    full join (select * from public.metric_definitions where catalogue_version = 'MC-3') d3
+                      on d3.metric_id = d4.metric_id
+                   where (d4.metric_id is null or d3.metric_id is null
+                          or (d4.label_key, d4.meaning_key, d4.scope, d4.evidence_class, d4.minimum_sample,
+                              d4.allowed_visualizations, d4.allowed_audiences, d4.calculation_key, d4.deprecated,
+                              d4.deprecation_note_key)
                              is distinct from
-                             (d2.label_key, d2.meaning_key, d2.scope, d2.evidence_class, d2.minimum_sample,
-                              d2.allowed_visualizations, d2.allowed_audiences, d2.calculation_key, d2.deprecated,
-                              d2.deprecation_note_key))) then
-          bad := bad || array['MC-3''s metric definitions are not MC-2''s, column by column (minimum sample and audiences included)'];
+                             (d3.label_key, d3.meaning_key, d3.scope, d3.evidence_class, d3.minimum_sample,
+                              d3.allowed_visualizations, d3.allowed_audiences, d3.calculation_key, d3.deprecated,
+                              d3.deprecation_note_key))) then
+          bad := bad || array['MC-4''s metric definitions are not MC-3''s, column by column (minimum sample and audiences included)'];
         end if;
-        if (select count(*) from public.readiness_tiers where catalogue_version = 'MC-3')
-             <> (select count(*) from public.readiness_tiers where catalogue_version = 'MC-2')
-           or (select count(*) from public.question_health_thresholds where catalogue_version = 'MC-3')
-             <> (select count(*) from public.question_health_thresholds where catalogue_version = 'MC-2')
-           or (select count(*) from public.metric_sources where catalogue_version = 'MC-3')
-             <> (select count(*) from public.metric_sources where catalogue_version = 'MC-2') then
-          bad := bad || array['MC-3 did not carry MC-2''s readiness tiers, question-health thresholds and sources forward'];
+        if (select count(*) from public.readiness_tiers where catalogue_version = 'MC-4')
+             <> (select count(*) from public.readiness_tiers where catalogue_version = 'MC-3')
+           or (select count(*) from public.question_health_thresholds where catalogue_version = 'MC-4')
+             <> (select count(*) from public.question_health_thresholds where catalogue_version = 'MC-3')
+           or (select count(*) from public.metric_sources where catalogue_version = 'MC-4')
+             <> (select count(*) from public.metric_sources where catalogue_version = 'MC-3') + 3 then
+          bad := bad || array['MC-4 did not carry MC-3''s readiness tiers, question-health thresholds and sources forward (plus three content sources)'];
         end if;
       end if;
 
@@ -6400,11 +6407,11 @@ begin
       ok := true;
       detail := 'five learners in a class of their own sat the Cek penguasaan and their results hold the scoring''s own '
         || '{benar, total, penguasaan} objects: the teacher''s «Penguasaan per bagian» (class.topic_mastery, asked through '
-        || 'metric_evaluate by the Head of Department over the class) shows BOB37-A 0.55 and BOB37-B 0.625 over five learners, '
+        || 'metric_evaluate by the Head of Department over the class) shows one row per objective, BOB37-A 0.55 over five and BOB37-B 0.625 over four, '
         || 'the average of each learner''s recorded penguasaan (not the pooled benar/total, 0.5); with four learners it is below the unchanged minimum of 5; the '
         || 'school''s competency outcomes hold BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4, and the evaluator counts them against '
-        || 'the unchanged minimum of 10; and the live catalogue is MC-3, MC-2 copied forward with every definition, minimum '
-        || 'sample and audience identical (D-060). Every row rolled back';
+        || 'the unchanged minimum of 10; and the live catalogue is MC-4 (D-088(g)), MC-3 copied forward with every definition, minimum '
+        || 'sample and audience identical and three content sources added (D-060). Every row rolled back';
     end if;
     return next;
   end;

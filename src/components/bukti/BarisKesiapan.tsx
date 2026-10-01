@@ -15,8 +15,8 @@ import { t, format, type HleEvent, type Locale } from "@/lib/hle";
  * draws a class's mastery per topic (`calc_class_topic_mastery`). Its keys are
  * the content's own labels, not copy keys: looked up in the copy table they all
  * read "—", so a topic row passes `label`, shown as the content gives it.
- * (Corrected in POLISH3: those keys are learning-objective CODES, the same as
- * the learner's `per_domain`, not names. See the hand-off for the calculator.)
+ * (Corrected in POLISH3: those keys were learning-objective CODES. Since MC-4,
+ * D-088(g), a topic row is the objective's own statement, one row per objective.)
  */
 export default function BarisKesiapan({
   tierKey,

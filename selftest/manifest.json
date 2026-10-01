@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 151,
+  "version": 152,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2654,6 +2654,20 @@
       "id": "D088H-K01",
       "runner": "static",
       "proves": "D-088(h): Studio reviewers see the questions before approving. Executes susunSoal (src/lib/soal-tinjauan.ts): lessons in the package's order, Pemetaan Awal then Uji Penguasaan then practice, options A-E with the key marked and every reason kept. Reads the source of src/app/studio/paket/[course]/page.tsx: the questions read for CAN_DRAFT staff and shown before the publish steps with key and reasons; the learner preview (src/app/studio/pratinjau) still reads no question; the copy table in id and en."
+    },
+    {
+      "id": "D088G-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "D-088(g): two objectives are never averaged as one. In the database, rolled back (catalogue MC-4, supabase/migrations/20261031100000): one class of the bootstrap school sits two published canonical chapters whose objectives share the code KN5-B1, five learners all right on one and five none right on the other; the teacher's «Penguasaan per bagian» (metric_evaluate class.topic_mastery as the head of department) answers two rows, 100% over five and 0% over five, each with its own objective and named by its statement, where MC-3 answered one «KN5-B1» at 50% over ten.",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D088G-K01",
+      "runner": "static",
+      "proves": "D-088(g): a topic is named by its objective on the page. Reads the source of src/app/mengajar/[kelas]/bukti/page.tsx (one row per objective, labelled by its statement) and supabase/migrations/20261031100000 (MC-4 declares assessment_definitions, lessons and learning_objectives; both calculators group by the objective and return its statement; the academic source guard names the content family and fails if it ever holds a learner)."
     }
   ]
 }

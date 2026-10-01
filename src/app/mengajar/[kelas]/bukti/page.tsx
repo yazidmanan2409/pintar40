@@ -93,10 +93,11 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
       : [];
   const totalSiap = sebaran.reduce((n, [, c]) => n + Number(c), 0);
 
-  const bagian =
-    topik && topik.status === "ok" && topik.value && typeof topik.value === "object"
-      ? Object.entries(topik.value as Record<string, number>).sort((a, b) => Number(a[1]) - Number(b[1]))
-      : [];
+  // D-088(g), MC-4: one row per objective, named by its statement (what was learned), never by a code that two
+  // chapters share; the evaluator's own order (lowest mastery first) is kept
+  type Bagian = { objective_id: string | null; code: string; competency: string; mean_score: number; learners: number };
+  const bagian: Bagian[] =
+    topik && topik.status === "ok" && Array.isArray(topik.value) ? (topik.value as Bagian[]) : [];
 
   type Keliru = { code: string; label: string; remediation: string | null; occurrences: number };
   const salahPaham =
@@ -147,11 +148,11 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
             <div className="pin-metric">
               <span className="pin-ml">{s("mengajar.bukti.bagian")}</span>
               <div className="pin-readiness">
-                {bagian.map(([nama, nilai]) => (
+                {bagian.map((b) => (
                   <BarisKesiapan
-                    key={nama}
-                    label={nama}
-                    count={Math.round(Number(nilai) * 100)}
+                    key={b.objective_id ?? b.code}
+                    label={b.competency}
+                    count={Math.round(Number(b.mean_score) * 100)}
                     total={100}
                     locale={locale}
                   />
