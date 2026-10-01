@@ -14,6 +14,8 @@ export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
   | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.kosong"
+  | "mengajar.bukti.per_soal" | "mengajar.soal.judul" | "mengajar.soal.arti" | "mengajar.soal.terkumpul" | "mengajar.soal.dari" | "mengajar.soal.tepat"
+  | "mengajar.soal.kunci" | "mengajar.soal.bantuan" | "mengajar.soal.semua_tepat" | "mengajar.soal.kosong" | "mengajar.soal.tidak_dijawab" | "mengajar.soal.kembali"
   | "jenis.mode.PRE_TEST" | "jenis.mode.POST_TEST" | "jenis.mode.QUICK"
   | "jenis.mode.STANDALONE" | "jenis.mode.PRACTICE" | "jenis.mode.TEST"
   | "jenis.mode.EXAM" | "jenis.mode.PUBLIC_DEMO" | "jenis.mode.PAPER"
@@ -1473,6 +1475,18 @@ const table: Table = {
   "studio.soal.kunci": { default: "Kunci", en: "Key" },
   "studio.soal.alasan": { default: "Alasan", en: "Why" },
   "studio.soal.kosong": { default: "Paket ini belum berisi soal.", en: "This package has no questions yet." },
+  "mengajar.bukti.per_soal": { default: "Lihat per soal", en: "See question by question" },
+  "mengajar.soal.judul": { default: "Soal mana yang sulit bagi kelas ini", en: "Which questions this class found hard" },
+  "mengajar.soal.arti": { default: "Dari jawaban yang sudah dikumpulkan murid kelas ini. Soal yang paling sedikit dijawab tepat ada di atas, dengan nama murid yang mungkin perlu bantuan pada konsep itu. Jawaban yang masih dikerjakan tidak terlihat di sini.", en: "From the answers this class has handed in. The questions answered rightly by the fewest come first, with the names of learners who may need help with that concept. Answers still being worked on are not shown here." },
+  "mengajar.soal.terkumpul": { default: "Jawaban yang sudah dikumpulkan", en: "Answer sheets handed in" },
+  "mengajar.soal.dari": { default: "dari", en: "of" },
+  "mengajar.soal.tepat": { default: "menjawab tepat", en: "answered rightly" },
+  "mengajar.soal.kunci": { default: "Kunci", en: "Key" },
+  "mengajar.soal.bantuan": { default: "Murid yang mungkin perlu bantuan pada soal ini", en: "Learners who may need help with this question" },
+  "mengajar.soal.semua_tepat": { default: "Semua yang mengumpulkan menjawab soal ini dengan tepat.", en: "Everyone who handed in answered this question rightly." },
+  "mengajar.soal.kosong": { default: "Belum ada jawaban yang dikumpulkan untuk penilaian ini.", en: "No answers have been handed in for this assessment yet." },
+  "mengajar.soal.tidak_dijawab": { default: "tidak dijawab", en: "not answered" },
+  "mengajar.soal.kembali": { default: "Lihat bukti", en: "Evidence" },
   "jenis.bank.TEST": { default: "Penilaian", en: "Assessment" },
   "jenis.bank.EXAM": { default: "Ujian", en: "Exam" },
   "jenis.mode.PRE_TEST": { default: "Penilaian awal", en: "Initial mapping" },

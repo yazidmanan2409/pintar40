@@ -416,6 +416,18 @@
 .pin-keadaan-judul { margin: 0 0 var(--space-3); font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-1); }
 .pin-keadaan-siapa { margin: var(--space-3) 0 0; font-size: var(--type-meta); }
 
+/* «Lihat per soal» (D-088(k), M5): the class's questions, hardest first, with who may need help. */
+.pin-soal-kelas { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+.pin-soal-baris { display: grid; gap: var(--space-3); }
+.pin-soal-tanya { margin: 0; font-size: var(--type-body); color: var(--ink-1); }
+.pin-soal-tepat { margin: 0; font-size: var(--type-meta); font-weight: var(--weight-strong); font-variant-numeric: tabular-nums; }
+.pin-soal-opsi { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: var(--type-meta); }
+.pin-soal-opsi li { color: var(--ink-2); }
+.pin-soal-opsi li.pin-opsi-kunci { color: var(--ink-1); }
+.pin-soal-bantuan { border-top: 1px solid var(--line); padding-top: var(--space-3); font-size: var(--type-meta); }
+.pin-soal-bantuan .pin-ml { margin: 0 0 6px; font-weight: var(--weight-strong); }
+.pin-soal-bantuan ul { margin: 0; padding-left: var(--space-5); display: grid; gap: 4px; }
+
 /* --------------------------------------------------- commitment and refusal */
 .pin-commit {
   border: 1px solid var(--line); border-radius: var(--radius-2);

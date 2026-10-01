@@ -1329,7 +1329,7 @@ await step("S21e", "the same student on another device: Ani signs in on a differ
   }
 });
 
-await step("S22", "the teacher reaches Lihat bukti by clicking and reads the class figures from official evidence, then opens a student's record from the roster (EDU-12, X-10, EDU-J03, M4)", async (rec) => {
+await step("S22", "the teacher reaches Lihat bukti by clicking and reads the class figures from official evidence, follows «Lihat per soal» to the questions the class found hard (M5, D-088(k)), then opens a student's record from the roster (EDU-12, X-10, EDU-J03, M4)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const kelas = kelasSatuA();
   const tc = await ctx();
@@ -1361,6 +1361,53 @@ await step("S22", "the teacher reaches Lihat bukti by clicking and reads the cla
   const kumpul = [...txt.matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/gi)].map((m) => `${m[1]}/${m[2]}`);
   const bagian = simpulan.includes("Penguasaan per bagian");
   if (!simpulan.includes(pahamTeks) || !simpulan.includes(naikTeks)) rec.verdict = "FAIL";
+  // D-088(k), M5: from «Lihat bukti» the teacher follows the Uji Penguasaan's «Lihat per soal» and reads which questions
+  // the class found hard: five handed in, every question once with its key, the right answers adding up to the plan,
+  // hardest first, and as needing help exactly the students the plan has missing a question (never Dodi, all right)
+  let perSoal = "";
+  try {
+    const post = sql(`select aa.id from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+       where d.course_id='${babSatu()}' and d.mode='POST_TEST' and aa.node_id='${kelas}' order by aa.created_at desc limit 1`).trim();
+    await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+    await tutupTur(t);
+    const tautan = t.locator(`a[href="/mengajar/${kelas}/soal?penugasan=${post}"]`);
+    if (!(await tautan.count())) throw new Error("no «Lihat per soal» for the Uji Penguasaan on «Lihat bukti»");
+    const label = norm(await tautan.first().innerText());
+    await tautan.first().click();
+    await t.waitForURL((u) => u.pathname === `/mengajar/${kelas}/soal`, { timeout: SLOW });
+    await t.locator("h1").first().waitFor({ timeout: SLOW });
+    rec.shots.push(await shot(t, "m5-guru-per-soal"));
+    const baris = await t.locator("li.pin-soal-baris").evaluateAll((els) => els.map((e) => ({
+      tepat: (e.querySelector(".pin-soal-tepat")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+      kunci: e.querySelectorAll(".pin-soal-opsi li.pin-opsi-kunci").length,
+      bantuan: [...e.querySelectorAll(".pin-soal-bantuan li")].map((li) => (li.textContent ?? "").replace(/\s+/g, " ").trim()),
+    })));
+    const halaman = norm(await bodyText(t));
+    const terkumpul = Number(halaman.match(/Jawaban yang sudah dikumpulkan · (\d+)/)?.[1] ?? -1);
+    const angka = baris.map((b) => b.tepat.match(/^(\d+) dari (\d+) menjawab tepat$/)).map((m) => (m ? [Number(m[1]), Number(m[2])] : null));
+    const tepatRencana = RENCANA.reduce((n, r) => n + r.post, 0);
+    const tepatTerbaca = angka.reduce((n, a) => n + (a?.[0] ?? 0), 0);
+    const urut = angka.every((a, i) => a && (i === 0 || angka[i - 1][0] <= a[0]));
+    const nama = new Set(baris.flatMap((b) => b.bantuan.map((x) => x.split(" · ")[0])));
+    const harapNama = new Set(MURID.filter((_, i) => RENCANA[i].post < SOAL.post));
+    const namaSama = nama.size === harapNama.size && [...harapNama].every((x) => nama.has(x));
+    const bantuanRencana = RENCANA.reduce((n, r) => n + (SOAL.post - r.post), 0);
+    const bantuanTerbaca = baris.reduce((n, b) => n + b.bantuan.length, 0);
+    // the page's own words (its heading, its explanation, its labels), not the chapter's questions
+    const kata = norm(`${await t.locator("main .pin-head").innerText()} ${(await t.locator(".pin-soal-bantuan .pin-ml").allInnerTexts()).join(" ")}`);
+    const pengawasan = /integritas|anomali|perangkat|durasi|lama mengerjakan|ragu|curang/i.test(kata);
+    const ok = label === "Lihat per soal" && terkumpul === MURID.length && baris.length === SOAL.post
+      && angka.every((a) => a && a[1] === MURID.length) && baris.every((b) => b.kunci === 1)
+      && tepatTerbaca === tepatRencana && urut && namaSama && bantuanTerbaca === bantuanRencana && !pengawasan;
+    if (!ok) rec.verdict = "FAIL";
+    perSoal = `M5: «${label}» → /soal: handed in ${terkumpul} (expected ${MURID.length}); ${baris.length} question(s) (expected ${SOAL.post}), ` +
+      `each with one key: ${baris.every((b) => b.kunci === 1)}; right answers ${tepatTerbaca} (plan ${tepatRencana}), hardest first: ${urut}; ` +
+      `${JSON.stringify(baris.map((b) => b.tepat))}; may need help: ${[...nama].sort().join(", ") || "none"} (expected ${[...harapNama].sort().join(", ")}), ` +
+      `${bantuanTerbaca} line(s) (plan ${bantuanRencana}); nothing reading like an integrity console: ${!pengawasan}`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    perSoal = `M5: the per-question page was not read: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
+  }
   // M4 (EDU-J04): from the class's roster, the teacher opens student 1's record
   let catatan = "";
   try {
@@ -1381,7 +1428,7 @@ await step("S22", "the teacher reaches Lihat bukti by clicking and reads the cla
     catatan = `M4: the record was not reached: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
   }
   await tc.close();
-  return `${jalan}; ${catatan}; expected comprehension ${pahamTeks} and net gain ${naikTeks} (from the plan); on the page: comprehension ${simpulan.includes(pahamTeks)}, ` +
+  return `${jalan}; ${perSoal}; ${catatan}; expected comprehension ${pahamTeks} and net gain ${naikTeks} (from the plan); on the page: comprehension ${simpulan.includes(pahamTeks)}, ` +
     `net gain ${simpulan.includes(naikTeks)}, mastery by part shown ${bagian}; figures still absent: ${absen} (misconceptions need registered codes, D-063); ` +
     `Mengumpulkan ${JSON.stringify(kumpul)}; the figures section says: "${simpulan.slice(0, 700)}"`;
 });

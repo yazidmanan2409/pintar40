@@ -47,6 +47,7 @@ import { adm09Tests } from "./adm09.test";
 import { d088iTests } from "./d088i.test";
 import { d088hTests } from "./d088h.test";
 import { d088gTests } from "./d088g.test";
+import { d088kTests } from "./d088k.test";
 import { w16Tests } from "./w16.test";
 import { bob12Tests } from "./bob12.test";
 import { bob32Tests } from "./bob32.test";
@@ -1951,6 +1952,7 @@ export const staticTests: SelfTest[] = [
   ...d088iTests,
   ...d088hTests,
   ...d088gTests,
+  ...d088kTests,
   ...w16Tests,
   ...bob23Tests,
   ...bob12Tests,

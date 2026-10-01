@@ -111,6 +111,10 @@ export default function KeadaanHariIni({
           {kelas ? (
             <p className="pin-keadaan-siapa">
               <a href={`/mengajar/${kelas}/siapa?penugasan=${a.id}`}>{s("mengajar.bukti.siapa")}</a>
+              {/* D-088(k), M5: once something has been handed in, which questions the class found hard */}
+              {k.kumpul > 0 ? (
+                <> · <a href={`/mengajar/${kelas}/soal?penugasan=${a.id}`}>{s("mengajar.bukti.per_soal")}</a></>
+              ) : null}
             </p>
           ) : null}
         </div>

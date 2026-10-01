@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 152,
+  "version": 153,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2668,6 +2668,20 @@
       "id": "D088G-K01",
       "runner": "static",
       "proves": "D-088(g): a topic is named by its objective on the page. Reads the source of src/app/mengajar/[kelas]/bukti/page.tsx (one row per objective, labelled by its statement) and supabase/migrations/20261031100000 (MC-4 declares assessment_definitions, lessons and learning_objectives; both calculators group by the objective and return its statement; the academic source guard names the content family and fails if it ever holds a learner)."
+    },
+    {
+      "id": "D088K-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "D-088(k), M5: a teacher reads which questions their class found hard, and only what was handed in. In the database, rolled back (supabase/migrations/20261101100000, teacher_question_evidence): with one learner's Uji Penguasaan handed in and another still being worked on, 5B's teacher reads one sitting, every presented question once with answered and right and its bank key, and the learner's submitted choices; nothing but sittings, questions and learners; the learner, the head of department (no EDUCATOR role) and the teacher asking about another class are refused (42501).",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D088K-K01",
+      "runner": "static",
+      "proves": "D-088(k), M5: teaching evidence, not surveillance. Executes susunBuktiSoal (src/lib/soal-kelas.ts): hardest first, learners per option, who may need help by name. Reads the source of src/app/mengajar/[kelas]/soal/page.tsx (no integrity, time or device word), the link from «Lihat bukti» (src/components/bukti/KeadaanHariIni.tsx), the migration's EDUCATOR-role binding, and the copy in id and en."
     }
   ]
 }
