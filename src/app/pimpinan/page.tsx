@@ -225,7 +225,7 @@ export default async function Pimpinan({
             {perKelas.length === 0 ? (
               <p className="pin-empty">{s("pimpinan.kelas.kosong")}</p>
             ) : (
-              perKelas.map(({ kelas, bukti: bk }) => {
+              perKelas.map(({ kelas, bukti: bk, murid }) => {
                 const ada = bk.filter((e) => e.status === "ok");
                 return (
                   <details key={kelas.id} className="pin-kelas-bukti">
@@ -237,6 +237,10 @@ export default async function Pimpinan({
                     </summary>
                     {bk.length > 0 ? (
                       <div className="pin-kelas-isi">
+                        {/* HOD-J05: «Peserta» read against the class it counts in */}
+                        {murid !== null ? (
+                          <p className="pin-mm">{s("pimpinan.kelas.murid")} · <span className="pin-num">{format.number(murid, locale)}</span></p>
+                        ) : null}
                         {ada.length > 0 ? (
                           <div className="pin-grid2">
                             {ada.map((e, i) => (

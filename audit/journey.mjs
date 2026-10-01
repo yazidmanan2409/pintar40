@@ -1112,7 +1112,7 @@ await step("S22", "the teacher reads the class figures from official evidence on
     `Mengumpulkan ${JSON.stringify(kumpul)}; the figures section says: "${simpulan.slice(0, 700)}"`;
 });
 
-await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan, and their department's roster (HOD-09, X-10, HOD-J06)", async (rec) => {
+await step("S23", "the head of department reads Kelas 1A's figures beside the class's size on /pimpinan, and their department's roster (HOD-09, X-10, HOD-J05, HOD-J06)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const hc = await ctx();
   const h = await hc.newPage();
@@ -1134,7 +1134,9 @@ await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan,
   const pahamTeks = persen(HARAP.paham);
   // W9: the net gain reads as «Lihat bukti» reads it (S22), not as a percentage
   const naikTeks = `${HARAP.naik > 0 ? "+" : ""}${Math.round(HARAP.naik * 100)} poin`;
-  if (!/Ada angka/.test(tanda) || !isi.includes(pahamTeks) || !isi.includes(naikTeks)) rec.verdict = "FAIL";
+  // HOD-J05: «Peserta» is read against the class: its size now, in the same panel
+  const ukuran = isi.match(/Murid di kelas ini sekarang · (\d+)/);
+  if (!/Ada angka/.test(tanda) || !isi.includes(pahamTeks) || !isi.includes(naikTeks) || Number(ukuran?.[1]) !== MURID.length) rec.verdict = "FAIL";
   // W10: above the class. What «Yang didukung bukti» says to a head of department over a department, and
   // the department's roster, reached by clicking (Lihat lebih rinci → Murid pada bagian ini)
   const bagianC = norm(await h.locator('section[aria-labelledby="pin-bukti"]').innerText().catch(() => ""));
@@ -1159,7 +1161,7 @@ await step("S23", "the head of department reads Kelas 1A's figures on /pimpinan,
   if (kosongC || tercantum < MURID.length || tersembunyi || !bawahDept.includes("Kelas 1A")) rec.verdict = "FAIL";
   await hc.close();
   return `«Yang didukung bukti» says: "${bagianC.slice(0, 160)}"${kosongC ? " (NO FIGURES, while Kelas 1A has them: W10)" : ""}; the department's roster lists ${tercantum} of ${MURID.length} students; below the department: "${bawahDept.slice(0, 160)}"${tersembunyi ? " (HIDDEN LEVEL SHOWN: W11)" : ""}; ` +
-    `Kelas 1A: "${tanda}"; expected comprehension ${pahamTeks} and net gain ${naikTeks}, as on «Lihat bukti»; comprehension shown ${isi.includes(pahamTeks)}, ` +
+    `Kelas 1A: "${tanda}", size shown ${ukuran?.[1] ?? "no"} (expected ${MURID.length}: HOD-J05); expected comprehension ${pahamTeks} and net gain ${naikTeks}, as on «Lihat bukti»; comprehension shown ${isi.includes(pahamTeks)}, ` +
     `net gain shown ${isi.includes(naikTeks)}; the class's figures say: "${isi.slice(0, 500)}"`;
 });
 

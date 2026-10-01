@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 140,
+  "version": 141,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2564,6 +2564,11 @@
       "id": "EDU23-K01",
       "runner": "static",
       "proves": "EDU-J23, EDU-J24: who has not started, and who started and did not hand in, by name. Executes pisahSiapa (src/lib/pengajar.ts): each learner of the roster in exactly one of handed in, started and not handed in, not started, in the roster's order, nobody outside it. Renders KeadaanHariIni (rendered output, id and en): each test's counts link to that test's names on /siapa. The copy table gives /siapa's lists the labels «Lihat bukti» counts under; the source of /siapa draws the three lists in order."
+    },
+    {
+      "id": "HOD05-K01",
+      "runner": "static",
+      "proves": "HOD-J05: a class's participation is read against the class. Executes buktiPerKelasDari and daftarMuridDari (src/lib/pimpinan.ts) with a client that filters as PostgREST would: each class carries its size now beside its four figures, an unreadable roster leaves the figures and no size, and only open memberships count, so a learner who left a class is not on its roster. The copy table labels the size apart from «Peserta» in id and en; the source of /pimpinan draws it in each class panel."
     }
   ]
 }

@@ -452,6 +452,7 @@ export type HleEvent =
   | "laporan.muncul.awal_akhir"
   | "laporan.muncul.miskonsepsi"
   | "laporan.muncul.sertifikat"
+  | "pimpinan.kelas.murid"
   | "pimpinan.kelas.judul"
   | "pimpinan.kelas.arti"
   | "pimpinan.kelas.ada"
@@ -2192,6 +2193,7 @@ const table: Table = {
   "laporan.muncul.awal_akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Pemetaan awal dan Cek penguasaan. Hanya murid yang menyelesaikan keduanya yang dihitung.", en: "This figure appears once enough students have finished both the Initial mapping and the Mastery Check. Only students who finished both are counted." },
   "laporan.muncul.miskonsepsi": { default: "Angka ini muncul setelah beberapa murid memilih jawaban keliru yang sama pada pilihan yang diberi kode miskonsepsi.", en: "This figure appears once several students choose the same wrong answer on an option that carries a misconception code." },
   "laporan.muncul.sertifikat": { default: "Angka ini muncul setelah sertifikat pertama sekolah ini terbit.", en: "This figure appears once this school's first certificate is issued." },
+  "pimpinan.kelas.murid": { default: "Murid di kelas ini sekarang", en: "Students in this class now" },
   "pimpinan.kelas.judul": { default: "Per kelas", en: "Class by class" },
   "pimpinan.kelas.arti": { default: "Angka kelas dihitung untuk tiap kelas sendiri dan tidak dijumlahkan antarkelas. Buka satu kelas untuk melihat angkanya, atau apa yang membuatnya muncul.", en: "Class figures are counted for each class on its own and never added across classes. Open a class to see its figures, or what will make them appear." },
   "pimpinan.kelas.ada": { default: "Ada angka", en: "Has figures" },

@@ -375,8 +375,14 @@ export async function buktiPimpinanDari(c: Db, node: string, institusi: string):
   return out.filter(terbaca);
 }
 
-/** One class of the reader's branch and the class figures it answers for itself. */
-export type BuktiKelas = { kelas: SimpulPimpinan; bukti: Envelope[] };
+/**
+ * One class of the reader's branch and the class figures it answers for itself.
+ * HOD-J05: `murid` is how many learners the class has now (its roster, the same
+ * read as «Murid pada bagian ini»), so «Peserta» is read against the class; null
+ * when the roster could not be read. Never subtracted from a figure: the
+ * figures pool every official session, the roster is today's.
+ */
+export type BuktiKelas = { kelas: SimpulPimpinan; bukti: Envelope[]; murid: number | null };
 
 /**
  * BOB-06 (B6c): THE CLASS FIGURES OF EACH CLASS IN THIS BRANCH, asked of that
@@ -395,8 +401,11 @@ export async function buktiPerKelasDari(c: Db, node: string): Promise<BuktiKelas
   return Promise.all(
     kelas.map(async (k) => {
       const minta = mintaDari(c, k.institusi);
-      const bukti = await Promise.all(METRIK_SIMPUL.map((m) => minta(m, k.id)));
-      return { kelas: k, bukti: bukti.filter(terbaca) };
+      const [bukti, murid] = await Promise.all([
+        Promise.all(METRIK_SIMPUL.map((m) => minta(m, k.id))),
+        daftarMuridDari(c, k.id).then((d) => d.length, () => null),
+      ]);
+      return { kelas: k, bukti: bukti.filter(terbaca), murid };
     }),
   );
 }
@@ -429,14 +438,17 @@ export async function daftarMurid(node: string): Promise<MuridDalamLingkup[]> {
  * matched the node exactly read «Belum ada murid…» for every department. The
  * branch comes from `cabangDari`, which throws on a node outside the reader's
  * scope; the reads stay RLS-bounded as above, and a learner in two classes of
- * the branch is listed once.
+ * the branch is listed once. Only open memberships count, as on the teacher's
+ * roster (pengajar.ts) and Aktivasi.
  */
 export async function daftarMuridDari(c: Db, node: string): Promise<MuridDalamLingkup[]> {
   const simpul = [...new Set([node, ...(await cabangDari(c, [node])).map((n) => n.id)])];
+  // a closed membership (valid_to set) is a class the learner has left
   const { data: anggota } = await c
     .from("memberships")
     .select("enrollment_id, node_id")
-    .in("node_id", simpul);
+    .in("node_id", simpul)
+    .is("valid_to", null);
   const enrolIds = [
     ...new Set(rows<{ enrollment_id: string }>(anggota).map((m) => String(m.enrollment_id))),
   ];
