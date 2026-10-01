@@ -117,13 +117,18 @@ for (const n of names) {
 for (const c of cards) say(`student: ${c.name}: card ${c.card}, PIN ${c.pin}`);
 
 // 3. Check, as the teacher, that Mengajar shows the class (a server-made session; no email is sent).
+// TEACHER_CHECK=0 skips it when a real email sign-in follows: a server-made link starts the address's
+// one-email-per-minute window, so the real request seconds later is refused (staging, 1 Oct 06:43 UTC).
+let ok = true;
+if (process.env.TEACHER_CHECK !== "0") {
 const tctx = await browser.newContext({ locale: "id-ID", timezoneId: "Asia/Jakarta" });
 await tctx.addCookies(sessionCookies(await session(TEACHER_EMAIL)));
 const t = await tctx.newPage();
 await t.goto(`${APP}/mengajar`, { timeout: SLOW, waitUntil: "networkidle" });
 const seen = ((await t.locator("body").innerText()) ?? "").replace(/\s+/g, " ");
-const ok = new URL(t.url()).pathname.startsWith("/mengajar") && seen.includes(KELAS);
+ok = new URL(t.url()).pathname.startsWith("/mengajar") && seen.includes(KELAS);
 say(`teacher check: lands on ${new URL(t.url()).pathname}; sees ${KELAS}: ${seen.includes(KELAS)}`);
+}
 await browser.close();
 
 if (process.env.GITHUB_STEP_SUMMARY) {

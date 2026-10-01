@@ -83,6 +83,7 @@ jobs:
           TEACHER_EMAIL: ${{ env.GURU_EMAIL }}
           TEACHER_NAME: Guru Mesin (goldenschool)
           STUDENT_COUNT: "0"
+          TEACHER_CHECK: "0"
           RUN_TAG: h${{ github.run_number }}
         run: node human-setup.mjs
       - name: The journey, teacher signing in by email

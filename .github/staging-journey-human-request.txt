@@ -4,4 +4,4 @@ Editing this file on claude/awesome-rubin-bqxp6p runs
 .github/workflows/staging-journey-human.yml once. One sign-in email per run
 (staging allows 2 an hour, shared with Yazid's own sign-ins).
 
-attempt:  001
+attempt:  002   (001: the setup's server-made teacher check started the 60 s window; the real request was refused 429 and the screen said "Periksa email Anda" by D2)
