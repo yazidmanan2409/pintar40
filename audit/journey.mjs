@@ -1244,8 +1244,9 @@ await step("S21d", "after the Uji Penguasaan's result, the student follows «Apa
     const h1 = norm(await s.locator("h1").first().innerText());
     const teks = norm(await s.locator("main").innerText().catch(() => ""));
     const baris = await s.locator(".pin-next .pin-nrow").count();
-    const habis = /Tidak ada lagi yang menunggu/.test(teks);
-    const sertifikat = /Lihat sertifikat/.test(teks);
+    // the headings render in capitals (text-transform), so read them case-insensitively
+    const habis = /Tidak ada lagi yang menunggu/i.test(teks);
+    const sertifikat = /Lihat sertifikat/i.test(teks);
     rec.shots.push(await shot(s, "stu-j22-apa-berikutnya"));
     // the page offers a way on, or says honestly that nothing is waiting; it never leaves the student with neither
     if (h1 !== "Apa berikutnya" || (baris === 0 && !habis)) rec.verdict = "FAIL";
@@ -1515,8 +1516,12 @@ await step("S26", "the school admin corrects the structure on Struktur sekolah: 
   const tolak = norm(await a.locator("#struktur").innerText().catch(() => ""));
   const masihAktif = sql(`select is_active from public.org_nodes where id='${satuB}'`).trim() === "t";
   rec.shots.push(await shot(a, "adm-j20-nonaktif-ditolak"));
+  // the question stays open with the reason; the admin closes it with «Batal», as a person would (a jump to
+  // the same #struktur address does not reload the page, so the row would stay on its question)
+  const batal = a.locator("#struktur form.pin-str-tanya").first().getByRole("button", { name: "Batal", exact: true });
+  if (await batal.count()) await batal.click();
+  else await a.reload({ waitUntil: "networkidle" });
   // rename
-  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
   await baris().getByRole("button", { name: "Ubah nama", exact: true }).click();
   await a.locator(`#str-ubah-${satuB}`).fill("Kelas 1 Biru");
   await a.locator("#struktur form.pin-str-ubah").first().getByRole("button", { name: "Simpan", exact: true }).click();
