@@ -30,7 +30,7 @@ const TABEL: Record<string, Array<Record<string, unknown>>> = {
   ],
   enrollments: [
     { id: "en-ani", person_id: "p-ani", status: "ACTIVE" }, { id: "en-budi", person_id: "p-budi", status: "ACTIVE" },
-    { id: "en-citra", person_id: "p-citra", status: "ACTIVE" },
+    { id: "en-citra", person_id: "p-citra", status: "PENDING" },   // recorded, not yet signed in: still in the class
   ],
   persons: [{ id: "p-ani", display_name: "Ani" }, { id: "p-budi", display_name: "Budi" }, { id: "p-citra", display_name: "Citra" }],
 };

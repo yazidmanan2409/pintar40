@@ -92,8 +92,9 @@ async function kelasMenunggu(db: any, orang: Array<{ person_id: string; institut
   const { data: anggota } = await db.from("memberships")
     .select("node_id, enrollment:enrollments(person_id, status)")
     .in("node_id", kelasIds).is("valid_to", null);
+  // the enrolment's state goes with it: a person awaiting an account is PENDING (kelasUntukKartu decides)
   const keanggotaan = ((anggota ?? []) as Array<{ node_id: string; enrollment: { person_id: string; status: string } | null }>)
-    .filter((m) => m.enrollment?.status === "ACTIVE")
-    .map((m) => ({ person_id: String(m.enrollment!.person_id), node_id: String(m.node_id) }));
+    .filter((m) => m.enrollment)
+    .map((m) => ({ person_id: String(m.enrollment!.person_id), node_id: String(m.node_id), status: String(m.enrollment!.status) }));
   return kelasUntukKartu(orang, keanggotaan, tempat);
 }

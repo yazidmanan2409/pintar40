@@ -13,9 +13,18 @@
  */
 export type KelasKartu = { id: string; label: string; orang: string[] };
 
+/**
+ * An enrolment still in the school: PENDING (provisioned, no account yet,
+ * which is everyone this screen is for) or ACTIVE. An ENDED or CANCELLED one is
+ * not a member to make a card for.
+ */
+export function masihTerdaftar(status: string | null | undefined): boolean {
+  return status === "PENDING" || status === "ACTIVE";
+}
+
 export function kelasUntukKartu(
   menunggu: ReadonlyArray<{ person_id: string }>,
-  keanggotaan: ReadonlyArray<{ person_id: string; node_id: string }>,
+  keanggotaan: ReadonlyArray<{ person_id: string; node_id: string; status?: string | null }>,
   tempat: ReadonlyArray<{ id: string; label: string; level: string }>,
 ): KelasKartu[] {
   const kelas = new Map(tempat.filter((t) => t.level === "KELAS").map((t) => [t.id, t.label]));
@@ -23,6 +32,7 @@ export function kelasUntukKartu(
   const per = new Map<string, Set<string>>();
   for (const k of keanggotaan) {
     if (!kelas.has(k.node_id) || !tunggu.has(k.person_id)) continue;
+    if (k.status !== undefined && !masihTerdaftar(k.status)) continue;
     if (!per.has(k.node_id)) per.set(k.node_id, new Set());
     per.get(k.node_id)!.add(k.person_id);
   }

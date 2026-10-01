@@ -458,8 +458,9 @@ export async function daftarMuridDari(c: Db, node: string): Promise<MuridDalamLi
     .from("enrollments")
     .select("id, person_id, status")
     .in("id", enrolIds);
+  // still enrolled: PENDING (recorded, not yet signed in) or ACTIVE, as the teacher's roster counts them
   const aktif = rows<{ id: string; person_id: string; status: string }>(daftar)
-    .filter((e) => e.status === "ACTIVE");
+    .filter((e) => e.status === "PENDING" || e.status === "ACTIVE");
   const orangIds = [...new Set(aktif.map((e) => String(e.person_id)))];
   if (orangIds.length === 0) return [];
 

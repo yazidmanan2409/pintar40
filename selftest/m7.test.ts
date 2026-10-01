@@ -31,12 +31,15 @@ export const m7Tests: SelfTest[] = [
         { id: "k1a", label: "Kelas Rendah · Tingkat 1 · Kelas 1A · 2026/2027", level: "KELAS" },
         { id: "k1b", label: "Kelas Rendah · Tingkat 1 · Kelas 1B · 2026/2027", level: "KELAS" },
       ];
+      // as the page reads them: a person awaiting an account is PENDING (intake), ACTIVE once activated
       const keanggotaan = [
-        { person_id: "eka", node_id: "k1a" }, { person_id: "budi", node_id: "k1a" }, { person_id: "citra", node_id: "k1a" },
-        { person_id: "budi", node_id: "k1a" },          // listed twice by the read: once in the set
-        { person_id: "ani", node_id: "k1a" },           // has an account already: not in the set
-        { person_id: "dodi", node_id: "k1b" },
-        { person_id: "citra", node_id: "t" },           // a Tingkat is not a class
+        { person_id: "eka", node_id: "k1a", status: "PENDING" }, { person_id: "budi", node_id: "k1a", status: "PENDING" },
+        { person_id: "citra", node_id: "k1a", status: "PENDING" },
+        { person_id: "budi", node_id: "k1a", status: "PENDING" },     // listed twice by the read: once in the set
+        { person_id: "ani", node_id: "k1a", status: "ACTIVE" },       // has an account already: not in the set
+        { person_id: "dodi", node_id: "k1b", status: "ACTIVE" },
+        { person_id: "citra", node_id: "t", status: "PENDING" },      // a Tingkat is not a class
+        { person_id: "tanpa-kelas", node_id: "k1b", status: "ENDED" }, // left the school: not a member
       ];
       const g = kelasUntukKartu(menunggu, keanggotaan, tempat);
       c.expect(JSON.stringify(g.map((k) => [k.id, k.orang])) === JSON.stringify([["k1a", ["budi", "citra", "eka"]], ["k1b", ["dodi"]]]),
@@ -94,10 +97,12 @@ export const m7Tests: SelfTest[] = [
       const page = buang(readFileSync(join(ctx.repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"));
       c.expect(/\.in\("node_id", kelasIds\)\.is\("valid_to", null\)/.test(page) && /kelasUntukKartu\(orang, keanggotaan, tempat\)/.test(page),
         "the page does not read the classes' current members and group them through kelasUntukKartu");
+      c.expect(/status: String\(m\.enrollment!\.status\)/.test(page) && !/status === "ACTIVE"/.test(page),
+        "the page drops members by their enrolment before kelasUntukKartu: a person awaiting an account is PENDING (audit run 36840115477)");
 
       return c.verdict(
         "executed: Aktivasi offers each Kelas with the learners in it who await an account, each once and in Aktivasi's " +
-          "order, never a Tingkat and never someone with an account; the printable set (rendered output) draws one card per " +
+          "order, PENDING as the intake leaves them, never a Tingkat, someone with an account or an ended enrolment; the printable set (rendered output) draws one card per " +
           "learner with name, school number, card number, PIN and the sign-in address, no photo, a print action and the " +
           "once-only warning off the paper, and names a learner whose card was not made with the reason; the source of the " +
           "form sends the batch through the one per-person route, in turn, and keeps no PIN on the device; there is no second " +
