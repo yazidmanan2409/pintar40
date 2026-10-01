@@ -192,6 +192,21 @@ jobs:
           PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
+          # Never overwrite blindly (Phase 2, D-087): the secret must open the
+          # mailbox before it is written. A stale secret once replaced staging's
+          # working password and broke its sign-in email; now it turns this run
+          # red and leaves staging's current setting untouched.
+          python3 - <<'PY'
+          import os, smtplib, ssl, sys
+          try:
+              with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], int(os.environ['SMTP_PORT']), context=ssl.create_default_context(), timeout=30) as s:
+                  s.login(os.environ['SMTP_SENDER'], os.environ['PINTAR_SMTP_PASSWORD'])
+                  s.quit()
+          except smtplib.SMTPAuthenticationError as e:
+              print('::error::PINTAR_SMTP_PASSWORD does not open %s (%s). Staging\'s email setting was NOT changed. Update the GitHub secret to the mailbox\'s current password.' % (os.environ['SMTP_SENDER'], e.smtp_code))
+              sys.exit(1)
+          print('the secret opens %s (login only, no email sent)' % os.environ['SMTP_SENDER'])
+          PY
           python3 - <<'PY' > /tmp/body.json
           import json, os
           print(json.dumps({
