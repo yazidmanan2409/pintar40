@@ -307,7 +307,8 @@ await step("S8", "intake with only the school's root as 'Tempat' (all a new scho
   await tutupTur(a);
   await a.locator("#pin-kode-isi").fill("SDZ");
   await a.getByRole("button", { name: "Simpan kode", exact: true }).click();
-  await a.waitForURL((u) => u.pathname === "/pendataan", { timeout: SLOW });
+  // the page is already /pendataan, so wait for what the saved code opens: the list's paste box
+  await a.locator("#pin-tempel").waitFor({ timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
   const ns = sql(`select coalesce(namespace, '') from public.institutions where id='${ids.sd}'`).trim();
   if (ns !== "SDZ" || new URL(a.url()).searchParams.get("galat")) throw new Error(`the code was not saved on the screen: namespace «${ns}», ${a.url()}`);
