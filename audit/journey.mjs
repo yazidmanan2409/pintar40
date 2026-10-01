@@ -1154,6 +1154,72 @@ await step("S21b", "while the first student has the Uji Penguasaan open, the tea
     `${ok ? "" : ` (expected ${MURID[0]} started, ${MURID.slice(1).join(", ")} not attempted)`}`;
 });
 
+// STU-J16, STU-J17, STU-J18 (W2): one computer, two students. Ani opens Bab 1's first lesson from the
+// reading map, turns to its second page, and signs out with «Keluar»; Budi signs in on the same browser
+// with his card. /belajar greets Budi and no longer opens for Ani, and the same lesson opens for Budi at
+// its first page, not where Ani left it.
+await step("S21c", "one computer, two students: the first reads a lesson to its second page and signs out with «Keluar»; the next signs in on the same browser and finds his own home and the lesson at its first page (STU-J16, STU-J17, STU-J18, W2)", async (rec) => {
+  if (!terbitBab || kartuKelas.length < 2) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "fewer than two class cards (S20)"; }
+  const tugas = tugasBab();
+  const sc = await ctx();
+  const s = await sc.newPage();
+  const masukKartu = async (k) => {
+    await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+    await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+    await s.locator("#kartu").fill(k.number);
+    await s.locator("#pin").fill(k.pin);
+    await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+    await s.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+    await s.waitForLoadState("networkidle");
+  };
+  const posisi = async () => norm(await s.locator("p.pin-lpos").first().innerText().catch(() => ""));
+  try {
+    // Ani: the reading map → the first lesson → its second page
+    await masukKartu(kartuKelas[0]);
+    await s.goto(`${APP}/belajar/${tugas}/peta`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    await s.getByRole("link", { name: "Buka pelajarannya" }).first().click();
+    await s.waitForURL((u) => u.pathname.includes("/pelajaran/"), { timeout: SLOW });
+    await s.locator("h1").first().waitFor({ timeout: SLOW });
+    const pelajaran = new URL(s.url()).pathname;
+    const awal = await posisi();
+    const lanjut = s.getByRole("button", { name: "Halaman berikutnya", exact: true });
+    if (!(await lanjut.isEnabled().catch(() => false))) { rec.verdict = "NOTE"; await sc.close(); return `the first lesson has one page (${awal}); nothing to carry over`; }
+    await lanjut.click();
+    await s.waitForFunction((prev) => document.querySelector("p.pin-lpos")?.innerText.replace(/\s+/g, " ").trim() !== prev, awal, { timeout: SLOW });
+    const ani = await posisi();
+    await s.waitForTimeout(1500); // the page reached is saved on view
+    rec.shots.push(await shot(s, "stu-j16-ani-halaman-2"));
+    // «Keluar» from the strip
+    await s.getByRole("button", { name: "Keluar", exact: true }).first().click();
+    await s.waitForURL((u) => !u.pathname.startsWith("/belajar"), { timeout: SLOW });
+    await s.waitForLoadState("networkidle");
+    const sesudahKeluar = new URL(s.url()).pathname;
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    const terkunci = !new URL(s.url()).pathname.startsWith("/belajar") || !(await bodyText(s)).includes("Ani");
+    // Budi, on the same browser
+    await masukKartu(kartuKelas[1]);
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    const rumah = await bodyText(s);
+    const sapa = /Halo, Budi/.test(rumah) && !/\bAni\b/.test(rumah);
+    rec.shots.push(await shot(s, "stu-j17-budi-belajar"));
+    await s.goto(`${APP}${pelajaran}`, { waitUntil: "networkidle" });
+    await s.locator("h1").first().waitFor({ timeout: SLOW });
+    const budi = await posisi();
+    rec.shots.push(await shot(s, "stu-j18-budi-pelajaran"));
+    if (ani === awal || !terkunci || !sapa || budi !== awal) rec.verdict = "FAIL";
+    await sc.close();
+    return `Ani turned the first lesson from "${awal}" to "${ani}"; «Keluar» → ${sesudahKeluar}; /belajar afterwards no longer Ani's: ${terkunci}; ` +
+      `Budi signed in on the same browser: greeted as Budi with no Ani on the page: ${sapa}; the same lesson opens for Budi at "${budi}" (expected "${awal}")`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(s, "stu-j16-berhenti"));
+    await sc.close();
+    return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
+  }
+});
+
 await step("S22", "the teacher reaches Lihat bukti by clicking and reads the class figures from official evidence, then opens a student's record from the roster (EDU-12, X-10, EDU-J03, M4)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const kelas = kelasSatuA();
