@@ -27,6 +27,7 @@ import { bob17Tests } from "./bob17.test";
 import { bob22Tests } from "./bob22.test";
 import { bob23Tests } from "./bob23.test";
 import { w2Tests } from "./w2.test";
+import { w3Tests } from "./w3.test";
 import { bob12Tests } from "./bob12.test";
 import { bob32Tests } from "./bob32.test";
 import { bob34Tests } from "./bob34.test";
@@ -1910,6 +1911,7 @@ export const staticTests: SelfTest[] = [
   ...bob17Tests,
   ...bob22Tests,
   ...w2Tests,
+  ...w3Tests,
   ...bob23Tests,
   ...bob12Tests,
   ...bob32Tests,

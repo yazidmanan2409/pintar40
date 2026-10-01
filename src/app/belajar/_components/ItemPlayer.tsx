@@ -31,10 +31,7 @@ import { useRouter } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 import { TeksBaris } from "@/components/teks/Teks";
-
-type Answer = { posisi: number } | { posisi: number[] };
-/** One answer the learner took and the server has not yet acknowledged. */
-type Entry = { presentedItemId: string; clientSeq: number; value: Answer };
+import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -145,20 +142,13 @@ function dropEntry(sessionId: string, e: Entry) {
 /** What one delivery attempt came to. */
 type Delivery = "acked" | "pending" | "offline" | "closed";
 
-function sameAnswer(a: Answer | undefined, b: Answer): boolean {
-  if (!a) return false;
-  const norm = (x: Answer) => (Array.isArray((x as { posisi: number[] }).posisi)
-    ? [...(x as { posisi: number[] }).posisi].sort((p, q) => p - q).join(",")
-    : String((x as { posisi: number }).posisi));
-  return norm(a) === norm(b);
-}
-
 export default function ItemPlayer(props: ItemPlayerProps) {
   const { sessionId, paper, mode, stage, allowsPause, actions, finishHref } = props;
   const router = useRouter();
   const formal = mode === "PENGUASAAN";
 
-  const [index, setIndex] = useState(0);
+  // W3: a reload opens the first question without a saved answer, not question 1
+  const [index, setIndex] = useState(() => soalAwal(paper.map((p) => p.presentedItemId), props.accepted));
   const [accepted, setAccepted] = useState<Record<string, Answer>>(props.accepted);
   const [draft, setDraft] = useState<Record<string, Answer>>({});
   const [flagged, setFlagged] = useState<Record<string, boolean>>({});
@@ -179,6 +169,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   const [notice, setNotice] = useState<HleEvent | null>(null);
   const [closed, setClosed] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  // W3: «Kumpulkan» asks once before it hands the test in (posttest.submit_confirm)
+  const [asking, setAsking] = useState(false);
   // THE SEQUENCE RULE (R1, F-07). Two sources of truth, never one:
   //   serverSeqs — the highest client_seq the server is known to hold per item
   //                (the page's read, raised by every acknowledgement);
@@ -295,16 +287,21 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   }, [accepted, deliver, nextSeq, sessionId]);
 
   /*
-   * FINISH NEVER OUTRUNS THE LEARNER'S WORK (R1, F-08). Replay everything held;
-   * if anything is still held, do not finish — say so. Otherwise send the
-   * manifest (the highest seq taken per item), and the database refuses (PR006)
-   * if it does not hold every one of them, whatever this page believed.
+   * FINISH NEVER OUTRUNS THE LEARNER'S WORK (R1, F-08). A choice still on the
+   * screen and not yet taken (W3: chosen, «Simpan jawaban ini» not pressed) is
+   * taken first, into the same outbox. Then replay everything held; if anything
+   * is still held, do not finish — say so. Otherwise send the manifest (the
+   * highest seq taken per item), and the database refuses (PR006) if it does
+   * not hold every one of them, whatever this page believed.
    */
   const finish = useCallback(async () => {
     if (finishing) return;
     setFinishing(true);
     setNotice(null);
     try {
+      for (const u of belumDisimpan(paper.map((p) => p.presentedItemId), draft, accepted, readEntries(sessionId))) {
+        putEntry(sessionId, { presentedItemId: u.presentedItemId, clientSeq: nextSeq(u.presentedItemId), value: u.value });
+      }
       const f = await flush();
       if (f === "offline") { setNotice("sync.belum_terkirim"); return; }
       if (readEntries(sessionId).length > 0) { setNotice("sync.belum_tersimpan"); return; }
@@ -337,7 +334,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     } finally {
       setFinishing(false);
     }
-  }, [actions, finishHref, finishing, flush, formal, paper, router, sessionId]);
+  }, [accepted, actions, draft, finishHref, finishing, flush, formal, nextSeq, paper, router, sessionId]);
 
   // ---------------------------------------- integrity observations (F-09)
   /*
@@ -433,6 +430,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     if (to < 0 || to >= paper.length) return;
     setIndex(to);
     setNavOpen(false);
+    setAsking(false);
   }, [paper.length]);
 
   // ------------------------------------------------------------- keyboard nav
@@ -626,6 +624,21 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           {t(closed ? "sync.sesi_ditutup" : (notice as HleEvent), "learner")}
         </p>
       )}
+      {formal && asking && (
+        <div className="pin-pending" role="group" aria-labelledby="kumpulkan-tanya">
+          <p id="kumpulkan-tanya">{t("posttest.submit_confirm", "learner")}</p>
+          <div className="pin-actions">
+            <button type="button" onClick={() => void finish()} disabled={finishing}
+              className="pin-btn pin-primary">
+              {t("posttest.submit", "learner")}
+            </button>
+            {/* the button that asked is gone: focus lands on the safe answer, so the question is read out */}
+            <button type="button" onClick={() => setAsking(false)} className="pin-btn" autoFocus>
+              {t("komitmen.kembali", "learner")}
+            </button>
+          </div>
+        </div>
+      )}
       <nav className="pin-actions pin-between">
         <button type="button" onClick={() => go(index - 1)} disabled={index === 0}
           className="pin-btn">
@@ -636,6 +649,13 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             className="pin-btn pin-primary">
             {t("pretest.next", "learner")}
           </button>
+        ) : formal ? (
+          !asking && (
+            <button type="button" onClick={() => { setNotice(null); setAsking(true); }}
+              className="pin-btn pin-primary">
+              {t("posttest.submit", "learner")}
+            </button>
+          )
         ) : (
           <button
             type="button"
@@ -643,7 +663,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             disabled={finishing}
             className="pin-btn pin-primary"
           >
-            {t(formal ? "posttest.submit" : "pretest.finish", "learner")}
+            {t("pretest.finish", "learner")}
           </button>
         )}
       </nav>

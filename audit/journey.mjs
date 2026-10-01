@@ -884,10 +884,23 @@ const persen = (v) => new Intl.NumberFormat("id-ID", { style: "percent", maximum
 const kelasSatuA = () => sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1A' and is_active limit 1`).trim();
 const tugasBab = () => sql(`select id from public.learning_assignments where course_id='${babSatu()}' order by created_at desc limit 1`).trim();
 
+// W3: the post-test's «Kumpulkan» asks first and the question's own «Kumpulkan» hands in (the staging journey's `jawabTanya`).
+async function jawabTanya(page) {
+  const tanya = page.locator('[aria-labelledby="kumpulkan-tanya"]');
+  const sampai = await Promise.race([
+    tanya.waitFor({ state: "visible", timeout: SLOW }).then(() => "tanya", () => null),
+    page.waitForURL((u) => u.pathname.endsWith("/hasil") || u.pathname === "/belajar", { timeout: SLOW }).then(() => "hasil", () => null),
+  ]);
+  if (sampai !== "tanya") return false;
+  await tanya.getByRole("button", { name: "Kumpulkan", exact: true }).click();
+  return true;
+}
 // Answer every question, `right` of them correctly, and finish (the staging journey's `jawab`).
+// `simpanTerakhir: false` (W3): the last post-test answer is chosen and «Simpan jawaban ini» is not pressed.
 const teksPilihan = (b) => b.locator("span").nth(1).innerText().then(norm);
-async function jawab(page, mode, right) {
+async function jawab(page, mode, right, { simpanTerakhir = true } = {}) {
   const formal = mode === "post";
+  let ditanya = null;
   const done = [];
   for (let i = 0; i < 40; i++) {
     const stemEl = page.locator("h2.pin-stem").first();
@@ -902,24 +915,26 @@ async function jawab(page, mode, right) {
     if (idx < 0) idx = 0;
     await opts.nth(idx).click();
     await page.waitForFunction(([n]) => document.querySelectorAll("ul.pin-opsi button.pin-op")[n]?.getAttribute("aria-pressed") === "true", [idx], { timeout: SLOW });
-    if (formal) {
+    const next = page.getByRole("button", { name: "Berikutnya", exact: true });
+    const terakhir = (await next.count()) === 0;
+    if (formal && !(terakhir && !simpanTerakhir)) {
       await page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ }).click();
       await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW });
-    } else {
+    } else if (!formal) {
       await page.waitForTimeout(400);
     }
     done.push({ known: Boolean(k), right: Boolean(k) && wantRight && k.right.has(texts[idx]) });
-    const next = page.getByRole("button", { name: "Berikutnya", exact: true });
-    if (await next.count()) {
+    if (!terakhir) {
       await next.click();
       await page.waitForFunction((prev) => document.querySelector("h2.pin-stem")?.innerText !== prev, raw, { timeout: SLOW });
       continue;
     }
     await page.getByRole("button", { name: formal ? "Kumpulkan" : "Selesaikan pemetaan", exact: true }).click();
+    if (formal) ditanya = await jawabTanya(page);
     await page.waitForURL((u) => u.pathname.endsWith(formal ? "/hasil" : "/peta") || u.pathname === "/belajar", { timeout: 60000 });
     break;
   }
-  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length };
+  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length, ditanya };
 }
 
 const kartuKelas = [];
@@ -955,7 +970,7 @@ await step("S20", "four more students join Kelas 1A, and the school admin makes 
   return `enrolled in Kelas 1A: ${enrolled}; class cards: ${kartuKelas.length} of ${MURID.length} (numbers and PINs not recorded)${log.length ? `; ${log.join("; ")}` : ""}`;
 });
 
-await step("S21", "five students take Bab 1's pre-test and post-test to plan; each result page says what was answered", async (rec) => {
+await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered", async (rec) => {
   if (!terbitBab || !HARAP) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "the chapter fixture is absent"; }
   if (kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return `only ${kartuKelas.length} class cards (S20)`; }
   const tugas = tugasBab();
@@ -979,14 +994,15 @@ await step("S21", "five students take Bab 1's pre-test and post-test to plan; ea
       await s.goto(`${APP}/belajar/${tugas}/penguasaan`, { waitUntil: "networkidle" });
       await tutupTur(s);
       await s.getByRole("button", { name: "Mulai Uji Penguasaan", exact: true }).click();
-      const post = await jawab(s, "post", plan.post);
+      const w3 = i === 3; // all right by plan: an unsaved last answer that is dropped shows as one fewer
+      const post = await jawab(s, "post", plan.post, { simpanTerakhir: !w3 });
       await s.locator("h1").first().waitFor({ timeout: SLOW });
       const t = await bodyText(s);
       const m = t.match(/Terjawab tepat (\d+) dari (\d+) soal/);
       const ok = m && Number(m[1]) === plan.post && Number(m[2]) === SOAL.post && !pre.unknown && !post.unknown;
       if (!ok) rec.verdict = "FAIL";
-      if (i === 0) rec.shots.push(await shot(s, "d064-murid1-hasil"));
-      out.push(`${k.nama}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}; the page says "${m?.[0] ?? "no 'Terjawab tepat' line"}"${ok ? "" : " MISMATCH"}`);
+      if (i === 0 || w3) rec.shots.push(await shot(s, `d064-murid${i + 1}-hasil`));
+      out.push(`${k.nama}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}${w3 ? " (the last answer chosen, not saved)" : ""}; «Kumpulkan» ${post.ditanya ? "asked first" : "handed in at once"}; the page says "${m?.[0] ?? "no 'Terjawab tepat' line"}"${ok ? "" : w3 ? " MISMATCH: the unsaved answer was lost at «Kumpulkan» (W3)" : " MISMATCH"}`);
     } catch (e) {
       rec.verdict = "FAIL";
       rec.shots.push(await shot(s, `d064-murid${i + 1}-berhenti`));

@@ -437,9 +437,23 @@ async function masukKartu(page, card) {
   return new URL(page.url()).pathname;
 }
 const optText = (b) => b.locator("span").nth(1).innerText().then(norm);
+// W3: the post-test's «Kumpulkan» asks first («Kumpulkan sekarang? …») and the question's own «Kumpulkan» hands in.
+// A deployment without W3 hands in at once; both are walked, and which one happened is returned.
+async function jawabTanya(page) {
+  const tanya = page.locator('[aria-labelledby="kumpulkan-tanya"]');
+  const sampai = await Promise.race([
+    tanya.waitFor({ state: "visible", timeout: SLOW }).then(() => "tanya", () => null),
+    page.waitForURL((u) => u.pathname.endsWith("/hasil") || u.pathname === "/belajar", { timeout: SLOW }).then(() => "hasil", () => null),
+  ]);
+  if (sampai !== "tanya") return false;
+  await tanya.getByRole("button", { name: "Kumpulkan", exact: true }).click();
+  return true;
+}
 // Answer every question, `right` of them correctly (the first `right` shown), and finish. Returns what happened.
-async function jawab(page, mode, right) {
+// `simpanTerakhir: false` (W3): the last post-test answer is chosen and «Simpan jawaban ini» is not pressed.
+async function jawab(page, mode, right, { simpanTerakhir = true } = {}) {
   const formal = mode === "post";
+  let ditanya = null;
   const done = [];
   for (let i = 0; i < 40; i++) {
     const stemEl = page.locator("h2.pin-stem").first();
@@ -454,26 +468,28 @@ async function jawab(page, mode, right) {
     if (idx < 0) idx = 0;
     await opts.nth(idx).click();
     await page.waitForFunction(([n]) => document.querySelectorAll("ul.pin-opsi button.pin-op")[n]?.getAttribute("aria-pressed") === "true", [idx], { timeout: SLOW });
-    if (formal) {
+    const next = page.getByRole("button", { name: "Berikutnya", exact: true });
+    const terakhir = (await next.count()) === 0;
+    if (formal && !(terakhir && !simpanTerakhir)) {
       // «Kunci jawaban ini» until DAISY-26 (UX-24), «Simpan jawaban ini» after
       await page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ }).click();
       await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW });
-    } else {
+    } else if (!formal) {
       await page.waitForTimeout(400);
     }
     done.push({ known: Boolean(k), right: Boolean(k) && wantRight && k.right.has(texts[idx]) });
-    const next = page.getByRole("button", { name: "Berikutnya", exact: true });
-    if (await next.count()) {
+    if (!terakhir) {
       await next.click();
       await page.waitForFunction((prev) => document.querySelector("h2.pin-stem")?.innerText !== prev, raw, { timeout: SLOW });
       continue;
     }
     const fin = page.getByRole("button", { name: formal ? "Kumpulkan" : "Selesaikan pemetaan", exact: true });
     await fin.click();
+    if (formal) ditanya = await jawabTanya(page);
     await page.waitForURL((u) => u.pathname.endsWith(formal ? "/hasil" : "/peta") || u.pathname === "/belajar", { timeout: 60000 });
     break;
   }
-  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length };
+  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length, ditanya };
 }
 const person = (n) => sql(`select id from public.persons where display_name = ${lit(n)} order by created_at desc limit 1`);
 const sesi = (p, mode) => sql(`select s.status::text || ' ' || coalesce(round(r.mastery * 100)::text || '%', '-') from public.assessment_sessions s
@@ -653,7 +669,7 @@ await step("J12", "student 1 reads the result: the numbers match what was answer
   return `the page says ${h.said}; expected ${h.want}; questions to review: ${review}; any rank or class average: ${rank}; "Apa berikutnya" (${next0}) → ${new URL(S.url()).pathname}: "${next.slice(0, 240)}"`;
 });
 
-await step("J13", "students 2-5 sign in with their cards and take both tests to plan (post-test by the same route as J11)", ["STU-01", "STU-06", "STU-10", "STU-14", "STU-15"], async (rec) => {
+await step("J13", "students 2-5 sign in with their cards and take both tests to plan (post-test by the same route as J11); student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3)", ["STU-01", "STU-06", "STU-10", "STU-14", "STU-15", "W3"], async (rec) => {
   if (!tugas) return blocked(rec, "nothing assigned");
   const out = [];
   for (let i = 1; i < names.length; i++) {
@@ -672,12 +688,13 @@ await step("J13", "students 2-5 sign in with their cards and take both tests to 
       if (link) await P.locator(`a[href="/belajar/${tugas}/penguasaan"]`).first().click();
       else await P.goto(`${APP}/belajar/${tugas}/penguasaan`, { timeout: SLOW });
       await P.getByRole("button", { name: "Mulai Uji Penguasaan", exact: true }).click();
-      const post = await jawab(P, "post", PLAN[i].post);
+      const w3 = i === 3; // all right by plan: an unsaved last answer that is dropped shows as one fewer
+      const post = await jawab(P, "post", PLAN[i].post, { simpanTerakhir: !w3 });
       await P.locator("h1").first().waitFor({ timeout: SLOW });
       const h = await hasil(P, PLAN[i]);
       rec.shots.push(await shot(P, `siswa${i + 1}-hasil`));
       if (!h.ok || pre.unknown || post.unknown) rec.verdict = "FAIL";
-      out.push(`${i + 1}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered} → the page says ${h.said} (expected ${h.want})${h.ok ? "" : " MISMATCH"}`);
+      out.push(`${i + 1}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}${w3 ? " (the last answer chosen, not saved)" : ""}; «Kumpulkan» ${post.ditanya ? "asked first" : "handed in at once"} → the page says ${h.said} (expected ${h.want})${h.ok ? "" : w3 ? " MISMATCH: the unsaved answer was lost at «Kumpulkan» (W3)" : " MISMATCH"}`);
     } catch (e) {
       rec.verdict = "FAIL"; out.push(`${i + 1}: stopped: ${String(e.message || e).split("\n")[0].slice(0, 200)}`);
       rec.shots.push(await shot(P, `siswa${i + 1}-stopped`));
