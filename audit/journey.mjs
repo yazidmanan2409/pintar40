@@ -1314,6 +1314,68 @@ await step("S24", "the school admin revokes the head of department's role on Kon
     `the head of department on /pimpinan refused ${ditolak}: "${teks}"`;
 });
 
+// M9 (D-085; J3.12, ADM-J13): the school admin makes Kelas 1B on the Struktur
+// sekolah screen, then moves the fifth student there from Kelas 1A on
+// Konfigurasi → «Pindah kelas». They stay one person; their Bab 1 sessions stay
+// recorded in Kelas 1A; Kelas 1A's teacher no longer has them on the roster or
+// in «Mengumpulkan».
+await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas 1B on Konfigurasi → Pindah kelas; Kelas 1A's teacher no longer counts them, and what they did stays with Kelas 1A (M9, ADM-J13)", async (rec) => {
+  if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
+  const kelas = kelasSatuA();
+  const nama = MURID[4];
+  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  await tambahDi(a, "kelas", "Kelas 1B");
+  const satuB = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1B' and is_active limit 1`).trim();
+  if (!satuB) { rec.verdict = "FAIL"; return "Kelas 1B could not be made on the Struktur sekolah screen"; }
+  await a.goto(`${APP}/konfigurasi#pindah`, { waitUntil: "networkidle" });
+  const dari = a.locator("#pin-pindah-dari");
+  if (!(await dari.count())) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(a, "m9-tanpa-pindah"));
+    return `no «Pindah kelas» on Konfigurasi: ${norm(await a.locator("#pindah").innerText().catch(() => "(no section)")).slice(0, 200)}`;
+  }
+  const opsiA = (await dari.locator("option").allTextContents()).find((o) => o.startsWith("Kelas 1A"));
+  await dari.selectOption({ label: opsiA });
+  await a.locator("#pindah").getByRole("button", { name: "Tampilkan murid", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("dari") === kelas, { timeout: SLOW });
+  await a.waitForLoadState("networkidle");
+  const sebelum = norm(await a.locator("#pindah ul").first().innerText().catch(() => ""));
+  const baris = a.locator("#pindah li").filter({ hasText: nama }).first();
+  const opsiB = (await baris.locator('select[name="kelas"] option').allTextContents()).find((o) => o.startsWith("Kelas 1B"));
+  await baris.locator('select[name="kelas"]').selectOption({ label: opsiB });
+  await baris.getByRole("button", { name: "Pindahkan", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("bagian") === "pindah" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "m9-pindah-kelas"));
+  const u = new URL(a.url());
+  const sesudah = norm(await a.locator("#pindah").innerText().catch(() => ""));
+  // one person; the 1A placement closed with MOVED and 1B open; the sessions where they were sat
+  const orang = sql(`select count(*) from public.persons p join public.institutional_identities ii on ii.person_id = p.id where p.display_name='${nama}' and ii.institution_id='${ids.sd}'`).trim();
+  const tempat = sql(`select string_agg(n.name || ':' || coalesce(m.close_reason::text, 'open'), ',' order by m.valid_from, m.valid_to nulls last) from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id join public.org_nodes n on n.id = m.node_id where p.display_name='${nama}' and n.kind='CLASS' and n.institution_id='${ids.sd}'`).trim();
+  const sesi = sql(`select coalesce(string_agg(distinct coalesce(n.name, '-'), ','), '') from public.assessment_sessions s join public.persons p on p.id = s.person_id left join public.org_nodes n on n.id = s.class_node_id where p.display_name='${nama}'`).trim();
+  // Kelas 1A's teacher: the roster and «Mengumpulkan» count the class without them
+  const tc = await ctx();
+  const t = await tc.newPage();
+  await magicSignIn(t, people.guru.email);
+  await t.goto(`${APP}/mengajar/${kelas}`, { waitUntil: "networkidle" });
+  await tutupTur(t);
+  const roster = norm(await t.locator(".pin-roster").first().innerText().catch(() => ""));
+  await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+  await tutupTur(t);
+  rec.shots.push(await shot(t, "m9-guru-bukti"));
+  const kumpul = [...(await bodyText(t)).matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/gi)].map((m) => `${m[1]}/${m[2]}`);
+  await tc.close();
+  const sisa = `${MURID.length - 1}/${MURID.length - 1}`;
+  const ok = u.searchParams.get("hasil") === "ok" && u.searchParams.get("dari") === satuB && sesudah.includes(nama)
+    && orang === "1" && tempat === "Kelas 1A:MOVED,Kelas 1B:open" && sesi === "Kelas 1A"
+    && roster.length > 0 && !roster.includes(nama) && kumpul.length > 0 && kumpul.every((k) => k === sisa);
+  if (!ok) rec.verdict = "FAIL";
+  return `Kelas 1A on «Pindah kelas»: "${sebelum.slice(0, 120)}"; after «Pindahkan»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}, ` +
+    `showing ${u.searchParams.get("dari") === satuB ? "Kelas 1B" : u.searchParams.get("dari")} with ${nama}: ${sesudah.includes(nama)}; ` +
+    `persons named ${nama} at SD: ${orang}; Kelas placements: ${tempat}; sessions recorded in: ${sesi}; ` +
+    `1A's roster still names ${nama}: ${roster.includes(nama)}; «Mengumpulkan» on 1A's Lihat bukti: ${JSON.stringify(kumpul)} (expected ${sisa})`;
+});
+
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
   const tok = `acak${Date.now()}`;
   const api = await fetch(`${APP}/api/verifikasi/${tok}`, { redirect: "manual" });

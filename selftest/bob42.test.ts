@@ -167,7 +167,7 @@ export const bob42Tests: SelfTest[] = [
       // the readers use it: berjalan chooses through pilihBerjalan with the real clock, and reads OPEN rows for CLOSED
       const src = tanpaKomentar(readFileSync(join(repoRoot, "src", "lib", "pengajar.ts"), "utf8"));
       const badan = src.slice(src.indexOf("export async function berjalan("), src.indexOf("export async function siapa("));
-      c.expect(/return pilihBerjalan\(buka, rows<BarisSesiAsesmen>\(sesi\), keadaan, Date\.now\(\)\)/.test(badan)
+      c.expect(/return pilihBerjalan\(buka, rows<BarisSesiAsesmen>\(sesi\), keadaan, Date\.now\(\)(?:, anggota)?\)/.test(badan)
         && /keadaan\.includes\("CLOSED"\) \? \[\.\.\.new Set\(\[\.\.\.keadaan, "OPEN"\]\)\] : keadaan/.test(badan),
         "berjalan does not choose through pilihBerjalan with the real clock, or does not read OPEN rows when CLOSED is asked for");
       const halaman = tanpaKomentar(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "uji-cepat", "page.tsx"), "utf8"));

@@ -82,7 +82,7 @@ export const m4Tests: SelfTest[] = [
       const katalog = readFileSync(join(ctx.repoRoot, "supabase", "migrations", "20260918100000_metric_catalogue.sql"), "utf8");
       c.expect(/'learner\.result'[\s\S]{0,200}'LEARNER_IN_INSTITUTION'[\s\S]{0,80}'EDUCATOR'/.test(katalog), "the catalogue does not give an EDUCATOR a learner's result");
       for (const [nama, f] of [["the class page", ["[kelas]", "page.tsx"]], ["/siapa", ["[kelas]", "siapa", "page.tsx"]]] as const) {
-        c.expect(/<DaftarMurid murid=\{[a-z.]+\} locale=\{locale\} kelas=\{id\} \/>/.test(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", ...f), "utf8")),
+        c.expect(/<DaftarMurid murid=\{[a-z.]+\} locale=\{locale\} kelas=\{id\}(?: kosong="[a-z.]+")? \/>/.test(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", ...f), "utf8")),
           `${nama} does not open a learner's record from the names`);
       }
 

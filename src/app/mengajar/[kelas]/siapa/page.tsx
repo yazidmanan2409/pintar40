@@ -86,21 +86,21 @@ export default async function Siapa({
           <h2>
             {s("mengajar.siapa.sudah")} · {format.number(sudah.length, locale)}
           </h2>
-          <DaftarMurid murid={sudah} locale={locale} kelas={id} />
+          <DaftarMurid murid={sudah} locale={locale} kelas={id} kosong="mengajar.siapa.kosong" />
         </div>
 
         <div className="pin-sec">
           <h2>
             {s("mengajar.siapa.sedang")} · {format.number(sedang.length, locale)}
           </h2>
-          <DaftarMurid murid={sedang} locale={locale} kelas={id} />
+          <DaftarMurid murid={sedang} locale={locale} kelas={id} kosong="mengajar.siapa.kosong" />
         </div>
 
         <div className="pin-sec">
           <h2>
             {s("mengajar.siapa.belum")} · {format.number(belum.length, locale)}
           </h2>
-          <DaftarMurid murid={belum} locale={locale} kelas={id} />
+          <DaftarMurid murid={belum} locale={locale} kelas={id} kosong="mengajar.siapa.kosong" />
         </div>
 
         <p className="pin-foot">{s("mengajar.cepat.hidup.catatan")}</p>

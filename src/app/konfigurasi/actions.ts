@@ -137,6 +137,31 @@ export async function revokeRoleAction(fd: FormData): Promise<void> {
   back("roles", error ? ditolak("revoke_role", error) : { ok: true, kode: "ROLE_REVOKED" });
 }
 
+/**
+ * D-085 M9 (J3.12, ADM-J13) — «Pindah kelas». One call, as the signed-in
+ * administrator: `move_learner_to_class` closes the student's Kelas
+ * membership with MOVED and opens one in the chosen Kelas, together or not at
+ * all. It returns to the destination's list, where the student now stands; a
+ * refusal returns to the class they were in.
+ */
+export async function pindahKelasAction(fd: FormData): Promise<void> {
+  const penempatan = uuidOrNull(str(fd, "penempatan"));
+  const kelas = uuidOrNull(str(fd, "kelas"));
+  const dari = uuidOrNull(str(fd, "dari"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const kembali = (h: HasilAksi, tampil: string | null): never => {
+    const q = queryHasil("pindah", h);
+    if (tampil) q.set("dari", tampil);
+    if (sekolah) q.set("sekolah", sekolah);
+    redirect(`/konfigurasi?${q.toString()}#pindah`);
+  };
+  if (!penempatan || !kelas) kembali({ ok: false, kode: "MOVE_INPUT_INCOMPLETE" }, dari);
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("move_learner_to_class", { p_membership: penempatan, p_kelas: kelas });
+  if (error) kembali(ditolak("move_learner_to_class", error), dari);
+  kembali({ ok: true, kode: "LEARNER_MOVED" }, kelas);
+}
+
 export async function setFlagAction(fd: FormData): Promise<void> {
   const institution = uuidOrNull(str(fd, "institution"));
   const key = str(fd, "key");
@@ -283,3 +308,4 @@ export async function nonaktifkanStrukturAksi(_prev: HasilStruktur | null, fd: F
   if (!simpul) return KURANG;
   return struktur("deactivate_school_node", { p_node: simpul });
 }
+

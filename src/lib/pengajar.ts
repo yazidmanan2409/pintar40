@@ -388,17 +388,26 @@ export function keadaanEfektif(status: string, ditutup: string | null, sekarang:
  * The assignments in the states asked for, each in its effective state, with
  * its counts. Pure over the rows already read, so a test drives it with a
  * clock of its own.
+ *
+ * M9 (D-085): `anggota`, when given, is each class's roster now (node id →
+ * person ids of its open memberships). A learner who has moved to another
+ * class is then not counted against the roster they left, so «Mengumpulkan»
+ * never reads 5 of 4; what they did stays in the class's figures, which read
+ * the session's own class. Without it every session counts, as before.
  */
 export function pilihBerjalan(
   baris: readonly BarisTugasAsesmen[],
   sesi: readonly BarisSesiAsesmen[],
   keadaan: readonly string[],
   sekarang: number,
+  anggota?: ReadonlyMap<string, ReadonlySet<string>>,
 ): Berjalan[] {
   const kumpul = new Map<string, Set<string>>();
   const mulai = new Map<string, Set<string>>();
+  const simpulTugas = new Map(baris.map((b) => [b.id, b.node_id]));
   for (const s of sesi) {
     const a = s.assessment_assignment_id;
+    if (anggota && !anggota.get(simpulTugas.get(a) ?? "")?.has(s.person_id)) continue;
     if (!mulai.has(a)) mulai.set(a, new Set());
     mulai.get(a)!.add(s.person_id);
     if (s.status === "SUBMITTED" || s.status === "FINALIZED") {
@@ -455,12 +464,29 @@ export async function berjalan(
   const buka = rows<BarisTugasAsesmen>(data);
   if (buka.length === 0) return [];
 
-  const { data: sesi } = await c
-    .from("assessment_sessions")
-    .select("assessment_assignment_id, person_id, status")
-    .in("assessment_assignment_id", buka.map((b) => b.id));
+  const [{ data: sesi }, roster] = await Promise.all([
+    c
+      .from("assessment_sessions")
+      .select("assessment_assignment_id, person_id, status")
+      .in("assessment_assignment_id", buka.map((b) => b.id)),
+    // M9: who is in each class now, so a learner who moved away is not counted here
+    c
+      .from("memberships")
+      .select("node_id, enrollment:enrollments(person_id)")
+      .in("node_id", [...new Set(buka.map((b) => b.node_id))])
+      .is("valid_to", null),
+  ]);
+  let anggota: Map<string, Set<string>> | undefined;
+  if (!roster.error) {
+    anggota = new Map();
+    for (const r of rows<{ node_id: string; enrollment: { person_id: string } | null }>(roster.data)) {
+      if (!r.enrollment) continue;
+      if (!anggota.has(r.node_id)) anggota.set(r.node_id, new Set());
+      anggota.get(r.node_id)!.add(r.enrollment.person_id);
+    }
+  }
 
-  return pilihBerjalan(buka, rows<BarisSesiAsesmen>(sesi), keadaan, Date.now());
+  return pilihBerjalan(buka, rows<BarisSesiAsesmen>(sesi), keadaan, Date.now(), anggota);
 }
 
 /**

@@ -7,7 +7,7 @@ import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
-  grantRoleAction, revokeRoleAction, rolloverAction, saveReportTemplateAction, setFlagAction,
+  grantRoleAction, pindahKelasAction, revokeRoleAction, rolloverAction, saveReportTemplateAction, setFlagAction,
   setPlatformConfigAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction,
   transferRequestAction,
 } from "./actions";
@@ -23,6 +23,7 @@ import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
+import { muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-kelas";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -60,7 +61,7 @@ type MetricDefinition = {
   deprecated: boolean;
 };
 
-type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string }>;
+type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string; dari?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
@@ -207,10 +208,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     bacaanStruktur, currentLocale(), bacaanAkar, sekolahPendataan().then((x) => x.length > 0).catch(() => false),
   ]);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
+  // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
+  // where they may go. Read only when asked: a plain visit costs nothing.
+  const kelasDari = kelasAktif.find((k) => k.node_id === sp.dari) ?? null;
+  const tujuan = kelasDari ? tujuanPindah(kelasAktif, kelasDari.node_id) : [];
+  const muridDari = kelasDari ? await muridDiKelas(supabase, kelasDari.node_id) : [];
   const sl = (event: HleEvent) => t(event, "staff", { locale });
 
   const nav: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
+    ["pindah", s("config.section.pindah")],
     ["laporan", s("config.laporan.judul")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
     ["roles", s("config.section.roles")], ["audit", s("config.section.audit")], ["flags", s("config.section.flags")],
@@ -314,6 +321,66 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     tahunKini={tahunAjaranPada(new Date())}
                   />
                 </div>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
+          {/* D-085 M9 (J3.12, ADM-J13). PINDAH KELAS: the administrator opens
+              the Kelas a student is in, finds them, and moves them to another
+              Kelas of the same year. move_learner_to_class decides each move
+              again as this administrator, in one transaction; what was done in
+              the old Kelas stays recorded there. */}
+          <section id="pindah" className={card}>
+            <h2 className="font-medium">{sl("config.section.pindah")}</h2>
+            {sekolahStruktur && struktur ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.pindah.arti")}</p>
+                {kelasAktif.length > 0 ? (
+                  <form method="get" action="/konfigurasi#pindah" className="mt-3 flex flex-wrap items-end gap-2">
+                    {sekolahKu.length > 1 ? <input type="hidden" name="sekolah" value={sekolahStruktur.id} /> : null}
+                    <label className={label}>{sl("config.pindah.dari")}
+                      <select id="pin-pindah-dari" name="dari" className={field} required defaultValue={kelasDari?.node_id ?? ""}>
+                        <option value="" disabled>—</option>
+                        {kelasAktif.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                      </select>
+                    </label>
+                    <button type="submit" className={button}>{sl("config.pindah.lihat")}</button>
+                  </form>
+                ) : (
+                  <p className="mt-3 text-sm text-ink-3">{sl("config.pindah.tanpa_kelas")}</p>
+                )}
+                {kelasDari ? (
+                  <div className="mt-3 grid gap-2">
+                    <p className="text-sm font-medium text-ink-1">{namaKelas(kelasDari)}</p>
+                    {tujuan.length === 0 ? <p className="text-sm text-ink-3">{sl("config.pindah.tanpa_tujuan")}</p> : null}
+                    {muridDari.length > 0 ? (
+                      <ul className="grid gap-1 text-sm text-ink-2">
+                        {muridDari.map((m) => (
+                          <li key={m.penempatan} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
+                            <span className="text-ink-1">{m.nama}</span>
+                            {tujuan.length > 0 ? (
+                              <form action={pindahKelasAction} className="flex flex-wrap items-center gap-2">
+                                <input type="hidden" name="penempatan" value={m.penempatan} />
+                                <input type="hidden" name="dari" value={kelasDari.node_id} />
+                                <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                                <select name="kelas" className={field} required defaultValue="" aria-label={`${m.nama}: ${sl("config.pindah.ke")}`}>
+                                  <option value="" disabled>{sl("config.pindah.ke")}</option>
+                                  {tujuan.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                                </select>
+                                <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pindah.tombol")}</TombolKirim>
+                              </form>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-ink-3">{sl("config.pindah.kosong")}</p>
+                    )}
+                  </div>
+                ) : null}
+                {result("pindah")}
               </>
             ) : (
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>

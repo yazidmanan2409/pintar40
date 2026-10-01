@@ -85,9 +85,15 @@ export const edu23Tests: SelfTest[] = [
 
       const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
       const page = buang(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", "[kelas]", "siapa", "page.tsx"), "utf8"));
-      const urut = ["sudah", "sedang", "belum"].map((x) => page.indexOf(`<DaftarMurid murid={${x}} locale={locale} kelas={id} />`));
+      // each list says it is empty in its own words: nobody in it, not a class without learners
+      const urut = ["sudah", "sedang", "belum"].map((x) => page.indexOf(`<DaftarMurid murid={${x}} locale={locale} kelas={id} kosong="mengajar.siapa.kosong" />`));
       c.expect(/const \{ sudah, sedang, belum \} = await ajar\.siapa\(tugasId, fakta\.murid\);/.test(page) && urut.every((x, i) => x > 0 && (i === 0 || x > urut[i - 1])),
-        "/siapa does not draw the three lists, handed in, started, not started, in that order");
+        "/siapa does not draw the three lists, handed in, started, not started, in that order, each with its own empty sentence");
+      for (const locale of ["id", "en"] as const) {
+        const k = (x: Parameters<typeof t>[0]) => t(x, "educator", { locale });
+        c.expect(k("mengajar.siapa.kosong").length > 5 && k("mengajar.siapa.kosong") !== k("mengajar.murid.kosong"),
+          `(${locale}) an empty list on /siapa says «${k("mengajar.siapa.kosong")}», the sentence for a class without learners`);
+      }
       const lib = buang(readFileSync(join(ctx.repoRoot, "src", "lib", "pengajar.ts"), "utf8"));
       c.expect(/return pisahSiapa\(roster, rows</.test(lib), "ajar.siapa does not split by pisahSiapa");
       c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\} kelas=\{id\} \/>/

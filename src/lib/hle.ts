@@ -278,6 +278,15 @@ export type HleEvent =
   | "config.refused"
   | "config.section.rollover"
   | "config.section.transfers"
+  | "config.section.pindah"
+  | "config.pindah.arti"
+  | "config.pindah.dari"
+  | "config.pindah.lihat"
+  | "config.pindah.ke"
+  | "config.pindah.tombol"
+  | "config.pindah.kosong"
+  | "config.pindah.tanpa_kelas"
+  | "config.pindah.tanpa_tujuan"
   | "config.section.roles"
   | "config.section.audit"
   | "config.section.flags"
@@ -887,6 +896,12 @@ export type HleEvent =
   | "galat.flag_key_invalid"
   | "galat.template_input_incomplete"
   | "galat.school_required"
+  | "galat.move_input_incomplete"
+  | "galat.move_not_current"
+  | "galat.move_not_a_kelas"
+  | "galat.move_same_kelas"
+  | "galat.move_other_year"
+  | "galat.learner_moved"
   | "galat.rollover_done"
   | "galat.template_saved"
   | "galat.role_granted"
@@ -1202,6 +1217,7 @@ export type HleEvent =
   | "mengajar.siapa.belum"
   | "mengajar.siapa.sedang"
   | "mengajar.siapa.catatan"
+  | "mengajar.siapa.kosong"
   | "tur.tur"
   | "tur.nama.belajar"
   | "tur.nama.pengajar"
@@ -2021,6 +2037,15 @@ const table: Table = {
   "config.refused": { default: "Halaman ini hanya untuk pengelola sistem.", en: "This page is for system administrators only." },
   "config.section.rollover": { default: "Pergantian tahun ajaran", en: "Academic-year rollover" },
   "config.section.transfers": { default: "Perpindahan peserta didik", en: "Student transfers" },
+  "config.section.pindah": { default: "Pindah kelas", en: "Move a student to another class" },
+  "config.pindah.arti": { default: "Pindahkan seorang murid ke Kelas lain di sekolah ini, pada tahun ajaran yang sama. Ia tetap murid yang sama. Apa yang sudah ia kerjakan tetap tercatat di kelas tempat ia mengerjakannya, dan kelas lamanya tidak lagi menghitungnya sebagai muridnya sekarang.", en: "Move a student to another Kelas in this school, in the same academic year. They stay the same student. What they have already done stays recorded with the class where they did it, and their old class no longer counts them as a current student." },
+  "config.pindah.dari": { default: "Kelas murid sekarang", en: "The student's class now" },
+  "config.pindah.lihat": { default: "Tampilkan murid", en: "Show students" },
+  "config.pindah.ke": { default: "Pindahkan ke kelas", en: "Move to class" },
+  "config.pindah.tombol": { default: "Pindahkan", en: "Move" },
+  "config.pindah.kosong": { default: "Belum ada murid di kelas ini.", en: "There are no students in this class yet." },
+  "config.pindah.tanpa_kelas": { default: "Sekolah ini belum punya Kelas aktif. Buat Kelasnya di Struktur sekolah.", en: "This school has no active Kelas yet. Create one under School structure." },
+  "config.pindah.tanpa_tujuan": { default: "Tidak ada Kelas lain pada tahun ajaran ini. Buat Kelas tujuannya dulu di Struktur sekolah.", en: "There is no other Kelas in this academic year. Create the destination Kelas under School structure first." },
   "config.section.roles": { default: "Peran & akses", en: "Roles & access" },
   "config.section.audit": { default: "Jejak audit", en: "Audit trail" },
   "config.section.flags": { default: "Fitur & saklar", en: "Features & switches" },
@@ -2679,6 +2704,12 @@ const table: Table = {
   "galat.flag_key_invalid": { default: "Kunci fitur diawali huruf kecil dan hanya berisi huruf kecil, angka, titik, dan garis bawah.", en: "A feature key starts with a lower-case letter and contains only lower-case letters, digits, dots and underscores." },
   "galat.template_input_incomplete": { default: "Pilih institusi, isi kunci judul, lalu pilih sedikitnya satu metrik.", en: "Choose the institution, fill in the title key, then choose at least one metric." },
   "galat.school_required": { default: "Pilih sekolah terlebih dahulu.", en: "Choose a school first." },
+  "galat.move_input_incomplete": { default: "Pilih kelas tujuan untuk murid itu.", en: "Choose the class to move that student to." },
+  "galat.move_not_current": { default: "Murid itu sudah tidak di kelas tersebut, mungkin baru saja dipindahkan. Lihat daftarnya lagi.", en: "That student is no longer in that class; they may have just been moved. Look at the list again." },
+  "galat.move_not_a_kelas": { default: "Di sini hanya murid yang berada di sebuah Kelas yang dipindahkan, dan hanya ke sebuah Kelas.", en: "Only a student placed in a Kelas is moved here, and only to a Kelas." },
+  "galat.move_same_kelas": { default: "Murid itu sudah di kelas tersebut.", en: "That student is already in that class." },
+  "galat.move_other_year": { default: "Kelas tujuan ada di tahun ajaran lain. Murid pindah ke tahun ajaran berikutnya lewat Pergantian tahun ajaran.", en: "The destination class is in another academic year. Students move into the next academic year through the academic-year rollover." },
+  "galat.learner_moved": { default: "Murid sudah dipindahkan. Apa yang sudah ia kerjakan tetap tercatat di kelas lamanya.", en: "The student has been moved. What they have already done stays recorded with their old class." },
   "galat.rollover_done": { default: "Keanggotaan kelas yang dipindahkan ke tahun ajaran baru:", en: "Class memberships moved to the new academic year:" },
   "galat.template_saved": { default: "Metrik dalam templat laporan ini:", en: "Metrics in this report template:" },
   // DAISY-18 (D-047): the key actions say what was done
@@ -3292,6 +3323,7 @@ const table: Table = {
   "mengajar.siapa.judul": { default: "Siapa yang sudah mengumpulkan", en: "Who has submitted" },
   "mengajar.siapa.sudah": { default: "Sudah mengumpulkan", en: "Have submitted" },
   "mengajar.siapa.belum": { default: "Belum mengerjakan", en: "Not yet attempted" },
+  "mengajar.siapa.kosong": { default: "Tidak ada murid dalam daftar ini.", en: "No student in this list." },
   "mengajar.siapa.sedang": { default: "Sudah mulai, belum mengumpulkan", en: "Started, not submitted yet" },
   "mengajar.siapa.catatan": { default: "Tiga daftar nama, diurutkan abjad. Bukan peringkat, bukan penilaian, dan tidak menyebut sebabnya — PINTAR tidak tahu sebabnya.", en: "Three lists of names in alphabetical order. Not a ranking, not a judgment, and it names no reason — PINTAR does not know the reason." },
 };

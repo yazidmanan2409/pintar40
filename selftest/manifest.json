@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 144,
+  "version": 145,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2584,6 +2584,20 @@
       "id": "ADM06-K01",
       "runner": "static",
       "proves": "ADM-J06: a school admin is told how to add a teacher, truthfully. Reads the copy table (id and en): the staff-row sentence tells the school admin they give the role on Konfigurasi → Peran & akses, not the platform admin. Reads the source of the latest grant guard in the migrations: a school admin may give a school-scoped role to a person holding the school's institutional ID."
+    },
+    {
+      "id": "M9-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "M9 (D-085; J3.12, ADM-J13): a student moves class and keeps their history. In the database, in one rolled-back transaction (supabase/migrations/20261027100000, move_learner_to_class): the bootstrap learner sits a post-test in 5B; the school's administrator moves them to 5C. 5B's membership closes with MOVED at the instant 5C's opens, for the same enrolment and year; one person and one enrolment before and after; the session sat in 5B still records 5B; 5B's teacher no longer reads them on its roster; the audit log has the closing and the creation. Refused: 5B's teacher, another school's Kelas and an unknown placement alike (42501); the same Kelas, a Tingkat, another year's Kelas, a deactivated Kelas and a second press each with its own code.",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "M9-K01",
+      "runner": "static",
+      "proves": "M9 (D-085): the page's halves of a class move. Executes pilihBerjalan (src/lib/pengajar.ts): with a class's roster now, a learner who handed in and then moved away is not counted against the class they left; berjalan's source hands over the open memberships. Executes tujuanPindah (src/lib/pindah-kelas.ts): only the other active Kelas of the same year. Executes kodeGalat (src/lib/galat-kontrak.ts): PR070's four codes as themselves, anything else ACTION_FAILED; reads the copy table (id and en) for each code, the incomplete form and the success. Reads the source of Konfigurasi: the chosen Kelas's students, each with a move through pindahKelasAction, which calls move_learner_to_class."
     }
   ]
 }

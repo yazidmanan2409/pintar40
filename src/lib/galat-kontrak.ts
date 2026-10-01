@@ -47,6 +47,20 @@ export const KODE_GALAT = [
 export const KODE_PINDAH = ["RELEASE_MOVE_STARTED", "RELEASE_MOVE_NO_CYCLE_DEFINITION"] as const;
 
 /**
+ * D-085 M9: THE FOUR REFUSALS OF A CLASS MOVE, from Konfigurasi's «Pindah
+ * kelas» (`move_learner_to_class`), SQLSTATE PR070 with the code in DETAIL:
+ * - MOVE_NOT_CURRENT: the placement has already ended (a second press, or a
+ *   move made meanwhile), or the enrolment has;
+ * - MOVE_NOT_A_KELAS: the placement or the destination is not a Kelas;
+ * - MOVE_SAME_KELAS: the learner is already in the destination;
+ * - MOVE_OTHER_YEAR: the destination is in another academic year (the
+ *   rollover's work, not a move's).
+ * Not allowed (42501) stays ACTION_NOT_ALLOWED and a deactivated Kelas
+ * ACTION_PLACE_INACTIVE, as for every action. Any other PR070 is ACTION_FAILED.
+ */
+export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_SAME_KELAS", "MOVE_OTHER_YEAR"] as const;
+
+/**
  * A content step (Studio steps 1–4, `advanceContentAction`): each refusal
  * `enforce_content_status` can raise, named. `kodeGalatKonten` reads them from
  * the database's message, which carries no code of its own; BOB07-K02 reads
@@ -76,6 +90,7 @@ export const KODE_ISIAN = [
   "FLAG_KEY_INVALID",
   "TEMPLATE_INPUT_INCOMPLETE",
   "SCHOOL_REQUIRED",
+  "MOVE_INPUT_INCOMPLETE",
 ] as const;
 
 /** A success that says more than "saved"; `n`, when given, follows the sentence. */
@@ -92,11 +107,14 @@ export const KODE_SUKSES = [
   "DISTRIBUTION_GRANTED", "DISTRIBUTION_WITHDRAWN", "REVIEW_RECORDED", "CERTIFICATE_SAVED", "QUICK_CHECK_LAUNCHED",
   // BOB-19: a confirmed upload opens its new course, which says so
   "DRAFT_CREATED",
+  // D-085 M9: a learner moved to another Kelas
+  "LEARNER_MOVED",
 ] as const;
 
 export type KodePindah = (typeof KODE_PINDAH)[number];
-/** What `kodeGalat` answers: any action's codes, and a release move's two (DAISY-31). */
-export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah;
+export type KodePindahKelas = (typeof KODE_PINDAH_KELAS)[number];
+/** What `kodeGalat` answers: any action's codes, a release move's two (DAISY-31) and a class move's four (M9). */
+export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas;
 export type KodeKonten = (typeof KODE_KONTEN)[number];
 export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
@@ -127,6 +145,10 @@ export function kodeGalat(e: GalatDb): KodeGalat {
   // and PR061 is ACTION_FAILED before any message pattern can reword it
   if (state === "PR060" && (KODE_PINDAH as readonly string[]).includes(e?.details ?? "")) return e!.details as KodePindah;
   if (state === "PR060" || state === "PR061") return "ACTION_FAILED";
+  // M9: a class move's four refusals by their DETAIL, and no other PR070
+  if (state === "PR070") {
+    return (KODE_PINDAH_KELAS as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePindahKelas : "ACTION_FAILED";
+  }
   if (state === "42501" || /permission denied|\brequires CAN_[A-Z_]+|\bnot allowed\b|\bmay not\b|\bonly (?:a|an|the) [A-Z_]+/i.test(pesan)) {
     return "ACTION_NOT_ALLOWED";
   }
@@ -168,7 +190,7 @@ export function rujukan(): string {
 }
 
 const SEMUA_KODE = new Set<string>([
-  ...KODE_GALAT, ...KODE_PINDAH, ...KODE_KONTEN, ...KODE_ISIAN, ...KODE_SUKSES,
+  ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KONTEN, ...KODE_ISIAN, ...KODE_SUKSES,
   ...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED",
   ...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED",
 ]);

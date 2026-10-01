@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { t, type Locale } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
 
 /**
  * DaftarMurid — names, and nothing beside them.
@@ -19,6 +19,10 @@ import { t, type Locale } from "@/lib/hle";
  * teacher (/mengajar/[kelas]/murid/[orang]); the link is the name itself, with
  * nothing added beside it.
  *
+ * An empty list says why it is empty: on /siapa an empty «Sudah mengumpulkan»
+ * is a class where nobody has handed in yet, not a class without learners,
+ * so that page gives each list its own sentence (`kosong`).
+ *
  * The names themselves are bounded by the database, not by this list:
  * `persons_select` goes through `person_visible_to_me()`, whose educator branch
  * is subtree containment, so a learner outside the educator's grants never
@@ -28,14 +32,17 @@ export default function DaftarMurid({
   murid,
   locale = "id",
   kelas,
+  kosong = "mengajar.murid.kosong",
 }: {
   murid: Array<{ id: string; nama: string }>;
   locale?: Locale;
   /** The class, when each name should open that learner's record (M4). */
   kelas?: string;
+  /** The sentence for an empty list; by default, a class with no learners. */
+  kosong?: HleEvent;
 }) {
   if (murid.length === 0) {
-    return <p className="pin-empty">{t("mengajar.murid.kosong", "educator", { locale })}</p>;
+    return <p className="pin-empty">{t(kosong, "educator", { locale })}</p>;
   }
   return (
     <ul className="pin-roster">
