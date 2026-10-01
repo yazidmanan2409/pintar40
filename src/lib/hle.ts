@@ -1159,6 +1159,7 @@ export type HleEvent =
   | "mengajar.bukti.kumpul"
   | "mengajar.bukti.jendela"
   | "mengajar.bukti.belum"
+  | "mengajar.bukti.mulai"
   | "mengajar.bukti.murid"
   | "mengajar.bukti.poin"
   | "mengajar.bukti.bagian"
@@ -3217,6 +3218,8 @@ const table: Table = {
   "mengajar.bukti.kumpul": { default: "Mengumpulkan", en: "Submitted" },
   "mengajar.bukti.jendela": { default: "Jendela", en: "Window" },
   "mengajar.bukti.belum": { default: "Belum mengerjakan", en: "Not yet attempted" },
+  // W8: started and not handed in, apart from never started («Belum mengerjakan»)
+  "mengajar.bukti.mulai": { default: "Sudah mulai, belum mengumpulkan", en: "Started, not submitted yet" },
   "mengajar.bukti.murid": { default: "murid", en: "learners" },
   "mengajar.bukti.poin": { default: "poin", en: "points" },
   "mengajar.bukti.bagian": { default: "Penguasaan per bagian", en: "Mastery by part" },

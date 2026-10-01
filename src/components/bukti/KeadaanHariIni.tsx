@@ -9,7 +9,21 @@ export type AsesmenKelas = {
   mode: string;
   ditutup: string | null;
   mengumpulkan: number;
+  /** W8: learners with a session of any state, so at least those who submitted. */
+  mulai: number;
 };
+
+/**
+ * W8: THREE STATES, NEVER TWO. «Belum mengerjakan» used to be everyone who had
+ * not submitted, so a learner halfway through read as one who never started.
+ * Submitted, started and not submitted, and not started are counted apart, and
+ * the three add up to the class.
+ */
+export function hitungKeadaan(a: Pick<AsesmenKelas, "mengumpulkan" | "mulai">, murid: number) {
+  const kumpul = Math.max(0, a.mengumpulkan);
+  const mulai = Math.max(kumpul, a.mulai);
+  return { kumpul, sedang: mulai - kumpul, belum: Math.max(0, murid - mulai) };
+}
 
 /** The cycle's order: the Pemetaan Awal before the Uji Penguasaan, then anything else. */
 const URUT_MODE: Record<string, number> = { PRE_TEST: 0, POST_TEST: 1 };
@@ -59,14 +73,14 @@ export default function KeadaanHariIni({
   if (tampil.length === 0) return <p className="pin-empty">{s("mengajar.bukti.kosong")}</p>;
   return (
     <div className="pin-keadaan">
-      {tampil.map((a) => (
+      {tampil.map((a) => ({ a, k: hitungKeadaan(a, murid) })).map(({ a, k }) => (
         <div className="pin-keadaan-baris" key={a.id}>
           <p className="pin-keadaan-judul">{a.judul}</p>
           <dl className="pin-facts">
             <div>
               <dt>{s("mengajar.bukti.kumpul")}</dt>
               <dd className="pin-num">
-                {n(a.mengumpulkan)} / {n(murid)}
+                {n(k.kumpul)} / {n(murid)}
               </dd>
             </div>
             <div>
@@ -74,9 +88,16 @@ export default function KeadaanHariIni({
               <dd>{a.ditutup ? format.date(a.ditutup, locale) : "—"}</dd>
             </div>
             <div>
+              <dt>{s("mengajar.bukti.mulai")}</dt>
+              <dd className="pin-num">
+                {n(k.sedang)}
+                <small>{s("mengajar.bukti.murid")}</small>
+              </dd>
+            </div>
+            <div>
               <dt>{s("mengajar.bukti.belum")}</dt>
               <dd className="pin-num">
-                {n(Math.max(0, murid - a.mengumpulkan))}
+                {n(k.belum)}
                 <small>{s("mengajar.bukti.murid")}</small>
               </dd>
             </div>

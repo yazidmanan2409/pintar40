@@ -10970,7 +10970,7 @@ export const experienceTests: SelfTest[] = [
        *    it every assessment and keeps no single "focus".
        */
       const A = (id: string, judul: string, keadaan: string, mode: string, ditutup: string | null, mengumpulkan: number) =>
-        ({ id, judul, keadaan, mode, ditutup, mengumpulkan });
+        ({ id, judul, keadaan, mode, ditutup, mengumpulkan, mulai: mengumpulkan }); // W8: started, at least the submitted
       const HARI = [
         { asesmen: [A("q", "Uji Cepat — 20 Sep", "CLOSED", "QUICK", "2026-09-20T10:00:00+07:00", 9),
           A("post", "Cek penguasaan", "OPEN", "POST_TEST", "2026-10-01T23:59:59+07:00", 5),

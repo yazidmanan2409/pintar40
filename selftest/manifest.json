@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 132,
+  "version": 133,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2524,6 +2524,11 @@
       "id": "W5-K01",
       "runner": "static",
       "proves": "W5: «Posisi bacaan tersimpan.» is true or absent. Executes the lesson player's save rule in src/lib/siklus.ts (perluDisimpan, setelahSimpan, posisiDiServer) through readings where saves are lost or refused: the note shows on a page only while the server holds it, a lost save of the last page is tried again on the next turn to it so the lesson still ends read, and an older answer or a lost save never moves the known server count back. The source of the lesson page no longer prints the note itself; the source of LessonPlayer shows it only under posisiDiServer and settles every save's answer and loss through setelahSimpan."
+    },
+    {
+      "id": "W8-K01",
+      "runner": "static",
+      "proves": "W8 (BD-08, EDU-J24): «Lihat bukti» counts three states, never two. Executes pilihBerjalan (src/lib/pengajar.ts) over the rows the page reads and renders KeadaanHariIni in both languages (rendered output): 25 learners with 5 handed in and 3 started and not handed in read «Mengumpulkan» 5 / 25, «Sudah mulai, belum mengumpulkan» 3 and «Belum mengerjakan» 17, not 20; hitungKeadaan's states add up to the class and stay non-negative; the source of the block no longer computes «Belum mengerjakan» as everyone who has not handed in."
     }
   ]
 }
