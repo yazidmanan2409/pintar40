@@ -162,18 +162,23 @@ export function posisi(state: CycleState, lessons: readonly LessonEntry[]): Posi
 /**
  * The ranking behind "the one thing".
  *
- * THE ORDER IS THE DESIGN, stated in the approved concept and reproduced here
- * exactly: an in-progress session outranks an unstarted mapping, which
- * outranks unread lessons, which outranks an untaken Mastery Check. A finished
- * cycle ranks last — it is not work, it is a result to collect.
+ * THE ORDER IS YAZID'S RULING (D-088(d), W18): continue what the learner is
+ * doing before asking them to begin something new. A running session first
+ * (`peringkat` below); then the lesson they are reading (PELAJARAN), then a
+ * chapter whose mapping is done and whose lessons wait (PETA); then the
+ * Mastery Check of a chapter whose lessons are all read (PENGUASAAN); then the
+ * next chapter's Pemetaan Awal (PEMETAAN). A finished cycle ranks last -- it is
+ * not work, it is a result to collect. Until W18 an untaken Mastery Check led
+ * and a new chapter's mapping came before unread lessons, so one chapter's
+ * test displaced another chapter's reading merely because the test existed.
  *
  * Lower is more urgent, so the caller sorts ascending and takes the first.
  */
 export const URUTAN: Record<Langkah, number> = {
-  PENGUASAAN: 0,
-  PEMETAAN: 1,
-  PETA: 2,
-  PELAJARAN: 3,
+  PELAJARAN: 0,
+  PETA: 1,
+  PENGUASAAN: 2,
+  PEMETAAN: 3,
   HASIL: 4,
 };
 

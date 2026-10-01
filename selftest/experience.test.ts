@@ -1916,16 +1916,21 @@ export const experienceTests: SelfTest[] = [
         posisi: posisi(state, lessons), berjalan,
       }) as Parameters<typeof peringkat>[0][number];
 
-      // the approved order: a running session, then an unstarted mapping, then
-      // unread lessons, then an untaken Mastery Check
+      // W18, Yazid's ruling (D-088(d)): continue before beginning. A running
+      // session, then the lesson being read, then a chapter whose lessons wait,
+      // then a Mastery Check whose lessons are all read, then a new chapter's
+      // mapping. Another chapter's test never displaces the reading under way.
       const mixed = [
-        K("lessons", S({ pre_status: "FINALIZED" }), L(2, 5)),
         K("untaken mastery", S({ pre_status: "FINALIZED" }), L(5, 5)),
         K("unstarted mapping", S(), L(0, 5)),
+        K("lessons waiting", S({ pre_status: "FINALIZED" }), L(0, 5)),
+        K("lessons", S({ pre_status: "FINALIZED" }), L(2, 5)),
       ];
       const r1 = peringkat(mixed);
-      c.expect(r1.utama?.tugas.title === "untaken mastery",
-        `the home leads with "${r1.utama?.tugas.title}"; an untaken Mastery Check outranks an unstarted mapping`);
+      const urutan1 = [r1.utama, ...r1.sisa].map((k) => k?.tugas.title).join(" → ");
+      c.expect(urutan1 === "lessons → lessons waiting → untaken mastery → unstarted mapping",
+        `the home orders the learner's work as ${urutan1}; expected the lesson being read, then the chapter whose ` +
+          "lessons wait, then the Mastery Check whose lessons are read, then a new chapter's mapping (D-088(d))");
 
       // a session already open jumps every rank, whatever step it belongs to
       const r2 = peringkat([
@@ -1988,8 +1993,10 @@ export const experienceTests: SelfTest[] = [
         "the learner's position in a cycle is derived in src/lib/siklus.ts from cycle state and lesson " +
           "progress across every state a cycle can hold — including a Mastery Check finished without a " +
           "lesson ever being opened, which the trail must report as the result rather than as unread work — " +
-          "and the home's single recommendation follows the approved ranking rather than list position: a " +
-          "running session first, a finished cycle never, and the same answer whatever order the rows arrive in",
+          "and the home's single recommendation follows Yazid's ranking (D-088(d), W18) rather than list position: a " +
+          "running session first, then the lesson being read, the chapter whose lessons wait, the Mastery Check " +
+          "whose lessons are read and a new chapter's mapping last; a finished cycle never; and the same answer " +
+          "whatever order the rows arrive in",
       );
     },
   },
