@@ -3,8 +3,9 @@
 # READ ONLY. For staging and production it reads, by machine:
 #   - the app: the Vercel deployment the public domain points at, and the git
 #     commit it was built from;
-#   - the database: the migration versions applied (Supabase Management API,
-#     one SELECT on supabase_migrations.schema_migrations).
+#   - staging's database: the migration versions applied (one SELECT on
+#     supabase_migrations.schema_migrations, inside a READ ONLY transaction).
+#     Production's database is not read here: that needs Yazid's permission.
 # It writes nothing anywhere.
 #
 # RED when an environment disagrees with itself or with what it should run:
@@ -61,8 +62,7 @@ jobs:
       - name: Read and compare
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          STAGING_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
-          PRODUCTION_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
+          STAGING_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           PLANT: ${{ inputs.plant || 'false' }}
         run: |
           set -euo pipefail
@@ -105,10 +105,14 @@ jobs:
               return {'deployment': dep_id, 'project': dep.get('name'), 'state': dep.get('readyState'),
                       'created': dep.get('createdAt'), 'sha': sha, 'meta_keys': sorted(meta), 'source': dep.get('source')}
 
-          def applied(ref, token):
-              rows = http('https://api.supabase.com/v1/projects/%s/database/query' % ref, token,
-                          {'query': 'select version from supabase_migrations.schema_migrations order by version'})
-              return sorted(str(r['version']) for r in rows)
+          def applied(url):
+              r = subprocess.run(['psql', url, '-qAtX', '-v', 'ON_ERROR_STOP=1',
+                                  '-c', 'begin transaction read only',
+                                  '-c', 'select version from supabase_migrations.schema_migrations order by version',
+                                  '-c', 'rollback'], capture_output=True, text=True, timeout=60)
+              if r.returncode:
+                  raise RuntimeError((r.stderr.strip().splitlines() or ['psql failed'])[-1][:200])
+              return sorted(v for v in r.stdout.split() if v.isdigit())
 
           main = git('rev-parse', 'origin/main').stdout.strip()
           main_mig = migrations_at(main)
@@ -120,23 +124,24 @@ jobs:
           say()
           say('main: `%s`, %d migrations' % (main[:12], len(main_mig)))
           say()
-          envs = [('staging', os.environ['STAGING_DOMAIN'], os.environ['STAGING_SUPABASE_PROJECT_REF'], os.environ['STAGING_TOKEN']),
-                  ('production', os.environ['PRODUCTION_DOMAIN'], os.environ['PRODUCTION_SUPABASE_PROJECT_REF'], os.environ['PRODUCTION_TOKEN'])]
+          envs = [('staging', os.environ['STAGING_DOMAIN'], os.environ['STAGING_DB_URL']),
+                  ('production', os.environ['PRODUCTION_DOMAIN'], None)]
           prod_note = None
           say('| Environment | App deployment | App commit | Migrations applied | Migrations at the app commit | Verdict |')
           say('|---|---|---|---|---|---|')
-          for name, domain, ref, token in envs:
+          for name, domain, db_url in envs:
               notes = []
               try:
                   app = app_commit(domain)
               except Exception as e:
                   app = None
                   notes.append('app not readable: %s' % e)
-              try:
-                  mig = applied(ref, token)
-              except Exception as e:
-                  mig = None
-                  notes.append('migrations not readable: %s' % e)
+              mig = None
+              if db_url:
+                  try:
+                      mig = applied(db_url)
+                  except Exception as e:
+                      notes.append('migrations not readable: %s' % e)
               sha = app and app['sha']
               if app and not sha:
                   notes.append('the deployment carries no commit (meta keys: %s; source: %s)' % (', '.join(app['meta_keys']) or 'none', app['source']))
@@ -160,10 +165,10 @@ jobs:
               if notes:
                   red.extend('%s: %s' % (name, n) for n in notes)
               dep = '%s (%s)' % (app['deployment'], app['state']) if app else '-'
-              say('| %s | %s | `%s` | %s | %s | %s |' % (name, dep, (sha or '-')[:12], len(mig) if mig is not None else '-', len(at) if at is not None else '-', verdict))
+              say('| %s | %s | `%s` | %s | %s | %s |' % (name, dep, (sha or '-')[:12], len(mig) if mig is not None else ('not read' if not db_url else '-'), len(at) if at is not None else '-', verdict))
           say()
           if prod_note:
-              say('Production runs %s (a production release is a deliberate step, D-004; not red).' % prod_note)
+              say('Production runs %s (a production release is a deliberate step, D-004; not red). Its database is not read by this check: that needs Yazid\'s permission.' % prod_note)
           for r in red:
               say('- RED ' + r)
           if red:
