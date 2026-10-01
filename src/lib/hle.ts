@@ -1162,6 +1162,7 @@ export type HleEvent =
   | "mengajar.bukti.jendela"
   | "mengajar.bukti.belum"
   | "mengajar.bukti.mulai"
+  | "mengajar.bukti.siapa"
   | "mengajar.bukti.murid"
   | "mengajar.bukti.poin"
   | "mengajar.bukti.bagian"
@@ -1190,6 +1191,7 @@ export type HleEvent =
   | "mengajar.siapa.judul"
   | "mengajar.siapa.sudah"
   | "mengajar.siapa.belum"
+  | "mengajar.siapa.sedang"
   | "mengajar.siapa.catatan"
   | "tur.tur"
   | "tur.nama.belajar"
@@ -3242,6 +3244,7 @@ const table: Table = {
   "mengajar.bukti.belum": { default: "Belum mengerjakan", en: "Not yet attempted" },
   // W8: started and not handed in, apart from never started («Belum mengerjakan»)
   "mengajar.bukti.mulai": { default: "Sudah mulai, belum mengumpulkan", en: "Started, not submitted yet" },
+  "mengajar.bukti.siapa": { default: "Lihat nama murid", en: "See the learners' names" },
   "mengajar.bukti.murid": { default: "murid", en: "learners" },
   "mengajar.bukti.poin": { default: "poin", en: "points" },
   "mengajar.bukti.bagian": { default: "Penguasaan per bagian", en: "Mastery by part" },
@@ -3269,8 +3272,9 @@ const table: Table = {
   "mengajar.langkah.quiet": { default: "Ringkasan berkala untuk kelas ini belum ada; akan muncul di sini bila sudah tersedia. Yang tidak ada di daftar ini — penilaian per soal dan sinyal integritas — bukan bagian dari peran pengajar.", en: "There is no periodic briefing for this class yet; it will appear here when there is. What is not on this list — item review and integrity signals — is not part of the educator role." },
   "mengajar.siapa.judul": { default: "Siapa yang sudah mengumpulkan", en: "Who has submitted" },
   "mengajar.siapa.sudah": { default: "Sudah mengumpulkan", en: "Have submitted" },
-  "mengajar.siapa.belum": { default: "Belum mengumpulkan", en: "Have not submitted yet" },
-  "mengajar.siapa.catatan": { default: "Dua daftar nama, diurutkan abjad. Bukan peringkat, bukan penilaian, dan tidak menyebut sebabnya — PINTAR tidak tahu sebabnya.", en: "Two lists of names in alphabetical order. Not a ranking, not a judgment, and it names no reason — PINTAR does not know the reason." },
+  "mengajar.siapa.belum": { default: "Belum mengerjakan", en: "Not yet attempted" },
+  "mengajar.siapa.sedang": { default: "Sudah mulai, belum mengumpulkan", en: "Started, not submitted yet" },
+  "mengajar.siapa.catatan": { default: "Tiga daftar nama, diurutkan abjad. Bukan peringkat, bukan penilaian, dan tidak menyebut sebabnya — PINTAR tidak tahu sebabnya.", en: "Three lists of names in alphabetical order. Not a ranking, not a judgment, and it names no reason — PINTAR does not know the reason." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */

@@ -991,6 +991,34 @@ await step("S20", "three more students join Kelas 1A, and the school admin makes
     `class cards: ${kartuKelas.length} of ${MURID.length} (numbers and PINs not recorded)${log.length ? `; ${log.join("; ")}` : ""}`;
 });
 
+// EDU-J23/J24: the teacher, from «Lihat bukti», follows the Uji Penguasaan's «Lihat nama murid» to /siapa and reads the three lists.
+let siapaTengah = null;
+async function bacaSiapa() {
+  const kelas = kelasSatuA();
+  const post = sql(`select aa.id from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+     where d.course_id='${babSatu()}' and d.mode='POST_TEST' and aa.node_id='${kelas}' order by aa.created_at desc limit 1`).trim();
+  const tc = await ctx();
+  const t = await tc.newPage();
+  try {
+    await magicSignIn(t, people.guru.email);
+    await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+    await tutupTur(t);
+    const tautan = t.locator(`a[href="/mengajar/${kelas}/siapa?penugasan=${post}"]`);
+    if (!(await tautan.count())) return { gagal: `no «Lihat nama murid» for the Uji Penguasaan on «Lihat bukti»: ${norm(await bodyText(t)).slice(0, 300)}` };
+    await tautan.first().click();
+    await t.waitForURL((u) => u.pathname.endsWith("/siapa"), { timeout: SLOW });
+    await t.locator("h1").first().waitFor({ timeout: SLOW });
+    const shotPath = await shot(t, "edu23-siapa-tengah");
+    const daftar = await t.locator("main .pin-sec").evaluateAll((els) => els.map((e) => ({
+      judul: (e.querySelector("h2")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+      nama: e.innerText.replace(/\s+/g, " ").trim(),
+    })));
+    return { daftar, shotPath };
+  } finally {
+    await tc.close();
+  }
+}
+
 await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered", async (rec) => {
   if (!terbitBab || !HARAP) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "the chapter fixture is absent"; }
   if (kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return `only ${kartuKelas.length} class cards (S20)`; }
@@ -1015,6 +1043,11 @@ await step("S21", "five students take Bab 1's pre-test and post-test to plan; st
       await s.goto(`${APP}/belajar/${tugas}/penguasaan`, { waitUntil: "networkidle" });
       await tutupTur(s);
       await s.getByRole("button", { name: "Mulai Uji Penguasaan", exact: true }).click();
+      if (i === 0) {
+        // EDU-J23/J24: the first student has the Uji Penguasaan open and has not handed it in; the teacher looks now (S21b)
+        await s.locator("h2.pin-stem").first().waitFor({ state: "visible", timeout: SLOW }).catch(() => {});
+        siapaTengah = await bacaSiapa().catch((e) => ({ gagal: String(e.message ?? e).split("\n")[0].slice(0, 160) }));
+      }
       const w3 = i === 3; // all right by plan: an unsaved last answer that is dropped shows as one fewer
       const post = await jawab(s, "post", plan.post, { simpanTerakhir: !w3 });
       await s.locator("h1").first().waitFor({ timeout: SLOW });
@@ -1039,6 +1072,21 @@ await step("S21", "five students take Bab 1's pre-test and post-test to plan; st
       and s.mode='POST_TEST' and s.status='FINALIZED' and public.effective_evidence_class(s.id)='OFFICIAL'`).trim());
   if (resmi < MURID.length) rec.verdict = "FAIL";
   return `${out.join("; ")} | this assignment's sessions: ${kelas}`;
+});
+
+await step("S21b", "while the first student has the Uji Penguasaan open, the teacher follows «Lihat nama murid» from «Lihat bukti» and reads who handed in, who started and who has not (EDU-J23, EDU-J24)", async (rec) => {
+  if (!siapaTengah) { rec.verdict = "BLOCKED"; return "the first student did not reach the Uji Penguasaan (S21)"; }
+  if (siapaTengah.gagal) { rec.verdict = "FAIL"; return siapaTengah.gagal; }
+  rec.shots.push(siapaTengah.shotPath);
+  const [sudah, sedang, belum] = ["Sudah mengumpulkan", "Sudah mulai, belum mengumpulkan", "Belum mengerjakan"]
+    .map((h) => siapaTengah.daftar.find((d) => d.judul.startsWith(h))?.nama ?? null);
+  const di = (teks, n) => (teks ?? "").includes(n);
+  const ok = sedang !== null && belum !== null && sudah !== null
+    && di(sedang, MURID[0]) && !di(belum, MURID[0]) && !di(sudah, MURID[0])
+    && MURID.slice(1).every((n) => di(belum, n) && !di(sedang, n) && !di(sudah, n));
+  if (!ok) rec.verdict = "FAIL";
+  return `handed in: "${sudah ?? "no such list"}"; started, not handed in: "${sedang ?? "no such list"}"; not attempted: "${belum ?? "no such list"}"` +
+    `${ok ? "" : ` (expected ${MURID[0]} started, ${MURID.slice(1).join(", ")} not attempted)`}`;
 });
 
 await step("S22", "the teacher reads the class figures from official evidence on Lihat bukti (EDU-12, X-10)", async (rec) => {

@@ -128,7 +128,7 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
           <h2>{s("mengajar.bukti.keadaan")}</h2>
           {/* DAISY-26 (UX-06): every open test of the class, each with its own
               counts, rather than one "focus" test standing for all of them. */}
-          <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} />
+          <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} kelas={id} />
         </div>
 
         <div className="pin-sec">

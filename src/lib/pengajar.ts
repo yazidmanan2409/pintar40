@@ -463,28 +463,39 @@ export async function berjalan(
   return pilihBerjalan(buka, rows<BarisSesiAsesmen>(sesi), keadaan, Date.now());
 }
 
-/** Who in this class has submitted one assessment, and who has not yet. */
+/**
+ * EDU-J23, EDU-J24: WHO, IN THREE LISTS. The same three states «Lihat bukti»
+ * counts (W8, hitungKeadaan): submitted; started and not submitted (a session
+ * of any other state, so also one that ran out or was ended); not started (no
+ * session at all). A learner is in exactly one list, the roster's alphabetical
+ * order is kept in each, and none is a ranking.
+ */
+export function pisahSiapa(
+  roster: readonly Murid[],
+  sesi: ReadonlyArray<{ person_id: string; status: string }>,
+): { sudah: Murid[]; sedang: Murid[]; belum: Murid[] } {
+  const ada = new Set(sesi.map((s) => s.person_id));
+  const done = new Set(
+    sesi.filter((s) => s.status === "SUBMITTED" || s.status === "FINALIZED").map((s) => s.person_id),
+  );
+  return {
+    sudah: roster.filter((m) => done.has(m.id)),
+    sedang: roster.filter((m) => !done.has(m.id) && ada.has(m.id)),
+    belum: roster.filter((m) => !ada.has(m.id)),
+  };
+}
+
+/** Who in this class has submitted one assessment, who has started it, and who has not started. */
 export async function siapa(
   assignmentId: string,
   roster: Murid[],
-): Promise<{ sudah: Murid[]; belum: Murid[] }> {
+): Promise<{ sudah: Murid[]; sedang: Murid[]; belum: Murid[] }> {
   const c = await db();
   const { data } = await c
     .from("assessment_sessions")
     .select("person_id, status")
     .eq("assessment_assignment_id", assignmentId);
-  type Sesi = { person_id: string; status: string };
-  const done = new Set(
-    rows<Sesi>(data)
-      .filter((s) => s.status === "SUBMITTED" || s.status === "FINALIZED")
-      .map((s) => s.person_id),
-  );
-  // Both lists keep the roster's alphabetical order. Neither is a ranking, and
-  // the one who has not submitted is not moved to the top for it.
-  return {
-    sudah: roster.filter((m) => done.has(m.id)),
-    belum: roster.filter((m) => !done.has(m.id)),
-  };
+  return pisahSiapa(roster, rows<{ person_id: string; status: string }>(data));
 }
 
 // ═══════════════════════════════════════════════════ 5. the quick assessment

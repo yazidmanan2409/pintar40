@@ -414,6 +414,7 @@
 .pin-keadaan { display: grid; gap: var(--space-5); }
 .pin-keadaan-baris + .pin-keadaan-baris { border-top: 1px solid var(--line); padding-top: var(--space-5); }
 .pin-keadaan-judul { margin: 0 0 var(--space-3); font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-keadaan-siapa { margin: var(--space-3) 0 0; font-size: var(--type-meta); }
 
 /* --------------------------------------------------- commitment and refusal */
 .pin-commit {

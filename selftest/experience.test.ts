@@ -11006,7 +11006,7 @@ export const experienceTests: SelfTest[] = [
           "with nothing open or finished, «Keadaan hari ini» does not say so");
       }
       const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
-      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\} \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
+      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\}(?: kelas=\{id\})? \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
         "«Lihat bukti» still shows one focus test rather than every open one");
 
       /**

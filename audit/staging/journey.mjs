@@ -822,8 +822,9 @@ await step("Q5", "the teacher sees the Uji Cepat hand-in (count and who)", ["EDU
     await G.locator("h1").first().waitFor({ timeout: SLOW });
     rec.shots.push(await shot(G, "cepat-siapa"));
     const st = await text(G);
-    const sudah = st.split(/Belum mengumpulkan/i)[0];
-    siapa = `Siapa: student 1 under "Sudah mengumpulkan": ${sudah.includes(names[0])}; students 2-5 named anywhere: ${names.slice(1).filter((x) => st.includes(x)).length}/4`;
+    // EDU-J23/J24: three lists, submitted · started, not submitted · not started
+    const [sudah, sedang = "", belum = ""] = st.split(/Sudah mulai, belum mengumpulkan|Belum mengerjakan/);
+    siapa = `Siapa: student 1 under "Sudah mengumpulkan": ${sudah.includes(names[0])}; students 2-5 started, not submitted: ${names.slice(1).filter((x) => sedang.includes(x)).length}, not started: ${names.slice(1).filter((x) => belum.includes(x)).length}`;
     if (!sudah.includes(names[0])) rec.verdict = "FAIL";
   }
   if (!kumpul || Number(kumpul[1]) < 1) rec.verdict = "FAIL";

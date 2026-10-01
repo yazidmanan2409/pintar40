@@ -61,11 +61,17 @@ export default function KeadaanHariIni({
   asesmen,
   murid,
   locale,
+  kelas,
 }: {
   asesmen: readonly AsesmenKelas[];
   /** Learners in the class. */
   murid: number;
   locale: Locale;
+  /**
+   * EDU-J23: the class, so each test's counts lead to the names behind them
+   * (/siapa). A plain link: the block's rules are imported outside Next by tests.
+   */
+  kelas?: string;
 }) {
   const s = (k: HleEvent) => t(k, "educator", { locale });
   const n = (x: number) => format.number(x, locale);
@@ -102,6 +108,11 @@ export default function KeadaanHariIni({
               </dd>
             </div>
           </dl>
+          {kelas ? (
+            <p className="pin-keadaan-siapa">
+              <a href={`/mengajar/${kelas}/siapa?penugasan=${a.id}`}>{s("mengajar.bukti.siapa")}</a>
+            </p>
+          ) : null}
         </div>
       ))}
     </div>
