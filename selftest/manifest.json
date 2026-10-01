@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 146,
+  "version": 147,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2607,6 +2607,11 @@
       ],
       "proves": "ADM-J19: a new school year carries the whole class and says how many it carried. In the database, in one rolled-back transaction (supabase/migrations/20261028100000, period_rollover): the school's administrator rolls two classes of the bootstrap school into next year's two classes; the learner recorded and not yet signed in (PENDING) moves with the one who has signed in (ACTIVE), nobody stays in last year's class, the reported count is every class's total and equals the memberships closed with PERIOD_ROLLOVER, an audit row is written, and the class's teacher is refused.",
       "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "ADM02-K01",
+      "runner": "static",
+      "proves": "J3.2 (ADM-02, ADM-J02): the school admin's home shows what setup remains. Executes persiapanSekolah (src/lib/persiapan-sekolah.ts): a school with no Kelas has nothing done; active Kelas and placed students are counted (an inactive Kelas is not); a Kelas without an active Guru over it is named, a Guru over the Tingkat covers its Kelas, and a head of department, a revoked or an expired Guru do not count. Reads the copy table (id and en) and the source of Konfigurasi: the setup is drawn right after Struktur sekolah, from the structure, the roles and each node's path, and Pendataan keeps its one link."
     }
   ]
 }

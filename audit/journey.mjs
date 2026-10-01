@@ -261,6 +261,17 @@ async function tambahDi(page, tingkatan, nama) {
   await page.waitForLoadState("networkidle");
 }
 
+// J3.2 (ADM-02): what the school admin's home says is done and what remains, by step
+async function bacaPersiapan(page) {
+  await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#persiapan`, { waitUntil: "networkidle" });
+  const out = {};
+  for (const li of await page.locator("#persiapan li[data-langkah]").all()) {
+    out[await li.getAttribute("data-langkah")] = (await li.getAttribute("data-selesai")) === "ya";
+  }
+  out.teks = norm(await page.locator("#persiapan").innerText().catch(() => ""));
+  return out;
+}
+
 await step("S7", "the school admin builds SD's structure on a screen (Bagian, Tingkat, Kelas)", async (rec) => {
   await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
   if (!(await a.locator("div.pin-str-tambah-bagian form").count())) {
@@ -286,7 +297,10 @@ await step("S7", "the school admin builds SD's structure on a screen (Bagian, Ti
   const hidden = /Jenjang|Reguler/.test(await a.locator("#struktur").innerText().catch(() => ""));
   steps.push(`hidden levels shown: ${hidden}`);
   if (kl) ids.klass = kl;
-  if (!kl || hidden) rec.verdict = "FAIL";
+  // J3.2: with a Kelas and nobody in it yet, the home says the class is there and students and a teacher remain
+  const siap = await bacaPersiapan(a);
+  steps.push(`setup on the home: Kelas ${siap.kelas}, students ${siap.murid}, teacher ${siap.guru} ("${siap.teks.slice(0, 160)}")`);
+  if (!kl || hidden || siap.kelas !== true || siap.murid !== false || siap.guru !== false || !/Kelas 1A/.test(siap.teks)) rec.verdict = "FAIL";
   const ladder = kl ? sql(`with recursive up as (select id, parent_id, kind::text k, 1 n from public.org_nodes where id='${kl}' union all select o.id, o.parent_id, o.kind::text, up.n + 1 from public.org_nodes o join up on o.id = up.parent_id) select string_agg(k, ' <- ' order by n) from up`).trim() : "-";
   return `${steps.join("; ")}; ladder: ${ladder}`;
 });
@@ -436,6 +450,14 @@ await step("S12", "the school admin adds the teacher: by name on Pendataan, an a
   rec.shots.push(await shot(a, "grant-guru-result"));
   if (r.ok !== "ok" || akun !== "1") rec.verdict = "FAIL";
   return `${jejak.join(" | ")} | the school admin's grant: ${JSON.stringify(r)}`;
+});
+
+// J3.2 (ADM-02): once the class has its students (S9) and its teacher (S12), the home says setup is done
+await step("S12b", "the school admin's home says the setup is done: a Kelas, its students, its teacher (ADM-J02)", async (rec) => {
+  const siap = await bacaPersiapan(a);
+  rec.shots.push(await shot(a, "adm-j02-persiapan"));
+  if (siap.kelas !== true || siap.murid !== true || siap.guru !== true) rec.verdict = "FAIL";
+  return `Kelas ${siap.kelas}, students ${siap.murid}, teacher ${siap.guru}: "${siap.teks.slice(0, 220)}"`;
 });
 
 await step("S13", "the teacher signs in and opens the class", async (rec) => {

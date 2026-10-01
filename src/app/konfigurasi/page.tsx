@@ -24,6 +24,7 @@ import BarisHasil from "@/components/BarisHasil";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 import { muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-kelas";
+import { persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -98,7 +99,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   ] = await Promise.all([
     supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
-    supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active").order("name"),
+    supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").order("name"),
     supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status").eq("status", "ACTIVE").order("created_at"),
     supabase.from("transfers").select("id, person_id, from_institution_id, to_institution_id, status, reason, created_at").order("created_at", { ascending: false }).limit(50),
     supabase.from("role_assignments").select("id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at").is("revoked_at", null).order("created_at", { ascending: false }),
@@ -214,6 +215,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const tujuan = kelasDari ? tujuanPindah(kelasAktif, kelasDari.node_id) : [];
   const muridDari = kelasDari ? await muridDiKelas(supabase, kelasDari.node_id) : [];
   const sl = (event: HleEvent) => t(event, "staff", { locale });
+  // J3.2 (ADM-02): what setup remains at the school shown, from what this page already read
+  const persiapan = struktur?.ok
+    ? persiapanSekolah(struktur.rows, (assignments ?? []) as PeranTerbaca[],
+        new Map((nodes ?? []).map((n) => [n.id as string, ((n as { jalur?: string[] }).jalur ?? []) as string[]])), new Date().valueOf())
+    : null;
 
   const nav: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
@@ -326,6 +332,42 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
             )}
           </section>
+
+          {/* J3.2 (ADM-02, P1). PERSIAPAN SEKOLAH: what is done and what remains
+              at the school shown, each with the place it is done, right after
+              the structure that comes first (DAISY-05). Read only;
+              the facts are the structure, its placements and its roles, as
+              this reader already sees them. */}
+          {sekolahStruktur && persiapan ? (
+            <section id="persiapan" className={card} aria-labelledby="pin-persiapan">
+              <h2 id="pin-persiapan" className="font-medium">{sl("config.persiapan.judul")}</h2>
+              <p className="mt-1 text-sm text-ink-2">{sl("config.persiapan.arti")}</p>
+              <ul className="mt-3 grid gap-2 text-sm">
+                {persiapan.map((l) => (
+                  <li key={l.kunci} data-langkah={l.kunci} data-selesai={l.selesai ? "ya" : "belum"}
+                    className="grid gap-1 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                    <span className="text-ink-1">
+                      <strong>{sl(l.selesai ? "config.persiapan.sudah" : "config.persiapan.belum")}</strong>
+                      {" · "}{sl(`config.persiapan.${l.kunci}` as HleEvent)}
+                      {l.kunci !== "guru" ? <> · <span className="pin-num">{l.jumlah}</span></> : null}
+                    </span>
+                    {l.kunci === "guru" && l.tanpaGuru.length > 0 ? (
+                      <span className="text-ink-2">{sl("config.persiapan.guru.kurang")} {l.tanpaGuru.join(", ")}</span>
+                    ) : null}
+                    {/* the way to each step: the section on this page, or for students
+                        Pendataan, whose one link is in the places above (DAISY-17) */}
+                    {!l.selesai ? (
+                      l.kunci === "murid" ? (
+                        <span className="text-ink-2">{sl("config.persiapan.murid.cara")}</span>
+                      ) : (
+                        <a href={l.kunci === "guru" ? "#roles" : "#struktur"} className={tautanTempat}>{sl(`config.persiapan.${l.kunci}.cara` as HleEvent)}</a>
+                      )
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           {/* D-085 M9 (J3.12, ADM-J13). PINDAH KELAS: the administrator opens
               the Kelas a student is in, finds them, and moves them to another

@@ -279,6 +279,17 @@ export type HleEvent =
   | "config.section.rollover"
   | "config.section.transfers"
   | "config.section.pindah"
+  | "config.persiapan.judul"
+  | "config.persiapan.arti"
+  | "config.persiapan.sudah"
+  | "config.persiapan.belum"
+  | "config.persiapan.kelas"
+  | "config.persiapan.kelas.cara"
+  | "config.persiapan.murid"
+  | "config.persiapan.murid.cara"
+  | "config.persiapan.guru"
+  | "config.persiapan.guru.kurang"
+  | "config.persiapan.guru.cara"
   | "config.pindah.arti"
   | "config.pindah.dari"
   | "config.pindah.lihat"
@@ -2038,6 +2049,17 @@ const table: Table = {
   "config.section.rollover": { default: "Pergantian tahun ajaran", en: "Academic-year rollover" },
   "config.section.transfers": { default: "Perpindahan peserta didik", en: "Student transfers" },
   "config.section.pindah": { default: "Pindah kelas", en: "Move a student to another class" },
+  "config.persiapan.judul": { default: "Persiapan sekolah", en: "School setup" },
+  "config.persiapan.arti": { default: "Apa yang sudah siap di sekolah ini, dan apa yang masih perlu dikerjakan sebelum guru dan murid mulai.", en: "What is ready at this school, and what still needs doing before teachers and students begin." },
+  "config.persiapan.sudah": { default: "Sudah", en: "Done" },
+  "config.persiapan.belum": { default: "Belum", en: "Not yet" },
+  "config.persiapan.kelas": { default: "Kelas aktif", en: "Active classes" },
+  "config.persiapan.kelas.cara": { default: "Buat Bagian, Tingkat, lalu Kelas di Struktur sekolah.", en: "Create a Bagian, a Tingkat, then a Kelas under School structure." },
+  "config.persiapan.murid": { default: "Murid yang sudah ditempatkan di Kelas", en: "Students placed in a class" },
+  "config.persiapan.murid.cara": { default: "Catat murid lewat Pendataan, dengan Kelas mereka sebagai Tempat.", en: "Record students through Pendataan, with their class as the place." },
+  "config.persiapan.guru": { default: "Setiap Kelas punya guru", en: "Every class has a teacher" },
+  "config.persiapan.guru.kurang": { default: "Kelas yang belum punya guru:", en: "Classes without a teacher yet:" },
+  "config.persiapan.guru.cara": { default: "Beri peran Guru untuk Kelas itu di Peran & akses.", en: "Give the Guru role for that class under Roles & access." },
   "config.pindah.arti": { default: "Pindahkan seorang murid ke Kelas lain di sekolah ini, pada tahun ajaran yang sama. Ia tetap murid yang sama. Apa yang sudah ia kerjakan tetap tercatat di kelas tempat ia mengerjakannya, dan kelas lamanya tidak lagi menghitungnya sebagai muridnya sekarang.", en: "Move a student to another Kelas in this school, in the same academic year. They stay the same student. What they have already done stays recorded with the class where they did it, and their old class no longer counts them as a current student." },
   "config.pindah.dari": { default: "Kelas murid sekarang", en: "The student's class now" },
   "config.pindah.lihat": { default: "Tampilkan murid", en: "Show students" },
