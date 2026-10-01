@@ -413,13 +413,27 @@ await step("S11", "the student signs in with the class card", async (rec) => {
   return `landed on ${landed}; /belajar says: ${t.slice(0, 220)}; sign-out control on /belajar: ${out}`;
 });
 
-await step("S12", "Gladys creates a teacher and grants Guru at Kelas 1A", async (rec) => {
-  const np = await newPerson(g, people.guru.name, people.guru.email);
-  if (!np.body?.ok) throw new Error(JSON.stringify(np.body));
-  const r = await grantViaForm(g, people.guru.name, "EDUCATOR", "Kelas 1A");
-  rec.shots.push(await shot(g, "grant-guru-result"));
-  if (r.ok !== "ok") rec.verdict = "FAIL";
-  return JSON.stringify(r);
+// ADM-J06, ADM-J07: the school admin adds a teacher with the school's own tools: the teacher is recorded by
+// name on Pendataan (a staff row carries no place and no role), gets an account by email on Aktivasi, and is
+// given Guru at Kelas 1A on Peran & akses. Gladys (platform admin) is not involved.
+await step("S12", "the school admin adds the teacher: by name on Pendataan, an account by email on Aktivasi, Guru at Kelas 1A on Peran & akses (ADM-J06, ADM-J07)", async (rec) => {
+  const jejak = [await catatLewatLayar(a, [people.guru.name], rec.shots, { kelas: null, peran: null })];
+  await a.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
+  const baris = a.locator("li.pin-akt-orang", { hasText: people.guru.name }).first();
+  if (!(await baris.count())) {
+    rec.verdict = "FAIL";
+    return `${jejak.join(" | ")}; ${people.guru.name} is not on Aktivasi: ${norm(await bodyText(a)).slice(0, 300)}`;
+  }
+  await baris.locator('input[type="email"]').fill(people.guru.email);
+  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
+  rec.shots.push(await shot(a, "aktivasi-guru"));
+  const akun = sql(`select count(*) from public.accounts ac join public.persons p on p.id = ac.person_id where p.display_name='${people.guru.name}'`).trim();
+  jejak.push(`Aktivasi by email: accounts for ${people.guru.name}: ${akun}`);
+  const r = await grantViaForm(a, people.guru.name, "EDUCATOR", "Kelas 1A");
+  rec.shots.push(await shot(a, "grant-guru-result"));
+  if (r.ok !== "ok" || akun !== "1") rec.verdict = "FAIL";
+  return `${jejak.join(" | ")} | the school admin's grant: ${JSON.stringify(r)}`;
 });
 
 await step("S13", "the teacher signs in and opens the class", async (rec) => {
@@ -948,18 +962,22 @@ async function jawab(page, mode, right, { simpanTerakhir = true } = {}) {
 
 const kartuKelas = [];
 // ADM-J08: the Pendataan screen, as a school admin uses it with a list copied from a spreadsheet.
-async function catatLewatLayar(page, nama, shots) {
+async function catatLewatLayar(page, nama, shots, { kelas = "Kelas 1A", peran = "STUDENT" } = {}) {
   const jejak = [];
   await page.goto(`${APP}/pendataan`, { waitUntil: "networkidle" });
   await tutupTur(page);
   await page.locator("#pin-tempel").fill(["nama", ...nama].join("\n"));
   await page.locator("#pin-medan-node_id").waitFor({ timeout: SLOW });
-  const tempat = await page.locator("#pin-medan-node_id option").evaluateAll((os) => os.map((o) => ({ v: o.value, t: (o.textContent ?? "").trim() })));
-  const k1a = tempat.find((o) => o.v.startsWith("t:") && /Kelas 1A/.test(o.t));
-  if (!k1a) throw new Error(`Kelas 1A is not offered as a place: ${JSON.stringify(tempat.map((o) => o.t))}`);
-  await page.locator("#pin-medan-node_id").selectOption(k1a.v);
-  await page.locator("#pin-medan-role").selectOption("t:STUDENT");
-  jejak.push(`pasted ${nama.length} names; Tempat «${k1a.t}», Peran Murid for every row`);
+  if (kelas) {
+    const tempat = await page.locator("#pin-medan-node_id option").evaluateAll((os) => os.map((o) => ({ v: o.value, t: (o.textContent ?? "").trim() })));
+    const k = tempat.find((o) => o.v.startsWith("t:") && o.t.includes(kelas));
+    if (!k) throw new Error(`${kelas} is not offered as a place: ${JSON.stringify(tempat.map((o) => o.t))}`);
+    await page.locator("#pin-medan-node_id").selectOption(k.v);
+    jejak.push(`pasted ${nama.length} name(s); Tempat «${k.t}» for every row`);
+  } else {
+    jejak.push(`pasted ${nama.length} name(s); no Tempat`);
+  }
+  if (peran) await page.locator("#pin-medan-role").selectOption(`t:${peran}`);
   shots.push(await shot(page, "pendataan-petakan"));
   await page.getByRole("button", { name: "Lanjut ke pemeriksaan", exact: true }).click();
   await page.waitForURL((u) => /^\/pendataan\/[^/]+$/.test(u.pathname), { timeout: SLOW });

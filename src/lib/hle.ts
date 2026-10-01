@@ -1730,7 +1730,7 @@ const table: Table = {
   "pendataan.masalah.ganda": { default: "Baris ini kembar dengan baris lain di berkas yang sama.", en: "This row is a twin of another row in the same file." },
   "pendataan.masalah.lain": { default: "Baris ini belum bisa dicatat.", en: "This row cannot be recorded yet." },
   "pendataan.masalah.tempat_murid": { default: "Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif.", en: "A student can only be placed in an active Kelas or Tingkat." },
-  "pendataan.masalah.staf": { default: "Peran guru dan staf belum bisa diberikan lewat pendataan massal. Kosongkan kolom peran dan tempat pada baris ini; Admin platform memberikan perannya dari Konfigurasi.", en: "Teacher and staff roles can't be given through a bulk intake yet. Leave this row's role and place empty; the platform admin gives the role from Konfigurasi." },
+  "pendataan.masalah.staf": { default: "Peran guru dan staf tidak diberikan lewat pendataan massal. Kosongkan kolom Peran dan Tempat pada baris ini: orangnya tetap tercatat dengan nomor induk sekolah, dan perannya Anda berikan di Konfigurasi → Peran & akses.", en: "Teacher and staff roles are not given through a bulk intake. Leave this row's Role and Place empty: the person is still recorded with the school's number, and you give the role in Konfigurasi → Roles & access." },
 
   "pendataan.pratinjau.judul": { default: "Yang akan terjadi", en: "What will happen" },
   "pendataan.pratinjau.total": { default: "Baris", en: "Rows" },

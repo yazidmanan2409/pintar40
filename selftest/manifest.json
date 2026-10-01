@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 143,
+  "version": 144,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2579,6 +2579,11 @@
       "id": "M4-K01",
       "runner": "static",
       "proves": "M4 (D-085): a teacher's view of one learner in their class. Executes susunCatatan (src/lib/pengajar.ts): the learner's place on each class assessment (handed in, started, not attempted), each official result with its recorded mastery and nothing else, an absent result leaving the assessments. Renders DaftarMurid (rendered output): with the class, each name opens the learner's record. Source: the page refuses anyone not on the teacher's class roster, reads results only through the catalogue's learner.result (EDUCATOR in the migration), reads no answers or integrity; the class page and /siapa link the names."
+    },
+    {
+      "id": "ADM06-K01",
+      "runner": "static",
+      "proves": "ADM-J06: a school admin is told how to add a teacher, truthfully. Reads the copy table (id and en): the staff-row sentence tells the school admin they give the role on Konfigurasi → Peran & akses, not the platform admin. Reads the source of the latest grant guard in the migrations: a school admin may give a school-scoped role to a person holding the school's institutional ID."
     }
   ]
 }
