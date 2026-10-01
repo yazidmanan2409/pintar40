@@ -106,10 +106,10 @@ begin atomic
    from (select t.objective_id,
                 min(t.code) as code,
                 coalesce(min(lo.statement), min(t.code)) as statement,
-                round(avg(t.penguasaan), 4) as avg_score,
+                round(avg((t.recorded ->> 'penguasaan')::numeric), 4) as avg_score,
                 count(*) as n
            from (select kv.key as code,
-                        (kv.value ->> 'penguasaan')::numeric as penguasaan,
+                        kv.value as recorded,
                         (select o.id
                            from (public.assessment_definitions ad
                              join public.lessons l on ((l.module_id = ad.module_id)))
@@ -148,10 +148,10 @@ begin atomic
    from (select t.objective_id,
                 min(t.code) as code,
                 coalesce(min(lo.statement), min(t.code)) as statement,
-                round(avg(t.penguasaan), 4) as avg_score,
+                round(avg((t.recorded ->> 'penguasaan')::numeric), 4) as avg_score,
                 count(*) as n
            from (select kv.key as code,
-                        (kv.value ->> 'penguasaan')::numeric as penguasaan,
+                        kv.value as recorded,
                         (select o.id
                            from (public.assessment_definitions ad
                              join public.lessons l on ((l.module_id = ad.module_id)))
