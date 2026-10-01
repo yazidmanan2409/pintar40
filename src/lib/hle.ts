@@ -74,7 +74,7 @@ export type HleEvent =
   | "pimpinan.aksi.catatan" | "pimpinan.aksi.gagal" | "pimpinan.aksi.tercatat"
   | "pimpinan.kesiapan.judul" | "pimpinan.kesiapan.catatan"
   | "pimpinan.kesiapan.cukup" | "pimpinan.kesiapan.belum_cukup" | "pimpinan.kesiapan.belum_ada"
-  | "pimpinan.bukti.judul" | "pimpinan.bukti.kosong" | "pimpinan.bukti.dari"
+  | "pimpinan.bukti.judul" | "pimpinan.bukti.kosong" | "pimpinan.bukti.di_kelas" | "pimpinan.bukti.dari"
   | "pimpinan.murid.judul" | "pimpinan.murid.sub" | "pimpinan.murid.kosong" | "pimpinan.murid.buka"
   | "pimpinan.rincian.judul" | "pimpinan.rincian.tercatat" | "pimpinan.rincian.status"
   | "pimpinan.rincian.periode" | "pimpinan.rincian.program" | "pimpinan.rincian.penempatan"
@@ -1610,6 +1610,8 @@ const table: Table = {
 
   "pimpinan.bukti.judul": { default: "Yang didukung bukti", en: "What the evidence supports" },
   "pimpinan.bukti.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk bagian sekolah ini.", en: "There are no figures to show for this part of the school yet." },
+  // W10: no school-wide figure is this reader's, but classes below have theirs
+  "pimpinan.bukti.di_kelas": { default: "Angka bagian ini dihitung per kelas. Bukalah kelasnya di bagian Per kelas di bawah.", en: "This part's figures are counted class by class. Open the class under Class by class below." },
   // The evidence count travels with the figure rather than under it: a number
   // a reader can weigh is a number whose evidence they can see.
   "pimpinan.bukti.dari": { default: "dari", en: "from" },

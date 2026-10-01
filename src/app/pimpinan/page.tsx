@@ -179,7 +179,10 @@ export default async function Pimpinan({
         <section className="pin-sec" aria-labelledby="pin-bukti">
           <h2 id="pin-bukti">{s("pimpinan.bukti.judul")}</h2>
           {bukti.length === 0 ? (
-            <p className="pin-empty">{s("pimpinan.bukti.kosong")}</p>
+            // W10: a head of department reads no school-wide figure, but the classes below may have theirs
+            <p className="pin-empty">
+              {s(perKelas.some(({ bukti: bk }) => bk.some((e) => e.status === "ok")) ? "pimpinan.bukti.di_kelas" : "pimpinan.bukti.kosong")}
+            </p>
           ) : (
             <>
               <div className="pin-grid2">

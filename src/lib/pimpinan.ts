@@ -410,11 +410,23 @@ export type MuridDalamLingkup = { id: string; nama: string; simpul: string };
  * list, which is why nothing here touches `management_learner_detail`.
  */
 export async function daftarMurid(node: string): Promise<MuridDalamLingkup[]> {
-  const c = await db();
+  return daftarMuridDari(await db(), node);
+}
+
+/**
+ * W10 (HOD-J06): THE ROSTER OF A PART OF THE SCHOOL IS EVERY CLASS BELOW IT.
+ * Learners are members of classes, never of a department, so a roster that
+ * matched the node exactly read «Belum ada murid…» for every department. The
+ * branch comes from `cabangDari`, which throws on a node outside the reader's
+ * scope; the reads stay RLS-bounded as above, and a learner in two classes of
+ * the branch is listed once.
+ */
+export async function daftarMuridDari(c: Db, node: string): Promise<MuridDalamLingkup[]> {
+  const simpul = [...new Set([node, ...(await cabangDari(c, [node])).map((n) => n.id)])];
   const { data: anggota } = await c
     .from("memberships")
     .select("enrollment_id, node_id")
-    .eq("node_id", node);
+    .in("node_id", simpul);
   const enrolIds = [
     ...new Set(rows<{ enrollment_id: string }>(anggota).map((m) => String(m.enrollment_id))),
   ];
