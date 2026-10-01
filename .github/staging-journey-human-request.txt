@@ -1,0 +1,7 @@
+Staging: the teacher → student journey with the teacher signing in like a person.
+
+Editing this file on claude/awesome-rubin-bqxp6p runs
+.github/workflows/staging-journey-human.yml once. One sign-in email per run
+(staging allows 2 an hour, shared with Yazid's own sign-ins).
+
+attempt:  001

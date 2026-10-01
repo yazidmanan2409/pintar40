@@ -1,0 +1,106 @@
+# Staging: the teacher → student journey with the teacher signing in like a person (one human journey).
+#
+# The existing staging journey (audit/staging/journey.mjs, D-050) with one difference: the teacher signs in
+# through /masuk, the real email and the same browser, using the staging test mailbox
+# (goldenschool+guru@pintarselalu.com, read with GS_MAILBOX_PASSWORD). Students already sign in with their
+# class cards on the real form. The synthetic school's admin has no address a person can receive mail at, so
+# its server-made session remains, as setup.
+#
+# Setup first (audit/staging/human-setup.mjs): the goldenschool teacher exists in the synthetic school with Guru
+# at its class, made through PINTAR's own operations by the school's synthetic admin. Reused on later runs.
+#
+# Sends ONE sign-in email per run (staging allows 2 an hour, shared with Yazid's own sign-ins).
+# Runs once per edit of .github/staging-journey-human-request.txt on the coordinator's branch.
+
+name: staging · teacher → student journey (real teacher sign-in)
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/staging-journey-human-request.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+  ADMIN_EMAIL: uji-kinerja-admin@example.co
+  GURU_EMAIL: goldenschool+guru@pintarselalu.com
+  CHAPTER: SD5-Matematika-Bab1
+
+jobs:
+  journey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: media/sd5-matematika-bab1
+          path: media-branch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/staging
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Staging's keys (masked) and database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          keys = json.load(urllib.request.urlopen(req, timeout=30))
+          for name, var in (('service_role', 'SERVICE_KEY'), ('anon', 'ANON_KEY')):
+              k = next(k['api_key'] for k in keys if k.get('name') == name and (k.get('api_key') or '').startswith('eyJ'))
+              print('::add-mask::' + k, file=sys.stderr, flush=True)
+              print(f'{var}={k}')
+          print(f'SUPABASE_URL=https://{ref}.supabase.co')
+          PY
+      - name: Setup — the goldenschool teacher (reused when it exists)
+        working-directory: audit/staging
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          TEACHER_EMAIL: ${{ env.GURU_EMAIL }}
+          TEACHER_NAME: Guru Mesin (goldenschool)
+          STUDENT_COUNT: "0"
+          RUN_TAG: h${{ github.run_number }}
+        run: node human-setup.mjs
+      - name: The journey, teacher signing in by email
+        working-directory: audit/staging
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
+          TEACHER_SIGNIN: email
+          WORKBOOK: ${{ github.workspace }}/docs/onboarding/konten/${{ env.CHAPTER }}.xlsx
+          KEY_JSON: ${{ github.workspace }}/docs/onboarding/konten/${{ env.CHAPTER }}.paket.json
+          MEDIA_DIR: ${{ github.workspace }}/media-branch/media
+          OUT_DIR: ${{ github.workspace }}/out
+          RUN_TAG: h${{ github.run_number }}
+          REUSE_PUBLISHED: "true"
+        run: node journey.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: staging-journey-human
+          path: out/
+          if-no-files-found: ignore

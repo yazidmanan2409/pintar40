@@ -132,12 +132,34 @@ const A = await newPage("admin");
 const G = await newPage("guru");
 
 // ---------------------------------------------------------------- the journey
-await step("J00", "the synthetic admin and teacher sign in (server-made session; see the header)", ["ADM-01", "EDU-01"], async (rec) => {
+// The teacher's sign-in the way a person does it (TEACHER_SIGNIN=email): type the address on /masuk, press the
+// button, open the email that arrives in the staging test mailbox, in the same browser. The synthetic school's
+// admin has no address a person can receive mail at, so it keeps the server-made session: that is setup, and
+// is reported as such, never as a person's sign-in.
+async function emailSignIn(page, email, landing) {
+  const t0 = Date.now() / 1000 - 60;
+  await page.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
+  await page.locator("#email").fill(email);
+  await page.getByRole("button", { name: "Kirim tautan masuk" }).click();
+  await page.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: SLOW });
+  const link = execFileSync("python3", ["mailbox_link.py", email, String(t0), "180"], { encoding: "utf8" }).trim();
+  await page.goto(link, { timeout: SLOW, waitUntil: "networkidle" });
+  await page.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: SLOW }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  const at = new URL(page.url()).pathname;
+  if (at !== landing) throw new Error(`the email link landed on ${at}, not ${landing}: ${(await text(page)).slice(0, 200)}`);
+  return `signed in by the email link (real /masuk, real email, same browser); home ${at}`;
+}
+const REAL_TEACHER = process.env.TEACHER_SIGNIN === "email";
+await step("J00", REAL_TEACHER
+  ? "the teacher signs in with the email link like a person; the synthetic admin (no real address) gets a server-made session as setup"
+  : "the synthetic admin and teacher sign in (server-made session; see the header)", ["ADM-01", "EDU-01"], async (rec) => {
   rec.page = A;
   const a = await signIn(A, ADMIN_EMAIL, "/konfigurasi"); await closeTour(A);
   rec.page = G;
-  const g = await signIn(G, GURU_EMAIL, "/mengajar"); await closeTour(G);
-  return `admin: ${a}; teacher: ${g}`;
+  const g = REAL_TEACHER ? await emailSignIn(G, GURU_EMAIL, "/mengajar") : await signIn(G, GURU_EMAIL, "/mengajar");
+  await closeTour(G);
+  return `admin (setup, server-made session): ${a}; teacher: ${g}`;
 });
 
 let code = sql(`select coalesce(namespace, '') from public.institutions where id = ${uuid(SID)}`);

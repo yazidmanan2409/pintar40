@@ -104,8 +104,9 @@ if (hasGuru() === "0") throw new Error("the teacher does not hold Guru at the cl
 say(`teacher: holds Guru at ${KELAS}`);
 
 // 2. Two students, each with a class card (the number and PIN are shown once, here).
-const names = [`Murid Coba ${TAG}-1`, `Murid Coba ${TAG}-2`];
-await record(names.map((n) => ({ display_name: n, node_id: KID, role: "STUDENT" })));
+const COUNT = Number(process.env.STUDENT_COUNT ?? 2);
+const names = Array.from({ length: COUNT }, (_, i) => `Murid Coba ${TAG}-${i + 1}`);
+if (names.length) await record(names.map((n) => ({ display_name: n, node_id: KID, role: "STUDENT" })));
 const cards = [];
 for (const n of names) {
   const p = await awaiting(n);
