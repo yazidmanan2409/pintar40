@@ -2,7 +2,8 @@ import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
-import { nilaiMetrik } from "@/lib/nilai-metrik";
+import { berstruktur, nilaiMetrik } from "@/lib/nilai-metrik";
+import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -90,6 +91,7 @@ export default async function SimpulPimpinan({
                     key={e.metric_id ?? `angka-${i}`}
                     entry={e}
                     value={nilaiMetrik(e.metric_id, e.value, locale)}
+                    rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
                     locale={locale}
                   />
                 ))}

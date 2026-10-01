@@ -1,9 +1,10 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import { templatUntuk } from "@/lib/laporan";
+import { namaTempat, templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
 import { kunciMuncul } from "@/components/bukti/muncul";
-import { s, card, omissionText, actionText, tierLabel, type Entry } from "../../_intel";
+import NilaiLaporan from "@/components/bukti/NilaiLaporan";
+import { s, card, omissionText, actionText, type Entry } from "../../_intel";
 
 /**
  * Institutional Learning Intelligence — FABLE-06 §3.
@@ -44,6 +45,10 @@ export default async function RingkasanSekolah({
 
   const entries = (report?.entries ?? []) as Entry[];
   const shown = entries.filter((e) => e.status === "ok");
+  // W9: figures in the reader's language and units; rows that name a place, by its name
+  const locale = await currentLocale();
+  const tempat = await namaTempat(shown.flatMap((e) => (Array.isArray(e.value) ? (e.value as Array<{ cohort_node_id?: unknown }>) : [])
+    .map((r) => r.cohort_node_id).filter((x): x is string => typeof x === "string")));
 
   return (
     <main className="mx-auto grid max-w-3xl gap-6 p-6">
@@ -78,7 +83,7 @@ export default async function RingkasanSekolah({
 
                 {e.status === "ok" ? (
                   <>
-                    <Value entry={e} />
+                    <NilaiLaporan entry={e} locale={locale} tempat={tempat} />
                     {/* S-3: the sentence is not optional and not conditional. */}
                     <p className="mt-2 text-sm text-black/70">{actionText(e)}</p>
                   </>
@@ -98,38 +103,3 @@ export default async function RingkasanSekolah({
   );
 }
 
-function Value({ entry }: { entry: Entry }) {
-  const v = entry.value;
-
-  if (v !== null && typeof v === "object" && !Array.isArray(v)) {
-    const rows = Object.entries(v as Record<string, unknown>);
-    return (
-      <dl className="mt-1 grid gap-1 text-sm">
-        {rows.map(([k, n]) => (
-          <div key={k} className="flex justify-between gap-4">
-            {/* tier keys are HLE keys; the readiness enum never renders */}
-            <dt>{k.startsWith("kesiapan.") ? tierLabel(k) : k}</dt>
-            <dd className="tabular-nums">{String(n)}</dd>
-          </div>
-        ))}
-      </dl>
-    );
-  }
-
-  if (Array.isArray(v)) {
-    return (
-      <ul className="mt-1 grid gap-2 text-sm">
-        {(v as Array<Record<string, unknown>>).slice(0, 8).map((row, i) => (
-          <li key={i} className="rounded border border-black/5 p-2">
-            {String(row.label ?? row.competency ?? row.code ?? "")}
-            {row.remediation ? (
-              <span className="block text-black/60">{String(row.remediation)}</span>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  return <p className="mt-1 text-2xl tabular-nums">{v === null || v === undefined ? "—" : String(v)}</p>;
-}

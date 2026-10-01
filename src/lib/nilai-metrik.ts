@@ -12,8 +12,9 @@
  *   jumlah  a count                           participants, verified credentials
  *
  * A metric not named here keeps the old reading, so nothing that rendered
- * before renders differently. Structured figures (a distribution, a list) are
- * not decided here: how a report shows them is the reports journey's.
+ * before renders differently. Inside a structured figure (J7.3, J7.4) each
+ * value is read the same way: a topic's mastery is a share, a readiness tier
+ * holds a count (`nilaiIsi`); `NilaiLaporan` draws the rows.
  */
 import { format, t, type Locale } from "@/lib/hle";
 
@@ -56,4 +57,22 @@ export function nilaiMetrik(metricId: string | null | undefined, value: unknown,
     return format.number(Object.keys(value as Record<string, unknown>).length, locale);
   }
   return "—";
+}
+
+/** What each value INSIDE a structured figure is: the share per topic, the count per readiness tier. */
+const JENIS_ISI: Record<string, JenisAngka> = {
+  topic_mastery: "persen",
+  readiness_distribution: "jumlah",
+};
+
+/** One value inside a structured figure, read by what the figure is; a count when the figure is not named. */
+export function nilaiIsi(metricId: string | null | undefined, value: unknown, locale: Locale): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  const nama = (metricId ?? "").split(".").slice(1).join(".");
+  return JENIS_ISI[nama] === "persen" ? format.percent(value, locale) : format.number(value, locale);
+}
+
+/** A figure with rows rather than one number: a distribution or a list. */
+export function berstruktur(value: unknown): boolean {
+  return value !== null && typeof value === "object";
 }

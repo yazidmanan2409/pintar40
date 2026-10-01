@@ -32,11 +32,14 @@ export default function AngkaTerkelola({
   entry,
   value,
   locale = "id",
+  rincian,
 }: {
   entry: Envelope;
   /** Pre-formatted, because only the caller knows the unit. */
   value: string;
   locale?: Locale;
+  /** W9: a structured figure's rows (NilaiLaporan), drawn in place of one number. */
+  rincian?: React.ReactNode;
 }) {
   const s = (k: string) => t(k as HleEvent, "staff", { locale });
   const sample = entry.sample ?? entry.have;
@@ -44,7 +47,7 @@ export default function AngkaTerkelola({
   return (
     <div className="pin-metric">
       {entry.label_key ? <span className="pin-ml">{s(entry.label_key)}</span> : null}
-      <span className="pin-mv pin-num">{value}</span>
+      {rincian ?? <span className="pin-mv pin-num">{value}</span>}
       {entry.meaning_key ? <span className="pin-mm">{s(entry.meaning_key)}</span> : null}
       {typeof sample === "number" ? (
         <span className="pin-meta">

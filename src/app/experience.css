@@ -2192,6 +2192,17 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-akt-hasil { display: grid; gap: var(--space-1); }
 .pin-akt-hasil p { margin: 0; }
 
+/* W9: a report figure's rows (a distribution, a list), drawn by NilaiLaporan */
+.pin-lap-satu { margin: var(--space-1) 0 0; font-size: var(--type-subhead); font-weight: var(--weight-strong); }
+.pin-lap-isi { display: grid; gap: var(--space-1); margin: var(--space-1) 0 0; font-size: var(--type-meta); }
+.pin-lap-isi > div { display: flex; justify-content: space-between; gap: var(--space-4); }
+.pin-lap-isi dd { margin: 0; }
+.pin-lap-baris { list-style: none; margin: var(--space-1) 0 0; padding: 0; display: grid; gap: var(--space-2); font-size: var(--type-meta); }
+.pin-lap-baris > li {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-1); padding: var(--space-2) var(--space-3);
+}
+
 /* M7: a whole class's cards, and the printable class set (two across, none split; only the set prints) */
 .pin-akt-kelas { margin-top: var(--space-5); }
 .pin-akt-lembar { margin-top: var(--space-5); display: grid; gap: var(--space-3); }

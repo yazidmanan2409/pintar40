@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 138,
+  "version": 139,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2554,6 +2554,11 @@
       "id": "M7-K01",
       "runner": "static",
       "proves": "M7 (D-085): a whole class's cards in one operation, as a printable set. Executes kelasUntukKartu (src/components/aktivasi/kelas.ts): each Kelas with the learners in it awaiting an account, each once, never a Tingkat or someone with an account. Renders LembarKartu (rendered output): one card per learner with name, school number, card number, PIN and the sign-in address, no photo, printing offered and the once-only warning off the paper, a learner not made named with the reason. The source of FormAktivasi sends the batch through the one per-person route /api/akun/aktivasi in turn and keeps no PIN on the device; no second issuance route exists; the source of the page reads the classes' current members."
+    },
+    {
+      "id": "W9-K02",
+      "runner": "static",
+      "proves": "W9, the report pages (J7.3, J7.4; REP-J06, HOD-J03): a figure as a reader reads it, rows included. Renders NilaiLaporan (rendered output, id and en): a share as a percentage, a net gain as +35 poin, topic mastery per topic as percentages, a readiness distribution as counts beside tier names, a cohort row by its place's name with mean mastery and learners, a competency row with score and learners, a misconception row with its remediation, and no raw decimal. The source of both report pages draws every figure through it and names the places (namaTempat); the source of /pimpinan and its class pages draws a structured figure's rows in place of a count."
     }
   ]
 }

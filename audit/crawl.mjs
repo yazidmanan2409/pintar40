@@ -18,6 +18,8 @@ const APP = process.env.APP_URL;
 const SB = process.env.SUPABASE_URL;
 const ANON = process.env.SUPABASE_ANON_KEY;
 const OUT = process.env.OUT_DIR ?? "audit-out/crawl";
+// W9: a figure's raw value on a page («0.75»): every PINTAR figure is a percentage, points or a count
+const MENTAH = /(?<![\d.,])0\.\d{2,}(?!\d)/;
 const require = createRequire(join(process.env.APP_DIR, "package.json"));
 const { createServerClient } = require("@supabase/ssr");
 
@@ -110,6 +112,7 @@ async function crawl(browser, p) {
       const body = (await page.locator("body").innerText().catch(() => "")) ?? "";
       rec.errorPage = /Application error|server-side exception|This page could not be found|Internal Server Error|404/i.test(body.slice(0, 600));
       rec.text = body.replace(/\s+/g, " ").slice(0, 700);
+      rec.mentah = body.match(MENTAH)?.[0] ?? null; // W9: read over the whole page, not the 700 characters kept
       rec.shot = `${String(n).padStart(2, "0")}${path.replace(/[^a-z0-9]+/gi, "_").slice(0, 60)}.png`;
       await page.screenshot({ path: join(dir, rec.shot), fullPage: true }).catch(() => (rec.shot = null));
       if (n === 0) result.landing = rec.finalPath;
@@ -170,6 +173,12 @@ for (const r of all) {
   for (const x of r.pages) {
     if (x.errorPage || (x.status ?? 0) >= 500 || x.error || x.consoleErrors.some((c) => c.text.startsWith("PAGEERROR")))
       broken.push(`${r.persona} ${x.path} -> ${x.finalPath ?? "-"} (${x.error ?? (x.errorPage ? "error page" : x.status >= 500 ? `HTTP ${x.status}` : "page error")})`);
+  }
+}
+// W9 (J7.3, J7.4): a report or management page that prints a figure's raw value («0.75») is broken too.
+for (const r of all) {
+  for (const x of r.pages) {
+    if (/ringkasan|pimpinan/.test(x.path) && x.mentah) broken.push(`${r.persona} ${x.path} prints a raw decimal: "${x.mentah}"`);
   }
 }
 // The controlled red: AUDIT_PLANT=crawl adds one broken page.

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
-import { nilaiMetrik } from "@/lib/nilai-metrik";
+import { berstruktur, nilaiMetrik } from "@/lib/nilai-metrik";
+import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import { menunggu, urutan } from "@/lib/pimpinan-kontrak";
 import { putuskanAksi } from "./actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
@@ -191,6 +192,7 @@ export default async function Pimpinan({
                     key={e.metric_id ?? `angka-${i}`}
                     entry={e}
                     value={nilaiMetrik(e.metric_id, e.value, locale)}
+                    rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
                     locale={locale}
                   />
                 ))}
@@ -238,7 +240,8 @@ export default async function Pimpinan({
                         {ada.length > 0 ? (
                           <div className="pin-grid2">
                             {ada.map((e, i) => (
-                              <AngkaTerkelola key={e.metric_id ?? `angka-${i}`} entry={e} value={nilaiMetrik(e.metric_id, e.value, locale)} locale={locale} />
+                              <AngkaTerkelola key={e.metric_id ?? `angka-${i}`} entry={e} value={nilaiMetrik(e.metric_id, e.value, locale)}
+                    rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined} locale={locale} />
                             ))}
                           </div>
                         ) : null}
