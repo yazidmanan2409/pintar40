@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 137,
+  "version": 138,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2549,6 +2549,11 @@
       "id": "W11-K01",
       "runner": "static",
       "proves": "W11 (MGT-J05, D-006, D-027): from a node, management is offered only the parts a screen may show. Executes bagianDiBawah (src/lib/pimpinan.ts) and jenisTerlihat (src/lib/struktur-kontrak.ts, the intake's own map) over a branch as cabang returns it: a department offers its Tingkat and Kelas, never «Reguler» or itself; the school offers its Bagian and below, never «Jenjang», «Reguler» or itself. The source of /pimpinan/[simpul] reads bagianDiBawah."
+    },
+    {
+      "id": "M7-K01",
+      "runner": "static",
+      "proves": "M7 (D-085): a whole class's cards in one operation, as a printable set. Executes kelasUntukKartu (src/components/aktivasi/kelas.ts): each Kelas with the learners in it awaiting an account, each once, never a Tingkat or someone with an account. Renders LembarKartu (rendered output): one card per learner with name, school number, card number, PIN and the sign-in address, no photo, printing offered and the once-only warning off the paper, a learner not made named with the reason. The source of FormAktivasi sends the batch through the one per-person route /api/akun/aktivasi in turn and keeps no PIN on the device; no second issuance route exists; the source of the page reads the classes' current members."
     }
   ]
 }

@@ -2192,6 +2192,28 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-akt-hasil { display: grid; gap: var(--space-1); }
 .pin-akt-hasil p { margin: 0; }
 
+/* M7: a whole class's cards, and the printable class set (two across, none split; only the set prints) */
+.pin-akt-kelas { margin-top: var(--space-5); }
+.pin-akt-lembar { margin-top: var(--space-5); display: grid; gap: var(--space-3); }
+.pin-akt-lembar > h2 { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-akt-kartu-set { list-style: none; margin: 0; padding: 0; }
+.pin-akt-kartu {
+  border: 1px dashed var(--line-strong); border-radius: var(--radius-1);
+  padding: var(--space-4); display: grid; gap: var(--space-2); background: var(--surface-1);
+}
+.pin-akt-kartu p { margin: 0; }
+.pin-akt-kartu-isi { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); margin: 0; }
+.pin-akt-kartu-isi dt { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-akt-kartu-isi dd { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-akt-gagal { margin: var(--space-2) 0 0; padding-left: var(--space-5); font-size: var(--type-meta); }
+@media print {
+  /* while a class set is on the page, the paper carries the set and nothing else */
+  body:has(.pin-akt-lembar) *:not(:has(.pin-akt-lembar)):not(.pin-akt-lembar):not(.pin-akt-lembar *) { display: none !important; }
+  .pin-akt-lembar { margin-top: 0; }
+  .pin-akt-lembar .pin-grid2 { grid-template-columns: repeat(2, 1fr); }
+  .pin-akt-kartu { break-inside: avoid; }
+}
+
 /* DAISY-06, the Terbit step: seven named steps to publication on the package
    page, the current one open, each with who takes it. Built like the upload
    panel's steps so the two read as one journey. */

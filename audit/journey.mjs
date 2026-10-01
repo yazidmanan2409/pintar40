@@ -368,17 +368,19 @@ await step("S9", "intake two students into Kelas 1A", async (rec) => {
 });
 
 let card;
-await step("S10", "the school admin makes a class card for a student (/aktivasi)", async (rec) => {
+await step("S10", "the school admin makes a class card for one student by clicking (/aktivasi → Buat kartu kelas)", async (rec) => {
   await a.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
   rec.shots.push(await shot(a, "aktivasi-admin"));
-  const waiting = await adminApi.rpc("persons_awaiting_account");
-  const ani = (waiting.data ?? []).find((p) => /Ani/.test(p.display_name));
-  if (!ani) throw new Error(`Ani is not waiting for an account; waiting: ${JSON.stringify(waiting.data ?? waiting.error?.message).slice(0, 200)}`);
-  const r = await a.request.post(`${APP}/api/akun/aktivasi`, { data: { mode: "CLASSROOM_CARD", person_id: ani.person_id } });
-  const body = await r.json().catch(() => null);
-  if (!body?.ok) { rec.verdict = "FAIL"; return `HTTP ${r.status()} ${JSON.stringify(body)}`; }
-  card = { number: body.card, pin: body.pin };
-  return `card made (number ${String(body.card).length} digits, PIN ${String(body.pin).length} digits)`;
+  // ADM-J10: the card button itself, on Ani's own row (M7 keeps single issue for exceptions)
+  const baris = a.locator("li.pin-akt-orang", { hasText: "Ani Murid" }).first();
+  if (!(await baris.count())) { rec.verdict = "FAIL"; return `Ani is not listed on Aktivasi: ${(await bodyText(a)).slice(0, 300)}`; }
+  await baris.getByRole("button", { name: "Buat kartu kelas", exact: true }).click();
+  await baris.locator("strong.pin-num").nth(1).waitFor({ timeout: SLOW });
+  const [nomor, pin] = await baris.locator("strong.pin-num").allInnerTexts();
+  rec.shots.push(await shot(a, "aktivasi-kartu-ani"));
+  if (!/^\d{10}$/.test(nomor ?? "") || !/^\d{6}$/.test(pin ?? "")) { rec.verdict = "FAIL"; return `the row reads: ${norm(await baris.innerText()).slice(0, 200)}`; }
+  card = { number: nomor, pin };
+  return `card made by clicking on Ani's row (number ${nomor.length} digits, PIN ${pin.length} digits)`;
 });
 
 await step("S11", "the student signs in with the class card", async (rec) => {
@@ -938,7 +940,7 @@ async function jawab(page, mode, right, { simpanTerakhir = true } = {}) {
 }
 
 const kartuKelas = [];
-await step("S20", "four more students join Kelas 1A, and the school admin makes each a class card (as S9, S10)", async (rec) => {
+await step("S20", "three more students join Kelas 1A, and the school admin makes the rest of the class's cards in one press, as a printable class set (M7)", async (rec) => {
   if (!card || !adminApi) { rec.verdict = "BLOCKED"; return !card ? "no card for Ani (S10)" : "no school admin session"; }
   kartuKelas.push({ nama: MURID[0], ...card });
   const rows = MURID.slice(2).map((display_name) => ({ display_name, node_id: ids.klass, role: "STUDENT" }));
@@ -956,18 +958,37 @@ await step("S20", "four more students join Kelas 1A, and the school admin makes 
       if (vp.error) log.push(`verify_pilot: ${vp.error.message}`);
     }
   }
-  const waiting = (await adminApi.rpc("persons_awaiting_account")).data ?? [];
-  for (const nama of MURID.slice(1)) {
-    const p = waiting.find((x) => x.display_name === nama);
-    if (!p) { log.push(`${nama}: not waiting for an account`); continue; }
-    const r = await a.request.post(`${APP}/api/akun/aktivasi`, { data: { mode: "CLASSROOM_CARD", person_id: p.person_id } });
-    const body = await r.json().catch(() => null);
-    if (body?.ok) kartuKelas.push({ nama, number: body.card, pin: body.pin });
-    else log.push(`${nama}: HTTP ${r.status()} ${body?.code ?? ""}`);
-  }
+  // M7 (D-085): the rest of Kelas 1A's cards in one press on Aktivasi, read back from the printable class set
+  await a.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
+  const pilih = a.locator("section.pin-akt-kelas select");
+  if (!(await pilih.count())) { rec.verdict = "FAIL"; return `Aktivasi offers no whole-class issue: ${(await bodyText(a)).slice(0, 300)}`; }
+  const opsi = await pilih.locator("option").evaluateAll((os) => os.map((o) => ({ v: o.value, t: o.textContent ?? "" })));
+  const kelas1A = opsi.find((o) => o.t.includes("Kelas 1A"));
+  if (!kelas1A) { rec.verdict = "FAIL"; return `Kelas 1A is not offered: ${JSON.stringify(opsi.map((o) => o.t))}`; }
+  await pilih.selectOption(kelas1A.v);
+  await a.getByRole("button", { name: "Buat kartu untuk kelas ini", exact: true }).click();
+  await a.locator("section.pin-akt-lembar").waitFor({ timeout: 120000 });
+  const set = await a.locator("li.pin-akt-kartu").evaluateAll((ls) => ls.map((l) => ({
+    nama: l.querySelector("strong")?.textContent ?? "",
+    nilai: [...l.querySelectorAll("dd.pin-num")].map((d) => (d.textContent ?? "").trim()),
+  })));
+  rec.shots.push(await shot(a, "aktivasi-kartu-kelas"));
+  for (const k of set) kartuKelas.push({ nama: k.nama, number: k.nilai[0], pin: k.nilai[1] });
+  kartuKelas.sort((x, y) => MURID.indexOf(x.nama) - MURID.indexOf(y.nama)); // S21 gives each card its student's plan
+  // printed, the paper carries the set and nothing else
+  await a.emulateMedia({ media: "print" });
+  const dicetak = { kartu: await a.locator("li.pin-akt-kartu").first().isVisible(), judul: await a.locator("h1").first().isVisible(),
+    daftar: await a.locator("ul.pin-akt-daftar").isVisible().catch(() => false) };
+  rec.shots.push(await shot(a, "aktivasi-kartu-kelas-cetak"));
+  await a.emulateMedia({ media: "screen" });
+  const nama = set.map((k) => k.nama).sort();
+  const harap = MURID.slice(1).sort();
+  const bentuk = set.every((k) => /^\d{10}$/.test(k.nilai[0] ?? "") && /^\d{6}$/.test(k.nilai[1] ?? ""));
   const enrolled = sql(`select count(distinct e.person_id) from public.memberships m join public.enrollments e on e.id = m.enrollment_id where m.node_id='${ids.klass}' and m.valid_to is null`).trim();
-  if (kartuKelas.length < MURID.length) rec.verdict = "FAIL";
-  return `enrolled in Kelas 1A: ${enrolled}; class cards: ${kartuKelas.length} of ${MURID.length} (numbers and PINs not recorded)${log.length ? `; ${log.join("; ")}` : ""}`;
+  if (kartuKelas.length < MURID.length || JSON.stringify(nama) !== JSON.stringify(harap) || !bentuk || !dicetak.kartu || dicetak.judul || dicetak.daftar) rec.verdict = "FAIL";
+  return `enrolled in Kelas 1A: ${enrolled}; one press on «Buat kartu untuk kelas ini» made ${set.length} card(s) for ${JSON.stringify(nama)} (expected ${JSON.stringify(harap)}; Ani has hers from S10); ` +
+    `every card a 10-digit number and a 6-digit PIN: ${bentuk}; printed: cards ${dicetak.kartu}, page title ${dicetak.judul}, the list ${dicetak.daftar}; ` +
+    `class cards: ${kartuKelas.length} of ${MURID.length} (numbers and PINs not recorded)${log.length ? `; ${log.join("; ")}` : ""}`;
 });
 
 await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered", async (rec) => {

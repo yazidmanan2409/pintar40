@@ -1294,6 +1294,8 @@ export type HleEvent =
   | "aktivasi.surel"
   | "aktivasi.dengan_surel"
   | "aktivasi.dengan_kartu"
+  | "aktivasi.kelas.judul" | "aktivasi.kelas.arti" | "aktivasi.kelas.pilih" | "aktivasi.kelas.murid" | "aktivasi.kelas.tombol"
+  | "aktivasi.kelas.membuat" | "aktivasi.kelas.lembar" | "aktivasi.kelas.sekali" | "aktivasi.kelas.cetak" | "aktivasi.kelas.nomor" | "aktivasi.kelas.belum"
   | "aktivasi.kartu_dibuat"
   | "aktivasi.gagal"
   | "aktivasi.baru.judul"
@@ -2716,6 +2718,18 @@ const table: Table = {
   "aktivasi.surel": { default: "Alamat surel", en: "Email address" },
   "aktivasi.dengan_surel": { default: "Aktifkan dengan surel", en: "Activate with email address" },
   "aktivasi.dengan_kartu": { default: "Buat kartu kelas", en: "Make a classroom card" },
+  // M7 (D-085): a whole class's cards in one press, and the printable class set
+  "aktivasi.kelas.judul": { default: "Kartu untuk satu kelas", en: "Cards for a whole class" },
+  "aktivasi.kelas.arti": { default: "Buat kartu kelas untuk semua murid di satu kelas yang belum punya akun, dengan sekali tekan. Setiap kartu tetap dibuat dan dicatat untuk muridnya masing-masing.", en: "Make classroom cards for every learner in one class who has no account yet, with one press. Each card is still made and recorded for its own learner." },
+  "aktivasi.kelas.pilih": { default: "Kelas", en: "Class" },
+  "aktivasi.kelas.murid": { default: "murid belum punya akun", en: "learners without an account" },
+  "aktivasi.kelas.tombol": { default: "Buat kartu untuk kelas ini", en: "Make cards for this class" },
+  "aktivasi.kelas.membuat": { default: "Membuat kartu…", en: "Making cards…" },
+  "aktivasi.kelas.lembar": { default: "Kartu kelas", en: "Class cards" },
+  "aktivasi.kelas.sekali": { default: "Kartu dibuat. Cetak atau catat sekarang: PIN hanya ditampilkan sekali dan tidak bisa ditampilkan lagi setelah halaman ini ditutup.", en: "Cards made. Print them or write them down now: the PINs are shown only once and cannot be shown again once this page is closed." },
+  "aktivasi.kelas.cetak": { default: "Cetak kartu kelas", en: "Print the class cards" },
+  "aktivasi.kelas.nomor": { default: "Nomor kartu", en: "Card number" },
+  "aktivasi.kelas.belum": { default: "Kartu untuk murid berikut belum dibuat. Mereka tetap ada di daftar di bawah:", en: "No card was made for these learners. They are still in the list below:" },
   "aktivasi.kartu_dibuat": { default: "Kartu dibuat. Catat sekarang — PIN hanya ditampilkan sekali:", en: "Card made. Write it down now — the PIN is shown only once:" },
   "aktivasi.gagal": { default: "Belum berhasil, dan belum ada yang dibuat. Coba lagi. Jika tetap gagal, muat ulang halaman ini.", en: "That did not work, and nothing was made. Try again. If it still fails, reload this page." },
   "aktivasi.baru.judul": { default: "Orang baru di luar pendataan", en: "A new person outside the intake" },
