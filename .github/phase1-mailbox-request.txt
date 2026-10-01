@@ -5,7 +5,7 @@ Editing this file on claude/awesome-rubin-bqxp6p runs
 test mailbox to itself and reads it back. It touches no staging, production,
 Supabase, Vercel or identity setting.
 
-attempt:  000   (prepared; not yet run: waiting for Yazid's two setup steps)
+attempt:  001   (Yazid reported both setup steps done, 1 Oct)
 mailbox:  goldenschool@pintarselalu.com
 secret:   GS_MAILBOX_PASSWORD (repository secret)
 host:     pintarselalu.com : 993 IMAP and 465 SMTP, implicit TLS
