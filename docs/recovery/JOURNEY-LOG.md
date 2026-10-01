@@ -23,6 +23,15 @@ One line of evidence per walk, newest first. A journey is DONE when a person can
 | W16 | A test starting tomorrow read «Berjalan» today; the home said nothing was waiting while a class had no material | `40d38c3` |
 | W9 (class figures) | The head of department read a class's net gain as «35%» where the teacher's «Lihat bukti» says «+35 poin»; a perfect class read «1» | `f304621` |
 
+**The next journeys, same rule** (each with a test red on `main`, walked in the CI browser audit on a real-school setup; they reach staging with the push to `main`):
+
+| # | Journey | Where the human got stuck | Commit | Browser walk |
+|---|---|---|---|---|
+| W10 | Head of department | Told «Belum ada angka» above classes that have figures; the department's roster read «Belum ada murid» | `e9159bd` | audit run 36835987792: green |
+| W11 | Head of department | The department page offered the hidden «Reguler» and «Jenjang» | `e3025b5` | audit run 36836277047: green |
+| M7 | School admin | Cards one press and one PIN at a time; now a whole Kelas in one press, as a printable class set (D-085 M7). The audit makes the cards by clicking, then the students sign in with them | `0e344ed` | dispatched |
+| W9 (reports) | Dean, school admin | The school report printed «0.75», blank cohort rows, competencies without scores; /pimpinan showed competencies as a count | `7e5258a` | dispatched |
+
 The walks now leave student 4's last post-test answer unsaved before «Kumpulkan» (W3): on `main` that reads 7 of 8 (staging run 36831200188), after the fix 8 of 8. **The final head `f304621`: CI green (run 36831732108); browser walk green (audit run 36831734777, including the head of department reading the net gain as «+35 poin»).** **Walked in a browser on the branch's built code** (local stack, CI audit run 36829928522, `5729c44`): 31 PASS, 1 NOTE; «Kumpulkan» asked first for every student; every result equals the plan, and the class figure reads 75% (73% had the answer been lost).
 
 **Still a shortcut, by necessity:** the synthetic school's admin (`uji-kinerja-admin@example.co`) has no address a person can read, so recording students, making cards and approving content run on a server-made session. It is labelled setup, never human proof.
@@ -36,5 +45,6 @@ The walks now leave student 4's last post-test answer unsaved before «Kumpulkan
 1. **Real-school provisioning on staging.** `main` lets only a platform admin appoint a school admin (`role_assignments_guard`: SYSTEM_ADMIN or INSTITUTION_ADMIN only by an active SYSTEM_ADMIN; no self-grant). The only platform admin on staging is Yazid's account. Decision: either Yazid, as platform admin, appoints the first school admin of SD ZPS himself (the journey's own first step), or he authorises a staging platform-operator identity whose sign-in mail the automation can read. Until then: SD ZPS has no school admin, so official evidence, class figures and certificates cannot be walked.
 2. **Pass-mark semantics** (`docs/coordination/design/PASS-MARK-AND-GRADE-SEMANTICS-REVIEW.md` §6; D-081(d) hold). D-086(b) fixed that the target is the school's sealed pass mark; still open: the alternative (1a/1b/2/3) and what applies before a school sets a mark. Blocks M3/W4 (the result saying whether the target was met). No fallback is invented meanwhile.
 3. **D2 (frozen):** when Supabase throttles a sign-in send, the screen still says «Periksa email Anda» (W6). Changing it is a sign-in decision; Gate 3 (held) replaces this path. Not touched.
+6. **Card re-issue (M7's "re-issue for exceptions"):** re-issuing a card to a learner who already has an account changes a credential (and touches W17, a lost card cannot be revoked). Not built: a sign-in change, held with Gate 3.
 5. **W18, the student's home order (small):** `siklus.ts` says "a running session, then an unstarted Pemetaan Awal, then unread lessons, then an untaken Uji Penguasaan", but the code and its test put the untaken Uji Penguasaan first. The approved concept it cites is not in the repo. Which order? Not changed meanwhile; it matters only with two or more chapters assigned.
 4. **Pushing to `main`:** Yazid approved the push of `f304621` (1 Oct) and future pushes under four conditions. This session's safety check still refuses `git push` to `main`, approval or not, and it is not worked around. **Needed:** a permission rule allowing this session to push to `main`, or Yazid merges `claude/awesome-rubin-bqxp6p` himself. Until then the fixes above stay off staging and the staging re-walk waits.
