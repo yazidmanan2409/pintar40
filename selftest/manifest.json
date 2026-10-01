@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 129,
+  "version": 130,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2509,6 +2509,11 @@
       "id": "DAISY-19-EMAIL-02",
       "runner": "static",
       "proves": "DAISY-19 wired to BOB-25's template interface (src/lib/email/templat.ts). (1) templatUjiPengiriman is a Templat: for production, staging and the local sink it returns a one-line non-empty subject and both bodies in its own copy-table words and reason, with the route's send time as a row in both bodies; the sending module's UJI_PENGIRIMAN (src/app/api/_email/uji.ts, which the proof route imports) is a re-export of this framed template and holds no email of its own (D-079); src/components/email reads no configuration and sends nothing. (2) Ruling 2: the logo is /brand/pintar-email-logo.png on the environment's own origin (staging's on staging, never production's), a trailing slash does not double the path, and the file is a 208 × 116 PNG under 20 KB. (3) Ruling 3: every staging email carries the test line (email.bingkai.uji) at the top of both bodies, before the heading, and no production email does. (4) Ruling 1: a six-digit code arriving spaced or not is shown «482 913», eight digits 4 + 4, anything else as given, in both bodies. (5) Refused before a send: a subject with a line break, an empty subject, a non-https link (plain http, javascript:, protocol-relative, a space) and a plain-http origin that is not the local sink; the local sink's origin is accepted"
+    },
+    {
+      "id": "W2-K01",
+      "runner": "static",
+      "proves": "W2 (T1, D-085): on one browser, two learners each reopen a lesson at their own page and a recording at their own second, never the other's (src/lib/posisi-perangkat.ts, executed against an in-memory Storage); one learner's save never moves the other's place and the furthest page never moves back; the old device-wide keys pintar.lesson.<lesson> and pintar.media.<path> are removed unread and inherited by nobody; with no signed-in person nothing is read or written; LessonPlayer keeps nothing on the device except through these helpers, and the lesson page passes it the person from current_person_id."
     }
   ]
 }

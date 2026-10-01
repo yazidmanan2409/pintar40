@@ -24,6 +24,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/hle";
 import { halamanMulai, menjadiDibaca, perluDisimpan } from "@/lib/siklus";
+import { bacaDetik, bacaHalaman, penyimpananPerangkat, simpanDetik, simpanHalaman } from "@/lib/posisi-perangkat";
 import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
 
 export type LessonPlayerProps = {
@@ -34,6 +35,8 @@ export type LessonPlayerProps = {
   workedExamples: Array<{ judul?: string; langkah?: string[] }>;
   media: Array<{ jenis: string; path: string; transcript?: string; url?: string | null }>;
   startAt: number;
+  /** W2 (T1): the signed-in person; what this device remembers is keyed by them, never by the device. */
+  personId: string | null;
   saveProgress: (learningAssignmentId: string, lessonId: string, position: number, total: number)
     => Promise<{ ok: boolean; furthest?: number }>;
 };
@@ -88,13 +91,12 @@ export default function LessonPlayer(props: LessonPlayerProps) {
     return out.length ? out : [[""]];
   }, [props.bodyMarkdown]);
 
-  const localKey = `pintar.lesson.${props.lessonId}`;
   const [page, setPage] = useState(() => {
-    let local = 0;
-    try { local = Number(window.localStorage.getItem(localKey) ?? 0); } catch { /* unavailable */ }
+    // W2: this person's page on this device, never another learner's
+    const local = bacaHalaman(penyimpananPerangkat(), props.personId, props.lessonId);
     // never resume behind what the server already recorded. The server keeps
     // a count of pages reached (BOB-22); this device keeps the page index.
-    return Math.min(pages.length - 1, Math.max(halamanMulai(props.startAt, pages.length), Number.isFinite(local) ? local : 0));
+    return Math.min(pages.length - 1, Math.max(halamanMulai(props.startAt, pages.length), local));
   });
   const [steps, setSteps] = useState(1);
 
@@ -110,17 +112,16 @@ export default function LessonPlayer(props: LessonPlayerProps) {
   // lesson is read -- is decided again. That save only, never one per page.
   const router = useRouter();
   const simpan = useRef({ save: props.saveProgress, tugas: props.learningAssignmentId, pelajaran: props.lessonId,
-    total: pages.length, kunci: localKey, segarkan: () => router.refresh() });
+    total: pages.length, orang: props.personId, segarkan: () => router.refresh() });
   useEffect(() => {
     simpan.current = { save: props.saveProgress, tugas: props.learningAssignmentId, pelajaran: props.lessonId,
-      total: pages.length, kunci: localKey, segarkan: () => router.refresh() };
+      total: pages.length, orang: props.personId, segarkan: () => router.refresh() };
   });
   const tersimpan = useRef(props.startAt);
 
   useEffect(() => {
-    const { save, tugas, pelajaran, total, kunci, segarkan } = simpan.current;
-    try { window.localStorage.setItem(kunci, String(Math.max(page, Number(window.localStorage.getItem(kunci) ?? 0)))); }
-    catch { /* unavailable */ }
+    const { save, tugas, pelajaran, total, orang, segarkan } = simpan.current;
+    simpanHalaman(penyimpananPerangkat(), orang, pelajaran, page);
     const posisi = perluDisimpan(page, tersimpan.current);
     if (posisi === null) return;
     tersimpan.current = posisi;
@@ -177,7 +178,7 @@ export default function LessonPlayer(props: LessonPlayerProps) {
       {props.media.length > 0 && (
         <section className="pin-lmediaset">
           {props.media.map((m) => (
-            <MediaEntry key={m.path} entry={m} />
+            <MediaEntry key={m.path} entry={m} personId={props.personId} />
           ))}
         </section>
       )}
@@ -185,21 +186,16 @@ export default function LessonPlayer(props: LessonPlayerProps) {
   );
 }
 
-function MediaEntry({ entry }: { entry: LessonPlayerProps["media"][number] }) {
+function MediaEntry({ entry, personId }: { entry: LessonPlayerProps["media"][number]; personId: string | null }) {
   const [rate, setRate] = useState(1);
   const [showTranscript, setShowTranscript] = useState(false);
-  const positionKey = `pintar.media.${entry.path}`;
-
   const attach = (el: HTMLMediaElement | null) => {
     if (!el) return;
     el.playbackRate = rate;
-    try {
-      const at = Number(window.localStorage.getItem(positionKey) ?? 0);
-      if (Number.isFinite(at) && at > 0 && at > el.currentTime) el.currentTime = at;
-    } catch { /* unavailable */ }
-    el.ontimeupdate = () => {
-      try { window.localStorage.setItem(positionKey, String(Math.floor(el.currentTime))); } catch { /* unavailable */ }
-    };
+    // W2: this person's place in the recording on this device, never another learner's
+    const at = bacaDetik(penyimpananPerangkat(), personId, entry.path);
+    if (at > 0 && at > el.currentTime) el.currentTime = at;
+    el.ontimeupdate = () => simpanDetik(penyimpananPerangkat(), personId, entry.path, el.currentTime);
   };
 
   if (entry.jenis === "pdf") {

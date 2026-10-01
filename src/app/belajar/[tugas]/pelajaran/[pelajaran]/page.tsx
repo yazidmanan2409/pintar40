@@ -39,6 +39,8 @@ export default async function Pelajaran(
   if (!lesson) notFound();
 
   const supabase = await supabaseServer();
+  // W2 (T1): the player keys what this device remembers by the person, never the device
+  const { data: orang } = await supabase.rpc("current_person_id");
   const media = await Promise.all(
     (lesson.media ?? []).map(async (m) => {
       const { data } = await supabase.rpc("may_read_lesson_media", { p_path: m.path });
@@ -82,6 +84,7 @@ export default async function Pelajaran(
             workedExamples={(lesson.contoh ?? []) as Array<{ judul?: string; langkah?: string[] }>}
             media={media}
             startAt={lesson.furthest_position}
+            personId={typeof orang === "string" ? orang : null}
             saveProgress={saveLessonProgress}
           />
 
