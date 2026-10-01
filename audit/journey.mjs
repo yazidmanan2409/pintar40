@@ -1650,6 +1650,62 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
     `«Lihat bukti» shows the class's comprehension ${pahamTeks} from before her: ${bukti.includes(pahamTeks)}; Budi refused Kelas 1A: ${ditolak}`;
 });
 
+// ADM-J09 (J3.6): a student the school admin recorded in the Tingkat only, before the classes were settled,
+// is placed in a Kelas of that Tingkat afterwards. Gita is recorded on the Pendataan screen with Tempat «Kelas 1»
+// (the Tingkat); on Konfigurasi → «Pindah kelas» the Tingkat is offered under «Masih di Tingkat, belum di Kelas»;
+// the admin places her in Kelas 1A. One person; the Tingkat placement closed with MOVED, Kelas 1A open.
+await step("S26c", "a student recorded in the Tingkat only is placed in one of its Kelas on Konfigurasi → Pindah kelas (ADM-J09)", async (rec) => {
+  const kelas = kelasSatuA();
+  if (!kelas) { rec.verdict = "BLOCKED"; return "no Kelas 1A"; }
+  const nama = "Gita Murid";
+  const tingkat = sql(`select parent_id from public.org_nodes where id='${kelas}'`).trim();
+  const tahunIni = sql(`select ap.name from public.org_nodes n join public.academic_periods ap on ap.id = n.academic_period_id where n.id='${kelas}'`).trim();
+  const catat = await catatLewatLayar(a, [nama], rec.shots, { kelas: `Kelas 1 · ${tahunIni}` })
+    .catch((e) => `not recorded: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`);
+  const tempatQ = `select coalesce(string_agg(n.name || ':' || coalesce(m.close_reason::text, 'open'), ',' order by m.valid_from, m.valid_to nulls last), '-') from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id join public.org_nodes n on n.id = m.node_id where p.display_name='${nama}' and n.institution_id='${ids.sd}'`;
+  const awal = sql(tempatQ).trim();
+  if (awal !== "Kelas 1:open") { rec.verdict = "FAIL"; return `${catat}; ${nama} is placed ${awal}, not in Tingkat «Kelas 1» only`; }
+  await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#pindah`, { waitUntil: "networkidle" });
+  const grup = a.locator('#pin-pindah-dari optgroup[label="Masih di Tingkat, belum di Kelas"] option');
+  const opsiT = await grup.evaluateAll((os) => os.map((o) => ({ v: o.value, t: (o.textContent ?? "").trim() })));
+  const t1 = opsiT.find((o) => o.v === tingkat);
+  if (!t1) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(a, "adm-j09-tanpa-tingkat"));
+    return `${catat}; «Pindah kelas» does not offer Tingkat «Kelas 1» to start from: ${JSON.stringify(opsiT)}`;
+  }
+  await a.locator("#pin-pindah-dari").selectOption(t1.v);
+  await a.locator("#pindah").getByRole("button", { name: "Tampilkan murid", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("dari") === tingkat, { timeout: SLOW });
+  await a.waitForLoadState("networkidle");
+  const baris = a.locator("#pindah li").filter({ hasText: nama }).first();
+  if (!(await baris.count())) { rec.verdict = "FAIL"; return `${catat}; ${nama} is not listed under «${t1.t}»: ${norm(await a.locator("#pindah").innerText().catch(() => "")).slice(0, 200)}`; }
+  const opsiK = await baris.locator('select[name="kelas"] option').allTextContents();
+  const keA = opsiK.find((o) => o.startsWith("Kelas 1A"));
+  rec.shots.push(await shot(a, "adm-j09-dari-tingkat"));
+  await baris.locator('select[name="kelas"]').selectOption({ label: keA });
+  await baris.getByRole("button", { name: "Pindahkan", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("bagian") === "pindah" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "adm-j09-ditempatkan"));
+  const u = new URL(a.url());
+  const sesudah = norm(await a.locator("#pindah").innerText().catch(() => ""));
+  const masihTingkat = await a.locator('#pin-pindah-dari optgroup[label="Masih di Tingkat, belum di Kelas"] option').count();
+  const akhir = sql(tempatQ).trim();
+  const orang = sql(`select count(*) from public.persons p join public.institutional_identities ii on ii.person_id = p.id where p.display_name='${nama}' and ii.institution_id='${ids.sd}'`).trim();
+  const status = sql(`select coalesce(string_agg(e.status::text, ','), '-') from public.enrollments e join public.persons p on p.id = e.person_id where p.display_name='${nama}' and e.institution_id='${ids.sd}'`).trim();
+  // only Kelas of the Tingkat were offered: every option names one of Kelas 1's own Kelas
+  const milikTingkat = sql(`select coalesce(string_agg(name, ',' order by name), '') from public.org_nodes where parent_id='${tingkat}' and kind='CLASS' and is_active`).trim().split(",");
+  const hanyaKelasnya = opsiK.length > 0 && opsiK.every((o) => milikTingkat.some((k) => o.startsWith(`${k} (`)));
+  const ok = u.searchParams.get("hasil") === "ok" && u.searchParams.get("dari") === kelas && sesudah.includes(nama)
+    && akhir === "Kelas 1:MOVED,Kelas 1A:open" && orang === "1" && status === "PENDING" && masihTingkat === 0 && hanyaKelasnya;
+  if (!ok) rec.verdict = "FAIL";
+  return `${catat}; recorded in ${awal}; «Pindah kelas» offers «${t1.t}» under «Masih di Tingkat, belum di Kelas»; destinations offered ${JSON.stringify(opsiK)} ` +
+    `(only Kelas 1's own: ${hanyaKelasnya}); after «Pindahkan»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}, showing ` +
+    `${u.searchParams.get("dari") === kelas ? "Kelas 1A" : u.searchParams.get("dari")} with ${nama}: ${sesudah.includes(nama)}; placements: ${akhir}; ` +
+    `persons named ${nama}: ${orang}; enrolment ${status}; Tingkat still offered to start from: ${masihTingkat > 0}`;
+});
+
 // ADM-J19: a new school year, by the screens, never run before. The school admin records Fajar in Kelas 1A
 // (no card yet, so his enrolment waits: PENDING), makes next year's Tingkat «Kelas 2» and its Kelas 2A on
 // Struktur sekolah, then on «Pergantian tahun ajaran» carries Kelas 1A into Kelas 2A. Everyone in 1A,

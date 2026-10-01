@@ -298,6 +298,8 @@ export type HleEvent =
   | "config.pindah.kosong"
   | "config.pindah.tanpa_kelas"
   | "config.pindah.tanpa_tujuan"
+  | "config.pindah.grup_kelas"
+  | "config.pindah.grup_tingkat"
   | "config.section.roles"
   | "config.section.audit"
   | "config.section.flags"
@@ -912,6 +914,7 @@ export type HleEvent =
   | "galat.move_not_a_kelas"
   | "galat.move_same_kelas"
   | "galat.move_other_year"
+  | "galat.move_already_in_kelas"
   | "galat.learner_moved"
   | "galat.rollover_done"
   | "galat.template_saved"
@@ -2060,13 +2063,15 @@ const table: Table = {
   "config.persiapan.guru": { default: "Setiap Kelas punya guru", en: "Every class has a teacher" },
   "config.persiapan.guru.kurang": { default: "Kelas yang belum punya guru:", en: "Classes without a teacher yet:" },
   "config.persiapan.guru.cara": { default: "Beri peran Guru untuk Kelas itu di Peran & akses.", en: "Give the Guru role for that class under Roles & access." },
-  "config.pindah.arti": { default: "Pindahkan seorang murid ke Kelas lain di sekolah ini, pada tahun ajaran yang sama. Ia tetap murid yang sama. Apa yang sudah ia kerjakan tetap tercatat di kelas tempat ia mengerjakannya, dan kelas lamanya tidak lagi menghitungnya sebagai muridnya sekarang.", en: "Move a student to another Kelas in this school, in the same academic year. They stay the same student. What they have already done stays recorded with the class where they did it, and their old class no longer counts them as a current student." },
+  "config.pindah.arti": { default: "Pindahkan seorang murid ke Kelas lain di sekolah ini, pada tahun ajaran yang sama, atau tempatkan murid yang dicatat di sebuah Tingkat ke salah satu Kelasnya. Ia tetap murid yang sama. Apa yang sudah ia kerjakan tetap tercatat di kelas tempat ia mengerjakannya, dan kelas lamanya tidak lagi menghitungnya sebagai muridnya sekarang.", en: "Move a student to another Kelas in this school, in the same academic year, or place a student recorded in a Tingkat into one of its classes. They stay the same student. What they have already done stays recorded with the class where they did it, and their old class no longer counts them as a current student." },
   "config.pindah.dari": { default: "Kelas murid sekarang", en: "The student's class now" },
   "config.pindah.lihat": { default: "Tampilkan murid", en: "Show students" },
   "config.pindah.ke": { default: "Pindahkan ke kelas", en: "Move to class" },
   "config.pindah.tombol": { default: "Pindahkan", en: "Move" },
   "config.pindah.kosong": { default: "Belum ada murid di kelas ini.", en: "There are no students in this class yet." },
   "config.pindah.tanpa_kelas": { default: "Sekolah ini belum punya Kelas aktif. Buat Kelasnya di Struktur sekolah.", en: "This school has no active Kelas yet. Create one under School structure." },
+  "config.pindah.grup_kelas": { default: "Kelas", en: "Classes" },
+  "config.pindah.grup_tingkat": { default: "Masih di Tingkat, belum di Kelas", en: "Still in a Tingkat, not yet in a class" },
   "config.pindah.tanpa_tujuan": { default: "Tidak ada Kelas lain pada tahun ajaran ini. Buat Kelas tujuannya dulu di Struktur sekolah.", en: "There is no other Kelas in this academic year. Create the destination Kelas under School structure first." },
   "config.section.roles": { default: "Peran & akses", en: "Roles & access" },
   "config.section.audit": { default: "Jejak audit", en: "Audit trail" },
@@ -2728,8 +2733,9 @@ const table: Table = {
   "galat.school_required": { default: "Pilih sekolah terlebih dahulu.", en: "Choose a school first." },
   "galat.move_input_incomplete": { default: "Pilih kelas tujuan untuk murid itu.", en: "Choose the class to move that student to." },
   "galat.move_not_current": { default: "Murid itu sudah tidak di kelas tersebut, mungkin baru saja dipindahkan. Lihat daftarnya lagi.", en: "That student is no longer in that class; they may have just been moved. Look at the list again." },
-  "galat.move_not_a_kelas": { default: "Di sini hanya murid yang berada di sebuah Kelas yang dipindahkan, dan hanya ke sebuah Kelas.", en: "Only a student placed in a Kelas is moved here, and only to a Kelas." },
+  "galat.move_not_a_kelas": { default: "Murid dipindahkan ke sebuah Kelas: dari Kelasnya, atau dari Tingkatnya ke salah satu Kelas di Tingkat itu.", en: "A student is moved to a Kelas: from their class, or from their Tingkat into one of that Tingkat's classes." },
   "galat.move_same_kelas": { default: "Murid itu sudah di kelas tersebut.", en: "That student is already in that class." },
+  "galat.move_already_in_kelas": { default: "Murid itu sudah punya Kelas di Tingkat ini. Pindahkan ia dari Kelasnya.", en: "That student already has a class in this Tingkat. Move them from that class." },
   "galat.move_other_year": { default: "Kelas tujuan ada di tahun ajaran lain. Murid pindah ke tahun ajaran berikutnya lewat Pergantian tahun ajaran.", en: "The destination class is in another academic year. Students move into the next academic year through the academic-year rollover." },
   "galat.learner_moved": { default: "Murid sudah dipindahkan. Apa yang sudah ia kerjakan tetap tercatat di kelas lamanya.", en: "The student has been moved. What they have already done stays recorded with their old class." },
   "galat.rollover_done": { default: "Keanggotaan kelas yang dipindahkan ke tahun ajaran baru:", en: "Class memberships moved to the new academic year:" },

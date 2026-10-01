@@ -23,7 +23,7 @@ import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
-import { muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-kelas";
+import { asalPindah, muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-kelas";
 import { persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
 
 /**
@@ -210,9 +210,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   ]);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
-  // where they may go. Read only when asked: a plain visit costs nothing.
-  const kelasDari = kelasAktif.find((k) => k.node_id === sp.dari) ?? null;
-  const tujuan = kelasDari ? tujuanPindah(kelasAktif, kelasDari.node_id) : [];
+  // where they may go; J3.6: or a Tingkat whose learners are not yet in a Kelas.
+  // Read only when asked: a plain visit costs nothing.
+  const asal = asalPindah(struktur?.ok ? struktur.rows : []);
+  const kelasDari = [...asal.kelas, ...asal.tingkat].find((k) => k.node_id === sp.dari) ?? null;
+  const tujuan = kelasDari && struktur?.ok ? tujuanPindah(struktur.rows, kelasDari.node_id) : [];
   const muridDari = kelasDari ? await muridDiKelas(supabase, kelasDari.node_id) : [];
   const sl = (event: HleEvent) => t(event, "staff", { locale });
   // J3.2 (ADM-02): what setup remains at the school shown, from what this page already read
@@ -379,13 +381,20 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             {sekolahStruktur && struktur ? (
               <>
                 <p className="mt-1 text-sm text-ink-2">{sl("config.pindah.arti")}</p>
-                {kelasAktif.length > 0 ? (
+                {asal.kelas.length > 0 ? (
                   <form method="get" action="/konfigurasi#pindah" className="mt-3 flex flex-wrap items-end gap-2">
                     {sekolahKu.length > 1 ? <input type="hidden" name="sekolah" value={sekolahStruktur.id} /> : null}
                     <label className={label}>{sl("config.pindah.dari")}
                       <select id="pin-pindah-dari" name="dari" className={field} required defaultValue={kelasDari?.node_id ?? ""}>
                         <option value="" disabled>—</option>
-                        {kelasAktif.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                        <optgroup label={sl("config.pindah.grup_kelas")}>
+                          {asal.kelas.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                        </optgroup>
+                        {asal.tingkat.length > 0 ? (
+                          <optgroup label={sl("config.pindah.grup_tingkat")}>
+                            {asal.tingkat.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                          </optgroup>
+                        ) : null}
                       </select>
                     </label>
                     <button type="submit" className={button}>{sl("config.pindah.lihat")}</button>

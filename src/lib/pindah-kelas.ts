@@ -12,7 +12,7 @@ import type { SimpulStruktur } from "./struktur-kontrak";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Db = any;
 
-/** One student in a Kelas now: the open placement the move closes. */
+/** One student in a Kelas (or a Tingkat) now: the open placement the move closes. */
 export type MuridDiKelas = { penempatan: string; orang: string; nama: string };
 
 function rows<T>(data: unknown): T[] {
@@ -61,16 +61,29 @@ export async function muridDiKelas(c: Db, kelas: string): Promise<MuridDiKelas[]
 }
 
 /**
- * Where a student of `dari` may be moved: every other active Kelas of the
- * same school in the same academic year, in name order. Another year is the
- * rollover's work, so it is not offered.
+ * Where a student of `dari` may be moved. From a Kelas: every other active
+ * Kelas of the same school in the same academic year (another year is the
+ * rollover's work). From a Tingkat (J3.6: a learner the intake placed in the
+ * Tingkat only): the active Kelas of that Tingkat. In name order.
  */
-export function tujuanPindah(kelas: readonly SimpulStruktur[], dari: string): SimpulStruktur[] {
-  const asal = kelas.find((k) => k.node_id === dari && k.level === "KELAS");
+export function tujuanPindah(rows: readonly SimpulStruktur[], dari: string): SimpulStruktur[] {
+  const asal = rows.find((k) => k.node_id === dari && (k.level === "KELAS" || k.level === "TINGKAT"));
   if (!asal) return [];
-  return kelas
-    .filter((k) => k.level === "KELAS" && k.is_active && k.node_id !== dari && k.academic_year === asal.academic_year)
+  return rows
+    .filter((k) => k.level === "KELAS" && k.is_active && k.node_id !== dari
+      && (asal.level === "KELAS" ? k.academic_year === asal.academic_year : k.parent_id === asal.node_id))
     .sort((a, b) => a.name.localeCompare(b.name, "id", { numeric: true, sensitivity: "base" }));
+}
+
+/**
+ * The places «Pindah kelas» starts from: every active Kelas, and each active
+ * Tingkat that holds learners placed in it directly (not yet in a Kelas).
+ */
+export function asalPindah(rows: readonly SimpulStruktur[]): { kelas: SimpulStruktur[]; tingkat: SimpulStruktur[] } {
+  return {
+    kelas: rows.filter((r) => r.level === "KELAS" && r.is_active),
+    tingkat: rows.filter((r) => r.level === "TINGKAT" && r.is_active && (r.active_members ?? 0) > 0),
+  };
 }
 
 /** A Kelas as the page names it: «Kelas 1A (2026/2027)». */

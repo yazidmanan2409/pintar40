@@ -54,11 +54,13 @@ export const KODE_PINDAH = ["RELEASE_MOVE_STARTED", "RELEASE_MOVE_NO_CYCLE_DEFIN
  * - MOVE_NOT_A_KELAS: the placement or the destination is not a Kelas;
  * - MOVE_SAME_KELAS: the learner is already in the destination;
  * - MOVE_OTHER_YEAR: the destination is in another academic year (the
- *   rollover's work, not a move's).
+ *   rollover's work, not a move's);
+ * - MOVE_ALREADY_IN_KELAS (J3.6): placing a learner from their Tingkat, who
+ *   already has a Kelas in it; they move from that Kelas.
  * Not allowed (42501) stays ACTION_NOT_ALLOWED and a deactivated Kelas
  * ACTION_PLACE_INACTIVE, as for every action. Any other PR070 is ACTION_FAILED.
  */
-export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_SAME_KELAS", "MOVE_OTHER_YEAR"] as const;
+export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_SAME_KELAS", "MOVE_OTHER_YEAR", "MOVE_ALREADY_IN_KELAS"] as const;
 
 /**
  * A content step (Studio steps 1–4, `advanceContentAction`): each refusal

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 147,
+  "version": 148,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2612,6 +2612,20 @@
       "id": "ADM02-K01",
       "runner": "static",
       "proves": "J3.2 (ADM-02, ADM-J02): the school admin's home shows what setup remains. Executes persiapanSekolah (src/lib/persiapan-sekolah.ts): a school with no Kelas has nothing done; active Kelas and placed students are counted (an inactive Kelas is not); a Kelas without an active Guru over it is named, a Guru over the Tingkat covers its Kelas, and a head of department, a revoked or an expired Guru do not count. Reads the copy table (id and en) and the source of Konfigurasi: the setup is drawn right after Struktur sekolah, from the structure, the roles and each node's path, and Pendataan keeps its one link."
+    },
+    {
+      "id": "ADM09-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "J3.6 (ADM-07, ADM-J09): a student recorded in a Tingkat is placed in its Kelas. In the database, in one rolled-back transaction (supabase/migrations/20261029100000, move_learner_to_class): a learner recorded in the bootstrap Tingkat only (PENDING) is placed by the school's administrator into its Kelas 5C; the Tingkat membership closes with MOVED at the instant 5C opens, same enrolment and year, still PENDING; 5C's path holds the Tingkat; Struktur sekolah (school_structure) counts the Tingkat one fewer and 5C one; the audit log has the closing and the creation. The class's teacher is refused (42501); another Tingkat's Kelas or a Tingkat as destination is MOVE_NOT_A_KELAS; a learner already in a Kelas of the Tingkat is MOVE_ALREADY_IN_KELAS and keeps both placements; a second press is MOVE_NOT_CURRENT.",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "ADM09-K01",
+      "runner": "static",
+      "proves": "J3.6 (ADM-07, ADM-J09): the page's half of placing a Tingkat learner. Executes tujuanPindah (src/lib/pindah-kelas.ts): from a Tingkat only its own active Kelas, from a Kelas every other active Kelas of the year, from a Bagian nothing; executes asalPindah: every active Kelas and only the active Tingkat holding learners not yet in a Kelas. Executes kodeGalat (src/lib/galat-kontrak.ts): MOVE_ALREADY_IN_KELAS answered as itself; reads the copy table (id and en) for it, the two groups and the section's text. Reads the source of Konfigurasi: the place to start from in two groups, the destinations from the whole structure."
     }
   ]
 }
