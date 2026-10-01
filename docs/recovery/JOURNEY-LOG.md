@@ -11,6 +11,18 @@ One line of evidence per walk, newest first. A journey is DONE when a person can
 | 1 Oct 06:26–06:41 | Same walk, all staff by server-made session (machine support only) | 19 PASS, 1 NOTE, 1 NOT RUN | run 36824753809 |
 | 1 Oct 06:22 | Setup for Yazid: teacher `yazidmanan2904+guru@gmail.com` (Guru at the class) and two class cards | done; Yazid's own walk **WAITING FOR OWNER** (his acceptance) | run 36824315868 |
 
+**Fixed on the coordinator branch, not yet on staging** (each with an executable test that is red on `main`; they reach staging only with the push to `main`, item 4 below):
+
+| # | Where the human got stuck | Commit |
+|---|---|---|
+| W2 | On a shared computer, the next student opened a lesson at the previous student's page and saved it as their own | `b05458b` |
+| W3 | A post-test answer chosen but not saved was silently lost at «Kumpulkan»; no confirmation; a reload went back to question 1 | `5729c44` |
+| W5 | «Posisi bacaan tersimpan.» shown even when the save failed; a lost last-page save left the lesson unread with no way to retry | `8a243ad` |
+| W8 | «Lihat bukti» counted students halfway through a test as «Belum mengerjakan» | `1cfa9e8` |
+| W16 | A test starting tomorrow read «Berjalan» today; the home said nothing was waiting while a class had no material | `40d38c3` |
+
+The walks now leave student 4's last post-test answer unsaved before «Kumpulkan» (W3): on `main` that reads 7 of 8, after the fix 8 of 8.
+
 **Still a shortcut, by necessity:** the synthetic school's admin (`uji-kinerja-admin@example.co`) has no address a person can read, so recording students, making cards and approving content run on a server-made session. It is labelled setup, never human proof.
 
 **Natural end not reachable here:**
