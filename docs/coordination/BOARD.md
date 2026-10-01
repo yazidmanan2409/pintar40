@@ -18,6 +18,32 @@ Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-I
 
 ---
 
+## TEAM PAUSE, 1 Oct 2026 (Yazid): relook at PINTAR
+
+The team pauses at a clean point. Nothing reaches `main` or staging during the pause.
+
+- **`main` and staging:** `28d3015`, 132 migrations. Production is unchanged (`5b5b68d`, 111).
+- **Bob** (`claude/quirky-meitner-a04smj` @ `0b9ceaf`): three gated, unmerged tickets, stacked in order:
+  - BOB-26 on `cf7dd87` (CI #249, 34/34; audit #56 green; GATE PASS, held);
+  - BOB-50 on `1246835` (CI #250, 35/35; GATE PASS, held);
+  - BOB-51 on `4f11303` (CI #253; handed off, not yet read by the coordinator).
+  - BOB-27 is not started. Stop here.
+- **Daisy** (`ux-1/daisy-experience`):
+  - DAISY-20 with DAISY-40 on `59696ad` (contains Bob's `1246835`), CI #252 green. She pushes her hand-off as a docs commit.
+  - DAISY-39 (`fc1b2c2`, local): she pushes it to the lane without dispatching CI, so it is not lost.
+  - Then she stops.
+- **Lana:** stopped. LANA-22 and LANA-23 have their content passes and stay on her branch.
+- **Coordinator:** the hourly check-in is off.
+  - The joint landing (BOB-26, BOB-50 and BOB-51 with DAISY-20 and DAISY-40) waits for the end of the relook, and so does staging's staff activation.
+  - At resume: one gate branch, `main` plus Daisy's head plus Bob's head, with one CI run and one audit.
+- **Open for Yazid:**
+  - D-083's cohorts (1 Nov and 1 Dec);
+  - the production Supabase SMTP password;
+  - the readiness wording (D-082(e));
+  - the physical proofs;
+  - M6, once BOB-51 is on staging;
+  - the CI budget.
+
 ## Bob — back end (lane `claude/quirky-meitner-a04smj`), in this order
 
 | # | Ticket | Fixes | Depends on | Acceptance (all need tests that go red without the change and green with it) | Status |
