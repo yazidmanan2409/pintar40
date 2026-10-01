@@ -24,7 +24,9 @@ export const dynamic = "force-dynamic";
  *
  * READING POSITION IS SAVED, AND THE LEARNER IS TOLD ONCE. There is no save
  * button and no prompt: the position is the product's job to remember, and
- * asking somebody to remember it for us would be the complexity leaking.
+ * asking somebody to remember it for us would be the complexity leaking. The
+ * telling is true or absent (W5): the player shows it only while the server
+ * holds the page on screen, never because a save was attempted.
  */
 export default async function Pelajaran(
   { params }: { params: Promise<{ tugas: string; pelajaran: string }> },
@@ -86,9 +88,8 @@ export default async function Pelajaran(
             startAt={lesson.furthest_position}
             personId={typeof orang === "string" ? orang : null}
             saveProgress={saveLessonProgress}
+            savedNote={s("lesson.saved")}
           />
-
-          <p className="pin-meta">{s("lesson.saved")}</p>
 
           <div className="pin-actions">
             {next ? (

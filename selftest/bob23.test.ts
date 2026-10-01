@@ -226,7 +226,10 @@ export const bob23Tests: SelfTest[] = [
       const pemutar = buang(readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "_components", "LessonPlayer.tsx"), "utf8"));
       c.expect((pemutar.match(/router\.refresh\(\)/g) ?? []).length === 2 && /segarkan: \(\) => router\.refresh\(\)/.test(pemutar),
         "the player does not ask the router for a refresh through the save's ref");
-      c.expect(/void save\(tugas, pelajaran, posisi, total\)\.then\(\(hasil\) => \{ if \(menjadiDibaca\(hasil, total\)\) segarkan\(\); \}/.test(pemutar)
+      // W5: the save's answer and its loss are settled by one handler, which refreshes behind menjadiDibaca
+      const selesai = /const selesai = \(hasil: [^)]*\) => \{([\s\S]*?)\n {4}\};/.exec(pemutar)?.[1] ?? "";
+      c.expect(/void save\(tugas, pelajaran, posisi, total\)\.then\(selesai, \(\) => selesai\(null\)\);/.test(pemutar)
+          && /\n\s*if \(menjadiDibaca\(hasil, total\)\) segarkan\(\);$/.test(selesai)
           && (pemutar.match(/segarkan\(\)/g) ?? []).length === 1,
         "the player refreshes other than once, on the save that makes the lesson read");
       const aksi = buang(readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "actions.ts"), "utf8"));

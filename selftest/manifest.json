@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 131,
+  "version": 132,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2519,6 +2519,11 @@
       "id": "W3-K01",
       "runner": "static",
       "proves": "W3 (R1): what the learner sees chosen is what is handed in. At «Kumpulkan» every choice on screen that is not the latest taken answer (never saved, changed after a save, or changed after an offline save) is taken, in paper order, and nothing already taken is taken twice (executes src/lib/kumpulkan.ts); the source of ItemPlayer puts those into the outbox with a fresh seq before it replays and finishes; the post-test's «Kumpulkan» first asks posttest.submit_confirm and only the confirmation's own «Kumpulkan» hands in; an opened test starts at the first question without a saved answer (the last when all are answered), not question 1."
+    },
+    {
+      "id": "W5-K01",
+      "runner": "static",
+      "proves": "W5: «Posisi bacaan tersimpan.» is true or absent. Executes the lesson player's save rule in src/lib/siklus.ts (perluDisimpan, setelahSimpan, posisiDiServer) through readings where saves are lost or refused: the note shows on a page only while the server holds it, a lost save of the last page is tried again on the next turn to it so the lesson still ends read, and an older answer or a lost save never moves the known server count back. The source of the lesson page no longer prints the note itself; the source of LessonPlayer shows it only under posisiDiServer and settles every save's answer and loss through setelahSimpan."
     }
   ]
 }

@@ -23,7 +23,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/hle";
-import { halamanMulai, menjadiDibaca, perluDisimpan } from "@/lib/siklus";
+import { halamanMulai, menjadiDibaca, perluDisimpan, posisiDiServer, setelahSimpan } from "@/lib/siklus";
 import { bacaDetik, bacaHalaman, penyimpananPerangkat, simpanDetik, simpanHalaman } from "@/lib/posisi-perangkat";
 import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
 
@@ -39,6 +39,8 @@ export type LessonPlayerProps = {
   personId: string | null;
   saveProgress: (learningAssignmentId: string, lessonId: string, position: number, total: number)
     => Promise<{ ok: boolean; furthest?: number }>;
+  /** W5: «Posisi bacaan tersimpan.» in the reader's language, shown only while the server holds the page on screen. */
+  savedNote: string;
 };
 
 /** `[[visual:pecahan|3/8]]` → a drawn diagram. Unknown directives render as text. */
@@ -118,6 +120,9 @@ export default function LessonPlayer(props: LessonPlayerProps) {
       total: pages.length, orang: props.personId, segarkan: () => router.refresh() };
   });
   const tersimpan = useRef(props.startAt);
+  // W5: what the server holds, from its own answers; the note follows this, never the attempt
+  const server = useRef(props.startAt);
+  const [diServer, setDiServer] = useState(props.startAt);
 
   useEffect(() => {
     const { save, tugas, pelajaran, total, orang, segarkan } = simpan.current;
@@ -125,7 +130,14 @@ export default function LessonPlayer(props: LessonPlayerProps) {
     const posisi = perluDisimpan(page, tersimpan.current);
     if (posisi === null) return;
     tersimpan.current = posisi;
-    void save(tugas, pelajaran, posisi, total).then((hasil) => { if (menjadiDibaca(hasil, total)) segarkan(); }, () => {});
+    const selesai = (hasil: { ok: boolean; furthest?: number } | null) => {
+      const s = setelahSimpan(hasil, posisi, { diServer: server.current, tersimpan: tersimpan.current });
+      server.current = s.diServer;
+      tersimpan.current = s.tersimpan;
+      setDiServer(s.diServer);
+      if (menjadiDibaca(hasil, total)) segarkan();
+    };
+    void save(tugas, pelajaran, posisi, total).then(selesai, () => selesai(null));
   }, [page]);
 
   const example = props.workedExamples[0];
@@ -182,6 +194,8 @@ export default function LessonPlayer(props: LessonPlayerProps) {
           ))}
         </section>
       )}
+
+      {posisiDiServer(page, diServer) && <p className="pin-meta">{props.savedNote}</p>}
     </div>
   );
 }

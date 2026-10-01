@@ -92,6 +92,30 @@ export function menjadiDibaca(hasil: { ok: boolean; furthest?: number } | null |
   return Boolean(hasil?.ok) && total > 0 && (hasil?.furthest ?? 0) >= total;
 }
 
+/**
+ * W5. WHAT A SAVE LEAVES BEHIND. A save the server acknowledged raises what the
+ * server holds (its own furthest count when it gives one); a save that failed
+ * leaves it where it was, and the player's mark of what is saved returns there,
+ * so the next page turn tries again instead of believing it was saved. Before
+ * W5 the mark moved on before the answer came back and stayed there, so a lost
+ * save of the last page left the lesson unread with nothing to try it again.
+ */
+export function setelahSimpan(
+  hasil: { ok: boolean; furthest?: number } | null | undefined,
+  posisi: number,
+  kini: { diServer: number; tersimpan: number },
+): { diServer: number; tersimpan: number } {
+  if (!hasil?.ok) return { diServer: kini.diServer, tersimpan: kini.diServer };
+  const f = Number.isFinite(hasil.furthest) ? (hasil.furthest as number) : posisi;
+  const diServer = Math.max(kini.diServer, f);
+  return { diServer, tersimpan: Math.max(kini.tersimpan, diServer) };
+}
+
+/** W5. «Posisi bacaan tersimpan.» is said of the page on screen only when the server holds it. */
+export function posisiDiServer(halaman: number, diServer: number): boolean {
+  return Number.isFinite(diServer) && diServer >= posisiTersimpan(halaman);
+}
+
 /** A lesson counts as read when the learner reached its last page. */
 export function lessonRead(l: Pick<LessonEntry, "furthest_position" | "total_positions">): boolean {
   const total = l.total_positions ?? 0;
