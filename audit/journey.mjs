@@ -131,6 +131,7 @@ const GLADYS = "gladys@audit.pintar.test";
 const people = {
   sdAdmin: { name: "Bu Admin SD", email: "admin.sd@audit.pintar.test" },
   guru: { name: "Pak Guru Budi", email: "guru.budi@audit.pintar.test" },
+  guru2: { name: "Bu Guru Sari", email: "guru.sari@audit.pintar.test" },
   kaprodi: { name: "Bu Kepala Dept", email: "kepala.dept@audit.pintar.test" },
 };
 const ids = {};
@@ -1569,6 +1570,60 @@ await step("S26", "the school admin corrects the structure on Struktur sekolah: 
   if (!ok) rec.verdict = "FAIL";
   return `the question: "${tanya.slice(0, 120)}"; after «Ya, nonaktifkan» with Eka placed there: the reason shown ${/Masih ada murid di sini/.test(tolak)}, still active ${masihAktif}; ` +
     `renamed to "${nama}", shown on the screen ${/Kelas 1 Biru/.test(layar)}`;
+});
+
+// ADM-J15: a new teacher replaces the old one mid-year, by the school's own screens: Bu Guru Sari is recorded
+// by name on Pendataan, gets an account by email on Aktivasi and Guru at Kelas 1A on Peran & akses; Pak Guru
+// Budi's Guru at Kelas 1A is revoked there. Sari finds Kelas 1A with its students and the figures of what
+// was done there before her (the class continues); Budi is refused the class.
+await step("S26b", "a new teacher replaces the old one mid-year: the school admin adds Bu Guru Sari and gives her Kelas 1A, then revokes Pak Guru Budi there; Sari finds the class and its history, Budi is refused (ADM-J15)", async (rec) => {
+  if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
+  const kelas = kelasSatuA();
+  const jejak = [await catatLewatLayar(a, [people.guru2.name], rec.shots, { kelas: null, peran: null })];
+  await a.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
+  const baris = a.locator("li.pin-akt-orang", { hasText: people.guru2.name }).first();
+  if (!(await baris.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; ${people.guru2.name} is not on Aktivasi`; }
+  await baris.locator('input[type="email"]').fill(people.guru2.email);
+  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
+  const g = await grantViaForm(a, people.guru2.name, "EDUCATOR", "Kelas 1A");
+  jejak.push(`Sari: Guru at Kelas 1A ${g.ok}`);
+  // revoke Budi's Guru at Kelas 1A
+  await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
+  const lama = a.locator("#roles li").filter({ hasText: people.guru.name }).filter({ hasText: "Guru" }).filter({ hasText: "Kelas 1A" }).first();
+  if (!(await lama.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; no «${people.guru.name} · Guru · Kelas 1A» row on Peran & akses`; }
+  await lama.getByRole("button", { name: "Cabut", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.get("kode") === "ROLE_REVOKED", { timeout: SLOW }).catch(() => {});
+  jejak.push(`Budi revoked: ${new URL(a.url()).searchParams.get("kode")}`);
+  rec.shots.push(await shot(a, "adm-j15-peran"));
+  // Sari: the class, its students and its figures
+  const sc = await ctx();
+  const sp = await sc.newPage();
+  await magicSignIn(sp, people.guru2.email);
+  await sp.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+  await tutupTur(sp);
+  const rumah = await bodyText(sp);
+  await sp.goto(`${APP}/mengajar/${kelas}`, { waitUntil: "networkidle" });
+  await tutupTur(sp);
+  const roster = norm(await sp.locator(".pin-roster").first().innerText().catch(() => ""));
+  await sp.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+  await tutupTur(sp);
+  const bukti = norm(await sp.locator("main").innerText().catch(() => ""));
+  rec.shots.push(await shot(sp, "adm-j15-sari-bukti"));
+  await sc.close();
+  const pahamTeks = persen(HARAP.paham);
+  // Budi: refused the class he no longer teaches
+  const bc = await ctx();
+  const bp = await bc.newPage();
+  await magicSignIn(bp, people.guru.email);
+  await bp.goto(`${APP}/mengajar/${kelas}`, { waitUntil: "networkidle" });
+  const ditolak = (await bp.locator(".pin-refusal").count()) > 0 || !(await bodyText(bp)).includes("Kelas 1A");
+  rec.shots.push(await shot(bp, "adm-j15-budi"));
+  await bc.close();
+  const ok = g.ok === "ok" && /Kelas 1A/.test(rumah) && roster.includes(MURID[0]) && bukti.includes(pahamTeks) && ditolak;
+  if (!ok) rec.verdict = "FAIL";
+  return `${jejak.join(" | ")}; Sari's home lists Kelas 1A ${/Kelas 1A/.test(rumah)}; her roster: "${roster.slice(0, 120)}"; ` +
+    `«Lihat bukti» shows the class's comprehension ${pahamTeks} from before her: ${bukti.includes(pahamTeks)}; Budi refused Kelas 1A: ${ditolak}`;
 });
 
 // ADM-J19: a new school year, by the screens, never run before. The school admin records Fajar in Kelas 1A
