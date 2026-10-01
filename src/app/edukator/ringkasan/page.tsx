@@ -4,6 +4,7 @@ import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
 import { kunciMuncul } from "@/components/bukti/muncul";
 import NilaiLaporan from "@/components/bukti/NilaiLaporan";
+import AksiLaporan from "@/components/laporan/AksiLaporan";
 import { s, card, omissionText, actionText, type Entry } from "../../_intel";
 
 /**
@@ -74,8 +75,11 @@ export default async function RingkasanKelas({
           long name pushed the button off a phone screen. */}
       <header className="flex min-w-0 flex-wrap items-start justify-between gap-3">
         <h1 className="text-xl font-semibold">{s("laporan.kelas.judul")}</h1>
-        <SesiSaya locale={await currentLocale()} persona="educator" />
+        <div className="pin-noprint">
+          <SesiSaya locale={await currentLocale()} persona="educator" />
+        </div>
       </header>
+      <AksiLaporan kembali={s("laporan.kembali", "educator", locale)} cetak={s("laporan.cetak", "educator", locale)} />
 
       {!template || !kelas ? (
         <p className={card}>{s("laporan.kosong")}</p>

@@ -36,15 +36,16 @@ export const edu23Tests: SelfTest[] = [
       const ajar = (await import("../src/lib/pengajar")) as Record<string, unknown> as {
         pisahSiapa?: (r: typeof ROSTER, s: typeof SESI) => { sudah: typeof ROSTER; sedang: typeof ROSTER; belum: typeof ROSTER };
       };
-      if (!c.expect(typeof ajar.pisahSiapa === "function", "there is no three-way split of a class for one test (pisahSiapa)")) return c.verdict("");
-      const p = ajar.pisahSiapa(ROSTER, SESI);
+      const pisah = ajar.pisahSiapa;
+      if (!c.expect(typeof pisah === "function", "there is no three-way split of a class for one test (pisahSiapa)") || !pisah) return c.verdict("");
+      const p = pisah(ROSTER, SESI);
       const nama = (x: typeof ROSTER) => x.map((m) => m.nama);
       c.expect(JSON.stringify(nama(p.sudah)) === JSON.stringify(["Ani", "Citra"]), `handed in: ${JSON.stringify(nama(p.sudah))}; expected Ani, Citra`);
       c.expect(JSON.stringify(nama(p.sedang)) === JSON.stringify(["Budi", "Dodi", "Eka"]),
         `started, not handed in: ${JSON.stringify(nama(p.sedang))}; expected Budi, Dodi, Eka (in progress, paused, opened)`);
       c.expect(JSON.stringify(nama(p.belum)) === JSON.stringify(["Fajar"]), `not started: ${JSON.stringify(nama(p.belum))}; expected Fajar alone`);
       c.expect(p.sudah.length + p.sedang.length + p.belum.length === ROSTER.length, "a learner is in no list, or in two");
-      const kosong = ajar.pisahSiapa(ROSTER, []);
+      const kosong = pisah(ROSTER, []);
       c.expect(kosong.belum.length === ROSTER.length && kosong.sedang.length === 0, "with no session at all, not everyone reads as not started");
 
       // «Keadaan hari ini», rendered: each test's counts lead to that test's names
