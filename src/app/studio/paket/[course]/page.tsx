@@ -2,7 +2,7 @@ import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import LangkahTerbit from "@/components/studio/LangkahTerbit";
-import { format, t, type HleEvent } from "@/lib/hle";
+import { enumLabel, format, t, type HleEvent } from "@/lib/hle";
 import { KODE_HAMBATAN, kalimatHambatan, type Hambatan } from "@/lib/terbitan-kontrak";
 import { rujukan } from "@/lib/galat-kontrak";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../../_lib";
@@ -11,6 +11,8 @@ import {
 } from "../../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import { TeksBaris } from "@/components/teks/Teks";
+import { soalPaket } from "@/lib/soal-tinjauan";
 
 /**
  * Package detail — Publish Readiness (§5), freeze & publish (§6), release
@@ -101,6 +103,10 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         .eq("course_id", courseId).eq("status", "ACTIVE"),
     ]);
 
+  // D-088(h): the package's questions with their key and rationale, read under the reader's own row security
+  // (CAN_DRAFT in the school, which every reviewer holds), so the person who approves sees what they approve
+  const soal = can(inst, "CAN_DRAFT") ? await soalPaket(supabase, courseId) : [];
+
   const state = (Array.isArray(stateRows) ? stateRows[0] : stateRows) as
     | { surface_state: string; reasons: Hambatan[]; preview_lesson_id: string | null } | undefined;
 
@@ -169,6 +175,44 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           ) : null}
         </div>
       </section>
+
+      {/* D-088(h): before the steps, so «Setujui» comes after the questions were in front of the reviewer. The
+          learner preview above stays the sanitised learner view (§5); this is the Studio staff's own view. */}
+      {can(inst, "CAN_DRAFT") ? (
+        <section className={card} id="soal">
+          <h3 className="text-lg font-medium">{sl("studio.soal.judul")}</h3>
+          <p className="mt-1 text-sm text-ink-2">{sl("studio.soal.arti")}</p>
+          {soal.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-2">{sl("studio.soal.kosong")}</p>
+          ) : (
+            <div className="mt-3 grid gap-2">
+              {soal.map((l, li) => (
+                <details key={l.id} className="pin-soal-pelajaran" open={li === 0}>
+                  <summary className="cursor-pointer font-medium">{l.judul} · {format.number(l.soal.length, locale)} {sl("studio.soal.jumlah")}</summary>
+                  <ol className="mt-2 grid list-decimal gap-3 pl-5">
+                    {l.soal.map((q) => (
+                      <li key={q.id} className="pin-soal">
+                        <p className="text-xs text-ink-3">{q.peran ? enumLabel("mode", q.peran, locale) : enumLabel("bank", q.bank, locale)}</p>
+                        {q.stimulus ? <p className="mt-1 text-sm text-ink-2"><TeksBaris teks={q.stimulus} /></p> : null}
+                        <p className="mt-1"><TeksBaris teks={q.pertanyaan} /></p>
+                        <ul className="mt-2 grid gap-1">
+                          {q.opsi.map((o) => (
+                            <li key={o.label} className={o.kunci ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>
+                              <span className={o.kunci ? "font-semibold" : undefined}>{o.label}. <TeksBaris teks={o.isi} /></span>
+                              {o.kunci ? <span className="ml-2 text-xs font-semibold">· {sl("studio.soal.kunci")}</span> : null}
+                              <p className="text-sm text-ink-2">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ol>
+                </details>
+              ))}
+            </div>
+          )}
+        </section>
+      ) : null}
 
       <HasilDi q={sp} bagian={["paket", "terbitan"]} kalimat={banner} />
 

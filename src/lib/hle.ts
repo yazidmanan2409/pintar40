@@ -13,6 +13,7 @@
 export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
+  | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.kosong"
   | "jenis.mode.PRE_TEST" | "jenis.mode.POST_TEST" | "jenis.mode.QUICK"
   | "jenis.mode.STANDALONE" | "jenis.mode.PRACTICE" | "jenis.mode.TEST"
   | "jenis.mode.EXAM" | "jenis.mode.PUBLIC_DEMO" | "jenis.mode.PAPER"
@@ -1466,6 +1467,12 @@ const table: Table = {
   // of which is in INTERNAL_WORDS, so no word list would ever have caught them.
   // A staff reader is still a human and §7 admits no exception for them.
   "jenis.bank.PRACTICE": { default: "Latihan", en: "Practice" },
+  "studio.soal.judul": { default: "Soal dalam paket ini", en: "The questions in this package" },
+  "studio.soal.arti": { default: "Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.", en: "Check every question, its key and the reason for each option before approving. Only this school's Studio staff see this part; learners never see the key or the reasons here." },
+  "studio.soal.jumlah": { default: "soal", en: "questions" },
+  "studio.soal.kunci": { default: "Kunci", en: "Key" },
+  "studio.soal.alasan": { default: "Alasan", en: "Why" },
+  "studio.soal.kosong": { default: "Paket ini belum berisi soal.", en: "This package has no questions yet." },
   "jenis.bank.TEST": { default: "Penilaian", en: "Assessment" },
   "jenis.bank.EXAM": { default: "Ujian", en: "Exam" },
   "jenis.mode.PRE_TEST": { default: "Penilaian awal", en: "Initial mapping" },

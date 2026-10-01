@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 150,
+  "version": 151,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2640,6 +2640,20 @@
       "id": "D088I-K01",
       "runner": "static",
       "proves": "D-088(i): the learner record shows places left as history, never as current. Reads the source of src/app/pimpinan/[simpul]/murid/[orang]/page.tsx: the placement now, and apart from it the earlier placements with year, end date and reason; reads the copy table (id and en) and the migration supabase/migrations/20261030100000 (open placements of a current enrolment; placement_history)."
+    },
+    {
+      "id": "D088H-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "D-088(h): a reviewer reads what they approve, and nobody else does. In the database, rolled back, under each reader's own row security (items_select, item_options_select: CAN_DRAFT in the school): the bootstrap course's head of department, administrator and teacher each read every question, option, key and reason; its learner and another school's teacher read none.",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D088H-K01",
+      "runner": "static",
+      "proves": "D-088(h): Studio reviewers see the questions before approving. Executes susunSoal (src/lib/soal-tinjauan.ts): lessons in the package's order, Pemetaan Awal then Uji Penguasaan then practice, options A-E with the key marked and every reason kept. Reads the source of src/app/studio/paket/[course]/page.tsx: the questions read for CAN_DRAFT staff and shown before the publish steps with key and reasons; the learner preview (src/app/studio/pratinjau) still reads no question; the copy table in id and en."
     }
   ]
 }

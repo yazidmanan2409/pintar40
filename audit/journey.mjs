@@ -745,7 +745,7 @@ const kataLangkah = async (page) => { const t = await bodyText(page); const i = 
 // (the audit also runs against older releases, production's among them)
 const siap = (c) => sql(`select status || ' | ' || coalesce(blockers::text, '') from public.publish_readiness('${c}')`).trim();
 
-await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps (DAISY-06, BOB-03)", async (rec) => {
+await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps, the reviewer reading every question, key and reason before approving (DAISY-06, BOB-03, D-088(h))", async (rec) => {
   const course = babSatu();
   if (!course) { rec.verdict = "BLOCKED"; return "S15c left no Bab 1 course"; }
   await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
@@ -772,6 +772,20 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
       // a second person's step: the author must not be offered it
       await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
       if (await g.getByRole("button", { name: tombol, exact: true }).count()) { notes.push(`!! the author is offered "${tombol}"`); rec.verdict = "FAIL"; }
+    }
+    if (kunci === "setujui") {
+      // D-088(h): before approving, the reviewer has the chapter's questions in front of them, each with its key and
+      // every option's reason, on the package page (the learner preview stays without questions)
+      await a.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+      const diLayar = await a.locator("#soal li.pin-soal").count();
+      const kunciLayar = await a.locator("#soal li.pin-opsi-kunci").count();
+      const alasanLayar = await a.locator("#soal li.pin-opsi").count();
+      const diBank = Number(sql(`select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}'`));
+      const opsiBank = Number(sql(`select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}'`));
+      const kunciBank = Number(sql(`select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}' and o.is_correct`));
+      rec.shots.push(await shot(a, "terbit-soal-ditinjau"));
+      notes.push(`D-088(h) the reviewer reads ${diLayar} of ${diBank} questions, ${alasanLayar} of ${opsiBank} options with their reason, ${kunciLayar} of ${kunciBank} keys marked`);
+      if (diBank === 0 || diLayar !== diBank || kunciLayar !== kunciBank || alasanLayar !== opsiBank) rec.verdict = "FAIL";
     }
     if (kunci === "terbitkan") {
       // publishing wants every content-check finding reviewed (publish_readiness)
