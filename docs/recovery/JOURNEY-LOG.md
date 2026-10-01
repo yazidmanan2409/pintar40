@@ -21,7 +21,7 @@ One line of evidence per walk, newest first. A journey is DONE when a person can
 | W8 | «Lihat bukti» counted students halfway through a test as «Belum mengerjakan» | `1cfa9e8` |
 | W16 | A test starting tomorrow read «Berjalan» today; the home said nothing was waiting while a class had no material | `40d38c3` |
 
-The walks now leave student 4's last post-test answer unsaved before «Kumpulkan» (W3): on `main` that reads 7 of 8, after the fix 8 of 8.
+The walks now leave student 4's last post-test answer unsaved before «Kumpulkan» (W3): on `main` that reads 7 of 8, after the fix 8 of 8. **Walked in a browser on the branch's built code** (local stack, CI audit run 36829928522, `5729c44`): 31 PASS, 1 NOTE; «Kumpulkan» asked first for every student; every result equals the plan, and the class figure reads 75% (73% had the answer been lost).
 
 **Still a shortcut, by necessity:** the synthetic school's admin (`uji-kinerja-admin@example.co`) has no address a person can read, so recording students, making cards and approving content run on a server-made session. It is labelled setup, never human proof.
 
@@ -34,4 +34,5 @@ The walks now leave student 4's last post-test answer unsaved before «Kumpulkan
 1. **Real-school provisioning on staging.** `main` lets only a platform admin appoint a school admin (`role_assignments_guard`: SYSTEM_ADMIN or INSTITUTION_ADMIN only by an active SYSTEM_ADMIN; no self-grant). The only platform admin on staging is Yazid's account. Decision: either Yazid, as platform admin, appoints the first school admin of SD ZPS himself (the journey's own first step), or he authorises a staging platform-operator identity whose sign-in mail the automation can read. Until then: SD ZPS has no school admin, so official evidence, class figures and certificates cannot be walked.
 2. **Pass-mark semantics** (`docs/coordination/design/PASS-MARK-AND-GRADE-SEMANTICS-REVIEW.md` §6; D-081(d) hold). D-086(b) fixed that the target is the school's sealed pass mark; still open: the alternative (1a/1b/2/3) and what applies before a school sets a mark. Blocks M3/W4 (the result saying whether the target was met). No fallback is invented meanwhile.
 3. **D2 (frozen):** when Supabase throttles a sign-in send, the screen still says «Periksa email Anda» (W6). Changing it is a sign-in decision; Gate 3 (held) replaces this path. Not touched.
+5. **W18, the student's home order (small):** `siklus.ts` says "a running session, then an unstarted Pemetaan Awal, then unread lessons, then an untaken Uji Penguasaan", but the code and its test put the untaken Uji Penguasaan first. The approved concept it cites is not in the repo. Which order? Not changed meanwhile; it matters only with two or more chapters assigned.
 4. **Pushing to `main`:** this session's safety check refused a push to `main` (1 Oct). Fixes are built and verified on the coordinator branch; they reach staging only once Yazid allows the push (or merges).
