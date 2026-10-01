@@ -16,6 +16,11 @@
 #             PASS · FAIL · PARTIAL · BLOCKED (by another failing check) ·
 #             N-I (not implemented) · N-T (not yet tested) · N/A.
 
+RETIRED_NOTICE = ("RETIRED AS THE READINESS MEASURE, 1 Oct 2026 (D-084). The rows below stay as engineering detail. "
+                  "Their PASS counts are not a readiness measure. PINTAR's status is the journey status in "
+                  "docs/recovery/PHASE-1-STATUS.md under docs/recovery/EVIDENCE-MODEL.md; go-live is Phase 8 of "
+                  "docs/recovery/RECOVERY-CHARTER.md.")
+
 BASELINE = {
     "sha": "78b0f55",
     "date": "24 Sep 2026",

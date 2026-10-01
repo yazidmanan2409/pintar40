@@ -1,5 +1,7 @@
 # PINTAR 4.0 — board
 
+> **SUPERSEDED as the operational board, 1 Oct (D-084).** The recovery board is `docs/recovery/RECOVERY-BOARD.md`, and the governing document is `docs/recovery/RECOVERY-CHARTER.md`. This file stays as the historical ticket record: a ticket here is not active work, and none resumes merely because it exists.
+
 **Sprint 1 goal (D-005):** a school can run one lesson end to end through the app.
 Statuses: TODO → IN PROGRESS → IN REVIEW (at the gate) → MERGED (on `main`) → RELEASED (in production).
 Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-ISSUES-AND-STATUS-2026-09-24.md`.

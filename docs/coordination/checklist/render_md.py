@@ -59,6 +59,10 @@ def render():
     m = d.META
     w(f"# {m['title']} — {m['subtitle']}")
     w("")
+    notice = getattr(d, "RETIRED_NOTICE", None)
+    if notice:
+        w(f"> **{notice}**")
+        w("")
     w(f"**{m['version']}.** Rendered from `docs/coordination/checklist/checklist_data.py`; edit there and re-render. "
       "The Word copy for Yazid comes from the same data.")
     w("")
@@ -72,7 +76,8 @@ def render():
 
     b = d.BASELINE
     nw = d.NOW
-    w(f"## Status at a glance ({nw['label']} `{nw['sha']}`, {nw['date']})")
+    heading = "Row counts (engineering detail, not a readiness measure)" if notice else "Status at a glance"
+    w(f"## {heading} ({nw['label']} `{nw['sha']}`, {nw['date']})")
     w("")
     w("P0 checks only; each must be PASS on the release candidate before any push to live. "
       f"The baseline of {b['date']} (main `{b['sha']}`) is kept beside each row.")

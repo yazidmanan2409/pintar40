@@ -1,5 +1,7 @@
 # PINTAR 4.0 — End-to-End User Flow & Release Checklist
 
+> **RETIRED AS THE READINESS MEASURE, 1 Oct 2026 (D-084). The rows below stay as engineering detail. Their PASS counts are not a readiness measure. PINTAR's status is the journey status in docs/recovery/PHASE-1-STATUS.md under docs/recovery/EVIDENCE-MODEL.md; go-live is Phase 8 of docs/recovery/RECOVERY-CHARTER.md.**
+
 **v2.3 — 1 October 2026 (status on main 28d3015; v2 of 24 Sep kept as the baseline).** Rendered from `docs/coordination/checklist/checklist_data.py`; edit there and re-render. The Word copy for Yazid comes from the same data.
 
 | | |
@@ -12,7 +14,7 @@
 
 > Calm on the surface. Rigorous underneath. One meaningful next action is obvious, while authorization, evidence and state transitions stay correct.
 
-## Status at a glance (main after BOB-25, DAISY-19 and BOB-42 `28d3015`, 1 Oct 2026)
+## Row counts (engineering detail, not a readiness measure) (main after BOB-25, DAISY-19 and BOB-42 `28d3015`, 1 Oct 2026)
 
 P0 checks only; each must be PASS on the release candidate before any push to live. The baseline of 24 Sep 2026 (main `78b0f55`) is kept beside each row.
 
