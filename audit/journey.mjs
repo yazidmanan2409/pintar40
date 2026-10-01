@@ -1535,6 +1535,69 @@ await step("S26", "the school admin corrects the structure on Struktur sekolah: 
     `renamed to "${nama}", shown on the screen ${/Kelas 1 Biru/.test(layar)}`;
 });
 
+// ADM-J19: a new school year, by the screens, never run before. The school admin records Fajar in Kelas 1A
+// (no card yet, so his enrolment waits: PENDING), makes next year's Tingkat «Kelas 2» and its Kelas 2A on
+// Struktur sekolah, then on «Pergantian tahun ajaran» carries Kelas 1A into Kelas 2A. Everyone in 1A,
+// Fajar too, is in 2A afterwards; what they did stays recorded in 1A; the screen says how many moved.
+await step("S27", "a new school year: the school admin makes next year's Tingkat and Kelas, then carries Kelas 1A into it on «Pergantian tahun ajaran»; the whole class moves, one not yet signed in too, and the screen says how many (ADM-J19)", async (rec) => {
+  const kelas = kelasSatuA();
+  if (!kelas) { rec.verdict = "BLOCKED"; return "no Kelas 1A"; }
+  const tahunIni = sql(`select ap.name from public.org_nodes n join public.academic_periods ap on ap.id = n.academic_period_id where n.id='${kelas}'`).trim();
+  const y = Number(tahunIni.slice(0, 4));
+  const tahunDepan = `${y + 1}/${y + 2}`;
+  // Fajar: recorded on the Pendataan screen, no card
+  const catat = await catatLewatLayar(a, ["Fajar Murid"], rec.shots).catch((e) => `not recorded: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`);
+  // next year's Tingkat and Kelas on Struktur sekolah
+  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  const ft = a.locator("div.pin-str-tambah-tingkat form").first();
+  await ft.locator('input[name="nama"]').fill("Kelas 2");
+  await ft.locator('input[name="tahun_ajaran"]').fill(tahunDepan);
+  await ft.locator('button[type="submit"]').click();
+  let t2 = "";
+  for (let i = 0; i < 30 && !t2; i++) {
+    t2 = sql(`select n.id from public.org_nodes n join public.academic_periods ap on ap.id = n.academic_period_id where n.institution_id='${ids.sd}' and n.kind='COHORT' and n.name='Kelas 2' and ap.name='${tahunDepan}' and n.is_active limit 1`).trim();
+    if (!t2) await a.waitForTimeout(500);
+  }
+  if (!t2) { rec.verdict = "FAIL"; rec.shots.push(await shot(a, "adm-j19-tingkat")); return `${catat}; next year's Tingkat «Kelas 2» (${tahunDepan}) was not made: ${norm(await a.locator("#struktur").innerText().catch(() => "")).slice(0, 200)}`; }
+  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  const fk = a.locator("div.pin-str-tambah-kelas form").filter({ has: a.locator(`input[name="tingkat"][value="${t2}"]`) }).first();
+  await fk.locator('input[name="nama"]').fill("Kelas 2A");
+  await fk.locator('button[type="submit"]').click();
+  let k2 = "";
+  for (let i = 0; i < 30 && !k2; i++) {
+    k2 = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 2A' and parent_id='${t2}' and is_active limit 1`).trim();
+    if (!k2) await a.waitForTimeout(500);
+  }
+  if (!k2) { rec.verdict = "FAIL"; return `${catat}; Kelas 2A was not made under Tingkat «Kelas 2»`; }
+  const sebelum = sql(`select count(*) from public.memberships where node_id='${kelas}' and valid_to is null`).trim();
+  // the rollover, on its screen
+  await a.goto(`${APP}/konfigurasi#rollover`, { waitUntil: "networkidle" });
+  const fr = a.locator("#rollover form").first();
+  if (!(await fr.count())) { rec.verdict = "FAIL"; rec.shots.push(await shot(a, "adm-j19-tanpa-form")); return `${catat}; no rollover form on Konfigurasi with two years: ${norm(await a.locator("#rollover").innerText().catch(() => "")).slice(0, 200)}`; }
+  await fr.locator('select[name="from_period"]').selectOption({ label: tahunIni });
+  await fr.locator('select[name="to_period"]').selectOption({ label: tahunDepan });
+  const peta = fr.locator(`select[name="map[${kelas}]"]`);
+  const opsi = (await peta.locator("option").allTextContents()).find((o) => o.startsWith("Kelas 2A"));
+  await peta.selectOption({ label: opsi });
+  rec.shots.push(await shot(a, "adm-j19-pergantian"));
+  await fr.getByRole("button", { name: "Jalankan pergantian", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("bagian") === "rollover" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "adm-j19-hasil"));
+  const u = new URL(a.url());
+  const kalimat = norm(await a.locator("#rollover").innerText().catch(() => ""));
+  const tinggal = sql(`select count(*) from public.memberships where node_id='${kelas}' and valid_to is null`).trim();
+  const di2A = sql(`select coalesce(string_agg(p.display_name || ':' || e.status, ',' order by p.display_name), '-') from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id where m.node_id='${k2}' and m.valid_to is null`).trim();
+  const sesi = sql(`select count(*) from public.assessment_sessions where class_node_id='${kelas}'`).trim();
+  const fajar = /Fajar Murid:PENDING/.test(di2A);
+  const ok = u.searchParams.get("hasil") === "ok" && u.searchParams.get("kode") === "ROLLOVER_DONE" && u.searchParams.get("n") === sebelum
+    && tinggal === "0" && di2A.split(",").length === Number(sebelum) && fajar && Number(sesi) > 0;
+  if (!ok) rec.verdict = "FAIL";
+  return `${catat}; next year ${tahunDepan}: Tingkat «Kelas 2» and Kelas 2A made on the screen; Kelas 1A had ${sebelum}; after «Jalankan pergantian»: hasil=${u.searchParams.get("hasil")} ` +
+    `kode=${u.searchParams.get("kode")} n=${u.searchParams.get("n")}; the screen says "${kalimat.slice(-140)}"; left in 1A: ${tinggal}; in 2A: ${di2A}; ` +
+    `Fajar (not yet signed in) carried over: ${fajar}; sessions still recorded in 1A: ${sesi}`;
+});
+
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
   const tok = `acak${Date.now()}`;
   const api = await fetch(`${APP}/api/verifikasi/${tok}`, { redirect: "manual" });

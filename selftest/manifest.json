@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 145,
+  "version": 146,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2598,6 +2598,15 @@
       "id": "M9-K01",
       "runner": "static",
       "proves": "M9 (D-085): the page's halves of a class move. Executes pilihBerjalan (src/lib/pengajar.ts): with a class's roster now, a learner who handed in and then moved away is not counted against the class they left; berjalan's source hands over the open memberships. Executes tujuanPindah (src/lib/pindah-kelas.ts): only the other active Kelas of the same year. Executes kodeGalat (src/lib/galat-kontrak.ts): PR070's four codes as themselves, anything else ACTION_FAILED; reads the copy table (id and en) for each code, the incomplete form and the success. Reads the source of Konfigurasi: the chosen Kelas's students, each with a move through pindahKelasAction, which calls move_learner_to_class."
+    },
+    {
+      "id": "ADM19-S01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "ADM-J19: a new school year carries the whole class and says how many it carried. In the database, in one rolled-back transaction (supabase/migrations/20261028100000, period_rollover): the school's administrator rolls two classes of the bootstrap school into next year's two classes; the learner recorded and not yet signed in (PENDING) moves with the one who has signed in (ACTIVE), nobody stays in last year's class, the reported count is every class's total and equals the memberships closed with PERIOD_ROLLOVER, an audit row is written, and the class's teacher is refused.",
+      "skip_justification": "needs a Postgres with the migrations and the bootstrap seed applied (CI local stack via SUPABASE_DB_URL)"
     }
   ]
 }
