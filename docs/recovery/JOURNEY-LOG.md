@@ -70,6 +70,24 @@ The walks now leave student 4's last post-test answer unsaved before «Kumpulkan
 
 ## WAITING FOR OWNER
 
+**All ruled, 2 Oct (D-088).** The items below are kept as the record of what was asked. What each ruling sets in motion:
+
+| # | Item | Ruling (D-088) | Now |
+|---|---|---|---|
+| 1 | Real-school provisioning on staging | (a) A staging-only Platform Operator identity the automation can sign in as, audited, never in production | **Building**: the identity, then the operator appoints SD ZPS's first school admin by the screens |
+| 2 | Pass mark | (b) The school sets one sealed mark before publishing what depends on mastery; prospective changes only; unset says «Batas ketuntasan belum ditetapkan»; no default | **To build** (M3, W4, BOB-49) |
+| 3 | D2 | (c) Not fixed separately; Gate 3 replaces the path | Held with Gate 3 |
+| 5 | W18, the student's home order | (d) Running session → current lesson → the post-test when ready → the next chapter's Pemetaan Awal: continue before beginning | **To build** |
+| 6 | Card re-issue | (e) A new card revokes the old; same identity and history; who, when and why recorded | Held with Gate 3 |
+| 7 | BOB-50, DAISY-40 | (f) Approved as built; land through the Gate 3 batch; walk the certificate journey then | Held with Gate 3 |
+| 8 | Topic names on class figures | (g) Option (a): group by the session's objective, show its statement; `learning_objectives` a metric source in MC-4 | **To build** |
+| 9 | Questions before publishing | (h) Studio reviewers see questions, options, key and rationale; the learner preview stays sanitised | **To build** |
+| 10 | After a class move | (i) Option (a): learner-level access follows the current placement; ended placements shown as historical | **To build** |
+| 11 | T1 shared-device lock | (j) Approved as D-085 ruled; no IP address in 4.0 | Held with Gate 3 |
+| 12 | M5 question-level read | (k) The boundary is approved; framed as teaching evidence, never an integrity console | **To build** |
+
+Gate 3 stays held; the coordinator does not merge it.
+
 1. **Real-school provisioning on staging.** `main` lets only a platform admin appoint a school admin (`role_assignments_guard`: SYSTEM_ADMIN or INSTITUTION_ADMIN only by an active SYSTEM_ADMIN; no self-grant). The only platform admin on staging is Yazid's account. Decision: either Yazid, as platform admin, appoints the first school admin of SD ZPS himself (the journey's own first step), or he authorises a staging platform-operator identity whose sign-in mail the automation can read. Until then: SD ZPS has no school admin, so official evidence, class figures and certificates cannot be walked.
 2. **Pass-mark semantics** (`docs/coordination/design/PASS-MARK-AND-GRADE-SEMANTICS-REVIEW.md` §6; D-081(d) hold). D-086(b) fixed that the target is the school's sealed pass mark; still open: the alternative (1a/1b/2/3) and what applies before a school sets a mark. Blocks M3/W4 (the result saying whether the target was met). No fallback is invented meanwhile.
 3. **D2 (frozen):** when Supabase throttles a sign-in send, the screen still says «Periksa email Anda» (W6). Changing it is a sign-in decision; Gate 3 (held) replaces this path. Not touched.
