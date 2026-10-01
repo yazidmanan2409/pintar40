@@ -735,7 +735,8 @@ const TERBIT = [
   ["ajukan", "Ajukan untuk ditinjau", "g"], ["setujui", "Setujui isi", "a"],
   ["buat", "Buat terbitan", "a"], ["kunci", "Kunci terbitan", "a"], ["terbitkan", "Terbitkan", "g"],
 ];
-const babSatu = () => sql(`select id from public.courses where institution_id='${ids.sd}' and title like 'Matematika Kelas 5%' order by created_at desc limit 1`).trim();
+// Bab 1 by its own title: S26d imports Bab 2 ("Matematika Kelas 5 · Bab 2: …"), which must never stand in for it
+const babSatu = () => sql(`select id from public.courses where institution_id='${ids.sd}' and title like 'Matematika Kelas 5%' and title like '%Bab 1:%' order by created_at desc limit 1`).trim();
 const keadaanBab = (c) => sql(`select c.status || '|' || coalesce((select r.status::text from public.plp_releases r where r.course_id = c.id order by r.created_at desc limit 1), '-') from public.courses c where c.id='${c}'`).trim();
 let terbitBab = false;
 
@@ -745,14 +746,12 @@ const kataLangkah = async (page) => { const t = await bodyText(page); const i = 
 // (the audit also runs against older releases, production's among them)
 const siap = (c) => sql(`select status || ' | ' || coalesce(blockers::text, '') from public.publish_readiness('${c}')`).trim();
 
-await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps, the reviewer reading every question, key and reason before approving (DAISY-06, BOB-03, D-088(h))", async (rec) => {
-  const course = babSatu();
-  if (!course) { rec.verdict = "BLOCKED"; return "S15c left no Bab 1 course"; }
-  await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
-  if (!(await g.getByRole("button", { name: TERBIT[0][1] }).count()) && !/Langkah menuju terbit/i.test(await bodyText(g))) {
-    rec.verdict = "NOTE"; return `this candidate has no Langkah menuju terbit on the package page (state ${keadaanBab(course)})`;
-  }
-  const notes = [`start ${keadaanBab(course)}`];
+// The seven steps on the package page with two people (DAISY-06, BOB-03): Gladys, the author, puts it together, checks
+// it, sends it for review and publishes; the school admin approves, creates the release and locks it; the author is
+// never offered the second person's step; each WARNING finding is reviewed before publishing. `bacaSoal` adds
+// D-088(h)'s check that the reviewer reads every question, key and reason before «Setujui isi». False when a step failed
+// (the reason is in `notes`, the verdict set).
+async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama = "Bab 1", awalan = "" } = {}) {
   // press a step's button as `page`; the state it moved to, or null when nothing moved
   const tekan = async (page, kunci, tombol) => {
     await page.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
@@ -763,7 +762,7 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
     let after = before;
     for (let i = 0; i < 40 && after === before; i++) { await page.waitForTimeout(500); after = keadaanBab(course); }
     await page.waitForLoadState("networkidle");
-    rec.shots.push(await shot(page, `terbit-${kunci}${after === before ? "-ditolak" : ""}`));
+    rec.shots.push(await shot(page, `${awalan}terbit-${kunci}${after === before ? "-ditolak" : ""}`));
     return { after: after === before ? null : after };
   };
   for (const [kunci, tombol, siapa] of TERBIT) {
@@ -773,7 +772,7 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
       await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
       if (await g.getByRole("button", { name: tombol, exact: true }).count()) { notes.push(`!! the author is offered "${tombol}"`); rec.verdict = "FAIL"; }
     }
-    if (kunci === "setujui") {
+    if (kunci === "setujui" && bacaSoal) {
       // D-088(h): before approving, the reviewer has the chapter's questions in front of them, each with its key and
       // every option's reason, on the package page (the learner preview stays without questions)
       await a.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
@@ -783,7 +782,7 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
       const diBank = Number(sql(`select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}'`));
       const opsiBank = Number(sql(`select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}'`));
       const kunciBank = Number(sql(`select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}' and o.is_correct`));
-      rec.shots.push(await shot(a, "terbit-soal-ditinjau"));
+      rec.shots.push(await shot(a, `${awalan}terbit-soal-ditinjau`));
       notes.push(`D-088(h) the reviewer reads ${diLayar} of ${diBank} questions, ${alasanLayar} of ${opsiBank} options with their reason, ${kunciLayar} of ${kunciBank} keys marked`);
       if (diBank === 0 || diLayar !== diBank || kunciLayar !== kunciBank || alasanLayar !== opsiBank) rec.verdict = "FAIL";
     }
@@ -792,14 +791,14 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
       const mutu = sql(`select coalesce(string_agg(severity || ' ' || pattern_class || ' x' || n, ', ' order by severity, pattern_class), 'none')
         from (select severity::text, pattern_class, count(*) n from public.mcq_quality_findings where course_id='${course}' group by 1, 2) x`).trim();
       const teks = sql(`select coalesce(string_agg(severity || ' x' || n, ', '), 'none') from (select severity::text, count(*) n from public.coaching_findings where course_id='${course}' group by 1) x`).trim();
-      notes.push(`findings on Bab 1: question quality ${mutu}; student text ${teks}`);
+      notes.push(`findings on ${nama}: question quality ${mutu}; student text ${teks}`);
       const r0 = siap(course);
       notes.push(`readiness: ${r0}`);
       if (!r0.startsWith("READY")) {
         const t = await tekan(g, kunci, tombol);
         notes.push(`publishing before the review: ${t.tidakAda ? "no button" : t.after ? `moved to ${t.after} (!!)` : `refused; the page says: ${await kataLangkah(g)}`}`);
-        if (t.after) { rec.verdict = "FAIL"; return notes.join("; "); }
-        if (r0.startsWith("BLOCKED")) { rec.verdict = "FAIL"; notes.push("ERROR findings: the content must be corrected before it can be published"); return notes.join("; "); }
+        if (t.after) { rec.verdict = "FAIL"; return false; }
+        if (r0.startsWith("BLOCKED")) { rec.verdict = "FAIL"; notes.push("ERROR findings: the content must be corrected before it can be published"); return false; }
         // the second person reviews each WARNING on the package page
         let reviewed = 0;
         for (let i = 0; i < 60; i++) {
@@ -813,16 +812,28 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
           for (let k = 0; k < 20 && open() === n0; k++) await a.waitForTimeout(300);
           reviewed += 1;
         }
-        rec.shots.push(await shot(a, "terbit-temuan-ditinjau"));
+        rec.shots.push(await shot(a, `${awalan}terbit-temuan-ditinjau`));
         notes.push(`the school admin reviewed ${reviewed} finding(s); readiness now: ${siap(course)}`);
       }
     }
     const t = await tekan(page, kunci, tombol);
     const who = siapa === "g" ? "Gladys" : "the school admin";
-    if (t.tidakAda) { notes.push(`${kunci}: no "${tombol}" button for ${who}; state ${keadaanBab(course)}; the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return notes.join("; "); }
-    if (!t.after) { notes.push(`${kunci}: pressed by ${who}, nothing moved (${keadaanBab(course)}); the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return notes.join("; "); }
+    if (t.tidakAda) { notes.push(`${kunci}: no "${tombol}" button for ${who}; state ${keadaanBab(course)}; the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return false; }
+    if (!t.after) { notes.push(`${kunci}: pressed by ${who}, nothing moved (${keadaanBab(course)}); the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return false; }
     notes.push(`${kunci} → ${t.after}`);
   }
+  return true;
+}
+
+await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps, the reviewer reading every question, key and reason before approving (DAISY-06, BOB-03, D-088(h))", async (rec) => {
+  const course = babSatu();
+  if (!course) { rec.verdict = "BLOCKED"; return "S15c left no Bab 1 course"; }
+  await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  if (!(await g.getByRole("button", { name: TERBIT[0][1] }).count()) && !/Langkah menuju terbit/i.test(await bodyText(g))) {
+    rec.verdict = "NOTE"; return `this candidate has no Langkah menuju terbit on the package page (state ${keadaanBab(course)})`;
+  }
+  const notes = [`start ${keadaanBab(course)}`];
+  if (!(await terbitkanLewatLayar(course, rec, notes, { bacaSoal: true }))) return notes.join("; ");
   terbitBab = keadaanBab(course).endsWith("|PUBLISHED");
   const tests = sql(`select coalesce(string_agg(mode::text, ',' order by mode::text), '-') from public.assessment_definitions where course_id='${course}'`).trim();
   notes.push(`published: ${terbitBab}; its tests: ${tests}`);
@@ -1873,6 +1884,151 @@ await step("S26c", "a student recorded in the Tingkat only is placed in one of i
     `(only Kelas 1's own: ${hanyaKelasnya}); after «Pindahkan»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}, showing ` +
     `${u.searchParams.get("dari") === kelas ? "Kelas 1A" : u.searchParams.get("dari")} with ${nama}: ${sesudah.includes(nama)}; placements: ${akhir}; ` +
     `persons named ${nama}: ${orang}; enrolment ${status}; Tingkat still offered to start from: ${masihTingkat > 0}`;
+});
+
+// W18 (D-088(d)): continue before beginning, with two chapters. Gita (S26c) joins late: her class card, Bab 1's
+// Pemetaan Awal, Bab 1's first lesson read to its last page. Meanwhile the school publishes SD 5 Bab 2 by the same
+// screens (Gladys imports it and takes it through the seven steps with the school admin, who then sets its pass mark)
+// and Bu Guru Sari, Kelas 1A's teacher since S26b, gives it to the class on Siapkan, where it reads «Materi sekolah»
+// (M6). Gita's home must lead with Bab 1, the reading she is in the middle of, and list Bab 2's Pemetaan Awal after
+// it; once she opens Bab 2's Pemetaan Awal, that running sitting leads. Before W18 the unstarted Bab 2 mapping led.
+await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home continuing Bab 1 before Bab 2's Pemetaan Awal, and a sitting she has started leads (W18, D-088(d)); Bab 2 is published by the screens and given to the class as «Materi sekolah» (M6)", async (rec) => {
+  const kelas = kelasSatuA();
+  const bab1 = babSatu();
+  const la1 = bab1 && kelas ? sql(`select id from public.learning_assignments where course_id='${bab1}' and node_id='${kelas}' order by created_at desc limit 1`).trim() : "";
+  if (!terbitBab || !la1) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Bab 1 assignment for Kelas 1A"; }
+  const f = new URL("./fixtures/sd5-matematika-bab2.paket.json", import.meta.url);
+  if (!existsSync(f) || !paketContoh) { rec.verdict = "NOTE"; return "candidate predates BOB-02, or the Bab 2 fixture is absent"; }
+  const notes = [];
+
+  // 1. Gladys imports Bab 2 into SD and confirms it
+  const r = await kirimPaket("SD Zayd", readFileSync(f, "utf8"));
+  if (r.batch) {
+    await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
+    const btn = g.locator(`form:has(input[name="batch"][value="${r.batch}"]) button[type="submit"]`).first();
+    if (await btn.count()) { await btn.click(); await g.waitForLoadState("networkidle"); await g.waitForTimeout(1500); }
+  }
+  const bab2 = sql(`select id from public.courses where institution_id='${ids.sd}' and title like 'Matematika Kelas 5%' and title like '%Bab 2:%' order by created_at desc limit 1`).trim();
+  notes.push(`Bab 2 imported: hasil=${r.hasil} detail=${r.detail}, course ${bab2 ? "made" : "missing"}`);
+  if (!bab2) { rec.verdict = "FAIL"; return notes.join("; "); }
+
+  // 2. the seven steps, two people, as Bab 1 went (S17)
+  if (!(await terbitkanLewatLayar(bab2, rec, notes, { nama: "Bab 2", awalan: "bab2-" }))) return notes.join("; ");
+  if (!keadaanBab(bab2).endsWith("|PUBLISHED")) { rec.verdict = "FAIL"; notes.push(`Bab 2 ended ${keadaanBab(bab2)}`); return notes.join("; "); }
+
+  // 3. the school admin sets Bab 2's pass mark on Konfigurasi → Batas ketuntasan
+  await a.goto(`${APP}/konfigurasi?sekolah=${ids.sd}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle" });
+  await tutupTur(a);
+  const barisBatas = a.locator(`#ketuntasan li[data-pelajaran="${bab2}"]`);
+  if (!(await barisBatas.count())) { rec.verdict = "FAIL"; notes.push("Konfigurasi lists no Bab 2 under Batas ketuntasan"); return notes.join("; "); }
+  await barisBatas.locator('input[name="persen"]').fill("60");
+  await barisBatas.locator('input[name="alasan"]').fill("Keputusan rapat guru");
+  await barisBatas.getByRole("button", { name: "Tetapkan", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("bagian") === "ketuntasan", { timeout: SLOW });
+  const batas2 = sql(`select coalesce(max(m.percent)::text, '-') from public.school_pass_marks m where m.institution_id='${ids.sd}' and m.course_id='${bab2}'
+    and not exists (select 1 from public.school_pass_marks n where n.supersedes_id = m.id)`).trim();
+  notes.push(`Bab 2's pass mark set on Konfigurasi: ${batas2}%`);
+  if (batas2 !== "60") rec.verdict = "FAIL";
+
+  // 4. Bu Guru Sari gives Bab 2 to Kelas 1A on Siapkan; the row says where the material comes from (M6)
+  const tc = await ctx();
+  const t = await tc.newPage();
+  await magicSignIn(t, people.guru2.email);
+  await t.goto(`${APP}/mengajar/${kelas}/siapkan`, { waitUntil: "networkidle" });
+  await tutupTur(t);
+  const row = t.locator("a.pin-row").filter({ hasText: "Bab 2" }).first();
+  if (!(await row.count())) { rec.verdict = "FAIL"; await tc.close(); notes.push(`Siapkan does not offer Bab 2: ${(await bodyText(t)).slice(0, 200)}`); return notes.join("; "); }
+  const asal = norm(await row.locator(".pin-asal").first().innerText().catch(() => ""));
+  if (asal !== "Materi sekolah") rec.verdict = "FAIL";
+  rec.shots.push(await shot(t, "w18-siapkan-bab2"));
+  await row.click();
+  await t.waitForLoadState("networkidle");
+  const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(Date.now() + 30 * 86400000));
+  await t.locator("#pin-sampai").fill(sampai).catch(() => {});
+  await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  await t.waitForLoadState("networkidle");
+  await t.waitForTimeout(1500);
+  const kodeSedia = new URL(t.url()).searchParams.get("kode");
+  await tc.close();
+  const la2 = sql(`select id from public.learning_assignments where course_id='${bab2}' and node_id='${kelas}' order by created_at desc limit 1`).trim();
+  notes.push(`Siapkan's Bab 2 row reads «${asal}»; «Sediakan» by Sari → ${la2 ? "given to Kelas 1A" : `not given${kodeSedia ? ` (kode=${kodeSedia})` : ""}`}`);
+  if (!la2) { rec.verdict = "FAIL"; return notes.join("; "); }
+
+  // 5. Gita's card, by clicking on her row
+  await a.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
+  const barisGita = a.locator("li.pin-akt-orang", { hasText: "Gita Murid" }).first();
+  if (!(await barisGita.count())) { rec.verdict = "FAIL"; notes.push("Gita is not listed on Aktivasi"); return notes.join("; "); }
+  await barisGita.getByRole("button", { name: "Buat kartu kelas", exact: true }).click();
+  await barisGita.locator("strong.pin-num").nth(1).waitFor({ timeout: SLOW });
+  const [nomor, pin] = await barisGita.locator("strong.pin-num").allInnerTexts();
+
+  // 6. Gita: Bab 1's Pemetaan Awal, then its first lesson to the last page
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+    await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+    await s.locator("#kartu").fill(nomor);
+    await s.locator("#pin").fill(pin);
+    await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+    await s.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+    await s.waitForLoadState("networkidle");
+    await s.goto(`${APP}/belajar/${la1}/pemetaan`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    await s.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
+    const pre = await jawab(s, "pre", 2);
+    await s.goto(`${APP}/belajar/${la1}/peta`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    await s.getByRole("link", { name: "Buka pelajarannya" }).first().click();
+    await s.waitForURL((u) => u.pathname.includes("/pelajaran/"), { timeout: SLOW });
+    await s.locator("h1").first().waitFor({ timeout: SLOW });
+    const posisi = async () => norm(await s.locator("p.pin-lpos").first().innerText().catch(() => ""));
+    const lanjut = s.getByRole("button", { name: "Halaman berikutnya", exact: true });
+    for (let i = 0; i < 30 && (await lanjut.isEnabled().catch(() => false)); i++) {
+      const sebelum = await posisi();
+      await lanjut.click();
+      await s.waitForFunction((prev) => document.querySelector("p.pin-lpos")?.innerText.replace(/\s+/g, " ").trim() !== prev, sebelum, { timeout: SLOW });
+    }
+    await s.waitForTimeout(1500); // the page reached is saved on view
+    notes.push(`Gita: card made on her row; Bab 1's Pemetaan Awal handed in (${pre.answered} answered); the first lesson read to «${await posisi()}»`);
+
+    // 7. her home: Bab 1 leads, Bab 2's Pemetaan Awal after it
+    const rumah = async () => {
+      await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+      await tutupTur(s);
+      const href = (await s.locator("section.pin-lanjut a.pin-primary").first().getAttribute("href").catch(() => null)) ?? "";
+      const di = norm(await s.locator("section.pin-lanjut .pin-where").first().innerText().catch(() => ""));
+      const kartu = await s.locator("article.pin-tugas").evaluateAll((els) => els.map((e) => ({
+        judul: (e.querySelector(".pin-ttitle")?.textContent ?? "").trim(),
+        href: e.querySelector("a.pin-btn")?.getAttribute("href") ?? "",
+      })));
+      return { href, di, kartu };
+    };
+    const h1 = await rumah();
+    rec.shots.push(await shot(s, "w18-rumah-lanjut-bab1"));
+    const urut1 = h1.kartu.map((k) => (/Bab 1:/.test(k.judul) ? "Bab 1" : /Bab 2:/.test(k.judul) ? "Bab 2" : k.judul));
+    const kartu2 = h1.kartu.find((k) => /Bab 2:/.test(k.judul));
+    const lanjutBab1 = h1.href.startsWith(`/belajar/${la1}/`) && !h1.href.endsWith("/pemetaan") && /Bab 1:/.test(h1.di);
+    const bab2Sesudah = urut1[0] === "Bab 1" && urut1[1] === "Bab 2" && (kartu2?.href ?? "").endsWith(`/belajar/${la2}/pemetaan`);
+    notes.push(`her home leads with "${h1.di}" → ${h1.href.replace(la1, "<bab1>").replace(la2, "<bab2>")}; chapters in order ${JSON.stringify(urut1)}, Bab 2's card → ${(kartu2?.href ?? "-").replace(la2, "<bab2>")}`);
+    if (!lanjutBab1 || !bab2Sesudah) rec.verdict = "FAIL";
+
+    // 8. she opens Bab 2's Pemetaan Awal and goes home: the running sitting leads
+    await s.goto(`${APP}/belajar/${la2}/pemetaan`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    await s.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
+    await s.locator("h2.pin-stem").first().waitFor({ timeout: SLOW });
+    const h2 = await rumah();
+    rec.shots.push(await shot(s, "w18-rumah-sesi-berjalan"));
+    const berjalan = sql(`select count(*) from public.assessment_sessions ss join public.assessment_assignments aa on aa.id = ss.assessment_assignment_id
+      join public.persons p on p.id = ss.person_id where aa.learning_assignment_id='${la2}' and p.display_name='Gita Murid' and ss.status::text not in ('FINALIZED')`).trim();
+    notes.push(`after opening Bab 2's Pemetaan Awal (${berjalan} sitting under way) her home leads with "${h2.di}" → ${h2.href.replace(la1, "<bab1>").replace(la2, "<bab2>")}`);
+    if (h2.href !== `/belajar/${la2}/pemetaan` || berjalan === "0") rec.verdict = "FAIL";
+  } finally {
+    await sc.close();
+  }
+  return notes.join("; ");
 });
 
 // ADM-J19: a new school year, by the screens, never run before. The school admin records Fajar in Kelas 1A
