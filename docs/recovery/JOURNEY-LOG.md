@@ -20,6 +20,7 @@ One line of evidence per walk, newest first. A journey is DONE when a person can
 | W5 | «Posisi bacaan tersimpan.» shown even when the save failed; a lost last-page save left the lesson unread with no way to retry | `8a243ad` |
 | W8 | «Lihat bukti» counted students halfway through a test as «Belum mengerjakan» | `1cfa9e8` |
 | W16 | A test starting tomorrow read «Berjalan» today; the home said nothing was waiting while a class had no material | `40d38c3` |
+| W9 (class figures) | The head of department read a class's net gain as «35%» where the teacher's «Lihat bukti» says «+35 poin»; a perfect class read «1» | `f304621` |
 
 The walks now leave student 4's last post-test answer unsaved before «Kumpulkan» (W3): on `main` that reads 7 of 8, after the fix 8 of 8. **Walked in a browser on the branch's built code** (local stack, CI audit run 36829928522, `5729c44`): 31 PASS, 1 NOTE; «Kumpulkan» asked first for every student; every result equals the plan, and the class figure reads 75% (73% had the answer been lost).
 
