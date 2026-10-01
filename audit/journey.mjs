@@ -1583,7 +1583,9 @@ await step("S26", "the school admin corrects the structure on Struktur sekolah: 
     if (sql(`select name from public.org_nodes where id='${satuB}'`).trim() === "Kelas 1 Biru") break;
     await a.waitForTimeout(500);
   }
-  await a.waitForLoadState("networkidle");
+  // the database has the new name; wait for the screen to show it (the action's response re-renders the panel;
+  // waitForLoadState returns at once on a page already loaded). Never showing it stays a FAIL.
+  await a.waitForFunction(() => /Kelas 1 Biru/.test(document.querySelector("#struktur")?.textContent ?? ""), null, { timeout: SLOW }).catch(() => {});
   const nama = sql(`select name from public.org_nodes where id='${satuB}'`).trim();
   const layar = norm(await a.locator("#struktur").innerText().catch(() => ""));
   rec.shots.push(await shot(a, "adm-j20-ubah-nama"));
