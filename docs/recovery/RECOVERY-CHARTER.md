@@ -70,6 +70,7 @@
   - the test levels;
   - the status model.
 - **Exit:** the Phase 1 package, reviewed by ChatGPT and accepted by Yazid; the inventory approved; the one-time owner access done.
+  - *1 Oct: the package was reviewed and the inventory approved (O1, D-086). The one-time owner access is outstanding.*
 
 **Phase 2: Build trustworthy instruments.**
 - **The harness and the journeys:**

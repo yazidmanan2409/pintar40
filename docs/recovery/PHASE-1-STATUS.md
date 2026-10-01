@@ -3,7 +3,7 @@
 **1 October 2026.** The Phase 0 and Phase 1 exit package for independent review (ChatGPT) and Yazid's acceptance.
 
 - **PHASE 0: COMPLETE.**
-- **PHASE 1: COMPLETE** (pending review).
+- **PHASE 1: SCOPE CLOSED, 1 Oct.** Yazid approved O1 (D-086), after ChatGPT's review, with CF13–CF15 confirmed and G1 ruled. The charter's other Phase 1 exit condition, the one-time owner access (§7), is still outstanding.
 - **Updated 1 Oct, after review.** The journey coverage cross-check (`PINTAR-4.0-JOURNEY-COVERAGE-CROSS-CHECK-2026-10-01.md`) and the owner rulings M1–M10 and T1–T4 (D-085) are applied; so are corrections K1–K4. §4.2 and §5–§6 reflect them.
 - **READY FOR INDEPENDENT PHASE-EXIT REVIEW: YES.**
 - Nothing in Phase 2 has started.
@@ -295,9 +295,9 @@ The detail follows. A row is TESTED only when its whole expected behaviour was r
 | CF10 | **M2 against STU-01.** STU-01 ("Sign in by email link or class card") lets students use an email link | M2 supersedes STU-01's email-link half. The class card and PIN is the one student model. STU-01's text should be amended when the checklist is next rendered |
 | CF11 | **M6 against D-029.** D-029 refuses every import into the national library, for every role, the platform admin included. M6 requires standard content prepared and governed centrally | M6, the later ruling, amends D-029: standard content enters the library through a governed central path. D-029's protection against school imports into the library can stay. **Not stated by any ruling:** which PINTAR role prepares and approves standard content (G2) |
 | CF12 | **M6 against the checklist's gate for SYS-05** (P2, after go-live) | M6 brings central distribution into normal 4.0 operation; the inventory sets J1.5 to EC. Approving O1 confirms this |
-| CF13 | **M3's "mastery target".** D-078 (as amended) and D-081 define one passing rule: mastery ≥ the sealed school mark, plus the safety gate. They forbid a second definition | **Reading:** M3's target is that sealed school mark. The readiness tiers (fixed 0.60 and 0.80 bands, J7.7) are not the target. **Confirm with O1** |
-| CF14 | **T1 against D-009, D-055(e) and C4.** All three say class-card sessions are "unchanged" (60 minutes idle, no lock). C11 never asks class-card users the device question | T1 revises D-009, D-055(e) and C4 for students. **Reading:** because class-card users are never asked (C11), the lock applies to every class-card session. **Confirm with O1.** Lock and expiry values, and wrong-PIN handling on resume, are set in implementation (T1) |
-| CF15 | **M4 and M5 against D-069(b).** M4/M5 let a teacher see a learner's evidence and submitted answers within their teaching scope. D-069(b) gives a professional-learning facilitator no individual answers, and the head of department and dean no answers | **Reading:** D-069(b), the specific rule, keeps governing professional-learning Kelas; M4 and M5 govern academic classes. **Confirm with O1** |
+| CF13 | **M3's "mastery target".** D-078 (as amended) and D-081 define one passing rule: mastery ≥ the sealed school mark, plus the safety gate. They forbid a second definition | **CONFIRMED (D-086):** M3's target is that sealed school mark. Completion asks "did the student complete the cycle?"; mastery asks "did they meet the sealed target?". The readiness tiers (fixed 0.60 and 0.80 bands, J7.7) are not the target |
+| CF14 | **T1 against D-009, D-055(e) and C4.** All three say class-card sessions are "unchanged" (60 minutes idle, no lock). C11 never asks class-card users the device question | T1 revises D-009, D-055(e) and C4 for students. **CONFIRMED (D-086):** the lock applies to every class-card session; no student is asked to classify a computer. Lock and expiry values, and wrong-PIN handling on resume, are set in implementation (T1) |
+| CF15 | **M4 and M5 against D-069(b).** M4/M5 let a teacher see a learner's evidence and submitted answers within their teaching scope. D-069(b) gives a professional-learning facilitator no individual answers, and the head of department and dean no answers | **CONFIRMED (D-086):** D-069(b), the specific rule, keeps governing professional-learning Kelas; M4 and M5 govern academic classes within the teacher's authorised scope |
 | CF16 | **M8 against D2 (the 18 Sep sign-in ruling) and C3.** D2 and C3 require identity-neutral answers and folded a throttle into "sent" (`masuk/actions.ts:73`) | M8 forbids claiming "sent" against PINTAR's own evidence. Neutral copy that claims no send satisfies both; the fold into "sent" is superseded (cross-check W6 stays a defect) |
 | CF17 | **M1 against Golden School C1's "nothing else".** C1 said the script creates the school and nothing else | M1 governs: the process establishes the minimum institutional foundation for handover. The Golden School contract is updated; exactly what the foundation holds is specified in Phase 2, with nothing that normal school operation does |
 
@@ -314,14 +314,12 @@ The detail follows. A row is TESTED only when its whole expected behaviour was r
 - M3–M10 (the cross-check);
 - T1–T4.
 
-**Needed to close Phase 1:**
-- **O1. Approve the scope inventory** (`PINTAR-4.0-SCOPE-INVENTORY.md`, now with D-085). Approving it also confirms three readings, unless Yazid says otherwise:
-  - **CF13:** the mastery target is the sealed school mark;
-  - **CF14:** the student lock applies to every class-card session;
-  - **CF15:** D-069(b) still governs professional-learning Kelas.
+**Closed 1 Oct (D-086):**
+- **O1:** the scope inventory is APPROVED. It is the frozen 4.0 target, and only Yazid reopens it.
+- **CF13, CF14 and CF15:** CONFIRMED.
+- **G1:** 4.0 provides a student profile-photo capability, on the profile only. Never on the class card or the certificate; certificate issuance never requests or consumes it (J8.8).
 
 **Not needed before Phase 2** (each says when it is needed):
-- **G1. The student profile photo.** T4 permits a profile photo. Is a student profile photo something 4.0 must build, or only permitted if a profile exists? The inventory records it as permitted (J8.8). Needed before Phase 5.
 - **G2. Who prepares and approves PINTAR standard content centrally** (M6; CF11). Needed before the M6 work in Phase 4.
 - **B1 and B2. Built with no scope source** (inventory §11): class feedback rounds, and the evaluation hub and personas. Count in 4.0 or not; needed before Phase 5.
 - **O3. The size of the first real deployment,** which sets L1 (the open item of D-083). Needed before Phase 7.

@@ -1,6 +1,6 @@
 # PINTAR 4.0 scope inventory
 
-**1 October 2026 (Phase 1; D-084). Updated the same day with the owner rulings M1–M10 and T1–T4 (D-085; verbatim in `OWNER-RULINGS-M1-M10-T1-T4-2026-10-01.md`).** This answers one question: **what exactly must PINTAR 4.0 do before we can say PINTAR 4.0 is complete?** It is not a new requirements exercise, and it is not an MVP.
+**1 October 2026 (Phase 1; D-084). Updated the same day with the owner rulings M1–M10 and T1–T4 (D-085; verbatim in `OWNER-RULINGS-M1-M10-T1-T4-2026-10-01.md`). APPROVED by Yazid as O1, with CF13–CF15 confirmed and G1 ruled (D-086). This is the frozen 4.0 target; only Yazid reopens it.** This answers one question: **what exactly must PINTAR 4.0 do before we can say PINTAR 4.0 is complete?** It is not a new requirements exercise, and it is not an MVP.
 
 **Sources, and only these:**
 - the canonical decisions D-001 to D-084 (`docs/coordination/DECISIONS.md`);
@@ -67,7 +67,7 @@
 | J2.17 | Apply the username rules, with no self-service change. A correction is an audited platform-admin operation | C9; D-077(e) | EC |
 | J2.18 | Show the resend countdown only on code screens, behaving the same whether or not the identity exists | C3 | EC |
 | J2.19 | Sign a student in with the PINTAR class card and PIN, the one normal student sign-in model. A recorded email gives a student no other sign-in method: no magic link, no email or password, no "choose how to sign in". A wrong card, or a refusal under load, says what really happened | D-085 (M2); STU-01 as amended by M2 (CF10); C17; D-031 (the card-limit risk); CAP-01; Gate 1 (BOB-12) | P0 |
-| J2.20 | Lock a student's session after a period of inactivity: the lock hides their information and keeps the session resumable with their PIN. After a substantially longer inactivity the session expires and needs the card and PIN again. «Bukan akun Anda?» lets another learner switch safely. The values are set and tested in implementation. Learning state is person-bound, never device-bound. Greet a learner by first name only on shared screens | D-085 (T1), revising D-009 and D-055(e)/C4 (CF14); D-020; STU-03; U-PRIV | P0 |
+| J2.20 | Lock a student's session after a period of inactivity: the lock hides their information and keeps the session resumable with their PIN. After a substantially longer inactivity the session expires and needs the card and PIN again. «Bukan akun Anda?» lets another learner switch safely. The values are set and tested in implementation. Learning state is person-bound, never device-bound. Greet a learner by first name only on shared screens | D-085 (T1), revising D-009 and D-055(e)/C4; it applies to every class-card session (confirmed, CF14; D-086); D-020; STU-03; U-PRIV | P0 |
 | J2.21 | Let the school re-issue a lost card or PIN and correct a wrong email, without SQL. Student recovery is school-assisted and never depends on an email account | ADM-08; U-RECOVER; D-085 (M2) | P1 |
 
 ## J3. School setup (Admin sekolah)
@@ -120,8 +120,8 @@
 | J5.10 | Suggest what next: assistive, and fitting the class's subject and grade | EDU-13; D-061 (#3) | P2; the #3 correction is EC |
 | J5.11 | Let a head of department assign and run Uji Cepat within their Bagian | HOD-08 | P1 |
 | J5.12 | Show the teacher which learners are below the mastery target, and let the teacher reassign existing learning material to selected learners who need support. No automatic adaptive remediation | D-085 (M3) | EC |
-| J5.13 | Give the teacher an individual learning view of a student within their teaching scope: progress, started or completed, assessment results, mastery status, the objectives the learner struggles with, and other evidence the role permits. An educational view, not a personal dossier; no restricted integrity or security information | D-085 (M4); for professional-learning Kelas see CF15 | EC |
-| J5.14 | After an assessment is submitted or closed, show the teacher question-level performance for the classes they teach, with drill-down to individual submitted answers within scope where needed. Never a live feed of answers during an active assessment. Distinct from Question Health and integrity evidence. For Uji Cepat, immediately after it closes | D-085 (M5); for professional-learning Kelas see CF15 | EC |
+| J5.13 | Give the teacher an individual learning view of a student within their teaching scope: progress, started or completed, assessment results, mastery status, the objectives the learner struggles with, and other evidence the role permits. An educational view, not a personal dossier; no restricted integrity or security information | D-085 (M4); professional-learning Kelas stay under D-069(b) (confirmed, CF15; D-086) | EC |
+| J5.14 | After an assessment is submitted or closed, show the teacher question-level performance for the classes they teach, with drill-down to individual submitted answers within scope where needed. Never a live feed of answers during an active assessment. Distinct from Question Health and integrity evidence. For Uji Cepat, immediately after it closes | D-085 (M5); professional-learning Kelas stay under D-069(b) (confirmed, CF15; D-086) | EC |
 
 ## J6. Learning and assessment (Murid)
 
@@ -141,7 +141,7 @@
 | J6.12 | Allow permitted feedback review only, showing no internals | STU-16 | P1 |
 | J6.13 | Say honestly "nothing more to do", or give the next expectation | STU-18 | P0 |
 | J6.14 | Switch every learner screen between ID and EN; content is never translated | STU-20 | P1 |
-| J6.15 | Keep completion and mastery as separate truths. Completing the post-test does not mean the mastery target was achieved; after the post-test the learner is told clearly whether it was. Below target, PINTAR directs the learner to relevant material for review and never implies mastery because the activities were completed. No unlimited post-test retries | D-085 (M3); the target is the sealed school mark (D-081, D-078 as amended; reading CF13) | EC |
+| J6.15 | Keep completion and mastery as separate truths. Completing the post-test does not mean the mastery target was achieved; after the post-test the learner is told clearly whether it was. Below target, PINTAR directs the learner to relevant material for review and never implies mastery because the activities were completed. No unlimited post-test retries | D-085 (M3); the target is the sealed school mark (D-081, D-078 as amended; confirmed, CF13; D-086) | EC |
 
 ## J7. Evidence and reporting
 
@@ -168,7 +168,7 @@
 | J8.5 | Support a certificate template and revocation; numbers never collide | ADM-18 | P1 |
 | J8.6 | Verify anonymously: a valid token shows the status first, then only the bounded facts. A random token gets the private not-found; eligible-but-not-issued exposes nothing; nothing leaks | PUB-03 to PUB-06 | P0 / P1 |
 | J8.7 | Establish the production card pepper and signing key, with verified offline copies, before the first production card or certificate. Keys are versioned | D-066; REL-09 | REL |
-| J8.8 | Carry no student photo on the certificate or the PINTAR class card. A student's profile may contain a profile photo; it never alters the identity or evidence meaning of a card or certificate | D-085 (T4) | EC (no photo); the profile photo is permitted (question G1) |
+| J8.8 | Provide a profile-photo capability on the student's profile. The photo appears only on the profile: never on the PINTAR class card or the certificate. Certificate issuance never requests or consumes it, and a student's choice of image never alters the identity or evidence meaning of a card or certificate | D-085 (T4); D-086 (G1) | EC |
 
 ## J9. Educator as learner (a bounded 4.0 capability, D-069(j))
 
@@ -264,4 +264,4 @@ These are ENHANCEMENT if raised:
 
 Their lines are J1.1, J1.5, J1.9, J2.19–J2.21, J3.7, J3.12, J4.11, J4.12, J5.4, J5.5, J5.12–J5.14, J6.15, J8.8 and J9.2.
 
-**Readings that need the owner's confirmation** (they do not add scope) are listed in `PHASE-1-STATUS.md` §5: CF13, CF14 (point 2), CF15, and the open question G1.
+**Readings confirmed** with O1 (D-086): CF13, CF14 and CF15. **G1 ruled:** 4.0 provides the student profile photo, on the profile only (J8.8).

@@ -33,7 +33,7 @@
 ## 1. Verdict (after D-085)
 
 - **Scope.** The inventory now covers the catalogue: **218 of 226 rows are SUPPORTED**, 8 are ENHANCEMENT / LATER (two of them by ruling: T2, T3), and **none is a missing requirement**.
-- **What is left before O1.** No unresolved scope decision blocks O1. Three readings of the rulings against earlier rulings must be confirmed with the approval: CF13, CF14 and CF15 (`PHASE-1-STATUS.md` §5). Two questions can wait (G1, G2).
+- **O1 approved (D-086, 1 Oct).** CF13–CF15 are confirmed, and G1 is ruled: 4.0 provides the student profile photo, on the profile only. G2 waits for the M6 work.
 - **As built, the human journeys are mostly not connected.** Only **13 of 226** rows are connected by clicking on `main`'s code, and none is proven on a deployed environment. **8 are wrong.** The rulings add scope, not implementation: many newly supported rows are MISSING on `main`, for example M4, M5, M7, M9 and the M8 view.
 
 ## 2. Counts
@@ -105,7 +105,7 @@ Resolved by D-085.
   - Learning state is person-bound. The values are set in implementation [J2.20]. This revises D-009, D-055(e) and C4 (CF14). W2 stays a defect.
 - **T2. Uji Cepat question selection.** **Clarified:** choose the bank or topic → select (tick) → review → launch, in about a minute. No authoring in the flow [J5.5]. EDU-J19 is out of 4.0.
 - **T3. Management and educator training.** **Kept:** management oversees, and the facilitator enrols and assigns. A person holding both roles may do both; there is no parallel mechanism [J9.2]. MGT-J07 is out of 4.0.
-- **T4. Photo.** **Ruled:** a student profile may contain a photo; the class card and the certificate never do [J8.8]. Whether 4.0 must build a profile photo is question G1.
+- **T4. Photo.** **Ruled:** a student profile may contain a photo; the class card and the certificate never do [J8.8]. G1, ruled with O1 (D-086): 4.0 provides the profile-photo capability; certificate issuance never requests or consumes it.
 
 **ENHANCEMENT / LATER** (no source; not needed for agreed 4.0):
 - free subject browsing (STU-J03);

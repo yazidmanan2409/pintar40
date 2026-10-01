@@ -6,7 +6,7 @@
 - From Phase 2, states are generated from runs; until then they come from the Phase 1 walk-back (`PHASE-1-STATUS.md`).
 - A decision goes to `DECISIONS.md` only when a product or architecture ruling is needed.
 
-**Phase: 1 complete (stopped). Phase 2 is NOT authorised. No engineering work is active.**
+**Phase 1: scope closed 1 Oct (O1 approved, D-086). Its exit still needs the one-time owner access (`PHASE-1-STATUS.md` §7). Phase 2 is NOT authorised. No engineering work is active.**
 
 **Since 1 Oct (K4):**
 - The precise break for each human journey is in `PINTAR-4.0-JOURNEY-COVERAGE-CROSS-CHECK-2026-10-01.md` §7.
