@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
-import { posisi, peringkat, lessonRead, type Kandidat } from "@/lib/siklus";
+import { posisi, peringkat, lessonRead, ketuntasan, type Kandidat, type Ketuntasan } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import Tur from "@/components/tur/Tur";
@@ -97,6 +97,8 @@ export default async function Belajar({
   // the reading map set, so «Lanjutkan pelajaran» opens that lesson rather than
   // the page a second button also opens.
   const berikutnya = new Map<string, string>();
+  // D-085 M3: a finished chapter's own verdict, so its card says whether the target was met, not only «Selesai»
+  const capaian = new Map<string, Ketuntasan | null>();
 
   // One round of reads per assignment, then the ranking. The cycle state says
   // where the learner is; the lessons say how far through the reading they
@@ -109,6 +111,9 @@ export default async function Belajar({
       ]);
       const belum = lessons.find((l) => !lessonRead(l));
       if (belum) berikutnya.set(a.learning_assignment_id, belum.lesson_id);
+      if (state.post_session && state.post_status === "FINALIZED") {
+        capaian.set(a.learning_assignment_id, ketuntasan(await engine.outcome(db, state.post_session).catch(() => null)));
+      }
       return {
         tugas: a,
         posisi: posisi(state, lessons),
@@ -280,6 +285,7 @@ export default async function Belajar({
                 posisi={k.posisi}
                 locale={locale}
                 aksi={aksi(k)}
+                target={capaian.get(k.tugas.learning_assignment_id) ?? null}
               />
             ))
           )}

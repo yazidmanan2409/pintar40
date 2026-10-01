@@ -702,6 +702,9 @@ export type HleEvent =
   | "siklus.nanti"
   | "siklus.ambang"
   | "siklus.ambang_belum"
+  | "mengajar.murid1.target" | "mengajar.murid1.di_bawah_target"
+  | "hasil.target.tercapai" | "hasil.target.tercapai_arti" | "hasil.target.belum" | "hasil.target.belum_arti" | "hasil.target.ulang"
+  | "siklus.target.tercapai" | "siklus.target.belum" | "siklus.target.lanjut_belum" | "siklus.target.lihat_ulang"
   | "siklus.tepat_dari"
   | "siklus.setelah"
   | "siklus.berikutnya"
@@ -2555,6 +2558,17 @@ const table: Table = {
   // DAISY-26 (UX-27): «Ambang» is hard for a primary-school reader; the mastery bar is the chapter's target, not a pass mark
   "siklus.ambang": { default: "Target untuk bab ini:", en: "The target for this chapter:" },
   "siklus.ambang_belum": { default: "Batas ketuntasan belum ditetapkan.", en: "No pass mark has been set." },
+  "mengajar.murid1.target": { default: "target", en: "target" },
+  "mengajar.murid1.di_bawah_target": { default: "di bawah target", en: "below target" },
+  "hasil.target.tercapai": { default: "Target tercapai.", en: "Target reached." },
+  "hasil.target.tercapai_arti": { default: "Penguasaan bab ini memenuhi targetnya.", en: "Mastery of this chapter meets its target." },
+  "hasil.target.belum": { default: "Belum mencapai target.", en: "Target not reached yet." },
+  "hasil.target.belum_arti": { default: "Bab ini sudah selesai dikerjakan, tetapi penguasaannya masih di bawah target. Pelajari lagi bagian di bawah ini, lalu tanyakan kepada guru langkah berikutnya.", en: "This chapter is finished, but its mastery is still below the target. Review the parts below, then ask the teacher what comes next." },
+  "hasil.target.ulang": { default: "Pelajari lagi:", en: "Review:" },
+  "siklus.target.tercapai": { default: "target tercapai", en: "target reached" },
+  "siklus.target.belum": { default: "belum mencapai target", en: "target not reached yet" },
+  "siklus.target.lanjut_belum": { default: "Bab ini selesai dikerjakan, tetapi targetnya belum tercapai.", en: "This chapter is finished, but its target has not been reached." },
+  "siklus.target.lihat_ulang": { default: "Lihat bagian yang perlu dipelajari lagi", en: "See the parts to review" },
   "siklus.tepat_dari": { default: "Terjawab tepat", en: "You answered" },
   "siklus.setelah": { default: "Setelah bab ini", en: "After this chapter" },
   "siklus.berikutnya": { default: "Apa berikutnya", en: "What next" },

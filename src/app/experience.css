@@ -2342,3 +2342,8 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 
 /* ── DAISY-16: what holds a release, one blocker per line ──────────────── */
 .pin-lt-hambatan-daftar { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); list-style: disc; }
+
+/* D-085 M3 (W4): the result says whether the target was met; below it, the parts to read again. */
+.pin-target p + p, .pin-target .pin-ulang-judul { margin-top: var(--space-2); }
+.pin-ulang-judul { margin: 0; font-weight: var(--weight-strong); }
+.pin-ulang { margin: var(--space-2) 0 0; padding-left: var(--space-5); display: grid; gap: 4px; }

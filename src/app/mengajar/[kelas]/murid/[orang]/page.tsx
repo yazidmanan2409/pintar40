@@ -89,7 +89,16 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
               {catatan.daftarHasil.map((h) => (
                 <div key={h.sesi}>
                   <dt>{h.judul ?? s(`mengajar.instrumen.${h.mode}` as HleEvent)}</dt>
-                  <dd className="pin-num">{h.penguasaan === null ? "—" : format.percent(h.penguasaan, locale)}</dd>
+                  <dd className="pin-num">
+                    {h.penguasaan === null ? "—" : format.percent(h.penguasaan, locale)}
+                    {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery */}
+                    {h.batas !== null ? (
+                      <small data-target={h.penguasaan !== null && h.penguasaan < h.batas ? "belum" : "batas"}>
+                        {h.penguasaan !== null && h.penguasaan < h.batas ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}
+                        {s("mengajar.murid1.target")} {format.percent(h.batas, locale)}
+                      </small>
+                    ) : null}
+                  </dd>
                 </div>
               ))}
             </dl>

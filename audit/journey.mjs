@@ -1194,7 +1194,7 @@ async function bacaSiapa() {
   }
 }
 
-await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered", async (rec) => {
+await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered and whether the school's target was met (M3, W4)", async (rec) => {
   if (!terbitBab || !HARAP) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "the chapter fixture is absent"; }
   if (kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return `only ${kartuKelas.length} class cards (S20)`; }
   const tugas = tugasBab();
@@ -1228,10 +1228,20 @@ await step("S21", "five students take Bab 1's pre-test and post-test to plan; st
       await s.locator("h1").first().waitFor({ timeout: SLOW });
       const t = await bodyText(s);
       const m = t.match(/Terjawab tepat (\d+) dari (\d+) soal/);
-      const ok = m && Number(m[1]) === plan.post && Number(m[2]) === SOAL.post && !pre.unknown && !post.unknown;
+      // D-085 M3 (W4): the page says whether the target was met; the expectation is the attempt's own seal and result
+      const putusan = sql(`select (r.safety_gate_passed and r.mastery >= s.pass_mark)::text || '|' || s.pass_mark
+        from public.assessment_sessions s join public.assessment_results r on r.session_id = s.id and r.supersedes_result_id is null
+        join public.persons p on p.id = s.person_id
+       where s.learning_assignment_id = '${tugas}' and s.mode = 'POST_TEST' and p.display_name = '${k.nama}'
+       order by s.created_at desc limit 1`).trim();
+      const [lulus, batas] = putusan.split("|");
+      const harapTarget = lulus === "true" ? "Target tercapai." : "Belum mencapai target.";
+      const targetOk = t.includes(harapTarget) && batas === "0.60" && (plan.post / SOAL.post >= 0.6 || lulus === "false")
+        && (lulus === "true" || await s.locator("#ulang a[href*='/pelajaran/']").count() > 0);
+      const ok = m && Number(m[1]) === plan.post && Number(m[2]) === SOAL.post && !pre.unknown && !post.unknown && targetOk;
       if (!ok) rec.verdict = "FAIL";
       if (i === 0 || w3) rec.shots.push(await shot(s, `d064-murid${i + 1}-hasil`));
-      out.push(`${k.nama}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}${w3 ? " (the last answer chosen, not saved)" : ""}; «Kumpulkan» ${post.ditanya ? "asked first" : "handed in at once"}; the page says "${m?.[0] ?? "no 'Terjawab tepat' line"}"${ok ? "" : w3 ? " MISMATCH: the unsaved answer was lost at «Kumpulkan» (W3)" : " MISMATCH"}`);
+      out.push(`${k.nama}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}${w3 ? " (the last answer chosen, not saved)" : ""}; «Kumpulkan» ${post.ditanya ? "asked first" : "handed in at once"}; the page says "${m?.[0] ?? "no 'Terjawab tepat' line"}" and "${harapTarget}" ${t.includes(harapTarget)} (sealed ${batas}, lulus ${lulus})${ok ? "" : w3 ? " MISMATCH: the unsaved answer was lost at «Kumpulkan» (W3)" : " MISMATCH"}`);
     } catch (e) {
       rec.verdict = "FAIL";
       rec.shots.push(await shot(s, `d064-murid${i + 1}-berhenti`));
@@ -1335,7 +1345,7 @@ await step("S21c", "one computer, two students: the first reads a lesson to its 
 // STU-J22, X-15-STU: after the last result, the student follows «Apa berikutnya» from the result page
 // and reads what PINTAR offers next: a certificate, other open work, or the honest end
 // («Tidak ada lagi yang menunggu»). Never clicked before.
-await step("S21d", "after the Uji Penguasaan's result, the student follows «Apa berikutnya» and reads what comes next (STU-J22, X-15-STU)", async (rec) => {
+await step("S21d", "after the Uji Penguasaan's result, the student follows «Apa berikutnya» and reads what comes next; below target she is told so and where to review, and her chapter card says it (STU-J22, X-15-STU, M3, W4)", async (rec) => {
   if (!terbitBab || kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "class cards missing (S20)"; }
   const tugas = tugasBab();
   const k = kartuKelas[MURID.length - 1];
@@ -1362,9 +1372,17 @@ await step("S21d", "after the Uji Penguasaan's result, the student follows «Apa
     rec.shots.push(await shot(s, "stu-j22-apa-berikutnya"));
     // the page offers a way on, or says honestly that nothing is waiting; it never leaves the student with neither
     if (h1 !== "Apa berikutnya" || (baris === 0 && !habis)) rec.verdict = "FAIL";
+    // D-085 M3 (W4): this student is below the target (4 of 8, the school's mark 60%): never told only that all is done,
+    // and her home's chapter card says the chapter is finished and the target not reached
+    const belumTarget = /Belum mencapai target/.test(teks) && (await s.locator('a[href$="/hasil#ulang"]').count()) > 0;
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    const kartu = norm(await s.locator(".pin-tugas .pin-tstatus").first().innerText().catch(() => ""));
+    rec.shots.push(await shot(s, "m3-kartu-belum-target"));
+    if (!belumTarget || !/Selesai · belum mencapai target/.test(kartu)) rec.verdict = "FAIL";
     await sc.close();
     return `${k.nama} followed «Apa berikutnya» from the result: "${h1}"; ${baris} thing(s) offered${sertifikat ? " (a certificate among them)" : ""}; ` +
-      `the honest end shown ${habis}; the page says: "${teks.slice(0, 260)}"`;
+      `the honest end shown ${habis}; below target said with the way to review: ${belumTarget}; her home's card reads "${kartu}"; the page says: "${teks.slice(0, 260)}"`;
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(s, "stu-j22-berhenti"));

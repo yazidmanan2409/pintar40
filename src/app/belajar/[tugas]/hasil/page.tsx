@@ -8,6 +8,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import PerTujuan from "@/components/siklus/PerTujuan";
 import { TeksBaris } from "@/components/teks/Teks";
+import { bagianUlang, ketuntasan } from "@/lib/siklus";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 
-  const [outcome, review, delta, mine, peta] = await Promise.all([
+  const [outcome, review, delta, mine, peta, pelajaran] = await Promise.all([
     engine.outcome(db, state.post_session),
     engine.review(db, state.post_session),
     engine.delta(db, tugas),
@@ -46,8 +47,13 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     // names hang on it, so a failed read leaves the rows on their codes
     // rather than the result unreadable.
     engine.readingMap(db, state.post_session).catch(() => []),
+    // M3: the chapter's lessons, so a part below the target links to the lesson to read again
+    engine.lessons(db, tugas).catch(() => []),
   ]);
   if (!outcome) notFound();
+  // D-085 M3 (W4): finishing is not mastering. The verdict is the session's own, from the mark sealed on it (D-088(b)).
+  const target = ketuntasan(outcome);
+  const ulang = target === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran) : [];
 
   const pct = outcome.penguasaan == null ? null : outcome.penguasaan;
   const gate = outcome.gerbang_keselamatan;
@@ -82,6 +88,33 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
               : outcome.diagnostik === false ? ` ${s("siklus.ambang_belum")}` : ""}
           </p>
         </section>
+
+        {/* M3: whether the target was met, said plainly; below it, what to read again. */}
+        {target === "TERCAPAI" ? (
+          <div className="pin-banner pin-ok pin-target" role="status" data-target="tercapai">
+            <p><strong>{s("hasil.target.tercapai")}</strong> {s("hasil.target.tercapai_arti")}</p>
+          </div>
+        ) : target === "BELUM" ? (
+          <div className="pin-banner pin-attention pin-target" role="status" data-target="belum" id="ulang">
+            <p><strong>{s("hasil.target.belum")}</strong> {s("hasil.target.belum_arti")}</p>
+            {ulang.length > 0 ? (
+              <>
+                <p className="pin-ulang-judul">{s("hasil.target.ulang")}</p>
+                <ul className="pin-ulang">
+                  {ulang.map((u) => (
+                    <li key={u.kode}>
+                      {u.lessonId ? (
+                        <Link href={`/belajar/${tugas}/pelajaran/${u.lessonId}`}>{u.pelajaran}</Link>
+                      ) : null}
+                      {u.lessonId ? " · " : ""}<TeksBaris teks={u.nama} />
+                      {" · "}<span className="pin-num">{format.percent(u.penguasaan, locale)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </div>
+        ) : null}
 
         {/* The feedback on the safety gate, when there is one. */}
         {gate != null ? (

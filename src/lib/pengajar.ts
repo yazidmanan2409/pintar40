@@ -541,7 +541,11 @@ export function keadaanSatu(orang: string, sesi: ReadonlyArray<{ person_id: stri
   return p.sudah.length > 0 ? "sudah" : p.sedang.length > 0 ? "sedang" : "belum";
 }
 
-export type HasilResmi = { sesi: string; mode: string; penguasaan: number | null; judul: string | null };
+export type HasilResmi = {
+  sesi: string; mode: string; penguasaan: number | null; judul: string | null;
+  /** D-085 M3, D-088(b): the mark sealed on that attempt, when the teacher's read of it carries one */
+  batas: number | null;
+};
 
 export type CatatanMurid = {
   tugas: Array<{ id: string; judul: string; mode: string; keadaan: KeadaanMurid }>;
@@ -557,13 +561,13 @@ export async function catatanMurid(kelasId: string, institusi: string, orang: st
   ]);
   const hasil = (error ? { status: "unavailable" } : amplop ?? { status: "unavailable" }) as Amplop;
   const { data: sesiData } = tugas.length > 0
-    ? await c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status")
+    ? await c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status, pass_mark")
         .eq("person_id", orang).in("assessment_assignment_id", tugas.map((x) => x.id))
     : { data: [] };
   return susunCatatan(orang, tugas, rows<SesiMurid>(sesiData), hasil);
 }
 
-type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string };
+type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string; pass_mark?: number | string | null };
 
 /** The record from what was read: pure, so a test drives exactly what the page shows. */
 export function susunCatatan(
@@ -575,6 +579,7 @@ export function susunCatatan(
   const milikNya = sesi.filter((x) => x.person_id === orang);
   const judulTugas = new Map(tugas.map((x) => [x.id, x.judul]));
   const judulSesi = new Map(milikNya.map((x) => [x.id, judulTugas.get(x.assessment_assignment_id) ?? null]));
+  const batasSesi = new Map(milikNya.map((x) => [x.id, x.pass_mark == null ? null : Number(x.pass_mark)]));
   const nilai = hasil.status === "ok" && Array.isArray(hasil.value)
     ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown }>)
     : [];
@@ -589,6 +594,7 @@ export function susunCatatan(
       mode: String(v.mode ?? ""),
       penguasaan: typeof v.mastery === "number" ? v.mastery : v.mastery == null ? null : Number(v.mastery),
       judul: judulSesi.get(String(v.session_id ?? "")) ?? null,
+      batas: batasSesi.get(String(v.session_id ?? "")) ?? null,
     })),
   };
 }

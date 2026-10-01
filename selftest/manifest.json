@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 154,
+  "version": 155,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2692,6 +2692,11 @@
       "id": "BOB49-K01",
       "runner": "static",
       "proves": "D-088(b), DAISY-38: the pass mark on screen. Executes bacaPersen (src/lib/batas-ketuntasan.ts) and the three refusal contracts (galat-kontrak, ujicepat-kontrak, penugasan-kontrak) for ASSIGN_PASS_MARK_MISSING with their sentences in id and en; reads the source of Konfigurasi (a whole-number mark per lesson, reason and history, through set_school_pass_mark), Sediakan (the mark or «Batas ketuntasan belum ditetapkan»), the result page, and the migration (both readers on the attempt's seal, no 0.6 of its own)"
+    },
+    {
+      "id": "M3-K01",
+      "runner": "static",
+      "proves": "D-085 M3, W4: completion is not mastery and the learner is told which holds. Executes ketuntasan and bagianUlang (src/lib/siklus.ts): the target reached or not from the session's own verdict (the mark sealed on it), none for a Pemetaan Awal or an unsealed result; below target the objectives under the mark, lowest first, with their lessons. Rendered output: a finished chapter card reads «Selesai · target tercapai» or «Selesai · belum mencapai target». Reads the source of the result page, «Apa berikutnya», the home and the teacher's learner record; the copy table in id and en"
     }
   ]
 }

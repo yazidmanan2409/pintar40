@@ -228,3 +228,47 @@ export function statusKey(p: Posisi): string {
     case "HASIL": return "siklus.di.hasil";
   }
 }
+
+/**
+ * D-085 M3 (W4), with the school's sealed mark (D-088(b), BOB-49): COMPLETION AND MASTERY ARE TWO TRUTHS. A finished
+ * Uji Penguasaan is completion; whether the mastery target was met is the session's own verdict (`session_outcome.lulus`,
+ * from the mark sealed on the attempt). Null when there is no verdict to tell: a Pemetaan Awal, or no mark sealed.
+ */
+export type Ketuntasan = "TERCAPAI" | "BELUM";
+
+export function ketuntasan(o: { diagnostik?: boolean | null; lulus?: boolean | null } | null | undefined): Ketuntasan | null {
+  if (!o || o.diagnostik !== false || typeof o.lulus !== "boolean") return null;
+  return o.lulus ? "TERCAPAI" : "BELUM";
+}
+
+/** A part below the target, and the lesson to read again for it (when the reading map names one). */
+export type BagianUlang = { kode: string; nama: string; penguasaan: number; lessonId: string | null; pelajaran: string | null };
+
+/**
+ * M3: below target, PINTAR points at what to review. The objectives whose own mastery is under the sealed mark, lowest
+ * first, each with its name and the lesson the reading map ties it to. Pure; nothing is invented: an objective the map
+ * does not name keeps its code and no lesson.
+ */
+export function bagianUlang(
+  perDomain: Record<string, { penguasaan: number } | undefined> | null | undefined,
+  ambang: number | null | undefined,
+  peta: ReadonlyArray<{ kode: string; pernyataan: string; pelajaran: string }>,
+  lessons: ReadonlyArray<{ lesson_id: string; judul: string }>,
+): BagianUlang[] {
+  if (ambang == null || !perDomain) return [];
+  const kartu = new Map(peta.map((k) => [k.kode, k]));
+  const idPelajaran = new Map(lessons.map((l) => [l.judul, l.lesson_id]));
+  return Object.entries(perDomain)
+    .filter(([, v]) => v && typeof v.penguasaan === "number" && v.penguasaan < ambang)
+    .map(([kode, v]) => {
+      const k = kartu.get(kode);
+      return {
+        kode,
+        nama: k?.pernyataan || kode,
+        penguasaan: (v as { penguasaan: number }).penguasaan,
+        lessonId: k ? idPelajaran.get(k.pelajaran) ?? null : null,
+        pelajaran: k?.pelajaran ?? null,
+      };
+    })
+    .sort((a, b) => a.penguasaan - b.penguasaan || a.kode.localeCompare(b.kode));
+}
