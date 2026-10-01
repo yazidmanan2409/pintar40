@@ -23,6 +23,8 @@ const SVC = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DB = process.env.SUPABASE_DB_URL;
 const MAIL = process.env.MAILPIT_URL ?? "http://127.0.0.1:54324";
 const OUT = process.env.OUT_DIR ?? "audit-out/journey";
+const SLOW = 30000;
+const norm = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 const require = createRequire(join(process.env.APP_DIR, "package.json"));
 const { createClient } = require("@supabase/supabase-js");
 mkdirSync(OUT, { recursive: true });
@@ -848,8 +850,6 @@ await step("S19", "the student finds Bab 1 and reaches its pre-test (B4)", async
 // never show them (staging report, D3); D-064 moves this proof here. The students follow the staging
 // journey's plan and helpers (audit/staging/journey.mjs, J07–J14). They open each test by its address:
 // reaching the tests by clicking is proven on staging (J08, J10, J11), and this proof is the figures.
-const SLOW = 30000;
-const norm = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 async function tutupTur(page) {
   const kartuTur = page.locator('.pin-tur-kartu[role="dialog"]');
   if (!(await kartuTur.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false))) return false;
