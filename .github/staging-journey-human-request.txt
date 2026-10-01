@@ -4,6 +4,7 @@ Editing this file on claude/awesome-rubin-bqxp6p runs
 .github/workflows/staging-journey-human.yml once. One sign-in email per run
 (staging allows 2 an hour, shared with Yazid's own sign-ins).
 
-attempt:  003   (W3 before-picture on main: student 4 leaves the last post-test answer unsaved; expected 7 of 8 until W3 reaches main)
+attempt:  004   (main 3aba2a7 on staging: W2, W3, W5, W8, W9, W10, W11, W16, M7, M4, EDU-J23/24, HOD-J05/J09; student 4 now expected 8 of 8)
+          003   W3 before-picture on main 28d3015: J13 student 4 read 7 of 8 (run 36831200188)
           002   PASS (run 36826806100)
           001   the setup's server-made teacher check started the 60 s window; the real request was refused 429 and the screen said "Periksa email Anda" by D2
