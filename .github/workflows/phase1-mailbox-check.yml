@@ -1,0 +1,159 @@
+# Phase 1 exit check: the Golden School's staging test mailbox (C2).
+#
+# A one-time check, run from a GitHub runner because the coordinator's
+# sandbox cannot reach the mail host. It proves three things together:
+#   1. the mailbox goldenschool@pintarselalu.com exists;
+#   2. its password is in GitHub as the secret GS_MAILBOX_PASSWORD;
+#   3. mail to a fresh plus-address (goldenschool+<token>@) is delivered to it.
+# It is NOT the Golden School's mailbox reader, which is Phase 2 tooling.
+#
+# IT SENDS EXACTLY ONE EMAIL, FROM THE TEST MAILBOX TO ITSELF. No PINTAR
+# identity, no third party. It touches no staging, production, Supabase or
+# Vercel setting. It never prints the password.
+#
+# THE CHECK CAN FAIL. Before sending, it searches every folder for a token
+# that was never sent and requires zero matches; only then does finding the
+# sent token count.
+#
+# Runs once per edit of .github/phase1-mailbox-request.txt on the
+# coordinator's branch.
+
+name: phase 1 · staging test mailbox check
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/phase1-mailbox-request.txt
+
+concurrency:
+  group: phase1-mailbox-check
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  MAIL_HOST: pintarselalu.com
+  IMAP_PORT: '993'
+  SMTP_PORT: '465'
+  GS_MAILBOX: goldenschool@pintarselalu.com
+
+jobs:
+  mailbox:
+    name: login, send to a plus-address, read it back
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check the mailbox end to end
+        env:
+          GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import imaplib, os, re, secrets, smtplib, ssl, sys, time
+          from email.message import EmailMessage
+          from email.utils import formatdate, make_msgid
+
+          host = os.environ['MAIL_HOST']
+          user = os.environ['GS_MAILBOX']
+          pwd = os.environ.get('GS_MAILBOX_PASSWORD', '')
+          if not pwd:
+              print('::error::the repository secret GS_MAILBOX_PASSWORD is missing or empty')
+              sys.exit(1)
+          local, domain = user.split('@')
+          token = 'p1check' + secrets.token_hex(6)
+          never = 'p1never' + secrets.token_hex(6)
+          to = '%s+%s@%s' % (local, token, domain)
+          ctx = ssl.create_default_context()
+          LIST = re.compile(rb'^\((?P<flags>[^)]*)\) (?:"(?:[^"\\]|\\.)*"|NIL) (?P<name>.+)$')
+
+          def connect():
+              m = imaplib.IMAP4_SSL(host, int(os.environ['IMAP_PORT']), ssl_context=ctx, timeout=30)
+              try:
+                  m.login(user, pwd)
+              except imaplib.IMAP4.error:
+                  print('::error::the mail server refused the login for %s: the mailbox does not exist, or the secret holds a different password' % user)
+                  sys.exit(1)
+              return m
+
+          def folders(m):
+              typ, data = m.list()
+              out = []
+              for line in data or []:
+                  if not isinstance(line, bytes):
+                      continue
+                  hit = LIST.match(line)
+                  if not hit or b'\\noselect' in hit.group('flags').lower():
+                      continue
+                  name = hit.group('name').decode()
+                  out.append(name if name.startswith('"') else '"%s"' % name)
+              return out
+
+          def find(m, needle):
+              hits = []
+              for f in folders(m):
+                  if m.select(f, readonly=True)[0] != 'OK':
+                      continue
+                  typ, data = m.search(None, 'SUBJECT', needle)
+                  for num in (data[0].split() if typ == 'OK' and data and data[0] else []):
+                      typ, msg = m.fetch(num, '(BODY.PEEK[HEADER.FIELDS (TO)])')
+                      head = b''.join(p[1] for p in msg if isinstance(p, tuple)).decode(errors='replace')
+                      hits.append((f, head.strip()))
+              return hits
+
+          try:
+              m = connect()
+              print('1. IMAP login succeeded for %s (TLS, port %s)' % (user, os.environ['IMAP_PORT']))
+              names = folders(m)
+              print('   folders:', ', '.join(names) or '(none)')
+
+              # The controlled red: a token never sent must not be found.
+              ghost = find(m, never)
+              if ghost:
+                  print('::error::the search found a token that was never sent; the check cannot be trusted')
+                  sys.exit(1)
+              print('2. controlled red: a token never sent is found 0 times')
+              m.logout()
+
+              msg = EmailMessage()
+              msg['From'] = user
+              msg['To'] = to
+              msg['Subject'] = 'PINTAR Phase 1 mailbox check %s' % token
+              msg['Date'] = formatdate(localtime=False)
+              msg['Message-ID'] = make_msgid(domain=domain)
+              msg.set_content('Automated one-time check from GitHub Actions run %s. Safe to ignore.\n' % os.environ.get('GITHUB_RUN_ID', '?'))
+              try:
+                  with smtplib.SMTP_SSL(host, int(os.environ['SMTP_PORT']), context=ctx, timeout=30) as s:
+                      s.login(user, pwd)
+                      refused = s.send_message(msg)
+              except smtplib.SMTPException as e:
+                  print('::error::the mail host did not accept the one test email (NOT sent): %s' % type(e).__name__)
+                  sys.exit(1)
+              if refused:
+                  print('::error::the mail host refused the recipient %s (NOT sent)' % to)
+                  sys.exit(1)
+              print('3. one email accepted by the host for %s' % to)
+
+              deadline = time.time() + 180
+              while True:
+                  time.sleep(15)
+                  m = connect()
+                  got = find(m, token)
+                  m.logout()
+                  if got:
+                      break
+                  if time.time() > deadline:
+                      print('::error::the email was accepted but did not arrive within 3 minutes; plus-addressing may not deliver to this mailbox')
+                      sys.exit(1)
+              folder, head = got[0]
+              if to.lower() not in head.lower():
+                  print('::error::a message arrived, but its To header is not the plus-address: %s' % head)
+                  sys.exit(1)
+              print('4. delivered to folder %s; %s' % (folder, head))
+          except (OSError, imaplib.IMAP4.error) as e:
+              print('::error::could not complete the check against %s: %s: %s' % (host, type(e).__name__, e))
+              sys.exit(1)
+          print('PASS: the staging test mailbox exists, the secret opens it, and a fresh plus-address is delivered to it')
+          PY

@@ -3,7 +3,8 @@
 **1 October 2026.** The Phase 0 and Phase 1 exit package for independent review (ChatGPT) and Yazid's acceptance.
 
 - **PHASE 0: COMPLETE.**
-- **PHASE 1: SCOPE CLOSED, 1 Oct.** Yazid approved O1 (D-086), after ChatGPT's review, with CF13–CF15 confirmed and G1 ruled. The charter's other Phase 1 exit condition, the one-time owner access (§7), is still outstanding.
+- **PHASE 1: SCOPE CLOSED, 1 Oct.** Yazid approved O1 (D-086), after ChatGPT's review, with CF13–CF15 confirmed and G1 ruled. Yazid confirmed the same day that "O1 APPROVED" was his owner sign-off.
+- **PHASE 1 EXIT: OPEN.** The one-time owner access (§7) stays a Phase 1 exit requirement (Yazid, 1 Oct: not moved into Phase 2). Phase 1 closes when both §7 items are done and verified.
 - **Updated 1 Oct, after review.** The journey coverage cross-check (`PINTAR-4.0-JOURNEY-COVERAGE-CROSS-CHECK-2026-10-01.md`) and the owner rulings M1–M10 and T1–T4 (D-085) are applied; so are corrections K1–K4. §4.2 and §5–§6 reflect them.
 - **READY FOR INDEPENDENT PHASE-EXIT REVIEW: YES.**
 - Nothing in Phase 2 has started.
@@ -325,12 +326,16 @@ The detail follows. A row is TESTED only when its whole expected behaviour was r
 - **O3. The size of the first real deployment,** which sets L1 (the open item of D-083). Needed before Phase 7.
 - **Already open:** the readiness-tier words (D-082(e)), needed before UI/UX POLISHED.
 
-## 7. One-time owner actions before Phase 2 (the complete list)
+## 7. One-time owner actions: Phase 1 exit requirements (the complete list)
 
-1. **Create the staging test mailbox** on PINTAR's mail domain, able to receive at a fresh address each run (plus-addressing or a catch-all), and **enter its credentials as GitHub secrets.**
-   - The coordinator gives the secret names when Phase 2 is authorised.
-   - Never paste credentials into chat.
-2. **Set a GitHub Actions spending alert** in GitHub's billing settings.
+Both are done by Yazid in a web browser. No password passes through chat or the repository.
+
+1. **The staging test mailbox (C2).**
+   - **Mailbox:** `goldenschool@pintarselalu.com`, created in Namecheap cPanel (Email Accounts). Plus-addressing gives each run a fresh address (`goldenschool+<run>@pintarselalu.com`).
+   - **Secret:** its password in GitHub as the repository secret `GS_MAILBOX_PASSWORD`. Host and ports are fixed in the repository: `pintarselalu.com`, IMAP 993, SMTP 465.
+   - **Verified by machine:** `.github/workflows/phase1-mailbox-check.yml`. It logs in, proves its search can fail (a token never sent is found 0 times), sends one email from the mailbox to a fresh plus-address, and reads it back. The coordinator runs it once Yazid reports the step done.
+2. **A GitHub Actions spending alert:** threshold alerts on the account's Actions budget (USD 100 since 1 Oct), emailed to Yazid. The amount and the stop-at-limit setting stay as they are.
+   - **Evidence:** GitHub billing settings cannot be read by the coordinator's tools, so the evidence is Yazid's screenshot of the budget with its alerts on.
 
 **Only if Phase 2's first read-only check shows they are needed:**
 - a Vercel token that can read deployments, environment metadata and logs (if the existing `VERCEL_TOKEN` cannot);

@@ -48,5 +48,5 @@ Both ran on `f86ace7`, which is identical to `28d3015` outside `docs/coordinatio
 
 ## Owner (Yazid)
 
-- **One-time access before Phase 2:** `PHASE-1-STATUS.md` §7.
+- **Phase 1 exit requirements (one-time access):** `PHASE-1-STATUS.md` §7: the staging test mailbox and its secret, and the Actions spending alert.
 - **Rulings:** `PHASE-1-STATUS.md` §6.
