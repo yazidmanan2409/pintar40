@@ -105,3 +105,27 @@ A certificate's signed payload already carries `score` and `passed`. Adding the 
 **Daisy:** the setting on a school screen, the words, and the target shown as today.
 
 It fits BOB-48's slot (after Gate 6), with (4)'s eligibility reading the sealed mark. **Opened 30 Sep as BOB-49 and DAISY-38** (the board rows are the scope; BOB-48(4) is superseded).
+
+## 8. As built (BOB-49 with DAISY-38, coordinator, 2 Oct, under D-088(b))
+
+Migration `20261102100000_a_school_sets_its_own_pass_mark.sql` (139). Tests BOB49-S01 (database, rolled back) and BOB49-K01 (screens and contracts); F13-N01 now also proves the Sediakan refusal; walk steps S17b and S18 (CI browser audit) and J05b (staging walk).
+
+**The chain as ruled:** school setting → assignment seal → attempt seal → one pass determination.
+
+| Piece | Built as |
+|---|---|
+| The setting | `school_pass_marks`: school, lesson (the course's lineage root), whole percent 0–100, reason, who, when, and the row it replaces. Append-only by trigger (PR080); no client privilege on the table. |
+| Writing it | `set_school_pass_mark(school, course, percent, reason)`: the school's admin (`has_scope('INSTITUTION_ADMIN', school)`, the rule every school-administration act uses, e.g. `period_rollover`); a teacher, head of department or learner is refused (42501). An integer parameter, so a decimal cannot be passed. The same value again writes nothing. Audited as `school_pass_mark.set`. |
+| Reading it | `school_pass_mark(school, course)` for any staff of the school; `school_pass_mark_lessons(school)` for Konfigurasi (every lesson the school can give: its own courses and the canonical releases distributed to it, with the current mark and history). |
+| Assignment seal | `assessment_assignments.pass_mark` (a fraction), `pass_mark_source`, `school_pass_mark_id`, set by a BEFORE INSERT trigger from the school's current mark; any later change refused (PR080). No mark: **refused, PR050 `ASSIGN_PASS_MARK_MISSING`**, for Sediakan, an Uji Cepat launch and any other path that makes an assignment. A Pemetaan Awal (PRE_TEST) carries none. |
+| Attempt seal | `assessment_sessions.pass_mark`, `pass_mark_source`, copied from the session's assessment assignment at insert; immutable (PR080). |
+| One determination | `session_outcome` (`lulus`, `ambang`) and `certificate_eligibility` (`passed`, `eligible`) read the attempt's seal only. No seal: no verdict and no certificate. The review's F7 drift is gone (`passed` is null, not true, when there is no mark). |
+| History | Every assignment and attempt that existed when the migration ran is sealed with its definition's own `mastery_min`, source `BEFORE_SCHOOL_MARKS`: the number every reader used for it until then, so no historical outcome or certificate moves (asserted in the migration). |
+| Screens | Konfigurasi → «Batas ketuntasan» (each lesson, its mark or «Batas ketuntasan belum ditetapkan», a whole-number field, a reason, its history). Sediakan shows the lesson's mark read-only, or the same words and who sets it. The refusal reads the same on Sediakan, the Uji Cepat and Studio. The result page shows «Target untuk bab ini: N%» from the seal, or «Batas ketuntasan belum ditetapkan.» |
+
+**Choices made inside the ruling** (recorded, not new policy):
+1. *Where the gate sits.* D-088(b) says the school sets the mark "before it can publish learning or assessment whose result depends on mastery". A school does not publish canonical content (the platform does); what it does is give a lesson to a class. So the gate is BOB-49(3)'s: Sediakan and the Uji Cepat launch. Studio's Terbit is unchanged.
+2. *Who.* The school admin, by the existing school-administration rule, which also admits the platform administrator (as for the rollover). The audit row names who set it.
+3. *An assignment given before the change.* "Once used, the value is sealed for that evidence context": an assignment already given keeps its mark for every attempt under it, including attempts started after the migration. Only new assignments take a school's setting.
+4. *Uji Cepat definitions* still store the 0.6 the launch writes into its own ad-hoc definition. Nothing reads it for a verdict any more; it is left to keep the migration narrow.
+5. *Unchanged and still open* (semantic review): the predikat bands, the readiness tier names, whether a single Uji Cepat certifies (BOB-50, held with Gate 3).

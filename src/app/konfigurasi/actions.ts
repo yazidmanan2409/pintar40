@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
 import { kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
+import { bacaPersen } from "@/lib/batas-ketuntasan";
 
 /**
  * Config Studio actions (FABLE-01 §10). Every action is a thin call to an
@@ -160,6 +161,32 @@ export async function pindahKelasAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("move_learner_to_class", { p_membership: penempatan, p_kelas: kelas });
   if (error) kembali(ditolak("move_learner_to_class", error), dari);
   kembali({ ok: true, kode: "LEARNER_MOVED" }, kelas);
+}
+
+/**
+ * D-088(b), BOB-49: the school admin sets a lesson's pass mark (a whole percentage and a reason). The database decides
+ * who may (the school's INSTITUTION_ADMIN), keeps the change as a new row, audits it and seals it only onto what is
+ * given afterwards.
+ */
+export async function tetapkanBatasAction(fd: FormData): Promise<void> {
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const pelajaran = uuidOrNull(str(fd, "pelajaran"));
+  const persen = bacaPersen(str(fd, "persen"));
+  const alasan = str(fd, "alasan");
+  const kembali = (h: HasilAksi): never => {
+    const q = queryHasil("ketuntasan", h);
+    if (sekolah) q.set("sekolah", sekolah);
+    redirect(`/konfigurasi?${q.toString()}#ketuntasan`);
+  };
+  if (!sekolah || !pelajaran || persen === null || !alasan || alasan.length > 300) {
+    kembali({ ok: false, kode: "PASS_MARK_INPUT_INCOMPLETE" });
+  }
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.rpc("set_school_pass_mark", {
+    p_institution: sekolah, p_course: pelajaran, p_percent: persen, p_reason: alasan,
+  });
+  if (error) kembali(ditolak("set_school_pass_mark", error));
+  kembali({ ok: true, kode: (data as { changed?: boolean } | null)?.changed === false ? "PASS_MARK_UNCHANGED" : "PASS_MARK_SET" });
 }
 
 export async function setFlagAction(fd: FormData): Promise<void> {

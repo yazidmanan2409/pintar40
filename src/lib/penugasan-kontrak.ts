@@ -34,6 +34,8 @@ export const KODE_PENUGASAN_DB = [
   "ASSIGN_PRE_TEST_TOO_SHORT",
   "ASSIGN_POST_TEST_TOO_SHORT",
   "ASSIGN_CYCLE_OVERLAP",
+  // D-088(b): raised by the assignment's seal (assessment_assignments_the_pass_mark_is_sealed), same SQLSTATE and DETAIL
+  "ASSIGN_PASS_MARK_MISSING",
 ] as const;
 
 /**

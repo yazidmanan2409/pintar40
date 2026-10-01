@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 153,
+  "version": 154,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2682,6 +2682,16 @@
       "id": "D088K-K01",
       "runner": "static",
       "proves": "D-088(k), M5: teaching evidence, not surveillance. Executes susunBuktiSoal (src/lib/soal-kelas.ts): hardest first, learners per option, who may need help by name. Reads the source of src/app/mengajar/[kelas]/soal/page.tsx (no integrity, time or device word), the link from «Lihat bukti» (src/components/bukti/KeadaanHariIni.tsx), the migration's EDUCATOR-role binding, and the copy in id and en."
+    },
+    {
+      "id": "BOB49-S01",
+      "runner": "static",
+      "proves": "D-088(b), D-081, BOB-49: a school sets its own pass mark and every attempt carries the one it was given under. In the database, rolled back (supabase/migrations/20261102100000): the school admin changes a lesson's mark from 60 to 75 (audited; the same value again writes nothing); the class given the lesson before keeps 60 on its assignment and sitting, a class given it now seals 75; the same 70% is lulus at 60 and not at 75, and certificate_eligibility agrees with session_outcome; the definition's passing_rules are untouched; one canonical lesson given in two schools seals each school's own mark; a lesson with no mark is refused (PR050 ASSIGN_PASS_MARK_MISSING); teacher, head of department and learner cannot set it; 0-100 whole numbers and a reason only; history and seals never change (PR080)"
+    },
+    {
+      "id": "BOB49-K01",
+      "runner": "static",
+      "proves": "D-088(b), DAISY-38: the pass mark on screen. Executes bacaPersen (src/lib/batas-ketuntasan.ts) and the three refusal contracts (galat-kontrak, ujicepat-kontrak, penugasan-kontrak) for ASSIGN_PASS_MARK_MISSING with their sentences in id and en; reads the source of Konfigurasi (a whole-number mark per lesson, reason and history, through set_school_pass_mark), Sediakan (the mark or «Batas ketuntasan belum ditetapkan»), the result page, and the migration (both readers on the attempt's seal, no 0.6 of its own)"
     }
   ]
 }

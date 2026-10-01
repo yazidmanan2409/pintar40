@@ -37,6 +37,8 @@ export function kalimatTolakUjiCepat(
       return `${awal} ${s("mengajar.cepat.tolak.izin")}`;
     case "QUICK_NOT_FOUND":
       return `${awal} ${s("mengajar.cepat.tolak.tidak_ada")}`;
+    case "QUICK_PASS_MARK_MISSING":
+      return `${awal} ${s("mengajar.cepat.tolak.ketuntasan")}`;
     default:
       // QUICK_FAILED, or a code the contract does not know: the app's general
       // line, and the reference only when the address carried one

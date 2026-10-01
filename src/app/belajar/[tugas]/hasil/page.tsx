@@ -78,7 +78,8 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
             {format.number(review.length, locale)} {s("siklus.soal")}.
             {outcome.ambang != null
               ? ` ${s("siklus.ambang")} ${format.percent(outcome.ambang, locale)}.`
-              : ""}
+              // D-088(b): a result judged against a mark sets one; with none sealed PINTAR says so and assumes nothing
+              : outcome.diagnostik === false ? ` ${s("siklus.ambang_belum")}` : ""}
           </p>
         </section>
 

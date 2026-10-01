@@ -11,6 +11,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
 import { kodePenugasanDari, kunciKodePenugasan } from "@/lib/penugasan-kontrak";
+import { batasPelajaran } from "@/lib/batas-ketuntasan";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -126,9 +128,11 @@ export default async function Siapkan({
   }
 
   // ──────────────────────────────── stage 2: review, then the one commitment
-  const [isi, alat] = await Promise.all([
+  // D-088(b), DAISY-38: the school's pass mark for this lesson, read-only; unset, the lesson cannot be given yet
+  const [isi, alat, batas] = await Promise.all([
     ajar.isiTerbitan(dipilih.courseId),
     ajar.instrumen(dipilih.courseId),
+    supabaseServer().then((c) => batasPelajaran(c, ctx.ini.institusi, dipilih.courseId)),
   ]);
 
   return (
@@ -156,6 +160,13 @@ export default async function Siapkan({
             {`${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
             {` · ${format.number(isi.soal, locale)} ${s("mengajar.siap.soal")}`}
           </p>
+          {batas === null ? (
+            <p className="pin-meta pin-batas" data-batas="belum">{s("mengajar.sedia.batas_belum")}</p>
+          ) : batas !== undefined ? (
+            <p className="pin-meta pin-batas" data-batas={batas}>
+              {s("mengajar.sedia.batas")} <span className="pin-num">{format.percent(batas / 100, locale)}</span>
+            </p>
+          ) : null}
           <ol className="pin-terima">
             {alat.map((a, i) => (
               <li key={`${a.mode}-${i}`}>

@@ -769,8 +769,11 @@ grant execute on function selftest.wp6_counts(uuid,uuid) to authenticated;
 -- One FINALIZED session, for any person, at any class, optionally pointed at
 -- a different release -- which is how the crown test makes an academic
 -- control and a professional-development stream that differ ONLY in context.
+drop function if exists selftest.wp6_evidence_session(uuid, uuid, uuid, uuid);
+-- D-088(b): `p_assignment`, when given, is the class's assessment assignment the sitting is given under, so it carries
+-- the pass mark that assignment sealed, as every product attempt does; without one it carries none and certifies nothing.
 create or replace function selftest.wp6_evidence_session(
-  p_template uuid, p_person uuid, p_class uuid, p_release uuid)
+  p_template uuid, p_person uuid, p_class uuid, p_release uuid, p_assignment uuid default null)
 returns uuid language plpgsql set search_path = public, pg_temp as $$
 declare v_new uuid := gen_random_uuid(); v_enr uuid; v_def uuid; v_ver int;
 begin
@@ -785,11 +788,13 @@ begin
    where s.id = p_template and e.person_id = p_person order by e.created_at desc limit 1;
   insert into public.assessment_sessions
     (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
+     assessment_assignment_id,
      plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
      scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
      started_at, submitted_at, finalized_at, deadline_extended_count)
   select v_new, p_person, s.institution_id, coalesce(v_enr, s.enrollment_id), s.academic_period_id,
-         p_class, null, coalesce(p_release, s.plp_release_id),
+         p_class, null, p_assignment,
+         coalesce(p_release, s.plp_release_id),
          coalesce(v_def, s.assessment_definition_id), coalesce(v_ver, s.assessment_definition_version), s.engine_version,
          s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED',
          s.shuffle_seed, s.started_at, s.submitted_at, s.finalized_at, 0
@@ -797,8 +802,8 @@ begin
   update public.assessment_sessions set status='IN_PROGRESS' where id=v_new;
   return v_new;
 end $$;
-revoke all on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid) from public;
-grant execute on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid) to authenticated;
+revoke all on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid,uuid) from public;
+grant execute on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid,uuid) to authenticated;
 
 -- One presented item and one final answer, then the session is finalized with
 -- a result -- the ordinary lifecycle, walked rather than asserted.
@@ -5530,7 +5535,7 @@ begin
     v_item uuid; v_opt record; v_tmpl uuid; v_pdclass uuid; v_ok_opt text;
     v_before jsonb := '{}'::jsonb; v_after jsonb := '{}'::jsonb;
     v_sess uuid; v_pi uuid; v_cert uuid; v_tok text; e record; cp record;
-    m text; v_arg uuid; v_reader uuid; n int; v_acad_sess uuid; v_acad_pi uuid;
+    m text; v_arg uuid; v_reader uuid; n int; v_acad_sess uuid; v_acad_pi uuid; v_acad_aa uuid; v_pd_def uuid; v_pd_aa uuid;
     v_pdc uuid; v_acc uuid; v_rev uuid; v_rev2 uuid; v_batch uuid; v_caught boolean;
   begin
     begin
@@ -5564,7 +5569,13 @@ begin
       -- A REAL ACADEMIC CONTROL STATE. The item metrics must have academic
       -- evidence to report, or "unchanged" would again mean "never asked":
       -- a student in the taught class answers the same item CORRECTLY.
-      v_acad_sess := selftest.wp6_evidence_session(v_tmpl, c.la, c.cls_a, null);
+      -- D-088(b): the control is a sitting of an assessment its class was given, so it carries the school's sealed
+      -- mark (the demonstration school set its own for this lesson) and can be certified as a real one is
+      insert into public.assessment_assignments (institution_id, assessment_definition_id, node_id, academic_period_id)
+      select t.institution_id, t.assessment_definition_id, c.cls_a, t.academic_period_id
+        from public.assessment_sessions t where t.id = v_tmpl
+      returning assessment_assignments.id into v_acad_aa;
+      v_acad_sess := selftest.wp6_evidence_session(v_tmpl, c.la, c.cls_a, null, v_acad_aa);
       v_acad_pi := selftest.wp6_answer(v_acad_sess, v_item, c.inst, v_ok_opt, 1::smallint);
       -- AND AN ACADEMIC CERTIFICATE, so the credential metric is reading
       -- something before the professional development arrives. Without it
@@ -5624,7 +5635,16 @@ begin
       end if;
 
       -- ───────── the educator's genuine professional development ─────────
-      v_sess := selftest.wp6_evidence_session(v_tmpl, c.edu, v_pdclass, pd.release);
+      -- D-088(b): a sitting of an assessment the professional-development class was given, so it carries the
+      -- school's sealed mark for that course, as the academic control does
+      select f.def into v_pd_def from selftest.wp6_definition_for(v_tmpl, pd.release) f;
+      perform selftest.pass_mark(c.inst, pd.course);
+      insert into public.assessment_assignments (institution_id, assessment_definition_id, node_id, academic_period_id)
+      select c.inst, v_pd_def, v_pdclass,
+             coalesce(n.academic_period_id, (select la.academic_period_id from public.learning_assignments la where la.id = pd.assignment))
+        from public.org_nodes n where n.id = v_pdclass
+      returning assessment_assignments.id into v_pd_aa;
+      v_sess := selftest.wp6_evidence_session(v_tmpl, c.edu, v_pdclass, pd.release, v_pd_aa);
       v_pi := selftest.wp6_answer(v_sess, v_item, c.inst, v_opt.label, 1::smallint);
       -- a certificate through the ORDINARY machinery, not a PD-only engine
       select * into e from public.certificate_eligibility(v_sess);
@@ -5931,6 +5951,7 @@ begin
               3, '{"MUDAH":2,"SEDANG":1}'::jsonb, 0, '{}'::jsonb, 25, 'ITEMS_AND_OPTIONS',
               true, true, 120, 2)
       returning assessment_definitions.id into v_def;
+      perform selftest.pass_mark(c.inst, pk.course);   -- D-088(b): the school's mark before the class is given it
       insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
                                                academic_period_id)
       values (c.inst, v_rel, pk.course, v_cls, v_period)

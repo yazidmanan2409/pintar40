@@ -830,6 +830,73 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
   return notes.join("; ");
 });
 
+// D-088(b), BOB-49 / DAISY-38: before the school has set Bab 1's pass mark the teacher reads «Batas ketuntasan belum
+// ditetapkan» on Siapkan and Sediakan is refused, saying who sets it; the school admin then sets 60% on Konfigurasi →
+// Batas ketuntasan, by clicking, with a reason, and the page reads it back with its history.
+await step("S17b", "before the pass mark is set the teacher reads «Batas ketuntasan belum ditetapkan» and Sediakan is refused; the school admin sets Bab 1's pass mark on Konfigurasi → Batas ketuntasan (D-088(b), BOB-49, DAISY-38)", async (rec) => {
+  if (!terbitBab) { rec.verdict = "BLOCKED"; return "S17 did not publish Bab 1"; }
+  const course = babSatu();
+  const kelas = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1A' and is_active limit 1`).trim();
+  const catatan = [];
+  // the teacher, first
+  const tc = await ctx();
+  const t = await tc.newPage();
+  await magicSignIn(t, people.guru.email);
+  await t.goto(`${APP}/mengajar/${kelas}/siapkan`, { waitUntil: "networkidle" });
+  await tutupTur(t);
+  const row = t.locator("a.pin-row").filter({ hasText: "Matematika Kelas 5" }).first();
+  if (!(await row.count())) { rec.verdict = "FAIL"; await tc.close(); return `Siapkan does not offer Bab 1; page: ${(await bodyText(t)).slice(0, 260)}`; }
+  await row.click();
+  await t.waitForLoadState("networkidle");
+  const belum = norm(await t.locator(".pin-batas").first().innerText().catch(() => ""));
+  const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(Date.now() + 30 * 86400000));
+  await t.locator("#pin-sampai").fill(sampai).catch(() => {});
+  rec.shots.push(await shot(t, "ketuntasan-belum-guru"));
+  await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  await t.waitForLoadState("networkidle");
+  await t.waitForTimeout(1000);
+  const kode = new URL(t.url()).searchParams.get("kode");
+  const tolak = norm(await bodyText(t));
+  rec.shots.push(await shot(t, "ketuntasan-ditolak-guru"));
+  await tc.close();
+  const la0 = Number(sql(`select count(*) from public.learning_assignments where course_id='${course}'`).trim());
+  const tolakOk = /Batas ketuntasan belum ditetapkan/.test(belum) && kode === "ASSIGN_PASS_MARK_MISSING"
+    && /Batas ketuntasan pelajaran ini belum ditetapkan/.test(tolak) && /Konfigurasi/.test(tolak) && la0 === 0;
+  if (!tolakOk) rec.verdict = "FAIL";
+  catatan.push(`teacher before the mark: Siapkan reads "${belum.slice(0, 160)}"; «Sediakan» → kode=${kode}, the page names the pass mark ${/Batas ketuntasan pelajaran ini belum ditetapkan/.test(tolak)} and Konfigurasi ${/Konfigurasi/.test(tolak)}; learning assignments made ${la0}`);
+
+  // the school admin sets it, by clicking
+  await a.goto(`${APP}/konfigurasi?sekolah=${ids.sd}#ketuntasan`, { waitUntil: "networkidle" });
+  await tutupTur(a);
+  const baris = a.locator(`#ketuntasan li[data-pelajaran="${course}"]`);
+  if (!(await baris.count())) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(a, "ketuntasan-admin"));
+    return `${catatan.join("; ")}; Konfigurasi lists no Bab 1 under Batas ketuntasan: ${norm(await a.locator("#ketuntasan").innerText().catch(() => "")).slice(0, 300)}`;
+  }
+  const sebelum = norm(await baris.innerText());
+  await baris.locator('input[name="persen"]').fill("60");
+  await baris.locator('input[name="alasan"]').fill("Keputusan rapat guru");
+  await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("bagian") === "ketuntasan", { timeout: SLOW });
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "ketuntasan-ditetapkan"));
+  const hasil = norm(await a.locator("#ketuntasan").innerText());
+  const sesudah = norm(await a.locator(`#ketuntasan li[data-pelajaran="${course}"]`).innerText());
+  const db = sql(`select m.percent || '|' || p.display_name || '|' || m.reason || '|' ||
+      (select count(*) from public.audit_log l where l.action = 'school_pass_mark.set' and l.target_id = m.id::text)
+    from public.school_pass_marks m join public.persons p on p.id = m.set_by_person_id
+   where m.institution_id='${ids.sd}' and m.course_id='${course}'
+     and not exists (select 1 from public.school_pass_marks n where n.supersedes_id = m.id)`).trim();
+  const [persen, oleh, alasan, audit] = db.split("|");
+  const setOk = /Batas ketuntasan belum ditetapkan/.test(sebelum) && /Batas ketuntasan ditetapkan/.test(hasil)
+    && /Batas ketuntasan: 60%/.test(sesudah) && persen === "60" && alasan === "Keputusan rapat guru" && audit === "1";
+  if (!setOk) rec.verdict = "FAIL";
+  catatan.push(`admin: Bab 1's row read "${sebelum.slice(0, 120)}" → «Tetapkan» 60 → the section says ${/Batas ketuntasan ditetapkan/.test(hasil)}, the row "${sesudah.slice(0, 160)}"; in the database ${persen}% set by ${oleh} ("${alasan}"), audited ${audit}`);
+  return catatan.join("; ");
+});
+
 await step("S18", "the teacher assigns the published Bab 1 to Kelas 1A (Siapkan → Sediakan, BOB-04)", async (rec) => {
   if (!terbitBab) { rec.verdict = "BLOCKED"; return "S17 did not publish Bab 1"; }
   const course = babSatu();
@@ -847,6 +914,9 @@ await step("S18", "the teacher assigns the published Bab 1 to Kelas 1A (Siapkan 
   const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" })
     .format(new Date(Date.now() + 30 * 86400000));
   await t.locator("#pin-sampai").fill(sampai).catch(() => {});
+  // D-088(b): the lesson's mark, read-only, as the school set it (S17b)
+  const batas = norm(await t.locator(".pin-batas").first().innerText().catch(() => ""));
+  if (!/Batas ketuntasan: 60%/.test(batas)) rec.verdict = "FAIL";
   rec.shots.push(await shot(t, "siapkan-tinjau"));
   await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
   await t.waitForLoadState("networkidle");
@@ -868,7 +938,10 @@ await step("S18", "the teacher assigns the published Bab 1 to Kelas 1A (Siapkan 
   const [win, dariOk, sampaiOk] = jendela.split("|");
   if (dariOk !== "true" || sampaiOk !== "true") rec.verdict = "FAIL";
   await tc.close();
-  return `after Sediakan: ${u.pathname}${u.searchParams.get("kode") ? ` kode=${u.searchParams.get("kode")}` : ""}; learning assignments ${la}; assessment assignments ${aa}; window in Jakarta time ${win} (asked: today .. ${sampai}; starts at the school's midnight: ${dariOk}; ends at 23:59:59 of ${sampai}: ${sampaiOk})`;
+  const segel = sql(`select coalesce(string_agg(d.mode::text || ':' || coalesce(aa.pass_mark::text, '-') || ':' || coalesce(aa.pass_mark_source, '-'), ',' order by d.mode::text), '-')
+    from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id where d.course_id='${course}'`).trim();
+  if (!/POST_TEST:0\.60:SCHOOL/.test(segel) || !/PRE_TEST:-:-/.test(segel)) rec.verdict = "FAIL";
+  return `Siapkan read "${batas}"; sealed ${segel}; after Sediakan: ${u.pathname}${u.searchParams.get("kode") ? ` kode=${u.searchParams.get("kode")}` : ""}; learning assignments ${la}; assessment assignments ${aa}; window in Jakarta time ${win} (asked: today .. ${sampai}; starts at the school's midnight: ${dariOk}; ends at 23:59:59 of ${sampai}: ${sampaiOk})`;
 });
 
 await step("S19", "the student finds Bab 1 and reaches its pre-test (B4)", async (rec) => {
@@ -1829,6 +1902,9 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   const opsi = (await peta.locator("option").allTextContents()).find((o) => o.startsWith("Kelas 2A"));
   await peta.selectOption({ label: opsi });
   rec.shots.push(await shot(a, "adm-j19-pergantian"));
+  // what the form holds at the moment it is sent, so a refusal can be read against it
+  const terkirim = await fr.evaluate((f) => [...new FormData(f).entries()]
+    .map(([k, v]) => `${k.replace(/\[[0-9a-f-]{36}\]/, "[…]")}=${String(v).slice(0, 8)}`).join(" "));
   await fr.getByRole("button", { name: "Jalankan pergantian", exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "rollover" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
@@ -1842,7 +1918,7 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   const ok = u.searchParams.get("hasil") === "ok" && u.searchParams.get("kode") === "ROLLOVER_DONE" && u.searchParams.get("n") === sebelum
     && tinggal === "0" && di2A.split(",").length === Number(sebelum) && fajar && Number(sesi) > 0;
   if (!ok) rec.verdict = "FAIL";
-  return `${catat}; next year ${tahunDepan}: Tingkat «Kelas 2» and Kelas 2A made on the screen; Kelas 1A had ${sebelum}; after «Jalankan pergantian»: hasil=${u.searchParams.get("hasil")} ` +
+  return `${catat}; next year ${tahunDepan}: Tingkat «Kelas 2» and Kelas 2A made on the screen; Kelas 1A had ${sebelum}; form sent: ${terkirim}; after «Jalankan pergantian»: hasil=${u.searchParams.get("hasil")} ` +
     `kode=${u.searchParams.get("kode")} n=${u.searchParams.get("n")}; the screen says "${kalimat.slice(-140)}"; left in 1A: ${tinggal}; in 2A: ${di2A}; ` +
     `Fajar (not yet signed in) carried over: ${fajar}; sessions still recorded in 1A: ${sesi}`;
 });

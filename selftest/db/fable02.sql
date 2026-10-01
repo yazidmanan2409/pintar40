@@ -111,6 +111,11 @@ begin
      and c.title like p_prefix || '%';
   delete from public.learning_assignments la using public.courses c
    where la.course_id = c.id and c.title like p_prefix || '%';
+  -- D-088(b): a school's pass marks are append-only; a probe course's are removed with it, the guard paused for it
+  alter table public.school_pass_marks disable trigger school_pass_marks_append_only;
+  delete from public.school_pass_marks spm using public.courses c
+   where spm.course_id = c.id and c.title like p_prefix || '%';
+  alter table public.school_pass_marks enable trigger school_pass_marks_append_only;
   delete from public.ingest_batches ib
    where ib.raw_payload::text like '%' || p_prefix || '%';
   delete from public.coaching_findings f using public.courses c
@@ -1384,6 +1389,7 @@ begin
   if n < 1 then ok := false; detail := detail || 'the release move was not audited; '; end if;
 
   -- INV-27: closing an assessment assignment touches no session
+  perform selftest.pass_mark_def(v_inst, v_def_p);   -- D-088(b): the school's mark before the class is given it
   insert into public.assessment_assignments (institution_id, assessment_definition_id, node_id,
                                              academic_period_id)
     values (v_inst, v_def_p, v_node, (select academic_period_id from public.enrollments where id = v_enr))

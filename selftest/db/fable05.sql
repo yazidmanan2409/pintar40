@@ -299,6 +299,7 @@ begin
     la := v_la; aa := v_aa; return next; return;
   end if;
 
+  perform selftest.pass_mark(p_institution, p_course);   -- D-088(b): the school's mark before the class is given it
   perform selftest.as_user(p_admin_email);
   select public.current_person_id() into v_person;
   insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
@@ -464,6 +465,7 @@ language plpgsql set search_path = public, pg_temp as $$
 declare v_la uuid; v_aa uuid; v_period uuid;
 begin
   select n.academic_period_id into v_period from public.org_nodes n where n.id = p_node;
+  perform selftest.pass_mark(p_institution, p_course);   -- D-088(b): the school's mark before the class is given it
   perform selftest.as_user(p_admin_email);
   insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
     academic_period_id, available_from, available_until, is_required, learning_cycle,

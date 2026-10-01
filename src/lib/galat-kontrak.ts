@@ -63,6 +63,13 @@ export const KODE_PINDAH = ["RELEASE_MOVE_STARTED", "RELEASE_MOVE_NO_CYCLE_DEFIN
 export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_SAME_KELAS", "MOVE_OTHER_YEAR", "MOVE_ALREADY_IN_KELAS"] as const;
 
 /**
+ * D-088(b), BOB-49: a lesson whose pass mark the school has not set cannot be given to a class or launched as an Uji
+ * Cepat. The assignment's seal raises PR050 with ASSIGN_PASS_MARK_MISSING in DETAIL; every other PR050 is the assign
+ * contract's (penugasan-kontrak.ts) and stays ACTION_FAILED here.
+ */
+export const KODE_KETUNTASAN = ["PASS_MARK_MISSING"] as const;
+
+/**
  * A content step (Studio steps 1–4, `advanceContentAction`): each refusal
  * `enforce_content_status` can raise, named. `kodeGalatKonten` reads them from
  * the database's message, which carries no code of its own; BOB07-K02 reads
@@ -93,6 +100,7 @@ export const KODE_ISIAN = [
   "TEMPLATE_INPUT_INCOMPLETE",
   "SCHOOL_REQUIRED",
   "MOVE_INPUT_INCOMPLETE",
+  "PASS_MARK_INPUT_INCOMPLETE",
 ] as const;
 
 /** A success that says more than "saved"; `n`, when given, follows the sentence. */
@@ -111,12 +119,15 @@ export const KODE_SUKSES = [
   "DRAFT_CREATED",
   // D-085 M9: a learner moved to another Kelas
   "LEARNER_MOVED",
+  // D-088(b): a lesson's pass mark set, or already that value
+  "PASS_MARK_SET", "PASS_MARK_UNCHANGED",
 ] as const;
 
 export type KodePindah = (typeof KODE_PINDAH)[number];
 export type KodePindahKelas = (typeof KODE_PINDAH_KELAS)[number];
+export type KodeKetuntasan = (typeof KODE_KETUNTASAN)[number];
 /** What `kodeGalat` answers: any action's codes, a release move's two (DAISY-31) and a class move's four (M9). */
-export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas;
+export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas | KodeKetuntasan;
 export type KodeKonten = (typeof KODE_KONTEN)[number];
 export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
@@ -147,6 +158,8 @@ export function kodeGalat(e: GalatDb): KodeGalat {
   // and PR061 is ACTION_FAILED before any message pattern can reword it
   if (state === "PR060" && (KODE_PINDAH as readonly string[]).includes(e?.details ?? "")) return e!.details as KodePindah;
   if (state === "PR060" || state === "PR061") return "ACTION_FAILED";
+  // D-088(b): no school pass mark for the lesson
+  if (state === "PR050" && e?.details === "ASSIGN_PASS_MARK_MISSING") return "PASS_MARK_MISSING";
   // M9: a class move's four refusals by their DETAIL, and no other PR070
   if (state === "PR070") {
     return (KODE_PINDAH_KELAS as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePindahKelas : "ACTION_FAILED";
@@ -192,7 +205,7 @@ export function rujukan(): string {
 }
 
 const SEMUA_KODE = new Set<string>([
-  ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KONTEN, ...KODE_ISIAN, ...KODE_SUKSES,
+  ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KETUNTASAN, ...KODE_KONTEN, ...KODE_ISIAN, ...KODE_SUKSES,
   ...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED",
   ...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED",
 ]);

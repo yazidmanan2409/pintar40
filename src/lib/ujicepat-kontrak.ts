@@ -22,6 +22,7 @@ export const KODE_UJI_CEPAT = [
   "QUICK_MINUTES_OUT_OF_RANGE", // the time window is outside 5 to 60 minutes
   "QUICK_NOT_ALLOWED",          // no CAN_QUICK_ASSESSMENT over this class, or another school's chapter
   "QUICK_NOT_FOUND",            // the class or chapter is not there (or is not a class)
+  "QUICK_PASS_MARK_MISSING",    // D-088(b): the school has not set this lesson's pass mark (PR050, by its DETAIL)
   "QUICK_FAILED",               // anything else: the teacher is given a reference to quote
 ] as const;
 export type KodeUjiCepat = (typeof KODE_UJI_CEPAT)[number];
@@ -37,10 +38,12 @@ const POLA: ReadonlyArray<readonly [RegExp, KodeUjiCepat]> = [
   [/^a quick assessment is launched for a class or cohort, not a /, "QUICK_NOT_FOUND"],
 ];
 
-type GalatDb = { code?: string | null; message?: string | null } | null | undefined;
+type GalatDb = { code?: string | null; details?: string | null; message?: string | null } | null | undefined;
 
 /** The code of `launch_quick_assessment`'s refusal. */
 export function kodeUjiCepat(e: GalatDb): KodeUjiCepat {
+  // D-088(b): the assignment's seal refuses a lesson with no school pass mark, by SQLSTATE and DETAIL, not by words
+  if (e?.code === "PR050" && e?.details === "ASSIGN_PASS_MARK_MISSING") return "QUICK_PASS_MARK_MISSING";
   const pesan = (e?.message ?? "").replace(/^ERROR:\s*/i, "");
   for (const [pola, kode] of POLA) if (pola.test(pesan)) return kode;
   if (e?.code === "42501") return "QUICK_NOT_ALLOWED";

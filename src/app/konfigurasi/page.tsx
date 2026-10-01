@@ -1,6 +1,6 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
-import { t, type HleEvent } from "@/lib/hle";
+import { t, format, type HleEvent } from "@/lib/hle";
 import { kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { nilaiSkema } from "@/lib/kesehatan-skema";
 import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
@@ -8,9 +8,10 @@ import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
   grantRoleAction, pindahKelasAction, revokeRoleAction, rolloverAction, saveReportTemplateAction, setFlagAction,
-  setPlatformConfigAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction,
+  setPlatformConfigAction, tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction,
   transferRequestAction,
 } from "./actions";
+import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
@@ -205,8 +206,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // DAISY-17: "Menambahkan orang" is offered only to a reader /pendataan
   // admits -- the same predicate it asks on arrival. A platform administrator
   // holds no school's CAN_PROVISION_PEOPLE and was sent to a refusal.
-  const [struktur, locale, { data: akar }, bolehPendataan] = await Promise.all([
+  // D-088(b): the lessons the school can give, each with its pass mark (or none) and its history
+  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan] = await Promise.all([
     bacaanStruktur, currentLocale(), bacaanAkar, sekolahPendataan().then((x) => x.length > 0).catch(() => false),
+    sekolahStruktur ? pelajaranDanBatas(supabase, sekolahStruktur.id) : Promise.resolve(null),
   ]);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
@@ -225,6 +228,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
 
   const nav: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
+    ["ketuntasan", s("config.section.ketuntasan")],
     ["pindah", s("config.section.pindah")],
     ["laporan", s("config.laporan.judul")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
@@ -370,6 +374,68 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               </ul>
             </section>
           ) : null}
+
+          {/* D-088(b), BOB-49 / DAISY-38. BATAS KETUNTASAN: each lesson the school can give, with its pass mark or
+              «Batas ketuntasan belum ditetapkan», its history, and a form to set it. A teacher cannot give a lesson
+              to a class until its mark is set; a change applies to what is given afterwards. set_school_pass_mark
+              decides who may set it (the school's admin), keeps every change and audits it. */}
+          <section id="ketuntasan" className={card} aria-labelledby="pin-ketuntasan">
+            <h2 id="pin-ketuntasan" className="font-medium">{sl("config.section.ketuntasan")}</h2>
+            {sekolahStruktur ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.ketuntasan.arti")}</p>
+                {ketuntasan && ketuntasan.length > 0 ? (
+                  <ul className="mt-3 grid gap-2 text-sm">
+                    {ketuntasan.map((p) => (
+                      <li key={p.course_id} data-pelajaran={p.course_id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                        <span className="text-ink-1">
+                          <strong>{p.title}</strong> · {p.subject} · {p.grade_label}
+                          {p.canonical ? <> · <span className="text-ink-3">{sl("config.ketuntasan.materi_pintar")}</span></> : null}
+                        </span>
+                        <span className="pin-batas text-ink-2">
+                          {p.percent === null
+                            ? sl("config.ketuntasan.belum")
+                            : <>{sl("config.ketuntasan.sekarang")} <span className="pin-num">{format.percent(p.percent / 100, locale)}</span></>}
+                        </span>
+                        <form action={tetapkanBatasAction} className="flex flex-wrap items-end gap-2">
+                          <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                          <input type="hidden" name="pelajaran" value={p.course_id} />
+                          <label className={label}>{sl("config.ketuntasan.nilai")}
+                            <input name="persen" type="number" inputMode="numeric" min={0} max={100} step={1} required
+                              defaultValue={p.percent ?? undefined} className={`${field} w-24`} />
+                          </label>
+                          <label className={label}>{sl("config.ketuntasan.alasan")}
+                            <input name="alasan" type="text" required maxLength={300} placeholder={sl("config.ketuntasan.alasan_contoh")} className={field} />
+                          </label>
+                          <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.ketuntasan.tombol")}</TombolKirim>
+                        </form>
+                        {p.history.length > 0 ? (
+                          <details>
+                            <summary className="cursor-pointer text-ink-3">{sl("config.ketuntasan.riwayat")}</summary>
+                            <ul className="mt-1 grid gap-1 text-ink-2">
+                              {p.history.map((h, i) => (
+                                <li key={`${h.set_at}-${i}`}>
+                                  <span className="pin-num">{format.percent(h.percent / 100, locale)}</span>
+                                  {" · "}{format.date(h.set_at, locale)}
+                                  {h.set_by ? <> · {sl("config.ketuntasan.oleh")} {h.set_by}</> : null}
+                                  {" · "}{h.reason}
+                                </li>
+                              ))}
+                            </ul>
+                          </details>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-sm text-ink-3">{sl("config.ketuntasan.kosong")}</p>
+                )}
+                {result("ketuntasan")}
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
 
           {/* D-085 M9 (J3.12, ADM-J13). PINDAH KELAS: the administrator opens
               the Kelas a student is in, finds them, and moves them to another

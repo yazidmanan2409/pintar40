@@ -392,6 +392,31 @@ await step("J05", "Studio to published with two people: the teacher prepares and
 });
 
 let tugas = null;
+// D-088(b), BOB-49 / DAISY-38: a lesson is given to a class only once the school has set its pass mark. The school's
+// admin sets it on Konfigurasi → Batas ketuntasan, by clicking, with a reason, before the teacher gives it (J06).
+await step("J05b", "the school admin sets the lesson's pass mark on Konfigurasi → Batas ketuntasan (D-088(b), BOB-49)", ["ADM-11", "X-05"], async (rec) => {
+  rec.page = A;
+  if (!release || !course) return blocked(rec, "J05 published nothing");
+  await lihat(A, `/konfigurasi?sekolah=${SID}#ketuntasan`);
+  const baris = A.locator(`#ketuntasan li[data-pelajaran="${course}"]`);
+  if (!(await baris.count())) {
+    rec.verdict = "FAIL";
+    return `Konfigurasi lists no such lesson under Batas ketuntasan: ${norm(await A.locator("#ketuntasan").innerText().catch(() => "")).slice(0, 300)}`;
+  }
+  const sebelum = norm(await baris.innerText());
+  await baris.locator('input[name="persen"]').fill("60");
+  await baris.locator('input[name="alasan"]').fill("Keputusan rapat guru (uji staging)");
+  await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();
+  await A.waitForURL((u) => u.searchParams.get("bagian") === "ketuntasan", { timeout: SLOW });
+  await A.waitForLoadState("load");
+  rec.shots.push(await shot(A, "ketuntasan-ditetapkan"));
+  const sesudah = norm(await A.locator(`#ketuntasan li[data-pelajaran="${course}"]`).innerText());
+  const tersimpan = sql(`select m.percent from public.school_pass_marks m where m.institution_id = ${uuid(SID)} and m.course_id = ${uuid(course)}
+     and not exists (select 1 from public.school_pass_marks n where n.supersedes_id = m.id)`);
+  if (!/Batas ketuntasan: 60%/.test(sesudah) || tersimpan !== "60") rec.verdict = "FAIL";
+  return `the lesson's row read "${sebelum.slice(0, 120)}"; after «Tetapkan» 60 it reads "${sesudah.slice(0, 140)}"; the school's mark in the database: ${tersimpan || "none"}`;
+});
+
 await step("J06", `the teacher assigns the published lesson to ${KELAS} (Mengajar → Siapkan → Sediakan)`, ["EDU-05", "EDU-06", "ADM-13", "ADM-14", "X-05"], async (rec) => {
   rec.page = G;
   if (!release) return blocked(rec, "J05 published nothing");

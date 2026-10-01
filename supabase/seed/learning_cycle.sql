@@ -518,6 +518,9 @@ begin
   update public.plp_releases set status='PUBLISHED' where id = rel;
 
   -- -------------------------------------------------------- assignments
+  -- D-088(b), BOB-49: the school sets the lesson's pass mark (as its admin, through the product's own function)
+  -- before the class is given it; 60 is this local fixture's choice, recorded with its reason, never a product default
+  perform public.set_school_pass_mark(inst, course, 60, 'Contoh lokal (seed): batas ketuntasan sekolah contoh');
   insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
     academic_period_id, is_required, learning_cycle, assigned_by_person_id, assigned_at)
   values (inst, rel, course, cls, period, true,

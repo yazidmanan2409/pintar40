@@ -284,6 +284,9 @@ export type HleEvent =
   | "config.section.rollover"
   | "config.section.transfers"
   | "config.section.pindah"
+  | "config.section.ketuntasan" | "config.ketuntasan.arti" | "config.ketuntasan.belum" | "config.ketuntasan.sekarang"
+  | "config.ketuntasan.nilai" | "config.ketuntasan.alasan" | "config.ketuntasan.alasan_contoh" | "config.ketuntasan.tombol"
+  | "config.ketuntasan.riwayat" | "config.ketuntasan.oleh" | "config.ketuntasan.kosong" | "config.ketuntasan.materi_pintar"
   | "config.persiapan.judul"
   | "config.persiapan.arti"
   | "config.persiapan.sudah"
@@ -698,6 +701,7 @@ export type HleEvent =
   | "siklus.catatan.isi"
   | "siklus.nanti"
   | "siklus.ambang"
+  | "siklus.ambang_belum"
   | "siklus.tepat_dari"
   | "siklus.setelah"
   | "siklus.berikutnya"
@@ -921,6 +925,7 @@ export type HleEvent =
   | "galat.move_other_year"
   | "galat.move_already_in_kelas"
   | "galat.learner_moved"
+  | "galat.pass_mark_set" | "galat.pass_mark_unchanged" | "galat.pass_mark_input_incomplete" | "galat.pass_mark_missing"
   | "galat.rollover_done"
   | "galat.template_saved"
   | "galat.role_granted"
@@ -1065,6 +1070,7 @@ export type HleEvent =
   | "mengajar.sedia.kode.assign_pre_test_too_short"
   | "mengajar.sedia.kode.assign_post_test_too_short"
   | "mengajar.sedia.kode.assign_cycle_overlap"
+  | "mengajar.sedia.kode.assign_pass_mark_missing" | "mengajar.sedia.batas" | "mengajar.sedia.batas_belum"
   | "mengajar.sedia.kode.assign_input_invalid"
   | "mengajar.sedia.kode.assign_failed"
   | "cycle.pemetaan.belum_ada"
@@ -1196,6 +1202,7 @@ export type HleEvent =
   | "mengajar.cepat.tolak.izin"
   | "mengajar.cepat.tolak.tidak_ada"
   | "mengajar.cepat.tolak.umum"
+  | "mengajar.cepat.tolak.ketuntasan"
   | "mengajar.cepat.atau"
   | "mengajar.bukti.eyebrow"
   | "mengajar.bukti.judul"
@@ -2080,6 +2087,18 @@ const table: Table = {
   "config.section.rollover": { default: "Pergantian tahun ajaran", en: "Academic-year rollover" },
   "config.section.transfers": { default: "Perpindahan peserta didik", en: "Student transfers" },
   "config.section.pindah": { default: "Pindah kelas", en: "Move a student to another class" },
+  "config.section.ketuntasan": { default: "Batas ketuntasan", en: "Pass marks" },
+  "config.ketuntasan.arti": { default: "Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 0 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.", en: "The minimum passing mark for each lesson at this school, as a whole percentage from 0 to 100. A teacher can give a lesson to a class only once its mark is set. A change applies to what is given afterwards; results and certificates that already exist do not change." },
+  "config.ketuntasan.belum": { default: "Batas ketuntasan belum ditetapkan", en: "No pass mark set yet" },
+  "config.ketuntasan.sekarang": { default: "Batas ketuntasan:", en: "Pass mark:" },
+  "config.ketuntasan.nilai": { default: "Nilai minimum (%)", en: "Minimum mark (%)" },
+  "config.ketuntasan.alasan": { default: "Alasan", en: "Reason" },
+  "config.ketuntasan.alasan_contoh": { default: "Misalnya: keputusan rapat guru", en: "For example: decided at the staff meeting" },
+  "config.ketuntasan.tombol": { default: "Tetapkan", en: "Set" },
+  "config.ketuntasan.riwayat": { default: "Riwayat", en: "History" },
+  "config.ketuntasan.oleh": { default: "oleh", en: "by" },
+  "config.ketuntasan.kosong": { default: "Sekolah ini belum punya pelajaran.", en: "This school has no lessons yet." },
+  "config.ketuntasan.materi_pintar": { default: "Materi PINTAR", en: "PINTAR material" },
   "config.persiapan.judul": { default: "Persiapan sekolah", en: "School setup" },
   "config.persiapan.arti": { default: "Apa yang sudah siap di sekolah ini, dan apa yang masih perlu dikerjakan sebelum guru dan murid mulai.", en: "What is ready at this school, and what still needs doing before teachers and students begin." },
   "config.persiapan.sudah": { default: "Sudah", en: "Done" },
@@ -2535,6 +2554,7 @@ const table: Table = {
   "siklus.nanti": { default: "Nanti saja", en: "Not now" },
   // DAISY-26 (UX-27): «Ambang» is hard for a primary-school reader; the mastery bar is the chapter's target, not a pass mark
   "siklus.ambang": { default: "Target untuk bab ini:", en: "The target for this chapter:" },
+  "siklus.ambang_belum": { default: "Batas ketuntasan belum ditetapkan.", en: "No pass mark has been set." },
   "siklus.tepat_dari": { default: "Terjawab tepat", en: "You answered" },
   "siklus.setelah": { default: "Setelah bab ini", en: "After this chapter" },
   "siklus.berikutnya": { default: "Apa berikutnya", en: "What next" },
@@ -2766,6 +2786,10 @@ const table: Table = {
   "galat.move_already_in_kelas": { default: "Murid itu sudah punya Kelas di Tingkat ini. Pindahkan ia dari Kelasnya.", en: "That student already has a class in this Tingkat. Move them from that class." },
   "galat.move_other_year": { default: "Kelas tujuan ada di tahun ajaran lain. Murid pindah ke tahun ajaran berikutnya lewat Pergantian tahun ajaran.", en: "The destination class is in another academic year. Students move into the next academic year through the academic-year rollover." },
   "galat.learner_moved": { default: "Murid sudah dipindahkan. Apa yang sudah ia kerjakan tetap tercatat di kelas lamanya.", en: "The student has been moved. What they have already done stays recorded with their old class." },
+  "galat.pass_mark_set": { default: "Batas ketuntasan ditetapkan. Berlaku untuk pelajaran yang disediakan mulai sekarang.", en: "The pass mark is set. It applies to what is given from now on." },
+  "galat.pass_mark_unchanged": { default: "Batas ketuntasan sudah bernilai itu; tidak ada yang berubah.", en: "The pass mark already has that value; nothing changed." },
+  "galat.pass_mark_input_incomplete": { default: "Isi nilai bulat dari 0 sampai 100 dan alasannya.", en: "Enter a whole number from 0 to 100 and a reason." },
+  "galat.pass_mark_missing": { default: "Batas ketuntasan pelajaran ini belum ditetapkan, jadi pelajaran ini belum bisa disediakan untuk kelas. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan.", en: "This lesson has no pass mark yet, so it cannot be given to a class. The school admin sets it in Configuration → Pass mark." },
   "galat.rollover_done": { default: "Keanggotaan kelas yang dipindahkan ke tahun ajaran baru:", en: "Class memberships moved to the new academic year:" },
   "galat.template_saved": { default: "Metrik dalam templat laporan ini:", en: "Metrics in this report template:" },
   // DAISY-18 (D-047): the key actions say what was done
@@ -3188,6 +3212,9 @@ const table: Table = {
   "mengajar.sedia.kode.assign_pre_test_too_short": { default: "Soal Pemetaan awal di materi ini kurang dari yang diminta.", en: "This material has fewer Initial Mapping questions than it asks for." },
   "mengajar.sedia.kode.assign_post_test_too_short": { default: "Soal Cek penguasaan di materi ini kurang dari yang diminta.", en: "This material has fewer Mastery Check questions than it asks for." },
   "mengajar.sedia.kode.assign_cycle_overlap": { default: "Soal Cek penguasaan berada di kelompok paralel yang sama dengan soal Pemetaan awal, sehingga tidak bisa dipakai. Pisahkan kelompoknya lalu terbitkan ulang.", en: "The Mastery Check questions share a parallel group with the Initial Mapping questions, so they cannot be used. Separate the groups and publish again." },
+  "mengajar.sedia.kode.assign_pass_mark_missing": { default: "Batas ketuntasan pelajaran ini belum ditetapkan, jadi pelajaran ini belum bisa disediakan untuk kelas. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan.", en: "This lesson has no pass mark yet, so it cannot be given to a class. The school admin sets it in Configuration → Pass mark." },
+  "mengajar.sedia.batas": { default: "Batas ketuntasan:", en: "Pass mark:" },
+  "mengajar.sedia.batas_belum": { default: "Batas ketuntasan belum ditetapkan. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan; sampai itu, pelajaran ini belum bisa disediakan.", en: "No pass mark has been set. The school admin sets it in Configuration → Pass mark; until then this lesson cannot be given." },
   "mengajar.sedia.kode.assign_input_invalid": { default: "Kelas atau materi tidak dikenali.", en: "The class or material was not recognised." },
   "mengajar.sedia.kode.assign_failed": { default: "Materi belum berhasil disediakan. Coba lagi sebentar lagi.", en: "The material could not be made available. Try again in a moment." },
   "cycle.pemetaan.belum_ada": { default: "Pemetaan awal untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Initial Mapping for this lesson is not ready yet. Ask the teacher." },
@@ -3334,6 +3361,7 @@ const table: Table = {
   // DAISY-27 (UX-03, with BOB-32): why an Uji Cepat was not made available, one sentence per code
   // (src/components/mengajar/tolakUjiCepat.ts). «Sudah ada Uji Cepat yang berjalan» is retired: it was never the cause
   "mengajar.cepat.tolak.awal": { default: "Uji Cepat belum disediakan.", en: "The Quick Assessment was not made available." },
+  "mengajar.cepat.tolak.ketuntasan": { default: "Batas ketuntasan pelajaran ini belum ditetapkan, jadi pelajaran ini belum bisa disediakan untuk kelas. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan.", en: "This lesson has no pass mark yet, so it cannot be given to a class. The school admin sets it in Configuration → Pass mark." },
   "mengajar.cepat.tolak.bank": { default: "Bab itu belum punya cukup soal untuk jumlah yang dipilih. Pilih jumlah soal yang lebih sedikit, atau bab lain.", en: "That chapter does not have enough questions for the number chosen. Choose fewer items, or another chapter." },
   "mengajar.cepat.tolak.jumlah": { default: "Jumlah soal harus antara", en: "The number of items must be between" },
   "mengajar.cepat.tolak.menit": { default: "Waktu pengerjaan itu tidak bisa dipakai. Pilih", en: "That time window cannot be used. Choose" },

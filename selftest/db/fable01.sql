@@ -58,6 +58,37 @@ begin
   perform set_config('request.jwt.claim.sub', '', true);
 end $$;
 
+-- D-088(b), BOB-49: a school gives a class an assessment only once it has set the lesson's pass mark
+-- (assessment_assignments_the_pass_mark_is_sealed refuses it otherwise). A fixture that gives a class an
+-- assessment sets the mark first, as the school's own setting -- a school_pass_marks row, set by the school's admin
+-- where it has one -- so the seal under test is the one the product makes. 60 unless the fixture says otherwise;
+-- setting the same mark again does nothing.
+create or replace function selftest.pass_mark(p_inst uuid, p_course uuid, p_percent int default 60) returns void
+language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_root uuid; v_now public.school_pass_marks; v_by uuid;
+begin
+  v_root := public.course_lineage_root(p_course);
+  if v_root is null then raise exception 'selftest.pass_mark: no course %', p_course; end if;
+  v_now := public.school_pass_mark_current(p_inst, v_root);
+  if v_now.id is not null and v_now.percent = p_percent then return; end if;
+  select ra.person_id into v_by from public.role_assignments ra
+   where ra.institution_id = p_inst and ra.role = 'INSTITUTION_ADMIN' and ra.revoked_at is null
+   order by ra.created_at limit 1;
+  if v_by is null then select p.id into v_by from public.persons p order by p.created_at limit 1; end if;
+  insert into public.school_pass_marks (institution_id, course_id, percent, reason, set_by_person_id, supersedes_id)
+  values (p_inst, v_root, p_percent, 'selftest fixture', v_by, v_now.id);
+end $$;
+
+-- The same, named by the assessment definition the fixture is about to give (its course, or its module's).
+create or replace function selftest.pass_mark_def(p_inst uuid, p_def uuid, p_percent int default 60) returns void
+language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_course uuid;
+begin
+  select coalesce(d.course_id, m.course_id) into v_course
+    from public.assessment_definitions d left join public.modules m on m.id = d.module_id where d.id = p_def;
+  perform selftest.pass_mark(p_inst, v_course, p_percent);
+end $$;
+
 -- D-041 (BOB-03). Signed-in clients no longer write plp_releases: the release
 -- functions do, as the table's owner, with the caller's identity. A suite that
 -- drives a release through its lifecycle as a person does exactly that: the
@@ -95,6 +126,7 @@ end $$;
 grant usage on schema selftest to authenticated, anon;
 grant execute on function selftest.as_user(text), selftest.as_anon(), selftest.as_owner()
   to authenticated, anon;
+grant execute on function selftest.pass_mark(uuid, uuid, int), selftest.pass_mark_def(uuid, uuid, int) to authenticated;
 
 create or replace function selftest.run_fable01()
 returns table (test_id text, invariant text, ok boolean, detail text)

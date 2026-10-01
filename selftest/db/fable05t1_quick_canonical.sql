@@ -347,6 +347,9 @@ begin
    where e.institution_id = v_c and n.kind = 'CLASS' and m.valid_to is null limit 1;
 
   select * into f from selftest.qac_unsealed_fixture(v_b);
+  -- D-088(b): each school sets its pass mark for the lessons it launches from, before any launch
+  perform selftest.pass_mark(v_b, p.course); perform selftest.pass_mark(v_c, p.course); perform selftest.pass_mark(v_a, p.course);
+  perform selftest.pass_mark(v_b, f.course);
 
   v_guru_b := selftest.f05_actor('qac-guru-b@synthetic.pintar.test', 'EDUCATOR', v_b);
   v_guru_c := selftest.f05_actor('qac-guru-c@synthetic.pintar.test', 'EDUCATOR', v_c);
@@ -823,6 +826,7 @@ begin
   v_hod   := selftest.f05_actor('qac-own-hod@synthetic.pintar.test', 'HEAD_OF_DEPARTMENT', v_b);
   v_admin := selftest.f05_actor('qac-own-admin@synthetic.pintar.test', 'INSTITUTION_ADMIN', v_b);
   select * into own from selftest.qac_own_package(v_b, v_tag);
+  perform selftest.pass_mark(v_b, own.course);
 
   -- (a) release INGESTED, course NOT sealed -- the case that was wrong
   if public.content_is_sealed(own.course) then
@@ -998,6 +1002,7 @@ begin
   -- =========================================================================
   ok := true; detail := '';
   select * into can2 from selftest.canonical_package('QAC Supersede ' || v_tag);
+  perform selftest.pass_mark(v_b, can2.course);
   perform selftest.as_user('kanonik-admin@pintar.test');
   v_dist2 := public.grant_release_distribution(can2.rel, v_b, 'task 1 supersession probe');
   perform selftest.as_owner();
