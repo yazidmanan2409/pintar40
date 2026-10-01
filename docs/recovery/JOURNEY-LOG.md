@@ -6,6 +6,7 @@ One line of evidence per walk, newest first. A journey is DONE when a person can
 
 | When (UTC) | Walk | Result | Evidence |
 |---|---|---|---|
+| 1 Oct 07:36–07:49 | Same walk on `main`, student 4 leaving the last post-test answer unsaved before «Kumpulkan» (W3 before-picture) | 18 PASS, 1 FAIL, 1 NOTE, 1 NOT RUN; no 5xx. **FAIL J13: student 4's result reads 7 of 8 (88%) for 8 of 8 answered: the unsaved answer was lost.** «Kumpulkan» asked nothing | run 36831200188, main `28d3015` |
 | 1 Oct 06:50–07:05 | Teacher signs in like a person (`/masuk` → real email in the staging test mailbox → same browser), uploads Bab 1, prepares and submits in Studio, assigns; 5 students sign in on the real card form, pre-test, every lesson by clicking, post-test, results; teacher reads evidence; Uji Cepat | 19 PASS, 1 NOTE, 1 NOT RUN; no 5xx, no page error | run 36826806100, main `28d3015` on staging |
 | 1 Oct 06:43 | Same walk, attempt 1 | Stopped at the teacher's sign-in: the setup's server-made check had started the address's 60 s email window, so the real request was refused (429) while the screen said «Periksa email Anda» (D2). Tooling fixed (`a72f64d`) | run 36825095220; staging Auth log 06:42:48 / 06:43:04 |
 | 1 Oct 06:26–06:41 | Same walk, all staff by server-made session (machine support only) | 19 PASS, 1 NOTE, 1 NOT RUN | run 36824753809 |
@@ -22,7 +23,7 @@ One line of evidence per walk, newest first. A journey is DONE when a person can
 | W16 | A test starting tomorrow read «Berjalan» today; the home said nothing was waiting while a class had no material | `40d38c3` |
 | W9 (class figures) | The head of department read a class's net gain as «35%» where the teacher's «Lihat bukti» says «+35 poin»; a perfect class read «1» | `f304621` |
 
-The walks now leave student 4's last post-test answer unsaved before «Kumpulkan» (W3): on `main` that reads 7 of 8, after the fix 8 of 8. **Walked in a browser on the branch's built code** (local stack, CI audit run 36829928522, `5729c44`): 31 PASS, 1 NOTE; «Kumpulkan» asked first for every student; every result equals the plan, and the class figure reads 75% (73% had the answer been lost).
+The walks now leave student 4's last post-test answer unsaved before «Kumpulkan» (W3): on `main` that reads 7 of 8 (staging run 36831200188), after the fix 8 of 8. **The final head `f304621`: CI green (run 36831732108); browser walk green (audit run 36831734777, including the head of department reading the net gain as «+35 poin»).** **Walked in a browser on the branch's built code** (local stack, CI audit run 36829928522, `5729c44`): 31 PASS, 1 NOTE; «Kumpulkan» asked first for every student; every result equals the plan, and the class figure reads 75% (73% had the answer been lost).
 
 **Still a shortcut, by necessity:** the synthetic school's admin (`uji-kinerja-admin@example.co`) has no address a person can read, so recording students, making cards and approving content run on a server-made session. It is labelled setup, never human proof.
 
