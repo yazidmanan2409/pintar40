@@ -128,7 +128,7 @@ begin atomic
                   where ((jsonb_typeof(kv.value) = 'object'::text)
                      and (jsonb_typeof(kv.value -> 'penguasaan') = 'number'::text))) t
              left join public.learning_objectives lo on ((lo.id = t.objective_id))
-          group by t.objective_id, (case when (t.objective_id is null) then t.code else null::text end)) d;
+          group by t.objective_id, coalesce((t.objective_id)::text, t.code)) d;
 end;
 revoke all on function public.calc_class_topic_mastery(uuid, uuid, text) from public, anon, authenticated;
 
@@ -169,7 +169,7 @@ begin atomic
                   where ((jsonb_typeof(kv.value) = 'object'::text)
                      and (jsonb_typeof(kv.value -> 'penguasaan') = 'number'::text))) t
              left join public.learning_objectives lo on ((lo.id = t.objective_id))
-          group by t.objective_id, (case when (t.objective_id is null) then t.code else null::text end)) d;
+          group by t.objective_id, coalesce((t.objective_id)::text, t.code)) d;
 end;
 revoke all on function public.calc_institution_competency_outcomes(uuid, uuid, text) from public, anon, authenticated;
 
