@@ -1154,6 +1154,7 @@ await step("S21b", "while the first student has the Uji Penguasaan open, the tea
     `${ok ? "" : ` (expected ${MURID[0]} started, ${MURID.slice(1).join(", ")} not attempted)`}`;
 });
 
+let lintasPerangkat = null; // S21c → S21e: the lesson Ani left, and the page she left it on
 // STU-J16, STU-J17, STU-J18 (W2): one computer, two students. Ani opens Bab 1's first lesson from the
 // reading map, turns to its second page, and signs out with «Keluar»; Budi signs in on the same browser
 // with his card. /belajar greets Budi and no longer opens for Ani, and the same lesson opens for Budi at
@@ -1189,6 +1190,7 @@ await step("S21c", "one computer, two students: the first reads a lesson to its 
     await s.waitForFunction((prev) => document.querySelector("p.pin-lpos")?.innerText.replace(/\s+/g, " ").trim() !== prev, awal, { timeout: SLOW });
     const ani = await posisi();
     await s.waitForTimeout(1500); // the page reached is saved on view
+    lintasPerangkat = { pelajaran, ani, awal };
     rec.shots.push(await shot(s, "stu-j16-ani-halaman-2"));
     // «Keluar» from the strip
     await s.getByRole("button", { name: "Keluar", exact: true }).first().click();
@@ -1256,6 +1258,35 @@ await step("S21d", "after the Uji Penguasaan's result, the student follows «Apa
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(s, "stu-j22-berhenti"));
+    await sc.close();
+    return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
+  }
+});
+
+// STU-J19: the same student on another device. Ani, who left Bab 1's first lesson on its second page on the
+// shared computer (S21c), signs in on a different browser with her card and opens the lesson: it continues
+// where she left it, from what the server recorded, not from the first page.
+await step("S21e", "the same student on another device: Ani signs in on a different browser and the lesson continues where she left it (STU-J19)", async (rec) => {
+  if (!lintasPerangkat || !kartuKelas[0]) { rec.verdict = "BLOCKED"; return "S21c did not leave a lesson part-read"; }
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+    await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+    await s.locator("#kartu").fill(kartuKelas[0].number);
+    await s.locator("#pin").fill(kartuKelas[0].pin);
+    await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+    await s.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+    await s.goto(`${APP}${lintasPerangkat.pelajaran}`, { waitUntil: "networkidle" });
+    await s.locator("h1").first().waitFor({ timeout: SLOW });
+    const di = norm(await s.locator("p.pin-lpos").first().innerText().catch(() => ""));
+    rec.shots.push(await shot(s, "stu-j19-perangkat-lain"));
+    if (di !== lintasPerangkat.ani) rec.verdict = "FAIL";
+    await sc.close();
+    return `on a second browser Ani's lesson opens at "${di}" (left at "${lintasPerangkat.ani}" on the shared computer; the first page is "${lintasPerangkat.awal}")`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(s, "stu-j19-berhenti"));
     await sc.close();
     return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
   }
