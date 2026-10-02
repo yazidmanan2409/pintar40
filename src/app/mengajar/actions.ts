@@ -65,6 +65,9 @@ function ke(kelasId: string, sisa = ""): never {
   redirect(`/mengajar/${encodeURIComponent(kelasId)}${sisa}`);
 }
 
+/** The shape of an id; anything else from a form is dropped before it reaches the database. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // ────────────────────────────────────────────────────────── make material available
 export async function sediakanMateri(formData: FormData): Promise<void> {
   const kelasId = bersih(formData.get("kelas"));
@@ -104,23 +107,24 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
 export async function sediakanUjiCepat(formData: FormData): Promise<void> {
   const kelasId = bersih(formData.get("kelas"));
   const bab = bersih(formData.get("bab"));
-  const soal = Number(bersih(formData.get("soal")));
+  // D-085 T2: the questions the teacher ticked and reviewed, comma-joined; the database checks each one again
+  const butir = bersih(formData.get("butir")).split(",").map((x) => x.trim()).filter((x) => UUID.test(x));
   const menit = Number(bersih(formData.get("menit")));
   if (!kelasId) redirect("/mengajar");
 
   const ctx = await kelasKonteks(kelasId);
-  if (!ctx || !bab || !Number.isInteger(soal) || !Number.isInteger(menit)) {
+  if (!ctx || !bab || !Number.isInteger(menit)) {
     ke(kelasId, "/uji-cepat");
   }
 
   const db = (await supabaseServer()) as any;
-  // One call. It creates the definition, draws against the bank, opens the
-  // assignment and writes the audit line as one transaction — so a refusal
+  // One call. It launches as launch_quick_assessment always did, checks every chosen question against the
+  // instrument's own eligible set, stores the choice and writes the audit lines as one transaction, so a refusal
   // leaves nothing half-built and this function has no cleanup to get wrong.
-  const { error } = await db.rpc("launch_quick_assessment", {
+  const { error } = await db.rpc("launch_selected_quick_assessment", {
     p_node: kelasId,
     p_module: bab,
-    p_item_count: soal,
+    p_items: butir,
     p_minutes: menit,
   });
   // BOB-32 (UX-03, D-011): the refusal's cause as a code, so the page can say
@@ -129,10 +133,10 @@ export async function sediakanUjiCepat(formData: FormData): Promise<void> {
   // reopens with them instead of resetting.
   if (error) {
     const kode = kodeUjiCepat(error);
-    const pilihan = { bab, soal: bersih(formData.get("soal")), menit: bersih(formData.get("menit")) };
+    const pilihan = { bab, butir: bersih(formData.get("butir")), menit: bersih(formData.get("menit")) };
     if (kode !== "QUICK_FAILED") ke(kelasId, alamatTolakUjiCepat(kode, pilihan));
     const ref = rujukan();
-    console.error(`[uji-cepat ${ref}] launch_quick_assessment failed`, error.code, error.message);
+    console.error(`[uji-cepat ${ref}] launch_selected_quick_assessment failed`, error.code, error.message);
     ke(kelasId, alamatTolakUjiCepat(kode, pilihan, ref));
   }
   ke(kelasId, "/uji-cepat?cepat=ok");

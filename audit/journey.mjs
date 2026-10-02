@@ -2031,6 +2031,115 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
   return notes.join("; ");
 });
 
+// D-085 T2: Uji Cepat as ruled. Bu Guru Sari opens Uji Cepat for Kelas 1A, chooses Bab 1, sees its questions (stem,
+// options, topic; no key), ticks three practice questions, reviews exactly those and launches. Budi Murid (still in
+// Kelas 1A) finds it on /belajar and hands it in: his paper is exactly the three ticked. The running Uji Cepat then
+// leads Sari to «Lihat per soal» (M5), which shows those three questions with his answers. On a release before T2 the
+// page has no questions to tick: NOTE, not FAIL.
+await step("S26e", "Uji Cepat as T2 rules it: the teacher chooses Bab 1, sees its questions, ticks three, reviews exactly those and launches; a student's paper is exactly the three; «Lihat per soal» then shows them (D-085 T2, M5)", async (rec) => {
+  const kelas = kelasSatuA();
+  const bab1 = babSatu();
+  const modul = bab1 ? sql(`select id from public.modules where course_id='${bab1}' order by ordinal limit 1`).trim() : "";
+  const siswa = kartuKelas.find((k) => k.nama === MURID[1]);
+  if (!terbitBab || !kelas || !modul || !siswa) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Kelas 1A, Bab 1 chapter or card for Budi Murid"; }
+  const notes = [];
+  const tc = await ctx();
+  const t = await tc.newPage();
+  try {
+    await magicSignIn(t, people.guru2.email);
+    await t.goto(`${APP}/mengajar/${kelas}/uji-cepat`, { waitUntil: "networkidle" });
+    await tutupTur(t);
+    if (/Uji Cepat sedang berjalan/.test(await bodyText(t))) { rec.verdict = "NOTE"; return "an Uji Cepat is already running in Kelas 1A"; }
+    if (!(await t.locator("#pin-bab").count())) { rec.verdict = "FAIL"; return `no chapter to choose on Uji Cepat: ${(await bodyText(t)).slice(0, 240)}`; }
+    await t.locator("#pin-bab").selectOption(modul);
+    const tampil = t.getByRole("button", { name: "Tampilkan soal bab ini", exact: true });
+    if (!(await tampil.count())) { rec.verdict = "NOTE"; return "this release has no questions to tick on Uji Cepat (before D-085 T2)"; }
+    await tampil.click();
+    await t.waitForURL((u) => u.searchParams.get("bab") === modul, { timeout: SLOW });
+    await t.waitForLoadState("networkidle");
+    // the questions offered, against what an Uji Cepat on the chapter may carry (practice and test questions of the
+    // learner-supported types, the school's own)
+    const baris = t.locator("ol.pin-cepat-pilih > li");
+    const ditawarkan = await baris.count();
+    const harap = Number(sql(`select count(*) from public.items i join public.lessons l on l.id = i.lesson_id
+      join public.item_type_learner_support s on s.item_type = i.item_type
+     where l.module_id='${modul}' and i.institution_id='${ids.sd}' and i.bank_type in ('PRACTICE', 'TEST')`).trim());
+    const kunciTampak = await t.locator("ol.pin-cepat-pilih .pin-opsi-kunci").count();
+    rec.shots.push(await shot(t, "t2-pilih-soal"));
+    // three questions not marked for the chapter's own tests
+    const dicentang = [];
+    for (let i = 0; i < ditawarkan && dicentang.length < 3; i++) {
+      const li = baris.nth(i);
+      if (/Juga di (Pemetaan Awal|Uji Penguasaan)/.test(norm(await li.innerText()))) continue;
+      const kotak = li.locator('input[type="checkbox"][name="butir"]');
+      await kotak.check();
+      dicentang.push(await kotak.getAttribute("value"));
+    }
+    notes.push(`Bab 1 offers ${ditawarkan} question(s) to tick (an Uji Cepat on it may carry ${harap}), keys shown ${kunciTampak}; ticked ${dicentang.length}`);
+    if (ditawarkan !== harap || kunciTampak !== 0 || dicentang.length !== 3) { rec.verdict = "FAIL"; return notes.join("; "); }
+    await t.getByRole("button", { name: "Lanjut ke tinjauan", exact: true }).click();
+    await t.waitForURL((u) => u.searchParams.get("tahap") === "tinjau", { timeout: SLOW });
+    await t.locator(".pin-cepat-dipilih").first().waitFor({ timeout: SLOW });
+    const ditinjau = await t.locator(".pin-cepat-dipilih li[data-butir]").evaluateAll((els) => els.map((e) => e.getAttribute("data-butir")));
+    rec.shots.push(await shot(t, "t2-tinjau"));
+    const samaTinjau = JSON.stringify([...ditinjau].sort()) === JSON.stringify([...dicentang].sort());
+    await t.getByRole("button", { name: "Sediakan Uji Cepat sekarang", exact: true }).click();
+    await t.getByText("Uji Cepat sedang berjalan").first().waitFor({ timeout: SLOW });
+    rec.shots.push(await shot(t, "t2-berjalan"));
+    const aa = sql(`select aa.id from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+      where aa.node_id='${kelas}' and d.mode::text = 'QUICK' order by aa.created_at desc limit 1`).trim();
+    const tersimpan = sql(`select coalesce(string_agg(q.item_id::text, ',' order by q.item_id::text), '') from public.quick_assessment_selections q
+      join public.assessment_assignments aa on aa.assessment_definition_id = q.definition_id where aa.id='${aa}'`).trim();
+    const samaSimpan = tersimpan === [...dicentang].sort().join(",");
+    notes.push(`the review lists the ticked three: ${samaTinjau}; launched, the stored choice is the ticked three: ${samaSimpan}`);
+    if (!aa || !samaTinjau || !samaSimpan) { rec.verdict = "FAIL"; return notes.join("; "); }
+
+    // Budi Murid sits it
+    const sc = await ctx();
+    const sp = await sc.newPage();
+    try {
+      await sp.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+      await sp.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+      await sp.locator("#kartu").fill(siswa.number);
+      await sp.locator("#pin").fill(siswa.pin);
+      await sp.getByRole("button", { name: "Masuk dengan kartu" }).click();
+      await sp.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+      await sp.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+      await tutupTur(sp);
+      const tautan = sp.locator(`a[href="/belajar/asesmen/${aa}"]`);
+      if (!(await tautan.count())) { rec.verdict = "FAIL"; notes.push(`Budi's /belajar does not offer the Uji Cepat: ${(await bodyText(sp)).slice(0, 200)}`); return notes.join("; "); }
+      await tautan.first().click();
+      await sp.waitForURL((u) => u.pathname === `/belajar/asesmen/${aa}`, { timeout: SLOW });
+      await sp.locator("main button[type=submit].pin-primary").first().click();
+      const r = await jawab(sp, "post", 2);
+      const kertas = sql(`select coalesce(string_agg(pi.item_id::text, ',' order by pi.item_id::text), '') from public.presented_items pi
+        join public.assessment_sessions ss on ss.id = pi.session_id
+        join public.persons p on p.id = ss.person_id where ss.assessment_assignment_id='${aa}' and p.display_name='${MURID[1]}'`).trim();
+      const samaKertas = kertas === [...dicentang].sort().join(",");
+      notes.push(`Budi found it on /belajar and handed it in (${r.answered} answered); his paper is the ticked three: ${samaKertas}`);
+      if (!samaKertas || r.answered !== 3) rec.verdict = "FAIL";
+    } finally {
+      await sc.close();
+    }
+
+    // the teacher: from the running Uji Cepat to the class's answers, question by question (M5)
+    await t.goto(`${APP}/mengajar/${kelas}/uji-cepat`, { waitUntil: "networkidle" });
+    const perSoal = t.locator(`a[href="/mengajar/${kelas}/soal?penugasan=${aa}"]`);
+    if (!(await perSoal.count())) { rec.verdict = "FAIL"; notes.push("the running Uji Cepat does not lead to «Lihat per soal»"); return notes.join("; "); }
+    await perSoal.first().click();
+    await t.waitForURL((u) => u.pathname === `/mengajar/${kelas}/soal`, { timeout: SLOW });
+    await t.locator("h1").first().waitFor({ timeout: SLOW });
+    rec.shots.push(await shot(t, "t2-per-soal"));
+    const nSoal = await t.locator("li.pin-soal-baris").count();
+    const terkumpul = Number(norm(await bodyText(t)).match(/Jawaban yang sudah dikumpulkan · (\d+)/)?.[1] ?? -1);
+    notes.push(`«Lihat per soal»: ${nSoal} question(s), handed in ${terkumpul}`);
+    if (nSoal !== 3 || terkumpul !== 1) rec.verdict = "FAIL";
+  } finally {
+    await tc.close();
+  }
+  return notes.join("; ");
+});
+
 // ADM-J19: a new school year, by the screens, never run before. The school admin records Fajar in Kelas 1A
 // (no card yet, so his enrolment waits: PENDING), makes next year's Tingkat «Kelas 2» and its Kelas 2A on
 // Struktur sekolah, then on «Pergantian tahun ajaran» carries Kelas 1A into Kelas 2A. Everyone in 1A,

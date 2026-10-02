@@ -23,6 +23,9 @@ export const KODE_UJI_CEPAT = [
   "QUICK_NOT_ALLOWED",          // no CAN_QUICK_ASSESSMENT over this class, or another school's chapter
   "QUICK_NOT_FOUND",            // the class or chapter is not there (or is not a class)
   "QUICK_PASS_MARK_MISSING",    // D-088(b): the school has not set this lesson's pass mark (PR050, by its DETAIL)
+  "QUICK_SELECTION_COUNT",      // D-085 T2: fewer or more questions chosen than an Uji Cepat carries, or one twice (PR050)
+  "QUICK_SELECTION_NOT_OFFERED", // D-085 T2: a chosen question the chapter does not offer an Uji Cepat (PR050)
+  "QUICK_SELECTION_SIBLINGS",   // D-085 T2: two chosen questions are versions of one question (PR050)
   "QUICK_FAILED",               // anything else: the teacher is given a reference to quote
 ] as const;
 export type KodeUjiCepat = (typeof KODE_UJI_CEPAT)[number];
@@ -44,6 +47,9 @@ type GalatDb = { code?: string | null; details?: string | null; message?: string
 export function kodeUjiCepat(e: GalatDb): KodeUjiCepat {
   // D-088(b): the assignment's seal refuses a lesson with no school pass mark, by SQLSTATE and DETAIL, not by words
   if (e?.code === "PR050" && e?.details === "ASSIGN_PASS_MARK_MISSING") return "QUICK_PASS_MARK_MISSING";
+  // D-085 T2: the chosen launch's own refusals, by SQLSTATE and DETAIL
+  if (e?.code === "PR050" && (e?.details === "QUICK_SELECTION_COUNT" || e?.details === "QUICK_SELECTION_NOT_OFFERED"
+      || e?.details === "QUICK_SELECTION_SIBLINGS")) return e.details;
   const pesan = (e?.message ?? "").replace(/^ERROR:\s*/i, "");
   for (const [pola, kode] of POLA) if (pola.test(pesan)) return kode;
   if (e?.code === "42501") return "QUICK_NOT_ALLOWED";
@@ -65,18 +71,18 @@ export function bacaGagalUjiCepat(q: { cepat?: string; kode?: string; ref?: stri
 /**
  * BOB-34: where a refused launch goes. The code (and, for QUICK_FAILED, the
  * reference), and the teacher's own choices as they sent them, so the page's
- * form reopens with the chapter, count and time they picked rather than
- * resetting, even when the sentence asks for fewer questions. The page reads
- * and validates `bab`, `soal` and `menit` itself; no stage parameter, so it
- * lands on the form, where the choice is changed.
+ * form reopens with the chapter, the questions ticked (D-085 T2: `butir`,
+ * which replaced the count) and the time they picked rather than resetting.
+ * The page reads and validates `bab`, `butir` and `menit` itself; no stage
+ * parameter, so it lands on the form, where the choice is changed.
  */
 export function alamatTolakUjiCepat(
   kode: KodeUjiCepat,
-  pilihan: { bab: string; soal: string; menit: string },
+  pilihan: { bab: string; butir: string; menit: string },
   ref?: string | null,
 ): string {
   const q = new URLSearchParams({ cepat: "gagal", kode });
   if (ref) q.set("ref", ref);
-  for (const k of ["bab", "soal", "menit"] as const) if (pilihan[k]) q.set(k, pilihan[k]);
+  for (const k of ["bab", "butir", "menit"] as const) if (pilihan[k]) q.set(k, pilihan[k]);
   return `/uji-cepat?${q.toString()}`;
 }

@@ -2350,3 +2350,9 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 
 /* D-085 M6: the origin of a release on «Siapkan materi» — PINTAR's standard material or the school's own. */
 .pin-asal { font-size: var(--type-meta); color: var(--ink-3); }
+
+/* D-085 T2: the Uji Cepat's questions, ticked by the teacher; the stem is the checkbox's label */
+.pin-cepat-centang { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: start; cursor: pointer; }
+.pin-cepat-centang input { margin-top: 4px; width: 18px; height: 18px; }
+.pin-cepat-pilih .pin-soal-opsi, .pin-cepat-pilih .pin-meta { padding-left: calc(18px + var(--space-3)); }
+.pin-cepat-terakhir a { color: var(--pintar-primary); }

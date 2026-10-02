@@ -1207,6 +1207,11 @@ export type HleEvent =
   | "mengajar.cepat.tolak.tidak_ada"
   | "mengajar.cepat.tolak.umum"
   | "mengajar.cepat.tolak.ketuntasan"
+  | "mengajar.cepat.tolak.pilih_jumlah" | "mengajar.cepat.tolak.pilih_jumlah2" | "mengajar.cepat.tolak.pilih_bukan"
+  | "mengajar.cepat.tolak.pilih_versi" | "mengajar.cepat.pilih" | "mengajar.cepat.pilih.arti" | "mengajar.cepat.pilih.tampilkan"
+  | "mengajar.cepat.pilih.kosong" | "mengajar.cepat.dipilih" | "mengajar.cepat.peran.PRE_TEST" | "mengajar.cepat.peran.POST_TEST"
+  | "mengajar.cepat.tingkat.MUDAH" | "mengajar.cepat.tingkat.SEDANG" | "mengajar.cepat.tingkat.SULIT"
+  | "mengajar.cepat.tinjau.soal" | "mengajar.cepat.tinjau.ubah" | "mengajar.cepat.terakhir" | "mengajar.cepat.pelajaran"
   | "mengajar.cepat.atau"
   | "mengajar.bukti.eyebrow"
   | "mengajar.bukti.judul"
@@ -3378,6 +3383,24 @@ const table: Table = {
   // DAISY-27 (UX-03, with BOB-32): why an Uji Cepat was not made available, one sentence per code
   // (src/components/mengajar/tolakUjiCepat.ts). «Sudah ada Uji Cepat yang berjalan» is retired: it was never the cause
   "mengajar.cepat.tolak.awal": { default: "Uji Cepat belum disediakan.", en: "The Quick Assessment was not made available." },
+  "mengajar.cepat.tolak.pilih_jumlah": { default: "Pilih antara", en: "Choose between" },
+  "mengajar.cepat.tolak.pilih_jumlah2": { default: "soal, masing-masing sekali.", en: "questions, each one once." },
+  "mengajar.cepat.tolak.pilih_bukan": { default: "Ada soal pilihan Anda yang tidak tersedia untuk Uji Cepat bab ini. Pilih ulang dari daftar soalnya.", en: "One of the questions you chose is not available for a Quick Assessment on this chapter. Choose again from its list." },
+  "mengajar.cepat.tolak.pilih_versi": { default: "Dua soal pilihan Anda adalah versi dari soal yang sama. Pilih salah satunya saja.", en: "Two of the questions you chose are versions of the same question. Choose only one of them." },
+  "mengajar.cepat.pilih": { default: "Pilih soal", en: "Choose the questions" },
+  "mengajar.cepat.pilih.arti": { default: "Centang soal yang ingin diberikan. Semua murid mendapat soal yang sama, dengan urutan yang diacak untuk masing-masing.", en: "Tick the questions to give. Every student gets the same questions, each in their own shuffled order." },
+  "mengajar.cepat.pilih.tampilkan": { default: "Tampilkan soal bab ini", en: "Show this chapter's questions" },
+  "mengajar.cepat.pilih.kosong": { default: "Bab ini belum punya soal yang bisa dipakai untuk Uji Cepat.", en: "This chapter has no questions that can be used for a Quick Assessment yet." },
+  "mengajar.cepat.dipilih": { default: "soal dipilih", en: "questions chosen" },
+  "mengajar.cepat.peran.PRE_TEST": { default: "Juga di Pemetaan Awal", en: "Also in the Initial Mapping" },
+  "mengajar.cepat.peran.POST_TEST": { default: "Juga di Uji Penguasaan", en: "Also in the Mastery Check" },
+  "mengajar.cepat.tingkat.MUDAH": { default: "Mudah", en: "Easy" },
+  "mengajar.cepat.tingkat.SEDANG": { default: "Sedang", en: "Medium" },
+  "mengajar.cepat.tingkat.SULIT": { default: "Sulit", en: "Hard" },
+  "mengajar.cepat.tinjau.soal": { default: "Soal yang akan diterima murid", en: "The questions the students will receive" },
+  "mengajar.cepat.tinjau.ubah": { default: "Ubah pilihan soal", en: "Change the questions" },
+  "mengajar.cepat.terakhir": { default: "Uji Cepat terakhir", en: "The last Quick Assessment" },
+  "mengajar.cepat.pelajaran": { default: "Pelajaran", en: "Lesson" },
   "mengajar.cepat.tolak.ketuntasan": { default: "Batas ketuntasan pelajaran ini belum ditetapkan, jadi pelajaran ini belum bisa disediakan untuk kelas. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan.", en: "This lesson has no pass mark yet, so it cannot be given to a class. The school admin sets it in Configuration → Pass mark." },
   "mengajar.cepat.tolak.bank": { default: "Bab itu belum punya cukup soal untuk jumlah yang dipilih. Pilih jumlah soal yang lebih sedikit, atau bab lain.", en: "That chapter does not have enough questions for the number chosen. Choose fewer items, or another chapter." },
   "mengajar.cepat.tolak.jumlah": { default: "Jumlah soal harus antara", en: "The number of items must be between" },

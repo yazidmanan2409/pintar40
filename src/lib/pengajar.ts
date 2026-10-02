@@ -403,6 +403,48 @@ async function isiPintar(releaseId: string): Promise<{ pelajaran: number; soal: 
   return { pelajaran, soal: alat.reduce((n, a) => n + (a.soal ?? 0), 0) };
 }
 
+/** D-085 T2: one question an Uji Cepat on a chapter may carry, as the teacher chooses it. No key, no reason. */
+export type SoalPilihan = {
+  id: string;
+  pelajaran: number;
+  judulPelajaran: string;
+  topik: string | null;
+  tanya: string;
+  stimulus: string | null;
+  opsi: Array<{ label: string; body: string }>;
+  /** MUDAH, SEDANG or SULIT, from the question's predicted difficulty */
+  tingkat: string;
+  /** two questions in one parallel group are versions of one question: only one may be chosen */
+  kelompok: string | null;
+  /** marked for the chapter's Pemetaan Awal or Uji Penguasaan, so the teacher can leave it for that */
+  peran: string | null;
+};
+
+/** The chapter's questions an Uji Cepat for this class may carry (quick_assessment_choices), in lesson order. */
+export async function soalUjiCepat(kelasId: string, babId: string): Promise<SoalPilihan[]> {
+  const c = await db();
+  const { data, error } = await c.rpc("quick_assessment_choices", { p_node: kelasId, p_module: babId });
+  if (error) return [];
+  type Baris = {
+    item_id: string; lesson_ordinal: number; lesson_title: string; topic: string | null; stem: string; stimulus: string | null;
+    options: Array<{ label: string; body: string }> | null; band: string; parallel_group: string | null; cycle_role: string | null;
+  };
+  return rows<Baris>(data).map((b) => ({
+    id: b.item_id, pelajaran: b.lesson_ordinal, judulPelajaran: b.lesson_title, topik: b.topic, tanya: b.stem,
+    stimulus: b.stimulus, opsi: Array.isArray(b.options) ? b.options : [], tingkat: b.band, kelompok: b.parallel_group,
+    peran: b.cycle_role,
+  }));
+}
+
+/**
+ * The ticked questions read back from the address, trusting nothing: only ids the chapter offers, each once, in the
+ * chapter's own order. A value may be one id, a comma-joined list, or several (repeated checkboxes).
+ */
+export function pilihanSah(nilai: string | string[] | undefined, tersedia: readonly SoalPilihan[]): SoalPilihan[] {
+  const dikirim = new Set((Array.isArray(nilai) ? nilai : nilai ? [nilai] : []).flatMap((x) => x.split(",")).map((x) => x.trim()));
+  return tersedia.filter((q) => dikirim.has(q.id));
+}
+
 // ═══════════════════════════════════════════════ 4. what is open right now
 
 export type Berjalan = {

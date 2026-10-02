@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 157,
+  "version": 158,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2707,6 +2707,16 @@
       "id": "M6-K01",
       "runner": "static",
       "proves": "D-085 M6: origin made clear. Executes pintarDariDistribusi (src/lib/pengajar.ts): only this school's ACTIVE, published distributions, the newest of a corrected line, each once, newest first, labelled PINTAR. Reads the source of terbitan(), the PINTAR readers (distributed_release_outline, distributed_release_instruments) and «Siapkan materi» (the origin in the list and the review); the copy «Materi PINTAR» / «Materi sekolah» in id and en"
+    },
+    {
+      "id": "T2-S01",
+      "runner": "static",
+      "proves": "D-085 T2: the teacher chooses the Uji Cepat's questions and the class gets exactly those. In the database, rolled back (supabase/migrations/20261104100000): the teacher is shown the chapter's questions (stem, options, topic; no key), exactly the set an Uji Cepat on it may draw; three ticked are launched and the learner's paper is exactly those three, the instrument may draw only them and asks no band; it carries the school's sealed mark and is audited once; two questions, one twice, another chapter's question and two versions of one question are refused (PR050 QUICK_SELECTION_COUNT / NOT_OFFERED / SIBLINGS), leaving nothing; the learner and another school's teacher cannot read the choices; the selection never changes; an Uji Cepat launched the old way still draws from the whole chapter"
+    },
+    {
+      "id": "T2-K01",
+      "runner": "static",
+      "proves": "D-085 T2: choose → tick → review → launch on the teacher's Uji Cepat page. Reads the source: the chapter's questions to tick in a GET form, the review lists the ticked questions and sends their ids in the one POST, the running Uji Cepat links to «Lihat per soal» (M5); sediakanUjiCepat launches with the ticked ids and a refusal carries them back; the three PR050 codes are read and said in id and en"
     },
     {
       "id": "COLGRANT-S01",

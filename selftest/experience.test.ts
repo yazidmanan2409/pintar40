@@ -1325,6 +1325,10 @@ export const experienceTests: SelfTest[] = [
       // bodies and the academic source guard; no table, no column, no colour,
       // mark or brand surface.
       //
+      // MOVED 140 -> 141 for D-085 T2: a teacher chooses the Uji Cepat's questions.
+      // 20261104100000 adds the stored choice, one line in the draw, the choices
+      // read and the chosen launch; no colour, mark or brand surface.
+      //
       // MOVED 139 -> 140 for D-085 M6: a teacher sees what a PINTAR chapter holds.
       // 20261103100000 adds one read of a distributed release's tests behind the
       // distribution gate; no colour, mark or brand surface.
@@ -1538,7 +1542,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 140, `${migrations.length} migrations; the frozen baseline has 140`);
+      c.expect(migrations.length === 141, `${migrations.length} migrations; the frozen baseline has 141`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2274,7 +2278,8 @@ export const experienceTests: SelfTest[] = [
       // 6. AND IT PROTECTS NOTHING: every act is still authorized server-side.
       const rute = walk(join(repoRoot, "src", "app", "mengajar")).filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"));
       const aksi = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "actions.ts"), "utf8"));
-      c.expect(/launch_quick_assessment/.test(aksi), "the quick assessment is not launched through its own RPC");
+      // D-085 T2: the launch with the teacher's chosen questions, which goes through launch_quick_assessment itself
+      c.expect(/launch_(selected_)?quick_assessment/.test(aksi), "the quick assessment is not launched through its own RPC");
       c.expect(!/@\/lib\/supabase\/service/.test(rute.map((f) => readFileSync(f, "utf8")).join("\n")),
         "an educator surface holds a privileged client");
 
@@ -3194,7 +3199,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 139 -> 140 for D-085 M6's PINTAR chapter read
+      // from, not a claim about the tour. MOVED 140 -> 141 for D-085 T2's chosen Uji Cepat
+      // (20261104100000), not a tour RPC (D-024). MOVED 139 -> 140 for D-085 M6's PINTAR chapter read
       // (20261103100000), not a tour RPC (D-024). MOVED 138 -> 139 for D-088(b)'s school pass mark
       // (20261102100000), not a tour RPC (D-024). MOVED 137 -> 138 for D-088(k)'s teacher read
       // (20261101100000), not a tour RPC (D-024). MOVED 136 -> 137 for D-088(g)'s catalogue MC-4
@@ -3266,7 +3272,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 140, `${migs.length} migrations; the baseline has 140`);
+      c.expect(migs.length === 141, `${migs.length} migrations; the baseline has 141`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -11081,8 +11087,12 @@ export const experienceTests: SelfTest[] = [
        *    hint reads «Antara 3 dan 20 soal.», in both languages, and nothing
        *    about who set the bound. From the SOURCE and the copy.
        */
-      c.expect(/\{s\("mengajar\.cepat\.jumlah\.antara"\)\} \{format\.number\(soalMin, locale\)\} \{s\("mengajar\.cepat\.jumlah\.dan"\)\}/.test(cepat)
-        && /\{format\.number\(soalMax, locale\)\} \{s\("mengajar\.siap\.soal"\)\}\./.test(cepat) && !/jumlah\.arti/.test(cepat),
+      // RESTATED FOR D-085 T2: the range now sits under the questions the teacher ticks, as one sentence
+      // (`rentang`, also said when too few or too many are ticked); the same words either way
+      c.expect(((/\{s\("mengajar\.cepat\.jumlah\.antara"\)\} \{format\.number\(soalMin, locale\)\} \{s\("mengajar\.cepat\.jumlah\.dan"\)\}/.test(cepat)
+        && /\{format\.number\(soalMax, locale\)\} \{s\("mengajar\.siap\.soal"\)\}\./.test(cepat))
+        || /`\$\{s\("mengajar\.cepat\.jumlah\.antara"\)\} \$\{n\(soalMin\)\} \$\{s\("mengajar\.cepat\.jumlah\.dan"\)\} \$\{n\(soalMax\)\} \$\{s\("mengajar\.siap\.soal"\)\}\.`/.test(cepat))
+        && !/jumlah\.arti/.test(cepat),
         "the Jumlah soal hint is not «Antara ‹min› dan ‹max› soal.»");
       const mesin = renderAll().filter((r) => /ditetapkan platform|set by the platform/i.test(r.text));
       c.expect(mesin.length === 0, `a line still tells a teacher who set a bound: ${mesin.slice(0, 2).map((r) => r.event).join(", ")}`);

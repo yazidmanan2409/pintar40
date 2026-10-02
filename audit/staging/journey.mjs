@@ -787,6 +787,7 @@ for (const [id, who, page] of [["Q1", "teacher", G], ["Q2", "admin", A]]) {
 }
 
 let cepat = null;
+let cepatDicentang = [];
 await step("Q3", "the teacher launches an Uji Cepat of 5 questions from Bab 1's bank for the class (Atur → Tinjau → Sediakan)", ["EDU-07"], async (rec) => {
   rec.page = G;
   if (!tugas) return blocked(rec, "nothing assigned");
@@ -795,7 +796,17 @@ await step("Q3", "the teacher launches an Uji Cepat of 5 questions from Bab 1's 
   if (running) { rec.verdict = "NOTE"; return "an Uji Cepat is already running in this class; not launching another"; }
   const bab = G.locator("#pin-bab");
   const options = (await bab.locator("option").allTextContents()).map(norm);
-  await G.locator("#pin-soal").fill("5");
+  // D-085 T2: the teacher ticks the questions once the release carries it; before that, the count field
+  const centang = G.locator('input[type="checkbox"][name="butir"]');
+  let dicentang = [];
+  if (await centang.count()) {
+    for (let i = 0; i < Math.min(5, await centang.count()); i++) {
+      await centang.nth(i).check();
+      dicentang.push(await centang.nth(i).getAttribute("value"));
+    }
+  } else {
+    await G.locator("#pin-soal").fill("5");
+  }
   await G.locator('input[name="menit"][value="10"]').check().catch(() => {});
   rec.shots.push(await shot(G, "cepat-atur"));
   await G.getByRole("button", { name: "Lanjut ke tinjauan", exact: true }).click();
@@ -808,7 +819,8 @@ await step("Q3", "the teacher launches an Uji Cepat of 5 questions from Bab 1's 
   cepat = sql(`select aa.id from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
     where aa.node_id = ${uuid(KID)} and d.mode::text = 'QUICK' order by aa.created_at desc limit 1`);
   if (!/Uji Cepat sedang berjalan/.test(t) || !cepat) rec.verdict = "FAIL";
-  return `chapters offered: ${JSON.stringify(options)}; the page now: "${t.slice(0, 260)}"`;
+  cepatDicentang = dicentang;
+  return `chapters offered: ${JSON.stringify(options)}; ${dicentang.length ? `${dicentang.length} questions ticked (T2)` : "a count of 5 (before T2)"}; the page now: "${t.slice(0, 260)}"`;
 });
 
 await step("Q4", "student 1 finds the Uji Cepat on /belajar (Bisa dikerjakan sekarang), takes it and hands it in", ["EDU-08"], async (rec) => {
@@ -829,7 +841,17 @@ await step("Q4", "student 1 finds the Uji Cepat on /belajar (Bisa dikerjakan sek
   rec.shots.push(await shot(S, "siswa1-cepat-selesai"));
   const s = sql(`select status::text from public.assessment_sessions where assessment_assignment_id = ${uuid(cepat)} and person_id = ${uuid(person(names[0]))} order by created_at desc limit 1`);
   if (s !== "FINALIZED") rec.verdict = "FAIL";
-  return `start button "${label}"; answered ${r.answered}, meant right ${r.right}, not in the key ${r.unknown}; now on ${new URL(S.url()).pathname}; session ${s}`;
+  // D-085 T2: the paper is exactly the questions the teacher ticked
+  let kertas = "";
+  if (cepatDicentang.length) {
+    const ids = sql(`select coalesce(string_agg(pi.item_id::text, ',' order by pi.item_id::text), '') from public.presented_items pi
+      join public.assessment_sessions ss on ss.id = pi.session_id
+     where ss.assessment_assignment_id = ${uuid(cepat)} and ss.person_id = ${uuid(person(names[0]))}`);
+    const sama = ids === [...cepatDicentang].sort().join(",");
+    if (!sama) rec.verdict = "FAIL";
+    kertas = `; the paper is the ${cepatDicentang.length} ticked questions: ${sama}`;
+  }
+  return `start button "${label}"; answered ${r.answered}, meant right ${r.right}, not in the key ${r.unknown}; now on ${new URL(S.url()).pathname}; session ${s}${kertas}`;
 });
 
 await step("Q5", "the teacher sees the Uji Cepat hand-in (count and who)", ["EDU-09", "EDU-10"], async (rec) => {

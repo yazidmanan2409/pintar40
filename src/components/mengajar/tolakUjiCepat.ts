@@ -39,6 +39,13 @@ export function kalimatTolakUjiCepat(
       return `${awal} ${s("mengajar.cepat.tolak.tidak_ada")}`;
     case "QUICK_PASS_MARK_MISSING":
       return `${awal} ${s("mengajar.cepat.tolak.ketuntasan")}`;
+    // D-085 T2: the questions the teacher ticked
+    case "QUICK_SELECTION_COUNT":
+      return `${awal} ${s("mengajar.cepat.tolak.pilih_jumlah")} ${n(batas.soalMin)} ${s("mengajar.cepat.jumlah.dan")} ${n(batas.soalMax)} ${s("mengajar.cepat.tolak.pilih_jumlah2")}`;
+    case "QUICK_SELECTION_NOT_OFFERED":
+      return `${awal} ${s("mengajar.cepat.tolak.pilih_bukan")}`;
+    case "QUICK_SELECTION_SIBLINGS":
+      return `${awal} ${s("mengajar.cepat.tolak.pilih_versi")}`;
     default:
       // QUICK_FAILED, or a code the contract does not know: the app's general
       // line, and the reference only when the address carried one
