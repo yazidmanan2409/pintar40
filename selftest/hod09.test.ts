@@ -39,7 +39,7 @@ export const hod09Tests: SelfTest[] = [
       for (const [hal, persona] of [["edukator", "educator"], ["dekan", "staff"]] as const) {
         const src = buang(readFileSync(join(ctx.repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
         c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\("laporan\\.kembali", "${persona}", locale\\)\\} cetak=\\{s\\("laporan\\.cetak", "${persona}", locale\\)\\} />`).test(src)
-          && /<div className="pin-noprint">\s*<SesiSaya locale=\{await currentLocale\(\)\}/.test(src),
+          && /<div className="pin-noprint\b[^"]*">\s*<SesiSaya locale=\{await currentLocale\(\)\}/.test(src),
           `/${hal}/ringkasan offers no way back or print, or prints the signed-in strip`);
       }
       for (const locale of ["id", "en"] as const) {

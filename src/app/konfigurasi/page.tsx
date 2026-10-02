@@ -591,7 +591,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   </div>
                   <div className="grid gap-1">
                     {instNodes.map((n) => (
-                      <label key={n.id} className="flex items-center justify-between gap-2 text-sm text-ink-2">
+                      <label key={n.id} className="flex flex-wrap items-center justify-between gap-2 text-sm text-ink-2">
                         <span>{n.name} <span className="text-ink-3">· {periodName.get(n.academic_period_id!) ?? ""}</span></span>
                         <select name={`map[${n.id}]`} className={field} defaultValue="">
                           <option value="">{s("config.label.not_rolled")}</option>

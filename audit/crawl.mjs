@@ -59,6 +59,33 @@ async function sessionCookies(p) {
   return [...jar].map(([name, value]) => ({ name, value, domain: host, path: "/", httpOnly: false, secure: false, sameSite: "Lax" }));
 }
 
+// X.6: in the page, at 320 px: null when nothing is wider than the window; otherwise how wide the page is and the
+// outermost parts that stick out of a box that fits (a part inside a box that scrolls or clips sideways is left out)
+const SEMPIT = () => {
+  const d = document.documentElement;
+  const lebar = d.clientWidth;
+  if (d.scrollWidth <= lebar + 1) return null;
+  const terpotong = (el) => {
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      if (getComputedStyle(a).overflowX !== "visible") return true;
+    }
+    return false;
+  };
+  const nama = (el) => el.tagName.toLowerCase() + (el.id ? `#${el.id}` : "") +
+    [...el.classList].slice(0, 3).map((c) => `.${c}`).join("");
+  const sebab = [];
+  for (const el of document.querySelectorAll("body *")) {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.right <= lebar + 1) continue;
+    const p = el.parentElement?.getBoundingClientRect();
+    if (p && p.right > lebar + 1) continue;
+    if (getComputedStyle(el).position === "fixed" || terpotong(el)) continue;
+    sebab.push(`${el.parentElement ? nama(el.parentElement) + " > " : ""}${nama(el)} (${Math.round(r.width)} px, to ${Math.round(r.right)})`);
+    if (sebab.length >= 4) break;
+  }
+  return { lebar, halaman: d.scrollWidth, sebab };
+};
+
 function internal(href) {
   try {
     const u = new URL(href, APP);
@@ -105,6 +132,12 @@ async function crawl(browser, p) {
     try {
       const resp = await page.goto(APP + path, { waitUntil: "networkidle", timeout: 45000 });
       rec.status = resp?.status() ?? null;
+      // X.10 (U-PERF, D-046(b)): when the page could be read (its first heading painted, the document parsed), from the
+      // browser's own navigation timing. Reported, not judged: a runner's local stack is not the deployment.
+      rec.ms = await page.evaluate(() => {
+        const n = performance.getEntriesByType("navigation")[0];
+        return n ? { awal: Math.round(n.responseStart), siap: Math.round(n.domContentLoadedEventEnd) } : null;
+      }).catch(() => null);
       const fu = new URL(page.url());
       rec.finalPath = fu.pathname + fu.search;
       rec.h1 = (await page.locator("h1").first().textContent({ timeout: 2000 }).catch(() => null))?.trim() ?? null;
@@ -115,6 +148,16 @@ async function crawl(browser, p) {
       rec.mentah = body.match(MENTAH)?.[0] ?? null; // W9: read over the whole page, not the 700 characters kept
       rec.shot = `${String(n).padStart(2, "0")}${path.replace(/[^a-z0-9]+/gi, "_").slice(0, 60)}.png`;
       await page.screenshot({ path: join(dir, rec.shot), fullPage: true }).catch(() => (rec.shot = null));
+      // X.6 (U-DEVICE, D-046): the same page at 320 px wide scrolls only downwards. A page wider than the window is
+      // measured, and what sticks out of a box that fits is named (a part inside its own scrolling box is not).
+      await page.setViewportSize({ width: 320, height: 720 });
+      await page.waitForTimeout(200);
+      rec.sempit = await page.evaluate(SEMPIT).catch((e) => ({ gagal: String(e.message ?? e).slice(0, 200) }));
+      if (rec.sempit) {
+        rec.shotSempit = rec.shot?.replace(/\.png$/, "-320.png") ?? null;
+        if (rec.shotSempit) await page.screenshot({ path: join(dir, rec.shotSempit), fullPage: true }).catch(() => (rec.shotSempit = null));
+      }
+      await page.setViewportSize({ width: 1280, height: 900 });
       if (n === 0) result.landing = rec.finalPath;
       if (depth < 3) {
         const hrefs = await page.$$eval("a[href]", (as) => as.map((a) => a.getAttribute("href")));
@@ -161,6 +204,20 @@ for (const r of all) {
     for (const c of x.consoleErrors.slice(0, 3)) console.log(`      console: ${c.text.slice(0, 200)}`);
     for (const f of x.failedRequests.slice(0, 3)) console.log(`      failed: ${f.status} ${f.url}`);
     if (x.error) console.log(`      nav-error: ${x.error}`);
+    if (x.sempit) console.log(`      320px: ${x.sempit.gagal ?? `the page is ${x.sempit.halaman} px wide; ${x.sempit.sebab.join("; ") || "no single part named"}`}`);
+  }
+}
+
+// X.10: the slowest pages to become readable, for the record (judged on staging, not here)
+{
+  const semua = all.flatMap((r) => r.pages.filter((x) => x.ms?.siap).map((x) => ({ who: r.persona, path: x.path, ...x.ms })));
+  semua.sort((a, b) => b.siap - a.siap);
+  const lambat = semua.filter((x) => x.siap > 3000).length;
+  console.log(`\nX.10: ${semua.length} pages timed; ${lambat} took over 3 s to be readable; the slowest:`);
+  for (const x of semua.slice(0, 8)) console.log(`  ${x.siap} ms (first byte ${x.awal} ms) ${x.who} ${x.path}`);
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    writeFileSync(process.env.GITHUB_STEP_SUMMARY, [`### X.10 page readiness (runner, for the record)`, "",
+      `${semua.length} pages timed; ${lambat} over 3 s.`, "", ...semua.slice(0, 8).map((x) => `- ${x.siap} ms ${x.who} ${x.path}`), ""].join("\n"), { flag: "a" });
   }
 }
 
@@ -179,6 +236,12 @@ for (const r of all) {
 for (const r of all) {
   for (const x of r.pages) {
     if (/ringkasan|pimpinan/.test(x.path) && x.mentah) broken.push(`${r.persona} ${x.path} prints a raw decimal: "${x.mentah}"`);
+  }
+}
+// X.6 (U-DEVICE, D-046): responsive is part of PASS. A page wider than a 320 px window, for any role, is broken.
+for (const r of all) {
+  for (const x of r.pages) {
+    if (x.sempit) broken.push(`${r.persona} ${x.path} at 320 px: ${x.sempit.gagal ?? `${x.sempit.halaman} px wide (${x.sempit.sebab.join("; ") || "no single part named"})`}`);
   }
 }
 // The controlled red: AUDIT_PLANT=crawl adds one broken page.

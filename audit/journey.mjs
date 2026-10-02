@@ -144,6 +144,7 @@ const people = {
   guru: { name: "Pak Guru Budi", email: "guru.budi@audit.pintar.test" },
   guru2: { name: "Bu Guru Sari", email: "guru.sari@audit.pintar.test" },
   kaprodi: { name: "Bu Kepala Dept", email: "kepala.dept@audit.pintar.test" },
+  dekan: { name: "Pak Dekan Hadi", email: "dekan.hadi@audit.pintar.test" },
 };
 const ids = {};
 
@@ -766,7 +767,7 @@ const siap = (c) => sql(`select status || ' | ' || coalesce(blockers::text, '') 
 // never offered the second person's step; each WARNING finding is reviewed before publishing. `bacaSoal` adds
 // D-088(h)'s check that the reviewer reads every question, key and reason before «Setujui isi». False when a step failed
 // (the reason is in `notes`, the verdict set).
-async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama = "Bab 1", awalan = "" } = {}) {
+async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama = "Bab 1", awalan = "", antrean = null } = {}) {
   // press a step's button as `page`; the state it moved to, or null when nothing moved
   const tekan = async (page, kunci, tombol) => {
     await page.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
@@ -780,8 +781,10 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
     rec.shots.push(await shot(page, `${awalan}terbit-${kunci}${after === before ? "-ditolak" : ""}`));
     return { after: after === before ? null : after };
   };
+  if (antrean) await antrean("sebelum");
   for (const [kunci, tombol, siapa] of TERBIT) {
     const page = siapa === "g" ? g : a;
+    if (kunci === "setujui" && antrean) await antrean("diajukan");
     if (siapa === "a" && ["setujui", "kunci"].includes(kunci)) {
       // a second person's step: the author must not be offered it
       await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
@@ -840,6 +843,55 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
   return true;
 }
 
+// D-084 J4.4 (HOD-03): the head of department's review queue, read by clicking Studio → «Antrean Tinjauan»: before Bab 1
+// is sent it says honestly that nothing waits; once sent it lists Bab 1, which opens on its package page with «Setujui
+// isi» offered. Read during S17 (the head of department only looks; the school admin still approves) and judged in S17t.
+let antreanKaprodi = null;
+async function lihatAntreanKaprodi(course) {
+  const hasil = { sebelum: null, diajukan: null, gagal: null };
+  const hc = await ctx();
+  const h = await hc.newPage();
+  const judul = sql(`select title from public.courses where id='${course}'`).trim();
+  const buka = async () => {
+    await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
+    await h.getByRole("link", { name: /Antrean Tinjauan/ }).first().click();
+    await h.waitForURL((u) => u.pathname === "/studio/tinjau", { timeout: SLOW });
+    await h.waitForLoadState("networkidle");
+    return norm(await h.locator("main").innerText().catch(() => ""));
+  };
+  try {
+    await magicSignIn(h, people.kaprodi.email);
+  } catch (e) {
+    hasil.gagal = `the head of department could not sign in: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
+  }
+  return {
+    hasil,
+    async fase(f) {
+      if (hasil.gagal) return;
+      try {
+        const teks = await buka();
+        const tautan = h.getByRole("link", { name: judul, exact: true });
+        const menunggu = Number(sql(`select count(*) from public.courses where institution_id='${ids.sd}' and status='IN_REVIEW'`));
+        const r = { menunggu, kosong: /Tidak ada yang menunggu tinjauan Anda/.test(teks), terdaftar: (await tautan.count()) > 0 };
+        rec_shots_kaprodi.push(await shot(h, `j4-4-antrean-${f}`));
+        if (f === "diajukan" && r.terdaftar) {
+          await tautan.first().click();
+          await h.waitForURL((u) => u.pathname === `/studio/paket/${course}`, { timeout: SLOW });
+          await h.waitForLoadState("networkidle");
+          r.dibuka = new URL(h.url()).pathname;
+          r.setujui = (await h.getByRole("button", { name: "Setujui isi", exact: true }).count()) > 0;
+          rec_shots_kaprodi.push(await shot(h, "j4-4-dibuka-dari-antrean"));
+        }
+        hasil[f] = r;
+      } catch (e) {
+        hasil[f] = { gagal: String(e.message ?? e).split("\n")[0].slice(0, 160) };
+      }
+    },
+    async tutup() { await hc.close(); },
+  };
+}
+const rec_shots_kaprodi = [];
+
 await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps, the reviewer reading every question, key and reason before approving (DAISY-06, BOB-03, D-088(h))", async (rec) => {
   const course = babSatu();
   if (!course) { rec.verdict = "BLOCKED"; return "S15c left no Bab 1 course"; }
@@ -848,12 +900,27 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
     rec.verdict = "NOTE"; return `this candidate has no Langkah menuju terbit on the package page (state ${keadaanBab(course)})`;
   }
   const notes = [`start ${keadaanBab(course)}`];
-  if (!(await terbitkanLewatLayar(course, rec, notes, { bacaSoal: true }))) return notes.join("; ");
+  const kaprodi = await lihatAntreanKaprodi(course);
+  antreanKaprodi = kaprodi.hasil;
+  const jadi = await terbitkanLewatLayar(course, rec, notes, { bacaSoal: true, antrean: kaprodi.fase });
+  await kaprodi.tutup();
+  if (!jadi) return notes.join("; ");
   terbitBab = keadaanBab(course).endsWith("|PUBLISHED");
   const tests = sql(`select coalesce(string_agg(mode::text, ',' order by mode::text), '-') from public.assessment_definitions where course_id='${course}'`).trim();
   notes.push(`published: ${terbitBab}; its tests: ${tests}`);
   if (!terbitBab) rec.verdict = "FAIL";
   return notes.join("; ");
+});
+
+await step("S17t", "the head of department's review queue (Studio → «Antrean Tinjauan»): before Bab 1 is sent it says nothing waits; once sent it lists Bab 1, which opens on its package page with «Setujui isi» offered (J4.4, HOD-03)", async (rec) => {
+  rec.shots.push(...rec_shots_kaprodi);
+  const k = antreanKaprodi;
+  if (!k || k.gagal || !k.sebelum || !k.diajukan) { rec.verdict = "BLOCKED"; return k?.gagal ?? "S17 did not reach the review step"; }
+  // the empty line is said exactly when nothing of the school waits (another chapter may honestly be waiting)
+  const ok = !k.sebelum.gagal && !k.diajukan.gagal && k.sebelum.kosong === (k.sebelum.menunggu === 0) && !k.sebelum.terdaftar
+    && k.diajukan.terdaftar && !k.diajukan.kosong && k.diajukan.setujui === true;
+  if (!ok) rec.verdict = "FAIL";
+  return `before Bab 1 was sent: ${JSON.stringify(k.sebelum)}; once sent: ${JSON.stringify(k.diajukan)}`;
 });
 
 // D-088(b), BOB-49 / DAISY-38: before the school has set Bab 1's pass mark the teacher reads «Batas ketuntasan belum
@@ -1058,9 +1125,13 @@ async function jawabTanya(page) {
 // Answer every question, `right` of them correctly, and finish (the staging journey's `jawab`).
 // `simpanTerakhir: false` (W3): the last post-test answer is chosen and «Simpan jawaban ini» is not pressed.
 const teksPilihan = (b) => b.locator("span").nth(1).innerText().then(norm);
-async function jawab(page, mode, right, { simpanTerakhir = true } = {}) {
+// `luringDi` (J6.8, STU-09): at that post-test question the network drops before «Simpan jawaban ini» is pressed; the
+// page must say it is offline (never that the test is closed), keep the answer on the device and not call it saved;
+// when the network returns the answer goes through and reads «Tersimpan». What was seen is returned as `luring`.
+async function jawab(page, mode, right, { simpanTerakhir = true, luringDi = -1 } = {}) {
   const formal = mode === "post";
   let ditanya = null;
+  let luring = null;
   const done = [];
   for (let i = 0; i < 40; i++) {
     const stemEl = page.locator("h2.pin-stem").first();
@@ -1077,7 +1148,23 @@ async function jawab(page, mode, right, { simpanTerakhir = true } = {}) {
     await page.waitForFunction(([n]) => document.querySelectorAll("ul.pin-opsi button.pin-op")[n]?.getAttribute("aria-pressed") === "true", [idx], { timeout: SLOW });
     const next = page.getByRole("button", { name: "Berikutnya", exact: true });
     const terakhir = (await next.count()) === 0;
-    if (formal && !(terakhir && !simpanTerakhir)) {
+    if (formal && i === luringDi && !terakhir) {
+      await page.context().setOffline(true);
+      await page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ }).click();
+      const tanda = page.locator(".pin-luring");
+      await tanda.waitFor({ state: "visible", timeout: SLOW }).catch(() => {});
+      luring = {
+        tanda: norm(await tanda.innerText().catch(() => "")),
+        ditutup: (await page.getByText("sudah ditutup").count()) > 0,
+        disebutTersimpan: (await page.getByRole("button", { name: "Tersimpan", exact: true }).count()) > 0,
+        diPerangkat: await page.evaluate(() => Object.keys(localStorage).filter((x) => x.startsWith("pintar.outbox.")).length),
+      };
+      await shot(page, "j6-8-luring").catch(() => {});
+      await page.context().setOffline(false);
+      await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW });
+      luring.tersimpanLagi = true;
+      luring.tandaHilang = (await page.locator(".pin-luring").count()) === 0;
+    } else if (formal && !(terakhir && !simpanTerakhir)) {
       await page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ }).click();
       await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW });
     } else if (!formal) {
@@ -1094,7 +1181,7 @@ async function jawab(page, mode, right, { simpanTerakhir = true } = {}) {
     await page.waitForURL((u) => u.pathname.endsWith(formal ? "/hasil" : "/peta") || u.pathname === "/belajar", { timeout: 60000 });
     break;
   }
-  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length, ditanya };
+  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length, ditanya, luring };
 }
 
 const kartuKelas = [];
@@ -1220,7 +1307,7 @@ async function bacaSiapa() {
   }
 }
 
-await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered and whether the school's target was met (M3, W4)", async (rec) => {
+await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 3 loses the network at the second post-test question and is told so, the answer kept and sent when it returns (J6.8); student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered and whether the school's target was met (M3, W4)", async (rec) => {
   if (!terbitBab || !HARAP) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "the chapter fixture is absent"; }
   if (kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return `only ${kartuKelas.length} class cards (S20)`; }
   const tugas = tugasBab();
@@ -1250,7 +1337,14 @@ await step("S21", "five students take Bab 1's pre-test and post-test to plan; st
         siapaTengah = await bacaSiapa().catch((e) => ({ gagal: String(e.message ?? e).split("\n")[0].slice(0, 160) }));
       }
       const w3 = i === 3; // all right by plan: an unsaved last answer that is dropped shows as one fewer
-      const post = await jawab(s, "post", plan.post, { simpanTerakhir: !w3 });
+      const j68 = i === 2; // J6.8: the network drops at the second post-test question and returns
+      const post = await jawab(s, "post", plan.post, { simpanTerakhir: !w3, luringDi: j68 ? 1 : -1 });
+      if (j68) {
+        const l = post.luring;
+        const luringOk = !!l && /Sedang luring/.test(l.tanda) && !l.ditutup && !l.disebutTersimpan && l.diPerangkat > 0 && l.tersimpanLagi && l.tandaHilang;
+        if (!luringOk) rec.verdict = "FAIL";
+        out.push(`J6.8 ${k.nama} offline at question 2: ${JSON.stringify(l)}${luringOk ? "" : " MISMATCH"}`);
+      }
       await s.locator("h1").first().waitFor({ timeout: SLOW });
       const t = await bodyText(s);
       const m = t.match(/Terjawab tepat (\d+) dari (\d+) soal/);
@@ -1403,7 +1497,7 @@ await step("S21d", "after the Uji Penguasaan's result, the student follows «Apa
     const belumTarget = /Belum mencapai target/.test(teks) && (await s.locator('a[href$="/hasil#ulang"]').count()) > 0;
     await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
     await tutupTur(s);
-    const kartu = norm(await s.locator(".pin-tugas .pin-tstatus").first().innerText().catch(() => ""));
+    const kartu = norm(await s.locator('[data-tur="daftar"] .pin-tstatus').first().innerText().catch(() => ""));
     rec.shots.push(await shot(s, "m3-kartu-belum-target"));
     if (!belumTarget || !/Selesai · belum mencapai target/.test(kartu)) rec.verdict = "FAIL";
     await sc.close();
@@ -1785,6 +1879,67 @@ await step("S23", "the head of department reads Kelas 1A's figures beside the cl
 
 // ADM-J14: the school admin ends a role on Peran & akses (the revoke button, never clicked before), and the
 // head of department, signing in afresh, is refused Pimpinan. Last, because it takes S23's reader away.
+// D-084 J7.3 (DEA-02, DEA-03, DEA-06): the dean. The school admin records the dean on Pendataan, gives an account on
+// Aktivasi and «Dekan» at the school's root on Peran & akses; the dean signs in like a person, reads the school on
+// /pimpinan, opens «Buka ringkasan sekolah» by clicking and reads it (no raw decimal; a figure without enough evidence
+// says so); seniority grants no write: Konfigurasi, Aktivasi, Studio and Pendataan refuse the dean.
+await step("S23d", "the dean: the school admin adds the dean by the screens; the dean reads the school on /pimpinan, opens «Buka ringkasan sekolah» by clicking, and is refused every place that writes (J7.3, DEA-02, DEA-03, DEA-06)", async (rec) => {
+  const jejak = [await catatLewatLayar(a, [people.dekan.name], rec.shots, { kelas: null, peran: null })];
+  await a.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
+  const baris = a.locator("li.pin-akt-orang", { hasText: people.dekan.name }).first();
+  if (!(await baris.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; ${people.dekan.name} is not on Aktivasi`; }
+  await baris.locator('input[type="email"]').fill(people.dekan.email);
+  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
+  const r = await grantViaForm(a, people.dekan.name, "DEAN", "SD Zayd");
+  jejak.push(`«Dekan» at the school's root: ${JSON.stringify(r)}`);
+  if (r.ok !== "ok") { rec.verdict = "FAIL"; return jejak.join(" | "); }
+  const dc = await ctx();
+  const d = await dc.newPage();
+  try {
+    const masuk = await magicSignIn(d, people.dekan.email);
+    jejak.push(`signed in, landed on ${masuk.landed}`);
+    await d.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+    await tutupTur(d);
+    const h1 = norm(await d.locator("h1").first().innerText().catch(() => ""));
+    const pimpinan = norm(await d.locator("main").innerText().catch(() => ""));
+    rec.shots.push(await shot(d, "j7-3-dekan-pimpinan"));
+    const ringkas = d.getByRole("link", { name: "Buka ringkasan sekolah", exact: true });
+    const adaRingkas = (await ringkas.count()) > 0;
+    let laporan = "no «Buka ringkasan sekolah»";
+    let laporanOk = false;
+    if (adaRingkas) {
+      await ringkas.first().click();
+      await d.waitForURL((u) => u.pathname === "/dekan/ringkasan", { timeout: SLOW });
+      await d.waitForLoadState("networkidle");
+      const judul = norm(await d.locator("h1").first().innerText().catch(() => ""));
+      const isi = norm(await d.locator("main").innerText().catch(() => ""));
+      const mentah = isi.match(/(?<![\d.,])0\.\d{2,}(?!\d)/)?.[0] ?? null;
+      rec.shots.push(await shot(d, "j7-3-dekan-ringkasan-sekolah"));
+      laporanOk = !!judul && !mentah && !(await d.locator(".pin-refusal").count());
+      laporan = `the school summary "${judul}"${mentah ? ` prints a raw decimal "${mentah}"` : ""}: ${isi.slice(0, 360)}`;
+    }
+    // seniority grants no write: each place that writes refuses the dean
+    const tolak = {};
+    for (const jalan of ["/konfigurasi", "/aktivasi", "/studio", "/pendataan"]) {
+      await d.goto(`${APP}${jalan}`, { waitUntil: "networkidle" });
+      const ditolak = (await d.locator(".pin-refusal").count()) > 0 || new URL(d.url()).pathname !== jalan;
+      const tombolTulis = await d.locator('button:has-text("Berikan peran"), button:has-text("Aktifkan dengan surel"), button:has-text("Simpan")').count();
+      tolak[jalan] = ditolak ? "refused" : `opened (${tombolTulis} write button(s))`;
+    }
+    rec.shots.push(await shot(d, "j7-3-dekan-ditolak"));
+    const tanpaTulis = Object.values(tolak).every((v) => v === "refused" || /\(0 write/.test(v));
+    if (h1 === "" || !adaRingkas || !laporanOk || !tanpaTulis) rec.verdict = "FAIL";
+    await dc.close();
+    return `${jejak.join(" | ")} | /pimpinan "${h1}": ${pimpinan.slice(0, 300)} | ${laporan} | places that write: ${JSON.stringify(tolak)}`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(d, "j7-3-berhenti"));
+    await dc.close();
+    return `${jejak.join(" | ")} | stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
+  }
+});
+
 await step("S24", "the school admin revokes the head of department's role on Konfigurasi → Peran & akses; the head of department is then refused /pimpinan (ADM-J14)", async (rec) => {
   await a.goto(`${APP}/konfigurasi#roles`, { waitUntil: "networkidle" });
   const baris = a.locator("#roles li").filter({ hasText: "Kepala departemen" }).filter({ hasText: "Kelas Rendah" }).first();

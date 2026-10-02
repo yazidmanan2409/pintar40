@@ -259,3 +259,13 @@ a { color: var(--pintar-primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
 *:focus-visible { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* X.6 (U-DEVICE, D-046): NOTHING IS WIDER THAN A 320 PX WINDOW. A grid item may
+   shrink below its widest content, and a form control never outgrows the box it
+   stands in: a select is otherwise as wide as its longest option, and one long
+   chapter title pushed Konfigurasi to 988 px and Studio's forms to 538 px at
+   320 px. In the base layer, so a utility on the element still decides. */
+@layer base {
+  .grid > * { min-width: 0; }
+  select, input, textarea { max-width: 100%; }
+}

@@ -72,10 +72,11 @@ export default async function RingkasanKelas({
     <main className="mx-auto grid max-w-3xl gap-6 p-6">
       {/* Who is signed in, and the way out (DAISY-02, D-009). min-w-0: a grid
           item is otherwise never narrower than the strip's unbroken line, and a
-          long name pushed the button off a phone screen. */}
+          long name pushed the button off a phone screen; the strip's own box too,
+          or at 320 px it stood 26 px past the window (X.6). */}
       <header className="flex min-w-0 flex-wrap items-start justify-between gap-3">
         <h1 className="text-xl font-semibold">{s("laporan.kelas.judul")}</h1>
-        <div className="pin-noprint">
+        <div className="pin-noprint min-w-0 max-w-full">
           <SesiSaya locale={await currentLocale()} persona="educator" />
         </div>
       </header>
