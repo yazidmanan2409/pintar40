@@ -796,6 +796,17 @@ await step("Q3", "the teacher launches an Uji Cepat of 5 questions from Bab 1's 
   if (running) { rec.verdict = "NOTE"; return "an Uji Cepat is already running in this class; not launching another"; }
   const bab = G.locator("#pin-bab");
   const options = (await bab.locator("option").allTextContents()).map(norm);
+  // this walk's own Bab 1, the chapter whose pass mark J05b set: staging carries earlier walks' copies under the
+  // same name, and since D-088(b) an Uji Cepat on a chapter with no school pass mark is refused (walk 007's Q3)
+  const modul = course ? sql(`select id from public.modules where course_id = ${uuid(course)} order by ordinal limit 1`) : "";
+  if (modul) await bab.selectOption(modul).catch(() => {});
+  // D-085 T2: the chosen chapter's questions are shown on request
+  const tampil = G.getByRole("button", { name: "Tampilkan soal bab ini", exact: true });
+  if (modul && (await tampil.count())) {
+    await tampil.click();
+    await G.waitForURL((u) => u.searchParams.get("bab") === modul, { timeout: SLOW });
+    await G.locator("h1").first().waitFor({ timeout: SLOW });
+  }
   // D-085 T2: the teacher ticks the questions once the release carries it; before that, the count field
   const centang = G.locator('input[type="checkbox"][name="butir"]');
   let dicentang = [];
@@ -820,7 +831,8 @@ await step("Q3", "the teacher launches an Uji Cepat of 5 questions from Bab 1's 
     where aa.node_id = ${uuid(KID)} and d.mode::text = 'QUICK' order by aa.created_at desc limit 1`);
   if (!/Uji Cepat sedang berjalan/.test(t) || !cepat) rec.verdict = "FAIL";
   cepatDicentang = dicentang;
-  return `chapters offered: ${JSON.stringify(options)}; ${dicentang.length ? `${dicentang.length} questions ticked (T2)` : "a count of 5 (before T2)"}; the page now: "${t.slice(0, 260)}"`;
+  const kode = new URL(G.url()).searchParams.get("kode");
+  return `chapters offered: ${JSON.stringify(options)}; chosen: this walk's Bab 1 (${modul ? "found" : "not found"}); ${dicentang.length ? `${dicentang.length} questions ticked (T2)` : "a count of 5 (before T2)"}${kode ? `; refused: kode=${kode}` : ""}; the page now: "${t.slice(0, 260)}"`;
 });
 
 await step("Q4", "student 1 finds the Uji Cepat on /belajar (Bisa dikerjakan sekarang), takes it and hands it in", ["EDU-08"], async (rec) => {
