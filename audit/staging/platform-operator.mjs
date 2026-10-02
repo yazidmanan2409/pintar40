@@ -163,7 +163,10 @@ await step("O5", "read back: one active platform-admin grant for the operator, b
     join public.accounts a on a.person_id = r.person_id join auth.users u on u.id = a.auth_user_id
     left join public.accounts ga on ga.person_id = r.granted_by left join auth.users gu on gu.id = ga.auth_user_id
     where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null and now() < r.valid_until and lower(u.email) = lower(${lit(OPERATOR_EMAIL)})`);
-  const [n, until, byAdmin, audited] = r.split("|");
+  // a boolean joined to text reads "true"/"false", not psql's "t"/"f" (run 2 found O5 reading it as "t")
+  const [n, until, byAdminRaw, auditedRaw] = r.split("|");
+  const byAdmin = ["t", "true"].includes(byAdminRaw) ? "t" : "f";
+  const audited = ["t", "true"].includes(auditedRaw) ? "t" : "f";
   // why, when it does not hold: who the grant names as its grantor, and the audit rows that name it or the operator
   const sebab = byAdmin === "t" && audited === "t" ? "" : sql(`select string_agg(
       'grantor ' || coalesce(case when r.granted_by is null then 'none' when r.granted_by = (select a2.person_id from public.accounts a2
