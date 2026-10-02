@@ -28,6 +28,11 @@
 //       and reasons (D-088(h)), approves, makes and locks the release, and reviews any WARNING finding; the author is
 //       never offered the second person's steps; the admin publishes. Read back: PUBLISHED, sealed, reviewed by the
 //       head of department, its three release steps in the audit log.
+//   A10 GS-10 (J2): the teacher signs in by the real email link, in their own browser (a third sign-in email), and
+//       lands on Mengajar with the class there.
+//   A11 GS-11 (J5.4): Mengajar → the class → «Siapkan» → the published chapter; the school's pass mark read-only; an
+//       end day 30 days ahead; «Sediakan». Read back: the class's learning assignment, both tests, the post-test sealed
+//       at the school's mark (SCHOOL), the pre-test without one.
 //
 // GS-05 (the lesson's minimum passing mark) is set per lesson, so it follows GS-08, when the school has the
 // chapter. Every page is reached by clicking from the previous one; a reload of the same page is allowed. A step
@@ -593,6 +598,74 @@ await step("A9", "GS-09 (J4.3–J4.5): the seven steps by two people. The admin,
   const [status, versi, segel, penulis, peninjau, audit] = (r || "-|-|-|-|-|-").split("|");
   jejak.push(`the release: ${status} ${versi}, sealed ${segel}; author «${penulis}», reviewed by «${peninjau}»; audit: ${audit}`);
   if (status !== "PUBLISHED" || segel !== "true" || peninjau !== KABAG.nama || !/RELEASE_PUBLISHED/.test(audit)) rec.verdict = "FAIL";
+  return jejak.join("; ");
+});
+
+// ── GS-10, GS-11: the teacher signs in, finds the class and gives it the chapter
+const GURU = STAF.find((p) => p.kunci === "guru");
+const tugasKelas = () => {
+  const kl = simpul("CLASS", KELAS);
+  return kl && kursus ? sql(`select count(*) from public.learning_assignments where course_id = '${kursus}' and node_id = '${kl}'`) : "0";
+};
+const G = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" })).newPage();
+let guruMasuk = false;
+await step("A10", `GS-10 (J2): the teacher «${GURU.nama}» signs in by the real email link, in their own browser, and lands on Mengajar with «${KELAS}» there`, async (rec) => {
+  const di = await masukSurel(G, mail(GURU.kunci));
+  await shot(G, "a10-mengajar");
+  const teks = norm(await G.locator("main").innerText().catch(() => ""));
+  guruMasuk = di === "/mengajar";
+  if (!guruMasuk || !teks.includes(KELAS)) rec.verdict = "FAIL";
+  return `signed in by the email link, landed on ${di}; «${KELAS}» on the page ${teks.includes(KELAS)}`;
+});
+
+await step("A11", `GS-11 (J5.4): Mengajar → «${KELAS}» → «Siapkan» → the published chapter; the school's pass mark is shown read-only (${BATAS.persen}%); until a day 30 days ahead; «Sediakan». The class has the chapter with both tests, the post-test sealed at the school's mark`, async (rec) => {
+  if (keadaan().terbitan !== "PUBLISHED") { rec.verdict = "FAIL"; return `the chapter is not published (${teksKeadaan()}; A9)`; }
+  if (!guruMasuk) { rec.verdict = "FAIL"; return "the teacher is not signed in (A10)"; }
+  const kl = simpul("CLASS", KELAS);
+  if (tugasKelas() !== "0") { rec.verdict = "NOTE"; return `«${KELAS}» already has the chapter`; }
+  const jejak = [];
+  // by clicking: the class from Mengajar, «Siapkan» from the class, the chapter from Siapkan's list
+  await G.locator(`a.pin-row[href="/mengajar/${kl}"]`).first().click();
+  await G.waitForURL((u) => u.pathname === `/mengajar/${kl}`, { timeout: SLOW });
+  await G.waitForLoadState("networkidle");
+  await closeTour(G);
+  await klikTautan(G, `/mengajar/${kl}/siapkan`);
+  await shot(G, "a11-siapkan-pilih");
+  const baris = G.locator(`a.pin-row[href^="/mengajar/${kl}/siapkan?terbitan="]`).filter({ hasText: "Matematika Kelas 5" }).first();
+  if (!(await baris.count())) {
+    rec.verdict = "FAIL";
+    return `Siapkan does not offer the chapter: "${norm(await G.locator("main").innerText().catch(() => "")).slice(0, 260)}"`;
+  }
+  await baris.click();
+  await G.waitForURL((u) => u.pathname === `/mengajar/${kl}/siapkan` && u.searchParams.has("terbitan"), { timeout: SLOW });
+  await G.waitForLoadState("networkidle");
+  // the school's calendar (Asia/Jakarta): the teacher's "until" is a day on it
+  const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(Date.now() + 30 * 86400000));
+  await G.locator("#pin-sampai").fill(sampai);
+  const batas = norm(await G.locator(".pin-batas").first().innerText().catch(() => ""));
+  jejak.push(`Siapkan reads "${batas}"`);
+  if (!new RegExp(`Batas ketuntasan: ${BATAS.persen}\\s?%`).test(batas)) rec.verdict = "FAIL";
+  await shot(G, "a11-siapkan-tinjau");
+  const [jawab] = await Promise.all([
+    G.waitForResponse((r) => r.request().method() === "POST" && Boolean(r.request().headers()["next-action"]), { timeout: SLOW }),
+    G.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click(),
+  ]);
+  const ke = String(jawab.headers()["x-action-redirect"] ?? "").split(";")[0];
+  await G.waitForLoadState("networkidle");
+  await shot(G, "a11-sediakan");
+  jejak.push(`«Sediakan» answered ${ke || `HTTP ${jawab.status()}`}`);
+  const la = tugasKelas();
+  const segel = sql(`select coalesce(string_agg(d.mode::text || ':' || coalesce(aa.pass_mark::text, '-') || ':' || coalesce(aa.pass_mark_source, '-'), ',' order by d.mode::text), '-')
+    from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+    join public.learning_assignments la on la.id = aa.learning_assignment_id where la.course_id = '${kursus}' and la.node_id = '${kl}'`);
+  const jendela = sql(`select to_char(available_from at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI') || ' .. ' ||
+      coalesce(to_char(available_until at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI:SS'), '-') || ' Jakarta; by ' ||
+      coalesce((select p.display_name from public.persons p where p.id = la.assigned_by_person_id), '-')
+    from public.learning_assignments la where la.course_id = '${kursus}' and la.node_id = '${kl}' order by created_at desc limit 1`);
+  jejak.push(`learning assignments for «${KELAS}» ${la}; window ${jendela}; tests sealed ${segel}`);
+  const tanda = (Number(BATAS.persen) / 100).toFixed(2);
+  if (la === "0" || !new RegExp(`POST_TEST:${tanda.replace(".", "\\.")}:SCHOOL`).test(segel) || !/PRE_TEST:-:-/.test(segel)) rec.verdict = "FAIL";
   return jejak.join("; ");
 });
 

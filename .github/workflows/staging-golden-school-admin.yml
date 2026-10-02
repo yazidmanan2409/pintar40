@@ -3,7 +3,8 @@
 # sign-in email; staging allows 30 an hour, D-092, shared) and, by their own screens, builds the structure (GS-04), adds the
 # teacher, the head of department and the dean with their roles (GS-06), records the five students (GS-07's
 # first half), uploads the chapter in Studio (GS-08), sets its pass mark (GS-05), and takes it to publication with the
-# head of department as the second person (GS-09; their own sign-in email too). Runs
+# head of department as the second person (GS-09; their own sign-in email too); the teacher then signs in and gives
+# the class the chapter (GS-10, GS-11; a third sign-in email). Runs
 # audit/staging/golden-school-admin.mjs once per edit of
 # .github/staging-golden-school-admin-request.txt on the coordinator's branch; the request's last line names the
 # school's slug ("slug: <slug>"), a school that has passed GS-01 to GS-03 (staging-golden-school.yml).
@@ -11,7 +12,7 @@
 # NEVER: production (staging's ref and database URL are checked first; production's keys are never read); any direct
 # write to the database (it is read in read-only transactions); any change to the product, its sign-in or settings.
 
-name: staging · Golden School, the school admin's setup and the chapter's publication (GS-04 to GS-09)
+name: staging · Golden School, the school admin's setup and the chapter's publication (GS-04 to GS-11)
 
 on:
   push:
