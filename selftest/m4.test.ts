@@ -47,10 +47,10 @@ export const m4Tests: SelfTest[] = [
         { sesi: "s1", mode: "PRE_TEST", penguasaan: 0.5, judul: "Pemetaan Awal · Bab 1", batas: null },
         { sesi: "lain", mode: "POST_TEST", penguasaan: 0.875, judul: null, batas: null },
       ]), `Ani's results read ${JSON.stringify(r.daftarHasil)}; expected each official result with its recorded mastery, named by this class's assessment where it is one`);
-      // D-085 M3, D-088(b): a sitting of this class carries the mark sealed on it, so the teacher sees the target beside
-      // the mastery and a result below it as below it
-      const r2 = susun("ani", tugas,
-        [{ id: "s5", assessment_assignment_id: "post", person_id: "ani", status: "FINALIZED", pass_mark: "0.60" }],
+      // D-085 M3, D-088(b): a sitting of this class carries the mark sealed on its assignment, so the teacher sees the
+      // target beside the mastery and a result below it as below it
+      const r2 = susun("ani", tugas.map((x) => (x.id === "post" ? { ...x, batas: 0.6 } : x)),
+        [{ id: "s5", assessment_assignment_id: "post", person_id: "ani", status: "FINALIZED" }],
         { status: "ok", value: [{ session_id: "s5", mode: "POST_TEST", mastery: 0.5 }] });
       c.expect(r2.daftarHasil.length === 1 && r2.daftarHasil[0].batas === 0.6,
         `a sitting sealed at 60% reads ${JSON.stringify(r2.daftarHasil)}; expected its target 0.6 beside the mastery`);

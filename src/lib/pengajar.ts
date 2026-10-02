@@ -620,26 +620,35 @@ export async function catatanMurid(kelasId: string, institusi: string, orang: st
     berjalan([kelasId], ["OPEN", "CLOSED"]),
   ]);
   const hasil = (error ? { status: "unavailable" } : amplop ?? { status: "unavailable" }) as Amplop;
-  const { data: sesiData } = tugas.length > 0
-    ? await c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status, pass_mark")
-        .eq("person_id", orang).in("assessment_assignment_id", tugas.map((x) => x.id))
-    : { data: [] };
-  return susunCatatan(orang, tugas, rows<SesiMurid>(sesiData), hasil);
+  // D-085 M3, D-088(b): the mark is read from the assignment, where it is sealed and from which every attempt copies
+  // it unchanged; a teacher holds no grant on assessment_sessions.pass_mark (the table's client grant is per column)
+  const [{ data: sesiData }, { data: segelData }] = tugas.length > 0
+    ? await Promise.all([
+        c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status")
+          .eq("person_id", orang).in("assessment_assignment_id", tugas.map((x) => x.id)),
+        c.from("assessment_assignments").select("id, pass_mark").in("id", tugas.map((x) => x.id)),
+      ])
+    : [{ data: [] }, { data: [] }];
+  const segel = new Map(rows<{ id: string; pass_mark: number | string | null }>(segelData)
+    .map((x) => [x.id, x.pass_mark == null ? null : Number(x.pass_mark)]));
+  return susunCatatan(orang, tugas.map((x) => ({ ...x, batas: segel.get(x.id) ?? null })), rows<SesiMurid>(sesiData), hasil);
 }
 
-type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string; pass_mark?: number | string | null };
+type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string };
 
 /** The record from what was read: pure, so a test drives exactly what the page shows. */
 export function susunCatatan(
   orang: string,
-  tugas: ReadonlyArray<Pick<Berjalan, "id" | "judul" | "mode">>,
+  tugas: ReadonlyArray<Pick<Berjalan, "id" | "judul" | "mode"> & { batas?: number | null }>,
   sesi: readonly SesiMurid[],
   hasil: Amplop,
 ): CatatanMurid {
   const milikNya = sesi.filter((x) => x.person_id === orang);
   const judulTugas = new Map(tugas.map((x) => [x.id, x.judul]));
   const judulSesi = new Map(milikNya.map((x) => [x.id, judulTugas.get(x.assessment_assignment_id) ?? null]));
-  const batasSesi = new Map(milikNya.map((x) => [x.id, x.pass_mark == null ? null : Number(x.pass_mark)]));
+  // an attempt carries its assignment's sealed mark (BOB-49 copies it on insert and never changes either)
+  const batasTugas = new Map(tugas.map((x) => [x.id, x.batas ?? null]));
+  const batasSesi = new Map(milikNya.map((x) => [x.id, batasTugas.get(x.assessment_assignment_id) ?? null]));
   const nilai = hasil.status === "ok" && Array.isArray(hasil.value)
     ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown }>)
     : [];

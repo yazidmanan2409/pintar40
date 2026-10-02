@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 156,
+  "version": 157,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2707,6 +2707,11 @@
       "id": "M6-K01",
       "runner": "static",
       "proves": "D-085 M6: origin made clear. Executes pintarDariDistribusi (src/lib/pengajar.ts): only this school's ACTIVE, published distributions, the newest of a corrected line, each once, newest first, labelled PINTAR. Reads the source of terbitan(), the PINTAR readers (distributed_release_outline, distributed_release_instruments) and «Siapkan materi» (the origin in the list and the review); the copy «Materi PINTAR» / «Materi sekolah» in id and en"
+    },
+    {
+      "id": "COLGRANT-S01",
+      "runner": "static",
+      "proves": "What the app selects, a signed-in user may read: reads the live grants, and for every table that grants authenticated per column (assessment_sessions among them) every plain column a .from(table).select(...) in src/ names is granted, so no read fails whole under the user's session (the defect M3's assessment_sessions.pass_mark read caused, found by walk S22)"
     }
   ]
 }
