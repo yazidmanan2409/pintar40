@@ -28,7 +28,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { t, type HleEvent } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 import { TeksBaris } from "@/components/teks/Teks";
 import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
@@ -45,6 +45,8 @@ export type ItemPlayerProps = {
   allowsPause: boolean;
   startedAt: string | null;
   finishHref: string;
+  /** J6.14 (STU-20): the reader's language for the player's own words; questions and options are never translated. */
+  locale: Locale;
   actions: {
     submitAnswer: (presentedItemId: string, clientSeq: number, value: Answer,
                    receiptMode?: "LIVE" | "REPLAYED" | "LATE_SYNC") =>
@@ -146,6 +148,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   const { sessionId, paper, mode, stage, allowsPause, actions, finishHref } = props;
   const router = useRouter();
   const formal = mode === "PENGUASAAN";
+  const kata = (k: HleEvent) => t(k, "learner", { locale: props.locale });
 
   // W3: a reload opens the first question without a saved answer, not question 1
   const [index, setIndex] = useState(() => soalAwal(paper.map((p) => p.presentedItemId), props.accepted));
@@ -479,12 +482,12 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       <div className="pin-soalbar">
         {formal ? (
           <span className="pin-time" aria-live="off">
-            {t("posttest.elapsed", "learner")} {String(Math.floor(elapsed / 60)).padStart(2, "0")}:
+            {kata("posttest.elapsed")} {String(Math.floor(elapsed / 60)).padStart(2, "0")}:
             {String(elapsed % 60).padStart(2, "0")}
           </span>
         ) : (
           // §1: dots, never a percent bar and never a countdown-feeling timer
-          <span className="pin-dots" aria-label={`${t("pretest.progress", "learner")} ${index + 1}/${paper.length}`}>
+          <span className="pin-dots" aria-label={`${kata("pretest.progress")} ${index + 1}/${paper.length}`}>
             {paper.map((p, i) => (
               <span
                 key={p.presentedItemId}
@@ -494,8 +497,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           </span>
         )}
         <span className="pin-sbchrome">
-          {!online && <span className="pin-luring">{t("sync.offline", "learner")}</span>}
-          {online && pending > 0 && <span className="pin-meta">{t("sync.pending", "learner")}</span>}
+          {!online && <span className="pin-luring">{kata("sync.offline")}</span>}
+          {online && pending > 0 && <span className="pin-meta">{kata("sync.pending")}</span>}
           {formal && allowsPause && (
             <button
               type="button"
@@ -510,13 +513,13 @@ export default function ItemPlayer(props: ItemPlayerProps) {
               }}
               className="pin-btn"
             >
-              {paused ? t("posttest.resume", "learner") : t("posttest.pause", "learner")}
+              {paused ? kata("posttest.resume") : kata("posttest.pause")}
             </button>
           )}
           {formal && (
             <button type="button" onClick={() => setNavOpen((o) => !o)}
               className="pin-btn">
-              {t("posttest.navigator", "learner")}
+              {kata("posttest.navigator")}
             </button>
           )}
         </span>
@@ -528,7 +531,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             <li key={p.presentedItemId}>
               <button type="button" onClick={() => go(i)}
                 className={`pin-num-btn${accepted[p.presentedItemId] ? " pin-ans" : ""}${flagged[p.presentedItemId] ? " pin-flag" : ""}${i === index ? " pin-at" : ""}`}
-                aria-label={`${i + 1} — ${accepted[p.presentedItemId] ? t("posttest.answered", "learner") : t("posttest.unanswered", "learner")}`}>
+                aria-label={`${i + 1} — ${accepted[p.presentedItemId] ? kata("posttest.answered") : kata("posttest.unanswered")}`}>
                 {i + 1}
               </button>
             </li>
@@ -538,7 +541,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
 
       {paused ? (
         <p className="pin-pending">
-          {t("posttest.resume", "learner")}
+          {kata("posttest.resume")}
         </p>
       ) : (
         <>
@@ -577,14 +580,14 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                   onClick={() => chosen && void send(current, chosen)}
                   className="pin-btn pin-primary"
                 >
-                  {committed ? t("posttest.confirmed", "learner") : t("posttest.confirm", "learner")}
+                  {committed ? kata("posttest.confirmed") : kata("posttest.confirm")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setFlagged((f) => ({ ...f, [current.presentedItemId]: !f[current.presentedItemId] }))}
                   className="pin-btn"
                 >
-                  {flagged[current.presentedItemId] ? t("posttest.flagged", "learner") : t("posttest.flag", "learner")}
+                  {flagged[current.presentedItemId] ? kata("posttest.flagged") : kata("posttest.flag")}
                 </button>
               </div>
             )}
@@ -593,10 +596,10 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           {/* ------------------------------------------------ assistance pill */}
           {state?.due && (
             <section className="pin-bantuan">
-              <p className="pin-lvl">{t(stageKey(stage), "learner")}</p>
+              <p className="pin-lvl">{kata(stageKey(stage))}</p>
               {opened.map((l) => (
                 <p key={l.level}>
-                  <span className="pin-lvl">{t(`assist.level.${l.kode}` as HleEvent, "learner")}</span>
+                  <span className="pin-lvl">{kata(`assist.level.${l.kode}` as HleEvent)}</span>
                   <span><TeksBaris teks={l.isi} /></span>
                 </p>
               ))}
@@ -604,13 +607,13 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                 {state.nextLevel !== null && (
                   <button type="button" onClick={() => void openLevel(state.nextLevel as number)}
                     className="pin-btn">
-                    {opened.length === 0 ? t(stageKey(stage), "learner") : t("assist.more", "learner")}
+                    {opened.length === 0 ? kata(stageKey(stage)) : kata("assist.more")}
                   </button>
                 )}
                 <button type="button"
                   onClick={() => { void actions.dismissAssistance(itemId); setAssist(null); }}
                   className="pin-btn pin-quiet">
-                  {t("assist.close", "learner")}
+                  {kata("assist.close")}
                 </button>
               </div>
             </section>
@@ -621,20 +624,20 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       {/* ------------------------------------------------------ move / finish */}
       {(notice || closed) && (
         <p className="pin-pending" role="status">
-          {t(closed ? "sync.sesi_ditutup" : (notice as HleEvent), "learner")}
+          {kata(closed ? "sync.sesi_ditutup" : (notice as HleEvent))}
         </p>
       )}
       {formal && asking && (
         <div className="pin-pending" role="group" aria-labelledby="kumpulkan-tanya">
-          <p id="kumpulkan-tanya">{t("posttest.submit_confirm", "learner")}</p>
+          <p id="kumpulkan-tanya">{kata("posttest.submit_confirm")}</p>
           <div className="pin-actions">
             <button type="button" onClick={() => void finish()} disabled={finishing}
               className="pin-btn pin-primary">
-              {t("posttest.submit", "learner")}
+              {kata("posttest.submit")}
             </button>
             {/* the button that asked is gone: focus lands on the safe answer, so the question is read out */}
             <button type="button" onClick={() => setAsking(false)} className="pin-btn" autoFocus>
-              {t("komitmen.kembali", "learner")}
+              {kata("komitmen.kembali")}
             </button>
           </div>
         </div>
@@ -642,18 +645,18 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       <nav className="pin-actions pin-between">
         <button type="button" onClick={() => go(index - 1)} disabled={index === 0}
           className="pin-btn">
-          {t(formal ? "pretest.back" : "pretest.back", "learner")}
+          {kata(formal ? "pretest.back" : "pretest.back")}
         </button>
         {index < paper.length - 1 ? (
           <button type="button" onClick={() => go(index + 1)}
             className="pin-btn pin-primary">
-            {t("pretest.next", "learner")}
+            {kata("pretest.next")}
           </button>
         ) : formal ? (
           !asking && (
             <button type="button" onClick={() => { setNotice(null); setAsking(true); }}
               className="pin-btn pin-primary">
-              {t("posttest.submit", "learner")}
+              {kata("posttest.submit")}
             </button>
           )
         ) : (
@@ -663,7 +666,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             disabled={finishing}
             className="pin-btn pin-primary"
           >
-            {t("pretest.finish", "learner")}
+            {kata("pretest.finish")}
           </button>
         )}
       </nav>

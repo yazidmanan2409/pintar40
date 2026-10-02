@@ -95,6 +95,7 @@ export default async function Pelajaran(
             personId={typeof orang === "string" ? orang : null}
             saveProgress={saveLessonProgress}
             savedNote={s("lesson.saved")}
+            locale={locale}
             ulang={ulang}
             tandaiUlang={ulang ? tandaiBacaUlang : null}
           />

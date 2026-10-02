@@ -139,6 +139,7 @@ export default async function PermukaanAsesmen({
           allowsPause={mode === "PENGUASAAN" && Boolean(session?.allows_pause)}
           startedAt={session?.started_at ?? null}
           finishHref={selesaiHref}
+          locale={locale}
           actions={actions}
         />
       </main>

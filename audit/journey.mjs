@@ -899,7 +899,9 @@ async function lihatAntreanKaprodi(course) {
         if (f === "diajukan" && r.terdaftar) {
           await tautan.first().click();
           await h.waitForURL((u) => u.pathname === `/studio/paket/${course}`, { timeout: SLOW });
-          await h.waitForLoadState("networkidle");
+          // a click is a client-side move: the address changes while Studio still says «Memuat halaman…», and the
+          // load state was reached long before, so the package page is read once its own step list is on screen
+          await h.getByRole("heading", { name: "Langkah menuju terbit", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
           r.dibuka = new URL(h.url()).pathname;
           r.setujui = (await h.getByRole("button", { name: "Setujui isi", exact: true }).count()) > 0;
           rec_shots_kaprodi.push(await shot(h, "j4-4-dibuka-dari-antrean"));
@@ -1661,6 +1663,9 @@ await step("S21g", "a student switches the screens to English with «EN» and ba
     };
     const id1 = await bacaPelajaran();
     await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    // a skipped tour presents itself again on a later arrival (up to its limit) and holds the page while it is up:
+    // the student closes it first, as on every arrival here
+    await tutupTur(s);
     await s.locator(".pin-lang").getByRole("button", { name: "EN", exact: true }).first().click();
     await s.getByRole("heading", { name: /Your learning/i }).first().waitFor({ timeout: SLOW });
     const rumahEn = norm(await s.locator("main").innerText().catch(() => "")).slice(0, 200);

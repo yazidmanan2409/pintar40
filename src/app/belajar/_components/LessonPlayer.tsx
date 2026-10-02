@@ -22,7 +22,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { t } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { halamanMulai, menjadiDibaca, perluDisimpan, posisiDiServer, setelahSimpan } from "@/lib/siklus";
 import { bacaDetik, bacaHalaman, penyimpananPerangkat, simpanDetik, simpanHalaman } from "@/lib/posisi-perangkat";
 import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
@@ -41,6 +41,8 @@ export type LessonPlayerProps = {
     => Promise<{ ok: boolean; furthest?: number }>;
   /** W5: «Posisi bacaan tersimpan.» in the reader's language, shown only while the server holds the page on screen. */
   savedNote: string;
+  /** J6.14 (STU-20): the reader's language for the player's own words; the lesson's text is never translated. */
+  locale: Locale;
   /**
    * D-085 M3 (J5.12): opened from a teacher's request to read again. The lesson starts at its first page, whatever
    * was reached before, and its last page marks the lesson read again, once.
@@ -84,6 +86,7 @@ function sisipVisual(line: string) {
 }
 
 export default function LessonPlayer(props: LessonPlayerProps) {
+  const kata = (k: HleEvent) => t(k, "learner", { locale: props.locale });
   const pages = useMemo(() => {
     const body = props.bodyMarkdown ?? "";
     const out: string[][] = [];
@@ -165,7 +168,7 @@ export default function LessonPlayer(props: LessonPlayerProps) {
       <article className="pin-prose"><TeksBlok teks={pages[page].join("\n")} sisip={sisipVisual} /></article>
 
       <p className="pin-lpos">
-        <span>{t("lesson.page_of", "learner")} {page + 1}/{pages.length}</span>
+        <span>{kata("lesson.page_of")} {page + 1}/{pages.length}</span>
         <span className="pin-dots">
           {pages.map((_, i) => (
             <span key={i} className={`pin-ldot${i === page ? " pin-at" : i < page ? " pin-done" : ""}`} />
@@ -176,12 +179,12 @@ export default function LessonPlayer(props: LessonPlayerProps) {
       <nav className="pin-actions pin-between">
         <button type="button" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}
           className="pin-btn">
-          {t("lesson.prev", "learner")}
+          {kata("lesson.prev")}
         </button>
         <button type="button" disabled={page >= pages.length - 1}
           onClick={() => setPage((p) => Math.min(pages.length - 1, p + 1))}
           className="pin-btn pin-primary">
-          {t("lesson.next", "learner")}
+          {kata("lesson.next")}
         </button>
       </nav>
 
@@ -196,10 +199,10 @@ export default function LessonPlayer(props: LessonPlayerProps) {
           {steps < langkah.length ? (
             <button type="button" onClick={() => setSteps((s) => s + 1)}
               className="pin-btn">
-              {t("lesson.example.reveal", "learner")}
+              {kata("lesson.example.reveal")}
             </button>
           ) : (
-            <p className="pin-meta">{t("lesson.example.done", "learner")}</p>
+            <p className="pin-meta">{kata("lesson.example.done")}</p>
           )}
         </section>
       )}
@@ -207,7 +210,7 @@ export default function LessonPlayer(props: LessonPlayerProps) {
       {props.media.length > 0 && (
         <section className="pin-lmediaset">
           {props.media.map((m) => (
-            <MediaEntry key={m.path} entry={m} personId={props.personId} />
+            <MediaEntry key={m.path} entry={m} personId={props.personId} locale={props.locale} />
           ))}
         </section>
       )}
@@ -217,7 +220,8 @@ export default function LessonPlayer(props: LessonPlayerProps) {
   );
 }
 
-function MediaEntry({ entry, personId }: { entry: LessonPlayerProps["media"][number]; personId: string | null }) {
+function MediaEntry({ entry, personId, locale }: { entry: LessonPlayerProps["media"][number]; personId: string | null; locale: Locale }) {
+  const kata = (k: HleEvent) => t(k, "learner", { locale });
   const [rate, setRate] = useState(1);
   const [showTranscript, setShowTranscript] = useState(false);
   const attach = (el: HTMLMediaElement | null) => {
@@ -233,7 +237,7 @@ function MediaEntry({ entry, personId }: { entry: LessonPlayerProps["media"][num
     return entry.url ? (
       <a href={entry.url} target="_blank" rel="noreferrer"
          className="pin-lcard pin-llink">
-        {t("lesson.pdf", "learner")}
+        {kata("lesson.pdf")}
       </a>
     ) : null;
   }
@@ -246,7 +250,7 @@ function MediaEntry({ entry, personId }: { entry: LessonPlayerProps["media"][num
       {entry.url && entry.jenis === "audio" && <audio ref={attach} controls src={entry.url} className="pin-laudio" />}
       <div className="pin-lctl">
         <label className="pin-lrate">
-          {t("lesson.speed", "learner")}
+          {kata("lesson.speed")}
           <select value={rate} onChange={(e) => setRate(Number(e.target.value))}
             className="pin-lselect">
             {[0.75, 1, 1.25, 1.5, 2].map((r) => <option key={r} value={r}>{r}×</option>)}
@@ -254,7 +258,7 @@ function MediaEntry({ entry, personId }: { entry: LessonPlayerProps["media"][num
         </label>
         {entry.transcript && (
           <button type="button" onClick={() => setShowTranscript((s) => !s)} className="pin-btn pin-quiet">
-            {t("lesson.transcript", "learner")}
+            {kata("lesson.transcript")}
           </button>
         )}
       </div>

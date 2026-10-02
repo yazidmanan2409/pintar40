@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 164,
+  "version": 165,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2772,6 +2772,11 @@
       "id": "D006-K01",
       "runner": "static",
       "proves": "D-006: executes lingkupPeran (src/lib/lingkup-peran.ts) on two schools' trees with their hidden Jenjang and Reguler: no hidden level is offered as a role scope; each school comes first by its own name, then its Bagian, Tingkat and Kelas named after it; reads Peran & akses (src/app/konfigurasi/page.tsx): its scope select is exactly that list"
+    },
+    {
+      "id": "J614-K01",
+      "runner": "static",
+      "proves": "D-084 J6.14 (STU-20): renders the lesson player (src/app/belajar/_components/LessonPlayer.tsx) in English and in Indonesian: its page counter and next-page button follow the reader's language and the lesson's text does not change; reads every client component under src/ that uses the copy table: no call of t() leaves out the reader's language; the lesson page and the assessment surface hand the players the page's locale"
     }
   ]
 }

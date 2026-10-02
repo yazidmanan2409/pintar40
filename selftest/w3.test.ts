@@ -71,9 +71,9 @@ export const w3Tests: SelfTest[] = [
         "«Kumpulkan» does not take the unsaved choices into the outbox, with a fresh seq, before it replays and finishes");
       c.expect(/useState\(\(\) => soalAwal\(paper\.map\(\(p\) => p\.presentedItemId\), props\.accepted\)\)/.test(ip),
         "the player still opens at question 1 on a reload");
-      c.expect(/t\("posttest\.submit_confirm", "learner"\)/.test(ip), "«Kumpulkan» hands the test in without asking first");
+      c.expect(/kata\("posttest\.submit_confirm"\)/.test(ip), "«Kumpulkan» hands the test in without asking first");
       const tanya = /\{formal && asking && \(([\s\S]*?)\n {6}\)\}/.exec(ip)?.[1] ?? "";
-      c.expect(/onClick=\{\(\) => void finish\(\)\}/.test(tanya) && /t\("posttest\.submit", "learner"\)/.test(tanya),
+      c.expect(/onClick=\{\(\) => void finish\(\)\}/.test(tanya) && /kata\("posttest\.submit"\)/.test(tanya),
         "the confirmation's own «Kumpulkan» is not what hands the test in");
       c.expect(/onClick=\{\(\) => \{ setNotice\(null\); setAsking\(true\); \}\}/.test(ip),
         "the post-test's «Kumpulkan» does not ask first");
