@@ -2,11 +2,28 @@
 
 **Scope.** One learner's Uji Penguasaan, end to end, on staging (Supabase Micro: 2 shared cores, 1 GB, 60 connections; Vercel functions in `sin1`, the same region as the database). The evidence is the L1 run at 1,000 learners (run 36964437916, ruled in D-089), the 50-learner RPC wave before any change (run 36969517374), read-only database forensics (pg_stat_statements, EXPLAIN (ANALYZE, BUFFERS), PostgREST logs), and the real app in Chromium: two 4-learner trials and the 50-learner proof described in §9. No compute change. No authentication change. No 1,000-learner wave.
 
-⟨§1 is written last, from §9–§10⟩
-
 ## 1. Executive verdict
 
-⟨pending: the browser 50 and the RPC after-run⟩
+**At 50 learners, Micro's database and the app's correctness are proven. D-031's 1 s save criterion is not proven through the real app.**
+
+Three synchronized runs of the same Uji Penguasaan at 50 learners each, with no compute change:
+
+| Run | Every learner sat and handed in | Lost / duplicated answers | Missing results | Server errors | Database CPU peak | Save p95 | D-031 |
+|---|---|---|---|---|---|---|---|
+| RPC harness, before the changes | yes | 0 / 0 | 0 | 0 | 18% | 327 ms | **met** |
+| Real app in Chromium (browser 50) | yes | 0 / 0 | 0 | 0 | 15% | **1,366 ms** | **not met** (save p95) |
+| RPC harness, after the changes | yes | 0 / 0 | 0 | 0 | 7% | 289 ms | met, except the recovery line (§9: idle connections, not load) |
+
+1. **Safe at 50: proven.** In every run nothing was lost, nothing was duplicated, every result was there, no request failed, and no pool ran short. The database never went above 18% CPU or 31 of its 60 connections.
+2. **The 1 s save p95 through the real app: not met as measured** (1,366 ms from GitHub's US runners). The same journey with 4 learners gave 1,830 ms and the database at 3%. The time is in the request path (US → `sin1`, the proxy's Auth check, the server action, the tab's action queue), not in Micro. What a learner in Malaysia sees has not been measured.
+3. **Efficiency.**
+   - Fixed:
+     - **The draw** (−52% buffers and −24% time per start, measured at 50).
+     - **Overlapping checks.** Inert at 50, as expected; it matters only under saturation.
+   - Waiting for owner, the largest costs left:
+     - **The time-driven assistance check:** 23 per learner, 30% of the learner's RPC time in the database, and it shares the action queue with the saves.
+     - **Auth on every request:** 78 per learner.
+4. **Beyond 50 nothing is proven.** Micro saturated at 1,000 (D-089). In these runs the real app asked the database for about 3× the RPC harness's work per learner, the Pemetaan Awal and the page renders included (§10), so the RPC figures understate the real load.
 
 ## 2. One-student workload map
 
@@ -28,15 +45,15 @@ The learner's sitting lasts about 2 minutes. At 50 learners that is about 4.5 s 
 
 ## 3. Amplification map
 
-| | 1 learner | 10 learners (run 36963146820) | 50 learners, RPC (run 36969517374) | 50 learners, real app (§9) | 1,000 learners, RPC (run 36964437916) |
+| | 1 learner | 10 learners (run 36963146820) | 50 learners, RPC, before → after (runs 36969517374 → 36982765324) | 50 learners, real app (§9) | 1,000 learners, RPC (run 36964437916) |
 |---|---|---|---|---|---|
-| Calls (harness) | about 55 | 558 | 2,755 | 3,172 timed requests and steps | 54,812 |
-| Peak requests/s | — | — | 26.6 | 34.0 | 184 |
-| Database CPU, peak | idle | 3% | 18% | 15% | **98%** |
-| Backends | 24 | 25 | 16 | 31 (24 before) | 34 |
+| Calls (harness) | about 55 | 558 | 2,755 → 2,720 | 3,172 timed requests and steps | 54,812 |
+| Peak requests/s | — | — | 26.6 → 26.5 | 34.0 | 184 |
+| Database CPU, peak | idle | 3% | 18% → 7% | 15% | **98%** |
+| Backends | 24 | 25 | 16 → 12 | 31 (24 before) | 34 |
 | Starts in the first minute | 1 | 10 | 50 | 50 | 1,000 (about 25 s of database work in a burst, on 2 shared cores) |
-| Assistance checks | about 20 | about 200 | about 1,000 | 1,140 | 20,002 (36% of all calls) |
-| Save p95 | — | 819 ms | 327 ms | 1,366 ms (from the press to «Tersimpan», through the Next.js server) | **11,664 ms** |
+| Assistance checks | about 20 | about 200 | about 1,000 → 986 | 1,140 | 20,002 (36% of all calls) |
+| Save p95 | — | 819 ms | 327 → 289 ms | 1,366 ms (from the press to «Tersimpan», through the Next.js server) | **11,664 ms** |
 | Server errors | — | 0 | 0 | 0 (no 5xx in Supabase's request log, no pool timeout) | 73 (0.133%), pool exhausted (PGRST003) |
 
 What grows with N is linear per learner, so the database's work grows linearly. **Synchronisation** is what turns it into a cliff. Every start lands in the same minute, every poll keeps landing every 5 s, and on 2 shared cores the queue builds once the work arriving per second exceeds what the cores can do. Past that point each call waits behind the others: at 1,000, save p50 was 5.7 s against 0.27 s at 50. The polls that wait still fire on their timer, and the pool (60 connections, PostgREST's share smaller) runs out.
@@ -85,16 +102,19 @@ So "ask less often" or "stop after the question is answered" changes what a lear
 
 ## 6. Database findings
 
-- **Where the time goes at 50 (RPC, per learner, 89 ms):**
+- **Where the time goes at 50 (RPC, the learner's RPCs, per learner):**
 
-  | Part | Time | Share |
+  | Part | Before (89 ms) | After (77 ms) |
   |---|---|---|
-  | start | 25 ms | 28% |
-  | assistance | 24 ms | 27% |
-  | saves | 18 ms | 20% |
-  | noteView | 8 ms | — |
-  | finish | 6 ms | — |
-  | paper | 5 ms | — |
+  | start | 25 ms | 19 ms |
+  | assistance | 24 ms | 23 ms |
+  | saves | 18 ms | 17 ms |
+  | noteView | 8 ms | 7 ms |
+  | finish | 6 ms | 5 ms |
+  | paper | 5 ms | 4 ms |
+  | outcome | — | 1 ms |
+
+  After the fix the assistance check is the largest single part (30%).
 
 - **The draw (F1)** was the one avoidable cost that grew with the platform's content rather than with the learner. It is fixed (§7).
 - **Saves (F5)** are dominated by the evidence chain: digest, sealing checks and the idempotent client_seq key. Kept by design.
@@ -131,7 +151,9 @@ Both meet all eight conditions of the brief:
 |---|---|---|
 | 31 calls for one Uji Penguasaan (the candidates), inside the function | 3,336 buffers | 1,495 buffers (**−55%**; the inline query reads 464, −86%, but a SQL function with its own `SET search_path` is not inlined) |
 | `eligible_items_for_definition` for that definition | 4,106 buffers | 2,265 buffers (**−45%**) |
-| `start_learning_session` per call, RPC wave at 50 | 25.2 ms, 3,544 buffers (run 36969517374) | ⟨pending: the RPC after-run⟩ |
+| `start_learning_session` per call, RPC wave at 50, pg_stat_statements before and after each wave | 25.2 ms, 3,544 buffers (run 36969517374) | **19.2 ms, 1,685 buffers** (run 36982765324): **−24% time, −52% buffers** |
+| The learner's other calls, per call, same waves | `assistance_state`, `record_answer`, `note_item_view`, `finish_my_session`, `session_paper` | Each within about 1 ms of before (no change expected; none measured) |
+| Per learner | start 25 ms of about 89 ms | start 19 ms of 77 ms (the learner's RPCs). The fix saves about 6 ms per learner. Its larger value is F1's: the start's cost no longer grows with every chapter any school imports |
 
 **C2. One assistance check at a time** (`src/lib/tanya-berkala.ts`, used by `ItemPlayer.tsx`; main `6d2412d`). It adds no new check, and changes neither the frequency nor what is shown.
 
@@ -156,11 +178,12 @@ At the load where C2 matters (checks slower than 5 s) its before/after cannot be
 ## 8. Items waiting for owner
 
 1. **Event-driven assistance check** (§5). It changes polling semantics and the player's contract text.
-2. **Auth check on every request** (F4). `proxy.ts` asks Auth for the user on every page, RSC and action, about 50 times a sitting. Candidates: skip it for RSC prefetches, or trust a verified JWT locally (`getClaims`) on the proxy and keep `getUser` where an action writes. **Authentication: not changed by me.**
+2. **Auth check on every request** (F4). `proxy.ts` asks Auth for the user on every page, RSC and action: 78 times per learner, measured at 50. Candidates: skip it for RSC prefetches, or trust a verified JWT locally (`getClaims`) on the proxy and keep `getUser` where an action writes. **Authentication: not changed by me.**
 3. **CAP-08** (F12), the compute tier before production, on capacity testing (D-089(c)).
 4. **The draw's temporary table** (F8). Rewriting it touches D-008's randomisation.
 5. **Comparability of a future 1,000 run** (§7 note).
-6. **A measurement point near the learners.** D-031's 1 s save p95 is judged from GitHub's US runners, which add about 500 ms per server action against `sin1` at idle. A runner in or near Singapore/Malaysia would measure what a Malaysian learner sees. Choosing and paying for one is the owner's call.
+6. **A measurement point near the learners.** D-031's 1 s save p95 is judged from GitHub's US runners. From there a server action costs about 770 ms at idle, against about 270 ms for a bare RPC. A runner in or near Singapore/Malaysia would measure what a Malaysian learner sees. Choosing and paying for one is the owner's call.
+7. **The harness's recovery line counts idle pooled connections** (§9). Counting active connections only would make CAP-07 measure recovery, not pool size. The harness stays unchanged (D-089(b)) until the owner says otherwise.
 
 ## 9. 50-student Micro result
 
@@ -200,12 +223,57 @@ The same journey through the RPC harness at 50 (run 36969517374, before the chan
 - On the way they pass the proxy's Auth check and the server action.
 - They then wait their turn in the tab's action queue.
 
-⟨pending: the RPC after-run at 50⟩
+**The RPC journey at 50, after the changes** (run 36982765324, 10 runners × 5 learners, the same harness as before, now with both changes deployed):
+
+- 50 started, 50 finished; 477 answers acknowledged, 0 lost, 0 duplicated; every result present.
+- 0 server errors in 2,720 calls, and no non-2xx answer in Supabase's request log for the wave window.
+- Save p50 / p95 / p99: 261 / 289 / 805 ms (before: 266 / 327 / 815). Every call's p99 was under 1 s.
+- Database CPU 1% → 7%, backends 6 → 12.
+
+The verdict reads NOT MET on one line: "back at baseline within 10 minutes: not seen". Diagnosis, read-only, 17 minutes after the wave:
+
+- the CPU was back at idle;
+- the only active query was my own read;
+- PostgREST held 5 idle connections, the newest opened during the wave at 08:23:20 and unused since 08:25:09.
+
+The harness's rule counts connections, so the backends must fall back to 6 × 1.2 + 2 ≈ 9. A pool that keeps its connections open after a wave never lets that happen when the run starts from a cold pool (6 backends here; 24 and 10 in the runs that met the line).
+
+I report the line as recorded and do not re-score it. Counting only active connections is a harness change. It waits, with the harness otherwise kept as it is (D-089(b)).
+
+The CPU peak (18% → 7%) is not attributed to the changes. The draw saves about 0.3 s of CPU across 50 starts. The two runs differ in their runner layout (16 against 10) and in what else staging was doing.
 
 ## 10. Capacity interpretation
 
-⟨pending⟩
+- **At 50 the database is not the constraint.** It peaked at 7–18% CPU across three runs, with 12–31 of 60 connections and no pool timeout. Latency at 50 equals latency at 4 in the real app.
+- **The real app costs the database more than the harness does.**
+  - In the browser 50, all the database's work in the window came to 285 ms and 20,300 buffers per learner.
+  - The RPC journey's whole window came to 89 ms and 7,100 buffers.
+  - The difference is:
+    - the Pemetaan Awal each learner sat beforehand;
+    - the page renders and their reads;
+    - 78 Auth lookups against about 14;
+    - about 3 more checks per learner.
+  - The 1,000-learner result (run 36964437916) was the RPC journey, so it **understates** what 1,000 real learners would ask of Micro.
+- **The knee lies between 50 and 1,000 and has not been measured.** Nothing here proves any number above 50. D-089(d)'s limit of 50 people at once stands on evidence. A higher limit needs a measured run at that number, and through the real app if it is to be judged for the real app.
+- **The save tail through the real app has two parts that load does not explain:**
+  - the distance from the measuring point to `sin1`;
+  - **The queue.** A save waits behind any check already in flight in the same tab, because Next runs one tab's server actions one after another.
+
+  The second is my reading: saves at p50 take one action's time, and at p95 about two. A per-save record of what was in flight would prove it, but none was kept. If it holds, the event-driven check (§8, item 1) would shorten the save tail as well as remove most checks.
+- **Micro's limit at 1,000 is CPU** (F12, infrastructure). C1 and C2 lower the work and the queueing, but they do not make 1,000 fit on 2 shared cores. CAP-08 remains the owner's decision before production.
 
 ## 11. Recommendation (one next action)
 
-⟨pending⟩
+**Run the human test at up to 50 people at once, on Micro, as D-089(d) plans.**
+
+What makes it safe is proven at 50 by three runs: no answer lost or duplicated, every result present, no errors, and the database far from its limits.
+
+The one criterion not met through the real app is the 1 s save p95 measured from the US. It is a matter of how quickly «Tersimpan» appears, not of whether the answer is kept. Its cause lies in the request path, not in Micro. The people in the test are the first measurement of it from where learners are.
+
+The decisions that would change cost or behaviour are listed in §8 and wait for the owner:
+
+- the event-driven assistance check;
+- Auth on every request;
+- CAP-08.
+
+Nothing in this audit changed authentication, security boundaries, evidence integrity or a frozen decision.

@@ -1208,6 +1208,26 @@ CHANGES_V21.append("2 Oct, v2.5, D-089: the L1 result stands as evidence that Mi
                    "synchronized students; no rerun now; staging and production stay on Micro; CAP-08 is decided before "
                    "production on capacity testing; initial testing held to 50 people at once.")
 
+# --- 2 Oct, later still: 50 at once on Micro (D-089(d)) and the efficiency audit's two changes ---
+CURRENT["CAP-02"] = CURRENT["CAP-02"] + (
+    " AT 50 AT ONCE (the initial-testing limit, D-089(d); the efficiency audit, docs/reports/PINTAR-4.0-EFFICIENCY-AUDIT-"
+    "2026-10-02.md): three synchronized runs on the same Micro, every learner sat and handed in, 0 answers lost or "
+    "duplicated, every result present, 0 server errors, no pool timeout, the database's CPU at most 18%. Through the RPC "
+    "journey D-031 is met (run 36969517374 before the changes: save p95 327 ms; run 36982765324 after: 289 ms). Through "
+    "the real app in Chromium (run 36979562623) the save p95 is 1,366 ms from GitHub's US runners (limit 1 s; 1,830 ms "
+    "with 4 learners, the database at 3%): not met as measured; not measured from where learners are. CAP-02 (1,000) "
+    "stays FAIL.")
+CURRENT["CAP-07"] = CURRENT["CAP-07"] + (
+    " At 50: back at baseline in 89 s (RPC, before the changes) and 25 s (the real app). The RPC run after the changes "
+    "(36982765324) reads 'not seen': the CPU was back at idle, but PostgREST kept 5 connections opened during the wave, "
+    "idle, and the harness's rule counts connections (recorded as read; the rule counting idle pooled connections is "
+    "noted for the owner).")
+CHANGES_V21.append("2 Oct, v2.5, later: 50 at once on Micro (D-089(d)). The draw reads its marks by index (start: -24% "
+                   "time, -52% buffers, measured) and the player never has two assistance checks in flight. Three runs at 50: "
+                   "safe (no loss, no duplicate, no error, the database at most 18% CPU); D-031's save p95 met through the "
+                   "RPC journey (289 ms) and not through the real app measured from the US (1,366 ms). CAP-02 stays FAIL "
+                   "(1,000), CAP-07 PARTIAL. P0 PASS stays 76.")
+
 def as_dict():
     g = globals()
     return {
