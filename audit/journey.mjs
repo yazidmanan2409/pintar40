@@ -1150,10 +1150,14 @@ const teksPilihan = (b) => b.locator("span").nth(1).innerText().then(norm);
 // `luringDi` (J6.8, STU-09): at that post-test question the network drops before «Simpan jawaban ini» is pressed; the
 // page must say it is offline (never that the test is closed), keep the answer on the device and not call it saved;
 // when the network returns the answer goes through and reads «Tersimpan». What was seen is returned as `luring`.
-async function jawab(page, mode, right, { simpanTerakhir = true, luringDi = -1 } = {}) {
+// `ubahDi` (STU-07): at that post-test question the student first saves another option, then changes it to the
+// planned one and saves again, and reloads the page: it reopens at the next question without a saved answer, and the
+// result counts the changed answer. What was seen is returned as `ubah`.
+async function jawab(page, mode, right, { simpanTerakhir = true, luringDi = -1, ubahDi = -1 } = {}) {
   const formal = mode === "post";
   let ditanya = null;
   let luring = null;
+  let ubah = null;
   const done = [];
   for (let i = 0; i < 40; i++) {
     const stemEl = page.locator("h2.pin-stem").first();
@@ -1170,6 +1174,25 @@ async function jawab(page, mode, right, { simpanTerakhir = true, luringDi = -1 }
     await page.waitForFunction(([n]) => document.querySelectorAll("ul.pin-opsi button.pin-op")[n]?.getAttribute("aria-pressed") === "true", [idx], { timeout: SLOW });
     const next = page.getByRole("button", { name: "Berikutnya", exact: true });
     const terakhir = (await next.count()) === 0;
+    if (formal && i === ubahDi && !terakhir && texts.length > 1) {
+      // first another option, saved; then the planned one, saved: the answer is changed
+      const lain = idx === 0 ? 1 : 0;
+      const simpan = page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ });
+      await opts.nth(lain).click();
+      await simpan.click();
+      await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW });
+      await opts.nth(idx).click();
+      const bisaUbah = (await simpan.count()) > 0;
+      await simpan.click();
+      await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW });
+      done.push({ known: Boolean(k), right: Boolean(k) && wantRight && k.right.has(texts[idx]) });
+      // a reload in the middle of the test
+      await page.reload({ waitUntil: "networkidle" });
+      await page.locator("h2.pin-stem").first().waitFor({ state: "visible", timeout: SLOW });
+      const sesudah = norm(await page.locator("h2.pin-stem").first().innerText());
+      ubah = { bisaUbah, lanjutKeBerikutnya: sesudah !== norm(raw) };
+      continue;
+    }
     if (formal && i === luringDi && !terakhir) {
       await page.context().setOffline(true);
       await page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ }).click();
@@ -1203,7 +1226,7 @@ async function jawab(page, mode, right, { simpanTerakhir = true, luringDi = -1 }
     await page.waitForURL((u) => u.pathname.endsWith(formal ? "/hasil" : "/peta") || u.pathname === "/belajar", { timeout: 60000 });
     break;
   }
-  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length, ditanya, luring };
+  return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length, ditanya, luring, ubah };
 }
 
 const kartuKelas = [];
@@ -1329,7 +1352,7 @@ async function bacaSiapa() {
   }
 }
 
-await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 3 loses the network at the second post-test question and is told so, the answer kept and sent when it returns (J6.8); student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered and whether the school's target was met (M3, W4)", async (rec) => {
+await step("S21", "five students take Bab 1's pre-test and post-test to plan; student 2 changes the first post-test answer and reloads mid-test (STU-07); student 3 loses the network at the second post-test question and is told so, the answer kept and sent when it returns (J6.8); student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3); each result page says what was answered and whether the school's target was met (M3, W4)", async (rec) => {
   if (!terbitBab || !HARAP) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "the chapter fixture is absent"; }
   if (kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return `only ${kartuKelas.length} class cards (S20)`; }
   const tugas = tugasBab();
@@ -1360,7 +1383,14 @@ await step("S21", "five students take Bab 1's pre-test and post-test to plan; st
       }
       const w3 = i === 3; // all right by plan: an unsaved last answer that is dropped shows as one fewer
       const j68 = i === 2; // J6.8: the network drops at the second post-test question and returns
-      const post = await jawab(s, "post", plan.post, { simpanTerakhir: !w3, luringDi: j68 ? 1 : -1 });
+      const s07 = i === 1; // STU-07: the first post-test answer is changed, then the page is reloaded
+      const post = await jawab(s, "post", plan.post, { simpanTerakhir: !w3, luringDi: j68 ? 1 : -1, ubahDi: s07 ? 0 : -1 });
+      if (s07) {
+        const u = post.ubah;
+        const ubahOk = !!u && u.bisaUbah && u.lanjutKeBerikutnya;
+        if (!ubahOk) rec.verdict = "FAIL";
+        out.push(`STU-07 ${k.nama} changed the first answer and reloaded: ${JSON.stringify(u)}${ubahOk ? "" : " MISMATCH"}`);
+      }
       if (j68) {
         const l = post.luring;
         const luringOk = !!l && /Sedang luring/.test(l.tanda) && !l.ditutup && !l.disebutTersimpan && l.diPerangkat > 0 && l.tersimpanLagi && l.tandaHilang;
