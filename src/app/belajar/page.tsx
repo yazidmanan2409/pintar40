@@ -205,6 +205,11 @@ export default async function Belajar({
     (k) => k.posisi.langkah === "PENGUASAAN" && !k.berjalan && k.posisi.pelajaranTotal > 0,
   );
 
+  // D-084 J6.13 (STU-18): WHETHER ANYTHING IS WAITING. A learner whose every chapter is finished, with no open
+  // assessment, no lesson a teacher asked to be read again and no feedback still owed, is told so in so many words
+  // where the next step would stand, and is not told that something is under way today.
+  const menunggu = Boolean(utama) || terbuka.length > 0 || diminta.length > 0 || umpanBalik.some((u) => !u.sudahDijawab);
+
   return (
     <>
       <CangkangPengalaman locale={locale} current="belajar" />
@@ -223,7 +228,7 @@ export default async function Belajar({
               because for them there is no second context to be told apart. */}
           {konteks.mengajar ? (
             <p className="pin-intro">{s("pembelajaran.milik")}</p>
-          ) : tugas.length > 0 ? (
+          ) : tugas.length > 0 && menunggu ? (
             <p className="pin-intro">{s("siklus.hari_ini")}</p>
           ) : null}
         </div>
@@ -240,6 +245,14 @@ export default async function Belajar({
             locale={locale}
             persona={persona}
           />
+        ) : tugas.length > 0 && !menunggu ? (
+          /* THE HONEST END (J6.13), on the home as on «Apa berikutnya»: the same words, standing where the next step would. */
+          <section className="pin-sec" id="pin-habis" aria-labelledby="pin-habis-judul">
+            <h2 id="pin-habis-judul">{s("siklus.habis.judul")}</h2>
+            <div className="pin-tugas">
+              <span className="pin-tstatus">{s("siklus.habis.isi")}</span>
+            </div>
+          </section>
         ) : null}
 
         {diminta.length > 0 ? (

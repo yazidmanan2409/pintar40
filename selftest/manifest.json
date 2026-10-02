@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 162,
+  "version": 163,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2762,6 +2762,11 @@
       "id": "C1-K01",
       "runner": "static",
       "proves": "D-084 C1: reads the founding workflow's source (.github/workflows/found-school.yml): dispatch only, staging's database only (its project ref pinned, a URL naming production refused), the inputs passed to operator_found_school as psql variables and never spliced into the SQL, and no other write"
+    },
+    {
+      "id": "J613-K01",
+      "runner": "static",
+      "proves": "D-084 J6.13 (STU-18): reads the learner's home's source (src/app/belajar/page.tsx): «Ini yang sedang berjalan hari ini.» is said only while something waits (the next step, an open assessment, a lesson a teacher asked to be read again, feedback still owed); with assignments and nothing waiting, «Tidak ada lagi yang menunggu» and where new work will appear stand in the next step's place"
     }
   ]
 }

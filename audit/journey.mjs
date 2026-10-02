@@ -99,9 +99,20 @@ async function apiSession(email) {
   if (v.error) throw v.error;
   return c;
 }
+// D-084 J1.4: the platform admin makes a school's first person by the screen, «Orang baru di luar pendataan» on
+// Aktivasi: types the name and the address, presses «Buat dan aktifkan», and reads what the screen answers
 async function newPerson(page, name, email) {
-  const r = await page.request.post(`${APP}/api/akun/aktivasi`, { data: { mode: "NEW_PERSON", display_name: name, email } });
-  return { status: r.status(), body: await r.json().catch(() => null) };
+  await page.goto(`${APP}/aktivasi?muat=${Date.now()}`, { waitUntil: "networkidle" });
+  const baru = page.locator("section.pin-akt-baru");
+  await baru.getByRole("heading", { name: "Orang baru di luar pendataan" }).waitFor({ timeout: 15000 });
+  await baru.getByLabel("Nama").fill(name);
+  await baru.locator('input[type="email"]').fill(email);
+  await baru.getByRole("button", { name: "Buat dan aktifkan" }).click();
+  const jawab = baru.locator('[role="status"]').first();
+  await jawab.waitFor({ timeout: 20000 });
+  const teks = norm(await jawab.innerText());
+  const ok = /pin-hasil-ok/.test((await jawab.getAttribute("class")) ?? "") && teks.includes(name) && teks.includes(email);
+  return { ok, teks };
 }
 async function grantViaForm(page, personName, roleValue, scopeLabelPart, until = "2027-06-30") {
   // a real load every time: a hash-only change on the same path keeps a stale person list
@@ -211,14 +222,18 @@ await step("S2", "Gladys finds her way to account activation from Konfigurasi", 
   return `link to /aktivasi: ${toAktivasi}; link to /studio: ${toStudio}; sign-out control: ${await hasSignOut(g)}`;
 });
 
-await step("S3", "Gladys creates the school admin (Orang baru di luar pendataan)", async (rec) => {
+await step("S3", "Gladys creates the school admin on Aktivasi by the screen: «Orang baru di luar pendataan», name and address, «Buat dan aktifkan» (J1.4, ADM-01)", async (rec) => {
   await g.goto(`${APP}/aktivasi`, { waitUntil: "networkidle" });
   rec.shots.push(await shot(g, "aktivasi-gladys"));
   const before = await mailCount(people.sdAdmin.email);
   const r = await newPerson(g, people.sdAdmin.name, people.sdAdmin.email);
+  rec.shots.push(await shot(g, "aktivasi-orang-baru"));
   const after = await mailCount(people.sdAdmin.email);
-  if (!r.body?.ok) rec.verdict = "FAIL";
-  return `HTTP ${r.status} ${JSON.stringify(r.body)}; emails sent to the new admin: ${after - before}`;
+  // the screen says what happens next: no email now; the person types the address on /masuk, and the role is given on Konfigurasi
+  const arahan = /tidak mengirim surel/.test(r.teks) && /Konfigurasi/.test(r.teks);
+  if (!r.ok || !arahan) rec.verdict = "FAIL";
+  return `pressed «Buat dan aktifkan» on «Orang baru di luar pendataan»; the screen answered "${r.teks.slice(0, 300)}"; ` +
+    `it says what comes next ${arahan}; emails sent to the new admin: ${after - before}`;
 });
 
 await step("S4", "Gladys grants Admin sekolah at SD's root (Konfigurasi → Peran & akses)", async (rec) => {
@@ -712,7 +727,7 @@ await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD",
 
 await step("S16", "Head of department: sees reports on /pimpinan", async (rec) => {
   const np = await newPerson(g, people.kaprodi.name, people.kaprodi.email);
-  if (!np.body?.ok) throw new Error(JSON.stringify(np.body));
+  if (!np.ok) throw new Error(`«Buat dan aktifkan» answered: ${np.teks.slice(0, 200)}`);
   const r = await grantViaForm(g, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
   const hc = await ctx();
   const h = await hc.newPage();
@@ -1426,6 +1441,41 @@ await step("S21e", "the same student on another device: Ani signs in on a differ
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(s, "stu-j19-berhenti"));
+    await sc.close();
+    return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
+  }
+});
+
+// D-084 J6.13 (STU-18): a student whose only chapter is finished, at the target, with nothing else waiting. The home
+// says so where the next step would stand, and does not say that something is under way today.
+await step("S21f", "a student with every chapter finished and nothing else waiting: Budi's home says «Tidak ada lagi yang menunggu» and where new work will appear, never «Ini yang sedang berjalan hari ini.» (J6.13, STU-18)", async (rec) => {
+  if (!terbitBab || !kartuKelas[1]) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "class cards missing (S20)"; }
+  const k = kartuKelas[1];
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+    await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+    await s.locator("#kartu").fill(k.number);
+    await s.locator("#pin").fill(k.pin);
+    await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+    await s.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    const habis = norm(await s.locator("#pin-habis").innerText().catch(() => ""));
+    const kepala = norm(await s.locator(".pin-head").first().innerText().catch(() => ""));
+    const panel = await s.locator("section.pin-lanjut").count();
+    const kartu = norm(await s.locator('[data-tur="daftar"] .pin-tstatus').first().innerText().catch(() => ""));
+    rec.shots.push(await shot(s, "j6-13-tidak-ada-lagi"));
+    const ok = /Tidak ada lagi yang menunggu/i.test(habis) && /akan muncul di halaman Belajar/.test(habis)
+      && !/sedang berjalan hari ini/.test(kepala) && panel === 0 && /^Selesai/.test(kartu);
+    if (!ok) rec.verdict = "FAIL";
+    await sc.close();
+    return `${k.nama} signed in with the class card and reached the home: the honest end reads "${habis}"; the heading reads "${kepala}" ` +
+      `(«sedang berjalan hari ini» ${/sedang berjalan hari ini/.test(kepala) ? "PRESENT" : "absent"}); next-step panels ${panel}; the chapter card reads "${kartu}"`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(s, "j6-13-berhenti"));
     await sc.close();
     return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
   }
