@@ -1,0 +1,184 @@
+# STAGING ONLY. L1 (D-031, D-035: 1,000 students): CAP-02, the synchronized Uji Penguasaan, and CAP-07, the
+# database's recovery after it. Never production (D-013, D-031's rules; staging's ref and database URL are checked
+# first, production's keys are never read). Never while people test on staging (D-036): it runs in the shared
+# "staging" lane.
+#
+#   mode=seed  perf/seed-l1.mjs: the L1 classes, learners, class cards and the chapter given to each class, in the
+#              synthetic school only, by its synthetic admin through PINTAR's own operations (SETUP).
+#   mode=wave  SHARDS jobs run perf/l1.mjs together at T0 (now + start_in_min); one job samples the database's
+#              figures (perf/l1-metrics.mjs); perf/l1-merge.mjs judges the run against D-031 and is red when L1 is
+#              not met.
+#
+# Staging is not yet on production's compute tier (CAP-08, Yazid's), and the card sign-in wave (CAP-01) waits for the
+# forwarding key (D-062(c)): the result says what it measured.
+
+name: staging · L1 load (CAP-02, CAP-07)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "seed (classes, learners, cards, the chapter) or wave (the synchronized test)"
+        required: true
+        default: wave
+        type: choice
+        options: [seed, wave]
+      total:
+        description: "seed: learners in all (L1 = 1000)"
+        default: "1000"
+      kelas:
+        description: "seed: classes they are spread over"
+        default: "25"
+      shards:
+        description: "wave: parallel jobs (each makes its own sessions under Auth's per-address limit)"
+        default: "16"
+      per_shard:
+        description: "wave: learners per job at most"
+        default: "63"
+      start_in_min:
+        description: "wave: minutes from now to T0 (sessions are made before it)"
+        default: "14"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+  ADMIN_EMAIL: uji-kinerja-admin@example.co
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      t0: ${{ steps.p.outputs.t0 }}
+      shards: ${{ steps.p.outputs.shards }}
+    steps:
+      - id: p
+        env:
+          SHARDS: ${{ inputs.shards }}
+          START_IN: ${{ inputs.start_in_min }}
+        run: |
+          set -euo pipefail
+          [[ "$SHARDS" =~ ^[0-9]+$ ]] && [ "$SHARDS" -ge 1 ] && [ "$SHARDS" -le 40 ] || { echo "::error::shards 1..40"; exit 1; }
+          [[ "$START_IN" =~ ^[0-9]+$ ]] && [ "$START_IN" -ge 5 ] && [ "$START_IN" -le 60 ] || { echo "::error::start_in_min 5..60"; exit 1; }
+          echo "t0=$(date -u -d "+${START_IN} minutes" +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          echo "shards=$(python3 -c "import json,sys; print(json.dumps(list(range(int(sys.argv[1])))))" "$SHARDS")" >> "$GITHUB_OUTPUT"
+
+  seed:
+    if: ${{ inputs.mode == 'seed' }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Playwright's request client (no browser)
+        working-directory: audit/perf
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+      - name: Staging's keys (masked) and database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: bash audit/perf/staging-keys.sh
+      - name: The L1 seed (SETUP, synthetic school)
+        working-directory: audit/perf
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          TOTAL: ${{ inputs.total }}
+          KELAS: ${{ inputs.kelas }}
+        run: node seed-l1.mjs
+
+  wave:
+    if: ${{ inputs.mode == 'wave' }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Staging's keys (masked) and database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: bash audit/perf/staging-keys.sh
+      - name: One shard of the wave
+        working-directory: audit/perf
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ inputs.shards }}
+          PER_SHARD: ${{ inputs.per_shard }}
+          T0: ${{ needs.plan.outputs.t0 }}
+          OUT_DIR: ${{ github.workspace }}/out
+        run: node l1.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: l1-shard-${{ matrix.shard }}
+          path: out/
+          if-no-files-found: ignore
+
+  metrics:
+    if: ${{ inputs.mode == 'wave' }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Staging's keys (masked) and database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: bash audit/perf/staging-keys.sh
+      - name: The database's figures before, during and after
+        working-directory: audit/perf
+        env:
+          T0: ${{ needs.plan.outputs.t0 }}
+          SAMPLE_MIN: "35"
+          OUT_DIR: ${{ github.workspace }}/out
+        run: node l1-metrics.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: l1-metrics
+          path: out/
+          if-no-files-found: ignore
+
+  verdict:
+    if: ${{ always() && inputs.mode == 'wave' }}
+    needs: [wave, metrics]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/download-artifact@v4
+        with:
+          path: in
+      - name: D-031's criteria
+        working-directory: audit/perf
+        env:
+          IN_DIR: ${{ github.workspace }}/in
+        run: node l1-merge.mjs
