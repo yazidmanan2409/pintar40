@@ -133,6 +133,10 @@ export default async function Belajar({
   // no authority — everything in it is genuinely startable right now.
   const terbuka = await engine.openAssessments(db);
 
+  // D-085 M3 (J5.12): what a teacher has asked this learner to read again. Its own section after the next step, so
+  // the home's order (W18, D-088(d)) is unchanged; a failed read shows nothing rather than an error.
+  const diminta = await engine.lessonReviews(db).catch(() => [] as engine.PermintaanUlang[]);
+
   // WP7C. THE FEEDBACK THIS PERSON WAS ASKED FOR, and nothing about anybody
   // else's. `my_feedback_cycles` takes no person because the person is the
   // session, and it returns no peer, no participation and no count of any
@@ -236,6 +240,31 @@ export default async function Belajar({
             locale={locale}
             persona={persona}
           />
+        ) : null}
+
+        {diminta.length > 0 ? (
+          <section className="pin-sec" id="pin-diminta" aria-labelledby="pin-diminta-judul">
+            <h2 id="pin-diminta-judul">{s("siklus.diminta.judul")}</h2>
+            {diminta.map((r) => (
+              <div className="pin-perhatian" key={r.request_id} data-permintaan={r.request_id}>
+                <span className="pin-what">{r.course_title}</span>
+                <span className="pin-why">
+                  {r.requested_by ? `${r.requested_by} ${s("siklus.diminta.meminta")}` : s("siklus.diminta.arti")}
+                </span>
+                <ul className="pin-diminta-pelajaran">
+                  {(r.lessons ?? []).map((l) => (
+                    <li key={l.lesson_id} data-dibaca={l.read ? "ya" : "belum"}>
+                      {l.read ? (
+                        <span>{l.title} · {s("siklus.diminta.sudah")}</span>
+                      ) : (
+                        <Link href={`/belajar/${r.learning_assignment_id}/pelajaran/${l.lesson_id}?ulang=${r.request_id}`}>{l.title}</Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </section>
         ) : null}
 
         {perhatian.length > 0 ? (

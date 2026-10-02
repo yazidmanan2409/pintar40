@@ -128,6 +128,20 @@ export async function saveLessonProgress(
 }
 
 /**
+ * D-085 M3 (J5.12): a lesson the teacher asked this learner to read again, read to its last page. The database
+ * checks the request is theirs and marks the lesson once; a failure only leaves it unmarked.
+ */
+export async function tandaiBacaUlang(permintaan: string, pelajaran: string) {
+  try {
+    const klien = (await supabaseServer({ tulisJikaBerubah: true })) as unknown as engine.EngineClient;
+    const { error } = await klien.rpc("record_lesson_review_read", { p_request: permintaan, p_lesson: pelajaran });
+    return { ok: !error };
+  } catch {
+    return { ok: false };
+  }
+}
+
+/**
  * START AN ASSESSMENT. A FORM POST, and that is the point.
  *
  * Screen D exists so a learner can look at an assessment before entering it,

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 160,
+  "version": 161,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2742,6 +2742,16 @@
       "id": "M10-K02",
       "runner": "static",
       "proves": "D-085 M10: a teacher corrects a locked course by uploading its corrected workbook. Executes bisaDikoreksi (src/lib/pengajar.ts): a correction is offered only for the newest locked course of a line, never a corrected one or a draft; the five correction problems are contract codes with sentences of their own. Reads the source: the workbook panel asks which course and what changed and sends both, the action refuses a reference that is not a course, the upload page honours ?revisi=, and the package page links a locked course to the upload instead of making a copy no screen edits, and lists the line's correction history"
+    },
+    {
+      "id": "M3R-S01",
+      "runner": "static",
+      "proves": "D-085 M3 (J5.12): a teacher asks the learners who need it to read again. In the database, rolled back (supabase/migrations/20261107100000): the class's teacher asks two learners placed in the class for two lessons of a chapter the class was given, audited; no learner, no lesson, another chapter's lesson, a person not placed in the class and another school's teacher are refused; the learner finds the request, each lesson is marked read once and the request closes; another learner neither sees nor marks it; the teacher reads who read what; a request is history and no client writes one"
+    },
+    {
+      "id": "M3R-K01",
+      "runner": "static",
+      "proves": "D-085 M3 (J5.12): reads the source: the teacher's screen lists the class's learners with those under the sealed target marked and first, lets the teacher choose learners and lessons, and sends them to request_lesson_review; the learner's home shows «Diminta gurumu» after the next-step panel; a lesson opened from a request marks it read on its last page"
     }
   ]
 }

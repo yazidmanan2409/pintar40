@@ -8,7 +8,7 @@ import { lessonRead } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import LessonPlayer from "../../../_components/LessonPlayer";
-import { saveLessonProgress } from "../../../actions";
+import { saveLessonProgress, tandaiBacaUlang } from "../../../actions";
 import { TeksBaris } from "@/components/teks/Teks";
 
 export const dynamic = "force-dynamic";
@@ -29,9 +29,15 @@ export const dynamic = "force-dynamic";
  * holds the page on screen, never because a save was attempted.
  */
 export default async function Pelajaran(
-  { params }: { params: Promise<{ tugas: string; pelajaran: string }> },
+  { params, searchParams }: {
+    params: Promise<{ tugas: string; pelajaran: string }>;
+    searchParams: Promise<{ ulang?: string }>;
+  },
 ) {
   const { tugas, pelajaran } = await params;
+  // D-085 M3 (J5.12): opened from a teacher's request to read again; the database checks the request is this learner's
+  const { ulang: ulangMentah } = await searchParams;
+  const ulang = ulangMentah && /^[0-9a-f-]{36}$/i.test(ulangMentah) ? ulangMentah : null;
   const locale = await currentLocale();
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   const s = (k: HleEvent) => t(k, "learner", { locale });
@@ -89,6 +95,8 @@ export default async function Pelajaran(
             personId={typeof orang === "string" ? orang : null}
             saveProgress={saveLessonProgress}
             savedNote={s("lesson.saved")}
+            ulang={ulang}
+            tandaiUlang={ulang ? tandaiBacaUlang : null}
           />
 
           <div className="pin-actions">

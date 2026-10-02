@@ -98,6 +98,12 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                         {s("mengajar.murid1.target")} {format.percent(h.batas, locale)}
                       </small>
                     ) : null}
+                    {/* D-085 M3 (J5.12): under the target on this class's Uji Penguasaan, the teacher may give material back */}
+                    {h.mode === "POST_TEST" && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi] ? (
+                      <Link className="pin-ulang-tautan" href={`/mengajar/${id}/ulang?penugasan=${catatan.tugasSesi[h.sesi]}&murid=${orang}`}>
+                        {s("mengajar.ulang.judul")}
+                      </Link>
+                    ) : null}
                   </dd>
                 </div>
               ))}

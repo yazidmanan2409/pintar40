@@ -41,6 +41,12 @@ export type LessonPlayerProps = {
     => Promise<{ ok: boolean; furthest?: number }>;
   /** W5: «Posisi bacaan tersimpan.» in the reader's language, shown only while the server holds the page on screen. */
   savedNote: string;
+  /**
+   * D-085 M3 (J5.12): opened from a teacher's request to read again. The lesson starts at its first page, whatever
+   * was reached before, and its last page marks the lesson read again, once.
+   */
+  ulang?: string | null;
+  tandaiUlang?: ((permintaan: string, pelajaran: string) => Promise<{ ok: boolean }>) | null;
 };
 
 /** `[[visual:pecahan|3/8]]` → a drawn diagram. Unknown directives render as text. */
@@ -98,6 +104,8 @@ export default function LessonPlayer(props: LessonPlayerProps) {
     const local = bacaHalaman(penyimpananPerangkat(), props.personId, props.lessonId);
     // never resume behind what the server already recorded. The server keeps
     // a count of pages reached (BOB-22); this device keeps the page index.
+    // D-085 M3: a lesson to read again starts at its beginning
+    if (props.ulang) return 0;
     return Math.min(pages.length - 1, Math.max(halamanMulai(props.startAt, pages.length), local));
   });
   const [steps, setSteps] = useState(1);
@@ -139,6 +147,15 @@ export default function LessonPlayer(props: LessonPlayerProps) {
     };
     void save(tugas, pelajaran, posisi, total).then(selesai, () => selesai(null));
   }, [page]);
+
+  // D-085 M3 (J5.12): the last page of a lesson opened from a request marks it read again, once
+  const ulangDitandai = useRef(false);
+  useEffect(() => {
+    const { ulang, tandaiUlang, lessonId } = props;
+    if (!ulang || !tandaiUlang || ulangDitandai.current || page < pages.length - 1) return;
+    ulangDitandai.current = true;
+    void tandaiUlang(ulang, lessonId).then((h) => { if (!h.ok) ulangDitandai.current = false; }, () => { ulangDitandai.current = false; });
+  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps -- once per page reached, as the save above
 
   const example = props.workedExamples[0];
   const langkah = example?.langkah ?? [];

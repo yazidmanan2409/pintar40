@@ -115,6 +115,10 @@ export default function KeadaanHariIni({
               {k.kumpul > 0 ? (
                 <> · <a href={`/mengajar/${kelas}/soal?penugasan=${a.id}`}>{s("mengajar.bukti.per_soal")}</a></>
               ) : null}
+              {/* D-085 M3 (J5.12): once an Uji Penguasaan is handed in, the teacher may ask some learners to read again */}
+              {k.kumpul > 0 && a.mode === "POST_TEST" ? (
+                <> · <a href={`/mengajar/${kelas}/ulang?penugasan=${a.id}`}>{s("mengajar.ulang.judul")}</a></>
+              ) : null}
             </p>
           ) : null}
         </div>

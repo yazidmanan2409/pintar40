@@ -291,6 +291,7 @@ const RESET_SURFACES = [
   // D-088(k), M5: which questions the class found hard. Built on the token set
   // and the shared pin-* classes from the start.
   "src/app/mengajar/[kelas]/soal/page.tsx",
+  "src/app/mengajar/[kelas]/ulang/page.tsx",
   // UX-1 login. Re-set from the canonical login handoff against baseline
   // bff6897e; the sign-in screen and the magic-link callback are now Experience
   // surfaces and are linted as such.
@@ -1325,6 +1326,11 @@ export const experienceTests: SelfTest[] = [
       // bodies and the academic source guard; no table, no column, no colour,
       // mark or brand surface.
       //
+      // MOVED 143 -> 144 for D-085 M3 (J5.12): a teacher asks learners to read again.
+      // 20261107100000 adds the request and its lessons (history, read through
+      // their functions), three functions and four registry rows; no colour,
+      // mark or brand surface.
+      //
       // MOVED 142 -> 143 for D-085 M10: a correction arrives in its line.
       // 20261106100000 adds which course a workbook corrects and why to the batch,
       // the correction's summary table, its problems and the line pointer at
@@ -1551,7 +1557,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 143, `${migrations.length} migrations; the frozen baseline has 143`);
+      c.expect(migrations.length === 144, `${migrations.length} migrations; the frozen baseline has 144`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2335,7 +2341,9 @@ export const experienceTests: SelfTest[] = [
       const aksi = code(readFileSync(aksiPath, "utf8"));
       c.expect(/^"use server";/m.test(aksi), "the educator actions are not a server module");
       const exported = [...aksi.matchAll(/export async function (\w+)/g)].map((m) => m[1]);
-      c.expect(exported.length === 2, `${exported.length} exported educator action(s); the surface commits two things`);
+      // RESTATED for D-085 M3 (J5.12): the teacher's request to read again is a third commitment, ruled by the owner
+      // and made by a form action (mintaBacaUlang) like the other two; nothing else changed in what this checks
+      c.expect(exported.length === 3, `${exported.length} exported educator action(s); the surface commits three things`);
       for (const name of exported) {
         const used = pages.some((f) => new RegExp(`action=\\{${name}\\}`).test(readFileSync(f, "utf8")));
         c.expect(used, `the action ${name} is exported but no form submits it`);
@@ -2371,7 +2379,7 @@ export const experienceTests: SelfTest[] = [
       c.note(`${pages.length} page(s) swept, ${exported.length} action(s), 2 plants caught`);
       return c.verdict(
         "no page on the educator surface writes anything while rendering — the scanner is watched to catch a planted insert " +
-        "and a planted launcher — both stages before a commitment are GET renders of the query string, the only two writes " +
+        "and a planted launcher — both stages before a commitment are GET renders of the query string, the only three writes " +
         "are server actions reached by a form and never by a link, an assignment is created inert and activated in its own " +
         "separately authorized statement, and no redirect target comes from the form",
       );
@@ -3208,7 +3216,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 142 -> 143 for D-085 M10's correction upload
+      // from, not a claim about the tour. MOVED 143 -> 144 for D-085 M3's request to read again
+      // (20261107100000), not a tour RPC (D-024). MOVED 142 -> 143 for D-085 M10's correction upload
       // (20261106100000), not a tour RPC (D-024). MOVED 141 -> 142 for D-085 M10's sealed test marks
       // (20261105100000), not a tour RPC (D-024). MOVED 140 -> 141 for D-085 T2's chosen Uji Cepat
       // (20261104100000), not a tour RPC (D-024). MOVED 139 -> 140 for D-085 M6's PINTAR chapter read
@@ -3283,7 +3292,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 143, `${migs.length} migrations; the baseline has 143`);
+      c.expect(migs.length === 144, `${migs.length} migrations; the baseline has 144`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

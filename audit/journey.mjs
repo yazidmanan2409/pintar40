@@ -1535,6 +1535,114 @@ await step("S22", "the teacher reaches Lihat bukti by clicking and reads the cla
     `Mengumpulkan ${JSON.stringify(kumpul)}; the figures section says: "${simpulan.slice(0, 700)}"`;
 });
 
+// D-085 M3 (J5.12): the teacher may give material back to the learners who need it. From «Lihat bukti», Bab 1's Uji
+// Penguasaan leads to «Minta membaca lagi»: Eka (4 of 8, under the school's 60%) is listed first and ticked, the others
+// not; the teacher keeps two lessons and sends it. Eka finds «Diminta guru Anda» on her home, opens the first lesson
+// from it, which starts at its first page although she had read it, reads to its last page, and it reads «sudah dibaca
+// lagi»; the teacher's page counts one of two read.
+await step("S22b", "the teacher asks the learner under the target to read two lessons again from «Lihat bukti»; she finds the request on her home, reads the first lesson again from its first page to its last, and the teacher sees it counted (D-085 M3, J5.12)", async (rec) => {
+  const kelas = kelasSatuA();
+  const k = kartuKelas.find((x) => x.nama === MURID[MURID.length - 1]);
+  if (!terbitBab || !kelas || !k) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Kelas 1A or no card for Eka Murid"; }
+  const eka = sql(`select e.person_id from public.enrollments e join public.persons p on p.id = e.person_id
+    where p.display_name = 'Eka Murid' and e.institution_id = '${ids.sd}' limit 1`).trim();
+  const notes = [];
+  let permintaan = "";
+  const tc = await ctx();
+  const t = await tc.newPage();
+  try {
+    await magicSignIn(t, people.guru.email);
+    await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+    await tutupTur(t);
+    const ke = t.locator(`a[href^="/mengajar/${kelas}/ulang?penugasan="]`);
+    if (!(await ke.count())) {
+      rec.verdict = (await bodyText(t)).includes("Lihat per soal") ? "FAIL" : "NOTE";
+      return rec.verdict === "NOTE" ? "this candidate has no «Minta membaca lagi» (before D-085 M3's request to read again)" : "«Lihat bukti» offers no «Minta membaca lagi» for Bab 1's Uji Penguasaan";
+    }
+    await ke.first().click();
+    await t.waitForURL((u) => u.pathname === `/mengajar/${kelas}/ulang`, { timeout: SLOW });
+    await t.locator("h1").first().waitFor({ timeout: SLOW });
+    const pertama = await t.locator("li[data-murid]").first().getAttribute("data-murid");
+    const dicentang = await t.locator('input[name="murid"]:checked').evaluateAll((es) => es.map((e) => e.value));
+    const tanda = norm(await t.locator(`li[data-murid="${eka}"]`).innerText().catch(() => ""));
+    rec.shots.push(await shot(t, "m3-ulang-pilih"));
+    notes.push(`listed first: Eka ${pertama === eka}; ticked by default: ${dicentang.length === 1 && dicentang[0] === eka ? "Eka only" : JSON.stringify(dicentang.length)}; her line reads "${tanda}"`);
+    if (pertama !== eka || dicentang.length !== 1 || dicentang[0] !== eka || !/di bawah target/i.test(tanda)) rec.verdict = "FAIL";
+    const pel = t.locator('input[name="pelajaran"]');
+    const nPel = await pel.count();
+    for (let i = 2; i < nPel; i++) await pel.nth(i).uncheck();
+    await t.getByRole("button", { name: "Minta membaca lagi", exact: true }).click();
+    await t.waitForURL((u) => u.searchParams.get("ulang") !== null, { timeout: SLOW }).catch(() => {});
+    await t.waitForLoadState("networkidle");
+    const terkirim = /Permintaan dikirim kepada 1 murid/.test(await bodyText(t));
+    rec.shots.push(await shot(t, "m3-ulang-terkirim"));
+    const r = sql(`select r.id || '|' || (select count(*) from public.lesson_review_items i where i.request_id = r.id)
+      from public.lesson_review_requests r where r.person_id = '${eka}' order by r.requested_at desc limit 1`).trim();
+    permintaan = r.split("|")[0];
+    notes.push(`sent: ${terkirim}; recorded: ${r ? `${r.split("|")[1]} lesson(s)` : "nothing"} of ${nPel}`);
+    if (!terkirim || r.split("|")[1] !== "2") { rec.verdict = "FAIL"; return notes.join("; "); }
+  } finally {
+    await tc.close();
+  }
+
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+    await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+    await s.locator("#kartu").fill(k.number);
+    await s.locator("#pin").fill(k.pin);
+    await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+    await s.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    const tautan = s.locator(`#pin-diminta a[href*="?ulang=${permintaan}"]`);
+    const ada = await tautan.count();
+    rec.shots.push(await shot(s, "m3-ulang-beranda"));
+    notes.push(`her home asks her to read ${ada} lesson(s) again`);
+    if (ada !== 2) { rec.verdict = "FAIL"; return notes.join("; "); }
+    await tautan.first().click();
+    await s.waitForURL((u) => u.pathname.includes("/pelajaran/"), { timeout: SLOW });
+    await s.locator("h1").first().waitFor({ timeout: SLOW });
+    const awal = norm(await s.locator("p.pin-lpos").first().innerText().catch(() => ""));
+    for (let i = 0; i < 30; i++) {
+      const lanjut = s.getByRole("button", { name: "Halaman berikutnya", exact: true });
+      if (!(await lanjut.isEnabled().catch(() => false))) break;
+      await lanjut.click();
+      await s.waitForTimeout(300);
+    }
+    const akhir = norm(await s.locator("p.pin-lpos").first().innerText().catch(() => ""));
+    let dibaca = "0";
+    for (let i = 0; i < 20 && dibaca === "0"; i++) {
+      await s.waitForTimeout(500);
+      dibaca = sql(`select count(*) from public.lesson_review_items where request_id = '${permintaan}' and read_at is not null`).trim();
+    }
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    const tandaBeranda = await s.locator(`#pin-diminta li[data-dibaca="ya"]`).count();
+    rec.shots.push(await shot(s, "m3-ulang-dibaca"));
+    notes.push(`the lesson opened at "${awal}" and was read to "${akhir}"; marked read again: ${dibaca}; her home shows ${tandaBeranda} read`);
+    if (!/^Halaman 1\//.test(awal) || dibaca !== "1" || tandaBeranda !== 1) rec.verdict = "FAIL";
+  } finally {
+    await sc.close();
+  }
+
+  const tc2 = await ctx();
+  const t2 = await tc2.newPage();
+  try {
+    await magicSignIn(t2, people.guru.email);
+    const p = sql(`select aa.id from public.assessment_assignments aa join public.lesson_review_requests r on r.learning_assignment_id = aa.learning_assignment_id
+      join public.assessment_definitions d on d.id = aa.assessment_definition_id where r.id = '${permintaan}' and d.mode = 'POST_TEST' limit 1`).trim();
+    await t2.goto(`${APP}/mengajar/${kelas}/ulang?penugasan=${p}`, { waitUntil: "networkidle" });
+    const baris = norm(await t2.locator(`[data-permintaan="${eka}"]`).first().innerText().catch(() => ""));
+    rec.shots.push(await shot(t2, "m3-ulang-guru"));
+    notes.push(`the teacher reads "${baris}"`);
+    if (!/1 dari 2/.test(baris)) rec.verdict = "FAIL";
+  } finally {
+    await tc2.close();
+  }
+  return notes.join("; ");
+});
+
 await step("S23", "the head of department reads Kelas 1A's figures beside the class's size on /pimpinan, opens and prints the class's report and comes back, reads their department's roster and opens a learner's record from it (HOD-09, X-10, HOD-J05, HOD-J06, HOD-J09)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const hc = await ctx();

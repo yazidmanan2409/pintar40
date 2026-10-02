@@ -7,6 +7,7 @@ import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
 import { batasHari } from "@/lib/hle";
 import { alamatTolakUjiCepat, kodeUjiCepat } from "@/lib/ujicepat-kontrak";
 import { rujukan } from "@/lib/galat-kontrak";
+import { kodeUlang } from "@/lib/ulang-kontrak";
 
 /**
  * THE EDUCATOR'S COMMITMENTS — every write the Slice-3 surface can make, and
@@ -140,4 +141,38 @@ export async function sediakanUjiCepat(formData: FormData): Promise<void> {
     ke(kelasId, alamatTolakUjiCepat(kode, pilihan, ref));
   }
   ke(kelasId, "/uji-cepat?cepat=ok");
+}
+
+/**
+ * D-085 M3 (J5.12): «Minta membaca lagi». The learners and lessons the teacher ticked go to request_lesson_review,
+ * which decides again: the class's own teacher, learners placed in the class now, lessons of that chapter. A refusal
+ * comes back as its code (PR050 with REVIEW_* in DETAIL), one nobody named with a reference the server log carries.
+ */
+export async function mintaBacaUlang(formData: FormData): Promise<void> {
+  const kelasId = bersih(formData.get("kelas"));
+  const penugasan = bersih(formData.get("penugasan"));
+  const tugas = bersih(formData.get("tugas"));
+  if (!kelasId) redirect("/mengajar");
+  if (!UUID.test(tugas) || !UUID.test(penugasan)) ke(kelasId, "/bukti");
+  const pilih = (k: string) => [...new Set(formData.getAll(k).map((v) => bersih(v)).filter((x) => UUID.test(x)))];
+  const murid = pilih("murid");
+  const pelajaran = pilih("pelajaran");
+
+  const db = (await supabaseServer()) as any;
+  const { data, error } = await db.rpc("request_lesson_review", { p_learning_assignment: tugas, p_people: murid, p_lessons: pelajaran });
+  const q = new URLSearchParams({ penugasan });
+  if (error) {
+    const kode = kodeUlang(error);
+    q.set("ulang", "gagal");
+    q.set("kode", kode);
+    if (kode === "REVIEW_FAILED") {
+      const ref = rujukan();
+      console.error(`[ulang ${ref}] request_lesson_review failed`, error.code, error.message);
+      q.set("ref", ref);
+    }
+  } else {
+    q.set("ulang", "ok");
+    q.set("n", String(Number(data) || 0));
+  }
+  ke(kelasId, `/ulang?${q.toString()}`);
 }

@@ -707,6 +707,8 @@ export type CatatanMurid = {
   tugas: Array<{ id: string; judul: string; mode: string; keadaan: KeadaanMurid }>;
   hasil: Amplop;
   daftarHasil: HasilResmi[];
+  /** D-085 M3 (J5.12): each of the learner's sittings in this class, by the assessment it belongs to. */
+  tugasSesi: Record<string, string>;
 };
 
 export async function catatanMurid(kelasId: string, institusi: string, orang: string): Promise<CatatanMurid> {
@@ -749,6 +751,7 @@ export function susunCatatan(
     ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown }>)
     : [];
   return {
+    tugasSesi: Object.fromEntries(milikNya.map((x) => [x.id, x.assessment_assignment_id])),
     tugas: tugas.map((x) => ({
       id: x.id, judul: x.judul, mode: x.mode,
       keadaan: keadaanSatu(orang, milikNya.filter((y) => y.assessment_assignment_id === x.id)),
@@ -795,6 +798,117 @@ export async function batasUjiCepat(): Promise<BatasUjiCepat | null> {
 
 /** The minute windows the surface offers. Inside the RPC's own 5–60 bound. */
 export const JENDELA_MENIT = [10, 15, 30] as const;
+
+// ═════════════════════════════════════════ 5b. asking learners to read again
+
+/**
+ * D-085 M3 (J5.12): the teacher may give existing material back to the learners who need it. One row per learner
+ * of the class: under the chapter's sealed target on their latest finished Uji Penguasaan («bawah»), not finished
+ * yet («belum»), or at or over it («capai»). Recorded mastery and the sealed mark only: no second definition of
+ * mastery (D-086(b)).
+ */
+export type BarisUlang = { id: string; nama: string; penguasaan: number | null; status: "bawah" | "belum" | "capai" };
+
+/** Pure: those under the target first (lowest first), then those not finished, then the rest; by name within each. */
+export function urutUlang(
+  murid: ReadonlyArray<{ id: string; nama: string }>,
+  penguasaan: ReadonlyMap<string, number | null>,
+  batas: number | null,
+): BarisUlang[] {
+  const peringkat = { bawah: 0, belum: 1, capai: 2 } as const;
+  return murid
+    .map((m): BarisUlang => {
+      const p = penguasaan.has(m.id) ? penguasaan.get(m.id) ?? null : null;
+      const status = p === null ? "belum" : batas !== null && p < batas ? "bawah" : "capai";
+      return { id: m.id, nama: m.nama, penguasaan: p, status };
+    })
+    .sort((a, b) => peringkat[a.status] - peringkat[b.status]
+      || (a.status === "bawah" ? (a.penguasaan ?? 0) - (b.penguasaan ?? 0) : 0)
+      || a.nama.localeCompare(b.nama));
+}
+
+export type BahanUlang = {
+  /** The learning assignment (the chapter as given to the class) and the Uji Penguasaan it was reached from. */
+  tugas: string;
+  penugasan: string;
+  judul: string;
+  batas: number | null;
+  murid: BarisUlang[];
+  pelajaran: Array<{ id: string; judul: string }>;
+  permintaan: Array<{ id: string; orang: string; nama: string; kapan: string; dibaca: number; jumlah: number }>;
+};
+
+/**
+ * What «Minta membaca lagi» needs, from an Uji Penguasaan of this class: the chapter, its sealed mark, the class's
+ * learners with their latest recorded mastery on it (through the catalogue's `learner.result`, as the learner's
+ * record reads it), the chapter's lessons, and the requests already made. Null when the assessment is not this
+ * class's Uji Penguasaan.
+ */
+export async function bahanUlang(kelasId: string, institusi: string, penugasan: string): Promise<BahanUlang | null> {
+  const c = await db();
+  const { data: aaRows } = await c.from("assessment_assignments")
+    .select("id, node_id, pass_mark, learning_assignment_id, definition:assessment_definitions(mode)")
+    .eq("id", penugasan).eq("node_id", kelasId).limit(1);
+  type BarisAa = { id: string; pass_mark: number | string | null; learning_assignment_id: string | null; definition: { mode: string } | null };
+  const aa = rows<BarisAa>(aaRows)[0];
+  if (!aa || !aa.learning_assignment_id || aa.definition?.mode !== "POST_TEST") return null;
+  const { data: laRows } = await c.from("learning_assignments").select("id, course_id, plp_release_id").eq("id", aa.learning_assignment_id).limit(1);
+  const la = rows<{ id: string; course_id: string; plp_release_id: string }>(laRows)[0];
+  if (!la) return null;
+
+  const [fakta, { data: sesi }, { data: kursus }, { data: mods }, { data: minta }] = await Promise.all([
+    faktaKelas(kelasId),
+    c.from("assessment_sessions").select("id, person_id, finalized_at").eq("assessment_assignment_id", aa.id).eq("status", "FINALIZED"),
+    c.from("courses").select("title").eq("id", la.course_id).limit(1),
+    c.from("modules").select("id, ordinal, lessons(id, ordinal, title)").eq("course_id", la.course_id),
+    c.from("lesson_review_requests").select("id, person_id, requested_at, items:lesson_review_items(lesson_id, read_at)")
+      .eq("learning_assignment_id", la.id).order("requested_at", { ascending: false }),
+  ]);
+
+  // the chapter's lessons, in order: the school's own course, or a PINTAR chapter's outline (M6)
+  type Mod = { ordinal: number; lessons: Array<{ id: string; ordinal: number; title: string }> };
+  let pelajaran = rows<Mod>(mods).sort((a, b) => a.ordinal - b.ordinal)
+    .flatMap((m) => [...(m.lessons ?? [])].sort((a, b) => a.ordinal - b.ordinal).map((l) => ({ id: l.id, judul: l.title })));
+  let judul = rows<{ title: string }>(kursus)[0]?.title ?? "";
+  if (pelajaran.length === 0) {
+    const { data: garis } = await c.rpc("distributed_release_outline", { p_release: la.plp_release_id });
+    const g = rows<{ module_ordinal: number; lesson_id: string | null; lesson_ordinal: number; lesson_title: string }>(garis)
+      .filter((x) => x.lesson_id);
+    pelajaran = g.sort((a, b) => a.module_ordinal - b.module_ordinal || a.lesson_ordinal - b.lesson_ordinal)
+      .map((x) => ({ id: x.lesson_id as string, judul: x.lesson_title }));
+    if (!judul) judul = (await terbitan(institusi)).find((t) => t.id === la.plp_release_id)?.kursus ?? "";
+  }
+
+  // each learner's latest finished attempt, and the mastery the catalogue records for it
+  const terakhir = new Map<string, { id: string; at: string }>();
+  for (const x of rows<{ id: string; person_id: string; finalized_at: string | null }>(sesi)) {
+    const kini = terakhir.get(x.person_id);
+    if (!kini || String(x.finalized_at ?? "") > kini.at) terakhir.set(x.person_id, { id: x.id, at: String(x.finalized_at ?? "") });
+  }
+  const penguasaan = new Map<string, number | null>();
+  await Promise.all(fakta.murid.filter((m) => terakhir.has(m.id)).map(async (m) => {
+    const { data: amplop, error } = await c.rpc("metric_evaluate", { p_metric_id: "learner.result", p_node: m.id, p_institution: institusi });
+    const nilai = !error && amplop && (amplop as Amplop).status === "ok" && Array.isArray((amplop as Amplop).value)
+      ? ((amplop as Amplop).value as Array<{ session_id?: unknown; mastery?: unknown }>) : [];
+    const v = nilai.find((r) => String(r.session_id ?? "") === terakhir.get(m.id)?.id)?.mastery;
+    penguasaan.set(m.id, typeof v === "number" ? v : v == null ? null : Number(v));
+  }));
+  const batas = aa.pass_mark == null ? null : Number(aa.pass_mark);
+  const nama = new Map(fakta.murid.map((m) => [m.id, m.nama]));
+  type BarisMinta = { id: string; person_id: string; requested_at: string; items: Array<{ lesson_id: string; read_at: string | null }> | null };
+  return {
+    tugas: la.id,
+    penugasan: aa.id,
+    judul,
+    batas,
+    murid: urutUlang(fakta.murid, penguasaan, batas),
+    pelajaran,
+    permintaan: rows<BarisMinta>(minta).map((r) => ({
+      id: r.id, orang: r.person_id, nama: nama.get(r.person_id) ?? "—", kapan: r.requested_at,
+      dibaca: (r.items ?? []).filter((i) => i.read_at).length, jumlah: (r.items ?? []).length,
+    })),
+  };
+}
 
 // ═══════════════════════════════════════════════════════════ 6. the evidence
 

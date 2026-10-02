@@ -16,6 +16,26 @@ export type HleEvent =
   | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.kosong"
   | "mengajar.bukti.per_soal" | "mengajar.soal.judul" | "mengajar.soal.arti" | "mengajar.soal.terkumpul" | "mengajar.soal.dari" | "mengajar.soal.tepat"
   | "mengajar.soal.kunci" | "mengajar.soal.bantuan" | "mengajar.soal.semua_tepat" | "mengajar.soal.kosong" | "mengajar.soal.tidak_dijawab" | "mengajar.soal.kembali"
+  | "mengajar.ulang.judul"
+  | "mengajar.ulang.arti"
+  | "mengajar.ulang.murid"
+  | "mengajar.ulang.murid_kosong"
+  | "mengajar.ulang.belum_uji"
+  | "mengajar.ulang.pelajaran"
+  | "mengajar.ulang.tidak_berubah"
+  | "mengajar.ulang.kirim"
+  | "mengajar.ulang.terkirim"
+  | "mengajar.ulang.riwayat"
+  | "mengajar.ulang.riwayat_kosong"
+  | "mengajar.ulang.dibaca"
+  | "mengajar.ulang.tolak.review_no_learner"
+  | "mengajar.ulang.tolak.review_no_lesson"
+  | "mengajar.ulang.tolak.review_too_many"
+  | "mengajar.ulang.tolak.review_not_in_class"
+  | "mengajar.ulang.tolak.review_lesson_not_in_chapter"
+  | "mengajar.ulang.tolak.review_assignment_closed"
+  | "mengajar.ulang.tolak.review_not_allowed"
+  | "mengajar.ulang.tolak.review_failed"
   | "jenis.mode.PRE_TEST" | "jenis.mode.POST_TEST" | "jenis.mode.QUICK"
   | "jenis.mode.STANDALONE" | "jenis.mode.PRACTICE" | "jenis.mode.TEST"
   | "jenis.mode.EXAM" | "jenis.mode.PUBLIC_DEMO" | "jenis.mode.PAPER"
@@ -678,6 +698,10 @@ export type HleEvent =
   | "siklus.aksi.hasil"
   | "siklus.siap.judul"
   | "siklus.siap.arti"
+  | "siklus.diminta.judul"
+  | "siklus.diminta.meminta"
+  | "siklus.diminta.arti"
+  | "siklus.diminta.sudah"
   | "siklus.milik_anda"
   | "siklus.terbuka"
   | "siklus.buka"
@@ -1520,6 +1544,26 @@ const table: Table = {
   "mengajar.soal.bantuan": { default: "Murid yang mungkin perlu bantuan pada soal ini", en: "Learners who may need help with this question" },
   "mengajar.soal.semua_tepat": { default: "Semua yang mengumpulkan menjawab soal ini dengan tepat.", en: "Everyone who handed in answered this question rightly." },
   "mengajar.soal.kosong": { default: "Belum ada jawaban yang dikumpulkan untuk penilaian ini.", en: "No answers have been handed in for this assessment yet." },
+  "mengajar.ulang.judul": { default: "Minta membaca lagi", en: "Ask to read again" },
+  "mengajar.ulang.arti": { default: "Pilih murid yang perlu bantuan dan pelajaran yang perlu mereka baca lagi. Mereka akan menemukan permintaan ini di beranda mereka.", en: "Choose the learners who need support and the lessons they should read again. They will find the request on their home page." },
+  "mengajar.ulang.murid": { default: "Murid", en: "Learners" },
+  "mengajar.ulang.murid_kosong": { default: "Belum ada murid di kelas ini.", en: "There are no learners in this class yet." },
+  "mengajar.ulang.belum_uji": { default: "belum menyelesaikan Uji Penguasaan", en: "has not finished the Uji Penguasaan" },
+  "mengajar.ulang.pelajaran": { default: "Pelajaran untuk dibaca lagi", en: "Lessons to read again" },
+  "mengajar.ulang.tidak_berubah": { default: "Hasil murid tidak berubah, dan tidak ada tes baru.", en: "The learners' results do not change, and there is no new test." },
+  "mengajar.ulang.kirim": { default: "Minta membaca lagi", en: "Ask to read again" },
+  "mengajar.ulang.terkirim": { default: "Permintaan dikirim kepada", en: "Request sent to" },
+  "mengajar.ulang.riwayat": { default: "Permintaan yang sudah dikirim", en: "Requests already sent" },
+  "mengajar.ulang.riwayat_kosong": { default: "Belum ada permintaan untuk bab ini.", en: "No requests for this chapter yet." },
+  "mengajar.ulang.dibaca": { default: "pelajaran sudah dibaca lagi", en: "lessons read again" },
+  "mengajar.ulang.tolak.review_no_learner": { default: "Pilih sedikitnya satu murid.", en: "Choose at least one learner." },
+  "mengajar.ulang.tolak.review_no_lesson": { default: "Pilih sedikitnya satu pelajaran.", en: "Choose at least one lesson." },
+  "mengajar.ulang.tolak.review_too_many": { default: "Terlalu banyak sekaligus: paling banyak 60 murid dan 30 pelajaran.", en: "Too many at once: at most 60 learners and 30 lessons." },
+  "mengajar.ulang.tolak.review_not_in_class": { default: "Ada murid yang tidak lagi berada di kelas ini. Muat ulang halaman, lalu pilih lagi.", en: "A learner is no longer in this class. Reload the page and choose again." },
+  "mengajar.ulang.tolak.review_lesson_not_in_chapter": { default: "Ada pelajaran yang bukan bagian dari bab ini.", en: "A lesson is not part of this chapter." },
+  "mengajar.ulang.tolak.review_assignment_closed": { default: "Bab ini tidak lagi diberikan kepada kelas.", en: "This chapter is no longer given to the class." },
+  "mengajar.ulang.tolak.review_not_allowed": { default: "Hanya guru kelas ini yang dapat meminta muridnya membaca lagi.", en: "Only this class's teacher can ask its learners to read again." },
+  "mengajar.ulang.tolak.review_failed": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
   "mengajar.soal.tidak_dijawab": { default: "tidak dijawab", en: "not answered" },
   "mengajar.soal.kembali": { default: "Lihat bukti", en: "Evidence" },
   "jenis.bank.TEST": { default: "Penilaian", en: "Assessment" },
@@ -2553,6 +2597,10 @@ const table: Table = {
   // DAISY-26 (UX-22): what the section holds, not «Perlu perhatian», which read as a problem; each row says why it is ready
   "siklus.siap.judul": { default: "Siap untuk Uji Penguasaan", en: "Ready for the Mastery Check" },
   "siklus.siap.arti": { default: "Semua pelajaran sudah dibaca.", en: "Every lesson has been read." },
+  "siklus.diminta.judul": { default: "Diminta guru Anda", en: "Your teacher's request" },
+  "siklus.diminta.meminta": { default: "meminta Anda membaca lagi:", en: "asked you to read these again:" },
+  "siklus.diminta.arti": { default: "Guru Anda meminta Anda membaca lagi:", en: "Your teacher asked you to read these again:" },
+  "siklus.diminta.sudah": { default: "sudah dibaca lagi", en: "read again" },
   "siklus.milik_anda": { default: "Pembelajaran Anda", en: "Your learning" },
   "siklus.terbuka": { default: "Bisa dikerjakan sekarang", en: "You can do these now" },
   "siklus.buka": { default: "Buka", en: "Open" },
