@@ -1187,6 +1187,27 @@ CHANGES_V21.append("2 Oct, v2.5, later: the L1 load on staging (run 36964437916,
                    "connection pool exhausted); CAP-07 N-T → PARTIAL (the database back at baseline in 194 s). P0 PASS "
                    "stays 76.")
 
+# --- 2 Oct, later still: D-089, the L1 result stands; compute stays Micro; no rerun now ---
+CURRENT.update({
+    "CAP-08": ("PARTIAL: staging (pintar-staging) and production are both on Micro (60 connections, 1 GB, 2 shared cores; "
+               "staging read 2 Oct). The L1 run on staging's Micro failed D-031 at 1,000 learners (run 36964437916). The tier "
+               "is a pre-production capacity decision, made on capacity testing before production; the upgrade follows a "
+               "successful result (D-089). Initial testing is held to 50 people at once."),
+})
+VERDICT_NOW = VERDICT_NOW.replace(
+    "production's compute tier (CAP-08); what changes before the L1 load is run again (it failed on staging: answer save "
+    "p95 11.7 s, server errors 0.133%, the database's CPU at 98%): staging's tier, the assistance poll, or both; ",
+    "the compute tier before production (CAP-08, D-089: Micro failed L1 at 1,000 learners; the upgrade follows a "
+    "successful capacity test; initial testing held to 50 people at once); ", 1)
+VERDICT_NOW = VERDICT_NOW.replace(
+    "; the L1 harness made faithful to the player (resend a failed save as the outbox does; judge pool exhaustion on its "
+    "own) before the rerun (CAP-01 after the forwarding key).",
+    "; the L1 rerun waits for the compute decision, with the harness unchanged so it stays comparable (D-089; CAP-01 "
+    "after the forwarding key).", 1)
+CHANGES_V21.append("2 Oct, v2.5, D-089: the L1 result stands as evidence that Micro does not meet D-031 at 1,000 "
+                   "synchronized students; no rerun now; staging and production stay on Micro; CAP-08 is decided before "
+                   "production on capacity testing; initial testing held to 50 people at once.")
+
 def as_dict():
     g = globals()
     return {
