@@ -94,6 +94,15 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     );
   }
 
+  // A school administrator's enrolments and audit trail are their own schools'. The policies return exactly those
+  // rows (has_scope('INSTITUTION_ADMIN', ...) holds only for a school the viewer administers), but asked without the
+  // schools named the database checks the policy on every row of every school, and the cost grows with the whole
+  // platform's history. Named, it reads the (institution_id, ...) indexes. Measured as gs-001's administrator on
+  // staging (whole-system efficiency audit, 2 Oct): the audit trail 1,979 ms -> 15 ms, the enrolments 490 -> 6 ms,
+  // the same rows. The platform administrator's reads are unchanged.
+  const enrolmen = supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status").eq("status", "ACTIVE");
+  const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha");
+
   const [
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
     { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint, error: lintError }, { data: env },
@@ -102,10 +111,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
     supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").order("name"),
-    supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status").eq("status", "ACTIVE").order("created_at"),
+    (isSys === true ? enrolmen : enrolmen.in("institution_id", adminInstitutionIds)).order("created_at"),
     supabase.from("transfers").select("id, person_id, from_institution_id, to_institution_id, status, reason, created_at").order("created_at", { ascending: false }).limit(50),
     supabase.from("role_assignments").select("id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at").is("revoked_at", null).order("created_at", { ascending: false }),
-    supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha").order("at", { ascending: false }).limit(50),
+    (isSys === true ? jejak : jejak.in("institution_id", adminInstitutionIds)).order("at", { ascending: false }).limit(50),
     supabase.from("feature_flags").select("key, institution_id, enabled, note").order("key"),
     supabase.from("platform_config").select("key, value"),
     // BOB-18 (D-046): the schema lint runs when an operator asks for it, never

@@ -10,6 +10,13 @@
  *   EFF-K01  tanyaBerkala (src/lib/tanya-berkala.ts) with a slow ask never has two in flight and asks fewer times
  *            than a bare timer would; with a fast ask it asks once per tick, as a bare timer does; stopped, it asks
  *            no more. The question player's assistance check goes through it, and no bare timer is left there.
+ *
+ * WHOLE-SYSTEM AUDIT (2 Oct) -- A SCHOOL ADMINISTRATOR'S LISTS NAME THEIR SCHOOLS.
+ *
+ *   EFF-K02  Konfigurasi (src/app/konfigurasi/page.tsx) reads the enrolments and the audit trail of the schools the
+ *            viewer administers, named, unless the viewer is the platform administrator; neither is read unnamed for a
+ *            school administrator. (The policies return the same rows either way; unnamed, every row of every school
+ *            is checked: 1,979 ms against 15 ms for the audit trail as gs-001's administrator on staging.)
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -71,6 +78,26 @@ export const effTests: SelfTest[] = [
           `${lambat.tanya} times in 700 ms where a bare timer asked ${lambatLama.tanya} with ${lambatLama.puncak} in flight; ` +
           `with a fast ask it asked ${cepat.tanya} times against ${cepatLama.tanya}; stopped, it asked no more; reads the question ` +
           "player (src/app/belajar/_components/ItemPlayer.tsx): its assistance check goes through it every 5 s",
+      );
+    },
+  },
+  {
+    id: "EFF-K02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const halaman = readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8");
+      for (const [nama, tabel] of [["enrolmen", "enrollments"], ["jejak", "audit_log"]] as const) {
+        c.expect(new RegExp(`const ${nama} = supabase\\.from\\("${tabel}"\\)`).test(halaman),
+          `Konfigurasi does not read ${tabel} through «${nama}»`);
+        c.expect(new RegExp(`\\(isSys === true \\? ${nama} : ${nama}\\.in\\("institution_id", adminInstitutionIds\\)\\)`).test(halaman),
+          `Konfigurasi reads ${tabel} without naming the administrator's schools`);
+        c.expect((halaman.match(new RegExp(`from\\("${tabel}"\\)`, "g")) ?? []).length === 1,
+          `Konfigurasi reads ${tabel} more than once`);
+      }
+      return c.verdict(
+        "reads Konfigurasi (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read " +
+          "for the schools they administer, named (the platform administrator's unchanged), each read once",
       );
     },
   },
